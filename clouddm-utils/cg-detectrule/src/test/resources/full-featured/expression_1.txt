@@ -1,0 +1,426 @@
+// same thing case 1
+return 1+1
+return 1 +1
+return 1+ 1
+return 1 + 1
+
+// same thing case 2
+return 1+-1
+return 1 +-1
+return 1+ -1
+return 1 + -1
+
+// same thing case 3
+return -1+-1
+return -1 +-1
+return -1+ -1
+return -1 + -1
+return -+1+-+1
+return -+1 +-+1
+return -+1+ -+1
+return -+1 + -+1
+
+// same thing case 4
+return ++1
+return + +1
+return ++(++1)
+return ++ +1
+return +++1
+
+// same thing case 5
+return --1
+return - -1
+return --(--1)
+return -- -1
+return ---1
+
+// incr or decr
+return (((--(--1))++)++)++
+return (((--(--1))--)--)--
+return 1 + 2 - -3
+
+// unary expr
+return -1
+return +1
+return !1
+return ~1
+return !true
+return ~false
+
+return !true
+return !(!(!(!true)))
+return ~false
+return ~(~(~(~false)))
+return !(~(!(~true)))
+return ~(!(~(!false)))
+
+// dyadic expr
+return 1+2
+return 1-2
+return 1*2
+return 1/2
+return 1%2
+return 1&2
+return 1|2
+return 1^2
+return 1>>>2
+return 1>>2
+return 1<<2
+return 1==2
+return 1==="1"
+return 1!=1
+return 1>2
+return 1>=2
+return 1<2
+return 1<=2
+return 1in 1
+return 1in'1ad'
+return 1in[1,2]
+return 1in{}
+return 1in{'k1':1}
+return [1]in 1
+return [1]in'1ad'
+return [1]in[1,2]
+return [1]in{}
+return [1]in{'k1':1}
+return {"k1":1}in 1
+return {"k1":1}in'1ad'
+return {"k1":1}in[1,2]
+return {"k1":1}in{}
+return {"k1":1}in{'k1':1}
+return {"k1":1}in T'2023-05-11'
+return {"k1":1}in T('yyyy-MM-dd')'2023-05-11'
+return 1not in 1
+return 1not in'1ad'
+return 1not in[1,2]
+return 1not in{}
+return 1not in{'k1':1}
+return [1]not in 1
+return [1]not in'1ad'
+return [1]not in[1,2]
+return [1]not in{}
+return [1]not in{'k1':1}
+return {"k1":1}not in 1
+return {"k1":1}not in'1ad'
+return {"k1":1}not in[1,2]
+return {"k1":1}not in{}
+return {"k1":1}not in{'k1':1}
+return {"k1":1}not in T'2023-05-11'
+return {"k1":1}not in T('yyyy-MM-dd')'2023-05-11'
+return 1matches 1
+return 1matches'1ad'
+return 1matches[1,2]
+return 1matches{}
+return 1matches{'k1':1}
+return [1]matches 1
+return [1]matches'1ad'
+return [1]matches[1,2]
+return [1]matches{}
+return [1]matches{'k1':1}
+return {"k1":1}matches 1
+return {"k1":1}matches'1ad'
+return {"k1":1}matches[1,2]
+return {"k1":1}matches{}
+return {"k1":1}matches{'k1':1}
+return {"k1":1}matches T'2023-05-11'
+return {"k1":1}matches T('yyyy-MM-dd')'2023-05-11'
+return 1not matches 1
+return 1not matches'1ad'
+return 1not matches[1,2]
+return 1not matches{}
+return 1not matches{'k1':1}
+return [1]not matches 1
+return [1]not matches'1ad'
+return [1]not matches[1,2]
+return [1]not matches{}
+return [1]not matches{'k1':1}
+return {"k1":1}not matches 1
+return {"k1":1}not matches'1ad'
+return {"k1":1}not matches[1,2]
+return {"k1":1}not matches{}
+return {"k1":1}not matches{'k1':1}
+return {"k1":1}not matches T'2023-05-11'
+return {"k1":1}not matches T('yyyy-MM-dd')'2023-05-11'
+return 1&&1
+return 1||1
+return 1&&-1
+return 1||-1
+
+
+return 1 +2
+return 1 -2
+return 1 *2
+return 1 /2
+return 1 %2
+return 1 &2
+return 1 |2
+return 1 ^2
+return 1 >>>2
+return 1 >>2
+return 1 <<2
+return 1 ==2
+return 1 ==="1"
+return 1 !=1
+return 1 >2
+return 1 >=2
+return 1 <2
+return 1 <=2
+return 1 in 1
+return 1 in'1ad'
+return 1 in[1,2]
+return 1 in{}
+return 1 in{'k1':1}
+return [1] in 1
+return [1] in'1ad'
+return [1] in[1,2]
+return [1] in{}
+return [1] in{'k1':1}
+return {"k1":1} in 1
+return {"k1":1} in'1ad'
+return {"k1":1} in[1,2]
+return {"k1":1} in{}
+return {"k1":1} in{'k1':1}
+return {"k1":1} in T'2023-05-11'
+return {"k1":1} in T('yyyy-MM-dd')'2023-05-11'
+return 1 not in 1
+return 1 not in'1ad'
+return 1 not in[1,2]
+return 1 not in{}
+return 1 not in{'k1':1}
+return [1] not in 1
+return [1] not in'1ad'
+return [1] not in[1,2]
+return [1] not in{}
+return [1] not in{'k1':1}
+return {"k1":1} not in 1
+return {"k1":1} not in'1ad'
+return {"k1":1} not in[1,2]
+return {"k1":1} not in{}
+return {"k1":1} not in{'k1':1}
+return {"k1":1} not in T'2023-05-11'
+return {"k1":1} not in T('yyyy-MM-dd')'2023-05-11'
+return 1 matches 1
+return 1 matches'1ad'
+return 1 matches[1,2]
+return 1 matches{}
+return 1 matches{'k1':1}
+return [1] matches 1
+return [1] matches'1ad'
+return [1] matches[1,2]
+return [1] matches{}
+return [1] matches{'k1':1}
+return {"k1":1} matches 1
+return {"k1":1} matches'1ad'
+return {"k1":1} matches[1,2]
+return {"k1":1} matches{}
+return {"k1":1} matches{'k1':1}
+return {"k1":1} matches T'2023-05-11'
+return {"k1":1} matches T('yyyy-MM-dd')'2023-05-11'
+return 1 not matches 1
+return 1 not matches'1ad'
+return 1 not matches[1,2]
+return 1 not matches{}
+return 1 not matches{'k1':1}
+return [1] not matches 1
+return [1] not matches'1ad'
+return [1] not matches[1,2]
+return [1] not matches{}
+return [1] not matches{'k1':1}
+return {"k1":1} not matches 1
+return {"k1":1} not matches'1ad'
+return {"k1":1} not matches[1,2]
+return {"k1":1} not matches{}
+return {"k1":1} not matches{'k1':1}
+return {"k1":1} not matches T'2023-05-11'
+return {"k1":1} not matches T('yyyy-MM-dd')'2023-05-11'
+return 1 &&1
+return 1 ||1
+return 1 &&-1
+return 1 ||-1
+
+
+return 1+ 2
+return 1- 2
+return 1* 2
+return 1/ 2
+return 1% 2
+return 1& 2
+return 1| 2
+return 1^ 2
+return 1>>> 2
+return 1>> 2
+return 1<< 2
+return 1== 2
+return 1=== "1"
+return 1!= 1
+return 1> 2
+return 1>= 2
+return 1< 2
+return 1<= 2
+return 1in 1
+return 1in '1ad'
+return 1in [1,2]
+return 1in {}
+return 1in {'k1':1}
+return [1]in 1
+return [1]in '1ad'
+return [1]in [1,2]
+return [1]in {}
+return [1]in {'k1':1}
+return {"k1":1}in 1
+return {"k1":1}in '1ad'
+return {"k1":1}in [1,2]
+return {"k1":1}in {}
+return {"k1":1}in {'k1':1}
+return {"k1":1}in T'2023-05-11'
+return {"k1":1}in T('yyyy-MM-dd')'2023-05-11'
+return 1not in 1
+return 1not in '1ad'
+return 1not in [1,2]
+return 1not in {}
+return 1not in {'k1':1}
+return [1]not in 1
+return [1]not in '1ad'
+return [1]not in [1,2]
+return [1]not in {}
+return [1]not in {'k1':1}
+return {"k1":1}not in 1
+return {"k1":1}not in '1ad'
+return {"k1":1}not in [1,2]
+return {"k1":1}not in {}
+return {"k1":1}not in {'k1':1}
+return {"k1":1}not in T'2023-05-11'
+return {"k1":1}not in T('yyyy-MM-dd')'2023-05-11'
+return 1matches 1
+return 1matches '1ad'
+return 1matches [1,2]
+return 1matches {}
+return 1matches {'k1':1}
+return [1]matches 1
+return [1]matches '1ad'
+return [1]matches [1,2]
+return [1]matches {}
+return [1]matches {'k1':1}
+return {"k1":1}matches 1
+return {"k1":1}matches '1ad'
+return {"k1":1}matches [1,2]
+return {"k1":1}matches {}
+return {"k1":1}matches {'k1':1}
+return {"k1":1}matches T'2023-05-11'
+return {"k1":1}matches T('yyyy-MM-dd')'2023-05-11'
+return 1not matches 1
+return 1not matches '1ad'
+return 1not matches [1,2]
+return 1not matches {}
+return 1not matches {'k1':1}
+return [1]not matches 1
+return [1]not matches '1ad'
+return [1]not matches [1,2]
+return [1]not matches {}
+return [1]not matches {'k1':1}
+return {"k1":1}not matches 1
+return {"k1":1}not matches '1ad'
+return {"k1":1}not matches [1,2]
+return {"k1":1}not matches {}
+return {"k1":1}not matches {'k1':1}
+return {"k1":1}not matches T'2023-05-11'
+return {"k1":1}not matches T('yyyy-MM-dd')'2023-05-11'
+return 1&& 1
+return 1|| 1
+return 1&& -1
+return 1|| -1
+
+
+return 1 + 2
+return 1 - 2
+return 1 * 2
+return 1 / 2
+return 1 % 2
+return 1 & 2
+return 1 | 2
+return 1 ^ 2
+return 1 >>> 2
+return 1 >> 2
+return 1 << 2
+return 1 == 2
+return 1 === "1"
+return 1 != 1
+return 1 > 2
+return 1 >= 2
+return 1 < 2
+return 1 <= 2
+return 1 in 1
+return 1 in '1ad'
+return 1 in [1,2]
+return 1 in {}
+return 1 in {'k1':1}
+return [1] in 1
+return [1] in '1ad'
+return [1] in [1,2]
+return [1] in {}
+return [1] in {'k1':1}
+return {"k1":1} in 1
+return {"k1":1} in '1ad'
+return {"k1":1} in [1,2]
+return {"k1":1} in {}
+return {"k1":1} in {'k1':1}
+return {"k1":1} in T'2023-05-11'
+return {"k1":1} in T('yyyy-MM-dd')'2023-05-11'
+return 1 not in 1
+return 1 not in '1ad'
+return 1 not in [1,2]
+return 1 not in {}
+return 1 not in {'k1':1}
+return [1] not in 1
+return [1] not in '1ad'
+return [1] not in [1,2]
+return [1] not in {}
+return [1] not in {'k1':1}
+return {"k1":1} not in 1
+return {"k1":1} not in '1ad'
+return {"k1":1} not in [1,2]
+return {"k1":1} not in {}
+return {"k1":1} not in {'k1':1}
+return {"k1":1} not in T'2023-05-11'
+return {"k1":1} not in T('yyyy-MM-dd')'2023-05-11'
+return 1 matches 1
+return 1 matches '1ad'
+return 1 matches [1,2]
+return 1 matches {}
+return 1 matches {'k1':1}
+return [1] matches 1
+return [1] matches '1ad'
+return [1] matches [1,2]
+return [1] matches {}
+return [1] matches {'k1':1}
+return {"k1":1} matches 1
+return {"k1":1} matches '1ad'
+return {"k1":1} matches [1,2]
+return {"k1":1} matches {}
+return {"k1":1} matches {'k1':1}
+return {"k1":1} matches T'2023-05-11'
+return {"k1":1} matches T('yyyy-MM-dd')'2023-05-11'
+return 1 not matches 1
+return 1 not matches '1ad'
+return 1 not matches [1,2]
+return 1 not matches {}
+return 1 not matches {'k1':1}
+return [1] not matches 1
+return [1] not matches '1ad'
+return [1] not matches [1,2]
+return [1] not matches {}
+return [1] not matches {'k1':1}
+return {"k1":1} not matches 1
+return {"k1":1} not matches '1ad'
+return {"k1":1} not matches [1,2]
+return {"k1":1} not matches {}
+return {"k1":1} not matches {'k1':1}
+return {"k1":1} not matches T'2023-05-11'
+return {"k1":1} not matches T('yyyy-MM-dd')'2023-05-11'
+return 1 && 1
+return 1 || 1
+return 1 && -1
+return 1 || -1
+
+return {'k13': abc, 'k14': @domain.abc, 'k15': @domain.abc[aac], 'k16':@domain.abc[aac](123), 'k17': @domain.abc()}
+return [abc, @domain.abc, @domain.abc[aac], @domain.abc[aac](123), @domain.abc()]

@@ -1,0 +1,60 @@
+services:
+  dm_mysql:
+    image: mysql:8.0
+    container_name: cgdm-mysql
+    restart: always
+    ports:
+      - "26000:3306"
+    volumes:
+      - cgdm_mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: clouddm
+      MYSQL_ROOT_PASSWORD: 123456
+    command: [ "mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-time-zone=+08:00" ]
+
+  dm_console:
+    image: clougence/cgdm-console:${build_version}
+    container_name: cgdm-console
+    restart: always
+    ports:
+      - "8222:8222"
+      - "8008:8008"
+    depends_on:
+      - dm_mysql
+    volumes:
+      - cgdm_console_conf:/root/cgdm/console/conf
+      - cgdm_console_logs:/root/cgdm/console/logs
+    environment:
+      APP_WEB_PORT: 8222
+      APP_WEB_JWT: "ljgefdgjosdighjeroigh"
+      APP_SERVE_NAME: dm_console
+      APP_SERVE_PORT: 8008
+      DB_HOST: dm_mysql
+      DB_PORT: 3306
+      DB_DATABASE: clouddm
+      DB_USERNAME: root
+      DB_PASSWORD: 123456
+
+  dm_sidecar:
+    image: clougence/cgdm-sidecar:${build_version}
+    container_name: cgdm-sidecar
+    restart: always
+    depends_on:
+      - dm_console
+    volumes:
+      - cgdm_sidecar_conf:/root/cgdm/sidecar/conf
+      - cgdm_sidecar_logs:/root/cgdm/sidecar/logs
+    environment:
+      APP_WEB_PORT: 8080
+      DM_CLIENT_AK: "ak0a2c62tdo1ap2416655mpyx0v36l359p1v5rn782caw8t0qkk1s94b80lfs90"
+      DM_CLIENT_SK: "sk6206iy4pb0eydz9hg97jo3tu5d80j97e91bbql65167u8wb75x4ej6e4v4aa4"
+      DM_CLIENT_WSN: "wsn582nm54ca045p014288w6e919ec6294m430h427619v64g0pyqzcjb5040q3f"
+      APP_SERVE_NAME: dm_console
+      APP_SERVE_PORT: 8008
+
+volumes:
+  cgdm_console_conf:
+  cgdm_console_logs:
+  cgdm_sidecar_conf:
+  cgdm_sidecar_logs:
+  cgdm_mysql_data:

@@ -1,0 +1,11 @@
+#define "maxCount" as int
+        default "50"
+        hint "表最大自段数量"
+
+if
+  @domain.sqlType != 'CREATE_TABLE'
+then
+  return true
+end
+
+return @func.array.size(@domain.columns) <= cast(#{maxCount} as int)

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.rdp.dal.mapper.authcode.RdpAuthResultInfoMapper">
+
+    <resultMap id="rdpAuthResultInfoDO" type="com.clougence.rdp.dal.model.authcode.RdpAuthResultInfoDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="report_time" property="reportTime"/>
+        <result column="active" property="active"/>
+        <result column="auth_result_status" property="authResultStatus"/>
+        <result column="msgContent" property="msgContent"/>
+        <result column="success" property="success"/>
+        <result column="report_time" property="reportTime"/>
+    </resultMap>
+
+    <sql id="allColumn">
+        rdp_auth_result_info
+        .
+        id
+        id,
+        rdp_auth_result_info.gmt_create gmt_create,
+        rdp_auth_result_info.gmt_modified gmt_modified,
+        rdp_auth_result_info.report_time report_time,
+        rdp_auth_result_info.active active,
+        rdp_auth_result_info.auth_result_status auth_result_status,
+        rdp_auth_result_info.msgContent msgContent,
+        rdp_auth_result_info.success success
+    </sql>
+
+    <delete id="deleteByIds">
+        DELETE FROM rdp_auth_result_info
+        WHERE
+        <if test="ids != null and ids.size > 0">
+            rdp_auth_result_info.id in
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+    </delete>
+
+    <select id="queryCurrentResult" resultMap="rdpAuthResultInfoDO">
+        SELECT
+        <include refid="allColumn"/>
+        FROM
+        rdp_auth_result_info
+        WHERE active = true
+        ORDER BY gmt_modified DESC limit 1;
+    </select>
+
+    <select id="queryAllAuthResult" resultMap="rdpAuthResultInfoDO">
+        SELECT
+        <include refid="allColumn"/>
+        FROM
+        rdp_auth_result_info;
+    </select>
+
+
+</mapper>

@@ -1,0 +1,463 @@
+# map to com.clougence.adapter.mysql.dialect.MySqlBuiltInFunction.FunctionListObj
+functions:
+  # ----- string function -----
+  - name: LEFT
+    rdbParams:
+      - { name: s, type: VARCHAR, ordinal: 1 }
+      - { name: n, type: INT, ordinal: 2 }
+    returns: { type: VARCHAR }
+  - name: LOWER
+    rdbParams:
+      - { name: s, type: VARCHAR, ordinal: 1 }
+    returns: { type: VARCHAR }
+  - name: ASCII
+    rdbParams:
+      - { name: s, type: VARCHAR, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: CHAR_LENGTH
+    rdbParams:
+      - { name: s, type: VARCHAR, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: CONCAT
+    rdbParams:
+      - { name: s1, type: VARCHAR, ordinal: 1 }
+      - { name: s2, type: VARCHAR, ordinal: 2 }
+    returns: { type: VARCHAR }
+
+  - name: CONCAT_WS
+    rdbParams:
+      - { name: separator, type: VARCHAR, ordinal: 1 }
+      - { name: s1, type: VARCHAR, ordinal: 2 }
+      - { name: s2, type: VARCHAR, ordinal: 3 }
+    returns: { type: VARCHAR }
+
+  - name: FIELD
+    rdbParams:
+      - { name: str, type: VARCHAR, ordinal: 1 }
+      - { name: str1, type: VARCHAR, ordinal: 2 }
+      - { name: str2, type: VARCHAR, ordinal: 3 }
+    returns: { type: INT }
+
+  - name: FIND_IN_SET
+    rdbParams:
+      - { name: str, type: VARCHAR, ordinal: 1 }
+      - { name: strList, type: VARCHAR, ordinal: 2 }
+    returns: { type: INT }
+
+  - name: FORMAT
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+      - { name: d, type: INT, ordinal: 2 }
+    returns: { type: VARCHAR }
+
+  - name: INSTR
+    rdbParams:
+      - { name: str, type: VARCHAR, ordinal: 1 }
+      - { name: substr, type: VARCHAR, ordinal: 2 }
+    returns: { type: INT }
+
+  - name: LTRIM
+    rdbParams:
+      - { name: s, type: VARCHAR, ordinal: 1 }
+    returns: { type: VARCHAR }
+
+  - name: REPLACE
+    rdbParams:
+      - { name: str, type: VARCHAR, ordinal: 1 }
+      - { name: from_str, type: VARCHAR, ordinal: 2 }
+      - { name: to_str, type: VARCHAR, ordinal: 3 }
+    returns: { type: VARCHAR }
+
+  - name: REVERSE
+    rdbParams:
+      - { name: s, type: VARCHAR, ordinal: 1 }
+    returns: { type: VARCHAR }
+
+  - name: RTRIM
+    rdbParams:
+      - { name: s, type: VARCHAR, ordinal: 1 }
+    returns: { type: VARCHAR }
+
+  - name: SUBSTRING
+    rdbParams:
+      - { name: s, type: VARCHAR, ordinal: 1 }
+      - { name: start, type: INT, ordinal: 2 }
+      - { name: length, type: INT, ordinal: 3 }
+    returns: { type: VARCHAR }
+
+  - name: TRIM
+    rdbParams:
+      - { name: s, type: VARCHAR, ordinal: 1 }
+    returns: { type: VARCHAR }
+
+  - name: UPPER
+    rdbParams:
+      - { name: s, type: VARCHAR, ordinal: 1 }
+    returns: { type: VARCHAR }
+  # ----- date functions -----
+  - name: ADDDATE
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+      - { name: days, type: INT, ordinal: 2 }
+    returns: { type: DATE }
+
+  - name: ADDTIME
+    rdbParams:
+      - { name: time1, type: TIME, ordinal: 1 }
+      - { name: time2, type: TIME, ordinal: 2 }
+    returns: { type: TIME }
+
+  - name: CURDATE
+    #    rdbParams:
+    returns: { type: DATE }
+
+  - name: CURRENT_TIME
+    #    rdbParams:
+    returns: { type: TIME }
+
+  - name: CURRENT_TIMESTAMP
+    #    rdbParams:
+    returns: { type: TIMESTAMP }
+
+  - name: DATE_ADD
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+      - { name: interval_expr, type: VARCHAR, ordinal: 2 }
+    returns: { type: DATE }
+
+  - name: DATE_FORMAT
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+      - { name: format, type: VARCHAR, ordinal: 2 }
+    returns: { type: VARCHAR }
+
+  - name: DATE_SUB
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+      - { name: interval_expr, type: VARCHAR, ordinal: 2 }
+    returns: { type: DATE }
+
+  - name: DAYNAME
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+    returns: { type: VARCHAR }
+
+  - name: DAYOFMONTH
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: DAYOFWEEK
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: DAYOFYEAR
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: EXTRACT
+    rdbParams:
+      - { name: unit, type: VARCHAR, ordinal: 1 }
+      - { name: date, type: DATE, ordinal: 2 }
+    returns: { type: INT }
+
+  - name: FROM_DAYS
+    rdbParams:
+      - { name: n, type: INT, ordinal: 1 }
+    returns: { type: DATE }
+
+  - name: HOUR
+    rdbParams:
+      - { name: time, type: TIME, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: LAST_DAY
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+    returns: { type: DATE }
+
+  - name: MINUTE
+    rdbParams:
+      - { name: time, type: TIME, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: MONTH
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: MONTHNAME
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+    returns: { type: VARCHAR }
+
+  - name: NOW
+    #    rdbParams:
+    returns: { type: TIMESTAMP }
+
+  - name: PERIOD_ADD
+    rdbParams:
+      - { name: period, type: INT, ordinal: 1 }
+      - { name: months, type: INT, ordinal: 2 }
+    returns: { type: INT }
+
+  - name: PERIOD_DIFF
+    rdbParams:
+      - { name: period1, type: INT, ordinal: 1 }
+      - { name: period2, type: INT, ordinal: 2 }
+    returns: { type: INT }
+
+  - name: QUARTER
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: SECOND
+    rdbParams:
+      - { name: time, type: TIME, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: STR_TO_DATE
+    rdbParams:
+      - { name: str, type: VARCHAR, ordinal: 1 }
+      - { name: format, type: VARCHAR, ordinal: 2 }
+    returns: { type: DATE }
+
+  - name: SUBDATE
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+      - { name: days, type: INT, ordinal: 2 }
+    returns: { type: DATE }
+
+  - name: SUBTIME
+    rdbParams:
+      - { name: time1, type: TIME, ordinal: 1 }
+      - { name: time2, type: TIME, ordinal: 2 }
+    returns: { type: TIME }
+
+  - name: SYSDATE
+    #    rdbParams:
+    returns: { type: TIMESTAMP }
+
+  - name: TIME_FORMAT
+    rdbParams:
+      - { name: time, type: TIME, ordinal: 1 }
+      - { name: format, type: VARCHAR, ordinal: 2 }
+    returns: { type: VARCHAR }
+
+  - name: TIME_TO_SEC
+    rdbParams:
+      - { name: time, type: TIME, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: TIMEDIFF
+    rdbParams:
+      - { name: time1, type: TIME, ordinal: 1 }
+      - { name: time2, type: TIME, ordinal: 2 }
+    returns: { type: TIME }
+
+  - name: TIMESTAMP
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+      - { name: time, type: TIME, ordinal: 2 }
+    returns: { type: TIMESTAMP }
+
+  - name: TO_DAYS
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: WEEK
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: WEEKDAY
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: WEEKOFYEAR
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: YEAR
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: YEARWEEK
+    rdbParams:
+      - { name: date, type: DATE, ordinal: 1 }
+    returns: { type: INT }
+
+  # ----- numeric functions -----
+  - name: ABS
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+    returns: { type: DECIMAL }
+
+  - name: ACOS
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+    returns: { type: DECIMAL }
+
+  - name: ASIN
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+    returns: { type: DECIMAL }
+
+  - name: ATAN
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+    returns: { type: DECIMAL }
+
+  - name: ATAN2
+    rdbParams:
+      - { name: y, type: DECIMAL, ordinal: 1 }
+      - { name: x, type: DECIMAL, ordinal: 2 }
+    returns: { type: DECIMAL }
+
+  - name: CEIL
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: CEILING
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: CONV
+    rdbParams:
+      - { name: n, type: VARCHAR, ordinal: 1 }
+      - { name: from_base, type: INT, ordinal: 2 }
+      - { name: to_base, type: INT, ordinal: 3 }
+    returns: { type: VARCHAR }
+
+  - name: COS
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+    returns: { type: DECIMAL }
+
+  - name: COT
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+    returns: { type: DECIMAL }
+
+  - name: DEGREES
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+    returns: { type: DECIMAL }
+
+  - name: EXP
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+    returns: { type: DECIMAL }
+
+  - name: FLOOR
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: GREATEST
+    rdbParams:
+      - { name: value1, type: DECIMAL, ordinal: 1 }
+      - { name: value2, type: DECIMAL, ordinal: 2 }
+    returns: { type: DECIMAL }
+
+  - name: LEAST
+    rdbParams:
+      - { name: value1, type: DECIMAL, ordinal: 1 }
+      - { name: value2, type: DECIMAL, ordinal: 2 }
+    returns: { type: DECIMAL }
+
+  - name: LN
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+    returns: { type: DECIMAL }
+
+  - name: LOG
+    rdbParams:
+      - { name: base, type: DECIMAL, ordinal: 1 }
+      - { name: x, type: DECIMAL, ordinal: 2 }
+    returns: { type: DECIMAL }
+
+  - name: LOG10
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+    returns: { type: DECIMAL }
+
+  - name: LOG2
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+    returns: { type: DECIMAL }
+
+  - name: MOD
+    rdbParams:
+      - { name: n, type: DECIMAL, ordinal: 1 }
+      - { name: m, type: DECIMAL, ordinal: 2 }
+    returns: { type: DECIMAL }
+
+  - name: PI
+    #    rdbParams:
+    returns: { type: DECIMAL }
+
+  - name: POW
+    rdbParams:
+      - { name: base, type: DECIMAL, ordinal: 1 }
+      - { name: exponent, type: DECIMAL, ordinal: 2 }
+    returns: { type: DECIMAL }
+
+  - name: POWER
+    rdbParams:
+      - { name: base, type: DECIMAL, ordinal: 1 }
+      - { name: exponent, type: DECIMAL, ordinal: 2 }
+    returns: { type: DECIMAL }
+
+  - name: RADIANS
+    rdbParams:
+      - { name: degrees, type: DECIMAL, ordinal: 1 }
+    returns: { type: DECIMAL }
+
+  - name: RAND
+    rdbParams:
+      - { name: seed, type: INT, ordinal: 1 }
+    returns: { type: DECIMAL }
+
+  - name: ROUND
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+      - { name: d, type: INT, ordinal: 2 }
+    returns: { type: DECIMAL }
+
+  - name: SIGN
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+    returns: { type: INT }
+
+  - name: SIN
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+    returns: { type: DECIMAL }
+
+  - name: SQRT
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+    returns: { type: DECIMAL }
+
+  - name: TAN
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+    returns: { type: DECIMAL }
+
+  - name: TRUNCATE
+    rdbParams:
+      - { name: x, type: DECIMAL, ordinal: 1 }
+      - { name: d, type: INT, ordinal: 2 }
+    returns: { type: DECIMAL }

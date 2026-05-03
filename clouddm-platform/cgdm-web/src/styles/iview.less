@@ -1,0 +1,182 @@
+.ivu-input,
+.ivu-btn,
+.ivu-modal-content,
+.ivu-select-dropdown,
+.ivu-select-selection,
+.ivu-tabs-tab,
+.ivu-card,
+.ivu-page-item-jump-next,
+.ivu-page-item-jump-prev,
+.ivu-page-next,
+.ivu-page-prev,
+.ivu-page-item,
+.ivu-page-options-elevator input {
+  border-radius: 0 !important;
+}
+
+.ivu-modal {
+  .ivu-modal-content {
+    .ivu-modal-header {
+      background: @gray;
+    }
+
+    .ivu-modal-body {
+      padding: 20px;
+      font-size: 12px;
+    }
+
+    .ivu-modal-footer {
+      border-top: none;
+    }
+    .ivu-modal-confirm-footer {
+      display: none;
+    }
+  }
+}
+
+//.ivu-table {
+//.ivu-table-body {
+//.ivu-table-tbody {
+.ivu-table-small td {
+  height: 32px !important;
+}
+
+//}
+//}
+//}
+
+.ivu-card {
+  .ivu-card-head {
+    background-color: @background-grey;
+    border-bottom-color: #dadada;
+  }
+
+  .ivu-card-bordered {
+    border-color: #dadada;
+  }
+}
+
+.ivu-modal-body,
+.ivu-select-selected-value,
+.ivu-select-placeholder,
+.ivu-select-item,
+.ivu-input,
+.ivu-form-item-label,
+.ivu-radio-wrapper,
+.ivu-btn,
+.ivu-select-input {
+  font-size: @basicFontSize !important;
+}
+
+.ivu-breadcrumb > span:last-child {
+  color: @font-color;
+}
+
+//table
+.ivu-table-small {
+  .ivu-table-header thead tr th,
+  .ivu-table-fixed-header thead tr th {
+    padding: 0;
+    height: 32px;
+    line-height: 32px;
+    //background-color: #F3F3F3;
+  }
+
+  td,
+  th {
+    border-bottom: 1px solid #eaeaea;
+  }
+
+  &:before {
+    background-color: #eaeaea;
+  }
+
+  .ivu-table-fixed-right {
+    box-shadow: none;
+  }
+
+  .ivu-table-row-hover td {
+    //background-color: #F3F3F3 !important;
+  }
+}
+
+.ivu-table-stripe .ivu-table-body tr:nth-child(2n) td,
+.ivu-table-stripe .ivu-table-fixed-body tr:nth-child(2n) td {
+  background-color: #fbfbfb;
+}
+
+.ivu-table-border td,
+.ivu-table-border th {
+  //border-right: none;
+}
+
+.ivu-table-wrapper-with-border {
+  border: 1px solid #eaeaea;
+  border-bottom: none;
+  border-right: none;
+}
+
+.ivu-table-fixed-right::before,
+.ivu-table-fixed::before {
+  background-color: #eaeaea;
+}
+
+//btn
+.ivu-btn-primary {
+  background-color: @primary-color;
+  border-color: @primary-color;
+  &:hover {
+    background-color: @hover-color;
+    border-color: @hover-color;
+  }
+  &:active {
+    background-color: @active-color;
+    border-color: @active-color;
+  }
+  &.ivu-btn-ghost {
+    background-image: linear-gradient(@white, @background-grey);
+    border-color: @primary-color;
+    color: @primary-color;
+    &:hover {
+      background-image: none;
+      background-color: @primary-color;
+      color: @white;
+    }
+    &:active {
+      background-image: none;
+      background-color: @info-color;
+      color: @white;
+    }
+  }
+}
+
+.ivu-btn-default {
+  //background-image: linear-gradient(@white, @background-grey);
+  border-color: #babdc5;
+  //&:hover {
+  //  background-image: linear-gradient(@background-grey, #e6e6e6);
+  //}
+  //&:active {
+  //  background-image: linear-gradient(#e3e3e3, #d7d7d7);
+  //}
+}
+
+//tab
+.ivu-tabs {
+  .ivu-tabs-nav .ivu-tabs-tab:hover {
+    color: @hover-color;
+  }
+  .ivu-tabs-nav .ivu-tabs-tab-active {
+    color: @primary-color;
+  }
+  .ivu-tabs-ink-bar {
+    background-color: @primary-color;
+  }
+}
+.ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab-active {
+  color: @primary-color;
+}
+
+.ivu-form-item-error-tip {
+  position: relative !important;
+}

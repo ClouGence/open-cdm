@@ -1,0 +1,45 @@
+#define "require" as bool
+        default "true"
+        enum ["true", "false"]
+        hint "强制要求指定存储引擎"
+#define "engine" as string
+        default "InnoDB"
+        enum ["InnoDB", "MyISAM", "Memory"]
+        hint "允许使用的存储引擎"
+
+// 对于 ALTER 语句，只有当设置了 engine 选项时候才进行校验
+if
+  @domain.sqlType in ['ALTER_TABLE', 'ALTER_TABLE_CONVERT'] and
+  @func.string.isNotBlank(@domain.engine)
+then
+
+    if @func.string.isBlank(#{engine}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.engine, #{engine})
+    end
+
+end
+
+// 对于 create 语句，检测是否必须设置 engine 选项
+if @domain.sqlType == 'CREATE_TABLE' then
+
+  if cast(#{require} as bool) then
+
+    if @func.string.isBlank(#{engine}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.engine, #{engine})
+    end
+
+  else
+
+    if @func.string.isBlank(@domain.engine) then
+      return true
+    else
+      return @func.string.equalsIgnoreCase(@domain.engine, #{engine})
+    end
+
+  end
+
+end

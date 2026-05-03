@@ -1,0 +1,26 @@
+<drivers>
+    <driver driverFamily="MariaDB Java Client" version="3.5.8">
+        <driverName>com.clougence.clouddm.ds.mariadb.execute.dsfactory.MarSqlDsFactory</driverName>
+        <resource type="maven">org.mariadb.jdbc:mariadb-java-client:3.5.8</resource>
+    </driver>
+    <driver driverFamily="MariaDB Java Client" version="3.4.2">
+        <driverName>com.clougence.clouddm.ds.mariadb.execute.dsfactory.MarSqlDsFactory</driverName>
+        <resource type="maven">org.mariadb.jdbc:mariadb-java-client:3.4.2</resource>
+    </driver>
+    <driver driverFamily="MariaDB Java Client" version="3.3.4">
+        <driverName>com.clougence.clouddm.ds.mariadb.execute.dsfactory.MarSqlDsFactory</driverName>
+        <resource type="maven">org.mariadb.jdbc:mariadb-java-client:3.3.4</resource>
+    </driver>
+    <driver driverFamily="MariaDB Java Client" version="3.2.0">
+        <driverName>com.clougence.clouddm.ds.mariadb.execute.dsfactory.MarSqlDsFactory</driverName>
+        <resource type="maven">org.mariadb.jdbc:mariadb-java-client:3.2.0</resource>
+    </driver>
+    <driver driverFamily="MariaDB Java Client" version="3.1.4">
+        <driverName>com.clougence.clouddm.ds.mariadb.execute.dsfactory.MarSqlDsFactory</driverName>
+        <resource type="maven">org.mariadb.jdbc:mariadb-java-client:3.1.4</resource>
+    </driver>
+    <driver driverFamily="MariaDB Java Client" version="3.0.11">
+        <driverName>com.clougence.clouddm.ds.mariadb.execute.dsfactory.MarSqlDsFactory</driverName>
+        <resource type="maven">org.mariadb.jdbc:mariadb-java-client:3.0.11</resource>
+    </driver>
+</drivers>

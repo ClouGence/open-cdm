@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.console.web.dal.mapper.DmSecRangeMapper">
+
+    <resultMap id="dmSecRangeDO" type="com.clougence.clouddm.console.web.dal.model.DmSecRangeDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="owner_uid" property="ownerUid"/>
+        <result column="ref_spec" property="refSpec"/>
+        <result column="ref_id" property="refId"/>
+        <result column="range_type" property="rangeType" typeHandler="com.clougence.clouddm.console.web.dal.handler.SecRangeTypeHandler"/>
+        <result column="match_mode" property="matchMode" javaType="com.clougence.clouddm.console.web.dal.enumeration.SecMatchMode"/>
+        <result column="level_prefix" property="levelPrefix"/>
+        <result column="level_nodes" property="levelNodes" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="choose_all" property="chooseAll"/>
+        <result column="ref_ds_type" property="referDsType" javaType="com.clougence.clouddm.base.metadata.ds.DataSourceType"/>
+        <result column="table_level" property="tableLevelType" javaType="com.clougence.clouddm.sdk.model.analysis.TargetType"/>
+    </resultMap>
+
+    <sql id="allColumns">
+        id,
+        gmt_create,
+        gmt_modified,
+        owner_uid,
+        ref_spec,
+        ref_id,
+        range_type,
+        match_mode,
+        level_prefix,
+        level_nodes,
+        choose_all,
+        ref_ds_type,
+        table_level
+    </sql>
+
+    <select id="queryListBySpecId" resultMap="dmSecRangeDO">
+        select
+            <include refid="allColumns"/>
+        from
+            dm_sec_range
+        where
+            owner_uid = #{ownerUid} and
+            ref_spec  = #{specId}
+        order by
+            gmt_create asc
+    </select>
+
+    <select id="queryListByRefId" resultMap="dmSecRangeDO">
+        select
+            <include refid="allColumns"/>
+        from
+            dm_sec_range
+        where
+            owner_uid = #{ownerUid} and
+            ref_id    = #{refId}
+        order by
+            gmt_create asc
+    </select>
+
+    <update id="updateRange">
+        update dm_sec_range
+        set
+            range_type   = #{info.rangeType, javaType=com.clougence.clouddm.console.web.dal.enumeration.SecRangeType},
+            match_mode   = #{info.matchMode, javaType=com.clougence.clouddm.console.web.dal.enumeration.SecMatchMode},
+            level_prefix = #{info.levelPrefix},
+            level_nodes  = #{info.levelNodes, typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler},
+            choose_all   = #{info.chooseAll},
+            ref_ds_type  = #{info.referDsType, javaType=com.clougence.clouddm.base.metadata.ds.DataSourceType},
+            table_level  = #{info.tableLevelType, javaType=com.clougence.clouddm.sdk.model.analysis.TargetType}
+        where
+            owner_uid = #{ownerUid} and
+            id        = #{rangeId}
+    </update>
+
+    <delete id="deleteRange">
+        delete
+        from
+            dm_sec_range
+        where
+            owner_uid = #{ownerUid} and
+            id        = #{rangeId}
+    </delete>
+
+    <delete id="deleteBySpecId">
+        delete
+        from
+            dm_sec_range
+        where
+            owner_uid = #{ownerUid} and
+            ref_spec  = #{specId}
+    </delete>
+
+    <delete id="deleteByRefId">
+        delete
+        from
+            dm_sec_range
+        where
+            owner_uid = #{ownerUid} and
+            ref_id    = #{refId}
+    </delete>
+</mapper>

@@ -1,0 +1,20 @@
+plugins {
+    id 'com.clougence.java-conventions'
+}
+
+dependencies {
+    api project(':cgdm-plugin-sdk')
+    api "org.slf4j:slf4j-api:${SLF4J_VERSION}"
+    api "com.fasterxml.jackson.core:jackson-databind:${JACKSON_VERSION}"
+    api "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.4"
+    api "com.alibaba:fastjson:${FASTJSON_VERSION}"
+    api "org.ow2.asm:asm:9.9.1"
+    api 'org.yaml:snakeyaml:2.4'
+    api "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
+    api "com.squareup.okhttp3:okhttp:${OKHTTP_VERSION}"
+    api "com.squareup.okhttp3:logging-interceptor:${OKHTTP_VERSION}"
+    api 'org.locationtech.jts:jts-core:1.18.2'
+    api "ognl:ognl:3.3.4"
+}
+
+description = 'cgdm-share-libs'

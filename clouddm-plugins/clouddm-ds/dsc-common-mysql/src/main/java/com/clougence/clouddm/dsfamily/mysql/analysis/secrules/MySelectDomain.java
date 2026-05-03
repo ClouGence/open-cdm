@@ -1,0 +1,31 @@
+package com.clougence.clouddm.dsfamily.mysql.analysis.secrules;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbSelectDomain;
+import com.clougence.clouddm.sdk.model.analysis.TargetType;
+import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public final class MySelectDomain extends RdbSelectDomain {
+
+    private boolean hasLimit;
+
+    @Override
+    public List<Map<TargetType, String>> resolveResource() {
+        List<Map<TargetType, String>> res = new ArrayList<>();
+        if (getChildren() != null) {
+            for (RuleDomain child : getChildren()) {
+                res.addAll(child.resolveResource());
+            }
+        }
+
+        return res;
+    }
+}

@@ -1,0 +1,21 @@
+#define "checkMode" as string
+        default "Allow"
+        enum ["Allow", "Reject"]
+        hint "名单规则"
+#define "commands" as string
+        default ""
+        hint "名单中的命令，通配符多条使用分号分隔"
+
+if @domain.dsType != 'Redis' then
+  return true
+end
+
+if #{checkMode} === 'Allow' then
+  return @domain.command in
+         @func.string.split(@func.string.upperCase(#{commands}),';')
+elseif #{checkMode} === 'Reject' then
+  return @domain.command not in
+         @func.string.split(@func.string.upperCase(#{commands}),';')
+else
+  return true
+end

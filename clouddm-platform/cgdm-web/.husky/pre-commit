@@ -1,0 +1,5 @@
+# 检查国际化
+npm run check-i18n
+
+# 运行lint-staged
+npm run lint-staged

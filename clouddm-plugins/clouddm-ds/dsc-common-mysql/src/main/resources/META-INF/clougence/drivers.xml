@@ -1,0 +1,30 @@
+<drivers>
+    <driver driverFamily="MySQL Connector/J" version="9.6.0">
+        <driverName>com.clougence.clouddm.dsfamily.mysql.execute.dsfactory.MySqlDsFactory</driverName>
+        <resource type="maven">com.mysql:mysql-connector-j:9.6.0</resource>
+    </driver>
+    <driver driverFamily="MySQL Connector/J" version="9.5.0">
+        <driverName>com.clougence.clouddm.dsfamily.mysql.execute.dsfactory.MySqlDsFactory</driverName>
+        <resource type="maven">com.mysql:mysql-connector-j:9.5.0</resource>
+    </driver>
+    <driver driverFamily="MySQL Connector/J" version="8.4.0">
+        <driverName>com.clougence.clouddm.dsfamily.mysql.execute.dsfactory.MySqlDsFactory</driverName>
+        <resource type="maven">com.mysql:mysql-connector-j:8.4.0</resource>
+    </driver>
+    <driver driverFamily="MySQL Connector/J" version="8.3.0">
+        <driverName>com.clougence.clouddm.dsfamily.mysql.execute.dsfactory.MySqlDsFactory</driverName>
+        <resource type="maven">com.mysql:mysql-connector-j:8.3.0</resource>
+    </driver>
+    <driver driverFamily="MySQL Connector/J" version="8.0.33">
+        <driverName>com.clougence.clouddm.dsfamily.mysql.execute.dsfactory.MySqlDsFactory</driverName>
+        <resource type="maven">com.mysql:mysql-connector-j:8.0.33</resource>
+    </driver>
+    <driver driverFamily="MySQL Connector/J" version="6.0.6">
+        <driverName>com.clougence.clouddm.dsfamily.mysql.execute.dsfactory.MySqlDsFactory</driverName>
+        <resource type="maven">mysql:mysql-connector-java:6.0.6</resource>
+    </driver>
+    <driver driverFamily="MySQL Connector/J" version="5.1.49">
+        <driverName>com.clougence.clouddm.dsfamily.mysql.execute.dsfactory.MySqlDsFactory</driverName>
+        <resource type="maven">mysql:mysql-connector-java:5.1.49</resource>
+    </driver>
+</drivers>

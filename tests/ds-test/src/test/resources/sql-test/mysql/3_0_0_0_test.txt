@@ -1,0 +1,49 @@
+CREATE DEFINER=`root`@`%` FUNCTION `GetEmployeeSalary`(emp_id int) RETURNS decimal(10,0)
+    READS SQL DATA
+begin
+
+     DECLARE emp_salary DECIMAL(10, 2);
+
+    SELECT salary INTO emp_salary FROM employees WHERE id = emp_id;
+
+    RETURN emp_salary;
+
+end;
+----------
+["DM_OBJ:/test_schema/GetEmployeeSalary/"]
+----------
+["{\"sqlType\":\"CREATE_FUNCTION\",\"auditKind\":\"CREATE\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"name\":\"GetEmployeeSalary\",\"sqlTarget\":\"Function\"}"]
+----------
+CREATE_FUNCTION
+------------------------------------------------------------------------------------------
+CREATE DEFINER=`root`@`%` PROCEDURE `GetEmployeesAboveSalary`(IN min_salary decimal(10, 2))
+begin
+ SELECT * FROM employees WHERE salary > min_salary;
+end;
+----------
+["DM_OBJ:/test_schema/GetEmployeesAboveSalary/"]
+----------
+["{\"sqlType\":\"CREATE_PROCEDURE\",\"auditKind\":\"CREATE\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"name\":\"GetEmployeesAboveSalary\",\"sqlTarget\":\"Procedure\"}"]
+----------
+CREATE_PROCEDURE
+------------------------------------------------------------------------------------------
+CREATE DEFINER=`root`@`%` TRIGGER `check_age_before_insert3` BEFORE INSERT ON `students` FOR EACH ROW BEGIN
+    IF NEW.age < 18 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = '年龄不能低于18岁';
+    END IF;
+END;
+----------
+["DM_OBJ:/test_schema/"]
+----------
+["{\"sqlType\":\"CREATE_TRIGGER\",\"auditKind\":\"CREATE\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"name\":\"check_age_before_insert3\",\"sqlTarget\":\"Trigger\"}"]
+----------
+CREATE_TRIGGER
+------------------------------------------------------------------------------------------
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `v_biz_model3` AS select `biz_model`.`id` AS `id`,`biz_model`.`created_time` AS `created_time`,`biz_model`.`updated_time` AS `updated_time`,`biz_model`.`content` AS `content` from `biz_model` limit 20
+----------
+["DM_OBJ:/test_schema/v_biz_model3/"]
+----------
+["{\"sqlType\":\"CREATE_VIEW\",\"auditKind\":\"CREATE\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"view\":\"v_biz_model3\",\"materialized\":false,\"sqlTarget\":\"View\"}"]
+----------
+CREATE_VIEW

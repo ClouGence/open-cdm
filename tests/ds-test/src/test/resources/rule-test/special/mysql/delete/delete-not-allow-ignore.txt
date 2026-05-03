@@ -1,0 +1,19 @@
+#define "allow" as string
+        default "false"
+        enum ["true", "false"]
+        hint "表示是否允许使用ignore"
+
+if
+  @domain.sqlType in ['DELETE']
+then
+
+  if
+    #{allow} == 'false' and
+    @domain.hasIgnore == true
+  then
+    return false
+  else
+    return true
+  end
+
+end

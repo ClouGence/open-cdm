@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.rdp.dal.mapper.RdpSsoRegisterMapper">
+
+    <resultMap id="rdpSsoRegisterDO" type="com.clougence.rdp.dal.model.RdpSsoRegisterDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="request_id" property="requestId"/>
+        <result column="union_id" property="unionId"/>
+        <result column="nickname" property="nickname"/>
+        <result column="register_status" property="registerStatus"
+                javaType="com.clougence.rdp.dal.enumeration.RegisterStatus"/>
+    </resultMap>
+
+    <sql id="rdpSsoRegister">
+        rdp_sso_register.id id,
+        rdp_sso_register.gmt_create gmt_create,
+        rdp_sso_register.gmt_modified gmt_modified,
+        rdp_sso_register.request_id request_id,
+        rdp_sso_register.union_id union_id,
+        rdp_sso_register.nickname nickname,
+        rdp_sso_register.register_status register_status
+    </sql>
+
+    <update id="updateStatusByRequestId">
+        UPDATE
+            rdp_sso_register
+        SET rdp_sso_register.register_status = #{status,javaType=com.clougence.rdp.dal.enumeration.RegisterStatus}
+        WHERE
+              rdp_sso_register.request_id = #{requestId}
+        AND rdp_sso_register.register_status = 'WAIT_REGISTER'
+    </update>
+
+    <select id="queryByRequestId" resultMap="rdpSsoRegisterDO">
+        SELECT
+        <include refid="rdpSsoRegister"/>
+        FROM
+        rdp_sso_register
+        WHERE
+        rdp_sso_register.request_id = #{requestId}
+    </select>
+
+
+</mapper>

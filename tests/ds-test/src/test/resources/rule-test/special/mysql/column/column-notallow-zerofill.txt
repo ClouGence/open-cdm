@@ -1,0 +1,7 @@
+if
+  @domain.sqlType not in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN', 'ALTER_TABLE_ALTER_COLUMN']
+then
+  return true
+end
+
+return !cast(@domain.zerofill as bool)

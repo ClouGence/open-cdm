@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.rdp.dal.mapper.RdpRoleMapper">
+
+    <resultMap id="rdpRoleDO" type="com.clougence.rdp.dal.model.RdpRoleDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="owner_uid" property="ownerUid"/>
+        <result column="role_name" property="roleName"/>
+        <result column="alias_name" property="aliasName"/>
+        <result column="inner_tag" property="innerTag"/>
+        <result column="role_auth_labels" property="roleAuthLabels" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+    </resultMap>
+
+    <sql id="rdpRole">
+        id,
+        gmt_create,
+        gmt_modified,
+        owner_uid,
+        role_name,
+        alias_name,
+        inner_tag,
+        role_auth_labels
+    </sql>
+
+    <select id="queryByOwnerUid" resultMap="rdpRoleDO">
+        SELECT
+            <include refid="rdpRole"/>
+        FROM
+            rdp_role
+        WHERE
+            owner_uid = #{uid}
+        order by inner_tag desc, gmt_create desc
+    </select>
+
+    <select id="queryByRoleName" resultMap="rdpRoleDO">
+        SELECT
+            <include refid="rdpRole"/>
+        FROM
+            rdp_role
+        WHERE
+            owner_uid = #{uid} and
+            role_name = #{roleName}
+    </select>
+
+    <update id="updateRole">
+        UPDATE
+            rdp_role
+        SET
+            role_name        = #{roleName},
+            role_auth_labels = #{newLabels}
+        WHERE
+            id = #{roleId} and
+            inner_tag = 0
+    </update>
+
+    <update id="updateInnerRoleByName">
+        UPDATE
+            rdp_role
+        SET
+            role_auth_labels = #{newLabels},
+            gmt_modified     = now()
+        WHERE
+            role_name = #{roleName} and
+            inner_tag = 1
+    </update>
+
+    <select id="listByIds" resultType="com.clougence.rdp.dal.model.RdpRoleDO">
+        SELECT
+        <include refid="rdpRole"/>
+        FROM
+        rdp_role
+        WHERE
+        id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

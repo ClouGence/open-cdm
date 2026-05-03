@@ -1,0 +1,12 @@
+#define "allow" as string
+        default "false"
+        enum ["true", "false"]
+        hint "是否允许空的 where 条件"
+
+if
+  @domain.sqlType in ['UPDATE']
+then
+
+  return #{allow} == 'true' or @domain.hasWhere
+
+end

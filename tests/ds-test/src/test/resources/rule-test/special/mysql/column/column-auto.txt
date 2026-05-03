@@ -1,0 +1,33 @@
+#define "columnName" as string
+        default "id"
+        hint "自增的列名"
+#define "requireUnsigned" as bool
+        default "true"
+        enum ["true", "false"]
+        hint "是否要求类型必须为 Unsigned"
+
+if
+  @domain.sqlType not in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN', 'ALTER_TABLE_ALTER_COLUMN']
+then
+  return true
+end
+
+if
+  !@domain.auto
+then
+  return true
+end
+
+if
+  !@func.string.equalsIgnoreCase(@domain.column, #{columnName})
+then
+  return false
+end
+
+if
+  cast(#{requireUnsigned} as bool)
+then
+  return @domain.unsigned
+else
+  return true
+end

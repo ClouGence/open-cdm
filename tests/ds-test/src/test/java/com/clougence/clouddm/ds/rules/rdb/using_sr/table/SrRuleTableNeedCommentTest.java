@@ -1,0 +1,34 @@
+package com.clougence.clouddm.ds.rules.rdb.using_sr.table;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
+
+import org.junit.Test;
+
+import com.clougence.clouddm.ds.rules.rdb.using_sr.SrAbstractRuleTest;
+
+public class SrRuleTableNeedCommentTest extends SrAbstractRuleTest {
+
+    private final String              scriptResource = "rule-test/rdb/table/table-need-comment.txt";
+    private final Map<String, String> p1             = Collections.emptyMap();
+
+    @Test
+    public void tableNeedComment_1() throws IOException {
+        String sql = null;
+
+        sql = "create table test.abc_test(id int(4)  key auto_increment) ";
+        assert !runScript(scriptResource, sql, p1);
+        sql = "create table test.abc_test(id int(4)  key auto_increment) comment '   '";
+        assert !runScript(scriptResource, sql, p1);
+        sql = "create table test.abc_test(id int(4)  key auto_increment) comment 'abc'";
+        assert runScript(scriptResource, sql, p1);
+
+        sql = "alter table test.abc comment = '';";
+        assert !runScript(scriptResource, sql, p1);
+        sql = "alter table test.abc comment = '   ';";
+        assert !runScript(scriptResource, sql, p1);
+        sql = "alter table test.abc comment = 'abc';";
+        assert runScript(scriptResource, sql, p1);
+    }
+}

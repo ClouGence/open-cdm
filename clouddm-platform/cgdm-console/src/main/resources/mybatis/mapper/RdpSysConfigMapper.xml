@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.rdp.dal.mapper.RdpSysConfigMapper">
+
+    <resultMap id="rdpSystemConfigDO" type="com.clougence.rdp.dal.model.RdpSysConfigDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="uid" property="uid"/>
+        <result column="config_name" property="configName"/>
+        <result column="config_value" property="configValue"/>
+        <result column="description" property="description"/>
+    </resultMap>
+
+    <sql id="rdpSystemConfig">
+        rdp_sys_config.id id,
+        rdp_sys_config.gmt_create gmt_create,
+        rdp_sys_config.gmt_modified gmt_modified,
+        rdp_sys_config.uid uid,
+        rdp_sys_config.config_name config_name,
+        rdp_sys_config.config_value config_value,
+        rdp_sys_config.description description
+    </sql>
+
+    <select id="queryByUid" resultMap="rdpSystemConfigDO">
+        SELECT
+        <include refid="rdpSystemConfig"/>
+        FROM
+        rdp_sys_config
+        WHERE
+        uid = #{uid}
+    </select>
+
+    <select id="queryEmptyUidConf" resultMap="rdpSystemConfigDO">
+        SELECT
+        <include refid="rdpSystemConfig"/>
+        FROM
+        rdp_sys_config
+        WHERE
+        uid is null;
+    </select>
+
+    <select id="queryByConfigName" resultMap="rdpSystemConfigDO">
+        SELECT
+        <include refid="rdpSystemConfig"/>
+        FROM
+        rdp_sys_config
+        WHERE
+        config_name = #{configName} and uid = #{uid}
+    </select>
+
+    <update id="updateUserConfig">
+        UPDATE
+            rdp_sys_config
+        SET config_value = #{configValue}
+        WHERE uid = #{uid}
+          and config_name = #{configName}
+    </update>
+</mapper>

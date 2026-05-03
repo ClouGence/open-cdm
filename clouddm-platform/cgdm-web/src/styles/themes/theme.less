@@ -1,0 +1,97 @@
+@import './variables.less';
+@import './dark-theme.less';
+
+// 生成CSS变量
+.generate-theme(@theme-map) {
+  // 背景色
+  --bg-primary: @theme-map[bg-primary];
+  --bg-secondary: @theme-map[bg-secondary];
+  --bg-tertiary: @theme-map[bg-tertiary];
+  --bg-hover: @theme-map[bg-hover];
+  --bg-card: @theme-map[bg-card];
+  --bg-select: @theme-map[bg-select];
+  --bg-radio: @theme-map[bg-radio];
+
+  // 文字颜色
+  --text-primary: @theme-map[text-primary];
+  --text-secondary: @theme-map[text-secondary];
+  --text-tertiary: @theme-map[text-tertiary];
+  --text-disabled: @theme-map[text-disabled];
+  --text-inverse: @theme-map[text-inverse];
+
+  // 边框颜色
+  --border-primary: @theme-map[border-primary];
+  --border-secondary: @theme-map[border-secondary];
+  --border-light: @theme-map[border-light];
+  --border-radio: @theme-map[border-radio];
+
+  // 业务颜色
+  --primary-color: @theme-map[primary-color];
+  --info-color: @theme-map[info-color];
+  --success-color: @theme-map[success-color];
+  --warning-color: @theme-map[warning-color];
+  --error-color: @theme-map[error-color];
+
+  // 进度条颜色
+  --progress-normal: @theme-map[progress-normal];
+  --progress-success: @theme-map[progress-success];
+  --progress-error: @theme-map[progress-error];
+  --progress-disabled: @theme-map[progress-disabled];
+  --progress-delay-normal: @theme-map[progress-delay-normal];
+  --progress-delay-warning: @theme-map[progress-delay-warning];
+  --progress-delay-error: @theme-map[progress-delay-error];
+
+  // Header 颜色
+  --header-bg: @theme-map[header-bg];
+  --header-text: @theme-map[header-text];
+  --header-shadow: @theme-map[header-shadow];
+
+  // 阴影
+  --shadow-sm: @theme-map[shadow-sm];
+  --shadow-md: @theme-map[shadow-md];
+  --shadow-lg: @theme-map[shadow-lg];
+}
+
+// 应用亮色主题（默认）
+:root {
+  .generate-theme(@light-theme);
+}
+
+// 应用暗色主题
+[data-theme='dark'] {
+  .generate-theme(@dark-theme);
+}
+
+// 切换主题过渡
+// color-scheme：调整浏览器原生 UI 组件样式
+:root {
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+body {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.ivu-btn,
+.ant-btn,
+.ivu-input,
+.ant-input,
+.ivu-select-selection,
+.ant-select-selector,
+.ivu-card,
+.ant-card,
+.ivu-modal-content,
+.ant-modal-content,
+.ivu-table,
+.ant-table {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}

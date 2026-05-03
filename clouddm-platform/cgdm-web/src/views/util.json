@@ -1,0 +1,293 @@
+{
+  "jobType": {
+    "MIGRATION": "全量迁移",
+    "SYNC": "增量同步",
+    "SUBSCRIBE": "数据订阅",
+    "CHECK": "校验与订正",
+    "STRUCT_MIGRATION": "结构迁移",
+    "REVISE": "数据订正"
+  },
+  "jobTypeIcon": {
+    "MIGRATION": "iconshujuqianyi",
+    "SYNC": "iconshujutongbu",
+    "SUBSCRIBE": "md-checkmark-circle-outline",
+    "CHECK": "iconshujujiaoyan",
+    "STRUCT_MIGRATION": "iconjiegouqianyi"
+  },
+  "taskState": {
+    "CREATING": "创建",
+    "CREATED": "已创建",
+    "INIT": "任务初始化",
+    "FULL": "全量迁移",
+    "INCREMENT": "增量同步",
+    "INCRE": "增量同步",
+    "CATCH_UP": "增量追平",
+    "FULL_CHECK": "全量校验",
+    "FULL_REVERSE_CHECK": "全量订正校验",
+    "FULL_REVISE": "全量订正",
+    "REVIEW_DIFF": "订正异常",
+    "SYNCING": "数据同步",
+    "PAUSE": "暂停",
+    "EXPIRED": "已过期",
+    "ERROR": "错误",
+    "COMPLETE": "已完成",
+    "CHECK": "校验与订正",
+    "R_CHECK": "再次校验与订正",
+    "REVISE": "数据订正",
+    "R_REVISE": "再次数据订正",
+    "ANY": "任何阶段",
+    "DELETE": "已删除",
+    "TIMING_SCHEDULE": "调度中",
+    "TIMING_SCHEDULE_PAUSE": "已暂停调度"
+  },
+  "taskStatus": {
+    "INIT": "初始化",
+    "WAIT_START": "等待开始",
+    "RUNNING": "运行中",
+    "DONE": "已完成",
+    "WAIT_STOP": "等待停止",
+    "STOP": "已停止",
+    "ABNORMAL": "异常",
+    "WAIT_COMPLETE": "等待完成",
+    "COMPLETE": "已完成",
+    "DELETE": "已删除",
+    "WAIT_RESTART": "等待重启"
+  },
+  "taskSateToTaskType": {
+    "FULL": "FULL",
+    "INCRE": "INCREMENT",
+    "CATCH_UP": "INCREMENT",
+    "CHECK": "CHECK",
+    "INIT": "BUILD_STRUCT"
+  },
+  "tagInfo": {
+    "FILTER": "数据过滤相关的参数",
+    "MAPPING": "源和目标映射相关的配置",
+    "PERFORMANCE": "性能相关的配置",
+    "NORMAL": "普通参数",
+    "GENERAL": "普通参数",
+    "COMMON": "普通参数",
+    "TIME": "时间相关的参数，比如线程调度的周期，以及一些时间阈值",
+    "RESERVERD": "Canal继承过来的保留参数，未来版本将被移除",
+    "POSITION": "同步任务位点相关的参数"
+  },
+  "consoleJob": {
+    "DATA_JOB_CREATE": "创建任务",
+    "DATA_JOB_DELETE": "删除任务",
+    "RDS_ADD_PUBLIC_NET": "RDS开放公网权限",
+    "RDS_AUTO_ADD_ACCOUNT": "阿里云数据源自动创建账号",
+    "MANUAL_SCHEDULE_TASK": "手动调度任务",
+    "DATA_TASK_COMPLETE_ACTION": "完成任务",
+    "INSTALL_ECS": "注册ECS机器",
+    "UNINSTALL_ECS": "卸载ECS机器",
+    "INSTALL_LOCAL_MAC": "注册本地机器",
+    "UNINSTALL_LOCAL_MAC": "卸载本地机器",
+    "START_CLIENT": "启动客户端",
+    "UPGRADE_CLIENT": "升级客户端",
+    "RDS_ADD_IP_WHITE_LIST": "RDS添加白名单",
+    "RDS_ADD_SECURITY_INFO": "RDS添加安全信息",
+    "START_ECS_CLIENT": "启动ECS上的客户端",
+    "EDIT_DATA_JOB": "修改订阅",
+    "ALIYUN_ADD_WHITELIST_INFO": "阿里云数据库添加白名单",
+    "UPGRADE_ECS": "更新ECS上的客户端",
+    "DATA_JOB_REPLAY": "重跑任务",
+    "TAKE_OVER_USER_RESOURCE": "移交用户资源",
+    "DELETE_USER": "删除用户",
+    "INCRE_TASK_DETACH": "摘除增量任务",
+    "INCRE_TASK_ATTACH": "挂载增量任务",
+    "CLEAN_DATA_JOB_RESOURCE": "清理自定义代码包",
+    "WORKER_IPS_ADD_TO_ALIYUN_LIST": "添加机器ip到集群任务所关联云数据库白名单",
+    "UPGRADE_CLIENT": "升级客户端",
+    "ROLLBACK_CLIENT": "回滚客户端",
+    "START_CLIENT": "启动客户端"
+  },
+  "consoleJobStatus": {
+    "WAIT_START": "等待开始",
+    "EXECUTE": "执行中",
+    "SUCCESS": "成功",
+    "FAILED": "失败",
+    "CANCELED": "已取消",
+    "SKIP": "已忽略"
+  },
+  "workerStatus": {
+    "WAIT_TO_ONLINE": "等待上线",
+    "ONLINE": "在线",
+    "WAIT_TO_OFFLINE": "等待下线",
+    "OFFLINE": "离线",
+    "ABNORMAL": "异常"
+  },
+  "workerType": {
+    "BARE_METAL": "物理机",
+    "VM": "虚拟机",
+    "ECS": "阿里云服务器"
+  },
+  "cloudOrIdcName": {
+    "SELF_MAINTENANCE": "自建机房",
+    "ALIBABA_CLOUD": "阿里云",
+    "ALIBABA_CLOUD_HOSTED": "阿里云"
+  },
+  "alarmIndicator": {
+    "DELAY_MS": "任务延迟时间",
+    "DELAY_MIN": "任务延迟时间"
+  },
+  "aliyunType": {
+    "MySQL": "RDS for MySQL",
+    "PostgreSQL": "RDS for PostgreSQL",
+    "Greenplum": "ADB for PG",
+    "ElasticSearch": "ElasticSearch",
+    "RocketMQ": "RocketMQ",
+    "Kafka": "Kafka",
+    "RabbitMQ": "RabbitMQ",
+    "DRDS": "DRDS",
+    "PolarDbX": "PolarDB-X",
+    "AdbForMySQL": "ADB for MySQL",
+    "PolarDbMySQL": "PolarDbMySQL",
+    "ClickHouse": "ClickHouse",
+    "MongoDB": "MongoDB",
+    "Redis": "Redis",
+    "SQLServer": "SQLServer"
+  },
+  "selfType": {
+    "PolarDbX": "PolarDB-X"
+  },
+  "dataTaskType": {
+    "FULL": "全量迁移",
+    "INCREMENT": "增量同步",
+    "CHECK": "校验与订正",
+    "BUILD_STRUCT": "结构迁移",
+    "REVISE": "数据订正"
+  },
+  "deployType": {
+    "SELF_MAINTENANCE": "自建数据库",
+    "ALIBABA_CLOUD_HOSTED": "阿里云"
+  },
+  "hostType": {
+    "PRIVATE": "私有网络",
+    "PUBLIC": "公有网络"
+  },
+  "role": {
+    "SYSTEM": "系统管理员",
+    "DEFAULT": "普通用户",
+    "ADMIN": "管理员",
+    "ADMIN_READONLY": "只读管理员",
+    "ORG_ADMIN": "普通用户"
+  },
+  "region": {
+    "hangzhou": "杭州",
+    "shanghai": "上海",
+    "beijing": "北京",
+    "shenzhen": "深圳",
+    "guangzhou": "广州",
+    "customer": "不限",
+    "zhangjiakou": "张家口",
+    "huhehaote": "呼和浩特",
+    "hongkong": "香港",
+    "singapore": "新加坡",
+    "silicon_valley": "硅谷",
+    "london": "伦敦",
+    "qingdao": "青岛",
+    "mq_internet_access": "公网",
+    "hangzhou_finance": "杭州金融云",
+    "virginia": "弗吉尼亚",
+    "japan": "日本",
+    "australia": "澳大利亚",
+    "malaysia": "马来西亚",
+    "indonesia": "印度尼西亚",
+    "philippine": "菲律宾",
+    "german": "德国",
+    "india": "印度",
+    "dubai": "迪拜",
+    "shanghai_finance": "上海金融云",
+    "shenzhen_finance": "深圳金融云",
+    "beijing_finance": "北京金融云",
+    "wulanchabu": "乌兰察布"
+  },
+  "statusIcon": {
+    "icon-zanting": "已暂停",
+    "icon-zhengchang": "正常",
+    "icon-yichang": "异常",
+    "icon-wancheng": "已完成"
+  },
+  "filterType": {
+    "autoCreated": "待创建表",
+    "noCreate": "已存在表",
+    "hasPk": "有主键表",
+    "noPk": "无主键表",
+    "column": "列名筛选",
+    "differPk": "主键未对齐",
+    "hasWhere": "已添加where条件",
+    "noWhere": "未添加where条件",
+    "hasInJob": "已在任务中的表",
+    "notInJob": "未在任务中的表",
+    "hasSelected": "已选择的表",
+    "notSelected": "未选择的表",
+    "superTable": "超级表",
+    "normalTable": "普通表"
+  },
+  "resourceType": {
+    "WORKER": "机器",
+    "DATASOURCE": "数据源",
+    "DATA_JOB": "任务"
+  },
+  "createStatus": {
+    "CREATED": "创建完成",
+    "CREATING": "创建中"
+  },
+  "licenseType": {
+    "fullTransferCount": "全量迁移",
+    "incrementDuration": "增量同步",
+    "checkCount": "全量校验",
+    "structCount": "结构迁移"
+  },
+  "licenseTypeDefault": {
+    "FULL_TRANSFER_COUNT": "全量迁移",
+    "INCREMENT_SYNC_DURATION": "增量同步",
+    "FULL_CHECK_COUNT": "全量校验",
+    "STRUCT_TRANSFER_COUNT": "结构迁移"
+  },
+  "licenseTypeDefaultMeta": {
+    "1_TIME_FULL_TRANSFER_COUNT": "单次全量数据迁移",
+    "5_TIME_FULL_TRANSFER_COUNT": "5次全量数据迁移",
+    "10_TIME_FULL_TRANSFER_COUNT": "10次全量数据迁移",
+    "30_TIME_FULL_TRANSFER_COUNT": "30次全量数据迁移",
+    "100_TIME_FULL_TRANSFER_COUNT": "100次全量数据迁移",
+    "24_HOUR_INCREMENT_SYNC_DURATION": "24小时增量同步",
+    "168_HOUR_INCREMENT_SYNC_DURATION": "7天增量同步",
+    "720_HOUR_INCREMENT_SYNC_DURATION": "30天增量同步",
+    "4320_HOUR_INCREMENT_SYNC_DURATION": "180天增量同步",
+    "8640_HOUR_INCREMENT_SYNC_DURATION": "360天增量同步",
+    "1_TIME_FULL_CHECK_COUNT": "单次全量数据校验",
+    "5_TIME_FULL_CHECK_COUNT": "5次全量数据校验",
+    "10_TIME_FULL_CHECK_COUNT": "10次全量数据校验",
+    "30_TIME_FULL_CHECK_COUNT": "30次全量数据校验",
+    "100_TIME_FULL_CHECK_COUNT": "100次全量数据校验",
+    "1_TIME_STRUCT_TRANSFER_COUNT": "单次结构迁移",
+    "5_TIME_STRUCT_TRANSFER_COUNT": "5次结构迁移",
+    "10_TIME_STRUCT_TRANSFER_COUNT": "10次结构迁移",
+    "30_TIME_STRUCT_TRANSFER_COUNT": "30次结构迁移",
+    "100_TIME_STRUCT_TRANSFER_COUNT": "100次结构迁移"
+  },
+  "securityType": {
+    "KERBEROS": "KERBEROS",
+    "USER_PASSWD_WITH_TLS": "账号密码加TLS",
+    "USER_PASSWD": "账号密码",
+    "NONE": "无账号密码",
+    "ONLY_USER": "有账号无密码",
+    "ONLY_PASSWD": "无账号有密码"
+  },
+  "validation": {
+    "account": ["USER_PASSWD", "ONLY_USER", "KERBEROS", "USER_PASSWD_WITH_TLS"],
+    "password": ["USER_PASSWD", "ONLY_PASSWD", "USER_PASSWD_WITH_TLS"]
+  },
+  "testSecurityType": ["USER_PASSWD", "NONE", "ONLY_USER", "ONLY_PASSWD"],
+  "posType": {
+    "MYSQL_LOG_FILE_POS": "文件位点",
+    "MYSQL_GTID_POS": "GTID 位点",
+    "MYSQL_TIMESTAMP_POS": "时间戳位点",
+    "ORACLE_TIMESTAMP_POS": "时间戳位点",
+    "ORACLE_SCN_POS": "SCN 位点"
+  },
+  "columnMapping": {
+    "clougence_cloudcanal_filter_after_mapping_column": "仅订阅不写入对端"
+  }
+}

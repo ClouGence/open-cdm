@@ -1,0 +1,16 @@
+#define "allow" as string
+        default "true"
+        enum ["true", "false"]
+        hint "表示是否允许使用子查询"
+
+if
+  @domain.sqlType in ['INSERT']
+then
+
+  if #{allow} == 'true' then
+    return true
+  end
+
+  return !(@domain.fromSelect or @domain.hasSubQuery)
+
+end

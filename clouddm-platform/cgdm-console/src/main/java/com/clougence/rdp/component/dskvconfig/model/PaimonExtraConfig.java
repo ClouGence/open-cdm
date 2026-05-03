@@ -1,0 +1,61 @@
+package com.clougence.rdp.component.dskvconfig.model;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import com.clougence.clouddm.base.metadata.rdp.enumeration.PaimonPropsKey;
+import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
+import com.clougence.rdp.constant.DsConfigDef;
+import com.clougence.rdp.constant.I18nDsConfigMsgKeys;
+import com.clougence.rdp.constant.KvConfValType;
+import com.clougence.utils.ExceptionUtils;
+import com.clougence.utils.StringUtils;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
+
+@Getter
+@Setter
+@FieldNameConstants
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class PaimonExtraConfig extends DsExtraConfig {
+
+    @DsConfigDef(name = "httpsEnabled", defaultValue = "false", descKey = I18nDsConfigMsgKeys.DS_CONFIG_PAIMON_CATALOG_URI_HTTPS_ENABLED, valueAdvance = "true / false", readOnly = false, kvConfWebOp = KvConfValType.BOOLEAN)
+    private Boolean             httpsEnabled;
+
+    @DsConfigDef(name = "warehouse", descKey = I18nDsConfigMsgKeys.DS_CONFIG_PAIMON_WAREHOUSE, valueAdvance = "s3://warehouse/test, hdfs://ip:port/warehouse, file://warehouse, oss://warehouse/test, cosn://warehouse/test, my_instance_name", readOnly = false)
+    private String              warehouse;
+
+    @DsConfigDef(name = "metastoreType", defaultValue = "filesystem", descKey = I18nDsConfigMsgKeys.DS_CONFIG_PAIMON_METASTORE_TYPE, valueAdvance = "filesystem / rest", readOnly = false)
+    private String              metastoreType;
+
+    @DsConfigDef(name = "catalogProps", descKey = I18nDsConfigMsgKeys.DS_CONFIG_PAIMON_CATALOG_PROPS, valueAdvance = "eg: {\"s3.access-key\":\"\",\"s3.secret-key\":\"\",\"s3.path-style-access\":\"true\"}, {\"dlf.access-key-id\":\"\",\"dlf.access-key-secret\":\"\",\"token.provider\":\"dlf\"}, {\"fs.cosn.userinfo.secretId\":\"\",\"fs.cosn.userinfo.secretKey\":\"\"}", readOnly = false)
+    private String              catalogProps;
+
+    /**
+     * will put oll the catalog props into this map
+     */
+    private Map<String, String> catalogPropsMap;
+
+    public void deserialize() {
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put(PaimonPropsKey.CATALOG_METASTORE, this.metastoreType);
+        attributes.put(PaimonPropsKey.CATALOG_WAREHOUSE, this.warehouse);
+
+        if (StringUtils.isNotBlank(catalogProps)) {
+            try {
+                Map<String, String> props = new ObjectMapper().readValue(catalogProps, new TypeReference<Map<String, String>>() {
+                });
+                attributes.putAll(props);
+            } catch (Exception e) {
+                throw new RuntimeException("Process paimon extra config error.msg:" + ExceptionUtils.getRootCauseMessage(e), e);
+            }
+        }
+
+        this.catalogPropsMap = attributes;
+    }
+}

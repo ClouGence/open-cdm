@@ -1,0 +1,731 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.rdp.dal.mapper.RdpUserMapper">
+
+    <resultMap id="rdpUserDO" type="com.clougence.rdp.dal.model.RdpUserDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="uid" property="uid"/>
+        <result column="email" property="email"/>
+        <result column="username" property="username"/>
+        <result column="company" property="company"/>
+        <result column="phone" property="phone"/>
+        <result column="phone_area_code" property="phoneAreaCode" javaType="com.clougence.rdp.dal.enumeration.AreaCode"/>
+        <result column="sub_account" property="subAccount"/>
+        <result column="password" property="password"/>
+        <result column="op_password" property="opPassword"/>
+        <result column="role_id" property="roleId"/>
+        <result column="access_key" property="accessKey"/>
+        <result column="secret_key" property="secretKey"/>
+        <result column="last_try_login_time" property="lastTryLoginTime"/>
+        <result column="login_fail_count" property="loginFailCount"/>
+        <result column="login_locked" property="loginLocked"/>
+        <result column="last_try_op_verify_time" property="lastTryOpVerifyTime"/>
+        <result column="op_verify_fail_count" property="opVerifyFailCount"/>
+        <result column="op_locked" property="opLocked"/>
+        <result column="account_type" property="accountType" javaType="com.clougence.rdp.dal.enumeration.AccountType"/>
+        <result column="bind_type" property="bindType" typeHandler="com.clougence.rdp.dal.handler.AccountBindTypeTypeHandler"/>
+        <result column="bind_account" property="bindAccount"/>
+        <result column="disable" property="disable"/>
+        <result column="user_domain" property="userDomain"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="user_status" property="userStatus" javaType="com.clougence.rdp.dal.enumeration.UserStatus"/>
+        <result column="contact_me" property="contactMe"/>
+        <result column="src" property="src"/>
+        <result column="keyword" property="keyword"/>
+        <result column="client_id" property="clientId"/>
+        <result column="country" property="country"/>
+        <result column="maintainer" property="maintainer"/>
+        <result column="aliyun_ak" property="aliyunAk"/>
+        <result column="aliyun_sk" property="aliyunSk"/>
+        <result column="last_date_update_aliyun_ak" property="lastDateUpdateAliyunAk"/>
+        <result column="last_date_update_pwd" property="lastDateUpdatePwd"/>
+        <result column="union_id" property="unionId"/>
+        <result column="sso_type" property="ssoType"/>
+        <result column="resource_manage_enable" property="resourceManageEnable" />
+        <result column="saas_user_status" property="saasUserStatus"/>
+        <result column="customer_id" property="customerId" />
+        <result column="access_token" property="accessToken" />
+        <result column="marketplace_type" property="marketplaceType"/>
+        <result column="use_mfa" property="useMfa" />
+    </resultMap>
+
+    <sql id="rdpUser">
+        rdp_user.id id,
+        rdp_user.gmt_create gmt_create,
+        rdp_user.gmt_modified gmt_modified,
+        rdp_user.uid uid,
+        rdp_user.email email,
+        rdp_user.username username,
+        rdp_user.company company,
+        rdp_user.phone phone,
+        rdp_user.phone_area_code phone_area_code,
+        rdp_user.sub_account sub_account,
+        rdp_user.password password,
+        rdp_user.op_password op_password,
+        rdp_user.role_id role_id,
+        rdp_user.access_key access_key,
+        rdp_user.secret_key secret_key,
+        rdp_user.last_try_login_time last_try_login_time,
+        rdp_user.login_fail_count login_fail_count,
+        rdp_user.login_locked login_locked,
+        rdp_user.last_try_op_verify_time last_try_op_verify_time,
+        rdp_user.op_verify_fail_count op_verify_fail_count,
+        rdp_user.op_locked op_locked,
+        rdp_user.account_type account_type,
+        rdp_user.bind_type bind_type,
+        rdp_user.bind_account bind_account,
+        rdp_user.disable disable,
+        rdp_user.user_domain user_domain,
+        rdp_user.parent_id parent_id,
+        rdp_user.user_status user_status,
+        rdp_user.contact_me contact_me,
+        rdp_user.src src,
+        rdp_user.keyword keyword,
+        rdp_user.client_id client_id,
+        rdp_user.country country,
+        rdp_user.maintainer maintainer,
+        rdp_user.aliyun_ak aliyun_ak,
+        rdp_user.aliyun_sk aliyun_sk,
+        rdp_user.last_date_update_aliyun_ak last_date_update_aliyun_ak,
+        rdp_user.last_date_update_pwd last_date_update_pwd,
+        rdp_user.union_id union_id,
+        rdp_user.sso_type sso_type,
+        rdp_user.resource_manage_enable resource_manage_enable,
+        rdp_user.customer_id customer_id,
+        rdp_user.saas_user_status saas_user_status,
+        rdp_user.access_token access_token,
+        rdp_user.marketplace_type marketplace_type,
+        rdp_user.use_mfa use_mfa
+    </sql>
+
+    <resultMap id="approvalPersonDO" type="com.clougence.rdp.dal.model.RdpTicketApproPersonDO">
+        <result column="uid" property="uid"/>
+        <result column="username" property="username"/>
+        <result column="role_auth_labels" property="roleAuthLabels" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="res_auth_label" property="resAuthLabel" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="res_id" property="resId"/>
+    </resultMap>
+
+    <resultMap id="rdpUserInfoDO" type="com.clougence.rdp.dal.model.RdpUserInfoDO">
+        <result column="uid" property="uid"/>
+        <result column="username" property="username"/>
+    </resultMap>
+
+    <select id="queryPrimaryByPhone" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            phone = #{phone}
+            AND account_type = 'PRIMARY_ACCOUNT'
+        limit 1
+    </select>
+
+    <select id="querySubByPhone" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            phone = #{phone}
+            AND account_type = 'SUB_ACCOUNT'
+    </select>
+
+    <select id="queryPrimaryByPhoneAndAreaCode" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            phone = #{phone}
+            AND phone_area_code = #{areaCode,javaType=com.clougence.rdp.dal.enumeration.AreaCode}
+            AND account_type = 'PRIMARY_ACCOUNT'
+        limit 1
+    </select>
+
+    <select id="queryPrimaryByEmail" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            email = #{email}
+            AND account_type = 'PRIMARY_ACCOUNT'
+        limit 1
+    </select>
+
+    <select id="querySubByEmail" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            email = #{email}
+            AND account_type = 'SUB_ACCOUNT'
+    </select>
+
+    <select id="queryPrimaryByCompany" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            company = #{company}
+            AND account_type = 'PRIMARY_ACCOUNT'
+    </select>
+
+    <select id="queryPrimaryByDomain" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            user_domain  = #{domain} AND
+            account_type = 'PRIMARY_ACCOUNT'
+    </select>
+
+    <select id="querySubAccountByPhoneAndAccount" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            phone = #{phone}
+            AND sub_account = #{subAccount}
+            AND account_type = 'SUB_ACCOUNT'
+    </select>
+
+    <select id="querySubAccountByEmailAndAccount" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            email = #{email}
+            AND sub_account = #{subAccount}
+            AND account_type = 'SUB_ACCOUNT'
+    </select>
+
+    <select id="queryByPhoneAndParentId" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            phone = #{phone}
+            AND parent_id = #{parentId}
+    </select>
+
+    <select id="queryByEmailAndParentId" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            email = #{email}
+            AND parent_id = #{parentId}
+    </select>
+
+    <select id="queryBySubAccount" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            sub_account = #{subAccount}
+    </select>
+
+    <select id="queryBySubAccountAndBind" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            parent_id = #{parentId} and
+            sub_account = #{subAccount} and
+            bind_type = #{bindType}
+    </select>
+
+    <select id="queryBySubAccountByBindInfo" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            parent_id = #{parentId}
+        and
+            bind_account = #{bindAccount}
+        and
+            bind_type = #{bindType,javaType=com.clougence.rdp.dal.enumeration.AccountBindType}
+    </select>
+
+    <select id="queryById" resultMap="rdpUserDO">
+        SELECT
+        <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            id = #{id}
+    </select>
+
+    <select id="queryByUid" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            uid = #{uid}
+    </select>
+
+    <select id="queryByAccessKey" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            access_key = #{accessKey}
+    </select>
+
+    <select id="listByUids" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            uid in <foreach collection="uids" item="item" separator="," open="(" close=")">#{item}</foreach>
+    </select>
+
+    <select id="listByUserName" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            username = #{userName}
+    </select>
+
+    <select id="listByRoleId" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            role_id = #{roleId}
+    </select>
+
+    <select id="listByParentId" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            parent_id = #{parentId}
+    </select>
+
+    <select id="queryCountByParentId" resultType="long">
+        SELECT
+            count(*)
+        FROM
+            rdp_user
+        WHERE
+            parent_id = #{parentId}
+    </select>
+
+    <select id="listByCondition" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            parent_id = #{parentId}
+            <if test="roleId != 0">
+                AND role_id=#{roleId}
+            </if>
+            <if test="prefix != null">
+                AND (
+                    (username LIKE CONCAT(#{prefix},'%') OR sub_account LIKE
+                    CONCAT(#{prefix},'%')) OR uid = #{prefix}
+                )
+            </if>
+        order by gmt_create desc
+    </select>
+
+    <select id="listPrimaryAccount" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            account_type = 'PRIMARY_ACCOUNT' and
+            email        != 'inner@clougence.com' and
+            disable      = 0
+        order by
+            company asc
+    </select>
+
+    <select id="listMaintainers" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            maintainer = 1
+            and disable = 0
+            and login_locked = 0
+            order by company asc
+        limit 5
+    </select>
+
+    <select id="queryByConditions" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            phone = #{phone}
+        AND username = #{username}
+        AND email = #{email}
+        AND company = #{company}
+        AND account_type = 'PRIMARY_ACCOUNT'
+    </select>
+
+    <select id="searchUserByKeywords" resultMap="rdpUserInfoDO">
+        SELECT
+            uid,
+            username
+        FROM
+            rdp_user
+        WHERE
+            user_domain  = #{userDomain} and
+            disable      = 0 and
+            login_locked = 0
+            <if test="keywords != null">and (
+                phone    LIKE CONCAT('%', #{keywords}, '%') or
+                username LIKE CONCAT('%', #{keywords}, '%') or
+                email    LIKE CONCAT('%', #{keywords}, '%') or
+                uid      LIKE CONCAT('%', #{keywords}, '%')
+            )
+            </if>
+        order by
+            username asc
+    </select>
+
+    <select id="queryPrimaryByUnionIdAndSsoType" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            union_id = #{unionId}
+        AND account_type = 'PRIMARY_ACCOUNT'
+        AND sso_type = #{ssoType}
+        limit 1
+    </select>
+
+    <select id="querySubByPrimaryId" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        WHERE
+            parent_id = #{primaryId}
+        AND disable = false
+    </select>
+
+    <select id="queryApproPerson" resultMap="approvalPersonDO">
+        SELECT
+            a.`uid`,
+            a.`username`,
+            b.`role_auth_labels`,
+            c.`res_auth_label`
+        FROM
+            `rdp_user` a
+            LEFT JOIN `rdp_role` b ON a.`role_id` = b.`id`
+            LEFT JOIN `rdp_res_auth` c ON a.`uid` = c.`owner_uid`
+        WHERE
+            a.`account_type` = #{accountType}
+            AND a.`parent_id` = #{parentId}
+            AND c.res_id = #{resId}
+            AND #{resPath} like concat(c.res_path,'%')
+    </select>
+
+    <select id="queryPrimaryAccountCount" resultType="java.lang.Long">
+        SELECT
+            count(*)
+        FROM
+            rdp_user
+        WHERE
+            account_type = 'PRIMARY_ACCOUNT' and
+            email        != 'inner@clougence.com' and
+            disable      = 0
+    </select>
+
+    <select id="querySubAccountCount" resultType="java.lang.Long">
+        SELECT
+            count(*)
+        FROM
+            rdp_user
+        WHERE
+            account_type = 'SUB_ACCOUNT' AND
+            email != 'inner@clougence.com' AND
+            disable = 0
+    </select>
+
+    <select id="queryUsableSubAccountCountByPrimary" resultType="java.lang.Long">
+        SELECT
+            count(*)
+        FROM
+            rdp_user
+        WHERE
+            parent_id    = #{parentId} and
+            account_type = 'SUB_ACCOUNT' and
+            disable      = 0
+    </select>
+
+    <select id="listByIds" resultType="com.clougence.rdp.dal.model.RdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            rdp_user
+        where id  in <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach>
+    </select>
+
+    <update id="updateRoleById">
+        UPDATE
+            rdp_user
+        SET
+            role_id = #{roleId}
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="updateLoginLimitInfo">
+        UPDATE
+            rdp_user
+        SET
+            last_try_login_time = #{lastTryLoginTime},
+            login_fail_count = #{loginFailCount},
+            login_locked = #{loginLocked}
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="updatePasswdById">
+        UPDATE
+            rdp_user
+        SET
+            password = #{password},
+            last_date_update_pwd = now()
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="updateOpPasswdById">
+        UPDATE
+            rdp_user
+        SET
+            op_password = #{opPassword}
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="updateAbilityByUid">
+        UPDATE
+            rdp_user
+        SET
+            disable = #{disable}
+        WHERE
+            uid = #{uid}
+    </update>
+
+    <update id="updateUserStatus">
+        UPDATE
+            rdp_user
+        SET user_status = #{userStatus,javaType=com.clougence.rdp.dal.enumeration.UserStatus}
+        WHERE uid = #{uid}
+    </update>
+
+    <update id="updateAccessTokenByUid">
+        UPDATE
+            rdp_user
+        SET
+            access_token = #{accessToken}
+        WHERE uid = #{uid}
+    </update>
+
+    <update id="updateSubAccountAndName">
+        UPDATE
+        rdp_user
+        <set>
+            <if test="subAccount!=null and subAccount!=''">
+                sub_account = #{subAccount},
+            </if>
+            <if test="userName!=null and userName!=''">
+                username = #{userName},
+            </if>
+        </set>
+        WHERE
+        uid = #{uid}
+    </update>
+
+    <update id="updateUserName">
+        UPDATE
+            rdp_user
+        set
+            username = #{userName}
+        WHERE
+            uid = #{uid}
+    </update>
+
+    <update id="updateUserContactInfo">
+        UPDATE
+        rdp_user
+        <set>
+            <if test="phone!=null and phone!=''">
+                phone = #{phone},
+            </if>
+            <if test="email!=null and email!=''">
+                email = #{email},
+            </if>
+        </set>
+        WHERE
+        uid = #{uid}
+    </update>
+
+    <update id="updateUserAliyunAkSk">
+        UPDATE
+            rdp_user
+        SET
+            aliyun_ak = #{aliyunAk},
+            aliyun_sk = #{aliyunSk},
+            last_date_update_aliyun_ak = now()
+        WHERE
+            uid = #{uid}
+    </update>
+
+    <update id="updateUserAkSk">
+        UPDATE
+            rdp_user
+        SET
+            access_key = #{accessKey},
+            secret_key = #{secretKey}
+        WHERE
+            uid = #{uid}
+    </update>
+
+    <update id="updateUnionId">
+        UPDATE
+            rdp_user
+        SET
+            union_id = #{unionId},
+            sso_type = #{ssoType}
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="updateLastUpdatePwdTimeById">
+        UPDATE
+            rdp_user
+        SET
+            last_date_update_pwd = now()
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="updateResourceMangeEnable">
+        UPDATE
+            rdp_user
+        SET
+           resource_manage_enable = #{resourceManage}
+        WHERE
+            uid = #{targetUid}
+    </update>
+
+    <update id="updateUserSaasStatus">
+        UPDATE
+            rdp_user
+        SET
+            saas_user_status = #{userStatus}
+        WHERE
+            uid = #{uid}
+    </update>
+
+    <update id="updateMfaStatus">
+        UPDATE
+        rdp_user
+        SET
+        use_mfa = #{useMfa}
+        WHERE
+        uid = #{uid}
+    </update>
+
+    <update id="updateUserMarketplaceType">
+        UPDATE
+            rdp_user
+        SET
+            marketplace_type = #{marketplaceType}
+        WHERE
+            id = #{id}
+    </update>
+
+    <select id="listSubAccountByPidAndAuth" resultType="com.clougence.rdp.dal.model.RdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM rdp_user left join rdp_role
+             ON rdp_user.role_id=rdp_role.id
+        WHERE parent_id=#{pid} and JSON_CONTAINS(rdp_role.role_auth_labels, '["' #{authLabel} '"]')
+    </select>
+
+    <select id="queryUsernameByUid" resultType="java.lang.String">
+        SELECT
+            username
+        FROM
+            rdp_user
+        WHERE
+            uid = #{uid}
+    </select>
+    <select id="isResourceManger" resultType="java.lang.Boolean">
+        SELECT
+            rdp_user.resource_manage_enable
+        FROM rdp_user
+        WHERE uid = #{targetUid}
+    </select>
+    <select id="listSubResourceManagersByPrimaryUId" resultType="com.clougence.rdp.dal.model.RdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM rdp_user
+        WHERE rdp_user.resource_manage_enable = 1
+            AND rdp_user.parent_id = (
+                SELECT r_inner.id
+                FROM rdp_user r_inner
+                WHERE r_inner.uid = #{puid}
+            )
+    </select>
+
+    <select id="listSubResourceManagersByPrimaryId" resultType="com.clougence.rdp.dal.model.RdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM rdp_user
+        WHERE rdp_user.resource_manage_enable = 1 and rdp_user.parent_id = #{pid}
+    </select>
+
+    <select id="queryAuthApproPerson" resultMap="approvalPersonDO">
+        SELECT
+            a.`uid`,
+            a.`username`,
+            b.`role_auth_labels`,
+            c.`res_auth_label`,
+            c.`res_id`
+        FROM
+            `rdp_user` a
+                LEFT JOIN `rdp_role` b ON a.`role_id` = b.`id`
+                LEFT JOIN `rdp_res_auth` c ON a.`uid` = c.`owner_uid`
+        WHERE
+            a.`account_type` = #{accountType}
+          AND a.`parent_id` = #{parentId}
+    </select>
+</mapper>

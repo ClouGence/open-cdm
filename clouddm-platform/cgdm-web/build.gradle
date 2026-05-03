@@ -1,0 +1,63 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs = ["${projectDir}/dist"]
+        }
+    }
+}
+
+Properties globalConfig = new Properties()
+try (FileInputStream fis = new FileInputStream(new File(rootDir, "gradle.properties"))) {
+    globalConfig.load(fis)
+}
+
+description = 'cgdm-web'
+
+// This module contains only static web resources — no Java source.
+// Declare the lowest compatibility so any Java consumer can resolve it.
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks.register('npmInstall', Exec) {
+    workingDir projectDir
+    commandLine 'npm', 'install'
+    inputs.file("${projectDir}/package.json")
+    File packageLockFile = file("${projectDir}/package-lock.json")
+    if (packageLockFile.exists()) {
+        inputs.file(packageLockFile)
+    }
+    outputs.dir("${projectDir}/node_modules")
+}
+
+tasks.register('npmBuild', Exec) {
+    workingDir projectDir
+    commandLine 'npm', 'run', 'build:release'
+    inputs.dir("${projectDir}/src")
+    inputs.file("${projectDir}/vue.config.js")
+    outputs.dir("${projectDir}/dist")
+    dependsOn 'npmInstall'
+}
+
+processResources.dependsOn('npmBuild')
+
+jar {
+    archiveBaseName = 'clouddm-js'
+    duplicatesStrategy = DuplicatesStrategy.WARN
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.clougence.clouddm'
+            artifactId = 'clouddm-js'
+            from(components.java)
+        }
+    }
+}

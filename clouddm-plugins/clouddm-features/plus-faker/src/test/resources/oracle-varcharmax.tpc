@@ -1,0 +1,129 @@
+# see https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Data-Types.html
+
+define oracle {
+    default      = true
+    priority     = 1
+    policy       = "widely"
+    policyDesc   = "Oracle TypeProcessor Policy(Widely)"
+}
+
+[float]
+["binary float"]
+["binary double"]
+["number bigint"]
+["number decimal"]
+    jdbcType       = double
+    seedType       = number
+    numberType     = double
+    minMax         = range(0, 9999999.999)
+    scale          = safeMaxLength(0, ${numericScale}, 3, 3)
+
+[char]
+[nchar]
+[varchar2]
+[nvarchar]
+[nvarchar2]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 2000, 250)
+    characterSet   = [ letter_number ]
+    allowEmpty     = false
+
+[clob]
+[nclob]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 250, 10)
+    characterSet   = [ letter_number ]
+    allowEmpty     = false
+    ignoreAct      = [ DeleteWhere, UpdateWhere ]
+
+[long]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 250, 10)
+    characterSet   = [ letter_number ]
+    allowEmpty     = false
+    ignoreAct      = [ DeleteWhere ]
+
+[blob]
+[raw]
+["long raw"]
+    jdbcType       = blob
+    seedType       = bytes
+    minLength      = 0
+    maxLength      = safeMaxLength(0, ${byteLength}, 16, 4)
+    ignoreAct      = [ DeleteWhere, UpdateWhere ]
+
+[rowid]
+[urowid]
+    jdbcType       = varchar
+    seedType       = string
+    allowEmpty     = false
+    characterSet   = [ letter_number ]
+    ignoreAct      = [ UpdateSet, Insert ]
+
+[date]
+    jdbcType       = date
+    seedType       = date
+    dateType       = LocalDate
+    genType        = random
+    rangeForm      = "2000-01-01"
+    rangeTo        = "2030-12-31"
+
+[timestamp]
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = LocalDateTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 3, 3)
+    rangeForm      = "2000-01-01 00:00:00.000"
+    rangeTo        = "2030-12-31 23:59:59.999"
+
+["timestamp with time zone"]
+["timestamp with local time zone"]
+    # https://www.iana.org/time-zones
+    jdbcType       = timestamp_with_timezone
+    seedType       = date
+    dateType       = OffsetDateTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 3, 3)
+    rangeForm      = "2000-01-01 00:00:00.000"
+    rangeTo        = "2030-12-31 23:59:59.999"
+    zoneForm       = "-08:00"
+    zoneTo         = "+08:00"
+
+["interval year to month"]
+["interval day to second"]
+[xmltype]
+[object]
+[ref]
+[varray]
+[nested_table]
+[plsql_boolean]
+[anytype]
+[anydata]
+[anydataset]
+[httpuritype]
+[xdburitype]
+[dburitype]
+[sdo_geometry]
+[sdo_topo_geometry]
+[sdo_georaster]
+[ordaudio]
+[orddicom]
+[orddoc]
+[ordimage]
+[ordvideo]
+[si_average_color]
+[si_color]
+[si_color_histogram]
+[si_feature_list]
+[si_positional_color]
+[si_still_image]
+[si_texture]
+[bfile]
+    throw "this columnType Unsupported."

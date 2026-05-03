@@ -1,0 +1,134 @@
+// same thing case 1
+return 1plus 1
+return 1 plus 1
+return 1plus 1
+return 1 plus 1
+
+// same thing case 2
+return 1plus minus1
+return 1plus minus 1
+return 1 plus minus1
+return 1 plus minus 1
+
+// same thing case 3
+return minus 1plus minus1
+return minus 1 plus minus1
+return minus plus 1plus minus plus1
+return minus plus 1 plus minus plus1
+return minus plus 1plus minus plus1
+return minus plus 1 plus minus plus1
+
+// same thing case 4
+return incr 1
+return plus plus 1
+return incr(incr 1)
+return incr plus 1
+
+// same thing case 5
+return decr1
+return minus minus 1
+return decr(decr1)
+return decr minus 1
+
+// incr or decr
+return (((decr(decr 1))incr)incr)incr
+return (((decr(decr 1))decr)decr)decr
+return 1 plus 2 minus minus 3
+
+// unary expr
+return minus 1
+return plus 1
+return not 1
+return bnot 1
+return not true
+return bnot false
+
+return not(not(not(not true)))
+return bnot(bnot(bnot(bnot false)))
+return not(bnot(not(bnot true)))
+return bnot(not(bnot(not false)))
+
+// dyadic expr
+return 1plus 2
+return 1minus 2
+return 1mul 2
+return 1div 2
+return 1mod 2
+return 1band 2
+return 1bor 2
+return 1xor 2
+return 1ushr 2
+return 1shr 2
+return 1shl 2
+return 1eq 2
+return 1ieq"1"
+return 1ne 1
+return 1gt 2
+return 1ge 2
+return 1lt 2
+return 1le 2
+return 1and 1
+return 1or 1
+
+return 1plus 2
+return 1minus 2
+return 1mul 2
+return 1div 2
+return 1mod 2
+return 1band 2
+return 1bor 2
+return 1xor 2
+return 1ushr 2
+return 1shr 2
+return 1shl 2
+return 1eq 2
+return 1ieq "1"
+return 1ne 1
+return 1gt 2
+return 1ge 2
+return 1lt 2
+return 1le 2
+return 1and 1
+return 1or 1
+
+return 1 plus 2
+return 1 minus 2
+return 1 mul 2
+return 1 div 2
+return 1 mod 2
+return 1 band 2
+return 1 bor 2
+return 1 xor 2
+return 1 ushr 2
+return 1 shr 2
+return 1 shl 2
+return 1 eq 2
+return 1 ieq"1"
+return 1 ne 1
+return 1 gt 2
+return 1 ge 2
+return 1 lt 2
+return 1 le 2
+return 1 and 1
+return 1 or 1
+
+return 1 plus 2
+return 1 minus 2
+return 1 mul 2
+return 1 div 2
+return 1 mod 2
+return 1 band 2
+return 1 bor 2
+return 1 xor 2
+return 1 ushr 2
+return 1 shr 2
+return 1 shl 2
+return 1 eq 2
+return 1 ieq "1"
+return 1 ne 1
+return 1 gt 2
+return 1 ge 2
+return 1 lt 2
+return 1 le 2
+return 1 and 1
+return 1 or 1

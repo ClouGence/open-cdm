@@ -1,0 +1,17 @@
+#define "allow" as string
+        default "true"
+        enum ["true", "false"]
+        hint "是否允许使用 WITH 字句"
+
+if cast(#{allow} as bool) then
+  return true
+end
+
+if @domain.sqlType == 'UPDATE' then
+  return not @domain.hasWith
+end
+
+// TODO 目前搞不定，需要依赖模型中增加 group 概念。将一个语句所拆分的所有小模型都放到 group 里，并借助 脚本 for 能力来判断（for 目前也不支持）
+if @domain.sqlType == 'SELECT' and @domain.mode == 'INSERT' then
+  return not @domain.hasWith
+end

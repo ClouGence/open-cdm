@@ -1,0 +1,3728 @@
+// 暗色主题样式适配
+
+[data-theme='dark'] {
+  // 全局背景和文字
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
+
+  // 卡片样式
+  .job-detail-wrapper,
+  .job-detail-container,
+  .job-detail-content,
+  .job-body,
+  .job-detail-state {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
+
+  .job-header {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-primary);
+  }
+
+  // 通用卡片
+  .border-radius-card-top,
+  .border-radius-card {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-primary);
+  }
+
+  .ivu-tabs-nav-scroll {
+    border-color: #3a3a3a !important;
+  }
+
+  // 标签页
+  .ivu-tabs {
+    background-color: transparent;
+
+    &-bar {
+      background-color: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-primary);
+    }
+
+    &-nav,
+    &-nav-scroll {
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    &-ink-bar {
+      background-color: var(--primary-color) !important;
+    }
+
+    &-tab {
+      color: var(--text-secondary);
+      background-color: transparent;
+
+      &:hover {
+        color: var(--text-primary);
+      }
+
+      &-active {
+        color: var(--primary-color);
+        background-color: var(--bg-secondary);
+      }
+
+      &-disabled {
+        color: var(--text-disabled) !important;
+      }
+    }
+
+    &-content {
+      background-color: var(--bg-primary);
+    }
+  }
+
+  // Ant Design 标签页
+  .ant-tabs {
+    background-color: transparent;
+    color: var(--text-primary);
+
+    &-nav {
+      background-color: var(--bg-secondary);
+
+      &::before {
+        border-color: var(--border-primary);
+      }
+    }
+
+    &-tab {
+      color: var(--text-secondary);
+
+      &:hover {
+        color: var(--text-primary);
+      }
+
+      &-active {
+        color: var(--primary-color);
+
+        .ant-tabs-tab-btn {
+          color: var(--primary-color);
+        }
+      }
+    }
+
+    &-content-holder {
+      background-color: var(--bg-primary);
+    }
+  }
+
+  // 表格
+  .ivu-table {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+
+    &::before,
+    &::after {
+      background-color: #3a3a3a !important;
+    }
+
+    th {
+      background-color: #22252e;
+      border-color: var(--border-primary) !important;
+      color: var(--text-primary);
+    }
+
+    td {
+      background-color: var(--bg-secondary);
+      border-color: var(--border-primary) !important;
+      color: var(--text-primary);
+    }
+
+    &-header {
+      background-color: var(--bg-secondary);
+    }
+
+    tr:hover td {
+      background-color: var(--bg-secondary);
+    }
+
+    // 固定列hover样式
+    &-fixed-right,
+    &-fixed-left {
+      tr:hover td {
+        background-color: #22252e !important;
+      }
+
+      // 表格行hover样式
+      &-row-hover td {
+        background-color: #22252e !important;
+      }
+    }
+
+    // 表格行hover样式
+    &-row-hover td {
+      background-color: #22252e !important;
+    }
+  }
+
+  .ivu-table-fixed-right {
+    &::before {
+      background-color: #3a3a3a !important;
+    }
+  }
+
+  // 选中行高亮（覆盖 hover/通用单元格背景）
+  .ivu-table {
+    .ivu-table-body .ivu-table-row-highlight td,
+    .ivu-table-fixed-body .ivu-table-row-highlight td,
+    .ivu-table-fixed-right .ivu-table-fixed-body .ivu-table-row-highlight td,
+    .ivu-table-fixed-left .ivu-table-fixed-body .ivu-table-row-highlight td {
+      background-color: var(--bg-select) !important;
+    }
+  }
+
+  // 表格外层边框样式
+  .ivu-table-wrapper-with-border {
+    border-color: var(--border-primary);
+  }
+
+  // 表格loading mask样式
+  .ivu-spin-fix {
+    background-color: rgba(0, 0, 0, 0.5) !important;
+  }
+
+  // 移除所有表格内边框
+  .ivu-table {
+    // 移除表格内部所有边框
+    th {
+      //border: none !important;
+      border-right: none !important;
+      //border-bottom: none !important;
+      border-left: none !important;
+      border-top: none !important;
+      background-color: #22252e !important;
+    }
+
+    td {
+      //border: none !important;
+      border-right: none !important;
+      //border-bottom: none !important;
+      border-left: none !important;
+      border-top: none !important;
+    }
+
+    // 移除表格行边框
+    tr {
+      border: none !important;
+    }
+
+    // 移除表格头部边框
+    thead th {
+      //border: none !important;
+      //border-bottom: none !important;
+      background-color: #22252e !important;
+    }
+
+    // 移除表格体边框
+    tbody td {
+      //border: none !important;
+    }
+
+    // 移除固定列边框
+    &-fixed-left,
+    &-fixed-right {
+      th {
+        //border: none !important;
+        background-color: #22252e !important;
+        border-color: var(--border-primary) !important;
+      }
+
+      td {
+        //border: none !important;
+      }
+    }
+
+    // 移除边框表格的特殊样式
+    &.ivu-table-border {
+      th {
+        //border: none !important;
+        background-color: #22252e !important;
+      }
+
+      td {
+        //border: none !important;
+      }
+    }
+  }
+
+  // 表格斑马线样式
+  .ivu-table-stripe .ivu-table-body tr:nth-child(2n) td,
+  .ivu-table-stripe .ivu-table-fixed-body tr:nth-child(2n) td {
+    background-color: #22252e !important;
+  }
+
+  // 表格中待创建需要变色
+  .ivu-table {
+    .db-to-create,
+    .db-to-create td,
+    .db-to-create td span {
+      color: #ff6e0d !important;
+    }
+  }
+
+  // 通用表格斑马线样式
+  .table-striped > tbody > tr:nth-of-type(odd),
+  .table-striped > tbody > tr:nth-child(odd) > td,
+  .table-striped > tbody > tr:nth-child(odd) > th {
+    background-color: #22252e !important;
+  }
+
+  .table-striped > thead > th {
+    background-color: #22252e !important;
+  }
+
+  // 通用表格hover样式
+  .table-hover > tbody > tr:hover {
+    background-color: #22252e !important;
+  }
+
+  .table-hover > tbody > tr:hover > td,
+  .table-hover > tbody > tr:hover > th {
+    background-color: #22252e !important;
+  }
+
+  // 按钮
+  .ivu-btn,
+  .ant-btn {
+    border-color: var(--border-radio) !important;
+    background-color: var(--bg-select);
+    color: var(--text-primary);
+
+    &:not(.ivu-btn-primary):not(.ant-btn-primary):hover {
+      background-color: var(--bg-hover);
+      border-color: #ffffff !important;
+    }
+
+    &-primary {
+      background-color: #0087c7 !important;
+      border-color: var(--border-radio) !important;
+      color: #ffffff !important;
+
+      &.ivu-btn-ghost {
+        border-color: #0bb9f9 !important;
+        color: #0bb9f9 !important;
+
+        span {
+          color: #0bb9f9 !important;
+        }
+
+        &:hover {
+          border-color: #0087c7 !important;
+          color: #0087c7 !important;
+
+          span {
+            color: #0087c7 !important;
+          }
+        }
+      }
+
+      &:hover {
+        opacity: 0.8;
+        border-color: #ffffff !important;
+        color: #ffffff !important;
+      }
+    }
+
+    &-error,
+    &-danger {
+      background-color: var(--error-color);
+      border-color: var(--border-radio) !important;
+      color: #ffffff !important;
+
+      &:hover {
+        color: #ffffff !important;
+      }
+    }
+
+    &-warning {
+      background-color: var(--warning-color);
+      border-color: var(--border-radio) !important;
+      color: #ffffff !important;
+
+      &:hover {
+        color: #ffffff !important;
+      }
+
+      // ghost 类型的 warning 按钮，允许内联样式覆盖
+      &.ivu-btn-ghost,
+      &.ant-btn-ghost {
+        background-color: transparent !important;
+        // 使用更具体的选择器覆盖父级的 !important 规则
+        // 但不使用 !important，让内联样式能够覆盖
+        border-color: var(--warning-color);
+        color: var(--warning-color);
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+          // hover 时也使用默认颜色，但内联样式可以覆盖
+          border-color: var(--warning-color);
+          color: var(--warning-color);
+        }
+      }
+    }
+
+    // ghost 按钮通用样式
+    &.ivu-btn-ghost,
+    &.ant-btn-ghost {
+      background-color: transparent !important;
+    }
+
+    // 按钮禁用状态
+    &[disabled],
+    &[disabled]:hover,
+    &-disabled,
+    &-disabled:hover {
+      background-color: var(--disabled-bg) !important;
+      border-color: var(--border-primary) !important;
+      color: var(--text-disabled) !important;
+      cursor: not-allowed !important;
+      opacity: 0.6;
+
+      span {
+        color: var(--text-disabled) !important;
+      }
+    }
+  }
+
+  .ivu-btn.ivu-btn-text,
+  .ivu-btn-text {
+    border-color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--primary-color) !important;
+
+    span {
+      color: var(--primary-color) !important;
+    }
+
+    &:hover,
+    &:focus {
+      border-color: transparent !important;
+      background: transparent !important;
+      color: var(--primary-color) !important;
+      opacity: 0.8;
+      box-shadow: none !important;
+    }
+  }
+
+  // 输入框
+  .ivu-input,
+  .ant-input {
+    background-color: var(--bg-select) !important;
+    border-color: var(--border-radio) !important;
+    color: var(--text-primary);
+
+    &:hover {
+      border-color: #ffffff !important;
+    }
+
+    &:focus {
+      border-color: #ffffff !important;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+    }
+
+    // 输入框禁用状态
+    &[disabled],
+    &[disabled]:hover {
+      background-color: var(--disabled-bg) !important;
+      border-color: var(--border-primary) !important;
+      color: var(--text-disabled) !important;
+      cursor: not-allowed !important;
+      opacity: 0.6;
+    }
+  }
+
+  .ivu-input-word-count {
+    background-color: unset !important;
+  }
+
+  // Ant Input Affix（带前后缀/搜索的输入框）
+  .ant-input-affix-wrapper {
+    background-color: var(--bg-select) !important;
+    border-color: var(--border-radio) !important;
+    color: var(--text-primary) !important;
+
+    &:hover {
+      border-color: #ffffff !important;
+    }
+
+    &-focused,
+    &-status-success,
+    &-status-warning,
+    &-status-error {
+      background-color: var(--bg-select) !important;
+      border-color: var(--border-radio) !important;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .ant-input-prefix,
+    .ant-input-suffix,
+    .ant-input-clear-icon,
+    .anticon {
+      color: var(--text-secondary) !important;
+    }
+  }
+
+  .ant-input-search {
+    .ant-input {
+      background-color: var(--bg-select) !important;
+      border-color: var(--border-radio) !important;
+      color: var(--text-primary) !important;
+    }
+
+    .ant-input-group-addon {
+      background-color: var(--bg-select) !important;
+      border-color: var(--border-radio) !important;
+    }
+
+    .ant-input-search-button,
+    .ant-btn {
+      background-color: var(--bg-secondary) !important;
+      border-color: var(--border-radio) !important;
+      color: var(--text-primary) !important;
+
+      &:hover {
+        background-color: var(--bg-hover) !important;
+        border-color: #ffffff !important;
+        color: #ffffff !important;
+      }
+    }
+
+    // 圆角被外层覆盖时的输入框左右边框一致
+    .ant-input-group .ant-input-affix-wrapper:not(:last-child) {
+      border-right-color: #ffffff !important;
+    }
+
+    .ant-input-group .ant-input-affix-wrapper:not(:first-child) {
+      border-left-color: #ffffff !important;
+    }
+  }
+
+  // 数字输入框（iView InputNumber）
+  .ivu-input-number {
+    background-color: var(--bg-select) !important;
+    border-color: var(--border-radio) !important;
+    color: var(--text-primary) !important;
+
+    &:hover {
+      border-color: #ffffff !important;
+    }
+
+    &-focused {
+      border-color: #ffffff !important;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2) !important;
+    }
+
+    &-input {
+      background-color: transparent !important;
+      color: var(--text-primary) !important;
+    }
+
+    &-handler-wrap {
+      background-color: var(--bg-select) !important;
+      border-left: 1px solid var(--border-radio) !important;
+    }
+
+    &-handler {
+      color: var(--text-secondary) !important;
+
+      &:hover {
+        background-color: var(--bg-hover) !important;
+        color: var(--text-primary) !important;
+      }
+
+      i {
+        color: inherit !important;
+      }
+    }
+  }
+
+  // 数字输入框禁用状态
+  .ivu-input-number-disabled,
+  .ivu-input-number[disabled] {
+    background-color: var(--disabled-bg) !important;
+    border-color: var(--border-primary) !important;
+    cursor: not-allowed !important;
+    opacity: 0.6;
+
+    .ivu-input-number-input {
+      color: var(--text-disabled) !important;
+    }
+
+    .ivu-input-number-handler-wrap {
+      background-color: transparent !important;
+      border-left-color: var(--border-primary) !important;
+    }
+
+    .ivu-input-number-handler {
+      color: var(--text-disabled) !important;
+    }
+  }
+
+  .ivu-select-selection,
+  .ant-select-selector {
+    background-color: var(--bg-select) !important;
+    border-color: var(--border-radio) !important;
+    color: var(--text-primary);
+
+    &:hover {
+      border-color: #ffffff !important;
+    }
+
+    &:focus {
+      border-color: #ffffff !important;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  // iView Select - 选中值/占位/箭头/清除图标
+  .ivu-select-selection {
+    .ivu-select-selected-value {
+      color: var(--text-primary) !important;
+      background-color: transparent !important;
+    }
+
+    .ivu-select-placeholder {
+      color: var(--text-secondary) !important;
+    }
+  }
+
+  .ivu-select-arrow,
+  .ivu-select-clear {
+    color: var(--text-disabled) !important;
+
+    &:hover {
+      color: var(--text-secondary) !important;
+    }
+  }
+
+  // iView Select - 展开时保持高亮边框
+  .ivu-select-visible .ivu-select-selection {
+    border-color: var(--border-radio) !important;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2) !important;
+  }
+
+  // iView Select - 输入框颜色（可搜索）
+  .ivu-select-input {
+    color: var(--text-primary) !important;
+    background-color: transparent !important;
+
+    &[disabled] {
+      color: var(--text-disabled) !important;
+    }
+  }
+
+  // iView Select 多选标签样式
+  .ivu-select-multiple .ivu-select-selection {
+    background-color: var(--bg-select) !important;
+  }
+
+  .ivu-select-multiple .ivu-select-item-focus,
+  .ivu-select-multiple .ivu-select-item-selected:hover {
+    background-color: #262a33 !important;
+  }
+
+  .ivu-select-multiple .ivu-tag {
+    background-color: var(--bg-hover) !important;
+    border-color: var(--border-primary) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .ivu-select-multiple .ivu-tag .ivu-icon-ios-close {
+    color: var(--text-secondary) !important;
+
+    &:hover {
+      color: var(--primary-color) !important;
+    }
+  }
+
+  // Select 禁用状态
+  .ivu-select-disabled,
+  .ant-select-disabled {
+    .ivu-select-selection,
+    .ant-select-selector {
+      background-color: var(--disabled-bg) !important;
+      border-color: var(--border-primary) !important;
+      color: var(--text-disabled) !important;
+      cursor: not-allowed !important;
+      opacity: 0.6;
+    }
+  }
+
+  // 下拉菜单
+  .ivu-dropdown-menu,
+  .ant-dropdown-menu,
+  .ivu-select-dropdown,
+  .ant-select-dropdown {
+    background-color: #1d212b !important;
+    box-shadow: 0 2px 3px 2px #20242e !important;
+
+    li,
+    .ivu-dropdown-item,
+    .ant-dropdown-menu-item {
+      color: var(--text-primary);
+
+      &:hover {
+        background-color: var(--bg-hover);
+      }
+    }
+  }
+
+  .ant-dropdown-menu {
+    background-color: var(--bg-secondary) !important;
+    border: 1px solid var(--border-primary) !important;
+    color: var(--text-primary) !important;
+
+    &-item,
+    &-submenu-title {
+      color: var(--text-primary) !important;
+
+      &:hover {
+        background-color: var(--bg-hover) !important;
+        color: var(--text-primary) !important;
+      }
+
+      &-selected,
+      &.ant-dropdown-menu-item-selected {
+        background-color: var(--bg-select) !important;
+        color: var(--primary-color) !important;
+      }
+
+      &-disabled,
+      &.ant-dropdown-menu-item-disabled {
+        color: var(--text-disabled) !important;
+        background-color: transparent !important;
+        cursor: not-allowed !important;
+        opacity: 0.6;
+      }
+    }
+
+    &-submenu {
+      .ant-dropdown-menu-submenu-title .ant-dropdown-menu-submenu-expand-icon,
+      .ant-dropdown-menu-submenu-title .anticon {
+        color: var(--text-secondary) !important;
+      }
+    }
+
+    &-item-divider {
+      background-color: var(--border-primary) !important;
+    }
+  }
+
+  // 下拉框选项文字颜色
+  .ivu-select-item {
+    color: var(--text-primary) !important;
+
+    &:hover {
+      background-color: var(--bg-hover);
+      color: var(--text-primary) !important;
+    }
+
+    &.ivu-select-item-selected {
+      color: var(--text-primary) !important;
+      background-color: var(--bg-hover);
+    }
+
+    // 下拉框选项禁用状态
+    &-disabled,
+    &-disabled:hover {
+      color: var(--text-disabled) !important;
+      background-color: transparent !important;
+      cursor: not-allowed !important;
+    }
+  }
+
+  // Ant Design 下拉框选项禁用状态
+  .ant-select-item-option {
+    &-disabled {
+      color: var(--text-disabled) !important;
+      background-color: transparent !important;
+      cursor: not-allowed !important;
+
+      &:hover {
+        background-color: transparent !important;
+      }
+    }
+  }
+
+  // 下拉菜单项禁用状态
+  .ivu-dropdown-item-disabled,
+  .ant-dropdown-menu-item-disabled {
+    color: var(--text-disabled) !important;
+    cursor: not-allowed !important;
+
+    &:hover {
+      background-color: transparent !important;
+    }
+  }
+
+  // 下拉框选中后的文字颜色
+  .ivu-select-selection {
+    .ivu-select-selected-value {
+      color: var(--text-primary) !important;
+    }
+  }
+
+  // OriginalConfig页面样式
+  .task-create-first-step {
+    .title-text {
+      color: var(--text-primary) !important;
+    }
+
+    // 集群选择器中的文字颜色
+    .ivu-select-option {
+      color: var(--text-primary) !important;
+
+      p {
+        color: var(--text-primary) !important;
+      }
+    }
+  }
+
+  // 通用文字颜色修复
+  .ivu-form-item-label {
+    color: var(--text-primary) !important;
+  }
+
+  .ivu-tooltip-inner {
+    color: var(--text-primary) !important;
+  }
+
+  // 确保所有p标签在暗色主题下正确显示
+  p {
+    color: var(--text-primary) !important;
+  }
+
+  // 确保所有span标签在暗色主题下正确显示
+  // 排除有内联样式的元素，避免覆盖状态颜色等特殊样式
+  span:not([style*='color']) {
+    color: var(--text-primary) !important;
+  }
+
+  // TableMapping组件样式
+  .table-filter-nav-item {
+    color: var(--text-primary) !important;
+    border-bottom: 1px solid var(--border-primary);
+
+    .table-filter-nav-item-db {
+      color: var(--text-primary) !important;
+
+      p {
+        color: var(--text-primary) !important;
+      }
+
+      .chosed-count {
+        color: var(--text-primary) !important;
+
+        .warn-count {
+          color: var(--warning-color) !important;
+        }
+      }
+    }
+  }
+
+  .table-filter-nav-item-selected {
+    background-color: var(--bg-select) !important;
+    color: var(--text-primary) !important;
+  }
+
+  // TaskInfoHeader组件样式
+  .task-info-title {
+    color: var(--text-primary) !important;
+    background-color: var(--bg-secondary) !important;
+    border-bottom-color: var(--border-primary) !important;
+  }
+
+  .task-info-item-container {
+    border-bottom-color: var(--border-primary) !important;
+  }
+
+  .task-info-item {
+    color: var(--text-primary) !important;
+
+    .task-info-item-title {
+      background-color: var(--bg-tertiary) !important;
+      color: var(--text-primary) !important;
+      border-right-color: var(--border-primary) !important;
+      border-left-color: var(--border-primary) !important;
+    }
+
+    .task-info-item-value {
+      color: var(--text-primary) !important;
+    }
+  }
+
+  .task-info-item-all {
+    border-top-color: var(--border-primary) !important;
+  }
+
+  // AddDataSource组件样式
+  .add-datasource-wrapper {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-primary) !important;
+  }
+
+  .add-dataSource-step {
+    border-bottom-color: var(--border-primary) !important;
+  }
+
+  .add-dataSource-tools {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+  }
+
+  // 模态框
+  .ivu-modal,
+  .ant-modal {
+    &-content {
+      background-color: var(--bg-secondary);
+      border-color: var(--border-primary);
+    }
+
+    &-header {
+      background-color: var(--bg-secondary);
+      border-bottom-color: var(--border-primary);
+      color: var(--text-primary);
+    }
+
+    &-body {
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    &-footer {
+      background-color: var(--bg-secondary);
+      border-top-color: var(--border-primary);
+    }
+
+    &-close {
+      color: var(--text-secondary);
+
+      &:hover {
+        color: var(--text-primary);
+      }
+    }
+  }
+
+  // ===== WideTablePanel 画布与浮层暗色适配 =====
+  .graph-wrapper {
+    border-color: var(--border-primary) !important;
+  }
+
+  .graph-container {
+    background: var(--bg-secondary) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45) !important;
+  }
+
+  .custom-tooltip {
+    background-color: var(--bg-secondary) !important;
+    border: 1px solid var(--border-primary) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  // ===== Ant Drawer 抽屉（NodeFormModal / NodeFormModalNew / NodeDataDrawer）暗色适配 =====
+  .ant-drawer {
+    &-mask {
+      background-color: rgba(0, 0, 0, 0.6) !important;
+    }
+
+    &-content {
+      background-color: var(--bg-secondary) !important;
+      color: var(--text-primary) !important;
+      border-left: 1px solid var(--border-primary) !important;
+      box-shadow: -8px 0 16px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    &-header {
+      background-color: var(--bg-secondary) !important;
+      border-bottom: 1px solid var(--border-primary) !important;
+    }
+
+    &-title {
+      color: var(--text-primary) !important;
+    }
+
+    &-close {
+      color: var(--text-secondary) !important;
+
+      &:hover {
+        color: var(--text-primary) !important;
+      }
+    }
+
+    &-body {
+      background-color: var(--bg-secondary) !important;
+      color: var(--text-primary) !important;
+    }
+  }
+
+  // 组件自定义 class 覆盖
+  .lookup-table-add-drawer {
+    .ant-drawer-content {
+      background-color: var(--bg-secondary) !important;
+      border-left-color: var(--border-primary) !important;
+    }
+
+    .ant-drawer-header {
+      background-color: var(--bg-secondary) !important;
+      border-bottom-color: var(--border-primary) !important;
+    }
+
+    .ant-drawer-title {
+      color: var(--text-primary) !important;
+    }
+
+    .ant-drawer-body {
+      background-color: var(--bg-secondary) !important;
+      color: var(--text-primary) !important;
+    }
+  }
+
+  // ===== Modal 内部通用组件在暗色主题下的适配（确保页面内所有弹窗一致） =====
+  .ivu-modal,
+  .ant-modal {
+    // 表单与输入
+    .ivu-form-item-label,
+    .ant-form-item-label {
+      color: var(--text-primary) !important;
+    }
+
+    .ivu-input,
+    .ant-input,
+    .ivu-input-number,
+    .ivu-select-selection,
+    .ant-select-selector,
+    .ivu-radio-group-button {
+      .ivu-radio-wrapper {
+        background-color: var(--bg-select) !important;
+        border-color: var(--border-radio) !important;
+        color: var(--text-primary) !important;
+
+        span {
+          color: var(--text-primary) !important;
+        }
+      }
+
+      .ivu-radio-wrapper-checked {
+        border-color: #0bb9f8 !important;
+        color: #0bb9f8 !important;
+        box-shadow: -1px 0 0 0 #0bb9f8;
+        z-index: 1;
+
+        span {
+          color: #0bb9f8 !important;
+        }
+      }
+    }
+
+    .ivu-select-placeholder {
+      color: var(--text-tertiary) !important;
+    }
+
+    .ivu-select-arrow,
+    .ivu-select-clear {
+      color: var(--text-disabled) !important;
+    }
+
+    // 表格
+    .ivu-table {
+      background-color: var(--bg-secondary) !important;
+      color: var(--text-primary) !important;
+
+      th {
+        background-color: #22252e !important;
+        color: var(--text-primary) !important;
+      }
+
+      td {
+        background-color: var(--bg-secondary) !important;
+        color: var(--text-primary) !important;
+      }
+
+      &-border {
+        border-color: var(--border-primary) !important;
+      }
+    }
+
+    // 链接与图标
+    a {
+      color: var(--primary-color) !important;
+
+      &:hover {
+        opacity: 0.85;
+      }
+    }
+  }
+
+  // 面包屑
+  .ivu-breadcrumb,
+  .ant-breadcrumb {
+    color: var(--text-secondary);
+
+    a {
+      color: var(--text-secondary);
+
+      &:hover {
+        color: var(--primary-color);
+      }
+    }
+  }
+
+  // 提示框
+  .ivu-tooltip-inner,
+  .ant-tooltip-inner {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
+  }
+
+  .ivu-tooltip-arrow,
+  .ant-tooltip-arrow {
+    &::before {
+      background-color: var(--bg-tertiary);
+      border-color: var(--border-primary);
+    }
+  }
+
+  // Poptip（气泡卡片）
+  .ivu-poptip {
+    &-content {
+      background-color: var(--bg-secondary) !important;
+      border: 1px solid var(--border-primary) !important;
+      color: var(--text-primary) !important;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+    }
+
+    &-title {
+      background-color: var(--bg-secondary) !important;
+      color: var(--text-primary) !important;
+      border-bottom: 1px solid var(--border-primary) !important;
+    }
+
+    &-body {
+      background-color: var(--bg-secondary) !important;
+      color: var(--text-primary) !important;
+    }
+
+    &-footer {
+      background-color: var(--bg-secondary) !important;
+      border-top: 1px solid var(--border-primary) !important;
+    }
+
+    &-arrow:after {
+      border-top-color: var(--bg-secondary) !important;
+      border-bottom-color: var(--bg-secondary) !important;
+    }
+
+    &-body-content-inner {
+      color: var(--text-primary) !important;
+    }
+  }
+
+  .ivu-poptip-popper[x-placement^='right'] {
+    .ivu-poptip-arrow {
+      border-right-color: #aaa !important;
+    }
+
+    .ivu-poptip-arrow:after {
+      border-right-color: #aaa !important;
+    }
+  }
+
+  .ivu-poptip-transfer {
+    .ivu-table-filter-list {
+      .ivu-table-filter-select-item {
+        color: var(--text-primary) !important;
+
+        &:hover {
+          background: var(--bg-tertiary) !important;
+        }
+      }
+
+      .ivu-table-filter-select-item-selected {
+        color: var(--primary-color) !important;
+      }
+    }
+  }
+
+  .ant-popover {
+    &-inner {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-primary) !important;
+    }
+  }
+
+  // 警告框
+  .ivu-alert,
+  .ant-alert {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-primary);
+    color: var(--text-primary);
+
+    &-error {
+      .ant-alert-icon {
+        color: #ff4d4f !important;
+      }
+
+      .ivu-alert-icon {
+        color: #ff4d4f !important;
+      }
+    }
+  }
+
+  // warn-point 和 warn-font 暗色模式适配
+  .warn-point {
+    background-color: var(--text-secondary) !important;
+  }
+
+  .warn-font {
+    color: var(--warning-color) !important;
+  }
+
+  // 分页
+  .ivu-page,
+  .ant-pagination {
+    .ivu-page-item,
+    .ant-pagination-item {
+      background-color: var(--bg-secondary);
+      border-color: var(--border-radio) !important;
+      color: #ffffff !important;
+
+      &:hover {
+        border-color: #ffffff !important;
+        color: #ffffff !important;
+        background-color: var(--bg-hover) !important;
+      }
+
+      &-active {
+        background-color: var(--primary-color);
+        border-color: #ffffff !important;
+        color: #ffffff !important;
+      }
+
+      a {
+        color: #ffffff !important;
+      }
+
+      &:hover a {
+        color: #ffffff !important;
+      }
+    }
+
+    // 导航箭头按钮
+    .ivu-page-next,
+    .ivu-page-prev,
+    .ant-pagination-next,
+    .ant-pagination-prev {
+      background-color: var(--bg-secondary) !important;
+      border-color: var(--border-radio) !important;
+      color: #ffffff !important;
+
+      &:hover {
+        background-color: var(--bg-hover) !important;
+        border-color: #ffffff !important;
+        color: #ffffff !important;
+      }
+
+      a {
+        color: #ffffff !important;
+      }
+
+      &:hover a {
+        color: #ffffff !important;
+      }
+    }
+
+    // 跳转输入框
+    .ivu-page-options-elevator input,
+    .ant-pagination-options-quick-jumper input {
+      background-color: var(--bg-select) !important;
+      border-color: var(--border-radio) !important;
+      color: #ffffff !important;
+
+      &:focus {
+        border-color: #ffffff !important;
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    // 每页条数选择器
+    .ivu-page-options-sizer,
+    .ant-pagination-options-size-changer {
+      .ivu-select-selection {
+        background-color: var(--bg-select) !important;
+        border-color: var(--border-radio) !important;
+        color: #ffffff !important;
+      }
+    }
+
+    // 总数显示
+    .ivu-page-total,
+    .ant-pagination-total-text {
+      color: #ffffff !important;
+    }
+
+    // 确保所有分页按钮内的链接文字都是白色
+    .ivu-page-item a,
+    .ant-pagination-item a,
+    .ivu-page-item a:visited,
+    .ant-pagination-item a:visited {
+      color: #ffffff !important;
+    }
+
+    // 确保hover状态下链接文字也是白色
+    .ivu-page-item:hover a,
+    .ant-pagination-item:hover a {
+      color: #ffffff !important;
+    }
+
+    // 分页禁用状态
+    .ivu-page-item-disabled,
+    .ant-pagination-item-disabled,
+    .ivu-page-prev:hover,
+    .ivu-page-next:hover,
+    .ant-pagination-prev:hover,
+    .ant-pagination-next:hover {
+      a {
+        color: var(--text-disabled) !important;
+      }
+    }
+  }
+
+  // 进度条
+  .ivu-progress,
+  .ant-progress {
+    &-bg {
+      background-color: var(--progress-success);
+    }
+
+    &-outer {
+      background-color: var(--bg-tertiary);
+    }
+
+    &-inner {
+      background-color: var(--bg-tertiary) !important;
+    }
+
+    // 进度条文字颜色
+    &-inner-text,
+    &-text {
+      color: var(--text-primary) !important;
+    }
+
+    // 进度条状态颜色
+    &.ivu-progress-normal .ivu-progress-bg {
+      background-color: var(--progress-normal) !important;
+    }
+
+    &.ivu-progress-success .ivu-progress-bg {
+      background-color: var(--progress-success) !important;
+    }
+
+    &.ivu-progress-wrong .ivu-progress-bg {
+      background-color: var(--progress-error) !important;
+    }
+  }
+
+  // 通用进度条状态样式 - 使用更高优先级
+  .ivu-progress-normal .ivu-progress-bg {
+    background-color: var(--progress-normal) !important;
+  }
+
+  .ivu-progress-success .ivu-progress-bg {
+    background-color: var(--progress-success) !important;
+  }
+
+  .ivu-progress-wrong .ivu-progress-bg {
+    background-color: var(--progress-error) !important;
+  }
+
+  // 覆盖 cloudCanal.less 中的固定颜色
+  //.ivu-progress-bg {
+  //  background-color: var(--primary-color) !important;
+  //}
+
+  // 覆盖 cloudCanal.less 中的成功状态固定颜色
+  //.ivu-progress-success .ivu-progress-bg {
+  //  background-color: var(--progress-success) !important;
+  //}
+
+  // 标签
+  .ivu-tag,
+  .ant-tag {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-primary);
+    color: var(--text-primary);
+  }
+
+  // 分割线
+  .ivu-divider,
+  .ant-divider {
+    border-color: var(--border-primary);
+    color: var(--text-secondary);
+  }
+
+  // 折叠面板
+  .ivu-collapse,
+  .ant-collapse {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-primary);
+
+    &-header {
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    &-content,
+    &-item {
+      background-color: var(--bg-secondary);
+      border-top-color: var(--border-primary);
+      border-bottom-color: var(--border-primary);
+      color: var(--text-primary);
+    }
+
+    i,
+    .ivu-icon-ios-arrow-forward:hover {
+      color: var(--text-primary) !important;
+    }
+  }
+
+  // 时间轴
+  .ivu-timeline-item-head,
+  .ant-timeline-item-head {
+    background-color: var(--bg-secondary);
+    border-color: var(--primary-color);
+  }
+
+  // 滚动条
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: var(--bg-tertiary);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--border-primary);
+    border-radius: 4px;
+
+    &:hover {
+      background-color: var(--text-tertiary);
+    }
+  }
+
+  // 代码编辑器
+  .monaco-editor {
+    background-color: var(--bg-primary);
+
+    .view-lines {
+      color: var(--text-primary);
+    }
+
+    .margin {
+      background-color: var(--bg-select);
+    }
+  }
+
+  .monaco-editor-background {
+    background-color: var(--bg-select);
+  }
+
+  // 日志内容容器
+  .log-content-card {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-primary);
+  }
+
+  .log-info-section {
+    background: var(--bg-tertiary);
+    border-bottom-color: var(--border-primary);
+  }
+
+  .log-info-label {
+    color: var(--text-secondary);
+  }
+
+  .log-info-value {
+    color: var(--text-primary);
+    background-color: var(--bg-hover);
+    border-color: var(--border-secondary);
+  }
+
+  .log-content-container {
+    background-color: var(--bg-primary);
+  }
+
+  .log-content-text {
+    color: var(--text-primary);
+  }
+
+  .log-empty-state {
+    background-color: var(--bg-primary);
+    color: var(--text-secondary);
+  }
+
+  // Header Logo 背景图切换
+  .layout-logo {
+    background-image: url('~@/assets/logo-BG-dark.png') !important;
+  }
+
+  // 自定义组件样式
+  .worker-ip-btn {
+    color: var(--text-primary);
+
+    a {
+      color: var(--primary-color);
+
+      &:hover {
+        color: var(--primary-color);
+        opacity: 0.8;
+      }
+    }
+  }
+
+  // Form 表单
+  .ivu-form-item-label,
+  .ant-form-item-label {
+    color: var(--text-primary);
+  }
+
+  // Checkbox & Radio
+  .ivu-checkbox-inner,
+  .ant-checkbox-inner,
+  .ivu-radio-inner,
+  .ant-radio-inner {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-primary);
+  }
+
+  // Checkbox 文字颜色
+  .ivu-checkbox-wrapper,
+  .ivu-checkbox-wrapper span {
+    color: var(--text-primary) !important;
+  }
+
+  // Checkbox hover 状态
+  .ivu-checkbox:hover .ivu-checkbox-inner {
+    border-color: var(--primary-color) !important;
+    background-color: var(--bg-hover) !important;
+  }
+
+  // Checkbox 选中状态
+  .ivu-checkbox-checked .ivu-checkbox-inner {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+
+    &::after {
+      border-color: var(--border-radio) !important;
+    }
+  }
+
+  // Checkbox 选中状态 hover
+  .ivu-checkbox-checked:hover .ivu-checkbox-inner {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    opacity: 0.8;
+  }
+
+  // Checkbox 半选状态（indeterminate）
+  .ivu-checkbox-indeterminate .ivu-checkbox-inner {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+
+    &::after {
+      background-color: #ffffff !important;
+    }
+  }
+
+  // Checkbox 半选状态 hover
+  .ivu-checkbox-indeterminate:hover .ivu-checkbox-inner {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    opacity: 0.8;
+  }
+
+  // Checkbox focus 状态
+  .ivu-checkbox-focus {
+    box-shadow: 0 0 0 2px rgba(11, 185, 248, 0.2) !important;
+  }
+
+  // Checkbox wrapper 选中状态（带边框的 checkbox）
+  .ivu-checkbox-wrapper-checked.ivu-checkbox-border {
+    border-color: var(--primary-color) !important;
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+  }
+
+  // Checkbox & Radio 禁用状态
+  .ivu-checkbox-disabled,
+  .ant-checkbox-disabled,
+  .ivu-radio-disabled,
+  .ant-radio-disabled {
+    .ivu-checkbox-inner,
+    .ant-checkbox-inner,
+    .ivu-radio-inner,
+    .ant-radio-inner {
+      background-color: var(--disabled-bg) !important;
+      border-color: var(--border-primary) !important;
+      cursor: not-allowed !important;
+      opacity: 0.6;
+    }
+
+    span {
+      color: var(--text-disabled) !important;
+    }
+
+    // 禁用状态下选中状态的 checkbox
+    &.ivu-checkbox-checked .ivu-checkbox-inner {
+      background-color: var(--disabled-bg) !important;
+      border-color: var(--border-primary) !important;
+      opacity: 0.6;
+
+      &::after {
+        border-color: var(--text-disabled) !important;
+      }
+    }
+
+    // 禁用状态下半选状态的 checkbox
+    &.ivu-checkbox-indeterminate .ivu-checkbox-inner {
+      background-color: var(--disabled-bg) !important;
+      border-color: var(--border-primary) !important;
+      opacity: 0.6;
+
+      &::after {
+        background-color: var(--text-disabled) !important;
+      }
+    }
+  }
+
+  // Switch
+  .ivu-switch,
+  .ant-switch {
+    background-color: var(--text-disabled);
+
+    &-checked {
+      background-color: var(--primary-color);
+    }
+
+    // Switch 禁用状态
+    &[disabled],
+    &-disabled {
+      background-color: var(--disabled-bg) !important;
+      cursor: not-allowed !important;
+      opacity: 0.6;
+
+      &-checked {
+        background-color: var(--disabled-bg) !important;
+        opacity: 0.6;
+      }
+    }
+  }
+
+  // 链接
+  a {
+    color: var(--primary-color);
+
+    &:hover {
+      color: var(--primary-color);
+      opacity: 0.8;
+    }
+  }
+
+  // 图表背景
+  .echarts,
+  .highcharts-container {
+    background-color: transparent;
+  }
+
+  // 特定页面适配
+  .home {
+    background-color: var(--bg-primary);
+  }
+
+  .content-container {
+    background-color: var(--bg-primary);
+  }
+
+  // 系统页面
+  .system {
+    background-color: var(--bg-primary);
+
+    .content {
+      background-color: var(--bg-primary);
+    }
+  }
+
+  // 侧边栏
+  .ivu-menu-dark {
+    background-color: var(--bg-secondary);
+
+    .ivu-menu-item {
+      color: var(--text-secondary);
+
+      &:hover {
+        color: var(--text-primary);
+        background-color: var(--bg-hover);
+      }
+
+      &-active {
+        color: var(--primary-color);
+        background-color: var(--bg-hover);
+      }
+    }
+  }
+
+  // ===== 通用页面组件覆盖 =====
+
+  // 所有页面底部 Footer
+  .page-footer,
+  .page-footer-container,
+  .page-footer-batch,
+  .page-footer-paging,
+  .footer,
+  .footer-container {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 6px 2px 23px 0 rgba(0, 0, 0, 0.5) !important;
+  }
+
+  // 页面头部 Header
+  .page-header,
+  .page-header-container {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+    color: var(--text-primary) !important;
+  }
+
+  // 通用容器背景
+  .content-wrapper,
+  .main-content,
+  .page-container,
+  .container {
+    background-color: var(--bg-primary) !important;
+  }
+
+  // 白色卡片容器
+  div[style*='background: #ffffff'],
+  div[style*='background:#ffffff'],
+  div[style*='background: #fff'],
+  div[style*='background:#fff'],
+  div[style*='background-color: #ffffff'],
+  div[style*='background-color:#ffffff'],
+  div[style*='background-color: #fff'],
+  div[style*='background-color:#fff'] {
+    background-color: var(--bg-card) !important;
+  }
+
+  // 浅灰色背景
+  div[style*='background: #fafafa'],
+  div[style*='background:#fafafa'],
+  div[style*='background-color: #fafafa'],
+  div[style*='background-color:#fafafa'],
+  div[style*='background: #f4f4f4'],
+  div[style*='background:#f4f4f4'],
+  div[style*='background-color: #f4f4f4'],
+  div[style*='background-color:#f4f4f4'] {
+    background-color: var(--bg-tertiary) !important;
+  }
+
+  // 边框颜色覆盖
+  div[style*='border: 1px solid #dadada'],
+  div[style*='border:1px solid #dadada'],
+  div[style*='border-top: 1px solid #dadada'],
+  div[style*='border-bottom: 1px solid #dadada'],
+  div[style*='border-left: 1px solid #dadada'],
+  div[style*='border-right: 1px solid #dadada'],
+  div[style*='border-color: #dadada'],
+  div[style*='border-color:#dadada'] {
+    border-color: var(--border-primary) !important;
+  }
+
+  // 侧边导航
+  .side-nav,
+  .sidebar,
+  .nav-sidebar {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+
+    .nav-item,
+    .menu-item {
+      color: var(--text-primary) !important;
+
+      &:hover {
+        background-color: var(--bg-hover) !important;
+      }
+
+      &.active {
+        background-color: var(--bg-hover) !important;
+        color: var(--primary-color) !important;
+      }
+    }
+  }
+
+  // 面板容器（通用样式，详细样式见下方）
+  .panel-content {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+  }
+
+  // 搜索框容器
+  .search-container,
+  .search-bar,
+  .filter-bar {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+  }
+
+  // 列表项
+  .list-item {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-secondary) !important;
+    color: var(--text-primary) !important;
+
+    &:hover {
+      background-color: var(--bg-hover) !important;
+    }
+  }
+
+  // 空状态
+  .empty-state,
+  .no-data {
+    color: var(--text-tertiary) !important;
+  }
+
+  // SQL 编辑器相关
+  .sql-container,
+  .query-container {
+    background-color: var(--bg-primary) !important;
+  }
+
+  // 数据源树
+  .ds-tree,
+  .data-source-tree {
+    background-color: var(--bg-secondary) !important;
+
+    .tree-node {
+      color: var(--text-primary) !important;
+
+      &:hover {
+        background-color: var(--bg-hover) !important;
+      }
+    }
+  }
+
+  .ant-tree,
+  .ant-tree-list,
+  .ant-tree-list-holder,
+  .ant-tree-list-holder-inner,
+  .ant-tree-list-scrollbar {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .ant-tree-treenode {
+    color: var(--text-primary) !important;
+
+    // 节点内容包装器
+    .ant-tree-node-content-wrapper {
+      color: var(--text-primary) !important;
+      transition: background-color 0.2s;
+
+      &.ant-tree-node-selected {
+        background-color: var(--bg-select) !important;
+        color: var(--primary-color) !important;
+      }
+    }
+
+    // 节点标题
+    .ant-tree-title {
+      color: var(--text-primary) !important;
+    }
+
+    // 节点 hover 时，只改变背景色，不改变文本颜色
+    &:hover {
+      .ant-tree-node-content-wrapper {
+        background-color: var(--bg-hover) !important;
+      }
+    }
+
+    // 选中状态的节点
+    &.ant-tree-node-selected {
+      .ant-tree-node-content-wrapper {
+        background-color: var(--bg-select) !important;
+        color: var(--primary-color) !important;
+      }
+
+      .ant-tree-title {
+        color: var(--primary-color) !important;
+      }
+    }
+
+    // 禁用状态的节点
+    &.ant-tree-treenode-disabled {
+      .ant-tree-node-content-wrapper {
+        color: var(--text-disabled) !important;
+        cursor: not-allowed !important;
+
+        &:hover {
+          background-color: transparent !important;
+        }
+      }
+
+      .ant-tree-title {
+        color: var(--text-disabled) !important;
+      }
+
+      // 禁用状态下不显示 hover 效果
+      &:hover {
+        .ant-tree-node-content-wrapper {
+          background-color: transparent !important;
+        }
+      }
+    }
+  }
+
+  .ant-tree-switcher,
+  .ant-tree-switcher .anticon,
+  .ant-tree .anticon {
+    color: var(--text-secondary) !important;
+  }
+
+  .ant-tree-indent-unit {
+    background-color: transparent !important;
+  }
+
+  .ant-tree-checkbox-disabled + span {
+    color: var(--text-disabled) !important;
+  }
+
+  // 拖拽线/放置反馈
+  .ant-tree .ant-tree-drop-indicator {
+    background-color: var(--primary-color) !important;
+  }
+
+  .vtree-tree,
+  .vtree-tree-node {
+    color: var(--text-primary) !important;
+  }
+
+  .vtree-tree-node__title {
+    color: var(--text-primary) !important;
+  }
+
+  .vtree-tree-node:hover {
+    background-color: var(--bg-hover) !important;
+  }
+
+  .vtree-tree-node.is-selected > .vtree-tree-node__title,
+  .vtree-tree-node.selected > .vtree-tree-node__title {
+    background-color: var(--bg-select) !important;
+    color: var(--primary-color) !important;
+  }
+
+  .vtree-tree-node__square {
+    border-color: var(--border-primary) !important;
+  }
+
+  .vtree-tree-node__expand i::after {
+    border-left: 5px solid var(--text-primary);
+  }
+
+  // Worker 相关
+  .worker-container,
+  .cluster-container {
+    background-color: var(--bg-primary) !important;
+  }
+
+  // 日志查看器
+  .log-viewer,
+  .log-container {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+  }
+
+  // 任务详情
+  .job-detail,
+  .task-detail {
+    background-color: var(--bg-primary) !important;
+
+    .detail-card {
+      background-color: var(--bg-secondary) !important;
+      border-color: var(--border-primary) !important;
+    }
+  }
+
+  // 配置项
+  .config-item,
+  .param-item {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+  }
+
+  // 用户中心
+  .user-center,
+  .account-settings {
+    background-color: var(--bg-primary) !important;
+
+    .settings-card {
+      background-color: var(--bg-secondary) !important;
+      border-color: var(--border-primary) !important;
+    }
+  }
+
+  // 项目管理
+  .project-container {
+    background-color: var(--bg-primary) !important;
+  }
+
+  .ivu-radio-group-button {
+    .ivu-radio-wrapper {
+      color: var(--text-primary) !important;
+      background-color: var(--bg-radio) !important;
+      border-color: var(--border-radio) !important;
+    }
+
+    .ivu-radio-wrapper-checked {
+      border-color: #0bb9f8 !important;
+      color: #0bb9f8 !important;
+      box-shadow: -1px 0 0 0 #0bb9f8;
+      z-index: 1;
+
+      span {
+        color: #0bb9f8 !important;
+      }
+    }
+  }
+
+  // Radio Button 禁用状态
+  .ivu-radio-group-button .ivu-radio-wrapper-disabled {
+    color: var(--text-disabled) !important;
+    background-color: var(--disabled-bg) !important;
+    border-color: var(--border-primary) !important;
+    cursor: not-allowed !important;
+    opacity: 0.6;
+
+    &:hover {
+      color: var(--text-disabled) !important;
+      background-color: var(--disabled-bg) !important;
+    }
+  }
+
+  // 步骤条样式
+  .ivu-steps {
+    // 连接线 - 深灰色
+    .ivu-steps-tail > i {
+      background-color: var(--border-primary) !important;
+    }
+
+    // 步骤标题
+    .ivu-steps-title {
+      color: var(--text-secondary) !important;
+      background: none !important;
+    }
+
+    .ivu-steps-item.ivu-steps-status-wait {
+      .ivu-steps-head-inner {
+        background-color: var(--bg-secondary) !important;
+        border-color: var(--border-primary) !important;
+        border-width: 1px;
+      }
+
+      .ivu-steps-head-inner span {
+        color: var(--text-tertiary) !important;
+      }
+
+      .ivu-steps-title {
+        color: var(--text-tertiary) !important;
+      }
+    }
+
+    // 激活步骤（process状态）- 蓝色实心圆圈 + 白色数字
+    .ivu-steps-item.ivu-steps-status-process {
+      .ivu-steps-head-inner {
+        background-color: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+      }
+
+      .ivu-steps-head-inner span,
+      .ivu-steps-head-inner {
+        color: #ffffff !important;
+      }
+
+      .ivu-steps-title {
+        color: var(--text-primary) !important;
+      }
+    }
+
+    // 步骤头部通用样式
+    .ivu-steps-head {
+      background: none !important;
+    }
+  }
+
+  .ivu-select-input {
+    color: var(--text-primary) !important;
+  }
+
+  .ivu-select-dropdown {
+    background-color: #1d212b !important;
+    box-shadow: 0 2px 3px 2px #20242e !important;
+  }
+
+  .ivu-select-item-selected {
+    background-color: #262a33 !important;
+  }
+
+  .ivu-select-item:hover {
+    background-color: #262a33 !important;
+  }
+
+  .create-task-tools {
+    box-shadow: 6px 2px 23px 0 rgba(0, 0, 0, 0.5) !important;
+  }
+
+  .ant-select-item {
+    color: var(--text-primary) !important;
+  }
+
+  .ant-modal-title {
+    color: #ffffff !important;
+  }
+
+  .ant-modal-content {
+    box-shadow: 3px 2px 10px 3px #131313 !important;
+  }
+
+  .ivu-dropdown-item:hover {
+    background-color: #262a33 !important;
+  }
+
+  .ivu-dropdown-item-disabled {
+    color: var(--text-disabled) !important;
+  }
+
+  .ivu-modal-confirm {
+    .ivu-modal-confirm-head {
+      background-color: var(--bg-secondary) !important;
+    }
+
+    .ivu-modal-confirm-head-title,
+    .ivu-modal-confirm-title {
+      color: var(--text-primary) !important;
+    }
+
+    .ivu-modal-confirm-body {
+      background-color: var(--bg-secondary) !important;
+      color: var(--text-primary) !important;
+    }
+
+    .ivu-modal-confirm-footer {
+      background-color: var(--bg-secondary) !important;
+    }
+  }
+
+  .ivu-message {
+    .ivu-message-notice-content {
+      background-color: var(--bg-secondary) !important;
+      color: var(--text-primary) !important;
+      border: 1px solid var(--border-primary) !important;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    .ivu-message-success {
+      .ivu-icon {
+        color: #19be6b !important;
+      }
+    }
+
+    .ivu-message-warning .ivu-icon {
+      color: #f90 !important;
+    }
+
+    .ivu-message-error .ivu-icon {
+      color: #ed4014 !important;
+    }
+  }
+
+  .ivu-notice {
+    .ivu-notice-notice {
+      background-color: var(--bg-secondary) !important;
+      color: var(--text-primary) !important;
+      border: 1px solid var(--border-primary) !important;
+    }
+
+    .ivu-notice-title {
+      color: var(--text-primary) !important;
+    }
+
+    .ivu-notice-desc {
+      color: var(--text-secondary) !important;
+    }
+  }
+
+  .ant-modal-confirm {
+    .ant-modal-confirm-body,
+    .ant-modal-confirm-title,
+    .ant-modal-confirm-content {
+      color: var(--text-primary) !important;
+    }
+
+    .anticon {
+      color: var(--primary-color) !important;
+    }
+
+    &.ant-modal-confirm-success .anticon {
+      color: var(--success-color) !important;
+    }
+
+    &.ant-modal-confirm-warning .anticon {
+      color: var(--warning-color) !important;
+    }
+
+    &.ant-modal-confirm-error .anticon {
+      color: var(--error-color) !important;
+    }
+
+    &.ant-modal-confirm-info .anticon {
+      color: var(--primary-color) !important;
+    }
+  }
+
+  .ant-message-notice-content {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-primary) !important;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  .ant-notification-notice {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-primary) !important;
+  }
+
+  .ant-notification-notice-message {
+    color: var(--text-primary) !important;
+  }
+
+  .ant-notification-notice-description {
+    color: var(--text-secondary) !important;
+  }
+
+  .ivu-dropdown-item-disabled,
+  .ant-dropdown-menu-item-disabled,
+  .ivu-select-item-disabled,
+  .ant-select-item-option-disabled {
+    color: var(--text-disabled) !important;
+    background-color: transparent !important;
+    cursor: not-allowed !important;
+    opacity: 0.5;
+  }
+
+  .ant-select-selection-placeholder,
+  .ant-select-selection-item,
+  .ivu-select-selected-value {
+    color: var(--text-secondary) !important;
+    background-color: var(--bg-select) !important;
+  }
+
+  .ivu-select-arrow,
+  .ant-select-arrow,
+  .ant-select-clear {
+    color: var(--text-disabled) !important;
+  }
+
+  .ant-select-clear {
+    background-color: unset !important;
+  }
+
+  // iView card 类型 tabs 样式
+  .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab {
+    border-left: none !important;
+    border-color: var(--border-radio) !important;
+    background-color: var(--bg-radio) !important;
+    color: var(--text-secondary) !important;
+    border-bottom: 1px solid var(--primary-color);
+
+    // hover 状态
+    &:hover {
+      background-color: var(--bg-hover) !important;
+      border-color: var(--border-radio) !important;
+      color: var(--primary-color) !important;
+    }
+
+    // 选中/激活状态
+    &.ivu-tabs-tab-active {
+      background-color: var(--bg-secondary) !important;
+      border-color: var(--primary-color) !important;
+      color: var(--primary-color) !important;
+      border-top: 1px solid;
+      border-left: 1px solid !important;
+      //border-bottom: 1px solid;
+      //border-bottom-color: var(--bg-secondary) !important;
+    }
+  }
+
+  // Ant Design card 类型 tabs 样式
+  .ant-tabs-card {
+    .ant-tabs-nav {
+      &::before {
+        border-color: var(--border-primary) !important;
+      }
+    }
+
+    .ant-tabs-tab {
+      background-color: var(--bg-radio) !important;
+      border-color: var(--border-radio) !important;
+      color: var(--text-secondary) !important;
+
+      // hover 状态
+      &:hover {
+        background-color: var(--bg-hover) !important;
+        border-color: var(--border-radio) !important;
+        color: var(--text-primary) !important;
+
+        .ant-tabs-tab-btn {
+          color: var(--text-primary) !important;
+        }
+      }
+
+      // 选中/激活状态
+      &.ant-tabs-tab-active {
+        background-color: var(--bg-secondary) !important;
+        border-color: var(--primary-color) !important;
+        color: var(--primary-color) !important;
+        border-bottom-color: var(--bg-secondary) !important;
+
+        .ant-tabs-tab-btn {
+          color: var(--primary-color) !important;
+        }
+
+        &:hover {
+          background-color: var(--bg-secondary) !important;
+          border-color: var(--primary-color) !important;
+          color: var(--primary-color) !important;
+
+          .ant-tabs-tab-btn {
+            color: var(--primary-color) !important;
+          }
+        }
+      }
+    }
+  }
+
+  .job-detail-container .job-body .job-detail-state .job-detail-state-container .job-detail-state-count .circle-background {
+    background-color: #292c36 !important;
+  }
+
+  .job-detail-container .job-body .job-detail-state .job-detail-state-container .job-detail-state-count .detail-Circle-inner {
+    background-color: var(--bg-secondary) !important;
+  }
+
+  .panel {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3) !important;
+
+    .panel-header {
+      background-color: var(--bg-tertiary) !important;
+      color: var(--text-primary) !important;
+      border-bottom-color: var(--border-primary) !important;
+    }
+
+    .panel-body {
+      background-color: var(--bg-secondary) !important;
+      color: var(--text-primary) !important;
+    }
+  }
+
+  // 卡片容器样式
+  .card-container {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3) !important;
+
+    .card-header {
+      background-color: var(--bg-tertiary) !important;
+      color: var(--text-primary) !important;
+      border-bottom-color: var(--border-primary) !important;
+    }
+
+    .card-body {
+      background-color: var(--bg-secondary) !important;
+      color: var(--text-primary) !important;
+    }
+  }
+
+  // ===== Worker 页面样式 =====
+  .job-header {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+
+    .job-header-desc {
+      color: var(--text-secondary) !important;
+    }
+
+    .job-header-name-main {
+      color: var(--text-primary) !important;
+    }
+
+    .task-detail-step {
+      .ivu-steps .ivu-steps-title {
+        background: var(--bg-secondary) !important;
+        color: var(--text-primary) !important;
+      }
+    }
+  }
+
+  .worker-body {
+    border-color: var(--border-primary) !important;
+    background-color: var(--bg-primary) !important;
+  }
+
+  .worker-list-content {
+    .worker-item-container {
+      .worker-item-title {
+        background-color: var(--bg-secondary) !important;
+        color: var(--text-primary) !important;
+        border-bottom-color: var(--border-primary) !important;
+      }
+
+      .worker-item-content {
+        background-color: var(--bg-secondary) !important;
+        border-bottom-color: var(--border-primary) !important;
+
+        .worker-info-content {
+          .to-monitor-icon {
+            color: var(--text-primary) !important;
+          }
+        }
+
+        .worker-ip {
+          color: var(--text-primary) !important;
+        }
+
+        .worker-info {
+          color: var(--text-secondary) !important;
+
+          .show-more-info {
+            color: var(--text-primary) !important;
+          }
+        }
+
+        .worker-item-circle {
+          // 覆盖内联样式中的默认文本颜色（保留红色警告颜色）
+          span {
+            // 只覆盖非红色警告的文本颜色
+            &:not([style*='rgb(255']):not([style*='rgb(255,']):not([style*='#ff']):not([style*='#FF']) {
+              color: var(--text-primary) !important;
+            }
+          }
+
+          p {
+            color: var(--text-secondary) !important;
+          }
+        }
+      }
+
+      .worker-item-selected {
+        border-left-color: var(--primary-color) !important;
+        background-color: var(--bg-select) !important;
+
+        .worker-item-action {
+          background-color: #1f394a !important;
+          border-top-color: var(--border-primary) !important;
+          color: var(--text-primary) !important;
+
+          .worker-action-item {
+            color: var(--text-primary) !important;
+
+            .iconfont {
+              color: var(--text-primary) !important;
+            }
+          }
+
+          .worker-action-item-disabled {
+            color: var(--text-disabled) !important;
+          }
+        }
+      }
+    }
+
+    .worker-detail-container {
+      background-color: var(--bg-primary) !important;
+      border-left-color: var(--border-primary) !important;
+
+      .install-worker-process-content {
+        .install-worker-process {
+          background-color: var(--bg-tertiary) !important;
+          border-bottom-color: var(--border-primary) !important;
+          color: var(--text-primary) !important;
+        }
+      }
+
+      .worker-detail-metric {
+        background-color: var(--bg-secondary) !important;
+        color: var(--text-primary) !important;
+
+        .worker-detail-metric-item {
+          border-right-color: var(--border-primary) !important;
+
+          .worker-count {
+            color: var(--text-primary) !important;
+          }
+
+          p {
+            color: var(--text-secondary) !important;
+          }
+        }
+      }
+
+      .worker-task-container {
+        color: var(--text-primary) !important;
+
+        .warn-point {
+          background-color: var(--text-primary) !important;
+        }
+      }
+
+      // 空状态占位容器
+      div[style*='background-color: #ffffff'],
+      div[style*='background-color:#ffffff'],
+      div[style*='background: #ffffff'],
+      div[style*='background:#ffffff'] {
+        background-color: var(--bg-primary) !important;
+      }
+    }
+  }
+
+  .install-worker-status {
+    color: var(--text-primary) !important;
+  }
+
+  .worker-operation-dropdown {
+    .ivu-dropdown-item {
+      color: var(--text-primary) !important;
+    }
+  }
+
+  .dropdown-content {
+    color: var(--text-primary) !important;
+  }
+
+  .jump-to-log {
+    a {
+      color: var(--primary-color) !important;
+    }
+  }
+
+  // Worker 页面的日志相关样式已在 JobDetail 中处理，这里只需要确保兼容
+  .log-tabs {
+    background-color: var(--bg-secondary) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+
+    .ant-tabs-nav {
+      background-color: var(--bg-secondary) !important;
+    }
+
+    .ant-tabs-tab {
+      background-color: var(--bg-radio) !important;
+      border-color: var(--border-radio) !important;
+      color: var(--text-secondary) !important;
+
+      &:hover {
+        color: var(--text-primary) !important;
+      }
+
+      &.ant-tabs-tab-active {
+        background-color: var(--bg-secondary) !important;
+        color: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+
+        &::after {
+          background-color: var(--bg-secondary) !important;
+        }
+      }
+    }
+
+    .ant-tabs-content-holder {
+      background-color: var(--bg-secondary) !important;
+    }
+  }
+
+  .log-content-card {
+    border-left-color: var(--border-primary) !important;
+    border-right-color: var(--border-primary) !important;
+    border-bottom-color: var(--border-primary) !important;
+  }
+
+  .log-info-section {
+    border-bottom-color: var(--border-primary) !important;
+  }
+
+  .log-info-label {
+    color: var(--text-secondary) !important;
+  }
+
+  .log-info-value {
+    color: var(--text-primary) !important;
+    background-color: var(--bg-hover) !important;
+    border-color: var(--border-secondary) !important;
+  }
+
+  .log-content-container {
+    background-color: var(--bg-primary) !important;
+  }
+
+  .log-content-text {
+    color: var(--text-primary) !important;
+  }
+
+  .log-empty-state {
+    background-color: var(--bg-primary) !important;
+  }
+
+  .empty-text {
+    color: var(--text-secondary) !important;
+  }
+
+  .show-log-container {
+    .ant-modal-content {
+      background-color: var(--bg-secondary) !important;
+      box-shadow:
+        0 20px 25px -5px rgba(0, 0, 0, 0.5),
+        0 10px 10px -5px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .ant-modal-header {
+      background: var(--bg-secondary) !important;
+      border-bottom-color: var(--border-primary) !important;
+    }
+
+    .ant-modal-title {
+      color: var(--text-primary) !important;
+    }
+
+    .ant-modal-body {
+      background-color: var(--bg-secondary) !important;
+    }
+
+    .ant-modal-footer {
+      background-color: var(--bg-secondary) !important;
+      border-top-color: var(--border-primary) !important;
+    }
+  }
+
+  // 表格行高亮
+  .ivu-table .current-task-row td {
+    background-color: rgba(0, 135, 199, 0.2) !important;
+  }
+
+  .ivu-dropdown-item-selected {
+    background-color: var(--bg-select) !important;
+  }
+
+  .ivu-modal-confirm-head-title {
+    color: #fff !important;
+  }
+
+  .ivu-modal-confirm-body {
+    color: #fff !important;
+  }
+
+  // 测试连接图标（DataSourceSetting.vue）
+  .test-conn-icon {
+    &.success {
+      color: var(--success-color) !important;
+    }
+
+    &.fail {
+      color: var(--error-color) !important;
+    }
+  }
+
+  // 测试连接图标（PageHeader.vue）- 确保内联颜色生效
+  // 针对 iView Icon 组件，确保通过 :color 属性设置的颜色在暗色模式下正确显示
+  // 当图标通过 :color="green" 或 :color="red" 设置时，使用主题变量
+  .ivu-icon-ios-checkmark-circle[style*='green'],
+  .ivu-icon-ios-checkmark-circle[style*='color: green'],
+  .ivu-icon-ios-checkmark-circle[style*='color:green'] {
+    color: var(--success-color) !important;
+  }
+
+  .ivu-icon-ios-close-circle[style*='red'],
+  .ivu-icon-ios-close-circle[style*='color: red'],
+  .ivu-icon-ios-close-circle[style*='color:red'] {
+    color: var(--error-color) !important;
+  }
+
+  .vtree-tree-node__title_selected {
+    background-color: #292c36 !important;
+  }
+
+  .vtree-tree-node__title:hover {
+    background-color: #292c36 !important;
+  }
+
+  .ant-input-group-addon {
+    background-color: var(--bg-secondary) !important;
+  }
+
+  .ant-select-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+    background-color: var(--bg-hover) !important;
+  }
+
+  .ant-input-group-wrapper {
+    background-color: var(--bg-select) !important;
+  }
+
+  .ivu-progress-outer {
+    background-color: unset !important;
+  }
+
+  .ivu-form-item-error-tip {
+    color: #c4372f !important;
+  }
+
+  .ivu-modal-body {
+    border-radius: 6px !important;
+  }
+
+  .ivu-card {
+    border-color: var(--border-radio);
+    background-color: var(--bg-secondary);
+  }
+
+  .ivu-date-picker-cells-cell-range {
+    background-color: var(--bg-tertiary);
+  }
+
+  .ivu-date-picker-cells-cell-range:before {
+    background-color: var(--bg-tertiary);
+  }
+
+  .ant-btn {
+    .ant-btn-default {
+      background-color: red !important;
+    }
+
+    .ant-btn-link {
+      span {
+        color: var(--primary-color) !important;
+      }
+    }
+  }
+
+  h4.mb-4,
+  .mb-4 {
+    color: var(--text-primary) !important;
+  }
+
+  // ===== AddWorker 组件暗色主题适配 =====
+  .add-worker-header {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .transfer-left {
+    border-color: var(--border-primary) !important;
+
+    .transfer-left-search {
+      background-color: var(--bg-tertiary) !important;
+      border-bottom-color: var(--border-primary) !important;
+    }
+
+    .transfer-left-item {
+      border-bottom-color: var(--border-primary) !important;
+    }
+  }
+
+  .transfer-left-footer {
+    border-left-color: var(--border-primary) !important;
+    border-right-color: var(--border-primary) !important;
+    border-bottom-color: var(--border-primary) !important;
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .ecs-desc {
+    color: var(--text-secondary) !important;
+  }
+
+  .host-type-label {
+    color: var(--text-primary) !important;
+    background-color: var(--bg-tertiary) !important;
+  }
+
+  .add-worker-step-container {
+    border-color: var(--border-primary) !important;
+    background-color: var(--bg-secondary) !important;
+
+    .add-worker-title {
+      color: var(--text-primary) !important;
+    }
+  }
+
+  .add-worker-step {
+    .add-worker-step-count {
+      background-color: var(--bg-tertiary) !important;
+      color: var(--text-primary) !important;
+      border: 1px solid var(--border-primary) !important;
+    }
+
+    .add-worker-step-content {
+      background-color: var(--bg-tertiary) !important;
+    }
+
+    .add-worker-step-desc {
+      color: var(--text-secondary) !important;
+    }
+  }
+
+  .code-container {
+    background-color: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-primary) !important;
+  }
+
+  // ===== 通用上传区域（JobDetail、NewCleanData、FilterHeader） =====
+  .upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+    border: 1px dashed var(--border-primary) !important;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+
+    input[type='file'] {
+      color: var(--text-primary) !important;
+    }
+
+    .anticon,
+    .iconfont {
+      color: var(--text-secondary) !important;
+    }
+
+    &:hover {
+      background-color: var(--bg-hover) !important;
+      border-color: var(--primary-color) !important;
+
+      .anticon,
+      .iconfont {
+        color: var(--primary-color) !important;
+      }
+    }
+  }
+
+  .file-name-span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--bg-hover) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-primary) !important;
+    padding: 6px 10px;
+    border-radius: 6px;
+
+    // .pkg-close,
+    // .ivu-icon,
+    // .anticon {
+    //   color: var(--text-secondary) !important;
+    //   cursor: pointer;
+
+    //   &:hover {
+    //     color: var(--primary-color) !important;
+    //   }
+    // }
+  }
+
+  // Select Tree 下拉框容器
+  .ant-select-tree-dropdown,
+  .ant-tree-select-dropdown {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  // Select Tree 树节点
+  .ant-select-tree,
+  .ant-tree-select-dropdown .ant-select-tree {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+
+    // 树节点
+    .ant-select-tree-treenode,
+    .ant-select-tree-node {
+      color: var(--text-primary) !important;
+
+      // 节点内容包装器
+      .ant-select-tree-node-content-wrapper {
+        color: var(--text-primary) !important;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background-color: var(--bg-hover) !important;
+        }
+
+        &.ant-select-tree-node-selected {
+          background-color: var(--bg-select) !important;
+        }
+      }
+
+      // 节点标题
+      .ant-select-tree-title {
+        color: var(--text-primary) !important;
+      }
+
+      // 节点 hover 时，只改变背景色，不改变文本颜色
+      &:hover {
+        .ant-select-tree-node-content-wrapper {
+          background-color: var(--bg-hover) !important;
+        }
+      }
+
+      // 选中状态的节点
+      &.ant-select-tree-node-selected {
+        .ant-select-tree-node-content-wrapper {
+          background-color: var(--bg-select) !important;
+          color: var(--primary-color) !important;
+        }
+
+        .ant-select-tree-title {
+          color: var(--primary-color) !important;
+        }
+      }
+
+      // 禁用状态的节点
+      &.ant-select-tree-node-disabled {
+        .ant-select-tree-node-content-wrapper {
+          color: var(--text-disabled) !important;
+          cursor: not-allowed !important;
+
+          &:hover {
+            background-color: transparent !important;
+          }
+        }
+
+        .ant-select-tree-title {
+          color: var(--text-disabled) !important;
+        }
+
+        // 禁用状态下不显示 hover 效果
+        &:hover {
+          .ant-select-tree-node-content-wrapper {
+            background-color: transparent !important;
+          }
+        }
+      }
+    }
+
+    // 展开/收起图标
+    .ant-select-tree-switcher,
+    .ant-select-tree-switcher-icon,
+    .ant-select-tree .anticon {
+      color: var(--text-secondary) !important;
+    }
+
+    // 缩进线
+    .ant-select-tree-indent-unit {
+      background-color: transparent !important;
+    }
+
+    // 缩进线连接点
+    .ant-select-tree-indent-unit::before {
+      border-color: var(--border-primary) !important;
+    }
+  }
+
+  // Select Tree Checkbox
+  .ant-select-tree-checkbox {
+    .ant-select-tree-checkbox-inner {
+      background-color: var(--bg-select) !important;
+      border-color: var(--border-primary) !important;
+    }
+
+    // 选中状态
+    &.ant-select-tree-checkbox-checked {
+      .ant-select-tree-checkbox-inner {
+        background-color: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+
+        &::after {
+          border-color: #ffffff !important;
+        }
+      }
+    }
+
+    // 半选状态
+    &.ant-select-tree-checkbox-indeterminate {
+      .ant-select-tree-checkbox-inner {
+        background-color: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+
+        &::after {
+          background-color: #ffffff !important;
+        }
+      }
+    }
+
+    // 禁用状态
+    &.ant-select-tree-checkbox-disabled {
+      .ant-select-tree-checkbox-inner {
+        background-color: var(--disabled-bg) !important;
+        border-color: var(--border-primary) !important;
+        cursor: not-allowed !important;
+        opacity: 0.6;
+      }
+
+      // 禁用状态下选中
+      &.ant-select-tree-checkbox-checked {
+        .ant-select-tree-checkbox-inner {
+          background-color: var(--disabled-bg) !important;
+          border-color: var(--border-primary) !important;
+
+          &::after {
+            border-color: var(--text-disabled) !important;
+          }
+        }
+      }
+
+      // 禁用状态下半选
+      &.ant-select-tree-checkbox-indeterminate {
+        .ant-select-tree-checkbox-inner {
+          background-color: var(--disabled-bg) !important;
+          border-color: var(--border-primary) !important;
+
+          &::after {
+            background-color: var(--text-disabled) !important;
+          }
+        }
+      }
+    }
+
+    // Hover 状态
+    &:not(.ant-select-tree-checkbox-disabled):hover {
+      .ant-select-tree-checkbox-inner {
+        border-color: var(--primary-color) !important;
+      }
+    }
+  }
+
+  // Select Tree 搜索框
+  .ant-select-tree-dropdown .ant-select-tree-search,
+  .ant-tree-select-dropdown .ant-select-tree-search {
+    background-color: var(--bg-secondary) !important;
+    border-bottom-color: var(--border-primary) !important;
+
+    .ant-input {
+      background-color: var(--bg-select) !important;
+      border-color: var(--border-primary) !important;
+      color: var(--text-primary) !important;
+
+      &:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 2px rgba(11, 185, 248, 0.2) !important;
+      }
+    }
+  }
+
+  // Select Tree 空状态
+  .ant-select-tree-empty {
+    color: var(--text-tertiary) !important;
+  }
+
+  // Select Tree 拖拽指示器
+  .ant-select-tree .ant-select-tree-drop-indicator {
+    background-color: var(--primary-color) !important;
+  }
+
+  .ant-modal-mask {
+    background-color: rgba(55, 55, 55, 0.6) !important;
+  }
+
+  .ivu-table-wrapper-with-border > .ivu-spin-fix {
+    border-color: #3a3a3a !important;
+  }
+
+  .panel .panel-header {
+    border-bottom-color: var(--border-primary) !important;
+  }
+
+  // 许可证申请模态框样式适配
+  .renew-license-modal,
+  .apply-license-modal {
+    .section {
+      .title {
+        color: var(--text-primary) !important;
+      }
+
+      .sub-title {
+        color: var(--text-secondary) !important;
+      }
+
+      .apply-code {
+        background-color: var(--bg-tertiary) !important;
+        border-color: var(--border-primary) !important;
+        color: var(--text-primary) !important;
+      }
+
+      .copy-btn {
+        color: var(--primary-color) !important;
+
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+
+      .contact-link {
+        color: var(--primary-color) !important;
+
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+    }
+
+    .steps {
+      .circle {
+        border-color: var(--primary-color) !important;
+        color: var(--primary-color) !important;
+      }
+
+      .line1,
+      .line2 {
+        background: var(--primary-color) !important;
+      }
+    }
+
+    .content {
+      .tip {
+        color: var(--text-secondary) !important;
+        background: var(--bg-tertiary) !important;
+
+        .link {
+          color: var(--primary-color) !important;
+
+          a {
+            color: var(--primary-color) !important;
+
+            &:hover {
+              opacity: 0.8;
+            }
+          }
+        }
+      }
+    }
+
+    .operation {
+      .left {
+        color: var(--text-primary) !important;
+      }
+    }
+  }
+
+  // 头像弹窗（Home 页 Header -> user-info -> menu）
+  .home {
+    .header {
+      .user-info {
+        .menu {
+          background: var(--bg-secondary) !important;
+          color: var(--text-primary) !important;
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6) !important;
+          border: 1px solid var(--border-primary) !important;
+
+          & > div:not(:last-child) {
+            border-bottom: 1px solid var(--border-primary) !important;
+          }
+
+          .one {
+            .domain {
+              color: var(--text-primary) !important;
+            }
+
+            .parent-account-label {
+              // 维持标签可读性
+              color: #fff !important;
+            }
+          }
+
+          .two {
+            color: var(--text-secondary) !important;
+          }
+
+          .three {
+            div {
+              color: var(--text-primary) !important;
+
+              &:hover {
+                opacity: 0.85;
+              }
+            }
+          }
+
+          .four {
+            background: var(--bg-tertiary) !important;
+            color: var(--error-color) !important;
+          }
+        }
+      }
+    }
+  }
+
+  // JSON编辑器组件样式适配
+  .param-header {
+    background: var(--bg-tertiary) !important;
+    border-left-color: var(--primary-color) !important;
+  }
+
+  .param-title {
+    color: var(--text-primary) !important;
+  }
+
+  .param-icon {
+    color: var(--primary-color) !important;
+  }
+
+  .param-desc {
+    color: var(--text-secondary) !important;
+  }
+
+  .json-editor-container {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .json-editor-toolbar {
+    background: var(--bg-tertiary) !important;
+    border-bottom-color: var(--border-primary) !important;
+  }
+
+  .toolbar-icon {
+    color: var(--primary-color) !important;
+  }
+
+  .json-editor-content {
+    background: var(--bg-secondary) !important;
+  }
+
+  .json-textarea {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+
+    &::placeholder {
+      color: var(--text-tertiary) !important;
+    }
+  }
+
+  .ivu-btn:before {
+    background: none;
+  }
+
+  // 日期选择器侧边栏（iView）
+  .ivu-picker-panel-sidebar {
+    background-color: var(--bg-secondary) !important;
+    border-right: 1px solid var(--border-primary) !important;
+
+    .ivu-picker-panel-shortcut,
+    .ivu-picker-panel-shortcut span {
+      color: var(--text-primary) !important;
+    }
+
+    .ivu-picker-panel-shortcut {
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: var(--bg-hover) !important;
+        color: var(--text-primary) !important;
+      }
+
+      &.ivu-picker-panel-shortcut-selected,
+      &.is-active {
+        background-color: var(--bg-select) !important;
+        color: var(--primary-color) !important;
+      }
+
+      &.ivu-picker-panel-shortcut-disabled {
+        color: var(--text-disabled) !important;
+        cursor: not-allowed !important;
+
+        &:hover {
+          background-color: transparent !important;
+        }
+      }
+    }
+  }
+
+  .ivu-poptip-title-inner {
+    color: var(--text-primary) !important;
+  }
+
+  .job-detail-state-progress-title {
+    color: var(--text-primary) !important;
+  }
+
+  .ivu-table-row-highlight {
+    td {
+      background-color: var(--bg-hover) !important;
+    }
+  }
+
+  .ivu-tree-title:hover {
+    background-color: var(--bg-select) !important;
+  }
+
+  .ivu-tree-title-selected {
+    background-color: var(--bg-select) !important;
+  }
+
+  .ivu-select-placeholder {
+    color: red !important;
+  }
+
+  .ivu-icon {
+    color: unset !important;
+
+    &:hover {
+      color: unset !important;
+    }
+  }
+
+  // ===== 授权页面 - 遮罩层避免白色闪动 =====
+  .auth-container-wrapper {
+    .auth-content {
+      .auth-container {
+        .auth {
+          .left {
+            .datasource-tree {
+              .tree-loading-mask {
+                background-color: var(--bg-secondary) !important;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // ===== Ant Design Date/Time Picker 暗色模式适配 =====
+  .ant-picker {
+    background-color: var(--bg-tertiary) !important;
+    border-color: var(--border-radio) !important;
+    color: var(--text-primary) !important;
+
+    &:hover {
+      border-color: #ffffff !important;
+    }
+
+    &-focused,
+    &-status-success,
+    &-status-warning,
+    &-status-error {
+      border-color: var(--border-radio) !important;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2) !important;
+    }
+
+    &-input {
+      color: var(--text-primary) !important;
+
+      > input {
+        color: var(--text-primary) !important;
+        background-color: transparent !important;
+
+        &::placeholder {
+          color: var(--text-secondary) !important;
+        }
+      }
+    }
+
+    &-suffix,
+    &-clear {
+      color: var(--text-disabled) !important;
+
+      &:hover {
+        color: var(--text-secondary) !important;
+      }
+    }
+
+    &-separator {
+      color: var(--text-secondary) !important;
+    }
+
+    &[disabled],
+    &-disabled {
+      background-color: var(--disabled-bg) !important;
+      border-color: var(--border-primary) !important;
+      color: var(--text-disabled) !important;
+      cursor: not-allowed !important;
+      opacity: 0.6;
+    }
+  }
+
+  // 日期选择器下拉面板
+  .ant-picker-dropdown {
+    background-color: transparent !important;
+
+    .ant-picker-panel-container {
+      background-color: var(--bg-secondary) !important;
+      border: 1px solid var(--border-primary) !important;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6) !important;
+    }
+  }
+
+  // 日期选择器面板
+  .ant-picker-panel {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+    color: var(--text-primary) !important;
+
+    // 面板头部
+    &-header {
+      border-bottom-color: var(--border-primary) !important;
+
+      button {
+        color: var(--text-primary) !important;
+
+        &:hover {
+          color: var(--primary-color) !important;
+        }
+      }
+    }
+
+    // 头部视图（显示年月/周/日）
+    .ant-picker-header-view {
+      color: var(--text-primary) !important;
+
+      button {
+        color: var(--text-primary) !important;
+
+        &:hover {
+          color: var(--primary-color) !important;
+        }
+      }
+    }
+
+    // 面板主体
+    &-body {
+      background-color: var(--bg-secondary) !important;
+    }
+
+    // 日期单元格
+    .ant-picker-cell {
+      color: var(--text-primary) !important;
+
+      &:hover:not(.ant-picker-cell-disabled):not(.ant-picker-cell-selected) {
+        .ant-picker-cell-inner {
+          background-color: var(--bg-hover) !important;
+        }
+      }
+
+      &-in-view {
+        color: var(--text-primary) !important;
+      }
+
+      &-disabled {
+        color: var(--text-disabled) !important;
+        cursor: not-allowed !important;
+
+        .ant-picker-cell-inner {
+          background-color: transparent !important;
+        }
+      }
+
+      &-selected {
+        .ant-picker-cell-inner {
+          background-color: var(--primary-color) !important;
+          color: #ffffff !important;
+        }
+      }
+
+      &-today {
+        .ant-picker-cell-inner {
+          border-color: var(--primary-color) !important;
+        }
+      }
+
+      &-range-start,
+      &-range-end {
+        .ant-picker-cell-inner {
+          background-color: var(--primary-color) !important;
+          color: #ffffff !important;
+        }
+      }
+
+      &-in-range {
+        .ant-picker-cell-inner {
+          background-color: var(--bg-select) !important;
+        }
+      }
+    }
+
+    // 周/月/年选择器内容区域
+    .ant-picker-content {
+      background-color: var(--bg-secondary) !important;
+
+      .ant-picker-time-panel-cell-inner {
+        color: var(--text-primary) !important;
+      }
+
+      .ant-picker-time-panel-cell-selected {
+        .ant-picker-time-panel-cell-inner {
+          background-color: var(--primary-color) !important;
+          color: #ffffff !important;
+        }
+      }
+
+      th {
+        color: var(--text-secondary) !important;
+        border-bottom-color: var(--border-primary) !important;
+      }
+
+      td {
+        color: var(--text-primary) !important;
+      }
+
+      // 月份/年份/季度单元格
+      .ant-picker-cell {
+        color: var(--text-primary) !important;
+
+        &:hover:not(.ant-picker-cell-disabled):not(.ant-picker-cell-selected) {
+          .ant-picker-cell-inner {
+            background-color: var(--bg-hover) !important;
+          }
+        }
+
+        &-disabled {
+          color: var(--text-disabled) !important;
+          cursor: not-allowed !important;
+
+          .ant-picker-cell-inner {
+            background-color: transparent !important;
+          }
+        }
+
+        &-selected {
+          .ant-picker-cell-inner {
+            background-color: var(--primary-color) !important;
+            color: #ffffff !important;
+          }
+        }
+      }
+    }
+  }
+
+  // 时间选择面板
+  .ant-picker-time-panel {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+
+    &-column {
+      border-left-color: var(--border-primary) !important;
+
+      > li {
+        color: var(--text-primary) !important;
+
+        &:hover {
+          background-color: var(--bg-hover) !important;
+        }
+
+        &-selected {
+          background-color: var(--bg-select) !important;
+          color: var(--primary-color) !important;
+        }
+
+        &-disabled {
+          color: var(--text-disabled) !important;
+          cursor: not-allowed !important;
+        }
+      }
+    }
+  }
+
+  // 范围选择器
+  .ant-picker-range {
+    background-color: var(--bg-tertiary) !important;
+    border-color: var(--border-radio) !important;
+
+    &:hover {
+      border-color: #ffffff !important;
+    }
+
+    &-separator {
+      color: var(--text-secondary) !important;
+    }
+
+    .ant-picker-active-bar {
+      background-color: var(--primary-color) !important;
+    }
+  }
+
+  // 日期选择器底部操作栏
+  .ant-picker-footer {
+    border-top-color: var(--border-primary) !important;
+    background-color: var(--bg-secondary) !important;
+
+    .ant-picker-now-btn,
+    .ant-picker-today-btn {
+      color: var(--primary-color) !important;
+
+      &:hover {
+        color: var(--primary-color) !important;
+        opacity: 0.8;
+      }
+    }
+  }
+
+  // 日期选择器快捷方式
+  .ant-picker-ranges {
+    .ant-picker-preset {
+      color: var(--text-primary) !important;
+
+      &:hover {
+        background-color: var(--bg-hover) !important;
+      }
+
+      &-active {
+        background-color: var(--bg-select) !important;
+        color: var(--primary-color) !important;
+      }
+    }
+  }
+
+  .ivu-time-picker-cells-cell-selected {
+    background-color: var(--bg-primary) !important;
+
+    &:hover {
+      background-color: var(--bg-hover) !important;
+      color: #ffffff !important;
+    }
+  }
+
+  // ===== 禁用状态元素（使用 #ccc 颜色）在暗色模式下添加不透明度 =====
+  // 针对内联样式使用 #ccc 或 rgb(204, 204, 204) 的元素，添加 0.5 不透明度
+  // Vue 可能会将 #ccc 转换为 rgb(204, 204, 204)，所以需要同时匹配两种格式
+  a[style*='#ccc'],
+  a[style*='#CCCCCC'],
+  a[style*='rgb(204, 204, 204)'],
+  a[style*='rgb(204,204,204)'],
+  span[style*='#ccc'],
+  span[style*='#CCCCCC'],
+  span[style*='rgb(204, 204, 204)'],
+  span[style*='rgb(204,204,204)'],
+  div[style*='#ccc'],
+  div[style*='#CCCCCC'],
+  div[style*='rgb(204, 204, 204)'],
+  div[style*='rgb(204,204,204)'] {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+  }
+
+  .ivu-input::placeholder,
+  .ant-input::placeholder,
+  .ivu-select-input::placeholder,
+  .ant-select-input::placeholder {
+    color: #7e7e7e !important;
+  }
+
+  .ant-select-open .ant-select-selector {
+    .ant-select-selection-item {
+      color: #7e7e7e !important;
+    }
+  }
+
+  .table-list-layout .table-list .content .option {
+    border: 1px solid var(--border-primary) !important;
+  }
+
+  .ivu-icon.ivu-icon-ios-key {
+    color: rgb(255, 153, 0) !important;
+  }
+
+  // 解决暗色主题下 Select 输入框光标不可见的问题
+  .ant-select-selection-search-input {
+    caret-color: var(--text-primary) !important;
+  }
+
+  .ivu-table {
+    .ivu-table-fixed-right {
+      th {
+        border-color: #5d5f63 !important;
+      }
+    }
+  }
+
+  .mq-schema-content .mq-header {
+    background: #22252e !important;
+  }
+
+  // 申请码链路数出的vue-number组件
+  .vue-number-input__input {
+    background-color: var(--bg-select) !important;
+  }
+
+  .ivu-menu-item-group .ivu-menu-item-group-title {
+    color: var(--text-secondary) !important;
+  }
+
+  // 抽屉组件
+  .ivu-drawer,
+  .ant-drawer {
+    &-content {
+      background-color: var(--bg-secondary) !important;
+
+      a.ivu-drawer-close {
+        color: var(text-primary) !important;
+      }
+    }
+
+    &-header {
+      border-bottom: 1px solid var(--border-primary) !important;
+    }
+
+    .ivu-drawer-header p,
+    .ivu-drawer-header-inner {
+      color: var(--text-primary) !important;
+    }
+
+    .drawer-footer {
+      background-color: var(--bg-secondary) !important;
+      border-top: 1px solid var(--border-primary) !important;
+    }
+  }
+
+  // 右键菜单
+  .mx-context-menu {
+    background-color: var(--bg-secondary) !important;
+    .mx-context-menu-item:hover {
+      background-color: var(--bg-tertiary) !important;
+      cursor: pointer;
+    }
+    .mx-context-menu-item-sperator {
+      background-color: var(--bg-secondary) !important;
+      &:after {
+        background-color: var(--border-primary) !important;
+      }
+    }
+  }
+
+  // 待转移到相关文件
+  .sql-home-container .content .query-container .query-content-container .query-content .query .table-list-container {
+    background: var(--bg-secondary);
+  }
+
+  .search-header {
+    background: var(--bg-secondary) !important;
+    border-bottom: 1px solid var(--border-primary) !important;
+  }
+}

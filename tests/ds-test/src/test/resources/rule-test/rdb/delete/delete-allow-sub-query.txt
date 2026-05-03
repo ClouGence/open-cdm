@@ -1,0 +1,19 @@
+#define "allow" as string
+        default "Any"
+        enum ["Any", "Where", "None"]
+        hint "允许子查询出现的位置"
+
+if @domain.sqlType != 'DELETE' then
+  return true
+end
+
+if 'Any' in @func.string.split(#{allow}, ',') then
+  return true
+end
+
+if
+  @domain.selectInWhere and
+  'Where' not in @func.string.split(#{allow}, ',')
+then
+  return false
+end

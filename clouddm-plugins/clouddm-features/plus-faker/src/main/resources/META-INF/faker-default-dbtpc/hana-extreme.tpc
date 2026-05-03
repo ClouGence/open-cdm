@@ -1,0 +1,164 @@
+# see https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/20a1569875191014b507cf392724b7eb.html?q=offset
+
+define hana {
+    priority     = 1
+    policy       = "extreme"
+    policyDesc   = "Hana TypeProcessor Policy(Extreme)"
+}
+
+[tinyint]
+    jdbcType       = tinyint
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 255)
+
+[smallint]
+    jdbcType       = smallint
+    seedType       = number
+    numberType     = int
+    minMax         = range(-32768, 32767)
+
+[integer]
+    jdbcType       = integer
+    seedType       = number
+    numberType     = int
+    minMax         = range(-2147483648, 2147483647)
+
+[bigint]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = int
+    minMax         = range(-9223372036854775808, 9223372036854775807)
+
+[decimal]
+    jdbcType       = decimal
+    seedType       = number
+    numberType     = decimal
+    precision      = ifThen(isZero(${numericPrecision}), 38, ${numericPrecision})
+    scale          = ifThen(isZero(${numericScale}),     38, ${numericScale})
+
+[smalldecimal]
+    jdbcType       = decimal
+    seedType       = number
+    numberType     = decimal
+    precision      = ifThen(isZero(${numericPrecision}), 16, ${numericPrecision})
+    scale          = ifThen(isZero(${numericScale}),     16, ${numericScale})
+
+[real]
+    jdbcType       = real
+    seedType       = number
+    numberType     = decimal
+    minMax        += range(10, -3.402823466E+38    , -1.175494351E-38)
+    minMax        += range(10, 1.175494351E-38     , 3.402823466E+38)
+    minMax        += range(30, -999999999.999999999, 999999999.999999999)
+    minMax        += range(30, -0.999999999        , 0.999999999)
+    precision      = ${numericPrecision}
+    scale          = ${numericScale}
+    abs            = ${numericUnsigned}
+
+[float]
+    jdbcType       = float
+    seedType       = number
+    numberType     = decimal
+    minMax        += range(10, -3.402823466E+38    , -1.175494351E-38)
+    minMax        += range(10, 1.175494351E-38     , 3.402823466E+38)
+    minMax        += range(30, -999999999.999999999, 999999999.999999999)
+    minMax        += range(30, -0.999999999        , 0.999999999)
+    precision      = ${numericPrecision}
+    scale          = ${numericScale}
+    abs            = ${numericUnsigned}
+[double]
+    jdbcType       = double
+    seedType       = number
+    numberType     = decimal
+    minMax        += range(10, -2.2250738585072014E-308, -1.7976931348623157E+308)
+    minMax        += range(10, 2.2250738585072014E-308 , 1.7976931348623157E+308)
+    minMax        += range(30, -999999999.999999999    , 999999999.999999999)
+    minMax        += range(30, -0.999999999            , 0.999999999)
+    precision      = ${numericPrecision}
+    scale          = ${numericScale}
+    abs            = ${numericUnsigned}
+    typeHandler    = com.clougence.faker.utils.types.StringAsBigDecimalTypeHandler
+[boolean]
+    jdbcType       = boolean
+    seedType       = boolean
+[char]
+[nchar]
+[varchar]
+[nvarchar]
+[alphanum]
+[shorttext]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 4096, 10)
+    characterSet   = [ letter_number ]
+
+[date]
+    # -4712-01-01 ~ 9999-12-31
+    jdbcType       = date
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE10
+    genType        = random
+    rangeForm      = "0000-01-01"
+    rangeTo        = "9999-12-31"
+
+[time]
+    jdbcType       = time
+    seedType       = date
+    dateType       = LocalTime
+    genType        = random
+    dateFormat     = WKF_TIME24
+    precision      = safeMaxLength(0, ${datetimePrecision}, 0, 0)
+    rangeForm      = "00:00:00"
+    rangeTo        = "23:59:59"
+
+[seconddate]
+    # -4712-01-01 00:00:00 ~ 9999-12-31 23:59:59
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE_TIME24
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 0, 0)
+    rangeForm      = "0000-01-01 00:00:00"
+    rangeTo        = "9999-12-31 23:59:59"
+[timestamp]
+    # -4712-01-01 00:00:00.0000000 ~ 9999-12-31 23:59:59.9999999
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE_TIME24
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 7, 3)
+    rangeForm      = "0000-01-01 00:00:00.0000000"
+    rangeTo        = "9999-12-31 23:59:59.9999999"
+
+[binary]
+[varbinary]
+[blob]
+    jdbcType       = varbinary
+    seedType       = bytes
+    minLength      = 0
+    maxLength      = safeMaxLength(0, ${byteLength}, 2000, 10)
+[bintext]
+[text]
+[clob]
+[nclob]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = 4096
+    characterSet   = [ letter_number ]
+[st_point]
+[st_geometry]
+    throw "this columnType Unsupported."
+#    jdbcType       = other
+#    seedType       = date
+#    dateType       = iso8601
+#    genType        = random
+#    precision      = 0
+#    rangeForm      = "0000-01-01 00:00:00.000000"
+#    rangeTo        = "9999-12-31 23:59:59.999999"
+#    throw "this columnType Unsupported."

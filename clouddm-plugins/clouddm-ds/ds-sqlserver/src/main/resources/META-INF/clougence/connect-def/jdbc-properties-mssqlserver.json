@@ -1,0 +1,406 @@
+[
+  {
+    "name": "user",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_user"
+  },
+  {
+    "name": "password",
+    "secret": true,
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_password"
+  },
+  {
+    "name": "database",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_database"
+  },
+  {
+    "name": "port",
+    "default": "1433",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_port"
+  },
+  {
+    "name": "accessToken",
+    "version": "6.0",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_accessToken"
+  },
+  {
+    "name": "applicationIntent",
+    "default": "ReadWrite",
+    "options": "['ReadWrite','ReadOnly']",
+    "version": "6.0",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_applicationIntent"
+  },
+  {
+    "name": "applicationName",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_applicationName"
+  },
+  {
+    "name": "authentication",
+    "default": "NotSpecified",
+    "options": "['NotSpecified','SqlPassword','ActiveDirectoryIntegrated','ActiveDirectoryPassword','ActiveDirectoryManagedIdentity','ActiveDirectoryMSI','ActiveDirectoryInteractive','ActiveDirectoryServicePrincipal']",
+    "version": "6.0",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_authentication"
+  },
+  {
+    "name": "authenticationScheme",
+    "default": "NativeAuthentication",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_authenticationScheme"
+  },
+  {
+    "name": "cancelQueryTimeout",
+    "default": "-1",
+    "version": "6.4",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_cancelQueryTimeout"
+  },
+  {
+    "name": "clientCertificate",
+    "version": "8.4",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_clientCertificate"
+  },
+  {
+    "name": "clientKey",
+    "version": "8.4",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_clientKey"
+  },
+  {
+    "name": "clientKeyPassword",
+    "secret": true,
+    "version": "8.4",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_clientKeyPassword"
+  },
+  {
+    "name": "columnEncryptionSetting",
+    "default": "Disabled",
+    "options": "['Enabled','Disabled']",
+    "version": "6.0",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_columnEncryptionSetting"
+  },
+  {
+    "name": "connectRetryCount",
+    "default": "1",
+    "version": "9.4",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_connectRetryCount"
+  },
+  {
+    "name": "connectRetryInterval",
+    "default": "10",
+    "version": "9.4",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_connectRetryInterval"
+  },
+  {
+    "name": "datetimeParameterType",
+    "default": "datetime2",
+    "options": "['datetime','datetime2','datetimeoffset']",
+    "version": "12.2",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_datetimeParameterType"
+  },
+  {
+    "name": "delayLoadingLobs",
+    "default": "true",
+    "options": "['true','false']",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_delayLoadingLobs"
+  },
+  {
+    "name": "domain",
+    "version": "7.4",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_domain"
+  },
+  {
+    "name": "disableStatementPooling",
+    "default": "true",
+    "options": "['true','false']",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_disableStatementPooling"
+  },
+  {
+    "name": "enablePrepareOnFirstPreparedStatementCall",
+    "default": "false",
+    "options": "['true','false']",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_enablePrepareOnFirstPreparedStatementCall"
+  },
+  {
+    "name": "enclaveAttestationUrl",
+    "version": "8.2",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_enclaveAttestationUrl"
+  },
+  {
+    "name": "enclaveAttestationProtocol",
+    "version": "8.2",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_enclaveAttestationProtocol"
+  },
+  {
+    "name": "encrypt",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_encrypt"
+  },
+  {
+    "name": "failoverPartner",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_failoverPartner"
+  },
+  {
+    "name": "fips",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_fips"
+  },
+  {
+    "name": "fipsProvider",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_fipsProvider"
+  },
+  {
+    "name": "gsscredential",
+    "version": "6.2",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_gsscredential"
+  },
+  {
+    "name": "hostNameInCertificate",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_hostNameInCertificate"
+  },
+  {
+    "name": "instanceName",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_instanceName"
+  },
+  {
+    "name": "integratedSecurity",
+    "default": "false",
+    "options": "['true','false']",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_integratedSecurity"
+  },
+  {
+    "name": "ipaddresspreference",
+    "default": "IPv4First",
+    "options": "['IPV4First','IPV6First','UsePlatformDefault']",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_ipaddresspreference"
+  },
+  {
+    "name": "jaasConfigurationName",
+    "default": "SQLJDBCDriver",
+    "version": "6.2",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_jaasConfigurationName"
+  },
+  {
+    "name": "keyStoreAuthentication",
+    "version": "6.0",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_keyStoreAuthentication"
+  },
+  {
+    "name": "keyStoreLocation",
+    "version": "6.0",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_keyStoreLocation"
+  },
+  {
+    "name": "keyStorePrincipalId",
+    "version": "8.4",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_keyStorePrincipalId"
+  },
+  {
+    "name": "keyStoreSecret",
+    "version": "6.0",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_keyStoreSecret"
+  },
+  {
+    "name": "lastUpdateCount",
+    "default": "true",
+    "options": "['true','false']",
+    "version": "6.0",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_lastUpdateCount"
+  },
+  {
+    "name": "lockTimeout",
+    "default": "-1",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_lockTimeout"
+  },
+  {
+    "name": "loginTimeout",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_loginTimeout"
+  },
+  {
+    "name": "maxResultBuffer",
+    "version": "9.2",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_maxResultBuffer"
+  },
+  {
+    "name": "msiClientId",
+    "deprecated": true,
+    "version": "7.2",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_msiClientId"
+  },
+  {
+    "name": "multiSubnetFailover",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_multiSubnetFailover"
+  },
+  {
+    "name": "packetSize",
+    "default": "8000",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_packetSize"
+  },
+  {
+    "name": "prepareMethod",
+    "default": "prepexec",
+    "options": "['prepexec','prepare']",
+    "version": "11.2.0",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_prepareMethod"
+  },
+  {
+    "name": "queryTimeout",
+    "default": "-1",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_queryTimeout"
+  },
+  {
+    "name": "realm",
+    "version": "9.4",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_realm"
+  },
+  {
+    "name": "replication",
+    "default": "false",
+    "options": "['true','false']",
+    "version": "9.4",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_replication"
+  },
+  {
+    "name": "responseBuffering",
+    "default": "adaptive",
+    "options": "['full','adaptive']",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_responseBuffering"
+  },
+  {
+    "name": "selectMethod",
+    "default": "direct",
+    "options": "['direct','cursor']",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_selectMethod"
+  },
+  {
+    "name": "sendStringParametersAsUnicode",
+    "default": "true",
+    "options": "['true','false']",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_sendStringParametersAsUnicode"
+  },
+  {
+    "name": "sendStringParametersAsUnicode",
+    "default": "true",
+    "options": "['true','false']",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_sendStringParametersAsUnicode"
+  },
+  {
+    "name": "sendTemporalDataTypesAsStringForBulkCopy",
+    "default": "true",
+    "options": "['true','false']",
+    "version": "8.4",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_sendTemporalDataTypesAsStringForBulkCopy"
+  },
+  {
+    "name": "sendTimeAsDatetime",
+    "default": "true",
+    "options": "['true','false']",
+    "version": "3.0",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_sendTimeAsDatetime"
+  },
+  {
+    "name": "serverCertificate",
+    "version": "11.2.0+",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_serverCertificate"
+  },
+  {
+    "name": "serverName",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_serverName"
+  },
+  {
+    "name": "serverNameAsACE",
+    "default": "false",
+    "options": "['true','false']",
+    "version": "6.0",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_serverNameAsACE"
+  },
+  {
+    "name": "serverPreparedStatementDiscardThreshold",
+    "default": "10",
+    "version": "6.2",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_serverPreparedStatementDiscardThreshold"
+  },
+  {
+    "name": "serverSpn",
+    "version": "4.2",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_serverSpn"
+  },
+  {
+    "name": "socketFactoryClass",
+    "version": "8.4",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_socketFactoryClass"
+  },
+  {
+    "name": "socketTimeout",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_socketTimeout"
+  },
+  {
+    "name": "statementPoolingCacheSize",
+    "default": "0",
+    "version": "6.4",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_statementPoolingCacheSize"
+  },
+  {
+    "name": "sslProtocol",
+    "default": "TLS",
+    "options": "['TLS','TLSv1','TLSv1.1','TLSv1.2']",
+    "version": "6.4",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_sslProtocol"
+  },
+  {
+    "name": "transparentNetworkIPResolution",
+    "default": "true",
+    "options": "['true','false']",
+    "version": "6.0",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_transparentNetworkIPResolution"
+  },
+  {
+    "name": "trustManagerClass",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_trustManagerClass"
+  },
+  {
+    "name": "trustManagerConstructorArg",
+    "version": "6.4",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_trustManagerConstructorArg"
+  },
+  {
+    "name": "trustServerCertificate",
+    "default": "false",
+    "options": "['true','false']",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_trustServerCertificate"
+  },
+  {
+    "name": "trustStore",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_trustStore"
+  },
+  {
+    "name": "trustStorePassword",
+    "secret": true,
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_trustStorePassword"
+  },
+  {
+    "name": "trustStoreType",
+    "default": "JKS",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_trustStoreType"
+  },
+  {
+    "name": "useBulkCopyForBatchInsert",
+    "default": "false",
+    "options": "['true','false']",
+    "version": "9.2",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_useBulkCopyForBatchInsert"
+  },
+  {
+    "name": "useFmtOnly",
+    "default": "false",
+    "options": "['true','false']",
+    "version": "7.4",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_useFmtOnly"
+  },
+  {
+    "name": "workstationID",
+    "default": "",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_workstationID"
+  },
+  {
+    "name": "xopenStates",
+    "default": "false",
+    "options": "['true','false']",
+    "description_i18n": "CG_JDBC_PARAMS_MSSQLSERVER_xopenStates"
+  }
+]

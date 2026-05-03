@@ -1,0 +1,392 @@
+[
+  {
+    "name": "unixSocketFile",
+    "description_i18n": "CG_JDBC_PARAMS_DM_unixSocketFile"
+  },
+  {
+    "name": "user",
+    "description_i18n": "CG_JDBC_PARAMS_DM_user"
+  },
+  {
+    "name": "password",
+    "description_i18n": "CG_JDBC_PARAMS_DM_password"
+  },
+  {
+    "name": "appName",
+    "description_i18n": "CG_JDBC_PARAMS_DM_appName"
+  },
+  {
+    "name": "osName",
+    "description_i18n": "CG_JDBC_PARAMS_DM_osName"
+  },
+  {
+    "name": "socketTimeout",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_DM_socketTimeout"
+  },
+  {
+    "name": "sessionTimeout",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_DM_sessionTimeout"
+  },
+  {
+    "name": "connectTimeout",
+    "default": "5000",
+    "description_i18n": "CG_JDBC_PARAMS_DM_connectTimeout"
+  },
+  {
+    "name": "StmtPoolSize",
+    "default": "15",
+    "description_i18n": "CG_JDBC_PARAMS_DM_StmtPoolSize"
+  },
+  {
+    "name": "PStmtPoolSize",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_DM_PStmtPoolSize"
+  },
+  {
+    "name": "pstmtPoolValidTime",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_DM_pstmtPoolValidTime"
+  },
+  {
+    "name": "escapeProcess",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_DM_escapeProcess"
+  },
+  {
+    "name": "autoCommit",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_DM_autoCommit"
+  },
+  {
+    "name": "alwayseAllowCommit",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_DM_alwayseAllowCommit"
+  },
+  {
+    "name": "localTimezone",
+    "description_i18n": "CG_JDBC_PARAMS_DM_localTimezone"
+  },
+  {
+    "name": "maxRows",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_DM_maxRows"
+  },
+  {
+    "name": "bufPrefetch",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_DM_bufPrefetch"
+  },
+  {
+    "name": "LobMode",
+    "default": "1",
+    "description_i18n": "CG_JDBC_PARAMS_DM_LobMode"
+  },
+  {
+    "name": "ignoreCase",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_DM_ignoreCase"
+  },
+  {
+    "name": "continueBatchOnError",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_DM_continueBatchOnError"
+  },
+  {
+    "name": "batchType",
+    "default": "1",
+    "description_i18n": "CG_JDBC_PARAMS_DM_batchType"
+  },
+  {
+    "name": "resultSetType",
+    "default": "1003",
+    "description_i18n": "CG_JDBC_PARAMS_DM_resultSetType"
+  },
+  {
+    "name": "dbmdChkPrv",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_DM_dbmdChkPrv"
+  },
+  {
+    "name": "isBdtaRS",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_DM_isBdtaRS"
+  },
+  {
+    "name": "clobAsString",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_DM_clobAsString"
+  },
+  {
+    "name": "columnNameCase",
+    "default": "",
+    "options": "['','upper','lower']",
+    "description_i18n": "CG_JDBC_PARAMS_DM_columnNameCase"
+  },
+  {
+    "name": "compatibleMode",
+    "description_i18n": "CG_JDBC_PARAMS_DM_compatible_mode"
+  },
+  {
+    "name": "schema",
+    "description_i18n": "CG_JDBC_PARAMS_DM_schema"
+  },
+  {
+    "name": "loginMode",
+    "default": "4",
+    "description_i18n": "CG_JDBC_PARAMS_DM_loginMode"
+  },
+  {
+    "name": "loginStatus",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_DM_loginStatus"
+  },
+  {
+    "name": "loginDscCtrl",
+    "default": "false",
+    "options": "['true','false']",
+    "description_i18n": "CG_JDBC_PARAMS_DM_loginDscCtrl"
+  },
+  {
+    "name": "epSelector",
+    "default": "false",
+    "options": "['true','false']",
+    "description_i18n": "CG_JDBC_PARAMS_DM_epSelector"
+  },
+  {
+    "name": "autoReconnect",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_DM_autoReconnect"
+  },
+  {
+    "name": "switchTimes",
+    "default": "1",
+    "description_i18n": "CG_JDBC_PARAMS_DM_switchTimes"
+  },
+  {
+    "name": "switchInterval",
+    "default": "1000",
+    "description_i18n": "CG_JDBC_PARAMS_DM_switchInterval"
+  },
+  {
+    "name": "cluster",
+    "description_i18n": "CG_JDBC_PARAMS_DM_cluster"
+  },
+  {
+    "name": "dbAliveCheckFreq",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_DM_dbAliveCheckFreq"
+  },
+  {
+    "name": "compress",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_DM_compress"
+  },
+  {
+    "name": "compressID",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_DM_compressID"
+  },
+  {
+    "name": "sslFilesPath",
+    "description_i18n": "CG_JDBC_PARAMS_DM_sslFilesPath"
+  },
+  {
+    "name": "sslKeystorePass",
+    "description_i18n": "CG_JDBC_PARAMS_DM_sslKeystorePass"
+  },
+  {
+    "name": "kerberosLoginConfPath",
+    "description_i18n": "CG_JDBC_PARAMS_DM_kerberosLoginConfPath"
+  },
+  {
+    "name": "uKeyName",
+    "description_i18n": "CG_JDBC_PARAMS_DM_uKeyName"
+  },
+  {
+    "name": "uKeyPin",
+    "description_i18n": "CG_JDBC_PARAMS_DM_uKeyPin"
+  },
+  {
+    "name": "cipherPath",
+    "description_i18n": "CG_JDBC_PARAMS_DM_cipherPath"
+  },
+  {
+    "name": "OsAuthType",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_DM_OsAuthType"
+  },
+  {
+    "name": "loginCertificate",
+    "description_i18n": "CG_JDBC_PARAMS_DM_loginCertificate"
+  },
+  {
+    "name": "mppLocal",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_DM_mppLocal"
+  },
+  {
+    "name": "rwSeparate",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_DM_rwSeparate"
+  },
+  {
+    "name": "rwPercent",
+    "default": "25",
+    "description_i18n": "CG_JDBC_PARAMS_DM_rwPercent"
+  },
+  {
+    "name": "rwAutoDistribute",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_DM_rwAutoDistribute"
+  },
+  {
+    "name": "rwHA",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_DM_rwHA"
+  },
+  {
+    "name": "rwStandbyRecoverTime",
+    "default": "60000",
+    "description_i18n": "CG_JDBC_PARAMS_DM_rwStandbyRecoverTime"
+  },
+  {
+    "name": "enRsCache",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_DM_enRsCache"
+  },
+  {
+    "name": "rsCacheSize",
+    "description_i18n": "CG_JDBC_PARAMS_DM_rsCacheSize"
+  },
+  {
+    "name": "rsRefreshFreq",
+    "description_i18n": "CG_JDBC_PARAMS_DM_rsRefreshFreq"
+  },
+  {
+    "name": "keyWords",
+    "default": "",
+    "description_i18n": "CG_JDBC_PARAMS_DM_keyWords"
+  },
+  {
+    "name": "logDir",
+    "description_i18n": "CG_JDBC_PARAMS_DM_logDir"
+  },
+  {
+    "name": "logLevel",
+    "default": "off",
+    "options": "['off','error','warn','sql','info','all']",
+    "description_i18n": "CG_JDBC_PARAMS_DM_logLevel"
+  },
+  {
+    "name": "logFlushFreq",
+    "default": "60",
+    "description_i18n": "CG_JDBC_PARAMS_DM_logFlushFreq"
+  },
+  {
+    "name": "statEnable",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_DM_statEnable"
+  },
+  {
+    "name": "statDir",
+    "description_i18n": "CG_JDBC_PARAMS_DM_statDir"
+  },
+  {
+    "name": "statFlushFreq",
+    "default": "10",
+    "description_i18n": "CG_JDBC_PARAMS_DM_statFlushFreq"
+  },
+  {
+    "name": "statSlowSqlCount",
+    "default": "100",
+    "description_i18n": "CG_JDBC_PARAMS_DM_statSlowSqlCount"
+  },
+  {
+    "name": "statHighFreqSqlCount",
+    "default": "100",
+    "description_i18n": "CG_JDBC_PARAMS_DM_statHighFreqSqlCount"
+  },
+  {
+    "name": "statSqlMaxCount",
+    "default": "100000",
+    "description_i18n": "CG_JDBC_PARAMS_DM_statSqlMaxCount"
+  },
+  {
+    "name": "statSqlRemoveMode",
+    "default": "eldest",
+    "options": "['latest','eldest']",
+    "description_i18n": "CG_JDBC_PARAMS_DM_statSqlRemoveMode"
+  },
+  {
+    "name": "dmsvcconf",
+    "description_i18n": "CG_JDBC_PARAMS_DM_dmsvcconf"
+  },
+  {
+    "name": "dbAliveCheckTimeout",
+    "default": "10000",
+    "description_i18n": "CG_JDBC_PARAMS_DM_dbAliveCheckTimeout"
+  },
+  {
+    "name": "checkFreq",
+    "default": "300000",
+    "description_i18n": "CG_JDBC_PARAMS_DM_checkFreq"
+  },
+  {
+    "name": "prepareOptimize",
+    "default": "false",
+    "options": "['true','false']",
+    "description_i18n": "CG_JDBC_PARAMS_DM_prepareOptimize"
+  },
+  {
+    "name": "allowRange",
+    "default": "5",
+    "description_i18n": "CG_JDBC_PARAMS_DM_allowRange"
+  },
+  {
+    "name": "localEncrypt",
+    "default": "false",
+    "options": "['true','false']",
+    "description_i18n": "CG_JDBC_PARAMS_DM_localEncrypt"
+  },
+  {
+    "name": "localEncryptEngine",
+    "default": "false",
+    "options": "['true','false']",
+    "description_i18n": "CG_JDBC_PARAMS_DM_localEncryptEngine"
+  },
+  {
+    "name": "genKeyNameCase",
+    "default": "upper",
+    "options": "['none','upper','lower']",
+    "description_i18n": "CG_JDBC_PARAMS_DM_genKeyNameCase"
+  },
+  {
+    "name": "afterGetMoreResults",
+    "default": "1",
+    "options": "['1','2','3']",
+    "description_i18n": "CG_JDBC_PARAMS_DM_afterGetMoreResults"
+  },
+  {
+    "name": "checkExecType",
+    "default": "false",
+    "options": "['true','false']",
+    "description_i18n": "CG_JDBC_PARAMS_DM_checkExecType"
+  },
+  {
+    "name": "quoteReplace",
+    "default": "false",
+    "options": "['true','false']",
+    "description_i18n": "CG_JDBC_PARAMS_DM_quoteReplace"
+  },
+  {
+    "name": "ignoreWarnings",
+    "description_i18n": "CG_JDBC_PARAMS_DM_ignoreWarnings"
+  },
+  {
+    "name": "paramBindMode",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_DM_paramBindMode"
+  }
+]

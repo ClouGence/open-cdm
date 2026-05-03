@@ -1,0 +1,14 @@
+<drivers>
+    <driver driverFamily="GaussDB JDBC Driver" version="2.0-8.218.0">
+        <driverName>com.clougence.clouddm.ds.gauss.execute.dsfactory.GaussDBDsFactory</driverName>
+        <resource type="maven">com.huaweicloud:gaussdbjdbc:v2.0-8.218.0</resource>
+    </driver>
+    <driver driverFamily="GaussDB JDBC Driver" version="505.2.1.SPC0800">
+        <driverName>com.clougence.clouddm.ds.gauss.execute.dsfactory.GaussDBDsFactory</driverName>
+        <resource type="maven">com.huaweicloud:gaussdbjdbc:505.2.1.SPC0800</resource>
+    </driver>
+    <driver driverFamily="GaussDB JDBC Driver" version="506.0.0.b058">
+        <driverName>com.clougence.clouddm.ds.gauss.execute.dsfactory.GaussDBDsFactory</driverName>
+        <resource type="maven">com.huaweicloud.gaussdb:gaussdbjdbc:506.0.0.b058</resource>
+    </driver>
+</drivers>

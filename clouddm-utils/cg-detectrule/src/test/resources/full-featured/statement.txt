@@ -1,0 +1,76 @@
+#   define "abc" as string
+#define "abc" as string
+#define "abc" as string default "value is abc"
+#define "abc" as string default "value is abc" enum [ "A","B","C" ]
+#define "abc" as string default "value is abc" enum [ "A","B","C" ] hint "这是一个参数"
+
+
+return '123'
+
+if 1 == 1 then
+   return true
+end
+
+if cast(1 as bool) then
+   return true
+end
+
+if (((decr (decr 1)) decr) decr) decr then
+   return true
+end
+
+if @userNames[#{"name"}][#{aaaa}][@abc].aaa.ccc['aa'] then
+   return true
+end
+
+if 1 + ++2 * 3 / 4 >> 5 ? 1 <= 0 || 1 == 1 && 3 != 4 : 1 + ++2  >> !3 * 4 / 5 & 6 + 7 then
+   return true
+end
+
+if @userNames() then
+   return true
+end
+
+
+if @userNames["name"]["age"][@abc].aaa.ccc['aa']() then
+   return @userNames[#{"name"}][#{aaaa}][@abc].aaa.ccc['aa']
+end
+
+
+if @abc.acc && true || (1 + 2 -3)  then
+    return "aaa"
+elseif @abc.acc && true then
+    return 'a12'
+end
+
+if @abc.acc && true || (1 + 2 -3)  then
+    return "aaa"
+elseif @abc.acc && true then
+    return #{abcdefg}
+else
+    return 'a12'
+end
+
+if @abc.acc && true || (1 + 2 -3)  then
+    return "aaa"
+elseif @abc.acc && true then
+    return #{abcdefg}
+else
+    return 'a12'
+end
+
+
+if 1 == 1 then
+   return true
+else
+   throw 'failed.' // 可以使用表达式来返回异常数据
+end
+
+if !(1 > 2) then
+   return "assert failed."
+end
+
+assert 1 > 2, "assert failed."
+
+abc = 123
+return abc

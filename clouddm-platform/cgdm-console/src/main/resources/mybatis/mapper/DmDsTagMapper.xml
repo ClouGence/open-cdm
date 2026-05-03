@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.console.web.dal.mapper.DmDsTagMapper">
+    <resultMap id="dataSourceTagDO" type="com.clougence.clouddm.console.web.dal.model.DmDsTagDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="uid" property="uid"/>
+        <result column="data_source_id" property="dataSourceId"/>
+        <result column="instance_desc" property="instanceDesc"/>
+    </resultMap>
+
+    <sql id="dataSourceTag">
+        id,
+        gmt_create,
+        gmt_modified,
+        uid,
+        data_source_id,
+        instance_desc
+    </sql>
+
+    <select id="getByDsAndUser" resultMap="dataSourceTagDO">
+        SELECT
+            <include refid="dataSourceTag"/>
+        FROM
+            dm_ds_tag
+        WHERE
+            data_source_id = #{dsId} AND uid = #{uid}
+        LIMIT 1
+    </select>
+
+    <select id="listByDsAndUser" resultMap="dataSourceTagDO">
+        SELECT
+            <include refid="dataSourceTag"/>
+        FROM
+            dm_ds_tag
+        WHERE
+            uid = #{uid} AND data_source_id in <foreach collection="dsIds" item="item" separator="," open="(" close=")">#{item}</foreach>
+        LIMIT 1
+    </select>
+
+    <insert id="insertByDsAndUser">
+        INSERT INTO dm_ds_tag (
+            gmt_create, gmt_modified, uid, data_source_id, instance_desc
+        ) VALUES (
+            now(), now(), #{uid}, #{dsId}, #{remark}
+        )
+    </insert>
+
+    <update id="updateByDsAndUser">
+        UPDATE
+            dm_ds_tag
+        SET
+            gmt_modified  = now(),
+            instance_desc = #{remark}
+        WHERE
+            data_source_id = #{dsId} AND uid = #{uid}
+    </update>
+
+    <delete id="deleteByDsAndUser">
+        DELETE FROM
+            dm_ds_tag
+        WHERE
+            data_source_id = #{dsId} AND uid = #{uid}
+    </delete>
+
+    <update id="updateForDesktop">
+        UPDATE
+            data_source_tag
+        SET
+            gmt_modified  = now(),
+            uid = #{uid}
+    </update>
+</mapper>

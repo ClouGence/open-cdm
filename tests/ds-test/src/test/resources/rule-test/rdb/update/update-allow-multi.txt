@@ -1,0 +1,8 @@
+#define "allow" as string
+        default "false"
+        enum ["true", "false"]
+        hint "是否允许同时更新多表"
+
+if @domain.sqlType == 'UPDATE' then
+  return #{allow} == 'true' or @domain.multiUpdate == false
+end

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.rdp.dal.mapper.RdpProductMapper">
+
+    <resultMap id="rdpProductDO" type="com.clougence.rdp.dal.model.RdpProductDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="product_type" property="productType"/>
+        <result column="product_version" property="productVersion"/>
+        <result column="pkg_md5" property="pkgMd5"/>
+        <result column="oss_bucket" property="ossBucket"/>
+        <result column="oss_object_name" property="ossObjectName"/>
+        <result column="oss_end_point" property="ossEndPoint"/>
+        <result column="oss_download_site" property="ossDownloadSite"/>
+        <result column="s3_bucket" property="s3Bucket"/>
+        <result column="s3_object_name" property="s3ObjectName"/>
+        <result column="s3_region" property="s3Region"/>
+        <result column="s3_download_site" property="s3DownloadSite"/>
+        <result column="product_version_type" property="productVersionType"/>
+    </resultMap>
+
+    <sql id="rdpProduct">
+        rdp_product.id id,
+        rdp_product.gmt_create gmt_create,
+        rdp_product.gmt_modified gmt_modified,
+        rdp_product.product_type product_type,
+        rdp_product.product_version product_version,
+        rdp_product.pkg_md5 pkg_md5,
+        rdp_product.oss_bucket oss_bucket,
+        rdp_product.oss_object_name oss_object_name,
+        rdp_product.oss_end_point oss_end_point,
+        rdp_product.oss_download_site oss_download_site,
+        rdp_product.s3_bucket s3_bucket,
+        rdp_product.s3_object_name s3_object_name,
+        rdp_product.s3_region s3_region,
+        rdp_product.s3_download_site s3_download_site,
+        rdp_product.product_version_type product_version_type
+    </sql>
+
+    <select id="queryByProductType" resultMap="rdpProductDO">
+        SELECT
+            <include refid="rdpProduct"/>
+        FROM
+            rdp_product
+        WHERE
+            product_type = #{productType}
+            AND
+            product_version_type = #{productVersionType}
+        limit 1
+    </select>
+
+    <select id="queryByProductTypeAndVersion" resultMap="rdpProductDO">
+        SELECT
+        <include refid="rdpProduct"/>
+        FROM
+        rdp_product
+        WHERE
+        product_type = #{productType}
+        AND
+        product_version_type = #{productVersionType}
+        AND
+        product_version = #{productVersion}
+    </select>
+</mapper>

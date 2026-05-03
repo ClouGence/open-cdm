@@ -1,0 +1,127 @@
+# see https://docs.aws.amazon.com/zh_cn/redshift/latest/dg/c_Supported_data_types.html
+
+define redshift {
+    priority     = 1
+    policy       = "widely"
+    policyDesc   = "Redshift TypeProcessor Policy(Extreme)"
+}
+
+[boolean]
+    jdbcType       = boolean
+    seedType       = boolean
+
+[smallint]
+    jdbcType       = tinyint
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 100)
+
+[integer]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = long
+    minMax         = range(0, 99999999)
+
+[bigint]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = long
+    minMax         = range(0, 9999999999)
+
+[real]
+["double precision"]
+    jdbcType       = double
+    seedType       = number
+    numberType     = double
+    minMax         = range(0, 9999999.999)
+    scale          = min(${numericScale}, 3)
+
+[decimal]
+    jdbcType       = decimal
+    seedType       = number
+    numberType     = decimal
+    precision      = ifThen(pgNumericValid(), ${numericPrecision}, 6)
+    scale          = ifThen(pgNumericValid(), ${numericScale}, 2)
+
+[char]
+[varchar]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 250, 10)
+    characterSet   = [ letter_number ]
+
+
+[date]
+    jdbcType       = date
+    seedType       = date
+    dateType       = LocalDate
+    genType        = random
+    rangeForm      = "2000-01-01"
+    rangeTo        = "2030-12-31"
+    typeHandler    = com.clougence.faker.utils.types.SqlTimestampAsLocalDateTypeHandler
+
+[time]
+    jdbcType       = time
+    seedType       = date
+    dateType       = LocalTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "00:00:00.000000"
+    rangeTo        = "23:59:59.999999"
+    typeHandler    = com.clougence.faker.utils.types.SqlTimestampAsLocalTimeTypeHandler
+
+[timetz]
+    jdbcType       = time_with_timezone
+    seedType       = date
+    dateType       = OffsetTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "00:00:00.000000"
+    rangeTo        = "23:59:59.999999"
+    zoneForm       = "-08:00"
+    zoneTo         = "+08:00"
+
+[timestamp]
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = LocalDateTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "2000-01-01 00:00:00.000000"
+    rangeTo        = "2030-12-31 23:59:59.999999"
+
+[timestamptz]
+    jdbcType       = timestamp_with_timezone
+    seedType       = date
+    dateType       = OffsetDateTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "2000-01-01 00:00:00.000000"
+    rangeTo        = "2030-12-31 23:59:59.999999"
+    zoneForm       = "-08:00"
+    zoneTo         = "+08:00"
+
+[geometry]
+[geography]
+    jdbcType       = other
+    seedType       = geometry
+    range          = range(50, 0.0, 0.0, 1000, 1000)
+    precision      = 5
+    minPointSize   = 2
+    maxPointSize   = 10
+    geometryType   = pgToGeoType(${columnType})
+    formatType     = WKT
+    insertTemplate   = pgFmtType("?", ifThen(pgColIsArray(), pgElementType(${columnType}), ${columnType}))
+    setValueTemplate = pgFmtType("?", ifThen(pgColIsArray(), pgElementType(${columnType}), ${columnType}))
+    ignoreAct      = [ DeleteWhere, UpdateWhere ]
+
+[varbyte]
+    jdbcType       = varbinary
+    seedType       = bytes
+    minLength      = 0
+    maxLength      = safeMaxLength(0, ${byteLength}, 16, 4)
+
+[super]
+[hllsketch]
+    throw "this columnType Unsupported."

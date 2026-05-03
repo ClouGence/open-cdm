@@ -1,0 +1,12 @@
+if
+  @domain.sqlType != 'ALTER_TABLE'
+then
+  return true
+end
+
+if
+  @func.string.isNotBlank(@domain.collate) or
+  @func.string.isNotBlank(@domain.characterSet)
+then
+  return false
+end

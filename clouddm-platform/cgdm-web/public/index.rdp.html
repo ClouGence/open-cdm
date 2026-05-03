@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="Description" Content="CloudDM-企业级数据库开发与数据管理平台，覆盖 SQL 查询、项目协作、权限控制、审计与数据源管理等核心场景">
+    <meta name="Keywords" Content="Clougence，CloudDM，数据库开发，SQL 查询，数据管理，权限控制，数据源，审计，项目协作，企业级，数据库平台">
+<!--    <link rel="icon" href="<%= BASE_URL %>favicon.ico">-->
+    <title></title>
+      <link rel='stylesheet' href='./luckysheet/plugins/css/pluginsCss.css' media="print" onload="this.media='all'"></link>
+      <link rel='stylesheet' href='./luckysheet/plugins/plugins.css' media="print" onload="this.media='all'"></link>
+      <link rel='stylesheet' href='./luckysheet/css/luckysheet.css' media="print" onload="this.media='all'"></link>
+      <link rel='stylesheet' href='./luckysheet/assets/iconfont/iconfont.css' media="print" onload="this.media='all'"></link>
+      <script src="./luckysheet/plugins/js/plugin.js" defer></script>
+      <script src="./luckysheet/luckysheet.umd.js" defer></script>
+  </head>
+  <body>
+    <noscript>
+      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
+  <link rel="stylesheet" href="./luckysheet/css/inter.css" media="print" onload="this.media='all'"></link>
+  <script>
+    const Description = document.querySelector('meta[name="Description"]')
+
+    if (Description && window.vm) {
+      Description.setAttribute("content", window.vm.$i18n.global.t('head-description'))
+    }
+
+    const Keywords = document.querySelector('meta[name="Keywords"]')
+    if (Keywords && window.vm) {
+      Keywords.setAttribute("content", window.vm.$i18n.global.t('head-keywords'))
+    }
+  </script>
+</html>

@@ -1,0 +1,15 @@
+package com.clougence.clouddm.ds.secdomain.special.adsmy;
+
+import com.clougence.clouddm.ds.ads.analysis.ads4my.AdbMyResAnalysisSpi;
+import com.clougence.clouddm.ds.ads.analysis.ads4my.AdbMySecDomainResolveSpi;
+import com.clougence.clouddm.ds.secdomain.family.mysql.MySecDomainResolve4QueryJoin1Test;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+
+public class MyFamilySecDomainResolve4QueryJoin1Test extends MySecDomainResolve4QueryJoin1Test {
+
+    public MyFamilySecDomainResolve4QueryJoin1Test(){
+        this.analysisSpi = new AdbMyResAnalysisSpi(null);
+        this.resolveSpi = new AdbMySecDomainResolveSpi(null);
+        this.dataSourceType = DataSourceType.AdbForMySQL;
+    }
+}

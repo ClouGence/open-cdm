@@ -1,0 +1,177 @@
+# see https://docs.microsoft.com/zh-cn/sql/t-sql/data-types/data-types-transact-sql
+#     https://docs.microsoft.com/zh-cn/sql/t-sql/data-types/time-transact-sql
+
+define sqlserver {
+    default      = true
+    priority     = 1
+    policy       = "widely"
+    policyDesc   = "SQL SERVER TypeProcessor Policy(Widely)"
+}
+
+[bit]
+    jdbcType       = boolean
+    seedType       = boolean
+
+[tinyint]
+    jdbcType       = tinyint
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 100)
+
+[smallint]
+    jdbcType       = smallint
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 9999)
+
+[int]
+    jdbcType       = integer
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 99999999)
+
+[bigint]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = long
+    minMax         = range(0, 9999999999)
+
+[money]
+[smallmoney]
+    jdbcType       = double
+    seedType       = number
+    numberType     = double
+    minMax         = range(0, 99999.999)
+    scale          = 3
+
+[float]
+[real]
+    jdbcType       = double
+    seedType       = number
+    numberType     = double
+    minMax         = range(0, 9999999.999)
+    scale          = min(${numericPrecision}, 3)
+
+[numeric]
+[decimal]
+    jdbcType       = double
+    seedType       = number
+    numberType     = double
+    minMax         = range(0, 9999999.999)
+    scale          = min(${numericPrecision}, 3)
+
+[char]
+[varchar]
+[nchar]
+[nvarchar]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 250, 10)
+    characterSet   = [ letter_number ]
+
+[text]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 250, 10)
+    characterSet   = [ letter_number ]
+    whereColTemplate = "cast({name} as varchar(max))"
+
+[ntext]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 250, 10)
+    characterSet   = [ letter_number ]
+    whereColTemplate = "cast({name} as nvarchar(max))"
+
+[date]
+    jdbcType       = date
+    seedType       = date
+    dateType       = string
+    genType        = random
+    dateFormat     = WKF_DATE10
+    rangeForm      = "2000-01-01"
+    rangeTo        = "2030-12-31"
+
+[time]
+    jdbcType       = time
+    seedType       = date
+    dateType       = string
+    genType        = random
+    dateFormat     = WKF_TIME24
+    precision      = safeMaxLength(0, ${datetimePrecision}, 7, 3)
+    rangeForm      = "00:00:00.0000000"
+    rangeTo        = "23:59:59.9999999"
+
+[smalldatetime]
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE_TIME24_S0
+    genType        = random
+    rangeForm      = "2000-01-01 00:00:00"
+    rangeTo        = "2030-12-31 23:59:59"
+
+[datetime]
+[datetime2]
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE_TIME24
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 3, 1)
+    rangeForm      = "2000-01-01 00:00:00.000"
+    rangeTo        = "2030-12-31 23:59:59.999"
+
+[datetimeoffset]
+    jdbcType       = timestamp_with_timezone
+    seedType       = date
+    dateType       = OffsetDateTime
+    dateFormat     = WKF_OFFSET_DATE_TIME24_ZoneM
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 7, 3)
+    rangeForm      = "2000-01-01 00:00:00.0000000"
+    rangeTo        = "2030-12-31 23:59:59.9999999"
+    zoneForm       = "-08:00"
+    zoneTo         = "+08:00"
+
+[rowversion]
+[timestamp]
+    jdbcType       = varbinary
+    seedType       = bytes
+    ignoreAct      = [ Insert, UpdateSet ]
+
+[binary]
+[varbinary]
+    jdbcType       = varbinary
+    seedType       = bytes
+    minLength      = 0
+    maxLength      = safeMaxLength(0, ${byteLength}, 16, 4)
+
+[image]
+    jdbcType       = varbinary
+    seedType       = bytes
+    minLength      = 0
+    maxLength      = safeMaxLength(0, ${byteLength}, 16, 4)
+    whereColTemplate = "cast({name} as varbinary(max))"
+
+[uniqueidentifier]
+    jdbcType       = varchar
+    seedType       = gid
+    dateType       = string36
+
+[sysname]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 4
+    maxLength      = 64
+    characterSet   = [ letter_small ]
+
+[geography]
+[geometry]
+[xml]
+[hierarchyid]
+[sql_variant]
+    throw "this columnType Unsupported."

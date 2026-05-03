@@ -1,0 +1,344 @@
+[
+  {
+    "name": "user",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_user"
+  },
+  {
+    "name": "password",
+    "secret": true,
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_password"
+  },
+  {
+    "name": "options",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_options"
+  },
+  {
+    "name": "ssl",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_ssl"
+  },
+  {
+    "name": "sslfactory",
+    "default": "org.postgresql.ssl.LibPQFactory",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_sslfactory"
+  },
+  {
+    "name": "sslfactoryarg",
+    "deprecated": true,
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_sslfactoryarg"
+  },
+  {
+    "name": "sslmode",
+    "options": "['disable','allow','prefer','require','verify-ca','verify-full']",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_sslmode"
+  },
+  {
+    "name": "sslcert",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_sslcert"
+  },
+  {
+    "name": "sslkey",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_sslkey"
+  },
+  {
+    "name": "sslrootcert",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_sslrootcert"
+  },
+  {
+    "name": "sslhostnameverifier",
+    "default": "org.postgresql.ssl.PGjdbcHostnameVerifier",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_sslhostnameverifier"
+  },
+  {
+    "name": "sslpasswordcallback",
+    "default": "org.postgresql.ssl.jdbc4.LibPQFactory.ConsoleCallbackHandler",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_sslpasswordcallback"
+  },
+  {
+    "name": "sslpassword",
+    "secret": true,
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_sslpassword"
+  },
+  {
+    "name": "sslResponseTimeout",
+    "default": "5000",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_sslResponseTimeout"
+  },
+  {
+    "name": "protocolVersion",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_protocolVersion"
+  },
+  {
+    "name": "loggerLevel",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_loggerLevel"
+  },
+  {
+    "name": "loggerFile",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_loggerFile"
+  },
+  {
+    "name": "allowEncodingChanges",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_allowEncodingChanges"
+  },
+  {
+    "name": "logUnclosedConnections",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_logUnclosedConnections"
+  },
+  {
+    "name": "autosave",
+    "default": "never",
+    "options": "['always','never','conservative']",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_autosave"
+  },
+  {
+    "name": "cleanupSavepoints",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_cleanupSavepoints"
+  },
+  {
+    "name": "binaryTransfer",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_binaryTransfer"
+  },
+  {
+    "name": "binaryTransferEnable",
+    "default": "",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_binaryTransferEnable"
+  },
+  {
+    "name": "binaryTransferDisable",
+    "default": "",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_binaryTransferDisable"
+  },
+  {
+    "name": "databaseMetadataCacheFields",
+    "default": "65536",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_databaseMetadataCacheFields"
+  },
+  {
+    "name": "databaseMetadataCacheFieldsMiB",
+    "default": "5",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_databaseMetadataCacheFieldsMiB"
+  },
+  {
+    "name": "prepareThreshold",
+    "default": "5",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_prepareThreshold"
+  },
+  {
+    "name": "preparedStatementCacheQueries",
+    "default": "256",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_preparedStatementCacheQueries"
+  },
+  {
+    "name": "preparedStatementCacheSizeMiB",
+    "default": "5",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_preparedStatementCacheSizeMiB"
+  },
+  {
+    "name": "preferQueryMode",
+    "default": "extended",
+    "options": "['extended','extendedForPrepared','extendedCacheEverything','simple']",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_preferQueryMode"
+  },
+  {
+    "name": "defaultRowFetchSize",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_defaultRowFetchSize"
+  },
+  {
+    "name": "loginTimeout",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_loginTimeout"
+  },
+  {
+    "name": "connectTimeout",
+    "default": "10",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_connectTimeout"
+  },
+  {
+    "name": "socketTimeout",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_socketTimeout"
+  },
+  {
+    "name": "cancelSignalTimeout",
+    "default": "10",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_cancelSignalTimeout"
+  },
+  {
+    "name": "tcpKeepAlive",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_tcpKeepAlive"
+  },
+  {
+    "name": "tcpNoDelay",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_tcpNoDelay"
+  },
+  {
+    "name": "unknownLength",
+    "default": "2147483647",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_unknownLength"
+  },
+  {
+    "name": "stringtype",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_stringtype"
+  },
+  {
+    "name": "ApplicationName",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_ApplicationName"
+  },
+  {
+    "name": "kerberosServerName",
+    "default": "postgres",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_kerberosServerName"
+  },
+  {
+    "name": "jaasApplicationName",
+    "default": "pgjdbc",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_jaasApplicationName"
+  },
+  {
+    "name": "jaasLogin",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_jaasLogin"
+  },
+  {
+    "name": "gssEncMode",
+    "default": "allow",
+    "options": "['disable','allow','prefer','require']",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_gssEncMode"
+  },
+  {
+    "name": "gsslib",
+    "default": "auto",
+    "options": "['auto','sspi','gssapi']",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_gsslib"
+  },
+  {
+    "name": "gssResponseTimeout",
+    "default": "5000",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_gssResponseTimeout"
+  },
+  {
+    "name": "sspiServiceClass",
+    "default": "POSTGRES",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_sspiServiceClass"
+  },
+  {
+    "name": "useSpnego",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_useSpnego"
+  },
+  {
+    "name": "sendBufferSize",
+    "default": "-1",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_sendBufferSize"
+  },
+  {
+    "name": "receiveBufferSize",
+    "default": "-1",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_receiveBufferSize"
+  },
+  {
+    "name": "readOnly",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_readOnly"
+  },
+  {
+    "name": "readOnlyMode",
+    "default": "transaction",
+    "options": "['ignore','transaction','always']",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_readOnlyMode"
+  },
+  {
+    "name": "disableColumnSanitiser",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_disableColumnSanitiser"
+  },
+  {
+    "name": "assumeMinServerVersion",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_assumeMinServerVersion"
+  },
+  {
+    "name": "currentSchema",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_currentSchema"
+  },
+  {
+    "name": "targetServerType",
+    "default": "any",
+    "options": "['any','primary','master','slave','secondary','preferSlave','preferSecondary','preferPrimary']",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_targetServerType"
+  },
+  {
+    "name": "hostRecheckSeconds",
+    "default": "10",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_hostRecheckSeconds"
+  },
+  {
+    "name": "loadBalanceHosts",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_loadBalanceHosts"
+  },
+  {
+    "name": "socketFactory",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_socketFactory"
+  },
+  {
+    "name": "socketFactoryArg",
+    "deprecated": true,
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_socketFactoryArg"
+  },
+  {
+    "name": "reWriteBatchedInserts",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_reWriteBatchedInserts"
+  },
+  {
+    "name": "replication",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_replication"
+  },
+  {
+    "name": "escapeSyntaxCallMode",
+    "default": "select",
+    "options": "['select','callIfNoReturn','call']",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_escapeSyntaxCallMode"
+  },
+  {
+    "name": "maxResultBuffer",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_maxResultBuffer"
+  },
+  {
+    "name": "adaptiveFetch",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_adaptiveFetch"
+  },
+  {
+    "name": "adaptiveFetchMinimum",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_adaptiveFetchMinimum"
+  },
+  {
+    "name": "adaptiveFetchMaximum",
+    "default": "-1",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_adaptiveFetchMaximum"
+  },
+  {
+    "name": "logServerErrorDetail",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_logServerErrorDetail"
+  },
+  {
+    "name": "quoteReturningIdentifiers",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_quoteReturningIdentifiers"
+  },
+  {
+    "name": "authenticationPluginClassName",
+    "description_i18n": "CG_JDBC_PARAMS_POSTGRESQL_authenticationPluginClassName"
+  }
+]

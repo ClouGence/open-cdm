@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!ELEMENT ruleSet (ruleDef*|EMPTY) >
+
+<!ELEMENT ruleDef (applyTo*|EMPTY)*>
+<!ATTLIST ruleDef
+        id CDATA #REQUIRED
+>
+
+<!ELEMENT applyTo (#PCDATA | EMPTY)*>

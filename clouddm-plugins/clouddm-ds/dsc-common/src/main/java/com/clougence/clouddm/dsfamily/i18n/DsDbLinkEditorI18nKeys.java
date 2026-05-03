@@ -1,0 +1,16 @@
+package com.clougence.clouddm.dsfamily.i18n;
+
+import com.clougence.utils.i18n.I18nResource;
+
+@I18nResource("/META-INF/clougence/i18n/dsfamily-ui-editor-dblink")
+public interface DsDbLinkEditorI18nKeys {
+
+    String EDITOR_DBLINK_NAME_TITLE     = "UI_EDITOR_DBLINK_NAME_TITLE";
+    String EDITOR_DBLINK_NAME_DESC      = "UI_EDITOR_DBLINK_NAME_DESC";
+    String EDITOR_DBLINK_USERNAME_TITLE = "UI_EDITOR_DBLINK_USERNAME_TITLE";
+    String EDITOR_DBLINK_USERNAME_DESC  = "UI_EDITOR_DBLINK_USERNAME_DESC";
+    String EDITOR_DBLINK_PASSWORD_TITLE = "UI_EDITOR_DBLINK_PASSWORD_TITLE";
+    String EDITOR_DBLINK_PASSWORD_DESC  = "UI_EDITOR_DBLINK_PASSWORD_DESC";
+    String EDITOR_DBLINK_URL_TITLE      = "UI_EDITOR_DBLINK_URL_TITLE";
+    String EDITOR_DBLINK_URL_DESC       = "UI_EDITOR_DBLINK_URL_DESC";
+}

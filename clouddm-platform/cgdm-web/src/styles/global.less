@@ -1,0 +1,274 @@
+//@import "iview.less";
+//@tailwind base;
+//@tailwind components;
+//@tailwind utilities;
+@import 'antdv.less';
+@import 'variables.less';
+@import 'mixins.less';
+@import 'modal.less';
+//@import '~@wsfe/ctree/src/styles/index.less';
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 14px;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', Helvetica, Arial, sans-serif;
+  color: @default-color;
+}
+
+a {
+  color: #0bb9f8;
+}
+
+a[disabled] {
+  color: #ccc !important;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.step {
+  .footer {
+    margin-top: 20px;
+    text-align: center;
+
+    & > button + button {
+      margin-left: 16px;
+    }
+  }
+}
+
+.ant-modal {
+  .footer {
+    text-align: center;
+    margin: 20px 0 12px 0;
+
+    .ant-btn {
+      width: 120px;
+
+      &:first-child {
+        margin-right: 16px;
+      }
+    }
+  }
+}
+
+.keyword-lighten {
+  color: #000;
+  background-color: #ffff00;
+}
+
+.vxe-input-tpl {
+  cursor: text;
+  padding: 3px 6px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+
+  .op {
+    height: 16px;
+    position: absolute;
+    right: 0;
+    top: -3px;
+    background: #fff;
+    padding: 0 2px 2px;
+    display: none;
+  }
+
+  &:hover .op {
+    display: flex;
+  }
+}
+
+.query-header {
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+
+  .query {
+    display: flex;
+
+    .section {
+      display: flex;
+      align-items: center;
+      margin-right: 20px;
+
+      .label {
+        margin-right: 8px;
+      }
+    }
+
+    .search-btn {
+      margin-left: 8px;
+    }
+  }
+}
+
+.contextmenu_menu {
+  z-index: 10 !important;
+}
+
+.vld-overlay {
+  z-index: 1000;
+}
+
+.line-rule-suggest {
+  background: yellow;
+}
+
+.glyph-margin-rule-suggest {
+  background: yellow;
+}
+
+.line-rule-failure {
+  background: red;
+}
+
+.glyph-margin-rule-failure {
+  background: red;
+}
+
+.generate-modal .ant-input-group-addon {
+  font-size: 12px !important;
+}
+
+.ivu-icon {
+  cursor: pointer;
+}
+
+.table-list-layout {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .table-list {
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+
+    .header {
+      margin-bottom: 12px;
+    }
+
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      height: 100%;
+      overflow: auto;
+
+      .option {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 60px;
+        border: 1px solid #ededed;
+        padding: 12px;
+        margin-bottom: 12px;
+
+        .left {
+          display: flex;
+        }
+
+        .right {
+        }
+      }
+
+      .table-container {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+      }
+    }
+  }
+
+  .footer {
+    box-shadow: 6px 2px 23px 0 rgba(197, 197, 197, 0.5);
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.bg-cc-primary {
+  background: @primary-color;
+}
+
+.text-cc-primary {
+  color: @primary-color;
+}
+
+.button-cc-text {
+@apply cursor-pointer !important;
+@apply inline-flex !important;
+@apply items-center !important;
+@apply rounded-md !important;
+@apply px-3 !important;
+@apply border-black !important;
+@apply py-2 !important;
+@apply text-center !important;
+@apply text-lg !important;
+@apply shadow-sm !important;
+}
+
+.button-cc-primary {
+@apply bg-black !important;
+@apply inline-flex !important;
+@apply items-center !important;
+@apply rounded-md !important;
+@apply px-3 !important;
+@apply border-black !important;
+@apply py-2 !important;
+@apply text-center !important;
+@apply text-lg !important;
+@apply text-white !important;
+@apply shadow-sm !important;
+}
+
+.ant-message-warning,
+.ant-message-success,
+.ant-message-error {
+  display: flex !important;
+  font-weight: bold;
+}
+
+.vtree-tree-node__title {
+  padding-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.key-link,
+a,
+.ivu-btn-text span {
+  &:hover {
+    border-bottom: 1px solid;
+  }
+}
+
+.ant-menu-item a,
+.ant-dropdown-menu-item a,
+.ivu-dropdown a,
+.dropdown-content,
+.key-link-a,
+.ivu-menu-item a {
+  &:hover {
+    border-bottom: none;
+  }
+}
+
+.ivu-btn-text {
+  color: #0bb9f8;
+}
+
+.skiptranslate {
+  display: none !important;
+}

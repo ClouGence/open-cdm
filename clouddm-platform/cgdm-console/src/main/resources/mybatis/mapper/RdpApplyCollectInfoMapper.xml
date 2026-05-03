@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.rdp.dal.mapper.authcode.RdpApplyCollectInfoMapper">
+
+    <resultMap id="rdpApplyCollectInfoDO" type="com.clougence.rdp.dal.model.authcode.RdpApplyCollectInfoDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="report_time" property="reportTime"/>
+        <result column="apply_id" property="applyId"/>
+        <result column="job_id" property="jobId"/>
+        <result column="task_id" property="taskId"/>
+        <result column="link_type" property="linkType"/>
+        <result column="src_ds_type" property="srcDsType"/>
+        <result column="dst_ds_type" property="dstDsType"/>
+        <result column="collect_name" property="collectName"
+            javaType="com.clougence.rdp.constant.ApplyCollectType"/>
+        <result column="collect_value" property="collectValue"/>
+    </resultMap>
+
+    <sql id="allColumn">
+        rdp_apply_collect_info.id id,
+        rdp_apply_collect_info.gmt_create gmt_create,
+        rdp_apply_collect_info.gmt_modified gmt_modified,
+        rdp_apply_collect_info.report_time report_time,
+        rdp_apply_collect_info.apply_id apply_id,
+        rdp_apply_collect_info.job_id job_id,
+        rdp_apply_collect_info.task_id task_id,
+        rdp_apply_collect_info.link_type link_type,
+        rdp_apply_collect_info.src_ds_type src_ds_type,
+        rdp_apply_collect_info.dst_ds_type dst_ds_type,
+        rdp_apply_collect_info.collect_name collect_name,
+        rdp_apply_collect_info.collect_value collect_value
+    </sql>
+
+    <select id="queryActiveInfoByName" resultMap="rdpApplyCollectInfoDO">
+        SELECT
+            <include refid="allColumn"/>
+        FROM
+            rdp_apply_collect_info
+        WHERE
+            apply_id = #{applyId}
+        AND
+            collect_name = #{collectName}
+
+        <if test="jobId != null">
+            AND job_id = #{jobId}
+        </if>
+
+        <if test="taskId != null">
+            AND task_id = #{taskId}
+        </if>
+
+        <if test="linkType != null">
+            AND link_type = #{linkType}
+        </if>
+
+        LIMIT 1
+    </select>
+
+    <select id="queryListInfoByNameAndApplyId" resultMap="rdpApplyCollectInfoDO">
+        SELECT
+            <include refid="allColumn"/>
+        FROM
+            rdp_apply_collect_info
+        WHERE
+            apply_id = #{applyId}
+        AND
+            collect_name = #{collectName}
+    </select>
+
+    <delete id="refreshInfos">
+        DELETE
+        FROM
+            rdp_apply_collect_info
+        WHERE
+            <![CDATA[ report_time <= #{expiredTimeMs}]]>
+    </delete>
+</mapper>

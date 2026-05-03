@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.rdp.dal.mapper.RdpDsEnvMapper">
+
+    <resultMap id="rdpDsEnvDO" type="com.clougence.rdp.dal.model.RdpDsEnvDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="owner_uid" property="ownerUid"/>
+        <result column="env_name" property="envName"/>
+        <result column="description" property="description"/>
+    </resultMap>
+
+    <sql id="rdpDsEnv">
+        id,
+        gmt_create,
+        gmt_modified,
+        owner_uid,
+        env_name,
+        description
+    </sql>
+
+    <select id="listByCondition" resultMap="rdpDsEnvDO">
+        SELECT
+        <include refid="rdpDsEnv"/>
+        FROM
+            rdp_ds_env
+        WHERE
+            owner_uid = #{ownerUid}
+            <if test="envName != null">
+                AND env_name like concat('%',#{envName},'%')
+            </if>
+        order by
+            gmt_create desc
+    </select>
+
+    <select id="queryListByParameterKey" resultMap="rdpDsEnvDO">
+        SELECT
+            a.id `id`,
+            a.gmt_create `gmtCreate`,
+            a.gmt_modified `gmtModified`,
+            a.owner_uid `ownerUid`,
+            a.env_name `envName`,
+            a.description `description`
+        FROM
+            rdp_ds_env a
+        LEFT JOIN rdp_env_param b on a.id = b.env_id
+        <where>
+            a.owner_uid = ${puid}
+            and b.config_key = #{paramKey}
+        </where>
+    </select>
+
+    <select id="queryListByUid" resultMap="rdpDsEnvDO">
+        SELECT
+        <include refid="rdpDsEnv"/>
+        FROM
+            rdp_ds_env
+        WHERE
+            owner_uid = #{puid}
+    </select>
+
+    <select id="queryListByUidAndId" resultMap="rdpDsEnvDO">
+        SELECT
+            <include refid="rdpDsEnv"/>
+        FROM
+            rdp_ds_env
+        WHERE
+            owner_uid = #{puid} and id in
+            <foreach collection="envIds" item="item" separator="," open="(" close=")">#{item}</foreach>
+    </select>
+
+    <update id="updateDsEnv">
+        UPDATE rdp_ds_env
+        <set>
+            <if test="envName != null">
+                env_name = #{envName},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+        </set>
+        WHERE
+        id = #{id} and owner_uid=#{ownerUid}
+    </update>
+
+    <delete id="deleteDsEnv">
+        DELETE
+        FROM rdp_ds_env
+        WHERE id = #{id}
+          and owner_uid = #{ownerUid}
+    </delete>
+
+    <select id="listByIds" resultType="com.clougence.rdp.dal.model.RdpDsEnvDO">
+        SELECT
+            <include refid="rdpDsEnv"/>
+        FROM
+            rdp_ds_env
+        WHERE
+            id in <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach>
+    </select>
+
+    <select id="queryByEnvName" resultType="com.clougence.rdp.dal.model.RdpDsEnvDO">
+        SELECT
+            <include refid="rdpDsEnv"/>
+        FROM
+            rdp_ds_env
+        WHERE
+            owner_uid = #{ownerUid} and
+            env_name  = #{envName}
+        limit 1
+    </select>
+
+    <select id="queryByEnvID" resultType="com.clougence.rdp.dal.model.RdpDsEnvDO">
+        SELECT
+            <include refid="rdpDsEnv"/>
+        FROM
+            rdp_ds_env
+        WHERE
+            owner_uid = #{ownerUid} and
+            id        = #{envId}
+        limit 1
+    </select>
+</mapper>

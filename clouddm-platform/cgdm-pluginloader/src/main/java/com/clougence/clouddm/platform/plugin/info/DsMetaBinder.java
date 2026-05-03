@@ -1,0 +1,141 @@
+package com.clougence.clouddm.platform.plugin.info;
+
+import java.util.List;
+
+import com.clougence.clouddm.platform.plugin.PluginManager;
+import com.clougence.clouddm.sdk.DsPluginBinder;
+import com.clougence.clouddm.sdk.Spi;
+import com.clougence.clouddm.sdk.execute.session.SessionFactory;
+import com.clougence.clouddm.sdk.execute.tools.ToolFactory;
+import com.clougence.clouddm.sdk.service.Service;
+import com.clougence.drivers.DriverLoader;
+import com.clougence.schema.dialect.Dialect;
+import com.clougence.schema.editor.provider.SqlBuilder;
+import com.clougence.utils.ClassUtils;
+import com.clougence.utils.StringUtils;
+
+public class DsMetaBinder implements DsPluginBinder {
+
+    private final GlobalMeta globalMeta;
+    private final DsMeta     dsMeta;
+
+    public DsMetaBinder(GlobalMeta globalMeta, DsMeta dsMeta){
+        this.globalMeta = globalMeta;
+        this.dsMeta = dsMeta;
+    }
+
+    // for any plugin
+
+    @Override
+    public ClassLoader getPluginClassLoader() { return this.dsMeta.getPlusClassLoader(); }
+
+    @Override
+    public DriverLoader getDriverLoader() { return PluginManager.driverLoader(); }
+
+    @Override
+    public void addPluginFeature(String... featureIds) {
+        for (String featureId : featureIds) {
+            this.dsMeta.getPlusFeatures().put(featureId, true);
+        }
+    }
+
+    @Override
+    public void bindPluginI18n(Class<?>... clazz) {
+        this.dsMeta.getPlusI18nUtil().loadResources(clazz);
+    }
+
+    @Override
+    public void bindGlobalI18n(Class<?>... clazz) {
+        this.globalMeta.getI18nUtils().loadResources(clazz);
+    }
+
+    // SPI
+
+    @Override
+    public void addPluginSpi(Spi spi) {
+        if (spi == null) {
+            return;
+        }
+        for (Class<?> type : ClassUtils.getAllInterfaces(spi.getClass())) {
+            if (Spi.class.isAssignableFrom(type)) {
+                String named = StringUtils.isBlank(spi.name()) ? type.getName() : spi.name();
+                this.dsMeta.addSpi(type, named, spi);
+            }
+        }
+    }
+
+    @Override
+    public void addPluginSpi(Class<? extends Spi> spiType, String named, Spi spi) {
+        if (Spi.class.isAssignableFrom(spiType)) {
+            this.dsMeta.addSpi(spiType, named, spi);
+        }
+    }
+
+    @Override
+    public void addGlobalSpi(Spi spi) {
+        if (spi == null) {
+            return;
+        }
+        for (Class<?> type : ClassUtils.getAllInterfaces(spi.getClass())) {
+            if (Spi.class.isAssignableFrom(type)) {
+                this.globalMeta.addSpi(type, spi);
+            }
+        }
+    }
+
+    @Override
+    public void addGlobalSpi(Class<? extends Spi> spiType, String named, Spi spi) {
+        if (Spi.class.isAssignableFrom(spiType)) {
+            this.globalMeta.addSpi(spiType, spi);
+        }
+    }
+
+    @Override
+    public <T extends Spi> List<T> findGlobalSpi(Class<T> spiType) {
+        return this.globalMeta.findSpi(spiType);
+    }
+
+    @Override
+    public <T extends Spi> T findGlobalSpi(Class<T> spiType, String name) {
+        return this.globalMeta.findSpi(spiType, name);
+    }
+
+    // for ds
+
+    @Override
+    public void bindDsSessionFactory(Class<? extends SessionFactory<?>> factoryClass) {
+        this.dsMeta.bindSessionFactory(factoryClass);
+    }
+
+    @Override
+    public void bindDsSqlBuilder(SqlBuilder builder) {
+        this.dsMeta.bindSqlBuilder(builder);
+    }
+
+    @Override
+    public void bindDsDialect(Dialect dialect) {
+        this.dsMeta.bindDsDialect(dialect);
+    }
+
+    @Override
+    public void bindDsDriverFamily(String... driverFamily) {
+        this.dsMeta.bindDriverFamily(driverFamily);
+    }
+
+    // for service
+
+    @Override
+    public <T extends Service> T findGlobalService(Class<T> serviceType) {
+        return this.globalMeta.findService(serviceType);
+    }
+
+    @Override
+    public void addGlobalService(Service service) {
+        this.globalMeta.putService(service);
+    }
+
+    @Override
+    public void bindGlobalToolService(String toolKey, ToolFactory toolsFactory) {
+        this.dsMeta.getGlobalMeta().putToolService(toolKey, toolsFactory);
+    }
+}

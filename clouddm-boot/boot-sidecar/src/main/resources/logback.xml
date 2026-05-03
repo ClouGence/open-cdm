@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <appender name="PROJECT" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <discriminator>
+            <Key>module</Key>
+            <DefaultValue>sidecar</DefaultValue>
+        </discriminator>
+        <sift>
+            <appender name="FILE-${module}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <File>${app.logPath:-.}/${module}.log</File>
+                <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                    <fileNamePattern>${app.logPath:-.}/%d{yyyy-MM-dd}/${module}-%d{yyyy-MM-dd}-%i.log.gz</fileNamePattern>
+                    <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                        <maxFileSize>512MB</maxFileSize>
+                    </timeBasedFileNamingAndTriggeringPolicy>
+                    <maxHistory>60</maxHistory>
+                </rollingPolicy>
+                <encoder>
+                    <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{56} - %msg%n</pattern>
+                </encoder>
+            </appender>
+        </sift>
+    </appender>
+
+    <appender name="toolsAppender" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <discriminator>
+            <Key>sessionKey</Key>
+            <DefaultValue>default</DefaultValue>
+        </discriminator>
+        <sift>
+            <appender name="FILE-${module}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <File>${app.logPath:-.}/${sessionKey}.log</File>
+                <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+                    <fileNamePattern>${app.logPath}/${sessionKey}.%i</fileNamePattern>
+                    <minIndex>1</minIndex>
+                    <maxIndex>3</maxIndex>
+                </rollingPolicy>
+                <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+                    <maxFileSize>50MB</maxFileSize>
+                </triggeringPolicy>
+                <encoder>
+                    <pattern>[%-4level] - %msg%n</pattern>
+                </encoder>
+            </appender>
+        </sift>
+    </appender>
+
+    <appender name="sqlAudit" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <discriminator>
+            <Key>module</Key>
+            <DefaultValue>sqlAudit</DefaultValue>
+        </discriminator>
+        <sift>
+            <appender name="FILE-sqlAudit" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <File>${app.logPath:-.}/sql_audit.log</File>
+                <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                    <!-- rollover daily -->
+                    <fileNamePattern>${app.logPath:-.}/%d{yyyy-MM-dd}/sqlAudit-%d{yyyy-MM-dd}-%i.log.gz
+                    </fileNamePattern>
+                    <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                        <!-- or whenever the file size reaches 100MB -->
+                        <maxFileSize>512MB</maxFileSize>
+                    </timeBasedFileNamingAndTriggeringPolicy>
+                    <maxHistory>60</maxHistory>
+                </rollingPolicy>
+                <encoder>
+                    <pattern>%msg%n</pattern>
+                </encoder>
+            </appender>
+        </sift>
+    </appender>
+
+    <appender name="thirdParty" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <discriminator>
+            <Key>module</Key>
+            <DefaultValue>unknown</DefaultValue>
+        </discriminator>
+        <sift>
+            <appender name="FILE-${uid}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <File>${app.logPath:-.}/thirdParty.log</File>
+                <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                    <!-- rollover daily -->
+                    <fileNamePattern>${app.logPath:-.}/%d{yyyy-MM-dd}/thirdParty-%d{yyyy-MM-dd}-%i.log.gz
+                    </fileNamePattern>
+                    <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                        <!-- or whenever the file size reaches 100MB -->
+                        <maxFileSize>512MB</maxFileSize>
+                    </timeBasedFileNamingAndTriggeringPolicy>
+                    <!--                    <cleanHistoryOnStart>true</cleanHistoryOnStart>-->
+                    <maxHistory>60</maxHistory>
+                </rollingPolicy>
+                <encoder>
+                    <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{56} - %msg%n</pattern>
+                </encoder>
+            </appender>
+        </sift>
+    </appender>
+
+    <logger name="tools-logger" additivity="false" level="INFO">
+        <appender-ref ref="toolsAppender"/>
+    </logger>
+
+    <logger name="sql-audit" additivity="false" level="INFO">
+        <appender-ref ref="sqlAudit"/>
+    </logger>
+
+    <logger name="third-party-logger" additivity="false" level="INFO">
+        <appender-ref ref="thirdParty"/>
+    </logger>
+
+    <root level="info">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="PROJECT"/>
+    </root>
+</configuration>

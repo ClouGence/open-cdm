@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper">
+
+    <resultMap id="workerDO" type="com.clougence.clouddm.console.web.dal.model.DmWorkerDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="cluster_id" property="clusterId"/>
+        <result column="worker_ip" property="workerIp"/>
+        <result column="cloud_or_idc_name" property="cloudOrIdcName"/>
+        <result column="region" property="region"/>
+        <result column="worker_state" property="workerState"/>
+        <result column="physic_mem_mb" property="physicMemMb"/>
+        <result column="physic_core_num" property="physicCoreNum"/>
+        <result column="physic_disk_gb" property="physicDiskGb"/>
+        <result column="cpu_use_ratio" property="cpuUseRatio"/>
+        <result column="mem_use_ratio" property="memUseRatio"/>
+        <result column="free_mem_mb" property="freeMemMb"/>
+        <result column="free_disk_gb" property="freeDiskGb"/>
+        <result column="session_pool_use" property="sessionPoolUse"/>
+        <result column="session_pool_max" property="sessionPoolMax"/>
+        <result column="worker_load" property="workerLoad"/>
+        <result column="schedule_ip" property="scheduleIp"/>
+        <result column="worker_name" property="workerName"/>
+        <result column="worker_seq_number" property="workerSeqNumber"/>
+        <result column="worker_desc" property="workerDesc"/>
+        <result column="install_console_job_id" property="installConsoleJobId"/>
+        <result column="uninstall_console_job_id" property="uninstallConsoleJobId"/>
+        <result column="upgrade_all_console_job_id" property="upgradeAllConsoleJobId"/>
+        <result column="deploy_status" property="deployStatus"/>
+        <result column="external_ip" property="externalIp"/>
+        <result column="uid" property="uid"/>
+        <result column="console_job_id" property="consoleJobId"/>
+        <result column="life_cycle_state" property="lifeCycleState"/>
+        <result column="install_or_upgrade_date" property="installOrUpgradeDate"/>
+        <result column="install_or_upgrade_version" property="installOrUpgradeVersion"/>
+    </resultMap>
+
+    <sql id="worker">
+        id,
+        gmt_create,
+        gmt_modified,
+        cluster_id,
+        worker_ip,
+        cloud_or_idc_name,
+        region,
+        worker_state,
+        physic_mem_mb,
+        physic_core_num,
+        physic_disk_gb,
+        cpu_use_ratio,
+        mem_use_ratio,
+        free_mem_mb,
+        free_disk_gb,
+        session_pool_use,
+        session_pool_max,
+        worker_load,
+        schedule_ip,
+        worker_name,
+        worker_seq_number,
+        worker_desc,
+        install_console_job_id,
+        uninstall_console_job_id,
+        upgrade_all_console_job_id,
+        deploy_status,
+        external_ip,
+        uid,
+        console_job_id,
+        life_cycle_state,
+        install_or_upgrade_date,
+        install_or_upgrade_version
+    </sql>
+
+    <sql id="workerIdentity">
+        id,
+        cluster_id,
+        region,
+        worker_state,
+        schedule_ip,
+        worker_name,
+        worker_seq_number,
+        worker_desc,
+        uid
+    </sql>
+
+    <select id="queryByStateAndClusterId" resultMap="workerDO">
+        SELECT
+            <include refid="worker"/>
+        FROM
+            dm_worker
+        WHERE
+            worker_state = #{workerState,javaType=com.clougence.clouddm.api.console.status.WorkerState}
+            AND cluster_id = #{clusterId}
+    </select>
+
+    <select id="queryByStateAndScheduleIp" resultMap="workerDO">
+        SELECT
+            <include refid="worker"/>
+        FROM
+            dm_worker
+        WHERE
+            worker_state = #{workerState,javaType=com.clougence.clouddm.api.console.status.WorkerState}
+            AND schedule_ip = #{scheduleIp}
+        ORDER BY
+            gmt_create DESC
+    </select>
+
+    <select id="listByCluster" resultMap="workerDO">
+        SELECT
+            <include refid="worker"/>
+        FROM
+            dm_worker
+        WHERE
+            cluster_id = #{clusterId}
+        ORDER BY
+            gmt_create DESC
+    </select>
+
+    <select id="queryByClusterAndIds" resultMap="workerDO">
+        SELECT
+            <include refid="worker"/>
+        FROM
+            dm_worker
+        WHERE
+            id IN <foreach collection="workerIds" item="item" separator="," open="(" close=")">#{item}</foreach>
+            AND cluster_id = #{clusterId}
+        ORDER BY
+            gmt_create DESC
+    </select>
+
+    <select id="queryByClusters" resultMap="workerDO">
+        SELECT
+            <include refid="worker"/>
+        FROM
+            dm_worker
+        WHERE
+            cluster_id IN <foreach collection="clusterIds" item="item" separator="," open="(" close=")">#{item}</foreach>
+        ORDER BY
+            gmt_create DESC
+    </select>
+
+    <select id="queryByCondition" resultMap="workerDO"
+            parameterType="com.clougence.clouddm.console.web.dal.mapper.param.WorkerParam">
+        SELECT
+            <include refid="worker"/>
+        FROM
+            dm_worker
+        WHERE
+            cluster_id = #{clusterId}
+        AND
+            worker_ip = #{workerIp}
+        ORDER BY
+            gmt_create DESC
+    </select>
+
+    <select id="queryByCluster" resultMap="workerDO">
+        SELECT
+            <include refid="worker"/>
+        FROM
+            dm_worker
+        WHERE
+            cluster_id = #{clusterId}
+        ORDER BY
+            gmt_create DESC
+    </select>
+
+    <select id="lockWorkerByTaskTotalMemory" resultMap="workerDO">
+        SELECT
+            <include refid="worker"/>
+        FROM
+            dm_worker
+        WHERE
+            id = #{workerId}
+        AND
+            total_task_mem_mb = #{totalTaskMemMb}
+        for update
+    </select>
+
+    <select id="getByWsn" resultMap="workerDO">
+        SELECT
+            <include refid="worker"/>
+        FROM
+            dm_worker
+        WHERE
+            worker_seq_number=#{workerSeqNumber}
+    </select>
+
+    <select id="getWorkerIdentityByWsn" resultMap="workerDO">
+        SELECT
+            <include refid="workerIdentity"/>
+        FROM
+            dm_worker
+        WHERE
+            worker_seq_number=#{workerSeqNumber}
+    </select>
+
+    <select id="getByName" resultMap="workerDO">
+        SELECT
+            <include refid="worker"/>
+        FROM
+            dm_worker
+        WHERE
+            worker_name=#{workerName}
+    </select>
+
+    <update id="updateWorkerState">
+        UPDATE
+            dm_worker
+        SET
+            worker_state = #{workerState,javaType=com.clougence.clouddm.api.console.status.WorkerState}
+        WHERE
+            id = #{workerId}
+    </update>
+
+    <update id="updateWorkerLifecycleState">
+        UPDATE
+            dm_worker
+        SET
+            life_cycle_state = #{lifeCycleState,javaType=com.clougence.rdp.dal.enumeration.LifeCycleState}
+        WHERE
+            id = #{workerId}
+    </update>
+
+    <update id="updateExternalIp">
+        UPDATE
+            dm_worker
+        SET
+            external_ip = #{externalIp}
+        WHERE
+            id = #{workerId}
+    </update>
+
+    <update id="updateWorkerIp">
+        UPDATE
+            dm_worker
+        SET
+            worker_ip = #{workerIp}
+        WHERE
+            id = #{workerId}
+    </update>
+
+    <update id="updateWorkerDesc">
+        UPDATE
+            dm_worker
+        SET
+            worker_desc = #{workerDesc}
+        WHERE
+            id = #{workerId}
+    </update>
+
+    <update id="updateInstallInfo">
+        UPDATE
+            dm_worker
+        SET
+            install_console_job_id    = #{installConsoleJobId},
+            uninstall_console_job_id  = #{uninstallConsoleJobId},
+            upgrade_all_console_job_id= #{upgradeAllConsoleJobId}
+        WHERE
+            id = #{workerId}
+    </update>
+
+    <update id="updateUpgradeInfo">
+        UPDATE
+            dm_worker
+        SET
+            upgrade_all_console_job_id= #{upgradeAllConsoleJobId}
+        WHERE
+            id = #{workerId}
+    </update>
+
+    <update id="updateDeployStatus">
+        UPDATE
+            dm_worker
+        SET
+            deploy_status = #{deployStatus,javaType=com.clougence.clouddm.console.web.constants.DeployStatus}
+        WHERE
+            id = #{workerId}
+    </update>
+
+    <update id="updateConsoleJobId">
+        UPDATE
+            dm_worker
+        SET
+            console_job_id = #{consoleJobId}
+        WHERE
+            id = #{workerId}
+    </update>
+
+    <update id="updateWorkerDynamicStats" parameterType="com.clougence.clouddm.console.web.dal.mapper.param.WorkerParam">
+        UPDATE
+            dm_worker
+        <set>
+            <if test="physicMemMb != null">
+                physic_mem_mb = #{physicMemMb},
+            </if>
+            <if test="physicCoreNum != null">
+                physic_core_num = #{physicCoreNum},
+            </if>
+            <if test="physicDiskGb != null">
+                physic_disk_gb = #{physicDiskGb},
+            </if>
+            <if test="cpuUseRatio != null">
+                cpu_use_ratio = #{cpuUseRatio},
+            </if>
+            <if test="memUseRatio != null">
+                mem_use_ratio = #{memUseRatio},
+            </if>
+            <if test="workerLoad != null">
+                worker_load = #{workerLoad},
+            </if>
+            <if test="freeDiskGb != null">
+                free_disk_gb = #{freeDiskGb},
+            </if>
+            <if test="freeMemMb != null">
+                free_mem_mb = #{freeMemMb},
+            </if>
+            <if test="sessionPoolUse != null">
+                session_pool_use = #{sessionPoolUse},
+            </if>
+            <if test="sessionPoolMax != null">
+                session_pool_max = #{sessionPoolMax},
+            </if>
+        </set>
+        WHERE
+            id = #{workerId}
+    </update>
+
+    <update id="updateInstallOrUpgradeInfo">
+        UPDATE
+            dm_worker
+        SET
+            install_or_upgrade_date    = #{installOrUpgradeDate},
+            install_or_upgrade_version = #{installOrUpgradeVersion}
+        WHERE
+            id = #{workerId}
+    </update>
+</mapper>

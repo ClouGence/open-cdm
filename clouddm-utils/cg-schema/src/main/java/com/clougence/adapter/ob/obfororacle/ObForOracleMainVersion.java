@@ -1,0 +1,82 @@
+package com.clougence.adapter.ob.obfororacle;
+
+import com.clougence.schema.DsType;
+import com.clougence.schema.metadata.MainVersion;
+import com.clougence.schema.metadata.Version;
+import com.clougence.utils.StringUtils;
+
+/**
+ * @author mode 2020/4/18 11:42
+ */
+public enum ObForOracleMainVersion implements MainVersion {
+
+    OceanBase_3_0("3.0"),
+    OceanBase_3_1("3.1"),
+    OceanBase_3_2("3.2"),
+    OceanBase_4_0("4.0"),
+    OceanBase_4_1("4.1"),
+    OceanBase_4_2("4.2"),
+    OceanBase_4_3("4.3"),
+    OceanBase_4_4("4.4"),
+    OceanBase_5_0("5.0"),
+    OceanBase_5_1("5.1"),
+    OceanBase_5_2("5.2"),;
+
+    private final MainVersion mainVersion;
+
+    ObForOracleMainVersion(String mainVersion){
+        this.mainVersion = new Version(DsType.ObForOracle, mainVersion);
+    }
+
+    @Override
+    public DsType getDsType() { return mainVersion.getDsType(); }
+
+    @Override
+    public String getMainVersion() { return this.mainVersion.getMainVersion(); }
+
+    public MainVersion getVersion() { return this.mainVersion; }
+
+    public static ObForOracleMainVersion parserVersion(String version) {
+        if (StringUtils.isBlank(version)) {
+            return null;
+        }
+
+        if (checkInVersion(version, OceanBase_3_0)) {
+            return OceanBase_3_0;
+        } else if (checkInVersion(version, OceanBase_3_1)) {
+            return OceanBase_3_1;
+        } else if (checkInVersion(version, OceanBase_3_2)) {
+            return OceanBase_3_2;
+        } else if (checkInVersion(version, OceanBase_4_0)) {
+            return OceanBase_4_0;
+        } else if (checkInVersion(version, OceanBase_4_1)) {
+            return OceanBase_4_1;
+        } else if (checkInVersion(version, OceanBase_4_2)) {
+            return OceanBase_4_2;
+        } else if (checkInVersion(version, OceanBase_4_3)) {
+            return OceanBase_4_3;
+        } else if (checkInVersion(version, OceanBase_4_4)) {
+            return OceanBase_4_4;
+        } else if (checkInVersion(version, OceanBase_5_0)) {
+            return OceanBase_5_0;
+        } else if (checkInVersion(version, OceanBase_5_1)) {
+            return OceanBase_5_1;
+        } else if (checkInVersion(version, OceanBase_5_2)) {
+            return OceanBase_5_2;
+        } else {
+            throw new UnsupportedOperationException("Unsupported OceanBase version " + version);
+        }
+    }
+
+    protected static boolean checkInVersion(String version, MainVersion mainVersion) {
+        String referenceVersion = mainVersion.getMainVersion().toLowerCase();
+        version = version.toLowerCase();
+
+        if (version.startsWith("oceanbase")) {
+            return version.substring("oceanbase".length()).trim().startsWith(referenceVersion);
+        } else {
+            return version.startsWith(referenceVersion);
+        }
+
+    }
+}

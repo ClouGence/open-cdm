@@ -1,0 +1,6 @@
+<drivers>
+    <driver driverFamily="Redshift JDBC" version="2.1.0.16">
+        <driverName>com.clougence.drivers.redshift.RedshiftDsFactory</driverName>
+        <resource type="maven">com.amazon.redshift:redshift-jdbc42:2.1.0.16</resource>
+    </driver>
+</drivers>

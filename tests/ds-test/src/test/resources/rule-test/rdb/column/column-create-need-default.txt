@@ -1,0 +1,5 @@
+if
+  @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN']
+then
+  return @domain.defaultValue != null
+end

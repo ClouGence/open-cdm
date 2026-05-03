@@ -1,0 +1,13 @@
+#define "columns" as string
+        default ""
+        hint "更新必须包含的列，多个用逗号分割"
+
+if @domain.sqlType != 'UPDATE' then
+  return true
+end
+
+if @func.string.trim(#{columns}) == '' then
+  return true
+end
+
+return @func.string.split(#{columns}, ',') in @domain.setColumns

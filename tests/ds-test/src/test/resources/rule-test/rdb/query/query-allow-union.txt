@@ -1,0 +1,19 @@
+#define "allow" as string
+        default "false"
+        enum ["true", "false"]
+        hint "表示是否允许使用 union 聚合结果"
+
+if
+  @domain.sqlType in ['SELECT', 'UPDATE', 'DELETE', 'INSERT']
+then
+
+  if
+    #{allow} == 'true' or
+    @domain.hasUnion == false
+  then
+    return true
+  else
+    return false
+  end
+
+end

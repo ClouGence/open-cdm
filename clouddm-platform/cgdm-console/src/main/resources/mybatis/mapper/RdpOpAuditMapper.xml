@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.rdp.dal.mapper.RdpOpAuditMapper">
+
+    <resultMap id="rdpOperationAuditDO" type="com.clougence.rdp.dal.model.RdpOpAuditDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="uid" property="uid"/>
+        <result column="owner_uid" property="ownerUid"/>
+        <result column="user_name" property="userName"/>
+        <result column="operate_date" property="operateDate"/>
+        <result column="source_ip" property="sourceIp"/>
+        <result column="ip" property="ip"/>
+        <result column="context_in" property="contextIn"/>
+        <result column="context_out" property="contextOut"/>
+        <result column="resource_type" property="resourceType"
+                javaType="com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType"/>
+        <result column="resource_value" property="resourceValue"/>
+        <result column="resource_name" property="resourceName"/>
+        <result column="security_level" property="securityLevel"
+                javaType="com.clougence.rdp.constant.auth.SecurityLevel"/>
+        <result column="uuid_key" property="uuidKey"/>
+        <result column="audit_type" property="auditType"
+                javaType="com.clougence.rdp.constant.operation.AuditType"/>
+        <result column="operation_uri" property="operationUri"/>
+        <result column="log_info" property="logInfo"/>
+        <result column="log_path" property="logPath"/>
+    </resultMap>
+
+    <sql id="rdpOperationAudit">
+        id,
+        gmt_create,
+        gmt_modified,
+        uid,
+        owner_uid,
+        user_name,
+        operate_date,
+        source_ip,
+        ip,
+        context_in,
+        context_out,
+        resource_type,
+        resource_value,
+        resource_name,
+        security_level,
+        audit_type,
+        operation_uri,
+        uuid_key,
+        log_info,
+        log_path
+    </sql>
+
+    <delete id="clearData">
+        delete from operation_audit;
+    </delete>
+
+    <select id="queryByConditionJoinUrlAuth" resultMap="rdpOperationAuditDO">
+        SELECT
+        <include refid="rdpOperationAudit"/>
+        FROM
+        rdp_op_audit
+        WHERE 1=1
+        <if test="startId != 0">
+            <![CDATA[ AND id < #{startId} ]]>
+        </if>
+        <if test="dateStart != null">
+            <![CDATA[AND operate_date >= #{dateStart} ]]>
+        </if>
+        <if test="dateEnd != null">
+            <![CDATA[ AND operate_date <= #{dateEnd} ]]>
+        </if>
+        <if test="securityLevel != null">
+            <![CDATA[ AND security_level = #{securityLevel} ]]>
+        </if>
+        ORDER BY id DESC LIMIT #{pageSize}
+    </select>
+
+    <select id="queryByUidJoinUrlAuth" resultMap="rdpOperationAuditDO">
+        SELECT
+        <include refid="rdpOperationAudit"/>
+        FROM
+        rdp_op_audit
+        WHERE 1=1
+        <if test="startId != 0">
+            <![CDATA[ AND id < #{startId} ]]>
+        </if>
+        AND uid= #{uid}
+        <if test="dateStart != null">
+            <![CDATA[ AND operate_date >= #{dateStart} ]]>
+        </if>
+        <if test="dateEnd != null">
+            <![CDATA[ AND operate_date <= #{dateEnd} ]]>
+        </if>
+        <if test="securityLevel != null">
+            <![CDATA[ AND security_level = #{securityLevel} ]]>
+        </if>
+        <if test="auditType != null">
+            <![CDATA[ AND audit_type = #{auditType} ]]>
+        </if>
+        <if test="resourceType != null">
+            <![CDATA[ AND resource_type = #{resourceType} ]]>
+        </if>
+        ORDER BY operate_date DESC,id LIMIT #{pageSize}
+    </select>
+
+    <select id="queryByUidsJoinUrlAuth" resultMap="rdpOperationAuditDO">
+        SELECT
+        <include refid="rdpOperationAudit"/>
+        FROM
+        rdp_op_audit
+        WHERE 1=1
+        <if test="startId != 0">
+            <![CDATA[ AND id < #{startId} ]]>
+        </if>
+        AND owner_uid = #{ownerUid}
+        <if test="dateStart != null">
+            <![CDATA[ AND operate_date >= #{dateStart} ]]>
+        </if>
+        <if test="dateEnd != null">
+            <![CDATA[ AND operate_date <= #{dateEnd} ]]>
+        </if>
+        <if test="securityLevel != null">
+            <![CDATA[ AND security_level = #{securityLevel} ]]>
+        </if>
+        <if test="auditType != null">
+            <![CDATA[ AND audit_type = #{auditType} ]]>
+        </if>
+        <if test="resourceType != null">
+            <![CDATA[ AND resource_type = #{resourceType} ]]>
+        </if>
+        ORDER BY operate_date DESC,id LIMIT #{pageSize}
+    </select>
+
+    <select id="querySection" resultType="com.clougence.rdp.dal.model.RdpOpAuditDO">
+        SELECT
+            <include refid="rdpOperationAudit"/>
+        FROM
+            rdp_op_audit
+        WHERE 1=1
+        <if test="startId != 0">
+            <![CDATA[ AND id < #{startId} ]]>
+        </if>
+        ORDER BY operate_date DESC,id limit #{pageSize}
+    </select>
+
+    <select id="queryByCondition" resultType="com.clougence.rdp.dal.model.RdpOpAuditDO">
+        SELECT
+        <include refid="rdpOperationAudit"/>
+        FROM
+        rdp_op_audit
+        WHERE 1=1
+        AND owner_uid = #{puid}
+        <if test="startId != 0">
+            <![CDATA[ AND id < #{startId} ]]>
+        </if>
+        <if test="uid != null and uid != ''">
+            AND uid = #{uid}
+        </if>
+        <if test="dateStart != null">
+            <![CDATA[ AND operate_date >= #{dateStart} ]]>
+        </if>
+        <if test="dateEnd != null">
+            <![CDATA[ AND operate_date <= #{dateEnd} ]]>
+        </if>
+        <if test="securityLevel != null">
+            <![CDATA[ AND security_level = #{securityLevel} ]]>
+        </if>
+        <if test="auditType != null">
+            <![CDATA[ AND audit_type = #{auditType} ]]>
+        </if>
+        <if test="resourceType != null">
+            <![CDATA[ AND resource_type = #{resourceType} ]]>
+        </if>
+        <if test="userNameLike != null and userNameLike != ''">
+            <![CDATA[ AND user_name like CONCAT('%',#{userNameLike},'%') ]]>
+        </if>
+        ORDER BY operate_date DESC,id LIMIT #{pageSize}
+    </select>
+
+    <select id="pageByCondition" resultType="com.clougence.rdp.dal.model.RdpOpAuditDO">
+        SELECT
+        <include refid="rdpOperationAudit"/>
+        FROM
+        rdp_op_audit
+        WHERE 1=1
+        AND owner_uid = #{puid}
+        <if test="uid != null and uid != ''">
+            AND uid = #{uid}
+        </if>
+        <if test="dateStart != null">
+            <![CDATA[ AND operate_date >= #{dateStart} ]]>
+        </if>
+        <if test="dateEnd != null">
+            <![CDATA[ AND operate_date <= #{dateEnd} ]]>
+        </if>
+        <if test="securityLevel != null">
+            <![CDATA[ AND security_level = #{securityLevel} ]]>
+        </if>
+        <if test="auditType != null">
+            <![CDATA[ AND audit_type = #{auditType} ]]>
+        </if>
+        <if test="resourceType != null">
+            <![CDATA[ AND resource_type = #{resourceType} ]]>
+        </if>
+        <if test="userNameLike != null and userNameLike != ''">
+            <![CDATA[ AND user_name like CONCAT('%',#{userNameLike},'%') ]]>
+        </if>
+        ORDER BY operate_date DESC,id LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+</mapper>

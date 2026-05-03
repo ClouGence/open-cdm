@@ -1,0 +1,2 @@
+com.clougence.clouddm.ds.sqlserver.execute.dsfactory.JdbcSqlServerDsFactory
+com.clougence.clouddm.ds.sqlserver.execute.dsfactory.JtdsSqlServerDsFactory

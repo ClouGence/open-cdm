@@ -1,0 +1,30 @@
+#define "require" as bool default "true" enum ["true", "false"]  hint "是否必须设置字符集"
+#define "character_set" as string default "utf8mb4" enum ["utf8", "utf8mb4"] hint "允许使用的字符集"
+
+if
+  @domain.sqlType not in ['CREATE_SCHEMA', 'ALTER_SCHEMA'] and
+  @domain.sqlKind not in ['CREATE', 'ALTER']
+then
+  return true
+end
+
+if
+  @func.string.isBlank(#{character_set})
+then
+  return true
+end
+
+if
+  cast(#{require} as bool) and
+  @func.string.isBlank(@domain.characterSet)
+then
+  return false
+end
+
+if
+  @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
+then
+  return true
+else
+  return false
+end

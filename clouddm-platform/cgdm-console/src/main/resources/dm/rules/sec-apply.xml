@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ruleSet PUBLIC "-//clougence.com/sec-apply//DTD SecRuleApply 1.0//EN" "classpath://dm/rules/sec-apply.dtd">
+<ruleSet>
+    <!-- catalog -->
+    <ruleDef id="rule_catalog_001">
+        <applyTo>MySQL,MariaDB,TiDB</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_catalog_002">
+        <applyTo>MySQL,MariaDB,TiDB</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_catalog_003">
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+    </ruleDef>
+
+    <!-- schema -->
+    <ruleDef id="rule_schema_001">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_schema_002">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_schema_003">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_schema_004">
+        <applyTo>Redis</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_schema_005">
+        <applyTo>MongoDB</applyTo>
+    </ruleDef>
+
+    <!-- table -->
+    <ruleDef id="rule_table_001">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_table_002">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_table_003">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_table_004">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_table_005">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_table_006">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_table_007">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_table_008">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_table_009">
+        <applyTo>MySQL</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_table_010">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_table_011">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_table_012">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+    </ruleDef>
+
+    <!-- column -->
+    <ruleDef id="rule_column_001">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_column_002">
+        <applyTo>MySQL,MariaDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_column_003">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_column_004">
+        <applyTo>MySQL,MariaDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_column_005">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_column_006">
+        <applyTo>MySQL,MariaDB,TiDB</applyTo>
+        <applyTo>Doris,SelectDB</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_column_007">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_column_008">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_column_009">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_column_010">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_column_011">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_column_012">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_column_013">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_column_014">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_column_015">
+        <applyTo>MySQL,MariaDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_column_016">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_column_017">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+
+    <!-- constraint -->
+    <ruleDef id="rule_const_001">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+    </ruleDef>
+
+    <!-- query -->
+    <ruleDef id="rule_query_001">
+        <applyTo>MySQL,MariaDB,TiDB</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_query_002">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_query_003">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_query_004">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_query_005">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_query_006">
+        <applyTo>MySQL,MariaDB,TiDB</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_query_007">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_query_008">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_query_009">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_query_010">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+
+    <!-- update -->
+    <ruleDef id="rule_update_001">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_update_002">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_update_003">
+        <applyTo>MySQL,MariaDB,TiDB</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_update_004">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_update_005">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_update_006">
+        <applyTo>MySQL,MariaDB,PolarDbMySQL,TiDB</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>PolarDbX</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_update_007">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+    </ruleDef>
+    <!-- <ruleDef id="rule_update_008" dsRange="MySQL,MariaDB,OceanBase,PolarDbMySQL,TiDB,PolarDbX"/>-->
+
+    <!-- insert -->
+    <ruleDef id="rule_insert_001">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_insert_002">
+        <applyTo>MySQL,MariaDB,TiDB</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_insert_003">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_insert_004">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+    </ruleDef>
+    <!-- <ruleDef id="rule_insert_005" dsRange="MySQL,MariaDB,OceanBase,PolarDbMySQL,TiDB,PolarDbX"/>-->
+
+    <!-- delete -->
+    <ruleDef id="rule_delete_001">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>SQLServer</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_delete_002">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_delete_003">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+        <applyTo>PostgreSQL,Greenplum,PolarDBPg,GaussDBForOpenGauss,GaussDB,Hologres</applyTo>
+        <applyTo>Db2</applyTo>
+        <applyTo>Oracle,ObForOracle</applyTo>
+        <applyTo>Doris,SelectDB,StarRocks</applyTo>
+        <applyTo>MaxCompute</applyTo>
+        <applyTo>ClickHouse</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_delete_004">
+        <applyTo>MySQL,MariaDB,TiDB,PolarDbMySQL</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>AdbForMySQL,PolarDbX</applyTo>
+    </ruleDef>
+    <ruleDef id="rule_delete_005">
+        <applyTo>MySQL,MariaDB,PolarDbMySQL,TiDB</applyTo>
+        <applyTo>OceanBase</applyTo>
+        <applyTo>PolarDbX</applyTo>
+    </ruleDef>
+    <!-- <ruleDef id="rule_delete_004" dsRange="MySQL,MariaDB,OceanBase,PolarDbMySQL,TiDB,PolarDbX"/>-->
+</ruleSet>

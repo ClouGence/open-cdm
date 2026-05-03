@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.rdp.dal.mapper.RdpProductClusterMapper">
+
+    <resultMap id="rdpProductClusterDO" type="com.clougence.rdp.dal.model.RdpProductClusterDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="product" property="product" javaType="com.clougence.rdp.dal.enumeration.RdpProduct"/>
+        <result column="product_version" property="productVersion"/>
+        <result column="cluster_name" property="clusterName"/>
+        <result column="cluster_desc" property="clusterDesc"/>
+        <result column="cluster_code" property="clusterCode"/>
+        <result column="api_addr" property="apiAddr"/>
+    </resultMap>
+
+    <sql id="rdpProductCluster">
+        id,
+        gmt_create,
+        gmt_modified,
+        product,
+        product_version,
+        cluster_name,
+        cluster_desc,
+        cluster_code,
+        api_addr
+    </sql>
+
+    <select id="supportProductType" resultType="java.lang.String">
+        SELECT
+            distinct product
+        FROM
+            rdp_product_cluster
+    </select>
+
+    <select id="listProductCluster" resultMap="rdpProductClusterDO">
+        SELECT
+            <include refid="rdpProductCluster"/>
+        FROM
+            rdp_product_cluster
+    </select>
+
+    <select id="queryByClusterCode" resultMap="rdpProductClusterDO">
+        SELECT
+            <include refid="rdpProductCluster"/>
+        FROM
+            rdp_product_cluster
+        WHERE
+            cluster_code = #{cluster_code}
+    </select>
+
+    <select id="queryByClusterName" resultMap="rdpProductClusterDO">
+        SELECT
+            <include refid="rdpProductCluster"/>
+        FROM
+            rdp_product_cluster
+        WHERE
+        cluster_name = #{cluster_name}
+    </select>
+
+    <update id="updateApiAddrById">
+        UPDATE
+            rdp_product_cluster
+        SET
+            api_addr = #{apiAddr}
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="updateProductVersionById">
+        UPDATE
+            rdp_product_cluster
+        SET
+            product_version = #{productVersion}
+        WHERE
+            id = #{id}
+    </update>
+</mapper>

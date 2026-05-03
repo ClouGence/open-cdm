@@ -1,0 +1,68 @@
+[
+  {
+    "columns": [
+      {
+        "column": "column1",
+        "table": "table2",
+        "schema": "schema1",
+        "catalog": "catalog2"
+      }
+    ],
+    "itemAlias": "column1"
+  },
+  {
+    "columns": [
+      {
+        "column": "column2",
+        "schema": "schema1",
+        "table": "table2",
+        "catalog": "catalog2"
+      }
+    ],
+    "itemAlias": "column2"
+  },
+  {
+    "columns": [
+      {
+        "column": "column3",
+        "schema": "schema1",
+        "table": "table2",
+        "catalog": "catalog2"
+      }
+    ],
+    "itemAlias": "column3"
+  },
+  {
+    "columns": [
+      {
+        "column": "column4",
+        "schema": "schema1",
+        "table": "table2",
+        "catalog": "catalog2"
+      }
+    ],
+    "itemAlias": "column4"
+  },
+  {
+    "columns": [
+      {
+        "column": "column5",
+        "schema": "schema1",
+        "table": "table2",
+        "catalog": "catalog2"
+      }
+    ],
+    "itemAlias": "column5"
+  },
+  {
+    "columns": [
+      {
+        "column": "column6",
+        "schema": "schema1",
+        "table": "table2",
+        "catalog": "catalog2"
+      }
+    ],
+    "itemAlias": "column6"
+  }
+]

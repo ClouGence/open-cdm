@@ -1,0 +1,28 @@
+<drivers>
+    <!-- Microsoft JDBC Driver For SQL Server -->
+    <driver driverFamily="SQL Server JDBC Driver" version="13.4.0">
+        <driverName>com.clougence.clouddm.ds.sqlserver.execute.dsfactory.JdbcSqlServerDsFactory</driverName>
+        <resource type="maven">com.microsoft.sqlserver:mssql-jdbc:13.4.0.jre8</resource>
+    </driver>
+    <driver driverFamily="SQL Server JDBC Driver" version="13.2.1">
+        <driverName>com.clougence.clouddm.ds.sqlserver.execute.dsfactory.JdbcSqlServerDsFactory</driverName>
+        <resource type="maven">com.microsoft.sqlserver:mssql-jdbc:13.2.1.jre8</resource>
+    </driver>
+    <driver driverFamily="SQL Server JDBC Driver" version="12.10.2">
+        <driverName>com.clougence.clouddm.ds.sqlserver.execute.dsfactory.JdbcSqlServerDsFactory</driverName>
+        <resource type="maven">com.microsoft.sqlserver:mssql-jdbc:12.10.2</resource>
+    </driver>
+    <driver driverFamily="SQL Server JDBC Driver" version="12.8.2">
+        <driverName>com.clougence.clouddm.ds.sqlserver.execute.dsfactory.JdbcSqlServerDsFactory</driverName>
+        <resource type="maven">com.microsoft.sqlserver:mssql-jdbc:12.8.2.jre8</resource>
+    </driver>
+    <!-- jTDS -->
+    <driver driverFamily="jTDS" version="1.3.1">
+        <driverName>com.clougence.clouddm.ds.sqlserver.execute.dsfactory.JtdsSqlServerDsFactory</driverName>
+        <resource type="maven">net.sourceforge.jtds:jtds:1.3.1</resource>
+    </driver>
+    <driver driverFamily="jTDS" version="1.2.8">
+        <driverName>com.clougence.clouddm.ds.sqlserver.execute.dsfactory.JtdsSqlServerDsFactory</driverName>
+        <resource type="maven">net.sourceforge.jtds:jtds:1.2.8</resource>
+    </driver>
+</drivers>

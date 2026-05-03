@@ -1,0 +1,18 @@
+lexer grammar TiDBLexer;
+
+import MySqlLexer;
+
+TTL: T T L;
+TTL_ENABLE : T T L '_' E N A B L E;
+AUTO_RANDOM: A U T O '_' R A N D O M;
+
+NOCYCLE: N O C Y C L E;
+CYCLE: C Y C L E;
+NOCACHE: N O C A C H E;
+MINVALUE: M I N V A L U E;
+NOMINVALUE: N O M I N V A L U E;
+NOMAXVALUE: N O M A X V A L U E;
+SEQUENCE: S E Q U E N C E;
+INCREMENT: I N C R E M E N T;
+CLUSTERED: C L U S T E R E D;
+NONCLUSTERED: N O N C L U S T E R E D;

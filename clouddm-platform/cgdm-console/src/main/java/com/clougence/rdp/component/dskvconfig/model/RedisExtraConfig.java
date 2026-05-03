@@ -1,0 +1,36 @@
+package com.clougence.rdp.component.dskvconfig.model;
+
+import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
+import com.clougence.rdp.constant.DsConfigDef;
+import com.clougence.rdp.constant.I18nDsConfigMsgKeys;
+import com.clougence.rdp.constant.KvConfValType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
+
+/**
+ * @author bucketli 2022/8/10 09:33:48
+ */
+@Getter
+@Setter
+@FieldNameConstants
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class RedisExtraConfig extends DsExtraConfig {
+
+    @DsConfigDef(name = "isSentinel", defaultValue = "false", descKey = I18nDsConfigMsgKeys.DS_CONFIG_REDIS_IS_SENTINEL, readOnly = false, kvConfWebOp = KvConfValType.BOOLEAN)
+    private Boolean isSentinel;
+
+    @DsConfigDef(name = "sentinelUser", descKey = I18nDsConfigMsgKeys.DS_CONFIG_REDIS_SENTINEL_USER, readOnly = false)
+    private String  sentinelUser;
+
+    @DsConfigDef(name = "sentinelPassword", descKey = I18nDsConfigMsgKeys.DS_CONFIG_REDIS_SENTINEL_PASSWORD, isSecret = true, readOnly = false)
+    private String  sentinelPassword;
+
+    @DsConfigDef(name = "sentinelMasterName", descKey = I18nDsConfigMsgKeys.DS_CONFIG_REDIS_SENTINEL_MASTER_NAME, readOnly = false)
+    private String  sentinelMasterName;
+
+    @DsConfigDef(name = "useTLS", defaultValue = "false", descKey = I18nDsConfigMsgKeys.CONFIG_DATA_SOURCE_CONNECT_USE_SSL, readOnly = false, kvConfWebOp = KvConfValType.BOOLEAN, valueAdvance = "true / false")
+    private Boolean useTLS;
+}

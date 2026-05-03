@@ -1,0 +1,18 @@
+<drivers>
+    <driver driverFamily="Dameng JDBC Driver" version="8.1.3.140">
+        <driverName>com.clougence.clouddm.ds.dameng.execute.dsfactory.DmDsFactory</driverName>
+        <resource type="maven">com.dameng:DmJdbcDriver18:8.1.3.140</resource>
+    </driver>
+    <driver driverFamily="Dameng JDBC Driver" version="8.1.3.62">
+        <driverName>com.clougence.clouddm.ds.dameng.execute.dsfactory.DmDsFactory</driverName>
+        <resource type="maven">com.dameng:DmJdbcDriver18:8.1.3.62</resource>
+    </driver>
+    <driver driverFamily="Dameng JDBC Driver" version="8.1.2.192">
+        <driverName>com.clougence.clouddm.ds.dameng.execute.dsfactory.DmDsFactory</driverName>
+        <resource type="maven">com.dameng:DmJdbcDriver18:8.1.2.192</resource>
+    </driver>
+    <driver driverFamily="Dameng JDBC Driver" version="8.1.1.193">
+        <driverName>com.clougence.clouddm.ds.dameng.execute.dsfactory.DmDsFactory</driverName>
+        <resource type="maven">com.dameng:DmJdbcDriver18:8.1.1.193</resource>
+    </driver>
+</drivers>

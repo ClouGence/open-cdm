@@ -1,0 +1,16 @@
+#define "allow" as string
+        default "false"
+        enum ["true", "false"]
+        hint "表示是否允许同时删除多表数据"
+
+if
+  @domain.sqlType in ['DELETE']
+then
+
+  if #{allow} == 'true' then
+    return true
+  end
+
+  return @domain.multiDelete == false
+
+end

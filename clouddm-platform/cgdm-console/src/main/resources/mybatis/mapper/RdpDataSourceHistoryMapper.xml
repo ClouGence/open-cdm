@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.rdp.dal.mapper.RdpDataSourceHistoryMapper">
+
+    <resultMap id="rdpDataSourceHistoryDO" type="com.clougence.rdp.dal.model.RdpDataSourceHistoryDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="uid" property="uid"/>
+        <result column="owner" property="owner"/>
+        <result column="deploy_type" property="deployType"
+                javaType="com.clougence.rdp.dal.enumeration.DeployEnvType"/>
+        <result column="info_fetch_type" property="infoFetchType"
+                javaType="com.clougence.rdp.dal.enumeration.DeployEnvInfoFetchType"/>
+        <result column="data_source_type" property="dataSourceType"
+                javaType="com.clougence.clouddm.base.metadata.ds.DataSourceType"/>
+        <result column="host" property="host"/>
+        <result column="private_host" property="privateHost"/>
+        <result column="public_host" property="publicHost"/>
+        <result column="host_type" property="hostType"
+                javaType="com.clougence.rdp.dal.enumeration.HostType"/>
+        <result column="instance_desc" property="instanceDesc"/>
+        <result column="version" property="version"/>
+        <result column="instance_id" property="instanceId"/>
+        <result column="account" property="account"/>
+        <result column="password" property="password"/>
+        <result column="access_key" property="accessKey"/>
+        <result column="secret_key" property="secretKey"/>
+        <result column="security_file_url" property="securityFileUrl"/>
+        <result column="security_file_store_type" property="securityFileStoreType"
+                javaType="com.clougence.rdp.dal.enumeration.SecurityFileStoreType"/>
+        <result column="security_type" property="securityType"
+                javaType="com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType"/>
+        <result column="public_security_type" property="publicSecurityType"
+                javaType="com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType"/>
+        <result column="life_cycle_state" property="lifeCycleState"
+                javaType="com.clougence.rdp.dal.enumeration.LifeCycleState"/>
+        <result column="console_job_id" property="consoleJobId"/>
+    </resultMap>
+
+    <sql id="rdpDataSourceHistory">
+        rdp_data_source_history.id id,
+        rdp_data_source_history.gmt_create gmt_create,
+        rdp_data_source_history.gmt_modified gmt_modified,
+        rdp_data_source_history.uid uid,
+        rdp_data_source_history.owner owner,
+        rdp_data_source_history.deploy_type deploy_type,
+        rdp_data_source_history.info_fetch_type info_fetch_type,
+        rdp_data_source_history.data_source_type data_source_type,
+        rdp_data_source_history.host host,
+        rdp_data_source_history.private_host private_host,
+        rdp_data_source_history.public_host public_host,
+        rdp_data_source_history.host_type host_type,
+        rdp_data_source_history.instance_desc instance_desc,
+        rdp_data_source_history.version version,
+        rdp_data_source_history.instance_id instance_id,
+        rdp_data_source_history.account account,
+        rdp_data_source_history.password password,
+        rdp_data_source_history.access_key access_key,
+        rdp_data_source_history.secret_key secret_key,
+        rdp_data_source_history.security_file_url security_file_url,
+        rdp_data_source_history.security_file_store_type security_file_store_type,
+        rdp_data_source_history.security_type security_type,
+        rdp_data_source_history.life_cycle_state life_cycle_state,
+        rdp_data_source_history.public_security_type public_security_type,
+        rdp_data_source_history.console_job_id console_job_id
+    </sql>
+</mapper>

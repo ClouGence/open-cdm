@@ -1,0 +1,30 @@
+<drivers>
+    <driver driverFamily="PostgreSQL JDBC" version="42.7.10">
+        <driverName>com.clougence.clouddm.dsfamily.postgres.execute.dsfactory.PostgresqlDsFactory</driverName>
+        <resource type="maven">org.postgresql:postgresql:42.7.10</resource>
+    </driver>
+    <driver driverFamily="PostgreSQL JDBC" version="42.6.2">
+        <driverName>com.clougence.clouddm.dsfamily.postgres.execute.dsfactory.PostgresqlDsFactory</driverName>
+        <resource type="maven">org.postgresql:postgresql:42.6.2</resource>
+    </driver>
+    <driver driverFamily="PostgreSQL JDBC" version="42.5.6">
+        <driverName>com.clougence.clouddm.dsfamily.postgres.execute.dsfactory.PostgresqlDsFactory</driverName>
+        <resource type="maven">org.postgresql:postgresql:42.5.6</resource>
+    </driver>
+    <driver driverFamily="PostgreSQL JDBC" version="42.4.5">
+        <driverName>com.clougence.clouddm.dsfamily.postgres.execute.dsfactory.PostgresqlDsFactory</driverName>
+        <resource type="maven">org.postgresql:postgresql:42.4.5</resource>
+    </driver>
+    <driver driverFamily="PostgreSQL JDBC" version="42.3.10">
+        <driverName>com.clougence.clouddm.dsfamily.postgres.execute.dsfactory.PostgresqlDsFactory</driverName>
+        <resource type="maven">org.postgresql:postgresql:42.3.10</resource>
+    </driver>
+    <driver driverFamily="PostgreSQL JDBC" version="42.2.29">
+        <driverName>com.clougence.clouddm.dsfamily.postgres.execute.dsfactory.PostgresqlDsFactory</driverName>
+        <resource type="maven">org.postgresql:postgresql:42.2.29</resource>
+    </driver>
+    <driver driverFamily="PostgreSQL JDBC" version="42.1.4">
+        <driverName>com.clougence.clouddm.dsfamily.postgres.execute.dsfactory.PostgresqlDsFactory</driverName>
+        <resource type="maven">org.postgresql:postgresql:42.1.4</resource>
+    </driver>
+</drivers>

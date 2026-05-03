@@ -1,0 +1,40 @@
+package com.clougence.clouddm.ds.redis.parser.ast.commands.cluster;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.clougence.clouddm.ds.redis.parser.ast.RedisCmdType;
+import com.clougence.clouddm.ds.redis.parser.ast.commands.AbstractRedisCmd;
+import com.clougence.clouddm.ds.redis.parser.ast.token.IntToken;
+import com.clougence.dslpaser.foramt.FmtWriter;
+
+import lombok.Getter;
+import lombok.Setter;
+
+/**
+ * @author mode
+ * @date 2024/1/22 14:56
+ */
+@Getter
+@Setter
+public class ClusterDelSlotsRedisCmd extends AbstractRedisCmd {
+
+    private final List<IntToken> slots = new ArrayList<>();
+
+    public void addSlot(IntToken slot) {
+        this.slots.add(slot);
+    }
+
+    @Override
+    public RedisCmdType getCmdType() { return RedisCmdType.CLUSTER_DELSLOTS; }
+
+    @Override
+    public void doFormat(FmtWriter writer) throws IOException {
+        writer.append("CLUSTER DELSLOTS");
+        for (IntToken slot : this.slots) {
+            writer.append(" ");
+            writer.append(fmtInt(slot));
+        }
+    }
+}

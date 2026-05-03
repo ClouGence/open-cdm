@@ -1,0 +1,148 @@
+# see https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Data-Types.html
+
+define oracle {
+    priority     = 1
+    policy       = "extreme"
+    policyDesc   = "Oracle TypeProcessor Policy(Extreme)"
+}
+
+[float]
+["binary float"]
+    jdbcType       = float
+    seedType       = number
+    numberType     = decimal
+    minMax        += range(10, -1.17549E-38        , -3.40282E+38)
+    minMax        += range(10, 1.17549E-38         , 3.40282E+38)
+    minMax        += range(30, -999999999.999999999, 999999999.999999999)
+    minMax        += range(30, -0.999999999        , 0.999999999)
+    precision      = ifThen(isZero(${numericPrecision}), 40, ${numericPrecision})
+    scale          = ifThen(isZero(${numericScale}), 20, ${numericScale})
+
+["binary double"]
+    jdbcType       = double
+    seedType       = number
+    numberType     = decimal
+    minMax        += range(10, -2.22507485850720E-308, -1.79769313486231E+308)
+    minMax        += range(10, 2.22507485850720E-308 , 1.79769313486231E+308)
+    minMax        += range(30, -999999999.999999999, 999999999.999999999)
+    minMax        += range(30, -0.999999999        , 0.999999999)
+    precision      = ifThen(isZero(${numericPrecision}), 40, ${numericPrecision})
+    scale          = ifThen(isZero(${numericScale}), 20, ${numericScale})
+
+["number bigint"]
+["number decimal"]
+    jdbcType       = decimal
+    seedType       = number
+    numberType     = decimal
+    precision      = ifThen(isZero(${numericPrecision}), 40, ${numericPrecision})
+    scale          = ifThen(isZero(${numericScale}), 20, ${numericScale})
+
+[char]
+[nchar]
+[varchar2]
+[nvarchar]
+[nvarchar2]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 1000, 10)
+    characterSet   = [ letter_number ]
+    allowEmpty     = false
+
+[clob]
+[nclob]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 1000, 10)
+    characterSet   = [ letter_number ]
+    allowEmpty     = false
+    ignoreAct      = [ DeleteWhere, UpdateWhere ]
+
+[long]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 1000, 10)
+    characterSet   = [ letter_number ]
+    allowEmpty     = false
+    ignoreAct      = [ DeleteWhere ]
+
+[blob]
+[raw]
+["long raw"]
+    jdbcType       = blob
+    seedType       = bytes
+    minLength      = 0
+    maxLength      = safeMaxLength(0, ${byteLength}, 4096, 10)
+    ignoreAct      = [ DeleteWhere, UpdateWhere ]
+
+[rowid]
+[urowid]
+    jdbcType       = varchar
+    seedType       = string
+    allowEmpty     = false
+    characterSet   = [ letter_number ]
+    ignoreAct      = [ UpdateSet, Insert ]
+
+[date]
+    jdbcType       = date
+    seedType       = date
+    dateType       = LocalDate
+    genType        = random
+    rangeForm      = "0001-01-01"
+    rangeTo        = "9999-12-31"
+
+[timestamp]
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = LocalDateTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 9, 3)
+    rangeForm      = "0001-01-01 00:00:00.000000000"
+    rangeTo        = "9999-12-31 00:59:59.999999999"
+
+["timestamp with time zone"]
+["timestamp with local time zone"]
+    # https://www.iana.org/time-zones
+    jdbcType       = timestamp_with_timezone
+    seedType       = date
+    dateType       = OffsetDateTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 9, 3)
+    rangeForm      = "0001-01-01 00:00:00.000000000"
+    rangeTo        = "9999-12-31 00:59:59.999999999"
+    zoneForm       = "-14:00"
+    zoneTo         = "+14:00"
+
+["interval year to month"]
+["interval day to second"]
+[xmltype]
+[object]
+[ref]
+[varray]
+[nested_table]
+[plsql_boolean]
+[anytype]
+[anydata]
+[anydataset]
+[httpuritype]
+[xdburitype]
+[dburitype]
+[sdo_geometry]
+[sdo_topo_geometry]
+[sdo_georaster]
+[ordaudio]
+[orddicom]
+[orddoc]
+[ordimage]
+[ordvideo]
+[si_average_color]
+[si_color]
+[si_color_histogram]
+[si_feature_list]
+[si_positional_color]
+[si_still_image]
+[si_texture]
+[bfile]
+    throw "this columnType Unsupported."

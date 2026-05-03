@@ -1,0 +1,156 @@
+# see https://dev.mysql.com/doc/refman/5.7/en/numeric-type-syntax.html
+
+define dameng {
+    default      = true
+    priority     = 1
+    policy       = "widely"
+    policyDesc   = "DM TypeProcessor Policy(Widely)"
+}
+
+[char]
+[nchar]
+[varchar]
+[nvarchar2]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 250, 10)
+    characterSet   = [ letter_number ]
+
+[text]
+[clob]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = 250
+    characterSet   = [ letter_number ]
+
+[bit]
+    jdbcType       = boolean
+    seedType       = boolean
+
+[tinyint]
+    jdbcType       = tinyint
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 100)
+
+[smallint]
+    jdbcType       = smallint
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 9999)
+
+[int]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = bigint
+    minMax         = range(0, 99999999)
+
+[bigint]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = bigint
+    minMax         = range(0, 9999999999)
+
+[float]
+[real]
+[dec]
+[numeric]
+    jdbcType       = decimal
+    seedType       = number
+    numberType     = decimal
+    minMax         = range(0, 9999999.999)
+    scale          = ifThen(isZero(${numericScale}), 3, min(${numericScale}, 3))
+
+[binary]
+[varbinary]
+[image]
+    jdbcType       = varbinary
+    seedType       = bytes
+    minLength      = 0
+    maxLength      = safeMaxLength(0, ${byteLength}, 16, 4)
+
+[date]
+    jdbcType       = date
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE10
+    genType        = random
+    rangeForm      = "2000-01-01"
+    rangeTo        = "2030-12-31"
+
+[time]
+    jdbcType       = time
+    seedType       = date
+    dateType       = LocalTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "00:00:00.000000"
+    rangeTo        = "23:59:59.999999"
+
+[timestamp]
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE_TIME24
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "2000-01-01 00:00:00.000000"
+    rangeTo        = "2030-12-31 23:59:59.999999"
+
+["time with time zone"]
+    jdbcType       = time_with_timezone
+    seedType       = date
+    dateType       = OffsetTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "00:00:00.000000"
+    rangeTo        = "23:59:59.999999"
+    zoneForm       = "-08:00"
+    zoneTo         = "+08:00"
+
+["timestamp with time zone"]
+["timestamp with local time zone"]
+    jdbcType       = timestamp_with_timezone
+    seedType       = date
+    dateType       = OffsetDateTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "2000-01-01 00:00:00.000000"
+    rangeTo        = "2030-12-31 23:59:59.999999"
+    zoneForm       = "-08:00"
+    zoneTo         = "+08:00"
+
+["interval year"]
+["interval year to month"]
+["interval month"]
+["interval day"]
+["interval day to hour"]
+["interval day to minute"]
+["interval day to second"]
+["interval hour"]
+["interval hour to minute"]
+["interval hour to second"]
+["interval minute"]
+["interval minute to second"]
+["interval second"]
+#    jdbcType       = other
+#    seedType       = date
+#    dateType       = iso8601
+#    genType        = random
+#    precision      = 0
+#    rangeForm      = "2000-01-01 00:00:00"
+#    rangeTo        = "2030-12-31 23:59:59"
+
+[rowid]
+    jdbcType       = varchar
+    seedType       = string
+    allowEmpty     = false
+    characterSet   = [ letter_number ]
+    ignoreAct      = [ UpdateSet, Insert ]
+
+[indtab]
+[bfile]
+[class]
+    throw "this columnType Unsupported."

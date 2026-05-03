@@ -1,0 +1,12 @@
+src/styles/iconfont.js
+src/views/sql/components/codemirror/*
+src/components/function/monitor/*
+src/components/ctree/*
+src/assets/*
+src/services/api/*
+public/*
+src/iconfontJs.js
+src/iconfont.js
+src/components/editor/core/*
+.prettierrc.js
+.eslintrc.js

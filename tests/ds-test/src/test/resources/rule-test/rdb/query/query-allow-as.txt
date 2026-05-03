@@ -1,0 +1,19 @@
+#define "allow" as string
+        default "false"
+        enum ["true", "false"]
+        hint "表示允许的查询语句出现 as 别名关键字"
+
+if
+  @domain.sqlType in ['SELECT']
+then
+
+  if
+    #{allow} == 'true' or
+    @domain.hasAs == false
+  then
+    return true
+  else
+    return false
+  end
+
+end

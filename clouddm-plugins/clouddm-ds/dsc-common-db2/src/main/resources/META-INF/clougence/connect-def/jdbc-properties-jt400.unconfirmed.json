@@ -1,0 +1,53 @@
+[
+  {
+    "name": "batch style",
+    "options": "['','2.0','2.1']",
+    "description_i18n": "The JDBC 2.1 specification defines a second method for how exceptions in a batch update can be handled. The driver can comply with either of these. The default is to work as defined in the JDBC 2.0 specification."
+  },
+  {
+    "name": "blocking enabled",
+    "default": "true",
+    "options": "['true','false']",
+    "description_i18n": "This value is used to determine if the connection uses blocking on result set row retrieval. Blocking can significantly improve the performance of processing result sets.\nBy default, this property is set to true."
+  },
+  {
+    "name": "commit hold",
+    "default": "false",
+    "options": "['true','false']",
+    "description_i18n": "This value specifies if \"commit hold\" is used when the connection.commit() method is called. When \"commit hold\" is used, cursors and other database resources are not closed or freed when commit is called.\nThe default value is false."
+  },
+  {
+    "name": "direct map",
+    "default": "true",
+    "options": "['true','false']",
+    "description_i18n": "This property specifies if database direct map optimizations will be used when retrieving result sets from the database. The default value is true."
+  },
+  {
+    "name": "do escape processing",
+    "default": "true",
+    "options": "['true','false']",
+    "description_i18n": "This property sets a flag for if statements under the connection must do escape processing. Using escape processing is a way to code your SQL statements so that they are generic and similar for all platforms, but then the database reads the escape clauses and substitutes the proper system specific version for the user.\nThis is good, except that it forces extra work on the system. In the case where you know you are only using SQL statements that already contain valid IBM i SQL syntax, it is recommended that this value be set to false to increase performance.\nThe default value for this property is true, as it must be compliant with the JDBC specification (that is, escape processing is active by default).\nThis value is added due to a shortcoming of the JDBC specification. You can only set escape processing to off in the Statement class. That works well if you are dealing with simple statements. You create your statement, turn off escape processing, and start processing statements. However, in the case of prepared statements and callable statements, this scheme does not work. You supply the SQL statement at the time that the prepared or callable statement is constructed and it does not change after that. So the statement is prepared up front and changing the escape processing after that is meaningless. Having this connection property allows a way to get around the extra overhead."
+  },
+  {
+    "name": "lob block size",
+    "default": "1048576",
+    "options": "['4096','65536','262144','1048576','4194304','16777216']",
+    "description_i18n": "This property specifies the number of bytes read from the InputStream when processing a block of data. The default value of this connection property is 1048576 bytes. Lower values will typically cause slower performance when processing lob data.,"
+  },
+  {
+    "name": "reuse objects",
+    "default": "true",
+    "options": "['true','false']",
+    "description_i18n": "This property specifies if the driver attempts to reuse some types of objects after you close them. This is a performance enhancement. The default is true."
+  },
+  {
+    "name": "servermode subsystem",
+    "description_i18n": "This property specifies the subsystem in which the associated QSQSRVR jobs will run. The default behavior is to have the jobs run in the QSYSWRK subsystem. If the value *SAME is used, then the QSQSRVR jobs will run in the same subsystem as the job using the native JDBC driver.\nIn order for a QSQSRVR job to run in a different subsystem, a QSQSRVR prestart job entry for that subsystem must exist. The following commands can be used to create a QSQSRVR prestart job entry.\nENDSBS sbs\n\nADDPJE SBSD(library/sbsd)\nPGM(QSYS/QSQSRVR) STRJOBS(*YES) INLJOBS(x)\nTHRESHOLD(y) ADLJOBS(z) MAXUSE(*NOMAX)\n\nSTRSBS sbs\n\nWhere sbs is the subsystem, library is the library in which the subsystem description sbsd is located in, and x, y, and z are numeric values for the corresponding parameters on the Add Prestart Job Entry (ADDPJE) command.\nIf a prestart job entry does not exist for QSQSRVR within the subsystem, the QSQSRVR job will utilize a Batch Immediate job (BCI) instead of a Prestart job (PJ). This Batch Immediate job typically runs in the same subsystem as the job using the native JDBC driver."
+  },
+  {
+    "name": "use block insert",
+    "default": "false",
+    "options": "['true','false']",
+    "description_i18n": "This property allows the native JDBC driver to go into a block insert mode for inserting blocks of data into the database. This is an optimized version of the batch update. This optimized mode can only be used in applications that ensure that they do not break certain system constraints or data insert failures and potentially corrupt data.\nApplications that turn on this property only connect to the local system when attempting to perform batched updates. They do use DRDA to establish remote connections because blocked insert cannot be managed over DRDA.\nApplications must also ensure that PreparedStatements with an SQL insert statement and a values clause make all the insert values parameters. No constants are permitted in the values list. This is a requirement of the blocked insert engine of the system.\nThe default is false."
+  }
+]

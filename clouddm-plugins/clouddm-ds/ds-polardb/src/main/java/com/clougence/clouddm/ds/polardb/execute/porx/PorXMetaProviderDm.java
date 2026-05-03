@@ -1,0 +1,40 @@
+package com.clougence.clouddm.ds.polardb.execute.porx;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.clougence.clouddm.dsfamily.mysql.execute.MyMetaProviderDm;
+import com.clougence.schema.metadata.MetaDataService;
+import com.clougence.schema.umi.struts.Value;
+
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * @author 赵永春 (zyc@hasor.net)
+ * @version : 2020-01-22
+ */
+@Slf4j
+public class PorXMetaProviderDm extends MyMetaProviderDm implements MetaDataService {
+
+    public PorXMetaProviderDm(Connection connection){
+        super(connection);
+        this.providerUtils = new PorXMetaProviderUtils();
+    }
+
+    @Override
+    public List<Value> selectViews(String schema) throws SQLException {
+        String sql = "select TABLE_NAME,'VIEW' as TABLE_TYPE ,COLLATION_CONNECTION as TABLE_COLLATION,null as TABLE_COMMENT, null as ENGINE from INFORMATION_SCHEMA.VIEWS " //
+                     + "where TABLE_SCHEMA = ? ";
+        try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, schema);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Value> schemas = this.providerUtils.convertTableName(rs);
+                return schemas.stream().filter(value -> value.getUmiType() != null).collect(Collectors.toList());
+            }
+        }
+    }
+}

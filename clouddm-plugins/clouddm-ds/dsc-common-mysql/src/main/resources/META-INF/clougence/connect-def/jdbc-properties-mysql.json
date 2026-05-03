@@ -1,0 +1,1219 @@
+[
+  {
+    "name": "user",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_user"
+  },
+  {
+    "name": "password",
+    "secret": true,
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_password"
+  },
+  {
+    "name": "authenticationPlugins",
+    "version": "5.1.19",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_authenticationPlugins"
+  },
+  {
+    "name": "disabledAuthenticationPlugins",
+    "version": "5.1.19",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_disabledAuthenticationPlugins"
+  },
+  {
+    "name": "defaultAuthenticationPlugin",
+    "default": "mysql_native_password",
+    "version": "5.1.19",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_defaultAuthenticationPlugin"
+  },
+  {
+    "name": "ociConfigFile",
+    "version": "8.0.27",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_ociConfigFile"
+  },
+  {
+    "name": "ociConfigProfile",
+    "default": "DEFAULT",
+    "version": "8.0.33",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_ociConfigProfile"
+  },
+  {
+    "name": "authenticationFidoCallbackHandler",
+    "version": "8.0.29",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_authenticationFidoCallbackHandler"
+  },
+  {
+    "name": "ldapServerHostname",
+    "version": "8.0.23",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_ldapServerHostname"
+  },
+  {
+    "name": "connectionAttributes",
+    "version": "5.1.25",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_connectionAttributes"
+  },
+  {
+    "name": "connectionLifecycleInterceptors",
+    "version": "5.1.4",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_connectionLifecycleInterceptors"
+  },
+  {
+    "name": "useConfigs",
+    "version": "3.1.5",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_useConfigs"
+  },
+  {
+    "name": "clientInfoProvider",
+    "default": "com.mysql.cj.jdbc.CommentClientInfoProvider",
+    "version": "5.1.0",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_clientInfoProvider"
+  },
+  {
+    "name": "createDatabaseIfNotExist",
+    "default": "false",
+    "version": "3.1.9",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_createDatabaseIfNotExist"
+  },
+  {
+    "name": "databaseTerm",
+    "default": "CATALOG",
+    "version": "8.0.17",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_databaseTerm"
+  },
+  {
+    "name": "detectCustomCollations",
+    "default": "false",
+    "version": "5.1.29",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_detectCustomCollations"
+  },
+  {
+    "name": "disconnectOnExpiredPasswords",
+    "default": "true",
+    "version": "5.1.23",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_disconnectOnExpiredPasswords"
+  },
+  {
+    "name": "interactiveClient",
+    "default": "false",
+    "version": "3.1.0",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_interactiveClient"
+  },
+  {
+    "name": "passwordCharacterEncoding",
+    "version": "5.1.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_passwordCharacterEncoding"
+  },
+  {
+    "name": "propertiesTransform",
+    "version": "3.1.4",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_propertiesTransform"
+  },
+  {
+    "name": "rollbackOnPooledClose",
+    "default": "true",
+    "version": "3.0.15",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_rollbackOnPooledClose"
+  },
+  {
+    "name": "useAffectedRows",
+    "default": "false",
+    "version": "5.1.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_useAffectedRows"
+  },
+  {
+    "name": "sessionVariables",
+    "version": "3.1.8",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_sessionVariables"
+  },
+  {
+    "name": "characterEncoding",
+    "version": "1.1g",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_characterEncoding"
+  },
+  {
+    "name": "characterSetResults",
+    "version": "3.0.13",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_characterSetResults"
+  },
+  {
+    "name": "connectionCollation",
+    "version": "3.0.13",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_connectionCollation"
+  },
+  {
+    "name": "customCharsetMapping",
+    "version": "8.0.26",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_customCharsetMapping"
+  },
+  {
+    "name": "trackSessionState",
+    "default": "false",
+    "version": "8.0.26",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_trackSessionState"
+  },
+  {
+    "name": "socksProxyHost",
+    "version": "5.1.34",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_socksProxyHost"
+  },
+  {
+    "name": "socksProxyPort",
+    "default": "1080",
+    "version": "5.1.34",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_socksProxyPort"
+  },
+  {
+    "name": "socketFactory",
+    "default": "com.mysql.cj.protocol.StandardSocketFactory",
+    "version": "3.0.3",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_socketFactory"
+  },
+  {
+    "name": "connectTimeout",
+    "default": "0",
+    "version": "3.0.1",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_connectTimeout"
+  },
+  {
+    "name": "socketTimeout",
+    "default": "0",
+    "version": "3.0.1",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_socketTimeout"
+  },
+  {
+    "name": "dnsSrv",
+    "default": "false",
+    "version": "8.0.19",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_dnsSrv"
+  },
+  {
+    "name": "localSocketAddress",
+    "version": "5.0.5",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_localSocketAddress"
+  },
+  {
+    "name": "maxAllowedPacket",
+    "default": "65535",
+    "version": "5.1.8",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_maxAllowedPacket"
+  },
+  {
+    "name": "socksProxyRemoteDns",
+    "default": "false",
+    "version": "8.0.29",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_socksProxyRemoteDns"
+  },
+  {
+    "name": "tcpKeepAlive",
+    "default": "true",
+    "version": "5.0.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_tcpKeepAlive"
+  },
+  {
+    "name": "tcpNoDelay",
+    "default": "true",
+    "version": "5.0.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_tcpNoDelay"
+  },
+  {
+    "name": "tcpRcvBuf",
+    "default": "0",
+    "version": "5.0.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_tcpRcvBuf"
+  },
+  {
+    "name": "tcpSndBuf",
+    "default": "0",
+    "version": "5.0.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_tcpSndBuf"
+  },
+  {
+    "name": "tcpTrafficClass",
+    "default": "0",
+    "version": "5.0.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_tcpTrafficClass"
+  },
+  {
+    "name": "useCompression",
+    "default": "false",
+    "version": "3.0.17",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_useCompression"
+  },
+  {
+    "name": "useUnbufferedInput",
+    "default": "true",
+    "version": "3.0.11",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_useUnbufferedInput"
+  },
+  {
+    "name": "paranoid",
+    "default": "false",
+    "version": "3.0.1",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_paranoid"
+  },
+  {
+    "name": "serverRSAPublicKeyFile",
+    "version": "5.1.31",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_serverRSAPublicKeyFile"
+  },
+  {
+    "name": "allowPublicKeyRetrieval",
+    "default": "false",
+    "version": "5.1.31",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_allowPublicKeyRetrieval"
+  },
+  {
+    "name": "sslMode",
+    "default": "PREFERRED",
+    "version": "8.0.13",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_sslMode"
+  },
+  {
+    "name": "trustCertificateKeyStoreUrl",
+    "version": "5.1.0",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_trustCertificateKeyStoreUrl"
+  },
+  {
+    "name": "trustCertificateKeyStoreType",
+    "default": "JKS",
+    "version": "5.1.0",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_trustCertificateKeyStoreType"
+  },
+  {
+    "name": "trustCertificateKeyStorePassword",
+    "secret": true,
+    "version": "5.1.0",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_trustCertificateKeyStorePassword"
+  },
+  {
+    "name": "fallbackToSystemTrustStore",
+    "default": "true",
+    "version": "8.0.22",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_fallbackToSystemTrustStore"
+  },
+  {
+    "name": "clientCertificateKeyStoreUrl",
+    "version": "5.1.0",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_clientCertificateKeyStoreUrl"
+  },
+  {
+    "name": "clientCertificateKeyStoreType",
+    "default": "JKS",
+    "version": "5.1.0",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_clientCertificateKeyStoreType"
+  },
+  {
+    "name": "clientCertificateKeyStorePassword",
+    "secret": true,
+    "version": "5.1.0",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_clientCertificateKeyStorePassword"
+  },
+  {
+    "name": "fallbackToSystemKeyStore",
+    "default": "true",
+    "version": "8.0.22",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_fallbackToSystemKeyStore"
+  },
+  {
+    "name": "tlsCiphersuites",
+    "version": "5.1.35",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_tlsCiphersuites"
+  },
+  {
+    "name": "tlsVersions",
+    "version": "8.0.8",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_tlsVersions"
+  },
+  {
+    "name": "allowLoadLocalInfile",
+    "default": "false",
+    "version": "3.0.3",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_allowLoadLocalInfile"
+  },
+  {
+    "name": "allowLoadLocalInfileInPath",
+    "version": "8.0.22",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_allowLoadLocalInfileInPath"
+  },
+  {
+    "name": "allowMultiQueries",
+    "default": "false",
+    "version": "3.1.1",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_allowMultiQueries"
+  },
+  {
+    "name": "allowUrlInLocalInfile",
+    "default": "false",
+    "version": "3.1.4",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_allowUrlInLocalInfile"
+  },
+  {
+    "name": "requireSSL",
+    "default": "false",
+    "version": "3.1.0",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_requireSSL"
+  },
+  {
+    "name": "useSSL",
+    "default": "true",
+    "version": "3.0.2",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_useSSL"
+  },
+  {
+    "name": "verifyServerCertificate",
+    "default": "false",
+    "version": "5.1.6",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_verifyServerCertificate"
+  },
+  {
+    "name": "allowNanAndInf",
+    "default": "false",
+    "version": "3.1.5",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_allowNanAndInf"
+  },
+  {
+    "name": "autoClosePStmtStreams",
+    "default": "false",
+    "version": "3.1.12",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_autoClosePStmtStreams"
+  },
+  {
+    "name": "compensateOnDuplicateKeyUpdateCounts",
+    "default": "false",
+    "version": "5.1.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_compensateOnDuplicateKeyUpdateCounts"
+  },
+  {
+    "name": "emulateUnsupportedPstmts",
+    "default": "true",
+    "version": "3.1.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_emulateUnsupportedPstmts"
+  },
+  {
+    "name": "generateSimpleParameterMetadata",
+    "default": "false",
+    "version": "5.0.5",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_generateSimpleParameterMetadata"
+  },
+  {
+    "name": "processEscapeCodesForPrepStmts",
+    "default": "true",
+    "version": "3.1.12",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_processEscapeCodesForPrepStmts"
+  },
+  {
+    "name": "useServerPrepStmts",
+    "default": "false",
+    "version": "3.1.0",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_useServerPrepStmts"
+  },
+  {
+    "name": "useStreamLengthsInPrepStmts",
+    "default": "true",
+    "version": "3.0.2",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_useStreamLengthsInPrepStmts"
+  },
+  {
+    "name": "clobberStreamingResults",
+    "default": "false",
+    "version": "3.0.9",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_clobberStreamingResults"
+  },
+  {
+    "name": "emptyStringsConvertToZero",
+    "default": "true",
+    "version": "3.1.8",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_emptyStringsConvertToZero"
+  },
+  {
+    "name": "holdResultsOpenOverStatementClose",
+    "default": "false",
+    "version": "3.1.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_holdResultsOpenOverStatementClose"
+  },
+  {
+    "name": "jdbcCompliantTruncation",
+    "default": "true",
+    "version": "3.1.2",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_jdbcCompliantTruncation"
+  },
+  {
+    "name": "maxRows",
+    "default": "-1",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_maxRows"
+  },
+  {
+    "name": "netTimeoutForStreamingResults",
+    "default": "600",
+    "version": "5.1.0",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_netTimeoutForStreamingResults"
+  },
+  {
+    "name": "padCharsWithSpace",
+    "default": "false",
+    "version": "5.0.6",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_padCharsWithSpace"
+  },
+  {
+    "name": "populateInsertRowWithDefaultValues",
+    "default": "false",
+    "version": "5.0.5",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_populateInsertRowWithDefaultValues"
+  },
+  {
+    "name": "scrollTolerantForwardOnly",
+    "default": "false",
+    "version": "8.0.24",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_scrollTolerantForwardOnly"
+  },
+  {
+    "name": "strictUpdates",
+    "default": "true",
+    "version": "3.0.4",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_strictUpdates"
+  },
+  {
+    "name": "tinyInt1isBit",
+    "default": "true",
+    "version": "3.0.16",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_tinyInt1isBit"
+  },
+  {
+    "name": "transformedBitIsBoolean",
+    "default": "false",
+    "version": "3.1.9",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_transformedBitIsBoolean"
+  },
+  {
+    "name": "getProceduresReturnsFunctions",
+    "default": "true",
+    "version": "5.1.26",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_getProceduresReturnsFunctions"
+  },
+  {
+    "name": "noAccessToProcedureBodies",
+    "default": "false",
+    "version": "5.0.3",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_noAccessToProcedureBodies"
+  },
+  {
+    "name": "nullDatabaseMeansCurrent",
+    "default": "false",
+    "version": "3.1.8",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_nullDatabaseMeansCurrent"
+  },
+  {
+    "name": "useHostsInPrivileges",
+    "default": "true",
+    "version": "3.0.2",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_useHostsInPrivileges"
+  },
+  {
+    "name": "useInformationSchema",
+    "default": "false",
+    "version": "5.0.0",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_useInformationSchema"
+  },
+  {
+    "name": "autoDeserialize",
+    "default": "false",
+    "version": "3.1.5",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_autoDeserialize"
+  },
+  {
+    "name": "blobSendChunkSize",
+    "default": "1048576",
+    "version": "3.1.9",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_blobSendChunkSize"
+  },
+  {
+    "name": "blobsAreStrings",
+    "default": "false",
+    "version": "5.0.8",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_blobsAreStrings"
+  },
+  {
+    "name": "clobCharacterEncoding",
+    "version": "5.0.0",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_clobCharacterEncoding"
+  },
+  {
+    "name": "emulateLocators",
+    "default": "false",
+    "version": "3.1.0",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_emulateLocators"
+  },
+  {
+    "name": "functionsNeverReturnBlobs",
+    "default": "false",
+    "version": "5.0.8",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_functionsNeverReturnBlobs"
+  },
+  {
+    "name": "locatorFetchBufferSize",
+    "default": "1048576",
+    "version": "3.2.1",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_locatorFetchBufferSize"
+  },
+  {
+    "name": "connectionTimeZone",
+    "version": "3.0.2",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_connectionTimeZone"
+  },
+  {
+    "name": "forceConnectionTimeZoneToSession",
+    "default": "false",
+    "version": "8.0.23",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_forceConnectionTimeZoneToSession"
+  },
+  {
+    "name": "noDatetimeStringSync",
+    "default": "false",
+    "version": "3.1.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_noDatetimeStringSync"
+  },
+  {
+    "name": "preserveInstants",
+    "default": "true",
+    "version": "8.0.23",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_preserveInstants"
+  },
+  {
+    "name": "sendFractionalSeconds",
+    "default": "true",
+    "version": "5.1.37",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_sendFractionalSeconds"
+  },
+  {
+    "name": "sendFractionalSecondsForTime",
+    "default": "true",
+    "version": "8.0.23",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_sendFractionalSecondsForTime"
+  },
+  {
+    "name": "treatUtilDateAsTimestamp",
+    "default": "true",
+    "version": "5.0.5",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_treatUtilDateAsTimestamp"
+  },
+  {
+    "name": "yearIsDateType",
+    "default": "true",
+    "version": "3.1.9",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_yearIsDateType"
+  },
+  {
+    "name": "zeroDateTimeBehavior",
+    "default": "EXCEPTION",
+    "version": "3.1.4",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_zeroDateTimeBehavior"
+  },
+  {
+    "name": "autoReconnect",
+    "default": "false",
+    "version": "1.1",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_autoReconnect"
+  },
+  {
+    "name": "autoReconnectForPools",
+    "default": "false",
+    "version": "3.1.3",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_autoReconnectForPools"
+  },
+  {
+    "name": "failOverReadOnly",
+    "default": "true",
+    "version": "3.0.12",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_failOverReadOnly"
+  },
+  {
+    "name": "maxReconnects",
+    "default": "3",
+    "version": "1.1",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_maxReconnects"
+  },
+  {
+    "name": "reconnectAtTxEnd",
+    "default": "false",
+    "version": "3.0.10",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_reconnectAtTxEnd"
+  },
+  {
+    "name": "retriesAllDown",
+    "default": "120",
+    "version": "5.1.6",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_retriesAllDown"
+  },
+  {
+    "name": "initialTimeout",
+    "default": "2",
+    "version": "1.1",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_initialTimeout"
+  },
+  {
+    "name": "queriesBeforeRetrySource",
+    "default": "50",
+    "version": "3.0.2",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_queriesBeforeRetrySource"
+  },
+  {
+    "name": "secondsBeforeRetrySource",
+    "default": "30",
+    "version": "3.0.2",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_secondsBeforeRetrySource"
+  },
+  {
+    "name": "allowReplicaDownConnections",
+    "default": "false",
+    "version": "6.0.2",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_allowReplicaDownConnections"
+  },
+  {
+    "name": "allowSourceDownConnections",
+    "default": "false",
+    "version": "5.1.27",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_allowSourceDownConnections"
+  },
+  {
+    "name": "ha.enableJMX",
+    "default": "false",
+    "version": "5.1.27",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_ha.enableJMX"
+  },
+  {
+    "name": "loadBalanceHostRemovalGracePeriod",
+    "default": "15000",
+    "version": "6.0.3",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_loadBalanceHostRemovalGracePeriod"
+  },
+  {
+    "name": "readFromSourceWhenNoReplicas",
+    "default": "false",
+    "version": "6.0.2",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_readFromSourceWhenNoReplicas"
+  },
+  {
+    "name": "selfDestructOnPingMaxOperations",
+    "default": "0",
+    "version": "5.1.6",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_selfDestructOnPingMaxOperations"
+  },
+  {
+    "name": "selfDestructOnPingSecondsLifetime",
+    "default": "0",
+    "version": "5.1.6",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_selfDestructOnPingSecondsLifetime"
+  },
+  {
+    "name": "ha.loadBalanceStrategy",
+    "default": "random",
+    "version": "5.0.6",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_ha.loadBalanceStrategy"
+  },
+  {
+    "name": "loadBalanceAutoCommitStatementRegex",
+    "version": "5.1.15",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_loadBalanceAutoCommitStatementRegex"
+  },
+  {
+    "name": "loadBalanceAutoCommitStatementThreshold",
+    "default": "0",
+    "version": "5.1.15",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_loadBalanceAutoCommitStatementThreshold"
+  },
+  {
+    "name": "loadBalanceBlocklistTimeout",
+    "default": "0",
+    "version": "5.1.0",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_loadBalanceBlocklistTimeout"
+  },
+  {
+    "name": "loadBalanceConnectionGroup",
+    "version": "5.1.13",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_loadBalanceConnectionGroup"
+  },
+  {
+    "name": "loadBalanceExceptionChecker",
+    "default": "com.mysql.cj.jdbc.ha.StandardLoadBalanceExceptionChecker",
+    "version": "5.1.13",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_loadBalanceExceptionChecker"
+  },
+  {
+    "name": "loadBalancePingTimeout",
+    "default": "0",
+    "version": "5.1.13",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_loadBalancePingTimeout"
+  },
+  {
+    "name": "loadBalanceSQLExceptionSubclassFailover",
+    "version": "5.1.13",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_loadBalanceSQLExceptionSubclassFailover"
+  },
+  {
+    "name": "loadBalanceSQLStateFailover",
+    "version": "5.1.13",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_loadBalanceSQLStateFailover"
+  },
+  {
+    "name": "loadBalanceValidateConnectionOnSwapServer",
+    "default": "false",
+    "version": "5.1.13",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_loadBalanceValidateConnectionOnSwapServer"
+  },
+  {
+    "name": "pinGlobalTxToPhysicalConnection",
+    "default": "false",
+    "version": "5.0.1",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_pinGlobalTxToPhysicalConnection"
+  },
+  {
+    "name": "replicationConnectionGroup",
+    "version": "8.0.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_replicationConnectionGroup"
+  },
+  {
+    "name": "resourceId",
+    "version": "5.0.1",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_resourceId"
+  },
+  {
+    "name": "serverAffinityOrder",
+    "version": "8.0.8",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_serverAffinityOrder"
+  },
+  {
+    "name": "callableStmtCacheSize",
+    "default": "100",
+    "version": "3.1.2",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_callableStmtCacheSize"
+  },
+  {
+    "name": "metadataCacheSize",
+    "default": "50",
+    "version": "3.1.1",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_metadataCacheSize"
+  },
+  {
+    "name": "useLocalSessionState",
+    "default": "false",
+    "version": "3.1.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_useLocalSessionState"
+  },
+  {
+    "name": "useLocalTransactionState",
+    "default": "false",
+    "version": "5.1.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_useLocalTransactionState"
+  },
+  {
+    "name": "prepStmtCacheSize",
+    "default": "25",
+    "version": "3.0.10",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_prepStmtCacheSize"
+  },
+  {
+    "name": "prepStmtCacheSqlLimit",
+    "default": "256",
+    "version": "3.0.10",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_prepStmtCacheSqlLimit"
+  },
+  {
+    "name": "queryInfoCacheFactory",
+    "default": "com.mysql.cj.PerConnectionLRUFactory",
+    "version": "5.1.1",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_queryInfoCacheFactory"
+  },
+  {
+    "name": "serverConfigCacheFactory",
+    "default": "com.mysql.cj.util.PerVmServerConfigCacheFactory",
+    "version": "5.1.1",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_serverConfigCacheFactory"
+  },
+  {
+    "name": "alwaysSendSetIsolation",
+    "default": "true",
+    "version": "3.1.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_alwaysSendSetIsolation"
+  },
+  {
+    "name": "maintainTimeStats",
+    "default": "true",
+    "version": "3.1.9",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_maintainTimeStats"
+  },
+  {
+    "name": "useCursorFetch",
+    "default": "false",
+    "version": "5.0.0",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_useCursorFetch"
+  },
+  {
+    "name": "cacheCallableStmts",
+    "default": "false",
+    "version": "3.1.2",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_cacheCallableStmts"
+  },
+  {
+    "name": "cachePrepStmts",
+    "default": "false",
+    "version": "3.0.10",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_cachePrepStmts"
+  },
+  {
+    "name": "cacheResultSetMetadata",
+    "default": "false",
+    "version": "3.1.1",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_cacheResultSetMetadata"
+  },
+  {
+    "name": "cacheServerConfiguration",
+    "default": "false",
+    "version": "3.1.5",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_cacheServerConfiguration"
+  },
+  {
+    "name": "defaultFetchSize",
+    "default": "0",
+    "version": "3.1.9",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_defaultFetchSize"
+  },
+  {
+    "name": "dontCheckOnDuplicateKeyUpdateInSQL",
+    "default": "false",
+    "version": "5.1.32",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_dontCheckOnDuplicateKeyUpdateInSQL"
+  },
+  {
+    "name": "elideSetAutoCommits",
+    "default": "false",
+    "version": "3.1.3",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_elideSetAutoCommits"
+  },
+  {
+    "name": "enableEscapeProcessing",
+    "default": "true",
+    "version": "6.0.1",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_enableEscapeProcessing"
+  },
+  {
+    "name": "enableQueryTimeouts",
+    "default": "true",
+    "version": "5.0.6",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_enableQueryTimeouts"
+  },
+  {
+    "name": "largeRowSizeThreshold",
+    "default": "2048",
+    "version": "5.1.1",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_largeRowSizeThreshold"
+  },
+  {
+    "name": "readOnlyPropagatesToServer",
+    "default": "true",
+    "version": "5.1.35",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_readOnlyPropagatesToServer"
+  },
+  {
+    "name": "rewriteBatchedStatements",
+    "default": "false",
+    "version": "3.1.13",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_rewriteBatchedStatements"
+  },
+  {
+    "name": "useReadAheadInput",
+    "default": "true",
+    "version": "3.1.5",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_useReadAheadInput"
+  },
+  {
+    "name": "logger",
+    "default": "com.mysql.cj.log.StandardLogger",
+    "version": "3.1.1",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_logger"
+  },
+  {
+    "name": "profilerEventHandler",
+    "default": "com.mysql.cj.log.LoggingProfilerEventHandler",
+    "version": "5.1.6",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_profilerEventHandler"
+  },
+  {
+    "name": "useNanosForElapsedTime",
+    "default": "false",
+    "version": "5.0.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_useNanosForElapsedTime"
+  },
+  {
+    "name": "maxQuerySizeToLog",
+    "default": "2048",
+    "version": "3.1.3",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_maxQuerySizeToLog"
+  },
+  {
+    "name": "maxByteArrayAsHex",
+    "default": "1024",
+    "version": "8.0.31",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_maxByteArrayAsHex"
+  },
+  {
+    "name": "profileSQL",
+    "default": "false",
+    "version": "3.1.0",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_profileSQL"
+  },
+  {
+    "name": "logSlowQueries",
+    "default": "false",
+    "version": "3.1.2",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_logSlowQueries"
+  },
+  {
+    "name": "slowQueryThresholdMillis",
+    "default": "2000",
+    "version": "3.1.2",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_slowQueryThresholdMillis"
+  },
+  {
+    "name": "slowQueryThresholdNanos",
+    "default": "0",
+    "version": "5.0.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_slowQueryThresholdNanos"
+  },
+  {
+    "name": "autoSlowLog",
+    "default": "true",
+    "version": "5.1.4",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_autoSlowLog"
+  },
+  {
+    "name": "explainSlowQueries",
+    "default": "false",
+    "version": "3.1.2",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_explainSlowQueries"
+  },
+  {
+    "name": "gatherPerfMetrics",
+    "default": "false",
+    "version": "3.1.2",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_gatherPerfMetrics"
+  },
+  {
+    "name": "reportMetricsIntervalMillis",
+    "default": "30000",
+    "version": "3.1.2",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_reportMetricsIntervalMillis"
+  },
+  {
+    "name": "logXaCommands",
+    "default": "false",
+    "version": "5.0.5",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_logXaCommands"
+  },
+  {
+    "name": "traceProtocol",
+    "default": "false",
+    "version": "3.1.2",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_traceProtocol"
+  },
+  {
+    "name": "enablePacketDebug",
+    "default": "false",
+    "version": "3.1.3",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_enablePacketDebug"
+  },
+  {
+    "name": "packetDebugBufferSize",
+    "default": "20",
+    "version": "3.1.3",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_packetDebugBufferSize"
+  },
+  {
+    "name": "useUsageAdvisor",
+    "default": "false",
+    "version": "3.1.1",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_useUsageAdvisor"
+  },
+  {
+    "name": "resultSetSizeThreshold",
+    "default": "100",
+    "version": "5.0.5",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_resultSetSizeThreshold"
+  },
+  {
+    "name": "autoGenerateTestcaseScript",
+    "default": "false",
+    "version": "3.1.9",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_autoGenerateTestcaseScript"
+  },
+  {
+    "name": "dumpQueriesOnException",
+    "default": "false",
+    "version": "3.1.3",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_dumpQueriesOnException"
+  },
+  {
+    "name": "exceptionInterceptors",
+    "version": "5.1.8",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_exceptionInterceptors"
+  },
+  {
+    "name": "ignoreNonTxTables",
+    "default": "false",
+    "version": "3.0.9",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_ignoreNonTxTables"
+  },
+  {
+    "name": "includeInnodbStatusInDeadlockExceptions",
+    "default": "false",
+    "version": "5.0.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_includeInnodbStatusInDeadlockExceptions"
+  },
+  {
+    "name": "includeThreadDumpInDeadlockExceptions",
+    "default": "false",
+    "version": "5.1.15",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_includeThreadDumpInDeadlockExceptions"
+  },
+  {
+    "name": "includeThreadNamesAsStatementComment",
+    "default": "false",
+    "version": "5.1.15",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_includeThreadNamesAsStatementComment"
+  },
+  {
+    "name": "useOnlyServerErrorMessages",
+    "default": "true",
+    "version": "3.0.15",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_useOnlyServerErrorMessages"
+  },
+  {
+    "name": "overrideSupportsIntegrityEnhancementFacility",
+    "default": "false",
+    "version": "3.1.12",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_overrideSupportsIntegrityEnhancementFacility"
+  },
+  {
+    "name": "ultraDevHack",
+    "default": "false",
+    "version": "2.0.3",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_ultraDevHack"
+  },
+  {
+    "name": "useColumnNamesInFindColumn",
+    "default": "false",
+    "version": "5.1.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_useColumnNamesInFindColumn"
+  },
+  {
+    "name": "pedantic",
+    "default": "false",
+    "version": "3.0.0",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_pedantic"
+  },
+  {
+    "name": "useOldAliasMetadataBehavior",
+    "default": "false",
+    "version": "5.0.4",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_useOldAliasMetadataBehavior"
+  },
+  {
+    "name": "xdevapi.auth",
+    "default": "PLAIN",
+    "version": "8.0.8",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_xdevapi.auth"
+  },
+  {
+    "name": "xdevapi.compression",
+    "default": "PREFERRED",
+    "version": "8.0.20",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_xdevapi.compression"
+  },
+  {
+    "name": "xdevapi.compression-algorithms",
+    "default": "zstd_stream,lz4_message,deflate_stream",
+    "version": "8.0.22",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_xdevapi.compression-algorithms"
+  },
+  {
+    "name": "xdevapi.compression-extensions",
+    "version": "8.0.22",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_xdevapi.compression-extensions"
+  },
+  {
+    "name": "xdevapi.connect-timeout",
+    "default": "10000",
+    "version": "8.0.13",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_xdevapi.connect-timeout"
+  },
+  {
+    "name": "xdevapi.connection-attributes",
+    "version": "8.0.16",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_xdevapi.connection-attributes"
+  },
+  {
+    "name": "xdevapi.dns-srv",
+    "default": "false",
+    "version": "8.0.19",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_xdevapi.dns-srv"
+  },
+  {
+    "name": "xdevapi.fallback-to-system-keystore",
+    "default": "true",
+    "version": "8.0.22",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_xdevapi.fallback-to-system-keystore"
+  },
+  {
+    "name": "xdevapi.fallback-to-system-truststore",
+    "default": "true",
+    "version": "8.0.22",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_xdevapi.fallback-to-system-truststore"
+  },
+  {
+    "name": "xdevapi.ssl-keystore",
+    "version": "8.0.22",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_xdevapi.ssl-keystore"
+  },
+  {
+    "name": "xdevxdevapi.ssl-keystore-password",
+    "secret": true,
+    "version": "8.0.22",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_xdevxdevapi.ssl-keystore-password"
+  },
+  {
+    "name": "xdevapi.ssl-keystore-type",
+    "default": "JKS",
+    "version": "8.0.22",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_xdevapi.ssl-keystore-type"
+  },
+  {
+    "name": "xdevapi.ssl-mode",
+    "default": "REQUIRED",
+    "version": "8.0.7",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_xdevapi.ssl-mode"
+  },
+  {
+    "name": "xdevapi.ssl-truststore",
+    "version": "6.0.6",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_xdevapi.ssl-truststore"
+  },
+  {
+    "name": "xdevapi.ssl-truststore-password",
+    "secret": true,
+    "version": "6.0.6",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_xdevapi.ssl-truststore-password"
+  },
+  {
+    "name": "xdevapi.ssl-truststore-type",
+    "default": "JKS",
+    "version": "6.0.6",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_xdevapi.ssl-truststore-type"
+  },
+  {
+    "name": "xdevapi.tls-ciphersuites",
+    "version": "8.0.19",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_xdevapi.tls-ciphersuites"
+  },
+  {
+    "name": "xdevapi.tls-versions",
+    "version": "8.0.19",
+    "description_i18n": "CG_JDBC_PARAMS_MYSQL_xdevapi.tls-versions"
+  }
+]

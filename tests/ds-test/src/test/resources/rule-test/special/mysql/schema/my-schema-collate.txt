@@ -1,0 +1,45 @@
+#define "require" as bool
+        default "true"
+        enum ["true", "false"]
+        hint "强制要求设置排序规则"
+#define "collate" as string
+        default "utf8mb4_unicode_ci"
+        enum ["utf8_unicode_ci", "utf8mb4_unicode_ci"]
+        hint "允许使用的排序规则"
+
+// 对于 alter 语句，只有当设置了 collate 选项时候才进行校验
+if
+  @domain.sqlType in ['ALTER_SCHEMA'] and
+  @func.string.isNotBlank(@domain.collate)
+then
+
+    if @func.string.isBlank(#{collate}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
+    end
+
+end
+
+// 对于 create 语句，检测是否必须设置 collate 选项
+if @domain.sqlType == 'CREATE_SCHEMA' then
+
+  if cast(#{require} as bool) then
+
+    if @func.string.isBlank(#{collate}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
+    end
+
+  else
+
+    if @func.string.isBlank(@domain.collate) then
+      return true
+    else
+      return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
+    end
+
+  end
+
+end

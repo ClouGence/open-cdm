@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.console.web.dal.mapper.DmDsKvBaseConfigMapper">
+
+    <resultMap id="dmDsKvBaseConfigDO" type="com.clougence.clouddm.console.web.dal.model.DmDsKvBaseConfigDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="data_source_id" property="dataSourceId"/>
+        <result column="config_name" property="configName"/>
+        <result column="config_group" property="configGroup"
+                javaType="com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup"/>
+        <result column="display" property="display"/>
+        <result column="desc_key" property="descKey"/>
+        <result column="value_require" property="valueRequire"/>
+        <result column="value_valid_regex" property="valueValidRegex"/>
+        <result column="config_value" property="configValue"/>
+        <result column="default_value" property="defaultValue"/>
+        <result column="value_advance" property="valueAdvance"/>
+        <result column="read_only" property="readOnly"/>
+        <result column="is_secret" property="secret"/>
+    </resultMap>
+
+    <sql id="dmDsKvBaseConfig">
+        id,
+        gmt_create,
+        gmt_modified,
+        data_source_id,
+        config_name,
+        config_group,
+        display,
+        desc_key,
+        value_require,
+        value_valid_regex,
+        config_value,
+        default_value,
+        value_advance,
+        read_only,
+        is_secret
+    </sql>
+
+    <select id="queryByDsIdAndConfigName" resultMap="dmDsKvBaseConfigDO">
+        SELECT
+            <include refid="dmDsKvBaseConfig"/>
+        FROM
+            dm_ds_kv_base_config
+        WHERE
+            data_source_id = #{dsId}
+        AND
+            config_name = #{configName}
+    </select>
+
+    <select id="listByDsId" resultMap="dmDsKvBaseConfigDO">
+        SELECT
+            <include refid="dmDsKvBaseConfig"/>
+        FROM
+            dm_ds_kv_base_config
+        WHERE
+            data_source_id = #{dsId}
+    </select>
+
+    <select id="listByDsIdAndConfigNames" resultMap="dmDsKvBaseConfigDO">
+        SELECT
+            <include refid="dmDsKvBaseConfig"/>
+        FROM
+            dm_ds_kv_base_config
+        WHERE
+            data_source_id = #{dsId}
+            AND config_name in <foreach collection="configNames" item="item" separator="," open="(" close=")">#{item}</foreach>
+    </select>
+
+    <select id="listByConfigName"  resultMap="dmDsKvBaseConfigDO">
+        SELECT
+        <include refid="dmDsKvBaseConfig"/>
+        FROM
+        dm_ds_kv_base_config
+        WHERE
+        desc_key = #{configName}
+    </select>
+
+    <update id="updateDsConfig">
+        UPDATE
+            dm_ds_kv_base_config
+        SET
+            config_value = #{configValue}
+        WHERE
+            data_source_id = #{dsId}
+            AND config_name = #{configName}
+    </update>
+
+    <delete id="deleteDsConfigs">
+        DELETE
+        FROM dm_ds_kv_base_config
+        WHERE data_source_id = #{dsId}
+    </delete>
+</mapper>

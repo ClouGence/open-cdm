@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.console.web.dal.mapper.DmConsoleHeartbeatMapper">
+    <resultMap id="heartBeatDO"
+               type="com.clougence.clouddm.console.web.dal.model.DmConsoleHeartbeatDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="console_ip" property="consoleIp"/>
+        <result column="mac_address" property="macAddress"/>
+        <result column="active" property="active"/>
+        <result column="cpu_stat" property="cpuStat"/>
+        <result column="mem_stat" property="memStat"/>
+        <result column="disk_stat" property="diskStat"/>
+        <result column="version" property="version"/>
+        <result column="console_send_time" property="consoleSendTime"/>
+        <result column="hardware_uuid" property="hardwareUuid"/>
+    </resultMap>
+
+    <sql id="dmConsoleHeartbeat">
+        id,
+        gmt_create,
+        gmt_modified,
+        console_ip,
+        mac_address,
+        active,
+        cpu_stat,
+        mem_stat,
+        disk_stat,
+        version,
+        console_send_time,
+        hardware_uuid
+    </sql>
+
+    <update id="updateHeartbeatByIds">
+        <foreach collection="hbDOs" item="hbDO" separator=";">
+            UPDATE
+                dm_console_heartbeat
+            SET
+                active            = #{hbDO.active},
+                cpu_stat          = #{hbDO.cpuStat},
+                mem_stat          = #{hbDO.memStat},
+                disk_stat         = #{hbDO.diskStat},
+                version           = #{hbDO.version},
+                console_send_time = #{hbDO.consoleSendTime}
+            WHERE
+                id = #{hbDO.id}
+        </foreach>
+    </update>
+
+    <select id="queryActive" resultMap="heartBeatDO">
+        SELECT
+            <include refid="dmConsoleHeartbeat"/>
+        FROM
+            dm_console_heartbeat
+        WHERE
+            active = true
+    </select>
+
+    <select id="queryByConsoleInfo" resultMap="heartBeatDO">
+        SELECT
+            <include refid="dmConsoleHeartbeat"/>
+        FROM
+            dm_console_heartbeat
+        WHERE
+            console_ip = #{consoleIp}
+        AND
+            mac_address = #{macAddress}
+        AND
+            hardware_uuid = #{hardwareUuid}
+        AND
+            active = true
+        LIMIT 1
+    </select>
+
+</mapper>

@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.rdp.dal.mapper.RdpAsyncTaskMapper">
+    <resultMap id="rdpAsyncTaskDO" type="com.clougence.rdp.dal.model.RdpAsyncTaskDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="title" property="title"/>
+        <result column="description" property="description"/>
+        <result column="biz_id" property="bizId"/>
+        <result column="biz_type" property="bizType" javaType="com.clougence.rdp.component.asyntask.RdpAsyncTaskType"/>
+        <result column="depend_on_biz_id" property="dependOnBizId"/>
+        <result column="depend_on_biz_type" property="dependOnBizType" javaType="com.clougence.rdp.component.asyntask.RdpAsyncTaskType"/>
+        <result column="owner_uid" property="uid"/>
+        <result column="handler_name" property="handlerName"/>
+        <result column="handler_type" property="handlerType"/>
+        <result column="config_data" property="configData"/>
+        <result column="show_in_dock" property="showInDock"/>
+        <result column="process_type" property="processType"/>
+        <result column="process_value" property="processValue"/>
+        <result column="fast_fail" property="fastFail"/>
+        <result column="status" property="status"/>
+        <result column="status_msg" property="statusMsg"/>
+        <result column="time_of_start" property="timeOfStart"/>
+        <result column="time_of_last" property="timeOfLast"/>
+        <result column="time_of_finish" property="timeOfFinish"/>
+    </resultMap>
+
+    <sql id="rdpAsyncTaskDOMap">
+        id,
+        gmt_create,
+        gmt_modified,
+        title,
+        description,
+        biz_id,
+        biz_type,
+        depend_on_biz_id,
+        depend_on_biz_type,
+        owner_uid,
+        handler_name,
+        handler_type,
+        config_data,
+        show_in_dock,
+        process_type,
+        process_value,
+        fast_fail,
+        status,
+        status_msg,
+        time_of_start,
+        time_of_last,
+        time_of_finish
+    </sql>
+
+    <update id="resetAsyncTaskStatus">
+        update
+            rdp_async_task
+        set
+            status = 'WAIT_START', gmt_modified = now()
+        where
+            console_ip = #{consoleIp} and status = 'RUNNING'
+    </update>
+
+    <update id="resetCancelingAsyncTaskStatus">
+        update
+            rdp_async_task
+        set
+            status = 'CANCEL', gmt_modified = now()
+        where
+            console_ip = #{consoleIp} and status = 'CANCELING'
+    </update>
+
+    <update id="resetPausingAsyncTaskStatus">
+        update
+            rdp_async_task
+        set
+            status = 'PAUSE', gmt_modified = now()
+        where
+            console_ip = #{consoleIp} and status = 'PAUSING'
+    </update>
+
+    <update id="resetInitAsyncTaskStatus">
+        update
+            rdp_async_task
+        set
+            status = 'CANCEL', gmt_modified = now()
+        where
+            console_ip = #{consoleIp} and status = 'INIT'
+    </update>
+
+    <select id="queryWaitTask" resultMap="rdpAsyncTaskDO">
+        SELECT
+            <include refid="rdpAsyncTaskDOMap"/>
+        FROM
+            rdp_async_task
+        WHERE
+            status = 'WAIT_START' and console_ip = #{consoleIp}
+        order by
+            gmt_modified asc
+        limit
+            #{limit}
+    </select>
+
+    <delete id="deleteOldData">
+        DELETE FROM
+            rdp_async_task
+        WHERE
+            status in ('FAILURE','COMPLETE','CANCEL') and
+            gmt_modified &lt;= #{beforeThisTime}
+    </delete>
+
+    <select id="queryByBiz" resultMap="rdpAsyncTaskDO">
+        SELECT
+            <include refid="rdpAsyncTaskDOMap"/>
+        FROM
+            rdp_async_task
+        WHERE
+            biz_id = #{bizId} and biz_type = #{bizType}
+    </select>
+
+    <update id="updateFromWaitTo">
+        update
+            rdp_async_task
+        set
+            status = #{toStatus}, status_msg = #{message}, gmt_modified = now()
+        where
+            id = #{taskId} and status = 'WAIT_START'
+    </update>
+
+    <update id="updateFromRunningTo">
+        update
+            rdp_async_task
+        set
+            status = #{toStatus}, status_msg = #{message}, gmt_modified = now()
+        where
+            id = #{taskId} and status = 'RUNNING'
+    </update>
+
+    <update id="updateStatusTo">
+        update
+            rdp_async_task
+        set
+            status = #{toStatus}, status_msg = #{message}, gmt_modified = now()
+        where
+            id = #{taskId}
+    </update>
+
+
+    <select id="queryById" resultMap="rdpAsyncTaskDO">
+        SELECT
+            <include refid="rdpAsyncTaskDOMap"/>
+        FROM
+            rdp_async_task
+        WHERE
+            id = #{taskId}
+    </select>
+
+    <select id="queryDepends" resultMap="rdpAsyncTaskDO">
+        SELECT
+            <include refid="rdpAsyncTaskDOMap"/>
+        FROM
+            rdp_async_task
+        WHERE
+            depend_on_biz_id = #{bizId} and
+            depend_on_biz_type = #{bizType}
+    </select>
+
+    <update id="batchResumeFromBlock">
+        update
+            rdp_async_task
+        set
+            status = 'WAIT_START', status_msg = #{message}, gmt_modified = now()
+        where
+            id in <foreach collection="taskIds" item="item" separator="," open="(" close=")">#{item}</foreach> and
+            status = 'BLOCK'
+    </update>
+
+    <update id="updateFromBlockTo">
+        update
+            rdp_async_task
+        set
+            status = #{toStatus}, status_msg = #{message}, gmt_modified = now()
+        where
+            status = 'BLOCK' and id = #{taskId}
+    </update>
+
+    <update id="updateFromPauseTo">
+        update
+            rdp_async_task
+        set
+            status = #{toStatus}, status_msg = #{message}, gmt_modified = now()
+        where
+            status = 'PAUSE' and id = #{taskId}
+    </update>
+
+    <update id="retryFailureOrCancelTask">
+        update
+            rdp_async_task
+        set
+            status = 'WAIT_START', console_ip = #{consoleIp},
+            status_msg = #{message}, gmt_modified = now()
+        where
+            (status = 'FAILURE' or status = 'CANCEL') and id = #{taskId}
+    </update>
+
+    <update id="resumePauseTask">
+        update
+            rdp_async_task
+        set
+            status = 'WAIT_START', console_ip = #{consoleIp},
+            status_msg = #{message}, gmt_modified = now()
+        where
+            status = 'PAUSE' and id = #{taskId}
+    </update>
+
+    <update id="activateTask">
+        update
+            rdp_async_task
+        set
+            status = 'WAIT_START', console_ip = #{consoleIp}, gmt_modified = now()
+        where
+            status = 'INIT' and id = #{taskId}
+    </update>
+
+    <select id="queryByIdAndOwnerUid" resultMap="rdpAsyncTaskDO">
+        SELECT
+            <include refid="rdpAsyncTaskDOMap"/>
+        FROM
+            rdp_async_task
+        WHERE
+            id = #{taskId} and owner_uid = #{ownerUid}
+    </select>
+
+    <select id="queryRunListByOwner" resultMap="rdpAsyncTaskDO">
+        SELECT
+            <include refid="rdpAsyncTaskDOMap"/>
+        FROM
+            rdp_async_task
+        WHERE
+            owner_uid = #{ownerUid} and
+            show_in_dock = #{inDock} and
+            status not in ('FAILURE','COMPLETE','CANCEL')
+        order by
+            gmt_create desc
+        limit
+            #{limit}
+    </select>
+
+    <select id="queryFinishListByOwner" resultMap="rdpAsyncTaskDO">
+        SELECT
+            <include refid="rdpAsyncTaskDOMap"/>
+        FROM
+            rdp_async_task
+        WHERE
+            owner_uid = #{ownerUid} and
+            show_in_dock = #{inDock} and
+            status in ('FAILURE','COMPLETE','CANCEL')
+        order by
+            gmt_create desc
+        limit
+            #{limit}
+    </select>
+
+    <update id="updateStatusMessage">
+        update
+            rdp_async_task
+        set
+            status_msg = #{message}, gmt_modified = now()
+        where
+            id = #{taskId}
+    </update>
+
+    <update id="updateFromCancelingTo">
+        update
+            rdp_async_task
+        set
+            status = #{toStatus}, status_msg = #{message}, gmt_modified = now()
+        where
+            id = #{taskId} and status = 'CANCELING'
+    </update>
+
+    <update id="updateFromInitTo">
+        update
+            rdp_async_task
+        set
+            status = #{toStatus}, status_msg = #{message}, gmt_modified = now()
+        where
+            id = #{taskId} and status = 'INIT'
+    </update>
+
+    <update id="updateProcess">
+        update
+            rdp_async_task
+        set
+            process_type = #{processType}, process_value = #{processValue}, gmt_modified = now()
+        where
+            id = #{taskId}
+    </update>
+    <update id="updateStatusById">
+        update
+            rdp_async_task
+        set
+            status = #{status}, gmt_modified = now()
+        where
+            id = #{taskId}
+    </update>
+</mapper>

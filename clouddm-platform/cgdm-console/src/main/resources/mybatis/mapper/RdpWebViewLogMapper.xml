@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.rdp.dal.mapper.RdpWebViewLogMapper">
+
+    <resultMap id="rdpWebViewLogDO" type="com.clougence.rdp.dal.model.RdpWebViewLogDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="uid" property="uid"/>
+        <result column="src" property="src"/>
+        <result column="keyword" property="keyword"/>
+        <result column="uri" property="uri"/>
+        <result column="client_id" property="clientId"/>
+        <result column="vb_id" property="clientId"/>
+    </resultMap>
+
+    <sql id="rdpWebViewLog">
+        rdp_web_view_log.id id,
+        rdp_web_view_log.gmt_create gmt_create,
+        rdp_web_view_log.gmt_modified gmt_modified,
+        rdp_web_view_log.uid uid,
+        rdp_web_view_log.src src,
+        rdp_web_view_log.keyword keyword,
+        rdp_web_view_log.uri uri,
+        rdp_web_view_log.client_id client_id,
+        rdp_web_view_log.vb_id vb_id
+    </sql>
+</mapper>

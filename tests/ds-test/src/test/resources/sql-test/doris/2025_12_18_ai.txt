@@ -1,0 +1,613 @@
+show backend config;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+show FRONTEND config;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+SHOW BACKEND CONFIG LIKE '%disk%' FROM 12345;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+SHOW BACKEND CONFIG FROM 12345;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+SHOW FRONTEND CONFIG LIKE '%memory%';
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+ADMIN SHOW FRONTEND CONFIG;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+SHOW BACKEND CONFIG;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+SHOW FRONTEND CONFIG;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+CLEAN ALL PROFILE;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+CLEAN LABEL my_label FROM my_database;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+CLEAN LABEL my_label IN my_database;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+CLEAN QUERY STATS FOR my_database;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+CLEAN QUERY STATS FROM my_database.my_table;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+CLEAN QUERY STATS IN my_database.my_table;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+CLEAN ALL QUERY STATS;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+UNSET VARIABLE my_variable;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+UNSET SESSION VARIABLE ALL;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+UNSET GLOBAL VARIABLE my_global_var;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+UNSET DEFAULT STORAGE VAULT;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+REFRESH LDAP ALL;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+REFRESH LDAP FOR my_user;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"ADMIN\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+ADMIN
+------------------------------------------------------------------------------------------
+REFRESH TABLE my_table;
+----------
+["DM_DDL:/test_db/test_schema/my_table/"]
+----------
+["{\"sqlType\":\"REFRESH_TABLE\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"name\":\"my_table\",\"target\":\"Table\",\"needSupply\":true,\"sqlTarget\":\"Table\"}"]
+----------
+REFRESH_TABLE
+------------------------------------------------------------------------------------------
+REFRESH TABLE my_database.my_table;
+----------
+["DM_DDL:/test_db/my_database/my_table/"]
+----------
+["{\"sqlType\":\"REFRESH_TABLE\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"name\":\"my_table\",\"target\":\"Table\",\"needSupply\":true,\"sqlTarget\":\"Table\"}"]
+----------
+REFRESH_TABLE
+------------------------------------------------------------------------------------------
+REFRESH TABLE my_catalog.my_database.my_table;
+----------
+["DM_DDL:/my_catalog/my_database/my_table/"]
+----------
+["{\"sqlType\":\"REFRESH_TABLE\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"catalog\":\"my_catalog\",\"schema\":\"my_database\",\"name\":\"my_table\",\"target\":\"Table\",\"needSupply\":true,\"sqlTarget\":\"Table\"}"]
+----------
+REFRESH_TABLE
+------------------------------------------------------------------------------------------
+REFRESH DATABASE my_database;
+----------
+["DM_DDL:/test_db/my_database/"]
+----------
+["{\"sqlType\":\"REFRESH_SCHEMA\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"target\":\"Schema\",\"needSupply\":true,\"sqlTarget\":\"Schema\"}"]
+----------
+REFRESH_SCHEMA
+------------------------------------------------------------------------------------------
+REFRESH DATABASE my_catalog.my_database;
+----------
+["DM_DDL:/my_catalog/my_database/"]
+----------
+["{\"sqlType\":\"REFRESH_SCHEMA\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"catalog\":\"my_catalog\",\"schema\":\"my_database\",\"target\":\"Schema\",\"needSupply\":true,\"sqlTarget\":\"Schema\"}"]
+----------
+REFRESH_SCHEMA
+------------------------------------------------------------------------------------------
+REFRESH DATABASE my_database PROPERTIES ("key" = "value");
+----------
+["DM_DDL:/test_db/my_database/"]
+----------
+["{\"sqlType\":\"REFRESH_SCHEMA\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"target\":\"Schema\",\"needSupply\":true,\"sqlTarget\":\"Schema\"}"]
+----------
+REFRESH_SCHEMA
+------------------------------------------------------------------------------------------
+REFRESH CATALOG my_catalog;
+----------
+["DM_DDL:/my_catalog/"]
+----------
+["{\"sqlType\":\"REFRESH_CATALOG\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"name\":\"my_catalog\",\"target\":\"Catalog\",\"needSupply\":false,\"sqlTarget\":\"Catalog\"}"]
+----------
+REFRESH_CATALOG
+------------------------------------------------------------------------------------------
+REFRESH CATALOG my_catalog PROPERTIES ("key" = "value");
+----------
+["DM_DDL:/my_catalog/"]
+----------
+["{\"sqlType\":\"REFRESH_CATALOG\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"name\":\"my_catalog\",\"target\":\"Catalog\",\"needSupply\":false,\"sqlTarget\":\"Catalog\"}"]
+----------
+REFRESH_CATALOG
+------------------------------------------------------------------------------------------
+SHOW ROUTINE LOAD TASK FROM my_database WHERE status = "RUNNING";
+----------
+["DM_QUERY:/test_db/my_database/"]
+----------
+["{\"sqlType\":\"SHOW\",\"auditKind\":\"QUERY\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"target\":\"Unknown\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+SHOW
+------------------------------------------------------------------------------------------
+SHOW ROUTINE LOAD FOR my_database.my_job;
+----------
+["DM_QUERY:/test_db/my_database/my_job/"]
+----------
+["{\"sqlType\":\"SHOW\",\"auditKind\":\"QUERY\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"name\":\"my_job\",\"target\":\"Unknown\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+SHOW
+------------------------------------------------------------------------------------------
+SHOW ROUTINE LOAD LIKE '%pattern%';
+----------
+["DM_QUERY:/test_db/test_schema/"]
+----------
+["{\"sqlType\":\"SHOW\",\"auditKind\":\"QUERY\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+SHOW
+------------------------------------------------------------------------------------------
+-- 或显示所有
+SHOW ALL ROUTINE LOAD;
+----------
+["DM_QUERY:/test_db/test_schema/"]
+----------
+["{\"sqlType\":\"SHOW\",\"auditKind\":\"QUERY\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+SHOW
+------------------------------------------------------------------------------------------
+STOP ROUTINE LOAD FOR my_database.my_job;
+----------
+["DM_OBJ:/test_db/my_database/my_job/"]
+----------
+["{\"sqlType\":\"ALTER_OBJECT\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"name\":\"my_job\",\"target\":\"Unknown\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+ALTER_OBJECT
+------------------------------------------------------------------------------------------
+RESUME ROUTINE LOAD FOR my_database.my_job;
+----------
+["DM_OBJ:/test_db/my_database/my_job/"]
+----------
+["{\"sqlType\":\"ALTER_OBJECT\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"name\":\"my_job\",\"target\":\"Unknown\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+ALTER_OBJECT
+------------------------------------------------------------------------------------------
+-- 或者恢复所有
+RESUME ALL ROUTINE LOAD;
+----------
+["DM_OBJ:/test_db/test_schema/"]
+----------
+["{\"sqlType\":\"ALTER_OBJECT\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+ALTER_OBJECT
+------------------------------------------------------------------------------------------
+PAUSE ROUTINE LOAD FOR my_database.my_job;
+----------
+["DM_OBJ:/test_db/my_database/my_job/"]
+----------
+["{\"sqlType\":\"ALTER_OBJECT\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"name\":\"my_job\",\"target\":\"Unknown\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+ALTER_OBJECT
+------------------------------------------------------------------------------------------
+-- 或者暂停所有
+PAUSE ALL ROUTINE LOAD;
+----------
+["DM_OBJ:/test_db/test_schema/"]
+----------
+["{\"sqlType\":\"ALTER_OBJECT\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+ALTER_OBJECT
+------------------------------------------------------------------------------------------
+LOAD DATA LOCAL INFILE '/path/to/data.csv'
+INTO TABLE my_table
+COLUMNS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES
+PROPERTIES (
+    "timeout" = "3600",
+    "max_filter_ratio" = "0.1"
+);
+----------
+["DM_DML:/test_db/test_schema/my_table/"]
+----------
+["{\"sqlType\":\"LOAD\",\"auditKind\":\"DML\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"name\":\"my_table\",\"target\":\"Table\",\"needSupply\":true,\"sqlTarget\":\"Insert\"}"]
+----------
+LOAD
+------------------------------------------------------------------------------------------
+CREATE ROUTINE LOAD my_database.my_job ON my_table
+PROPERTIES (
+    "desired_concurrent_number" = "3",
+    "max_batch_interval" = "20"
+)
+FROM KAFKA (
+    "kafka_broker_list" = "broker1:9092,broker2:9092",
+    "kafka_topic" = "my_topic",
+    "property_group_id" = "my_group"
+);
+----------
+["DM_OBJ:/test_db/my_database/my_job/"]
+----------
+["{\"sqlType\":\"CREATE_OBJECT\",\"auditKind\":\"CREATE\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"name\":\"my_job\",\"target\":\"Unknown\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+CREATE_OBJECT
+------------------------------------------------------------------------------------------
+SYNC;
+----------
+[]
+----------
+[]
+----------
+SYNC
+------------------------------------------------------------------------------------------
+KILL CONNECTION 12345;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"KILL\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+KILL
+------------------------------------------------------------------------------------------
+-- 或者简写形式
+KILL 12345;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"KILL\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+KILL
+------------------------------------------------------------------------------------------
+-- 通过查询ID终止查询（整数形式）
+KILL QUERY 67890;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"KILL\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+KILL
+------------------------------------------------------------------------------------------
+-- 通过查询ID终止查询（字符串形式）
+KILL QUERY 'query_1234567890';
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"KILL\",\"auditKind\":\"ADMIN\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":false,\"sqlTarget\":\"Unknown\"}"]
+----------
+KILL
+------------------------------------------------------------------------------------------
+-- 基本恢复数据库
+RECOVER DATABASE my_database;
+----------
+["DM_DDL:/test_db/my_database/"]
+----------
+["{\"sqlType\":\"RECOVER\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"target\":\"Schema\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+RECOVER
+------------------------------------------------------------------------------------------
+-- 指定数据库ID恢复
+RECOVER DATABASE my_database 12345;
+----------
+["DM_DDL:/test_db/my_database/"]
+----------
+["{\"sqlType\":\"RECOVER\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"target\":\"Schema\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+RECOVER
+------------------------------------------------------------------------------------------
+-- 恢复数据库并重命名
+RECOVER DATABASE my_database AS new_database_name;
+----------
+["DM_DDL:/test_db/my_database/"]
+----------
+["{\"sqlType\":\"RECOVER\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"target\":\"Schema\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+RECOVER
+------------------------------------------------------------------------------------------
+-- 指定ID并重命名恢复
+RECOVER DATABASE my_database 12345 AS new_database_name;
+----------
+["DM_DDL:/test_db/my_database/"]
+----------
+["{\"sqlType\":\"RECOVER\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"target\":\"Schema\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+RECOVER
+------------------------------------------------------------------------------------------
+-- 基本恢复分区
+RECOVER PARTITION my_partition FROM my_database.my_table;
+----------
+["DM_DDL:/test_db/my_database/my_table/"]
+----------
+["{\"sqlType\":\"RECOVER\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"name\":\"my_table\",\"target\":\"Table\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+RECOVER
+------------------------------------------------------------------------------------------
+-- 指定分区ID恢复
+RECOVER PARTITION my_partition 54321 FROM my_database.my_table;
+----------
+["DM_DDL:/test_db/my_database/my_table/"]
+----------
+["{\"sqlType\":\"RECOVER\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"name\":\"my_table\",\"target\":\"Table\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+RECOVER
+------------------------------------------------------------------------------------------
+-- 恢复分区并重命名
+RECOVER PARTITION my_partition AS new_partition_name FROM my_database.my_table;
+----------
+["DM_DDL:/test_db/my_database/my_table/"]
+----------
+["{\"sqlType\":\"RECOVER\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"name\":\"my_table\",\"target\":\"Table\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+RECOVER
+------------------------------------------------------------------------------------------
+-- 指定ID并重命名恢复
+RECOVER PARTITION my_partition 54321 AS new_partition_name FROM my_database.my_table;
+----------
+["DM_DDL:/test_db/my_database/my_table/"]
+----------
+["{\"sqlType\":\"RECOVER\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"name\":\"my_table\",\"target\":\"Table\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+RECOVER
+------------------------------------------------------------------------------------------
+-- 刷新特定分区
+REFRESH MATERIALIZED VIEW my_database.my_mv PARTITION (p1, p2);
+----------
+["DM_DDL:/test_db/my_database/my_mv/"]
+----------
+["{\"sqlType\":\"REFRESH_VIEW\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"name\":\"my_mv\",\"target\":\"View\",\"needSupply\":true,\"sqlTarget\":\"Materialized\"}"]
+----------
+REFRESH_VIEW
+------------------------------------------------------------------------------------------
+-- 完全刷新
+REFRESH MATERIALIZED VIEW my_database.my_mv COMPLETE;
+----------
+["DM_DDL:/test_db/my_database/my_mv/"]
+----------
+["{\"sqlType\":\"REFRESH_VIEW\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"name\":\"my_mv\",\"target\":\"View\",\"needSupply\":true,\"sqlTarget\":\"Materialized\"}"]
+----------
+REFRESH_VIEW
+------------------------------------------------------------------------------------------
+-- 自动刷新
+REFRESH MATERIALIZED VIEW my_database.my_mv AUTO;
+----------
+["DM_DDL:/test_db/my_database/my_mv/"]
+----------
+["{\"sqlType\":\"REFRESH_VIEW\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"name\":\"my_mv\",\"target\":\"View\",\"needSupply\":true,\"sqlTarget\":\"Materialized\"}"]
+----------
+REFRESH_VIEW
+------------------------------------------------------------------------------------------
+ALTER MATERIALIZED VIEW my_database.old_mv RENAME new_mv_name;
+----------
+["DM_OBJ:/test_db/my_database/old_mv/"]
+----------
+["{\"sqlType\":\"ALTER_VIEW\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"name\":\"old_mv\",\"target\":\"View\",\"needSupply\":true,\"sqlTarget\":\"View\"}"]
+----------
+ALTER_VIEW
+------------------------------------------------------------------------------------------
+-- 设置刷新方法
+ALTER MATERIALIZED VIEW my_database.my_mv REFRESH COMPLETE;
+----------
+["DM_OBJ:/test_db/my_database/my_mv/"]
+----------
+["{\"sqlType\":\"ALTER_VIEW\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"name\":\"my_mv\",\"target\":\"View\",\"needSupply\":true,\"sqlTarget\":\"View\"}"]
+----------
+ALTER_VIEW
+------------------------------------------------------------------------------------------
+-- 设置刷新触发器
+ALTER MATERIALIZED VIEW my_database.my_mv REFRESH ON SCHEDULE EVERY 1 HOUR;
+----------
+["DM_OBJ:/test_db/my_database/my_mv/"]
+----------
+["{\"sqlType\":\"ALTER_VIEW\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"name\":\"my_mv\",\"target\":\"View\",\"needSupply\":true,\"sqlTarget\":\"View\"}"]
+----------
+ALTER_VIEW
+------------------------------------------------------------------------------------------
+-- 同时设置刷新方法和触发器
+ALTER MATERIALIZED VIEW my_database.my_mv REFRESH COMPLETE ON SCHEDULE EVERY 30 MINUTE;
+----------
+["DM_OBJ:/test_db/my_database/my_mv/"]
+----------
+["{\"sqlType\":\"ALTER_VIEW\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"name\":\"my_mv\",\"target\":\"View\",\"needSupply\":true,\"sqlTarget\":\"View\"}"]
+----------
+ALTER_VIEW
+------------------------------------------------------------------------------------------
+ALTER MATERIALIZED VIEW my_database.my_mv
+REPLACE WITH MATERIALIZED VIEW new_mv_name
+PROPERTIES ("replication_num" = "3");
+----------
+["DM_OBJ:/test_db/my_database/my_mv/"]
+----------
+["{\"sqlType\":\"ALTER_VIEW\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"name\":\"my_mv\",\"target\":\"View\",\"needSupply\":true,\"sqlTarget\":\"View\"}"]
+----------
+ALTER_VIEW
+------------------------------------------------------------------------------------------
+ALTER MATERIALIZED VIEW my_database.my_mv
+SET ("partition_refresh_number" = "10", "excluded_trigger_tables" = "table1,table2");
+----------
+["DM_OBJ:/test_db/my_database/my_mv/"]
+----------
+["{\"sqlType\":\"ALTER_VIEW\",\"auditKind\":\"ALTER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"schema\":\"my_database\",\"name\":\"my_mv\",\"target\":\"View\",\"needSupply\":true,\"sqlTarget\":\"View\"}"]
+----------
+ALTER_VIEW
+------------------------------------------------------------------------------------------
+-- 基本的 LOAD 语句
+LOAD LABEL my_database.my_label
+(
+    DATA INFILE( "/path/to/data.csv")
+    INTO TABLE my_table
+    COLUMNS TERMINATED BY ","
+    LINES TERMINATED BY "\n"
+);
+----------
+["DM_DML:/test_db/test_schema/my_table/"]
+----------
+["{\"sqlType\":\"LOAD\",\"auditKind\":\"DML\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"name\":\"my_table\",\"target\":\"Insert\",\"needSupply\":true,\"sqlTarget\":\"Insert\"}"]
+----------
+LOAD
+------------------------------------------------------------------------------------------
+-- 带分区的 LOAD 语句
+LOAD LABEL my_database.my_label
+(
+    DATA INFILE ("/path/to/data.csv")
+    INTO TABLE my_table
+    PARTITION (p1, p2)
+    COLUMNS TERMINATED BY "|"
+    LINES TERMINATED BY "\n"
+    (col1, col2, col3)
+);
+----------
+["DM_DML:/test_db/test_schema/my_table/"]
+----------
+["{\"sqlType\":\"LOAD\",\"auditKind\":\"DML\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"name\":\"my_table\",\"target\":\"Insert\",\"needSupply\":true,\"sqlTarget\":\"Insert\"}"]
+----------
+LOAD
+------------------------------------------------------------------------------------------
+-- 带属性和注释的 LOAD 语句
+LOAD LABEL my_database.my_label
+(
+    DATA INFILE ("/path/to/data.csv")
+    INTO TABLE my_table
+    COLUMNS TERMINATED BY ","
+    LINES TERMINATED BY "\n"
+    (col1, col2, col3)
+    SET (col1 = col1, col2 = UPPER(col2))
+    WHERE col1 > 100
+)
+PROPERTIES (
+    "timeout" = "3600",
+    "max_filter_ratio" = "0.1"
+)
+COMMENT "Loading sales data";
+----------
+["DM_DML:/test_db/test_schema/my_table/"]
+----------
+["{\"sqlType\":\"LOAD\",\"auditKind\":\"DML\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"name\":\"my_table\",\"target\":\"Insert\",\"needSupply\":true,\"sqlTarget\":\"Insert\"}"]
+----------
+LOAD
+------------------------------------------------------------------------------------------
+-- 从远程存储系统加载数据
+LOAD LABEL my_database.my_label
+(
+    DATA INFILE ("s3://bucket/path/data.csv")
+    INTO TABLE my_table
+    COLUMNS TERMINATED BY ","
+    LINES TERMINATED BY "\n"
+)
+WITH S3 (
+    "AWS_ENDPOINT" = "http://s3.amazonaws.com",
+    "AWS_ACCESS_KEY" = "access_key",
+    "AWS_SECRET_KEY" = "secret_key"
+)
+PROPERTIES (
+    "timeout" = "7200"
+);
+----------
+["DM_DML:/test_db/test_schema/my_table/"]
+----------
+["{\"sqlType\":\"LOAD\",\"auditKind\":\"DML\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"name\":\"my_table\",\"target\":\"Insert\",\"needSupply\":true,\"sqlTarget\":\"Insert\"}"]
+----------
+LOAD

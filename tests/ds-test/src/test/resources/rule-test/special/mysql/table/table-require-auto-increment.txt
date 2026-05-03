@@ -1,0 +1,25 @@
+#define "require" as bool
+        default "false"
+        enum ["true", "false"]
+        hint "强制要求设置自增初始值"
+#define "number" as int
+        default "1"
+        hint "建表自增初始值"
+
+if @domain.sqlType != 'CREATE_TABLE' then
+  return true
+end
+
+if @func.string.isBlank(@domain.autoIncrement) then
+
+  return !cast(#{require} as bool)
+
+else
+
+  if @func.string.isBlank(#{number}) then
+    return false // 规则配置错误
+  else
+    return cast(@domain.autoIncrement as int) == cast(#{number} as int)
+  end
+
+end

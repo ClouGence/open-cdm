@@ -1,0 +1,5 @@
+# Cannot be used as a key for column names.
+# when column name is key words, Generate SQL using Qualifier warp it.
+#   - https://dev.mysql.com/doc/refman/8.0/en/keywords.html
+#
+

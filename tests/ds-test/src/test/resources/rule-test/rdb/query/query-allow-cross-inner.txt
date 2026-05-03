@@ -1,0 +1,30 @@
+#define "allow" as string
+        default "false"
+        enum ["true", "false"]
+        hint "是否允许查询中使用内链接或交叉链接"
+
+if
+  @domain.sqlType in ['SELECT']
+then
+
+  if #{allow} == 'true' then
+    return true
+  end
+
+  if @func.string.equalsAny( @domain.dsType , ['Db2','Db2Fori','SQLServer']) == false
+  then
+    if @func.array.containAny(@domain.joinTypes , ['INNER_JOIN','CROSS_JOIN'])
+    then
+        return false
+    end
+  else
+      if
+         @domain.joinType in ['INNER_JOIN', 'CROSS_JOIN']
+      then
+        return false
+      end
+   end
+
+  return true
+
+end

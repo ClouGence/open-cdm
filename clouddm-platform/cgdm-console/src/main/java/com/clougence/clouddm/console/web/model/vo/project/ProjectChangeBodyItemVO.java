@@ -1,0 +1,13 @@
+package com.clougence.clouddm.console.web.model.vo.project;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class ProjectChangeBodyItemVO {
+
+    private String contentName;
+    private String oldBody;
+    private String newBody;
+}

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!ELEMENT ruleSet ((queryRules?,sensitiveRules?) |EMPTY) >
+
+<!ELEMENT queryRules (ruleDef*|EMPTY) >
+
+<!ELEMENT sensitiveRules (ruleDef*|EMPTY) >
+
+<!ELEMENT ruleDef (#PCDATA | EMPTY)*>
+<!ATTLIST ruleDef
+        id CDATA #REQUIRED
+        ruleName CDATA #REQUIRED
+        ruleDesc CDATA #REQUIRED
+        scriptType CDATA #REQUIRED
+        ruleTarget CDATA #IMPLIED
+        senMode CDATA #IMPLIED
+        oldId CDATA #IMPLIED
+        deprecated (true|false) #IMPLIED
+>

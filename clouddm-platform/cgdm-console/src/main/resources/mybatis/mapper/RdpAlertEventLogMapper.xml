@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.rdp.dal.mapper.RdpAlertEventLogMapper">
+
+    <resultMap id="rdpAlertEventLogDO" type="com.clougence.rdp.dal.model.RdpAlertEventLogDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="status" property="status"
+                javaType="com.clougence.rdp.service.enumeration.AlertEventStatus"/>
+        <result column="content" property="content"/>
+        <result column="ip" property="ip"/>
+        <result column="err_msg" property="errMsg"/>
+        <result column="uid" property="uid"/>
+        <result column="alert_media_type" property="alertMediaType"
+                javaType="com.clougence.rdp.service.enumeration.AlertMediaType"/>
+    </resultMap>
+
+    <sql id="rdpAlertEventLog">
+        id,
+        gmt_create,
+        status,
+        content,
+        ip,
+        err_msg,
+        uid,
+        alert_media_type
+    </sql>
+
+    <select id="queryPageAlertEventLogs" resultMap="rdpAlertEventLogDO">
+        SELECT
+            <include refid="rdpAlertEventLog"/>
+        FROM
+            rdp_alert_event_log
+        WHERE 1 = 1
+            <if test="startId != 0">
+                <![CDATA[
+                AND id < #{startId}
+                ]]>
+            </if>
+            <if test="startTime != null">
+                <![CDATA[
+                AND gmt_create > #{startTime}
+                ]]>
+            </if>
+            <if test="endTime != null">
+                <![CDATA[
+                AND gmt_create < #{endTime}
+                ]]>
+            </if>
+            <if test="status != null">
+                AND status = #{status,javaType=com.clougence.rdp.service.enumeration.AlertEventStatus}
+            </if>
+            <if test="uid != null">
+                AND uid = #{uid}
+            </if>
+        ORDER BY
+            gmt_create DESC,id LIMIT #{pageSize}
+    </select>
+</mapper>

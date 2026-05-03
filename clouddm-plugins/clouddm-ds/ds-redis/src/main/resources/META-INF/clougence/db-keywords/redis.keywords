@@ -1,0 +1,3 @@
+# Cannot be used as a key for column names.
+# when column name is key words, Generate SQL using Qualifier warp it.
+#

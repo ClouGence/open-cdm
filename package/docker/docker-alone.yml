@@ -1,0 +1,41 @@
+services:
+  dm_mysql:
+    image: mysql:8.0
+    container_name: cgdm-mysql
+    restart: always
+    ports:
+      - "26000:3306"
+    volumes:
+      - cgdm_mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: clouddm
+      MYSQL_ROOT_PASSWORD: 123456
+    command: [ "mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-time-zone=+08:00" ]
+
+  dm_alone:
+    image: clougence/cgdm-alone:${build_version}
+    container_name: cgdm-alone
+    restart: always
+    ports:
+      - "8222:8222"
+      - "8008:8008"
+    depends_on:
+      - dm_mysql
+    volumes:
+      - cgdm_alone_conf:/root/cgdm/alone/conf
+      - cgdm_alone_logs:/root/cgdm/alone/logs
+    environment:
+      APP_WEB_PORT: 8222
+      APP_WEB_JWT: "ljgefdgjosdighjeroigh"
+      APP_SERVE_NAME: dm_alone
+      APP_SERVE_PORT: 8008
+      DB_HOST: dm_mysql
+      DB_PORT: 3306
+      DB_DATABASE: clouddm
+      DB_USERNAME: root
+      DB_PASSWORD: 123456
+
+volumes:
+  cgdm_alone_conf:
+  cgdm_alone_logs:
+  cgdm_mysql_data:

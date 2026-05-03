@@ -1,0 +1,123 @@
+package com.clougence.clouddm.ds.polardb.execute.porpg;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import com.clougence.clouddm.dsfamily.execute.AbstractRdbUmiService;
+import com.clougence.schema.umi.service.RdbUmiServiceDm;
+import com.clougence.schema.umi.special.rdb.RdbColumn;
+import com.clougence.schema.umi.special.rdb.RdbFunction;
+import com.clougence.schema.umi.special.rdb.RdbProcedure;
+import com.clougence.schema.umi.special.rdb.RdbTable;
+import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.schema.umi.struts.Value;
+import com.clougence.utils.CollectionUtils;
+import com.clougence.utils.StringUtils;
+
+public class PorPgUmiServiceDm extends AbstractRdbUmiService<PorPgMetaProviderDm> implements RdbUmiServiceDm {
+
+    public PorPgUmiServiceDm(Connection con){
+        super(() -> new PorPgMetaProviderDm(con));
+    }
+
+    @Override
+    public List<Value> listLevels(List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) throws SQLException {
+        if (levels.isEmpty()) {
+            return this.metadataSupplier.eGet().selectCatalogs();
+        } else if (levels.size() == 1) {
+            String catalog = StringUtils.toString(levelsParam.get(UmiTypes.Catalog));
+            return this.metadataSupplier.eGet().selectSchemas(catalog);
+        } else {
+            throw new UnsupportedOperationException("listLevels[" + StringUtils.join(levels.toArray(), ",") + "] Unsupported.");
+        }
+    }
+
+    @Override
+    public List<Value> listLeaf(Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String pattern) throws SQLException {
+        String catalog = StringUtils.toString(levelsParam.get(UmiTypes.Catalog));
+        String schema = StringUtils.toString(levelsParam.get(UmiTypes.Schema));
+        switch (leafType) {
+            case Table:
+                return this.metadataSupplier.eGet().selectTables(catalog, schema);
+            case View:
+                return this.metadataSupplier.eGet().selectViews(catalog, schema);
+            case Materialized:
+                return this.metadataSupplier.eGet().selectMaterialized(catalog, schema);
+            case Procedure:
+                return this.metadataSupplier.eGet().selectProcedures(catalog, schema);
+            case Function:
+                return this.metadataSupplier.eGet().selectFunctions(catalog, schema);
+            case Trigger:
+                return this.metadataSupplier.eGet().selectTriggers(catalog, schema);
+            case Sequence:
+                return this.metadataSupplier.eGet().selectSequence(catalog, schema);
+            default:
+                throw new UnsupportedOperationException("listLeaf of " + leafType + " Unsupported.");
+        }
+    }
+
+    @Override
+    public Value detailLeaf(Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName) throws SQLException {
+        String catalog = StringUtils.toString(levelsParam.get(UmiTypes.Catalog));
+        String schema = StringUtils.toString(levelsParam.get(UmiTypes.Schema));
+        switch (leafType) {
+            case Catalog:
+                return this.metadataSupplier.eGet().selectCatalog(leafName);
+            case Schema:
+                return this.metadataSupplier.eGet().selectSchema(catalog, leafName);
+            case Table: {
+                List<String> names = StringUtils.isNotBlank(leafName) ? Collections.singletonList(leafName) : new ArrayList<>();
+                List<RdbTable> defs = this.metadataSupplier.eGet().loadTables(catalog, schema, names);
+                return CollectionUtils.isEmpty(defs) ? null : defs.get(0);
+            }
+            case View: {
+                List<String> names = StringUtils.isNotBlank(leafName) ? Collections.singletonList(leafName) : new ArrayList<>();
+                List<RdbTable> defs = this.metadataSupplier.eGet().loadViews(catalog, schema, names);
+                return CollectionUtils.isEmpty(defs) ? null : defs.get(0);
+            }
+            case Materialized: {
+                List<String> names = StringUtils.isNotBlank(leafName) ? Collections.singletonList(leafName) : new ArrayList<>();
+                List<RdbTable> defs = this.metadataSupplier.eGet().loadMaterialized(catalog, schema, names);
+                return CollectionUtils.isEmpty(defs) ? null : defs.get(0);
+            }
+            case Procedure: {
+                List<String> names = StringUtils.isNotBlank(leafName) ? Collections.singletonList(leafName) : new ArrayList<>();
+                List<RdbProcedure> defs = this.metadataSupplier.eGet().loadProcedures(catalog, schema, names);
+                return CollectionUtils.isEmpty(defs) ? null : defs.get(0);
+            }
+            case Function: {
+                List<String> names = StringUtils.isNotBlank(leafName) ? Collections.singletonList(leafName) : new ArrayList<>();
+                List<RdbFunction> defs = this.metadataSupplier.eGet().loadFunctions(catalog, schema, names);
+                return CollectionUtils.isEmpty(defs) ? null : defs.get(0);
+            }
+            default:
+                throw new UnsupportedOperationException("detailLeaf of " + leafType + " Unsupported.");
+        }
+    }
+
+    @Override
+    public Map<String, List<RdbColumn>> loadColumns(Map<UmiTypes, Object> levelsParam, UmiTypes leafType, List<String> leafNames) throws SQLException {
+        String catalog = StringUtils.toString(levelsParam.get(UmiTypes.Catalog));
+        String schema = StringUtils.toString(levelsParam.get(UmiTypes.Schema));
+        switch (leafType) {
+            case Table:
+            case View:
+            case Materialized:
+                Map<String, List<RdbColumn>> result = this.metadataSupplier.eGet().loadColumns(catalog, schema, leafNames);
+                return (result != null) ? result : Collections.emptyMap();
+            default:
+                throw new UnsupportedOperationException("loadColumns of " + leafType + " Unsupported.");
+        }
+    }
+
+    @Override
+    public Value fetchSelectObject(Map<UmiTypes, Object> levelsParam, String leafName) throws SQLException {
+        String catalog = StringUtils.toString(levelsParam.get(UmiTypes.Catalog));
+        String schema = StringUtils.toString(levelsParam.get(UmiTypes.Schema));
+        return this.metadataSupplier.eGet().loadSelectObject(catalog, schema, leafName);
+    }
+}

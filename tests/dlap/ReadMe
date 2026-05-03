@@ -1,0 +1,4 @@
+hosts:      ldap://127.0.0.1:1389
+baseDC:     dc=clougence,dc=com
+user:       cn=admin,dc=clougence,dc=com
+password:   admin

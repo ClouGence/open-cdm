@@ -1,0 +1,97 @@
+/**
+ * The insertion position of the candidate list.
+ * Such as cursor position
+ */
+export interface CaretPosition {
+    /** start at 1 */
+    readonly lineNumber: number;
+    /** start at 1 */
+    readonly column: number;
+}
+/**
+ * Syntax context type at caret position
+ */
+export declare enum SyntaxContextType {
+    /** catalog name */
+    CATALOG = "catalog",
+    /** catalog name that will be created  */
+    CATALOG_CREATE = "catalogCreate",
+    /** database name path, such as catalog.db */
+    DATABASE = "database",
+    /** database name path that will be created  */
+    DATABASE_CREATE = "databaseCreate",
+    /** table name path, such as catalog.db.tb */
+    TABLE = "table",
+    /** table name path that will be created */
+    TABLE_CREATE = "tableCreate",
+    /** view name path, such as db.tb.view */
+    VIEW = "view",
+    /** view name path that will be created */
+    VIEW_CREATE = "viewCreate",
+    /** function name */
+    FUNCTION = "function",
+    /** function name that will be created */
+    FUNCTION_CREATE = "functionCreate",
+    /** procedure name */
+    PROCEDURE = "procedure",
+    /** procedure name that will be created */
+    PROCEDURE_CREATE = "procedureCreate",
+    /** column name */
+    COLUMN = "column",
+    /** column name that will be created */
+    COLUMN_CREATE = "columnCreate",
+    SCHEMA = "schema",
+    SCHEMA_CREATE = "schemaCreate",
+    PARTITION = "partition",
+    Key = "key"
+}
+export interface WordRange {
+    /** content of word */
+    readonly text: string;
+    /** start at 0 */
+    readonly startIndex: number;
+    /** end at ..n-1 */
+    readonly endIndex: number;
+    /** start at 1 */
+    readonly line: number;
+    /** start at 1 */
+    readonly startColumn: number;
+    /** end at ..n + 1 */
+    readonly stopColumn: number;
+}
+/**
+ * Suggested information analyzed from the input
+ */
+export interface SyntaxSuggestion<T = WordRange> {
+    readonly syntaxContextType: SyntaxContextType;
+    readonly wordRanges: T[];
+}
+/**
+ * Suggested information analyzed from the input
+ */
+export interface Suggestions<T = WordRange> {
+    /**
+     * Suggestions about syntax
+     */
+    readonly syntax: SyntaxSuggestion<T>[];
+    /**
+     * Suggestions about keywords
+     */
+    readonly keywords: string[];
+    readonly currentSql?: string;
+}
+export interface TextSlice {
+    /** start at 0 */
+    readonly startIndex: number;
+    /** end at ..n-1 */
+    readonly endIndex: number;
+    /** start at 1 */
+    readonly startLine: number;
+    /** end at ..n */
+    readonly endLine: number;
+    /** start at 1 */
+    readonly startColumn: number;
+    /** end at ..n + 1 */
+    readonly endColumn: number;
+    readonly text: string;
+}

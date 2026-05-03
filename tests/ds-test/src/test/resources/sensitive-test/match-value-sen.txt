@@ -1,0 +1,12 @@
+#define "match" as string
+        default ""
+        hint "匹配出现的字符，多个请按逗号分割"
+
+if
+  @func.string.isNotBlank(#{match}) and
+  @func.string.containsIgnoreCaseAny(@domain.value, @func.string.split(#{match}, ','))
+then
+  return "algorithm::FULL_MASK"
+else
+  return "algorithm::ORIGINAL"
+end

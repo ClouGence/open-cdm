@@ -1,0 +1,213 @@
+[
+  {
+    "name": "access",
+    "default": "all",
+    "options": "['all','read call','read only']",
+    "description_i18n": "This value can be used to restrict the type of operations that can be done with a specific connection. The default value is all and basically means that the connection has full access to the JDBC API. The read call value allows the connection to do only queries and call stored procedures. An attempt to update the database through an SQL statement is stopped. The read only value can be used to restrict a connection to only queries. Stored procedure calls and update statements are stopped."
+  },
+  {
+    "name": "auto commit",
+    "default": "true",
+    "options": "['true','false']",
+    "description_i18n": "This value is used to set the auto commit setting of the connection. The default value is true unless the transaction isolation property has been set to a value other than none. In that case, the default value is false."
+  },
+  {
+    "name": "block size",
+    "default": "32",
+    "options": "['0','8','16','32','64','128','256','512']",
+    "description_i18n": "This is the number of rows that are fetched at a time for a result set. For typical forward-only processing of a result set, a block of this size is obtained. Then the database is not accessed because each row is processed by your application. The database requests another block of data only when the end of the block is reached.\nThis value is only used if the blocking enabled property is set to true.\nSetting the block size property to 0 has the same effect as setting the blocking enabled property to false.\nThe default is to use blocking with a block size of 32. This is a fairly arbitrary decision and the default could change in the future.\nBlocking is not used on scrollable result sets."
+  },
+  {
+    "name": "concurrent access resolution",
+    "default": "0",
+    "options": "['0','1','2','3']",
+    "description_i18n": "This property specifies whether \"currently committed\" access is used on the connection. The following values are possible:\n1 - \"currently committed\" will be used\n2 - \"wait for outcome\" will be used\n3 - \"skip locks\" will be used\nThe default value is 2."
+  },
+  {
+    "name": "cursor hold",
+    "default": "true",
+    "options": "['true','false']",
+    "description_i18n": "This value specifies if result sets remain open when a transaction is committed. A value of true means that an application is able to access its open result sets after commit is called. A value of false means that commit closes any open cursors under the connection.\nBy default, this property is set to true.\nThis value property serves as a default value for all result sets made for the connection. With cursor holdability support added in JDBC 3.0, this default is simply replaced if an application specifies a different holdability later.\nIf you are migrating to JDBC 3.0 from an earlier version, be aware that cursor holdability support was not added until JDBC 3.0. In earlier versions, the default value of \"true\" was sent at connect time, but it was not yet recognized by the JVM. Therefore, the cursor hold property will not impact database functionality until JDBC 3.0."
+  },
+  {
+    "name": "cursor sensitivity",
+    "default": "asensitive",
+    "options": "['asensitive','insensitive','sensitive']",
+    "description_i18n": "Specifies the cursor sensitivity used by ResultSet.TYPE_SCROLL_SENSITIVE cursors. By default, the native JDBC driver creates asensitive cursors for ResultSet.TYPE_SCROLL_SENSITIVE cursors."
+  },
+  {
+    "name": "data truncation",
+    "default": "true",
+    "options": "['true','false']",
+    "description_i18n": "This value specifies if truncation of character data should cause warnings and exceptions to be generated (true) or if the data should just be silently truncated (false). If the default is true, data truncation of character fields are honored."
+  },
+  {
+    "name": "date format",
+    "default": "",
+    "options": "['','julian','mdy','dmy','ymd','usa','iso','eur','jis']",
+    "description_i18n": "This property allows you to change how dates are formatted."
+  },
+  {
+    "name": "date separator",
+    "default": "",
+    "options": "['','/','-','.',',','b']",
+    "description_i18n": "This property allows you to change what the date separator is. This is only valid in combination with some of the dateFormat values (according to system rules)."
+  },
+  {
+    "name": "decfloat rounding mode",
+    "default": "half even",
+    "options": "['half even','half up','down','ceiling','floor','half down','up']",
+    "description_i18n": "This property specifies the rounding mode to be used by decimal float operations. The default value is round half even."
+  },
+  {
+    "name": "decimal separator",
+    "default": "",
+    "options": "['','.',',']",
+    "description_i18n": "This property allows you to change what the decimal separator is (nbsp) .(period), ,(comma)"
+  },
+  {
+    "name": "errors",
+    "default": "basic",
+    "options": "['basic','full']",
+    "description_i18n": "This property allows the full system second-level error text to be returned in SQLException object messages. The default is basic which returns only the standard message text."
+  },
+  {
+    "name": "extended metadata",
+    "default": "false",
+    "options": "['true','false']",
+    "description_i18n": "The property specifies if the driver should request extended metadata from the database. Setting this property to true increases the accuracy of the information returned from the following ResultSetMetaData methods:\ngetColumnLabel(int)\ngetSchemaName(int)\ngetTableName(int)\nisReadOnly(int)\nisSearchable(int)\nisWriteable(int)\n\nSetting this property to true may slow performance because it requires retrieving more information from the database."
+  },
+  {
+    "name": "ignore warnings",
+    "description_i18n": "A command separated list of SQL states that should be ignored, By default, the native JDBC driver will internally create a java.sql.SQLWarning object for each warning returned by the database. This property specifies a list of SQL states for which the native JDBC driver should not create warning objects. For example, a warning with the SQLSTATE 0100C is created every time a result set is returned from a stored procedure. This warning can be safely ignored to improve the performance of applications that call stored procedures."
+  },
+  {
+    "name": "libraries",
+    "description_i18n": "A space-separated list of libraries. (A list of libraries can also be separated by colons or commas.), This property allows a list of libraries to be placed into the server job's library list or a specific default library to be set.\nThe naming property affects how this property works. In the default case, where naming is set to sql, JDBC works like ODBC. The library list has no effect on how the connection processes. There is a default library for all unqualified tables. By default, that library has the same name as the user profile that is connected. If the libraries property is specified, the first library in the list becomes the default library. If a default library is specified on the connection URL (as in jdbc:db2:*local/mylibrary), that overrides any value in this property.\nIn the case where naming is set system, each of the libraries specified for this property is added to the user portion of the library list and the library list is searched to resolve unqualified table references.,"
+  },
+  {
+    "name": "lob threshold",
+    "default": "32768",
+    "description_i18n": "This property tells the driver to place the actual values into the result set storage instead of locators for lob columns if the lob column is smaller than the threshold size. This property acts against the column size, not the lob data size itself. For example, if the lob column is defined to hold up to 1 MB for each lob, but all the column values are under 500 KB, locators are still used.\n\n  Note that the size limit is set as it is to allow blocks of data to be fetched without danger of not always growing data blocks larger than the 16 MB maximum allocation size. With large result sets, it is still easy to exceed this limit, which causes fetches to fail. Care must be taken in how the block size property and this property interact with the size of a data block.\n  The default is 0. Locators are always used for lob data.,"
+  },
+  {
+    "name": "maximum blocked input rows",
+    "default": "32000",
+    "options": "['1000','2000','4000','8000','16000','32000']",
+    "description_i18n": "1-32000. Specifies the maximum number of rows to be sent to the database engine when using a blocked insert or update operation. The database engine has a limit of 32000 rows with a total of 16MB of data. This property may be used to reduce the size of buffers in the JVM when using batched insert operations."
+  },
+  {
+    "name": "maximum precision",
+    "default": "31",
+    "options": "['31','63']",
+    "description_i18n": "This value specifies the maximum precision used for decimal and numeric types. The default value is 31."
+  },
+  {
+    "name": "maximum scale",
+    "default": "31",
+    "options": "['','31','63']",
+    "description_i18n": "0-63, This value specifies the maximum scale (number of decimal positions to the right of the decimal point) that is returned used by decimal and numeric types. The value can range from 0 to the maximum precision. The default value is 31."
+  },
+  {
+    "name": "minimum divide scale",
+    "default": "0",
+    "options": "['0','1','2','3','4','5','6','7','8','9']",
+    "description_i18n": "0-9, This value specifies the minimum divide scale (number of decimal positions to the right of the decimal point) that is returned for both intermediary and result data types. The value can range from 0 to 9, not to exceed the maximum scale. If 0 is specified, minimum divide scale is not used. The default value is 0."
+  },
+  {
+    "name": "naming",
+    "default": "sql",
+    "options": "['sql','system']",
+    "description_i18n": "This property allows you to use either the traditional IBM i naming syntax or the standard SQL naming syntax. System naming means that you use a /(slash) character to separate collection and table values, and SQL naming means that you use a .(period) character to separate the values.\nThe setting of this value has ramifications for what the default library is also. See the libraries property above for further information about this.\nThe default is to use SQL naming.,"
+  },
+  {
+    "name": "password",
+    "description_i18n": "This property allows for a password to be specified for the connection. This property does not work correctly without also specifying the user property. These properties allow for connections to be made to the database as a user other than the one that is running the IBM i job.\nSpecifying the user and password properties have the same effect as using the connection method with the signature getConnection(String url, String userId, String password).,"
+  },
+  {
+    "name": "prefetch",
+    "default": "true",
+    "options": "['true','false']",
+    "description_i18n": "This property specifies if the driver fetches the first data for a result set immediately after processing or wait until the data is requested. If the default is true, data is prefetched.\nFor applications using the Native JDBC driver, this is rarely an issue. The property exists primarily for internal use with Java™ stored procedures and user-defined functions where it is important that the database engine does not fetch any data from result sets on your behalf before you request it.,"
+  },
+  {
+    "name": "qaqqinilib",
+    "description_i18n": "library name, This property specifies the library that contains the qaqqini file to use. A qaqqini file contains all of the attributes that can potentially impact the performance of the Db2 for i database engine."
+  },
+  {
+    "name": "query optimize goal",
+    "default": "0",
+    "options": "['0','1','2']",
+    "description_i18n": "This property specifies the goal the server should use with optimization of queries. This setting corresponds to the server's QAQQINI option called OPTIMIZATION_GOAL. The following values are possible:\n1 - Optimize query for first block of data (*FIRSTIO)\n2 - Optimize query for entire result set (*ALLIO)\nThe default value is 2."
+  },
+  {
+    "name": "query replace truncated parameter",
+    "description_i18n": "Specifies the value that should be used in place of a truncated parameter of an SQL query. By default, the parameter is silently truncated to the length for the parameter. Consider the following scenario.\nTable T1 has a CHAR(3) column with the name of C1, and a row where C1='ABC'.\nAn application prepares a statement using SELECT * FROM TABLE_X where C1=?\nIf the parameter is set to 'ABCD', it will be silently truncated to 'ABC' and a row will be returned by the query.\nThis property avoids this problem by allowing the application to set the string to something that doesn't exist in the application - i.e. @@@@@@@. A blank value means that the property will be ignored."
+  },
+  {
+    "name": "time format",
+    "default": "",
+    "options": "['','hms','usa','iso','eur','jis']",
+    "description_i18n": "This property allows you to change how time values are formatted."
+  },
+  {
+    "name": "time separator",
+    "default": "",
+    "options": "['',':','.',',','b']",
+    "description_i18n": ":(colon), .(period), ,(comma), b.  This property allows you to change what the time separator is. This is only valid in combination with some of the timeFormat values (according to system rules)."
+  },
+  {
+    "name": "trace",
+    "default": "false",
+    "options": "['true','false']",
+    "description_i18n": "This property allows for turning on tracing of the connection. It can be used as a simple debugging aide.\nThe default value is false, which does not use tracing."
+  },
+  {
+    "name": "transaction isolation",
+    "default": "none",
+    "options": "['none','read committed','read uncommitted','repeatable read','serializable']",
+    "description_i18n": "This property allows you to set the transaction isolation level for the connection. There is no difference between setting this property to a specific level and specifying a level on the setTransactionIsolation method in the Connection interface.\nThe default value for this property is none, as JDBC defaults to auto-commit mode."
+  },
+  {
+    "name": "translate binary",
+    "default": "false",
+    "options": "['true','false']",
+    "description_i18n": "This property can be used to force the JDBC driver to treat binary and varbinary data values as if they were char and varchar data values. When binary data is to be treated the same as character data, the CCSID of the job will be used as the CCSID of the data.\nThe default for this property is false, where binary data is not treated the same as character data."
+  },
+  {
+    "name": "translate hex",
+    "default": "character",
+    "options": "['binary','character']",
+    "description_i18n": "This value is used to select the data type used by hex constants in SQL expression. The binary setting indicates that hex constants will use the BINARY data type. The character setting indicates that hex contants will use the CHARACTER FOR BIT DATA data type. The default setting is character."
+  },
+  {
+    "name": "user",
+    "description_i18n": "This property allows for a user ID to be specified for the connection. This property does not work correctly without also specifying the password property. These properties allow for connections to be made to the database as a user other than the one that is running the IBM i job.\nSpecifying the user and password properties has the same effect as using the connection method with the signature getConnection(String url, String userId, String password)."
+  },
+  {
+    "name": "socket timeout",
+    "description_i18n": "The number of milliseconds to wait before a timeout is occurred on a socket read or accept. which means infinite timeout."
+  },
+  {
+    "name": "login timeout",
+    "description_i18n": "The number of seconds the driver should wait before timing out a failed connection. A zero value indicates that the timeout is the default system timeout, which is 30 seconds by default in version 11.2 and higher and 15 seconds by default in version 10.2 and lower. A nonzero value is the number of seconds the driver should wait before timing out a failed connection."
+  },
+  {
+    "name": "database name",
+    "description_i18n": "The name of the database to connect to. \nIf not stated, a connection is made to the default database."
+  },
+  {
+    "name": "keep alive",
+    "default": "",
+    "options": "['','true','false']",
+    "description_i18n": "Enable or disable TCP keep-alive probe."
+  },
+  {
+    "name": "receive buffer size",
+    "description_i18n": "socket receive data buffer size."
+  },
+  {
+    "name": "send buffer size",
+    "description_i18n": "socket send data buffer size."
+  }
+]

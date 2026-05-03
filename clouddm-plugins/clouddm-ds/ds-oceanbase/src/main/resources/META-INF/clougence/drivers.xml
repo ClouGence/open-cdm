@@ -1,0 +1,14 @@
+<drivers>
+    <driver driverFamily="OceanBase Client" version="2.4.17">
+        <driverName>com.clougence.clouddm.ds.oceanbase.execute.dsfactory.ObDsFactory</driverName>
+        <resource type="maven">com.oceanbase:oceanbase-client:2.4.17</resource>
+    </driver>
+    <driver driverFamily="OceanBase Client" version="2.4.16">
+        <driverName>com.clougence.clouddm.ds.oceanbase.execute.dsfactory.ObDsFactory</driverName>
+        <resource type="maven">com.oceanbase:oceanbase-client:2.4.16</resource>
+    </driver>
+    <driver driverFamily="OceanBase Client" version="2.4.15">
+        <driverName>com.clougence.clouddm.ds.oceanbase.execute.dsfactory.ObDsFactory</driverName>
+        <resource type="maven">com.oceanbase:oceanbase-client:2.4.15</resource>
+    </driver>
+</drivers>

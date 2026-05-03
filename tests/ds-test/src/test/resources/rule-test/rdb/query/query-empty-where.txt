@@ -1,0 +1,19 @@
+#define "allow" as string
+        default "false"
+        enum ["true", "false"]
+        hint "是否允许空的 where 条件"
+
+if
+  @domain.sqlType in ['SELECT']
+then
+
+  if @func.string.isBlank(@domain.table) and @func.string.equalsAny( @domain.dsType , ['Db2','Db2Fori','SQLServer']) then
+    return true
+  end
+
+  if #{allow} == 'true' or @domain.hasWhere then
+    return true
+  end
+
+  return false
+end

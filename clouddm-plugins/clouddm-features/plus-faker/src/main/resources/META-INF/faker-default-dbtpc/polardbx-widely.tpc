@@ -1,0 +1,143 @@
+# extend mysql
+
+define polardbx {
+    default      = true
+    priority     = 1
+    policy       = "widely"
+    policyDesc   = "PolarDB-X TypeProcessor Policy(Widely)"
+}
+
+[bit]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${numericPrecision}, 24, 8)
+    characterSet   = [ bit ]
+    typeHandler    = com.clougence.faker.types.MySqlBitAsStringTypeHandler
+
+[tinyint]
+    jdbcType       = integer
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 100)
+
+[smallint]
+    jdbcType       = integer
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 9999)
+
+[mediumint]
+    jdbcType       = integer
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 999999)
+
+[int]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = bigint
+    minMax         = range(0, 99999999)
+
+[bigint]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = bigint
+    minMax         = range(0, 9999999999)
+
+[decimal]
+[float]
+[double]
+    jdbcType       = decimal
+    seedType       = number
+    numberType     = decimal
+    minMax         = range(0, 9999999.999)
+    scale          = min(${numericPrecision}, 3)
+
+[date]
+    jdbcType       = date
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE10
+    genType        = random
+    rangeForm      = "2000-01-01"
+    rangeTo        = "2030-12-31"
+
+[datetime]
+[timestamp]
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE_TIME24
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "2000-01-01 00:00:00.000000"
+    rangeTo        = "2030-12-31 23:59:59.999999"
+
+[time]
+    jdbcType       = varchar
+    seedType       = time
+    genType        = random
+    precision      = 0          # safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "00:00:00" # 00:00:00.000000
+    rangeTo        = "23:59:59" # 23:59:59.999999
+
+[year]
+    jdbcType       = integer
+    seedType       = number
+    numberType     = int
+    minMax         = range(2000, 2030)
+
+[char]
+[varchar]
+[tinytext]
+[text]
+[mediumtext]
+[longtext]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 250, 10)
+    characterSet   = [ letter_number ]
+
+[binary]
+[varbinary]
+[mediumblob]
+[tinyblob]
+[blob]
+[longblob]
+    jdbcType       = varbinary
+    seedType       = bytes
+    minLength      = 0
+    maxLength      = safeMaxLength(0, ${byteLength}, 16, 4)
+
+[enum]
+[set]
+    jdbcType       = varchar
+    seedType       = enums
+    dict           = [ ]
+
+[geometry]
+    jdbcType       = varchar
+    seedType       = geometry
+    range          = range(50, 0.0, 0.0, 1000, 1000)
+    precision      = 5
+    minPointSize   = 2
+    maxPointSize   = 10
+    geometryType   = MultiPolygon
+    formatType     = WKT
+    selectTemplate = "ST_AsWKT({name})"
+    insertTemplate = "ST_MultiPolygonFromText(?)"
+    setValueTemplate = "ST_MultiPolygonFromText(?)"
+    ignoreAct      = [ DeleteWhere, UpdateWhere ]
+
+[point]
+[linestring]
+[polygon]
+[multipoint]
+[multilinestring]
+[multipolygon]
+[geomcollection]
+[geometrycollection]
+[json]
+    throw "this columnType Unsupported."

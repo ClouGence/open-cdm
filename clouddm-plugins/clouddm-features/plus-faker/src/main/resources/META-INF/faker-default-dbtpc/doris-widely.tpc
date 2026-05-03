@@ -1,0 +1,128 @@
+# create by ekko
+
+define doris {
+    default      = true
+    priority     = 1
+    policy       = "widely"
+    policyDesc   = "Doris TypeProcessor Policy(Widely)"
+}
+
+[bit]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${numericPrecision}, 24, 8)
+    characterSet   = [ bit ]
+    typeHandler    = com.clougence.faker.types.MySqlBitAsStringTypeHandler
+
+[tinyint]
+[boolean]
+    jdbcType       = integer
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 100)
+
+[smallint]
+    jdbcType       = integer
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 9999)
+
+[mediumint]
+    jdbcType       = integer
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 999999)
+
+[int]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = bigint
+    minMax         = range(0, 99999999)
+
+[bigint]
+[largeint]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = bigint
+    minMax         = range(0, 9999999999)
+
+[decimal]
+[decimalv3]
+[float]
+[double]
+    jdbcType       = decimal
+    seedType       = number
+    numberType     = decimal
+    minMax         = range(0, 9999999.999)
+    scale          = min(${numericPrecision}, 3)
+
+[date]
+[datev2]
+    jdbcType       = date
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE10
+    genType        = random
+    rangeForm      = "2000-01-01"
+    rangeTo        = "2030-12-31"
+
+[datetime]
+[datetimev2]
+[timestamp]
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE_TIME24
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "2000-01-01 00:00:00.000000"
+    rangeTo        = "2030-12-31 23:59:59.999999"
+
+[time]
+    jdbcType       = varchar
+    seedType       = time
+    genType        = random
+    precision      = 0          # safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "00:00:00" # 00:00:00.000000
+    rangeTo        = "23:59:59" # 23:59:59.999999
+
+[year]
+    jdbcType       = integer
+    seedType       = number
+    numberType     = int
+    minMax         = range(2000, 2030)
+
+[char]
+[varchar]
+[tinytext]
+[text]
+[mediumtext]
+[longtext]
+[string]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 250, 10)
+    characterSet   = [ letter_number ]
+
+[binary]
+[varbinary]
+[mediumblob]
+[tinyblob]
+[blob]
+[longblob]
+    jdbcType       = varbinary
+    seedType       = bytes
+    minLength      = 0
+    maxLength      = safeMaxLength(0, ${byteLength}, 16, 4)
+
+
+[struct]
+[map]
+[bitmap]
+[array]
+[hll]
+[jsonb]
+[quantile_state]
+    throw "this columnType Unsupported."

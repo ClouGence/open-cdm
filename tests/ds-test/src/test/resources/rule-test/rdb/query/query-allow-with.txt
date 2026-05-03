@@ -1,0 +1,15 @@
+#define "allow" as string
+        default "true"
+        enum ["true", "false"]
+        hint "是否允许使用 WITH 字句"
+
+if
+  @domain.sqlType in ['SELECT']
+then
+
+  if cast(#{allow} as bool) then
+    return true
+  end
+
+  return not @domain.hasWith
+end

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.rdp.dal.mapper.RdpUserMfaMapper">
+
+    <resultMap id="rdpUserMfaDO" type="com.clougence.rdp.dal.model.RdpUserMfaDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="user_id" property="userId"/>
+        <result column="uid" property="uid"/>
+        <result column="mfa_status" property="mfaStatus" javaType="com.clougence.rdp.dal.enumeration.mfa.MfaStatus"/>
+        <result column="mfa_key" property="mfaKey"/>
+        <result column="reset_mfa_key" property="resetMfaKey"/>
+    </resultMap>
+
+    <sql id="rdpUserMfa">
+        id,
+        gmt_create,
+        gmt_modified,
+        user_id,
+        uid,
+        mfa_status,
+        mfa_key,
+        reset_mfa_key
+    </sql>
+
+    <select id="queryByUid" resultMap="rdpUserMfaDO">
+        SELECT
+            <include refid="rdpUserMfa"/>
+        FROM
+            rdp_user_mfa
+        WHERE
+            uid = #{uid}
+    </select>
+
+    <update id="updateById">
+        UPDATE rdp_user_mfa
+        SET
+            mfa_key = #{mfaKey},
+            mfa_status = #{mfaStatus}
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="updateResetMfaKeyById">
+        UPDATE rdp_user_mfa
+        SET
+            reset_mfa_key = #{resetMfaKey}
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="emptyResetMfaKeyById">
+        UPDATE rdp_user_mfa
+        SET
+            reset_mfa_key = NULL
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="updateStatusById">
+        UPDATE rdp_user_mfa
+        SET
+            mfa_status = #{mfaStatus}
+        WHERE
+            id = #{id}
+    </update>
+
+    <delete id="deleteByUid">
+        DELETE FROM rdp_user_mfa
+        WHERE uid = #{uid}
+    </delete>
+
+</mapper>

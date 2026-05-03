@@ -1,0 +1,87 @@
+version: '3.1'
+
+# use this yml for docker-compose up -d
+services:
+  ldap_admin:
+    image: osixia/phpldapadmin
+    container_name: ldap_admin
+    restart: always
+    privileged: true
+    environment:
+      PHPLDAPADMIN_HTTPS: false
+      PHPLDAPADMIN_LDAP_HOSTS: ldap_normal
+    ports:
+      - 10004:80
+
+  ldap_normal:
+    image: osixia/openldap  # 如果有私有仓库可以从自己的私有仓库拉取镜像
+    container_name: ldap_normal
+    restart: always
+    environment:
+      LDAP_LOG_LEVEL: "256"
+      LDAP_ORGANISATION: "clougence"      ## 您的组织名称
+      LDAP_DOMAIN: "clougence.com"        ## 公司域名
+      LDAP_BASE_DN: "dc=clougence,dc=com" ## 根据域名组成，登陆账号为：cn=admin,dc=clougence,dc=com
+      LDAP_ADMIN_PASSWORD: "admin"        ## 密码自己来设置
+      LDAP_CONFIG_PASSWORD: "admin"
+      LDAP_READONLY_USER: "false"
+      #LDAP_READONLY_USER_USERNAME: "readonly"
+      #LDAP_READONLY_USER_PASSWORD: "readonly"
+      LDAP_RFC2307BIS_SCHEMA: "false"
+      LDAP_BACKEND: "mdb"
+      LDAP_REPLICATION: "false"
+      KEEP_EXISTING_CONFIG: "false"
+      LDAP_REMOVE_CONFIG_AFTER_SETUP: "true"
+      #LDAP_SSL_HELPER_PREFIX: "ldap"
+    ports:
+      - 1389:389
+      - 1636:636
+    #    volumes:
+    #      - /opt/openldap/ldap:/var/lib/ldap
+    #      - /opt/openldap/slapd.d:/etc/ldap/slapd.d
+    #      - /opt/openldap/certs:/container/service/lapd/assets/certs
+  #  ldap_tls:
+  #    image: osixia/openldap:1.5.0  # 如果有私有仓库可以从自己的私有仓库拉取镜像
+  #    container_name: openldap
+  #    restart: always
+  #    environment:
+  #      LDAP_LOG_LEVEL: "256"
+  #      LDAP_ORGANISATION: "clougence"   ### 您的组织名称
+  #      LDAP_DOMAIN: "clougence.com"    ### 公司域名
+  #      LDAP_BASE_DN: "dc=zaq,dc=test"   ### 根据域名组成
+  #      LDAP_ADMIN_PASSWORD: "admin"   ### 密码自己来设置
+  #      LDAP_CONFIG_PASSWORD: "admin"
+  #      LDAP_READONLY_USER: "false"
+  #      #LDAP_READONLY_USER_USERNAME: "readonly"
+  #      #LDAP_READONLY_USER_PASSWORD: "readonly"
+  #      LDAP_RFC2307BIS_SCHEMA: "false"
+  #      LDAP_BACKEND: "mdb"
+  #      #LDAP_TLS: "true"
+  #      #LDAP_TLS_CRT_FILENAME: "zaq.test.pem"
+  #      #LDAP_TLS_KEY_FILENAME: "zaq.test.key"
+  #      #LDAP_TLS_DH_PARAM_FILENAME: "dhparam.pem"
+  #      #LDAP_TLS_CA_CRT_FILENAME: "ca.crt"
+  #      #LDAP_TLS_ENFORCE: "false"
+  #      #LDAP_TLS_CIPHER_SUITE: "SECURE256:-VERS-SSL3.0"
+  #      # LDAP_TLS_VERIFY_CLIENT: "demand"
+  #      LDAP_REPLICATION: "false"
+  #      #LDAP_REPLICATION_CONFIG_SYNCPROV: 'binddn="cn=admin,cn=config" bindmethod=simple credentials="$$LDAP_CONFIG_PASSWORD" searchbase="cn=config" type=refreshAndPersist retry="60 +" timeout=1 starttls=critical'
+  #      #LDAP_REPLICATION_DB_SYNCPROV: 'binddn="cn=admin,$$LDAP_BASE_DN" bindmethod=simple credentials="$$LDAP_ADMIN_PASSWORD" searchbase="$$LDAP_BASE_DN" type=refreshAndPersist interval=00:00:00:10 retry="60 +" timeout=1 starttls=critical'
+  #      #LDAP_REPLICATION_HOSTS: "#PYTHON2BASH:['ldap://ldap.example.org','ldap://ldap2.example.org']"
+  #      KEEP_EXISTING_CONFIG: "false"
+  #      LDAP_REMOVE_CONFIG_AFTER_SETUP: "true"
+  #      #LDAP_SSL_HELPER_PREFIX: "ldap"
+  #    tty: true
+  #    stdin_open: true
+  #    #    volumes:
+  #    #      - /opt/openldap/ldap:/var/lib/ldap
+  #    #      - /opt/openldap/slapd.d:/etc/ldap/slapd.d
+  #    #      - /opt/openldap/certs:/container/service/lapd/assets/certs
+  #    ports:
+  #      - "389:389"
+  #      - "636:636"
+  #    # For replication to work correctly, domainname and hostname must be
+  #    # set correctly so that "hostname"."domainname" equates to the
+  #    # fully-qualified domain name for the host.
+  #    domainname: "zaq.test"
+  #    hostname: "ldap-server"

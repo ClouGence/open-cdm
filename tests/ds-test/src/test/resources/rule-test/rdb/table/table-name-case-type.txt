@@ -1,0 +1,32 @@
+#define "caseType" as string
+        default "Lower case"
+        enum ["Lower case", "Upper case", "Lower camel case", "Upper camel case"]
+        hint "表名拼写规则"
+
+if @domain.sqlType in ['CREATE_TABLE', 'CREATE_TABLE_SELECT', 'CREATE_TABLE_LIKE'] then
+  checkName = @domain.table
+elseif @domain.sqlType in ['RENAME_TABLE', 'ALTER_TABLE_RENAME'] then
+  checkName = @domain.newName
+else
+  return true
+end
+
+// ref document https://newbedev.com/regex-for-pascalcased-words-aka-camelcased-with-leading-uppercase-letter
+
+if #{caseType} == 'Lower case' then
+  return @func.string.lowerCase(checkName) == checkName
+
+elseif #{caseType} == 'Upper case' then
+
+  return @func.string.upperCase(checkName) == checkName
+
+elseif #{caseType} == 'Lower camel case' then
+  return checkName matches '[a-z]+((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?'
+
+elseif #{caseType} == 'Upper camel case' then
+  return checkName matches '([A-Z][a-z0-9]+)((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?'
+
+else
+
+  return false
+end

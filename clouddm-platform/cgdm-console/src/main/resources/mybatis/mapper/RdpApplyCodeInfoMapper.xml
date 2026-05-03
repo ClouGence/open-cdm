@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.rdp.dal.mapper.authcode.RdpApplyCodeInfoMapper">
+
+    <resultMap id="rdpApplyCodeInfoDO" type="com.clougence.rdp.dal.model.authcode.RdpApplyCodeInfoDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="cluster_ip" property="clusterIp"/>
+        <result column="cluster_mac_address" property="clusterMacAddress"/>
+        <result column="cluster_hardware_uuid" property="clusterHardwareUuid"/>
+        <result column="info" property="info"/>
+        <result column="apply_type" property="applyType"/>
+    </resultMap>
+
+    <sql id="allColumn">
+        rdp_apply_code_info.id id,
+        rdp_apply_code_info.gmt_create gmt_create,
+        rdp_apply_code_info.gmt_modified gmt_modified,
+        rdp_apply_code_info.report_time report_time,
+        rdp_apply_code_info.cluster_ip cluster_ip,
+        rdp_apply_code_info.cluster_mac_address cluster_mac_address,
+        rdp_apply_code_info.cluster_hardware_uuid cluster_hardware_uuid,
+        rdp_apply_code_info.info info,
+        rdp_apply_code_info.apply_type apply_type
+    </sql>
+
+    <select id="queryInfosByCc" resultMap="rdpApplyCodeInfoDO">
+        SELECT
+            <include refid="allColumn"/>
+        FROM
+            rdp_apply_code_info
+        WHERE
+            apply_type = 'CloudCanal'
+    </select>
+
+    <select id="queryInfosByDm" resultMap="rdpApplyCodeInfoDO">
+        SELECT
+            <include refid="allColumn"/>
+        FROM
+            rdp_apply_code_info
+        WHERE
+            apply_type = 'CloudDM'
+    </select>
+
+    <select id="queryUniqueInfosByCc" resultMap="rdpApplyCodeInfoDO">
+        SELECT
+            <include refid="allColumn"/>
+        FROM
+            rdp_apply_code_info
+        WHERE
+            apply_type = 'CloudCanal'
+        AND
+            rdp_apply_code_info.cluster_ip = #{clusterIp}
+        AND
+            rdp_apply_code_info.cluster_mac_address = #{clusterMacAddress}
+        AND
+            rdp_apply_code_info.cluster_hardware_uuid = #{clusterHardwareUuid}
+    </select>
+
+    <select id="queryUniqueInfosByDm" resultMap="rdpApplyCodeInfoDO">
+        SELECT
+        <include refid="allColumn"/>
+        FROM
+            rdp_apply_code_info
+        WHERE
+            apply_type = 'CloudDM'
+        AND
+            rdp_apply_code_info.cluster_ip = #{clusterIp}
+        AND
+            rdp_apply_code_info.cluster_hardware_uuid = #{clusterHardwareUuid}
+    </select>
+
+    <delete id="refreshInfos">
+        DELETE
+        FROM
+            rdp_apply_code_info
+        WHERE
+            <![CDATA[ report_time <= #{expiredTime} ]]>
+    </delete>
+
+</mapper>

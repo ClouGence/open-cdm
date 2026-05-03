@@ -1,0 +1,375 @@
+@font-face {
+  font-family: 'i-clouddm'; /* Project id 2313900 */
+  src:
+    url('//at.alicdn.com/t/c/font_2313900_wnvvzvxjsyr.woff2?t=1714273155846') format('woff2'),
+    url('//at.alicdn.com/t/c/font_2313900_wnvvzvxjsyr.woff?t=1714273155846') format('woff'),
+    url('//at.alicdn.com/t/c/font_2313900_wnvvzvxjsyr.ttf?t=1714273155846') format('truetype');
+}
+
+.i-clouddm {
+  font-family: 'i-clouddm' !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-hana:before {
+  content: '\e606';
+}
+
+.icon-ziduanjieduanhuitian:before {
+  content: '\e658';
+}
+
+.icon-rdb-uk-copy:before {
+  content: '\ec80';
+}
+
+.icon-rdb-index:before {
+  content: '\ec7e';
+}
+
+.icon-rdb-key:before {
+  content: '\e639';
+}
+
+.icon-dameng:before {
+  content: '\e6ab';
+}
+
+.icon-oceanbase:before {
+  content: '\e6f1';
+}
+
+.icon-db2:before {
+  content: '\e6e9';
+}
+
+.icon-polardbx:before {
+  content: '\e6af';
+}
+
+.icon-selectdb:before {
+  content: '\e7b9';
+}
+
+.icon-clickhouse:before {
+  content: '\e617';
+}
+
+.icon-doris:before {
+  content: '\e675';
+}
+
+.icon-starrocks:before {
+  content: '\e87c';
+}
+
+.icon-structured-data:before {
+  content: '\e888';
+}
+
+.icon-mongodb:before {
+  content: '\e63e';
+}
+
+.icon-sql-server:before {
+  content: '\e63a';
+}
+
+.icon-tidb:before {
+  content: '\e68b';
+}
+
+.icon-oracle:before {
+  content: '\e6d5';
+}
+
+.icon-redis:before {
+  content: '\ec7c';
+}
+
+.icon-minus:before {
+  content: '\e62a';
+}
+
+.icon-cancel:before {
+  content: '\e608';
+}
+
+.icon-riqi:before {
+  content: '\e6e2';
+}
+
+.icon-wenben:before {
+  content: '\e6e3';
+}
+
+.icon-shuzi:before {
+  content: '\e6e4';
+}
+
+.icon-erjinzhi:before {
+  content: '\e6e5';
+}
+
+.icon-qita:before {
+  content: '\e6e6';
+}
+
+.icon-eye:before {
+  content: '\e6e1';
+}
+
+.icon-setting:before {
+  content: '\e6e8';
+}
+
+.icon-error1:before {
+  content: '\e6e7';
+}
+
+.icon-valid-success:before {
+  content: '\e6b5';
+}
+
+.icon-valid-error:before {
+  content: '\e602';
+}
+
+.icon-left:before {
+  content: '\e7d6';
+}
+
+.icon-right:before {
+  content: '\e7d7';
+}
+
+.icon-check:before {
+  content: '\e677';
+}
+
+.icon-shitu1:before {
+  content: '\e6df';
+}
+
+.icon-more:before {
+  content: '\e6de';
+}
+
+.icon-shitu:before {
+  content: '\e6db';
+}
+
+.icon-zhankai:before {
+  content: '\e6dc';
+}
+
+.icon-shouqi:before {
+  content: '\e6dd';
+}
+
+.icon-rds_postgresql:before {
+  content: '\e86f';
+}
+
+.icon-Greenplum:before {
+  content: '\e685';
+}
+
+.icon-postgresql:before {
+  content: '\ec7d';
+}
+
+.icon-GP:before {
+  content: '\e6d9';
+}
+
+.icon-PG:before {
+  content: '\e6da';
+}
+
+.icon-schema:before {
+  content: '\e6d8';
+}
+
+.icon-tip-black:before {
+  content: '\e6d4';
+}
+
+.icon-export:before {
+  content: '\e6bd';
+}
+
+.icon-login-verify:before {
+  content: '\e6d0';
+}
+
+.icon-login-pwd:before {
+  content: '\e6d1';
+}
+
+.icon-location:before {
+  content: '\e629';
+}
+
+.icon-warning-ghost:before {
+  content: '\e66c';
+}
+
+.icon-warning:before {
+  content: '\e672';
+}
+
+.icon-edit:before {
+  content: '\e6b4';
+}
+
+.icon-delete:before {
+  content: '\e600';
+}
+
+.icon-job-error:before {
+  content: '\e83c';
+}
+
+.icon-add:before {
+  content: '\e654';
+}
+
+.icon-bar-code:before {
+  content: '\e693';
+}
+
+.icon-worker:before {
+  content: '\e6b1';
+}
+
+.icon-subaccount:before {
+  content: '\e6b2';
+}
+
+.icon-datasource:before {
+  content: '\e6b3';
+}
+
+.icon-copy:before {
+  content: '\e688';
+}
+
+.icon-fangwe:before {
+  content: '\e6a2';
+}
+
+.icon-password:before {
+  content: '\e6b8';
+}
+
+.icon-password2:before {
+  content: '\e6b9';
+}
+
+.icon-account:before {
+  content: '\e6ce';
+}
+
+.icon-shenpi:before {
+  content: '\e6cf';
+}
+
+.icon-success:before {
+  content: '\e73c';
+}
+
+.icon-error:before {
+  content: '\e651';
+}
+
+.icon-close:before {
+  content: '\e6d2';
+}
+
+.icon-expand:before {
+  content: '\e6d3';
+}
+
+.icon-help:before {
+  content: '\e6a6';
+}
+
+.icon-stop:before {
+  content: '\e6cd';
+}
+
+.icon-commit:before {
+  content: '\e6c3';
+}
+
+.icon-back:before {
+  content: '\e6cc';
+}
+
+.icon-detail:before {
+  content: '\e6c8';
+}
+
+.icon-mysql1:before {
+  content: '\e6cb';
+}
+
+.icon-TIP:before {
+  content: '\e67a';
+}
+
+.icon-arrow:before {
+  content: '\e6c6';
+}
+
+.icon-biao:before {
+  content: '\e676';
+}
+
+.icon-shujuku:before {
+  content: '\e679';
+}
+
+.icon-rds_mysql:before {
+  content: '\e86e';
+}
+
+.icon-mysql:before {
+  content: '\e604';
+}
+
+.icon-message:before {
+  content: '\e6a5';
+}
+
+.icon-del:before {
+  content: '\e66b';
+}
+
+.icon-run:before {
+  content: '\e671';
+}
+
+.icon-newSQL:before {
+  content: '\e6ba';
+}
+
+.icon-refresh:before {
+  content: '\e6bb';
+}
+
+.icon-required:before {
+  content: '\e697';
+}
+
+.icon-dm:before {
+  content: '\e6ad';
+}
+
+.icon-machine:before {
+  content: '\e684';
+}

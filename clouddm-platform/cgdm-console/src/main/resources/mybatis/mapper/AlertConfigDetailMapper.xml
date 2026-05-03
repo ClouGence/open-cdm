@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.console.web.dal.mapper.AlertConfigDetailMapper">
+    <resultMap id="alertConfigDetailDO" type="com.clougence.clouddm.console.web.dal.model.AlertConfigDetailDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="event_type" property="eventType"/>
+        <result column="uid" property="uid"/>
+        <result column="phone" property="phone"/>
+        <result column="email" property="email"/>
+        <result column="dingding" property="dingding"/>
+        <result column="sms" property="sms"/>
+        <result column="duplicated" property="duplicated"/>
+        <result column="rule_name" property="ruleName"/>
+        <result column="expression" property="expression"/>
+        <result column="send_admin" property="sendAdmin"/>
+        <result column="send_system" property="sendSystem"/>
+        <result column="worker_id" property="workerId"/>
+    </resultMap>
+
+    <sql id="alertConfigDetail">
+        id,
+        gmt_create,
+        gmt_modified,
+        event_type,
+        uid,
+        phone,
+        email,
+        dingding,
+        sms,
+        duplicated,
+        rule_name,
+        expression,
+        send_admin,
+        send_system,
+        worker_id
+    </sql>
+
+    <select id="listByEventType" resultMap="alertConfigDetailDO">
+        SELECT
+            <include refid="alertConfigDetail"/>
+        FROM
+            alert_config_detail
+        WHERE
+            event_type = #{eventType,javaType=com.clougence.clouddm.console.web.dal.enumeration.DmEventType}
+    </select>
+
+    <select id="listByEventTypes" resultMap="alertConfigDetailDO">
+        SELECT
+            <include refid="alertConfigDetail"/>
+        FROM
+            alert_config_detail
+        WHERE
+            event_type IN
+            <foreach collection="eventTypes" item="eventType" separator="," open="(" close=")">
+                #{eventType,javaType=com.clougence.clouddm.console.web.dal.enumeration.DmEventType}
+            </foreach>
+    </select>
+
+    <select id="listByWorkerId" resultMap="alertConfigDetailDO">
+        SELECT
+            <include refid="alertConfigDetail"/>
+        FROM
+            alert_config_detail
+        WHERE
+            worker_id = #{workerId}
+    </select>
+
+
+    <select id="listByIds" resultMap="alertConfigDetailDO">
+        SELECT
+            <include refid="alertConfigDetail"/>
+        FROM
+            alert_config_detail
+        WHERE
+            id IN
+            <foreach collection="ids" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+    </select>
+
+    <delete id="deleteByWorkerId">
+        DELETE
+        FROM alert_config_detail
+        WHERE worker_id = #{workerId}
+    </delete>
+
+    <update id="updateByIdAndUid" parameterType="com.clougence.clouddm.console.web.dal.model.AlertConfigDetailDO">
+        UPDATE
+            alert_config_detail
+        <set>
+            <if test="phone != null">
+                phone = #{phone},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="dingding != null">
+                dingding = #{dingding},
+            </if>
+            <if test="sms != null">
+                sms = #{sms},
+            </if>
+            <if test="expression != null">
+                expression = #{expression},
+            </if>
+        </set>
+        WHERE
+            id = #{id} AND
+            uid = #{uid}
+    </update>
+
+    <update id="updateByWorkerId" parameterType="com.clougence.clouddm.console.web.dal.model.AlertConfigDetailDO">
+        UPDATE
+            alert_config_detail
+        <set>
+            <if test="phone != null">
+                phone = #{phone},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="dingding != null">
+                dingding = #{dingding},
+            </if>
+            <if test="sms != null">
+                sms = #{sms},
+            </if>
+            <if test="expression != null">
+                expression = #{expression},
+            </if>
+        </set>
+        WHERE
+            worker_id = #{workerId}
+    </update>
+</mapper>

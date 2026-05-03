@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.rdp.dal.mapper.RdpUserDownloadMapper">
+
+    <resultMap id="rdpUserDownloadDO" type="com.clougence.rdp.dal.model.RdpUserDownloadDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="uid" property="uid"/>
+        <result column="username" property="username"/>
+        <result column="company" property="company"/>
+        <result column="product_type" property="productType"/>
+        <result column="product_version" property="productVersion"/>
+        <result column="product_version_type" property="productVersionType"/>
+    </resultMap>
+
+    <sql id="rdpUserDownload">
+        rdp_user_download.id id,
+        rdp_user_download.gmt_create gmt_create,
+        rdp_user_download.gmt_modified gmt_modified,
+        rdp_user_download.uid uid,
+        rdp_user_download.username username,
+        rdp_user_download.company company,
+        rdp_user_download.product_type product_type,
+        rdp_user_download.product_version product_version,
+        rdp_user_download.product_version_type product_version_type
+    </sql>
+</mapper>

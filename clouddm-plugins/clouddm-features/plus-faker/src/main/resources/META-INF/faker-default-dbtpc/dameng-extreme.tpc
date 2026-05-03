@@ -1,0 +1,183 @@
+# see https://dev.mysql.com/doc/refman/5.7/en/numeric-type-syntax.html
+
+define dameng {
+    priority     = 1
+    policy       = "extreme"
+    policyDesc   = "DM TypeProcessor Policy(Extreme)"
+}
+
+[char]
+[nchar]
+[varchar]
+[nvarchar2]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 4096, 10)
+    characterSet   = [ letter_number ]
+
+[text]
+[clob]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = 4096
+    characterSet   = [ letter_number ]
+
+[bit]
+    jdbcType       = boolean
+    seedType       = boolean
+
+[tinyint]
+    jdbcType       = tinyint
+    seedType       = number
+    numberType     = int
+    minMax         = range(-128, 127)
+
+[smallint]
+    jdbcType       = smallint
+    seedType       = number
+    numberType     = int
+    minMax         = range(-32768, 32767)
+
+[int]
+    jdbcType       = integer
+    seedType       = number
+    numberType     = int
+    minMax         = range(-2147483648, 2147483647)
+
+[bigint]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = int
+    minMax         = range(-9223372036854775808, 9223372036854775807)
+
+[float]
+    jdbcType       = float
+    seedType       = number
+    numberType     = decimal
+    minMax        += range(10, -1.7E+308           , 1.7E+308)
+    minMax        += range(30, -999999999.999999999, 999999999.999999999)
+    minMax        += range(30, -0.999999999        , 0.999999999)
+
+[real]
+    jdbcType       = real
+    seedType       = number
+    numberType     = decimal
+    minMax        += range(10, -3.4E+38           , 3.4E+38)
+    minMax        += range(30, -999999999.999999999, 999999999.999999999)
+    minMax        += range(30, -0.999999999        , 0.999999999)
+
+[numeric]
+    jdbcType       = decimal
+    seedType       = number
+    numberType     = decimal
+    precision      = ifThen(isZero(${numericPrecision}), 38, ${numericPrecision})
+    scale          = ifThen(isZero(${numericScale}),     20, ${numericScale})
+
+[binary]
+[varbinary]
+[image]
+    jdbcType       = varbinary
+    seedType       = bytes
+    minLength      = 0
+    maxLength      = safeMaxLength(0, ${byteLength}, 4096, 10)
+
+[date]
+    # -4712-01-01 ~ 9999-12-31
+    jdbcType       = date
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE10
+    genType        = random
+    rangeForm      = "0000-01-01"
+    rangeTo        = "9999-12-31"
+
+[time]
+    jdbcType       = time
+    seedType       = date
+    dateType       = LocalTime
+    genType        = random
+    dateFormat     = WKF_TIME24
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "00:00:00.000000"
+    rangeTo        = "23:59:59.999999"
+
+[timestamp]
+    # -4712-01-01 00:00:00.000000000 ~ 9999-12-31 23:59:59.999999999
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE_TIME24
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 9, 3)
+    rangeForm      = "0000-01-01 00:00:00.000000000"
+    rangeTo        = "9999-12-31 23:59:59.999999999"
+
+["time with time zone"]
+    jdbcType       = time_with_timezone
+    seedType       = date
+    dateType       = OffsetTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "00:00:00.000000"
+    rangeTo        = "23:59:59.999999"
+    zoneForm       = "-12:59"
+    zoneTo         = "+14:00"
+
+["timestamp with time zone"]
+    # -4712-01-01 00:00:00.000000000 ~ 9999-12-31 23:59:59.999999999
+    jdbcType       = timestamp_with_timezone
+    seedType       = date
+    dateType       = OffsetDateTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 9, 3)
+    rangeForm      = "0000-01-01 14:00:00.000000000"
+    rangeTo        = "9999-12-31 23:59:59.999999999"
+    zoneForm       = "-12:59"
+    zoneTo         = "+14:00"
+
+["timestamp with local time zone"]
+    # -4712-01-01 00:00:00.000000000 ~ 9999-12-31 23:59:59.999999999
+    jdbcType       = timestamp_with_timezone
+    seedType       = date
+    dateType       = OffsetDateTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 9, 3)
+    rangeForm      = "0000-01-01 14:00:00.000000000"
+    rangeTo        = "9999-12-31 23:59:59.999999999"
+    zoneForm       = "-14:00"
+    zoneTo         = "+14:00"
+
+["interval year"]
+["interval year to month"]
+["interval month"]
+["interval day"]
+["interval day to hour"]
+["interval day to minute"]
+["interval day to second"]
+["interval hour"]
+["interval hour to minute"]
+["interval hour to second"]
+["interval minute"]
+["interval minute to second"]
+["interval second"]
+#    jdbcType       = other
+#    seedType       = date
+#    dateType       = iso8601
+#    genType        = random
+#    precision      = 0
+#    rangeForm      = "0000-01-01 00:00:00.000000"
+#    rangeTo        = "9999-12-31 23:59:59.999999"
+
+[rowid]
+    jdbcType       = varchar
+    seedType       = string
+    allowEmpty     = false
+    characterSet   = [ letter_number ]
+    ignoreAct      = [ UpdateSet, Insert ]
+
+[indtab]
+[bfile]
+[class]
+    throw "this columnType Unsupported."

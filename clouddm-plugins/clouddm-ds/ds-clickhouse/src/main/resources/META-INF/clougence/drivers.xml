@@ -1,0 +1,51 @@
+<drivers>
+    <!-- ClickHouse JDBC-->
+    <driver driverFamily="ClickHouse JDBC" version="0.9.7">
+        <driverName>com.clougence.clouddm.ds.clickhouse.execute.dsfactory.ChJdbcDsFactory</driverName>
+        <resource type="maven">com.clickhouse:clickhouse-jdbc:0.9.7</resource>
+    </driver>
+    <driver driverFamily="ClickHouse JDBC" version="0.8.6">
+        <driverName>com.clougence.clouddm.ds.clickhouse.execute.dsfactory.ChJdbcDsFactory</driverName>
+        <resource type="maven">com.clickhouse:clickhouse-jdbc:0.8.6</resource>
+    </driver>
+    <driver driverFamily="ClickHouse JDBC" version="0.7.2">
+        <driverName>com.clougence.clouddm.ds.clickhouse.execute.dsfactory.ChJdbcDsFactory</driverName>
+        <resource type="maven">com.clickhouse:clickhouse-jdbc:0.7.2</resource>
+    </driver>
+    <driver driverFamily="ClickHouse JDBC" version="0.6.5">
+        <driverName>com.clougence.clouddm.ds.clickhouse.execute.dsfactory.ChJdbcDsFactory</driverName>
+        <resource type="maven">com.clickhouse:clickhouse-jdbc:0.6.5</resource>
+    </driver>
+
+    <!-- Yandex JDBC-->
+    <driver driverFamily="Yandex JDBC" version="0.3.2">
+        <driverName>com.clougence.clouddm.ds.clickhouse.execute.dsfactory.ChYandexDsFactory</driverName>
+        <resource type="maven">ru.yandex.clickhouse:clickhouse-jdbc:0.3.2</resource>
+    </driver>
+    <driver driverFamily="Yandex JDBC" version="0.3.1">
+        <driverName>com.clougence.clouddm.ds.clickhouse.execute.dsfactory.ChYandexDsFactory</driverName>
+        <resource type="maven">ru.yandex.clickhouse:clickhouse-jdbc:0.3.1</resource>
+    </driver>
+    <driver driverFamily="Yandex JDBC" version="0.2.6">
+        <driverName>com.clougence.clouddm.ds.clickhouse.execute.dsfactory.ChYandexDsFactory</driverName>
+        <resource type="maven">ru.yandex.clickhouse:clickhouse-jdbc:0.2.6</resource>
+    </driver>
+    <driver driverFamily="Yandex JDBC" version="0.2.4">
+        <driverName>com.clougence.clouddm.ds.clickhouse.execute.dsfactory.ChYandexDsFactory</driverName>
+        <resource type="maven">ru.yandex.clickhouse:clickhouse-jdbc:0.2.4</resource>
+    </driver>
+
+    <!-- Native JDBC-->
+    <driver driverFamily="Native JDBC" version="2.7.1">
+        <driverName>com.clougence.clouddm.ds.clickhouse.execute.dsfactory.ChNativeDsFactory</driverName>
+        <resource type="maven">com.github.housepower:clickhouse-native-jdbc:2.7.1</resource>
+    </driver>
+    <driver driverFamily="Native JDBC" version="2.6.5">
+        <driverName>com.clougence.clouddm.ds.clickhouse.execute.dsfactory.ChNativeDsFactory</driverName>
+        <resource type="maven">com.github.housepower:clickhouse-native-jdbc:2.6.5</resource>
+    </driver>
+    <driver driverFamily="Native JDBC" version="2.5.7">
+        <driverName>com.clougence.clouddm.ds.clickhouse.execute.dsfactory.ChNativeDsFactory</driverName>
+        <resource type="maven">com.github.housepower:clickhouse-native-jdbc:2.5.7</resource>
+    </driver>
+</drivers>

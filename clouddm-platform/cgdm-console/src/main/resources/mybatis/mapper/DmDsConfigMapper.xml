@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.console.web.dal.mapper.DmDsConfigMapper">
+
+    <resultMap id="dmDsConfigDO" type="com.clougence.clouddm.console.web.dal.model.DmDsConfigDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="uid" property="uid"/>
+        <result column="data_source_id" property="dataSourceId"/>
+        <result column="data_source_type" property="dataSourceType"/>
+        <result column="status" property="status"/>
+        <result column="status_message" property="statusMessage"/>
+        <result column="bind_cluster_id" property="bindClusterId"/>
+        <result column="bind_env_id" property="bindEnvId"/>
+        <result column="enable_devops" property="enableDevops"/>
+    </resultMap>
+
+    <sql id="dmDsConfigDO_select">
+        id,
+        gmt_create,
+        gmt_modified,
+        uid,
+        data_source_id,
+        data_source_type,
+        status,
+        status_message,
+        config_instance_id,
+        bind_cluster_id,
+        bind_env_id,
+        host_type,
+        enable_devops
+    </sql>
+
+    <update id="updateStatusByDataSourceId">
+        update dm_ds_config
+        set status = #{status}
+        where data_source_id = #{dataSourceId}
+    </update>
+
+    <update id="updateHostTypeById">
+        update dm_ds_config
+        set host_type = #{hostType}
+        where id = #{id}
+    </update>
+
+    <select id="queryEnableDsCount" resultType="java.lang.Long">
+        SELECT
+            COUNT(*)
+        FROM
+            dm_ds_config
+    </select>
+
+    <select id="queryById" resultMap="dmDsConfigDO">
+        SELECT
+            <include refid="dmDsConfigDO_select"/>
+        FROM
+            dm_ds_config
+        WHERE
+            uid = #{ownerUid} AND data_source_id = #{dataSourceId}
+        LIMIT 1
+    </select>
+
+    <select id="queryByIds" resultMap="dmDsConfigDO">
+        SELECT
+            <include refid="dmDsConfigDO_select"/>
+        FROM
+            dm_ds_config
+        WHERE
+            uid = #{ownerUid} AND data_source_id in <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach>
+    </select>
+
+    <delete id="deleteByDisable">
+        delete from
+            dm_ds_config
+        WHERE
+            uid = #{ownerUid} AND data_source_id = #{dataSourceId}
+        LIMIT 1
+    </delete>
+
+    <select id="queryByClusterId" resultMap="dmDsConfigDO">
+        SELECT
+            <include refid="dmDsConfigDO_select"/>
+        FROM
+            dm_ds_config
+        WHERE
+            bind_cluster_id = #{clusterId}
+    </select>
+
+    <select id="queryByUid" resultMap="dmDsConfigDO">
+        SELECT
+        <include refid="dmDsConfigDO_select"/>
+        FROM
+        dm_ds_config
+        WHERE
+        uid = #{ownerUid}
+    </select>
+
+    <select id="queryByDataSourceId" resultMap="dmDsConfigDO">
+        SELECT
+            <include refid="dmDsConfigDO_select"/>
+        FROM
+            dm_ds_config
+        where data_source_id = #{dsId}
+    </select>
+
+    <select id="queryByDataSourceIds" resultMap="dmDsConfigDO">
+        SELECT
+        <include refid="dmDsConfigDO_select"/>
+        FROM
+        dm_ds_config
+        where data_source_id in <foreach collection="dataSourceIds" item="item" separator="," open="(" close=")">#{item}</foreach>
+    </select>
+
+    <update id="updateDevOps">
+        update dm_ds_config
+        set enable_devops  = #{enableDevops}
+        where
+            uid            = #{ownerUid} AND
+            data_source_id = #{dataSourceId}
+        limit 1
+    </update>
+</mapper>

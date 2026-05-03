@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.rdp.dal.mapper.RdpVerifyMapper">
+
+    <resultMap id="rdpVerifyDO" type="com.clougence.rdp.dal.model.RdpVerifyDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="account_type" property="accountType"/>
+        <result column="uid" property="uid"/>
+        <result column="verify_type" property="verifyType"
+                javaType="com.clougence.rdp.controller.model.enumeration.VerifyType"/>
+        <result column="email" property="email"/>
+        <result column="phone" property="phone"/>
+        <result column="phone" property="phone"/>
+        <result column="phone_area_code" property="phoneAreaCode" javaType="com.clougence.rdp.dal.enumeration.AreaCode"/>
+        <result column="verify_code_type" property="verifyCodeType"
+                javaType="com.clougence.rdp.controller.model.enumeration.VerifyCodeType"/>
+        <result column="verify_code_send_time" property="verifyCodeSendTime"/>
+        <result column="fail_times" property="failTimes"/>
+        <result column="last_fail_date" property="lastFailDate"/>
+    </resultMap>
+
+    <sql id="rdpVerify">
+        rdp_verify_code.id id,
+        rdp_verify_code.gmt_create gmt_create,
+        rdp_verify_code.gmt_modified gmt_modified,
+        rdp_verify_code.account_type account_type,
+        rdp_verify_code.uid uid,
+        rdp_verify_code.verify_type verify_type,
+        rdp_verify_code.email email,
+        rdp_verify_code.phone phone,
+        rdp_verify_code.phone_area_code phone_area_code,
+        rdp_verify_code.verify_code verify_code,
+        rdp_verify_code.verify_code_type verify_code_type,
+        rdp_verify_code.verify_code_send_time verify_code_send_time,
+        rdp_verify_code.fail_times fail_times,
+        rdp_verify_code.last_fail_date last_fail_date
+    </sql>
+
+    <select id="queryByUid" resultMap="rdpVerifyDO">
+        SELECT
+            <include refid="rdpVerify"/>
+        FROM
+            rdp_verify_code
+        WHERE
+            uid = #{uid}
+    </select>
+
+    <select id="queryByUidAndType" resultMap="rdpVerifyDO">
+        SELECT
+            <include refid="rdpVerify"/>
+        FROM
+            rdp_verify_code
+        WHERE
+            verify_type = #{verifyType,javaType=com.clougence.rdp.controller.model.enumeration.VerifyType}
+            AND
+            verify_code_type=#{verifyCodeType,javaType=com.clougence.rdp.controller.model.enumeration.VerifyCodeType}
+            AND
+            uid = #{uid}
+    </select>
+
+    <select id="queryByPrimaryEmail" resultMap="rdpVerifyDO">
+        SELECT
+            <include refid="rdpVerify"/>
+        FROM
+            rdp_verify_code
+        WHERE
+            verify_type = #{verifyType,javaType=com.clougence.rdp.controller.model.enumeration.VerifyType}
+            AND
+            verify_code_type=#{verifyCodeType,javaType=com.clougence.rdp.controller.model.enumeration.VerifyCodeType}
+            AND
+            email=#{email}
+            AND
+            account_type='PRIMARY_ACCOUNT'
+    </select>
+
+    <select id="queryByPrimaryPhone" resultMap="rdpVerifyDO">
+        SELECT
+            <include refid="rdpVerify"/>
+        FROM
+            rdp_verify_code
+        WHERE
+            verify_type = #{verifyType,javaType=com.clougence.rdp.controller.model.enumeration.VerifyType}
+        AND
+            verify_code_type=#{verifyCodeType,javaType=com.clougence.rdp.controller.model.enumeration.VerifyCodeType}
+        AND
+            phone=#{phone}
+        AND
+            account_type='PRIMARY_ACCOUNT'
+    </select>
+
+    <select id="queryByPrimaryPhoneAndAreaCode" resultMap="rdpVerifyDO">
+        SELECT
+            <include refid="rdpVerify"/>
+        FROM
+            rdp_verify_code
+        WHERE
+            verify_type = #{verifyType,javaType=com.clougence.rdp.controller.model.enumeration.VerifyType}
+        AND
+            verify_code_type=#{verifyCodeType,javaType=com.clougence.rdp.controller.model.enumeration.VerifyCodeType}
+        AND
+            phone=#{phone}
+        AND
+            phone_area_code=#{areaCode,javaType=com.clougence.rdp.dal.enumeration.AreaCode}
+        limit 1
+    </select>
+
+    <update id="updateFailTimesAndDateById">
+        UPDATE
+            rdp_verify_code
+        SET
+            <if test="failTimes != null">
+                fail_times = #{failTimes},
+            </if>
+            last_fail_date = #{failDate},
+            gmt_modified   = now()
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="updateVerifyCodeAndSendTime">
+        UPDATE
+            rdp_verify_code
+        SET
+            <if test="verifyCode != null">
+                verify_code       = #{verifyCode},
+            </if>
+            verify_code_send_time = #{sendTime},
+            gmt_modified          = now()
+        WHERE
+            id = #{id}
+    </update>
+
+    <delete id="deleteByUid">
+        DELETE FROM
+            rdp_verify_code
+        WHERE
+            uid = #{uid}
+    </delete>
+
+    <delete id="deleteOldData">
+        DELETE FROM
+            rdp_verify_code
+        WHERE
+            gmt_modified &lt;= #{beforeThisTime}
+    </delete>
+
+    <update id="updatePhoneOrEmailByUid">
+        UPDATE
+            rdp_verify_code
+        SET
+        <if test="phone != null">
+            phone = #{phone}
+        </if>
+        <if test="email != null">
+            email = #{email}
+        </if>
+        WHERE
+        uid = #{uid}
+        AND
+        verify_type = #{verifyType,javaType=com.clougence.rdp.controller.model.enumeration.VerifyType}
+        AND
+        verify_code_type=#{verifyCodeType,javaType=com.clougence.rdp.controller.model.enumeration.VerifyCodeType}
+    </update>
+
+</mapper>

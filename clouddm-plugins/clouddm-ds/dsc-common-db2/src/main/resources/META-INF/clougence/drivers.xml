@@ -1,0 +1,60 @@
+<drivers>
+    <!-- IBM JCC -->
+    <driver driverFamily="IBM JCC" version="12.1.4.0">
+        <driverName>com.clougence.clouddm.dsfamily.db2.execute.dsfactory.Db2JccDsFactory</driverName>
+        <resource type="maven">com.ibm.db2:jcc:12.1.4.0</resource>
+    </driver>
+    <driver driverFamily="IBM JCC" version="12.1.3.0">
+        <driverName>com.clougence.clouddm.dsfamily.db2.execute.dsfactory.Db2JccDsFactory</driverName>
+        <resource type="maven">com.ibm.db2:jcc:12.1.3.0</resource>
+    </driver>
+    <driver driverFamily="IBM JCC" version="12.1.2.0">
+        <driverName>com.clougence.clouddm.dsfamily.db2.execute.dsfactory.Db2JccDsFactory</driverName>
+        <resource type="maven">com.ibm.db2:jcc:12.1.2.0</resource>
+    </driver>
+    <driver driverFamily="IBM JCC" version="12.1.0.0">
+        <driverName>com.clougence.clouddm.dsfamily.db2.execute.dsfactory.Db2JccDsFactory</driverName>
+        <resource type="maven">com.ibm.db2:jcc:12.1.0.0</resource>
+    </driver>
+    <driver driverFamily="IBM JCC" version="11.5.9.0">
+        <driverName>com.clougence.clouddm.dsfamily.db2.execute.dsfactory.Db2JccDsFactory</driverName>
+        <resource type="maven">com.ibm.db2:jcc:11.5.9.0</resource>
+    </driver>
+    <driver driverFamily="IBM JCC" version="11.5.8.0">
+        <driverName>com.clougence.clouddm.dsfamily.db2.execute.dsfactory.Db2JccDsFactory</driverName>
+        <resource type="maven">com.ibm.db2:jcc:11.5.8.0</resource>
+    </driver>
+    <driver driverFamily="IBM JCC" version="11.5.7.0">
+        <driverName>com.clougence.clouddm.dsfamily.db2.execute.dsfactory.Db2JccDsFactory</driverName>
+        <resource type="maven">com.ibm.db2:jcc:11.5.7.0</resource>
+    </driver>
+    <driver driverFamily="IBM JCC" version="11.5.6.0">
+        <driverName>com.clougence.clouddm.dsfamily.db2.execute.dsfactory.Db2JccDsFactory</driverName>
+        <resource type="maven">com.ibm.db2:jcc:11.5.6.0</resource>
+    </driver>
+    <!-- IBM JTOpen -->
+    <driver driverFamily="IBM JTOpen" version="21.0.6">
+        <driverName>com.clougence.clouddm.dsfamily.db2.execute.dsfactory.Db2JtOpenDsFactory</driverName>
+        <resource type="maven">net.sf.jt400:jt400:21.0.6</resource>
+    </driver>
+    <driver driverFamily="IBM JTOpen" version="20.0.8">
+        <driverName>com.clougence.clouddm.dsfamily.db2.execute.dsfactory.Db2JtOpenDsFactory</driverName>
+        <resource type="maven">net.sf.jt400:jt400:20.0.8</resource>
+    </driver>
+    <driver driverFamily="IBM JTOpen" version="11.2">
+        <driverName>com.clougence.clouddm.dsfamily.db2.execute.dsfactory.Db2JtOpenDsFactory</driverName>
+        <resource type="maven">net.sf.jt400:jt400:11.2</resource>
+    </driver>
+    <driver driverFamily="IBM JTOpen" version="11.1">
+        <driverName>com.clougence.clouddm.dsfamily.db2.execute.dsfactory.Db2JtOpenDsFactory</driverName>
+        <resource type="maven">net.sf.jt400:jt400:11.1</resource>
+    </driver>
+    <driver driverFamily="IBM JTOpen" version="10.7">
+        <driverName>com.clougence.clouddm.dsfamily.db2.execute.dsfactory.Db2JtOpenDsFactory</driverName>
+        <resource type="maven">net.sf.jt400:jt400:10.7</resource>
+    </driver>
+    <driver driverFamily="IBM JTOpen" version="9.8">
+        <driverName>com.clougence.clouddm.dsfamily.db2.execute.dsfactory.Db2JtOpenDsFactory</driverName>
+        <resource type="maven">net.sf.jt400:jt400:9.8</resource>
+    </driver>
+</drivers>

@@ -1,0 +1,103 @@
+package com.clougence.clouddm.ds.doris.analysis.builder;
+
+import java.util.List;
+import java.util.Stack;
+
+import com.clougence.clouddm.ds.doris.analysis.secrules.DrColumnDomain;
+import com.clougence.clouddm.dsfamily.analysis.secrules.builder.*;
+import com.clougence.clouddm.dsfamily.analysis.secrules.builder.enums.Attribute;
+import com.clougence.clouddm.dsfamily.analysis.secrules.builder.enums.CommonAttribute;
+import com.clougence.clouddm.dsfamily.analysis.secrules.builder.factory.RdbBuilderFactory;
+import com.clougence.clouddm.dsfamily.analysis.secrules.builder.mode.WithSelectDomain;
+import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.*;
+import com.clougence.clouddm.sdk.model.analysis.TargetType;
+import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.service.execute.MetaService;
+
+public class DrBuilderFactory extends RdbBuilderFactory {
+
+    public DrBuilderFactory(MetaService metaService){
+        super(metaService);
+    }
+
+    @Override
+    protected DomainBuilder getAlterSchemaBuilder() { return new DrAlterSchemaBuilder(); }
+
+    @Override
+    protected SelectDomainBuilder<? extends RdbSelectDomain> newSelectDomainBuilder() {
+        return new DrSelectDomainBuilder(selectStack);
+    }
+
+    @Override
+    public void enterAlterTable() {
+        this.domainStack.add(new DrAlterTableBuilder());
+    }
+
+    @Override
+    protected TableJoinBuilder getJoinBuilder(String text) {
+        return new DrTableJoinBuilder(text);
+    }
+
+    @Override
+    protected ColumnDefBuilder<DrColumnDomain> getColumnDefBuilder() { return new DrColumnDefBuilder(); }
+
+    @Override
+    protected CatalogDomainBuilder<? extends RdbCatalogDomain> getCatalogDomainBuilder(SecQueryType type) {
+        return new DrCatalogBuilder(type);
+    }
+
+    @Override
+    protected CreateUserBuilder<? extends RdbUserDomain> getCreateUserBuilder() { return new DrCreateUserBuilder(); }
+
+    @Override
+    protected CommentBuilder getCommentBuilder(TargetType targetType) {
+        return null;
+    }
+
+    @Override
+    protected CreateTableBuilder<? extends RdbTableDomain> getCreateTableBuilder() { return null; }
+
+    @Override
+    protected DeleteDomainBuilder getDeleteDomainBuilder() { return new DrDeleteBuilder(); }
+
+    @Override
+    protected UpdateBuilder getUpdateBuilder(Stack<List<WithSelectDomain>> selectStack) {
+        return new DrUpdateBuilder(selectStack);
+    }
+
+    @Override
+    protected DropSchemaBuilder<? extends RdbSchemaDomain> getDropSchemaBuilder() { return new DrDropSchemaBuilder(); }
+
+    @Override
+    protected DropTableBuilder<? extends RdbTableDomain> getDropTableBuilder() { return new DrDropTableBuilder(); }
+
+    @Override
+    protected CreateSchemaBuilder<? extends RdbSchemaDomain> getCreateSchemaBuilder() { return new DrCreateSchemaBuilder(); }
+
+    @Override
+    protected InsertBuilder getInsertBuilder() { return new DrInsertBuilder(); }
+
+    public void enterCreateTable(SecQueryType type) {
+        this.domainStack.add(new DrCreateTableBuilder(type));
+    }
+
+    public void addAttr(Attribute attribute, Object value) {
+        if (attribute == CommonAttribute.VALUE) {
+            String text = (String) value;
+            if (text.startsWith("`")) {
+                value = text.substring(1, text.length() - 1);
+            }
+        }
+        getCurrentBuilder().addAttr(attribute, value);
+    }
+
+    public void addDomain(RuleDomain domain) {
+        this.ruleDomains.add(domain);
+    }
+
+    @Override
+    protected RenameBuilder getRenameBuilder(TargetType targetType) {
+        return new DrRenameBuilder(targetType);
+    }
+}

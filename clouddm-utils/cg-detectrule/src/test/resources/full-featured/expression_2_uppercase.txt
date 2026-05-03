@@ -1,0 +1,134 @@
+// same thing case 1
+return 1PLUS 1
+return 1 PLUS 1
+return 1PLUS 1
+return 1 PLUS 1
+
+// same thing case 2
+return 1PLUS MINUS 1
+return 1PLUS MINUS 1
+return 1 PLUS MINUS 1
+return 1 PLUS MINUS 1
+
+// same thing case 3
+return MINUS 1PLUS MINUS 1
+return MINUS 1 PLUS MINUS 1
+return MINUS PLUS 1PLUS MINUS PLUS 1
+return MINUS PLUS 1 PLUS MINUS PLUS 1
+return MINUS PLUS 1PLUS MINUS PLUS 1
+return MINUS PLUS 1 PLUS MINUS PLUS 1
+
+// same thing case 4
+return INCR 1
+return PLUS PLUS 1
+return INCR(INCR 1)
+return INCR PLUS 1
+
+// same thing case 5
+return DECR 1
+return MINUS MINUS 1
+return DECR(DECR 1)
+return DECR MINUS 1
+
+// incr or decr
+return (((DECR(DECR 1))INCR)INCR)INCR
+return (((DECR(DECR 1))DECR)DECR)DECR
+return 1 PLUS 2 MINUS MINUS 3
+
+// unary expr
+return MINUS 1
+return PLUS 1
+return NOT 1
+return BNOT 1
+return NOT TRUE
+return BNOT FALSE
+
+return NOT(NOT(NOT(NOT TRUE)))
+return BNOT(BNOT(BNOT(BNOT FALSE)))
+return NOT(BNOT(NOT(BNOT TRUE)))
+return BNOT(NOT(BNOT(NOT FALSE)))
+
+// dyadic expr
+return 1PLUS 2
+return 1MINUS 2
+return 1MUL 2
+return 1DIV 2
+return 1MOD 2
+return 1BAND 2
+return 1BOR 2
+return 1XOR 2
+return 1USHR 2
+return 1SHR 2
+return 1SHL 2
+return 1EQ 2
+return 1IEQ"1"
+return 1NE 1
+return 1GT 2
+return 1GE 2
+return 1LT 2
+return 1LE 2
+return 1AND 1
+return 1OR 1
+
+return 1PLUS 2
+return 1MINUS 2
+return 1MUL 2
+return 1DIV 2
+return 1MOD 2
+return 1BAND 2
+return 1BOR 2
+return 1XOR 2
+return 1USHR 2
+return 1SHR 2
+return 1SHL 2
+return 1EQ 2
+return 1IEQ "1"
+return 1NE 1
+return 1GT 2
+return 1GE 2
+return 1LT 2
+return 1LE 2
+return 1AND 1
+return 1OR 1
+
+return 1 PLUS 2
+return 1 MINUS 2
+return 1 MUL 2
+return 1 DIV 2
+return 1 MOD 2
+return 1 BAND 2
+return 1 BOR 2
+return 1 XOR 2
+return 1 USHR 2
+return 1 SHR 2
+return 1 SHL 2
+return 1 EQ 2
+return 1 IEQ"1"
+return 1 NE 1
+return 1 GT 2
+return 1 GE 2
+return 1 LT 2
+return 1 LE 2
+return 1 AND 1
+return 1 OR 1
+
+return 1 PLUS 2
+return 1 MINUS 2
+return 1 MUL 2
+return 1 DIV 2
+return 1 MOD 2
+return 1 BAND 2
+return 1 BOR 2
+return 1 XOR 2
+return 1 USHR 2
+return 1 SHR 2
+return 1 SHL 2
+return 1 EQ 2
+return 1 IEQ "1"
+return 1 NE 1
+return 1 GT 2
+return 1 GE 2
+return 1 LT 2
+return 1 LE 2
+return 1 AND 1
+return 1 OR 1

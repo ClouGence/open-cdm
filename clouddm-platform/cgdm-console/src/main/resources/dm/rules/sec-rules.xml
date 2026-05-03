@@ -1,0 +1,1815 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ruleSet PUBLIC "-//clougence.com/sec-rules//DTD SecRule 1.0//EN" "classpath://dm/rules/sec-rules.dtd">
+<ruleSet>
+    <queryRules>
+        <!-- catalog -->
+        <ruleDef id="rule_catalog_001" ruleName="i18n::DEPRECATED_RULE_N_CATALOG_CHARACTER_SET" ruleDesc="i18n::DEPRECATED_RULE_D_CATALOG_CHARACTER_SET" ruleTarget="Catalog" scriptType="DetectRules" oldId="2" deprecated="true"><![CDATA[
+#define "require" as bool
+        default "true"
+        enum ["true", "false"]
+        hint "强制要求设置字符集"
+#define "character_set" as string
+        default "utf8mb4"
+        enum ["utf8", "utf8mb4"]
+        hint "允许使用的字符集"
+
+// 对于 alert 语句，只有当设置了 character set 选项时候才进行校验
+if
+  @domain.sqlType in ['ALERT_CATALOG'] and
+  @func.string.isNotBlank(@domain.characterSet)
+then
+
+    if @func.string.isBlank(#{character_set}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
+    end
+
+end
+
+// 对于 create 语句，检测是否必须设置 character set 选项
+if @domain.sqlType == 'CREATE_CATALOG' then
+
+  if cast(#{require} as bool) then
+
+    if @func.string.isBlank(#{character_set}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
+    end
+
+  else
+
+    if @func.string.isBlank(@domain.characterSet) then
+      return true
+    else
+      return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
+    end
+
+  end
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_catalog_002" ruleName="i18n::DEPRECATED_RULE_N_CATALOG_COLLATE" ruleDesc="i18n::DEPRECATED_RULE_D_CATALOG_COLLATE" ruleTarget="Catalog" scriptType="DetectRules" oldId="1" deprecated="true"><![CDATA[
+#define "require" as bool
+        default "true"
+        enum ["true", "false"]
+        hint "强制要求设置排序规则"
+#define "collate" as string
+        default "utf8mb4_unicode_ci"
+        enum ["utf8_unicode_ci", "utf8mb4_unicode_ci"]
+        hint "允许使用的排序规则"
+
+// 对于 alert 语句，只有当设置了 collate 选项时候才进行校验
+if
+  @domain.sqlType in ['ALERT_CATALOG'] and
+  @func.string.isNotBlank(@domain.collate)
+then
+
+    if @func.string.isBlank(#{collate}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
+    end
+
+end
+
+// 对于 create 语句，检测是否必须设置 collate 选项
+if @domain.sqlType == 'CREATE_CATALOG' then
+
+  if cast(#{require} as bool) then
+
+    if @func.string.isBlank(#{collate}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
+    end
+
+  else
+
+    if @func.string.isBlank(@domain.collate) then
+      return true
+    else
+      return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
+    end
+
+  end
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_catalog_003" ruleName="i18n::RULE_N_CATALOG_NAME_CASE_TYPE" ruleDesc="i18n::RULE_D_CATALOG_NAME_CASE_TYPE" ruleTarget="Catalog" scriptType="DetectRules"><![CDATA[
+#define "caseType" as string
+        default "Lower case"
+        enum ["Lower case", "Upper case", "Lower camel case", "Upper camel case"]
+        hint "名称拼写规则"
+
+if @domain.sqlType == 'CREATE_CATALOG' then
+  checkName = @domain.catalog
+elseif @domain.sqlType == 'RENAME_CATALOG' then
+  checkName = @domain.newName
+else
+  return true
+end
+
+// ref document https://newbedev.com/regex-for-pascalcased-words-aka-camelcased-with-leading-uppercase-letter
+
+if #{caseType} == 'Lower case' then
+  return @func.string.lowerCase(checkName) == checkName
+
+elseif #{caseType} == 'Upper case' then
+
+  return @func.string.upperCase(checkName) == checkName
+
+elseif #{caseType} == 'Lower camel case' then
+  return checkName matches '[a-z]+((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?'
+
+elseif #{caseType} == 'Upper camel case' then
+  return checkName matches '([A-Z][a-z0-9]+)((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?'
+
+else
+
+  return false
+end
+]]></ruleDef>
+
+        <!-- schema -->
+        <ruleDef id="rule_schema_001" ruleName="i18n::RULE_N_SCHEMA_CHARACTER_SET" ruleDesc="i18n::RULE_D_SCHEMA_CHARACTER_SET" ruleTarget="Schema" scriptType="DetectRules"><![CDATA[
+#define "require" as bool
+        default "true"
+        enum ["true", "false"]
+        hint "强制要求设置字符集"
+#define "character_set" as string
+        default "utf8mb4"
+        enum ["utf8", "utf8mb4"]
+        hint "允许使用的字符集"
+
+// 对于 alter 语句，只有当设置了 character set 选项时候才进行校验
+if
+  @domain.sqlType in ['ALTER_CATALOG'] and
+  @func.string.isNotBlank(@domain.characterSet)
+then
+
+    if @func.string.isBlank(#{character_set}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
+    end
+
+end
+
+// 对于 create 语句，检测是否必须设置 character set 选项
+if @domain.sqlType == 'CREATE_CATALOG' then
+
+  if cast(#{require} as bool) then
+
+    if @func.string.isBlank(#{character_set}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
+    end
+
+  else
+
+    if @func.string.isBlank(@domain.characterSet) then
+      return true
+    else
+      return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
+    end
+
+  end
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_schema_002" ruleName="i18n::RULE_N_SCHEMA_COLLATE" ruleDesc="i18n::RULE_D_SCHEMA_COLLATE" ruleTarget="Schema" scriptType="DetectRules"><![CDATA[
+#define "require" as bool
+        default "true"
+        enum ["true", "false"]
+        hint "强制要求设置排序规则"
+#define "collate" as string
+        default "utf8mb4_unicode_ci"
+        enum ["utf8_unicode_ci", "utf8mb4_unicode_ci"]
+        hint "允许使用的排序规则"
+
+// 对于 alter 语句，只有当设置了 collate 选项时候才进行校验
+if
+  @domain.sqlType in ['ALTER_CATALOG'] and
+  @func.string.isNotBlank(@domain.collate)
+then
+
+    if @func.string.isBlank(#{collate}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
+    end
+
+end
+
+// 对于 create 语句，检测是否必须设置 collate 选项
+if @domain.sqlType == 'CREATE_CATALOG' then
+
+  if cast(#{require} as bool) then
+
+    if @func.string.isBlank(#{collate}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
+    end
+
+  else
+
+    if @func.string.isBlank(@domain.collate) then
+      return true
+    else
+      return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
+    end
+
+  end
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_schema_003" ruleName="i18n::RULE_N_SCHEMA_NAME_CASE_TYPE" ruleDesc="i18n::RULE_D_SCHEMA_NAME_CASE_TYPE" ruleTarget="Schema" scriptType="DetectRules"><![CDATA[
+#define "caseType" as string
+        default "Lower case"
+        enum ["Lower case", "Upper case", "Lower camel case", "Upper camel case"]
+        hint "名称拼写规则"
+
+if @domain.sqlType == 'CREATE_SCHEMA' then
+  checkName = @domain.schema
+elseif @domain.sqlType == 'RENAME_SCHEMA' then
+  checkName = @domain.newName
+else
+  return true
+end
+
+// ref document https://newbedev.com/regex-for-pascalcased-words-aka-camelcased-with-leading-uppercase-letter
+
+if #{caseType} == 'Lower case' then
+  return @func.string.lowerCase(checkName) == checkName
+
+elseif #{caseType} == 'Upper case' then
+
+  return @func.string.upperCase(checkName) == checkName
+
+elseif #{caseType} == 'Lower camel case' then
+  return checkName matches '[a-z]+((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?'
+
+elseif #{caseType} == 'Upper camel case' then
+  return checkName matches '([A-Z][a-z0-9]+)((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?'
+
+else
+
+  return false
+end
+]]></ruleDef>
+        <ruleDef id="rule_schema_004" ruleName="i18n::RULE_N_SCHEMA_REDIS_COMMAND_CHECK" ruleDesc="i18n::RULE_D_SCHEMA_REDIS_COMMAND_CHECK" ruleTarget="" scriptType="DetectRules"><![CDATA[
+#define "checkMode" as string
+        default "Allow"
+        enum ["Allow", "Reject"]
+        hint "名单规则"
+#define "commands" as string
+        default ""
+        hint "名单中的命令，多条使用分号分隔"
+
+if @domain.dsType != 'Redis' then
+  return true
+end
+
+if #{checkMode} === 'Allow' then
+  return @domain.command in
+         @func.string.split(@func.string.upperCase(#{commands}),';')
+elseif #{checkMode} === 'Reject' then
+  return @domain.command not in
+         @func.string.split(@func.string.upperCase(#{commands}),';')
+else
+  return true
+end
+]]></ruleDef>
+        <ruleDef id="rule_schema_005" ruleName="i18n::RULE_N_SCHEMA_MONGO_COMMAND_CHECK" ruleDesc="i18n::RULE_D_SCHEMA_MONGO_COMMAND_CHECK" ruleTarget="" scriptType="DetectRules"><![CDATA[
+#define "checkMode" as string
+        default "Allow"
+        enum ["Allow", "Reject"]
+        hint "名单规则"
+#define "functions" as string
+        default ""
+        hint "名单中的方法，通配符多条使用分号分隔"
+
+if @domain.dsType != 'MongoDB' then
+  return true
+end
+
+if #{checkMode} === 'Allow' then
+  return @domain.func in
+         @func.string.split(#{functions},';')
+elseif #{checkMode} === 'Reject' then
+  return @domain.func not in
+         @func.string.split(#{functions},';')
+else
+  return true
+end
+
+]]></ruleDef>
+
+        <!-- table -->
+        <ruleDef id="rule_table_001" ruleName="i18n::RULE_N_TABLE_AUTO_INCREMENT" ruleDesc="i18n::RULE_D_TABLE_AUTO_INCREMENT" ruleTarget="Table" scriptType="DetectRules" oldId="3"><![CDATA[
+#define "require" as bool
+        default "false"
+        enum ["true", "false"]
+        hint "强制要求设置自增初始值"
+#define "number" as int
+        default "1"
+        hint "建表自增初始值"
+
+if @domain.sqlType != 'CREATE_TABLE' then
+  return true
+end
+
+if @func.string.isBlank(@domain.autoIncrement) then
+
+  return !cast(#{require} as bool)
+
+else
+
+  if @func.string.isBlank(#{number}) then
+    return false // 规则配置错误
+  else
+    return cast(@domain.autoIncrement as int) == cast(#{number} as int)
+  end
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_table_002" ruleName="i18n::RULE_N_TABLE_CREATE_MAX_COLUMNS" ruleDesc="i18n::RULE_D_TABLE_CREATE_MAX_COLUMNS" ruleTarget="Table" scriptType="DetectRules" oldId="4"><![CDATA[
+#define "maxCount" as int
+        default "50"
+        hint "表最大字段数量"
+
+if
+  @domain.sqlType != 'CREATE_TABLE'
+then
+  return true
+end
+
+return @func.array.size(@domain.columns) <= cast(#{maxCount} as int)
+]]></ruleDef>
+        <ruleDef id="rule_table_003" ruleName="i18n::RULE_N_TABLE_NAME_CASE_TYPE" ruleDesc="i18n::RULE_D_TABLE_NAME_CASE_TYPE" ruleTarget="Table" scriptType="DetectRules" oldId="5"><![CDATA[
+#define "caseType" as string
+        default "Lower case"
+        enum ["Lower case", "Upper case", "Lower camel case", "Upper camel case"]
+        hint "表名拼写规则"
+
+if @domain.sqlType in ['CREATE_TABLE', 'CREATE_TABLE_SELECT', 'CREATE_TABLE_LIKE'] then
+  checkName = @domain.table
+elseif @domain.sqlType in ['RENAME_TABLE', 'ALTER_TABLE_RENAME'] then
+  checkName = @domain.newName
+else
+  return true
+end
+
+// ref document https://newbedev.com/regex-for-pascalcased-words-aka-camelcased-with-leading-uppercase-letter
+
+if #{caseType} == 'Lower case' then
+  return @func.string.lowerCase(checkName) == checkName
+
+elseif #{caseType} == 'Upper case' then
+
+  return @func.string.upperCase(checkName) == checkName
+
+elseif #{caseType} == 'Lower camel case' then
+  return checkName matches '[a-z]+((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?'
+
+elseif #{caseType} == 'Upper camel case' then
+  return checkName matches '([A-Z][a-z0-9]+)((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?'
+
+else
+
+  return false
+end
+]]></ruleDef>
+        <ruleDef id="rule_table_004" ruleName="i18n::RULE_N_TABLE_NEED_COMMENT" ruleDesc="i18n::RULE_D_TABLE_NEED_COMMENT" ruleTarget="Table" scriptType="DetectRules" oldId="6"><![CDATA[
+if
+  @domain.sqlType == 'CREATE_TABLE'
+then
+  return @func.string.isNotBlank(@domain.comment)
+end
+
+if
+  @domain.sqlType == 'ALTER_TABLE' and
+  @domain.comment != null
+then
+  return @func.string.isNotBlank(@domain.comment)
+end
+]]></ruleDef>
+        <ruleDef id="rule_table_005" ruleName="i18n::RULE_N_TABLE_NEED_PRIMARY" ruleDesc="i18n::RULE_D_TABLE_NEED_PRIMARY" ruleTarget="Table" scriptType="DetectRules" oldId="7"><![CDATA[
+if
+  @domain.sqlType == 'CREATE_TABLE'
+then
+  return @domain.hasPrimary
+end
+]]></ruleDef>
+        <ruleDef id="rule_table_006" ruleName="i18n::RULE_N_TABLE_NAME_NOT_IN_KEYWORDS" ruleDesc="i18n::RULE_D_TABLE_NAME_NOT_IN_KEYWORDS" ruleTarget="Table" scriptType="DetectRules" oldId="8"><![CDATA[
+if
+  @domain.sqlType in ['CREATE_TABLE', 'CREATE_TABLE_SELECT', 'CREATE_TABLE_LIKE']
+then
+  testName = @domain.table
+elseif
+  @domain.sqlType in ['RENAME_TABLE', 'ALTER_TABLE_RENAME']
+then
+  testName = @domain.newName
+elseif
+  @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN']
+then
+  testName = @domain.column
+elseif
+  @domain.sqlType == 'ALTER_TABLE_RENAME_COLUMN'
+then
+  testName = @domain.newName
+else
+  return true
+end
+
+if @domain.dsType in ['MySQL', 'OceanBase', 'AdbForMySQL', 'PolarDbMySQL', 'PolarDbX'] then
+  return @func.string.upperCase(testName) not in
+    ['ACCESSIBLE','ADD','ALL','ALTER','ANALYZE','AND','AS','ASC','ASENSITIVE',
+     'BEFORE','BETWEEN','BIGINT','BINARY','BLOB','BOTH','BY',
+     'CALL','CASCADE','CASE','CHANGE','CHAR','CHARACTER','CHECK','COLLATE','COLUMN','CONDITION','CONSTRAINT','CONTINUE',
+     'CONVERT','CREATE','CROSS','CURRENT_DATE','CURRENT_TIME','CURRENT_TIMESTAMP','CURRENT_USER','CURSOR',
+     'DATABASE','DATABASES','DAY_HOUR','DAY_MICROSECOND','DAY_MINUTE','DAY_SECOND','DEC','DECIMAL','DECLARE','DEFAULT',
+     'DELAYED','DELETE','DESC','DESCRIBE','DETERMINISTIC','DISTINCT','DISTINCTROW','DIV','DOUBLE','DROP','DUAL',
+     'EACH','ELSE','ELSEIF','ENCLOSED','ESCAPED','EXISTS','EXIT','EXPLAIN',
+     'FALSE','FETCH','FLOAT','FLOAT4','FLOAT8','FOR','FORCE','FOREIGN','FROM','FULLTEXT','GENERATED','GET','GRANTint','GROUP',
+     'HAVING','HIGH_PRIORITY','HOUR_MICROSECOND','HOUR_MINUTE','HOUR_SECOND','IF','IGNORE','IN','INDEX','INFILE',
+     'INNER','INOUT','INSENSITIVE','INSERT','INT','INT1','INT2','INT3','INT4','INT8','INTEGER','INTERVALint','INTO',
+     'IO_AFTER_GTIDS','IO_BEFORE_GTIDS','IS','ITERATE','JOIN','KEY','KEYS','KILL','LEADING','LEAVE','LEFT','LIKE',
+     'LIMIT','LINEAR','LINES','LOAD','LOCALTIME','LOCALTIMESTAMP','LOCK','LONG','LONGBLOB','LONGTEXT','LOOP','LOW_PRIORITY',
+     'MASTER_BIND','MASTER_SSL_VERIFY_SERVER_CERT','MATCH','MAXVALUE','MEDIUMBLOB','MEDIUMINT','MEDIUMTEXT','MIDDLEINT',
+     'MINUTE_MICROSECOND','MINUTE_SECOND','MOD','MODIFIES','NATURAL','NOT','NO_WRITE_TO_BINLOG','NULL','NUMERIC',
+     'ON','OPTIMIZE','OPTIMIZER_COSTS','OPTION','OPTIONALLY','OR','ORDER','OUT','OUTER','OUTFILE','PARTITION','PRECISION',
+     'PRIMARY','PROCEDURE','PURGE','RANGE','READ','READS','READ_WRITE','REAL','REFERENCES','REGEXP','RELEASE','RENAME',
+     'REPEAT','REPLACE','REQUIRE','RESIGNAL','RESTRICT','RETURN','REVOKE','RIGHT','RLIKE','SCHEMA','SCHEMAS',
+     'SECOND_MICROSECOND','SELECT','SENSITIVE','SEPARATOR','SET','SHOW','SIGNAL','SMALLINT','SPATIAL','SPECIFIC',
+     'SQL','SQLEXCEPTION','SQLSTATE','SQLWARNING','SQL_BIG_RESULT','SQL_CALC_FOUND_ROWS','SQL_SMALL_RESULT','SSL',
+     'STARTING','STORED','STRAIGHT_JOIN','TABLE','TERMINATED','THEN','TINYBLOB','TINYINT','TINYTEXT','TO','TRAILING',
+     'TRIGGER','TRUE','UNDO','UNION','UNIQUE','UNLOCK','UNSIGNED','UPDATE','USAGE','USE','USING','UTC_DATE','UTC_TIME',
+     'UTC_TIMESTAMP','VALUES','VARBINARY','VARCHAR','VARCHARACTER','VARYING','VIRTUAL','WHEN','WHERE','WHILE','WITH',
+     'WRITE','XOR','YEAR_MONTH','ZEROFILL']
+end
+
+if @domain.dsType in ['PostgreSQL', 'Greenplum', 'PolarDBPg','GaussDBForOpenGauss','GaussDB'] then
+  return @func.string.upperCase(testName) not in
+    ['ALL','ALWAYS','ANALYSE','ANALYZE','AND','ANY','ARRAY','AS','ASC','ASYMMETRIC','AUTHORIZATION',
+     'BETWEEN','BINARY','BOTH','CASE','CAST','CHECK','COLLATE','COLLATION','COLUMN','CONCURRENTLY','CONSTRAINT',
+     'CREATE','CROSS','CURRENT_DATE','CURRENT_ROLE','CURRENT_TIME','CURRENT_TIMESTAMP','CURRENT_USER','DEFAULT',
+     'DEFERRABLE','DESC','DISTINCT','DO','ELSE','END','END-EXEC','EXCEPT','FALSE','FETCH','FOR','FOREIGN','FREEZE',
+     'FROM','FULL','GRANT','GROUP','HAVING','ILIKE','IN','INITIALLY','INNER','INTERSECT','INTO','IS','ISNULL',
+     'JOIN','LATERAL','LEADING','LEFT','LIKE','LIMIT','LOCALTIME','LOCALTIMESTAMP','NATURAL','NOT','NOTNULL','NULL',
+     'OFFSET','ON','ONLY','OR','ORDER','OUTER','OVERLAPS','PLACING','PRIMARY','REFERENCES','RETURNING','RIGHT',
+     'SELECT','SESSION_USER','SIMILAR','SOME','SYMMETRIC','TABLE','TABLESAMPLE','THEN','TO','TRAILING','TRUE',
+     'UNION','UNIQUE','USER','USING','VERBOSE','WHEN','WHERE','WINDOW','WITH']
+end
+
+if @domain.dsType in ['TiDB'] then
+  return @func.string.upperCase(testName) not in
+    ['ACCOUNT','ACTION','ADD','ADMIN','ADVISE','AFTER','AGAINST','AGO','ALGORITHM','ALL','ALTER','ALWAYS','ANALYZE','AND','ANY',
+     'ARRAY','AS','ASC','ASCII','ATTRIBUTE','ATTRIBUTES','AUTO_ID_CACHE','AUTO_INCREMENT','AUTO_RANDOM','AUTO_RANDOM_BASE','AVG',
+     'AVG_ROW_LENGTH','BACKEND','BACKUP','BACKUPS','BATCH','BDR','BEGIN','BERNOULLI','BETWEEN','BIGINT','BINARY','BINDING','BINDINGS',
+     'BINDING_CACHE','BINLOG','BIT','BLOB','BLOCK','BOOL','BOOLEAN','BOTH','BTREE','BUCKETS','BUILTINS','BY','BYTE','CACHE','CALIBRATE',
+     'CALL','CANCEL','CAPTURE','CARDINALITY','CASCADE','CASCADED','CASE','CAUSAL','CHAIN','CHANGE','CHAR','CHARACTER','CHARSET','CHECK',
+     'CHECKPOINT','CHECKSUM','CIPHER','CLEANUP','CLIENT','CLIENT_ERRORS_SUMMARY','CLOSE','CLUSTER','CLUSTERED','CMSKETCH','COALESCE',
+     'COLLATE','COLLATION','COLUMN','COLUMN_FORMAT','COLUMN_STATS_USAGE','COLUMNS','COMMENT','COMMIT','COMMITTED','COMPACT','COMPRESSED',
+     'COMPRESSION','CONCURRENCY','CONFIG','CONNECTION','CONSISTENCY','CONSISTENT','CONSTRAINT','CONTEXT','CONTINUE','CONVERT',
+     'CORRELATION','CPU','CREATE','CROSS','CSV_BACKSLASH_ESCAPE','CSV_DELIMITER','CSV_HEADER','CSV_NOT_NULL','CSV_NULL','CSV_SEPARATOR',
+     'CSV_TRIM_LAST_SEPARATORS','CUME_DIST','CURRENT','CURRENT_DATE','CURRENT_ROLE','CURRENT_TIME','CURRENT_TIMESTAMP','CURRENT_USER',
+     'CURSOR','CYCLE','DATA','DATABASE','DATABASES','DATE','DATETIME','DAY','DAY_HOUR','DAY_MICROSECOND','DAY_MINUTE','DAY_SECOND',
+     'DDL','DEALLOCATE','DECIMAL','DECLARE','DEFAULT','DEFINER','DELAY_KEY_WRITE','DELAYED','DELETE','DENSE_RANK','DEPENDENCY','DEPTH',
+     'DESC','DESCRIBE','DIGEST','DIRECTORY','DISABLE','DISABLED','DISCARD','DISK','DISTINCT','DISTINCTROW','DIV','DO','DOUBLE',
+     'DRAINER','DROP','DRY','DUAL','DUPLICATE','DYNAMIC','ELSE','ELSEIF','ENABLE','ENABLED','ENCLOSED','ENCRYPTION','END','ENFORCED',
+     'ENGINE','ENGINES','ENUM','ERROR','ERRORS','ESCAPE','ESCAPED','EVENT','EVENTS','EVOLVE','EXCEPT','EXCHANGE','EXCLUSIVE',
+     'EXECUTE','EXISTS','EXIT','EXPANSION','EXPIRE','EXPLAIN','EXTENDED','FAILED_LOGIN_ATTEMPTS','FALSE','FAULTS','FETCH','FIELDS',
+     'FILE','FIRST','FIRST_VALUE','FIXED','FLOAT','FLOAT4','FLOAT8','FLUSH','FOLLOWING','FOR','FORCE','FOREIGN','FORMAT','FOUND',
+     'FROM','FULL','FULLTEXT','FUNCTION','GENERAL','GENERATED','GLOBAL','GRANT','GRANTS','GROUP','GROUPS','HANDLER','HASH','HAVING',
+     'HELP','HIGH_PRIORITY','HISTOGRAM','HISTOGRAMS_IN_FLIGHT','HISTORY','HOSTS','HOUR','HOUR_MICROSECOND','HOUR_MINUTE','HOUR_SECOND',
+     'HYPO','IDENTIFIED','IF','IGNORE','ILIKE','IMPORT','IMPORTS','IN','INCREMENT','INCREMENTAL','INDEX','INDEXES','INFILE','INNER',
+     'INOUT','INSERT','INSERT_METHOD','INSTANCE','INT','INT1','INT2','INT3','INT4','INT8','INTEGER','INTERSECT','INTERVAL','INTO',
+     'INVISIBLE','INVOKER','IO','IPC','IS','ISOLATION','ISSUER','ITERATE','JOB','JOBS','JOIN','JSON','KEY','KEYS','KEY_BLOCK_SIZE',
+     'KILL','LABELS','LAG','LANGUAGE','LAST','LAST_BACKUP','LAST_VALUE','LASTVAL','LEAD','LEADING','LEAVE','LEFT','LESS','LEVEL',
+     'LIKE','LIMIT','LINEAR','LINES','LIST','LOAD','LOCAL','LOCALTIME','LOCALTIMESTAMP','LOCATION','LOCK','LOCKED','LOGS','LONG',
+     'LONGBLOB','LONGTEXT','LOW_PRIORITY','MASTER','MATCH','MAXVALUE','MAX_CONNECTIONS_PER_HOUR','MAX_IDXNUM','MAX_MINUTES',
+     'MAX_QUERIES_PER_HOUR','MAX_ROWS','MAX_UPDATES_PER_HOUR','MAX_USER_CONNECTIONS','MB','MEDIUMBLOB','MEDIUMINT','MEDIUMTEXT',
+     'MEMBER','MEMORY','MERGE','MICROSECOND','MIDDLEINT','MINUTE','MINUTE_MICROSECOND','MINUTE_SECOND','MINVALUE','MIN_ROWS','MOD',
+     'MODE','MODIFY','MONTH','NAMES','NATIONAL','NATURAL','NCHAR','NEVER','NEXT','NEXTVAL','NO','NOCACHE','NOCYCLE','NODEGROUP',
+     'NODE_ID','NODE_STATE','NOMAXVALUE','NOMINVALUE','NONCLUSTERED','NONE','NOT','NOWAIT','NO_WRITE_TO_BINLOG','NTH_VALUE','NTILE',
+     'NULL','NULLS','NUMERIC','NVARCHAR','OF','OFF','OFFSET','OLTP_READ_ONLY','OLTP_READ_WRITE','OLTP_WRITE_ONLY','ON','ON_DUPLICATE',
+     'ONLINE','ONLY','OPEN','OPTIMISTIC','OPTIMIZE','OPTION','OPTIONAL','OPTIONALLY','OR','ORDER','OUT','OUTER','OUTFILE','OVER',
+     'PACK_KEYS','PAGE','PARSER','PARTIAL','PARTITION','PARTITIONING','PARTITIONS','PASSWORD','PASSWORD_LOCK_TIME','PAUSE','PERCENT',
+     'PERCENT_RANK','PER_DB','PER_TABLE','PESSIMISTIC','PLUGINS','POINT','POLICY','PRECEDING','PRECISION','PREPARE','PRESERVE',
+     'PRE_SPLIT_REGIONS','PRIMARY','PRIVILEGES','PROCEDURE','PROCESS','PROCESSLIST','PROFILE','PROFILES','PROXY','PUMP','PURGE',
+     'QUARTER','QUERIES','QUERY','QUICK','RANGE','RANK','RATE_LIMIT','READ','REAL','REBUILD','RECOVER','RECURSIVE','REDUNDANT',
+     'REFERENCES','REGEXP','REGION','REGIONS','RELEASE','RELOAD','REMOVE','RENAME','REORGANIZE','REPAIR','REPEAT','REPEATABLE',
+     'REPLACE','REPLICA','REPLICAS','REPLICATION','REQUIRE','REQUIRED','RESET','RESOURCE','RESPECT','RESTART','RESTORE','RESTORES',
+     'RESTRICT','RESUME','REUSE','REVERSE','REVOKE','RIGHT','RLIKE','ROLE','ROLLBACK','ROLLUP','ROUTINE','ROW','ROW_COUNT','ROW_FORMAT',
+     'ROW_NUMBER','ROWS','RTREE','RUN','SAMPLERATE','SAMPLES','SAN','SAVEPOINT','SECOND','SECOND_MICROSECOND','SECONDARY','SECONDARY_ENGINE',
+     'SECONDARY_LOAD','SECONDARY_UNLOAD','SECURITY','SELECT','SEND_CREDENTIALS_TO_TIKV','SEPARATOR','SEQUENCE','SERIAL','SERIALIZABLE',
+     'SESSION','SESSION_STATES','SET','SETVAL','SHARD_ROW_ID_BITS','SHARE','SHARED','SHOW','SHUTDOWN','SIGNED','SIMPLE','SKIP',
+     'SKIP_SCHEMA_FILES','SLAVE','SLOW','SMALLINT','SNAPSHOT','SOME','SOURCE','SPATIAL','SPLIT','SQL','SQL_BIG_RESULT','SQL_BUFFER_RESULT',
+     'SQL_CACHE','SQL_CALC_FOUND_ROWS','SQL_NO_CACHE','SQL_SMALL_RESULT','SQL_TSI_DAY','SQL_TSI_HOUR','SQL_TSI_MINUTE','SQL_TSI_MONTH',
+     'SQL_TSI_QUARTER','SQL_TSI_SECOND','SQL_TSI_WEEK','SQL_TSI_YEAR','SQLEXCEPTION','SQLSTATE','SQLWARNING','SSL','START','STARTING',
+     'STATISTICS','STATS','STATS_AUTO_RECALC','STATS_BUCKETS','STATS_COL_CHOICE','STATS_COL_LIST','STATS_EXTENDED','STATS_HEALTHY',
+     'STATS_HISTOGRAMS','STATS_LOCKED','STATS_META','STATS_OPTIONS','STATS_PERSISTENT','STATS_SAMPLE_PAGES','STATS_SAMPLE_RATE',
+     'STATS_TOPN','STATUS','STORAGE','STORED','STRAIGHT_JOIN','STRICT_FORMAT','SUBJECT','SUBPARTITION','SUBPARTITIONS','SUPER',
+     'SWAPS','SWITCHES','SYSTEM','SYSTEM_TIME','TABLE','TABLES','TABLESAMPLE','TABLESPACE','TABLE_CHECKSUM','TELEMETRY','TELEMETRY_ID',
+     'TEMPORARY','TEMPTABLE','TERMINATED','TEXT','THAN','THEN','TIDB','TiDB_CURRENT_TSO','TIFLASH','TIKV_IMPORTER','TIME','TIMESTAMP',
+     'TINYBLOB','TINYINT','TINYTEXT','TO','TOKEN_ISSUER','TOPN','TPCC','TPCH_10','TRACE','TRADITIONAL','TRAILING','TRANSACTION',
+     'TRIGGER','TRIGGERS','TRUE','TRUNCATE','TSO','TTL','TTL_ENABLE','TTL_JOB_INTERVAL','TYPE','UNBOUNDED','UNCOMMITTED','UNDEFINED',
+     'UNICODE','UNION','UNIQUE','UNKNOWN','UNLOCK','UNSET','UNSIGNED','UNTIL','UPDATE','USAGE','USE','USER','USING','UTC_DATE','UTC_TIME',
+     'UTC_TIMESTAMP','VALIDATION','VALUE','VALUES','VARBINARY','VARCHAR','VARCHARACTER','VARIABLES','VARYING','VIEW','VIRTUAL','VISIBLE',
+     'WAIT','WARNINGS','WEEK','WEIGHT_STRING','WHEN','WHERE','WHILE','WIDTH','WINDOW','WITH','WITHOUT','WORKLOAD','WRITE','X509','XOR',
+     'YEAR','YEAR_MONTH','ZEROFILL']
+end
+]]></ruleDef>
+        <ruleDef id="rule_table_007" ruleName="i18n::RULE_N_TABLE_CHARACTER_SET" ruleDesc="i18n::RULE_D_TABLE_CHARACTER_SET" ruleTarget="Table" scriptType="DetectRules" oldId="9"><![CDATA[
+#define "require" as bool
+        default "true"
+        enum ["true", "false"]
+        hint "强制要求设置字符集"
+#define "character_set" as string
+        default "utf8mb4"
+        enum ["utf8", "utf8mb4"]
+        hint "允许使用的字符集"
+
+// 对于 ALTER 语句，只有当设置了 character set 选项时候才进行校验
+if
+  @domain.sqlType in ['ALTER_TABLE', 'ALTER_TABLE_CONVERT'] and
+  @func.string.isNotBlank(@domain.characterSet)
+then
+
+    if @func.string.isBlank(#{character_set}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
+    end
+
+end
+
+// 对于 create 语句，检测是否必须设置 character set 选项
+if @domain.sqlType == 'CREATE_TABLE' then
+
+  if cast(#{require} as bool) then
+
+    if @func.string.isBlank(#{character_set}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
+    end
+
+  else
+
+    if @func.string.isBlank(@domain.characterSet) then
+      return true
+    else
+      return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
+    end
+
+  end
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_table_008" ruleName="i18n::RULE_N_TABLE_COLLATE" ruleDesc="i18n::RULE_D_TABLE_COLLATE" ruleTarget="Table" scriptType="DetectRules" oldId="10"><![CDATA[
+#define "require" as bool
+        default "true"
+        enum ["true", "false"]
+        hint "强制要求设置排序规则"
+#define "collate" as string
+        default "utf8mb4_unicode_ci"
+        enum ["utf8_unicode_ci", "utf8mb4_unicode_ci"]
+        hint "允许使用的排序规则"
+
+// 对于 ALTER 语句，只有当设置了 collate 选项时候才进行校验
+if
+  @domain.sqlType in ['ALTER_TABLE', 'ALTER_TABLE_CONVERT'] and
+  @func.string.isNotBlank(@domain.collate)
+then
+
+    if @func.string.isBlank(#{collate}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
+    end
+
+end
+
+// 对于 create 语句，检测是否必须设置 collate 选项
+if @domain.sqlType == 'CREATE_TABLE' then
+
+  if cast(#{require} as bool) then
+
+    if @func.string.isBlank(#{collate}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
+    end
+
+  else
+
+    if @func.string.isBlank(@domain.collate) then
+      return true
+    else
+      return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
+    end
+
+  end
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_table_009" ruleName="i18n::RULE_N_TABLE_ENGINE" ruleDesc="i18n::RULE_D_TABLE_ENGINE" ruleTarget="Table" scriptType="DetectRules" oldId="11"><![CDATA[
+#define "require" as bool
+        default "true"
+        enum ["true", "false"]
+        hint "强制要求指定存储引擎"
+#define "engine" as string
+        default "InnoDB"
+        enum ["InnoDB", "MyISAM", "Memory"]
+        hint "允许使用的存储引擎"
+
+// 对于 ALTER 语句，只有当设置了 engine 选项时候才进行校验
+if
+  @domain.sqlType in ['ALTER_TABLE', 'ALTER_TABLE_CONVERT'] and
+  @func.string.isNotBlank(@domain.engine)
+then
+
+    if @func.string.isBlank(#{engine}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.engine, #{engine})
+    end
+
+end
+
+// 对于 create 语句，检测是否必须设置 engine 选项
+if @domain.sqlType == 'CREATE_TABLE' then
+
+  if cast(#{require} as bool) then
+
+    if @func.string.isBlank(#{engine}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.engine, #{engine})
+    end
+
+  else
+
+    if @func.string.isBlank(@domain.engine) then
+      return true
+    else
+      return @func.string.equalsIgnoreCase(@domain.engine, #{engine})
+    end
+
+  end
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_table_010" ruleName="i18n::RULE_N_TABLE_NEED_COLUMNS" ruleDesc="i18n::RULE_D_TABLE_NEED_COLUMNS" ruleTarget="Table" scriptType="DetectRules" oldId="12"><![CDATA[
+#define "columns" as string
+        default "id,create_gmt,modify_gmt"
+        hint "需要包含的列名称，多个列使用逗号区分"
+
+if
+  @domain.sqlType != 'CREATE_TABLE'
+then
+  return true
+end
+
+return @func.string.split(#{columns}, ',') in @domain.columns
+]]></ruleDef>
+        <ruleDef id="rule_table_011" ruleName="i18n::RULE_N_TABLE_NAME_LENGTH" ruleDesc="i18n::RULE_D_TABLE_NAME_LENGTH" ruleTarget="Table" scriptType="DetectRules" oldId="13"><![CDATA[
+#define "length" as int
+        default "30"
+        hint "表名的最大长度"
+
+if @domain.sqlType in ['CREATE_TABLE', 'CREATE_TABLE_SELECT', 'CREATE_TABLE_LIKE'] then
+  checkName = @domain.table
+elseif @domain.sqlType in ['RENAME_TABLE', 'ALTER_TABLE_RENAME'] then
+  checkName = @domain.newName
+else
+  return true
+end
+
+return @func.string.length(checkName) <= cast(#{length} as int)
+]]></ruleDef>
+        <ruleDef id="rule_table_012" ruleName="i18n::RULE_N_TABLE_USE_TABLE_CONVERT" ruleDesc="i18n::RULE_D_TABLE_USE_TABLE_CONVERT" ruleTarget="Table" scriptType="DetectRules" oldId="14"><![CDATA[
+if
+  @domain.sqlType != 'ALTER_TABLE'
+then
+  return true
+end
+
+if
+  @func.string.isNotBlank(@domain.collate) or
+  @func.string.isNotBlank(@domain.characterSet)
+then
+  return false
+end
+]]></ruleDef>
+
+        <!-- column -->
+        <ruleDef id="rule_column_001" ruleName="i18n::RULE_N_COLUMN_CHARACTER_SET" ruleDesc="i18n::RULE_D_COLUMN_CHARACTER_SET" ruleTarget="Column" scriptType="DetectRules" oldId="15"><![CDATA[
+#define "require" as bool
+        default "false"
+        enum ["true", "false"]
+        hint "强制要求设置字符集"
+#define "character_set" as string
+        default "utf8mb4"
+        enum ["utf8", "utf8mb4"]
+        hint "允许使用的字符集"
+
+// 对于 modify/change 语句，只有当设置了 character set 选项时候才进行校验
+if
+  @domain.sqlType == 'ALTER_TABLE_ALTER_COLUMN' and
+  @func.string.isNotBlank(@domain.characterSet)
+then
+
+    if @func.string.isBlank(#{character_set}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
+    end
+
+end
+
+// 对于 add column or create table 语句，检测是否必须设置 character set 选项
+if @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN'] then
+
+  if cast(#{require} as bool) then
+
+    if @func.string.isBlank(#{character_set}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
+    end
+
+  else
+
+    if @func.string.isBlank(@domain.characterSet) then
+      return true
+    else
+      return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
+    end
+
+  end
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_column_002" ruleName="i18n::RULE_N_COLUMN_COLLATE" ruleDesc="i18n::RULE_D_COLUMN_COLLATE" ruleTarget="Column" scriptType="DetectRules" oldId="16"><![CDATA[
+#define "require" as bool
+        default "false"
+        enum ["true", "false"]
+        hint "强制要求设置排序规则"
+#define "collate" as string
+        default "utf8mb4_unicode_ci"
+        enum ["utf8_unicode_ci", "utf8mb4_unicode_ci"]
+        hint "允许使用的排序规则"
+
+// 对于 modify/change 语句，只有当设置了 collate 选项时候才进行校验
+if
+  @domain.sqlType == 'ALTER_TABLE_ALTER_COLUMN' and
+  @func.string.isNotBlank(@domain.collate)
+then
+
+    if @func.string.isBlank(#{collate}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
+    end
+
+end
+
+// 对于 add column or create table 语句，检测是否必须设置 collate 选项
+if @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN'] then
+
+  if cast(#{require} as bool) then
+
+    if @func.string.isBlank(#{collate}) then
+      return false //规则配置错误
+    else
+      return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
+    end
+
+  else
+
+    if @func.string.isBlank(@domain.collate) then
+      return true
+    else
+      return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
+    end
+
+  end
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_column_003" ruleName="i18n::RULE_N_COLUMN_CHARACTER_OR_COLLATE" ruleDesc="i18n::RULE_D_COLUMN_CHARACTER_OR_COLLATE" ruleTarget="Column" scriptType="DetectRules" oldId="17"><![CDATA[
+#define "allow" as string
+        default "Both"
+        enum ["Nothing", "Both", "Character set", "Collate"]
+        hint "是否允许字符集和排序规则出现在列上"
+
+if
+  @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN', 'ALTER_TABLE_ALTER_COLUMN']
+then
+
+  if @func.string.isNotBlank(@domain.characterSet) then
+    if #{allow} not in ['Both', 'Character set'] then
+      return false
+    end
+  end
+
+  if @func.string.isNotBlank(@domain.collate) then
+    if #{allow} not in ['Both', 'Collate'] then
+      return false
+    end
+  end
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_column_004" ruleName="i18n::RULE_N_COLUMN_ALLOW_ZEROFILL" ruleDesc="i18n::RULE_D_COLUMN_ALLOW_ZEROFILL" ruleTarget="Column" scriptType="DetectRules" oldId="18"><![CDATA[
+if
+  @domain.sqlType not in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN', 'ALTER_TABLE_ALTER_COLUMN']
+then
+  return true
+end
+
+return !cast(@domain.zerofill as bool)
+]]></ruleDef>
+        <ruleDef id="rule_column_005" ruleName="i18n::RULE_N_COLUMN_NEED_COMMENT" ruleDesc="i18n::RULE_D_COLUMN_NEED_COMMENT" ruleTarget="Column" scriptType="DetectRules" oldId="19"><![CDATA[
+if
+  @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN']
+then
+  return @func.string.isNotBlank(@domain.comment)
+end
+
+if
+  @domain.sqlType == 'ALTER_TABLE_ALTER_COLUMN' and
+  @domain.comment != null
+then
+  return @func.string.isNotBlank(@domain.comment)
+end
+]]></ruleDef>
+        <ruleDef id="rule_column_006" ruleName="i18n::DEPRECATED_RULE_N_COLUMN_NEED_DEFAULT" ruleDesc="i18n::DEPRECATED_RULE_D_COLUMN_NEED_DEFAULT" ruleTarget="Column" scriptType="DetectRules" oldId="20" deprecated="true"><![CDATA[
+if
+  @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALERT_TABLE_ADD_COLUMN']
+then
+  return @domain.defaultValue != null
+end
+
+if
+  @domain.sqlType == 'ALERT_TABLE_ALERT_COLUMN' and
+  @domain.defaultValue != null
+then
+  return @func.string.isNotBlank(@domain.defaultValue)
+end
+]]></ruleDef>
+        <ruleDef id="rule_column_007" ruleName="i18n::RULE_N_COLUMN_NAME_NOT_IN_KEYWORDS" ruleDesc="i18n::RULE_D_COLUMN_NAME_NOT_IN_KEYWORDS" ruleTarget="Column" scriptType="DetectRules" oldId="21"><![CDATA[
+if
+  @domain.sqlType in ['CREATE_TABLE', 'CREATE_TABLE_SELECT', 'CREATE_TABLE_LIKE']
+then
+  testName = @domain.table
+elseif
+  @domain.sqlType in ['RENAME_TABLE', 'ALTER_TABLE_RENAME']
+then
+  testName = @domain.newName
+elseif
+  @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN']
+then
+  testName = @domain.column
+elseif
+  @domain.sqlType == 'ALTER_TABLE_RENAME_COLUMN'
+then
+  testName = @domain.newName
+else
+  return true
+end
+
+if @domain.dsType in ['MySQL', 'OceanBase', 'AdbForMySQL', 'PolarDbMySQL', 'PolarDbX'] then
+  return @func.string.upperCase(testName) not in
+    ['ACCESSIBLE','ADD','ALL','ALTER','ANALYZE','AND','AS','ASC','ASENSITIVE',
+     'BEFORE','BETWEEN','BIGINT','BINARY','BLOB','BOTH','BY',
+     'CALL','CASCADE','CASE','CHANGE','CHAR','CHARACTER','CHECK','COLLATE','COLUMN','CONDITION','CONSTRAINT','CONTINUE',
+     'CONVERT','CREATE','CROSS','CURRENT_DATE','CURRENT_TIME','CURRENT_TIMESTAMP','CURRENT_USER','CURSOR',
+     'DATABASE','DATABASES','DAY_HOUR','DAY_MICROSECOND','DAY_MINUTE','DAY_SECOND','DEC','DECIMAL','DECLARE','DEFAULT',
+     'DELAYED','DELETE','DESC','DESCRIBE','DETERMINISTIC','DISTINCT','DISTINCTROW','DIV','DOUBLE','DROP','DUAL',
+     'EACH','ELSE','ELSEIF','ENCLOSED','ESCAPED','EXISTS','EXIT','EXPLAIN',
+     'FALSE','FETCH','FLOAT','FLOAT4','FLOAT8','FOR','FORCE','FOREIGN','FROM','FULLTEXT','GENERATED','GET','GRANTint','GROUP',
+     'HAVING','HIGH_PRIORITY','HOUR_MICROSECOND','HOUR_MINUTE','HOUR_SECOND','IF','IGNORE','IN','INDEX','INFILE',
+     'INNER','INOUT','INSENSITIVE','INSERT','INT','INT1','INT2','INT3','INT4','INT8','INTEGER','INTERVALint','INTO',
+     'IO_AFTER_GTIDS','IO_BEFORE_GTIDS','IS','ITERATE','JOIN','KEY','KEYS','KILL','LEADING','LEAVE','LEFT','LIKE',
+     'LIMIT','LINEAR','LINES','LOAD','LOCALTIME','LOCALTIMESTAMP','LOCK','LONG','LONGBLOB','LONGTEXT','LOOP','LOW_PRIORITY',
+     'MASTER_BIND','MASTER_SSL_VERIFY_SERVER_CERT','MATCH','MAXVALUE','MEDIUMBLOB','MEDIUMINT','MEDIUMTEXT','MIDDLEINT',
+     'MINUTE_MICROSECOND','MINUTE_SECOND','MOD','MODIFIES','NATURAL','NOT','NO_WRITE_TO_BINLOG','NULL','NUMERIC',
+     'ON','OPTIMIZE','OPTIMIZER_COSTS','OPTION','OPTIONALLY','OR','ORDER','OUT','OUTER','OUTFILE','PARTITION','PRECISION',
+     'PRIMARY','PROCEDURE','PURGE','RANGE','READ','READS','READ_WRITE','REAL','REFERENCES','REGEXP','RELEASE','RENAME',
+     'REPEAT','REPLACE','REQUIRE','RESIGNAL','RESTRICT','RETURN','REVOKE','RIGHT','RLIKE','SCHEMA','SCHEMAS',
+     'SECOND_MICROSECOND','SELECT','SENSITIVE','SEPARATOR','SET','SHOW','SIGNAL','SMALLINT','SPATIAL','SPECIFIC',
+     'SQL','SQLEXCEPTION','SQLSTATE','SQLWARNING','SQL_BIG_RESULT','SQL_CALC_FOUND_ROWS','SQL_SMALL_RESULT','SSL',
+     'STARTING','STORED','STRAIGHT_JOIN','TABLE','TERMINATED','THEN','TINYBLOB','TINYINT','TINYTEXT','TO','TRAILING',
+     'TRIGGER','TRUE','UNDO','UNION','UNIQUE','UNLOCK','UNSIGNED','UPDATE','USAGE','USE','USING','UTC_DATE','UTC_TIME',
+     'UTC_TIMESTAMP','VALUES','VARBINARY','VARCHAR','VARCHARACTER','VARYING','VIRTUAL','WHEN','WHERE','WHILE','WITH',
+     'WRITE','XOR','YEAR_MONTH','ZEROFILL']
+end
+
+if @domain.dsType in ['PostgreSQL', 'Greenplum', 'PolarDBPg','GaussDBForOpenGauss','GaussDB'] then
+  return @func.string.upperCase(testName) not in
+    ['ALL','ALWAYS','ANALYSE','ANALYZE','AND','ANY','ARRAY','AS','ASC','ASYMMETRIC','AUTHORIZATION',
+     'BETWEEN','BINARY','BOTH','CASE','CAST','CHECK','COLLATE','COLLATION','COLUMN','CONCURRENTLY','CONSTRAINT',
+     'CREATE','CROSS','CURRENT_DATE','CURRENT_ROLE','CURRENT_TIME','CURRENT_TIMESTAMP','CURRENT_USER','DEFAULT',
+     'DEFERRABLE','DESC','DISTINCT','DO','ELSE','END','END-EXEC','EXCEPT','FALSE','FETCH','FOR','FOREIGN','FREEZE',
+     'FROM','FULL','GRANT','GROUP','HAVING','ILIKE','IN','INITIALLY','INNER','INTERSECT','INTO','IS','ISNULL',
+     'JOIN','LATERAL','LEADING','LEFT','LIKE','LIMIT','LOCALTIME','LOCALTIMESTAMP','NATURAL','NOT','NOTNULL','NULL',
+     'OFFSET','ON','ONLY','OR','ORDER','OUTER','OVERLAPS','PLACING','PRIMARY','REFERENCES','RETURNING','RIGHT',
+     'SELECT','SESSION_USER','SIMILAR','SOME','SYMMETRIC','TABLE','TABLESAMPLE','THEN','TO','TRAILING','TRUE',
+     'UNION','UNIQUE','USER','USING','VERBOSE','WHEN','WHERE','WINDOW','WITH']
+end
+
+if @domain.dsType in ['TiDB'] then
+  return @func.string.upperCase(testName) not in
+    ['ACCOUNT','ACTION','ADD','ADMIN','ADVISE','AFTER','AGAINST','AGO','ALGORITHM','ALL','ALTER','ALWAYS','ANALYZE','AND','ANY',
+     'ARRAY','AS','ASC','ASCII','ATTRIBUTE','ATTRIBUTES','AUTO_ID_CACHE','AUTO_INCREMENT','AUTO_RANDOM','AUTO_RANDOM_BASE','AVG',
+     'AVG_ROW_LENGTH','BACKEND','BACKUP','BACKUPS','BATCH','BDR','BEGIN','BERNOULLI','BETWEEN','BIGINT','BINARY','BINDING','BINDINGS',
+     'BINDING_CACHE','BINLOG','BIT','BLOB','BLOCK','BOOL','BOOLEAN','BOTH','BTREE','BUCKETS','BUILTINS','BY','BYTE','CACHE','CALIBRATE',
+     'CALL','CANCEL','CAPTURE','CARDINALITY','CASCADE','CASCADED','CASE','CAUSAL','CHAIN','CHANGE','CHAR','CHARACTER','CHARSET','CHECK',
+     'CHECKPOINT','CHECKSUM','CIPHER','CLEANUP','CLIENT','CLIENT_ERRORS_SUMMARY','CLOSE','CLUSTER','CLUSTERED','CMSKETCH','COALESCE',
+     'COLLATE','COLLATION','COLUMN','COLUMN_FORMAT','COLUMN_STATS_USAGE','COLUMNS','COMMENT','COMMIT','COMMITTED','COMPACT','COMPRESSED',
+     'COMPRESSION','CONCURRENCY','CONFIG','CONNECTION','CONSISTENCY','CONSISTENT','CONSTRAINT','CONTEXT','CONTINUE','CONVERT',
+     'CORRELATION','CPU','CREATE','CROSS','CSV_BACKSLASH_ESCAPE','CSV_DELIMITER','CSV_HEADER','CSV_NOT_NULL','CSV_NULL','CSV_SEPARATOR',
+     'CSV_TRIM_LAST_SEPARATORS','CUME_DIST','CURRENT','CURRENT_DATE','CURRENT_ROLE','CURRENT_TIME','CURRENT_TIMESTAMP','CURRENT_USER',
+     'CURSOR','CYCLE','DATA','DATABASE','DATABASES','DATE','DATETIME','DAY','DAY_HOUR','DAY_MICROSECOND','DAY_MINUTE','DAY_SECOND',
+     'DDL','DEALLOCATE','DECIMAL','DECLARE','DEFAULT','DEFINER','DELAY_KEY_WRITE','DELAYED','DELETE','DENSE_RANK','DEPENDENCY','DEPTH',
+     'DESC','DESCRIBE','DIGEST','DIRECTORY','DISABLE','DISABLED','DISCARD','DISK','DISTINCT','DISTINCTROW','DIV','DO','DOUBLE',
+     'DRAINER','DROP','DRY','DUAL','DUPLICATE','DYNAMIC','ELSE','ELSEIF','ENABLE','ENABLED','ENCLOSED','ENCRYPTION','END','ENFORCED',
+     'ENGINE','ENGINES','ENUM','ERROR','ERRORS','ESCAPE','ESCAPED','EVENT','EVENTS','EVOLVE','EXCEPT','EXCHANGE','EXCLUSIVE',
+     'EXECUTE','EXISTS','EXIT','EXPANSION','EXPIRE','EXPLAIN','EXTENDED','FAILED_LOGIN_ATTEMPTS','FALSE','FAULTS','FETCH','FIELDS',
+     'FILE','FIRST','FIRST_VALUE','FIXED','FLOAT','FLOAT4','FLOAT8','FLUSH','FOLLOWING','FOR','FORCE','FOREIGN','FORMAT','FOUND',
+     'FROM','FULL','FULLTEXT','FUNCTION','GENERAL','GENERATED','GLOBAL','GRANT','GRANTS','GROUP','GROUPS','HANDLER','HASH','HAVING',
+     'HELP','HIGH_PRIORITY','HISTOGRAM','HISTOGRAMS_IN_FLIGHT','HISTORY','HOSTS','HOUR','HOUR_MICROSECOND','HOUR_MINUTE','HOUR_SECOND',
+     'HYPO','IDENTIFIED','IF','IGNORE','ILIKE','IMPORT','IMPORTS','IN','INCREMENT','INCREMENTAL','INDEX','INDEXES','INFILE','INNER',
+     'INOUT','INSERT','INSERT_METHOD','INSTANCE','INT','INT1','INT2','INT3','INT4','INT8','INTEGER','INTERSECT','INTERVAL','INTO',
+     'INVISIBLE','INVOKER','IO','IPC','IS','ISOLATION','ISSUER','ITERATE','JOB','JOBS','JOIN','JSON','KEY','KEYS','KEY_BLOCK_SIZE',
+     'KILL','LABELS','LAG','LANGUAGE','LAST','LAST_BACKUP','LAST_VALUE','LASTVAL','LEAD','LEADING','LEAVE','LEFT','LESS','LEVEL',
+     'LIKE','LIMIT','LINEAR','LINES','LIST','LOAD','LOCAL','LOCALTIME','LOCALTIMESTAMP','LOCATION','LOCK','LOCKED','LOGS','LONG',
+     'LONGBLOB','LONGTEXT','LOW_PRIORITY','MASTER','MATCH','MAXVALUE','MAX_CONNECTIONS_PER_HOUR','MAX_IDXNUM','MAX_MINUTES',
+     'MAX_QUERIES_PER_HOUR','MAX_ROWS','MAX_UPDATES_PER_HOUR','MAX_USER_CONNECTIONS','MB','MEDIUMBLOB','MEDIUMINT','MEDIUMTEXT',
+     'MEMBER','MEMORY','MERGE','MICROSECOND','MIDDLEINT','MINUTE','MINUTE_MICROSECOND','MINUTE_SECOND','MINVALUE','MIN_ROWS','MOD',
+     'MODE','MODIFY','MONTH','NAMES','NATIONAL','NATURAL','NCHAR','NEVER','NEXT','NEXTVAL','NO','NOCACHE','NOCYCLE','NODEGROUP',
+     'NODE_ID','NODE_STATE','NOMAXVALUE','NOMINVALUE','NONCLUSTERED','NONE','NOT','NOWAIT','NO_WRITE_TO_BINLOG','NTH_VALUE','NTILE',
+     'NULL','NULLS','NUMERIC','NVARCHAR','OF','OFF','OFFSET','OLTP_READ_ONLY','OLTP_READ_WRITE','OLTP_WRITE_ONLY','ON','ON_DUPLICATE',
+     'ONLINE','ONLY','OPEN','OPTIMISTIC','OPTIMIZE','OPTION','OPTIONAL','OPTIONALLY','OR','ORDER','OUT','OUTER','OUTFILE','OVER',
+     'PACK_KEYS','PAGE','PARSER','PARTIAL','PARTITION','PARTITIONING','PARTITIONS','PASSWORD','PASSWORD_LOCK_TIME','PAUSE','PERCENT',
+     'PERCENT_RANK','PER_DB','PER_TABLE','PESSIMISTIC','PLUGINS','POINT','POLICY','PRECEDING','PRECISION','PREPARE','PRESERVE',
+     'PRE_SPLIT_REGIONS','PRIMARY','PRIVILEGES','PROCEDURE','PROCESS','PROCESSLIST','PROFILE','PROFILES','PROXY','PUMP','PURGE',
+     'QUARTER','QUERIES','QUERY','QUICK','RANGE','RANK','RATE_LIMIT','READ','REAL','REBUILD','RECOVER','RECURSIVE','REDUNDANT',
+     'REFERENCES','REGEXP','REGION','REGIONS','RELEASE','RELOAD','REMOVE','RENAME','REORGANIZE','REPAIR','REPEAT','REPEATABLE',
+     'REPLACE','REPLICA','REPLICAS','REPLICATION','REQUIRE','REQUIRED','RESET','RESOURCE','RESPECT','RESTART','RESTORE','RESTORES',
+     'RESTRICT','RESUME','REUSE','REVERSE','REVOKE','RIGHT','RLIKE','ROLE','ROLLBACK','ROLLUP','ROUTINE','ROW','ROW_COUNT','ROW_FORMAT',
+     'ROW_NUMBER','ROWS','RTREE','RUN','SAMPLERATE','SAMPLES','SAN','SAVEPOINT','SECOND','SECOND_MICROSECOND','SECONDARY','SECONDARY_ENGINE',
+     'SECONDARY_LOAD','SECONDARY_UNLOAD','SECURITY','SELECT','SEND_CREDENTIALS_TO_TIKV','SEPARATOR','SEQUENCE','SERIAL','SERIALIZABLE',
+     'SESSION','SESSION_STATES','SET','SETVAL','SHARD_ROW_ID_BITS','SHARE','SHARED','SHOW','SHUTDOWN','SIGNED','SIMPLE','SKIP',
+     'SKIP_SCHEMA_FILES','SLAVE','SLOW','SMALLINT','SNAPSHOT','SOME','SOURCE','SPATIAL','SPLIT','SQL','SQL_BIG_RESULT','SQL_BUFFER_RESULT',
+     'SQL_CACHE','SQL_CALC_FOUND_ROWS','SQL_NO_CACHE','SQL_SMALL_RESULT','SQL_TSI_DAY','SQL_TSI_HOUR','SQL_TSI_MINUTE','SQL_TSI_MONTH',
+     'SQL_TSI_QUARTER','SQL_TSI_SECOND','SQL_TSI_WEEK','SQL_TSI_YEAR','SQLEXCEPTION','SQLSTATE','SQLWARNING','SSL','START','STARTING',
+     'STATISTICS','STATS','STATS_AUTO_RECALC','STATS_BUCKETS','STATS_COL_CHOICE','STATS_COL_LIST','STATS_EXTENDED','STATS_HEALTHY',
+     'STATS_HISTOGRAMS','STATS_LOCKED','STATS_META','STATS_OPTIONS','STATS_PERSISTENT','STATS_SAMPLE_PAGES','STATS_SAMPLE_RATE',
+     'STATS_TOPN','STATUS','STORAGE','STORED','STRAIGHT_JOIN','STRICT_FORMAT','SUBJECT','SUBPARTITION','SUBPARTITIONS','SUPER',
+     'SWAPS','SWITCHES','SYSTEM','SYSTEM_TIME','TABLE','TABLES','TABLESAMPLE','TABLESPACE','TABLE_CHECKSUM','TELEMETRY','TELEMETRY_ID',
+     'TEMPORARY','TEMPTABLE','TERMINATED','TEXT','THAN','THEN','TIDB','TiDB_CURRENT_TSO','TIFLASH','TIKV_IMPORTER','TIME','TIMESTAMP',
+     'TINYBLOB','TINYINT','TINYTEXT','TO','TOKEN_ISSUER','TOPN','TPCC','TPCH_10','TRACE','TRADITIONAL','TRAILING','TRANSACTION',
+     'TRIGGER','TRIGGERS','TRUE','TRUNCATE','TSO','TTL','TTL_ENABLE','TTL_JOB_INTERVAL','TYPE','UNBOUNDED','UNCOMMITTED','UNDEFINED',
+     'UNICODE','UNION','UNIQUE','UNKNOWN','UNLOCK','UNSET','UNSIGNED','UNTIL','UPDATE','USAGE','USE','USER','USING','UTC_DATE','UTC_TIME',
+     'UTC_TIMESTAMP','VALIDATION','VALUE','VALUES','VARBINARY','VARCHAR','VARCHARACTER','VARIABLES','VARYING','VIEW','VIRTUAL','VISIBLE',
+     'WAIT','WARNINGS','WEEK','WEIGHT_STRING','WHEN','WHERE','WHILE','WIDTH','WINDOW','WITH','WITHOUT','WORKLOAD','WRITE','X509','XOR',
+     'YEAR','YEAR_MONTH','ZEROFILL']
+end
+]]></ruleDef>
+        <ruleDef id="rule_column_008" ruleName="i18n::RULE_N_COLUMN_NAME_CASE_TYPE" ruleDesc="i18n::RULE_D_COLUMN_NAME_CASE_TYPE" ruleTarget="Column" scriptType="DetectRules" oldId="22"><![CDATA[
+#define "caseType" as string
+        default "Lower case"
+        enum ["Lower case", "Upper case", "Lower camel case", "Upper camel case"]
+        hint "列名拼写规则"
+
+if @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN'] then
+  checkName = @domain.column
+elseif @domain.sqlType == 'ALTER_TABLE_RENAME_COLUMN' then
+  checkName = @domain.newName
+else
+  return true
+end
+
+// ref document https://newbedev.com/regex-for-pascalcased-words-aka-camelcased-with-leading-uppercase-letter
+
+if #{caseType} == 'Lower case' then
+  return @func.string.lowerCase(checkName) == checkName
+
+elseif #{caseType} == 'Upper case' then
+
+  return @func.string.upperCase(checkName) == checkName
+
+elseif #{caseType} == 'Lower camel case' then
+  return checkName matches '[a-z]+((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?'
+
+elseif #{caseType} == 'Upper camel case' then
+  return checkName matches '([A-Z][a-z0-9]+)((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?'
+
+else
+
+  return false
+end
+]]></ruleDef>
+        <ruleDef id="rule_column_009" ruleName="i18n::RULE_N_COLUMN_NAME_LENGTH" ruleDesc="i18n::RULE_D_COLUMN_NAME_LENGTH" ruleTarget="Column" scriptType="DetectRules" oldId="23"><![CDATA[
+#define "length" as int
+        default "30"
+        hint "列名的最大长度"
+
+if @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN'] then
+  checkName = @domain.column
+elseif @domain.sqlType == 'ALTER_TABLE_RENAME_COLUMN' then
+  checkName = @domain.newName
+else
+  return true
+end
+
+return @func.string.length(checkName) <= cast(#{length} as int)
+]]></ruleDef>
+        <ruleDef id="rule_column_010" ruleName="i18n::RULE_N_COLUMN_CHAR_LENGTH" ruleDesc="i18n::RULE_D_COLUMN_CHAR_LENGTH" ruleTarget="Column" scriptType="DetectRules" oldId="24"><![CDATA[
+#define "allowEmpty" as bool
+        default "false"
+        enum ["true", "false"]
+        hint "是否允许空长度"
+#define "length" as int
+        default "120"
+        hint "字段最大长度"
+
+if
+  @domain.sqlType not in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN', 'ALTER_TABLE_ALTER_COLUMN']
+then
+  return true
+end
+
+if
+  @func.string.startsWith(@domain.typeDesc, "char") or
+  @func.string.startsWith(@domain.typeDesc, "nchar")
+then
+
+  if
+    @func.string.isBlank(@domain.length) and
+    cast(#{allowEmpty} as bool)
+  then
+    return true
+  end
+
+  if @func.string.isBlank(@domain.length) then
+    return false // 语句中长度为空，例如 create table abc(name char);
+  else
+    return cast(@domain.length as int) <= cast(#{length} as int)
+  end
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_column_011" ruleName="i18n::RULE_N_COLUMN_VARCHAR_LENGTH" ruleDesc="i18n::RULE_D_COLUMN_VARCHAR_LENGTH" ruleTarget="Column" scriptType="DetectRules" oldId="25"><![CDATA[
+#define "allowEmpty" as bool
+        default "false"
+        enum ["true", "false"]
+        hint "是否允许空长度"
+#define "length" as int
+        default "500"
+        hint "字段最大长度"
+
+if
+  @domain.sqlType not in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN', 'ALTER_TABLE_ALTER_COLUMN']
+then
+  return true
+end
+
+if
+  @func.string.startsWith(@domain.typeDesc, "varchar") or
+  @func.string.startsWith(@domain.typeDesc, "nvarchar")
+then
+
+  if
+    @func.string.isBlank(@domain.length) and
+    cast(#{allowEmpty} as bool)
+  then
+    return true
+  end
+
+  if @func.string.isBlank(@domain.length) then
+    return false // 语句中长度为空，例如 create table abc(name varchar);
+  else
+    return cast(@domain.length as int) <= cast(#{length} as int)
+  end
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_column_012" ruleName="i18n::RULE_N_COLUMN_ALLOW_DROP" ruleDesc="i18n::RULE_D_COLUMN_ALLOW_DROP" ruleTarget="Column" scriptType="DetectRules" oldId="26"><![CDATA[
+#define "allow" as string
+        default "true"
+        enum ["true", "false"]
+        hint "是否允许删除列"
+
+if
+  @domain.sqlType == 'ALTER_TABLE_DROP_COLUMN' and
+  !cast(#{allow} as bool)
+then
+  return false
+end
+]]></ruleDef>
+        <ruleDef id="rule_column_013" ruleName="i18n::RULE_N_COLUMN_TYPES" ruleDesc="i18n::RULE_D_COLUMN_TYPES" ruleTarget="Column" scriptType="DetectRules" oldId="27"><![CDATA[
+#define "ruleType" as string
+        default "AllowList"
+        enum ["AllowList", "BlockList"]
+        hint "名单工作模式"
+#define "typeList" as string
+        default "bit,tinyint,smallint,mediumint,int,integer,bigint,decimal,numeric,float,double,date,datetime,timestamp,time,char,varchar,binary,tinyblob,blob,mediumblob,longblob,tinytext,text,mediumtext,longtext,enum,set,json"
+        hint "允许或禁止的类型列表"
+
+if
+  @domain.sqlType not in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN', 'ALTER_TABLE_ALTER_COLUMN']
+then
+  return true
+end
+
+if
+  @func.string.isBlank(#{typeList})
+then
+  return true
+end
+
+if
+  #{ruleType} == 'AllowList'
+then
+  return @domain.typeName in @func.string.split(#{typeList}, ',')
+end
+
+if
+  #{ruleType} == 'BlockList'
+then
+  return @domain.typeName not in @func.string.split(#{typeList}, ',')
+end
+
+return false
+]]></ruleDef>
+        <ruleDef id="rule_column_014" ruleName="i18n::RULE_N_COLUMN_NEED_NOTNULL" ruleDesc="i18n::RULE_D_COLUMN_NEED_NOTNULL" ruleTarget="Column" scriptType="DetectRules" oldId="28"><![CDATA[
+if
+  @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN', 'ALTER_TABLE_ALTER_COLUMN']
+then
+  return !@domain.nullable
+end
+]]></ruleDef>
+        <ruleDef id="rule_column_015" ruleName="i18n::RULE_N_COLUMN_AUTO_UNSIGNED_CHECK" ruleDesc="i18n::RULE_D_COLUMN_AUTO_UNSIGNED_CHECK" ruleTarget="Column" scriptType="DetectRules"><![CDATA[
+#define "columnName" as string
+        default "id"
+        hint "自增的列名"
+#define "requireUnsigned" as bool
+        default "true"
+        enum ["true", "false"]
+        hint "是否要求类型必须为 Unsigned"
+
+if
+  @domain.sqlType not in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN', 'ALTER_TABLE_ALTER_COLUMN']
+then
+  return true
+end
+
+if
+  !@domain.auto
+then
+  return true
+end
+
+if
+  !@func.string.equalsIgnoreCase(@domain.column, #{columnName})
+then
+  return false
+end
+
+if
+  cast(#{requireUnsigned} as bool)
+then
+  return @domain.unsigned
+else
+  return true
+end
+]]></ruleDef>
+        <ruleDef id="rule_column_016" ruleName="i18n::RULE_N_COLUMN_CREATE_NEED_DEFAULT" ruleDesc="i18n::RULE_D_COLUMN_CREATE_NEED_DEFAULT" ruleTarget="Column" scriptType="DetectRules"><![CDATA[
+if
+  @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN']
+then
+  return @domain.defaultValue != null
+end
+]]></ruleDef>
+        <ruleDef id="rule_column_017" ruleName="i18n::RULE_N_COLUMN_ALERT_NEED_DEFAULT" ruleDesc="i18n::RULE_D_COLUMN_ALERT_NEED_DEFAULT" ruleTarget="Column" scriptType="DetectRules"><![CDATA[
+if
+  @domain.sqlType == 'ALTER_TABLE_ALTER_COLUMN' and
+  @domain.defaultValue != null
+then
+  return @func.string.isNotBlank(@domain.defaultValue)
+end
+]]></ruleDef>
+
+        <!-- constraint -->
+        <ruleDef id="rule_const_001" ruleName="i18n::RULE_N_CONSTRAINT_NEED_FOREIGN" ruleDesc="i18n::RULE_D_CONSTRAINT_NEED_FOREIGN" ruleTarget="Constraint" scriptType="DetectRules" oldId="29"><![CDATA[
+#define "allow" as bool
+        default "false"
+        enum ["true", "false"]
+        hint "是否允许使用外键约束"
+
+if
+  @domain.sqlType in ['CREATE_TABLE_ADD_CONSTRAINT', 'ALTER_TABLE_ADD_CONSTRAINT']
+then
+
+  if @domain.type == 'ForeignKey' then
+    return cast(#{allow} as bool)
+  else
+    return true
+  end
+
+end
+]]></ruleDef>
+
+        <!-- query -->
+        <ruleDef id="rule_query_001" ruleName="i18n::DEPRECATED_RULE_N_QUERY_ALLOW_TYPE" ruleDesc="i18n::DEPRECATED_RULE_D_QUERY_ALLOW_TYPE" ruleTarget="Query" scriptType="DetectRules" deprecated="true"><![CDATA[
+#define "allow" as string
+        default "Select and With Select"
+        enum ["Select", "Select and With Select"]
+        hint "表示允许的查询语句类型"
+
+if
+  @domain.sqlType in ['SELECT', 'WITH_SELECT']
+then
+
+  if #{allow} == 'Select and With Select' then
+    return true
+  end
+
+  if #{allow} == 'Select' and @domain.sqlType == 'SELECT' then
+    return true
+  else
+    return false
+  end
+end
+]]></ruleDef>
+        <ruleDef id="rule_query_002" ruleName="i18n::RULE_N_QUERY_ALLOW_EMPTY_WHERE" ruleDesc="i18n::RULE_D_QUERY_ALLOW_EMPTY_WHERE" ruleTarget="Query" scriptType="DetectRules"><![CDATA[
+#define "allow" as string
+        default "false"
+        enum ["true", "false"]
+        hint "是否允许空的 where 条件"
+
+if
+  @domain.sqlType in ['SELECT']
+then
+
+  if @func.string.isBlank(@domain.table)  and @func.string.equalsAny( @domain.dsType , ['Db2','Db2Fori','SQLServer'])  then
+    return true
+  end
+
+  if #{allow} == 'true' or @domain.hasWhere then
+    return true
+  end
+
+  return false
+end
+]]></ruleDef>
+        <ruleDef id="rule_query_003" ruleName="i18n::RULE_N_QUERY_ALLOW_AS" ruleDesc="i18n::RULE_D_QUERY_ALLOW_AS" ruleTarget="Query" scriptType="DetectRules"><![CDATA[
+#define "allow" as string
+        default "false"
+        enum ["true", "false"]
+        hint "表示允许的查询语句出现 as 别名关键字"
+
+if
+  @domain.sqlType in ['SELECT']
+then
+
+  if
+    #{allow} == 'true' or
+    @domain.hasAs == false
+  then
+    return true
+  else
+    return false
+  end
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_query_004" ruleName="i18n::RULE_N_QUERY_ALLOW_JOIN" ruleDesc="i18n::RULE_D_QUERY_ALLOW_JOIN" ruleTarget="Query" scriptType="DetectRules"><![CDATA[
+#define "allow" as string
+        default "true"
+        enum ["true", "false"]
+        hint "表示是否允许联表查询"
+
+if
+  @domain.sqlType in ['SELECT']
+then
+  if #{allow} == 'true'
+  then
+     return true
+  end
+
+  if @func.string.equalsAny( @domain.dsType , ['Db2','Db2Fori','SQLServer']) == false
+    then
+      if @func.array.size(@domain.joinTypes) > 0
+      then
+          return false
+      else
+          return true
+      end
+    else
+      if
+         @domain.joinType == 'NONE'
+      then
+        return true
+      else
+        return false
+      end
+    end
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_query_005" ruleName="i18n::RULE_N_QUERY_ALLOW_CROSS" ruleDesc="i18n::RULE_D_QUERY_ALLOW_CROSS" ruleTarget="Query" scriptType="DetectRules"><![CDATA[
+#define "allow" as string
+        default "false"
+        enum ["true", "false"]
+        hint "是否允许查询中使用内链接或交叉链接"
+
+if
+  @domain.sqlType in ['SELECT']
+then
+
+   if #{allow} == 'true' then
+    return true
+  end
+
+  if @func.string.equalsAny( @domain.dsType , ['Db2','Db2Fori','SQLServer']) == false
+  then
+    if @func.array.containAny(@domain.joinTypes , ['INNER_JOIN','CROSS_JOIN'])
+    then
+        return false
+    end
+  else
+      if
+         @domain.joinType in ['INNER_JOIN', 'CROSS_JOIN']
+      then
+        return false
+      end
+   end
+
+  return true
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_query_006" ruleName="i18n::DEPRECATED_RULE_N_QUERY_ALLOW_SUB_QUERY" ruleDesc="i18n::DEPRECATED_RULE_D_QUERY_ALLOW_SUB_QUERY" ruleTarget="Query" scriptType="DetectRules" deprecated="true"><![CDATA[
+if
+  @domain.sqlType in ['SELECT', 'WITH_SELECT']
+then
+
+  return !@domain.hasSubQuery
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_query_007" ruleName="i18n::RULE_N_QUERY_ALLOW_UNION" ruleDesc="i18n::RULE_D_QUERY_ALLOW_UNION" ruleTarget="Query" scriptType="DetectRules"><![CDATA[
+#define "allow" as string
+        default "false"
+        enum ["true", "false"]
+        hint "表示是否允许使用 union 聚合结果"
+
+if
+  @domain.sqlType in ['SELECT', 'UPDATE', 'DELETE', 'INSERT']
+then
+
+  if
+    #{allow} == 'true' or
+    @domain.hasUnion == false
+  then
+    return true
+  else
+    return false
+  end
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_query_008" ruleName="i18n::RULE_N_QUERY_ALLOW_WITH" ruleDesc="i18n::RULE_D_QUERY_ALLOW_WITH" ruleTarget="Query" scriptType="DetectRules"><![CDATA[
+#define "allow" as string
+        default "true"
+        enum ["true", "false"]
+        hint "是否允许使用 WITH 字句"
+
+if
+  @domain.sqlType in ['SELECT']
+then
+
+  if cast(#{allow} as bool) then
+    return true
+  end
+
+  return not @domain.hasWith
+end
+
+]]></ruleDef>
+        <ruleDef id="rule_query_009" ruleName="i18n::RULE_N_QUERY_ALLOW_SUB_QUERY" ruleDesc="i18n::RULE_D_QUERY_ALLOW_SUB_QUERY" ruleTarget="Query" scriptType="DetectRules"><![CDATA[
+#define "allow" as string
+        default "None"
+        enum ["Any", "Select", "From", "Where", "None"]
+        hint "允许子查询出现的位置"
+
+if
+  @domain.sqlType != 'SELECT' or
+  @domain.mode != 'NORMAL'
+then
+  return true
+end
+
+if 'Any' in @func.string.split(#{allow}, ',') then
+  return true
+end
+
+if
+  @domain.selectInSelect and
+  'Select' not in @func.string.split(#{allow}, ',')
+then
+  return false
+end
+
+if
+  @domain.selectInFrom and
+  'From' not in @func.string.split(#{allow}, ',')
+then
+  return false
+end
+
+if
+  @domain.selectInWhere and
+  'Where' not in @func.string.split(#{allow}, ',')
+then
+  return false
+end
+]]></ruleDef>
+        <ruleDef id="rule_query_010" ruleName="i18n::RULE_N_QUERY_MUST_CONTAIN_COLUMN" ruleDesc="i18n::RULE_D_QUERY_MUST_CONTAIN_COLUMN" ruleTarget="Query" scriptType="DetectRules"><![CDATA[
+#define "columns" as string
+        default "column"
+        hint "输出参数，结果集中缺少的字段"
+
+    map = @func.constraint.checkSelectColumn(@domain.primaryUid,@domain.dsId,@domain.selectItems)
+    columns = @func.string.getListElement(map,0)
+
+return   @func.string.getListElement(map,1) == 'true'
+]]></ruleDef>
+
+        <!-- update -->
+        <ruleDef id="rule_update_001" ruleName="i18n::RULE_N_UPDATE_ALLOW_EMPTY_WHERE" ruleDesc="i18n::RULE_D_UPDATE_ALLOW_EMPTY_WHERE" ruleTarget="Update" scriptType="DetectRules"><![CDATA[
+#define "allow" as string
+        default "false"
+        enum ["true", "false"]
+        hint "是否允许空的 where 条件"
+
+if
+  @domain.sqlType in ['UPDATE']
+then
+
+  return #{allow} == 'true' or @domain.hasWhere
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_update_002" ruleName="i18n::RULE_N_UPDATE_NEED_COLUMNS" ruleDesc="i18n::RULE_D_UPDATE_NEED_COLUMNS" ruleTarget="Update" scriptType="DetectRules"><![CDATA[
+#define "columns" as string
+        default ""
+        hint "更新必须包含的列，多个用逗号分割"
+
+if @domain.sqlType != 'UPDATE' then
+  return true
+end
+
+if @func.string.trim(#{columns}) == '' then
+  return true
+end
+
+return @func.string.split(#{columns}, ',') in @domain.setColumns
+]]></ruleDef>
+        <ruleDef id="rule_update_003" ruleName="i18n::DEPRECATED_RULE_N_UPDATE_TYPE" ruleDesc="i18n::DEPRECATED_RULE_D_UPDATE_TYPE" ruleTarget="Update" scriptType="DetectRules" deprecated="true"><![CDATA[
+#define "allow" as string
+        default "UPDATE"
+        enum ["UPDATE", "UPDATE and UPDATE_SET_SELECT"]
+        hint "表示允许的更新语句类型"
+
+if
+  @domain.sqlType in ['UPDATE', 'UPDATE_SET_SELECT']
+then
+
+  if #{allow} == 'UPDATE and UPDATE_SET_SELECT' then
+    return true
+  end
+
+  if #{allow} == 'UPDATE' and @domain.sqlType == 'UPDATE' then
+    return true
+  else
+    return false
+  end
+end
+
+]]></ruleDef>
+        <ruleDef id="rule_update_004" ruleName="i18n::RULE_N_UPDATE_ALLOW_SUB_QUERY" ruleDesc="i18n::RULE_D_UPDATE_ALLOW_SUB_QUERY" ruleTarget="Update" scriptType="DetectRules"><![CDATA[
+#define "allow" as string
+        default "Any"
+        enum ["Any", "Set", "Where", "None"]
+        hint "允许子查询出现的位置"
+
+if @domain.sqlType != 'UPDATE' then
+  return true
+end
+
+if 'Any' in @func.string.split(#{allow}, ',') then
+  return true
+end
+
+if
+  @domain.selectInSet and
+  'Set' not in @func.string.split(#{allow}, ',')
+then
+  return false
+end
+
+if
+  @domain.selectInWhere and
+  'Where' not in @func.string.split(#{allow}, ',')
+then
+  return false
+end
+]]></ruleDef>
+        <ruleDef id="rule_update_005" ruleName="i18n::RULE_N_UPDATE_ALLOW_MULTI" ruleDesc="i18n::RULE_D_UPDATE_ALLOW_MULTI" ruleTarget="Update" scriptType="DetectRules"><![CDATA[
+#define "allow" as string
+        default "false"
+        enum ["true", "false"]
+        hint "是否允许同时更新多表"
+
+if @domain.sqlType == 'UPDATE' then
+  return #{allow} == 'true' or @domain.multiUpdate == false
+end
+]]></ruleDef>
+        <ruleDef id="rule_update_006" ruleName="i18n::RULE_N_UPDATE_ALLOW_IGNORE" ruleDesc="i18n::RULE_D_UPDATE_ALLOW_IGNORE" ruleTarget="Update" scriptType="DetectRules"><![CDATA[
+#define "allow" as string
+        default "false"
+        enum ["true", "false"]
+        hint "表示是否允许使用ignore"
+
+if
+  @domain.sqlType in ['UPDATE']
+then
+
+  if
+    #{allow} == 'false' and
+    @domain.hasIgnore == true
+  then
+    return false
+  else
+    return true
+  end
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_update_007" ruleName="i18n::RULE_N_UPDATE_NEED_LIMIT" ruleDesc="i18n::RULE_D_UPDATE_NEED_LIMIT" ruleTarget="Update" scriptType="DetectRules"><![CDATA[
+if
+  @domain.sqlType in ['UPDATE']
+then
+  return cast(@domain.hasLimit as bool)
+end
+]]></ruleDef>
+        <!--        <ruleDef id="rule_update_008" ruleName="i18n::RULE_N_UPDATE_ALLOW_SUB_QUERY" ruleDesc="i18n::RULE_D_UPDATE_ALLOW_SUB_QUERY" ruleTarget="Update" scriptType="DetectRules"><![CDATA[-->
+        <!--        MyFamilyRuleUpdateAllowWithTest-->
+        <!--]]></ruleDef>-->
+
+        <!-- insert -->
+        <ruleDef id="rule_insert_001" ruleName="i18n::RULE_N_INSERT_NEED_COLUMNS" ruleDesc="i18n::RULE_D_INSERT_NEED_COLUMNS" ruleTarget="Insert" scriptType="DetectRules"><![CDATA[
+#define "require" as string
+        default "true"
+        enum ["true", "false"]
+        hint "INSERT 语句中是否必须指明列"
+#define "columns" as string
+        default "id,create_gmt,modify_gmt"
+        hint "INSERT 语句中必须要包含的列，多个列使用逗号区分"
+
+if @domain.sqlType not in ['INSERT'] then
+  return true
+end
+
+if @domain.onlyValues then
+  return !cast(#{require} as bool)
+end
+
+return @func.string.split(#{columns}, ',') in @domain.columns
+]]></ruleDef>
+        <ruleDef id="rule_insert_002" ruleName="i18n::DEPRECATED_RULE_N_INSERT_ONLY_VALUES" ruleDesc="i18n::DEPRECATED_RULE_D_INSERT_ONLY_VALUES" ruleTarget="Insert" scriptType="DetectRules" deprecated="true"><![CDATA[
+if
+  @domain.sqlType in ['INSERT']
+then
+  return cast(@domain.hasSpecifyColumn as bool)
+end
+]]></ruleDef>
+        <ruleDef id="rule_insert_003" ruleName="i18n::RULE_N_INSERT_ALLOW_IGNORE" ruleDesc="i18n::RULE_D_INSERT_ALLOW_IGNORE" ruleTarget="Insert" scriptType="DetectRules"><![CDATA[
+#define "allow" as string
+        default "false"
+        enum ["true", "false"]
+        hint "表示是否允许使用ignore"
+
+if
+  @domain.sqlType in ['INSERT']
+then
+
+  if
+    #{allow} == 'false' and
+    @domain.conflict == 'IGNORE'
+  then
+    return false
+  else
+    return true
+  end
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_insert_004" ruleName="i18n::RULE_N_INSERT_ALLOW_SUB_QUERY" ruleDesc="i18n::RULE_D_INSERT_ALLOW_SUB_QUERY" ruleTarget="Insert" scriptType="DetectRules"><![CDATA[
+#define "allow" as string
+        default "true"
+        enum ["true", "false"]
+        hint "表示是否允许使用子查询"
+
+if
+  @domain.sqlType in ['INSERT']
+then
+
+  if #{allow} == 'true' then
+    return true
+  end
+
+  return !(@domain.fromSelect or @domain.hasSubQuery)
+
+end
+]]></ruleDef>
+        <!--        <ruleDef id="rule_insert_005" ruleName="i18n::RULE_N_INSERT_NEED_COLUMNS" ruleDesc="i18n::RULE_D_INSERT_NEED_COLUMNS" ruleTarget="Insert" scriptType="DetectRules"><![CDATA[-->
+        <!--        MyFamilyRuleInsertAllowWithTest-->
+        <!--]]></ruleDef>-->
+
+        <!-- delete -->
+        <ruleDef id="rule_delete_001" ruleName="i18n::RULE_N_DELETE_ALLOW_EMPTY_WHERE" ruleDesc="i18n::RULE_D_DELETE_ALLOW_EMPTY_WHERE" ruleTarget="Delete" scriptType="DetectRules"><![CDATA[
+#define "allow" as string
+        default "false"
+        enum ["true", "false"]
+        hint "是否允许空的 where 条件"
+
+if
+  @domain.sqlType in ['DELETE']
+then
+
+  return #{allow} == 'true' or @domain.hasWhere
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_delete_002" ruleName="i18n::RULE_N_DELETE_ALLOW_MULTI" ruleDesc="i18n::RULE_D_DELETE_ALLOW_MULTI" ruleTarget="Delete" scriptType="DetectRules"><![CDATA[
+#define "allow" as string
+        default "false"
+        enum ["true", "false"]
+        hint "表示是否允许同时删除多表数据"
+
+if
+  @domain.sqlType in ['DELETE']
+then
+
+  if #{allow} == 'true' then
+    return true
+  end
+
+  return @domain.multiDelete == false
+
+end
+]]></ruleDef>
+        <ruleDef id="rule_delete_003" ruleName="i18n::RULE_N_DELETE_ALLOW_SUB_QUERY" ruleDesc="i18n::RULE_D_DELETE_ALLOW_SUB_QUERY" ruleTarget="Delete" scriptType="DetectRules"><![CDATA[
+#define "allow" as string
+        default "Any"
+        enum ["Any", "Where", "None"]
+        hint "允许子查询出现的位置"
+
+if @domain.sqlType != 'DELETE' then
+  return true
+end
+
+if 'Any' in @func.string.split(#{allow}, ',') then
+  return true
+end
+
+if
+  @domain.selectInWhere and
+  'Where' not in @func.string.split(#{allow}, ',')
+then
+  return false
+end
+]]></ruleDef>
+        <ruleDef id="rule_delete_004" ruleName="i18n::RULE_N_DELETE_NEED_LIMIT" ruleDesc="i18n::RULE_D_DELETE_NEED_LIMIT" ruleTarget="Delete" scriptType="DetectRules"><![CDATA[
+if
+  @domain.sqlType in ['DELETE']
+then
+  return cast(@domain.hasLimit as bool)
+end
+]]></ruleDef>
+        <ruleDef id="rule_delete_005" ruleName="i18n::RULE_N_DELETE_ALLOW_IGNORE" ruleDesc="i18n::RULE_D_DELETE_ALLOW_IGNORE" ruleTarget="Delete" scriptType="DetectRules"><![CDATA[
+#define "allow" as string
+        default "false"
+        enum ["true", "false"]
+        hint "表示是否允许使用ignore"
+
+if
+  @domain.sqlType in ['DELETE']
+then
+
+  if
+    #{allow} == 'false' and
+    @domain.hasIgnore == true
+  then
+    return false
+  else
+    return true
+  end
+
+end
+]]></ruleDef>
+        <!--        <ruleDef id="rule_delete_004" ruleName="i18n::RULE_N_DELETE_ALLOW_SUB_QUERY" ruleDesc="i18n::RULE_N_DELETE_ALLOW_SUB_QUERY" ruleTarget="Delete" scriptType="DetectRules"><![CDATA[-->
+        <!--        MyFamilyRuleDeleteAllowWithTest-->
+        <!--]]></ruleDef>-->
+    </queryRules>
+    <sensitiveRules>
+        <ruleDef id="rule_sensitive_001" ruleName="i18n::SEN_N_ALGORITHM" ruleDesc="i18n::SEN_D_ALGORITHM" senMode="VALUE" scriptType="DetectRules"><![CDATA[
+if
+  @domain.hasRange
+then
+  return "algorithm::FULL_MASK"
+else
+  return "algorithm::ORIGINAL"
+end
+]]></ruleDef>
+        <ruleDef id="rule_sensitive_002" ruleName="i18n::SEN_N_VALUE_MATCH" ruleDesc="i18n::SEN_D_VALUE_MATCH" senMode="VALUE" scriptType="DetectRules"><![CDATA[
+#define "match" as string
+        default ""
+        hint "匹配出现的字符，多个请按逗号分割"
+
+if
+  @func.string.isNotBlank(#{match}) and
+  @func.string.containsIgnoreCaseAny(@domain.value, @func.string.split(#{match}, ','))
+then
+  return "algorithm::FULL_MASK"
+else
+  return "algorithm::ORIGINAL"
+end
+]]></ruleDef>
+        <ruleDef id="rule_sensitive_003" ruleName="i18n::SEN_N_COLUMN_MATCH" ruleDesc="i18n::SEN_D_COLUMN_MATCH" senMode="VALUE" scriptType="DetectRules"><![CDATA[
+#define "match" as string
+        default ""
+        hint "匹配出现的字符，多个请按逗号分割"
+
+if
+  @func.string.isNotBlank(#{match}) and
+  @func.string.containsIgnoreCaseAny(@domain.column, @func.string.split(#{match}, ','))
+then
+  return "algorithm::FULL_MASK"
+else
+  return "algorithm::ORIGINAL"
+end
+]]></ruleDef>
+        <ruleDef id="rule_sensitive_004" ruleName="i18n::SEN_N_CHINA_PHONE" ruleDesc="i18n::SEN_D_CHINA_PHONE" senMode="VALUE" scriptType="DetectRules"><![CDATA[
+#define "match" as string
+        default "130,131,132,140,145,146,155,156,166,167,170,171,175,176,185,186,196,134,135,136,137,138,139,144,147,148,150,151,152,157,158,159,165,172,178,182,183,184,187,188,195,197,198,133,141,149,153,162,173,174,177,180,181,189,190,191,193,199,192"
+        hint "匹配出现的号段，多个请按逗号分割"
+
+if
+  @func.string.length(@domain.value) == 11 and
+  @func.string.substring(@domain.value, 0, 3) in @func.string.split(#{match}, ',')
+then
+  return "algorithm::FULL_MASK"
+else
+  return "algorithm::ORIGINAL"
+end
+]]></ruleDef>
+        <ruleDef id="rule_sensitive_005" ruleName="i18n::SEN_N_COL_AND_VALUE_MATCH" ruleDesc="i18n::SEN_D_COL_AND_VALUE_MATCH" senMode="VALUE" scriptType="DetectRules"><![CDATA[
+#define "match_col" as string
+        default ""
+        hint "匹配出现的列名"
+#define "match_data" as string
+        default ""
+        hint "匹配出现的字符，多个请按逗号分割"
+
+if
+  @func.string.isBlank(#{match_data}) or
+  @func.string.isBlank(#{match_col})
+then
+  return "algorithm::ORIGINAL"
+end
+
+if
+  @func.string.containsIgnoreCaseAny(@domain.value, @func.string.split(#{match_data}, ',')) and
+  @domain.column == #{match_col}
+then
+  return "algorithm::FULL_MASK"
+else
+  return "algorithm::ORIGINAL"
+end
+]]></ruleDef>
+    </sensitiveRules>
+</ruleSet>

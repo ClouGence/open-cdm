@@ -1,0 +1,30 @@
+<drivers>
+    <driver driverFamily="SAP Hana JDBC" version="2.28.6">
+        <driverName>com.clougence.clouddm.ds.hana.execute.dsfactory.HanaDsFactory</driverName>
+        <resource type="maven">com.sap.cloud.db.jdbc:ngdbc:2.28.6</resource>
+    </driver>
+    <driver driverFamily="SAP Hana JDBC" version="2.27.7">
+        <driverName>com.clougence.clouddm.ds.hana.execute.dsfactory.HanaDsFactory</driverName>
+        <resource type="maven">com.sap.cloud.db.jdbc:ngdbc:2.27.7</resource>
+    </driver>
+    <driver driverFamily="SAP Hana JDBC" version="2.26.12">
+        <driverName>com.clougence.clouddm.ds.hana.execute.dsfactory.HanaDsFactory</driverName>
+        <resource type="maven">com.sap.cloud.db.jdbc:ngdbc:2.26.12</resource>
+    </driver>
+    <driver driverFamily="SAP Hana JDBC" version="2.25.13">
+        <driverName>com.clougence.clouddm.ds.hana.execute.dsfactory.HanaDsFactory</driverName>
+        <resource type="maven">com.sap.cloud.db.jdbc:ngdbc:2.25.13</resource>
+    </driver>
+    <driver driverFamily="SAP Hana JDBC" version="2.24.8">
+        <driverName>com.clougence.clouddm.ds.hana.execute.dsfactory.HanaDsFactory</driverName>
+        <resource type="maven">com.sap.cloud.db.jdbc:ngdbc:2.24.8</resource>
+    </driver>
+    <driver driverFamily="SAP Hana JDBC" version="2.23.10">
+        <driverName>com.clougence.clouddm.ds.hana.execute.dsfactory.HanaDsFactory</driverName>
+        <resource type="maven">com.sap.cloud.db.jdbc:ngdbc:2.23.10</resource>
+    </driver>
+    <driver driverFamily="SAP Hana JDBC" version="2.22.12">
+        <driverName>com.clougence.clouddm.ds.hana.execute.dsfactory.HanaDsFactory</driverName>
+        <resource type="maven">com.sap.cloud.db.jdbc:ngdbc:2.22.12</resource>
+    </driver>
+</drivers>

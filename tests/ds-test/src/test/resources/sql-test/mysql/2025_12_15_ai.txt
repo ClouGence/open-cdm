@@ -1,0 +1,360 @@
+-- 测试控制流函数
+SELECT 
+    IF(1 > 2, 'true', 'false') as if_result,
+    IFNULL(NULL, 'default_value') as ifnull_result,
+    NULLIF('value1', 'value2') as nullif_result,
+    CASE 
+        WHEN 1 = 1 THEN 'one equals one'
+        WHEN 2 = 2 THEN 'two equals two'
+        ELSE 'no match'
+    END as case_result;
+----------
+["DM_CALL:/test_schema/CASE/","DM_CALL:/test_schema/IFNULL/","DM_CALL:/test_schema/NULLIF/","DM_CALL:/test_schema/IF/"]
+----------
+["{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"IF\",\"func\":true,\"args\":[\"1 > 2\",\"'true'\",\"'false'\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":false,\"whereColumns\":[],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":false,\"mode\":\"NORMAL\",\"virtual\":false,\"hasAs\":true,\"hasSelectAll\":false,\"selectInSelect\":false,\"funcInSelect\":true,\"exprInSelect\":false,\"selectColumns\":[],\"selectVariables\":[],\"selectFunc\":[\"IF\",\"IFNULL\",\"NULLIF\",\"CASE\"],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":true,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"NULLIF\",\"func\":true,\"args\":[\"'value1'\",\"'value2'\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"IFNULL\",\"func\":true,\"args\":[\"NULL\",\"'default_value'\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"CASE\",\"func\":true,\"args\":[\"1 = 1\",\"'one equals one'\",\"2 = 2\",\"'two equals two'\",\"'no match'\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}"]
+----------
+SELECT
+------------------------------------------------------------------------------------------
+-- 测试加密和压缩函数
+SELECT
+    MD5('hello world') as md5_result,
+    SHA1('hello world') as sha1_result,
+    SHA2('hello world', 256) as sha2_result;
+----------
+["DM_CALL:/test_schema/MD5/","DM_CALL:/test_schema/SHA2/","DM_CALL:/test_schema/SHA1/"]
+----------
+["{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"SHA1\",\"func\":true,\"args\":[\"'hello world'\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"SHA2\",\"func\":true,\"args\":[\"'hello world'\",\"256\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"MD5\",\"func\":true,\"args\":[\"'hello world'\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":false,\"whereColumns\":[],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":false,\"mode\":\"NORMAL\",\"virtual\":false,\"hasAs\":true,\"hasSelectAll\":false,\"selectInSelect\":false,\"funcInSelect\":true,\"exprInSelect\":false,\"selectColumns\":[],\"selectVariables\":[],\"selectFunc\":[\"MD5\",\"SHA1\",\"SHA2\"],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":true,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}"]
+----------
+SELECT
+------------------------------------------------------------------------------------------
+-- 测试信息函数
+SELECT
+    CONNECTION_ID() as connection_id,
+    CURRENT_USER() as current_user1,
+    DATABASE() as current_database,
+    LAST_INSERT_ID() as last_insert_id,
+    ROW_COUNT() as affected_rows,
+    VERSION() as mysql_version;
+----------
+["DM_CALL:/test_schema/LAST_INSERT_ID/","DM_CALL:/test_schema/VERSION/","DM_CALL:/test_schema/DATABASE/","DM_CALL:/test_schema/CONNECTION_ID/","DM_CALL:/test_schema/ROW_COUNT/","DM_CALL:/test_schema/CURRENT_USER/"]
+----------
+["{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"CONNECTION_ID\",\"func\":true,\"args\":[],\"emptyArg\":true,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"DATABASE\",\"func\":true,\"args\":[],\"emptyArg\":true,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":false,\"whereColumns\":[],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":false,\"mode\":\"NORMAL\",\"virtual\":false,\"hasAs\":true,\"hasSelectAll\":false,\"selectInSelect\":false,\"funcInSelect\":true,\"exprInSelect\":false,\"selectColumns\":[],\"selectVariables\":[],\"selectFunc\":[\"CONNECTION_ID\",\"CURRENT_USER\",\"DATABASE\",\"LAST_INSERT_ID\",\"ROW_COUNT\",\"VERSION\"],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":true,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"VERSION\",\"func\":true,\"args\":[],\"emptyArg\":true,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"CURRENT_USER\",\"func\":true,\"args\":[],\"emptyArg\":true,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"ROW_COUNT\",\"func\":true,\"args\":[],\"emptyArg\":true,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"LAST_INSERT_ID\",\"func\":true,\"args\":[],\"emptyArg\":true,\"sqlTarget\":\"Call\"}"]
+----------
+SELECT
+------------------------------------------------------------------------------------------
+-- 测试系统变量
+SELECT @@autocommit as autocommit_status;
+----------
+[]
+----------
+["{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":false,\"whereColumns\":[],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":true,\"mode\":\"NORMAL\",\"virtual\":false,\"hasAs\":true,\"hasSelectAll\":false,\"selectInSelect\":false,\"funcInSelect\":false,\"exprInSelect\":false,\"selectColumns\":[],\"selectVariables\":[\"autocommit\"],\"selectFunc\":[],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":true,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}"]
+----------
+SELECT
+------------------------------------------------------------------------------------------
+SELECT @@max_connections as max_connections;
+----------
+[]
+----------
+["{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":false,\"whereColumns\":[],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":true,\"mode\":\"NORMAL\",\"virtual\":false,\"hasAs\":true,\"hasSelectAll\":false,\"selectInSelect\":false,\"funcInSelect\":false,\"exprInSelect\":false,\"selectColumns\":[],\"selectVariables\":[\"max_connections\"],\"selectFunc\":[],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":true,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}"]
+----------
+SELECT
+------------------------------------------------------------------------------------------
+SELECT @@innodb_version as innodb_version;
+----------
+[]
+----------
+["{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":false,\"whereColumns\":[],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":true,\"mode\":\"NORMAL\",\"virtual\":false,\"hasAs\":true,\"hasSelectAll\":false,\"selectInSelect\":false,\"funcInSelect\":false,\"exprInSelect\":false,\"selectColumns\":[],\"selectVariables\":[\"innodb_version\"],\"selectFunc\":[],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":true,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}"]
+----------
+SELECT
+------------------------------------------------------------------------------------------
+-- 测试转换函数
+SELECT
+    CAST('123' AS SIGNED) as cast_signed,
+    CONVERT('123', SIGNED) as convert_signed,
+    CAST('2025-12-15' AS DATE) as cast_date;
+----------
+["DM_CALL:/test_schema/CAST/","DM_CALL:/test_schema/CONVERT/"]
+----------
+["{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":false,\"whereColumns\":[],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":false,\"mode\":\"NORMAL\",\"virtual\":false,\"hasAs\":true,\"hasSelectAll\":false,\"selectInSelect\":false,\"funcInSelect\":true,\"exprInSelect\":false,\"selectColumns\":[],\"selectVariables\":[],\"selectFunc\":[\"CAST\",\"CONVERT\"],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":true,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"CAST\",\"func\":true,\"args\":[\"'2025-12-15'\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"CONVERT\",\"func\":true,\"args\":[\"'123'\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"CAST\",\"func\":true,\"args\":[\"'123'\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}"]
+----------
+SELECT
+------------------------------------------------------------------------------------------
+-- 测试时间和日期函数补充
+SELECT
+    ADDDATE('2025-12-15', INTERVAL 10 DAY) as adddate_result,
+    SUBDATE('2025-12-15', INTERVAL 10 DAY) as subdate_result,
+    ADDTIME('12:00:00', '01:30:00') as addtime_result,
+    TIMEDIFF('12:00:00', '10:30:00') as timediff_result,
+    TIMESTAMPDIFF(MONTH, '2024-12-15', '2025-12-15') as timestampdiff_result,
+    PERIOD_ADD(202512, 3) as period_add_result,
+    PERIOD_DIFF(202603, 202512) as period_diff_result;
+----------
+["DM_CALL:/test_schema/ADDDATE/","DM_CALL:/test_schema/INTERVAL/","DM_CALL:/test_schema/TIMEDIFF/","DM_CALL:/test_schema/SUBDATE/","DM_CALL:/test_schema/ADDTIME/","DM_CALL:/test_schema/TIMESTAMPDIFF/","DM_CALL:/test_schema/PERIOD_ADD/","DM_CALL:/test_schema/PERIOD_DIFF/"]
+----------
+["{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"TIMESTAMPDIFF\",\"func\":true,\"args\":[\"MONTH\",\"'2024-12-15'\",\"'2025-12-15'\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"TIMEDIFF\",\"func\":true,\"args\":[\"'12:00:00'\",\"'10:30:00'\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"SUBDATE\",\"func\":true,\"args\":[\"'2025-12-15'\",\"INTERVAL 10 DAY\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"ADDTIME\",\"func\":true,\"args\":[\"'12:00:00'\",\"'01:30:00'\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"PERIOD_ADD\",\"func\":true,\"args\":[\"202512\",\"3\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"PERIOD_DIFF\",\"func\":true,\"args\":[\"202603\",\"202512\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"ADDDATE\",\"func\":true,\"args\":[\"'2025-12-15'\",\"INTERVAL 10 DAY\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":false,\"whereColumns\":[],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":false,\"mode\":\"NORMAL\",\"virtual\":false,\"hasAs\":true,\"hasSelectAll\":false,\"selectInSelect\":false,\"funcInSelect\":true,\"exprInSelect\":false,\"selectColumns\":[\"MONTH\"],\"selectVariables\":[],\"selectFunc\":[\"INTERVAL\",\"ADDDATE\",\"SUBDATE\",\"ADDTIME\",\"TIMEDIFF\",\"TIMESTAMPDIFF\",\"PERIOD_ADD\",\"PERIOD_DIFF\"],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":true,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"INTERVAL\",\"func\":true,\"args\":[\"10\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}"]
+----------
+SELECT
+------------------------------------------------------------------------------------------
+-- 测试格式化函数
+SELECT
+    FORMAT(12345.6789, 2) as format_result,
+    QUOTE('Don\'t!') as quote_result,
+    SLEEP(0.01) as sleep_result;
+----------
+["DM_CALL:/test_schema/QUOTE/","DM_CALL:/test_schema/SLEEP/","DM_CALL:/test_schema/FORMAT/"]
+----------
+["{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"QUOTE\",\"func\":true,\"args\":[\"'Don\\\\'t!'\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"SLEEP\",\"func\":true,\"args\":[\"0.01\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":false,\"whereColumns\":[],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":false,\"mode\":\"NORMAL\",\"virtual\":false,\"hasAs\":true,\"hasSelectAll\":false,\"selectInSelect\":false,\"funcInSelect\":true,\"exprInSelect\":false,\"selectColumns\":[],\"selectVariables\":[],\"selectFunc\":[\"FORMAT\",\"QUOTE\",\"SLEEP\"],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":true,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"FORMAT\",\"func\":true,\"args\":[\"12345.6789\",\"2\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}"]
+----------
+SELECT
+------------------------------------------------------------------------------------------
+-- 测试空间函数
+SELECT
+    POINT(1, 1) as point_result,
+    LINESTRING(POINT(0, 0), POINT(1, 1)) as linestring_result;
+----------
+["DM_CALL:/test_schema/POINT/","DM_CALL:/test_schema/LINESTRING/"]
+----------
+["{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":false,\"whereColumns\":[],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":false,\"mode\":\"NORMAL\",\"virtual\":false,\"hasAs\":true,\"hasSelectAll\":false,\"selectInSelect\":false,\"funcInSelect\":true,\"exprInSelect\":false,\"selectColumns\":[],\"selectVariables\":[],\"selectFunc\":[\"POINT\",\"LINESTRING\"],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":true,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"POINT\",\"func\":true,\"args\":[\"0\",\"0\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"POINT\",\"func\":true,\"args\":[\"1\",\"1\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"LINESTRING\",\"func\":true,\"args\":[\"POINT(0, 0)\",\"POINT(1, 1)\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}"]
+----------
+SELECT
+------------------------------------------------------------------------------------------
+-- 测试XML函数
+SELECT
+    ExtractValue('<person><name>John</name><age>30</age></person>', '/person/name') as extract_result,
+    UpdateXML('<person><name>John</name><age>30</age></person>', '/person/age', '<age>35</age>') as update_result;
+----------
+["DM_CALL:/test_schema/UpdateXML/","DM_CALL:/test_schema/ExtractValue/"]
+----------
+["{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"ExtractValue\",\"func\":true,\"args\":[\"'<person><name>John</name><age>30</age></person>'\",\"'/person/name'\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":false,\"whereColumns\":[],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":false,\"mode\":\"NORMAL\",\"virtual\":false,\"hasAs\":true,\"hasSelectAll\":false,\"selectInSelect\":false,\"funcInSelect\":true,\"exprInSelect\":false,\"selectColumns\":[],\"selectVariables\":[],\"selectFunc\":[\"ExtractValue\",\"UpdateXML\"],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":true,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"UpdateXML\",\"func\":true,\"args\":[\"'<person><name>John</name><age>30</age></person>'\",\"'/person/age'\",\"'<age>35</age>'\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}"]
+----------
+SELECT
+------------------------------------------------------------------------------------------
+-- 测试聚合函数补充
+SELECT
+    GROUP_CONCAT('A', 'B', 'C' SEPARATOR '-') as group_concat_sep,
+    COUNT(DISTINCT 1, 2, 3) as count_distinct,
+    APPROX_COUNT_DISTINCT(1, 2, 3) as approx_count_distinct;
+----------
+["DM_CALL:/test_schema/APPROX_COUNT_DISTINCT/","DM_CALL:/test_schema/GROUP_CONCAT/","DM_CALL:/test_schema/COUNT/"]
+----------
+["{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"GROUP_CONCAT\",\"func\":true,\"args\":[\"'A'\",\"'B'\",\"'C'\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"APPROX_COUNT_DISTINCT\",\"func\":true,\"args\":[\"1\",\"2\",\"3\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"COUNT\",\"func\":true,\"args\":[\"1\",\"2\",\"3\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":false,\"whereColumns\":[],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":false,\"mode\":\"NORMAL\",\"virtual\":false,\"hasAs\":true,\"hasSelectAll\":false,\"selectInSelect\":false,\"funcInSelect\":true,\"exprInSelect\":false,\"selectColumns\":[],\"selectVariables\":[],\"selectFunc\":[\"GROUP_CONCAT\",\"COUNT\",\"APPROX_COUNT_DISTINCT\"],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":true,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}"]
+----------
+SELECT
+------------------------------------------------------------------------------------------
+-- 测试分区表相关操作
+SELECT
+    PARTITION_NAME,
+    TABLE_ROWS
+FROM INFORMATION_SCHEMA.PARTITIONS
+WHERE TABLE_NAME = 'orders_partitioned'
+  AND PARTITION_NAME IS NOT NULL;
+----------
+["DM_QUERY:/INFORMATION_SCHEMA/PARTITIONS/"]
+----------
+["{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":true,\"whereColumns\":[\"TABLE_NAME\",\"PARTITION_NAME\"],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":true,\"mode\":\"NORMAL\",\"virtual\":false,\"hasAs\":false,\"hasSelectAll\":false,\"selectInSelect\":false,\"funcInSelect\":false,\"exprInSelect\":false,\"selectColumns\":[\"PARTITION_NAME\",\"TABLE_ROWS\"],\"selectVariables\":[],\"selectFunc\":[],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":false,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}"]
+----------
+SELECT
+------------------------------------------------------------------------------------------
+-- 测试子查询中的EXISTS和NOT EXISTS
+SELECT * FROM departments d
+WHERE EXISTS (
+    SELECT 1 FROM employees e
+    WHERE e.department_id = d.id
+      AND e.salary > 10000
+);
+----------
+["DM_QUERY:/test_schema/departments/","DM_QUERY:/test_schema/employees/"]
+----------
+["{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":true,\"whereColumns\":[],\"selectInWhere\":true,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":false,\"mode\":\"NORMAL\",\"virtual\":false,\"hasAs\":false,\"hasSelectAll\":true,\"selectInSelect\":false,\"funcInSelect\":false,\"exprInSelect\":false,\"selectColumns\":[],\"selectVariables\":[],\"selectFunc\":[],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":false,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}","{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":true,\"whereColumns\":[\"department_id\",\"id\",\"salary\"],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":true,\"mode\":\"SUB_WHERE\",\"virtual\":false,\"hasAs\":false,\"hasSelectAll\":false,\"selectInSelect\":false,\"funcInSelect\":false,\"exprInSelect\":false,\"selectColumns\":[],\"selectVariables\":[],\"selectFunc\":[],\"selectValue\":[\"1\"],\"selectInFrom\":false,\"emptyFrom\":false,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}"]
+----------
+SELECT
+------------------------------------------------------------------------------------------
+SELECT * FROM departments d
+WHERE NOT EXISTS (
+    SELECT 1 FROM employees e
+    WHERE e.department_id = d.id
+);
+----------
+["DM_QUERY:/test_schema/departments/","DM_QUERY:/test_schema/employees/"]
+----------
+["{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":true,\"whereColumns\":[],\"selectInWhere\":true,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":false,\"mode\":\"NORMAL\",\"virtual\":false,\"hasAs\":false,\"hasSelectAll\":true,\"selectInSelect\":false,\"funcInSelect\":false,\"exprInSelect\":false,\"selectColumns\":[],\"selectVariables\":[],\"selectFunc\":[],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":false,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}","{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":true,\"whereColumns\":[\"department_id\",\"id\"],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":true,\"mode\":\"SUB_WHERE\",\"virtual\":false,\"hasAs\":false,\"hasSelectAll\":false,\"selectInSelect\":false,\"funcInSelect\":false,\"exprInSelect\":false,\"selectColumns\":[],\"selectVariables\":[],\"selectFunc\":[],\"selectValue\":[\"1\"],\"selectInFrom\":false,\"emptyFrom\":false,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}"]
+----------
+SELECT
+------------------------------------------------------------------------------------------
+-- 测试INSERT IGNORE和ON DUPLICATE KEY UPDATE的不同行为
+INSERT IGNORE INTO users (id, name, email) VALUES (1, 'Test User', 'test@example.com');
+----------
+["DM_DML:/test_schema/users/"]
+----------
+["{\"sqlType\":\"INSERT\",\"auditKind\":\"DML\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"table\":\"users\",\"columns\":[\"id\",\"name\",\"email\"],\"onlyValues\":false,\"multipleValues\":false,\"conflict\":\"IGNORE\",\"fromSelect\":false,\"hasSubQuery\":false,\"hasNullValue\":false,\"sqlTarget\":\"Insert\"}"]
+----------
+INSERT
+------------------------------------------------------------------------------------------
+INSERT INTO users (id, name, email) VALUES (1, 'Updated User', 'updated@example.com')
+ON DUPLICATE KEY UPDATE name = VALUES(name), email = VALUES(email);
+----------
+["DM_CALL:/test_schema/values/","DM_DML:/test_schema/users/"]
+----------
+["{\"sqlType\":\"INSERT\",\"auditKind\":\"DML\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"table\":\"users\",\"columns\":[\"id\",\"name\",\"email\",\"name\",\"email\"],\"onlyValues\":false,\"multipleValues\":false,\"conflict\":\"UPDATE\",\"fromSelect\":false,\"hasSubQuery\":false,\"hasNullValue\":false,\"sqlTarget\":\"Insert\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"values\",\"func\":true,\"args\":[\"email\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"values\",\"func\":true,\"args\":[\"name\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}"]
+----------
+INSERT
+------------------------------------------------------------------------------------------
+-- 测试事务控制语句
+START TRANSACTION;
+----------
+["DM_OTHER:/test_schema/"]
+----------
+["{\"sqlType\":\"TRANSACTION\",\"auditKind\":\"QUERY\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+TRANSACTION
+------------------------------------------------------------------------------------------
+INSERT INTO departments (name) VALUES ('Test Department');
+----------
+["DM_DML:/test_schema/departments/"]
+----------
+["{\"sqlType\":\"INSERT\",\"auditKind\":\"DML\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"table\":\"departments\",\"columns\":[\"name\"],\"onlyValues\":false,\"multipleValues\":false,\"conflict\":\"NONE\",\"fromSelect\":false,\"hasSubQuery\":false,\"hasNullValue\":false,\"sqlTarget\":\"Insert\"}"]
+----------
+INSERT
+------------------------------------------------------------------------------------------
+SAVEPOINT sp1;
+----------
+["DM_OTHER:/test_schema/"]
+----------
+["{\"sqlType\":\"TRANSACTION\",\"auditKind\":\"QUERY\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+TRANSACTION
+------------------------------------------------------------------------------------------
+INSERT INTO employees (name, department_id, salary) VALUES ('Test Employee', LAST_INSERT_ID(), 5000);
+----------
+["DM_CALL:/test_schema/LAST_INSERT_ID/","DM_DML:/test_schema/employees/"]
+----------
+["{\"sqlType\":\"INSERT\",\"auditKind\":\"DML\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"table\":\"employees\",\"columns\":[\"name\",\"department_id\",\"salary\"],\"onlyValues\":false,\"multipleValues\":false,\"conflict\":\"NONE\",\"fromSelect\":false,\"hasSubQuery\":false,\"hasNullValue\":false,\"sqlTarget\":\"Insert\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"LAST_INSERT_ID\",\"func\":true,\"args\":[],\"emptyArg\":true,\"sqlTarget\":\"Call\"}"]
+----------
+INSERT
+------------------------------------------------------------------------------------------
+ROLLBACK TO sp1;
+----------
+["DM_OTHER:/test_schema/"]
+----------
+["{\"sqlType\":\"TRANSACTION\",\"auditKind\":\"QUERY\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+TRANSACTION
+------------------------------------------------------------------------------------------
+COMMIT;
+----------
+["DM_OTHER:/test_schema/"]
+----------
+["{\"sqlType\":\"TRANSACTION\",\"auditKind\":\"QUERY\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"Unknown\",\"needSupply\":true,\"sqlTarget\":\"Unknown\"}"]
+----------
+TRANSACTION
+------------------------------------------------------------------------------------------
+-- 测试预处理语句
+PREPARE stmt FROM 'SELECT * FROM users WHERE id = ?';
+----------
+["DM_OTHER:/"]
+----------
+["{\"sqlType\":\"PREPARE\",\"auditKind\":\"OTHER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"PrepareStatement\",\"needSupply\":false,\"sqlTarget\":\"PrepareStatement\"}"]
+----------
+PREPARE
+------------------------------------------------------------------------------------------
+SET @user_id = 1;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"CONFIG_WRITE\",\"auditKind\":\"OTHER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"configKey\":\"user_id\",\"type\":\"LOCAL\",\"sqlTarget\":\"ConfigKey\"}"]
+----------
+CONFIG_WRITE
+------------------------------------------------------------------------------------------
+EXECUTE stmt USING @user_id;
+----------
+["DM_OTHER:/"]
+----------
+["{\"sqlType\":\"EXECUTE\",\"auditKind\":\"OTHER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"PrepareStatement\",\"needSupply\":false,\"sqlTarget\":\"PrepareStatement\"}"]
+----------
+EXECUTE
+------------------------------------------------------------------------------------------
+DEALLOCATE PREPARE stmt;
+----------
+["DM_OTHER:/"]
+----------
+["{\"sqlType\":\"DEALLOCATE\",\"auditKind\":\"OTHER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"target\":\"PrepareStatement\",\"needSupply\":false,\"sqlTarget\":\"PrepareStatement\"}"]
+----------
+DEALLOCATE
+------------------------------------------------------------------------------------------
+-- 测试游标（通常在存储过程中使用）
+-- 这里仅展示语法结构
+
+CREATE PROCEDURE cursor_example()
+BEGIN
+  DECLARE done INT DEFAULT FALSE;
+  DECLARE user_name VARCHAR(255);
+  DECLARE cur CURSOR FOR SELECT name FROM users;
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+  OPEN cur;
+
+  read_loop: LOOP
+    FETCH cur INTO user_name;
+    IF done THEN
+      LEAVE read_loop;
+    END IF;
+    -- Process user_name
+  END LOOP;
+
+  CLOSE cur;
+END;
+----------
+["DM_OBJ:/test_schema/cursor_example/"]
+----------
+["{\"sqlType\":\"CREATE_PROCEDURE\",\"auditKind\":\"CREATE\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"name\":\"cursor_example\",\"sqlTarget\":\"Procedure\"}"]
+----------
+CREATE_PROCEDURE
+------------------------------------------------------------------------------------------
+-- 测试复合语句块
+SELECT
+    (SELECT COUNT(*) FROM users) as user_count,
+    (SELECT AVG(salary) FROM employees) as avg_salary;
+----------
+["DM_CALL:/test_schema/AVG/","DM_CALL:/test_schema/COUNT/","DM_QUERY:/test_schema/users/","DM_QUERY:/test_schema/employees/"]
+----------
+["{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":false,\"whereColumns\":[],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":false,\"mode\":\"SUB_SELECT\",\"virtual\":false,\"hasAs\":false,\"hasSelectAll\":false,\"selectInSelect\":false,\"funcInSelect\":true,\"exprInSelect\":false,\"selectColumns\":[\"salary\"],\"selectVariables\":[],\"selectFunc\":[\"AVG\"],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":false,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"AVG\",\"func\":true,\"args\":[\"salary\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}","{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":false,\"whereColumns\":[],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":false,\"mode\":\"SUB_SELECT\",\"virtual\":false,\"hasAs\":false,\"hasSelectAll\":false,\"selectInSelect\":false,\"funcInSelect\":true,\"exprInSelect\":false,\"selectColumns\":[],\"selectVariables\":[],\"selectFunc\":[\"COUNT\"],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":false,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}","{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":false,\"whereColumns\":[],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":false,\"mode\":\"NORMAL\",\"virtual\":false,\"hasAs\":true,\"hasSelectAll\":false,\"selectInSelect\":true,\"funcInSelect\":false,\"exprInSelect\":false,\"selectColumns\":[],\"selectVariables\":[],\"selectFunc\":[],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":true,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}","{\"sqlType\":\"CALL\",\"auditKind\":\"CALL\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"callName\":\"COUNT\",\"func\":true,\"args\":[\"*\"],\"emptyArg\":false,\"sqlTarget\":\"Call\"}"]
+----------
+SELECT
+------------------------------------------------------------------------------------------
+-- 测试全文搜索函数
+SELECT
+    MATCH(title, content) AGAINST('MySQL' IN BOOLEAN MODE) as boolean_search,
+    MATCH(title, content) AGAINST('MySQL' WITH QUERY EXPANSION) as expanded_search
+FROM articles
+WHERE MATCH(title, content) AGAINST('MySQL' IN NATURAL LANGUAGE MODE);
+----------
+["DM_QUERY:/test_schema/articles/"]
+----------
+["{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":true,\"whereColumns\":[],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":true,\"mode\":\"NORMAL\",\"virtual\":false,\"hasAs\":true,\"hasSelectAll\":false,\"selectInSelect\":false,\"funcInSelect\":false,\"exprInSelect\":false,\"selectColumns\":[],\"selectVariables\":[],\"selectFunc\":[],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":false,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}"]
+----------
+SELECT
+------------------------------------------------------------------------------------------
+-- 测试用户定义变量
+SET @var1 = 10;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"CONFIG_WRITE\",\"auditKind\":\"OTHER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"configKey\":\"var1\",\"type\":\"LOCAL\",\"sqlTarget\":\"ConfigKey\"}"]
+----------
+CONFIG_WRITE
+------------------------------------------------------------------------------------------
+SET @var2 = 20;
+----------
+["DM_DCL:/"]
+----------
+["{\"sqlType\":\"CONFIG_WRITE\",\"auditKind\":\"OTHER\",\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"configKey\":\"var2\",\"type\":\"LOCAL\",\"sqlTarget\":\"ConfigKey\"}"]
+----------
+CONFIG_WRITE
+------------------------------------------------------------------------------------------
+SELECT @var1 + @var2 as sum_result, @var1 * @var2 as product_result;
+----------
+[]
+----------
+["{\"sqlType\":\"SELECT\",\"auditKind\":\"QUERY\",\"options\":{},\"envId\":0,\"dsId\":0,\"dsType\":\"MySQL\",\"hasWith\":false,\"hasWhere\":false,\"whereColumns\":[],\"selectInWhere\":false,\"joinType\":\"NONE\",\"hasUnion\":false,\"simpleSelect\":true,\"mode\":\"NORMAL\",\"virtual\":false,\"hasAs\":true,\"hasSelectAll\":false,\"selectInSelect\":false,\"funcInSelect\":false,\"exprInSelect\":false,\"selectColumns\":[],\"selectVariables\":[\"var1\",\"var2\"],\"selectFunc\":[],\"selectValue\":[],\"selectInFrom\":false,\"emptyFrom\":true,\"selectItems\":[],\"joinTypes\":[],\"hasLimit\":false,\"sqlTarget\":\"Query\"}"]
+----------
+SELECT

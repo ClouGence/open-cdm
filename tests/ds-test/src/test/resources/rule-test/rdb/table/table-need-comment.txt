@@ -1,0 +1,12 @@
+if
+  @domain.sqlType == 'CREATE_TABLE'
+then
+  return @func.string.isNotBlank(@domain.comment)
+end
+
+if
+  @domain.sqlType == 'ALTER_TABLE' and
+  @domain.comment != null
+then
+  return @func.string.isNotBlank(@domain.comment)
+end

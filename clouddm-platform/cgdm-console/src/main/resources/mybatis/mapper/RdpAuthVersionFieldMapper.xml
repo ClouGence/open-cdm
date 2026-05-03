@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.rdp.dal.mapper.authcode.RdpAuthVersionFieldMapper">
+
+    <resultMap id="rdpAuthVersionDO" type="com.clougence.rdp.dal.model.authcode.RdpAuthVersionFieldDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="license_version" property="licenseVersion"/>
+        <result column="fields" property="fields"/>
+    </resultMap>
+
+    <sql id="allColumn">
+        rdp_auth_version_field.id id,
+        rdp_auth_version_field.gmt_create gmt_create,
+        rdp_auth_version_field.gmt_modified gmt_modified,
+        rdp_auth_version_field.license_version license_version,
+        rdp_auth_version_field.fields fields
+    </sql>
+
+    <select id="queryAllVersion" resultType="java.lang.String">
+        SELECT rdp_auth_version_field.license_version
+        FROM rdp_auth_version_field
+    </select>
+
+    <select id="getFieldByVersion" resultMap="rdpAuthVersionDO">
+        SELECT
+        <include refid="allColumn"/>
+        FROM
+        rdp_auth_version_field
+        WHERE license_version=#{applyCodeVersion}
+        order by gmt_modified desc;
+    </select>
+
+
+</mapper>

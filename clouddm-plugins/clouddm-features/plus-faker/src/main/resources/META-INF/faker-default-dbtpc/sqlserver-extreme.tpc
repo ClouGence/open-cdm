@@ -1,0 +1,203 @@
+# see https://docs.microsoft.com/zh-cn/sql/t-sql/data-types/data-types-transact-sql
+#     https://docs.microsoft.com/zh-cn/sql/t-sql/data-types/time-transact-sql
+
+define sqlserver {
+    priority     = 1
+    policy       = "extreme"
+    policyDesc   = "SQL SERVER TypeProcessor Policy(Extreme)"
+}
+
+[bit]
+    jdbcType       = boolean
+    seedType       = boolean
+
+[tinyint]
+    jdbcType       = tinyint
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 255)
+
+[smallint]
+    jdbcType       = smallint
+    seedType       = number
+    numberType     = int
+    minMax         = range(-32768, 32767)
+
+[int]
+    jdbcType       = integer
+    seedType       = number
+    numberType     = int
+    minMax         = range(-2147483648, 2147483647)
+
+[bigint]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = long
+    minMax         = range(-9223372036854775808, 9223372036854775807)
+
+[smallmoney]
+    jdbcType       = float
+    seedType       = number
+    numberType     = float
+    minMax         = range(-214748.3648, 214748.3647)
+    scale          = 4
+
+[money]
+    jdbcType       = decimal
+    seedType       = number
+    numberType     = double
+    minMax         = range(-922337203685477.5808, 922337203685477.5807)
+    scale          = 4
+
+[float]
+    jdbcType       = float
+    seedType       = number
+    numberType     = decimal
+    minMax        += range(10, -2.23E-308          , -1.79E+308)
+    minMax        += range(10, 2.23E-308           , 1.79E+308)
+    minMax        += range(30, -999999999.999999999, 999999999.999999999)
+    minMax        += range(30, -0.999999999        , 0.999999999)
+    typeHandler    = com.clougence.faker.utils.types.StringAsBigDecimalTypeHandler
+
+[real]
+    jdbcType       = real
+    seedType       = number
+    numberType     = decimal
+    minMax        += range(10, -1.18E-38           , -3.40E+38)
+    minMax        += range(10, 1.18E-38            , 3.40E+38)
+    minMax        += range(30, -999999999.999999999, 999999999.999999999)
+    minMax        += range(30, -0.999999999        , 0.999999999)
+    typeHandler    = com.clougence.faker.utils.types.StringAsBigDecimalTypeHandler
+
+[numeric]
+[decimal]
+    jdbcType       = decimal
+    seedType       = number
+    numberType     = decimal
+    precision      = ${numericPrecision}
+    scale          = ${numericScale}
+
+[char]
+[varchar]
+[nchar]
+[nvarchar]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 1000, 10)
+    characterSet   = [ letter_number ]
+
+[text]
+    jdbcType       = longvarchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 1000, 10)
+    characterSet   = [ letter_number ]
+    whereColTemplate = "cast({name} as varchar(max))"
+
+[ntext]
+    jdbcType       = longnvarchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 1000, 10)
+    characterSet   = [ letter_number ]
+    whereColTemplate = "cast({name} as nvarchar(max))"
+
+[date]
+    jdbcType       = date
+    seedType       = date
+    dateType       = string
+    genType        = random
+    dateFormat     = WKF_DATE10
+    rangeForm      = "0001-01-01"
+    rangeTo        = "9999-12-31"
+
+[time]
+    jdbcType       = time
+    seedType       = date
+    dateType       = string
+    genType        = random
+    dateFormat     = WKF_TIME24
+    precision      = safeMaxLength(0, ${datetimePrecision}, 7, 3)
+    rangeForm      = "00:00:00.0000000"
+    rangeTo        = "23:59:59.9999999"
+
+[smalldatetime]
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE_TIME24_S0
+    genType        = random
+    rangeForm      = "1900-01-01 00:00:00"
+    rangeTo        = "2079-06-06 23:59:00"
+
+[datetime]
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE_TIME24
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 3, 1)
+    rangeForm      = "1753-01-01 00:00:00.000"
+    rangeTo        = "9999-12-31 23:59:59.997"
+
+[datetime2]
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE_TIME24
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 7, 3)
+    rangeForm      = "0001-01-01 00:00:00.0000000"
+    rangeTo        = "9999-12-31 23:59:59.9999999"
+
+[datetimeoffset]
+    jdbcType       = timestamp_with_timezone
+    seedType       = date
+    dateType       = OffsetDateTime
+    dateFormat     = WKF_OFFSET_DATE_TIME24_ZoneM
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 7, 3)
+    rangeForm      = "0001-01-01 00:00:00.0000000"
+    rangeTo        = "9999-12-31 23:59:59.9999999"
+    zoneForm       = "-14:00"
+    zoneTo         = "+14:00"
+
+[rowversion]
+[timestamp]
+    jdbcType       = varbinary
+    seedType       = bytes
+    ignoreAct      = [ Insert, UpdateSet ]
+
+[binary]
+[varbinary]
+    jdbcType       = varbinary
+    seedType       = bytes
+    minLength      = 0
+    maxLength      = safeMaxLength(0, ${byteLength}, 4096, 10)
+
+[image]
+    jdbcType       = varbinary
+    seedType       = bytes
+    minLength      = 0
+    maxLength      = safeMaxLength(0, ${byteLength}, 4096, 10)
+    whereColTemplate = "cast({name} as varbinary(max))"
+
+[uniqueidentifier]
+    jdbcType       = varchar
+    seedType       = gid
+    dateType       = string36
+
+[sysname]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = 128
+    characterSet   = [ letter_small ]
+
+[geography]
+[geometry]
+[xml]
+[hierarchyid]
+[sql_variant]
+    throw "this columnType Unsupported."

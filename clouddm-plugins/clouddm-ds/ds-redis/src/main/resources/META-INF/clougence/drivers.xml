@@ -1,0 +1,22 @@
+<drivers>
+    <driver driverFamily="Jedis" version="7.4.1">
+        <driverName>com.clougence.clouddm.ds.redis.execute.dsfactory.JdbcDsFactory</driverName>
+        <resource type="maven">redis.clients:jedis:7.4.1</resource>
+    </driver>
+    <driver driverFamily="Jedis" version="7.3.0">
+        <driverName>com.clougence.clouddm.ds.redis.execute.dsfactory.JdbcDsFactory</driverName>
+        <resource type="maven">redis.clients:jedis:7.3.0</resource>
+    </driver>
+    <driver driverFamily="Jedis" version="7.2.1">
+        <driverName>com.clougence.clouddm.ds.redis.execute.dsfactory.JdbcDsFactory</driverName>
+        <resource type="maven">redis.clients:jedis:7.2.1</resource>
+    </driver>
+    <driver driverFamily="Jedis" version="7.1.0">
+        <driverName>com.clougence.clouddm.ds.redis.execute.dsfactory.JdbcDsFactory</driverName>
+        <resource type="maven">redis.clients:jedis:7.1.0</resource>
+    </driver>
+    <driver driverFamily="Jedis" version="6.2.0">
+        <driverName>com.clougence.clouddm.ds.redis.execute.dsfactory.JdbcDsFactory</driverName>
+        <resource type="maven">redis.clients:jedis:6.2.0</resource>
+    </driver>
+</drivers>

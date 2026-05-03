@@ -1,0 +1,17 @@
+#define "require" as string
+        default "true"
+        enum ["true", "false"]
+        hint "INSERT 语句中是否必须指明列"
+#define "columns" as string
+        default "id,create_gmt,modify_gmt"
+        hint "INSERT 语句中必须要包含的列，多个列使用逗号区分"
+
+if @domain.sqlType not in ['INSERT'] then
+  return true
+end
+
+if @domain.onlyValues then
+  return !cast(#{require} as bool)
+end
+
+return @func.string.split(#{columns}, ',') in @domain.columns

@@ -1,0 +1,37 @@
+/* 加载容器 */
+.loading-wrapper {
+    width: calc(100vw - 16px);
+    height: calc(100vh - 16px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* 图片加载动画容器 */
+.image-container {
+    position: relative;
+    width: 300px;
+    min-width: 300px;
+    height: 200px;
+    min-height: 200px;
+    overflow: hidden;
+}
+
+/* 加载图片样式 */
+.loading-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    animation: fadeInScale 2s ease-in-out infinite alternate;
+}
+
+@keyframes fadeInScale {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+    }
+}

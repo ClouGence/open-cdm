@@ -1,0 +1,26 @@
+<drivers>
+    <driver driverFamily="ODPS JDBC" version="3.10.5">
+        <driverName>com.clougence.clouddm.ds.maxcompute.execute.dsfactory.McDsFactory</driverName>
+        <resource type="maven">com.aliyun.odps:odps-jdbc:3.10.5</resource>
+    </driver>
+    <driver driverFamily="ODPS JDBC" version="3.9.4">
+        <driverName>com.clougence.clouddm.ds.maxcompute.execute.dsfactory.McDsFactory</driverName>
+        <resource type="maven">com.aliyun.odps:odps-jdbc:3.9.4</resource>
+    </driver>
+    <driver driverFamily="ODPS JDBC" version="3.8.9">
+        <driverName>com.clougence.clouddm.ds.maxcompute.execute.dsfactory.McDsFactory</driverName>
+        <resource type="maven">com.aliyun.odps:odps-jdbc:3.8.9</resource>
+    </driver>
+    <driver driverFamily="ODPS JDBC" version="3.7.0">
+        <driverName>com.clougence.clouddm.ds.maxcompute.execute.dsfactory.McDsFactory</driverName>
+        <resource type="maven">com.aliyun.odps:odps-jdbc:3.7.0</resource>
+    </driver>
+    <driver driverFamily="ODPS JDBC" version="3.6.0">
+        <driverName>com.clougence.clouddm.ds.maxcompute.execute.dsfactory.McDsFactory</driverName>
+        <resource type="maven">com.aliyun.odps:odps-jdbc:3.6.0</resource>
+    </driver>
+    <driver driverFamily="ODPS JDBC" version="3.5.8">
+        <driverName>com.clougence.clouddm.ds.maxcompute.execute.dsfactory.McDsFactory</driverName>
+        <resource type="maven">com.aliyun.odps:odps-jdbc:3.5.8</resource>
+    </driver>
+</drivers>

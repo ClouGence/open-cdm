@@ -1,0 +1,21 @@
+#define "checkMode" as string
+        default "Allow"
+        enum ["Allow", "Reject"]
+        hint "名单规则"
+#define "functions" as string
+        default ""
+        hint "名单中的命令，通配符多条使用分号分隔"
+
+if @domain.dsType != 'MongoDB' then
+  return true
+end
+
+if #{checkMode} === 'Allow' then
+  return @domain.func in
+         @func.string.split(#{functions},';')
+elseif #{checkMode} === 'Reject' then
+  return @domain.func not in
+         @func.string.split(#{functions},';')
+else
+  return true
+end

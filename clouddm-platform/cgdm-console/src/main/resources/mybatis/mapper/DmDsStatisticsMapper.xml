@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.console.web.dal.mapper.DmDsStatisticsMapper">
+
+    <resultMap id="dsStatisticsDO" type="com.clougence.clouddm.console.web.dal.model.DmDsStatisticsDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="data_source_id" property="dataSourceId"/>
+        <result column="data_source_type" property="dataSourceType"/>
+        <result column="last_time" property="lastTime"/>
+        <result column="exec_counts" property="execCounts"/>
+    </resultMap>
+
+    <sql id="dsStatisticsDO">
+        id,
+        gmt_create,
+        gmt_modified,
+        data_source_id,
+        data_source_type,
+        last_time,
+        exec_counts
+    </sql>
+
+    <insert id="initStatisticsDO">
+        insert into dm_ds_statistics (
+            gmt_create, gmt_modified, data_source_id, data_source_type, last_time, exec_counts
+        ) values (
+            now(), now(), #{dataSourceId}, #{dataSourceType}, #{lastTime}, #{execCounts}
+        )
+    </insert>
+
+    <update id="updateCounts">
+        update
+            dm_ds_statistics
+        set
+            last_time   = now(),
+            exec_counts = exec_counts + 1,
+            data_source_type = #{dsType}
+        where
+            data_source_id = #{dsID}
+    </update>
+
+    <select id="getByDsId" resultMap="dsStatisticsDO">
+        select
+            <include refid="dsStatisticsDO"/>
+        from
+            dm_ds_statistics
+        where
+            data_source_id = #{dsID}
+    </select>
+
+    <select id="listStatistics" resultMap="dsStatisticsDO">
+        select
+            <include refid="dsStatisticsDO"/>
+        from
+            dm_ds_statistics
+    </select>
+</mapper>

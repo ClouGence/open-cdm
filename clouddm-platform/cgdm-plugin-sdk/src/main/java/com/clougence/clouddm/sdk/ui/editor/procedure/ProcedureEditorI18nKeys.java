@@ -1,0 +1,25 @@
+package com.clougence.clouddm.sdk.ui.editor.procedure;
+
+import lombok.Getter;
+
+public enum ProcedureEditorI18nKeys {
+
+    UI_PANEL_BASE_INFO_TITLE("UI_PROCEDURE_EDITOR_BASE_INFO_TITLE"),
+    UI_PANEL_BASE_INFO_DESC("UI_PROCEDURE_EDITOR_BASE_INFO_DESC"),
+
+    UI_PANEL_PARAM_TITLE("UI_PROCEDURE_EDITOR_PARAM_TITLE"),
+    UI_PANEL_PARAM_DESC("UI_PROCEDURE_EDITOR_PARAM_DESC"),
+
+    UI_PANEL_BODY_TITLE("UI_PROCEDURE_EDITOR_BODY_TITLE"),
+    UI_PANEL_BODY_DESC("UI_PROCEDURE_EDITOR_BODY_DESC"),
+
+    UI_PANEL_FEATURE_TITLE("UI_PROCEDURE_EDITOR_FEATURE_TITLE"),
+    UI_PANEL_FEATURE_DESC("UI_PROCEDURE_EDITOR_FEATURE_DESC"),;
+
+    @Getter
+    private final String i18nKey;
+
+    ProcedureEditorI18nKeys(String i18nKey){
+        this.i18nKey = i18nKey;
+    }
+}

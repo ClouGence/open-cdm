@@ -1,0 +1,889 @@
+package com.clougence.rdp.service.impl;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.api.common.crypt.CryptService;
+import com.clougence.clouddm.api.common.rpc.ResWebData;
+import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
+import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityFileType;
+import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
+import com.clougence.clouddm.sdk.security.auth.AuthInfo;
+import com.clougence.clouddm.sdk.security.auth.AuthKind;
+import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
+import com.clougence.rdp.component.dskvconfig.RdpDsConfigService;
+import com.clougence.rdp.component.dskvconfig.util.PropsCryptUtil;
+import com.clougence.rdp.constant.ConsoleErrorCode;
+import com.clougence.rdp.constant.I18nRdpMsgKeys;
+import com.clougence.rdp.controller.model.fo.AddDsFO;
+import com.clougence.rdp.controller.model.fo.UpdateSecurityInfoFO;
+import com.clougence.rdp.controller.model.fo.UpsertDsKvConfigFO;
+import com.clougence.rdp.controller.model.lo.UpdateDsConfigLO;
+import com.clougence.rdp.controller.model.lo.UpdateDsDescLO;
+import com.clougence.rdp.controller.model.lo.UpdatePriHostLO;
+import com.clougence.rdp.controller.model.lo.UpdatePubHostLO;
+import com.clougence.rdp.controller.model.vo.DefaultDsKvConfigVO;
+import com.clougence.rdp.controller.model.vo.DsKvConfigVO;
+import com.clougence.rdp.dal.enumeration.*;
+import com.clougence.rdp.dal.mapper.*;
+import com.clougence.rdp.dal.model.*;
+import com.clougence.rdp.dal.model.queryobj.DsQueryParam;
+import com.clougence.rdp.global.exception.ConsoleRuntimeException;
+import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.rdp.service.*;
+import com.clougence.rdp.util.RandomStrUtils;
+import com.clougence.rdp.util.RdpAuthUtils;
+import com.clougence.rdp.util.RdpConvertUtils;
+import com.clougence.rdp.util.RdpI18nUtils;
+import com.clougence.utils.CollectionUtils;
+import com.clougence.utils.ExceptionUtils;
+import com.clougence.utils.StringUtils;
+
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * @author bucketli 2023/11/24 10:24:56
+ */
+@Service
+@Slf4j
+public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
+
+    @Resource
+    private RdpUserService          rdpUserService;
+    @Resource
+    private RdpResAuthMapper        rdpDsAuthMapper;
+    @Resource
+    private RdpAuthServiceForManage rdpAuthServiceForManager;
+    @Resource
+    private RdpDsUsageService       rdpDsUsageService;
+    @Resource
+    private RdpSecurityService      rdpSecurityService;
+    @Resource
+    private RdpDataSourceMapper     rdpDsMapper;
+    @Resource
+    private RdpDsEnvMapper          rdpDsEnvMapper;
+    @Resource
+    private RdpDsConfigService      rdpDsConfigService;
+    @Resource
+    private RdpDsKvBaseConfigMapper rdpDsKvBaseConfigMapper;
+    @Resource
+    private RdpBlobResourceMapper   rdpBlobResourceMapper;
+    @Resource
+    private List<RdpNotifyService>  notifyServices;
+
+    @Override
+    public void init() {
+    }
+
+    @Override
+    public void stop() {
+
+    }
+
+    @Override
+    public List<RdpDataSourceDO> fetchByCondition(DsQueryParam dsQueryParam) {
+        List<RdpDataSourceDO> dsList = this.rdpDsMapper.listByCondition(dsQueryParam);
+        for (RdpDataSourceDO ds : dsList) {
+            fillExtraConfig(ds, null);
+        }
+        return dsList;
+    }
+
+    @Override
+    public List<RdpDataSourceDO> fetchByCondition(String ownerUid, DsQueryParam dsQueryParam, boolean fillEnv) {
+        List<RdpDataSourceDO> dsList = this.rdpDsMapper.listByCondition(dsQueryParam);
+        if (CollectionUtils.isEmpty(dsList)) {
+            return dsList;
+        }
+        Map<Long, RdpDsEnvDO> envMap = new HashMap<>();
+        if (fillEnv) {
+            List<Long> envIds = dsList.stream().map(RdpDataSourceDO::getDsEnvId).distinct().collect(Collectors.toList());
+            List<RdpDsEnvDO> envList = this.rdpDsEnvMapper.queryListByUidAndId(ownerUid, envIds);
+            envList.forEach(e -> envMap.put(e.getId(), e));
+        }
+
+        for (RdpDataSourceDO ds : dsList) {
+            fillExtraConfig(ds, envMap);
+        }
+
+        return dsList;
+    }
+
+    @Override
+    public RdpDataSourceDO queryDsByIdWithoutPasswd(Long dataSourceId) {
+        RdpDataSourceDO dataSourceDO = fetchAndCheckById(dataSourceId);
+        dataSourceDO.setPassword(null);
+        return dataSourceDO;
+    }
+
+    @Override
+    public List<DefaultDsKvConfigVO> queryDsDefaultConfig(DataSourceType dataSourceType, DeployEnvType envType) {
+        long dummyDsID = 1;
+        List<RdpDsKvBaseConfigDO> configs = this.rdpDsConfigService.fetchDefaultConfig(dummyDsID, dataSourceType);
+        List<DefaultDsKvConfigVO> cs = new ArrayList<>();
+        for (RdpDsKvBaseConfigDO c : configs) {
+            if (isDefaultValueTrue(c, dataSourceType, envType)) {
+                c.setDefaultValue(Boolean.TRUE.toString());
+            }
+
+            DefaultDsKvConfigVO v = new DefaultDsKvConfigVO();
+            v.convertFromDO(c);
+            cs.add(v);
+        }
+
+        return cs;
+    }
+
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    @Override
+    public List<UpdateDsConfigLO> upsertDsConfigs(String puid, UpsertDsKvConfigFO fo) {
+        List<UpdateDsConfigLO> result = new ArrayList<>();
+
+        RdpDataSourceDO dataSourceDO = this.fetchAndCheckById(fo.getDataSourceId());
+
+        if (fo.getUpdateConfigs() != null && !fo.getUpdateConfigs().isEmpty()) {
+            for (Map.Entry<String, String> config : fo.getUpdateConfigs().entrySet()) {
+                RdpDsKvBaseConfigDO configDO = this.rdpDsKvBaseConfigMapper.queryByDsIdAndConfigName(fo.getDataSourceId(), config.getKey());
+                if (configDO != null) {
+                    String value = config.getValue();
+                    if (value != null) {
+                        value = value.trim();
+                    }
+
+                    DataSourceType dsType = dataSourceDO.getDataSourceType();
+                    if (PropsCryptUtil.CONFIG_SECRET_NAMES.containsKey(dsType)) {
+                        Set<String> configs = PropsCryptUtil.CONFIG_SECRET_NAMES.get(dsType);
+                        if (configs.contains(configDO.getConfigName())) {
+                            String oldValue = configDO.getConfigValue();
+                            String newProps = PropsCryptUtil.diffAndEncryptSecrets(dsType, oldValue, value);
+                            if (StringUtils.isNotBlank(newProps)) {
+                                value = newProps;
+                            }
+                        }
+                    }
+
+                    if (configDO.isSecret() && StringUtils.isNotBlank(value)) {
+                        value = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(value);
+                    }
+
+                    if (configDO.isReadOnly()) {
+                        continue;
+                    }
+
+                    UpdateDsConfigLO configLO = new UpdateDsConfigLO();
+                    configLO.setConfigName(configDO.getConfigName());
+                    configLO.setNeedCreate(false);
+                    if (!configDO.isSecret()) {
+                        configLO.setOldConfigValue(configDO.getConfigValue());
+                        configLO.setConfigValue(config.getValue());
+                    }
+                    this.rdpDsKvBaseConfigMapper.updateDsConfig(fo.getDataSourceId(), config.getKey(), value);
+                    result.add(configLO);
+                }
+            }
+        }
+
+        if (fo.getNeedCreateConfigs() != null && !fo.getNeedCreateConfigs().isEmpty()) {
+            List<RdpDsKvBaseConfigDO> defaultConfigs = this.rdpDsConfigService.fetchDefaultConfig(dataSourceDO.getId(), dataSourceDO.getDataSourceType());
+
+            for (Map.Entry<String, String> config : fo.getNeedCreateConfigs().entrySet()) {
+                RdpDsKvBaseConfigDO configDO = this.rdpDsKvBaseConfigMapper.queryByDsIdAndConfigName(fo.getDataSourceId(), config.getKey());
+                if (configDO == null) {
+                    RdpDsKvBaseConfigDO defaultConfig = defaultConfigs.stream().filter(c -> c.getConfigName().equals(config.getKey())).findFirst().orElse(null);
+                    if (defaultConfig != null) {
+                        String value = config.getValue();
+                        if (value != null) {
+                            value = value.trim();
+                        }
+
+                        UpdateDsConfigLO configLO = new UpdateDsConfigLO();
+                        configLO.setConfigName(config.getKey());
+                        configLO.setNeedCreate(true);
+
+                        if (defaultConfig.isSecret()) {
+                            defaultConfig.setConfigValue(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(value));
+                        } else {
+                            defaultConfig.setConfigValue(value);
+                            configLO.setConfigValue(config.getValue());
+                        }
+
+                        this.rdpDsKvBaseConfigMapper.insert(defaultConfig);
+                        result.add(configLO);
+                    }
+                }
+            }
+        }
+
+        this.notifyServices.forEach(s -> s.onDsUpdate(fo.getDataSourceId()));
+        return result;
+    }
+
+    private boolean isDefaultValueTrue(RdpDsKvBaseConfigDO c, DataSourceType dataSourceType, DeployEnvType envType) {
+        if (StringUtils.equals(c.getConfigName(), "useSSL")) {
+            return envType == DeployEnvType.MICROSOFT_AZURE_CLOUD_HOSTED && (dataSourceType == DataSourceType.MySQL || dataSourceType == DataSourceType.PostgreSQL
+                                                                             || dataSourceType == DataSourceType.MariaDB || dataSourceType == DataSourceType.SQLServer);
+        }
+
+        return false;
+    }
+
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    @Override
+    public UpdateDsDescLO updateDataSourceDesc(String puid, Long dataSourceId, String instanceDesc) {
+        RdpDataSourceDO dataSourceDO = this.fetchAndCheckById(dataSourceId);
+        UpdateDsDescLO lo = new UpdateDsDescLO();
+        lo.setDataSourceId(dataSourceId);
+        lo.setOldInstanceDesc(dataSourceDO.getInstanceDesc());
+        lo.setNewInstanceDesc(instanceDesc);
+        this.rdpDsMapper.updateDescByInstanceId(dataSourceId, instanceDesc);
+        this.notifyServices.forEach(s -> s.onDsUpdate(dataSourceId));
+        return lo;
+    }
+
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    public void updateAkSk(String puid, Long dataSourceId, String accessKey, String secretKey) {
+        RdpDataSourceDO dataSourceDO = this.fetchAndCheckById(dataSourceId);
+
+        String encSecretKey = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(secretKey);
+        this.rdpDsMapper.updateAkAndSk(dataSourceDO.getId(), accessKey, encSecretKey);
+        this.notifyServices.forEach(s -> s.onDsUpdate(dataSourceId));
+    }
+
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    @Override
+    public void updateAliyunRdsAkSk(String puid, Long dataSourceId, String accessKey, String secretKey) {
+        RdpDataSourceDO dataSourceDO = this.fetchAndCheckById(dataSourceId);
+
+        String encSecretKey = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(secretKey);
+        this.rdpDsMapper.updateAliyunRdsAkAndSk(dataSourceDO.getId(), accessKey, encSecretKey);
+        this.notifyServices.forEach(s -> s.onDsUpdate(dataSourceId));
+    }
+
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    @Override
+    public UpdatePubHostLO updateDataSourcePublicHost(String puid, Long dataSourceId, String publicHost) {
+        this.fetchAndCheckById(dataSourceId);
+        RdpDataSourceDO rdpDataSourceDO = this.rdpDsMapper.queryDsIdentityById(dataSourceId);
+        if (rdpDataSourceDO == null) {
+            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.DS_CHECK_NOT_EXIST_ERROR.name()));
+        }
+        this.rdpDsMapper.updatePublicHostByInstanceId(dataSourceId, publicHost);
+
+        UpdatePubHostLO lo = new UpdatePubHostLO();
+        lo.setDataSourceId(dataSourceId);
+        lo.setOldPublicHost(rdpDataSourceDO.getPublicHost());
+        lo.setNewPublicHost(publicHost);
+
+        this.notifyServices.forEach(s -> s.onDsUpdate(dataSourceId));
+        return lo;
+    }
+
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    @Override
+    public UpdatePriHostLO updateDataSourcePrivateHost(String puid, Long dataSourceId, String privateHost) {
+        this.fetchAndCheckById(dataSourceId);
+        RdpDataSourceDO rdpDataSourceDO = this.rdpDsMapper.queryDsIdentityById(dataSourceId);
+        if (rdpDataSourceDO == null) {
+            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.DS_CHECK_NOT_EXIST_ERROR.name()));
+        }
+        this.rdpDsMapper.updatePrivateHostByInstanceId(dataSourceId, privateHost);
+
+        UpdatePriHostLO lo = new UpdatePriHostLO();
+        lo.setDataSourceId(dataSourceId);
+        lo.setOldPrivateHost(rdpDataSourceDO.getPrivateHost());
+        lo.setNewPrivateHost(privateHost);
+        this.notifyServices.forEach(s -> s.onDsUpdate(dataSourceId));
+        return lo;
+    }
+
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    @Override
+    public void updateDataSourceAccount(String puid, UpdateSecurityInfoFO fo) {
+        RdpDataSourceDO dsDo = this.fetchAndCheckById(fo.getDataSourceId());
+
+        MultipartFile securityFile = fo.getSecurityFile();
+        String securityFileName = securityFile == null ? null : UUID.randomUUID() + "-" + securityFile.getOriginalFilename();
+        String securityFilePath = securityFile != null ? this.rdpSecurityService.genSecurityFileRelatePath(dsDo.getInstanceId(), securityFileName) : null;
+
+        MultipartFile secretFile = fo.getSecretFile();
+        String secretFileName = secretFile != null ? UUID.randomUUID() + "-" + secretFile.getOriginalFilename() : null;
+        String secretFilePath = secretFile != null ? this.rdpSecurityService.genSecurityFileRelatePath(dsDo.getInstanceId(), secretFileName) : null;
+
+        MultipartFile keyStoreFile = fo.getSecretFile();
+        String keyStoreFileName = keyStoreFile != null ? UUID.randomUUID() + "-" + keyStoreFile.getOriginalFilename() : null;
+        String keyStoreFilePath = keyStoreFile != null ? this.rdpSecurityService.genSecurityFileRelatePath(dsDo.getInstanceId(), keyStoreFileName) : null;
+
+        MultipartFile clientSecurityFile = fo.getClientSecurityFile();
+        String clientSecurityName = clientSecurityFile != null ? UUID.randomUUID() + "-" + clientSecurityFile.getOriginalFilename() : null;
+        String clientSecurityFilePath = clientSecurityFile != null ? this.rdpSecurityService.genSecurityFileRelatePath(dsDo.getInstanceId(), clientSecurityName) : null;
+
+        String encPasswd = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(fo.getPassword());
+
+        String securityFilePassword = null;
+        String clientSecurityFilePassword = null;
+        String secretFilePassword = null;
+        if (StringUtils.isNotBlank(fo.getSecurityFilePassword())) {
+            securityFilePassword = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(fo.getSecurityFilePassword());
+        }
+        if (StringUtils.isNotBlank(fo.getClientSecurityFilePassword())) {
+            clientSecurityFilePassword = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(fo.getClientSecurityFilePassword());
+        }
+        if (StringUtils.isNotBlank(fo.getSecretFilePassword())) {
+            secretFilePassword = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(fo.getSecretFilePassword());
+        }
+        this.rdpDsMapper.updateSecurityAllInfo(dsDo.getId(), fo.getUserName(), encPasswd, fo.getSecurityType(), SecurityFileStoreType.META_DB, dsDo.getAccessKey(), dsDo
+            .getSecretKey(), securityFilePath, securityFilePassword, clientSecurityFilePath, clientSecurityFilePassword, secretFilePath, secretFilePassword);
+
+        SecurityType securityType = fo.getSecurityType();
+        if (securityType == null || securityType == SecurityType.AK_SK) {
+            updateAkSk(puid, dsDo.getId(), fo.getAccessKey(), fo.getSecretKey());
+        } else if (securityFile != null && secretFile != null && securityType == SecurityType.KERBEROS) {
+            updateDsSecurityFile(securityFile, dsDo, SecurityFileType.kerberos_keytab_file);
+            updateDsSecurityFile(secretFile, dsDo, SecurityFileType.kerberos_conf_file);
+        } else if (securityFile != null && securityType == SecurityType.USER_PASSWD_WITH_TLS) {
+            updateDsSecurityFile(securityFile, dsDo, SecurityFileType.ssl_truststore_file);
+            if (clientSecurityFile != null) {
+                updateDsSecurityFile(clientSecurityFile, dsDo, SecurityFileType.ssl_keystore_file);
+            }
+        } else if (securityFile != null && securityType == SecurityType.CA_CERTIFICATE) {
+            updateDsSecurityFile(securityFile, dsDo, SecurityFileType.ca_certificate_file);
+            if (clientSecurityFile != null) {
+                updateDsSecurityFile(clientSecurityFile, dsDo, SecurityFileType.client_certificate_file);
+            }
+            if (secretFile != null) {
+                updateDsSecurityFile(secretFile, dsDo, SecurityFileType.secret_file);
+            }
+        } else if (keyStoreFilePath != null && securityType == SecurityType.USER_PASSWD_WITH_KEYSTORE) {
+            updateDsSecurityFile(securityFile, dsDo, SecurityFileType.keystore_file);
+        } else if (securityFile != null && (dsDo.getDataSourceType() == DataSourceType.Redis || dsDo.getDataSourceType() == DataSourceType.ElastiCache)) {
+            updateDsSecurityFile(securityFile, dsDo, SecurityFileType.ca_certificate_file);
+        }
+
+        this.notifyServices.forEach(s -> s.onDsUpdate(fo.getDataSourceId()));
+    }
+
+    protected void updateDsSecurityFile(MultipartFile file, RdpDataSourceDO entity, SecurityFileType securityFileType) {
+        if (file == null) {
+            throw new IllegalArgumentException("datasource security file is null.security file type:" + securityFileType);
+        }
+
+        try {
+            RdpBlobResourceDO blobResourceDO = this.rdpBlobResourceMapper.queryByIdentify(entity.getInstanceId(), ResourceType.DATASOURCE, securityFileType);
+            if (blobResourceDO == null) {
+                saveDsSecurityFile(file, entity, securityFileType);
+            } else {
+                this.rdpBlobResourceMapper.updateByIdentify(file.getBytes(), entity.getInstanceId(), ResourceType.DATASOURCE, securityFileType);
+            }
+        } catch (IOException e) {
+            String msg = "read security file from stream error.datasource instance id:" + entity.getInstanceId() + ".msg:" + ExceptionUtils.getRootCauseMessage(e);
+            log.error(msg, e);
+            throw new RuntimeException(msg, e);
+        }
+    }
+
+    @Override
+    public List<DsKvConfigVO> queryDsConfigs(Long dataSourceId) {
+        if (dataSourceId == null) {
+            return new ArrayList<>();
+        }
+
+        RdpDataSourceDO ds = this.rdpDsMapper.selectById(dataSourceId);
+        if (ds == null) {
+            return new ArrayList<>();
+        }
+
+        List<RdpDsKvBaseConfigDO> configList = this.rdpDsKvBaseConfigMapper.listByDsId(dataSourceId);
+        Map<String, RdpDsKvBaseConfigDO> configMap = new HashMap<>();
+        for (RdpDsKvBaseConfigDO configDO : configList) {
+            configMap.put(configDO.getConfigName(), configDO);
+        }
+
+        List<RdpDsKvBaseConfigDO> defaultConfigs = this.rdpDsConfigService.fetchDefaultConfig(ds.getId(), ds.getDataSourceType());
+
+        List<DsKvConfigVO> resultConfigs = new ArrayList<>();
+        for (RdpDsKvBaseConfigDO configDO : defaultConfigs) {
+            RdpDsKvBaseConfigDO config = configMap.get(configDO.getConfigName());
+            if (config == null) {
+                DsKvConfigVO v = RdpConvertUtils.convertToDsKvConfigVO(configDO);
+                v.setNeedCreated(true);
+                resultConfigs.add(v);
+            } else {
+                DsKvConfigVO v = RdpConvertUtils.convertToDsKvConfigVO(config);
+                resultConfigs.add(v);
+            }
+        }
+
+        return resultConfigs;
+    }
+
+    @Override
+    public DsKvConfigVO queryDsConfig(Long dataSourceId, String configName) {
+        if (dataSourceId == null) {
+            return null;
+        }
+
+        RdpDataSourceDO ds = this.rdpDsMapper.selectById(dataSourceId);
+        if (ds == null) {
+            return null;
+        }
+
+        RdpDsKvBaseConfigDO c = this.rdpDsKvBaseConfigMapper.queryByDsIdAndConfigName(dataSourceId, configName);
+        if (c == null || StringUtils.isBlank(c.getConfigValue())) {
+            return null;
+        } else {
+            return RdpConvertUtils.convertToDsKvConfigVO(c);
+        }
+    }
+
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    @Override
+    public void cleanDataSourceAccount(String puid, long dsId) {
+        this.rdpDsMapper.cleanDataSourceAccount(dsId);
+        this.notifyServices.forEach(s -> s.onDsUpdate(dsId));
+    }
+
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    @Override
+    public ResWebData<Long> addDataSource(String puid, String uid, AddDsFO addFO) {
+        RdpUserDO pUserDO = this.rdpUserService.getUserByUid(puid);
+        long dsId;
+        if (addFO.getDeployType() == DeployEnvType.SELF_MAINTENANCE || //
+            addFO.getDeployType() == DeployEnvType.AWS_CLOUD_HOSTED || //
+            addFO.getDeployType() == DeployEnvType.MICROSOFT_AZURE_CLOUD_HOSTED || //
+            addFO.getDeployType() == DeployEnvType.HUAWEI_CLOUD_HOSTED || //
+            addFO.getDeployType() == DeployEnvType.TENCENT_CLOUD_HOSTED || //
+            addFO.getDeployType() == DeployEnvType.INDEPENDENT_CLOUD_PLATFORM) {
+            try {
+                dsId = saveSelfMaintainDs(addFO, puid, pUserDO.getUsername());
+                addCreatorAuth(uid, dsId);
+            } catch (Exception e) {
+                throw ExceptionUtils.toRuntime(ExceptionUtils.getRootCause(e));
+            }
+        } else {
+            return ResWebDataUtils.buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.DS_ADD_UNSUPPORTED_ERROR.name(), addFO.getDeployType().name()));
+        }
+
+        this.notifyServices.forEach(s -> s.onDsAdd(uid, dsId));
+        return ResWebDataUtils.buildSuccess(dsId);
+    }
+
+    protected void addCreatorAuth(String uid, Long dsId) {
+        RdpUserDO opUserDO = this.rdpUserService.getUserByUid(uid);
+        if (opUserDO.getAccountType() != AccountType.SUB_ACCOUNT) {
+            return;
+        }
+
+        List<AuthInfo> dsManageAuths = this.rdpAuthServiceForManager.getCascadeAuthByLabel(SecDataAuthLabel.RDP_DAUTH_DS_MANAGER);
+        //List<AuthInfo> createDatajobAuths = this.rdpAuthServiceForManager.getCascadeAuthByLabel(CcDataAuthLabel.CC_DAUTH_DS_DATA_WRITE);
+        List<AuthInfo> dataOperateAuths = this.rdpAuthServiceForManager.getCascadeAuthByLabel(SecDataAuthLabel.DM_DAUTH_TICKET);
+
+        Set<String> dsManageLabels = dsManageAuths.stream().map(AuthInfo::getKey).collect(Collectors.toSet());
+        //Set<String> createDatajobLabels = createDatajobAuths.stream().map(AuthInfo::getKey).collect(Collectors.toSet());
+        Set<String> dataOperateLabels = dataOperateAuths.stream().map(AuthInfo::getKey).collect(Collectors.toSet());
+
+        //dsManageLabels.addAll(createDatajobLabels);
+        dsManageLabels.addAll(dataOperateLabels);
+
+        RdpDataSourceDO dataSourceDO = rdpDsMapper.queryDsIdentityById(dsId);
+        RdpResAuthDO selfAudit = new RdpResAuthDO();
+        selfAudit.setOwnerUid(uid);
+        selfAudit.setKindType(AuthKind.DataSource);
+        selfAudit.setResId(dsId);
+        selfAudit.setResInstId(dataSourceDO.getInstanceId());
+        selfAudit.setResDesc(dataSourceDO.getInstanceDesc());
+        selfAudit.setResPath(RdpAuthUtils.genEmptyResPath().getResPath());
+        selfAudit.setLevelOne(RdpAuthUtils.genEmptyResPath().getResPath());
+        selfAudit.setAuthLabels(new ArrayList<>(dsManageLabels));
+        this.rdpDsAuthMapper.insert(selfAudit); // add DataSource auth time is forever
+    }
+
+    protected long saveSelfMaintainDs(AddDsFO addDsFO, String uid, String owner) {
+        boolean isDb2 = DataSourceType.Db2 == addDsFO.getType();
+        boolean hasDbName = StringUtils.isNotEmpty(addDsFO.getDbName());
+        if (isDb2 && hasDbName) {
+            addDsFO.setDbName(StringUtils.upperCase(addDsFO.getDbName()));
+        }
+        if (isDb2 && !hasDbName) {
+            throw new IllegalArgumentException("DB2 datasource dbName can not be empty.");
+        }
+
+        RdpDataSourceDO entity = new RdpDataSourceDO();
+        entity.setDataSourceType(addDsFO.getType());
+        entity.setDeployType(addDsFO.getDeployType());
+        entity.setInfoFetchType(addDsFO.getInfoFetchType());
+        entity.setHost(addDsFO.getHost());
+        entity.setPrivateHost(addDsFO.getPrivateHost());
+        entity.setPublicHost(addDsFO.getPublicHost());
+        entity.setHostType(addDsFO.getHostType());
+        entity.setUid(uid);
+        entity.setOwner(owner);
+        entity.setSecurityType(addDsFO.getSecurityType());
+        entity.setLifeCycleState(LifeCycleState.CREATED);
+        entity.setConnectType(addDsFO.getConnectType());
+        entity.setDriver(addDsFO.getDriver());
+        entity.setDefaultDbName(addDsFO.getDbName());
+        entity.setDsEnvId(addDsFO.getEnvId());
+
+        if (StringUtils.isNotBlank(addDsFO.getVersion())) {
+            entity.setVersion(addDsFO.getVersion());
+        }
+
+        if (entity.getSecurityType() == null) {
+            entity.setSecurityType(SecurityType.USER_PASSWD);
+        }
+
+        entity.setAccessKey(addDsFO.getAccessKey());
+
+        if (StringUtils.isNotBlank(addDsFO.getSecretKey())) {
+            entity.setSecretKey(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(addDsFO.getSecretKey()));
+        }
+
+        if (StringUtils.isNotBlank(addDsFO.getAccount())) {
+            entity.setAccount(addDsFO.getAccount());
+        }
+
+        if (StringUtils.isNotBlank(addDsFO.getPassword())) {
+            entity.setPassword(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(addDsFO.getPassword()));
+        } else {
+            // for compatibility
+            entity.setPassword(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(""));
+        }
+
+        fillInstanceIdAndDesc(addDsFO, entity);
+
+        if (entity.getSecurityType() == SecurityType.KERBEROS) {
+            entity.setSecurityFileStoreType(SecurityFileStoreType.META_DB);
+            String keytabFileName = UUID.randomUUID() + "-" + addDsFO.getSecretFile().getOriginalFilename();
+            String keytabFilePath = this.rdpSecurityService.genSecurityFileRelatePath(entity.getInstanceId(), keytabFileName);
+            entity.setSecretFileUrl(keytabFilePath);
+
+            String kerberosConfFileName = UUID.randomUUID() + "-" + addDsFO.getSecurityFile().getOriginalFilename();
+            String kerberosConfPath = this.rdpSecurityService.genSecurityFileRelatePath(entity.getInstanceId(), kerberosConfFileName);
+            entity.setSecurityFileUrl(kerberosConfPath);
+        } else if (entity.getSecurityType() == SecurityType.USER_PASSWD_WITH_TLS) {
+            if (addDsFO.getSecurityFile() == null) {
+                throw new IllegalArgumentException("datasource security type is plain with ssl,but xxx.truststore.jks file is empty.");
+            }
+
+            entity.setSecurityFileStoreType(SecurityFileStoreType.META_DB);
+            // trustStore file
+            String sslTrustStoreFileName = UUID.randomUUID() + "-" + addDsFO.getSecurityFile().getOriginalFilename();
+            String sslTrustStoreFilePath = this.rdpSecurityService.genSecurityFileRelatePath(entity.getInstanceId(), sslTrustStoreFileName);
+            entity.setSecurityFileUrl(sslTrustStoreFilePath);
+            if (StringUtils.isNotBlank(addDsFO.getClientTrustStorePassword())) {
+                // ClientTrustStorePassword is used in Kafka/AutoMQ/Tunnel, and now TLS authentication has switched to using (trustStore/keyStore - securityFilePassword/clientSecurityFilePassword)
+                entity.setClientTrustStorePassword(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(addDsFO.getClientTrustStorePassword()));
+            }
+            if (StringUtils.isNotBlank(addDsFO.getSecurityFilePassword())) {
+                // trustStore file password
+                entity.setSecurityFilePassword(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(addDsFO.getSecurityFilePassword()));
+            }
+
+            if (addDsFO.getClientSecurityFile() != null) {
+                // keystore file
+                String keystoreFileName = UUID.randomUUID() + "-" + addDsFO.getClientSecurityFile().getOriginalFilename();
+                String clientSecurityFileUrl = this.rdpSecurityService.genSecurityFileRelatePath(entity.getInstanceId(), keystoreFileName);
+                entity.setClientSecurityFileUrl(clientSecurityFileUrl);
+            }
+            if (StringUtils.isNotBlank(addDsFO.getClientSecurityFilePassword())) {
+                // keystore file password
+                entity.setClientSecurityFilePassword(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(addDsFO.getClientSecurityFilePassword()));
+            }
+        } else if (entity.getSecurityType() == SecurityType.CA_CERTIFICATE) {
+            if (addDsFO.getSecurityFile() == null) {
+                throw new IllegalArgumentException("datasource security type is plain with ca certificate,but xxx.crt file is empty.");
+            }
+
+            entity.setSecurityFileStoreType(SecurityFileStoreType.META_DB);
+            String caCertificateFileName = UUID.randomUUID() + "-" + addDsFO.getSecurityFile().getOriginalFilename();
+            String caCertificateFilePath = this.rdpSecurityService.genSecurityFileRelatePath(entity.getInstanceId(), caCertificateFileName);
+            entity.setSecurityFileUrl(caCertificateFilePath);
+            if (addDsFO.getClientSecurityFile() != null) {
+                String filename = UUID.randomUUID() + "-" + addDsFO.getClientSecurityFile().getOriginalFilename();
+                String clientSecurityFileUrl = this.rdpSecurityService.genSecurityFileRelatePath(entity.getInstanceId(), filename);
+                entity.setClientSecurityFileUrl(clientSecurityFileUrl);
+            }
+            if (addDsFO.getSecretFile() != null) {
+                String filename = UUID.randomUUID() + "-" + addDsFO.getSecretFile().getOriginalFilename();
+                String secretFileUrl = this.rdpSecurityService.genSecurityFileRelatePath(entity.getInstanceId(), filename);
+                entity.setSecretFileUrl(secretFileUrl);
+            }
+            if (StringUtils.isNotBlank(addDsFO.getSecretFilePassword())) {
+                entity.setSecretFilePassword(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(addDsFO.getSecretFilePassword()));
+            }
+        } else if (entity.getSecurityType() == SecurityType.USER_PASSWD_WITH_KEYSTORE) {
+            if (addDsFO.getSecurityFile() == null) {
+                throw new IllegalArgumentException("datasource security type is plain with ssl,but .keystore file is empty.");
+            }
+
+            entity.setSecurityFileStoreType(SecurityFileStoreType.META_DB);
+            String keyStoreFileName = UUID.randomUUID() + "-" + addDsFO.getSecurityFile().getOriginalFilename();
+            String keyStoreFilePath = this.rdpSecurityService.genSecurityFileRelatePath(entity.getInstanceId(), keyStoreFileName);
+            entity.setSecurityFileUrl(keyStoreFilePath);
+            if (addDsFO.getClientTrustStorePassword() != null) {
+                entity.setClientTrustStorePassword(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(addDsFO.getClientTrustStorePassword()));
+            }
+        }
+
+        if (Arrays.asList(DataSourceType.Redis, DataSourceType.ElastiCache).contains(entity.getDataSourceType()) && addDsFO.getSecurityFile() != null) {
+            // Redis datasource with ca certificate file
+            entity.setSecurityFileStoreType(SecurityFileStoreType.META_DB);
+            String caCertificateFilePath = this.rdpSecurityService.genSecurityFileRelatePath(entity.getInstanceId(), addDsFO.getSecurityFile().getOriginalFilename());
+            entity.setSecurityFileUrl(caCertificateFilePath);
+            // redis security type never be CA_CERTIFICATE, but all types of redis config can have ca_certificate_file
+            saveDsSecurityFile(addDsFO.getSecurityFile(), entity, SecurityFileType.ca_certificate_file);
+        }
+
+        this.rdpDsMapper.insert(entity);
+
+        if (addDsFO.getDsKvConfigs() != null && !addDsFO.getDsKvConfigs().isEmpty()) {
+            this.rdpDsConfigService.persistDsConfig(entity, addDsFO.getDsKvConfigs());
+        }
+
+        if (entity.getSecurityType() == SecurityType.KERBEROS) {
+            saveDsSecurityFile(addDsFO.getSecretFile(), entity, SecurityFileType.kerberos_keytab_file);
+            saveDsSecurityFile(addDsFO.getSecurityFile(), entity, SecurityFileType.kerberos_conf_file);
+        } else if (entity.getSecurityType() == SecurityType.USER_PASSWD_WITH_TLS) {
+            // trustStore file
+            saveDsSecurityFile(addDsFO.getSecurityFile(), entity, SecurityFileType.ssl_truststore_file);
+            if (addDsFO.getClientSecurityFile() != null) {
+                // keystore file
+                saveDsSecurityFile(addDsFO.getClientSecurityFile(), entity, SecurityFileType.ssl_keystore_file);
+            }
+        } else if (entity.getSecurityType() == SecurityType.CA_CERTIFICATE) {
+            saveDsSecurityFile(addDsFO.getSecurityFile(), entity, SecurityFileType.ca_certificate_file);
+            if (addDsFO.getClientSecurityFile() != null) {
+                saveDsSecurityFile(addDsFO.getClientSecurityFile(), entity, SecurityFileType.client_certificate_file);
+            }
+            if (addDsFO.getSecretFile() != null) {
+                saveDsSecurityFile(addDsFO.getSecretFile(), entity, SecurityFileType.secret_file);
+            }
+        } else if (entity.getSecurityType() == SecurityType.USER_PASSWD_WITH_KEYSTORE) {
+            saveDsSecurityFile(addDsFO.getSecurityFile(), entity, SecurityFileType.keystore_file);
+        }
+
+        return entity.getId();
+    }
+
+    protected void saveDsSecurityFile(MultipartFile file, RdpDataSourceDO entity, SecurityFileType securityFileType) {
+        if (file == null) {
+            throw new IllegalArgumentException("datasource security file is null.security file type:" + securityFileType);
+        }
+
+        try {
+            RdpBlobResourceDO resourceDO = new RdpBlobResourceDO();
+            resourceDO.setBlobType(securityFileType);
+            resourceDO.setContent(file.getBytes());
+            resourceDO.setInstanceId(entity.getInstanceId());
+            resourceDO.setOwnerName(entity.getInstanceId());
+            resourceDO.setOwnerType(ResourceType.DATASOURCE);
+            this.rdpBlobResourceMapper.insert(resourceDO);
+        } catch (IOException e) {
+            String msg = "read security file from stream error.datasource instance id:" + entity.getInstanceId() + ".msg:" + ExceptionUtils.getRootCauseMessage(e);
+            log.error(msg, e);
+            throw new RuntimeException(msg, e);
+        }
+    }
+
+    protected void fillParentDsId(AddDsFO addDsFO, String uid, RdpDataSourceDO entity) {
+        if (addDsFO.getParentDsId() != null) {
+            RdpDataSourceDO parentDs = this.fetchAndCheckById(addDsFO.getParentDsId());
+
+            if (!parentDs.getUid().equals(uid)) {
+                throw new IllegalArgumentException("parent datasource (" + addDsFO.getParentDsId() + ") is not belong to user:" + uid);
+            }
+
+            entity.setParentDsId(addDsFO.getParentDsId());
+        }
+    }
+
+    protected void fillHost(AddDsFO addDsFO, RdpDataSourceDO entity) {
+        if (addDsFO.getHostType() == HostType.PUBLIC) {
+            entity.setHost(addDsFO.getPublicHost());
+        } else {
+            entity.setHost(addDsFO.getPrivateHost());
+        }
+    }
+
+    protected void fillInstanceIdAndDesc(AddDsFO addDsFO, RdpDataSourceDO entity) {
+        if (addDsFO.getInstanceId() == null) {
+            entity.setInstanceId(genInstanceId(addDsFO.getType()));
+        } else {
+            entity.setInstanceId(addDsFO.getInstanceId());
+        }
+
+        if (StringUtils.isNotBlank(addDsFO.getInstanceDesc())) {
+            entity.setInstanceDesc(addDsFO.getInstanceDesc());
+        } else {
+            entity.setInstanceDesc(addDsFO.getInstanceId());
+        }
+    }
+
+    protected void fillAliyunSecurityInfo(AddDsFO addDsFO, RdpDataSourceDO entity) {
+        if (entity.getSecurityType() == null) {
+            entity.setSecurityType(SecurityType.USER_PASSWD);
+            entity.setPublicSecurityType(SecurityType.USER_PASSWD);
+        }
+
+        if (StringUtils.isNotBlank(addDsFO.getAccount())) {
+            entity.setAccount(addDsFO.getAccount());
+        }
+
+        if (StringUtils.isNotBlank(addDsFO.getPassword())) {
+            entity.setPassword(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(addDsFO.getPassword()));
+        }
+
+        if (StringUtils.isNotBlank(addDsFO.getAccessKey()) && StringUtils.isNotBlank(addDsFO.getSecretKey())) {
+            entity.setAccessKey(addDsFO.getAccessKey());
+            entity.setSecretKey(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(addDsFO.getSecretKey()));
+        }
+    }
+
+    protected void fillFileBaseSecurityInfo(AddDsFO addDsFO, RdpDataSourceDO entity) {
+        if (addDsFO.getSecurityType() == SecurityType.USER_PASSWD_WITH_TLS) {
+            // for aliyun kafka , different network type have different security type.NEED TO BE REFLECT
+            if (entity.getDataSourceType() == DataSourceType.Kafka && StringUtils.isNotBlank(addDsFO.getPrivateHost()) && StringUtils.isNotBlank(addDsFO.getPublicHost())) {
+                entity.setSecurityType(SecurityType.NONE);
+                entity.setPublicSecurityType(SecurityType.USER_PASSWD_WITH_TLS);
+            }
+
+            entity.setSecurityFileStoreType(SecurityFileStoreType.META_DB);
+            String sslTrustStoreFileName = UUID.randomUUID() + "-" + addDsFO.getSecurityFile().getOriginalFilename();
+            String sslTrustStoreFilePath = this.rdpSecurityService.genSecurityFileRelatePath(entity.getInstanceId(), sslTrustStoreFileName);
+            entity.setSecurityFileUrl(sslTrustStoreFilePath);
+            if (StringUtils.isNotBlank(addDsFO.getClientTrustStorePassword())) {
+                // ClientTrustStorePassword is only used in Kafka, and now TLS authentication has switched to using trustStore/keyStore - securityFile/clientSecurityFile
+                entity.setClientTrustStorePassword(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(addDsFO.getClientTrustStorePassword()));
+            }
+            if (StringUtils.isNotBlank(addDsFO.getSecurityFilePassword())) {
+                // trustStore file password
+                entity.setSecurityFilePassword(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(addDsFO.getSecurityFilePassword()));
+            }
+            saveDsSecurityFile(addDsFO.getSecurityFile(), entity, SecurityFileType.ssl_truststore_file);
+            if (addDsFO.getClientSecurityFile() != null) {
+                // keystore file
+                String keystoreFileName = UUID.randomUUID() + "-" + addDsFO.getClientSecurityFile().getOriginalFilename();
+                String clientSecurityFileUrl = this.rdpSecurityService.genSecurityFileRelatePath(entity.getInstanceId(), keystoreFileName);
+                entity.setClientSecurityFileUrl(clientSecurityFileUrl);
+                saveDsSecurityFile(addDsFO.getClientSecurityFile(), entity, SecurityFileType.ssl_keystore_file);
+            }
+            if (StringUtils.isNotBlank(addDsFO.getClientSecurityFilePassword())) {
+                // keystore file password
+                entity.setClientSecurityFilePassword(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(addDsFO.getClientSecurityFilePassword()));
+            }
+        } else if (addDsFO.getSecurityType() == SecurityType.CA_CERTIFICATE) {
+            entity.setSecurityFileStoreType(SecurityFileStoreType.META_DB);
+            String caCertificateFileName = UUID.randomUUID() + "-" + addDsFO.getSecurityFile().getOriginalFilename();
+            String securityFileUrl = this.rdpSecurityService.genSecurityFileRelatePath(entity.getInstanceId(), caCertificateFileName);
+            entity.setSecurityFileUrl(securityFileUrl);
+            saveDsSecurityFile(addDsFO.getSecurityFile(), entity, SecurityFileType.ca_certificate_file);
+            if (addDsFO.getClientSecurityFile() != null) {
+                String clientSecurityFileName = UUID.randomUUID() + "-" + addDsFO.getClientSecurityFile().getOriginalFilename();
+                String clientSecurityFileUrl = this.rdpSecurityService.genSecurityFileRelatePath(entity.getInstanceId(), clientSecurityFileName);
+                entity.setClientSecurityFileUrl(clientSecurityFileUrl);
+                saveDsSecurityFile(addDsFO.getClientSecurityFile(), entity, SecurityFileType.client_certificate_file);
+            }
+            if (addDsFO.getSecretFile() != null) {
+                String secretFileName = UUID.randomUUID() + "-" + addDsFO.getSecretFile().getOriginalFilename();
+                String secretFileUrl = this.rdpSecurityService.genSecurityFileRelatePath(entity.getInstanceId(), secretFileName);
+                entity.setSecretFileUrl(secretFileUrl);
+                saveDsSecurityFile(addDsFO.getSecretFile(), entity, SecurityFileType.secret_file);
+            }
+            if (StringUtils.isNotBlank(addDsFO.getSecretFilePassword())) {
+                entity.setSecretFilePassword(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(addDsFO.getSecretFilePassword()));
+            }
+        }
+    }
+
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    @Override
+    public ResWebData<Long> delDataSource(String puid, long dsId) {
+        RdpDataSourceDO userDs = this.fetchAndCheckById(dsId);
+
+        List<RdpDsUsageDO> usageDOs = rdpDsUsageService.listDsUsage(dsId);
+        if (usageDOs != null && usageDOs.size() > 0) {
+            String resInsts = usageDOs.stream().map(RdpDsUsageDO::getResInstanceId).collect(Collectors.joining(","));
+            throw new ConsoleRuntimeException(ConsoleErrorCode.STILL_HAVE_BIZ_USE_IT_WHEN_DELETE_DATASOURCE, resInsts);
+        }
+
+        this.rdpAuthServiceForManager.clearAuthOfRes(dsId, AuthKind.DataSource);
+        this.rdpDsMapper.updateLifeCycleStateById(dsId, LifeCycleState.DELETED);
+        this.rdpDsConfigService.cleanDsConfig(dsId);
+        this.rdpBlobResourceMapper.deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.kerberos_conf_file);
+        this.rdpBlobResourceMapper.deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.kerberos_keytab_file);
+        this.rdpBlobResourceMapper.deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.ssl_truststore_file);
+        this.rdpBlobResourceMapper.deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.ssl_keystore_file);
+        this.rdpBlobResourceMapper.deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.jaas_file);
+        this.rdpBlobResourceMapper.deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.keystore_file);
+        this.rdpBlobResourceMapper.deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.ca_certificate_file);
+        this.rdpBlobResourceMapper.deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.client_certificate_file);
+        this.rdpBlobResourceMapper.deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.secret_file);
+
+        this.notifyServices.forEach(s -> s.onDsDelete(dsId));
+        return ResWebDataUtils.buildSuccess();
+    }
+
+    @Override
+    public RdpDataSourceDO queryById(Long dataSourceId) {
+        return this.rdpDsMapper.selectById(dataSourceId);
+    }
+
+    @Override
+    public List<RdpDataSourceDO> listByIds(List<Long> ids) {
+        return this.rdpDsMapper.listByIds(ids);
+    }
+
+    @Override
+    public RdpDataSourceDO fetchAndCheckById(Long dataSourceId) {
+        if (dataSourceId == null || dataSourceId <= 0) {
+            throw new RuntimeException("data source id cannot be null.");
+        }
+
+        RdpDataSourceDO re = this.rdpDsMapper.selectById(dataSourceId);
+        if (re == null) {
+            throw new IllegalArgumentException("datasource(" + dataSourceId + ") not exist.");
+        }
+
+        fillExtraConfig(re, null);
+        return re;
+    }
+
+    @Override
+    public RdpDataSourceDO fetchByInstanceId(String instanceId) {
+        if (StringUtils.isBlank(instanceId)) {
+            throw new RuntimeException("instance id cannot be empty.");
+        }
+
+        RdpDataSourceDO re = this.rdpDsMapper.getByInstanceId(instanceId);
+        if (re == null) {
+            throw new IllegalArgumentException("datasource(" + instanceId + ") not exist.");
+        }
+
+        fillExtraConfig(re, null);
+        return re;
+    }
+
+    private void fillExtraConfig(RdpDataSourceDO re, Map<Long, RdpDsEnvDO> envMap) {
+        //        re.setExtraDO(dataSourceExtraMapper.queryByDataSourceId(re.getId()));
+        re.setDsExtraConfig(this.rdpDsConfigService.fetchDsExtraConfig(re.getId(), re.getDataSourceType()));
+
+        if (envMap != null && envMap.containsKey(re.getDsEnvId())) {
+            re.setDsEnvDO(envMap.get(re.getDsEnvId()));
+        }
+    }
+
+    protected String genInstanceId(DataSourceType dataSourceType) {
+        return dataSourceType.getShortName() + "-" + RandomStrUtils.fixedLenRandomStr(15);
+    }
+}

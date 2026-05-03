@@ -1,0 +1,148 @@
+# see https://docs.aws.amazon.com/zh_cn/redshift/latest/dg/c_Supported_data_types.html
+
+define redshift {
+    priority     = 1
+    policy       = "extreme"
+    policyDesc   = "Redshift TypeProcessor Policy(Extreme)"
+}
+
+[boolean]
+    jdbcType       = boolean
+    seedType       = boolean
+
+[smallint]
+    jdbcType       = tinyint
+    seedType       = number
+    numberType     = int
+    minMax         = range(-32768, 32767)
+
+[integer]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = long
+    minMax         = range(-2147483648, 2147483647)
+
+[bigint]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = long
+    minMax         = range(-9223372036854775808, 9223372036854775807)
+
+[real]
+    jdbcType       = double
+    seedType       = number
+    numberType     = double
+    minMax        += range(10, 1e-37               , 1e+37)
+    minMax        += range(10, -1e-37              , -1e+37)
+    minMax        += range(30, -999999999.999999999, 999999999.999999999)
+    minMax        += range(30, -0.999999999        , 0.999999999)
+    scale          = safeMaxLength(0, ${numericScale}, 6, 3)
+
+["double precision"]
+    jdbcType       = double
+    seedType       = number
+    numberType     = double
+    minMax        += range(10, 1e-307              , 1e+308)
+    minMax        += range(10, -1e-307             , -1e-308)
+    minMax        += range(30, -999999999.999999999, 999999999.999999999)
+    minMax        += range(30, -0.999999999        , 0.999999999)
+    scale          = safeMaxLength(0, ${numericScale}, 6, 3)
+
+[decimal]
+    jdbcType       = decimal
+    seedType       = number
+    numberType     = decimal
+    precision      = ifThen(pgNumericValid(), ${numericPrecision}, 38)
+    scale          = ifThen(pgNumericValid(), ${numericScale}, 37)
+
+[char]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 1000, 10)
+    characterSet   = [ letter_number ]
+
+[varchar]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 1000, 10)
+    characterSet   = [ letter_number ]
+
+
+[date]
+    # 4713BC(-4713-01-01) to 5874897AD(5874897-12-31) ,1 day
+    jdbcType       = date
+    seedType       = date
+    dateType       = LocalDate
+    genType        = random
+    rangeForm      = "0000-01-01"
+    rangeTo        = "9999-12-31"
+    typeHandler    = com.clougence.faker.utils.types.SqlTimestampAsLocalDateTypeHandler
+
+[time]
+    jdbcType       = time
+    seedType       = date
+    dateType       = LocalTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "00:00:00.000000"
+    rangeTo        = "23:59:59.999999"
+    typeHandler    = com.clougence.faker.utils.types.SqlTimestampAsLocalTimeTypeHandler
+
+[timetz]
+    jdbcType       = time_with_timezone
+    seedType       = date
+    dateType       = OffsetTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "00:00:00.000000"
+    rangeTo        = "23:59:59.999999"
+    zoneForm       = "-14:00"
+    zoneTo         = "+14:00"
+
+[timestamp]
+    # (BC)-4713-01-01 00:00:00.000000 to (AD)294276-12-31 23:59:59.999999 ,1 microsecond
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = LocalDateTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "0000-01-01 00:00:00.000000"
+    rangeTo        = "9999-12-31 23:59:59.999999"
+
+[timestamptz]
+    # (BC)-4713-01-01 00:00:00.000000 to (AD)294276-12-31 23:59:59.999999 ,1 microsecond
+    jdbcType       = timestamp_with_timezone
+    seedType       = date
+    dateType       = OffsetDateTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "0000-01-01 14:00:00.000000"
+    rangeTo        = "9999-12-31 09:59:59.999999"
+    zoneForm       = "-14:00"
+    zoneTo         = "+14:00"
+
+[geometry]
+[geography]
+    jdbcType       = other
+    seedType       = geometry
+    range          = range(50, 0.0, 0.0, 1000, 1000)
+    precision      = 15
+    minPointSize   = 2
+    maxPointSize   = 100
+    geometryType   = pgToGeoType(${columnType})
+    formatType     = WKT
+    insertTemplate   = pgFmtType("?", ifThen(pgColIsArray(), pgElementType(${columnType}), ${columnType}))
+    setValueTemplate = pgFmtType("?", ifThen(pgColIsArray(), pgElementType(${columnType}), ${columnType}))
+    ignoreAct      = [ DeleteWhere, UpdateWhere ]
+
+[varbyte]
+    jdbcType       = varbinary
+    seedType       = bytes
+    minLength      = 0
+    maxLength      = safeMaxLength(0, ${byteLength}, 4096, 10)
+
+[super]
+[hllsketch]
+    throw "this columnType Unsupported."

@@ -1,0 +1,8 @@
+subprojects {
+    tasks.withType(JavaCompile).configureEach {
+        if (!options.compilerArgs.contains('-parameters')) {
+            options.compilerArgs << '-parameters'
+        }
+        options.encoding = 'UTF-8'
+    }
+}

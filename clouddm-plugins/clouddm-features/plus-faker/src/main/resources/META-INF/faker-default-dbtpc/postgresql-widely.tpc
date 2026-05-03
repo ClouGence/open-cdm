@@ -1,0 +1,222 @@
+# see https://www.postgresql.org/docs/13/datatype.html
+
+define postgresql {
+    default      = true
+    priority     = 1
+    policy       = "widely"
+    policyDesc   = "PostgreSQL TypeProcessor Policy(Widely)"
+}
+
+[*]
+    arrayDimension = pgArrayDimension()
+    arrayMinSize   = 0
+    arrayMaxSize   = 10
+    arrayTypeHandler = com.clougence.faker.utils.types.PgArrayTypeHandlerFactory
+
+[boolean]
+    jdbcType       = boolean
+    seedType       = boolean
+
+[smallserial]
+[smallint]
+    jdbcType       = tinyint
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 100)
+
+[serial]
+[integer]
+    jdbcType       = integer
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 99999999)
+
+[bigserial]
+[bigint]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = long
+    minMax         = range(0, 9999999999)
+
+[oid]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = long
+    minMax         = range(0, 100000000)
+
+[real]
+["double precision"]
+    jdbcType       = double
+    seedType       = number
+    numberType     = double
+    minMax         = range(0, 9999999.999)
+    scale          = min(${numericScale}, 3)
+
+[numeric]
+    jdbcType       = decimal
+    seedType       = number
+    numberType     = decimal
+    precision      = ifThen(pgNumericValid(), ${numericPrecision}, 6)
+    scale          = ifThen(pgNumericValid(), ${numericScale}, 2)
+
+[money]
+    jdbcType       = decimal
+    seedType       = number
+    numberType     = decimal
+    minMax         = range(0, 99999.999)
+    scale          = 3
+    typeHandler    = com.clougence.faker.utils.types.PgMoneyAsBigDecimalTypeHandler
+    insertTemplate     = pgFmtType("?", "numeric", "money")
+    whereValueTemplate = pgFmtType("?", "numeric", "money")
+    setValueTemplate   = pgFmtType("?", "numeric", "money")
+
+[name]
+[bpchar]
+[text]
+[character]
+["character varying"]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 250, 10)
+    characterSet   = [ letter_number ]
+
+[uuid]
+    jdbcType       = other
+    seedType       = gid
+    dateType       = string36
+    insertTemplate     = pgFmtType("?", "uuid")
+    whereValueTemplate = pgFmtType("?", "uuid")
+    setValueTemplate   = pgFmtType("?", "uuid")
+
+[date]
+    jdbcType       = date
+    seedType       = date
+    dateType       = LocalDate
+    genType        = random
+    rangeForm      = "2000-01-01"
+    rangeTo        = "2030-12-31"
+    typeHandler    = com.clougence.faker.utils.types.SqlTimestampAsLocalDateTypeHandler
+
+["time without time zone"]
+    jdbcType       = time
+    seedType       = date
+    dateType       = LocalTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "00:00:00.000000"
+    rangeTo        = "23:59:59.999999"
+    typeHandler    = com.clougence.faker.utils.types.SqlTimestampAsLocalTimeTypeHandler
+
+["time with time zone"]
+    jdbcType       = time_with_timezone
+    seedType       = date
+    dateType       = OffsetTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "00:00:00.000000"
+    rangeTo        = "23:59:59.999999"
+    zoneForm       = "-08:00"
+    zoneTo         = "+08:00"
+
+[interval]
+    jdbcType       = other
+    seedType       = date
+    dateType       = iso8601
+    genType        = random
+    precision      = 0
+    rangeForm      = "2000-01-01 00:00:00"
+    rangeTo        = "2030-12-31 23:59:59"
+    insertTemplate     = pgFmtType("?", "interval")
+    whereValueTemplate = pgFmtType("?", "interval")
+    setValueTemplate   = pgFmtType("?", "interval")
+
+["timestamp without time zone"]
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = LocalDateTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "2000-01-01 00:00:00.000000"
+    rangeTo        = "2030-12-31 23:59:59.999999"
+
+["timestamp with time zone"]
+    jdbcType       = timestamp_with_timezone
+    seedType       = date
+    dateType       = OffsetDateTime
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "2000-01-01 00:00:00.000000"
+    rangeTo        = "2030-12-31 23:59:59.999999"
+    zoneForm       = "-08:00"
+    zoneTo         = "+08:00"
+
+[bit]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${columnSize}, ifThen(pgColIsArray(), 8, 24), 4)
+    characterSet   = [ bit ]
+    insertTemplate     = pgFmtType("?", "bit")
+    whereValueTemplate = pgFmtType("?", "bit")
+    setValueTemplate   = pgFmtType("?", "bit")
+
+["bit varying"]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${numericPrecision}, ifThen(pgColIsArray(), 8, 24), 4)
+    characterSet   = [ bit ]
+    insertTemplate     = pgFmtType("?", "bit varying")
+    whereValueTemplate = pgFmtType("?", "bit varying")
+    setValueTemplate   = pgFmtType("?", "bit varying")
+
+[bytea]
+    jdbcType       = varbinary
+    seedType       = bytes
+    minLength      = 0
+    maxLength      = safeMaxLength(0, ${byteLength}, 16, 4)
+
+[point]
+[line]
+[lseg]
+[box]
+[path]
+[polygon]
+[circle]
+[geometry]
+    jdbcType       = other
+    seedType       = geometry
+    range          = range(50, 0.0, 0.0, 1000, 1000)
+    precision      = 5
+    minPointSize   = 2
+    maxPointSize   = 10
+    geometryType   = pgToGeoType(${sqlType})
+    formatType     = WKT
+    insertTemplate   = pgFmtType("?", ifThen(pgColIsArray(), pgElementType(${sqlType}), ${sqlType}))
+    setValueTemplate = pgFmtType("?", ifThen(pgColIsArray(), pgElementType(${sqlType}), ${sqlType}))
+    ignoreAct      = [ DeleteWhere, UpdateWhere ]
+
+[xml]
+[refcursor]
+[geography]
+[cidr]
+[inet]
+[macaddr]
+[macaddr8]
+[hstore]
+[citext]
+[tsvector]
+[tsquery]
+[json]
+[jsonb]
+[int4range]
+[int8range]
+[numrange]
+[tsrange]
+[tstzrange]
+[daterange]
+[txid_snapshot]
+[pg_lsn]
+[pg_node_tree]
+    throw "this columnType Unsupported."

@@ -1,0 +1,107 @@
+package com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.function;
+
+import static com.clougence.clouddm.base.metadata.ui.form.UiUtils.fieldOptionDef;
+import static com.clougence.clouddm.base.metadata.ui.form.UiUtils.strValueDef;
+
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import com.clougence.adapter.postgre.PostgresParamModeTypes;
+import com.clougence.adapter.postgre.PostgresTypes;
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanelFieldType;
+import com.clougence.clouddm.base.metadata.ui.form.value.ValueDef;
+import com.clougence.clouddm.dsfamily.definition.ui.editor.function.DsFamilyFunctionEditorUiPanelFactory;
+import com.clougence.clouddm.dsfamily.i18n.DsFunctionEditorI18nKeys;
+import com.clougence.clouddm.dsfamily.postgres.i18n.PgDsI18nKeys;
+import com.clougence.clouddm.sdk.ui.editor.EditorViewMode;
+
+public class PgFunctionEditorUiPanelFactory extends DsFamilyFunctionEditorUiPanelFactory {
+
+    @Override
+    protected void fetchParamTypeUiPanel(UiPanel uiPanel, DataSourceConfig dsConfig, EditorViewMode viewMode, Connection con) {
+        UiPanelField params = UiPanelField.builder()
+            .field("params")
+            .type(UiPanelFieldType.SelectColumns)
+            .titleI18N(DsFunctionEditorI18nKeys.EDITOR_FUNCTION_NAME_TITLE)
+            .descI18N(DsFunctionEditorI18nKeys.EDITOR_FUNCTION_NAME_DESC)
+            .build();
+        params.addField(UiPanelField.builder()
+            .field(PARAM_NAME)
+            .type(UiPanelFieldType.Input)
+            .require(true)
+            .defaultValue(strValueDef("param_name"))
+            .titleI18N(PgDsI18nKeys.EDITOR_FUNCTION_PARAM_PARAMNAME_TITLE)
+            .descI18N(PgDsI18nKeys.EDITOR_FUNCTION_PARAM_PARAMNAME_DESC)
+            .build());
+
+        params.addField(UiPanelField.builder()
+            .field(PARAM_DATATYPE)
+            .type(UiPanelFieldType.Options)
+            .require(true)
+            .defaultValue(strValueDef("INT"))
+            .options(fetchTypes())
+            .titleI18N(PgDsI18nKeys.EDITOR_FUNCTION_PARAM_PARAMTYPE_TITLE)
+            .descI18N(PgDsI18nKeys.EDITOR_FUNCTION_PARAM_PARAMTYPE_DESC)
+            .build());
+
+        params.addField(UiPanelField.builder()
+            .field(PARAM_MODE)
+            .type(UiPanelFieldType.Options)
+            .require(true)
+            .defaultValue(strValueDef(""))
+            .options(fetchModeTypes())
+            .titleI18N(PgDsI18nKeys.EDITOR_FUNCTION_PARAM_MODE_TITLE)
+            .descI18N(PgDsI18nKeys.EDITOR_FUNCTION_PARAM_MODE_DESC)
+            .build());
+
+        uiPanel.addField(params);
+    }
+
+    private List<ValueDef> fetchModeTypes() {
+        UiPanelField defaultValue = UiPanelField.builder()
+            .field(PARAM_DEFAULT_VALUE)
+            .type(UiPanelFieldType.Input)
+            .require(true)
+            .titleI18N(PgDsI18nKeys.EDITOR_FUNCTION_PARAM_DEFAULT_VALUE_TITLE)
+            .descI18N(PgDsI18nKeys.EDITOR_FUNCTION_PARAM_DEFAULT_VALUE_DESC)
+            .build();
+        List<ValueDef> valueDefs = new ArrayList<>();
+        for (PostgresParamModeTypes value : PostgresParamModeTypes.values()) {
+            if (value == PostgresParamModeTypes.IN) {
+                valueDefs.add(fieldOptionDef(value.getCodeKey(), value.getCodeKey()).addField(defaultValue));
+            } else {
+                valueDefs.add(fieldOptionDef(value.getCodeKey(), value.getCodeKey()));
+            }
+        }
+        return valueDefs;
+    }
+
+    protected List<ValueDef> fetchTypes() {
+        List<ValueDef> result = new ArrayList<>();
+        PostgresTypes[] postgresTypes = PostgresTypes.values();
+        Arrays.sort(postgresTypes);
+        for (int i = 0; i < postgresTypes.length; i++) {
+            PostgresTypes type = postgresTypes[i];
+            switch (type) {
+                case SERIAL:
+                case SMALLSERIAL:
+                case BIGSERIAL:
+                case PG_NODE_TREE_ARRAY:
+                    break;
+                default:
+                    result.add(fieldOptionDef(type.getCodeKey(), type.getCodeKey()));
+                    break;
+            }
+        }
+
+        // trigger function
+        result.add(fieldOptionDef("TRIGGER", "TRIGGER"));
+        return result;
+
+    }
+}

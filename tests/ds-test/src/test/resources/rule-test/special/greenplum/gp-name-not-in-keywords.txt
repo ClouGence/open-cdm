@@ -1,0 +1,34 @@
+if
+  @domain.sqlType in ['CREATE_CATALOG']
+then
+  testName = @domain.catalog
+elseif
+  @domain.sqlType in ['CREATE_SCHEMA']
+then
+  testName = @domain.schema
+elseif
+  @domain.sqlType in ['CREATE_TABLE', 'CREATE_TABLE_SELECT', 'CREATE_TABLE_LIKE']
+then
+  testName = @domain.table
+elseif
+  @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN']
+then
+  testName = @domain.column
+elseif
+  @domain.sqlType in ['RENAME_TABLE', 'ALTER_TABLE_RENAME', 'RENAME_CATALOG', 'RENAME_SCHEMA', 'ALTER_TABLE_RENAME_COLUMN']
+then
+  testName = @domain.newName
+else
+  return true
+end
+
+return @func.string.upperCase(testName) not in
+    ['ALL','ALWAYS','ANALYSE','ANALYZE','AND','ANY','ARRAY','AS','ASC','ASYMMETRIC','AUTHORIZATION',
+     'BETWEEN','BINARY','BOTH','CASE','CAST','CHECK','COLLATE','COLLATION','COLUMN','CONCURRENTLY','CONSTRAINT',
+     'CREATE','CROSS','CURRENT_DATE','CURRENT_ROLE','CURRENT_TIME','CURRENT_TIMESTAMP','CURRENT_USER','DEFAULT',
+     'DEFERRABLE','DESC','DISTINCT','DO','ELSE','END','END-EXEC','EXCEPT','FALSE','FETCH','FOR','FOREIGN','FREEZE',
+     'FROM','FULL','GRANT','GROUP','HAVING','ILIKE','IN','INITIALLY','INNER','INTERSECT','INTO','IS','ISNULL',
+     'JOIN','LATERAL','LEADING','LEFT','LIKE','LIMIT','LOCALTIME','LOCALTIMESTAMP','NATURAL','NOT','NOTNULL','NULL',
+     'OFFSET','ON','ONLY','OR','ORDER','OUTER','OVERLAPS','PLACING','PRIMARY','REFERENCES','RETURNING','RIGHT',
+     'SELECT','SESSION_USER','SIMILAR','SOME','SYMMETRIC','TABLE','TABLESAMPLE','THEN','TO','TRAILING','TRUE',
+     'UNION','UNIQUE','USER','USING','VERBOSE','WHEN','WHERE','WINDOW','WITH']

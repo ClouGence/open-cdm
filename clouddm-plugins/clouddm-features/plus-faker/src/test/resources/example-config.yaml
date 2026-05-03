@@ -1,0 +1,50 @@
+config:
+  - table:
+      catalog: 'tester'
+      #      schema: 'TESTER'
+      table: 'TB_USER'
+      columns:
+        userUUID:
+          # general config
+          seedType:         # bytes | string | number | boolean | date | enums | custom
+          allowNullable:    # true | false
+          nullableRatio:    # 0 ~ 100 float
+          typeHandlerType:  # for example 'net.hasor.dbvisitor.types.handler.ClobTypeHandler'
+          insertTemplate: "?"
+          setTemplate: "?"
+          whereTemplate: "?"
+          # bytes & string
+          minLength:        # 0 ~ 2147483647
+          maxLength:        # 0 ~ 2147483647
+          # string only
+          characters: [ ]   # 'ascii_full', 'ascii_symbol', 'ascii_control', 'latin_basic', 'letter_capital', 'letter_small', 'number_dec', 'number_hex', 'number_oct', 'cjk_unified_ideographs', 'bit', 'letter_number'
+          allowEmpty:       # true | false
+          # number
+          numberType:      # bool | byte | short | integer | long | float | double | decimal
+          min:              # the MIN value of the Java type is used based on the `numberType` [byte, sort, int, long, float, double]
+          max:              # the MAX value of the Java type is used based on the `numberType` [byte, sort, int, long, float, double]
+          precision:        # the precision of the number (p > 0) (precision,scale is available only in numberType = decimal)
+          scale:            # the scale of decimals in precision  (precision,scale is available only in numberType = decimal)
+          # boolean
+          # date
+          genType:          # random | sysdata | interval | fixed
+          dateType:         # String | JavaDate | JavaLong | SqlDate | SqlTime | SqlTimestamp | LocalDate | LocalTime | LocalDateTime | Year | YearMonth | Month | MonthDay | DayOfWeek | OffsetTime | OffsetDateTime | ZonedDateTime | Instant
+          dateFormat:       # must be set when dateType = String (for example 'yyyy-MM-dd HH:mm:ss')
+          rangeForm:        # start time of random (for example 'yyyy-MM-dd HH:mm:ss')
+          rangeTo:          # end time of random (for example 'yyyy-MM-dd HH:mm:ss')
+          zoneForm:         # start time zone of random (for example '+HH:mm:ss')
+          zoneTo:           # end time zone of random (for example '+HH:mm:ss')
+          startTime:        # start time zone of interval (for example 'yyyy-MM-dd HH:mm:ss'). only in genType = interval
+          maxInterval:      # maximum number of interval, (i > 0). only in genType = interval
+          intervalScope:    # the interval of each increment (year | month | day | week | hours | minute | second | milli | micro). only in genType = interval
+          # enums
+          dictSet: [ ]      # [ 'enum1', 'enum2', 'enum3' ]
+          # custom          # you can use any configuration, read from seedFactory
+          seedFactory:      # ''
+      ignoreColsAll: [ ]    #
+      ignoreColsInsert: [ ] #
+      ignoreColsUpdate: [ ] #
+      ignoreColsWhere: [ ]  #
+      insertPolitic:        # RandomCol, RandomKeyCol, FullCol, KeyCol
+      updatePolitic:        # RandomCol, RandomKeyCol, FullCol, KeyCol
+      wherePolitic:         # RandomCol, RandomKeyCol, FullCol, KeyCol

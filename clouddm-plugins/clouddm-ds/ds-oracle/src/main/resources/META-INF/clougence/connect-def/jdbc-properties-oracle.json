@@ -1,0 +1,614 @@
+[
+  {
+    "name": "user",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_user"
+  },
+  {
+    "name": "password",
+    "secret": true,
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_password"
+  },
+  {
+    "name": "oracle.jdbc.loginTimeout",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.loginTimeout"
+  },
+  {
+    "name": "oracle.net.authentication_services",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.authentication_services"
+  },
+  {
+    "name": "oracle.jdbc.proxyClientName",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.proxyClientName"
+  },
+  {
+    "name": "oracle.net.kerberos5_mutual_authentication",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.kerberos5_mutual_authentication"
+  },
+  {
+    "name": "oracle.net.kerberos5_cc_name",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.kerberos5_cc_name"
+  },
+  {
+    "name": "oracle.net.KerberosRealm",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.KerberosRealm"
+  },
+  {
+    "name": "oracle.jdbc.newPassword",
+    "secret": true,
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.newPassword"
+  },
+  {
+    "name": "internal_logon",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_internal_logon"
+  },
+  {
+    "name": "prelim_auth",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_prelim_auth"
+  },
+  {
+    "name": "oracle.jdbc.allowedLogonVersion",
+    "default": "8",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.allowedLogonVersion"
+  },
+  {
+    "name": "oracle.net.tns_admin",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.tns_admin"
+  },
+  {
+    "name": "oracle.net.CONNECT_TIMEOUT",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.CONNECT_TIMEOUT"
+  },
+  {
+    "name": "oracle.net.OUTBOUND_CONNECT_TIMEOUT",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.OUTBOUND_CONNECT_TIMEOUT"
+  },
+  {
+    "name": "oracle.jdbc.ReadTimeout",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.ReadTimeout"
+  },
+  {
+    "name": "oracle.net.keepAlive",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.keepAlive"
+  },
+  {
+    "name": "oracle.net.TCP_KEEPIDLE",
+    "default": "-1",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.TCP_KEEPIDLE"
+  },
+  {
+    "name": "oracle.net.TCP_KEEPINTERVAL",
+    "default": "-1",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.TCP_KEEPINTERVAL"
+  },
+  {
+    "name": "oracle.net.TCP_KEEPCOUNT",
+    "default": "-1",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.TCP_KEEPCOUNT"
+  },
+  {
+    "name": "oracle.jdbc.TcpNoDelay",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.TcpNoDelay"
+  },
+  {
+    "name": "oracle.net.disableOob",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.disableOob"
+  },
+  {
+    "name": "oracle.jdbc.thinForceDNSLoadBalancing",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.thinForceDNSLoadBalancing"
+  },
+  {
+    "name": "oracle.net.DOWN_HOSTS_TIMEOUT",
+    "default": "600",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.DOWN_HOSTS_TIMEOUT"
+  },
+  {
+    "name": "oracle.net.encryption_client",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.encryption_client"
+  },
+  {
+    "name": "oracle.net.encryption_types_client",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.encryption_types_client"
+  },
+  {
+    "name": "oracle.net.crypto_seed",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.crypto_seed"
+  },
+  {
+    "name": "oracle.net.useJCEAPI",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.useJCEAPI"
+  },
+  {
+    "name": "oracle.net.crypto_checksum_client",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.crypto_checksum_client"
+  },
+  {
+    "name": "oracle.net.crypto_checksum_types_client",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.crypto_checksum_types_client"
+  },
+  {
+    "name": "oracle.net.networkCompression",
+    "default": "off",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.networkCompression"
+  },
+  {
+    "name": "oracle.net.networkCompressionLevels",
+    "default": "(high)",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.networkCompressionLevels"
+  },
+  {
+    "name": "oracle.net.networkCompressionThreshold",
+    "default": "1024",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.networkCompressionThreshold"
+  },
+  {
+    "name": "oracle.net.httpsProxyHost",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.httpsProxyHost"
+  },
+  {
+    "name": "oracle.net.httpsProxyPort",
+    "default": "0",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.httpsProxyPort"
+  },
+  {
+    "name": "oracle.net.websocketUser",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.websocketUser"
+  },
+  {
+    "name": "oracle.net.websocketPassword",
+    "secret": true,
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.websocketPassword"
+  },
+  {
+    "name": "oracle.net.socksProxyHost",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.socksProxyHost"
+  },
+  {
+    "name": "oracle.net.socksProxyPort",
+    "default": "1080",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.socksProxyPort"
+  },
+  {
+    "name": "oracle.net.socksRemoteDNS",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.socksRemoteDNS"
+  },
+  {
+    "name": "oracle.net.wallet_location",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.wallet_location"
+  },
+  {
+    "name": "oracle.net.wallet_password",
+    "secret": true,
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.wallet_password"
+  },
+  {
+    "name": "javax.net.ssl.keyStore",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_javax.net.ssl.keyStore"
+  },
+  {
+    "name": "javax.net.ssl.keyStoreType",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_javax.net.ssl.keyStoreType"
+  },
+  {
+    "name": "javax.net.ssl.keyStorePassword",
+    "secret": true,
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_javax.net.ssl.keyStorePassword"
+  },
+  {
+    "name": "javax.net.ssl.trustStore",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_javax.net.ssl.trustStore"
+  },
+  {
+    "name": "javax.net.ssl.trustStoreType",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_javax.net.ssl.trustStoreType"
+  },
+  {
+    "name": "javax.net.ssl.trustStorePassword",
+    "secret": true,
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_javax.net.ssl.trustStorePassword"
+  },
+  {
+    "name": "oracle.net.ssl_certificate_alias",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ssl_certificate_alias"
+  },
+  {
+    "name": "oracle.net.ssl_server_dn_match",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ssl_server_dn_match"
+  },
+  {
+    "name": "oracle.net.ssl_server_cert_dn",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ssl_server_cert_dn"
+  },
+  {
+    "name": "oracle.net.ssl_version",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ssl_version"
+  },
+  {
+    "name": "oracle.net.ssl_cipher_suites",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ssl_cipher_suites"
+  },
+  {
+    "name": "ssl.keyManagerFactory.algorithm",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_ssl.keyManagerFactory.algorithm"
+  },
+  {
+    "name": "ssl.trustManagerFactory.algorithm",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_ssl.trustManagerFactory.algorithm"
+  },
+  {
+    "name": "oracle.net.ssl_context_protocol",
+    "default": "TLS",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ssl_context_protocol"
+  },
+  {
+    "name": "oracle.jdbc.fanEnabled",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.fanEnabled"
+  },
+  {
+    "name": "oracle.jdbc.enableACSupport",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.enableACSupport"
+  },
+  {
+    "name": "oracle.jdbc.enableTGSupport",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.enableTGSupport"
+  },
+  {
+    "name": "oracle.jdbc.enableImplicitRequests",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.enableImplicitRequests"
+  },
+  {
+    "name": "oracle.jdbc.replay.protectedRequestSizeLimit",
+    "default": "2147483647",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.replay.protectedRequestSizeLimit"
+  },
+  {
+    "name": "oracle.jdbc.ons.walletfile",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.ons.walletfile"
+  },
+  {
+    "name": "oracle.jdbc.ons.walletpassword",
+    "secret": true,
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.ons.walletpassword"
+  },
+  {
+    "name": "oracle.jdbc.ons.protocol",
+    "default": "TCP",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.ons.protocol"
+  },
+  {
+    "name": "v$session.terminal",
+    "default": "unknown",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_v$session.terminal"
+  },
+  {
+    "name": "v$session.machine",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_v$session.machine"
+  },
+  {
+    "name": "v$session.osuser",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_v$session.osuser"
+  },
+  {
+    "name": "v$session.program",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_v$session.program"
+  },
+  {
+    "name": "v$session.process",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_v$session.process"
+  },
+  {
+    "name": "oracle.jdbc.driverNameAttribute",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.driverNameAttribute"
+  },
+  {
+    "name": "oracle.net.connectionIdPrefix",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.connectionIdPrefix"
+  },
+  {
+    "name": "oracle.jdbc.DMSStatementMetrics",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.DMSStatementMetrics"
+  },
+  {
+    "name": "oracle.jdbc.DRCPConnectionClass",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.DRCPConnectionClass"
+  },
+  {
+    "name": "oracle.jdbc.DRCPTagName",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.DRCPTagName"
+  },
+  {
+    "name": "oracle.jdbc.DRCPConnectionPurity",
+    "default": "SELF",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.DRCPConnectionPurity"
+  },
+  {
+    "name": "oracle.jdbc.UseDRCPMultipletag",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.UseDRCPMultipletag"
+  },
+  {
+    "name": "oracle.jdbc.DRCPPLSQLCallback",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.DRCPPLSQLCallback"
+  },
+  {
+    "name": "oracle.jdbc.DRCPMultiplexingInRequestAPIs",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.DRCPMultiplexingInRequestAPIs"
+  },
+  {
+    "name": "oracle.jdbc.readOnlyInstanceAllowed",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.readOnlyInstanceAllowed"
+  },
+  {
+    "name": "oracle.jdbc.useShardingDriverConnection",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.useShardingDriverConnection"
+  },
+  {
+    "name": "defaultRowPrefetch",
+    "default": "10",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_defaultRowPrefetch"
+  },
+  {
+    "name": "useFetchSizeWithLongColumn",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_useFetchSizeWithLongColumn"
+  },
+  {
+    "name": "oracle.jdbc.defaultLobPrefetchSize",
+    "default": "32768",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.defaultLobPrefetchSize"
+  },
+  {
+    "name": "oracle.net.useZeroCopyIO",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.useZeroCopyIO"
+  },
+  {
+    "name": "oracle.jdbc.enableTempLobRefCnt",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.enableTempLobRefCnt"
+  },
+  {
+    "name": "oracle.jdbc.useThreadLocalBufferCache",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.useThreadLocalBufferCache"
+  },
+  {
+    "name": "oracle.jdbc.maxCachedBufferSize",
+    "default": "30",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.maxCachedBufferSize"
+  },
+  {
+    "name": "SetFloatAndDoubleUseBinary",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_SetFloatAndDoubleUseBinary"
+  },
+  {
+    "name": "oracle.jdbc.enableQueryResultCache",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.enableQueryResultCache"
+  },
+  {
+    "name": "oracle.jdbc.useNio",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.useNio"
+  },
+  {
+    "name": "oracle.jdbc.JDBCStandardBehavior",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.JDBCStandardBehavior"
+  },
+  {
+    "name": "oracle.jdbc.LobStreamPosStandardCompliant",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.LobStreamPosStandardCompliant"
+  },
+  {
+    "name": "autoCommit",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_autoCommit"
+  },
+  {
+    "name": "oracle.jdbc.autoCommitSpecCompliant",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.autoCommitSpecCompliant"
+  },
+  {
+    "name": "oracle.jdbc.commitOption",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.commitOption"
+  },
+  {
+    "name": "oracle.jdbc.continueBatchOnError",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.continueBatchOnError"
+  },
+  {
+    "name": "oracle.jdbc.defaultConnectionValidation",
+    "default": "NETWORK",
+    "options": "['NONE','LOCAL','SOCKET','NETWORK','SERVER','COMPLETE']",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.defaultConnectionValidation"
+  },
+  {
+    "name": "fixedString",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_fixedString"
+  },
+  {
+    "name": "oracle.jdbc.strictASCIIConversion",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.strictASCIIConversion"
+  },
+  {
+    "name": "defaultNChar",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_defaultNChar"
+  },
+  {
+    "name": "oracle.jdbc.convertNcharLiterals",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.convertNcharLiterals"
+  },
+  {
+    "name": "processEscapes",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_processEscapes"
+  },
+  {
+    "name": "oracle.jdbc.mapDateToTimestamp",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.mapDateToTimestamp"
+  },
+  {
+    "name": "oracle.jdbc.use1900AsYearForTime",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.use1900AsYearForTime"
+  },
+  {
+    "name": "oracle.jdbc.timestampTzInGmt",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.timestampTzInGmt"
+  },
+  {
+    "name": "oracle.jdbc.timezoneAsRegion",
+    "default": "true",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.timezoneAsRegion"
+  },
+  {
+    "name": "oracle.jdbc.createDescriptorUseCurrentSchemaForSchemaName",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.createDescriptorUseCurrentSchemaForSchemaName"
+  },
+  {
+    "name": "includeSynonyms",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_includeSynonyms"
+  },
+  {
+    "name": "restrictGetTables",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_restrictGetTables"
+  },
+  {
+    "name": "oracle.jdbc.sqlTranslationProfile",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.sqlTranslationProfile"
+  },
+  {
+    "name": "oracle.jdbc.sqlErrorTranslationFile",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.sqlErrorTranslationFile"
+  },
+  {
+    "name": "protocol",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_protocol"
+  },
+  {
+    "name": "oracle.jdbc.editionName",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.editionName"
+  },
+  {
+    "name": "oracle.jdbc.backwardCompatibileUpdateableResultSet",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.backwardCompatibileUpdateableResultSet",
+    "default": "false"
+  },
+  {
+    "name": "oracle.jdbc.RetainV9LongBindBehavior",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.jdbc.RetainV9LongBindBehavior"
+  },
+  {
+    "name": "disableDefineColumnType",
+    "default": "false",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_disableDefineColumnType"
+  },
+  {
+    "name": "oracle.net.ldap.security.authentication",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ldap.security.authentication"
+  },
+  {
+    "name": "oracle.net.ldap.security.principal",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ldap.security.principal"
+  },
+  {
+    "name": "oracle.net.ldap.security.credentials",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ldap.security.credentials"
+  },
+  {
+    "name": "com.sun.jndi.ldap.connect.timeout",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_com.sun.jndi.ldap.connect.timeout"
+  },
+  {
+    "name": "com.sun.jndi.ldap.read.timeout",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_com.sun.jndi.ldap.read.timeout"
+  },
+  {
+    "name": "oracle.net.ldap.ssl.walletLocation",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ldap.ssl.walletLocation"
+  },
+  {
+    "name": "oracle.net.ldap.ssl.walletPassword",
+    "secret": true,
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ldap.ssl.walletPassword"
+  },
+  {
+    "name": "oracle.net.ldap.ssl.keyStoreType",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ldap.ssl.keyStoreType"
+  },
+  {
+    "name": "oracle.net.ldap.ssl.keyStore",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ldap.ssl.keyStore"
+  },
+  {
+    "name": "oracle.net.ldap.ssl.keyStorePassword",
+    "secret": true,
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ldap.ssl.keyStorePassword"
+  },
+  {
+    "name": "oracle.net.ldap.ssl.trustStoreType",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ldap.ssl.trustStoreType"
+  },
+  {
+    "name": "oracle.net.ldap.ssl.trustStore",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ldap.ssl.trustStore"
+  },
+  {
+    "name": "oracle.net.ldap.ssl.trustStorePassword",
+    "secret": true,
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ldap.ssl.trustStorePassword"
+  },
+  {
+    "name": "oracle.net.ldap.ssl.supportedCiphers",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ldap.ssl.supportedCiphers"
+  },
+  {
+    "name": "oracle.net.ldap.ssl.supportedVersions",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ldap.ssl.supportedVersions"
+  },
+  {
+    "name": "oracle.net.ldap.ssl.keyManagerFactory.algorithm",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ldap.ssl.keyManagerFactory.algorithm"
+  },
+  {
+    "name": "oracle.net.ldap.ssl.trustManagerFactory.algorithm",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ldap.ssl.trustManagerFactory.algorithm"
+  },
+  {
+    "name": "oracle.net.ldap.ssl.ssl_context_protocol",
+    "description_i18n": "CG_JDBC_PARAMS_ORACLE_oracle.net.ldap.ssl.ssl_context_protocol"
+  }
+]

@@ -1,0 +1,46 @@
+package com.clougence.clouddm.ds.rules.rdb.using_db2.insert;
+
+import java.io.IOException;
+import java.util.Map;
+
+import org.junit.Test;
+
+import com.clougence.clouddm.ds.rules.rdb.using_db2.Db2AbstractRuleTest;
+import com.clougence.utils.CollectionUtils;
+
+public class Db2RuleInsertAllowWithTest extends Db2AbstractRuleTest {
+
+    private final String              scriptResource = "rule-test/rdb/insert/insert-allow-with.txt";
+    private final Map<String, String> p1             = CollectionUtils.asMap("allow", "false");
+    private final Map<String, String> p2             = CollectionUtils.asMap("allow", "true");
+
+    @Test
+    public void selectAndWithTest_1() throws IOException {
+        String sql;
+
+        sql = "insert into table1 select * from table2";
+        assert runScript(scriptResource, sql, p1);
+        sql = "insert into \"table2\" " + //
+              "with tab1Cnt as (select id,name from table1) " + //
+              "select * from tab1Cnt;";
+        assert !runScript(scriptResource, sql, p1);
+        //        sql = "insert into table1 select *\n" +//
+        //              "from (with tab1Cnt as (select id, name from table1) select * from tab1Cnt);";
+        //        assert !runScript(scriptResource, sql, p1);
+    }
+
+    @Test
+    public void selectAndWithTest_2() throws IOException {
+        String sql;
+
+        sql = "insert into table1 select * from table2";
+        assert runScript(scriptResource, sql, p2);
+        sql = "insert into \"table2\" " + //
+              "with tab1Cnt as (select id,name from table1) " + //
+              "select * from tab1Cnt;";
+        assert runScript(scriptResource, sql, p2);
+        //        sql = "insert into table1 select *\n" +//
+        //              "from (with tab1Cnt as (select id, name from table1) select * from tab1Cnt);";
+        //        assert runScript(scriptResource, sql, p1);
+    }
+}

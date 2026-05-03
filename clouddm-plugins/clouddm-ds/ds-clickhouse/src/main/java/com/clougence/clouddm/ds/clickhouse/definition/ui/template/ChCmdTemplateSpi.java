@@ -1,0 +1,155 @@
+package com.clougence.clouddm.ds.clickhouse.definition.ui.template;
+
+import java.util.Collections;
+import java.util.List;
+
+import com.clougence.clouddm.ds.clickhouse.dialect.ClickHouseDialect;
+import com.clougence.clouddm.sdk.ui.template.AbstractCmdTemplateSpi;
+import com.clougence.clouddm.sdk.ui.template.CmdTemplateOption;
+import com.clougence.schema.dialect.Dialect;
+import com.clougence.utils.StringUtils;
+
+public class ChCmdTemplateSpi extends AbstractCmdTemplateSpi {
+
+    @Override
+    public String getQuickQuery(CmdTemplateOption option) {
+        return "select * from " + TABLE_PLACEHOLDER + ";";
+    }
+
+    @Override
+    public String getQuickQueryByTable(CmdTemplateOption option) {
+        return getQuickQuery(option);
+    }
+
+    @Override
+    public String getQuickQueryByView(CmdTemplateOption option) {
+        return getQuickQuery(option);
+    }
+
+    @Override
+    public String getQuickQueryByColumn(CmdTemplateOption option) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("select * from ");
+        sb.append(TABLE_PLACEHOLDER);
+        sb.append(" where ");
+        sb.append(COLUMN_PLACEHOLDER);
+        sb.append(" = ");
+        return sb.toString();
+    }
+
+    @Override
+    public List<String> getCreateSchema(CmdTemplateOption option) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("create database ");
+        if (option.isUsingExists()) {
+            sb.append("if not exists ");
+        }
+        sb.append(fmtName(option, option.getSchema()));
+        sb.append(";");
+
+        return Collections.singletonList(sb.toString());
+    }
+
+    @Override
+    public List<String> getDropSchema(CmdTemplateOption option) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("drop database ");
+        if (option.isUsingExists()) {
+            sb.append("if exists ");
+        }
+        sb.append(fmtName(option, option.getSchema()));
+        if (StringUtils.isNotBlank(option.getClusterName())) {
+            sb.append(" on cluster " + option.getClusterName());
+        }
+        sb.append(";");
+
+        return Collections.singletonList(sb.toString());
+    }
+
+    @Override
+    public List<String> getRenameSchema(CmdTemplateOption option) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("rename database ");
+        sb.append(fmtName(option, option.getSchema()));
+        sb.append(" to ");
+        sb.append(fmtName(option, option.getTargetNewName()));
+        if (StringUtils.isNotBlank(option.getClusterName())) {
+            sb.append(" on cluster " + option.getClusterName());
+        }
+        sb.append(";");
+
+        return Collections.singletonList(sb.toString());
+    }
+
+    @Override
+    public List<String> getDropTable(CmdTemplateOption option) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("drop table ");
+        if (option.isUsingExists()) {
+            sb.append("if exists ");
+        }
+        sb.append(fmtName(option, option.getSchema()) + "." + fmtName(option, option.getTargetName()));
+        if (StringUtils.isNotBlank(option.getClusterName())) {
+            sb.append(" on cluster " + option.getClusterName());
+        }
+        sb.append(";");
+        return Collections.singletonList(sb.toString());
+    }
+
+    @Override
+    public List<String> getDeleteTable(CmdTemplateOption option) {
+        return Collections.singletonList("alter table " + fmtName(option, option.getSchema()) + "." + fmtName(option, option.getTargetName()) + " delete where 1=1;");
+    }
+
+    @Override
+    public List<String> getRenameTable(CmdTemplateOption option) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("rename table ");
+        sb.append(fmtName(option, option.getSchema()) + "." + fmtName(option, option.getTargetName()));
+        sb.append(" to ");
+        sb.append(fmtName(option, option.getSchema()) + "." + fmtName(option, option.getTargetNewName()));
+        if (StringUtils.isNotBlank(option.getClusterName())) {
+            sb.append(" on cluster " + option.getClusterName());
+        }
+        sb.append(";");
+        return Collections.singletonList(sb.toString());
+    }
+
+    @Override
+    public List<String> getTruncateTable(CmdTemplateOption option) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("truncate table ");
+        if (option.isUsingExists()) {
+            sb.append("if exists ");
+        }
+        sb.append(fmtName(option, option.getSchema()) + "." + fmtName(option, option.getTargetName()));
+        if (StringUtils.isNotBlank(option.getClusterName())) {
+            sb.append(" on cluster " + option.getClusterName());
+        }
+        sb.append(";");
+        return Collections.singletonList(sb.toString());
+    }
+
+    @Override
+    public List<String> getRenameView(CmdTemplateOption option) {
+        return this.getRenameTable(option);
+    }
+
+    @Override
+    public List<String> getDropView(CmdTemplateOption option) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("drop view ");
+        if (option.isUsingExists()) {
+            sb.append("if exists ");
+        }
+        sb.append(fmtName(option, option.getSchema()) + "." + fmtName(option, option.getTargetName()));
+        if (StringUtils.isNotBlank(option.getClusterName())) {
+            sb.append(" on cluster " + option.getClusterName());
+        }
+        sb.append(";");
+        return Collections.singletonList(sb.toString());
+    }
+
+    @Override
+    protected Dialect getDialect() { return ClickHouseDialect.INSTANCE; }
+}

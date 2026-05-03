@@ -1,18 +1,48 @@
-# Build and Release Folders
-bin-debug/
-bin-release/
-[Oo]bj/
-[Bb]in/
+.cache
+test-work
+/out/
+.DS_Store
+_book
+dependency-reduced-pom.xml
+.gradle
+/.gradle/
+*/.clion.source.upload.marker
+LOG_FILE_IS_UNDEFINED
 
-# Other files and folders
-.settings/
+# Editor directories and files
+.settings
+target
+build
+.classpath
+.project
+*.iml
+*/*.iml
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.tar
+*.tar.gz
+pom.xml.versionsBackup
 
-# Executables
-*.swf
-*.air
-*.ipa
-*.apk
+# codes
+gen
 
-# Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
-# should NOT be excluded as they contain compiler settings and other important
-# information for Eclipse / Flash Builder.
+# buildTools
+package/buildTools/gradle/
+package/buildTools/.gradle/
+package/buildTools/gradlew
+package/buildTools/gradlew.bat
+
+# log
+logs/*
+LOG_FILE_IS_UNDEFINED*
+
+# electron
+package/electron/dist/
+
+# web
+node_modules
+dist

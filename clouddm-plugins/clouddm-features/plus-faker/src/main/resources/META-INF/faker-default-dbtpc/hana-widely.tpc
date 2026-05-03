@@ -1,0 +1,153 @@
+# see https://help.sap.com/docs/SAP_HANA_PLATFORM/4fe29514fd584807ac9f2a04f6754767/20a1569875191014b507cf392724b7eb.html?q=offset
+
+define hana {
+    default      = true
+    priority     = 1
+    policy       = "widely"
+    policyDesc   = "Hana TypeProcessor Policy(Widely)"
+}
+
+[*]
+    ignoreAct = hanaIgnoreActSupport()
+
+[tinyint]
+    jdbcType       = tinyint
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 100)
+
+[smallint]
+    jdbcType       = smallint
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 9999)
+
+[integer]
+    jdbcType       = integer
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 99999999)
+
+[bigint]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = int
+    minMax         = range(0, 9999999999)
+
+[decimal]
+    jdbcType       = decimal
+    seedType       = number
+    numberType     = decimal
+    minMax         = range(0, 1)
+    scale          = ifThen(isZero(${numericScale}), 8, min(${numericScale}, 8))
+
+[smalldecimal]
+    jdbcType       = decimal
+    seedType       = number
+    numberType     = decimal
+    minMax         = range(0, 9999999.999)
+    scale          = ifThen(isZero(${numericScale}), 3, min(${numericScale}, 3))
+
+[real]
+    jdbcType       = real
+    seedType       = number
+    numberType     = decimal
+    minMax         = range(0, 9999999.999)
+    scale          = ifThen(isZero(${numericScale}), 3, min(${numericScale}, 3))
+
+[float]
+    jdbcType       = float
+    seedType       = number
+    numberType     = decimal
+    minMax         = range(0, 9999999.999)
+    scale          = ifThen(isZero(${numericScale}), 3, min(${numericScale}, 3))
+[double]
+    jdbcType       = double
+    seedType       = number
+    numberType     = decimal
+    minMax         = range(0, 9999999.999)
+    scale          = ifThen(isZero(${numericScale}), 3, min(${numericScale}, 3))
+
+[boolean]
+    jdbcType       = boolean
+    seedType       = boolean
+[char]
+[nchar]
+[varchar]
+[nvarchar]
+[alphanum]
+[shorttext]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 250, 10)
+    characterSet   = [ letter_number ]
+
+[date]
+    # -4712-01-01 ~ 9999-12-31
+    jdbcType       = date
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE10
+    genType        = random
+    rangeForm      = "2000-01-01"
+    rangeTo        = "2030-12-31"
+
+[time]
+    jdbcType       = time
+    seedType       = date
+    dateType       = LocalTime
+    genType        = random
+    dateFormat     = WKF_TIME24
+    precision      = safeMaxLength(0, ${datetimePrecision}, 0, 0)
+    rangeForm      = "00:00:00.000000"
+    rangeTo        = "23:59:59.999999"
+
+[seconddate]
+    # -4712-01-01 00:00:00 ~ 9999-12-31 23:59:59
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE_TIME24
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 0, 0)
+    rangeForm      = "0000-01-01 00:00:00"
+    rangeTo        = "9999-12-31 23:59:59"
+[timestamp]
+    # -4712-01-01 00:00:00.0000000 ~ 9999-12-31 23:59:59.9999999
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE_TIME24
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 5, 3)
+    rangeForm      = "2000-01-01 00:00:00.000000"
+    rangeTo        = "2030-12-31 23:59:59.999999"
+
+[binary]
+[varbinary]
+[blob]
+    jdbcType       = varbinary
+    seedType       = bytes
+    minLength      = 0
+    maxLength      = safeMaxLength(0, ${byteLength}, 2000, 10)
+[bintext]
+[text]
+[clob]
+[nclob]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = 4096
+    characterSet   = [ letter_number ]
+[st_point]
+[st_geometry]
+    throw "this columnType Unsupported."
+#    jdbcType       = other
+#    seedType       = date
+#    dateType       = iso8601
+#    genType        = random
+#    precision      = 0
+#    rangeForm      = "0000-01-01 00:00:00.000000"
+#    rangeTo        = "9999-12-31 23:59:59.999999"
+#    throw "this columnType Unsupported."

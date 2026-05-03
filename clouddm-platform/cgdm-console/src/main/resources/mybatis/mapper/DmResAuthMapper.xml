@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.console.web.dal.mapper.DmResAuthMapper">
+    <resultMap id="dmResAuthDO" type="com.clougence.clouddm.console.web.dal.model.DmResAuthDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="res_id" property="resId"/>
+        <result column="res_inst_id" property="resInstId"/>
+        <result column="res_desc" property="resDesc"/>
+        <result column="owner_uid" property="ownerUid"/>
+        <result column="res_path" property="resPath"/>
+        <result column="level_1" property="level1"/>
+        <result column="level_2" property="level2"/>
+        <result column="level_3" property="level3"/>
+        <result column="level_4" property="level4"/>
+        <result column="kind_type" property="kindType" javaType="com.clougence.clouddm.sdk.security.auth.AuthKind"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="res_auth_label" property="authLabels"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+    </resultMap>
+
+    <sql id="ccResAuth">
+        id,
+        gmt_create,
+        gmt_modified,
+        owner_uid,
+        res_id,
+        res_inst_id,
+        res_desc,
+        res_path,
+        level_1,
+        level_2,
+        level_3,
+        level_4,
+        start_time,
+        end_time,
+        kind_type,
+        res_auth_label
+    </sql>
+
+    <sql id="ccResAuthWithoutAuthLabel">
+        id,
+        gmt_create,
+        gmt_modified,
+        owner_uid,
+        res_id,
+        res_inst_id,
+        res_desc,
+        res_path,
+        level_1,
+        level_2,
+        level_3,
+        level_4,
+        start_time,
+        end_time,
+        kind_type
+    </sql>
+
+    <select id="queryAuthCountByUser" resultType="long">
+        SELECT count(*)
+        FROM dm_res_auth
+        WHERE owner_uid = #{ownerUid}
+    </select>
+
+    <select id="listByKind" resultMap="dmResAuthDO">
+        SELECT
+            <include refid="ccResAuth"/>
+        FROM
+            dm_res_auth
+        WHERE
+            owner_uid = #{ownerUid} and
+            kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
+    </select>
+
+    <select id="listByResIds" resultMap="dmResAuthDO">
+        SELECT
+            <include refid="ccResAuth"/>
+        FROM
+            dm_res_auth
+        WHERE
+            owner_uid = #{ownerUid} and
+            kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
+            <if test="resIds != null and resIds.size > 0">
+                and res_id in
+                <foreach collection="resIds" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+            </if>
+    </select>
+
+    <select id="listByResId" resultMap="dmResAuthDO">
+        SELECT
+            <include refid="ccResAuth"/>
+        FROM
+            dm_res_auth
+        WHERE
+            owner_uid = #{ownerUid} and
+            kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
+            and res_id = #{resId}
+    </select>
+
+    <select id="listWithoutLabels" resultMap="dmResAuthDO">
+        SELECT
+            <include refid="ccResAuthWithoutAuthLabel"/>
+        FROM
+            dm_res_auth
+        WHERE
+            owner_uid = #{ownerUid} and
+            kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
+    </select>
+
+    <update id="updateAuthById">
+        UPDATE
+            dm_res_auth
+        SET
+            res_auth_label = #{resAuthLabel}
+            <if test="startTime != null">, start_time=#{startTime}</if>
+            <if test="endTime != null">, end_time=#{endTime}</if>
+        WHERE
+            id = #{id}
+    </update>
+
+    <delete id="deleteByRes">
+        DELETE FROM
+            dm_res_auth
+        WHERE
+            res_id = #{resId} and
+            kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
+    </delete>
+
+    <delete id="deleteByPrefix">
+        DELETE FROM
+            dm_res_auth
+        WHERE
+            res_path like concat(#{prefixPath}, '%') and
+            kind_type = #{kindType}
+    </delete>
+
+    <insert id="insertOne">
+        replace into dm_res_auth (
+            owner_uid,res_id,res_inst_id,res_desc,res_path,level_1,level_2,level_3,level_4,start_time,end_time,kind_type,res_auth_label
+        ) VALUES (
+            #{item.ownerUid},
+            #{item.resId},
+            #{item.resInstId},
+            #{item.resDesc},
+            #{item.resPath},
+            #{item.level1},
+            #{item.level2},
+            #{item.level3},
+            #{item.level4},
+            #{item.startTime},
+            #{item.endTime},
+            #{item.kindType,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind},
+            #{item.authLabels,typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler}
+        )
+    </insert>
+</mapper>

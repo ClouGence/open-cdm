@@ -1,0 +1,176 @@
+# see https://dev.mysql.com/doc/refman/5.7/en/numeric-type-syntax.html
+
+define mysql {
+    priority     = 1
+    policy       = "extreme"
+    policyDesc   = "MySQL TypeProcessor Policy(Extreme)"
+}
+
+[bit]
+    jdbcType       = varchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${numericPrecision}, 64, 24)
+    characterSet   = [ bit ]
+    typeHandler    = com.clougence.faker.types.MySqlBitAsStringTypeHandler
+
+[tinyint]
+    jdbcType       = ifThen(${numericUnsigned}, smallint, tinyint)
+    seedType       = number
+    numberType     = int
+    minMax         = ifThen(${numericUnsigned}, range(0, 255), range(-128, 127))
+
+[smallint]
+    jdbcType       = ifThen(${numericUnsigned}, integer, smallint)
+    seedType       = number
+    numberType     = int
+    minMax         = ifThen(${numericUnsigned}, range(0, 65535), range(-32768, 32767))
+
+[mediumint]
+    jdbcType       = integer
+    seedType       = number
+    numberType     = int
+    minMax         = ifThen(${numericUnsigned}, range(0, 16777215), range(-8388608, 8388607))
+
+[int]
+    jdbcType       = ifThen(${numericUnsigned}, bigint, integer)
+    seedType       = number
+    numberType     = ifThen(${numericUnsigned}, long, int)
+    minMax         = ifThen(${numericUnsigned}, range(0, 4294967295), range(-2147483648, 2147483647))
+
+[bigint]
+    jdbcType       = bigint
+    seedType       = number
+    numberType     = bigint
+    minMax         = ifThen(${numericUnsigned}, range(0, 9223372036854775807), range(-9223372036854775808, 9223372036854775807))
+
+[decimal]
+    jdbcType       = decimal
+    seedType       = number
+    numberType     = decimal
+    precision      = ${numericPrecision}
+    scale          = ${numericScale}
+    abs            = ${numericUnsigned}
+
+[float]
+    jdbcType       = float
+    seedType       = number
+    numberType     = decimal
+    minMax        += range(10, -3.402823466E+38    , -1.175494351E-38)
+    minMax        += range(10, 1.175494351E-38     , 3.402823466E+38)
+    minMax        += range(30, -999999999.999999999, 999999999.999999999)
+    minMax        += range(30, -0.999999999        , 0.999999999)
+    precision      = ${numericPrecision}
+    scale          = ${numericScale}
+    abs            = ${numericUnsigned}
+
+[double]
+    jdbcType       = double
+    seedType       = number
+    numberType     = decimal
+    minMax        += range(10, -2.2250738585072014E-308, -1.7976931348623157E+308)
+    minMax        += range(10, 2.2250738585072014E-308 , 1.7976931348623157E+308)
+    minMax        += range(30, -999999999.999999999    , 999999999.999999999)
+    minMax        += range(30, -0.999999999            , 0.999999999)
+    precision      = ${numericPrecision}
+    scale          = ${numericScale}
+    abs            = ${numericUnsigned}
+    typeHandler    = com.clougence.faker.utils.types.StringAsBigDecimalTypeHandler
+
+[date]
+    jdbcType       = date
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE10
+    genType        = random
+    rangeForm      = "1000-01-01"
+    rangeTo        = "9999-12-31"
+
+[datetime]
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE_TIME24
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "2022-01-01 00:00:00.000000"
+    rangeTo        = "2023-12-31 23:59:59.999999"
+
+[timestamp]
+    jdbcType       = timestamp
+    seedType       = date
+    dateType       = string
+    dateFormat     = WKF_DATE_TIME24
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "2022-01-01 00:00:00.000000"
+    rangeTo        = "2023-12-31 23:59:59.999999"
+
+[time]
+    jdbcType       = varchar
+    seedType       = time
+    genType        = random
+    precision      = safeMaxLength(0, ${datetimePrecision}, 6, 3)
+    rangeForm      = "-838:59:59.000000"
+    rangeTo        = "838:59:59.000000"
+
+[year]
+    jdbcType       = integer
+    seedType       = number
+    numberType     = int
+    minMax        += range(10, 0, 0)
+    minMax        += range(90, 1901, 2155)
+
+[char]
+[varchar]
+[tinytext]
+[text]
+[mediumtext]
+[longtext]
+    jdbcType       = longvarchar
+    seedType       = string
+    minLength      = 1
+    maxLength      = safeMaxLength(1, ${charLength}, 1000, 10)
+    characterSet   = [ letter_number ]
+
+[binary]
+[varbinary]
+[mediumblob]
+[tinyblob]
+[blob]
+[longblob]
+    jdbcType       = varbinary
+    seedType       = bytes
+    minLength      = 0
+    maxLength      = safeMaxLength(0, ${byteLength}, 4096, 10)
+
+[enum]
+[set]
+    jdbcType       = varchar
+    seedType       = enums
+    dict           = [ ]
+
+[geometry]
+    jdbcType       = varchar
+    seedType       = geometry
+    range          = range(50, 0.0, 0.0, 1000, 1000)
+    precision      = 5
+    minPointSize   = 2
+    maxPointSize   = 10
+    geometryType   = MultiPolygon
+    formatType     = WKT
+    selectTemplate = "ST_AsWKT({name})"
+    insertTemplate = "ST_MultiPolygonFromText(?)"
+    setValueTemplate = "ST_MultiPolygonFromText(?)"
+    ignoreAct      = [ DeleteWhere, UpdateWhere ]
+
+[point]
+[linestring]
+[polygon]
+[multipoint]
+[multilinestring]
+[multipolygon]
+[geomcollection]
+[geometrycollection]
+[json]
+    throw "this columnType Unsupported."
