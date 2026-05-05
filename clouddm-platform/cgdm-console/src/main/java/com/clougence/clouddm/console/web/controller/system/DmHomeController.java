@@ -7,14 +7,13 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.clougence.clouddm.api.common.DmBuildInfo;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.api.common.DmBuildInfo;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.menus.UiMenuDef;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
@@ -33,6 +32,7 @@ import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.dsfamily.definition.ui.browser.RdbUiMenuDef;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.resultset.file.FileFormatConvert;
+import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.clouddm.sdk.ui.menus.DsMenuType;
 import com.clougence.rdp.constant.auth.RequestAuth;
 import com.clougence.rdp.service.RdpAuthServiceForBiz;
