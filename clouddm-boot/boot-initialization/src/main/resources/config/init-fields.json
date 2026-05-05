@@ -1,0 +1,84 @@
+{
+  "fields": [
+    {
+      "category": "database",
+      "propertyKey": "spring.datasource.jdbcurl",
+      "labelKey": "INIT_FIELD_JDBC_URL_LABEL",
+      "descriptionKey": "INIT_FIELD_JDBC_URL_DESC",
+      "inputType": "text",
+      "required": true
+    },
+    {
+      "category": "database",
+      "propertyKey": "spring.datasource.username",
+      "labelKey": "INIT_FIELD_DB_USERNAME_LABEL",
+      "descriptionKey": "INIT_FIELD_DB_USERNAME_DESC",
+      "inputType": "text",
+      "required": true
+    },
+    {
+      "category": "database",
+      "propertyKey": "spring.datasource.password",
+      "labelKey": "INIT_FIELD_DB_PASSWORD_LABEL",
+      "descriptionKey": "INIT_FIELD_DB_PASSWORD_DESC",
+      "inputType": "password",
+      "required": false
+    },
+    {
+      "category": "security",
+      "propertyKey": "jwt.secret",
+      "labelKey": "INIT_FIELD_JWT_SECRET_LABEL",
+      "descriptionKey": "INIT_FIELD_JWT_SECRET_DESC",
+      "inputType": "text",
+      "required": true
+    },
+    {
+      "category": "security",
+      "propertyKey": "clougence.rdp.product.trial.verify_code",
+      "labelKey": "INIT_FIELD_TRIAL_VERIFY_CODE_LABEL",
+      "descriptionKey": "INIT_FIELD_TRIAL_VERIFY_CODE_DESC",
+      "inputType": "text",
+      "required": false
+    },
+    {
+      "category": "security",
+      "propertyKey": "clougence.init.admin.email",
+      "labelKey": "INIT_FIELD_ADMIN_EMAIL_LABEL",
+      "descriptionKey": "INIT_FIELD_ADMIN_EMAIL_DESC",
+      "inputType": "text",
+      "required": true
+    },
+    {
+      "category": "security",
+      "propertyKey": "clougence.init.admin.password",
+      "labelKey": "INIT_FIELD_ADMIN_PASSWORD_LABEL",
+      "descriptionKey": "INIT_FIELD_ADMIN_PASSWORD_DESC",
+      "inputType": "password",
+      "required": true
+    },
+    {
+      "category": "connectivity",
+      "propertyKey": "server.port",
+      "labelKey": "INIT_FIELD_SERVER_PORT_LABEL",
+      "descriptionKey": "INIT_FIELD_SERVER_PORT_DESC",
+      "inputType": "number",
+      "required": true
+    },
+    {
+      "category": "connectivity",
+      "propertyKey": "clouddm.rsocket.dns",
+      "labelKey": "INIT_FIELD_RSOCKET_DNS_LABEL",
+      "descriptionKey": "INIT_FIELD_RSOCKET_DNS_DESC",
+      "inputType": "text",
+      "required": true
+    },
+    {
+      "category": "connectivity",
+      "propertyKey": "clouddm.rsocket.console.port",
+      "labelKey": "INIT_FIELD_RSOCKET_PORT_LABEL",
+      "descriptionKey": "INIT_FIELD_RSOCKET_PORT_DESC",
+      "inputType": "number",
+      "required": true
+    }
+  ]
+}

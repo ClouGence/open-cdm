@@ -1,4 +1,4 @@
-package com.clougence.clouddm.init.config;
+package com.clougence.clouddm.init.component.flyway;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

@@ -36,7 +36,7 @@ public class DmConsoleLauncher {
         System.setProperty("spring.config.name", "default_console,console");
 
         SystemStatusResult statusResult =//
-                InitDBStatusDetector.detectDatabaseStatus("default_console.properties", "console.properties");
+                InitDBStatusDetector.detectDBStatus("default_console.properties", "console.properties");
         SystemStatus dbStatus = statusResult.getStatus();
         log.info("[DmConsoleLauncher] Database status check: {}, reason={}, dbError={}", dbStatus, statusResult.getInitReason(), statusResult.getDbError());
 

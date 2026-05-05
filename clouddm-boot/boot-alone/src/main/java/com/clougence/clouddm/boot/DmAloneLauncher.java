@@ -38,7 +38,7 @@ public class DmAloneLauncher {
         System.setProperty("app.mode", "embedded");
 
         SystemStatusResult statusResult = //
-                InitDBStatusDetector.detectDatabaseStatus("default_alone.properties", "alone.properties");
+                InitDBStatusDetector.detectDBStatus("default_alone.properties", "alone.properties");
         SystemStatus dbStatus = statusResult.getStatus();
         log.info("[DmAloneLauncher] Database status check: {}, reason={}, dbError={}", dbStatus, statusResult.getInitReason(), statusResult.getDbError());
 

@@ -1,4 +1,4 @@
-package com.clougence.clouddm.init.flyway;
+package com.clougence.clouddm.init.component.flyway;
 
 import java.sql.Types;
 

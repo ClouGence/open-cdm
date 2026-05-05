@@ -1,4 +1,4 @@
-package com.clougence.clouddm.init.fix;
+package com.clougence.clouddm.init.component.fixtasks;
 
 import java.io.IOException;
 import java.util.List;

@@ -1,16 +1,16 @@
-package com.clougence.clouddm.init.fix;
+package com.clougence.clouddm.init.component.fixtasks;
 
 import java.util.ArrayList;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
-import com.clougence.clouddm.sdk.security.auth.def.SecSysRole;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
+import com.clougence.clouddm.sdk.security.auth.def.SecSysRole;
 import com.clougence.rdp.dal.enumeration.AccountType;
 import com.clougence.rdp.dal.mapper.RdpRoleMapper;
 import com.clougence.rdp.dal.mapper.RdpUserMapper;
@@ -30,16 +30,12 @@ public class RdpFixInnerUser {
 
     @Resource
     private RdpUserMapper    rdpUserMapper;
-
     @Resource
     private RdpRoleMapper    rdpRoleMapper;
-
     @Resource
     private RdpRoleService   rdpRoleService;
-
     @Resource
     private RdpNamingService rdpNamingService;
-
     @Resource
     private RdpConsoleConfig rdpConfig;
 
