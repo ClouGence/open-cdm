@@ -9,9 +9,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -181,17 +183,19 @@ public class SysInitDefService {
     }
 
     private List<Path> getFileSystemCandidates(String resourcePath) {
-        Path workspaceRoot = Paths.get(System.getProperty("user.dir", ".")).toAbsolutePath().normalize();
-        List<Path> candidates = new ArrayList<>();
+        Path currentDir = Paths.get(System.getProperty("user.dir", ".")).toAbsolutePath().normalize();
+        Set<Path> candidates = new LinkedHashSet<>();
 
-        candidates.add(workspaceRoot.resolve(resourcePath));
-        candidates.add(workspaceRoot.resolve("clouddm-boot/boot-console/src/main/resources").resolve(resourcePath));
-        candidates.add(workspaceRoot.resolve("clouddm-boot/boot-alone/src/main/resources").resolve(resourcePath));
-        candidates.add(workspaceRoot.resolve("clouddm-server/src/main/resources").resolve(resourcePath));
-        candidates.add(workspaceRoot.resolve("package/pkg/console").resolve(resourcePath));
-        candidates.add(workspaceRoot.resolve("package/pkg/alone").resolve(resourcePath));
+        for (Path baseDir = currentDir; baseDir != null; baseDir = baseDir.getParent()) {
+            candidates.add(baseDir.resolve(resourcePath));
+            candidates.add(baseDir.resolve("clouddm-boot/boot-console/src/main/resources").resolve(resourcePath));
+            candidates.add(baseDir.resolve("clouddm-boot/boot-alone/src/main/resources").resolve(resourcePath));
+            candidates.add(baseDir.resolve("clouddm-server/src/main/resources").resolve(resourcePath));
+            candidates.add(baseDir.resolve("package/pkg/console").resolve(resourcePath));
+            candidates.add(baseDir.resolve("package/pkg/alone").resolve(resourcePath));
+        }
 
-        return candidates;
+        return new ArrayList<>(candidates);
     }
 
     private String serializeProperties(Properties properties) throws IOException {
