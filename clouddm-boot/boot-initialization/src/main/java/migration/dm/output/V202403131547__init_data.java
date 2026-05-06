@@ -1,5 +1,6 @@
 package migration.dm.output;
 
+import com.clougence.clouddm.init.constant.InitSeedConstants;
 import com.clougence.utils.ExceptionUtils;
 import org.flywaydb.core.api.migration.BaseJavaMigration;
 import org.flywaydb.core.api.migration.Context;
@@ -66,15 +67,15 @@ public class V202403131547__init_data extends BaseJavaMigration {
                 "            0,\n" +
                 "            '172.31.239.3', 'workers8c4qs80l26', 'wsn582nm54ca045p014288w6e919ec6294m430h427619v64g0pyqzcjb5040q3f',\n" +
                 "            'workers8c4qs80l26',\n" +
-                "            null, null, null, null, '183.134.161.226', '6258151610403310',\n" +
+                "            null, null, null, null, '183.134.161.226', '" + InitSeedConstants.ADMIN_UID + "',\n" +
                 "            null, 'CREATED', null, null, 0, 100)");
 
         sqls.add("INSERT INTO `dm_worker_status` (`worker_conn_status`,`uid`,`worker_seq_number`,`console_ip`,`worker_ip`,`cluster_id`)\n" +
-                "    VALUES ('NEW','6258151610403310','wsn582nm54ca045p014288w6e919ec6294m430h427619v64g0pyqzcjb5040q3f','172.31.239.3','172.31.239.4','1')");
+                "    VALUES ('NEW','" + InitSeedConstants.ADMIN_UID + "','wsn582nm54ca045p014288w6e919ec6294m430h427619v64g0pyqzcjb5040q3f','172.31.239.3','172.31.239.4','1')");
 
         sqls.add("INSERT INTO `dm_cluster` (id, gmt_create, gmt_modified, cluster_name, region, cloud_or_idc_name,\n" +
                 "                              cluster_desc, uid)\n" +
                 "    VALUES (1, now(), now(), 'cluster1aw2byj490', 'customer', 'SELF_MAINTENANCE', 'Default Cluster',\n" +
-                "            '6258151610403310')");
+                "            '" + InitSeedConstants.ADMIN_UID + "')");
     }
 }

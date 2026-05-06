@@ -1,7 +1,6 @@
 package com.clougence.clouddm.init.service;
 
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,15 +18,19 @@ import org.springframework.boot.WebApplicationType;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.init.InitTaskApplication;
 import com.clougence.clouddm.init.component.fixtasks.DmFixDmDsConfig;
 import com.clougence.clouddm.init.component.fixtasks.DmFixSecRules;
+import com.clougence.clouddm.init.component.fixtasks.InitConsolePluginLoader;
 import com.clougence.clouddm.init.component.fixtasks.RdpFixInnerUser;
 import com.clougence.clouddm.init.component.fixtasks.RdpFixUserRole;
 import com.clougence.clouddm.init.component.flyway.DmFlywayInit;
+import com.clougence.clouddm.init.constant.I18nInitFieldKeys;
+import com.clougence.clouddm.init.constant.InitSeedConstants;
 import com.clougence.clouddm.init.model.InitFieldDef;
 import com.clougence.clouddm.init.model.TestDbResult;
-import com.clougence.utils.ResourcesUtils;
+import com.clougence.rdp.util.RdpI18nUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
 
@@ -55,7 +58,6 @@ public class SysInitService {
     private SysInitDefService   defService;
     private static final String ALONE_CONFIG   = "alone.properties";
     private static final String CONSOLE_CONFIG = "console.properties";
-    private static final String ADMIN_UID      = "6258151610403310";
 
     // 数据库测试
     // ========================================================================
@@ -63,19 +65,21 @@ public class SysInitService {
     /**
      * 测试数据库连接（使用用户提交的临时参数）。
      */
-    public TestDbResult testDbConnection(String jdbcUrl, String username, String password) {
+    public TestDbResult testDbConnection(String jdbcUrl, String username, String password, String rebuildIfNotEmpty, String confirmDatabaseName) {
         TestDbResult result = new TestDbResult();
         try {
             DatabaseInspection inspection = inspectDatabase(jdbcUrl, username, password, true);
-            applyInspectionResult(result, inspection);
+            applyInspectionResult(result, inspection, rebuildIfNotEmpty, confirmDatabaseName);
         } catch (Exception e) {
             result.setInstalled(false);
             result.setEmpty(false);
             result.setSuccess(false);
+            result.setCanProceed(false);
             result.setDatabaseExists(false);
             result.setCharsetValid(false);
             result.setCreateDatabase(false);
-            result.setMessage("连接失败: " + e.getMessage());
+            result.setMessageType("error");
+            result.setMessage(RdpI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_CONNECTION_FAILED.name(), e.getMessage()));
         }
         return result;
     }
@@ -86,21 +90,21 @@ public class SysInitService {
 
     /**  应用初始化配置（完整模式：写配置 + Flyway 迁移 + 更新管理员） */
     public void applyInitConfig(Map<String, String> userConfig) throws Exception {
-        // 1. 处理 rawContent（高级模式：整体替换）
-        if (userConfig.containsKey("rawContent")) {
-            writeRawConfigFile(userConfig.get("rawContent"));
-        } else {
-            // 2. 普通模式：按 schema 逐行替换
-            replaceConfigLines(userConfig);
-        }
+        log.info("[SysInitService] Applying initialization config, createIfMissing={}, rebuildIfNotEmpty={}, adminEmail={}",
+            userConfig.getOrDefault(INIT_DB_CREATE_IF_MISSING, "false"),
+            userConfig.getOrDefault(INIT_DB_REBUILD_IF_NOT_EMPTY, "false"),
+            userConfig.get(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY));
 
-        // 3. 提取 DB 配置和 admin 配置
+        // 1. 按 schema 逐行替换
+        replaceConfigLines(userConfig);
+
+        // 2. 提取 DB 配置和 admin 配置
         Properties props = this.defService.loadSystemProperties();
         String jdbcUrl = userConfig.getOrDefault("spring.datasource.jdbcurl", props.getProperty("spring.datasource.jdbcurl"));
         String dbUser = userConfig.getOrDefault("spring.datasource.username", props.getProperty("spring.datasource.username"));
         String dbPass = userConfig.getOrDefault("spring.datasource.password", props.getProperty("spring.datasource.password"));
-        String adminEmail = userConfig.get("clougence.init.admin.email");
-        String adminPassword = userConfig.get("clougence.init.admin.password");
+        String adminEmail = userConfig.get(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY);
+        String adminPassword = userConfig.get(InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY);
         boolean createIfMissing = Boolean.parseBoolean(userConfig.getOrDefault(INIT_DB_CREATE_IF_MISSING, "false"));
         boolean rebuildIfNotEmpty = Boolean.parseBoolean(userConfig.getOrDefault(INIT_DB_REBUILD_IF_NOT_EMPTY, "false"));
 
@@ -108,20 +112,22 @@ public class SysInitService {
             prepareDatabase(jdbcUrl, dbUser, dbPass, createIfMissing, rebuildIfNotEmpty);
         }
 
-        // 4. 执行 Flyway 迁移（通过 DmFlywayInit）
+        // 3. 执行 Flyway 迁移（通过 DmFlywayInit）
         if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser)) {
-            runFlywayMigration(jdbcUrl, dbUser, dbPass);
+            runFlywayMigration(jdbcUrl, dbUser, dbPass, adminEmail, adminPassword);
         }
 
-        // 5. 更新管理员账号
+        // 4. 更新管理员账号
         if (StringUtils.isNotBlank(adminEmail) && StringUtils.isNotBlank(adminPassword)) {
             updateAdminUser(jdbcUrl, dbUser, dbPass, adminEmail, adminPassword);
         }
 
-        // 6. 执行 fix 初始化（内部用户、角色、安全规则等）
+        // 5. 执行 fix 初始化（内部用户、角色、安全规则等）
         if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser)) {
             runFixTasks(jdbcUrl, dbUser, dbPass);
         }
+
+        log.info("[SysInitService] Initialization apply flow completed successfully for jdbcUrl={}", jdbcUrl);
     }
 
     /**
@@ -129,6 +135,21 @@ public class SysInitService {
      */
     public void updateDbConfig(Map<String, String> userConfig) throws Exception {
         replaceConfigLines(userConfig);
+
+        Properties props = this.defService.loadSystemProperties();
+        String jdbcUrl = userConfig.getOrDefault("spring.datasource.jdbcurl", props.getProperty("spring.datasource.jdbcurl"));
+        String dbUser = userConfig.getOrDefault("spring.datasource.username", props.getProperty("spring.datasource.username"));
+        String dbPass = userConfig.getOrDefault("spring.datasource.password", props.getProperty("spring.datasource.password"));
+        boolean createIfMissing = Boolean.parseBoolean(userConfig.getOrDefault(INIT_DB_CREATE_IF_MISSING, "false"));
+        boolean rebuildIfNotEmpty = Boolean.parseBoolean(userConfig.getOrDefault(INIT_DB_REBUILD_IF_NOT_EMPTY, "false"));
+
+        if (StringUtils.isBlank(jdbcUrl) || StringUtils.isBlank(dbUser)) {
+            return;
+        }
+
+        prepareDatabase(jdbcUrl, dbUser, dbPass, createIfMissing, rebuildIfNotEmpty);
+        runFlywayMigration(jdbcUrl, dbUser, dbPass, null, null);
+        runFixTasks(jdbcUrl, dbUser, dbPass);
     }
 
     // ========================================================================
@@ -139,20 +160,13 @@ public class SysInitService {
 
     private void replaceConfigLines(Map<String, String> userConfig) throws Exception {
         String configName = isAloneMode() ? ALONE_CONFIG : CONSOLE_CONFIG;
-        URL resource = ResourcesUtils.getResource(configName);
-        if (resource == null) {
-            log.warn("[SysInitService] Config file not found: {}", configName);
-            return;
-        }
+        Path filePath = ensureAppHomeConfigPath(configName);
 
         List<String> lines;
-        Path filePath = null;
-        if ("file".equals(resource.getProtocol())) {
-            filePath = Paths.get(resource.toURI());
+        if (Files.exists(filePath) && Files.size(filePath) > 0) {
             lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
         } else {
-            // classpath 资源可能来自 JAR
-            String content = IOUtils.toString(ResourcesUtils.getResourceAsStream(configName), StandardCharsets.UTF_8);
+            String content = IOUtils.toString(getClass().getClassLoader().getResourceAsStream(configName), StandardCharsets.UTF_8);
             lines = new ArrayList<>(java.util.Arrays.asList(content.split("\\r?\\n", -1)));
         }
 
@@ -179,33 +193,24 @@ public class SysInitService {
             }
         }
 
-        if (filePath != null) {
-            Files.write(filePath, lines, StandardCharsets.UTF_8);
-        } else {
-            log.warn("[SysInitService] Cannot write to non-file resource: {}", configName);
-        }
+        Files.write(filePath, lines, StandardCharsets.UTF_8);
     }
 
-    private void writeRawConfigFile(String rawContent) throws Exception {
-        String configName = isAloneMode() ? ALONE_CONFIG : CONSOLE_CONFIG;
-        URL resource = ResourcesUtils.getResource(configName);
-        if (resource != null && "file".equals(resource.getProtocol())) {
-            Path filePath = Paths.get(resource.toURI());
-            Files.write(filePath, rawContent.getBytes(StandardCharsets.UTF_8));
-        } else {
-            log.warn("[SysInitService] Cannot write raw config to non-file resource: {}", configName);
-        }
-    }
-
-    private void runFlywayMigration(String jdbcUrl, String dbUser, String dbPass) {
+    private void runFlywayMigration(String jdbcUrl, String dbUser, String dbPass, String adminEmail, String adminPassword) {
         log.info("[SysInitService] Running Flyway migration with: {}", jdbcUrl);
+        String previousAdminEmail = System.getProperty(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY);
+        String previousAdminPassword = System.getProperty(InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY);
         try {
             SpringApplication app = new SpringApplication(InitTaskApplication.class);
             app.setWebApplicationType(WebApplicationType.NONE);
+            app.setLazyInitialization(true);
 
             Properties props = buildTaskProperties(jdbcUrl, dbUser, dbPass);
             props.setProperty("spring.flyway.enabled", "true");
             app.setDefaultProperties(props);
+
+            setRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY, adminEmail);
+            setRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY, adminPassword);
 
             try (ConfigurableApplicationContext ctx = app.run()) {
                 ctx.getBean(DmFlywayInit.class).doUpgrade();
@@ -214,10 +219,13 @@ public class SysInitService {
         } catch (Exception e) {
             log.error("[SysInitService] Flyway migration failed", e);
             throw new RuntimeException("Flyway migration failed: " + e.getMessage(), e);
+        } finally {
+            restoreRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY, previousAdminEmail);
+            restoreRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY, previousAdminPassword);
         }
     }
 
-    private void updateAdminUser(String jdbcUrl, String dbUser, String dbPass, String adminEmail, String adminPassword) {
+    private void updateAdminUser(String jdbcUrl, String dbUser, String dbPass, String adminEmail, String adminPassword) throws SQLException {
         try (Connection conn = DriverManager.getConnection(jdbcUrl, dbUser, dbPass)) {
             // 加密密码（与 Flyway 迁移脚本保持一致）
             com.clougence.clouddm.api.common.crypt.PasswordInfo cryptResult = com.clougence.clouddm.api.common.crypt.CryptService.INSTANCE.encryptForOneWay(adminPassword);
@@ -234,32 +242,55 @@ public class SysInitService {
             }
 
             // 查询管理员是否存在
-            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT id, email FROM rdp_user WHERE uid='" + ADMIN_UID + "'")) {
+            try (PreparedStatement stmt = conn.prepareStatement("SELECT id, email FROM rdp_user WHERE uid = ?")) {
+                stmt.setString(1, InitSeedConstants.ADMIN_UID);
+                try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     long existingId = rs.getLong(1);
                     String existingEmail = rs.getString(2);
                     log.info("[SysInitService] Admin user found (id={}, email={}), updating...", existingId, existingEmail);
-                    // 更新邮箱和密码
-                    String updateSql = String.format("UPDATE rdp_user SET email='%s', password='%s' WHERE uid='%s'", adminEmail, encodedPassword, ADMIN_UID);
-                    try (Statement updateStmt = conn.createStatement()) {
-                        int affected = updateStmt.executeUpdate(updateSql);
+                    try (PreparedStatement updateStmt = conn.prepareStatement("UPDATE rdp_user SET email = ?, password = ?, user_domain = ? WHERE uid = ?")) {
+                        updateStmt.setString(1, adminEmail);
+                        updateStmt.setString(2, encodedPassword);
+                        updateStmt.setString(3, InitSeedConstants.ADMIN_UID + ".clougence.com");
+                        updateStmt.setString(4, InitSeedConstants.ADMIN_UID);
+                        int affected = updateStmt.executeUpdate();
                         log.info("[SysInitService] Admin user updated, affected rows: {}", affected);
                     }
                 } else {
-                    log.warn("[SysInitService] Admin user not found by uid={}, inserting new admin user...", ADMIN_UID);
-                    // Flyway 没有创建默认管理员，手动插入
-                    String insertSql = String
-                        .format("INSERT INTO rdp_user (uid, email, password, username, account_type, user_domain, gmt_create, gmt_modified) "
-                                + "VALUES ('%s', '%s', '%s', 'Trial', 'PRIMARY_ACCOUNT', '%s.clougence.com', now(), now())", ADMIN_UID, adminEmail, encodedPassword, ADMIN_UID);
-                    try (Statement insertStmt = conn.createStatement()) {
-                        insertStmt.executeUpdate(insertSql);
+                    log.warn("[SysInitService] Admin user not found by uid={}, inserting new admin user...", InitSeedConstants.ADMIN_UID);
+                    try (PreparedStatement insertStmt = conn.prepareStatement(
+                        "INSERT INTO rdp_user (uid, email, password, username, account_type, user_domain, gmt_create, gmt_modified) VALUES (?, ?, ?, 'Trial', 'PRIMARY_ACCOUNT', ?, now(), now())")) {
+                        insertStmt.setString(1, InitSeedConstants.ADMIN_UID);
+                        insertStmt.setString(2, adminEmail);
+                        insertStmt.setString(3, encodedPassword);
+                        insertStmt.setString(4, InitSeedConstants.ADMIN_UID + ".clougence.com");
+                        insertStmt.executeUpdate();
                     }
                     log.info("[SysInitService] New admin user inserted: {}", adminEmail);
+                }
                 }
             }
         } catch (SQLException e) {
             log.error("[SysInitService] Failed to update admin user", e);
+            throw e;
         }
+    }
+
+    private void setRuntimeAdminProperty(String key, String value) {
+        if (StringUtils.isBlank(value)) {
+            System.clearProperty(key);
+            return;
+        }
+        System.setProperty(key, value);
+    }
+
+    private void restoreRuntimeAdminProperty(String key, String previousValue) {
+        if (previousValue == null) {
+            System.clearProperty(key);
+            return;
+        }
+        System.setProperty(key, previousValue);
     }
 
     // ========================================================================
@@ -274,6 +305,7 @@ public class SysInitService {
         try {
             SpringApplication app = new SpringApplication(InitTaskApplication.class);
             app.setWebApplicationType(WebApplicationType.NONE);
+            app.setLazyInitialization(true);
 
             Properties props = buildTaskProperties(jdbcUrl, dbUser, dbPass);
             props.setProperty("spring.flyway.enabled", "false");
@@ -281,6 +313,7 @@ public class SysInitService {
             app.setDefaultProperties(props);
 
             try (ConfigurableApplicationContext ctx = app.run()) {
+                ctx.getBean(InitConsolePluginLoader.class).loadPlugin(InitTaskApplication.class.getClassLoader());
                 ctx.getBean(RdpFixInnerUser.class).init();
                 ctx.getBean(RdpFixUserRole.class).init();
                 ctx.getBean(DmFixSecRules.class).init();
@@ -293,32 +326,57 @@ public class SysInitService {
         }
     }
 
-    private void applyInspectionResult(TestDbResult result, DatabaseInspection inspection) {
+    private void applyInspectionResult(TestDbResult result, DatabaseInspection inspection, String rebuildIfNotEmpty, String confirmDatabaseName) {
         result.setDatabaseExists(inspection.databaseExists);
         result.setCharsetValid(inspection.charsetValid);
         result.setDatabaseCharset(inspection.databaseCharset);
         result.setCreateDatabase(!inspection.databaseExists);
         result.setEmpty(!inspection.databaseExists || inspection.tableCount == 0);
         result.setInstalled(inspection.databaseExists && inspection.tableCount > 0);
+        result.setCanProceed(false);
 
         if (!inspection.databaseExists) {
             result.setSuccess(true);
-            result.setMessage("测试成功：数据库不存在，后续将自动创建并使用 utf8mb4 编码");
+            result.setCanProceed(true);
+            result.setMessageType("success");
+            result.setMessage(RdpI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_SUCCESS.name()));
             return;
         }
 
         if (!inspection.charsetValid) {
             result.setSuccess(false);
-            result.setMessage("测试失败：数据库默认编码必须为 utf8mb4，当前为 " + StringUtils.defaultIfBlank(inspection.databaseCharset, "未知"));
+            result.setMessageType("error");
+            result.setMessage(RdpI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_CHARSET_INVALID.name(), StringUtils.defaultIfBlank(inspection.databaseCharset, "unknown")));
             return;
         }
 
         result.setSuccess(true);
-        if (inspection.tableCount > 0) {
-            result.setMessage("连接成功：检测到数据库已有数据");
-        } else {
-            result.setMessage("连接成功");
+        if (inspection.empty) {
+            result.setCanProceed(true);
+            result.setMessageType("success");
+            result.setMessage(RdpI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_SUCCESS.name()));
+            return;
         }
+
+        result.setShowRebuildChoice(true);
+        result.setRebuildPrompt(RdpI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_REBUILD_PROMPT.name()));
+
+        if (!"true".equals(rebuildIfNotEmpty) && !"false".equals(rebuildIfNotEmpty)) {
+            return;
+        }
+
+        result.setMessageType("warning");
+        if ("false".equals(rebuildIfNotEmpty)) {
+            result.setCanProceed(true);
+            result.setMessage(RdpI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_USE_EXISTING_WARNING.name()));
+            return;
+        }
+
+        result.setMessage(RdpI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_REBUILD_WARNING.name()));
+        result.setRequireConfirmInput(true);
+        result.setConfirmInputLabel(RdpI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_REBUILD_CONFIRM_LABEL.name()));
+        result.setConfirmInputExpectedValue(inspection.databaseName);
+        result.setCanProceed(inspection.databaseName.equals(confirmDatabaseName == null ? "" : confirmDatabaseName.trim()));
     }
 
     private void prepareDatabase(String jdbcUrl, String username, String password, boolean createIfMissing, boolean rebuildIfNotEmpty) throws SQLException {
@@ -328,6 +386,7 @@ public class SysInitService {
             if (!createIfMissing) {
                 throw new IllegalStateException("目标数据库不存在，请先测试连接并确认自动创建数据库");
             }
+            log.info("[SysInitService] Target database does not exist, creating database {}", inspection.databaseName);
             createDatabase(inspection.serverJdbcUrl, username, password, inspection.databaseName);
             return;
         }
@@ -336,9 +395,18 @@ public class SysInitService {
             throw new IllegalStateException("目标数据库默认编码必须为 utf8mb4，当前为 " + StringUtils.defaultIfBlank(inspection.databaseCharset, "未知"));
         }
 
-        if (!inspection.empty && rebuildIfNotEmpty) {
-            recreateDatabase(inspection.serverJdbcUrl, username, password, inspection.databaseName);
+        if (inspection.empty) {
+            log.info("[SysInitService] Target database {} exists and is empty, proceeding with Flyway initialization", inspection.databaseName);
+            return;
         }
+
+        if (!inspection.empty && rebuildIfNotEmpty) {
+            log.info("[SysInitService] Target database {} exists and will be rebuilt before Flyway initialization", inspection.databaseName);
+            recreateDatabase(inspection.serverJdbcUrl, username, password, inspection.databaseName);
+            return;
+        }
+
+        log.info("[SysInitService] Target database {} exists with data, keeping existing schema and proceeding with migration/fix tasks", inspection.databaseName);
     }
 
     private DatabaseInspection inspectDatabase(String jdbcUrl, String username, String password, boolean verifyTargetConnection) throws SQLException {
@@ -463,8 +531,7 @@ public class SysInitService {
      */
     public void scheduleRestart() {
         try {
-            Path restartFlag = Paths.get(System.getProperty("user.dir"), "config", ".restarting");
-            Files.createDirectories(restartFlag.getParent());
+            Path restartFlag = ensureAppHomeConfigPath(".restarting");
             Files.write(restartFlag, String.valueOf(System.currentTimeMillis()).getBytes(StandardCharsets.UTF_8));
             log.info("[SysInitService] Restart flag written: {}", restartFlag);
         } catch (IOException e) {
@@ -478,6 +545,12 @@ public class SysInitService {
             }
             System.exit(0);
         }, "restart-thread").start();
+    }
+
+    private Path ensureAppHomeConfigPath(String configName) throws IOException {
+        Path configPath = Paths.get(GlobalConfUtils.getAppHome(), "conf", configName);
+        Files.createDirectories(configPath.getParent());
+        return configPath;
     }
 
     private static class DatabaseInspection {

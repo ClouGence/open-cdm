@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
+import com.clougence.clouddm.console.web.constants.SystemStatus;
 import com.clougence.clouddm.console.web.model.vo.GlobalSettingsVO;
 import com.clougence.clouddm.console.web.model.vo.SystemStatusVO;
 import com.clougence.clouddm.init.model.SystemStatusResult;
@@ -30,9 +31,11 @@ public class InitHomeController {
     public ResWebData<?> dmGlobalSettings() {
         SystemStatusVO statusVO = new SystemStatusVO();
         SystemStatusResult dbStatus = InitDBStatusDetector.detectDBStatus(this.defService.loadSystemProperties());
-        if (dbStatus.getStatus() != null) {
-            statusVO.setStatus(dbStatus.getStatus());
-        }
+
+        // While the init application is running, the frontend should never treat this
+        // endpoint as the full application becoming ready. Ready is only reported by
+        // the normal console application after the process restarts into full mode.
+        statusVO.setStatus(SystemStatus.Initial);
         statusVO.setInitReason(dbStatus.getInitReason());
         statusVO.setDbError(dbStatus.getDbError());
 

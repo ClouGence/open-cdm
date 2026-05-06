@@ -19,3 +19,7 @@ dependencies {
 
 description = 'ds-selectdb'
 
+tasks.named('customFatJar') {
+    dependsOn(':ds-doris:customFatJar')
+}
+

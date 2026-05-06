@@ -249,7 +249,7 @@ import DmFooter from '@/components/DmFooter';
 import DmLogoHeader from '@/components/DmLogoHeader';
 import { ACCOUNT_TYPE, AUTH_TYPE_I18N, LOGIN_TYPE } from '@/const';
 import { mapGetters, mapState, mapActions } from 'vuex';
-import { UPDATE_DM_GLOBAL_SETTING, UPDATE_GLOBAL_SETTING } from '@/store/mutationTypes';
+import { UPDATE_DM_GLOBAL_SETTING, UPDATE_GLOBAL_SETTING, UPDATE_PUBLIC_KEY } from '@/store/mutationTypes';
 import { encryptMixin } from '@/mixins/encryptMixin';
 import { isNumber } from '@/components/util';
 import { filterGlobalSettingByBuild } from '@/utils/product';
@@ -346,6 +346,24 @@ export default {
   },
   methods: {
     ...mapActions(['getUserInfo']),
+    async ensurePublicKeyLoaded() {
+      if (this.publicKey) {
+        return true;
+      }
+
+      try {
+        const publicKeyRes = await this.$services.getPublicKey({ modal: false });
+        if (publicKeyRes.success && publicKeyRes.data) {
+          this.$store.commit(UPDATE_PUBLIC_KEY, publicKeyRes.data);
+          return true;
+        }
+      } catch (error) {
+        console.error('Failed to load public key', error);
+      }
+
+      this.errMsg = this.$t('xi-tong-yi-chang-qing-lian-xi-guan-li-yuan');
+      return false;
+    },
     resolveRedirectUrl() {
       if (this.defaultRedirectUrl) {
         return this.defaultRedirectUrl;
@@ -434,6 +452,11 @@ export default {
       } else {
         if (!this.loginForm.password) {
           this.errMsg = this.$t('mi-ma-bu-neng-wei-kong');
+          return;
+        }
+
+        const publicKeyReady = await this.ensurePublicKeyLoaded();
+        if (!publicKeyReady) {
           return;
         }
       }
@@ -594,6 +617,7 @@ export default {
     }
   },
   created() {
+    this.ensurePublicKeyLoaded();
     this.getGlobalSettings();
   }
 };

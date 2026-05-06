@@ -1,6 +1,5 @@
 <template>
   <div class="step-connectivity">
-    <h3>{{ $t('initialization.step.connectivity') }}</h3>
     <a-form layout="horizontal" class="step-connectivity-form">
       <a-form-item v-for="field in fieldDefs" :key="field.propertyKey" :label="field.label" :required="field.required">
         <a-input
@@ -45,9 +44,6 @@ export default {
 </script>
 
 <style scoped>
-.step-connectivity h3 {
-  margin-bottom: 24px;
-}
 .step-connectivity-form :deep(.ant-form-item) {
   display: flex;
   align-items: flex-start;

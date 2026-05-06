@@ -11,7 +11,7 @@ plugins {
 
 repositories {
     mavenLocal()
-    maven { url 'https://maven.aliyun.com/repository/public/' }
+    maven { url = 'https://maven.aliyun.com/repository/public/' }
     mavenCentral()
 }
 
@@ -20,8 +20,6 @@ try (FileInputStream fis = new FileInputStream(new File(rootDir, "gradle.propert
     globalConfig.load(fis)
 }
 
-def configuredJavaVersion = JavaVersion.toVersion(globalConfig.getProperty("cg.lib.java.version"))
-def configuredJavaLanguageVersion = JavaLanguageVersion.of(Integer.parseInt(globalConfig.getProperty("cg.lib.java.version")))
 
 ext {
     ANTLR_VERSION = globalConfig.getProperty("cg.lib.antlr.version")
@@ -51,8 +49,6 @@ ext {
 
 group = 'com.cdmgr'
 version = globalConfig.getProperty("cg.clouddm.main.version")
-java.sourceCompatibility = configuredJavaVersion
-java.targetCompatibility = configuredJavaVersion
 
 dependencies {
     compileOnly "org.slf4j:slf4j-api:${SLF4J_VERSION}"
@@ -60,13 +56,13 @@ dependencies {
     compileOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.4"
 
     // lombok
-    compileOnly 'org.projectlombok:lombok:1.18.30'
-    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    compileOnly 'org.projectlombok:lombok:1.18.46'
+    annotationProcessor 'org.projectlombok:lombok:1.18.46'
 
     // test
     testImplementation 'junit:junit:4.12'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
-    testCompileOnly 'org.projectlombok:lombok:1.18.30'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.46'
+    testCompileOnly 'org.projectlombok:lombok:1.18.46'
 }
 
 configurations {
@@ -77,11 +73,12 @@ configurations {
 
 java {
     withSourcesJar()
-    sourceCompatibility = configuredJavaVersion
-    targetCompatibility = configuredJavaVersion
-    toolchain {
-        languageVersion = configuredJavaLanguageVersion
-    }
+    sourceCompatibility = 21
+    targetCompatibility = 21
+}
+
+tasks.matching { it.name == 'sourcesJar' }.configureEach {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 publishing {

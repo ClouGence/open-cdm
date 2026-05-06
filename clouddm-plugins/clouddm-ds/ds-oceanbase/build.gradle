@@ -26,6 +26,10 @@ dependencies {
 
 description = 'ds-oceanbase'
 
+tasks.named('customFatJar') {
+    dependsOn(':ds-oracle:customFatJar')
+}
+
 tasks.named('generateGrammarSource').configure {
     enabled = false
 }

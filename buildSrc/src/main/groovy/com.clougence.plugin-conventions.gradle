@@ -12,7 +12,7 @@ plugins {
 
 repositories {
     mavenLocal()
-    maven { url 'https://maven.aliyun.com/repository/public/' }
+    maven { url = 'https://maven.aliyun.com/repository/public/' }
     mavenCentral()
 }
 
@@ -20,9 +20,6 @@ Properties globalConfig = new Properties()
 try (FileInputStream fis = new FileInputStream(new File(rootDir, "gradle.properties"))) {
     globalConfig.load(fis)
 }
-
-def configuredJavaVersion = JavaVersion.toVersion(globalConfig.getProperty("cg.lib.java.version"))
-def configuredJavaLanguageVersion = JavaLanguageVersion.of(Integer.parseInt(globalConfig.getProperty("cg.lib.java.version")))
 
 ext {
     ANTLR_VERSION = globalConfig.getProperty("cg.lib.antlr.version")
@@ -53,25 +50,21 @@ dependencies {
     compileOnly project(':cgdm-share-libs')
 
     // lombok
-    compileOnly 'org.projectlombok:lombok:1.18.30'
-    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    compileOnly 'org.projectlombok:lombok:1.18.46'
+    annotationProcessor 'org.projectlombok:lombok:1.18.46'
 
     // test
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
-    testCompileOnly 'org.projectlombok:lombok:1.18.30'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.46'
+    testCompileOnly 'org.projectlombok:lombok:1.18.46'
     testImplementation 'junit:junit:4.12'
 }
 
 group = 'com.cdmgr'
 version = 'lib'
-//java.sourceCompatibility = JavaVersion.VERSION_19
-java.sourceCompatibility = configuredJavaVersion
-java.targetCompatibility = configuredJavaVersion
 
 java {
-    toolchain {
-        languageVersion = configuredJavaLanguageVersion
-    }
+    sourceCompatibility = 21
+    targetCompatibility = 21
 }
 
 task customFatJar(type: Jar, dependsOn: jar) {

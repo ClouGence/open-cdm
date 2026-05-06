@@ -3,6 +3,41 @@ plugins {
     id 'maven-publish'
 }
 
+def npmExecutableName = System.getProperty('os.name', '').toLowerCase().contains('windows') ? 'npm.cmd' : 'npm'
+def nodeExecutableName = System.getProperty('os.name', '').toLowerCase().contains('windows') ? 'node.exe' : 'node'
+
+def resolveNodeBinDir = {
+    String envNvmBin = System.getenv('NVM_BIN')
+    if (envNvmBin) {
+        File envBinDir = file(envNvmBin)
+        if (new File(envBinDir, npmExecutableName).exists() && new File(envBinDir, nodeExecutableName).exists()) {
+            return envBinDir
+        }
+    }
+
+    File nvmVersionsDir = new File(System.getProperty('user.home'), '.nvm/versions/node')
+    if (nvmVersionsDir.isDirectory()) {
+        List<File> versionDirs = (nvmVersionsDir.listFiles() ?: [])
+            .findAll { it.isDirectory() }
+            .sort { a, b -> b.name <=> a.name }
+
+        File nvmBinDir = versionDirs
+            .collect { new File(it, 'bin') }
+            .find { new File(it, npmExecutableName).exists() && new File(it, nodeExecutableName).exists() }
+
+        if (nvmBinDir) {
+            return nvmBinDir
+        }
+    }
+
+    List<File> fallbackBinDirs = ['/opt/homebrew/bin', '/usr/local/bin', '/usr/bin'].collect { new File(it) }
+    return fallbackBinDirs.find { it.isDirectory() && new File(it, npmExecutableName).exists() && new File(it, nodeExecutableName).exists() }
+}
+
+def nodeBinDir = resolveNodeBinDir()
+def npmCommand = nodeBinDir ? new File(nodeBinDir, npmExecutableName).absolutePath : npmExecutableName
+def taskPath = nodeBinDir ? "${nodeBinDir.absolutePath}${File.pathSeparator}${System.getenv('PATH') ?: ''}" : (System.getenv('PATH') ?: '')
+
 sourceSets {
     main {
         resources {
@@ -18,22 +53,17 @@ try (FileInputStream fis = new FileInputStream(new File(rootDir, "gradle.propert
 
 description = 'cgdm-web'
 
-def configuredJavaVersion = JavaVersion.toVersion(globalConfig.getProperty("cg.lib.java.version"))
-def configuredJavaLanguageVersion = JavaLanguageVersion.of(Integer.parseInt(globalConfig.getProperty("cg.lib.java.version")))
-
 // This module contains only static web resources — no Java source.
 // Declare the lowest compatibility so any Java consumer can resolve it.
 java {
-    sourceCompatibility = configuredJavaVersion
-    targetCompatibility = configuredJavaVersion
-    toolchain {
-        languageVersion = configuredJavaLanguageVersion
-    }
+    sourceCompatibility = 21
+    targetCompatibility = 21
 }
 
 tasks.register('npmInstall', Exec) {
     workingDir projectDir
-    commandLine 'npm', 'install'
+    commandLine npmCommand, 'install'
+    environment 'PATH', taskPath
     inputs.file("${projectDir}/package.json")
     File packageLockFile = file("${projectDir}/package-lock.json")
     if (packageLockFile.exists()) {
@@ -44,7 +74,8 @@ tasks.register('npmInstall', Exec) {
 
 tasks.register('npmBuild', Exec) {
     workingDir projectDir
-    commandLine 'npm', 'run', 'build:release'
+    commandLine npmCommand, 'run', 'build:release'
+    environment 'PATH', taskPath
     inputs.dir("${projectDir}/src")
     inputs.file("${projectDir}/vue.config.js")
     outputs.dir("${projectDir}/dist")

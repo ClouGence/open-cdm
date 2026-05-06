@@ -1,6 +1,5 @@
 <template>
   <div class="step-security">
-    <h3>{{ $t('initialization.step.security') }}</h3>
     <a-form layout="horizontal" class="step-security-form">
       <a-form-item v-for="field in fieldDefs" :key="field.propertyKey" :label="field.label" :required="field.required">
         <a-input
@@ -23,17 +22,51 @@
           @input="(value) => onChange(field.propertyKey, normalizeInputValue(value))"
           :placeholder="field.description"
         />
+        <a-button
+          v-if="field.propertyKey === 'clougence.init.admin.password'"
+          class="security-generate-button"
+          size="small"
+          type="link"
+          @click="generateAdminPassword"
+        >
+          {{ $t('initialization.generate') }}
+        </a-button>
       </a-form-item>
     </a-form>
   </div>
 </template>
 
 <script>
+function shuffleCharacters(chars) {
+  const values = [...chars];
+  for (let index = values.length - 1; index > 0; index--) {
+    const target = Math.floor(Math.random() * (index + 1));
+    [values[index], values[target]] = [values[target], values[index]];
+  }
+  return values.join('');
+}
+
 export default {
   name: 'StepSecurity',
   props: {
     fieldDefs: { type: Array, default: () => [] },
     formValues: { type: Object, default: () => ({}) }
+  },
+  computed: {
+    missingRequiredFields() {
+      return this.fieldDefs
+        .filter((field) => field.required)
+        .filter((field) => !(this.formValues[field.propertyKey] || '').trim())
+        .map((field) => field.label);
+    }
+  },
+  watch: {
+    missingRequiredFields: {
+      immediate: true,
+      handler(value) {
+        this.$emit('validation-change', value);
+      }
+    }
   },
   methods: {
     normalizeInputValue(payload) {
@@ -52,15 +85,33 @@ export default {
         result += chars.charAt(Math.floor(Math.random() * chars.length));
       }
       this.$emit('update:formValues', { 'jwt.secret': result });
+    },
+    generateAdminPassword() {
+      const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const lower = 'abcdefghijklmnopqrstuvwxyz';
+      const digits = '0123456789';
+      const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+      const allChars = upper + lower + digits + symbols;
+      const passwordChars = [
+        upper.charAt(Math.floor(Math.random() * upper.length)),
+        lower.charAt(Math.floor(Math.random() * lower.length)),
+        digits.charAt(Math.floor(Math.random() * digits.length)),
+        symbols.charAt(Math.floor(Math.random() * symbols.length))
+      ];
+
+      while (passwordChars.length < 16) {
+        passwordChars.push(allChars.charAt(Math.floor(Math.random() * allChars.length)));
+      }
+
+      this.$emit('update:formValues', {
+        'clougence.init.admin.password': shuffleCharacters(passwordChars)
+      });
     }
   }
 };
 </script>
 
 <style scoped>
-.step-security h3 {
-  margin-bottom: 24px;
-}
 .step-security-form :deep(.ant-form-item) {
   display: flex;
   align-items: flex-start;
@@ -102,5 +153,9 @@ export default {
 }
 .security-full-width-control {
   width: 100%;
+}
+.security-generate-button {
+  margin-top: 4px;
+  padding-left: 0;
 }
 </style>

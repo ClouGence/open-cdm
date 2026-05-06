@@ -1,6 +1,5 @@
 package com.clougence.clouddm.init.controller;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -45,16 +44,6 @@ public class InitController {
     }
 
     /**
-     * 获取原始配置文件内容（供高级选项编辑）。
-     */
-    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    @RequestMapping(value = "/rawConfig", method = { RequestMethod.POST })
-    public ResWebData<?> rawConfig() throws IOException {
-        String content = this.defService.readRawConfigFile();
-        return ResWebDataUtils.buildSuccess(content);
-    }
-
-    /**
      * 测试数据库连接 + 空库检测 + 已安装检测。
      */
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
@@ -63,7 +52,9 @@ public class InitController {
         String jdbcUrl = params.get("spring.datasource.jdbcurl");
         String username = params.get("spring.datasource.username");
         String password = params.get("spring.datasource.password");
-        TestDbResult result = initService.testDbConnection(jdbcUrl, username, password);
+        String rebuildIfNotEmpty = params.get("clougence.init.db.rebuildIfNotEmpty");
+        String confirmDatabaseName = params.get("clougence.init.db.confirmDatabaseName");
+        TestDbResult result = initService.testDbConnection(jdbcUrl, username, password, rebuildIfNotEmpty, confirmDatabaseName);
         return ResWebDataUtils.buildSuccess(result);
     }
 

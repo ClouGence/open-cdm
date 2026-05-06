@@ -1,6 +1,5 @@
 <template>
   <div class="step-db">
-    <h3>{{ $t('initialization.step.db') }}</h3>
     <a-form layout="horizontal" class="step-db-form">
       <div v-if="jdbcUrlField" class="jdbc-generated-editor">
         <a-form-item :label="$t('initialization.jdbcDataSourceType')" required>
@@ -51,19 +50,29 @@
             :value="generatedState.database"
             :placeholder="$t('initialization.jdbcDatabasePlaceholder')"
             @input="(value) => onGeneratedFieldChange('database', normalizeInputValue(value))"
-          />
+          >
+            <template v-if="databaseStatusIndicator" #suffix>
+              <span class="jdbc-database-status" :class="`jdbc-database-status-${databaseStatusIndicator.type}`">
+                <PlusOutlined v-if="databaseStatusIndicator.type === 'new'" />
+                <CheckCircleOutlined v-else />
+                <span>{{ databaseStatusIndicator.label }}</span>
+              </span>
+            </template>
+          </a-input>
         </a-form-item>
 
         <a-form-item v-if="showRebuildChoice" :label="$t('initialization.dbRebuildLabel')" required class="jdbc-form-item-full">
           <div class="db-rebuild-option">
-            <div class="db-rebuild-text">{{ $t('initialization.dbRebuildPrompt') }}</div>
-            <a-radio-group
-              :value="formValues['clougence.init.db.rebuildIfNotEmpty'] || ''"
-              @change="(e) => onChange('clougence.init.db.rebuildIfNotEmpty', e.target.value)"
-            >
-              <a-radio :value="'true'">{{ $t('initialization.optionYes') }}</a-radio>
-              <a-radio :value="'false'">{{ $t('initialization.optionNo') }}</a-radio>
-            </a-radio-group>
+            <div class="db-rebuild-line">
+              <div class="db-rebuild-text">{{ dbTestResult.rebuildPrompt }}</div>
+              <a-radio-group
+                :value="formValues['clougence.init.db.rebuildIfNotEmpty'] || ''"
+                @change="(e) => onChange('clougence.init.db.rebuildIfNotEmpty', e.target.value)"
+              >
+                <a-radio :value="'true'">{{ $t('initialization.optionYes') }}</a-radio>
+                <a-radio :value="'false'">{{ $t('initialization.optionNo') }}</a-radio>
+              </a-radio-group>
+            </div>
           </div>
         </a-form-item>
       </div>
@@ -94,6 +103,8 @@
 </template>
 
 <script>
+import { CheckCircleOutlined, PlusOutlined } from '@ant-design/icons-vue';
+
 const DEFAULT_GENERATED_STATE = Object.freeze({
   host: '127.0.0.1',
   port: '3306',
@@ -129,10 +140,6 @@ function getInputValue(payload) {
     return payload.target ? payload.target.value : '';
   }
   return payload;
-}
-
-function isDatabaseEmpty(result) {
-  return Boolean(result && (result.empty || result.isEmpty));
 }
 
 function parseMysqlJdbcUrl(jdbcUrl) {
@@ -274,6 +281,10 @@ function parseJdbcParamsText(text) {
 
 export default {
   name: 'StepDb',
+  components: {
+    CheckCircleOutlined,
+    PlusOutlined
+  },
   props: {
     fieldDefs: { type: Array, default: () => [] },
     formValues: { type: Object, default: () => ({}) },
@@ -302,13 +313,24 @@ export default {
       return this.formValues['spring.datasource.jdbcurl'] || '';
     },
     showRebuildChoice() {
-      return Boolean(
-        this.dbTestResult &&
-          this.dbTestResult.success &&
-          this.dbTestResult.databaseExists &&
-          !isDatabaseEmpty(this.dbTestResult) &&
-          this.dbTestResult.charsetValid
-      );
+      return Boolean(this.dbTestResult && this.dbTestResult.showRebuildChoice);
+    },
+    databaseStatusIndicator() {
+      if (!this.dbTestResult || !this.dbTestResult.success || !this.generatedState.database) {
+        return null;
+      }
+
+      if (this.dbTestResult.databaseExists) {
+        return {
+          type: 'existing',
+          label: this.$t('initialization.jdbcDatabaseExists')
+        };
+      }
+
+      return {
+        type: 'new',
+        label: this.$t('initialization.jdbcDatabaseCreate')
+      };
     },
     missingRequiredFields() {
       const missingFields = [];
@@ -383,9 +405,6 @@ export default {
 </script>
 
 <style scoped>
-.step-db h3 {
-  margin-bottom: 24px;
-}
 .step-db-form :deep(.ant-form-item) {
   display: flex;
   align-items: flex-start;
@@ -470,13 +489,34 @@ export default {
 .jdbc-full-width-control :deep(.ant-input-password) {
   width: 100%;
 }
+.jdbc-database-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.jdbc-database-status-new {
+  color: #389e0d;
+}
+.jdbc-database-status-existing {
+  color: #1677ff;
+}
 .db-rebuild-option {
+  width: 100%;
+}
+.db-rebuild-line {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  flex-wrap: wrap;
 }
 .db-rebuild-text {
+  flex: 1;
+  min-width: 0;
   color: rgba(0, 0, 0, 0.85);
   line-height: 22px;
 }

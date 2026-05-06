@@ -24,8 +24,6 @@ public class OracleTypes {
     public static final int TIME              = Types.TIME;
     public static final int TIMESTAMP         = Types.TIMESTAMP;
     public static final int PLSQL_BOOLEAN     = 252;
-    /** @deprecated */
-    public static final int TIMESTAMPNS       = -100;
     public static final int TIMESTAMPTZ       = -101;
     public static final int TIMESTAMPLTZ      = -102;
     public static final int INTERVALYM        = -103;

@@ -32,7 +32,7 @@ public class GlobalMeta {
 
     public <T extends Spi> List<T> findSpi(Class<T> spiType) {
         Map<String, Spi> spiGroup = spiMap.get(spiType);
-        return spiGroup.values().stream().map(spi -> (T) spi).collect(Collectors.toList());
+        return spiGroup == null ? Collections.emptyList() : spiGroup.values().stream().map(spi -> (T) spi).collect(Collectors.toList());
     }
 
     public List<String> getSpiNamesByType(Class<? extends Spi> spiType) {
