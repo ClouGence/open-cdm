@@ -83,7 +83,7 @@ public abstract class AdapterConnection implements Closeable {
 
     public final <T> T unwrap(Class<T> iface, Object target) throws SQLException {
         if (iface.isInstance(target)) {
-            return (T) target;
+            return iface.cast(target);
         }
 
         // find JdbcConnection.
@@ -122,15 +122,15 @@ public abstract class AdapterConnection implements Closeable {
 
         //
         if (TransactionSupport.class.isAssignableFrom(iface)) {
-            return (T) jdbcConn.txSupport();
+            return iface.cast(jdbcConn.txSupport());
         } else if (TypeSupport.class.isAssignableFrom(iface)) {
-            return (T) jdbcConn.typeSupport();
+            return iface.cast(jdbcConn.typeSupport());
         } else if (Connection.class.isAssignableFrom(iface)) {
-            return (T) jdbcConn;
+            return iface.cast(jdbcConn);
         } else if (Statement.class.isAssignableFrom(iface)) {
-            return (T) jdbcStatement;
+            return iface.cast(jdbcStatement);
         } else if (ResultSet.class.isAssignableFrom(iface)) {
-            return (T) jdbcResultSet;
+            return iface.cast(jdbcResultSet);
         } else {
             return this.unwrap(iface);
         }

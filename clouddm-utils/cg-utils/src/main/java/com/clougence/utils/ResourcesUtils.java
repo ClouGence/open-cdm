@@ -22,6 +22,7 @@ import java.net.JarURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.jar.JarFile;
@@ -213,7 +214,7 @@ public abstract class ResourcesUtils {
                 //JAR文件
                 JarFile jar = ((JarURLConnection) resourceURL.openConnection()).getJarFile();
                 String jarFile = jar.getName().replace("\\", "/");
-                String resourcePath = URLDecoder.decode(resourceURL.getPath(), "utf-8");
+                String resourcePath = URLDecoder.decode(resourceURL.getPath(), StandardCharsets.UTF_8);
                 int beginIndex = resourcePath.indexOf(jarFile) + jarFile.length();
                 String entPath = resourcePath.substring(beginIndex + 2);
                 ZipEntry e = jar.getEntry(entPath);
