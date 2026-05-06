@@ -37,7 +37,7 @@
             :formValues="formValues"
             :dbTestResult="dbTestResult"
             @update:formValues="updateFormValues"
-            @testDb="handleTestDb"
+            @validation-change="handleDbValidationChange"
           />
         </div>
 
@@ -56,6 +56,7 @@
           <StepConfirm
             :fieldDefs="fieldDefs"
             :formValues="formValues"
+            :dbTestResult="dbTestResult"
             :mode="mode"
             :advancedMode="advancedMode"
             :rawContent="rawContent"
@@ -68,8 +69,14 @@
       </div>
 
       <div class="wizard-footer">
-        <a-button v-if="currentStep > 0" @click="prevStep">{{ $t('initialization.prev') }}</a-button>
-        <a-button v-if="!isConfirmStep" type="primary" :disabled="!canNext" @click="nextStep">{{ $t('initialization.next') }}</a-button>
+        <div v-if="currentStep === 0 && dbFooterMessage" class="wizard-footer-message" :class="dbFooterMessage.type">
+          {{ dbFooterMessage.message }}
+        </div>
+        <div class="wizard-footer-actions">
+          <a-button v-if="currentStep > 0" @click="prevStep">{{ $t('initialization.prev') }}</a-button>
+          <a-button v-if="currentStep === 0" @click="handleTestDb">{{ $t('initialization.testConnection') }}</a-button>
+          <a-button v-if="!isConfirmStep" type="primary" :disabled="!canNext" @click="nextStep">{{ $t('initialization.next') }}</a-button>
+        </div>
       </div>
     </div>
   </div>
@@ -82,6 +89,17 @@ import StepConnectivity from './StepConnectivity.vue';
 import StepConfirm from './StepConfirm.vue';
 import { getDmSystemStatus, isDmSystemReady } from '../../utils/dmGlobalSettings';
 
+const INIT_DB_CREATE_IF_MISSING = 'clougence.init.db.createIfMissing';
+const INIT_DB_REBUILD_IF_NOT_EMPTY = 'clougence.init.db.rebuildIfNotEmpty';
+
+function hasDbFieldChange(patch) {
+  return Object.keys(patch).some((key) => key.startsWith('spring.datasource.'));
+}
+
+function isDatabaseEmpty(result) {
+  return Boolean(result && (result.empty || result.isEmpty));
+}
+
 export default {
   name: 'Initialization',
   components: { StepDb, StepSecurity, StepConnectivity, StepConfirm },
@@ -92,6 +110,7 @@ export default {
       fieldDefs: [],
       formValues: {},
       dbTestResult: null,
+      dbMissingFields: [],
       currentStep: 0,
       advancedMode: false,
       rawContent: '',
@@ -112,9 +131,60 @@ export default {
       const maxStep = this.mode === 'full' ? 3 : 1;
       return this.currentStep >= maxStep;
     },
+    dbNeedsRebuildChoice() {
+      return Boolean(
+        this.dbTestResult &&
+          this.dbTestResult.success &&
+          this.dbTestResult.databaseExists &&
+          !isDatabaseEmpty(this.dbTestResult) &&
+          this.dbTestResult.charsetValid
+      );
+    },
+    dbRebuildChoiceMissing() {
+      if (!this.dbNeedsRebuildChoice) {
+        return false;
+      }
+      return !['true', 'false'].includes(this.formValues[INIT_DB_REBUILD_IF_NOT_EMPTY]);
+    },
+    dbFooterMessage() {
+      if (this.currentStep !== 0) {
+        return null;
+      }
+
+      if (this.dbMissingFields.length) {
+        return {
+          type: 'error',
+          message: `${this.$t('initialization.dbFormIncomplete')}：${this.dbMissingFields.join('、')}`
+        };
+      }
+
+      if (this.dbRebuildChoiceMissing) {
+        return {
+          type: 'error',
+          message: this.$t('initialization.dbRebuildChoiceRequired')
+        };
+      }
+
+      if (!this.dbTestResult) {
+        return null;
+      }
+
+      const extraMessages = [];
+      if (this.dbTestResult.success && isDatabaseEmpty(this.dbTestResult)) {
+        extraMessages.push(this.$t('initialization.dbEmpty'));
+      }
+      if (this.dbTestResult.success && this.dbTestResult.isInstalled) {
+        extraMessages.push(this.$t('initialization.dbInstalled'));
+      }
+
+      return {
+        type: this.dbTestResult.success ? 'success' : 'error',
+        message: [this.dbTestResult.message, ...extraMessages].filter(Boolean).join(' - ')
+      };
+    },
     canNext() {
       if (this.currentStep === 0) {
-        return this.dbTestResult && this.dbTestResult.success;
+        return !this.dbMissingFields.length && !this.dbRebuildChoiceMissing && this.dbTestResult && this.dbTestResult.success;
       }
       return true;
     }
@@ -154,17 +224,38 @@ export default {
             values[f.propertyKey] = f.defaultValue || '';
           });
           this.formValues = values;
+          this.dbTestResult = null;
+          this.dbMissingFields = [];
         }
       } catch (e) {
         console.error('Failed to load field defs', e);
       }
     },
 
+    handleDbValidationChange(missingFields) {
+      this.dbMissingFields = missingFields;
+    },
+
     updateFormValues(patch) {
+      if (hasDbFieldChange(patch)) {
+        this.dbTestResult = null;
+        this.formValues = {
+          ...this.formValues,
+          ...patch,
+          [INIT_DB_CREATE_IF_MISSING]: 'false',
+          [INIT_DB_REBUILD_IF_NOT_EMPTY]: ''
+        };
+        return;
+      }
       this.formValues = { ...this.formValues, ...patch };
     },
 
     async handleTestDb() {
+      if (this.dbMissingFields.length) {
+        this.dbTestResult = null;
+        return;
+      }
+
       const params = {
         'spring.datasource.jdbcurl': this.formValues['spring.datasource.jdbcurl'],
         'spring.datasource.username': this.formValues['spring.datasource.username'],
@@ -174,6 +265,16 @@ export default {
         const res = await this.$services.dmInitTestDb({ data: params });
         if (res.success) {
           this.dbTestResult = res.data;
+          this.formValues = {
+            ...this.formValues,
+            [INIT_DB_CREATE_IF_MISSING]: res.data && res.data.createDatabase ? 'true' : 'false',
+            [INIT_DB_REBUILD_IF_NOT_EMPTY]:
+              res.data && res.data.databaseExists && !isDatabaseEmpty(res.data)
+                ? ['true', 'false'].includes(this.formValues[INIT_DB_REBUILD_IF_NOT_EMPTY])
+                  ? this.formValues[INIT_DB_REBUILD_IF_NOT_EMPTY]
+                  : ''
+                : 'false'
+          };
         }
       } catch (e) {
         console.error('Test DB failed', e);
@@ -217,7 +318,11 @@ export default {
     async handleApply() {
       this.applying = true;
       try {
-        const payload = this.advancedMode ? { rawContent: this.rawContent } : { ...this.formValues };
+        const dbActionPayload = {
+          [INIT_DB_CREATE_IF_MISSING]: this.formValues[INIT_DB_CREATE_IF_MISSING] || 'false',
+          [INIT_DB_REBUILD_IF_NOT_EMPTY]: this.formValues[INIT_DB_REBUILD_IF_NOT_EMPTY] || 'false'
+        };
+        const payload = this.advancedMode ? { rawContent: this.rawContent, ...dbActionPayload } : { ...this.formValues };
 
         const endpoint = this.mode === 'dbOnly' ? this.$services.dmInitUpdateDbConfig : this.$services.dmInitApplyConfig;
 
@@ -331,6 +436,30 @@ export default {
 .wizard-footer {
   margin-top: 24px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+}
+
+.wizard-footer-message {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  text-align: left;
+}
+
+.wizard-footer-message.success {
+  color: #52c41a;
+}
+
+.wizard-footer-message.error {
+  color: #ff4d4f;
+}
+
+.wizard-footer-actions {
+  margin-left: auto;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 </style>

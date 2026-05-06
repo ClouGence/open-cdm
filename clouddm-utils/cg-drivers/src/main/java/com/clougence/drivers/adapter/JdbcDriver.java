@@ -57,7 +57,11 @@ public class JdbcDriver implements java.sql.Driver {
 
     @Override
     public Connection connect(String url, Properties info) throws SQLException {
-        return new JdbcConnection(url, parseURL(url, info), classLoader);
+        Properties properties = parseURL(url, info);
+        if (properties == null) {
+            return null;
+        }
+        return new JdbcConnection(url, properties, classLoader);
     }
 
     @Override

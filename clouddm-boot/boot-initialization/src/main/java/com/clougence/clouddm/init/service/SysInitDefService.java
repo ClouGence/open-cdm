@@ -1,9 +1,12 @@
 package com.clougence.clouddm.init.service;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -121,6 +124,7 @@ public class SysInitDefService {
     /** 读取原始配置文件内容（供高级选项编辑）  */
     public String readRawConfigFile() throws IOException {
         String configName = isAloneMode() ? ALONE_CONFIG : CONSOLE_CONFIG;
+        String defaultConfigName = isAloneMode() ? DEFAULT_ALONE_CONFIG : DEFAULT_CONSOLE_CONFIG;
         URL resource = ResourcesUtils.getResource(configName);
         if (resource != null && "file".equals(resource.getProtocol())) {
             try {
@@ -129,8 +133,72 @@ public class SysInitDefService {
                 throw new IOException("Failed to read config file: " + configName, e);
             }
         }
-        // fallback: 通过 classpath stream 读取
-        return IOUtils.toString(ResourcesUtils.getResourceAsStream(configName), StandardCharsets.UTF_8);
+        // fallback: 优先读取主配置文件的 classpath 资源；若不存在，则回退到默认配置模板
+        String content = readClasspathResource(configName);
+        if (content != null) {
+            return content;
+        }
+
+        content = readClasspathResource(defaultConfigName);
+        if (content != null) {
+            return content;
+        }
+
+        content = readFileSystemResource(configName);
+        if (content != null) {
+            return content;
+        }
+
+        content = readFileSystemResource(defaultConfigName);
+        if (content != null) {
+            return content;
+        }
+
+        Properties runtimeProps = loadSystemProperties();
+        if (!runtimeProps.isEmpty()) {
+            return serializeProperties(runtimeProps);
+        }
+
+        throw new IOException("Config resource not found: " + configName + " or " + defaultConfigName);
+    }
+
+    private String readClasspathResource(String resourcePath) throws IOException {
+        try (InputStream inputStream = ResourcesUtils.getResourceAsStream(resourcePath)) {
+            if (inputStream == null) {
+                return null;
+            }
+            return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+        }
+    }
+
+    private String readFileSystemResource(String resourcePath) throws IOException {
+        for (Path candidate : getFileSystemCandidates(resourcePath)) {
+            if (Files.exists(candidate) && Files.isRegularFile(candidate)) {
+                return Files.readString(candidate, StandardCharsets.UTF_8);
+            }
+        }
+        return null;
+    }
+
+    private List<Path> getFileSystemCandidates(String resourcePath) {
+        Path workspaceRoot = Paths.get(System.getProperty("user.dir", ".")).toAbsolutePath().normalize();
+        List<Path> candidates = new ArrayList<>();
+
+        candidates.add(workspaceRoot.resolve(resourcePath));
+        candidates.add(workspaceRoot.resolve("clouddm-boot/boot-console/src/main/resources").resolve(resourcePath));
+        candidates.add(workspaceRoot.resolve("clouddm-boot/boot-alone/src/main/resources").resolve(resourcePath));
+        candidates.add(workspaceRoot.resolve("clouddm-server/src/main/resources").resolve(resourcePath));
+        candidates.add(workspaceRoot.resolve("package/pkg/console").resolve(resourcePath));
+        candidates.add(workspaceRoot.resolve("package/pkg/alone").resolve(resourcePath));
+
+        return candidates;
+    }
+
+    private String serializeProperties(Properties properties) throws IOException {
+        try (StringWriter writer = new StringWriter()) {
+            properties.store(writer, "Generated from runtime properties");
+            return writer.toString();
+        }
     }
 
     private boolean isAloneMode() { return "embedded".equals(System.getProperty("app.mode")); }

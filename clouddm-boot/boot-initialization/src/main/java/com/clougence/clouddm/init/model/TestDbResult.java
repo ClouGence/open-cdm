@@ -11,4 +11,8 @@ public class TestDbResult {
     private String  message;
     private boolean isEmpty;
     private boolean isInstalled;
+    private boolean databaseExists;
+    private boolean charsetValid;
+    private String  databaseCharset;
+    private boolean createDatabase;
 }

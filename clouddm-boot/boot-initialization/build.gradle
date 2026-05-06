@@ -8,13 +8,14 @@ plugins {
 }
 
 application {
-    mainClass = 'com.clougence.clouddm.init.boot.InitApplication'
+    mainClass = 'com.clougence.clouddm.init.InitApplication'
 }
 
 dependencies {
     // project
     implementation project(':cgdm-api')
     implementation project(':cgdm-console')
+    implementation project(':cgdm-web')
     implementation project(':cgdm-pluginloader')
     implementation project(':cgdm-plugin-sdk')
     implementation project(':cg-utils')

@@ -38,6 +38,7 @@ public class InitApplication implements WebMvcConfigurer {
         System.setProperty("server.port", "8222");
         System.setProperty("spring.config.name", "init");
         System.setProperty("spring.profiles.active", "init");
+        System.setProperty("spring.web.resources.static-locations", "classpath:/templates");
         System.setProperty("spring.autoconfigure.exclude", "org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,"
                                                            + "org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration,"
                                                            + "org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration,"

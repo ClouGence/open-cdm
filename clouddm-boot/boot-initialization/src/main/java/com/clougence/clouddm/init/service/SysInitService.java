@@ -43,6 +43,14 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class SysInitService {
 
+    private static final String INIT_DB_CREATE_IF_MISSING = "clougence.init.db.createIfMissing";
+    private static final String INIT_DB_REBUILD_IF_NOT_EMPTY = "clougence.init.db.rebuildIfNotEmpty";
+    private static final String REQUIRED_DB_CHARSET = "utf8mb4";
+    private static final String REQUIRED_DB_COLLATION = "utf8mb4_general_ci";
+    private static final String SCHEMA_EXISTS_SQL = "SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name = ?";
+    private static final String SCHEMA_CHARSET_SQL = "SELECT default_character_set_name FROM information_schema.schemata WHERE schema_name = ?";
+    private static final String TABLE_COUNT_SQL = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = ?";
+
     @Resource
     private SysInitDefService   defService;
     private static final String ALONE_CONFIG   = "alone.properties";
@@ -57,22 +65,16 @@ public class SysInitService {
      */
     public TestDbResult testDbConnection(String jdbcUrl, String username, String password) {
         TestDbResult result = new TestDbResult();
-        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
-            result.setSuccess(true);
-            result.setMessage("连接成功");
-
-            String dbName = InitDBStatusDetector.getDatabaseName(jdbcUrl);
-            try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='" + dbName + "'")) {
-                if (rs.next()) {
-                    int tableCount = rs.getInt(1);
-                    result.setEmpty(tableCount == 0);
-                    result.setInstalled(tableCount > 0);
-                }
-            }
-        } catch (SQLException e) {
+        try {
+            DatabaseInspection inspection = inspectDatabase(jdbcUrl, username, password, true);
+            applyInspectionResult(result, inspection);
+        } catch (Exception e) {
             result.setInstalled(false);
             result.setEmpty(false);
             result.setSuccess(false);
+            result.setDatabaseExists(false);
+            result.setCharsetValid(false);
+            result.setCreateDatabase(false);
             result.setMessage("连接失败: " + e.getMessage());
         }
         return result;
@@ -99,6 +101,12 @@ public class SysInitService {
         String dbPass = userConfig.getOrDefault("spring.datasource.password", props.getProperty("spring.datasource.password"));
         String adminEmail = userConfig.get("clougence.init.admin.email");
         String adminPassword = userConfig.get("clougence.init.admin.password");
+        boolean createIfMissing = Boolean.parseBoolean(userConfig.getOrDefault(INIT_DB_CREATE_IF_MISSING, "false"));
+        boolean rebuildIfNotEmpty = Boolean.parseBoolean(userConfig.getOrDefault(INIT_DB_REBUILD_IF_NOT_EMPTY, "false"));
+
+        if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser)) {
+            prepareDatabase(jdbcUrl, dbUser, dbPass, createIfMissing, rebuildIfNotEmpty);
+        }
 
         // 4. 执行 Flyway 迁移（通过 DmFlywayInit）
         if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser)) {
@@ -285,6 +293,156 @@ public class SysInitService {
         }
     }
 
+    private void applyInspectionResult(TestDbResult result, DatabaseInspection inspection) {
+        result.setDatabaseExists(inspection.databaseExists);
+        result.setCharsetValid(inspection.charsetValid);
+        result.setDatabaseCharset(inspection.databaseCharset);
+        result.setCreateDatabase(!inspection.databaseExists);
+        result.setEmpty(!inspection.databaseExists || inspection.tableCount == 0);
+        result.setInstalled(inspection.databaseExists && inspection.tableCount > 0);
+
+        if (!inspection.databaseExists) {
+            result.setSuccess(true);
+            result.setMessage("测试成功：数据库不存在，后续将自动创建并使用 utf8mb4 编码");
+            return;
+        }
+
+        if (!inspection.charsetValid) {
+            result.setSuccess(false);
+            result.setMessage("测试失败：数据库默认编码必须为 utf8mb4，当前为 " + StringUtils.defaultIfBlank(inspection.databaseCharset, "未知"));
+            return;
+        }
+
+        result.setSuccess(true);
+        if (inspection.tableCount > 0) {
+            result.setMessage("连接成功：检测到数据库已有数据");
+        } else {
+            result.setMessage("连接成功");
+        }
+    }
+
+    private void prepareDatabase(String jdbcUrl, String username, String password, boolean createIfMissing, boolean rebuildIfNotEmpty) throws SQLException {
+        DatabaseInspection inspection = inspectDatabase(jdbcUrl, username, password, false);
+
+        if (!inspection.databaseExists) {
+            if (!createIfMissing) {
+                throw new IllegalStateException("目标数据库不存在，请先测试连接并确认自动创建数据库");
+            }
+            createDatabase(inspection.serverJdbcUrl, username, password, inspection.databaseName);
+            return;
+        }
+
+        if (!inspection.charsetValid) {
+            throw new IllegalStateException("目标数据库默认编码必须为 utf8mb4，当前为 " + StringUtils.defaultIfBlank(inspection.databaseCharset, "未知"));
+        }
+
+        if (!inspection.empty && rebuildIfNotEmpty) {
+            recreateDatabase(inspection.serverJdbcUrl, username, password, inspection.databaseName);
+        }
+    }
+
+    private DatabaseInspection inspectDatabase(String jdbcUrl, String username, String password, boolean verifyTargetConnection) throws SQLException {
+        String databaseName = InitDBStatusDetector.getDatabaseName(jdbcUrl);
+        if (StringUtils.isBlank(databaseName)) {
+            throw new SQLException("JDBC URL 缺少数据库名");
+        }
+
+        DatabaseInspection inspection = new DatabaseInspection();
+        inspection.databaseName = databaseName;
+        inspection.serverJdbcUrl = buildServerJdbcUrl(jdbcUrl);
+
+        try (Connection serverConn = DriverManager.getConnection(inspection.serverJdbcUrl, username, password)) {
+            inspection.databaseExists = querySchemaExists(serverConn, databaseName);
+            if (!inspection.databaseExists) {
+                inspection.empty = true;
+                inspection.charsetValid = true;
+                inspection.databaseCharset = REQUIRED_DB_CHARSET;
+                return inspection;
+            }
+
+            inspection.databaseCharset = querySchemaCharset(serverConn, databaseName);
+            inspection.charsetValid = REQUIRED_DB_CHARSET.equalsIgnoreCase(inspection.databaseCharset);
+            if (!inspection.charsetValid) {
+                return inspection;
+            }
+
+            inspection.tableCount = queryTableCount(serverConn, databaseName);
+            inspection.empty = inspection.tableCount == 0;
+        }
+
+        if (verifyTargetConnection && inspection.databaseExists && inspection.charsetValid) {
+            try (Connection ignored = DriverManager.getConnection(jdbcUrl, username, password)) {
+                // 目标库连接可用即可。
+            }
+        }
+
+        return inspection;
+    }
+
+    private boolean querySchemaExists(Connection conn, String databaseName) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(SCHEMA_EXISTS_SQL)) {
+            stmt.setString(1, databaseName);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
+        }
+    }
+
+    private String querySchemaCharset(Connection conn, String databaseName) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(SCHEMA_CHARSET_SQL)) {
+            stmt.setString(1, databaseName);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() ? rs.getString(1) : null;
+            }
+        }
+    }
+
+    private int queryTableCount(Connection conn, String databaseName) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(TABLE_COUNT_SQL)) {
+            stmt.setString(1, databaseName);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
+
+    private void createDatabase(String serverJdbcUrl, String username, String password, String databaseName) throws SQLException {
+        executeDatabaseStatement(serverJdbcUrl, username, password,
+                "CREATE DATABASE `" + escapeMysqlIdentifier(databaseName) + "` DEFAULT CHARACTER SET " + REQUIRED_DB_CHARSET + " COLLATE " + REQUIRED_DB_COLLATION);
+    }
+
+    private void recreateDatabase(String serverJdbcUrl, String username, String password, String databaseName) throws SQLException {
+        String quotedName = "`" + escapeMysqlIdentifier(databaseName) + "`";
+        executeDatabaseStatement(serverJdbcUrl, username, password, "DROP DATABASE " + quotedName);
+        executeDatabaseStatement(serverJdbcUrl, username, password,
+                "CREATE DATABASE " + quotedName + " DEFAULT CHARACTER SET " + REQUIRED_DB_CHARSET + " COLLATE " + REQUIRED_DB_COLLATION);
+    }
+
+    private void executeDatabaseStatement(String serverJdbcUrl, String username, String password, String sql) throws SQLException {
+        try (Connection conn = DriverManager.getConnection(serverJdbcUrl, username, password); Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+        }
+    }
+
+    private String buildServerJdbcUrl(String jdbcUrl) throws SQLException {
+        if (StringUtils.isBlank(jdbcUrl)) {
+            throw new SQLException("JDBC URL 不能为空");
+        }
+
+        int queryIndex = jdbcUrl.indexOf('?');
+        String base = queryIndex >= 0 ? jdbcUrl.substring(0, queryIndex) : jdbcUrl;
+        String query = queryIndex >= 0 ? jdbcUrl.substring(queryIndex) : "";
+        int slashIndex = base.lastIndexOf('/');
+        if (slashIndex < 0 || slashIndex == base.length() - 1) {
+            throw new SQLException("JDBC URL 缺少数据库名");
+        }
+        return base.substring(0, slashIndex + 1) + query;
+    }
+
+    private String escapeMysqlIdentifier(String identifier) {
+        return identifier == null ? "" : identifier.replace("`", "``");
+    }
+
     private Properties buildTaskProperties(String jdbcUrl, String dbUser, String dbPass) {
         Properties props = this.defService.loadSystemProperties();
         props.setProperty("spring.datasource.url", jdbcUrl);
@@ -320,5 +478,16 @@ public class SysInitService {
             }
             System.exit(0);
         }, "restart-thread").start();
+    }
+
+    private static class DatabaseInspection {
+
+        private String  databaseName;
+        private String  serverJdbcUrl;
+        private String  databaseCharset;
+        private boolean databaseExists;
+        private boolean charsetValid;
+        private boolean empty;
+        private int     tableCount;
     }
 }

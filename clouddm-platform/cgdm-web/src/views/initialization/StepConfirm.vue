@@ -3,9 +3,9 @@
     <h3>{{ $t('initialization.step.confirm') }}</h3>
 
     <div class="summary-section">
-      <div v-for="field in fieldDefs" :key="field.propertyKey" class="summary-item">
-        <span class="summary-key">{{ field.propertyKey }}</span>
-        <span class="summary-value">{{ formValues[field.propertyKey] || '(empty)' }}</span>
+      <div v-for="item in summaryItems" :key="item.key" class="summary-item">
+        <span class="summary-key">{{ item.key }}</span>
+        <span class="summary-value">{{ item.value || '(empty)' }}</span>
       </div>
     </div>
 
@@ -33,17 +33,54 @@
 </template>
 
 <script>
+function isDatabaseEmpty(result) {
+  return Boolean(result && (result.empty || result.isEmpty));
+}
+
 export default {
   name: 'StepConfirm',
   props: {
     fieldDefs: { type: Array, default: () => [] },
     formValues: { type: Object, default: () => ({}) },
+    dbTestResult: { type: Object, default: null },
     mode: { type: String, default: 'full' },
     advancedMode: { type: Boolean, default: false },
     rawContent: { type: String, default: '' },
     applying: { type: Boolean, default: false }
   },
   emits: ['update:advancedMode', 'update:rawContent', 'apply'],
+  computed: {
+    summaryItems() {
+      const items = this.fieldDefs.map((field) => ({
+        key: field.propertyKey,
+        value: this.formValues[field.propertyKey] || ''
+      }));
+
+      if (this.formValues['clougence.init.db.createIfMissing'] === 'true') {
+        items.push({
+          key: this.$t('initialization.confirmCreateDatabase'),
+          value: this.$t('initialization.optionYes')
+        });
+      }
+
+      if (
+        this.dbTestResult &&
+        this.dbTestResult.databaseExists &&
+        !isDatabaseEmpty(this.dbTestResult) &&
+        ['true', 'false'].includes(this.formValues['clougence.init.db.rebuildIfNotEmpty'])
+      ) {
+        items.push({
+          key: this.$t('initialization.confirmRebuildDatabase'),
+          value:
+            this.formValues['clougence.init.db.rebuildIfNotEmpty'] === 'true'
+              ? this.$t('initialization.optionYes')
+              : this.$t('initialization.optionNo')
+        });
+      }
+
+      return items;
+    }
+  },
   methods: {
     async handleToggleAdvanced(checked) {
       if (checked) {
