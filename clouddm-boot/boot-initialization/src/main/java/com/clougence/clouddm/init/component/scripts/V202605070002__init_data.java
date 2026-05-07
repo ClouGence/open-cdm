@@ -16,6 +16,9 @@ import com.clougence.clouddm.init.constant.InitSeedConstants;
 import com.clougence.utils.ExceptionUtils;
 
 public class V202605070002__init_data extends BaseJavaMigration {
+
+    private static final long   ADMIN_ROLE_ID              = 1L;
+    private static final String ADMIN_ROLE_NAME            = "Manager";
     private static final String DEFAULT_PRIMARY_ACCESS_KEY = "ak0a2c62tdo1ap2416655mpyx0v36l359p1v5rn782caw8t0qkk1s94b80lfs90";
     private static final String DEFAULT_PRIMARY_SECRET_KEY = "sk6206iy4pb0eydz9hg97jo3tu5d80j97e91bbql65167u8wb75x4ej6e4v4aa4";
 
@@ -57,8 +60,16 @@ public class V202605070002__init_data extends BaseJavaMigration {
 
     private static final List<String> sqls = new ArrayList<>();
     static {
+        sqls.add(buildInitAdminRoleSql());
         sqls.add(buildInitPrimaryUserSql());
-        sqls.add("INSERT INTO `rdp_ds_env` (`id`,`gmt_create`,`gmt_modified`,`owner_uid`,`env_name`,`description`) values (1,now(),now(),'" + InitSeedConstants.ADMIN_UID + "','Default','Default Environment')");
+        sqls.add("INSERT INTO `rdp_ds_env` (`id`,`gmt_create`,`gmt_modified`,`owner_uid`,`env_name`,`description`) values (1,now(),now(),'" + InitSeedConstants.ADMIN_UID
+                 + "','Default','Default Environment')");
+    }
+
+    private static String buildInitAdminRoleSql() {
+        return "INSERT INTO `rdp_role` (`id`,`gmt_create`,`gmt_modified`,`owner_uid`,`role_name`,`role_auth_labels`,`alias_name`,`inner_tag`) VALUES ("
+               + ADMIN_ROLE_ID + ", now(), now(), '" + InitSeedConstants.ADMIN_UID + "', '" + ADMIN_ROLE_NAME
+               + "', '[]', '" + ADMIN_ROLE_NAME + "', 1)";
     }
 
     private static String buildInitPrimaryUserSql() {
@@ -70,13 +81,9 @@ public class V202605070002__init_data extends BaseJavaMigration {
                + "                               `last_try_login_time`,`login_fail_count`, `login_locked`, `last_try_op_verify_time`, `op_verify_fail_count`,\n"
                + "                               `op_locked`, `account_type`, `user_domain`, `disable`, `parent_id`, `maintainer`, `aliyun_ak`, `aliyun_sk`,\n"
                + "                               `last_date_update_aliyun_ak`, `bind_type`, `bind_account`, `phone_area_code`,\n"
-               + "                               `user_status`, `src`, `client_id`, `keyword`, `contact_me`, `country`)\n"
-               + "    VALUES (1,now(), now(), '" + InitSeedConstants.ADMIN_UID + "', 'Trial', '" + adminEmail + "', '12345678900', null, '',\n"
-               + "        '" + encodedPassword + "', null, 1,\n"
-               + "        '" + DEFAULT_PRIMARY_ACCESS_KEY + "',\n"
-               + "        '" + encryptedSecretKey + "',\n"
-               + "        now(), 0, 0, now(), 0, 0, 'PRIMARY_ACCOUNT', '" + InitSeedConstants.ADMIN_UID
-               + ".clougence.com', 0, null,\n"
-               + "        0, null, null, now(), 'INTERNAL', null, null, 'NORMAL', null, null, null, 0, null)";
+               + "                               `user_status`, `src`, `client_id`, `keyword`, `contact_me`, `country`)\n" + "    VALUES (1,now(), now(), '"
+             + InitSeedConstants.ADMIN_UID + "', 'Trial', '" + adminEmail + "', '12345678900', null, '',\n" + "        '" + encodedPassword + "', null, " + ADMIN_ROLE_ID + ",\n" + "        '"
+               + DEFAULT_PRIMARY_ACCESS_KEY + "',\n" + "        '" + encryptedSecretKey + "',\n" + "        now(), 0, 0, now(), 0, 0, 'PRIMARY_ACCOUNT', '"
+               + InitSeedConstants.ADMIN_UID + ".clougence.com', 0, null,\n" + "        0, null, null, now(), 'INTERNAL', null, null, 'NORMAL', null, null, null, 0, null)";
     }
 }

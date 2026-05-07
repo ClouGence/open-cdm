@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-import jakarta.annotation.Resource;
-
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
@@ -26,6 +24,7 @@ import com.clougence.clouddm.sdk.service.secrules.SecParam;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 /**

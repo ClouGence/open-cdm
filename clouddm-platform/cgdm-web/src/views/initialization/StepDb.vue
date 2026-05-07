@@ -11,6 +11,7 @@
             <div class="jdbc-inline-field jdbc-inline-field-host">
               <a-input
                 :value="generatedState.host"
+                :disabled="readonly"
                 :placeholder="$t('initialization.jdbcHostPlaceholder')"
                 @input="(value) => onGeneratedFieldChange('host', normalizeInputValue(value))"
               />
@@ -19,6 +20,7 @@
               <span class="jdbc-inline-label">{{ $t('initialization.jdbcPortLabel') }}</span>
               <a-input
                 :value="generatedState.port"
+                :disabled="readonly"
                 :placeholder="$t('initialization.jdbcPortPlaceholder')"
                 @input="(value) => onGeneratedFieldChange('port', normalizeInputValue(value))"
               />
@@ -30,6 +32,7 @@
           <a-input
             class="jdbc-full-width-control"
             :value="formValues[dbUsernameField.propertyKey] || ''"
+            :disabled="readonly"
             :placeholder="dbUsernameField.description"
             @input="(value) => onChange(dbUsernameField.propertyKey, normalizeInputValue(value))"
           />
@@ -39,6 +42,7 @@
           <a-input-password
             class="jdbc-full-width-control"
             :value="formValues[dbPasswordField.propertyKey] || ''"
+            :disabled="readonly"
             :placeholder="dbPasswordField.description"
             @input="(value) => onChange(dbPasswordField.propertyKey, normalizeInputValue(value))"
           />
@@ -48,6 +52,7 @@
           <a-input
             class="jdbc-full-width-control"
             :value="generatedState.database"
+            :disabled="readonly"
             :placeholder="$t('initialization.jdbcDatabasePlaceholder')"
             @input="(value) => onGeneratedFieldChange('database', normalizeInputValue(value))"
           >
@@ -67,6 +72,7 @@
               <div class="db-rebuild-text">{{ dbTestResult.rebuildPrompt }}</div>
               <a-radio-group
                 :value="formValues['clougence.init.db.rebuildIfNotEmpty'] || ''"
+                :disabled="readonly"
                 @change="(e) => onChange('clougence.init.db.rebuildIfNotEmpty', e.target.value)"
               >
                 <a-radio :value="'true'">{{ $t('initialization.optionYes') }}</a-radio>
@@ -81,18 +87,21 @@
         <a-input
           v-if="field.inputType === 'text'"
           :value="formValues[field.propertyKey] || ''"
+          :disabled="readonly"
           @input="(value) => onChange(field.propertyKey, normalizeInputValue(value))"
           :placeholder="field.description"
         />
         <a-input-password
           v-else-if="field.inputType === 'password'"
           :value="formValues[field.propertyKey] || ''"
+          :disabled="readonly"
           @input="(value) => onChange(field.propertyKey, normalizeInputValue(value))"
           :placeholder="field.description"
         />
         <a-input
           v-else-if="field.inputType === 'number'"
           :value="formValues[field.propertyKey]"
+          :disabled="readonly"
           type="number"
           @input="(value) => onChange(field.propertyKey, normalizeInputValue(value))"
           :placeholder="field.description"
@@ -288,7 +297,8 @@ export default {
   props: {
     fieldDefs: { type: Array, default: () => [] },
     formValues: { type: Object, default: () => ({}) },
-    dbTestResult: { type: Object, default: null }
+    dbTestResult: { type: Object, default: null },
+    readonly: { type: Boolean, default: false }
   },
   data() {
     return {
@@ -333,6 +343,10 @@ export default {
       };
     },
     missingRequiredFields() {
+      if (this.readonly) {
+        return [];
+      }
+
       const missingFields = [];
 
       if (!this.generatedState.host) {
@@ -376,6 +390,9 @@ export default {
       return payload;
     },
     onChange(key, value) {
+      if (this.readonly) {
+        return;
+      }
       this.$emit('update:formValues', { [key]: value });
     },
     syncJdbcState(jdbcUrl) {
@@ -390,6 +407,9 @@ export default {
       }
     },
     onGeneratedFieldChange(key, value) {
+      if (this.readonly) {
+        return;
+      }
       this.generatedState = {
         ...this.generatedState,
         [key]: value

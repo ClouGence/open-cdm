@@ -5,6 +5,7 @@ package com.clougence.clouddm.console.web.constants;
  */
 public enum SystemStatus {
     Initial,
+    Upgrade,
     Starting,
     Ready,
     Stoping

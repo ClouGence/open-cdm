@@ -53,10 +53,8 @@ public class V202605070024__devops extends BaseJavaMigration {
 
     private static final List<String> sqls = new ArrayList<>();
     static {
-        sqls.add("alter table rdp_ticket_process\n" +
-                "            modify next_id bigint null");
+        sqls.add("alter table rdp_ticket_process\n" + "            modify next_id bigint null");
 
-        sqls.add("alter table rdp_ticket_process\n" +
-                "            modify appro_biz varchar(64) null");
+        sqls.add("alter table rdp_ticket_process\n" + "            modify appro_biz varchar(64) null");
     }
 }

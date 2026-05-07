@@ -40,8 +40,7 @@ public class V202605070014__add_sso_type extends BaseJavaMigration {
             safeExecute(conn, "ALTER TABLE `rdp_user` RENAME COLUMN wechat_union_id to union_id");
         } catch (RuntimeException e) {
             Throwable rootCause = ExceptionUtils.getRootCause(e);
-            if (rootCause instanceof SQLException) {
-                SQLException sqlEx = (SQLException) rootCause;
+            if (rootCause instanceof SQLException sqlEx) {
                 int errorCode = sqlEx.getErrorCode();
                 if (1064 == errorCode) {
                     // 1064 = You have an error in your SQL syntax; check the manual that

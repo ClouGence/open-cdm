@@ -53,26 +53,17 @@ public class V202605070016__add_activity extends BaseJavaMigration {
 
     private static final List<String> sqls = new ArrayList<>();
     static {
-        sqls.add("create table `rdp_ticket_process_activity`\n" +
-                "(\n" +
-                "    id              bigint auto_increment primary key,\n" +
-                "    gmt_create      datetime     default CURRENT_TIMESTAMP not null,\n" +
-                "    gmt_modified    datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,\n" +
-                "    activity_id     varchar(64)                            not null,\n" +
-                "    process_id      bigint                                 not null,\n" +
-                "    ticket_id       bigint                                 not null,\n" +
-                "    activity_title  varchar(128)                           not null,\n" +
-                "    context         text,\n" +
-                "    deleted         tinyint(1)   default 0                 not null,\n" +
-                "    order_number    int                                    not null\n" +
-                ") ENGINE = InnoDB\n" +
-                "  DEFAULT CHARSET = utf8mb4");
+        sqls.add("create table `rdp_ticket_process_activity`\n" + "(\n" + "    id              bigint auto_increment primary key,\n"
+                 + "    gmt_create      datetime     default CURRENT_TIMESTAMP not null,\n"
+                 + "    gmt_modified    datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,\n"
+                 + "    activity_id     varchar(64)                            not null,\n" + "    process_id      bigint                                 not null,\n"
+                 + "    ticket_id       bigint                                 not null,\n" + "    activity_title  varchar(128)                           not null,\n"
+                 + "    context         text,\n" + "    deleted         tinyint(1)   default 0                 not null,\n"
+                 + "    order_number    int                                    not null\n" + ") ENGINE = InnoDB\n" + "  DEFAULT CHARSET = utf8mb4");
 
-        sqls.add("create index idx_process_activity\n" +
-                "    on `rdp_ticket_process_activity` (process_id, activity_id)");
+        sqls.add("create index idx_process_activity\n" + "    on `rdp_ticket_process_activity` (process_id, activity_id)");
 
-        sqls.add("create index idx_ticket_id\n" +
-                "    on `rdp_ticket_process_activity` (ticket_id)");
+        sqls.add("create index idx_ticket_id\n" + "    on `rdp_ticket_process_activity` (ticket_id)");
 
         sqls.add("ALTER TABLE `rdp_ticket_inst` add COLUMN `approval_url` text");
 

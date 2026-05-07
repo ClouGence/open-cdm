@@ -1,9 +1,5 @@
 package com.clougence.clouddm.init.component.scripts;
 
-import com.clougence.utils.ExceptionUtils;
-import org.flywaydb.core.api.migration.BaseJavaMigration;
-import org.flywaydb.core.api.migration.Context;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -11,6 +7,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.flywaydb.core.api.migration.BaseJavaMigration;
+import org.flywaydb.core.api.migration.Context;
+
+import com.clougence.utils.ExceptionUtils;
 
 public class V202605070035__ticket_info extends BaseJavaMigration {
 

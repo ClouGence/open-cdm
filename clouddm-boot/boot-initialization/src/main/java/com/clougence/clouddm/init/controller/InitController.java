@@ -3,9 +3,6 @@ package com.clougence.clouddm.init.controller;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.annotation.Resource;
-
-import com.clougence.clouddm.init.service.SysInitService;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -17,7 +14,10 @@ import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.init.model.InitFieldDef;
 import com.clougence.clouddm.init.model.TestDbResult;
 import com.clougence.clouddm.init.service.SysInitDefService;
+import com.clougence.clouddm.init.service.SysInitService;
 import com.clougence.rdp.constant.auth.RequestAuth;
+
+import jakarta.annotation.Resource;
 
 /**
  * 系统初始化 REST API。
@@ -28,7 +28,7 @@ import com.clougence.rdp.constant.auth.RequestAuth;
 public class InitController {
 
     @Resource
-    private SysInitService initService;
+    private SysInitService    initService;
     @Resource
     private SysInitDefService defService;
 
@@ -58,6 +58,12 @@ public class InitController {
         return ResWebDataUtils.buildSuccess(result);
     }
 
+    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
+    @RequestMapping(value = "/previewScripts", method = { RequestMethod.POST })
+    public ResWebData<?> previewScripts(@RequestBody Map<String, String> params) {
+        return ResWebDataUtils.buildSuccess(initService.previewExecutionScripts(params));
+    }
+
     /**
      * 保存初始化配置（完整模式：写配置 + Flyway 迁移 + 更新管理员）。
      */
@@ -76,6 +82,17 @@ public class InitController {
     public ResWebData<?> updateDbConfig(@RequestBody Map<String, String> config) throws Exception {
         initService.updateDbConfig(config);
         return ResWebDataUtils.buildSuccess(null);
+    }
+
+    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
+    @RequestMapping(value = "/upgrade", method = { RequestMethod.POST })
+    public ResWebData<?> upgrade() {
+        try {
+            initService.upgradeSystem();
+            return ResWebDataUtils.buildSuccess(null);
+        } catch (Exception e) {
+            return ResWebDataUtils.buildError(initService.buildDetailedErrorMessage(e));
+        }
     }
 
     /**

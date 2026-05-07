@@ -1,7 +1,5 @@
 package com.clougence.clouddm.init.controller;
 
-import jakarta.annotation.Resource;
-
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -10,13 +8,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.constants.SystemStatus;
 import com.clougence.clouddm.console.web.model.vo.GlobalSettingsVO;
 import com.clougence.clouddm.console.web.model.vo.SystemStatusVO;
 import com.clougence.clouddm.init.model.SystemStatusResult;
 import com.clougence.clouddm.init.service.InitDBStatusDetector;
 import com.clougence.clouddm.init.service.SysInitDefService;
 import com.clougence.rdp.constant.auth.RequestAuth;
+
+import jakarta.annotation.Resource;
 
 @Profile("init")
 @RestController
@@ -32,12 +31,10 @@ public class InitHomeController {
         SystemStatusVO statusVO = new SystemStatusVO();
         SystemStatusResult dbStatus = InitDBStatusDetector.detectDBStatus(this.defService.loadSystemProperties());
 
-        // While the init application is running, the frontend should never treat this
-        // endpoint as the full application becoming ready. Ready is only reported by
-        // the normal console application after the process restarts into full mode.
-        statusVO.setStatus(SystemStatus.Initial);
+        statusVO.setStatus(dbStatus.getStatus());
         statusVO.setInitReason(dbStatus.getInitReason());
         statusVO.setDbError(dbStatus.getDbError());
+        statusVO.setUpgradeScripts(dbStatus.getUpgradeScripts());
 
         GlobalSettingsVO vo = new GlobalSettingsVO();
         vo.setSystemStatus(statusVO);

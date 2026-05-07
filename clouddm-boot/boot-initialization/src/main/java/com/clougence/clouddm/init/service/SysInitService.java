@@ -1,6 +1,8 @@
 package com.clougence.clouddm.init.service;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,6 +25,7 @@ import com.clougence.clouddm.init.component.fixtasks.DmFixSecRules;
 import com.clougence.clouddm.init.component.fixtasks.InitConsolePluginLoader;
 import com.clougence.clouddm.init.component.fixtasks.RdpFixUserRole;
 import com.clougence.clouddm.init.component.flyway.DmFlywayInit;
+import com.clougence.clouddm.init.component.log.InstallUpgradeLogBus;
 import com.clougence.clouddm.init.constant.I18nInitFieldKeys;
 import com.clougence.clouddm.init.constant.InitSeedConstants;
 import com.clougence.clouddm.init.model.InitFieldDef;
@@ -82,49 +85,76 @@ public class SysInitService {
         return result;
     }
 
+    public List<String> previewExecutionScripts(Map<String, String> userConfig) {
+        String jdbcUrl = userConfig == null ? null : userConfig.get("spring.datasource.jdbcurl");
+        String username = userConfig == null ? null : userConfig.get("spring.datasource.username");
+        String password = userConfig == null ? null : userConfig.get("spring.datasource.password");
+
+        if (StringUtils.isBlank(jdbcUrl) || StringUtils.isBlank(username)) {
+            return DmFlywayInit.listAllScriptNames();
+        }
+
+        try {
+            String databaseName = InitDBStatusDetector.getDatabaseName(jdbcUrl);
+            if (StringUtils.isBlank(databaseName)) {
+                return DmFlywayInit.listAllScriptNames();
+            }
+            return DmFlywayInit.listUpgradeRequiredScriptNames(jdbcUrl, username, password, databaseName);
+        } catch (Exception e) {
+            log.warn("[SysInitService] Preview execution scripts failed, fallback to full list. msg={}", e.getMessage());
+            return DmFlywayInit.listAllScriptNames();
+        }
+    }
+
     // ========================================================================
     // 配置读写
     // ========================================================================
 
     /**  应用初始化配置（完整模式：写配置 + Flyway 迁移 + 更新管理员） */
     public void applyInitConfig(Map<String, String> userConfig) throws Exception {
-        log.info("[SysInitService] Applying initialization config, createIfMissing={}, rebuildIfNotEmpty={}, adminEmail={}", userConfig
-            .getOrDefault(INIT_DB_CREATE_IF_MISSING, "false"), userConfig
-                .getOrDefault(INIT_DB_REBUILD_IF_NOT_EMPTY, "false"), userConfig.get(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY));
+        String jdbcUrl = userConfig.get("spring.datasource.jdbcurl");
+        InstallUpgradeLogBus.start("install", jdbcUrl);
+        try {
+            log.info("[SysInitService] Applying initialization config, createIfMissing={}, rebuildIfNotEmpty={}, adminEmail={}", userConfig
+                .getOrDefault(INIT_DB_CREATE_IF_MISSING, "false"), userConfig
+                    .getOrDefault(INIT_DB_REBUILD_IF_NOT_EMPTY, "false"), userConfig.get(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY));
+            InstallUpgradeLogBus.info("Applying initialization configuration.");
 
-        // 1. 按 schema 逐行替换
-        replaceConfigLines(userConfig);
+            replaceConfigLines(userConfig);
 
-        // 2. 提取 DB 配置和 admin 配置
-        Properties props = this.defService.loadSystemProperties();
-        String jdbcUrl = userConfig.getOrDefault("spring.datasource.jdbcurl", props.getProperty("spring.datasource.jdbcurl"));
-        String dbUser = userConfig.getOrDefault("spring.datasource.username", props.getProperty("spring.datasource.username"));
-        String dbPass = userConfig.getOrDefault("spring.datasource.password", props.getProperty("spring.datasource.password"));
-        String adminEmail = userConfig.get(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY);
-        String adminPassword = userConfig.get(InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY);
-        boolean createIfMissing = Boolean.parseBoolean(userConfig.getOrDefault(INIT_DB_CREATE_IF_MISSING, "false"));
-        boolean rebuildIfNotEmpty = Boolean.parseBoolean(userConfig.getOrDefault(INIT_DB_REBUILD_IF_NOT_EMPTY, "false"));
+            Properties props = this.defService.loadSystemProperties();
+            jdbcUrl = userConfig.getOrDefault("spring.datasource.jdbcurl", props.getProperty("spring.datasource.jdbcurl"));
+            String dbUser = userConfig.getOrDefault("spring.datasource.username", props.getProperty("spring.datasource.username"));
+            String dbPass = userConfig.getOrDefault("spring.datasource.password", props.getProperty("spring.datasource.password"));
+            String adminEmail = userConfig.get(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY);
+            String adminPassword = userConfig.get(InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY);
+            boolean createIfMissing = Boolean.parseBoolean(userConfig.getOrDefault(INIT_DB_CREATE_IF_MISSING, "false"));
+            boolean rebuildIfNotEmpty = Boolean.parseBoolean(userConfig.getOrDefault(INIT_DB_REBUILD_IF_NOT_EMPTY, "false"));
 
-        if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser)) {
-            prepareDatabase(jdbcUrl, dbUser, dbPass, createIfMissing, rebuildIfNotEmpty);
+            if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser)) {
+                InstallUpgradeLogBus.info("Preparing database.");
+                prepareDatabase(jdbcUrl, dbUser, dbPass, createIfMissing, rebuildIfNotEmpty);
+            }
+
+            if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser)) {
+                runFlywayMigration(jdbcUrl, dbUser, dbPass, adminEmail, adminPassword);
+            }
+
+            if (StringUtils.isNotBlank(adminEmail) && StringUtils.isNotBlank(adminPassword)) {
+                InstallUpgradeLogBus.info("Updating administrator account.");
+                updateAdminUser(jdbcUrl, dbUser, dbPass, adminEmail, adminPassword);
+            }
+
+            if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser)) {
+                runFixTasks(jdbcUrl, dbUser, dbPass);
+            }
+
+            InstallUpgradeLogBus.complete("Initialization completed successfully.");
+            log.info("[SysInitService] Initialization apply flow completed successfully for jdbcUrl={}", jdbcUrl);
+        } catch (Exception e) {
+            InstallUpgradeLogBus.fail("Initialization failed.", e);
+            throw toDetailedRuntimeException(e);
         }
-
-        // 3. 执行 Flyway 迁移（通过 DmFlywayInit）
-        if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser)) {
-            runFlywayMigration(jdbcUrl, dbUser, dbPass, adminEmail, adminPassword);
-        }
-
-        // 4. 更新管理员账号
-        if (StringUtils.isNotBlank(adminEmail) && StringUtils.isNotBlank(adminPassword)) {
-            updateAdminUser(jdbcUrl, dbUser, dbPass, adminEmail, adminPassword);
-        }
-
-        // 5. 执行 fix 初始化（内部用户、角色、安全规则等）
-        if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser)) {
-            runFixTasks(jdbcUrl, dbUser, dbPass);
-        }
-
-        log.info("[SysInitService] Initialization apply flow completed successfully for jdbcUrl={}", jdbcUrl);
     }
 
     /**
@@ -133,32 +163,62 @@ public class SysInitService {
      * 对于已有非空库，仅更新连接并执行迁移/修复，不重置管理员账号。
      */
     public void updateDbConfig(Map<String, String> userConfig) throws Exception {
-        replaceConfigLines(userConfig);
+        InstallUpgradeLogBus.start("install", userConfig.get("spring.datasource.jdbcurl"));
+        try {
+            replaceConfigLines(userConfig);
 
+            Properties props = this.defService.loadSystemProperties();
+            String jdbcUrl = userConfig.getOrDefault("spring.datasource.jdbcurl", props.getProperty("spring.datasource.jdbcurl"));
+            String dbUser = userConfig.getOrDefault("spring.datasource.username", props.getProperty("spring.datasource.username"));
+            String dbPass = userConfig.getOrDefault("spring.datasource.password", props.getProperty("spring.datasource.password"));
+            String adminEmail = userConfig.get(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY);
+            String adminPassword = userConfig.get(InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY);
+            boolean createIfMissing = Boolean.parseBoolean(userConfig.getOrDefault(INIT_DB_CREATE_IF_MISSING, "false"));
+            boolean rebuildIfNotEmpty = Boolean.parseBoolean(userConfig.getOrDefault(INIT_DB_REBUILD_IF_NOT_EMPTY, "false"));
+
+            if (StringUtils.isBlank(jdbcUrl) || StringUtils.isBlank(dbUser)) {
+                InstallUpgradeLogBus.warn("Database configuration is incomplete, skip update.");
+                return;
+            }
+
+            DatabaseInspection inspection = inspectDatabase(jdbcUrl, dbUser, dbPass, false);
+            boolean bootstrapAdmin = !inspection.databaseExists || inspection.empty || rebuildIfNotEmpty;
+
+            log.info("[SysInitService] Updating DB config, bootstrapAdmin={}, databaseExists={}, empty={}, rebuildIfNotEmpty={}, adminEmail={}", bootstrapAdmin, inspection.databaseExists, inspection.empty, rebuildIfNotEmpty, adminEmail);
+
+            InstallUpgradeLogBus.info("Preparing database.");
+            prepareDatabase(jdbcUrl, dbUser, dbPass, createIfMissing, rebuildIfNotEmpty);
+            runFlywayMigration(jdbcUrl, dbUser, dbPass, bootstrapAdmin ? adminEmail : null, bootstrapAdmin ? adminPassword : null);
+            if (bootstrapAdmin && StringUtils.isNotBlank(adminEmail) && StringUtils.isNotBlank(adminPassword)) {
+                InstallUpgradeLogBus.info("Updating administrator account.");
+                updateAdminUser(jdbcUrl, dbUser, dbPass, adminEmail, adminPassword);
+            }
+            runFixTasks(jdbcUrl, dbUser, dbPass);
+            InstallUpgradeLogBus.complete("Installation flow completed successfully.");
+        } catch (Exception e) {
+            InstallUpgradeLogBus.fail("Installation failed.", e);
+            throw toDetailedRuntimeException(e);
+        }
+    }
+
+    public void upgradeSystem() throws Exception {
         Properties props = this.defService.loadSystemProperties();
-        String jdbcUrl = userConfig.getOrDefault("spring.datasource.jdbcurl", props.getProperty("spring.datasource.jdbcurl"));
-        String dbUser = userConfig.getOrDefault("spring.datasource.username", props.getProperty("spring.datasource.username"));
-        String dbPass = userConfig.getOrDefault("spring.datasource.password", props.getProperty("spring.datasource.password"));
-        String adminEmail = userConfig.get(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY);
-        String adminPassword = userConfig.get(InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY);
-        boolean createIfMissing = Boolean.parseBoolean(userConfig.getOrDefault(INIT_DB_CREATE_IF_MISSING, "false"));
-        boolean rebuildIfNotEmpty = Boolean.parseBoolean(userConfig.getOrDefault(INIT_DB_REBUILD_IF_NOT_EMPTY, "false"));
+        String jdbcUrl = props.getProperty("spring.datasource.jdbcurl");
+        String dbUser = props.getProperty("spring.datasource.username");
+        String dbPass = props.getProperty("spring.datasource.password");
 
-        if (StringUtils.isBlank(jdbcUrl) || StringUtils.isBlank(dbUser)) {
-            return;
+        InstallUpgradeLogBus.start("upgrade", jdbcUrl);
+        try {
+            if (StringUtils.isBlank(jdbcUrl) || StringUtils.isBlank(dbUser)) {
+                throw new IllegalStateException("Database configuration is missing.");
+            }
+
+            runUpgradeMigration(jdbcUrl, dbUser, dbPass);
+            InstallUpgradeLogBus.complete("Upgrade completed successfully.");
+        } catch (Exception e) {
+            InstallUpgradeLogBus.fail("Upgrade failed.", e);
+            throw toDetailedRuntimeException(e);
         }
-
-        DatabaseInspection inspection = inspectDatabase(jdbcUrl, dbUser, dbPass, false);
-        boolean bootstrapAdmin = !inspection.databaseExists || inspection.empty || rebuildIfNotEmpty;
-
-        log.info("[SysInitService] Updating DB config, bootstrapAdmin={}, databaseExists={}, empty={}, rebuildIfNotEmpty={}, adminEmail={}", bootstrapAdmin, inspection.databaseExists, inspection.empty, rebuildIfNotEmpty, adminEmail);
-
-        prepareDatabase(jdbcUrl, dbUser, dbPass, createIfMissing, rebuildIfNotEmpty);
-        runFlywayMigration(jdbcUrl, dbUser, dbPass, bootstrapAdmin ? adminEmail : null, bootstrapAdmin ? adminPassword : null);
-        if (bootstrapAdmin && StringUtils.isNotBlank(adminEmail) && StringUtils.isNotBlank(adminPassword)) {
-            updateAdminUser(jdbcUrl, dbUser, dbPass, adminEmail, adminPassword);
-        }
-        runFixTasks(jdbcUrl, dbUser, dbPass);
     }
 
     // ========================================================================
@@ -215,11 +275,11 @@ public class SysInitService {
             app.setLazyInitialization(true);
 
             Properties props = buildTaskProperties(jdbcUrl, dbUser, dbPass);
-            props.setProperty("spring.flyway.enabled", "true");
             app.setDefaultProperties(props);
 
             setRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY, adminEmail);
             setRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY, adminPassword);
+            InstallUpgradeLogBus.info("Starting Flyway migration task.");
 
             try (ConfigurableApplicationContext ctx = app.run()) {
                 ctx.getBean(DmFlywayInit.class).doUpgrade();
@@ -232,6 +292,34 @@ public class SysInitService {
             restoreRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY, previousAdminEmail);
             restoreRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY, previousAdminPassword);
         }
+    }
+
+    private void runUpgradeMigration(String jdbcUrl, String dbUser, String dbPass) {
+        log.info("[SysInitService] Running upgrade migration with: {}", jdbcUrl);
+        try {
+            SpringApplication app = new SpringApplication(InitTaskApplication.class);
+            app.setWebApplicationType(WebApplicationType.NONE);
+            app.setLazyInitialization(true);
+            Properties props = buildTaskProperties(jdbcUrl, dbUser, dbPass);
+            app.setDefaultProperties(props);
+            InstallUpgradeLogBus.info("Starting upgrade migration task.");
+
+            try (ConfigurableApplicationContext ctx = app.run()) {
+                ctx.getBean(DmFlywayInit.class).doUpgradeAndValidate();
+                log.info("[SysInitService] Upgrade migration done.");
+            }
+        } catch (Exception e) {
+            log.error("[SysInitService] Upgrade migration failed", e);
+            throw new RuntimeException(buildDetailedErrorMessage(e), e);
+        }
+    }
+
+    public String buildDetailedErrorMessage(Throwable throwable) {
+        StringWriter stringWriter = new StringWriter();
+        try (PrintWriter printWriter = new PrintWriter(stringWriter)) {
+            throwable.printStackTrace(printWriter);
+        }
+        return stringWriter.toString();
     }
 
     private void updateAdminUser(String jdbcUrl, String dbUser, String dbPass, String adminEmail, String adminPassword) throws SQLException {
@@ -311,13 +399,13 @@ public class SysInitService {
      */
     private void runFixTasks(String jdbcUrl, String dbUser, String dbPass) {
         log.info("[SysInitService] Running fix tasks with temporary Spring context...");
+        InstallUpgradeLogBus.info("Running post-migration fix tasks.");
         try {
             SpringApplication app = new SpringApplication(InitTaskApplication.class);
             app.setWebApplicationType(WebApplicationType.NONE);
             app.setLazyInitialization(true);
 
             Properties props = buildTaskProperties(jdbcUrl, dbUser, dbPass);
-            props.setProperty("spring.flyway.enabled", "false");
 
             app.setDefaultProperties(props);
 
@@ -326,6 +414,7 @@ public class SysInitService {
                 ctx.getBean(RdpFixUserRole.class).init();
                 ctx.getBean(DmFixSecRules.class).init();
                 ctx.getBean(DmFixDmDsConfig.class).init();
+                InstallUpgradeLogBus.info("Post-migration fix tasks completed.");
                 log.info("[SysInitService] Fix tasks completed successfully.");
             }
         } catch (Exception e) {
@@ -495,8 +584,12 @@ public class SysInitService {
     }
 
     private void executeDatabaseStatement(String serverJdbcUrl, String username, String password, String sql) throws SQLException {
+        InstallUpgradeLogBus.info("[SQL] " + sql);
         try (Connection conn = DriverManager.getConnection(serverJdbcUrl, username, password); Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
+        } catch (SQLException e) {
+            InstallUpgradeLogBus.error("[SQL FAILED] " + sql, e);
+            throw e;
         }
     }
 
@@ -528,6 +621,13 @@ public class SysInitService {
         props.setProperty("spring.datasource.driver-class-name", "com.mysql.cj.jdbc.Driver");
         props.setProperty("server.port", "-1");
         return props;
+    }
+
+    private RuntimeException toDetailedRuntimeException(Exception exception) {
+        if (exception instanceof RuntimeException && StringUtils.contains(exception.getMessage(), "\n")) {
+            return (RuntimeException) exception;
+        }
+        return new RuntimeException(buildDetailedErrorMessage(exception), exception);
     }
 
     // ========================================================================

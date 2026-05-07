@@ -1,9 +1,5 @@
 package com.clougence.clouddm.init.component.scripts;
 
-import com.clougence.utils.ExceptionUtils;
-import org.flywaydb.core.api.migration.BaseJavaMigration;
-import org.flywaydb.core.api.migration.Context;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -11,6 +7,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.flywaydb.core.api.migration.BaseJavaMigration;
+import org.flywaydb.core.api.migration.Context;
+
+import com.clougence.utils.ExceptionUtils;
 
 public class V202605070044__ticket extends BaseJavaMigration {
 
@@ -54,7 +55,6 @@ public class V202605070044__ticket extends BaseJavaMigration {
 
     static {
 
-        sqls.add("alter table dm_ticket_details_inst\n" +
-                "        add column checked_info text null");
+        sqls.add("alter table dm_ticket_details_inst\n" + "        add column checked_info text null");
     }
 }

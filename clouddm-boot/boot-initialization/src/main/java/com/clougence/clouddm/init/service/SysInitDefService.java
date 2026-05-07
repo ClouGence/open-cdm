@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import jakarta.annotation.PostConstruct;
-
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
@@ -24,6 +22,7 @@ import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
 /**

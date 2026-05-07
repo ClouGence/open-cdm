@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import jakarta.annotation.Resource;
-
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
@@ -17,6 +15,7 @@ import com.clougence.rdp.dal.enumeration.HostType;
 import com.clougence.rdp.dal.mapper.RdpDataSourceMapper;
 import com.clougence.rdp.dal.model.RdpDataSourceDO;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

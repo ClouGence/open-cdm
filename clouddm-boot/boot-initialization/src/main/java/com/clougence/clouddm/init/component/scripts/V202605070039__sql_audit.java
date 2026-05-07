@@ -1,9 +1,5 @@
 package com.clougence.clouddm.init.component.scripts;
 
-import com.clougence.utils.ExceptionUtils;
-import org.flywaydb.core.api.migration.BaseJavaMigration;
-import org.flywaydb.core.api.migration.Context;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -11,6 +7,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.flywaydb.core.api.migration.BaseJavaMigration;
+import org.flywaydb.core.api.migration.Context;
+
+import com.clougence.utils.ExceptionUtils;
 
 public class V202605070039__sql_audit extends BaseJavaMigration {
 
@@ -53,40 +54,18 @@ public class V202605070039__sql_audit extends BaseJavaMigration {
     private static final List<String> sqls = new ArrayList<>();
 
     static {
-        sqls.add("create table if not exists dm_sql_audit\n" +
-                "    (\n" +
-                "        id               bigint        not null auto_increment,\n" +
-                "        gmt_create       datetime      not null default CURRENT_TIMESTAMP,\n" +
-                "        gmt_modified     datetime      not null default CURRENT_TIMESTAMP,\n" +
-                "        operate_time     datetime(3)   not null,\n" +
-                "        end_time         datetime(3),\n" +
-                "        uid              varchar(36)   not null,\n" +
-                "        user_name        varchar(255)  not null,\n" +
-                "        primary_uid      varchar(36)   not null,\n" +
-                "        affect_line      bigint,\n" +
-                "\n" +
-                "        ds_id            bigint        not null,\n" +
-                "        ds_desc          varchar(1024) not null,\n" +
-                "        data_source_type varchar(128)  not null,\n" +
-                "\n" +
-                "        session_id       varchar(255)  not null,\n" +
-                "        status           varchar(32)   not null,\n" +
-                "\n" +
-                "        log_ip           varchar(255)  not null,\n" +
-                "        client_ip        varchar(255),\n" +
-                "        work_seq_number  varchar(255)  not null,\n" +
-                "\n" +
-                "        requester        varchar(32)   not null,\n" +
-                "\n" +
-                "        sql_kind         varchar(32)   not null,\n" +
-                "        exec_sql         text          not null,\n" +
-                "        resource         text          not null,\n" +
-                "        message          text,\n" +
-                "        primary key (id)\n" +
-                "    ) ENGINE = InnoDB\n" +
-                "      DEFAULT CHARSET = utf8mb4");
+        sqls.add("create table if not exists dm_sql_audit\n" + "    (\n" + "        id               bigint        not null auto_increment,\n"
+                 + "        gmt_create       datetime      not null default CURRENT_TIMESTAMP,\n" + "        gmt_modified     datetime      not null default CURRENT_TIMESTAMP,\n"
+                 + "        operate_time     datetime(3)   not null,\n" + "        end_time         datetime(3),\n" + "        uid              varchar(36)   not null,\n"
+                 + "        user_name        varchar(255)  not null,\n" + "        primary_uid      varchar(36)   not null,\n" + "        affect_line      bigint,\n" + "\n"
+                 + "        ds_id            bigint        not null,\n" + "        ds_desc          varchar(1024) not null,\n"
+                 + "        data_source_type varchar(128)  not null,\n" + "\n" + "        session_id       varchar(255)  not null,\n"
+                 + "        status           varchar(32)   not null,\n" + "\n" + "        log_ip           varchar(255)  not null,\n" + "        client_ip        varchar(255),\n"
+                 + "        work_seq_number  varchar(255)  not null,\n" + "\n" + "        requester        varchar(32)   not null,\n" + "\n"
+                 + "        sql_kind         varchar(32)   not null,\n" + "        exec_sql         text          not null,\n"
+                 + "        resource         text          not null,\n" + "        message          text,\n" + "        primary key (id)\n" + "    ) ENGINE = InnoDB\n"
+                 + "      DEFAULT CHARSET = utf8mb4");
 
-        sqls.add("alter table dm_auto_exec_task\n" +
-                "        drop column transactional_group");
+        sqls.add("alter table dm_auto_exec_task\n" + "        drop column transactional_group");
     }
 }

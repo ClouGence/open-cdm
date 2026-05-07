@@ -53,17 +53,11 @@ public class V202605070020__sub_account_sso extends BaseJavaMigration {
 
     private static final List<String> sqls = new ArrayList<>();
     static {
-        sqls.add("ALTER TABLE rdp_user\n" +
-                "        add column access_token text DEFAULT NULL");
+        sqls.add("ALTER TABLE rdp_user\n" + "        add column access_token text DEFAULT NULL");
 
-        sqls.add("CREATE TABLE IF NOT EXISTS rdp_csrf_token\n" +
-                "    (\n" +
-                "        id           bigint       NOT NULL AUTO_INCREMENT primary key,\n" +
-                "        gmt_create   datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
-                "        gmt_modified datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n" +
-                "        token        varchar(127) NOT NULL,\n" +
-                "        jump_url     text,\n" +
-                "        secret_token text\n" +
-                "    )");
+        sqls.add("CREATE TABLE IF NOT EXISTS rdp_csrf_token\n" + "    (\n" + "        id           bigint       NOT NULL AUTO_INCREMENT primary key,\n"
+                 + "        gmt_create   datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,\n"
+                 + "        gmt_modified datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n" + "        token        varchar(127) NOT NULL,\n"
+                 + "        jump_url     text,\n" + "        secret_token text\n" + "    )");
     }
 }

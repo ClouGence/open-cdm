@@ -1,7 +1,5 @@
 package com.clougence.clouddm.init;
 
-import jakarta.annotation.PostConstruct;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
@@ -13,6 +11,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.clougence.clouddm.console.web.global.exception.PrintErrorUncaughtExcHandler;
 import com.clougence.clouddm.init.constant.I18nInitFieldKeys;
 import com.clougence.rdp.util.RdpI18nUtils;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * 初始化模式 Spring Boot 应用。

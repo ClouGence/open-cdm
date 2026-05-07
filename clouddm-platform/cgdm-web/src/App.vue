@@ -13,7 +13,7 @@
 <script>
 import enUS from 'ant-design-vue/es/locale/en_US';
 import zhCN from 'ant-design-vue/es/locale/zh_CN';
-import { cacheDmBootstrapStatus, isDmSystemInitial } from './utils/dmGlobalSettings';
+import { cacheDmBootstrapStatus, isDmSystemBootstrapRequired } from './utils/dmGlobalSettings';
 
 export default {
   name: 'App',
@@ -36,7 +36,7 @@ export default {
     try {
       const globalSettingRes = await this.$services.dmGlobalSettings();
       cacheDmBootstrapStatus(globalSettingRes);
-      if (globalSettingRes.success && isDmSystemInitial(globalSettingRes)) {
+      if (globalSettingRes.success && isDmSystemBootstrapRequired(globalSettingRes)) {
         await this.$router.replace({ name: 'Initialization' });
         this.showChild = true;
         this.removeLoadingEle();

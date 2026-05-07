@@ -53,7 +53,6 @@ public class V202605070015__add_resource_manage_enable extends BaseJavaMigration
 
     private static final List<String> sqls = new ArrayList<>();
     static {
-        sqls.add("    ALTER TABLE rdp_user\n" +
-                "        ADD COLUMN resource_manage_enable tinyint(1) DEFAULT 0");
+        sqls.add("    ALTER TABLE rdp_user\n" + "        ADD COLUMN resource_manage_enable tinyint(1) DEFAULT 0");
     }
 }

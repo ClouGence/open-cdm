@@ -2,8 +2,6 @@ package com.clougence.clouddm.init.component.fixtasks;
 
 import java.util.List;
 
-import jakarta.annotation.Resource;
-
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +10,7 @@ import com.clougence.rdp.dal.model.RdpUserDO;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.rdp.service.impl.RdpRoleServiceImpl;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

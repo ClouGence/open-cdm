@@ -12,6 +12,15 @@ export function isDmSystemInitial(dmGlobalSettingsRes) {
   return getDmSystemStatus(dmGlobalSettingsRes).status === 'Initial';
 }
 
+export function isDmSystemUpgrade(dmGlobalSettingsRes) {
+  return getDmSystemStatus(dmGlobalSettingsRes).status === 'Upgrade';
+}
+
+export function isDmSystemBootstrapRequired(dmGlobalSettingsRes) {
+  const status = getDmSystemStatus(dmGlobalSettingsRes).status;
+  return status === 'Initial' || status === 'Upgrade';
+}
+
 export function cacheDmBootstrapStatus(dmGlobalSettingsRes) {
   dmBootstrapStatus = dmGlobalSettingsRes || null;
 }

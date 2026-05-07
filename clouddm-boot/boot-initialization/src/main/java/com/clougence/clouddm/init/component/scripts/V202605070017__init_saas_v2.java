@@ -53,8 +53,7 @@ public class V202605070017__init_saas_v2 extends BaseJavaMigration {
 
     private static final List<String> sqls = new ArrayList<>();
     static {
-        sqls.add("    ALTER TABLE rdp_user\n" +
-                "        ADD COLUMN `saas_user_status` varchar(128) DEFAULT 'SAAS_UN_BIND_BANK',\n" +
-                "        ADD COLUMN `customer_id` varchar(128) DEFAULT NULL");
+        sqls.add("    ALTER TABLE rdp_user\n" + "        ADD COLUMN `saas_user_status` varchar(128) DEFAULT 'SAAS_UN_BIND_BANK',\n"
+                 + "        ADD COLUMN `customer_id` varchar(128) DEFAULT NULL");
     }
 }

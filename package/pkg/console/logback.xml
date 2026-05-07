@@ -46,6 +46,18 @@
         </sift>
     </appender>
 
+    <appender name="installUpgrade" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${app.logPath:-.}/install_upgrade.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${app.logPath:-.}/%d{yyyy-MM-dd}/install-upgrade-%d{yyyy-MM-dd}-%i.log.gz</fileNamePattern>
+            <maxFileSize>256MB</maxFileSize>
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <appender name="thirdParty" class="ch.qos.logback.classic.sift.SiftingAppender">
         <discriminator>
             <Key>module</Key>
@@ -72,6 +84,10 @@
 
     <logger name="sql-audit" additivity="false" level="INFO">
         <appender-ref ref="sqlAudit"/>
+    </logger>
+
+    <logger name="install-upgrade-logger" additivity="false" level="INFO">
+        <appender-ref ref="installUpgrade"/>
     </logger>
 
     <logger name="third-party-logger" additivity="false" level="INFO">

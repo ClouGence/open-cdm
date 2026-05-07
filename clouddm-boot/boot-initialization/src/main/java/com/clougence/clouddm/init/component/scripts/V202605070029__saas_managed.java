@@ -54,7 +54,8 @@ public class V202605070029__saas_managed extends BaseJavaMigration {
 
     private static final List<String> sqls = new ArrayList<>();
     static {
-        sqls.add("INSERT IGNORE INTO `rdp_role` (`id`, `gmt_create`, `gmt_modified`, `owner_uid`, `role_name`, `role_auth_labels`, `alias_name`, `inner_tag`)\n" +
-                "   VALUES (4, now(), now(), '" + InitSeedConstants.ADMIN_UID + "', 'CC_SaaS_Developer', '[\"CC_DATAJOB_MANAGE\",\"CC_DATAJOB_READ\",\"CC_WORKER_READ\",\"RDP_DS_READ\",\"RDP_DS_MANAGE\",\"RDP_ROLE_READ\"]', 'SaaS 开发者角色', '1' )");
+        sqls.add("INSERT IGNORE INTO `rdp_role` (`id`, `gmt_create`, `gmt_modified`, `owner_uid`, `role_name`, `role_auth_labels`, `alias_name`, `inner_tag`)\n"
+                 + "   VALUES (4, now(), now(), '" + InitSeedConstants.ADMIN_UID
+                 + "', 'CC_SaaS_Developer', '[\"CC_DATAJOB_MANAGE\",\"CC_DATAJOB_READ\",\"CC_WORKER_READ\",\"RDP_DS_READ\",\"RDP_DS_MANAGE\",\"RDP_ROLE_READ\"]', 'SaaS 开发者角色', '1' )");
     }
 }

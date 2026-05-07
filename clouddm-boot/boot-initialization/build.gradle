@@ -24,6 +24,7 @@ dependencies {
     implementation "org.springframework:spring-tx:${SPRING_VERSION}"
     implementation "org.springframework.boot:spring-boot-starter-web:${SPRINGBOOT_VERSION}"
     implementation "org.springframework.boot:spring-boot-starter-jdbc:${SPRINGBOOT_VERSION}"
+    implementation "org.springframework:spring-websocket:${SPRING_VERSION}"
     implementation "org.springframework:spring-beans:${SPRING_VERSION}"
     implementation "org.springframework:spring-context:${SPRING_VERSION}"
 

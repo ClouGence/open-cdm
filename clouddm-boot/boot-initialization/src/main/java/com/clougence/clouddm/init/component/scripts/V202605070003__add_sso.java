@@ -53,17 +53,10 @@ public class V202605070003__add_sso extends BaseJavaMigration {
 
     private static final List<String> sqls = new ArrayList<>();
     static {
-        sqls.add("CREATE TABLE `rdp_sso_register` (\n" +
-                "        `id` bigint NOT NULL AUTO_INCREMENT,\n" +
-                "        `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
-                "        `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n" +
-                "        `request_id` varchar(32) NOT NULL,\n" +
-                "        `union_id` varchar(32) NOT NULL,\n" +
-                "        `nickname` varchar(255) DEFAULT NULL,\n" +
-                "        `register_status` varchar(32) NOT NULL,\n" +
-                "        PRIMARY KEY (`id`),\n" +
-                "        UNIQUE KEY `uk_request_id` (`request_id`) USING BTREE\n" +
-                "    )");
+        sqls.add("CREATE TABLE `rdp_sso_register` (\n" + "        `id` bigint NOT NULL AUTO_INCREMENT,\n" + "        `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,\n"
+                 + "        `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n" + "        `request_id` varchar(32) NOT NULL,\n"
+                 + "        `union_id` varchar(32) NOT NULL,\n" + "        `nickname` varchar(255) DEFAULT NULL,\n" + "        `register_status` varchar(32) NOT NULL,\n"
+                 + "        PRIMARY KEY (`id`),\n" + "        UNIQUE KEY `uk_request_id` (`request_id`) USING BTREE\n" + "    )");
 
         sqls.add("alter table rdp_user add column `wechat_union_id` varchar(32) DEFAULT NULL");
     }

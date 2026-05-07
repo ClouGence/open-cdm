@@ -1,9 +1,5 @@
 package com.clougence.clouddm.init.component.scripts;
 
-import com.clougence.utils.ExceptionUtils;
-import org.flywaydb.core.api.migration.BaseJavaMigration;
-import org.flywaydb.core.api.migration.Context;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -11,6 +7,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.flywaydb.core.api.migration.BaseJavaMigration;
+import org.flywaydb.core.api.migration.Context;
+
+import com.clougence.utils.ExceptionUtils;
 
 public class V202605070047__stream_result extends BaseJavaMigration {
 
@@ -54,16 +55,12 @@ public class V202605070047__stream_result extends BaseJavaMigration {
 
     static {
 
-        sqls.add("alter table dm_files\n" +
-                "        modify unique_id varchar(80) not null");
+        sqls.add("alter table dm_files\n" + "        modify unique_id varchar(80) not null");
 
-        sqls.add("alter table dm_files\n" +
-                "        add query_id varchar(40) not null");
+        sqls.add("alter table dm_files\n" + "        add query_id varchar(40) not null");
 
-        sqls.add("create index idx_files_query_id\n" +
-                "        on dm_files (query_id)");
+        sqls.add("create index idx_files_query_id\n" + "        on dm_files (query_id)");
 
-        sqls.add("alter table dm_files\n" +
-                "        add try_count int not null default 0");
+        sqls.add("alter table dm_files\n" + "        add try_count int not null default 0");
     }
 }

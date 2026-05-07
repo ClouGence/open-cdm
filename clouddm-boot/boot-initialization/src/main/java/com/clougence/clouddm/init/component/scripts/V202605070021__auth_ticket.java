@@ -53,17 +53,12 @@ public class V202605070021__auth_ticket extends BaseJavaMigration {
 
     private static final List<String> sqls = new ArrayList<>();
     static {
-        sqls.add("create table if not exists rdp_ticket_auth\n" +
-                "    (\n" +
-                "        id                bigint auto_increment primary key,\n" +
-                "        gmt_create        datetime   default CURRENT_TIMESTAMP not null,\n" +
-                "        gmt_modified      datetime   default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,\n" +
-                "        rdp_ticket_ins_id varchar(64)                          not null,\n" +
-                "        apply_auth_info   longtext                             not null,\n" +
-                "        kind_type         varchar(64)                          not null,\n" +
-                "        deleted           tinyint(1) default 0                 not null,\n" +
-                "        constraint idx_unique_biz_id unique (rdp_ticket_ins_id)\n" +
-                "    )");
+        sqls.add("create table if not exists rdp_ticket_auth\n" + "    (\n" + "        id                bigint auto_increment primary key,\n"
+                 + "        gmt_create        datetime   default CURRENT_TIMESTAMP not null,\n"
+                 + "        gmt_modified      datetime   default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP,\n"
+                 + "        rdp_ticket_ins_id varchar(64)                          not null,\n" + "        apply_auth_info   longtext                             not null,\n"
+                 + "        kind_type         varchar(64)                          not null,\n" + "        deleted           tinyint(1) default 0                 not null,\n"
+                 + "        constraint idx_unique_biz_id unique (rdp_ticket_ins_id)\n" + "    )");
 
         sqls.add("alter table rdp_ticket_inst modify bind_ds_id bigint null");
 

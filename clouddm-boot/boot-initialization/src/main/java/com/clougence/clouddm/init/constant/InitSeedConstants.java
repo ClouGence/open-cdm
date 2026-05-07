@@ -3,8 +3,8 @@ package com.clougence.clouddm.init.constant;
 public final class InitSeedConstants {
 
     public static final String ADMIN_UID                  = "9999999999999999";
-    public static final String DEFAULT_PRIMARY_EMAIL      = "test@clougence.com";
-    public static final String DEFAULT_PRIMARY_PASSWORD   = "clougence2021";
+    public static final String DEFAULT_PRIMARY_EMAIL      = "admin@cdmgr.com";
+    public static final String DEFAULT_PRIMARY_PASSWORD   = "123456";
     public static final String RUNTIME_ADMIN_EMAIL_KEY    = "clougence.init.admin.email";
     public static final String RUNTIME_ADMIN_PASSWORD_KEY = "clougence.init.admin.password";
 

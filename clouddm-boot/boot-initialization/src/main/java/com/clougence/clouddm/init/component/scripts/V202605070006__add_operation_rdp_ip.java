@@ -53,16 +53,12 @@ public class V202605070006__add_operation_rdp_ip extends BaseJavaMigration {
 
     private static final List<String> sqls = new ArrayList<>();
     static {
-        sqls.add("ALTER TABLE `rdp_op_audit`\n" +
-                "    ADD COLUMN `ip` varchar(255) DEFAULT NULL");
+        sqls.add("ALTER TABLE `rdp_op_audit`\n" + "    ADD COLUMN `ip` varchar(255) DEFAULT NULL");
 
-        sqls.add("ALTER TABLE `rdp_op_audit`\n" +
-                "    ADD COLUMN `audit_type` varchar(255) DEFAULT NULL");
+        sqls.add("ALTER TABLE `rdp_op_audit`\n" + "    ADD COLUMN `audit_type` varchar(255) DEFAULT NULL");
 
-        sqls.add("ALTER TABLE `rdp_op_audit`\n" +
-                "    ADD COLUMN `operation_uri` varchar(255) DEFAULT NULL");
+        sqls.add("ALTER TABLE `rdp_op_audit`\n" + "    ADD COLUMN `operation_uri` varchar(255) DEFAULT NULL");
 
-        sqls.add("ALTER TABLE `rdp_op_audit`\n" +
-                "    MODIFY COLUMN `resource_value` varchar(512) DEFAULT NULL");
+        sqls.add("ALTER TABLE `rdp_op_audit`\n" + "    MODIFY COLUMN `resource_value` varchar(512) DEFAULT NULL");
     }
 }

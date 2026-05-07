@@ -1,9 +1,5 @@
 package com.clougence.clouddm.init.component.scripts;
 
-import com.clougence.utils.ExceptionUtils;
-import org.flywaydb.core.api.migration.BaseJavaMigration;
-import org.flywaydb.core.api.migration.Context;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -11,6 +7,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.flywaydb.core.api.migration.BaseJavaMigration;
+import org.flywaydb.core.api.migration.Context;
+
+import com.clougence.utils.ExceptionUtils;
 
 public class V202605070042__add_console_heartbeat extends BaseJavaMigration {
 
@@ -54,21 +55,14 @@ public class V202605070042__add_console_heartbeat extends BaseJavaMigration {
 
     static {
 
-        sqls.add("CREATE TABLE IF NOT EXISTS `dm_console_heartbeat`\n" +
-                "(\n" +
-                "    id                INT(11) NOT NULL AUTO_INCREMENT,\n" +
-                "    gmt_create        DATETIME    DEFAULT CURRENT_TIMESTAMP NOT NULL,\n" +
-                "    gmt_modified      DATETIME    DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,\n" +
-                "    console_ip        VARCHAR(32)                           NOT NULL,\n" +
-                "    active            BOOLEAN                               NOT NULL DEFAULT FALSE,\n" +
-                "    mac_address       VARCHAR(128)                          NOT NULL,\n" +
-                "    cpu_stat          TEXT        DEFAULT NULL,\n" +
-                "    mem_stat          TEXT        DEFAULT NULL,\n" +
-                "    disk_stat         TEXT        DEFAULT NULL,\n" +
-                "    version           VARCHAR(32) DEFAULT NULL,\n" +
-                "    console_send_time DATETIME    DEFAULT CURRENT_TIMESTAMP NULL,\n" +
-                "    hardware_uuid     VARCHAR(127) NULL,\n" +
-                "    PRIMARY KEY (`id`)\n" +
-                ") ENGINE = InnoDB DEFAULT CHARSET = utf8mb4");
+        sqls.add("CREATE TABLE IF NOT EXISTS `dm_console_heartbeat`\n" + "(\n" + "    id                INT(11) NOT NULL AUTO_INCREMENT,\n"
+                 + "    gmt_create        DATETIME    DEFAULT CURRENT_TIMESTAMP NOT NULL,\n"
+                 + "    gmt_modified      DATETIME    DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,\n"
+                 + "    console_ip        VARCHAR(32)                           NOT NULL,\n"
+                 + "    active            BOOLEAN                               NOT NULL DEFAULT FALSE,\n"
+                 + "    mac_address       VARCHAR(128)                          NOT NULL,\n" + "    cpu_stat          TEXT        DEFAULT NULL,\n"
+                 + "    mem_stat          TEXT        DEFAULT NULL,\n" + "    disk_stat         TEXT        DEFAULT NULL,\n" + "    version           VARCHAR(32) DEFAULT NULL,\n"
+                 + "    console_send_time DATETIME    DEFAULT CURRENT_TIMESTAMP NULL,\n" + "    hardware_uuid     VARCHAR(127) NULL,\n" + "    PRIMARY KEY (`id`)\n"
+                 + ") ENGINE = InnoDB DEFAULT CHARSET = utf8mb4");
     }
 }

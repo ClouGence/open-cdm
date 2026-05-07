@@ -2,7 +2,7 @@
   <div class="initialization">
     <div v-if="mode === 'loading'" class="init-loading-page">
       <div class="loading-card">
-        <h2 class="loading-title">{{ $t('initialization.title') }}</h2>
+        <h2 class="loading-title">{{ pageTitle }}</h2>
         <p class="loading-text">{{ $t('initialization.loading') }}</p>
       </div>
     </div>
@@ -25,7 +25,7 @@
     <!-- 初始化向导模式 -->
     <div v-else class="init-wizard">
       <div class="wizard-header">
-        <h1>{{ $t('initialization.title') }}</h1>
+        <h1>{{ pageTitle }}</h1>
         <div class="wizard-stage-progress">
           <div v-for="(stage, index) in stageItems" :key="stage.key" class="wizard-stage-item" :class="stageState(index)">
             <div class="wizard-stage-marker">
@@ -44,13 +44,14 @@
             :fieldDefs="dbFields"
             :formValues="formValues"
             :dbTestResult="dbTestResult"
+            :readonly="isUpgradeMode"
             @update:formValues="updateFormValues"
             @validation-change="handleDbValidationChange"
           />
         </div>
 
         <!-- Step 1: 安全配置 -->
-        <div v-show="currentStep === 1" class="step-panel">
+        <div v-show="!isUpgradeMode && currentStep === 1" class="step-panel">
           <StepSecurity
             :fieldDefs="securityFields"
             :formValues="formValues"
@@ -60,13 +61,24 @@
         </div>
 
         <!-- Step 2: 连接性配置 -->
-        <div v-show="currentStep === connectivityStepIndex" class="step-panel">
+        <div v-show="!isUpgradeMode && currentStep === connectivityStepIndex" class="step-panel">
           <StepConnectivity :fieldDefs="connectivityFields" :formValues="formValues" @update:formValues="updateFormValues" />
         </div>
 
         <!-- 确认步骤 -->
         <div v-show="isConfirmStep" class="step-panel">
-          <StepConfirm :fieldDefs="fieldDefs" :formValues="formValues" :dbTestResult="dbTestResult" :mode="mode" />
+          <StepConfirm
+            :fieldDefs="fieldDefs"
+            :formValues="formValues"
+            :dbTestResult="dbTestResult"
+            :mode="mode"
+            :workflowMode="workflowMode"
+            :executionScripts="executionScripts"
+          />
+        </div>
+
+        <div v-show="isExecutionStep" class="step-panel">
+          <StepExecution :executionScripts="executionScripts" :operationErrorDetail="operationErrorDetail" />
         </div>
       </div>
 
@@ -87,13 +99,18 @@
           </template>
         </div>
         <div class="wizard-footer-actions">
-          <a-button v-if="currentStep > 0" @click="prevStep">{{ $t('initialization.prev') }}</a-button>
-          <a-button v-if="currentStep === 0" :disabled="testingDb" @click="handleTestDb">
+          <a-button v-if="showPrevButton" @click="prevStep">{{ $t('initialization.prev') }}</a-button>
+          <a-button v-if="currentStep === 0 && !isUpgradeMode" :disabled="testingDb" @click="handleTestDb">
             <span v-if="testingDb" class="button-inline-spinner" aria-hidden="true"></span>
             <span>{{ $t('initialization.testConnection') }}</span>
           </a-button>
-          <a-button v-if="!isConfirmStep" type="primary" :disabled="!canNext" @click="nextStep">{{ $t('initialization.next') }}</a-button>
+          <a-button v-if="showNextButton" class="wizard-next-button" type="primary" :disabled="!canNext" @click="nextStep">
+            {{ $t('initialization.next') }}
+          </a-button>
           <a-button v-if="isConfirmStep" type="primary" :loading="applying" @click="handleConfirmAction">{{ confirmActionLabel }}</a-button>
+          <a-button v-if="showExecutionActionButton" type="primary" :loading="applying" @click="handleExecutionStageAction">
+            {{ executionActionLabel }}
+          </a-button>
         </div>
       </div>
     </div>
@@ -101,10 +118,12 @@
 </template>
 
 <script>
+import ReconnectingWebSocket from 'reconnecting-websocket';
 import StepDb from './StepDb.vue';
 import StepSecurity from './StepSecurity.vue';
 import StepConnectivity from './StepConnectivity.vue';
 import StepConfirm from './StepConfirm.vue';
+import StepExecution from './StepExecution.vue';
 import { consumeDmBootstrapStatus, getDmSystemStatus, isDmSystemReady } from '../../utils/dmGlobalSettings';
 
 const INIT_DB_CREATE_IF_MISSING = 'clougence.init.db.createIfMissing';
@@ -124,6 +143,119 @@ function sleep(timeoutMs) {
 function buildDmGlobalSettingsUrl() {
   const baseUrl = (process.env.VUE_APP_BASE_URL || '').replace(/\/$/, '');
   return `${baseUrl}/clouddm/console/api/v1/dm_global_settings`;
+}
+
+function buildInitInstallLogWsUrl() {
+  const explicitBase = (process.env.VUE_APP_BASE_URL || '').trim();
+  const fallbackOrigin = window.location.origin;
+  const baseUrl = explicitBase || fallbackOrigin;
+  const parsed = new URL(baseUrl, fallbackOrigin);
+  const wsProtocol = parsed.protocol === 'https:' ? 'wss:' : 'ws:';
+  return `${wsProtocol}//${parsed.host}/clouddm/console/api/v1/init/ws/install-log`;
+}
+
+function normalizeExecutionScriptItem(entry) {
+  if (typeof entry === 'string') {
+    return {
+      scriptName: entry,
+      status: 'PENDING',
+      failedSql: '',
+      errorDetail: ''
+    };
+  }
+
+  return {
+    scriptName: entry?.scriptName || '',
+    status: entry?.status || 'PENDING',
+    failedSql: entry?.failedSql || '',
+    errorDetail: entry?.errorDetail || ''
+  };
+}
+
+function resetExecutionScriptItems(items) {
+  return (items || []).map((item) => {
+    const normalized = normalizeExecutionScriptItem(item);
+    return {
+      ...normalized,
+      status: 'PENDING',
+      failedSql: '',
+      errorDetail: ''
+    };
+  });
+}
+
+function resetExecutionScriptsForRetry(items) {
+  return (items || []).map((item) => {
+    const normalized = normalizeExecutionScriptItem(item);
+    if (normalized.status === 'SUCCESS') {
+      return normalized;
+    }
+
+    return {
+      ...normalized,
+      status: 'PENDING',
+      failedSql: '',
+      errorDetail: ''
+    };
+  });
+}
+
+function mergeExecutionScriptSnapshot(currentItems, snapshotItems) {
+  const nextOrder = [];
+  const nextMap = new Map();
+
+  (currentItems || []).forEach((item) => {
+    const normalized = normalizeExecutionScriptItem(item);
+    if (!normalized.scriptName) {
+      return;
+    }
+    nextOrder.push(normalized.scriptName);
+    nextMap.set(normalized.scriptName, normalized);
+  });
+
+  (snapshotItems || []).forEach((item) => {
+    const normalized = normalizeExecutionScriptItem(item);
+    if (!normalized.scriptName) {
+      return;
+    }
+
+    if (!nextMap.has(normalized.scriptName)) {
+      nextOrder.push(normalized.scriptName);
+    }
+
+    const previous = nextMap.get(normalized.scriptName);
+    const shouldKeepSuccess = previous && previous.status === 'SUCCESS' && normalized.status === 'PENDING';
+    nextMap.set(normalized.scriptName, {
+      ...previous,
+      ...normalized,
+      ...(shouldKeepSuccess
+        ? {
+            status: previous.status,
+            failedSql: previous.failedSql,
+            errorDetail: previous.errorDetail
+          }
+        : {})
+    });
+  });
+
+  return nextOrder.map((scriptName) => nextMap.get(scriptName)).filter(Boolean);
+}
+
+function upsertExecutionScriptItem(items, nextItem) {
+  const normalized = normalizeExecutionScriptItem(nextItem);
+  if (!normalized.scriptName) {
+    return items;
+  }
+
+  const nextItems = [...(items || [])];
+  const index = nextItems.findIndex((item) => item.scriptName === normalized.scriptName);
+  if (index < 0) {
+    nextItems.push(normalized);
+    return nextItems;
+  }
+
+  nextItems.splice(index, 1, normalized);
+  return nextItems;
 }
 
 async function pollDmGlobalSettings() {
@@ -154,10 +286,11 @@ function redirectToLoginPage() {
 
 export default {
   name: 'Initialization',
-  components: { StepDb, StepSecurity, StepConnectivity, StepConfirm },
+  components: { StepDb, StepSecurity, StepConnectivity, StepConfirm, StepExecution },
   data() {
     return {
-      mode: 'loading', // 'loading' | 'full' | 'dbOnly' | 'dbError'
+      mode: 'loading', // 'loading' | 'full' | 'upgrade' | 'dbOnly' | 'dbError'
+      workflowMode: 'initial',
       errorMessage: '',
       fieldDefs: [],
       formValues: {},
@@ -166,6 +299,10 @@ export default {
       dbTestResult: null,
       dbMissingFields: [],
       securityMissingFields: [],
+      upgradeScripts: [],
+      executionScripts: [],
+      operationErrorDetail: '',
+      installLogSocket: null,
       currentStep: 0,
       testingDb: false,
       applying: false,
@@ -184,22 +321,46 @@ export default {
     connectivityFields() {
       return this.fieldDefs.filter((f) => f.category === 'connectivity');
     },
+    isUpgradeMode() {
+      return this.workflowMode === 'upgrade';
+    },
+    pageTitle() {
+      return this.isUpgradeMode ? this.$t('initialization.upgradeTitle') : this.$t('initialization.title');
+    },
     stageItems() {
+      if (this.isUpgradeMode) {
+        return [
+          { key: 'db', label: this.$t('initialization.stage.db') },
+          { key: 'confirm', label: this.$t('initialization.stage.confirm') },
+          { key: 'execute', label: this.$t('initialization.stage.execute') }
+        ];
+      }
+
       return [
         { key: 'db', label: this.$t('initialization.stage.db') },
         { key: 'security', label: this.$t('initialization.stage.security') },
         { key: 'connectivity', label: this.$t('initialization.stage.connectivity') },
-        { key: 'confirm', label: this.$t('initialization.stage.confirm') }
+        { key: 'confirm', label: this.$t('initialization.stage.confirm') },
+        { key: 'execute', label: this.$t('initialization.stage.execute') }
       ];
     },
     isConfirmStep() {
-      return this.currentStep >= this.stageItems.length - 1;
+      return this.currentStep === this.confirmStepIndex;
+    },
+    isExecutionStep() {
+      return this.currentStep === this.executionStepIndex;
     },
     connectivityStepIndex() {
       return 2;
     },
+    confirmStepIndex() {
+      return this.stageItems.length - 2;
+    },
+    executionStepIndex() {
+      return this.stageItems.length - 1;
+    },
     currentFooterMessage() {
-      if (this.isConfirmStep && this.restartStatusMessage) {
+      if (this.isExecutionStep && this.restartStatusMessage) {
         return {
           type: this.restartStatusType || 'info',
           message: this.restartStatusMessage
@@ -207,6 +368,10 @@ export default {
       }
 
       if (this.currentStep === 0) {
+        if (this.isUpgradeMode) {
+          return null;
+        }
+
         if (this.dbMissingFields.length) {
           return {
             type: 'error',
@@ -224,7 +389,7 @@ export default {
         };
       }
 
-      if (this.currentStep === 1 && this.securityMissingFields.length) {
+      if (!this.isUpgradeMode && this.currentStep === 1 && this.securityMissingFields.length) {
         return {
           type: 'error',
           message: `${this.$t('initialization.securityFormIncomplete')}：${this.securityMissingFields.join('、')}`
@@ -235,24 +400,126 @@ export default {
     },
     canNext() {
       if (this.currentStep === 0) {
+        if (this.isUpgradeMode) {
+          return true;
+        }
         return !this.dbMissingFields.length && Boolean(this.dbTestResult && this.dbTestResult.canProceed);
       }
-      if (this.currentStep === 1) {
+      if (!this.isUpgradeMode && this.currentStep === 1) {
         return !this.securityMissingFields.length;
       }
       return true;
     },
+    showPrevButton() {
+      return this.currentStep > 0 && !this.isExecutionStep;
+    },
+    showNextButton() {
+      return !this.isConfirmStep && !this.isExecutionStep;
+    },
     confirmActionLabel() {
-      return this.restartTimedOut ? this.$t('shua-xin') : this.$t('initialization.applyConfig');
+      if (this.isUpgradeMode) {
+        return this.$t('initialization.upgradeAction');
+      }
+
+      return this.$t('initialization.applyConfig');
+    },
+    showExecutionActionButton() {
+      return this.isExecutionStep && !this.applying && (this.restartTimedOut || this.restartStatusType === 'error');
+    },
+    executionActionLabel() {
+      if (this.restartTimedOut) {
+        return this.$t('shua-xin');
+      }
+
+      return this.$t('initialization.retryAction');
+    }
+  },
+  watch: {
+    pageTitle: {
+      immediate: true,
+      handler(value) {
+        document.title = value;
+      }
     }
   },
   beforeUnmount() {
     this.clearTestDbRefreshTimer();
+    this.disconnectInstallLogSocket();
   },
   async created() {
+    this.connectInstallLogSocket();
     await this.bootstrapPage();
   },
   methods: {
+    connectInstallLogSocket() {
+      if (this.installLogSocket) {
+        return;
+      }
+
+      const socket = new ReconnectingWebSocket(buildInitInstallLogWsUrl(), [], {
+        debug: false,
+        reconnectInterval: 3000
+      });
+
+      socket.addEventListener('message', (event) => {
+        this.handleInstallLogSocketMessage(event.data);
+      });
+
+      this.installLogSocket = socket;
+    },
+
+    disconnectInstallLogSocket() {
+      if (!this.installLogSocket) {
+        return;
+      }
+
+      this.installLogSocket.close();
+      this.installLogSocket = null;
+    },
+
+    handleInstallLogSocketMessage(rawMessage) {
+      try {
+        const payload = JSON.parse(rawMessage);
+        if (payload.type === 'RESET') {
+          this.executionScripts = resetExecutionScriptsForRetry(this.executionScripts);
+          this.operationErrorDetail = '';
+          return;
+        }
+
+        if (payload.type === 'SCRIPT_SNAPSHOT') {
+          const snapshotItems = Array.isArray(payload.object) ? payload.object.map(normalizeExecutionScriptItem) : [];
+          this.executionScripts = mergeExecutionScriptSnapshot(this.executionScripts, snapshotItems);
+          return;
+        }
+
+        if (payload.type === 'SCRIPT_UPDATE') {
+          this.executionScripts = upsertExecutionScriptItem(this.executionScripts, payload.object);
+        }
+      } catch (e) {
+        console.error('Failed to parse install log message', e);
+      }
+    },
+
+    async loadExecutionScriptsPreview() {
+      const payload = {
+        'spring.datasource.jdbcurl': this.formValues['spring.datasource.jdbcurl'] || '',
+        'spring.datasource.username': this.formValues['spring.datasource.username'] || '',
+        'spring.datasource.password': this.formValues['spring.datasource.password'] || ''
+      };
+
+      try {
+        const res = await this.$services.dmInitPreviewScripts({ data: payload, modal: false });
+        if (res.success && Array.isArray(res.data)) {
+          this.executionScripts = res.data.map(normalizeExecutionScriptItem);
+          return;
+        }
+      } catch (e) {
+        console.error('Preview execution scripts failed', e);
+      }
+
+      this.executionScripts = (this.upgradeScripts || []).map(normalizeExecutionScriptItem);
+    },
+
     async bootstrapPage() {
       this.mode = 'loading';
       try {
@@ -271,7 +538,7 @@ export default {
         return;
       }
 
-      const { status, initReason, dbError } = getDmSystemStatus(res);
+      const { status, initReason, dbError, upgradeScripts = [] } = getDmSystemStatus(res);
       if (status === 'Ready') {
         redirectToLoginPage();
         return;
@@ -283,8 +550,13 @@ export default {
         return;
       }
 
+      this.workflowMode = status === 'Upgrade' ? 'upgrade' : 'initial';
+      this.upgradeScripts = Array.isArray(upgradeScripts) ? upgradeScripts : [];
       const loaded = await this.loadFieldDefs();
-      this.mode = loaded ? 'full' : 'dbError';
+      if (loaded && this.isUpgradeMode) {
+        await this.loadExecutionScriptsPreview();
+      }
+      this.mode = loaded ? (this.isUpgradeMode ? 'upgrade' : 'full') : 'dbError';
       if (!loaded && !this.errorMessage) {
         this.errorMessage = 'Failed to load initialization config';
       }
@@ -307,6 +579,11 @@ export default {
           this.dbTestResult = null;
           this.dbMissingFields = [];
           this.securityMissingFields = [];
+          this.executionScripts = [];
+          this.operationErrorDetail = '';
+          this.restartTimedOut = false;
+          this.restartStatusType = '';
+          this.restartStatusMessage = '';
           this.currentStep = 0;
           return true;
         }
@@ -426,14 +703,22 @@ export default {
     },
 
     async handleUpdateDbConfig() {
+      this.workflowMode = 'initial';
+      this.upgradeScripts = [];
+      this.executionScripts = [];
+      this.operationErrorDetail = '';
       this.mode = 'loading';
       this.errorMessage = '';
       const loaded = await this.loadFieldDefs();
       this.mode = loaded ? 'dbOnly' : 'dbError';
     },
 
-    nextStep() {
-      this.currentStep = Math.min(this.currentStep + 1, this.stageItems.length - 1);
+    async nextStep() {
+      const nextStepIndex = Math.min(this.currentStep + 1, this.stageItems.length - 1);
+      if (nextStepIndex === this.confirmStepIndex) {
+        await this.loadExecutionScriptsPreview();
+      }
+      this.currentStep = nextStepIndex;
     },
 
     prevStep() {
@@ -453,12 +738,83 @@ export default {
     },
 
     handleConfirmAction() {
+      return this.startExecution();
+    },
+
+    async startExecution() {
+      if (!this.executionScripts.length) {
+        await this.loadExecutionScriptsPreview();
+      }
+      this.currentStep = this.executionStepIndex;
+      await this.$nextTick();
+
+      if (this.isUpgradeMode) {
+        return this.handleUpgrade();
+      }
+
+      return this.handleApply();
+    },
+
+    handleExecutionStageAction() {
       if (this.restartTimedOut) {
         window.location.reload();
         return;
       }
 
+      if (this.restartStatusType === 'error') {
+        return this.retryExecutionOnCurrentStep();
+      }
+    },
+
+    async retryExecutionOnCurrentStep() {
+      if (!this.executionScripts.length) {
+        await this.loadExecutionScriptsPreview();
+      }
+
+      this.restartTimedOut = false;
+      this.restartStatusType = '';
+      this.restartStatusMessage = '';
+      this.operationErrorDetail = '';
+      this.applying = false;
+
+      if (this.isUpgradeMode) {
+        return this.handleUpgrade();
+      }
+
       return this.handleApply();
+    },
+
+    async handleUpgrade() {
+      this.applying = true;
+      this.restartTimedOut = false;
+      this.restartStatusType = 'info';
+      this.restartStatusMessage = this.$t('initialization.upgrading');
+      this.executionScripts = resetExecutionScriptsForRetry(this.executionScripts);
+      this.operationErrorDetail = '';
+
+      try {
+        const res = await this.$services.dmInitUpgrade({ data: {}, modal: false });
+        if (!res.success) {
+          this.restartStatusType = 'error';
+          this.restartStatusMessage = this.$t('initialization.upgradeFailed');
+          this.operationErrorDetail = res.msg || '';
+          this.applying = false;
+          return;
+        }
+
+        this.restartStatusType = 'success';
+        this.restartStatusMessage = this.$t('initialization.upgradeSuccessRestarting');
+        void this.$services.dmInitRestart({ modal: false }).catch(() => {
+          // Connection loss is expected while the service exits.
+        });
+        await this.waitForRestart();
+      } catch (e) {
+        console.error('Upgrade failed', e);
+        this.restartStatusType = 'error';
+        this.restartStatusMessage = this.$t('initialization.upgradeFailed');
+        this.operationErrorDetail = e && e.message ? e.message : 'Upgrade failed';
+        this.applying = false;
+      }
     },
 
     async handleApply() {
@@ -466,12 +822,14 @@ export default {
       this.restartTimedOut = false;
       this.restartStatusType = '';
       this.restartStatusMessage = '';
+      this.executionScripts = resetExecutionScriptsForRetry(this.executionScripts);
+      this.operationErrorDetail = '';
       try {
         const payload = { ...this.formValues };
 
         const endpoint = this.mode === 'dbOnly' ? this.$services.dmInitUpdateDbConfig : this.$services.dmInitApplyConfig;
 
-        const res = await endpoint({ data: payload });
+        const res = await endpoint({ data: payload, modal: false });
         if (res.success) {
           this.restartStatusType = 'info';
           this.restartStatusMessage = this.$t('initialization.restarting');
@@ -479,12 +837,19 @@ export default {
             // Connection loss is expected while the service exits.
           });
           await this.waitForRestart();
+          return;
         }
+
+        this.restartStatusType = 'error';
+        this.restartStatusMessage = this.$t('initialization.installFailed');
+        this.operationErrorDetail = res.msg || '';
+        this.applying = false;
       } catch (e) {
         console.error('Apply config failed', e);
+        this.restartStatusType = 'error';
+        this.restartStatusMessage = this.$t('initialization.installFailed');
+        this.operationErrorDetail = e && e.message ? e.message : 'Initialization failed';
         this.applying = false;
-        this.restartStatusType = '';
-        this.restartStatusMessage = '';
       }
     },
 
@@ -523,6 +888,8 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
   background: #f0f2f5;
 }
 
@@ -608,13 +975,19 @@ export default {
   max-width: 720px;
   background: #fff;
   border-radius: 8px;
-  padding: 48px;
+  padding: 32px;
+  height: min(920px, calc(100vh - 48px));
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .wizard-header {
+  flex: 0 0 auto;
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .wizard-header h1 {
@@ -694,12 +1067,26 @@ export default {
   background: #1677ff;
 }
 
+.wizard-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .step-panel {
-  min-height: 300px;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+  box-sizing: border-box;
 }
 
 .wizard-footer {
-  margin-top: 24px;
+  flex: 0 0 auto;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -780,20 +1167,57 @@ export default {
   gap: 12px;
 }
 
+.wizard-next-button[disabled],
+.wizard-next-button[disabled]:hover,
+.wizard-next-button[disabled]:focus,
+.wizard-next-button[disabled]:active,
+.wizard-next-button.ant-btn-disabled,
+.wizard-next-button.ant-btn-disabled:hover,
+.wizard-next-button.ant-btn-disabled:focus,
+.wizard-next-button.ant-btn-disabled:active {
+  color: rgba(0, 0, 0, 0.25);
+  background: #f5f5f5;
+  border-color: #d9d9d9;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
+  .initialization {
+    padding: 0;
+  }
+
   .init-wizard {
-    min-height: 100vh;
-    padding: 32px 20px;
+    height: 100vh;
+    max-height: 100vh;
+    padding: 32px 16px;
     border-radius: 0;
   }
 
   .wizard-stage-progress {
-    flex-wrap: wrap;
-    row-gap: 16px;
+    flex-wrap: nowrap;
+    gap: 4px;
   }
 
   .wizard-stage-item {
-    flex: 1 1 50%;
+    flex: 1 1 0;
+    min-width: 0;
+    gap: 6px;
+  }
+
+  .wizard-stage-marker {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .wizard-stage-label {
+    max-width: 100%;
+    font-size: 12px;
+    line-height: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .wizard-stage-line {

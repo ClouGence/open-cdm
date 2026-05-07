@@ -53,24 +53,16 @@ public class V202605070025__aws_marketplace extends BaseJavaMigration {
 
     private static final List<String> sqls = new ArrayList<>();
     static {
-        sqls.add("CREATE TABLE IF NOT EXISTS `rdp_market_sub`\n" +
-                "    (\n" +
-                "        `id`                         bigint                                  NOT NULL AUTO_INCREMENT,\n" +
-                "        `gmt_create`                 datetime                                NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
-                "        `gmt_modified`               datetime                                NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n" +
-                "        `uid`                        varchar(127) NOT NULL,\n" +
-                "        `market_type`                varchar(255) NOT NULL,\n" +
-                "        `aws_customer_id`            varchar(255) DEFAULT NULL,\n" +
-                "        `aws_product_code`           varchar(255) DEFAULT NULL,\n" +
-                "        `aws_account_id`             varchar(255) DEFAULT NULL,\n" +
-                "        `sub_status`                 varchar(64)  DEFAULT 'SUBSCRIBE',\n" +
-                "        PRIMARY KEY (`id`),\n" +
-                "        KEY `idx_uid` (`uid`),\n" +
-                "        KEY `idx_aws_uniq` (`aws_customer_id`, `aws_product_code`,`aws_account_id`)\n" +
-                "    ) ENGINE = InnoDB\n" +
-                "         DEFAULT CHARSET = utf8mb4");
+        sqls.add("CREATE TABLE IF NOT EXISTS `rdp_market_sub`\n" + "    (\n"
+                 + "        `id`                         bigint                                  NOT NULL AUTO_INCREMENT,\n"
+                 + "        `gmt_create`                 datetime                                NOT NULL DEFAULT CURRENT_TIMESTAMP,\n"
+                 + "        `gmt_modified`               datetime                                NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n"
+                 + "        `uid`                        varchar(127) NOT NULL,\n" + "        `market_type`                varchar(255) NOT NULL,\n"
+                 + "        `aws_customer_id`            varchar(255) DEFAULT NULL,\n" + "        `aws_product_code`           varchar(255) DEFAULT NULL,\n"
+                 + "        `aws_account_id`             varchar(255) DEFAULT NULL,\n" + "        `sub_status`                 varchar(64)  DEFAULT 'SUBSCRIBE',\n"
+                 + "        PRIMARY KEY (`id`),\n" + "        KEY `idx_uid` (`uid`),\n" + "        KEY `idx_aws_uniq` (`aws_customer_id`, `aws_product_code`,`aws_account_id`)\n"
+                 + "    ) ENGINE = InnoDB\n" + "         DEFAULT CHARSET = utf8mb4");
 
-        sqls.add("ALTER TABLE `rdp_user`\n" +
-                "        ADD COLUMN `marketplace_type` varchar(64) DEFAULT 'NONE'");
+        sqls.add("ALTER TABLE `rdp_user`\n" + "        ADD COLUMN `marketplace_type` varchar(64) DEFAULT 'NONE'");
     }
 }

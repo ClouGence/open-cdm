@@ -1,10 +1,12 @@
 package com.clougence.clouddm.init.service;
 
 import java.sql.*;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import com.clougence.clouddm.console.web.constants.SystemStatus;
+import com.clougence.clouddm.init.component.flyway.DmFlywayInit;
 import com.clougence.clouddm.init.model.SystemStatusResult;
 import com.clougence.utils.ResourcesUtils;
 import com.clougence.utils.StringUtils;
@@ -14,7 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class InitDBStatusDetector {
 
-    private static final String TABLE_COUNT_SQL = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = ?";
+    private static final String TABLE_COUNT_SQL  = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = ?";
+    private static final String TABLE_EXISTS_SQL = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = ? AND table_name = ?";
 
     private InitDBStatusDetector(){
     }
@@ -67,14 +70,56 @@ public final class InitDBStatusDetector {
                     }
                 }
             }
+
+            if (hasUpdateHistoryTable(conn, dbName)) {
+                try {
+                    List<String> pendingScripts = DmFlywayInit.listUpgradeRequiredScriptNames(jdbcUrl, username, password, dbName);
+                    if (!pendingScripts.isEmpty()) {
+                        result.setStatus(SystemStatus.Upgrade);
+                        result.setInitReason("upgradePending");
+                        result.setUpgradeScripts(pendingScripts);
+                        return result;
+                    }
+                } catch (Exception e) {
+                    log.warn("[InitDBStatusDetector] Flyway upgrade preview failed: {}", e.getMessage());
+                    result.setStatus(SystemStatus.Upgrade);
+                    result.setInitReason("upgradePending");
+                    result.setDbError(e.getMessage());
+                    return result;
+                }
+            }
+
             result.setStatus(SystemStatus.Ready);
             return result;
         } catch (SQLException e) {
             log.warn("[InitDBStatusDetector] DB connection failed: {}", e.getMessage());
             result.setStatus(SystemStatus.Initial);
-            result.setInitReason("dbConnectionError");
+            result.setInitReason(isDatabaseMissing(e) ? "dbMissing" : "dbConnectionError");
             result.setDbError(e.getMessage());
             return result;
+        }
+    }
+
+    private static boolean isDatabaseMissing(SQLException e) {
+        if (e == null) {
+            return false;
+        }
+
+        if (e.getErrorCode() == 1049) {
+            return true;
+        }
+
+        String message = e.getMessage();
+        return StringUtils.isNotBlank(message) && message.toLowerCase().contains("unknown database");
+    }
+
+    private static boolean hasUpdateHistoryTable(Connection conn, String dbName) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(TABLE_EXISTS_SQL)) {
+            stmt.setString(1, dbName);
+            stmt.setString(2, DmFlywayInit.TABLE);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
         }
     }
 

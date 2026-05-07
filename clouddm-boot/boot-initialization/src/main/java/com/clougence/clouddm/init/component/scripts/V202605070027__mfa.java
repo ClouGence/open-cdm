@@ -55,20 +55,12 @@ public class V202605070027__mfa extends BaseJavaMigration {
     static {
         sqls.add("ALTER TABLE `rdp_user` ADD COLUMN `use_mfa` tinyint(1) NOT NULL DEFAULT 0");
 
-        sqls.add("CREATE TABLE IF NOT EXISTS `rdp_user_mfa`\n" +
-                "    (\n" +
-                "        `id`               bigint(20)   NOT NULL AUTO_INCREMENT,\n" +
-                "        `gmt_create`       datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,\n" +
-                "        `gmt_modified`     datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n" +
-                "        `user_id`          bigint(20)   NOT NULL,\n" +
-                "        `uid`              varchar(127) NOT NULL,\n" +
-                "        `mfa_status`       varchar(127) NOT NULL,\n" +
-                "        `mfa_key`          varchar(512) NOT NULL,\n" +
-                "        `reset_mfa_key`    varchar(512) DEFAULT NULL,\n" +
-                "        PRIMARY KEY (`id`),\n" +
-                "        KEY `idx_user_id` (`user_id`),\n" +
-                "        KEY `idx_uid` (`uid`)\n" +
-                "    ) ENGINE = InnoDB\n" +
-                "      DEFAULT CHARSET = utf8mb4");
+        sqls.add("CREATE TABLE IF NOT EXISTS `rdp_user_mfa`\n" + "    (\n" + "        `id`               bigint(20)   NOT NULL AUTO_INCREMENT,\n"
+                 + "        `gmt_create`       datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,\n"
+                 + "        `gmt_modified`     datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n"
+                 + "        `user_id`          bigint(20)   NOT NULL,\n" + "        `uid`              varchar(127) NOT NULL,\n"
+                 + "        `mfa_status`       varchar(127) NOT NULL,\n" + "        `mfa_key`          varchar(512) NOT NULL,\n"
+                 + "        `reset_mfa_key`    varchar(512) DEFAULT NULL,\n" + "        PRIMARY KEY (`id`),\n" + "        KEY `idx_user_id` (`user_id`),\n"
+                 + "        KEY `idx_uid` (`uid`)\n" + "    ) ENGINE = InnoDB\n" + "      DEFAULT CHARSET = utf8mb4");
     }
 }

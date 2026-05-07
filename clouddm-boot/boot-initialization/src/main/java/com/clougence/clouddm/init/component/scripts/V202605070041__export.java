@@ -1,9 +1,5 @@
 package com.clougence.clouddm.init.component.scripts;
 
-import com.clougence.utils.ExceptionUtils;
-import org.flywaydb.core.api.migration.BaseJavaMigration;
-import org.flywaydb.core.api.migration.Context;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -11,6 +7,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.flywaydb.core.api.migration.BaseJavaMigration;
+import org.flywaydb.core.api.migration.Context;
+
+import com.clougence.utils.ExceptionUtils;
 
 public class V202605070041__export extends BaseJavaMigration {
 
@@ -53,22 +54,11 @@ public class V202605070041__export extends BaseJavaMigration {
     private static final List<String> sqls = new ArrayList<>();
 
     static {
-        sqls.add("create table dm_files\n" +
-                "    (\n" +
-                "        id           bigint       not null auto_increment,\n" +
-                "        gmt_create   datetime     not null default CURRENT_TIMESTAMP,\n" +
-                "        gmt_modified datetime     not null default CURRENT_TIMESTAMP,\n" +
-                "        owner_uid    varchar(36)  not null,\n" +
-                "        user_id      varchar(36)  not null,\n" +
-                "        file_uri     varchar(500) not null,\n" +
-                "        file_format  varchar(200) not null,\n" +
-                "        inner_format tinyint      not null,\n" +
-                "        status       varchar(64)  not null,\n" +
-                "        message      text,\n" +
-                "        unique_id    varchar(36)  not null,\n" +
-                "        heartbeat    datetime     null,\n" +
-                "        PRIMARY KEY (id),\n" +
-                "        unique key unique_id (unique_id)\n" +
-                "    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4");
+        sqls.add("create table dm_files\n" + "    (\n" + "        id           bigint       not null auto_increment,\n"
+                 + "        gmt_create   datetime     not null default CURRENT_TIMESTAMP,\n" + "        gmt_modified datetime     not null default CURRENT_TIMESTAMP,\n"
+                 + "        owner_uid    varchar(36)  not null,\n" + "        user_id      varchar(36)  not null,\n" + "        file_uri     varchar(500) not null,\n"
+                 + "        file_format  varchar(200) not null,\n" + "        inner_format tinyint      not null,\n" + "        status       varchar(64)  not null,\n"
+                 + "        message      text,\n" + "        unique_id    varchar(36)  not null,\n" + "        heartbeat    datetime     null,\n" + "        PRIMARY KEY (id),\n"
+                 + "        unique key unique_id (unique_id)\n" + "    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4");
     }
 }
