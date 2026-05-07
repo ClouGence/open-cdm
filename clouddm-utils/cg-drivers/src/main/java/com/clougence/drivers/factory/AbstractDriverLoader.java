@@ -193,6 +193,12 @@ public abstract class AbstractDriverLoader implements DriverLoader {
             }
 
             try {
+                if (restoreFilesIndexQuietly(preparer, driverVersion, driverResource)) {
+                    preparer.refresh(driverVersion, driverResource, dsFactoryClassLoader, ResourcePreparer.NONE);
+                    allPrepared = allPrepared && driverResource.isPrepared();
+                    continue;
+                }
+
                 preparer.analysis(driverVersion, driverResource, dsFactoryClassLoader, ResourcePreparer.NONE);
                 syncFilesIndex(preparer, driverVersion, driverResource);
                 preparer.refresh(driverVersion, driverResource, dsFactoryClassLoader, ResourcePreparer.NONE);
@@ -217,6 +223,19 @@ public abstract class AbstractDriverLoader implements DriverLoader {
         }
 
         driverVersion.setPrepared(allPrepared);
+    }
+
+    private boolean restoreFilesIndexQuietly(ResourcePreparer preparer, DriverVersion driverVersion, ResDef driverResource) {
+        if (!(preparer instanceof com.clougence.drivers.factory.prepare.AbstractResourcePreparer abstractResourcePreparer)) {
+            return false;
+        }
+
+        try {
+            return abstractResourcePreparer.restoreFilesIndex(driverVersion, driverResource);
+        } catch (IOException ioException) {
+            log.error(ioException.getMessage(), ioException);
+            return false;
+        }
     }
 
     @Override
