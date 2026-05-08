@@ -31,6 +31,11 @@ public class DmWorkerStatusDO {
 
     private String           workerSeqNumber;
 
+    /**
+     * Legacy field from the old consoleIp-based routing model.
+     * Keep it only for backward compatibility while single-console cleanup is in progress.
+     */
+    @Deprecated
     private String           consoleIp;
 
     private String           workerIp;

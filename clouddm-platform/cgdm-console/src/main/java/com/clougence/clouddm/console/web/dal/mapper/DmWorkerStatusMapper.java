@@ -20,6 +20,10 @@ public interface DmWorkerStatusMapper extends BaseMapper<DmWorkerStatusDO> {
 
     List<DmWorkerStatusDO> queryByClusterIdAndStatus(Long clusterId, WorkerConnStatus workerConnStatus);
 
+    /**
+     * @deprecated Legacy query from the old consoleIp-based routing model. Avoid adding new usage.
+     */
+    @Deprecated
     List<DmWorkerStatusDO> queryByConsoleIpAndStatus(String consoleIp, WorkerConnStatus workerConnStatus);
 
     List<DmWorkerStatusDO> queryInactivity(@Param("checkPoint") Date checkPoint);

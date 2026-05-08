@@ -87,6 +87,3 @@ if (targetName == "all") {
     include 'pkg-sidecar'; project(":pkg-sidecar").projectDir = file('package/pkg/sidecar')
     include 'pkg-alone'; project(":pkg-alone").projectDir = file('package/pkg/alone')
 }
-
-// dmserver
-include 'clouddm-server';

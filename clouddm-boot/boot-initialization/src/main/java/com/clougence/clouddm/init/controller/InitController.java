@@ -21,8 +21,8 @@ import com.clougence.rdp.constant.auth.RequestAuth;
 import jakarta.annotation.Resource;
 
 /**
- * 系统初始化 REST API。
- * 所有接口在 Initial 状态下开放（Ignore 认证）。
+ * REST API for system initialization.
+ * All endpoints are exposed while the system is in the Initial state and therefore bypass authentication.
  */
 @RestController
 @RequestMapping(value = DmControllerUrlPrefix.CONSOLE_PREFIX + "/init")
@@ -34,8 +34,8 @@ public class InitController {
     private SysInitDefService defService;
 
     /**
-     * 获取默认配置字段定义。
-     * schema 来自 init-fields.json，defaultValue 来自 classpath *.properties。
+     * Returns the default configuration field definitions.
+     * The schema comes from init-fields.json and default values come from classpath property files.
      */
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/defaultConfig", method = { RequestMethod.POST })
@@ -45,7 +45,7 @@ public class InitController {
     }
 
     /**
-     * 测试数据库连接 + 空库检测 + 已安装检测。
+     * Tests database connectivity and determines whether the target database is empty or already initialized.
      */
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/testDb", method = { RequestMethod.POST })
@@ -66,7 +66,7 @@ public class InitController {
     }
 
     /**
-     * 保存初始化配置（完整模式：写配置 + Flyway 迁移 + 更新管理员）。
+     * Applies the full initialization flow: save configuration, run Flyway migration, and update the administrator account.
      */
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/applyConfig", method = { RequestMethod.POST })
@@ -76,7 +76,7 @@ public class InitController {
     }
 
     /**
-     * 仅更新数据库配置（dbOnly 模式）。
+     * Updates only the database configuration in dbOnly mode.
      */
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/updateDbConfig", method = { RequestMethod.POST })
@@ -97,7 +97,7 @@ public class InitController {
     }
 
     /**
-     * 触发系统重启。
+     * Requests a system restart.
      */
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/restart", method = { RequestMethod.POST })

@@ -3,30 +3,30 @@ package com.clougence.clouddm.init.model;
 import lombok.Data;
 
 /**
- * 初始化配置字段定义。
- * 字段 schema 来源于 init-fields.json，字段值来源于运行时 classpath *.properties。
+ * Definition of a single initialization configuration field.
+ * The field schema comes from init-fields.json, and the field value is resolved from runtime classpath property files.
  */
 @Data
 public class InitFieldDef {
 
-    /** 配置键名，对应 .properties 文件中的 key */
+    /** Property key matching the corresponding entry in a .properties file. */
     private String  propertyKey;
 
-    /** 从运行时配置文件读取的当前值 */
+    /** Default value resolved from the active runtime configuration. */
     private String  defaultValue;
 
-    /** 分类：database / security / connectivity */
+    /** UI category such as database, security, or connectivity. */
     private String  category;
 
-    /** 输入类型：text / password / number */
+    /** Form input type such as text, password, or number. */
     private String  inputType;
 
-    /** 是否必填 */
+    /** Whether the field is required. */
     private boolean required;
 
-    /** 前端表单标签 */
+    /** Localized label shown in the initialization form. */
     private String  label;
 
-    /** 字段说明 */
+    /** Localized description shown beside the field. */
     private String  description;
 }

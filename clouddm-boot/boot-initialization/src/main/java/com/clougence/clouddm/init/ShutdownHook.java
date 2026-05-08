@@ -12,8 +12,7 @@ import com.clougence.utils.future.BasicFuture;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @version : 2015年11月4日
- * @author 赵永春 (zyc@hasor.net)
+ * Shutdown hook that keeps the initialization launcher blocked until the JVM enters its shutdown phase.
  */
 @Slf4j
 public class ShutdownHook extends Thread implements Runnable {
@@ -27,6 +26,9 @@ public class ShutdownHook extends Thread implements Runnable {
         }
     }
 
+    /**
+     * Registers the hook and blocks the caller until the JVM starts shutting down.
+     */
     public static void joinShutdown() {
         try {
             ShutdownHook hook = new ShutdownHook();

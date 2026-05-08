@@ -1,71 +1,49 @@
 package com.clougence.clouddm.init.component.scripts;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import org.flywaydb.core.api.migration.BaseJavaMigration;
-import org.flywaydb.core.api.migration.Context;
+import com.clougence.clouddm.init.component.flyway.AbstractUpgradeJavaMigration;
 
-import com.clougence.utils.ExceptionUtils;
-
-public class V202605070039__sql_audit extends BaseJavaMigration {
+public class V202605070039__sql_audit extends AbstractUpgradeJavaMigration {
 
     @Override
-    public void migrate(Context context) throws Exception {
-        Connection c = context.getConnection();
-        for (String sql : sqls) {
-            safeExecute(c, sql);
-        }
-    }
+    public List<String> collectScript() {
+        return List.of("""
+                    create table if not exists dm_sql_audit
+                        (
+                            id               bigint        not null auto_increment,
+                            gmt_create       datetime      not null default CURRENT_TIMESTAMP,
+                            gmt_modified     datetime      not null default CURRENT_TIMESTAMP,
+                            operate_time     datetime(3)   not null,
+                            end_time         datetime(3),
+                            uid              varchar(36)   not null,
+                            user_name        varchar(255)  not null,
+                            primary_uid      varchar(36)   not null,
+                            affect_line      bigint,
 
-    private static final Set<Integer> errorCodes = new HashSet<>();
-    static {
-        errorCodes.add(1060);
-        errorCodes.add(1061);
-        errorCodes.add(1062);
-        errorCodes.add(1050);
-        errorCodes.add(1072);
-        errorCodes.add(1091);
-    }
+                            ds_id            bigint        not null,
+                            ds_desc          varchar(1024) not null,
+                            data_source_type varchar(128)  not null,
 
-    private void safeExecute(Connection conn, String sql) {
-        try (Statement stmt = conn.createStatement()) {
-            stmt.execute(sql);
-        } catch (SQLException e) {
-            // MySQL / OceanBase 错误码：
-            // 1060 = Duplicate column name
-            // 1050 = Table exists (for CREATE)
-            // 1061 = Duplicate key name
-            // 1091 = Can't DROP ... ; check that column/key exists
-            if (errorCodes.contains(e.getErrorCode())) {
-                System.out.println("Flyway java exec error but skip, msg:" + ExceptionUtils.getRootCauseMessage(e) + ", sql: " + sql);
-                return;
-            }
+                            session_id       varchar(255)  not null,
+                            status           varchar(32)   not null,
 
-            throw new RuntimeException("Failed to execute: " + sql, e);
-        }
-    }
+                            log_ip           varchar(255)  not null,
+                            client_ip        varchar(255),
+                            work_seq_number  varchar(255)  not null,
 
-    private static final List<String> sqls = new ArrayList<>();
+                            requester        varchar(32)   not null,
 
-    static {
-        sqls.add("create table if not exists dm_sql_audit\n" + "    (\n" + "        id               bigint        not null auto_increment,\n"
-                 + "        gmt_create       datetime      not null default CURRENT_TIMESTAMP,\n" + "        gmt_modified     datetime      not null default CURRENT_TIMESTAMP,\n"
-                 + "        operate_time     datetime(3)   not null,\n" + "        end_time         datetime(3),\n" + "        uid              varchar(36)   not null,\n"
-                 + "        user_name        varchar(255)  not null,\n" + "        primary_uid      varchar(36)   not null,\n" + "        affect_line      bigint,\n" + "\n"
-                 + "        ds_id            bigint        not null,\n" + "        ds_desc          varchar(1024) not null,\n"
-                 + "        data_source_type varchar(128)  not null,\n" + "\n" + "        session_id       varchar(255)  not null,\n"
-                 + "        status           varchar(32)   not null,\n" + "\n" + "        log_ip           varchar(255)  not null,\n" + "        client_ip        varchar(255),\n"
-                 + "        work_seq_number  varchar(255)  not null,\n" + "\n" + "        requester        varchar(32)   not null,\n" + "\n"
-                 + "        sql_kind         varchar(32)   not null,\n" + "        exec_sql         text          not null,\n"
-                 + "        resource         text          not null,\n" + "        message          text,\n" + "        primary key (id)\n" + "    ) ENGINE = InnoDB\n"
-                 + "      DEFAULT CHARSET = utf8mb4");
-
-        sqls.add("alter table dm_auto_exec_task\n" + "        drop column transactional_group");
+                            sql_kind         varchar(32)   not null,
+                            exec_sql         text          not null,
+                            resource         text          not null,
+                            message          text,
+                            primary key (id)
+                        ) ENGINE = InnoDB
+                          DEFAULT CHARSET = utf8mb4\
+                """, """
+                    alter table dm_auto_exec_task
+                            drop column transactional_group\
+                """);
     }
 }

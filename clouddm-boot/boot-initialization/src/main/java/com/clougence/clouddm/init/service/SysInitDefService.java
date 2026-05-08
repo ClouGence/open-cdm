@@ -28,10 +28,8 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 系统初始化核心服务。
- * - 合并 init-fields.json schema + classpath 运行时配置值
- * - DB 连接自检判断系统状态
- * - 应用配置（写入 classpath properties / 执行 Flyway 迁移）
+ * Provides initialization field definitions and default property values for the initialization UI.
+ * It combines field metadata from init-fields.json with property defaults resolved from classpath and app-home configuration files.
  */
 @Slf4j
 @Service
@@ -82,7 +80,6 @@ public class SysInitDefService {
             copy.setLabel(def.getLabel());
             copy.setDescription(def.getDescription());
 
-            //
             String value = runtimeProps.getProperty(def.getPropertyKey());
             if (StringUtils.isBlank(value)) {
                 value = initDefaults.getProperty(def.getPropertyKey());
@@ -95,9 +92,9 @@ public class SysInitDefService {
 
     public List<InitFieldDef> getFieldDefsSchema() { return this.fieldDefsCache; }
 
-    //
-
-    /** 加载运行时配置（根据 app.mode 选择 alone 或 console 配置文件） */
+    /**
+     * Loads runtime properties, choosing the alone or console configuration set according to app.mode.
+     */
     public Properties loadSystemProperties() {
         Properties props = new Properties();
         try {

@@ -6,7 +6,7 @@ import java.util.List;
 import com.clougence.clouddm.console.web.constants.SystemStatus;
 
 /**
- * 系统状态检测结果。
+ * Result object returned by system status detection.
  */
 public class SystemStatusResult {
 

@@ -11,16 +11,36 @@ import com.clougence.clouddm.console.web.dal.model.DmAsyncTaskDO;
  */
 public interface DmAsyncTaskMapper extends BaseMapper<DmAsyncTaskDO> {
 
+    /**
+     * @deprecated Legacy consoleIp-based task ownership reset.
+     */
+    @Deprecated
     int resetAsyncTaskStatus(String consoleIp);
 
+    /**
+     * @deprecated Legacy consoleIp-based task ownership reset.
+     */
+    @Deprecated
     int resetCancelingAsyncTaskStatus(String consoleIp);
 
+    /**
+     * @deprecated Legacy consoleIp-based task ownership reset.
+     */
+    @Deprecated
     int resetPausingAsyncTaskStatus(String consoleIp);
 
+    /**
+     * @deprecated Legacy consoleIp-based task ownership reset.
+     */
+    @Deprecated
     int resetInitAsyncTaskStatus(String consoleIp);
 
     // --- AsyncTaskScheduleService ---
 
+    /**
+     * @deprecated Legacy consoleIp-based task ownership query.
+     */
+    @Deprecated
     List<DmAsyncTaskDO> queryWaitTask(int limit, String consoleIp);
 
     DmAsyncTaskDO queryByBiz(String bizId, String bizType);
@@ -43,10 +63,22 @@ public interface DmAsyncTaskMapper extends BaseMapper<DmAsyncTaskDO> {
 
     int updateFromPauseTo(long taskId, String toStatus, String message);
 
+    /**
+     * @deprecated Legacy consoleIp-based task reassignment.
+     */
+    @Deprecated
     void retryFailureOrCancelTask(long taskId, String message, String consoleIp);
 
+    /**
+     * @deprecated Legacy consoleIp-based task reassignment.
+     */
+    @Deprecated
     void resumePauseTask(long taskId, String message, String consoleIp);
 
+    /**
+     * @deprecated Legacy consoleIp-based task activation.
+     */
+    @Deprecated
     int activateTask(long taskId, String consoleIp);
 
     // --- DockTaskController --- 

@@ -27,6 +27,9 @@ import com.clougence.utils.HostUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
+ * Console-side registry responsible for authenticating, registering, and unregistering worker RSocket connections.
+ * This class is still required in the single-console architecture; only the legacy consoleIp-based routing state is being phased out.
+ *
  * @author wanshao create time is 2021/1/7
  **/
 @Slf4j

@@ -58,6 +58,11 @@ public class RdpAsyncTaskDO {
 
     private boolean                 fastFail;
 
+    /**
+     * Legacy field from the old console ownership model for async tasks.
+     * Retained only for backward compatibility during single-console cleanup.
+     */
+    @Deprecated
     private String                  consoleIp;
 
     private RdpAsyncTaskStatus      status;

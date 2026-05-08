@@ -16,7 +16,9 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 初始化模式 Spring Boot 应用。
+ * Spring Boot entry point for initialization mode.
+ * This application starts the lightweight initialization web flow and then blocks until the JVM begins shutdown,
+ * so the init process does not exit immediately after the Spring context is created.
  */
 @Slf4j
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class })

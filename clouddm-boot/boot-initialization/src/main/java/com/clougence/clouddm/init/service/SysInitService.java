@@ -38,10 +38,10 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 系统初始化核心服务。
- * - 合并 init-fields.json schema + classpath 运行时配置值
- * - DB 连接自检判断系统状态
- * - 应用配置（写入 classpath properties / 执行 Flyway 迁移）
+ * Core service for the system initialization workflow.
+ * - Merges the init-fields.json schema with runtime property defaults.
+ * - Evaluates database connectivity and installation state.
+ * - Persists configuration and runs Flyway-based initialization or upgrade tasks.
  */
 @Slf4j
 @Service
@@ -60,11 +60,11 @@ public class SysInitService {
     private static final String ALONE_CONFIG                 = "alone.properties";
     private static final String CONSOLE_CONFIG               = "console.properties";
 
-    // 数据库测试
+    // Database connectivity and installation-state checks.
     // ========================================================================
 
     /**
-     * 测试数据库连接（使用用户提交的临时参数）。
+     * Tests database connectivity with the temporary parameters submitted by the user.
      */
     public TestDbResult testDbConnection(String jdbcUrl, String username, String password, String rebuildIfNotEmpty, String confirmDatabaseName) {
         TestDbResult result = new TestDbResult();
@@ -111,10 +111,12 @@ public class SysInitService {
     }
 
     // ========================================================================
-    // 配置读写
+    // Configuration loading and persistence.
     // ========================================================================
 
-    /**  应用初始化配置（完整模式：写配置 + Flyway 迁移 + 更新管理员） */
+    /**
+     * Applies the full initialization flow: persist configuration, run Flyway, and update the administrator account.
+     */
     public void applyInitConfig(Map<String, String> userConfig) throws Exception {
         String jdbcUrl = userConfig.get("spring.datasource.jdbcurl");
         InstallUpgradeLogBus.start("install", jdbcUrl);
@@ -162,9 +164,9 @@ public class SysInitService {
     }
 
     /**
-     * 仅更新数据库配置。
-     * 对于新库、空库或明确要求重建的场景，同步执行初始化并写入管理员账号；
-     * 对于已有非空库，仅更新连接并执行迁移/修复，不重置管理员账号。
+     * Updates only the database configuration.
+     * For a new, empty, or explicitly rebuilt database, it also runs initialization and writes the administrator account.
+     * For an existing non-empty database, it only updates connectivity and runs migration or fix tasks without resetting the administrator account.
      */
     public void updateDbConfig(Map<String, String> userConfig) throws Exception {
         InstallUpgradeLogBus.start("install", userConfig.get("spring.datasource.jdbcurl"));
@@ -242,7 +244,7 @@ public class SysInitService {
     }
 
     // ========================================================================
-    // 内部方法
+    // Internal helpers.
     // ========================================================================
 
     private boolean isAloneMode() { return "embedded".equals(System.getProperty("app.mode")); }
@@ -344,11 +346,11 @@ public class SysInitService {
 
     private void updateAdminUser(String jdbcUrl, String dbUser, String dbPass, String adminEmail, String adminPassword) throws SQLException {
         try (Connection conn = DriverManager.getConnection(jdbcUrl, dbUser, dbPass)) {
-            // 加密密码（与 Flyway 迁移脚本保持一致）
+            // Encrypt the password using the same format as the Flyway seed scripts.
             com.clougence.clouddm.api.common.crypt.PasswordInfo cryptResult = com.clougence.clouddm.api.common.crypt.CryptService.INSTANCE.encryptForOneWay(adminPassword);
             String encodedPassword = cryptResult.getEncryptPassword();
 
-            // 先检查表是否存在
+            // Check whether the user table already exists before attempting any update.
             String dbName = InitDBStatusDetector.getDatabaseName(jdbcUrl);
             try (Statement checkStmt = conn.createStatement();
                     ResultSet crs = checkStmt.executeQuery("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='" + dbName + "' AND table_name='rdp_user'")) {
@@ -358,7 +360,7 @@ public class SysInitService {
                 }
             }
 
-            // 查询管理员是否存在
+            // Look up the administrator account so it can be updated or inserted.
             try (PreparedStatement stmt = conn.prepareStatement("SELECT id, email FROM rdp_user WHERE uid = ?")) {
                 stmt.setString(1, InitSeedConstants.ADMIN_UID);
                 try (ResultSet rs = stmt.executeQuery()) {
@@ -411,11 +413,11 @@ public class SysInitService {
     }
 
     // ========================================================================
-    // Fix 任务
+    // Post-migration fix tasks.
     // ========================================================================
 
     /**
-     * 启动临时非 Web Spring 容器执行 fix 初始化（内部用户、角色、安全规则等）。
+     * Starts a temporary non-web Spring container to run fix tasks such as internal user, role, and security rule initialization.
      */
     private void runFixTasks(String jdbcUrl, String dbUser, String dbPass) {
         log.info("[SysInitService] Running fix tasks with temporary Spring context...");
@@ -568,7 +570,7 @@ public class SysInitService {
 
         if (verifyTargetConnection && inspection.databaseExists && inspection.charsetValid) {
             try (Connection ignored = DriverManager.getConnection(jdbcUrl, username, password)) {
-                // 目标库连接可用即可。
+                // It is sufficient to verify that the target schema can be reached.
             }
         }
 
@@ -662,11 +664,11 @@ public class SysInitService {
     }
 
     // ========================================================================
-    // 重启
+    // Restart handling.
     // ========================================================================
 
     /**
-     * 触发系统重启（方案 B：写标记文件 + 退出进程）。
+     * Triggers a system restart by writing the restart marker file and then exiting the current process.
      */
     public void scheduleRestart() {
         try {
