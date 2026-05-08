@@ -42,6 +42,13 @@ export default {
         this.removeLoadingEle();
         return;
       }
+
+      if (globalSettingRes.success && window.location.hash.startsWith('#/initialization')) {
+        await this.$router.replace({ name: 'Login' });
+        this.showChild = true;
+        this.removeLoadingEle();
+        return;
+      }
     } catch (e) {
       // 如果接口不可用，继续正常流程
     }

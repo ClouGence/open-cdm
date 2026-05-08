@@ -670,7 +670,7 @@ public class SysInitService {
      */
     public void scheduleRestart() {
         try {
-            Path restartFlag = ensureAppHomeConfigPath(".restarting");
+            Path restartFlag = resolveRestartFlagPath();
             Files.write(restartFlag, String.valueOf(System.currentTimeMillis()).getBytes(StandardCharsets.UTF_8));
             log.info("[SysInitService] Restart flag written: {}", restartFlag);
         } catch (IOException e) {
@@ -684,6 +684,12 @@ public class SysInitService {
             }
             System.exit(0);
         }, "restart-thread").start();
+    }
+
+    private Path resolveRestartFlagPath() throws IOException {
+        Path restartFlag = Paths.get(GlobalConfUtils.getAppHome(), ".restarting");
+        Files.createDirectories(restartFlag.getParent());
+        return restartFlag;
     }
 
     private Path ensureAppHomeConfigPath(String configName) throws IOException {

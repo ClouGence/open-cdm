@@ -129,8 +129,6 @@ import { consumeDmBootstrapStatus, getDmSystemStatus, isDmSystemReady } from '..
 const INIT_DB_CREATE_IF_MISSING = 'clougence.init.db.createIfMissing';
 const INIT_DB_REBUILD_IF_NOT_EMPTY = 'clougence.init.db.rebuildIfNotEmpty';
 const INIT_DB_CONFIRM_DATABASE_NAME = 'clougence.init.db.confirmDatabaseName';
-const INIT_ADMIN_EMAIL = 'clougence.init.admin.email';
-const DEFAULT_ADMIN_EMAIL = 'admin@cdmgr.com';
 
 function hasDbFieldChange(patch) {
   return Object.keys(patch).some((key) => key.startsWith('spring.datasource.'));
@@ -448,7 +446,6 @@ export default {
     this.disconnectInstallLogSocket();
   },
   async created() {
-    this.connectInstallLogSocket();
     await this.bootstrapPage();
   },
   methods: {
@@ -571,10 +568,6 @@ export default {
           this.fieldDefs = res.data;
           const values = {};
           res.data.forEach((f) => {
-            if (f.propertyKey === INIT_ADMIN_EMAIL) {
-              values[f.propertyKey] = f.defaultValue || DEFAULT_ADMIN_EMAIL;
-              return;
-            }
             values[f.propertyKey] = f.defaultValue || '';
           });
           this.formValues = values;
@@ -801,6 +794,7 @@ export default {
       this.restartStatusMessage = this.$t('initialization.upgrading');
       this.executionScripts = resetExecutionScriptsForRetry(this.executionScripts);
       this.operationErrorDetail = '';
+      this.connectInstallLogSocket();
 
       try {
         const res = await this.$services.dmInitUpgrade({ data: this.buildExecutionPayload(options), modal: false });
@@ -809,9 +803,11 @@ export default {
           this.restartStatusMessage = this.$t('initialization.upgradeFailed');
           this.operationErrorDetail = res.msg || '';
           this.applying = false;
+          this.disconnectInstallLogSocket();
           return;
         }
 
+        this.disconnectInstallLogSocket();
         this.restartStatusType = 'success';
         this.restartStatusMessage = this.$t('initialization.upgradeSuccessRestarting');
         void this.$services.dmInitRestart({ modal: false }).catch(() => {
@@ -824,6 +820,7 @@ export default {
         this.restartStatusMessage = this.$t('initialization.upgradeFailed');
         this.operationErrorDetail = e && e.message ? e.message : 'Upgrade failed';
         this.applying = false;
+        this.disconnectInstallLogSocket();
       }
     },
 
@@ -834,6 +831,7 @@ export default {
       this.restartStatusMessage = '';
       this.executionScripts = resetExecutionScriptsForRetry(this.executionScripts);
       this.operationErrorDetail = '';
+      this.connectInstallLogSocket();
       try {
         const payload = this.buildExecutionPayload(options);
 
@@ -841,6 +839,7 @@ export default {
 
         const res = await endpoint({ data: payload, modal: false });
         if (res.success) {
+          this.disconnectInstallLogSocket();
           this.restartStatusType = 'info';
           this.restartStatusMessage = this.$t('initialization.restarting');
           void this.$services.dmInitRestart({ modal: false }).catch(() => {
@@ -854,12 +853,14 @@ export default {
         this.restartStatusMessage = this.$t('initialization.installFailed');
         this.operationErrorDetail = res.msg || '';
         this.applying = false;
+        this.disconnectInstallLogSocket();
       } catch (e) {
         console.error('Apply config failed', e);
         this.restartStatusType = 'error';
         this.restartStatusMessage = this.$t('initialization.installFailed');
         this.operationErrorDetail = e && e.message ? e.message : 'Initialization failed';
         this.applying = false;
+        this.disconnectInstallLogSocket();
       }
     },
 
@@ -887,6 +888,7 @@ export default {
       this.restartStatusMessage = this.$t('initialization.restartTimeout');
       this.restartTimedOut = true;
       this.applying = false;
+      this.disconnectInstallLogSocket();
     }
   }
 };

@@ -38,7 +38,7 @@
           />
         </a-form-item>
 
-        <a-form-item v-if="dbPasswordField" :label="dbPasswordField.label" required class="jdbc-form-item-full">
+        <a-form-item v-if="dbPasswordField" :label="dbPasswordField.label" :required="dbPasswordField.required" class="jdbc-form-item-full">
           <a-input-password
             class="jdbc-full-width-control"
             :value="formValues[dbPasswordField.propertyKey] || ''"
@@ -115,7 +115,7 @@
 import { CheckCircleOutlined, PlusOutlined } from '@ant-design/icons-vue';
 
 const DEFAULT_GENERATED_STATE = Object.freeze({
-  host: '127.0.0.1',
+  host: '',
   port: '3306',
   database: 'cdmgr',
   serverTimezone: 'Asia/Shanghai',
@@ -156,7 +156,7 @@ function parseMysqlJdbcUrl(jdbcUrl) {
     return null;
   }
 
-  const match = jdbcUrl.match(/^jdbc:mysql:\/\/([^/:?#]+)(?::(\d+))?\/([^?]+)(?:\?(.*))?$/i);
+  const match = jdbcUrl.match(/^jdbc:mysql:\/\/([^/:?#]*)(?::(\d+))?\/([^?]+)(?:\?(.*))?$/i);
   if (!match) {
     return null;
   }
@@ -202,6 +202,11 @@ function buildMysqlJdbcUrl(generatedState) {
   const host = generatedState.host || '';
   const port = generatedState.port || '';
   const database = generatedState.database || '';
+
+  if (!host) {
+    return '';
+  }
+
   const params = [];
 
   if (generatedState.serverTimezone) {
@@ -358,7 +363,7 @@ export default {
       if (!(this.formValues['spring.datasource.username'] || '').trim()) {
         missingFields.push(this.dbUsernameField ? this.dbUsernameField.label : this.$t('initialization.dbUsernameFallback'));
       }
-      if (!(this.formValues['spring.datasource.password'] || '').trim()) {
+      if (this.dbPasswordField && this.dbPasswordField.required && !(this.formValues['spring.datasource.password'] || '').trim()) {
         missingFields.push(this.dbPasswordField ? this.dbPasswordField.label : this.$t('initialization.dbPasswordFallback'));
       }
       if (!this.generatedState.database) {
@@ -403,7 +408,7 @@ export default {
       }
 
       if (!jdbcUrl) {
-        this.emitGeneratedJdbcUrl();
+        this.generatedState = createGeneratedState();
       }
     },
     onGeneratedFieldChange(key, value) {

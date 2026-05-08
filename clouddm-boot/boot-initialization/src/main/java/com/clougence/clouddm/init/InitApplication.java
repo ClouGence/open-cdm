@@ -13,10 +13,12 @@ import com.clougence.clouddm.init.constant.I18nInitFieldKeys;
 import com.clougence.rdp.util.RdpI18nUtils;
 
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 初始化模式 Spring Boot 应用。
  */
+@Slf4j
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class })
 @ComponentScan(basePackages = { "com.clougence.clouddm.init.controller", "com.clougence.clouddm.init.service", "com.clougence.clouddm.init.model",
                                 "com.clougence.clouddm.console.web.constants", "com.clougence.clouddm.console.web.service.system",
@@ -40,6 +42,9 @@ public class InitApplication implements WebMvcConfigurer {
                                                            + "org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration,"
                                                            + "com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration");
         SpringApplication.run(InitApplication.class, args);
+
+        log.info("[DmAloneLauncher] Alone All Context Inited.");
+        ShutdownHook.joinShutdown();
     }
 
     @Override

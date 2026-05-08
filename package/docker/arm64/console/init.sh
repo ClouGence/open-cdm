@@ -3,11 +3,11 @@
 # adjust os timezone
 echo 'Asia/Shanghai' > /etc/timezone
 
-DB_HOST=${DB_HOST:-${DB_HOST:-dm_mysql}}
-DB_PORT=${DB_PORT:-${DB_PORT:-3306}}
-DB_DATABASE=${DB_DATABASE:-${DB_DATABASE:-cdmgr}}
-DB_USERNAME=${DB_USERNAME:-${DB_USERNAME:-root}}
-DB_PASSWORD=${DB_PASSWORD:-${DB_PASSWORD:-123456}}
+DB_HOST=${DB_HOST:-}
+DB_PORT=${DB_PORT:-3306}
+DB_DATABASE=${DB_DATABASE:-cdmgr}
+DB_USERNAME=${DB_USERNAME:-}
+DB_PASSWORD=${DB_PASSWORD:-}
 WAIT_DB_TIMEOUT_SECONDS=${WAIT_DB_TIMEOUT_SECONDS:-120}
 
 can_connect_db() {
@@ -52,7 +52,11 @@ if [ ! -f "$DST_CONF_FILE" ]; then
     /docker-entrypoint-init/copy_console.properties > "$DST_CONF_FILE"
 fi
 
-wait_for_db "$DB_HOST" "$DB_PORT"
+if [ -n "$DB_HOST" ]; then
+  wait_for_db "$DB_HOST" "$DB_PORT"
+else
+  echo "DB_HOST is empty, skip mysql wait and continue with initialization bootstrap."
+fi
 
 # start console (Flyway auto-migrates DB on first boot)
 mkdir -p /root/cgdm/console/logs

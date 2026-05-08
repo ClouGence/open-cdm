@@ -109,6 +109,8 @@ if [ -z "$APP_PID" ]; then
   APP_PID="dm.pid"
 fi
 
+RESTART_FLAG_FILE="$APP_HOME/.restarting"
+
 # Bugzilla 37848: When no TTY is available, don't output to console
 have_tty=0
 if [ "$(tty)" != "not a tty" ]; then
@@ -172,6 +174,49 @@ check_app_pid() {
   fi
 }
 
+clear_app_pid_if_matches() {
+  local expected_pid="$1"
+  if [ -z "$APP_PID" ] || [ ! -f "$APP_PID" ] || [ ! -r "$APP_PID" ]; then
+    return
+  fi
+
+  CURRENT_PID=$(cat "$APP_PID")
+  if [ "$CURRENT_PID" = "$expected_pid" ]; then
+    rm -f "$APP_PID" >/dev/null 2>&1
+  fi
+}
+
+wait_for_pid_exit() {
+  local watched_pid="$1"
+  while kill -0 "$watched_pid" >/dev/null 2>&1; do
+    sleep 1
+  done
+}
+
+has_restart_flag() {
+  [ -f "$RESTART_FLAG_FILE" ]
+}
+
+restart_after_exit_if_needed() {
+  local watched_pid="$1"
+  shift
+
+  wait_for_pid_exit "$watched_pid"
+  clear_app_pid_if_matches "$watched_pid"
+
+  if has_restart_flag; then
+    echo "Restart flag detected after CloudDM exited. Restarting..."
+    rm -f "$RESTART_FLAG_FILE" >/dev/null 2>&1
+    "$PRGDIR"/"$(basename "$PRG")" start "$@"
+  fi
+}
+
+run_clouddm() {
+  "$JAVA_CMD" $JAVA_OPTS $JPDA_OPTS -classpath "${APP_HOME}"/bin/plexus-classworlds-*.jar \
+    "-Dclassworlds.conf=${APP_HOME}/bin/app.conf" "-Dapp.home=${APP_HOME}" "-Dapp.pid=${APP_PID}" \
+    org.codehaus.plexus.classworlds.launcher.Launcher start "$@"
+}
+
 ##print CloudDM version
 #do_version() {
 #  exec "$JAVA_CMD" -classpath "${APP_HOME}"/bin/plexus-classworlds-*.jar \
@@ -181,21 +226,34 @@ check_app_pid() {
 
 #start CloudDM
 do_exec() {
-  exec "$JAVA_CMD" $JAVA_OPTS $JPDA_OPTS -classpath "${APP_HOME}"/bin/plexus-classworlds-*.jar \
-    "-Dclassworlds.conf=${APP_HOME}/bin/app.conf" "-Dapp.home=${APP_HOME}" \
-    org.codehaus.plexus.classworlds.launcher.Launcher start "$@"
+  while true; do
+    run_clouddm "$@"
+    EXIT_CODE=$?
+
+    if has_restart_flag; then
+      echo "Restart flag detected after CloudDM exited. Restarting..."
+      rm -f "$RESTART_FLAG_FILE" >/dev/null 2>&1
+      continue
+    fi
+
+    return $EXIT_CODE
+  done
 }
 
 do_start() {
   check_app_pid
-  eval "$JAVA_CMD" $JAVA_OPTS $JPDA_OPTS -classpath "${APP_HOME}"/bin/plexus-classworlds-*.jar \
-    "-Dclassworlds.conf=${APP_HOME}/bin/app.conf" "-Dapp.home=${APP_HOME}" \
-    org.codehaus.plexus.classworlds.launcher.Launcher start "$@" \
-    "&" >> /dev/null 2>&1
+  eval "\"$JAVA_CMD\" $JAVA_OPTS $JPDA_OPTS -classpath \"${APP_HOME}\"/bin/plexus-classworlds-*.jar \
+    \"-Dclassworlds.conf=${APP_HOME}/bin/app.conf\" \"-Dapp.home=${APP_HOME}\" \"-Dapp.pid=${APP_PID}\" \
+    org.codehaus.plexus.classworlds.launcher.Launcher start \"$@\" \
+    &" >> /dev/null 2>&1
+
+  STARTED_PID=$!
 
   if [ ! -z "$APP_PID" ]; then
-    echo $! >"$APP_PID"
+    echo $STARTED_PID >"$APP_PID"
   fi
+
+  "$PRGDIR"/"$(basename "$PRG")" __watch_restart "$STARTED_PID" "$@" >> /dev/null 2>&1 &
   echo "CloudDM started."
 }
 
@@ -280,6 +338,10 @@ do_stop() {
 if [ "$1" = "start" ]; then
   shift
   do_start $@
+
+elif [ "$1" = "__watch_restart" ]; then
+  shift
+  restart_after_exit_if_needed "$@"
 
 elif [ "$1" = "run" ]; then
   shift

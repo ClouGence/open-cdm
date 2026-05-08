@@ -9,12 +9,11 @@ ENV APP_WEB_JWT=jwt67843ad4s118123ycgve45uk12ghd3vli4u510fd9z35hec2hegre876n1+g&
 ENV APP_SERVE_NAME=127.0.0.1
 # Sidecar Service Port (config: clouddm.rsocket.console.port)
 ENV APP_SERVE_PORT=8008
-# metadata database
-ENV DB_HOST=dm_mysql
+# metadata database; docker-compose should override these for packaged deployment
+ENV DB_HOST=
 ENV DB_PORT=3306
-ENV DB_DATABASE=clouddm
-ENV DB_USERNAME=root
-ENV DB_PASSWORD=123456
+ENV DB_DATABASE=cdmgr
+ENV DB_USERNAME=
 
 # copy data to container
 ADD build/cgdm-console.tar.gz /root/

@@ -14,8 +14,10 @@ import java.util.Properties;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
+import com.clougence.clouddm.init.constant.InitSeedConstants;
 import com.clougence.clouddm.init.model.InitFieldDef;
 import com.clougence.rdp.util.RdpI18nUtils;
+import com.clougence.utils.HostUtil;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.ResourcesUtils;
 import com.clougence.utils.StringUtils;
@@ -67,7 +69,8 @@ public class SysInitDefService {
 
     public List<InitFieldDef> loadInitFieldDefs() {
         List<InitFieldDef> schema = getFieldDefsSchema();
-        Properties runtimeProps = loadSystemProperties();
+        Properties runtimeProps = loadDefaultConfigProperties();
+        Properties initDefaults = buildInitDefaultProperties();
 
         List<InitFieldDef> result = new ArrayList<>();
         for (InitFieldDef def : schema) {
@@ -81,11 +84,10 @@ public class SysInitDefService {
 
             //
             String value = runtimeProps.getProperty(def.getPropertyKey());
-            if (StringUtils.isNotBlank(value)) {
-                copy.setDefaultValue(value);
-            } else {
-                copy.setDefaultValue("");
+            if (StringUtils.isBlank(value)) {
+                value = initDefaults.getProperty(def.getPropertyKey());
             }
+            copy.setDefaultValue(StringUtils.defaultString(value));
             result.add(copy);
         }
         return result;
@@ -109,6 +111,49 @@ public class SysInitDefService {
             log.error("[SysInitService] Failed to load runtime properties", e);
         }
         return props;
+    }
+
+    private Properties loadDefaultConfigProperties() {
+        Properties props = new Properties();
+        try {
+            if (isAloneMode()) {
+                loadClasspathProperties(props, DEFAULT_ALONE_CONFIG);
+                if (hasExplicitAppHome()) {
+                    loadAppHomeProperties(props, ALONE_CONFIG);
+                }
+            } else {
+                loadClasspathProperties(props, DEFAULT_CONSOLE_CONFIG);
+                if (hasExplicitAppHome()) {
+                    loadAppHomeProperties(props, CONSOLE_CONFIG);
+                }
+            }
+            overlaySystemProperties(props);
+        } catch (Exception e) {
+            log.error("[SysInitService] Failed to load default config properties", e);
+        }
+        return props;
+    }
+
+    private Properties buildInitDefaultProperties() {
+        Properties props = new Properties();
+        props.setProperty("spring.datasource.username", "");
+        props.setProperty("spring.datasource.password", "");
+        props.setProperty("clougence.rdp.product.trial.verify_code", "777777");
+        props.setProperty("clougence.init.admin.email", InitSeedConstants.DEFAULT_PRIMARY_EMAIL);
+        props.setProperty("server.port", "8222");
+        props.setProperty("clouddm.rsocket.dns", resolveDefaultHostIp());
+        props.setProperty("clouddm.rsocket.console.port", "8008");
+        return props;
+    }
+
+    private String resolveDefaultHostIp() {
+        try {
+            String hostIp = HostUtil.getHostIp();
+            return StringUtils.isBlank(hostIp) ? "127.0.0.1" : hostIp;
+        } catch (Exception e) {
+            log.warn("[SysInitService] Failed to resolve host ip for init default config", e);
+            return "127.0.0.1";
+        }
     }
 
     private void loadRuntimeProperties(Properties props, String defaultConfigName, String runtimeConfigName) throws IOException {
