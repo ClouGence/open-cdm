@@ -26,6 +26,7 @@ dependencies {
     implementation project(':boot-initialization')
     implementation project(':cgdm-console')
     implementation project(':cgdm-api')
+    implementation project(':cg-rpc')
     implementation project(':cgdm-pluginloader')
     implementation project(':dsc-common')
     implementation project(':cgdm-share-libs')

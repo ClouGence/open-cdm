@@ -16,6 +16,7 @@
  */
 package com.clougence.utils;
 
+import java.io.File;
 import java.lang.reflect.*;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -1206,6 +1207,23 @@ public class ClassUtils {
                             resources.add(url);
                         }
                     }
+                }
+            }
+        }
+
+        String javaClassPath = System.getProperty("java.class.path");
+        if (StringUtils.isNotBlank(javaClassPath)) {
+            for (String item : javaClassPath.split(File.pathSeparator)) {
+                if (StringUtils.isBlank(item)) {
+                    continue;
+                }
+
+                try {
+                    URL url = new File(item).toURI().toURL();
+                    if (!resources.contains(url)) {
+                        resources.add(url);
+                    }
+                } catch (Exception ignored) {
                 }
             }
         }

@@ -8,6 +8,8 @@ import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.net.ssl.SSLParameters;
+
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.RSocketStrategies;
 import org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler;
@@ -28,6 +30,7 @@ import io.rsocket.SocketAcceptor;
 import io.rsocket.exceptions.RejectedSetupException;
 import io.rsocket.metadata.WellKnownMimeType;
 import io.rsocket.transport.netty.client.TcpClientTransport;
+import reactor.netty.tcp.SslProvider;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -110,11 +113,22 @@ public class WorkerRSocketClient {
             log.error(errMsg, error);
             failedTime.incrementAndGet();
             exitOrNot(failedTime.get(), error);
-        }).doFinally(consumer -> log.info("[RSOCKET] worker client DISCONNECTED to console")).subscribe();;
+        }).doFinally(consumer -> log.info("[RSOCKET] worker client DISCONNECTED to console")).subscribe();
     }
 
     @SneakyThrows
     protected void prepareRequestMono(SocketAcceptor responder, SslContext sslContext, ConnAuthDTO connAuthDTO) {
+        String consoleHost = clientAuthManager.acquireServerDomain();
+        int consolePort = Integer.parseInt(connAuthDTO.getConsolePort());
+
+        SslProvider sslProvider = SslProvider.builder()
+            .sslContext(sslContext)
+            .handlerConfigurator(handler -> {
+                SSLParameters sslParameters = handler.engine().getSSLParameters();
+                sslParameters.setEndpointIdentificationAlgorithm(null);
+                handler.engine().setSSLParameters(sslParameters);
+            })
+            .build();
         requesterMono = rsocketRequesterBuilder.setupRoute(ServerRouteNames.CONN_SETUP)
             .setupData(connAuthDTO)
             .dataMimeType(MimeTypeUtils.parseMimeType(WellKnownMimeType.APPLICATION_JSON.getString()))
@@ -132,9 +146,9 @@ public class WorkerRSocketClient {
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, TCP_CONN_TIMEOUT)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .option(ChannelOption.SO_KEEPALIVE, true)
-                .host(clientAuthManager.acquireServerDomain())
-                .port(Integer.parseInt(connAuthDTO.getConsolePort()))
-                .secure(ssl -> ssl.sslContext(sslContext))));
+                .host(consoleHost)
+                .port(consolePort)
+                .secure(sslProvider)));
     }
 
     protected void exitOrNot(int currentFailed, Throwable e) {
@@ -166,9 +180,10 @@ public class WorkerRSocketClient {
         }
     }
 
+    @SneakyThrows
     protected SslContext genSslContext() {
         InputStream trustCertCollectionFile = getFileFromClassPath("ssl/server.crt", "server.crt");
-        return getSslContextBuilder(trustCertCollectionFile, null, null);
+        return getSslContextBuilder(trustCertCollectionFile, null, null).build();
     }
 
     public InputStream getFileFromClassPath(String resourceFileName, String newFileName) {
@@ -177,16 +192,17 @@ public class WorkerRSocketClient {
     }
 
     @SneakyThrows
-    private SslContext getSslContextBuilder(InputStream trustCertFile, File certChainFile, File privateKeyFile) {
+    private SslContextBuilder getSslContextBuilder(InputStream trustCertFile, File certChainFile, File privateKeyFile) {
         if (trustCertFile == null) {
             throw new IllegalArgumentException("server.crt file can not empty.");
         }
         SslContextBuilder builder = SslContextBuilder.forClient();
+        builder.endpointIdentificationAlgorithm(null);
         builder.trustManager(trustCertFile);
         if (certChainFile != null && privateKeyFile != null) {
             builder.keyManager(certChainFile, privateKeyFile);
         }
-        return builder.build();
+        return builder;
     }
 
     public String getAccessKey() { return connAuthDTO.getAk(); }

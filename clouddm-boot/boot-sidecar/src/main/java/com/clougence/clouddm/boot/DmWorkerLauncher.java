@@ -6,13 +6,11 @@ import java.nio.file.Paths;
 
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.DefaultResourceLoader;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstructUtils;
+import com.clougence.clouddm.boot.config.FullAppConfig;
 import com.clougence.clouddm.worker.component.rsocket.RSocketClientServiceImpl;
 
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +19,6 @@ import lombok.extern.slf4j.Slf4j;
  * @author wanshao create time is 2021/1/9
  */
 @Slf4j
-@SpringBootConfiguration
-@EnableAutoConfiguration
-@ComponentScan({ "com.clougence.clouddm.boot", "com.clougence.clouddm.worker", "com.clougence.clouddm.worker.*", "com.clougence.clouddm.comm.*" })
 public class DmWorkerLauncher {
 
     public static void main(String[] args) throws Exception {
@@ -60,7 +55,7 @@ public class DmWorkerLauncher {
 
     private static ConfigurableApplicationContext initSpring(String[] args, ClassLoader parentClassLoader) {
         DefaultResourceLoader resourceLoader = new DefaultResourceLoader(parentClassLoader);
-        SpringApplication application = new SpringApplication(resourceLoader, DmWorkerLauncher.class);
+        SpringApplication application = new SpringApplication(resourceLoader, FullAppConfig.class);
         ConfigurableApplicationContext context = application.run(args);
         ClassLoader parentLoader = context.getClassLoader();
         log.info("main classloader is " + parentLoader);
