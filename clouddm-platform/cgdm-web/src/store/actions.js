@@ -24,7 +24,15 @@ const initWebsocket = (globalSetting) => {
     return;
   }
 
+  if (window.location.hash.startsWith('#/initialization')) {
+    return;
+  }
+
   if (!globalSetting?.features?.PRODUCT_CLOUD_DM) {
+    return;
+  }
+
+  if (globalSetting?.systemStatus?.status && globalSetting.systemStatus.status !== 'Ready') {
     return;
   }
 
