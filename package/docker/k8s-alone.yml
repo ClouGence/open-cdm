@@ -1,0 +1,193 @@
+# ============================================================
+# CloudDM Alone — Kubernetes Deployment
+# Generated from docker-alone.yml
+# Usage: kubectl apply -f k8s-alone.yml
+# Note: Replace ${build_version} with actual image tag,
+#       e.g. sed "s|\${build_version}|arm64-1.0.0|g" ...
+# ============================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cgdm
+---
+# ---------------------- MySQL ----------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: dm-mysql
+  namespace: cgdm
+spec:
+  ports:
+    - port: 3306
+      targetPort: 3306
+  selector:
+    app: dm-mysql
+  clusterIP: None
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cgdm_mysql_data
+  namespace: cgdm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: dm-mysql
+  namespace: cgdm
+spec:
+  serviceName: dm-mysql
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dm-mysql
+  template:
+    metadata:
+      labels:
+        app: dm-mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_DATABASE
+              value: cdmgr
+            - name: MYSQL_ROOT_PASSWORD
+              value: "123456"
+          args:
+            - "mysqld"
+            - "--character-set-server=utf8mb4"
+            - "--collation-server=utf8mb4_unicode_ci"
+            - "--default-time-zone=+08:00"
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+---
+# ---------------------- dm_alone ----------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: dm-alone
+  namespace: cgdm
+spec:
+  type: ClusterIP
+  ports:
+    - name: web
+      port: 8222
+      targetPort: 8222
+    - name: serve
+      port: 8008
+      targetPort: 8008
+  selector:
+    app: dm-alone
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cgdm_alone_conf
+  namespace: cgdm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cgdm_alone_logs
+  namespace: cgdm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cgdm_alone_data
+  namespace: cgdm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dm-alone
+  namespace: cgdm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dm-alone
+  template:
+    metadata:
+      labels:
+        app: dm-alone
+    spec:
+      containers:
+        - name: alone
+          image: clougence/cgdm-alone:${build_version}
+          ports:
+            - containerPort: 8222
+            - containerPort: 8008
+          env:
+            - name: APP_WEB_PORT
+              value: "8222"
+            - name: APP_WEB_JWT
+              value: "ljgefdgjosdighjeroigh"
+            - name: APP_SERVE_NAME
+              value: dm_alone
+            - name: APP_SERVE_PORT
+              value: "8008"
+            - name: DB_HOST
+              value: dm-mysql
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_DATABASE
+              value: cdmgr
+            - name: DB_USERNAME
+              value: root
+            - name: DB_PASSWORD
+              value: "123456"
+          volumeMounts:
+            - name: conf
+              mountPath: /root/cgdm/alone/conf
+            - name: logs
+              mountPath: /root/cgdm/alone/logs
+            - name: data
+              mountPath: /root/cgdm/alone/data
+      volumes:
+        - name: conf
+          persistentVolumeClaim:
+            claimName: cgdm_alone_conf
+        - name: logs
+          persistentVolumeClaim:
+            claimName: cgdm_alone_logs
+        - name: data
+          persistentVolumeClaim:
+            claimName: cgdm_alone_data

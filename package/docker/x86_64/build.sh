@@ -56,6 +56,20 @@ generate_compose_files() {
   done
 }
 
+generate_k8s_files() {
+  local k8s_src="$SCRIPT_DIR/.."
+  for name in alone cluster; do
+    local src="$k8s_src/k8s-${name}.yml"
+    local dst="$PACKAGE_BUILD_DIR/k8s-${name}-${IMAGE_TAG}.yml"
+    if [ -f "$src" ]; then
+      sed "s|\${build_version}|${IMAGE_TAG}|g" "$src" > "$dst"
+      echo "generated k8s: $dst"
+    else
+      echo "warning: k8s template not found: $src"
+    fi
+  done
+}
+
 require_package_artifacts
 build_base_image
 build_service_image console
@@ -65,5 +79,6 @@ export_service_image console
 export_service_image sidecar
 export_service_image alone
 generate_compose_files
+generate_k8s_files
 
 echo "x86_64 docker build completed. version=${VERSION}"

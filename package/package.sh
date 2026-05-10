@@ -51,7 +51,8 @@ rm -rf "$SCRIPT_DIR/pkg/alone/build"
 rm -rf "$PACKAGE_BUILD_DIR"
 
 "$REPO_ROOT/gradlew" -p "$REPO_ROOT" -Ptarget=all clean
-"$REPO_ROOT/gradlew" -p "$REPO_ROOT" -Ptarget=all -Pprofile=output buildx local installDist tgz -x test --rerun-tasks --parallel --max-workers=8
+"$REPO_ROOT/gradlew" -p "$REPO_ROOT" -Ptarget=all -Pprofile=output -PbuildFrontend=true \
+  buildx local installDist tgz -x test --rerun-tasks --parallel --max-workers=8
 
 mkdir -p "$PACKAGE_BUILD_DIR"
 find "$SCRIPT_DIR/pkg/console/build/dist" -maxdepth 1 -type f ! -name '.DS_Store' -exec cp {} "$PACKAGE_BUILD_DIR/" \;

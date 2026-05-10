@@ -44,9 +44,9 @@ services:
     depends_on:
       - dm_console
     volumes:
-      - cgdm_sidecar_conf:/root/cgdm/sidecar/conf
-      - cgdm_sidecar_logs:/root/cgdm/sidecar/logs
-      - cgdm_sidecar_data:/root/cgdm/sidecar/data
+      - cgdm_sidecar_0_conf:/root/cgdm/sidecar/conf
+      - cgdm_sidecar_0_logs:/root/cgdm/sidecar/logs
+      - cgdm_sidecar_0_data:/root/cgdm/sidecar/data
     environment:
       APP_WEB_PORT: 8080
       DM_CLIENT_AK: "ak0a2c62tdo1ap2416655mpyx0v36l359p1v5rn782caw8t0qkk1s94b80lfs90"
@@ -59,7 +59,7 @@ volumes:
   cgdm_console_conf:
   cgdm_console_logs:
   cgdm_console_data:
-  cgdm_sidecar_conf:
-  cgdm_sidecar_logs:
-  cgdm_sidecar_data:
+  cgdm_sidecar_0_conf:
+  cgdm_sidecar_0_logs:
+  cgdm_sidecar_0_data:
   cgdm_mysql_data:

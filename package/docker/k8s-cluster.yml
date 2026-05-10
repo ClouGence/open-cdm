@@ -1,0 +1,295 @@
+# ============================================================
+# CloudDM Cluster — Kubernetes Deployment
+# Generated from docker-cluster.yml
+# Usage: kubectl apply -f k8s-cluster.yml
+# Note: Replace ${build_version} with actual image tag,
+#       e.g. sed "s|\${build_version}|arm64-1.0.0|g" ...
+# ============================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cgdm
+---
+# ---------------------- MySQL ----------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: dm-mysql
+  namespace: cgdm
+spec:
+  ports:
+    - port: 3306
+      targetPort: 3306
+  selector:
+    app: dm-mysql
+  clusterIP: None
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cgdm_mysql_data
+  namespace: cgdm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: dm-mysql
+  namespace: cgdm
+spec:
+  serviceName: dm-mysql
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dm-mysql
+  template:
+    metadata:
+      labels:
+        app: dm-mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_DATABASE
+              value: cdmgr
+            - name: MYSQL_ROOT_PASSWORD
+              value: "123456"
+          args:
+            - "mysqld"
+            - "--character-set-server=utf8mb4"
+            - "--collation-server=utf8mb4_unicode_ci"
+            - "--default-time-zone=+08:00"
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+---
+# ---------------------- dm_console ----------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: dm-console
+  namespace: cgdm
+spec:
+  type: ClusterIP
+  ports:
+    - name: web
+      port: 8222
+      targetPort: 8222
+    - name: serve
+      port: 8008
+      targetPort: 8008
+  selector:
+    app: dm-console
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cgdm_console_conf
+  namespace: cgdm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cgdm_console_logs
+  namespace: cgdm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cgdm_console_data
+  namespace: cgdm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dm-console
+  namespace: cgdm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dm-console
+  template:
+    metadata:
+      labels:
+        app: dm-console
+    spec:
+      containers:
+        - name: console
+          image: clougence/cgdm-console:${build_version}
+          ports:
+            - containerPort: 8222
+            - containerPort: 8008
+          env:
+            - name: APP_WEB_PORT
+              value: "8222"
+            - name: APP_WEB_JWT
+              value: "ljgefdgjosdighjeroigh"
+            - name: APP_SERVE_NAME
+              value: dm_console
+            - name: APP_SERVE_PORT
+              value: "8008"
+            - name: DB_HOST
+              value: dm-mysql
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_DATABASE
+              value: cdmgr
+            - name: DB_USERNAME
+              value: root
+            - name: DB_PASSWORD
+              value: "123456"
+          volumeMounts:
+            - name: conf
+              mountPath: /root/cgdm/console/conf
+            - name: logs
+              mountPath: /root/cgdm/console/logs
+            - name: data
+              mountPath: /root/cgdm/console/data
+      volumes:
+        - name: conf
+          persistentVolumeClaim:
+            claimName: cgdm_console_conf
+        - name: logs
+          persistentVolumeClaim:
+            claimName: cgdm_console_logs
+        - name: data
+          persistentVolumeClaim:
+            claimName: cgdm_console_data
+---
+# ---------------------- dm_sidecar ----------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: dm-sidecar
+  namespace: cgdm
+spec:
+  type: ClusterIP
+  ports:
+    - name: serve
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: dm-sidecar
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cgdm_sidecar_0_conf
+  namespace: cgdm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cgdm_sidecar_0_logs
+  namespace: cgdm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cgdm_sidecar_0_data
+  namespace: cgdm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dm-sidecar
+  namespace: cgdm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dm-sidecar
+  template:
+    metadata:
+      labels:
+        app: dm-sidecar
+    spec:
+      containers:
+        - name: sidecar
+          image: clougence/cgdm-sidecar:${build_version}
+          ports:
+            - containerPort: 8080
+          env:
+            - name: APP_WEB_PORT
+              value: "8080"
+            - name: DM_CLIENT_AK
+              value: "ak0a2c62tdo1ap2416655mpyx0v36l359p1v5rn782caw8t0qkk1s94b80lfs90"
+            - name: DM_CLIENT_SK
+              value: "sk6206iy4pb0eydz9hg97jo3tu5d80j97e91bbql65167u8wb75x4ej6e4v4aa4"
+            - name: DM_CLIENT_WSN
+              value: "wsn582nm54ca045p014288w6e919ec6294m430h427619v64g0pyqzcjb5040q3f"
+            - name: APP_SERVE_NAME
+              value: dm_console
+            - name: APP_SERVE_PORT
+              value: "8008"
+          volumeMounts:
+            - name: conf
+              mountPath: /root/cgdm/sidecar/conf
+            - name: logs
+              mountPath: /root/cgdm/sidecar/logs
+            - name: data
+              mountPath: /root/cgdm/sidecar/data
+      volumes:
+        - name: conf
+          persistentVolumeClaim:
+            claimName: cgdm_sidecar_0_conf
+        - name: logs
+          persistentVolumeClaim:
+            claimName: cgdm_sidecar_0_logs
+        - name: data
+          persistentVolumeClaim:
+            claimName: cgdm_sidecar_0_data
