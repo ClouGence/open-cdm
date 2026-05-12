@@ -13,8 +13,8 @@
 </p>
 
 <p align="center">
-    [<a target="_blank" href='./README.en.md'>English</a>]
     [<a target="_blank" href='./README.cn.md'>中文</a>]
+    [<a target="_blank" href='./README.en.md'>English</a>]
 </p>
 
 ---

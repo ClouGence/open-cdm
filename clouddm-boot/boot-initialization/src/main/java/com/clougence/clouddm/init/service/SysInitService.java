@@ -536,9 +536,9 @@ public class SysInitService {
             return;
         }
 
-        if (!inspection.empty && rebuildIfNotEmpty) {
+        if (rebuildIfNotEmpty) {
             log.info("[SysInitService] Target database {} exists and will be rebuilt before Flyway initialization", inspection.databaseName);
-            InstallUpgradeLogBus.notice("DB_REBUILD", "warning");
+            InstallUpgradeLogBus.notice("DB_REBUILD", "info");
             recreateDatabase(inspection.serverJdbcUrl, username, password, inspection.databaseName);
             return;
         }
