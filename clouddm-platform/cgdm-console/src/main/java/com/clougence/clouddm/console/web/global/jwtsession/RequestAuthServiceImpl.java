@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstructOrder;
 import com.clougence.clouddm.console.web.util.RdpClassUtil;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.loader.CgResourceScanner;
@@ -98,7 +98,7 @@ public class RequestAuthServiceImpl implements RequestAuthService, UnifiedPostCo
         Map<String, String> i18nError = new HashMap<>();
         i18nMappings.forEach((pathKey, mappingTo) -> {
             // String i18N = getI18N(mappingTo, "zh_CN");
-            String i18N = RdpI18nUtils.getMessage(mappingTo);
+            String i18N = DmI18nUtils.getMessage(mappingTo);
             if (StringUtils.isBlank(i18N) || mappingTo.equals(i18N)) {
                 log.error("[RDP] Miss i18n message,key:" + mappingTo + ",path:" + pathKey);
             }
@@ -174,7 +174,7 @@ public class RequestAuthServiceImpl implements RequestAuthService, UnifiedPostCo
     @Override
     public String getI18N(String resourceValue) {
         resourceValue = this.i18nMappings.getOrDefault(resourceValue, resourceValue);
-        return RdpI18nUtils.getMessage(resourceValue);//need to change
+        return DmI18nUtils.getMessage(resourceValue);//need to change
     }
 
     @Override

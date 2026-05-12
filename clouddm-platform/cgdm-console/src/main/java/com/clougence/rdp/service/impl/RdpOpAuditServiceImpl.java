@@ -32,7 +32,7 @@ import com.clougence.clouddm.console.web.dal.mapper.*;
 import com.clougence.clouddm.console.web.dal.model.*;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.rdp.service.RdpUserService;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.NumberUtils;
@@ -331,7 +331,7 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
     private ResourceTypeVO convertResourceType(ResourceType resType) {
         ResourceTypeVO resourceTypeVO = new ResourceTypeVO();
         resourceTypeVO.setResourceType(resType.name());
-        resourceTypeVO.setAlias(RdpI18nUtils.getMessage(resType.name()));
+        resourceTypeVO.setAlias(DmI18nUtils.getMessage(resType.name()));
         return resourceTypeVO;
     }
 

@@ -31,7 +31,7 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.init.constant.InitSeedConstants;
 import com.clougence.clouddm.init.model.InitFieldDef;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.HostUtil;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.ResourcesUtils;
@@ -73,8 +73,8 @@ public class SysInitDefService {
             def.setRequired(Boolean.TRUE.equals(f.get("required")));
             String labelKey = (String) f.get("labelKey");
             String descKey = (String) f.get("descriptionKey");
-            def.setLabel(labelKey != null ? RdpI18nUtils.getMessage(labelKey) : "");
-            def.setDescription(descKey != null ? RdpI18nUtils.getMessage(descKey) : "");
+            def.setLabel(labelKey != null ? DmI18nUtils.getMessage(labelKey) : "");
+            def.setDescription(descKey != null ? DmI18nUtils.getMessage(descKey) : "");
             defs.add(def);
         }
         this.fieldDefsCache = defs;

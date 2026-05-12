@@ -21,7 +21,7 @@ import com.clougence.utils.ExceptionUtils;
 /**
  * @author bucketli 2021/1/6 10:20
  */
-@Deprecated // use throw new ErrorMessageException(RdpI18nUtils.getMessage(xxxx));
+@Deprecated // use throw new ErrorMessageException(DmI18nUtils.getMessage(xxxx));
 public class ConsoleRuntimeException extends RuntimeException {
 
     private final Object[]         params;

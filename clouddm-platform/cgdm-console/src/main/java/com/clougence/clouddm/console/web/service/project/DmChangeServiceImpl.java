@@ -64,7 +64,7 @@ import com.clougence.clouddm.console.web.dal.mapper.RdpTicketMapper;
 import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
 import com.clougence.clouddm.console.web.dal.model.RdpTicketDO;
 import com.clougence.rdp.global.exception.ErrorMessageException;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.RdpPageUtil;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
@@ -240,7 +240,7 @@ public class DmChangeServiceImpl implements DmChangeService {
 
         RdpTicketDO ticketDO = this.rdpTicketMapper.queryById(ticketInfo.getTicketId());
         if (ticketDO == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_EXIST_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_EXIST_ERROR.name()));
         }
 
         ChangeTicketInfoResult result = new ChangeTicketInfoResult();
@@ -276,7 +276,7 @@ public class DmChangeServiceImpl implements DmChangeService {
         Locale locale = I18nUtils.getLocale(language);
 
         UserCacheEntry operatorUser = this.ownerCacheService.queryByUid(userUid);
-        String operatorMsg = String.format("[%s] %s", RdpI18nUtils.getMessage(operatorUser.getRoleName()), operatorUser.getUserName());
+        String operatorMsg = String.format("[%s] %s", DmI18nUtils.getMessage(operatorUser.getRoleName()), operatorUser.getUserName());
         String message = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_SKIP_CHECK_STEP_ERROR.name(), locale, change.getChangeName(), operatorMsg);
         this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeLife, message);
         this.dmProjectChangeMapper.updateStepTo(change.getId(), change.getVersion(), ProjectChangeStep.APPROVAL, message);

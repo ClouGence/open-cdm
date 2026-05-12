@@ -25,7 +25,7 @@ import com.clougence.rdp.constant.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.RdpApproTemplateVO;
 import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalType;
 import com.clougence.clouddm.console.web.dal.model.RdpCacheApproTemplateDO;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 
 /**
  * @author Ekko
@@ -43,7 +43,7 @@ public interface RdpApprovalService {
         RdpApproTemplateVO innerTemplate = new RdpApproTemplateVO();
         innerTemplate.setTemplateIdentity(INNER_TEMPLATE_ID);
         innerTemplate.setApproUrl("");
-        innerTemplate.setApproTemplateName(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_INTERNAL_TEMPLATE.name()));
+        innerTemplate.setApproTemplateName(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_INTERNAL_TEMPLATE.name()));
         return innerTemplate;
     }
 

@@ -36,7 +36,7 @@ import com.clougence.clouddm.console.web.model.vo.ticket.RdpAuthTicketDetailVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.RdpTicketBaseInfoVO;
 import com.clougence.rdp.service.RdpAuthTicketService;
 import com.clougence.rdp.service.RdpUserService;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -90,7 +90,7 @@ public class RdpTicketController {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        String msg = RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_CANCEL_AT_CONSOLE_MESSAGE.name());
+        String msg = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_CANCEL_AT_CONSOLE_MESSAGE.name());
         this.rdpTicketService.cancelTicket(puid, fo.getTicketId(), msg);
         return ResWebDataUtils.buildSuccess();
     }
@@ -101,7 +101,7 @@ public class RdpTicketController {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        String msg = RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_CLOSE_AT_CONSOLE_MESSAGE.name());
+        String msg = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_CLOSE_AT_CONSOLE_MESSAGE.name());
         this.rdpTicketService.closeTicket(fo.getTicketId(), msg, puid, uid);
         return ResWebDataUtils.buildSuccess();
     }

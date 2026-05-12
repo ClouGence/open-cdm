@@ -42,7 +42,7 @@ import com.clougence.clouddm.init.constant.I18nInitFieldKeys;
 import com.clougence.clouddm.init.constant.InitSeedConstants;
 import com.clougence.clouddm.init.model.InitFieldDef;
 import com.clougence.clouddm.init.model.TestDbResult;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
 
@@ -92,7 +92,7 @@ public class SysInitService {
             result.setCharsetValid(false);
             result.setCreateDatabase(false);
             result.setMessageType("error");
-            result.setMessage(RdpI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_CONNECTION_FAILED.name(), e.getMessage()));
+            result.setMessage(DmI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_CONNECTION_FAILED.name(), e.getMessage()));
         }
         return result;
     }
@@ -475,14 +475,14 @@ public class SysInitService {
             result.setSuccess(true);
             result.setCanProceed(true);
             result.setMessageType("success");
-            result.setMessage(RdpI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_SUCCESS.name()));
+            result.setMessage(DmI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_SUCCESS.name()));
             return;
         }
 
         if (!inspection.charsetValid) {
             result.setSuccess(false);
             result.setMessageType("error");
-            result.setMessage(RdpI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_CHARSET_INVALID.name(), StringUtils.defaultIfBlank(inspection.databaseCharset, "unknown")));
+            result.setMessage(DmI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_CHARSET_INVALID.name(), StringUtils.defaultIfBlank(inspection.databaseCharset, "unknown")));
             return;
         }
 
@@ -490,12 +490,12 @@ public class SysInitService {
         if (inspection.empty) {
             result.setCanProceed(true);
             result.setMessageType("success");
-            result.setMessage(RdpI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_SUCCESS.name()));
+            result.setMessage(DmI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_SUCCESS.name()));
             return;
         }
 
         result.setShowRebuildChoice(true);
-        result.setRebuildPrompt(RdpI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_REBUILD_PROMPT.name()));
+        result.setRebuildPrompt(DmI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_REBUILD_PROMPT.name()));
 
         if (!"true".equals(rebuildIfNotEmpty) && !"false".equals(rebuildIfNotEmpty)) {
             return;
@@ -504,13 +504,13 @@ public class SysInitService {
         result.setMessageType("warning");
         if ("false".equals(rebuildIfNotEmpty)) {
             result.setCanProceed(true);
-            result.setMessage(RdpI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_USE_EXISTING_WARNING.name()));
+            result.setMessage(DmI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_USE_EXISTING_WARNING.name()));
             return;
         }
 
-        result.setMessage(RdpI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_REBUILD_WARNING.name()));
+        result.setMessage(DmI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_REBUILD_WARNING.name()));
         result.setRequireConfirmInput(true);
-        result.setConfirmInputLabel(RdpI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_REBUILD_CONFIRM_LABEL.name()));
+        result.setConfirmInputLabel(DmI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_REBUILD_CONFIRM_LABEL.name()));
         result.setConfirmInputExpectedValue(inspection.databaseName);
         result.setCanProceed(inspection.databaseName.equals(confirmDatabaseName == null ? "" : confirmDatabaseName.trim()));
     }

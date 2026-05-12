@@ -41,7 +41,7 @@ import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
 import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpAuthServiceForBiz;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -134,11 +134,11 @@ public class RdpAuthServiceForBizImpl implements RdpAuthServiceForBiz {
         if (authKind == AuthKind.DataSource) {
             RdpDataSourceDO dsDO = rdpDataSourceMapper.queryDsIdentityById(resId);
             if (dsDO == null) {
-                throw new IllegalArgumentException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.DS_CHECK_NOT_EXIST_ERROR.name(), resId));
+                throw new IllegalArgumentException(DmI18nUtils.getMessage(I18nRdpMsgKeys.DS_CHECK_NOT_EXIST_ERROR.name(), resId));
             }
 
             if (!dsDO.getUid().equals(puid)) {
-                throw new IllegalArgumentException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.DS_IS_NOT_BELONG_YOU_PRIMARY_ERROR.name(), resId));
+                throw new IllegalArgumentException(DmI18nUtils.getMessage(I18nRdpMsgKeys.DS_IS_NOT_BELONG_YOU_PRIMARY_ERROR.name(), resId));
             }
         } else {
             throw new IllegalArgumentException("Unsupported auth kind:" + authKind);
@@ -174,7 +174,7 @@ public class RdpAuthServiceForBizImpl implements RdpAuthServiceForBiz {
 
     private boolean checkDsAuth(String puid, String uid, RdpDataSourceDO dsDO, DsResPath resPath, String dataAuthLabel) {
         if (dsDO == null) {
-            throw new IllegalArgumentException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.DS_CHECK_NOT_EXIST_ERROR.name()));
+            throw new IllegalArgumentException(DmI18nUtils.getMessage(I18nRdpMsgKeys.DS_CHECK_NOT_EXIST_ERROR.name()));
         }
 
         //The DataSource owner have all privileges
@@ -189,7 +189,7 @@ public class RdpAuthServiceForBizImpl implements RdpAuthServiceForBiz {
 
         //The DataSource owner is not the primary user.
         if (!dsDO.getUid().equals(puid)) {
-            throw new IllegalArgumentException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.DS_IS_NOT_BELONG_YOU_PRIMARY_ERROR.name(), dsDO.getId()));
+            throw new IllegalArgumentException(DmI18nUtils.getMessage(I18nRdpMsgKeys.DS_IS_NOT_BELONG_YOU_PRIMARY_ERROR.name(), dsDO.getId()));
         }
 
         List<Predicate<String>> authedPathNames = new ArrayList<>();

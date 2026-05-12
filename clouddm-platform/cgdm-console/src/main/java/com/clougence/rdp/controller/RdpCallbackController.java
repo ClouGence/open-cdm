@@ -57,7 +57,7 @@ import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.rdp.service.RdpUserLoginRegService;
 import com.clougence.rdp.service.model.LoginMO;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
 
@@ -141,11 +141,11 @@ public class RdpCallbackController {
         // for args
         DmCsrfTokenDO tokenDO = this.csrfTokenService.pullToken(state);
         if (tokenDO == null) {
-            String message = RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_INVALID_TOKEN_ERROR.name());
+            String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_INVALID_TOKEN_ERROR.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_ARGS_ERROR.name(), message);
         }
         if (StringUtils.isBlank(provider) || StringUtils.isBlank(ownerUid)) {
-            String message = RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MISSING_CORE_ARGS_ERROR.name());
+            String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MISSING_CORE_ARGS_ERROR.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_ARGS_ERROR.name(), message);
         }
         // for params
@@ -154,38 +154,38 @@ public class RdpCallbackController {
         }
         LoginProvider providerEnum = LoginProvider.valueOfCode(provider);
         if (providerEnum == null) {
-            String message = RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_UNSUPPORTED_SUBACCOUNT_LOGIN_TYPE.name());
+            String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_UNSUPPORTED_SUBACCOUNT_LOGIN_TYPE.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_ARGS_ERROR.name(), message);
         }
         String code = params.getOrDefault("code", null);
         if (StringUtils.isBlank(code)) {
-            String message = RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MISSING_AUTHENTICATION_CODE_ERROR.name());
+            String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MISSING_AUTHENTICATION_CODE_ERROR.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_ARGS_ERROR.name(), message);
         }
 
         // for provider
         LoginProviderSpi service = PluginManager.findSpi(LoginProviderSpi.class, providerEnum.name());
         if (service == null) {
-            String message = RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_PLUGIN_NOT_FOUND.name());
+            String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_PLUGIN_NOT_FOUND.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_PROVIDER_ERROR.name(), message);
         }
 
         // for ownerUid
         RdpUserDO primaryUser = this.rdpUserMapper.queryByUid(ownerUid);
         if (primaryUser == null) {
-            String message = RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PRIMARY_ACCOUNT_NOT_EXIST.name());
+            String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PRIMARY_ACCOUNT_NOT_EXIST.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_OWNER_ERROR.name(), message);
         }
         if (primaryUser.getAccountType() != AccountType.PRIMARY_ACCOUNT) {
-            String message = RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_OWNER_IS_NOT_PRIMARY_ERROR.name());
+            String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_OWNER_IS_NOT_PRIMARY_ERROR.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_OWNER_ERROR.name(), message);
         }
         if (primaryUser.isDisable()) {
-            String message = RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PRIMARY_ACCOUNT_DISABLED.name());
+            String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PRIMARY_ACCOUNT_DISABLED.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_OWNER_ERROR.name(), message);
         }
         if (!this.rdpSubLoginService.checkLoginEnable(ownerUid, providerEnum)) {
-            String message = RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_NOT_ENABLE.name());
+            String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_NOT_ENABLE.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_OWNER_ERROR.name(), message);
         }
 
@@ -206,7 +206,7 @@ public class RdpCallbackController {
             if (e instanceof ThirdPartyApiException) {
                 String messageKey = ((ThirdPartyApiException) e).getMessageKey();
                 Object[] messageArgs = ((ThirdPartyApiException) e).getMessageArgs();
-                String i18nMessage = RdpI18nUtils.getMessage(messageKey, messageArgs);
+                String i18nMessage = DmI18nUtils.getMessage(messageKey, messageArgs);
                 return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_USERINFO_ERROR.name(), i18nMessage);
             } else {
                 return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_USERINFO_ERROR.name(), e.getMessage());
@@ -249,7 +249,7 @@ public class RdpCallbackController {
             } else if (e instanceof ThirdPartyApiException) {
                 String messageKey = ((ThirdPartyApiException) e).getMessageKey();
                 Object[] messageArgs = ((ThirdPartyApiException) e).getMessageArgs();
-                return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_LOGIN_ERROR.name(), RdpI18nUtils.getMessage(messageKey, messageArgs));
+                return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_LOGIN_ERROR.name(), DmI18nUtils.getMessage(messageKey, messageArgs));
             } else {
                 return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_LOGIN_ERROR.name(), e.getMessage());
             }
@@ -265,7 +265,7 @@ public class RdpCallbackController {
         }
 
         response.sendRedirect(contextPath + "#/login?" +//
-                              "error=" + URLEncoder.encode(RdpI18nUtils.getMessage(errorCode), "UTF-8") + "&" +//
+                              "error=" + URLEncoder.encode(DmI18nUtils.getMessage(errorCode), "UTF-8") + "&" +//
                               "error_description=" + URLEncoder.encode(errorMessage, "UTF-8"));
         return "failed.";
     }

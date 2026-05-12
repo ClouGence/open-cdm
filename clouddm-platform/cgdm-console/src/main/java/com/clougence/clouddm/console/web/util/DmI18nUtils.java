@@ -16,10 +16,12 @@
 package com.clougence.clouddm.console.web.util;
 
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.springframework.context.i18n.LocaleContext;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -31,6 +33,9 @@ import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.constants.UiMenus18nKey;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.security.auth.def.SecAuthI18nKeys;
+import com.clougence.clouddm.sdk.security.auth.def.SecSysRole;
+import com.clougence.rdp.constant.*;
+import com.clougence.utils.ResourcesUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.i18n.I18nUtils;
 
@@ -53,7 +58,7 @@ public class DmI18nUtils {
         I18N_UTILS.setDefaultI18nKey(defaultLocale);
         LocaleContextHolder.setLocale(I18nUtils.getLocale(defaultLocale));
 
-        // loadResources
+        // loadResources — DM resources
         I18N_UTILS.loadResources("/i18n/dsconfig");
         I18N_UTILS.loadResources("/i18n/request-label");
         I18N_UTILS.loadResources("/i18n/desktop");
@@ -64,6 +69,16 @@ public class DmI18nUtils {
         I18N_UTILS.loadResources(I18nDmMsgKeys.class);
         I18N_UTILS.loadResources(UiMenus18nKey.class);
         I18N_UTILS.loadResources(SecAuthI18nKeys.class);
+
+        // loadResources — RDP resources (merged from DmI18nUtils)
+        I18N_UTILS.loadResources("/rdp/static/i18n/validation");
+        I18N_UTILS.loadResources("/rdp/static/i18n/request-label");
+        I18N_UTILS.loadResources("/rdp/static/i18n/audit-detail-label");
+        I18N_UTILS.loadResources(I18nRdpMsgKeys.class);
+        I18N_UTILS.loadResources(I18nDsConfigMsgKeys.class);
+        I18N_UTILS.loadResources(I18nUserConfigMsgKeys.class);
+        I18N_UTILS.loadResources(I18nRdpLabelKeys.class);
+        I18N_UTILS.loadResources(SecSysRole.class);
 
         // check loadResources
         I18N_UTILS.checkDifferenceOnWarn("zh_CN");
@@ -116,7 +131,35 @@ public class DmI18nUtils {
         return getMessage(key, getLocale(), args);
     }
 
+    public static String getMessage(Enum<?> key, Object... args) {
+        return getMessage(key.name(), getLocale(), args);
+    }
+
     public static String getMessage(String key, Locale locale, Object... args) {
         return I18N_UTILS.getMessage(key, args, locale);
+    }
+
+    // ==================== bridge methods for DmI18nUtils callers ====================
+
+    public static void loadResources(String... i18nResources) {
+        I18N_UTILS.loadResources(i18nResources);
+    }
+
+    public static void loadResources(ClassLoader resourceLoader, String... i18nResources) {
+        I18N_UTILS.loadResources(resourceLoader, i18nResources);
+    }
+
+    public static void loadResources(Class<?>... i18nResources) {
+        I18N_UTILS.loadResources(i18nResources);
+    }
+
+    public static Set<Class<?>> findI18nTypes() {
+        return I18N_UTILS.getI18nTypes();
+    }
+
+    public static Map<String, String> genHeaderMap() {
+        Map<String, String> headerMap = new java.util.HashMap<>();
+        headerMap.put(org.apache.http.HttpHeaders.ACCEPT_LANGUAGE, getLocale().getLanguage());
+        return headerMap;
     }
 }

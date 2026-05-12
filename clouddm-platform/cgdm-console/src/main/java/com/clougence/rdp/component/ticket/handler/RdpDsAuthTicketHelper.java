@@ -45,7 +45,7 @@ import com.clougence.clouddm.console.web.dal.mapper.*;
 import com.clougence.clouddm.console.web.dal.model.*;
 import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpAuthServiceForManage;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -166,7 +166,7 @@ public class RdpDsAuthTicketHelper implements RdpTicketHelper {
         AuthForm form = getAuthForm(ticketFO, ticketDO, authTicketInfo.getKindType());
         ApprovalProviderSpi approvalService = PluginManager.findSpi(ApprovalProviderSpi.class, ticketDO.getApproType().name());
         if (approvalService == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), ticketDO.getApproType()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), ticketDO.getApproType()));
         }
 
         // create instance
@@ -176,7 +176,7 @@ public class RdpDsAuthTicketHelper implements RdpTicketHelper {
         } catch (ThirdPartyApiException e) {
             // wait retry
             if (e.getErrorType() == ThirdPartyApiErrorType.CONNECTION_ERROR) {
-                log.error(RdpI18nUtils.getMessage(e.getMessageKey()));
+                log.error(DmI18nUtils.getMessage(e.getMessageKey()));
                 return;
             }
             throw e;
@@ -212,7 +212,7 @@ public class RdpDsAuthTicketHelper implements RdpTicketHelper {
             Map<String, String> collect = allAuthLabel.stream().collect(Collectors.toMap(AuthInfo::getKey, AuthInfo::getKeyI18n));
 
             for (String authLabel : authLabels) {
-                auth.getAuthLabels().add(RdpI18nUtils.getMessage(collect.get(authLabel)));
+                auth.getAuthLabels().add(DmI18nUtils.getMessage(collect.get(authLabel)));
             }
             auth.setResDesc(applyAuth.getResDesc());
             auth.setResPaths(applyAuth.getResPaths());

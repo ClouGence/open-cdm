@@ -63,7 +63,7 @@ import com.clougence.rdp.service.*;
 import com.clougence.clouddm.console.web.util.RandomStrUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
@@ -285,7 +285,7 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
         this.fetchAndCheckById(dataSourceId);
         RdpDataSourceDO rdpDataSourceDO = this.rdpDsMapper.queryDsIdentityById(dataSourceId);
         if (rdpDataSourceDO == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.DS_CHECK_NOT_EXIST_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.DS_CHECK_NOT_EXIST_ERROR.name()));
         }
         this.rdpDsMapper.updatePublicHostByInstanceId(dataSourceId, publicHost);
 
@@ -304,7 +304,7 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
         this.fetchAndCheckById(dataSourceId);
         RdpDataSourceDO rdpDataSourceDO = this.rdpDsMapper.queryDsIdentityById(dataSourceId);
         if (rdpDataSourceDO == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.DS_CHECK_NOT_EXIST_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.DS_CHECK_NOT_EXIST_ERROR.name()));
         }
         this.rdpDsMapper.updatePrivateHostByInstanceId(dataSourceId, privateHost);
 
@@ -480,7 +480,7 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
                 throw ExceptionUtils.toRuntime(ExceptionUtils.getRootCause(e));
             }
         } else {
-            return ResWebDataUtils.buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.DS_ADD_UNSUPPORTED_ERROR.name(), addFO.getDeployType().name()));
+            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.DS_ADD_UNSUPPORTED_ERROR.name(), addFO.getDeployType().name()));
         }
 
         this.notifyServices.forEach(s -> s.onDsAdd(uid, dsId));

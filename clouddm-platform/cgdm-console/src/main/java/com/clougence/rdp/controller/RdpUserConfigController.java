@@ -42,7 +42,7 @@ import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.rdp.service.RdpUserConfigService;
 import com.clougence.rdp.service.RdpUserService;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -94,7 +94,7 @@ public class RdpUserConfigController {
     @RequestMapping(value = "/upsertuserconfigs", method = RequestMethod.POST)
     public ResWebData<?> upsertUserConfigs(@RequestBody @Valid UpsertUserConfigFO configFO, HttpServletRequest request) {
         if (CollectionUtils.isEmpty(configFO.getUpdateConfigs()) && CollectionUtils.isEmpty(configFO.getNeedCreateConfigs())) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.UPDATE_USER_CONFIG_PARAMS_ARE_EMPTY.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.UPDATE_USER_CONFIG_PARAMS_ARE_EMPTY.name()));
         }
 
         String puid = (String) request.getAttribute(RdpUserService.PUID);

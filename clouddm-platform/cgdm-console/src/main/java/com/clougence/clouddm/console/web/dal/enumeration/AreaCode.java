@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.dal.enumeration;
 
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
@@ -126,7 +126,7 @@ public enum AreaCode {
     }
 
     public void fillI18nTitle() {
-        this.title = RdpI18nUtils.getMessage(this.name());
+        this.title = DmI18nUtils.getMessage(this.name());
     }
 
     public Integer getCode() { return code; }

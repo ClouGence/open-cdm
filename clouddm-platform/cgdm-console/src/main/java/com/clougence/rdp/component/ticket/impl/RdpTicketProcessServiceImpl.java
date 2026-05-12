@@ -41,7 +41,7 @@ import com.clougence.clouddm.console.web.dal.model.RdpApprovalPersonDO;
 import com.clougence.clouddm.console.web.dal.model.RdpTicketDO;
 import com.clougence.clouddm.console.web.dal.model.RdpTicketProcessDO;
 import com.clougence.rdp.global.exception.ErrorMessageException;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 
@@ -103,9 +103,9 @@ public class RdpTicketProcessServiceImpl implements RdpTicketProcessService {
             } else if (ticketStage == RdpTicketStage.EXPLAIN) {
                 RdpExecStageContextMO execMO = new RdpExecStageContextMO();
                 if (checkSuccess) {
-                    execMO.setExecMsg(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_RULE_CHECK_EXE.name()));
+                    execMO.setExecMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_RULE_CHECK_EXE.name()));
                 } else {
-                    execMO.setExecMsg(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_RULE_CHECK_FAIL_EXE.name()));
+                    execMO.setExecMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_RULE_CHECK_FAIL_EXE.name()));
                 }
                 execMO.setExecUserName(Collections.singletonList(this.rdpUserMapper.queryByUid(rdpTicketDO.getOwnerUid()).getUsername()));
                 rdpTicketProcessDO.setStageContext(JsonUtils.toJson(execMO));
@@ -124,7 +124,7 @@ public class RdpTicketProcessServiceImpl implements RdpTicketProcessService {
         }
 
         if (firstStageId == -1) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_CAN_NOT_GET.name(), ticketId));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_CAN_NOT_GET.name(), ticketId));
         }
     }
 
@@ -157,13 +157,13 @@ public class RdpTicketProcessServiceImpl implements RdpTicketProcessService {
                     try {
                         this.approService.cancelApprovalInst(ticketDO.getId());
                     } catch (ThirdPartyApiException e) {
-                        throw new ErrorMessageException(RdpI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()));
+                        throw new ErrorMessageException(DmI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()));
                     }
                 }
                 break;
             }
             default: {
-                throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STAGE_CANNOT_CANCEL.name(), processDO.getTicketStage().name()));
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STAGE_CANNOT_CANCEL.name(), processDO.getTicketStage().name()));
             }
         }
 

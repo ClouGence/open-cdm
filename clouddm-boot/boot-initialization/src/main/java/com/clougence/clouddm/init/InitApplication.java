@@ -34,7 +34,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.clougence.clouddm.console.web.global.handler.StaticResourceNoCacheFilter;
 import com.clougence.clouddm.console.web.global.exception.PrintErrorUncaughtExcHandler;
 import com.clougence.clouddm.init.constant.I18nInitFieldKeys;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 
 import jakarta.servlet.Filter;
 import jakarta.annotation.PostConstruct;
@@ -55,7 +55,7 @@ public class InitApplication implements WebMvcConfigurer {
 
     @PostConstruct
     public void initI18nResources() {
-        RdpI18nUtils.loadResources(I18nInitFieldKeys.class);
+        DmI18nUtils.loadResources(I18nInitFieldKeys.class);
     }
 
     @Bean

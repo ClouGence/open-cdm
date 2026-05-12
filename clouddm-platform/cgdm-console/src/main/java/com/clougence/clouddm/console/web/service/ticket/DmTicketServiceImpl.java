@@ -74,7 +74,7 @@ import com.clougence.clouddm.console.web.dal.enumeration.*;
 import com.clougence.clouddm.console.web.dal.mapper.*;
 import com.clougence.clouddm.console.web.dal.model.*;
 import com.clougence.rdp.global.exception.ErrorMessageException;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
@@ -144,11 +144,11 @@ public class DmTicketServiceImpl implements DmTicketService {
         // check approval
         DmEnvParamTicketDesVO ticketConfig = this.dmEnvParamService.querySqlTicketInfoParam(puid, dsDO.getDsEnvId());
         if (ticketConfig == null || !ticketConfig.isOpenTicket() || StringUtils.isBlank(ticketConfig.getType())) {
-            String title = RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TYPE_SQL_TITLE.name());
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), title));
+            String title = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TYPE_SQL_TITLE.name());
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), title));
         }
         if (ticketConfig.isDelete()) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TEMPLATE_NOT_EXISTS.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TEMPLATE_NOT_EXISTS.name()));
         }
         RdpApprovalType approvalType = RdpApprovalType.valueOf(ticketConfig.getType());
         if (approvalType != RdpApprovalType.Internal) {
@@ -322,11 +322,11 @@ public class DmTicketServiceImpl implements DmTicketService {
         checkJobOperationEnable(rdpTicketDO, fo.getConfirmUid());
 
         if (rdpTicketDO.getTicketStatus() != RdpTicketStatus.WAIT_CONFIRM) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_OPERATOR_TYPE_NOT_MATCH_STATUS.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_OPERATOR_TYPE_NOT_MATCH_STATUS.name()));
         }
         DmTicketDO dmTicketDO = this.dmTicketMapper.getDmTicketInfo(rdpTicketDO.getBizId());
         if (dmTicketDO == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_EXIST_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_EXIST_ERROR.name()));
         }
 
         RdpUserDO confirmUser = this.rdpUserMapper.queryByUid(fo.getConfirmUid());
@@ -607,10 +607,10 @@ public class DmTicketServiceImpl implements DmTicketService {
     private RdpTicketDO checkTicket(long ticketId, String puid) {
         RdpTicketDO ticketDO = this.rdpTicketMapper.queryById(ticketId);
         if (ticketDO == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_EXIST_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_EXIST_ERROR.name()));
         }
         if (!ticketDO.getPrimaryUid().equals(puid)) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_BELONG_CURRENT_TEAM.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_BELONG_CURRENT_TEAM.name()));
         }
 
         return ticketDO;

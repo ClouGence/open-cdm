@@ -56,7 +56,7 @@ import com.clougence.clouddm.console.web.dal.model.RdpUserKvBaseConfigDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.util.RandomStrUtils;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.RdpPageUtil;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.HashUtils;
@@ -438,7 +438,7 @@ public class DmProjectServiceImpl implements DmProjectService {
 
             // message
             UserCacheEntry operatorUser = this.ownerCacheService.queryByUid(fo.getNewAdminUid());
-            String operatorMsg = String.format("[%s] %s", RdpI18nUtils.getMessage(operatorUser.getRoleName()), operatorUser.getUserName());
+            String operatorMsg = String.format("[%s] %s", DmI18nUtils.getMessage(operatorUser.getRoleName()), operatorUser.getUserName());
             String textMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CONFIG_PM_MESSAGE.name(), operatorMsg);
             messageList.add(textMsg);
         }
@@ -526,16 +526,16 @@ public class DmProjectServiceImpl implements DmProjectService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_NOT_EXIST_ERROR.name()));
         }
         if (fo.getCheckStrategy() == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
         }
         if (fo.getApproveStrategy() == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
         }
         if (fo.getExecuteStrategy() == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
         }
         if (fo.getExecuteStrategy() == DmChangeExecStrategy.Auto && fo.getErrorStrategy() == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
         }
         project.setFlowCheck(fo.getCheckStrategy());
         project.setFlowApprove(fo.getApproveStrategy());
@@ -735,7 +735,7 @@ public class DmProjectServiceImpl implements DmProjectService {
 
         // send message
         UserCacheEntry operatorUser = this.ownerCacheService.queryByUid(operatorUid);
-        String operatorMsg = String.format("[%s] %s", RdpI18nUtils.getMessage(operatorUser.getRoleName()), operatorUser.getUserName());
+        String operatorMsg = String.format("[%s] %s", DmI18nUtils.getMessage(operatorUser.getRoleName()), operatorUser.getUserName());
         String textMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_STATUS_ARCHIVE_MESSAGE.name(), operatorMsg, project.getProjectName());
         this.imSenderService.sendMessage(ownerUid, projectId, ImMessageType.ProjectStatus, textMsg);
 

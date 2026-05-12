@@ -16,7 +16,7 @@
 package com.clougence.clouddm.console.web.model.vo;
 
 import com.clougence.clouddm.console.web.dal.enumeration.RegionArea;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -35,7 +35,7 @@ public class RegionAreaVO {
     public RegionAreaVO(RegionArea regionArea){
         this.regionArea = regionArea;
         if (regionArea != null) {
-            this.i18nName = RdpI18nUtils.getMessage(regionArea.name());
+            this.i18nName = DmI18nUtils.getMessage(regionArea.name());
         }
     }
 }

@@ -44,7 +44,7 @@ import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.model.fo.VerifyMO;
 import com.clougence.clouddm.console.web.util.NamedThreadFactory;
 import com.clougence.clouddm.console.web.util.RandomStrUtils;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.rdp.constant.ConsoleErrorCode;
 import com.clougence.rdp.constant.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
@@ -406,49 +406,49 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
     private String fetchCloudEmailMsg(VerifyCodeType verifyCodeType, String code, boolean isContent, String productName, String htmlTemplate) {
         switch (verifyCodeType) {
             case LOGIN:
-                return isContent ? RdpI18nUtils
-                    .getMessage(htmlTemplate, RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : RdpI18nUtils
+                return isContent ? DmI18nUtils
+                    .getMessage(htmlTemplate, DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : DmI18nUtils
                         .getMessage(I18nRdpMsgKeys.LOGIN_EMAIL_VERIFY_CODE_SUBJECT.name(), productName);
             case SSO_REGISTER_BIND:
             case REGISTER:
-                return isContent ? RdpI18nUtils
-                    .getMessage(htmlTemplate, RdpI18nUtils.getMessage(I18nRdpMsgKeys.REGISTER_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : RdpI18nUtils
+                return isContent ? DmI18nUtils
+                    .getMessage(htmlTemplate, DmI18nUtils.getMessage(I18nRdpMsgKeys.REGISTER_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : DmI18nUtils
                         .getMessage(I18nRdpMsgKeys.REGISTER_EMAIL_VERIFY_CODE_SUBJECT.name(), productName);
             case RESET_PASSWORD:
-                return isContent ? RdpI18nUtils
-                    .getMessage(htmlTemplate, RdpI18nUtils.getMessage(I18nRdpMsgKeys.RESET_PASSWORD_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : RdpI18nUtils
+                return isContent ? DmI18nUtils
+                    .getMessage(htmlTemplate, DmI18nUtils.getMessage(I18nRdpMsgKeys.RESET_PASSWORD_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : DmI18nUtils
                         .getMessage(I18nRdpMsgKeys.RESET_PASSWORD_EMAIL_VERIFY_CODE_SUBJECT.name(), productName);
             case FETCH_AUTH_CODE:
-                return isContent ? RdpI18nUtils
-                    .getMessage(htmlTemplate, RdpI18nUtils.getMessage(I18nRdpMsgKeys.FETCH_AUTH_CODE_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : RdpI18nUtils
+                return isContent ? DmI18nUtils
+                    .getMessage(htmlTemplate, DmI18nUtils.getMessage(I18nRdpMsgKeys.FETCH_AUTH_CODE_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : DmI18nUtils
                         .getMessage(I18nRdpMsgKeys.FETCH_AUTH_CODE_EMAIL_VERIFY_CODE_SUBJECT.name(), productName);
             case UPDATE_USER_EMAIL:
-                return isContent ? RdpI18nUtils
-                    .getMessage(htmlTemplate, RdpI18nUtils.getMessage(I18nRdpMsgKeys.UPDATE_USER_EMAIL_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : RdpI18nUtils
+                return isContent ? DmI18nUtils
+                    .getMessage(htmlTemplate, DmI18nUtils.getMessage(I18nRdpMsgKeys.UPDATE_USER_EMAIL_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : DmI18nUtils
                         .getMessage(I18nRdpMsgKeys.UPDATE_USER_EMAIL_EMAIL_VERIFY_CODE_SUBJECT.name(), productName);
             case VERIFY_OLD_ACCOUNT:
-                return isContent ? RdpI18nUtils
-                    .getMessage(htmlTemplate, RdpI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_OLD_ACCOUNT_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : RdpI18nUtils
+                return isContent ? DmI18nUtils
+                    .getMessage(htmlTemplate, DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_OLD_ACCOUNT_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : DmI18nUtils
                         .getMessage(I18nRdpMsgKeys.VERIFY_OLD_ACCOUNT_EMAIL_VERIFY_CODE_SUBJECT.name(), productName);
             case FETCH_USER_AK_SK:
-                return isContent ? RdpI18nUtils
-                    .getMessage(htmlTemplate, RdpI18nUtils.getMessage(I18nRdpMsgKeys.FETCH_USER_AK_SK_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : RdpI18nUtils
+                return isContent ? DmI18nUtils
+                    .getMessage(htmlTemplate, DmI18nUtils.getMessage(I18nRdpMsgKeys.FETCH_USER_AK_SK_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : DmI18nUtils
                         .getMessage(I18nRdpMsgKeys.FETCH_USER_AK_SK_EMAIL_VERIFY_CODE_SUBJECT.name(), productName);
             case RESET_USER_AK_SK:
-                return isContent ? RdpI18nUtils
-                    .getMessage(htmlTemplate, RdpI18nUtils.getMessage(I18nRdpMsgKeys.RESET_USER_AK_SK_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : RdpI18nUtils
+                return isContent ? DmI18nUtils
+                    .getMessage(htmlTemplate, DmI18nUtils.getMessage(I18nRdpMsgKeys.RESET_USER_AK_SK_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : DmI18nUtils
                         .getMessage(I18nRdpMsgKeys.RESET_USER_AK_SK_EMAIL_VERIFY_CODE_SUBJECT.name(), productName);
             case UPDATE_USER_INFO:
-                return isContent ? RdpI18nUtils
-                    .getMessage(htmlTemplate, RdpI18nUtils.getMessage(I18nRdpMsgKeys.UPDATE_USER_INFO_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : RdpI18nUtils
+                return isContent ? DmI18nUtils
+                    .getMessage(htmlTemplate, DmI18nUtils.getMessage(I18nRdpMsgKeys.UPDATE_USER_INFO_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : DmI18nUtils
                         .getMessage(I18nRdpMsgKeys.UPDATE_USER_INFO_EMAIL_VERIFY_CODE_SUBJECT.name(), productName);
             case UPDATE_USER_PHONE:
-                return isContent ? RdpI18nUtils
-                    .getMessage(htmlTemplate, RdpI18nUtils.getMessage(I18nRdpMsgKeys.UPDATE_USER_PHONE_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : RdpI18nUtils
+                return isContent ? DmI18nUtils
+                    .getMessage(htmlTemplate, DmI18nUtils.getMessage(I18nRdpMsgKeys.UPDATE_USER_PHONE_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : DmI18nUtils
                         .getMessage(I18nRdpMsgKeys.UPDATE_USER_PHONE_EMAIL_VERIFY_CODE_SUBJECT.name(), productName);
             case FETCH_WORKER_DEPLOY_CORE_CONFIG:
-                return isContent ? RdpI18nUtils.getMessage(htmlTemplate, RdpI18nUtils
-                    .getMessage(I18nRdpMsgKeys.FETCH_WORKER_DEPLOY_CORE_CONFIG_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : RdpI18nUtils
+                return isContent ? DmI18nUtils.getMessage(htmlTemplate, DmI18nUtils
+                    .getMessage(I18nRdpMsgKeys.FETCH_WORKER_DEPLOY_CORE_CONFIG_EMAIL_VERIFY_CODE_SUBJECT.name(), productName), code) : DmI18nUtils
                         .getMessage(I18nRdpMsgKeys.FETCH_WORKER_DEPLOY_CORE_CONFIG_EMAIL_VERIFY_CODE_SUBJECT.name(), productName);
             default:
                 throw new IllegalArgumentException("Unsupported verifyCodeType: " + verifyCodeType);
@@ -747,13 +747,13 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
         rdpVerifyMapper.updateVerifyCodeAndSendTime(null, new Date(), verifyRecord.getId());
 
         MailDTO mailDTO = MailDTO.builder()
-            .content(RdpI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_EMAIL_CONTENT_MSG.name(), GlobalDeploySite.rdpProductName()))
-            .subject(RdpI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_EMAIL_SUBJECT_MSG.name(), GlobalDeploySite.rdpProductName()))
+            .content(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_EMAIL_CONTENT_MSG.name(), GlobalDeploySite.rdpProductName()))
+            .subject(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_EMAIL_SUBJECT_MSG.name(), GlobalDeploySite.rdpProductName()))
             .mailTo(Collections.singletonList(userDO.getEmail()))
             .build();
         SendMsgResult r1 = this.rdpUserAlertService.chooseMailAlertService().sendMail(mailDTO, userDO, Collections.singletonList(userDO.getUid()));
         if (!r1.success()) {
-            return ResWebDataUtils.buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_EMAIL_SEND_ERROR.name(), r1.errMsg()));
+            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_EMAIL_SEND_ERROR.name(), r1.errMsg()));
         } else {
             return ResWebDataUtils.buildSuccess();
         }
@@ -796,7 +796,7 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
 
         rdpVerifyMapper.updateVerifyCodeAndSendTime(null, new Date(), verifyRecord.getId());
 
-        String msg = RdpI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_IM_CONTENT_MSG.name(), GlobalDeploySite.rdpProductName());
+        String msg = DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_IM_CONTENT_MSG.name(), GlobalDeploySite.rdpProductName());
 
         boolean imAlertAtAll = this.rdpUserAlertService.fetchUserImAlertAtAll(puid);
 
@@ -804,14 +804,14 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
             .sendMsg(buildMsgOwner(), "[MAJOR] " + msg, null, owner, Collections.singletonList(receiver), AlarmLevel.Major, imAlertAtAll);
         if (!r1.success()) {
             return ResWebDataUtils
-                .buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_IM_SEND_ERROR.name(), GlobalDeploySite.rdpProductName(), "[Major Level] " + r1.errMsg()));
+                .buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_IM_SEND_ERROR.name(), GlobalDeploySite.rdpProductName(), "[Major Level] " + r1.errMsg()));
         }
 
         SendMsgResult r2 = this.rdpUserAlertService.chooseImAlertService(puid)
             .sendMsg(buildMsgOwner(), "[CRITICAL] " + msg, null, owner, Collections.singletonList(receiver), AlarmLevel.Critical, imAlertAtAll);
         if (!r2.success()) {
             return ResWebDataUtils
-                .buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_IM_SEND_ERROR.name(), GlobalDeploySite.rdpProductName(), "[Critical Level] " + r2.errMsg()));
+                .buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_IM_SEND_ERROR.name(), GlobalDeploySite.rdpProductName(), "[Critical Level] " + r2.errMsg()));
         }
 
         return ResWebDataUtils.buildSuccess();

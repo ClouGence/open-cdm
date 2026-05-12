@@ -185,7 +185,7 @@ public class DmConvertUtils {
             SecurityType securityType = dsConfig.getSecurityType();
             securityType = (securityType == null) ? SecurityType.NONE : securityType;
             vo.getObjAttr().put("dsDriver", dsConfig.getDriverVersion());
-            vo.getObjAttr().put("dsSecurityType", RdpI18nUtils.getMessage(securityType.getI18nKey()));
+            vo.getObjAttr().put("dsSecurityType", DmI18nUtils.getMessage(securityType.getI18nKey()));
 
             // support
             //            if (supportSpi != null) {
@@ -946,7 +946,7 @@ public class DmConvertUtils {
 
         if (dsDO.getDeployType() != null) {
             vo.setDeployType(dsDO.getDeployType());
-            vo.setDeployTypeI18n(RdpI18nUtils.getMessage(dsDO.getDeployType().name()));
+            vo.setDeployTypeI18n(DmI18nUtils.getMessage(dsDO.getDeployType().name()));
         }
 
         if (confMap.containsKey(dsDO.getId())) {
@@ -2001,7 +2001,7 @@ public class DmConvertUtils {
         try {
             return new URI(fileUriStr);
         } catch (Exception e) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
         }
     }
 

@@ -17,7 +17,7 @@ package com.clougence.clouddm.console.web.model.vo;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ConnectType;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -39,7 +39,7 @@ public class ConnectTypeVO {
 
     public ConnectTypeVO(ConnectType connectType, boolean defaultCheck){
         this.connectType = connectType;
-        this.i18nName = RdpI18nUtils.getMessage(connectType.getI18nKey());
+        this.i18nName = DmI18nUtils.getMessage(connectType.getI18nKey());
         this.defaultCheck = defaultCheck;
         this.dataSourceType = connectType.getDsType();
     }

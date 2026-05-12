@@ -49,7 +49,7 @@ import com.clougence.rdp.service.RdpRoleService;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.rdp.service.model.AddRoleMO;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -108,7 +108,7 @@ public class RdpRoleController {
             List<String> labels = allLabel.stream().map(AuthInfo::getKey).collect(Collectors.toList());
             return ResWebDataUtils.buildSuccess(RdpConvertUtils.convertToRoleVO(role, labels));
         } else {
-            return ResWebDataUtils.buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_ROLE_NOT_EXIST_ERROR.name()));
+            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ROLE_NOT_EXIST_ERROR.name()));
         }
     }
 

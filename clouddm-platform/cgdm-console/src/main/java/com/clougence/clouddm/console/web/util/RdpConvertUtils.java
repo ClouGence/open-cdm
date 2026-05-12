@@ -99,7 +99,7 @@ public class RdpConvertUtils {
             RdpRoleDO roleDO = roleMap.get(userDO.getRoleId());
             if (roleDO.isInnerTag()) {
                 vo.setInnerRole(true);
-                vo.setRoleName(RdpI18nUtils.getMessage(roleDO.getRoleName()));
+                vo.setRoleName(DmI18nUtils.getMessage(roleDO.getRoleName()));
             } else {
                 vo.setRoleName(roleDO.getAliasName());
             }
@@ -158,7 +158,7 @@ public class RdpConvertUtils {
         vo.setRoleId(info.getId());
         vo.setRoleName(info.getRoleName());
         if (info.isInnerTag()) {
-            vo.setAliasName(RdpI18nUtils.getMessage(info.getRoleName()));
+            vo.setAliasName(DmI18nUtils.getMessage(info.getRoleName()));
         } else {
             vo.setAliasName(info.getAliasName());
         }
@@ -174,7 +174,7 @@ public class RdpConvertUtils {
         vo.setRoleName(info.getRoleName());
         vo.setInnerTag(info.isInnerTag());
         if (info.isInnerTag()) {
-            vo.setAliasName(RdpI18nUtils.getMessage(info.getRoleName()));
+            vo.setAliasName(DmI18nUtils.getMessage(info.getRoleName()));
         } else {
             vo.setAliasName(info.getAliasName());
         }
@@ -279,7 +279,7 @@ public class RdpConvertUtils {
         vo.setKey(info.getKey());
         vo.setParent(info.getAuthType() == AuthInfoType.Category ? info.getParent() : info.getCategory());
         vo.setCategory(info.getAuthType() == AuthInfoType.Category);
-        vo.setI18nName(RdpI18nUtils.getMessage(info.getKeyI18n()));
+        vo.setI18nName(DmI18nUtils.getMessage(info.getKeyI18n()));
         vo.setMustSelectAndReadOnly(info.isMustSelectAndReadOnly());
         return vo;
     }
@@ -324,7 +324,7 @@ public class RdpConvertUtils {
         vo.setId(config.getId());
         vo.setSecret(config.isSecret());
         vo.setReadOnly(config.isReadOnly());
-        vo.setDescription(RdpI18nUtils.getMessage(config.getDescKey()));
+        vo.setDescription(DmI18nUtils.getMessage(config.getDescKey()));
         vo.setDefaultValue(config.getDefaultValue());
         vo.setValueRequire(config.isValueRequire());
         vo.setValueValidRegex(config.getValueValidRegex());
@@ -350,7 +350,7 @@ public class RdpConvertUtils {
         vo.setDataSourceType(dsDO.getDataSourceType());
         if (dsDO.getDeployType() != null) {
             vo.setDeployType(dsDO.getDeployType());
-            vo.setDeployTypeI18n(RdpI18nUtils.getMessage(dsDO.getDeployType().name()));
+            vo.setDeployTypeI18n(DmI18nUtils.getMessage(dsDO.getDeployType().name()));
         }
 
         vo.setInfoFetchType(dsDO.getInfoFetchType());
@@ -571,7 +571,7 @@ public class RdpConvertUtils {
         vo.setGmtCreate(DateFormatType.s_yyyyMMdd_HHmmss.format(processDO.getGmtCreate()));
         vo.setGmtModified(DateFormatType.s_yyyyMMdd_HHmmss.format(processDO.getGmtModified()));
         vo.setTicketStage(processDO.getTicketStage());
-        vo.setTicketStageTitle(RdpI18nUtils.getMessage(processDO.getTicketStage().getI18nKey()));
+        vo.setTicketStageTitle(DmI18nUtils.getMessage(processDO.getTicketStage().getI18nKey()));
         vo.setFinishTime(DateFormatType.s_yyyyMMdd_HHmmss.format(processDO.getFinishTime()));
         vo.setStageContext(processDO.getStageContext());
         vo.setTicketProcessStatus(processDO.getProcessStatus());

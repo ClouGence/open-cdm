@@ -21,7 +21,7 @@ import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalType;
 import com.clougence.clouddm.console.web.dal.enumeration.RdpTicketStatus;
 import com.clougence.clouddm.console.web.dal.model.RdpTicketDO;
 import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.format.DateFormatType;
 
 import lombok.Getter;
@@ -87,7 +87,7 @@ public class RdpTicketBasicVO {
         vo.setTicketStatus(ticketDO.getTicketStatus());
         vo.setFinishTime(DateFormatType.s_yyyyMMdd_HHmmss.format(ticketDO.getFinishTime()));
 
-        vo.setUserName((ownerUserDO != null) ? ownerUserDO.getUsername() : RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
+        vo.setUserName((ownerUserDO != null) ? ownerUserDO.getUsername() : DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
 
         vo.setResourceType(resourceType);
 

@@ -15,12 +15,12 @@
  */
 package com.clougence.rdp.constant;
 
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 
 /**
  * @author bucketli 2021/1/6 10:18
  */
-@Deprecated // use throw new ErrorMessageException(RdpI18nUtils.getMessage(xxxx));
+@Deprecated // use throw new ErrorMessageException(DmI18nUtils.getMessage(xxxx));
 public enum ConsoleErrorCode {
 
     UNKNOWN(ErrorType.SYSTEM, "1001"),
@@ -102,7 +102,7 @@ public enum ConsoleErrorCode {
     public String getType() { return type.name(); }
 
     public String getMessage(Object... params) {
-        return RdpI18nUtils.getMessage(this, params);
+        return DmI18nUtils.getMessage(this, params);
     }
 }
 

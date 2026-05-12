@@ -41,7 +41,7 @@ import com.clougence.clouddm.console.web.dal.model.RdpCacheApproTemplateDO;
 import com.clougence.clouddm.console.web.dal.model.RdpDsEnvDO;
 import com.clougence.clouddm.console.web.dal.model.RdpEnvParamDO;
 import com.clougence.rdp.service.model.EnvTicketMO;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -250,7 +250,7 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
         return DmEnvParamTicketDesVO.builder()//
             .openTicket(true)
             .type(RdpApprovalType.Internal.name())
-            .typeI18n(RdpI18nUtils.getMessage(RdpApprovalType.Internal.getI18nKey()))
+            .typeI18n(DmI18nUtils.getMessage(RdpApprovalType.Internal.getI18nKey()))
             .templateId(RdpApprovalService.innerTemplate().getTemplateIdentity())
             .templateName(RdpApprovalService.innerTemplate().getApproTemplateName())
             .build();
@@ -270,7 +270,7 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
         DmEnvParamTicketDesVO tVO = DmEnvParamTicketDesVO.builder()//
             .openTicket(true)
             .type(providerCode)
-            .typeI18n(RdpI18nUtils.getMessage(RdpApprovalType.Internal.valueOfCode(providerCode).getI18nKey()))
+            .typeI18n(DmI18nUtils.getMessage(RdpApprovalType.Internal.valueOfCode(providerCode).getI18nKey()))
             .templateId(ticketMO.getTemplateId())
             .templateName(ticketMO.getTemplateName())
             .build();

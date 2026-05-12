@@ -43,7 +43,7 @@ import com.clougence.rdp.service.RdpAuthTicketService;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.rdp.service.model.EnvTicketMO;
 import com.clougence.clouddm.console.web.util.RandomStrUtils;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -81,7 +81,7 @@ public class RdpAuthTicketServiceImpl implements RdpAuthTicketService {
         // fetch auth ds objects and group by envId
         List<Long> dsIds1 = fo.getApplyAuths().stream().map(ApplyAuth::getResId).sorted().collect(Collectors.toList());
         if (CollectionUtils.isEmpty(dsIds1)) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_AUTH_TICKET_IS_EMPTY_MESSAGE.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_AUTH_TICKET_IS_EMPTY_MESSAGE.name()));
         }
 
         List<RdpDataSourceDO> list = this.rdpDsMapper.listByIds(dsIds1);
@@ -106,9 +106,9 @@ public class RdpAuthTicketServiceImpl implements RdpAuthTicketService {
         ticket.setBizId(bizId);
         ticket.setOwnerUid(uid);
         ticket.setPrimaryUid(ownerUid);
-        ticket.setTargetInfo(RdpI18nUtils.getMessage(I18nRdpLabelKeys.AUTH_TICKET_TARGET.name()));
-        ticket.setDescription(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TITLE_AUTH.name(), user.getUsername()));
-        ticket.setTicketTitle(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TITLE_AUTH.name(), user.getUsername()));
+        ticket.setTargetInfo(DmI18nUtils.getMessage(I18nRdpLabelKeys.AUTH_TICKET_TARGET.name()));
+        ticket.setDescription(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TITLE_AUTH.name(), user.getUsername()));
+        ticket.setTicketTitle(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TITLE_AUTH.name(), user.getUsername()));
         ticket.setTicketStatus(RdpTicketStatus.WAIT_APPROVAL);
         ticket.setApproBiz(RdpApprovalBiz.DATA_SOURCE_AUTH);
 
@@ -127,7 +127,7 @@ public class RdpAuthTicketServiceImpl implements RdpAuthTicketService {
         } else {
             ticket.setApproType(RdpApprovalType.Internal);
             ticket.setApproTemplateIdentity(RdpApprovalService.INNER_TEMPLATE_ID);
-            ticket.setApproTemplateName(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_INTERNAL_TEMPLATE.name()));
+            ticket.setApproTemplateName(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_INTERNAL_TEMPLATE.name()));
         }
 
         // apply more info.
@@ -164,7 +164,7 @@ public class RdpAuthTicketServiceImpl implements RdpAuthTicketService {
         Map<String, String> collect = allAuthLabel.stream().collect(Collectors.toMap(AuthInfo::getKey, AuthInfo::getKeyI18n));
         List<String> labels = new ArrayList<>();
         for (String authLabel : applyAuth.getAuthLabels()) {
-            labels.add(RdpI18nUtils.getMessage(collect.get(authLabel)));
+            labels.add(DmI18nUtils.getMessage(collect.get(authLabel)));
         }
 
         applyAuth.setAuthLabels(labels);
@@ -174,7 +174,7 @@ public class RdpAuthTicketServiceImpl implements RdpAuthTicketService {
     private List<ApplyAuth> fillAuthInfo(List<ApplyAuth> applyAuths) {
         Set<Long> dsIds = applyAuths.stream().map(ApplyAuth::getResId).collect(Collectors.toSet());
         if (dsIds.isEmpty()) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_AUTH_TICKET_IS_EMPTY_MESSAGE.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_AUTH_TICKET_IS_EMPTY_MESSAGE.name()));
         }
 
         Map<Long, String> resInstIdMap = new HashMap<>();

@@ -45,7 +45,7 @@ import com.clougence.clouddm.console.web.model.vo.PwdValidateExprVO;
 import com.clougence.clouddm.console.web.model.vo.RdpUserAkSkVO;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.model.feature.RdpFeatureIDs;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
@@ -231,7 +231,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         PwdValidateExprVO vo = new PwdValidateExprVO();
         String defaultPwdRegexForFront = DEFAULT_PWD_REGEX.replace("\\\\", "\\");
         vo.setExpr(defaultPwdRegexForFront);
-        vo.setTips(RdpI18nUtils.getMessage(I18nRdpMsgKeys.SUB_ACCOUNT_PWD_VALIDATE_TIPS.name()));
+        vo.setTips(DmI18nUtils.getMessage(I18nRdpMsgKeys.SUB_ACCOUNT_PWD_VALIDATE_TIPS.name()));
         return vo;
     }
 
@@ -268,7 +268,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         RdpUserDO userDO = rdpUserMapper.queryByUid(uid);
 
         if (userDO == null) {
-            return new UpdateUserInfoMO(false, RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
+            return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
         }
 
         AreaCode phoneAreaCode = userDO.getPhoneAreaCode();
@@ -294,7 +294,7 @@ public class RdpUserServiceImpl implements RdpUserService {
     public OpPasswdVerifyMO opPasswdVerify(String opPassword, String uid) {
         RdpUserDO dmUserDO = rdpUserMapper.queryByUid(uid);
         if (dmUserDO.getOpPassword() == null) {
-            return new OpPasswdVerifyMO(false, OpVerifyErrType.OP_PASSWD_NOT_SET, RdpI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_OP_PASSWORD_NOT_SET_ERROR.name()));
+            return new OpPasswdVerifyMO(false, OpVerifyErrType.OP_PASSWD_NOT_SET, DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_OP_PASSWORD_NOT_SET_ERROR.name()));
         }
 
         PasswordInfo passInfo = new PasswordInfo();
@@ -304,7 +304,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         if (match) {
             return new OpPasswdVerifyMO(true);
         } else {
-            return new OpPasswdVerifyMO(false, OpVerifyErrType.OP_PASSWD_ERROR, RdpI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_OP_PASSWORD_ERROR.name()));
+            return new OpPasswdVerifyMO(false, OpVerifyErrType.OP_PASSWD_ERROR, DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_OP_PASSWORD_ERROR.name()));
         }
     }
 
@@ -325,7 +325,7 @@ public class RdpUserServiceImpl implements RdpUserService {
             }
 
             if (phoneUser != null) {
-                return new UpdateUserInfoMO(false, RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_PHONE_EXIST_ERROR.name(), newPhone));
+                return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_PHONE_EXIST_ERROR.name(), newPhone));
             }
         }
 
@@ -363,7 +363,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         if (!oldEmail.equals(newEmail)) {
             RdpUserDO emailUser = rdpUserMapper.queryPrimaryByEmail(newEmail);
             if (emailUser != null) {
-                return new UpdateUserInfoMO(false, RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_EMAIL_EXIST_ERROR.name(), newEmail));
+                return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_EMAIL_EXIST_ERROR.name(), newEmail));
             }
         }
 
@@ -387,7 +387,7 @@ public class RdpUserServiceImpl implements RdpUserService {
                 verifyData.setVerifyCodeType(VerifyCodeType.UPDATE_USER_EMAIL);
                 break;
             default:
-                return new UpdateUserInfoMO(false, RdpI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_UNSUPPORTED_TYPE_ERROR.name()));
+                return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_UNSUPPORTED_TYPE_ERROR.name()));
         }
 
         rdpVerifyService.checkVerifyCode(verifyData);
@@ -414,7 +414,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         UpdateUserInfoMO mo = new UpdateUserInfoMO();
         if (re) {
             mo.setSuccess(false);
-            mo.setErrorMsg(RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_ORIGIN_PASSWORD_ERROR.name()));
+            mo.setErrorMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ORIGIN_PASSWORD_ERROR.name()));
             return mo;
         }
 
@@ -431,7 +431,7 @@ public class RdpUserServiceImpl implements RdpUserService {
             }
 
             if (phoneUser != null) {
-                return new UpdateUserInfoMO(false, RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_PHONE_EXIST_ERROR.name(), newPhone));
+                return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_PHONE_EXIST_ERROR.name(), newPhone));
             }
         }
 
@@ -459,7 +459,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         LoginProvider providerType = userDO.getBindType().getProvider();
         LoginProviderSpi loginProviderSpi = PluginManager.findSpi(LoginProviderSpi.class, providerType.name());
         if (loginProviderSpi == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_UNSUPPORTED_SUBACCOUNT_LOGIN_TYPE.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_UNSUPPORTED_SUBACCOUNT_LOGIN_TYPE.name()));
         }
 
         RdpUserDO primaryUser = this.rdpUserMapper.queryPrimaryByDomain(userDO.getUserDomain());
@@ -480,7 +480,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         UpdateUserInfoMO mo = new UpdateUserInfoMO();
         if (re) {
             mo.setSuccess(false);
-            mo.setErrorMsg(RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_ORIGIN_PASSWORD_ERROR.name()));
+            mo.setErrorMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ORIGIN_PASSWORD_ERROR.name()));
             return mo;
         }
 
@@ -489,7 +489,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         if (!oldEmail.equals(newEmail)) {
             RdpUserDO emailUser = rdpUserMapper.queryPrimaryByEmail(newEmail);
             if (emailUser != null) {
-                return new UpdateUserInfoMO(false, RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_EMAIL_EXIST_ERROR.name(), newEmail));
+                return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_EMAIL_EXIST_ERROR.name(), newEmail));
             }
         }
 
@@ -541,7 +541,7 @@ public class RdpUserServiceImpl implements RdpUserService {
                 verifyData.setVerifyCode(fo.getVerifyCode());
                 break;
             default:
-                return ResWebDataUtils.buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_UNSUPPORTED_TYPE_ERROR.name()));
+                return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_UNSUPPORTED_TYPE_ERROR.name()));
         }
 
         this.rdpVerifyService.checkVerifyCode(verifyData);
@@ -578,7 +578,7 @@ public class RdpUserServiceImpl implements RdpUserService {
                 verifyData.setVerifyCode(fo.getVerifyCode());
                 break;
             default:
-                return ResWebDataUtils.buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_UNSUPPORTED_TYPE_ERROR.name()));
+                return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_UNSUPPORTED_TYPE_ERROR.name()));
         }
 
         this.rdpVerifyService.checkVerifyCode(verifyData);
@@ -733,18 +733,18 @@ public class RdpUserServiceImpl implements RdpUserService {
             }
         } else if (fo.getAccountType() == AccountType.SUB_ACCOUNT) {
             if (StringUtils.isBlank(fo.getSubAccount())) {
-                return new UpdateUserInfoMO(false, RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_ACCOUNT_EMPTY_ERROR.name()));
+                return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ACCOUNT_EMPTY_ERROR.name()));
             }
 
             userDO = this.rdpUserMapper.queryBySubAccount(fo.getSubAccount());
         }
 
         if (userDO == null) {
-            return new UpdateUserInfoMO(false, RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
+            return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
         }
 
         if (userDO.isDisable()) {
-            return new UpdateUserInfoMO(false, RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_IS_DISABLED_ERROR.name()));
+            return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_IS_DISABLED_ERROR.name()));
         }
 
         AreaCode phoneAreaCode = userDO.getPhoneAreaCode();
@@ -779,7 +779,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         if (!notSame) {
             //can not reset with same password
             mo.setSuccess(false);
-            mo.setErrorMsg(RdpI18nUtils.getMessage(I18nRdpMsgKeys.RESET_WITH_SAME_PASSWORD_ERROR.name()));
+            mo.setErrorMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.RESET_WITH_SAME_PASSWORD_ERROR.name()));
             return mo;
         }
 
@@ -799,7 +799,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         boolean re = RdpAuthUtils.isErrorPasswd(userDO.getPassword(), fo.getOriginPassword());
         if (re) {
             mo.setSuccess(false);
-            mo.setErrorMsg(RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_ORIGIN_PASSWORD_ERROR.name()));
+            mo.setErrorMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ORIGIN_PASSWORD_ERROR.name()));
             return mo;
         }
 
@@ -818,7 +818,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         UpdateUserInfoMO mo = new UpdateUserInfoMO();
         if (re) {
             mo.setSuccess(false);
-            mo.setErrorMsg(RdpI18nUtils.getMessage(I18nRdpMsgKeys.OPERATOR_PASSWORD_ERROR.name()));
+            mo.setErrorMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.OPERATOR_PASSWORD_ERROR.name()));
             return mo;
         }
 
@@ -857,30 +857,30 @@ public class RdpUserServiceImpl implements RdpUserService {
 
         RdpUserDO user = this.rdpUserMapper.queryBySubAccount(accountFO.getSubAccount());
         if (user != null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_ADD_EXIST_ERROR.name(), accountFO.getSubAccount()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ADD_EXIST_ERROR.name(), accountFO.getSubAccount()));
         }
 
         if (!skipMailCheck) {
             RdpUserDO emailUser = this.rdpUserMapper.queryByEmailAndParentId(accountFO.getEmail(), primaryUser.getId());
             if (emailUser != null) {
-                throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_ADD_EXIST_ERROR.name(), accountFO.getEmail()));
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ADD_EXIST_ERROR.name(), accountFO.getEmail()));
             }
         }
 
         if (!skipPhoneCheck) {
             RdpUserDO phoneUser = this.rdpUserMapper.queryByPhoneAndParentId(accountFO.getPhone(), primaryUser.getId());
             if (phoneUser != null) {
-                throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_ADD_EXIST_ERROR.name(), accountFO.getPhone()));
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ADD_EXIST_ERROR.name(), accountFO.getPhone()));
             }
         }
 
         RdpRoleDO roleDO = this.rdpRoleService.fetchRoleById(accountFO.getRoleId());
         if (roleDO == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_ROLE_NOT_EXIST_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ROLE_NOT_EXIST_ERROR.name()));
         }
 
         if (!roleDO.getOwnerUid().equals(primaryUser.getUid())) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_ROLE_IS_NOT_BELONG_YOU_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ROLE_IS_NOT_BELONG_YOU_ERROR.name()));
         }
 
         ValidateResultMO pwdMO = validateSubAccountPwd(primaryUser.getUid(), accountFO.getPassword());
@@ -975,7 +975,7 @@ public class RdpUserServiceImpl implements RdpUserService {
 
         if (StringUtils.isBlank(fo.getSubAccount()) && StringUtils.isBlank(fo.getUserName())) {
             mo.setSuccess(false);
-            mo.setErrorMsg(RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_INFO_EMPTY_ERROR.name()));
+            mo.setErrorMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_INFO_EMPTY_ERROR.name()));
             return mo;
         }
 
@@ -983,7 +983,7 @@ public class RdpUserServiceImpl implements RdpUserService {
             RdpUserDO userWithNewSubAccount = this.rdpUserMapper.queryBySubAccount(fo.getSubAccount());
             if (userWithNewSubAccount != null && !userWithNewSubAccount.getUid().equals(fo.getTargetUid())) {
                 mo.setSuccess(false);
-                mo.setErrorMsg(RdpI18nUtils.getMessage(I18nRdpMsgKeys.REGISTER_ACCOUNT_EXIST_ERROR.name(), fo.getSubAccount()));
+                mo.setErrorMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.REGISTER_ACCOUNT_EXIST_ERROR.name(), fo.getSubAccount()));
                 return mo;
             }
         }
@@ -991,7 +991,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         RdpUserDO oldUser = this.rdpUserMapper.queryByUid(fo.getTargetUid());
         if (oldUser == null) {
             mo.setSuccess(false);
-            mo.setErrorMsg(RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
+            mo.setErrorMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
             return mo;
         }
 
@@ -1016,19 +1016,19 @@ public class RdpUserServiceImpl implements RdpUserService {
         if (fo.getCheckType() == CheckSubAccountType.SUB_ACCOUNT) {
             RdpUserDO user = this.rdpUserMapper.queryBySubAccount(content);
             if (user != null) {
-                return new CheckSubAccountMO(false, RdpI18nUtils.getMessage(I18nRdpMsgKeys.REGISTER_ACCOUNT_EXIST_ERROR.name(), content));
+                return new CheckSubAccountMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.REGISTER_ACCOUNT_EXIST_ERROR.name(), content));
             }
         } else if (fo.getCheckType() == CheckSubAccountType.PHONE) {
             RdpUserDO parentUser = this.rdpUserMapper.queryByUid(puid);
             RdpUserDO phoneUser = this.rdpUserMapper.queryByPhoneAndParentId(content, parentUser.getId());
             if (phoneUser != null) {
-                return new CheckSubAccountMO(false, RdpI18nUtils.getMessage(I18nRdpMsgKeys.REGISTER_PHONE_EXIST_ERROR.name(), content));
+                return new CheckSubAccountMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.REGISTER_PHONE_EXIST_ERROR.name(), content));
             }
         } else if (fo.getCheckType() == CheckSubAccountType.EMAIL) {
             RdpUserDO parentUser = this.rdpUserMapper.queryByUid(puid);
             RdpUserDO emailUser = this.rdpUserMapper.queryByEmailAndParentId(content, parentUser.getId());
             if (emailUser != null) {
-                return new CheckSubAccountMO(false, RdpI18nUtils.getMessage(I18nRdpMsgKeys.REGISTER_EMAIL_EXIST_ERROR.name(), content));
+                return new CheckSubAccountMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.REGISTER_EMAIL_EXIST_ERROR.name(), content));
             }
         }
 
@@ -1052,7 +1052,7 @@ public class RdpUserServiceImpl implements RdpUserService {
     public UpdateUserRoleLO updateUserRole(UpdateUserRoleFO fo) {
         RdpUserDO theUser = this.rdpUserMapper.queryByUid(fo.getSubAccountUid());
         if (theUser == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
         }
 
         if (theUser.getRoleId() == fo.getRoleId()) {
@@ -1061,7 +1061,7 @@ public class RdpUserServiceImpl implements RdpUserService {
 
         RdpRoleDO theRole = this.rdpRoleService.fetchRoleById(fo.getRoleId());
         if (theRole == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_ROLE_NOT_EXIST_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ROLE_NOT_EXIST_ERROR.name()));
         }
 
         this.rdpUserMapper.updateRoleById(theUser.getId(), fo.getRoleId());
@@ -1149,7 +1149,7 @@ public class RdpUserServiceImpl implements RdpUserService {
     public UpdateUserInfoMO updateResourceManage(UpdateResourceManageFO fo, String puid) {
         RdpUserDO user = this.rdpUserMapper.queryByUid(fo.getTargetUid());
         if (user == null) {
-            return new UpdateUserInfoMO(false, RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name(), fo.getTargetUid()));
+            return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name(), fo.getTargetUid()));
         }
 
         this.rdpUserMapper.updateResourceMangeEnable(fo.getTargetUid(), fo.isResourceManage());

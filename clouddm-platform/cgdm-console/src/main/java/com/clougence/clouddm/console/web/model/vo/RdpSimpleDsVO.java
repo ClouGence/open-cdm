@@ -24,7 +24,7 @@ import com.clougence.clouddm.console.web.dal.enumeration.DeployEnvType;
 import com.clougence.clouddm.console.web.dal.enumeration.HostType;
 import com.clougence.clouddm.console.web.dal.enumeration.LifeCycleState;
 import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -91,7 +91,7 @@ public class RdpSimpleDsVO {
         this.dataSourceType = dsDO.getDataSourceType();
         if (dsDO.getDeployType() != null) {
             this.deployType = dsDO.getDeployType();
-            this.deployTypeI18n = RdpI18nUtils.getMessage(dsDO.getDeployType().name());
+            this.deployTypeI18n = DmI18nUtils.getMessage(dsDO.getDeployType().name());
         }
 
         this.infoFetchType = dsDO.getInfoFetchType();

@@ -23,7 +23,7 @@
 //import com.alibaba.excel.enums.poi.HorizontalAlignmentEnum;
 //import com.alibaba.excel.enums.poi.VerticalAlignmentEnum;
 //import com.clougence.clouddm.console.web.dal.model.RdpOpAuditDO;
-//import com.clougence.rdp.util.RdpI18nUtils;
+//import com.clougence.rdp.util.DmI18nUtils;
 //
 //import lombok.AllArgsConstructor;
 //import lombok.Data;
@@ -102,11 +102,11 @@
 //        this.uuidKey = auditDO.getUuidKey();
 //        this.logInfo = auditDO.getLogInfo();
 //        if (auditDO.getAuditType() != null) {
-//            this.auditTypeDesc = RdpI18nUtils.getMessage(auditDO.getAuditType().name());
+//            this.auditTypeDesc = DmI18nUtils.getMessage(auditDO.getAuditType().name());
 //        }
 //
 //        if (auditDO.getResourceType() != null) {
-//            this.resourceTypeDesc = RdpI18nUtils.getMessage(auditDO.getResourceType().name());
+//            this.resourceTypeDesc = DmI18nUtils.getMessage(auditDO.getResourceType().name());
 //        }
 //
 //        if (auditDO.getIp() != null) {

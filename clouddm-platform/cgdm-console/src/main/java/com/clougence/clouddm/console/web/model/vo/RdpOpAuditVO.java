@@ -19,7 +19,7 @@ import java.util.Date;
 
 import com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel;
 import com.clougence.clouddm.console.web.dal.model.RdpOpAuditDO;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -94,12 +94,12 @@ public class RdpOpAuditVO {
 
         if (auditDO.getAuditType() != null) {
             this.auditType = auditDO.getAuditType().name();
-            this.auditTypeDesc = RdpI18nUtils.getMessage(auditDO.getAuditType().name());
+            this.auditTypeDesc = DmI18nUtils.getMessage(auditDO.getAuditType().name());
         }
 
         if (auditDO.getResourceType() != null) {
             this.resourceType = auditDO.getResourceType().name();
-            this.resourceTypeDesc = RdpI18nUtils.getMessage(auditDO.getResourceType().name());
+            this.resourceTypeDesc = DmI18nUtils.getMessage(auditDO.getResourceType().name());
         }
 
         if (auditDO.getIp() != null) {

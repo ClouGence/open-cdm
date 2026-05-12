@@ -68,7 +68,7 @@ import com.clougence.rdp.service.RdpAuthServiceForBiz;
 import com.clougence.rdp.service.RdpDsService;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -302,7 +302,7 @@ public class DmDsController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         if (fo.getLevels().size() < 2) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
         }
 
         DsLevels dsLevels = this.dmDsConfigService.parseLevels(fo.getLevels());

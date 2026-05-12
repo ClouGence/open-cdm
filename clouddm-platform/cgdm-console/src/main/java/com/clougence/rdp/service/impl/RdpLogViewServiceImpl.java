@@ -31,7 +31,7 @@
 //import com.clougence.rdp.global.config.RdpConsoleConfig;
 //import com.clougence.rdp.service.RdpLogViewService;
 //import com.clougence.rdp.service.RdpUserService;
-//import com.clougence.rdp.util.RdpI18nUtils;
+//import com.clougence.rdp.util.DmI18nUtils;
 //import com.clougence.rdp.util.RdpJacksonUtil;
 //import com.clougence.utils.JsonUtils;
 //import com.clougence.utils.StringUtils;
@@ -74,7 +74,7 @@
 //        logViewVO.setPath(operationAuditDO.getLogPath());
 //
 //        logViewVO.setFileName(OPERATION_LOG);
-//        logViewVO.setDesc(RdpI18nUtils.getMessage(I18nRdpMsgKeys.RDP_CONSOLE_OPERATION_LOG_DESC.name()));
+//        logViewVO.setDesc(DmI18nUtils.getMessage(I18nRdpMsgKeys.RDP_CONSOLE_OPERATION_LOG_DESC.name()));
 //        logViewVO.setContent(buildContent(operationAuditDO.getLogInfo()));
 //        return logViewVO;
 //    }
@@ -122,7 +122,7 @@
 //            }
 //            Map<String, Object> newJsonObject = new LinkedHashMap<>();
 //            for (Object key : jsonObject.keySet()) {
-//                String message = RdpI18nUtils.getMessage(AUDIT_LOG_I18_PREFIX + key.toString());
+//                String message = DmI18nUtils.getMessage(AUDIT_LOG_I18_PREFIX + key.toString());
 //                if (message.startsWith(AUDIT_LOG_I18_PREFIX)) {
 //                    message = key.toString();
 //                }
@@ -139,7 +139,7 @@
 //                Map<String, Object> jsonMap = (LinkedHashMap<String, Object>) map;
 //                Map<String, Object> newMap = new LinkedHashMap<>();
 //                for (Object key : jsonMap.keySet()) {
-//                    String message = RdpI18nUtils.getMessage(AUDIT_LOG_I18_PREFIX + key.toString());
+//                    String message = DmI18nUtils.getMessage(AUDIT_LOG_I18_PREFIX + key.toString());
 //                    if (message.startsWith(AUDIT_LOG_I18_PREFIX)) {
 //                        message = key.toString();
 //                    }

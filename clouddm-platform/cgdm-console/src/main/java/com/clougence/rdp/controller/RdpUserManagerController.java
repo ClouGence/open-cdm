@@ -38,7 +38,7 @@ import com.clougence.clouddm.console.web.model.fo.role.UpdateUserRoleFO;
 import com.clougence.clouddm.console.web.model.fo.user.*;
 import com.clougence.clouddm.console.web.model.lo.UpdateUserRoleLO;
 import com.clougence.clouddm.console.web.model.vo.ListUserVO;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.Sm2Utils;
 import com.clougence.rdp.constant.I18nRdpMsgKeys;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
@@ -107,7 +107,7 @@ public class RdpUserManagerController {
             validatePwdMO = this.rdpUserService.validatePrimaryAccountPwd(fo.getPassword());
         } else if (fo.getAccountType() == AccountType.SUB_ACCOUNT) {
             if (StringUtils.isBlank(fo.getSubAccount())) {
-                return ResWebDataUtils.buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_ACCOUNT_EMPTY_ERROR.name()));
+                return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ACCOUNT_EMPTY_ERROR.name()));
             }
 
             userDO = this.rdpUserMapper.queryBySubAccount(fo.getSubAccount());
@@ -117,7 +117,7 @@ public class RdpUserManagerController {
         }
 
         if (userDO == null) {
-            return ResWebDataUtils.buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
+            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
         }
 
         if (validatePwdMO != null && !validatePwdMO.isSuccess()) {
@@ -205,17 +205,17 @@ public class RdpUserManagerController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         if (StringUtils.isBlank(fo.getSubAccount())) {
-            return ResWebDataUtils.buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_ACCOUNT_EMPTY_ERROR.name()));
+            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ACCOUNT_EMPTY_ERROR.name()));
         }
 
         RdpUserDO userDO = this.rdpUserMapper.queryBySubAccount(fo.getSubAccount());
 
         if (userDO == null) {
-            return ResWebDataUtils.buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
+            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
         }
 
         if (userDO.getUid().equals(uid)) {
-            return ResWebDataUtils.buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.CAN_NOT_DELETE_SUB_ACCOUNT_SELF.name()));
+            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.CAN_NOT_DELETE_SUB_ACCOUNT_SELF.name()));
         }
 
         rdpAuthServiceForBiz.checkOperateOtherUserAuth(uid, userDO.getUid());
@@ -224,7 +224,7 @@ public class RdpUserManagerController {
         if (configDO != null) {
             boolean forbid = Boolean.parseBoolean(configDO.getConfigValue());
             if (forbid) {
-                return ResWebDataUtils.buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.NOT_ALLOW_DELETE_SUB_ACCOUNT.name()));
+                return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.NOT_ALLOW_DELETE_SUB_ACCOUNT.name()));
             }
         }
         RdpUserDO rdpUserDO = rdpUserMapper.queryBySubAccount(fo.getSubAccount());
@@ -260,7 +260,7 @@ public class RdpUserManagerController {
             }
 
             response.addCookie(cookie);
-            return ResWebDataUtils.buildError(RdpErrorCode.COMM_USER_RELOAD_ERROR, RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_NEED_RELOGIN.name()));
+            return ResWebDataUtils.buildError(RdpErrorCode.COMM_USER_RELOAD_ERROR, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NEED_RELOGIN.name()));
         }
 
         return ResWebDataUtils.buildSuccess();
@@ -272,7 +272,7 @@ public class RdpUserManagerController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         if (uid.equals(fo.getUid())) {
-            return ResWebDataUtils.buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.CAN_NOT_DISABLE_SUB_ACCOUNT_SELF.name()));
+            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.CAN_NOT_DISABLE_SUB_ACCOUNT_SELF.name()));
         }
 
         checkOperateUserAuth(uid, fo.getUid());
@@ -314,7 +314,7 @@ public class RdpUserManagerController {
         RdpUserDO userDO = this.rdpUserMapper.queryByUid(uid);
 
         if (userDO == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
         }
 
         rdpAuthServiceForBiz.checkOperateOtherUserAuth(operateUid, userDO.getUid());

@@ -18,7 +18,7 @@ package com.clougence.clouddm.console.web.model.vo;
 import com.clougence.rdp.constant.KvConfValType;
 import com.clougence.rdp.constant.UserConfigTagType;
 import com.clougence.clouddm.console.web.dal.model.RdpUserKvBaseConfigDO;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -63,11 +63,11 @@ public class RdpUserConfigVO {
             this.setConfigValue(config.getConfigValue());
         }
 
-        this.setDescription(RdpI18nUtils.getMessage(config.getDescKey()));
+        this.setDescription(DmI18nUtils.getMessage(config.getDescKey()));
         this.setConfigName(config.getConfigName());
         this.setUserConfigTagType(config.getUserConfigTagType());
         if (config.getUserConfigTagType() != null) {
-            this.i18nOfTagType = RdpI18nUtils.getMessage("USER_CONFIG_TAG_" + config.getUserConfigTagType().name());
+            this.i18nOfTagType = DmI18nUtils.getMessage("USER_CONFIG_TAG_" + config.getUserConfigTagType().name());
         }
 
         this.setConfBelong(config.getConfBelong().getCloudAliasName());

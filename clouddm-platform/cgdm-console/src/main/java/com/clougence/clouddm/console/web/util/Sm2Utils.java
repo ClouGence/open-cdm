@@ -83,7 +83,7 @@ public class Sm2Utils {
             byte[] arrayOfBytes = sm2Engine.processBlock(cipherDataByte, 0, cipherDataByte.length);
             return new String(arrayOfBytes);
         } catch (Exception e) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.COMM_SM2_ENCOUNTERED_ERROR.name(), e.getMessage()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_SM2_ENCOUNTERED_ERROR.name(), e.getMessage()));
         }
     }
 }

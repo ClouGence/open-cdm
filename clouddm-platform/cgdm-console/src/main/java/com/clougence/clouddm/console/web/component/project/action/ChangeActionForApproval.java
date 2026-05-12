@@ -50,7 +50,7 @@ import com.clougence.clouddm.console.web.dal.mapper.RdpTicketMapper;
 import com.clougence.clouddm.console.web.dal.model.*;
 import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.model.EnvTicketMO;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.format.WellKnowFormat;
@@ -183,7 +183,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         RdpApprovalType approvalType = approvalInfo.getApprovalType();
         if (approvalType != RdpApprovalType.Internal) {
             if (!this.approvalService.checkEnableApproval(change.getOwnerUid(), approvalType.getProviderType())) {
-                throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), locale, approvalType));
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), locale, approvalType));
             }
         }
 
@@ -276,7 +276,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
             return new ChangeApprovalInfo(//
                 RdpApprovalType.Internal,
                 RdpApprovalService.INNER_TEMPLATE_ID,
-                RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_INTERNAL_TEMPLATE.name()));
+                DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_INTERNAL_TEMPLATE.name()));
         }
 
         EnvTicketMO ticketMO = JsonUtils.toObj(paramDO.getConfigValue(), EnvTicketMO.class);

@@ -167,6 +167,8 @@ function sleep(timeoutMs) {
   return new Promise((resolve) => setTimeout(resolve, timeoutMs));
 }
 
+const RESTART_POLL_REQUEST_TIMEOUT_MS = 1500;
+
 function buildDmGlobalSettingsUrl() {
   const baseUrl = (process.env.VUE_APP_BASE_URL || '').replace(/\/$/, '');
   return `${baseUrl}/clouddm/console/api/v1/dm_global_settings`;
@@ -286,24 +288,37 @@ function upsertExecutionScriptItem(items, nextItem) {
 }
 
 async function pollDmGlobalSettings() {
-  const response = await fetch(buildDmGlobalSettingsUrl(), {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json; charset=UTF-8'
-    },
-    body: JSON.stringify({})
-  });
-
-  if (!response.ok) {
-    return null;
-  }
+  const supportsAbortController = typeof AbortController !== 'undefined';
+  const controller = supportsAbortController ? new AbortController() : null;
+  const timeoutId = controller ? window.setTimeout(() => controller.abort(), RESTART_POLL_REQUEST_TIMEOUT_MS) : null;
 
   try {
-    return await response.json();
+    const response = await fetch(buildDmGlobalSettingsUrl(), {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: JSON.stringify({}),
+      signal: controller ? controller.signal : undefined
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    try {
+      return await response.json();
+    } catch (e) {
+      return null;
+    }
   } catch (e) {
     return null;
+  } finally {
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+    }
   }
 }
 

@@ -28,7 +28,7 @@ import com.clougence.clouddm.console.web.dal.enumeration.RdpTicketStage;
 import com.clougence.clouddm.console.web.dal.enumeration.RdpTicketStatus;
 import com.clougence.clouddm.console.web.model.vo.RdpApproTemplateVO;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.LifeSpiRequest;
 import com.clougence.clouddm.sdk.LifeSpiResponse;
@@ -83,7 +83,7 @@ public class RdpApproServiceImpl implements RdpApprovalService {
         // inner
         Map<String, Object> innerProvider = new HashMap<>();
         innerProvider.put("approvalType", RdpApprovalType.Internal.name());
-        innerProvider.put("i18n", RdpI18nUtils.getMessage(RdpApprovalType.Internal.getI18nKey()));
+        innerProvider.put("i18n", DmI18nUtils.getMessage(RdpApprovalType.Internal.getI18nKey()));
         innerProvider.put("enable", true);
         innerProvider.put("desc", "");
         list.add(innerProvider);
@@ -93,12 +93,12 @@ public class RdpApproServiceImpl implements RdpApprovalService {
         for (ApprovalProvider type : RdpApprovalService.SupportList) {
             Map<String, Object> provider = new HashMap<>();
             provider.put("approvalType", type.name());
-            provider.put("i18n", RdpI18nUtils.getMessage(RdpApprovalType.valueOfProvider(type).getI18nKey()));
+            provider.put("i18n", DmI18nUtils.getMessage(RdpApprovalType.valueOfProvider(type).getI18nKey()));
 
             // not found plugin
             if (!serviceNames.contains(type.name())) {
                 provider.put("enable", false);
-                provider.put("desc", RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_PLUGIN_NOT_FOUND.name()));
+                provider.put("desc", DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_PLUGIN_NOT_FOUND.name()));
                 list.add(provider);
                 continue;
             }
@@ -106,7 +106,7 @@ public class RdpApproServiceImpl implements RdpApprovalService {
             // not enable
             if (!this.checkEnableApproval(ownerUid, type)) {
                 provider.put("enable", false);
-                provider.put("desc", RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_ENABLE.name()));
+                provider.put("desc", DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_ENABLE.name()));
                 list.add(provider);
                 continue;
             }
@@ -116,7 +116,7 @@ public class RdpApproServiceImpl implements RdpApprovalService {
             LifeSpiStatus info = JsonUtils.toObj(invoke.getBody(), LifeSpiStatus.class);
             if (!info.isRunning()) {
                 provider.put("enable", false);
-                provider.put("desc", RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_PLUGIN_STATUS_FAILED.name()));
+                provider.put("desc", DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_PLUGIN_STATUS_FAILED.name()));
                 list.add(provider);
                 continue;
             }
@@ -169,7 +169,7 @@ public class RdpApproServiceImpl implements RdpApprovalService {
         if (type != RdpApprovalType.Internal) {
             ApprovalProviderSpi approvalService = PluginManager.findSpi(ApprovalProviderSpi.class, type.name());
             if (approvalService == null) {
-                throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), type));
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), type));
             }
 
             List<ApprovalTemplate> templates = approvalService.getTemplates(ownerUid);
@@ -241,7 +241,7 @@ public class RdpApproServiceImpl implements RdpApprovalService {
         try {
             ApprovalProviderSpi approvalService = PluginManager.findSpi(ApprovalProviderSpi.class, ticket.getApproType().name());
             if (approvalService == null) {
-                throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), ticket.getApproType()));
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), ticket.getApproType()));
             }
             ApprovalInstanceInfo lastInfo = approvalService.getLastInfo(ticket.getPrimaryUid(), ticket.getApproIdentity());
             ApprovalInstanceStatus status = lastInfo.getStatus();
@@ -314,18 +314,18 @@ public class RdpApproServiceImpl implements RdpApprovalService {
     public RdpCacheApproTemplateDO checkApprovalAndReturnTemplate(String ownerUid, RdpApprovalType type, String templateId, Locale locale) {
         if (!this.checkEnableApproval(ownerUid, type.getProviderType())) {
             if (locale == null) {
-                throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), type));
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), type));
             } else {
-                throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), locale, type));
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), locale, type));
             }
         }
 
         RdpCacheApproTemplateDO templateDO = this.rdpCacheApproTemplateMapper.queryByUidAndTemId(ownerUid, templateId);
         if (templateDO == null) {
             if (locale == null) {
-                throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TEMPLATE_NOT_EXISTS.name()));
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TEMPLATE_NOT_EXISTS.name()));
             } else {
-                throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TEMPLATE_NOT_EXISTS.name(), locale));
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TEMPLATE_NOT_EXISTS.name(), locale));
             }
         } else {
             return templateDO;
@@ -335,11 +335,11 @@ public class RdpApproServiceImpl implements RdpApprovalService {
     @Override
     public void addTemplateByUrl(String ownerUid, RdpApprovalType type, String templateUrl) {
         if (!this.checkEnableApproval(ownerUid, type.getProviderType())) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), type));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), type));
         }
         ApprovalProviderSpi approvalService = PluginManager.findSpi(ApprovalProviderSpi.class, type.name());
         if (approvalService == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), type));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), type));
         }
 
         if (type == RdpApprovalType.Feishu) {
@@ -347,7 +347,7 @@ public class RdpApproServiceImpl implements RdpApprovalService {
         } else if (type == RdpApprovalType.Wechat) {
             processWeChat(ownerUid, type, templateUrl); // process Wechat
         } else {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), type));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), type));
         }
     }
 
@@ -402,11 +402,11 @@ public class RdpApproServiceImpl implements RdpApprovalService {
     @Override
     public void removeTemplateById(String ownerUid, RdpApprovalType type, String templateId) {
         if (!this.checkEnableApproval(ownerUid, type.getProviderType())) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), type));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), type));
         }
         ApprovalProviderSpi approvalService = PluginManager.findSpi(ApprovalProviderSpi.class, type.name());
         if (approvalService == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), type));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), type));
         }
 
         switch (type) {

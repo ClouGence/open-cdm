@@ -61,8 +61,8 @@ public class RdpAuthUtils {
             useResourceLabel = "/" + dsLabel + "/" + StringUtils.trimStart(resourcePath, '/');
         }
 
-        String labelI18n = RdpI18nUtils.getMessage(useAuthLabel);
-        String errorI18n = RdpI18nUtils.getMessage(I18nRdpMsgKeys.COMM_DATA_AUTH_PERMISSION_ERROR.name(), useResourceLabel, labelI18n);
+        String labelI18n = DmI18nUtils.getMessage(useAuthLabel);
+        String errorI18n = DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_DATA_AUTH_PERMISSION_ERROR.name(), useResourceLabel, labelI18n);
 
         ResWebData<T> data = ResWebDataUtils.buildSuccess();
         data.setPermission(false);
@@ -79,8 +79,8 @@ public class RdpAuthUtils {
                 needAuthLabel = authLabel.getKeyI18n();
             }
         }
-        String authI18n = RdpI18nUtils.getMessage(needAuthLabel);
-        return RdpI18nUtils.getMessage(I18nRdpMsgKeys.COMM_ROLE_AUTH_PERMISSION_ERROR.name(), authI18n);
+        String authI18n = DmI18nUtils.getMessage(needAuthLabel);
+        return DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_ROLE_AUTH_PERMISSION_ERROR.name(), authI18n);
     }
 
     public static String missDataAuthMsg(final long dsId, final String resourcePath, final String dataAuthLabel) {
@@ -102,8 +102,8 @@ public class RdpAuthUtils {
             useResourceLabel = "/" + dsLabel + "/" + StringUtils.trimStart(resourcePath, '/');
         }
 
-        String labelI18n = RdpI18nUtils.getMessage(useAuthLabel);
-        return RdpI18nUtils.getMessage(I18nRdpMsgKeys.COMM_DATA_AUTH_PERMISSION_ERROR.name(), useResourceLabel, labelI18n);
+        String labelI18n = DmI18nUtils.getMessage(useAuthLabel);
+        return DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_DATA_AUTH_PERMISSION_ERROR.name(), useResourceLabel, labelI18n);
     }
 
     public static DsResPathObj genResPathByList(List<String> levelElements) {

@@ -16,7 +16,7 @@
 package com.clougence.rdp.constant.operation;
 
 import com.clougence.clouddm.console.web.model.vo.AuditTypeVO;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.JsonUtils;
 
 public enum AuditType {
@@ -92,7 +92,7 @@ public enum AuditType {
     public AuditTypeVO convertAuditType() {
         AuditTypeVO auditTypeVO = new AuditTypeVO();
         auditTypeVO.setAuditType(this.name());
-        auditTypeVO.setAlias(RdpI18nUtils.getMessage(this.name()));
+        auditTypeVO.setAlias(DmI18nUtils.getMessage(this.name()));
         return auditTypeVO;
     }
 }

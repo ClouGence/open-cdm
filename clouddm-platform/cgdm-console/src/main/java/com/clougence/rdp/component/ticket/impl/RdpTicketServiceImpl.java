@@ -54,7 +54,7 @@ import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpDsEnvService;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.RdpPageUtil;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
@@ -107,7 +107,7 @@ public class RdpTicketServiceImpl implements RdpTicketService {
         RdpTicketDO ticketDO = checkTicket(ticketId, puid);
         RdpTicketStatus ticketStatus = ticketDO.getTicketStatus();
         if (ticketStatus == RdpTicketStatus.WAIT_EXEC || ticketStatus == RdpTicketStatus.EXEC_FAIL || ticketStatus == RdpTicketStatus.EXEC_PAUSE) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_OPERATOR_TYPE_NOT_MATCH_STATUS.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_OPERATOR_TYPE_NOT_MATCH_STATUS.name()));
         }
         checkInProgress(ticketDO);
         List<RdpTicketProcessDO> rdpTicketProcessDOS = rdpTicketProcessMapper.listByTicketId(ticketId);
@@ -161,14 +161,14 @@ public class RdpTicketServiceImpl implements RdpTicketService {
     public void approvalTicket(String puid, String uid, RdpApprovalTicketFO fo) {
         RdpTicketDO ticketDO = checkTicket(fo.getTicketId(), puid);
         if (ticketDO.getTicketStatus() != RdpTicketStatus.WAIT_APPROVAL) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_OPERATOR_TYPE_NOT_MATCH_STATUS.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_OPERATOR_TYPE_NOT_MATCH_STATUS.name()));
         }
 
         List<RdpApprovalPersonDO> persons = this.rdpApprovalPersonMapper.queryByTicketBzId(ticketDO.getBizId());
         List<String> allowUsers = persons.stream().map(RdpApprovalPersonDO::getPersonUid).collect(Collectors.toList());
 
         if (!allowUsers.contains(uid)) {
-            throw new RuntimeException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NO_PERMISSION_ERROR.name()));
+            throw new RuntimeException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NO_PERMISSION_ERROR.name()));
         }
 
         RdpExecStageContextMO execMO = new RdpExecStageContextMO();
@@ -181,7 +181,7 @@ public class RdpTicketServiceImpl implements RdpTicketService {
             if (StringUtils.isNotBlank(fo.getComment())) {
                 execMO.setExecMsg(fo.getComment());
             } else {
-                execMO.setExecMsg(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_REJECTED_BY_APPROVAL.name()));
+                execMO.setExecMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_REJECTED_BY_APPROVAL.name()));
             }
             this.rdpTicketProcessMapper.updateTicketStatusByEnum(processDO.getId(), RdpTicketProcessStatus.REJECT, JsonUtils.toJson(execMO));
             this.rdpTicketMapper.updateTicketStatusByEnum(ticketDO.getId(), RdpTicketStatus.REJECTED, null);
@@ -192,7 +192,7 @@ public class RdpTicketServiceImpl implements RdpTicketService {
                 execMO.setExecMsg(fo.getComment());
                 ticketDO.setApproComment(fo.getComment());
             } else {
-                execMO.setExecMsg(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_ADOPT_BY_APPROVAL.name()));
+                execMO.setExecMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_ADOPT_BY_APPROVAL.name()));
             }
             this.rdpTicketProcessMapper.updateTicketStatusByEnum(processDO.getId(), RdpTicketProcessStatus.FINISH, JsonUtils.toJson(execMO));
         }
@@ -279,7 +279,7 @@ public class RdpTicketServiceImpl implements RdpTicketService {
         vo.setTicketProcessVOList(vos);
         RdpUserDO userByUid = this.rdpUserService.getUserByUid(rdpTicketDO.getOwnerUid());
         if (userByUid == null) {
-            vo.setUserName(rdpTicketDO.getOwnerUid() + "(" + RdpI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()) + ")");
+            vo.setUserName(rdpTicketDO.getOwnerUid() + "(" + DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()) + ")");
         } else {
             vo.setUserName(userByUid.getUsername());
         }
@@ -318,7 +318,7 @@ public class RdpTicketServiceImpl implements RdpTicketService {
             approvalService.refreshApprovalStatus(ticketDO.getId());
         } catch (ThirdPartyApiException e) {
             if (e.getErrorType() != ThirdPartyApiErrorType.CONNECTION_ERROR) {
-                this.failTicket(ticketDO.getId(), RdpI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()), ticketDO.getPrimaryUid());
+                this.failTicket(ticketDO.getId(), DmI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()), ticketDO.getPrimaryUid());
             }
             return false;
         }
@@ -368,7 +368,7 @@ public class RdpTicketServiceImpl implements RdpTicketService {
                 dmTicketDetailVO.setMobileUrl(urlDTO.getMobileUrl());
             }
         } else {
-            dmTicketDetailVO.setApproTypeName(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_INTERNAL_TEMPLATE.name()));
+            dmTicketDetailVO.setApproTypeName(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_INTERNAL_TEMPLATE.name()));
         }
     }
 
@@ -377,10 +377,10 @@ public class RdpTicketServiceImpl implements RdpTicketService {
         RdpTicketDO ticketDO = checkTicket(ticketId, puid);
 
         if (ticketDO.getTicketStatus() != RdpTicketStatus.EXEC_FAIL) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_RETRY_STATUS_DISCONTENT_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_RETRY_STATUS_DISCONTENT_ERROR.name()));
         }
 
-        this.rdpTicketMapper.updateTicketStatusByEnum(ticketId, RdpTicketStatus.WAIT_EXEC, RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_EXEC_MESSAGE.name()));
+        this.rdpTicketMapper.updateTicketStatusByEnum(ticketId, RdpTicketStatus.WAIT_EXEC, DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_EXEC_MESSAGE.name()));
     }
 
     @Override
@@ -459,7 +459,7 @@ public class RdpTicketServiceImpl implements RdpTicketService {
             case FINISHED:
             case CLOSED:
             case CANCELED:
-                throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_FINAL_ERROR.name()));
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_FINAL_ERROR.name()));
             default:
                 break;
         }
@@ -552,10 +552,10 @@ public class RdpTicketServiceImpl implements RdpTicketService {
     private RdpTicketDO checkTicket(long ticketId, String puid) {
         RdpTicketDO ticketDO = this.rdpTicketMapper.queryById(ticketId);
         if (ticketDO == null || ticketDO.getDeleted()) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_EXIST_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_EXIST_ERROR.name()));
         }
         if (!ticketDO.getPrimaryUid().equals(puid)) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_BELONG_CURRENT_TEAM.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_BELONG_CURRENT_TEAM.name()));
         }
 
         return ticketDO;

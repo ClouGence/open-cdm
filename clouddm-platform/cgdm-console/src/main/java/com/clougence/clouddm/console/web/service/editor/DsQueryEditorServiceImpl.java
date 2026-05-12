@@ -65,7 +65,7 @@ import com.clougence.rdp.constant.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
 import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.schema.umi.special.rdb.RdbColumn;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
@@ -148,13 +148,13 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
 
         // root level is env list
         if (CollectionUtils.isEmpty(levels) || levels.size() == 1) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
         }
 
         // third level begin is dbObjects.
         DsLevels dsLevels = this.dmDsConfigService.parseLevels(levels);
         if (dsLevels == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
         }
 
         RdpDataSourceDO dsDO = dsLevels.dsDO();
@@ -219,8 +219,8 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
         if (!this.dmAuthServiceForBiz.checkResPathChildrenWithoutError(puid, uid, dsId, AuthKind.DataSource, RdpAuthUtils.genEmptyResPath(), SecDataAuthLabel.DM_DAUTH_QUERY)) {
             DsCacheEntry entry = this.ownerCacheService.queryByDsId(dsId);
             String authRes = entry.getDsInstId() + "/";
-            String dataAuthMsg = RdpI18nUtils.getMessage(SecDataAuthLabel.DM_DAUTH_QUERY);
-            String authMessage = RdpI18nUtils.getMessage(I18nRdpMsgKeys.COMM_DATA_AUTH_PERMISSION_ERROR.name(), authRes, dataAuthMsg);
+            String dataAuthMsg = DmI18nUtils.getMessage(SecDataAuthLabel.DM_DAUTH_QUERY);
+            String authMessage = DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_DATA_AUTH_PERMISSION_ERROR.name(), authRes, dataAuthMsg);
 
             DsAvailableDTO dto = new DsAvailableDTO();
             dto.setDsId(dsId);

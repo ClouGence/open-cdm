@@ -17,7 +17,7 @@ package com.clougence.rdp.global.exception;
 
 import com.clougence.rdp.constant.ConsoleErrorCode;
 import com.clougence.rdp.service.enumeration.RSocketSendType;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 
 public class RemoteInvokeTimeoutException extends RuntimeException {
 
@@ -42,9 +42,9 @@ public class RemoteInvokeTimeoutException extends RuntimeException {
 
     public String getI18N() {
         if (sendType == RSocketSendType.CLUSTER) {
-            return RdpI18nUtils.getMessage(getErrorCode(), String.valueOf(this.passTime), String.valueOf(this.clusterId), this.getMessage());
+            return DmI18nUtils.getMessage(getErrorCode(), String.valueOf(this.passTime), String.valueOf(this.clusterId), this.getMessage());
         } else {
-            return RdpI18nUtils.getMessage(getErrorCode(), String.valueOf(this.passTime), String.valueOf(this.clusterId), this.workerIp, this.getMessage());
+            return DmI18nUtils.getMessage(getErrorCode(), String.valueOf(this.passTime), String.valueOf(this.clusterId), this.workerIp, this.getMessage());
         }
     }
 

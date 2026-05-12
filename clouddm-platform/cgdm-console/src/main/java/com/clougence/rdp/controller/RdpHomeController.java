@@ -48,7 +48,7 @@ import com.clougence.clouddm.console.web.model.fo.RequestJumpUrlFO;
 import com.clougence.clouddm.console.web.model.fo.mfa.LoginMfaValidFO;
 import com.clougence.clouddm.console.web.model.fo.user.CheckSubAccountBindInfoFO;
 import com.clougence.clouddm.console.web.model.vo.RdpGlobalSettingsVO;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.model.feature.RdpFeatureIDs;
@@ -110,7 +110,7 @@ public class RdpHomeController {
     @RequestMapping(value = "/login", method = { RequestMethod.POST })
     public ResWebData<?> login(@Valid @RequestBody LoginFO loginFO, HttpServletRequest request, HttpServletResponse response) {
         if (loginFO.getLoginType() == LoginAuthType.VERIFY) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_UNSUPPORTED_PRIVATE_VERIFY.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_UNSUPPORTED_PRIVATE_VERIFY.name()));
         }
 
         LoginMO loginMO = this.rdpLoginService.login(loginFO);
@@ -122,7 +122,7 @@ public class RdpHomeController {
     public ResWebData<?> loginMfaValid(@Valid @RequestBody LoginMfaValidFO validFO, HttpServletRequest request, HttpServletResponse response) {
         DecodedJWT mfaJwt = jwtService.verifyMfaActionToken(validFO.getMfaPreActionToken());
         if (mfaJwt == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(), RdpUserService.MFA_TOKEN_EXPIRE_SEC));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(LOGIN_MFA_PRE_ACTION_TOKEN_ERROR.name(), RdpUserService.MFA_TOKEN_EXPIRE_SEC));
         }
 
         String uid = mfaJwt.getId();
@@ -144,7 +144,7 @@ public class RdpHomeController {
         }
 
         if (!rdpUserMfaService.validMfaCode(uid, validFO.getMfaCode())) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(MFA_CODE_IS_INVALID.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_CODE_IS_INVALID.name()));
         }
 
         RdpUserDO userDO = rdpUserService.getUserByUid(uid);
@@ -266,7 +266,7 @@ public class RdpHomeController {
             Map<String, Object> attr = new HashMap<>();
             attr.put("domain", primary.getUserDomain());
             attr.put("domainUid", primary.getUid());
-            attr.put("title", RdpI18nUtils.getMessage(authType.getI18nKey()));
+            attr.put("title", DmI18nUtils.getMessage(authType.getI18nKey()));
             attr.put("loginType", authType.name());
             attr.put("jump", loginProvider != null && loginProvider.isJumpIn());
             orgList.add(attr);
@@ -299,11 +299,11 @@ public class RdpHomeController {
 
         List<String> serviceNames = PluginManager.getSpiNamesByType(LoginProviderSpi.class);
         if (!serviceNames.contains(authType.getBindType().getProvider().name())) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_PLUGIN_NOT_FOUND.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_PLUGIN_NOT_FOUND.name()));
         }
 
         if (!this.subLoginService.checkLoginEnable(primaryUid, authType.getBindType().getProvider())) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_NOT_ENABLE.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_NOT_ENABLE.name()));
         }
 
         try {
@@ -319,7 +319,7 @@ public class RdpHomeController {
             if (e instanceof ErrorMessageException) {
                 throw (ErrorMessageException) e;
             } else {
-                throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_ERROR.name(), e.getMessage()));
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_ERROR.name(), e.getMessage()));
             }
         }
     }

@@ -35,7 +35,7 @@ import com.clougence.clouddm.console.web.dal.enumeration.*;
 import com.clougence.clouddm.console.web.dal.mapper.*;
 import com.clougence.clouddm.console.web.dal.model.*;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.NumberUtils;
@@ -99,11 +99,11 @@ public class RdpApprovalTaskScheduleProcess {
         RdpTicketProcessDO processDO = this.rdpTicketProcessMapper.queryByStage(ticketId, RdpTicketStage.EXPLAIN);
         //         sometimes it will be null , not find question
         if (processDO == null) {
-            this.rdpTicketMapper.updateTicketStatusByEnum(ticketId, RdpTicketStatus.WAIT_APPROVAL, RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_APPROVAL.name()));
+            this.rdpTicketMapper.updateTicketStatusByEnum(ticketId, RdpTicketStatus.WAIT_APPROVAL, DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_APPROVAL.name()));
             return;
         }
         this.rdpTicketProcessMapper.updateTicketStatusByEnum(processDO.getId(), RdpTicketProcessStatus.FINISH, null);
-        this.rdpTicketMapper.updateTicketStatusByEnum(ticketId, RdpTicketStatus.WAIT_APPROVAL, RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_APPROVAL.name()));
+        this.rdpTicketMapper.updateTicketStatusByEnum(ticketId, RdpTicketStatus.WAIT_APPROVAL, DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_WAIT_APPROVAL.name()));
     }
 
     // WAIT_APPROVAL -> [WAIT_APPROVAL \ WAIT_CONFIRM \ REJECTED]

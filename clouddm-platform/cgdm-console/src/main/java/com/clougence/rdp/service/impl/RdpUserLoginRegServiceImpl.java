@@ -90,23 +90,23 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
     @Override
     public LoginMO login(LoginFO loginFO) {
         if (StringUtils.isBlank(loginFO.getAccount())) {
-            return new LoginMO(false, RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_MISSING.name()));
+            return new LoginMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_MISSING.name()));
         }
 
         if (loginFO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
             return this.loginByPrimaryAccount(loginFO);
         } else if (loginFO.getAccountType() == AccountType.SUB_ACCOUNT) {
             if (!loginFO.getAccount().contains("@")) {
-                return new LoginMO(false, RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SUB_ACCOUNT_FMT_ERROR.name()));
+                return new LoginMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SUB_ACCOUNT_FMT_ERROR.name()));
             }
             if (loginFO.getAccount().trim().charAt(0) == '@') {
-                return new LoginMO(false, RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_MISSING.name()));
+                return new LoginMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_MISSING.name()));
             }
 
             return this.loginBySubAccount(loginFO);
         }
 
-        throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_UNSUPPORTED_ACCOUNT_TYPE.name()));
+        throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_UNSUPPORTED_ACCOUNT_TYPE.name()));
     }
 
     private LoginMO loginByPrimaryAccount(LoginFO loginFO) {
@@ -125,7 +125,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
                 break;
             }
             default: {
-                return new LoginMO(false, RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_UNSUPPORTED_PRIMARY_LOGIN_TYPE.name()));
+                return new LoginMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_UNSUPPORTED_PRIMARY_LOGIN_TYPE.name()));
             }
         }
 
@@ -143,7 +143,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
             } else if (loginFO.getLoginType() == LoginAuthType.PASSWORD) {
                 checkByPasswordForPrimary(loginFO, user);
             } else {
-                throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_UNSUPPORTED_PRIMARY_LOGIN_TYPE.name()));
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_UNSUPPORTED_PRIMARY_LOGIN_TYPE.name()));
             }
 
             return loginDone(user);
@@ -178,11 +178,11 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
 
     private void checkAccountStatus(LoginFO loginFO, RdpUserDO user) {
         if (user == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_NOT_EXIST.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_NOT_EXIST.name()));
         }
 
         if (user.isDisable()) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_UNAVAILABLE.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_UNAVAILABLE.name()));
         }
 
         if (user.isLoginLocked()) {
@@ -198,7 +198,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
                                        (System.currentTimeMillis() - user.getLastTryLoginTime().getTime()) / 1000;
                 String i18nKey = loginFO.getLoginType() == LoginAuthType.VERIFY ? I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_LOCK_BY_VERIFY_ERROR
                     .name() : I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_LOCK_BY_PWD_ERROR.name();
-                String expireMessage = RdpI18nUtils.getMessage(i18nKey, rdpConfig.getRetryLoginMaxCount(), String.valueOf(needWaitSeconds));
+                String expireMessage = DmI18nUtils.getMessage(i18nKey, rdpConfig.getRetryLoginMaxCount(), String.valueOf(needWaitSeconds));
                 throw new ErrorMessageException(expireMessage);
             }
         }
@@ -206,7 +206,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
 
     private void checkByVerify(LoginFO loginFO, RdpUserDO user) {
         if (StringUtils.isBlank(loginFO.getVerifyCode())) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_VERIFY_CODE_EMPTY.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_VERIFY_CODE_EMPTY.name()));
         }
 
         try {
@@ -221,25 +221,25 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
             this.rdpVerifyService.checkVerifyCode(mo);
         } catch (Exception e) {
             log.error("login verify code failed.msg:" + ExceptionUtils.getRootCauseMessage(e), e);
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_VERIFY_CODE_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_VERIFY_CODE_ERROR.name()));
         }
     }
 
     private void checkByPasswordForPrimary(LoginFO loginFO, RdpUserDO user) {
         if (StringUtils.isBlank(loginFO.getPassword())) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWD_CAN_NOT_BE_BLANK.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWD_CAN_NOT_BE_BLANK.name()));
         }
 
         // check passwd
         String plainPwd = Sm2Utils.decrypt(this.rdpConfig.getPrivateKey(), loginFO.getPassword());
         if (RdpAuthUtils.isErrorPasswd(user.getPassword(), plainPwd)) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWORD_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWORD_ERROR.name()));
         }
     }
 
     private void checkByPasswordSubAccount(LoginFO loginFO, RdpUserDO user) {
         if (StringUtils.isBlank(loginFO.getPassword())) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWD_CAN_NOT_BE_BLANK.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWD_CAN_NOT_BE_BLANK.name()));
         }
 
         RdpUserDO pUserDO = this.rdpUserMapper.queryById(user.getParentId());
@@ -252,7 +252,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
                     LocalDateTime lastUpdateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(d.getTime()), ZoneId.systemDefault());
                     LocalDateTime limit = lastUpdateTime.plusDays(days);
                     if (limit.isBefore(LocalDateTime.now())) {
-                        throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWORD_EXPIRED.name(), days));
+                        throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWORD_EXPIRED.name(), days));
                     }
                 } else {
                     this.rdpUserMapper.updateLastUpdatePwdTimeById(user.getId());
@@ -263,31 +263,31 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
         // check passwd
         String plainPwd = Sm2Utils.decrypt(this.rdpConfig.getPrivateKey(), loginFO.getPassword());
         if (RdpAuthUtils.isErrorPasswd(user.getPassword(), plainPwd)) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWORD_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWORD_ERROR.name()));
         }
     }
 
     private LoginMO loginByProvider(LoginFO loginFO) {
         LoginAuthType loginType = loginFO.getLoginType();
         if (loginType.getBindType().getProvider() == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_UNSUPPORTED_SUBACCOUNT_LOGIN_TYPE.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_UNSUPPORTED_SUBACCOUNT_LOGIN_TYPE.name()));
         }
 
         LoginProvider loginProvider = loginType.getBindType().getProvider();
         LoginProviderSpi loginProviderSpi = PluginManager.findSpi(LoginProviderSpi.class, loginProvider.name());
         if (loginProviderSpi == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_PLUGIN_NOT_FOUND.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_PLUGIN_NOT_FOUND.name()));
         }
 
         String userAccount = loginProviderSpi.loginExtractAccount(loginFO.getAccount());
         String userDomain = loginProviderSpi.loginExtractDomain(loginFO.getAccount());
         RdpUserDO primaryUser = this.rdpUserMapper.queryPrimaryByDomain(userDomain);
         if (primaryUser == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PRIMARY_ACCOUNT_NOT_EXIST.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PRIMARY_ACCOUNT_NOT_EXIST.name()));
         }
 
         if (primaryUser.isDisable()) {
-            return loginFailedNotLimit(primaryUser, new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PRIMARY_ACCOUNT_DISABLED.name())));
+            return loginFailedNotLimit(primaryUser, new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PRIMARY_ACCOUNT_DISABLED.name())));
         }
 
         LoginRequest request = new LoginRequest();
@@ -309,7 +309,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
             return loginFailedNotLimit(loginUser, new ErrorMessageException(authUserDTO.getErrMsg()));
         }
         if (loginData == null) {
-            return loginFailedNotLimit(primaryUser, new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_NOT_EXIST.name())));
+            return loginFailedNotLimit(primaryUser, new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_NOT_EXIST.name())));
         }
 
         RdpUserDO loginUser = RdpConvertUtils.convertToRdpUserDO(loginType, primaryUser, loginData);
@@ -334,7 +334,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
                 mo.setNeedMore(true);
                 mo.setToken(csrfToken);
                 mo.setMoreInfo(moreInfo);
-                mo.setErrMsg(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_FIRST_TIME.name()));
+                mo.setErrMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_FIRST_TIME.name()));
                 return mo;
             } else {
                 LoginAutoRegisterFO moreInfo = loginFO.getRegisterInfo();
@@ -395,7 +395,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
             String failCnt = String.valueOf(Math.min(user.getLoginFailCount() + 1, rdpConfig.getRetryLoginMaxCount()));
             String i18nKey = loginFO.getLoginType() == LoginAuthType.VERIFY ? I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_LOCK_BY_VERIFY_ERROR
                 .name() : I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_LOCK_BY_PWD_ERROR.name();
-            errorMsg = RdpI18nUtils.getMessage(i18nKey, failCnt, String.valueOf(needWaitSeconds));
+            errorMsg = DmI18nUtils.getMessage(i18nKey, failCnt, String.valueOf(needWaitSeconds));
         } else {
             long nowMs = System.currentTimeMillis();
             this.rdpUserMapper.updateLoginLimitInfo(new Date(nowMs), user.getLoginFailCount() + 1, false, user.getId());
@@ -523,7 +523,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
         LoginProvider loginProvider = user.getBindType().getProvider();
         LoginProviderSpi loginProviderSpi = PluginManager.findSpi(LoginProviderSpi.class, loginProvider.name());
         if (loginProviderSpi == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_PLUGIN_NOT_FOUND.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_PLUGIN_NOT_FOUND.name()));
         }
 
         try {

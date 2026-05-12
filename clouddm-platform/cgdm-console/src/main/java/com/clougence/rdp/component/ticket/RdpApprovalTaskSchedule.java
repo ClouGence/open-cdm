@@ -39,7 +39,7 @@ import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
 import com.clougence.clouddm.console.web.dal.model.RdpTicketDO;
 import com.clougence.rdp.global.exception.RemoteInvokeTimeoutException;
 import com.clougence.rdp.service.RdpDsService;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.ThreadUtils;
 
@@ -174,7 +174,7 @@ public class RdpApprovalTaskSchedule {
                     } else {
                         Throwable rootException = ExceptionUtils.getRootCause(e);
                         log.error("processExplain failed msg:" + rootException.getMessage(), rootException);
-                        String message = RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_EXPLAIN_FAILED_MESSAGE.name()) + rootException.getMessage();
+                        String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_EXPLAIN_FAILED_MESSAGE.name()) + rootException.getMessage();
                         this.rdpTicketService.closeTicket(afterCheck.getId(), message, puid);
                         //                        this.finishTask(FINISH_MSG);
                     }
@@ -187,15 +187,15 @@ public class RdpApprovalTaskSchedule {
                     ticketProcess.processApprovalPerson(puid, uid, afterCheck);
                 } catch (ThirdPartyApiException e) {
                     if (e.getErrorType() == ThirdPartyApiErrorType.APPROVAL_TEMPLATE_NOT_EXISTS) {
-                        rdpTicketService.failTicket(ticketId, RdpI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()), rdpTicketDO.getPrimaryUid());
+                        rdpTicketService.failTicket(ticketId, DmI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()), rdpTicketDO.getPrimaryUid());
                         templateMapper.deleteByPrimaryUid(rdpTicketDO.getPrimaryUid(), rdpTicketDO.getApproType());
                     } else {
-                        this.rdpTicketService.failTicket(rdpTicketDO.getId(), RdpI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()), puid);
+                        this.rdpTicketService.failTicket(rdpTicketDO.getId(), DmI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()), puid);
                     }
                     log.error(e.getMessage());
                 } catch (Exception e) {
                     this.rdpTicketService
-                        .failTicket(rdpTicketDO.getId(), RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), rdpTicketDO.getApproType().name()), puid);
+                        .failTicket(rdpTicketDO.getId(), DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), rdpTicketDO.getApproType().name()), puid);
                     log.error("processWaitApproval failed msg:" + e.getMessage(), e);
                 }
                 break;
@@ -242,14 +242,14 @@ public class RdpApprovalTaskSchedule {
         RdpDataSourceDO dataSourceDO = this.rdpDsService.queryById(ticketDO.getBindDsId());
         if ((dataSourceDO == null || dataSourceDO.getLifeCycleState() == LifeCycleState.DELETED) && ticketDO.getApproBiz() != RdpApprovalBiz.DATA_SOURCE_AUTH) {
             // ds is deleted
-            this.rdpTicketService.failTicket(ticketDO.getId(), RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_DS_IS_DELETE.name()), puid);
+            this.rdpTicketService.failTicket(ticketDO.getId(), DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_DS_IS_DELETE.name()), puid);
             return null;
         }
 
         if (ticketDO.getApproType() != RdpApprovalType.Internal
             && (ticketDO.getTicketStatus() == RdpTicketStatus.PRE_INIT || ticketDO.getTicketStatus() == RdpTicketStatus.WAIT_APPROVAL)) {
             if (!this.rdpApproServiceImpl.checkEnableApproval(puid, ticketDO.getApproType().getProviderType())) {
-                String failMsg = RdpI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), ticketDO.getApproType().name());
+                String failMsg = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), ticketDO.getApproType().name());
                 this.rdpTicketService.failTicket(ticketDO.getId(), failMsg, puid);
                 return null;
             }

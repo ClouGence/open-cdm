@@ -27,7 +27,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.RdpLocal;
 import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
@@ -309,14 +309,14 @@ public class JwtManager {
 
                     AuthInfo authLabel = this.rdpAuthServiceForManage.getAuthLabel(auth);
                     if (authLabel != null) {
-                        authStrB.append(RdpI18nUtils.getMessage(authLabel.getKeyI18n()));
+                        authStrB.append(DmI18nUtils.getMessage(authLabel.getKeyI18n()));
                     } else {
                         authStrB.append(auth);
                     }
                 }
             }
 
-            return responseNoPageAuthority(RdpI18nUtils.getMessage(I18nRdpMsgKeys.AUTH_NO_AUTH_ERROR.name(), authStrB));
+            return responseNoPageAuthority(DmI18nUtils.getMessage(I18nRdpMsgKeys.AUTH_NO_AUTH_ERROR.name(), authStrB));
         }
     }
 

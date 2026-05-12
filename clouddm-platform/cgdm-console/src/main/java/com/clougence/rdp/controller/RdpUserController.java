@@ -60,7 +60,7 @@ import com.clougence.rdp.service.model.OpPasswdVerifyMO;
 import com.clougence.rdp.service.model.UpdateUserInfoMO;
 import com.clougence.rdp.service.model.ValidateResultMO;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.Sm2Utils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.format.DateFormatType;
@@ -507,11 +507,11 @@ public class RdpUserController {
             return ResWebDataUtils.buildSuccess();
         } else {
             if (verifyMO.getOpVerifyErrType() == OpVerifyErrType.OP_PASSWD_ERROR) {
-                return ResWebDataUtils.buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_OP_PASSWORD_ERROR.name()));
+                return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_OP_PASSWORD_ERROR.name()));
             } else if (verifyMO.getOpVerifyErrType() == OpVerifyErrType.OP_PASSWD_NOT_SET) {
-                return ResWebDataUtils.buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_OP_PASSWORD_NOT_SET_ERROR.name()));
+                return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_OP_PASSWORD_NOT_SET_ERROR.name()));
             } else {
-                return ResWebDataUtils.buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_UNSUPPORTED_TYPE_ERROR.name()));
+                return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_UNSUPPORTED_TYPE_ERROR.name()));
             }
         }
     }

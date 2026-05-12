@@ -63,7 +63,7 @@ import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -208,7 +208,7 @@ public class RdpDsController {
 
         AddDsFO addDsFO = RdpConvertUtils.convertToAddDsFO(data);
         if (addDsFO == null) {
-            return ResWebDataUtils.buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.DS_ADD_DATA_ILLEGAL_ERROR.name()));
+            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.DS_ADD_DATA_ILLEGAL_ERROR.name()));
         }
 
         addDsFO.setSecurityFile(securityFile);
@@ -338,7 +338,7 @@ public class RdpDsController {
 
         UpdateSecurityInfoFO fo = RdpConvertUtils.convertToUpdateSecurityInfoFO(data);
         if (fo == null) {
-            return ResWebDataUtils.buildError(RdpI18nUtils.getMessage(I18nRdpMsgKeys.DS_ADD_DATA_ILLEGAL_ERROR.name()));
+            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.DS_ADD_DATA_ILLEGAL_ERROR.name()));
         }
 
         this.rdpAuthService.checkResAuth(puid, uid, fo.getDataSourceId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);

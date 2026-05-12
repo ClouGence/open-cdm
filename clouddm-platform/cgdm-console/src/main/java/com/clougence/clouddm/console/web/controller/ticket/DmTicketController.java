@@ -50,7 +50,7 @@ import com.clougence.rdp.component.ticket.RdpApprovalService;
 import com.clougence.rdp.constant.I18nRdpMsgKeys;
 import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpUserService;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.StringUtils;
 
@@ -105,7 +105,7 @@ public class DmTicketController {
     public ResWebData<?> addTemplate(@Valid @RequestBody RdpAddTemplateFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         if (fo.getApprovalType() == null || StringUtils.isBlank(fo.getTemplateUrl())) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
         }
 
         this.approvalService.addTemplateByUrl(puid, fo.getApprovalType(), fo.getTemplateUrl());
@@ -117,7 +117,7 @@ public class DmTicketController {
     public ResWebData<?> removeTemplate(@Valid @RequestBody RdpRemoveTemplateFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         if (fo.getApprovalType() == null || StringUtils.isBlank(fo.getTemplateId())) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
         }
 
         this.approvalService.removeTemplateById(puid, fo.getApprovalType(), fo.getTemplateId());

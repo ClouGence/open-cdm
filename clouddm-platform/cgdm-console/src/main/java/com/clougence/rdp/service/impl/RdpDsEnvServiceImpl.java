@@ -32,7 +32,7 @@ import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
 import com.clougence.clouddm.console.web.dal.model.RdpDsEnvDO;
 import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpDsEnvService;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 
@@ -65,8 +65,8 @@ public class RdpDsEnvServiceImpl implements RdpDsEnvService {
     public int initPrimaryUserDefaultEnv(String puid, String uid) {
         RdpDsEnvDO dsEnvDO = new RdpDsEnvDO();
         dsEnvDO.setOwnerUid(puid);
-        dsEnvDO.setEnvName(RdpI18nUtils.getMessage(I18nRdpLabelKeys.DEFAULT_ENV.name()));
-        dsEnvDO.setDescription(RdpI18nUtils.getMessage(I18nRdpLabelKeys.DEFAULT_ENV_DESC.name()));
+        dsEnvDO.setEnvName(DmI18nUtils.getMessage(I18nRdpLabelKeys.DEFAULT_ENV.name()));
+        dsEnvDO.setDescription(DmI18nUtils.getMessage(I18nRdpLabelKeys.DEFAULT_ENV_DESC.name()));
 
         return this.dsEnvMapper.insert(dsEnvDO);
     }
@@ -93,7 +93,7 @@ public class RdpDsEnvServiceImpl implements RdpDsEnvService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public int addEnvDs(String puid, String uid, RdpDsEnvDO dsEnvDO) {
         if (this.dsEnvMapper.queryByEnvName(puid, dsEnvDO.getEnvName()) != null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.ENV_NAME_IS_EXIST_ERROR.name(), dsEnvDO.getEnvName()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.ENV_NAME_IS_EXIST_ERROR.name(), dsEnvDO.getEnvName()));
         }
         dsEnvDO.setOwnerUid(puid);
 
@@ -106,7 +106,7 @@ public class RdpDsEnvServiceImpl implements RdpDsEnvService {
         List<RdpDataSourceDO> bindDsList = dsMapper.listByDsEnvId(dsEnvId);
         if (CollectionUtils.isNotEmpty(bindDsList)) {
             List<String> instanceIdList = bindDsList.stream().map(RdpDataSourceDO::getInstanceId).collect(Collectors.toList());
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.ENV_DELETE_HAVE_BIND_ERROR.name(), JsonUtils.toJson(instanceIdList)));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.ENV_DELETE_HAVE_BIND_ERROR.name(), JsonUtils.toJson(instanceIdList)));
         }
 
         return this.dsEnvMapper.deleteDsEnv(dsEnvId, puid);
@@ -119,12 +119,12 @@ public class RdpDsEnvServiceImpl implements RdpDsEnvService {
         RdpDsEnvDO forName = this.dsEnvMapper.queryByEnvName(puid, envFO.getEnvName());
 
         if (forOri == null) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.ENV_NOT_EXIST_ERROR.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.ENV_NOT_EXIST_ERROR.name()));
         }
 
         if (forName != null) {
             if (!Objects.equals(forOri.getId(), forName.getId())) {
-                throw new ErrorMessageException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.ENV_NAME_IS_EXIST_ERROR.name(), envFO.getEnvName()));
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.ENV_NAME_IS_EXIST_ERROR.name(), envFO.getEnvName()));
             }
         }
 

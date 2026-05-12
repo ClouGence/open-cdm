@@ -33,7 +33,7 @@ import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
 import com.clougence.clouddm.console.web.dal.model.RdpUserMfaDO;
 import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpUserMfaService;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 import com.google.zxing.BarcodeFormat;
@@ -110,7 +110,7 @@ public class RdpUserMfaServiceImpl implements RdpUserMfaService {
 
         String decryptKey = CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(userMfaDO.getMfaKey());
         if (!mfaValid(decryptKey, mfaCode)) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(MFA_CODE_IS_INVALID.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_CODE_IS_INVALID.name()));
         }
 
         String newMfaKey = genMfaKey();
@@ -164,7 +164,7 @@ public class RdpUserMfaServiceImpl implements RdpUserMfaService {
 
             String decryptKey = CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(userMfaDO.getResetMfaKey());
             if (!mfaValid(decryptKey, mfaCode)) {
-                throw new ErrorMessageException(RdpI18nUtils.getMessage(MFA_CODE_IS_INVALID.name()));
+                throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_CODE_IS_INVALID.name()));
             }
 
             rdpUserMfaMapper.updateById(userMfaDO.getId(), userMfaDO.getResetMfaKey(), MfaStatus.ACTIVE);
@@ -176,7 +176,7 @@ public class RdpUserMfaServiceImpl implements RdpUserMfaService {
 
             String decryptKey = CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(userMfaDO.getMfaKey());
             if (!mfaValid(decryptKey, mfaCode)) {
-                throw new ErrorMessageException(RdpI18nUtils.getMessage(MFA_CODE_IS_INVALID.name()));
+                throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_CODE_IS_INVALID.name()));
             }
 
             rdpUserMfaMapper.updateStatusById(userMfaDO.getId(), MfaStatus.ACTIVE);
@@ -200,7 +200,7 @@ public class RdpUserMfaServiceImpl implements RdpUserMfaService {
 
         String decryptKey = CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(userMfaDO.getMfaKey());
         if (!mfaValid(decryptKey, mfaCode)) {
-            throw new ErrorMessageException(RdpI18nUtils.getMessage(MFA_CODE_IS_INVALID.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_CODE_IS_INVALID.name()));
         }
 
         rdpUserMfaMapper.deleteById(userMfaDO.getId());

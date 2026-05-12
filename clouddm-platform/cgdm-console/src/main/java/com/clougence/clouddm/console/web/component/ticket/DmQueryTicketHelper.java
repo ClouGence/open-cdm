@@ -44,7 +44,7 @@ import com.clougence.clouddm.console.web.dal.mapper.RdpTicketProcessActivityMapp
 import com.clougence.clouddm.console.web.dal.mapper.RdpTicketProcessMapper;
 import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
 import com.clougence.clouddm.console.web.dal.model.*;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 
@@ -164,7 +164,7 @@ public class DmQueryTicketHelper implements RdpTicketHelper {
         } catch (ThirdPartyApiException e) {
             // wait retry
             if (e.getErrorType() == ThirdPartyApiErrorType.CONNECTION_ERROR) {
-                log.error(RdpI18nUtils.getMessage(e.getMessageKey()));
+                log.error(DmI18nUtils.getMessage(e.getMessageKey()));
                 return;
             }
             throw e;

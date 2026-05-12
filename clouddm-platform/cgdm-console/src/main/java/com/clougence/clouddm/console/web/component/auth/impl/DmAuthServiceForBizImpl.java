@@ -43,7 +43,7 @@ import com.clougence.clouddm.console.web.dal.model.DmResAuthDO;
 import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
 import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpAuthServiceForBiz;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -92,8 +92,8 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
         RdpDataSourceDO dsDO = this.rdpDsMapper.selectById(resId);
         String authRes = dsDO.getInstanceId() + resPath.getResPath();
 
-        String dataAuthMsg = RdpI18nUtils.getMessage(authKeyInfo.getKeyI18n());
-        String authMessage = RdpI18nUtils.getMessage(I18nRdpMsgKeys.COMM_DATA_AUTH_PERMISSION_ERROR.name(), authRes, dataAuthMsg);
+        String dataAuthMsg = DmI18nUtils.getMessage(authKeyInfo.getKeyI18n());
+        String authMessage = DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_DATA_AUTH_PERMISSION_ERROR.name(), authRes, dataAuthMsg);
         throw new ErrorMessageException(authMessage);
     }
 
@@ -154,7 +154,7 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
 
         RdpDataSourceDO dsDO = rdpDsMapper.selectById(dsId);
         if (!dsDO.getUid().equals(puid)) {
-            throw new IllegalArgumentException(RdpI18nUtils.getMessage(I18nRdpMsgKeys.DS_IS_NOT_BELONG_YOU_PRIMARY_ERROR.name(), dsDO.getId()));
+            throw new IllegalArgumentException(DmI18nUtils.getMessage(I18nRdpMsgKeys.DS_IS_NOT_BELONG_YOU_PRIMARY_ERROR.name(), dsDO.getId()));
         }
 
         List<DmResAuthDO> parentAndSelfAuth = this.resAuthMapper.queryByPathLike(dsId, uid, AuthKind.DataSource, Collections.singletonList(path));

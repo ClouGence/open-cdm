@@ -41,7 +41,7 @@ import com.clougence.clouddm.console.web.model.vo.DsSecurityOption;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
 import com.clougence.clouddm.console.web.dal.enumeration.DeployEnvInfoFetchType;
 import com.clougence.clouddm.console.web.dal.enumeration.DeployEnvType;
-import com.clougence.clouddm.console.web.util.RdpI18nUtils;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 
 import jakarta.validation.Valid;
 
@@ -153,7 +153,7 @@ public class RdpDsConstantController {
                             .add(DsSecurityOption.builder()
                                 .securityType(SecurityType.USER_PASSWD)
                                 .needDbName(true) // dm need, cc will hide
-                                .dbNameLabel(RdpI18nUtils.getMessage(DEFAULT_DB_NAME_LABEL_RDB))
+                                .dbNameLabel(DmI18nUtils.getMessage(DEFAULT_DB_NAME_LABEL_RDB))
                                 .needUserName(true)
                                 .needPassword(true)
                                 .defaultCheck(true)
@@ -162,7 +162,7 @@ public class RdpDsConstantController {
                             .add(DsSecurityOption.builder()
                                 .securityType(SecurityType.ONLY_USER)
                                 .needDbName(true)
-                                .dbNameLabel(RdpI18nUtils.getMessage(DEFAULT_DB_NAME_LABEL_RDB))
+                                .dbNameLabel(DmI18nUtils.getMessage(DEFAULT_DB_NAME_LABEL_RDB))
                                 .needUserName(true)
                                 .needPassword(false)
                                 .build());
@@ -170,7 +170,7 @@ public class RdpDsConstantController {
                             .add(DsSecurityOption.builder()
                                 .securityType(SecurityType.NONE)
                                 .needDbName(true)
-                                .dbNameLabel(RdpI18nUtils.getMessage(DEFAULT_DB_NAME_LABEL_RDB))
+                                .dbNameLabel(DmI18nUtils.getMessage(DEFAULT_DB_NAME_LABEL_RDB))
                                 .needUserName(false)
                                 .needPassword(false)
                                 .build());
@@ -261,7 +261,7 @@ public class RdpDsConstantController {
                                 .needUserName(true)
                                 .needPassword(true)
                                 .needDbName(true)
-                                .dbNameLabel(RdpI18nUtils.getMessage(DEFAULT_DB_NAME_LABEL_RDB))
+                                .dbNameLabel(DmI18nUtils.getMessage(DEFAULT_DB_NAME_LABEL_RDB))
                                 .defaultCheck(true)
                                 .build());
                         detail.getSecurityOptions().add(DsSecurityOption.builder().securityType(SecurityType.NONE).needUserName(false).needPassword(false).build());
@@ -377,7 +377,7 @@ public class RdpDsConstantController {
                                 .needUserName(true)
                                 .needPassword(true)
                                 .needDbName(true)
-                                .dbNameLabel(RdpI18nUtils.getMessage(DEFAULT_DB_NAME_LABEL_RDB))
+                                .dbNameLabel(DmI18nUtils.getMessage(DEFAULT_DB_NAME_LABEL_RDB))
                                 .defaultCheck(true)
                                 .build());
                         break;
@@ -623,7 +623,7 @@ public class RdpDsConstantController {
                         detail.getSecurityOptions()
                             .add(DsSecurityOption.builder()//
                                 .needDbName(true)
-                                .dbNameLabel(RdpI18nUtils.getMessage(DEFAULT_DB_NAME_LABEL_RDB))
+                                .dbNameLabel(DmI18nUtils.getMessage(DEFAULT_DB_NAME_LABEL_RDB))
                                 .securityType(SecurityType.AK_SK)
                                 .needAkSk(true)
                                 .defaultCheck(true)
@@ -669,7 +669,7 @@ public class RdpDsConstantController {
                                 .needUserName(true)
                                 .needPassword(true)
                                 .needDbName(true)
-                                .dbNameLabel(RdpI18nUtils.getMessage(DEFAULT_DB_NAME_LABEL_RDB))
+                                .dbNameLabel(DmI18nUtils.getMessage(DEFAULT_DB_NAME_LABEL_RDB))
                                 .defaultCheck(true)
                                 .build());
                         break;
@@ -825,7 +825,7 @@ public class RdpDsConstantController {
 
         detail.getSecurityOptions().forEach(option -> {
             if (option.getSecurityType() != null && option.getSecurityTypeI18nName() == null) {
-                option.setSecurityTypeI18nName(RdpI18nUtils.getMessage(option.getSecurityType().getI18nKey()));
+                option.setSecurityTypeI18nName(DmI18nUtils.getMessage(option.getSecurityType().getI18nKey()));
             }
         });
 
