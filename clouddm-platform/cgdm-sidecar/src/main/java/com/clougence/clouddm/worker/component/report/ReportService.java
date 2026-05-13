@@ -38,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class ReportService {
 
-    public static final Integer         HEART_BEAT_INTERVAL_SEC = 10;
+    public static final Integer         HEART_BEAT_INTERVAL_SEC = 5;
     public static final Integer         METRIC_INTERVAL_SEC     = 5;
     private final AtomicBoolean         inited                  = new AtomicBoolean(false);
     private ScheduledThreadPoolExecutor executorService;

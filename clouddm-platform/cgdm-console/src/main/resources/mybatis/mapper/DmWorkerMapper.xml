@@ -12,6 +12,9 @@
         <result column="cloud_or_idc_name" property="cloudOrIdcName"/>
         <result column="region" property="region"/>
         <result column="worker_state" property="workerState"/>
+        <result column="conn_status" property="connStatus"/>
+        <result column="last_heartbeat_report_ms" property="lastHeartbeatReportMs"/>
+        <result column="last_heartbeat_ping_ms" property="lastHeartbeatPingMs"/>
         <result column="physic_mem_mb" property="physicMemMb"/>
         <result column="physic_core_num" property="physicCoreNum"/>
         <result column="physic_disk_gb" property="physicDiskGb"/>
@@ -47,6 +50,9 @@
         cloud_or_idc_name,
         region,
         worker_state,
+        conn_status,
+        last_heartbeat_report_ms,
+        last_heartbeat_ping_ms,
         physic_mem_mb,
         physic_core_num,
         physic_disk_gb,
@@ -166,6 +172,45 @@
             gmt_create DESC
     </select>
 
+    <select id="queryConnectedByClusterId" resultMap="workerDO">
+        SELECT
+            <include refid="worker"/>
+        FROM
+            dm_worker
+        WHERE
+            cluster_id = #{clusterId}
+        AND
+            conn_status = 'CONNECTED'
+        ORDER BY
+            gmt_create DESC
+    </select>
+
+    <select id="queryByConnStatus" resultMap="workerDO">
+        SELECT
+            <include refid="worker"/>
+        FROM
+            dm_worker
+        WHERE
+            conn_status = #{connStatus,javaType=com.clougence.clouddm.comm.constants.worker.WorkerConnStatus}
+        ORDER BY
+            gmt_create DESC
+    </select>
+
+    <select id="queryInactiveConnectedByHeartbeatReport" resultMap="workerDO">
+        SELECT
+            <include refid="worker"/>
+        FROM
+            dm_worker
+        WHERE
+            conn_status = 'CONNECTED'
+        AND
+            last_heartbeat_report_ms IS NOT NULL
+        AND
+            last_heartbeat_report_ms &lt; #{checkPointEpochMs}
+        ORDER BY
+            gmt_create DESC
+    </select>
+
     <select id="lockWorkerByTaskTotalMemory" resultMap="workerDO">
         SELECT
             <include refid="worker"/>
@@ -185,6 +230,18 @@
             dm_worker
         WHERE
             worker_seq_number=#{workerSeqNumber}
+    </select>
+
+    <select id="queryConnectedByWsn" resultMap="workerDO">
+        SELECT
+            <include refid="worker"/>
+        FROM
+            dm_worker
+        WHERE
+            worker_seq_number = #{workerSeqNumber}
+        AND
+            conn_status = 'CONNECTED'
+        limit 1
     </select>
 
     <select id="getWorkerIdentityByWsn" resultMap="workerDO">
@@ -286,6 +343,38 @@
             console_job_id = #{consoleJobId}
         WHERE
             id = #{workerId}
+    </update>
+
+    <update id="updateWorkerLivenessByWsn" parameterType="com.clougence.clouddm.console.web.dal.model.DmWorkerDO">
+        UPDATE
+            dm_worker
+        <set>
+            <if test="workerIp != null">
+                worker_ip = #{workerIp},
+            </if>
+            <if test="connStatus != null">
+                conn_status = #{connStatus},
+            </if>
+            <if test="lastHeartbeatReportMs != null">
+                last_heartbeat_report_ms = #{lastHeartbeatReportMs},
+            </if>
+            <if test="lastHeartbeatPingMs != null">
+                last_heartbeat_ping_ms = #{lastHeartbeatPingMs},
+            </if>
+            gmt_modified = now()
+        </set>
+        WHERE
+            worker_seq_number = #{workerSeqNumber}
+    </update>
+
+    <update id="updateWorkerConnStatusById">
+        UPDATE
+            dm_worker
+        SET
+            conn_status = #{connStatus},
+            gmt_modified = now()
+        WHERE
+            id = #{id}
     </update>
 
     <update id="updateWorkerDynamicStats" parameterType="com.clougence.clouddm.console.web.dal.mapper.param.WorkerParam">

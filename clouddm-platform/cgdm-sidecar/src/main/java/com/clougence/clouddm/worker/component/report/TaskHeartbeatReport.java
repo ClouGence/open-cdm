@@ -17,11 +17,11 @@ package com.clougence.clouddm.worker.component.report;
 
 import java.util.Date;
 
+import com.clougence.clouddm.api.console.status.ConsoleStatusRService;
 import jakarta.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
-import com.clougence.clouddm.api.console.status.StatusRService;
 import com.clougence.clouddm.api.console.status.WorkerState;
 import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
 import com.clougence.utils.ExceptionUtils;
@@ -38,8 +38,8 @@ import lombok.extern.slf4j.Slf4j;
 public class TaskHeartbeatReport implements Runnable {
 
     @Resource
-    private StatusRService statusRService;
-    private WorkerIdentity workerIdentity;
+    private ConsoleStatusRService statusRService;
+    private WorkerIdentity        workerIdentity;
 
     private WorkerIdentity identity() throws Exception {
         if (this.workerIdentity == null) {
@@ -70,9 +70,10 @@ public class TaskHeartbeatReport implements Runnable {
             case ONLINE:
             case WAIT_TO_ONLINE:
             case ABNORMAL: {
-                log.info("receive state is " + state + ",switch to ONLINE status");
-
-                this.statusRService.reportStatus(this.identity(), now, WorkerState.ONLINE);
+                log.info("receive state is " + state + ",heartbeat success.");
+                if (state != WorkerState.ONLINE) {
+                    this.statusRService.reportStatus(this.identity(), now, WorkerState.ONLINE);
+                }
                 this.statusRService.reportAddress(this.identity(), now, ReportUtils.tryFetchLocalIp(), ReportUtils.tryFetchExternalIp());
                 break;
             }

@@ -36,7 +36,6 @@ import com.clougence.clouddm.comm.component.server.RSocketConnManager;
 import com.clougence.clouddm.comm.component.server.RSocketServerSender;
 import com.clougence.clouddm.comm.component.server.ServerSideRegistry;
 import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerStatusMapper;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
 import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
@@ -49,9 +48,6 @@ import jakarta.annotation.Resource;
  **/
 @Configuration
 public class ConsoleRSocketConfig {
-
-    @Resource
-    private DmWorkerStatusMapper         dmWorkerStatusMapper;
 
     @Resource
     private ApplicationContext           appCtx;
@@ -116,7 +112,7 @@ public class ConsoleRSocketConfig {
 
     @Bean
     public RSocketConnManager consoleRSocketConnManager() {
-        return new DmConsoleConnManager(dmWorkerStatusMapper);
+        return new DmConsoleConnManager(workerMapper);
     }
 
     public SocketAcceptorInterceptor consoleSocketAcceptorInterceptor() {
@@ -125,11 +121,11 @@ public class ConsoleRSocketConfig {
 
     @Bean
     public RSocketServerSender consoleRSocketServerSender() {
-        return new DmServerSender(consoleRSocketRequestManager(), this.workerMapper, this.dmWorkerStatusMapper, consoleServerSideRegistry(), RSocketSerializationImpl.DEFAULT);
+        return new DmServerSender(consoleRSocketRequestManager(), this.workerMapper, consoleServerSideRegistry(), RSocketSerializationImpl.DEFAULT);
     }
 
     @Bean
     public ServerSideRegistry consoleServerSideRegistry() {
-        return new DmServerSideRegistry(dmWorkerStatusMapper, dmUserMapper, workerMapper, notifyServices, new DmConsoleExceptionManager());
+        return new DmServerSideRegistry(dmUserMapper, workerMapper, notifyServices, new DmConsoleExceptionManager());
     }
 }

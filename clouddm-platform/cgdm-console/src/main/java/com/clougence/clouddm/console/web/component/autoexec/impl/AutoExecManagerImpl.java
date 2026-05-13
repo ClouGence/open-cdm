@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.sidecar.autoexec.AutoExecRService;
-import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
 import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
@@ -36,8 +35,8 @@ import com.clougence.clouddm.console.web.dal.enumeration.DmLogDependBizType;
 import com.clougence.clouddm.console.web.dal.enumeration.Loglevel;
 import com.clougence.clouddm.console.web.dal.mapper.DmAutoExecJobMapper;
 import com.clougence.clouddm.console.web.dal.mapper.DmBizLogMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerStatusMapper;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerStatusDO;
+import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
+import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
 import com.clougence.clouddm.console.web.dal.model.exec.DmAutoExecJobDO;
 import com.clougence.clouddm.console.web.dal.model.exec.DmBizLogDO;
 import com.clougence.clouddm.console.web.util.DmI18nUtils;
@@ -57,7 +56,7 @@ public class AutoExecManagerImpl implements AutoExecManager {
     @Resource
     private AutoExecRService        autoExecRService;
     @Resource
-    private DmWorkerStatusMapper    dmWorkerStatusMapper;
+    private DmWorkerMapper          dmWorkerMapper;
     @Resource
     private BizResOwnerCacheService ownerCacheService;
     @Resource
@@ -135,7 +134,7 @@ public class AutoExecManagerImpl implements AutoExecManager {
     }
 
     private RSocketSendDTO buildRSocketSendDTO(String wsn) {
-        DmWorkerStatusDO worker = dmWorkerStatusMapper.queryByWsn(wsn);
+        DmWorkerDO worker = dmWorkerMapper.getByWsn(wsn);
 
         RSocketSendDTO sendDTO = new RSocketSendDTO();
         sendDTO.setClusterId(worker.getClusterId());
@@ -147,12 +146,12 @@ public class AutoExecManagerImpl implements AutoExecManager {
     }
 
     private RSocketSendDTO buildRSocketSendDTO(long bindClusterId) {
-        List<DmWorkerStatusDO> workers = this.dmWorkerStatusMapper.queryByClusterIdAndStatus(bindClusterId, WorkerConnStatus.CONNECTED);
+        List<DmWorkerDO> workers = this.dmWorkerMapper.queryConnectedByClusterId(bindClusterId);
         if (workers.isEmpty()) {
             throw new ErrorMessageException(DmErrorCode.CLUSTER_HAVE_NO_WORKS_ERROR.code(), MessageUtils.getClusterHaveNoWorksErrorMessage(bindClusterId));
         }
 
-        DmWorkerStatusDO worker = workers.get(new Random(System.currentTimeMillis()).nextInt(workers.size()));
+        DmWorkerDO worker = workers.get(new Random(System.currentTimeMillis()).nextInt(workers.size()));
 
         RSocketSendDTO sendDTO = new RSocketSendDTO();
         sendDTO.setClusterId(worker.getClusterId());

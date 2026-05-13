@@ -27,12 +27,11 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.api.sidecar.session.drivers.DriversRService;
 import com.clougence.clouddm.api.sidecar.session.drivers.DsDriverRes;
 import com.clougence.clouddm.api.sidecar.session.drivers.DsDriverVer;
-import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDriverService;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerStatusMapper;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerStatusDO;
+import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
+import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
 import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
 import com.clougence.clouddm.console.web.model.vo.DriverVersionStatusVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.DriverDownloadProgressVO;
@@ -53,7 +52,7 @@ public class DmDriverServiceImpl implements DmDriverService {
     private static final int                 PROGRESS_LOG_STEP = 10;
 
     @Resource
-    private DmWorkerStatusMapper             dmWorkerStatusMapper;
+    private DmWorkerMapper                   dmWorkerMapper;
     @Resource
     private DriversRService                  driversRService;
     private final Map<String, Boolean>       runningTasks      = new ConcurrentHashMap<>();
@@ -78,14 +77,14 @@ public class DmDriverServiceImpl implements DmDriverService {
         }
 
         boolean consoleAvailable = isPrepared(localVersion);
-        List<DmWorkerStatusDO> workers = queryTargetWorkers(clusterId);
+        List<DmWorkerDO> workers = queryTargetWorkers(clusterId);
         if (CollectionUtils.isEmpty(workers)) {
             statusVO.setAvailable(consoleAvailable);
             return statusVO;
         }
 
         boolean workersAvailable = true;
-        for (DmWorkerStatusDO worker : workers) {
+        for (DmWorkerDO worker : workers) {
             DsDriverVer remoteVersion;
             try {
                 remoteVersion = this.driversRService.refreshDriverVersion(buildSendDTO(worker), driverFamily, driverVersion);
@@ -117,7 +116,7 @@ public class DmDriverServiceImpl implements DmDriverService {
 
         this.downloadExecutor.execute(() -> {
             try {
-                new DmDriverDownloadTask(uid, clusterId, driverFamily, driverVersion, this.dmWorkerStatusMapper, this.driversRService).run();
+                new DmDriverDownloadTask(uid, clusterId, driverFamily, driverVersion, this.dmWorkerMapper, this.driversRService).run();
             } catch (Exception e) {
                 log.error("download driver failed, uid={}, clusterId={}, family={}, version={}", uid, clusterId, driverFamily, driverVersion, e);
                 publishProgress(uid, clusterId, driverFamily, driverVersion, 0, 0, 0, "FAILED", false, null, null, e.getMessage());
@@ -223,14 +222,14 @@ public class DmDriverServiceImpl implements DmDriverService {
         return "COMPLETED".equals(status) || "FAILED".equals(status);
     }
 
-    private List<DmWorkerStatusDO> queryTargetWorkers(Long clusterId) {
+    private List<DmWorkerDO> queryTargetWorkers(Long clusterId) {
         if (clusterId != null && clusterId > 0) {
-            return this.dmWorkerStatusMapper.queryByClusterIdAndStatus(clusterId, WorkerConnStatus.CONNECTED);
+            return this.dmWorkerMapper.queryConnectedByClusterId(clusterId);
         }
-        return this.dmWorkerStatusMapper.queryByConsoleIpAndStatus(HostUtil.getHostIp(), WorkerConnStatus.CONNECTED);
+        throw new IllegalArgumentException("clusterId is required to query target workers.");
     }
 
-    private RSocketSendDTO buildSendDTO(DmWorkerStatusDO worker) {
+    private RSocketSendDTO buildSendDTO(DmWorkerDO worker) {
         RSocketSendDTO sendDTO = new RSocketSendDTO();
         sendDTO.setClusterId(worker.getClusterId());
         sendDTO.setWorkerSeqNumber(worker.getWorkerSeqNumber());

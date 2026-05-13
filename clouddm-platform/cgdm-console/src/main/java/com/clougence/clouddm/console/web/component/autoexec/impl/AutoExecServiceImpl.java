@@ -33,8 +33,8 @@ import com.clougence.clouddm.console.web.dal.enumeration.*;
 import com.clougence.clouddm.console.web.dal.mapper.DmAutoExecJobMapper;
 import com.clougence.clouddm.console.web.dal.mapper.DmAutoExecTaskMapper;
 import com.clougence.clouddm.console.web.dal.mapper.DmBizLogMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerStatusMapper;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerStatusDO;
+import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
+import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
 import com.clougence.clouddm.console.web.dal.model.exec.AutoExecJobConfig;
 import com.clougence.clouddm.console.web.dal.model.exec.DmAutoExecJobDO;
 import com.clougence.clouddm.console.web.dal.model.exec.DmAutoExecTaskDO;
@@ -68,7 +68,7 @@ public class AutoExecServiceImpl implements AutoExecService {
     @Resource
     private DmBizLogMapper        dmBizLogMapper;
     @Resource
-    private DmWorkerStatusMapper  dmWorkerStatusMapper;
+    private DmWorkerMapper        dmWorkerMapper;
     @Resource
     private AutoExecManager       autoExecManager;
     @Resource
@@ -146,9 +146,9 @@ public class AutoExecServiceImpl implements AutoExecService {
 
         if (job.getWorkerSeqNumber() != null && job.getStatus() != AutoExecJobStatus.INIT && job.getStatus() != AutoExecJobStatus.FINISH
             && job.getStatus() != AutoExecJobStatus.TERMINATION) {
-            DmWorkerStatusDO workerStatus = this.dmWorkerStatusMapper.queryByWsn(job.getWorkerSeqNumber());
+            DmWorkerDO workerStatus = this.dmWorkerMapper.getByWsn(job.getWorkerSeqNumber());
             vo.setWorkerIP(workerStatus.getWorkerIp());
-            vo.setWorkerStatus(workerStatus.getWorkerConnStatus());
+            vo.setWorkerStatus(workerStatus.getConnStatus());
             vo.setWorkerSeqNumber(workerStatus.getWorkerSeqNumber());
         }
 

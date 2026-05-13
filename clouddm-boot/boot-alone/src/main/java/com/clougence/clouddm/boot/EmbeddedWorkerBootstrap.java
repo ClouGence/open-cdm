@@ -29,10 +29,8 @@ import com.clougence.clouddm.console.web.constants.DeployStatus;
 import com.clougence.clouddm.console.web.dal.enumeration.LifeCycleState;
 import com.clougence.clouddm.console.web.dal.mapper.DmClusterMapper;
 import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerStatusMapper;
 import com.clougence.clouddm.console.web.dal.model.DmClusterDO;
 import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerStatusDO;
 import com.clougence.clouddm.console.web.model.fo.cluster.CreateClusterFO;
 import com.clougence.clouddm.console.web.model.fo.cluster.CreateInitialWorkerFO;
 import com.clougence.clouddm.console.web.model.vo.cluster.ClusterVO;
@@ -64,8 +62,6 @@ public class EmbeddedWorkerBootstrap {
     private DmWorkerMapper       workerMapper;
     @Resource
     private WorkerService        workerService;
-    @Resource
-    private DmWorkerStatusMapper workerStatusMapper;
     @Resource
     private NamingService        namingService;
 
@@ -192,35 +188,11 @@ public class EmbeddedWorkerBootstrap {
     }
 
     private void resetWorkerStatus(DmWorkerDO worker) {
-        DmWorkerStatusDO existingStatus = this.workerStatusMapper.queryByWsn(worker.getWorkerSeqNumber());
-        if (existingStatus == null) {
-            DmWorkerStatusDO status = new DmWorkerStatusDO();
-            status.setGmtCreate(new Date());
-            status.setGmtModified(new Date());
-            status.setUid(worker.getUid());
-            status.setWorkerConnStatus(WorkerConnStatus.NEW);
-            status.setWorkerSeqNumber(worker.getWorkerSeqNumber());
-            status.setClusterId(worker.getClusterId());
-            this.workerStatusMapper.insert(status);
-            return;
-        }
-
-        if (!StringUtils.equals(existingStatus.getUid(), worker.getUid()) || existingStatus.getClusterId() == null
-            || existingStatus.getClusterId().longValue() != worker.getClusterId()) {
-            this.workerStatusMapper.deleteByWsn(worker.getWorkerSeqNumber());
-
-            DmWorkerStatusDO status = new DmWorkerStatusDO();
-            status.setGmtCreate(new Date());
-            status.setGmtModified(new Date());
-            status.setUid(worker.getUid());
-            status.setWorkerConnStatus(WorkerConnStatus.NEW);
-            status.setWorkerSeqNumber(worker.getWorkerSeqNumber());
-            status.setClusterId(worker.getClusterId());
-            this.workerStatusMapper.insert(status);
-            return;
-        }
-
-        this.workerStatusMapper.updateStatusById(existingStatus.getId(), WorkerConnStatus.NEW);
+        worker.setConnStatus(WorkerConnStatus.NEW);
+        worker.setLastHeartbeatReportMs(null);
+        worker.setLastHeartbeatPingMs(null);
+        worker.setGmtModified(new Date());
+        this.workerMapper.updateById(worker);
     }
 
     private void applyEmbeddedWorkerConfig(Long workerId, String ownerUid) {

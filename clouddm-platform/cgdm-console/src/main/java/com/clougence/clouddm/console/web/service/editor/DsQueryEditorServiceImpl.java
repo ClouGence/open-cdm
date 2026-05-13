@@ -40,11 +40,11 @@ import com.clougence.clouddm.console.web.dal.enumeration.FileStatus;
 import com.clougence.clouddm.console.web.dal.mapper.DmDsConfigMapper;
 import com.clougence.clouddm.console.web.dal.mapper.DmDsSessionMapper;
 import com.clougence.clouddm.console.web.dal.mapper.DmFileMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerStatusMapper;
+import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
 import com.clougence.clouddm.console.web.dal.model.DmDsConfigDO;
 import com.clougence.clouddm.console.web.dal.model.DmDsSessionDO;
 import com.clougence.clouddm.console.web.dal.model.DmFileDO;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerStatusDO;
+import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
 import com.clougence.clouddm.console.web.model.vo.editor.query.SessionVO;
 import com.clougence.clouddm.console.web.service.browse.model.rdb.BrowseColumnMO;
 import com.clougence.clouddm.console.web.service.editor.model.DataResultDataVO;
@@ -91,7 +91,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
     @Resource
     private DmDsConfigMapper        dmDsMapper;
     @Resource
-    private DmWorkerStatusMapper    dmWorkerStatusMapper;
+    private DmWorkerMapper          dmWorkerMapper;
     @Resource
     private DmResAuthService        dmDsAuthService;
     @Resource
@@ -239,7 +239,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
         }
 
         long bindClusterId = dmDsConf.getBindClusterId();
-        List<DmWorkerStatusDO> workers = this.dmWorkerStatusMapper.queryByClusterIdAndStatus(bindClusterId, WorkerConnStatus.CONNECTED);
+        List<DmWorkerDO> workers = this.dmWorkerMapper.queryConnectedByClusterId(bindClusterId);
         if (workers.isEmpty()) {
             DsAvailableDTO dto = new DsAvailableDTO();
             dto.setDsId(dsId);
@@ -277,10 +277,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
         String fsName = fileUri.getScheme().toLowerCase();
         if (StringUtils.equalsIgnoreCase(fsName, "wsn")) {
             String wsn = fileUri.getHost();
-            DmWorkerStatusDO statusDO = this.dmWorkerStatusMapper.queryByWsn(wsn);
-            if (statusDO == null || statusDO.getWorkerConnStatus() != WorkerConnStatus.CONNECTED) {
-                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.WORKER_STATUS_OFFLINE_ERROR.name(), wsn));
-            }
+            requireConnectedWorker(wsn);
 
             String suffix = this.fileService.fetchFileExtensionByFormatName(dstFormatName);
             String srcFileId = fileDO.getUniqueId();
@@ -322,10 +319,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
         String fsName = fileUri.getScheme().toLowerCase();
         if (StringUtils.equalsIgnoreCase(fsName, "wsn")) {
             String wsn = fileUri.getHost();
-            DmWorkerStatusDO statusDO = this.dmWorkerStatusMapper.queryByWsn(wsn);
-            if (statusDO == null || statusDO.getWorkerConnStatus() != WorkerConnStatus.CONNECTED) {
-                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.WORKER_STATUS_OFFLINE_ERROR.name(), wsn));
-            }
+            requireConnectedWorker(wsn);
 
             return this.fileService.fetchFileSize(wsn, fileUri.getPath());
         }
@@ -344,10 +338,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
         String fsName = fileUri.getScheme().toLowerCase();
         if (StringUtils.equalsIgnoreCase(fsName, "wsn")) {
             String wsn = fileUri.getHost();
-            DmWorkerStatusDO statusDO = this.dmWorkerStatusMapper.queryByWsn(wsn);
-            if (statusDO == null || statusDO.getWorkerConnStatus() != WorkerConnStatus.CONNECTED) {
-                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.WORKER_STATUS_OFFLINE_ERROR.name(), wsn));
-            }
+            requireConnectedWorker(wsn);
 
             return this.fileService.fetchFileSize(wsn, fileUri.getPath());
         }
@@ -361,10 +352,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
         String fsName = fileUri.getScheme().toLowerCase();
         if (StringUtils.equalsIgnoreCase(fsName, "wsn")) {
             String wsn = fileUri.getHost();
-            DmWorkerStatusDO statusDO = this.dmWorkerStatusMapper.queryByWsn(wsn);
-            if (statusDO == null || statusDO.getWorkerConnStatus() != WorkerConnStatus.CONNECTED) {
-                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.WORKER_STATUS_OFFLINE_ERROR.name(), wsn));
-            }
+            requireConnectedWorker(wsn);
 
             return this.fileService.fetchFileData(wsn, fileUri.getPath(), offset, length);
         }
@@ -380,10 +368,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
         String fsName = fileUri.getScheme().toLowerCase();
         if (StringUtils.equalsIgnoreCase(fsName, "wsn")) {
             String wsn = fileUri.getHost();
-            DmWorkerStatusDO statusDO = this.dmWorkerStatusMapper.queryByWsn(wsn);
-            if (statusDO == null || statusDO.getWorkerConnStatus() != WorkerConnStatus.CONNECTED) {
-                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.WORKER_STATUS_OFFLINE_ERROR.name(), wsn));
-            }
+            requireConnectedWorker(wsn);
 
             return this.fileService.fetchResultPage(wsn, fileUri.getPath(), offsetRow, pageSize);
         }
@@ -399,10 +384,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
         String fsName = fileUri.getScheme().toLowerCase();
         if (StringUtils.equalsIgnoreCase(fsName, "wsn")) {
             String wsn = fileUri.getHost();
-            DmWorkerStatusDO statusDO = this.dmWorkerStatusMapper.queryByWsn(wsn);
-            if (statusDO == null || statusDO.getWorkerConnStatus() != WorkerConnStatus.CONNECTED) {
-                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.WORKER_STATUS_OFFLINE_ERROR.name(), wsn));
-            }
+            requireConnectedWorker(wsn);
 
             return this.fileService.fetchResultCol(wsn, fileUri.getPath(), rowNumber, colNumber, offset, length);
         }
@@ -426,5 +408,12 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
         params.put(SessionSpi.PARAMS_DEFAULT_SCHEMA, StringUtils.toString(parsed.levelsParam().get(UmiTypes.Schema)));
 
         return sessionSpi.createSessionContext(dsConfig, params);
+    }
+
+    private void requireConnectedWorker(String wsn) {
+        DmWorkerDO worker = this.dmWorkerMapper.queryConnectedByWsn(wsn);
+        if (worker == null || worker.getConnStatus() != WorkerConnStatus.CONNECTED) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.WORKER_STATUS_OFFLINE_ERROR.name(), wsn));
+        }
     }
 }

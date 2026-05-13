@@ -17,12 +17,12 @@ package com.clougence.clouddm.worker.component.report;
 
 import java.util.Date;
 
+import com.clougence.clouddm.api.console.status.ConsoleStatusRService;
 import jakarta.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
 import com.clougence.clouddm.api.console.status.MetricStats;
-import com.clougence.clouddm.api.console.status.StatusRService;
 import com.clougence.clouddm.api.console.status.UsageStats;
 import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
 import com.clougence.clouddm.worker.component.session.SessionManager;
@@ -42,17 +42,17 @@ import lombok.extern.slf4j.Slf4j;
 public class TaskMetricReport implements Runnable {
 
     @Resource
-    private StatusRService     statusRService;
+    private ConsoleStatusRService statusRService;
     @Resource
-    private SessionManager     sessionManager;
+    private SessionManager        sessionManager;
     @Resource
-    private ToolSessionManager toolSessionManager;
+    private ToolSessionManager    toolSessionManager;
     @Resource
-    private DmSidecarConfig    dmConfig;
-    private WorkerIdentity     workerIdentity;
+    private DmSidecarConfig       dmConfig;
+    private WorkerIdentity        workerIdentity;
 
-    private long               lastMetricReportMs     = 0L;
-    private long               lastMetricReportCounts = 0L;
+    private long                  lastMetricReportMs     = 0L;
+    private long                  lastMetricReportCounts = 0L;
 
     private WorkerIdentity identity() throws Exception {
         if (this.workerIdentity == null) {

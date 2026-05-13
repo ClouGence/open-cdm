@@ -22,6 +22,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.clougence.clouddm.api.console.status.WorkerState;
+import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
 import com.clougence.clouddm.console.web.constants.DeployStatus;
 import com.clougence.clouddm.console.web.dal.mapper.param.WorkerParam;
 import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
@@ -49,7 +50,15 @@ public interface DmWorkerMapper extends BaseMapper<DmWorkerDO> {
 
     List<DmWorkerDO> queryByCluster(long clusterId);
 
+    List<DmWorkerDO> queryConnectedByClusterId(Long clusterId);
+
+    List<DmWorkerDO> queryByConnStatus(WorkerConnStatus connStatus);
+
+    List<DmWorkerDO> queryInactiveConnectedByHeartbeatReport(@Param("checkPointEpochMs") Long checkPointEpochMs);
+
     DmWorkerDO getByWsn(String workerSeqNumber);
+
+    DmWorkerDO queryConnectedByWsn(String workerSeqNumber);
 
     DmWorkerDO getWorkerIdentityByWsn(String workerSeqNumber);
 
@@ -77,6 +86,10 @@ public interface DmWorkerMapper extends BaseMapper<DmWorkerDO> {
     int updateDeployStatus(DeployStatus deployStatus, long workerId);
 
     int updateConsoleJobId(long workerId, long consoleJobId);
+
+    int updateWorkerLivenessByWsn(DmWorkerDO workerDO);
+
+    int updateWorkerConnStatusById(long id, WorkerConnStatus connStatus);
 
     /**
      * update worker dynamic stats,include physicMemMb,physicCoreNum,physicDiskGb,cpuUseRatio,memUseRatio,workerLoad,freeDiskGb,freeMemMb

@@ -20,14 +20,12 @@ import java.util.Date;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.console.status.MetricStats;
-import com.clougence.clouddm.api.console.status.StatusRService;
+import com.clougence.clouddm.api.console.status.ConsoleStatusRService;
 import com.clougence.clouddm.api.console.status.WorkerState;
 import com.clougence.clouddm.comm.RSocketApiClass;
 import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
 import com.clougence.clouddm.console.web.component.auth.model.WorkerCacheEntry;
-import com.clougence.clouddm.console.web.dal.enumeration.WorkerHeartbeatType;
 import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerHeartbeatDO;
 import com.clougence.clouddm.console.web.service.cluster.WorkerService;
 import com.clougence.clouddm.console.web.dal.enumeration.LifeCycleState;
 import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
@@ -43,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RSocketApiClass
-public class StatusRServiceProvider extends AbstractBasicProvider implements StatusRService {
+public class ConsoleStatusRServiceProvider extends AbstractBasicProvider implements ConsoleStatusRService {
 
     @Resource
     private WorkerService  workerService;
@@ -56,11 +54,11 @@ public class StatusRServiceProvider extends AbstractBasicProvider implements Sta
             return WorkerState.ABNORMAL;
         }
 
-        DmWorkerDO workerDO = this.workerService.getWorkerByWsn(identity.getWorkerSeqNumber());
+        DmWorkerDO workerDO = this.workerService.queryWorkerByWsn(identity.getWorkerSeqNumber());
         if (workerDO == null) {
             return WorkerState.NOT_EXIST;
         } else {
-            return checkAndMaintainHb(workerDO, heartbeat, identity, WorkerHeartbeatType.fetchAndHeartbeat);
+            return checkAndMaintainHb(workerDO, heartbeat, identity);
         }
     }
 
@@ -70,7 +68,7 @@ public class StatusRServiceProvider extends AbstractBasicProvider implements Sta
             return;
         }
 
-        DmWorkerDO workerDO = this.workerService.getWorkerByWsn(identity.getWorkerSeqNumber());
+        DmWorkerDO workerDO = this.workerService.queryWorkerByWsn(identity.getWorkerSeqNumber());
         if (workerDO == null) {
             return;
         }
@@ -85,8 +83,6 @@ public class StatusRServiceProvider extends AbstractBasicProvider implements Sta
                 this.workerService.updateLifecycleState(workerDO.getId(), LifeCycleState.CREATED);
             }
         }
-
-        this.checkAndMaintainHb(workerDO, sendTime, identity, WorkerHeartbeatType.updateWorkerIps);
     }
 
     private boolean isUpdateToOnline(WorkerState targetState, WorkerState currentState) {
@@ -97,7 +93,7 @@ public class StatusRServiceProvider extends AbstractBasicProvider implements Sta
         return targetState == WorkerState.OFFLINE && currentState == WorkerState.WAIT_TO_OFFLINE;
     }
 
-    private WorkerState checkAndMaintainHb(DmWorkerDO workerDO, Date sendDate, WorkerIdentity identity, WorkerHeartbeatType heartbeatType) {
+    private WorkerState checkAndMaintainHb(DmWorkerDO workerDO, Date sendDate, WorkerIdentity identity) {
         RdpUserDO userDO = this.rdpUserService.getUserByAk(identity.getAccessKey());
         if (!workerDO.getUid().equals(userDO.getUid())) {
             log.error("worker (" + identity.getWorkerSeqNumber() + ") not belone user (" + identity.getAccessKey() + ")");
@@ -105,12 +101,7 @@ public class StatusRServiceProvider extends AbstractBasicProvider implements Sta
         }
 
         log.debug("receive worker request,date:" + sendDate);
-        DmWorkerHeartbeatDO heartbeatDO = new DmWorkerHeartbeatDO();
-        heartbeatDO.setWorkerIp(identity.getLocalIp());
-        heartbeatDO.setWorkerSendTime(sendDate);
-        heartbeatDO.setWorkerSeqNumber(identity.getWorkerSeqNumber());
-        heartbeatDO.setHeartbeatType(heartbeatType);
-        this.workerService.upsertWorkerHeartbeat(heartbeatDO);
+        this.workerService.upsertWorkerHeartbeat(identity.getWorkerSeqNumber(), identity.getLocalIp(), sendDate);
         return workerDO.getWorkerState();
     }
 

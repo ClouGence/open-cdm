@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.dal.enumeration;
+package com.clougence.clouddm.api.sidecar.status;
 
-/**
- * @author bucketli 2020-01-22 15:12
- * @since 1.1.3
- */
-public enum WorkerHeartbeatType {
-    fetchAndHeartbeat,
-    updateWorkerState,
-    updateWorkerIps
+import com.clougence.clouddm.comm.RSocketApiClass;
+import com.clougence.clouddm.comm.model.RSocketSendDTO;
+
+@RSocketApiClass
+public interface WorkerStatusRService {
+
+    Long ping(RSocketSendDTO sendDTO, Long pingEpochMs);
 }

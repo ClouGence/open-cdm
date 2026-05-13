@@ -19,6 +19,7 @@ import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.clougence.clouddm.api.console.status.WorkerState;
+import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
 import com.clougence.clouddm.console.web.constants.CloudOrIdcName;
 import com.clougence.clouddm.console.web.constants.DeployStatus;
 import com.clougence.clouddm.console.web.dal.enumeration.LifeCycleState;
@@ -53,6 +54,12 @@ public class DmWorkerDO {
     private String         region;
 
     private WorkerState    workerState;
+
+    private WorkerConnStatus connStatus;
+
+    private Long           lastHeartbeatReportMs;
+
+    private Long           lastHeartbeatPingMs;
 
     private Long           physicMemMb;
 

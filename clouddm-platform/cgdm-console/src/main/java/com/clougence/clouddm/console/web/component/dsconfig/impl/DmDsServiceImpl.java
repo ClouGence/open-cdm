@@ -44,7 +44,6 @@ import com.clougence.clouddm.console.web.dal.enumeration.DataSourceStatus;
 import com.clougence.clouddm.console.web.dal.mapper.DmDsConfigMapper;
 import com.clougence.clouddm.console.web.dal.mapper.DmDsKvBaseConfigMapper;
 import com.clougence.clouddm.console.web.dal.mapper.DmDsTagMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerStatusMapper;
 import com.clougence.clouddm.console.web.dal.model.DmDsConfigDO;
 import com.clougence.clouddm.console.web.dal.model.DmDsKvBaseConfigDO;
 import com.clougence.clouddm.console.web.dal.model.DmDsTagDO;
@@ -105,8 +104,6 @@ public class DmDsServiceImpl implements DmDsService {
     private RdpDataSourceMapper     rdpDsMapper;
     @Resource
     private RdpDsEnvMapper          rdpDsEnvMapper;
-    @Resource
-    private DmWorkerStatusMapper    workerStatusMapper;
     @Resource
     private DsSchemaService         dsSchemaService;
     @Resource

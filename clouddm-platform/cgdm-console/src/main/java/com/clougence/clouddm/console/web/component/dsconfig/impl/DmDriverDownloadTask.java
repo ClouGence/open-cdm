@@ -24,11 +24,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.clougence.clouddm.api.sidecar.session.drivers.DriversRService;
 import com.clougence.clouddm.api.sidecar.session.drivers.DsDriverRes;
 import com.clougence.clouddm.api.sidecar.session.drivers.DsDriverVer;
-import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerStatusMapper;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerStatusDO;
+import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
+import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
 import com.clougence.clouddm.console.web.model.vo.DriverVersionStatusVO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.drivers.DriverFile;
@@ -50,15 +49,15 @@ public class DmDriverDownloadTask implements Runnable {
     private final Long                 clusterId;
     private final String               driverFamily;
     private final String               driverVersion;
-    private final DmWorkerStatusMapper dmWorkerStatusMapper;
+    private final DmWorkerMapper       dmWorkerMapper;
     private final DriversRService      driversRService;
 
-    public DmDriverDownloadTask(String uid, Long clusterId, String driverFamily, String driverVersion, DmWorkerStatusMapper dmWorkerStatusMapper, DriversRService driversRService){
+    public DmDriverDownloadTask(String uid, Long clusterId, String driverFamily, String driverVersion, DmWorkerMapper dmWorkerMapper, DriversRService driversRService){
         this.uid = uid;
         this.clusterId = clusterId;
         this.driverFamily = driverFamily;
         this.driverVersion = driverVersion;
-        this.dmWorkerStatusMapper = dmWorkerStatusMapper;
+        this.dmWorkerMapper = dmWorkerMapper;
         this.driversRService = driversRService;
     }
 
@@ -172,14 +171,14 @@ public class DmDriverDownloadTask implements Runnable {
         refreshPreparedState(localVersion);
         boolean consoleAvailable = isPrepared(localVersion);
 
-        List<DmWorkerStatusDO> workers = queryTargetWorkers();
+        List<DmWorkerDO> workers = queryTargetWorkers();
         if (CollectionUtils.isEmpty(workers)) {
             statusVO.setAvailable(consoleAvailable);
             return statusVO;
         }
 
         boolean workersAvailable = true;
-        for (DmWorkerStatusDO worker : workers) {
+        for (DmWorkerDO worker : workers) {
             DsDriverVer remoteVersion;
             try {
                 remoteVersion = this.driversRService.refreshDriverVersion(buildSendDTO(worker), this.driverFamily, this.driverVersion);
@@ -205,12 +204,12 @@ public class DmDriverDownloadTask implements Runnable {
     //
 
     private void syncFilesToWorkers(List<DriverFile> transferFiles, int totalFileCount) {
-        List<DmWorkerStatusDO> workers = queryTargetWorkers();
+        List<DmWorkerDO> workers = queryTargetWorkers();
         if (CollectionUtils.isEmpty(workers)) {
             return;
         }
 
-        List<DmWorkerStatusDO> workersNeedTransfer = resolveWorkersNeedTransfer(workers);
+        List<DmWorkerDO> workersNeedTransfer = resolveWorkersNeedTransfer(workers);
         if (CollectionUtils.isEmpty(workersNeedTransfer)) {
             refreshWorkers(workers);
             return;
@@ -221,7 +220,7 @@ public class DmDriverDownloadTask implements Runnable {
             return;
         }
 
-        for (DmWorkerStatusDO worker : workersNeedTransfer) {
+        for (DmWorkerDO worker : workersNeedTransfer) {
             try {
                 log.info("clear worker driver resource, clusterId={}, family={}, version={}, workerWsn={}", this.clusterId, this.driverFamily, this.driverVersion, worker
                     .getWorkerSeqNumber());
@@ -239,9 +238,9 @@ public class DmDriverDownloadTask implements Runnable {
         refreshWorkers(workers);
     }
 
-    private List<DmWorkerStatusDO> resolveWorkersNeedTransfer(List<DmWorkerStatusDO> workers) {
-        List<DmWorkerStatusDO> workersNeedTransfer = new ArrayList<>();
-        for (DmWorkerStatusDO worker : workers) {
+    private List<DmWorkerDO> resolveWorkersNeedTransfer(List<DmWorkerDO> workers) {
+        List<DmWorkerDO> workersNeedTransfer = new ArrayList<>();
+        for (DmWorkerDO worker : workers) {
             try {
                 log.info("refresh worker driver before transfer, clusterId={}, family={}, version={}, workerWsn={}", this.clusterId, this.driverFamily, this.driverVersion, worker
                     .getWorkerSeqNumber());
@@ -261,8 +260,8 @@ public class DmDriverDownloadTask implements Runnable {
         return workersNeedTransfer;
     }
 
-    private void refreshWorkers(List<DmWorkerStatusDO> workers) {
-        for (DmWorkerStatusDO worker : workers) {
+    private void refreshWorkers(List<DmWorkerDO> workers) {
+        for (DmWorkerDO worker : workers) {
             try {
                 log.info("refresh worker driver status, clusterId={}, family={}, version={}, workerWsn={}", this.clusterId, this.driverFamily, this.driverVersion, worker
                     .getWorkerSeqNumber());
@@ -274,7 +273,7 @@ public class DmDriverDownloadTask implements Runnable {
         }
     }
 
-    private void syncFileToWorkers(List<DmWorkerStatusDO> workers, DriverFile driverFile, int totalFileCount, int currentIndex) {
+    private void syncFileToWorkers(List<DmWorkerDO> workers, DriverFile driverFile, int totalFileCount, int currentIndex) {
         File sourceFile = new File(driverFile.getAbsolutePath());
         if (!sourceFile.isFile() || !sourceFile.canRead()) {
             throw new IllegalStateException("driver resource file not found: " + sourceFile.getAbsolutePath());
@@ -286,7 +285,7 @@ public class DmDriverDownloadTask implements Runnable {
         long totalBytes = sourceFile.length() * workers.size();
         long currentBytes = 0;
         byte[] buffer = new byte[CHUNK_SIZE];
-        for (DmWorkerStatusDO worker : workers) {
+        for (DmWorkerDO worker : workers) {
             RSocketSendDTO sendDTO = buildSendDTO(worker);
             try {
                 log.info("sync driver file to worker, clusterId={}, family={}, version={}, workerWsn={}, targetFile={}", this.clusterId, this.driverFamily, this.driverVersion, worker
@@ -314,11 +313,11 @@ public class DmDriverDownloadTask implements Runnable {
             .publishProgress(this.uid, this.clusterId, this.driverFamily, this.driverVersion, totalFileCount, currentIndex, 100, "SYNCING", false, null, targetFileName, "driver file synced");
     }
 
-    private List<DmWorkerStatusDO> queryTargetWorkers() {
+    private List<DmWorkerDO> queryTargetWorkers() {
         if (this.clusterId != null && this.clusterId > 0) {
-            return this.dmWorkerStatusMapper.queryByClusterIdAndStatus(this.clusterId, WorkerConnStatus.CONNECTED);
+            return this.dmWorkerMapper.queryConnectedByClusterId(this.clusterId);
         }
-        return this.dmWorkerStatusMapper.queryByConsoleIpAndStatus(HostUtil.getHostIp(), WorkerConnStatus.CONNECTED);
+        throw new IllegalArgumentException("clusterId is required to query target workers.");
     }
 
     private void refreshPreparedState(DriverVersion localVersion) {
@@ -385,7 +384,7 @@ public class DmDriverDownloadTask implements Runnable {
         return result;
     }
 
-    private RSocketSendDTO buildSendDTO(DmWorkerStatusDO worker) {
+    private RSocketSendDTO buildSendDTO(DmWorkerDO worker) {
         RSocketSendDTO sendDTO = new RSocketSendDTO();
         sendDTO.setClusterId(worker.getClusterId());
         sendDTO.setWorkerSeqNumber(worker.getWorkerSeqNumber());

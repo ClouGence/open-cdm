@@ -20,6 +20,7 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.clougence.clouddm.api.console.status.ConsoleStatusRService;
 import jakarta.annotation.Resource;
 
 import com.clougence.clouddm.sdk.execute.resultset.echo.*;
@@ -29,7 +30,6 @@ import com.clougence.clouddm.api.console.sqlaudit.SqlAuditRService;
 import com.clougence.clouddm.api.console.sqlaudit.SqlExecNotifyDTO;
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
 import com.clougence.clouddm.api.console.sqlaudit.Type;
-import com.clougence.clouddm.api.console.status.StatusRService;
 import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.execute.ExecuteVariables;
@@ -51,10 +51,7 @@ public class SidecarSqlNotifyServiceImpl implements SidecarSqlNotifyService, Uni
     private final AtomicBoolean             running = new AtomicBoolean();
 
     @Resource
-    private StatusRService                  statusRService;
-    @Resource
     private SqlAuditRService                auditRService;
-
     private WorkerIdentity                  workerIdentity;
 
     private WorkerIdentity identity() throws Exception {

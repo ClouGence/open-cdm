@@ -20,8 +20,6 @@ import java.util.List;
 import com.clougence.clouddm.api.console.status.MetricStats;
 import com.clougence.clouddm.api.console.status.WorkerState;
 import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerHeartbeatDO;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerStatusDO;
 import com.clougence.clouddm.console.web.model.fo.cluster.CreateInitialWorkerFO;
 import com.clougence.clouddm.console.web.model.vo.cluster.WorkerDeployConfigVO;
 import com.clougence.clouddm.console.web.dal.enumeration.LifeCycleState;
@@ -40,13 +38,15 @@ public interface WorkerService {
 
     void updateToWaitToOffline(long workerId);
 
-    List<DmWorkerStatusDO> listConnectedWorkers(long clusterId);
+    List<DmWorkerDO> listConnectedWorkers(long clusterId);
 
     List<DmWorkerDO> listWorkers(long clusterId);
 
     DmWorkerDO getWorkerById(Long workerId);
 
     DmWorkerDO getWorkerByWsn(String wsn);
+
+    DmWorkerDO queryWorkerByWsn(String wsn);
 
     String getClientDownloadUrl(long workerId);
 
@@ -62,5 +62,5 @@ public interface WorkerService {
 
     void updateWorkerMetric(Long workerId, MetricStats metricStats);
 
-    void upsertWorkerHeartbeat(DmWorkerHeartbeatDO heartbeatDO);
+    void upsertWorkerHeartbeat(String workerSeqNumber, String workerIp, java.util.Date workerSendTime);
 }
