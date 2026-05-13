@@ -109,13 +109,21 @@ docker run -d --name cgdm-alone \
 
 ### 访问产品
 
-启动后，通过浏览器访问：
+启动后，通过浏览器访问产品
+
+> 首次访问会进入初始化向导，完成数据库初始化和管理员账号创建后即可使用。
 
 ```
 http://localhost:8222
 ```
 
-首次访问会进入初始化向导，完成数据库初始化和管理员账号创建后即可使用。
+添加数据源
+
+![ds-add-cn.png](.assets/ds-add-cn.png)
+
+访问数据
+
+![query-cn.png](.assets/query-cn.png)
 
 ## 开源协议
 

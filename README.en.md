@@ -107,15 +107,23 @@ In addition to the standalone Docker quick start above, CloudDM still supports:
 
 If you build from source locally, these packages and yml files will be generated automatically in `open-cdm/package/build`.
 
-### Access
+### Access Product
 
-After startup, open:
+Access the product in your browser after startup.
+
+> On first access, the initialization wizard will launch. Complete database initialization and administrator account creation to get started.
 
 ```
 http://localhost:8222
 ```
 
-The first visit launches the initialization wizard. Complete database initialization and admin account creation to get started.
+Add data source
+
+![ds-add-cn.png](.assets/ds-add-cn.png)
+
+Query data
+
+![query-cn.png](.assets/query-cn.png)
 
 ## License
 
