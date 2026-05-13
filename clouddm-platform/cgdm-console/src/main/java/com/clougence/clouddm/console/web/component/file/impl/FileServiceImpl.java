@@ -33,9 +33,9 @@ import com.clougence.clouddm.comm.model.RSocketSendType;
 import com.clougence.clouddm.console.web.component.file.FileService;
 import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.dal.mapper.DmFileMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerStatusMapper;
+import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
 import com.clougence.clouddm.console.web.dal.model.DmFileDO;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerStatusDO;
+import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
 import com.clougence.clouddm.console.web.service.editor.model.DataResultDataVO;
 import com.clougence.clouddm.console.web.service.editor.model.DataResultPageVO;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
@@ -58,7 +58,7 @@ import lombok.extern.slf4j.Slf4j;
 public class FileServiceImpl implements FileService, UnifiedPostConstruct {
 
     @Resource
-    private DmWorkerStatusMapper        dmWorkerStatusMapper;
+    private DmWorkerMapper              dmWorkerMapper;
     @Resource
     private ResultSetRService           resultSetRService;
     @Resource
@@ -81,7 +81,7 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
     }
 
     private RSocketSendDTO buildRSocketSendDTO(String wsn) {
-        DmWorkerStatusDO worker = this.dmWorkerStatusMapper.queryOnlineByWsn(wsn);
+        DmWorkerDO worker = this.dmWorkerMapper.queryConnectedByWsn(wsn);
         if (worker != null) {
             RSocketSendDTO sendDTO = new RSocketSendDTO();
             sendDTO.setClusterId(worker.getClusterId());
@@ -113,7 +113,7 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
                     String fsName = fileUri.getScheme().toLowerCase();
                     if (StringUtils.equalsIgnoreCase(fsName, "wsn")) {
                         String wsn = fileUri.getHost();
-                        DmWorkerStatusDO worker = this.dmWorkerStatusMapper.queryOnlineByWsn(wsn);
+                        DmWorkerDO worker = this.dmWorkerMapper.queryConnectedByWsn(wsn);
                         if (worker == null) {
                             this.dmFileMapper.incrementTryCountByUniqueId(f.getUniqueId(), "worker offline.");
                             continue;

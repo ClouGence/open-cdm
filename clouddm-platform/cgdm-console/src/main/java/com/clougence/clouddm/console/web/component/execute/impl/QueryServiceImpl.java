@@ -27,7 +27,6 @@ import com.clougence.clouddm.api.sidecar.session.execute.ExecuteRService;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultList;
 import com.clougence.clouddm.api.sidecar.session.execute.StatusDTO;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
 import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
@@ -40,9 +39,9 @@ import com.clougence.clouddm.console.web.constants.DmErrorCode;
 import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.dal.enumeration.DsSessionType;
 import com.clougence.clouddm.console.web.dal.mapper.DmDsSessionMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerStatusMapper;
+import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
 import com.clougence.clouddm.console.web.dal.model.DmDsSessionDO;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerStatusDO;
+import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.MessageUtils;
@@ -72,7 +71,7 @@ public class QueryServiceImpl implements QueryService {
     @Resource
     private BizResOwnerCacheService ownerCacheService;
     @Resource
-    private DmWorkerStatusMapper    dmWorkerStatusMapper;
+    private DmWorkerMapper          dmWorkerMapper;
     @Resource
     private ExecuteRService         sessionRService;
     @Resource
@@ -81,12 +80,12 @@ public class QueryServiceImpl implements QueryService {
     private DmDsStatusService       dmDsStatusService;
 
     private RSocketSendDTO buildRSocketSendDTO(long bindClusterId) {
-        List<DmWorkerStatusDO> workers = this.dmWorkerStatusMapper.queryByClusterIdAndStatus(bindClusterId, WorkerConnStatus.CONNECTED);
+        List<DmWorkerDO> workers = this.dmWorkerMapper.queryConnectedByClusterId(bindClusterId);
         if (workers.isEmpty()) {
             throw new ErrorMessageException(DmErrorCode.CLUSTER_HAVE_NO_WORKS_ERROR.code(), MessageUtils.getClusterHaveNoWorksErrorMessage(bindClusterId));
         }
 
-        DmWorkerStatusDO worker = workers.get(new Random(System.currentTimeMillis()).nextInt(workers.size()));
+        DmWorkerDO worker = workers.get(new Random(System.currentTimeMillis()).nextInt(workers.size()));
 
         RSocketSendDTO sendDTO = new RSocketSendDTO();
         sendDTO.setClusterId(worker.getClusterId());
@@ -97,7 +96,7 @@ public class QueryServiceImpl implements QueryService {
         return sendDTO;
     }
 
-    private RSocketSendDTO buildRSocketSendDTO(DmWorkerStatusDO worker) {
+    private RSocketSendDTO buildRSocketSendDTO(DmWorkerDO worker) {
         RSocketSendDTO sendDTO = new RSocketSendDTO();
         sendDTO.setClusterId(worker.getClusterId());
         sendDTO.setWorkerSeqNumber(worker.getWorkerSeqNumber());
@@ -108,7 +107,7 @@ public class QueryServiceImpl implements QueryService {
     }
 
     private RSocketSendDTO buildRSocketSendDTO(DmDsSessionDO sessionDO) {
-        DmWorkerStatusDO worker = this.dmWorkerStatusMapper.queryOnlineByWsn(sessionDO.getWsn());
+        DmWorkerDO worker = this.dmWorkerMapper.queryConnectedByWsn(sessionDO.getWsn());
         if (worker != null) {
             return this.buildRSocketSendDTO(worker);
         } else {
@@ -123,7 +122,7 @@ public class QueryServiceImpl implements QueryService {
             return;
         }
 
-        DmWorkerStatusDO worker = this.dmWorkerStatusMapper.queryOnlineByWsn(sessionDO.getWsn());
+        DmWorkerDO worker = this.dmWorkerMapper.queryConnectedByWsn(sessionDO.getWsn());
         if (worker == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_WORKER_STATUS_OFFLINE_ERROR.name(), sessionDO.getWsn()));
         }
@@ -204,7 +203,7 @@ public class QueryServiceImpl implements QueryService {
             return;
         }
 
-        DmWorkerStatusDO worker = this.dmWorkerStatusMapper.queryOnlineByWsn(sessionDO.getWsn());
+        DmWorkerDO worker = this.dmWorkerMapper.queryConnectedByWsn(sessionDO.getWsn());
         if (worker != null) {
             RSocketSendDTO sendDTO = this.buildRSocketSendDTO(worker);
             this.sessionRService.closeSession(sendDTO, sessionId);

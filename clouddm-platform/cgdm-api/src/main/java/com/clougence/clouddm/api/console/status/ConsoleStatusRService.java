@@ -24,7 +24,7 @@ import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
  * @author bucketli 2021/1/16 11:44
  */
 @RSocketApiClass
-public interface StatusRService {
+public interface ConsoleStatusRService {
 
     WorkerState fetchStatusAndHeartbeat(WorkerIdentity identity, Date heartbeat);
 

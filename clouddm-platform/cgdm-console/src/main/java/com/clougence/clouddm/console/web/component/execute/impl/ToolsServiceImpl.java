@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.sidecar.session.tools.ToolsRService;
 import com.clougence.clouddm.base.metadata.ds.ToolConfig;
-import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
 import com.clougence.clouddm.console.web.component.dsconfig.DmToolConfigService;
@@ -32,9 +31,9 @@ import com.clougence.clouddm.console.web.constants.DmErrorCode;
 import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.dal.enumeration.DsSessionType;
 import com.clougence.clouddm.console.web.dal.mapper.DmDsSessionMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerStatusMapper;
+import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
 import com.clougence.clouddm.console.web.dal.model.DmDsSessionDO;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerStatusDO;
+import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
 import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.MessageUtils;
 import com.clougence.clouddm.sdk.execute.tools.ToolRequestDTO;
@@ -58,19 +57,19 @@ public class ToolsServiceImpl implements ToolsService {
     @Resource
     private DmToolConfigService  dmToolConfigService;
     @Resource
-    private DmWorkerStatusMapper dmWorkerStatusMapper;
+    private DmWorkerMapper       dmWorkerMapper;
     @Resource
     private ToolsRService        toolsRService;
     @Resource
     private DmDsSessionMapper    sessionMapper;
 
     private RSocketSendDTO buildRSocketSendDTO(long bindClusterId) {
-        List<DmWorkerStatusDO> workers = this.dmWorkerStatusMapper.queryByClusterIdAndStatus(bindClusterId, WorkerConnStatus.CONNECTED);
+        List<DmWorkerDO> workers = this.dmWorkerMapper.queryConnectedByClusterId(bindClusterId);
         if (workers.isEmpty()) {
             throw new ErrorMessageException(DmErrorCode.CLUSTER_HAVE_NO_WORKS_ERROR.code(), MessageUtils.getClusterHaveNoWorksErrorMessage(bindClusterId));
         }
 
-        DmWorkerStatusDO worker = workers.get(new Random(System.currentTimeMillis()).nextInt(workers.size()));
+        DmWorkerDO worker = workers.get(new Random(System.currentTimeMillis()).nextInt(workers.size()));
 
         RSocketSendDTO sendDTO = new RSocketSendDTO();
         sendDTO.setClusterId(worker.getClusterId());
@@ -81,7 +80,7 @@ public class ToolsServiceImpl implements ToolsService {
     }
 
     private RSocketSendDTO buildRSocketSendDTO(String wsn) {
-        DmWorkerStatusDO workerStatus = this.dmWorkerStatusMapper.queryOnlineByWsn(wsn);
+        DmWorkerDO workerStatus = this.dmWorkerMapper.queryConnectedByWsn(wsn);
         if (workerStatus != null) {
             RSocketSendDTO sendDTO = new RSocketSendDTO();
             sendDTO.setClusterId(workerStatus.getClusterId());

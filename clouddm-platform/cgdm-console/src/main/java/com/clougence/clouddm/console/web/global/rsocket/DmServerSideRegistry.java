@@ -30,14 +30,11 @@ import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
 import com.clougence.clouddm.comm.model.auth.ConnAuthDTO;
 import com.clougence.clouddm.comm.model.rsocket.RSocketRegisterInfo;
 import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerStatusMapper;
 import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerStatusDO;
 import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
 import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
 import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
 import com.clougence.utils.ExceptionUtils;
-import com.clougence.utils.HostUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,15 +47,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DmServerSideRegistry implements ServerSideRegistry {
 
-    private final DmWorkerStatusMapper         statusMapper;
     private final RdpUserMapper                userMapper;
     private final DmWorkerMapper               workerMapper;
     private final RSocketExceptionManager      exceptionManager;
     private final List<DmWorkerRegisterNotify> notifyServices;
 
-    public DmServerSideRegistry(DmWorkerStatusMapper statusMapper, RdpUserMapper userMapper, DmWorkerMapper workerMapper, List<DmWorkerRegisterNotify> notifyServices,
+    public DmServerSideRegistry(RdpUserMapper userMapper, DmWorkerMapper workerMapper, List<DmWorkerRegisterNotify> notifyServices,
                                 RSocketExceptionManager exceptionManager){
-        this.statusMapper = statusMapper;
         this.userMapper = userMapper;
         this.workerMapper = workerMapper;
         this.notifyServices = notifyServices;
@@ -75,12 +70,9 @@ public class DmServerSideRegistry implements ServerSideRegistry {
     public void register(RSocketRegisterInfo registerInfo) {
         try {
             String workerSeqNumber = registerInfo.getWorkerSeqNumber();
-            DmWorkerStatusDO workerStatusDO = statusMapper.queryByWsn(workerSeqNumber);
-            workerStatusDO.setConsoleIp(HostUtil.getHostIp());
-            workerStatusDO.setWorkerConnStatus(WorkerConnStatus.CONNECTED);
+            DmWorkerDO workerStatusDO = workerMapper.getByWsn(workerSeqNumber);
             workerStatusDO.setWorkerIp(registerInfo.getWorkerIp());
-            workerStatusDO.setWorkerSeqNumber(workerSeqNumber);
-            statusMapper.updateConnInfoByWsn(workerStatusDO);
+            workerMapper.updateWorkerLivenessByWsn(workerStatusDO);
             workerRequesterMap.put(registerInfo.getWorkerSeqNumber(), registerInfo.getRequester());
             log.info("register successfully for worker (" + workerSeqNumber + "," + workerStatusDO.getWorkerSeqNumber() + ")");
             this.notifyServices.forEach(s -> s.notifyRegister(workerSeqNumber));
@@ -110,8 +102,7 @@ public class DmServerSideRegistry implements ServerSideRegistry {
                 throw new IllegalArgumentException("worker metadata is not exist.remote ip:" + authInfo.getIp());
             }
 
-            DmWorkerStatusDO statusDO = this.statusMapper.queryByWsn(authInfo.getWsn());
-            if (statusDO != null && statusDO.getWorkerConnStatus() == WorkerConnStatus.CONNECTED && this.workerRequesterMap.containsKey(authInfo.getWsn())) {
+            if (workerDO.getConnStatus() == WorkerConnStatus.CONNECTED && this.workerRequesterMap.containsKey(authInfo.getWsn())) {
                 // must throw refuse conn exception to make sure the sidecar can exit normally
                 String str = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(authInfo.getSendAuthTimeMs());
                 throw new RuntimeException("reject worker (" + authInfo.getWsn() + ") 's registration. Connection start time is " + str
@@ -129,10 +120,10 @@ public class DmServerSideRegistry implements ServerSideRegistry {
     @Transactional(rollbackFor = Throwable.class)
     public void unRegister(String workerSeqNumber) {
         try {
-            DmWorkerStatusDO workerStatusDO = new DmWorkerStatusDO();
+            DmWorkerDO workerStatusDO = new DmWorkerDO();
             workerStatusDO.setWorkerSeqNumber(workerSeqNumber);
-            workerStatusDO.setWorkerConnStatus(WorkerConnStatus.DISCONNECTED);
-            statusMapper.updateConnInfoByWsn(workerStatusDO);
+            workerStatusDO.setConnStatus(WorkerConnStatus.DISCONNECTED);
+            workerMapper.updateWorkerLivenessByWsn(workerStatusDO);
             workerRequesterMap.remove(workerSeqNumber);
             log.info("unregister sidecar with worker sequence number " + workerSeqNumber + " and its ip is " + workerStatusDO.getWorkerIp());
         } catch (Exception e) {
