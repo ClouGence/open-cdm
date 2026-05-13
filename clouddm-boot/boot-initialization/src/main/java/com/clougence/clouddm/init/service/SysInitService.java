@@ -102,9 +102,10 @@ public class SysInitService {
             return DmFlywayInit.listAllScriptNames();
         }
 
-        String jdbcUrl = userConfig == null ? null : userConfig.get("spring.datasource.jdbcurl");
-        String username = userConfig == null ? null : userConfig.get("spring.datasource.username");
-        String password = userConfig == null ? null : userConfig.get("spring.datasource.password");
+        Properties props = this.defService.loadSystemProperties();
+        String jdbcUrl = resolveConfigValue(userConfig, props, "spring.datasource.jdbcurl");
+        String username = resolveConfigValue(userConfig, props, "spring.datasource.username");
+        String password = resolveConfigValue(userConfig, props, "spring.datasource.password");
 
         if (StringUtils.isBlank(jdbcUrl) || StringUtils.isBlank(username)) {
             return DmFlywayInit.listAllScriptNames();
@@ -552,7 +553,10 @@ public class SysInitService {
 
     private String resolveConfigValue(Map<String, String> userConfig, Properties props, String key) {
         if (userConfig != null && userConfig.containsKey(key)) {
-            return userConfig.get(key);
+            String value = userConfig.get(key);
+            if (StringUtils.isNotBlank(value)) {
+                return value;
+            }
         }
         return props == null ? null : props.getProperty(key);
     }

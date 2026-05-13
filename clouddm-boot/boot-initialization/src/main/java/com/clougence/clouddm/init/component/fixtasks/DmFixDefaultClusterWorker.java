@@ -24,10 +24,8 @@ import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
 import com.clougence.clouddm.console.web.constants.CloudOrIdcName;
 import com.clougence.clouddm.console.web.dal.mapper.DmClusterMapper;
 import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerStatusMapper;
 import com.clougence.clouddm.console.web.dal.model.DmClusterDO;
 import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerStatusDO;
 import com.clougence.clouddm.init.constant.InitSeedConstants;
 
 import jakarta.annotation.Resource;
@@ -52,8 +50,6 @@ public class DmFixDefaultClusterWorker {
     private DmClusterMapper      clusterMapper;
     @Resource
     private DmWorkerMapper       workerMapper;
-    @Resource
-    private DmWorkerStatusMapper workerStatusMapper;
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void init() {
@@ -74,10 +70,12 @@ public class DmFixDefaultClusterWorker {
             log.info("DmFixDefaultClusterWorker: normalized default worker clusterId, wsn={}, clusterId={}", DEFAULT_WORKER_WSN, cluster.getId());
         }
 
-        DmWorkerStatusDO status = workerStatusMapper.queryByWsn(DEFAULT_WORKER_WSN);
-        if (status == null) {
-            createDefaultWorkerStatus(worker);
-            log.info("DmFixDefaultClusterWorker: created default worker status, wsn={}", DEFAULT_WORKER_WSN);
+        if (worker.getConnStatus() != WorkerConnStatus.NEW) {
+            worker.setConnStatus(WorkerConnStatus.NEW);
+            worker.setLastHeartbeatReportMs(null);
+            worker.setLastHeartbeatPingMs(null);
+            workerMapper.updateById(worker);
+            log.info("DmFixDefaultClusterWorker: normalized default worker liveness fields, wsn={}", DEFAULT_WORKER_WSN);
         }
     }
 
@@ -118,21 +116,11 @@ public class DmFixDefaultClusterWorker {
         worker.setWorkerDesc(DEFAULT_WORKER_NAME);
         worker.setExternalIp(DEFAULT_EXTERNAL_IP);
         worker.setUid(InitSeedConstants.ADMIN_UID);
+        worker.setConnStatus(WorkerConnStatus.NEW);
         worker.setSessionPoolUse(0);
         worker.setSessionPoolMax(100);
         workerMapper.insert(worker);
         return worker;
-    }
-
-    private void createDefaultWorkerStatus(DmWorkerDO worker) {
-        DmWorkerStatusDO status = new DmWorkerStatusDO();
-        status.setWorkerConnStatus(WorkerConnStatus.NEW);
-        status.setUid(InitSeedConstants.ADMIN_UID);
-        status.setWorkerSeqNumber(DEFAULT_WORKER_WSN);
-        status.setConsoleIp(DEFAULT_CONSOLE_IP);
-        status.setWorkerIp(DEFAULT_WORKER_IP);
-        status.setClusterId(worker.getClusterId());
-        workerStatusMapper.insert(status);
     }
 
     private boolean isAloneMode() { return ALONE_APP_MODE.equals(System.getProperty("app.mode")); }
