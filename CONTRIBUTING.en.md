@@ -68,18 +68,25 @@ Feature suggestions are welcome. Please submit an Issue prefixed with `[Feature]
 # Frontend assets only
 ./all_build.sh web
 
-# Generate tgz install package
-cd package && ./package.sh
+# Compile and generate tgz install packages
+cd package && ./package.sh --build
 
-# Generate tgz + Docker & Kubernetes images
+# Compile, generate tgz install packages, and build Docker images plus deployment manifests for all platforms
+cd package && ./package.sh --build --docker
+
+# Compile, generate tgz install packages, and build only one target architecture
+cd package && ./package.sh --build --docker arm64
+cd package && ./package.sh --build --docker x86_64
+
+# If tgz packages already exist under package/build, build only Docker images and deployment manifests
 cd package && ./package.sh --docker
-
-# Build Docker for a specific architecture
-cd package && ./package.sh --docker=arm64
-cd package && ./package.sh --docker=x86_64
+cd package && ./package.sh --docker arm64
+cd package && ./package.sh --docker x86_64
 ```
 
 > **Version**: Defined in `gradle.properties` under `cg.clouddm.main.version`.
+>
+> **Build output directory**: `package/build`, which contains `cgdm-*.tar.gz`, `docker-*.tar`, `docker-*.yml`, and `k8s-*.yml`.
 
 ### Project Structure
 

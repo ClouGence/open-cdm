@@ -68,18 +68,25 @@
 # 仅更新前端资源
 ./all_build.sh web
 
-# 生成 tgz 安装包
-cd package && ./package.sh
+# 编译并生成 tgz 安装包
+cd package && ./package.sh --build
 
-# 生成 tgz 安装包并构建 Docker & Kubernetes 镜像
+# 编译、生成 tgz 安装包，并构建所有架构的 Docker 镜像与部署清单
+cd package && ./package.sh --build --docker
+
+# 编译、生成 tgz 安装包，并仅构建指定架构
+cd package && ./package.sh --build --docker arm64
+cd package && ./package.sh --build --docker x86_64
+
+# 若 package/build 下已有 tgz 安装包，可仅构建 Docker 镜像与部署清单
 cd package && ./package.sh --docker
-
-# 指定架构构建 Docker
-cd package && ./package.sh --docker=arm64
-cd package && ./package.sh --docker=x86_64
+cd package && ./package.sh --docker arm64
+cd package && ./package.sh --docker x86_64
 ```
 
 > **版本号**：定义在 `gradle.properties` 的 `cg.clouddm.main.version` 字段中。
+>
+> **构建输出目录**：`package/build`。其中会生成 `cgdm-*.tar.gz`、`docker-*.tar`、`docker-*.yml` 和 `k8s-*.yml`。
 
 ### 项目结构
 

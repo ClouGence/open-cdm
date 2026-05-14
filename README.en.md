@@ -73,9 +73,11 @@ The example below demonstrates how to use standalone deployment. If you need ins
 ```bash
 # Quick start
 docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:3.0.7
-```
 
-> In China, for faster image pulls, you can replace `bladepipe/cgdm-alone:3.0.7` with `cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.0.7`.
+# Faster image pulls in China
+docker run -d --name cgdm-alone -p 8222:8222 \
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.0.7
+```
 
 ### Initialization
 
@@ -86,8 +88,6 @@ http://localhost:8222
 ```
 
 > On first access, the initialization wizard will open.
->
-> **The Alone edition already embeds MySQL, and the initialization wizard will fill the related settings correctly. The remaining fields can keep their default values.**
 
 ### Add Data Source
 

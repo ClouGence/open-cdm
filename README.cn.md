@@ -73,9 +73,11 @@ CloudDM 支持 **单机模式（Alone）** 和 **集群模式（Console + Sideca
 ```bash
 # 快速启动
 docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:3.0.7
-```
 
-> 中国地区，镜像加速可以将 bladepipe/cgdm-alone:3.0.7 替换为 cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.0.7
+# 中国地区，使用镜像加速
+docker run -d --name cgdm-alone -p 8222:8222 \
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.0.7
+```
 
 ### 初始化
 
@@ -86,8 +88,6 @@ http://localhost:8222
 ```
 
 > 首次访问会进入初始化向导
-> 
-> **Alone 版本已经内嵌 MySQL 数据库并保证初始化程序会正确填写，其他信息默认即可**
 
 ### 添加数据源
 
