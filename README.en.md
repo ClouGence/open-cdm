@@ -1,7 +1,7 @@
 <h1 align="center">CloudDM</h1>
 
 <p align="center">
-  A free, open-source database management tool built for teams. It provides access control, data masking, SQL auditing, CI/CD, and multi-region deployment.
+  A free and open-source database management tool designed for team use. It provides access control, data masking, SQL auditing, CI/CD, and cross-region deployment capabilities.
 </p>
 
 <p align="center">
@@ -25,79 +25,80 @@
 
 ### Data Query
 
-- Broad data source support covering various databases
+- Rich data source support covering many database types
   - MySQL, Oracle, MariaDB, PostgreSQL, IBM DB2, SQL Server, OceanBase
   - SAP Hana, StarRocks, Doris, SelectDB, ClickHouse, PolarDB, TiDB, Greenplum
   - Hologres, DM (Dameng), GaussDB, AnalyticDB MySQL, MaxCompute, Redis, MongoDB
-- Unified web console for database access with transaction, isolation level, and query plan support
-- Query editor with syntax highlighting, intelligent suggestions, execution plans, and result export
+- Unified web console access to databases, with support for transactions, isolation levels, and execution plans
+- Query editor, syntax highlighting, intelligent suggestions, execution plans, and result export
 
 ### Database Management
 
-- Supported database objects: catalog, schema, table, column, index, view, function, stored procedure, trigger, user, role, etc.
-- Visual database object management: create, drop, alter, and inspect properties
-- Manage data sources via environments and clusters
+- Supported database objects include databases, schemas, tables, columns, indexes, views, functions, stored procedures, triggers, users, roles, and more
+- Visual management of database objects such as create, delete, modify, and inspect properties
+- Management of different data sources through environments and clusters
 
 ### Access Control
 
-- **Resource** and **function** decoupled authorization model
-    - Resource permissions can be granted at instance, database, schema, and table levels, depending on statement type
-    - Function authorization uses role-based access control (RBAC) with role-to-user assignments
+- Authorization model that separates **resources** and **functions**
+  - Resource permissions can be granted at the instance, database, schema, and table levels, depending on the statement type
+  - Function authorization uses role-based access control (RBAC) by granting roles to users
 - Supports **permission requests**, **permission grants**, and **temporary permissions**
 
 ### Database CI/CD
 
-- Three triggering modes: **Git Push**, **Web Hook**, and **HttpCall**
+- Provides three ways to trigger CI/CD workflows: **Git Push**, **Web Hook**, and **HttpCall**
 - Supports Gitee as the change repository
 
 ### SQL Auditing
 
-- **Audit rules**, **security specifications**, and **data masking**
-  - 54 built-in rules with custom rule scripting for extension
-- Pre-execution SQL checks that warn or block risky execution
+- Supports **audit rules**, **security policies**, and **data masking**
+  - Includes 54 built-in rules and supports custom extensions through rule scripts
+- Supports SQL pre-checks before execution to warn about or block risky statements
 
-### Collaboration & Workflows
+### Collaboration and Workflow
 
-- Three workflow types: **SQL audit**, **permission tickets**, and **change processes**
-- Three execution modes: **manual**, **immediate**, and **scheduled**
+- Supports three workflow types: **SQL audit**, **permission tickets**, and **change workflows**
+- Supports **manual execution**, **immediate execution**, and **scheduled execution** for work orders
 - Workflow engines: built-in, DingTalk, Feishu, WeCom
 - Unified authentication / SSO: OpenLDAP / OpenID Connect (OIDC) / Windows AD / DingTalk / Feishu / WeCom
 
 ## Quick Start
 
 ### Install
-CloudDM supports **Standalone (Alone)** and **Cluster (Console + Sidecar)** modes, with **install package**, **Docker**, and **Kubernetes** deployment options.
+CloudDM supports **Standalone (Alone)** and **Cluster (Console + Sidecar)** modes, and also supports **install packages**, **Docker**, and **Kubernetes** deployment methods.
 
-The quick start below uses standalone deployment as the shortest path to get started. If you need install-package deployment, cluster deployment, or Kubernetes deployment, you can continue with the generated packages and yml files after building locally. For full deployment details, see [DEPLOY.en.md](./DEPLOY.en.md).
+The example below demonstrates how to use standalone deployment. If you need install-package deployment, cluster deployment, or Kubernetes deployment, you can continue deploying with the install packages and yml files generated after local packaging. For complete deployment instructions, see [DEPLOY.en.md](./DEPLOY.en.md).
 
 ```bash
-docker run -d --name cgdm-alone \
-  -p 8222:8222 \
-  bladepipe/cgdm-alone:3.0.7
+# Quick start
+docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:3.0.7
 ```
 
-### Init
+> In China, for faster image pulls, you can replace `bladepipe/cgdm-alone:3.0.7` with `cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.0.7`.
 
-Access the product in your browser after startup.
+### Initialization
+
+Access the product in your browser:
 
 ```
 http://localhost:8222
 ```
 
-> On first access, the initialization wizard will launch. 
-> 
-> **Need add an exist MySQL for metadata**.
+> On first access, the initialization wizard will open.
+>
+> **The Alone edition already embeds MySQL, and the initialization wizard will fill the related settings correctly. The remaining fields can keep their default values.**
 
-### Add data source
+### Add Data Source
 
 <img src=".assets/ds_add_en.png" alt="ds_add_en.png" style="border: 1px solid #d9d9d9;" />
 
-### Query data
+### Query Data
 
 <img src=".assets/query_en.png" alt="query_en.png" style="border: 1px solid #d9d9d9;" />
 
-## License
+## Open Source License
 
-Licensed under the business-friendly [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.html) license.
+Released under the business-friendly [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.html) license.
 
-A formal LICENSE file is not yet present at the repository root; this README does not imply any default license assumption.
+There is currently no formal license file at the repository root, so this README does not make any default legal assumption beyond the statement above.

@@ -24,5 +24,5 @@ RUN chmod +x /docker-entrypoint-init/init.sh /root/cgdm/sidecar/bin/checker.sh \
     && rm -f /root/cgdm/sidecar/conf/sidecar.properties \
     && rm -f /root/cgdm/sidecar/conf/global_conf.properties
 
-ENTRYPOINT ["sh", "/docker-entrypoint-init/init.sh"]
+ENTRYPOINT ["/docker-entrypoint-init/init.sh"]
 WORKDIR /root
