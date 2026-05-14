@@ -1,17 +1,4 @@
 services:
-  dm_mysql:
-    image: mysql:8.0
-    container_name: cgdm-mysql
-    restart: always
-    ports:
-      - "26000:3306"
-    volumes:
-      - cgdm_mysql_data:/var/lib/mysql
-    environment:
-      MYSQL_DATABASE: cdmgr
-      MYSQL_ROOT_PASSWORD: 123456
-    command: [ "mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-time-zone=+08:00" ]
-
   dm_alone:
     image: clougence/cgdm-alone:${build_version}
     container_name: cgdm-alone
@@ -19,19 +6,20 @@ services:
     ports:
       - "8222:8222"
       - "8008:8008"
-    depends_on:
-      - dm_mysql
     volumes:
       - cgdm_alone_conf:/root/cgdm/alone/conf
       - cgdm_alone_logs:/root/cgdm/alone/logs
       - cgdm_alone_data:/root/cgdm/alone/data
+      - cgdm_mysql_data:/var/lib/mysql
     environment:
       APP_WEB_PORT: 8222
       APP_WEB_JWT: "ljgefdgjosdighjeroigh"
       APP_SERVE_NAME: dm_alone
       APP_SERVE_PORT: 8008
+      MYSQL_EMBEDDED: "true"
+      MYSQL_ROOT_PASSWORD: "123456"
       # Override image defaults with packaged docker deployment values.
-      DB_HOST: dm_mysql
+      DB_HOST: "127.0.0.1"
       DB_PORT: 3306
       DB_DATABASE: cdmgr
       DB_USERNAME: root

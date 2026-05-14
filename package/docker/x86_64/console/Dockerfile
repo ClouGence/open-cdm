@@ -24,5 +24,5 @@ RUN chmod +x /docker-entrypoint-init/init.sh \
     && mkdir -p /root/cgdm/console/logs \
     && rm -f /root/cgdm/console/conf/console.properties
 
-ENTRYPOINT ["sh", "/docker-entrypoint-init/init.sh"]
+ENTRYPOINT ["/docker-entrypoint-init/init.sh"]
 WORKDIR /root

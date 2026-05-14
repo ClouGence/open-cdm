@@ -10,76 +10,6 @@ kind: Namespace
 metadata:
   name: cgdm
 ---
-# ---------------------- MySQL ----------------------
-apiVersion: v1
-kind: Service
-metadata:
-  name: dm-mysql
-  namespace: cgdm
-spec:
-  ports:
-    - port: 3306
-      targetPort: 3306
-  selector:
-    app: dm-mysql
-  clusterIP: None
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: cgdm_mysql_data
-  namespace: cgdm
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
----
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: dm-mysql
-  namespace: cgdm
-spec:
-  serviceName: dm-mysql
-  replicas: 1
-  selector:
-    matchLabels:
-      app: dm-mysql
-  template:
-    metadata:
-      labels:
-        app: dm-mysql
-    spec:
-      containers:
-        - name: mysql
-          image: mysql:8.0
-          ports:
-            - containerPort: 3306
-          env:
-            - name: MYSQL_DATABASE
-              value: cdmgr
-            - name: MYSQL_ROOT_PASSWORD
-              value: "123456"
-          args:
-            - "mysqld"
-            - "--character-set-server=utf8mb4"
-            - "--collation-server=utf8mb4_unicode_ci"
-            - "--default-time-zone=+08:00"
-          volumeMounts:
-            - name: mysql-data
-              mountPath: /var/lib/mysql
-  volumeClaimTemplates:
-    - metadata:
-        name: mysql-data
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        resources:
-          requests:
-            storage: 10Gi
----
 # ---------------------- dm_alone ----------------------
 apiVersion: v1
 kind: Service
@@ -134,6 +64,18 @@ spec:
     requests:
       storage: 10Gi
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cgdm_mysql_data
+  namespace: cgdm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -164,8 +106,12 @@ spec:
               value: dm_alone
             - name: APP_SERVE_PORT
               value: "8008"
+            - name: MYSQL_EMBEDDED
+              value: "true"
+            - name: MYSQL_ROOT_PASSWORD
+              value: "123456"
             - name: DB_HOST
-              value: dm-mysql
+              value: "127.0.0.1"
             - name: DB_PORT
               value: "3306"
             - name: DB_DATABASE
@@ -181,6 +127,8 @@ spec:
               mountPath: /root/cgdm/alone/logs
             - name: data
               mountPath: /root/cgdm/alone/data
+            - name: mysql-data
+              mountPath: /var/lib/mysql
       volumes:
         - name: conf
           persistentVolumeClaim:
@@ -191,3 +139,6 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: cgdm_alone_data
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: cgdm_mysql_data

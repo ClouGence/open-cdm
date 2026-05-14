@@ -99,7 +99,7 @@ k8s-cluster-x86_64-3.0.7.yml
 
 ## 三、单机模式（Alone）部署
 
-单机模式将 Web 控制台和 Sidecar 合并在一个容器或一个安装包中运行，适合个人体验、小团队试用和本地联调。
+单机模式将 Web 控制台和 Sidecar 以及元信息数据库 合并在一个容器或一个安装包中运行，适合个人体验、小团队试用和本地联调。
 
 ### 3.1 安装包部署
 
@@ -124,21 +124,14 @@ http://localhost:8222
 #### 国际区
 
 ```bash
-docker run -d --name cgdm-alone \
-  -p 8222:8222 \
-  bladepipe/cgdm-alone:3.0.7
+docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:3.0.7
 ```
 
 #### 中国镜像加速
 
 ```bash
-docker run -d --name cgdm-alone \
-  -p 8222:8222 \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.0.7-amd64
-
-docker run -d --name cgdm-alone \
-  -p 8222:8222 \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.0.7-amd64
+docker run -d --name cgdm-alone -p 8222:8222 \
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.0.7
 ```
 
 #### 持久化数据卷
@@ -151,19 +144,21 @@ docker run -d --name cgdm-alone \
   -v cgdm_alone_conf:/root/cgdm/alone/conf \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
+  -v cgdm_mysql_data:/var/lib/mysql \
   bladepipe/cgdm-alone:3.0.7
 ```
 
 挂载到宿主机目录：
 
 ```bash
-mkdir -p /data/cgdm/{conf,logs,data}
+mkdir -p /data/cgdm/{conf,logs,data,mysql}
 
 docker run -d --name cgdm-alone \
   -p 8222:8222 \
   -v /data/cgdm/conf:/root/cgdm/alone/conf \
   -v /data/cgdm/logs:/root/cgdm/alone/logs \
   -v /data/cgdm/data:/root/cgdm/alone/data \
+  -v /data/cgdm/mysql:/var/lib/mysql \
   bladepipe/cgdm-alone:3.0.7
 ```
 
@@ -184,8 +179,9 @@ docker compose -f docker-alone-x86_64-3.0.7.yml up -d
 | `/root/cgdm/alone/conf` | 配置文件（`alone.properties`） |
 | `/root/cgdm/alone/logs` | 运行日志 |
 | `/root/cgdm/alone/data` | 运行时数据 |
+| `/var/lib/mysql` | 内置 MySQL 数据目录 |
 
-环境变量中的 `DB_*` 参数会作为初始化向导的默认值。首次访问 Web 页面时，你可以在向导中检查和修改数据库连接信息，确认后系统会自动建表并创建管理员账号。
+环境变量中的 `MYSQL_EMBEDDED`、`MYSQL_ROOT_PASSWORD` 以及 `DB_*` 参数会作为初始化和默认数据库连接参数。首次访问 Web 页面时，你可以在向导中检查和修改数据库连接信息，确认后系统会自动建表并创建管理员账号。
 
 ### 3.3 Kubernetes 部署
 
@@ -345,3 +341,131 @@ http://localhost:8222
 - 团队使用、多个节点接入：优先使用 **Cluster + Docker Compose / Kubernetes**
 - 预发或生产环境：优先使用 **本地打包后生成的 Compose / Kubernetes 清单**，再按环境调整镜像仓库、存储、密码和 Service 暴露方式
 - 中国大陆环境：优先使用阿里云镜像地址，减少拉取失败和超时问题
+
+---
+
+## 七、镜像发布与渠道化部署文件生成
+
+除了部署运行本身，仓库当前还提供了一组用于渠道化 yml 生成和镜像发布的脚本。它们依赖 `open-cdm/package/build` 中已经构建好的安装包和离线镜像，不负责源码编译。
+
+### 7.1 当前脚本位置
+
+| 任务 | 入口脚本 | 说明 |
+|------|----------|------|
+| 生成 China / Global Compose 与 Kubernetes yml | `open-cdm/package/docker/build-docker-yml.sh` | 读取当前目录模板，输出到 `open-cdm/package/build` |
+| 发布中国区镜像 | `open-cdm/package/publish-china.sh` | 从 `open-cdm/package/build` 读取离线镜像 tar |
+| 发布全球镜像 | `open-cdm/package/publish-global.sh` | 从 `open-cdm/package/build` 读取离线镜像 tar |
+
+如果你只是要部署本地打包后的产物，直接使用 `open-cdm/package/build` 下自动生成的 `docker-*.yml` 和 `k8s-*.yml` 即可；如果你需要按中国区或全球仓库生成带完整镜像前缀的渠道化清单，再使用这里的脚本。
+
+### 7.2 环境准备与凭据
+
+前置依赖：
+
+- Docker 可用
+- JDK 21+
+- Node.js
+- Git
+
+可以先确认 Docker daemon 正常：
+
+```bash
+docker info
+```
+
+发布脚本会从 `~/.gradle/gradle.properties` 读取仓库凭据。当前脚本直接读取的是用户名和密码；中国区和全球的 registry 与 namespace 以脚本内置默认值为准，其中全球 namespace 可通过环境变量 `DOCKER_NAMESPACE` 覆盖。
+
+```properties
+# China Registry (Alibaba Cloud Container Registry)
+cgdm.docker.china.username=your_aliyun_username
+cgdm.docker.china.password=your_aliyun_fixed_password
+
+# Global Registry (Docker Hub)
+cgdm.docker.global.username=your_dockerhub_username
+cgdm.docker.global.password=your_dockerhub_token
+```
+
+当前脚本内置默认值如下：
+
+- 中国区 registry：`cloudcanal-registry.cn-shanghai.cr.aliyuncs.com`
+- 中国区 namespace：`clougence`
+- 全球 registry：`docker.io`
+- 全球 namespace：`bladepipe`
+
+### 7.3 推荐工作流
+
+推荐顺序分三步：
+
+1. 在 `open-cdm/package` 下执行 `./package.sh --build --docker`，生成安装包、离线镜像和基础清单。
+2. 如需生成 China / Global 渠道化 yml，再执行 `build-docker-yml.sh`。
+3. 如需把镜像推送到远端仓库，再执行 `publish-china.sh` 或 `publish-global.sh`。
+
+#### 生成渠道化 yml
+
+入口：
+
+```bash
+cd /worker_space/dm/open-cdm/package
+
+# 自动探测已构建平台，并同时生成 China / Global 两套 yml
+./docker/build-docker-yml.sh
+
+# 仅生成 x86_64
+./docker/build-docker-yml.sh --platform=x86_64
+
+# 仅生成 China 渠道
+./docker/build-docker-yml.sh --platform=x86_64 --target=china
+```
+
+也可以直接在 docker 模板目录执行：
+
+```bash
+cd /worker_space/dm/open-cdm/package/docker
+
+# 同时生成双平台、双渠道
+./build-docker-yml.sh --platform=x86_64,arm64 --target=china,global
+```
+
+脚本会把 `clougence/cgdm-*:${build_version}` 替换为：
+
+- 中国区：`cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-*:<version>-<arch>`
+- 全球：`docker.io/bladepipe/cgdm-*:<version>-<arch>`
+
+#### 发布镜像
+
+中国区：
+
+```bash
+cd /worker_space/dm/open-cdm/package
+./publish-china.sh --platform=x86_64
+```
+
+全球：
+
+```bash
+cd /worker_space/dm/open-cdm/package
+./publish-global.sh --platform=x86_64,arm64
+```
+
+### 7.4 脚本行为说明
+
+- `build-docker-yml.sh` 会从 `open-cdm/package/build` 探测平台，并根据目标渠道替换镜像前缀与版本后缀。
+- `open-cdm/package/docker/build-docker-yml.sh` 的输出目录是 `open-cdm/package/build`。
+- 发布脚本会优先使用本地 Docker 镜像；如镜像不存在，则自动从 `open-cdm/package/build/*.tar` 执行 `docker load`。
+- 当同时发布多平台镜像时，脚本会自动创建并推送 manifest。
+
+### 7.5 常见问题
+
+如果发布时报 `missing ... tar -> run package/package.sh --docker first`，说明 `open-cdm/package/build` 下还没有对应平台的镜像 tar，需要先执行：
+
+```bash
+cd /worker_space/dm/open-cdm/package
+./package.sh --build --docker x86_64
+```
+
+如果不加 `--platform` 就报错，说明脚本默认要求全部默认平台都已经构建完成。只发布单个平台时，请显式指定：
+
+```bash
+./publish-china.sh --platform=x86_64
+./publish-global.sh --platform=x86_64
+```

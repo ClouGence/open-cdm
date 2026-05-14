@@ -1,14 +1,98 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # adjust os timezone
 echo 'Asia/Shanghai' > /etc/timezone
 
-DB_HOST=${DB_HOST:-}
+MYSQL_EMBEDDED=${MYSQL_EMBEDDED:-true}
+MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-123456}
+MYSQL_DATADIR=${MYSQL_DATADIR:-/var/lib/mysql}
+MYSQL_SOCKET=${MYSQL_SOCKET:-/run/mysqld/mysqld.sock}
+MYSQL_PID_FILE=${MYSQL_PID_FILE:-/run/mysqld/mysqld.pid}
+DB_HOST=${DB_HOST:-127.0.0.1}
 DB_PORT=${DB_PORT:-3306}
 DB_DATABASE=${DB_DATABASE:-cdmgr}
-DB_USERNAME=${DB_USERNAME:-}
-DB_PASSWORD=${DB_PASSWORD:-}
+DB_USERNAME=${DB_USERNAME:-root}
+DB_PASSWORD=${DB_PASSWORD:-$MYSQL_ROOT_PASSWORD}
 WAIT_DB_TIMEOUT_SECONDS=${WAIT_DB_TIMEOUT_SECONDS:-120}
+
+sql_escape() {
+  printf '%s' "$1" | sed "s/'/''/g"
+}
+
+mysql_sql() {
+  mysql --protocol=socket --socket="$MYSQL_SOCKET" -uroot "$@"
+}
+
+setup_mysql_directories() {
+  mkdir -p "$MYSQL_DATADIR" /run/mysqld
+  chown -R mysql:mysql "$MYSQL_DATADIR" /run/mysqld
+}
+
+initialize_mysql_data() {
+  if [ -d "$MYSQL_DATADIR/mysql" ]; then
+    return
+  fi
+
+  echo "initializing embedded mysql data dir: $MYSQL_DATADIR"
+  mysqld --initialize-insecure --user=mysql --datadir="$MYSQL_DATADIR"
+}
+
+start_embedded_mysql() {
+  echo "starting embedded mysql on 127.0.0.1:${DB_PORT}"
+  mysqld \
+    --user=mysql \
+    --datadir="$MYSQL_DATADIR" \
+    --socket="$MYSQL_SOCKET" \
+    --pid-file="$MYSQL_PID_FILE" \
+    --port="$DB_PORT" \
+    --bind-address=127.0.0.1 \
+    --character-set-server=utf8mb4 \
+    --collation-server=utf8mb4_unicode_ci \
+    --default-time-zone=+08:00 \
+    --daemonize
+}
+
+configure_embedded_mysql() {
+  local escaped_root_password
+  local escaped_db_name
+  local escaped_db_user
+  local escaped_db_password
+
+  escaped_root_password=$(sql_escape "$MYSQL_ROOT_PASSWORD")
+  escaped_db_name=$(sql_escape "$DB_DATABASE")
+
+  mysql_sql <<SQL
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${escaped_root_password}';
+CREATE USER IF NOT EXISTS 'root'@'127.0.0.1' IDENTIFIED BY '${escaped_root_password}';
+ALTER USER 'root'@'127.0.0.1' IDENTIFIED BY '${escaped_root_password}';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'127.0.0.1' WITH GRANT OPTION;
+CREATE DATABASE IF NOT EXISTS ${escaped_db_name};
+FLUSH PRIVILEGES;
+SQL
+
+  if [ "$DB_USERNAME" != "root" ]; then
+    escaped_db_user=$(sql_escape "$DB_USERNAME")
+    escaped_db_password=$(sql_escape "$DB_PASSWORD")
+    mysql_sql <<SQL
+CREATE USER IF NOT EXISTS '${escaped_db_user}'@'%' IDENTIFIED BY '${escaped_db_password}';
+ALTER USER '${escaped_db_user}'@'%' IDENTIFIED BY '${escaped_db_password}';
+GRANT ALL PRIVILEGES ON ${escaped_db_name}.* TO '${escaped_db_user}'@'%';
+FLUSH PRIVILEGES;
+SQL
+  fi
+}
+
+stop_embedded_mysql() {
+  if [ "$MYSQL_EMBEDDED" != "true" ]; then
+    return
+  fi
+
+  if [ -S "$MYSQL_SOCKET" ]; then
+    mysqladmin --protocol=socket --socket="$MYSQL_SOCKET" -uroot -p"$MYSQL_ROOT_PASSWORD" shutdown >/dev/null 2>&1 || true
+  fi
+}
 
 can_connect_db() {
   if command -v timeout >/dev/null 2>&1; then
@@ -35,6 +119,19 @@ wait_for_db() {
   echo "mysql is ready: ${host}:${port}"
 }
 
+bootstrap_embedded_mysql() {
+  setup_mysql_directories
+  if [ ! -d "$MYSQL_DATADIR/mysql" ]; then
+    initialize_mysql_data
+  fi
+
+  start_embedded_mysql
+  wait_for_db 127.0.0.1 "$DB_PORT"
+  configure_embedded_mysql
+}
+
+trap stop_embedded_mysql EXIT INT TERM
+
 # first-time config generation (Flyway handles DB init on startup)
 DST_CONF_FILE=/root/cgdm/alone/conf/alone.properties
 if [ ! -f "$DST_CONF_FILE" ]; then
@@ -52,7 +149,10 @@ if [ ! -f "$DST_CONF_FILE" ]; then
     /docker-entrypoint-init/copy_alone.properties > "$DST_CONF_FILE"
 fi
 
-if [ -n "$DB_HOST" ]; then
+if [ "$MYSQL_EMBEDDED" = "true" ]; then
+  DB_HOST=127.0.0.1
+  bootstrap_embedded_mysql
+elif [ -n "$DB_HOST" ]; then
   wait_for_db "$DB_HOST" "$DB_PORT"
 else
   echo "DB_HOST is empty, skip mysql wait and continue with initialization bootstrap."
