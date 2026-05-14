@@ -3,6 +3,10 @@ export const initApi = {
   dmInitDefaultConfig: '/clouddm/console/api/v1/init/defaultConfig',
   // 测试数据库连接 + 空库检测 + 已安装检测
   dmInitTestDb: '/clouddm/console/api/v1/init/testDb',
+  // 检查初始化程序 MySQL 驱动状态
+  dmInitCheckMysqlDriverStatus: '/clouddm/console/api/v1/init/checkMysqlDriverStatus',
+  // 下载初始化程序 MySQL 驱动
+  dmInitDownloadMysqlDriver: '/clouddm/console/api/v1/init/downloadMysqlDriver',
   // 预览待执行脚本
   dmInitPreviewScripts: '/clouddm/console/api/v1/init/previewScripts',
   // 保存初始化配置（完整模式）

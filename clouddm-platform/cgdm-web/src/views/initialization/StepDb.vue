@@ -6,6 +6,10 @@
           <div class="jdbc-static-value">{{ $t('initialization.jdbcDataSourceTypeValue') }}</div>
         </a-form-item>
 
+        <a-form-item :label="$t('initialization.mysqlDriverLabel')" class="jdbc-form-item-full">
+          <InitMysqlDriverStatus />
+        </a-form-item>
+
         <a-form-item :label="$t('initialization.jdbcHostPort')" required>
           <div class="jdbc-host-port-row">
             <div class="jdbc-inline-field jdbc-inline-field-host">
@@ -113,6 +117,7 @@
 
 <script>
 import { CheckCircleOutlined, PlusOutlined } from '@ant-design/icons-vue';
+import InitMysqlDriverStatus from './InitMysqlDriverStatus.vue';
 
 const DEFAULT_GENERATED_STATE = Object.freeze({
   host: '',
@@ -297,7 +302,8 @@ export default {
   name: 'StepDb',
   components: {
     CheckCircleOutlined,
-    PlusOutlined
+    PlusOutlined,
+    InitMysqlDriverStatus
   },
   props: {
     fieldDefs: { type: Array, default: () => [] },
