@@ -87,7 +87,9 @@ Access the product in your browser:
 http://localhost:8222
 ```
 
-> On first access, the initialization wizard will open. default Account `admin@cdmgr.com`
+> On first access, the initialization wizard will open.
+>
+> If you not change the account, the default account is **admin@cdmgr.com**
 
 ### Add Data Source
 
