@@ -20,9 +20,10 @@ import java.util.Properties;
 import com.clougence.clouddm.base.metadata.ds.ConfigDef;
 import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -55,6 +56,9 @@ public class OraConfig extends DataSourceConfig {
 
     @ConfigDef(name = "tnsName", valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_TNS_NAME_DESCRIPTION, readOnly = false)
     private String         tnsName;
+
+    @ConfigDef(name = "excludeOraMaintainedSchemas", defaultValue = "true", valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_EXCLUDE_ORA_MAINTAINED_SCHEMAS_DESCRIPTION, readOnly = false, valueAdvance = "true - false", group = DsConfigGroup.OPTIONS)
+    private Boolean        excludeOraMaintainedSchemas = true;
 
     public OraConfig(){
         setDataSourceType(DataSourceType.Oracle);

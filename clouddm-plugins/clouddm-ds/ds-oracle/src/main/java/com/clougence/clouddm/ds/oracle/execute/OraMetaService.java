@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.ds.oracle.definition.ui.editor.table.OraEditorProvider;
+import com.clougence.clouddm.ds.oracle.dsconf.OraConfig;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DefaultRdbMetaService;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
@@ -45,7 +46,12 @@ public class OraMetaService extends DefaultRdbMetaService {
 
     @Override
     protected DmRdbUmiService rdbUmiService(Connection con) {
-        return new OraUmiServiceDm(con);
+        return new OraUmiServiceDm(con, excludeOraMaintainedSchemas());
+    }
+
+    private boolean excludeOraMaintainedSchemas() {
+        OraConfig oraConfig = (OraConfig) this.rdbSession.getDsConfig();
+        return oraConfig.getExcludeOraMaintainedSchemas() == null || oraConfig.getExcludeOraMaintainedSchemas();
     }
 
     @Override

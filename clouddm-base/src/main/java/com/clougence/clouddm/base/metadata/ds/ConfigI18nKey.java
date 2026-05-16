@@ -92,6 +92,7 @@ public enum ConfigI18nKey {
     CONFIG_ORACLE_PDB_DESCRIPTION,
     CONFIG_ORACLE_TNS_ADMIN_DESCRIPTION,
     CONFIG_ORACLE_TNS_NAME_DESCRIPTION,
+    CONFIG_ORACLE_EXCLUDE_ORA_MAINTAINED_SCHEMAS_DESCRIPTION,
 
     //
     // ---------------------------------------------------------------------------------------------------

@@ -36,7 +36,11 @@ import com.clougence.utils.StringUtils;
 public class OraUmiServiceDm extends AbstractRdbUmiService<OraMetaProviderDm> implements RdbUmiServiceDm {
 
     public OraUmiServiceDm(Connection con){
-        super(() -> new OraMetaProviderDm(con));
+        this(con, true);
+    }
+
+    public OraUmiServiceDm(Connection con, boolean excludeOraMaintainedSchemas){
+        super(() -> new OraMetaProviderDm(con, excludeOraMaintainedSchemas));
     }
 
     @Override

@@ -71,8 +71,22 @@ public class OraMetaProviderDm extends AbstractMetadataProvider implements MetaD
     private static final String COLUMNS_DEFAULT = "select COLS.OWNER,COLS.TABLE_NAME,COLS.COLUMN_NAME,DATA_TYPE,DATA_TYPE_OWNER,COLUMN_ID,DATA_LENGTH,CHAR_LENGTH,DATA_PRECISION,DATA_SCALE,NULLABLE,CHARACTER_SET_NAME,HIDDEN_COLUMN,VIRTUAL_COLUMN,IDENTITY_COLUMN,COMM.COMMENTS,DATA_DEFAULT from SYS.DBA_TAB_COLS COLS\n"   //
                                                   + "left join SYS.DBA_COL_COMMENTS COMM on COLS.OWNER = COMM.OWNER and COLS.TABLE_NAME = COMM.TABLE_NAME and COLS.COLUMN_NAME = COMM.COLUMN_NAME\n";
 
+    private static final String SCHEMAS         = "select USERNAME from SYS.ALL_USERS";
+    private static final String SCHEMAS_ALL     = SCHEMAS + " order by USERNAME asc";
+    private static final String SCHEMAS_LE_11G  = SCHEMAS
+                                                  + " where USERNAME not in ('ANONYMOUS','APPQOSSYS','CTXSYS','DBSNMP','DIP','EXFSYS','FLOWS_FILES','MDDATA','MDSYS','MGMT_VIEW','OLAPSYS','ORDDATA','ORDPLUGINS','ORDSYS','OUTLN','OWBSYS','SI_INFORMTN_SCHEMA','SYS','SYSMAN','SYSTEM','TSMSYS','WMSYS','XDB','XS$NULL')"
+                                                  + " order by USERNAME asc";
+    private static final String SCHEMAS_DEFAULT = SCHEMAS + " where ORACLE_MAINTAINED = 'N' order by USERNAME asc";
+
+    private final boolean       excludeOraMaintainedSchemas;
+
     public OraMetaProviderDm(Connection connection){
+        this(connection, true);
+    }
+
+    public OraMetaProviderDm(Connection connection, boolean excludeOraMaintainedSchemas){
         super(connection);
+        this.excludeOraMaintainedSchemas = excludeOraMaintainedSchemas;
     }
 
     @Override
@@ -106,12 +120,25 @@ public class OraMetaProviderDm extends AbstractMetadataProvider implements MetaD
     }
 
     public List<Value> selectSchemas() throws SQLException {
-        String sql = "select USERNAME from SYS.ALL_USERS order by USERNAME asc";
+        String sql = selectSchemasSql();
         try (Connection conn = this.connectSupplier.eGet(); PreparedStatement ps = conn.prepareStatement(sql)) {
             try (ResultSet rs = ps.executeQuery()) {
                 return OraMetaProviderUtils.convertSchema(rs);
             }
         }
+    }
+
+    private String selectSchemasSql() throws SQLException {
+        if (!this.excludeOraMaintainedSchemas) {
+            return SCHEMAS_ALL;
+        }
+        return isLe11g() ? SCHEMAS_LE_11G : SCHEMAS_DEFAULT;
+    }
+
+    private boolean isLe11g() throws SQLException { return isLe11g(getVersion()); }
+
+    private boolean isLe11g(String version) {
+        return StringUtils.isNotBlank(version) && (version.startsWith("11.") || version.startsWith("10."));
     }
 
     public Value selectSchema(String schema) throws SQLException {
@@ -446,7 +473,7 @@ public class OraMetaProviderDm extends AbstractMetadataProvider implements MetaD
         String condition = " where COLS.HIDDEN_COLUMN = 'NO' and COLS.OWNER = ? and COLS.TABLE_NAME in " + buildWhereIn(tabs) + " order by SEGMENT_COLUMN_ID asc";
 
         String version = getVersion();
-        boolean isLe11g = version.startsWith("11.") || version.startsWith("10.");
+        boolean isLe11g = isLe11g(version);
         if (isLe11g) {
             condition = COLUMNS_LE_11G + condition;
         } else {
