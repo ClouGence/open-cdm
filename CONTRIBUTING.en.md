@@ -105,9 +105,11 @@ cd package && ./package.sh --docker x86_64
 3. Wait for dependencies to download, then you're ready to develop.
 
 ### Debugging or Running
-1. Configure the `spring.datasource` settings in the `clouddm-boot/boot-console/src/main/resources/console.properties` file, and create an empty database.
-2. Start `com.clougence.clouddm.boot.DmConsoleLauncher`.
-3. Get in the `clouddm-platform/cgdm-web` directory, run `npm i` to install frontend dependencies, wait for the installation to complete, then run `npm run serve` to start the frontend application.
+
+1. **[First Run]** Run `./all_build.sh` in the project root directory.
+2. Go to `clouddm-boot/boot-alone` and run `com.clougence.clouddm.boot.DmAloneLauncher` to start the backend application.
+3 .Go to `clouddm-platform/cgdm-web` and run `npm i` to install frontend dependencies, wait for the installation to complete, then run `npm run serve` to start the frontend application.
+4. **[First Run]** Open the web page for initial setup and fill in the database and other required information. When you see the message **"Waiting for application restart"**, repeat Step 2.
 
 ## Coding Standards
 
