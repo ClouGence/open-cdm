@@ -75,8 +75,15 @@ export default {
       required: true
     }
   },
-  mounted() {
-    this.getDsParams();
+  watch: {
+    dataSourceId: {
+      immediate: true,
+      handler(dataSourceId) {
+        if (this.isValidDataSourceId(dataSourceId)) {
+          this.getDsParams();
+        }
+      }
+    }
   },
   data() {
     return {
@@ -112,6 +119,9 @@ export default {
     };
   },
   methods: {
+    isValidDataSourceId(dataSourceId) {
+      return Number(dataSourceId) > 0;
+    },
     handlePageChange(pageNum) {
       this.pageNum = pageNum;
       this.setTableShowData();
