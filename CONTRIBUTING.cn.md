@@ -100,11 +100,19 @@ cd package && ./package.sh --docker x86_64
 | `clouddm-utils/` | 独立的模块、框架、工具 |
 | `package/` | tgz 打包、Docker 镜像、compose 模板和交付输出 |
 
-### 导入 IDEA
+### 代码开发
+
+#### 导入 IDE
 
 1. 克隆项目后，使用 IntelliJ IDEA 打开项目根目录
 2. IDEA 将自动识别 Gradle 项目并开始导入
 3. 等待依赖下载完成后即可开始开发
+
+#### DEBUG 或运行
+
+1. 配置 clouddm-boot/boot-console/src/main/resources/console.properties 文件内的 spring.datasource , 并创建空数据库
+2. 启动 com.clougence.clouddm.boot.DmConsoleLauncher
+3. 进入 clouddm-platform/cgdm-web 目录，npm i 安装前端依赖，等待完成后，npm run serve 启动前端应用
 
 ## 代码规范
 
