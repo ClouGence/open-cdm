@@ -1,4 +1,4 @@
-// Generated from /Users/yongchun.zyc/Documents/clouddm/open-cdm/clouddm-plugins/clouddm-ds/ds-oceanbase/src/main/antlr/ObForMySqlParser.g4 by ANTLR 4.9.3
+// Generated from /home/zyc/project/dm/open-cdm/clouddm-plugins/clouddm-ds/ds-oceanbase/src/main/antlr/ObForMySqlParser.g4 by ANTLR 4.9.3
 package com.clougence.clouddm.ds.oceanbase.parser.ob4my.antlr;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
