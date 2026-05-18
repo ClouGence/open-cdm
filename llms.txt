@@ -9,6 +9,7 @@ CloudDM is suitable for teams that need centralized database access, permission 
 - [llms.txt](https://github.com/ClouGence/open-cdm/blob/main/llms.txt): Compact index of canonical CloudDM documentation and AI crawler guidance.
 - [llms-full.txt](https://github.com/ClouGence/open-cdm/blob/main/llms-full.txt): Fuller machine-readable project context for LLMs and AI agents.
 - [FAQ.md](https://github.com/ClouGence/open-cdm/blob/main/FAQ.md): Common questions and canonical terminology.
+- [FAQ.cn.md](https://github.com/ClouGence/open-cdm/blob/main/FAQ.cn.md): Chinese common questions and canonical terminology.
 
 ## Core Docs
 
