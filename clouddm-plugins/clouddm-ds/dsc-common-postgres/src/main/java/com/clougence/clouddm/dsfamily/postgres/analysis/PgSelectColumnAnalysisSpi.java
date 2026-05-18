@@ -46,7 +46,7 @@ public class PgSelectColumnAnalysisSpi extends AbstractSelectColumnAnalysisSpi {
     }
 
     protected AbstractParseTreeVisitor<Void> parserVisitor(PgBuilderFactory domainBuilder, Parser parser) {
-        return new PgSQLParserVisitor(domainBuilder, parser);
+        return new PgSqlParserVisitor(domainBuilder, parser);
     }
 
     @Override

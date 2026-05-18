@@ -46,12 +46,12 @@ import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.dsfamily.postgres.parser.antlr.PgSqlParserBaseVisitor;
 import com.clougence.schema.umi.struts.UmiTypes;
 
-public class PgSQLParserVisitor extends PgSqlParserBaseVisitor<Void> {
+public class PgSqlParserVisitor extends PgSqlParserBaseVisitor<Void> {
 
     private final PgBuilderFactory builder;
     private final Parser           parser;
 
-    public PgSQLParserVisitor(PgBuilderFactory builder, Parser parser){
+    public PgSqlParserVisitor(PgBuilderFactory builder, Parser parser){
         this.builder = builder;
         this.parser = parser;
     }

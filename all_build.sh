@@ -20,14 +20,14 @@ EOF
 
 build_all() {
 	echo 'start to build CloudDM(ALL)'
-	./gradlew clean
-	./gradlew -Pprofile=dev -Ptarget=none -PbuildFrontend=true buildx local -x test --rerun-tasks --parallel --max-workers=8
-	./gradlew -PbuildFrontend=true publishToMavenLocal --parallel --max-workers=8
+	./gradlew --no-daemon clean
+	./gradlew --no-daemon -Pprofile=dev -Ptarget=none -PbuildFrontend=true buildx local -x test --rerun-tasks --parallel --max-workers=8
+	./gradlew --no-daemon -PbuildFrontend=true publishToMavenLocal --parallel --max-workers=8
 }
 
 build_web() {
 	echo 'start to build CloudDM(web only)'
-	./gradlew -PbuildFrontend=true :cgdm-web:processResources --parallel --max-workers=8
+	./gradlew --no-daemon -PbuildFrontend=true :cgdm-web:processResources --parallel --max-workers=8
 }
 
 case "$TARGET" in

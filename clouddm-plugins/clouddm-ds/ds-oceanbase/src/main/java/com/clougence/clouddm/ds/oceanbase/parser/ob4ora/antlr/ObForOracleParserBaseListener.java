@@ -1,4 +1,4 @@
-// Generated from /Users/yongchun.zyc/Documents/clouddm/open-cdm/clouddm-plugins/clouddm-ds/ds-oceanbase/src/main/antlr/ObForOracleParser.g4 by ANTLR 4.9.3
+// Generated from /home/zyc/project/dm/open-cdm/clouddm-plugins/clouddm-ds/ds-oceanbase/src/main/antlr/ObForOracleParser.g4 by ANTLR 4.9.3
 package com.clougence.clouddm.ds.oceanbase.parser.ob4ora.antlr;
 
     import com.clougence.clouddm.ds.oracle.parser.base.PlSqlParserBase;

@@ -19,11 +19,9 @@ plugins {
 }
 
 repositories {
-    // Use the plugin portal to apply community plugins in convention plugins.
-    gradlePluginPortal()
     mavenLocal()
-    maven { url = 'https://maven.aliyun.com/repository/public/' }
     mavenCentral()
+    gradlePluginPortal()
 }
 
 dependencies {

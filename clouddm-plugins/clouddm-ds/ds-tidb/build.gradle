@@ -35,7 +35,7 @@ dependencies {
     testImplementation project(':dsc-common-mysql')
 }
 
-def visitorConfigs = [[taskName: 'tiParser', frontPath: 'AbstractTiSQLParserVisitor.java', backPath: 'MySqlParserVisitor.java'],
+def visitorConfigs = [[taskName: 'tiParser', frontPath: 'AbstractTiSQLParserVisitor.java', backPath: 'MySQLParserVisitor.java'],
                       [taskName: 'tiVisitor', frontPath: 'AbstractTiSplitVisitor.java', backPath: 'MySplitVisitor.java']]
 
 visitorConfigs.each { config ->

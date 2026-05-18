@@ -41,7 +41,7 @@ configureClougenceAntlrGrammar([outputPath : 'src/main/java/com/clougence/cloudd
                                 packageName: 'com.clougence.clouddm.ds.ads.parser.ads4my.antlr',
                                 libDir     : '../dsc-common-mysql/src/main/antlr'])
 
-def visitorConfigs = [[taskName: 'AdsMyParser', frontPath: 'ads4my/AbstractAdsMyParserVisitor.java', backPath: 'MySqlParserVisitor.java'],
+def visitorConfigs = [[taskName: 'AdsMyParser', frontPath: 'ads4my/AbstractAdsMyParserVisitor.java', backPath: 'MySQLParserVisitor.java'],
                       [taskName: 'AdsMyVisitor', frontPath: 'ads4my/AbstractAdsMySplitVisitor.java', backPath: 'MySplitVisitor.java']]
 
 visitorConfigs.each { config ->

@@ -37,6 +37,6 @@ public class GsSecDomainResolveSpi extends PgSecDomainResolveSpi {
 
     @Override
     protected AbstractParseTreeVisitor<Void> parserVisitor(PgBuilderFactory domainBuilder, Parser parser) {
-        return new GsSQLParserVisitor(domainBuilder, parser);
+        return new GsSqlParserVisitor(domainBuilder, parser);
     }
 }

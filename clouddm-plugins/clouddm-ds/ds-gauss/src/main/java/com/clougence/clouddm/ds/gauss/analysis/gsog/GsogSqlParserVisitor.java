@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.gauss.analysis.gs;
+package com.clougence.clouddm.ds.gauss.analysis.gsog;
 
 import org.antlr.v4.runtime.Parser;
 
 import com.clougence.clouddm.dsfamily.postgres.analysis.builder.PgBuilderFactory;
 
-public class GsSQLParserVisitor extends GsAbstractSQLParserVisitor {
+public class GsogSqlParserVisitor extends GsogAbstractSqlParserVisitor {
 
-    public GsSQLParserVisitor(PgBuilderFactory builder, Parser parser){
+    public GsogSqlParserVisitor(PgBuilderFactory builder, Parser parser){
         super(builder, parser);
     }
+
 }

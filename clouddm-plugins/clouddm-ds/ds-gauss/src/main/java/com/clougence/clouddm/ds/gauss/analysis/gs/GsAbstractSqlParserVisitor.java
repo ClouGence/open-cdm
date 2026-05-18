@@ -46,12 +46,12 @@ import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.ds.gauss.parser.antlr.GaussSqlParserBaseVisitor;
 import com.clougence.schema.umi.struts.UmiTypes;
 
-public abstract class GsAbstractSQLParserVisitor extends GaussSqlParserBaseVisitor<Void> {
+public abstract class GsAbstractSqlParserVisitor extends GaussSqlParserBaseVisitor<Void> {
 
     private final PgBuilderFactory builder;
     private final Parser           parser;
 
-    public GsAbstractSQLParserVisitor(PgBuilderFactory builder, Parser parser){
+    public GsAbstractSqlParserVisitor(PgBuilderFactory builder, Parser parser){
         this.builder = builder;
         this.parser = parser;
     }
