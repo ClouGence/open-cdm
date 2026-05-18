@@ -125,8 +125,9 @@ public class DsMenuUtils implements DsFeatureIDs {
     private final static Map<String, DsMenu> DS_MENU_CACHE        = new HashMap<>();
 
     private static DsMenu loadMenu(String menuID) {
-        if (DS_MENU_CACHE.containsKey(menuID)) {
-            return DS_MENU_CACHE.get(menuID);
+        String cacheKey = menuID + "@" + DmI18nUtils.getLocale().toLanguageTag();
+        if (DS_MENU_CACHE.containsKey(cacheKey)) {
+            return DS_MENU_CACHE.get(cacheKey);
         } else {
             DsMenu dsMenu = new DsMenu();
             dsMenu.setMenuId(menuID);
@@ -134,7 +135,7 @@ public class DsMenuUtils implements DsFeatureIDs {
             dsMenu.setI18n(DmI18nUtils.getMessage(UiMenus18nKey.findMenuI18n(menuID)));
             dsMenu.setNeedTarget(NEED_TARGET_MENU_IDS.contains(menuID));
 
-            DS_MENU_CACHE.put(menuID, dsMenu);
+            DS_MENU_CACHE.put(cacheKey, dsMenu);
             return dsMenu;
         }
     }
