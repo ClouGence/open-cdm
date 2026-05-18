@@ -400,6 +400,7 @@ public class DmDsServiceImpl implements DmDsService {
                 resultConfigs.add(v);
             } else {
                 v = DmConvertUtils.convertToDsKvConfigVO(config);
+                v.setConfValType(configDO.getConfValType());
                 resultConfigs.add(v);
             }
         }

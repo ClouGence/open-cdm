@@ -993,6 +993,7 @@ public class DmConvertUtils {
         vo.setValueValidRegex(config.getValueValidRegex());
         vo.setDefaultValue(config.getDefaultValue());
         vo.setValueAdvance(config.getValueAdvance());
+        vo.setConfValType(config.getConfValType());
         vo.setReadOnly(config.isReadOnly());
         return vo;
     }

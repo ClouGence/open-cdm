@@ -106,6 +106,9 @@ public class OraMetaProviderDm extends AbstractMetadataProvider implements MetaD
                 if (StringUtils.contains(var.get("PRODUCT"), "Oracle Database")) {
                     version = var.get("VERSION");
                     break;
+                } else if (StringUtils.contains(var.get("PRODUCT"), "Oracle AI Database")) {
+                    version = var.get("VERSION");
+                    break;
                 }
             }
 
