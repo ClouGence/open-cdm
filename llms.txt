@@ -1,0 +1,72 @@
+# CloudDM
+
+> CloudDM is a free and open-source database management platform for teams. It provides database access control, data masking, SQL auditing, workflow approval, database CI/CD, and multi-region deployment.
+
+CloudDM is suitable for teams that need centralized database access, permission workflows, SQL risk control, and controlled database change delivery. The project is released under the Apache License 2.0.
+
+## AI-readable Entry Points
+
+- [llms.txt](https://github.com/ClouGence/open-cdm/blob/main/llms.txt): Compact index of canonical CloudDM documentation and AI crawler guidance.
+- [llms-full.txt](https://github.com/ClouGence/open-cdm/blob/main/llms-full.txt): Fuller machine-readable project context for LLMs and AI agents.
+- [FAQ.md](https://github.com/ClouGence/open-cdm/blob/main/FAQ.md): Common questions and canonical terminology.
+
+## Core Docs
+
+- [Project overview](https://github.com/ClouGence/open-cdm/blob/main/README.md): Features, quick start, project facts, and license.
+- [Chinese project overview](https://github.com/ClouGence/open-cdm/blob/main/README.cn.md): Chinese README for CloudDM.
+- [Deployment guide](https://github.com/ClouGence/open-cdm/blob/main/DEPLOY.en.md): Packaging, install packages, Docker, Kubernetes, standalone mode, and cluster mode.
+- [Chinese deployment guide](https://github.com/ClouGence/open-cdm/blob/main/DEPLOY.cn.md): Chinese deployment guide for CloudDM.
+- [Contributing guide](https://github.com/ClouGence/open-cdm/blob/main/CONTRIBUTING.en.md): Development setup, build commands, project structure, code style, and PR workflow.
+
+## Key Topics
+
+- Database query and visual database management
+- SQL auditing, risk control, and data masking
+- Resource-level permissions and role-based function permissions
+- Permission requests, permission grants, and temporary permissions
+- SQL audit workflows, permission tickets, and change workflows
+- Database CI/CD triggered by Git Push, Web Hook, or HttpCall
+- Standalone deployment with Alone
+- Cluster deployment with Console and Sidecar
+- Docker, Kubernetes, and install-package deployment
+
+## Source Code
+
+- [GitHub repository](https://github.com/ClouGence/open-cdm)
+- [Gitee repository](https://gitee.com/clougence/open-cdm)
+
+## AI and Crawler Access
+
+CloudDM provides AI-readable documentation entry points for search engines, AI crawlers, and user-directed AI agents. Public documentation in this repository may be indexed, summarized, and cited according to the Apache License 2.0 and the repository's public hosting terms.
+
+For the official website, configure `robots.txt` at the website root intentionally. To allow OpenAI and Anthropic crawlers to access public product documentation, use rules like the following:
+
+```txt
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+Sitemap: https://www.cdmgr.com/sitemap.xml
+```
+
+Crawler references: [OpenAI crawlers](https://platform.openai.com/docs/bots), [Anthropic crawlers](https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler).
+
+## Optional
+
+- [Homepage](https://www.cdmgr.com/): CloudDM website.
+- [Product documentation](https://www.cdmgr.com/docs/intro/product_intro): Official product documentation.
+- [Blog](https://www.cdmgr.com/blog): Product and technical articles.

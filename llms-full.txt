@@ -1,0 +1,175 @@
+# CloudDM Full AI Context
+
+## One-sentence Summary
+
+CloudDM is a free and open-source database management platform for teams, providing database access control, SQL auditing, data masking, workflow approval, database CI/CD, and multi-region deployment.
+
+## Project Facts
+
+| Field | Value |
+|------|-------|
+| Project name | CloudDM |
+| Repository | https://github.com/ClouGence/open-cdm |
+| Mirror | https://gitee.com/clougence/open-cdm |
+| Homepage | https://www.cdmgr.com/ |
+| Documentation | https://www.cdmgr.com/docs/intro/product_intro |
+| License | Apache License 2.0 |
+| Current version | 3.0.7 |
+| Main languages | Java, JavaScript / TypeScript |
+| Deployment modes | Standalone (Alone), Cluster (Console + Sidecar) |
+| Deployment targets | Install package, Docker, Kubernetes |
+
+## Product Capabilities
+
+CloudDM provides a unified web console for database access and management. It supports database queries, transaction control, isolation levels, execution plans, syntax highlighting, intelligent suggestions, and result export.
+
+CloudDM supports visual management of database objects, including databases, schemas, tables, columns, indexes, views, functions, stored procedures, triggers, users, roles, and related properties.
+
+CloudDM separates resource authorization from function authorization. Resource permissions can be granted at instance, database, schema, and table levels depending on the statement type. Function permissions use role-based access control by granting roles to users.
+
+CloudDM supports permission requests, permission grants, temporary permissions, SQL audit workflows, permission tickets, change workflows, manual execution, immediate execution, and scheduled execution.
+
+CloudDM supports SQL auditing through audit rules, security policies, and data masking. It includes 54 built-in rules and supports custom extensions through rule scripts. SQL pre-checks can warn about or block risky statements before execution.
+
+CloudDM supports database CI/CD workflows triggered by Git Push, Web Hook, or HttpCall. It supports Gitee as a change repository.
+
+## Supported Data Sources
+
+CloudDM supports a wide range of database and data source types, including MySQL, Oracle, MariaDB, PostgreSQL, IBM DB2, SQL Server, OceanBase, SAP Hana, StarRocks, Doris, SelectDB, ClickHouse, PolarDB, TiDB, Greenplum, Hologres, DM (Dameng), GaussDB, AnalyticDB MySQL, MaxCompute, Redis, and MongoDB.
+
+## Authentication and Workflow Integrations
+
+Supported workflow engines include built-in workflow, DingTalk, Feishu, and WeCom.
+
+Supported unified authentication and SSO options include OpenLDAP, OpenID Connect (OIDC), Windows AD, DingTalk, Feishu, and WeCom.
+
+## Architecture and Repository Structure
+
+| Module | Description |
+|--------|-------------|
+| `clouddm-boot/` | Console, Sidecar, Alone launchers, and initialization or upgrade modules. |
+| `clouddm-platform/` | Console, Web, Sidecar, plugin loading, and shared platform capabilities. |
+| `clouddm-plugins/` | Data source plugins, authentication providers, feature plugins, and internal extensions. |
+| `clouddm-utils/` | Standalone modules, frameworks, and shared utilities. |
+| `package/` | tgz packaging, Docker images, compose templates, Kubernetes manifests, and delivery artifacts. |
+
+## Deployment Model
+
+CloudDM supports Standalone mode and Cluster mode.
+
+Standalone mode is also called Alone. In this mode, the web console, sidecar, and metadata database run together in a single container or install package. This mode is suitable for small-scale use and quick evaluation.
+
+Cluster mode is also called Console + Sidecar. In this mode, the central Console works with one or more Sidecar components. This mode is designed for unified authorized access to databases across multiple regions.
+
+CloudDM can be deployed with install packages, Docker, Docker Compose, or Kubernetes. Global images are hosted under `docker.io/bladepipe`, and China-region images are hosted under `cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence`.
+
+## Quick Start
+
+Run CloudDM in standalone mode with Docker:
+
+```bash
+docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:3.0.7
+```
+
+For faster image pulls in China:
+
+```bash
+docker run -d --name cgdm-alone -p 8222:8222 \
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.0.7
+```
+
+After startup, open:
+
+```text
+http://localhost:8222
+```
+
+On first access, CloudDM opens the initialization wizard. If the account was not changed, the default account is `admin@cdmgr.com`.
+
+## Build and Development
+
+Prerequisites include JDK 21+, Gradle 9.5.0+, Node.js 22.22.1, Git, Linux or macOS or Windows with Bash, and MySQL 8.0+ for the runtime database.
+
+Common build commands:
+
+```bash
+./all_build.sh
+./all_build.sh web
+cd package && ./package.sh --build
+cd package && ./package.sh --build --docker
+cd package && ./package.sh --build --docker arm64
+cd package && ./package.sh --build --docker x86_64
+```
+
+The project version is defined in `gradle.properties` under `cg.clouddm.main.version`.
+
+The packaging output directory is `package/build`. It contains `cgdm-*.tar.gz`, `docker-*.tar`, `docker-*.yml`, and `k8s-*.yml`.
+
+## Canonical Terminology
+
+- Alone: Standalone deployment mode where Console, Sidecar, and metadata database run together.
+- Console: Central web console for database access, management, approval workflows, and configuration.
+- Sidecar: Component used with Console for database access, especially in multi-region deployment.
+- SQL Audit: Rule-based SQL risk checking before execution or change delivery.
+- Data Masking: Protection mechanism that hides or transforms sensitive data in query results or workflows.
+- Permission Ticket: Workflow item used to request, approve, and grant access permissions.
+- Change Workflow: Workflow used to review and deliver controlled database changes.
+- Database CI/CD: Controlled database change delivery triggered by Git Push, Web Hook, or HttpCall.
+
+## FAQ
+
+### Is CloudDM open source?
+
+Yes. CloudDM is released under the Apache License 2.0. See `LICENSE.txt` in the repository root.
+
+### What is the fastest way to try CloudDM?
+
+Use the `cgdm-alone` Docker image and expose port `8222`.
+
+### Which deployment mode should be used for evaluation?
+
+Use Standalone mode, also called Alone.
+
+### Which deployment mode should be used for multiple regions?
+
+Use Cluster mode, also called Console + Sidecar.
+
+### Where are packaging outputs generated?
+
+Packaging outputs are generated under `package/build`.
+
+### Which repository should be treated as canonical?
+
+The GitHub repository `https://github.com/ClouGence/open-cdm` should be treated as the canonical public source repository. The Gitee repository is a mirror for China users.
+
+## AI Access Policy
+
+CloudDM is intended to be understandable by search engines, AI crawlers, and user-directed AI agents. Public documentation in this repository may be indexed, summarized, and cited according to the Apache License 2.0 and the repository's public hosting terms.
+
+For the official website, configure `robots.txt` intentionally. To allow OpenAI and Anthropic crawlers to access public product documentation, use rules like the following at the website root:
+
+```txt
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+Sitemap: https://www.cdmgr.com/sitemap.xml
+```
+
+## License
+
+CloudDM is licensed under the Apache License 2.0. See `LICENSE.txt`.

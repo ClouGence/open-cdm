@@ -21,6 +21,21 @@
 
 ---
 
+## Project Facts
+
+| Field | Value |
+|------|-------|
+| Project name | CloudDM |
+| Repository | https://github.com/ClouGence/open-cdm |
+| Mirror | https://gitee.com/clougence/open-cdm |
+| Homepage | https://www.cdmgr.com/ |
+| Documentation | https://www.cdmgr.com/docs/intro/product_intro |
+| License | Apache License 2.0 |
+| Current version | 3.0.7 |
+| Main languages | Java, JavaScript / TypeScript |
+| Deployment modes | Standalone (Alone), Cluster (Console + Sidecar) |
+| Deployment targets | Install package, Docker, Kubernetes |
+
 ## Core Capabilities
 
 ### Data Query
@@ -101,6 +116,4 @@ http://localhost:8222
 
 ## Open Source License
 
-Released under the business-friendly [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.html) license.
-
-There is currently no formal license file at the repository root, so this README does not make any default legal assumption beyond the statement above.
+CloudDM is released under the business-friendly [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html). See [LICENSE.txt](./LICENSE.txt) for details.
