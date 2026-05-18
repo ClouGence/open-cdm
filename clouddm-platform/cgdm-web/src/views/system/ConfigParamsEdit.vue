@@ -41,11 +41,7 @@
         <div>
           <div v-if="!row.readOnly">
             <div v-if="row.confValType === 'BOOLEAN'">
-              <i-switch
-                true-color="#52C41A"
-                v-model="row.formatValue"
-                @on-change="handleEditCurrent(row, JSON.stringify(row.formatValue))"
-              ></i-switch>
+              <i-switch true-color="#52C41A" v-model="row.formatValue" @on-change="handleEditCurrent(row, $event)"></i-switch>
             </div>
             <div v-if="row.confValType !== 'BOOLEAN'">
               <span style="margin-right: 16px; display: inline-block; width: 210px">
@@ -228,7 +224,23 @@ export default {
     //     }
     //   });
   },
+  watch: {
+    dsKvConfigs: {
+      immediate: true,
+      deep: true,
+      handler(configs = []) {
+        configs.forEach((config) => {
+          if (config.confValType === 'BOOLEAN' && typeof config.formatValue !== 'boolean') {
+            config.formatValue = this.toBoolean(config.currentCount ?? config.configValue ?? config.defaultValue);
+          }
+        });
+      }
+    }
+  },
   methods: {
+    toBoolean(value) {
+      return value === true || value === 'true';
+    },
     getTagStyle(row) {
       return {
         color: pick(this.showTagList.indexOf(row.userConfigTagType)),
@@ -367,10 +379,19 @@ export default {
       this.showParamsEdit = true;
     },
     handleEditCurrent(row, value) {
-      row.currentCount = value;
+      let currentCount = value;
+      if (row.confValType === 'BOOLEAN') {
+        const boolValue = this.toBoolean(value);
+        row.formatValue = boolValue;
+        currentCount = JSON.stringify(boolValue);
+      }
+      row.currentCount = currentCount;
       this.dsKvConfigs.forEach((item) => {
         if (item.configName === row.configName) {
-          item.currentCount = value;
+          item.currentCount = currentCount;
+          if (item.confValType === 'BOOLEAN') {
+            item.formatValue = row.formatValue;
+          }
         }
       });
       this.currentValue = '';

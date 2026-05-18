@@ -16,6 +16,7 @@
 package com.clougence.clouddm.console.web.model.vo;
 
 import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
+import com.clougence.rdp.constant.KvConfValType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -44,6 +45,8 @@ public class DsKvConfigVO {
     private String        defaultValue;
 
     private String        valueAdvance;
+
+    private KvConfValType confValType;
 
     private boolean       readOnly;
 

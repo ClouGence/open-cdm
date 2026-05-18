@@ -26,6 +26,7 @@ import com.clougence.clouddm.base.metadata.ds.ConfigDef;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
 import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
+import com.clougence.rdp.constant.KvConfValType;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -74,7 +75,7 @@ public class DmDsConfigHelper {
                     val = String.valueOf(oriVal);
                 }
 
-                RdpDsKvBaseConfigDO configDO = genConfigDo(configDef, val);
+                RdpDsKvBaseConfigDO configDO = genConfigDo(configDef, val, field.getType());
 
                 configs.add(configDO);
             }
@@ -89,7 +90,7 @@ public class DmDsConfigHelper {
         }
     }
 
-    protected static RdpDsKvBaseConfigDO genConfigDo(ConfigDef configDef, String val) {
+    protected static RdpDsKvBaseConfigDO genConfigDo(ConfigDef configDef, String val, Class<?> fieldType) {
         RdpDsKvBaseConfigDO configDO = new RdpDsKvBaseConfigDO();
         //configDO.setDataSourceId(dataSourceId);
         configDO.setConfigName(configDef.name());
@@ -116,6 +117,7 @@ public class DmDsConfigHelper {
         configDO.setConfigValue(val);
         configDO.setDefaultValue(configDef.defaultValue());
         configDO.setValueAdvance(configDef.valueAdvance());
+        configDO.setConfValType(fieldType == Boolean.class || fieldType == boolean.class ? KvConfValType.BOOLEAN : KvConfValType.TEXT);
         configDO.setReadOnly(configDef.readOnly());
         configDO.setSecret(configDef.isSecret());
         return configDO;
