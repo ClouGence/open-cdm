@@ -57,7 +57,7 @@ public class OraConfig extends DataSourceConfig {
     @ConfigDef(name = "tnsName", valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_TNS_NAME_DESCRIPTION, readOnly = false)
     private String         tnsName;
 
-    @ConfigDef(name = "excludeOraMaintainedSchemas", defaultValue = "true", valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_EXCLUDE_ORA_MAINTAINED_SCHEMAS_DESCRIPTION, readOnly = false, valueAdvance = "true - false", group = DsConfigGroup.OPTIONS)
+    @ConfigDef(name = "excludeOraMaintainedSchemas", defaultValue = "false", valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_EXCLUDE_ORA_MAINTAINED_SCHEMAS_DESCRIPTION, readOnly = false, valueAdvance = "true - false", group = DsConfigGroup.OPTIONS)
     private Boolean        excludeOraMaintainedSchemas = true;
 
     public OraConfig(){
