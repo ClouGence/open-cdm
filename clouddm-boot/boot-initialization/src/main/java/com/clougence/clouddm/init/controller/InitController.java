@@ -29,6 +29,7 @@ import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.init.model.InitFieldDef;
 import com.clougence.clouddm.init.model.TestDbResult;
+import com.clougence.clouddm.init.service.InitMysqlDriverService;
 import com.clougence.clouddm.init.service.SysInitDefService;
 import com.clougence.clouddm.init.service.SysInitService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
@@ -44,9 +45,11 @@ import jakarta.annotation.Resource;
 public class InitController {
 
     @Resource
-    private SysInitService    initService;
+    private SysInitService         initService;
     @Resource
-    private SysInitDefService defService;
+    private SysInitDefService      defService;
+    @Resource
+    private InitMysqlDriverService initMysqlDriverService;
 
     /**
      * Returns the default configuration field definitions.
@@ -78,6 +81,19 @@ public class InitController {
     @RequestMapping(value = "/previewScripts", method = { RequestMethod.POST })
     public ResWebData<?> previewScripts(@RequestBody Map<String, String> params) {
         return ResWebDataUtils.buildSuccess(initService.previewExecutionScripts(params));
+    }
+
+    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
+    @RequestMapping(value = "/checkMysqlDriverStatus", method = { RequestMethod.POST })
+    public ResWebData<?> checkMysqlDriverStatus() {
+        return ResWebDataUtils.buildSuccess(this.initMysqlDriverService.checkDriverStatus());
+    }
+
+    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
+    @RequestMapping(value = "/downloadMysqlDriver", method = { RequestMethod.POST })
+    public ResWebData<?> downloadMysqlDriver() {
+        this.initMysqlDriverService.downloadDriver();
+        return ResWebDataUtils.buildSuccess(null);
     }
 
     /**
