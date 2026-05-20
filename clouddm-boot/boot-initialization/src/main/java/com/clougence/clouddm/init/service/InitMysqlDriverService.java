@@ -289,6 +289,7 @@ public class InitMysqlDriverService {
         if (total <= 0L) {
             return 0;
         }
-        return (int) Math.max(0L, Math.min(100L, Math.round((current * 100.0d) / total)));
+        long percent = Math.round((current * 100.0d) / total);
+        return (int) Math.max(0L, Math.min(100L, percent));
     }
 }

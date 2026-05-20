@@ -54,6 +54,9 @@ function buildInitMysqlDriverWsUrl() {
   return `${wsProtocol}//${parsed.host}/clouddm/console/api/v1/init/ws/mysql-driver`;
 }
 
+// Internal backend status messages that should not be surfaced to the user
+const INTERNAL_PROGRESS_MESSAGES = new Set(['prepare started', 'resource prepared', 'preparing resource', 'driver ready', 'driver unavailable']);
+
 export default {
   name: 'InitMysqlDriverStatus',
   components: {
@@ -106,13 +109,16 @@ export default {
       return `is-${this.driverUiState}`;
     },
     driverProgressValue() {
-      const { totalFileCount, completedFileCount } = this.driverStatus;
+      const { totalFileCount } = this.driverStatus;
       if (!(totalFileCount > 0)) {
         return Math.max(0, Math.min(100, Number(this.driverStatus.currentFilePercent) || 0));
       }
 
-      const safeCompletedFileCount = Math.max(0, Math.min(Number(totalFileCount), Number(completedFileCount) || 0));
-      return Math.round((safeCompletedFileCount / Number(totalFileCount)) * 100);
+      return Math.round((this.safeCompletedFileCount / Number(totalFileCount)) * 100);
+    },
+    safeCompletedFileCount() {
+      const { totalFileCount, completedFileCount } = this.driverStatus;
+      return Math.max(0, Math.min(Number(totalFileCount) || 0, Number(completedFileCount) || 0));
     },
     driverProgressCircleStyle() {
       return {
@@ -120,13 +126,12 @@ export default {
       };
     },
     driverProgressText() {
-      const { totalFileCount, completedFileCount } = this.driverStatus;
+      const { totalFileCount } = this.driverStatus;
       if (!(totalFileCount > 0)) {
-        return `${Math.max(0, Math.min(100, Number(this.driverStatus.currentFilePercent) || 0))}%`;
+        return `${this.driverProgressValue}%`;
       }
 
-      const safeCompletedFileCount = Math.max(0, Math.min(Number(totalFileCount), Number(completedFileCount) || 0));
-      return `${safeCompletedFileCount}/${totalFileCount}`;
+      return `${this.safeCompletedFileCount}/${totalFileCount}`;
     },
     driverProgressPercentText() {
       if (!this.showDriverDownloadProgress) {
@@ -157,7 +162,7 @@ export default {
       if (!message) {
         return '';
       }
-      if (['prepare started', 'resource prepared', 'driver ready', 'driver unavailable'].includes(message)) {
+      if (INTERNAL_PROGRESS_MESSAGES.has(message)) {
         return '';
       }
       return message;

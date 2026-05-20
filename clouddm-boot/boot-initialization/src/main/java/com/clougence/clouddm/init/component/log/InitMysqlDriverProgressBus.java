@@ -18,6 +18,8 @@ package com.clougence.clouddm.init.component.log;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Consumer;
 
+import org.springframework.beans.BeanUtils;
+
 import com.clougence.clouddm.console.web.model.vo.datasource.DriverDownloadProgressVO;
 import com.clougence.clouddm.init.service.InitMysqlDriverService;
 
@@ -67,18 +69,7 @@ public final class InitMysqlDriverProgressBus {
         }
 
         DriverDownloadProgressVO copy = new DriverDownloadProgressVO();
-        copy.setUid(progressVO.getUid());
-        copy.setClusterId(progressVO.getClusterId());
-        copy.setDriverFamily(progressVO.getDriverFamily());
-        copy.setDriverVersion(progressVO.getDriverVersion());
-        copy.setTotalFileCount(progressVO.getTotalFileCount());
-        copy.setCompletedFileCount(progressVO.getCompletedFileCount());
-        copy.setCurrentFilePercent(progressVO.getCurrentFilePercent());
-        copy.setStatus(progressVO.getStatus());
-        copy.setMessage(progressVO.getMessage());
-        copy.setResourceCoordinate(progressVO.getResourceCoordinate());
-        copy.setCurrentFileName(progressVO.getCurrentFileName());
-        copy.setAvailable(progressVO.isAvailable());
+        BeanUtils.copyProperties(progressVO, copy);
         return copy;
     }
 }
