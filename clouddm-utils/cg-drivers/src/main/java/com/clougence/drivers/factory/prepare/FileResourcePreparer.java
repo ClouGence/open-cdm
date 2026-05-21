@@ -75,7 +75,7 @@ public class FileResourcePreparer extends AbstractResourcePreparer {
                 fileDef.setAbsolutePath(sourceFile.getAbsolutePath());
             } else {
                 fileDef.setRelativePath(FilenameUtils.normalize(sourceFile.getPath()));
-                fileDef.setAbsolutePath(new File(driverVersion.getRelativeDir(), fileDef.getRelativePath()).getPath());
+                fileDef.setAbsolutePath(new File(driverVersion.getAbsoluteDir(), fileDef.getRelativePath()).getAbsolutePath());
             }
             fileDefs.add(fileDef);
         }
@@ -108,13 +108,13 @@ public class FileResourcePreparer extends AbstractResourcePreparer {
             File targetFile = absolutePath == null ? null : new File(absolutePath);
             if (targetFile == null || !targetFile.exists()) {
                 fileDef.setPrepared(false);
-                progress.onError(driverVersion, driverResource, new IOException("file not found: " + absolutePath));
+                progress.onError(driverVersion, driverResource, new IOException("path not found: " + absolutePath));
                 return;
             }
 
             if (!targetFile.canRead()) {
                 fileDef.setPrepared(false);
-                progress.onError(driverVersion, driverResource, new IOException("file exists but cannot read: " + absolutePath));
+                progress.onError(driverVersion, driverResource, new IOException("path exists but cannot read: " + absolutePath));
                 return;
             }
 

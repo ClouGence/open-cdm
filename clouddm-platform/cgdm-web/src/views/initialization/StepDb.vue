@@ -3,11 +3,7 @@
     <a-form layout="horizontal" class="step-db-form">
       <div v-if="jdbcUrlField" class="jdbc-generated-editor">
         <a-form-item :label="$t('initialization.jdbcDataSourceType')" required>
-          <div class="jdbc-static-value">{{ $t('initialization.jdbcDataSourceTypeValue') }}</div>
-        </a-form-item>
-
-        <a-form-item :label="$t('initialization.mysqlDriverLabel')" class="jdbc-form-item-full">
-          <InitMysqlDriverStatus />
+          <InitMysqlDriverStatus @status-change="handleDriverStatusChange" />
         </a-form-item>
 
         <a-form-item :label="$t('initialization.jdbcHostPort')" required>
@@ -394,6 +390,9 @@ export default {
     }
   },
   methods: {
+    handleDriverStatusChange(status) {
+      this.$emit('driver-status-change', status || null);
+    },
     normalizeInputValue(payload) {
       if (payload && typeof payload === 'object' && 'target' in payload) {
         return payload.target ? payload.target.value : '';
@@ -477,11 +476,6 @@ export default {
 }
 .jdbc-generated-editor {
   width: 100%;
-}
-.jdbc-static-value {
-  min-height: 32px;
-  line-height: 32px;
-  color: rgba(0, 0, 0, 0.85);
 }
 .jdbc-host-port-row {
   display: flex;

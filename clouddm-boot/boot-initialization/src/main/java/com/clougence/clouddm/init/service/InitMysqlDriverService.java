@@ -16,28 +16,29 @@
 package com.clougence.clouddm.init.service;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
-import com.clougence.clouddm.console.web.model.vo.DriverVersionStatusVO;
+import com.clougence.clouddm.console.web.global.config.DmDalConfig;
 import com.clougence.clouddm.console.web.model.vo.datasource.DriverDownloadProgressVO;
 import com.clougence.clouddm.init.InitApplication;
 import com.clougence.clouddm.init.component.log.InitMysqlDriverProgressBus;
 import com.clougence.clouddm.platform.plugin.PluginLoadHelper;
 import com.clougence.clouddm.platform.plugin.PluginManager;
+import com.clougence.drivers.DriverBinding;
 import com.clougence.drivers.DriverPrepareProgress;
 import com.clougence.drivers.DriverVersion;
 import com.clougence.drivers.def.ResDef;
 import com.clougence.utils.CollectionUtils;
+import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.ThreadUtils;
 
@@ -47,45 +48,68 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class InitMysqlDriverService {
 
-    public static final String MYSQL_DRIVER_FAMILY = "MySQL Connector/J";
-    public static final String MYSQL_DRIVER_VERSION = "8.0.33";
-    public static final String WS_EVENT_TYPE = "INIT_MYSQL_DRIVER_PROGRESS";
-
+    public static final String    WS_EVENT_TYPE = "INIT_MYSQL_DRIVER_PROGRESS";
     private final ExecutorService downloadExecutor;
-    private final ConcurrentHashMap<String, Boolean> runningTasks = new ConcurrentHashMap<>();
-    private final Object pluginLoadLock = new Object();
+    private volatile boolean      downloadRunning;
 
-    private volatile boolean pluginsLoaded;
+    public enum RuntimeDriverStatus {
+        UNAVAILABLE,
+        DOWNLOADING,
+        READY
+    }
 
     public InitMysqlDriverService(){
         ThreadFactory threadFactory = ThreadUtils.daemonThreadFactory(this.getClass().getClassLoader(), "init-mysql-driver-%s");
         this.downloadExecutor = Executors.newSingleThreadExecutor(threadFactory);
     }
 
-    public DriverVersionStatusVO checkDriverStatus() {
-        ensurePluginDriversLoaded();
-
-        DriverVersionStatusVO statusVO = new DriverVersionStatusVO();
-        statusVO.setDriverFamily(MYSQL_DRIVER_FAMILY);
-        statusVO.setDriverVersion(MYSQL_DRIVER_VERSION);
-        statusVO.setWorkerWsn(new ArrayList<>());
-
-        DriverVersion localVersion = PluginManager.driverLoader().findDriver(MYSQL_DRIVER_FAMILY, MYSQL_DRIVER_VERSION);
-        if (localVersion != null) {
-            PluginManager.driverLoader().refreshDriverVersion(localVersion);
+    public RuntimeDriverStatus driverStatus() {
+        if (this.downloadRunning) {
+            return RuntimeDriverStatus.DOWNLOADING;
+        } else {
+            return resolveDriverStatus();
         }
-
-        statusVO.setAvailable(isPrepared(localVersion));
-        return statusVO;
     }
 
-    public void downloadDriver() {
-        ensurePluginDriversLoaded();
-        String taskKey = MYSQL_DRIVER_FAMILY + "::" + MYSQL_DRIVER_VERSION;
-        if (this.runningTasks.putIfAbsent(taskKey, Boolean.TRUE) != null) {
+    private RuntimeDriverStatus resolveDriverStatus() {
+        try {
+            DriverVersion ver = DmDalConfig.mainDsDriverVersion();
+            if (!ver.isPrepared()) {
+                return RuntimeDriverStatus.UNAVAILABLE;
+            }
+
+            DriverBinding binding = PluginManager.driverLoader().createBinding(//
+                    DmDalConfig.class.getClassLoader(), DmDalConfig.MYSQL_DRIVER_RUNTIME_FAMILY, DmDalConfig.MYSQL_DRIVER_VERSION);
+            if (DmDalConfig.isDriverClassAvailable(binding)) {
+                return RuntimeDriverStatus.READY;
+            }
+        } catch (Exception e) {
+            log.debug("[InitMysqlDriverService] Runtime MySQL driver is not ready: {}", e.getMessage());
+        }
+        return RuntimeDriverStatus.UNAVAILABLE;
+    }
+
+    //
+    //
+    //
+
+    public synchronized void downloadDriver() {
+        RuntimeDriverStatus status = driverStatus();
+        if (status == RuntimeDriverStatus.READY) {
+            publishCompletion();
+            return;
+        }
+        if (status == RuntimeDriverStatus.DOWNLOADING) {
             return;
         }
 
+        // init plugin
+        File pluginPath1 = new File(GlobalConfUtils.getPluginDir("plugins"));
+        File pluginPath2 = new File(GlobalConfUtils.getAppDataHome(), "plugins");
+        PluginLoadHelper.loadPlugins(InitApplication.class.getClassLoader(), pluginPath1, pluginPath2);
+
+        // download
+        this.downloadRunning = true;
         this.downloadExecutor.execute(() -> {
             try {
                 downloadDriverInternal();
@@ -93,183 +117,89 @@ public class InitMysqlDriverService {
                 log.error("[InitMysqlDriverService] Download mysql driver failed.", e);
                 publishProgress(0, 0, 0, "FAILED", false, null, null, e.getMessage());
             } finally {
-                this.runningTasks.remove(taskKey);
+                this.downloadRunning = false;
             }
         });
     }
 
     private void downloadDriverInternal() {
-        DriverVersion localVersion = PluginManager.driverLoader().findDriver(MYSQL_DRIVER_FAMILY, MYSQL_DRIVER_VERSION);
-        if (localVersion == null) {
-            throw new IllegalStateException("driver not found: " + MYSQL_DRIVER_FAMILY + " / " + MYSQL_DRIVER_VERSION);
-        }
-
-        log.info("[InitMysqlDriverService] Start mysql driver prepare. family={}, version={}", MYSQL_DRIVER_FAMILY, MYSQL_DRIVER_VERSION);
-        resetPreparedResources(localVersion);
-        prepareResources(localVersion);
-        PluginManager.driverLoader().refreshDriverVersion(localVersion);
-        publishCompletion(localVersion);
-    }
-
-    private void prepareResources(DriverVersion localVersion) {
-        List<ResDef> resources = localVersion == null ? null : localVersion.getResources();
-        if (CollectionUtils.isEmpty(resources)) {
+        if (resolveDriverStatus() == RuntimeDriverStatus.READY) {
+            this.publishCompletion();
             return;
         }
 
-        int totalResourceCount = resources.size();
-        AtomicInteger completedCounter = new AtomicInteger();
-        for (ResDef resource : resources) {
-            if (resource == null || StringUtils.isBlank(resource.getCoordinate())) {
-                continue;
+        DriverVersion ver = DmDalConfig.mainDsDriverVersion();
+        log.info("[InitMysqlDriverService] Start mysql runtime driver prepare. family={}, version={}, maven={}", //
+                DmDalConfig.MYSQL_DRIVER_RUNTIME_FAMILY, DmDalConfig.MYSQL_DRIVER_VERSION, DmDalConfig.MYSQL_DRIVER_MAVEN_COORDINATE);
+        this.prepareDriver(ver);
+
+        if (resolveDriverStatus() != RuntimeDriverStatus.READY) {
+            throw new IllegalStateException("Runtime MySQL driver class is unavailable.");
+        }
+
+        this.publishCompletion();
+    }
+
+    private void publishCompletion() {
+        boolean available = resolveDriverStatus() == RuntimeDriverStatus.READY;
+        publishProgress(1, available ? 1 : 0, 100, "COMPLETED", available, null, null, available ? "驱动已就绪" : "驱动未就绪，请先下载");
+    }
+
+    private void prepareDriver(DriverVersion ver) {
+        if (ver == null || CollectionUtils.isEmpty(ver.getResources())) {
+            throw new IllegalStateException("runtime maven driver resource is unavailable.");
+        }
+
+        ResDef mavenResource = ver.getResources().get(0);
+        Set<String> completedFiles = ConcurrentHashMap.newKeySet();
+
+        AtomicReference<RuntimeException> prepareError = new AtomicReference<>();
+        PluginManager.driverLoader().prepareDriverVersion(ver, c -> c != mavenResource, new DriverPrepareProgress() {
+
+            @Override
+            public void onStart(DriverVersion driverVersionValue, ResDef driverResource, int resourceIndex, int totalCount) {
+                publishProgress(resolveDriverFileCount(driverResource), completedFiles.size(), 0, "PREPARING", false, null, null, "正在准备驱动...");
             }
 
-            AtomicReference<RuntimeException> prepareError = new AtomicReference<>();
-            PluginManager.driverLoader().prepareDriverVersion(localVersion, current -> current != resource, new DriverPrepareProgress() {
-
-                @Override
-                public void onStart(DriverVersion driverVersionValue, ResDef driverResource, int resourceIndex, int totalCount) {
-                    publishProgress(totalResourceCount,
-                        completedCounter.get(),
-                        0,
-                        "PREPARING",
-                        false,
-                        buildResourceCoordinate(driverResource),
-                        null,
-                        "prepare started");
+            @Override
+            public void onProgress(DriverVersion driverVersionValue, ResDef driverResource, String fileName, long current, long total) {
+                if (StringUtils.isNotBlank(fileName) && total > 0 && current >= total) {
+                    completedFiles.add(fileName);
                 }
-
-                @Override
-                public void onProgress(DriverVersion driverVersionValue, ResDef driverResource, String fileName, long current, long total) {
-                    publishProgress(totalResourceCount,
-                        completedCounter.get(),
-                        calcPercent(current, total),
-                        "PREPARING",
-                        false,
-                        buildResourceCoordinate(driverResource),
-                        fileName,
-                        "preparing resource");
-                }
-
-                @Override
-                public void onComplete(DriverVersion driverVersionValue, ResDef driverResource, int resourceIndex, int totalCount) {
-                    publishProgress(totalResourceCount,
-                        completedCounter.get(),
-                        100,
-                        "PREPARING",
-                        false,
-                        buildResourceCoordinate(driverResource),
-                        null,
-                        "resource prepared");
-                }
-
-                @Override
-                public void onError(DriverVersion driverVersionValue, ResDef driverResource, Exception exception) {
-                    prepareError.set(new RuntimeException(exception == null ? "prepare driver resource failed" : exception.getMessage(), exception));
-                    publishProgress(totalResourceCount,
-                        completedCounter.get(),
-                        0,
-                        "FAILED",
-                        false,
-                        buildResourceCoordinate(driverResource),
-                        null,
-                        exception == null ? "prepare driver resource failed" : exception.getMessage());
-                }
-            });
-
-            if (prepareError.get() != null) {
-                throw prepareError.get();
+                publishProgress(resolveDriverFileCount(driverResource), completedFiles.size(), calcPercent(current, total), "PREPARING", false, null, fileName,
+                        buildDownloadMessage(fileName, current, total));
             }
 
-            completedCounter.incrementAndGet();
-            publishProgress(totalResourceCount,
-                completedCounter.get(),
-                100,
-                "PREPARING",
-                false,
-                buildResourceCoordinate(resource),
-                null,
-                "resource prepared");
-        }
-    }
-
-    private void publishCompletion(DriverVersion localVersion) {
-        boolean available = isPrepared(localVersion);
-        int totalFileCount = localVersion == null || CollectionUtils.isEmpty(localVersion.getResources()) ? 0 : localVersion.getResources().size();
-        publishProgress(totalFileCount,
-            totalFileCount,
-            100,
-            "COMPLETED",
-            available,
-            null,
-            null,
-            available ? "driver ready" : "driver unavailable");
-    }
-
-    private void ensurePluginDriversLoaded() {
-        if (this.pluginsLoaded) {
-            return;
-        }
-
-        synchronized (this.pluginLoadLock) {
-            if (this.pluginsLoaded) {
-                return;
+            @Override
+            public void onComplete(DriverVersion driverVersionValue, ResDef driverResource, int resourceIndex, int totalCount) {
+                publishProgress(resolveDriverFileCount(driverResource), resolveDriverFileCount(driverResource), 100, "PREPARING", false, null, null, "驱动文件下载完成");
             }
 
-            File pluginPath1 = new File(GlobalConfUtils.getPluginDir("plugins"));
-            File pluginPath2 = new File(GlobalConfUtils.getAppDataHome(), "plugins");
-            PluginLoadHelper.loadPlugins(InitApplication.class.getClassLoader(), pluginPath1, pluginPath2);
-            this.pluginsLoaded = true;
-        }
-    }
-
-    private void resetPreparedResources(DriverVersion localVersion) {
-        if (localVersion == null) {
-            return;
-        }
-
-        localVersion.deleteFiles();
-        localVersion.setPrepared(false);
-        if (CollectionUtils.isEmpty(localVersion.getResources())) {
-            return;
-        }
-
-        for (ResDef resource : localVersion.getResources()) {
-            if (resource == null) {
-                continue;
+            @Override
+            public void onError(DriverVersion driverVersionValue, ResDef driverResource, Exception exception) {
+                String errorMessage = buildPrepareErrorMessage(exception);
+                prepareError.set(new RuntimeException(errorMessage, exception));
+                publishProgress(resolveDriverFileCount(driverResource), completedFiles.size(), 0, "FAILED", false, null, null, errorMessage);
             }
-            resource.setPrepared(false);
-            resource.setFileDefList(null);
+        });
+
+        if (prepareError.get() != null) {
+            throw prepareError.get();
+        }
+
+        int totalFileCount = resolveDriverFileCount(mavenResource);
+        publishProgress(totalFileCount, totalFileCount, 100, "PREPARING", false, null, null, "驱动文件下载完成");
+
+        if (CollectionUtils.isEmpty(mavenResource.getFileDefList())) {
+            throw new IllegalStateException("prepared mysql driver files not found.");
         }
     }
 
-    private boolean isPrepared(DriverVersion driverVersion) {
-        if (driverVersion == null) {
-            return false;
-        }
-        List<ResDef> resources = driverVersion.getResources();
-        if (CollectionUtils.isEmpty(resources)) {
-            return true;
-        }
-        for (ResDef resource : resources) {
-            if (resource == null || !resource.isPrepared()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private void publishProgress(int totalFileCount,
-                                 int completedFileCount,
-                                 int currentFilePercent,
-                                 String status,
-                                 boolean available,
-                                 String resourceCoordinate,
-                                 String currentFileName,
-                                 String message) {
+    private void publishProgress(int totalFileCount, int completedFileCount, int currentFilePercent, String status, boolean available, String resourceCoordinate,
+                                 String currentFileName, String message) {
         DriverDownloadProgressVO progressVO = new DriverDownloadProgressVO();
-        progressVO.setDriverFamily(MYSQL_DRIVER_FAMILY);
-        progressVO.setDriverVersion(MYSQL_DRIVER_VERSION);
+        progressVO.setDriverFamily(DmDalConfig.MYSQL_DRIVER_RUNTIME_FAMILY);
+        progressVO.setDriverVersion(DmDalConfig.MYSQL_DRIVER_VERSION);
         progressVO.setTotalFileCount(totalFileCount);
         progressVO.setCompletedFileCount(completedFileCount);
         progressVO.setCurrentFilePercent(currentFilePercent);
@@ -281,14 +211,64 @@ public class InitMysqlDriverService {
         InitMysqlDriverProgressBus.publish(progressVO);
     }
 
-    private String buildResourceCoordinate(ResDef resource) {
-        return resource == null ? "" : StringUtils.defaultIfBlank(resource.getCoordinate(), "");
+    private int resolveDriverFileCount(ResDef resource) {
+        if (resource == null || CollectionUtils.isEmpty(resource.getFileDefList())) {
+            return 1;
+        }
+        return resource.getFileDefList().size();
+    }
+
+    private String buildDownloadMessage(String fileName, long current, long total) {
+        String displayName = StringUtils.defaultIfBlank(fileName, "驱动文件");
+        int percent = calcPercent(current, total);
+        return "正在下载 " + displayName + " " + percent + "%";
+    }
+
+    static String buildPrepareErrorMessage(Throwable e) {
+        if (e == null) {
+            return "Prepare mysql driver failed.";
+        }
+
+        Throwable[] eList = ExceptionUtils.getThrowables(e);
+        Throwable rootCause = ExceptionUtils.getRootCause(e);
+        rootCause = rootCause == null ? e : rootCause;
+
+        StringBuilder message = new StringBuilder("Prepare mysql driver failed.");
+        String rootMessage = StringUtils.trimToNull(ExceptionUtils.getMessage(rootCause));
+        if (rootMessage != null) {
+            message.append(" Root cause: ").append(rootMessage).append('.');
+        }
+
+        Throwable transferContext = findMavenTransferContext(eList, rootCause);
+        String transferMessage = transferContext == null ? null : StringUtils.trimToNull(ExceptionUtils.getMessage(transferContext));
+        if (transferMessage != null && message.indexOf(transferMessage) < 0) {
+            message.append(" Maven transfer: ").append(transferMessage).append('.');
+        }
+        return message.toString();
+    }
+
+    private static Throwable findMavenTransferContext(Throwable[] eList, Throwable rootCause) {
+        if (eList == null) {
+            return null;
+        }
+
+        for (int i = eList.length - 1; i >= 0; i--) {
+            Throwable candidate = eList[i];
+            if (candidate == null || candidate == rootCause) {
+                continue;
+            }
+            String text = StringUtils.defaultString(candidate.getMessage()).toLowerCase(Locale.ROOT);
+            if (text.contains("could not transfer artifact") || text.contains("could not be resolved") || text.contains("artifact descriptor")) {
+                return candidate;
+            }
+        }
+        return null;
     }
 
     private int calcPercent(long current, long total) {
         if (total <= 0L) {
             return 0;
         }
-        return (int) Math.max(0L, Math.min(100L, Math.round((current * 100.0d) / total)));
+        return (int) Math.clamp(Math.round((current * 100.0d) / total), 0L, 100L);
     }
 }

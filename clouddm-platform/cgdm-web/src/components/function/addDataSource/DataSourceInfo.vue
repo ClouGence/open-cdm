@@ -77,21 +77,27 @@
         <div class="datasource-setting-title datasource-setting-title-secondary">
           {{ $t('shu-ju-yuan-she-zhi') }}
         </div>
-        <FormItem :label="$t('qu-dong')" key="driverSelection" v-if="currentDriverFamilies.length">
-          <div class="driver-selection-row">
-            <Select v-model="addDataSourceForm.driverFamily" style="width: 180px" @on-change="handleDriverFamilyChange">
-              <Option v-for="family in currentDriverFamilies" :key="family.name" :value="family.name">
-                {{ family.name }}
-              </Option>
-            </Select>
-            <Select v-model="addDataSourceForm.driverVersion" style="width: 180px" @on-change="syncDriverValue">
-              <Option v-for="version in currentDriverVersions" :key="version" :value="version">
-                {{ version }}
-              </Option>
-            </Select>
-          </div>
-          <div v-if="showDriverStatusLine" class="driver-status-line" :class="driverStatusLineClass">
-            <div class="driver-status-line-main">
+        <FormItem class="driver-selection-form-item" :label="$t('shu-ju-ku-qu-dong')" key="driverSelection" v-if="currentDriverFamilies.length">
+          <div class="driver-selection-field">
+            <div class="driver-selection-row">
+              <Select v-model="addDataSourceForm.driverFamily" style="width: 180px" @on-change="handleDriverFamilyChange">
+                <Option v-for="family in currentDriverFamilies" :key="family.name" :value="family.name">
+                  {{ family.name }}
+                </Option>
+              </Select>
+              <Select v-model="addDataSourceForm.driverVersion" style="width: 126px" @on-change="syncDriverValue">
+                <Option v-for="version in currentDriverVersions" :key="version" :value="version">
+                  {{ version }}
+                </Option>
+              </Select>
+              <Button v-if="showDriverStatusButton" class="driver-status-button" :disabled="driverStatusButtonDisabled" @click="handleDriverAction">
+                {{ driverActionLabel }}
+              </Button>
+              <span v-if="showDriverReadyState" class="driver-status-icon-wrap">
+                <Icon type="md-checkmark-circle" class="driver-status-ready-icon" />
+              </span>
+            </div>
+            <div v-if="showDriverStatusDetail" class="driver-status-detail" :class="driverStatusLineClass">
               <span class="driver-status-icon-wrap" :class="{ 'is-clickable': canClickDriverStatusIcon }" @click="handleDriverStatusIconClick">
                 <span v-if="showDriverDownloadProgress" class="driver-status-progress-circle" :style="driverProgressCircleStyle">
                   <span class="driver-status-progress-circle-text">{{ driverProgressCircleText }}</span>
@@ -103,20 +109,9 @@
                 <Icon v-else-if="driverUiState === 'error'" type="ios-alert-circle" class="driver-status-error-icon" />
                 <span v-else class="driver-status-phase-dot"></span>
               </span>
-              <span class="driver-status-resource" :title="driverResourceText || driverStatusTitleText">
-                {{ driverResourceText || driverStatusTitleText }}
+              <span v-if="showDriverStatusMessage" class="driver-status-inline-message" :title="driverStatusInlineMessageText">
+                （{{ driverStatusInlineMessageText }}）
               </span>
-              <span class="driver-status-progress-text" :title="driverProgressText">
-                {{ driverProgressText }}
-              </span>
-              <div class="driver-status-actions">
-                <Button v-if="showDriverActionButton" size="small" @click="handleDriverAction">
-                  {{ driverActionLabel }}
-                </Button>
-              </div>
-            </div>
-            <div v-if="driverStatusMessageText" class="driver-status-line-detail driver-status-line-detail-message" :title="driverStatusMessageText">
-              {{ driverStatusMessageText }}
             </div>
           </div>
         </FormItem>
@@ -986,9 +981,35 @@ export default {
     showDriverDownloadAction() {
       return this.driverUiState === 'unprepared';
     },
+    showDriverInlineAction() {
+      return this.showDriverCheckAction || this.showDriverDownloadAction || this.driverUiState === 'error';
+    },
+    showDriverInlineDownloadAction() {
+      return this.showDriverDownloadAction;
+    },
+    showDriverStatusButton() {
+      return (
+        this.driverUiState !== 'ready' &&
+        (this.showDriverCheckAction || this.showDriverDownloadAction || this.showDriverDownloadProgress || this.driverUiState === 'error')
+      );
+    },
+    driverStatusButtonDisabled() {
+      return this.driverUiState === 'checking' || this.showDriverDownloadProgress;
+    },
+    showDriverStatusMessage() {
+      return this.driverUiState !== 'ready' && !!this.driverStatusInlineMessageText;
+    },
+    showDriverStatusDetail() {
+      return this.showDriverStatusLine && (this.showDriverStatusMessage || this.showDriverDownloadProgress);
+    },
     driverProgressLabel() {
       const { totalFileCount, completedFileCount } = this.driverStatus;
-      return totalFileCount > 0 ? `${completedFileCount}/${totalFileCount}` : '';
+      if (!(totalFileCount > 0)) {
+        return '0/0';
+      }
+
+      const safeCompletedFileCount = Math.max(0, Math.min(Number(totalFileCount), Number(completedFileCount) || 0));
+      return `${safeCompletedFileCount}/${totalFileCount}`;
     },
     driverProgressValue() {
       const { totalFileCount, completedFileCount } = this.driverStatus;
@@ -996,25 +1017,16 @@ export default {
         return 0;
       }
 
-      const currentStepPercent = Math.max(0, Math.min(100, Number(this.driverStatus.currentFilePercent) || 0));
-      const completedRatio = Number(completedFileCount) / Number(totalFileCount);
-      const currentStepRatio = currentStepPercent / 100 / Number(totalFileCount);
-
-      return Math.max(0, Math.min(100, Math.round((completedRatio + currentStepRatio) * 100)));
-    },
-    driverProgressText() {
-      return this.showDriverDownloadProgress ? this.driverProgressPercent : '';
+      const safeCompletedFileCount = Math.max(0, Math.min(Number(totalFileCount), Number(completedFileCount) || 0));
+      return Math.round((safeCompletedFileCount / Number(totalFileCount)) * 100);
     },
     driverProgressCircleText() {
-      return this.showDriverDownloadProgress ? `${this.driverProgressValue}%` : '';
+      return this.showDriverDownloadProgress ? this.driverProgressLabel : '';
     },
     driverProgressCircleStyle() {
       return {
         '--driver-progress-percent': `${this.driverProgressValue}%`
       };
-    },
-    driverProgressPercent() {
-      return `${Math.max(0, Math.min(100, Number(this.driverStatus.currentFilePercent) || 0))}%`;
     },
     showDriverStatusLine() {
       return !!this.selectedDriverKey && this.driverUiState !== 'idle';
@@ -1053,6 +1065,26 @@ export default {
       }
       return message;
     },
+    driverStatusInlineMessageText() {
+      const message = `${this.driverStatus.message || ''}`.trim();
+      if (this.driverUiState === 'checking') {
+        return message || this.$t('initialization.mysqlDriverChecking');
+      }
+
+      if (this.driverUiState === 'downloading') {
+        return message || this.$t('initialization.mysqlDriverPreparing');
+      }
+
+      if (this.driverUiState === 'unprepared') {
+        return this.$t('initialization.mysqlDriverUnavailable');
+      }
+
+      if (this.driverUiState === 'error') {
+        return message || this.$t('initialization.mysqlDriverUnavailable');
+      }
+
+      return '';
+    },
     driverStatusErrorMessage() {
       const message = `${this.driverStatus.message || ''}`.trim();
       if (!message || this.driverUiState !== 'error') {
@@ -1063,10 +1095,10 @@ export default {
     showDriverStatusError() {
       return !!this.driverStatusErrorMessage;
     },
-    showDriverActionButton() {
-      return this.showDriverCheckAction || this.showDriverDownloadAction || this.driverUiState === 'error';
-    },
     driverActionLabel() {
+      if (this.showDriverDownloadProgress) {
+        return '下载中';
+      }
       if (this.showDriverCheckAction) {
         return this.$t('jian-cha');
       }
@@ -1077,6 +1109,12 @@ export default {
         return this.$t('zhong-shi');
       }
       return '';
+    },
+    driverUnavailableMessagePrefix() {
+      return this.splitDriverUnavailableMessage()[0];
+    },
+    driverUnavailableMessageSuffix() {
+      return this.splitDriverUnavailableMessage()[1];
     },
     canClickDriverStatusIcon() {
       return !['checking', 'downloading'].includes(this.driverUiState);
@@ -1150,6 +1188,7 @@ export default {
     currentDriverFamilies: {
       handler() {
         this.applyDriverFamilySelection();
+        this.emitDriverStatusChange();
       },
       immediate: true
     },
@@ -1167,6 +1206,16 @@ export default {
       if (step === 1) {
         this.refreshDriverStatus();
       }
+    },
+    driverStatus: {
+      handler() {
+        this.emitDriverStatusChange();
+      },
+      deep: true,
+      immediate: true
+    },
+    driverUiState() {
+      this.emitDriverStatusChange();
     }
   },
   methods: {
@@ -1177,6 +1226,29 @@ export default {
     isOracle,
     isStarRocks,
     isGaussDB,
+    isDriverReadyForSubmit() {
+      return !this.currentDriverFamilies.length || this.driverUiState === 'ready';
+    },
+    emitDriverStatusChange() {
+      this.$emit('driver-status-change', {
+        required: !!this.currentDriverFamilies.length,
+        ready: this.isDriverReadyForSubmit(),
+        status: this.driverStatus.status,
+        uiState: this.driverUiState,
+        message: this.driverStatusInlineMessageText
+      });
+    },
+    splitDriverUnavailableMessage() {
+      const message = this.driverStatusInlineMessageText || this.$t('initialization.mysqlDriverUnavailable');
+      const actionText = this.driverActionLabel || this.$t('xia-zai');
+      const actionIndex = message.indexOf(actionText);
+
+      if (actionIndex < 0) {
+        return [message, ''];
+      }
+
+      return [message.slice(0, actionIndex), message.slice(actionIndex + actionText.length)];
+    },
     normalizeDriverClusterId(clusterId) {
       const normalized = Number(clusterId);
       return Number.isFinite(normalized) && normalized > 0 ? normalized : null;
@@ -1655,13 +1727,17 @@ export default {
           data: this.buildConnectDsPayload(clusterId)
         });
 
-        this.hasTestConnectionResult = true;
-        this.testConnectionSuccess = !!res.success;
-        this.testConnectionMessage = res.success
-          ? this.$t('ce-shi-lian-jie-cheng-gong')
-          : res.msg || this.$t('lian-jie-shi-bai-qing-jian-cha-shu-ju-yuan-deng-ru-xin-xi');
+        const result = res.data || {};
+        const connectSuccess = res.success && result.success !== false;
+        const connectMessage = result.message || res.msg || '';
 
-        if (res.success) {
+        this.hasTestConnectionResult = true;
+        this.testConnectionSuccess = connectSuccess;
+        this.testConnectionMessage = connectSuccess
+          ? this.$t('ce-shi-lian-jie-cheng-gong')
+          : connectMessage || this.$t('lian-jie-shi-bai-qing-jian-cha-shu-ju-yuan-deng-ru-xin-xi');
+
+        if (connectSuccess) {
           this.$Message.success(this.testConnectionMessage);
         } else {
           this.$Message.error(this.testConnectionMessage);
@@ -2258,57 +2334,75 @@ export default {
   position: relative;
 }
 
+.driver-selection-form-item {
+  margin-bottom: 24px;
+}
+
+.driver-selection-field {
+  display: inline-flex;
+  min-width: 0;
+  position: relative;
+}
+
 .driver-selection-row {
   display: inline-flex;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 .driver-status-loading-icon {
   color: #52c41a;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .driver-status-progress-circle {
-  flex: 0 0 auto;
+  flex: 0 0 28px;
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
   border-radius: 50%;
-  background: conic-gradient(#52c41a var(--driver-progress-percent, 0%), rgba(82, 196, 26, 0.18) 0);
+  background: conic-gradient(#1677ff var(--driver-progress-percent, 0%), rgba(22, 119, 255, 0.16) 0);
 }
 
 .driver-status-progress-circle::before {
   content: '';
   position: absolute;
-  inset: 5px;
+  inset: 4px;
   border-radius: 50%;
-  background: #f6ffed;
+  background: #fff;
 }
 
 .driver-status-progress-circle-text {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 1;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 600;
   line-height: 1;
-  color: #135200;
+  color: #0958d9;
 }
 
 .driver-status-icon-wrap {
+  flex: 0 0 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  min-width: 34px;
-  height: 34px;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  line-height: 1;
 }
 
 .driver-status-icon-wrap.is-clickable {
@@ -2317,55 +2411,33 @@ export default {
 
 .driver-status-ready-icon {
   color: #52c41a;
-  font-size: 20px;
+  font-size: 16px;
 }
 
 .driver-status-unknown-icon,
 .driver-status-warning-icon {
   color: #faad14;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .driver-status-error-icon {
   color: #f5222d;
-  font-size: 18px;
+  font-size: 16px;
 }
 
-.driver-status-line {
-  margin-top: 10px;
-  padding: 10px 12px;
-  border: 1px solid #d9f7be;
-  background: #f6ffed;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-width: 760px;
-}
-
-.driver-status-line.is-checking,
-.driver-status-line.is-ready,
-.driver-status-line.is-downloading {
-  border-color: #d9f7be;
-  background: #f6ffed;
-}
-
-.driver-status-line.is-unknown,
-.driver-status-line.is-unprepared {
-  border-color: #ffe58f;
-  background: #fffbe6;
-}
-
-.driver-status-line.is-error {
-  border-color: #ffccc7;
-  background: #fff2f0;
-}
-
-.driver-status-line-main {
-  display: flex;
+.driver-status-detail {
+  position: absolute;
+  left: 0;
+  top: 34px;
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
   min-width: 0;
+  max-width: 480px;
+  min-height: 22px;
+  line-height: 22px;
+  color: rgba(0, 0, 0, 0.85);
+  vertical-align: middle;
 }
 
 .driver-status-phase-dot {
@@ -2376,51 +2448,27 @@ export default {
   flex: 0 0 auto;
 }
 
-.driver-status-resource {
-  color: #262626;
-  font-size: 13px;
-  font-weight: 500;
-  flex: 1 1 auto;
-  min-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.driver-status-progress-text {
-  flex: 0 0 64px;
-  text-align: right;
-  font-size: 13px;
-  font-weight: 500;
-  color: #135200;
-}
-
-.driver-status-actions {
-  flex: 0 0 auto;
-  margin-left: auto;
-}
-
-.driver-status-line-detail {
-  color: #434343;
+.driver-status-inline-message {
+  color: rgba(0, 0, 0, 0.65);
   font-size: 12px;
-  line-height: 18px;
-  white-space: nowrap;
+  line-height: 20px;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.driver-status-line-detail-message {
-  color: #595959;
+.driver-status-button {
+  flex: 0 0 auto;
+  min-width: 72px;
 }
 
-.driver-status-line.is-unknown .driver-status-progress-text,
-.driver-status-line.is-unprepared .driver-status-progress-text {
+.driver-status-detail.is-unknown .driver-status-inline-message,
+.driver-status-detail.is-unprepared .driver-status-inline-message {
   color: #ad6800;
 }
 
-.driver-status-line.is-error .driver-status-resource,
-.driver-status-line.is-error .driver-status-progress-text,
-.driver-status-line.is-error .driver-status-line-detail-message {
+.driver-status-detail.is-error .driver-status-inline-message {
   color: #cf1322;
 }
 

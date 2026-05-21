@@ -24,6 +24,7 @@ import java.util.List;
 
 import com.clougence.drivers.DriverBinding;
 import com.clougence.drivers.DriverFile;
+import com.clougence.drivers.DriverVersion;
 import com.clougence.drivers.def.VerDef;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.loader.CgClassLoader;
@@ -31,6 +32,7 @@ import com.clougence.utils.loader.ResourceLoader;
 import com.clougence.utils.loader.providers.ClassPathResourceLoader;
 import com.clougence.utils.loader.providers.ImportResourceLoader;
 import com.clougence.utils.loader.providers.JarResourceLoader;
+import com.clougence.utils.loader.providers.PathResourceLoader;
 
 final class DriverBindingImpl implements DriverBinding {
 
@@ -51,7 +53,6 @@ final class DriverBindingImpl implements DriverBinding {
         this.bindPreparedDriverFiles(this.driverVersion);
 
         this.classLoader = this.resourceChain.toClassLoader(parent);
-        this.bind(driverVersion.getDsFactoryDef().getDsFactoryClassLoader());
     }
 
     private void bindPreparedDriverFiles(VerDef driverVersion) {
@@ -73,12 +74,21 @@ final class DriverBindingImpl implements DriverBinding {
             if (!sourceFile.exists()) {
                 throw new IllegalStateException("load prepared driver file failed: file not found, path=" + sourceFile.getAbsolutePath());
             }
-            if (!sourceFile.isFile()) {
-                throw new IllegalStateException("load prepared driver file failed: path is not a file, path=" + sourceFile.getAbsolutePath());
-            }
+
             if (!sourceFile.canRead()) {
                 throw new IllegalStateException("load prepared driver file failed: file is not readable, path=" + sourceFile.getAbsolutePath());
             }
+
+            if (sourceFile.isDirectory()) {
+                this.resourceChain.importResources(new PathResourceLoader(sourceFile));
+                continue;
+            }
+
+            if (!sourceFile.isFile()) {
+                // make sure it is an ordinary file.
+                throw new IllegalStateException("load prepared driver file failed: unsupported path, path=" + sourceFile.getAbsolutePath());
+            }
+
             if (!isArchiveFile(sourceFile.getName())) {
                 throw new IllegalStateException("load prepared driver file failed: unsupported archive file, path=" + sourceFile.getAbsolutePath());
             }
@@ -135,6 +145,11 @@ final class DriverBindingImpl implements DriverBinding {
     }
 
     @Override
+    public DriverVersion driverVersion() {
+        return this.driverVersion;
+    }
+
+    @Override
     public boolean isExpired() {
         long currentTimestamp = this.driverVersion != null ? this.driverVersion.getTimestamp() : -1L;
         return this.stateTimestamp != currentTimestamp;
@@ -178,10 +193,13 @@ final class DriverBindingImpl implements DriverBinding {
                 normalized = normalized.substring(1);
             }
 
-            result.add(normalized);
             if (normalized.indexOf('/') < 0 && normalized.indexOf('.') >= 0) {
-                result.add(normalized.replace('.', '/'));
+                normalized = normalized.replace('.', '/');
             }
+            if (normalized.endsWith("/*")) {
+                normalized = normalized.substring(0, normalized.length() - 1);
+            }
+            result.add(normalized);
         }
         return new ArrayList<>(result);
     }

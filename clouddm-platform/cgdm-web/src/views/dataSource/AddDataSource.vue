@@ -19,6 +19,7 @@
           :auto-enable-features="shouldAutoEnableFeatures"
           :driver-family-map="driverFamilyMap"
           :set-security-setting="setSecuritySetting"
+          @driver-status-change="handleDriverStatusChange"
         ></DataSourceInfo>
         <SuccessAdd v-if="currentStep > 2"></SuccessAdd>
       </div>
@@ -34,7 +35,7 @@
         <Button v-if="currentStep === 1" @click="handleStep('pre')">
           {{ $t('shang-yi-bu') }}
         </Button>
-        <Button type="primary" @click="handleAddDataSource" :loading="addDatasourceLoading" v-if="currentStep === 1">
+        <Button type="primary" @click="handleAddDataSource" :loading="addDatasourceLoading" :disabled="disableAddDataSource" v-if="currentStep === 1">
           {{ $t('xin-zeng-shu-ju-yuan') }}
         </Button>
       </div>
@@ -134,7 +135,9 @@ export default {
       currentStep: 0,
       clusters: [],
       addDataSourceForm: deepClone(EMPTY_DATA_SOURCE_FORM),
-      securitySetting: []
+      securitySetting: [],
+      driverReadyForAdd: true,
+      driverRequiredForAdd: false
     };
   },
   computed: {
@@ -150,6 +153,9 @@ export default {
     },
     shouldAutoEnableFeatures() {
       return !this.isDesktop && this.$route?.path === '/system/ccdatasource/add';
+    },
+    disableAddDataSource() {
+      return this.driverRequiredForAdd && !this.driverReadyForAdd;
     }
   },
   beforeUnmount() {
@@ -177,6 +183,19 @@ export default {
     },
     setSecuritySetting(setting) {
       this.securitySetting = setting;
+    },
+    handleDriverStatusChange(status) {
+      this.driverRequiredForAdd = !!status?.required;
+      this.driverReadyForAdd = !this.driverRequiredForAdd || !!status?.ready;
+    },
+    ensureDriverReadyForAdd() {
+      const driverReady = this.$refs.dataSourceInfo?.isDriverReadyForSubmit?.() ?? this.driverReadyForAdd;
+      if (this.driverRequiredForAdd && !driverReady) {
+        this.$Message.warning(this.$t('initialization.mysqlDriverDownloadRequired'));
+        return false;
+      }
+
+      return true;
     },
     handleStep(type) {
       if (type === 'pre') {
@@ -253,6 +272,10 @@ export default {
       }
     },
     handleAddDataSource() {
+      if (!this.ensureDriverReadyForAdd()) {
+        return;
+      }
+
       this.$refs.dataSourceInfo.$refs.addLocalDs.validate((val) => {
         if (val) {
           this.syncPrimaryHostFields();

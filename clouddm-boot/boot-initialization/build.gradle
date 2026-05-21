@@ -44,7 +44,6 @@ dependencies {
     implementation "com.zaxxer:HikariCP:${HIKARICP_VERSION}"
     implementation 'org.flywaydb:flyway-core:9.22.3'
     implementation 'org.flywaydb:flyway-mysql:9.22.3'
-    implementation 'com.mysql:mysql-connector-j:8.0.33'
     implementation "com.baomidou:mybatis-plus-extension:${MYBATISPLUS_VERSION}"
 
     // utils

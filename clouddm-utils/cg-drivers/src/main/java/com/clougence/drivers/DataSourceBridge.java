@@ -132,15 +132,18 @@ public class DataSourceBridge implements DataSource {
                     break;
             }
 
-            if (this.dsObject.isClose()) {
-                throw new IllegalStateException("connection is close.");
-            }
-
             if ("close".equals(method.getName())) {
                 if (!this.dsObject.isClose()) {
                     this.dsObject.close();
                 }
                 return null;
+            }
+            if ("isClosed".equals(method.getName())) {
+                return this.dsObject.isClose() || this.target.isClosed();
+            }
+
+            if (this.dsObject.isClose()) {
+                throw new SQLException("connection is closed.");
             }
 
             try {

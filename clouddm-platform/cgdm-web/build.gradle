@@ -83,14 +83,34 @@ java {
 
 tasks.register('npmInstall', Exec) {
     workingDir projectDir
-    commandLine npmCommand, 'install'
-    environment 'PATH', taskPath
-    inputs.file("${projectDir}/package.json")
     File packageLockFile = file("${projectDir}/package-lock.json")
+    File nodeModulesLockFile = file("${projectDir}/node_modules/.package-lock.json")
+    File installMarkerFile = file("${buildDir}/npm-install/.stamp")
+    if (packageLockFile.exists() && !nodeModulesLockFile.exists()) {
+        commandLine npmCommand, 'ci', '--no-audit', '--no-fund', '--prefer-offline'
+    } else {
+        commandLine npmCommand, 'install', '--no-audit', '--no-fund', '--prefer-offline'
+    }
+
+    environment 'PATH', taskPath
+    environment 'CI', 'true'
+    environment 'HUSKY', '0'
+    environment 'NPM_CONFIG_UPDATE_NOTIFIER', 'false'
+    inputs.file("${projectDir}/package.json")
     if (packageLockFile.exists()) {
         inputs.file(packageLockFile)
     }
-    outputs.dir("${projectDir}/node_modules")
+
+    inputs.file("${projectDir}/.npmrc")
+    outputs.file(installMarkerFile)
+    outputs.upToDateWhen {
+        nodeModulesLockFile.exists()
+    }
+
+    doLast {
+        installMarkerFile.parentFile.mkdirs()
+        installMarkerFile.text = String.valueOf(System.currentTimeMillis())
+    }
 }
 
 tasks.register('npmBuild', Exec) {

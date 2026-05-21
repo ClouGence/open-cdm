@@ -160,7 +160,9 @@ public class MavenResourcePreparer extends AbstractResourcePreparer {
                 fileDef.setPrepared(true);
             }
 
-            driverResource.setFileDefList(new ArrayList<>(fileDefMap.values()));
+            List<FileDef> fileDefs = new ArrayList<>(fileDefMap.values());
+            driverResource.setFileDefList(fileDefs);
+            driverResource.setPrepared(fileDefs.stream().allMatch(FileDef::isPrepared));
             updateFilesIndex(driverVersion, driverResource);
         } finally {
             if (tempRepoDir.exists()) {

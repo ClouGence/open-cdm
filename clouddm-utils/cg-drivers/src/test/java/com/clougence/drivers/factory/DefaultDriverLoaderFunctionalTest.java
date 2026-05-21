@@ -95,8 +95,8 @@ public class DefaultDriverLoaderFunctionalTest {
         loader.loadDriverXml(xmlStream(
             "<drivers>" +
                 "<driver driverFamily=\"functional-driver\" version=\"2.0.0\">" +
-                "<resource type=\"resource\">driver-tests/sample-resource.txt</resource>" +
                 "<resource type=\"class\">" + TestPrepareMarker.class.getName() + "</resource>" +
+                "<resource type=\"resource\">driver-tests/sample-resource.txt</resource>" +
                 "</driver>" +
             "</drivers>"));
         // @formatter:on

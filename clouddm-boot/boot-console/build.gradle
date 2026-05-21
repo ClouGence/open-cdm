@@ -60,7 +60,6 @@ dependencies {
     implementation "com.zaxxer:HikariCP:${HIKARICP_VERSION}"
     implementation "com.baomidou:mybatis-plus-spring-boot4-starter:${MYBATISPLUS_VERSION}"
     implementation "com.baomidou:mybatis-plus-extension:${MYBATISPLUS_VERSION}"
-    implementation 'com.mysql:mysql-connector-j:8.0.33'
 
     // utils
     implementation "com.fasterxml.uuid:java-uuid-generator:4.0"

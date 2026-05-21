@@ -48,8 +48,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class })
 @ComponentScan(basePackages = { "com.clougence.clouddm.init.controller", "com.clougence.clouddm.init.service", "com.clougence.clouddm.init.model",
-                                "com.clougence.clouddm.console.web.constants",
-                                "com.clougence.clouddm.console.web.global.exception", "com.clougence.clouddm.api.common.rpc",
+                                "com.clougence.clouddm.console.web.constants", "com.clougence.clouddm.console.web.global.exception", "com.clougence.clouddm.api.common.rpc",
                                 "com.clougence.rdp.constant.auth" }, excludeFilters = { @ComponentScan.Filter(type = FilterType.REGEX, pattern = "com\\.clougence\\.clouddm\\.console\\.web\\.service\\.system\\.impl\\..*") })
 public class InitApplication implements WebMvcConfigurer {
 

@@ -6,7 +6,6 @@ _book
 dependency-reduced-pom.xml
 .gradle
 /.gradle/
-*/.clion.source.upload.marker
 LOG_FILE_IS_UNDEFINED
 
 # Editor directories and files
@@ -36,12 +35,10 @@ package/buildTools/.gradle/
 package/buildTools/gradlew
 package/buildTools/gradlew.bat
 
-# log
-logs/*
-LOG_FILE_IS_UNDEFINED*
-
-# electron
-package/electron/dist/
+# run data dir.
+/logs
+/data
+/install_upgrade.log
 
 # web
 node_modules

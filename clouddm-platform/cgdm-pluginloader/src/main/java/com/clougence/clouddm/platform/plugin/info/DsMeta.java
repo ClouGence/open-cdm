@@ -218,7 +218,9 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
                 throw new UnsupportedOperationException("no DriverBinding for driverVersion '" + key + "'.");
             }
 
-            this.configIncludeExclude(binding.asClassLoader());
+            binding.bind(this.pluginResource, this.getIncludePackages().toArray(new String[0]));
+
+            this.configIncludeExclude(binding.asClassLoader());// config all bind
             this.driverBindingCache.put(key, binding);
             return binding;
         }

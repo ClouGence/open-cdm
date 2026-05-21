@@ -21,11 +21,18 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.platform.plugin.PluginLoadHelper;
+import com.clougence.clouddm.platform.plugin.PluginManager;
+import com.clougence.clouddm.sdk.security.auth.AuthInfoSpi;
+import com.clougence.utils.CollectionUtils;
 
 @Service
 public class InitConsolePluginLoader {
 
-    public void loadPlugin(ClassLoader parentClassLoader) throws Exception {
+    public void loadPlugin(ClassLoader parentClassLoader) {
+        if (CollectionUtils.isNotEmpty(PluginManager.findSpi(AuthInfoSpi.class))) {
+            return;
+        }
+
         File pluginPath1 = new File(GlobalConfUtils.getPluginDir("plugins"));
         File pluginPath2 = new File(GlobalConfUtils.getAppDataHome(), "plugins");
         PluginLoadHelper.loadPlugins(parentClassLoader, pluginPath1, pluginPath2);

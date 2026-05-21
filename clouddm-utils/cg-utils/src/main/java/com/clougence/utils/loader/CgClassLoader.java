@@ -65,7 +65,15 @@ public class CgClassLoader extends ClassLoader {
         }
 
         if (this.includePackages.isEmpty()) {
-            return super.loadClass(name, resolve);
+            try {
+                return super.loadClass(name, resolve);
+            } catch (ClassNotFoundException e) {
+                Class<?> c = this.findClass(name);
+                if (c != null && resolve) {
+                    this.resolveClass(c);
+                }
+                return c;
+            }
         } else {
             for (String include : this.includePackages) {
                 if (StringUtils.startsWith(name, include) || MatchUtils.matchWild(include, name)) {

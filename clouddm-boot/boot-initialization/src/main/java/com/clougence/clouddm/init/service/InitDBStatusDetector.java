@@ -15,15 +15,20 @@
  */
 package com.clougence.clouddm.init.service;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import com.clougence.clouddm.console.web.constants.SystemStatus;
+import com.clougence.clouddm.console.web.global.config.DmDalConfig;
 import com.clougence.clouddm.init.component.flyway.DmFlywayInit;
 import com.clougence.clouddm.init.model.SystemStatusResult;
-import com.clougence.utils.ResourcesUtils;
+import com.clougence.clouddm.platform.plugin.PluginManager;
+import com.clougence.drivers.DriverBinding;
+import com.clougence.drivers.DriverVersion;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,31 +38,9 @@ public final class InitDBStatusDetector {
 
     private static final String TABLE_COUNT_SQL  = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = ?";
     private static final String TABLE_EXISTS_SQL = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = ? AND table_name = ?";
+    private static final String DRIVER_MISSING   = "driverMissing";
 
     private InitDBStatusDetector(){
-    }
-
-    public static SystemStatusResult detectDBStatus(String... resourcePaths) {
-        Properties props = new Properties();
-        try {
-            for (String resourcePath : resourcePaths) {
-                if (StringUtils.isBlank(resourcePath)) {
-                    continue;
-                }
-                Map<String, String> map = ResourcesUtils.getProperty(resourcePath);
-                if (map != null) {
-                    props.putAll(map);
-                }
-            }
-        } catch (Exception e) {
-            log.error("[InitDBStatusDetector] Failed to load DB config from resources", e);
-            SystemStatusResult result = new SystemStatusResult();
-            result.setStatus(SystemStatus.Initial);
-            result.setInitReason("dbConfigMissing");
-            result.setDbError(e.getMessage());
-            return result;
-        }
-        return detectDBStatus(props);
     }
 
     public static SystemStatusResult detectDBStatus(Properties props) {
@@ -72,7 +55,34 @@ public final class InitDBStatusDetector {
             return result;
         }
 
-        try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
+        try {
+            DriverVersion ver = DmDalConfig.mainDsDriverVersion();
+            if (!ver.isPrepared()) {
+                log.warn("[InitDBStatusDetector] Runtime driver is not prepared.");
+                result.setStatus(SystemStatus.Initial);
+                result.setInitReason(DRIVER_MISSING);
+                result.setDbError("Runtime MySQL driver is not ready.");
+                return result;
+            }
+
+            DriverBinding binding = PluginManager.driverLoader().createBinding(//
+                    DmDalConfig.class.getClassLoader(), DmDalConfig.MYSQL_DRIVER_RUNTIME_FAMILY, DmDalConfig.MYSQL_DRIVER_VERSION);
+            if (!DmDalConfig.isDriverClassAvailable(binding)) {
+                log.warn("[InitDBStatusDetector] Runtime driver class is not available.");
+                result.setStatus(SystemStatus.Initial);
+                result.setInitReason(DRIVER_MISSING);
+                result.setDbError("Runtime MySQL driver class is unavailable.");
+                return result;
+            }
+        } catch (RuntimeException e) {
+            log.warn("[InitDBStatusDetector] Runtime driver is not ready: {}", e.getMessage());
+            result.setStatus(SystemStatus.Initial);
+            result.setInitReason(DRIVER_MISSING);
+            result.setDbError(e.getMessage());
+            return result;
+        }
+
+        try (Connection conn = DmDalConfig.createDriverConnection(jdbcUrl, username, password, 10000L)) {
             String dbName = getDatabaseName(jdbcUrl);
             log.info("[InitDBStatusDetector] Connected to DB: {}, dbName={}", jdbcUrl, dbName);
             try (PreparedStatement stmt = conn.prepareStatement(TABLE_COUNT_SQL)) {
@@ -109,10 +119,39 @@ public final class InitDBStatusDetector {
         } catch (SQLException e) {
             log.warn("[InitDBStatusDetector] DB connection failed: {}", e.getMessage());
             result.setStatus(SystemStatus.Initial);
-            result.setInitReason(isDatabaseMissing(e) ? "dbMissing" : "dbConnectionError");
+            result.setInitReason(resolveConnectionErrorReason(e));
             result.setDbError(e.getMessage());
             return result;
         }
+    }
+
+    private static String resolveConnectionErrorReason(SQLException e) {
+        if (isDriverMissing(e)) {
+            return DRIVER_MISSING;
+        }
+        return isDatabaseMissing(e) ? "dbMissing" : "dbConnectionError";
+    }
+
+    private static boolean isDriverMissing(Throwable e) {
+        Throwable current = e;
+        while (current != null) {
+            if (current instanceof ClassNotFoundException || current instanceof NoClassDefFoundError) {
+                return true;
+            }
+
+            String message = current.getMessage();
+            if (StringUtils.isNotBlank(message)) {
+                String lowerMessage = message.toLowerCase();
+                if (lowerMessage.contains("classnotfoundexception") ||            //
+                    lowerMessage.contains("no suitable driver") ||                //
+                    lowerMessage.contains("runtime mysql driver is not ready") || //
+                    lowerMessage.contains("driver binding is unavailable")) {
+                    return true;
+                }
+            }
+            current = current.getCause();
+        }
+        return false;
     }
 
     private static boolean isDatabaseMissing(SQLException e) {

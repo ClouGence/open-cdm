@@ -1,29 +1,19 @@
 <template>
-  <div class="init-mysql-driver-status" :class="driverStatusClass">
-    <div class="init-mysql-driver-status-main">
-      <span class="init-mysql-driver-title">{{ $t('initialization.mysqlDriverTitle') }}</span>
-      <div class="init-mysql-driver-action">
-        <a-button v-if="showActionButton" size="small" type="primary" @click="handleActionClick">
-          {{ actionLabel }}
-        </a-button>
-        <span v-else class="init-mysql-driver-icon">
-          <span v-if="showDriverDownloadProgress" class="init-mysql-driver-progress-circle" :style="driverProgressCircleStyle">
-            <span class="init-mysql-driver-progress-circle-text">{{ driverProgressText }}</span>
-          </span>
-          <LoadingOutlined v-else-if="driverUiState === 'checking'" class="init-mysql-driver-loading-icon" />
-          <CheckCircleOutlined v-else-if="driverUiState === 'ready'" class="init-mysql-driver-ready-icon" />
-          <ExclamationCircleOutlined v-else class="init-mysql-driver-warning-icon" />
-        </span>
-      </div>
-      <span v-if="driverProgressPercentText" class="init-mysql-driver-progress-text">{{ driverProgressPercentText }}</span>
-    </div>
-    <div v-if="statusHintText" class="init-mysql-driver-status-hint">
-      {{ statusHintText }}
-    </div>
-    <div v-if="driverStatusMessageText" class="init-mysql-driver-message">
-      {{ driverStatusMessageText }}
-    </div>
-  </div>
+  <span class="init-mysql-driver-status" :class="driverStatusClass">
+    <span class="init-mysql-driver-icon">
+      <span v-if="showDriverDownloadProgress" class="init-mysql-driver-progress-circle" :style="driverProgressCircleStyle">
+        <span class="init-mysql-driver-progress-circle-text">{{ driverProgressText }}</span>
+      </span>
+      <LoadingOutlined v-else-if="driverUiState === 'checking'" class="init-mysql-driver-loading-icon" />
+      <CheckCircleOutlined v-else-if="driverUiState === 'ready'" class="init-mysql-driver-ready-icon" />
+      <ExclamationCircleOutlined v-else class="init-mysql-driver-warning-icon" />
+    </span>
+    <span class="init-mysql-driver-type">{{ $t('initialization.jdbcDataSourceTypeValue') }}</span>
+    <span v-if="driverInlineMessage" class="init-mysql-driver-message">（{{ driverInlineMessage }}）</span>
+    <a-button v-if="showActionButton" size="small" type="primary" :disabled="actionDisabled" @click="handleActionClick">
+      {{ actionLabel }}
+    </a-button>
+  </span>
 </template>
 
 <script>
@@ -35,15 +25,17 @@ const createInitialDriverStatus = () => ({
   available: false,
   totalFileCount: 0,
   completedFileCount: 0,
-  currentFilePercent: 0,
   status: 'IDLE',
   retryAction: 'CHECK',
   message: '',
-  resourceCoordinate: '',
-  currentFileName: '',
   driverFamily: '',
   driverVersion: ''
 });
+
+const INIT_MYSQL_RUNTIME_DRIVER_FAMILY = 'cgdm-runtime-mysql';
+const INIT_MYSQL_RUNTIME_DRIVER_VERSION = 'default';
+const INIT_MYSQL_DRIVER_STATUS_READY = 'READY';
+const INIT_MYSQL_DRIVER_STATUS_DOWNLOADING = 'DOWNLOADING';
 
 function buildInitMysqlDriverWsUrl() {
   const explicitBase = (process.env.VUE_APP_BASE_URL || '').trim();
@@ -52,6 +44,26 @@ function buildInitMysqlDriverWsUrl() {
   const parsed = new URL(baseUrl, fallbackOrigin);
   const wsProtocol = parsed.protocol === 'https:' ? 'wss:' : 'ws:';
   return `${wsProtocol}//${parsed.host}/clouddm/console/api/v1/init/ws/mysql-driver`;
+}
+
+function resolveDriverUiState(status) {
+  switch (status) {
+    case 'CHECKING':
+      return 'checking';
+    case 'AVAILABLE':
+      return 'ready';
+    case 'DOWNLOADING':
+    case 'PREPARING':
+    case 'SYNCING':
+      return 'downloading';
+    case 'ERROR':
+    case 'FAILED':
+      return 'error';
+    case 'UNAVAILABLE':
+      return 'unprepared';
+    default:
+      return 'idle';
+  }
 }
 
 export default {
@@ -69,25 +81,21 @@ export default {
       driverStatusSocket: null
     };
   },
+  watch: {
+    driverStatus: {
+      deep: true,
+      immediate: true,
+      handler(status) {
+        this.$emit('status-change', {
+          ...status,
+          uiState: resolveDriverUiState(status?.status)
+        });
+      }
+    }
+  },
   computed: {
     driverUiState() {
-      switch (this.driverStatus.status) {
-        case 'CHECKING':
-          return 'checking';
-        case 'AVAILABLE':
-          return 'ready';
-        case 'DOWNLOADING':
-        case 'PREPARING':
-        case 'SYNCING':
-          return 'downloading';
-        case 'ERROR':
-        case 'FAILED':
-          return 'error';
-        case 'UNAVAILABLE':
-          return 'unprepared';
-        default:
-          return 'idle';
-      }
+      return resolveDriverUiState(this.driverStatus.status);
     },
     showDriverDownloadProgress() {
       return ['DOWNLOADING', 'PREPARING', 'SYNCING'].includes(this.driverStatus.status);
@@ -95,9 +103,17 @@ export default {
     showActionButton() {
       return this.driverUiState === 'unprepared' || this.driverUiState === 'error';
     },
+    actionDisabled() {
+      return this.driverUiState === 'checking' || this.driverUiState === 'downloading';
+    },
     actionLabel() {
+      if (this.driverUiState === 'checking' || this.driverUiState === 'downloading') {
+        return this.$t('initialization.mysqlDriverDownload');
+      }
       if (this.driverUiState === 'error') {
-        return this.driverStatus.retryAction === 'DOWNLOAD' ? this.$t('initialization.mysqlDriverRetryDownload') : this.$t('initialization.mysqlDriverRetryCheck');
+        return this.driverStatus.retryAction === 'DOWNLOAD'
+          ? this.$t('initialization.mysqlDriverRetryDownload')
+          : this.$t('initialization.mysqlDriverRetryCheck');
       }
       return this.$t('initialization.mysqlDriverDownload');
     },
@@ -107,7 +123,7 @@ export default {
     driverProgressValue() {
       const { totalFileCount, completedFileCount } = this.driverStatus;
       if (!(totalFileCount > 0)) {
-        return Math.max(0, Math.min(100, Number(this.driverStatus.currentFilePercent) || 0));
+        return 0;
       }
 
       const safeCompletedFileCount = Math.max(0, Math.min(Number(totalFileCount), Number(completedFileCount) || 0));
@@ -121,45 +137,27 @@ export default {
     driverProgressText() {
       const { totalFileCount, completedFileCount } = this.driverStatus;
       if (!(totalFileCount > 0)) {
-        return `${Math.max(0, Math.min(100, Number(this.driverStatus.currentFilePercent) || 0))}%`;
+        return '0/0';
       }
 
       const safeCompletedFileCount = Math.max(0, Math.min(Number(totalFileCount), Number(completedFileCount) || 0));
       return `${safeCompletedFileCount}/${totalFileCount}`;
     },
-    driverProgressPercentText() {
-      if (!this.showDriverDownloadProgress) {
-        return '';
-      }
-      return `${Math.max(0, Math.min(100, Number(this.driverStatus.currentFilePercent) || 0))}%`;
-    },
-    statusHintText() {
+    driverInlineMessage() {
+      const message = `${this.driverStatus.message || ''}`.trim();
       if (this.driverUiState === 'checking') {
-        return this.$t('initialization.mysqlDriverChecking');
-      }
-      if (this.driverUiState === 'ready') {
-        return this.$t('initialization.mysqlDriverReady');
+        return message || this.$t('initialization.mysqlDriverChecking');
       }
       if (this.driverUiState === 'downloading') {
-        return this.$t('initialization.mysqlDriverPreparing');
+        return message || this.$t('initialization.mysqlDriverPreparing');
       }
       if (this.driverUiState === 'unprepared') {
         return this.$t('initialization.mysqlDriverUnavailable');
       }
       if (this.driverUiState === 'error') {
-        return this.$t('initialization.mysqlDriverUnavailable');
+        return message || this.$t('initialization.mysqlDriverUnavailable');
       }
       return '';
-    },
-    driverStatusMessageText() {
-      const message = `${this.driverStatus.message || ''}`.trim();
-      if (!message) {
-        return '';
-      }
-      if (['prepare started', 'resource prepared', 'driver ready', 'driver unavailable'].includes(message)) {
-        return '';
-      }
-      return message;
     }
   },
   created() {
@@ -215,31 +213,30 @@ export default {
         available: false,
         totalFileCount: 0,
         completedFileCount: 0,
-        currentFilePercent: 0,
         status: 'CHECKING',
         retryAction: 'CHECK',
-        message: '',
-        resourceCoordinate: '',
-        currentFileName: ''
+        message: ''
       };
       this.scheduleDriverStatusTimeout(requestKey);
 
       try {
-        const res = await this.$services.dmInitCheckMysqlDriverStatus({ data: {} });
+        const res = await this.$services.dmInitCheckDriverStatus({ data: {} });
         if (this.driverStatusRequestKey !== requestKey) {
           return;
         }
 
         this.clearDriverStatusTimeout();
         if (res.success) {
-          const available = !!res.data?.available;
+          const driverStatus = `${res.data || ''}`;
+          const available = driverStatus === INIT_MYSQL_DRIVER_STATUS_READY;
+          const downloading = driverStatus === INIT_MYSQL_DRIVER_STATUS_DOWNLOADING;
           this.driverStatus = {
             ...this.driverStatus,
             checking: false,
             available,
-            driverFamily: res.data?.driverFamily || '',
-            driverVersion: res.data?.driverVersion || '',
-            status: available ? 'AVAILABLE' : 'UNAVAILABLE',
+            driverFamily: INIT_MYSQL_RUNTIME_DRIVER_FAMILY,
+            driverVersion: INIT_MYSQL_RUNTIME_DRIVER_VERSION,
+            status: available ? 'AVAILABLE' : downloading ? 'PREPARING' : 'UNAVAILABLE',
             retryAction: available ? 'CHECK' : 'DOWNLOAD',
             message: ''
           };
@@ -262,16 +259,13 @@ export default {
         available: false,
         totalFileCount: 0,
         completedFileCount: 0,
-        currentFilePercent: 0,
         status: 'PREPARING',
         retryAction: 'DOWNLOAD',
-        message: '',
-        resourceCoordinate: '',
-        currentFileName: ''
+        message: this.$t('initialization.mysqlDriverPreparing')
       };
 
       try {
-        const res = await this.$services.dmInitDownloadMysqlDriver({ data: {} });
+        const res = await this.$services.dmInitDownloadDriver({ data: {} });
         if (!res.success) {
           this.setErrorStatus(res.msg || '', 'DOWNLOAD');
         }
@@ -280,6 +274,9 @@ export default {
       }
     },
     handleActionClick() {
+      if (this.actionDisabled) {
+        return;
+      }
       if (this.driverUiState === 'error' && this.driverStatus.retryAction !== 'DOWNLOAD') {
         this.refreshDriverStatus();
         return;
@@ -327,14 +324,11 @@ export default {
             available: !!event.available,
             totalFileCount: Number.isFinite(event.totalFileCount) ? event.totalFileCount : this.driverStatus.totalFileCount,
             completedFileCount: Number.isFinite(event.completedFileCount) ? event.completedFileCount : this.driverStatus.completedFileCount,
-            currentFilePercent: Number.isFinite(event.currentFilePercent) ? event.currentFilePercent : this.driverStatus.currentFilePercent,
             driverFamily: event.driverFamily || this.driverStatus.driverFamily,
             driverVersion: event.driverVersion || this.driverStatus.driverVersion,
             status: event.available ? 'AVAILABLE' : 'UNAVAILABLE',
             retryAction: event.available ? 'CHECK' : 'DOWNLOAD',
-            message: event.message || '',
-            resourceCoordinate: event.resourceCoordinate || '',
-            currentFileName: event.currentFileName || ''
+            message: event.message || ''
           };
           return;
         }
@@ -344,11 +338,8 @@ export default {
             ...this.driverStatus,
             totalFileCount: Number.isFinite(event.totalFileCount) ? event.totalFileCount : this.driverStatus.totalFileCount,
             completedFileCount: Number.isFinite(event.completedFileCount) ? event.completedFileCount : this.driverStatus.completedFileCount,
-            currentFilePercent: Number.isFinite(event.currentFilePercent) ? event.currentFilePercent : this.driverStatus.currentFilePercent,
             driverFamily: event.driverFamily || this.driverStatus.driverFamily,
-            driverVersion: event.driverVersion || this.driverStatus.driverVersion,
-            resourceCoordinate: event.resourceCoordinate || '',
-            currentFileName: event.currentFileName || ''
+            driverVersion: event.driverVersion || this.driverStatus.driverVersion
           };
           this.setErrorStatus(event.message || '', 'DOWNLOAD');
           return;
@@ -360,14 +351,11 @@ export default {
           available: !!event.available,
           totalFileCount: Number.isFinite(event.totalFileCount) ? event.totalFileCount : this.driverStatus.totalFileCount,
           completedFileCount: Number.isFinite(event.completedFileCount) ? event.completedFileCount : this.driverStatus.completedFileCount,
-          currentFilePercent: Number.isFinite(event.currentFilePercent) ? event.currentFilePercent : this.driverStatus.currentFilePercent,
           driverFamily: event.driverFamily || this.driverStatus.driverFamily,
           driverVersion: event.driverVersion || this.driverStatus.driverVersion,
           status: event.status || 'PREPARING',
           retryAction: 'DOWNLOAD',
-          message: event.message || '',
-          resourceCoordinate: event.resourceCoordinate || '',
-          currentFileName: event.currentFileName || ''
+          message: event.message || ''
         };
       } catch (error) {
         console.error('Failed to parse mysql driver status message', error);
@@ -379,62 +367,36 @@ export default {
 
 <style scoped>
 .init-mysql-driver-status {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-width: 420px;
-  padding: 8px 12px;
-  border: 1px solid #d9d9d9;
-  border-radius: 8px;
-  background: #fff;
-}
-
-.init-mysql-driver-status.is-ready,
-.init-mysql-driver-status.is-checking,
-.init-mysql-driver-status.is-downloading {
-  border-color: #b7eb8f;
-  background: #f6ffed;
-}
-
-.init-mysql-driver-status.is-unprepared,
-.init-mysql-driver-status.is-error {
-  border-color: #ffe58f;
-  background: #fffbe6;
-}
-
-.init-mysql-driver-status-main {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.init-mysql-driver-title {
-  flex: 1 1 auto;
-  min-width: 0;
-  color: rgba(0, 0, 0, 0.85);
-  font-weight: 500;
-}
-
-.init-mysql-driver-action {
-  flex: 0 0 auto;
-  min-width: 48px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 32px;
+  line-height: 32px;
+  color: rgba(0, 0, 0, 0.85);
+  vertical-align: middle;
 }
 
 .init-mysql-driver-icon {
+  flex: 0 0 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
+  line-height: 1;
 }
 
 .init-mysql-driver-loading-icon,
 .init-mysql-driver-ready-icon,
 .init-mysql-driver-warning-icon {
-  font-size: 20px;
+  font-size: 16px;
+}
+
+.init-mysql-driver-type {
+  font-size: 14px;
+  line-height: 22px;
+  white-space: nowrap;
 }
 
 .init-mysql-driver-loading-icon,
@@ -447,19 +409,27 @@ export default {
 }
 
 .init-mysql-driver-progress-circle {
+  flex: 0 0 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
   border-radius: 50%;
-  background: conic-gradient(#52c41a var(--init-driver-progress-percent, 0%), rgba(82, 196, 26, 0.18) 0);
+  background: conic-gradient(#1677ff var(--init-driver-progress-percent, 0%), rgba(22, 119, 255, 0.16) 0);
 }
 
 .init-mysql-driver-progress-circle::before {
   content: '';
   position: absolute;
-  inset: 5px;
+  inset: 4px;
   border-radius: 50%;
-  background: #f6ffed;
+  background: #fff;
 }
 
 .init-mysql-driver-progress-circle-text {
@@ -469,28 +439,19 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 600;
-  color: #135200;
+  color: #0958d9;
 }
 
-.init-mysql-driver-progress-text,
-.init-mysql-driver-status-hint,
 .init-mysql-driver-message {
   font-size: 12px;
-  line-height: 18px;
-}
-
-.init-mysql-driver-progress-text {
-  color: #135200;
-  font-weight: 500;
-}
-
-.init-mysql-driver-status-hint {
+  line-height: 20px;
   color: rgba(0, 0, 0, 0.65);
 }
 
-.init-mysql-driver-message {
+.init-mysql-driver-status.is-error .init-mysql-driver-message,
+.init-mysql-driver-status.is-unprepared .init-mysql-driver-message {
   color: #cf1322;
 }
 </style>

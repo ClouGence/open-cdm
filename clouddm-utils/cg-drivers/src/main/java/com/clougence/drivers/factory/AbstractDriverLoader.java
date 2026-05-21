@@ -30,6 +30,7 @@ import com.clougence.drivers.def.DriverXmlLoader;
 import com.clougence.drivers.def.FamilyDef;
 import com.clougence.drivers.def.ResDef;
 import com.clougence.drivers.def.VerDef;
+import com.clougence.drivers.factory.prepare.AbstractResourcePreparer;
 import com.clougence.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -208,12 +209,21 @@ public abstract class AbstractDriverLoader implements DriverLoader {
             }
 
             try {
+                // If file definitions already exist in memory, only refresh their current prepared state.
+                if (driverResource.getFileDefList() != null && !driverResource.getFileDefList().isEmpty()) {
+                    preparer.refresh(driverVersion, driverResource, dsFactoryClassLoader, ResourcePreparer.NONE);
+                    allPrepared = allPrepared && driverResource.isPrepared();
+                    continue;
+                }
+
+                // If file definitions can be restored from files.idx, refresh them without re-analysis.
                 if (restoreFilesIndexQuietly(preparer, driverVersion, driverResource)) {
                     preparer.refresh(driverVersion, driverResource, dsFactoryClassLoader, ResourcePreparer.NONE);
                     allPrepared = allPrepared && driverResource.isPrepared();
                     continue;
                 }
 
+                // Only analyze the resource when no in-memory or indexed file definitions are available.
                 preparer.analysis(driverVersion, driverResource, dsFactoryClassLoader, ResourcePreparer.NONE);
                 syncFilesIndex(preparer, driverVersion, driverResource);
                 preparer.refresh(driverVersion, driverResource, dsFactoryClassLoader, ResourcePreparer.NONE);
@@ -241,12 +251,12 @@ public abstract class AbstractDriverLoader implements DriverLoader {
     }
 
     private boolean restoreFilesIndexQuietly(ResourcePreparer preparer, DriverVersion driverVersion, ResDef driverResource) {
-        if (!(preparer instanceof com.clougence.drivers.factory.prepare.AbstractResourcePreparer abstractResourcePreparer)) {
+        if (!(preparer instanceof AbstractResourcePreparer p)) {
             return false;
         }
 
         try {
-            return abstractResourcePreparer.restoreFilesIndex(driverVersion, driverResource);
+            return p.restoreFilesIndex(driverVersion, driverResource);
         } catch (IOException ioException) {
             log.error(ioException.getMessage(), ioException);
             return false;
@@ -254,14 +264,14 @@ public abstract class AbstractDriverLoader implements DriverLoader {
     }
 
     @Override
-    public void prepareDriverVersion(DriverVersion driverVersion, Predicate<ResDef> skip, DriverPrepareProgress progress) {
-        List<ResDef> resources = driverVersion.getResources();
+    public void prepareDriverVersion(DriverVersion ver, Predicate<ResDef> skip, DriverPrepareProgress progress) {
+        List<ResDef> resources = ver.getResources();
         if (resources == null || resources.isEmpty()) {
-            driverVersion.setPrepared(true);
+            ver.setPrepared(true);
             return;
         }
 
-        ClassLoader dsFactoryClassLoader = resolveDsFactoryClassLoader(driverVersion);
+        ClassLoader dsClassLoader = resolveDsFactoryClassLoader(ver);
         boolean allPrepared = true;
         for (int i = 0; i < resources.size(); i++) {
             ResDef driverResource = resources.get(i);
@@ -271,7 +281,7 @@ public abstract class AbstractDriverLoader implements DriverLoader {
                 continue;
             }
 
-            progress.onStart(driverVersion, driverResource, currentIndex, resources.size());
+            progress.onStart(ver, driverResource, currentIndex, resources.size());
 
             ResourcePreparer preparer = getPreparer(driverResource.getResourceType());
             if (preparer == null) {
@@ -279,19 +289,21 @@ public abstract class AbstractDriverLoader implements DriverLoader {
             }
 
             try {
-                preparer.analysis(driverVersion, driverResource, dsFactoryClassLoader, progress);
-                syncFilesIndex(preparer, driverVersion, driverResource);
-                preparer.resolve(driverVersion, driverResource, dsFactoryClassLoader, progress);
-                syncFilesIndex(preparer, driverVersion, driverResource);
+                preparer.analysis(ver, driverResource, dsClassLoader, progress);
+                syncFilesIndex(preparer, ver, driverResource);
+
+                preparer.resolve(ver, driverResource, dsClassLoader, progress);
+                syncFilesIndex(preparer, ver, driverResource);
+
                 allPrepared = allPrepared && driverResource.isPrepared();
-                progress.onComplete(driverVersion, driverResource, currentIndex, resources.size());
+                progress.onComplete(ver, driverResource, currentIndex, resources.size());
             } catch (Exception e) {
-                progress.onError(driverVersion, driverResource, e);
+                progress.onError(ver, driverResource, e);
                 return;
             }
         }
 
-        driverVersion.setPrepared(allPrepared);
+        ver.setPrepared(allPrepared);
     }
 
     private ResourcePreparer getPreparer(String resourceType) {
@@ -333,21 +345,21 @@ public abstract class AbstractDriverLoader implements DriverLoader {
     }
 
     private void syncFilesIndex(ResourcePreparer preparer, DriverVersion driverVersion, ResDef driverResource) throws IOException {
-        if (preparer instanceof com.clougence.drivers.factory.prepare.AbstractResourcePreparer abstractResourcePreparer) {
-            abstractResourcePreparer.updateFilesIndex(driverVersion, driverResource);
+        if (preparer instanceof AbstractResourcePreparer p) {
+            p.updateFilesIndex(driverVersion, driverResource);
         }
     }
 
     private boolean restoreFilesIndex(ResourcePreparer preparer, DriverVersion driverVersion, ResDef driverResource, Exception cause) {
-        if (!(preparer instanceof com.clougence.drivers.factory.prepare.AbstractResourcePreparer abstractResourcePreparer)) {
+        if (!(preparer instanceof AbstractResourcePreparer p)) {
             return false;
         }
 
         try {
-            boolean restored = abstractResourcePreparer.restoreFilesIndex(driverVersion, driverResource);
+            boolean restored = p.restoreFilesIndex(driverVersion, driverResource);
             if (restored) {
-                log.warn("analysis failed, fallback to files.idx, family={}, version={}, resourceType={}, coordinate={}", driverVersion.getFamilyName(),
-                    driverVersion.getVersion(), driverResource.getResourceType(), driverResource.getCoordinate(), cause);
+                log.warn("analysis failed, fallback to files.idx, family={}, version={}, resourceType={}, coordinate={}",//
+                        driverVersion.getFamilyName(), driverVersion.getVersion(), driverResource.getResourceType(), driverResource.getCoordinate(), cause);
             }
             return restored;
         } catch (IOException ioException) {
@@ -359,7 +371,7 @@ public abstract class AbstractDriverLoader implements DriverLoader {
     //
 
     @Override
-    public void loadDsFactory(ClassLoader classLoader) throws Exception {
+    public void loadDsFactory(ClassLoader classLoader) {
         if (classLoader == null) {
             return;
         }

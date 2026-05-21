@@ -15,21 +15,22 @@
  */
 package com.clougence.clouddm.console.web.global.config;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import javax.sql.DataSource;
 
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.io.Resource;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -40,6 +41,14 @@ import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.clougence.clouddm.console.web.constants.DmMode;
+import com.clougence.clouddm.platform.plugin.PluginManager;
+import com.clougence.drivers.*;
+import com.clougence.drivers.def.ResDef;
+import com.clougence.drivers.def.VerDef;
+import com.clougence.utils.StringUtils;
+import com.clougence.utils.loader.CgClassLoader;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,16 +60,105 @@ import lombok.extern.slf4j.Slf4j;
 @EnableTransactionManagement
 @MapperScan(basePackages = "com.clougence.clouddm.console.web.dal.mapper", sqlSessionFactoryRef = "sqlSessionFactory")
 public class DmDalConfig {
-
-    private static final String[] MAPPER_LOCATIONS = { "classpath:/mybatis/mapper/*.xml" };
+    public static final String MYSQL_DRIVER_RUNTIME_FAMILY   = "cgdm-runtime-mysql";
+    public static final String MYSQL_DRIVER_VERSION          = "default";
+    public static final String MYSQL_DRIVER_CLASS_NAME       = "com.mysql.cj.jdbc.Driver";
+    public static final String MYSQL_DRIVER_MAVEN_COORDINATE = "com.mysql:mysql-connector-j:jar:8.0.33";
 
     @Primary
     @Bean(name = "dataSource")
-    @ConfigurationProperties(prefix = "spring.datasource")
     @ConditionalOnExpression("#{'output'.equalsIgnoreCase(environment['clouddm.mode.type'])}")
-    public DataSource defaultDataSource() {
+    public DataSource defaultDataSource(Environment environment) {
+        String jdbcUrl = environment.getProperty("spring.datasource.jdbcurl");
+        String jdbcUser = environment.getProperty("spring.datasource.username");
+        String password = environment.getProperty("spring.datasource.password");
+        long connectionTimeout = environment.getProperty("spring.datasource.connection-timeout", Long.class, 10000L);
+        Integer minimumIdle = environment.getProperty("spring.datasource.minimum-idle", Integer.class, 1);
+        Integer maximumPoolSize = environment.getProperty("spring.datasource.maximum-pool-size", Integer.class, 20);
+
+        jdbcUrl = StringUtils.trimToNull(jdbcUrl);
+        jdbcUser = StringUtils.trimToNull(jdbcUser);
+        if (jdbcUrl == null || jdbcUser == null) {
+            throw new IllegalArgumentException("jdbcUrl/username is blank.");
+        }
+
+        // dsFactory
+        HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setDataSource(createDriverDataSource(jdbcUrl, jdbcUser, StringUtils.defaultString(password), connectionTimeout));
+        hikariConfig.setConnectionTimeout(connectionTimeout);
+        hikariConfig.setMinimumIdle(minimumIdle);
+        hikariConfig.setMaximumPoolSize(maximumPoolSize);
         log.info("Default HikariCP datasource inited.");
-        return DataSourceBuilder.create().build();
+        return new HikariDataSource(hikariConfig);
+    }
+
+    public static Connection createDriverConnection(String jdbcUrl, String username, String password, long connectionTimeout) throws SQLException {
+        DataSource bridge = createDriverDataSource(jdbcUrl, username, password, connectionTimeout);
+        return bridge.getConnection();
+    }
+
+    public static DataSource createDriverDataSource(String jdbcUrl, String username, String password, long connectionTimeout) {
+        // dsFactory
+        DriverLoader loader = PluginManager.driverLoader();
+        DriverVersion ver = DmDalConfig.mainDsDriverVersion();
+        if (!ver.isPrepared()) {
+            throw new IllegalStateException("Runtime MySQL driver is not ready. family=" + MYSQL_DRIVER_RUNTIME_FAMILY + ", version=" + MYSQL_DRIVER_VERSION);
+        }
+
+        DriverBinding binding = loader.createBinding(DmDalConfig.class.getClassLoader(), MYSQL_DRIVER_RUNTIME_FAMILY, MYSQL_DRIVER_VERSION);
+        if (binding == null) {
+            throw new IllegalStateException("MySQL driver binding is unavailable. family=" + MYSQL_DRIVER_RUNTIME_FAMILY + ", version=" + MYSQL_DRIVER_VERSION);
+        }
+        if (!isDriverClassAvailable(binding)) {
+            throw new IllegalStateException("Runtime MySQL driver class is unavailable.");
+        }
+
+        CgClassLoader classLoader = binding.asClassLoader();
+        DmDalConfigDsFactory dsFactory = new DmDalConfigDsFactory(classLoader);
+
+        // Hikari
+        Properties properties = new Properties();
+        properties.setProperty(DsConfigKeys.CUSTOM_URL.getConfigKey(), jdbcUrl);
+        properties.setProperty(DsConfigKeys.USER.getConfigKey(), username);
+        properties.setProperty(DsConfigKeys.PASSWORD.getConfigKey(), StringUtils.defaultString(password));
+        properties.setProperty(DsConfigKeys.LOGIN_TIMEOUT_MS.getConfigKey(), Long.toString(connectionTimeout));
+
+        return new DataSourceBridge(properties, dsFactory);
+    }
+
+    public static boolean isDriverClassAvailable(DriverBinding binding) {
+        if (binding == null) {
+            return false;
+        }
+
+        try {
+            binding.asClassLoader().loadClass(MYSQL_DRIVER_CLASS_NAME);
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static DriverVersion mainDsDriverVersion() {
+        DriverLoader internalLoader = PluginManager.driverLoader();
+        DriverFamily driverFamily = internalLoader.findDriver(MYSQL_DRIVER_RUNTIME_FAMILY);
+        if (driverFamily == null) {
+            driverFamily = internalLoader.addDriver(MYSQL_DRIVER_RUNTIME_FAMILY);
+        }
+
+        VerDef ver = (VerDef) driverFamily.findVersion(MYSQL_DRIVER_VERSION);
+        if (ver == null) {
+            ver = (VerDef) driverFamily.addVersion(MYSQL_DRIVER_VERSION);
+            ver.setLocalDir(internalLoader.getDriverHome());
+            ver.setDsFactory(DmDalConfigDsFactory.class.getName());
+
+            ResDef resource = new ResDef();
+            resource.setResourceType("maven");
+            resource.setCoordinate(MYSQL_DRIVER_MAVEN_COORDINATE);
+            ver.addResource(resource);
+        }
+
+        return ver;
     }
 
     @Primary
@@ -79,13 +177,11 @@ public class DmDalConfig {
         return factoryBean.getObject();
     }
 
-    private Resource[] resolveMapperLocations() throws Exception {
+    private org.springframework.core.io.Resource[] resolveMapperLocations() throws Exception {
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        List<Resource> mapperResources = new ArrayList<>();
-        for (String mapperLocation : MAPPER_LOCATIONS) {
-            Collections.addAll(mapperResources, resolver.getResources(mapperLocation));
-        }
-        return mapperResources.toArray(new Resource[0]);
+        List<org.springframework.core.io.Resource> mapperResources = new ArrayList<>();
+        Collections.addAll(mapperResources, resolver.getResources("classpath:/mybatis/mapper/*.xml"));
+        return mapperResources.toArray(new org.springframework.core.io.Resource[0]);
     }
 
     @Bean

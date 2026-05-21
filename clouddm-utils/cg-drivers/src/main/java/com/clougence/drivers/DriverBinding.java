@@ -20,6 +20,8 @@ import com.clougence.utils.loader.ResourceLoader;
 
 public interface DriverBinding {
 
+    DriverVersion driverVersion();
+
     boolean isExpired();
 
     void bind(ClassLoader classLoader, String... imports);

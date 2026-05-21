@@ -17,7 +17,7 @@
         </div>
         <div class="error-actions">
           <a-button type="primary" @click="handleRetry">{{ $t('initialization.retry') }}</a-button>
-          <a-button @click="handleUpdateDbConfig">{{ $t('initialization.updateDbConfig') }}</a-button>
+          <a-button @click="handleReconfigureDatabase">{{ $t('initialization.reconfigureDatabase') }}</a-button>
         </div>
       </div>
     </div>
@@ -44,8 +44,9 @@
             :fieldDefs="dbFields"
             :formValues="formValues"
             :dbTestResult="dbTestResult"
-            :readonly="isUpgradeMode"
+            :readonly="isDbFormReadonly"
             @update:formValues="updateFormValues"
+            @driver-status-change="handleMysqlDriverStatusChange"
             @validation-change="handleDbValidationChange"
           />
         </div>
@@ -100,7 +101,7 @@
         </div>
         <div class="wizard-footer-actions">
           <a-button v-if="showPrevButton" @click="prevStep">{{ $t('initialization.prev') }}</a-button>
-          <a-button v-if="currentStep === 0 && !isUpgradeMode" :disabled="testingDb" @click="handleTestDb">
+          <a-button v-if="currentStep === 0 && !isUpgradeMode" :disabled="testingDb || !canTestDb" @click="handleTestDb">
             <span v-if="testingDb" class="button-inline-spinner" aria-hidden="true"></span>
             <span>{{ $t('initialization.testConnection') }}</span>
           </a-button>
@@ -129,6 +130,7 @@ import { consumeDmBootstrapStatus, getDmSystemStatus, isDmSystemReady } from '..
 const INIT_DB_CREATE_IF_MISSING = 'clougence.init.db.createIfMissing';
 const INIT_DB_REBUILD_IF_NOT_EMPTY = 'clougence.init.db.rebuildIfNotEmpty';
 const INIT_DB_CONFIRM_DATABASE_NAME = 'clougence.init.db.confirmDatabaseName';
+const INIT_WORKFLOW_MODE_KEY = 'clougence.init.workflowMode';
 const INSTALL_PHASE_NOTICE_META = {
   DB_REBUILD: {
     titleKey: 'initialization.noticeDbRebuildTitle',
@@ -181,6 +183,35 @@ function buildInitInstallLogWsUrl() {
   const parsed = new URL(baseUrl, fallbackOrigin);
   const wsProtocol = parsed.protocol === 'https:' ? 'wss:' : 'ws:';
   return `${wsProtocol}//${parsed.host}/clouddm/console/api/v1/init/ws/install-log`;
+}
+
+function resolveMysqlDriverUiState(status) {
+  switch (status) {
+    case 'CHECKING':
+      return 'checking';
+    case 'AVAILABLE':
+      return 'ready';
+    case 'DOWNLOADING':
+    case 'PREPARING':
+    case 'SYNCING':
+      return 'downloading';
+    case 'ERROR':
+    case 'FAILED':
+      return 'error';
+    case 'UNAVAILABLE':
+      return 'unprepared';
+    default:
+      return 'idle';
+  }
+}
+
+function createInitialMysqlDriverStatus() {
+  return {
+    status: 'CHECKING',
+    uiState: 'checking',
+    available: false,
+    message: ''
+  };
 }
 
 function normalizeExecutionScriptItem(entry) {
@@ -331,7 +362,7 @@ export default {
   components: { StepDb, StepSecurity, StepConnectivity, StepConfirm, StepExecution },
   data() {
     return {
-      mode: 'loading', // 'loading' | 'full' | 'upgrade' | 'dbOnly' | 'dbError'
+      mode: 'loading', // 'loading' | 'full' | 'upgrade' | 'dbError'
       workflowMode: 'initial',
       errorMessage: '',
       fieldDefs: [],
@@ -341,6 +372,7 @@ export default {
       dbTestResult: null,
       dbMissingFields: [],
       securityMissingFields: [],
+      mysqlDriverStatus: createInitialMysqlDriverStatus(),
       upgradeScripts: [],
       executionScripts: [],
       operationErrorDetail: '',
@@ -419,15 +451,22 @@ export default {
       }
 
       if (this.currentStep === 0) {
-        if (this.isUpgradeMode) {
-          return null;
+        if (this.mysqlDriverFooterMessage) {
+          return {
+            type: this.mysqlDriverFooterType,
+            message: this.mysqlDriverFooterMessage
+          };
         }
 
-        if (this.dbMissingFields.length) {
+        if (!this.isUpgradeMode && this.dbMissingFields.length) {
           return {
             type: 'error',
             message: `${this.$t('initialization.dbFormIncomplete')}：${this.dbMissingFields.join('、')}`
           };
+        }
+
+        if (this.isUpgradeMode) {
+          return null;
         }
 
         if (!this.dbTestResult || !this.dbTestResult.message) {
@@ -452,10 +491,10 @@ export default {
     canNext() {
       if (this.currentStep === 0) {
         if (this.isUpgradeMode) {
-          return true;
+          return this.isMysqlDriverReady;
         }
 
-        return !this.dbMissingFields.length && Boolean(this.dbTestResult && this.dbTestResult.canProceed);
+        return this.isMysqlDriverReady && !this.dbMissingFields.length && Boolean(this.dbTestResult && this.dbTestResult.canProceed);
       }
       if (!this.isUpgradeMode && this.currentStep === 1) {
         return !this.securityMissingFields.length;
@@ -484,6 +523,45 @@ export default {
       }
 
       return this.$t('initialization.retryAction');
+    },
+    mysqlDriverUiState() {
+      return resolveMysqlDriverUiState(this.mysqlDriverStatus.status);
+    },
+    isMysqlDriverReady() {
+      return this.mysqlDriverUiState === 'ready';
+    },
+    isDbFormReadonly() {
+      return this.isUpgradeMode || !this.isMysqlDriverReady;
+    },
+    mysqlDriverFooterType() {
+      switch (this.mysqlDriverUiState) {
+        case 'checking':
+        case 'downloading':
+          return 'info';
+        case 'error':
+          return 'error';
+        case 'unprepared':
+          return 'warning';
+        default:
+          return '';
+      }
+    },
+    mysqlDriverFooterMessage() {
+      switch (this.mysqlDriverUiState) {
+        case 'ready':
+          return '';
+        case 'checking':
+          return this.$t('initialization.mysqlDriverChecking');
+        case 'downloading':
+          return this.mysqlDriverStatus.message || this.$t('initialization.mysqlDriverPreparing');
+        case 'error':
+          return this.mysqlDriverStatus.message || this.$t('initialization.mysqlDriverDownloadRequired');
+        default:
+          return this.$t('initialization.mysqlDriverDownloadRequired');
+      }
+    },
+    canTestDb() {
+      return this.isMysqlDriverReady && !this.dbMissingFields.length;
     }
   },
   watch: {
@@ -668,6 +746,7 @@ export default {
           this.dbTestResult = null;
           this.dbMissingFields = [];
           this.securityMissingFields = [];
+          this.mysqlDriverStatus = createInitialMysqlDriverStatus();
           this.executionScripts = [];
           this.operationErrorDetail = '';
           this.restartTimedOut = false;
@@ -688,6 +767,17 @@ export default {
 
     handleDbValidationChange(missingFields) {
       this.dbMissingFields = missingFields;
+    },
+
+    handleMysqlDriverStatusChange(status) {
+      this.mysqlDriverStatus = {
+        ...createInitialMysqlDriverStatus(),
+        ...(status || {})
+      };
+      this.mysqlDriverStatus.uiState = resolveMysqlDriverUiState(this.mysqlDriverStatus.status);
+      if (this.mysqlDriverStatus.uiState !== 'ready') {
+        this.dbTestResult = null;
+      }
     },
 
     handleSecurityValidationChange(missingFields) {
@@ -738,6 +828,9 @@ export default {
       this.clearTestDbRefreshTimer();
       this.testDbRefreshTimer = setTimeout(() => {
         this.testDbRefreshTimer = null;
+        if (!this.canTestDb) {
+          return;
+        }
         this.handleTestDb();
       }, delay);
     },
@@ -748,6 +841,11 @@ export default {
       }
 
       if (this.dbMissingFields.length) {
+        this.dbTestResult = null;
+        return;
+      }
+
+      if (!this.isMysqlDriverReady) {
         this.dbTestResult = null;
         return;
       }
@@ -793,7 +891,7 @@ export default {
       await this.bootstrapPage();
     },
 
-    async handleUpdateDbConfig() {
+    async handleReconfigureDatabase() {
       this.workflowMode = 'initial';
       this.upgradeScripts = [];
       this.executionScripts = [];
@@ -801,10 +899,14 @@ export default {
       this.mode = 'loading';
       this.errorMessage = '';
       const loaded = await this.loadFieldDefs();
-      this.mode = loaded ? 'dbOnly' : 'dbError';
+      this.mode = loaded ? 'full' : 'dbError';
     },
 
     async nextStep() {
+      if (this.currentStep === 0 && !this.isMysqlDriverReady) {
+        return;
+      }
+
       const nextStepIndex = Math.min(this.currentStep + 1, this.stageItems.length - 1);
       if (nextStepIndex === this.confirmStepIndex) {
         await this.loadExecutionScriptsPreview();
@@ -833,16 +935,16 @@ export default {
     },
 
     async startExecution() {
+      if (!this.isMysqlDriverReady) {
+        return;
+      }
+
       this.currentStep = this.executionStepIndex;
       this.applyPendingExecutionStatus();
       await this.$nextTick();
 
       if (!this.executionScripts.length) {
         await this.loadExecutionScriptsPreview();
-      }
-
-      if (this.isUpgradeMode) {
-        return this.handleUpgrade();
       }
 
       return this.handleApply();
@@ -872,89 +974,37 @@ export default {
       this.operationErrorDetail = '';
       this.applying = false;
 
-      if (this.isUpgradeMode) {
-        return this.handleUpgrade({ omitRebuild: true });
-      }
-
       return this.handleApply({ omitRebuild: true });
     },
 
     buildExecutionPayload({ omitRebuild = false } = {}) {
       const payload = { ...this.formValues };
+      payload[INIT_WORKFLOW_MODE_KEY] = this.workflowMode;
       if (omitRebuild) {
         delete payload[INIT_DB_REBUILD_IF_NOT_EMPTY];
       }
       return payload;
     },
 
-    async handleUpgrade(options = {}) {
-      this.applying = true;
-      this.restartTimedOut = false;
-      this.applyPendingExecutionStatus();
-      this.restartStatusType = 'info';
-      this.restartStatusMessage = this.$t('initialization.upgrading');
-      this.executionScripts = resetExecutionScriptsForRetry(this.executionScripts);
-      this.operationErrorDetail = '';
-      this.connectInstallLogSocket();
-
-      try {
-        const res = await this.$services.dmInitUpgrade({ data: this.buildExecutionPayload(options), modal: false });
-        if (!res.success) {
-          this.executionPhaseStatusType = '';
-          this.executionPhaseStatusMessage = '';
-          this.restartStatusType = 'error';
-          this.restartStatusMessage = this.$t('initialization.upgradeFailed');
-          this.operationErrorDetail = res.msg || '';
-          this.applying = false;
-          this.disconnectInstallLogSocket();
-          return;
-        }
-
-        this.disconnectInstallLogSocket();
-        this.executionPhaseStatusType = '';
-        this.executionPhaseStatusMessage = '';
-        this.restartStatusType = 'success';
-        this.restartStatusMessage = this.$t('initialization.upgradeSuccessRestarting');
-        void this.$services.dmInitRestart({ modal: false }).catch(() => {
-          // Connection loss is expected while the service exits.
-        });
-        await this.waitForRestart();
-      } catch (e) {
-        console.error('Upgrade failed', e);
-        this.executionPhaseStatusType = '';
-        this.executionPhaseStatusMessage = '';
-        this.restartStatusType = 'error';
-        this.restartStatusMessage = this.$t('initialization.upgradeFailed');
-        this.operationErrorDetail = e && e.message ? e.message : 'Upgrade failed';
-        this.applying = false;
-        this.disconnectInstallLogSocket();
-      }
-    },
-
     async handleApply(options = {}) {
       this.applying = true;
       this.restartTimedOut = false;
       this.applyPendingExecutionStatus();
-      this.restartStatusType = '';
-      this.restartStatusMessage = '';
+      this.restartStatusType = this.isUpgradeMode ? 'info' : '';
+      this.restartStatusMessage = this.isUpgradeMode ? this.$t('initialization.upgrading') : '';
       this.executionScripts = resetExecutionScriptsForRetry(this.executionScripts);
       this.operationErrorDetail = '';
       this.connectInstallLogSocket();
       try {
         const payload = this.buildExecutionPayload(options);
 
-        const endpoint = this.mode === 'dbOnly' ? this.$services.dmInitUpdateDbConfig : this.$services.dmInitApplyConfig;
-
-        const res = await endpoint({ data: payload, modal: false });
+        const res = await this.$services.dmInitApplyConfig({ data: payload, modal: false });
         if (res.success) {
           this.disconnectInstallLogSocket();
           this.executionPhaseStatusType = '';
           this.executionPhaseStatusMessage = '';
-          this.restartStatusType = 'info';
-          this.restartStatusMessage = this.$t('initialization.restarting');
-          void this.$services.dmInitRestart({ modal: false }).catch(() => {
-            // Connection loss is expected while the service exits.
-          });
+          this.restartStatusType = this.isUpgradeMode ? 'success' : 'info';
+          this.restartStatusMessage = this.isUpgradeMode ? this.$t('initialization.upgradeSuccessRestarting') : this.$t('initialization.restarting');
           await this.waitForRestart();
           return;
         }
@@ -962,7 +1012,7 @@ export default {
         this.executionPhaseStatusType = '';
         this.executionPhaseStatusMessage = '';
         this.restartStatusType = 'error';
-        this.restartStatusMessage = this.$t('initialization.installFailed');
+        this.restartStatusMessage = this.isUpgradeMode ? this.$t('initialization.upgradeFailed') : this.$t('initialization.installFailed');
         this.operationErrorDetail = res.msg || '';
         this.applying = false;
         this.disconnectInstallLogSocket();
@@ -971,8 +1021,8 @@ export default {
         this.executionPhaseStatusType = '';
         this.executionPhaseStatusMessage = '';
         this.restartStatusType = 'error';
-        this.restartStatusMessage = this.$t('initialization.installFailed');
-        this.operationErrorDetail = e && e.message ? e.message : 'Initialization failed';
+        this.restartStatusMessage = this.isUpgradeMode ? this.$t('initialization.upgradeFailed') : this.$t('initialization.installFailed');
+        this.operationErrorDetail = e && e.message ? e.message : this.isUpgradeMode ? 'Upgrade failed' : 'Install failed';
         this.applying = false;
         this.disconnectInstallLogSocket();
       }

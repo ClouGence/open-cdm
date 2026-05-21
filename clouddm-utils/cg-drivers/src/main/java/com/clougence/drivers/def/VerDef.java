@@ -17,6 +17,8 @@ package com.clougence.drivers.def;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 
 import com.clougence.drivers.DriverFile;
@@ -34,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class VerDef implements DriverVersion {
 
+    private static final String            FILES_INDEX_NAME = "files.idx";
     private String                         familyName;
     private String                         version;
     private String                         driverName;
@@ -49,7 +52,7 @@ public class VerDef implements DriverVersion {
     private File                           localDir;
     private boolean                        prepared;
     private volatile long                  timestamp;
-    private final List<ResDef>             resources = new ArrayList<>();
+    private final List<ResDef>             resources        = new ArrayList<>();
 
     @Override
     public String getFamilyName() { return this.familyName; }
@@ -184,12 +187,114 @@ public class VerDef implements DriverVersion {
         for (ResDef exists : this.resources) {
             if (StringUtils.equalsIgnoreCase(exists.getResourceType(), resource.getResourceType())
                 && StringUtils.equalsIgnoreCase(exists.getCoordinate(), resource.getCoordinate())) {
+                this.restoreFilesIndex(exists);
                 return;
             }
         }
 
         this.resources.add(resource);
+        this.restoreFilesIndex(resource);
         this.refreshTimestamp();
+    }
+
+    private void restoreFilesIndex(ResDef resource) {
+        if (resource == null || (resource.getFileDefList() != null && !resource.getFileDefList().isEmpty())) {
+            return;
+        }
+        if (this.localDir == null || this.getRelativeDir() == null) {
+            return;
+        }
+
+        File versionDir = this.getAbsoluteDir();
+        File indexFile = new File(versionDir, FILES_INDEX_NAME);
+        if (!indexFile.isFile()) {
+            return;
+        }
+
+        String resourceId = Long.toString(resource.getFilesIndexId());
+        List<FileDef> fileDefs = new ArrayList<>();
+        try {
+            for (String line : Files.readAllLines(indexFile.toPath(), StandardCharsets.UTF_8)) {
+                FileDef fileDef = parseFilesIndexLine(resourceId, versionDir, line);
+                if (fileDef != null) {
+                    fileDefs.add(fileDef);
+                }
+            }
+        } catch (IOException e) {
+            log.warn("restore driver files index failed, family={}, version={}, resourceType={}, coordinate={}", //
+                    this.familyName, this.version, resource.getResourceType(), resource.getCoordinate(), e);
+            return;
+        }
+
+        if (fileDefs.isEmpty()) {
+            return;
+        }
+
+        boolean allPrepared = true;
+        for (FileDef fileDef : fileDefs) {
+            String absolutePath = StringUtils.trimToNull(fileDef.getAbsolutePath());
+            fileDef.setPrepared(absolutePath != null && new File(absolutePath).exists());
+            allPrepared = allPrepared && fileDef.isPrepared();
+        }
+        resource.setFileDefList(fileDefs);
+        resource.setPrepared(allPrepared);
+        this.refreshPreparedState();
+    }
+
+    private FileDef parseFilesIndexLine(String resourceId, File versionDir, String line) {
+        String trimmed = StringUtils.trimToNull(line);
+        if (trimmed == null) {
+            return null;
+        }
+
+        int firstSeparator = trimmed.indexOf(' ');
+        if (firstSeparator < 0) {
+            return null;
+        }
+
+        String type = StringUtils.trimToNull(trimmed.substring(0, firstSeparator));
+        String remainder = StringUtils.trimToNull(trimmed.substring(firstSeparator + 1));
+        if (type == null || remainder == null) {
+            return null;
+        }
+
+        int secondSeparator = remainder.indexOf(' ');
+        if (secondSeparator < 0) {
+            return null;
+        }
+
+        String lineResourceId = StringUtils.trimToNull(remainder.substring(0, secondSeparator));
+        String path = StringUtils.trimToNull(remainder.substring(secondSeparator + 1));
+        if (!StringUtils.equals(resourceId, lineResourceId) || path == null) {
+            return null;
+        }
+
+        FileDef fileDef = new FileDef();
+        if (StringUtils.equalsIgnoreCase("relative", type)) {
+            String relativePath = FilenameUtils.separatorsToUnix(path);
+            fileDef.setRelativePath(relativePath);
+            fileDef.setAbsolutePath(new File(versionDir, relativePath).getAbsolutePath());
+            return fileDef;
+        }
+        if (StringUtils.equalsIgnoreCase("absolute", type)) {
+            fileDef.setAbsolutePath(path);
+            fileDef.setRelativePath(new File(path).getName());
+            return fileDef;
+        }
+        return null;
+    }
+
+    private void refreshPreparedState() {
+        if (this.resources.isEmpty()) {
+            this.setPrepared(true);
+            return;
+        }
+
+        boolean allPrepared = true;
+        for (ResDef resource : this.resources) {
+            allPrepared = allPrepared && resource != null && resource.isPrepared();
+        }
+        this.setPrepared(allPrepared);
     }
 
     private void normalizeResourceFiles(ResDef resource) {

@@ -35,8 +35,8 @@ public abstract class AbstractResourcePreparer implements ResourcePreparer {
 
     private static final String FILES_INDEX_NAME = "files.idx";
 
-    protected final File       localDir;
-    protected final Properties config;
+    protected final File        localDir;
+    protected final Properties  config;
 
     protected AbstractResourcePreparer(File localDir, Properties config){
         this.localDir = localDir;
@@ -125,7 +125,7 @@ public abstract class AbstractResourcePreparer implements ResourcePreparer {
         }
 
         List<FileDef> fileDefs = new ArrayList<>();
-        File versionDir = driverVersion != null ? driverVersion.getAbsoluteDir() : null;
+        File versionDir = driverVersion.getAbsoluteDir();
         String filesIndexId = Long.toString(resDef.getFilesIndexId());
         for (String line : Files.readAllLines(indexFile.toPath(), StandardCharsets.UTF_8)) {
             FilesIndexEntry entry = FilesIndexEntry.parse(line);

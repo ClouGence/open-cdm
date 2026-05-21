@@ -33,10 +33,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.console.web.global.config.DmDalConfig;
 import com.clougence.clouddm.init.component.log.InstallUpgradeLogBus;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -52,7 +54,7 @@ public class DmFlywayInit {
     public static final String[]  LOCATIONS               = { "classpath:com/clougence/clouddm/init/component/scripts" };
     public static final String    TABLE                   = "dm_update_history";
 
-    @jakarta.annotation.Resource
+    @Resource
     private DataSource            dataSource;
 
     public void doUpgrade() {
@@ -83,14 +85,6 @@ public class DmFlywayInit {
         log.info("Merged Flyway DB Upgrade Done.");
     }
 
-    public List<String> listPendingScriptNames() {
-        String currentSchema = fetchCurrentSchema();
-        if (StringUtils.isBlank(currentSchema)) {
-            throw new RuntimeException("Fetch currentSchema is empty.");
-        }
-        return listPendingScriptNames(dataSource, currentSchema);
-    }
-
     public List<String> listUpgradeRequiredScriptNames() {
         String currentSchema = fetchCurrentSchema();
         if (StringUtils.isBlank(currentSchema)) {
@@ -105,10 +99,6 @@ public class DmFlywayInit {
         if (!remainingScripts.isEmpty()) {
             throw new IllegalStateException("Upgrade verification failed. Pending scripts remain: " + String.join(", ", remainingScripts));
         }
-    }
-
-    public static List<String> listPendingScriptNames(String jdbcUrl, String username, String password, String currentSchema) {
-        return extractScriptNames(buildFlyway(jdbcUrl, username, password, currentSchema).info().pending());
     }
 
     public static List<String> listUpgradeRequiredScriptNames(String jdbcUrl, String username, String password, String currentSchema) {
@@ -137,10 +127,6 @@ public class DmFlywayInit {
         return scriptNames;
     }
 
-    private static List<String> listPendingScriptNames(DataSource dataSource, String currentSchema) {
-        return extractScriptNames(buildFlyway(dataSource, currentSchema).info().pending());
-    }
-
     private static List<String> listUpgradeRequiredScriptNames(DataSource dataSource, String currentSchema) {
         return extractUpgradeRequiredScriptNames(buildFlyway(dataSource, currentSchema).info().all());
     }
@@ -167,34 +153,8 @@ public class DmFlywayInit {
     }
 
     private static Flyway buildFlyway(String jdbcUrl, String username, String password, String currentSchema) {
-        return Flyway.configure()
-            .dataSource(jdbcUrl, username, password)
-            .locations(LOCATIONS)
-            .createSchemas(false)
-            .defaultSchema(currentSchema)
-            .baselineOnMigrate(BASELINE_ON_MIGRATE)
-            .baselineDescription(BASELINE_DESCRIPTION)
-            .sqlMigrationPrefix(SQL_MIGRATION_PREFIX)
-            .sqlMigrationSeparator(SQL_MIGRATION_SEPARATOR)
-            .sqlMigrationSuffixes(SQL_MIGRATION_SUFFIXES)
-            .table(TABLE)
-            .outOfOrder(false)
-            .load();
-    }
-
-    private static List<String> extractScriptNames(MigrationInfo[] migrationInfos) {
-        List<String> scriptNames = new ArrayList<>();
-        if (migrationInfos == null) {
-            return scriptNames;
-        }
-
-        for (MigrationInfo migrationInfo : migrationInfos) {
-            String scriptName = extractScriptName(migrationInfo);
-            if (StringUtils.isNotBlank(scriptName)) {
-                scriptNames.add(scriptName);
-            }
-        }
-        return scriptNames;
+        DataSource ds = DmDalConfig.createDriverDataSource(jdbcUrl, username, password, 10000L);
+        return buildFlyway(ds, currentSchema);
     }
 
     private static String extractScriptName(MigrationInfo migrationInfo) {

@@ -27,12 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
+import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.init.model.InitFieldDef;
 import com.clougence.clouddm.init.model.TestDbResult;
-import com.clougence.clouddm.init.service.SysInitDefService;
 import com.clougence.clouddm.init.service.InitMysqlDriverService;
+import com.clougence.clouddm.init.service.SysInitDefService;
 import com.clougence.clouddm.init.service.SysInitService;
-import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 
 import jakarta.annotation.Resource;
 
@@ -45,9 +45,9 @@ import jakarta.annotation.Resource;
 public class InitController {
 
     @Resource
-    private SysInitService    initService;
+    private SysInitService         initService;
     @Resource
-    private SysInitDefService defService;
+    private SysInitDefService      defService;
     @Resource
     private InitMysqlDriverService initMysqlDriverService;
 
@@ -78,14 +78,14 @@ public class InitController {
     }
 
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    @RequestMapping(value = "/checkMysqlDriverStatus", method = { RequestMethod.POST })
-    public ResWebData<?> checkMysqlDriverStatus() {
-        return ResWebDataUtils.buildSuccess(this.initMysqlDriverService.checkDriverStatus());
+    @RequestMapping(value = "/checkDriverStatus", method = { RequestMethod.POST })
+    public ResWebData<?> checkDriverStatus() {
+        return ResWebDataUtils.buildSuccess(this.initMysqlDriverService.driverStatus());
     }
 
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    @RequestMapping(value = "/downloadMysqlDriver", method = { RequestMethod.POST })
-    public ResWebData<?> downloadMysqlDriver() {
+    @RequestMapping(value = "/downloadDriver", method = { RequestMethod.POST })
+    public ResWebData<?> downloadDriver() {
         this.initMysqlDriverService.downloadDriver();
         return ResWebDataUtils.buildSuccess(null);
     }
@@ -96,44 +96,15 @@ public class InitController {
         return ResWebDataUtils.buildSuccess(initService.previewExecutionScripts(params));
     }
 
-    /**
-     * Applies the full initialization flow: save configuration, run Flyway migration, and update the administrator account.
-     */
+    /** Executes initialization or upgrade flow and schedules restart on success. */
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/applyConfig", method = { RequestMethod.POST })
-    public ResWebData<?> applyConfig(@RequestBody Map<String, String> config) throws Exception {
-        initService.applyInitConfig(config);
-        return ResWebDataUtils.buildSuccess(null);
-    }
-
-    /**
-     * Updates only the database configuration in dbOnly mode.
-     */
-    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    @RequestMapping(value = "/updateDbConfig", method = { RequestMethod.POST })
-    public ResWebData<?> updateDbConfig(@RequestBody Map<String, String> config) throws Exception {
-        initService.updateDbConfig(config);
-        return ResWebDataUtils.buildSuccess(null);
-    }
-
-    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    @RequestMapping(value = "/upgrade", method = { RequestMethod.POST })
-    public ResWebData<?> upgrade(@RequestBody(required = false) Map<String, String> config) {
+    public ResWebData<?> applyConfig(@RequestBody(required = false) Map<String, String> config) {
         try {
-            initService.upgradeSystem(config == null ? Collections.emptyMap() : config);
+            initService.applyConfig(config == null ? Collections.emptyMap() : config);
             return ResWebDataUtils.buildSuccess(null);
         } catch (Exception e) {
             return ResWebDataUtils.buildError(initService.buildDetailedErrorMessage(e));
         }
-    }
-
-    /**
-     * Requests a system restart.
-     */
-    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    @RequestMapping(value = "/restart", method = { RequestMethod.POST })
-    public ResWebData<?> restart() {
-        initService.scheduleRestart();
-        return ResWebDataUtils.buildSuccess(null);
     }
 }
