@@ -105,8 +105,18 @@ public class VerDef implements DriverVersion {
 
     @Override
     public long getTimestamp() {
-        refreshTimestamp();
-        return this.timestamp;
+        long result = this.timestamp;
+        for (ResDef resource : this.resources) {
+            if (resource == null || resource.getFileDefList() == null) {
+                continue;
+            }
+
+            result = 31 * result + Boolean.hashCode(resource.isPrepared());
+            for (FileDef fileDef : resource.getFileDefList()) {
+                result = appendFileTimestamp(result, fileDef);
+            }
+        }
+        return result;
     }
 
     @Override
@@ -370,5 +380,29 @@ public class VerDef implements DriverVersion {
 
     private void refreshTimestamp() {
         this.timestamp = System.currentTimeMillis();
+    }
+
+    private static long appendFileTimestamp(long timestamp, FileDef fileDef) {
+        if (fileDef == null) {
+            return 31 * timestamp;
+        }
+
+        long result = timestamp;
+        result = 31 * result + Boolean.hashCode(fileDef.isPrepared());
+        result = 31 * result + Objects.hashCode(fileDef.getRelativePath());
+        result = 31 * result + Objects.hashCode(fileDef.getAbsolutePath());
+
+        String absolutePath = StringUtils.trimToNull(fileDef.getAbsolutePath());
+        if (absolutePath == null) {
+            return result;
+        }
+
+        File file = new File(absolutePath);
+        result = 31 * result + Boolean.hashCode(file.exists());
+        if (file.exists()) {
+            result = 31 * result + file.lastModified();
+            result = 31 * result + file.length();
+        }
+        return result;
     }
 }
