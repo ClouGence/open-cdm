@@ -29,6 +29,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityFileType;
 import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
+import com.clougence.clouddm.platform.plugin.info.LeasedDsFactory;
 import com.clougence.clouddm.sdk.execute.resource.DsResourceManager;
 import com.clougence.clouddm.worker.component.resource.file.FileResourceManagerImpl;
 import com.clougence.drivers.DriverLoader;
@@ -83,9 +84,7 @@ public abstract class AbstractDsResourceManager implements DsResourceManager {
             throw new UnsupportedOperationException("no plugin found for dsType '" + dsConfig.getDataSourceType() + "'.");
         }
 
-        try {
-            DsFactory<?> dsFactory = pluginInfo.createDriver(driverRef.getDriverFamily(), driverRef.getDriverVersion());
-
+        try (LeasedDsFactory<?> dsFactory = pluginInfo.createDriver(driverRef.getDriverFamily(), driverRef.getDriverVersion())) {
             Properties properties = dsConfig.asDriverProperties();
             properties.setProperty(DsConfigKeys.CLIENT_NAME.getConfigKey(), "CloudDM Client");
             DsObject<T> apply = (DsObject<T>) dsFactory.create(properties);
