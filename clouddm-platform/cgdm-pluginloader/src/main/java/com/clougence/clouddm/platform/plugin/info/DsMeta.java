@@ -1,3 +1,18 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.clougence.clouddm.platform.plugin.info;
 
 import java.io.IOException;
@@ -9,10 +24,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.Spi;
+import com.clougence.clouddm.sdk.execute.resource.DsResourceManager;
+import com.clougence.clouddm.sdk.execute.session.Session;
+import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionFactory;
 import com.clougence.drivers.DriverBinding;
 import com.clougence.drivers.DriverVersion;
@@ -26,18 +45,16 @@ import com.clougence.utils.reflect.Annotation;
 
 public class DsMeta extends BaseMeta implements DsPluginInfo {
 
-    private final Map<Class<?>, Map<String, Spi>> dsSpiMap;
-    private final I18nUtils                       dsI18nUtil;
-    private final Map<String, Object>             dsFeatures;
-    private final DataSourceType                  dsType;
-    private String                                dsSessionFactory;
-    private SqlBuilder                            dsSqlBuilder;
-    private Dialect                               dsDialect;
-    private List<String>                          dsDriverFamily;
+    private final Map<Class<?>, Map<String, Spi>>    dsSpiMap;
+    private final I18nUtils                          dsI18nUtil;
+    private final Map<String, Object>                dsFeatures;
+    private final DataSourceType                     dsType;
+    private String                                   dsSessionFactory;
+    private SqlBuilder                               dsSqlBuilder;
+    private Dialect                                  dsDialect;
+    private List<String>                             dsDriverFamily;
     //
-    private final Map<String, DriverBinding>      driverBindingCache  = new ConcurrentHashMap<>();
-    private final Map<String, DsFactory<?>>       driverFactoryCache  = new ConcurrentHashMap<>();
-    private final Map<String, SessionFactory<?>>  sessionFactoryCache = new ConcurrentHashMap<>();
+    private final Map<String, DsDriverBindingHolder> driverBindingCache = new ConcurrentHashMap<>();
 
     public DsMeta(String pluginClass, Annotation pluginInfo, GlobalMeta globalMeta, LoadDef loadDef) throws IOException{
         super(pluginClass, pluginInfo, globalMeta, loadDef);
@@ -132,77 +149,54 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
     //
 
     @Override
-    public DsFactory<?> createDriver(String driverFamily, String driverVer) throws Exception {
+    public LeasedDsFactory<?> createDriver(String driverFamily, String driverVer) throws Exception {
         String key = buildDriverKey(driverFamily, driverVer);
-        ensureDriverCaches(driverFamily, driverVer, key);
-        DsFactory<?> cached = this.driverFactoryCache.get(key);
-        if (cached != null) {
-            return cached;
+        DsDriverBindingHolder holder = findBinding(driverFamily, driverVer, key);
+        DriverVersion ver = findDriverVersion(driverFamily, driverVer, key);
+        String dsFactoryName = StringUtils.trimToNull(ver.getDsFactory());
+        if (dsFactoryName == null) {
+            throw new UnsupportedOperationException("no driver dsFactory configured for '" + key + "'.");
         }
 
-        synchronized (this.driverFactoryCache) {
-            cached = this.driverFactoryCache.get(key);
-            if (cached != null) {
-                return cached;
-            }
-
-            DriverVersion driverVersion = PluginManager.driverLoader().findDriver(driverFamily, driverVer);
-            if (driverVersion == null) {
-                throw new UnsupportedOperationException("no driver metadata for '" + key + "'.");
-            }
-
-            String dsFactoryName = StringUtils.trimToNull(driverVersion.getDsFactory());
-            if (dsFactoryName == null) {
-                throw new UnsupportedOperationException("no driver dsFactory configured for '" + key + "'.");
-            }
-
-            DriverBinding binding = findBinding(driverFamily, driverVer, key);
-            Class<?> factoryType = binding.asClassLoader().loadClass(dsFactoryName);
-            if (!DsFactory.class.isAssignableFrom(factoryType)) {
-                throw new IllegalStateException(dsFactoryName + " is not a DsFactory, driverVersion='" + key + "'.");
-            }
-
-            cached = (DsFactory<?>) factoryType.getDeclaredConstructor().newInstance();
-            this.driverFactoryCache.put(key, cached);
-            return cached;
-        }
+        DsFactory<?> dsFactory = holder.getOrCreateDriverFactory(dsFactoryName);
+        return new LeasedDsFactory<>(holder, dsFactory);
     }
 
     @Override
     public SessionFactory<?> createSessionFactory(String driverFamily, String driverVer) throws Exception {
         String key = buildDriverKey(driverFamily, driverVer);
-        ensureDriverCaches(driverFamily, driverVer, key);
-        SessionFactory<?> cached = this.sessionFactoryCache.get(key);
-        if (cached != null) {
-            return cached;
+        findDriverVersion(driverFamily, driverVer, key);
+        String sessionFactoryName = StringUtils.trimToNull(this.dsSessionFactory);
+        if (sessionFactoryName == null) {
+            throw new UnsupportedOperationException("no sessionFactory configured for '" + key + "'.");
         }
 
-        synchronized (this.sessionFactoryCache) {
-            cached = this.sessionFactoryCache.get(key);
-            if (cached != null) {
-                return cached;
-            }
+        DsDriverBindingHolder holder = findBinding(driverFamily, driverVer, key);
+        SessionFactory<?> sessionFactory = holder.getOrCreateSessionFactory(sessionFactoryName);
+        return (resourceRM, dsConfig, contextDTO) -> {
+            return createLeasedSession(holder, resourceRM, sessionFactory, dsConfig, contextDTO);
+        };
+    }
 
-            String sessionFactoryName = StringUtils.trimToNull(this.dsSessionFactory);
-            if (sessionFactoryName == null) {
-                throw new UnsupportedOperationException("no sessionFactory configured for '" + key + "'.");
+    private static Session createLeasedSession(DsDriverBindingHolder holder, DsResourceManager rm, SessionFactory factory, DataSourceConfig dsConfig,
+                                               SessionContextDTO ctx) throws Exception {
+        holder.retain();
+        boolean success = false;
+        try {
+            Session session = factory.createSession(rm, dsConfig, ctx);
+            session.addCloseListener(sessionId -> holder.release());
+            success = true;
+            return session;
+        } finally {
+            if (!success) {
+                holder.release();
             }
-
-            DriverBinding binding = findBinding(driverFamily, driverVer, key);
-            Class<?> sessionFactoryType = binding.asClassLoader().loadClass(sessionFactoryName);
-            if (!SessionFactory.class.isAssignableFrom(sessionFactoryType)) {
-                throw new IllegalStateException(sessionFactoryName + " is not a SessionFactory, driverVersion='" + key + "'.");
-            }
-
-            cached = (SessionFactory<?>) sessionFactoryType.getDeclaredConstructor().newInstance();
-            this.sessionFactoryCache.put(key, cached);
-            return cached;
         }
     }
 
-    private DriverBinding findBinding(String driverFamily, String driverVer, String key) {
+    private DsDriverBindingHolder findBinding(String driverFamily, String driverVer, String key) {
         ensureDriverCaches(driverFamily, driverVer, key);
-        DriverBinding cached = this.driverBindingCache.get(key);
+        DsDriverBindingHolder cached = this.driverBindingCache.get(key);
         if (cached != null) {
             return cached;
         }
@@ -221,8 +215,9 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
             binding.bind(this.pluginResource, this.getIncludePackages().toArray(new String[0]));
 
             this.configIncludeExclude(binding.asClassLoader());// config all bind
-            this.driverBindingCache.put(key, binding);
-            return binding;
+            DsDriverBindingHolder holder = new DsDriverBindingHolder(key, binding);
+            this.driverBindingCache.put(key, holder);
+            return holder;
         }
     }
 
@@ -233,13 +228,13 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
             return;
         }
 
-        DriverBinding cachedBinding = this.driverBindingCache.get(key);
+        DsDriverBindingHolder cachedBinding = this.driverBindingCache.get(key);
         if (cachedBinding == null || !cachedBinding.isExpired()) {
             return;
         }
 
         synchronized (this.driverBindingCache) {
-            DriverBinding bindingInLock = this.driverBindingCache.get(key);
+            DsDriverBindingHolder bindingInLock = this.driverBindingCache.get(key);
             if (bindingInLock == null || !bindingInLock.isExpired()) {
                 return;
             }
@@ -249,9 +244,19 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
     }
 
     private void clearDriverCaches(String key) {
-        this.driverBindingCache.remove(key);
-        this.driverFactoryCache.remove(key);
-        this.sessionFactoryCache.remove(key);
+        DsDriverBindingHolder holder = this.driverBindingCache.remove(key);
+        if (holder != null) {
+            holder.retire();
+        }
+    }
+
+    private DriverVersion findDriverVersion(String driverFamily, String driverVer, String key) {
+        DriverVersion driverVersion = PluginManager.driverLoader().findDriver(driverFamily, driverVer);
+        if (driverVersion == null) {
+            clearDriverCaches(key);
+            throw new UnsupportedOperationException("no driver metadata for '" + key + "'.");
+        }
+        return driverVersion;
     }
 
     private static String buildDriverKey(String driverFamily, String driverVer) {
@@ -262,4 +267,5 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
         }
         return normalizedFamily + "/" + normalizedVersion;
     }
+
 }
