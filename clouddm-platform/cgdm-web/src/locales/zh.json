@@ -3779,6 +3779,7 @@
   "initialization.mysqlDriverTitle": "MySQL 8.0+ 驱动",
   "initialization.mysqlDriverChecking": "检查驱动状态中...",
   "initialization.mysqlDriverPreparing": "驱动下载中...",
+  "initialization.mysqlDriverDownloadingButton": "下载中",
   "initialization.mysqlDriverReady": "驱动已就绪",
   "initialization.mysqlDriverUnavailable": "驱动未就绪，请先下载",
   "initialization.mysqlDriverDownload": "下载驱动",

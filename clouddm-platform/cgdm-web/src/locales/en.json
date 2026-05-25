@@ -3783,6 +3783,7 @@
   "initialization.mysqlDriverTitle": "MySQL 8.0+ Driver",
   "initialization.mysqlDriverChecking": "Checking driver status...",
   "initialization.mysqlDriverPreparing": "Downloading driver...",
+  "initialization.mysqlDriverDownloadingButton": "Downloading",
   "initialization.mysqlDriverReady": "Driver ready",
   "initialization.mysqlDriverUnavailable": "Driver is not ready. Download it first.",
   "initialization.mysqlDriverDownload": "Download Driver",

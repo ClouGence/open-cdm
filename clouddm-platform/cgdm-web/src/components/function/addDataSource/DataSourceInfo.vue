@@ -110,7 +110,7 @@
                 <span v-else class="driver-status-phase-dot"></span>
               </span>
               <span v-if="showDriverStatusMessage" class="driver-status-inline-message" :title="driverStatusInlineMessageText">
-                （{{ driverStatusInlineMessageText }}）
+                {{ driverStatusInlineMessageText }}
               </span>
             </div>
           </div>
@@ -1097,7 +1097,7 @@ export default {
     },
     driverActionLabel() {
       if (this.showDriverDownloadProgress) {
-        return '下载中';
+        return this.$t('initialization.mysqlDriverDownloadingButton');
       }
       if (this.showDriverCheckAction) {
         return this.$t('jian-cha');

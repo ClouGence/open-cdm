@@ -15,8 +15,13 @@
  */
 package com.clougence.clouddm.init;
 
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.init.constant.I18nInitFieldKeys;
 
 /**
  * Temporary non-web Spring container used during initialization tasks.
@@ -27,4 +32,9 @@ import org.springframework.context.annotation.ComponentScan;
                                 "com.clougence.clouddm.console.web.*", "com.clougence.rdp", "com.clougence.clouddm.base", "com.clougence.clouddm.platform",
                                 "com.clougence.clouddm.sdk", "com.clougence.clouddm.api" })
 public class InitTaskApplication {
+
+    @Bean
+    public CommandLineRunner initTaskI18nResources() {
+        return args -> DmI18nUtils.loadResources(I18nInitFieldKeys.class);
+    }
 }

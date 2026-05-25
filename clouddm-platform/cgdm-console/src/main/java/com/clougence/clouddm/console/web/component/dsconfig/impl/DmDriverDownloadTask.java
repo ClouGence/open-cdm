@@ -29,7 +29,9 @@ import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
 import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
 import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
+import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.DriverVersionStatusVO;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.drivers.DriverFile;
 import com.clougence.drivers.DriverPrepareProgress;
@@ -76,12 +78,13 @@ public class DmDriverDownloadTask implements Runnable {
         refreshPreparedState(localVersion);
         List<DriverFile> transferFiles = resolveTransferFiles(localVersion);
         int totalFileCount = transferFiles.size();
-        DmDriverServiceImpl.publishProgress(this.uid, this.clusterId, this.driverFamily, this.driverVersion, totalFileCount, 0, 0, "SYNCING", false, null, null, "正在同步驱动...");
+        DmDriverServiceImpl.publishProgress(this.uid, this.clusterId, this.driverFamily, this.driverVersion, totalFileCount, 0, 0, "SYNCING", false, null, null,
+                i18n(I18nDmMsgKeys.DS_DRIVER_SYNC_STARTED_MESSAGE));
         syncFilesToWorkers(transferFiles, totalFileCount);
 
         DriverVersionStatusVO statusVO = checkDriverStatus();
         DmDriverServiceImpl.publishProgress(this.uid, this.clusterId, this.driverFamily, this.driverVersion, totalFileCount, totalFileCount, 100, "COMPLETED", statusVO
-            .isAvailable(), null, null, statusVO.isAvailable() ? "驱动已就绪" : "驱动未就绪，请先下载");
+            .isAvailable(), null, null, statusVO.isAvailable() ? i18n(I18nDmMsgKeys.DS_DRIVER_READY_MESSAGE) : i18n(I18nDmMsgKeys.DS_DRIVER_UNAVAILABLE_MESSAGE));
         log.info("driver download finished, clusterId={}, family={}, version={}, available={}, workerWsn={}", this.clusterId, this.driverFamily, this.driverVersion, statusVO
             .isAvailable(), statusVO.getWorkerWsn());
     }
@@ -114,7 +117,8 @@ public class DmDriverDownloadTask implements Runnable {
         }
 
         DmDriverServiceImpl
-            .publishProgress(this.uid, this.clusterId, this.driverFamily, this.driverVersion, resolveDriverFileCount(resources), 0, 0, "PREPARING", false, null, null, "正在准备驱动...");
+            .publishProgress(this.uid, this.clusterId, this.driverFamily, this.driverVersion, resolveDriverFileCount(resources), 0, 0, "PREPARING", false, null, null,
+                    i18n(I18nDmMsgKeys.DS_DRIVER_PREPARE_STARTED_MESSAGE));
         Set<String> completedFiles = ConcurrentHashMap.newKeySet();
         for (ResDef resource : resources) {
             if (resource == null || StringUtils.isBlank(resource.getCoordinate())) {
@@ -130,7 +134,7 @@ public class DmDriverDownloadTask implements Runnable {
                     public void onStart(DriverVersion driverVersionValue, ResDef driverResource, int resourceIndex, int totalCount) {
                         DmDriverServiceImpl
                             .publishProgress(uid, DmDriverDownloadTask.this.clusterId, driverFamily, DmDriverDownloadTask.this.driverVersion, resolveDriverFileCount(resources), completedFiles
-                                .size(), 0, "PREPARING", false, buildResourceCoordinate(driverResource), null, "正在准备驱动...");
+                                .size(), 0, "PREPARING", false, buildResourceCoordinate(driverResource), null, i18n(I18nDmMsgKeys.DS_DRIVER_PREPARE_STARTED_MESSAGE));
                     }
 
                     @Override
@@ -146,7 +150,7 @@ public class DmDriverDownloadTask implements Runnable {
                         markCompletedResourceFiles(completedFiles, resDef);
                         DmDriverServiceImpl
                             .publishProgress(uid, DmDriverDownloadTask.this.clusterId, driverFamily, DmDriverDownloadTask.this.driverVersion, resolveDriverFileCount(resources), completedFiles
-                                .size(), 100, "PREPARING", false, buildResourceCoordinate(resDef), null, "驱动文件下载完成");
+                                .size(), 100, "PREPARING", false, buildResourceCoordinate(resDef), null, i18n(I18nDmMsgKeys.DS_DRIVER_FILE_DOWNLOAD_COMPLETE_MESSAGE));
                     }
 
                     @Override
@@ -160,7 +164,7 @@ public class DmDriverDownloadTask implements Runnable {
 
             markCompletedResourceFiles(completedFiles, resource);
             DmDriverServiceImpl.publishProgress(this.uid, this.clusterId, this.driverFamily, this.driverVersion, resolveDriverFileCount(resources), completedFiles
-                .size(), 100, "PREPARING", false, buildResourceCoordinate(resource), null, "驱动文件下载完成");
+                .size(), 100, "PREPARING", false, buildResourceCoordinate(resource), null, i18n(I18nDmMsgKeys.DS_DRIVER_FILE_DOWNLOAD_COMPLETE_MESSAGE));
         }
     }
 
@@ -313,7 +317,8 @@ public class DmDriverDownloadTask implements Runnable {
             }
         }
         DmDriverServiceImpl
-            .publishProgress(this.uid, this.clusterId, this.driverFamily, this.driverVersion, totalFileCount, currentIndex, 100, "SYNCING", false, null, targetFileName, "驱动文件同步完成");
+            .publishProgress(this.uid, this.clusterId, this.driverFamily, this.driverVersion, totalFileCount, currentIndex, 100, "SYNCING", false, null, targetFileName,
+                    i18n(I18nDmMsgKeys.DS_DRIVER_FILE_SYNC_COMPLETE_MESSAGE));
     }
 
     private List<DmWorkerDO> queryTargetWorkers() {
@@ -417,13 +422,17 @@ public class DmDriverDownloadTask implements Runnable {
     }
 
     private String buildDownloadMessage(String fileName, long current, long total) {
-        String displayName = StringUtils.defaultIfBlank(fileName, "驱动文件");
-        return "正在下载 " + displayName + " " + calcPercent(current, total) + "%";
+        String displayName = StringUtils.defaultIfBlank(fileName, i18n(I18nDmMsgKeys.DS_DRIVER_FILE_DEFAULT_NAME));
+        return i18n(I18nDmMsgKeys.DS_DRIVER_FILE_DOWNLOADING_MESSAGE, displayName, calcPercent(current, total));
     }
 
     private String buildSyncMessage(String fileName, long current, long total) {
-        String displayName = StringUtils.defaultIfBlank(fileName, "驱动文件");
-        return "正在同步 " + displayName + " " + calcPercent(current, total) + "%";
+        String displayName = StringUtils.defaultIfBlank(fileName, i18n(I18nDmMsgKeys.DS_DRIVER_FILE_DEFAULT_NAME));
+        return i18n(I18nDmMsgKeys.DS_DRIVER_FILE_SYNCING_MESSAGE, displayName, calcPercent(current, total));
+    }
+
+    private String i18n(I18nDmMsgKeys key, Object... args) {
+        return DmI18nUtils.getMessage(key.name(), args);
     }
 
     private String buildResourceCoordinate(ResDef resource) {
