@@ -137,7 +137,10 @@ public class RdpApproServiceImpl implements RdpApprovalService {
         }
 
         RdpUserKvBaseConfigDO configDO = rdpUserKvBaseConfigMapper.queryByUidAndConfigName(ownerUid, cfgKey);
-        return configDO == null || StringUtils.equalsIgnoreCase(configDO.getConfigValue().trim(), "true");
+        if (configDO == null || StringUtils.isBlank(configDO.getConfigValue())) {
+            return false;
+        }
+        return StringUtils.equalsIgnoreCase(configDO.getConfigValue().trim(), "true");
     }
 
     @Override

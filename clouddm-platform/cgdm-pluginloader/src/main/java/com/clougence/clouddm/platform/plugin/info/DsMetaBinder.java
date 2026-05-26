@@ -101,7 +101,7 @@ public class DsMetaBinder implements DsPluginBinder {
     @Override
     public void addGlobalSpi(Class<? extends Spi> spiType, String named, Spi spi) {
         if (Spi.class.isAssignableFrom(spiType)) {
-            this.globalMeta.addSpi(spiType, spi);
+            this.globalMeta.addSpi(spiType, named, spi);
         }
     }
 
