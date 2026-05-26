@@ -7,7 +7,7 @@ export const authApi = {
   // modifyAuthData: '/rdp/console/api/v1/auth/modifyAuthData',
   // listCurrUserAuthResource: '/rdp/console/api/v1/auth/listCurrUserAuthResource',
   // listElementsOfLevel: '/rdp/console/api/v1/auth/listElementsOfLevel',
-  // createAuthTicket: '/rdp/console/api/v1/ticket/createDataSourceAuthTicket',
+  // createAuthTicket: '/clouddm/console/api/v1/approval/createDataSourceAuthApproval',
   // listUserAuthOfRes: '/rdp/console/api/v1/auth/listUserAuthOfRes',
   // listUserAuthRes: '/rdp/console/api/v1/auth/listUserAuthRes',
   // listMyAuthOfRes: '/rdp/console/api/v1/auth/listMyAuthOfRes',

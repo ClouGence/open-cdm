@@ -24,7 +24,7 @@ import com.clougence.clouddm.console.web.service.sdk.ConsoleCacheServiceImpl;
 import com.clougence.clouddm.platform.plugin.PluginLoadHelper;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.analysis.column.QueryConstraintService;
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalConsoleService;
+import com.clougence.clouddm.sdk.service.approval.ApprovalRefreshService;
 import com.clougence.clouddm.sdk.service.cache.CacheService;
 import com.clougence.clouddm.sdk.service.config.ConfigService;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
@@ -46,28 +46,28 @@ public class DmAlonePluginLoader {
     @Resource
     private ConsoleCacheServiceImpl    cacheService;
     @Resource
-    private RdpApprovalConsoleService  rdpApprovalService;
+    private ApprovalRefreshService     refreshService;
     @Resource
-    private ConsoleConfigService       rdpConfigService;
+    private ConsoleConfigService       consoleConfigService;
+    @Resource
+    private SidecarConfigServiceImpl   sidecarConfigService;
     @Resource
     private MetaService                metaService;
     @Resource
     private QueryConstraintService     queryConstraintService;
     @Resource
     private SidecarSessionServicesImpl sessionServices;
-    @Resource
-    private SidecarConfigServiceImpl   configService;
 
     public void loadPlugin(ClassLoader parentClassLoader) throws Exception {
         this.cacheService.init();
         this.reportService.init();
         PluginManager.putService(SessionService.class, this.sessionServices);
-        PluginManager.putService(ConfigService.class, this.configService);
+        PluginManager.putService(ConfigService.class, this.sidecarConfigService);
         PluginManager.putService(CacheService.class, this.cacheService);
         PluginManager.putService(MetaService.class, this.metaService);
         PluginManager.putService(QueryConstraintService.class, this.queryConstraintService);
-        PluginManager.putService(RdpApprovalConsoleService.class, this.rdpApprovalService);
-        PluginManager.putService(ConsoleConfigService.class, this.rdpConfigService);
+        PluginManager.putService(ApprovalRefreshService.class, this.refreshService);
+        PluginManager.putService(ConsoleConfigService.class, this.consoleConfigService);
 
         // load Plugins
         File pluginPath1 = new File(GlobalConfUtils.getPluginDir("plugins"));

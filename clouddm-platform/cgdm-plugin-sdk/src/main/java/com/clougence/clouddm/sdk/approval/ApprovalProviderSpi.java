@@ -34,8 +34,8 @@ public interface ApprovalProviderSpi extends LifeSpi {
     void useTemplate(String ownerUid, String before, String current) throws ThirdPartyApiException;
 
     // get user info
-    UserDetail getUserDetailByUid(String ownerUid, String targetUserId) throws ThirdPartyApiException;
+    ApprovalUserInfo getUserDetailByUid(String ownerUid, String targetUserId) throws ThirdPartyApiException;
 
     // cancel third party approval process
-    void cancelApprovalInst(String ownerUid, CancelInstanceInfo info) throws ThirdPartyApiException;
+    void cancelApprovalInst(String ownerUid, ApprovalInstanceCancelInfo info) throws ThirdPartyApiException;
 }

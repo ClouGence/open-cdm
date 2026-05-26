@@ -73,6 +73,12 @@ export default {
     ExclamationCircleOutlined,
     LoadingOutlined
   },
+  props: {
+    active: {
+      type: Boolean,
+      default: true
+    }
+  },
   data() {
     return {
       driverStatus: createInitialDriverStatus(),
@@ -90,6 +96,18 @@ export default {
           ...status,
           uiState: resolveDriverUiState(status?.status)
         });
+      }
+    },
+    active: {
+      immediate: true,
+      handler(value) {
+        if (value) {
+          this.connectDriverStatusSocket();
+          this.refreshDriverStatus();
+          return;
+        }
+
+        this.deactivateDriverStatus();
       }
     }
   },
@@ -160,15 +178,15 @@ export default {
       return '';
     }
   },
-  created() {
-    this.connectDriverStatusSocket();
-    this.refreshDriverStatus();
-  },
   beforeUnmount() {
-    this.clearDriverStatusTimeout();
-    this.disconnectDriverStatusSocket();
+    this.deactivateDriverStatus();
   },
   methods: {
+    deactivateDriverStatus() {
+      this.driverStatusRequestKey = '';
+      this.clearDriverStatusTimeout();
+      this.disconnectDriverStatusSocket();
+    },
     clearDriverStatusTimeout() {
       if (this.driverStatusTimeoutId) {
         clearTimeout(this.driverStatusTimeoutId);
@@ -205,6 +223,10 @@ export default {
       };
     },
     async refreshDriverStatus() {
+      if (!this.active) {
+        return;
+      }
+
       const requestKey = `mysql-driver::${Date.now()}`;
       this.driverStatusRequestKey = requestKey;
       this.driverStatus = {
@@ -252,6 +274,10 @@ export default {
       }
     },
     async handleDownloadDriver() {
+      if (!this.active) {
+        return;
+      }
+
       this.clearDriverStatusTimeout();
       this.driverStatus = {
         ...this.driverStatus,
@@ -284,7 +310,7 @@ export default {
       this.handleDownloadDriver();
     },
     connectDriverStatusSocket() {
-      if (this.driverStatusSocket) {
+      if (!this.active || this.driverStatusSocket) {
         return;
       }
 

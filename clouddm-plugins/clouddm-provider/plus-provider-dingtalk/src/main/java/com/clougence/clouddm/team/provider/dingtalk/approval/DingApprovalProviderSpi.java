@@ -19,7 +19,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.clougence.clouddm.sdk.approval.*;
 import org.slf4j.Logger;
 
 import com.aliyun.dingtalkworkflow_1_0.models.GetProcessInstanceResponseBody.GetProcessInstanceResponseBodyResult;
@@ -28,6 +27,17 @@ import com.aliyun.dingtalkworkflow_1_0.models.GetProcessInstanceResponseBody.Get
 import com.aliyun.dingtalkworkflow_1_0.models.ListUserVisibleBpmsProcessesResponseBody.ListUserVisibleBpmsProcessesResponseBodyResultProcessList;
 import com.aliyun.dingtalkworkflow_1_0.models.ProcessForecastResponseBody.ProcessForecastResponseBodyResult;
 import com.aliyun.dingtalkworkflow_1_0.models.ProcessForecastResponseBody.ProcessForecastResponseBodyResultWorkflowActivityRules;
+import com.clougence.clouddm.sdk.LifeSpiRequest;
+import com.clougence.clouddm.sdk.LifeSpiResponse;
+import com.clougence.clouddm.sdk.LifeSpiStatus;
+import com.clougence.clouddm.sdk.LoggerUtil;
+import com.clougence.clouddm.sdk.approval.*;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.sdk.service.approval.ApprovalActivity;
+import com.clougence.clouddm.sdk.service.approval.ApprovalActivityStatus;
+import com.clougence.clouddm.sdk.service.approval.ApprovalRefreshService;
+import com.clougence.clouddm.sdk.service.config.ConfigData;
+import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.team.provider.dingtalk.client.DingApi;
 import com.clougence.clouddm.team.provider.dingtalk.client.DingClient;
 import com.clougence.clouddm.team.provider.dingtalk.constants.DingConfigKey;
@@ -35,16 +45,6 @@ import com.clougence.clouddm.team.provider.dingtalk.constants.DingI18nKeys;
 import com.clougence.clouddm.team.provider.dingtalk.constants.approval.DingTaskResult;
 import com.clougence.clouddm.team.provider.dingtalk.constants.approval.DingTaskStatus;
 import com.clougence.clouddm.team.provider.dingtalk.domain.ro.api.DingUserDetailRO;
-import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalActivityInfo;
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalActivityStatus;
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalConsoleService;
-import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
-import com.clougence.clouddm.sdk.service.config.ConfigData;
-import com.clougence.clouddm.sdk.LifeSpiRequest;
-import com.clougence.clouddm.sdk.LifeSpiResponse;
-import com.clougence.clouddm.sdk.LifeSpiStatus;
-import com.clougence.clouddm.sdk.LoggerUtil;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
@@ -54,13 +54,13 @@ import lombok.SneakyThrows;
 public class DingApprovalProviderSpi implements ApprovalProviderSpi {
 
     private final static Logger                          logger           = LoggerUtil.getLoggerAppender();
-    private final RdpApprovalConsoleService approvalService;
-    private final ConsoleConfigService      configService;
-    private final ClassLoader               pluginLoader;
+    private final ApprovalRefreshService                 approvalService;
+    private final ConsoleConfigService                   configService;
+    private final ClassLoader                            pluginLoader;
     private final Map<String, DingApprovalStreamHandler> streamHandlerMap = new ConcurrentHashMap<>();
     private final Map<String, DingClient>                clientMap        = new ConcurrentHashMap<>();
 
-    public DingApprovalProviderSpi(ConsoleConfigService configService, RdpApprovalConsoleService approvalService, ClassLoader pluginLoader){
+    public DingApprovalProviderSpi(ConsoleConfigService configService, ApprovalRefreshService approvalService, ClassLoader pluginLoader){
         this.approvalService = approvalService;
         this.configService = configService;
         this.pluginLoader = pluginLoader;
@@ -155,21 +155,21 @@ public class DingApprovalProviderSpi implements ApprovalProviderSpi {
     }
 
     @SneakyThrows
-    private List<ApprovalActivity> getApprovalActivityList(String ownerUid, ApprovalForm info) {
+    private List<ApprovalActivityInfo> getApprovalActivityList(String ownerUid, ApprovalForm info) {
         DingApi approvalApi = this.approvalApi(ownerUid);
 
         ProcessForecastResponseBodyResult result = approvalApi.getApprovalActivities(info);
 
         int i = 1;
-        List<ApprovalActivity> activities = new ArrayList<>();
+        List<ApprovalActivityInfo> aaList = new ArrayList<>();
         for (ProcessForecastResponseBodyResultWorkflowActivityRules workflowActivityRule : result.getWorkflowActivityRules()) {
-            ApprovalActivity approvalActivity = new ApprovalActivity();
-            approvalActivity.setActivityName(workflowActivityRule.getActivityName());
-            approvalActivity.setActivityId(workflowActivityRule.getActivityId());
-            approvalActivity.setOrder(i++);
-            activities.add(approvalActivity);
+            ApprovalActivityInfo aaObj = new ApprovalActivityInfo();
+            aaObj.setActivityName(workflowActivityRule.getActivityName());
+            aaObj.setActivityId(workflowActivityRule.getActivityId());
+            aaObj.setOrder(i++);
+            aaList.add(aaObj);
         }
-        return activities;
+        return aaList;
     }
 
     @Override
@@ -185,15 +185,15 @@ public class DingApprovalProviderSpi implements ApprovalProviderSpi {
         List<GetProcessInstanceResponseBodyResultOperationRecords> operationRecords = result.getOperationRecords();
         List<GetProcessInstanceResponseBodyResultTasks> tasks = result.getTasks();
 
-        Map<String, List<RdpApprovalActivityInfo>> map = new HashMap<>();
+        Map<String, List<ApprovalActivity>> map = new HashMap<>();
         for (GetProcessInstanceResponseBodyResultTasks task : tasks) {
             // ignore
             if (task.getStatus().equalsIgnoreCase("CANCELED")) {
                 continue;
             }
 
-            List<RdpApprovalActivityInfo> list = map.getOrDefault(task.getActivityId(), new ArrayList<>());
-            RdpApprovalActivityInfo dto = new RdpApprovalActivityInfo();
+            List<ApprovalActivity> list = map.getOrDefault(task.getActivityId(), new ArrayList<>());
+            ApprovalActivity dto = new ApprovalActivity();
             dto.setTaskId(task.getTaskId().toString());
             dto.setActivityId(task.getActivityId());
             try {
@@ -212,16 +212,16 @@ public class DingApprovalProviderSpi implements ApprovalProviderSpi {
             DingTaskResult result1 = DingTaskResult.getByName(task.getResult());
             if (status == DingTaskStatus.COMPLETED) {
                 if (result1 == DingTaskResult.AGREE) {
-                    dto.setStatus(RdpApprovalActivityStatus.COMPLETED);
+                    dto.setStatus(ApprovalActivityStatus.COMPLETED);
                 } else if (result1 == DingTaskResult.REFUSE) {
-                    dto.setStatus(RdpApprovalActivityStatus.REFUSE);
+                    dto.setStatus(ApprovalActivityStatus.REFUSE);
                 }
             } else if (status == DingTaskStatus.RUNNING) {
-                dto.setStatus(RdpApprovalActivityStatus.RUNNING);
+                dto.setStatus(ApprovalActivityStatus.RUNNING);
             } else if (status == DingTaskStatus.TERMINATED) {
-                dto.setStatus(RdpApprovalActivityStatus.CANCELED);
+                dto.setStatus(ApprovalActivityStatus.CANCELED);
             } else {
-                dto.setStatus(RdpApprovalActivityStatus.NEW);
+                dto.setStatus(ApprovalActivityStatus.NEW);
             }
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
             dto.setStartTime(dateFormat.parse(task.getCreateTime()));
@@ -246,17 +246,17 @@ public class DingApprovalProviderSpi implements ApprovalProviderSpi {
             map.put(task.getActivityId(), list);
         }
 
-        ApprovalInstanceInfo approvalInstanceInfo = new ApprovalInstanceInfo();
+        ApprovalInstanceInfo approvalInstance = new ApprovalInstanceInfo();
 
         ApprovalInstanceStatus approvalInstanceStatus = ApprovalInstanceStatus.valueOfIgnoreCase(result.getStatus());
         if (approvalInstanceStatus == ApprovalInstanceStatus.COMPLETED && result.getResult().equalsIgnoreCase("REFUSE")) {
             approvalInstanceStatus = ApprovalInstanceStatus.REFUSE;
         }
 
-        approvalInstanceInfo.setMap(map);
-        approvalInstanceInfo.setStatus(approvalInstanceStatus);
+        approvalInstance.setMap(map);
+        approvalInstance.setStatus(approvalInstanceStatus);
 
-        return approvalInstanceInfo;
+        return approvalInstance;
 
     }
 
@@ -286,18 +286,18 @@ public class DingApprovalProviderSpi implements ApprovalProviderSpi {
 
     @Override
     @SneakyThrows
-    public UserDetail getUserDetailByUid(String ownerUid, String targetUserId) throws ThirdPartyApiException {
+    public ApprovalUserInfo getUserDetailByUid(String ownerUid, String targetUserId) throws ThirdPartyApiException {
         DingApi approvalApi = this.approvalApi(ownerUid);
 
         DingUserDetailRO info = approvalApi.getUserInfoByUid(targetUserId);;
-        UserDetail userDetail = new UserDetail();
-        userDetail.setUsername(info.getResultInfo().getUserName());
-        return userDetail;
+        ApprovalUserInfo userInfo = new ApprovalUserInfo();
+        userInfo.setUsername(info.getResultInfo().getUserName());
+        return userInfo;
     }
 
     @Override
     @SneakyThrows
-    public void cancelApprovalInst(String ownerUid, CancelInstanceInfo info) throws ThirdPartyApiException {
+    public void cancelApprovalInst(String ownerUid, ApprovalInstanceCancelInfo info) throws ThirdPartyApiException {
         DingApi approvalApi = this.approvalApi(ownerUid);
 
         String uid = approvalApi.getDingUidByPhone(info.getTicketUserPhone());

@@ -23,14 +23,14 @@ import java.util.List;
 
 import org.slf4j.Logger;
 
+import com.clougence.clouddm.sdk.approval.ApprovalForm;
+import com.clougence.clouddm.sdk.approval.ApprovalInstanceCancelInfo;
+import com.clougence.clouddm.sdk.approval.ApprovalTemplate;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.sdk.service.config.UserData;
 import com.clougence.clouddm.team.provider.feishu.constants.FeishuI18nKeys2;
 import com.clougence.clouddm.team.provider.feishu.domain.mo.FeishuTemplateInfo;
 import com.clougence.clouddm.team.provider.feishu.domain.mo.FeishuWidget;
-import com.clougence.clouddm.sdk.approval.ApprovalForm;
-import com.clougence.clouddm.sdk.approval.ApprovalTemplate;
-import com.clougence.clouddm.sdk.approval.CancelInstanceInfo;
-import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.clouddm.sdk.service.config.UserData;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.databind.JavaType;
@@ -144,7 +144,7 @@ public class FeishuApi {
         });
     }
 
-    public void cancelInstance(final CancelInstanceInfo info, final String userId) {
+    public void cancelInstance(final ApprovalInstanceCancelInfo info, final String userId) {
         this.client.callApi(client -> {
             // 创建请求对象
             CancelInstanceReq req = CancelInstanceReq.newBuilder()

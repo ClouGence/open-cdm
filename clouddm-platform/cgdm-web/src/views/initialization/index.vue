@@ -45,6 +45,7 @@
             :formValues="formValues"
             :dbTestResult="dbTestResult"
             :readonly="isDbFormReadonly"
+            :driverStatusActive="currentStep === 0"
             @update:formValues="updateFormValues"
             @driver-status-change="handleMysqlDriverStatusChange"
             @validation-change="handleDbValidationChange"

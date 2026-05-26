@@ -21,7 +21,8 @@ import java.util.stream.Collectors;
 
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.dal.enumeration.*;
-import com.clougence.clouddm.console.web.dal.model.DmResAuthDO;
+import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
+import com.clougence.clouddm.console.web.dal.model.*;
 import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.AddDsFO;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForAppend;
@@ -39,14 +40,12 @@ import com.clougence.clouddm.sdk.model.analysis.resource.AuthBrowseObject;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthInfoType;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalActivityInfo;
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalActivityStatus;
+import com.clougence.clouddm.sdk.service.approval.ApprovalActivity;
+import com.clougence.clouddm.sdk.service.approval.ApprovalActivityStatus;
 import com.clougence.clouddm.sdk.service.config.ConfigData;
 import com.clougence.clouddm.sdk.service.config.RoleData;
 import com.clougence.clouddm.sdk.service.config.UserData;
 import com.clougence.rdp.constant.KvConfValType;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.model.*;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.JsonUtils;
@@ -565,7 +564,7 @@ public class RdpConvertUtils {
         }
     }
 
-    public static RdpTicketProcessVO convertToTicketProcessVO(RdpTicketProcessDO processDO) {
+    public static RdpTicketProcessVO convertToTicketProcessVO(DmApprovalProcessDO processDO) {
         RdpTicketProcessVO vo = new RdpTicketProcessVO();
         vo.setTicketProcessId(processDO.getId());
         vo.setGmtCreate(DateFormatType.s_yyyyMMdd_HHmmss.format(processDO.getGmtCreate()));
@@ -578,7 +577,7 @@ public class RdpConvertUtils {
         return vo;
     }
 
-    public static List<RdpTicketActivityVO> convertToTicketActivityVO(RdpTicketProcessStatus processStatus, RdpTicketProcessActivityDO activityDO) {
+    public static List<RdpTicketActivityVO> convertToTicketActivityVO(RdpTicketProcessStatus processStatus, DmApprovalProcessActivityDO activityDO) {
 
         // not arrived nodes
         if (StringUtils.isEmpty(activityDO.getContext())) {
@@ -604,21 +603,21 @@ public class RdpConvertUtils {
         } else {
             List<String> approvalUsers = new ArrayList<>();
             ArrayList<RdpTicketActivityVO> list = new ArrayList<>();
-            List<RdpApprovalActivityInfo> list1 = JsonUtils.toList(activityDO.getContext(), new TypeReference<List<RdpApprovalActivityInfo>>() {});
+            List<ApprovalActivity> list1 = JsonUtils.toList(activityDO.getContext(), new TypeReference<List<ApprovalActivity>>() {});
             RdpTicketProcessActivityStatus status = null;
 
-            for (RdpApprovalActivityInfo task : list1) {
-                if (task.getStatus() == RdpApprovalActivityStatus.NEW || task.getStatus() == null) {
+            for (ApprovalActivity task : list1) {
+                if (task.getStatus() == ApprovalActivityStatus.NEW || task.getStatus() == null) {
                     continue;
                 }
 
-                if (task.getStatus() == RdpApprovalActivityStatus.RUNNING || task.getStatus() == RdpApprovalActivityStatus.CANCELED) {
+                if (task.getStatus() == ApprovalActivityStatus.RUNNING || task.getStatus() == ApprovalActivityStatus.CANCELED) {
                     approvalUsers.add(task.getUserName());
                     status = RdpTicketProcessActivityStatus.valueOf(task.getStatus().name());
                     continue;
                 }
 
-                if (task.getStatus() == RdpApprovalActivityStatus.CLOSE) {
+                if (task.getStatus() == ApprovalActivityStatus.CLOSE) {
                     continue;
                 }
                 RdpTicketActivityVO vo = new RdpTicketActivityVO();

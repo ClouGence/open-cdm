@@ -18,27 +18,27 @@ package com.clougence.clouddm.team.provider.wechat.approval;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.clougence.clouddm.sdk.approval.*;
 import org.slf4j.Logger;
 
-import com.clougence.clouddm.team.provider.wechat.client.WechatApi;
-import com.clougence.clouddm.team.provider.wechat.client.WechatClient;
-import com.clougence.clouddm.team.provider.wechat.constants.WechatConfigKey;
-import com.clougence.clouddm.team.provider.wechat.constants.WechatI18nKey2;
-import com.clougence.clouddm.team.provider.wechat.constants.approval.WechatConstant;
+import com.clougence.clouddm.sdk.LifeSpiRequest;
+import com.clougence.clouddm.sdk.LifeSpiResponse;
+import com.clougence.clouddm.sdk.LifeSpiStatus;
+import com.clougence.clouddm.sdk.LoggerUtil;
+import com.clougence.clouddm.sdk.approval.*;
 import com.clougence.clouddm.sdk.approval.form.AuthForm;
 import com.clougence.clouddm.sdk.approval.form.ChangeForm;
 import com.clougence.clouddm.sdk.approval.form.QueryForm;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiErrorType;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalActivityInfo;
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalActivityStatus;
-import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
+import com.clougence.clouddm.sdk.service.approval.ApprovalActivity;
+import com.clougence.clouddm.sdk.service.approval.ApprovalActivityStatus;
 import com.clougence.clouddm.sdk.service.config.ConfigData;
-import com.clougence.clouddm.sdk.LifeSpiRequest;
-import com.clougence.clouddm.sdk.LifeSpiResponse;
-import com.clougence.clouddm.sdk.LifeSpiStatus;
-import com.clougence.clouddm.sdk.LoggerUtil;
+import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
+import com.clougence.clouddm.team.provider.wechat.client.WechatApi;
+import com.clougence.clouddm.team.provider.wechat.client.WechatClient;
+import com.clougence.clouddm.team.provider.wechat.constants.WechatConfigKey;
+import com.clougence.clouddm.team.provider.wechat.constants.WechatI18nKey2;
+import com.clougence.clouddm.team.provider.wechat.constants.approval.WechatConstant;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
@@ -48,9 +48,9 @@ import cn.felord.enumeration.ProcessNodeStatus;
 
 public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
 
-    private final static Logger                    logger    = LoggerUtil.getLoggerAppender();
-    private final        ConsoleConfigService      configService;
-    private final        Map<String, WechatClient> clientMap = new ConcurrentHashMap<>();
+    private final static Logger             logger    = LoggerUtil.getLoggerAppender();
+    private final ConsoleConfigService      configService;
+    private final Map<String, WechatClient> clientMap = new ConcurrentHashMap<>();
 
     public WechatApprovalProviderSpi(ConsoleConfigService configService){
         this.configService = configService;
@@ -145,12 +145,12 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
         ApprovalCreateInstanceResult result = new ApprovalCreateInstanceResult();
         result.setApprovalIdentity(instance);
 
-        ApprovalActivity approvalActivity = new ApprovalActivity();
-        approvalActivity.setOrder(1);
-        approvalActivity.setActivityName(WechatConstant.DEFAULT_ACTIVITY_TITLE);
-        approvalActivity.setActivityId(WechatConstant.DEFAULT_ACTIVITY_ID);
+        ApprovalActivityInfo aaObj = new ApprovalActivityInfo();
+        aaObj.setOrder(1);
+        aaObj.setActivityName(WechatConstant.DEFAULT_ACTIVITY_TITLE);
+        aaObj.setActivityId(WechatConstant.DEFAULT_ACTIVITY_ID);
         result.setActivityList(new ArrayList<>());
-        result.setActivityList(Collections.singletonList(approvalActivity));
+        result.setActivityList(Collections.singletonList(aaObj));
         return result;
     }
 
@@ -259,16 +259,16 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
             }
         }
 
-        Map<String, List<RdpApprovalActivityInfo>> map = new HashMap<>();
-        List<RdpApprovalActivityInfo> tasks = new ArrayList<>();
+        Map<String, List<ApprovalActivity>> map = new HashMap<>();
+        List<ApprovalActivity> tasks = new ArrayList<>();
         info.setMap(map);
         for (ProcessNodeDetail item : instanceDetail.getProcessList().getNodeList()) {
             ProcessNodeStatus spStatus = item.getSpStatus();
-            RdpApprovalActivityInfo task = new RdpApprovalActivityInfo();
+            ApprovalActivity task = new ApprovalActivity();
             if (spStatus == ProcessNodeStatus.ACCEPTED) {
-                task.setStatus(RdpApprovalActivityStatus.COMPLETED);
+                task.setStatus(ApprovalActivityStatus.COMPLETED);
             } else if (spStatus == ProcessNodeStatus.REJECTED) {
-                task.setStatus(RdpApprovalActivityStatus.REFUSE);
+                task.setStatus(ApprovalActivityStatus.REFUSE);
             } else {
                 continue;
             }
@@ -322,12 +322,12 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
 
     // no use
     @Override
-    public UserDetail getUserDetailByUid(String ownerUid, String userId) throws ThirdPartyApiException {
+    public ApprovalUserInfo getUserDetailByUid(String ownerUid, String userId) throws ThirdPartyApiException {
         return null;
     }
 
     @Override
-    public void cancelApprovalInst(String ownerUid, CancelInstanceInfo info) throws ThirdPartyApiException {
+    public void cancelApprovalInst(String ownerUid, ApprovalInstanceCancelInfo info) throws ThirdPartyApiException {
         throw ThirdPartyApiException.asRDP().with(WechatI18nKey2.WECHAT_NOT_SUPPORT_CLOSE_TICKET);
     }
 }

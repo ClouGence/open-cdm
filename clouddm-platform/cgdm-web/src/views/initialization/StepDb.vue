@@ -3,7 +3,7 @@
     <a-form layout="horizontal" class="step-db-form">
       <div v-if="jdbcUrlField" class="jdbc-generated-editor">
         <a-form-item :label="$t('initialization.jdbcDataSourceType')" required>
-          <InitMysqlDriverStatus @status-change="handleDriverStatusChange" />
+          <InitMysqlDriverStatus :active="driverStatusActive" @status-change="handleDriverStatusChange" />
         </a-form-item>
 
         <a-form-item :label="$t('initialization.jdbcHostPort')" required>
@@ -305,7 +305,8 @@ export default {
     fieldDefs: { type: Array, default: () => [] },
     formValues: { type: Object, default: () => ({}) },
     dbTestResult: { type: Object, default: null },
-    readonly: { type: Boolean, default: false }
+    readonly: { type: Boolean, default: false },
+    driverStatusActive: { type: Boolean, default: true }
   },
   data() {
     return {

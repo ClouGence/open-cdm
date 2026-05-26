@@ -18,13 +18,13 @@ package com.clougence.clouddm.console.web.service.system;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.console.web.dal.enumeration.RuleKind;
+import com.clougence.clouddm.console.web.dal.mapper.DmApprovalMapper;
 import com.clougence.clouddm.console.web.dal.mapper.DmClusterMapper;
 import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
+import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
+import com.clougence.clouddm.console.web.dal.model.DmApprovalDO;
 import com.clougence.clouddm.console.web.dal.model.DmClusterDO;
 import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
-import com.clougence.clouddm.console.web.dal.mapper.RdpTicketMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpTicketDO;
 import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
 
 import jakarta.annotation.Resource;
@@ -38,16 +38,13 @@ import lombok.extern.slf4j.Slf4j;
 public class NamingServiceImpl implements NamingService {
 
     @Resource
-    private DmClusterMapper clusterMapper;
-
+    private DmClusterMapper  clusterMapper;
     @Resource
-    private DmWorkerMapper  workerMapper;
-
+    private DmWorkerMapper   workerMapper;
     @Resource
-    private RdpUserMapper   userMapper;
-
+    private RdpUserMapper    userMapper;
     @Resource
-    private RdpTicketMapper rdpTicketMapper;
+    private DmApprovalMapper approvalMapper;
 
     @Override
     public String genLocalClusterName() {
@@ -78,7 +75,7 @@ public class NamingServiceImpl implements NamingService {
         String namePattern = "ticket%s";
         while (true) {
             String bizId = String.format(namePattern, fixedLenRandomStr(10));
-            RdpTicketDO ticketDO = rdpTicketMapper.queryByBizId(bizId);
+            DmApprovalDO ticketDO = approvalMapper.queryByBizId(bizId);
             if (ticketDO == null) {
                 return bizId;
             }

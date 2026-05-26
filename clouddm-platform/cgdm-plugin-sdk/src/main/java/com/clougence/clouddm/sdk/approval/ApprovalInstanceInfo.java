@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalActivityInfo;
+import com.clougence.clouddm.sdk.service.approval.ApprovalActivity;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -28,8 +28,8 @@ import lombok.Setter;
 @Setter
 public class ApprovalInstanceInfo {
 
-    private Map<String, List<RdpApprovalActivityInfo>> map = new HashMap<>();
+    private Map<String, List<ApprovalActivity>> map = new HashMap<>();
 
-    private ApprovalInstanceStatus                     status;
+    private ApprovalInstanceStatus              status;
 
 }

@@ -24,7 +24,7 @@ import lombok.Setter;
 @Setter
 public class ApprovalCreateInstanceResult {
 
-    private String                 approvalIdentity;
-    private ApprovalUrl            approvalUrl;
-    private List<ApprovalActivity> activityList;
+    private String                     approvalIdentity;
+    private ApprovalUrl                approvalUrl;
+    private List<ApprovalActivityInfo> activityList;
 }

@@ -20,6 +20,8 @@ import java.util.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
+import com.clougence.clouddm.console.web.component.approval.model.ApprovalMO;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.project.ImMessageType;
@@ -29,28 +31,15 @@ import com.clougence.clouddm.console.web.component.project.model.ChangeCheckMO;
 import com.clougence.clouddm.console.web.component.project.model.ChangeTicketInfo;
 import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.dal.enumeration.*;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectChangeItemMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmTicketMapper;
+import com.clougence.clouddm.console.web.dal.mapper.*;
 import com.clougence.clouddm.console.web.dal.model.*;
 import com.clougence.clouddm.console.web.model.vo.ticket.CheckedVO;
 import com.clougence.clouddm.console.web.service.system.NamingService;
-import com.clougence.clouddm.console.web.service.ticket.model.TicketInfo;
 import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
-import com.clougence.rdp.component.ticket.RdpApprovalService;
-import com.clougence.rdp.component.ticket.RdpTicketProcessService;
 import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalBiz;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalType;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpTicketStatus;
-import com.clougence.clouddm.console.web.dal.mapper.RdpApprovalPersonMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDsEnvMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpEnvParamMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpTicketMapper;
-import com.clougence.clouddm.console.web.dal.model.*;
 import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.model.EnvTicketMO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.format.WellKnowFormat;
@@ -68,21 +57,17 @@ public class ChangeActionForApproval extends AbstractChangeAction {
     @Resource
     private DmDsConfigService         dmDsConfigService;
     @Resource
+    private DmProjectChangeItemMapper dmProjectChangeItemMapper;
+    @Resource
     private RdpDsEnvMapper            rdpEnvMapper;
     @Resource
     private RdpEnvParamMapper         rdpEnvParamMapper;
     @Resource
-    private RdpApprovalPersonMapper   rdpApprovalPersonMapper;
+    private DmApprovalPersonMapper    rdpApprovalPersonMapper;
     @Resource
-    private DmTicketMapper            dmTicketMapper;
+    private DmApprovalMapper          approvalMapper;
     @Resource
-    private RdpTicketMapper           rdpTicketMapper;
-    @Resource
-    private DmProjectChangeItemMapper dmProjectChangeItemMapper;
-    @Resource
-    private RdpApprovalService        approvalService;
-    @Resource
-    private RdpTicketProcessService   rdpTicketProcessService;
+    private ApprovalFlowService       approvalFlowService;
 
     @Override
     public void doAction(DmProjectChangeDO change) {
@@ -113,7 +98,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         String sqlChange = diffChange.isEmpty() ? "" : diffChange.get(0).getContent();
 
         // create ticket
-        RdpTicketDO ticket;
+        DmApprovalDO ticket;
         try {
             DmProjectDevopsDO devopsDO = this.dmProjectDevopsMapper.queryByOwnerAndId(change.getOwnerUid(), change.getRefDevopsId());
             DsLevels dsLevels = this.dmDsConfigService.parseLevels(devopsDO.getDsPath());
@@ -151,7 +136,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         this.dmProjectChangeMapper.updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.WAIT, message);
     }
 
-    private ChangeTicketInfo createChangeTicketInfo(RdpTicketDO ticket) {
+    private ChangeTicketInfo createChangeTicketInfo(DmApprovalDO ticket) {
         ChangeTicketInfo info = new ChangeTicketInfo();
 
         info.setTicketId(ticket.getId());
@@ -164,7 +149,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
     }
 
     @Transactional(rollbackFor = Throwable.class)
-    public RdpTicketDO createTicket(DmProjectChangeDO change, DsLevels dsLevels, String sqlContent, Locale locale) {
+    public DmApprovalDO createTicket(DmProjectChangeDO change, DsLevels dsLevels, String sqlContent, Locale locale) {
         DmProjectDO projectDO = this.dmProjectMapper.queryByOwnerAndId(change.getOwnerUid(), change.getRefProjectId());
         RdpDataSourceDO dsDO = dsLevels.dsDO();
         RdpDsEnvDO envDO = this.rdpEnvMapper.queryByEnvID(change.getOwnerUid(), Long.valueOf(dsLevels.envId()));
@@ -182,7 +167,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         ChangeApprovalInfo approvalInfo = findRdpApprovalType(change.getOwnerUid(), dsDO, locale);
         RdpApprovalType approvalType = approvalInfo.getApprovalType();
         if (approvalType != RdpApprovalType.Internal) {
-            if (!this.approvalService.checkEnableApproval(change.getOwnerUid(), approvalType.getProviderType())) {
+            if (!this.approvalFlowService.checkEnableApproval(change.getOwnerUid(), approvalType.getProviderType())) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), locale, approvalType));
             }
         }
@@ -215,7 +200,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
 
         // create Ticket
         String bizId = this.namingService.genTicketBizId();
-        RdpTicketDO ticket = new RdpTicketDO();
+        DmApprovalDO ticket = new DmApprovalDO();
         ticket.setBizId(bizId);
         ticket.setOwnerUid(projectDO.getProjectUid());
         ticket.setPrimaryUid(change.getOwnerUid());
@@ -231,31 +216,27 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         ticket.setApproTemplateName(approvalInfo.getTemplateName());
         ticket.setApproTemplateIdentity(approvalInfo.getTemplateId());
 
-        // DM ticket ins
-        DmTicketDO dmTicketDO = new DmTicketDO();
-        dmTicketDO.setRdpTicketInsId(bizId);
-        dmTicketDO.setRawSql(sqlContent);
-        dmTicketDO.setTotalCount(0);
-        dmTicketDO.setExpectedAffectedRows(0L);
-        TicketInfo ticketInfo = new TicketInfo();
+        ticket.setRawSql(sqlContent);
+        ticket.setTotalCount(0);
+        ticket.setExpectedAffectedRows(0L);
+        ApprovalMO ticketInfo = new ApprovalMO();
         ticketInfo.setChangeOwnerUid(change.getOwnerUid());
         ticketInfo.setChangeId(change.getId());
-        dmTicketDO.setTicketInfo(JsonUtils.toJson(ticketInfo));
-        dmTicketDO.setLevels(dsLevels.dbLevels());
-        dmTicketDO.setRollBackSql("");
-        dmTicketDO.setCheckedInfo(JsonUtils.toJson(checkMap.values()));
+        ticket.setTicketInfo(JsonUtils.toJson(ticketInfo));
+        ticket.setLevels(dsLevels.dbLevels());
+        ticket.setRollBackSql("");
+        ticket.setCheckedInfo(JsonUtils.toJson(checkMap.values()));
 
         //
         if (approvalInfo.getApprovalType() == RdpApprovalType.Internal) {
-            RdpApprovalPersonDO primary = new RdpApprovalPersonDO();
+            DmApprovalPersonDO primary = new DmApprovalPersonDO();
             primary.setPersonUid(projectDO.getProjectUid());
             primary.setTicketBzId(bizId);
             this.rdpApprovalPersonMapper.insert(primary);
         }
 
-        this.rdpTicketMapper.insert(ticket);
-        this.dmTicketMapper.insert(dmTicketDO);
-        this.rdpTicketProcessService.createProcess(ticket.getId(), RdpApprovalBiz.DM_CHANGE, true);
+        this.approvalMapper.insert(ticket);
+        this.approvalFlowService.createProcess(ticket.getId(), RdpApprovalBiz.DM_CHANGE, true);
         return ticket;
     }
 
@@ -275,7 +256,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         if (paramDO == null) {
             return new ChangeApprovalInfo(//
                 RdpApprovalType.Internal,
-                RdpApprovalService.INNER_TEMPLATE_ID,
+                ApprovalFlowService.INNER_TEMPLATE_ID,
                 DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_INTERNAL_TEMPLATE.name()));
         }
 
@@ -284,7 +265,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         String templateId = ticketMO.getTemplateId();
         String templateName = ticketMO.getTemplateName();
         if (rdpApprovalType != RdpApprovalType.Internal) {
-            RdpCacheApproTemplateDO templateDO = this.approvalService.checkApprovalAndReturnTemplate(ownerUid, rdpApprovalType, templateId, locale);
+            DmApprovalCacheTemplateDO templateDO = this.approvalFlowService.checkApprovalAndReturnTemplate(ownerUid, rdpApprovalType, templateId, locale);
             templateName = templateDO.getTemplateName();
         }
         return new ChangeApprovalInfo(rdpApprovalType, templateId, templateName);

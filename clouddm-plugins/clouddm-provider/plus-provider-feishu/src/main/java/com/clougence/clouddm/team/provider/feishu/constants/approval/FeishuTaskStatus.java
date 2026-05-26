@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.team.provider.feishu.constants.approval;
 
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalActivityStatus;
+import com.clougence.clouddm.sdk.service.approval.ApprovalActivityStatus;
 import com.clougence.utils.StringUtils;
 
 public enum FeishuTaskStatus {
@@ -41,22 +41,22 @@ public enum FeishuTaskStatus {
         throw new UnsupportedOperationException("Can't find enum obj for node result " + result);
     }
 
-    public RdpApprovalActivityStatus convertStatus() {
+    public ApprovalActivityStatus convertStatus() {
         switch (this) {
             case PENDING: {
-                return RdpApprovalActivityStatus.RUNNING;
+                return ApprovalActivityStatus.RUNNING;
             }
             case APPROVED: {
-                return RdpApprovalActivityStatus.COMPLETED;
+                return ApprovalActivityStatus.COMPLETED;
             }
             case REJECTED: {
-                return RdpApprovalActivityStatus.REFUSE;
+                return ApprovalActivityStatus.REFUSE;
             }
             case TRANSFERRED: {
-                return RdpApprovalActivityStatus.CLOSE;
+                return ApprovalActivityStatus.CLOSE;
             }
             case DONE: {
-                return RdpApprovalActivityStatus.CANCELED;
+                return ApprovalActivityStatus.CANCELED;
             }
 
         }

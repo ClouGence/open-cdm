@@ -182,9 +182,7 @@
                 class="w-36 h-36 border border-zinc-200 rounded-lg block flex flex-col items-center justify-center shadow"
                 @click="handleGoJump"
               >
-                <svg class="icon-v2 mb-4 text-4xl" aria-hidden="true">
-                  <use :xlink:href="`#icon-v2-${selectDomainData.loginType}`"></use>
-                </svg>
+                <CustomIcon :type="resolveLoginProviderIcon(selectDomainData.loginType)" size="40px" bottomMargin="16px" />
                 {{ selectDomainData.title }} {{ $t('deng-lu') }}
               </a-button>
             </div>
@@ -527,6 +525,18 @@ export default {
     handleGoJump() {
       this.loginLoading = true;
       this.requestJumpUrl(this.selectDomainData);
+    },
+    resolveLoginProviderIcon(loginType) {
+      const normalizedLoginType = `${loginType || ''}`.toLowerCase();
+      const iconMap = {
+        dingtalk: 'icon-v2-DingTalk',
+        dingding: 'icon-v2-DingTalk',
+        feishu: 'icon-v2-Feishu',
+        wechat: 'icon-v2-Wechat',
+        weixin: 'icon-v2-Wechat',
+        oidc: 'icon-v2-OIDC'
+      };
+      return iconMap[normalizedLoginType] || `icon-v2-${loginType}`;
     },
     goReLogin() {
       this.$router.push({ name: 'Login' });

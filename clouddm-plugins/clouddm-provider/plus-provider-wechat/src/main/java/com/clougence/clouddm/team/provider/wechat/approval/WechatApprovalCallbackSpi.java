@@ -21,23 +21,23 @@ import org.json.JSONObject;
 import org.json.XML;
 import org.slf4j.Logger;
 
+import com.clougence.clouddm.sdk.LoggerUtil;
+import com.clougence.clouddm.sdk.approval.ApprovalCallbackSpi;
+import com.clougence.clouddm.sdk.approval.ApprovalProvider;
+import com.clougence.clouddm.sdk.service.approval.ApprovalIdentity;
+import com.clougence.clouddm.sdk.service.approval.ApprovalRefreshService;
 import com.clougence.clouddm.team.provider.wechat.client.WechatApi;
 import com.clougence.clouddm.team.provider.wechat.constants.approval.WechatConstant;
 import com.clougence.clouddm.team.provider.wechat.utils.aes.WXBizJsonMsgCrypt;
-import com.clougence.clouddm.sdk.approval.ApprovalProvider;
-import com.clougence.clouddm.sdk.approval.ApprovalCallbackSpi;
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalConsoleService;
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalTicketInfo;
-import com.clougence.clouddm.sdk.LoggerUtil;
 import com.clougence.utils.StringUtils;
 
 public class WechatApprovalCallbackSpi implements ApprovalCallbackSpi {
 
     private final static Logger             logger = LoggerUtil.getLoggerAppender();
     private final WechatApprovalProviderSpi sdkService;
-    private final RdpApprovalConsoleService approvalService;
+    private final ApprovalRefreshService    approvalService;
 
-    public WechatApprovalCallbackSpi(WechatApprovalProviderSpi sdkService, RdpApprovalConsoleService approvalService){
+    public WechatApprovalCallbackSpi(WechatApprovalProviderSpi sdkService, ApprovalRefreshService approvalService){
         this.sdkService = sdkService;
         this.approvalService = approvalService;
     }
@@ -73,7 +73,7 @@ public class WechatApprovalCallbackSpi implements ApprovalCallbackSpi {
             logger.error("wechat receive event msg, spNo is null, data is " + s);
         }
 
-        RdpApprovalTicketInfo approvalInstanceCallback = new RdpApprovalTicketInfo();
+        ApprovalIdentity approvalInstanceCallback = new ApprovalIdentity();
         approvalInstanceCallback.setProviderType(ApprovalProvider.Wechat.name());
         approvalInstanceCallback.setApproIdentity(spNo);
         approvalInstanceCallback.setOwnerUid(params.get(WechatConstant.PUID));

@@ -22,26 +22,26 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
+import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalType;
+import com.clougence.clouddm.console.web.dal.mapper.DmApprovalCacheTemplateMapper;
 import com.clougence.clouddm.console.web.dal.mapper.DmSecSpecMapper;
+import com.clougence.clouddm.console.web.dal.mapper.RdpDsEnvMapper;
+import com.clougence.clouddm.console.web.dal.mapper.RdpEnvParamMapper;
+import com.clougence.clouddm.console.web.dal.model.DmApprovalCacheTemplateDO;
 import com.clougence.clouddm.console.web.dal.model.DmSecSpecDO;
+import com.clougence.clouddm.console.web.dal.model.RdpDsEnvDO;
+import com.clougence.clouddm.console.web.dal.model.RdpEnvParamDO;
 import com.clougence.clouddm.console.web.model.fo.envparam.DmBindEnvParamFO;
 import com.clougence.clouddm.console.web.model.fo.envparam.DmUnbindEnvParamFO;
 import com.clougence.clouddm.console.web.model.vo.envparam.DmEnvParamOpenVO;
 import com.clougence.clouddm.console.web.model.vo.envparam.DmEnvParamSecDesVO;
 import com.clougence.clouddm.console.web.model.vo.envparam.DmEnvParamTicketDesVO;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.approval.ApprovalProviderSpi;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
-import com.clougence.rdp.component.ticket.RdpApprovalService;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalType;
-import com.clougence.clouddm.console.web.dal.mapper.RdpCacheApproTemplateMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDsEnvMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpEnvParamMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpCacheApproTemplateDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsEnvDO;
-import com.clougence.clouddm.console.web.dal.model.RdpEnvParamDO;
 import com.clougence.rdp.service.model.EnvTicketMO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -58,13 +58,13 @@ import lombok.extern.slf4j.Slf4j;
 public class DmEnvParamServiceImpl implements DmEnvParamService {
 
     @Resource
-    private RdpEnvParamMapper           rdpEnvParam;
+    private RdpEnvParamMapper             rdpEnvParam;
     @Resource
-    private DmSecSpecMapper             dmSecSpecMapper;
+    private DmSecSpecMapper               dmSecSpecMapper;
     @Resource
-    private RdpCacheApproTemplateMapper rdpCacheApproTemplateMapper;
+    private DmApprovalCacheTemplateMapper rdpCacheApproTemplateMapper;
     @Resource
-    private RdpDsEnvMapper              rdpDsEnvMapper;
+    private RdpDsEnvMapper                rdpDsEnvMapper;
 
     @Override
     public void bindEnvParam(String ownerUid, String uid, DmBindEnvParamFO fo) {
@@ -251,8 +251,8 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
             .openTicket(true)
             .type(RdpApprovalType.Internal.name())
             .typeI18n(DmI18nUtils.getMessage(RdpApprovalType.Internal.getI18nKey()))
-            .templateId(RdpApprovalService.innerTemplate().getTemplateIdentity())
-            .templateName(RdpApprovalService.innerTemplate().getApproTemplateName())
+            .templateId(ApprovalFlowService.innerTemplate().getTemplateIdentity())
+            .templateName(ApprovalFlowService.innerTemplate().getApproTemplateName())
             .build();
     }
 
@@ -275,7 +275,7 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
             .templateName(ticketMO.getTemplateName())
             .build();
 
-        RdpCacheApproTemplateDO templateDO = this.rdpCacheApproTemplateMapper.queryByUidAndTemId(ownerUid, ticketMO.getTemplateId());
+        DmApprovalCacheTemplateDO templateDO = this.rdpCacheApproTemplateMapper.queryByUidAndTemId(ownerUid, ticketMO.getTemplateId());
         if (templateDO == null && !RdpApprovalType.Internal.name().equals(providerCode)) {
             tVO.setDelete(true);
         }

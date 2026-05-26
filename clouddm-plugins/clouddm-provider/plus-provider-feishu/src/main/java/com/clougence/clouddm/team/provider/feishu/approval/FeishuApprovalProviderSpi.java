@@ -18,9 +18,18 @@ package com.clougence.clouddm.team.provider.feishu.approval;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.clougence.clouddm.sdk.approval.*;
 import org.slf4j.Logger;
 
+import com.clougence.clouddm.sdk.LifeSpiRequest;
+import com.clougence.clouddm.sdk.LifeSpiResponse;
+import com.clougence.clouddm.sdk.LifeSpiStatus;
+import com.clougence.clouddm.sdk.LoggerUtil;
+import com.clougence.clouddm.sdk.approval.*;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.sdk.service.approval.ApprovalActivity;
+import com.clougence.clouddm.sdk.service.approval.ApprovalRefreshService;
+import com.clougence.clouddm.sdk.service.config.ConfigData;
+import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.team.provider.feishu.client.FeishuApi;
 import com.clougence.clouddm.team.provider.feishu.client.FeishuClient;
 import com.clougence.clouddm.team.provider.feishu.constants.FeishuConfigKey;
@@ -28,15 +37,6 @@ import com.clougence.clouddm.team.provider.feishu.constants.FeishuI18nKeys2;
 import com.clougence.clouddm.team.provider.feishu.constants.approval.FeishuInstanceStatus;
 import com.clougence.clouddm.team.provider.feishu.constants.approval.FeishuTaskStatus;
 import com.clougence.clouddm.team.provider.feishu.domain.mo.FeishuTemplateInfo;
-import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalActivityInfo;
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalConsoleService;
-import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
-import com.clougence.clouddm.sdk.service.config.ConfigData;
-import com.clougence.clouddm.sdk.LifeSpiRequest;
-import com.clougence.clouddm.sdk.LifeSpiResponse;
-import com.clougence.clouddm.sdk.LifeSpiStatus;
-import com.clougence.clouddm.sdk.LoggerUtil;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
@@ -48,12 +48,12 @@ import com.lark.oapi.service.approval.v4.model.InstanceTimeline;
 public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
 
     private final static Logger                            logger           = LoggerUtil.getLoggerAppender();
-    private final RdpApprovalConsoleService                approvalService;
+    private final ApprovalRefreshService                   approvalService;
     private final ConsoleConfigService                     configService;
     private final Map<String, FeishuApprovalStreamHandler> streamHandlerMap = new ConcurrentHashMap<>();
     private final Map<String, FeishuClient>                clientMap        = new ConcurrentHashMap<>();
 
-    public FeishuApprovalProviderSpi(ConsoleConfigService configService, RdpApprovalConsoleService approvalService){
+    public FeishuApprovalProviderSpi(ConsoleConfigService configService, ApprovalRefreshService approvalService){
         this.approvalService = approvalService;
         this.configService = configService;
     }
@@ -153,14 +153,14 @@ public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
         return approvalCreateInstanceResult;
     }
 
-    private static List<ApprovalActivity> convertToApprovalActivityList(List<ApprovalNodeInfo> list) {
-        List<ApprovalActivity> approvalActivities = new ArrayList<>();
+    private static List<ApprovalActivityInfo> convertToApprovalActivityList(List<ApprovalNodeInfo> list) {
+        List<ApprovalActivityInfo> approvalActivities = new ArrayList<>();
         for (ApprovalNodeInfo approvalNodeInfo : list) {
-            ApprovalActivity approvalActivity = new ApprovalActivity();
-            approvalActivity.setActivityId(approvalNodeInfo.getNodeId());
-            approvalActivity.setActivityName(approvalNodeInfo.getName());
-            approvalActivity.setOrder(-1);
-            approvalActivities.add(approvalActivity);
+            ApprovalActivityInfo aaObj = new ApprovalActivityInfo();
+            aaObj.setActivityId(approvalNodeInfo.getNodeId());
+            aaObj.setActivityName(approvalNodeInfo.getName());
+            aaObj.setOrder(-1);
+            approvalActivities.add(aaObj);
         }
         return approvalActivities;
     }
@@ -174,9 +174,9 @@ public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
         FeishuApi approvalApi = this.approvalApi(ownerUid);
 
         GetInstanceRespBody info = approvalApi.getLastInfo(identity);
-        ApprovalInstanceInfo approvalInstanceInfo = new ApprovalInstanceInfo();
+        ApprovalInstanceInfo approvalInstance = new ApprovalInstanceInfo();
         FeishuInstanceStatus status = FeishuInstanceStatus.getByName(info.getStatus());
-        approvalInstanceInfo.setStatus(status.convertStatus());
+        approvalInstance.setStatus(status.convertStatus());
         Map<String, String> commentMap = new HashMap<>();
         for (InstanceTimeline instanceTimeline : info.getTimeline()) {
             if (StringUtils.isNotEmpty(instanceTimeline.getComment())) {
@@ -184,7 +184,7 @@ public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
             }
         }
 
-        Map<String, List<RdpApprovalActivityInfo>> map = new HashMap<>();
+        Map<String, List<ApprovalActivity>> map = new HashMap<>();
         if (info.getTaskList() != null) {
             for (InstanceTask instanceTask : info.getTaskList()) {
                 FeishuTaskStatus taskStatus = FeishuTaskStatus.getByName(instanceTask.getStatus());
@@ -192,30 +192,30 @@ public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
                     continue;
                 }
 
-                List<RdpApprovalActivityInfo> list = map.getOrDefault(instanceTask.getNodeId(), new ArrayList<>());
-                RdpApprovalActivityInfo task = new RdpApprovalActivityInfo();
-                task.setTaskId(instanceTask.getId());
-                task.setActivityId(instanceTask.getNodeId());
-                task.setUserId(instanceTask.getUserId());
-                task.setStartTime(new Date(Long.parseLong(instanceTask.getStartTime())));
+                List<ApprovalActivity> list = map.getOrDefault(instanceTask.getNodeId(), new ArrayList<>());
+                ApprovalActivity aaObj = new ApprovalActivity();
+                aaObj.setTaskId(instanceTask.getId());
+                aaObj.setActivityId(instanceTask.getNodeId());
+                aaObj.setUserId(instanceTask.getUserId());
+                aaObj.setStartTime(new Date(Long.parseLong(instanceTask.getStartTime())));
                 if (StringUtils.isNotBlank(instanceTask.getUserId())) {
-                    task.setUserName(approvalApi.getUserInfoById(instanceTask.getUserId()));
+                    aaObj.setUserName(approvalApi.getUserInfoById(instanceTask.getUserId()));
                 } else {
-                    task.setUserName("");
+                    aaObj.setUserName("");
                 }
-                task.setRemark(commentMap.get(instanceTask.getId()));
+                aaObj.setRemark(commentMap.get(instanceTask.getId()));
                 if (!instanceTask.getEndTime().equals("0")) {
-                    task.setFinishTime(new Date(Long.parseLong(instanceTask.getEndTime())));
+                    aaObj.setFinishTime(new Date(Long.parseLong(instanceTask.getEndTime())));
                 }
-                task.setStatus(taskStatus.convertStatus());
-                list.add(task);
+                aaObj.setStatus(taskStatus.convertStatus());
+                list.add(aaObj);
                 map.put(instanceTask.getNodeId(), list);
             }
         }
 
-        approvalInstanceInfo.setMap(map);
+        approvalInstance.setMap(map);
 
-        return approvalInstanceInfo;
+        return approvalInstance;
     }
 
     @Override
@@ -241,12 +241,12 @@ public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
     }
 
     @Override
-    public UserDetail getUserDetailByUid(String ownerUid, String userId) throws ThirdPartyApiException {
+    public ApprovalUserInfo getUserDetailByUid(String ownerUid, String userId) throws ThirdPartyApiException {
         return null;// There is no need to implement Feishu
     }
 
     @Override
-    public void cancelApprovalInst(String ownerUid, CancelInstanceInfo info) throws ThirdPartyApiException {
+    public void cancelApprovalInst(String ownerUid, ApprovalInstanceCancelInfo info) throws ThirdPartyApiException {
         FeishuApi approvalApi = this.approvalApi(ownerUid);
 
         String userIdByPhone = approvalApi.getUserIdByPhone(info.getTicketUserPhone());

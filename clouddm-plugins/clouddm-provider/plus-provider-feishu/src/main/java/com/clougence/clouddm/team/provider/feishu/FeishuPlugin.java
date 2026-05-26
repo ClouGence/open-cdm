@@ -22,19 +22,19 @@ import com.clougence.clouddm.sdk.approval.ApprovalProvider;
 import com.clougence.clouddm.sdk.approval.ApprovalProviderSpi;
 import com.clougence.clouddm.sdk.security.login.LoginProvider;
 import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
+import com.clougence.clouddm.sdk.service.approval.ApprovalRefreshService;
+import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.team.provider.feishu.approval.FeishuApprovalProviderSpi;
 import com.clougence.clouddm.team.provider.feishu.auth.FeishuLoginProviderSpi;
 import com.clougence.clouddm.team.provider.feishu.constants.FeishuI18nKeys2;
 import com.clougence.clouddm.team.provider.feishu.im.FeishuMsgSendSpi;
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalConsoleService;
-import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 
 @Plugin
 public class FeishuPlugin implements DsPlugin {
 
     @Override
     public void loadPlugin(DsPluginBinder dsPlugin) {
-        RdpApprovalConsoleService approvalService = dsPlugin.findGlobalService(RdpApprovalConsoleService.class);
+        ApprovalRefreshService approvalService = dsPlugin.findGlobalService(ApprovalRefreshService.class);
         ConsoleConfigService configService = dsPlugin.findGlobalService(ConsoleConfigService.class);
 
         // i18n

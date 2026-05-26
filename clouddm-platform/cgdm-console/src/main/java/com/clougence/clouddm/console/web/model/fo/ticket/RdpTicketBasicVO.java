@@ -15,13 +15,13 @@
  */
 package com.clougence.clouddm.console.web.model.fo.ticket;
 
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalBiz;
 import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalType;
 import com.clougence.clouddm.console.web.dal.enumeration.RdpTicketStatus;
-import com.clougence.clouddm.console.web.dal.model.RdpTicketDO;
+import com.clougence.clouddm.console.web.dal.model.DmApprovalDO;
 import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
 import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.rdp.constant.I18nRdpMsgKeys;
 import com.clougence.utils.format.DateFormatType;
 
 import lombok.Getter;
@@ -31,7 +31,7 @@ import lombok.Setter;
 @Setter
 public class RdpTicketBasicVO {
 
-    // ----- from table rdp_ticket_inst ------
+    // ----- from table dm_approval ------
 
     private Long            id;
 
@@ -71,7 +71,7 @@ public class RdpTicketBasicVO {
 
     //    private boolean         isNormal = true;
 
-    public static RdpTicketBasicVO generateVO(RdpTicketDO ticketDO, String resourceType, RdpUserDO ownerUserDO) {
+    public static RdpTicketBasicVO generateVO(DmApprovalDO ticketDO, String resourceType, RdpUserDO ownerUserDO) {
         RdpTicketBasicVO vo = new RdpTicketBasicVO();
         vo.setId(ticketDO.getId());
         vo.setBizId(ticketDO.getBizId());

@@ -25,6 +25,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
+import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
 import com.clougence.clouddm.console.web.component.auth.model.UserCacheEntry;
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecService;
@@ -57,15 +58,9 @@ import com.clougence.clouddm.console.web.service.project.domain.CreateSuggestTyp
 import com.clougence.clouddm.console.web.service.project.domain.Item;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.DmI18nUtils;
-import com.clougence.rdp.component.ticket.RdpTicketService;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpTicketMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpTicketDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.RdpPageUtil;
+import com.clougence.rdp.constant.I18nRdpMsgKeys;
+import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -81,7 +76,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DmChangeServiceImpl implements DmChangeService {
 
     @Resource
-    private RdpDataSourceMapper       rdpDataSourceMapper;
+    private RdpDataSourceMapper       dataSourceMapper;
     @Resource
     private DmProjectDevopsMapper     dmProjectDevopsMapper;
     @Resource
@@ -93,7 +88,7 @@ public class DmChangeServiceImpl implements DmChangeService {
     @Resource
     private DmProjectMapper           dmProjectMapper;
     @Resource
-    private RdpTicketMapper           rdpTicketMapper;
+    private DmApprovalMapper          approvalMapper;
     @Resource
     private DmScmService              dmScmService;
     @Resource
@@ -109,7 +104,7 @@ public class DmChangeServiceImpl implements DmChangeService {
     @Resource
     private DmAutoExecJobMapper       dmAutoExecJobMapper;
     @Resource
-    private RdpTicketService          rdpTicketService;
+    private ApprovalFlowService       approvalFlowService;
 
     @Override
     public IPage<ProjectChangeVO> queryChangeByProjectAndQuery(String ownerUid, long projectId, ProjectChangeListFO fo) {
@@ -141,7 +136,7 @@ public class DmChangeServiceImpl implements DmChangeService {
 
             dsMap = new HashMap<>();
             Set<Long> dsIds = devops.stream().map(DmProjectDevopsDO::getDsId).collect(Collectors.toSet());
-            List<RdpDataSourceDO> dsList = rdpDataSourceMapper.listByIdsIncludeDeleted(new ArrayList<>(dsIds));
+            List<RdpDataSourceDO> dsList = dataSourceMapper.listByIdsIncludeDeleted(new ArrayList<>(dsIds));
             dsList.forEach(d -> dsMap.put(d.getId(), d));
 
             scmMap = new HashMap<>();
@@ -238,7 +233,7 @@ public class DmChangeServiceImpl implements DmChangeService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_STEP_NO_BODY_ERROR.name()));
         }
 
-        RdpTicketDO ticketDO = this.rdpTicketMapper.queryById(ticketInfo.getTicketId());
+        DmApprovalDO ticketDO = this.approvalMapper.queryById(ticketInfo.getTicketId());
         if (ticketDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_NOT_EXIST_ERROR.name()));
         }
@@ -507,7 +502,7 @@ public class DmChangeServiceImpl implements DmChangeService {
                 ChangeTicketInfo ticketInfo = JsonUtils.toObj(item.getContent(), ChangeTicketInfo.class);
                 if (ticketInfo != null) {
                     String msg1 = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_REAPPROVAL_AT_CONSOLE_NOTICE.name());
-                    this.rdpTicketService.closeTicket(ticketInfo.getTicketId(), msg1, ownerUid, curUid);
+                    this.approvalFlowService.closeTicket(ticketInfo.getTicketId(), msg1, ownerUid, curUid);
                     change = this.dmProjectChangeMapper.queryChangeById(ownerUid, change.getId());
                 }
             }
@@ -626,8 +621,8 @@ public class DmChangeServiceImpl implements DmChangeService {
         DmProjectChangeItemDO item = list.isEmpty() ? null : list.get(0);
         if (item != null) {
             ChangeTicketInfo ticketInfo = JsonUtils.toObj(item.getContent(), ChangeTicketInfo.class);
-            if (ticketInfo != null && !this.rdpTicketService.isFinish(ticketInfo.getTicketId())) {
-                this.rdpTicketService.closeTicket(ticketInfo.getTicketId(), msg1, ownerUid, curUid);
+            if (ticketInfo != null && !this.approvalFlowService.isFinish(ticketInfo.getTicketId())) {
+                this.approvalFlowService.closeTicket(ticketInfo.getTicketId(), msg1, ownerUid, curUid);
             }
         }
 

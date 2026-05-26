@@ -21,23 +21,23 @@ import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 
+import com.clougence.clouddm.sdk.approval.ApprovalProvider;
+import com.clougence.clouddm.sdk.service.approval.ApprovalIdentity;
+import com.clougence.clouddm.sdk.service.approval.ApprovalRefreshService;
 import com.clougence.clouddm.team.provider.feishu.client.FeishuClient;
 import com.clougence.clouddm.team.provider.feishu.client.FeishuEventHandler;
 import com.clougence.clouddm.team.provider.feishu.domain.ro.callback.InstanceCallback;
 import com.clougence.clouddm.team.provider.feishu.domain.ro.callback.TaskCallback;
-import com.clougence.clouddm.sdk.approval.ApprovalProvider;
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalConsoleService;
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalTicketInfo;
 import com.clougence.utils.JsonUtils;
 import com.lark.oapi.core.request.EventReq;
 
 public class FeishuApprovalStreamHandler implements Closeable {
 
-    private final Logger                    logger;
-    private final RdpApprovalConsoleService approvalService;
-    private FeishuClient                    feishuClient;
+    private final Logger                 logger;
+    private final ApprovalRefreshService approvalService;
+    private FeishuClient                 feishuClient;
 
-    public FeishuApprovalStreamHandler(FeishuClient feishuClient, RdpApprovalConsoleService approvalService){
+    public FeishuApprovalStreamHandler(FeishuClient feishuClient, ApprovalRefreshService approvalService){
         this.logger = feishuClient.getLogger();
         this.feishuClient = feishuClient;
         this.approvalService = approvalService;
@@ -68,7 +68,7 @@ public class FeishuApprovalStreamHandler implements Closeable {
         TaskCallback callback = JsonUtils.toObj(new String(eventReq.getBody(), StandardCharsets.UTF_8), TaskCallback.class);
         TaskCallback.Event event = callback.getEvent();
 
-        RdpApprovalTicketInfo approvalInstanceCallback = new RdpApprovalTicketInfo();
+        ApprovalIdentity approvalInstanceCallback = new ApprovalIdentity();
         approvalInstanceCallback.setApproIdentity(event.getInstanceCode());
         approvalInstanceCallback.setProviderType(ApprovalProvider.Feishu.name());
         if (event.getStatus().equals("PENDING")) {
@@ -83,7 +83,7 @@ public class FeishuApprovalStreamHandler implements Closeable {
         InstanceCallback callback = JsonUtils.toObj(new String(eventReq.getBody(), StandardCharsets.UTF_8), InstanceCallback.class);
         InstanceCallback.Event event = callback.getEvent();
 
-        RdpApprovalTicketInfo info = new RdpApprovalTicketInfo();
+        ApprovalIdentity info = new ApprovalIdentity();
         info.setApproIdentity(event.getInstanceCode());
         info.setProviderType(ApprovalProvider.Feishu.name());
 

@@ -19,19 +19,19 @@ import java.io.Closeable;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import com.clougence.clouddm.sdk.approval.ApprovalProvider;
 import org.slf4j.Logger;
 
+import com.clougence.clouddm.sdk.LoggerUtil;
+import com.clougence.clouddm.sdk.approval.ApprovalProvider;
+import com.clougence.clouddm.sdk.service.approval.ApprovalActivity;
+import com.clougence.clouddm.sdk.service.approval.ApprovalActivityStatus;
+import com.clougence.clouddm.sdk.service.approval.ApprovalIdentity;
+import com.clougence.clouddm.sdk.service.approval.ApprovalRefreshService;
 import com.clougence.clouddm.team.provider.dingtalk.constants.approval.DingActivityResult;
 import com.clougence.clouddm.team.provider.dingtalk.constants.approval.DingActivityType;
 import com.clougence.clouddm.team.provider.dingtalk.constants.approval.DingCallbackEvent;
 import com.clougence.clouddm.team.provider.dingtalk.domain.ro.callback.DingInstanceCallbackRO;
 import com.clougence.clouddm.team.provider.dingtalk.domain.ro.callback.DingTaskCallbackRO;
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalActivityInfo;
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalActivityStatus;
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalConsoleService;
-import com.clougence.clouddm.sdk.service.approval.RdpApprovalTicketInfo;
-import com.clougence.clouddm.sdk.LoggerUtil;
 import com.clougence.utils.RandomUtils;
 import com.clougence.utils.ThreadUtils;
 import com.dingtalk.open.app.api.OpenDingTalkClient;
@@ -45,12 +45,12 @@ import shade.com.alibaba.fastjson2.JSONObject;
 
 public class DingApprovalStreamHandler implements Closeable {
 
-    private final static Logger             logger = LoggerUtil.getLoggerAppender();
-    private final ClassLoader               pluginLoader;
-    private final RdpApprovalConsoleService approvalService;
-    private OpenDingTalkClient              client;
+    private final static Logger          logger = LoggerUtil.getLoggerAppender();
+    private final ClassLoader            pluginLoader;
+    private final ApprovalRefreshService approvalService;
+    private OpenDingTalkClient           client;
 
-    public DingApprovalStreamHandler(RdpApprovalConsoleService approvalService, ClassLoader pluginLoader){
+    public DingApprovalStreamHandler(ApprovalRefreshService approvalService, ClassLoader pluginLoader){
         this.approvalService = approvalService;
         this.pluginLoader = pluginLoader;
     }
@@ -123,7 +123,7 @@ public class DingApprovalStreamHandler implements Closeable {
 
     @SneakyThrows
     private void handleInstanceChange(JSONObject data) {
-        RdpApprovalTicketInfo dto = new RdpApprovalTicketInfo();
+        ApprovalIdentity dto = new ApprovalIdentity();
         DingInstanceCallbackRO ro = data.toJavaObject(DingInstanceCallbackRO.class);
 
         dto.setApproIdentity(ro.getProcessInstanceId());
@@ -136,7 +136,7 @@ public class DingApprovalStreamHandler implements Closeable {
     private void handleTaskChange(JSONObject data) {
         // wait sometime, reduce conflict
         ThreadUtils.sleep(RandomUtils.nextInt(100, 500), TimeUnit.MILLISECONDS);
-        RdpApprovalActivityInfo approvalTask = new RdpApprovalActivityInfo();
+        ApprovalActivity approvalTask = new ApprovalActivity();
 
         DingTaskCallbackRO ro = data.toJavaObject(DingTaskCallbackRO.class);
 
@@ -152,26 +152,26 @@ public class DingApprovalStreamHandler implements Closeable {
         approvalTask.setApprovalIdentity(ro.getProcessInstanceId());
         approvalTask.setPlatform(ApprovalProvider.DingTalk.name());
 
-        RdpApprovalActivityStatus approvalTaskStatus = parseTaskStatus(ro);
+        ApprovalActivityStatus approvalTaskStatus = parseTaskStatus(ro);
         approvalTask.setStatus(approvalTaskStatus);
 
         this.approvalService.updateActivity(approvalTask);
     }
 
-    private static RdpApprovalActivityStatus parseTaskStatus(DingTaskCallbackRO ro) {
+    private static ApprovalActivityStatus parseTaskStatus(DingTaskCallbackRO ro) {
         DingActivityType type = ro.getType();
         DingActivityResult result = ro.getResult();
         if (type == DingActivityType.FINISH) {
             if (result == DingActivityResult.AGREE) {
-                return RdpApprovalActivityStatus.COMPLETED;
+                return ApprovalActivityStatus.COMPLETED;
             } else if (result == DingActivityResult.REFUSE) {
-                return RdpApprovalActivityStatus.REFUSE;
+                return ApprovalActivityStatus.REFUSE;
             }
         } else if (type == DingActivityType.CANCEL) {
-            return RdpApprovalActivityStatus.CLOSE;
+            return ApprovalActivityStatus.CLOSE;
         } else {
-            return RdpApprovalActivityStatus.RUNNING;
+            return ApprovalActivityStatus.RUNNING;
         }
-        return RdpApprovalActivityStatus.NEW;
+        return ApprovalActivityStatus.NEW;
     }
 }

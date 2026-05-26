@@ -26,15 +26,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
+import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.constants.EventType;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
+import com.clougence.clouddm.console.web.dal.enumeration.AccountBindType;
+import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
+import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalType;
+import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
 import com.clougence.clouddm.console.web.dal.model.DmCsrfTokenDO;
+import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.csrf.CsrfTokenService;
 import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel;
 import com.clougence.clouddm.console.web.model.fo.LoginFO;
+import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.approval.ApprovalCallbackSpi;
@@ -45,19 +52,12 @@ import com.clougence.clouddm.sdk.security.login.LoginRequest;
 import com.clougence.clouddm.sdk.security.login.LoginResponse;
 import com.clougence.clouddm.sdk.service.config.UserData;
 import com.clougence.rdp.component.sso.RdpSubLoginService;
-import com.clougence.rdp.component.ticket.RdpApprovalService;
 import com.clougence.rdp.constant.I18nRdpMsgKeys;
 import com.clougence.rdp.constant.operation.AuditType;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountBindType;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalType;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
 import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.rdp.service.RdpUserLoginRegService;
 import com.clougence.rdp.service.model.LoginMO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
 
@@ -74,17 +74,17 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpCallbackController {
 
     @Resource
-    private RdpUserMapper          rdpUserMapper;
+    private RdpUserMapper          userMapper;
     @Resource
-    private RdpApprovalService     rdpApprovalService;
+    private ApprovalFlowService    approvalFlowService;
     @Resource
-    private RdpSubLoginService     rdpSubLoginService;
+    private RdpSubLoginService     subLoginService;
     @Resource
-    private RdpUserLoginRegService rdpUserLoginRegService;
+    private RdpUserLoginRegService loginRegService;
     @Resource
     private DmConsoleConfig        rdpConfig;
     @Resource
-    private RdpOpAuditService      rdpOpAuditService;
+    private RdpOpAuditService      opAuditService;
     @Resource
     private CsrfTokenService       csrfTokenService;
 
@@ -111,12 +111,12 @@ public class RdpCallbackController {
     }
 
     private Object doApproval(Map<String, String> params, String puid, RdpApprovalType platform) {
-        RdpUserDO userDO = this.rdpUserMapper.queryByUid(puid);
+        RdpUserDO userDO = this.userMapper.queryByUid(puid);
         if (userDO == null || userDO.getAccountType() != AccountType.PRIMARY_ACCOUNT) {
             return "failed no user.";
         }
 
-        if (!this.rdpApprovalService.checkEnableApproval(puid, platform.getProviderType())) {
+        if (!this.approvalFlowService.checkEnableApproval(puid, platform.getProviderType())) {
             return "failed approval not enable.";
         }
 
@@ -171,7 +171,7 @@ public class RdpCallbackController {
         }
 
         // for ownerUid
-        RdpUserDO primaryUser = this.rdpUserMapper.queryByUid(ownerUid);
+        RdpUserDO primaryUser = this.userMapper.queryByUid(ownerUid);
         if (primaryUser == null) {
             String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PRIMARY_ACCOUNT_NOT_EXIST.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_OWNER_ERROR.name(), message);
@@ -184,7 +184,7 @@ public class RdpCallbackController {
             String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PRIMARY_ACCOUNT_DISABLED.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_OWNER_ERROR.name(), message);
         }
-        if (!this.rdpSubLoginService.checkLoginEnable(ownerUid, providerEnum)) {
+        if (!this.subLoginService.checkLoginEnable(ownerUid, providerEnum)) {
             String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_NOT_ENABLE.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_OWNER_ERROR.name(), message);
         }
@@ -216,7 +216,7 @@ public class RdpCallbackController {
         // is first login
         String loginAcc = fetchUser.getSubAccount();
         String loginType = AccountBindType.valueOfProvider(providerEnum).name();
-        RdpUserDO bindUser = this.rdpUserMapper.queryBySubAccountAndBind(String.valueOf(primaryUser.getId()), loginAcc, loginType);
+        RdpUserDO bindUser = this.userMapper.queryBySubAccountAndBind(String.valueOf(primaryUser.getId()), loginAcc, loginType);
         if (bindUser == null) {
             String csrfToken = this.csrfTokenService.pushToken(fetchUser.getAccessToken());
             return redirectToLogin(request, response, csrfToken, primaryUser.getUid(), fetchUser);
@@ -230,16 +230,16 @@ public class RdpCallbackController {
             loginFO.setAccount(fetchUser.getSubAccount());
             loginFO.setPassword("");//empty
             loginFO.setAccessToken(fetchUser.getAccessToken());
-            LoginMO login = this.rdpUserLoginRegService.login(loginFO);
+            LoginMO login = this.loginRegService.login(loginFO);
 
             if (!login.isSuccess()) {
                 if (StringUtils.isNotBlank(login.getPuid()) && StringUtils.isNotBlank(login.getUid())) {
-                    rdpOpAuditService.logAndAddOperationAudit(login.getPuid(), login.getUid(), request.getRequestURI(), request.getRemoteAddr(), login.getUid(), login
+                    opAuditService.logAndAddOperationAudit(login.getPuid(), login.getUid(), request.getRequestURI(), request.getRemoteAddr(), login.getUid(), login
                         .getErrMsg(), SecurityLevel.NORMAL, AuditType.LOGIN_FAIL, ResourceType.ACCOUNT);
                 }
                 return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_LOGIN_ERROR.name(), login.getErrMsg());
             } else {
-                this.rdpUserMapper.updateUserName(login.getUid(), fetchUser.getUserName());
+                this.userMapper.updateUserName(login.getUid(), fetchUser.getUserName());
             }
 
             return this.redirectToHome(request, response, login);

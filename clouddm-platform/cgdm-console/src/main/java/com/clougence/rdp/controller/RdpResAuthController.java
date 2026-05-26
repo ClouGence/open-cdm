@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.console.web.model.fo.security.*;
-import com.clougence.clouddm.console.web.dal.model.DmResAuthDO;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -37,26 +35,28 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
+import com.clougence.clouddm.console.web.dal.model.DmResAuthDO;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel;
-import com.clougence.clouddm.sdk.security.auth.AuthElementType;
-import com.clougence.clouddm.sdk.security.auth.AuthInfo;
-import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.rdp.component.ticket.RdpTicketService;
-import com.clougence.rdp.constant.operation.AuditType;
 import com.clougence.clouddm.console.web.model.fo.BrowseAuthTreeFO;
 import com.clougence.clouddm.console.web.model.fo.ListUserAuthResFO;
+import com.clougence.clouddm.console.web.model.fo.security.*;
 import com.clougence.clouddm.console.web.model.fo.ticket.RdpTicketBasicVO;
-import com.clougence.rdp.constant.RdpControllerUrlPrefix;
 import com.clougence.clouddm.console.web.model.vo.RdpAuthObjectVO;
 import com.clougence.clouddm.console.web.model.vo.ResAuthVO;
 import com.clougence.clouddm.console.web.model.vo.role.RoleAuthTreeVO;
+import com.clougence.clouddm.console.web.service.approval.ApprovalControlService;
+import com.clougence.clouddm.console.web.util.RdpAuthUtils;
+import com.clougence.clouddm.console.web.util.RdpConvertUtils;
+import com.clougence.clouddm.sdk.security.auth.AuthElementType;
+import com.clougence.clouddm.sdk.security.auth.AuthInfo;
+import com.clougence.clouddm.sdk.security.auth.AuthKind;
+import com.clougence.rdp.constant.RdpControllerUrlPrefix;
+import com.clougence.rdp.constant.operation.AuditType;
 import com.clougence.rdp.service.RdpAuthServiceForBiz;
 import com.clougence.rdp.service.RdpAuthServiceForManage;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.rdp.service.RdpUserService;
-import com.clougence.clouddm.console.web.util.RdpAuthUtils;
-import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -72,20 +72,20 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpResAuthController {
 
     @Resource
-    private RdpAuthServiceForManage rdpAuthServiceForManage;
+    private RdpAuthServiceForManage authServiceForManage;
     @Resource
-    private RdpAuthServiceForBiz    rdpAuthServiceForBiz;
+    private RdpAuthServiceForBiz    authServiceForBiz;
     @Resource
-    private RdpOpAuditService       rdpOpAuditService;
+    private RdpOpAuditService       opAuditService;
     @Resource
-    private RdpTicketService        rdpTicketService;
+    private ApprovalControlService  approvalControlService;
 
     @RequestAuth(strategy = Ignore)
     @RequestMapping(value = "/listElementsOfLevel", method = RequestMethod.POST)
     public ResWebData<?> listElementsOfLevel(@Valid @RequestBody ListElementsOfLevelFO levelsFO, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
-        List<RdpAuthObjectVO> result = this.rdpAuthServiceForManage.listElements(puid, levelsFO.getResPaths(), levelsFO.getAuthKind());
+        List<RdpAuthObjectVO> result = this.authServiceForManage.listElements(puid, levelsFO.getResPaths(), levelsFO.getAuthKind());
         return ResWebDataUtils.buildSuccess(result);
     }
 
@@ -98,8 +98,8 @@ public class RdpResAuthController {
         AuthKind authKind = fo.getKind();
         AuthElementType elementType = fo.getElementType();
         DataSourceType dsType = fo.getDsType();
-        List<AuthInfo> allCategory = this.rdpAuthServiceForManage.getAllCategory();
-        List<AuthInfo> allLabels = this.rdpAuthServiceForManage.getAllAuthLabelForAuthTreeDef(authKind, elementType, dsType);
+        List<AuthInfo> allCategory = this.authServiceForManage.getAllCategory();
+        List<AuthInfo> allLabels = this.authServiceForManage.getAllAuthLabelForAuthTreeDef(authKind, elementType, dsType);
         List<RoleAuthTreeVO> treeList = RdpConvertUtils.convertToResourceAuthTree(allCategory, allLabels);
         return ResWebDataUtils.buildSuccess(treeList);
     }
@@ -112,7 +112,7 @@ public class RdpResAuthController {
     public ResWebData<List<ResAuthVO>> listUserAuthOfRes(@Valid @RequestBody ListUserAuthOfResFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        this.rdpAuthServiceForBiz.checkOperateOtherUserAuth(uid, fo.getTargetUid());
+        this.authServiceForBiz.checkOperateOtherUserAuth(uid, fo.getTargetUid());
 
         Map<Long, List<ListAuthOfResGroupFO>> sameResId = new HashMap<>();
         for (ListAuthOfResGroupFO authFO : fo.getGroups()) {
@@ -128,7 +128,7 @@ public class RdpResAuthController {
         for (Long resId : sameResId.keySet()) {
             List<ListAuthOfResGroupFO> batch = sameResId.get(resId);
             List<String> authPrefixList = batch.stream().map(authFO -> RdpAuthUtils.genResPathByList(authFO.getResPaths()).getResPath()).collect(Collectors.toList());
-            List<DmResAuthDO> data = this.rdpAuthServiceForManage.listUserAuthByRes(fo.getTargetUid(), resId, authPrefixList, fo.getAuthKind());
+            List<DmResAuthDO> data = this.authServiceForManage.listUserAuthByRes(fo.getTargetUid(), resId, authPrefixList, fo.getAuthKind());
             authList.addAll(data);
         }
 
@@ -144,9 +144,9 @@ public class RdpResAuthController {
     public ResWebData<List<ResAuthVO>> listUserAuthRes(@Valid @RequestBody ListUserAuthResFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        rdpAuthServiceForBiz.checkOperateOtherUserAuth(uid, fo.getTargetUid());
+        authServiceForBiz.checkOperateOtherUserAuth(uid, fo.getTargetUid());
 
-        List<DmResAuthDO> data = this.rdpAuthServiceForManage.listUserAuthWithoutLabels(fo.getTargetUid(), fo.getAuthKind());
+        List<DmResAuthDO> data = this.authServiceForManage.listUserAuthWithoutLabels(fo.getTargetUid(), fo.getAuthKind());
 
         List<ResAuthVO> collect = data.stream().map(RdpConvertUtils::convertToResAuthVO).collect(Collectors.toList());
         return ResWebDataUtils.buildSuccess(collect);
@@ -161,11 +161,11 @@ public class RdpResAuthController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
-        rdpAuthServiceForBiz.checkOperateOtherUserAuth(uid, fo.getTargetUid());
+        authServiceForBiz.checkOperateOtherUserAuth(uid, fo.getTargetUid());
 
-        rdpAuthServiceForManage.modifyUserAuth(puid, fo);
+        authServiceForManage.modifyUserAuth(puid, fo);
 
-        rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), fo
+        opAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), fo
             .getTargetUid(), fo, SecurityLevel.HIGH, AuditType.MODIFY_SUB_ACCOUNT_AUTH, ResourceType.ACCOUNT);
 
         return ResWebDataUtils.buildSuccess(true);
@@ -193,7 +193,7 @@ public class RdpResAuthController {
         for (Long resId : sameResId.keySet()) {
             List<ListAuthOfResGroupFO> batch = sameResId.get(resId);
             List<String> authPrefixList = batch.stream().map(authFO -> RdpAuthUtils.genResPathByList(authFO.getResPaths()).getResPath()).collect(Collectors.toList());
-            List<DmResAuthDO> data = this.rdpAuthServiceForManage.listUserAuthByRes(uid, resId, authPrefixList, fo.getAuthKind());
+            List<DmResAuthDO> data = this.authServiceForManage.listUserAuthByRes(uid, resId, authPrefixList, fo.getAuthKind());
             authList.addAll(data);
         }
 
@@ -209,7 +209,7 @@ public class RdpResAuthController {
     public ResWebData<List<ResAuthVO>> listMyAuthRes(@Valid @RequestBody ListMyAuthResFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        List<DmResAuthDO> data = this.rdpAuthServiceForManage.listUserAuthWithoutLabels(uid, fo.getAuthKind());
+        List<DmResAuthDO> data = this.authServiceForManage.listUserAuthWithoutLabels(uid, fo.getAuthKind());
         List<ResAuthVO> collect = data.stream().map(RdpConvertUtils::convertToResAuthVO).collect(Collectors.toList());
         return ResWebDataUtils.buildSuccess(collect);
     }
@@ -219,20 +219,20 @@ public class RdpResAuthController {
     public ResWebData<?> listMyAuthTicket(@Valid @RequestBody ListMyAuthTicketFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         fo.setUid(uid);
-        IPage<RdpTicketBasicVO> data = this.rdpTicketService.queryAuthTicketListByPage(uid, fo);
+        IPage<RdpTicketBasicVO> data = this.approvalControlService.queryAuthTicketListByPage(uid, fo);
         return ResWebDataUtils.buildSuccess(data);
     }
 
     @RequestAuth(checkOpPassword = true, value = RDP_AUTH_MANAGE)
     @RequestMapping(value = "/checkResourceManger", method = RequestMethod.POST)
     public ResWebData<Boolean> checkResourceManger(@RequestBody CheckResourceMangerFO fo) {
-        return ResWebDataUtils.buildSuccess(rdpAuthServiceForManage.isResourceMangerEnable(fo.getTargetUid()));
+        return ResWebDataUtils.buildSuccess(authServiceForManage.isResourceMangerEnable(fo.getTargetUid()));
     }
 
     @RequestAuth(strategy = Ignore)
     @RequestMapping(value = "/checkMyResourceManger", method = RequestMethod.POST)
     public ResWebData<Boolean> checkMyResourceManger(HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
-        return ResWebDataUtils.buildSuccess(rdpAuthServiceForManage.isResourceMangerEnable(uid));
+        return ResWebDataUtils.buildSuccess(authServiceForManage.isResourceMangerEnable(uid));
     }
 }
