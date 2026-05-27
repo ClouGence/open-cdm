@@ -77,7 +77,10 @@ public class NotifyRServiceProvider extends AbstractBasicProvider implements Not
         this.dmFileMapper.updateAccessTimeByUniqueId(srcFileId, message);
         this.dmFileMapper.updateAccessTimeByUniqueId(exportId, message);
 
-        int i = BigDecimal.valueOf(current).divide(BigDecimal.valueOf(to), 2, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)).intValue();
+        int i = 0;
+        if (to > 0) {
+            i = BigDecimal.valueOf(current).divide(BigDecimal.valueOf(to), 2, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)).intValue();
+        }
 
         DmExportVO exportVO = new DmExportVO();
         exportVO.setUid(userId);
