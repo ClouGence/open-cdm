@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.execution.DmExecSqlAuditMapper">
+    <resultMap id="dmSqlAudit" type="com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="operate_time" property="operateTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="uid" property="uid"/>
+        <result column="user_name" property="userName"/>
+        <result column="primary_uid" property="primaryUid"/>
+        <result column="operate_time" property="operateTime"/>
+        <result column="log_ip" property="logIp"/>
+        <result column="work_seq_number" property="workSeqNumber"/>
+        <result column="exec_sql" property="execSql"/>
+        <result column="original_sql" property="originalSql"/>
+        <result column="requester" property="requester"/>
+        <result column="ds_id" property="dsId"/>
+        <result column="resource" property="resource"/>
+        <result column="affect_line" property="affectLine"/>
+        <result column="status" property="status"/>
+        <result column="ds_desc" property="dsDesc"/>
+        <result column="message" property="message"/>
+        <result column="sql_kind" property="sqlKind"/>
+        <result column="data_source_type" property="dataSourceType"/>
+    </resultMap>
+
+    <sql id="dmSqlAuditDOMap">
+        id,
+        gmt_create,
+        gmt_modified,
+        operate_time,
+        end_time,
+        uid,
+        user_name,
+        primary_uid,
+        affect_line,
+        ds_id,
+        ds_desc,
+        session_id,
+        status,
+        log_ip,
+        client_ip,
+        requester,
+        exec_sql,
+        original_sql,
+        resource,
+        message,
+        sql_kind,
+        data_source_type
+    </sql>
+
+    <update id="updateBySessionId">
+        update dm_exec_sql_audit
+        set status = #{status},affect_line = #{affectLine},status = #{status},message = #{message},end_time = #{time}
+        where session_id = #{sessionId} and status = 'RUNNING'
+    </update>
+
+    <update id="confirmSession">
+        update dm_exec_sql_audit
+        set status = 'SUCCESS'
+        where session_id = #{sessionId} and status = 'WAIT_CONFIRM'
+    </update>
+
+    <update id="rollbackSession">
+        update dm_exec_sql_audit
+        set status = 'ROLLBACK'
+        where session_id = #{sessionId} and status = 'WAIT_CONFIRM'
+    </update>
+    
+    <update id="updateErrorSql">
+        update dm_exec_sql_audit
+        set status = 'ERROR'
+        where work_seq_number = #{wsn} and status in ('RUNNING','WAIT_CONFIRM')
+    </update>
+
+    <delete id="deleteAuditBeforeDate">
+        delete from dm_exec_sql_audit
+        where primary_uid = #{puid} and #{date} > end_time limit 500
+    </delete>
+
+    <select id="queryByCondition" resultMap="dmSqlAudit">
+        select
+            <include refid="dmSqlAuditDOMap"/>
+        from
+            dm_exec_sql_audit
+        WHERE 1=1
+        AND primary_uid = #{puid}
+        <if test="startId != 0">
+            <![CDATA[ AND id < #{startId} ]]>
+        </if>
+        <if test="uid != null and uid != ''">
+            AND uid = #{uid}
+        </if>
+        <if test="dateStart != null">
+            <![CDATA[ AND gmt_create >= #{dateStart} ]]>
+        </if>
+        <if test="dateEnd != null">
+            <![CDATA[ AND gmt_create <= #{dateEnd} ]]>
+        </if>
+        <if test="sqlKind != null">
+            <![CDATA[ AND sql_kind = #{sqlKind} ]]>
+        </if>
+        <if test="status != null">
+            <![CDATA[ AND status = #{status} ]]>
+        </if>
+        <if test="requester != null">
+            <![CDATA[ AND requester = #{requester} ]]>
+        </if>
+        <if test="resourcePath != null and resourcePath != ''">
+            <![CDATA[ AND resource like CONCAT('%',#{resourcePath},'%') ]]>
+        </if>
+        <if test="dsId != null">
+            <![CDATA[ AND ds_id = #{dsId} ]]>
+        </if>
+        ORDER BY operate_time DESC,id LIMIT #{pageSize}
+    </select>
+
+
+</mapper>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.auth.DmAuthApprovalMapper">
+
+    <resultMap id="DmAuthApprovalDO" type="com.clougence.clouddm.platform.dal.model.auth.DmAuthApprovalDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="rdp_ticket_ins_id" property="rdpTicketInsId"/>
+        <result column="apply_auth_info" property="applyAuthInfo"/>
+        <result column="kind_type" property="kindType" javaType="com.clougence.clouddm.sdk.security.auth.AuthKind"/>
+        <result column="deleted" property="deleted"/>
+    </resultMap>
+
+    <sql id="all_ticket_col">
+        id,
+        gmt_create,
+        gmt_modified,
+        rdp_ticket_ins_id,
+        apply_auth_info,
+        kind_type,
+        deleted
+    </sql>
+    <select id="getAuthTicketInfo" resultType="com.clougence.clouddm.platform.dal.model.auth.DmAuthApprovalDO">
+        select
+        <include refid="all_ticket_col"/>
+        from
+        dm_auth_approval
+        where rdp_ticket_ins_id = #{rdpTickedInsId}
+    </select>
+
+</mapper>

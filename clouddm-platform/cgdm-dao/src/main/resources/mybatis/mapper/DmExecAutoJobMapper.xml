@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.execution.DmExecAutoJobMapper">
+    <resultMap id="autoExecJobDO" type="com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="data_source_id" property="dataSourceId"/>
+        <result column="uid" property="uid"/>
+        <result column="primary_uid" property="primaryUid"/>
+        <result column="depend_on_biz_type" property="dependOnBizType"/>
+        <result column="depend_on_biz_id" property="dependOnBizId"/>
+        <result column="query_id" property="queryId"/>
+        <result column="status" property="status"/>
+        <result column="biz_id" property="bizId"/>
+        <result column="end_time" property="endTime"/>
+        <result column="last_report_time" property="lastReportTime"/>
+        <result column="worker_seq_number" property="workerSeqNumber"/>
+        <result column="config" property="config" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="exec_type" property="execType" javaType="com.clougence.clouddm.platform.dal.model.execution.AutoExecType"/>
+        <result column="schedule_time" property="scheduleTime"/>
+        <result column="levels" property="levels" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="normal" property="normal"/>
+    </resultMap>
+
+    <sql id="sqlJob">
+        id,
+        gmt_create,
+        gmt_modified,
+        data_source_id,
+        uid,
+        primary_uid,
+        levels,
+        query_id,
+        biz_id,
+        depend_on_biz_type,
+        depend_on_biz_id,
+        status,
+        end_time,
+        last_report_time,
+        worker_seq_number,
+        config,
+        exec_type,
+        schedule_time,
+        normal
+    </sql>
+
+    <select id="queryById" resultMap="autoExecJobDO">
+        select
+            <include refid="sqlJob"/>
+        from
+            dm_exec_auto_job
+        where
+            id = #{jobId}
+    </select>
+
+    <update id="updateJobStatus">
+        update dm_exec_auto_job
+        set status = #{status}
+        where id = #{jobId}
+    </update>
+    <update id="retryJob">
+        update dm_exec_auto_job
+        set status = 'INIT',normal = 1
+        where id = #{jobId}
+    </update>
+    <update id="updateReportTime">
+        update dm_exec_auto_job
+        set last_report_time = now()
+        where id in <foreach collection="jobIdList" item="item" separator="," open="(" close=")">#{item}</foreach>
+    </update>
+    <update id="updateOverOutJob">
+        update dm_exec_auto_job
+        set status = 'INIT'
+        where  #{date} > last_report_time and status = 'WAIT_EXEC'
+    </update>
+    <update id="updateQueryIdByJobId">
+        update dm_exec_auto_job
+        set query_id = #{queryId}
+        where id = #{jobId}
+    </update>
+    <update id="updateWorkerErrorJob">
+        update dm_exec_auto_job
+        set status = 'PAUSE',normal = 0
+        where worker_seq_number = #{wsn} and status in ('EXECUTING','PAUSING')
+    </update>
+    <update id="finishJob">
+        update dm_exec_auto_job
+        set status = 'FINISH', end_time = now()
+        where id = #{jobId}
+    </update>
+    <update id="updateWorkerWaitExecuteJob">
+        update dm_exec_auto_job
+        set status = 'INIT'
+        where worker_seq_number = #{wsn} and status = 'WAIT_EXEC'
+    </update>
+    <select id="queryByBizId" resultMap="autoExecJobDO">
+        select
+            <include refid="sqlJob"/>
+        from dm_exec_auto_job
+        where biz_id = #{bizId}
+    </select>
+    <select id="queryByBizIdForUpdate"
+            resultMap="autoExecJobDO">
+        select
+        <include refid="sqlJob"/>
+        from dm_exec_auto_job
+        where biz_id = #{bizId} for update
+    </select>
+
+    <select id="listUnFinishJobIdList" resultType="java.lang.Long">
+        select
+            id
+        from
+            dm_exec_auto_job
+        where status = 'INIT'
+        and #{time} >= schedule_time
+        order by schedule_time asc
+            limit 20
+    </select>
+
+    <select id="listOverTimeJobIdList" resultType="java.lang.Long">
+        select
+            id
+        from
+            dm_exec_auto_job
+        where status = 'INIT'
+        and #{time} >= next_dispatch_time
+        order by next_dispatch_time asc
+            limit 20
+    </select>
+
+    <select id="queryByIdForUpdate" resultMap="autoExecJobDO">
+        select
+            <include refid="sqlJob"/>
+            from dm_exec_auto_job
+        where id = #{id} for update
+    </select>
+    <select id="queryByDependOnBizId" resultMap="autoExecJobDO">
+        select
+        <include refid="sqlJob"/>
+        from dm_exec_auto_job
+        where depend_on_biz_id = #{bizId}
+    </select>
+    <select id="queryErrorJob" resultMap="autoExecJobDO">
+        select
+        <include refid="sqlJob"/>
+        from dm_exec_auto_job
+        where worker_seq_number = #{wsn} and status in ('EXECUTING','PAUSING')
+    </select>
+
+
+</mapper>

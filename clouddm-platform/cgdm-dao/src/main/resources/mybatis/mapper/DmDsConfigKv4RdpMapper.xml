@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.datasource.DmDsConfigKv4RdpMapper">
+
+    <resultMap id="rdpDsKvBaseConfigDO" type="com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="data_source_id" property="dataSourceId"/>
+        <result column="config_name" property="configName"/>
+        <result column="config_group" property="configGroup"
+                javaType="com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup"/>
+        <result column="display" property="display"/>
+        <result column="desc_key" property="descKey"/>
+        <result column="value_require" property="valueRequire"/>
+        <result column="value_valid_regex" property="valueValidRegex"/>
+        <result column="config_value" property="configValue"/>
+        <result column="default_value" property="defaultValue"/>
+        <result column="value_advance" property="valueAdvance"/>
+        <result column="read_only" property="readOnly"/>
+        <result column="is_secret" property="isSecret"/>
+        <result column="conf_val_type" property="confValType"
+                javaType="com.clougence.clouddm.platform.dal.model.system.KvConfValType"/>
+    </resultMap>
+
+    <sql id="rdpDsKvBaseConfig">
+        dm_ds_config_kv_4rdp.id id,
+        dm_ds_config_kv_4rdp.gmt_create gmt_create,
+        dm_ds_config_kv_4rdp.gmt_modified gmt_modified,
+        dm_ds_config_kv_4rdp.data_source_id data_source_id,
+        dm_ds_config_kv_4rdp.config_name config_name,
+        dm_ds_config_kv_4rdp.config_group config_group,
+        dm_ds_config_kv_4rdp.display display,
+        dm_ds_config_kv_4rdp.desc_key desc_key,
+        dm_ds_config_kv_4rdp.value_require value_require,
+        dm_ds_config_kv_4rdp.value_valid_regex value_valid_regex,
+        dm_ds_config_kv_4rdp.config_value config_value,
+        dm_ds_config_kv_4rdp.default_value default_value,
+        dm_ds_config_kv_4rdp.value_advance value_advance,
+        dm_ds_config_kv_4rdp.read_only read_only,
+        dm_ds_config_kv_4rdp.is_secret is_secret,
+        dm_ds_config_kv_4rdp.conf_val_type conf_val_type
+    </sql>
+
+    <select id="queryByDsIdAndConfigName" resultMap="rdpDsKvBaseConfigDO">
+        SELECT
+        <include refid="rdpDsKvBaseConfig"/>
+        FROM
+        dm_ds_config_kv_4rdp
+        WHERE
+        dm_ds_config_kv_4rdp.data_source_id = #{dsId}
+        AND
+        dm_ds_config_kv_4rdp.config_name = #{configName}
+    </select>
+
+    <select id="listByDsId" resultMap="rdpDsKvBaseConfigDO">
+        SELECT
+        <include refid="rdpDsKvBaseConfig"/>
+        FROM
+        dm_ds_config_kv_4rdp
+        WHERE
+        dm_ds_config_kv_4rdp.data_source_id = #{dsId}
+    </select>
+
+    <select id="listByDsIdAndConfigNames" resultMap="rdpDsKvBaseConfigDO">
+        SELECT
+        <include refid="rdpDsKvBaseConfig"/>
+        FROM
+        dm_ds_config_kv_4rdp
+        WHERE
+        dm_ds_config_kv_4rdp.data_source_id = #{dsId}
+        AND dm_ds_config_kv_4rdp.config_name in
+        <foreach collection="configNames" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <update id="updateDsConfig">
+        UPDATE
+        dm_ds_config_kv_4rdp
+        SET config_value = #{configValue}
+        WHERE data_source_id = #{dsId}
+        AND config_name = #{configName}
+    </update>
+
+    <delete id="deleteDsConfigs">
+        DELETE
+        FROM dm_ds_config_kv_4rdp
+        WHERE data_source_id = #{dsId}
+    </delete>
+</mapper>

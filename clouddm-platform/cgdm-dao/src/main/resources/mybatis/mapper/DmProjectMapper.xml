@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.project.DmProjectMapper">
+    <resultMap id="dmProjectDO" type="com.clougence.clouddm.platform.dal.model.project.DmProjectDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="owner_uid" property="ownerUid"/>
+        <result column="project_uid" property="projectUid"/>
+        <result column="project_code" property="projectCode"/>
+        <result column="project_name" property="projectName"/>
+        <result column="project_desc" property="projectDesc"/>
+        <result column="project_status" property="projectStatus" javaType="com.clougence.clouddm.platform.dal.model.project.ProjectStatus"/>
+        <result column="project_mark" property="projectMark"/>
+        <result column="flow_check" property="flowCheck" javaType="com.clougence.clouddm.platform.dal.model.project.ChangeCheckStrategy"/>
+        <result column="flow_approve" property="flowApprove" javaType="com.clougence.clouddm.platform.dal.model.project.ChangeApproveStrategy"/>
+        <result column="flow_execute" property="flowExecute" javaType="com.clougence.clouddm.platform.dal.model.project.ChangeExecStrategy"/>
+        <result column="options" property="options" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+    </resultMap>
+    <sql id="dmProjectDO_select">
+        id,
+        gmt_create,
+        gmt_modified,
+        owner_uid,
+        project_uid,
+        project_code,
+        project_name,
+        project_desc,
+        project_status,
+        project_mark,
+        flow_check,
+        flow_approve,
+        flow_execute,
+        options
+    </sql>
+
+    <select id="listProjectByConditionAndPage" resultMap="dmProjectDO">
+        select
+            <include refid="dmProjectDO_select"/>
+        from
+            dm_project
+        where
+            owner_uid = #{ownerUid} and project_status != 'DELETE'
+            <if test="param.searchKeywords != null">and project_name like concat('%',#{param.searchKeywords},'%')</if>
+            <if test="param.mark != null">and project_mark = #{param.mark}</if>
+            <if test="param.status != null">and project_status = #{param.status}</if>
+        order by gmt_create desc
+    </select>
+
+    <select id="listProjectByIds" resultMap="dmProjectDO">
+        select
+            <include refid="dmProjectDO_select"/>
+        from
+            dm_project
+        where
+            owner_uid = #{ownerUid} and
+            id in <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach>
+        order by gmt_create desc
+    </select>
+
+    <select id="queryByOwnerAndId" resultMap="dmProjectDO">
+        select
+            <include refid="dmProjectDO_select"/>
+        from
+            dm_project
+        where
+            owner_uid = #{ownerUid}  and
+            id        = #{projectId}
+        order by gmt_create desc
+    </select>
+
+    <update id="updateProjectManagerByOwnerAndId">
+        update
+            dm_project
+        set
+            project_uid  = #{newData},
+            gmt_modified = now()
+        where
+            owner_uid = #{ownerUid} and
+            id        = #{projectId}
+    </update>
+
+    <update id="updateProjectNameByOwnerAndId">
+        update
+            dm_project
+        set
+            project_name = #{newData},
+            gmt_modified = now()
+        where
+            owner_uid = #{ownerUid} and
+            id        = #{projectId}
+    </update>
+
+    <update id="updateProjectDescByOwnerAndId">
+        update
+            dm_project
+        set
+            project_desc = #{newData},
+            gmt_modified = now()
+        where
+            owner_uid = #{ownerUid} and
+            id        = #{projectId}
+    </update>
+
+    <update id="updateProjectStatusByOwnerAndId">
+        update
+            dm_project
+        set
+            project_status = #{newData,javaType=com.clougence.clouddm.platform.dal.model.project.ProjectStatus},
+            gmt_modified   = now()
+        where
+            owner_uid = #{ownerUid} and
+            id        = #{projectId}
+    </update>
+
+    <update id="updateProjectMarkByOwnerAndId">
+        update
+            dm_project
+        set
+            project_mark = #{newData},
+            gmt_modified = now()
+        where
+            owner_uid = #{ownerUid} and
+            id        = #{projectId}
+    </update>
+
+    <update id="updateFlowByOwnerAndId">
+        update
+            dm_project
+        set
+            flow_check   = #{project.flowCheck, javaType=com.clougence.clouddm.platform.dal.model.project.ChangeCheckStrategy},
+            flow_approve = #{project.flowApprove, javaType=com.clougence.clouddm.platform.dal.model.project.ChangeApproveStrategy},
+            flow_execute = #{project.flowExecute, javaType=com.clougence.clouddm.platform.dal.model.project.ChangeExecStrategy},
+            options      = #{project.options, typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler},
+            gmt_modified = now()
+        where
+            owner_uid = #{ownerUid} and
+            id        = #{projectId}
+    </update>
+</mapper>

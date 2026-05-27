@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.project.DmProjectChangeMapper">
+    <resultMap id="dmProjectChangeDO" type="com.clougence.clouddm.platform.dal.model.project.DmProjectChangeDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="owner_uid" property="ownerUid"/>
+        <result column="ref_project_id" property="refProjectId"/>
+        <result column="ref_devops_id" property="refDevopsId"/>
+        <result column="change_name" property="changeName"/>
+        <result column="change_time" property="changeTime"/>
+        <result column="change_branch" property="changeBranch"/>
+        <result column="current_step" property="currentStep" javaType="com.clougence.clouddm.platform.dal.model.project.ProjectChangeStep"/>
+        <result column="current_status" property="currentStatus" javaType="com.clougence.clouddm.platform.dal.model.project.ProjectChangeStatus"/>
+        <result column="schedule_time" property="scheduleTime"/>
+        <result column="version" property="version"/>
+        <result column="remark" property="remark"/>
+        <result column="try_times" property="tryTimes"/>
+        <result column="last_commit_id" property="lastCommitId"/>
+        <result column="lock_status" property="lockStatus"/>
+        <result column="flow_walked" property="flowWalked" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+    </resultMap>
+
+    <sql id="dmProjectChangeDO_select">
+        id,
+        gmt_create,
+        gmt_modified,
+        owner_uid,
+        ref_project_id,
+        ref_devops_id,
+        change_name,
+        change_time,
+        change_branch,
+        current_step,
+        current_status,
+        schedule_time,
+        version,
+        remark,
+        try_times,
+        last_commit_id,
+        lock_status,
+        flow_walked
+    </sql>
+
+    <select id="listChangeByConditionAndPage" resultMap="dmProjectChangeDO">
+        select
+            <include refid="dmProjectChangeDO_select"/>
+        from
+            dm_project_change
+        where
+            owner_uid      = #{param.ownerUid} and
+            ref_project_id = #{param.projectId}
+            <if test="param.searchKeywords != null">and change_name like concat('%',#{param.searchKeywords},'%')</if>
+        order by
+            change_time desc
+    </select>
+
+    <select id="queryChangeById" resultMap="dmProjectChangeDO">
+        select
+            <include refid="dmProjectChangeDO_select"/>
+        from
+            dm_project_change
+        where
+            owner_uid = #{ownerUid} and
+            id        = #{changeId}
+    </select>
+
+    <select id="countUnEndChangeByDevopsId" resultType="int">
+        select
+            count(*)
+        from
+            dm_project_change
+        where
+            owner_uid     = #{ownerUid} and
+            ref_devops_id = #{devopsId} and
+            lock_status   = 0
+    </select>
+
+    <select id="countUnEndChangeByProjectId" resultType="int">
+        select
+            count(*)
+        from
+            dm_project_change
+        where
+            owner_uid      = #{ownerUid}  and
+            ref_project_id = #{projectId} and
+            lock_status    = 0
+    </select>
+
+    <select id="queryReadyChangeListByDate" resultMap="dmProjectChangeDO">
+        select
+            <include refid="dmProjectChangeDO_select"/>
+        from
+            dm_project_change
+        where
+            current_status = 'READY' and
+            (#{date} >= schedule_time or schedule_time is null)
+        order by
+            schedule_time asc
+        limit ${limit}
+    </select>
+
+    <update id="assignReadyChange">
+        update
+            dm_project_change
+        set
+            schedule_time = now(),
+            version       = version + 1
+        where
+            id      = #{changeId} and
+            version = #{version}
+    </update>
+
+    <update id="increTryTimes">
+        update
+            dm_project_change
+        set
+            schedule_time = now(),
+            version       = version + 1,
+            try_times     = try_times + 1,
+            remark        = #{remark}
+        where
+            id      = #{changeId} and
+            version = #{version}
+    </update>
+
+    <update id="updateStatusTo">
+        update
+            dm_project_change
+        set
+            schedule_time = now(),
+            version       = version + 1,
+            remark        = #{remark},
+            current_status= #{toStatus, javaType=com.clougence.clouddm.platform.dal.model.project.ProjectChangeStatus}
+        where
+            id      = #{changeId} and
+            version = #{version}
+    </update>
+
+    <update id="updateStepTo">
+        update
+            dm_project_change
+        set
+            schedule_time = now(),
+            version       = version + 1,
+            try_times     = 0,
+            remark        = #{remark},
+            current_step  = #{toStep, javaType=com.clougence.clouddm.platform.dal.model.project.ProjectChangeStep}
+        where
+            id      = #{changeId} and
+            version = #{version}
+    </update>
+
+    <update id="lockChangeById">
+        update
+            dm_project_change
+        set
+            version     = version + 1,
+            lock_status = 1
+        where
+            id      = #{changeId} and
+            version = #{version}
+    </update>
+
+    <select id="queryUnLockChange" resultMap="dmProjectChangeDO">
+        select
+            <include refid="dmProjectChangeDO_select"/>
+        from
+            dm_project_change
+        where
+            ref_project_id = #{refProjectId} and
+            ref_devops_id  = #{refDevopsId} and
+            lock_status    = 0
+    </select>
+
+    <update id="updateFlowWalked">
+        update
+            dm_project_change
+        set
+            flow_walked = #{flowWalked, typeHandler=com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler}
+        where
+            id = #{changeId}
+    </update>
+</mapper>

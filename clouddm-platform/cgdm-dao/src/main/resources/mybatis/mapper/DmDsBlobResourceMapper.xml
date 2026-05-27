@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.datasource.DmDsBlobResourceMapper">
+
+    <resultMap id="rdpBlobResourceDO" type="com.clougence.clouddm.platform.dal.model.datasource.DmDsBlobResourceDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="instance_id" property="instanceId"/>
+        <result column="owner_name" property="ownerName"/>
+        <result column="owner_type" property="ownerType"
+                javaType="com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType"/>
+        <result column="blob_type" property="blobType"
+                javaType="com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityFileType"/>
+        <result column="content" property="content"/>
+    </resultMap>
+
+    <sql id="rdpBlobResource">
+        id,
+        gmt_create,
+        gmt_modified,
+        instance_id,
+        owner_name,
+        owner_type,
+        blob_type,
+        content
+    </sql>
+
+    <select id="queryByIdentify" resultMap="rdpBlobResourceDO">
+        SELECT
+            <include refid="rdpBlobResource"/>
+        FROM
+            dm_ds_blob_resource
+        WHERE
+            instance_id = #{instanceId}
+            AND
+            owner_type = #{resourceType,javaType=com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType}
+            AND
+            blob_type = #{fileType,javaType=com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityFileType}
+    </select>
+
+    <delete id="deleteByIdentify">
+        DELETE FROM
+            dm_ds_blob_resource
+        WHERE
+            instance_id = #{instanceId}
+            AND
+            owner_type = #{resourceType,javaType=com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType}
+            AND
+            blob_type = #{fileType,javaType=com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityFileType}
+    </delete>
+
+    <update id="updateByIdentify">
+        UPDATE
+            dm_ds_blob_resource
+        SET
+            content = #{content}
+        WHERE
+            instance_id = #{instanceId}
+            AND owner_type  = #{resourceType,javaType=com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType}
+            AND blob_type   = #{fileType,javaType=com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityFileType}
+    </update>
+</mapper>
