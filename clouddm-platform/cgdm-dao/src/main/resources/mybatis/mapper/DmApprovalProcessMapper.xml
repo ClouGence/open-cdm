@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.approval.DmApprovalProcessMapper">
+    <resultMap id="ticketProcessDO" type="com.clougence.clouddm.platform.dal.model.approval.DmApprovalProcessDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="ticket_id" property="ticketId"/>
+        <result column="ticket_stage" property="ticketStage" javaType="com.clougence.clouddm.platform.dal.model.approval.ApprovalStage"/>
+        <result column="finish_time" property="finishTime"/>
+        <result column="stage_context" property="stageContext"/>
+        <result column="process_status" property="processStatus" javaType="com.clougence.clouddm.platform.dal.model.approval.ApprovalProcessStatus"/>
+    </resultMap>
+
+    <sql id="all_col">
+        id,
+        gmt_create,
+        gmt_modified,
+        ticket_id,
+        ticket_stage,
+        finish_time,
+        stage_context,
+        process_status
+    </sql>
+
+    <select id="queryByStage" resultMap="ticketProcessDO">
+        SELECT
+            <include refid="all_col"/>
+        FROM
+            dm_approval_process
+        WHERE
+            ticket_id    = #{ticketId} and
+            ticket_stage = #{ticketStage,javaType=com.clougence.clouddm.platform.dal.model.approval.ApprovalStage} and
+            deleted      = false
+    </select>
+
+    <select id="listByTicketId" resultMap="ticketProcessDO">
+        SELECT
+            <include refid="all_col"/>
+        FROM
+            dm_approval_process
+        WHERE
+            ticket_id = #{ticketId} and
+            deleted   = false
+        order by id;
+    </select>
+
+    <update id="updateContextById">
+        update
+            dm_approval_process
+        set
+            stage_context=#{context}
+        WHERE
+            id = #{id}
+    </update>
+    <update id="updateModified">
+        update
+            dm_approval_process
+        set
+            gmt_modified = now()
+        where
+            id = #{id}
+    </update>
+    <update id="updateNotEndProcessByTicketId">
+        update
+            dm_approval_process
+        set
+            process_status = #{status}
+        where ticket_id = #{ticketId}
+        and process_status = 'INIT'
+    </update>
+    <update id="updateProcessStatusByTicketIdAndStage">
+        update
+            dm_approval_process
+        set
+            process_status = #{status}
+        where ticket_id = #{ticketId}
+          and ticket_stage = #{stage,javaType=com.clougence.clouddm.platform.dal.model.approval.ApprovalStage}
+    </update>
+    <update id="updateProcessStatus">
+        update
+            dm_approval_process
+        set
+            process_status = #{status},stage_context = #{context}
+            <if test="status == 'REJECT' || status == 'FINISH' || status == 'CLOSED' || status == 'FAIL'">,finish_time = now()</if>
+        where id = #{id}
+    </update>
+</mapper>

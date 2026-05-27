@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.project.DmProjectMsgMapper">
+    <resultMap id="dmProjectMsgDO" type="com.clougence.clouddm.platform.dal.model.project.DmProjectMsgDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="owner_uid" property="ownerUid"/>
+        <result column="ref_project_id" property="refProjectId"/>
+        <result column="ref_msg_id" property="refMsgId"/>
+        <result column="ref_msg_type" property="refMsgType"/>
+        <result column="enable" property="enable"/>
+        <result column="language" property="language"/>
+        <result column="event_project_status" property="eventProjectStatus"/>
+        <result column="event_project_config" property="eventProjectConfig"/>
+        <result column="event_change_life" property="eventChangeLife"/>
+        <result column="event_change_notice" property="eventChangeNotice"/>
+    </resultMap>
+
+    <sql id="dmProjectMsgDO_select">
+        id,
+        gmt_create,
+        gmt_modified,
+        owner_uid,
+        ref_project_id,
+        ref_msg_id,
+        ref_msg_type,
+        enable,
+        language,
+        event_project_status,
+        event_project_config,
+        event_change_life,
+        event_change_notice
+    </sql>
+
+    <select id="queryEnableByOwnerAndImId" resultMap="dmProjectMsgDO">
+        select
+            <include refid="dmProjectMsgDO_select"/>
+        from
+            dm_project_msg
+        where
+            owner_uid = #{ownerUid} and
+            ref_msg_id= #{imId}     and
+            enable    = 1
+        order by
+            gmt_create asc
+    </select>
+
+    <select id="queryMessageByProjectId" resultMap="dmProjectMsgDO">
+        select
+            <include refid="dmProjectMsgDO_select"/>
+        from
+            dm_project_msg
+        where
+            owner_uid     = #{ownerUid} and
+            ref_project_id= #{projectId}
+        limit 1
+    </select>
+
+    <update id="disableByOwnerAndImId">
+        update
+            dm_project_msg
+        set
+            enable       = 0,
+            gmt_modified = now()
+        where
+            owner_uid      = #{ownerUid} and
+            ref_msg_id     = #{imId}
+    </update>
+
+    <delete id="deleteByOwnerAndId">
+        delete from
+            dm_project_msg
+        where
+            owner_uid      = #{ownerUid} and
+            id             = #{id}
+    </delete>
+
+    <update id="disableAllImByProjectId">
+        update
+            dm_project_msg
+        set
+            enable       = 0,
+            gmt_modified = now()
+        where
+            owner_uid      = #{ownerUid} and
+            ref_project_id = #{projectId}
+    </update>
+
+    <update id="enableAllImByProjectId">
+        update
+            dm_project_msg
+        set
+            enable       = 1,
+            gmt_modified = now()
+        where
+            owner_uid      = #{ownerUid} and
+            ref_project_id = #{projectId}
+    </update>
+</mapper>

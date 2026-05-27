@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.datasource.DmDsMetaDataMapper">
+    <resultMap id="dmAsyncTaskDO" type="com.clougence.clouddm.platform.dal.model.datasource.DmDsMetaDataDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="primary_uid" property="primaryUid"/>
+        <result column="ds_id" property="dsId"/>
+        <result column="path" property="path"/>
+        <result column="type" property="type"/>
+        <result column="context" property="context"/>
+    </resultMap>
+
+    <sql id="dmMetaInformationCacheDOMap">
+        id,
+        gmt_create,
+        gmt_modified,
+        primary_uid,
+        ds_id,
+        path,
+        type,
+        context
+    </sql>
+
+    <insert id="insertOrUpdate">
+        insert into dm_ds_meta_data(primary_uid,ds_id,path,type,context)
+        values(#{puid},#{dsId},#{path},#{type},#{context})
+        ON DUPLICATE KEY UPDATE context = #{context}, gmt_modified = now()
+    </insert>
+
+    <delete id="deleteByPath">
+        delete from dm_ds_meta_data
+        where ds_id = #{dsId} and path = #{path} and type = #{type} and #{time} > gmt_modified
+    </delete>
+
+    <delete id="deleteByPathLike">
+        delete from dm_ds_meta_data
+        where ds_id = #{dsId} and path like concat(#{path},'%')  and #{time} > gmt_modified
+    </delete>
+
+    <delete id="deleteBeforeDate">
+        delete from dm_ds_meta_data
+        where #{date} > gmt_modified limit 200
+    </delete>
+
+    <select id="queryCache" resultMap="dmAsyncTaskDO">
+        select
+            <include refid="dmMetaInformationCacheDOMap"/>
+        from dm_ds_meta_data
+        where ds_id = #{dsId} and type = #{type} and path = #{path} and type = #{type}
+    </select>
+
+</mapper>

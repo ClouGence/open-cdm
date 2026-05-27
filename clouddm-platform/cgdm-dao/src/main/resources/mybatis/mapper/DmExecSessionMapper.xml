@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.execution.DmExecSessionMapper">
+
+    <resultMap id="connectionSessionDO" type="com.clougence.clouddm.platform.dal.model.execution.DmExecSessionDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="last_query_time" property="lastQueryTime"/>
+        <result column="uid" property="uid"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="config" property="config"/>
+        <result column="wsn" property="wsn"/>
+        <result column="cluster_id" property="clusterId"/>
+        <result column="datasource_id" property="datasourceId"/>
+        <result column="datasource_type" property="datasourceType"/>
+        <result column="attach" property="attach"/>
+    </resultMap>
+
+    <sql id="connection_session">
+        id,
+        uid,
+        session_id,
+        wsn,
+        cluster_id,
+        datasource_id,
+        datasource_type,
+        config,
+        attach,
+        gmt_create,
+        gmt_modified,
+        last_query_time
+    </sql>
+
+    <select id="queryBySessionId" resultMap="connectionSessionDO">
+        SELECT
+            <include refid="connection_session"/>
+        FROM
+            dm_exec_session
+        WHERE
+            session_id = #{sessionId} and uid = #{uid}
+    </select>
+
+    <select id="queryByUser" resultMap="connectionSessionDO">
+        SELECT
+            <include refid="connection_session"/>
+        FROM
+            dm_exec_session
+        WHERE
+            uid = #{uid}
+    </select>
+
+    <select id="queryByWsnSessionId" resultMap="connectionSessionDO">
+        SELECT
+            <include refid="connection_session"/>
+        FROM
+            dm_exec_session
+        WHERE
+            session_id = #{sessionId} and wsn = #{wsn}
+    </select>
+
+    <select id="getUserSessionCount" resultMap="connectionSessionDO">
+        SELECT
+            count(1)
+        FROM
+            dm_exec_session
+        WHERE
+            uid = #{uid}
+    </select>
+
+    <update id="updateSessionQueryTime">
+        UPDATE dm_exec_session
+        SET gmt_modified = now(),last_query_time = now()
+        WHERE session_id = #{sessionId} and wsn = #{wsn}
+    </update>
+
+    <update id="updateSessionConfig">
+        UPDATE
+            dm_exec_session
+        SET
+            gmt_modified = now(),
+            config       = #{config}
+        WHERE
+            session_id = #{sessionId} and uid = #{uid}
+    </update>
+
+    <delete id="deleteBySessionId">
+        DELETE
+        FROM dm_exec_session
+        WHERE session_id = #{sessionId}
+    </delete>
+
+    <update id="updateAttachment">
+        UPDATE dm_exec_session
+        SET gmt_modified = now(), attach = #{data}
+        WHERE session_id = #{sessionId}
+    </update>
+</mapper>
