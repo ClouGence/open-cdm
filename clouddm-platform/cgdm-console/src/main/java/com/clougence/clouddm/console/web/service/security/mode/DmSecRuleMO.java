@@ -15,10 +15,10 @@
  */
 package com.clougence.clouddm.console.web.service.security.mode;
 
-import com.clougence.clouddm.console.web.dal.enumeration.RuleKind;
-import com.clougence.clouddm.console.web.dal.enumeration.RuleScriptType;
-import com.clougence.clouddm.console.web.dal.model.DmSecRuleDO;
-import com.clougence.clouddm.console.web.dal.model.DmSecSensitiveDO;
+import com.clougence.clouddm.platform.dal.model.secrule.RuleKind;
+import com.clougence.clouddm.platform.dal.model.secrule.RuleScriptType;
+import com.clougence.clouddm.platform.dal.model.secrule.DmSecRuleDO;
+import com.clougence.clouddm.platform.dal.model.secrule.DmSecSensitiveDO;
 
 import lombok.Getter;
 

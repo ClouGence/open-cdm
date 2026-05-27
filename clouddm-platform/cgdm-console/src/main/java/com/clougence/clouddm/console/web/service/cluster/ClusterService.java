@@ -17,7 +17,7 @@ package com.clougence.clouddm.console.web.service.cluster;
 
 import java.util.List;
 
-import com.clougence.clouddm.console.web.constants.CloudOrIdcName;
+import com.clougence.clouddm.platform.dal.model.system.CloudOrIdcName;
 import com.clougence.clouddm.console.web.model.fo.cluster.ClusterWithWorkerNetVO;
 import com.clougence.clouddm.console.web.model.fo.cluster.CreateClusterFO;
 import com.clougence.clouddm.console.web.model.vo.cluster.ClusterVO;

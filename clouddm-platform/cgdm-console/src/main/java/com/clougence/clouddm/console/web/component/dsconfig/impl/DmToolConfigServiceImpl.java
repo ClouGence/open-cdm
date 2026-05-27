@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.base.metadata.ds.ToolConfig;
 import com.clougence.clouddm.base.metadata.ds.tools.FakerPluginConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.DmToolConfigService;
-import com.clougence.clouddm.console.web.dal.model.DmToolKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.system.RsSysToolConfObj;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +50,7 @@ public class DmToolConfigServiceImpl implements DmToolConfigService {
     }
 
     @Override
-    public List<DmToolKvBaseConfigDO> fetchDefaultConfig(String toolName) {
+    public List<RsSysToolConfObj> fetchDefaultConfig(String toolName) {
         return Collections.emptyList();
     }
 

@@ -24,8 +24,8 @@ import com.clougence.clouddm.base.metadata.rdp.enumeration.CatalogType;
 import com.clougence.rdp.component.dskvconfig.RdpDsExtraConfGen;
 import com.clougence.rdp.component.dskvconfig.model.IcebergExtraConfig;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 import com.clougence.utils.StringUtils;
 
 @Service
@@ -37,9 +37,9 @@ public class IcebergExtraConfGen implements RdpDsExtraConfGen {
     }
 
     @Override
-    public DsExtraConfig genDsExtraConfigFromExist(RdpDataSourceDO dsDO, List<RdpDsKvBaseConfigDO> fos) {
+    public DsExtraConfig genDsExtraConfigFromExist(DmDsDO dsDO, List<DmDsConfigKv4RdpDO> fos) {
         IcebergExtraConfig config = newDsExtraConfig();
-        for (RdpDsKvBaseConfigDO f : fos) {
+        for (DmDsConfigKv4RdpDO f : fos) {
             fillEntry(config, f.getConfigName(), f.getConfigValue());
         }
 
@@ -47,7 +47,7 @@ public class IcebergExtraConfGen implements RdpDsExtraConfGen {
     }
 
     @Override
-    public DsExtraConfig genDsExtraConfig(RdpDataSourceDO dsDO, List<InitDsKvBaseConfigFO> fos) {
+    public DsExtraConfig genDsExtraConfig(DmDsDO dsDO, List<InitDsKvBaseConfigFO> fos) {
         IcebergExtraConfig config = newDsExtraConfig();
         for (InitDsKvBaseConfigFO f : fos) {
             fillEntry(config, f.getConfigName(), f.getConfigValue());
@@ -79,7 +79,7 @@ public class IcebergExtraConfGen implements RdpDsExtraConfGen {
         }
     }
 
-    protected void validate(RdpDataSourceDO dsDO, IcebergExtraConfig extraConfig) {
+    protected void validate(DmDsDO dsDO, IcebergExtraConfig extraConfig) {
         String catalogName = extraConfig.getCatalogName();
         if (StringUtils.isBlank(catalogName)) {
             throw new IllegalArgumentException(dsDO.getDataSourceType() + " datasource extra config catalogName can not blank");

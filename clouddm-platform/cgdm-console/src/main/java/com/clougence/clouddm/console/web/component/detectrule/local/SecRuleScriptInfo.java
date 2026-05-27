@@ -18,10 +18,10 @@ package com.clougence.clouddm.console.web.component.detectrule.local;
 import java.util.List;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.dal.enumeration.RuleKind;
-import com.clougence.clouddm.console.web.dal.enumeration.RuleScriptType;
-import com.clougence.clouddm.console.web.dal.enumeration.RuleSensitiveMode;
-import com.clougence.clouddm.console.web.dal.enumeration.RuleTarget;
+import com.clougence.clouddm.platform.dal.model.secrule.RuleKind;
+import com.clougence.clouddm.platform.dal.model.secrule.RuleScriptType;
+import com.clougence.clouddm.platform.dal.model.secrule.RuleSensitiveMode;
+import com.clougence.clouddm.platform.dal.model.secrule.RuleTarget;
 
 import lombok.Getter;
 import lombok.Setter;

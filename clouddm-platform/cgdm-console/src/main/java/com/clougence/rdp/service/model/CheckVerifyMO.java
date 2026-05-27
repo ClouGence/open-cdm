@@ -15,9 +15,8 @@
  */
 package com.clougence.rdp.service.model;
 
-import com.clougence.clouddm.console.web.constants.VerifyCodeType;
-import com.clougence.clouddm.console.web.constants.VerifyType;
-import com.clougence.clouddm.console.web.dal.enumeration.AreaCode;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
 
 import lombok.Data;
 
@@ -42,6 +41,4 @@ public class CheckVerifyMO {
     private VerifyCodeType verifyCodeType;
 
     private String         uid;
-
-    private AreaCode       phoneAreaCode;
 }

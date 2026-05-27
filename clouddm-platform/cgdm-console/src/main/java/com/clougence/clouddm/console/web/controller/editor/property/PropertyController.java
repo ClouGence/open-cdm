@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
@@ -34,12 +33,13 @@ import com.clougence.clouddm.console.web.model.fo.editor.property.PropertyEditor
 import com.clougence.clouddm.console.web.model.fo.editor.property.PropertyInitFO;
 import com.clougence.clouddm.console.web.model.vo.editor.table.TableEditorForm;
 import com.clougence.clouddm.console.web.service.editor.DsObjPropertyService;
+import com.clougence.clouddm.console.web.util.RdpAuthUtils;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.ui.editor.property.PropertyEditorUiData;
 import com.clougence.rdp.service.RdpUserService;
-import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.schema.umi.struts.UmiTypes;
 
 import jakarta.annotation.Resource;
@@ -53,13 +53,13 @@ import lombok.extern.slf4j.Slf4j;
 public class PropertyController {
 
     @Resource
-    private DmDsConfigService       dmDsConfigService;
+    private DmDsConfigService    dmDsConfigService;
     @Resource
-    private BizResOwnerCacheService ownerCacheService;
+    private ObjectCacheDao       objectCacheDao;
     @Resource
-    private DsObjPropertyService    propertyEditorService;
+    private DsObjPropertyService propertyEditorService;
     @Resource
-    private DmAuthServiceForBiz     dmAuthServiceForBiz;
+    private DmAuthServiceForBiz  dmAuthServiceForBiz;
 
     @RequestAuth(DM_QUERY_CONSOLE)
     @RequestMapping(value = "/propertiesDef", method = RequestMethod.POST)
@@ -68,7 +68,7 @@ public class PropertyController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.ownerCacheService.ownDataSource(puid, levels.dsDO().getId());
+        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
 
         UmiTypes umiTypes = UmiTypes.valueOfCode(fo.getTypes());
 
@@ -83,7 +83,7 @@ public class PropertyController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.ownerCacheService.ownDataSource(puid, levels.dsDO().getId());
+        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
         DsResPath dsResource = RdpAuthUtils.genResPathByList(levels.dbLevels(), fo.getLeafName());
         this.dmAuthServiceForBiz.checkResPath(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, dsResource, SecDataAuthLabel.DM_DAUTH_QUERY);
 

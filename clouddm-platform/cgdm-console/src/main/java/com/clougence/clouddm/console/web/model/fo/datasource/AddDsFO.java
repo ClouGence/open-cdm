@@ -24,10 +24,10 @@ import com.clougence.clouddm.base.metadata.rdp.enumeration.ConnectType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
 import com.clougence.clouddm.console.web.constants.WhiteListAddType;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.console.web.dal.enumeration.DeployEnvInfoFetchType;
-import com.clougence.clouddm.console.web.dal.enumeration.DeployEnvType;
-import com.clougence.clouddm.console.web.dal.enumeration.HostType;
-import com.clougence.clouddm.console.web.dal.enumeration.LifeCycleState;
+import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvInfoFetchType;
+import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType;
+import com.clougence.clouddm.platform.dal.model.datasource.HostType;
+import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

@@ -19,8 +19,12 @@ import { createWebSocket, hasWebSocketInstance } from '@/services/socket';
 import { services } from '@/services/http';
 import { filterGlobalSettingByBuild, supportsCloudCanalBuild, supportsCloudDMBuild } from '@/utils/product';
 
-const initWebsocket = (globalSetting) => {
+const initWebsocket = (globalSetting, loggedIn) => {
   if (hasWebSocketInstance()) {
+    return;
+  }
+
+  if (!loggedIn) {
     return;
   }
 
@@ -87,7 +91,7 @@ export default {
       });
 
       commit(UPDATE_GLOBAL_SETTING, filteredGlobalSetting);
-      initWebsocket(filteredGlobalSetting);
+      initWebsocket(filteredGlobalSetting, userInfoRes.success);
 
       const { PRODUCT_CLOUD_DM, PRODUCT_CLOUD_CANAL } = filteredGlobalSetting.features;
 

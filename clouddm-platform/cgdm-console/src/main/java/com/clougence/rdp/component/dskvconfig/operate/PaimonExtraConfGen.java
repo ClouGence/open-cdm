@@ -26,8 +26,8 @@ import com.clougence.rdp.component.dskvconfig.model.DataLakeFormationExtraConfig
 import com.clougence.rdp.component.dskvconfig.model.PaimonExtraConfig;
 import com.clougence.rdp.component.dskvconfig.util.PropsCryptUtil;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 import com.clougence.utils.StringUtils;
 
 @Service
@@ -49,9 +49,9 @@ public class PaimonExtraConfGen implements RdpDsExtraConfGen {
     }
 
     @Override
-    public DsExtraConfig genDsExtraConfigFromExist(RdpDataSourceDO dsDO, List<RdpDsKvBaseConfigDO> fos) {
+    public DsExtraConfig genDsExtraConfigFromExist(DmDsDO dsDO, List<DmDsConfigKv4RdpDO> fos) {
         PaimonExtraConfig config = newDsExtraConfig();
-        for (RdpDsKvBaseConfigDO f : fos) {
+        for (DmDsConfigKv4RdpDO f : fos) {
             fillEntry(config, f.getConfigName(), f.getConfigValue());
         }
 
@@ -59,7 +59,7 @@ public class PaimonExtraConfGen implements RdpDsExtraConfGen {
     }
 
     @Override
-    public DsExtraConfig genDsExtraConfig(RdpDataSourceDO dsDO, List<InitDsKvBaseConfigFO> fos) {
+    public DsExtraConfig genDsExtraConfig(DmDsDO dsDO, List<InitDsKvBaseConfigFO> fos) {
         PaimonExtraConfig config = newDsExtraConfig();
         for (InitDsKvBaseConfigFO f : fos) {
             fillEntry(config, f.getConfigName(), f.getConfigValue());
@@ -93,7 +93,7 @@ public class PaimonExtraConfGen implements RdpDsExtraConfGen {
         }
     }
 
-    protected void validate(RdpDataSourceDO dsDO, PaimonExtraConfig extraConfig) {
+    protected void validate(DmDsDO dsDO, PaimonExtraConfig extraConfig) {
         String metastoreType = extraConfig.getMetastoreType();
         if (StringUtils.isBlank(metastoreType)) {
             throw new IllegalArgumentException(dsDO.getDataSourceType() + " datasource extra config metastoreType can not blank");

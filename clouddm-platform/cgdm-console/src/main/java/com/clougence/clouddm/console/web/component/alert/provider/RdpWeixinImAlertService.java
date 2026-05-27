@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
 import com.clougence.clouddm.console.web.util.RdpJacksonUtil;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.utils.JsonUtils;
 
 import lombok.Getter;
@@ -45,13 +45,13 @@ public class RdpWeixinImAlertService extends AbstractRdpImAlertService {
         return rdpConfig.getWeixinAlertUrl();
     }
 
-    protected String genParamsJsonStr(String signName, String msg, Map<String, Object> msgParams, List<RdpUserDO> users, boolean atAll) {
+    protected String genParamsJsonStr(String signName, String msg, Map<String, Object> msgParams, List<DmAuthUserDO> users, boolean atAll) {
         Map<String, Object> contents = new HashMap<>();
         contents.put("content", signName + msg);
         if (atAll) {
             contents.put("mentioned_list", Collections.singletonList("@all"));
         } else if (users != null && !users.isEmpty()) {
-            contents.put("mentioned_mobile_list", users.stream().map(RdpUserDO::getPhone).collect(Collectors.toList()));
+            contents.put("mentioned_mobile_list", users.stream().map(DmAuthUserDO::getPhone).collect(Collectors.toList()));
         }
 
         Map<String, Object> params = new HashMap<>();

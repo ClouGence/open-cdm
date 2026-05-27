@@ -15,9 +15,8 @@
  */
 package com.clougence.clouddm.console.web.model.fo;
 
-import com.clougence.clouddm.console.web.constants.VerifyCodeType;
-import com.clougence.clouddm.console.web.constants.VerifyType;
-import com.clougence.clouddm.console.web.dal.enumeration.AreaCode;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -38,8 +37,6 @@ public class VerifyMO {
     private String         email;
 
     private String         phoneNumber;
-
-    private AreaCode       phoneAreaCode;
 
     private VerifyCodeType verifyCodeType;
 }

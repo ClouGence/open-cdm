@@ -17,7 +17,7 @@ package com.clougence.clouddm.console.web.model.vo.cluster;
 
 import java.util.Date;
 
-import com.clougence.clouddm.console.web.constants.CloudOrIdcName;
+import com.clougence.clouddm.platform.dal.model.system.CloudOrIdcName;
 
 import lombok.Getter;
 import lombok.Setter;

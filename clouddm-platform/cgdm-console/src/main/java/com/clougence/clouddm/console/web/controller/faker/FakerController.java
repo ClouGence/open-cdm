@@ -27,12 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.ds.tools.FakerPluginConfig;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.faker.*;
 import com.clougence.clouddm.console.web.model.vo.faker.FakerDefVO;
@@ -40,13 +40,13 @@ import com.clougence.clouddm.console.web.model.vo.faker.FakerLogVO;
 import com.clougence.clouddm.console.web.model.vo.faker.FakerPreviewVO;
 import com.clougence.clouddm.console.web.service.asyntask.AsyncTaskService;
 import com.clougence.clouddm.console.web.service.faker.FakerService;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.util.RdpAuthUtils;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPathObj;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.ui.faker.FakerUiData;
 import com.clougence.rdp.service.RdpUserService;
-import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.utils.CollectionUtils;
 
 import jakarta.annotation.Resource;
@@ -60,15 +60,15 @@ import lombok.extern.slf4j.Slf4j;
 public class FakerController {
 
     @Resource
-    private FakerService            fakerService;
+    private FakerService        fakerService;
     @Resource
-    private AsyncTaskService        asyncTaskService;
+    private AsyncTaskService    asyncTaskService;
     @Resource
-    private DmDsConfigService       dmDsConfigService;
+    private DmDsConfigService   dmDsConfigService;
     @Resource
-    private BizResOwnerCacheService ownerCacheService;
+    private ObjectCacheDao      objectCacheDao;
     @Resource
-    private DmAuthServiceForBiz     dmAuthServiceForBiz;
+    private DmAuthServiceForBiz dmAuthServiceForBiz;
 
     @RequestAuth(DM_QUERY_CONSOLE)
     @RequestMapping(value = "/fakerDef", method = RequestMethod.POST)
@@ -182,7 +182,7 @@ public class FakerController {
         }
         // the object
         DsLevels dsLevels = this.dmDsConfigService.parseLevels(levels);
-        this.ownerCacheService.ownDataSource(puid, dsLevels.dsDO().getId());
+        this.objectCacheDao.ownDataSource(puid, dsLevels.dsDO().getId());
         return dsLevels;
     }
 }

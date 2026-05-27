@@ -15,14 +15,15 @@
  */
 package com.clougence.rdp.service.impl;
 
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.clougence.clouddm.console.web.dal.mapper.RdpDsUsageMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDsUsageDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsUsageDO;
 import com.clougence.rdp.service.RdpDsUsageService;
 
 import jakarta.annotation.Resource;
@@ -32,30 +33,29 @@ import jakarta.annotation.Resource;
  */
 @Service
 public class RdpDsUsageServiceImpl implements RdpDsUsageService {
-
     @Resource
-    private RdpDsUsageMapper rdpDsUsageMapper;
+    private DataSourceDal datasourceDal;
+
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
-    public void addDsUsages(List<RdpDsUsageDO> usageDOs) {
-        for (RdpDsUsageDO usageDO : usageDOs) {
-            rdpDsUsageMapper.insert(usageDO);
+    public void addDsUsages(List<DmDsUsageDO> usageDOs) {
+        for (DmDsUsageDO usageDO : usageDOs) {
+            datasourceDal.usageMapper().insert(usageDO);
         }
     }
 
     @Override
-    public List<RdpDsUsageDO> listDsUsage(Long dsId) {
-        return rdpDsUsageMapper.listByDsId(dsId);
+    public List<DmDsUsageDO> listDsUsage(Long dsId) {
+        return datasourceDal.usageMapper().listByDsId(dsId);
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
-    public void deleteDsUsage(List<RdpDsUsageDO> dsUsages) {
-        for (RdpDsUsageDO usageDO : dsUsages) {
+    public void deleteDsUsage(List<DmDsUsageDO> dsUsages) {
+        for (DmDsUsageDO usageDO : dsUsages) {
             //check for different product cluster with same res_id, res_instance_id and endpoint.
-            List<RdpDsUsageDO> usageDOS = rdpDsUsageMapper
-                .listByRes(usageDO.getDsId(), usageDO.getResType(), usageDO.getResId(), usageDO.getResInstanceId(), usageDO.getEndpoint());
+            List<DmDsUsageDO> usageDOS = datasourceDal.usageMapper().listByRes(usageDO.getDsId(), usageDO.getResType(), usageDO.getResId(), usageDO.getResInstanceId(), usageDO.getEndpoint());
             if (usageDOS != null && usageDOS.size() > 1) {
                 throw new IllegalArgumentException("DataSource usage info is duplicated, dsId:" + usageDO.getDsId() + ",resId:" + usageDO.getResId());
             }
@@ -65,7 +65,7 @@ public class RdpDsUsageServiceImpl implements RdpDsUsageService {
                 continue;
             }
 
-            rdpDsUsageMapper.deleteByRes(usageDO.getDsId(), usageDO.getResType(), usageDO.getResId(), usageDO.getResInstanceId(), usageDO.getEndpoint());
+            datasourceDal.usageMapper().deleteByRes(usageDO.getDsId(), usageDO.getResType(), usageDO.getResId(), usageDO.getResInstanceId(), usageDO.getEndpoint());
         }
     }
 }

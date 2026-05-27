@@ -32,6 +32,7 @@ import jakarta.servlet.Filter;
 @SpringBootConfiguration
 @EnableAutoConfiguration(exclude = { DataSourceAutoConfiguration.class })
 @ComponentScan(value = { "com.clougence.clouddm.boot", "com.clougence.clouddm.console.web", "com.clougence.clouddm.console.web.*", //
+                         "com.clougence.clouddm.platform.dal", "com.clougence.clouddm.platform.dal.*", //
                          "com.clougence.clouddm.worker", "com.clougence.clouddm.worker.*",           //
                          "com.clougence.clouddm.comm.component.*", "com.clougence.clouddm.init",     //
                          "com.clougence.rdp.*" },//

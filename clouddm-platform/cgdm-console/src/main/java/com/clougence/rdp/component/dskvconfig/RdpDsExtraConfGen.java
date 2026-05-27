@@ -20,8 +20,8 @@ import java.util.List;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 
 public interface RdpDsExtraConfGen {
 
@@ -31,7 +31,7 @@ public interface RdpDsExtraConfGen {
 
     DsExtraConfig newDsExtraConfig();
 
-    DsExtraConfig genDsExtraConfig(RdpDataSourceDO dsDO, List<InitDsKvBaseConfigFO> fos);
+    DsExtraConfig genDsExtraConfig(DmDsDO dsDO, List<InitDsKvBaseConfigFO> fos);
 
-    DsExtraConfig genDsExtraConfigFromExist(RdpDataSourceDO dsDO, List<RdpDsKvBaseConfigDO> confs);
+    DsExtraConfig genDsExtraConfigFromExist(DmDsDO dsDO, List<DmDsConfigKv4RdpDO> confs);
 }

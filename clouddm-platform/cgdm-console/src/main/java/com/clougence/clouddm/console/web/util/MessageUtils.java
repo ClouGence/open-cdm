@@ -15,13 +15,15 @@
  */
 package com.clougence.clouddm.console.web.util;
 
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+
 import org.springframework.context.ApplicationContext;
 
 import com.clougence.clouddm.comm.model.RSocketSendType;
-import com.clougence.clouddm.console.web.constants.I18nDmLabelKeys;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.mapper.DmClusterMapper;
-import com.clougence.clouddm.console.web.dal.model.DmClusterDO;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmLabelKeys;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.system.DmSysClusterDO;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -32,10 +34,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MessageUtils {
 
-    private static DmClusterMapper dmClusterMapper;
+    private static SystemDal systemDal;
 
     public static void initUtils(ApplicationContext spring) {
-        dmClusterMapper = spring.getBean(DmClusterMapper.class);
+        systemDal = spring.getBean(SystemDal.class);
     }
 
     public static String getClusterHaveNoWorksErrorMessage(Long clusterId) {
@@ -46,11 +48,11 @@ public class MessageUtils {
         if (clusterId == null) {
             return "ID:UNKNOWN";
         }
-        if (dmClusterMapper == null) {
+        if (systemDal == null) {
             return "ID:" + clusterId;
         }
 
-        DmClusterDO clusterDO = dmClusterMapper.queryById(clusterId);
+        DmSysClusterDO clusterDO = systemDal.clusterMapper().queryById(clusterId);
         if (clusterDO == null) {
             return "ID:" + clusterId + "(Deleted)";
         } else if (StringUtils.isBlank(clusterDO.getClusterDesc())) {

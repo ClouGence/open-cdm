@@ -23,7 +23,7 @@ import com.clougence.clouddm.console.web.component.alert.RdpImAlertService;
 import com.clougence.clouddm.console.web.component.alert.RdpMailAlertService;
 import com.clougence.clouddm.console.web.component.alert.RdpSmsAlertService;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
-import com.clougence.clouddm.console.web.dal.model.RdpUserKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.rdp.service.RdpUserAlertService;
 import com.clougence.rdp.service.RdpUserConfigService;
@@ -125,7 +125,7 @@ public class RdpUserAlertServiceImpl implements RdpUserAlertService {
             return rdpConfig.getAlertImType();
         }
 
-        RdpUserKvBaseConfigDO configDO = rdpUserConfigService.getSpecifiedConfig(uid, UserDefinedConfig.Fields.alertImType);
+        DmSysUserConfDO configDO = rdpUserConfigService.getSpecifiedConfig(uid, UserDefinedConfig.Fields.alertImType);
         if (configDO == null || StringUtils.isBlank(configDO.getConfigValue())) {
             return rdpConfig.getAlertImType();
         }
@@ -138,7 +138,7 @@ public class RdpUserAlertServiceImpl implements RdpUserAlertService {
             return false;
         }
 
-        RdpUserKvBaseConfigDO configDO = rdpUserConfigService.getSpecifiedConfig(uid, UserDefinedConfig.Fields.imAlertAtAll);
+        DmSysUserConfDO configDO = rdpUserConfigService.getSpecifiedConfig(uid, UserDefinedConfig.Fields.imAlertAtAll);
         if (configDO == null || StringUtils.isBlank(configDO.getConfigValue())) {
             return false;
         }
@@ -166,7 +166,7 @@ public class RdpUserAlertServiceImpl implements RdpUserAlertService {
             return AlertSmsType.alibaba_cloud;
         }
 
-        RdpUserKvBaseConfigDO configDO = rdpUserConfigService.getSpecifiedConfig(uid, UserDefinedConfig.Fields.alertSmsType);
+        DmSysUserConfDO configDO = rdpUserConfigService.getSpecifiedConfig(uid, UserDefinedConfig.Fields.alertSmsType);
         if (configDO == null || StringUtils.isBlank(configDO.getConfigValue())) {
             return AlertSmsType.alibaba_cloud;
         }
@@ -189,7 +189,7 @@ public class RdpUserAlertServiceImpl implements RdpUserAlertService {
             return AlertVoiceType.alibaba_cloud;
         }
 
-        RdpUserKvBaseConfigDO configDO = rdpUserConfigService.getSpecifiedConfig(uid, UserDefinedConfig.Fields.alertMobileType);
+        DmSysUserConfDO configDO = rdpUserConfigService.getSpecifiedConfig(uid, UserDefinedConfig.Fields.alertMobileType);
         if (configDO == null || StringUtils.isBlank(configDO.getConfigValue())) {
             return AlertVoiceType.alibaba_cloud;
         }

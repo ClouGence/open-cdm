@@ -21,8 +21,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.console.web.component.asyntask.AsyncTask;
-import com.clougence.clouddm.console.web.constants.DmMode;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.service.faker.FakerService;
 import com.clougence.clouddm.sdk.model.faker.FakerRunStatus;
 import com.clougence.clouddm.sdk.model.faker.FakerStatusDTO;
@@ -42,9 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 public class FakerAsyncTask extends AsyncTask {
 
     @Resource
-    private FakerService    fakerService;
-    @Resource
-    private DmConsoleConfig dmConfig;
+    private FakerService fakerService;
 
     @Override
     protected void executeTask(int retryCnt, String configData) {
@@ -110,10 +106,6 @@ public class FakerAsyncTask extends AsyncTask {
     }
 
     private void delayTask() {
-        if (this.dmConfig.getDmMode() == DmMode.desktop) {
-            this.delayTask(500, TimeUnit.MILLISECONDS);
-        } else {
-            this.delayTask(1, TimeUnit.SECONDS);
-        }
+        this.delayTask(1, TimeUnit.SECONDS);
     }
 }

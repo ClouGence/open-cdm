@@ -28,7 +28,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.clougence.clouddm.console.web.dal.model.DmResAuthDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,7 +39,7 @@ import com.clougence.clouddm.base.metadata.rdp.enumeration.llm.LLMAction;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDriverService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsDeletePrepareService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
-import com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.console.web.model.fo.*;
 import com.clougence.clouddm.console.web.model.fo.QueryDsConfigFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.*;
@@ -51,19 +51,19 @@ import com.clougence.clouddm.console.web.model.lo.UpdatePubHostLO;
 import com.clougence.clouddm.console.web.model.vo.*;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.rdp.component.dskvconfig.model.LLMExtraConfig;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
-import com.clougence.rdp.constant.operation.AuditType;
-import com.clougence.clouddm.console.web.dal.enumeration.HostType;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.queryobj.DsQueryParam;
+import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
+import com.clougence.clouddm.platform.dal.model.datasource.HostType;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
 import com.clougence.rdp.service.RdpAuthServiceForBiz;
 import com.clougence.rdp.service.RdpDsService;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -98,14 +98,14 @@ public class RdpDsController {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        List<DmResAuthDO> authList = this.rdpAuthService.listAuthByUser(uid, AuthKind.DataSource);
+        List<DmAuthResDO> authList = this.rdpAuthService.listAuthByUser(uid, AuthKind.DataSource);
         if (authList == null || authList.isEmpty()) {
             return ResWebDataUtils.buildSuccess(new ArrayList<>());
         }
 
-        List<Long> authedDsIds = authList.stream().map(DmResAuthDO::getResId).distinct().collect(Collectors.toList());
+        List<Long> authedDsIds = authList.stream().map(DmAuthResDO::getResId).distinct().collect(Collectors.toList());
 
-        DsQueryParam queryMO = DsQueryParam.builder()
+        ArgDsQueryParamObj queryMO = ArgDsQueryParamObj.builder()
             .dataSourceType(listDsFO.getType())
             .dataSourceDescLike(listDsFO.getDataSourceDescLike())
             .dataSourceIds(Stream.of(listDsFO.getDataSourceId()).filter(Objects::nonNull).collect(Collectors.toList()))
@@ -124,7 +124,7 @@ public class RdpDsController {
             }
         }
 
-        List<RdpDataSourceDO> result = this.rdpDsService.fetchByCondition(puid, queryMO, true);
+        List<DmDsDO> result = this.rdpDsService.fetchByCondition(puid, queryMO, true);
         if (CollectionUtils.isEmpty(result)) {
             return ResWebDataUtils.buildSuccess(new ArrayList<>());
         } else {
@@ -133,7 +133,7 @@ public class RdpDsController {
         }
     }
 
-    private List<RdpSimpleDsVO> genAndFilterToSimpleVO(List<RdpDataSourceDO> dsDOs, ListDsFO listDsFO) {
+    private List<RdpSimpleDsVO> genAndFilterToSimpleVO(List<DmDsDO> dsDOs, ListDsFO listDsFO) {
         List<RdpSimpleDsVO> vos = new ArrayList<>();
         if (CollectionUtils.isEmpty(dsDOs)) {
             return vos;
@@ -151,7 +151,7 @@ public class RdpDsController {
         return vos;
     }
 
-    protected RdpSimpleDsVO genRdpSimpleDsVO(RdpDataSourceDO dsDO) {
+    protected RdpSimpleDsVO genRdpSimpleDsVO(DmDsDO dsDO) {
         RdpSimpleDsVO vo = new RdpSimpleDsVO();
         vo.convertFromDO(dsDO);
         return vo;
@@ -165,7 +165,7 @@ public class RdpDsController {
 
         this.rdpAuthService.checkResAuth(puid, uid, queryDsFO.getDataSourceId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_READ, AuthKind.DataSource);
 
-        RdpDataSourceDO result = this.rdpDsService.queryDsByIdWithoutPasswd(queryDsFO.getDataSourceId());
+        DmDsDO result = this.rdpDsService.queryDsByIdWithoutPasswd(queryDsFO.getDataSourceId());
         rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), queryDsFO
             .getDataSourceId(), result, SecurityLevel.NORMAL, AuditType.QUERY_DATA_SOURCE_CONFIG, ResourceType.DATASOURCE);
         RdpDataSourceVO vo = RdpConvertUtils.convertToRdpDataSourceVO(result);
@@ -232,7 +232,7 @@ public class RdpDsController {
 
         this.rdpAuthService.checkResAuth(puid, uid, resId, RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
 
-        RdpDataSourceDO rdpDataSourceDO = rdpDsService.fetchAndCheckById(resId);
+        DmDsDO rdpDataSourceDO = rdpDsService.fetchAndCheckById(resId);
         this.dmDsDeletePrepareService.prepareDelete(puid, resId);
         ResWebData<Long> longResWebData = this.rdpDsService.delDataSource(puid, resId);
 
@@ -360,7 +360,7 @@ public class RdpDsController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         this.rdpAuthService.checkResAuth(puid, uid, fo.getDataSourceId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
 
-        RdpDataSourceDO rdpDataSourceDO = this.rdpDsService.queryById(fo.getDataSourceId());
+        DmDsDO rdpDataSourceDO = this.rdpDsService.queryById(fo.getDataSourceId());
         this.rdpDsService.cleanDataSourceAccount(puid, fo.getDataSourceId());
         this.rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), fo
             .getDataSourceId(), "", SecurityLevel.HIGH, AuditType.DELETE_DS_ACCOUNT_PASSWD, ResourceType.DATASOURCE, rdpDataSourceDO.getInstanceId());

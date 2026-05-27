@@ -33,13 +33,13 @@ import com.clougence.clouddm.console.web.component.alert.RdpImAlertService;
 import com.clougence.clouddm.console.web.component.alert.model.SendMsgResult;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.util.HealthCheckInterceptor;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.monitor.AlertEventStatus;
+import com.clougence.clouddm.platform.dal.model.monitor.AlertMediaType;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.rdp.service.RdpAlertEventLogService;
 import com.clougence.rdp.service.RdpUserConfigService;
-import com.clougence.rdp.service.enumeration.AlertEventStatus;
-import com.clougence.rdp.service.enumeration.AlertMediaType;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
@@ -72,9 +72,9 @@ public abstract class AbstractRdpImAlertService implements RdpImAlertService {
 
     protected abstract String fetchImAlertUrl();
 
-    protected abstract String genParamsJsonStr(String signName, String msg, Map<String, Object> msgParams, List<RdpUserDO> users, boolean atAll);
+    protected abstract String genParamsJsonStr(String signName, String msg, Map<String, Object> msgParams, List<DmAuthUserDO> users, boolean atAll);
 
-    protected RdpUserKvBaseConfigDO fetchUserImAlertUrlConfig(String uid, AlarmLevel alarmLevel) {
+    protected DmSysUserConfDO fetchUserImAlertUrlConfig(String uid, AlarmLevel alarmLevel) {
         if (alarmLevel == AlarmLevel.Critical || alarmLevel == AlarmLevel.Blocker) {
             return rdpUserConfigService.getSpecifiedConfig(uid, UserDefinedConfig.Fields.criticalImAlertUrl);
         } else {
@@ -83,7 +83,7 @@ public abstract class AbstractRdpImAlertService implements RdpImAlertService {
     }
 
     protected Proxy queryProxyIfNecessary(String uid) {
-        RdpUserKvBaseConfigDO proxyConfig = rdpUserConfigService.getSpecifiedConfig(uid, UserDefinedConfig.Fields.webHookProxyHost);
+        DmSysUserConfDO proxyConfig = rdpUserConfigService.getSpecifiedConfig(uid, UserDefinedConfig.Fields.webHookProxyHost);
         if (proxyConfig == null || StringUtils.isBlank(proxyConfig.getConfigValue())) {
             return null;
         }
@@ -101,16 +101,17 @@ public abstract class AbstractRdpImAlertService implements RdpImAlertService {
     }
 
     @Override
-    public SendMsgResult sendMsg(String signName, String msg, Map<String, Object> msgParams, RdpUserDO owner, List<RdpUserDO> receivers, AlarmLevel alarmLevel, boolean atAll) {
+    public SendMsgResult sendMsg(String signName, String msg, Map<String, Object> msgParams, DmAuthUserDO owner, List<DmAuthUserDO> receivers, AlarmLevel alarmLevel,
+                                 boolean atAll) {
         checkParams(msg, owner);
 
         String paramStr = genParamsJsonStr(signName, msg, msgParams, receivers, atAll);
         List<String> sendUids = null;
         if (CollectionUtils.isNotEmpty(receivers)) {
-            sendUids = receivers.stream().map(RdpUserDO::getUid).collect(Collectors.toList());
+            sendUids = receivers.stream().map(DmAuthUserDO::getUid).collect(Collectors.toList());
         }
 
-        RdpUserKvBaseConfigDO userConfig = fetchUserImAlertUrlConfig(owner.getUid(), alarmLevel);
+        DmSysUserConfDO userConfig = fetchUserImAlertUrlConfig(owner.getUid(), alarmLevel);
         Proxy proxy = queryProxyIfNecessary(owner.getUid());
 
         if (userConfig != null && StringUtils.isNotBlank(userConfig.getConfigValue())) {
@@ -121,14 +122,14 @@ public abstract class AbstractRdpImAlertService implements RdpImAlertService {
     }
 
     @Override
-    public SendMsgResult sendMsgWithWebHook(String webHook, String proxyAddr, String signName, String msg, Map<String, Object> msgParams, RdpUserDO owner,
-                                            List<RdpUserDO> receivers, AlarmLevel alarmLevel, boolean atAll) {
+    public SendMsgResult sendMsgWithWebHook(String webHook, String proxyAddr, String signName, String msg, Map<String, Object> msgParams, DmAuthUserDO owner,
+                                            List<DmAuthUserDO> receivers, AlarmLevel alarmLevel, boolean atAll) {
         checkParams(msg, owner);
 
         String paramStr = genParamsJsonStr(signName, msg, msgParams, receivers, atAll);
         List<String> sendUids = null;
         if (CollectionUtils.isNotEmpty(receivers)) {
-            sendUids = receivers.stream().map(RdpUserDO::getUid).collect(Collectors.toList());
+            sendUids = receivers.stream().map(DmAuthUserDO::getUid).collect(Collectors.toList());
         }
 
         Proxy proxy = genProxyIfNecessary(proxyAddr);
@@ -140,7 +141,7 @@ public abstract class AbstractRdpImAlertService implements RdpImAlertService {
         }
     }
 
-    private void checkParams(String msg, RdpUserDO owner) {
+    private void checkParams(String msg, DmAuthUserDO owner) {
         if (StringUtils.isBlank(msg)) {
             throw new IllegalArgumentException("MSG IS EMPTY when alert by aliyun dingtalk.");
         }
@@ -151,8 +152,8 @@ public abstract class AbstractRdpImAlertService implements RdpImAlertService {
     }
 
     @Override
-    public SendMsgResult sendMsgToOwner(String signName, String msg, Map<String, Object> msgParams, RdpUserDO owner, AlarmLevel alarmLevel, boolean atAll) {
-        List<RdpUserDO> receivers = new ArrayList<>();
+    public SendMsgResult sendMsgToOwner(String signName, String msg, Map<String, Object> msgParams, DmAuthUserDO owner, AlarmLevel alarmLevel, boolean atAll) {
+        List<DmAuthUserDO> receivers = new ArrayList<>();
         receivers.add(owner);
         return sendMsg(signName, msg, msgParams, owner, receivers, alarmLevel, atAll);
     }

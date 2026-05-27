@@ -17,7 +17,7 @@ package com.clougence.clouddm.console.web.model.vo.checkrules;
 
 import java.util.List;
 
-import com.clougence.clouddm.console.web.dal.enumeration.RuleKind;
+import com.clougence.clouddm.platform.dal.model.secrule.RuleKind;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -27,19 +27,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.*;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectChangeMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectDevopsMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectScmMapper;
-import com.clougence.clouddm.console.web.dal.model.*;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.browse.BrowseLevelsFO;
 import com.clougence.clouddm.console.web.model.fo.project.*;
@@ -55,13 +51,17 @@ import com.clougence.clouddm.console.web.service.project.domain.DmImDef;
 import com.clougence.clouddm.console.web.service.project.domain.DmRepoDef;
 import com.clougence.clouddm.console.web.service.project.domain.DmScmDef;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserInfoDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.ProjectDal;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.project.*;
+import com.clougence.clouddm.platform.dal.model.system.DmSysMessengerDO;
+import com.clougence.clouddm.platform.dal.model.system.ImType;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
@@ -79,42 +79,37 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping(value = DmControllerUrlPrefix.CONSOLE_PREFIX + "/project")
 @Slf4j
 public class DmProjectController {
-
     @Resource
-    private RdpUserMapper           rdpUserMapper;
+    private ProjectDal        projectDal;
     @Resource
-    private DmProjectService        dmProjectService;
+    private DataSourceDal     dsDal;
     @Resource
-    private DmImService             dmImService;
+    private AuthDal           authDal;
     @Resource
-    private DmScmService            dmScmService;
+    private ObjectCacheDao    objectCacheDao;
     @Resource
-    private DmChangeService         dmChangeService;
+    private DmProjectService  dmProjectService;
     @Resource
-    private DmProjectScmMapper      dmProjectScmMapper;
+    private DmImService       dmImService;
     @Resource
-    private DmProjectDevopsMapper   dmProjectDevopsMapper;
+    private DmScmService      dmScmService;
     @Resource
-    private DmDsConfigService       dmDsConfigService;
+    private DmChangeService   dmChangeService;
     @Resource
-    private BizResOwnerCacheService ownerCacheService;
+    private DmDsConfigService dmDsConfigService;
     @Resource
-    private RdpDataSourceMapper     rdpDataSourceMapper;
+    private BrowseService     browseService;
     @Resource
-    private BrowseService           browseService;
-    @Resource
-    private DmDsService             dmDsService;
-    @Resource
-    protected DmProjectChangeMapper dmProjectChangeMapper;
+    private DmDsService       dmDsService;
 
     @RequestAuth(DM_PROJECT_MANAGE)
     @RequestMapping(value = "/devopsUsers", method = RequestMethod.POST)
     public ResWebData<?> devopsUsers(HttpServletRequest request, @Valid @RequestBody GuideUsersFO fo) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
-        RdpUserDO mainUser = this.rdpUserMapper.queryByUid(puid);
+        DmAuthUserDO mainUser = this.authDal.userMapper().queryByUid(puid);
         String search = StringUtils.isBlank(fo.getSearch()) ? null : fo.getSearch();
-        List<RdpUserInfoDO> result = this.rdpUserMapper.searchUserByKeywords(mainUser.getUserDomain(), search);
+        List<RsAuthPersonObj> result = this.authDal.userMapper().searchUserByKeywords(mainUser.getUserDomain(), search);
         List<ProjectUserVO> vos = result.stream().map(DmConvertUtils::convertToProjectUserVO).collect(Collectors.toList());
         return ResWebDataUtils.buildSuccess(vos);
     }
@@ -171,7 +166,7 @@ public class DmProjectController {
 
         // ds object list
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.ownerCacheService.ownDataSource(puid, levels.dsDO().getId());
+        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
         List<BrowseLevelsVO> vos = this.browseService.listLevels(puid, uid, levels, fo.isRefreshCache());
         return ResWebDataUtils.buildSuccess(vos);
     }
@@ -213,7 +208,7 @@ public class DmProjectController {
         List<DmImDef> defs = this.dmImService.getImDefList();
         Map<ImType, DmImDef> imDefMap = defs.stream().collect(Collectors.toMap(DmImDef::getImType, d -> d));
 
-        List<DmMessengerDO> messengers = this.dmImService.queryMessengerByOwnerAndType(puid, fo.getImType());
+        List<DmSysMessengerDO> messengers = this.dmImService.queryMessengerByOwnerAndType(puid, fo.getImType());
         List<ProjectImVO> vos = messengers.stream().map(m -> {
             return DmConvertUtils.convertToProjectImVO(m, imDefMap);
         }).collect(Collectors.toList());
@@ -249,7 +244,7 @@ public class DmProjectController {
         if (data == null) {
             return ResWebDataUtils.buildSuccess(data);
         } else {
-            return ResWebDataUtils.buildSuccess(DmConvertUtils.convertToProjectVO(data, this.ownerCacheService));
+            return ResWebDataUtils.buildSuccess(DmConvertUtils.convertToProjectVO(data, this.objectCacheDao));
         }
     }
 
@@ -277,10 +272,10 @@ public class DmProjectController {
         List<DmProjectDevopsDO> data = this.dmProjectService.queryAllDevopsByProjectId(puid, fo.getProjectId());
 
         // fetch ds
-        Map<Long, RdpDataSourceDO> dsMap = new HashMap<>();
+        Map<Long, DmDsDO> dsMap = new HashMap<>();
         Set<Long> dsIds = data.stream().map(DmProjectDevopsDO::getDsId).collect(Collectors.toSet());
         if (!dsIds.isEmpty()) {
-            List<RdpDataSourceDO> dsList = this.rdpDataSourceMapper.listByIds(new ArrayList<>(dsIds));
+            List<DmDsDO> dsList = this.dsDal.dsMapper().listByIds(new ArrayList<>(dsIds));
             dsList.forEach(ds -> dsMap.put(ds.getId(), ds));
         }
 
@@ -288,7 +283,7 @@ public class DmProjectController {
         Map<Long, DmProjectScmDO> scmMap = new HashMap<>();
         Set<Long> scmIds = data.stream().map(DmProjectDevopsDO::getRefScmId).collect(Collectors.toSet());
         if (!scmIds.isEmpty()) {
-            List<DmProjectScmDO> scmList = this.dmProjectScmMapper.queryListByOwnerAndIds(puid, new ArrayList<>(scmIds));
+            List<DmProjectScmDO> scmList = this.projectDal.scmMapper().queryListByOwnerAndIds(puid, new ArrayList<>(scmIds));
             scmList.forEach(ds -> scmMap.put(ds.getId(), ds));
         }
 
@@ -311,7 +306,7 @@ public class DmProjectController {
         }
 
         DmProjectMsgDO data = this.dmProjectService.queryMessageByProjectId(puid, fo.getProjectId());
-        DmMessengerDO messengerDO = null;
+        DmSysMessengerDO messengerDO = null;
         if (data != null) {
             messengerDO = this.dmImService.queryImById(puid, data.getRefMsgId());
         }
@@ -444,7 +439,7 @@ public class DmProjectController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         this.dmChangeService.verifyDevops(puid, fo.getProjectId(), fo.getDevopsId());
-        DmProjectDevopsDO devopsDO = this.dmProjectDevopsMapper.queryByOwnerAndId(puid, fo.getDevopsId());
+        DmProjectDevopsDO devopsDO = this.projectDal.devopsMapper().queryByOwnerAndId(puid, fo.getDevopsId());
         DmBranchDef branch = this.dmScmService.fetchBranchByScmAndRepo(devopsDO.getOwnerUid(), devopsDO.getRefScmId(), devopsDO.getScmRepoName(), devopsDO.getScmRepoBranch());
         if (branch == null) {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_BRANCH_NOT_EXIST_ERROR.name()));
@@ -462,14 +457,14 @@ public class DmProjectController {
 
         this.dmChangeService.verifyDevops(puid, fo.getProjectId(), fo.getDevopsId());
         DmProjectDO projectDO = this.dmProjectService.queryProjectById(puid, fo.getProjectId());
-        DmProjectDevopsDO devopsDO = this.dmProjectDevopsMapper.queryByOwnerAndId(puid, fo.getDevopsId());
+        DmProjectDevopsDO devopsDO = this.projectDal.devopsMapper().queryByOwnerAndId(puid, fo.getDevopsId());
         DmBranchDef branch = this.dmScmService.fetchBranchByScmAndRepo(projectDO.getOwnerUid(), devopsDO.getRefScmId(), devopsDO.getScmRepoName(), devopsDO.getScmRepoBranch());
         if (branch == null) {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_BRANCH_NOT_EXIST_ERROR.name()));
         }
 
         // check and create
-        List<DmProjectChangeDO> list = this.dmProjectChangeMapper.queryUnLockChange(projectDO.getId(), devopsDO.getId());
+        List<DmProjectChangeDO> list = this.projectDal.changeMapper().queryUnLockChange(projectDO.getId(), devopsDO.getId());
         if (!list.isEmpty()) {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_TRIGGER_SNAPSHOT_HAS_CHANGE_ERROR.name()));
         }
@@ -487,8 +482,8 @@ public class DmProjectController {
         changeDO.setTryTimes(0);
         changeDO.setLastCommitId(branch.getBranchCommitId());
         changeDO.setLockStatus(true);
-        changeDO.setFlowWalked(new DmProjectChangeFlowWalked());
-        this.dmProjectChangeMapper.insert(changeDO);
+        changeDO.setFlowWalked(new RsProjectChangeFlowWalkedObj());
+        this.projectDal.changeMapper().insert(changeDO);
         return ResWebDataUtils.buildSuccess(true);
     }
 }

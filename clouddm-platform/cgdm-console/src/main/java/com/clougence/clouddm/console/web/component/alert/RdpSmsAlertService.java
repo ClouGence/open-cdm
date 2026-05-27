@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.console.web.component.alert.model.SendMsgResult;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 
 /**
  * @author bucketli 2020-01-31 11:59
@@ -30,7 +30,7 @@ public interface RdpSmsAlertService {
     /**
      * Use owner config (SMS service ak / sk / code)
      */
-    SendMsgResult sendUserMsg(List<RdpUserDO> sendUsers, String msgTemplateCode, Map<String, String> templateParams, String ownerUid);
+    SendMsgResult sendUserMsg(List<DmAuthUserDO> sendUsers, String msgTemplateCode, Map<String, String> templateParams, String ownerUid);
 
     /**
      * Use CloudCanal system config (SMS service ak / sk / code...)

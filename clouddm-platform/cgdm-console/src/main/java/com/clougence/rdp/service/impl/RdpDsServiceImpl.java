@@ -15,12 +15,15 @@
  */
 package com.clougence.rdp.service.impl;
 
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.console.web.dal.mapper.DmResAuthMapper;
-import com.clougence.clouddm.console.web.dal.model.DmResAuthDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,10 +37,10 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityFileType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
-import com.clougence.clouddm.console.web.dal.enumeration.DeployEnvType;
-import com.clougence.clouddm.console.web.dal.enumeration.LifeCycleState;
-import com.clougence.clouddm.console.web.dal.enumeration.SecurityFileStoreType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType;
+import com.clougence.clouddm.platform.dal.model.LifeCycleState;
+import com.clougence.clouddm.platform.dal.model.datasource.SecurityFileStoreType;
 import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.AddDsFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsKvConfigFO;
@@ -52,18 +55,19 @@ import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.rdp.component.dskvconfig.RdpDsConfigService;
 import com.clougence.rdp.component.dskvconfig.util.PropsCryptUtil;
-import com.clougence.rdp.constant.ConsoleErrorCode;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.dal.mapper.*;
-import com.clougence.clouddm.console.web.dal.model.*;
-import com.clougence.clouddm.console.web.dal.model.queryobj.DsQueryParam;
-import com.clougence.rdp.global.exception.ConsoleRuntimeException;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.api.common.exception.ConsoleErrorCode;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.platform.dal.model.datasource.*;
+import com.clougence.clouddm.platform.dal.model.system.*;
+import com.clougence.clouddm.platform.dal.model.auth.*;
+import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
+import com.clougence.clouddm.api.common.exception.ConsoleRuntimeException;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.rdp.service.*;
 import com.clougence.clouddm.console.web.util.RandomStrUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
@@ -79,9 +83,16 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
 
     @Resource
-    private RdpUserService          rdpUserService;
+    private SystemDal systemDal;
+
     @Resource
-    private DmResAuthMapper         rdpDsAuthMapper;
+    private DataSourceDal datasourceDal;
+
+    @Resource
+    private AuthDal authDal;
+
+    @Resource
+    private RdpUserService          rdpUserService;
     @Resource
     private RdpAuthServiceForManage rdpAuthServiceForManager;
     @Resource
@@ -89,15 +100,7 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
     @Resource
     private RdpSecurityService      rdpSecurityService;
     @Resource
-    private RdpDataSourceMapper     rdpDsMapper;
-    @Resource
-    private RdpDsEnvMapper          rdpDsEnvMapper;
-    @Resource
     private RdpDsConfigService      rdpDsConfigService;
-    @Resource
-    private RdpDsKvBaseConfigMapper rdpDsKvBaseConfigMapper;
-    @Resource
-    private RdpBlobResourceMapper   rdpBlobResourceMapper;
     @Resource
     private List<RdpNotifyService>  notifyServices;
 
@@ -111,28 +114,28 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
     }
 
     @Override
-    public List<RdpDataSourceDO> fetchByCondition(DsQueryParam dsQueryParam) {
-        List<RdpDataSourceDO> dsList = this.rdpDsMapper.listByCondition(dsQueryParam);
-        for (RdpDataSourceDO ds : dsList) {
+    public List<DmDsDO> fetchByCondition(ArgDsQueryParamObj dsQueryParam) {
+        List<DmDsDO> dsList = this.datasourceDal.dsMapper().listByCondition(dsQueryParam);
+        for (DmDsDO ds : dsList) {
             fillExtraConfig(ds, null);
         }
         return dsList;
     }
 
     @Override
-    public List<RdpDataSourceDO> fetchByCondition(String ownerUid, DsQueryParam dsQueryParam, boolean fillEnv) {
-        List<RdpDataSourceDO> dsList = this.rdpDsMapper.listByCondition(dsQueryParam);
+    public List<DmDsDO> fetchByCondition(String ownerUid, ArgDsQueryParamObj dsQueryParam, boolean fillEnv) {
+        List<DmDsDO> dsList = this.datasourceDal.dsMapper().listByCondition(dsQueryParam);
         if (CollectionUtils.isEmpty(dsList)) {
             return dsList;
         }
-        Map<Long, RdpDsEnvDO> envMap = new HashMap<>();
+        Map<Long, DmSysEnvDO> envMap = new HashMap<>();
         if (fillEnv) {
-            List<Long> envIds = dsList.stream().map(RdpDataSourceDO::getDsEnvId).distinct().collect(Collectors.toList());
-            List<RdpDsEnvDO> envList = this.rdpDsEnvMapper.queryListByUidAndId(ownerUid, envIds);
+            List<Long> envIds = dsList.stream().map(DmDsDO::getDsEnvId).distinct().collect(Collectors.toList());
+            List<DmSysEnvDO> envList = this.systemDal.envMapper().queryListByUidAndId(ownerUid, envIds);
             envList.forEach(e -> envMap.put(e.getId(), e));
         }
 
-        for (RdpDataSourceDO ds : dsList) {
+        for (DmDsDO ds : dsList) {
             fillExtraConfig(ds, envMap);
         }
 
@@ -140,8 +143,8 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
     }
 
     @Override
-    public RdpDataSourceDO queryDsByIdWithoutPasswd(Long dataSourceId) {
-        RdpDataSourceDO dataSourceDO = fetchAndCheckById(dataSourceId);
+    public DmDsDO queryDsByIdWithoutPasswd(Long dataSourceId) {
+        DmDsDO dataSourceDO = fetchAndCheckById(dataSourceId);
         dataSourceDO.setPassword(null);
         return dataSourceDO;
     }
@@ -149,9 +152,9 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
     @Override
     public List<DefaultDsKvConfigVO> queryDsDefaultConfig(DataSourceType dataSourceType, DeployEnvType envType) {
         long dummyDsID = 1;
-        List<RdpDsKvBaseConfigDO> configs = this.rdpDsConfigService.fetchDefaultConfig(dummyDsID, dataSourceType);
+        List<DmDsConfigKv4RdpDO> configs = this.rdpDsConfigService.fetchDefaultConfig(dummyDsID, dataSourceType);
         List<DefaultDsKvConfigVO> cs = new ArrayList<>();
-        for (RdpDsKvBaseConfigDO c : configs) {
+        for (DmDsConfigKv4RdpDO c : configs) {
             if (isDefaultValueTrue(c, dataSourceType, envType)) {
                 c.setDefaultValue(Boolean.TRUE.toString());
             }
@@ -169,11 +172,11 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
     public List<UpdateDsConfigLO> upsertDsConfigs(String puid, UpsertDsKvConfigFO fo) {
         List<UpdateDsConfigLO> result = new ArrayList<>();
 
-        RdpDataSourceDO dataSourceDO = this.fetchAndCheckById(fo.getDataSourceId());
+        DmDsDO dataSourceDO = this.fetchAndCheckById(fo.getDataSourceId());
 
         if (fo.getUpdateConfigs() != null && !fo.getUpdateConfigs().isEmpty()) {
             for (Map.Entry<String, String> config : fo.getUpdateConfigs().entrySet()) {
-                RdpDsKvBaseConfigDO configDO = this.rdpDsKvBaseConfigMapper.queryByDsIdAndConfigName(fo.getDataSourceId(), config.getKey());
+                DmDsConfigKv4RdpDO configDO = this.datasourceDal.configKv4RdpMapper().queryByDsIdAndConfigName(fo.getDataSourceId(), config.getKey());
                 if (configDO != null) {
                     String value = config.getValue();
                     if (value != null) {
@@ -207,19 +210,19 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
                         configLO.setOldConfigValue(configDO.getConfigValue());
                         configLO.setConfigValue(config.getValue());
                     }
-                    this.rdpDsKvBaseConfigMapper.updateDsConfig(fo.getDataSourceId(), config.getKey(), value);
+                    this.datasourceDal.configKv4RdpMapper().updateDsConfig(fo.getDataSourceId(), config.getKey(), value);
                     result.add(configLO);
                 }
             }
         }
 
         if (fo.getNeedCreateConfigs() != null && !fo.getNeedCreateConfigs().isEmpty()) {
-            List<RdpDsKvBaseConfigDO> defaultConfigs = this.rdpDsConfigService.fetchDefaultConfig(dataSourceDO.getId(), dataSourceDO.getDataSourceType());
+            List<DmDsConfigKv4RdpDO> defaultConfigs = this.rdpDsConfigService.fetchDefaultConfig(dataSourceDO.getId(), dataSourceDO.getDataSourceType());
 
             for (Map.Entry<String, String> config : fo.getNeedCreateConfigs().entrySet()) {
-                RdpDsKvBaseConfigDO configDO = this.rdpDsKvBaseConfigMapper.queryByDsIdAndConfigName(fo.getDataSourceId(), config.getKey());
+                DmDsConfigKv4RdpDO configDO = this.datasourceDal.configKv4RdpMapper().queryByDsIdAndConfigName(fo.getDataSourceId(), config.getKey());
                 if (configDO == null) {
-                    RdpDsKvBaseConfigDO defaultConfig = defaultConfigs.stream().filter(c -> c.getConfigName().equals(config.getKey())).findFirst().orElse(null);
+                    DmDsConfigKv4RdpDO defaultConfig = defaultConfigs.stream().filter(c -> c.getConfigName().equals(config.getKey())).findFirst().orElse(null);
                     if (defaultConfig != null) {
                         String value = config.getValue();
                         if (value != null) {
@@ -237,7 +240,7 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
                             configLO.setConfigValue(config.getValue());
                         }
 
-                        this.rdpDsKvBaseConfigMapper.insert(defaultConfig);
+                        this.datasourceDal.configKv4RdpMapper().insert(defaultConfig);
                         result.add(configLO);
                     }
                 }
@@ -248,7 +251,7 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
         return result;
     }
 
-    private boolean isDefaultValueTrue(RdpDsKvBaseConfigDO c, DataSourceType dataSourceType, DeployEnvType envType) {
+    private boolean isDefaultValueTrue(DmDsConfigKv4RdpDO c, DataSourceType dataSourceType, DeployEnvType envType) {
         if (StringUtils.equals(c.getConfigName(), "useSSL")) {
             return envType == DeployEnvType.MICROSOFT_AZURE_CLOUD_HOSTED && (dataSourceType == DataSourceType.MySQL || dataSourceType == DataSourceType.PostgreSQL
                                                                              || dataSourceType == DataSourceType.MariaDB || dataSourceType == DataSourceType.SQLServer);
@@ -260,22 +263,22 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public UpdateDsDescLO updateDataSourceDesc(String puid, Long dataSourceId, String instanceDesc) {
-        RdpDataSourceDO dataSourceDO = this.fetchAndCheckById(dataSourceId);
+        DmDsDO dataSourceDO = this.fetchAndCheckById(dataSourceId);
         UpdateDsDescLO lo = new UpdateDsDescLO();
         lo.setDataSourceId(dataSourceId);
         lo.setOldInstanceDesc(dataSourceDO.getInstanceDesc());
         lo.setNewInstanceDesc(instanceDesc);
-        this.rdpDsMapper.updateDescByInstanceId(dataSourceId, instanceDesc);
+        this.datasourceDal.dsMapper().updateDescByInstanceId(dataSourceId, instanceDesc);
         this.notifyServices.forEach(s -> s.onDsUpdate(dataSourceId));
         return lo;
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void updateAkSk(String puid, Long dataSourceId, String accessKey, String secretKey) {
-        RdpDataSourceDO dataSourceDO = this.fetchAndCheckById(dataSourceId);
+        DmDsDO dataSourceDO = this.fetchAndCheckById(dataSourceId);
 
         String encSecretKey = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(secretKey);
-        this.rdpDsMapper.updateAkAndSk(dataSourceDO.getId(), accessKey, encSecretKey);
+        this.datasourceDal.dsMapper().updateAkAndSk(dataSourceDO.getId(), accessKey, encSecretKey);
         this.notifyServices.forEach(s -> s.onDsUpdate(dataSourceId));
     }
 
@@ -283,11 +286,11 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
     @Override
     public UpdatePubHostLO updateDataSourcePublicHost(String puid, Long dataSourceId, String publicHost) {
         this.fetchAndCheckById(dataSourceId);
-        RdpDataSourceDO rdpDataSourceDO = this.rdpDsMapper.queryDsIdentityById(dataSourceId);
+        DmDsDO rdpDataSourceDO = this.datasourceDal.dsMapper().queryDsIdentityById(dataSourceId);
         if (rdpDataSourceDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.DS_CHECK_NOT_EXIST_ERROR.name()));
         }
-        this.rdpDsMapper.updatePublicHostByInstanceId(dataSourceId, publicHost);
+        this.datasourceDal.dsMapper().updatePublicHostByInstanceId(dataSourceId, publicHost);
 
         UpdatePubHostLO lo = new UpdatePubHostLO();
         lo.setDataSourceId(dataSourceId);
@@ -302,11 +305,11 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
     @Override
     public UpdatePriHostLO updateDataSourcePrivateHost(String puid, Long dataSourceId, String privateHost) {
         this.fetchAndCheckById(dataSourceId);
-        RdpDataSourceDO rdpDataSourceDO = this.rdpDsMapper.queryDsIdentityById(dataSourceId);
+        DmDsDO rdpDataSourceDO = this.datasourceDal.dsMapper().queryDsIdentityById(dataSourceId);
         if (rdpDataSourceDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.DS_CHECK_NOT_EXIST_ERROR.name()));
         }
-        this.rdpDsMapper.updatePrivateHostByInstanceId(dataSourceId, privateHost);
+        this.datasourceDal.dsMapper().updatePrivateHostByInstanceId(dataSourceId, privateHost);
 
         UpdatePriHostLO lo = new UpdatePriHostLO();
         lo.setDataSourceId(dataSourceId);
@@ -319,7 +322,7 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void updateDataSourceAccount(String puid, UpdateSecurityInfoFO fo) {
-        RdpDataSourceDO dsDo = this.fetchAndCheckById(fo.getDataSourceId());
+        DmDsDO dsDo = this.fetchAndCheckById(fo.getDataSourceId());
 
         MultipartFile securityFile = fo.getSecurityFile();
         String securityFileName = securityFile == null ? null : UUID.randomUUID() + "-" + securityFile.getOriginalFilename();
@@ -351,7 +354,7 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
         if (StringUtils.isNotBlank(fo.getSecretFilePassword())) {
             secretFilePassword = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(fo.getSecretFilePassword());
         }
-        this.rdpDsMapper.updateSecurityAllInfo(dsDo.getId(), fo.getUserName(), encPasswd, fo.getSecurityType(), SecurityFileStoreType.META_DB, dsDo.getAccessKey(), dsDo
+        this.datasourceDal.dsMapper().updateSecurityAllInfo(dsDo.getId(), fo.getUserName(), encPasswd, fo.getSecurityType(), SecurityFileStoreType.META_DB, dsDo.getAccessKey(), dsDo
             .getSecretKey(), securityFilePath, securityFilePassword, clientSecurityFilePath, clientSecurityFilePassword, secretFilePath, secretFilePassword);
 
         SecurityType securityType = fo.getSecurityType();
@@ -382,17 +385,17 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
         this.notifyServices.forEach(s -> s.onDsUpdate(fo.getDataSourceId()));
     }
 
-    protected void updateDsSecurityFile(MultipartFile file, RdpDataSourceDO entity, SecurityFileType securityFileType) {
+    protected void updateDsSecurityFile(MultipartFile file, DmDsDO entity, SecurityFileType securityFileType) {
         if (file == null) {
             throw new IllegalArgumentException("datasource security file is null.security file type:" + securityFileType);
         }
 
         try {
-            RdpBlobResourceDO blobResourceDO = this.rdpBlobResourceMapper.queryByIdentify(entity.getInstanceId(), ResourceType.DATASOURCE, securityFileType);
+            DmDsBlobResourceDO blobResourceDO = this.datasourceDal.blobResourceMapper().queryByIdentify(entity.getInstanceId(), ResourceType.DATASOURCE, securityFileType);
             if (blobResourceDO == null) {
                 saveDsSecurityFile(file, entity, securityFileType);
             } else {
-                this.rdpBlobResourceMapper.updateByIdentify(file.getBytes(), entity.getInstanceId(), ResourceType.DATASOURCE, securityFileType);
+                this.datasourceDal.blobResourceMapper().updateByIdentify(file.getBytes(), entity.getInstanceId(), ResourceType.DATASOURCE, securityFileType);
             }
         } catch (IOException e) {
             String msg = "read security file from stream error.datasource instance id:" + entity.getInstanceId() + ".msg:" + ExceptionUtils.getRootCauseMessage(e);
@@ -407,22 +410,22 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
             return new ArrayList<>();
         }
 
-        RdpDataSourceDO ds = this.rdpDsMapper.selectById(dataSourceId);
+        DmDsDO ds = this.datasourceDal.dsMapper().selectById(dataSourceId);
         if (ds == null) {
             return new ArrayList<>();
         }
 
-        List<RdpDsKvBaseConfigDO> configList = this.rdpDsKvBaseConfigMapper.listByDsId(dataSourceId);
-        Map<String, RdpDsKvBaseConfigDO> configMap = new HashMap<>();
-        for (RdpDsKvBaseConfigDO configDO : configList) {
+        List<DmDsConfigKv4RdpDO> configList = this.datasourceDal.configKv4RdpMapper().listByDsId(dataSourceId);
+        Map<String, DmDsConfigKv4RdpDO> configMap = new HashMap<>();
+        for (DmDsConfigKv4RdpDO configDO : configList) {
             configMap.put(configDO.getConfigName(), configDO);
         }
 
-        List<RdpDsKvBaseConfigDO> defaultConfigs = this.rdpDsConfigService.fetchDefaultConfig(ds.getId(), ds.getDataSourceType());
+        List<DmDsConfigKv4RdpDO> defaultConfigs = this.rdpDsConfigService.fetchDefaultConfig(ds.getId(), ds.getDataSourceType());
 
         List<RdpDsKvConfigVO> resultConfigs = new ArrayList<>();
-        for (RdpDsKvBaseConfigDO configDO : defaultConfigs) {
-            RdpDsKvBaseConfigDO config = configMap.get(configDO.getConfigName());
+        for (DmDsConfigKv4RdpDO configDO : defaultConfigs) {
+            DmDsConfigKv4RdpDO config = configMap.get(configDO.getConfigName());
             if (config == null) {
                 RdpDsKvConfigVO v = RdpConvertUtils.convertToDsKvConfigVO(configDO);
                 v.setNeedCreated(true);
@@ -442,12 +445,12 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
             return null;
         }
 
-        RdpDataSourceDO ds = this.rdpDsMapper.selectById(dataSourceId);
+        DmDsDO ds = this.datasourceDal.dsMapper().selectById(dataSourceId);
         if (ds == null) {
             return null;
         }
 
-        RdpDsKvBaseConfigDO c = this.rdpDsKvBaseConfigMapper.queryByDsIdAndConfigName(dataSourceId, configName);
+        DmDsConfigKv4RdpDO c = this.datasourceDal.configKv4RdpMapper().queryByDsIdAndConfigName(dataSourceId, configName);
         if (c == null || StringUtils.isBlank(c.getConfigValue())) {
             return null;
         } else {
@@ -458,14 +461,14 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void cleanDataSourceAccount(String puid, long dsId) {
-        this.rdpDsMapper.cleanDataSourceAccount(dsId);
+        this.datasourceDal.dsMapper().cleanDataSourceAccount(dsId);
         this.notifyServices.forEach(s -> s.onDsUpdate(dsId));
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public ResWebData<Long> addDataSource(String puid, String uid, AddDsFO addFO) {
-        RdpUserDO pUserDO = this.rdpUserService.getUserByUid(puid);
+        DmAuthUserDO pUserDO = this.rdpUserService.getUserByUid(puid);
         long dsId;
         if (addFO.getDeployType() == DeployEnvType.SELF_MAINTENANCE || //
             addFO.getDeployType() == DeployEnvType.AWS_CLOUD_HOSTED || //
@@ -488,7 +491,7 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
     }
 
     protected void addCreatorAuth(String uid, Long dsId) {
-        RdpUserDO opUserDO = this.rdpUserService.getUserByUid(uid);
+        DmAuthUserDO opUserDO = this.rdpUserService.getUserByUid(uid);
         if (opUserDO.getAccountType() != AccountType.SUB_ACCOUNT) {
             return;
         }
@@ -504,8 +507,8 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
         //dsManageLabels.addAll(createDatajobLabels);
         dsManageLabels.addAll(dataOperateLabels);
 
-        RdpDataSourceDO dataSourceDO = rdpDsMapper.queryDsIdentityById(dsId);
-        DmResAuthDO selfAudit = new DmResAuthDO();
+        DmDsDO dataSourceDO = datasourceDal.dsMapper().queryDsIdentityById(dsId);
+        DmAuthResDO selfAudit = new DmAuthResDO();
         selfAudit.setOwnerUid(uid);
         selfAudit.setKindType(AuthKind.DataSource);
         selfAudit.setResId(dsId);
@@ -514,7 +517,7 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
         selfAudit.setResPath(RdpAuthUtils.genEmptyResPath().getResPath());
         selfAudit.setLevelOne(RdpAuthUtils.genEmptyResPath().getResPath());
         selfAudit.setAuthLabels(new ArrayList<>(dsManageLabels));
-        this.rdpDsAuthMapper.insert(selfAudit); // add DataSource auth time is forever
+        this.authDal.resMapper().insert(selfAudit); // add DataSource auth time is forever
     }
 
     protected long saveSelfMaintainDs(AddDsFO addDsFO, String uid, String owner) {
@@ -527,7 +530,7 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
             throw new IllegalArgumentException("DB2 datasource dbName can not be empty.");
         }
 
-        RdpDataSourceDO entity = new RdpDataSourceDO();
+        DmDsDO entity = new DmDsDO();
         entity.setDataSourceType(addDsFO.getType());
         entity.setDeployType(addDsFO.getDeployType());
         entity.setInfoFetchType(addDsFO.getInfoFetchType());
@@ -654,7 +657,7 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
             saveDsSecurityFile(addDsFO.getSecurityFile(), entity, SecurityFileType.ca_certificate_file);
         }
 
-        this.rdpDsMapper.insert(entity);
+        this.datasourceDal.dsMapper().insert(entity);
 
         if (addDsFO.getDsKvConfigs() != null && !addDsFO.getDsKvConfigs().isEmpty()) {
             this.rdpDsConfigService.persistDsConfig(entity, addDsFO.getDsKvConfigs());
@@ -685,19 +688,19 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
         return entity.getId();
     }
 
-    protected void saveDsSecurityFile(MultipartFile file, RdpDataSourceDO entity, SecurityFileType securityFileType) {
+    protected void saveDsSecurityFile(MultipartFile file, DmDsDO entity, SecurityFileType securityFileType) {
         if (file == null) {
             throw new IllegalArgumentException("datasource security file is null.security file type:" + securityFileType);
         }
 
         try {
-            RdpBlobResourceDO resourceDO = new RdpBlobResourceDO();
+            DmDsBlobResourceDO resourceDO = new DmDsBlobResourceDO();
             resourceDO.setBlobType(securityFileType);
             resourceDO.setContent(file.getBytes());
             resourceDO.setInstanceId(entity.getInstanceId());
             resourceDO.setOwnerName(entity.getInstanceId());
             resourceDO.setOwnerType(ResourceType.DATASOURCE);
-            this.rdpBlobResourceMapper.insert(resourceDO);
+            this.datasourceDal.blobResourceMapper().insert(resourceDO);
         } catch (IOException e) {
             String msg = "read security file from stream error.datasource instance id:" + entity.getInstanceId() + ".msg:" + ExceptionUtils.getRootCauseMessage(e);
             log.error(msg, e);
@@ -705,7 +708,7 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
         }
     }
 
-    protected void fillInstanceIdAndDesc(AddDsFO addDsFO, RdpDataSourceDO entity) {
+    protected void fillInstanceIdAndDesc(AddDsFO addDsFO, DmDsDO entity) {
         if (addDsFO.getInstanceId() == null) {
             entity.setInstanceId(genInstanceId(addDsFO.getType()));
         } else {
@@ -722,48 +725,48 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public ResWebData<Long> delDataSource(String puid, long dsId) {
-        RdpDataSourceDO userDs = this.fetchAndCheckById(dsId);
+        DmDsDO userDs = this.fetchAndCheckById(dsId);
 
-        List<RdpDsUsageDO> usageDOs = rdpDsUsageService.listDsUsage(dsId);
+        List<DmDsUsageDO> usageDOs = rdpDsUsageService.listDsUsage(dsId);
         if (usageDOs != null && usageDOs.size() > 0) {
-            String resInsts = usageDOs.stream().map(RdpDsUsageDO::getResInstanceId).collect(Collectors.joining(","));
+            String resInsts = usageDOs.stream().map(DmDsUsageDO::getResInstanceId).collect(Collectors.joining(","));
             throw new ConsoleRuntimeException(ConsoleErrorCode.STILL_HAVE_BIZ_USE_IT_WHEN_DELETE_DATASOURCE, resInsts);
         }
 
         this.rdpAuthServiceForManager.clearAuthOfRes(dsId, AuthKind.DataSource);
-        this.rdpDsMapper.updateLifeCycleStateById(dsId, LifeCycleState.DELETED);
+        this.datasourceDal.dsMapper().updateLifeCycleStateById(dsId, LifeCycleState.DELETED);
         this.rdpDsConfigService.cleanDsConfig(dsId);
-        this.rdpBlobResourceMapper.deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.kerberos_conf_file);
-        this.rdpBlobResourceMapper.deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.kerberos_keytab_file);
-        this.rdpBlobResourceMapper.deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.ssl_truststore_file);
-        this.rdpBlobResourceMapper.deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.ssl_keystore_file);
-        this.rdpBlobResourceMapper.deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.jaas_file);
-        this.rdpBlobResourceMapper.deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.keystore_file);
-        this.rdpBlobResourceMapper.deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.ca_certificate_file);
-        this.rdpBlobResourceMapper.deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.client_certificate_file);
-        this.rdpBlobResourceMapper.deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.secret_file);
+        this.datasourceDal.blobResourceMapper().deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.kerberos_conf_file);
+        this.datasourceDal.blobResourceMapper().deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.kerberos_keytab_file);
+        this.datasourceDal.blobResourceMapper().deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.ssl_truststore_file);
+        this.datasourceDal.blobResourceMapper().deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.ssl_keystore_file);
+        this.datasourceDal.blobResourceMapper().deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.jaas_file);
+        this.datasourceDal.blobResourceMapper().deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.keystore_file);
+        this.datasourceDal.blobResourceMapper().deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.ca_certificate_file);
+        this.datasourceDal.blobResourceMapper().deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.client_certificate_file);
+        this.datasourceDal.blobResourceMapper().deleteByIdentify(userDs.getInstanceId(), ResourceType.DATASOURCE, SecurityFileType.secret_file);
 
         this.notifyServices.forEach(s -> s.onDsDelete(dsId));
         return ResWebDataUtils.buildSuccess();
     }
 
     @Override
-    public RdpDataSourceDO queryById(Long dataSourceId) {
-        return this.rdpDsMapper.selectById(dataSourceId);
+    public DmDsDO queryById(Long dataSourceId) {
+        return this.datasourceDal.dsMapper().selectById(dataSourceId);
     }
 
     @Override
-    public List<RdpDataSourceDO> listByIds(List<Long> ids) {
-        return this.rdpDsMapper.listByIds(ids);
+    public List<DmDsDO> listByIds(List<Long> ids) {
+        return this.datasourceDal.dsMapper().listByIds(ids);
     }
 
     @Override
-    public RdpDataSourceDO fetchAndCheckById(Long dataSourceId) {
+    public DmDsDO fetchAndCheckById(Long dataSourceId) {
         if (dataSourceId == null || dataSourceId <= 0) {
             throw new RuntimeException("data source id cannot be null.");
         }
 
-        RdpDataSourceDO re = this.rdpDsMapper.selectById(dataSourceId);
+        DmDsDO re = this.datasourceDal.dsMapper().selectById(dataSourceId);
         if (re == null) {
             throw new IllegalArgumentException("datasource(" + dataSourceId + ") not exist.");
         }
@@ -773,12 +776,12 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
     }
 
     @Override
-    public RdpDataSourceDO fetchByInstanceId(String instanceId) {
+    public DmDsDO fetchByInstanceId(String instanceId) {
         if (StringUtils.isBlank(instanceId)) {
             throw new RuntimeException("instance id cannot be empty.");
         }
 
-        RdpDataSourceDO re = this.rdpDsMapper.getByInstanceId(instanceId);
+        DmDsDO re = this.datasourceDal.dsMapper().getByInstanceId(instanceId);
         if (re == null) {
             throw new IllegalArgumentException("datasource(" + instanceId + ") not exist.");
         }
@@ -787,7 +790,7 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
         return re;
     }
 
-    private void fillExtraConfig(RdpDataSourceDO re, Map<Long, RdpDsEnvDO> envMap) {
+    private void fillExtraConfig(DmDsDO re, Map<Long, DmSysEnvDO> envMap) {
         //        re.setExtraDO(dataSourceExtraMapper.queryByDataSourceId(re.getId()));
         re.setDsExtraConfig(this.rdpDsConfigService.fetchDsExtraConfig(re.getId(), re.getDataSourceType()));
 

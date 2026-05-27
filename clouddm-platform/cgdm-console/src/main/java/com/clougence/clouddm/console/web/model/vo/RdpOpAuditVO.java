@@ -17,9 +17,9 @@ package com.clougence.clouddm.console.web.model.vo;
 
 import java.util.Date;
 
-import com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel;
-import com.clougence.clouddm.console.web.dal.model.RdpOpAuditDO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
+import com.clougence.clouddm.platform.dal.model.monitor.DmMonOpAuditDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -73,7 +73,7 @@ public class RdpOpAuditVO {
 
     private String        logPathWorkerIp;
 
-    public RdpOpAuditVO convertFromDO(RdpOpAuditDO auditDO) {
+    public RdpOpAuditVO convertFromDO(DmMonOpAuditDO auditDO) {
         this.id = auditDO.getId();
         this.gmtCreate = auditDO.getGmtCreate();
         this.gmtModified = auditDO.getGmtModified();

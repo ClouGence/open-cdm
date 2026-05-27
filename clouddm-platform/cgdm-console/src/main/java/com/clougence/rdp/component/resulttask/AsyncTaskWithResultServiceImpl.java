@@ -58,18 +58,14 @@ public class AsyncTaskWithResultServiceImpl implements UnifiedPostConstruct, Asy
         CgFutureObj<T> waitObj = new CgFutureObj<>();
         map.put(key, waitObj);
         try {
-            this.threadPoolExecutor.submit(new Runnable() {
-
-                @Override
-                public void run() {
-                    try {
-                        T result = task.call();
-                        waitObj.completed(result);
-                    } catch (Exception e) {
-                        waitObj.failed(e);
-                    } finally {
-                        map.remove(key);
-                    }
+            this.threadPoolExecutor.submit(() -> {
+                try {
+                    T result = task.call();
+                    waitObj.completed(result);
+                } catch (Exception e) {
+                    waitObj.failed(e);
+                } finally {
+                    map.remove(key);
                 }
             });
         } catch (Exception e) {

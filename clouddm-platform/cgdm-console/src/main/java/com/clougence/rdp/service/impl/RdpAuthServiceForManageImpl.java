@@ -15,6 +15,9 @@
  */
 package com.clougence.rdp.service.impl;
 
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -24,14 +27,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.console.web.dal.model.DmResAuthDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForAppend;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForDelete;
@@ -45,11 +48,8 @@ import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.model.analysis.resource.AuthBrowseObject;
 import com.clougence.clouddm.sdk.model.feature.RdpFeatureIDs;
 import com.clougence.clouddm.sdk.security.auth.*;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmResAuthMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.rdp.service.RdpAuthServiceForManage;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
@@ -70,13 +70,13 @@ public class RdpAuthServiceForManageImpl implements RdpAuthServiceForManage, Uni
     private ScheduledExecutorService            cleanExpiredAuthExecutor;
 
     @Resource
+    private DataSourceDal datasourceDal;
+
+    @Resource
+    private AuthDal authDal;
+
+    @Resource
     private DmConsoleConfig     rdpConfig;
-    @Resource
-    private DmResAuthMapper     resAuthMapper;
-    @Resource
-    private RdpDataSourceMapper rdpDsMapper;
-    @Resource
-    private RdpUserMapper                       rdpUserMapper;
 
     private final Map<String, AuthInfo>         labelMap                 = new ConcurrentHashMap<>();
     private final Map<AuthKind, List<AuthInfo>> allAuthGroupByKind       = new ConcurrentHashMap<>();
@@ -96,7 +96,7 @@ public class RdpAuthServiceForManageImpl implements RdpAuthServiceForManage, Uni
             cleanExpiredAuthExecutor.scheduleAtFixedRate(() -> {
                 try {
                     log.info("[RDP] begin to clean expired data auths.");
-                    resAuthMapper.deleteByEndTimeExceed(Calendar.getInstance().getTime());
+                    authDal.resMapper().deleteByEndTimeExceed(Calendar.getInstance().getTime());
                     log.info("[RDP] clean expired data auths done.");
                 } catch (Throwable e) {
                     log.error(this.getClass().getSimpleName() + " error.msg:" + ExceptionUtils.getRootCauseMessage(e), e);
@@ -328,7 +328,7 @@ public class RdpAuthServiceForManageImpl implements RdpAuthServiceForManage, Uni
     }
 
     protected List<AuthBrowseObject> listDsEles(String puid) {
-        List<RdpDataSourceDO> dsDOs = this.rdpDsMapper.listByUserWithGmtOrder(puid);
+        List<DmDsDO> dsDOs = this.datasourceDal.dsMapper().listByUserWithGmtOrder(puid);
 
         if (dsDOs == null || dsDOs.isEmpty()) {
             return Collections.emptyList();
@@ -336,7 +336,7 @@ public class RdpAuthServiceForManageImpl implements RdpAuthServiceForManage, Uni
 
         List<AuthBrowseObject> objs = new ArrayList<>();
 
-        for (RdpDataSourceDO dsDO : dsDOs) {
+        for (DmDsDO dsDO : dsDOs) {
             AuthBrowseObject obj = new AuthBrowseObject();
 
             obj.setObjId(dsDO.getId());
@@ -354,31 +354,31 @@ public class RdpAuthServiceForManageImpl implements RdpAuthServiceForManage, Uni
     }
 
     @Override
-    public List<DmResAuthDO> listUserAuthWithoutLabels(String targetUid, AuthKind authKind) {
-        if (rdpUserMapper.isResourceManger(targetUid) && authKind == AuthKind.DataSource) {
+    public List<DmAuthResDO> listUserAuthWithoutLabels(String targetUid, AuthKind authKind) {
+        if (authDal.userMapper().isResourceManger(targetUid) && authKind == AuthKind.DataSource) {
             // fetch datasource from parent
-            Long pid = rdpUserMapper.queryByUid(targetUid).getParentId();
+            Long pid = authDal.userMapper().queryByUid(targetUid).getParentId();
             if (pid != null) {
-                String pUid = rdpUserMapper.queryById(pid).getUid();
-                return rdpDsMapper //
+                String pUid = authDal.userMapper().queryById(pid).getUid();
+                return this.datasourceDal.dsMapper() //
                     .listByUser(pUid)
                     .stream()
                     .map(ds -> RdpConvertUtils.convertToAuthDOByDataSource(ds, null))
                     .collect(Collectors.toList());
             }
         }
-        return this.resAuthMapper.listWithoutLabels(targetUid, authKind);
+        return this.authDal.resMapper().listWithoutLabels(targetUid, authKind);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void appendUserAuth(String uid, RdpAddAuthTicketFO fo) {
-        List<DmResAuthDO> applyInfo = fo.getApplyAuths().stream().map(applyAuth -> {
+        List<DmAuthResDO> applyInfo = fo.getApplyAuths().stream().map(applyAuth -> {
             return RdpConvertUtils.convertToAuthDOFromApply(uid, applyAuth, fo.getAuthKind());
         }).collect(Collectors.toList());
 
-        for (DmResAuthDO resAuthDO : applyInfo) {
-            this.resAuthMapper.insert(resAuthDO);
+        for (DmAuthResDO resAuthDO : applyInfo) {
+            this.authDal.resMapper().insert(resAuthDO);
         }
     }
 
@@ -398,7 +398,7 @@ public class RdpAuthServiceForManageImpl implements RdpAuthServiceForManage, Uni
         String targetUid = modifyData.getTargetUid();
 
         // for delete
-        List<DmResAuthDO> delAuth = modifyData.getDeletes().stream().map(d -> {
+        List<DmAuthResDO> delAuth = modifyData.getDeletes().stream().map(d -> {
             return RdpConvertUtils.convertToAuthDOFromDelete(targetUid, d, modifyData.getAuthKind());
         }).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(delAuth)) {
@@ -406,9 +406,9 @@ public class RdpAuthServiceForManageImpl implements RdpAuthServiceForManage, Uni
         }
 
         // for append
-        List<DmResAuthDO> addAuth = new ArrayList<>();
+        List<DmAuthResDO> addAuth = new ArrayList<>();
         for (ModifyAuthForAppend append : modifyData.getAppends()) {
-            DmResAuthDO authDO = RdpConvertUtils
+            DmAuthResDO authDO = RdpConvertUtils
                 .convertToAuthDOFromInsert(targetUid, append, resInstIdMap.get(append.getResId()), resDescMap.get(append.getResId()), modifyData.getAuthKind());
             addAuth.add(authDO);
         }
@@ -417,7 +417,7 @@ public class RdpAuthServiceForManageImpl implements RdpAuthServiceForManage, Uni
         }
 
         // for update
-        List<DmResAuthDO> updateAuth = modifyData.getUpdates()
+        List<DmAuthResDO> updateAuth = modifyData.getUpdates()
             .stream()
             .map(u -> RdpConvertUtils.convertToAuthDOFromUpdate(targetUid, u, resInstIdMap.get(u.getResId()), resDescMap.get(u.getResId()), modifyData.getAuthKind()))
             .collect(Collectors.toList());
@@ -439,13 +439,13 @@ public class RdpAuthServiceForManageImpl implements RdpAuthServiceForManage, Uni
 
         if (modifyData.getDeletes() != null && !modifyData.getDeletes().isEmpty()) {
             List<Long> delAuthIds = modifyData.getDeletes().stream().map(ModifyAuthForDelete::getAuthId).collect(Collectors.toList());
-            List<DmResAuthDO> auths = this.resAuthMapper.selectBatchIds(delAuthIds);
-            Set<Long> dResIds = auths.stream().map(DmResAuthDO::getResId).collect(Collectors.toSet());
+            List<DmAuthResDO> auths = this.authDal.resMapper().selectBatchIds(delAuthIds);
+            Set<Long> dResIds = auths.stream().map(DmAuthResDO::getResId).collect(Collectors.toSet());
             resIds.addAll(dResIds);
         }
 
-        List<RdpDataSourceDO> dss = this.rdpDsMapper.listByUser(puid);
-        Set<Long> dsIds = dss.stream().map(RdpDataSourceDO::getId).collect(Collectors.toSet());
+        List<DmDsDO> dss = this.datasourceDal.dsMapper().listByUser(puid);
+        Set<Long> dsIds = dss.stream().map(DmDsDO::getId).collect(Collectors.toSet());
         if (!dsIds.containsAll(resIds)) {
             throw new IllegalArgumentException("Resource not belong the primary user.");
         }
@@ -457,8 +457,8 @@ public class RdpAuthServiceForManageImpl implements RdpAuthServiceForManage, Uni
             Set<Long> dsIds = appends.stream().map(ModifyAuthForAppend::getResId).collect(Collectors.toSet());
             dsIds.addAll(updates.stream().map(ModifyAuthForUpdate::getResId).collect(Collectors.toSet()));
             if (!dsIds.isEmpty()) {
-                List<RdpDataSourceDO> dss = rdpDsMapper.listByIds(new ArrayList<>(dsIds));
-                for (RdpDataSourceDO ds : dss) {
+                List<DmDsDO> dss = datasourceDal.dsMapper().listByIds(new ArrayList<>(dsIds));
+                for (DmDsDO ds : dss) {
                     resInstIdMap.put(ds.getId(), ds.getInstanceId());
 
                     if (StringUtils.isBlank(ds.getInstanceDesc())) {
@@ -473,49 +473,49 @@ public class RdpAuthServiceForManageImpl implements RdpAuthServiceForManage, Uni
         }
     }
 
-    private void deleteDataAuth(String targetUid, AuthKind kindType, List<DmResAuthDO> delAuth) {
-        for (DmResAuthDO authDO : delAuth) {
-            List<DmResAuthDO> list = this.resAuthMapper.queryByPath(authDO.getResId(), targetUid, kindType, authDO.getResPath());
+    private void deleteDataAuth(String targetUid, AuthKind kindType, List<DmAuthResDO> delAuth) {
+        for (DmAuthResDO authDO : delAuth) {
+            List<DmAuthResDO> list = this.authDal.resMapper().queryByPath(authDO.getResId(), targetUid, kindType, authDO.getResPath());
             if (CollectionUtils.isEmpty(list)) {
                 continue;
             }
-            this.resAuthMapper.deleteByPath(authDO.getResId(), targetUid, kindType, authDO.getResPath());
+            this.authDal.resMapper().deleteByPath(authDO.getResId(), targetUid, kindType, authDO.getResPath());
 
             // keep unknown
             keepUnknownLabels(list);
         }
     }
 
-    private void appendDataAuth(String targetUid, AuthKind kindType, List<DmResAuthDO> append) {
-        List<DmResAuthDO> authDOs = append.stream().filter(a -> CollectionUtils.isNotEmpty(a.getAuthLabels())).collect(Collectors.toList());
+    private void appendDataAuth(String targetUid, AuthKind kindType, List<DmAuthResDO> append) {
+        List<DmAuthResDO> authDOs = append.stream().filter(a -> CollectionUtils.isNotEmpty(a.getAuthLabels())).collect(Collectors.toList());
 
-        Map<String, List<DmResAuthDO>> oldAuthMap = new HashMap<>();
-        List<DmResAuthDO> authList = this.resAuthMapper.listByKind(targetUid, kindType);
+        Map<String, List<DmAuthResDO>> oldAuthMap = new HashMap<>();
+        List<DmAuthResDO> authList = this.authDal.resMapper().listByKind(targetUid, kindType);
 
         authList.forEach(authDO -> {
             String key = targetUid + "-" + authDO.getResId() + "-" + authDO.getKindType() + "-" + authDO.getResPath();
             oldAuthMap.computeIfAbsent(key, k -> new ArrayList<>()).add(authDO);
         });
 
-        for (DmResAuthDO authDO : authDOs) {
+        for (DmAuthResDO authDO : authDOs) {
             String key = targetUid + "-" + authDO.getResId() + "-" + authDO.getKindType() + "-" + authDO.getResPath();
-            this.resAuthMapper.deleteByPath(authDO.getResId(), targetUid, kindType, authDO.getResPath());
+            this.authDal.resMapper().deleteByPath(authDO.getResId(), targetUid, kindType, authDO.getResPath());
             if (oldAuthMap.containsKey(key)) {
                 keepUnknownLabels(oldAuthMap.get(key));
             }
             List<String> cascadeAuthLabel = this.getCascadeAuthByLabel(authDO.getAuthLabels());
             authDO.setAuthLabels(cascadeAuthLabel);
-            this.resAuthMapper.insert(authDO);
+            this.authDal.resMapper().insert(authDO);
         }
     }
 
-    private void keepUnknownLabels(List<DmResAuthDO> resAuthDOList) {
-        for (DmResAuthDO resAuthDO : resAuthDOList) {
+    private void keepUnknownLabels(List<DmAuthResDO> resAuthDOList) {
+        for (DmAuthResDO resAuthDO : resAuthDOList) {
             List<String> labels = this.unknownLabels(resAuthDO.getAuthLabels());
             if (!labels.isEmpty() && resAuthDO.isNotExpired()) {
                 resAuthDO.setId(null);
                 resAuthDO.setAuthLabels(labels);
-                this.resAuthMapper.insert(resAuthDO);
+                this.authDal.resMapper().insert(resAuthDO);
             }
         }
     }
@@ -564,17 +564,17 @@ public class RdpAuthServiceForManageImpl implements RdpAuthServiceForManage, Uni
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void clearAuthOfRes(long resId, AuthKind authKind) {
-        this.resAuthMapper.deleteByRes(resId, authKind);
+        this.authDal.resMapper().deleteByRes(resId, authKind);
     }
 
     @Override
     public void clearAuthOfUser(String uid) {
-        this.resAuthMapper.deleteByUser(uid);
+        this.authDal.resMapper().deleteByUser(uid);
     }
 
     @Override
     public boolean isResourceMangerEnable(String targetUid) {
-        Boolean isResourceManger = rdpUserMapper.isResourceManger(targetUid);
+        Boolean isResourceManger = authDal.userMapper().isResourceManger(targetUid);
         if (isResourceManger == null) {
             return false;
         }
@@ -582,18 +582,18 @@ public class RdpAuthServiceForManageImpl implements RdpAuthServiceForManage, Uni
     }
 
     @Override
-    public List<DmResAuthDO> listUserAuthByRes(String targetUid, long resId, List<String> authPrefixList, AuthKind authKind) {
+    public List<DmAuthResDO> listUserAuthByRes(String targetUid, long resId, List<String> authPrefixList, AuthKind authKind) {
         if (authKind == AuthKind.DataSource) {
-            RdpUserDO rdpUserDO = this.rdpUserMapper.queryByUid(targetUid);
+            DmAuthUserDO rdpUserDO = this.authDal.userMapper().queryByUid(targetUid);
             if (rdpUserDO.isResourceManageEnable() || rdpUserDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
-                RdpDataSourceDO ds = this.rdpDsMapper.selectById(resId);
+                DmDsDO ds = this.datasourceDal.dsMapper().selectById(resId);
                 List<String> labels = this.getAllAuthLabel(authKind).stream().map(AuthInfo::getKey).collect(Collectors.toList());
                 return Collections.singletonList(RdpConvertUtils.convertToAuthDOByDataSource(ds, labels));
             }
 
-            List<DmResAuthDO> resAuthDO = this.resAuthMapper.queryByPathLike(resId, targetUid, authKind, authPrefixList);
+            List<DmAuthResDO> resAuthDO = this.authDal.resMapper().queryByPathLike(resId, targetUid, authKind, authPrefixList);
             return resAuthDO.stream().//
-                filter(DmResAuthDO::isEffective).//
+                filter(DmAuthResDO::isEffective).//
                 collect(Collectors.toList());
         } else {
             throw new IllegalArgumentException("Unsupported auth kind:" + authKind);

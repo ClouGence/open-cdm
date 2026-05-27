@@ -23,21 +23,20 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalType;
-import com.clougence.clouddm.console.web.dal.mapper.DmApprovalCacheTemplateMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmSecSpecMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDsEnvMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpEnvParamMapper;
-import com.clougence.clouddm.console.web.dal.model.DmApprovalCacheTemplateDO;
-import com.clougence.clouddm.console.web.dal.model.DmSecSpecDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsEnvDO;
-import com.clougence.clouddm.console.web.dal.model.RdpEnvParamDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.model.fo.envparam.DmBindEnvParamFO;
 import com.clougence.clouddm.console.web.model.fo.envparam.DmUnbindEnvParamFO;
 import com.clougence.clouddm.console.web.model.vo.envparam.DmEnvParamOpenVO;
 import com.clougence.clouddm.console.web.model.vo.envparam.DmEnvParamSecDesVO;
 import com.clougence.clouddm.console.web.model.vo.envparam.DmEnvParamTicketDesVO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.ApprovalDal;
+import com.clougence.clouddm.platform.dal.access.SecRuleDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
+import com.clougence.clouddm.platform.dal.model.approval.DmApprovalTemplateDO;
+import com.clougence.clouddm.platform.dal.model.secrule.DmSecSpecDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysEnvParamDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.approval.ApprovalProviderSpi;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
@@ -56,15 +55,12 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class DmEnvParamServiceImpl implements DmEnvParamService {
-
     @Resource
-    private RdpEnvParamMapper             rdpEnvParam;
+    private SystemDal   systemDal;
     @Resource
-    private DmSecSpecMapper               dmSecSpecMapper;
+    private SecRuleDal  secRuleDal;
     @Resource
-    private DmApprovalCacheTemplateMapper rdpCacheApproTemplateMapper;
-    @Resource
-    private RdpDsEnvMapper                rdpDsEnvMapper;
+    private ApprovalDal approvalDal;
 
     @Override
     public void bindEnvParam(String ownerUid, String uid, DmBindEnvParamFO fo) {
@@ -72,23 +68,23 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
         String paramKey = fo.getParamKey();
         String paramValue = fo.getParamValue();
 
-        RdpEnvParamDO rdpEnvParamDO = this.rdpEnvParam.queryByParamKey(ownerUid, paramKey, envId);
+        DmSysEnvParamDO rdpEnvParamDO = this.systemDal.envParamMapper().queryByParamKey(ownerUid, paramKey, envId);
         if (rdpEnvParamDO != null && StringUtils.isNotBlank(rdpEnvParamDO.getConfigValue())) {
             processTicketEnvParam(ownerUid, envId, paramKey, rdpEnvParamDO.getConfigValue(), paramValue);
 
             // update
             rdpEnvParamDO.setConfigValue(paramValue);
-            this.rdpEnvParam.updateById(rdpEnvParamDO);
+            this.systemDal.envParamMapper().updateById(rdpEnvParamDO);
         } else {
             processTicketEnvParam(ownerUid, envId, paramKey, null, paramValue);
 
             // insert
-            rdpEnvParamDO = new RdpEnvParamDO();
+            rdpEnvParamDO = new DmSysEnvParamDO();
             rdpEnvParamDO.setEnvId(envId);
             rdpEnvParamDO.setConfigKey(paramKey);
             rdpEnvParamDO.setConfigValue(paramValue);
             rdpEnvParamDO.setPrimaryUid(ownerUid);
-            this.rdpEnvParam.insert(rdpEnvParamDO);
+            this.systemDal.envParamMapper().insert(rdpEnvParamDO);
         }
     }
 
@@ -97,13 +93,13 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
         long envId = fo.getEnvId();
         String paramKey = fo.getParamKey();
         String paramValue = null;
-        RdpEnvParamDO rdpEnvParamDO = this.rdpEnvParam.queryByParamKey(ownerUid, paramKey, envId);
+        DmSysEnvParamDO rdpEnvParamDO = this.systemDal.envParamMapper().queryByParamKey(ownerUid, paramKey, envId);
         if (rdpEnvParamDO != null && StringUtils.isNotBlank(rdpEnvParamDO.getConfigValue())) {
             paramValue = rdpEnvParamDO.getConfigValue();
         }
 
         processTicketEnvParam(ownerUid, fo.getEnvId(), fo.getParamKey(), paramValue, null);
-        this.rdpEnvParam.deleteEnvParam(fo.getParamKey(), ownerUid, fo.getEnvId());
+        this.systemDal.envParamMapper().deleteEnvParam(fo.getParamKey(), ownerUid, fo.getEnvId());
     }
 
     private void processTicketEnvParam(String ownerUid, long envId, String configKey, String beforeValue, String afterValue) {
@@ -117,7 +113,7 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
         if (StringUtils.isNotBlank(beforeValue)) {
             EnvTicketMO ticketMO = JsonUtils.toObj(beforeValue, EnvTicketMO.class);
             if (StringUtils.isNotBlank(ticketMO.getApprovalType())) {
-                RdpApprovalType approvalType = RdpApprovalType.Internal.valueOfCode(ticketMO.getApprovalType());
+                ApprovalType approvalType = ApprovalType.Internal.valueOfCode(ticketMO.getApprovalType());
                 ApprovalProviderSpi approvalService = PluginManager.findSpi(ApprovalProviderSpi.class, approvalType.name());
                 if (approvalService != null) {
                     approvalService.useTemplate(ownerUid, ticketMO.getTemplateId(), null);
@@ -127,7 +123,7 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
         if (StringUtils.isNotBlank(afterValue)) {
             EnvTicketMO ticketMO = JsonUtils.toObj(afterValue, EnvTicketMO.class);
             if (StringUtils.isNotBlank(ticketMO.getApprovalType())) {
-                RdpApprovalType approvalType = RdpApprovalType.Internal.valueOfCode(ticketMO.getApprovalType());
+                ApprovalType approvalType = ApprovalType.Internal.valueOfCode(ticketMO.getApprovalType());
                 ApprovalProviderSpi approvalService = PluginManager.findSpi(ApprovalProviderSpi.class, approvalType.name());
                 if (approvalService != null) {
                     approvalService.useTemplate(ownerUid, null, ticketMO.getTemplateId());
@@ -139,10 +135,10 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
     @Override
     public List<DmEnvParamOpenVO> listEnvParamOpen(String puid, String uid) {
         List<DmEnvParamOpenVO> result = new ArrayList<>();
-        List<RdpEnvParamDO> paramList = this.rdpEnvParam.queryByUid(puid);
-        List<RdpDsEnvDO> envList = this.rdpDsEnvMapper.queryListByUid(puid);
+        List<DmSysEnvParamDO> paramList = this.systemDal.envParamMapper().queryByUid(puid);
+        List<DmSysEnvDO> envList = this.systemDal.envMapper().queryListByUid(puid);
 
-        for (RdpDsEnvDO envDO : envList) {
+        for (DmSysEnvDO envDO : envList) {
             DmEnvParamOpenVO vo = new DmEnvParamOpenVO();
             vo.setEnvId(envDO.getId());
             vo.setEnvName(envDO.getEnvName());
@@ -153,7 +149,7 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
             vo.setAuthTicketInfo(innerTicket());
             vo.setAllowAllStatements(false);
 
-            for (RdpEnvParamDO paramDO : paramList) {
+            for (DmSysEnvParamDO paramDO : paramList) {
                 if (envDO.getId() != paramDO.getEnvId()) {
                     continue;
                 }
@@ -185,9 +181,9 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
         return result;
     }
 
-    private void processCheckSpec(String puid, RdpEnvParamDO paramDO, DmEnvParamOpenVO vo) {
+    private void processCheckSpec(String puid, DmSysEnvParamDO paramDO, DmEnvParamOpenVO vo) {
         long id = Long.parseLong(paramDO.getConfigValue());
-        DmSecSpecDO specDO = this.dmSecSpecMapper.queryByIdAndUid(puid, id);
+        DmSecSpecDO specDO = this.secRuleDal.specMapper().queryByIdAndUid(puid, id);
         if (specDO != null) {
             vo.setSecDesVO(DmEnvParamSecDesVO.builder()//
                 .openSec(true)
@@ -199,22 +195,22 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
     }
 
     @Override
-    public List<RdpDsEnvDO> queryListByParamKeyValue(String puid, String paramKey, String paramValue) {
-        List<RdpEnvParamDO> params = this.rdpEnvParam.queryByParamKeySet(puid, Collections.singletonList(paramKey));
+    public List<DmSysEnvDO> queryListByParamKeyValue(String puid, String paramKey, String paramValue) {
+        List<DmSysEnvParamDO> params = this.systemDal.envParamMapper().queryByParamKeySet(puid, Collections.singletonList(paramKey));
         List<Long> collect = params.stream().filter(p -> {
             return StringUtils.equals(p.getConfigValue(), paramValue);
-        }).map(RdpEnvParamDO::getEnvId).collect(Collectors.toList());
+        }).map(DmSysEnvParamDO::getEnvId).collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(collect)) {
             return Collections.emptyList();
         }
 
-        return this.rdpDsEnvMapper.queryListByUidAndId(puid, collect);
+        return this.systemDal.envMapper().queryListByUidAndId(puid, collect);
     }
 
     @Override
-    public List<RdpDsEnvDO> queryListByParamKey(String puid, String paramKey) {
-        return this.rdpDsEnvMapper.queryListByParameterKey(puid, paramKey);
+    public List<DmSysEnvDO> queryListByParamKey(String puid, String paramKey) {
+        return this.systemDal.envMapper().queryListByParameterKey(puid, paramKey);
     }
 
     //
@@ -223,7 +219,7 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
 
     @Override
     public String queryParam(String ownerUid, long envID, String paramKey) {
-        RdpEnvParamDO param = this.rdpEnvParam.queryByParamKey(ownerUid, paramKey, envID);
+        DmSysEnvParamDO param = this.systemDal.envParamMapper().queryByParamKey(ownerUid, paramKey, envID);
         if (param == null) {
             return null;
         } else {
@@ -249,8 +245,8 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
     private static DmEnvParamTicketDesVO innerTicket() {
         return DmEnvParamTicketDesVO.builder()//
             .openTicket(true)
-            .type(RdpApprovalType.Internal.name())
-            .typeI18n(DmI18nUtils.getMessage(RdpApprovalType.Internal.getI18nKey()))
+            .type(ApprovalType.Internal.name())
+            .typeI18n(DmI18nUtils.getMessage(ApprovalType.Internal.getI18nKey()))
             .templateId(ApprovalFlowService.innerTemplate().getTemplateIdentity())
             .templateName(ApprovalFlowService.innerTemplate().getApproTemplateName())
             .build();
@@ -270,13 +266,13 @@ public class DmEnvParamServiceImpl implements DmEnvParamService {
         DmEnvParamTicketDesVO tVO = DmEnvParamTicketDesVO.builder()//
             .openTicket(true)
             .type(providerCode)
-            .typeI18n(DmI18nUtils.getMessage(RdpApprovalType.Internal.valueOfCode(providerCode).getI18nKey()))
+            .typeI18n(DmI18nUtils.getMessage(ApprovalType.Internal.valueOfCode(providerCode).getI18nKey()))
             .templateId(ticketMO.getTemplateId())
             .templateName(ticketMO.getTemplateName())
             .build();
 
-        DmApprovalCacheTemplateDO templateDO = this.rdpCacheApproTemplateMapper.queryByUidAndTemId(ownerUid, ticketMO.getTemplateId());
-        if (templateDO == null && !RdpApprovalType.Internal.name().equals(providerCode)) {
+        DmApprovalTemplateDO templateDO = this.approvalDal.templateMapper().queryByUidAndTemId(ownerUid, ticketMO.getTemplateId());
+        if (templateDO == null && !ApprovalType.Internal.name().equals(providerCode)) {
             tVO.setDelete(true);
         }
         return tVO;

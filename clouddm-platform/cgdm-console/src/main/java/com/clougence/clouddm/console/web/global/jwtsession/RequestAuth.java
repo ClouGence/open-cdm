@@ -6,6 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 
 /**
  * Attention!!! The annotation only support method that return ResponseData type

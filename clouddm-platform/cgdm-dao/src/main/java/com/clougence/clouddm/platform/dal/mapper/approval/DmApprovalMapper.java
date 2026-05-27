@@ -33,11 +33,7 @@ import com.clougence.clouddm.platform.dal.model.approval.ArgApprovalQueryObj;
 */
 public interface DmApprovalMapper extends BaseMapper<DmApprovalDO> {
 
-    void updateTicketStatus(long ticketId, String ticketStatus, String statusMessage);
-
-    default void updateTicketStatusByEnum(long ticketId, ApprovalStatus ticketStatus, String statusMessage) {
-        this.updateTicketStatus(ticketId, ticketStatus.name(), statusMessage);
-    }
+    void updateStatusByEnum(@Param("ticketId") long ticketId, @Param("ticketStatus") ApprovalStatus ticketStatus, @Param("statusMessage") String statusMessage);
 
     IPage<DmApprovalDO> listTicketByConditionAndPage(Page page, @Param("ticketQuery") ArgApprovalQueryObj ticketQueryObject, @Param("puid") String puid);
 

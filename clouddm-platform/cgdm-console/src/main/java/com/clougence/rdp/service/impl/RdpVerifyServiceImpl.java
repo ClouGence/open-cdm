@@ -15,7 +15,9 @@
  */
 package com.clougence.rdp.service.impl;
 
-import static com.clougence.clouddm.console.web.constants.VerifyType.SMS_VERIFY_CODE;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+
+import static com.clougence.clouddm.platform.dal.model.auth.VerifyType.SMS_VERIFY_CODE;
 
 import java.time.Duration;
 import java.util.Calendar;
@@ -36,22 +38,19 @@ import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.AlarmLevel;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.GlobalDeploySite;
 import com.clougence.clouddm.console.web.component.alert.model.SendMsgResult;
-import com.clougence.clouddm.console.web.constants.VerifyCodeType;
-import com.clougence.clouddm.console.web.constants.VerifyType;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
-import com.clougence.clouddm.console.web.dal.enumeration.AreaCode;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.model.fo.VerifyMO;
 import com.clougence.clouddm.console.web.util.NamedThreadFactory;
 import com.clougence.clouddm.console.web.util.RandomStrUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
-import com.clougence.rdp.constant.ConsoleErrorCode;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpVerifyMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
-import com.clougence.clouddm.console.web.dal.model.RdpVerifyDO;
-import com.clougence.rdp.global.exception.ConsoleRuntimeException;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.api.common.exception.ConsoleErrorCode;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthVerifyDO;
+import com.clougence.clouddm.api.common.exception.ConsoleRuntimeException;
 import com.clougence.rdp.service.RdpUserAlertService;
 import com.clougence.rdp.service.RdpVerifyService;
 import com.clougence.rdp.service.model.CheckVerifyMO;
@@ -72,11 +71,10 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
     @Autowired
     private DmConsoleConfig     rdpConfig;
     @Resource
-    private RdpVerifyMapper     rdpVerifyMapper;
+    private AuthDal authDal;
+
     @Resource
     private RdpUserAlertService rdpUserAlertService;
-    @Resource
-    private RdpUserMapper       rdpUserMapper;
 
     @Override
     public void init() {
@@ -86,7 +84,7 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(new Date());
                 calendar.add(Calendar.MINUTE, -10);
-                rdpVerifyMapper.deleteOldData(calendar.getTime());
+                authDal.verifyMapper().deleteOldData(calendar.getTime());
                 log.info("[Rdp Verify Service] Verify info cleaned.");
             } catch (Throwable e) {
                 log.error("Clean verify info failed, but ignore. msg:" + ExceptionUtils.getRootCauseMessage(e), e);
@@ -101,16 +99,15 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
 
     @Override
     public void dropUserVerify(String uid) {
-        rdpVerifyMapper.deleteByUid(uid);
+        authDal.verifyMapper().deleteByUid(uid);
     }
 
     @Override
     public void sendLoginVerifyCode(VerifyMO verifyData) {
-        RdpVerifyDO verifyRecord;
+        DmAuthVerifyDO verifyRecord;
         switch (verifyData.getVerifyType()) {
             case SMS_VERIFY_CODE:
-                verifyRecord = initGetVerifyByPhone(verifyData.isSub(), verifyData.getAccount(), SMS_VERIFY_CODE, VerifyCodeType.LOGIN, verifyData.getPhoneNumber(), verifyData
-                    .getPhoneAreaCode());
+                verifyRecord = initGetVerifyByPhone(verifyData.isSub(), verifyData.getAccount(), SMS_VERIFY_CODE, VerifyCodeType.LOGIN, verifyData.getPhoneNumber());
                 break;
             case EMAIL_VERIFY_CODE:
                 verifyRecord = initGetVerifyByMail(verifyData.isSub(), verifyData.getAccount(), VerifyType.EMAIL_VERIFY_CODE, VerifyCodeType.LOGIN, verifyData.getEmail());
@@ -126,7 +123,7 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
     @Override
     public void sendSsoBindVerifyCode(VerifyMO verifyData) {
         verifyPhoneEmpty(verifyData.getPhoneNumber());
-        RdpVerifyDO verifyRecord = initGetVerifyByPhone(false, null, SMS_VERIFY_CODE, VerifyCodeType.SSO_REGISTER_BIND, verifyData.getPhoneNumber(), verifyData.getPhoneAreaCode());
+        DmAuthVerifyDO verifyRecord = initGetVerifyByPhone(false, null, SMS_VERIFY_CODE, VerifyCodeType.SSO_REGISTER_BIND, verifyData.getPhoneNumber());
         String code = generateCodeAndUpdateDbRecord(verifyRecord.getId());
         sendCode(code, null, fetchEmailMsg(verifyData.getVerifyCodeType(), null, false), fetchEmailMsg(verifyData.getVerifyCodeType(), code, true), verifyRecord);
     }
@@ -134,21 +131,21 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
     @Override
     public void sendRegisterVerifyCode(VerifyMO verifyData) {
         // 1. verify phone or email whether is registered
-        RdpVerifyDO verifyRecord;
+        DmAuthVerifyDO verifyRecord;
         switch (verifyData.getVerifyType()) {
             case SMS_VERIFY_CODE:
                 verifyPhoneEmpty(verifyData.getPhoneNumber());
-                RdpUserDO userDOByPhone = rdpUserMapper.queryPrimaryByPhone(verifyData.getPhoneNumber());
+                DmAuthUserDO userDOByPhone = authDal.userMapper().queryPrimaryByPhone(verifyData.getPhoneNumber());
                 if (userDOByPhone != null) {
                     throw new ConsoleRuntimeException(ConsoleErrorCode.ALREADY_REGISTER, verifyData.getPhoneNumber());
                 }
 
                 // 2. check whether try to register other time , if not ,insert a verify DO
-                verifyRecord = initGetVerifyByPhone(false, null, SMS_VERIFY_CODE, VerifyCodeType.REGISTER, verifyData.getPhoneNumber(), verifyData.getPhoneAreaCode());
+                verifyRecord = initGetVerifyByPhone(false, null, SMS_VERIFY_CODE, VerifyCodeType.REGISTER, verifyData.getPhoneNumber());
                 break;
             case EMAIL_VERIFY_CODE:
                 verifyEmailEmpty(verifyData.getEmail());
-                RdpUserDO userDOByEmail = rdpUserMapper.queryPrimaryByEmail(verifyData.getEmail());
+                DmAuthUserDO userDOByEmail = authDal.userMapper().queryPrimaryByEmail(verifyData.getEmail());
                 if (userDOByEmail != null) {
                     throw new ConsoleRuntimeException(ConsoleErrorCode.ALREADY_REGISTER, verifyData.getEmail());
                 }
@@ -167,17 +164,17 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
     @Override
     public void sendResetPasswordVerifyCode(VerifyMO verifyData) {
         if (verifyData.isSub()) {
-            RdpUserDO subUser = this.rdpUserMapper.queryBySubAccount(verifyData.getAccount());
+            DmAuthUserDO subUser = this.authDal.userMapper().queryBySubAccount(verifyData.getAccount());
             if (subUser != null && !StringUtils.equals(subUser.getPhone(), verifyData.getPhoneNumber())) {
                 throw new ConsoleRuntimeException(ConsoleErrorCode.VERIFY_PHONE_DISAGREE_FIRST);
             }
         }
 
-        RdpVerifyDO verifyRecord;
+        DmAuthVerifyDO verifyRecord;
         switch (verifyData.getVerifyType()) {
             case SMS_VERIFY_CODE:
                 verifyRecord = initGetVerifyByPhone(verifyData.isSub(), verifyData.getAccount(), SMS_VERIFY_CODE, VerifyCodeType.RESET_PASSWORD, verifyData
-                    .getPhoneNumber(), verifyData.getPhoneAreaCode());
+                    .getPhoneNumber());
                 break;
             case EMAIL_VERIFY_CODE:
                 verifyRecord = initGetVerifyByMail(verifyData.isSub(), verifyData.getAccount(), VerifyType.EMAIL_VERIFY_CODE, VerifyCodeType.RESET_PASSWORD, verifyData.getEmail());
@@ -190,42 +187,32 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
         sendCode(code, null, fetchEmailMsg(verifyData.getVerifyCodeType(), null, false), fetchEmailMsg(verifyData.getVerifyCodeType(), code, true), verifyRecord);
     }
 
-    private RdpVerifyDO initGetVerifyByPhone(boolean isSubAccount, String subAccount, VerifyType verifyType, VerifyCodeType codeType, String phoneNumber, AreaCode phoneAreaCode) {
+    private DmAuthVerifyDO initGetVerifyByPhone(boolean isSubAccount, String subAccount, VerifyType verifyType, VerifyCodeType codeType, String phoneNumber) {
         if (VerifyCodeType.REGISTER != codeType && VerifyCodeType.SSO_REGISTER_BIND != codeType) {
             verifyPhoneRegistered(isSubAccount, subAccount, phoneNumber);
         }
 
-        RdpVerifyDO verifyRecord;
-        RdpUserDO user;
+        DmAuthVerifyDO verifyRecord;
+        DmAuthUserDO user;
         if (isSubAccount) {
-            user = this.rdpUserMapper.querySubAccountByPhoneAndAccount(phoneNumber, subAccount);
-            verifyRecord = this.rdpVerifyMapper.queryByUidAndType(verifyType, codeType, user.getUid());
+            user = this.authDal.userMapper().querySubAccountByPhoneAndAccount(phoneNumber, subAccount);
+            verifyRecord = this.authDal.verifyMapper().queryByUidAndType(verifyType, codeType, user.getUid());
         } else {
-            user = this.rdpUserMapper.queryPrimaryByPhone(phoneNumber);
-            verifyRecord = this.rdpVerifyMapper.queryByPrimaryPhone(verifyType, codeType, phoneNumber);
-        }
-
-        if (phoneAreaCode == null && user != null) {
-            phoneAreaCode = user.getPhoneAreaCode();
-        }
-
-        //if user not set phone area code, just as in china
-        if (phoneAreaCode == null) {
-            phoneAreaCode = AreaCode.CHINA;
+            user = this.authDal.userMapper().queryPrimaryByPhone(phoneNumber);
+            verifyRecord = this.authDal.verifyMapper().queryByPrimaryPhone(verifyType, codeType, phoneNumber);
         }
 
         if (verifyRecord == null) {
-            verifyRecord = new RdpVerifyDO();
+            verifyRecord = new DmAuthVerifyDO();
             verifyRecord.setAccountType(isSubAccount ? AccountType.SUB_ACCOUNT : AccountType.PRIMARY_ACCOUNT);
             verifyRecord.setPhone(phoneNumber);
-            verifyRecord.setPhoneAreaCode(phoneAreaCode);
             verifyRecord.setVerifyCodeType(codeType);
             verifyRecord.setVerifyType(verifyType);
             verifyRecord.setUid(user == null ? "" : user.getUid());
 
-            rdpVerifyMapper.insert(verifyRecord);
+            authDal.verifyMapper().insert(verifyRecord);
 
-            return initGetVerifyByPhone(isSubAccount, subAccount, verifyType, codeType, phoneNumber, phoneAreaCode);
+            return initGetVerifyByPhone(isSubAccount, subAccount, verifyType, codeType, phoneNumber);
         }
 
         checkFailTimesAndDate(verifyRecord);
@@ -236,31 +223,31 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
         return verifyRecord;
     }
 
-    private RdpVerifyDO initGetVerifyByMail(boolean isSubAccount, String subAccount, VerifyType verifyType, VerifyCodeType codeType, String email) {
+    private DmAuthVerifyDO initGetVerifyByMail(boolean isSubAccount, String subAccount, VerifyType verifyType, VerifyCodeType codeType, String email) {
         if (VerifyCodeType.REGISTER != codeType && VerifyCodeType.SSO_REGISTER_BIND != codeType) {
             verifyEmailRegistered(isSubAccount, subAccount, email);
         }
 
-        RdpVerifyDO verifyRecord;
+        DmAuthVerifyDO verifyRecord;
 
-        RdpUserDO user;
+        DmAuthUserDO user;
         if (isSubAccount) {
-            user = this.rdpUserMapper.querySubAccountByEmailAndAccount(email, subAccount);
-            verifyRecord = this.rdpVerifyMapper.queryByUidAndType(verifyType, codeType, user.getUid());
+            user = this.authDal.userMapper().querySubAccountByEmailAndAccount(email, subAccount);
+            verifyRecord = this.authDal.verifyMapper().queryByUidAndType(verifyType, codeType, user.getUid());
         } else {
-            user = this.rdpUserMapper.queryPrimaryByEmail(email);
-            verifyRecord = this.rdpVerifyMapper.queryByPrimaryEmail(verifyType, codeType, email);
+            user = this.authDal.userMapper().queryPrimaryByEmail(email);
+            verifyRecord = this.authDal.verifyMapper().queryByPrimaryEmail(verifyType, codeType, email);
         }
 
         if (verifyRecord == null) {
-            verifyRecord = new RdpVerifyDO();
+            verifyRecord = new DmAuthVerifyDO();
             verifyRecord.setAccountType(isSubAccount ? AccountType.SUB_ACCOUNT : AccountType.PRIMARY_ACCOUNT);
             verifyRecord.setEmail(email);
             verifyRecord.setVerifyCodeType(codeType);
             verifyRecord.setVerifyType(verifyType);
             verifyRecord.setUid(user == null ? "" : user.getUid());
 
-            rdpVerifyMapper.insert(verifyRecord);
+            authDal.verifyMapper().insert(verifyRecord);
 
             return initGetVerifyByMail(isSubAccount, subAccount, verifyType, codeType, email);
         }
@@ -275,28 +262,22 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
 
     @Override
     public void sendSmsVerifyCode(String uid, VerifyCodeType verifyCodeType, String smsTemplateCode) {
-        RdpUserDO userDO = rdpUserMapper.queryByUid(uid);
-        AreaCode phoneAreaCode = userDO.getPhoneAreaCode();
-        if (phoneAreaCode == null) {
-            phoneAreaCode = AreaCode.CHINA;
-        }
+        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
+        verifyPhoneEmpty(userDO.getPhone());
 
-        verifyPhoneAndAreaCode(userDO.getPhone(), phoneAreaCode);
-
-        RdpVerifyDO verifyRecord = rdpVerifyMapper.queryByUidAndType(VerifyType.SMS_VERIFY_CODE, verifyCodeType, uid);
+        DmAuthVerifyDO verifyRecord = authDal.verifyMapper().queryByUidAndType(VerifyType.SMS_VERIFY_CODE, verifyCodeType, uid);
 
         if (verifyRecord == null) {
-            RdpVerifyDO verifyDO = new RdpVerifyDO();
+            DmAuthVerifyDO verifyDO = new DmAuthVerifyDO();
             verifyDO.setAccountType(userDO.getAccountType());
             verifyDO.setUid(uid);
             verifyDO.setPhone(userDO.getPhone());
-            verifyDO.setPhoneAreaCode(phoneAreaCode);
             verifyDO.setVerifyCodeType(verifyCodeType);
             verifyDO.setVerifyType(SMS_VERIFY_CODE);
 
-            rdpVerifyMapper.insert(verifyDO);
+            authDal.verifyMapper().insert(verifyDO);
 
-            verifyRecord = rdpVerifyMapper.queryByUidAndType(VerifyType.SMS_VERIFY_CODE, verifyCodeType, uid);
+            verifyRecord = authDal.verifyMapper().queryByUidAndType(VerifyType.SMS_VERIFY_CODE, verifyCodeType, uid);
         }
 
         checkFailTimesAndDate(verifyRecord);
@@ -308,19 +289,9 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
         sendCode(code, smsTemplateCode, null, null, verifyRecord);
     }
 
-    protected void verifyPhoneAndAreaCode(String phoneNumber, AreaCode phoneAreaCode) {
-        if (StringUtils.isBlank(phoneNumber) || phoneAreaCode == null) {
-            throw new IllegalArgumentException("phoneNumber and phoneAreaCode can not be null.");
-        }
-
-        if (GlobalDeploySite.currDeploySite == GlobalDeploySite.china && phoneAreaCode != AreaCode.CHINA) {
-            throw new RuntimeException("China site not support register without a chinese phone.");
-        }
-    }
-
     @Override
     public void sendEmailVerifyCode(String uid, VerifyCodeType verifyCodeType) {
-        RdpUserDO userDO = rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
         if (userDO == null) {
             throw new IllegalArgumentException("user not exist.");
         }
@@ -328,22 +299,22 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
         boolean isSubAccount = (userDO.getAccountType() != null && userDO.getAccountType() == AccountType.SUB_ACCOUNT);
         verifyEmailRegistered(isSubAccount, userDO.getSubAccount(), userDO.getEmail());
 
-        RdpVerifyDO verifyRecord;
+        DmAuthVerifyDO verifyRecord;
         if (isSubAccount) {
-            verifyRecord = rdpVerifyMapper.queryByUidAndType(VerifyType.EMAIL_VERIFY_CODE, verifyCodeType, userDO.getUid());
+            verifyRecord = authDal.verifyMapper().queryByUidAndType(VerifyType.EMAIL_VERIFY_CODE, verifyCodeType, userDO.getUid());
         } else {
-            verifyRecord = rdpVerifyMapper.queryByPrimaryEmail(VerifyType.EMAIL_VERIFY_CODE, verifyCodeType, userDO.getEmail());
+            verifyRecord = authDal.verifyMapper().queryByPrimaryEmail(VerifyType.EMAIL_VERIFY_CODE, verifyCodeType, userDO.getEmail());
         }
 
         if (verifyRecord == null) {
-            RdpVerifyDO verifyDO = new RdpVerifyDO();
+            DmAuthVerifyDO verifyDO = new DmAuthVerifyDO();
             verifyDO.setEmail(userDO.getEmail());
             verifyDO.setAccountType(userDO.getAccountType());
             verifyDO.setVerifyCodeType(verifyCodeType);
             verifyDO.setVerifyType(VerifyType.EMAIL_VERIFY_CODE);
             verifyDO.setUid(uid);
-            rdpVerifyMapper.insert(verifyDO);
-            verifyRecord = rdpVerifyMapper.queryByPrimaryEmail(VerifyType.EMAIL_VERIFY_CODE, verifyCodeType, userDO.getEmail());
+            authDal.verifyMapper().insert(verifyDO);
+            verifyRecord = authDal.verifyMapper().queryByPrimaryEmail(VerifyType.EMAIL_VERIFY_CODE, verifyCodeType, userDO.getEmail());
         }
 
         checkFailTimesAndDate(verifyRecord);
@@ -355,15 +326,10 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
         sendCode(code, null, fetchEmailMsg(verifyCodeType, null, false), fetchEmailMsg(verifyCodeType, code, true), verifyRecord);
     }
 
-    protected void sendCode(String code, String smsTemplateCode, String emailSubject, String emailContent, RdpVerifyDO verifyDO) {
+    protected void sendCode(String code, String smsTemplateCode, String emailSubject, String emailContent, DmAuthVerifyDO verifyDO) {
         switch (verifyDO.getVerifyType()) {
             case SMS_VERIFY_CODE: {
-                AreaCode phoneAreaCode = verifyDO.getPhoneAreaCode();
-                if (phoneAreaCode == null) {
-                    phoneAreaCode = AreaCode.CHINA;
-                }
-
-                log.info("{} verify code persisted for phone {}{} without sending sms.", verifyDO.getVerifyCodeType(), phoneAreaCode.getCode(), verifyDO.getPhone());
+                log.info("{} verify code persisted for phone {} without sending sms.", verifyDO.getVerifyCodeType(), verifyDO.getPhone());
                 break;
             }
             case EMAIL_VERIFY_CODE: {
@@ -462,36 +428,31 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
             throw new ConsoleRuntimeException(ConsoleErrorCode.EMPTY_VERIFY_CODE);
         }
 
-        RdpVerifyDO verifyRecord;
+        DmAuthVerifyDO verifyRecord;
         switch (verifyData.getVerifyType()) {
             case SMS_VERIFY_CODE:
                 if (StringUtils.isNotBlank(verifyData.getUid())) {
-                    verifyRecord = rdpVerifyMapper.queryByUidAndType(SMS_VERIFY_CODE, verifyData.getVerifyCodeType(), verifyData.getUid());
+                    verifyRecord = authDal.verifyMapper().queryByUidAndType(SMS_VERIFY_CODE, verifyData.getVerifyCodeType(), verifyData.getUid());
                 } else {
-                    verifyPhoneAndAreaCode(verifyData.getPhoneNumber(), verifyData.getPhoneAreaCode());
+                    verifyPhoneEmpty(verifyData.getPhoneNumber());
                     if (verifyData.isSubAccount()) {
-                        RdpUserDO subUser = this.rdpUserMapper.querySubAccountByPhoneAndAccount(verifyData.getPhoneNumber(), verifyData.getSubAccountName());
-                        verifyRecord = rdpVerifyMapper.queryByUidAndType(SMS_VERIFY_CODE, verifyData.getVerifyCodeType(), subUser.getUid());
+                        DmAuthUserDO subUser = this.authDal.userMapper().querySubAccountByPhoneAndAccount(verifyData.getPhoneNumber(), verifyData.getSubAccountName());
+                        verifyRecord = authDal.verifyMapper().queryByUidAndType(SMS_VERIFY_CODE, verifyData.getVerifyCodeType(), subUser.getUid());
                     } else {
-                        verifyRecord = rdpVerifyMapper
-                            .queryByPrimaryPhoneAndAreaCode(SMS_VERIFY_CODE, verifyData.getVerifyCodeType(), verifyData.getPhoneNumber(), verifyData.getPhoneAreaCode());
-                        if (verifyRecord == null) {
-                            // history register phone no have area code
-                            verifyRecord = rdpVerifyMapper.queryByPrimaryPhone(SMS_VERIFY_CODE, verifyData.getVerifyCodeType(), verifyData.getPhoneNumber());
-                        }
+                        verifyRecord = authDal.verifyMapper().queryByPrimaryPhone(SMS_VERIFY_CODE, verifyData.getVerifyCodeType(), verifyData.getPhoneNumber());
                     }
                 }
                 break;
             case EMAIL_VERIFY_CODE:
                 if (StringUtils.isNotBlank(verifyData.getUid())) {
-                    verifyRecord = rdpVerifyMapper.queryByUidAndType(VerifyType.EMAIL_VERIFY_CODE, verifyData.getVerifyCodeType(), verifyData.getUid());
+                    verifyRecord = authDal.verifyMapper().queryByUidAndType(VerifyType.EMAIL_VERIFY_CODE, verifyData.getVerifyCodeType(), verifyData.getUid());
                 } else {
                     verifyEmailEmpty(verifyData.getEmail());
                     if (verifyData.isSubAccount()) {
-                        RdpUserDO subUser = this.rdpUserMapper.querySubAccountByEmailAndAccount(verifyData.getEmail(), verifyData.getSubAccountName());
-                        verifyRecord = rdpVerifyMapper.queryByUidAndType(VerifyType.EMAIL_VERIFY_CODE, verifyData.getVerifyCodeType(), subUser.getUid());
+                        DmAuthUserDO subUser = this.authDal.userMapper().querySubAccountByEmailAndAccount(verifyData.getEmail(), verifyData.getSubAccountName());
+                        verifyRecord = authDal.verifyMapper().queryByUidAndType(VerifyType.EMAIL_VERIFY_CODE, verifyData.getVerifyCodeType(), subUser.getUid());
                     } else {
-                        verifyRecord = rdpVerifyMapper.queryByPrimaryEmail(VerifyType.EMAIL_VERIFY_CODE, verifyData.getVerifyCodeType(), verifyData.getEmail());
+                        verifyRecord = authDal.verifyMapper().queryByPrimaryEmail(VerifyType.EMAIL_VERIFY_CODE, verifyData.getVerifyCodeType(), verifyData.getEmail());
                     }
                 }
                 break;
@@ -506,7 +467,7 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
         checkFailTimesAndDate(verifyRecord);
 
         if (!verifyData.getVerifyCode().equals(verifyRecord.getVerifyCode())) {
-            rdpVerifyMapper.updateFailTimesAndDateById(verifyRecord.getFailTimes() + 1, new Date(), verifyRecord.getId());
+            authDal.verifyMapper().updateFailTimesAndDateById(verifyRecord.getFailTimes() + 1, new Date(), verifyRecord.getId());
             throw new ConsoleRuntimeException(ConsoleErrorCode.VERIFY_CODE_IS_ERROR);
         }
 
@@ -514,88 +475,83 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
             throw new ConsoleRuntimeException(ConsoleErrorCode.VERIFY_CODE_IS_EXPIRED);
         }
 
-        rdpVerifyMapper.updateFailTimesAndDateById(0, null, verifyRecord.getId());
-        rdpVerifyMapper.updateVerifyCodeAndSendTime("", null, verifyRecord.getId());
+        authDal.verifyMapper().updateFailTimesAndDateById(0, null, verifyRecord.getId());
+        authDal.verifyMapper().updateVerifyCodeAndSendTime("", null, verifyRecord.getId());
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void updateEmailOrPhoneByUid(String uid, String phone, String email) {
         if (StringUtils.isNotBlank(phone)) {
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.REGISTER, SMS_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.LOGIN, SMS_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.RESET_PASSWORD, SMS_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.RESET_OP_PASSWORD, SMS_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.FETCH_WORKER_DEPLOY_CORE_CONFIG, SMS_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.FETCH_USER_AK_SK, SMS_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.RESET_USER_AK_SK, SMS_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.PRODUCT_TRIAL, SMS_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.DELETE_JOB, SMS_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.DELETE_POSITION, SMS_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.UPDATE_USER_INFO, SMS_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.UPDATE_USER_PHONE, SMS_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.UPDATE_USER_EMAIL, SMS_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.FETCH_AUTH_CODE, SMS_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.VERIFY_OLD_ACCOUNT, SMS_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.SSO_REGISTER_BIND, SMS_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.REGISTER, SMS_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.LOGIN, SMS_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.RESET_PASSWORD, SMS_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.RESET_OP_PASSWORD, SMS_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.FETCH_WORKER_DEPLOY_CORE_CONFIG, SMS_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.FETCH_USER_AK_SK, SMS_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.RESET_USER_AK_SK, SMS_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.PRODUCT_TRIAL, SMS_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.DELETE_JOB, SMS_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.DELETE_POSITION, SMS_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.UPDATE_USER_INFO, SMS_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.UPDATE_USER_PHONE, SMS_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.UPDATE_USER_EMAIL, SMS_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.FETCH_AUTH_CODE, SMS_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.VERIFY_OLD_ACCOUNT, SMS_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, phone, null, VerifyCodeType.SSO_REGISTER_BIND, SMS_VERIFY_CODE);
         }
 
         if (StringUtils.isNotBlank(email)) {
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.REGISTER, VerifyType.EMAIL_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.LOGIN, VerifyType.EMAIL_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.RESET_PASSWORD, VerifyType.EMAIL_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.RESET_OP_PASSWORD, VerifyType.EMAIL_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.FETCH_WORKER_DEPLOY_CORE_CONFIG, VerifyType.EMAIL_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.FETCH_USER_AK_SK, VerifyType.EMAIL_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.RESET_USER_AK_SK, VerifyType.EMAIL_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.PRODUCT_TRIAL, VerifyType.EMAIL_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.DELETE_JOB, VerifyType.EMAIL_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.DELETE_POSITION, VerifyType.EMAIL_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.UPDATE_USER_INFO, VerifyType.EMAIL_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.UPDATE_USER_PHONE, VerifyType.EMAIL_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.UPDATE_USER_EMAIL, VerifyType.EMAIL_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.FETCH_AUTH_CODE, VerifyType.EMAIL_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.VERIFY_OLD_ACCOUNT, VerifyType.EMAIL_VERIFY_CODE);
-            rdpVerifyMapper.updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.SSO_REGISTER_BIND, VerifyType.EMAIL_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.REGISTER, VerifyType.EMAIL_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.LOGIN, VerifyType.EMAIL_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.RESET_PASSWORD, VerifyType.EMAIL_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.RESET_OP_PASSWORD, VerifyType.EMAIL_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.FETCH_WORKER_DEPLOY_CORE_CONFIG, VerifyType.EMAIL_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.FETCH_USER_AK_SK, VerifyType.EMAIL_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.RESET_USER_AK_SK, VerifyType.EMAIL_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.PRODUCT_TRIAL, VerifyType.EMAIL_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.DELETE_JOB, VerifyType.EMAIL_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.DELETE_POSITION, VerifyType.EMAIL_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.UPDATE_USER_INFO, VerifyType.EMAIL_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.UPDATE_USER_PHONE, VerifyType.EMAIL_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.UPDATE_USER_EMAIL, VerifyType.EMAIL_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.FETCH_AUTH_CODE, VerifyType.EMAIL_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.VERIFY_OLD_ACCOUNT, VerifyType.EMAIL_VERIFY_CODE);
+            authDal.verifyMapper().updatePhoneOrEmailByUid(uid, null, email, VerifyCodeType.SSO_REGISTER_BIND, VerifyType.EMAIL_VERIFY_CODE);
         }
     }
 
     @Override
     public void sendVerifyCodeByChangeAccount(VerifyMO verifyData, String uid, VerifyCodeType verifyCodeType, String smsTemplateCode) {
-        RdpVerifyDO verifyRecord;
+        DmAuthVerifyDO verifyRecord;
         switch (verifyData.getVerifyType()) {
             case SMS_VERIFY_CODE:
-                verifyPhoneAndAreaCode(verifyData.getPhoneNumber(), verifyData.getPhoneAreaCode());
-                verifyRecord = rdpVerifyMapper.queryByPrimaryPhoneAndAreaCode(SMS_VERIFY_CODE, verifyCodeType, verifyData.getPhoneNumber(), verifyData.getPhoneAreaCode());
-                if (verifyRecord == null) {
-                    // history register phone no have area code
-                    verifyRecord = rdpVerifyMapper.queryByPrimaryPhone(SMS_VERIFY_CODE, verifyCodeType, verifyData.getPhoneNumber());
-                }
+                verifyPhoneEmpty(verifyData.getPhoneNumber());
+                verifyRecord = authDal.verifyMapper().queryByPrimaryPhone(SMS_VERIFY_CODE, verifyCodeType, verifyData.getPhoneNumber());
 
                 if (verifyRecord == null) {
-                    RdpVerifyDO verifyDO = new RdpVerifyDO();
+                    DmAuthVerifyDO verifyDO = new DmAuthVerifyDO();
                     verifyDO.setAccountType(AccountType.PRIMARY_ACCOUNT);
                     verifyDO.setUid(uid);
                     verifyDO.setPhone(verifyData.getPhoneNumber());
-                    verifyDO.setPhoneAreaCode(verifyData.getPhoneAreaCode());
                     verifyDO.setVerifyCodeType(verifyCodeType);
                     verifyDO.setVerifyType(SMS_VERIFY_CODE);
 
-                    rdpVerifyMapper.insert(verifyDO);
-                    verifyRecord = rdpVerifyMapper.queryByPrimaryPhoneAndAreaCode(SMS_VERIFY_CODE, verifyCodeType, verifyData.getPhoneNumber(), verifyData.getPhoneAreaCode());
+                    authDal.verifyMapper().insert(verifyDO);
+                    verifyRecord = authDal.verifyMapper().queryByPrimaryPhone(SMS_VERIFY_CODE, verifyCodeType, verifyData.getPhoneNumber());
                 }
                 break;
             case EMAIL_VERIFY_CODE:
-                verifyRecord = rdpVerifyMapper.queryByPrimaryEmail(VerifyType.EMAIL_VERIFY_CODE, verifyCodeType, verifyData.getEmail());
+                verifyRecord = authDal.verifyMapper().queryByPrimaryEmail(VerifyType.EMAIL_VERIFY_CODE, verifyCodeType, verifyData.getEmail());
                 if (verifyRecord == null) {
-                    RdpVerifyDO verifyDO = new RdpVerifyDO();
+                    DmAuthVerifyDO verifyDO = new DmAuthVerifyDO();
                     verifyDO.setAccountType(AccountType.PRIMARY_ACCOUNT);
                     verifyDO.setEmail(verifyData.getEmail());
                     verifyDO.setVerifyCodeType(verifyCodeType);
                     verifyDO.setVerifyType(VerifyType.EMAIL_VERIFY_CODE);
                     verifyDO.setUid(uid);
-                    rdpVerifyMapper.insert(verifyDO);
-                    verifyRecord = rdpVerifyMapper.queryByPrimaryEmail(VerifyType.EMAIL_VERIFY_CODE, verifyCodeType, verifyData.getEmail());
+                    authDal.verifyMapper().insert(verifyDO);
+                    verifyRecord = authDal.verifyMapper().queryByPrimaryEmail(VerifyType.EMAIL_VERIFY_CODE, verifyCodeType, verifyData.getEmail());
                 }
                 break;
             default:
@@ -612,7 +568,7 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
     }
 
     /** judge verify code send frequency to fast */
-    protected boolean judgeCodeFrequencyTooFast(RdpVerifyDO verifyRecord) {
+    protected boolean judgeCodeFrequencyTooFast(DmAuthVerifyDO verifyRecord) {
         if (verifyRecord.getVerifyCodeSendTime() != null) {
             Calendar now = Calendar.getInstance();
             Calendar sendTime = Calendar.getInstance();
@@ -625,7 +581,7 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
     }
 
     /** judge verify code is expired */
-    protected boolean judgeCodeExpired(RdpVerifyDO verifyRecord) {
+    protected boolean judgeCodeExpired(DmAuthVerifyDO verifyRecord) {
         if (verifyRecord.getVerifyCodeSendTime() != null) {
             Calendar now = Calendar.getInstance();
             Calendar sendTime = Calendar.getInstance();
@@ -644,12 +600,12 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
             code = this.rdpConfig.getProductTrialVerifyCode();
         }
 
-        rdpVerifyMapper.updateVerifyCodeAndSendTime(code, new Date(), id);
+        authDal.verifyMapper().updateVerifyCodeAndSendTime(code, new Date(), id);
         return code;
     }
 
     /** check fail times, if exceed the max value and fail datetime less than punish time (or re-count fail times), wait a period time */
-    protected void checkFailTimesAndDate(RdpVerifyDO verifyRecord) {
+    protected void checkFailTimesAndDate(DmAuthVerifyDO verifyRecord) {
         if (verifyRecord.getFailTimes() > MAX_FAIL_TIME) {
             if (verifyRecord.getLastFailDate() != null) {
                 Calendar calendar = Calendar.getInstance();
@@ -662,7 +618,7 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
                         String.valueOf(PUNISH_MINUTES_WHEN_EXCEED_MAX_FAIL_TIME));
                 } else {
                     // reset it
-                    rdpVerifyMapper.updateFailTimesAndDateById(0, null, verifyRecord.getId());
+                    authDal.verifyMapper().updateFailTimesAndDateById(0, null, verifyRecord.getId());
                 }
             } else {
                 throw new RuntimeException("fail time exceed max value but last fail date is empty.phone:" + verifyRecord.getPhone() + ",email:" + verifyRecord.getEmail());
@@ -685,11 +641,11 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
     protected void verifyEmailRegistered(boolean isSub, String subAccount, String email) {
         verifyEmailEmpty(email);
 
-        RdpUserDO userDO;
+        DmAuthUserDO userDO;
         if (isSub) {
-            userDO = rdpUserMapper.querySubAccountByEmailAndAccount(email, subAccount);
+            userDO = authDal.userMapper().querySubAccountByEmailAndAccount(email, subAccount);
         } else {
-            userDO = rdpUserMapper.queryPrimaryByEmail(email);
+            userDO = authDal.userMapper().queryPrimaryByEmail(email);
         }
 
         if (userDO == null) {
@@ -700,11 +656,11 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
     protected void verifyPhoneRegistered(boolean isSub, String subAccount, String phoneNumber) {
         verifyPhoneEmpty(phoneNumber);
 
-        RdpUserDO userDO;
+        DmAuthUserDO userDO;
         if (isSub) {
-            userDO = rdpUserMapper.querySubAccountByPhoneAndAccount(phoneNumber, subAccount);
+            userDO = authDal.userMapper().querySubAccountByPhoneAndAccount(phoneNumber, subAccount);
         } else {
-            userDO = rdpUserMapper.queryPrimaryByPhone(phoneNumber);
+            userDO = authDal.userMapper().queryPrimaryByPhone(phoneNumber);
         }
 
         if (userDO == null) {
@@ -714,7 +670,7 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
 
     @Override
     public ResWebData<Boolean> verifyMail(String uid) {
-        RdpUserDO userDO = this.rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(uid);
         if (userDO == null) {
             throw new IllegalArgumentException("User not exist.");
         }
@@ -722,29 +678,29 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
         boolean isSubAccount = (userDO.getAccountType() != null && userDO.getAccountType() == AccountType.SUB_ACCOUNT);
         verifyEmailRegistered(isSubAccount, userDO.getSubAccount(), userDO.getEmail());
 
-        RdpVerifyDO verifyRecord;
+        DmAuthVerifyDO verifyRecord;
         if (isSubAccount) {
-            verifyRecord = rdpVerifyMapper.queryByUidAndType(VerifyType.EMAIL_VERIFY_CODE, VerifyCodeType.VERIFY_EMAIL_TEST, userDO.getUid());
+            verifyRecord = authDal.verifyMapper().queryByUidAndType(VerifyType.EMAIL_VERIFY_CODE, VerifyCodeType.VERIFY_EMAIL_TEST, userDO.getUid());
         } else {
-            verifyRecord = rdpVerifyMapper.queryByPrimaryEmail(VerifyType.EMAIL_VERIFY_CODE, VerifyCodeType.VERIFY_EMAIL_TEST, userDO.getEmail());
+            verifyRecord = authDal.verifyMapper().queryByPrimaryEmail(VerifyType.EMAIL_VERIFY_CODE, VerifyCodeType.VERIFY_EMAIL_TEST, userDO.getEmail());
         }
 
         if (verifyRecord == null) {
-            RdpVerifyDO verifyDO = new RdpVerifyDO();
+            DmAuthVerifyDO verifyDO = new DmAuthVerifyDO();
             verifyDO.setEmail(userDO.getEmail());
             verifyDO.setAccountType(userDO.getAccountType());
             verifyDO.setVerifyCodeType(VerifyCodeType.VERIFY_EMAIL_TEST);
             verifyDO.setVerifyType(VerifyType.EMAIL_VERIFY_CODE);
             verifyDO.setUid(uid);
-            rdpVerifyMapper.insert(verifyDO);
-            verifyRecord = rdpVerifyMapper.queryByPrimaryEmail(VerifyType.EMAIL_VERIFY_CODE, VerifyCodeType.VERIFY_EMAIL_TEST, userDO.getEmail());
+            authDal.verifyMapper().insert(verifyDO);
+            verifyRecord = authDal.verifyMapper().queryByPrimaryEmail(VerifyType.EMAIL_VERIFY_CODE, VerifyCodeType.VERIFY_EMAIL_TEST, userDO.getEmail());
         }
 
         if (judgeCodeFrequencyTooFast(verifyRecord)) {
             throw new ConsoleRuntimeException(ConsoleErrorCode.VERIFY_EMAIL_FREQUENCY_TOO_FAST);
         }
 
-        rdpVerifyMapper.updateVerifyCodeAndSendTime(null, new Date(), verifyRecord.getId());
+        authDal.verifyMapper().updateVerifyCodeAndSendTime(null, new Date(), verifyRecord.getId());
 
         MailDTO mailDTO = MailDTO.builder()
             .content(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_EMAIL_CONTENT_MSG.name(), GlobalDeploySite.rdpProductName()))
@@ -761,8 +717,8 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
 
     @Override
     public ResWebData<Boolean> verifyIm(String uid, String puid) {
-        RdpUserDO receiver = this.rdpUserMapper.queryByUid(uid);
-        RdpUserDO owner = receiver;
+        DmAuthUserDO receiver = this.authDal.userMapper().queryByUid(uid);
+        DmAuthUserDO owner = receiver;
 
         if (receiver == null) {
             throw new IllegalArgumentException("User not exist.");
@@ -771,30 +727,30 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
         boolean isSubAccount = (receiver.getAccountType() != null && receiver.getAccountType() == AccountType.SUB_ACCOUNT);
         verifyEmailRegistered(isSubAccount, receiver.getSubAccount(), receiver.getEmail());
 
-        RdpVerifyDO verifyRecord;
+        DmAuthVerifyDO verifyRecord;
         if (isSubAccount) {
-            verifyRecord = rdpVerifyMapper.queryByUidAndType(VerifyType.SMS_VERIFY_CODE, VerifyCodeType.VERIFY_IM_TEST, receiver.getUid());
-            owner = this.rdpUserMapper.queryByUid(puid);
+            verifyRecord = authDal.verifyMapper().queryByUidAndType(VerifyType.SMS_VERIFY_CODE, VerifyCodeType.VERIFY_IM_TEST, receiver.getUid());
+            owner = this.authDal.userMapper().queryByUid(puid);
         } else {
-            verifyRecord = rdpVerifyMapper.queryByPrimaryEmail(VerifyType.SMS_VERIFY_CODE, VerifyCodeType.VERIFY_IM_TEST, receiver.getEmail());
+            verifyRecord = authDal.verifyMapper().queryByPrimaryEmail(VerifyType.SMS_VERIFY_CODE, VerifyCodeType.VERIFY_IM_TEST, receiver.getEmail());
         }
 
         if (verifyRecord == null) {
-            RdpVerifyDO verifyDO = new RdpVerifyDO();
+            DmAuthVerifyDO verifyDO = new DmAuthVerifyDO();
             verifyDO.setEmail(receiver.getEmail());
             verifyDO.setAccountType(receiver.getAccountType());
             verifyDO.setVerifyCodeType(VerifyCodeType.VERIFY_IM_TEST);
             verifyDO.setVerifyType(VerifyType.SMS_VERIFY_CODE);
             verifyDO.setUid(uid);
-            rdpVerifyMapper.insert(verifyDO);
-            verifyRecord = rdpVerifyMapper.queryByPrimaryEmail(VerifyType.SMS_VERIFY_CODE, VerifyCodeType.VERIFY_IM_TEST, receiver.getEmail());
+            authDal.verifyMapper().insert(verifyDO);
+            verifyRecord = authDal.verifyMapper().queryByPrimaryEmail(VerifyType.SMS_VERIFY_CODE, VerifyCodeType.VERIFY_IM_TEST, receiver.getEmail());
         }
 
         if (judgeCodeFrequencyTooFast(verifyRecord)) {
             throw new ConsoleRuntimeException(ConsoleErrorCode.VERIFY_IM_FREQUENCY_TOO_FAST);
         }
 
-        rdpVerifyMapper.updateVerifyCodeAndSendTime(null, new Date(), verifyRecord.getId());
+        authDal.verifyMapper().updateVerifyCodeAndSendTime(null, new Date(), verifyRecord.getId());
 
         String msg = DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_IM_CONTENT_MSG.name(), GlobalDeploySite.rdpProductName());
 

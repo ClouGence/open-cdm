@@ -39,14 +39,14 @@ import com.clougence.clouddm.comm.model.RSocketRespDTO;
 import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
 import com.clougence.clouddm.comm.model.rsocket.AsyncRequestFuture;
 import com.clougence.clouddm.comm.util.RSocketRespUtil;
-import com.clougence.clouddm.console.web.constants.DmErrorCode;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.api.common.exception.DmErrorCode;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.MessageUtils;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.utils.*;
 import com.google.common.base.Stopwatch;
 
@@ -62,13 +62,13 @@ public class DmServerSender implements RSocketServerSender {
 
     private final int                   TIMEOUT_MS = 60000;
     private final RSocketRequestManager requestManager;
-    private final DmWorkerMapper        workerMapper;
+    private final SystemDal             systemDal;
     private final ServerSideRegistry    registry;
     private final RSocketSerialization  serialization;
 
-    public DmServerSender(RSocketRequestManager requestManager, DmWorkerMapper workerMapper, ServerSideRegistry registry, RSocketSerialization serialization){
+    public DmServerSender(RSocketRequestManager requestManager, SystemDal systemDal, ServerSideRegistry registry, RSocketSerialization serialization){
         this.requestManager = requestManager;
-        this.workerMapper = workerMapper;
+        this.systemDal = systemDal;
         this.registry = registry;
         this.serialization = serialization;
     }
@@ -79,10 +79,10 @@ public class DmServerSender implements RSocketServerSender {
         try {
             Stopwatch stopwatch = Stopwatch.createStarted();
             MDC.put("module", RSocketLogNames.RSOCKET_SEND_RECV_LOG_NAME);
-            List<DmWorkerDO> statusDOs = getWorkerStatusDOFromDb(clusterId);
-            DmWorkerDO workerStatus = chooseLocalRegisteredWorker(statusDOs);
+            List<DmSysWorkerDO> statusDOs = getWorkerStatusDOFromDb(clusterId);
+            DmSysWorkerDO workerStatus = chooseLocalRegisteredWorker(statusDOs);
             if (workerStatus == null) {
-                DmWorkerDO randomWorker = statusDOs.get(RandomUtils.nextInt(0, statusDOs.size()));
+                DmSysWorkerDO randomWorker = statusDOs.get(RandomUtils.nextInt(0, statusDOs.size()));
                 String errMsg = buildRemoteForwardDisabledMessage(apiFullMethodName, randomWorker.getWorkerSeqNumber());
                 log.warn(errMsg);
                 return RSocketRespUtil.buildError(errMsg);
@@ -151,7 +151,7 @@ public class DmServerSender implements RSocketServerSender {
         try {
             MDC.put("module", RSocketLogNames.RSOCKET_SEND_RECV_LOG_NAME);
             Stopwatch stopwatch = Stopwatch.createStarted();
-            DmWorkerDO workerStatus = workerMapper.queryConnectedByWsn(specifiedWsn);
+            DmSysWorkerDO workerStatus = systemDal.workerMapper().queryConnectedByWsn(specifiedWsn);
             if (workerStatus == null) {
                 String errMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.WORKER_STATUS_OFFLINE_ERROR.name(), specifiedWsn);
                 log.error(errMsg);
@@ -211,14 +211,14 @@ public class DmServerSender implements RSocketServerSender {
         }
     }
 
-    protected List<DmWorkerDO> getWorkerStatusDOFromDb(Long clusterId) {
+    protected List<DmSysWorkerDO> getWorkerStatusDOFromDb(Long clusterId) {
         if (clusterId == null || clusterId <= 0) {
             String errMsg = "cluster id can not be empty.";
             log.error(errMsg);
             throw new IllegalArgumentException(errMsg);
         }
 
-        List<DmWorkerDO> sidecarStatus = this.workerMapper.queryConnectedByClusterId(clusterId);
+        List<DmSysWorkerDO> sidecarStatus = this.systemDal.workerMapper().queryConnectedByClusterId(clusterId);
         if (CollectionUtils.isNotEmpty(sidecarStatus)) {
             return sidecarStatus;
         }
@@ -227,9 +227,9 @@ public class DmServerSender implements RSocketServerSender {
     }
 
     /** get one worker of cluster in local */
-    protected DmWorkerDO chooseLocalRegisteredWorker(List<DmWorkerDO> statusDOs) {
-        DmWorkerDO localBindSidecar = null;
-        for (DmWorkerDO statusDO : statusDOs) {
+    protected DmSysWorkerDO chooseLocalRegisteredWorker(List<DmSysWorkerDO> statusDOs) {
+        DmSysWorkerDO localBindSidecar = null;
+        for (DmSysWorkerDO statusDO : statusDOs) {
             if (registry.getRequesterMap().get(statusDO.getWorkerSeqNumber()) != null) {
                 localBindSidecar = statusDO;
                 break;
@@ -240,7 +240,7 @@ public class DmServerSender implements RSocketServerSender {
     }
 
     /** check whether the sidecar is registered in the local console */
-    private boolean isLocalRegisteredWorker(DmWorkerDO sidecarStatusDO) {
+    private boolean isLocalRegisteredWorker(DmSysWorkerDO sidecarStatusDO) {
         return registry.getRequesterMap().get(sidecarStatusDO.getWorkerSeqNumber()) != null;
     }
 
@@ -263,10 +263,10 @@ public class DmServerSender implements RSocketServerSender {
             log.info("begin to detach all clients...");
 
             for (Map.Entry<String, RSocketRequester> requester : registry.getRequesterMap().entrySet()) {
-                DmWorkerDO statusDO = new DmWorkerDO();
+                DmSysWorkerDO statusDO = new DmSysWorkerDO();
                 statusDO.setWorkerSeqNumber(requester.getKey());
                 statusDO.setConnStatus(WorkerConnStatus.DISCONNECTED);
-                workerMapper.updateWorkerLivenessByWsn(statusDO);
+                systemDal.workerMapper().updateWorkerLivenessByWsn(statusDO);
                 requester.getValue().rsocket().dispose();
             }
 

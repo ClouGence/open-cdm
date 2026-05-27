@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.vo.editor.query;
 
-import com.clougence.clouddm.console.web.dal.enumeration.DataSourceStatus;
+import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;

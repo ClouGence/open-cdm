@@ -23,8 +23,8 @@ import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
 import com.clougence.rdp.component.dskvconfig.RdpDsExtraConfGen;
 import com.clougence.rdp.component.dskvconfig.model.DynamoExtraConfig;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +39,7 @@ public class DynamoExtraConfGen implements RdpDsExtraConfGen {
     }
 
     @Override
-    public DsExtraConfig genDsExtraConfig(RdpDataSourceDO dsDO, List<InitDsKvBaseConfigFO> fos) {
+    public DsExtraConfig genDsExtraConfig(DmDsDO dsDO, List<InitDsKvBaseConfigFO> fos) {
         DynamoExtraConfig config = newDsExtraConfig();
 
         for (InitDsKvBaseConfigFO f : fos) {
@@ -50,9 +50,9 @@ public class DynamoExtraConfGen implements RdpDsExtraConfGen {
     }
 
     @Override
-    public DsExtraConfig genDsExtraConfigFromExist(RdpDataSourceDO dsDO, List<RdpDsKvBaseConfigDO> confs) {
+    public DsExtraConfig genDsExtraConfigFromExist(DmDsDO dsDO, List<DmDsConfigKv4RdpDO> confs) {
         DynamoExtraConfig config = newDsExtraConfig();
-        for (RdpDsKvBaseConfigDO f : confs) {
+        for (DmDsConfigKv4RdpDO f : confs) {
             fillEntry(config, f.getConfigName(), f.getConfigValue());
         }
 

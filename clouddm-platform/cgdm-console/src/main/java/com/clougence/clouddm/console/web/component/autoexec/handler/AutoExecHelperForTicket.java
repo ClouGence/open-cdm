@@ -18,7 +18,7 @@ package com.clougence.clouddm.console.web.component.autoexec.handler;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecHelper;
-import com.clougence.clouddm.console.web.dal.enumeration.SQLJobBizType;
+import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 
 import lombok.extern.slf4j.Slf4j;
 

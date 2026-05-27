@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.tools.FakerPluginConfig;
 import com.clougence.clouddm.console.web.component.asyntask.AsyncTaskConfig;
 import com.clougence.clouddm.console.web.component.asyntask.AsyncTaskScheduleService;
@@ -28,14 +29,9 @@ import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.execute.ToolsService;
 import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
-import com.clougence.clouddm.console.web.constants.I18nDmLabelKeys;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.DmAsyncTaskProcessType;
-import com.clougence.clouddm.console.web.dal.mapper.DmDsConfigMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmDsSessionMapper;
-import com.clougence.clouddm.console.web.dal.model.DmAsyncTaskDO;
-import com.clougence.clouddm.console.web.dal.model.DmDsConfigDO;
-import com.clougence.clouddm.console.web.dal.model.DmDsSessionDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmLabelKeys;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.faker.FakerConfigFO;
 import com.clougence.clouddm.console.web.model.fo.faker.FakerDefFO;
 import com.clougence.clouddm.console.web.model.fo.faker.FakerInitFO;
@@ -47,8 +43,14 @@ import com.clougence.clouddm.console.web.model.vo.faker.FakerPreviewVO;
 import com.clougence.clouddm.console.web.service.asyntask.AsyncTaskService;
 import com.clougence.clouddm.console.web.service.faker.asyntask.FakerAsyncTask;
 import com.clougence.clouddm.console.web.service.faker.asyntask.FakerAsyncTaskConfig;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.UiWebUtil;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.execution.AsyncTaskProcessType;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecSessionDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.tools.ToolRequestDTO;
 import com.clougence.clouddm.sdk.execute.tools.ToolSessionContextDTO;
@@ -57,9 +59,6 @@ import com.clougence.clouddm.sdk.model.faker.*;
 import com.clougence.clouddm.sdk.ui.faker.FakerUiData;
 import com.clougence.clouddm.sdk.ui.faker.FakerUiDefService;
 import com.clougence.clouddm.sdk.ui.faker.FakerUiPanel;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.schema.umi.special.rdb.RdbColumn;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.JsonUtils;
@@ -74,17 +73,15 @@ public class FakerServiceImpl implements FakerService, FakerMethod {
 
     private final Map<String, FakerDefVO> dsUiCache = new ConcurrentHashMap<>();
     @Resource
+    private ExecutionDal                  executionDal;
+    @Resource
+    private DataSourceDal                 dsDal;
+    @Resource
     private AsyncTaskService              asyncTaskService;
     @Resource
     private ToolsService                  toolsService;
     @Resource
     private DsSchemaService               dsSchemaService;
-    @Resource
-    private DmDsConfigMapper              dmDsMapper;
-    @Resource
-    private DmDsSessionMapper             sessionMapper;
-    @Resource
-    private RdpDataSourceMapper           rdpDsMapper;
     @Resource
     private DmDsConfigService             dsConfigService;
     @Resource
@@ -118,7 +115,7 @@ public class FakerServiceImpl implements FakerService, FakerMethod {
         }
 
         String tabName = fo.getTable();
-        RdpDataSourceDO ds = this.rdpDsMapper.selectById(fo.getLevels().get(1));
+        DmDsDO ds = this.dsDal.dsMapper().selectById(fo.getLevels().get(1));
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
 
         Map<String, List<RdbColumn>> columns = this.dsSchemaService.loadColumns(puid, ds, levelsParam, UmiTypes.Table, Collections.singletonList(tabName));
@@ -132,7 +129,7 @@ public class FakerServiceImpl implements FakerService, FakerMethod {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
         }
 
-        RdpDataSourceDO ds = levels.dsDO();
+        DmDsDO ds = levels.dsDO();
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
 
         String yaml = ConfigConvertYamlUtils.foConvertYaml(fo, levelsParam);
@@ -161,7 +158,7 @@ public class FakerServiceImpl implements FakerService, FakerMethod {
             fakerConfig.setUpdateRatio(fo.getUpdateRatio());
         }
 
-        DmDsConfigDO dmDsConfigDO = this.dmDsMapper.queryById(ds.getUid(), ds.getId());
+        DmDsConfigDO dmDsConfigDO = this.dsDal.configMapper().queryById(ds.getUid(), ds.getId());
         ToolSessionContextDTO contextDTO = new ToolSessionContextDTO();
         contextDTO.setSessionId(UUID.randomUUID().toString().replace("-", ""));
         contextDTO.setConfiguration(JsonUtils.toJson(fakerConfig));
@@ -232,7 +229,7 @@ public class FakerServiceImpl implements FakerService, FakerMethod {
 
         config.setConfigData(JsonUtils.toJson(taskConfig));
         config.setShowInDock(true);
-        config.setProcessType(DmAsyncTaskProcessType.PROGRESS);
+        config.setProcessType(AsyncTaskProcessType.PROGRESS);
         config.setHandlerType(FakerAsyncTask.class);
         config.setBizType(FakerPluginConfig.TOOL_NAME);
         config.setBizId(sessionId);
@@ -260,7 +257,7 @@ public class FakerServiceImpl implements FakerService, FakerMethod {
             String result = this.toolsService.tailLog(uid, sessionId, requestDTO);
 
             FakerTailResponseDTO dto = JsonUtils.toObj(result, FakerTailResponseDTO.class);
-            this.sessionMapper.updateAttachment(sessionId, JsonUtils.toJson(dto));
+            this.executionDal.sessionMapper().updateAttachment(sessionId, JsonUtils.toJson(dto));
 
             FakerLogVO vo = new FakerLogVO();
             vo.setSuccess(true);
@@ -285,7 +282,7 @@ public class FakerServiceImpl implements FakerService, FakerMethod {
             vo.setMessage(e.getMessage());
 
             if (this.toolsService.hasSession(uid, sessionId)) {
-                DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(uid, sessionId);
+                DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(uid, sessionId);
                 FakerTailResponseDTO arrach = JsonUtils.toObj(sessionDO.getAttach(), FakerTailResponseDTO.class);
                 vo.setSuccessTotal(arrach.getSuccessTotal());
                 vo.setSuccessInsertTotal(arrach.getSuccessInsertTotal());
@@ -322,14 +319,14 @@ public class FakerServiceImpl implements FakerService, FakerMethod {
     @Override
     public void pause(String uid, String sessionId) {
         this.toolsService.invoke(uid, sessionId, PAUSE, null);
-        DmAsyncTaskDO taskDO = this.asyncTaskService.queryAsyncTaskByBizId(sessionId, FakerPluginConfig.TOOL_NAME);
+        DmExecAsyncTaskDO taskDO = this.asyncTaskService.queryAsyncTaskByBizId(sessionId, FakerPluginConfig.TOOL_NAME);
         scheduleService.pauseTask(taskDO.getId(), "Pause By Manual.");
     }
 
     @Override
     public void resume(String uid, String sessionId) {
         this.toolsService.invoke(uid, sessionId, RESUME, null);
-        DmAsyncTaskDO taskDO = this.asyncTaskService.queryAsyncTaskByBizId(sessionId, FakerPluginConfig.TOOL_NAME);
+        DmExecAsyncTaskDO taskDO = this.asyncTaskService.queryAsyncTaskByBizId(sessionId, FakerPluginConfig.TOOL_NAME);
         scheduleService.resumeTask(taskDO.getId(), "Resume By Manual.");
     }
 
@@ -340,7 +337,7 @@ public class FakerServiceImpl implements FakerService, FakerMethod {
 
     @Override
     public FakerConfigFO fetchFoConfigByToolsSession(String uid, String sessionId) {
-        DmAsyncTaskDO taskDO = this.asyncTaskService.queryAsyncTaskByBizId(sessionId, FakerPluginConfig.TOOL_NAME);
+        DmExecAsyncTaskDO taskDO = this.asyncTaskService.queryAsyncTaskByBizId(sessionId, FakerPluginConfig.TOOL_NAME);
         if (taskDO != null) {
             FakerAsyncTaskConfig config = JsonUtils.toObj(taskDO.getConfigData(), FakerAsyncTaskConfig.class);
             return config.getFoConfig();

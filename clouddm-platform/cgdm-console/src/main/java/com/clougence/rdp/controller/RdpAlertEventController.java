@@ -31,7 +31,7 @@ import com.clougence.clouddm.console.web.model.fo.ListAlertEventsFO;
 import com.clougence.clouddm.console.web.model.vo.AlertEventListVO;
 import com.clougence.clouddm.console.web.model.vo.AlertEventLogVO;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
-import com.clougence.clouddm.console.web.dal.model.RdpAlertEventLogDO;
+import com.clougence.clouddm.platform.dal.model.monitor.DmMonAlertEventLogDO;
 import com.clougence.rdp.service.RdpAlertEventLogService;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.StringUtils;
@@ -63,7 +63,7 @@ public class RdpAlertEventController {
             throw new RuntimeException("Uid is empty.login first.");
         }
 
-        List<RdpAlertEventLogDO> eventLogs = rdpAlertEventLogService
+        List<DmMonAlertEventLogDO> eventLogs = rdpAlertEventLogService
             .listAlertEventLogs(listFO.getLeftTimeMillis(), listFO.getRightTimeMillis(), listFO.getStatus(), null, listFO.getStartId(), listFO.getPageSize());
 
         List<AlertEventLogVO> logVOs = eventLogs.stream().map(logDO -> {

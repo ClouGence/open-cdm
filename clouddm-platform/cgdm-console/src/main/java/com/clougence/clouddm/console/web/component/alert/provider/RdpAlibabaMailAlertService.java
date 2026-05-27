@@ -27,16 +27,16 @@ import com.clougence.clouddm.console.web.component.alert.model.SendMsgResult;
 import com.clougence.clouddm.console.web.component.alert.task.AsyncEmailTaskConfig;
 import com.clougence.clouddm.console.web.component.alert.task.RdpSendEmailTask;
 import com.clougence.clouddm.console.web.component.asyntask.AsyncTaskConfig;
-import com.clougence.clouddm.console.web.dal.enumeration.DmAsyncTaskProcessType;
 import com.clougence.clouddm.console.web.model.vo.RdpUserConfigVO;
 import com.clougence.clouddm.console.web.service.asyntask.AsyncTaskService;
-import com.clougence.rdp.constant.UserConfigTagType;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.execution.AsyncTaskProcessType;
+import com.clougence.clouddm.platform.dal.model.monitor.AlertEventStatus;
+import com.clougence.clouddm.platform.dal.model.monitor.AlertMediaType;
+import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.rdp.service.RdpAlertEventLogService;
 import com.clougence.rdp.service.RdpUserConfigService;
-import com.clougence.rdp.service.enumeration.AlertEventStatus;
-import com.clougence.rdp.service.enumeration.AlertMediaType;
 import com.clougence.rdp.service.model.MailDTO;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
@@ -58,16 +58,14 @@ public class RdpAlibabaMailAlertService implements RdpMailAlertService {
     @Resource
     @Setter
     private AsyncTaskService        asyncTaskService;
-
     @Resource
     @Setter
     private RdpUserConfigService    rdpUserConfigService;
-
     @Resource
     private RdpAlertEventLogService rdpAlertEventLogService;
 
     @Override
-    public SendMsgResult sendMail(MailDTO mailDTO, RdpUserDO sendUser, List<String> receiverUids) {
+    public SendMsgResult sendMail(MailDTO mailDTO, DmAuthUserDO sendUser, List<String> receiverUids) {
         SendMsgResult result;
 
         try {
@@ -88,7 +86,7 @@ public class RdpAlibabaMailAlertService implements RdpMailAlertService {
             taskConfig.setBizType("SEND_EMAIL_TASK");
             taskConfig.setHandlerType(RdpSendEmailTask.class);
             taskConfig.setShowInDock(false);
-            taskConfig.setProcessType(DmAsyncTaskProcessType.PROGRESS);
+            taskConfig.setProcessType(AsyncTaskProcessType.PROGRESS);
 
             AsyncEmailTaskConfig configData = new AsyncEmailTaskConfig();
             configData.setMailDTO(mailDTO);

@@ -19,11 +19,11 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.LifeSpiRequest;
 import com.clougence.clouddm.sdk.approval.ApprovalProvider;
 import com.clougence.clouddm.sdk.approval.ApprovalProviderSpi;
-import com.clougence.rdp.constant.UserConfigTagType;
 import com.clougence.rdp.service.RdpNotifyService;
 import com.clougence.rdp.service.model.UserConfigMO;
 

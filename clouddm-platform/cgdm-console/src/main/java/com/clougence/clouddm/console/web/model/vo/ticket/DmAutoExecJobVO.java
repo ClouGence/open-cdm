@@ -16,8 +16,8 @@
 package com.clougence.clouddm.console.web.model.vo.ticket;
 
 import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
-import com.clougence.clouddm.console.web.dal.enumeration.AutoExecJobStatus;
-import com.clougence.clouddm.console.web.dal.enumeration.DmAutoExecType;
+import com.clougence.clouddm.platform.dal.model.execution.AutoExecJobStatus;
+import com.clougence.clouddm.platform.dal.model.execution.AutoExecType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -29,7 +29,7 @@ public class DmAutoExecJobVO {
     private Long              id;
     private AutoExecJobStatus status;
     private String            lastReportTime;
-    private DmAutoExecType    execType;
+    private AutoExecType    execType;
     private String            execTime;
 
     // use for kill query

@@ -91,7 +91,7 @@
           <!--              {{ $t('wo-de-quan-xian') }}-->
           <!--            </div>-->
           <!--          </div>-->
-          <a v-if="userInfo.bindType === 'OIDC'" class="four block" href="logout">
+          <a v-if="userInfo.bindType === 'OIDC'" class="four block" href="logout" @click="closeWebSocket">
             {{ $t('tui-chu-zhang-hao') }}
           </a>
           <a v-if="userInfo.bindType !== 'OIDC'" class="four block" @click="logout">
@@ -479,13 +479,16 @@ export default {
     hideMenu() {
       this.showMenu = false;
     },
+    closeWebSocket() {
+      if (hasWebSocketInstance()) {
+        webSocketClose();
+      }
+    },
     async logout() {
       const res = await this.$services.logout();
 
       if (res.success) {
-        if (hasWebSocketInstance()) {
-          webSocketClose();
-        }
+        this.closeWebSocket();
         await this.$store.commit(UPDATE_USERINFO);
         // this.$refs.watermark.removeMaskDiv();
         await this.$router.push({ name: 'Login' });

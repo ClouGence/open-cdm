@@ -29,9 +29,9 @@ import java.util.Properties;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.init.constant.InitSeedConstants;
 import com.clougence.clouddm.init.model.InitFieldDef;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.HostUtil;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.ResourcesUtils;

@@ -22,14 +22,14 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.sdk.service.execute.MetaCol;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.schema.umi.special.rdb.RdbColumn;
 import com.clougence.schema.umi.special.rdb.RdbTable;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -43,13 +43,13 @@ import lombok.extern.slf4j.Slf4j;
 public class ConsoleMetaServiceImpl implements MetaService {
 
     @Resource
-    private DsSchemaService     dsSchemaService;
+    private DataSourceDal   dsDal;
     @Resource
-    private RdpDataSourceMapper rdpDataSourceMapper;
+    private DsSchemaService dsSchemaService;
 
     @Override
     public List<MetaCol> fetchTableColumns(String uid, long dsId, Map<UmiTypes, Object> levelsParam, String tableName, int tableId) {
-        RdpDataSourceDO dsDO = rdpDataSourceMapper.queryDsIdentityById(dsId);
+        DmDsDO dsDO = dsDal.dsMapper().queryDsIdentityById(dsId);
         Value value = dsSchemaService.fetchSelectObject(uid, dsDO, levelsParam, tableName);
         if (value == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_TABLE_NOT_EXIST_ERROR.name(), tableName));

@@ -15,7 +15,7 @@
  */
 package com.clougence.rdp.service.model;
 
-import com.clougence.rdp.constant.UserConfigTagType;
+import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
 
 import lombok.Getter;
 import lombok.Setter;

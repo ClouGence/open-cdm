@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
 import com.clougence.rdp.component.dskvconfig.model.FileExtraConfig;
 import com.clougence.rdp.component.dskvconfig.model.SshFileExtraConfig;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,7 @@ public class SshFileExtraConfGen extends FileExtraConfGen {
     }
 
     @Override
-    protected void validate(RdpDataSourceDO dsDo, FileExtraConfig extraConfig) {
+    protected void validate(DmDsDO dsDo, FileExtraConfig extraConfig) {
         super.validate(dsDo, extraConfig);
 
         String dbsJson = extraConfig.getDbsJson();

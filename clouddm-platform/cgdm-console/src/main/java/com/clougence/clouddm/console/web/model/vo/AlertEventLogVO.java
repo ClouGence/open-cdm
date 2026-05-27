@@ -17,9 +17,9 @@ package com.clougence.clouddm.console.web.model.vo;
 
 import java.util.Date;
 
-import com.clougence.clouddm.console.web.dal.model.RdpAlertEventLogDO;
-import com.clougence.rdp.service.enumeration.AlertEventStatus;
-import com.clougence.rdp.service.enumeration.AlertMediaType;
+import com.clougence.clouddm.platform.dal.model.monitor.DmMonAlertEventLogDO;
+import com.clougence.clouddm.platform.dal.model.monitor.AlertEventStatus;
+import com.clougence.clouddm.platform.dal.model.monitor.AlertMediaType;
 
 import lombok.Data;
 
@@ -46,7 +46,7 @@ public class AlertEventLogVO {
      */
     private String           ip;
 
-    public void convertFromDO(RdpAlertEventLogDO logDO) {
+    public void convertFromDO(DmMonAlertEventLogDO logDO) {
         this.id = logDO.getId();
         this.alertEventStatus = logDO.getStatus();
         this.alertMediaType = logDO.getAlertMediaType();

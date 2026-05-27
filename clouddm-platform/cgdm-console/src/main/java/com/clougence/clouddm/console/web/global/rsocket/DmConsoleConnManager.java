@@ -19,8 +19,8 @@ import java.util.List;
 
 import com.clougence.clouddm.comm.component.server.RSocketConnManager;
 import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,18 +30,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DmConsoleConnManager implements RSocketConnManager {
 
-    private final DmWorkerMapper workerMapper;
+    private final SystemDal systemDal;
 
-    public DmConsoleConnManager(DmWorkerMapper workerMapper){
-        this.workerMapper = workerMapper;
+    public DmConsoleConnManager(SystemDal systemDal){
+        this.systemDal = systemDal;
     }
 
     @Override
     public void resetWorkerStatusInDB() {
-        List<DmWorkerDO> statusDOs = workerMapper.queryByConnStatus(WorkerConnStatus.CONNECTED);
-        for (DmWorkerDO statusDO : statusDOs) {
+        List<DmSysWorkerDO> statusDOs = systemDal.workerMapper().queryByConnStatus(WorkerConnStatus.CONNECTED);
+        for (DmSysWorkerDO statusDO : statusDOs) {
             log.info("Console started or restarted, try to reset sidecar " + statusDO.getWorkerIp() + "'s connection status to DISCONNECTED...");
-            workerMapper.updateWorkerConnStatusById(statusDO.getId(), WorkerConnStatus.DISCONNECTED);
+            systemDal.workerMapper().updateWorkerConnStatusById(statusDO.getId(), WorkerConnStatus.DISCONNECTED);
         }
     }
 }

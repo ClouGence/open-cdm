@@ -15,10 +15,10 @@
  */
 package com.clougence.clouddm.console.web.model.vo;
 
-import com.clougence.rdp.constant.KvConfValType;
-import com.clougence.rdp.constant.UserConfigTagType;
-import com.clougence.clouddm.console.web.dal.model.RdpUserKvBaseConfigDO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.model.system.KvConfValType;
+import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -56,7 +56,7 @@ public class RdpUserConfigVO {
 
     private boolean           needCreated;
 
-    public void convertFromDO(RdpUserKvBaseConfigDO config) {
+    public void convertFromDO(DmSysUserConfDO config) {
         if (config.isSecret()) {
             this.setSecret(config.isSecret());
         } else {

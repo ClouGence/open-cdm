@@ -20,11 +20,11 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.console.web.dal.enumeration.DmEventType;
-import com.clougence.clouddm.console.web.dal.mapper.AlertConfigDetailMapper;
-import com.clougence.clouddm.console.web.dal.model.AlertConfigDetailDO;
 import com.clougence.clouddm.console.web.model.fo.cluster.OnOffWorkerAlertFO;
 import com.clougence.clouddm.console.web.model.vo.AlertConfigVO;
+import com.clougence.clouddm.platform.dal.access.MonitorDal;
+import com.clougence.clouddm.platform.dal.model.monitor.DmMonAlertConfigDetailDO;
+import com.clougence.clouddm.platform.dal.model.monitor.EventType;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -35,37 +35,36 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class AlertConfigServiceImpl implements AlertConfigService {
-
     @Resource
-    private AlertConfigDetailMapper detailMapper;
+    private MonitorDal monitorDal;
 
     //    @Override
     //    public List<AlertConfigVO> listSystemAlertConfig() {
-    //        List<AlertConfigDetailDO> configDetails = detailMapper.listByEventTypes(Lists.newArrayList(DmEventType.CONSOLE_EXCEPTION, DmEventType.WORKER_EXCEPTION));
+    //        List<DmMonAlertConfigDetailDO> configDetails = monitorDal.alertConfigDetailMapper().listByEventTypes(Lists.newArrayList(EventType.CONSOLE_EXCEPTION, EventType.WORKER_EXCEPTION));
     //        return convertToAlertConfigVO(configDetails);
     //    }
 
     //    @Override
     //    public void updateByIdAndUid(AlertConfigVO alertConfigVO) {
-    //        AlertConfigDetailDO alertConfigDetailDO = convertToDetailDO(alertConfigVO);
-    //        detailMapper.updateByIdAndUid(alertConfigDetailDO);
+    //        DmMonAlertConfigDetailDO alertConfigDetailDO = convertToDetailDO(alertConfigVO);
+    //        monitorDal.alertConfigDetailMapper().updateByIdAndUid(alertConfigDetailDO);
     //    }
 
     @Override
     public void onOffWorkerAlert(OnOffWorkerAlertFO configFo, String uid) {
-        detailMapper.updateSwitchByWorker(configFo.isPhone(), configFo.isEmail(), configFo.isDingding(), configFo.isSms(), uid, configFo.getWorkerId());
+        monitorDal.alertConfigDetailMapper().updateSwitchByWorker(configFo.isPhone(), configFo.isEmail(), configFo.isDingding(), configFo.isSms(), uid, configFo.getWorkerId());
     }
 
     @Override
-    public void addAlertConfig(List<AlertConfigDetailDO> alertConfigVOList, DmEventType eventType) {
-        for (AlertConfigDetailDO config : alertConfigVOList) {
+    public void addAlertConfig(List<DmMonAlertConfigDetailDO> alertConfigVOList, EventType eventType) {
+        for (DmMonAlertConfigDetailDO config : alertConfigVOList) {
             config.setEventType(eventType);
-            detailMapper.insert(config);
+            monitorDal.alertConfigDetailMapper().insert(config);
         }
     }
 
     @Override
-    public AlertConfigVO convertToAlertConfigVO(AlertConfigDetailDO alertConfigDetailDO) {
+    public AlertConfigVO convertToAlertConfigVO(DmMonAlertConfigDetailDO alertConfigDetailDO) {
         AlertConfigVO vo = new AlertConfigVO();
         //        vo.setId(alertConfigDetailDO.getId());
         vo.setDingding(alertConfigDetailDO.isDingding());
@@ -84,10 +83,10 @@ public class AlertConfigServiceImpl implements AlertConfigService {
 
     //    @Override
     //    public AlertConfigVO getWorkerAlertConfig(long workerId, String uid) {
-    //        AlertConfigDetailDO alertConfigDetailDO = detailMapper.listByWorkerId(workerId);
+    //        DmMonAlertConfigDetailDO alertConfigDetailDO = monitorDal.alertConfigDetailMapper().listByWorkerId(workerId);
     //        if (alertConfigDetailDO == null) {
     //            AlertConfigVO alertConfigVO = workerService.generateDefaultWorkerAlertConfigVO(uid, workerId);
-    //            this.addAlertConfig(Lists.newArrayList(alertConfigVO), DmEventType.WORKER_EXCEPTION);
+    //            this.addAlertConfig(Lists.newArrayList(alertConfigVO), EventType.WORKER_EXCEPTION);
     //            return alertConfigVO;
     //        } else {
     //            return convertToAlertConfigVO(alertConfigDetailDO);
@@ -95,18 +94,18 @@ public class AlertConfigServiceImpl implements AlertConfigService {
     //    }
 
     //    @Override
-    //    public AlertConfigDetailDO getWorkerAlertConfigDO(long workerId) {
-    //        return detailMapper.listByWorkerId(workerId);
+    //    public DmMonAlertConfigDetailDO getWorkerAlertConfigDO(long workerId) {
+    //        return monitorDal.alertConfigDetailMapper().listByWorkerId(workerId);
     //    }
 
     @Override
     public void deleteByWorkerId(long workerId) {
-        detailMapper.deleteByWorkerId(workerId);
+        monitorDal.alertConfigDetailMapper().deleteByWorkerId(workerId);
     }
 
-    private List<AlertConfigVO> convertToAlertConfigVO(List<AlertConfigDetailDO> alertConfigDetailDOList) {
+    private List<AlertConfigVO> convertToAlertConfigVO(List<DmMonAlertConfigDetailDO> alertConfigDetailDOList) {
         List<AlertConfigVO> alertConfigVOList = new ArrayList<>();
-        for (AlertConfigDetailDO alertConfigDetailDO : alertConfigDetailDOList) {
+        for (DmMonAlertConfigDetailDO alertConfigDetailDO : alertConfigDetailDOList) {
             alertConfigVOList.add(convertToAlertConfigVO(alertConfigDetailDO));
         }
         return alertConfigVOList;

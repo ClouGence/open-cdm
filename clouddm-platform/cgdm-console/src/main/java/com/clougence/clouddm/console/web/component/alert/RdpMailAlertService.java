@@ -18,7 +18,7 @@ package com.clougence.clouddm.console.web.component.alert;
 import java.util.List;
 
 import com.clougence.clouddm.console.web.component.alert.model.SendMsgResult;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.rdp.service.model.MailDTO;
 
 /**
@@ -31,5 +31,5 @@ public interface RdpMailAlertService {
      * Send mail to someone. Need to ensure send mail with lock. Every user share
      * the mailSender object
      */
-    SendMsgResult sendMail(MailDTO mailDTO, RdpUserDO sendUser, List<String> receiverUids);
+    SendMsgResult sendMail(MailDTO mailDTO, DmAuthUserDO sendUser, List<String> receiverUids);
 }

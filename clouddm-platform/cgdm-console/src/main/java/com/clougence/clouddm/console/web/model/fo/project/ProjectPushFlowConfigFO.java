@@ -16,9 +16,9 @@
 package com.clougence.clouddm.console.web.model.fo.project;
 
 import com.clougence.clouddm.api.console.autoexec.ErrorStrategy;
-import com.clougence.clouddm.console.web.dal.enumeration.DmChangeApproveStrategy;
-import com.clougence.clouddm.console.web.dal.enumeration.DmChangeCheckStrategy;
-import com.clougence.clouddm.console.web.dal.enumeration.DmChangeExecStrategy;
+import com.clougence.clouddm.platform.dal.model.project.ChangeApproveStrategy;
+import com.clougence.clouddm.platform.dal.model.project.ChangeCheckStrategy;
+import com.clougence.clouddm.platform.dal.model.project.ChangeExecStrategy;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -28,9 +28,9 @@ import lombok.Setter;
 public class ProjectPushFlowConfigFO {
 
     private long                    projectId;
-    private DmChangeCheckStrategy   checkStrategy;
-    private DmChangeApproveStrategy approveStrategy;
-    private DmChangeExecStrategy    executeStrategy;
+    private ChangeCheckStrategy   checkStrategy;
+    private ChangeApproveStrategy approveStrategy;
+    private ChangeExecStrategy    executeStrategy;
     private boolean                 transactional;
     private ErrorStrategy           errorStrategy;
     //private Long                    retryWaitTime;

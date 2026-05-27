@@ -25,6 +25,7 @@ application {
 
 dependencies {
     // project
+    implementation project(':cgdm-dao')
     implementation project(':cgdm-api')
     implementation project(':cgdm-console')
     implementation project(':cgdm-web')

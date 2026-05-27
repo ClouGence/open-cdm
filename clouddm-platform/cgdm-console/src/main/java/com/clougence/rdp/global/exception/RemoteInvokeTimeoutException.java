@@ -15,9 +15,9 @@
  */
 package com.clougence.rdp.global.exception;
 
-import com.clougence.rdp.constant.ConsoleErrorCode;
+import com.clougence.clouddm.api.common.exception.ConsoleErrorCode;
 import com.clougence.rdp.service.enumeration.RSocketSendType;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 
 public class RemoteInvokeTimeoutException extends RuntimeException {
 

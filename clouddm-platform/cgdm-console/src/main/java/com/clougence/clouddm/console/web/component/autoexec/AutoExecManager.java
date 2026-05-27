@@ -15,11 +15,11 @@
  */
 package com.clougence.clouddm.console.web.component.autoexec;
 
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 
 public interface AutoExecManager {
 
     void dispatchJob(Long jobId);
 
-    void stopJob(Long jobId, RdpUserDO user);
+    void stopJob(Long jobId, DmAuthUserDO user);
 }

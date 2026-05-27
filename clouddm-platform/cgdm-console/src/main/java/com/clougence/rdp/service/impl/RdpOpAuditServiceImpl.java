@@ -15,6 +15,11 @@
  */
 package com.clougence.rdp.service.impl;
 
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.access.MonitorDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,15 +29,17 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceFlagEnum;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
-import com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.console.web.model.fo.ExportOpAuditFO;
 import com.clougence.clouddm.console.web.model.vo.*;
-import com.clougence.rdp.constant.operation.AuditType;
-import com.clougence.clouddm.console.web.dal.mapper.*;
-import com.clougence.clouddm.console.web.dal.model.*;
+import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
+import com.clougence.clouddm.platform.dal.model.monitor.*;
+import com.clougence.clouddm.platform.dal.model.datasource.*;
+import com.clougence.clouddm.platform.dal.model.system.*;
+import com.clougence.clouddm.platform.dal.model.auth.*;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.rdp.service.RdpUserService;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.NumberUtils;
@@ -62,25 +69,22 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
     private final Set<String>                     isExistsLogSet = new HashSet<>();
 
     @Resource
-    private RdpOpAuditMapper                      rdpOpAuditMapper;
+    private SystemDal systemDal;
 
     @Resource
-    private RdpUserMapper                         rdpUserMapper;
+    private MonitorDal monitorDal;
+
+    @Resource
+    private DataSourceDal datasourceDal;
+
+    @Resource
+    private AuthDal authDal;
 
     @Resource
     private RdpUserService                        rdpUserService;
 
     @Resource
     private DmConsoleConfig                       rdpConfig;
-
-    @Resource
-    private RdpDataSourceMapper                   dataSourceMapper;
-
-    @Resource
-    private RdpRoleMapper                         roleMapper;
-
-    @Resource
-    private RdpDsEnvMapper                        rdpDsEnvMapper;
 
     @PostConstruct
     private void init() {
@@ -170,11 +174,11 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
     }
 
     @Override
-    public void addOperationAudit(RdpOpAuditDO auditDO) {
+    public void addOperationAudit(DmMonOpAuditDO auditDO) {
         if (StringUtils.isNotBlank(auditDO.getUid()) && StringUtils.isNotBlank(auditDO.getResourceValue())) {
             auditDO.setOperateDate(new Date());
             try {
-                rdpOpAuditMapper.insert(auditDO);
+                monitorDal.opAuditMapper().insert(auditDO);
             } catch (Exception e) {
                 throw new RuntimeException("operation audit data failed.");
             }
@@ -196,7 +200,7 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
             pageSize = MAX_PAGE_SIZE;
         }
 
-        List<RdpOpAuditDO> auditDOs = rdpOpAuditMapper.queryByUidsJoinUrlAuth(puid, securityLevel, type, resType, start, end, startId, pageSize);
+        List<DmMonOpAuditDO> auditDOs = monitorDal.opAuditMapper().queryByUidsJoinUrlAuth(puid, securityLevel, type, resType, start, end, startId, pageSize);
 
         if (auditDOs == null || auditDOs.isEmpty()) {
             return new ArrayList<>();
@@ -209,7 +213,7 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
             return rdpOpAuditVO;
         }).collect(Collectors.toList());
 
-        //        Map<String, String> userNameMap = users.stream().collect(Collectors.toMap(RdpUserDO::getUid, RdpUserDO::getUsername));
+        //        Map<String, String> userNameMap = users.stream().collect(Collectors.toMap(DmAuthUserDO::getUid, DmAuthUserDO::getUsername));
 
         fillExtraVO(auditVOs);
 
@@ -232,8 +236,8 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
     private void logOperation(String puid, String uid, String requestUri, String remoteAddr, Object resId, Object obj, SecurityLevel securityLevel, AuditType type,
                               ResourceType resType, String resourceName) {
         try {
-            RdpUserDO rdpUserDO = rdpUserMapper.queryByUid(uid);
-            RdpOpAuditDO opAuditDO = new RdpOpAuditDO();
+            DmAuthUserDO rdpUserDO = authDal.userMapper().queryByUid(uid);
+            DmMonOpAuditDO opAuditDO = new DmMonOpAuditDO();
             Date currentTime = new Date();
             opAuditDO.setResourceName(resourceName);
             String UUIDKey = genUUIDKey(currentTime);
@@ -284,19 +288,19 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
         }
         switch (type) {
             case DATASOURCE: {
-                RdpDataSourceDO rdpDataSourceDO = dataSourceMapper.queryDsIdentityById(Long.valueOf(resourceIdStr));
+                DmDsDO rdpDataSourceDO = datasourceDal.dsMapper().queryDsIdentityById(Long.valueOf(resourceIdStr));
                 return rdpDataSourceDO.getInstanceId();
             }
             case ROLE: {
-                RdpRoleDO rdpRoleDO = roleMapper.selectById(Long.valueOf(resourceIdStr));
+                DmAuthRoleDO rdpRoleDO = authDal.roleMapper().selectById(Long.valueOf(resourceIdStr));
                 return rdpRoleDO.getRoleName();
             }
             case ACCOUNT: {
-                RdpUserDO rdpUserDO = rdpUserMapper.queryByUid(resourceIdStr);
+                DmAuthUserDO rdpUserDO = authDal.userMapper().queryByUid(resourceIdStr);
                 return rdpUserDO.getUsername();
             }
             case DS_ENV: {
-                RdpDsEnvDO rdpDsEnvDO = rdpDsEnvMapper.selectById(Long.valueOf(resourceIdStr));
+                DmSysEnvDO rdpDsEnvDO = systemDal.envMapper().selectById(Long.valueOf(resourceIdStr));
                 return rdpDsEnvDO.getEnvName();
             }
             default: {
@@ -342,7 +346,14 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
             return new ArrayList<>();
         }
 
-        return auditTypes.stream().map(AuditType::convertAuditType).collect(Collectors.toList());
+        return auditTypes.stream().map(this::convertAuditType).collect(Collectors.toList());
+    }
+
+    private AuditTypeVO convertAuditType(AuditType auditType) {
+        AuditTypeVO auditTypeVO = new AuditTypeVO();
+        auditTypeVO.setAuditType(auditType.name());
+        auditTypeVO.setAlias(DmI18nUtils.getMessage(auditType.name()));
+        return auditTypeVO;
     }
 
     @Override
@@ -357,7 +368,7 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
             pageSize = MAX_PAGE_SIZE;
         }
 
-        List<RdpOpAuditDO> auditDOs = rdpOpAuditMapper.queryByUidJoinUrlAuth(uid, securityLevel, auditType, resourceType, start, end, startId, pageSize);
+        List<DmMonOpAuditDO> auditDOs = monitorDal.opAuditMapper().queryByUidJoinUrlAuth(uid, securityLevel, auditType, resourceType, start, end, startId, pageSize);
 
         if (auditDOs == null || auditDOs.isEmpty()) {
             return new ArrayList<>();
@@ -382,7 +393,7 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
         } else if (pageSize > MAX_PAGE_SIZE) {
             pageSize = MAX_PAGE_SIZE;
         }
-        List<RdpOpAuditDO> auditDOs = rdpOpAuditMapper.queryByCondition(puid, uid, securityLevel, auditType, resourceType, userNameLike, start, end, startId, pageSize);
+        List<DmMonOpAuditDO> auditDOs = monitorDal.opAuditMapper().queryByCondition(puid, uid, securityLevel, auditType, resourceType, userNameLike, start, end, startId, pageSize);
 
         if (auditDOs == null || auditDOs.isEmpty()) {
             return new ArrayList<>();
@@ -401,7 +412,7 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
 
     //    public RdpOpAuditVO fillAuditVO(RdpOpAuditVO vo) {
     //        try {
-    //            RdpUserDO userDO = this.tempCache.get(vo.getUid());
+    //            DmAuthUserDO userDO = this.tempCache.get(vo.getUid());
     //            if (userDO != null) {
     //                vo.setUserName(userDO.getUsername());
     //            }
@@ -453,51 +464,51 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
             }
         }
         //
-        //        List<RdpDataSourceDO> dsList = new ArrayList<>();
-        //        List<RdpRoleDO> roleList = new ArrayList<>();
-        //        List<RdpDsEnvDO> dsEnvList = new ArrayList<>();
-        //        List<RdpUserDO> accountList = new ArrayList<>();
+        //        List<DmDsDO> dsList = new ArrayList<>();
+        //        List<DmAuthRoleDO> roleList = new ArrayList<>();
+        //        List<DmSysEnvDO> dsEnvList = new ArrayList<>();
+        //        List<DmAuthUserDO> accountList = new ArrayList<>();
         //        if (!dataSourceIds.isEmpty()) {
-        //            dsList = dataSourceMapper.listByIdsIncludeDeleted(dataSourceIds);
+        //            dsList = datasourceDal.dsMapper().listByIdsIncludeDeleted(dataSourceIds);
         //        }
         //        if (!roleIds.isEmpty()) {
-        //            roleList = roleMapper.listByIds(new ArrayList<>(roleIds));
+        //            roleList = authDal.roleMapper().listByIds(new ArrayList<>(roleIds));
         //        }
         //        if (!dsEnvIds.isEmpty()) {
-        //            dsEnvList = rdpDsEnvMapper.listByIds(new ArrayList<>(dsEnvIds));
+        //            dsEnvList = systemDal.envMapper().listByIds(new ArrayList<>(dsEnvIds));
         //        }
         //        if (!accountUids.isEmpty()) {
-        //            accountList = rdpUserMapper.listByUids(new ArrayList<>(accountUids));
+        //            accountList = authDal.userMapper().listByUids(new ArrayList<>(accountUids));
         //        }
         //
-        //        Map<Long, RdpDataSourceDO> dsMap;
-        //        Map<Long, RdpRoleDO> roleMap;
-        //        Map<Long, RdpDsEnvDO> dsEnvMap;
-        //        Map<String, RdpUserDO> accountMap;
+        //        Map<Long, DmDsDO> dsMap;
+        //        Map<Long, DmAuthRoleDO> roleMap;
+        //        Map<Long, DmSysEnvDO> dsEnvMap;
+        //        Map<String, DmAuthUserDO> accountMap;
         //        if (CollectionUtils.isNotEmpty(dsList)) {
-        //            dsMap = dsList.stream().collect(Collectors.toMap(RdpDataSourceDO::getId, dsDO -> dsDO));
+        //            dsMap = dsList.stream().collect(Collectors.toMap(DmDsDO::getId, dsDO -> dsDO));
         //        } else {
         //            dsMap = new HashMap<>();
         //        }
         //        if (CollectionUtils.isNotEmpty(roleList)) {
-        //            roleMap = roleList.stream().collect(Collectors.toMap(RdpRoleDO::getId, roleDO -> roleDO));
+        //            roleMap = roleList.stream().collect(Collectors.toMap(DmAuthRoleDO::getId, roleDO -> roleDO));
         //        } else {
         //            roleMap = new HashMap<>();
         //        }
         //        if (CollectionUtils.isNotEmpty(dsEnvList)) {
-        //            dsEnvMap = dsEnvList.stream().collect(Collectors.toMap(RdpDsEnvDO::getId, dsEnvDO -> dsEnvDO));
+        //            dsEnvMap = dsEnvList.stream().collect(Collectors.toMap(DmSysEnvDO::getId, dsEnvDO -> dsEnvDO));
         //        } else {
         //            dsEnvMap = new HashMap<>();
         //        }
         //        if (CollectionUtils.isNotEmpty(accountList)) {
-        //            accountMap = accountList.stream().collect(Collectors.toMap(RdpUserDO::getUid, accountDO -> accountDO));
+        //            accountMap = accountList.stream().collect(Collectors.toMap(DmAuthUserDO::getUid, accountDO -> accountDO));
         //        } else {
         //            accountMap = new HashMap<>();
         //        }
 
         auditVOs.forEach(auditVO -> {
             if (StringUtils.equals(auditVO.getResourceType(), ResourceType.DATASOURCE.name()) && NumberUtils.isNumber(auditVO.getResourceValue())) {
-                //                RdpDataSourceDO dataSourceDO = dsMap.get(Long.parseLong(auditVO.getResourceValue()));
+                //                DmDsDO dataSourceDO = dsMap.get(Long.parseLong(auditVO.getResourceValue()));
                 //                if (dataSourceDO != null) {
                 //                    auditVO.setResourceVO(new ResourceVO(dataSourceDO.getId(), dataSourceDO.getInstanceId(), ResourceFlagEnum.getFlagDesc(ResourceType.DATASOURCE.name())));
                 //                }
@@ -505,14 +516,14 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
                     auditVO.getResourceName(),
                     ResourceFlagEnum.getFlagDesc(ResourceType.DATASOURCE.name())));
             } else if (StringUtils.equals(auditVO.getResourceType(), ResourceType.ACCOUNT.name())) {
-                //                RdpUserDO accountDO = accountMap.get(auditVO.getResourceValue());
+                //                DmAuthUserDO accountDO = accountMap.get(auditVO.getResourceValue());
                 //                if (accountDO != null) {
                 //                    auditVO.setResourceVO(new ResourceVO(accountDO.getId(), accountDO.getUsername(), ResourceFlagEnum.getFlagDesc(ResourceType.ACCOUNT.name())));
                 //                }
                 auditVO.setResourceVO(new ResourceVO(null, auditVO.getResourceName(), ResourceFlagEnum.getFlagDesc(ResourceType.ACCOUNT.name())));
 
             } else if (StringUtils.equals(auditVO.getResourceType(), ResourceType.ROLE.name()) && NumberUtils.isNumber(auditVO.getResourceValue())) {
-                //                RdpRoleDO roleDO = roleMap.get(Long.parseLong(auditVO.getResourceValue()));
+                //                DmAuthRoleDO roleDO = roleMap.get(Long.parseLong(auditVO.getResourceValue()));
                 //                if (roleDO != null) {
                 //                    auditVO.setResourceVO(new ResourceVO(roleDO.getId(), roleDO.getRoleName(), ResourceFlagEnum.getFlagDesc(ResourceType.ROLE.name())));
                 //                }
@@ -520,7 +531,7 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
                     .setResourceVO(new ResourceVO(Long.parseLong(auditVO.getResourceValue()), auditVO.getResourceName(), ResourceFlagEnum.getFlagDesc(ResourceType.ROLE.name())));
                 //                }
             } else if (StringUtils.equals(auditVO.getResourceType(), ResourceType.DS_ENV.name()) && NumberUtils.isNumber(auditVO.getResourceValue())) {
-                //                RdpDsEnvDO dsEnvDO = dsEnvMap.get(Long.parseLong(auditVO.getResourceValue()));
+                //                DmSysEnvDO dsEnvDO = dsEnvMap.get(Long.parseLong(auditVO.getResourceValue()));
                 //                if (dsEnvDO != null) {
                 //                    auditVO.setResourceVO(new ResourceVO(dsEnvDO.getId(), dsEnvDO.getEnvName(), ResourceFlagEnum.getFlagDesc(ResourceType.DS_ENV.name())));
                 //                }
@@ -536,13 +547,13 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
         //        ExportFileType exportType = exportOpAuditFO.getExportType();
         //        if (exportType == ExportFileType.EXCEL) {
         //            String fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_operation_audit" + ".xlsx";
-        //            ExcelExportUtils.exportExcel(exportOpAuditFO, new OpAuditExportDTO(), fileName, "operationAudit", rdpConfig.getMaxExportSize(), response, this::getOpAuditExportDTO);
+        //            ExcelExportUtils.exportExcel(exportOpAuditFO, new RsDmMonOpAuditExportObj(), fileName, "operationAudit", rdpConfig.getMaxExportSize(), response, this::getOpAuditExportDTO);
         //        } else {
         throw new IllegalArgumentException("Unsupported export type : xxxx");
         //        }
     }
 
-    //    private List<OpAuditExportDTO> getOpAuditExportDTO(ExportOpAuditFO exportOpAuditFO, int maxBatch, int currentBatch) {
+    //    private List<RsDmMonOpAuditExportObj> getOpAuditExportDTO(ExportOpAuditFO exportOpAuditFO, int maxBatch, int currentBatch) {
     //        String puid = exportOpAuditFO.getPuid();
     //        String uid = exportOpAuditFO.getUid();
     //        SecurityLevel securityLevel = exportOpAuditFO.getSecurityLevel();
@@ -552,18 +563,18 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
     //        Date start = exportOpAuditFO.getOpStart();
     //        Date end = exportOpAuditFO.getOpEnd();
     //
-    //        List<RdpOpAuditDO> auditDOs = rdpOpAuditMapper
+    //        List<DmMonOpAuditDO> auditDOs = rdpOpAuditMapper
     //            .pageByCondition(puid, uid, securityLevel, auditType, resourceType, userNameLike, start, end, maxBatch * currentBatch, maxBatch);
     //
     //        if (auditDOs == null || auditDOs.isEmpty()) {
     //            return new ArrayList<>();
     //        }
     //
-    //        Set<String> uids = auditDOs.stream().map(RdpOpAuditDO::getUid).collect(Collectors.toSet());
-    //        List<RdpUserDO> users = rdpUserMapper.listByUids(new ArrayList<>(uids));
-    //        Map<String, String> userNameMap = users.stream().collect(Collectors.toMap(RdpUserDO::getUid, RdpUserDO::getUsername));
+    //        Set<String> uids = auditDOs.stream().map(DmMonOpAuditDO::getUid).collect(Collectors.toSet());
+    //        List<DmAuthUserDO> users = authDal.userMapper().listByUids(new ArrayList<>(uids));
+    //        Map<String, String> userNameMap = users.stream().collect(Collectors.toMap(DmAuthUserDO::getUid, DmAuthUserDO::getUsername));
     //        return auditDOs.stream().map(auditDO -> {
-    //            OpAuditExportDTO auditDTO = new OpAuditExportDTO().convertFromDO(auditDO);
+    //            RsDmMonOpAuditExportObj auditDTO = new RsDmMonOpAuditExportObj().convertFromDO(auditDO);
     //            auditDTO.setUserName(userNameMap.get(auditDTO.getUid()));
     //            return auditDTO;
     //        }).collect(Collectors.toList());

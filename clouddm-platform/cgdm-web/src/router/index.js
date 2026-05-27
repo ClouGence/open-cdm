@@ -4,11 +4,37 @@ import Preference from '@/views/system/Preference';
 import TicketTokenSetting from '@/views/system/TicketTokenSetting';
 import Ticket from '@/views/ticket';
 import System from './system';
+import store from '@/store';
+
+async function fetchMyAuthIfNeeded() {
+  if (store.state.myAuth.length) {
+    return;
+  }
+
+  try {
+    const res = await fetch('/rdp/console/api/v1/user/listMyAuth', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: '{}'
+    });
+    const payload = await res.json();
+    if (payload?.success && Array.isArray(payload.data)) {
+      store.commit('UPDATE_MY_AUTH', payload.data);
+    }
+  } catch {
+    // Auth will be rejected below when the probe fails.
+  }
+}
+
 const systemChildren = [
   {
     path: '/system/preference',
     name: '/system/preference',
-    component: Preference
+    component: Preference,
+    meta: { requiredAuth: 'RDP_PRI_USER_KV_CONF_R' }
   },
   {
     path: '/system/ticketTokenSetting',
@@ -302,7 +328,17 @@ const router = createRouter({
   routes
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
+  const requiredAuth = to.meta.requiredAuth;
+  if (requiredAuth) {
+    await fetchMyAuthIfNeeded();
+  }
+
+  if (requiredAuth && !store.state.myAuth.includes(requiredAuth)) {
+    next({ path: store.state.defaultRedirectUrl || '/sql', replace: true });
+    return;
+  }
+
   next();
 });
 

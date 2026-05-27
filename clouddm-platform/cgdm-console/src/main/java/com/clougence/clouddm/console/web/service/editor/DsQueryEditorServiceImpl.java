@@ -23,28 +23,19 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
-import com.clougence.clouddm.console.web.component.auth.model.DsCacheEntry;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.execute.QueryService;
 import com.clougence.clouddm.console.web.component.file.FileService;
 import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.DataSourceStatus;
-import com.clougence.clouddm.console.web.dal.enumeration.FileStatus;
-import com.clougence.clouddm.console.web.dal.mapper.DmDsConfigMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmDsSessionMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmFileMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
-import com.clougence.clouddm.console.web.dal.model.DmDsConfigDO;
-import com.clougence.clouddm.console.web.dal.model.DmDsSessionDO;
-import com.clougence.clouddm.console.web.dal.model.DmFileDO;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.editor.query.SessionVO;
 import com.clougence.clouddm.console.web.service.browse.model.rdb.BrowseColumnMO;
 import com.clougence.clouddm.console.web.service.editor.model.DataResultDataVO;
@@ -52,8 +43,20 @@ import com.clougence.clouddm.console.web.service.editor.model.DataResultPageVO;
 import com.clougence.clouddm.console.web.service.editor.model.DsAvailableDTO;
 import com.clougence.clouddm.console.web.service.editor.model.FileSaveAsDTO;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.MessageUtils;
+import com.clougence.clouddm.console.web.util.RdpAuthUtils;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecSessionDO;
+import com.clougence.clouddm.platform.dal.model.execution.FileStatus;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.resultset.file.DmFileType;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
@@ -61,11 +64,6 @@ import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
-import com.clougence.clouddm.console.web.util.RdpAuthUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.schema.umi.special.rdb.RdbColumn;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
@@ -79,33 +77,31 @@ import lombok.extern.slf4j.Slf4j;
 public class DsQueryEditorServiceImpl implements DsQueryEditorService {
 
     @Value("${clouddm.console.max-tx-session-user:5}")
-    private int                     maxTxSessionQuota;
+    private int                 maxTxSessionQuota;
     @Resource
-    private QueryService            queryService;
+    private SystemDal           systemDal;
     @Resource
-    private FileService             fileService;
+    private ExecutionDal        executionDal;
     @Resource
-    private DmFileMapper            dmFileMapper;
+    private DataSourceDal       dsDal;
     @Resource
-    private DmDsConfigService       dmDsConfigService;
+    private ObjectCacheDao      objectCacheDao;
     @Resource
-    private DmDsConfigMapper        dmDsMapper;
+    private QueryService        queryService;
     @Resource
-    private DmWorkerMapper          dmWorkerMapper;
+    private FileService         fileService;
     @Resource
-    private DmResAuthService        dmDsAuthService;
+    private DmDsConfigService   dmDsConfigService;
     @Resource
-    private DmAuthServiceForBiz     dmAuthServiceForBiz;
+    private DmResAuthService    dmDsAuthService;
     @Resource
-    private BizResOwnerCacheService ownerCacheService;
+    private DmAuthServiceForBiz dmAuthServiceForBiz;
     @Resource
-    private DsSchemaService         dsSchemaService;
-    @Resource
-    private DmDsSessionMapper       sessionMapper;
+    private DsSchemaService     dsSchemaService;
 
     @Override
     public boolean hasMoreSessionQuota(String userId) {
-        Integer count = this.sessionMapper.getUserSessionCount(userId);
+        Integer count = this.executionDal.sessionMapper().getUserSessionCount(userId);
         return count == null || count < this.maxTxSessionQuota;
     }
 
@@ -117,13 +113,13 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
      */
     @Override
     public List<SessionVO> getSessionList(String puid, String uid) {
-        List<DmDsSessionDO> sessionList = this.sessionMapper.queryByUser(uid);
+        List<DmExecSessionDO> sessionList = this.executionDal.sessionMapper().queryByUser(uid);
 
         if (sessionList == null) {
             return Collections.emptyList();
         }
 
-        List<SessionContextDTO> sessions = sessionList.stream().map(DmDsSessionDO::toRdbCtx).collect(Collectors.toList());
+        List<SessionContextDTO> sessions = sessionList.stream().map(DmExecSessionDO::toRdbCtx).collect(Collectors.toList());
         return sessions.stream().map(contextDTO -> {
             SessionVO sessionVO = new SessionVO();
             sessionVO.setSessionId(contextDTO.getSessionId());
@@ -157,7 +153,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
         }
 
-        RdpDataSourceDO dsDO = dsLevels.dsDO();
+        DmDsDO dsDO = dsLevels.dsDO();
         DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId(), dsDO.getDataSourceType());
 
         SessionContextDTO sessionCtx = this.createSessionCtx(levels);
@@ -198,7 +194,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
 
     @Override
     public DsAvailableDTO availableDataSource(String puid, String uid, long dsId) {
-        DmDsConfigDO dsConf = this.dmDsMapper.queryById(puid, dsId);
+        DmDsConfigDO dsConf = this.dsDal.configMapper().queryById(puid, dsId);
         if (dsConf == null) {
             DsAvailableDTO dto = new DsAvailableDTO();
             dto.setDsId(dsId);
@@ -217,7 +213,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
         }
 
         if (!this.dmAuthServiceForBiz.checkResPathChildrenWithoutError(puid, uid, dsId, AuthKind.DataSource, RdpAuthUtils.genEmptyResPath(), SecDataAuthLabel.DM_DAUTH_QUERY)) {
-            DsCacheEntry entry = this.ownerCacheService.queryByDsId(dsId);
+            DsCacheEntry entry = this.objectCacheDao.queryByDsId(dsId);
             String authRes = entry.getDsInstId() + "/";
             String dataAuthMsg = DmI18nUtils.getMessage(SecDataAuthLabel.DM_DAUTH_QUERY);
             String authMessage = DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_DATA_AUTH_PERMISSION_ERROR.name(), authRes, dataAuthMsg);
@@ -229,7 +225,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
             return dto;
         }
 
-        DmDsConfigDO dmDsConf = this.dmDsMapper.queryById(puid, dsId);
+        DmDsConfigDO dmDsConf = this.dsDal.configMapper().queryById(puid, dsId);
         if (dmDsConf == null) {
             DsAvailableDTO dto = new DsAvailableDTO();
             dto.setDsId(dsId);
@@ -239,7 +235,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
         }
 
         long bindClusterId = dmDsConf.getBindClusterId();
-        List<DmWorkerDO> workers = this.dmWorkerMapper.queryConnectedByClusterId(bindClusterId);
+        List<DmSysWorkerDO> workers = this.systemDal.workerMapper().queryConnectedByClusterId(bindClusterId);
         if (workers.isEmpty()) {
             DsAvailableDTO dto = new DsAvailableDTO();
             dto.setDsId(dsId);
@@ -257,8 +253,8 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
     }
 
     @Override
-    public DmFileDO queryUserFileByUniqueId(String puid, String uid, String resultId) {
-        DmFileDO fileDO = this.dmFileMapper.queryFileByUniqueId(resultId);
+    public DmExecFileDO queryUserFileByUniqueId(String puid, String uid, String resultId) {
+        DmExecFileDO fileDO = this.executionDal.fileMapper().queryFileByUniqueId(resultId);
         if (fileDO == null) {
             return null;
         }
@@ -271,7 +267,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
 
     @Override
     public FileSaveAsDTO resultSetFileSaveAs(String puid, String uid, String resultId, String dstFileName, String dstFormatName, boolean autoName, String option) {
-        DmFileDO fileDO = this.dmFileMapper.queryFileByUniqueId(resultId);
+        DmExecFileDO fileDO = this.executionDal.fileMapper().queryFileByUniqueId(resultId);
 
         URI fileUri = DmConvertUtils.createFileUri(fileDO.getFileUri());
         String fsName = fileUri.getScheme().toLowerCase();
@@ -286,7 +282,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
             String exportFileUri = this.fileService
                 .submitFileConvert(puid, uid, wsn, srcFileId, exportId, DmFileType.ResultSet, fileUri.getPath(), exportFile, dstFormatName, option);
 
-            DmFileDO exportFileDO = new DmFileDO();
+            DmExecFileDO exportFileDO = new DmExecFileDO();
             exportFileDO.setFileUri(exportFileUri);
             exportFileDO.setFileFormat(dstFormatName);
             exportFileDO.setInnerFormat(false);
@@ -296,7 +292,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
             exportFileDO.setQueryId(fileDO.getQueryId());
             exportFileDO.setUniqueId(exportId);
             exportFileDO.setHeartbeat(new Date());
-            this.dmFileMapper.insert(exportFileDO);
+            this.executionDal.fileMapper().insert(exportFileDO);
 
             FileSaveAsDTO saveAs = new FileSaveAsDTO();
             saveAs.setTrackId(exportId);
@@ -310,7 +306,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
 
     @Override
     public void removeResultSetCacheFile(String puid, String uid, String fileUniqueId) {
-        this.dmFileMapper.updateStatusByUniqueId(fileUniqueId, FileStatus.Delete, "from closeResultWindow.");
+        this.executionDal.fileMapper().updateStatusByUniqueId(fileUniqueId, FileStatus.Delete, "from closeResultWindow.");
     }
 
     @Override
@@ -329,7 +325,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
 
     @Override
     public long fetchFileSizeByUniqueId(String puid, String uid, String fileUniqueId) {
-        DmFileDO fileDO = this.dmFileMapper.queryFileByUniqueId(fileUniqueId);
+        DmExecFileDO fileDO = this.executionDal.fileMapper().queryFileByUniqueId(fileUniqueId);
         if (fileDO == null) {
             return -1;
         }
@@ -362,7 +358,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
 
     @Override
     public DataResultPageVO fetchResultPage(String puid, String uid, String resultId, long offsetRow, int pageSize) {
-        DmFileDO fileDO = this.dmFileMapper.queryFileByUniqueId(resultId);
+        DmExecFileDO fileDO = this.executionDal.fileMapper().queryFileByUniqueId(resultId);
 
         URI fileUri = DmConvertUtils.createFileUri(fileDO.getFileUri());
         String fsName = fileUri.getScheme().toLowerCase();
@@ -378,7 +374,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
 
     @Override
     public DataResultDataVO fetchResultData(String puid, String uid, String resultId, long rowNumber, long colNumber, long offset, int length) {
-        DmFileDO fileDO = this.dmFileMapper.queryFileByUniqueId(resultId);
+        DmExecFileDO fileDO = this.executionDal.fileMapper().queryFileByUniqueId(resultId);
 
         URI fileUri = DmConvertUtils.createFileUri(fileDO.getFileUri());
         String fsName = fileUri.getScheme().toLowerCase();
@@ -398,7 +394,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
 
     private SessionContextDTO createSessionCtx(List<String> levels) {
         DsLevels parsed = this.dmDsConfigService.parseLevels(levels);
-        RdpDataSourceDO dsDO = parsed.dsDO();
+        DmDsDO dsDO = parsed.dsDO();
         SessionSpi sessionSpi = PluginManager.findSessionSpi(dsDO.getDataSourceType());
 
         DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId(), dsDO.getDataSourceType());
@@ -411,7 +407,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
     }
 
     private void requireConnectedWorker(String wsn) {
-        DmWorkerDO worker = this.dmWorkerMapper.queryConnectedByWsn(wsn);
+        DmSysWorkerDO worker = this.systemDal.workerMapper().queryConnectedByWsn(wsn);
         if (worker == null || worker.getConnStatus() != WorkerConnStatus.CONNECTED) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.WORKER_STATUS_OFFLINE_ERROR.name(), wsn));
         }

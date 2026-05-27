@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultList;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
@@ -28,9 +29,8 @@ import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.execute.QueryService;
 import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
-import com.clougence.clouddm.console.web.constants.DmMode;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.editor.data.*;
 import com.clougence.clouddm.console.web.model.vo.editor.data.DataEditorResultVO;
 import com.clougence.clouddm.console.web.service.editor.model.DataEditorChangeDTO;
@@ -39,8 +39,8 @@ import com.clougence.clouddm.console.web.service.editor.model.DataEditorResultDT
 import com.clougence.clouddm.console.web.service.editor.model.DataEditorUpdateDTO;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.resultset.echo.*;
 import com.clougence.clouddm.sdk.execute.session.MessageLevel;
@@ -57,8 +57,6 @@ import com.clougence.clouddm.sdk.ui.editor.data.reload.DataEditorReloadSpi;
 import com.clougence.clouddm.sdk.ui.editor.data.reload.EditorResultSet;
 import com.clougence.clouddm.sdk.ui.editor.data.reload.Reload;
 import com.clougence.clouddm.sdk.ui.editor.data.reload.SqlData;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.schema.metadata.FieldType;
 import com.clougence.schema.umi.special.rdb.RdbColumn;
 import com.clougence.schema.umi.special.rdb.RdbTable;
@@ -74,9 +72,6 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class DsDataEditorServiceImpl implements DsDataEditorService {
 
-    @Resource
-    private DmConsoleConfig     dmConfig;
-    @Resource
     private DmDsConfigService   dmDsConfigService;
     @Resource
     private DsSchemaService     dsSchemaService;
@@ -88,7 +83,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
     /** for service API '/editor/data/fetchData' */
     @Override
     public DataEditorResultVO fetchData(String puid, String uid, String clientIp, DsLevels levels, SelectDataFO selectFO) {
-        RdpDataSourceDO dsDO = levels.dsDO();
+        DmDsDO dsDO = levels.dsDO();
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
         String catalog = StringUtils.toString(levelsParam.get(UmiTypes.Catalog));
         String schema = StringUtils.toString(levelsParam.get(UmiTypes.Schema));
@@ -157,7 +152,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
     /** for service API '/editor/data/fetchCount' */
     @Override
     public long fetchCount(String puid, String uid, DsLevels levels, SelectCountFO selectFO, String clientIp) {
-        RdpDataSourceDO dsDO = levels.dsDO();
+        DmDsDO dsDO = levels.dsDO();
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
         String catalog = StringUtils.toString(levelsParam.get(UmiTypes.Catalog));
         String schema = StringUtils.toString(levelsParam.get(UmiTypes.Schema));
@@ -191,7 +186,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
     /** for service API '/editor/data/generateDml' */
     @Override
     public List<DataEditorChangeDTO> generateDml(String puid, String uid, DsLevels levels, GenerateDataFO changeFO) {
-        RdpDataSourceDO dsDO = levels.dsDO();
+        DmDsDO dsDO = levels.dsDO();
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
         String catalog = StringUtils.toString(levelsParam.get(UmiTypes.Catalog));
         String schema = StringUtils.toString(levelsParam.get(UmiTypes.Schema));
@@ -214,7 +209,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
     /** for service API '/editor/data/saveData' */
     @Override
     public DataEditorExecuteResultDTO saveData(String puid, String uid, DsLevels levels, ExecuteSqlFO execFO, String clientIp) {
-        RdpDataSourceDO dsDO = levels.dsDO();
+        DmDsDO dsDO = levels.dsDO();
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
         String catalog = StringUtils.toString(levelsParam.get(UmiTypes.Catalog));
         String schema = StringUtils.toString(levelsParam.get(UmiTypes.Schema));
@@ -334,7 +329,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         request.setQueryType(SecQueryType.SELECT);
         request.setRequester(Requester.CONSOLE);
         request.setResource(Collections.singletonList(DmConvertUtils.convertToResource(levels, table)));
-        request.setUsingValueProcess(this.dmConfig.getDmMode() == DmMode.output && !this.authCheckService
+        request.setUsingValueProcess(!this.authCheckService
             .checkResPathWithoutError(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, levels.asResPath(), SecDataAuthLabel.DM_DAUTH_SENSITIVE));
 
         // execute sql
@@ -370,7 +365,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
     private Reload doExecuteDml(String puid, String uid, String clientIp, String sessionId, DsLevels levels,//
                                 DataSourceConfig dsConfig, SessionContextDTO sessionCtx, DataEditorChangeDTO dmlChange, RdbTable tableMeta, DataEditorUpdateDTO updateData) {
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
-        RdpDataSourceDO dsDO = levels.dsDO();
+        DmDsDO dsDO = levels.dsDO();
 
         // create session/request
         QueryRequest request = DmDsUtils.createRequestCtx(dsConfig, levelsParam, sessionCtx, uid, clientIp, true);
@@ -477,7 +472,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         }
     }
 
-    private static String selectCount(RdpDataSourceDO dsDO, String catalog, String schema, String table, UmiTypes targetType, String condition) {
+    private static String selectCount(DmDsDO dsDO, String catalog, String schema, String table, UmiTypes targetType, String condition) {
         DataEditorSpi spi = PluginManager.findDataEditorSpi(dsDO.getDataSourceType());
 
         RdbTable tableMeta = new RdbTable();
@@ -488,7 +483,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         return spi.buildSelectCount(tableMeta, condition);
     }
 
-    private static List<DataEditorChangeDTO> buildDML(RdpDataSourceDO dsDO, RdbTable tableMeta, List<DataEditorUpdateDTO> dataSet, boolean sem) {
+    private static List<DataEditorChangeDTO> buildDML(DmDsDO dsDO, RdbTable tableMeta, List<DataEditorUpdateDTO> dataSet, boolean sem) {
         DataEditorSpi spi = PluginManager.findDataEditorSpi(dsDO.getDataSourceType());
         Map<DataEditorSqlType, List<DataEditorUpdateDTO>> groupMap = dataSet.stream().collect(Collectors.groupingBy(DataEditorUpdateDTO::getDmlType));
         List<DataEditorChangeDTO> sqlScript = new ArrayList<>();

@@ -15,8 +15,8 @@
  */
 package com.clougence.rdp.controller;
 
-import static com.clougence.rdp.constant.I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR;
-import static com.clougence.rdp.constant.I18nRdpMsgKeys.MFA_CODE_IS_INVALID;
+import static com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys.LOGIN_MFA_PRE_ACTION_TOKEN_ERROR;
+import static com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys.MFA_CODE_IS_INVALID;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,32 +35,32 @@ import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.constants.MfaPreActionType;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpProduct;
+import com.clougence.clouddm.console.web.constants.RdpProduct;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.csrf.CsrfTokenService;
 import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy;
-import com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.console.web.model.fo.AddWebViewLogFO;
 import com.clougence.clouddm.console.web.model.fo.LoginFO;
 import com.clougence.clouddm.console.web.model.fo.RequestJumpUrlFO;
 import com.clougence.clouddm.console.web.model.fo.mfa.LoginMfaValidFO;
 import com.clougence.clouddm.console.web.model.fo.user.CheckSubAccountBindInfoFO;
 import com.clougence.clouddm.console.web.model.vo.RdpGlobalSettingsVO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.model.feature.RdpFeatureIDs;
 import com.clougence.clouddm.sdk.security.login.LoginProvider;
 import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
-import com.clougence.rdp.component.sso.RdpSubLoginService;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.rdp.constant.operation.AuditType;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserKvBaseConfigDO;
+import com.clougence.clouddm.console.web.component.auth.RdpSubLoginService;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.rdp.service.*;
 import com.clougence.rdp.service.model.CheckSubAccountMO;
 import com.clougence.rdp.service.model.LoginMO;
@@ -147,7 +147,7 @@ public class RdpHomeController {
             throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_CODE_IS_INVALID.name()));
         }
 
-        RdpUserDO userDO = rdpUserService.getUserByUid(uid);
+        DmAuthUserDO userDO = rdpUserService.getUserByUid(uid);
 
         LoginMO re = new LoginMO();
         re.setSuccess(true);
@@ -250,8 +250,8 @@ public class RdpHomeController {
     @RequestMapping(value = "/primary_user_domains", method = { RequestMethod.POST })
     public ResWebData<?> primaryUserDomains(HttpServletRequest request) {
         List<Map<String, Object>> orgList = new ArrayList<>();
-        for (RdpUserDO primary : this.rdpUserService.listPrimaryUser()) {
-            RdpUserKvBaseConfigDO authTypeDO = this.rdpUserConfigService.getSpecifiedConfig(primary.getUid(), UserDefinedConfig.Fields.subAccountAuthType);
+        for (DmAuthUserDO primary : this.rdpUserService.listPrimaryUser()) {
+            DmSysUserConfDO authTypeDO = this.rdpUserConfigService.getSpecifiedConfig(primary.getUid(), UserDefinedConfig.Fields.subAccountAuthType);
             LoginAuthType authType = LoginAuthType.PASSWORD;
             if (authTypeDO != null) {
                 try {
@@ -283,7 +283,7 @@ public class RdpHomeController {
             return ResWebDataUtils.buildSuccess("");
         }
 
-        RdpUserKvBaseConfigDO authTypeDO = this.rdpUserConfigService.getSpecifiedConfig(primaryUid, UserDefinedConfig.Fields.subAccountAuthType);
+        DmSysUserConfDO authTypeDO = this.rdpUserConfigService.getSpecifiedConfig(primaryUid, UserDefinedConfig.Fields.subAccountAuthType);
         if (authTypeDO != null) {
             try {
                 authType = LoginAuthType.valueOfCode(authTypeDO.getConfigValue());

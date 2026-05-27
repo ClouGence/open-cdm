@@ -15,6 +15,9 @@
  */
 package com.clougence.rdp.service.impl;
 
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+
 import static com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel.RDP_DAUTH_DS_READ;
 
 import java.util.ArrayList;
@@ -26,22 +29,18 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmResAuthMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpRoleMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.DmResAuthDO;
-import com.clougence.clouddm.console.web.dal.model.RdpRoleDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpAuthServiceForBiz;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -53,18 +52,12 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class RdpAuthServiceForBizImpl implements RdpAuthServiceForBiz {
+    @Resource
+    private DataSourceDal datasourceDal;
 
     @Resource
-    private RdpUserMapper       rdpUserMapper;
+    private AuthDal authDal;
 
-    @Resource
-    private RdpRoleMapper       rdpRoleMapper;
-
-    @Resource
-    private RdpDataSourceMapper rdpDataSourceMapper;
-
-    @Resource
-    private DmResAuthMapper resAuthMapper;
 
     @Override
     public boolean checkRoleAuth(String puid, String uid, String roleAuth) {
@@ -74,12 +67,12 @@ public class RdpAuthServiceForBizImpl implements RdpAuthServiceForBiz {
         }
 
         // user must exist
-        RdpUserDO userDO = this.rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(uid);
         if (userDO == null) {
             return false;
         }
 
-        RdpRoleDO roleDO = this.rdpRoleMapper.selectById(userDO.getRoleId());
+        DmAuthRoleDO roleDO = this.authDal.roleMapper().selectById(userDO.getRoleId());
         if (roleDO == null) {
             return false;
         }
@@ -98,8 +91,8 @@ public class RdpAuthServiceForBizImpl implements RdpAuthServiceForBiz {
             return;
         }
 
-        RdpUserDO loginUser = rdpUserMapper.queryByUid(loginUid);
-        RdpUserDO targetUser = rdpUserMapper.queryByUid(targetUid);
+        DmAuthUserDO loginUser = authDal.userMapper().queryByUid(loginUid);
+        DmAuthUserDO targetUser = authDal.userMapper().queryByUid(targetUid);
 
         //Fail, cross primary user.
         if (targetUser == null) {
@@ -132,7 +125,7 @@ public class RdpAuthServiceForBizImpl implements RdpAuthServiceForBiz {
     @Override
     public void checkResOwnership(String puid, long resId, AuthKind authKind) {
         if (authKind == AuthKind.DataSource) {
-            RdpDataSourceDO dsDO = rdpDataSourceMapper.queryDsIdentityById(resId);
+            DmDsDO dsDO = datasourceDal.dsMapper().queryDsIdentityById(resId);
             if (dsDO == null) {
                 throw new IllegalArgumentException(DmI18nUtils.getMessage(I18nRdpMsgKeys.DS_CHECK_NOT_EXIST_ERROR.name(), resId));
             }
@@ -148,7 +141,7 @@ public class RdpAuthServiceForBizImpl implements RdpAuthServiceForBiz {
     @Override
     public boolean checkResAuthWithoutError(String puid, String uid, long resId, DsResPath resPath, String dataAuthLabel, AuthKind authKind) {
         if (authKind == AuthKind.DataSource) {
-            RdpDataSourceDO dsDO = this.rdpDataSourceMapper.queryDsIdentityById(resId);
+            DmDsDO dsDO = this.datasourceDal.dsMapper().queryDsIdentityById(resId);
             return checkDsAuth(puid, uid, dsDO, resPath, dataAuthLabel);
         } else {
             throw new IllegalArgumentException("Unsupported auth kind:" + authKind);
@@ -158,7 +151,7 @@ public class RdpAuthServiceForBizImpl implements RdpAuthServiceForBiz {
     @Override
     public void checkResAuth(String puid, String uid, long resId, DsResPath resPath, String dataAuthLabel, AuthKind authKind) {
         if (authKind == AuthKind.DataSource) {
-            RdpDataSourceDO dsDO = this.rdpDataSourceMapper.queryDsIdentityById(resId);
+            DmDsDO dsDO = this.datasourceDal.dsMapper().queryDsIdentityById(resId);
             if (!this.checkDsAuth(puid, uid, dsDO, resPath, dataAuthLabel)) {
                 if (StringUtils.equals(resPath.getResPath(), "/")) {
                     throw new ErrorMessageException(RdpAuthUtils.missDataAuthMsg(resId, dsDO.getInstanceId(), dataAuthLabel));
@@ -172,7 +165,7 @@ public class RdpAuthServiceForBizImpl implements RdpAuthServiceForBiz {
         }
     }
 
-    private boolean checkDsAuth(String puid, String uid, RdpDataSourceDO dsDO, DsResPath resPath, String dataAuthLabel) {
+    private boolean checkDsAuth(String puid, String uid, DmDsDO dsDO, DsResPath resPath, String dataAuthLabel) {
         if (dsDO == null) {
             throw new IllegalArgumentException(DmI18nUtils.getMessage(I18nRdpMsgKeys.DS_CHECK_NOT_EXIST_ERROR.name()));
         }
@@ -183,7 +176,7 @@ public class RdpAuthServiceForBizImpl implements RdpAuthServiceForBiz {
         }
 
         //the user role is ds manager
-        if (rdpUserMapper.queryByUid(uid).isResourceManageEnable()) {
+        if (authDal.userMapper().queryByUid(uid).isResourceManageEnable()) {
             return true;
         }
 
@@ -194,8 +187,8 @@ public class RdpAuthServiceForBizImpl implements RdpAuthServiceForBiz {
 
         List<Predicate<String>> authedPathNames = new ArrayList<>();
         List<String> queryPaths = Collections.singletonList(resPath.getResPath());
-        List<DmResAuthDO> dsAuthDOs = this.resAuthMapper.queryByPathLike(dsDO.getId(), uid, AuthKind.DataSource, queryPaths);
-        for (DmResAuthDO dsAuthDO : dsAuthDOs) {
+        List<DmAuthResDO> dsAuthDOs = this.authDal.resMapper().queryByPathLike(dsDO.getId(), uid, AuthKind.DataSource, queryPaths);
+        for (DmAuthResDO dsAuthDO : dsAuthDOs) {
             // filter resAuth
             if (dsAuthDO.getAuthLabels() == null || !dsAuthDO.getAuthLabels().contains(dataAuthLabel) || !dsAuthDO.isEffective()) {
                 continue;
@@ -217,10 +210,10 @@ public class RdpAuthServiceForBizImpl implements RdpAuthServiceForBiz {
     }
 
     @Override
-    public List<DmResAuthDO> listAuthByUser(String targetUid, AuthKind authKind) {
+    public List<DmAuthResDO> listAuthByUser(String targetUid, AuthKind authKind) {
         if (authKind == AuthKind.DataSource) {
-            List<DmResAuthDO> resAuthDOList = listDsAuth(targetUid, null);
-            RdpUserDO userDO = rdpUserMapper.queryByUid(targetUid);
+            List<DmAuthResDO> resAuthDOList = listDsAuth(targetUid, null);
+            DmAuthUserDO userDO = authDal.userMapper().queryByUid(targetUid);
             if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || userDO.isResourceManageEnable()) {
                 return resAuthDOList;
             } else {
@@ -234,16 +227,16 @@ public class RdpAuthServiceForBizImpl implements RdpAuthServiceForBiz {
     @Override
     public List<Long> listResByUser(String targetUid, AuthKind authKind) {
         if (authKind == AuthKind.DataSource) {
-            RdpUserDO userDO = rdpUserMapper.queryByUid(targetUid);
+            DmAuthUserDO userDO = authDal.userMapper().queryByUid(targetUid);
             if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || userDO.isResourceManageEnable()) {
                 if (userDO.getParentId() != null) {
-                    targetUid = rdpUserMapper.queryById(userDO.getParentId()).getUid();
+                    targetUid = authDal.userMapper().queryById(userDO.getParentId()).getUid();
                 }
-                List<RdpDataSourceDO> dsDOs = this.rdpDataSourceMapper.listByUserWithGmtOrder(targetUid);
-                return dsDOs.stream().map(RdpDataSourceDO::getId).collect(Collectors.toList());
+                List<DmDsDO> dsDOs = this.datasourceDal.dsMapper().listByUserWithGmtOrder(targetUid);
+                return dsDOs.stream().map(DmDsDO::getId).collect(Collectors.toList());
             } else {
-                List<DmResAuthDO> result = this.resAuthMapper.listByKind(targetUid, AuthKind.DataSource);
-                return result.stream().map(DmResAuthDO::getResId).distinct().collect(Collectors.toList());
+                List<DmAuthResDO> result = this.authDal.resMapper().listByKind(targetUid, AuthKind.DataSource);
+                return result.stream().map(DmAuthResDO::getResId).distinct().collect(Collectors.toList());
             }
         } else {
             return Collections.emptyList();
@@ -251,7 +244,7 @@ public class RdpAuthServiceForBizImpl implements RdpAuthServiceForBiz {
     }
 
     @Override
-    public List<DmResAuthDO> listSpecifiedAuthOfUser(String targetUid, String dataAuthLabel, AuthKind authKind) {
+    public List<DmAuthResDO> listSpecifiedAuthOfUser(String targetUid, String dataAuthLabel, AuthKind authKind) {
         if (authKind == AuthKind.DataSource) {
             return listDsAuth(targetUid, Collections.singletonList(dataAuthLabel));
         } else {
@@ -259,24 +252,24 @@ public class RdpAuthServiceForBizImpl implements RdpAuthServiceForBiz {
         }
     }
 
-    private List<DmResAuthDO> listDsAuth(String targetUid, List<String> filterDataAuthLabels) {
-        RdpUserDO userDO = rdpUserMapper.queryByUid(targetUid);
-        List<DmResAuthDO> result = new ArrayList<>();
+    private List<DmAuthResDO> listDsAuth(String targetUid, List<String> filterDataAuthLabels) {
+        DmAuthUserDO userDO = authDal.userMapper().queryByUid(targetUid);
+        List<DmAuthResDO> result = new ArrayList<>();
         if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || userDO.isResourceManageEnable()) {
             if (userDO.getParentId() != null) {
-                targetUid = rdpUserMapper.queryById(userDO.getParentId()).getUid();
+                targetUid = authDal.userMapper().queryById(userDO.getParentId()).getUid();
             }
-            List<RdpDataSourceDO> dsDOs = this.rdpDataSourceMapper.listByUserWithGmtOrder(targetUid);
+            List<DmDsDO> dsDOs = this.datasourceDal.dsMapper().listByUserWithGmtOrder(targetUid);
 
-            for (RdpDataSourceDO dsDO : dsDOs) {
-                DmResAuthDO authDO = new DmResAuthDO();
+            for (DmDsDO dsDO : dsDOs) {
+                DmAuthResDO authDO = new DmAuthResDO();
                 authDO.setResId(dsDO.getId());
                 authDO.setResDesc(dsDO.getInstanceDesc());
                 authDO.setResInstId(dsDO.getInstanceId());
                 result.add(authDO);
             }
         } else {
-            result = this.resAuthMapper.listByKind(targetUid, AuthKind.DataSource);
+            result = this.authDal.resMapper().listByKind(targetUid, AuthKind.DataSource);
             if (filterDataAuthLabels != null && !filterDataAuthLabels.isEmpty()) {
                 result = result.stream().filter(t -> t.getAuthLabels().containsAll(filterDataAuthLabels) && t.isEffective()).collect(Collectors.toList());
             }

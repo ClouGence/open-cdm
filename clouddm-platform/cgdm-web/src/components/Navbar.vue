@@ -10,7 +10,7 @@
     <a-menu-item key="ticket" v-if="includesDM && myCatLog.includes('CAT_RDP_WORKER_ORDER') && !isDesktop">
       <a href="/#/ticket">{{ $t('gong-dan') }}</a>
     </a-menu-item>
-    <a-menu-item key="system" class="system-menu-item" v-if="mySystemMenuItems.length">
+    <a-menu-item key="system" class="system-menu-item" v-if="canShowSystemMenu">
       <a :href="getDefaultSystemPath">{{ $t('pei-zhi') }}</a>
     </a-menu-item>
   </a-menu>
@@ -33,6 +33,9 @@ export default {
     ...mapGetters(['includesCC', 'includesDM']),
     ...mapState(['myCatLog', 'userInfo', 'globalSetting', 'mySystemMenuItems']),
     ...mapGetters(['isDesktop']),
+    canShowSystemMenu() {
+      return this.mySystemMenuItems.length || !!this.userInfo?.uid || !!this.userInfo?.username;
+    },
     getDefaultSystemPath() {
       if (this.mySystemMenuItems.length) {
         return this.mySystemMenuItems[0].href;

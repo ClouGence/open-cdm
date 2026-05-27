@@ -15,8 +15,8 @@
  */
 package com.clougence.clouddm.console.web.model.vo;
 
-import com.clougence.clouddm.console.web.dal.enumeration.DmLogDependBizType;
-import com.clougence.clouddm.console.web.dal.enumeration.Loglevel;
+import com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType;
+import com.clougence.clouddm.platform.dal.model.monitor.Loglevel;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +31,7 @@ public class DmBizLogVO {
 
     private String             dependOnBizId;
 
-    private DmLogDependBizType dependOnBizType;
+    private LogDependBizType dependOnBizType;
 
     private String             content;
 

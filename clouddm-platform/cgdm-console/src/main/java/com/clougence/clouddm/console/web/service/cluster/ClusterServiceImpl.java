@@ -25,19 +25,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.console.status.WorkerState;
-import com.clougence.clouddm.console.web.constants.CloudOrIdcName;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.mapper.DmClusterMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
-import com.clougence.clouddm.console.web.dal.model.DmClusterDO;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.cluster.ClusterWithWorkerNetVO;
 import com.clougence.clouddm.console.web.model.fo.cluster.CreateClusterFO;
 import com.clougence.clouddm.console.web.model.fo.cluster.WorkerNetVO;
 import com.clougence.clouddm.console.web.model.vo.cluster.ClusterVO;
 import com.clougence.clouddm.console.web.service.system.NamingService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.system.CloudOrIdcName;
+import com.clougence.clouddm.platform.dal.model.system.DmSysClusterDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
@@ -52,23 +51,20 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class ClusterServiceImpl implements ClusterService {
-
     @Resource
-    private DmClusterMapper clusterMapper;
+    private SystemDal      systemDal;
     @Resource
-    private DmWorkerMapper  workerMapper;
+    private WorkerDetector workerDetector;
     @Resource
-    private WorkerDetector  workerDetector;
+    private NamingService  namingService;
     @Resource
-    private NamingService   namingService;
-    @Resource
-    private RdpUserService  rdpUserService;
+    private RdpUserService userService;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public long addCluster(String puid, String uid, CreateClusterFO fo) {
         String clusterName = this.namingService.genClusterName();
-        DmClusterDO clusterDO = new DmClusterDO();
+        DmSysClusterDO clusterDO = new DmSysClusterDO();
         clusterDO.setCloudOrIdcName(fo.getCloudOrIdcName());
         clusterDO.setClusterName(clusterName);
         clusterDO.setClusterDesc(fo.getClusterDesc());
@@ -79,27 +75,27 @@ public class ClusterServiceImpl implements ClusterService {
             clusterDO.setClusterDesc(clusterName);
         }
 
-        this.clusterMapper.insert(clusterDO);
+        this.systemDal.clusterMapper().insert(clusterDO);
         return clusterDO.getId();
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void deleteCluster(long clusterId) {
-        List<DmWorkerDO> dos = this.workerMapper.queryByCluster(clusterId);
+        List<DmSysWorkerDO> dos = this.systemDal.workerMapper().queryByCluster(clusterId);
         if (CollectionUtils.isNotEmpty(dos)) {
             throw new IllegalStateException(DmI18nUtils.getMessage(I18nDmMsgKeys.CLUSTER_DEL_HAVE_WORKS_ERROR.name()));
         }
 
-        this.clusterMapper.deleteById(clusterId);
+        this.systemDal.clusterMapper().deleteById(clusterId);
     }
 
     @Override
     public void updateClusterDesc(long clusterId, String desc) {
-        DmClusterDO clusterDO = new DmClusterDO();
+        DmSysClusterDO clusterDO = new DmSysClusterDO();
         clusterDO.setId(clusterId);
         clusterDO.setClusterDesc(desc);
-        this.clusterMapper.updateClusterDesc(clusterDO);
+        this.systemDal.clusterMapper().updateClusterDesc(clusterDO);
     }
 
     @Override
@@ -107,19 +103,19 @@ public class ClusterServiceImpl implements ClusterService {
         String clusterNameLike = StringUtils.isBlank(clusterName) ? null : clusterName;
         String clusterDescLike = StringUtils.isBlank(clusterDesc) ? null : clusterDesc;
 
-        List<DmClusterDO> clusterDOList = this.clusterMapper.listByCondition(ownerUid, clusterNameLike, cloudOrIdcName, region, clusterDescLike);
+        List<DmSysClusterDO> clusterDOList = this.systemDal.clusterMapper().listByCondition(ownerUid, clusterNameLike, cloudOrIdcName, region, clusterDescLike);
         return clusterDOList.stream().map(this::genClusterVoWithOwnerNameAndSummary).collect(Collectors.toList());
     }
 
     @Override
     public List<ClusterVO> listByOwnerUid(String ownerUid) {
-        List<DmClusterDO> clusterDOList = this.clusterMapper.listByCondition(ownerUid, null, null, null, null);
+        List<DmSysClusterDO> clusterDOList = this.systemDal.clusterMapper().listByCondition(ownerUid, null, null, null, null);
         return clusterDOList.stream().map(this::genClusterVoWithOwnerNameAndSummary).collect(Collectors.toList());
     }
 
     @Override
     public List<ClusterWithWorkerNetVO> listWithWorkersNet(List<Long> clusterIds) {
-        List<DmClusterDO> clusterDOs = this.clusterMapper.listByIds(clusterIds);
+        List<DmSysClusterDO> clusterDOs = this.systemDal.clusterMapper().listByIds(clusterIds);
 
         if (CollectionUtils.isEmpty(clusterDOs)) {
             return new ArrayList<>();
@@ -130,21 +126,21 @@ public class ClusterServiceImpl implements ClusterService {
 
     @Override
     public ClusterVO queryByClusterId(long clusterId) {
-        DmClusterDO clusterDO = this.clusterMapper.selectById(clusterId);
+        DmSysClusterDO clusterDO = this.systemDal.clusterMapper().selectById(clusterId);
         return this.genClusterVoWithOwnerNameAndSummary(clusterDO);
     }
 
-    protected List<ClusterWithWorkerNetVO> genClusterWithWorkerNets(List<DmClusterDO> clusterDOs) {
-        Map<Long, DmClusterDO> clusterIndex = clusterDOs.stream().collect(Collectors.toMap(DmClusterDO::getId, c -> c));
-        List<Long> clusterIds = clusterDOs.stream().map(DmClusterDO::getId).collect(Collectors.toList());
-        List<DmWorkerDO> workerDOs = this.workerMapper.queryByClusters(clusterIds);
+    protected List<ClusterWithWorkerNetVO> genClusterWithWorkerNets(List<DmSysClusterDO> clusterDOs) {
+        Map<Long, DmSysClusterDO> clusterIndex = clusterDOs.stream().collect(Collectors.toMap(DmSysClusterDO::getId, c -> c));
+        List<Long> clusterIds = clusterDOs.stream().map(DmSysClusterDO::getId).collect(Collectors.toList());
+        List<DmSysWorkerDO> workerDOs = this.systemDal.workerMapper().queryByClusters(clusterIds);
         Map<Long, ClusterWithWorkerNetVO> re = new HashMap<>();
 
-        for (DmWorkerDO workerDO : workerDOs) {
+        for (DmSysWorkerDO workerDO : workerDOs) {
             ClusterWithWorkerNetVO vo = re.get(workerDO.getClusterId());
             if (vo == null) {
                 vo = new ClusterWithWorkerNetVO();
-                DmClusterDO cd = clusterIndex.get(workerDO.getClusterId());
+                DmSysClusterDO cd = clusterIndex.get(workerDO.getClusterId());
                 vo.setCloudOrIdcName(cd.getCloudOrIdcName());
                 vo.setClusterDesc(cd.getClusterDesc());
                 vo.setClusterName(cd.getClusterName());
@@ -167,13 +163,13 @@ public class ClusterServiceImpl implements ClusterService {
         return new ArrayList<>(re.values());
     }
 
-    protected ClusterVO genClusterVoWithSummary(DmClusterDO clusterDO) {
+    protected ClusterVO genClusterVoWithSummary(DmSysClusterDO clusterDO) {
         ClusterVO clusterVO = DmConvertUtils.convertToClusterVO(clusterDO);
         fillWorkerSummary(clusterVO, clusterDO.getId());
         return clusterVO;
     }
 
-    protected ClusterVO genClusterVoWithOwnerNameAndSummary(DmClusterDO clusterDO) {
+    protected ClusterVO genClusterVoWithOwnerNameAndSummary(DmSysClusterDO clusterDO) {
         ClusterVO clusterVO = genClusterVoWithSummary(clusterDO);
         fillClusterOwner(clusterVO, clusterDO.getUid());
         return clusterVO;
@@ -181,19 +177,19 @@ public class ClusterServiceImpl implements ClusterService {
 
     protected void fillClusterOwner(ClusterVO clusterVO, String ownerUid) {
         if (StringUtils.isNotBlank(ownerUid)) {
-            clusterVO.setOwnerName(this.rdpUserService.getUserByUid(ownerUid).getUsername());
+            clusterVO.setOwnerName(this.userService.getUserByUid(ownerUid).getUsername());
         }
     }
 
     protected void fillWorkerSummary(ClusterVO clusterVO, Long clusterId) {
-        List<DmWorkerDO> workerDOs = this.workerMapper.queryByCluster(clusterId);
+        List<DmSysWorkerDO> workerDOs = this.systemDal.workerMapper().queryByCluster(clusterId);
         if (CollectionUtils.isEmpty(workerDOs)) {
             return;
         }
 
         int runnintCount = 0;
         int abnormalCount = 0;
-        for (DmWorkerDO workerDO : workerDOs) {
+        for (DmSysWorkerDO workerDO : workerDOs) {
             if (workerDO.getWorkerState() == WorkerState.ONLINE) {
                 if (this.workerDetector.isLooseAlive(workerDO)) {
                     runnintCount++;

@@ -22,27 +22,27 @@ import java.util.Random;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.clougence.clouddm.api.common.exception.DmErrorCode;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.autoexec.AutoExecRService;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
-import com.clougence.clouddm.console.web.component.auth.model.DsCacheEntry;
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecManager;
-import com.clougence.clouddm.console.web.constants.DmErrorCode;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.AutoExecJobStatus;
-import com.clougence.clouddm.console.web.dal.enumeration.DmLogDependBizType;
-import com.clougence.clouddm.console.web.dal.enumeration.Loglevel;
-import com.clougence.clouddm.console.web.dal.mapper.DmAutoExecJobMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmBizLogMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
-import com.clougence.clouddm.console.web.dal.model.exec.DmAutoExecJobDO;
-import com.clougence.clouddm.console.web.dal.model.exec.DmBizLogDO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.util.MessageUtils;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.access.MonitorDal;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.execution.AutoExecJobStatus;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
+import com.clougence.clouddm.platform.dal.model.monitor.DmMonBizLogDO;
+import com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType;
+import com.clougence.clouddm.platform.dal.model.monitor.Loglevel;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -50,67 +50,66 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class AutoExecManagerImpl implements AutoExecManager {
-
     @Resource
-    private DmAutoExecJobMapper     dmAutoExecJobMapper;
+    private SystemDal        systemDal;
     @Resource
-    private AutoExecRService        autoExecRService;
+    private MonitorDal       monitorDal;
     @Resource
-    private DmWorkerMapper          dmWorkerMapper;
+    private ExecutionDal     executionDal;
     @Resource
-    private BizResOwnerCacheService ownerCacheService;
+    private ObjectCacheDao   objectCacheDao;
     @Resource
-    private DmBizLogMapper          dmBizLogMapper;
+    private AutoExecRService autoExecRService;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void dispatchJob(Long jobId) {
-        DmAutoExecJobDO dmAutoExecJobDO = dmAutoExecJobMapper.queryByIdForUpdate(jobId);
+        DmExecAutoJobDO dmAutoExecJobDO = executionDal.autoJobMapper().queryByIdForUpdate(jobId);
         if (dmAutoExecJobDO.getStatus() != AutoExecJobStatus.INIT) {
             log.info("{} was dispatch by another console", jobId);
             return;
         }
 
         // dispatch
-        DsCacheEntry dsCacheEntry = ownerCacheService.queryByDsId(dmAutoExecJobDO.getDataSourceId());
+        DsCacheEntry dsCacheEntry = objectCacheDao.queryByDsId(dmAutoExecJobDO.getDataSourceId());
         if (dsCacheEntry.getClusterId() == null) {
-            DmBizLogDO logDO = new DmBizLogDO(Loglevel.INFO,
+            DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.INFO,
                 DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_DATASOURCE_ERROR_MESSAGE.name()),
-                DmLogDependBizType.AUTO_EXEC_JOB,
+                LogDependBizType.AUTO_EXEC_JOB,
                 dmAutoExecJobDO.getBizId());
-            dmBizLogMapper.insert(logDO);
-            this.dmAutoExecJobMapper.updateJobStatus(dmAutoExecJobDO.getId(), AutoExecJobStatus.FAILED);
+            monitorDal.bizLogMapper().insert(logDO);
+            this.executionDal.autoJobMapper().updateJobStatus(dmAutoExecJobDO.getId(), AutoExecJobStatus.FAILED);
             return;
         }
         RSocketSendDTO dto = this.buildRSocketSendDTO(dsCacheEntry.getClusterId());
         autoExecRService.dispatchJob(dto, jobId);
 
-        DmBizLogDO logDO = new DmBizLogDO(Loglevel.INFO,
+        DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.INFO,
             DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_START_MESSAGE.name(), dto.getWorkerIP()),
-            DmLogDependBizType.AUTO_EXEC_JOB,
+            LogDependBizType.AUTO_EXEC_JOB,
             dmAutoExecJobDO.getBizId());
 
-        dmBizLogMapper.insert(logDO);
+        monitorDal.bizLogMapper().insert(logDO);
 
         dmAutoExecJobDO.setStatus(AutoExecJobStatus.WAIT_EXEC);
         dmAutoExecJobDO.setLastReportTime(new Date());
         dmAutoExecJobDO.setWorkerSeqNumber(dto.getWorkerSeqNumber());
-        this.dmAutoExecJobMapper.updateById(dmAutoExecJobDO);
+        this.executionDal.autoJobMapper().updateById(dmAutoExecJobDO);
     }
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public void stopJob(Long jobId, RdpUserDO user) {
-        DmAutoExecJobDO job = dmAutoExecJobMapper.queryByIdForUpdate(jobId);
+    public void stopJob(Long jobId, DmAuthUserDO user) {
+        DmExecAutoJobDO job = executionDal.autoJobMapper().queryByIdForUpdate(jobId);
 
         AutoExecJobStatus status = job.getStatus();
         if (status == AutoExecJobStatus.INIT) {
             job.setStatus(AutoExecJobStatus.PAUSE);
-            this.dmAutoExecJobMapper.updateById(job);
+            this.executionDal.autoJobMapper().updateById(job);
 
             String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_CONSOLE_DIRECT_PAUSE_MESSAGE.name(), user.getUsername(), user.getUid());
-            DmBizLogDO logDO = new DmBizLogDO(Loglevel.INFO, message, DmLogDependBizType.AUTO_EXEC_JOB, job.getBizId());
-            this.dmBizLogMapper.insert(logDO);
+            DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId());
+            this.monitorDal.bizLogMapper().insert(logDO);
             return;
         }
 
@@ -126,15 +125,15 @@ public class AutoExecManagerImpl implements AutoExecManager {
         this.autoExecRService.pauseJob(buildRSocketSendDTO(job.getWorkerSeqNumber()), jobId);
 
         job.setStatus(AutoExecJobStatus.PAUSING);
-        this.dmAutoExecJobMapper.updateById(job);
+        this.executionDal.autoJobMapper().updateById(job);
 
         String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_CONSOLE_PAUSE_MESSAGE.name(), user.getUsername(), user.getUid());
-        DmBizLogDO logDO = new DmBizLogDO(Loglevel.INFO, message, DmLogDependBizType.AUTO_EXEC_JOB, job.getBizId());
-        this.dmBizLogMapper.insert(logDO);
+        DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId());
+        this.monitorDal.bizLogMapper().insert(logDO);
     }
 
     private RSocketSendDTO buildRSocketSendDTO(String wsn) {
-        DmWorkerDO worker = dmWorkerMapper.getByWsn(wsn);
+        DmSysWorkerDO worker = systemDal.workerMapper().getByWsn(wsn);
 
         RSocketSendDTO sendDTO = new RSocketSendDTO();
         sendDTO.setClusterId(worker.getClusterId());
@@ -146,12 +145,12 @@ public class AutoExecManagerImpl implements AutoExecManager {
     }
 
     private RSocketSendDTO buildRSocketSendDTO(long bindClusterId) {
-        List<DmWorkerDO> workers = this.dmWorkerMapper.queryConnectedByClusterId(bindClusterId);
+        List<DmSysWorkerDO> workers = this.systemDal.workerMapper().queryConnectedByClusterId(bindClusterId);
         if (workers.isEmpty()) {
             throw new ErrorMessageException(DmErrorCode.CLUSTER_HAVE_NO_WORKS_ERROR.code(), MessageUtils.getClusterHaveNoWorksErrorMessage(bindClusterId));
         }
 
-        DmWorkerDO worker = workers.get(new Random(System.currentTimeMillis()).nextInt(workers.size()));
+        DmSysWorkerDO worker = workers.get(new Random(System.currentTimeMillis()).nextInt(workers.size()));
 
         RSocketSendDTO sendDTO = new RSocketSendDTO();
         sendDTO.setClusterId(worker.getClusterId());

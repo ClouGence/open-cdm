@@ -23,8 +23,8 @@ import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
 import com.clougence.rdp.component.dskvconfig.RdpDsExtraConfGen;
 import com.clougence.rdp.component.dskvconfig.model.LLMExtraConfig;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 
 /**
  * @author bucketli 2022/8/10 10:00:22
@@ -46,7 +46,7 @@ public abstract class LLMExtraConfGen implements RdpDsExtraConfGen {
     }
 
     @Override
-    public DsExtraConfig genDsExtraConfig(RdpDataSourceDO dsDO, List<InitDsKvBaseConfigFO> fos) {
+    public DsExtraConfig genDsExtraConfig(DmDsDO dsDO, List<InitDsKvBaseConfigFO> fos) {
         LLMExtraConfig config = new LLMExtraConfig();
         for (InitDsKvBaseConfigFO f : fos) {
             fillEntry(config, f.getConfigName(), f.getConfigValue());
@@ -56,9 +56,9 @@ public abstract class LLMExtraConfGen implements RdpDsExtraConfGen {
     }
 
     @Override
-    public DsExtraConfig genDsExtraConfigFromExist(RdpDataSourceDO dsDO, List<RdpDsKvBaseConfigDO> confs) {
+    public DsExtraConfig genDsExtraConfigFromExist(DmDsDO dsDO, List<DmDsConfigKv4RdpDO> confs) {
         LLMExtraConfig config = new LLMExtraConfig();
-        for (RdpDsKvBaseConfigDO f : confs) {
+        for (DmDsConfigKv4RdpDO f : confs) {
             fillEntry(config, f.getConfigName(), f.getConfigValue());
         }
 

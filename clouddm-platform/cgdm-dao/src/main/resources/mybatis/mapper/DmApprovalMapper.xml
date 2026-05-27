@@ -80,14 +80,14 @@
 
     <!--   =============================== ========================================================================-->
 
-    <update id="updateTicketStatus">
+    <update id="updateStatusByEnum">
         update
             dm_approval
         set
             ticket_status  = #{ticketStatus},
             status_message = #{statusMessage},
             gmt_modified   = now()
-            <if test="ticketStatus == 'REJECTED' || ticketStatus == 'FINISHED' || ticketStatus == 'CLOSED' || ticketStatus == 'CANCELED'">,finish_time = now()</if>
+            <if test="ticketStatus.name() == 'REJECTED' || ticketStatus.name() == 'FINISHED' || ticketStatus.name() == 'CLOSED' || ticketStatus.name() == 'CANCELED'">,finish_time = now()</if>
         where
             id = #{ticketId}
     </update>

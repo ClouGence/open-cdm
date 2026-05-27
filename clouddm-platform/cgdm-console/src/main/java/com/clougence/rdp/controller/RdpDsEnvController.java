@@ -16,7 +16,7 @@
 package com.clougence.rdp.controller;
 
 import static com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy.Ignore;
-import static com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel.HIGH;
+import static com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel.HIGH;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_ENV_MANAGE;
 
 import java.util.List;
@@ -30,7 +30,7 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
-import com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.console.web.model.fo.env.AddDsEnvFO;
 import com.clougence.clouddm.console.web.model.fo.env.DeleteDsEnvFO;
 import com.clougence.clouddm.console.web.model.fo.env.ListAllDsEnvFO;
@@ -38,8 +38,8 @@ import com.clougence.clouddm.console.web.model.fo.env.UpdateDsEnvFO;
 import com.clougence.clouddm.console.web.model.lo.UpdateDsEnvLO;
 import com.clougence.clouddm.console.web.model.vo.env.DsEnvVO;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
-import com.clougence.rdp.constant.operation.AuditType;
-import com.clougence.clouddm.console.web.dal.model.RdpDsEnvDO;
+import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
+import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.rdp.service.RdpDsEnvService;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.rdp.service.RdpUserService;
@@ -68,7 +68,7 @@ public class RdpDsEnvController {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        List<RdpDsEnvDO> dsEnvDOs = this.rdpDsEnvService.listDsEnv(puid, uid, listAllDsEnvFO.getEnvName());
+        List<DmSysEnvDO> dsEnvDOs = this.rdpDsEnvService.listDsEnv(puid, uid, listAllDsEnvFO.getEnvName());
         return ResWebDataUtils.buildSuccess(DsEnvVO.generateVO(dsEnvDOs));
     }
 
@@ -78,7 +78,7 @@ public class RdpDsEnvController {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        RdpDsEnvDO dsEnvDO = new RdpDsEnvDO();
+        DmSysEnvDO dsEnvDO = new DmSysEnvDO();
         dsEnvDO.setOwnerUid(puid);
         dsEnvDO.setEnvName(addDsEnvFO.getEnvName());
         dsEnvDO.setDescription(addDsEnvFO.getDescription());
@@ -111,7 +111,7 @@ public class RdpDsEnvController {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
         Long dsEnvId = deleteDsEnvFO.getDsEnvId();
-        RdpDsEnvDO rdpDsEnvDO = rdpDsEnvService.queryByUserAndId(puid, uid, dsEnvId);
+        DmSysEnvDO rdpDsEnvDO = rdpDsEnvService.queryByUserAndId(puid, uid, dsEnvId);
         int affectRows = this.rdpDsEnvService.deleteDsEnv(puid, uid, dsEnvId);
 
         this.rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request

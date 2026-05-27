@@ -23,9 +23,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
-import com.clougence.clouddm.console.web.dal.enumeration.MetaInformationType;
-import com.clougence.clouddm.console.web.dal.mapper.DmMetaInformationCacheMapper;
-import com.clougence.clouddm.console.web.dal.model.DmMetaInformationCacheDO;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsMetaDataDO;
+import com.clougence.clouddm.platform.dal.model.datasource.MetaInformationType;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.ThreadUtils;
 
@@ -35,13 +35,10 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class MetaInformationCacheServiceImpl implements MetaInformatinCacheService, UnifiedPostConstruct {
-
     @Resource
-    private DmMetaInformationCacheMapper cacheMapper;
-
-    private ScheduledThreadPoolExecutor  scheduledThreadPoolExecutor;
-
-    private final AtomicBoolean          inited = new AtomicBoolean();
+    private DataSourceDal               dsDal;
+    private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
+    private final AtomicBoolean         inited = new AtomicBoolean();
 
     private boolean supportType(MetaInformationType type) {
         switch (type) {
@@ -60,13 +57,13 @@ public class MetaInformationCacheServiceImpl implements MetaInformatinCacheServi
         }
 
         String path = getListPath(catalog, schema);
-        cacheMapper.insertOrUpdate(puid, dsId, path, type, context);
+        dsDal.metaDataMapper().insertOrUpdate(puid, dsId, path, type, context);
     }
 
     @Override
     public String getListCache(String puid, Long dsId, String catalog, String schema, MetaInformationType type) {
         String path = getListPath(catalog, schema);
-        DmMetaInformationCacheDO cacheDO = cacheMapper.queryCache(puid, dsId, path, type);
+        DmDsMetaDataDO cacheDO = dsDal.metaDataMapper().queryCache(puid, dsId, path, type);
         if (cacheDO != null) {
             return cacheDO.getContext();
         }
@@ -80,13 +77,13 @@ public class MetaInformationCacheServiceImpl implements MetaInformatinCacheServi
         }
 
         String path = getDetailPath(catalog, schema, objName);
-        cacheMapper.insertOrUpdate(puid, dsId, path, type, context);
+        dsDal.metaDataMapper().insertOrUpdate(puid, dsId, path, type, context);
     }
 
     @Override
     public String getDetailCache(String puid, Long dsId, String catalog, String schema, MetaInformationType type, String objName) {
         String path = getDetailPath(catalog, schema, objName);
-        DmMetaInformationCacheDO cacheDO = cacheMapper.queryCache(puid, dsId, path, type);
+        DmDsMetaDataDO cacheDO = dsDal.metaDataMapper().queryCache(puid, dsId, path, type);
         if (cacheDO != null) {
             return cacheDO.getContext();
         }
@@ -137,7 +134,7 @@ public class MetaInformationCacheServiceImpl implements MetaInformatinCacheServi
         Date date = new Date(now.getTime() - (long) day * 24 * 60 * 60 * 1000);
         int deleteCount;
         do {
-            deleteCount = cacheMapper.deleteBeforeDate(date);
+            deleteCount = dsDal.metaDataMapper().deleteBeforeDate(date);
         } while (deleteCount > 0);
     }
 }

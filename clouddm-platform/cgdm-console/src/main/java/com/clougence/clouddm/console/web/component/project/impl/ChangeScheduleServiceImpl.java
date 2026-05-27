@@ -26,16 +26,15 @@ import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.console.web.component.project.ImMessageType;
 import com.clougence.clouddm.console.web.component.project.ImSenderService;
 import com.clougence.clouddm.console.web.component.project.action.*;
-import com.clougence.clouddm.console.web.constants.DmMode;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.ProjectChangeStatus;
-import com.clougence.clouddm.console.web.dal.enumeration.ProjectChangeStep;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectChangeMapper;
-import com.clougence.clouddm.console.web.dal.model.DmProjectChangeDO;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserKvBaseConfigMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpUserKvBaseConfigDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.platform.dal.access.ProjectDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.project.DmProjectChangeDO;
+import com.clougence.clouddm.platform.dal.model.project.ProjectChangeStatus;
+import com.clougence.clouddm.platform.dal.model.project.ProjectChangeStep;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
@@ -50,15 +49,15 @@ import lombok.extern.slf4j.Slf4j;
 public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
 
     @Resource
+    private SystemDal                            systemDal;
+    @Resource
+    private ProjectDal                           projectDal;
+    @Resource
     private DmConsoleConfig                      dmConfig;
-    @Resource
-    private DmProjectChangeMapper                dmProjectChangeMapper;
-    @Resource
-    private RdpUserKvBaseConfigMapper            userConfigMapper;
     @Resource
     private ApplicationContext                   applicationContext;
     @Resource
-    protected ImSenderService                    imSenderService;
+    protected ImSenderService                    senderService;
 
     private Set<Long>                            taskInQueueSet;
     private ThreadPoolExecutor                   threadPoolExecutor;
@@ -68,7 +67,7 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
 
     @Override
     public void init() {
-        if (dmConfig.getDmMode() == DmMode.desktop || !inited.compareAndSet(false, true)) {
+        if (!inited.compareAndSet(false, true)) {
             return;
         }
         this.taskInQueueSet = new HashSet<>();
@@ -102,7 +101,7 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
         date = new Date(date.getTime() - 5 * 1000);
 
         try {
-            List<DmProjectChangeDO> changeList = this.dmProjectChangeMapper.queryReadyChangeListByDate(date, 50);
+            List<DmProjectChangeDO> changeList = this.projectDal.changeMapper().queryReadyChangeListByDate(date, 50);
             for (DmProjectChangeDO change : changeList) {
                 submitTask(change);
             }
@@ -119,7 +118,7 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
                 return;
             }
 
-            int res = this.dmProjectChangeMapper.assignReadyChange(changeId, change.getVersion());
+            int res = this.projectDal.changeMapper().assignReadyChange(changeId, change.getVersion());
             if (res == 0) {
                 return;
             }
@@ -144,23 +143,23 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
             this.actionMap.get(step).doAction(change);
         } catch (Throwable e) {
             log.error("changeAction[" + change.getId() + "] " + step + " failed " + e.getMessage(), e);
-            DmProjectChangeDO changeDO = this.dmProjectChangeMapper.queryChangeById(change.getOwnerUid(), change.getId());
-            this.dmProjectChangeMapper.increTryTimes(change.getId(), changeDO.getVersion(), e.getMessage());
+            DmProjectChangeDO changeDO = this.projectDal.changeMapper().queryChangeById(change.getOwnerUid(), change.getId());
+            this.projectDal.changeMapper().increTryTimes(change.getId(), changeDO.getVersion(), e.getMessage());
 
             int maxFailedTimes = maxFailedTimes(change.getOwnerUid());
             if (change.getTryTimes() >= maxFailedTimes) {
-                String language = this.imSenderService.getProjectLanguage(change.getOwnerUid(), change.getRefProjectId());
+                String language = this.senderService.getProjectLanguage(change.getOwnerUid(), change.getRefProjectId());
                 Locale locale = I18nUtils.getLocale(language);
 
                 String errorMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_SCM_INIT_MULTIPLE_RETRIES_ERROR.name(), locale, change.getChangeName(), maxFailedTimes);
-                this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, errorMsg);
-                this.dmProjectChangeMapper.updateStatusTo(change.getId(), changeDO.getVersion() + 1, ProjectChangeStatus.FAILED, errorMsg);
+                this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, errorMsg);
+                this.projectDal.changeMapper().updateStatusTo(change.getId(), changeDO.getVersion() + 1, ProjectChangeStatus.FAILED, errorMsg);
             }
         }
     }
 
     private int maxFailedTimes(String ownerUid) {
-        RdpUserKvBaseConfigDO currentConfig = this.userConfigMapper.queryByUidAndConfigName(ownerUid, UserDefinedConfig.Fields.scmMaxFailedTimes);
+        DmSysUserConfDO currentConfig = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, UserDefinedConfig.Fields.scmMaxFailedTimes);
         if (currentConfig == null || StringUtils.isBlank(currentConfig.getConfigValue())) {
             return 3;
         } else {

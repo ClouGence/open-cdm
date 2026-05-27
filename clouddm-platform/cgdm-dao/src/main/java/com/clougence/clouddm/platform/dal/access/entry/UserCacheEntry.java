@@ -1,0 +1,42 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.clougence.clouddm.platform.dal.access.entry;
+
+import java.time.LocalDateTime;
+
+import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+
+import lombok.Getter;
+import lombok.Setter;
+
+/**
+ * @author bucketli 2024/2/27 13:20:36
+ */
+@Getter
+@Setter
+public class UserCacheEntry {
+
+    private Long            userNumId;
+    private String          uid;
+    private String          parentUid;
+    private AccountType     userType;
+    private AccountBindType bindType;
+    private String          ak;
+    private String          userName;
+    private String          roleName;
+    private LocalDateTime   addTime = LocalDateTime.now();
+}

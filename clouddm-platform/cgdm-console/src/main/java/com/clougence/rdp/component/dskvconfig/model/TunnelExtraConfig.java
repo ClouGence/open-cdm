@@ -20,8 +20,8 @@ import com.clougence.clouddm.base.metadata.rdp.enumeration.SchemaLessValueFormat
 import com.clougence.clouddm.base.metadata.rdp.enumeration.TunnelProtocol;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.TunnelSrcType;
 import com.clougence.rdp.constant.DsConfigDef;
-import com.clougence.rdp.constant.I18nDsConfigMsgKeys;
-import com.clougence.rdp.constant.KvConfValType;
+import com.clougence.clouddm.console.web.global.i18n.I18nDsConfigMsgKeys;
+import com.clougence.clouddm.platform.dal.model.system.KvConfValType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;

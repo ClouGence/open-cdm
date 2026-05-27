@@ -20,9 +20,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
-import com.clougence.clouddm.console.web.constants.DmMode;
 import com.clougence.clouddm.console.web.constants.DmModeFeatured;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpProduct;
+import com.clougence.clouddm.console.web.constants.RdpProduct;
 import com.clougence.rdp.global.config.RdpDeployEnv;
 import com.clougence.rdp.global.config.RdpPackageMode;
 import com.clougence.rdp.service.enumeration.AlertImType;
@@ -77,12 +76,8 @@ public class DmConsoleConfig {
     @Value("${clouddm.rsocket.console.port:8008}")
     private int              rsocketConsolePort;
 
-    // for personal_desktop
-    @Value("${clouddm.mode.type:output}")
-    private DmMode           dmMode;
     @Value("${clouddm.mode.featured:basic}")
     private DmModeFeatured   dmModeFeatured;
-    private DmPersonalConfig personalConfig = new DmPersonalConfig();
 
     // for console query
     @Value("${clouddm.console.query_queue_size:5000}")

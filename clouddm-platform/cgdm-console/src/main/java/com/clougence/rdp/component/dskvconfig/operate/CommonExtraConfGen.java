@@ -22,13 +22,13 @@ import com.clougence.clouddm.base.metadata.rdp.enumeration.ProxyMode;
 import com.clougence.rdp.component.dskvconfig.RdpDsExtraConfGen;
 import com.clougence.rdp.component.dskvconfig.model.CommonDsExtraConfig;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.utils.StringUtils;
 
 public abstract class CommonExtraConfGen implements RdpDsExtraConfGen {
 
     @Override
-    public DsExtraConfig genDsExtraConfig(RdpDataSourceDO dsDO, List<InitDsKvBaseConfigFO> fos) {
+    public DsExtraConfig genDsExtraConfig(DmDsDO dsDO, List<InitDsKvBaseConfigFO> fos) {
         DsExtraConfig config = newDsExtraConfig();
         if (!(config instanceof CommonDsExtraConfig)) {
             throw new IllegalArgumentException("newDsExtraConfig() return value not instanceof CommonDsExtraConfig");

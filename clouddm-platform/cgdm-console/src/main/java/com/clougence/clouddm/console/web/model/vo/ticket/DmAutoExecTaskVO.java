@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.vo.ticket;
 
-import com.clougence.clouddm.console.web.dal.enumeration.AutoExecTaskStatus;
+import com.clougence.clouddm.platform.dal.model.execution.AutoExecTaskStatus;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 
 import lombok.Getter;

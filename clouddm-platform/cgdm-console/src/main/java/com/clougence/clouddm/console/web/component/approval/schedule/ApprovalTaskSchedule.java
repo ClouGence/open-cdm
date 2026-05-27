@@ -26,19 +26,18 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
-import com.clougence.clouddm.console.web.dal.enumeration.LifeCycleState;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalBiz;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalType;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpTicketStatus;
-import com.clougence.clouddm.console.web.dal.mapper.DmApprovalCacheTemplateMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmApprovalMapper;
-import com.clougence.clouddm.console.web.dal.model.DmApprovalDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.ApprovalDal;
+import com.clougence.clouddm.platform.dal.model.LifeCycleState;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalBiz;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
+import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiErrorType;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.rdp.global.exception.RemoteInvokeTimeoutException;
 import com.clougence.rdp.service.RdpDsService;
 import com.clougence.utils.ExceptionUtils;
@@ -50,30 +49,27 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ApprovalTaskSchedule {
+    @Resource
+    private DmConsoleConfig             consoleConfig;
+    @Resource
+    private ApprovalDal                 approvalDal;
+    @Resource
+    private ApprovalFlowService         approvalFlowService;
+    @Resource
+    private RdpDsService                rdpDsService;
+    @Resource
+    private ApprovalProviderServiceImpl approvalProviderServiceImpl;
+    @Resource
+    private ApprovalTaskScheduleProcess ticketProcess;
+    @Resource
+    private ApplicationContext          applicationContext;
 
-    @Resource
-    private DmConsoleConfig               dmConfig;
-    @Resource
-    private DmApprovalMapper              approvalMapper;
-    @Resource
-    private ApprovalFlowService           approvalFlowService;
-    @Resource
-    private DmApprovalCacheTemplateMapper templateMapper;
-    @Resource
-    private RdpDsService                  rdpDsService;
-    @Resource
-    private ApprovalProviderServiceImpl   approvalProviderServiceImpl;
-    @Resource
-    private ApprovalTaskScheduleProcess   ticketProcess;
-    @Resource
-    private ApplicationContext            applicationContext;
-
-    ThreadPoolExecutor                    threadPoolExecutor;
-    private Thread                        scheduleWorkThread;
-    private Set<Long>                     taskInQueueSet;
+    ThreadPoolExecutor                  threadPoolExecutor;
+    private Thread                      scheduleWorkThread;
+    private Set<Long>                   taskInQueueSet;
 
     public void start() {
-        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(this.dmConfig.getRdpAsyncTaskQueueSize());
+        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(this.consoleConfig.getRdpAsyncTaskQueueSize());
         ThreadFactory threadFactory = ThreadUtils.daemonThreadFactory(this.getClass().getClassLoader(), "Ticket-task-%s");
         // if queue is full, ignore the latest additions
         this.threadPoolExecutor = new ThreadPoolExecutor(10, 10, 1, TimeUnit.MINUTES, queue, threadFactory, new ThreadPoolExecutor.AbortPolicy());
@@ -106,7 +102,7 @@ public class ApprovalTaskSchedule {
             Date date = new Date();
             date = new Date(date.getTime() - 5 * 1000);
 
-            List<Long> doList = this.approvalMapper.listUnFinishTicketIdList(date);
+            List<Long> doList = this.approvalDal.approvalMapper().listUnFinishTicketIdList(date);
 
             // there is nothing to do.
             if (doList.isEmpty()) {
@@ -129,7 +125,7 @@ public class ApprovalTaskSchedule {
             if (!this.taskInQueueSet.add(id)) {
                 return;
             }
-            this.approvalMapper.updateModified(id);
+            this.approvalDal.approvalMapper().updateModified(id);
             threadPoolExecutor.submit(() -> {
                 try {
                     run(id);
@@ -144,7 +140,7 @@ public class ApprovalTaskSchedule {
     }
 
     private void run(Long ticketId) {
-        DmApprovalDO approvalDO = this.approvalMapper.queryById(ticketId);
+        DmApprovalDO approvalDO = this.approvalDal.approvalMapper().queryById(ticketId);
         String puid = approvalDO.getPrimaryUid();
         String uid = approvalDO.getOwnerUid();
         DmApprovalDO afterCheck = this.processCheck(approvalDO, puid);
@@ -153,7 +149,7 @@ public class ApprovalTaskSchedule {
             return;
         }
 
-        this.approvalMapper.updateModified(afterCheck.getId());
+        this.approvalDal.approvalMapper().updateModified(afterCheck.getId());
 
         switch (afterCheck.getTicketStatus()) {
             case PRE_INIT: {
@@ -181,7 +177,7 @@ public class ApprovalTaskSchedule {
                 } catch (ThirdPartyApiException e) {
                     if (e.getErrorType() == ThirdPartyApiErrorType.APPROVAL_TEMPLATE_NOT_EXISTS) {
                         approvalFlowService.failTicket(ticketId, DmI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()), approvalDO.getPrimaryUid());
-                        templateMapper.deleteByPrimaryUid(approvalDO.getPrimaryUid(), approvalDO.getApproType());
+                        approvalDal.templateMapper().deleteByPrimaryUid(approvalDO.getPrimaryUid(), approvalDO.getApproType());
                     } else {
                         this.approvalFlowService.failTicket(approvalDO.getId(), DmI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()), puid);
                     }
@@ -232,15 +228,15 @@ public class ApprovalTaskSchedule {
     }
 
     private DmApprovalDO processCheck(DmApprovalDO ticketDO, String puid) {
-        RdpDataSourceDO dataSourceDO = this.rdpDsService.queryById(ticketDO.getBindDsId());
-        if ((dataSourceDO == null || dataSourceDO.getLifeCycleState() == LifeCycleState.DELETED) && ticketDO.getApproBiz() != RdpApprovalBiz.DATA_SOURCE_AUTH) {
+        DmDsDO dataSourceDO = this.rdpDsService.queryById(ticketDO.getBindDsId());
+        if ((dataSourceDO == null || dataSourceDO.getLifeCycleState() == LifeCycleState.DELETED) && ticketDO.getApproBiz() != ApprovalBiz.DATA_SOURCE_AUTH) {
             // ds is deleted
             this.approvalFlowService.failTicket(ticketDO.getId(), DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_DS_IS_DELETE.name()), puid);
             return null;
         }
 
-        if (ticketDO.getApproType() != RdpApprovalType.Internal
-            && (ticketDO.getTicketStatus() == RdpTicketStatus.PRE_INIT || ticketDO.getTicketStatus() == RdpTicketStatus.WAIT_APPROVAL)) {
+        if (ticketDO.getApproType() != ApprovalType.Internal
+            && (ticketDO.getTicketStatus() == ApprovalStatus.PRE_INIT || ticketDO.getTicketStatus() == ApprovalStatus.WAIT_APPROVAL)) {
             if (!this.approvalProviderServiceImpl.checkEnableApproval(puid, ticketDO.getApproType().getProviderType())) {
                 String failMsg = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), ticketDO.getApproType().name());
                 this.approvalFlowService.failTicket(ticketDO.getId(), failMsg, puid);
@@ -248,7 +244,7 @@ public class ApprovalTaskSchedule {
             }
         }
 
-        if (RdpTicketStatus.isEndStatus(ticketDO.getTicketStatus())) {
+        if (ApprovalStatus.isEndStatus(ticketDO.getTicketStatus())) {
             return null;
         }
 

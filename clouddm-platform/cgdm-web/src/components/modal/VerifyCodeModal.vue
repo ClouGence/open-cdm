@@ -137,8 +137,7 @@ export default {
           verifyType: this.verifyType,
           verifyCodeType: this.verifyCodeType,
           phoneNumber: this.phoneNumber,
-          email: this.email,
-          phoneAreaCode: 'CHINA'
+          email: this.email
         }
       })
         .then((res) => {

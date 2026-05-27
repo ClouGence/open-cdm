@@ -15,8 +15,8 @@
  */
 package com.clougence.clouddm.console.web.model.vo;
 
-import com.clougence.clouddm.console.web.dal.enumeration.AccountBindType;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 
 import lombok.Getter;
 import lombok.Setter;

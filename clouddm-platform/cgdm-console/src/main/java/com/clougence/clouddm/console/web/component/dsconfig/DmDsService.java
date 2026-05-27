@@ -22,12 +22,12 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
-import com.clougence.clouddm.console.web.dal.model.DmDsConfigDO;
 import com.clougence.clouddm.console.web.model.fo.datasource.ConnectDsFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.EnableDsQueryFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsConfigFO;
 import com.clougence.clouddm.console.web.model.vo.DsKvConfigVO;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 
 /**
  * @author bucketli 2020-01-13 18:08
@@ -61,20 +61,20 @@ public interface DmDsService {
 
     void updateDsTag(long dsId, String uid, String remark);
 
-    List<RdpDataSourceDO> listDsByClusterId(long clusterId);
+    List<DmDsDO> listDsByClusterId(long clusterId);
 
     List<DsKvConfigVO> queryDsConfigIncludeNewEntries(Long dsId);
 
     void upsertDsConfigs(String puid, UpsertDsConfigFO fo);
 
-    RdpDataSourceDO fetchById(Long dsId);
+    DmDsDO fetchById(Long dsId);
 
-    RdpDataSourceDO queryDs(Long dsId);
+    DmDsDO queryDs(Long dsId);
 
     /**
      * Fill ds env info by dsenv id in dataSourceDO
      */
-    void fillDsEnvInfo(List<RdpDataSourceDO> dataSourceDOList);
+    void fillDsEnvInfo(List<DmDsDO> dataSourceDOList);
 
     String testConnect(String uid, ConnectDsFO fo);
 

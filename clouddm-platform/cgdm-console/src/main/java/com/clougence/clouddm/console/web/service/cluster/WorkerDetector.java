@@ -20,9 +20,9 @@ import java.time.Duration;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.console.status.WorkerState;
-import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
 import com.clougence.clouddm.console.web.constants.HealthLevel;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -33,17 +33,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class WorkerDetector {
 
-    private static final long       HEARTBEAT_TIMEOUT_MS = 15_000L;
+    private static final long HEARTBEAT_TIMEOUT_MS = 15_000L;
 
-    public boolean isLooseAlive(DmWorkerDO workerDO) {
+    public boolean isLooseAlive(DmSysWorkerDO workerDO) {
         return !isHeartbeatTimeout(workerDO);
     }
 
-    public boolean isCriticalAlive(DmWorkerDO workerDO) {
+    public boolean isCriticalAlive(DmSysWorkerDO workerDO) {
         return !isHeartbeatTimeout(workerDO);
     }
 
-    public HealthLevel getHealthLevel(DmWorkerDO workerDO) {
+    public HealthLevel getHealthLevel(DmSysWorkerDO workerDO) {
         WorkerState state = workerDO.getWorkerState();
         if (state == WorkerState.ONLINE && !isHeartbeatTimeout(workerDO)) {
             return HealthLevel.Health;
@@ -54,7 +54,7 @@ public class WorkerDetector {
         return HealthLevel.Unhealthy;
     }
 
-    protected boolean isHeartbeatTimeout(DmWorkerDO workerDO) {
+    protected boolean isHeartbeatTimeout(DmSysWorkerDO workerDO) {
         if (workerDO == null || workerDO.getLastHeartbeatReportMs() == null) {
             return true;
         }

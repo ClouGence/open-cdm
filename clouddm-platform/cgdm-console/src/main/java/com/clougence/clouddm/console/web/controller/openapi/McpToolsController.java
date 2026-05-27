@@ -25,9 +25,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.*;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.mcp.McpApiProvider;
 import com.clougence.clouddm.console.web.global.mcp.McpI18nProxy;
@@ -39,9 +41,7 @@ import com.clougence.clouddm.console.web.global.mcp.model.request.ToolCallParams
 import com.clougence.clouddm.console.web.global.mcp.model.response.*;
 import com.clougence.clouddm.console.web.global.mcp.utils.JacksonHelper;
 import com.clougence.clouddm.console.web.global.mcp.utils.Json;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.rdp.component.openapi.OpenApiHttpClient;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
@@ -60,16 +60,12 @@ import lombok.extern.slf4j.Slf4j;
 public class McpToolsController extends BasicApi implements UnifiedPostConstruct {
 
     private Map<String, String> toolApi         = Collections.emptyMap();
-
     private ToolsListResult     toolsListResult = new ToolsListResult(Collections.emptyList(), null);
-
     private InitializeResult    initResult;
-
     private Map<String, Object> pongResult;
 
     @Resource
     private ApplicationContext  context;
-
     @Resource
     private DmConsoleConfig     consoleConfig;
 

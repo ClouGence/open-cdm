@@ -29,13 +29,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.ImType;
-import com.clougence.clouddm.console.web.dal.model.DmMessengerDO;
-import com.clougence.clouddm.console.web.dal.model.DmProjectMsgDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy;
 import com.clougence.clouddm.console.web.model.fo.project.DevopsImAddFO;
@@ -47,8 +46,9 @@ import com.clougence.clouddm.console.web.service.project.DmImService;
 import com.clougence.clouddm.console.web.service.project.DmProjectService;
 import com.clougence.clouddm.console.web.service.project.domain.DmImDef;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.platform.dal.model.project.DmProjectMsgDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysMessengerDO;
+import com.clougence.clouddm.platform.dal.model.system.ImType;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.StringUtils;
 
@@ -68,7 +68,7 @@ public class DmImController {
     @Resource
     private DmImService      dmImService;
     @Resource
-    private DmProjectService dmProjectService;
+    private DmProjectService projectService;
 
     @RequestAuth(strategy = AuthStrategy.Ignore)
     @RequestMapping(value = "/defList", method = RequestMethod.POST)
@@ -92,7 +92,7 @@ public class DmImController {
         List<DmImDef> defList = this.dmImService.getImDefList();
         Map<ImType, DmImDef> defMap = defList.stream().collect(Collectors.toMap(DmImDef::getImType, d -> d));
 
-        List<DmMessengerDO> imList = this.dmImService.queryMessengerByOwnerAndType(puid, fo.getImType());
+        List<DmSysMessengerDO> imList = this.dmImService.queryMessengerByOwnerAndType(puid, fo.getImType());
         List<DevopsImVO> vos = imList.stream().map(scmDO -> {
             return DmConvertUtils.convertToDevopsImVO(scmDO, defMap);
         }).collect(Collectors.toList());
@@ -113,13 +113,13 @@ public class DmImController {
     public ResWebData<?> delete(HttpServletRequest request, @Valid @RequestBody DevopsImDeleteFO fo) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
-        DmMessengerDO imDO = this.dmImService.queryImById(puid, fo.getImId());
+        DmSysMessengerDO imDO = this.dmImService.queryImById(puid, fo.getImId());
         if (imDO == null) {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_IM_NOT_EXIST_ERROR.name()));
         }
 
         if (!fo.isForce()) {
-            List<DmProjectMsgDO> useList = this.dmProjectService.queryEnableDevopsByImId(puid, fo.getImId());
+            List<DmProjectMsgDO> useList = this.projectService.queryEnableDevopsByImId(puid, fo.getImId());
             if (!useList.isEmpty()) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_IM_INUSE_ERROR.name(), imDO.getImDisplay()));
             }
@@ -134,7 +134,7 @@ public class DmImController {
     public ResWebData<?> update(HttpServletRequest request, @Valid @RequestBody DevopsImUpdateFO fo) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
-        DmMessengerDO imDO = this.dmImService.queryImById(puid, fo.getImId());
+        DmSysMessengerDO imDO = this.dmImService.queryImById(puid, fo.getImId());
         if (imDO == null) {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_IM_NOT_EXIST_ERROR.name()));
         }
@@ -142,7 +142,7 @@ public class DmImController {
         // key config change
         if (StringUtils.isNotBlank(fo.getNewWebhookUrl())) {
             if (!fo.isForce()) {
-                List<DmProjectMsgDO> useList = this.dmProjectService.queryEnableDevopsByImId(puid, fo.getImId());
+                List<DmProjectMsgDO> useList = this.projectService.queryEnableDevopsByImId(puid, fo.getImId());
                 if (!useList.isEmpty()) {
                     throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_IM_INUSE_ERROR.name(), imDO.getImDisplay()));
                 }
@@ -159,7 +159,7 @@ public class DmImController {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
         if (fo.getImId() != null) {
-            DmMessengerDO messengerDO = this.dmImService.queryImById(puid, fo.getImId());
+            DmSysMessengerDO messengerDO = this.dmImService.queryImById(puid, fo.getImId());
             fo.setImType(messengerDO.getImType());
             fo.setDisplay(messengerDO.getImDisplay());
             fo.setWebhookUrl(messengerDO.getWebhook());

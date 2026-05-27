@@ -21,20 +21,18 @@ import java.util.function.Function;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.mapper.DmMessengerMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectMsgMapper;
-import com.clougence.clouddm.console.web.dal.model.DmMessengerDO;
-import com.clougence.clouddm.console.web.dal.model.DmProjectDO;
-import com.clougence.clouddm.console.web.dal.model.DmProjectMsgDO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.platform.dal.access.ProjectDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.project.DmProjectDO;
+import com.clougence.clouddm.platform.dal.model.project.DmProjectMsgDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysMessengerDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.messenger.*;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserKvBaseConfigMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpUserKvBaseConfigDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.i18n.I18nUtils;
 
@@ -44,15 +42,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ImSenderServiceImpl implements ImSenderService {
-
     @Resource
-    private DmProjectMapper           dmProjectMapper;
+    private SystemDal  systemDal;
     @Resource
-    private DmProjectMsgMapper        dmProjectMsgMapper;
-    @Resource
-    private DmMessengerMapper         dmMessengerMapper;
-    @Resource
-    private RdpUserKvBaseConfigMapper userConfigMapper;
+    private ProjectDal projectDal;
 
     @Override
     public void sendMessage(String ownerUid, long projectId, ImMessageType imMessageType, Function<Locale, String> msgFunction) {
@@ -77,12 +70,12 @@ public class ImSenderServiceImpl implements ImSenderService {
 
     @Override
     public String getProjectLanguage(String ownerUid, long projectId) {
-        DmProjectMsgDO msgDO = this.dmProjectMsgMapper.queryMessageByProjectId(ownerUid, projectId);
+        DmProjectMsgDO msgDO = this.projectDal.msgMapper().queryMessageByProjectId(ownerUid, projectId);
         if (msgDO != null && StringUtils.isNotBlank(msgDO.getLanguage())) {
             return msgDO.getLanguage();
         }
 
-        RdpUserKvBaseConfigDO defaultLanguage = this.userConfigMapper.queryByUidAndConfigName(ownerUid, UserDefinedConfig.Fields.defaultLanguage);
+        DmSysUserConfDO defaultLanguage = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, UserDefinedConfig.Fields.defaultLanguage);
         if (defaultLanguage == null || StringUtils.isBlank(defaultLanguage.getConfigValue())) {
             return "zh_CN";
         } else {
@@ -92,11 +85,11 @@ public class ImSenderServiceImpl implements ImSenderService {
 
     @Override
     public void sendMessage(String ownerUid, long projectId, ImMessageType messageType, MsgContent message) {
-        DmProjectDO project = this.dmProjectMapper.queryByOwnerAndId(ownerUid, projectId);
+        DmProjectDO project = this.projectDal.projectMapper().queryByOwnerAndId(ownerUid, projectId);
         if (project == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_NOT_EXIST_ERROR.name()));
         }
-        DmProjectMsgDO msgDO = this.dmProjectMsgMapper.queryMessageByProjectId(ownerUid, projectId);
+        DmProjectMsgDO msgDO = this.projectDal.msgMapper().queryMessageByProjectId(ownerUid, projectId);
         if (msgDO == null || !msgDO.isEnable()) {
             String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_IM_NOT_AVAILABLE_MESSAGE.name(), project.getProjectName());
             this.sendDone(ownerUid, message, MsgSendResult.failed(message.getMessageId(), msg));
@@ -107,7 +100,7 @@ public class ImSenderServiceImpl implements ImSenderService {
             return;
         }
 
-        DmMessengerDO messengerDO = this.dmMessengerMapper.queryImById(ownerUid, msgDO.getRefMsgId());
+        DmSysMessengerDO messengerDO = this.systemDal.messengerMapper().queryImById(ownerUid, msgDO.getRefMsgId());
         ImSenderConfig imConfig = ImSenderConfig.builder()//
             .imType(messengerDO.getImType())
             .webhookUrl(messengerDO.getWebhook())

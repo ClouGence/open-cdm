@@ -21,22 +21,21 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
-import com.clougence.clouddm.console.web.component.execute.QueryService;
 import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.editor.table.TableEditorForm;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.UiWebUtil;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.sdk.ui.editor.property.PropertyEditorUiData;
 import com.clougence.clouddm.sdk.ui.editor.property.PropertyUiPanel;
 import com.clougence.clouddm.sdk.ui.editor.table.TableEditorVarKeys;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.schema.umi.special.rdb.*;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.schema.umi.struts.Value;
@@ -53,15 +52,13 @@ public class DsObjPropertyServiceImpl implements DsObjPropertyService {
     private DsSchemaService                    dmDsSchemaService;
     @Resource
     private DmDsConfigService                  dmDsConfigService;
-    @Resource
-    private QueryService                       queryService;
 
     private final Map<String, TableEditorForm> dsUiEditorCache = new ConcurrentHashMap<>();
 
     /** for service API '/editor/table/editorDef' */
     @Override
     public TableEditorForm loadPropertyDef(String puid, String uid, DsLevels levels, UmiTypes types) {
-        RdpDataSourceDO dsDO = levels.dsDO();
+        DmDsDO dsDO = levels.dsDO();
         DataSourceType dsType = dsDO.getDataSourceType();
         DsConfig dsConfig = this.dmDsConfigService.dsConstantSettings(dsType);
         if (dsConfig == null) {
@@ -151,7 +148,7 @@ public class DsObjPropertyServiceImpl implements DsObjPropertyService {
 
     @Override
     public PropertyEditorUiData loadPropertyData(String puid, String uid, DsLevels levels, UmiTypes types, String leafName) {
-        RdpDataSourceDO dsDO = levels.dsDO();
+        DmDsDO dsDO = levels.dsDO();
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
 
         Value value = this.dmDsSchemaService.detailLeaf(uid, dsDO, levelsParam, types, leafName, true);

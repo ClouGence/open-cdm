@@ -25,8 +25,8 @@ import java.util.Map;
 import com.clougence.clouddm.base.metadata.ds.ConfigDef;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
-import com.clougence.rdp.constant.KvConfValType;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
+import com.clougence.clouddm.platform.dal.model.system.KvConfValType;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -51,13 +51,13 @@ public class DmDsConfigHelper {
         fillFieldValue(instance, instance.getClass(), configMap);
     }
 
-    public static List<RdpDsKvBaseConfigDO> collectConfigs(Object instance) {
-        List<RdpDsKvBaseConfigDO> configs = new ArrayList<>();
+    public static List<DmDsConfigKv4RdpDO> collectConfigs(Object instance) {
+        List<DmDsConfigKv4RdpDO> configs = new ArrayList<>();
         collectConfigs(instance, instance.getClass(), configs);
         return configs;
     }
 
-    protected static void collectConfigs(Object instance, Class<?> clazz, List<RdpDsKvBaseConfigDO> configs) {
+    protected static void collectConfigs(Object instance, Class<?> clazz, List<DmDsConfigKv4RdpDO> configs) {
         try {
             Field[] fields = clazz.getDeclaredFields();
 
@@ -75,7 +75,7 @@ public class DmDsConfigHelper {
                     val = String.valueOf(oriVal);
                 }
 
-                RdpDsKvBaseConfigDO configDO = genConfigDo(configDef, val, field.getType());
+                DmDsConfigKv4RdpDO configDO = genConfigDo(configDef, val, field.getType());
 
                 configs.add(configDO);
             }
@@ -90,8 +90,8 @@ public class DmDsConfigHelper {
         }
     }
 
-    protected static RdpDsKvBaseConfigDO genConfigDo(ConfigDef configDef, String val, Class<?> fieldType) {
-        RdpDsKvBaseConfigDO configDO = new RdpDsKvBaseConfigDO();
+    protected static DmDsConfigKv4RdpDO genConfigDo(ConfigDef configDef, String val, Class<?> fieldType) {
+        DmDsConfigKv4RdpDO configDO = new DmDsConfigKv4RdpDO();
         //configDO.setDataSourceId(dataSourceId);
         configDO.setConfigName(configDef.name());
         if (configDef.group() == null) {

@@ -17,7 +17,7 @@ package com.clougence.clouddm.console.web.model.vo;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ConnectType;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 
 import lombok.Getter;
 import lombok.Setter;

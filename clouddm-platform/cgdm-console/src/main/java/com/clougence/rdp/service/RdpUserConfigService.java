@@ -21,8 +21,8 @@ import java.util.Map;
 import com.clougence.clouddm.console.web.model.fo.UpsertUserConfigFO;
 import com.clougence.clouddm.console.web.model.lo.UpsertUserConfigLO;
 import com.clougence.clouddm.console.web.model.vo.RdpUserConfigVO;
-import com.clougence.rdp.constant.UserConfigTagType;
-import com.clougence.clouddm.console.web.dal.model.RdpUserKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
 
 /**
@@ -41,11 +41,11 @@ public interface RdpUserConfigService {
      */
     Map<String, RdpUserConfigVO> queryWithNewEntriesAndSpecifiedConfs(String uid, List<String> configs);
 
-    List<RdpUserKvBaseConfigDO> getSpecifiedConfigs(String uid, List<String> configNames);
+    List<DmSysUserConfDO> getSpecifiedConfigs(String uid, List<String> configNames);
 
-    RdpUserKvBaseConfigDO getDefaultClusterName(String uid);
+    DmSysUserConfDO getDefaultClusterName(String uid);
 
-    RdpUserKvBaseConfigDO getSpecifiedConfig(String uid, String configName);
+    DmSysUserConfDO getSpecifiedConfig(String uid, String configName);
 
     List<RdpUserConfigVO> queryOneConfigTypeByUid(String uid, UserConfigTagType type);
 

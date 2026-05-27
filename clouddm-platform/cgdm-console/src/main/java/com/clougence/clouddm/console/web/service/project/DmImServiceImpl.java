@@ -26,23 +26,23 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.project.ImSenderConfig;
 import com.clougence.clouddm.console.web.component.project.ImSenderService;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.ImType;
-import com.clougence.clouddm.console.web.dal.mapper.DmMessengerMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectMsgMapper;
-import com.clougence.clouddm.console.web.dal.model.DmMessengerDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.project.DevopsImAddFO;
 import com.clougence.clouddm.console.web.model.fo.project.DevopsImUpdateFO;
 import com.clougence.clouddm.console.web.service.project.domain.DmImDef;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.ProjectDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.system.DmSysMessengerDO;
+import com.clougence.clouddm.platform.dal.model.system.ImType;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.messenger.MsgContent;
 import com.clougence.clouddm.sdk.messenger.MsgSendResult;
 import com.clougence.clouddm.sdk.messenger.MsgSendSpi;
 import com.clougence.clouddm.sdk.messenger.MsgSendType;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -51,13 +51,12 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class DmImServiceImpl implements DmImService, UnifiedPostConstruct {
-
     @Resource
-    private DmMessengerMapper   dmMessengerMapper;
+    private SystemDal           systemDal;
     @Resource
-    private DmProjectMsgMapper  dmProjectMsgMapper;
+    private ProjectDal          projectDal;
     @Resource
-    private ImSenderService     imSenderService;
+    private ImSenderService     senderService;
     private final List<DmImDef> imDefList = new ArrayList<>();
 
     @Override
@@ -85,18 +84,18 @@ public class DmImServiceImpl implements DmImService, UnifiedPostConstruct {
     public List<DmImDef> getImDefList() { return this.imDefList; }
 
     @Override
-    public List<DmMessengerDO> queryImList(String ownerUid) {
-        return this.dmMessengerMapper.queryMessengerByOwner(ownerUid);
+    public List<DmSysMessengerDO> queryImList(String ownerUid) {
+        return this.systemDal.messengerMapper().queryMessengerByOwner(ownerUid);
     }
 
     @Override
-    public List<DmMessengerDO> queryMessengerByOwnerAndType(String ownerUid, ImType imType) {
-        return this.dmMessengerMapper.queryMessengerByOwnerAndType(ownerUid, imType);
+    public List<DmSysMessengerDO> queryMessengerByOwnerAndType(String ownerUid, ImType imType) {
+        return this.systemDal.messengerMapper().queryMessengerByOwnerAndType(ownerUid, imType);
     }
 
     @Override
-    public DmMessengerDO queryImById(String ownerUid, long imId) {
-        return this.dmMessengerMapper.queryImById(ownerUid, imId);
+    public DmSysMessengerDO queryImById(String ownerUid, long imId) {
+        return this.systemDal.messengerMapper().queryImById(ownerUid, imId);
     }
 
     @Override
@@ -122,33 +121,33 @@ public class DmImServiceImpl implements DmImService, UnifiedPostConstruct {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_IM_WEBHOOK_URL_NOT_SUPPORT.name()));
         }
 
-        DmMessengerDO scmDO = new DmMessengerDO();
+        DmSysMessengerDO scmDO = new DmSysMessengerDO();
         scmDO.setOwnerUid(ownerUid);
         scmDO.setImType(fo.getImType());
         scmDO.setImDisplay(fo.getDisplay());
         scmDO.setWebhook(fo.getWebhookUrl());
         scmDO.setSecret(fo.getSecret());
         scmDO.setEnable(true);
-        this.dmMessengerMapper.insert(scmDO);
+        this.systemDal.messengerMapper().insert(scmDO);
     }
 
     @Override
     public void deleteImById(String ownerUid, long imId) {
-        this.dmMessengerMapper.deleteByOwnerAndId(ownerUid, imId);
-        this.dmProjectMsgMapper.disableByOwnerAndImId(ownerUid, imId);
+        this.systemDal.messengerMapper().deleteByOwnerAndId(ownerUid, imId);
+        this.projectDal.msgMapper().disableByOwnerAndImId(ownerUid, imId);
     }
 
     @Override
     public void updateImById(String ownerUid, DevopsImUpdateFO fo) {
         if (StringUtils.isNotBlank(fo.getNewDisplay())) {
-            this.dmMessengerMapper.updateDisplayByOwnerAndId(ownerUid, fo.getImId(), fo.getNewDisplay());
+            this.systemDal.messengerMapper().updateDisplayByOwnerAndId(ownerUid, fo.getImId(), fo.getNewDisplay());
         }
         if (StringUtils.isNotBlank(fo.getNewWebhookUrl())) {
             boolean urlOk = StringUtils.startsWithIgnoreCase(fo.getNewWebhookUrl(), "http://") || StringUtils.startsWithIgnoreCase(fo.getNewWebhookUrl(), "https://");
             if (!urlOk) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_IM_WEBHOOK_URL_NOT_SUPPORT.name()));
             }
-            this.dmMessengerMapper.updateWebhookUrlByOwnerAndId(ownerUid, fo.getImId(), fo.getNewWebhookUrl(), fo.getNewSecret());
+            this.systemDal.messengerMapper().updateWebhookUrlByOwnerAndId(ownerUid, fo.getImId(), fo.getNewWebhookUrl(), fo.getNewSecret());
         }
     }
 
@@ -176,7 +175,7 @@ public class DmImServiceImpl implements DmImService, UnifiedPostConstruct {
             .webhookUrl(fo.getWebhookUrl())
             .secret(fo.getSecret())
             .build();
-        MsgSendResult res = this.imSenderService.sendMessage(ownerUid, imConfig, testMessage);
+        MsgSendResult res = this.senderService.sendMessage(ownerUid, imConfig, testMessage);
         if (!res.isSuccess()) {
             if (res.getMessage() != null) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(res.getMessage()));

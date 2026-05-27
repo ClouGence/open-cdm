@@ -29,11 +29,11 @@ import com.clougence.clouddm.comm.component.server.ServerSideRegistry;
 import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
 import com.clougence.clouddm.comm.model.auth.ConnAuthDTO;
 import com.clougence.clouddm.comm.model.rsocket.RSocketRegisterInfo;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.utils.ExceptionUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -47,15 +47,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DmServerSideRegistry implements ServerSideRegistry {
 
-    private final RdpUserMapper                userMapper;
-    private final DmWorkerMapper               workerMapper;
+    private final AuthDal                      authDal;
+    private final SystemDal                    systemDal;
     private final RSocketExceptionManager      exceptionManager;
     private final List<DmWorkerRegisterNotify> notifyServices;
 
-    public DmServerSideRegistry(RdpUserMapper userMapper, DmWorkerMapper workerMapper, List<DmWorkerRegisterNotify> notifyServices,
+    public DmServerSideRegistry(AuthDal authDal, SystemDal systemDal, List<DmWorkerRegisterNotify> notifyServices,
                                 RSocketExceptionManager exceptionManager){
-        this.userMapper = userMapper;
-        this.workerMapper = workerMapper;
+        this.authDal = authDal;
+        this.systemDal = systemDal;
         this.notifyServices = notifyServices;
         this.exceptionManager = exceptionManager;
     }
@@ -70,9 +70,9 @@ public class DmServerSideRegistry implements ServerSideRegistry {
     public void register(RSocketRegisterInfo registerInfo) {
         try {
             String workerSeqNumber = registerInfo.getWorkerSeqNumber();
-            DmWorkerDO workerStatusDO = workerMapper.getByWsn(workerSeqNumber);
+            DmSysWorkerDO workerStatusDO = systemDal.workerMapper().getByWsn(workerSeqNumber);
             workerStatusDO.setWorkerIp(registerInfo.getWorkerIp());
-            workerMapper.updateWorkerLivenessByWsn(workerStatusDO);
+            systemDal.workerMapper().updateWorkerLivenessByWsn(workerStatusDO);
             workerRequesterMap.put(registerInfo.getWorkerSeqNumber(), registerInfo.getRequester());
             log.info("register successfully for worker (" + workerSeqNumber + "," + workerStatusDO.getWorkerSeqNumber() + ")");
             this.notifyServices.forEach(s -> s.notifyRegister(workerSeqNumber));
@@ -87,7 +87,7 @@ public class DmServerSideRegistry implements ServerSideRegistry {
     @Override
     public void checkAuth(ConnAuthDTO authInfo) {
         try {
-            RdpUserDO userDO = userMapper.queryByAccessKey(authInfo.getAk());
+            DmAuthUserDO userDO = authDal.userMapper().queryByAccessKey(authInfo.getAk());
             if (userDO == null) {
                 throw new IllegalArgumentException("no such user,ak:" + authInfo.getAk() + ".remote ip:" + authInfo.getIp());
             }
@@ -97,7 +97,7 @@ public class DmServerSideRegistry implements ServerSideRegistry {
                 throw new IllegalArgumentException("user sk is not correct.remote ip:" + authInfo.getIp());
             }
 
-            DmWorkerDO workerDO = workerMapper.getByWsn(authInfo.getWsn());
+            DmSysWorkerDO workerDO = systemDal.workerMapper().getByWsn(authInfo.getWsn());
             if (workerDO == null) {
                 throw new IllegalArgumentException("worker metadata is not exist.remote ip:" + authInfo.getIp());
             }
@@ -120,10 +120,10 @@ public class DmServerSideRegistry implements ServerSideRegistry {
     @Transactional(rollbackFor = Throwable.class)
     public void unRegister(String workerSeqNumber) {
         try {
-            DmWorkerDO workerStatusDO = new DmWorkerDO();
+            DmSysWorkerDO workerStatusDO = new DmSysWorkerDO();
             workerStatusDO.setWorkerSeqNumber(workerSeqNumber);
             workerStatusDO.setConnStatus(WorkerConnStatus.DISCONNECTED);
-            workerMapper.updateWorkerLivenessByWsn(workerStatusDO);
+            systemDal.workerMapper().updateWorkerLivenessByWsn(workerStatusDO);
             workerRequesterMap.remove(workerSeqNumber);
             log.info("unregister sidecar with worker sequence number " + workerSeqNumber + " and its ip is " + workerStatusDO.getWorkerIp());
         } catch (Exception e) {

@@ -18,10 +18,10 @@ package com.clougence.clouddm.console.web.model.vo.ticket;
 import java.util.List;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.dal.enumeration.DeployEnvType;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalBiz;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalType;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpTicketStatus;
+import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalBiz;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -56,11 +56,11 @@ public class RdpTicketBaseInfoVO {
 
     private String                   targetInfo;
 
-    private RdpApprovalType          approType;
+    private ApprovalType          approType;
 
     private String                   approTypeName;
 
-    private RdpApprovalBiz           approBiz;
+    private ApprovalBiz           approBiz;
 
     private String                   approIdentity;
 
@@ -74,7 +74,7 @@ public class RdpTicketBaseInfoVO {
 
     private String                   ticketTitle;
 
-    private RdpTicketStatus          ticketStatus;
+    private ApprovalStatus          ticketStatus;
 
     private String                   finishTime;
 

@@ -26,16 +26,16 @@ import com.clougence.clouddm.base.metadata.ds.ToolConfig;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityFileType;
 import com.clougence.clouddm.comm.RSocketApiClass;
-import com.clougence.clouddm.console.web.component.auth.model.EnvCacheEntry;
 import com.clougence.clouddm.console.web.component.detectrule.SecCheckerRules;
 import com.clougence.clouddm.console.web.component.detectrule.SecRulesService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmToolConfigService;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.access.entry.EnvCacheEntry;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsBlobResourceDO;
 import com.clougence.clouddm.sdk.service.config.ConfigData;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.sdk.service.secrules.SensitiveConfig;
-import com.clougence.clouddm.console.web.dal.mapper.RdpBlobResourceMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpBlobResourceDO;
 import com.clougence.utils.CollectionUtils;
 
 import jakarta.annotation.Resource;
@@ -50,15 +50,15 @@ import lombok.extern.slf4j.Slf4j;
 public class ConfigRServiceProvider extends AbstractBasicProvider implements ConfigRService {
 
     @Resource
-    private DmDsConfigService     dsConfigService;
+    private DataSourceDal        dsDal;
     @Resource
-    private DmToolConfigService   toolConfigService;
+    private DmDsConfigService    dsConfigService;
     @Resource
-    private SecRulesService       secRulesService;
+    private DmToolConfigService  toolConfigService;
     @Resource
-    private RdpBlobResourceMapper blobResourceMapper;
+    private SecRulesService      secRulesService;
     @Resource
-    private ConsoleConfigService  consoleConfigService;
+    private ConsoleConfigService consoleConfigService;
 
     @Override
     public List<ConfigData> fetchSettings(String ownerUid, List<String> names) {
@@ -81,7 +81,7 @@ public class ConfigRServiceProvider extends AbstractBasicProvider implements Con
         if (!rules.isValid() || CollectionUtils.isEmpty(rules.getSenRuleList())) {
             return null;
         } else {
-            EnvCacheEntry envCache = this.ownerCacheService.queryByEnvId(rules.getEnvId());
+            EnvCacheEntry envCache = this.objectCacheDao.queryByEnvId(rules.getEnvId());
             SensitiveConfig config = new SensitiveConfig();
             config.setEnvId(envCache.getEnvNumId());
             config.setEnvName(envCache.getEnvName());
@@ -96,7 +96,7 @@ public class ConfigRServiceProvider extends AbstractBasicProvider implements Con
 
     @Override
     public byte[] fetchDsFile(String instanceId, ResourceType resourceType, SecurityFileType fileType) {
-        RdpBlobResourceDO rdpBlobResourceDO = blobResourceMapper.queryByIdentify(instanceId, resourceType, fileType);
+        DmDsBlobResourceDO rdpBlobResourceDO = dsDal.blobResourceMapper().queryByIdentify(instanceId, resourceType, fileType);
         return rdpBlobResourceDO.getContent();
     }
 }

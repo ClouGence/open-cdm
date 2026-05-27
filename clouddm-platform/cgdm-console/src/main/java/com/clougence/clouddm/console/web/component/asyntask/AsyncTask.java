@@ -19,10 +19,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.clougence.clouddm.console.web.dal.enumeration.DmAsyncTaskProcessType;
-import com.clougence.clouddm.console.web.dal.mapper.DmAsyncTaskMapper;
-import com.clougence.clouddm.console.web.dal.model.DmAsyncTaskDO;
 import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.model.execution.AsyncTaskProcessType;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO;
 import com.clougence.utils.future.CgFutureObj;
 
 import jakarta.annotation.Resource;
@@ -37,15 +37,15 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AsyncTask extends ScheduleTask {
 
     @Resource
-    protected DmAsyncTaskMapper                    asyncTaskMapper;
-    private DmAsyncTaskDO                          taskDO;
+    protected ExecutionDal                         executionDal;
+    private DmExecAsyncTaskDO                      taskDO;
     private boolean                                fastFail;
     private final CgFutureObj<Object>              future      = new CgFutureObj<>();
     private final AtomicReference<InterruptedType> interrupted = new AtomicReference<>();
 
-    DmAsyncTaskDO getTaskDO() { return taskDO; }
+    DmExecAsyncTaskDO getTaskDO() { return taskDO; }
 
-    void setTaskDO(DmAsyncTaskDO taskDO) { this.taskDO = taskDO; }
+    void setTaskDO(DmExecAsyncTaskDO taskDO) { this.taskDO = taskDO; }
 
     void setInterrupted(InterruptedType interruptedType) {
         this.interrupted.set(interruptedType);
@@ -77,7 +77,7 @@ public abstract class AsyncTask extends ScheduleTask {
     protected boolean isCancel() { return this.interrupted.get() == InterruptedType.CANCEL; }
 
     protected void updateMessage(String date) {
-        this.asyncTaskMapper.updateStatusMessage(this.taskDO.getId(), date);
+        this.executionDal.asyncTaskMapper().updateStatusMessage(this.taskDO.getId(), date);
 
         this.taskDO.setStatusMsg(date);
     }
@@ -87,9 +87,9 @@ public abstract class AsyncTask extends ScheduleTask {
         BigDecimal totalCount = new BigDecimal(maxValue);
         BigDecimal divide = currentCount.divide(totalCount, 2, RoundingMode.HALF_UP);
         long value = divide.multiply(new BigDecimal(100)).longValue();
-        this.asyncTaskMapper.updateProcess(this.taskDO.getId(), DmAsyncTaskProcessType.PROGRESS.name(), String.valueOf(value));
+        this.executionDal.asyncTaskMapper().updateProcess(this.taskDO.getId(), AsyncTaskProcessType.PROGRESS.name(), String.valueOf(value));
 
-        this.taskDO.setProcessType(DmAsyncTaskProcessType.PROGRESS);
+        this.taskDO.setProcessType(AsyncTaskProcessType.PROGRESS);
         this.taskDO.setProcessValue(String.valueOf(value));
     }
 

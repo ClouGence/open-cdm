@@ -17,9 +17,9 @@ package com.clougence.clouddm.console.web.model.fo.checkrules;
 
 import java.util.Map;
 
-import com.clougence.clouddm.console.web.dal.enumeration.RuleKind;
-import com.clougence.clouddm.console.web.dal.enumeration.RuleSensitiveMode;
-import com.clougence.clouddm.console.web.dal.enumeration.WarnLevel;
+import com.clougence.clouddm.platform.dal.model.secrule.RuleKind;
+import com.clougence.clouddm.platform.dal.model.secrule.RuleSensitiveMode;
+import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 
 import lombok.Getter;
 import lombok.Setter;

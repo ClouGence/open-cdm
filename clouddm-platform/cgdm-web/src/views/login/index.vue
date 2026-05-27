@@ -9,21 +9,16 @@
       <div :class="`has-background ${backgroundClass}`">
         <div class="tabs">
           <a-tabs v-model:activeKey="loginForm.accountType" size="large" @change="handleTabChange">
-            <a-tab-pane
-              :key="ACCOUNT_TYPE.PRIMARY_ACCOUNT"
-              :tab="$t('zhu-zhang-hao-deng-lu')"
-              v-if="!showMfa"
-              :disabled="jumpLoginType.includes(selectDomainData.loginType) && (loginCallbackData.token || loginCallbackData.error)"
-            ></a-tab-pane>
-            <a-tab-pane
-              :key="ACCOUNT_TYPE.SUB_ACCOUNT"
-              v-if="primaryUserDomainList.length && !showMfa"
-              :tab="$t('zi-zhang-hao-deng-lu')"
-            ></a-tab-pane>
+            <a-tab-pane :key="ACCOUNT_TYPE.SUB_ACCOUNT" v-if="primaryUserDomainList.length && !showMfa" :tab="$t('zhang-hao-deng-lu')"></a-tab-pane>
+            <a-tab-pane :key="ACCOUNT_TYPE.PRIMARY_ACCOUNT" :tab="$t('guan-li-deng-lu')" v-if="!showMfa"></a-tab-pane>
             <a-tab-pane key="MFA" v-if="showMfa" :tab="$t('duo-yin-zi-ren-zheng-yan-zheng-ma')"></a-tab-pane>
           </a-tabs>
           <div class="tabs-content">
-            <div class="input-wrapper mt-4" v-if="!showMfa">
+            <div
+              class="input-wrapper mt-4"
+              :class="{ 'is-completion': loginCallbackData.token && loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT }"
+              v-if="!showMfa"
+            >
               <div style="display: flex; align-items: center">
                 <a-input
                   class="h-12"
@@ -83,7 +78,13 @@
                   verify-type="SMS_VERIFY_CODE"
                 />
               </div>
-              <a-input class="mb-6 h-12" disabled v-model:value="loginCallbackData.user" v-if="loginCallbackData.token" size="large"></a-input>
+              <a-input
+                class="mb-6 h-12"
+                disabled
+                v-model:value="loginCallbackData.user"
+                v-if="loginCallbackData.token && loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT"
+                size="large"
+              ></a-input>
               <a-input
                 class="mb-6 h-12"
                 v-if="loginCallbackData.token && loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT"
@@ -132,21 +133,36 @@
                 {{ $t('nin-yi-kai-qi-le-duo-zi-yin-ren-zheng-pei-zhi-mei-ci-deng-lu-xu-yan-zheng-duo-yin-zi-ren-zheng-yan-zheng-ma') }}
               </p>
             </div>
+            <div
+              class="completion-actions"
+              v-if="
+                !showMfa &&
+                jumpLoginType.includes(selectDomainData.loginType) &&
+                loginCallbackData.token &&
+                loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT
+              "
+            >
+              <a-button :disabled="loginLoading" :loading="loginLoading" type="primary" size="large" class="completion-submit" @click="handleLogin">
+                {{ $t('bu-quan-xin-xi-bing-deng-lu') }}
+              </a-button>
+              <a-button :disabled="loginLoading" size="large" class="completion-back" @click="goReLogin">
+                {{ $t('fan-hui') }}
+              </a-button>
+            </div>
             <a-button
               v-if="
                 !showMfa &&
-                (!jumpLoginType.includes(selectDomainData.loginType) ||
-                  loginForm.accountType === ACCOUNT_TYPE.PRIMARY_ACCOUNT ||
-                  loginCallbackData.token)
+                !(loginCallbackData.token && loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT) &&
+                (!jumpLoginType.includes(selectDomainData.loginType) || loginForm.accountType === ACCOUNT_TYPE.PRIMARY_ACCOUNT)
               "
               :disabled="loginLoading"
               :loading="loginLoading"
               type="primary"
               size="large"
-              style="margin-top: 20px; width: 100%"
+              style="margin-top: 10px; width: 100%"
               @click="handleLogin"
             >
-              {{ jumpLoginType.includes(selectDomainData.loginType) && loginCallbackData.token ? $t('bu-quan-xin-xi-bing-deng-lu') : $t('deng-lu') }}
+              {{ $t('deng-lu') }}
             </a-button>
             <a-button
               v-if="showMfa"
@@ -160,13 +176,6 @@
             >
               {{ $t('yan-zheng') }}
             </a-button>
-            <div class="msgContent" v-if="errMsg">
-              <a-alert banner type="error">
-                <template #message>
-                  <div v-html="errMsg"></div>
-                </template>
-              </a-alert>
-            </div>
             <div class="flex items-center justify-center">
               <a-button
                 v-if="
@@ -178,13 +187,19 @@
                 :disabled="loginLoading"
                 :loading="loginLoading"
                 size="large"
-                style="margin-top: 20px; width: 108px; border-radius: 4px"
-                class="w-36 h-36 border border-zinc-200 rounded-lg block flex flex-col items-center justify-center shadow"
+                class="provider-login-button"
                 @click="handleGoJump"
               >
                 <CustomIcon :type="resolveLoginProviderIcon(selectDomainData.loginType)" size="40px" bottomMargin="16px" />
                 {{ selectDomainData.title }} {{ $t('deng-lu') }}
               </a-button>
+            </div>
+            <div class="msgContent" v-if="errMsg">
+              <a-alert banner type="error">
+                <template #message>
+                  <div v-html="errMsg"></div>
+                </template>
+              </a-alert>
             </div>
             <p
               v-if="
@@ -207,13 +222,6 @@
               <div v-if="globalSettings.features.ENABLE_REGISTER">
                 <!--                {{ $t('mei-you-zhang-hao-qu') }}<span style="margin-left: 4px" @click="goRegister">{{ $t('zhu-ce') }}</span>-->
               </div>
-              <a
-                class="absolute right-[80px]"
-                v-if="jumpLoginType.includes(selectDomainData.loginType) && loginCallbackData.token"
-                @click="goReLogin"
-              >
-                {{ $t('chong-xin-deng-lu') }}
-              </a>
             </div>
           </div>
           <Modal v-model:visible="showAccountInformationCompletionModal" :title="$t('zhang-hao-xin-xi-bu-quan')" :mask-closable="false" :width="400">
@@ -300,7 +308,7 @@ export default {
       LOGIN_TYPE,
       loginedForm: {},
       loginForm: {
-        accountType: ACCOUNT_TYPE.PRIMARY_ACCOUNT,
+        accountType: ACCOUNT_TYPE.SUB_ACCOUNT,
         loginType: LOGIN_TYPE.LOGIN_PASSWORD,
         account: '',
         password: '',
@@ -458,15 +466,16 @@ export default {
         }
       }
       this.loginLoading = true;
+      const isCompletionLogin = this.loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT && this.loginCallbackData.token;
       const data = {
         ...this.loginForm,
         password: this.loginForm.password ? this.passwordEncrypt(this.loginForm.password) : '',
         account:
-          this.loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT && this.loginForm.loginType !== LOGIN_TYPE.OIDC
+          this.loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT && currentLoginType !== LOGIN_TYPE.OIDC
             ? `${this.loginForm.account}@${this.selectDomain}`
             : this.loginForm.account,
         loginType: this.loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT ? this.selectDomainData.loginType : this.loginForm.loginType,
-        token: this.loginCallbackData.token
+        token: isCompletionLogin ? this.loginCallbackData.token : null
       };
       this.loginedForm = data;
       try {
@@ -538,9 +547,16 @@ export default {
       };
       return iconMap[normalizedLoginType] || `icon-v2-${loginType}`;
     },
-    goReLogin() {
-      this.$router.push({ name: 'Login' });
-      window.location.reload();
+    async goReLogin() {
+      this.errMsg = '';
+      this.loginCallbackData = {};
+      this.loginForm.accountType = ACCOUNT_TYPE.SUB_ACCOUNT;
+      this.loginForm.loginType = LOGIN_TYPE.LOGIN_PASSWORD;
+      this.loginForm.account = '';
+      this.loginForm.password = '';
+      this.loginForm.verifyCode = '';
+      this.loginForm.registerInfo = {};
+      await this.$router.replace({ name: 'Login', query: {} });
     },
     handleSubAccountBlur() {
       this.domainSelectWidth = 250;
@@ -608,7 +624,7 @@ export default {
               if (this.$route.query && this.$route.query.token) {
                 this.loginCallbackData = this.$route.query;
                 this.loginForm.accountType = ACCOUNT_TYPE.SUB_ACCOUNT;
-                this.loginForm.account = this.loginCallbackData.account;
+                this.loginForm.account = this.loginCallbackData.sub || this.loginCallbackData.account;
                 this.loginForm.registerInfo = {};
                 this.loginForm.registerInfo.email = this.loginCallbackData.email;
                 this.loginForm.registerInfo.phone = this.loginCallbackData.phone;
@@ -634,8 +650,13 @@ export default {
 
 <style lang="less" scoped>
 .login {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
   header {
     .width-full();
+    flex: 0 0 80px;
 
     .login-header {
       position: relative;
@@ -661,42 +682,45 @@ export default {
   .content {
     width: 100%;
     .width-full();
-    position: absolute;
-    top: 80px;
-    //bottom: 56px;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-color: var(--bg-page, #c3d8e9);
     overflow: auto;
-    height: 545px;
-    //padding: 0 105px;
+    padding: 32px 24px;
 
     .has-background {
-      //width: 100%;
-      height: 100%;
-      width: 1200px;
+      min-height: 100%;
+      width: 100%;
+      max-width: 1200px;
       margin: 0 auto;
       position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .rdp-background {
-      background: url('../../assets/bg-rdp.png') no-repeat 0 80px;
+      background: url('../../assets/bg-rdp.png') no-repeat 0 center;
       background-size: 620px;
     }
 
     .cc-background {
-      background: url('../../assets/logo/loginBg.png') no-repeat 0 60px;
+      background: url('../../assets/logo/loginBg.png') no-repeat 0 center;
       background-size: 480px;
     }
 
     .dm-background {
-      background: url('../../assets/loginBack.png') no-repeat 0 60px;
+      background: url('../../assets/loginBack.png') no-repeat 0 center;
       background-size: 580px;
     }
 
     .tabs {
       width: 520px;
-      margin-top: 60px;
+      max-width: calc(100vw - 48px);
       background: var(--card-bg, #ffffff);
-      float: right;
       border-radius: 4px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
 
@@ -712,7 +736,8 @@ export default {
 
         .ant-tabs-nav {
           height: 64px;
-          padding-left: 82px;
+          padding-left: 80px;
+          padding-right: 80px;
 
           .ant-tabs-tab {
             line-height: 48px;
@@ -731,12 +756,14 @@ export default {
       }
 
       .tabs-content {
-        padding: 20px 80px 48px 80px;
+        padding: 20px 80px 48px;
+        box-sizing: border-box;
         position: relative;
         min-height: 258px;
 
         .msgContent {
           position: relative;
+          margin-top: 4px;
           margin-bottom: 12px;
 
           :deep(.ant-alert) {
@@ -749,16 +776,90 @@ export default {
           & > div {
             margin-bottom: 20px;
           }
+
+          &.is-completion {
+            margin-top: 8px !important;
+
+            & > div {
+              margin-bottom: 10px;
+            }
+          }
         }
 
         .ant-btn {
-          width: 360px;
+          width: 100%;
           margin-top: 8px;
           margin-bottom: 20px;
           font-size: 16px;
 
           span {
             font-size: 16px;
+          }
+        }
+
+        .completion-actions {
+          display: flex;
+          gap: 12px;
+          margin-top: 20px;
+          margin-bottom: 20px;
+
+          .ant-btn {
+            margin: 0;
+          }
+
+          .completion-submit {
+            flex: 1 1 75%;
+          }
+
+          .completion-back {
+            flex: 0 0 25%;
+          }
+        }
+
+        .provider-login-button {
+          width: 144px;
+          height: 144px;
+          margin-top: 10px;
+          margin-bottom: 20px;
+          padding: 18px 12px;
+          border-radius: 8px;
+          border-color: #e5e7eb;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 0;
+          line-height: 1.35;
+          white-space: normal;
+          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+          transition:
+            border-color 0.2s ease,
+            background-color 0.2s ease,
+            box-shadow 0.2s ease;
+
+          &:hover,
+          &:focus {
+            color: #2563eb;
+            border-color: #60a5fa;
+            background-color: #eff6ff;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.14);
+          }
+
+          &:active {
+            color: #2563eb;
+            border-color: #60a5fa;
+            background-color: #eff6ff;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.14);
+            transform: none;
+          }
+
+          span {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            text-align: center;
           }
         }
       }
@@ -784,6 +885,10 @@ export default {
         }
       }
     }
+  }
+
+  > footer {
+    flex: 0 0 auto;
   }
 
   // 暗色模式覆盖
@@ -851,10 +956,44 @@ export default {
 
   .footer {
     .width-full();
-    //position: absolute;
-    //bottom: 0;
-    margin-top: 542px;
+    flex: 0 0 auto;
     //background-color: var(--bg-radio) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .login {
+    .content {
+      .rdp-background,
+      .cc-background,
+      .dm-background {
+        background-image: none;
+      }
+    }
+  }
+}
+
+@media (max-width: 560px) {
+  .login {
+    .content {
+      padding: 24px 16px;
+
+      .tabs {
+        max-width: calc(100vw - 32px);
+
+        :deep(.ant-tabs) {
+          .ant-tabs-nav {
+            padding-left: 24px;
+            padding-right: 24px;
+          }
+        }
+
+        .tabs-content {
+          padding-right: 24px;
+          padding-left: 24px;
+        }
+      }
+    }
   }
 }
 

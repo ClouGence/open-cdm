@@ -17,15 +17,14 @@ package com.clougence.clouddm.console.web.service.system;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.console.web.dal.enumeration.RuleKind;
-import com.clougence.clouddm.console.web.dal.mapper.DmApprovalMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmClusterMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.DmApprovalDO;
-import com.clougence.clouddm.console.web.dal.model.DmClusterDO;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.access.ApprovalDal;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.secrule.RuleKind;
+import com.clougence.clouddm.platform.dal.model.system.DmSysClusterDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -36,22 +35,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class NamingServiceImpl implements NamingService {
-
     @Resource
-    private DmClusterMapper  clusterMapper;
+    private SystemDal   systemDal;
     @Resource
-    private DmWorkerMapper   workerMapper;
+    private AuthDal     authDal;
     @Resource
-    private RdpUserMapper    userMapper;
-    @Resource
-    private DmApprovalMapper approvalMapper;
+    private ApprovalDal approvalDal;
 
     @Override
     public String genLocalClusterName() {
         String namePattern = "localcluster%s";
         while (true) {
             String name = String.format(namePattern, fixedLenRandomStr(10));
-            DmClusterDO clusterDO = clusterMapper.getClusterByName(name);
+            DmSysClusterDO clusterDO = systemDal.clusterMapper().getClusterByName(name);
             if (clusterDO == null) {
                 return name;
             }
@@ -63,7 +59,7 @@ public class NamingServiceImpl implements NamingService {
         String namePattern = "cluster%s";
         while (true) {
             String name = String.format(namePattern, fixedLenRandomStr(10));
-            DmClusterDO clusterDO = clusterMapper.getClusterByName(name);
+            DmSysClusterDO clusterDO = systemDal.clusterMapper().getClusterByName(name);
             if (clusterDO == null) {
                 return name;
             }
@@ -75,7 +71,7 @@ public class NamingServiceImpl implements NamingService {
         String namePattern = "ticket%s";
         while (true) {
             String bizId = String.format(namePattern, fixedLenRandomStr(10));
-            DmApprovalDO ticketDO = approvalMapper.queryByBizId(bizId);
+            DmApprovalDO ticketDO = approvalDal.approvalMapper().queryByBizId(bizId);
             if (ticketDO == null) {
                 return bizId;
             }
@@ -87,7 +83,7 @@ public class NamingServiceImpl implements NamingService {
         String namePattern = "defaultcluster%s";
         while (true) {
             String name = String.format(namePattern, fixedLenRandomStr(10));
-            DmClusterDO clusterDO = clusterMapper.getClusterByName(name);
+            DmSysClusterDO clusterDO = systemDal.clusterMapper().getClusterByName(name);
             if (clusterDO == null) {
                 return name;
             }
@@ -99,7 +95,7 @@ public class NamingServiceImpl implements NamingService {
         String namePattern = "wsn%s";
         while (true) {
             String seq = String.format(namePattern, fixedLenRandomStr(61));
-            DmWorkerDO workerDO = workerMapper.getByWsn(seq);
+            DmSysWorkerDO workerDO = systemDal.workerMapper().getByWsn(seq);
             if (workerDO == null) {
                 return seq;
             }
@@ -111,7 +107,7 @@ public class NamingServiceImpl implements NamingService {
         String namePattern = "worker%s";
         while (true) {
             String name = String.format(namePattern, fixedLenRandomStr(11));
-            DmWorkerDO workerDO = workerMapper.getByName(name);
+            DmSysWorkerDO workerDO = systemDal.workerMapper().getByName(name);
             if (workerDO == null) {
                 return name;
             }
@@ -124,7 +120,7 @@ public class NamingServiceImpl implements NamingService {
 
         while (true) {
             String ak = String.format(namePattern, fixedLenRandomStr(61));
-            RdpUserDO userDO = userMapper.queryByAccessKey(ak);
+            DmAuthUserDO userDO = authDal.userMapper().queryByAccessKey(ak);
             if (userDO == null) {
                 return ak;
             }
@@ -135,7 +131,7 @@ public class NamingServiceImpl implements NamingService {
     public String genUid() {
         while (true) {
             String uid = fixedLenRandomNumberStr(16);
-            RdpUserDO user = userMapper.queryByUid(uid);
+            DmAuthUserDO user = authDal.userMapper().queryByUid(uid);
             if (user == null) {
                 return uid;
             }

@@ -16,9 +16,9 @@
 package com.clougence.clouddm.console.web.provider;
 
 import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
-import com.clougence.clouddm.console.web.component.auth.model.UserCacheEntry;
-import com.clougence.clouddm.console.web.component.auth.model.WorkerCacheEntry;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
+import com.clougence.clouddm.platform.dal.access.entry.WorkerCacheEntry;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -30,19 +30,19 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractBasicProvider {
 
     @Resource
-    protected BizResOwnerCacheService ownerCacheService;
+    protected ObjectCacheDao objectCacheDao;
 
     protected boolean checkAccessKey(WorkerIdentity identity) {
         if (identity == null) {
             return false;
         }
 
-        WorkerCacheEntry workerDO = this.ownerCacheService.queryByWsn(identity.getWorkerSeqNumber());
+        WorkerCacheEntry workerDO = this.objectCacheDao.queryByWsn(identity.getWorkerSeqNumber());
         if (workerDO == null) {
             return false;
         }
 
-        UserCacheEntry userDO = this.ownerCacheService.queryByAk(identity.getAccessKey());
+        UserCacheEntry userDO = this.objectCacheDao.queryByAk(identity.getAccessKey());
         if (!workerDO.getOwnerUid().equals(userDO.getUid())) {
             log.error("worker (" + identity.getWorkerSeqNumber() + ") not belone user (" + identity.getAccessKey() + ")");
             return false;

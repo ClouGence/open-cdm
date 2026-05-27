@@ -880,7 +880,6 @@ export default {
             phone: this.updateUserInfo.phone,
             email: this.updateUserInfo.email,
             verifyCode,
-            phoneAreaCode: 'CHINA',
             verifyType: this.verifyType
           }
         }).then((res) => {

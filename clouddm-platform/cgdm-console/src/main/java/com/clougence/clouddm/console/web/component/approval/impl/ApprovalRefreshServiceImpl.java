@@ -22,13 +22,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.clougence.clouddm.console.web.dal.enumeration.RdpTicketStage;
-import com.clougence.clouddm.console.web.dal.mapper.DmApprovalMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmApprovalProcessActivityMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmApprovalProcessMapper;
-import com.clougence.clouddm.console.web.dal.model.DmApprovalDO;
-import com.clougence.clouddm.console.web.dal.model.DmApprovalProcessActivityDO;
-import com.clougence.clouddm.console.web.dal.model.DmApprovalProcessDO;
+import com.clougence.clouddm.platform.dal.access.ApprovalDal;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalStage;
+import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
+import com.clougence.clouddm.platform.dal.model.approval.DmApprovalProcessActivityDO;
+import com.clougence.clouddm.platform.dal.model.approval.DmApprovalProcessDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.approval.ApprovalProviderSpi;
 import com.clougence.clouddm.sdk.approval.ApprovalUserInfo;
@@ -47,20 +45,15 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class ApprovalRefreshServiceImpl implements ApprovalRefreshService {
-
     @Resource
-    private DmApprovalMapper                approvalMapper;
+    private ApprovalDal                 approvalDal;
     @Resource
-    private DmApprovalProcessMapper         approvalProcessMapper;
-    @Resource
-    private DmApprovalProcessActivityMapper activityMapper;
-    @Resource
-    private ApprovalProviderServiceImpl     approvalProviderService;
+    private ApprovalProviderServiceImpl approvalProviderService;
 
     @Override
     @SneakyThrows
     public void refreshTicket(ApprovalIdentity callback) {
-        DmApprovalDO approvalDO = approvalMapper.queryByApproIdentity(callback.getApproIdentity(), callback.getProviderType(), callback.getOwnerUid());
+        DmApprovalDO approvalDO = approvalDal.approvalMapper().queryByApproIdentity(callback.getApproIdentity(), callback.getProviderType(), callback.getOwnerUid());
         if (approvalDO == null) {
             log.error("Callback event not find ticket for approval instance: {} and type: {} and puid: {}", //
                     callback.getApproIdentity(), callback.getProviderType(), callback.getOwnerUid());
@@ -73,15 +66,15 @@ public class ApprovalRefreshServiceImpl implements ApprovalRefreshService {
     @SneakyThrows
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void updateActivity(ApprovalActivity activity) {
-        DmApprovalDO approvalDO = approvalMapper.queryByApproIdentity(activity.getApprovalIdentity(), activity.getPlatform(), activity.getPuid());
+        DmApprovalDO approvalDO = approvalDal.approvalMapper().queryByApproIdentity(activity.getApprovalIdentity(), activity.getPlatform(), activity.getPuid());
         // avoid receive another callback
         if (approvalDO == null) {
             log.error("Callback event not find ticket for approval instance: {} and type: {} and puid: {}", //
                     activity.getApprovalIdentity(), activity.getPlatform(), activity.getPuid());
             return;
         }
-        DmApprovalProcessDO processDO = this.approvalProcessMapper.queryByStage(approvalDO.getId(), RdpTicketStage.APPROVAL);
-        DmApprovalProcessActivityDO activityDO = activityMapper.queryByProcessIdAndActivityIdForUpdate(processDO.getId(), activity.getActivityId());
+        DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryByStage(approvalDO.getId(), ApprovalStage.APPROVAL);
+        DmApprovalProcessActivityDO activityDO = this.approvalDal.activityMapper().queryByProcessIdAndActivityIdForUpdate(processDO.getId(), activity.getActivityId());
 
         String context = activityDO.getContext();
         List<ApprovalActivity> list;
@@ -117,7 +110,6 @@ public class ApprovalRefreshServiceImpl implements ApprovalRefreshService {
 
         String json = JsonUtils.toJson(list);
 
-        activityMapper.updateContext(processDO.getId(), activityDO.getActivityId(), json);
-
+        approvalDal.activityMapper().updateContext(processDO.getId(), activityDO.getActivityId(), json);
     }
 }

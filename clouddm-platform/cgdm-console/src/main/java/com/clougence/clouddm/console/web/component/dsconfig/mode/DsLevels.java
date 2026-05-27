@@ -19,11 +19,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.schema.umi.struts.UmiTypes;
 
-public record DsLevels(String envId, RdpDataSourceDO dsDO, List<String> levels, List<String> dbLevels, List<UmiTypes> levelsDef, Map<UmiTypes, Object> levelsParam) {
+public record DsLevels(String envId, DmDsDO dsDO, List<String> levels, List<String> dbLevels, List<UmiTypes> levelsDef, Map<UmiTypes, Object> levelsParam) {
 
     public DsResPath asResPath() {
         return RdpAuthUtils.genResPathByList(this.dbLevels);

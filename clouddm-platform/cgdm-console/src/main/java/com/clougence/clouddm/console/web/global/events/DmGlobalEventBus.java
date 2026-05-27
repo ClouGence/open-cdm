@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import org.noear.dami.Dami;
 
-import com.clougence.clouddm.console.web.dal.model.DmAsyncTaskDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO;
 import com.clougence.clouddm.console.web.model.vo.datasource.DriverDownloadProgressVO;
 import com.clougence.clouddm.console.web.model.vo.editor.query.WsResMsg;
 import com.clougence.clouddm.console.web.model.vo.export.DmExportVO;
@@ -35,11 +35,11 @@ public class DmGlobalEventBus {
     //                                                              DmAsyncTask
     // ------------------------------------------------------------------------
 
-    public static void addDmAsyncEventListen(EConsumer<DmAsyncTaskDO, IOException> consumer) {
-        Dami.bus().listen("/DmAsyncTask", payload -> consumer.eAccept((DmAsyncTaskDO) payload.getContent()));
+    public static void addDmAsyncEventListen(EConsumer<DmExecAsyncTaskDO, IOException> consumer) {
+        Dami.bus().listen("/DmAsyncTask", payload -> consumer.eAccept((DmExecAsyncTaskDO) payload.getContent()));
     }
 
-    public static void triggerDmAsyncEvent(DmAsyncTaskDO taskDO) {
+    public static void triggerDmAsyncEvent(DmExecAsyncTaskDO taskDO) {
         if (taskDO.isShowInDock()) {
             Dami.bus().send("/DmAsyncTask", taskDO);
         }

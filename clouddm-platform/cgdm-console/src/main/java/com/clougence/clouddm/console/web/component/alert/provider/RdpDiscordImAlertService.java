@@ -24,8 +24,8 @@ import java.util.Map;
 import org.apache.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
 import com.clougence.clouddm.console.web.util.RdpJacksonUtil;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.utils.JsonUtils;
 
 import lombok.Getter;
@@ -47,7 +47,7 @@ public class RdpDiscordImAlertService extends AbstractRdpImAlertService {
     }
 
     @Override
-    protected String genParamsJsonStr(String signName, String msg, Map<String, Object> msgParams, List<RdpUserDO> users, boolean atAll) {
+    protected String genParamsJsonStr(String signName, String msg, Map<String, Object> msgParams, List<DmAuthUserDO> users, boolean atAll) {
         Map<String, Object> params = new HashMap<>();
         params.put("content", msg);
         return JsonUtils.toJson(params);

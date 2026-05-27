@@ -22,8 +22,8 @@ import java.util.Map;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
@@ -80,7 +80,7 @@ public class OpenApiSessionManager implements HandlerInterceptor {
             return false;
         }
 
-        RdpUserDO userDO = rdpUserService.getUserByAk(ak);
+        DmAuthUserDO userDO = rdpUserService.getUserByAk(ak);
         if (userDO == null) {
             responseSystemError(response, USER_NOT_EXIST);
             return false;
@@ -108,7 +108,7 @@ public class OpenApiSessionManager implements HandlerInterceptor {
         if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
             request.setAttribute(RdpUserService.PUID, userDO.getUid());
         } else {
-            RdpUserDO primaryUser = this.rdpUserService.getUserById(userDO.getParentId());
+            DmAuthUserDO primaryUser = this.rdpUserService.getUserById(userDO.getParentId());
             request.setAttribute(RdpUserService.PUID, primaryUser.getUid());
         }
 

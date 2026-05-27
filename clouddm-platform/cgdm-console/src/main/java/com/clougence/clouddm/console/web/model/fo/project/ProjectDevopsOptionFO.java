@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo.project;
 
-import com.clougence.clouddm.console.web.dal.enumeration.DmInitScriptStrategy;
+import com.clougence.clouddm.console.web.constants.DmInitScriptStrategy;
 
 import lombok.Getter;
 import lombok.Setter;

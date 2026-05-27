@@ -32,7 +32,8 @@ export default [
   {
     path: 'role',
     name: 'System_Role',
-    component: () => import(/* webpackChunkName: "ccsystem-role" */ '@/views/system/role/index')
+    component: () => import(/* webpackChunkName: "ccsystem-role" */ '@/views/system/role/index'),
+    meta: { requiredAuth: 'RDP_ROLE_READ' }
   },
   {
     path: 'authdm',
@@ -57,17 +58,20 @@ export default [
   {
     path: 'ccdatasource',
     name: 'System_DataSource',
-    component: () => import(/* webpackChunkName: "system-datasource" */ '@/views/dataSource/DataSource')
+    component: () => import(/* webpackChunkName: "system-datasource" */ '@/views/dataSource/DataSource'),
+    meta: { requiredAuth: 'RDP_DS_READ' }
   },
   {
     path: 'ccdatasource/params/:id/:instanceId',
     name: 'System_DataSource_Params',
-    component: () => import(/* webpackChunkName: "system-datasource" */ '@/views/dataSource/DsParams')
+    component: () => import(/* webpackChunkName: "system-datasource" */ '@/views/dataSource/DsParams'),
+    meta: { requiredAuth: 'RDP_DS_READ' }
   },
   {
     path: 'ccdatasource/add',
     name: 'System_DataSource_Add',
-    component: () => import(/* webpackChunkName: "system-datasource" */ '@/views/dataSource/AddDataSource')
+    component: () => import(/* webpackChunkName: "system-datasource" */ '@/views/dataSource/AddDataSource'),
+    meta: { requiredAuth: 'RDP_DS_READ' }
   },
   {
     path: 'dmmachine',

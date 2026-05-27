@@ -30,16 +30,15 @@ import com.clougence.clouddm.api.sidecar.session.drivers.DsDriverVer;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDriverService;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
 import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
 import com.clougence.clouddm.console.web.model.vo.DriverVersionStatusVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.DriverDownloadProgressVO;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.drivers.DriverVersion;
 import com.clougence.drivers.def.ResDef;
 import com.clougence.utils.CollectionUtils;
-import com.clougence.utils.HostUtil;
 import com.clougence.utils.ThreadUtils;
 
 import jakarta.annotation.Resource;
@@ -50,9 +49,8 @@ import lombok.extern.slf4j.Slf4j;
 public class DmDriverServiceImpl implements DmDriverService {
 
     private static final int                 PROGRESS_LOG_STEP = 10;
-
     @Resource
-    private DmWorkerMapper                   dmWorkerMapper;
+    private SystemDal                        systemDal;
     @Resource
     private DriversRService                  driversRService;
     private final Map<String, Boolean>       runningTasks      = new ConcurrentHashMap<>();
@@ -77,14 +75,14 @@ public class DmDriverServiceImpl implements DmDriverService {
         }
 
         boolean consoleAvailable = isPrepared(localVersion);
-        List<DmWorkerDO> workers = queryTargetWorkers(clusterId);
+        List<DmSysWorkerDO> workers = queryTargetWorkers(clusterId);
         if (CollectionUtils.isEmpty(workers)) {
             statusVO.setAvailable(consoleAvailable);
             return statusVO;
         }
 
         boolean workersAvailable = true;
-        for (DmWorkerDO worker : workers) {
+        for (DmSysWorkerDO worker : workers) {
             DsDriverVer remoteVersion;
             try {
                 remoteVersion = this.driversRService.refreshDriverVersion(buildSendDTO(worker), driverFamily, driverVersion);
@@ -116,7 +114,7 @@ public class DmDriverServiceImpl implements DmDriverService {
 
         this.downloadExecutor.execute(() -> {
             try {
-                new DmDriverDownloadTask(uid, clusterId, driverFamily, driverVersion, this.dmWorkerMapper, this.driversRService).run();
+                new DmDriverDownloadTask(uid, clusterId, driverFamily, driverVersion, this.systemDal, this.driversRService).run();
             } catch (Exception e) {
                 log.error("download driver failed, uid={}, clusterId={}, family={}, version={}", uid, clusterId, driverFamily, driverVersion, e);
                 publishProgress(uid, clusterId, driverFamily, driverVersion, 0, 0, 0, "FAILED", false, null, null, e.getMessage());
@@ -222,14 +220,14 @@ public class DmDriverServiceImpl implements DmDriverService {
         return "COMPLETED".equals(status) || "FAILED".equals(status);
     }
 
-    private List<DmWorkerDO> queryTargetWorkers(Long clusterId) {
+    private List<DmSysWorkerDO> queryTargetWorkers(Long clusterId) {
         if (clusterId != null && clusterId > 0) {
-            return this.dmWorkerMapper.queryConnectedByClusterId(clusterId);
+            return this.systemDal.workerMapper().queryConnectedByClusterId(clusterId);
         }
         throw new IllegalArgumentException("clusterId is required to query target workers.");
     }
 
-    private RSocketSendDTO buildSendDTO(DmWorkerDO worker) {
+    private RSocketSendDTO buildSendDTO(DmSysWorkerDO worker) {
         RSocketSendDTO sendDTO = new RSocketSendDTO();
         sendDTO.setClusterId(worker.getClusterId());
         sendDTO.setWorkerSeqNumber(worker.getWorkerSeqNumber());

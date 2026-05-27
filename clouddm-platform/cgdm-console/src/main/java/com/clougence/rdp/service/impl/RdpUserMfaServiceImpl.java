@@ -15,7 +15,11 @@
  */
 package com.clougence.rdp.service.impl;
 
-import static com.clougence.rdp.constant.I18nRdpMsgKeys.MFA_CODE_IS_INVALID;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+
+import static com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys.MFA_CODE_IS_INVALID;
 
 import java.io.ByteArrayOutputStream;
 import java.text.MessageFormat;
@@ -26,14 +30,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.GlobalDeploySite;
-import com.clougence.clouddm.console.web.dal.enumeration.MfaStatus;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMfaMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserMfaDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.platform.dal.model.auth.MfaStatus;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthMFADO;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpUserMfaService;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 import com.google.zxing.BarcodeFormat;
@@ -48,17 +50,14 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class RdpUserMfaServiceImpl implements RdpUserMfaService {
-
     @Resource
-    private RdpUserMfaMapper rdpUserMfaMapper;
+    private AuthDal authDal;
 
-    @Resource
-    private RdpUserMapper    rdpUserMapper;
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public byte[] initUserMfaSetting(String uid) {
-        RdpUserDO userDO = rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
         if (userDO == null) {
             throw new IllegalArgumentException("User (" + uid + ") is not exist.");
         }
@@ -67,7 +66,7 @@ public class RdpUserMfaServiceImpl implements RdpUserMfaService {
             throw new IllegalArgumentException("User (" + uid + ") is already use mfa, if need change,go reset logic.");
         }
 
-        RdpUserMfaDO userMfaDO = rdpUserMfaMapper.queryByUid(uid);
+        DmAuthMFADO userMfaDO = authDal.mfaMapper().queryByUid(uid);
         if (userMfaDO != null && userMfaDO.getMfaStatus() == MfaStatus.ACTIVE) {
             throw new IllegalArgumentException("User (" + uid + ")'s mfa setting is already active,broke data.");
         }
@@ -75,14 +74,14 @@ public class RdpUserMfaServiceImpl implements RdpUserMfaService {
         String mfaKey = genMfaKey();
         String encodeKey = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(mfaKey);
         if (userMfaDO != null) {
-            rdpUserMfaMapper.updateById(userMfaDO.getId(), encodeKey, MfaStatus.INACTIVE);
+            authDal.mfaMapper().updateById(userMfaDO.getId(), encodeKey, MfaStatus.INACTIVE);
         } else {
-            userMfaDO = new RdpUserMfaDO();
+            userMfaDO = new DmAuthMFADO();
             userMfaDO.setMfaKey(encodeKey);
             userMfaDO.setMfaStatus(MfaStatus.INACTIVE);
             userMfaDO.setUserId(userDO.getId());
             userMfaDO.setUid(userDO.getUid());
-            rdpUserMfaMapper.insert(userMfaDO);
+            authDal.mfaMapper().insert(userMfaDO);
         }
 
         if (GlobalDeploySite.outChina()) {
@@ -94,7 +93,7 @@ public class RdpUserMfaServiceImpl implements RdpUserMfaService {
 
     @Override
     public byte[] resetMfaSetting(String uid, int mfaCode) {
-        RdpUserDO userDO = rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
         if (userDO == null) {
             throw new IllegalArgumentException("User (" + uid + ") is not exist.");
         }
@@ -103,7 +102,7 @@ public class RdpUserMfaServiceImpl implements RdpUserMfaService {
             throw new IllegalArgumentException("User (" + uid + ") is not use mfa.");
         }
 
-        RdpUserMfaDO userMfaDO = rdpUserMfaMapper.queryByUid(uid);
+        DmAuthMFADO userMfaDO = authDal.mfaMapper().queryByUid(uid);
         if (userMfaDO == null || userMfaDO.getMfaStatus() == MfaStatus.INACTIVE || StringUtils.isBlank(userMfaDO.getMfaKey())) {
             throw new IllegalArgumentException("User (" + uid + ")'s mfa setting is not exist or illegal, broken data.");
         }
@@ -115,7 +114,7 @@ public class RdpUserMfaServiceImpl implements RdpUserMfaService {
 
         String newMfaKey = genMfaKey();
         String newEncodeKey = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(newMfaKey);
-        rdpUserMfaMapper.updateResetMfaKeyById(userMfaDO.getId(), newEncodeKey);
+        authDal.mfaMapper().updateResetMfaKeyById(userMfaDO.getId(), newEncodeKey);
 
         if (GlobalDeploySite.outChina()) {
             return genCcTotpUriQrCodePicture(newMfaKey, userDO.getEmail());
@@ -126,7 +125,7 @@ public class RdpUserMfaServiceImpl implements RdpUserMfaService {
 
     @Override
     public boolean validMfaCode(String uid, int mfaCode) {
-        RdpUserDO userDO = rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
         if (userDO == null) {
             throw new IllegalArgumentException("User (" + uid + ") is not exist.");
         }
@@ -135,7 +134,7 @@ public class RdpUserMfaServiceImpl implements RdpUserMfaService {
             throw new IllegalArgumentException("User (" + uid + ") is not use mfa.");
         }
 
-        RdpUserMfaDO userMfaDO = rdpUserMfaMapper.queryByUid(uid);
+        DmAuthMFADO userMfaDO = authDal.mfaMapper().queryByUid(uid);
         if (userMfaDO == null || userMfaDO.getMfaStatus() == MfaStatus.INACTIVE || StringUtils.isBlank(userMfaDO.getMfaKey())) {
             throw new IllegalArgumentException("User (" + uid + ")'s mfa setting is not exist or illegal, broken data.");
         }
@@ -147,12 +146,12 @@ public class RdpUserMfaServiceImpl implements RdpUserMfaService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void confirmUserMfaSetting(String uid, boolean reset, int mfaCode) {
-        RdpUserDO userDO = rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
         if (userDO == null) {
             throw new IllegalArgumentException("User (" + uid + ") is not exist.");
         }
 
-        RdpUserMfaDO userMfaDO = rdpUserMfaMapper.queryByUid(uid);
+        DmAuthMFADO userMfaDO = authDal.mfaMapper().queryByUid(uid);
         if (userMfaDO == null) {
             throw new IllegalArgumentException("User (" + uid + ")'s mfa setting is not exist,broke data.");
         }
@@ -167,8 +166,8 @@ public class RdpUserMfaServiceImpl implements RdpUserMfaService {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_CODE_IS_INVALID.name()));
             }
 
-            rdpUserMfaMapper.updateById(userMfaDO.getId(), userMfaDO.getResetMfaKey(), MfaStatus.ACTIVE);
-            rdpUserMfaMapper.emptyResetMfaKeyById(userMfaDO.getId());
+            authDal.mfaMapper().updateById(userMfaDO.getId(), userMfaDO.getResetMfaKey(), MfaStatus.ACTIVE);
+            authDal.mfaMapper().emptyResetMfaKeyById(userMfaDO.getId());
         } else {
             if (StringUtils.isBlank(userMfaDO.getMfaKey())) {
                 throw new IllegalArgumentException("User (" + uid + ")'s mfa key is empty,broke data.");
@@ -179,21 +178,21 @@ public class RdpUserMfaServiceImpl implements RdpUserMfaService {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_CODE_IS_INVALID.name()));
             }
 
-            rdpUserMfaMapper.updateStatusById(userMfaDO.getId(), MfaStatus.ACTIVE);
+            authDal.mfaMapper().updateStatusById(userMfaDO.getId(), MfaStatus.ACTIVE);
         }
 
-        rdpUserMapper.updateMfaStatus(userDO.getUid(), true);
+        authDal.userMapper().updateMfaStatus(userDO.getUid(), true);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void closeUserMfa(String uid, int mfaCode) {
-        RdpUserDO userDO = rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
         if (userDO == null) {
             throw new IllegalArgumentException("User (" + uid + ") is not exist.");
         }
 
-        RdpUserMfaDO userMfaDO = rdpUserMfaMapper.queryByUid(uid);
+        DmAuthMFADO userMfaDO = authDal.mfaMapper().queryByUid(uid);
         if (userMfaDO == null || userMfaDO.getMfaStatus() == MfaStatus.INACTIVE || StringUtils.isBlank(userMfaDO.getMfaKey())) {
             throw new IllegalArgumentException("User (" + uid + ")'s mfa setting is not exist or illegal,broke data.");
         }
@@ -203,8 +202,8 @@ public class RdpUserMfaServiceImpl implements RdpUserMfaService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_CODE_IS_INVALID.name()));
         }
 
-        rdpUserMfaMapper.deleteById(userMfaDO.getId());
-        rdpUserMapper.updateMfaStatus(uid, false);
+        authDal.mfaMapper().deleteById(userMfaDO.getId());
+        authDal.userMapper().updateMfaStatus(uid, false);
     }
 
     private String genMfaKey() {

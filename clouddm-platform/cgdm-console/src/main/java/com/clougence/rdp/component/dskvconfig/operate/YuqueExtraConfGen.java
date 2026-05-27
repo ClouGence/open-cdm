@@ -23,8 +23,8 @@ import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
 import com.clougence.rdp.component.dskvconfig.model.FileExtraConfig;
 import com.clougence.rdp.component.dskvconfig.model.YuqueExtraConfig;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.utils.StringUtils;
 
@@ -47,7 +47,7 @@ public class YuqueExtraConfGen extends FileExtraConfGen {
     }
 
     @Override
-    public DsExtraConfig genDsExtraConfig(RdpDataSourceDO dsDO, List<InitDsKvBaseConfigFO> fos) {
+    public DsExtraConfig genDsExtraConfig(DmDsDO dsDO, List<InitDsKvBaseConfigFO> fos) {
         YuqueExtraConfig config = (YuqueExtraConfig) newDsExtraConfig();
         for (InitDsKvBaseConfigFO f : fos) {
             fillEntry(config, f.getConfigName(), f.getConfigValue());
@@ -62,9 +62,9 @@ public class YuqueExtraConfGen extends FileExtraConfGen {
     }
 
     @Override
-    public DsExtraConfig genDsExtraConfigFromExist(RdpDataSourceDO dsDO, List<RdpDsKvBaseConfigDO> confs) {
+    public DsExtraConfig genDsExtraConfigFromExist(DmDsDO dsDO, List<DmDsConfigKv4RdpDO> confs) {
         YuqueExtraConfig config = (YuqueExtraConfig) newDsExtraConfig();
-        for (RdpDsKvBaseConfigDO f : confs) {
+        for (DmDsConfigKv4RdpDO f : confs) {
             fillEntry(config, f.getConfigName(), f.getConfigValue());
         }
 
@@ -97,7 +97,7 @@ public class YuqueExtraConfGen extends FileExtraConfGen {
         }
     }
 
-    public void validate(RdpDataSourceDO dsDo, YuqueExtraConfig config) {
+    public void validate(DmDsDO dsDo, YuqueExtraConfig config) {
         String defaultFormatJson = config.getDefaultLineSchemaJson();
         if (StringUtils.isBlank(defaultFormatJson)) {
             throw new IllegalArgumentException(dsDo.getDataSourceType() + " defaultFormatJson can not blank");

@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultList;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
@@ -31,11 +32,16 @@ import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.execute.QueryService;
 import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.editor.table.*;
 import com.clougence.clouddm.console.web.model.vo.editor.table.TableEditorForm;
 import com.clougence.clouddm.console.web.service.editor.model.ResultSetDTO;
-import com.clougence.clouddm.console.web.util.*;
+import com.clougence.clouddm.console.web.util.DmConvertUtils;
+import com.clougence.clouddm.console.web.util.DmDsUtils;
+import com.clougence.clouddm.console.web.util.TableEditorUiDataUtils;
+import com.clougence.clouddm.console.web.util.UiWebUtil;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.resultset.echo.Result;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultCount;
@@ -50,8 +56,6 @@ import com.clougence.clouddm.sdk.ui.editor.table.TableEditorUiData;
 import com.clougence.clouddm.sdk.ui.editor.table.TableEditorUiDataSpi;
 import com.clougence.clouddm.sdk.ui.editor.table.TableEditorUiPanel;
 import com.clougence.clouddm.sdk.ui.editor.table.TableEditorVarKeys;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.schema.editor.EditorContext;
 import com.clougence.schema.editor.EditorHelperDm;
 import com.clougence.schema.editor.EditorOptions;
@@ -82,13 +86,12 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
     private DmDsConfigService                  dmDsConfigService;
     @Resource
     private QueryService                       queryService;
-
     private final Map<String, TableEditorForm> dsUiEditorCache = new ConcurrentHashMap<>();
 
     /** for service API '/editor/table/editorDef' */
     @Override
     public TableEditorForm loadTableEditorDef(String puid, String uid, DsLevels levels, EditorDefFO defFO) {
-        RdpDataSourceDO dsDO = levels.dsDO();
+        DmDsDO dsDO = levels.dsDO();
         DataSourceType dsType = dsDO.getDataSourceType();
         DsConfig dsConfig = this.dmDsConfigService.dsConstantSettings(dsType);
         if (dsConfig == null) {
@@ -123,7 +126,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
     /** for service API '/editor/table/initEditor' */
     @Override
     public TableEditorUiData loadTableEditorData(String puid, String uid, DsLevels levels, EditorInitFO initFO) {
-        RdpDataSourceDO dsDO = levels.dsDO();
+        DmDsDO dsDO = levels.dsDO();
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
 
         // table Editor
@@ -143,7 +146,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
     @Override
     public List<ResultSetDTO> tableEditorGenerate(String puid, String uid, DsLevels levels, EditorGenFO genFO) {
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
-        RdpDataSourceDO dsDO = levels.dsDO();
+        DmDsDO dsDO = levels.dsDO();
 
         EditorOptions options = new EditorOptions();
         options.setSkipHandlers(true);
@@ -193,7 +196,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
 
     @Override
     public List<String> fetchReferencedColumns(String puid, String uid, DsLevels levels, EditorReferencedFO execFO) {
-        RdpDataSourceDO dsDO = levels.dsDO();
+        DmDsDO dsDO = levels.dsDO();
         Value value = dmDsSchemaService.detailLeaf(uid, dsDO, levels.levelsParam(), UmiTypes.Table, execFO.getTable(), true);
 
         RdbTable table = (RdbTable) value;
@@ -211,7 +214,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
     /** for service API '/editor/table/scriptExecute' */
     @Override
     public List<ResultSetDTO> tableEditorSave(String puid, String uid, DsLevels levels, EditorExecFO execFO, String clientIp) {
-        RdpDataSourceDO dsDO = levels.dsDO();
+        DmDsDO dsDO = levels.dsDO();
 
         // execute sql
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
@@ -267,7 +270,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
     // Utils Method
     //
 
-    private TableEditor initEditor(String uid, RdpDataSourceDO dsDO, Map<UmiTypes, Object> levelsParam, String tableName, EditorOptions options, boolean refreshCache) {
+    private TableEditor initEditor(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String tableName, EditorOptions options, boolean refreshCache) {
         EditorContext ctx = this.dmDsSchemaService.createEditorContext(uid, dsDO, levelsParam, options);
         ctx.setSkipHandlers(true);
         String editorData = this.dmDsSchemaService.loadTableEditor(uid, dsDO, levelsParam, tableName, refreshCache);
@@ -278,12 +281,12 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
         }
     }
 
-    private TableEditor restoreEditor(String uid, RdpDataSourceDO dsDO, Map<UmiTypes, Object> levelsParam, ETable eTable, EditorOptions options) {
+    private TableEditor restoreEditor(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, ETable eTable, EditorOptions options) {
         EditorContext ctx = this.dmDsSchemaService.createEditorContext(uid, dsDO, levelsParam, options);
         return EditorHelperDm.restoreTableEditor(eTable, ctx);
     }
 
-    private void triggerToUiDataPlugins(EditorViewMode viewMode, ETable source, TableEditorUiData target, RdpDataSourceDO dataSourceDO) {
+    private void triggerToUiDataPlugins(EditorViewMode viewMode, ETable source, TableEditorUiData target, DmDsDO dataSourceDO) {
         TableEditorUiDataSpi spi = PluginManager.findTableEditorSpi(dataSourceDO.getDataSourceType());
         if (spi != null) {
             DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dataSourceDO.getId(), dataSourceDO.getDataSourceType());
@@ -291,7 +294,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
         }
     }
 
-    private void triggerToETablePlugins(EditorViewMode viewMode, TableEditorUiData source, ETable target, RdpDataSourceDO dataSourceDO) {
+    private void triggerToETablePlugins(EditorViewMode viewMode, TableEditorUiData source, ETable target, DmDsDO dataSourceDO) {
         TableEditorUiDataSpi spi = PluginManager.findTableEditorSpi(dataSourceDO.getDataSourceType());
         if (spi != null) {
             DataSourceConfig dsConfig = dmDsConfigService.fetchDsConfigFromDM(dataSourceDO.getId(), dataSourceDO.getDataSourceType());

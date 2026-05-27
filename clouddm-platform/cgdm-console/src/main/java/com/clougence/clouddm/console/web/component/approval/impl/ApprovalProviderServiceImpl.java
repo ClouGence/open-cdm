@@ -25,12 +25,15 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
 import com.clougence.clouddm.console.web.component.project.ImSenderService;
-import com.clougence.clouddm.console.web.dal.enumeration.*;
-import com.clougence.clouddm.console.web.dal.mapper.*;
-import com.clougence.clouddm.console.web.dal.model.*;
 import com.clougence.clouddm.console.web.model.vo.RdpApproTemplateVO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
+import com.clougence.clouddm.platform.dal.access.ApprovalDal;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.approval.*;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.LifeSpiRequest;
 import com.clougence.clouddm.sdk.LifeSpiResponse;
@@ -39,9 +42,9 @@ import com.clougence.clouddm.sdk.approval.*;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiErrorType;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.service.approval.ApprovalActivity;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -56,30 +59,21 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ApprovalProviderServiceImpl {
+    @Resource
+    private SystemDal                               systemDal;
+    @Resource
+    private AuthDal                                 authDal;
+    @Resource
+    private ApprovalDal                             approvalDal;
+    @Resource
+    private ImSenderService                         imSenderService;
 
-    @Resource
-    private RdpUserMapper                              userMapper;
-    @Resource
-    private DmApprovalCacheTemplateMapper              approTemplateMapper;
-    @Resource
-    private RdpUserKvBaseConfigMapper                  rdpUserKvBaseConfigMapper;
-    @Resource
-    private DmApprovalProcessMapper                    approvalProcessMapper;
-    @Resource
-    private DmApprovalMapper                           approvalMapper;
-    @Resource
-    private DmApprovalProcessActivityMapper            activityMapper;
-    @Resource
-    private DmApprovalCacheTemplateMapper              approvalCacheTemplateMapper;
-    @Resource
-    private ImSenderService                            imSenderService;
-
-    private final Map<RdpApprovalBiz, ApprovalHandler> approvalHandlers;
+    private final Map<ApprovalBiz, ApprovalHandler> approvalHandlers;
 
     public ApprovalProviderServiceImpl(List<ApprovalHandler> approvalHandlers){
-        this.approvalHandlers = new EnumMap<>(RdpApprovalBiz.class);
+        this.approvalHandlers = new EnumMap<>(ApprovalBiz.class);
         for (ApprovalHandler approvalHandler : approvalHandlers) {
-            RdpApprovalBiz type = approvalHandler.handleType();
+            ApprovalBiz type = approvalHandler.handleType();
             if (this.approvalHandlers.putIfAbsent(type, approvalHandler) != null) {
                 throw new IllegalStateException("ApprovalHandler about " + type + " already exists");
             }
@@ -91,8 +85,8 @@ public class ApprovalProviderServiceImpl {
 
         // inner
         Map<String, Object> innerProvider = new HashMap<>();
-        innerProvider.put("approvalType", RdpApprovalType.Internal.name());
-        innerProvider.put("i18n", DmI18nUtils.getMessage(RdpApprovalType.Internal.getI18nKey()));
+        innerProvider.put("approvalType", ApprovalType.Internal.name());
+        innerProvider.put("i18n", DmI18nUtils.getMessage(ApprovalType.Internal.getI18nKey()));
         innerProvider.put("enable", true);
         innerProvider.put("desc", "");
         list.add(innerProvider);
@@ -102,7 +96,7 @@ public class ApprovalProviderServiceImpl {
         for (ApprovalProvider type : ApprovalFlowService.SUPPORT_LIST) {
             Map<String, Object> provider = new HashMap<>();
             provider.put("approvalType", type.name());
-            provider.put("i18n", DmI18nUtils.getMessage(RdpApprovalType.valueOfProvider(type).getI18nKey()));
+            provider.put("i18n", DmI18nUtils.getMessage(ApprovalType.valueOfProvider(type).getI18nKey()));
 
             // not found plugin
             if (!serviceNames.contains(type.name())) {
@@ -144,16 +138,16 @@ public class ApprovalProviderServiceImpl {
             return true;
         }
 
-        RdpUserKvBaseConfigDO configDO = rdpUserKvBaseConfigMapper.queryByUidAndConfigName(ownerUid, cfgKey);
+        DmSysUserConfDO configDO = systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, cfgKey);
         if (configDO == null || StringUtils.isBlank(configDO.getConfigValue())) {
             return false;
         }
         return StringUtils.equalsIgnoreCase(configDO.getConfigValue().trim(), "true");
     }
 
-    public List<RdpApproTemplateVO> listTemplates(String ownerUid, RdpApprovalType type) {
-        if (type != RdpApprovalType.Internal) {
-            List<DmApprovalCacheTemplateDO> templateDOS = approTemplateMapper.listByPrimaryUidAndType(ownerUid, type);
+    public List<RdpApproTemplateVO> listTemplates(String ownerUid, ApprovalType type) {
+        if (type != ApprovalType.Internal) {
+            List<DmApprovalTemplateDO> templateDOS = approvalDal.templateMapper().listByPrimaryUidAndType(ownerUid, type);
             if (templateDOS.isEmpty()) {
                 return refreshTemplates(ownerUid, type);
             } else {
@@ -172,10 +166,10 @@ public class ApprovalProviderServiceImpl {
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
-    public List<RdpApproTemplateVO> refreshTemplates(String ownerUid, RdpApprovalType type) {
+    public List<RdpApproTemplateVO> refreshTemplates(String ownerUid, ApprovalType type) {
         List<RdpApproTemplateVO> voList;
-        List<DmApprovalCacheTemplateDO> cacheList;
-        if (type != RdpApprovalType.Internal) {
+        List<DmApprovalTemplateDO> cacheList;
+        if (type != ApprovalType.Internal) {
             ApprovalProviderSpi approvalService = PluginManager.findSpi(ApprovalProviderSpi.class, type.name());
             if (approvalService == null) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), type));
@@ -183,7 +177,7 @@ public class ApprovalProviderServiceImpl {
 
             List<ApprovalTemplate> templates = approvalService.getTemplates(ownerUid);
             cacheList = templates.stream().map(template -> {
-                DmApprovalCacheTemplateDO templateDO = new DmApprovalCacheTemplateDO();
+                DmApprovalTemplateDO templateDO = new DmApprovalTemplateDO();
                 templateDO.setPrimaryUid(ownerUid);
                 templateDO.setApprovalType(type);
                 templateDO.setTemplateName(template.getApproTemplateName());
@@ -204,30 +198,30 @@ public class ApprovalProviderServiceImpl {
             RdpApproTemplateVO vo = ApprovalFlowService.innerTemplate();
             voList = Collections.singletonList(vo);
 
-            DmApprovalCacheTemplateDO templateDO = new DmApprovalCacheTemplateDO();
+            DmApprovalTemplateDO templateDO = new DmApprovalTemplateDO();
             templateDO.setApproUrl(vo.getApproUrl());
             templateDO.setTemplateName(vo.getApproTemplateName());
-            templateDO.setApprovalType(RdpApprovalType.Internal);
+            templateDO.setApprovalType(ApprovalType.Internal);
             templateDO.setTemplateIdentity(vo.getTemplateIdentity());
             templateDO.setPrimaryUid(ownerUid);
 
             cacheList = Collections.singletonList(templateDO);
         }
-        approTemplateMapper.deleteByPrimaryUid(ownerUid, type);
+        approvalDal.templateMapper().deleteByPrimaryUid(ownerUid, type);
         if (CollectionUtils.isNotEmpty(cacheList)) {
-            approTemplateMapper.insertTemplateBatch(cacheList);
+            approvalDal.templateMapper().insertTemplateBatch(cacheList);
         }
         return voList;
     }
 
     public void cancelApprovalInst(Long ticketId) {
-        DmApprovalDO ticketDO = approvalMapper.queryById(ticketId);
+        DmApprovalDO ticketDO = approvalDal.approvalMapper().queryById(ticketId);
         ApprovalProviderSpi approvalService = PluginManager.findSpi(ApprovalProviderSpi.class, ticketDO.getApproType().name());
         if (approvalService == null) {
             return;
         }
 
-        RdpUserDO ticketUser = userMapper.queryByUid(ticketDO.getOwnerUid());
+        DmAuthUserDO ticketUser = authDal.userMapper().queryByUid(ticketDO.getOwnerUid());
 
         ApprovalInstanceCancelInfo cancelInstanceInfo = new ApprovalInstanceCancelInfo();
         cancelInstanceInfo.setTicketUserPhone(ticketUser.getPhone());
@@ -240,8 +234,8 @@ public class ApprovalProviderServiceImpl {
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void refreshApprovalStatus(long ticketId) {
-        DmApprovalDO ticket = approvalMapper.queryById(ticketId);
-        if (RdpTicketStatus.isEndStatus(ticket.getTicketStatus())) {
+        DmApprovalDO ticket = approvalDal.approvalMapper().queryById(ticketId);
+        if (ApprovalStatus.isEndStatus(ticket.getTicketStatus())) {
             return;
         }
 
@@ -253,43 +247,43 @@ public class ApprovalProviderServiceImpl {
             ApprovalInstanceInfo lastInfo = approvalService.getLastInfo(ticket.getPrimaryUid(), ticket.getApproIdentity());
             ApprovalInstanceStatus status = lastInfo.getStatus();
 
-            DmApprovalProcessDO processDO = approvalProcessMapper.queryByStage(ticket.getId(), RdpTicketStage.APPROVAL);
+            DmApprovalProcessDO processDO = approvalDal.processMapper().queryByStage(ticket.getId(), ApprovalStage.APPROVAL);
             for (Map.Entry<String, List<ApprovalActivity>> stringListEntry : lastInfo.getMap().entrySet()) {
-                this.activityMapper.updateContext(processDO.getId(), stringListEntry.getKey(), JsonUtils.toJson(stringListEntry.getValue()));
+                this.approvalDal.activityMapper().updateContext(processDO.getId(), stringListEntry.getKey(), JsonUtils.toJson(stringListEntry.getValue()));
             }
 
             switch (status) {
                 case CANCELED:
                 case TERMINATED: {
                     // step1
-                    this.approvalProcessMapper.updateTicketStatusByEnum(processDO.getId(), RdpTicketProcessStatus.CLOSED, null);
+                    this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.CLOSED, null);
                     // step2
-                    this.approvalMapper.updateTicketStatusByEnum(ticket.getId(), RdpTicketStatus.CANCELED, null);
-                    this.approvalProcessMapper.updateNotEndProcessByTicketId(ticketId, RdpTicketProcessStatus.CLOSED);
+                    this.approvalDal.approvalMapper().updateStatusByEnum(ticket.getId(), ApprovalStatus.CANCELED, null);
+                    this.approvalDal.processMapper().updateNotEndProcessByTicketId(ticketId, ApprovalProcessStatus.CLOSED);
                     // step3
                     this.approvalHandler(ticket.getApproBiz()).approvalCanceled(ticket.getId(), ticket.getApproBiz(), imSenderService);
                     break;
                 }
                 case COMPLETED: {
                     // step1
-                    this.approvalProcessMapper.updateTicketStatusByEnum(processDO.getId(), RdpTicketProcessStatus.FINISH, null);
+                    this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.FINISH, null);
                     // step2
                     this.approvalHandler(ticket.getApproBiz()).approvalCompleted(ticket.getId(), ticket.getApproBiz(), imSenderService);
                     break;
                 }
                 case REFUSE: {
                     // step1
-                    this.approvalProcessMapper.updateTicketStatusByEnum(processDO.getId(), RdpTicketProcessStatus.REJECT, null);
+                    this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.REJECT, null);
                     // step2
-                    this.approvalMapper.updateTicketStatusByEnum(ticket.getId(), RdpTicketStatus.REJECTED, null);
-                    this.approvalProcessMapper.updateNotEndProcessByTicketId(ticketId, RdpTicketProcessStatus.REJECT);
+                    this.approvalDal.approvalMapper().updateStatusByEnum(ticket.getId(), ApprovalStatus.REJECTED, null);
+                    this.approvalDal.processMapper().updateNotEndProcessByTicketId(ticketId, ApprovalProcessStatus.REJECT);
                     // step3
                     this.approvalHandler(ticket.getApproBiz()).approvalRefuse(ticket.getId(), ticket.getApproBiz(), imSenderService);
                     break;
                 }
                 case FAILED: {
                     // step1
-                    this.approvalMapper.updateTicketStatusByEnum(ticket.getId(), RdpTicketStatus.FAILED, null);
+                    this.approvalDal.approvalMapper().updateStatusByEnum(ticket.getId(), ApprovalStatus.FAILED, null);
                     this.failedTicket(ticket);
                     // step2
                     this.approvalHandler(ticket.getApproBiz()).approvalFailed(ticket.getId(), ticket.getApproBiz(), imSenderService);
@@ -297,7 +291,7 @@ public class ApprovalProviderServiceImpl {
                 }
             }
 
-            this.approvalProcessMapper.updateModified(processDO.getId());
+            this.approvalDal.processMapper().updateModified(processDO.getId());
         } catch (ThirdPartyApiException e) {
             if (e.getErrorType() == ThirdPartyApiErrorType.CONNECTION_ERROR) {
                 log.error("ticketId：{},refreshTicketStatus net error,message：{}", ticketId, e.getMessage());
@@ -308,16 +302,16 @@ public class ApprovalProviderServiceImpl {
     }
 
     private void failedTicket(DmApprovalDO ticket) {
-        List<DmApprovalProcessDO> processList = approvalProcessMapper.listByTicketId(ticket.getId());
+        List<DmApprovalProcessDO> processList = approvalDal.processMapper().listByTicketId(ticket.getId());
         for (DmApprovalProcessDO processDO : processList) {
-            if (processDO.getProcessStatus() != RdpTicketProcessStatus.FINISH) {
+            if (processDO.getProcessStatus() != ApprovalProcessStatus.FINISH) {
                 // update status
-                this.approvalProcessMapper.updateTicketStatusByEnum(processDO.getId(), RdpTicketProcessStatus.FAIL, null);
+                this.approvalDal.processMapper().updateTicketStatusByEnum(processDO.getId(), ApprovalProcessStatus.FAIL, null);
             }
         }
     }
 
-    private ApprovalHandler approvalHandler(RdpApprovalBiz approvalBiz) {
+    private ApprovalHandler approvalHandler(ApprovalBiz approvalBiz) {
         ApprovalHandler approvalHandler = this.approvalHandlers.get(approvalBiz);
         if (approvalHandler == null) {
             throw new IllegalStateException("ApprovalHandler about " + approvalBiz + " does not exist");
@@ -325,7 +319,7 @@ public class ApprovalProviderServiceImpl {
         return approvalHandler;
     }
 
-    public DmApprovalCacheTemplateDO checkApprovalAndReturnTemplate(String ownerUid, RdpApprovalType type, String templateId, Locale locale) {
+    public DmApprovalTemplateDO checkApprovalAndReturnTemplate(String ownerUid, ApprovalType type, String templateId, Locale locale) {
         if (!this.checkEnableApproval(ownerUid, type.getProviderType())) {
             if (locale == null) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), type));
@@ -334,7 +328,7 @@ public class ApprovalProviderServiceImpl {
             }
         }
 
-        DmApprovalCacheTemplateDO templateDO = this.approvalCacheTemplateMapper.queryByUidAndTemId(ownerUid, templateId);
+        DmApprovalTemplateDO templateDO = this.approvalDal.templateMapper().queryByUidAndTemId(ownerUid, templateId);
         if (templateDO == null) {
             if (locale == null) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TEMPLATE_NOT_EXISTS.name()));
@@ -346,7 +340,7 @@ public class ApprovalProviderServiceImpl {
         }
     }
 
-    public void addTemplateByUrl(String ownerUid, RdpApprovalType type, String templateUrl) {
+    public void addTemplateByUrl(String ownerUid, ApprovalType type, String templateUrl) {
         if (!this.checkEnableApproval(ownerUid, type.getProviderType())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), type));
         }
@@ -355,22 +349,22 @@ public class ApprovalProviderServiceImpl {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), type));
         }
 
-        if (type == RdpApprovalType.Feishu) {
+        if (type == ApprovalType.Feishu) {
             processFeishu(ownerUid, type, templateUrl); // process feishu
-        } else if (type == RdpApprovalType.Wechat) {
+        } else if (type == ApprovalType.Wechat) {
             processWeChat(ownerUid, type, templateUrl); // process Wechat
         } else {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_NOT_SUPPORT.name(), type));
         }
     }
 
-    private void processFeishu(String ownerUid, RdpApprovalType type, String templateUrl) {
+    private void processFeishu(String ownerUid, ApprovalType type, String templateUrl) {
         //  - like https://www.feishu.cn/approval/admin/createApproval?id=7512448164570939393&definitionCode=CA7EB488-A2CA-4F56-A1E5-B226C9E2479E
         if (templateUrl.indexOf("?") > 0) {
             String params = templateUrl.substring(templateUrl.indexOf("?") + 1);
             Map<String, String> map = StringUtils.toMap(params, "&", "=");
             if (map.containsKey("definitionCode")) {
-                RdpUserKvBaseConfigDO configDO = this.rdpUserKvBaseConfigMapper.queryByUidAndConfigName(ownerUid, UserDefinedConfig.Fields.feishuApprovalTemplateList);
+                DmSysUserConfDO configDO = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, UserDefinedConfig.Fields.feishuApprovalTemplateList);
                 if (configDO == null) {
                     throw new ErrorMessageException("cannot find config feishuApprovalTemplateList.");
                 }
@@ -382,19 +376,19 @@ public class ApprovalProviderServiceImpl {
                 newList.add(map.get("definitionCode").trim());
                 configDO.setConfigValue(StringUtils.join(newList, ","));
 
-                this.rdpUserKvBaseConfigMapper.updateUserConfig(ownerUid, UserDefinedConfig.Fields.feishuApprovalTemplateList, configDO.getConfigValue());
+                this.systemDal.userConfMapper().updateUserConfig(ownerUid, UserDefinedConfig.Fields.feishuApprovalTemplateList, configDO.getConfigValue());
                 this.refreshTemplates(ownerUid, type);
             }
         }
     }
 
-    private void processWeChat(String ownerUid, RdpApprovalType type, String templateUrl) {
+    private void processWeChat(String ownerUid, ApprovalType type, String templateUrl) {
         //  - like https://work.weixin.qq.com/wework_admin/frame#approval_v2/app/120/C4c5FLb3D23jBPxumAfnUv1mk6YESzMfyaHDiuH6d
         String[] split = StringUtils.split(templateUrl, "/");
         if (split.length > 0) {
             String definitionCode = split[split.length - 1].trim();
 
-            RdpUserKvBaseConfigDO configDO = this.rdpUserKvBaseConfigMapper.queryByUidAndConfigName(ownerUid, UserDefinedConfig.Fields.wechatApprovalTemplateList);
+            DmSysUserConfDO configDO = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, UserDefinedConfig.Fields.wechatApprovalTemplateList);
             if (configDO == null) {
                 throw new ErrorMessageException("cannot find config wechatApprovalTemplateList.");
             }
@@ -406,13 +400,13 @@ public class ApprovalProviderServiceImpl {
             newList.add(definitionCode);
             configDO.setConfigValue(StringUtils.join(newList, ","));
 
-            this.rdpUserKvBaseConfigMapper.updateUserConfig(ownerUid, UserDefinedConfig.Fields.wechatApprovalTemplateList, configDO.getConfigValue());
+            this.systemDal.userConfMapper().updateUserConfig(ownerUid, UserDefinedConfig.Fields.wechatApprovalTemplateList, configDO.getConfigValue());
             this.refreshTemplates(ownerUid, type);
         }
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
-    public void removeTemplateById(String ownerUid, RdpApprovalType type, String templateId) {
+    public void removeTemplateById(String ownerUid, ApprovalType type, String templateId) {
         if (!this.checkEnableApproval(ownerUid, type.getProviderType())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), type));
         }
@@ -433,8 +427,8 @@ public class ApprovalProviderServiceImpl {
         }
     }
 
-    private void removeAndRefresh(ApprovalProviderSpi approvalService, String ownerUid, RdpApprovalType type, String templateListKey, String templateId) {
-        RdpUserKvBaseConfigDO configDO = this.rdpUserKvBaseConfigMapper.queryByUidAndConfigName(ownerUid, templateListKey);
+    private void removeAndRefresh(ApprovalProviderSpi approvalService, String ownerUid, ApprovalType type, String templateListKey, String templateId) {
+        DmSysUserConfDO configDO = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, templateListKey);
         if (configDO == null || StringUtils.isBlank(configDO.getConfigValue())) {
             return;
         }
@@ -447,7 +441,7 @@ public class ApprovalProviderServiceImpl {
         }
         configDO.setConfigValue(StringUtils.join(newList, ","));
 
-        this.rdpUserKvBaseConfigMapper.updateUserConfig(ownerUid, templateListKey, configDO.getConfigValue());
+        this.systemDal.userConfMapper().updateUserConfig(ownerUid, templateListKey, configDO.getConfigValue());
         this.refreshTemplates(ownerUid, type);
         approvalService.useTemplate(ownerUid, templateId, null);
     }

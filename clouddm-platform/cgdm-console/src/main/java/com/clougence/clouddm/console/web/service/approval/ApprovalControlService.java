@@ -19,12 +19,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalType;
 import com.clougence.clouddm.console.web.model.fo.security.ListMyAuthTicketFO;
 import com.clougence.clouddm.console.web.model.fo.ticket.*;
 import com.clougence.clouddm.console.web.model.vo.DmBizLogVO;
 import com.clougence.clouddm.console.web.model.vo.RdpApproTemplateVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.*;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
 
 /**
  * @author Ekko
@@ -68,7 +68,7 @@ public interface ApprovalControlService {
 
     List<DmBizLogVO> queryExecLog(String puid, DmQueryExecLogFO fo);
 
-    List<RdpApproTemplateVO> listTemplates(String ownerUid, RdpApprovalType approvalType);
+    List<RdpApproTemplateVO> listTemplates(String ownerUid, ApprovalType approvalType);
 
     List<Map<String, Object>> getTicketTypes(String ownerUid);
 
@@ -76,9 +76,9 @@ public interface ApprovalControlService {
     // assistant
     //
 
-    List<RdpApproTemplateVO> refreshTemplates(String ownerUid, RdpApprovalType approvalType);
+    List<RdpApproTemplateVO> refreshTemplates(String ownerUid, ApprovalType approvalType);
 
-    void addTemplateByUrl(String ownerUid, RdpApprovalType approvalType, String templateUrl);
+    void addTemplateByUrl(String ownerUid, ApprovalType approvalType, String templateUrl);
 
-    void removeTemplateById(String ownerUid, RdpApprovalType approvalType, String templateId);
+    void removeTemplateById(String ownerUid, ApprovalType approvalType, String templateId);
 }

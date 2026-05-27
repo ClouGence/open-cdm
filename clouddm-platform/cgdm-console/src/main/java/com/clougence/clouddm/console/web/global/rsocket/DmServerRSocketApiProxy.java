@@ -33,7 +33,7 @@ import com.clougence.clouddm.comm.model.RSocketSendType;
 import com.clougence.clouddm.comm.util.RSocketRespUtil;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.util.MessageUtils;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.JsonUtils;
 

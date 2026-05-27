@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo.ticket;
 
-import com.clougence.clouddm.console.web.dal.enumeration.DmLogDependBizType;
+import com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -29,5 +29,5 @@ public class DmQueryExecLogFO {
     @NotNull(message = "jobId must not null")
     private Long               jobId;
     @NotNull(message = "dependBizType must not null")
-    private DmLogDependBizType dependBizType;
+    private LogDependBizType dependBizType;
 }

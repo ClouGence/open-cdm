@@ -30,15 +30,15 @@ import com.clougence.clouddm.console.web.component.alert.model.SendMsgResult;
 import com.clougence.clouddm.console.web.component.asyntask.AsyncTask;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.model.vo.RdpUserConfigVO;
-import com.clougence.rdp.constant.UserConfigTagType;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.console.web.util.RdpJacksonUtil;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.monitor.AlertEventStatus;
+import com.clougence.clouddm.platform.dal.model.monitor.AlertMediaType;
+import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.rdp.service.RdpAlertEventLogService;
 import com.clougence.rdp.service.RdpUserConfigService;
-import com.clougence.rdp.service.enumeration.AlertEventStatus;
-import com.clougence.rdp.service.enumeration.AlertMediaType;
 import com.clougence.rdp.service.model.MailDTO;
-import com.clougence.clouddm.console.web.util.RdpJacksonUtil;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
@@ -58,14 +58,14 @@ public class RdpSendEmailTask extends AsyncTask {
 
     private static final Integer    FAILED_RETRY_COUNT = 3;
 
-    @Resource
     @Setter
-    private RdpUserConfigService    rdpUserConfigService;
     @Resource
+    private DmConsoleConfig         consoleConfig;
     @Setter
-    private DmConsoleConfig         rdpConfig;
     @Resource
-    private RdpAlertEventLogService rdpAlertEventLogService;
+    private RdpUserConfigService    userConfigService;
+    @Resource
+    private RdpAlertEventLogService alertEventLogService;
 
     @Override
     protected void executeTask(int doCnt, String configData) {
@@ -73,7 +73,7 @@ public class RdpSendEmailTask extends AsyncTask {
         sendMailInner(config.getMailDTO(), config.getUserDO(), config.getReceiverUids());
     }
 
-    private void sendMailInner(MailDTO mailDTO, RdpUserDO userDO, List<String> receiverUids) {
+    private void sendMailInner(MailDTO mailDTO, DmAuthUserDO userDO, List<String> receiverUids) {
         int retry = 0;
 
         while (retry < FAILED_RETRY_COUNT) {
@@ -92,7 +92,7 @@ public class RdpSendEmailTask extends AsyncTask {
         }
     }
 
-    private SendMsgResult sendMail(MailDTO mailDTO, RdpUserDO sendUser, List<String> receiverUids) {
+    private SendMsgResult sendMail(MailDTO mailDTO, DmAuthUserDO sendUser, List<String> receiverUids) {
         if (!validate(mailDTO)) {
             String msg = "Send email error. mails or subject or content empty.mail to:" + StringUtils.join(mailDTO.getMailTo(), ", ") + ",subject:" + mailDTO.getSubject()
                          + ",mail content:" + mailDTO.getContent();
@@ -163,7 +163,7 @@ public class RdpSendEmailTask extends AsyncTask {
         }
 
         AlertEventStatus status = result.success() ? AlertEventStatus.SUCCESS : AlertEventStatus.ERROR;
-        rdpAlertEventLogService.save(status, result.content(), result.errMsg(), result.mediaType(), result.sendUids());
+        alertEventLogService.save(status, result.content(), result.errMsg(), result.mediaType(), result.sendUids());
     }
 
     protected boolean validate(MailDTO mailDTO) {
@@ -172,22 +172,22 @@ public class RdpSendEmailTask extends AsyncTask {
 
     protected JavaMailSenderImpl genSystemMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.getJavaMailProperties().setProperty("mail.smtp.auth", rdpConfig.getEmailSmtpAuthKey());
-        mailSender.getJavaMailProperties().setProperty("mail.smtp.starttls.enable", rdpConfig.getEmailSmtpStarttlsEnableKey());
-        mailSender.getJavaMailProperties().setProperty("mail.smtp.starttls.required", rdpConfig.getEmailSmtpStarttlsRequiredKey());
-        mailSender.getJavaMailProperties().setProperty("mail.smtp.ssl.enable", rdpConfig.getEmailSmtpSslEnableKey());
-        mailSender.getJavaMailProperties().setProperty("mail.transport.protocol", rdpConfig.getEmailTransportProtocolKey());
-        mailSender.setHost(rdpConfig.getEmailHostConfigKey());
-        mailSender.setPort(Integer.parseInt(rdpConfig.getEmailPortConfigKey()));
-        mailSender.setUsername(rdpConfig.getEmailUserNameConfigKey());
-        mailSender.setPassword(rdpConfig.getEmailPasswordConfigKey());
-        mailSender.getJavaMailProperties().setProperty("from", rdpConfig.getEmailFromConfigKey());
-        mailSender.getJavaMailProperties().setProperty("display", rdpConfig.getEmailDisplayConfigKey());
+        mailSender.getJavaMailProperties().setProperty("mail.smtp.auth", consoleConfig.getEmailSmtpAuthKey());
+        mailSender.getJavaMailProperties().setProperty("mail.smtp.starttls.enable", consoleConfig.getEmailSmtpStarttlsEnableKey());
+        mailSender.getJavaMailProperties().setProperty("mail.smtp.starttls.required", consoleConfig.getEmailSmtpStarttlsRequiredKey());
+        mailSender.getJavaMailProperties().setProperty("mail.smtp.ssl.enable", consoleConfig.getEmailSmtpSslEnableKey());
+        mailSender.getJavaMailProperties().setProperty("mail.transport.protocol", consoleConfig.getEmailTransportProtocolKey());
+        mailSender.setHost(consoleConfig.getEmailHostConfigKey());
+        mailSender.setPort(Integer.parseInt(consoleConfig.getEmailPortConfigKey()));
+        mailSender.setUsername(consoleConfig.getEmailUserNameConfigKey());
+        mailSender.setPassword(consoleConfig.getEmailPasswordConfigKey());
+        mailSender.getJavaMailProperties().setProperty("from", consoleConfig.getEmailFromConfigKey());
+        mailSender.getJavaMailProperties().setProperty("display", consoleConfig.getEmailDisplayConfigKey());
         return mailSender;
     }
 
-    protected JavaMailSenderImpl initMailSenderByConfig(RdpUserDO sendUser) {
-        List<RdpUserConfigVO> emailConfigs = rdpUserConfigService.queryOneConfigTypeByUid(sendUser.getUid(), UserConfigTagType.EMAIL_CONFIG);
+    protected JavaMailSenderImpl initMailSenderByConfig(DmAuthUserDO sendUser) {
+        List<RdpUserConfigVO> emailConfigs = userConfigService.queryOneConfigTypeByUid(sendUser.getUid(), UserConfigTagType.EMAIL_CONFIG);
 
         if (!verifyNecessaryEmailConfig(emailConfigs)) {
             return null;

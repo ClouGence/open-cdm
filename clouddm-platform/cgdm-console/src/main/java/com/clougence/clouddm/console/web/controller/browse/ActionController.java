@@ -26,15 +26,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.browse.*;
 import com.clougence.clouddm.console.web.model.fo.object.ObjectEditorDefFO;
@@ -43,13 +44,12 @@ import com.clougence.clouddm.console.web.model.vo.editor.table.TableEditorFieldF
 import com.clougence.clouddm.console.web.service.browse.ActionService;
 import com.clougence.clouddm.console.web.service.browse.model.ActionTargetMO;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.util.RdpAuthUtils;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPathObj;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpUserService;
-import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
@@ -68,13 +68,13 @@ import lombok.extern.slf4j.Slf4j;
 public class ActionController {
 
     @Resource
-    private ActionService           actionService;
+    private ActionService       actionService;
     @Resource
-    private DmDsConfigService       dmDsConfigService;
+    private DmDsConfigService   dmDsConfigService;
     @Resource
-    private BizResOwnerCacheService ownerCacheService;
+    private ObjectCacheDao      objectCacheDao;
     @Resource
-    private DmAuthServiceForBiz     dmAuthServiceForBiz;
+    private DmAuthServiceForBiz dmAuthServiceForBiz;
 
     @RequestAuth(DM_QUERY_CONSOLE)
     @RequestMapping(value = "/genAction", method = RequestMethod.POST)
@@ -134,7 +134,7 @@ public class ActionController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.ownerCacheService.ownDataSource(puid, levels.dsDO().getId());
+        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
 
         List<TableEditorFieldForm> form = this.actionService.loadObjectEditorDef(puid, uid, levels, fo);
         return ResWebDataUtils.buildSuccess(form);
@@ -240,7 +240,7 @@ public class ActionController {
         }
         // the object
         DsLevels dsLevels = this.dmDsConfigService.parseLevels(levels);
-        this.ownerCacheService.ownDataSource(puid, dsLevels.dsDO().getId());
+        this.objectCacheDao.ownDataSource(puid, dsLevels.dsDO().getId());
         return dsLevels;
     }
 }

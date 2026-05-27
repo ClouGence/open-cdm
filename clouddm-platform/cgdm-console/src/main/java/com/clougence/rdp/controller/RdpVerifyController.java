@@ -57,9 +57,7 @@ public class RdpVerifyController {
         m.setAccount(sendCodeFO.getAccount());
         m.setSub(sendCodeFO.isSub());
         m.setEmail(sendCodeFO.getEmail());
-        m.setPhoneNumber(sendCodeFO.getPhoneNumber());
-        m.setPhoneAreaCode(sendCodeFO.getPhoneAreaCode());
-        m.setVerifyType(sendCodeFO.getVerifyType());
+        m.setPhoneNumber(sendCodeFO.getPhoneNumber());        m.setVerifyType(sendCodeFO.getVerifyType());
         m.setVerifyCodeType(sendCodeFO.getVerifyCodeType());
 
         switch (sendCodeFO.getVerifyCodeType()) {
@@ -107,9 +105,7 @@ public class RdpVerifyController {
 
         VerifyMO m = new VerifyMO();
         m.setEmail(sendCodeFO.getEmail());
-        m.setPhoneNumber(sendCodeFO.getPhoneNumber());
-        m.setPhoneAreaCode(sendCodeFO.getPhoneAreaCode());
-        m.setVerifyType(sendCodeFO.getVerifyType());
+        m.setPhoneNumber(sendCodeFO.getPhoneNumber());        m.setVerifyType(sendCodeFO.getVerifyType());
         m.setVerifyCodeType(sendCodeFO.getVerifyCodeType());
 
         rdpVerifyService.sendVerifyCodeByChangeAccount(m, uid, sendCodeFO.getVerifyCodeType(), null);

@@ -15,7 +15,9 @@
  */
 package com.clougence.rdp.component.dskvconfig.model;
 
-import static com.clougence.rdp.constant.I18nDsConfigMsgKeys.CONFIG_DATA_SOURCE_SSL_MODE;
+import com.clougence.clouddm.console.web.global.i18n.I18nDsConfigMsgKeys;
+
+import static com.clougence.clouddm.console.web.global.i18n.I18nDsConfigMsgKeys.CONFIG_DATA_SOURCE_SSL_MODE;
 
 import com.clougence.rdp.constant.DsConfigDef;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

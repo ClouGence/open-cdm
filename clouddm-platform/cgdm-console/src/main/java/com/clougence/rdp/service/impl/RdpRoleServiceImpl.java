@@ -15,6 +15,8 @@
  */
 package com.clougence.rdp.service.impl;
 
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -27,7 +29,7 @@ import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstructOrder;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.model.fo.role.CreateRoleFO;
 import com.clougence.clouddm.console.web.model.fo.role.DeleteRoleFO;
@@ -37,15 +39,13 @@ import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthInfoSpi;
 import com.clougence.clouddm.sdk.security.auth.AuthInfoType;
 import com.clougence.clouddm.sdk.security.auth.def.SecSysRole;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.dal.mapper.RdpRoleMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpRoleDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.rdp.service.RdpAuthServiceForManage;
 import com.clougence.rdp.service.RdpRoleService;
 import com.clougence.rdp.service.model.AddRoleMO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -62,11 +62,10 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct {
 
     @Resource
+    private AuthDal authDal;
+
+    @Resource
     private DmConsoleConfig                rdpConfig;
-    @Resource
-    private RdpRoleMapper                  rdpRoleMapper;
-    @Resource
-    private RdpUserMapper                  rdpUserMapper;
     @Resource
     private RdpAuthServiceForManage        rdpDsAuthManagerService;
 
@@ -108,7 +107,7 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
         for (String roleName : innerRole) {
             Set<String> authLabels = this.innerRoleInfoDef.get(roleName);
             String labelJson = JsonUtils.toJson(authLabels);
-            this.rdpRoleMapper.updateInnerRoleByName(roleName, labelJson);
+            this.authDal.roleMapper().updateInnerRoleByName(roleName, labelJson);
         }
     }
 
@@ -123,8 +122,8 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
     }
 
     @Override
-    public List<RdpRoleDO> listRoleByUID(String puid) {
-        List<RdpRoleDO> roles = this.rdpRoleMapper.queryByOwnerUid(puid);
+    public List<DmAuthRoleDO> listRoleByUID(String puid) {
+        List<DmAuthRoleDO> roles = this.authDal.roleMapper().queryByOwnerUid(puid);
         roles.forEach(roleDO -> {
             if (roleDO.isInnerTag()) {
                 roleDO.setAliasName(DmI18nUtils.getMessage(roleDO.getRoleName()));
@@ -134,8 +133,8 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
     }
 
     @Override
-    public List<RdpRoleDO> listRoleExcludeByName(String puid, List<String> name) {
-        List<RdpRoleDO> roles = this.rdpRoleMapper.queryByOwnerUid(puid);
+    public List<DmAuthRoleDO> listRoleExcludeByName(String puid, List<String> name) {
+        List<DmAuthRoleDO> roles = this.authDal.roleMapper().queryByOwnerUid(puid);
 
         roles = roles.stream().filter(p -> !name.contains(p.getRoleName())).collect(Collectors.toList());
 
@@ -148,8 +147,8 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
     }
 
     @Override
-    public RdpRoleDO fetchRoleById(long roleId) {
-        RdpRoleDO roleDO = this.rdpRoleMapper.selectById(roleId);
+    public DmAuthRoleDO fetchRoleById(long roleId) {
+        DmAuthRoleDO roleDO = this.authDal.roleMapper().selectById(roleId);
         if (roleDO == null) {
             return null;
         }
@@ -171,25 +170,25 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
             return new AddRoleMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.ROLE_CRATE_NAME_IS_INNER_ERROR.name(), fo.getRoleName(), avoid));
         }
 
-        List<RdpRoleDO> sameRoles = this.rdpRoleMapper.queryByRoleName(puid, fo.getRoleName());
+        List<DmAuthRoleDO> sameRoles = this.authDal.roleMapper().queryByRoleName(puid, fo.getRoleName());
         if (sameRoles != null && !sameRoles.isEmpty()) {
             return new AddRoleMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.ROLE_CRATE_NAME_IS_EXIST_ERROR.name(), fo.getRoleName()));
         }
 
-        RdpRoleDO roleDO = new RdpRoleDO();
+        DmAuthRoleDO roleDO = new DmAuthRoleDO();
         roleDO.setOwnerUid(puid);
         roleDO.setRoleName(fo.getRoleName());
         roleDO.setAliasName(fo.getRoleName());
         roleDO.setInnerTag(false);
         roleDO.setRoleAuthLabels(this.rdpDsAuthManagerService.normalizeRoleAuthLabels(fo.getAuthLabelList()));
 
-        int insert = this.rdpRoleMapper.insert(roleDO);
+        int insert = this.authDal.roleMapper().insert(roleDO);
         return new AddRoleMO(insert != 0, roleDO.getId());
     }
 
     @Override
     public ResWebData<Boolean> deleteRole(String puid, DeleteRoleFO fo) {
-        RdpRoleDO roleDO = this.rdpRoleMapper.selectById(fo.getRoleId());
+        DmAuthRoleDO roleDO = this.authDal.roleMapper().selectById(fo.getRoleId());
         if (roleDO == null) {
             return ResWebDataUtils.buildSuccess(true);
         }
@@ -202,12 +201,12 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.ROLE_DELETE_IS_INNER_ERROR.name(), roleDO.getAliasName()));
         }
 
-        List<RdpUserDO> userDOs = this.rdpUserMapper.listByRoleId(fo.getRoleId());
+        List<DmAuthUserDO> userDOs = this.authDal.userMapper().listByRoleId(fo.getRoleId());
         if (userDOs != null && !userDOs.isEmpty()) {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.ROLE_DELETE_HAVE_USING.name(), roleDO.getAliasName()));
         }
 
-        int delete = this.rdpRoleMapper.deleteById(fo.getRoleId());
+        int delete = this.authDal.roleMapper().deleteById(fo.getRoleId());
         return ResWebDataUtils.buildSuccess(delete != 0);
     }
 
@@ -222,7 +221,7 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.ROLE_UPDATE_NAME_IS_INNER_ERROR.name(), fo.getRoleName(), avoid));
         }
 
-        RdpRoleDO roleDO = this.rdpRoleMapper.selectById(fo.getRoleId());
+        DmAuthRoleDO roleDO = this.authDal.roleMapper().selectById(fo.getRoleId());
         if (roleDO == null) {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.ROLE_UPDATE_NOT_EXIST.name()));
         }
@@ -252,23 +251,23 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
         finalLabel.addAll(keepLabel);
 
         String labelJson = JsonUtils.toJson(finalLabel);
-        int update = this.rdpRoleMapper.updateRole(roleDO.getId(), fo.getRoleName(), labelJson);
+        int update = this.authDal.roleMapper().updateRole(roleDO.getId(), fo.getRoleName(), labelJson);
         return ResWebDataUtils.buildSuccess(update != 0);
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public void repairRoleForUser(String uid) {
-        RdpUserDO user = this.rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
         if (user.getAccountType() != AccountType.PRIMARY_ACCOUNT) {
             return;
         }
 
-        List<RdpRoleDO> roles = this.rdpRoleMapper.queryByOwnerUid(uid);
-        Map<String, RdpRoleDO> roleMap = new HashMap<>();
+        List<DmAuthRoleDO> roles = this.authDal.roleMapper().queryByOwnerUid(uid);
+        Map<String, DmAuthRoleDO> roleMap = new HashMap<>();
 
         if (CollectionUtils.isNotEmpty(roles)) {
-            for (RdpRoleDO role : roles) {
+            for (DmAuthRoleDO role : roles) {
                 if (role.isInnerTag()) {
                     roleMap.put(role.getRoleName(), role);
                 }
@@ -284,29 +283,29 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
 
             if (roleMap.containsKey(roleName)) {
                 // do update
-                RdpRoleDO innerRoleDO = roleMap.get(roleName);
+                DmAuthRoleDO innerRoleDO = roleMap.get(roleName);
                 String oldLabelJson = JsonUtils.toJson(innerRoleDO.getRoleAuthLabels());
                 String newLabelJson = JsonUtils.toJson(authLabels);
                 if (!StringUtils.equals(oldLabelJson, newLabelJson)) {
-                    this.rdpRoleMapper.updateRole(innerRoleDO.getId(), innerRoleDO.getRoleName(), newLabelJson);
+                    this.authDal.roleMapper().updateRole(innerRoleDO.getId(), innerRoleDO.getRoleName(), newLabelJson);
                 }
             } else {
                 // do insert
-                RdpRoleDO innerRoleDO = new RdpRoleDO();
+                DmAuthRoleDO innerRoleDO = new DmAuthRoleDO();
                 innerRoleDO.setOwnerUid(uid);
                 innerRoleDO.setRoleName(roleName);
                 innerRoleDO.setAliasName(DmI18nUtils.getMessage(roleName));
                 innerRoleDO.setInnerTag(true);
                 innerRoleDO.setRoleAuthLabels(new ArrayList<>(authLabels));
                 roleMap.put(innerRoleDO.getRoleName(), innerRoleDO);
-                this.rdpRoleMapper.insert(innerRoleDO);
+                this.authDal.roleMapper().insert(innerRoleDO);
             }
 
         }
 
-        RdpRoleDO adminRole = roleMap.get(SecSysRole.ADMIN_ROLE_NAME);
+        DmAuthRoleDO adminRole = roleMap.get(SecSysRole.ADMIN_ROLE_NAME);
         if (!Objects.equals(user.getRoleId(), adminRole.getId())) {
-            this.rdpUserMapper.updateRoleById(user.getId(), adminRole.getId());
+            this.authDal.userMapper().updateRoleById(user.getId(), adminRole.getId());
         }
     }
 }

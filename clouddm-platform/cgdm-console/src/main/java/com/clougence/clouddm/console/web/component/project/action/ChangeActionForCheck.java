@@ -29,15 +29,11 @@ import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.project.ImMessageType;
 import com.clougence.clouddm.console.web.component.project.model.ChangeCheckItemMO;
 import com.clougence.clouddm.console.web.component.project.model.ChangeCheckMO;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.*;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectChangeItemMapper;
-import com.clougence.clouddm.console.web.dal.model.DmProjectChangeDO;
-import com.clougence.clouddm.console.web.dal.model.DmProjectChangeItemDO;
-import com.clougence.clouddm.console.web.dal.model.DmProjectDO;
-import com.clougence.clouddm.console.web.dal.model.DmProjectDevopsDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.model.project.*;
+import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.analysis.split.SplitAnalysisSpi;
 import com.clougence.clouddm.sdk.analysis.split.SplitScript;
@@ -54,57 +50,55 @@ import lombok.extern.slf4j.Slf4j;
 public class ChangeActionForCheck extends AbstractChangeAction {
 
     @Resource
-    private DmProjectChangeItemMapper dmProjectChangeItemMapper;
+    private SecRulesEngine    ruleCheckService;
     @Resource
-    private SecRulesEngine            ruleCheckService;
-    @Resource
-    private DmDsConfigService         dmDsConfigService;
+    private DmDsConfigService dmDsConfigService;
 
     @Override
     public void doAction(DmProjectChangeDO change) {
         if (!super.doCommonAction(change)) {
             return;
         } else {
-            change = this.dmProjectChangeMapper.queryChangeById(change.getOwnerUid(), change.getId());
+            change = projectDal.changeMapper().queryChangeById(change.getOwnerUid(), change.getId());
         }
 
-        String language = this.imSenderService.getProjectLanguage(change.getOwnerUid(), change.getRefProjectId());
+        String language = this.senderService.getProjectLanguage(change.getOwnerUid(), change.getRefProjectId());
         Locale locale = I18nUtils.getLocale(language);
 
         // test skip
-        DmProjectDO projectDO = this.dmProjectMapper.queryByOwnerAndId(change.getOwnerUid(), change.getRefProjectId());
-        DmChangeCheckStrategy checkOpt = projectDO.getFlowCheck();
-        if (checkOpt == DmChangeCheckStrategy.Skip) {
+        DmProjectDO projectDO = projectDal.projectMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefProjectId());
+        ChangeCheckStrategy checkOpt = projectDO.getFlowCheck();
+        if (checkOpt == ChangeCheckStrategy.Skip) {
             log.info("changeAction[" + change.getId() + "] skip check.");
-            this.dmProjectChangeMapper.updateStepTo(change.getId(), change.getVersion(), ProjectChangeStep.APPROVAL, "");
-            this.dmProjectChangeMapper.updateFlowWalkedAppend(change.getId(), change, checkOpt);
+            projectDal.changeMapper().updateStepTo(change.getId(), change.getVersion(), ProjectChangeStep.APPROVAL, "");
+            projectDal.changeMapper().updateFlowWalkedAppend(change.getId(), change, checkOpt);
             return;
         } else {
-            this.dmProjectChangeMapper.updateFlowWalkedAppend(change.getId(), change, checkOpt);
+            projectDal.changeMapper().updateFlowWalkedAppend(change.getId(), change, checkOpt);
         }
 
         // check
         try {
-            List<DmProjectChangeItemDO> diffChange = this.dmProjectChangeItemMapper.queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), DmChangeItemType.REVIEW);
+            List<DmProjectChangeItemDO> diffChange = this.projectDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.REVIEW);
             String sqlChange = diffChange.isEmpty() ? "" : diffChange.get(0).getContent();
             this.checkSql(locale, projectDO, change, sqlChange);
         } catch (Throwable e) {
             log.error("changeAction[" + change.getId() + "] sql check failed," + e.getMessage(), e);
             String errorMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_CHECK_SQL_ERROR.name(), locale, change.getChangeName(), e.getMessage());
-            this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, errorMsg);
-            this.dmProjectChangeMapper.updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.FAILED, errorMsg);
+            this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, errorMsg);
+            projectDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.FAILED, errorMsg);
         }
     }
 
     private void checkSql(Locale locale, DmProjectDO projectDO, DmProjectChangeDO change, String diffResult) {
-        DmProjectDevopsDO devopsDO = this.dmProjectDevopsMapper.queryByOwnerAndId(change.getOwnerUid(), change.getRefDevopsId());
+        DmProjectDevopsDO devopsDO = projectDal.devopsMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefDevopsId());
         DataSourceType dsType = devopsDO.getDsType();
         SplitAnalysisSpi analysisSpi = PluginManager.findSplitAnalysisSpi(dsType);
         if (analysisSpi == null) {
             log.error("changeAction[" + change.getId() + "] check review sql failed, SplitAnalysisSpi not found.");
             String errorMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_MISSING_SPLIT_SQL_PLUGIN_ERROR.name(), locale, change.getChangeName(), dsType.name());
-            this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, errorMsg);
-            this.dmProjectChangeMapper.updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.FAILED, errorMsg);
+            this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, errorMsg);
+            projectDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.FAILED, errorMsg);
             return;
         }
 
@@ -115,15 +109,15 @@ public class ChangeActionForCheck extends AbstractChangeAction {
 
         // check
         WarnLevel maxLevel = WarnLevel.PASS;
-        this.dmProjectChangeItemMapper.deleteByChangeItemType(change.getOwnerUid(), change.getId(), DmChangeItemType.CHECKS);
+        this.projectDal.changeItemMapper().deleteByChangeItemType(change.getOwnerUid(), change.getId(), ChangeItemType.CHECKS);
         List<SplitScript> splits;
         try {
             splits = analysisSpi.splitScript(diffResult, Collections.emptyList(), 0, 0);
         } catch (Exception e) {
             log.error("changeAction[" + change.getId() + "] check review sql failed, " + e.getMessage(), e);
             String errorMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_SQL_PARSER_ERROR.name(), locale, change.getChangeName(), dsType.name());
-            this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, errorMsg);
-            this.dmProjectChangeMapper.updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.FAILED, errorMsg);
+            this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, errorMsg);
+            projectDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.FAILED, errorMsg);
             return;
         }
 
@@ -170,11 +164,11 @@ public class ChangeActionForCheck extends AbstractChangeAction {
             itemDO.setOwnerUid(change.getOwnerUid());
             itemDO.setRefProjectId(change.getRefProjectId());
             itemDO.setRefChangeId(change.getId());
-            itemDO.setChangeItemType(DmChangeItemType.CHECKS);
+            itemDO.setChangeItemType(ChangeItemType.CHECKS);
             itemDO.setContent(JsonUtils.toJson(checkMO));
             itemDO.setContentIndex(i);
             itemDO.setContentName(trimSql);
-            this.dmProjectChangeItemMapper.insert(itemDO);
+            this.projectDal.changeItemMapper().insert(itemDO);
 
             maxLevel = checkMaxWarnLevel(maxLevel, checkMO);
         }
@@ -182,7 +176,7 @@ public class ChangeActionForCheck extends AbstractChangeAction {
         // pause or not.
         boolean isPause = false;
         String pauseMessage = null;
-        if (projectDO.getFlowCheck() == DmChangeCheckStrategy.Always) {
+        if (projectDO.getFlowCheck() == ChangeCheckStrategy.Always) {
             isPause = true;
             pauseMessage = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_CHECK_SQL_PAUSE_BY_ALWAYS_MESSAGE.name(), locale, change.getChangeName());
         } else if (maxLevel != WarnLevel.PASS) {
@@ -192,12 +186,12 @@ public class ChangeActionForCheck extends AbstractChangeAction {
 
         // send message.
         if (isPause) {
-            this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, pauseMessage);
-            this.dmProjectChangeMapper.updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.WAIT, pauseMessage);
+            this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, pauseMessage);
+            projectDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.WAIT, pauseMessage);
         } else {
             String message = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_SQL_REVIEW_SUCCESS.name(), locale, change.getChangeName());
-            this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeLife, message);
-            this.dmProjectChangeMapper.updateStepTo(change.getId(), change.getVersion(), ProjectChangeStep.APPROVAL, "");
+            this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeLife, message);
+            projectDal.changeMapper().updateStepTo(change.getId(), change.getVersion(), ProjectChangeStep.APPROVAL, "");
         }
     }
 

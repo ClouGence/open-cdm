@@ -21,25 +21,25 @@ import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.exception.DmErrorCode;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.tools.ToolsRService;
 import com.clougence.clouddm.base.metadata.ds.ToolConfig;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
 import com.clougence.clouddm.console.web.component.dsconfig.DmToolConfigService;
 import com.clougence.clouddm.console.web.component.execute.ToolsService;
-import com.clougence.clouddm.console.web.constants.DmErrorCode;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.DsSessionType;
-import com.clougence.clouddm.console.web.dal.mapper.DmDsSessionMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
-import com.clougence.clouddm.console.web.dal.model.DmDsSessionDO;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.util.MessageUtils;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecSessionDO;
+import com.clougence.clouddm.platform.dal.model.execution.DsSessionType;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.clouddm.sdk.execute.tools.ToolRequestDTO;
 import com.clougence.clouddm.sdk.execute.tools.ToolResultDTO;
 import com.clougence.clouddm.sdk.execute.tools.ToolSessionContextDTO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 
@@ -55,21 +55,21 @@ import lombok.extern.slf4j.Slf4j;
 public class ToolsServiceImpl implements ToolsService {
 
     @Resource
-    private DmToolConfigService  dmToolConfigService;
+    private SystemDal           systemDal;
     @Resource
-    private DmWorkerMapper       dmWorkerMapper;
+    private ExecutionDal        executionDal;
     @Resource
-    private ToolsRService        toolsRService;
+    private DmToolConfigService dmToolConfigService;
     @Resource
-    private DmDsSessionMapper    sessionMapper;
+    private ToolsRService       toolsRService;
 
     private RSocketSendDTO buildRSocketSendDTO(long bindClusterId) {
-        List<DmWorkerDO> workers = this.dmWorkerMapper.queryConnectedByClusterId(bindClusterId);
+        List<DmSysWorkerDO> workers = this.systemDal.workerMapper().queryConnectedByClusterId(bindClusterId);
         if (workers.isEmpty()) {
             throw new ErrorMessageException(DmErrorCode.CLUSTER_HAVE_NO_WORKS_ERROR.code(), MessageUtils.getClusterHaveNoWorksErrorMessage(bindClusterId));
         }
 
-        DmWorkerDO worker = workers.get(new Random(System.currentTimeMillis()).nextInt(workers.size()));
+        DmSysWorkerDO worker = workers.get(new Random(System.currentTimeMillis()).nextInt(workers.size()));
 
         RSocketSendDTO sendDTO = new RSocketSendDTO();
         sendDTO.setClusterId(worker.getClusterId());
@@ -80,7 +80,7 @@ public class ToolsServiceImpl implements ToolsService {
     }
 
     private RSocketSendDTO buildRSocketSendDTO(String wsn) {
-        DmWorkerDO workerStatus = this.dmWorkerMapper.queryConnectedByWsn(wsn);
+        DmSysWorkerDO workerStatus = this.systemDal.workerMapper().queryConnectedByWsn(wsn);
         if (workerStatus != null) {
             RSocketSendDTO sendDTO = new RSocketSendDTO();
             sendDTO.setClusterId(workerStatus.getClusterId());
@@ -96,7 +96,7 @@ public class ToolsServiceImpl implements ToolsService {
 
     @Override
     public boolean hasSession(String curUid, String sessionId) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return false;
         }
@@ -106,8 +106,8 @@ public class ToolsServiceImpl implements ToolsService {
     }
 
     @Override
-    public DmDsSessionDO getSessionInfo(String curUid, String sessionId) {
-        return this.sessionMapper.queryBySessionId(curUid, sessionId);
+    public DmExecSessionDO getSessionInfo(String curUid, String sessionId) {
+        return this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
     }
 
     @Override
@@ -118,16 +118,16 @@ public class ToolsServiceImpl implements ToolsService {
         }
 
         // close and remove old data.
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO != null) {
             RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO.getWsn());
             this.toolsRService.closeSession(sendDTO, sessionId);
-            this.sessionMapper.deleteBySessionId(sessionId);
+            this.executionDal.sessionMapper().deleteBySessionId(sessionId);
         }
 
         // gen new session.
         RSocketSendDTO sendDTO = buildRSocketSendDTO(context.getBindClusterId());
-        sessionDO = new DmDsSessionDO();
+        sessionDO = new DmExecSessionDO();
         sessionDO.setUid(curUid);
         sessionDO.setSessionId(sessionId);
         sessionDO.setSessionType(DsSessionType.QUERY);
@@ -139,7 +139,7 @@ public class ToolsServiceImpl implements ToolsService {
         sessionDO.setGmtCreate(new Date());
         sessionDO.setGmtModified(new Date());
 
-        int insert = this.sessionMapper.insert(sessionDO);
+        int insert = this.executionDal.sessionMapper().insert(sessionDO);
         if (insert != 1) {
             throw new RuntimeException("sessionDO insert failed.");
         }
@@ -156,19 +156,19 @@ public class ToolsServiceImpl implements ToolsService {
             return;
         }
 
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
 
         RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO.getWsn());
         this.toolsRService.closeSession(sendDTO, sessionId);
-        this.sessionMapper.deleteBySessionId(sessionId);
+        this.executionDal.sessionMapper().deleteBySessionId(sessionId);
     }
 
     @Override
     public String invoke(String curUid, String sessionId, String methodKey, ToolRequestDTO requestDTO) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return null;
         }
@@ -184,7 +184,7 @@ public class ToolsServiceImpl implements ToolsService {
 
     @Override
     public String tailLog(String curUid, String sessionId, ToolRequestDTO requestDTO) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return null;
         }
@@ -200,7 +200,7 @@ public class ToolsServiceImpl implements ToolsService {
 
     @Override
     public String tailStatus(String curUid, String sessionId, ToolRequestDTO requestDTO) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return null;
         }

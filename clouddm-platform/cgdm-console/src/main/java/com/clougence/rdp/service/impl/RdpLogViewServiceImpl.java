@@ -14,6 +14,8 @@
 // * limitations under the License.
 // */
 //package com.clougence.rdp.service.impl;
+
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 //
 //import java.util.LinkedHashMap;
 //import java.util.List;
@@ -24,10 +26,9 @@
 //import org.springframework.stereotype.Service;
 //
 //import com.clougence.rdp.component.jwtsession.RdpJwtService;
-//import com.clougence.rdp.constant.I18nRdpMsgKeys;
+//import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 //import com.clougence.rdp.controller.model.vo.LogViewVO;
-//import com.clougence.clouddm.console.web.dal.mapper.RdpOpAuditMapper;
-//import com.clougence.clouddm.console.web.dal.model.RdpOpAuditDO;
+//import com.clougence.clouddm.platform.dal.model.monitor.DmMonOpAuditDO;
 //import com.clougence.rdp.global.config.RdpConsoleConfig;
 //import com.clougence.rdp.service.RdpLogViewService;
 //import com.clougence.rdp.service.RdpUserService;
@@ -57,14 +58,13 @@
 //    private RdpUserService      rdpUserService;
 //
 //    @Resource
-//    private RdpOpAuditMapper    opAuditMapper;
 //
 //    @Resource
 //    private RdpConsoleConfig    rdpConfig;
 //
 //    @Override
 //    public LogViewVO grepOperationLogs(Long operationId) {
-//        RdpOpAuditDO operationAuditDO = opAuditMapper.selectById(operationId);
+//        DmMonOpAuditDO operationAuditDO = opAuditMapper.selectById(operationId);
 //
 //        if (operationAuditDO == null) {
 //            throw new IllegalArgumentException("operation log (" + operationId + ") is not exist.");

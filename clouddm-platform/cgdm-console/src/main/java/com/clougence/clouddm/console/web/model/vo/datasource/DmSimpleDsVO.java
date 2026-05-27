@@ -19,9 +19,9 @@ import java.util.Date;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
-import com.clougence.clouddm.console.web.dal.enumeration.DeployEnvType;
-import com.clougence.clouddm.console.web.dal.enumeration.HostType;
-import com.clougence.clouddm.console.web.dal.enumeration.LifeCycleState;
+import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType;
+import com.clougence.clouddm.platform.dal.model.datasource.HostType;
+import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 
 import lombok.Getter;
 import lombok.Setter;

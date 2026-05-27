@@ -25,18 +25,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.crypt.CryptService;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.*;
 import com.clougence.clouddm.console.web.component.whitelist.WhiteListService;
-import com.clougence.clouddm.console.web.constants.I18nDmLabelKeys;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.constants.UiMenus18nKey;
-import com.clougence.clouddm.console.web.dal.mapper.DmDsConfigMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmDsKvBaseConfigMapper;
-import com.clougence.clouddm.console.web.dal.model.DmDsKvBaseConfigDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmLabelKeys;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.global.i18n.UiMenus18nKey;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.model.LifeCycleState;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigMap;
@@ -52,13 +56,6 @@ import com.clougence.clouddm.sdk.ui.template.CmdTemplateSpi;
 import com.clougence.drivers.DriverLoader;
 import com.clougence.rdp.component.dskvconfig.RdpDsExtraConfGen;
 import com.clougence.rdp.component.dskvconfig.RdpDsResourceService;
-import com.clougence.clouddm.console.web.dal.enumeration.HostType;
-import com.clougence.clouddm.console.web.dal.enumeration.LifeCycleState;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDsKvBaseConfigMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
@@ -76,15 +73,9 @@ import lombok.extern.slf4j.Slf4j;
 public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostConstruct {
 
     @Resource
-    protected DmDsConfigMapper                  dsConfigMapper;
+    private DataSourceDal                       dsDal;
     @Resource
-    private RdpDsKvBaseConfigMapper             rdpDsKvBaseConfigMapper;
-    @Resource
-    private DmDsKvBaseConfigMapper              dmDsKvBaseConfigMapper;
-    @Resource
-    private RdpDataSourceMapper                 rdpDsMapper;
-    @Resource
-    private RdpDsResourceService                rdpDsResourceService;
+    private RdpDsResourceService                dsResourceService;
     @Resource
     private ConsoleConfigService                configService;
     @Resource
@@ -285,7 +276,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         String envId = levels.get(0);
         String dsId = levels.get(1);
 
-        RdpDataSourceDO dsDO = this.rdpDsMapper.selectById(dsId);
+        DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
         if (dsDO == null || dsDO.getLifeCycleState() == LifeCycleState.DELETED || dsDO.getLifeCycleState() == LifeCycleState.DELETING) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
         }
@@ -295,7 +286,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DATA_PLUGIN_NOT_EXIST_ERROR.name()));
         }
 
-        if (this.dsConfigMapper.queryById(dsDO.getUid(), dsDO.getId()) == null) {
+        if (this.dsDal.configMapper().queryById(dsDO.getUid(), dsDO.getId()) == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_QUERY_NEED_ENABLE.name()));
         }
 
@@ -325,8 +316,8 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
 
     @Override
     public DataSourceConfig fetchDsConfigFromDM(long dsId, DataSourceType dsType) {
-        List<DmDsKvBaseConfigDO> configs = this.dmDsKvBaseConfigMapper.listByDsId(dsId);
-        RdpDataSourceDO dsDO = this.rdpDsMapper.selectById(dsId);
+        List<DmDsConfigKv4DmDO> configs = this.dsDal.configKv4DmMapper().listByDsId(dsId);
+        DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
 
         Map<String, String> configMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(configs)) {
@@ -370,9 +361,9 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
 
     @Override
     public DataSourceConfig fetchDsConfigFromRDP(long dsId, DataSourceType dsType, HostType hostType) {
-        RdpDataSourceDO dsDO = this.rdpDsMapper.selectById(dsId);
+        DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
         HostType ht = hostType == null ? dsDO.getHostType() : hostType;
-        List<RdpDsKvBaseConfigDO> configs = this.collectConfigFromRdp(dsDO, ht, dsDO.getVersion());
+        List<DmDsConfigKv4RdpDO> configs = this.collectConfigFromRdp(dsDO, ht, dsDO.getVersion());
 
         Map<String, String> configMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(configs)) {
@@ -386,7 +377,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     }
 
     @Override
-    public DataSourceConfig fetchDsConfigFromTemp(RdpDataSourceDO dsDO, Map<String, String> configMap, HostType hostType) {
+    public DataSourceConfig fetchDsConfigFromTemp(DmDsDO dsDO, Map<String, String> configMap, HostType hostType) {
         Map<String, String> resolvedConfigMap = configMap == null ? Collections.emptyMap() : configMap;
         DataSourceConfig dsConfig = this.genDsConfig(dsDO, null, hostType, dsDO.getVersion(), dsDO.getDriver());
         DmDsConfigHelper.fillFieldValue(dsConfig, resolvedConfigMap);
@@ -396,25 +387,25 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
 
     @Override
     public String fetchDsConfig(long dsId, String configKey) {
-        DmDsKvBaseConfigDO configs = this.dmDsKvBaseConfigMapper.queryByDsIdAndConfigName(dsId, configKey);
+        DmDsConfigKv4DmDO configs = this.dsDal.configKv4DmMapper().queryByDsIdAndConfigName(dsId, configKey);
         return configs == null ? null : configs.getConfigValue();
     }
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public void persistDsConfig(RdpDataSourceDO dsDO, HostType hostType, String version) {
-        List<RdpDsKvBaseConfigDO> configs = this.collectConfigFromRdp(dsDO, hostType, version);
-        for (RdpDsKvBaseConfigDO config : configs) {
+    public void persistDsConfig(DmDsDO dsDO, HostType hostType, String version) {
+        List<DmDsConfigKv4RdpDO> configs = this.collectConfigFromRdp(dsDO, hostType, version);
+        for (DmDsConfigKv4RdpDO config : configs) {
             if (config.isSecret()) {
                 config.setConfigValue(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(config.getConfigValue()));
             }
-            DmDsKvBaseConfigDO dmConfig = DmConvertUtils.convertToDmDsKvBaseConfigDOForInsert(config);
-            this.dmDsKvBaseConfigMapper.insert(dmConfig);
+            DmDsConfigKv4DmDO dmConfig = DmConvertUtils.convertToDmDsKvBaseConfigDOForInsert(config);
+            this.dsDal.configKv4DmMapper().insert(dmConfig);
         }
     }
 
-    private DataSourceConfig generateDsConfig(RdpDataSourceDO dsDO, Map<String, String> configMap) {
-        RdpDsExtraConfGen gen = this.rdpDsResourceService.getDsExtraConfGen(dsDO.getDataSourceType());
+    private DataSourceConfig generateDsConfig(DmDsDO dsDO, Map<String, String> configMap) {
+        RdpDsExtraConfGen gen = this.dsResourceService.getDsExtraConfGen(dsDO.getDataSourceType());
         DsExtraConfig extraConfig = null;
         if (gen != null) {
             extraConfig = gen.genDsExtraConfigFromExist(dsDO, fetchConfig(dsDO.getId()));
@@ -425,16 +416,16 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         return dsConfig;
     }
 
-    private List<RdpDsKvBaseConfigDO> collectConfigFromRdp(RdpDataSourceDO dsDO, HostType hostType, String version) {
-        RdpDsExtraConfGen gen = this.rdpDsResourceService.getDsExtraConfGen(dsDO.getDataSourceType());
+    private List<DmDsConfigKv4RdpDO> collectConfigFromRdp(DmDsDO dsDO, HostType hostType, String version) {
+        RdpDsExtraConfGen gen = this.dsResourceService.getDsExtraConfGen(dsDO.getDataSourceType());
         DsExtraConfig extraConfig = null;
         if (gen != null) {
             extraConfig = gen.genDsExtraConfigFromExist(dsDO, fetchConfig(dsDO.getId()));
         }
 
         DataSourceConfig dsConfig = this.genDsConfig(dsDO, extraConfig, hostType, version, dsDO.getDriver());
-        List<RdpDsKvBaseConfigDO> dvConfigs = DmDsConfigHelper.collectConfigs(dsConfig);
-        for (RdpDsKvBaseConfigDO config : dvConfigs) {
+        List<DmDsConfigKv4RdpDO> dvConfigs = DmDsConfigHelper.collectConfigs(dsConfig);
+        for (DmDsConfigKv4RdpDO config : dvConfigs) {
             config.setDataSourceId(dsDO.getId());
 
             if (config.isSecret() && StringUtils.isNotBlank(config.getConfigValue())) {
@@ -471,10 +462,10 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         return dvConfigs;
     }
 
-    private List<RdpDsKvBaseConfigDO> fetchConfig(long dsId) {
-        List<RdpDsKvBaseConfigDO> confList = this.rdpDsKvBaseConfigMapper.listByDsId(dsId);
+    private List<DmDsConfigKv4RdpDO> fetchConfig(long dsId) {
+        List<DmDsConfigKv4RdpDO> confList = this.dsDal.configKv4RdpMapper().listByDsId(dsId);
 
-        for (RdpDsKvBaseConfigDO confDO : confList) {
+        for (DmDsConfigKv4RdpDO confDO : confList) {
             if (confDO.isSecret() && StringUtils.isNotBlank(confDO.getConfigValue())) {
                 try {
                     confDO.setConfigValue(CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(confDO.getConfigValue()));
@@ -489,7 +480,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
 
     @Override
     public void cleanDsConfig(long dsId) {
-        this.dmDsKvBaseConfigMapper.deleteDsConfigs(dsId);
+        this.dsDal.configKv4DmMapper().deleteDsConfigs(dsId);
     }
 
     @Override
@@ -497,7 +488,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         return this.configService.fetchSettingsMap(ownerUid, names);
     }
 
-    public List<RdpDsKvBaseConfigDO> fetchDsConfigDef(DataSourceType dsType) {
+    public List<DmDsConfigKv4RdpDO> fetchDsConfigDef(DataSourceType dsType) {
         DsConfigSpi configSpi = PluginManager.findDsConfigSpi(dsType);
         DataSourceConfig dsConfig = configSpi.newConfig(globalDefault());
         dsConfig = DmDsConfigHelper.initFieldDefaultValue(dsConfig);
@@ -509,7 +500,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         return Collections.emptyMap();
     }
 
-    private DataSourceConfig genDsConfig(RdpDataSourceDO dsDO, DsExtraConfig extraConfig, HostType hostType, String version, String driver) {
+    private DataSourceConfig genDsConfig(DmDsDO dsDO, DsExtraConfig extraConfig, HostType hostType, String version, String driver) {
         Map<String, String> configMap = new HashMap<>(globalDefault());
         // TODO put configMap from extraConfig
 

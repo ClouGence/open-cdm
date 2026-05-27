@@ -15,11 +15,12 @@
  */
 package com.clougence.rdp.service.impl;
 
+import com.clougence.clouddm.platform.dal.access.MonitorDal;
+
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.console.web.model.fo.AddWebViewLogFO;
-import com.clougence.clouddm.console.web.dal.mapper.RdpWebViewLogMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpWebViewLogDO;
+import com.clougence.clouddm.platform.dal.model.monitor.DmMonWebViewLogDO;
 import com.clougence.rdp.service.RdpWebViewLogService;
 
 import jakarta.annotation.Resource;
@@ -31,13 +32,13 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class RdpWebViewLogServiceImpl implements RdpWebViewLogService {
-
     @Resource
-    private RdpWebViewLogMapper rdpWebViewLogMapper;
+    private MonitorDal monitorDal;
+
 
     @Override
     public void addOneLog(AddWebViewLogFO logFO, String uid) {
-        RdpWebViewLogDO l = new RdpWebViewLogDO();
+        DmMonWebViewLogDO l = new DmMonWebViewLogDO();
         dataTruncation(logFO);
         l.setUid(uid);
         l.setUri(logFO.getUri());
@@ -45,7 +46,7 @@ public class RdpWebViewLogServiceImpl implements RdpWebViewLogService {
         l.setSrc(logFO.getSrc());
         l.setKeyword(logFO.getKw());
         l.setVbId(logFO.getVbId());
-        rdpWebViewLogMapper.insert(l);
+        monitorDal.webViewLogMapper().insert(l);
     }
 
     private void dataTruncation(AddWebViewLogFO logFO) {

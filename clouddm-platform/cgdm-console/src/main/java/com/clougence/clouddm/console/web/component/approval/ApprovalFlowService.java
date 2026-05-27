@@ -19,15 +19,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalBiz;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalType;
-import com.clougence.clouddm.console.web.dal.model.DmApprovalCacheTemplateDO;
-import com.clougence.clouddm.console.web.dal.model.DmApprovalProcessDO;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalBiz;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
+import com.clougence.clouddm.platform.dal.model.approval.DmApprovalTemplateDO;
+import com.clougence.clouddm.platform.dal.model.approval.DmApprovalProcessDO;
 import com.clougence.clouddm.console.web.model.fo.ticket.RdpApprovalFO;
 import com.clougence.clouddm.console.web.model.vo.RdpApproTemplateVO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.sdk.approval.ApprovalProvider;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 
 /**
  * @author Ekko
@@ -63,7 +63,7 @@ public interface ApprovalFlowService {
 
     boolean isFinish(long ticketId);
 
-    void createProcess(long ticketId, RdpApprovalBiz approvalBiz, boolean checkSuccess);
+    void createProcess(long ticketId, ApprovalBiz approvalBiz, boolean checkSuccess);
 
     List<DmApprovalProcessDO> getProcessList(long ticketId);
 
@@ -79,6 +79,6 @@ public interface ApprovalFlowService {
 
     void refreshApprovalStatus(long ticketId);
 
-    DmApprovalCacheTemplateDO checkApprovalAndReturnTemplate(String ownerUid, RdpApprovalType type, String templateId, Locale locale);
+    DmApprovalTemplateDO checkApprovalAndReturnTemplate(String ownerUid, ApprovalType type, String templateId, Locale locale);
 
 }

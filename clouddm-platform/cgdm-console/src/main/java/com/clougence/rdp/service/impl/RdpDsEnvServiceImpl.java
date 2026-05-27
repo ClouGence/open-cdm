@@ -15,6 +15,9 @@
  */
 package com.clougence.rdp.service.impl;
 
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,15 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.console.web.model.fo.env.UpdateDsEnvFO;
 import com.clougence.clouddm.console.web.model.lo.UpdateDsEnvLO;
-import com.clougence.rdp.constant.I18nRdpLabelKeys;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDsEnvMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsEnvDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpLabelKeys;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpDsEnvService;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 
@@ -43,80 +44,80 @@ import jakarta.annotation.Resource;
  **/
 @Service
 public class RdpDsEnvServiceImpl implements RdpDsEnvService {
+    @Resource
+    private SystemDal systemDal;
 
     @Resource
-    private RdpDsEnvMapper      dsEnvMapper;
+    private DataSourceDal datasourceDal;
 
-    @Resource
-    private RdpDataSourceMapper dsMapper;
 
     @Override
-    public List<RdpDsEnvDO> listDsEnv(String puid, String uid, String match) {
-        return this.dsEnvMapper.listByCondition(puid, match);
+    public List<DmSysEnvDO> listDsEnv(String puid, String uid, String match) {
+        return this.systemDal.envMapper().listByCondition(puid, match);
     }
 
     @Override
-    public RdpDsEnvDO queryByUserAndId(String puid, String uid, long envID) {
-        return this.dsEnvMapper.queryByEnvID(puid, envID);
+    public DmSysEnvDO queryByUserAndId(String puid, String uid, long envID) {
+        return this.systemDal.envMapper().queryByEnvID(puid, envID);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public int initPrimaryUserDefaultEnv(String puid, String uid) {
-        RdpDsEnvDO dsEnvDO = new RdpDsEnvDO();
+        DmSysEnvDO dsEnvDO = new DmSysEnvDO();
         dsEnvDO.setOwnerUid(puid);
         dsEnvDO.setEnvName(DmI18nUtils.getMessage(I18nRdpLabelKeys.DEFAULT_ENV.name()));
         dsEnvDO.setDescription(DmI18nUtils.getMessage(I18nRdpLabelKeys.DEFAULT_ENV_DESC.name()));
 
-        return this.dsEnvMapper.insert(dsEnvDO);
+        return this.systemDal.envMapper().insert(dsEnvDO);
     }
 
     @Override
-    public void fillDsEnvInfo(List<RdpDataSourceDO> dss) {
-        List<Long> dsEnvIds = dss.stream().filter(Objects::nonNull).map(RdpDataSourceDO::getDsEnvId).collect(Collectors.toCollection(ArrayList::new));
+    public void fillDsEnvInfo(List<DmDsDO> dss) {
+        List<Long> dsEnvIds = dss.stream().filter(Objects::nonNull).map(DmDsDO::getDsEnvId).collect(Collectors.toCollection(ArrayList::new));
         if (dsEnvIds.isEmpty()) {
             return;
         }
 
-        Map<Long, RdpDsEnvDO> dsEnvDOMap = new HashMap<>();
-        List<RdpDsEnvDO> dsEnvDOs = this.dsEnvMapper.selectBatchIds(dsEnvIds);
-        for (RdpDsEnvDO dsEnvDO : dsEnvDOs) {
+        Map<Long, DmSysEnvDO> dsEnvDOMap = new HashMap<>();
+        List<DmSysEnvDO> dsEnvDOs = this.systemDal.envMapper().selectBatchIds(dsEnvIds);
+        for (DmSysEnvDO dsEnvDO : dsEnvDOs) {
             dsEnvDOMap.put(dsEnvDO.getId(), dsEnvDO);
         }
 
-        for (RdpDataSourceDO ds : dss) {
+        for (DmDsDO ds : dss) {
             ds.setDsEnvDO(dsEnvDOMap.get(ds.getDsEnvId()));
         }
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
-    public int addEnvDs(String puid, String uid, RdpDsEnvDO dsEnvDO) {
-        if (this.dsEnvMapper.queryByEnvName(puid, dsEnvDO.getEnvName()) != null) {
+    public int addEnvDs(String puid, String uid, DmSysEnvDO dsEnvDO) {
+        if (this.systemDal.envMapper().queryByEnvName(puid, dsEnvDO.getEnvName()) != null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.ENV_NAME_IS_EXIST_ERROR.name(), dsEnvDO.getEnvName()));
         }
         dsEnvDO.setOwnerUid(puid);
 
-        return this.dsEnvMapper.insert(dsEnvDO);
+        return this.systemDal.envMapper().insert(dsEnvDO);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public int deleteDsEnv(String puid, String uid, Long dsEnvId) {
-        List<RdpDataSourceDO> bindDsList = dsMapper.listByDsEnvId(dsEnvId);
+        List<DmDsDO> bindDsList = datasourceDal.dsMapper().listByDsEnvId(dsEnvId);
         if (CollectionUtils.isNotEmpty(bindDsList)) {
-            List<String> instanceIdList = bindDsList.stream().map(RdpDataSourceDO::getInstanceId).collect(Collectors.toList());
+            List<String> instanceIdList = bindDsList.stream().map(DmDsDO::getInstanceId).collect(Collectors.toList());
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.ENV_DELETE_HAVE_BIND_ERROR.name(), JsonUtils.toJson(instanceIdList)));
         }
 
-        return this.dsEnvMapper.deleteDsEnv(dsEnvId, puid);
+        return this.systemDal.envMapper().deleteDsEnv(dsEnvId, puid);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public UpdateDsEnvLO updateDsEnv(String puid, String uid, UpdateDsEnvFO envFO) {
-        RdpDsEnvDO forOri = this.dsEnvMapper.queryByEnvID(puid, envFO.getDsEnvId());
-        RdpDsEnvDO forName = this.dsEnvMapper.queryByEnvName(puid, envFO.getEnvName());
+        DmSysEnvDO forOri = this.systemDal.envMapper().queryByEnvID(puid, envFO.getDsEnvId());
+        DmSysEnvDO forName = this.systemDal.envMapper().queryByEnvName(puid, envFO.getEnvName());
 
         if (forOri == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.ENV_NOT_EXIST_ERROR.name()));
@@ -128,7 +129,7 @@ public class RdpDsEnvServiceImpl implements RdpDsEnvService {
             }
         }
 
-        this.dsEnvMapper.updateDsEnv(envFO.getDsEnvId(), puid, envFO.getEnvName(), envFO.getDescription());
+        this.systemDal.envMapper().updateDsEnv(envFO.getDsEnvId(), puid, envFO.getEnvName(), envFO.getDescription());
 
         UpdateDsEnvLO lo = new UpdateDsEnvLO();
         lo.setOldEnvName(forOri.getEnvName());

@@ -18,7 +18,7 @@ package com.clougence.clouddm.console.web.model.vo.project;
 import java.util.List;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.dal.enumeration.ScmType;
+import com.clougence.clouddm.platform.dal.model.project.ScmType;
 
 import lombok.Getter;
 import lombok.Setter;

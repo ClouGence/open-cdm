@@ -24,7 +24,7 @@ import com.clougence.clouddm.console.web.model.vo.RdpAuthObjectVO;
 import com.clougence.clouddm.sdk.security.auth.AuthElementType;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.clouddm.console.web.dal.model.DmResAuthDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 
 /**
  * @author bucketli 2020/12/8 15:21
@@ -51,9 +51,9 @@ public interface RdpAuthServiceForManage {
     // for Commons
     List<RdpAuthObjectVO> listElements(String uid, List<String> levels, AuthKind authKind);
 
-    List<DmResAuthDO> listUserAuthWithoutLabels(String targetUid, AuthKind kind);
+    List<DmAuthResDO> listUserAuthWithoutLabels(String targetUid, AuthKind kind);
 
-    List<DmResAuthDO> listUserAuthByRes(String targetUid, long resId, List<String> authPrefixList, AuthKind authKind);
+    List<DmAuthResDO> listUserAuthByRes(String targetUid, long resId, List<String> authPrefixList, AuthKind authKind);
 
     void modifyUserAuth(String puid, ModifyUserAuthFO fo);
 

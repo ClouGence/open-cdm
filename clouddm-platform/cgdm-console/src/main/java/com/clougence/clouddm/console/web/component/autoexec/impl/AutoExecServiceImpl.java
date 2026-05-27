@@ -23,35 +23,33 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.console.autoexec.ErrorStrategy;
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecHelperService;
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecManager;
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.*;
-import com.clougence.clouddm.console.web.dal.mapper.DmAutoExecJobMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmAutoExecTaskMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmBizLogMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
-import com.clougence.clouddm.console.web.dal.model.exec.AutoExecJobConfig;
-import com.clougence.clouddm.console.web.dal.model.exec.DmAutoExecJobDO;
-import com.clougence.clouddm.console.web.dal.model.exec.DmAutoExecTaskDO;
-import com.clougence.clouddm.console.web.dal.model.exec.DmBizLogDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.ticket.DmAutoExecConfigFO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecJobVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecTaskVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmPageVO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.DmTeamUtils;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.util.RdpPageDO;
 import com.clougence.clouddm.console.web.util.RdpPageUtil;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.access.MonitorDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.execution.*;
+import com.clougence.clouddm.platform.dal.model.monitor.DmMonBizLogDO;
+import com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType;
+import com.clougence.clouddm.platform.dal.model.monitor.Loglevel;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
+import com.clougence.clouddm.sdk.analysis.split.SplitScript;
+import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.utils.format.DateFormatType;
 
 import jakarta.annotation.Resource;
@@ -60,43 +58,40 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class AutoExecServiceImpl implements AutoExecService {
-
     @Resource
-    private DmAutoExecJobMapper   dmAutoExecJobMapper;
+    private SystemDal             systemDal;
     @Resource
-    private DmAutoExecTaskMapper  dmSqlTaskMapper;
+    private MonitorDal            monitorDal;
     @Resource
-    private DmBizLogMapper        dmBizLogMapper;
+    private ExecutionDal          executionDal;
     @Resource
-    private DmWorkerMapper        dmWorkerMapper;
+    private AuthDal               authDal;
     @Resource
     private AutoExecManager       autoExecManager;
-    @Resource
-    private RdpUserMapper         rdpUserMapper;
     @Resource
     private AutoExecHelperService execHelperService;
 
     @Override
     public void continueTask(String bizId, SQLJobBizType type, long taskId) {
-        DmAutoExecJobDO job = this.dmAutoExecJobMapper.queryByDependOnBizId(bizId);
+        DmExecAutoJobDO job = this.executionDal.autoJobMapper().queryByDependOnBizId(bizId);
         if (job.getStatus() != AutoExecJobStatus.PAUSE && job.getStatus() != AutoExecJobStatus.FAILED) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_WRONG_OPERATE_ERROR_MESSAGE.name()));
         }
-        DmAutoExecTaskDO execTaskDO = dmSqlTaskMapper.selectById(taskId);
+        DmExecAutoTaskDO execTaskDO = executionDal.autoTaskMapper().selectById(taskId);
         if (!execTaskDO.getAutoExecJobId().equals(job.getId())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_JOB_NOT_MATCH_ERROR_MESSAGE.name()));
         }
         execTaskDO.setStatus(AutoExecTaskStatus.WAIT_EXEC);
-        dmSqlTaskMapper.updateById(execTaskDO);
+        executionDal.autoTaskMapper().updateById(execTaskDO);
     }
 
     @Override
     public boolean skipTask(String bizId, SQLJobBizType type, long taskId, String uid) {
-        DmAutoExecJobDO job = this.dmAutoExecJobMapper.queryByDependOnBizId(bizId);
+        DmExecAutoJobDO job = this.executionDal.autoJobMapper().queryByDependOnBizId(bizId);
         if (job.getStatus() != AutoExecJobStatus.PAUSE && job.getStatus() != AutoExecJobStatus.FAILED) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_WRONG_OPERATE_ERROR_MESSAGE.name()));
         }
-        DmAutoExecTaskDO execTaskDO = dmSqlTaskMapper.selectById(taskId);
+        DmExecAutoTaskDO execTaskDO = executionDal.autoTaskMapper().selectById(taskId);
         if (!execTaskDO.getAutoExecJobId().equals(job.getId())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_JOB_NOT_MATCH_ERROR_MESSAGE.name()));
         }
@@ -105,22 +100,22 @@ public class AutoExecServiceImpl implements AutoExecService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_IS_FINISH.name()));
         }
 
-        dmSqlTaskMapper.updateStatusByTaskId(execTaskDO.getId(), AutoExecTaskStatus.CANCELED);
+        executionDal.autoTaskMapper().updateStatusByTaskId(execTaskDO.getId(), AutoExecTaskStatus.CANCELED);
 
-        RdpUserDO user = this.rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
 
         String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_TASK_CONSOLE_SKIP.name(), user.getUsername(), user.getUid(), execTaskDO.getExecOrder());
-        DmBizLogDO jobDO = new DmBizLogDO(Loglevel.INFO, message, DmLogDependBizType.AUTO_EXEC_JOB, job.getBizId());
-        DmBizLogDO taskLog = new DmBizLogDO(Loglevel.INFO, message, DmLogDependBizType.AUTO_EXEC_TASK, execTaskDO.getBizId());
-        this.dmBizLogMapper.insert(jobDO);
-        this.dmBizLogMapper.insert(taskLog);
+        DmMonBizLogDO jobDO = new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId());
+        DmMonBizLogDO taskLog = new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_TASK, execTaskDO.getBizId());
+        this.monitorDal.bizLogMapper().insert(jobDO);
+        this.monitorDal.bizLogMapper().insert(taskLog);
 
-        int count = this.dmSqlTaskMapper.queryNeedExecTaskCount(job.getId());
+        int count = this.executionDal.autoTaskMapper().queryNeedExecTaskCount(job.getId());
         if (count == 0) {
-            this.dmAutoExecJobMapper.finishJob(job.getId());
+            this.executionDal.autoJobMapper().finishJob(job.getId());
             String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_FINISH_MESSAGE.name());
-            DmBizLogDO logDO = new DmBizLogDO(Loglevel.INFO, msg, DmLogDependBizType.AUTO_EXEC_JOB, job.getBizId());
-            this.dmBizLogMapper.insert(logDO);
+            DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.INFO, msg, LogDependBizType.AUTO_EXEC_JOB, job.getBizId());
+            this.monitorDal.bizLogMapper().insert(logDO);
 
             this.execHelperService.getHelper(type).execCompleted(job.getDependOnBizType(), job.getBizId());
             return true;
@@ -130,7 +125,7 @@ public class AutoExecServiceImpl implements AutoExecService {
 
     @Override
     public DmAutoExecJobVO queryAutoExecJob(String bizId, SQLJobBizType type, boolean canOperate) {
-        DmAutoExecJobDO job = this.dmAutoExecJobMapper.queryByDependOnBizId(bizId);
+        DmExecAutoJobDO job = this.executionDal.autoJobMapper().queryByDependOnBizId(bizId);
         if (job == null) {
             return null;
         }
@@ -146,7 +141,7 @@ public class AutoExecServiceImpl implements AutoExecService {
 
         if (job.getWorkerSeqNumber() != null && job.getStatus() != AutoExecJobStatus.INIT && job.getStatus() != AutoExecJobStatus.FINISH
             && job.getStatus() != AutoExecJobStatus.TERMINATION) {
-            DmWorkerDO workerStatus = this.dmWorkerMapper.getByWsn(job.getWorkerSeqNumber());
+            DmSysWorkerDO workerStatus = this.systemDal.workerMapper().getByWsn(job.getWorkerSeqNumber());
             vo.setWorkerIP(workerStatus.getWorkerIp());
             vo.setWorkerStatus(workerStatus.getConnStatus());
             vo.setWorkerSeqNumber(workerStatus.getWorkerSeqNumber());
@@ -184,15 +179,15 @@ public class AutoExecServiceImpl implements AutoExecService {
 
     @Override
     public void stopJob(String bizId, SQLJobBizType type, String uid) {
-        DmAutoExecJobDO job = this.dmAutoExecJobMapper.queryByDependOnBizId(bizId);
-        RdpUserDO user = rdpUserMapper.queryByUid(uid);
+        DmExecAutoJobDO job = this.executionDal.autoJobMapper().queryByDependOnBizId(bizId);
+        DmAuthUserDO user = authDal.userMapper().queryByUid(uid);
         autoExecManager.stopJob(job.getId(), user);
     }
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public void endJob(String bizId, SQLJobBizType type, String uid) {
-        DmAutoExecJobDO job = this.dmAutoExecJobMapper.queryByDependOnBizId(bizId);
+        DmExecAutoJobDO job = this.executionDal.autoJobMapper().queryByDependOnBizId(bizId);
         if (job == null) {
             return;
         }
@@ -206,14 +201,14 @@ public class AutoExecServiceImpl implements AutoExecService {
         }
 
         job.setStatus(AutoExecJobStatus.TERMINATION);
-        dmAutoExecJobMapper.updateById(job);
-        dmSqlTaskMapper.cancelAllWaitTask(job.getId());
+        executionDal.autoJobMapper().updateById(job);
+        executionDal.autoTaskMapper().cancelAllWaitTask(job.getId());
 
-        RdpUserDO user = rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO user = authDal.userMapper().queryByUid(uid);
         String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_CONSOLE_TERMINATION_MESSAGE.name(), user.getUsername(), user.getUid());
 
-        DmBizLogDO logDO = new DmBizLogDO(Loglevel.INFO, message, DmLogDependBizType.AUTO_EXEC_JOB, job.getBizId());
-        this.dmBizLogMapper.insert(logDO);
+        DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId());
+        this.monitorDal.bizLogMapper().insert(logDO);
 
         this.execHelperService.getHelper(type).execAbort(job.getDependOnBizType(), job.getBizId());
     }
@@ -221,33 +216,33 @@ public class AutoExecServiceImpl implements AutoExecService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void retryJob(String bizId, SQLJobBizType type, String uid) {
-        DmAutoExecJobDO job = this.dmAutoExecJobMapper.queryByDependOnBizId(bizId);
+        DmExecAutoJobDO job = this.executionDal.autoJobMapper().queryByDependOnBizId(bizId);
         if (job.getStatus() != AutoExecJobStatus.FAILED && job.getStatus() != AutoExecJobStatus.PAUSE) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_RETRY_JOB_ERROR_MESSAGE.name()));
         }
 
         job.setStatus(AutoExecJobStatus.INIT);
-        int updateCount = dmAutoExecJobMapper.retryJob(job.getId());
+        int updateCount = executionDal.autoJobMapper().retryJob(job.getId());
 
         if (updateCount <= 0) {
             return;
         }
-        dmSqlTaskMapper.retryTask(job.getId());
-        RdpUserDO user = rdpUserMapper.queryByUid(uid);
+        executionDal.autoTaskMapper().retryTask(job.getId());
+        DmAuthUserDO user = authDal.userMapper().queryByUid(uid);
 
         String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_CONSOLE_RETRY_JOB_MESSAGE.name(), user.getUsername(), user.getUid());
-        DmBizLogDO logDO = new DmBizLogDO(Loglevel.INFO, message, DmLogDependBizType.AUTO_EXEC_JOB, job.getBizId());
-        this.dmBizLogMapper.insert(logDO);
+        DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId());
+        this.monitorDal.bizLogMapper().insert(logDO);
     }
 
     @Override
     public DmPageVO<DmAutoExecTaskVO> queryAutoExecTaskList(String bizId, SQLJobBizType type, boolean canOperate, AutoExecTaskStatus status, RdpPageDO pageDO) {
-        DmAutoExecJobDO job = this.dmAutoExecJobMapper.queryByDependOnBizId(bizId);
+        DmExecAutoJobDO job = this.executionDal.autoJobMapper().queryByDependOnBizId(bizId);
         Page<?> page = RdpPageUtil.startPage(pageDO);
-        IPage<DmAutoExecTaskDO> iPage = this.dmSqlTaskMapper.queryListByJobId(page, job.getId(), status);
+        IPage<DmExecAutoTaskDO> iPage = this.executionDal.autoTaskMapper().queryListByJobId(page, job.getId(), status);
         DmPageVO<DmAutoExecTaskVO> result = new DmPageVO<>(iPage);
 
-        for (DmAutoExecTaskDO taskDO : iPage.getRecords()) {
+        for (DmExecAutoTaskDO taskDO : iPage.getRecords()) {
             DmAutoExecTaskVO vo = new DmAutoExecTaskVO();
             vo.setTaskId(taskDO.getId());
             vo.setSqlType(taskDO.getSqlType());
@@ -285,8 +280,8 @@ public class AutoExecServiceImpl implements AutoExecService {
             }
         }
 
-        RdpUserDO confirmUser = this.rdpUserMapper.queryByUid(execUser);
-        DmAutoExecJobDO job = new DmAutoExecJobDO();
+        DmAuthUserDO confirmUser = this.authDal.userMapper().queryByUid(execUser);
+        DmExecAutoJobDO job = new DmExecAutoJobDO();
         job.setLevels(dsLevels.dbLevels());
         job.setDependOnBizType(bizType);
         job.setDataSourceId(dsLevels.dsDO().getId());
@@ -297,19 +292,19 @@ public class AutoExecServiceImpl implements AutoExecService {
         job.setExecType(config.getAutoExecType());
         job.setStatus(AutoExecJobStatus.INIT);
 
-        AutoExecJobConfig jobConfig = new AutoExecJobConfig();
+        RsExecAutoJobConfigObj jobConfig = new RsExecAutoJobConfigObj();
         jobConfig.setEnableTransactional(config.isEnableTransactional());
         jobConfig.setRetryWaitTime(config.getRetryWaitTime());
         jobConfig.setErrorStrategy(config.getErrorStrategy());
         jobConfig.setRetryCount(config.getRetryCount());
         job.setConfig(jobConfig);
-        if (job.getExecType() == DmAutoExecType.IMMEDIATE) {
+        if (job.getExecType() == AutoExecType.IMMEDIATE) {
             job.setScheduleTime(new Date());
         } else {
             job.setScheduleTime(new Date(config.getExecTime()));
         }
 
-        this.dmAutoExecJobMapper.insert(job);
+        this.executionDal.autoJobMapper().insert(job);
 
         int order = 1;
         for (int i = 0; i < scripts.size(); i++) {
@@ -320,7 +315,7 @@ public class AutoExecServiceImpl implements AutoExecService {
                 throw new UnsupportedOperationException(DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_NONSUPPORT_TRANSACTION_OPERATE_ERROR.name()));
             }
 
-            DmAutoExecTaskDO execTask = new DmAutoExecTaskDO();
+            DmExecAutoTaskDO execTask = new DmExecAutoTaskDO();
             execTask.setExecSql(splitScript.getScript());
             execTask.setSqlType(splitScript.getType());
             execTask.setExecOrder(order++);
@@ -328,12 +323,12 @@ public class AutoExecServiceImpl implements AutoExecService {
 
             execTask.setAutoExecJobId(job.getId());
             execTask.setBizId(DmTeamUtils.nextExecTaskBizId(bizType));
-            dmSqlTaskMapper.insert(execTask);
+            executionDal.autoTaskMapper().insert(execTask);
         }
 
         String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_CREATE_MESSAGE.name(), confirmUser.getUsername(), confirmUser.getUid());
-        DmBizLogDO logDO = new DmBizLogDO(Loglevel.INFO, message, DmLogDependBizType.AUTO_EXEC_JOB, job.getBizId());
-        dmBizLogMapper.insert(logDO);
+        DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId());
+        monitorDal.bizLogMapper().insert(logDO);
 
         this.execHelperService.getHelper(bizType).execStart(job.getDependOnBizType(), job.getBizId());
     }

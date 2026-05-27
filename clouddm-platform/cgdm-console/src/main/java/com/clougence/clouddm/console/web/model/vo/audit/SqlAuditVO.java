@@ -19,7 +19,7 @@ import java.util.Date;
 
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.dal.model.DmSqlAuditDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.utils.StringUtils;
@@ -56,7 +56,7 @@ public class SqlAuditVO {
     private DataSourceType dataSourceType;
     private String         message;
 
-    public static SqlAuditVO convertFromDO(DmSqlAuditDO auditDO) {
+    public static SqlAuditVO convertFromDO(DmExecSqlAuditDO auditDO) {
         SqlAuditVO vo = new SqlAuditVO();
         vo.setId(auditDO.getId());
         if (auditDO.getEndTime() != null) {

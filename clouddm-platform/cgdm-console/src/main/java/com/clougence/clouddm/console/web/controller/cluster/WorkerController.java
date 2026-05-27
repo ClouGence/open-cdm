@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.controller.cluster;
 
-import static com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel.HIGH;
+import static com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel.HIGH;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_WORKER_MANAGE;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_WORKER_READ;
 
@@ -29,11 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.constants.VerifyCodeType;
-import com.clougence.clouddm.console.web.constants.VerifyType;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.cluster.*;
 import com.clougence.clouddm.console.web.model.vo.cluster.WorkerDeployConfigVO;
@@ -41,7 +37,11 @@ import com.clougence.clouddm.console.web.model.vo.cluster.WorkerVO;
 import com.clougence.clouddm.console.web.service.cluster.WorkerDetector;
 import com.clougence.clouddm.console.web.service.cluster.WorkerService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.rdp.service.RdpVerifyService;
 import com.clougence.rdp.service.model.CheckVerifyMO;
@@ -61,23 +61,23 @@ import lombok.extern.slf4j.Slf4j;
 public class WorkerController {
 
     @Resource
-    private WorkerService           workerService;
+    private WorkerService    workerService;
     @Resource
-    private BizResOwnerCacheService ownerCacheService;
+    private ObjectCacheDao   objectCacheDao;
     @Resource
-    private RdpVerifyService        rdpVerifyService;
+    private RdpVerifyService rdpVerifyService;
     @Resource
-    private WorkerDetector          workerDetector;
+    private WorkerDetector   workerDetector;
     @Resource
-    private RdpUserService          rdpUserService;
+    private RdpUserService   rdpUserService;
 
     @RequestAuth(DM_WORKER_READ)
     @RequestMapping(value = "/listworkers", method = RequestMethod.POST)
     public ResWebData<?> listWorkers(@Valid @RequestBody ListWorkersFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.ownerCacheService.ownCluster(puid, fo.getClusterId());
+        this.objectCacheDao.ownCluster(puid, fo.getClusterId());
 
-        List<DmWorkerDO> workerDOs = this.workerService.listWorkers(fo.getClusterId());
+        List<DmSysWorkerDO> workerDOs = this.workerService.listWorkers(fo.getClusterId());
         List<WorkerVO> workerVOs = workerDOs.stream().map(w -> DmConvertUtils.convertToWorkerVO(w, this.workerDetector)).collect(Collectors.toList());
         return ResWebDataUtils.buildSuccess(workerVOs);
     }
@@ -86,7 +86,7 @@ public class WorkerController {
     @RequestMapping(value = "/updateworkerdesc", method = RequestMethod.POST)
     public ResWebData<?> updateWorkerDesc(@Valid @RequestBody UpdateWorkerDescFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.ownerCacheService.ownWorker(puid, fo.getWorkerId());
+        this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
 
         this.workerService.updateWorkerDesc(fo.getWorkerId(), fo.getDesc());
         return ResWebDataUtils.buildSuccess();
@@ -96,9 +96,9 @@ public class WorkerController {
     @RequestMapping(value = "/queryworkerbyid", method = RequestMethod.POST)
     public ResWebData<?> queryWorkerById(@Valid @RequestBody QueryWorkerFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.ownerCacheService.ownWorker(puid, fo.getWorkerId());
+        this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
 
-        DmWorkerDO workerDO = this.workerService.getWorkerById(fo.getWorkerId());
+        DmSysWorkerDO workerDO = this.workerService.getWorkerById(fo.getWorkerId());
         WorkerVO workerVO = DmConvertUtils.convertToWorkerVO(workerDO, this.workerDetector);
         return ResWebDataUtils.buildSuccess(workerVO);
     }
@@ -107,7 +107,7 @@ public class WorkerController {
     @RequestMapping(value = "/createinitialworker", method = RequestMethod.POST)
     public ResWebData<?> createInitialWorker(@Valid @RequestBody CreateInitialWorkerFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.ownerCacheService.ownCluster(puid, fo.getClusterId());
+        this.objectCacheDao.ownCluster(puid, fo.getClusterId());
 
         this.workerService.createInitialWorker(puid, fo);
         return ResWebDataUtils.buildSuccess();
@@ -117,7 +117,7 @@ public class WorkerController {
     @RequestMapping(value = "/deleteworker", method = RequestMethod.POST)
     public ResWebData<?> deleteWorker(@Valid @RequestBody DeleteWorkerFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.ownerCacheService.ownWorker(puid, fo.getWorkerId());
+        this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
 
         this.workerService.deleteWorker(fo.getWorkerId(), false);
         return ResWebDataUtils.buildSuccess();
@@ -127,7 +127,7 @@ public class WorkerController {
     @RequestMapping(value = "/waittooffline", method = RequestMethod.POST)
     public ResWebData<?> waitToOffline(@Valid @RequestBody WaitToOfflineFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.ownerCacheService.ownWorker(puid, fo.getWorkerId());
+        this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
 
         this.workerService.updateToWaitToOffline(fo.getWorkerId());
         return ResWebDataUtils.buildSuccess();
@@ -137,7 +137,7 @@ public class WorkerController {
     @RequestMapping(value = "/waittoonline", method = RequestMethod.POST)
     public ResWebData<?> waitToOnline(@Valid @RequestBody WaitToOnlineFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.ownerCacheService.ownWorker(puid, fo.getWorkerId());
+        this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
 
         this.workerService.updateToWaitToOnline(fo.getWorkerId());
         return ResWebDataUtils.buildSuccess();
@@ -147,7 +147,7 @@ public class WorkerController {
     @RequestMapping(value = "/downloadclienturl", method = RequestMethod.POST)
     public ResWebData<?> downLoadClientUrl(@Valid @RequestBody ClientUrlFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.ownerCacheService.ownWorker(puid, fo.getWorkerId());
+        this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
 
         String downloadUrl = this.workerService.getClientDownloadUrl(fo.getWorkerId());
         return ResWebDataUtils.buildSuccess(downloadUrl);
@@ -159,8 +159,8 @@ public class WorkerController {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        this.ownerCacheService.ownWorker(puid, fo.getWorkerId());
-        RdpUserDO userDO = this.rdpUserService.getUserByUid(uid);
+        this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
+        DmAuthUserDO userDO = this.rdpUserService.getUserByUid(uid);
 
         CheckVerifyMO verifyData = new CheckVerifyMO();
         verifyData.setUid(uid);

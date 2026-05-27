@@ -33,6 +33,7 @@ import jakarta.servlet.Filter;
 @EnableAutoConfiguration(exclude = { DataSourceAutoConfiguration.class })
 @ComponentScan(value = { "com.clougence.clouddm.boot", "com.clougence.clouddm.init",//
                          "com.clougence.clouddm.console.web", "com.clougence.clouddm.console.web.*", //
+                         "com.clougence.clouddm.platform.dal", "com.clougence.clouddm.platform.dal.*", //
                          "com.clougence.clouddm.comm.component.impl", "com.clougence.rdp.*" },//
         excludeFilters = { @ComponentScan.Filter(type = FilterType.REGEX, pattern = "com\\.clougence\\.clouddm\\.init\\.boot\\..*"),
                            @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = InitApplication.class) })

@@ -15,6 +15,8 @@
  */
 package com.clougence.rdp.controller;
 
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Map;
@@ -29,19 +31,18 @@ import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.constants.EventType;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountBindType;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalType;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.DmCsrfTokenDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthCsrfTokenDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.csrf.CsrfTokenService;
 import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
-import com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.console.web.model.fo.LoginFO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.approval.ApprovalCallbackSpi;
@@ -51,10 +52,10 @@ import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
 import com.clougence.clouddm.sdk.security.login.LoginRequest;
 import com.clougence.clouddm.sdk.security.login.LoginResponse;
 import com.clougence.clouddm.sdk.service.config.UserData;
-import com.clougence.rdp.component.sso.RdpSubLoginService;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.rdp.constant.operation.AuditType;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.component.auth.RdpSubLoginService;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.rdp.service.RdpUserLoginRegService;
 import com.clougence.rdp.service.model.LoginMO;
@@ -72,9 +73,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequestMapping("/callback")
 public class RdpCallbackController {
-
     @Resource
-    private RdpUserMapper          userMapper;
+    private AuthDal authDal;
+
     @Resource
     private ApprovalFlowService    approvalFlowService;
     @Resource
@@ -104,14 +105,14 @@ public class RdpCallbackController {
         params.put("requestBody", body);
 
         if (EventType.valueOfCode(eventType) == EventType.APPROVAL) {
-            return doApproval(params, puid, RdpApprovalType.getByName(platform));
+            return doApproval(params, puid, ApprovalType.getByName(platform));
         }
 
         return "failed unsupported eventType " + eventType;
     }
 
-    private Object doApproval(Map<String, String> params, String puid, RdpApprovalType platform) {
-        RdpUserDO userDO = this.userMapper.queryByUid(puid);
+    private Object doApproval(Map<String, String> params, String puid, ApprovalType platform) {
+        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(puid);
         if (userDO == null || userDO.getAccountType() != AccountType.PRIMARY_ACCOUNT) {
             return "failed no user.";
         }
@@ -139,7 +140,7 @@ public class RdpCallbackController {
         String error_description = params.getOrDefault("error_description", null);
 
         // for args
-        DmCsrfTokenDO tokenDO = this.csrfTokenService.pullToken(state);
+        DmAuthCsrfTokenDO tokenDO = this.csrfTokenService.pullToken(state);
         if (tokenDO == null) {
             String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_INVALID_TOKEN_ERROR.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_ARGS_ERROR.name(), message);
@@ -171,7 +172,7 @@ public class RdpCallbackController {
         }
 
         // for ownerUid
-        RdpUserDO primaryUser = this.userMapper.queryByUid(ownerUid);
+        DmAuthUserDO primaryUser = this.authDal.userMapper().queryByUid(ownerUid);
         if (primaryUser == null) {
             String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PRIMARY_ACCOUNT_NOT_EXIST.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_OWNER_ERROR.name(), message);
@@ -216,7 +217,7 @@ public class RdpCallbackController {
         // is first login
         String loginAcc = fetchUser.getSubAccount();
         String loginType = AccountBindType.valueOfProvider(providerEnum).name();
-        RdpUserDO bindUser = this.userMapper.queryBySubAccountAndBind(String.valueOf(primaryUser.getId()), loginAcc, loginType);
+        DmAuthUserDO bindUser = this.authDal.userMapper().queryBySubAccountAndBind(String.valueOf(primaryUser.getId()), loginAcc, loginType);
         if (bindUser == null) {
             String csrfToken = this.csrfTokenService.pushToken(fetchUser.getAccessToken());
             return redirectToLogin(request, response, csrfToken, primaryUser.getUid(), fetchUser);
@@ -238,8 +239,10 @@ public class RdpCallbackController {
                         .getErrMsg(), SecurityLevel.NORMAL, AuditType.LOGIN_FAIL, ResourceType.ACCOUNT);
                 }
                 return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_LOGIN_ERROR.name(), login.getErrMsg());
+            } else if (login.isNeedMore()) {
+                return redirectToLogin(request, response, login.getToken(), primaryUser.getUid(), fetchUser);
             } else {
-                this.userMapper.updateUserName(login.getUid(), fetchUser.getUserName());
+                this.authDal.userMapper().updateUserName(login.getUid(), fetchUser.getUserName());
             }
 
             return this.redirectToHome(request, response, login);
@@ -277,11 +280,16 @@ public class RdpCallbackController {
         } else if (!StringUtils.endsWith(contextPath, "/")) {
             contextPath += "/";
         }
-        String subAccount = fetchUser.getSubAccount().substring(0, fetchUser.getUserDomain().length());
+        String subAccount = fetchUser.getSubAccount();
+        String userDomain = fetchUser.getUserDomain();
+        String domainSuffix = StringUtils.isBlank(userDomain) ? "" : "@" + userDomain;
+        if (StringUtils.isNotBlank(subAccount) && StringUtils.isNotBlank(domainSuffix) && StringUtils.endsWith(subAccount, domainSuffix)) {
+            subAccount = subAccount.substring(0, subAccount.length() - domainSuffix.length());
+        }
         String redirectUrl = contextPath + "#/login?" +//
                              "token=" + URLEncoder.encode(StringUtils.defaultString(registerToken, ""), "UTF-8") + "&" +//
                              "sub=" + URLEncoder.encode(StringUtils.defaultString(subAccount, ""), "UTF-8") + "&" +//
-                             "account=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getSubAccount(), ""), "UTF-8") + "&" +//
+                             "account=" + URLEncoder.encode(StringUtils.defaultString(subAccount, ""), "UTF-8") + "&" +//
                              "user=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getUserName(), ""), "UTF-8") + "&" +//
                              "phone=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getPhone(), ""), "UTF-8") + "&" +//
                              "email=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getEmail(), ""), "UTF-8") + "&" +//
@@ -313,7 +321,7 @@ public class RdpCallbackController {
         String provider = params.getOrDefault("provider", null);
 
         // for args
-        DmCsrfTokenDO tokenDO = this.csrfTokenService.pullToken(state);
+        DmAuthCsrfTokenDO tokenDO = this.csrfTokenService.pullToken(state);
         if (tokenDO == null) {
             return this.redirectOrDone(request, response, "/");
         }

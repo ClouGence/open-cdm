@@ -17,7 +17,7 @@ package com.clougence.clouddm.console.web.model.vo.checkrules;
 
 import java.util.Map;
 
-import com.clougence.clouddm.console.web.dal.enumeration.SecRangeType;
+import com.clougence.clouddm.platform.dal.model.secrule.SecRangeType;
 
 import lombok.Getter;
 import lombok.Setter;

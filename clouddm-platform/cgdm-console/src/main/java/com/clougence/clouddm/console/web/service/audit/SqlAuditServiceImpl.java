@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
-import com.clougence.clouddm.console.web.dal.mapper.DmSqlAuditMapper;
-import com.clougence.clouddm.console.web.dal.model.DmSqlAuditDO;
 import com.clougence.clouddm.console.web.model.vo.audit.SqlAuditVO;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 
@@ -35,12 +35,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class SqlAuditServiceImpl implements SqlAuditService {
-
-    private final int        DEFAULT_PAGE_SIZE = 20;
-    private final int        MAX_PAGE_SIZE     = 60;
-
     @Resource
-    private DmSqlAuditMapper sqlAuditMapper;
+    private ExecutionDal executionDal;
+
+    private final int    DEFAULT_PAGE_SIZE = 20;
+    private final int    MAX_PAGE_SIZE     = 60;
 
     @Override
     public List<SqlAuditVO> queryUserAllAudit(String puid, String uid, SecQueryKind sqlKind, String resourcePath, Long dsId, Requester requester, SqlStatus status, Date start,
@@ -50,7 +49,7 @@ public class SqlAuditServiceImpl implements SqlAuditService {
         } else if (pageSize > MAX_PAGE_SIZE) {
             pageSize = MAX_PAGE_SIZE;
         }
-        List<DmSqlAuditDO> auditDOs = sqlAuditMapper.queryByCondition(puid, uid, sqlKind, resourcePath, dsId, requester, status, start, end, startId, pageSize);
+        List<DmExecSqlAuditDO> auditDOs = executionDal.sqlAuditMapper().queryByCondition(puid, uid, sqlKind, resourcePath, dsId, requester, status, start, end, startId, pageSize);
 
         if (auditDOs == null || auditDOs.isEmpty()) {
             return new ArrayList<>();

@@ -15,9 +15,8 @@
  */
 package com.clougence.clouddm.console.web.model.fo;
 
-import com.clougence.clouddm.console.web.constants.VerifyCodeType;
-import com.clougence.clouddm.console.web.constants.VerifyType;
-import com.clougence.clouddm.console.web.dal.enumeration.AreaCode;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -41,8 +40,6 @@ public class SendCodeFO {
 
     @Pattern(regexp = "^\\d{1,20}$", message = "{pattern.phone}")
     private String         phoneNumber;
-
-    private AreaCode       phoneAreaCode;
 
     @NotNull(message = "{notnull.verifycodetype}")
     private VerifyCodeType verifyCodeType;

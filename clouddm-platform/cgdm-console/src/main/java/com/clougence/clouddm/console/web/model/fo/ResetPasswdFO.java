@@ -15,9 +15,8 @@
  */
 package com.clougence.clouddm.console.web.model.fo;
 
-import com.clougence.clouddm.console.web.constants.VerifyType;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
-import com.clougence.clouddm.console.web.dal.enumeration.AreaCode;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -43,7 +42,6 @@ public class ResetPasswdFO {
     /**
      * verify by phone
      */
-    private AreaCode    phoneAreaCode;
 
     @Pattern(regexp = "^\\d{1,20}$", message = "phone format is illegal.")
     private String      phone;

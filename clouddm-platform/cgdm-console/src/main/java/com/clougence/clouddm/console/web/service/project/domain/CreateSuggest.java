@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.service.project.domain;
 
-import com.clougence.clouddm.console.web.dal.model.DmProjectChangeDO;
+import com.clougence.clouddm.platform.dal.model.project.DmProjectChangeDO;
 
 import lombok.Getter;
 import lombok.Setter;

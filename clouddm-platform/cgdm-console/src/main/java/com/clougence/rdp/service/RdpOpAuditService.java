@@ -19,12 +19,12 @@ import java.util.Date;
 import java.util.List;
 
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
-import com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.console.web.model.fo.ExportOpAuditFO;
 import com.clougence.clouddm.console.web.model.vo.OpAuditConditionVO;
 import com.clougence.clouddm.console.web.model.vo.RdpOpAuditVO;
-import com.clougence.rdp.constant.operation.AuditType;
-import com.clougence.clouddm.console.web.dal.model.RdpOpAuditDO;
+import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
+import com.clougence.clouddm.platform.dal.model.monitor.DmMonOpAuditDO;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -46,7 +46,7 @@ public interface RdpOpAuditService {
     /**
      * add OperationAuditDO data to database.ORIGIN DATA, not referent any other metadata.
      */
-    void addOperationAudit(RdpOpAuditDO auditDO);
+    void addOperationAudit(DmMonOpAuditDO auditDO);
 
     List<RdpOpAuditVO> queryUserAllAudit(String puid, String uid, SecurityLevel securityLevel, String userNameLike, String auditType, String resourceType, Date start, Date end,
                                          long startId, int pageSize);

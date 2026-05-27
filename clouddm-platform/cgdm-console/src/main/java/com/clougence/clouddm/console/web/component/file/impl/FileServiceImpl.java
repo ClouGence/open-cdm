@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultColDTO;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultFileReadDTO;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultPageDTO;
@@ -31,21 +32,20 @@ import com.clougence.clouddm.api.sidecar.session.execute.ResultSetRService;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
 import com.clougence.clouddm.console.web.component.file.FileService;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.mapper.DmFileMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
-import com.clougence.clouddm.console.web.dal.model.DmFileDO;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.service.editor.model.DataResultDataVO;
 import com.clougence.clouddm.console.web.service.editor.model.DataResultPageVO;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.resultset.file.DmFileType;
 import com.clougence.clouddm.sdk.execute.resultset.file.FileFormatConvert;
-import com.clougence.clouddm.console.web.dal.model.RdpUserKvBaseConfigDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpUserConfigService;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.ThreadUtils;
@@ -56,16 +56,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class FileServiceImpl implements FileService, UnifiedPostConstruct {
-
     @Resource
-    private DmWorkerMapper              dmWorkerMapper;
+    private SystemDal                   systemDal;
+    @Resource
+    private ExecutionDal                executionDal;
     @Resource
     private ResultSetRService           resultSetRService;
     @Resource
-    private DmFileMapper                dmFileMapper;
-    @Resource
     private RdpUserConfigService        rdpUserConfigService;
-
     private ScheduledThreadPoolExecutor scheduledExecutor;
 
     @Override
@@ -81,7 +79,7 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
     }
 
     private RSocketSendDTO buildRSocketSendDTO(String wsn) {
-        DmWorkerDO worker = this.dmWorkerMapper.queryConnectedByWsn(wsn);
+        DmSysWorkerDO worker = this.systemDal.workerMapper().queryConnectedByWsn(wsn);
         if (worker != null) {
             RSocketSendDTO sendDTO = new RSocketSendDTO();
             sendDTO.setClusterId(worker.getClusterId());
@@ -101,21 +99,21 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
         c.add(Calendar.MINUTE, -2); // 2min pre check.
 
         while (true) {
-            List<DmFileDO> files = this.dmFileMapper.queryByAfterHeartbeatTime(c.getTime(), 500);
+            List<DmExecFileDO> files = this.executionDal.fileMapper().queryByAfterHeartbeatTime(c.getTime(), 500);
             if (files.isEmpty()) {
                 break;
             }
 
             Map<String, Integer> timeoutConfigCache = new HashMap<>();
-            for (DmFileDO f : files) {
+            for (DmExecFileDO f : files) {
                 try {
                     URI fileUri = DmConvertUtils.createFileUri(f.getFileUri());
                     String fsName = fileUri.getScheme().toLowerCase();
                     if (StringUtils.equalsIgnoreCase(fsName, "wsn")) {
                         String wsn = fileUri.getHost();
-                        DmWorkerDO worker = this.dmWorkerMapper.queryConnectedByWsn(wsn);
+                        DmSysWorkerDO worker = this.systemDal.workerMapper().queryConnectedByWsn(wsn);
                         if (worker == null) {
-                            this.dmFileMapper.incrementTryCountByUniqueId(f.getUniqueId(), "worker offline.");
+                            this.executionDal.fileMapper().incrementTryCountByUniqueId(f.getUniqueId(), "worker offline.");
                             continue;
                         }
                     }
@@ -128,9 +126,9 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
                     switch (f.getStatus()) {
                         case Pending: {
                             if (this.existsFile(f)) {
-                                this.dmFileMapper.updateAccessTimeByUniqueId(f.getUniqueId(), "File exists during pending check.");
+                                this.executionDal.fileMapper().updateAccessTimeByUniqueId(f.getUniqueId(), "File exists during pending check.");
                             } else {
-                                this.dmFileMapper.deleteFileByUniqueId(f.getUniqueId());
+                                this.executionDal.fileMapper().deleteFileByUniqueId(f.getUniqueId());
                             }
                             break;
                         }
@@ -142,14 +140,14 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
                             int cacheTimeoutSec = this.getTimeoutByOwnerUid(f.getOwnerUid(), timeoutConfigCache);
                             long fileLastTime = f.getGmtModified().getTime() + (cacheTimeoutSec * 1000L);
                             if (fileLastTime > System.currentTimeMillis()) {
-                                this.dmFileMapper.updateHeartbeatByUniqueId(f.getUniqueId());
+                                this.executionDal.fileMapper().updateHeartbeatByUniqueId(f.getUniqueId());
                             } else {
                                 deleteFile(f);
                             }
                         }
                     }
                 } catch (Exception e) {
-                    this.dmFileMapper.incrementTryCountByUniqueId(f.getUniqueId(), "file clear error: " + e.getMessage());
+                    this.executionDal.fileMapper().incrementTryCountByUniqueId(f.getUniqueId(), "file clear error: " + e.getMessage());
                 }
             }
         }
@@ -160,7 +158,7 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
             return timeoutConfigCache.get(ownerUid);
         }
 
-        RdpUserKvBaseConfigDO config = this.rdpUserConfigService.getSpecifiedConfig(ownerUid, UserDefinedConfig.Fields.onlineResultCacheTimeoutSec);
+        DmSysUserConfDO config = this.rdpUserConfigService.getSpecifiedConfig(ownerUid, UserDefinedConfig.Fields.onlineResultCacheTimeoutSec);
         if (config == null || StringUtils.isBlank(config.getConfigValue())) {
             timeoutConfigCache.put(ownerUid, 300);
             return 300;
@@ -171,7 +169,7 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
         }
     }
 
-    private void deleteFile(DmFileDO f) {
+    private void deleteFile(DmExecFileDO f) {
         URI fileUri = DmConvertUtils.createFileUri(f.getFileUri());
         String fsName = fileUri.getScheme().toLowerCase();
         if (StringUtils.equalsIgnoreCase(fsName, "wsn")) {
@@ -180,10 +178,10 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
             this.resultSetRService.deleteFile(sendDTO, fileUri.getPath(), false);
             log.info("delete file [{}] on worker [{}] success.", fileUri.getPath(), wsn);
         }
-        this.dmFileMapper.deleteFileByUniqueId(f.getUniqueId());
+        this.executionDal.fileMapper().deleteFileByUniqueId(f.getUniqueId());
     }
 
-    private boolean existsFile(DmFileDO f) {
+    private boolean existsFile(DmExecFileDO f) {
         URI fileUri = DmConvertUtils.createFileUri(f.getFileUri());
         String fsName = fileUri.getScheme().toLowerCase();
         if (StringUtils.equalsIgnoreCase(fsName, "wsn")) {

@@ -18,7 +18,7 @@ package com.clougence.rdp.service;
 import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.console.web.dal.model.RdpUserKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 
 /**
  * @author bucketli 2020/11/7 18:01
@@ -27,5 +27,5 @@ public interface RdpUserConfigHelper {
 
     void fillFieldValue(Object instance, Map<String, String> configMap);
 
-    List<RdpUserKvBaseConfigDO> collectConfigs(Object instance, String uid);
+    List<DmSysUserConfDO> collectConfigs(Object instance, String uid);
 }

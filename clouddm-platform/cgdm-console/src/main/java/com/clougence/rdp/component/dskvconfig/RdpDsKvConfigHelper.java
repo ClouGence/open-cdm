@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 
 /**
  * @author bucketli 2020/11/7 18:01
@@ -28,5 +28,5 @@ public interface RdpDsKvConfigHelper {
 
     void fillFieldValue(Object instance, Map<String, String> configMap);
 
-    List<RdpDsKvBaseConfigDO> collectConfigs(Object instance, Long dataSourceId, DataSourceType dsType);
+    List<DmDsConfigKv4RdpDO> collectConfigs(Object instance, Long dataSourceId, DataSourceType dsType);
 }

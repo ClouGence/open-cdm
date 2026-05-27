@@ -20,7 +20,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.clougence.clouddm.console.web.dal.enumeration.ConfBelong;
+import com.clougence.clouddm.console.web.global.i18n.I18nUserConfigMsgKeys;
+import com.clougence.clouddm.platform.dal.model.system.KvConfValType;
+import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
+import com.clougence.clouddm.platform.dal.model.system.ConfBelong;
 
 /**
  * @author bucketli 2020/11/5 19:42

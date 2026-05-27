@@ -28,15 +28,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.console.web.component.project.ImMessageType;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.DmChangeItemType;
-import com.clougence.clouddm.console.web.dal.enumeration.ProjectChangeStatus;
-import com.clougence.clouddm.console.web.dal.enumeration.ProjectChangeStep;
-import com.clougence.clouddm.console.web.dal.enumeration.ProjectStatus;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectChangeItemMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectDevopsItemMapper;
-import com.clougence.clouddm.console.web.dal.model.*;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.platform.dal.model.project.*;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.scm.ScmProvider;
 import com.clougence.clouddm.sdk.scm.ScmProviderSpi;
@@ -51,32 +45,26 @@ import com.github.difflib.patch.AbstractDelta;
 import com.github.difflib.patch.DeltaType;
 import com.github.difflib.patch.Patch;
 
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 public class ChangeActionForInit extends AbstractChangeAction {
 
-    @Resource
-    private DmProjectChangeItemMapper dmProjectChangeItemMapper;
-    @Resource
-    private DmProjectDevopsItemMapper dmProjectDevopsItemMapper;
-
     private boolean checkChange(String ownerUid, long changeId) {
-        DmProjectChangeDO changeDO = this.dmProjectChangeMapper.queryChangeById(ownerUid, changeId);
-        DmProjectDO projectDO = this.dmProjectMapper.queryByOwnerAndId(ownerUid, changeDO.getRefProjectId());
+        DmProjectChangeDO changeDO = projectDal.changeMapper().queryChangeById(ownerUid, changeId);
+        DmProjectDO projectDO = projectDal.projectMapper().queryByOwnerAndId(ownerUid, changeDO.getRefProjectId());
 
         if (projectDO == null || projectDO.getProjectStatus() != ProjectStatus.NORMAL) {
             return false;
         }
 
-        DmProjectDevopsDO devopsDO = this.dmProjectDevopsMapper.queryByOwnerAndId(ownerUid, changeDO.getRefDevopsId());
+        DmProjectDevopsDO devopsDO = projectDal.devopsMapper().queryByOwnerAndId(ownerUid, changeDO.getRefDevopsId());
         if (devopsDO == null || devopsDO.isDeleted() || !devopsDO.isEnable()) {
             return false;
         }
 
-        DmProjectScmDO scmDO = dmProjectScmMapper.queryById(devopsDO.getRefScmId());
+        DmProjectScmDO scmDO = projectDal.scmMapper().queryById(devopsDO.getRefScmId());
         return scmDO != null;
     }
 
@@ -86,25 +74,25 @@ public class ChangeActionForInit extends AbstractChangeAction {
         if (!super.doCommonAction(change)) {
             return;
         } else {
-            change = this.dmProjectChangeMapper.queryChangeById(change.getOwnerUid(), change.getId());
+            change = projectDal.changeMapper().queryChangeById(change.getOwnerUid(), change.getId());
         }
 
-        DmProjectDO projectDO = this.dmProjectMapper.queryByOwnerAndId(change.getOwnerUid(), change.getRefProjectId());
-        DmProjectDevopsDO devopsDO = this.dmProjectDevopsMapper.queryByOwnerAndId(change.getOwnerUid(), change.getRefDevopsId());
-        File space = this.dmProjectService.getProjectSpace(projectDO.getOwnerUid(), projectDO.getId());
+        DmProjectDO projectDO = projectDal.projectMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefProjectId());
+        DmProjectDevopsDO devopsDO = projectDal.devopsMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefDevopsId());
+        File space = this.projectService.getProjectSpace(projectDO.getOwnerUid(), projectDO.getId());
         File projectPath = new File(space, projectDO.getProjectCode() + File.separator + change.getRefDevopsId() + "-" + change.getLastCommitId());
-        String language = this.imSenderService.getProjectLanguage(change.getOwnerUid(), change.getRefProjectId());
+        String language = this.senderService.getProjectLanguage(change.getOwnerUid(), change.getRefProjectId());
         Locale locale = I18nUtils.getLocale(language);
 
         // checkout source code
-        this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice,//
+        this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice,//
                 DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_SCM_INIT_FETCH.name(), locale, change.getChangeName()));
         if (!checkoutSource(projectDO, devopsDO, change, locale, projectPath)) {
             return;
         }
 
         // save sql snapshot
-        change = this.dmProjectChangeMapper.queryChangeById(change.getOwnerUid(), change.getId()); // Update version
+        change = projectDal.changeMapper().queryChangeById(change.getOwnerUid(), change.getId()); // Update version
         this.initSqlItem(change, projectPath, devopsDO);
 
         // diff sql
@@ -113,26 +101,26 @@ public class ChangeActionForInit extends AbstractChangeAction {
         } catch (Throwable e) {
             log.error("changeAction[" + change.getId() + "] refresh review sql failed," + e.getMessage(), e);
             String errorMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_DIFF_CONTENT_ERROR.name(), locale, change.getChangeName(), e.getMessage());
-            this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, errorMsg);
-            this.dmProjectChangeMapper.updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.FAILED, errorMsg);
+            this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, errorMsg);
+            projectDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.FAILED, errorMsg);
         }
     }
 
     private boolean checkoutSource(DmProjectDO projectDO, DmProjectDevopsDO devopsDO, DmProjectChangeDO change, Locale locale, File projectPath) throws Exception {
-        DmProjectScmDO scmDO = dmProjectScmMapper.queryById(devopsDO.getRefScmId());
+        DmProjectScmDO scmDO = projectDal.scmMapper().queryById(devopsDO.getRefScmId());
         AtomicInteger versionLock = new AtomicInteger(change.getVersion());
 
         // check plugin
         ScmProviderSpi service = PluginManager.findSpi(ScmProviderSpi.class, scmDO.getScmType().getProviderType().name());
         if (service == null) {
             String errorMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_SCM_UNAVAILABLE_ERROR.name(), locale, change.getChangeName());
-            this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, errorMsg);
-            this.dmProjectChangeMapper.updateStatusTo(change.getId(), versionLock.get(), ProjectChangeStatus.FAILED, errorMsg);
+            this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, errorMsg);
+            projectDal.changeMapper().updateStatusTo(change.getId(), versionLock.get(), ProjectChangeStatus.FAILED, errorMsg);
             return false;
         }
 
         // temp path
-        File temp = this.dmProjectService.getTempSpace(projectDO.getOwnerUid(), projectDO.getId());
+        File temp = this.projectService.getTempSpace(projectDO.getOwnerUid(), projectDO.getId());
         File tempPath = new File(temp, projectDO.getProjectCode());
 
         // download source.
@@ -164,7 +152,7 @@ public class ChangeActionForInit extends AbstractChangeAction {
                 return true;
             }
 
-            int assignAgain = this.dmProjectChangeMapper.assignReadyChange(changeId, versionLock.get());
+            int assignAgain = projectDal.changeMapper().assignReadyChange(changeId, versionLock.get());
             if (assignAgain == 0) {
                 log.error("changeAction[" + changeId + "] watchdog failed, downloadScm is blocked.");
                 return false;
@@ -179,7 +167,7 @@ public class ChangeActionForInit extends AbstractChangeAction {
     }
 
     private void initSqlItem(DmProjectChangeDO change, File projectPath, DmProjectDevopsDO devopsDO) throws Exception {
-        int res = this.dmProjectChangeItemMapper.deleteByChangeItemType(change.getOwnerUid(), change.getId(), DmChangeItemType.SQL);
+        int res = this.projectDal.changeItemMapper().deleteByChangeItemType(change.getOwnerUid(), change.getId(), ChangeItemType.SQL);
 
         // foreach local file script
         File scriptPath = new File(projectPath, devopsDO.getScmRepoScript());
@@ -198,27 +186,27 @@ public class ChangeActionForInit extends AbstractChangeAction {
                 itemDO.setOwnerUid(change.getOwnerUid());
                 itemDO.setRefProjectId(change.getRefProjectId());
                 itemDO.setRefChangeId(change.getId());
-                itemDO.setChangeItemType(DmChangeItemType.SQL);
+                itemDO.setChangeItemType(ChangeItemType.SQL);
                 itemDO.setContentName(fileName);
                 itemDO.setContentIndex(i++);
                 itemDO.setContent(IOUtils.toString(reader));
-                this.dmProjectChangeItemMapper.insert(itemDO);
+                this.projectDal.changeItemMapper().insert(itemDO);
             }
         }
     }
 
     private void initDiffSql(Locale locale, DmProjectChangeDO change) throws IOException {
-        int res = this.dmProjectChangeItemMapper.deleteByChangeItemType(change.getOwnerUid(), change.getId(), DmChangeItemType.REVIEW);
+        int res = this.projectDal.changeItemMapper().deleteByChangeItemType(change.getOwnerUid(), change.getId(), ChangeItemType.REVIEW);
 
         // current content.
-        List<DmProjectDevopsItemDO> itemList = this.dmProjectDevopsItemMapper.queryItemByDevopsId(change.getOwnerUid(), change.getRefDevopsId());
+        List<DmProjectDevopsItemDO> itemList = this.projectDal.devopsItemMapper().queryItemByDevopsId(change.getOwnerUid(), change.getRefDevopsId());
         Map<String, DmProjectDevopsItemDO> itemMap = new HashMap<>();
         for (DmProjectDevopsItemDO item : itemList) {
             itemMap.put(item.getContentName(), item);
         }
 
         // change content.
-        List<DmProjectChangeItemDO> changeList = this.dmProjectChangeItemMapper.queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), DmChangeItemType.SQL);
+        List<DmProjectChangeItemDO> changeList = this.projectDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.SQL);
 
         String diffResult = diffAlgorithm(changeList, itemMap);
         if (StringUtils.isNotBlank(diffResult)) {
@@ -226,20 +214,20 @@ public class ChangeActionForInit extends AbstractChangeAction {
             itemDO.setOwnerUid(change.getOwnerUid());
             itemDO.setRefProjectId(change.getRefProjectId());
             itemDO.setRefChangeId(change.getId());
-            itemDO.setChangeItemType(DmChangeItemType.REVIEW);
+            itemDO.setChangeItemType(ChangeItemType.REVIEW);
             itemDO.setContent(diffResult);
             itemDO.setContentIndex(1);
             itemDO.setContentName("none");
-            this.dmProjectChangeItemMapper.insert(itemDO);
+            this.projectDal.changeItemMapper().insert(itemDO);
 
             String message = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_SCM_INIT_SUCCESS.name(), locale, change.getChangeName());
-            this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeLife, message);
-            this.dmProjectChangeMapper.updateStepTo(change.getId(), change.getVersion(), ProjectChangeStep.CHECK, "");
+            this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeLife, message);
+            projectDal.changeMapper().updateStepTo(change.getId(), change.getVersion(), ProjectChangeStep.CHECK, "");
         } else {
             String message = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_SCM_NO_CHANGE.name(), locale, change.getChangeName());
-            this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, message);
-            this.dmProjectChangeMapper.updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.CLOSED, message);
-            this.dmProjectChangeMapper.lockChangeById(change.getId(), change.getVersion() + 1);
+            this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, message);
+            projectDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.CLOSED, message);
+            projectDal.changeMapper().lockChangeById(change.getId(), change.getVersion() + 1);
         }
     }
 

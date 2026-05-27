@@ -53,7 +53,7 @@ export default {
       // 如果接口不可用，继续正常流程
     }
 
-    if (window.location.hash === '#/login') {
+    if (window.location.hash === '#/login' || window.location.hash.startsWith('#/login?')) {
       this.showChild = true;
       this.removeLoadingEle();
       return;

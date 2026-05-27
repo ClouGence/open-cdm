@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountBindType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
 import com.clougence.clouddm.console.web.model.fo.*;
 import com.clougence.clouddm.console.web.model.fo.role.UpdateUserRoleFO;
 import com.clougence.clouddm.console.web.model.fo.user.*;
@@ -28,7 +28,7 @@ import com.clougence.clouddm.console.web.model.vo.ListUserVO;
 import com.clougence.clouddm.console.web.model.vo.PwdValidateExprVO;
 import com.clougence.clouddm.console.web.model.vo.RdpUserAkSkVO;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.rdp.service.model.*;
 
 /**
@@ -57,9 +57,9 @@ public interface RdpUserService {
 
     Collection<AuthInfo> allAuthMenuCategoryByUser(String puid, String uid);
 
-    RdpUserDO getUserByUid(String uid);
+    DmAuthUserDO getUserByUid(String uid);
 
-    RdpUserDO getUserById(long id);
+    DmAuthUserDO getUserById(long id);
 
     boolean isPrimaryUid(String uid);
 
@@ -106,11 +106,11 @@ public interface RdpUserService {
 
     UpdateUserInfoMO resetSubAccountPwd(ResetSubAccountPwdFO fo, String operatorUid);
 
-    List<RdpUserDO> listSubAccounts(String puid);
+    List<DmAuthUserDO> listSubAccounts(String puid);
 
     List<ListUserVO> listSubAccounts(String puid, ListSubAccountsFO fo);
 
-    AddSubAccountMO addSubAccountForBind(String puid, AccountBindType bindType, RdpUserDO bindUser);
+    AddSubAccountMO addSubAccountForBind(String puid, AccountBindType bindType, DmAuthUserDO bindUser);
 
     AddSubAccountMO addSubAccountForInternal(String puid, AddSubAccountFO fo);
 
@@ -128,13 +128,13 @@ public interface RdpUserService {
     //
     //
 
-    RdpUserDO getUserByAk(String ak);
+    DmAuthUserDO getUserByAk(String ak);
 
     String getPrimaryUid(String uid);
 
-    RdpUserDO getPrimaryUser(String uid);
+    DmAuthUserDO getPrimaryUser(String uid);
 
-    List<RdpUserDO> listPrimaryUser();
+    List<DmAuthUserDO> listPrimaryUser();
 
     UpdateUserInfoMO updateResourceManage(UpdateResourceManageFO fo, String puid);
 }

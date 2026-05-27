@@ -23,8 +23,8 @@ import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.MySQLSslMode;
 import com.clougence.rdp.component.dskvconfig.model.MySQLExtraConfig;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 import com.clougence.utils.StringUtils;
 
 @Service
@@ -36,7 +36,7 @@ public class MySqlExtraConfGen extends CommonExtraConfGen {
     }
 
     @Override
-    public DsExtraConfig genDsExtraConfig(RdpDataSourceDO dsDO, List<InitDsKvBaseConfigFO> fos) {
+    public DsExtraConfig genDsExtraConfig(DmDsDO dsDO, List<InitDsKvBaseConfigFO> fos) {
         MySQLExtraConfig config = newDsExtraConfig();
         for (InitDsKvBaseConfigFO f : fos) {
             fillEntry(config, f.getConfigName(), f.getConfigValue());
@@ -45,9 +45,9 @@ public class MySqlExtraConfGen extends CommonExtraConfGen {
     }
 
     @Override
-    public DsExtraConfig genDsExtraConfigFromExist(RdpDataSourceDO dsDO, List<RdpDsKvBaseConfigDO> confs) {
+    public DsExtraConfig genDsExtraConfigFromExist(DmDsDO dsDO, List<DmDsConfigKv4RdpDO> confs) {
         MySQLExtraConfig config = new MySQLExtraConfig();
-        for (RdpDsKvBaseConfigDO f : confs) {
+        for (DmDsConfigKv4RdpDO f : confs) {
             fillEntry(config, f.getConfigName(), f.getConfigValue());
         }
         return config;

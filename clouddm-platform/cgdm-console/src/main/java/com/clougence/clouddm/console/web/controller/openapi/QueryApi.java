@@ -63,7 +63,6 @@ public class QueryApi {
 
     @Resource
     private DsQueryEditorService queryEditorService;
-
     @Resource
     private ConsoleQueryApi      consoleQueryApi;
 

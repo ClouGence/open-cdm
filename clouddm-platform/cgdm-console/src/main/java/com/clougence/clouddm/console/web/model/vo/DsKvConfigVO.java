@@ -16,7 +16,7 @@
 package com.clougence.clouddm.console.web.model.vo;
 
 import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
-import com.clougence.rdp.constant.KvConfValType;
+import com.clougence.clouddm.platform.dal.model.system.KvConfValType;
 
 import lombok.Getter;
 import lombok.Setter;

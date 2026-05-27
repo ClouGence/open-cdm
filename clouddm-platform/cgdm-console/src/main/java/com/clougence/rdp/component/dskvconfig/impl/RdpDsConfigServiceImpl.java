@@ -15,6 +15,8 @@
  */
 package com.clougence.rdp.component.dskvconfig.impl;
 
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,9 +32,8 @@ import com.clougence.rdp.component.dskvconfig.RdpDsExtraConfGen;
 import com.clougence.rdp.component.dskvconfig.RdpDsKvConfigHelper;
 import com.clougence.rdp.component.dskvconfig.RdpDsResourceService;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDsKvBaseConfigMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -45,7 +46,7 @@ import jakarta.annotation.Resource;
 public class RdpDsConfigServiceImpl implements RdpDsConfigService {
 
     @Resource
-    private RdpDsKvBaseConfigMapper rdpDsKvBaseConfigMapper;
+    private DataSourceDal datasourceDal;
 
     @Resource
     private RdpDsKvConfigHelper     rdpDsKvConfigHelper;
@@ -54,19 +55,19 @@ public class RdpDsConfigServiceImpl implements RdpDsConfigService {
     private RdpDsResourceService    rdpDsResourceService;
 
     @Override
-    public void persistDsConfig(RdpDataSourceDO dataSourceDO, List<InitDsKvBaseConfigFO> kvConfigs) {
-        List<RdpDsKvBaseConfigDO> configs = collectConfig(dataSourceDO, kvConfigs);
-        for (RdpDsKvBaseConfigDO config : configs) {
+    public void persistDsConfig(DmDsDO dataSourceDO, List<InitDsKvBaseConfigFO> kvConfigs) {
+        List<DmDsConfigKv4RdpDO> configs = collectConfig(dataSourceDO, kvConfigs);
+        for (DmDsConfigKv4RdpDO config : configs) {
             if (config.isSecret()) {
                 config.setConfigValue(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(config.getConfigValue()));
             }
 
-            this.rdpDsKvBaseConfigMapper.insert(config);
+            this.datasourceDal.configKv4RdpMapper().insert(config);
         }
     }
 
     @Override
-    public List<RdpDsKvBaseConfigDO> fetchDefaultConfig(long dataSourceId, DataSourceType dataSourceType) {
+    public List<DmDsConfigKv4RdpDO> fetchDefaultConfig(long dataSourceId, DataSourceType dataSourceType) {
         RdpDsExtraConfGen dsConfigOperate = this.rdpDsResourceService.getDsExtraConfGen(dataSourceType);
         if (dsConfigOperate == null) {
             return new ArrayList<>();
@@ -83,11 +84,11 @@ public class RdpDsConfigServiceImpl implements RdpDsConfigService {
             return null;
         }
 
-        List<RdpDsKvBaseConfigDO> source = this.rdpDsKvBaseConfigMapper.listByDsId(dataSourceId);
+        List<DmDsConfigKv4RdpDO> source = this.datasourceDal.configKv4RdpMapper().listByDsId(dataSourceId);
 
         Map<String, String> configMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(source)) {
-            for (RdpDsKvBaseConfigDO configDO : source) {
+            for (DmDsConfigKv4RdpDO configDO : source) {
                 configMap.put(configDO.getConfigName(), configDO.getConfigValue());
             }
         }
@@ -98,8 +99,8 @@ public class RdpDsConfigServiceImpl implements RdpDsConfigService {
     }
 
     @Override
-    public RdpDsKvBaseConfigDO getSpecifiedConfig(long dataSourceId, String configName) {
-        RdpDsKvBaseConfigDO configDO = this.rdpDsKvBaseConfigMapper.queryByDsIdAndConfigName(dataSourceId, configName);
+    public DmDsConfigKv4RdpDO getSpecifiedConfig(long dataSourceId, String configName) {
+        DmDsConfigKv4RdpDO configDO = this.datasourceDal.configKv4RdpMapper().queryByDsIdAndConfigName(dataSourceId, configName);
         if (configDO != null && configDO.isSecret() && StringUtils.isNotBlank(configDO.getConfigValue())) {
             String val = CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(configDO.getConfigValue());
             configDO.setConfigValue(val);
@@ -110,10 +111,10 @@ public class RdpDsConfigServiceImpl implements RdpDsConfigService {
 
     @Override
     public void cleanDsConfig(long dataSourceId) {
-        this.rdpDsKvBaseConfigMapper.deleteDsConfigs(dataSourceId);
+        this.datasourceDal.configKv4RdpMapper().deleteDsConfigs(dataSourceId);
     }
 
-    protected List<RdpDsKvBaseConfigDO> collectConfig(RdpDataSourceDO dataSourceDO, List<InitDsKvBaseConfigFO> kvConfigs) {
+    protected List<DmDsConfigKv4RdpDO> collectConfig(DmDsDO dataSourceDO, List<InitDsKvBaseConfigFO> kvConfigs) {
         RdpDsExtraConfGen dsConfigOperate = this.rdpDsResourceService.getDsExtraConfGen(dataSourceDO.getDataSourceType());
         if (dsConfigOperate == null) {
             return new ArrayList<>();

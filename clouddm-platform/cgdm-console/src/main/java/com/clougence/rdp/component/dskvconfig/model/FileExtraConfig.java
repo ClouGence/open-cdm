@@ -17,8 +17,8 @@ package com.clougence.rdp.component.dskvconfig.model;
 
 import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
 import com.clougence.rdp.constant.DsConfigDef;
-import com.clougence.rdp.constant.I18nDsConfigMsgKeys;
-import com.clougence.rdp.constant.KvConfValType;
+import com.clougence.clouddm.console.web.global.i18n.I18nDsConfigMsgKeys;
+import com.clougence.clouddm.platform.dal.model.system.KvConfValType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;

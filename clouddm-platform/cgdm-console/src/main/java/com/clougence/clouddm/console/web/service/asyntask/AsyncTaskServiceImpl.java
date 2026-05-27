@@ -25,15 +25,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.console.web.component.asyntask.AsyncTaskConfig;
 import com.clougence.clouddm.console.web.component.asyntask.AsyncTaskScheduleService;
-import com.clougence.clouddm.console.web.constants.DmMode;
-import com.clougence.clouddm.console.web.dal.enumeration.DmAsyncTaskProcessType;
-import com.clougence.clouddm.console.web.dal.enumeration.DmAsyncTaskStatus;
-import com.clougence.clouddm.console.web.dal.mapper.DmAsyncTaskMapper;
-import com.clougence.clouddm.console.web.dal.model.DmAsyncTaskDO;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
 import com.clougence.clouddm.console.web.util.InstanceUtil;
 import com.clougence.clouddm.console.web.util.RdpTimerUtils;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.model.execution.AsyncTaskProcessType;
+import com.clougence.clouddm.platform.dal.model.execution.AsyncTaskStatus;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO;
 import com.clougence.utils.HostUtil;
 
 import jakarta.annotation.Resource;
@@ -47,9 +46,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class AsyncTaskServiceImpl implements AsyncTaskService {
-
     @Resource
-    private DmAsyncTaskMapper        dmAsyncTaskMapper;
+    private ExecutionDal             executionDal;
     @Resource
     private AsyncTaskScheduleService asyncTaskScheduleService;
     @Resource
@@ -57,9 +55,9 @@ public class AsyncTaskServiceImpl implements AsyncTaskService {
 
     @Override
     public void submitTask(String uid, AsyncTaskConfig config) {
-        List<DmAsyncTaskDO> taskList = this.storeTask(uid, config);
+        List<DmExecAsyncTaskDO> taskList = this.storeTask(uid, config);
 
-        for (DmAsyncTaskDO task : taskList) {
+        for (DmExecAsyncTaskDO task : taskList) {
             DmGlobalEventBus.triggerDmAsyncEvent(task);
         }
 
@@ -67,10 +65,10 @@ public class AsyncTaskServiceImpl implements AsyncTaskService {
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
-    public List<DmAsyncTaskDO> storeTask(String uid, AsyncTaskConfig config) {
-        List<DmAsyncTaskDO> taskList = new ArrayList<>();
+    public List<DmExecAsyncTaskDO> storeTask(String uid, AsyncTaskConfig config) {
+        List<DmExecAsyncTaskDO> taskList = new ArrayList<>();
 
-        DmAsyncTaskDO rootTask = genAsyncTaskConfig(uid, config, null);
+        DmExecAsyncTaskDO rootTask = genAsyncTaskConfig(uid, config, null);
         taskList.add(rootTask);
 
         if (config.getSubTask() != null) {
@@ -83,17 +81,17 @@ public class AsyncTaskServiceImpl implements AsyncTaskService {
             }
         }
 
-        for (DmAsyncTaskDO task : taskList) {
-            this.dmAsyncTaskMapper.insert(task);
+        for (DmExecAsyncTaskDO task : taskList) {
+            this.executionDal.asyncTaskMapper().insert(task);
         }
 
         return taskList;
     }
 
-    private void activateTask(int delay, List<DmAsyncTaskDO> taskList) {
+    private void activateTask(int delay, List<DmExecAsyncTaskDO> taskList) {
         Runnable supplier = () -> {
-            for (DmAsyncTaskDO task : taskList) {
-                this.dmAsyncTaskMapper.activateTask(task.getId(), getHostIp());
+            for (DmExecAsyncTaskDO task : taskList) {
+                this.executionDal.asyncTaskMapper().activateTask(task.getId(), getHostIp());
             }
             this.asyncTaskScheduleService.trigger();
         };
@@ -105,16 +103,10 @@ public class AsyncTaskServiceImpl implements AsyncTaskService {
         }
     }
 
-    private String getHostIp() {
-        if (this.dmConfig.getDmMode() == DmMode.desktop) {
-            return "127.0.0.1";
-        } else {
-            return HostUtil.getHostIp();
-        }
-    }
+    private String getHostIp() { return HostUtil.getHostIp(); }
 
-    private static DmAsyncTaskDO genAsyncTaskConfig(String uid, AsyncTaskConfig config, AsyncTaskConfig depend) {
-        DmAsyncTaskDO taskDO = new DmAsyncTaskDO();
+    private static DmExecAsyncTaskDO genAsyncTaskConfig(String uid, AsyncTaskConfig config, AsyncTaskConfig depend) {
+        DmExecAsyncTaskDO taskDO = new DmExecAsyncTaskDO();
         taskDO.setTitle(config.getTitle());
         taskDO.setDescription(config.getDescription());
         taskDO.setBizId(config.getBizId());
@@ -126,20 +118,20 @@ public class AsyncTaskServiceImpl implements AsyncTaskService {
         taskDO.setHandlerType(config.getHandlerType().getName());
         taskDO.setConfigData(config.getConfigData());
         taskDO.setShowInDock(config.isShowInDock());
-        taskDO.setProcessType(config.getProcessType() == null ? DmAsyncTaskProcessType.SCROLL : config.getProcessType());
+        taskDO.setProcessType(config.getProcessType() == null ? AsyncTaskProcessType.SCROLL : config.getProcessType());
         taskDO.setFastFail(config.isFastFail());
-        taskDO.setStatus(DmAsyncTaskStatus.INIT);
+        taskDO.setStatus(AsyncTaskStatus.INIT);
         taskDO.setStatusMsg("");
         return taskDO;
     }
 
     @Override
-    public List<DmAsyncTaskDO> listDockList(String uid) {
+    public List<DmExecAsyncTaskDO> listDockList(String uid) {
         int dockSize = this.dmConfig.getAsyncTaskDockSize();
 
-        List<DmAsyncTaskDO> taskList = this.dmAsyncTaskMapper.queryRunListByOwner(uid, true, dockSize);
+        List<DmExecAsyncTaskDO> taskList = this.executionDal.asyncTaskMapper().queryRunListByOwner(uid, true, dockSize);
         if (taskList.size() < dockSize) {
-            //List<DmAsyncTaskDO> appendList = this.asyncTaskMapper.queryFinishListByOwner(uid, true, dockSize - taskList.size());
+            //List<DmExecAsyncTaskDO> appendList = this.asyncTaskMapper.queryFinishListByOwner(uid, true, dockSize - taskList.size());
             //taskList.addAll(appendList);
         }
 
@@ -147,13 +139,13 @@ public class AsyncTaskServiceImpl implements AsyncTaskService {
     }
 
     @Override
-    public DmAsyncTaskDO queryAsyncTaskByBizId(String bizId, String bizType) {
-        return this.dmAsyncTaskMapper.queryByBiz(bizId, bizType);
+    public DmExecAsyncTaskDO queryAsyncTaskByBizId(String bizId, String bizType) {
+        return this.executionDal.asyncTaskMapper().queryByBiz(bizId, bizType);
     }
 
     @Override
     public void pauseTask(String bizId, String bizType, String reasons) {
-        DmAsyncTaskDO taskDO = this.dmAsyncTaskMapper.queryByBiz(bizId, bizType);
+        DmExecAsyncTaskDO taskDO = this.executionDal.asyncTaskMapper().queryByBiz(bizId, bizType);
         if (taskDO != null) {
             this.asyncTaskScheduleService.pauseTask(taskDO.getId(), reasons);
         }
@@ -161,7 +153,7 @@ public class AsyncTaskServiceImpl implements AsyncTaskService {
 
     @Override
     public void cancelTask(String bizId, String bizType, String reasons) {
-        DmAsyncTaskDO taskDO = this.dmAsyncTaskMapper.queryByBiz(bizId, bizType);
+        DmExecAsyncTaskDO taskDO = this.executionDal.asyncTaskMapper().queryByBiz(bizId, bizType);
         if (taskDO != null) {
             this.asyncTaskScheduleService.cancelTask(taskDO.getId(), reasons);
         }
@@ -169,7 +161,7 @@ public class AsyncTaskServiceImpl implements AsyncTaskService {
 
     @Override
     public void resumeTask(String bizId, String bizType, String reasons) {
-        DmAsyncTaskDO taskDO = this.dmAsyncTaskMapper.queryByBiz(bizId, bizType);
+        DmExecAsyncTaskDO taskDO = this.executionDal.asyncTaskMapper().queryByBiz(bizId, bizType);
         if (taskDO != null) {
             this.asyncTaskScheduleService.resumeTask(taskDO.getId(), reasons);
         }
@@ -177,7 +169,7 @@ public class AsyncTaskServiceImpl implements AsyncTaskService {
 
     @Override
     public void retryTask(String bizId, String bizType, String reasons) {
-        DmAsyncTaskDO taskDO = this.dmAsyncTaskMapper.queryByBiz(bizId, bizType);
+        DmExecAsyncTaskDO taskDO = this.executionDal.asyncTaskMapper().queryByBiz(bizId, bizType);
         if (taskDO != null) {
             this.asyncTaskScheduleService.retryTask(taskDO.getId(), reasons);
         }

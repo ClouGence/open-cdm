@@ -19,16 +19,16 @@ import java.util.Date;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.api.console.status.MetricStats;
 import com.clougence.clouddm.api.console.status.ConsoleStatusRService;
+import com.clougence.clouddm.api.console.status.MetricStats;
 import com.clougence.clouddm.api.console.status.WorkerState;
 import com.clougence.clouddm.comm.RSocketApiClass;
 import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
-import com.clougence.clouddm.console.web.component.auth.model.WorkerCacheEntry;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
 import com.clougence.clouddm.console.web.service.cluster.WorkerService;
-import com.clougence.clouddm.console.web.dal.enumeration.LifeCycleState;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.access.entry.WorkerCacheEntry;
+import com.clougence.clouddm.platform.dal.model.LifeCycleState;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.StringUtils;
 
@@ -54,7 +54,7 @@ public class ConsoleStatusRServiceProvider extends AbstractBasicProvider impleme
             return WorkerState.ABNORMAL;
         }
 
-        DmWorkerDO workerDO = this.workerService.queryWorkerByWsn(identity.getWorkerSeqNumber());
+        DmSysWorkerDO workerDO = this.workerService.queryWorkerByWsn(identity.getWorkerSeqNumber());
         if (workerDO == null) {
             return WorkerState.NOT_EXIST;
         } else {
@@ -68,7 +68,7 @@ public class ConsoleStatusRServiceProvider extends AbstractBasicProvider impleme
             return;
         }
 
-        DmWorkerDO workerDO = this.workerService.queryWorkerByWsn(identity.getWorkerSeqNumber());
+        DmSysWorkerDO workerDO = this.workerService.queryWorkerByWsn(identity.getWorkerSeqNumber());
         if (workerDO == null) {
             return;
         }
@@ -93,8 +93,8 @@ public class ConsoleStatusRServiceProvider extends AbstractBasicProvider impleme
         return targetState == WorkerState.OFFLINE && currentState == WorkerState.WAIT_TO_OFFLINE;
     }
 
-    private WorkerState checkAndMaintainHb(DmWorkerDO workerDO, Date sendDate, WorkerIdentity identity) {
-        RdpUserDO userDO = this.rdpUserService.getUserByAk(identity.getAccessKey());
+    private WorkerState checkAndMaintainHb(DmSysWorkerDO workerDO, Date sendDate, WorkerIdentity identity) {
+        DmAuthUserDO userDO = this.rdpUserService.getUserByAk(identity.getAccessKey());
         if (!workerDO.getUid().equals(userDO.getUid())) {
             log.error("worker (" + identity.getWorkerSeqNumber() + ") not belone user (" + identity.getAccessKey() + ")");
             return WorkerState.NOT_EXIST;
@@ -111,7 +111,7 @@ public class ConsoleStatusRServiceProvider extends AbstractBasicProvider impleme
             return;
         }
 
-        WorkerCacheEntry workerDO = this.ownerCacheService.queryByWsn(identity.getWorkerSeqNumber());
+        WorkerCacheEntry workerDO = this.objectCacheDao.queryByWsn(identity.getWorkerSeqNumber());
         if (workerDO == null) {
             return;
         }
@@ -125,7 +125,7 @@ public class ConsoleStatusRServiceProvider extends AbstractBasicProvider impleme
             return;
         }
 
-        WorkerCacheEntry workerDO = this.ownerCacheService.queryByWsn(identity.getWorkerSeqNumber());
+        WorkerCacheEntry workerDO = this.objectCacheDao.queryByWsn(identity.getWorkerSeqNumber());
         if (workerDO == null) {
             return;
         }

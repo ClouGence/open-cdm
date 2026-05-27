@@ -18,7 +18,7 @@ package com.clougence.clouddm.console.web.model.fo;
 import java.util.Date;
 
 import com.clougence.clouddm.console.web.constants.ExportFileType;
-import com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 
 import lombok.Data;
 

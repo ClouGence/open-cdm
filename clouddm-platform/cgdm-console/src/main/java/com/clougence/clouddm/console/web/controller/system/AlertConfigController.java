@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.controller.system;
 
-import static com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel.HIGH;
+import static com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel.HIGH;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_WORKER_MANAGE;
 
 import org.springframework.web.bind.annotation.RequestBody;

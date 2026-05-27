@@ -15,6 +15,9 @@
  */
 package com.clougence.clouddm.boot;
 
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+
 import java.util.Date;
 import java.util.List;
 
@@ -24,13 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.api.console.status.WorkerState;
 import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
-import com.clougence.clouddm.console.web.constants.CloudOrIdcName;
-import com.clougence.clouddm.console.web.constants.DeployStatus;
-import com.clougence.clouddm.console.web.dal.enumeration.LifeCycleState;
-import com.clougence.clouddm.console.web.dal.mapper.DmClusterMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
-import com.clougence.clouddm.console.web.dal.model.DmClusterDO;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
 import com.clougence.clouddm.console.web.model.fo.cluster.CreateClusterFO;
 import com.clougence.clouddm.console.web.model.fo.cluster.CreateInitialWorkerFO;
 import com.clougence.clouddm.console.web.model.vo.cluster.ClusterVO;
@@ -38,8 +34,12 @@ import com.clougence.clouddm.console.web.model.vo.cluster.WorkerDeployConfigVO;
 import com.clougence.clouddm.console.web.service.cluster.ClusterService;
 import com.clougence.clouddm.console.web.service.cluster.WorkerService;
 import com.clougence.clouddm.console.web.service.system.NamingService;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.model.LifeCycleState;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.system.CloudOrIdcName;
+import com.clougence.clouddm.platform.dal.model.system.DeployStatus;
+import com.clougence.clouddm.platform.dal.model.system.DmSysClusterDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.HostUtil;
 import com.clougence.utils.StringUtils;
@@ -51,42 +51,42 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class EmbeddedWorkerBootstrap {
 
-    private static final String  DEFAULT_REGION = "customer";
+    private static final String DEFAULT_REGION = "customer";
     @Resource
-    private RdpUserMapper        rdpUserMapper;
+    private SystemDal systemDal;
+
     @Resource
-    private ClusterService       clusterService;
+    private AuthDal authDal;
+
     @Resource
-    private DmClusterMapper      dmClusterMapper;
+    private ClusterService      clusterService;
     @Resource
-    private DmWorkerMapper       workerMapper;
+    private WorkerService       workerService;
     @Resource
-    private WorkerService        workerService;
-    @Resource
-    private NamingService        namingService;
+    private NamingService       namingService;
 
     @Transactional(rollbackFor = Throwable.class)
     public void init() {
         System.setProperty("app.mode", "embedded");
 
-        RdpUserDO primaryUser = requirePrimaryUser();
+        DmAuthUserDO primaryUser = requirePrimaryUser();
         ensureUserCredentials(primaryUser);
 
         Long clusterId = ensureCluster(primaryUser.getUid());
-        DmWorkerDO worker = ensureWorker(primaryUser.getUid(), clusterId);
+        DmSysWorkerDO worker = ensureWorker(primaryUser.getUid(), clusterId);
         resetWorkerStatus(worker);
         applyEmbeddedWorkerConfig(worker.getId(), primaryUser.getUid());
 
         log.info("embedded worker bootstrap ready, uid={}, workerId={}, wsn={}", primaryUser.getUid(), worker.getId(), worker.getWorkerSeqNumber());
     }
 
-    private RdpUserDO requirePrimaryUser() {
-        List<RdpUserDO> primaryUsers = this.rdpUserMapper.listPrimaryAccount();
+    private DmAuthUserDO requirePrimaryUser() {
+        List<DmAuthUserDO> primaryUsers = this.authDal.userMapper().listPrimaryAccount();
         if (CollectionUtils.isEmpty(primaryUsers)) {
             throw new IllegalStateException("embedded alone requires an existing primary account from initialized data.");
         }
 
-        for (RdpUserDO primaryUser : primaryUsers) {
+        for (DmAuthUserDO primaryUser : primaryUsers) {
             if (StringUtils.isNotBlank(primaryUser.getAccessKey()) && StringUtils.isNotBlank(primaryUser.getSecretKey())) {
                 return primaryUser;
             }
@@ -108,29 +108,29 @@ public class EmbeddedWorkerBootstrap {
         return this.clusterService.addCluster(ownerUid, ownerUid, fo);
     }
 
-    private void ensureUserCredentials(RdpUserDO primaryUser) {
+    private void ensureUserCredentials(DmAuthUserDO primaryUser) {
         if (StringUtils.isBlank(primaryUser.getUid()) || StringUtils.isBlank(primaryUser.getAccessKey()) || StringUtils.isBlank(primaryUser.getSecretKey())) {
             throw new IllegalStateException("embedded alone requires initialized primary user credentials.");
         }
     }
 
-    private DmWorkerDO ensureWorker(String ownerUid, Long clusterId) {
-        List<DmWorkerDO> workers = this.workerService.listWorkers(clusterId);
+    private DmSysWorkerDO ensureWorker(String ownerUid, Long clusterId) {
+        List<DmSysWorkerDO> workers = this.workerService.listWorkers(clusterId);
         if (CollectionUtils.isNotEmpty(workers)) {
             return normalizeWorker(workers.get(0), ownerUid, clusterId);
         }
 
-        DmClusterDO cluster = this.dmClusterMapper.selectById(clusterId);
+        DmSysClusterDO cluster = this.systemDal.clusterMapper().selectById(clusterId);
         CreateInitialWorkerFO fo = new CreateInitialWorkerFO();
         fo.setClusterId(clusterId);
         fo.setCloudOrIdcName(cluster.getCloudOrIdcName() == null ? CloudOrIdcName.SELF_MAINTENANCE : cluster.getCloudOrIdcName());
         fo.setRegion(StringUtils.defaultIfBlank(cluster.getRegion(), DEFAULT_REGION));
-        DmWorkerDO worker = this.workerService.createInitialWorker(ownerUid, fo);
+        DmSysWorkerDO worker = this.workerService.createInitialWorker(ownerUid, fo);
         return normalizeWorker(worker, ownerUid, clusterId);
     }
 
-    private DmWorkerDO normalizeWorker(DmWorkerDO worker, String ownerUid, Long clusterId) {
-        DmClusterDO cluster = this.dmClusterMapper.selectById(clusterId);
+    private DmSysWorkerDO normalizeWorker(DmSysWorkerDO worker, String ownerUid, Long clusterId) {
+        DmSysClusterDO cluster = this.systemDal.clusterMapper().selectById(clusterId);
         boolean changed = false;
         String localIp = HostUtil.getHostIp();
 
@@ -181,18 +181,18 @@ public class EmbeddedWorkerBootstrap {
 
         if (changed) {
             worker.setGmtModified(new Date());
-            this.workerMapper.updateById(worker);
+            this.systemDal.workerMapper().updateById(worker);
         }
 
         return worker;
     }
 
-    private void resetWorkerStatus(DmWorkerDO worker) {
+    private void resetWorkerStatus(DmSysWorkerDO worker) {
         worker.setConnStatus(WorkerConnStatus.NEW);
         worker.setLastHeartbeatReportMs(null);
         worker.setLastHeartbeatPingMs(null);
         worker.setGmtModified(new Date());
-        this.workerMapper.updateById(worker);
+        this.systemDal.workerMapper().updateById(worker);
     }
 
     private void applyEmbeddedWorkerConfig(Long workerId, String ownerUid) {

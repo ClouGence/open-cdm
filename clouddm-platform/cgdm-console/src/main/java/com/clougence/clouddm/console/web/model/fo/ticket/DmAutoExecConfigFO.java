@@ -16,7 +16,7 @@
 package com.clougence.clouddm.console.web.model.fo.ticket;
 
 import com.clougence.clouddm.api.console.autoexec.ErrorStrategy;
-import com.clougence.clouddm.console.web.dal.enumeration.DmAutoExecType;
+import com.clougence.clouddm.platform.dal.model.execution.AutoExecType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -25,7 +25,7 @@ import lombok.Setter;
 @Setter
 public class DmAutoExecConfigFO {
 
-    private DmAutoExecType autoExecType;
+    private AutoExecType autoExecType;
     private boolean        enableTransactional;
     private ErrorStrategy  errorStrategy;
     private Long           retryWaitTime;

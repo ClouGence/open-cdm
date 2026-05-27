@@ -15,7 +15,7 @@
  */
 package com.clougence.rdp.controller;
 
-import static com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel.HIGH;
+import static com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel.HIGH;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_PRI_USER_KV_CONF_W;
 
 import java.util.HashMap;
@@ -31,18 +31,18 @@ import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy;
-import com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.rdp.constant.operation.AuditType;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.console.web.model.fo.UpsertUserConfigFO;
 import com.clougence.clouddm.console.web.model.fo.user.GetUserSpecifiedConfsFO;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
 import com.clougence.clouddm.console.web.model.lo.UpsertUserConfigLO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.rdp.service.RdpUserConfigService;
 import com.clougence.rdp.service.RdpUserService;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 

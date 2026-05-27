@@ -25,21 +25,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalBiz;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalType;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpTicketProcessStatus;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpTicketStage;
-import com.clougence.clouddm.console.web.dal.mapper.DmApprovalMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmApprovalPersonMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmApprovalProcessMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.DmApprovalDO;
-import com.clougence.clouddm.console.web.dal.model.DmApprovalPersonDO;
-import com.clougence.clouddm.console.web.dal.model.DmApprovalProcessDO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.ApprovalDal;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.model.approval.*;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 
@@ -53,67 +45,62 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class ApprovalProcessServiceImpl {
-
     @Resource
-    private DmApprovalMapper            approvalMapper;
+    private AuthDal                     authDal;
     @Resource
-    private DmApprovalProcessMapper     processMapper;
+    private ApprovalDal                 approvalDal;
     @Resource
     private ApprovalProviderServiceImpl approService;
-    @Resource
-    private RdpUserMapper               userMapper;
-    @Resource
-    private DmApprovalPersonMapper      approvalPersonMapper;
     @Resource
     private ApprovalProviderServiceImpl approvalProviderService;
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
-    public void createProcess(long ticketId, RdpApprovalBiz approvalBiz, boolean checkSuccess) {
+    public void createProcess(long ticketId, ApprovalBiz approvalBiz, boolean checkSuccess) {
         long firstStageId = -1;
         DmApprovalProcessDO lastProcessDO = null;
-        DmApprovalDO approvalDO = this.approvalMapper.queryById(ticketId);
+        DmApprovalDO approvalDO = this.approvalDal.approvalMapper().queryById(ticketId);
 
         // set approval person to APPROVAL process
         List<String> approvalPersonList = new ArrayList<>();
-        List<DmApprovalPersonDO> personDOS = this.approvalPersonMapper.queryByTicketBzId(approvalDO.getBizId());
+        List<DmApprovalPersonDO> personDOS = this.approvalDal.personMapper().queryByTicketBzId(approvalDO.getBizId());
         personDOS.forEach(personDO -> {
             approvalPersonList.add(personDO.getPersonUid());
         });
 
         List<String> personName = new ArrayList<>();
         approvalPersonList.forEach(uid -> {
-            personName.add(this.userMapper.queryByUid(uid).getUsername());
+            personName.add(this.authDal.userMapper().queryByUid(uid).getUsername());
         });
 
-        for (RdpTicketStage ticketStage : RdpTicketStage.values()) {
+        for (ApprovalStage ticketStage : ApprovalStage.values()) {
             if (!ticketStage.checkBiz(approvalBiz)) {
                 continue;
             }
             DmApprovalProcessDO approvalProcessDO = new DmApprovalProcessDO();
             approvalProcessDO.setTicketId(ticketId);
             approvalProcessDO.setTicketStage(ticketStage);
-            approvalProcessDO.setProcessStatus(RdpTicketProcessStatus.INIT);
-            if (ticketStage == RdpTicketStage.APPROVAL) {
+            approvalProcessDO.setProcessStatus(ApprovalProcessStatus.INIT);
+            if (ticketStage == ApprovalStage.APPROVAL) {
                 ApprovalStageMO mo = new ApprovalStageMO();
                 mo.setExecUserName(personName);
                 approvalProcessDO.setStageContext(JsonUtils.toJson(mo));
-            } else if (ticketStage == RdpTicketStage.EXPLAIN) {
+            } else if (ticketStage == ApprovalStage.EXPLAIN) {
                 ApprovalStageMO execMO = new ApprovalStageMO();
                 if (checkSuccess) {
                     execMO.setExecMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_RULE_CHECK_EXE.name()));
                 } else {
                     execMO.setExecMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_RULE_CHECK_FAIL_EXE.name()));
                 }
-                execMO.setExecUserName(Collections.singletonList(this.userMapper.queryByUid(approvalDO.getOwnerUid()).getUsername()));
+                execMO.setExecUserName(Collections.singletonList(this.authDal.userMapper().queryByUid(approvalDO.getOwnerUid()).getUsername()));
                 approvalProcessDO.setStageContext(JsonUtils.toJson(execMO));
             }
-            this.processMapper.insert(approvalProcessDO);
+            this.approvalDal.processMapper().insert(approvalProcessDO);
 
             // need return first process id
             if (firstStageId == -1) {
                 firstStageId = approvalProcessDO.getId();
             } else {
-                this.processMapper.updateById(lastProcessDO);
+                this.approvalDal.processMapper().updateById(lastProcessDO);
             }
 
             // refresh last
@@ -126,16 +113,16 @@ public class ApprovalProcessServiceImpl {
     }
 
     public List<DmApprovalProcessDO> getProcessList(long ticketId) {
-        return this.processMapper.listByTicketId(ticketId);
+        return this.approvalDal.processMapper().listByTicketId(ticketId);
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void cancelProcess(long ticketId, long processId) {
-        DmApprovalDO ticketDO = this.approvalMapper.queryById(ticketId);
-        DmApprovalProcessDO processDO = this.processMapper.queryTicketProcessById(ticketId, processId);
+        DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(ticketId);
+        DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryTicketProcessById(ticketId, processId);
 
         // is completed.
-        if (processDO.getProcessStatus() == RdpTicketProcessStatus.FINISH) {
+        if (processDO.getProcessStatus() == ApprovalProcessStatus.FINISH) {
             return;
         }
 
@@ -148,7 +135,7 @@ public class ApprovalProcessServiceImpl {
                 break; // do nothing
             }
             case APPROVAL: {
-                if (StringUtils.isNotBlank(processDO.getStageContext()) && ticketDO.getApproType() != RdpApprovalType.Internal) {
+                if (StringUtils.isNotBlank(processDO.getStageContext()) && ticketDO.getApproType() != ApprovalType.Internal) {
                     try {
                         this.approService.cancelApprovalInst(ticketDO.getId());
                     } catch (ThirdPartyApiException e) {
@@ -163,15 +150,15 @@ public class ApprovalProcessServiceImpl {
         }
 
         // update status
-        processDO.setProcessStatus(RdpTicketProcessStatus.CLOSED);
+        processDO.setProcessStatus(ApprovalProcessStatus.CLOSED);
         processDO.setFinishTime(new Date());
-        this.processMapper.updateById(processDO);
+        this.approvalDal.processMapper().updateById(processDO);
     }
 
     public void cancelAllProcess(long ticketId) {
         List<DmApprovalProcessDO> processList = this.getProcessList(ticketId);
         for (DmApprovalProcessDO processDO : processList) {
-            if (processDO.getProcessStatus() != RdpTicketProcessStatus.FINISH) {
+            if (processDO.getProcessStatus() != ApprovalProcessStatus.FINISH) {
                 this.cancelProcess(ticketId, processDO.getId());
             }
         }
@@ -181,26 +168,26 @@ public class ApprovalProcessServiceImpl {
         List<DmApprovalProcessDO> processList = this.getProcessList(ticketId);
         for (DmApprovalProcessDO processDO : processList) {
             // skip finish
-            if (processDO.getProcessStatus() == RdpTicketProcessStatus.FINISH) {
+            if (processDO.getProcessStatus() == ApprovalProcessStatus.FINISH) {
                 continue;
             }
 
             // do action
-            if (processDO.getTicketStage() == RdpTicketStage.APPROVAL) {
+            if (processDO.getTicketStage() == ApprovalStage.APPROVAL) {
                 doFailed(ticketId, processDO);
             }
 
             // update status
-            processDO.setProcessStatus(RdpTicketProcessStatus.FAIL);
+            processDO.setProcessStatus(ApprovalProcessStatus.FAIL);
             processDO.setFinishTime(new Date());
-            this.processMapper.updateById(processDO);
+            this.approvalDal.processMapper().updateById(processDO);
         }
     }
 
     private void doFailed(long ticketId, DmApprovalProcessDO processDO) {
-        DmApprovalDO ticketDO = this.approvalMapper.queryById(ticketId);
+        DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(ticketId);
 
-        boolean isAllowType = StringUtils.isNotBlank(processDO.getStageContext()) && ticketDO.getApproType() != RdpApprovalType.Internal;
+        boolean isAllowType = StringUtils.isNotBlank(processDO.getStageContext()) && ticketDO.getApproType() != ApprovalType.Internal;
         boolean isEnable = this.approvalProviderService.checkEnableApproval(ticketDO.getOwnerUid(), ticketDO.getApproType().getProviderType());
 
         if (isAllowType && isEnable) {

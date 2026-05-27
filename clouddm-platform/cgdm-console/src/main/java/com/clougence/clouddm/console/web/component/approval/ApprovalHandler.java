@@ -18,12 +18,12 @@ package com.clougence.clouddm.console.web.component.approval;
 import java.util.List;
 
 import com.clougence.clouddm.console.web.component.project.ImSenderService;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalBiz;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalBiz;
 import com.clougence.clouddm.console.web.model.vo.PrimaryUserVO;
 
 public interface ApprovalHandler {
 
-    RdpApprovalBiz handleType();
+    ApprovalBiz handleType();
 
     //
     // for Create
@@ -35,9 +35,9 @@ public interface ApprovalHandler {
     // for execute
     //
 
-    void executeTicket(long approvalId, RdpApprovalBiz bizType, ImSenderService sender);
+    void executeTicket(long approvalId, ApprovalBiz bizType, ImSenderService sender);
 
-    void runningCheck(long approvalId, RdpApprovalBiz bizType, ImSenderService sender);
+    void runningCheck(long approvalId, ApprovalBiz bizType, ImSenderService sender);
 
     //
     // for query person
@@ -49,11 +49,11 @@ public interface ApprovalHandler {
     // for callback
     //
 
-    void approvalCompleted(long approvalId, RdpApprovalBiz bizType, ImSenderService sender);
+    void approvalCompleted(long approvalId, ApprovalBiz bizType, ImSenderService sender);
 
-    void approvalRefuse(long approvalId, RdpApprovalBiz bizType, ImSenderService sender);
+    void approvalRefuse(long approvalId, ApprovalBiz bizType, ImSenderService sender);
 
-    void approvalFailed(long approvalId, RdpApprovalBiz bizType, ImSenderService sender);
+    void approvalFailed(long approvalId, ApprovalBiz bizType, ImSenderService sender);
 
-    void approvalCanceled(long approvalId, RdpApprovalBiz bizType, ImSenderService sender);
+    void approvalCanceled(long approvalId, ApprovalBiz bizType, ImSenderService sender);
 }

@@ -37,9 +37,9 @@ import com.clougence.clouddm.console.web.model.vo.browse.BrowseLevelsVO;
 import com.clougence.clouddm.console.web.service.audit.SqlAuditService;
 import com.clougence.clouddm.console.web.service.browse.BrowseService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserInfoDO;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.StringUtils;
 
@@ -54,11 +54,11 @@ import lombok.extern.slf4j.Slf4j;
 public class SqlAuditController {
 
     @Resource
+    private AuthDal         authDal;
+    @Resource
     private SqlAuditService sqlAuditService;
     @Resource
     private BrowseService   browseService;
-    @Resource
-    private RdpUserMapper   rdpUserMapper;
 
     @RequestAuth(DM_SQL_AUDIT)
     @RequestMapping(value = "/queryAll", method = RequestMethod.POST)
@@ -87,9 +87,9 @@ public class SqlAuditController {
     public ResWebData<?> operateUser(HttpServletRequest request, @Valid @RequestBody GuideUsersFO fo) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
-        RdpUserDO mainUser = this.rdpUserMapper.queryByUid(puid);
+        DmAuthUserDO mainUser = this.authDal.userMapper().queryByUid(puid);
         String search = StringUtils.isBlank(fo.getSearch()) ? null : fo.getSearch();
-        List<RdpUserInfoDO> result = this.rdpUserMapper.searchUserByKeywords(mainUser.getUserDomain(), search);
+        List<RsAuthPersonObj> result = this.authDal.userMapper().searchUserByKeywords(mainUser.getUserDomain(), search);
         List<OperateUserVO> vos = result.stream().map(DmConvertUtils::convertToOperateUserVO).collect(Collectors.toList());
         return ResWebDataUtils.buildSuccess(vos);
     }

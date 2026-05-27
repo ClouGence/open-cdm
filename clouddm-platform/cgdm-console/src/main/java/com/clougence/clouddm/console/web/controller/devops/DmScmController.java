@@ -29,13 +29,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.ScmType;
-import com.clougence.clouddm.console.web.dal.model.DmProjectDevopsDO;
-import com.clougence.clouddm.console.web.dal.model.DmProjectScmDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy;
 import com.clougence.clouddm.console.web.model.fo.project.DevopsScmAddFO;
@@ -46,8 +45,9 @@ import com.clougence.clouddm.console.web.service.project.DmProjectService;
 import com.clougence.clouddm.console.web.service.project.DmScmService;
 import com.clougence.clouddm.console.web.service.project.domain.DmScmDef;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.platform.dal.model.project.DmProjectDevopsDO;
+import com.clougence.clouddm.platform.dal.model.project.DmProjectScmDO;
+import com.clougence.clouddm.platform.dal.model.project.ScmType;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.StringUtils;
 

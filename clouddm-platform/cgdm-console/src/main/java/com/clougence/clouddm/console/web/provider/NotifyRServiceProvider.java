@@ -22,11 +22,11 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.console.notify.NotifyRService;
 import com.clougence.clouddm.comm.RSocketApiClass;
-import com.clougence.clouddm.console.web.dal.enumeration.FileStatus;
-import com.clougence.clouddm.console.web.dal.mapper.DmFileMapper;
 import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
 import com.clougence.clouddm.console.web.model.vo.export.DmExportStatus;
 import com.clougence.clouddm.console.web.model.vo.export.DmExportVO;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.model.execution.FileStatus;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -38,13 +38,12 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RSocketApiClass
 public class NotifyRServiceProvider extends AbstractBasicProvider implements NotifyRService {
-
     @Resource
-    private DmFileMapper dmFileMapper;
+    private ExecutionDal executionDal;
 
     @Override
     public void notifyConvertFailed(String puid, String userId, String srcFileId, String exportId, String message) {
-        this.dmFileMapper.updateStatusByUniqueId(exportId, FileStatus.Failed, message);
+        this.executionDal.fileMapper().updateStatusByUniqueId(exportId, FileStatus.Failed, message);
 
         DmExportVO exportVO = new DmExportVO();
         exportVO.setUid(userId);
@@ -59,7 +58,7 @@ public class NotifyRServiceProvider extends AbstractBasicProvider implements Not
 
     @Override
     public void notifyConvertFinish(String puid, String userId, String srcFileId, String exportId, String message, long total) {
-        this.dmFileMapper.updateStatusByUniqueId(exportId, FileStatus.Ready, message);
+        this.executionDal.fileMapper().updateStatusByUniqueId(exportId, FileStatus.Ready, message);
 
         DmExportVO exportVO = new DmExportVO();
         exportVO.setUid(userId);
@@ -74,8 +73,8 @@ public class NotifyRServiceProvider extends AbstractBasicProvider implements Not
 
     @Override
     public void notifyConvertProgress(String puid, String userId, String srcFileId, String exportId, String message, long from, long to, long current) {
-        this.dmFileMapper.updateAccessTimeByUniqueId(srcFileId, message);
-        this.dmFileMapper.updateAccessTimeByUniqueId(exportId, message);
+        this.executionDal.fileMapper().updateAccessTimeByUniqueId(srcFileId, message);
+        this.executionDal.fileMapper().updateAccessTimeByUniqueId(exportId, message);
 
         int i = BigDecimal.valueOf(current).divide(BigDecimal.valueOf(to), 2, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100)).intValue();
 

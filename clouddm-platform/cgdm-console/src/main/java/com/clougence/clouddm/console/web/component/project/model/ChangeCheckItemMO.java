@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.component.project.model;
 
-import com.clougence.clouddm.console.web.dal.enumeration.WarnLevel;
+import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 
 import lombok.Getter;
 import lombok.Setter;

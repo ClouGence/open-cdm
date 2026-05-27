@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.component.autoexec;
 
-import com.clougence.clouddm.console.web.dal.enumeration.SQLJobBizType;
+import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 
 public interface AutoExecHelperService {
 

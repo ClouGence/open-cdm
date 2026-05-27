@@ -15,7 +15,9 @@
  */
 package com.clougence.rdp.controller;
 
-import static com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel.HIGH;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+
+import static com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel.HIGH;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.*;
 
 import java.util.List;
@@ -28,27 +30,26 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
-import com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.console.web.model.fo.ResetPasswdFO;
 import com.clougence.clouddm.console.web.model.fo.UpdateResourceManageFO;
 import com.clougence.clouddm.console.web.model.fo.role.UpdateUserRoleFO;
 import com.clougence.clouddm.console.web.model.fo.user.*;
 import com.clougence.clouddm.console.web.model.lo.UpdateUserRoleLO;
 import com.clougence.clouddm.console.web.model.vo.ListUserVO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.Sm2Utils;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
 import com.clougence.rdp.constant.RdpErrorCode;
-import com.clougence.rdp.constant.operation.AuditType;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpAuthServiceForBiz;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.rdp.service.RdpUserConfigService;
@@ -75,13 +76,13 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpUserManagerController {
 
     @Resource
+    private AuthDal authDal;
+
+    @Resource
     private RdpUserService       rdpUserService;
 
     @Resource
     private RdpAuthServiceForBiz rdpAuthServiceForBiz;
-
-    @Resource
-    private RdpUserMapper        rdpUserMapper;
 
     @Resource
     private RdpUserConfigService rdpUserConfigService;
@@ -100,17 +101,17 @@ public class RdpUserManagerController {
         //decrypt
         fo.setPassword(Sm2Utils.decrypt(rdpConfig.getPrivateKey(), fo.getPassword()));
 
-        RdpUserDO userDO = null;
+        DmAuthUserDO userDO = null;
         ValidateResultMO validatePwdMO = null;
         if (fo.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
-            userDO = this.rdpUserMapper.queryPrimaryByPhone(fo.getPhone());
+            userDO = this.authDal.userMapper().queryPrimaryByPhone(fo.getPhone());
             validatePwdMO = this.rdpUserService.validatePrimaryAccountPwd(fo.getPassword());
         } else if (fo.getAccountType() == AccountType.SUB_ACCOUNT) {
             if (StringUtils.isBlank(fo.getSubAccount())) {
                 return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ACCOUNT_EMPTY_ERROR.name()));
             }
 
-            userDO = this.rdpUserMapper.queryBySubAccount(fo.getSubAccount());
+            userDO = this.authDal.userMapper().queryBySubAccount(fo.getSubAccount());
 
             String puid = (String) request.getAttribute(RdpUserService.PUID);
             validatePwdMO = this.rdpUserService.validateSubAccountPwd(puid, fo.getPassword());
@@ -208,7 +209,7 @@ public class RdpUserManagerController {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ACCOUNT_EMPTY_ERROR.name()));
         }
 
-        RdpUserDO userDO = this.rdpUserMapper.queryBySubAccount(fo.getSubAccount());
+        DmAuthUserDO userDO = this.authDal.userMapper().queryBySubAccount(fo.getSubAccount());
 
         if (userDO == null) {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
@@ -220,14 +221,14 @@ public class RdpUserManagerController {
 
         rdpAuthServiceForBiz.checkOperateOtherUserAuth(uid, userDO.getUid());
 
-        RdpUserKvBaseConfigDO configDO = rdpUserConfigService.getSpecifiedConfig(puid, UserDefinedConfig.Fields.forbidDelSubAccount);
+        DmSysUserConfDO configDO = rdpUserConfigService.getSpecifiedConfig(puid, UserDefinedConfig.Fields.forbidDelSubAccount);
         if (configDO != null) {
             boolean forbid = Boolean.parseBoolean(configDO.getConfigValue());
             if (forbid) {
                 return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.NOT_ALLOW_DELETE_SUB_ACCOUNT.name()));
             }
         }
-        RdpUserDO rdpUserDO = rdpUserMapper.queryBySubAccount(fo.getSubAccount());
+        DmAuthUserDO rdpUserDO = authDal.userMapper().queryBySubAccount(fo.getSubAccount());
         ResWebData<Boolean> resWebData = this.rdpUserService.deleteSubAccount(puid, fo);
 
         if (resWebData.isSuccess()) {
@@ -311,7 +312,7 @@ public class RdpUserManagerController {
             throw new RuntimeException("uid can not be blank.");
         }
 
-        RdpUserDO userDO = this.rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(uid);
 
         if (userDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));

@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo.ticket;
 
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalType;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +28,6 @@ import lombok.Setter;
 @Setter
 public class RdpAddTemplateFO {
 
-    private RdpApprovalType approvalType;
+    private ApprovalType approvalType;
     private String          templateUrl;
 }

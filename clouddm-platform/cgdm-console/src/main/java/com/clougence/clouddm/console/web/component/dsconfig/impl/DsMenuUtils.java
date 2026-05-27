@@ -19,8 +19,8 @@ import java.util.*;
 
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsMenu;
-import com.clougence.clouddm.console.web.constants.UiMenus18nKey;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.UiMenus18nKey;
 
 import lombok.extern.slf4j.Slf4j;
 

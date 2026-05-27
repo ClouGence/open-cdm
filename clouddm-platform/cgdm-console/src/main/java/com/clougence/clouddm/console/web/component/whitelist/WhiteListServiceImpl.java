@@ -29,7 +29,6 @@ import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
 import com.clougence.clouddm.console.web.component.whitelist.impl.WhiteListServiceForBasic;
 import com.clougence.clouddm.console.web.component.whitelist.impl.WhiteListServiceForDesktop;
 import com.clougence.clouddm.console.web.component.whitelist.impl.WhiteListServiceForFull;
-import com.clougence.clouddm.console.web.constants.DmMode;
 import com.clougence.clouddm.console.web.constants.DmModeFeatured;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.utils.ExceptionUtils;
@@ -87,11 +86,7 @@ public class WhiteListServiceImpl implements WhiteListService, DsFeatureIDs, Uni
 
     @Override
     public boolean checkMenuQuery(String menuId) {
-        if (this.dmConfig.getDmMode() == DmMode.desktop) {
-            return true;
-        } else {
-            return this.onFeatured().checkMenuQuery(menuId);
-        }
+        return this.onFeatured().checkMenuQuery(menuId);
     }
 
     @Override
@@ -141,11 +136,7 @@ public class WhiteListServiceImpl implements WhiteListService, DsFeatureIDs, Uni
 
     @Override
     public boolean checkExplain(DataSourceType dsType) {
-        if (this.dmConfig.getDmMode() == DmMode.desktop) {
-            return true;
-        } else {
-            return this.onFeatured().checkExplain(dsType);
-        }
+        return this.onFeatured().checkExplain(dsType);
     }
 
     @Override

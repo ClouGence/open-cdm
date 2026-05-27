@@ -34,23 +34,22 @@ import com.clougence.clouddm.api.console.sqlaudit.Type;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
-import com.clougence.clouddm.console.web.constants.DmMode;
-import com.clougence.clouddm.console.web.dal.mapper.DmSqlAuditMapper;
-import com.clougence.clouddm.console.web.dal.model.DmSqlAuditDO;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
 import com.clougence.clouddm.console.web.service.analysis.QueryAnalysisService;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.clouddm.sdk.analysis.split.SplitScript;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserKvBaseConfigMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserKvBaseConfigDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -68,34 +67,26 @@ import lombok.Setter;
 public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, UnifiedPostConstruct {
 
     private final Logger                logger = LoggerFactory.getLogger("sql-audit");
-
     private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
-
     private final AtomicBoolean         inited = new AtomicBoolean();
     @Resource
-    private DmConsoleConfig             dmConfig;
+    private SystemDal                   systemDal;
+    @Resource
+    private ExecutionDal                executionDal;
+    @Resource
+    private DataSourceDal               dsDal;
     @Resource
     private QueryAnalysisService        queryAnalysisService;
-    @Resource
-    private DmSqlAuditMapper            dmSqlAuditMapper;
-    @Resource
-    private RdpDataSourceMapper         rdpDataSourceMapper;
     @Resource
     private RdpUserService              rdpUserService;
     @Resource
     private DmDsConfigService           dmDsConfigService;
-    @Resource
-    private RdpUserKvBaseConfigMapper   rdpUserKvBaseConfigMapper;
     @Resource
     private DmConsoleConfig             rdpConsoleConfig;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void recordAudit(List<SqlExecNotifyDTO> audits, String wsn) {
-        if (this.dmConfig.getDmMode() == DmMode.desktop) {
-            return;
-        }
-
         List<LogInfo> logInfos = recodeSql(audits, wsn);
         for (LogInfo info : logInfos) {
             logger.info(info.toString());
@@ -106,16 +97,16 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
         List<LogInfo> result = new ArrayList<>();
         for (SqlExecNotifyDTO dto : list) {
             if (dto.getType() == Type.COMMIT) {
-                dmSqlAuditMapper.confirmSession(dto.getSessionId());
+                executionDal.sqlAuditMapper().confirmSession(dto.getSessionId());
                 result.add(LogInfo.getCommitLogInfo(dto));
             } else if (dto.getType() == Type.ROLLBACK) {
-                dmSqlAuditMapper.rollbackSession(dto.getSessionId());
+                executionDal.sqlAuditMapper().rollbackSession(dto.getSessionId());
                 result.add(LogInfo.getRollbackLogInfo(dto));
             } else if (dto.getType() == Type.START_TRANSACTION) {
                 result.add(LogInfo.getStartTransaction(dto));
             } else if (dto.getType() == Type.SQL_START) {
-                RdpDataSourceDO rdpDataSourceDO = rdpDataSourceMapper.queryDsIdentityById(dto.getDsId());
-                DmSqlAuditDO auditDO = new DmSqlAuditDO();
+                DmDsDO rdpDataSourceDO = dsDal.dsMapper().queryDsIdentityById(dto.getDsId());
+                DmExecSqlAuditDO auditDO = new DmExecSqlAuditDO();
                 if (dto.isExplain()) {
                     auditDO.setSqlKind(SecQueryKind.EXPLAIN);
                 } else {
@@ -171,7 +162,7 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
                 auditDO.setDsDesc(rdpDataSourceDO.getInstanceId() + "(" + rdpDataSourceDO.getInstanceDesc() + ")");
 
                 auditDO.setUid(dto.getUid());
-                RdpUserDO userByUid = rdpUserService.getUserByUid(dto.getUid());
+                DmAuthUserDO userByUid = rdpUserService.getUserByUid(dto.getUid());
                 if (userByUid == null) {
                     auditDO.setUserName(dto.getUid());
                 } else {
@@ -181,11 +172,11 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
                 auditDO.setPrimaryUid(rdpUserService.getPrimaryUser(dto.getUid()).getUid());
                 auditDO.setStatus(SqlStatus.RUNNING);
                 auditDO.setRequester(dto.getRequester());
-                this.dmSqlAuditMapper.insert(auditDO);
+                this.executionDal.sqlAuditMapper().insert(auditDO);
                 result.add(LogInfo.getStartLogInfo(auditDO, dto));
             } else {
                 String message = getString(dto.getMessage());
-                this.dmSqlAuditMapper.updateBySessionId(dto.getSessionId(), dto.getSqlStatus().name(), dto.getLine(), message, dto.getTime());
+                this.executionDal.sqlAuditMapper().updateBySessionId(dto.getSessionId(), dto.getSqlStatus().name(), dto.getLine(), message, dto.getTime());
                 result.add(LogInfo.getEndLogInfo(dto));
             }
         }
@@ -205,7 +196,7 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
 
     @Override
     public void notifyRegister(String wsn) {
-        this.dmSqlAuditMapper.updateErrorSql(wsn);
+        this.executionDal.sqlAuditMapper().updateErrorSql(wsn);
     }
 
     @Override
@@ -223,9 +214,9 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
     }
 
     private void deleteTimeoutLog() {
-        for (RdpUserDO rdpUserDO : rdpUserService.listPrimaryUser()) {
+        for (DmAuthUserDO rdpUserDO : rdpUserService.listPrimaryUser()) {
             Date now = new Date();
-            RdpUserKvBaseConfigDO configDO = rdpUserKvBaseConfigMapper.queryByUidAndConfigName(rdpUserDO.getUid(), UserDefinedConfig.Fields.sqlAuditRetentionDays);
+            DmSysUserConfDO configDO = systemDal.userConfMapper().queryByUidAndConfigName(rdpUserDO.getUid(), UserDefinedConfig.Fields.sqlAuditRetentionDays);
             int day = 30;
             String configValue = configDO.getConfigValue();
             if (StringUtils.isNotEmpty(configValue) && StringUtils.isNumeric(configValue)) {
@@ -246,7 +237,7 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
             int deleteCount;
 
             do {
-                deleteCount = dmSqlAuditMapper.deleteAuditBeforeDate(rdpUserDO.getUid(), date);
+                deleteCount = executionDal.sqlAuditMapper().deleteAuditBeforeDate(rdpUserDO.getUid(), date);
             } while (deleteCount > 0);
         }
     }
@@ -275,7 +266,7 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
 
         private SqlStatus    sqlStatus;
 
-        public static LogInfo getStartLogInfo(DmSqlAuditDO auditDO, SqlExecNotifyDTO dto) {
+        public static LogInfo getStartLogInfo(DmExecSqlAuditDO auditDO, SqlExecNotifyDTO dto) {
             LogInfo logInfo = new LogInfo();
             logInfo.setType(Type.SQL_START);
             logInfo.setSql(dto.getSql());

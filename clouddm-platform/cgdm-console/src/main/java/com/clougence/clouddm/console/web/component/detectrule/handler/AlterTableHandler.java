@@ -22,9 +22,9 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import com.clougence.clouddm.console.web.dal.enumeration.MetaInformationType;
-import com.clougence.clouddm.console.web.dal.mapper.DmMetaInformationCacheMapper;
 import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbTableDomain;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.model.datasource.MetaInformationType;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
@@ -33,9 +33,8 @@ import jakarta.annotation.Resource;
 
 @Component
 public class AlterTableHandler implements QueryTypeHandler {
-
     @Resource
-    private DmMetaInformationCacheMapper cacheMapper;
+    private DataSourceDal dsDal;
 
     @Override
     public void handleAfterSqlOperation(RuleDomain ruleDomain, Long dsId, Map<String, String> map, Date execTime) {
@@ -53,12 +52,12 @@ public class AlterTableHandler implements QueryTypeHandler {
             path.append(map.get(SessionSpi.PARAMS_DEFAULT_SCHEMA)).append("/");
         }
         if (tableDomain.getSqlType() == SecQueryType.ALTER_TABLE_RENAME) {
-            cacheMapper.deleteByPath(dsId, path.toString(), MetaInformationType.TableList, execTime);
+            dsDal.metaDataMapper().deleteByPath(dsId, path.toString(), MetaInformationType.TableList, execTime);
         }
 
         path.append(tableDomain.getTable());
-        cacheMapper.deleteByPath(dsId, path.toString(), MetaInformationType.TableDetail, execTime);
-        cacheMapper.deleteByPath(dsId, path.toString(), MetaInformationType.ETable, execTime);
+        dsDal.metaDataMapper().deleteByPath(dsId, path.toString(), MetaInformationType.TableDetail, execTime);
+        dsDal.metaDataMapper().deleteByPath(dsId, path.toString(), MetaInformationType.ETable, execTime);
     }
 
     @Override

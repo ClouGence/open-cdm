@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo.checkrules;
 
-import com.clougence.clouddm.console.web.dal.enumeration.RuleScriptType;
+import com.clougence.clouddm.platform.dal.model.secrule.RuleScriptType;
 
 import lombok.Getter;
 import lombok.Setter;

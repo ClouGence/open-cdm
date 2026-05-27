@@ -8,6 +8,7 @@ import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import Cookies from 'js-cookie';
 
 let rws = null;
+let creatingWebSocket = false;
 let globalCallback = {
   open: null,
   message: null,
@@ -17,12 +18,9 @@ let globalCallback = {
 
 const hasWebSocketInstance = () => !!rws;
 
-const createWebSocket = (url) => {
-  console.log('create socket', i18n);
-
+const buildFullUrl = (url) => {
   const jwtToken = Cookies.get('jwt_token');
 
-  let fullUrl = url;
   const params = new URLSearchParams();
 
   // 添加 locale 参数
@@ -35,13 +33,63 @@ const createWebSocket = (url) => {
 
   // 如果 URL 中已经有查询参数，使用 & 连接，否则使用 ?
   const separator = url.includes('?') ? '&' : '?';
-  fullUrl = `${url}${separator}${params.toString()}`;
+  return `${url}${separator}${params.toString()}`;
+};
+
+const buildHttpUrl = (path) => `${(process.env.VUE_APP_BASE_URL || '').replace(/\/$/, '')}${path}`;
+
+const checkLoginStatus = async () => {
+  try {
+    const res = await fetch(buildHttpUrl('/rdp/console/api/v1/user/queryLoginUser'), {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Accept-Language': i18n?.global?.locale?.value
+      },
+      body: JSON.stringify({})
+    });
+    if (!res.ok) {
+      return false;
+    }
+    const data = await res.json();
+    return !!data?.success;
+  } catch (error) {
+    return false;
+  }
+};
+
+const createWebSocket = async (url) => {
+  console.log('create socket', i18n);
+
+  if (rws || creatingWebSocket) {
+    return;
+  }
+
+  creatingWebSocket = true;
+  const loggedIn = await checkLoginStatus();
+  creatingWebSocket = false;
+  if (!loggedIn || rws) {
+    return;
+  }
 
   // ws连接不支持直接塞入headers、这里通过qeury string，让后端优先读取，解决代理ws连接 401的问题
-  rws = new ReconnectingWebSocket(fullUrl, null, {
-    debug: false,
-    reconnectInterval: 3000
-  });
+  rws = new ReconnectingWebSocket(
+    async () => {
+      const reconnectLoggedIn = await checkLoginStatus();
+      if (!reconnectLoggedIn) {
+        webSocketClose();
+      }
+      return buildFullUrl(url);
+    },
+    null,
+    {
+      debug: false,
+      minReconnectionDelay: 3000,
+      maxReconnectionDelay: 3000
+    }
+  );
   rws.addEventListener('open', () => {
     if (!rws) {
       return;
@@ -99,6 +147,10 @@ const createWebSocket = (url) => {
 // };
 
 const webSocketSend = (data) => {
+  if (!rws || rws.readyState !== rws.OPEN) {
+    return;
+  }
+
   rws.send(JSON.stringify(data));
 };
 
@@ -107,11 +159,19 @@ const webSocketSend = (data) => {
 // };
 
 const webSocketClose = () => {
+  if (!rws) {
+    return;
+  }
+
   rws.close();
   rws = null;
 };
 
 const sendWebSocket = (data, callback = {}) => {
+  if (!rws) {
+    return;
+  }
+
   globalCallback = callback;
   switch (rws.readyState) {
     case rws.OPEN:

@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
 import com.clougence.clouddm.console.web.component.auth.model.ResourceAccessInfo;
@@ -45,9 +44,10 @@ import com.clougence.clouddm.console.web.model.vo.RdpAuthObjectVO;
 import com.clougence.clouddm.console.web.model.vo.browse.BrowseLevelsVO;
 import com.clougence.clouddm.console.web.service.browse.BrowseService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsEnvDO;
 import com.clougence.rdp.service.RdpDsEnvService;
 import com.clougence.rdp.service.RdpDsService;
 import com.clougence.rdp.service.RdpUserService;
@@ -68,19 +68,19 @@ import lombok.extern.slf4j.Slf4j;
 public class DmResAuthController {
 
     @Resource
-    private DmAuthServiceForManage  dmAuthServiceForManage;
+    private DmAuthServiceForManage dmAuthServiceForManage;
     @Resource
-    private RdpDsEnvService         rdpDsEnvService;
+    private RdpDsEnvService        rdpDsEnvService;
     @Resource
-    private BrowseService           browseService;
+    private BrowseService          browseService;
     @Resource
-    private DmDsConfigService       dmDsConfigService;
+    private DmDsConfigService      dmDsConfigService;
     @Resource
-    private BizResOwnerCacheService ownerCacheService;
+    private ObjectCacheDao         objectCacheDao;
     @Resource
-    private DmResAuthService        dmDsAuthService;
+    private DmResAuthService       dmDsAuthService;
     @Resource
-    private RdpDsService            rdpDsService;
+    private RdpDsService           rdpDsService;
 
     @RequestAuth(strategy = Ignore)
     @RequestMapping(value = "/listElementsOfLevel", method = RequestMethod.POST)
@@ -89,7 +89,7 @@ public class DmResAuthController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         if (CollectionUtils.isEmpty(fo.getResPaths())) {
             // env list
-            List<RdpDsEnvDO> dsEnvDOList = this.rdpDsEnvService.listDsEnv(puid, uid, null);
+            List<DmSysEnvDO> dsEnvDOList = this.rdpDsEnvService.listDsEnv(puid, uid, null);
             List<BrowseLevelsVO> vos = dsEnvDOList.stream().map(DmConvertUtils::convertToBrowseLevelsVO).collect(Collectors.toList());
             return ResWebDataUtils.buildSuccess(vos.stream().map(this::convertToAuthObjectVO).collect(Collectors.toList()));
         } else if (fo.getResPaths().size() == 1) {
@@ -99,7 +99,7 @@ public class DmResAuthController {
         } else {
             // ds object list
             DsLevels levels = this.dmDsConfigService.parseLevels(fo.getResPaths());
-            this.ownerCacheService.ownDataSource(puid, levels.dsDO().getId());
+            this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
             List<BrowseLevelsVO> vos = this.browseService.listLevels(puid, uid, levels, false);
             return ResWebDataUtils.buildSuccess(vos.stream().map(this::convertToAuthObjectVO).collect(Collectors.toList()));
         }
@@ -115,7 +115,7 @@ public class DmResAuthController {
         }
 
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.ownerCacheService.ownDataSource(puid, levels.dsDO().getId());
+        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
 
         UmiTypes leafType = UmiTypes.valueOfCode(fo.getLeafType());
         List<BrowseLevelsVO> vos = this.browseService.listLeaf(puid, uid, levels, leafType, fo.getPattern(), false);
@@ -130,7 +130,7 @@ public class DmResAuthController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         if (CollectionUtils.isEmpty(fo.getResPaths())) {
             // env list
-            List<RdpDsEnvDO> dsEnvDOList = this.rdpDsEnvService.listDsEnv(puid, uid, null);
+            List<DmSysEnvDO> dsEnvDOList = this.rdpDsEnvService.listDsEnv(puid, uid, null);
             List<Long> dsIds = this.dmDsAuthService.listResByUserContainAnyAuth(fo.getUid(), AuthKind.DataSource);
             return filterEnv(dsEnvDOList, dsIds);
         } else if (fo.getResPaths().size() == 1) {
@@ -147,7 +147,7 @@ public class DmResAuthController {
         } else {
             // ds object list
             DsLevels levels = this.dmDsConfigService.parseLevels(fo.getResPaths());
-            this.ownerCacheService.ownDataSource(puid, levels.dsDO().getId());
+            this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
             List<BrowseLevelsVO> vos = this.browseService.listLevels(puid, uid, levels, false);
             // filter
             ResourceAccessInfo resourceAccessInfo = this.dmDsAuthService.getAllowBrowseInfo(levels, fo.getUid());
@@ -170,7 +170,7 @@ public class DmResAuthController {
         }
 
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.ownerCacheService.ownDataSource(puid, levels.dsDO().getId());
+        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
 
         UmiTypes leafType = UmiTypes.valueOfCode(fo.getLeafType());
         List<BrowseLevelsVO> vos = this.browseService.listLeaf(puid, uid, levels, leafType, fo.getPattern(), false);
@@ -192,7 +192,7 @@ public class DmResAuthController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         if (CollectionUtils.isEmpty(fo.getResPaths())) {
             // env list
-            List<RdpDsEnvDO> dsEnvDOList = this.rdpDsEnvService.listDsEnv(puid, uid, null);
+            List<DmSysEnvDO> dsEnvDOList = this.rdpDsEnvService.listDsEnv(puid, uid, null);
             List<Long> dsIds = this.dmDsAuthService.listResByUserContainAnyAuth(uid, AuthKind.DataSource);
             return filterEnv(dsEnvDOList, dsIds);
         } else if (fo.getResPaths().size() == 1) {
@@ -207,7 +207,7 @@ public class DmResAuthController {
         } else {
             // ds object list
             DsLevels levels = this.dmDsConfigService.parseLevels(fo.getResPaths());
-            this.ownerCacheService.ownDataSource(puid, levels.dsDO().getId());
+            this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
             List<BrowseLevelsVO> vos = this.browseService.listLevels(puid, uid, levels, false);
             // filter
             ResourceAccessInfo resourceAccessInfo = this.dmDsAuthService.getAllowBrowseInfo(levels, uid);
@@ -221,12 +221,12 @@ public class DmResAuthController {
     }
 
     @NotNull
-    private ResWebData<?> filterEnv(List<RdpDsEnvDO> dsEnvDOList, List<Long> dsIds) {
+    private ResWebData<?> filterEnv(List<DmSysEnvDO> dsEnvDOList, List<Long> dsIds) {
         if (CollectionUtils.isEmpty(dsIds)) {
             return ResWebDataUtils.buildSuccess(new ArrayList<>());
         }
-        List<RdpDataSourceDO> rdpDataSourceDOS = rdpDsService.listByIds(dsIds);
-        List<Long> collect = rdpDataSourceDOS.stream().map(RdpDataSourceDO::getDsEnvId).distinct().collect(Collectors.toList());
+        List<DmDsDO> rdpDataSourceDOS = rdpDsService.listByIds(dsIds);
+        List<Long> collect = rdpDataSourceDOS.stream().map(DmDsDO::getDsEnvId).distinct().collect(Collectors.toList());
         List<BrowseLevelsVO> vos = dsEnvDOList.stream().filter(env -> {
             return collect.contains(env.getId());
         }).map(DmConvertUtils::convertToBrowseLevelsVO).collect(Collectors.toList());
@@ -243,7 +243,7 @@ public class DmResAuthController {
         }
 
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.ownerCacheService.ownDataSource(puid, levels.dsDO().getId());
+        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
 
         UmiTypes leafType = UmiTypes.valueOfCode(fo.getLeafType());
         List<BrowseLevelsVO> vos = this.browseService.listLeaf(puid, uid, levels, leafType, fo.getPattern(), false);

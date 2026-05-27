@@ -22,8 +22,8 @@ import org.springframework.stereotype.Service;
 import com.clougence.rdp.component.dskvconfig.RdpDsExtraConfGen;
 import com.clougence.rdp.component.dskvconfig.model.DamengExtraConfig;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.utils.StringUtils;
 
@@ -43,7 +43,7 @@ public class DamengExtraConfGen implements RdpDsExtraConfGen {
     }
 
     @Override
-    public DamengExtraConfig genDsExtraConfig(RdpDataSourceDO dsDO, List<InitDsKvBaseConfigFO> fos) {
+    public DamengExtraConfig genDsExtraConfig(DmDsDO dsDO, List<InitDsKvBaseConfigFO> fos) {
         DamengExtraConfig extraConfig = newDsExtraConfig();
 
         for (InitDsKvBaseConfigFO f : fos) {
@@ -58,10 +58,10 @@ public class DamengExtraConfGen implements RdpDsExtraConfGen {
     }
 
     @Override
-    public DamengExtraConfig genDsExtraConfigFromExist(RdpDataSourceDO dsDO, List<RdpDsKvBaseConfigDO> confs) {
+    public DamengExtraConfig genDsExtraConfigFromExist(DmDsDO dsDO, List<DmDsConfigKv4RdpDO> confs) {
         DamengExtraConfig extraConfig = newDsExtraConfig();
 
-        for (RdpDsKvBaseConfigDO f : confs) {
+        for (DmDsConfigKv4RdpDO f : confs) {
             fillEntry(extraConfig, f.getConfigName(), f.getConfigValue());
         }
 

@@ -17,9 +17,9 @@ package com.clougence.clouddm.console.web.model.fo.checkrules;
 
 import java.util.List;
 
-import com.clougence.clouddm.console.web.dal.enumeration.RuleKind;
-import com.clougence.clouddm.console.web.dal.enumeration.SecMatchMode;
-import com.clougence.clouddm.console.web.dal.enumeration.SecRangeType;
+import com.clougence.clouddm.platform.dal.model.secrule.RuleKind;
+import com.clougence.clouddm.platform.dal.model.secrule.SecMatchMode;
+import com.clougence.clouddm.platform.dal.model.secrule.SecRangeType;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
 
 import lombok.Getter;

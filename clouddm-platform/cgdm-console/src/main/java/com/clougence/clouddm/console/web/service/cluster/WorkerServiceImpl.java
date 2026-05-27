@@ -18,36 +18,37 @@ package com.clougence.clouddm.console.web.service.cluster;
 import java.util.Date;
 import java.util.List;
 
-import com.clougence.clouddm.api.sidecar.status.WorkerStatusRService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.crypt.CryptService;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.console.status.*;
+import com.clougence.clouddm.api.sidecar.status.WorkerStatusRService;
 import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
-import com.clougence.clouddm.console.web.constants.CloudOrIdcName;
 import com.clougence.clouddm.console.web.constants.HealthLevel;
-import com.clougence.clouddm.console.web.constants.I18nDmLabelKeys;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.DmEventType;
-import com.clougence.clouddm.console.web.dal.mapper.DmClusterMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
-import com.clougence.clouddm.console.web.dal.mapper.param.WorkerParam;
-import com.clougence.clouddm.console.web.dal.model.*;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmLabelKeys;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.cluster.CreateInitialWorkerFO;
 import com.clougence.clouddm.console.web.model.vo.cluster.WorkerDeployConfigVO;
 import com.clougence.clouddm.console.web.service.system.AlertConfigService;
 import com.clougence.clouddm.console.web.service.system.NamingService;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
-import com.clougence.clouddm.console.web.dal.enumeration.LifeCycleState;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.LifeCycleState;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.monitor.DmMonAlertConfigDetailDO;
+import com.clougence.clouddm.platform.dal.model.monitor.EventType;
+import com.clougence.clouddm.platform.dal.model.system.ArgSysWorkerObj;
+import com.clougence.clouddm.platform.dal.model.system.CloudOrIdcName;
+import com.clougence.clouddm.platform.dal.model.system.DmSysClusterDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.HostUtil;
@@ -67,11 +68,8 @@ import lombok.extern.slf4j.Slf4j;
 public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
 
     private static final long    HEARTBEAT_TIMEOUT_MS = 15_000L;
-
     @Resource
-    private DmWorkerMapper       workerMapper;
-    @Resource
-    private DmClusterMapper      clusterMapper;
+    private SystemDal            systemDal;
     @Resource
     private WorkerDetector       workerDetector;
     @Resource
@@ -89,12 +87,12 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public DmWorkerDO createInitialWorker(String ownerUid, CreateInitialWorkerFO fo) {
+    public DmSysWorkerDO createInitialWorker(String ownerUid, CreateInitialWorkerFO fo) {
         checkWorkerAndClusterPropMatch(fo.getCloudOrIdcName(), fo.getRegion(), fo.getClusterId());
         String workerSeqNumber = this.namingService.genWorkerSequenceNumber();
         String workerName = this.namingService.genWorkerName();
 
-        DmWorkerDO workerDO = new DmWorkerDO();
+        DmSysWorkerDO workerDO = new DmSysWorkerDO();
         workerDO.setCloudOrIdcName(fo.getCloudOrIdcName());
         workerDO.setClusterId(fo.getClusterId());
         workerDO.setRegion(fo.getRegion());
@@ -107,15 +105,15 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
         workerDO.setLifeCycleState(LifeCycleState.CREATING);
         workerDO.setConnStatus(WorkerConnStatus.NEW);
 
-        this.workerMapper.insert(workerDO);
+        this.systemDal.workerMapper().insert(workerDO);
 
-        AlertConfigDetailDO detailDO = genDefaultWorkerAlertConfig(ownerUid, workerDO.getId());
-        this.alertConfigService.addAlertConfig(Lists.newArrayList(detailDO), DmEventType.WORKER_EXCEPTION);
+        DmMonAlertConfigDetailDO detailDO = genDefaultWorkerAlertConfig(ownerUid, workerDO.getId());
+        this.alertConfigService.addAlertConfig(Lists.newArrayList(detailDO), EventType.WORKER_EXCEPTION);
         return workerDO;
     }
 
     protected void checkWorkerAndClusterPropMatch(CloudOrIdcName deployEnvType, String region, Long clusterId) {
-        DmClusterDO clusterDO = this.clusterMapper.selectById(clusterId);
+        DmSysClusterDO clusterDO = this.systemDal.clusterMapper().selectById(clusterId);
         if (clusterDO == null) {
             throw new IllegalArgumentException("cluster (" + clusterId + ") not exist.");
         }
@@ -129,8 +127,8 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
         }
     }
 
-    private static AlertConfigDetailDO genDefaultWorkerAlertConfig(String ownerUid, long workerId) {
-        AlertConfigDetailDO conf = new AlertConfigDetailDO();
+    private static DmMonAlertConfigDetailDO genDefaultWorkerAlertConfig(String ownerUid, long workerId) {
+        DmMonAlertConfigDetailDO conf = new DmMonAlertConfigDetailDO();
         conf.setUid(ownerUid);
         conf.setDingding(true);
         conf.setEmail(true);
@@ -140,7 +138,7 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
         conf.setSendAdmin(false);
         conf.setSendSystem(false);
         conf.setRuleName(DmI18nUtils.getMessage(I18nDmLabelKeys.LABEL_WORKER_ALIVE_ALERT.name()));
-        conf.setEventType(DmEventType.WORKER_EXCEPTION);
+        conf.setEventType(EventType.WORKER_EXCEPTION);
         conf.setWorkerId(workerId);
         return conf;
     }
@@ -148,7 +146,7 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void deleteWorker(long workerId, boolean force) {
-        DmWorkerDO workerDO = this.workerMapper.selectById(workerId);
+        DmSysWorkerDO workerDO = this.systemDal.workerMapper().selectById(workerId);
         if (workerDO == null) {
             throw new IllegalArgumentException("worker (" + workerId + ") not exist.");
         }
@@ -156,20 +154,20 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
         this.checkWorkerStateForDelete(workerDO);
 
         if (!force) {
-            List<RdpDataSourceDO> bindDs = this.dmDsService.listDsByClusterId(workerDO.getClusterId());
+            List<DmDsDO> bindDs = this.dmDsService.listDsByClusterId(workerDO.getClusterId());
             if (CollectionUtils.isNotEmpty(bindDs)) {
-                List<DmWorkerDO> workerDOs = this.workerMapper.listByCluster(workerDO.getClusterId());
+                List<DmSysWorkerDO> workerDOs = this.systemDal.workerMapper().listByCluster(workerDO.getClusterId());
                 if (workerDOs.size() == 1) {
                     throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CLUSTER_DEL_LEAST_WORK_ERROR.name()));
                 }
             }
         }
 
-        this.workerMapper.deleteById(workerId);
+        this.systemDal.workerMapper().deleteById(workerId);
         this.alertConfigService.deleteByWorkerId(workerId);
     }
 
-    private void checkWorkerStateForDelete(DmWorkerDO workerDO) {
+    private void checkWorkerStateForDelete(DmSysWorkerDO workerDO) {
         // if worker ip is empty. just check worker still have tasks attached.
         if (StringUtils.isBlank(workerDO.getWorkerIp())) {
             return;
@@ -188,7 +186,7 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
 
     @Override
     public void updateToWaitToOnline(long workerId) {
-        DmWorkerDO workerDO = this.workerMapper.selectById(workerId);
+        DmSysWorkerDO workerDO = this.systemDal.workerMapper().selectById(workerId);
         if (workerDO == null) {
             throw new IllegalArgumentException("worker (" + workerId + ") not in db.");
         }
@@ -197,12 +195,12 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
             return;
         }
 
-        this.workerMapper.updateWorkerState(workerDO.getId(), WorkerState.WAIT_TO_ONLINE);
+        this.systemDal.workerMapper().updateWorkerState(workerDO.getId(), WorkerState.WAIT_TO_ONLINE);
     }
 
     @Override
     public void updateToWaitToOffline(long workerId) {
-        DmWorkerDO workerDO = this.workerMapper.selectById(workerId);
+        DmSysWorkerDO workerDO = this.systemDal.workerMapper().selectById(workerId);
         if (workerDO == null) {
             throw new IllegalArgumentException("worker (" + workerId + ") not in db.");
         }
@@ -215,22 +213,22 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
             throw new IllegalArgumentException("worker not in ONLINE or WAIT_TO_ONLINE or ABNORMAL,can not update worker to WAIT_TO_OFFLINE.");
         }
 
-        this.workerMapper.updateWorkerState(workerDO.getId(), WorkerState.WAIT_TO_OFFLINE);
+        this.systemDal.workerMapper().updateWorkerState(workerDO.getId(), WorkerState.WAIT_TO_OFFLINE);
     }
 
     @Override
-    public List<DmWorkerDO> listConnectedWorkers(long clusterId) {
-        return this.workerMapper.queryConnectedByClusterId(clusterId);
+    public List<DmSysWorkerDO> listConnectedWorkers(long clusterId) {
+        return this.systemDal.workerMapper().queryConnectedByClusterId(clusterId);
     }
 
     @Override
-    public List<DmWorkerDO> listWorkers(long clusterId) {
-        return this.workerMapper.listByCluster(clusterId);
+    public List<DmSysWorkerDO> listWorkers(long clusterId) {
+        return this.systemDal.workerMapper().listByCluster(clusterId);
     }
 
     @Override
-    public DmWorkerDO getWorkerById(Long workerId) {
-        DmWorkerDO workerDO = this.workerMapper.selectById(workerId);
+    public DmSysWorkerDO getWorkerById(Long workerId) {
+        DmSysWorkerDO workerDO = this.systemDal.workerMapper().selectById(workerId);
         if (workerDO == null) {
             throw new IllegalArgumentException("worker (" + workerId + ") not in db.");
         }
@@ -239,8 +237,8 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
     }
 
     @Override
-    public DmWorkerDO getWorkerByWsn(String wsn) {
-        DmWorkerDO workerDO = queryWorkerByWsn(wsn);
+    public DmSysWorkerDO getWorkerByWsn(String wsn) {
+        DmSysWorkerDO workerDO = queryWorkerByWsn(wsn);
         if (workerDO == null) {
             throw new IllegalArgumentException("worker (" + wsn + ") not in db.");
         }
@@ -249,15 +247,15 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
     }
 
     @Override
-    public DmWorkerDO queryWorkerByWsn(String wsn) {
-        DmWorkerDO workerDO = this.workerMapper.getByWsn(wsn);
+    public DmSysWorkerDO queryWorkerByWsn(String wsn) {
+        DmSysWorkerDO workerDO = this.systemDal.workerMapper().getByWsn(wsn);
         return workerDO;
     }
 
     @Override
     public void updateStatus(Long workerId, WorkerState workerState) {
         if (workerState != null) {
-            int i = this.workerMapper.updateWorkerState(workerId, workerState);
+            int i = this.systemDal.workerMapper().updateWorkerState(workerId, workerState);
             log.info("update worker (" + workerId + ") state (" + workerState + "),affect row:" + i);
         }
     }
@@ -265,7 +263,7 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
     @Override
     public void updateLifecycleState(Long workerId, LifeCycleState lifeCycleState) {
         if (lifeCycleState != null) {
-            int i = this.workerMapper.updateWorkerLifecycleState(workerId, lifeCycleState);
+            int i = this.systemDal.workerMapper().updateWorkerLifecycleState(workerId, lifeCycleState);
             log.info("update worker (" + workerId + ") life cycle state (" + lifeCycleState + "),affect row:" + i);
         }
     }
@@ -273,22 +271,22 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
     @Override
     public void updateWorkerIp(long workerId, String workerIp, String externalIp) {
         if (StringUtils.isNotBlank(workerIp)) {
-            this.workerMapper.updateWorkerIp(workerId, workerIp);
+            this.systemDal.workerMapper().updateWorkerIp(workerId, workerIp);
         }
         if (StringUtils.isNotBlank(externalIp)) {
-            int i = this.workerMapper.updateExternalIp(workerId, externalIp);
+            int i = this.systemDal.workerMapper().updateExternalIp(workerId, externalIp);
             log.info("update worker (" + workerId + ") life external ip (" + externalIp + "),affect row:" + i);
         }
     }
 
     @Override
     public void updateWorkerDesc(Long workerId, String desc) {
-        this.workerMapper.updateWorkerDesc(workerId, desc);
+        this.systemDal.workerMapper().updateWorkerDesc(workerId, desc);
     }
 
     @Override
     public void updateWorkerMetric(Long workerId, MetricStats metricStats) {
-        WorkerParam param = new WorkerParam();
+        ArgSysWorkerObj param = new ArgSysWorkerObj();
         param.setWorkerId(workerId);
 
         // usageStats
@@ -318,7 +316,7 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
             param.setFreeDiskGb(diskStats.getFreeDiskGB().longValue());
         }
 
-        this.workerMapper.updateWorkerDynamicStats(param);
+        this.systemDal.workerMapper().updateWorkerDynamicStats(param);
     }
 
     @Override
@@ -343,12 +341,12 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
             throw new IllegalArgumentException("console url is empty.");
         }
 
-        RdpUserDO userDO = this.rdpUserService.getUserByUid(uid);
+        DmAuthUserDO userDO = this.rdpUserService.getUserByUid(uid);
         if (userDO == null || StringUtils.isBlank(userDO.getAccessKey()) || StringUtils.isBlank(userDO.getSecretKey())) {
             throw new IllegalArgumentException("current user info is not complete.");
         }
 
-        DmWorkerDO workerDO = getWorkerById(workerId);
+        DmSysWorkerDO workerDO = getWorkerById(workerId);
         if (workerDO == null || StringUtils.isBlank(workerDO.getWorkerSeqNumber())) {
             throw new IllegalArgumentException("worker (" + workerId + ") info is not complete.");
         }
@@ -368,12 +366,12 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
             return;
         }
 
-        DmWorkerDO workerDO = new DmWorkerDO();
+        DmSysWorkerDO workerDO = new DmSysWorkerDO();
         workerDO.setWorkerSeqNumber(workerSeqNumber);
         workerDO.setWorkerIp(workerIp);
         workerDO.setConnStatus(WorkerConnStatus.CONNECTED);
         workerDO.setLastHeartbeatReportMs(workerSendTime.getTime());
-        this.workerMapper.updateWorkerLivenessByWsn(workerDO);
+        this.systemDal.workerMapper().updateWorkerLivenessByWsn(workerDO);
         log.debug("update worker status to connected by heartbeat......");
     }
 
@@ -383,16 +381,16 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
             while (true) {
                 try {
                     long checkPointEpochMs = System.currentTimeMillis() - HEARTBEAT_TIMEOUT_MS;
-                    List<DmWorkerDO> statusList = this.workerMapper.queryInactiveConnectedByHeartbeatReport(checkPointEpochMs);
+                    List<DmSysWorkerDO> statusList = this.systemDal.workerMapper().queryInactiveConnectedByHeartbeatReport(checkPointEpochMs);
                     if (statusList != null) {
-                        for (DmWorkerDO statusDO : statusList) {
-                            this.workerMapper.updateWorkerConnStatusById(statusDO.getId(), WorkerConnStatus.DISCONNECTED);
+                        for (DmSysWorkerDO statusDO : statusList) {
+                            this.systemDal.workerMapper().updateWorkerConnStatusById(statusDO.getId(), WorkerConnStatus.DISCONNECTED);
                         }
                     }
 
-                    List<DmWorkerDO> connectedWorkers = this.workerMapper.queryByConnStatus(WorkerConnStatus.CONNECTED);
+                    List<DmSysWorkerDO> connectedWorkers = this.systemDal.workerMapper().queryByConnStatus(WorkerConnStatus.CONNECTED);
                     if (connectedWorkers != null) {
-                        for (DmWorkerDO workerDO : connectedWorkers) {
+                        for (DmSysWorkerDO workerDO : connectedWorkers) {
                             updateWorkerPing(workerDO);
                         }
                     }
@@ -410,7 +408,7 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
         checkWorkerStatus.start();
     }
 
-    private void updateWorkerPing(DmWorkerDO workerDO) {
+    private void updateWorkerPing(DmSysWorkerDO workerDO) {
         if (workerDO == null || StringUtils.isBlank(workerDO.getWorkerSeqNumber())) {
             return;
         }
@@ -419,16 +417,16 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
             long startMs = System.currentTimeMillis();
             this.statusRService.ping(buildPingSendDTO(workerDO), startMs);
 
-            DmWorkerDO updateDO = new DmWorkerDO();
+            DmSysWorkerDO updateDO = new DmSysWorkerDO();
             updateDO.setWorkerSeqNumber(workerDO.getWorkerSeqNumber());
             updateDO.setLastHeartbeatPingMs(System.currentTimeMillis() - startMs);
-            this.workerMapper.updateWorkerLivenessByWsn(updateDO);
+            this.systemDal.workerMapper().updateWorkerLivenessByWsn(updateDO);
         } catch (Exception e) {
             log.debug("update worker ({}) ping failed, root cause: {}", workerDO.getWorkerSeqNumber(), e.getMessage());
         }
     }
 
-    private RSocketSendDTO buildPingSendDTO(DmWorkerDO workerDO) {
+    private RSocketSendDTO buildPingSendDTO(DmSysWorkerDO workerDO) {
         RSocketSendDTO sendDTO = new RSocketSendDTO();
         sendDTO.setClusterId(workerDO.getClusterId());
         sendDTO.setWorkerSeqNumber(workerDO.getWorkerSeqNumber());

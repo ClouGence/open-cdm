@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
@@ -30,22 +31,19 @@ import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.mapper.DmDsConfigMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmDsTagMapper;
-import com.clougence.clouddm.console.web.dal.model.DmDsConfigDO;
-import com.clougence.clouddm.console.web.dal.model.DmDsTagDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.browse.BrowseLevelsVO;
 import com.clougence.clouddm.console.web.service.browse.model.rdb.BrowseColumnMO;
 import com.clougence.clouddm.console.web.service.browse.model.rdb.BrowseObjectMO;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsTagDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.meta.DsElement;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.schema.umi.special.rdb.*;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.schema.umi.struts.Value;
@@ -60,26 +58,21 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class BrowseServiceImpl implements BrowseService {
-
     @Resource
-    private RdpDataSourceMapper rdpDsMapper;
+    private DataSourceDal     dsDal;
     @Resource
-    private DmDsService         dmDsService;
+    private DmDsService       dmDsService;
     @Resource
-    private DmDsTagMapper       dmDsTagMapper;
+    private DmDsConfigService dmDsConfigService;
     @Resource
-    private DmDsConfigService   dmDsConfigService;
-    @Resource
-    private DsSchemaService     dmDsSchemaService;
-    @Resource
-    private DmDsConfigMapper    dmDsConfigMapper;
+    private DsSchemaService   dmDsSchemaService;
 
     /**
      * for service API '/browse/listLevels'
      */
     @Override
     public List<BrowseLevelsVO> listDs(String puid, String uid, String envId) {
-        List<Long> dsIds = this.rdpDsMapper.listByUidAndEnvId(puid, envId).stream().map(RdpDataSourceDO::getId).collect(Collectors.toList());
+        List<Long> dsIds = this.dsDal.dsMapper().listByUidAndEnvId(puid, envId).stream().map(DmDsDO::getId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(dsIds)) {
             return Collections.emptyList();
         }
@@ -90,8 +83,8 @@ public class BrowseServiceImpl implements BrowseService {
             return Collections.emptyList();
         }
 
-        List<RdpDataSourceDO> dsList = this.rdpDsMapper.listByDsIdsAndEnvId(dsIds, envId);
-        List<DmDsTagDO> dsTags = this.dmDsTagMapper.listByDsAndUser(dsIds, uid);
+        List<DmDsDO> dsList = this.dsDal.dsMapper().listByDsIdsAndEnvId(dsIds, envId);
+        List<DmDsTagDO> dsTags = this.dsDal.tagMapper().listByDsAndUser(dsIds, uid);
         Map<Long, String> dsTagMap = new HashMap<>();
         dsTags.forEach(dsTag -> dsTagMap.put(dsTag.getDataSourceId(), dsTag.getInstanceDesc()));
 
@@ -99,7 +92,7 @@ public class BrowseServiceImpl implements BrowseService {
         final Map<Long, DataSourceConfig> dsConfigMap = new HashMap<>();
         final Map<Long, String> dsHostMap = new HashMap<>();
         final Map<DataSourceType, RdbSupportSpi> dsRdbSupportMap = new HashMap<>();
-        for (RdpDataSourceDO dsDO : dsList) {
+        for (DmDsDO dsDO : dsList) {
             try {
                 RdbSupportSpi supportSpi = PluginManager.findRdbSupportSpi(dsDO.getDataSourceType());
                 if (supportSpi != null) {
@@ -128,13 +121,13 @@ public class BrowseServiceImpl implements BrowseService {
 
     @Override
     public List<BrowseLevelsVO> listDsIncludeAllEnv(String puid, String uid) {
-        List<RdpDataSourceDO> dsList = this.rdpDsMapper.listByUserWithGmtOrder(puid);
-        List<DmDsConfigDO> dsConfList = this.dmDsConfigMapper.queryByUid(puid);
+        List<DmDsDO> dsList = this.dsDal.dsMapper().listByUserWithGmtOrder(puid);
+        List<DmDsConfigDO> dsConfList = this.dsDal.configMapper().queryByUid(puid);
 
         Map<Long, DmDsConfigDO> ruleDOMap = dsConfList.stream().collect(Collectors.toMap(DmDsConfigDO::getDataSourceId, DmDsConfigDO -> DmDsConfigDO));
         dsList.removeIf(next -> !ruleDOMap.containsKey(next.getId()));
 
-        List<Long> dsIds = dsList.stream().map(RdpDataSourceDO::getId).collect(Collectors.toList());
+        List<Long> dsIds = dsList.stream().map(DmDsDO::getId).collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(dsIds)) {
             return Collections.emptyList();
@@ -146,7 +139,7 @@ public class BrowseServiceImpl implements BrowseService {
             return Collections.emptyList();
         }
 
-        List<DmDsTagDO> dsTags = this.dmDsTagMapper.listByDsAndUser(dsIds, uid);
+        List<DmDsTagDO> dsTags = this.dsDal.tagMapper().listByDsAndUser(dsIds, uid);
         Map<Long, String> dsTagMap = new HashMap<>();
         dsTags.forEach(dsTag -> dsTagMap.put(dsTag.getDataSourceId(), dsTag.getInstanceDesc()));
 
@@ -157,12 +150,12 @@ public class BrowseServiceImpl implements BrowseService {
         }).collect(Collectors.toList());
     }
 
-    private Map<Long, DmDsConfigDO> getDataSourceStatusMap(List<RdpDataSourceDO> dsList) {
+    private Map<Long, DmDsConfigDO> getDataSourceStatusMap(List<DmDsDO> dsList) {
         if (dsList == null || dsList.isEmpty()) {
             return new HashMap<>();
         }
         List<Long> list = dsList.stream().map(dsDO -> dsDO.getId()).collect(Collectors.toList());
-        List<DmDsConfigDO> dmDsConfigDOList = dmDsConfigMapper.queryByDataSourceIds(list);
+        List<DmDsConfigDO> dmDsConfigDOList = dsDal.configMapper().queryByDataSourceIds(list);
 
         return dmDsConfigDOList.stream().collect(Collectors.toMap(dsDO -> dsDO.getDataSourceId(), dsDO -> dsDO));
     }
@@ -172,7 +165,7 @@ public class BrowseServiceImpl implements BrowseService {
      */
     @Override
     public List<BrowseLevelsVO> listLevels(String puid, String uid, DsLevels dsLevels, boolean refreshCache) {
-        RdpDataSourceDO dsDO = dsLevels.dsDO();
+        DmDsDO dsDO = dsLevels.dsDO();
 
         List<UmiTypes> levelsDef = dsLevels.levelsDef();
         Map<UmiTypes, Object> levelsParam = dsLevels.levelsParam();
@@ -187,17 +180,17 @@ public class BrowseServiceImpl implements BrowseService {
     @Override
     public BrowseLevelsVO detailDs(String uid, DsLevels dsLevels) {
         List<Long> searchIds = Collections.singletonList(dsLevels.dsDO().getId());
-        List<RdpDataSourceDO> dsList = this.rdpDsMapper.listByDsIdsAndEnvId(searchIds, dsLevels.envId());
+        List<DmDsDO> dsList = this.dsDal.dsMapper().listByDsIdsAndEnvId(searchIds, dsLevels.envId());
         if (CollectionUtils.isEmpty(dsList)) {
             return null;
         }
 
-        RdpDataSourceDO detailDO = dsList.get(0);
-        DmDsTagDO dsTags = this.dmDsTagMapper.getByDsAndUser(detailDO.getId(), uid);
+        DmDsDO detailDO = dsList.get(0);
+        DmDsTagDO dsTags = this.dsDal.tagMapper().getByDsAndUser(detailDO.getId(), uid);
         DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(detailDO.getId(), detailDO.getDataSourceType());
         RdbSupportSpi supportSpi = PluginManager.findRdbSupportSpi(dsConfig.getDataSourceType());
         String dsHost = this.dmDsConfigService.fetchDsConfig(detailDO.getId(), ConfigKeys.DM_DS_KEY_HOST);
-        DmDsConfigDO dmDsConfigDO = dmDsConfigMapper.queryByDataSourceId(dsLevels.dsDO().getId());
+        DmDsConfigDO dmDsConfigDO = dsDal.configMapper().queryByDataSourceId(dsLevels.dsDO().getId());
         BrowseLevelsVO levelVO = DmConvertUtils.convertToBrowseLevelsVO(detailDO, dsConfig, dmDsConfigDO, supportSpi, dsHost);
 
         levelVO.setObjAlias(dsTags != null ? dsTags.getInstanceDesc() : null);
@@ -209,7 +202,7 @@ public class BrowseServiceImpl implements BrowseService {
      */
     @Override
     public BrowseLevelsVO detailLevels(String puid, String uid, DsLevels levels) {
-        RdpDataSourceDO dsDO = levels.dsDO();
+        DmDsDO dsDO = levels.dsDO();
         List<UmiTypes> levelsDef = levels.levelsDef();
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
 
@@ -223,7 +216,7 @@ public class BrowseServiceImpl implements BrowseService {
      */
     @Override
     public List<BrowseLevelsVO> listLeaf(String puid, String uid, DsLevels levels, UmiTypes leafType, String pattern, boolean refreshCache) {
-        RdpDataSourceDO dsDO = levels.dsDO();
+        DmDsDO dsDO = levels.dsDO();
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
 
         List<DsElement> dsObjects = this.dmDsSchemaService.listLeaf(puid, dsDO, levelsParam, leafType, pattern, refreshCache);
@@ -240,7 +233,7 @@ public class BrowseServiceImpl implements BrowseService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_TABLE_NAME_IS_EMPTY_ERROR.name()));
         }
 
-        RdpDataSourceDO dsDO = levels.dsDO();
+        DmDsDO dsDO = levels.dsDO();
         Value value = this.dmDsSchemaService.detailLeaf(uid, dsDO, levels.levelsParam(), leafType, leafName, refreshCache);
         if (value == null) {
             return null;
@@ -279,7 +272,7 @@ public class BrowseServiceImpl implements BrowseService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_TABLE_NAME_IS_EMPTY_ERROR.name()));
         }
 
-        RdpDataSourceDO dsDO = levels.dsDO();
+        DmDsDO dsDO = levels.dsDO();
         Map<String, List<RdbColumn>> value = this.dmDsSchemaService.loadColumns(uid, dsDO, levels.levelsParam(), leafType, Collections.singletonList(leafName));
         if (value == null || value.isEmpty() || !value.containsKey(leafName)) {
             return Collections.emptyList();

@@ -15,13 +15,13 @@
  */
 package com.clougence.clouddm.console.web.model.fo.ticket;
 
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalBiz;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalType;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpTicketStatus;
-import com.clougence.clouddm.console.web.dal.model.DmApprovalDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalBiz;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus;
+import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.utils.format.DateFormatType;
 
 import lombok.Getter;
@@ -53,9 +53,9 @@ public class RdpTicketBasicVO {
 
     private String          targetInfo;
 
-    private RdpApprovalType approType;
+    private ApprovalType approType;
 
-    private RdpApprovalBiz  approBiz;
+    private ApprovalBiz  approBiz;
 
     private String          approTemplateName;
 
@@ -63,7 +63,7 @@ public class RdpTicketBasicVO {
 
     private String          ticketTitle;
 
-    private RdpTicketStatus ticketStatus;
+    private ApprovalStatus ticketStatus;
 
     private String          finishTime;
 
@@ -71,7 +71,7 @@ public class RdpTicketBasicVO {
 
     //    private boolean         isNormal = true;
 
-    public static RdpTicketBasicVO generateVO(DmApprovalDO ticketDO, String resourceType, RdpUserDO ownerUserDO) {
+    public static RdpTicketBasicVO generateVO(DmApprovalDO ticketDO, String resourceType, DmAuthUserDO ownerUserDO) {
         RdpTicketBasicVO vo = new RdpTicketBasicVO();
         vo.setId(ticketDO.getId());
         vo.setBizId(ticketDO.getBizId());

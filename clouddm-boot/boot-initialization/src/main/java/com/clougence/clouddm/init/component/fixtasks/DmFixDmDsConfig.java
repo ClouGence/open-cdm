@@ -19,16 +19,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.console.web.dal.enumeration.HostType;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
-import com.clougence.clouddm.console.web.dal.mapper.DmDsConfigMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmDsKvBaseConfigMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.model.DmDsConfigDO;
-import com.clougence.clouddm.console.web.dal.model.DmDsKvBaseConfigDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -36,34 +34,29 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class DmFixDmDsConfig {
-
     @Resource
-    private RdpDataSourceMapper    rdpDataSourceMapper;
-    @Resource
-    private DmDsConfigMapper       dmDsConfigMapper;
-    @Resource
-    private DmDsKvBaseConfigMapper dmDsKvBaseConfigMapper;
+    private DataSourceDal dsDal;
 
     public void init() {
-        List<DmDsConfigDO> dmDsConfigDOS = dmDsConfigMapper.selectList(null);
+        List<DmDsConfigDO> dmDsConfigDOS = dsDal.configMapper().selectList(null);
         if (dmDsConfigDOS.isEmpty()) {
             return;
         }
 
         Map<Long, DmDsConfigDO> dsConfigDOMap = dmDsConfigDOS.stream().collect(Collectors.toMap(DmDsConfigDO::getDataSourceId, dsDO -> dsDO));
         List<Long> dataSourceIdList = dmDsConfigDOS.stream().map(DmDsConfigDO::getDataSourceId).collect(Collectors.toList());
-        Map<Long, RdpDataSourceDO> dsMap = rdpDataSourceMapper.listByIds(dataSourceIdList).stream().collect(Collectors.toMap(RdpDataSourceDO::getId, dsDO -> dsDO));
+        Map<Long, DmDsDO> dsMap = dsDal.dsMapper().listByIds(dataSourceIdList).stream().collect(Collectors.toMap(DmDsDO::getId, dsDO -> dsDO));
 
-        List<DmDsKvBaseConfigDO> dsConfList = dmDsKvBaseConfigMapper.listByConfigName(ConfigI18nKey.CONFIG_RDB_CONN_HOST_DESCRIPTION.name());
-        for (DmDsKvBaseConfigDO dmDsKvBaseConfigDO : dsConfList) {
+        List<DmDsConfigKv4DmDO> dsConfList = dsDal.configKv4DmMapper().listByConfigName(ConfigI18nKey.CONFIG_RDB_CONN_HOST_DESCRIPTION.name());
+        for (DmDsConfigKv4DmDO dmDsKvBaseConfigDO : dsConfList) {
             Long dataSourceId = dmDsKvBaseConfigDO.getDataSourceId();
             DmDsConfigDO dmDsConfigDO = dsConfigDOMap.get(dataSourceId);
-            RdpDataSourceDO rdpDataSourceDO = dsMap.get(dataSourceId);
+            DmDsDO rdpDataSourceDO = dsMap.get(dataSourceId);
             if (dmDsKvBaseConfigDO.getConfigValue() != null && rdpDataSourceDO != null) {
                 if (dmDsKvBaseConfigDO.getConfigValue().equals(rdpDataSourceDO.getPrivateHost())) {
-                    dmDsConfigMapper.updateHostTypeById(dmDsConfigDO.getId(), HostType.PRIVATE);
+                    dsDal.configMapper().updateHostTypeById(dmDsConfigDO.getId(), HostType.PRIVATE);
                 } else {
-                    dmDsConfigMapper.updateHostTypeById(dmDsConfigDO.getId(), HostType.PUBLIC);
+                    dsDal.configMapper().updateHostTypeById(dmDsConfigDO.getId(), HostType.PUBLIC);
                 }
             }
         }

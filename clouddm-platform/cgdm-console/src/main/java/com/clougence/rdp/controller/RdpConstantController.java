@@ -33,7 +33,7 @@ import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy;
 import com.clougence.clouddm.console.web.model.vo.RegionAreaVO;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
-import com.clougence.clouddm.console.web.dal.enumeration.RegionArea;
+import com.clougence.clouddm.console.web.constants.RegionArea;
 
 /**
  * @author bucketli 2020/12/30 12:17

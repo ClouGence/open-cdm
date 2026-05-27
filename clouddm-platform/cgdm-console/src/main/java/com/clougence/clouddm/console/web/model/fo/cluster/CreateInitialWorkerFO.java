@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo.cluster;
 
-import com.clougence.clouddm.console.web.constants.CloudOrIdcName;
+import com.clougence.clouddm.platform.dal.model.system.CloudOrIdcName;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

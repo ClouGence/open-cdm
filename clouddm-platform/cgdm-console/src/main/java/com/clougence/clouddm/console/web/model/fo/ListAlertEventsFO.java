@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo;
 
-import com.clougence.rdp.service.enumeration.AlertEventStatus;
+import com.clougence.clouddm.platform.dal.model.monitor.AlertEventStatus;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

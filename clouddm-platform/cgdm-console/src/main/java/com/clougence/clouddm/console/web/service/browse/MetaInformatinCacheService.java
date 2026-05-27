@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.service.browse;
 
-import com.clougence.clouddm.console.web.dal.enumeration.MetaInformationType;
+import com.clougence.clouddm.platform.dal.model.datasource.MetaInformationType;
 
 public interface MetaInformatinCacheService {
 

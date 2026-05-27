@@ -18,7 +18,7 @@ package com.clougence.clouddm.console.web.service.asyntask;
 import java.util.List;
 
 import com.clougence.clouddm.console.web.component.asyntask.AsyncTaskConfig;
-import com.clougence.clouddm.console.web.dal.model.DmAsyncTaskDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO;
 
 /**
  * @author mode 2019-12-30 17:44
@@ -26,9 +26,9 @@ import com.clougence.clouddm.console.web.dal.model.DmAsyncTaskDO;
  */
 public interface AsyncTaskService {
 
-    DmAsyncTaskDO queryAsyncTaskByBizId(String bizId, String bizType);
+    DmExecAsyncTaskDO queryAsyncTaskByBizId(String bizId, String bizType);
 
-    List<DmAsyncTaskDO> listDockList(String uid);
+    List<DmExecAsyncTaskDO> listDockList(String uid);
 
     void submitTask(String uid, AsyncTaskConfig config);
 

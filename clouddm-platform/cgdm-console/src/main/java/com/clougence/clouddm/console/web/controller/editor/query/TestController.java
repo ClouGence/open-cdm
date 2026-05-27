@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
@@ -38,9 +39,8 @@ import com.clougence.clouddm.console.web.model.fo.editor.query.QueryResultFO;
 import com.clougence.clouddm.console.web.model.fo.editor.query.WsQueryFO;
 import com.clougence.clouddm.console.web.model.vo.editor.query.*;
 import com.clougence.clouddm.console.web.service.editor.query.ConsoleQueryApi;
-import com.clougence.rdp.global.exception.ErrorMessageException;
-import com.clougence.rdp.service.RdpUserService;
 import com.clougence.clouddm.console.web.util.Sm2Utils;
+import com.clougence.rdp.service.RdpUserService;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,10 +57,8 @@ public class TestController implements UnifiedPostConstruct {
 
     @Resource
     private DmConsoleConfig                   rdbConfig;
-
     @Resource
     private ConsoleQueryApi                   queryServiceApi;
-
     @Value("${editor.query.test:false}")
     private boolean                           openTest;
 

@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.controller.project;
 
-import static com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel.HIGH;
+import static com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel.HIGH;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_PROJECT_OPERATE;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_PROJECT_READ;
 
@@ -28,17 +28,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.component.project.model.ChangeCheckMO;
 import com.clougence.clouddm.console.web.component.project.model.ChangeExecuteInfo;
 import com.clougence.clouddm.console.web.component.project.model.ChangeTicketInfoResult;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.ProjectChangeStep;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectDevopsMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectMapper;
-import com.clougence.clouddm.console.web.dal.model.*;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.project.*;
 import com.clougence.clouddm.console.web.model.vo.DmBizLogVO;
@@ -50,10 +48,10 @@ import com.clougence.clouddm.console.web.model.vo.ticket.DmPageVO;
 import com.clougence.clouddm.console.web.service.project.DmChangeService;
 import com.clougence.clouddm.console.web.service.project.DmScmService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.access.ProjectDal;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.project.*;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
@@ -72,15 +70,13 @@ import lombok.extern.slf4j.Slf4j;
 public class DmChangeController {
 
     @Resource
-    private DmChangeService       dmChangeService;
+    private ProjectDal      projectDal;
     @Resource
-    private DmScmService          dmScmService;
+    private DataSourceDal   dsDal;
     @Resource
-    private DmProjectMapper       dmProjectMapper;
+    private DmChangeService dmChangeService;
     @Resource
-    private DmProjectDevopsMapper dmProjectDevopsMapper;
-    @Resource
-    private RdpDataSourceMapper   rdpDataSourceMapper;
+    private DmScmService    dmScmService;
 
     @RequestAuth(DM_PROJECT_READ)
     @RequestMapping(value = "/changeList", method = RequestMethod.POST)
@@ -100,10 +96,10 @@ public class DmChangeController {
         if (changeDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_NOT_EXIST_ERROR.name()));
         }
-        DmProjectDevopsDO devopsDO = this.dmProjectDevopsMapper.queryByOwnerAndId(puid, changeDO.getRefDevopsId());
-        RdpDataSourceDO dsDO = this.rdpDataSourceMapper.queryDsIdentityById(devopsDO.getDsId());
+        DmProjectDevopsDO devopsDO = this.projectDal.devopsMapper().queryByOwnerAndId(puid, changeDO.getRefDevopsId());
+        DmDsDO dsDO = this.dsDal.dsMapper().queryDsIdentityById(devopsDO.getDsId());
         DmProjectScmDO scmDO = this.dmScmService.queryScmById(puid, devopsDO.getRefScmId());
-        DmProjectDO projectDO = this.dmProjectMapper.queryByOwnerAndId(puid, changeDO.getRefProjectId());
+        DmProjectDO projectDO = this.projectDal.projectMapper().queryByOwnerAndId(puid, changeDO.getRefProjectId());
 
         ProjectChangeVO vo = DmConvertUtils.convertToProjectChangeVO(projectDO, changeDO, //
                 CollectionUtils.asMap(devopsDO.getId(), devopsDO),//

@@ -17,8 +17,8 @@ package com.clougence.clouddm.console.web.service.system;
 
 import java.util.List;
 
-import com.clougence.clouddm.console.web.dal.enumeration.DmEventType;
-import com.clougence.clouddm.console.web.dal.model.AlertConfigDetailDO;
+import com.clougence.clouddm.platform.dal.model.monitor.EventType;
+import com.clougence.clouddm.platform.dal.model.monitor.DmMonAlertConfigDetailDO;
 import com.clougence.clouddm.console.web.model.fo.cluster.OnOffWorkerAlertFO;
 import com.clougence.clouddm.console.web.model.vo.AlertConfigVO;
 
@@ -33,15 +33,15 @@ public interface AlertConfigService {
 
     void onOffWorkerAlert(OnOffWorkerAlertFO configFo, String uid);
 
-    void addAlertConfig(List<AlertConfigDetailDO> alertConfigVOList, DmEventType eventType);
+    void addAlertConfig(List<DmMonAlertConfigDetailDO> alertConfigVOList, EventType eventType);
 
-    //    List<AlertConfigDetailDO> getAlertConfigByEventType(DmEventType eventType);
+    //    List<DmMonAlertConfigDetailDO> getAlertConfigByEventType(EventType eventType);
 
-    AlertConfigVO convertToAlertConfigVO(AlertConfigDetailDO alertConfigDetailDO);
+    AlertConfigVO convertToAlertConfigVO(DmMonAlertConfigDetailDO alertConfigDetailDO);
 
     //    AlertConfigVO getWorkerAlertConfig(long workerId, String uid);
 
-    //    AlertConfigDetailDO getWorkerAlertConfigDO(long workerId);
+    //    DmMonAlertConfigDetailDO getWorkerAlertConfigDO(long workerId);
 
     void deleteByWorkerId(long workerId);
 }

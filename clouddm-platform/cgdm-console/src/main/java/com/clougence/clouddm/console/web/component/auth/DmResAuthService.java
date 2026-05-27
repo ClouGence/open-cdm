@@ -19,19 +19,19 @@ import java.util.List;
 
 import com.clougence.clouddm.console.web.component.auth.model.ResourceAccessInfo;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.clouddm.console.web.dal.model.DmResAuthDO;
 
 /**
  * @author mode 2020/12/8 15:21
  */
 public interface DmResAuthService {
 
-    List<DmResAuthDO> listAuthByUser(String targetUid, AuthKind authKind);
+    List<DmAuthResDO> listAuthByUser(String targetUid, AuthKind authKind);
 
-    List<DmResAuthDO> listAuthByUser(long dsId, String targetUid, AuthKind authKind, List<String> path);
+    List<DmAuthResDO> listAuthByUser(long dsId, String targetUid, AuthKind authKind, List<String> path);
 
     List<Long> listResByUser(String targetUid, AuthKind authKind);
 

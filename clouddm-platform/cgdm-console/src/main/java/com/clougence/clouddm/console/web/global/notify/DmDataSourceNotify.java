@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.console.web.global.notify;
 
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+
 import java.util.Collections;
 
 import org.springframework.stereotype.Service;
@@ -22,25 +24,19 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
-import com.clougence.clouddm.console.web.component.auth.model.UserCacheEntry;
-import com.clougence.clouddm.console.web.constants.DmMode;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
-import com.clougence.clouddm.console.web.dal.enumeration.HostType;
-import com.clougence.clouddm.console.web.dal.mapper.DmDsConfigMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmDsKvBaseConfigMapper;
-import com.clougence.clouddm.console.web.dal.model.DmDsConfigDO;
-import com.clougence.clouddm.console.web.dal.model.DmDsKvBaseConfigDO;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.platform.dal.model.datasource.HostType;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForAppend;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyUserAuthFO;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDsKvBaseConfigMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.rdp.service.RdpAuthServiceForManage;
 import com.clougence.rdp.service.RdpNotifyService;
 import com.clougence.rdp.service.RdpUserService;
@@ -56,56 +52,36 @@ import lombok.extern.slf4j.Slf4j;
 public class DmDataSourceNotify implements RdpNotifyService {
 
     @Resource
+    private DataSourceDal datasourceDal;
+
+    @Resource
     private RdpAuthServiceForManage authServiceForManage;
 
     @Resource
-    private DmConsoleConfig         dmConfig;
-
-    @Resource
-    private RdpDataSourceMapper     rdpDsMapper;
-
-    @Resource
-    private DmDsKvBaseConfigMapper  dmDsKvConfMapper;
-
-    @Resource
-    private BizResOwnerCacheService ownerCacheService;
-
-    @Resource
-    private DmDsConfigMapper        dmDsConfigMapper;
-
-    @Resource
-    private RdpDsKvBaseConfigMapper rdpDsKvBaseConfigMapper;
+    private ObjectCacheDao ownerCacheService;
 
     @Resource
     private RdpUserService          rdpUserService;
 
     @Override
     public void onDsAdd(String operatorUid, long dsId) {
-        if (this.dmConfig.getDmMode() == DmMode.desktop && this.dmConfig.getPersonalConfig() != null) {
-            return;
-        }
-
         this.syncConf(dsId, true);
         this.addAuth(operatorUid, dsId);
     }
 
     @Override
     public void onDsUpdate(long dsId) {
-        DmDsKvBaseConfigDO dsKvConf = this.dmDsKvConfMapper.queryByDsIdAndConfigName(dsId, DataSourceConfig.DM_DS_KEY_CONFIG_VERSION);
+        DmDsConfigKv4DmDO dsKvConf = this.datasourceDal.configKv4DmMapper().queryByDsIdAndConfigName(dsId, DataSourceConfig.DM_DS_KEY_CONFIG_VERSION);
         if (dsKvConf != null) {
             long nextVersion = Long.parseLong(dsKvConf.getConfigValue()) + 1;
-            this.dmDsKvConfMapper.updateDsConfig(dsId, DataSourceConfig.DM_DS_KEY_CONFIG_VERSION, Long.toString(nextVersion));
-        }
-
-        if (this.dmConfig.getDmMode() == DmMode.desktop && this.dmConfig.getPersonalConfig() != null) {
-            return;
+            this.datasourceDal.configKv4DmMapper().updateDsConfig(dsId, DataSourceConfig.DM_DS_KEY_CONFIG_VERSION, Long.toString(nextVersion));
         }
 
         this.syncConf(dsId, false);
     }
 
     protected void addAuth(String operatorUid, long dsId) {
-        RdpUserDO userDO = rdpUserService.getUserByUid(operatorUid);
+        DmAuthUserDO userDO = rdpUserService.getUserByUid(operatorUid);
 
         if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
             // primary user no need to add auth.
@@ -132,40 +108,40 @@ public class DmDataSourceNotify implements RdpNotifyService {
     }
 
     protected void syncConf(long dsId, boolean init) {
-        RdpDataSourceDO dsDO = this.rdpDsMapper.selectById(dsId);
-        this.dmDsKvConfMapper.updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_SEC_TYPE, dsDO.getSecurityType().name());
-        this.dmDsKvConfMapper.updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_USERNAME, dsDO.getAccount());
-        this.dmDsKvConfMapper.updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_PASSWORD, dsDO.getPassword());
+        DmDsDO dsDO = this.datasourceDal.dsMapper().selectById(dsId);
+        this.datasourceDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_SEC_TYPE, dsDO.getSecurityType().name());
+        this.datasourceDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_USERNAME, dsDO.getAccount());
+        this.datasourceDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_PASSWORD, dsDO.getPassword());
 
-        DmDsConfigDO dmDsConfigDO = dmDsConfigMapper.queryByDataSourceId(dsId);
+        DmDsConfigDO dmDsConfigDO = datasourceDal.configMapper().queryByDataSourceId(dsId);
         if (dmDsConfigDO != null && dmDsConfigDO.getHostType() == HostType.PRIVATE) {
-            this.dmDsKvConfMapper.updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_HOST, dsDO.getPrivateHost());
+            this.datasourceDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_HOST, dsDO.getPrivateHost());
         } else {
-            this.dmDsKvConfMapper.updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_HOST, dsDO.getPublicHost());
+            this.datasourceDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_HOST, dsDO.getPublicHost());
         }
 
         dataSourceConfig(dsId, init, dsDO);
     }
 
-    private void dataSourceConfig(long dsId, boolean init, RdpDataSourceDO dsDO) {
+    private void dataSourceConfig(long dsId, boolean init, DmDsDO dsDO) {
         if (dsDO.getDataSourceType() == DataSourceType.MaxCompute) {
-            RdpDsKvBaseConfigDO style = rdpDsKvBaseConfigMapper.queryByDsIdAndConfigName(dsDO.getId(), ConfigKeys.RDP_EXTRA_MC_SCHEMA_STYLE);
-            RdpDsKvBaseConfigDO endPoint = rdpDsKvBaseConfigMapper.queryByDsIdAndConfigName(dsDO.getId(), ConfigKeys.RDP_EXTRA_MC_SDK_ENDPOINT);
+            DmDsConfigKv4RdpDO style = datasourceDal.configKv4RdpMapper().queryByDsIdAndConfigName(dsDO.getId(), ConfigKeys.RDP_EXTRA_MC_SCHEMA_STYLE);
+            DmDsConfigKv4RdpDO endPoint = datasourceDal.configKv4RdpMapper().queryByDsIdAndConfigName(dsDO.getId(), ConfigKeys.RDP_EXTRA_MC_SDK_ENDPOINT);
             if (init) {
                 if (style != null) {
-                    DmDsKvBaseConfigDO config1 = DmConvertUtils.convertToDmDsKvBaseConfigDOForInsert(style);
-                    dmDsKvConfMapper.insert(config1);
+                    DmDsConfigKv4DmDO config1 = DmConvertUtils.convertToDmDsKvBaseConfigDOForInsert(style);
+                    datasourceDal.configKv4DmMapper().insert(config1);
                 }
                 if (endPoint != null) {
-                    DmDsKvBaseConfigDO config2 = DmConvertUtils.convertToDmDsKvBaseConfigDOForInsert(endPoint);
-                    dmDsKvConfMapper.insert(config2);
+                    DmDsConfigKv4DmDO config2 = DmConvertUtils.convertToDmDsKvBaseConfigDOForInsert(endPoint);
+                    datasourceDal.configKv4DmMapper().insert(config2);
                 }
             } else {
                 if (style != null) {
-                    this.dmDsKvConfMapper.updateDsConfig(dsId, ConfigKeys.RDP_EXTRA_MC_SCHEMA_STYLE, style.getConfigValue());
+                    this.datasourceDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.RDP_EXTRA_MC_SCHEMA_STYLE, style.getConfigValue());
                 }
                 if (endPoint != null) {
-                    this.dmDsKvConfMapper.updateDsConfig(dsId, ConfigKeys.RDP_EXTRA_MC_SDK_ENDPOINT, endPoint.getConfigValue());
+                    this.datasourceDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.RDP_EXTRA_MC_SDK_ENDPOINT, endPoint.getConfigValue());
                 }
             }
         }

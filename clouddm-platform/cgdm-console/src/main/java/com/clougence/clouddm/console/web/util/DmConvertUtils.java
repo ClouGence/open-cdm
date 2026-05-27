@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.console.web.util;
 
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+
 import static com.clougence.schema.umi.special.rdb.RdbAttributeNames.OBJ_UI_TIPS;
 
 import java.net.URI;
@@ -30,20 +32,37 @@ import com.clougence.clouddm.api.sidecar.session.execute.ResultPageDTO;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
-import com.clougence.clouddm.console.web.component.auth.model.UserCacheEntry;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
 import com.clougence.clouddm.console.web.component.detectrule.SecHintInfo;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRange;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRangeItem;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsDriverFamily;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.project.model.ChangeCheckItemMO;
-import com.clougence.clouddm.console.web.constants.CloudOrIdcName;
-import com.clougence.clouddm.console.web.constants.I18nDmLabelKeys;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.constants.UiMenus18nKey;
-import com.clougence.clouddm.console.web.dal.enumeration.*;
-import com.clougence.clouddm.console.web.dal.model.*;
+import com.clougence.clouddm.platform.dal.model.system.CloudOrIdcName;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmLabelKeys;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.global.i18n.UiMenus18nKey;
+import com.clougence.clouddm.platform.dal.model.*;
+import com.clougence.clouddm.platform.dal.model.approval.*;
+import com.clougence.clouddm.platform.dal.model.auth.*;
+import com.clougence.clouddm.platform.dal.model.datasource.*;
+import com.clougence.clouddm.platform.dal.model.execution.*;
+import com.clougence.clouddm.platform.dal.model.monitor.*;
+import com.clougence.clouddm.platform.dal.model.project.*;
+import com.clougence.clouddm.platform.dal.model.secrule.*;
+import com.clougence.clouddm.platform.dal.model.system.*;
+import com.clougence.clouddm.platform.dal.model.monitor.*;
+import com.clougence.clouddm.platform.dal.model.datasource.*;
+import com.clougence.clouddm.platform.dal.model.execution.*;
+import com.clougence.clouddm.platform.dal.model.system.*;
+import com.clougence.clouddm.platform.dal.model.system.*;
+import com.clougence.clouddm.platform.dal.model.system.*;
+import com.clougence.clouddm.platform.dal.model.secrule.*;
+import com.clougence.clouddm.platform.dal.model.approval.*;
+import com.clougence.clouddm.platform.dal.model.auth.*;
+import com.clougence.clouddm.platform.dal.model.project.*;
 import com.clougence.clouddm.console.web.model.fo.browse.BrowseActionFO;
 import com.clougence.clouddm.console.web.model.fo.browse.BrowseConvertDDLFO;
 import com.clougence.clouddm.console.web.model.fo.browse.BrowseGenerateFO;
@@ -101,13 +120,13 @@ import com.clougence.clouddm.sdk.ui.editor.user.UserFields;
 import com.clougence.clouddm.sdk.ui.editor.view.ViewEditorFields;
 import com.clougence.clouddm.sdk.ui.menus.DsMenuType;
 import com.clougence.drivers.DriverFamily;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.HostType;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsEnvDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserInfoDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.platform.dal.model.datasource.HostType;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
+import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.rdp.service.openapi.model.ApiDataSourceVO;
 import com.clougence.rdp.service.openapi.model.ApiListDsFO;
 import com.clougence.schema.metadata.FieldType;
@@ -151,7 +170,7 @@ public class DmConvertUtils {
         return result;
     }
 
-    public static BrowseLevelsVO convertToBrowseLevelsVO(RdpDsEnvDO dsEnvDO) {
+    public static BrowseLevelsVO convertToBrowseLevelsVO(DmSysEnvDO dsEnvDO) {
         BrowseLevelsVO vo = new BrowseLevelsVO();
         vo.setObjId(String.valueOf(dsEnvDO.getId()));
         vo.setObjName(dsEnvDO.getEnvName());
@@ -159,7 +178,7 @@ public class DmConvertUtils {
         return vo;
     }
 
-    public static BrowseLevelsVO convertToBrowseLevelsVO(RdpDataSourceDO dsDO, DataSourceConfig dsConfig, DmDsConfigDO dmDsConfig, RdbSupportSpi supportSpi, String dsHost) {
+    public static BrowseLevelsVO convertToBrowseLevelsVO(DmDsDO dsDO, DataSourceConfig dsConfig, DmDsConfigDO dmDsConfig, RdbSupportSpi supportSpi, String dsHost) {
         BrowseLevelsVO vo = new BrowseLevelsVO();
         vo.setObjId(String.valueOf(dsDO.getId()));
         if (RdpConvertUtils.removeNoDescription(dsDO.getInstanceDesc()) == null) {
@@ -227,7 +246,7 @@ public class DmConvertUtils {
         return vo;
     }
 
-    public static BrowseLevelsVO convertToBrowseLevelsVO(RdpDataSourceDO dsDO) {
+    public static BrowseLevelsVO convertToBrowseLevelsVO(DmDsDO dsDO) {
         BrowseLevelsVO vo = new BrowseLevelsVO();
         vo.setObjId(String.valueOf(dsDO.getId()));
         if (RdpConvertUtils.removeNoDescription(dsDO.getInstanceDesc()) == null) {
@@ -877,7 +896,7 @@ public class DmConvertUtils {
         return vo;
     }
 
-    public static ClusterVO convertToClusterVO(DmClusterDO clusterDO) {
+    public static ClusterVO convertToClusterVO(DmSysClusterDO clusterDO) {
         ClusterVO vo = new ClusterVO();
         vo.setId(clusterDO.getId());
         vo.setGmtCreate(clusterDO.getGmtCreate());
@@ -889,7 +908,7 @@ public class DmConvertUtils {
         return vo;
     }
 
-    public static WorkerVO convertToWorkerVO(DmWorkerDO workerDO, WorkerDetector workerDetector) {
+    public static WorkerVO convertToWorkerVO(DmSysWorkerDO workerDO, WorkerDetector workerDetector) {
         WorkerVO vo = new WorkerVO();
         vo.setCloudOrIdcName(workerDO.getCloudOrIdcName());
         vo.setClusterId(workerDO.getClusterId());
@@ -925,7 +944,7 @@ public class DmConvertUtils {
         return vo;
     }
 
-    public static DmSimpleDsVO convertToDmSimpleDsVO(RdpDataSourceDO dsDO, Map<Long, DmDsConfigDO> confMap) {
+    public static DmSimpleDsVO convertToDmSimpleDsVO(DmDsDO dsDO, Map<Long, DmDsConfigDO> confMap) {
         DmSimpleDsVO vo = new DmSimpleDsVO();
         vo.setId(dsDO.getId());
         vo.setGmtCreate(dsDO.getGmtCreate());
@@ -961,8 +980,8 @@ public class DmConvertUtils {
         return vo;
     }
 
-    public static DmDsKvBaseConfigDO convertToDmDsKvBaseConfigDOForInsert(RdpDsKvBaseConfigDO config) {
-        DmDsKvBaseConfigDO conf = new DmDsKvBaseConfigDO();
+    public static DmDsConfigKv4DmDO convertToDmDsKvBaseConfigDOForInsert(DmDsConfigKv4RdpDO config) {
+        DmDsConfigKv4DmDO conf = new DmDsConfigKv4DmDO();
         conf.setDataSourceId(config.getDataSourceId());
         conf.setConfigName(config.getConfigName());
         conf.setConfigGroup(config.getConfigGroup());
@@ -978,7 +997,7 @@ public class DmConvertUtils {
         return conf;
     }
 
-    public static DsKvConfigVO convertToDsKvConfigVO(RdpDsKvBaseConfigDO config) {
+    public static DsKvConfigVO convertToDsKvConfigVO(DmDsConfigKv4RdpDO config) {
         DsKvConfigVO vo = new DsKvConfigVO();
 
         vo.setId(config.getId());
@@ -998,7 +1017,7 @@ public class DmConvertUtils {
         return vo;
     }
 
-    public static DsKvConfigVO convertToDsKvConfigVO(DmDsKvBaseConfigDO config) {
+    public static DsKvConfigVO convertToDsKvConfigVO(DmDsConfigKv4DmDO config) {
         DsKvConfigVO vo = new DsKvConfigVO();
 
         vo.setId(config.getId());
@@ -1149,7 +1168,7 @@ public class DmConvertUtils {
         return map;
     }
 
-    public static DmAsyncTaskVO convertToDmAsyncTaskVO(DmAsyncTaskDO taskDO) {
+    public static DmAsyncTaskVO convertToDmAsyncTaskVO(DmExecAsyncTaskDO taskDO) {
         DmAsyncTaskVO vo = new DmAsyncTaskVO();
         vo.setId(taskDO.getId());
         vo.setTitle(taskDO.getTitle());
@@ -1318,7 +1337,7 @@ public class DmConvertUtils {
         return dsList;
     }
 
-    public static RefEnvVO convertToRefEnvVO(RdpDsEnvDO envDO) {
+    public static RefEnvVO convertToRefEnvVO(DmSysEnvDO envDO) {
         RefEnvVO vo = new RefEnvVO();
         vo.setEnvId(envDO.getId());
         vo.setEnvName(envDO.getEnvName());
@@ -1521,7 +1540,7 @@ public class DmConvertUtils {
         return scmVO;
     }
 
-    public static ProjectVO convertToProjectVO(DmProjectDO projectDO, BizResOwnerCacheService ownerCacheService) {
+    public static ProjectVO convertToProjectVO(DmProjectDO projectDO, ObjectCacheDao ownerCacheService) {
         ProjectVO projectVO = new ProjectVO();
         projectVO.setProjectId(projectDO.getId());
         projectVO.setProjectCode(projectDO.getProjectCode());
@@ -1546,14 +1565,14 @@ public class DmConvertUtils {
         return projectVO;
     }
 
-    public static ProjectUserVO convertToProjectUserVO(RdpUserInfoDO infoDO) {
+    public static ProjectUserVO convertToProjectUserVO(RsAuthPersonObj infoDO) {
         ProjectUserVO vo = new ProjectUserVO();
         vo.setUserUid(infoDO.getUid());
         vo.setUserName(infoDO.getUsername());
         return vo;
     }
 
-    public static OperateUserVO convertToOperateUserVO(RdpUserInfoDO infoDO) {
+    public static OperateUserVO convertToOperateUserVO(RsAuthPersonObj infoDO) {
         OperateUserVO vo = new OperateUserVO();
         vo.setUserUid(infoDO.getUid());
         vo.setUserName(infoDO.getUsername());
@@ -1599,7 +1618,7 @@ public class DmConvertUtils {
         return vo;
     }
 
-    public static ProjectImVO convertToProjectImVO(DmMessengerDO messengerDO, Map<ImType, DmImDef> imDefMap) {
+    public static ProjectImVO convertToProjectImVO(DmSysMessengerDO messengerDO, Map<ImType, DmImDef> imDefMap) {
         DmImDef imDef = imDefMap.get(messengerDO.getImType());
 
         ProjectImVO msgVO = new ProjectImVO();
@@ -1618,7 +1637,7 @@ public class DmConvertUtils {
         return msgVO;
     }
 
-    public static ProjectImConfigVO convertToProjectImConfigVO(DmProjectMsgDO data, DmMessengerDO messengerDO) {
+    public static ProjectImConfigVO convertToProjectImConfigVO(DmProjectMsgDO data, DmSysMessengerDO messengerDO) {
         if (data == null) {
             return null;
         }
@@ -1638,7 +1657,7 @@ public class DmConvertUtils {
         return msgVO;
     }
 
-    public static DevopsImVO convertToDevopsImVO(DmMessengerDO scmDO, Map<ImType, DmImDef> defMap) {
+    public static DevopsImVO convertToDevopsImVO(DmSysMessengerDO scmDO, Map<ImType, DmImDef> defMap) {
         DmImDef imDef = defMap.get(scmDO.getImType());
 
         DevopsImVO msgVO = new DevopsImVO();
@@ -1658,10 +1677,10 @@ public class DmConvertUtils {
         return msgVO;
     }
 
-    public static ProjectDevopsVO convertToProjectDevopsVO(DmProjectDevopsDO devopsDO, Map<Long, DmProjectScmDO> scmMap, Map<Long, RdpDataSourceDO> dsMap,
+    public static ProjectDevopsVO convertToProjectDevopsVO(DmProjectDevopsDO devopsDO, Map<Long, DmProjectScmDO> scmMap, Map<Long, DmDsDO> dsMap,
                                                            DmScmService dmScmService) {
         DmProjectScmDO scmDO = scmMap.get(devopsDO.getRefScmId());
-        RdpDataSourceDO dsDO = dsMap.get(devopsDO.getDsId());
+        DmDsDO dsDO = dsMap.get(devopsDO.getDsId());
 
         ProjectDevopsVO vo = new ProjectDevopsVO();
         vo.setDevopsId(devopsDO.getId());
@@ -1727,10 +1746,10 @@ public class DmConvertUtils {
         }
     }
 
-    public static ProjectChangeVO convertToProjectChangeVO(DmProjectDO projectDO, DmProjectChangeDO obj, Map<Long, DmProjectDevopsDO> devopsMap, Map<Long, RdpDataSourceDO> dsMap,
+    public static ProjectChangeVO convertToProjectChangeVO(DmProjectDO projectDO, DmProjectChangeDO obj, Map<Long, DmProjectDevopsDO> devopsMap, Map<Long, DmDsDO> dsMap,
                                                            Map<Long, DmProjectScmDO> scmMap) {
         DmProjectDevopsDO devopsDO = devopsMap.get(obj.getRefDevopsId());
-        RdpDataSourceDO dsDO = dsMap.get(devopsDO.getDsId());
+        DmDsDO dsDO = dsMap.get(devopsDO.getDsId());
         DmProjectScmDO scmDO = scmMap.get(devopsDO.getRefScmId());
 
         ProjectChangeVO vo = new ProjectChangeVO();
@@ -2018,7 +2037,7 @@ public class DmConvertUtils {
         return vo;
     }
 
-    public static DmApiDataSourceVO convertToDmApiDataSourceVO(ApiDataSourceVO vo, Map<Long, RdpDsEnvDO> dsEnvMapping) {
+    public static DmApiDataSourceVO convertToDmApiDataSourceVO(ApiDataSourceVO vo, Map<Long, DmSysEnvDO> dsEnvMapping) {
         DmApiDataSourceVO copy = new DmApiDataSourceVO();
 
         if (dsEnvMapping.containsKey(vo.getId())) {

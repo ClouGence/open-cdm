@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.service.editor.model;
 
-import com.clougence.clouddm.console.web.dal.enumeration.DataSourceStatus;
+import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
 
 import lombok.Getter;
 import lombok.Setter;

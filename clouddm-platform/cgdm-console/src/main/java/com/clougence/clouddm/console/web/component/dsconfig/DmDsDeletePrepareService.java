@@ -17,8 +17,8 @@ package com.clougence.clouddm.console.web.component.dsconfig;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 
 import jakarta.annotation.Resource;
 

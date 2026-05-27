@@ -25,13 +25,17 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
 import com.clougence.clouddm.console.web.component.project.ImSenderService;
-import com.clougence.clouddm.console.web.dal.enumeration.*;
-import com.clougence.clouddm.console.web.dal.mapper.*;
-import com.clougence.clouddm.console.web.dal.model.*;
 import com.clougence.clouddm.console.web.model.fo.ticket.ApplyAuth;
 import com.clougence.clouddm.console.web.model.fo.ticket.RdpAddAuthTicketFO;
 import com.clougence.clouddm.console.web.model.vo.PrimaryUserVO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.ApprovalDal;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.model.approval.*;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthApprovalDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.approval.ApprovalActivityInfo;
 import com.clougence.clouddm.sdk.approval.ApprovalCreateInstanceResult;
@@ -43,8 +47,8 @@ import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpAuthServiceForManage;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
@@ -58,73 +62,68 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthApprovalHandler implements ApprovalHandler {
 
     @Resource
-    private RdpAuthServiceForManage         authServiceForManage;
+    private AuthDal                 authDal;
     @Resource
-    private DmApprovalMapper                approvalMapper;
+    private ApprovalDal             approvalDal;
     @Resource
-    private RdpAuthTicketMapper             authTicketMapper;
-    @Resource
-    private DmApprovalProcessMapper         approvalProcessMapper;
-    @Resource
-    private DmApprovalProcessActivityMapper activityMapper;
-    @Resource
-    private RdpUserMapper                   userMapper;
+    private RdpAuthServiceForManage authServiceForManage;
 
     @Override
-    public RdpApprovalBiz handleType() {
-        return RdpApprovalBiz.DATA_SOURCE_AUTH;
+    public ApprovalBiz handleType() {
+        return ApprovalBiz.DATA_SOURCE_AUTH;
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
-    public void executeTicket(long approvalId, RdpApprovalBiz bizType, ImSenderService sender) {
-        DmApprovalDO ticketDO = approvalMapper.selectByIdForUpdate(approvalId);
+    public void executeTicket(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
+        DmApprovalDO ticketDO = approvalDal.approvalMapper().selectByIdForUpdate(approvalId);
         // Already executed by other consoles
-        if (ticketDO.getTicketStatus() != RdpTicketStatus.WAIT_EXEC) {
+        if (ticketDO.getTicketStatus() != ApprovalStatus.WAIT_EXEC) {
             log.info("Ticket status is " + ticketDO.getTicketStatus());
             return;
         }
 
-        RdpAuthTicketDO authTicketInfo = authTicketMapper.getAuthTicketInfo(ticketDO.getBizId());
+        DmAuthApprovalDO authTicketInfo = authDal.approvalMapper().getAuthTicketInfo(ticketDO.getBizId());
         RdpAddAuthTicketFO fo = JsonUtils.toList(authTicketInfo.getApplyAuthInfo(), new TypeReference<>() {});
 
         this.authServiceForManage.appendUserAuth(ticketDO.getOwnerUid(), fo);
 
-        DmApprovalProcessDO processExec = this.approvalProcessMapper.queryByStage(approvalId, RdpTicketStage.EXECUTION);
+        DmApprovalProcessDO processExec = this.approvalDal.processMapper().queryByStage(approvalId, ApprovalStage.EXECUTION);
 
-        this.approvalMapper.updateTicketStatusByEnum(approvalId, RdpTicketStatus.FINISHED, null);
+        this.approvalDal.approvalMapper().updateStatusByEnum(approvalId, ApprovalStatus.FINISHED, null);
+
         ApprovalStageMO mo = new ApprovalStageMO();
         mo.setAutoExecute(true);
-        this.approvalProcessMapper.updateTicketStatusByEnum(processExec.getId(), RdpTicketProcessStatus.FINISH, JsonUtils.toJson(mo));
+        this.approvalDal.processMapper().updateTicketStatusByEnum(processExec.getId(), ApprovalProcessStatus.FINISH, JsonUtils.toJson(mo));
     }
 
     @Override
-    public void runningCheck(long approvalId, RdpApprovalBiz bizType, ImSenderService sender) {
+    public void runningCheck(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         // do nothing.
     }
 
     @Override
     public List<PrimaryUserVO> queryPerson(long approvalId) {
-        DmApprovalDO ticketDO = this.approvalMapper.selectByIdForUpdate(approvalId);
+        DmApprovalDO ticketDO = this.approvalDal.approvalMapper().selectByIdForUpdate(approvalId);
         List<PrimaryUserVO> userVOS = new ArrayList<>();
 
-        RdpAuthTicketDO authTicketInfo = this.authTicketMapper.getAuthTicketInfo(ticketDO.getBizId());
+        DmAuthApprovalDO authTicketInfo = this.authDal.approvalMapper().getAuthTicketInfo(ticketDO.getBizId());
         RdpAddAuthTicketFO list = JsonUtils.toList(authTicketInfo.getApplyAuthInfo(), new TypeReference<>() {});
 
         List<Long> idList = list.getApplyAuths().stream().map(ApplyAuth::getResId).toList();
 
         // add primary account
-        RdpUserDO parentUserDO = this.userMapper.queryByUid(ticketDO.getPrimaryUid());
+        DmAuthUserDO parentUserDO = this.authDal.userMapper().queryByUid(ticketDO.getPrimaryUid());
         PrimaryUserVO primaryUserVO = new PrimaryUserVO();
         primaryUserVO.setUid(ticketDO.getPrimaryUid());
         primaryUserVO.setUsername(parentUserDO.getUsername());
         userVOS.add(primaryUserVO);
-        List<RdpTicketApproPersonDO> personDOS = userMapper.queryAuthApproPerson(AccountType.SUB_ACCOUNT, parentUserDO.getId());
+        List<RsAuthPersonObj> personDOS = authDal.userMapper().queryAuthApproPerson(AccountType.SUB_ACCOUNT, parentUserDO.getId());
 
         Map<String, Set<Long>> uidToResIds = new HashMap<>();
         Map<String, String> uidToUsername = new HashMap<>();
 
-        for (RdpTicketApproPersonDO personDO : personDOS) {
+        for (RsAuthPersonObj personDO : personDOS) {
             List<String> roleAuthLabels = personDO.getRoleAuthLabels();
             List<String> resAuthLabel = personDO.getResAuthLabel();
             if (CollectionUtils.isNotEmpty(roleAuthLabels) //
@@ -154,12 +153,12 @@ public class AuthApprovalHandler implements ApprovalHandler {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void createApproval(long approvalId, ImSenderService sender) {
-        DmApprovalDO ticketDO = approvalMapper.selectByIdForUpdate(approvalId);
-        if (ticketDO.getApproType() == RdpApprovalType.Internal) {
+        DmApprovalDO ticketDO = approvalDal.approvalMapper().selectByIdForUpdate(approvalId);
+        if (ticketDO.getApproType() == ApprovalType.Internal) {
             return; // only external approval need to create approval instance.
         }
 
-        RdpAuthTicketDO authTicketInfo = authTicketMapper.getAuthTicketInfo(ticketDO.getBizId());
+        DmAuthApprovalDO authTicketInfo = authDal.approvalMapper().getAuthTicketInfo(ticketDO.getBizId());
         RdpAddAuthTicketFO ticketFO = JsonUtils.toList(authTicketInfo.getApplyAuthInfo(), new TypeReference<>() {});
 
         // find plugin
@@ -184,10 +183,10 @@ public class AuthApprovalHandler implements ApprovalHandler {
 
         // store instance data to db.
         List<ApprovalActivityInfo> aaList = createInstance.getActivityList();
-        DmApprovalProcessDO processDO = this.approvalProcessMapper.queryByStage(ticketDO.getId(), RdpTicketStage.APPROVAL);
+        DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryByStage(ticketDO.getId(), ApprovalStage.APPROVAL);
         List<DmApprovalProcessActivityDO> approvalProcessActivityDOS = convertToDmApprovalProcessActivityDO(aaList, processDO.getId(), ticketDO.getId());
         for (DmApprovalProcessActivityDO approvalProcessActivityDO : approvalProcessActivityDOS) {
-            this.activityMapper.insert(approvalProcessActivityDO);
+            this.approvalDal.activityMapper().insert(approvalProcessActivityDO);
         }
 
         ticketDO.setApproIdentity(createInstance.getApprovalIdentity());
@@ -196,7 +195,7 @@ public class AuthApprovalHandler implements ApprovalHandler {
             url = JsonUtils.toJson(createInstance.getApprovalUrl());
         }
 
-        this.approvalMapper.updateThirdApprovalInfo(approvalId, createInstance.getApprovalIdentity(), url);
+        this.approvalDal.approvalMapper().updateThirdApprovalInfo(approvalId, createInstance.getApprovalIdentity(), url);
     }
 
     private AuthForm getAuthForm(RdpAddAuthTicketFO ticketFO, DmApprovalDO ticketDO, AuthKind authKind) {
@@ -221,7 +220,7 @@ public class AuthApprovalHandler implements ApprovalHandler {
         }
         form.setTicketTitle(ticketDO.getTicketTitle());
         form.setTicketDesc(ticketDO.getDescription());
-        RdpUserDO userDO = this.userMapper.queryByUid(ticketDO.getOwnerUid());
+        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(ticketDO.getOwnerUid());
         form.setTicketUserPhone(userDO.getPhone());
         form.setTemplateIdentity(ticketDO.getApproTemplateIdentity());
         return form;
@@ -232,8 +231,8 @@ public class AuthApprovalHandler implements ApprovalHandler {
         for (ApprovalActivityInfo aaObj : activityDTOList) {
             DmApprovalProcessActivityDO activityDO = new DmApprovalProcessActivityDO();
             activityDO.setActivityId(aaObj.getActivityId());
-            //            activityDO.setActivityType(approvalActivity.getApprovalMethod());
-            //            activityDO.setActivityStatus(RdpTicketProcessActivityStatus.NEW);
+            // activityDO.setActivityType(approvalActivity.getApprovalMethod());
+            // activityDO.setActivityStatus(RdpTicketProcessActivityStatus.NEW);
             activityDO.setActivityTitle(aaObj.getActivityName());
             activityDO.setProcessId(processId);
             activityDO.setTicketId(approvalId);
@@ -244,22 +243,22 @@ public class AuthApprovalHandler implements ApprovalHandler {
     }
 
     @Override
-    public void approvalCompleted(long approvalId, RdpApprovalBiz bizType, ImSenderService sender) {
-        this.approvalMapper.updateTicketStatusByEnum(approvalId, RdpTicketStatus.WAIT_EXEC, null);
+    public void approvalCompleted(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
+        this.approvalDal.approvalMapper().updateStatusByEnum(approvalId, ApprovalStatus.WAIT_EXEC, null);
     }
 
     @Override
-    public void approvalRefuse(long approvalId, RdpApprovalBiz bizType, ImSenderService sender) {
+    public void approvalRefuse(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         // do nothing
     }
 
     @Override
-    public void approvalFailed(long approvalId, RdpApprovalBiz bizType, ImSenderService sender) {
+    public void approvalFailed(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         // do nothing
     }
 
     @Override
-    public void approvalCanceled(long approvalId, RdpApprovalBiz bizType, ImSenderService sender) {
+    public void approvalCanceled(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         // do nothing
     }
 }

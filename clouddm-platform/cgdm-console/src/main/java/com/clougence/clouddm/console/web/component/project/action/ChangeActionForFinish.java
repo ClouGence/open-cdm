@@ -23,25 +23,18 @@ import java.util.Locale;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.project.ImMessageType;
 import com.clougence.clouddm.console.web.component.project.model.ChangeExecuteInfo;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.DmChangeItemType;
-import com.clougence.clouddm.console.web.dal.enumeration.DmProjectVersionType;
-import com.clougence.clouddm.console.web.dal.enumeration.ProjectChangeStatus;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectChangeItemMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectDevopsItemMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectVersionMapper;
-import com.clougence.clouddm.console.web.dal.model.*;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.util.HttpUtils;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.platform.dal.model.project.*;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.i18n.I18nUtils;
 
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 
@@ -49,43 +42,36 @@ import okhttp3.Response;
 @Service
 public class ChangeActionForFinish extends AbstractChangeAction {
 
-    @Resource
-    private DmProjectVersionMapper    dmProjectVersionMapper;
-    @Resource
-    private DmProjectDevopsItemMapper dmProjectDevopsItemMapper;
-    @Resource
-    private DmProjectChangeItemMapper dmProjectChangeItemMapper;
-
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public void doAction(DmProjectChangeDO change) {
         if (!super.doCommonAction(change)) {
             return;
         } else {
-            change = this.dmProjectChangeMapper.queryChangeById(change.getOwnerUid(), change.getId());
+            change = projectDal.changeMapper().queryChangeById(change.getOwnerUid(), change.getId());
         }
 
         // message i18n
-        String language = this.imSenderService.getProjectLanguage(change.getOwnerUid(), change.getRefProjectId());
+        String language = this.senderService.getProjectLanguage(change.getOwnerUid(), change.getRefProjectId());
         Locale locale = I18nUtils.getLocale(language);
 
         // store to devops version
         this.storeToDevOps(locale, change);
         this.storeToSnapshot(locale, change);
 
-        this.dmProjectChangeMapper.updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.FINISH, "");
-        this.dmProjectChangeMapper.lockChangeById(change.getId(), change.getVersion() + 1);
+        projectDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.FINISH, "");
+        projectDal.changeMapper().lockChangeById(change.getId(), change.getVersion() + 1);
 
         // callback
-        DmProjectDevopsDO devopsDO = this.dmProjectDevopsMapper.queryByOwnerAndId(change.getOwnerUid(), change.getRefDevopsId());
+        DmProjectDevopsDO devopsDO = projectDal.devopsMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefDevopsId());
         if (devopsDO.isEnableCallback()) {
             this.doCallBack(locale, change, devopsDO);
         }
     }
 
     private void storeToDevOps(Locale locale, DmProjectChangeDO change) {
-        this.dmProjectDevopsItemMapper.deleteItemByDevopsId(change.getOwnerUid(), change.getRefDevopsId());
-        List<DmProjectChangeItemDO> itemList = this.dmProjectChangeItemMapper.queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), DmChangeItemType.SQL);
+        this.projectDal.devopsItemMapper().deleteItemByDevopsId(change.getOwnerUid(), change.getRefDevopsId());
+        List<DmProjectChangeItemDO> itemList = this.projectDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.SQL);
         for (DmProjectChangeItemDO item : itemList) {
             DmProjectDevopsItemDO itemDO = new DmProjectDevopsItemDO();
             itemDO.setOwnerUid(change.getOwnerUid());
@@ -94,15 +80,15 @@ public class ChangeActionForFinish extends AbstractChangeAction {
             itemDO.setContentName(item.getContentName());
             itemDO.setContentIndex(item.getContentIndex());
             itemDO.setContent(item.getContent());
-            this.dmProjectDevopsItemMapper.insert(itemDO);
+            this.projectDal.devopsItemMapper().insert(itemDO);
         }
 
         String messageStr = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_UPDATE_SQL_BASE_LINE_MESSAGE.name(), locale, change.getChangeName());
-        this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, messageStr);
+        this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, messageStr);
     }
 
     private void storeToSnapshot(Locale locale, DmProjectChangeDO change) {
-        List<DmProjectChangeItemDO> items = this.dmProjectChangeItemMapper.queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), DmChangeItemType.EXECUTE);
+        List<DmProjectChangeItemDO> items = this.projectDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.EXECUTE);
         DmProjectChangeItemDO item = CollectionUtils.isEmpty(items) ? null : items.get(0);
         if (item == null || StringUtils.isBlank(item.getContent())) {
             return;
@@ -113,7 +99,7 @@ public class ChangeActionForFinish extends AbstractChangeAction {
         }
 
         //
-        List<DmProjectChangeItemDO> diffChange = this.dmProjectChangeItemMapper.queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), DmChangeItemType.REVIEW);
+        List<DmProjectChangeItemDO> diffChange = this.projectDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.REVIEW);
         String changeSql = diffChange.isEmpty() ? "" : diffChange.get(0).getContent();
 
         DmProjectVersionDO versionDO = new DmProjectVersionDO();
@@ -124,11 +110,11 @@ public class ChangeActionForFinish extends AbstractChangeAction {
         versionDO.setVersion(new Date());
         versionDO.setCommitId(change.getLastCommitId());
         versionDO.setContent(changeSql);
-        versionDO.setType(DmProjectVersionType.Change);
-        this.dmProjectVersionMapper.insert(versionDO);
+        versionDO.setType(ProjectVersionType.Change);
+        this.projectDal.versionMapper().insert(versionDO);
 
         String messageStr = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_CREATE_SNAPSHOT_MESSAGE.name(), locale, change.getChangeName());
-        this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, messageStr);
+        this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, messageStr);
     }
 
     private void doCallBack(Locale locale, DmProjectChangeDO change, DmProjectDevopsDO devopsDO) {
@@ -152,13 +138,13 @@ public class ChangeActionForFinish extends AbstractChangeAction {
                 messageStr = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_CALLBACK_FAILED.name(), locale, change.getChangeName(), httpCode);
             }
 
-            this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, messageStr);
+            this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, messageStr);
         } catch (ErrorMessageException e) {
-            this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, e.getErrorMessage());
+            this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, e.getErrorMessage());
             log.error(e.getMessage(), e);
         } catch (Throwable e) {
             String messageStr = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_CALLBACK_ERROR.name(), locale, change.getChangeName(), e.getMessage());
-            this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, messageStr);
+            this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, messageStr);
             log.error(e.getMessage(), e);
         }
     }

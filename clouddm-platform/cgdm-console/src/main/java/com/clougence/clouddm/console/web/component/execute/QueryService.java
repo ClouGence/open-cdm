@@ -20,7 +20,7 @@ import java.util.List;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultList;
 import com.clougence.clouddm.api.sidecar.session.execute.StatusDTO;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
-import com.clougence.clouddm.console.web.dal.model.DmDsSessionDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecSessionDO;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
@@ -35,7 +35,7 @@ public interface QueryService {
 
     boolean hasSession(String curUid, String sessionId);
 
-    DmDsSessionDO getSessionInfo(String curUid, String sessionId);
+    DmExecSessionDO getSessionInfo(String curUid, String sessionId);
 
     String createSession(String curUid, DsLevels levels, SessionContextDTO context);
 

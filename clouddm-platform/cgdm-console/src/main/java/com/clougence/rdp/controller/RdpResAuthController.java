@@ -35,9 +35,9 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
-import com.clougence.clouddm.console.web.dal.model.DmResAuthDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
-import com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.console.web.model.fo.BrowseAuthTreeFO;
 import com.clougence.clouddm.console.web.model.fo.ListUserAuthResFO;
 import com.clougence.clouddm.console.web.model.fo.security.*;
@@ -52,7 +52,7 @@ import com.clougence.clouddm.sdk.security.auth.AuthElementType;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
-import com.clougence.rdp.constant.operation.AuditType;
+import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.rdp.service.RdpAuthServiceForBiz;
 import com.clougence.rdp.service.RdpAuthServiceForManage;
 import com.clougence.rdp.service.RdpOpAuditService;
@@ -124,11 +124,11 @@ public class RdpResAuthController {
             sameResId.get(resId).add(authFO);
         }
 
-        List<DmResAuthDO> authList = new ArrayList<>();
+        List<DmAuthResDO> authList = new ArrayList<>();
         for (Long resId : sameResId.keySet()) {
             List<ListAuthOfResGroupFO> batch = sameResId.get(resId);
             List<String> authPrefixList = batch.stream().map(authFO -> RdpAuthUtils.genResPathByList(authFO.getResPaths()).getResPath()).collect(Collectors.toList());
-            List<DmResAuthDO> data = this.authServiceForManage.listUserAuthByRes(fo.getTargetUid(), resId, authPrefixList, fo.getAuthKind());
+            List<DmAuthResDO> data = this.authServiceForManage.listUserAuthByRes(fo.getTargetUid(), resId, authPrefixList, fo.getAuthKind());
             authList.addAll(data);
         }
 
@@ -146,7 +146,7 @@ public class RdpResAuthController {
 
         authServiceForBiz.checkOperateOtherUserAuth(uid, fo.getTargetUid());
 
-        List<DmResAuthDO> data = this.authServiceForManage.listUserAuthWithoutLabels(fo.getTargetUid(), fo.getAuthKind());
+        List<DmAuthResDO> data = this.authServiceForManage.listUserAuthWithoutLabels(fo.getTargetUid(), fo.getAuthKind());
 
         List<ResAuthVO> collect = data.stream().map(RdpConvertUtils::convertToResAuthVO).collect(Collectors.toList());
         return ResWebDataUtils.buildSuccess(collect);
@@ -189,11 +189,11 @@ public class RdpResAuthController {
             sameResId.get(resId).add(authFO);
         }
 
-        List<DmResAuthDO> authList = new ArrayList<>();
+        List<DmAuthResDO> authList = new ArrayList<>();
         for (Long resId : sameResId.keySet()) {
             List<ListAuthOfResGroupFO> batch = sameResId.get(resId);
             List<String> authPrefixList = batch.stream().map(authFO -> RdpAuthUtils.genResPathByList(authFO.getResPaths()).getResPath()).collect(Collectors.toList());
-            List<DmResAuthDO> data = this.authServiceForManage.listUserAuthByRes(uid, resId, authPrefixList, fo.getAuthKind());
+            List<DmAuthResDO> data = this.authServiceForManage.listUserAuthByRes(uid, resId, authPrefixList, fo.getAuthKind());
             authList.addAll(data);
         }
 
@@ -209,7 +209,7 @@ public class RdpResAuthController {
     public ResWebData<List<ResAuthVO>> listMyAuthRes(@Valid @RequestBody ListMyAuthResFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        List<DmResAuthDO> data = this.authServiceForManage.listUserAuthWithoutLabels(uid, fo.getAuthKind());
+        List<DmAuthResDO> data = this.authServiceForManage.listUserAuthWithoutLabels(uid, fo.getAuthKind());
         List<ResAuthVO> collect = data.stream().map(RdpConvertUtils::convertToResAuthVO).collect(Collectors.toList());
         return ResWebDataUtils.buildSuccess(collect);
     }

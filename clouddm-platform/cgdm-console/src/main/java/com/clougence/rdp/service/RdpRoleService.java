@@ -22,7 +22,7 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.console.web.model.fo.role.CreateRoleFO;
 import com.clougence.clouddm.console.web.model.fo.role.DeleteRoleFO;
 import com.clougence.clouddm.console.web.model.fo.role.UpdateRoleFO;
-import com.clougence.clouddm.console.web.dal.model.RdpRoleDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.rdp.service.model.AddRoleMO;
 
 /**
@@ -32,11 +32,11 @@ public interface RdpRoleService {
 
     Set<String> getInnerRoleLabel(String roleName);
 
-    List<RdpRoleDO> listRoleExcludeByName(String puid, List<String> name);
+    List<DmAuthRoleDO> listRoleExcludeByName(String puid, List<String> name);
 
-    List<RdpRoleDO> listRoleByUID(String puid);
+    List<DmAuthRoleDO> listRoleByUID(String puid);
 
-    RdpRoleDO fetchRoleById(long roleId);
+    DmAuthRoleDO fetchRoleById(long roleId);
 
     AddRoleMO createRole(String puid, CreateRoleFO createRoleFO);
 

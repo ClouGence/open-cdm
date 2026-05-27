@@ -29,15 +29,15 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.component.asyntask.AsyncTaskScheduleService;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.mapper.DmAsyncTaskMapper;
-import com.clougence.clouddm.console.web.dal.model.DmAsyncTaskDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.asyntask.ActionAsyncTaskFO;
 import com.clougence.clouddm.console.web.model.vo.faker.DmAsyncTaskVO;
 import com.clougence.clouddm.console.web.service.asyntask.AsyncTaskService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO;
 import com.clougence.rdp.service.RdpUserService;
 
 import jakarta.annotation.Resource;
@@ -52,9 +52,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping(DmControllerUrlPrefix.CONSOLE_PREFIX + "/asynctask/dockTask")
 @Slf4j
 public class DockTaskController {
-
     @Resource
-    private DmAsyncTaskMapper        asyncTaskMapper;
+    private ExecutionDal             executionDal;
     @Resource
     private AsyncTaskService         asyncTaskService;
     @Resource
@@ -65,7 +64,7 @@ public class DockTaskController {
     public ResWebData<?> listDockTask(HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        List<DmAsyncTaskDO> tasks = this.asyncTaskService.listDockList(uid);
+        List<DmExecAsyncTaskDO> tasks = this.asyncTaskService.listDockList(uid);
         List<DmAsyncTaskVO> vos = tasks.stream().map(DmConvertUtils::convertToDmAsyncTaskVO).collect(Collectors.toList());
         return ResWebDataUtils.buildSuccess(vos);
     }
@@ -75,7 +74,7 @@ public class DockTaskController {
     public ResWebData<?> cancelTask(@Valid @RequestBody ActionAsyncTaskFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        DmAsyncTaskDO taskDO = this.asyncTaskMapper.queryByIdAndOwnerUid(fo.getTaskId(), uid);
+        DmExecAsyncTaskDO taskDO = this.executionDal.asyncTaskMapper().queryByIdAndOwnerUid(fo.getTaskId(), uid);
         if (taskDO == null) {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.TASK_NOT_EXIST_ERROR.name(), fo.getTaskId()));
         } else {
@@ -89,7 +88,7 @@ public class DockTaskController {
     public ResWebData<?> pauseTask(@Valid @RequestBody ActionAsyncTaskFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        DmAsyncTaskDO taskDO = this.asyncTaskMapper.queryByIdAndOwnerUid(fo.getTaskId(), uid);
+        DmExecAsyncTaskDO taskDO = this.executionDal.asyncTaskMapper().queryByIdAndOwnerUid(fo.getTaskId(), uid);
         if (taskDO == null) {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.TASK_NOT_EXIST_ERROR.name(), fo.getTaskId()));
         } else {
@@ -103,7 +102,7 @@ public class DockTaskController {
     public ResWebData<?> retryTask(@Valid @RequestBody ActionAsyncTaskFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        DmAsyncTaskDO taskDO = this.asyncTaskMapper.queryByIdAndOwnerUid(fo.getTaskId(), uid);
+        DmExecAsyncTaskDO taskDO = this.executionDal.asyncTaskMapper().queryByIdAndOwnerUid(fo.getTaskId(), uid);
         if (taskDO == null) {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.TASK_NOT_EXIST_ERROR.name(), fo.getTaskId()));
         } else {
@@ -117,7 +116,7 @@ public class DockTaskController {
     public ResWebData<?> resumeTask(@Valid @RequestBody ActionAsyncTaskFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        DmAsyncTaskDO taskDO = this.asyncTaskMapper.queryByIdAndOwnerUid(fo.getTaskId(), uid);
+        DmExecAsyncTaskDO taskDO = this.executionDal.asyncTaskMapper().queryByIdAndOwnerUid(fo.getTaskId(), uid);
         if (taskDO == null) {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.TASK_NOT_EXIST_ERROR.name(), fo.getTaskId()));
         } else {

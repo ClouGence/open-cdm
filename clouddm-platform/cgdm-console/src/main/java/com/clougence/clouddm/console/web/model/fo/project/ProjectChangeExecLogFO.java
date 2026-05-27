@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo.project;
 
-import com.clougence.clouddm.console.web.dal.enumeration.DmLogDependBizType;
+import com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -27,5 +27,5 @@ public class ProjectChangeExecLogFO {
     private long               changeId;
     private Long               taskId;
     private Long               jobId;
-    private DmLogDependBizType bizType;
+    private LogDependBizType bizType;
 }

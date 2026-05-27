@@ -18,8 +18,8 @@ package com.clougence.clouddm.console.web.service.project;
 import java.util.Collection;
 import java.util.List;
 
-import com.clougence.clouddm.console.web.dal.enumeration.ScmType;
-import com.clougence.clouddm.console.web.dal.model.DmProjectScmDO;
+import com.clougence.clouddm.platform.dal.model.project.ScmType;
+import com.clougence.clouddm.platform.dal.model.project.DmProjectScmDO;
 import com.clougence.clouddm.console.web.model.fo.project.DevopsScmAddFO;
 import com.clougence.clouddm.console.web.model.fo.project.DevopsScmUpdateFO;
 import com.clougence.clouddm.console.web.service.project.domain.DmBranchDef;

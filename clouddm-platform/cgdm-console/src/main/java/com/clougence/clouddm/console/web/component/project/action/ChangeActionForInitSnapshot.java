@@ -27,12 +27,9 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.console.web.component.project.ImMessageType;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.ProjectChangeStatus;
-import com.clougence.clouddm.console.web.dal.enumeration.ProjectStatus;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectDevopsItemMapper;
-import com.clougence.clouddm.console.web.dal.model.*;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.platform.dal.model.project.*;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.scm.ScmProvider;
 import com.clougence.clouddm.sdk.scm.ScmProviderSpi;
@@ -42,45 +39,41 @@ import com.clougence.utils.i18n.I18nUtils;
 import com.clougence.utils.io.FileUtils;
 import com.clougence.utils.io.IOUtils;
 
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 public class ChangeActionForInitSnapshot extends AbstractChangeAction {
 
-    @Resource
-    private DmProjectDevopsItemMapper dmProjectDevopsItemMapper;
-
     @Override
     public void doAction(DmProjectChangeDO change) throws Exception {
         if (!super.doCommonAction(change)) {
             return;
         } else {
-            change = this.dmProjectChangeMapper.queryChangeById(change.getOwnerUid(), change.getId());
+            change = projectDal.changeMapper().queryChangeById(change.getOwnerUid(), change.getId());
         }
 
-        DmProjectDO projectDO = this.dmProjectMapper.queryByOwnerAndId(change.getOwnerUid(), change.getRefProjectId());
-        DmProjectDevopsDO devopsDO = this.dmProjectDevopsMapper.queryByOwnerAndId(change.getOwnerUid(), change.getRefDevopsId());
-        File space = this.dmProjectService.getProjectSpace(projectDO.getOwnerUid(), projectDO.getId());
+        DmProjectDO projectDO = projectDal.projectMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefProjectId());
+        DmProjectDevopsDO devopsDO = projectDal.devopsMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefDevopsId());
+        File space = this.projectService.getProjectSpace(projectDO.getOwnerUid(), projectDO.getId());
         File projectPath = new File(space, projectDO.getProjectCode() + File.separator + change.getRefDevopsId() + "-" + change.getLastCommitId());
-        String language = this.imSenderService.getProjectLanguage(change.getOwnerUid(), change.getRefProjectId());
+        String language = this.senderService.getProjectLanguage(change.getOwnerUid(), change.getRefProjectId());
         Locale locale = I18nUtils.getLocale(language);
 
         // checkout source code
-        this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice,//
+        this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice,//
                 DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_SCM_INIT_FETCH.name(), locale, change.getChangeName()));
         if (!checkoutSource(projectDO, devopsDO, change, locale, projectPath)) {
             return;
         }
 
         // save sql snapshot
-        change = this.dmProjectChangeMapper.queryChangeById(change.getOwnerUid(), change.getId()); // Update version
+        change = projectDal.changeMapper().queryChangeById(change.getOwnerUid(), change.getId()); // Update version
         this.initSqlItem(change, projectPath, devopsDO);
     }
 
     private void initSqlItem(DmProjectChangeDO change, File projectPath, DmProjectDevopsDO devopsDO) throws Exception {
-        this.dmProjectDevopsItemMapper.deleteItemByDevopsId(devopsDO.getOwnerUid(), devopsDO.getId());
+        this.projectDal.devopsItemMapper().deleteItemByDevopsId(devopsDO.getOwnerUid(), devopsDO.getId());
 
         // foreach local file script
         File scriptPath = new File(projectPath, devopsDO.getScmRepoScript());
@@ -102,29 +95,29 @@ public class ChangeActionForInitSnapshot extends AbstractChangeAction {
                 itemDO.setContentName(fileName);
                 itemDO.setContentIndex(i++);
                 itemDO.setContent(IOUtils.toString(reader));
-                this.dmProjectDevopsItemMapper.insert(itemDO);
+                this.projectDal.devopsItemMapper().insert(itemDO);
             }
         }
 
-        this.dmProjectChangeMapper.updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.FINISH, "");
-        this.dmProjectChangeMapper.lockChangeById(change.getId(), change.getVersion() + 1);
+        projectDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.FINISH, "");
+        projectDal.changeMapper().lockChangeById(change.getId(), change.getVersion() + 1);
     }
 
     private boolean checkoutSource(DmProjectDO projectDO, DmProjectDevopsDO devopsDO, DmProjectChangeDO change, Locale locale, File projectPath) throws Exception {
-        DmProjectScmDO scmDO = dmProjectScmMapper.queryById(devopsDO.getRefScmId());
+        DmProjectScmDO scmDO = projectDal.scmMapper().queryById(devopsDO.getRefScmId());
         AtomicInteger versionLock = new AtomicInteger(change.getVersion());
 
         // check plugin
         ScmProviderSpi service = PluginManager.findSpi(ScmProviderSpi.class, scmDO.getScmType().getProviderType().name());
         if (service == null) {
             String errorMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_SCM_UNAVAILABLE_ERROR.name(), locale, change.getChangeName());
-            this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, errorMsg);
-            this.dmProjectChangeMapper.updateStatusTo(change.getId(), versionLock.get(), ProjectChangeStatus.FAILED, errorMsg);
+            this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, errorMsg);
+            projectDal.changeMapper().updateStatusTo(change.getId(), versionLock.get(), ProjectChangeStatus.FAILED, errorMsg);
             return false;
         }
 
         // temp path
-        File temp = this.dmProjectService.getTempSpace(projectDO.getOwnerUid(), projectDO.getId());
+        File temp = this.projectService.getTempSpace(projectDO.getOwnerUid(), projectDO.getId());
         File tempPath = new File(temp, projectDO.getProjectCode());
 
         // download source.
@@ -156,7 +149,7 @@ public class ChangeActionForInitSnapshot extends AbstractChangeAction {
                 return true;
             }
 
-            int assignAgain = this.dmProjectChangeMapper.assignReadyChange(changeId, versionLock.get());
+            int assignAgain = projectDal.changeMapper().assignReadyChange(changeId, versionLock.get());
             if (assignAgain == 0) {
                 log.error("changeAction[" + changeId + "] watchdog failed, downloadScm is blocked.");
                 return false;
@@ -171,19 +164,19 @@ public class ChangeActionForInitSnapshot extends AbstractChangeAction {
     }
 
     private boolean checkChange(String ownerUid, long changeId) {
-        DmProjectChangeDO changeDO = this.dmProjectChangeMapper.queryChangeById(ownerUid, changeId);
-        DmProjectDO projectDO = this.dmProjectMapper.queryByOwnerAndId(ownerUid, changeDO.getRefProjectId());
+        DmProjectChangeDO changeDO = projectDal.changeMapper().queryChangeById(ownerUid, changeId);
+        DmProjectDO projectDO = projectDal.projectMapper().queryByOwnerAndId(ownerUid, changeDO.getRefProjectId());
 
         if (projectDO == null || projectDO.getProjectStatus() != ProjectStatus.NORMAL) {
             return false;
         }
 
-        DmProjectDevopsDO devopsDO = this.dmProjectDevopsMapper.queryByOwnerAndId(ownerUid, changeDO.getRefDevopsId());
+        DmProjectDevopsDO devopsDO = projectDal.devopsMapper().queryByOwnerAndId(ownerUid, changeDO.getRefDevopsId());
         if (devopsDO == null || devopsDO.isDeleted() || !devopsDO.isEnable()) {
             return false;
         }
 
-        DmProjectScmDO scmDO = dmProjectScmMapper.queryById(devopsDO.getRefScmId());
+        DmProjectScmDO scmDO = projectDal.scmMapper().queryById(devopsDO.getRefScmId());
         return scmDO != null;
     }
 }

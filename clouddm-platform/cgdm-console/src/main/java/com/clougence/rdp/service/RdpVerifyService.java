@@ -16,7 +16,7 @@
 package com.clougence.rdp.service;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
-import com.clougence.clouddm.console.web.constants.VerifyCodeType;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
 import com.clougence.clouddm.console.web.model.fo.VerifyMO;
 import com.clougence.rdp.service.model.CheckVerifyMO;
 

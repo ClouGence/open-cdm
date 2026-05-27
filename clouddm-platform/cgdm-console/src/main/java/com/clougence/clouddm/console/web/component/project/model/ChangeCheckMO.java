@@ -17,7 +17,7 @@ package com.clougence.clouddm.console.web.component.project.model;
 
 import java.util.List;
 
-import com.clougence.clouddm.console.web.dal.enumeration.WarnLevel;
+import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 
 import lombok.Getter;

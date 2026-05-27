@@ -15,10 +15,11 @@
  */
 package com.clougence.rdp.service.impl;
 
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.rdp.service.RdpNamingService;
 import com.clougence.clouddm.console.web.util.RandomStrUtils;
 
@@ -31,9 +32,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class RdpNamingServiceImpl implements RdpNamingService {
-
     @Resource
-    private RdpUserMapper rdpUserMapper;
+    private AuthDal authDal;
+
 
     @Override
     public String genAccessKey() {
@@ -41,7 +42,7 @@ public class RdpNamingServiceImpl implements RdpNamingService {
 
         while (true) {
             String ak = String.format(namePattern, RandomStrUtils.fixedLenRandomStr(61));
-            RdpUserDO userDO = rdpUserMapper.queryByAccessKey(ak);
+            DmAuthUserDO userDO = authDal.userMapper().queryByAccessKey(ak);
             if (userDO == null) {
                 return ak;
             }
@@ -52,7 +53,7 @@ public class RdpNamingServiceImpl implements RdpNamingService {
     public String genUid() {
         while (true) {
             String uid = RandomStrUtils.fixedLenRandomNumberStr(16);
-            RdpUserDO user = rdpUserMapper.queryByUid(uid);
+            DmAuthUserDO user = authDal.userMapper().queryByUid(uid);
             if (user == null) {
                 return uid;
             }

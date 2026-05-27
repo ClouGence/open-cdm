@@ -21,24 +21,23 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.console.web.dal.model.DmResAuthDO;
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
 import com.clougence.clouddm.console.web.component.auth.model.ResourceAccessInfo;
-import com.clougence.clouddm.console.web.component.auth.model.UserCacheEntry;
+import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmResAuthMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
 import com.clougence.rdp.service.RdpAuthServiceForBiz;
 import com.clougence.rdp.service.RdpAuthServiceForManage;
 import com.clougence.utils.CollectionUtils;
@@ -53,19 +52,16 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class DmResAuthServiceImpl implements DmResAuthService {
-
     @Resource
-    private RdpDataSourceMapper       rdpDataSourceMapper;
+    private DataSourceDal datasourceDal;
     @Resource
-    private RdpUserMapper             rdpUserMapper;
+    private AuthDal                   authDal;
     @Resource
     private RdpAuthServiceForBiz      authServiceForBiz;
     @Resource
-    private RdpAuthServiceForManage authServiceForManage;
+    private RdpAuthServiceForManage   authServiceForManage;
     @Resource
-    private DmResAuthMapper         resAuthMapper;
-    @Resource
-    private BizResOwnerCacheService ownerCacheService;
+    private ObjectCacheDao   ownerCacheService;
 
     private static final List<String> DM_DS_ANY_AUTH = Arrays
         .asList(DM_DAUTH_QUERY, SecDataAuthLabel.DM_DAUTH_DML, SecDataAuthLabel.DM_DAUTH_DDL, SecDataAuthLabel.DM_DAUTH_CALL, SecDataAuthLabel.DM_DAUTH_DCL, SecDataAuthLabel.DM_DAUTH_OTHER);
@@ -78,19 +74,19 @@ public class DmResAuthServiceImpl implements DmResAuthService {
     @Override
     public List<Long> listResByUser(String targetUid, AuthKind authKind) {
         if (authKind == AuthKind.DataSource) {
-            RdpUserDO userDO = rdpUserMapper.queryByUid(targetUid);
+            DmAuthUserDO userDO = authDal.userMapper().queryByUid(targetUid);
             if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
-                List<RdpDataSourceDO> dsDOs = this.rdpDataSourceMapper.listByUserWithGmtOrder(targetUid);
-                return dsDOs.stream().map(RdpDataSourceDO::getId).collect(Collectors.toList());
+                List<DmDsDO> dsDOs = this.datasourceDal.dsMapper().listByUserWithGmtOrder(targetUid);
+                return dsDOs.stream().map(DmDsDO::getId).collect(Collectors.toList());
             } else if (userDO.isResourceManageEnable()) {
                 UserCacheEntry cacheEntry = ownerCacheService.queryByUserNumberId(userDO.getParentId());
-                List<RdpDataSourceDO> dsDOs = this.rdpDataSourceMapper.listByUserWithGmtOrder(cacheEntry.getUid());
-                return dsDOs.stream().map(RdpDataSourceDO::getId).collect(Collectors.toList());
+                List<DmDsDO> dsDOs = this.datasourceDal.dsMapper().listByUserWithGmtOrder(cacheEntry.getUid());
+                return dsDOs.stream().map(DmDsDO::getId).collect(Collectors.toList());
             } else {
-                List<DmResAuthDO> result = this.resAuthMapper.listByKind(targetUid, AuthKind.DataSource);
+                List<DmAuthResDO> result = this.authDal.resMapper().listByKind(targetUid, AuthKind.DataSource);
                 return result.stream()
                     .filter(r -> CollectionUtils.containsAny(r.getAuthLabels(), DM_DS_ANY_AUTH) && r.isEffective())
-                    .map(DmResAuthDO::getResId)
+                    .map(DmAuthResDO::getResId)
                     .distinct()
                     .collect(Collectors.toList());
             }
@@ -102,19 +98,19 @@ public class DmResAuthServiceImpl implements DmResAuthService {
     @Override
     public List<Long> listResByUserContainAnyAuth(String targetUid, AuthKind authKind) {
         if (authKind == AuthKind.DataSource) {
-            RdpUserDO userDO = rdpUserMapper.queryByUid(targetUid);
+            DmAuthUserDO userDO = authDal.userMapper().queryByUid(targetUid);
             if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
-                List<RdpDataSourceDO> dsDOs = this.rdpDataSourceMapper.listByUserWithGmtOrder(targetUid);
-                return dsDOs.stream().map(RdpDataSourceDO::getId).collect(Collectors.toList());
+                List<DmDsDO> dsDOs = this.datasourceDal.dsMapper().listByUserWithGmtOrder(targetUid);
+                return dsDOs.stream().map(DmDsDO::getId).collect(Collectors.toList());
             } else if (userDO.isResourceManageEnable()) {
                 UserCacheEntry cacheEntry = ownerCacheService.queryByUserNumberId(userDO.getParentId());
-                List<RdpDataSourceDO> dsDOs = this.rdpDataSourceMapper.listByUserWithGmtOrder(cacheEntry.getUid());
-                return dsDOs.stream().map(RdpDataSourceDO::getId).collect(Collectors.toList());
+                List<DmDsDO> dsDOs = this.datasourceDal.dsMapper().listByUserWithGmtOrder(cacheEntry.getUid());
+                return dsDOs.stream().map(DmDsDO::getId).collect(Collectors.toList());
             } else {
-                List<DmResAuthDO> result = this.resAuthMapper.listByKind(targetUid, AuthKind.DataSource);
+                List<DmAuthResDO> result = this.authDal.resMapper().listByKind(targetUid, AuthKind.DataSource);
                 return result.stream()
                     .filter(r -> CollectionUtils.isNotEmpty(r.getAuthLabels()) && r.isEffective())
-                    .map(DmResAuthDO::getResId)
+                    .map(DmAuthResDO::getResId)
                     .distinct()
                     .collect(Collectors.toList());
             }
@@ -124,13 +120,13 @@ public class DmResAuthServiceImpl implements DmResAuthService {
     }
 
     @Override
-    public List<DmResAuthDO> listAuthByUser(String targetUid, AuthKind authKind) {
+    public List<DmAuthResDO> listAuthByUser(String targetUid, AuthKind authKind) {
         return this.authServiceForBiz.listAuthByUser(targetUid, authKind);
     }
 
     @Override
-    public List<DmResAuthDO> listAuthByUser(long dsId, String targetUid, AuthKind authKind, List<String> resPathList) {
-        List<DmResAuthDO> resAuthDOList = this.resAuthMapper.queryByPathLike(dsId, targetUid, authKind, resPathList);
+    public List<DmAuthResDO> listAuthByUser(long dsId, String targetUid, AuthKind authKind, List<String> resPathList) {
+        List<DmAuthResDO> resAuthDOList = this.authDal.resMapper().queryByPathLike(dsId, targetUid, authKind, resPathList);
         return resAuthDOList.stream().filter(authDO -> {
             return authDO.isEffective() && authDO.getAuthLabels().contains(SecDataAuthLabel.DM_DAUTH_SENSITIVE);
         }).collect(Collectors.toList());
@@ -146,8 +142,8 @@ public class DmResAuthServiceImpl implements DmResAuthService {
         // filter resAuth in dsObjs
         List<Predicate<String>> authedPathNames = new ArrayList<>();
         List<String> queryPathList = dsResource.stream().map(DsResPath::getResPath).collect(Collectors.toList());
-        List<DmResAuthDO> dsAuthDOList = this.resAuthMapper.queryByPathLike(dsId, uid, AuthKind.DataSource, queryPathList);
-        for (DmResAuthDO dsAuthDO : dsAuthDOList) {
+        List<DmAuthResDO> dsAuthDOList = this.authDal.resMapper().queryByPathLike(dsId, uid, AuthKind.DataSource, queryPathList);
+        for (DmAuthResDO dsAuthDO : dsAuthDOList) {
             // filter resAuth
             if (dsAuthDO.getAuthLabels() == null || !dsAuthDO.getAuthLabels().contains(resAuth)) {
                 continue;
@@ -170,23 +166,23 @@ public class DmResAuthServiceImpl implements DmResAuthService {
 
     @Override
     public ResourceAccessInfo getAllowBrowseInfo(DsLevels levels, String uid) {
-        RdpUserDO userDO = rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
         if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || userDO.isResourceManageEnable()) {
             return new ResourceAccessInfo(true);
         }
 
         Long dsId = levels.dsDO().getId();
         String path = levels.asResPath().getResPath();
-        List<DmResAuthDO> parentAndSelfAuth = this.resAuthMapper.queryByPathLike(dsId, uid, AuthKind.DataSource, Collections.singletonList(path));
-        List<DmResAuthDO> subAuth = this.resAuthMapper.queryByLikePath(dsId, uid, AuthKind.DataSource, path);
+        List<DmAuthResDO> parentAndSelfAuth = this.authDal.resMapper().queryByPathLike(dsId, uid, AuthKind.DataSource, Collections.singletonList(path));
+        List<DmAuthResDO> subAuth = this.authDal.resMapper().queryByLikePath(dsId, uid, AuthKind.DataSource, path);
 
         parentAndSelfAuth = parentAndSelfAuth.stream().filter(auth -> {
             return auth.getAuthLabels().contains(DM_DAUTH_QUERY) && auth.isEffective();
-        }).collect(Collectors.toList());
+        }).toList();
 
         subAuth = subAuth.stream().filter(auth -> {
             return auth.getAuthLabels().contains(DM_DAUTH_QUERY) && auth.isEffective();
-        }).collect(Collectors.toList());
+        }).toList();
 
         if (!CollectionUtils.isEmpty(parentAndSelfAuth)) {
             return new ResourceAccessInfo(true);
@@ -194,7 +190,7 @@ public class DmResAuthServiceImpl implements DmResAuthService {
 
         Set<String> allowQueryList = new HashSet<>();
         int size = levels.levels().size() - 1;
-        for (DmResAuthDO resAuthDO : subAuth) {
+        for (DmAuthResDO resAuthDO : subAuth) {
             switch (size) {
                 case 1: {
                     if (resAuthDO.getLevelOne() != null) {

@@ -19,7 +19,7 @@ import java.util.List;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.dal.enumeration.DeployEnvType;
+import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType;
 import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.AddDsFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsKvConfigFO;
@@ -29,8 +29,8 @@ import com.clougence.clouddm.console.web.model.lo.UpdatePriHostLO;
 import com.clougence.clouddm.console.web.model.lo.UpdatePubHostLO;
 import com.clougence.clouddm.console.web.model.vo.DefaultDsKvConfigVO;
 import com.clougence.clouddm.console.web.model.vo.RdpDsKvConfigVO;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.queryobj.DsQueryParam;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
 
 /**
  * @author bucketli 2023/11/24 10:24:16
@@ -45,19 +45,19 @@ public interface RdpDsService {
 
     RdpDsKvConfigVO queryDsConfig(Long dataSourceId, String configName);
 
-    RdpDataSourceDO queryById(Long dataSourceId);
+    DmDsDO queryById(Long dataSourceId);
 
-    List<RdpDataSourceDO> listByIds(List<Long> ids);
+    List<DmDsDO> listByIds(List<Long> ids);
 
-    List<RdpDataSourceDO> fetchByCondition(DsQueryParam dsQueryParam);
+    List<DmDsDO> fetchByCondition(ArgDsQueryParamObj dsQueryParam);
 
-    List<RdpDataSourceDO> fetchByCondition(String ownerUid, DsQueryParam dsQueryParam, boolean fillEnv);
+    List<DmDsDO> fetchByCondition(String ownerUid, ArgDsQueryParamObj dsQueryParam, boolean fillEnv);
 
-    RdpDataSourceDO queryDsByIdWithoutPasswd(Long dataSourceId);
+    DmDsDO queryDsByIdWithoutPasswd(Long dataSourceId);
 
-    RdpDataSourceDO fetchAndCheckById(Long dataSourceId);
+    DmDsDO fetchAndCheckById(Long dataSourceId);
 
-    RdpDataSourceDO fetchByInstanceId(String instanceId);
+    DmDsDO fetchByInstanceId(String instanceId);
 
     List<DefaultDsKvConfigVO> queryDsDefaultConfig(DataSourceType dsType, DeployEnvType envType);
 

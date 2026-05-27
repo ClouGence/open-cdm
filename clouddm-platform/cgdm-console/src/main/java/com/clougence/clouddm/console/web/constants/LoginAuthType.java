@@ -16,9 +16,9 @@
 package com.clougence.clouddm.console.web.constants;
 
 import com.clougence.clouddm.sdk.security.login.LoginProvider;
-import com.clougence.rdp.constant.I18nRdpLabelKeys;
-import com.clougence.rdp.constant.UserConfigTagType;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountBindType;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpLabelKeys;
+import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
 import com.clougence.utils.StringUtils;
 
 import lombok.Getter;

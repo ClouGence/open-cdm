@@ -22,9 +22,9 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
-import com.clougence.clouddm.console.web.dal.enumeration.HostType;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 
 /**
  * @author bucketli 2020/11/7 14:25
@@ -33,9 +33,9 @@ public interface DmDsConfigService {
 
     Map<String, String> fetchSettingsMap(String ownerUid, List<String> names);
 
-    List<RdpDsKvBaseConfigDO> fetchDsConfigDef(DataSourceType dsType);
+    List<DmDsConfigKv4RdpDO> fetchDsConfigDef(DataSourceType dsType);
 
-    DataSourceConfig fetchDsConfigFromTemp(RdpDataSourceDO dsDO, Map<String, String> configMap, HostType hostType);
+    DataSourceConfig fetchDsConfigFromTemp(DmDsDO dsDO, Map<String, String> configMap, HostType hostType);
 
     DataSourceConfig fetchDsConfigFromRDP(long dsId, DataSourceType dsType, HostType hostType);
 
@@ -43,7 +43,7 @@ public interface DmDsConfigService {
 
     String fetchDsConfig(long dsId, String configKey);
 
-    void persistDsConfig(RdpDataSourceDO dsDO, HostType hostType, String version);
+    void persistDsConfig(DmDsDO dsDO, HostType hostType, String version);
 
     void cleanDsConfig(long dsId);
 

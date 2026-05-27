@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.service.system;
 
-import com.clougence.clouddm.console.web.dal.enumeration.RuleKind;
+import com.clougence.clouddm.platform.dal.model.secrule.RuleKind;
 
 /**
  * @author bucketli 2020/7/10 21:14

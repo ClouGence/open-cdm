@@ -16,10 +16,10 @@
 package com.clougence.clouddm.console.web.model.fo.project;
 
 import com.clougence.clouddm.api.console.autoexec.ErrorStrategy;
-import com.clougence.clouddm.console.web.dal.enumeration.DmChangeApproveStrategy;
-import com.clougence.clouddm.console.web.dal.enumeration.DmChangeCheckStrategy;
-import com.clougence.clouddm.console.web.dal.enumeration.DmChangeExecStrategy;
-import com.clougence.clouddm.console.web.dal.enumeration.DmInitScriptStrategy;
+import com.clougence.clouddm.platform.dal.model.project.ChangeApproveStrategy;
+import com.clougence.clouddm.platform.dal.model.project.ChangeCheckStrategy;
+import com.clougence.clouddm.platform.dal.model.project.ChangeExecStrategy;
+import com.clougence.clouddm.console.web.constants.DmInitScriptStrategy;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,9 +31,9 @@ public class ProjectOptionFO {
     private DmInitScriptStrategy    initScript;
 
     // for flow
-    private DmChangeCheckStrategy   checkStrategy;
-    private DmChangeApproveStrategy approveStrategy;
-    private DmChangeExecStrategy    executeStrategy;
+    private ChangeCheckStrategy   checkStrategy;
+    private ChangeApproveStrategy approveStrategy;
+    private ChangeExecStrategy    executeStrategy;
 
     // exec default
     private boolean                 transactional;

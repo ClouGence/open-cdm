@@ -15,14 +15,15 @@
  */
 package com.clougence.rdp.service.impl;
 
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+
 import java.text.MessageFormat;
 
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityFileType;
-import com.clougence.clouddm.console.web.dal.mapper.RdpBlobResourceMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpBlobResourceDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsBlobResourceDO;
 import com.clougence.rdp.service.RdpSecurityService;
 import com.clougence.utils.StringUtils;
 
@@ -35,9 +36,9 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class RdpSecurityServiceImpl implements RdpSecurityService {
-
     @Resource
-    private RdpBlobResourceMapper resourceMapper;
+    private DataSourceDal datasourceDal;
+
 
     @Override
     public byte[] querySecurityFile(String instanceId, ResourceType ownerType, SecurityFileType fileType) {
@@ -45,7 +46,7 @@ public class RdpSecurityServiceImpl implements RdpSecurityService {
             throw new IllegalArgumentException("not supported owner type:" + ownerType);
         }
 
-        RdpBlobResourceDO r = resourceMapper.queryByIdentify(instanceId, ownerType, fileType);
+        DmDsBlobResourceDO r = datasourceDal.blobResourceMapper().queryByIdentify(instanceId, ownerType, fileType);
         return r.getContent();
     }
 

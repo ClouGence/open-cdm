@@ -22,24 +22,24 @@ import java.util.Map;
 
 import org.springframework.context.ApplicationContext;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
-import com.clougence.clouddm.console.web.component.auth.model.DsCacheEntry;
-import com.clougence.clouddm.console.web.component.auth.model.EnvCacheEntry;
 import com.clougence.clouddm.console.web.component.detectrule.SecRangeVerify;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRange;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRangeItem;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.SecMatchMode;
-import com.clougence.clouddm.console.web.dal.enumeration.SecRangeType;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.checkrules.SpecSaveRangeFO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.MessageUtils;
+import com.clougence.clouddm.console.web.util.RdpConvertUtils;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.access.entry.EnvCacheEntry;
+import com.clougence.clouddm.platform.dal.model.secrule.SecMatchMode;
+import com.clougence.clouddm.platform.dal.model.secrule.SecRangeType;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.ui.browser.DsBrowseSpi;
-import com.clougence.rdp.global.exception.ErrorMessageException;
-import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.NumberUtils;
 import com.clougence.utils.StringUtils;
@@ -50,11 +50,11 @@ import com.clougence.utils.StringUtils;
  */
 public class FetchRangeUtils {
 
-    private static BizResOwnerCacheService ownerCacheService;
-    private static DmDsConfigService       dsConfigService;
+    private static ObjectCacheDao    ownerCacheService;
+    private static DmDsConfigService dsConfigService;
 
     public static void initUtils(ApplicationContext applicationContext) {
-        ownerCacheService = applicationContext.getBean(BizResOwnerCacheService.class);
+        ownerCacheService = applicationContext.getBean(ObjectCacheDao.class);
         dsConfigService = applicationContext.getBean(DmDsConfigService.class);
     }
 

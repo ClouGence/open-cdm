@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.component.execute;
 
-import com.clougence.clouddm.console.web.dal.model.DmDsSessionDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecSessionDO;
 import com.clougence.clouddm.sdk.execute.tools.ToolRequestDTO;
 import com.clougence.clouddm.sdk.execute.tools.ToolSessionContextDTO;
 
@@ -27,7 +27,7 @@ public interface ToolsService {
 
     boolean hasSession(String curUid, String sessionId);
 
-    DmDsSessionDO getSessionInfo(String curUid, String sessionId);
+    DmExecSessionDO getSessionInfo(String curUid, String sessionId);
 
     String createSession(String curUid, String toolName, ToolSessionContextDTO contextDTO);
 

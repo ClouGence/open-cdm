@@ -33,8 +33,7 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.api.common.crypt.PasswordInfo;
-import com.clougence.clouddm.console.web.global.config.DmDalConfig;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.init.InitTaskApplication;
 import com.clougence.clouddm.init.component.fixtasks.*;
 import com.clougence.clouddm.init.component.flyway.DmFlywayInit;
@@ -43,6 +42,7 @@ import com.clougence.clouddm.init.constant.I18nInitFieldKeys;
 import com.clougence.clouddm.init.constant.InitSeedConstants;
 import com.clougence.clouddm.init.model.InitFieldDef;
 import com.clougence.clouddm.init.model.TestDbResult;
+import com.clougence.clouddm.platform.dal.config.DmDalConfig;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
 
@@ -391,22 +391,22 @@ public class SysInitService {
             // Check whether the user table already exists before attempting any update.
             String dbName = InitDBStatusDetector.getDatabaseName(jdbcUrl);
             try (Statement checkStmt = conn.createStatement();
-                    ResultSet crs = checkStmt.executeQuery("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='" + dbName + "' AND table_name='rdp_user'")) {
+                    ResultSet crs = checkStmt.executeQuery("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='" + dbName + "' AND table_name='dm_auth_user'")) {
                 if (!crs.next() || crs.getInt(1) == 0) {
-                    log.warn("[SysInitService] rdp_user table not found, admin user will be created by Flyway with default values.");
+                    log.warn("[SysInitService] dm_auth_user table not found, admin user will be created by Flyway with default values.");
                     return;
                 }
             }
 
             // Look up the administrator account so it can be updated or inserted.
-            try (PreparedStatement stmt = conn.prepareStatement("SELECT id, email FROM rdp_user WHERE uid = ?")) {
+            try (PreparedStatement stmt = conn.prepareStatement("SELECT id, email FROM dm_auth_user WHERE uid = ?")) {
                 stmt.setString(1, InitSeedConstants.ADMIN_UID);
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
                         long existingId = rs.getLong(1);
                         String existingEmail = rs.getString(2);
                         log.info("[SysInitService] Admin user found (id={}, email={}), updating...", existingId, existingEmail);
-                        try (PreparedStatement updateStmt = conn.prepareStatement("UPDATE rdp_user SET email = ?, password = ?, user_domain = ? WHERE uid = ?")) {
+                        try (PreparedStatement updateStmt = conn.prepareStatement("UPDATE dm_auth_user SET email = ?, password = ?, user_domain = ? WHERE uid = ?")) {
                             updateStmt.setString(1, adminEmail);
                             updateStmt.setString(2, encodedPassword);
                             updateStmt.setString(3, InitSeedConstants.ADMIN_UID + ".clougence.com");
@@ -417,7 +417,7 @@ public class SysInitService {
                     } else {
                         log.warn("[SysInitService] Admin user not found by uid={}, inserting new admin user...", InitSeedConstants.ADMIN_UID);
                         try (PreparedStatement insertStmt = conn
-                            .prepareStatement("INSERT INTO rdp_user (uid, email, password, username, account_type, user_domain, gmt_create, gmt_modified) VALUES (?, ?, ?, 'Trial', 'PRIMARY_ACCOUNT', ?, now(), now())")) {
+                            .prepareStatement("INSERT INTO dm_auth_user (uid, email, password, username, account_type, user_domain, gmt_create, gmt_modified) VALUES (?, ?, ?, 'Trial', 'PRIMARY_ACCOUNT', ?, now(), now())")) {
                             insertStmt.setString(1, InitSeedConstants.ADMIN_UID);
                             insertStmt.setString(2, adminEmail);
                             insertStmt.setString(3, encodedPassword);

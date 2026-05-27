@@ -20,6 +20,7 @@ import java.util.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalMO;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
@@ -29,16 +30,20 @@ import com.clougence.clouddm.console.web.component.project.model.ChangeApprovalI
 import com.clougence.clouddm.console.web.component.project.model.ChangeCheckItemMO;
 import com.clougence.clouddm.console.web.component.project.model.ChangeCheckMO;
 import com.clougence.clouddm.console.web.component.project.model.ChangeTicketInfo;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.*;
-import com.clougence.clouddm.console.web.dal.mapper.*;
-import com.clougence.clouddm.console.web.dal.model.*;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.ticket.CheckedVO;
 import com.clougence.clouddm.console.web.service.system.NamingService;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.ApprovalDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.approval.*;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.project.*;
+import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
+import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysEnvParamDO;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.model.EnvTicketMO;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.JsonUtils;
@@ -53,54 +58,48 @@ import lombok.extern.slf4j.Slf4j;
 public class ChangeActionForApproval extends AbstractChangeAction {
 
     @Resource
-    private NamingService             namingService;
+    private SystemDal           systemDal;
     @Resource
-    private DmDsConfigService         dmDsConfigService;
+    private ApprovalDal         approvalDal;
     @Resource
-    private DmProjectChangeItemMapper dmProjectChangeItemMapper;
+    private NamingService       namingService;
     @Resource
-    private RdpDsEnvMapper            rdpEnvMapper;
+    private DmDsConfigService   dmDsConfigService;
     @Resource
-    private RdpEnvParamMapper         rdpEnvParamMapper;
-    @Resource
-    private DmApprovalPersonMapper    rdpApprovalPersonMapper;
-    @Resource
-    private DmApprovalMapper          approvalMapper;
-    @Resource
-    private ApprovalFlowService       approvalFlowService;
+    private ApprovalFlowService approvalFlowService;
 
     @Override
     public void doAction(DmProjectChangeDO change) {
         if (!super.doCommonAction(change)) {
             return;
         } else {
-            change = this.dmProjectChangeMapper.queryChangeById(change.getOwnerUid(), change.getId());
+            change = projectDal.changeMapper().queryChangeById(change.getOwnerUid(), change.getId());
         }
 
         // message i18n
-        String language = this.imSenderService.getProjectLanguage(change.getOwnerUid(), change.getRefProjectId());
+        String language = this.senderService.getProjectLanguage(change.getOwnerUid(), change.getRefProjectId());
         Locale locale = I18nUtils.getLocale(language);
 
         // test skip
-        DmProjectDO project = this.dmProjectMapper.queryByOwnerAndId(change.getOwnerUid(), change.getRefProjectId());
-        DmChangeApproveStrategy approveOpt = project.getFlowApprove();
-        if (approveOpt == DmChangeApproveStrategy.Disable) {
+        DmProjectDO project = projectDal.projectMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefProjectId());
+        ChangeApproveStrategy approveOpt = project.getFlowApprove();
+        if (approveOpt == ChangeApproveStrategy.Disable) {
             log.info("changeAction[" + change.getId() + "] skip approval.");
-            int res = this.dmProjectChangeMapper.updateStepTo(change.getId(), change.getVersion(), ProjectChangeStep.EXECUTE, "");
-            this.dmProjectChangeMapper.updateFlowWalkedAppend(change.getId(), change, approveOpt);
+            int res = projectDal.changeMapper().updateStepTo(change.getId(), change.getVersion(), ProjectChangeStep.EXECUTE, "");
+            projectDal.changeMapper().updateFlowWalkedAppend(change.getId(), change, approveOpt);
             return;
         } else {
-            this.dmProjectChangeMapper.updateFlowWalkedAppend(change.getId(), change, approveOpt);
+            projectDal.changeMapper().updateFlowWalkedAppend(change.getId(), change, approveOpt);
         }
 
         // change sql
-        List<DmProjectChangeItemDO> diffChange = this.dmProjectChangeItemMapper.queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), DmChangeItemType.REVIEW);
+        List<DmProjectChangeItemDO> diffChange = this.projectDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.REVIEW);
         String sqlChange = diffChange.isEmpty() ? "" : diffChange.get(0).getContent();
 
         // create ticket
         DmApprovalDO ticket;
         try {
-            DmProjectDevopsDO devopsDO = this.dmProjectDevopsMapper.queryByOwnerAndId(change.getOwnerUid(), change.getRefDevopsId());
+            DmProjectDevopsDO devopsDO = projectDal.devopsMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefDevopsId());
             DsLevels dsLevels = this.dmDsConfigService.parseLevels(devopsDO.getDsPath());
             ticket = createTicket(change, dsLevels, sqlChange, locale);
         } catch (Exception e) {
@@ -112,8 +111,8 @@ public class ChangeActionForApproval extends AbstractChangeAction {
             }
 
             message = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_CREATE_TICKET_FAILED_MESSAGE.name(), locale, change.getChangeName(), message);
-            this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, message);
-            this.dmProjectChangeMapper.updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.FAILED, message);
+            this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, message);
+            projectDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.FAILED, message);
             return;
         }
 
@@ -122,18 +121,18 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         itemDO.setOwnerUid(change.getOwnerUid());
         itemDO.setRefProjectId(change.getRefProjectId());
         itemDO.setRefChangeId(change.getId());
-        itemDO.setChangeItemType(DmChangeItemType.TICKET);
+        itemDO.setChangeItemType(ChangeItemType.TICKET);
         itemDO.setContent(JsonUtils.toJson(createChangeTicketInfo(ticket)));
         itemDO.setContentIndex(1);
         itemDO.setContentName(ticket.getTicketTitle());
-        this.dmProjectChangeItemMapper.deleteByChangeItemType(change.getOwnerUid(), change.getId(), DmChangeItemType.TICKET);
-        this.dmProjectChangeItemMapper.insert(itemDO);
+        this.projectDal.changeItemMapper().deleteByChangeItemType(change.getOwnerUid(), change.getId(), ChangeItemType.TICKET);
+        this.projectDal.changeItemMapper().insert(itemDO);
 
         // next wait.
         log.info("changeAction[" + change.getId() + "] create Ticket " + ticket.getId() + ".");
         String message = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_CREATE_TICKET_MESSAGE.name(), locale, change.getChangeName(), ticket.getTicketTitle());
-        this.imSenderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, message);
-        this.dmProjectChangeMapper.updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.WAIT, message);
+        this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, message);
+        projectDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.WAIT, message);
     }
 
     private ChangeTicketInfo createChangeTicketInfo(DmApprovalDO ticket) {
@@ -150,9 +149,9 @@ public class ChangeActionForApproval extends AbstractChangeAction {
 
     @Transactional(rollbackFor = Throwable.class)
     public DmApprovalDO createTicket(DmProjectChangeDO change, DsLevels dsLevels, String sqlContent, Locale locale) {
-        DmProjectDO projectDO = this.dmProjectMapper.queryByOwnerAndId(change.getOwnerUid(), change.getRefProjectId());
-        RdpDataSourceDO dsDO = dsLevels.dsDO();
-        RdpDsEnvDO envDO = this.rdpEnvMapper.queryByEnvID(change.getOwnerUid(), Long.valueOf(dsLevels.envId()));
+        DmProjectDO projectDO = projectDal.projectMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefProjectId());
+        DmDsDO dsDO = dsLevels.dsDO();
+        DmSysEnvDO envDO = this.systemDal.envMapper().queryByEnvID(change.getOwnerUid(), Long.valueOf(dsLevels.envId()));
 
         // targetInfo
         String targetInfo = "/" + dsLevels.dsDO().getInstanceId();
@@ -165,8 +164,8 @@ public class ChangeActionForApproval extends AbstractChangeAction {
 
         // find approvalType.
         ChangeApprovalInfo approvalInfo = findRdpApprovalType(change.getOwnerUid(), dsDO, locale);
-        RdpApprovalType approvalType = approvalInfo.getApprovalType();
-        if (approvalType != RdpApprovalType.Internal) {
+        ApprovalType approvalType = approvalInfo.getApprovalType();
+        if (approvalType != ApprovalType.Internal) {
             if (!this.approvalFlowService.checkEnableApproval(change.getOwnerUid(), approvalType.getProviderType())) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_APPROVAL_TYPE_NOT_ENABLE.name(), locale, approvalType));
             }
@@ -174,7 +173,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
 
         //  ChangeCheckMO to CheckedVO
         Map<String, CheckedVO> checkMap = new LinkedHashMap<>();
-        List<DmProjectChangeItemDO> checks = this.dmProjectChangeItemMapper.queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), DmChangeItemType.CHECKS);
+        List<DmProjectChangeItemDO> checks = this.projectDal.changeItemMapper().queryChangeItemByChangeId(change.getOwnerUid(), change.getId(), ChangeItemType.CHECKS);
         for (DmProjectChangeItemDO item : checks) {
             ChangeCheckMO useType = JsonUtils.toObjUseType(item.getContent(), ChangeCheckMO.class);
             for (ChangeCheckItemMO checkItem : useType.getCheckList()) {
@@ -208,8 +207,8 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         ticket.setTargetInfo(targetInfo);
         ticket.setDescription(generateTicketDescription(change, projectDO, locale));
         ticket.setTicketTitle(generateTicketTitle(change, projectDO, locale));
-        ticket.setTicketStatus(RdpTicketStatus.PRE_INIT);
-        ticket.setApproBiz(RdpApprovalBiz.DM_CHANGE);
+        ticket.setTicketStatus(ApprovalStatus.PRE_INIT);
+        ticket.setApproBiz(ApprovalBiz.DM_CHANGE);
         ticket.setStatusMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.TICKET_STATUS_WAIT_EXPLAIN.name(), locale));
         ticket.setApproType(approvalType);
         ticket.setEnvName(envDO.getEnvName());
@@ -228,15 +227,15 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         ticket.setCheckedInfo(JsonUtils.toJson(checkMap.values()));
 
         //
-        if (approvalInfo.getApprovalType() == RdpApprovalType.Internal) {
+        if (approvalInfo.getApprovalType() == ApprovalType.Internal) {
             DmApprovalPersonDO primary = new DmApprovalPersonDO();
             primary.setPersonUid(projectDO.getProjectUid());
             primary.setTicketBzId(bizId);
-            this.rdpApprovalPersonMapper.insert(primary);
+            this.approvalDal.personMapper().insert(primary);
         }
 
-        this.approvalMapper.insert(ticket);
-        this.approvalFlowService.createProcess(ticket.getId(), RdpApprovalBiz.DM_CHANGE, true);
+        this.approvalDal.approvalMapper().insert(ticket);
+        this.approvalFlowService.createProcess(ticket.getId(), ApprovalBiz.DM_CHANGE, true);
         return ticket;
     }
 
@@ -250,22 +249,22 @@ public class ChangeActionForApproval extends AbstractChangeAction {
                 projectDO.getProjectName(), change.getChangeName(), WellKnowFormat.WKF_DATE_TIME24.format(change.getChangeTime()));
     }
 
-    private ChangeApprovalInfo findRdpApprovalType(String ownerUid, RdpDataSourceDO dsDO, Locale locale) {
+    private ChangeApprovalInfo findRdpApprovalType(String ownerUid, DmDsDO dsDO, Locale locale) {
         Long dsEnvId = dsDO.getDsEnvId();
-        RdpEnvParamDO paramDO = this.rdpEnvParamMapper.queryByParamKey(ownerUid, EnvParamKeys.CHANGE_TICKET_INFO, dsEnvId);
+        DmSysEnvParamDO paramDO = this.systemDal.envParamMapper().queryByParamKey(ownerUid, EnvParamKeys.CHANGE_TICKET_INFO, dsEnvId);
         if (paramDO == null) {
             return new ChangeApprovalInfo(//
-                RdpApprovalType.Internal,
+                ApprovalType.Internal,
                 ApprovalFlowService.INNER_TEMPLATE_ID,
                 DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_INTERNAL_TEMPLATE.name()));
         }
 
         EnvTicketMO ticketMO = JsonUtils.toObj(paramDO.getConfigValue(), EnvTicketMO.class);
-        RdpApprovalType rdpApprovalType = RdpApprovalType.getByName(ticketMO.getApprovalType());
+        ApprovalType rdpApprovalType = ApprovalType.getByName(ticketMO.getApprovalType());
         String templateId = ticketMO.getTemplateId();
         String templateName = ticketMO.getTemplateName();
-        if (rdpApprovalType != RdpApprovalType.Internal) {
-            DmApprovalCacheTemplateDO templateDO = this.approvalFlowService.checkApprovalAndReturnTemplate(ownerUid, rdpApprovalType, templateId, locale);
+        if (rdpApprovalType != ApprovalType.Internal) {
+            DmApprovalTemplateDO templateDO = this.approvalFlowService.checkApprovalAndReturnTemplate(ownerUid, rdpApprovalType, templateId, locale);
             templateName = templateDO.getTemplateName();
         }
         return new ChangeApprovalInfo(rdpApprovalType, templateId, templateName);

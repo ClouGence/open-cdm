@@ -31,10 +31,10 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
-import com.clougence.clouddm.console.web.global.jwtsession.SecurityLevel;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.rdp.constant.operation.AuditType;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.console.web.model.fo.role.CreateRoleFO;
 import com.clougence.clouddm.console.web.model.fo.role.DeleteRoleFO;
 import com.clougence.clouddm.console.web.model.fo.role.FetchRoleFO;
@@ -42,14 +42,14 @@ import com.clougence.clouddm.console.web.model.fo.role.UpdateRoleFO;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
 import com.clougence.clouddm.console.web.model.vo.role.RoleAuthTreeVO;
 import com.clougence.clouddm.console.web.model.vo.role.RoleVO;
-import com.clougence.clouddm.console.web.dal.model.RdpRoleDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.rdp.service.RdpAuthServiceForManage;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.rdp.service.RdpRoleService;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.rdp.service.model.AddRoleMO;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -90,7 +90,7 @@ public class RdpRoleController {
         List<AuthInfo> allLabel = this.rdpDsAuthManagerService.getRoleAuthLabel();
         List<String> labels = allLabel.stream().map(AuthInfo::getKey).collect(Collectors.toList());
 
-        List<RdpRoleDO> roles = this.rdpRoleService.listRoleByUID(puid);
+        List<DmAuthRoleDO> roles = this.rdpRoleService.listRoleByUID(puid);
         List<RoleVO> vos = roles.stream().map(roleDO -> {
             return RdpConvertUtils.convertToRoleVO(roleDO, labels);
         }).collect(Collectors.toList());
@@ -102,7 +102,7 @@ public class RdpRoleController {
     public ResWebData<?> fetchRole(@Valid @RequestBody FetchRoleFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
-        RdpRoleDO role = this.rdpRoleService.fetchRoleById(fo.getRoleId());
+        DmAuthRoleDO role = this.rdpRoleService.fetchRoleById(fo.getRoleId());
         if (StringUtils.equals(role.getOwnerUid(), puid)) {
             List<AuthInfo> allLabel = this.rdpDsAuthManagerService.getRoleAuthLabel();
             List<String> labels = allLabel.stream().map(AuthInfo::getKey).collect(Collectors.toList());
@@ -131,7 +131,7 @@ public class RdpRoleController {
     public ResWebData<?> deleteRole(@Valid @RequestBody DeleteRoleFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
-        RdpRoleDO rdpRoleDO = rdpRoleService.fetchRoleById(fo.getRoleId());
+        DmAuthRoleDO rdpRoleDO = rdpRoleService.fetchRoleById(fo.getRoleId());
         ResWebData<Boolean> resWebData = this.rdpRoleService.deleteRole(puid, fo);
         if (resWebData.isSuccess()) {
             rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), fo

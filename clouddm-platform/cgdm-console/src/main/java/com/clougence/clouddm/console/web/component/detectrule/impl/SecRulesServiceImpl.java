@@ -22,29 +22,26 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
-import com.clougence.clouddm.console.web.component.auth.model.DsCacheEntry;
 import com.clougence.clouddm.console.web.component.detectrule.SecCheckerRules;
 import com.clougence.clouddm.console.web.component.detectrule.SecRulesService;
-import com.clougence.clouddm.console.web.constants.DmMode;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.RuleKind;
-import com.clougence.clouddm.console.web.dal.enumeration.RuleScriptType;
-import com.clougence.clouddm.console.web.dal.enumeration.RuleSensitiveMode;
-import com.clougence.clouddm.console.web.dal.mapper.*;
-import com.clougence.clouddm.console.web.dal.model.*;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.SecRuleDal;
+import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
+import com.clougence.clouddm.platform.dal.model.secrule.*;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
 import com.clougence.clouddm.sdk.service.secrules.CheckerRange;
 import com.clougence.clouddm.sdk.service.secrules.CheckerRule;
 import com.clougence.clouddm.sdk.service.secrules.SecParam;
 import com.clougence.clouddm.sdk.service.secrules.SecRulesCheckerService;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.NumberUtils;
 import com.clougence.utils.StringUtils;
@@ -60,39 +57,27 @@ import jakarta.annotation.Resource;
 public class SecRulesServiceImpl implements SecRulesService, UnifiedPostConstruct {
 
     @Resource
-    private DmConsoleConfig              dmConfig;
+    private DataSourceDal                dsDal;
     @Resource
-    private DmDsConfigMapper             dsConfigMapper;
+    private SecRuleDal                   secRuleDal;
+    @Resource
+    private ObjectCacheDao               objectCacheDao;
     @Resource
     private DmEnvParamService            dmEnvParamService;
-    @Resource
-    private BizResOwnerCacheService      dmOwnerCacheService;
-    @Resource
-    private DmSecSpecMapper              secSpecMapper;
-    @Resource
-    private DmSecRefererMapper           secRefererMapper;
-    @Resource
-    private DmSecRulesMapper             secRulesMapper;
-    @Resource
-    private DmSecSensitiveMapper         secSensitiveMapper;
-    @Resource
-    private DmSecRangeMapper             secRangeMapper;
 
     private Map<String, SecCheckerRules> checkerRuleCache;
     private SecRulesCheckerService       checkerSpiCache;
 
     @Override
     public void init() throws Exception {
-        if (this.dmConfig.getDmMode() == DmMode.output) {
-            this.checkerRuleCache = new ConcurrentHashMap<>();
-            ThreadUtils.runDaemonThread(() -> {
-                Thread.currentThread().setName("SecRulesEngine-cache-cleanup");
-                while (true) {
-                    checkerRuleCache.clear();
-                    ThreadUtils.sleep(60 * 1000);
-                }
-            });
-        }
+        this.checkerRuleCache = new ConcurrentHashMap<>();
+        ThreadUtils.runDaemonThread(() -> {
+            Thread.currentThread().setName("SecRulesEngine-cache-cleanup");
+            while (true) {
+                checkerRuleCache.clear();
+                ThreadUtils.sleep(60 * 1000);
+            }
+        });
     }
 
     @Override
@@ -119,7 +104,7 @@ public class SecRulesServiceImpl implements SecRulesService, UnifiedPostConstruc
 
     @Override
     public SecCheckerRules fetchCheckerRulesByDsId(long dsId) {
-        DsCacheEntry dsCache = this.dmOwnerCacheService.queryByDsId(dsId);
+        DsCacheEntry dsCache = this.objectCacheDao.queryByDsId(dsId);
 
         DataSourceType dsType = dsCache.getDsType();
         String cacheKey = dsCache.getOwnerUid() + "-" + dsId + "-" + dsType;
@@ -130,7 +115,7 @@ public class SecRulesServiceImpl implements SecRulesService, UnifiedPostConstruc
 
     @Override
     public SecCheckerRules fetchCheckerRules(String ownerUid, long dsId) {
-        DsCacheEntry dsCache = this.dmOwnerCacheService.queryByDsId(dsId);
+        DsCacheEntry dsCache = this.objectCacheDao.queryByDsId(dsId);
 
         DataSourceType dsType = dsCache.getDsType();
         String cacheKey = ownerUid + "-" + dsId + "-" + dsType;
@@ -140,7 +125,7 @@ public class SecRulesServiceImpl implements SecRulesService, UnifiedPostConstruc
     }
 
     private SecCheckerRules resolveCheckerRules(String ownerUid, long dsId, DataSourceType dsType) {
-        DmDsConfigDO dmDsConfigDO = this.dsConfigMapper.queryById(ownerUid, dsId);
+        DmDsConfigDO dmDsConfigDO = this.dsDal.configMapper().queryById(ownerUid, dsId);
         long envId = dmDsConfigDO.getBindEnvId();
 
         String usingSpec = this.dmEnvParamService.queryParam(ownerUid, envId, EnvParamKeys.DM_BIND_CHECK_SPEC);
@@ -149,7 +134,7 @@ public class SecRulesServiceImpl implements SecRulesService, UnifiedPostConstruc
         }
 
         long specId = Long.parseLong(usingSpec);
-        DmSecSpecDO specDO = this.secSpecMapper.queryByIdAndUid(ownerUid, specId);
+        DmSecSpecDO specDO = this.secRuleDal.specMapper().queryByIdAndUid(ownerUid, specId);
         if (specDO == null || !specDO.isEnable()) {
             return new SecCheckerRules();
         }
@@ -173,13 +158,13 @@ public class SecRulesServiceImpl implements SecRulesService, UnifiedPostConstruc
         // result
         List<CheckerRule> resultOfQuery = this.convertQueryRulesToCheckerRule(ownerUid, dsType, ruleOfQuery);
         List<CheckerRule> resultOfSen = this.convertSenRulesToCheckerRule(ownerUid, ruleOfSen);
-        DsCacheEntry dsCache = this.dmOwnerCacheService.queryByDsId(dsId);
+        DsCacheEntry dsCache = this.objectCacheDao.queryByDsId(dsId);
         return new SecCheckerRules(envId, dsId, dsCache.getDsInstId(), dsType, specDO.getName(), resultOfQuery, resultOfSen);
     }
 
     private Collection<SecRefererWrap> resolveSecRefererList(String ownerUid, long specId) {
         Map<Long, SecRefererWrap> groupBy = new HashMap<>();
-        List<DmSecRefererDO> refererList = this.secRefererMapper.listBySpecId(ownerUid, specId);
+        List<DmSecRefererDO> refererList = this.secRuleDal.refererMapper().listBySpecId(ownerUid, specId);
         for (DmSecRefererDO referer : refererList) {
             if (referer.isEnable()) {
                 groupBy.put(referer.getId(), new SecRefererWrap(referer));
@@ -190,7 +175,7 @@ public class SecRulesServiceImpl implements SecRulesService, UnifiedPostConstruc
             return Collections.emptyList();
         }
 
-        List<DmSecRangeDO> range = this.secRangeMapper.queryListBySpecId(ownerUid, specId);
+        List<DmSecRangeDO> range = this.secRuleDal.rangeMapper().queryListBySpecId(ownerUid, specId);
         for (DmSecRangeDO rangeDO : range) {
             SecRefererWrap refererWrap = groupBy.get(rangeDO.getRefId());
             if (refererWrap != null) {
@@ -206,7 +191,7 @@ public class SecRulesServiceImpl implements SecRulesService, UnifiedPostConstruc
             return Collections.emptyList();
         }
 
-        List<DmSecRuleDO> queryRules = this.secRulesMapper.queryByIds(ownerUid, refMap.keySet());
+        List<DmSecRuleDO> queryRules = this.secRuleDal.rulesMapper().queryByIds(ownerUid, refMap.keySet());
         return queryRules.stream().filter(r -> {
             return r.getRuleDsRange().contains(dsType);
         }).map(r -> {
@@ -236,7 +221,7 @@ public class SecRulesServiceImpl implements SecRulesService, UnifiedPostConstruc
             return Collections.emptyList();
         }
 
-        List<DmSecSensitiveDO> queryRules = this.secSensitiveMapper.queryByIds(ownerUid, refMap.keySet());
+        List<DmSecSensitiveDO> queryRules = this.secRuleDal.sensitiveMapper().queryByIds(ownerUid, refMap.keySet());
         return queryRules.stream().map(r -> {
             SecRefererWrap refererWrap = refMap.get(r.getId());
             DmSecRefererDO referer = refererWrap.getReferer();

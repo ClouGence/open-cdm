@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
 import com.clougence.clouddm.console.web.util.RdpJacksonUtil;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.utils.JsonUtils;
 
 import lombok.Getter;
@@ -46,7 +46,7 @@ public class RdpDingTalkImAlertService extends AbstractRdpImAlertService {
     }
 
     @Override
-    protected String genParamsJsonStr(String signName, String msg, Map<String, Object> msgParams, List<RdpUserDO> users, boolean atAll) {
+    protected String genParamsJsonStr(String signName, String msg, Map<String, Object> msgParams, List<DmAuthUserDO> users, boolean atAll) {
         Map<String, String> contents = new HashMap<>();
         contents.put("content", signName + msg);
 
@@ -54,7 +54,7 @@ public class RdpDingTalkImAlertService extends AbstractRdpImAlertService {
         if (users != null && !users.isEmpty()) {
             Map<String, Object> ats = new HashMap<>();
             ats.put("isAtAll", atAll);
-            ats.put("atMobiles", users.stream().map(RdpUserDO::getPhone).collect(Collectors.toList()));
+            ats.put("atMobiles", users.stream().map(DmAuthUserDO::getPhone).collect(Collectors.toList()));
             params.put("at", ats);
         }
 

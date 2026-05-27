@@ -39,9 +39,9 @@ import com.clougence.clouddm.console.web.model.vo.ConnectTypeVO;
 import com.clougence.clouddm.console.web.model.vo.DsSecurityDetailVO;
 import com.clougence.clouddm.console.web.model.vo.DsSecurityOption;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
-import com.clougence.clouddm.console.web.dal.enumeration.DeployEnvInfoFetchType;
-import com.clougence.clouddm.console.web.dal.enumeration.DeployEnvType;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvInfoFetchType;
+import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 
 import jakarta.validation.Valid;
 

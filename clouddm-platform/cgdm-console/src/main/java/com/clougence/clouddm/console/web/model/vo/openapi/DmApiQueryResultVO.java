@@ -17,7 +17,7 @@ package com.clougence.clouddm.console.web.model.vo.openapi;
 
 import java.util.List;
 
-import com.clougence.clouddm.console.web.dal.enumeration.WarnLevel;
+import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.console.web.model.vo.editor.query.WsInfoResMsg;
 import com.clougence.clouddm.console.web.model.vo.editor.query.WsRuleEntity;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ReceiveMode;

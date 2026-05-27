@@ -15,6 +15,8 @@
  */
 package com.clougence.rdp.service.impl;
 
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,11 +26,9 @@ import com.clougence.clouddm.sdk.service.config.ConfigData;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.sdk.service.config.RoleData;
 import com.clougence.clouddm.sdk.service.config.UserData;
-import com.clougence.clouddm.console.web.dal.mapper.RdpRoleMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpRoleDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.rdp.service.RdpUserConfigService;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
@@ -44,17 +44,15 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class ConfigServiceImpl implements ConsoleConfigService {
+    @Resource
+    private AuthDal authDal;
 
-    @Resource
-    private RdpRoleMapper        rdpRoleMapper;
-    @Resource
-    private RdpUserMapper        rdpUserMapper;
     @Resource
     private RdpUserConfigService rdpUserConfigService;
 
     @Override
     public List<ConfigData> fetchSettings(String ownerUid, List<String> names) {
-        List<RdpUserKvBaseConfigDO> configList = this.rdpUserConfigService.getSpecifiedConfigs(ownerUid, names);
+        List<DmSysUserConfDO> configList = this.rdpUserConfigService.getSpecifiedConfigs(ownerUid, names);
         if (CollectionUtils.isEmpty(configList)) {
             return Collections.emptyList();
         } else {
@@ -80,7 +78,7 @@ public class ConfigServiceImpl implements ConsoleConfigService {
 
     @Override
     public UserData findUserByUID(String uid) {
-        RdpUserDO userDO = this.rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(uid);
         if (userDO == null) {
             return null;
         }
@@ -90,7 +88,7 @@ public class ConfigServiceImpl implements ConsoleConfigService {
 
     @Override
     public List<RoleData> findRoleByName(String ownerUid, String roleName) {
-        List<RdpRoleDO> roles = this.rdpRoleMapper.queryByRoleName(ownerUid, roleName);
+        List<DmAuthRoleDO> roles = this.authDal.roleMapper().queryByRoleName(ownerUid, roleName);
         if (CollectionUtils.isEmpty(roles)) {
             return Collections.emptyList();
         } else {

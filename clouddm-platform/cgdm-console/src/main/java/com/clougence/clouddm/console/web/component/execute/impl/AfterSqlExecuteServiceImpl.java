@@ -29,6 +29,8 @@ import com.clougence.clouddm.console.web.component.detectrule.handler.QueryTypeH
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.execute.AfterSqlExecuteService;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
@@ -36,8 +38,6 @@ import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
 import com.clougence.schema.umi.struts.UmiTypes;
 
 import jakarta.annotation.Resource;
@@ -46,9 +46,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class AfterSqlExecuteServiceImpl implements AfterSqlExecuteService {
-
     @Resource
-    private RdpDataSourceMapper                       rdpDataSourceMapper;
+    private DataSourceDal                             dsDal;
     @Resource
     private DmDsConfigService                         dmDsConfigService;
 
@@ -82,7 +81,7 @@ public class AfterSqlExecuteServiceImpl implements AfterSqlExecuteService {
     }
 
     public void handleAfterSqlSuccess(Long dsId, List<String> dsLevels, String sql, Date execTime) {
-        RdpDataSourceDO rdpDataSourceDO = rdpDataSourceMapper.queryDsIdentityById(dsId);
+        DmDsDO rdpDataSourceDO = dsDal.dsMapper().queryDsIdentityById(dsId);
         SecDomainResolveSpi secDomainResolveSpi = PluginManager.findSecDomainResolveSpi(rdpDataSourceDO.getDataSourceType());
         CodeInfo codeInfo = CodeInfo.builder().baseLine(1).baseColumn(0).query(sql).build();
         ContextInfo contextInfo = ContextInfo.builder()

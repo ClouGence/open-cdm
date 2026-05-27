@@ -16,7 +16,7 @@
 package com.clougence.clouddm.console.web.model.fo;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.dal.enumeration.DeployEnvType;
+import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

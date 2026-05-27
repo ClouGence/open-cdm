@@ -28,21 +28,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
-import com.clougence.clouddm.console.web.component.auth.model.DsCacheEntry;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.constants.DmMode;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.DataSourceStatus;
-import com.clougence.clouddm.console.web.dal.mapper.DmFileMapper;
-import com.clougence.clouddm.console.web.dal.model.DmFileDO;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.editor.query.*;
 import com.clougence.clouddm.console.web.model.vo.editor.query.DsStatusConfVO;
@@ -56,7 +51,12 @@ import com.clougence.clouddm.console.web.service.editor.model.DataResultPageVO;
 import com.clougence.clouddm.console.web.service.editor.model.DsAvailableDTO;
 import com.clougence.clouddm.console.web.service.editor.model.FileSaveAsDTO;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.util.RdpAuthUtils;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportLevel;
@@ -65,9 +65,7 @@ import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpUserService;
-import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -91,19 +89,17 @@ import lombok.extern.slf4j.Slf4j;
 public class QueryEditorController {
 
     @Resource
-    private DmConsoleConfig         dmConfig;
+    private ExecutionDal         executionDal;
     @Resource
-    private DsQueryEditorService    queryService;
+    private DsQueryEditorService queryService;
     @Resource
-    private DmFileMapper            dmFileMapper;
+    private DmDsConfigService    dmDsConfigService;
     @Resource
-    private DmDsConfigService       dmDsConfigService;
+    private ObjectCacheDao       objectCacheDao;
     @Resource
-    private BizResOwnerCacheService ownerCacheService;
+    private DmAuthServiceForBiz  dmAuthServiceForBiz;
     @Resource
-    private DmAuthServiceForBiz     dmAuthServiceForBiz;
-    @Resource
-    private DmSupportSpiWrapper     dmSupportSpiWrapper;
+    private DmSupportSpiWrapper  dmSupportSpiWrapper;
 
     @RequestAuth(checkOpPassword = true, value = DM_QUERY_CONSOLE)
     @RequestMapping(value = "/createsession", method = RequestMethod.POST)
@@ -112,7 +108,7 @@ public class QueryEditorController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.ownerCacheService.ownDataSource(puid, levels.dsDO().getId());
+        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
 
         RdbIsolation initIsolation = RdbIsolation.valueOfCode(fo.getInitIsolation());
         String sessionId = this.queryService.createSession(uid, fo.getLevels(), fo.getInitAutoCommit(), initIsolation);
@@ -146,7 +142,7 @@ public class QueryEditorController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         DsStatusConfVO vo = new DsStatusConfVO();
-        DsCacheEntry entry = this.ownerCacheService.queryByDsId(fo.getDsId());
+        DsCacheEntry entry = this.objectCacheDao.queryByDsId(fo.getDsId());
         if (entry == null) {
             vo.setDsStatus(DataSourceStatus.Deleted);
             vo.setDsStatusMessage(DmConvertUtils.convertToDataSourceStatusI18n(DataSourceStatus.Deleted, null));
@@ -216,7 +212,7 @@ public class QueryEditorController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.ownerCacheService.ownDataSource(puid, levels.dsDO().getId());
+        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
 
         UmiTypes leafType = UmiTypes.valueOfCode(fo.getTargetType());
         List<String> leafName = fo.getTargetNames();
@@ -267,19 +263,11 @@ public class QueryEditorController {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_RESULT_FILE_NOT_EXIST_ERROR.name()));
         }
 
-        this.dmFileMapper.updateAccessTimeByUniqueId(fo.getResultId(), "prepare for export " + fo.getDstFormatName());
+        this.executionDal.fileMapper().updateAccessTimeByUniqueId(fo.getResultId(), "prepare for export " + fo.getDstFormatName());
 
         String optionJson = fo.getOption() == null ? null : JsonUtils.toJson(fo.getOption());
-        FileSaveAsDTO taskId;
-        if (this.dmConfig.getDmMode() == DmMode.output) {
-            taskId = this.queryService.resultSetFileSaveAs(puid, uid, fo.getResultId(), null, fo.getDstFormatName(), true, optionJson);
-            return ResWebDataUtils.buildSuccess(taskId);
-        } else if (this.dmConfig.getDmMode() == DmMode.desktop) {
-            taskId = this.queryService.resultSetFileSaveAs(puid, uid, fo.getResultId(), fo.getDstFileName(), fo.getDstFormatName(), false, optionJson);
-            return ResWebDataUtils.buildSuccess(taskId);
-        } else {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_EXPORT_MODE_UNSUPPORT_ERROR.name(), this.dmConfig.getDmMode()));
-        }
+        FileSaveAsDTO taskId = this.queryService.resultSetFileSaveAs(puid, uid, fo.getResultId(), null, fo.getDstFormatName(), true, optionJson);
+        return ResWebDataUtils.buildSuccess(taskId);
     }
 
     @RequestAuth(DM_QUERY_CONSOLE)
@@ -297,7 +285,7 @@ public class QueryEditorController {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_RESULT_FILE_NOT_EXIST_ERROR.name()));
         }
 
-        DmFileDO fileDO = this.queryService.queryUserFileByUniqueId(puid, uid, fo.getResultId());
+        DmExecFileDO fileDO = this.queryService.queryUserFileByUniqueId(puid, uid, fo.getResultId());
         URI fileUri = DmConvertUtils.createFileUri(fileDO.getFileUri());
         String fileName = FilenameUtils.getName(fileUri.getPath());
         long fileSize = this.queryService.fetchFileSizeByUri(puid, uid, fileDO.getFileUri());
@@ -310,7 +298,7 @@ public class QueryEditorController {
         response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
         response.setContentLengthLong(fileSize);
 
-        this.dmFileMapper.updateAccessTimeByUniqueId(fileDO.getUniqueId(), "download 0% of " + fileSizeStr);
+        this.executionDal.fileMapper().updateAccessTimeByUniqueId(fileDO.getUniqueId(), "download 0% of " + fileSizeStr);
         long t = System.currentTimeMillis();
         try (ServletOutputStream outputStream = response.getOutputStream()) {
             long readOffset = 0;
@@ -323,7 +311,7 @@ public class QueryEditorController {
                 if (System.currentTimeMillis() < (t + 3000)) {
                     t = System.currentTimeMillis();
                     int percent = (int) ((((double) readOffset) + binaryData.length) / ((double) fileSize)) * 100;
-                    this.dmFileMapper.updateAccessTimeByUniqueId(fileDO.getUniqueId(), "download " + percent + "% of " + fileSizeStr);
+                    this.executionDal.fileMapper().updateAccessTimeByUniqueId(fileDO.getUniqueId(), "download " + percent + "% of " + fileSizeStr);
                 }
 
                 readOffset += binaryData.length;
@@ -331,7 +319,7 @@ public class QueryEditorController {
                 outputStream.flush();
             }
 
-            this.dmFileMapper.updateAccessTimeByUniqueId(fileDO.getUniqueId(), "download 100% of " + fileSizeStr);
+            this.executionDal.fileMapper().updateAccessTimeByUniqueId(fileDO.getUniqueId(), "download 100% of " + fileSizeStr);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -349,7 +337,7 @@ public class QueryEditorController {
         }
 
         int pageSize = Math.min(fo.getPageSize(), 20000);
-        this.dmFileMapper.updateAccessTimeByUniqueId(fo.getResultId(),//
+        this.executionDal.fileMapper().updateAccessTimeByUniqueId(fo.getResultId(),//
                 "fetch rows " + fo.getOffsetRow() + " to " + (fo.getOffsetRow() + fo.getPageSize()));
         DataResultPageVO dto = this.queryService.fetchResultPage(puid, uid, fo.getResultId(), fo.getOffsetRow(), pageSize);
         return ResWebDataUtils.buildSuccess(dto);
@@ -367,7 +355,7 @@ public class QueryEditorController {
         }
 
         int safeFetchSize = Math.min(fo.getFetchSize(), 512 * 1024);
-        this.dmFileMapper.updateAccessTimeByUniqueId(fo.getResultId(), //
+        this.executionDal.fileMapper().updateAccessTimeByUniqueId(fo.getResultId(), //
                 "fetch data at " + fo.getRowNumber() + ":" + fo.getColNumber() + ", " + fo.getOffset() + " to " + fo.getOffset() + safeFetchSize);
         DataResultDataVO dto = this.queryService.fetchResultData(puid, uid, fo.getResultId(), fo.getRowNumber(), fo.getColNumber(), fo.getOffset(), safeFetchSize);
         return ResWebDataUtils.buildSuccess(dto);

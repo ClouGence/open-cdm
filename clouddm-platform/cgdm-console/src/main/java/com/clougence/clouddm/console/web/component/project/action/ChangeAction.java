@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.component.project.action;
 
-import com.clougence.clouddm.console.web.dal.model.DmProjectChangeDO;
+import com.clougence.clouddm.platform.dal.model.project.DmProjectChangeDO;
 
 public interface ChangeAction {
 

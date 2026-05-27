@@ -17,7 +17,7 @@ package com.clougence.clouddm.console.web.model.vo.ticket;
 
 import java.util.List;
 
-import com.clougence.clouddm.console.web.dal.enumeration.RdpTicketProcessActivityStatus;
+import com.clougence.clouddm.console.web.constants.RdpTicketProcessActivityStatus;
 
 import lombok.Getter;
 import lombok.Setter;

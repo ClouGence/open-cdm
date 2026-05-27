@@ -15,11 +15,11 @@
  */
 package com.clougence.clouddm.console.web.global.csrf;
 
-import com.clougence.clouddm.console.web.dal.model.DmCsrfTokenDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthCsrfTokenDO;
 
 public interface CsrfTokenService {
 
-    DmCsrfTokenDO pullToken(String state);
+    DmAuthCsrfTokenDO pullToken(String state);
 
     String pushToken(String secretToken);
 

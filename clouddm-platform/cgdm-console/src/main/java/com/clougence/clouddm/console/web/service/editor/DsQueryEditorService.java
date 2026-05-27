@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
-import com.clougence.clouddm.console.web.dal.model.DmFileDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
 import com.clougence.clouddm.console.web.model.vo.editor.query.SessionVO;
 import com.clougence.clouddm.console.web.service.browse.model.rdb.BrowseColumnMO;
 import com.clougence.clouddm.console.web.service.editor.model.DataResultDataVO;
@@ -49,7 +49,7 @@ public interface DsQueryEditorService {
 
     DsAvailableDTO availableDataSource(String puid, String uid, long dsId);
 
-    DmFileDO queryUserFileByUniqueId(String puid, String uid, String resultId);
+    DmExecFileDO queryUserFileByUniqueId(String puid, String uid, String resultId);
 
     /** for service API '/query/exportResult' */
     FileSaveAsDTO resultSetFileSaveAs(String puid, String uid, String resultId, String dstFileName, String dstFormatName, boolean autoName, String option);

@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.console.web.util;
 
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+
 import java.util.List;
 
 import org.springframework.context.ApplicationContext;
@@ -25,20 +27,20 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPathObj;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.rdp.service.RdpAuthServiceForManage;
 import com.clougence.utils.StringUtils;
 
 public class RdpAuthUtils {
 
     private static RdpAuthServiceForManage rdpAuthServiceForManage;
-    private static RdpDataSourceMapper     rdpDataSourceMapper;
+    private static DataSourceDal datasourceDal;
 
     public static void initUtils(ApplicationContext spring) {
         rdpAuthServiceForManage = spring.getBean(RdpAuthServiceForManage.class);
-        rdpDataSourceMapper = spring.getBean(RdpDataSourceMapper.class);
+        datasourceDal = spring.getBean(DataSourceDal.class);
     }
 
     public static <T> ResWebData<T> missDataPermission(final long dsId, final String resourcePath, final String dataAuthLabel) {
@@ -52,8 +54,8 @@ public class RdpAuthUtils {
 
         String useResourcePath = "/" + dsId + "/" + StringUtils.trimStart(resourcePath, '/');
         String useResourceLabel = useResourcePath;
-        if (rdpDataSourceMapper != null) {
-            RdpDataSourceDO dsDO = rdpDataSourceMapper.queryDsIdentityById(dsId);
+        if (datasourceDal != null) {
+            DmDsDO dsDO = datasourceDal.dsMapper().queryDsIdentityById(dsId);
             String dsLabel = dsDO.getInstanceDesc();
             if (RdpConvertUtils.removeNoDescription(dsLabel) == null) {
                 dsLabel = dsDO.getInstanceId();
@@ -93,8 +95,8 @@ public class RdpAuthUtils {
         }
 
         String useResourceLabel = "/" + dsId + "/" + StringUtils.trimStart(resourcePath, '/');
-        if (rdpDataSourceMapper != null) {
-            RdpDataSourceDO dsDO = rdpDataSourceMapper.queryDsIdentityById(dsId);
+        if (datasourceDal != null) {
+            DmDsDO dsDO = datasourceDal.dsMapper().queryDsIdentityById(dsId);
             String dsLabel = dsDO.getInstanceDesc();
             if (RdpConvertUtils.removeNoDescription(dsLabel) == null) {
                 dsLabel = dsDO.getInstanceId();

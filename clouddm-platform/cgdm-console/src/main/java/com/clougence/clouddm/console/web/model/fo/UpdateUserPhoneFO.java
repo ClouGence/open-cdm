@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.console.web.model.fo;
 
-import com.clougence.clouddm.console.web.dal.enumeration.AreaCode;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,7 +29,6 @@ public class UpdateUserPhoneFO {
     private String   phone;
 
     @NotNull(message = "{notnull.phoneareacode}")
-    private AreaCode phoneAreaCode;
 
     @NotNull(message = "{notnull.verifycode}")
     @NotBlank(message = "{notblank.verifycode}")

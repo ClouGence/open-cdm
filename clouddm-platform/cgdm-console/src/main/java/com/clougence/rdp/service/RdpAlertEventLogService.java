@@ -17,16 +17,16 @@ package com.clougence.rdp.service;
 
 import java.util.List;
 
-import com.clougence.clouddm.console.web.dal.model.RdpAlertEventLogDO;
-import com.clougence.rdp.service.enumeration.AlertEventStatus;
-import com.clougence.rdp.service.enumeration.AlertMediaType;
+import com.clougence.clouddm.platform.dal.model.monitor.DmMonAlertEventLogDO;
+import com.clougence.clouddm.platform.dal.model.monitor.AlertEventStatus;
+import com.clougence.clouddm.platform.dal.model.monitor.AlertMediaType;
 
 /**
  * @author wanshao create time is 2020/4/15
  **/
 public interface RdpAlertEventLogService {
 
-    List<RdpAlertEventLogDO> listAlertEventLogs(Long startTimeMillis, Long endTimeMillis, AlertEventStatus status, String uid, long startId, int pageSize);
+    List<DmMonAlertEventLogDO> listAlertEventLogs(Long startTimeMillis, Long endTimeMillis, AlertEventStatus status, String uid, long startId, int pageSize);
 
     void save(AlertEventStatus alertEventStatus, String content, String errMsg, AlertMediaType alertMediaType, List<String> sendUids);
 }

@@ -23,27 +23,25 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.mapper.DmFileMapper;
-import com.clougence.clouddm.console.web.dal.model.DmFileDO;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmResAuthMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.DmResAuthDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpAuthServiceForBiz;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -56,19 +54,16 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
-
     @Resource
-    private RdpDataSourceMapper  rdpDsMapper;
+    private ExecutionDal         executionDal;
+    @Resource
+    private DataSourceDal datasourceDal;
+    @Resource
+    private AuthDal              authDal;
     @Resource
     private DmResAuthService     dmDsAuthService;
     @Resource
     private RdpAuthServiceForBiz rdpAuthServiceForBiz;
-    @Resource
-    private RdpUserMapper   rdpUserMapper;
-    @Resource
-    private DmResAuthMapper resAuthMapper;
-    @Resource
-    private DmFileMapper    dmFileMapper;
     @Resource
     private DmEnvParamService    dmEnvParamService;
 
@@ -89,7 +84,7 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
     private void throwMessageError(long resId, DsResPath resPath, String dataAuthLabel) {
         AuthInfo authKeyInfo = this.dmDsAuthService.getAuthInfo(dataAuthLabel);
 
-        RdpDataSourceDO dsDO = this.rdpDsMapper.selectById(resId);
+        DmDsDO dsDO = this.datasourceDal.dsMapper().selectById(resId);
         String authRes = dsDO.getInstanceId() + resPath.getResPath();
 
         String dataAuthMsg = DmI18nUtils.getMessage(authKeyInfo.getKeyI18n());
@@ -100,7 +95,7 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
     @Override
     public boolean checkResPathWithoutError(String puid, String uid, long resId, AuthKind authKind, DsResPath resPath, String dataAuthLabel) {
         if (authKind == AuthKind.DataSource) {
-            RdpDataSourceDO dsDO = this.rdpDsMapper.selectById(resId);
+            DmDsDO dsDO = this.datasourceDal.dsMapper().selectById(resId);
             String enable = this.dmEnvParamService.queryParam(puid, dsDO.getDsEnvId(), EnvParamKeys.DM_ALLOW_ALL_STATEMENTS);
             if (StringUtils.equals(SecDataAuthLabel.DM_DAUTH_OTHER, dataAuthLabel) && StringUtils.equalsIgnoreCase("true", enable)) {
                 return false;
@@ -132,7 +127,7 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
 
     @Override
     public void checkResultFile(String puid, String uid, String fileUniqueId) {
-        DmFileDO fileDO = this.dmFileMapper.queryFileByUniqueId(fileUniqueId);
+        DmExecFileDO fileDO = this.executionDal.fileMapper().queryFileByUniqueId(fileUniqueId);
         if (fileDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_RESULT_FILE_NOT_EXIST_ERROR.name()));
         }
@@ -147,18 +142,18 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
     }
 
     private boolean checkBrowseResPath(long dsId, String uid, String puid, String path, String dataAuthLabel) {
-        RdpUserDO userDO = rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
         if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || userDO.isResourceManageEnable()) {
             return true;
         }
 
-        RdpDataSourceDO dsDO = rdpDsMapper.selectById(dsId);
+        DmDsDO dsDO = datasourceDal.dsMapper().selectById(dsId);
         if (!dsDO.getUid().equals(puid)) {
             throw new IllegalArgumentException(DmI18nUtils.getMessage(I18nRdpMsgKeys.DS_IS_NOT_BELONG_YOU_PRIMARY_ERROR.name(), dsDO.getId()));
         }
 
-        List<DmResAuthDO> parentAndSelfAuth = this.resAuthMapper.queryByPathLike(dsId, uid, AuthKind.DataSource, Collections.singletonList(path));
-        List<DmResAuthDO> subAuth = this.resAuthMapper.queryByLikePath(dsId, uid, AuthKind.DataSource, path);
+        List<DmAuthResDO> parentAndSelfAuth = this.authDal.resMapper().queryByPathLike(dsId, uid, AuthKind.DataSource, Collections.singletonList(path));
+        List<DmAuthResDO> subAuth = this.authDal.resMapper().queryByLikePath(dsId, uid, AuthKind.DataSource, path);
 
         parentAndSelfAuth = parentAndSelfAuth.stream().filter(r -> r.getAuthLabels().contains(dataAuthLabel)).collect(Collectors.toList());
         subAuth = subAuth.stream().filter(r -> r.getAuthLabels().contains(dataAuthLabel)).collect(Collectors.toList());

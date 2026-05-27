@@ -17,11 +17,11 @@ package com.clougence.rdp.global.config.user;
 
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SchemaLessValueFormat;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
-import com.clougence.clouddm.console.web.dal.enumeration.ConfBelong;
-import com.clougence.rdp.constant.I18nUserConfigMsgKeys;
-import com.clougence.rdp.constant.KvConfValType;
+import com.clougence.clouddm.platform.dal.model.system.ConfBelong;
+import com.clougence.clouddm.console.web.global.i18n.I18nUserConfigMsgKeys;
+import com.clougence.clouddm.platform.dal.model.system.KvConfValType;
 import com.clougence.rdp.constant.UserConfigDef;
-import com.clougence.rdp.constant.UserConfigTagType;
+import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
 import com.clougence.rdp.service.enumeration.AlertImType;
 import com.clougence.rdp.service.enumeration.AlertSmsType;
 import com.clougence.rdp.service.enumeration.AlertVoiceType;

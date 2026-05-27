@@ -22,8 +22,8 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
 import com.clougence.rdp.component.dskvconfig.model.StarRocksExtraConfig;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.utils.StringUtils;
 
@@ -43,7 +43,7 @@ public class SrExtraConfGen extends CommonExtraConfGen {
     }
 
     @Override
-    public DsExtraConfig genDsExtraConfig(RdpDataSourceDO dsDO, List<InitDsKvBaseConfigFO> fos) {
+    public DsExtraConfig genDsExtraConfig(DmDsDO dsDO, List<InitDsKvBaseConfigFO> fos) {
         StarRocksExtraConfig config = newDsExtraConfig();
 
         for (InitDsKvBaseConfigFO f : fos) {
@@ -57,9 +57,9 @@ public class SrExtraConfGen extends CommonExtraConfGen {
     }
 
     @Override
-    public DsExtraConfig genDsExtraConfigFromExist(RdpDataSourceDO dsDO, List<RdpDsKvBaseConfigDO> confs) {
+    public DsExtraConfig genDsExtraConfigFromExist(DmDsDO dsDO, List<DmDsConfigKv4RdpDO> confs) {
         StarRocksExtraConfig config = newDsExtraConfig();
-        for (RdpDsKvBaseConfigDO f : confs) {
+        for (DmDsConfigKv4RdpDO f : confs) {
             fillEntry(config, f.getConfigName(), f.getConfigValue());
         }
 
@@ -80,7 +80,7 @@ public class SrExtraConfGen extends CommonExtraConfGen {
         }
     }
 
-    protected void validate(RdpDataSourceDO dsDO, StarRocksExtraConfig extraConfig) {
+    protected void validate(DmDsDO dsDO, StarRocksExtraConfig extraConfig) {
         if (StringUtils.isNotBlank(dsDO.getPublicHost())) {
             String publicHttpHost = extraConfig.getPublicHttpHost();
             if (StringUtils.isBlank(publicHttpHost)) {

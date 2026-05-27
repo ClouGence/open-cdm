@@ -33,8 +33,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.console.web.global.config.DmDalConfig;
 import com.clougence.clouddm.init.component.log.InstallUpgradeLogBus;
+import com.clougence.clouddm.platform.dal.config.DmDalConfig;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 

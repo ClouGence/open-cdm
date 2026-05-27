@@ -29,16 +29,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRange;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.RuleKind;
-import com.clougence.clouddm.console.web.dal.enumeration.SecRangeType;
-import com.clougence.clouddm.console.web.dal.model.DmSecRefererDO;
-import com.clougence.clouddm.console.web.dal.model.DmSecSpecDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.browse.BrowseDetailFO;
 import com.clougence.clouddm.console.web.model.fo.browse.BrowseLeafFO;
@@ -57,12 +53,16 @@ import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
 import com.clougence.clouddm.console.web.service.security.CheckRulesService;
 import com.clougence.clouddm.console.web.service.security.mode.DmSecRuleMO;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.util.RdpConvertUtils;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.model.secrule.DmSecRefererDO;
+import com.clougence.clouddm.platform.dal.model.secrule.DmSecSpecDO;
+import com.clougence.clouddm.platform.dal.model.secrule.RuleKind;
+import com.clougence.clouddm.platform.dal.model.secrule.SecRangeType;
+import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
-import com.clougence.clouddm.console.web.dal.model.RdpDsEnvDO;
 import com.clougence.rdp.service.RdpDsEnvService;
 import com.clougence.rdp.service.RdpUserService;
-import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 
@@ -80,17 +80,17 @@ import lombok.extern.slf4j.Slf4j;
 public class DmSecRangeController {
 
     @Resource
-    private CheckRulesService       checkRulesService;
+    private CheckRulesService checkRulesService;
     @Resource
-    private DmEnvParamService       dmEnvParamService;
+    private DmEnvParamService dmEnvParamService;
     @Resource
-    private RdpDsEnvService         rdpDsEnvService;
+    private RdpDsEnvService   rdpDsEnvService;
     @Resource
-    private BrowseService           browseService;
+    private BrowseService     browseService;
     @Resource
-    private DmDsConfigService       dmDsConfigService;
+    private DmDsConfigService dmDsConfigService;
     @Resource
-    private BizResOwnerCacheService ownerCacheService;
+    private ObjectCacheDao    objectCacheDao;
 
     @RequestAuth(value = DM_SECRULES_READ)
     @RequestMapping(value = "/specFetchRange", method = RequestMethod.POST)
@@ -123,7 +123,7 @@ public class DmSecRangeController {
         }
 
         SpecUpdateVO vo = new SpecUpdateVO();
-        List<RdpDsEnvDO> envs = this.dmEnvParamService.queryListByParamKeyValue(puid, EnvParamKeys.DM_BIND_CHECK_SPEC, String.valueOf(fo.getSpecId()));
+        List<DmSysEnvDO> envs = this.dmEnvParamService.queryListByParamKeyValue(puid, EnvParamKeys.DM_BIND_CHECK_SPEC, String.valueOf(fo.getSpecId()));
         if (!envs.isEmpty()) {
             vo.setMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_SPEC_INUSE_MESSAGE.name(), specDO.getName()));
             vo.setReferer(envs.stream().map(DmConvertUtils::convertToRefEnvVO).collect(Collectors.toList()));
@@ -151,7 +151,7 @@ public class DmSecRangeController {
         }
 
         SpecUpdateVO vo = new SpecUpdateVO();
-        List<RdpDsEnvDO> envs = this.dmEnvParamService.queryListByParamKeyValue(puid, EnvParamKeys.DM_BIND_CHECK_SPEC, String.valueOf(fo.getSpecId()));
+        List<DmSysEnvDO> envs = this.dmEnvParamService.queryListByParamKeyValue(puid, EnvParamKeys.DM_BIND_CHECK_SPEC, String.valueOf(fo.getSpecId()));
         if (!envs.isEmpty()) {
             vo.setMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_SPEC_INUSE_MESSAGE.name(), specDO.getName()));
             vo.setReferer(envs.stream().map(DmConvertUtils::convertToRefEnvVO).collect(Collectors.toList()));
@@ -174,7 +174,7 @@ public class DmSecRangeController {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        List<RdpDsEnvDO> dsEnvDOList = this.rdpDsEnvService.listDsEnv(puid, uid, null);
+        List<DmSysEnvDO> dsEnvDOList = this.rdpDsEnvService.listDsEnv(puid, uid, null);
         List<RangeObjectVO> vos = dsEnvDOList.stream().map(envDO -> {
             return DmConvertUtils.buildRangeObjectVO(String.valueOf(envDO.getId()), envDO.getEnvName(), null, SecRangeType.Environment, null);
         }).collect(Collectors.toList());
@@ -231,7 +231,7 @@ public class DmSecRangeController {
 
         // ds object list
         DsLevels dbLevels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.ownerCacheService.ownDataSource(puid, dbLevels.dsDO().getId());
+        this.objectCacheDao.ownDataSource(puid, dbLevels.dsDO().getId());
 
         List<BrowseLevelsVO> levels = this.browseService.listLevels(puid, uid, dbLevels, fo.isRefreshCache());
 
@@ -262,7 +262,7 @@ public class DmSecRangeController {
 
         // ds object list
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.ownerCacheService.ownDataSource(puid, levels.dsDO().getId());
+        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
 
         UmiTypes leafType = UmiTypes.valueOfCode(fo.getLeafType());
         List<BrowseLevelsVO> objects = this.browseService.listLeaf(puid, uid, levels, leafType, fo.getPattern(), false);
@@ -289,7 +289,7 @@ public class DmSecRangeController {
 
         // ds object list
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.ownerCacheService.ownDataSource(puid, levels.dsDO().getId());
+        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
 
         UmiTypes leafType = UmiTypes.valueOfCode(fo.getTargetType());
         String leafName = fo.getTargetName();

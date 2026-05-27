@@ -19,7 +19,7 @@ import java.util.List;
 
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.clouddm.console.web.dal.model.DmResAuthDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 
 /**
  * @author mode 2020/12/8 15:21
@@ -36,9 +36,9 @@ public interface RdpAuthServiceForBiz {
 
     void checkResAuth(String puid, String uid, long resId, DsResPath resPath, String dataAuthLabel, AuthKind authKind);
 
-    List<DmResAuthDO> listAuthByUser(String targetUid, AuthKind authKind);
+    List<DmAuthResDO> listAuthByUser(String targetUid, AuthKind authKind);
 
     List<Long> listResByUser(String targetUid, AuthKind authKind);
 
-    List<DmResAuthDO> listSpecifiedAuthOfUser(String targetUid, String dataAuthLabel, AuthKind authKind);
+    List<DmAuthResDO> listSpecifiedAuthOfUser(String targetUid, String dataAuthLabel, AuthKind authKind);
 }

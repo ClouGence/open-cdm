@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo;
 
-import com.clougence.clouddm.console.web.constants.VerifyType;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

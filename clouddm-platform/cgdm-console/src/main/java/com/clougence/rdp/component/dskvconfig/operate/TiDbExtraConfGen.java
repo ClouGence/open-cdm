@@ -23,8 +23,8 @@ import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
 import com.clougence.rdp.component.dskvconfig.RdpDsExtraConfGen;
 import com.clougence.rdp.component.dskvconfig.model.TiDBExtraConfig;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.utils.StringUtils;
 
@@ -47,7 +47,7 @@ public class TiDbExtraConfGen implements RdpDsExtraConfGen {
     }
 
     @Override
-    public DsExtraConfig genDsExtraConfig(RdpDataSourceDO dsDO, List<InitDsKvBaseConfigFO> fos) {
+    public DsExtraConfig genDsExtraConfig(DmDsDO dsDO, List<InitDsKvBaseConfigFO> fos) {
         TiDBExtraConfig config = new TiDBExtraConfig();
         for (InitDsKvBaseConfigFO f : fos) {
             fillEntry(config, f.getConfigName(), f.getConfigValue());
@@ -61,9 +61,9 @@ public class TiDbExtraConfGen implements RdpDsExtraConfGen {
     }
 
     @Override
-    public DsExtraConfig genDsExtraConfigFromExist(RdpDataSourceDO dsDO, List<RdpDsKvBaseConfigDO> confs) {
+    public DsExtraConfig genDsExtraConfigFromExist(DmDsDO dsDO, List<DmDsConfigKv4RdpDO> confs) {
         TiDBExtraConfig config = newDsExtraConfig();
-        for (RdpDsKvBaseConfigDO f : confs) {
+        for (DmDsConfigKv4RdpDO f : confs) {
             fillEntry(config, f.getConfigName(), f.getConfigValue());
         }
 
@@ -76,7 +76,7 @@ public class TiDbExtraConfGen implements RdpDsExtraConfGen {
         }
     }
 
-    protected void validate(RdpDataSourceDO dsDo, TiDBExtraConfig extraConfig) {
+    protected void validate(DmDsDO dsDo, TiDBExtraConfig extraConfig) {
         String pdHost = extraConfig.getPdHost();
         if (StringUtils.isBlank(pdHost)) {
             throw new IllegalArgumentException(dsDo.getDataSourceType() + " datasource extra config pdHost can not blank");

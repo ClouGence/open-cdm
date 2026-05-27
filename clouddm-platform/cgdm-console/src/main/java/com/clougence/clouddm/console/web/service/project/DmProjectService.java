@@ -20,10 +20,10 @@ import java.util.List;
 import java.util.Set;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.clougence.clouddm.console.web.dal.enumeration.ProjectStatus;
-import com.clougence.clouddm.console.web.dal.model.DmProjectDO;
-import com.clougence.clouddm.console.web.dal.model.DmProjectDevopsDO;
-import com.clougence.clouddm.console.web.dal.model.DmProjectMsgDO;
+import com.clougence.clouddm.platform.dal.model.project.ProjectStatus;
+import com.clougence.clouddm.platform.dal.model.project.DmProjectDO;
+import com.clougence.clouddm.platform.dal.model.project.DmProjectDevopsDO;
+import com.clougence.clouddm.platform.dal.model.project.DmProjectMsgDO;
 import com.clougence.clouddm.console.web.model.fo.project.*;
 import com.clougence.clouddm.console.web.model.vo.project.GuideCreateProjectVO;
 import com.clougence.clouddm.console.web.model.vo.project.ProjectVO;

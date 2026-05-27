@@ -25,14 +25,14 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
-import com.clougence.clouddm.console.web.dal.model.DmDsConfigDO;
 import com.clougence.clouddm.console.web.model.vo.RdpAuthObjectVO;
+import com.clougence.clouddm.console.web.util.RdpConvertUtils;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.sdk.model.analysis.resource.AuthBrowseObject;
 import com.clougence.clouddm.sdk.security.auth.AuthElementType;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -43,11 +43,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class DmAuthServiceForManageImpl implements DmAuthServiceForManage {
-
     @Resource
-    private RdpDataSourceMapper rdpDsMapper;
+    private DataSourceDal datasourceDal;
     @Resource
-    private DmDsService         dmDsService;
+    private DmDsService   dmDsService;
 
     @Override
     public List<RdpAuthObjectVO> listElements(String puid, String envId, AuthKind authKind) {
@@ -62,17 +61,17 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage {
     }
 
     private List<AuthBrowseObject> listDsEles(String puid, String envId) {
-        List<RdpDataSourceDO> dsDOs = this.rdpDsMapper.listByDsEnvId(Long.parseLong(envId));
+        List<DmDsDO> dsDOs = this.datasourceDal.dsMapper().listByDsEnvId(Long.parseLong(envId));
         if (dsDOs == null || dsDOs.isEmpty()) {
             return Collections.emptyList();
         }
-        List<Long> dsIds = dsDOs.stream().map(RdpDataSourceDO::getId).collect(Collectors.toList());
+        List<Long> dsIds = dsDOs.stream().map(DmDsDO::getId).collect(Collectors.toList());
 
         List<DmDsConfigDO> confList = this.dmDsService.fetchDsConfigByIds(puid, dsIds);
         List<Long> enableQueryDsIds = confList.stream().map(DmDsConfigDO::getDataSourceId).collect(Collectors.toList());
 
         List<AuthBrowseObject> objs = new ArrayList<>();
-        for (RdpDataSourceDO dsDO : dsDOs) {
+        for (DmDsDO dsDO : dsDOs) {
             boolean enable = enableQueryDsIds.contains(dsDO.getId());
             if (!enable) {
                 continue;

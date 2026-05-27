@@ -18,8 +18,8 @@ package com.clougence.clouddm.console.web.model.vo.cluster;
 import java.util.Date;
 
 import com.clougence.clouddm.api.console.status.WorkerState;
-import com.clougence.clouddm.console.web.constants.CloudOrIdcName;
-import com.clougence.clouddm.console.web.constants.DeployStatus;
+import com.clougence.clouddm.platform.dal.model.system.CloudOrIdcName;
+import com.clougence.clouddm.platform.dal.model.system.DeployStatus;
 import com.clougence.clouddm.console.web.constants.HealthLevel;
 
 import lombok.Getter;

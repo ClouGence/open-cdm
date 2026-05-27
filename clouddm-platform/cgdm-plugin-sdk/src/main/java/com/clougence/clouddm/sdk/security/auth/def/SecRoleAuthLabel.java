@@ -68,7 +68,7 @@ public interface SecRoleAuthLabel {
 
     // ================================ CAT_RDP_ROLE ==============================================
 
-    @AuthLabel(order = 0, category = CAT_RDP_ROLE, i18nKey = AUTH_KEY_RDP_ROLE_READ)
+    @AuthLabel(order = 0, category = CAT_RDP_ROLE, i18nKey = AUTH_KEY_RDP_ROLE_READ, tag = { SecSysRole.DBA_ROLE_NAME })
     String RDP_ROLE_READ                   = "RDP_ROLE_READ";
 
     @AuthLabel(order = 2, category = CAT_RDP_ROLE, i18nKey = AUTH_KEY_RDP_ROLE_MANAGE, include = RDP_ROLE_READ, tag = { SecSysRole.DBA_ROLE_NAME })
@@ -94,7 +94,7 @@ public interface SecRoleAuthLabel {
     @AuthLabel(order = 2, category = CAT_RDP_PRI_PREFERENCE_CONF, i18nKey = AUTH_KEY_RDP_PRI_USER_AK_SK_W)
     String RDP_PRI_USER_AK_SK_W            = "RDP_PRI_USER_AK_SK_W";
 
-    @AuthLabel(order = 0, category = CAT_RDP_PRI_PREFERENCE_CONF, i18nKey = AUTH_KEY_RDP_PRI_USER_KV_CONF_R, tag = { SecSysRole.DBA_ROLE_NAME, SecSysRole.DEV_ROLE_NAME })
+    @AuthLabel(order = 0, category = CAT_RDP_PRI_PREFERENCE_CONF, i18nKey = AUTH_KEY_RDP_PRI_USER_KV_CONF_R, tag = { SecSysRole.DBA_ROLE_NAME })
     String RDP_PRI_USER_KV_CONF_R          = "RDP_PRI_USER_KV_CONF_R";
 
     @AuthLabel(order = 1, category = CAT_RDP_PRI_PREFERENCE_CONF, i18nKey = AUTH_KEY_RDP_PRI_USER_KV_CONF_W, include = { RDP_PRI_USER_KV_CONF_R }, tag = { SecSysRole.DBA_ROLE_NAME })
@@ -108,7 +108,7 @@ public interface SecRoleAuthLabel {
 
     // ================================ CAT_RDP_DATASOURCE ============================================
 
-    @AuthLabel(order = 0, category = CAT_RDP_DS, i18nKey = AUTH_KEY_RDP_DS_READ, tag = { SecSysRole.DBA_ROLE_NAME, SecSysRole.DEV_ROLE_NAME })
+    @AuthLabel(order = 0, category = CAT_RDP_DS, i18nKey = AUTH_KEY_RDP_DS_READ, tag = { SecSysRole.DBA_ROLE_NAME })
     String RDP_DS_READ                     = "RDP_DS_READ";
 
     @AuthLabel(order = 1, category = CAT_RDP_DS, i18nKey = AUTH_KEY_RDP_DS_MANAGE, include = { RDP_DS_READ }, tag = { SecSysRole.DBA_ROLE_NAME })

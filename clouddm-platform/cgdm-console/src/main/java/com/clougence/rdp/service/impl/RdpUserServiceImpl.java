@@ -15,6 +15,8 @@
  */
 package com.clougence.rdp.service.impl;
 
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,11 +32,10 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.GlobalDeploySite;
 import com.clougence.clouddm.console.web.constants.CheckSubAccountType;
-import com.clougence.clouddm.console.web.constants.VerifyCodeType;
-import com.clougence.clouddm.console.web.constants.VerifyType;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountBindType;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
-import com.clougence.clouddm.console.web.dal.enumeration.AreaCode;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.console.web.model.fo.*;
 import com.clougence.clouddm.console.web.model.fo.role.UpdateUserRoleFO;
 import com.clougence.clouddm.console.web.model.fo.user.*;
@@ -45,7 +46,7 @@ import com.clougence.clouddm.console.web.model.vo.PwdValidateExprVO;
 import com.clougence.clouddm.console.web.model.vo.RdpUserAkSkVO;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.model.feature.RdpFeatureIDs;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
@@ -55,16 +56,12 @@ import com.clougence.clouddm.sdk.security.login.LoginProvider;
 import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
 import com.clougence.clouddm.sdk.security.login.LoginRequest;
 import com.clougence.clouddm.sdk.security.login.LoginResponse;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.dal.mapper.DmResAuthMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpRoleMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMfaMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpRoleDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserKvBaseConfigDO;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.rdp.service.*;
 import com.clougence.rdp.service.enumeration.OpVerifyErrType;
 import com.clougence.rdp.service.enumeration.UserOperationType;
@@ -82,11 +79,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class RdpUserServiceImpl implements RdpUserService {
+    @Resource
+    private AuthDal authDal;
 
-    @Resource
-    private RdpUserMapper           rdpUserMapper;
-    @Resource
-    private RdpRoleMapper           rdpRoleMapper;
     @Resource
     private RdpRoleService          rdpRoleService;
     @Resource
@@ -98,10 +93,6 @@ public class RdpUserServiceImpl implements RdpUserService {
     @Resource
     private RdpAuthServiceForManage rdpDsAuthManagerService;
     @Resource
-    private DmResAuthMapper         resAuthMapper;
-    @Resource
-    private RdpUserMfaMapper        rdpUserMfaMapper;
-    @Resource
     private List<RdpNotifyService>  notifyServices;
 
     @Override
@@ -109,10 +100,10 @@ public class RdpUserServiceImpl implements RdpUserService {
         if (StringUtils.equals(puid, uid)) {
             return this.rdpDsAuthManagerService.getRoleAuthLabel();
         } else {
-            RdpUserDO userDO = this.rdpUserMapper.queryByUid(uid);
+            DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(uid);
 
             Long roleId = userDO.getRoleId();
-            RdpRoleDO dmRoleDO = this.rdpRoleMapper.selectById(roleId);
+            DmAuthRoleDO dmRoleDO = this.authDal.roleMapper().selectById(roleId);
             Set<String> effectiveAuthLabels = new HashSet<>(this.rdpDsAuthManagerService.normalizeRoleAuthLabels(dmRoleDO.getRoleAuthLabels()));
 
             return this.rdpDsAuthManagerService.getRoleAuthLabel().stream().filter(authInfo -> {
@@ -167,26 +158,26 @@ public class RdpUserServiceImpl implements RdpUserService {
     }
 
     @Override
-    public RdpUserDO getUserByUid(String uid) {
+    public DmAuthUserDO getUserByUid(String uid) {
         if (StringUtils.isBlank(uid)) {
             return null;
         } else {
-            return rdpUserMapper.queryByUid(uid);
+            return authDal.userMapper().queryByUid(uid);
         }
     }
 
     @Override
-    public RdpUserDO getUserById(long id) {
+    public DmAuthUserDO getUserById(long id) {
         if (id <= 0) {
             return null;
         } else {
-            return this.rdpUserMapper.queryById(id);
+            return this.authDal.userMapper().queryById(id);
         }
     }
 
     @Override
     public boolean isPrimaryUid(String uid) {
-        RdpUserDO userDO = rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
         if (userDO == null) {
             return false;
         } else {
@@ -196,7 +187,7 @@ public class RdpUserServiceImpl implements RdpUserService {
 
     @Override
     public boolean isMaintainer(String uid) {
-        RdpUserDO userDO = rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
         if (userDO == null) {
             return false;
         } else {
@@ -211,9 +202,9 @@ public class RdpUserServiceImpl implements RdpUserService {
             return getDefaultValidateExprVO();
         }
 
-        RdpUserKvBaseConfigDO configDO = rdpUserConfigService.getSpecifiedConfig(puid, UserDefinedConfig.Fields.subAccountPwdVerifyExpr);
+        DmSysUserConfDO configDO = rdpUserConfigService.getSpecifiedConfig(puid, UserDefinedConfig.Fields.subAccountPwdVerifyExpr);
         if (configDO != null && StringUtils.isNotBlank(configDO.getConfigValue())) {
-            RdpUserKvBaseConfigDO tipsConf = rdpUserConfigService.getSpecifiedConfig(puid, UserDefinedConfig.Fields.subAccountPwdVerifyTips);
+            DmSysUserConfDO tipsConf = rdpUserConfigService.getSpecifiedConfig(puid, UserDefinedConfig.Fields.subAccountPwdVerifyTips);
             if (tipsConf != null && StringUtils.isNotBlank(configDO.getConfigValue())) {
                 PwdValidateExprVO vo = new PwdValidateExprVO();
                 vo.setExpr(configDO.getConfigValue());
@@ -265,34 +256,28 @@ public class RdpUserServiceImpl implements RdpUserService {
 
     @Override
     public UpdateUserInfoMO resetOpPasswd(ResetOpPasswdFO fo, String uid) {
-        RdpUserDO userDO = rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
 
         if (userDO == null) {
             return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
         }
 
-        AreaCode phoneAreaCode = userDO.getPhoneAreaCode();
-        if (phoneAreaCode == null) {
-            phoneAreaCode = AreaCode.CHINA;
-        }
-
         CheckVerifyMO mo = new CheckVerifyMO();
         mo.setUid(uid);
         mo.setPhoneNumber(userDO.getPhone());
-        mo.setPhoneAreaCode(phoneAreaCode);
         mo.setVerifyCode(fo.getVerifyCode());
         mo.setVerifyType(VerifyType.SMS_VERIFY_CODE);
         mo.setVerifyCodeType(VerifyCodeType.RESET_OP_PASSWORD);
         rdpVerifyService.checkVerifyCode(mo);
 
         String opPassword = CryptService.INSTANCE.encryptForOneWay(fo.getOpPassword()).getEncryptPassword();
-        rdpUserMapper.updateOpPasswdById(userDO.getId(), opPassword);
+        authDal.userMapper().updateOpPasswdById(userDO.getId(), opPassword);
         return new UpdateUserInfoMO(true, null);
     }
 
     @Override
     public OpPasswdVerifyMO opPasswdVerify(String opPassword, String uid) {
-        RdpUserDO dmUserDO = rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO dmUserDO = authDal.userMapper().queryByUid(uid);
         if (dmUserDO.getOpPassword() == null) {
             return new OpPasswdVerifyMO(false, OpVerifyErrType.OP_PASSWD_NOT_SET, DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_OP_PASSWORD_NOT_SET_ERROR.name()));
         }
@@ -311,15 +296,15 @@ public class RdpUserServiceImpl implements RdpUserService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public UpdateUserInfoMO updateUserPhone(String uid, UpdateUserPhoneFO fo) {
-        RdpUserDO consoleUserDO = rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO consoleUserDO = authDal.userMapper().queryByUid(uid);
         String oldPhone = consoleUserDO.getPhone();
         String newPhone = fo.getPhone();
         if (!oldPhone.equals(newPhone)) {
-            RdpUserDO phoneUser;
+            DmAuthUserDO phoneUser;
             if (consoleUserDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
-                phoneUser = rdpUserMapper.queryPrimaryByPhone(newPhone);
+                phoneUser = authDal.userMapper().queryPrimaryByPhone(newPhone);
             } else if (consoleUserDO.getAccountType() == AccountType.SUB_ACCOUNT) {
-                phoneUser = rdpUserMapper.queryByPhoneAndParentId(newPhone, consoleUserDO.getParentId());
+                phoneUser = authDal.userMapper().queryByPhoneAndParentId(newPhone, consoleUserDO.getParentId());
             } else {
                 throw new IllegalArgumentException("Unsupported accountType:" + consoleUserDO.getAccountType());
             }
@@ -331,13 +316,11 @@ public class RdpUserServiceImpl implements RdpUserService {
 
         CheckVerifyMO verifyData = new CheckVerifyMO();
         verifyData.setVerifyType(VerifyType.SMS_VERIFY_CODE);
-        verifyData.setPhoneNumber(newPhone);
-        verifyData.setPhoneAreaCode(fo.getPhoneAreaCode());
-        verifyData.setVerifyCodeType(VerifyCodeType.UPDATE_USER_PHONE);
+        verifyData.setPhoneNumber(newPhone);        verifyData.setVerifyCodeType(VerifyCodeType.UPDATE_USER_PHONE);
         verifyData.setVerifyCode(fo.getVerifyCode());
         rdpVerifyService.checkVerifyCode(verifyData);
         // phone console_user,alert_config_detail,system
-        rdpUserMapper.updateUserContactInfo(uid, newPhone, null);
+        authDal.userMapper().updateUserContactInfo(uid, newPhone, null);
         rdpVerifyService.updateEmailOrPhoneByUid(uid, newPhone, null);
 
         UpdateUserInfoMO mo = new UpdateUserInfoMO(true, null);
@@ -352,7 +335,7 @@ public class RdpUserServiceImpl implements RdpUserService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public UpdateUserInfoMO updateUserEmail(String uid, UpdateUserEmailFO fo) {
-        RdpUserDO consoleUserDO = rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO consoleUserDO = authDal.userMapper().queryByUid(uid);
 
         if (consoleUserDO == null) {
             throw new IllegalArgumentException("User(" + uid + ") is not exist.");
@@ -361,7 +344,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         String newEmail = fo.getEmail();
         String oldEmail = consoleUserDO.getEmail();
         if (!oldEmail.equals(newEmail)) {
-            RdpUserDO emailUser = rdpUserMapper.queryPrimaryByEmail(newEmail);
+            DmAuthUserDO emailUser = authDal.userMapper().queryPrimaryByEmail(newEmail);
             if (emailUser != null) {
                 return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_EMAIL_EXIST_ERROR.name(), newEmail));
             }
@@ -370,13 +353,8 @@ public class RdpUserServiceImpl implements RdpUserService {
         CheckVerifyMO verifyData = new CheckVerifyMO();
         switch (fo.getVerifyType()) {
             case SMS_VERIFY_CODE:
-                AreaCode phoneAreaCode = consoleUserDO.getPhoneAreaCode();
-                if (phoneAreaCode == null) {
-                    phoneAreaCode = AreaCode.CHINA;
-                }
                 verifyData.setVerifyType(VerifyType.SMS_VERIFY_CODE);
                 verifyData.setPhoneNumber(consoleUserDO.getPhone());
-                verifyData.setPhoneAreaCode(phoneAreaCode);
                 verifyData.setVerifyCode(fo.getVerifyCode());
                 verifyData.setVerifyCodeType(VerifyCodeType.UPDATE_USER_EMAIL);
                 break;
@@ -392,7 +370,7 @@ public class RdpUserServiceImpl implements RdpUserService {
 
         rdpVerifyService.checkVerifyCode(verifyData);
         // phone console_user,alert_config_detail,system
-        rdpUserMapper.updateUserContactInfo(uid, null, newEmail);
+        authDal.userMapper().updateUserContactInfo(uid, null, newEmail);
         rdpVerifyService.updateEmailOrPhoneByUid(uid, null, newEmail);
 
         UpdateUserInfoMO mo = new UpdateUserInfoMO(true, null);
@@ -407,7 +385,7 @@ public class RdpUserServiceImpl implements RdpUserService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public UpdateUserInfoMO updateUserPhoneWithPwd(String uid, UpdateUserPhoneWithPwdFO fo) {
-        RdpUserDO userDO = this.rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(uid);
 
         boolean re = checkPassword(userDO, fo.getPassword());
 
@@ -421,11 +399,11 @@ public class RdpUserServiceImpl implements RdpUserService {
         String oldPhone = userDO.getPhone();
         String newPhone = fo.getPhone();
         if (!oldPhone.equals(newPhone)) {
-            RdpUserDO phoneUser;
+            DmAuthUserDO phoneUser;
             if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
-                phoneUser = rdpUserMapper.queryPrimaryByPhone(newPhone);
+                phoneUser = authDal.userMapper().queryPrimaryByPhone(newPhone);
             } else if (userDO.getAccountType() == AccountType.SUB_ACCOUNT) {
-                phoneUser = rdpUserMapper.queryByPhoneAndParentId(newPhone, userDO.getParentId());
+                phoneUser = authDal.userMapper().queryByPhoneAndParentId(newPhone, userDO.getParentId());
             } else {
                 throw new IllegalArgumentException("Unsupported accountType:" + userDO.getAccountType());
             }
@@ -435,7 +413,7 @@ public class RdpUserServiceImpl implements RdpUserService {
             }
         }
 
-        rdpUserMapper.updateUserContactInfo(uid, newPhone, null);
+        authDal.userMapper().updateUserContactInfo(uid, newPhone, null);
         rdpVerifyService.updateEmailOrPhoneByUid(uid, newPhone, null);
 
         UpdateUserInfoLO lo = new UpdateUserInfoLO();
@@ -448,7 +426,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         return mo;
     }
 
-    private boolean checkPassword(RdpUserDO userDO, String password) {
+    private boolean checkPassword(DmAuthUserDO userDO, String password) {
         if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
             return RdpAuthUtils.isErrorPasswd(userDO.getPassword(), password);
         } else if (userDO.getBindType() == AccountBindType.INTERNAL) {
@@ -462,7 +440,7 @@ public class RdpUserServiceImpl implements RdpUserService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_UNSUPPORTED_SUBACCOUNT_LOGIN_TYPE.name()));
         }
 
-        RdpUserDO primaryUser = this.rdpUserMapper.queryPrimaryByDomain(userDO.getUserDomain());
+        DmAuthUserDO primaryUser = this.authDal.userMapper().queryPrimaryByDomain(userDO.getUserDomain());
         LoginRequest request = new LoginRequest();
         request.setLoginAccount(userDO.getUsername());
         request.setLoginPassword(password);
@@ -474,7 +452,7 @@ public class RdpUserServiceImpl implements RdpUserService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public UpdateUserInfoMO updateUserEmailWithPwd(String uid, UpdateUserEmailWithPwdFO fo) {
-        RdpUserDO userDO = this.rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(uid);
         boolean re = checkPassword(userDO, fo.getPassword());
 
         UpdateUserInfoMO mo = new UpdateUserInfoMO();
@@ -487,13 +465,13 @@ public class RdpUserServiceImpl implements RdpUserService {
         String newEmail = fo.getEmail();
         String oldEmail = userDO.getEmail();
         if (!oldEmail.equals(newEmail)) {
-            RdpUserDO emailUser = rdpUserMapper.queryPrimaryByEmail(newEmail);
+            DmAuthUserDO emailUser = authDal.userMapper().queryPrimaryByEmail(newEmail);
             if (emailUser != null) {
                 return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_EMAIL_EXIST_ERROR.name(), newEmail));
             }
         }
 
-        rdpUserMapper.updateUserContactInfo(uid, null, newEmail);
+        authDal.userMapper().updateUserContactInfo(uid, null, newEmail);
         rdpVerifyService.updateEmailOrPhoneByUid(uid, null, newEmail);
 
         UpdateUserInfoLO lo = new UpdateUserInfoLO();
@@ -509,27 +487,21 @@ public class RdpUserServiceImpl implements RdpUserService {
     @Override
     public void updateAliyunAkSk(String puid, String ak, String sk) {
         String encryptAliyunSk = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(sk);
-        this.rdpUserMapper.updateUserAliyunAkSk(puid, ak, encryptAliyunSk);
+        this.authDal.userMapper().updateUserAliyunAkSk(puid, ak, encryptAliyunSk);
     }
 
     @Override
     public void cleanAliyunAkSk(String puid) {
-        this.rdpUserMapper.updateUserAliyunAkSk(puid, null, null);
+        this.authDal.userMapper().updateUserAliyunAkSk(puid, null, null);
     }
 
     @Override
     public ResWebData<RdpUserAkSkVO> queryAkSk(String puid, QueryUserAkSkFO fo) {
-        RdpUserDO userDO = this.rdpUserMapper.queryByUid(puid);
-        AreaCode phoneAreaCode = userDO.getPhoneAreaCode();
-        if (phoneAreaCode == null) {
-            phoneAreaCode = AreaCode.CHINA;
-        }
-
+        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(puid);
         CheckVerifyMO verifyData = new CheckVerifyMO();
         switch (fo.getVerifyType()) {
             case SMS_VERIFY_CODE:
                 verifyData.setVerifyType(VerifyType.SMS_VERIFY_CODE);
-                verifyData.setPhoneAreaCode(phoneAreaCode);
                 verifyData.setPhoneNumber(userDO.getPhone());
                 verifyData.setVerifyCodeType(VerifyCodeType.FETCH_USER_AK_SK);
                 verifyData.setVerifyCode(fo.getVerifyCode());
@@ -547,7 +519,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         this.rdpVerifyService.checkVerifyCode(verifyData);
 
         //use parent user
-        RdpUserDO parentUserDO = this.rdpUserMapper.queryByUid(puid);
+        DmAuthUserDO parentUserDO = this.authDal.userMapper().queryByUid(puid);
         RdpUserAkSkVO akSkVO = new RdpUserAkSkVO();
         akSkVO.setAccessKey(parentUserDO.getAccessKey());
         akSkVO.setSecretKey(CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(parentUserDO.getSecretKey()));
@@ -556,17 +528,11 @@ public class RdpUserServiceImpl implements RdpUserService {
 
     @Override
     public ResWebData<String> resetAkSk(String puid, ResetUserAkSkFO fo) {
-        RdpUserDO userDO = this.rdpUserMapper.queryByUid(puid);
-        AreaCode phoneAreaCode = userDO.getPhoneAreaCode();
-        if (phoneAreaCode == null) {
-            phoneAreaCode = AreaCode.CHINA;
-        }
-
+        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(puid);
         CheckVerifyMO verifyData = new CheckVerifyMO();
         switch (fo.getVerifyType()) {
             case SMS_VERIFY_CODE:
                 verifyData.setVerifyType(VerifyType.SMS_VERIFY_CODE);
-                verifyData.setPhoneAreaCode(phoneAreaCode);
                 verifyData.setPhoneNumber(userDO.getPhone());
                 verifyData.setVerifyCodeType(VerifyCodeType.RESET_USER_AK_SK);
                 verifyData.setVerifyCode(fo.getVerifyCode());
@@ -586,7 +552,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         //use parent user
         String newAccessKey = this.rdpNamingService.genAccessKey();
         String newSecretKey = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(this.rdpNamingService.genSecretKey());
-        this.rdpUserMapper.updateUserAkSk(puid, newAccessKey, newSecretKey);
+        this.authDal.userMapper().updateUserAkSk(puid, newAccessKey, newSecretKey);
         return ResWebDataUtils.buildSuccess("OK");
     }
 
@@ -601,21 +567,21 @@ public class RdpUserServiceImpl implements RdpUserService {
     //            throw new IllegalArgumentException("Have no saas managed uid config,can not switch saas resource mode.");
     //        }
     //
-    //        RdpUserDO managedUser = rdpUserMapper.queryByUid(managedUid);
+    //        DmAuthUserDO managedUser = authDal.userMapper().queryByUid(managedUid);
     //        if (managedUser == null) {
     //            throw new IllegalArgumentException("Saas managed user (" + managedUser + ") not exist.");
     //        }
     //
-    //        RdpUserDO sUser;
+    //        DmAuthUserDO sUser;
     //        if (fo.getSaasResMode() == SaasResMode.MANAGED && puid.equals(uid)) {
     //            // Primary account change to MANAGED
-    //            RdpUserDO bindSubAccount = rdpUserMapper.queryBySubAccountByBindInfo(managedUser.getId(), puid, AccountBindType.MANAGED);
+    //            DmAuthUserDO bindSubAccount = authDal.userMapper().queryBySubAccountByBindInfo(managedUser.getId(), puid, AccountBindType.MANAGED);
     //            if (bindSubAccount == null) {
-    //                RdpUserDO pUser = rdpUserMapper.queryByUid(puid);
+    //                DmAuthUserDO pUser = authDal.userMapper().queryByUid(puid);
     //
     //                //init one
     //                Long id = addSubAccountForSaasManagedBind(managedUser.getUid(), AccountBindType.MANAGED, pUser);
-    //                bindSubAccount = rdpUserMapper.selectById(id);
+    //                bindSubAccount = authDal.userMapper().selectById(id);
     //
     //                if (bindSubAccount == null) {
     //                    throw new RuntimeException("Can not switch to MANAGED saas cause bind user failed.");
@@ -625,7 +591,7 @@ public class RdpUserServiceImpl implements RdpUserService {
     //            sUser = bindSubAccount;
     //        } else if (fo.getSaasResMode() == SaasResMode.BYOC && !puid.equals(uid)) {
     //            // Sub account change to BYOC
-    //            RdpUserDO bindSubAccount = rdpUserMapper.queryByUid(uid);
+    //            DmAuthUserDO bindSubAccount = authDal.userMapper().queryByUid(uid);
     //            if (bindSubAccount == null || bindSubAccount.getParentId() == null || bindSubAccount.getParentId() <= 0) {
     //                throw new IllegalArgumentException("Managed sub uid is not exist or user in managed is an primary user.uid:" + uid);
     //            }
@@ -634,7 +600,7 @@ public class RdpUserServiceImpl implements RdpUserService {
     //                throw new IllegalArgumentException("Managed sub user account bind type is not MANAGED or bind account is blank.uid:" + uid);
     //            }
     //
-    //            RdpUserDO userDO = rdpUserMapper.queryByUid(bindSubAccount.getBindAccount());
+    //            DmAuthUserDO userDO = authDal.userMapper().queryByUid(bindSubAccount.getBindAccount());
     //            if (userDO == null) {
     //                throw new IllegalArgumentException("Managed sub user bind account user (" + bindSubAccount.getBindAccount() + ") is not exist.");
     //            }
@@ -652,10 +618,10 @@ public class RdpUserServiceImpl implements RdpUserService {
     //        return l;
     //    }
 
-    public Long addSubAccountForSaasManagedBind(String managedUid, AccountBindType bindType, RdpUserDO primaryUser) {
+    public Long addSubAccountForSaasManagedBind(String managedUid, AccountBindType bindType, DmAuthUserDO primaryUser) {
         String generatePwd = Long.toHexString(System.currentTimeMillis()) + "!@#";
-        RdpUserDO managedUser = this.rdpUserMapper.queryByUid(managedUid);
-        RdpRoleDO devRoleOfManager = findDevRoleForSaasManagedUser(managedUid);
+        DmAuthUserDO managedUser = this.authDal.userMapper().queryByUid(managedUid);
+        DmAuthRoleDO devRoleOfManager = findDevRoleForSaasManagedUser(managedUid);
 
         String managedUserName = "m_" + primaryUser.getUsername();
         String managedSubAccount = primaryUser.getUid() + "@" + managedUser.getUserDomain();
@@ -676,7 +642,7 @@ public class RdpUserServiceImpl implements RdpUserService {
             this.addSubAccountCheck(fo, managedUser, true, false);
         }
 
-        RdpUserDO userDO = new RdpUserDO();
+        DmAuthUserDO userDO = new DmAuthUserDO();
         userDO.setUid(this.rdpNamingService.genUid());
         userDO.setCompany(primaryUser.getCompany());
         userDO.setUsername(managedUserName);
@@ -692,17 +658,17 @@ public class RdpUserServiceImpl implements RdpUserService {
         userDO.setUserDomain(primaryUser.getUserDomain());
         userDO.setAccessKey(this.rdpNamingService.genAccessKey());
         userDO.setSecretKey(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(this.rdpNamingService.genSecretKey()));
-        this.rdpUserMapper.insert(userDO);
+        this.authDal.userMapper().insert(userDO);
         this.rdpUserConfigService.initSubAccountConfigs(userDO.getUid());
         this.notifyServices.forEach(s -> s.notifyUser(managedUid, userDO.getUid(), UserOperationType.ADD));
 
         return userDO.getId();
     }
 
-    public RdpRoleDO findDevRoleForSaasManagedUser(String managedUid) {
+    public DmAuthRoleDO findDevRoleForSaasManagedUser(String managedUid) {
         String roleName = SecSysRole.CC_SAAS_DEV_NAME;
-        List<RdpRoleDO> roles = this.rdpRoleMapper.queryByRoleName(managedUid, roleName);
-        RdpRoleDO role = CollectionUtils.isEmpty(roles) ? null : roles.get(0);
+        List<DmAuthRoleDO> roles = this.authDal.roleMapper().queryByRoleName(managedUid, roleName);
+        DmAuthRoleDO role = CollectionUtils.isEmpty(roles) ? null : roles.get(0);
         if (role == null) {
             String msg = "User(" + managedUid + ") have no " + roleName + " role.";
             log.info(msg);
@@ -718,16 +684,12 @@ public class RdpUserServiceImpl implements RdpUserService {
 
     @Override
     public UpdateUserInfoMO resetPassword(ResetPasswdFO fo) {
-        RdpUserDO userDO = null;
+        DmAuthUserDO userDO = null;
         if (fo.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
             if (fo.getVerifyType() == VerifyType.SMS_VERIFY_CODE) {
-                userDO = this.rdpUserMapper.queryPrimaryByPhoneAndAreaCode(fo.getPhone(), fo.getPhoneAreaCode());
-                if (userDO == null) {
-                    //old user have no area code
-                    userDO = this.rdpUserMapper.queryPrimaryByPhone(fo.getPhone());
-                }
+                userDO = this.authDal.userMapper().queryPrimaryByPhone(fo.getPhone());
             } else if (fo.getVerifyType() == VerifyType.EMAIL_VERIFY_CODE) {
-                userDO = this.rdpUserMapper.queryPrimaryByEmail(fo.getEmail());
+                userDO = this.authDal.userMapper().queryPrimaryByEmail(fo.getEmail());
             } else {
                 throw new IllegalArgumentException("Unsupported verify type:" + fo.getVerifyType());
             }
@@ -736,7 +698,7 @@ public class RdpUserServiceImpl implements RdpUserService {
                 return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ACCOUNT_EMPTY_ERROR.name()));
             }
 
-            userDO = this.rdpUserMapper.queryBySubAccount(fo.getSubAccount());
+            userDO = this.authDal.userMapper().queryBySubAccount(fo.getSubAccount());
         }
 
         if (userDO == null) {
@@ -747,16 +709,10 @@ public class RdpUserServiceImpl implements RdpUserService {
             return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_IS_DISABLED_ERROR.name()));
         }
 
-        AreaCode phoneAreaCode = userDO.getPhoneAreaCode();
-        if (phoneAreaCode == null) {
-            phoneAreaCode = AreaCode.CHINA;
-        }
-
         CheckVerifyMO verifyMO = new CheckVerifyMO();
         verifyMO.setSubAccount(fo.getAccountType() == AccountType.SUB_ACCOUNT);
         verifyMO.setSubAccountName(fo.getSubAccount());
         verifyMO.setPhoneNumber(fo.getPhone());
-        verifyMO.setPhoneAreaCode(phoneAreaCode);
         verifyMO.setVerifyCode(fo.getVerifyCode());
         verifyMO.setVerifyType(fo.getVerifyType());
         verifyMO.setEmail(fo.getEmail());
@@ -765,14 +721,14 @@ public class RdpUserServiceImpl implements RdpUserService {
         rdpVerifyService.checkVerifyCode(verifyMO);
 
         String password = CryptService.INSTANCE.encryptForOneWay(fo.getPassword()).getEncryptPassword();
-        rdpUserMapper.updatePasswdById(userDO.getId(), password);
+        authDal.userMapper().updatePasswdById(userDO.getId(), password);
 
         return new UpdateUserInfoMO(true, null);
     }
 
     @Override
     public UpdateUserInfoMO resetPwdWithOriginPwd(ResetPwdWithOriginPwdFO fo, String targetUid, String puid) {
-        RdpUserDO userDO = this.rdpUserMapper.queryByUid(targetUid);
+        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(targetUid);
 
         UpdateUserInfoMO mo = new UpdateUserInfoMO();
         boolean notSame = RdpAuthUtils.isErrorPasswd(userDO.getPassword(), fo.getNewPassword());
@@ -804,7 +760,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         }
 
         String encryptPwd = CryptService.INSTANCE.encryptForOneWay(fo.getNewPassword()).getEncryptPassword();
-        rdpUserMapper.updatePasswdById(userDO.getId(), encryptPwd);
+        authDal.userMapper().updatePasswdById(userDO.getId(), encryptPwd);
 
         mo.setSuccess(true);
         return mo;
@@ -812,7 +768,7 @@ public class RdpUserServiceImpl implements RdpUserService {
 
     @Override
     public UpdateUserInfoMO resetSubAccountPwd(ResetSubAccountPwdFO fo, String operatorUid) {
-        RdpUserDO opUserDO = this.rdpUserMapper.queryByUid(operatorUid);
+        DmAuthUserDO opUserDO = this.authDal.userMapper().queryByUid(operatorUid);
 
         boolean re = RdpAuthUtils.isErrorPasswd(opUserDO.getPassword(), fo.getOperatorPwd());
         UpdateUserInfoMO mo = new UpdateUserInfoMO();
@@ -822,59 +778,59 @@ public class RdpUserServiceImpl implements RdpUserService {
             return mo;
         }
 
-        RdpUserDO userDO = this.rdpUserMapper.queryByUid(fo.getSubAccountUid());
+        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(fo.getSubAccountUid());
 
         String encryptPwd = CryptService.INSTANCE.encryptForOneWay(fo.getNewPassword()).getEncryptPassword();
-        rdpUserMapper.updatePasswdById(userDO.getId(), encryptPwd);
+        authDal.userMapper().updatePasswdById(userDO.getId(), encryptPwd);
 
         mo.setSuccess(true);
         return mo;
     }
 
     @Override
-    public List<RdpUserDO> listSubAccounts(String puid) {
-        RdpUserDO parentUser = this.rdpUserMapper.queryByUid(puid);
-        return this.rdpUserMapper.listByParentId(parentUser.getId());
+    public List<DmAuthUserDO> listSubAccounts(String puid) {
+        DmAuthUserDO parentUser = this.authDal.userMapper().queryByUid(puid);
+        return this.authDal.userMapper().listByParentId(parentUser.getId());
     }
 
     @Override
     public List<ListUserVO> listSubAccounts(String puid, ListSubAccountsFO fo) {
-        RdpUserDO parentUser = this.rdpUserMapper.queryByUid(puid);
+        DmAuthUserDO parentUser = this.authDal.userMapper().queryByUid(puid);
 
         String prefix = StringUtils.isBlank(fo.getUserNameOrSubAccountPrefix()) ? null : fo.getUserNameOrSubAccountPrefix();
-        List<RdpUserDO> subAccounts = this.rdpUserMapper.listByCondition(parentUser.getId(), fo.getRoleId(), prefix);
-        List<RdpRoleDO> roles = this.rdpRoleService.listRoleByUID(puid);
-        Map<Long, RdpRoleDO> roleMap = new HashMap<>();
-        for (RdpRoleDO role : roles) {
+        List<DmAuthUserDO> subAccounts = this.authDal.userMapper().listByCondition(parentUser.getId(), fo.getRoleId(), prefix);
+        List<DmAuthRoleDO> roles = this.rdpRoleService.listRoleByUID(puid);
+        Map<Long, DmAuthRoleDO> roleMap = new HashMap<>();
+        for (DmAuthRoleDO role : roles) {
             roleMap.put(role.getId(), role);
         }
 
         return subAccounts.stream().map(u -> RdpConvertUtils.convertToListUserVO(u, roleMap)).collect(Collectors.toList());
     }
 
-    private void addSubAccountCheck(AddSubAccountFO accountFO, RdpUserDO primaryUser, boolean skipMailCheck, boolean skipPhoneCheck) {
+    private void addSubAccountCheck(AddSubAccountFO accountFO, DmAuthUserDO primaryUser, boolean skipMailCheck, boolean skipPhoneCheck) {
         //this.rdpLicenseCheckService.checkSubAccountCount();
 
-        RdpUserDO user = this.rdpUserMapper.queryBySubAccount(accountFO.getSubAccount());
+        DmAuthUserDO user = this.authDal.userMapper().queryBySubAccount(accountFO.getSubAccount());
         if (user != null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ADD_EXIST_ERROR.name(), accountFO.getSubAccount()));
         }
 
         if (!skipMailCheck) {
-            RdpUserDO emailUser = this.rdpUserMapper.queryByEmailAndParentId(accountFO.getEmail(), primaryUser.getId());
+            DmAuthUserDO emailUser = this.authDal.userMapper().queryByEmailAndParentId(accountFO.getEmail(), primaryUser.getId());
             if (emailUser != null) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ADD_EXIST_ERROR.name(), accountFO.getEmail()));
             }
         }
 
         if (!skipPhoneCheck) {
-            RdpUserDO phoneUser = this.rdpUserMapper.queryByPhoneAndParentId(accountFO.getPhone(), primaryUser.getId());
+            DmAuthUserDO phoneUser = this.authDal.userMapper().queryByPhoneAndParentId(accountFO.getPhone(), primaryUser.getId());
             if (phoneUser != null) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ADD_EXIST_ERROR.name(), accountFO.getPhone()));
             }
         }
 
-        RdpRoleDO roleDO = this.rdpRoleService.fetchRoleById(accountFO.getRoleId());
+        DmAuthRoleDO roleDO = this.rdpRoleService.fetchRoleById(accountFO.getRoleId());
         if (roleDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ROLE_NOT_EXIST_ERROR.name()));
         }
@@ -891,9 +847,9 @@ public class RdpUserServiceImpl implements RdpUserService {
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
-    public AddSubAccountMO addSubAccountForBind(String puid, AccountBindType bindType, RdpUserDO bindUser) {
+    public AddSubAccountMO addSubAccountForBind(String puid, AccountBindType bindType, DmAuthUserDO bindUser) {
         String generatePwd = Long.toHexString(System.currentTimeMillis()) + "!@#";
-        RdpUserDO primaryUser = this.rdpUserMapper.queryByUid(puid);
+        DmAuthUserDO primaryUser = this.authDal.userMapper().queryByUid(puid);
 
         try {
             AddSubAccountFO fo = new AddSubAccountFO();
@@ -908,7 +864,7 @@ public class RdpUserServiceImpl implements RdpUserService {
             return new AddSubAccountMO(false, e.getErrorMessage());
         }
 
-        RdpUserDO userDO = new RdpUserDO();
+        DmAuthUserDO userDO = new DmAuthUserDO();
         userDO.setUid(this.rdpNamingService.genUid());
         userDO.setCompany(primaryUser.getCompany());
         userDO.setUsername(bindUser.getUsername());
@@ -924,7 +880,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         userDO.setUserDomain(primaryUser.getUserDomain());
         userDO.setAccessKey(this.rdpNamingService.genAccessKey());
         userDO.setSecretKey(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(this.rdpNamingService.genSecretKey()));
-        this.rdpUserMapper.insert(userDO);
+        this.authDal.userMapper().insert(userDO);
         //        verifyService.initUserVerify(userDO);
 
         this.rdpUserConfigService.initSubAccountConfigs(userDO.getUid());
@@ -936,7 +892,7 @@ public class RdpUserServiceImpl implements RdpUserService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public AddSubAccountMO addSubAccountForInternal(String puid, AddSubAccountFO fo) {
-        RdpUserDO primaryUser = this.rdpUserMapper.queryByUid(puid);
+        DmAuthUserDO primaryUser = this.authDal.userMapper().queryByUid(puid);
 
         try {
             this.addSubAccountCheck(fo, primaryUser, false, false);
@@ -944,7 +900,7 @@ public class RdpUserServiceImpl implements RdpUserService {
             return new AddSubAccountMO(false, e.getErrorMessage());
         }
 
-        RdpUserDO userDO = new RdpUserDO();
+        DmAuthUserDO userDO = new DmAuthUserDO();
         userDO.setUid(this.rdpNamingService.genUid());
         userDO.setCompany(primaryUser.getCompany());
         userDO.setUsername(fo.getUserName());
@@ -960,7 +916,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         userDO.setUserDomain(primaryUser.getUserDomain());
         userDO.setAccessKey(this.rdpNamingService.genAccessKey());
         userDO.setSecretKey(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(this.rdpNamingService.genSecretKey()));
-        this.rdpUserMapper.insert(userDO);
+        this.authDal.userMapper().insert(userDO);
         //        verifyService.initUserVerify(userDO);
 
         this.rdpUserConfigService.initSubAccountConfigs(userDO.getUid());
@@ -980,7 +936,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         }
 
         if (StringUtils.isNotBlank(fo.getSubAccount())) {
-            RdpUserDO userWithNewSubAccount = this.rdpUserMapper.queryBySubAccount(fo.getSubAccount());
+            DmAuthUserDO userWithNewSubAccount = this.authDal.userMapper().queryBySubAccount(fo.getSubAccount());
             if (userWithNewSubAccount != null && !userWithNewSubAccount.getUid().equals(fo.getTargetUid())) {
                 mo.setSuccess(false);
                 mo.setErrorMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.REGISTER_ACCOUNT_EXIST_ERROR.name(), fo.getSubAccount()));
@@ -988,7 +944,7 @@ public class RdpUserServiceImpl implements RdpUserService {
             }
         }
 
-        RdpUserDO oldUser = this.rdpUserMapper.queryByUid(fo.getTargetUid());
+        DmAuthUserDO oldUser = this.authDal.userMapper().queryByUid(fo.getTargetUid());
         if (oldUser == null) {
             mo.setSuccess(false);
             mo.setErrorMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
@@ -1002,7 +958,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         lo.setNewSubAccount(fo.getSubAccount());
         lo.setNewUserName(fo.getUserName());
 
-        this.rdpUserMapper.updateSubAccountAndName(fo.getTargetUid(), fo.getSubAccount(), fo.getUserName());
+        this.authDal.userMapper().updateSubAccountAndName(fo.getTargetUid(), fo.getSubAccount(), fo.getUserName());
 
         mo.setConfigLO(lo);
         mo.setSuccess(true);
@@ -1014,19 +970,19 @@ public class RdpUserServiceImpl implements RdpUserService {
     public CheckSubAccountMO checkSubAccount(String puid, CheckSubAccountFO fo) {
         String content = fo.getCheckContent();
         if (fo.getCheckType() == CheckSubAccountType.SUB_ACCOUNT) {
-            RdpUserDO user = this.rdpUserMapper.queryBySubAccount(content);
+            DmAuthUserDO user = this.authDal.userMapper().queryBySubAccount(content);
             if (user != null) {
                 return new CheckSubAccountMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.REGISTER_ACCOUNT_EXIST_ERROR.name(), content));
             }
         } else if (fo.getCheckType() == CheckSubAccountType.PHONE) {
-            RdpUserDO parentUser = this.rdpUserMapper.queryByUid(puid);
-            RdpUserDO phoneUser = this.rdpUserMapper.queryByPhoneAndParentId(content, parentUser.getId());
+            DmAuthUserDO parentUser = this.authDal.userMapper().queryByUid(puid);
+            DmAuthUserDO phoneUser = this.authDal.userMapper().queryByPhoneAndParentId(content, parentUser.getId());
             if (phoneUser != null) {
                 return new CheckSubAccountMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.REGISTER_PHONE_EXIST_ERROR.name(), content));
             }
         } else if (fo.getCheckType() == CheckSubAccountType.EMAIL) {
-            RdpUserDO parentUser = this.rdpUserMapper.queryByUid(puid);
-            RdpUserDO emailUser = this.rdpUserMapper.queryByEmailAndParentId(content, parentUser.getId());
+            DmAuthUserDO parentUser = this.authDal.userMapper().queryByUid(puid);
+            DmAuthUserDO emailUser = this.authDal.userMapper().queryByEmailAndParentId(content, parentUser.getId());
             if (emailUser != null) {
                 return new CheckSubAccountMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.REGISTER_EMAIL_EXIST_ERROR.name(), content));
             }
@@ -1038,11 +994,11 @@ public class RdpUserServiceImpl implements RdpUserService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public ResWebData<Boolean> deleteSubAccount(String puid, DeleteSubAccountFO fo) {
-        RdpUserDO userDO = this.rdpUserMapper.queryBySubAccount(fo.getSubAccount());
+        DmAuthUserDO userDO = this.authDal.userMapper().queryBySubAccount(fo.getSubAccount());
         rdpVerifyService.dropUserVerify(userDO.getUid());
-        rdpUserMapper.deleteById(userDO.getId());
-        resAuthMapper.deleteByUser(userDO.getUid());
-        rdpUserMfaMapper.deleteByUid(userDO.getUid());
+        authDal.userMapper().deleteById(userDO.getId());
+        authDal.resMapper().deleteByUser(userDO.getUid());
+        authDal.mfaMapper().deleteByUid(userDO.getUid());
 
         this.notifyServices.forEach(s -> s.notifyUser(puid, userDO.getUid(), UserOperationType.DELETE));
         return ResWebDataUtils.buildSuccess();
@@ -1050,7 +1006,7 @@ public class RdpUserServiceImpl implements RdpUserService {
 
     @Override
     public UpdateUserRoleLO updateUserRole(UpdateUserRoleFO fo) {
-        RdpUserDO theUser = this.rdpUserMapper.queryByUid(fo.getSubAccountUid());
+        DmAuthUserDO theUser = this.authDal.userMapper().queryByUid(fo.getSubAccountUid());
         if (theUser == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
         }
@@ -1059,18 +1015,18 @@ public class RdpUserServiceImpl implements RdpUserService {
             return convertToUpdateUserRoleLO(theUser, fo.getRoleId());
         }
 
-        RdpRoleDO theRole = this.rdpRoleService.fetchRoleById(fo.getRoleId());
+        DmAuthRoleDO theRole = this.rdpRoleService.fetchRoleById(fo.getRoleId());
         if (theRole == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ROLE_NOT_EXIST_ERROR.name()));
         }
 
-        this.rdpUserMapper.updateRoleById(theUser.getId(), fo.getRoleId());
+        this.authDal.userMapper().updateRoleById(theUser.getId(), fo.getRoleId());
         return convertToUpdateUserRoleLO(theUser, fo.getRoleId());
     }
 
-    private UpdateUserRoleLO convertToUpdateUserRoleLO(RdpUserDO rdpUserDO, long newRoleId) {
-        RdpRoleDO oldRole = this.rdpRoleMapper.selectById(rdpUserDO.getRoleId());
-        RdpRoleDO newRole = this.rdpRoleMapper.selectById(newRoleId);
+    private UpdateUserRoleLO convertToUpdateUserRoleLO(DmAuthUserDO rdpUserDO, long newRoleId) {
+        DmAuthRoleDO oldRole = this.authDal.roleMapper().selectById(rdpUserDO.getRoleId());
+        DmAuthRoleDO newRole = this.authDal.roleMapper().selectById(newRoleId);
         UpdateUserRoleLO lo = new UpdateUserRoleLO();
         lo.setSubAccountUid(rdpUserDO.getUid());
         lo.setOldRoleId(oldRole.getId());
@@ -1086,7 +1042,7 @@ public class RdpUserServiceImpl implements RdpUserService {
         if (!fo.getDisable()) {
             //rdpLicenseCheckService.checkSubAccountCount();
         }
-        this.rdpUserMapper.updateAbilityByUid(fo.getUid(), fo.getDisable());
+        this.authDal.userMapper().updateAbilityByUid(fo.getUid(), fo.getDisable());
         if (fo.getDisable()) {
             this.notifyServices.forEach(s -> s.notifyUser(puid, fo.getUid(), UserOperationType.DISABLE));
         } else {
@@ -1103,17 +1059,17 @@ public class RdpUserServiceImpl implements RdpUserService {
     //
 
     @Override
-    public RdpUserDO getUserByAk(String ak) {
+    public DmAuthUserDO getUserByAk(String ak) {
         if (StringUtils.isBlank(ak)) {
             return null;
         } else {
-            return rdpUserMapper.queryByAccessKey(ak);
+            return authDal.userMapper().queryByAccessKey(ak);
         }
     }
 
     @Override
     public String getPrimaryUid(String uid) {
-        RdpUserDO userDO = rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
         if (userDO == null) {
             throw new IllegalArgumentException("uid not exist.");
         }
@@ -1121,14 +1077,14 @@ public class RdpUserServiceImpl implements RdpUserService {
         if (userDO.getParentId() == null || userDO.getParentId() <= 0) {
             return uid;
         } else {
-            RdpUserDO parentUserDO = rdpUserMapper.queryById(userDO.getParentId());
+            DmAuthUserDO parentUserDO = authDal.userMapper().queryById(userDO.getParentId());
             return parentUserDO.getUid();
         }
     }
 
     @Override
-    public RdpUserDO getPrimaryUser(String uid) {
-        RdpUserDO userDO = rdpUserMapper.queryByUid(uid);
+    public DmAuthUserDO getPrimaryUser(String uid) {
+        DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
         if (userDO == null) {
             throw new IllegalArgumentException("uid not exist.");
         }
@@ -1136,23 +1092,23 @@ public class RdpUserServiceImpl implements RdpUserService {
         if (userDO.getParentId() == null || userDO.getParentId() <= 0) {
             return userDO;
         } else {
-            return rdpUserMapper.queryById(userDO.getParentId());
+            return authDal.userMapper().queryById(userDO.getParentId());
         }
     }
 
     @Override
-    public List<RdpUserDO> listPrimaryUser() {
-        return this.rdpUserMapper.listPrimaryAccount();
+    public List<DmAuthUserDO> listPrimaryUser() {
+        return this.authDal.userMapper().listPrimaryAccount();
     }
 
     @Override
     public UpdateUserInfoMO updateResourceManage(UpdateResourceManageFO fo, String puid) {
-        RdpUserDO user = this.rdpUserMapper.queryByUid(fo.getTargetUid());
+        DmAuthUserDO user = this.authDal.userMapper().queryByUid(fo.getTargetUid());
         if (user == null) {
             return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name(), fo.getTargetUid()));
         }
 
-        this.rdpUserMapper.updateResourceMangeEnable(fo.getTargetUid(), fo.isResourceManage());
+        this.authDal.userMapper().updateResourceMangeEnable(fo.getTargetUid(), fo.isResourceManage());
 
         return new UpdateUserInfoMO(true, null);
     }

@@ -21,7 +21,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ConnectType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.console.web.dal.enumeration.DeployEnvType;
+import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;

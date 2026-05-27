@@ -22,10 +22,10 @@ import org.springframework.context.ApplicationContext;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
-import com.clougence.clouddm.console.web.component.auth.model.DsCacheEntry;
-import com.clougence.clouddm.console.web.component.auth.model.EnvCacheEntry;
-import com.clougence.clouddm.console.web.component.auth.model.UserCacheEntry;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.access.entry.EnvCacheEntry;
+import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.platform.plugin.PluginManager;
@@ -37,7 +37,7 @@ import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.ui.menus.DsMenuType;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.schema.dialect.Dialect;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -52,12 +52,12 @@ public class DmDsUtils {
 
     private static final Map<DataSourceType, SessionSpi> DS_SESSION_SPI_CACHE = new ConcurrentHashMap<>();
     private static final Map<DataSourceType, Dialect>    DS_DIALECT_CACHE     = new ConcurrentHashMap<>();
-    private static BizResOwnerCacheService               ownerCacheService;
+    private static ObjectCacheDao               ownerCacheService;
     private static ConsoleConfigService                  consoleService;
     private final static long                            MB_SIZE              = 1024L * 1024L;
 
     public static void initUtils(ApplicationContext spring) {
-        ownerCacheService = spring.getBean(BizResOwnerCacheService.class);
+        ownerCacheService = spring.getBean(ObjectCacheDao.class);
         consoleService = spring.getBean(ConsoleConfigService.class);
     }
 
@@ -69,7 +69,7 @@ public class DmDsUtils {
         return DS_DIALECT_CACHE.get(dsType);
     }
 
-    public static DsLevels createLevels(RdpDataSourceDO dsDO, DsConfig dsSetting, String catalog, String schema) {
+    public static DsLevels createLevels(DmDsDO dsDO, DsConfig dsSetting, String catalog, String schema) {
         if (dsDO == null) {
             return null;
         }

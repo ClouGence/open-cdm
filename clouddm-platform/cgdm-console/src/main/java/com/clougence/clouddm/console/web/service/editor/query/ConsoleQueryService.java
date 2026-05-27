@@ -19,32 +19,25 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.console.web.dal.model.DmResAuthDO;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultList;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultPhaseOfBatch;
 import com.clougence.clouddm.api.sidecar.session.execute.StatusDTO;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
-import com.clougence.clouddm.console.web.component.auth.model.DsCacheEntry;
 import com.clougence.clouddm.console.web.component.detectrule.*;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.execute.QueryService;
-import com.clougence.clouddm.console.web.constants.DmMode;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.FileStatus;
-import com.clougence.clouddm.console.web.dal.enumeration.WarnLevel;
-import com.clougence.clouddm.console.web.dal.mapper.DmFileMapper;
-import com.clougence.clouddm.console.web.dal.model.DmDsSessionDO;
-import com.clougence.clouddm.console.web.dal.model.DmFileDO;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.editor.query.WsQueryFO;
 import com.clougence.clouddm.console.web.model.fo.editor.query.WsQueryType;
 import com.clougence.clouddm.console.web.model.vo.editor.query.MessageLevel;
@@ -54,9 +47,22 @@ import com.clougence.clouddm.console.web.service.editor.DsQueryEditorService;
 import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbSelectDomain;
 import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbTableDomain;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecSessionDO;
+import com.clougence.clouddm.platform.dal.model.execution.FileStatus;
+import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.analysis.column.RealColumn;
 import com.clougence.clouddm.sdk.analysis.column.SelectColumnAnalysisSpi;
@@ -90,15 +96,8 @@ import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.ast.location.CodeLocation;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserKvBaseConfigDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpUserConfigService;
-import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
@@ -113,36 +112,36 @@ import lombok.extern.slf4j.Slf4j;
 public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryApi {
 
     @Resource
-    private DmConsoleConfig         dmConfig;
+    private ExecutionDal         executionDal;
     @Resource
-    private ApplicationContext      appContext;
+    private AuthDal              authDal;
     @Resource
-    private DsQueryEditorService    queryEditorService;
+    private ObjectCacheDao       objectCacheDao;
     @Resource
-    private DmDsConfigService       dmDsConfigService;
+    private DmConsoleConfig      dmConfig;
     @Resource
-    private RdpUserConfigService    rdpUserConfigService;
+    private ApplicationContext   appContext;
     @Resource
-    private SecRulesService         rulesService;
+    private DsQueryEditorService queryEditorService;
     @Resource
-    private SecRulesEngine          ruleCheckService;
+    private DmDsConfigService    dmDsConfigService;
     @Resource
-    private DmAuthServiceForBiz     authCheckService;
+    private RdpUserConfigService rdpUserConfigService;
     @Resource
-    private DmResAuthService        resAuthService;
+    private SecRulesService      rulesService;
     @Resource
-    private QueryAnalysisService    analysisService;
+    private SecRulesEngine       ruleCheckService;
     @Resource
-    private QueryService            queryService;
+    private DmAuthServiceForBiz  authCheckService;
     @Resource
-    private RdpUserMapper           rdpUserMapper;
+    private DmResAuthService     resAuthService;
     @Resource
-    private DmFileMapper            dmFileMapper;
+    private QueryAnalysisService analysisService;
     @Resource
-    private DmEnvParamService       dmEnvParamService;
+    private QueryService         queryService;
     @Resource
-    private BizResOwnerCacheService ownerCacheService;
-    private QueryTaskExecutor       queryExecutor;
+    private DmEnvParamService    dmEnvParamService;
+    private QueryTaskExecutor    queryExecutor;
 
     @Override
     public void init() throws Exception {
@@ -179,7 +178,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         try {
             this.queryService.testSessionWorker(curUid, sessionId);
         } catch (ErrorMessageException e) {
-            DmDsSessionDO sessionInfo = this.queryService.getSessionInfo(curUid, sessionId);
+            DmExecSessionDO sessionInfo = this.queryService.getSessionInfo(curUid, sessionId);
             this.queryService.closeSession(curUid, sessionId);
 
             if (!sessionInfo.toRdbCtx().isRdbAutoCommit()) {
@@ -323,10 +322,6 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
     // 4.6. operate of query on specialCheck
     private boolean specialCheck(WsQueryFO queryDTO, Consumer<WsResMsg> consumer, QueryCtx ctx) {
-        if (this.dmConfig.getDmMode() == DmMode.desktop) {
-            return true;
-        }
-
         // 6.1 auth check
         String authMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_STAGE_AUTH_MESSAGE.name());
         consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authMsg, MessageLevel.Info));
@@ -356,25 +351,23 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         }
 
         // 6.2 at team all statements must be clear
-        if (dmConfig.getDmMode() != DmMode.desktop) {
-            String curOwnerUid = queryDTO.getPrimaryUserId();
-            for (SplitScript sql : sqlType) {
-                if (sql.getType() == SecQueryType.UNKNOWN) {
-                    String hasSwitchMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_QUERY_ERROR.name(), sql.getScript());
-                    consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, hasSwitchMsg, MessageLevel.Error));
-                    consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-                    consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                    return false;
-                }
+        String curOwnerUid = queryDTO.getPrimaryUserId();
+        for (SplitScript sql : sqlType) {
+            if (sql.getType() == SecQueryType.UNKNOWN) {
+                String hasSwitchMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NONSUPPORT_QUERY_ERROR.name(), sql.getScript());
+                consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, hasSwitchMsg, MessageLevel.Error));
+                consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
+                consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+                return false;
+            }
 
-                String enable = this.dmEnvParamService.queryParam(curOwnerUid, ctx.getLevels().dsDO().getDsEnvId(), EnvParamKeys.DM_ALLOW_ALL_STATEMENTS);
-                if (sql.getType().getAuthKind() != SecDataAuthKind.READ && StringUtils.equalsIgnoreCase("true", enable)) {
-                    String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_ONLY_QUERY_MESSAGE.name());
-                    consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authFailedMsg, MessageLevel.Error));
-                    consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
-                    consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
-                    return false;
-                }
+            String enable = this.dmEnvParamService.queryParam(curOwnerUid, ctx.getLevels().dsDO().getDsEnvId(), EnvParamKeys.DM_ALLOW_ALL_STATEMENTS);
+            if (sql.getType().getAuthKind() != SecDataAuthKind.READ && StringUtils.equalsIgnoreCase("true", enable)) {
+                String authFailedMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_ONLY_QUERY_MESSAGE.name());
+                consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authFailedMsg, MessageLevel.Error));
+                consumer.accept(BuildResMsgUtils.buildCost(queryDTO, ctx, true));
+                consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+                return false;
             }
         }
 
@@ -396,7 +389,6 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         }
 
         if (CollectionUtils.isNotEmpty(sqlResources)) {
-            String curOwnerUid = queryDTO.getPrimaryUserId();
             String curUserUid = queryDTO.getCurrentUserId();
             long dsId = ctx.getLevels().dsDO().getId();
 
@@ -538,10 +530,10 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         if (temp.getVariables() == null) {
             temp.setVariables(new HashMap<>());
         }
-        temp.setUsingValueProcess(this.dmConfig.getDmMode() == DmMode.output && !queryDTO.isViewOriginData());
+        temp.setUsingValueProcess(!queryDTO.isViewOriginData());
 
         RdbSupportSpi rdbSupportSpi = PluginManager.findRdbSupportSpi(ctx.getDsConfig().getDataSourceType());
-        if (rdbSupportSpi.supportMultiStatement(dmConfig.getDmMode() == DmMode.desktop)) {
+        if (rdbSupportSpi.supportMultiStatement(false)) {
             requestScripts = convertToQueryRequest(ctx, scripts, scriptColumnMap, temp, sessionSpi, resourceSpi);
         } else {
             SplitScript splitScript = new SplitScript();
@@ -571,7 +563,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         RewriteSpi rewriteSpi = PluginManager.findRewriteSpi(ctx.getDsConfig().getDataSourceType());
         if (rewriteSpi != null && this.isUsingSelectRewrite(queryDTO, ctx)) {
             long dsId = ctx.getLevels().dsDO().getId();
-            DsCacheEntry dsCache = this.ownerCacheService.queryByDsId(dsId);
+            DsCacheEntry dsCache = this.objectCacheDao.queryByDsId(dsId);
             Map<String, String> configMap = dmDsConfigService.fetchSettingsMap(dsCache.getOwnerUid(), Arrays.asList(//
                     UserDefinedConfig.Fields.defaultColumnDisplayChars, //
                     UserDefinedConfig.Fields.onlineMaxRecordCount,      //
@@ -637,11 +629,8 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
     private boolean checkSecAndParseColumn(WsQueryFO queryDTO, Consumer<WsResMsg> consumer, QueryCtx ctx,//
                                            List<SplitScript> scripts, Map<SplitScript, List<SelectItem>> scriptColumnMap) {
-        if (this.dmConfig.getDmMode() == DmMode.desktop) {
-            return false;
-        }
         String curUserUid = queryDTO.getCurrentUserId();
-        RdpUserDO rdpUserDO = rdpUserMapper.queryByUid(curUserUid);
+        DmAuthUserDO rdpUserDO = authDal.userMapper().queryByUid(curUserUid);
 
         if (rdpUserDO.isResourceManageEnable() || rdpUserDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
             queryDTO.setViewOriginData(true);
@@ -699,7 +688,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
             List<String> skipDesensitizationPath = resAuthService.listAuthByUser(dsId, curUserUid, AuthKind.DataSource, pathList)
                 .stream()
-                .map(DmResAuthDO::getResPath)
+                .map(DmAuthResDO::getResPath)
                 .collect(Collectors.toList());
 
             for (RealColumn realColumn : columnList) {
@@ -757,27 +746,23 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             if (CollectionUtils.isNotEmpty(selectItems)) {
                 clone.setColumnList(selectItems.stream().collect(Collectors.toMap(SelectItem::getItemAlias, SelectItem::getColumns)));
             }
-            // person no need resource
-            if (this.dmConfig.getDmMode() == DmMode.output) {
-                CodeInfo codeInfo = CodeInfo.builder().baseLine(s.getBodyStartCodeLine()).baseColumn(s.getBodyStartCodeColumn()).query(s.getScript()).build();
-                ContextInfo contextInfo = ContextInfo.builder().dataSourceConfig(ctx.getDsConfig()).deepParser(false).build();
-                Map<RuleDomain, List<ResObject>> ruleDomainListMap = resourceSpi.analysisResource(ctx.getDsConfig().getDataSourceType(), codeInfo, contextInfo, ctx.getCtxParams());
-                List<ResObject> list = ruleDomainListMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
-                list = list.stream().filter(o -> {
-                    TargetType type = o.getType();
-                    return type == TargetType.Table || type == TargetType.View || type == TargetType.Materialized;
-                }).collect(Collectors.toList());
-                if (CollectionUtils.isNotEmpty(list)) {
-                    clone.setResource(list.stream().map(resObject -> {
-                        return DmConvertUtils.convertToResource(ctx.getLevels(), resObject.getName());
-                    }).collect(Collectors.toList()));
-                } else {
-                    clone.setResource(Collections.singletonList(DmConvertUtils.convertToResource(ctx.getLevels(), null)));
-                }
-
-                clone.getResultConf().setRefreshStatus(i == scripts.size() - 1);
+            CodeInfo codeInfo = CodeInfo.builder().baseLine(s.getBodyStartCodeLine()).baseColumn(s.getBodyStartCodeColumn()).query(s.getScript()).build();
+            ContextInfo contextInfo = ContextInfo.builder().dataSourceConfig(ctx.getDsConfig()).deepParser(false).build();
+            Map<RuleDomain, List<ResObject>> ruleDomainListMap = resourceSpi.analysisResource(ctx.getDsConfig().getDataSourceType(), codeInfo, contextInfo, ctx.getCtxParams());
+            List<ResObject> list = ruleDomainListMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+            list = list.stream().filter(o -> {
+                TargetType type = o.getType();
+                return type == TargetType.Table || type == TargetType.View || type == TargetType.Materialized;
+            }).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(list)) {
+                clone.setResource(list.stream().map(resObject -> {
+                    return DmConvertUtils.convertToResource(ctx.getLevels(), resObject.getName());
+                }).collect(Collectors.toList()));
+            } else {
+                clone.setResource(Collections.singletonList(DmConvertUtils.convertToResource(ctx.getLevels(), null)));
             }
 
+            clone.getResultConf().setRefreshStatus(i == scripts.size() - 1);
             requestScripts.add(clone);
         }
         return requestScripts;
@@ -796,7 +781,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     // ------------------------------------------------------------------------
 
     public void offerQueryResponse(ResultList result) {
-        //        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(result.getSessionId());
+        //        DmExecSessionDO sessionDO = this.sessionMapper.queryBySessionId(result.getSessionId());
         //        String sessionId = result.getSessionId();
         //        String primaryUid = null;//sessionDO.get.getPrimaryUserId();
         //        String curUid = null;//queryDTO.getCurrentUserId();
@@ -858,7 +843,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         String primaryUid = queryDTO.getPrimaryUserId();
         String curUid = queryDTO.getCurrentUserId();
         String sessionId = queryDTO.getSessionId();
-        DmDsSessionDO sessionInfo = this.queryService.getSessionInfo(curUid, sessionId);
+        DmExecSessionDO sessionInfo = this.queryService.getSessionInfo(curUid, sessionId);
         if (sessionInfo == null) {
             log.error("session '" + sessionId + "' is closed or not exit.");
             return ExitCode.finish();
@@ -885,7 +870,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                     case ResultSetMeta: {
                         ResultSetMeta rm = (ResultSetMeta) r;
                         if (StringUtils.isNotBlank(rm.getCacheFileUri())) {
-                            DmFileDO fileDO = new DmFileDO();
+                            DmExecFileDO fileDO = new DmExecFileDO();
                             fileDO.setFileUri(rm.getCacheFileUri());
                             fileDO.setFileFormat(rm.getCacheFileFormat().name());
                             fileDO.setInnerFormat(true);
@@ -895,7 +880,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                             fileDO.setQueryId(rm.getQueryId());
                             fileDO.setUniqueId(rm.getResultId());
                             fileDO.setHeartbeat(new Date());
-                            this.dmFileMapper.insert(fileDO);
+                            this.executionDal.fileMapper().insert(fileDO);
                         }
                         consumer.accept(BuildResMsgUtils.buildResultMeta(queryDTO, ctx, rm));
                         break;
@@ -905,7 +890,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                         long fetchCount = rc.getFetchCount();
                         long fetchTimeMs = Math.max(1, rc.getCostTimeMs());
 
-                        this.dmFileMapper.updateAccessTimeByUniqueId(rc.getResultId(), "receive rows " + rc.getFetchCount());
+                        this.executionDal.fileMapper().updateAccessTimeByUniqueId(rc.getResultId(), "receive rows " + rc.getFetchCount());
                         String infoMessage = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_RESULT_SET_INFO_MESSAGE.name(),//
                                 fetchCount, ctx.getPrepareCost(), ctx.getQueryCost(), fetchTimeMs);
                         consumer.accept(BuildResMsgUtils.buildConsoleMsg(queryDTO, infoMessage, MessageLevel.Info, true));
@@ -917,7 +902,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                         long fetchCount = rs.getFetchCount();
                         long fetchTimeMs = Math.max(1, rs.getCostTimeMs());
 
-                        this.dmFileMapper.updateAccessTimeByUniqueId(rs.getResultId(), "receive rows " + rs.getFetchCount());
+                        this.executionDal.fileMapper().updateAccessTimeByUniqueId(rs.getResultId(), "receive rows " + rs.getFetchCount());
                         String infoMessage = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_RESULT_SET_INFO_MESSAGE.name(),//
                                 fetchCount, ctx.getPrepareCost(), ctx.getQueryCost(), fetchTimeMs);
                         consumer.accept(BuildResMsgUtils.buildConsoleMsg(queryDTO, infoMessage, MessageLevel.Info, true));
@@ -976,10 +961,10 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
                             case BeginReceive:
                                 break;
                             case FinishReceive:
-                                this.dmFileMapper.updateStatusByQueryId(rp.getQueryId(), FileStatus.Ready, "Finish");
+                                this.executionDal.fileMapper().updateStatusByQueryId(rp.getQueryId(), FileStatus.Ready, "Finish");
                                 break;
                             case Cancel:
-                                this.dmFileMapper.updateStatusByQueryId(rp.getQueryId(), FileStatus.Failed, "Cancel");
+                                this.executionDal.fileMapper().updateStatusByQueryId(rp.getQueryId(), FileStatus.Failed, "Cancel");
                                 break;
                             default:
                                 break;
@@ -1008,7 +993,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         String curUid = queryDTO.getCurrentUserId();
         String sessionId = queryDTO.getSessionId();
         DsLevels levels = this.dmDsConfigService.parseLevels(queryDTO.getLevels());
-        RdpDataSourceDO dsDO = levels.dsDO();
+        DmDsDO dsDO = levels.dsDO();
         DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId(), dsDO.getDataSourceType());
 
         Map<String, Object> params = new HashMap<>();
@@ -1029,7 +1014,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         RdbSupportSpi supportSpi = PluginManager.findRdbSupportSpi(dsDO.getDataSourceType());
 
         if (this.queryService.hasSession(curUid, sessionId)) {
-            DmDsSessionDO sessionInfo = this.queryService.getSessionInfo(curUid, sessionId);
+            DmExecSessionDO sessionInfo = this.queryService.getSessionInfo(curUid, sessionId);
             SessionContextDTO contextDTO = sessionInfo.toRdbCtx();
             QueryCtx queryCtx = new QueryCtx(levels, dsConfig, contextDTO, params, sessionSpi, supportSpi);
 
@@ -1074,7 +1059,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     private SecRulesCheckResult rulesCheck(WsQueryFO fo, QueryCtx ctx) {
         try {
             String curOwnerUid = fo.getPrimaryUserId();
-            RdpDataSourceDO dsDO = ctx.getLevels().dsDO();
+            DmDsDO dsDO = ctx.getLevels().dsDO();
 
             SecRulesCheckContext ruleCtx = SecRulesCheckContext.builder()//
                 .basicCodeLine(fo.getBasicCodeLine())
@@ -1486,7 +1471,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     }
 
     private boolean isUsingCacheResult(WsQueryFO queryDTO) {
-        RdpUserKvBaseConfigDO configDO = this.rdpUserConfigService.getSpecifiedConfig(queryDTO.getPrimaryUserId(), UserDefinedConfig.Fields.onlineResultCacheTimeoutSec);
+        DmSysUserConfDO configDO = this.rdpUserConfigService.getSpecifiedConfig(queryDTO.getPrimaryUserId(), UserDefinedConfig.Fields.onlineResultCacheTimeoutSec);
         if (configDO == null || StringUtils.isBlank(configDO.getConfigValue())) {
             return true;
         }
@@ -1498,7 +1483,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     }
 
     private boolean isUsingSelectRewrite(WsQueryFO queryDTO, QueryCtx ctx) {
-        RdpUserKvBaseConfigDO configDO = this.rdpUserConfigService.getSpecifiedConfig(queryDTO.getPrimaryUserId(), UserDefinedConfig.Fields.onlineSelectRewriteDisable);
+        DmSysUserConfDO configDO = this.rdpUserConfigService.getSpecifiedConfig(queryDTO.getPrimaryUserId(), UserDefinedConfig.Fields.onlineSelectRewriteDisable);
         if (configDO == null || StringUtils.isBlank(configDO.getConfigValue())) {
             return true;
         }

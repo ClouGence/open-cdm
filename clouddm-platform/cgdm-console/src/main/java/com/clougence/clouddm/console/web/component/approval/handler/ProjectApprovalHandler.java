@@ -27,12 +27,17 @@ import com.clougence.clouddm.console.web.component.approval.model.ApprovalMO;
 import com.clougence.clouddm.console.web.component.project.ImMessageType;
 import com.clougence.clouddm.console.web.component.project.ImSenderService;
 import com.clougence.clouddm.console.web.component.project.model.ChangeTicketInfo;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.*;
-import com.clougence.clouddm.console.web.dal.mapper.*;
-import com.clougence.clouddm.console.web.dal.model.*;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.PrimaryUserVO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.ApprovalDal;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.ProjectDal;
+import com.clougence.clouddm.platform.dal.model.approval.*;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
+import com.clougence.clouddm.platform.dal.model.project.*;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.approval.ApprovalActivityInfo;
 import com.clougence.clouddm.sdk.approval.ApprovalCreateInstanceResult;
@@ -52,52 +57,44 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ProjectApprovalHandler implements ApprovalHandler {
-
     @Resource
-    private DmApprovalMapper                approvalMapper;
+    private ProjectDal  projectDal;
     @Resource
-    private DmApprovalProcessMapper         approvalProcessMapper;
+    private AuthDal     authDal;
     @Resource
-    private RdpUserMapper                   userMapper;
-    @Resource
-    private DmApprovalProcessActivityMapper activityMapper;
-    @Resource
-    private DmProjectMapper                 dmProjectMapper;
-    @Resource
-    private DmProjectChangeMapper           dmProjectChangeMapper;
-    @Resource
-    private DmProjectChangeItemMapper       dmProjectChangeItemMapper;
+    private ApprovalDal approvalDal;
 
     @Override
-    public RdpApprovalBiz handleType() {
-        return RdpApprovalBiz.DM_CHANGE;
+    public ApprovalBiz handleType() {
+        return ApprovalBiz.DM_CHANGE;
     }
 
     @Override
-    public void executeTicket(long approvalId, RdpApprovalBiz bizType, ImSenderService sender) {
+    public void executeTicket(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         // do nothing
     }
 
     @Override
-    public void runningCheck(long approvalId, RdpApprovalBiz bizType, ImSenderService sender) {
+    public void runningCheck(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         // do nothing
     }
 
     @Override
     public List<PrimaryUserVO> queryPerson(long approvalId) {
-        DmApprovalDO ticketDO = this.approvalMapper.queryById(approvalId);
+        DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(approvalId);
         List<PrimaryUserVO> userVOS = new ArrayList<>();
 
         // add primary account
-        RdpUserDO parentUserDO = this.userMapper.queryByUid(ticketDO.getPrimaryUid());
+        DmAuthUserDO parentUserDO = this.authDal.userMapper().queryByUid(ticketDO.getPrimaryUid());
         PrimaryUserVO primaryUserVO = new PrimaryUserVO();
         primaryUserVO.setUid(ticketDO.getPrimaryUid());
         primaryUserVO.setUsername(parentUserDO.getUsername());
         userVOS.add(primaryUserVO);
 
         // add sub account who have auth to approval ticket and manger datasource
-        List<RdpTicketApproPersonDO> personDOS = this.userMapper.queryApproPerson(AccountType.SUB_ACCOUNT, parentUserDO.getId(), ticketDO.getBindDsId(), ticketDO.getLevelPath());
-        for (RdpTicketApproPersonDO personDO : personDOS) {
+        List<RsAuthPersonObj> personDOS = this.authDal.userMapper()
+            .queryApproPerson(AccountType.SUB_ACCOUNT, parentUserDO.getId(), ticketDO.getBindDsId(), ticketDO.getLevelPath());
+        for (RsAuthPersonObj personDO : personDOS) {
             List<String> roleAuthLabels = personDO.getRoleAuthLabels();
             List<String> resAuthLabel = personDO.getResAuthLabel();
             if (CollectionUtils.isNotEmpty(roleAuthLabels) //
@@ -118,8 +115,8 @@ public class ProjectApprovalHandler implements ApprovalHandler {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void createApproval(long approvalId, ImSenderService sender) {
-        DmApprovalDO ticketDO = approvalMapper.selectByIdForUpdate(approvalId);
-        if (ticketDO.getApproType() == RdpApprovalType.Internal) {
+        DmApprovalDO ticketDO = approvalDal.approvalMapper().selectByIdForUpdate(approvalId);
+        if (ticketDO.getApproType() == ApprovalType.Internal) {
             return; // only external approval need to create approval instance.
         }
 
@@ -130,63 +127,63 @@ public class ProjectApprovalHandler implements ApprovalHandler {
             ApprovalProviderSpi approvalSdkService = PluginManager.findSpi(ApprovalProviderSpi.class, ticketDO.getApproType().name());
             createInstance = approvalSdkService.createApprovalInstance(ticketDO.getPrimaryUid(), form);
         } catch (ThirdPartyApiException e) {
-            this.approvalMapper.updateTicketStatusByEnum(approvalId, RdpTicketStatus.FAILED, e.getMessage());
+            this.approvalDal.approvalMapper().updateStatusByEnum(approvalId, ApprovalStatus.FAILED, e.getMessage());
             this.approvalFailed(approvalId, ticketDO.getApproBiz(), sender);
             return;
         }
 
         List<ApprovalActivityInfo> aaList = createInstance.getActivityList();
-        DmApprovalProcessDO processDO = this.approvalProcessMapper.queryByStage(ticketDO.getId(), RdpTicketStage.APPROVAL);
+        DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryByStage(ticketDO.getId(), ApprovalStage.APPROVAL);
         List<DmApprovalProcessActivityDO> approvalProcessActivityDOS = convertToDmApprovalProcessActivityDO(aaList, processDO.getId(), ticketDO.getId());
         for (DmApprovalProcessActivityDO approvalProcessActivityDO : approvalProcessActivityDOS) {
-            activityMapper.insert(approvalProcessActivityDO);
+            approvalDal.activityMapper().insert(approvalProcessActivityDO);
         }
 
         String url = null;
         if (createInstance.getApprovalUrl() != null) {
             url = JsonUtils.toJson(createInstance.getApprovalUrl());
         }
-        approvalMapper.updateThirdApprovalInfo(ticketDO.getId(), createInstance.getApprovalIdentity(), url);
+        approvalDal.approvalMapper().updateThirdApprovalInfo(ticketDO.getId(), createInstance.getApprovalIdentity(), url);
     }
 
     @Override
-    public void approvalCompleted(long approvalId, RdpApprovalBiz bizType, ImSenderService sender) {
-        this.approvalMapper.updateTicketStatusByEnum(approvalId, RdpTicketStatus.FINISHED, null);
+    public void approvalCompleted(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
+        this.approvalDal.approvalMapper().updateStatusByEnum(approvalId, ApprovalStatus.FINISHED, null);
         this.updateChange(approvalId, ProjectChangeStep.EXECUTE, ProjectChangeStatus.READY, sender, (ticket, change, locale) -> {
             return DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_TICKET_FINISH_MESSAGE.name(), locale, change.getChangeName());
         });
     }
 
     @Override
-    public void approvalRefuse(long approvalId, RdpApprovalBiz bizType, ImSenderService sender) {
+    public void approvalRefuse(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         this.updateChange(approvalId, ProjectChangeStep.APPROVAL, ProjectChangeStatus.FAILED, sender, (ticket, change, locale) -> {
             return DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_TICKET_REFUSE_MESSAGE.name(), locale, change.getChangeName());
         });
     }
 
     @Override
-    public void approvalFailed(long approvalId, RdpApprovalBiz bizType, ImSenderService sender) {
+    public void approvalFailed(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         this.updateChange(approvalId, ProjectChangeStep.APPROVAL, ProjectChangeStatus.FAILED, sender, (ticket, change, locale) -> {
             return DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_TICKET_FAILED_MESSAGE.name(), locale, change.getChangeName());
         });
     }
 
     @Override
-    public void approvalCanceled(long approvalId, RdpApprovalBiz bizType, ImSenderService sender) {
+    public void approvalCanceled(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         this.updateChange(approvalId, ProjectChangeStep.APPROVAL, ProjectChangeStatus.FAILED, sender, (ticket, change, locale) -> {
             return DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_TICKET_CANCELED_MESSAGE.name(), locale, change.getChangeName());
         });
     }
 
     private void updateChange(long approvalId, ProjectChangeStep changeStep, ProjectChangeStatus changeStatus, ImSenderService sender, ChangeMessageFunction changeMessage) {
-        DmApprovalDO ticketDO = this.approvalMapper.queryById(approvalId);
+        DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(approvalId);
         ApprovalMO info = JsonUtils.toObj(ticketDO.getTicketInfo(), ApprovalMO.class);
         if (info == null || info.getChangeOwnerUid() == null || info.getChangeId() == null) {
             return;
         }
 
-        DmProjectChangeDO changeDO = this.dmProjectChangeMapper.queryChangeById(info.getChangeOwnerUid(), info.getChangeId());
-        List<DmProjectChangeItemDO> changeItems = this.dmProjectChangeItemMapper.queryChangeItemByChangeId(info.getChangeOwnerUid(), info.getChangeId(), DmChangeItemType.TICKET);
+        DmProjectChangeDO changeDO = this.projectDal.changeMapper().queryChangeById(info.getChangeOwnerUid(), info.getChangeId());
+        List<DmProjectChangeItemDO> changeItems = this.projectDal.changeItemMapper().queryChangeItemByChangeId(info.getChangeOwnerUid(), info.getChangeId(), ChangeItemType.TICKET);
         DmProjectChangeItemDO item = changeItems.isEmpty() ? null : changeItems.get(0);
         if (item == null || StringUtils.isBlank(item.getContent())) {
             return;
@@ -205,12 +202,12 @@ public class ProjectApprovalHandler implements ApprovalHandler {
         ImMessageType sendMessageAndType = null;
         int version = changeDO.getVersion();
         if (changeDO.getCurrentStep() != changeStep) {
-            int res1 = this.dmProjectChangeMapper.updateStepTo(changeDO.getId(), version, changeStep, changeMessageStr);
+            int res1 = this.projectDal.changeMapper().updateStepTo(changeDO.getId(), version, changeStep, changeMessageStr);
             version++;
             sendMessageAndType = ImMessageType.ChangeLife;
         }
         if (changeDO.getCurrentStatus() != changeStatus) {
-            int res2 = this.dmProjectChangeMapper.updateStatusTo(changeDO.getId(), version, changeStatus, changeMessageStr);
+            int res2 = this.projectDal.changeMapper().updateStatusTo(changeDO.getId(), version, changeStatus, changeMessageStr);
             sendMessageAndType = ImMessageType.ChangeNotice;
         }
 
@@ -225,8 +222,8 @@ public class ProjectApprovalHandler implements ApprovalHandler {
         for (ApprovalActivityInfo aaObj : activityDTOList) {
             DmApprovalProcessActivityDO activityDO = new DmApprovalProcessActivityDO();
             activityDO.setActivityId(aaObj.getActivityId());
-            //            activityDO.setActivityType(approvalActivity.getApprovalMethod());
-            //            activityDO.setActivityStatus(RdpTicketProcessActivityStatus.NEW);
+            // activityDO.setActivityType(approvalActivity.getApprovalMethod());
+            // activityDO.setActivityStatus(RdpTicketProcessActivityStatus.NEW);
             activityDO.setActivityTitle(aaObj.getActivityName());
             activityDO.setProcessId(processId);
             activityDO.setTicketId(approvalId);
@@ -242,9 +239,9 @@ public class ProjectApprovalHandler implements ApprovalHandler {
             throw new IllegalArgumentException("ticket info is null");
         }
 
-        DmProjectChangeDO changeDO = this.dmProjectChangeMapper.queryChangeById(info.getChangeOwnerUid(), info.getChangeId());
-        DmProjectDO projectDO = this.dmProjectMapper.queryByOwnerAndId(changeDO.getOwnerUid(), changeDO.getRefProjectId());
-        RdpUserDO userDO = this.userMapper.queryByUid(ticketDO.getOwnerUid());
+        DmProjectChangeDO changeDO = this.projectDal.changeMapper().queryChangeById(info.getChangeOwnerUid(), info.getChangeId());
+        DmProjectDO projectDO = this.projectDal.projectMapper().queryByOwnerAndId(changeDO.getOwnerUid(), changeDO.getRefProjectId());
+        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(ticketDO.getOwnerUid());
 
         ChangeForm form = new ChangeForm();
         form.setTicketUserPhone(userDO.getPhone());

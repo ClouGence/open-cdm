@@ -19,10 +19,10 @@ import java.util.List;
 
 import com.clougence.clouddm.api.console.status.MetricStats;
 import com.clougence.clouddm.api.console.status.WorkerState;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.clouddm.console.web.model.fo.cluster.CreateInitialWorkerFO;
 import com.clougence.clouddm.console.web.model.vo.cluster.WorkerDeployConfigVO;
-import com.clougence.clouddm.console.web.dal.enumeration.LifeCycleState;
+import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 
 /**
  * @author bucketli 2020-01-20 21:04
@@ -30,7 +30,7 @@ import com.clougence.clouddm.console.web.dal.enumeration.LifeCycleState;
  */
 public interface WorkerService {
 
-    DmWorkerDO createInitialWorker(String ownerUid, CreateInitialWorkerFO fo);
+    DmSysWorkerDO createInitialWorker(String ownerUid, CreateInitialWorkerFO fo);
 
     void deleteWorker(long workerId, boolean force);
 
@@ -38,15 +38,15 @@ public interface WorkerService {
 
     void updateToWaitToOffline(long workerId);
 
-    List<DmWorkerDO> listConnectedWorkers(long clusterId);
+    List<DmSysWorkerDO> listConnectedWorkers(long clusterId);
 
-    List<DmWorkerDO> listWorkers(long clusterId);
+    List<DmSysWorkerDO> listWorkers(long clusterId);
 
-    DmWorkerDO getWorkerById(Long workerId);
+    DmSysWorkerDO getWorkerById(Long workerId);
 
-    DmWorkerDO getWorkerByWsn(String wsn);
+    DmSysWorkerDO getWorkerByWsn(String wsn);
 
-    DmWorkerDO queryWorkerByWsn(String wsn);
+    DmSysWorkerDO queryWorkerByWsn(String wsn);
 
     String getClientDownloadUrl(long workerId);
 

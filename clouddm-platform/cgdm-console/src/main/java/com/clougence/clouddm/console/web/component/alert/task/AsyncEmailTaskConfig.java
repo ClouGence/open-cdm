@@ -17,7 +17,7 @@ package com.clougence.clouddm.console.web.component.alert.task;
 
 import java.util.List;
 
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.rdp.service.model.MailDTO;
 
 import lombok.Getter;
@@ -28,8 +28,6 @@ import lombok.Setter;
 public class AsyncEmailTaskConfig {
 
     private MailDTO      mailDTO;
-
-    private RdpUserDO    userDO;
-
+    private DmAuthUserDO userDO;
     private List<String> receiverUids;
 }

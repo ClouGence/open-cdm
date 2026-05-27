@@ -17,16 +17,16 @@ package com.clougence.rdp.service;
 
 import java.util.List;
 
-import com.clougence.clouddm.console.web.dal.model.RdpDsUsageDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsUsageDO;
 
 /**
  * @author bucketli 2024/2/27 11:17:36
  */
 public interface RdpDsUsageService {
 
-    void addDsUsages(List<RdpDsUsageDO> usageDOs);
+    void addDsUsages(List<DmDsUsageDO> usageDOs);
 
-    List<RdpDsUsageDO> listDsUsage(Long dsId);
+    List<DmDsUsageDO> listDsUsage(Long dsId);
 
-    void deleteDsUsage(List<RdpDsUsageDO> dsUsages);
+    void deleteDsUsage(List<DmDsUsageDO> dsUsages);
 }

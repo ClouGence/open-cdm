@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
@@ -40,11 +39,12 @@ import com.clougence.clouddm.console.web.model.vo.editor.data.DataEditorResultVO
 import com.clougence.clouddm.console.web.service.editor.DsDataEditorService;
 import com.clougence.clouddm.console.web.service.editor.model.DataEditorChangeDTO;
 import com.clougence.clouddm.console.web.service.editor.model.DataEditorExecuteResultDTO;
+import com.clougence.clouddm.console.web.util.RdpAuthUtils;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.rdp.service.RdpUserService;
-import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,13 +57,13 @@ import lombok.extern.slf4j.Slf4j;
 public class DataEditorController {
 
     @Resource
-    private DsDataEditorService     dataEditorService;
+    private DsDataEditorService dataEditorService;
     @Resource
-    private DmDsConfigService       dmDsConfigService;
+    private DmDsConfigService   dmDsConfigService;
     @Resource
-    private BizResOwnerCacheService ownerCacheService;
+    private ObjectCacheDao      objectCacheDao;
     @Resource
-    private DmAuthServiceForBiz     dmAuthServiceForBiz;
+    private DmAuthServiceForBiz dmAuthServiceForBiz;
 
     @RequestAuth(DM_QUERY_CONSOLE)
     @RequestMapping(value = "/fetchData", method = RequestMethod.POST)
@@ -72,7 +72,7 @@ public class DataEditorController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.ownerCacheService.ownDataSource(puid, levels.dsDO().getId());
+        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
         DsResPath dsResource = RdpAuthUtils.genResPathByList(levels.dbLevels(), fo.getTargetName());
         this.dmAuthServiceForBiz.checkResPath(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, dsResource, SecDataAuthLabel.DM_DAUTH_QUERY);
 
@@ -87,7 +87,7 @@ public class DataEditorController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.ownerCacheService.ownDataSource(puid, levels.dsDO().getId());
+        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
         DsResPath dsResource = RdpAuthUtils.genResPathByList(levels.dbLevels(), fo.getTargetName());
         this.dmAuthServiceForBiz.checkResPath(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, dsResource, SecDataAuthLabel.DM_DAUTH_QUERY);
 
@@ -103,7 +103,7 @@ public class DataEditorController {
 
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
         Long dsID = levels.dsDO().getId();
-        this.ownerCacheService.ownDataSource(puid, dsID);
+        this.objectCacheDao.ownDataSource(puid, dsID);
         DsResPath dsResource = RdpAuthUtils.genResPathByList(levels.dbLevels(), fo.getTargetName());
         String dataAuthLabel = SecDataAuthLabel.DM_DAUTH_DML;
         boolean checkAuth = this.dmAuthServiceForBiz.checkResPathWithoutError(puid, uid, dsID, AuthKind.DataSource, dsResource, dataAuthLabel);
@@ -126,7 +126,7 @@ public class DataEditorController {
 
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
         Long dsID = levels.dsDO().getId();
-        this.ownerCacheService.ownDataSource(puid, dsID);
+        this.objectCacheDao.ownDataSource(puid, dsID);
         DsResPath dsResource = RdpAuthUtils.genResPathByList(levels.dbLevels(), fo.getTargetName());
         String dataAuthLabel = SecDataAuthLabel.DM_DAUTH_DML;
         boolean checkAuth = this.dmAuthServiceForBiz.checkResPathWithoutError(puid, uid, dsID, AuthKind.DataSource, dsResource, dataAuthLabel);

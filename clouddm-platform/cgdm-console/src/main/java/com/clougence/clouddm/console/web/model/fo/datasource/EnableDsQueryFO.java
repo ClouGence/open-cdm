@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo.datasource;
 
-import com.clougence.clouddm.console.web.dal.enumeration.HostType;
+import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

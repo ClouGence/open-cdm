@@ -22,6 +22,8 @@ import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.exception.DmErrorCode;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.execute.AsyncWaitResult;
 import com.clougence.clouddm.api.sidecar.session.execute.ExecuteRService;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultList;
@@ -29,27 +31,25 @@ import com.clougence.clouddm.api.sidecar.session.execute.StatusDTO;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
-import com.clougence.clouddm.console.web.component.auth.model.DsCacheEntry;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsStatusService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.execute.QueryService;
-import com.clougence.clouddm.console.web.constants.DmErrorCode;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.DsSessionType;
-import com.clougence.clouddm.console.web.dal.mapper.DmDsSessionMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmWorkerMapper;
-import com.clougence.clouddm.console.web.dal.model.DmDsSessionDO;
-import com.clougence.clouddm.console.web.dal.model.DmWorkerDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.MessageUtils;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecSessionDO;
+import com.clougence.clouddm.platform.dal.model.execution.DsSessionType;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -67,25 +67,25 @@ import lombok.extern.slf4j.Slf4j;
 public class QueryServiceImpl implements QueryService {
 
     @Resource
-    private DmDsConfigService       dmDsConfigService;
+    private SystemDal         systemDal;
     @Resource
-    private BizResOwnerCacheService ownerCacheService;
+    private ExecutionDal      executionDal;
     @Resource
-    private DmWorkerMapper          dmWorkerMapper;
+    private ObjectCacheDao    objectCacheDao;
     @Resource
-    private ExecuteRService         sessionRService;
+    private DmDsConfigService dmDsConfigService;
     @Resource
-    private DmDsSessionMapper       sessionMapper;
+    private ExecuteRService   sessionRService;
     @Resource
-    private DmDsStatusService       dmDsStatusService;
+    private DmDsStatusService dmDsStatusService;
 
     private RSocketSendDTO buildRSocketSendDTO(long bindClusterId) {
-        List<DmWorkerDO> workers = this.dmWorkerMapper.queryConnectedByClusterId(bindClusterId);
+        List<DmSysWorkerDO> workers = this.systemDal.workerMapper().queryConnectedByClusterId(bindClusterId);
         if (workers.isEmpty()) {
             throw new ErrorMessageException(DmErrorCode.CLUSTER_HAVE_NO_WORKS_ERROR.code(), MessageUtils.getClusterHaveNoWorksErrorMessage(bindClusterId));
         }
 
-        DmWorkerDO worker = workers.get(new Random(System.currentTimeMillis()).nextInt(workers.size()));
+        DmSysWorkerDO worker = workers.get(new Random(System.currentTimeMillis()).nextInt(workers.size()));
 
         RSocketSendDTO sendDTO = new RSocketSendDTO();
         sendDTO.setClusterId(worker.getClusterId());
@@ -96,7 +96,7 @@ public class QueryServiceImpl implements QueryService {
         return sendDTO;
     }
 
-    private RSocketSendDTO buildRSocketSendDTO(DmWorkerDO worker) {
+    private RSocketSendDTO buildRSocketSendDTO(DmSysWorkerDO worker) {
         RSocketSendDTO sendDTO = new RSocketSendDTO();
         sendDTO.setClusterId(worker.getClusterId());
         sendDTO.setWorkerSeqNumber(worker.getWorkerSeqNumber());
@@ -106,8 +106,8 @@ public class QueryServiceImpl implements QueryService {
         return sendDTO;
     }
 
-    private RSocketSendDTO buildRSocketSendDTO(DmDsSessionDO sessionDO) {
-        DmWorkerDO worker = this.dmWorkerMapper.queryConnectedByWsn(sessionDO.getWsn());
+    private RSocketSendDTO buildRSocketSendDTO(DmExecSessionDO sessionDO) {
+        DmSysWorkerDO worker = this.systemDal.workerMapper().queryConnectedByWsn(sessionDO.getWsn());
         if (worker != null) {
             return this.buildRSocketSendDTO(worker);
         } else {
@@ -117,12 +117,12 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public void testSessionWorker(String curUid, String sessionId) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
 
-        DmWorkerDO worker = this.dmWorkerMapper.queryConnectedByWsn(sessionDO.getWsn());
+        DmSysWorkerDO worker = this.systemDal.workerMapper().queryConnectedByWsn(sessionDO.getWsn());
         if (worker == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_WORKER_STATUS_OFFLINE_ERROR.name(), sessionDO.getWsn()));
         }
@@ -130,7 +130,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public boolean hasSession(String curUid, String sessionId) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return false;
         }
@@ -140,30 +140,30 @@ public class QueryServiceImpl implements QueryService {
     }
 
     @Override
-    public DmDsSessionDO getSessionInfo(String curUid, String sessionId) {
-        return this.sessionMapper.queryBySessionId(curUid, sessionId);
+    public DmExecSessionDO getSessionInfo(String curUid, String sessionId) {
+        return this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
     }
 
     @Override
     public String createSession(String curUid, DsLevels levels, SessionContextDTO context) {
-        RdpDataSourceDO dsDO = levels.dsDO();
+        DmDsDO dsDO = levels.dsDO();
         String sessionId = context.getSessionId();
         if (StringUtils.isBlank(sessionId)) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NEED_SESSION_ID_ERROR.name()));
         }
 
         // close and remove old data.
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO != null) {
             RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO);
             this.sessionRService.closeSession(sendDTO, sessionId);
-            this.sessionMapper.deleteBySessionId(sessionId);
+            this.executionDal.sessionMapper().deleteBySessionId(sessionId);
         }
 
         // gen new session.
-        DsCacheEntry cacheEntry = this.ownerCacheService.queryByDsId(dsDO.getId());
+        DsCacheEntry cacheEntry = this.objectCacheDao.queryByDsId(dsDO.getId());
         RSocketSendDTO sendDTO = this.buildRSocketSendDTO(cacheEntry.getClusterId());
-        sessionDO = new DmDsSessionDO();
+        sessionDO = new DmExecSessionDO();
         sessionDO.setUid(curUid);
         sessionDO.setSessionId(sessionId);
         sessionDO.setSessionType(DsSessionType.QUERY);
@@ -175,7 +175,7 @@ public class QueryServiceImpl implements QueryService {
         sessionDO.setGmtCreate(new Date());
         sessionDO.setGmtModified(new Date());
 
-        int insert = this.sessionMapper.insert(sessionDO);
+        int insert = this.executionDal.sessionMapper().insert(sessionDO);
         if (insert != 1) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_STORE_SESSION_DATA_ERROR.name()));
         }
@@ -198,18 +198,18 @@ public class QueryServiceImpl implements QueryService {
             return;
         }
 
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
 
-        DmWorkerDO worker = this.dmWorkerMapper.queryConnectedByWsn(sessionDO.getWsn());
+        DmSysWorkerDO worker = this.systemDal.workerMapper().queryConnectedByWsn(sessionDO.getWsn());
         if (worker != null) {
             RSocketSendDTO sendDTO = this.buildRSocketSendDTO(worker);
             this.sessionRService.closeSession(sendDTO, sessionId);
         }
 
-        this.sessionMapper.deleteBySessionId(sessionId);
+        this.executionDal.sessionMapper().deleteBySessionId(sessionId);
     }
 
     /**
@@ -217,7 +217,7 @@ public class QueryServiceImpl implements QueryService {
      */
     @Override
     public void commitSession(String curUid, final String sessionId) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
@@ -231,7 +231,7 @@ public class QueryServiceImpl implements QueryService {
      */
     @Override
     public void rollbackSession(String curUid, final String sessionId) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
@@ -245,7 +245,7 @@ public class QueryServiceImpl implements QueryService {
      */
     @Override
     public void cancelQuery(final String curUid, final String sessionId) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
@@ -256,13 +256,13 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public void asyncExecuteQuery(String curUid, String sessionId, String batchId, List<QueryRequest> queryRequest) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_SESSION_NOT_EXIST_ERROR.name()));
         }
 
         // update SessionInfo
-        this.sessionMapper.updateSessionQueryTime(curUid, sessionId);
+        this.executionDal.sessionMapper().updateSessionQueryTime(curUid, sessionId);
 
         // record Statistics
         //this.recordStatistics(sessionDO);
@@ -282,14 +282,14 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public ResultList syncExecuteQuery(String curUid, String sessionId, QueryRequest queryRequest) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_SESSION_NOT_EXIST_ERROR.name()));
         }
         RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO);
 
         // update SessionInfo
-        this.sessionMapper.updateSessionQueryTime(curUid, sessionId);
+        this.executionDal.sessionMapper().updateSessionQueryTime(curUid, sessionId);
 
         // record Statistics
         //this.recordStatistics(sessionDO);
@@ -318,7 +318,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public boolean isExecuting(String curUid, String sessionId) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return false;
         }
@@ -329,7 +329,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public boolean hasQueryResult(String curUid, String sessionId) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return false;
         }
@@ -340,7 +340,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public ResultList fetchQueryResult(String curUid, String sessionId) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return null;
         }
@@ -351,7 +351,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public void changeCatalog(String curUid, String sessionId, String catalog) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
@@ -363,7 +363,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public void changeSchema(String curUid, String sessionId, String schema) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
@@ -375,7 +375,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public void setAutoCommit(String curUid, String sessionId, boolean autoCommit) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
@@ -387,7 +387,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public void setIsolation(String curUid, String sessionId, RdbIsolation isolation) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
@@ -399,7 +399,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public void setReadOnly(String curUid, String sessionId, boolean readOnly) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return;
         }
@@ -411,7 +411,7 @@ public class QueryServiceImpl implements QueryService {
 
     @Override
     public StatusDTO getAndUpdateStatus(String curUid, String sessionId) {
-        DmDsSessionDO sessionDO = this.sessionMapper.queryBySessionId(curUid, sessionId);
+        DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO == null) {
             return null;
         }
@@ -422,12 +422,12 @@ public class QueryServiceImpl implements QueryService {
         return status;
     }
 
-    private void updateSessionCtx(DmDsSessionDO sessionDO, RSocketSendDTO sendDTO) {
+    private void updateSessionCtx(DmExecSessionDO sessionDO, RSocketSendDTO sendDTO) {
         StatusDTO status = this.sessionRService.getStatus(sendDTO, sessionDO.getSessionId());
         this.updateSessionCtx(sessionDO, status);
     }
 
-    private void updateSessionCtx(DmDsSessionDO sessionDO, StatusDTO status) {
+    private void updateSessionCtx(DmExecSessionDO sessionDO, StatusDTO status) {
         if (sessionDO == null || status == null) {
             return;
         }
@@ -439,6 +439,6 @@ public class QueryServiceImpl implements QueryService {
         ctx.setRdbReadOnly(status.isReadOnly());
 
         sessionDO.setConfig(JsonUtils.toJson(ctx));
-        this.sessionMapper.updateSessionConfig(sessionDO);
+        this.executionDal.sessionMapper().updateSessionConfig(sessionDO);
     }
 }

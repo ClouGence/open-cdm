@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.service.project.domain;
 
-import com.clougence.clouddm.console.web.dal.enumeration.ImType;
+import com.clougence.clouddm.platform.dal.model.system.ImType;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -16,7 +16,7 @@
 package com.clougence.clouddm.console.web.model.fo;
 
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.validation.constraints.NotNull;

@@ -21,8 +21,8 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.LifeSpiRequest;
 import com.clougence.clouddm.sdk.approval.ApprovalProvider;
@@ -38,9 +38,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class ApprovalStarter implements UnifiedPostConstruct {
-
     @Resource
-    private RdpUserMapper               rdpUserMapper;
+    private AuthDal                     authDal;
     @Resource
     private ApprovalProviderServiceImpl approvalService;
     @Resource
@@ -74,8 +73,8 @@ public class ApprovalStarter implements UnifiedPostConstruct {
         }
 
         // start plugin for user.
-        List<RdpUserDO> users = this.rdpUserMapper.listPrimaryAccount();
-        for (RdpUserDO rdpUserDO : users) {
+        List<DmAuthUserDO> users = this.authDal.userMapper().listPrimaryAccount();
+        for (DmAuthUserDO rdpUserDO : users) {
             for (String serviceName : serviceNames) {
                 ApprovalProvider providerType = ApprovalProvider.valueOf(serviceName);
 

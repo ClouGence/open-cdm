@@ -28,12 +28,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.console.web.constants.DmErrorCode;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.api.common.exception.ConsoleRuntimeException;
+import com.clougence.clouddm.api.common.exception.DmErrorCode;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.model.feature.RdpFeatureIDs;
-import com.clougence.rdp.global.exception.ErrorMessageException;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -88,6 +88,13 @@ public class GlobalExceptionHandler {
     public ResWebData<?> handleNormalException(ErrorMessageException e) {
         logAndSaveExc(e);
         return ResWebDataUtils.buildError(e.getErrorCode(), e.getErrorMessage());
+    }
+
+    @ExceptionHandler(value = ConsoleRuntimeException.class)
+    @ResponseBody
+    public ResWebData<?> handleNormalException(ConsoleRuntimeException e) {
+        logAndSaveExc(e);
+        return ResWebDataUtils.buildError(e.getErrorCode().getCode(), DmI18nUtils.getMessage(e.getErrorCode(), e.getParams()));
     }
 
     protected void logAndSaveExc(Throwable e) {

@@ -21,22 +21,21 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.exception.DmErrorCode;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.execute.MetaRService;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsStatusService;
-import com.clougence.clouddm.console.web.constants.DmErrorCode;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.DataSourceStatus;
-import com.clougence.clouddm.console.web.dal.mapper.DmDsConfigMapper;
-import com.clougence.clouddm.console.web.dal.model.DmDsConfigDO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.ui.exception.ConnectionExceptionType;
 import com.clougence.clouddm.sdk.ui.exception.DetermineExceptionSpi;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpNotifyService;
 import com.clougence.schema.umi.struts.UmiTypes;
 
@@ -46,13 +45,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class DmDsStatusServiceImpl implements DmDsStatusService {
-
     @Resource
-    private DmDsConfigMapper                    dmDsConfigMapper;
+    private DataSourceDal                       dsDal;
     @Resource
     private List<RdpNotifyService>              notifyServices;
-    @Resource
-    private RdpDataSourceMapper                 rdpDataSourceMapper;
     @Resource
     private MetaRService                        dsMetaRService;
 
@@ -82,8 +78,8 @@ public class DmDsStatusServiceImpl implements DmDsStatusService {
         // avoid frequently rewrite xml
         if (!dataSourceStatus.equals(newStatus)) {
             this.map.put(dsConfig.getInstanceId(), DataSourceStatus.ConnectionFailed);
-            RdpDataSourceDO ds = rdpDataSourceMapper.getByInstanceId(dsConfig.getInstanceId());
-            dmDsConfigMapper.updateStatusByDataSourceId(ds.getId(), newStatus);
+            DmDsDO ds = dsDal.dsMapper().getByInstanceId(dsConfig.getInstanceId());
+            dsDal.configMapper().updateStatusByDataSourceId(ds.getId(), newStatus);
             this.notifyServices.forEach(s -> s.onDsUpdate(ds.getId()));
         }
     }
@@ -105,8 +101,8 @@ public class DmDsStatusServiceImpl implements DmDsStatusService {
         }
 
         this.map.put(dsConfig.getInstanceId(), DataSourceStatus.Normal);
-        RdpDataSourceDO ds = this.rdpDataSourceMapper.getByInstanceId(dsConfig.getInstanceId());
-        dmDsConfigMapper.updateStatusByDataSourceId(ds.getId(), DataSourceStatus.Normal);
+        DmDsDO ds = this.dsDal.dsMapper().getByInstanceId(dsConfig.getInstanceId());
+        dsDal.configMapper().updateStatusByDataSourceId(ds.getId(), DataSourceStatus.Normal);
         this.notifyServices.forEach(s -> s.onDsUpdate(ds.getId()));
     }
 
@@ -126,8 +122,8 @@ public class DmDsStatusServiceImpl implements DmDsStatusService {
             synchronized (this) {
                 dataSourceStatus = this.map.get(instanceId);
                 if (dataSourceStatus == null) {
-                    RdpDataSourceDO rdpDataSourceDO = rdpDataSourceMapper.getByInstanceId(instanceId);
-                    DmDsConfigDO dmDsConfigDO = dmDsConfigMapper.queryByDataSourceId(rdpDataSourceDO.getId());
+                    DmDsDO rdpDataSourceDO = dsDal.dsMapper().getByInstanceId(instanceId);
+                    DmDsConfigDO dmDsConfigDO = dsDal.configMapper().queryByDataSourceId(rdpDataSourceDO.getId());
                     if (dmDsConfigDO == null) {
                         throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
                     }

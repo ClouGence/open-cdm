@@ -17,7 +17,7 @@ package com.clougence.clouddm.console.web.component.project;
 
 import java.util.function.Predicate;
 
-import com.clougence.clouddm.console.web.dal.model.DmProjectMsgDO;
+import com.clougence.clouddm.platform.dal.model.project.DmProjectMsgDO;
 
 public enum ImMessageType {
 

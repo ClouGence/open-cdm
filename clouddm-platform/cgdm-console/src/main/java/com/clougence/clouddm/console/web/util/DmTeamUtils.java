@@ -19,26 +19,26 @@ import static com.clougence.clouddm.console.web.util.RandomStrUtils.fixedLenRand
 
 import org.springframework.context.ApplicationContext;
 
-import com.clougence.clouddm.console.web.dal.enumeration.SQLJobBizType;
-import com.clougence.clouddm.console.web.dal.mapper.DmAutoExecJobMapper;
-import com.clougence.clouddm.console.web.dal.model.exec.DmAutoExecJobDO;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
 
 /**
  * @author mode create time is 2021/1/30
  **/
 public class DmTeamUtils {
 
-    private static DmAutoExecJobMapper dmAutoExecJobMapper;
+    private static ExecutionDal executionDal;
 
     public static void initUtils(ApplicationContext spring) {
-        dmAutoExecJobMapper = spring.getBean(DmAutoExecJobMapper.class);
+        executionDal = spring.getBean(ExecutionDal.class);
     }
 
     public static String nextExecJobBizId(SQLJobBizType bizType) {
         String namePattern = "auto" + bizType + "-Job-%s";
         while (true) {
             String bizId = String.format(namePattern, fixedLenRandomStr(20));
-            DmAutoExecJobDO jobDO = dmAutoExecJobMapper.queryByBizId(bizId);
+            DmExecAutoJobDO jobDO = executionDal.autoJobMapper().queryByBizId(bizId);
             if (jobDO == null) {
                 return bizId;
             }
@@ -49,7 +49,7 @@ public class DmTeamUtils {
         String namePattern = "auto" + bizType + "-Task-%s";
         while (true) {
             String bizId = String.format(namePattern, fixedLenRandomStr(20));
-            DmAutoExecJobDO jobDO = dmAutoExecJobMapper.queryByBizId(bizId);
+            DmExecAutoJobDO jobDO = executionDal.autoJobMapper().queryByBizId(bizId);
             if (jobDO == null) {
                 return bizId;
             }

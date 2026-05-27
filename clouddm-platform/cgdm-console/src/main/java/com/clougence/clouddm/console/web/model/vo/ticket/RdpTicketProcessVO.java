@@ -17,8 +17,8 @@ package com.clougence.clouddm.console.web.model.vo.ticket;
 
 import java.util.List;
 
-import com.clougence.clouddm.console.web.dal.enumeration.RdpTicketProcessStatus;
-import com.clougence.clouddm.console.web.dal.enumeration.RdpTicketStage;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalProcessStatus;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalStage;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -33,13 +33,13 @@ public class RdpTicketProcessVO {
 
     private String                    gmtModified;
 
-    private RdpTicketStage            ticketStage;
+    private ApprovalStage            ticketStage;
 
     private String                    ticketStageTitle;
 
     private String                    finishTime;
 
-    private RdpTicketProcessStatus    ticketProcessStatus;
+    private ApprovalProcessStatus    ticketProcessStatus;
 
     private String                    stageContext;
 

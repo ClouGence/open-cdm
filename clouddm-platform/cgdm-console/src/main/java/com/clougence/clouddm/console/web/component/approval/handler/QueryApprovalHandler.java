@@ -23,12 +23,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
 import com.clougence.clouddm.console.web.component.project.ImSenderService;
-import com.clougence.clouddm.console.web.dal.enumeration.*;
-import com.clougence.clouddm.console.web.dal.mapper.*;
-import com.clougence.clouddm.console.web.dal.model.*;
-import com.clougence.clouddm.console.web.dal.model.exec.DmAutoExecJobDO;
 import com.clougence.clouddm.console.web.model.vo.PrimaryUserVO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.ApprovalDal;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.model.approval.*;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
+import com.clougence.clouddm.platform.dal.model.execution.AutoExecJobStatus;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.approval.ApprovalActivityInfo;
 import com.clougence.clouddm.sdk.approval.ApprovalCreateInstanceResult;
@@ -47,36 +52,32 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class QueryApprovalHandler implements ApprovalHandler {
-
     @Resource
-    private DmApprovalMapper                approvalMapper;
+    private ExecutionDal executionDal;
     @Resource
-    private DmApprovalProcessMapper         approvalProcessMapper;
+    private AuthDal      authDal;
     @Resource
-    private RdpUserMapper                   userMapper;
-    @Resource
-    private DmApprovalProcessActivityMapper activityMapper;
-    @Resource
-    private DmAutoExecJobMapper             dmAutoExecJobMapper;
+    private ApprovalDal  approvalDal;
 
     @Override
-    public RdpApprovalBiz handleType() {
-        return RdpApprovalBiz.DM_QUERY;
+    public ApprovalBiz handleType() {
+        return ApprovalBiz.DM_QUERY;
     }
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public void executeTicket(long approvalId, RdpApprovalBiz bizType, ImSenderService sender) {
-        DmApprovalDO ticketDO = this.approvalMapper.queryById(approvalId);
-        DmAutoExecJobDO jobDO = this.dmAutoExecJobMapper.queryByDependOnBizId(ticketDO.getBizId());
+    public void executeTicket(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
+        DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(approvalId);
+        DmExecAutoJobDO jobDO = this.executionDal.autoJobMapper().queryByDependOnBizId(ticketDO.getBizId());
         if (jobDO == null) {
             return;
         }
 
         AutoExecJobStatus status = jobDO.getStatus();
         if (status == AutoExecJobStatus.EXECUTING) {
-            approvalMapper.updateTicketStatusByEnum(approvalId, RdpTicketStatus.RUNNING, null);
+            approvalDal.approvalMapper().updateStatusByEnum(approvalId, ApprovalStatus.RUNNING, null);
         } else if (status == AutoExecJobStatus.WAIT_EXEC || status == AutoExecJobStatus.INIT) {
+
         } else {
             runningCheck(approvalId, status);
         }
@@ -84,41 +85,42 @@ public class QueryApprovalHandler implements ApprovalHandler {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public void runningCheck(long approvalId, RdpApprovalBiz bizType, ImSenderService sender) {
-        DmApprovalDO ticketDO = this.approvalMapper.queryById(approvalId);
-        DmAutoExecJobDO jobDO = this.dmAutoExecJobMapper.queryByDependOnBizId(ticketDO.getBizId());
+    public void runningCheck(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
+        DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(approvalId);
+        DmExecAutoJobDO jobDO = this.executionDal.autoJobMapper().queryByDependOnBizId(ticketDO.getBizId());
         AutoExecJobStatus status = jobDO.getStatus();
         runningCheck(approvalId, status);
     }
 
     private void runningCheck(long ticketId, AutoExecJobStatus status) {
         if (status == AutoExecJobStatus.FINISH) {
-            approvalMapper.updateTicketStatusByEnum(ticketId, RdpTicketStatus.FINISHED, null);
-            approvalProcessMapper.updateProcessStatusByTicketIdAndStage(ticketId, RdpTicketStage.EXECUTION, RdpTicketProcessStatus.FINISH);
+            approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.FINISHED, null);
+            approvalDal.processMapper().updateProcessStatusByTicketIdAndStage(ticketId, ApprovalStage.EXECUTION, ApprovalProcessStatus.FINISH);
         } else if (status == AutoExecJobStatus.FAILED) {
-            approvalMapper.updateTicketStatusByEnum(ticketId, RdpTicketStatus.EXEC_FAIL, null);
-            approvalProcessMapper.updateProcessStatusByTicketIdAndStage(ticketId, RdpTicketStage.EXECUTION, RdpTicketProcessStatus.FAIL);
+            approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.EXEC_FAIL, null);
+            approvalDal.processMapper().updateProcessStatusByTicketIdAndStage(ticketId, ApprovalStage.EXECUTION, ApprovalProcessStatus.FAIL);
         } else if (status == AutoExecJobStatus.PAUSE) {
-            approvalMapper.updateTicketStatusByEnum(ticketId, RdpTicketStatus.EXEC_PAUSE, null);
-            approvalProcessMapper.updateProcessStatusByTicketIdAndStage(ticketId, RdpTicketStage.EXECUTION, RdpTicketProcessStatus.PAUSE);
+            approvalDal.approvalMapper().updateStatusByEnum(ticketId, ApprovalStatus.EXEC_PAUSE, null);
+            approvalDal.processMapper().updateProcessStatusByTicketIdAndStage(ticketId, ApprovalStage.EXECUTION, ApprovalProcessStatus.PAUSE);
         }
     }
 
     @Override
     public List<PrimaryUserVO> queryPerson(long approvalId) {
-        DmApprovalDO ticketDO = this.approvalMapper.queryById(approvalId);
+        DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(approvalId);
         List<PrimaryUserVO> userVOS = new ArrayList<>();
 
         // add primary account
-        RdpUserDO parentUserDO = this.userMapper.queryByUid(ticketDO.getPrimaryUid());
+        DmAuthUserDO parentUserDO = this.authDal.userMapper().queryByUid(ticketDO.getPrimaryUid());
         PrimaryUserVO primaryUserVO = new PrimaryUserVO();
         primaryUserVO.setUid(ticketDO.getPrimaryUid());
         primaryUserVO.setUsername(parentUserDO.getUsername());
         userVOS.add(primaryUserVO);
 
         // add sub account who have auth to approval ticket and manger datasource
-        List<RdpTicketApproPersonDO> personDOS = this.userMapper.queryApproPerson(AccountType.SUB_ACCOUNT, parentUserDO.getId(), ticketDO.getBindDsId(), ticketDO.getLevelPath());
-        for (RdpTicketApproPersonDO personDO : personDOS) {
+        List<RsAuthPersonObj> personDOS = this.authDal.userMapper()
+            .queryApproPerson(AccountType.SUB_ACCOUNT, parentUserDO.getId(), ticketDO.getBindDsId(), ticketDO.getLevelPath());
+        for (RsAuthPersonObj personDO : personDOS) {
             List<String> roleAuthLabels = personDO.getRoleAuthLabels();
             List<String> resAuthLabel = personDO.getResAuthLabel();
             if (CollectionUtils.isNotEmpty(roleAuthLabels) //
@@ -138,8 +140,8 @@ public class QueryApprovalHandler implements ApprovalHandler {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void createApproval(long approvalId, ImSenderService sender) {
-        DmApprovalDO ticketDO = approvalMapper.selectByIdForUpdate(approvalId);
-        if (ticketDO.getApproType() == RdpApprovalType.Internal) {
+        DmApprovalDO ticketDO = approvalDal.approvalMapper().selectByIdForUpdate(approvalId);
+        if (ticketDO.getApproType() == ApprovalType.Internal) {
             return; // only external approval need to create approval instance.
         }
 
@@ -159,35 +161,35 @@ public class QueryApprovalHandler implements ApprovalHandler {
         }
 
         List<ApprovalActivityInfo> aaObj = createInstance.getActivityList();
-        DmApprovalProcessDO processDO = this.approvalProcessMapper.queryByStage(ticketDO.getId(), RdpTicketStage.APPROVAL);
+        DmApprovalProcessDO processDO = this.approvalDal.processMapper().queryByStage(ticketDO.getId(), ApprovalStage.APPROVAL);
         List<DmApprovalProcessActivityDO> approvalProcessActivityDOS = convertToDmApprovalProcessActivityDO(aaObj, processDO.getId(), ticketDO.getId());
         for (DmApprovalProcessActivityDO approvalProcessActivityDO : approvalProcessActivityDOS) {
-            activityMapper.insert(approvalProcessActivityDO);
+            approvalDal.activityMapper().insert(approvalProcessActivityDO);
         }
         String url = null;
         if (createInstance.getApprovalUrl() != null) {
             url = JsonUtils.toJson(createInstance.getApprovalUrl());
         }
-        approvalMapper.updateThirdApprovalInfo(ticketDO.getId(), createInstance.getApprovalIdentity(), url);
+        approvalDal.approvalMapper().updateThirdApprovalInfo(ticketDO.getId(), createInstance.getApprovalIdentity(), url);
     }
 
     @Override
-    public void approvalCompleted(long approvalId, RdpApprovalBiz bizType, ImSenderService sender) {
-        approvalMapper.updateTicketStatusByEnum(approvalId, RdpTicketStatus.WAIT_CONFIRM, null);
+    public void approvalCompleted(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
+        approvalDal.approvalMapper().updateStatusByEnum(approvalId, ApprovalStatus.WAIT_CONFIRM, null);
     }
 
     @Override
-    public void approvalRefuse(long approvalId, RdpApprovalBiz bizType, ImSenderService sender) {
+    public void approvalRefuse(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         // do nothing
     }
 
     @Override
-    public void approvalFailed(long approvalId, RdpApprovalBiz bizType, ImSenderService sender) {
+    public void approvalFailed(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         // do nothing
     }
 
     @Override
-    public void approvalCanceled(long approvalId, RdpApprovalBiz bizType, ImSenderService sender) {
+    public void approvalCanceled(long approvalId, ApprovalBiz bizType, ImSenderService sender) {
         // do nothing
     }
 
@@ -210,7 +212,7 @@ public class QueryApprovalHandler implements ApprovalHandler {
     private QueryForm convertToQueryForm(DmApprovalDO approvalDO, String templateId) {
         QueryForm form = new QueryForm();
 
-        RdpUserDO userDO = this.userMapper.queryByUid(approvalDO.getOwnerUid());
+        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(approvalDO.getOwnerUid());
         form.setTicketUserPhone(userDO.getPhone());
         form.setExecuteSql(approvalDO.getRawSql());
         form.setRollBackSql(approvalDO.getRollBackSql());

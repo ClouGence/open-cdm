@@ -26,8 +26,8 @@ import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
 import com.clougence.rdp.component.dskvconfig.RdpDsExtraConfGen;
 import com.clougence.rdp.component.dskvconfig.model.KafkaExtraConfig;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 import com.clougence.utils.StringUtils;
 
 /**
@@ -42,7 +42,7 @@ public class KafkaExtraConfGen implements RdpDsExtraConfGen {
     }
 
     @Override
-    public DsExtraConfig genDsExtraConfig(RdpDataSourceDO dsDO, List<InitDsKvBaseConfigFO> fos) {
+    public DsExtraConfig genDsExtraConfig(DmDsDO dsDO, List<InitDsKvBaseConfigFO> fos) {
         KafkaExtraConfig kafkaExtraConfig = new KafkaExtraConfig();
         if (dsDO.getSecurityType() == SecurityType.USER_PASSWD_WITH_SCRAM) {
             fos.forEach(fo -> fillEntry(kafkaExtraConfig, fo.getConfigName(), fo.getConfigValue()));
@@ -52,7 +52,7 @@ public class KafkaExtraConfGen implements RdpDsExtraConfGen {
     }
 
     @Override
-    public DsExtraConfig genDsExtraConfigFromExist(RdpDataSourceDO dsDO, List<RdpDsKvBaseConfigDO> confs) {
+    public DsExtraConfig genDsExtraConfigFromExist(DmDsDO dsDO, List<DmDsConfigKv4RdpDO> confs) {
         KafkaExtraConfig kafkaExtraConfig = new KafkaExtraConfig();
         if (dsDO.getSecurityType() == SecurityType.USER_PASSWD_WITH_SCRAM) {
             confs.forEach(fo -> fillEntry(kafkaExtraConfig, fo.getConfigName(), fo.getConfigValue()));

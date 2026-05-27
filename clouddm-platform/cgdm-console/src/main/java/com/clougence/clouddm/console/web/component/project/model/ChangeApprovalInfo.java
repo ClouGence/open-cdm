@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.component.project.model;
 
-import com.clougence.clouddm.console.web.dal.enumeration.RdpApprovalType;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -24,11 +24,11 @@ import lombok.Setter;
 @Setter
 public class ChangeApprovalInfo {
 
-    private RdpApprovalType approvalType;
-    private String          templateId;
-    private String          templateName;
+    private ApprovalType approvalType;
+    private String       templateId;
+    private String       templateName;
 
-    public ChangeApprovalInfo(RdpApprovalType approvalType, String templateId, String templateName){
+    public ChangeApprovalInfo(ApprovalType approvalType, String templateId, String templateName){
         this.approvalType = approvalType;
         this.templateId = templateId;
         this.templateName = templateName;

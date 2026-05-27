@@ -21,12 +21,12 @@ import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResApiData;
 import com.clougence.clouddm.api.common.rpc.ResApiDataUtils;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
 import com.clougence.clouddm.console.web.component.auth.model.ResourceAccessInfo;
@@ -36,8 +36,8 @@ import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.constants.DmMcpI18nKey;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.model.DmDsConfigDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.mcp.McpApiProvider;
 import com.clougence.clouddm.console.web.global.mcp.model.McpTool;
@@ -50,18 +50,18 @@ import com.clougence.clouddm.console.web.model.vo.openapi.DmApiDataSourceVO;
 import com.clougence.clouddm.console.web.model.vo.openapi.DmConsoleSettingsVO;
 import com.clougence.clouddm.console.web.service.browse.BrowseService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.util.RdpAuthUtils;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.rdp.component.openapi.OpenApiSessionManager;
-import com.clougence.clouddm.console.web.dal.model.RdpDsEnvDO;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpDsEnvService;
 import com.clougence.rdp.service.RdpUserService;
 import com.clougence.rdp.service.openapi.RdpDsOpenApiService;
 import com.clougence.rdp.service.openapi.model.*;
-import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 
@@ -80,21 +80,21 @@ import lombok.extern.slf4j.Slf4j;
 public class DataSourceApi extends BasicApi {
 
     @Resource
-    private RdpDsOpenApiService     rdpDsOpenApiService;
+    private RdpDsOpenApiService rdpDsOpenApiService;
     @Resource
-    private DmResAuthService        dmDsAuthService;
+    private DmResAuthService    dmDsAuthService;
     @Resource
-    private DmDsService             dmDsService;
+    private DmDsService         dmDsService;
     @Resource
-    private RdpDsEnvService         rdpDsEnvService;
+    private RdpDsEnvService     rdpDsEnvService;
     @Resource
-    private BrowseService           browseService;
+    private BrowseService       browseService;
     @Resource
-    private DmDsConfigService       dmDsConfigService;
+    private DmDsConfigService   dmDsConfigService;
     @Resource
-    private BizResOwnerCacheService ownerCacheService;
+    private ObjectCacheDao      objectCacheDao;
     @Resource
-    private DmAuthServiceForBiz     dmAuthServiceForBiz;
+    private DmAuthServiceForBiz dmAuthServiceForBiz;
 
     @McpTool(DmMcpI18nKey.M_DS_SETTINGS)
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
@@ -151,11 +151,11 @@ public class DataSourceApi extends BasicApi {
         apiVos.removeIf(vo -> !dsCollect.contains(vo.getId()));
 
         // return
-        List<RdpDsEnvDO> dsEnvDOList = this.rdpDsEnvService.listDsEnv(puid, uid, null);
-        Map<Long, RdpDsEnvDO> envMap = new HashMap<>();
+        List<DmSysEnvDO> dsEnvDOList = this.rdpDsEnvService.listDsEnv(puid, uid, null);
+        Map<Long, DmSysEnvDO> envMap = new HashMap<>();
         dsEnvDOList.forEach(e -> envMap.put(e.getId(), e));
 
-        Map<Long, RdpDsEnvDO> dsEnvMapping = new LinkedHashMap<>();
+        Map<Long, DmSysEnvDO> dsEnvMapping = new LinkedHashMap<>();
         dmDsConf.forEach(d -> {
             if (envMap.containsKey(d.getBindEnvId())) {
                 dsEnvMapping.put(d.getDataSourceId(), envMap.get(d.getBindEnvId()));
@@ -223,7 +223,7 @@ public class DataSourceApi extends BasicApi {
                 return ResWebDataUtils.buildSuccess(Collections.emptyList());
             }
 
-            List<RdpDsEnvDO> dsEnvDOList = this.rdpDsEnvService.listDsEnv(puid, uid, null);
+            List<DmSysEnvDO> dsEnvDOList = this.rdpDsEnvService.listDsEnv(puid, uid, null);
             List<DmDsConfigDO> dmDsConfigDOS = this.dmDsService.fetchDsConfigByIds(puid, dsIds);
             Set<Long> collect = dmDsConfigDOS.stream().map(DmDsConfigDO::getBindEnvId).collect(Collectors.toSet());
             List<BrowseLevelsVO> vos = dsEnvDOList.stream().filter(env -> {
@@ -242,7 +242,7 @@ public class DataSourceApi extends BasicApi {
         } else {
             // ds object list
             DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-            this.ownerCacheService.ownDataSource(puid, levels.dsDO().getId());
+            this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
             DsResPath dsResource = RdpAuthUtils.genResPathByList(levels.dbLevels());
             this.dmAuthServiceForBiz.checkBrowseAuth(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, dsResource, SecDataAuthLabel.DM_DAUTH_QUERY);
             List<BrowseLevelsVO> vos = this.browseService.listLevels(puid, uid, levels, fo.isRefreshCache());
@@ -273,7 +273,7 @@ public class DataSourceApi extends BasicApi {
         }
 
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.ownerCacheService.ownDataSource(puid, levels.dsDO().getId());
+        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
         DsResPath dsResource = RdpAuthUtils.genResPathByList(levels.dbLevels());
         this.dmAuthServiceForBiz.checkBrowseAuth(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, dsResource, SecDataAuthLabel.DM_DAUTH_QUERY);
 

@@ -19,7 +19,15 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.dal.enumeration.*;
+import com.clougence.clouddm.platform.dal.model.*;
+import com.clougence.clouddm.platform.dal.model.approval.*;
+import com.clougence.clouddm.platform.dal.model.auth.*;
+import com.clougence.clouddm.platform.dal.model.datasource.*;
+import com.clougence.clouddm.platform.dal.model.execution.*;
+import com.clougence.clouddm.platform.dal.model.monitor.*;
+import com.clougence.clouddm.platform.dal.model.project.*;
+import com.clougence.clouddm.platform.dal.model.secrule.*;
+import com.clougence.clouddm.platform.dal.model.system.*;
 import com.clougence.clouddm.sdk.service.secrules.SecParam;
 
 import lombok.Getter;

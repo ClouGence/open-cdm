@@ -15,13 +15,14 @@
  */
 package com.clougence.clouddm.console.web.global.csrf;
 
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+
 import java.util.Date;
 
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
-import com.clougence.clouddm.console.web.dal.mapper.DmCsrfTokenMapper;
-import com.clougence.clouddm.console.web.dal.model.DmCsrfTokenDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthCsrfTokenDO;
 import com.clougence.clouddm.console.web.util.RandomStrUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.ThreadUtils;
@@ -32,9 +33,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class CsrfTokenServiceImpl implements CsrfTokenService, UnifiedPostConstruct {
-
     @Resource
-    private DmCsrfTokenMapper tokenMapper;
+    private AuthDal authDal;
+
     private Thread            cleanerTokenThread;
 
     @Override
@@ -57,7 +58,7 @@ public class CsrfTokenServiceImpl implements CsrfTokenService, UnifiedPostConstr
         log.info("[RdpCsrfTokenService] Init csrfTokenCleaner worker intervalSec " + interval + ", tokenTimeoutSec " + dataTimeout);
         while (true) {
             try {
-                int updated = tokenMapper.deleteBeforeTime(new Date(System.currentTimeMillis() - (dataTimeout * 1000)));
+                int updated = authDal.csrfTokenMapper().deleteBeforeTime(new Date(System.currentTimeMillis() - (dataTimeout * 1000)));
                 log.info("[RdpCsrfTokenService] CsrfTokenCleaner " + updated + " expired tokens were deleted.");
             } catch (Exception e) {
                 log.error("[RdpCsrfTokenService] CsrfTokenCleaner failed " + e.getMessage(), e);
@@ -68,19 +69,19 @@ public class CsrfTokenServiceImpl implements CsrfTokenService, UnifiedPostConstr
     }
 
     @Override
-    public DmCsrfTokenDO pullToken(String state) {
-        DmCsrfTokenDO tokenDO = this.tokenMapper.queryByToken(state);
-        this.tokenMapper.deleteByToken(state);
+    public DmAuthCsrfTokenDO pullToken(String state) {
+        DmAuthCsrfTokenDO tokenDO = this.authDal.csrfTokenMapper().queryByToken(state);
+        this.authDal.csrfTokenMapper().deleteByToken(state);
         return tokenDO;
     }
 
     @Override
     public String pushToken(String secretToken) {
-        DmCsrfTokenDO tokenDO = new DmCsrfTokenDO();
+        DmAuthCsrfTokenDO tokenDO = new DmAuthCsrfTokenDO();
         tokenDO.setToken(RandomStrUtils.fixedLenRandomStr(32));
         tokenDO.setJumpUrl(null);
         tokenDO.setSecretToken(secretToken);
-        this.tokenMapper.insert(tokenDO);
+        this.authDal.csrfTokenMapper().insert(tokenDO);
         return tokenDO.getToken();
     }
 
@@ -95,16 +96,16 @@ public class CsrfTokenServiceImpl implements CsrfTokenService, UnifiedPostConstr
             return;
         }
 
-        DmCsrfTokenDO dbToken = this.tokenMapper.queryByToken(token);
+        DmAuthCsrfTokenDO dbToken = this.authDal.csrfTokenMapper().queryByToken(token);
         if (dbToken == null) {
-            DmCsrfTokenDO tokenDO = new DmCsrfTokenDO();
+            DmAuthCsrfTokenDO tokenDO = new DmAuthCsrfTokenDO();
             tokenDO.setToken(token);
             tokenDO.setJumpUrl(jumpUrl);
             tokenDO.setSecretToken("");
-            this.tokenMapper.insert(tokenDO);
+            this.authDal.csrfTokenMapper().insert(tokenDO);
         } else {
             dbToken.setJumpUrl(jumpUrl);
-            this.tokenMapper.updateToken(token, dbToken);
+            this.authDal.csrfTokenMapper().updateToken(token, dbToken);
         }
     }
 
@@ -114,16 +115,16 @@ public class CsrfTokenServiceImpl implements CsrfTokenService, UnifiedPostConstr
             return;
         }
 
-        DmCsrfTokenDO dbToken = this.tokenMapper.queryByToken(token);
+        DmAuthCsrfTokenDO dbToken = this.authDal.csrfTokenMapper().queryByToken(token);
         if (dbToken == null) {
-            DmCsrfTokenDO tokenDO = new DmCsrfTokenDO();
+            DmAuthCsrfTokenDO tokenDO = new DmAuthCsrfTokenDO();
             tokenDO.setToken(token);
             tokenDO.setJumpUrl(null);
             tokenDO.setSecretToken(secretToken);
-            this.tokenMapper.insert(tokenDO);
+            this.authDal.csrfTokenMapper().insert(tokenDO);
         } else {
             dbToken.setSecretToken(secretToken);
-            this.tokenMapper.updateToken(token, dbToken);
+            this.authDal.csrfTokenMapper().updateToken(token, dbToken);
         }
     }
 
@@ -131,11 +132,11 @@ public class CsrfTokenServiceImpl implements CsrfTokenService, UnifiedPostConstr
     public String randomToken() {
         String random = RandomStrUtils.fixedLenRandomStr(32);
 
-        DmCsrfTokenDO tokenDO = new DmCsrfTokenDO();
+        DmAuthCsrfTokenDO tokenDO = new DmAuthCsrfTokenDO();
         tokenDO.setToken(random);
         tokenDO.setJumpUrl(null);
         tokenDO.setSecretToken(random);
-        this.tokenMapper.insert(tokenDO);
+        this.authDal.csrfTokenMapper().insert(tokenDO);
         return random;
     }
 }

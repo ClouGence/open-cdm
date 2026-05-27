@@ -24,16 +24,16 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
-import com.clougence.clouddm.console.web.component.auth.model.DsCacheEntry;
-import com.clougence.clouddm.console.web.component.auth.model.EnvCacheEntry;
-import com.clougence.clouddm.console.web.component.auth.model.UserCacheEntry;
 import com.clougence.clouddm.console.web.component.detectrule.*;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.WarnLevel;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
+import com.clougence.clouddm.platform.dal.access.entry.EnvCacheEntry;
+import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
+import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
@@ -55,11 +55,11 @@ import lombok.extern.slf4j.Slf4j;
 public class SecRulesEngineImpl implements SecRulesEngine {
 
     @Resource
-    private SecRulesService         secRulesService;
+    private SecRulesService   secRulesService;
     @Resource
-    private BizResOwnerCacheService ownerCacheService;
+    private ObjectCacheDao    objectCacheDao;
     @Resource
-    private DmDsConfigService       configService;
+    private DmDsConfigService configService;
 
     @Override
     public SecRulesCheckResult doQueryCheck(String ownerUid, String currentUid, String querySql, SecRulesCheckContext context) {
@@ -78,7 +78,7 @@ public class SecRulesEngineImpl implements SecRulesEngine {
         DsBrowseSpi browseSpi = PluginManager.findDsBrowseSpi(dsType);
 
         List<RuleDomain> domainList;
-        DsCacheEntry dsCache = this.ownerCacheService.queryByDsId(context.getDsId());
+        DsCacheEntry dsCache = this.objectCacheDao.queryByDsId(context.getDsId());
         try {
             Map<UmiTypes, Object> levelsParam = CollectionUtils.asMap(UmiTypes.Catalog, context.getCurrentCatalog(), UmiTypes.Schema, context.getCurrentSchema());
             ContextInfo ctxInfo = ContextInfo.builder()
@@ -99,9 +99,9 @@ public class SecRulesEngineImpl implements SecRulesEngine {
         }
 
         // variables
-        UserCacheEntry userCache = this.ownerCacheService.queryByUid(context.getCurrentUID());
+        UserCacheEntry userCache = this.objectCacheDao.queryByUid(context.getCurrentUID());
 
-        EnvCacheEntry envCache = this.ownerCacheService.queryByEnvId(dsCache.getEnvId());
+        EnvCacheEntry envCache = this.objectCacheDao.queryByEnvId(dsCache.getEnvId());
 
         // doCheck
         SecRulesCheckResult result = new SecRulesCheckResult();

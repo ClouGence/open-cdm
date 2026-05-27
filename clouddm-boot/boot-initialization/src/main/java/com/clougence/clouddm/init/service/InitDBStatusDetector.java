@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.Properties;
 
 import com.clougence.clouddm.console.web.constants.SystemStatus;
-import com.clougence.clouddm.console.web.global.config.DmDalConfig;
 import com.clougence.clouddm.init.component.flyway.DmFlywayInit;
 import com.clougence.clouddm.init.model.SystemStatusResult;
+import com.clougence.clouddm.platform.dal.config.DmDalConfig;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.drivers.DriverBinding;
 import com.clougence.drivers.DriverVersion;

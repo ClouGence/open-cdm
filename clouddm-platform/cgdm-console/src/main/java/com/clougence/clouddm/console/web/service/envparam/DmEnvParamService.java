@@ -21,7 +21,7 @@ import com.clougence.clouddm.console.web.model.fo.envparam.DmBindEnvParamFO;
 import com.clougence.clouddm.console.web.model.fo.envparam.DmUnbindEnvParamFO;
 import com.clougence.clouddm.console.web.model.vo.envparam.DmEnvParamOpenVO;
 import com.clougence.clouddm.console.web.model.vo.envparam.DmEnvParamTicketDesVO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsEnvDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 
 /**
  * @Author: Ekko
@@ -35,11 +35,11 @@ public interface DmEnvParamService {
 
     List<DmEnvParamOpenVO> listEnvParamOpen(String puid, String uid);
 
-    List<RdpDsEnvDO> queryListByParamKeyValue(String puid, String paramKey, String paramValue);
+    List<DmSysEnvDO> queryListByParamKeyValue(String puid, String paramKey, String paramValue);
 
     String queryParam(String puid, long envID, String paramKey);
 
-    List<RdpDsEnvDO> queryListByParamKey(String puid, String paramKey);
+    List<DmSysEnvDO> queryListByParamKey(String puid, String paramKey);
 
     //
     DmEnvParamTicketDesVO queryAuthTicketInfoParam(String ownerUid, long envId);

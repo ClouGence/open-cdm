@@ -17,8 +17,8 @@ package com.clougence.clouddm.console.web.model.vo.faker;
 
 import java.util.Date;
 
-import com.clougence.clouddm.console.web.dal.enumeration.DmAsyncTaskProcessType;
-import com.clougence.clouddm.console.web.dal.enumeration.DmAsyncTaskStatus;
+import com.clougence.clouddm.platform.dal.model.execution.AsyncTaskProcessType;
+import com.clougence.clouddm.platform.dal.model.execution.AsyncTaskStatus;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -35,9 +35,9 @@ public class DmAsyncTaskVO {
     private String                 description;
     private String                 bizId;
     private String                 bizType;
-    private DmAsyncTaskProcessType processType;
+    private AsyncTaskProcessType processType;
     private String                 processValue;
-    private DmAsyncTaskStatus      status;
+    private AsyncTaskStatus      status;
     private String                 statusMsg;
     private Date                   timeOfStart;
     private Date                   timeOfLast;

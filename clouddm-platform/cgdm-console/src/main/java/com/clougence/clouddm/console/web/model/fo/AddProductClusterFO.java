@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo;
 
-import com.clougence.clouddm.console.web.dal.enumeration.RdpProduct;
+import com.clougence.clouddm.console.web.constants.RdpProduct;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

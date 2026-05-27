@@ -25,16 +25,16 @@ import org.springframework.web.util.WebUtils;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.RdpLocal;
 import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
-import com.clougence.clouddm.console.web.dal.model.RdpRoleDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.rdp.service.RdpAuthServiceForManage;
 import com.clougence.rdp.service.RdpRoleService;
 import com.clougence.rdp.service.RdpUserService;
@@ -121,7 +121,7 @@ public class JwtManager {
         return false;
     }
 
-    private boolean verifyAuth(HttpServletRequest request, RequestAuth requestAuth, RdpUserDO userDO) {
+    private boolean verifyAuth(HttpServletRequest request, RequestAuth requestAuth, DmAuthUserDO userDO) {
         if (userDO.isMaintainer() || userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
             return true;
         }
@@ -142,7 +142,7 @@ public class JwtManager {
             return true;
         }
 
-        RdpRoleDO roleDO = this.rdpRoleService.fetchRoleById(roleId);
+        DmAuthRoleDO roleDO = this.rdpRoleService.fetchRoleById(roleId);
         if (roleDO == null) {
             return false;
         }
@@ -232,7 +232,7 @@ public class JwtManager {
             }
         }
 
-        RdpUserDO userDO = this.rdpUserService.getUserByUid(uid);
+        DmAuthUserDO userDO = this.rdpUserService.getUserByUid(uid);
         if (userDO == null) {
             String errorMessage = "user (" + uid + ") not exist.";
             return responseNotLogin(requestAuth, request, response, errorMessage);
@@ -282,7 +282,7 @@ public class JwtManager {
             request.setAttribute(RdpUserService.USER_ROLE, userDO.getRoleId());
             request.setAttribute(RdpUserService.IS_MAINTAINER, userDO.isMaintainer());
 
-            RdpUserDO primaryUser;
+            DmAuthUserDO primaryUser;
             if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
                 request.setAttribute(RdpUserService.PUID, uid);
                 primaryUser = userDO;

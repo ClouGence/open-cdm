@@ -18,8 +18,8 @@ package com.clougence.clouddm.console.web.component.detectrule.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.clougence.clouddm.console.web.dal.model.DmSecRangeDO;
-import com.clougence.clouddm.console.web.dal.model.DmSecRefererDO;
+import com.clougence.clouddm.platform.dal.model.secrule.DmSecRangeDO;
+import com.clougence.clouddm.platform.dal.model.secrule.DmSecRefererDO;
 
 import lombok.Getter;
 import lombok.Setter;

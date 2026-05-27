@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.console.web.util;
 
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
@@ -28,8 +30,8 @@ import org.bouncycastle.crypto.params.ParametersWithRandom;
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.util.encoders.Hex;
 
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;

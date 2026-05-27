@@ -17,7 +17,7 @@ package com.clougence.clouddm.console.web.component.alert.model;
 
 import java.util.List;
 
-import com.clougence.rdp.service.enumeration.AlertMediaType;
+import com.clougence.clouddm.platform.dal.model.monitor.AlertMediaType;
 
 /**
  * @author bucketli 2023/12/26 11:39:08

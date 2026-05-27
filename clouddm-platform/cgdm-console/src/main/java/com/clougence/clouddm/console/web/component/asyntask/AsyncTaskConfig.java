@@ -18,7 +18,7 @@ package com.clougence.clouddm.console.web.component.asyntask;
 import java.io.Serializable;
 import java.util.List;
 
-import com.clougence.clouddm.console.web.dal.enumeration.DmAsyncTaskProcessType;
+import com.clougence.clouddm.platform.dal.model.execution.AsyncTaskProcessType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,21 +31,21 @@ import lombok.Setter;
 @Setter
 public class AsyncTaskConfig implements Serializable {
 
-    private static final long      serialVersionUID = -7166362823815428900L;
+    private static final long     serialVersionUID = -7166362823815428900L;
 
-    private String                 title;
-    private String                 description;
+    private String                title;
+    private String                description;
 
-    private String                 bizId;
-    private String                 bizType;
+    private String                bizId;
+    private String                bizType;
 
-    private Class<?>               handlerType;
-    private DmAsyncTaskProcessType processType;
-    private String                 configData;
+    private Class<?>              handlerType;
+    private AsyncTaskProcessType  processType;
+    private String                configData;
 
-    private int                    delayActivate;
-    private Boolean                parallel;
-    private boolean                showInDock;
-    private boolean                fastFail;
-    private List<AsyncTaskConfig>  subTask;
+    private int                   delayActivate;
+    private Boolean               parallel;
+    private boolean               showInDock;
+    private boolean               fastFail;
+    private List<AsyncTaskConfig> subTask;
 }

@@ -26,21 +26,21 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectDevopsMapper;
-import com.clougence.clouddm.console.web.dal.model.DmProjectDevopsDO;
-import com.clougence.clouddm.console.web.dal.model.DmProjectScmDO;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.service.project.DmChangeService;
 import com.clougence.clouddm.console.web.service.project.DmScmService;
 import com.clougence.clouddm.console.web.service.project.domain.DmBranchDef;
+import com.clougence.clouddm.platform.dal.access.ProjectDal;
+import com.clougence.clouddm.platform.dal.model.project.DmProjectDevopsDO;
+import com.clougence.clouddm.platform.dal.model.project.DmProjectScmDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.scm.ScmEvent;
 import com.clougence.clouddm.sdk.scm.ScmEventStatus;
 import com.clougence.clouddm.sdk.scm.ScmProviderNames;
 import com.clougence.clouddm.sdk.scm.ScmProviderSpi;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -60,11 +60,11 @@ import lombok.extern.slf4j.Slf4j;
 public class DmProjectCallbackController {
 
     @Resource
-    private DmChangeService       dmChangeService;
+    private ProjectDal      projectDal;
     @Resource
-    private DmScmService          dmScmService;
+    private DmChangeService dmChangeService;
     @Resource
-    private DmProjectDevopsMapper dmProjectDevopsMapper;
+    private DmScmService    dmScmService;
 
     private void verify(String owner, String config) {
         if (!StringUtils.isNumeric(config)) {
@@ -75,7 +75,7 @@ public class DmProjectCallbackController {
         }
 
         //  verifyDevops
-        DmProjectDevopsDO devopsDO = this.dmProjectDevopsMapper.queryByOwnerAndId(owner, Long.parseLong(config));
+        DmProjectDevopsDO devopsDO = this.projectDal.devopsMapper().queryByOwnerAndId(owner, Long.parseLong(config));
         if (devopsDO == null) {
             throw new ErrorMessageException("not found config.");
         } else {
@@ -109,7 +109,7 @@ public class DmProjectCallbackController {
             jsonBody = out.toString();
         }
 
-        DmProjectDevopsDO devopsDO = this.dmProjectDevopsMapper.queryByOwnerAndId(owner, Long.parseLong(config));
+        DmProjectDevopsDO devopsDO = this.projectDal.devopsMapper().queryByOwnerAndId(owner, Long.parseLong(config));
         String repoPath = devopsDO.getScmRepoSpace();
         String repoName = devopsDO.getScmRepoName();
         String bindWebhookPwd = devopsDO.getScmBindWebhookPwd();
@@ -163,7 +163,7 @@ public class DmProjectCallbackController {
     public ResponseEntity<String> trigger(@RequestParam String owner, @RequestParam String config, @RequestParam String token, @RequestParam String format) {
         try {
             this.verify(owner, config);
-            DmProjectDevopsDO devopsDO = this.dmProjectDevopsMapper.queryByOwnerAndId(owner, Long.parseLong(config));
+            DmProjectDevopsDO devopsDO = this.projectDal.devopsMapper().queryByOwnerAndId(owner, Long.parseLong(config));
             if (!devopsDO.isEnableTrigger()) {
                 return this.responseData(format, false, "trigger is disable.", 500);
             }

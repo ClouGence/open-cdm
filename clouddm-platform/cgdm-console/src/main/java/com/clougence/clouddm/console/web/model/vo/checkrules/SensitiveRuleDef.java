@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.dal.enumeration.SecMatchMode;
+import com.clougence.clouddm.platform.dal.model.secrule.SecMatchMode;
 
 import lombok.Getter;
 import lombok.Setter;

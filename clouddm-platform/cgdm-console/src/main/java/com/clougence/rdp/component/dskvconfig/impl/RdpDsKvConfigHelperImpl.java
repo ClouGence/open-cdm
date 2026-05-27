@@ -28,7 +28,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.rdp.component.dskvconfig.RdpDsKvConfigHelper;
 import com.clougence.rdp.constant.DsConfigDef;
 import com.clougence.rdp.constant.DsUseActualValueAsDefault;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -47,13 +47,13 @@ public class RdpDsKvConfigHelperImpl implements RdpDsKvConfigHelper {
     }
 
     @Override
-    public List<RdpDsKvBaseConfigDO> collectConfigs(Object instance, Long dataSourceId, DataSourceType dsType) {
-        List<RdpDsKvBaseConfigDO> configs = new ArrayList<>();
+    public List<DmDsConfigKv4RdpDO> collectConfigs(Object instance, Long dataSourceId, DataSourceType dsType) {
+        List<DmDsConfigKv4RdpDO> configs = new ArrayList<>();
         collectConfigs(instance, dataSourceId, instance.getClass(), configs);
         return configs;
     }
 
-    protected void collectConfigs(Object instance, Long dataSourceId, Class clazz, List<RdpDsKvBaseConfigDO> configs) {
+    protected void collectConfigs(Object instance, Long dataSourceId, Class clazz, List<DmDsConfigKv4RdpDO> configs) {
         try {
             Field[] fields = clazz.getDeclaredFields();
 
@@ -71,7 +71,7 @@ public class RdpDsKvConfigHelperImpl implements RdpDsKvConfigHelper {
                     val = String.valueOf(oriVal);
                 }
 
-                RdpDsKvBaseConfigDO configDO = genConfigDo(configDef, val, dataSourceId);
+                DmDsConfigKv4RdpDO configDO = genConfigDo(configDef, val, dataSourceId);
 
                 DsUseActualValueAsDefault defaultDef = field.getAnnotation(DsUseActualValueAsDefault.class);
                 if (defaultDef != null) {
@@ -91,8 +91,8 @@ public class RdpDsKvConfigHelperImpl implements RdpDsKvConfigHelper {
         }
     }
 
-    protected RdpDsKvBaseConfigDO genConfigDo(DsConfigDef configDef, String val, Long dataSourceId) {
-        RdpDsKvBaseConfigDO configDO = new RdpDsKvBaseConfigDO();
+    protected DmDsConfigKv4RdpDO genConfigDo(DsConfigDef configDef, String val, Long dataSourceId) {
+        DmDsConfigKv4RdpDO configDO = new DmDsConfigKv4RdpDO();
         configDO.setDataSourceId(dataSourceId);
         configDO.setConfigName(configDef.name());
         configDO.setConfigGroup(configDef.group());

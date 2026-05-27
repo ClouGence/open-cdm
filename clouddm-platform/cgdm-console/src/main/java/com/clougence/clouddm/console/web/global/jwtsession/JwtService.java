@@ -17,7 +17,7 @@ package com.clougence.clouddm.console.web.global.jwtsession;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.clougence.clouddm.console.web.constants.MfaPreActionType;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,7 +32,7 @@ public interface JwtService {
 
     void refreshCookiePeriodOfValidity(HttpServletRequest request, HttpServletResponse response);
 
-    void refreshJwtTokenPeriodOfValidity(HttpServletRequest request, HttpServletResponse response, RdpUserDO user);
+    void refreshJwtTokenPeriodOfValidity(HttpServletRequest request, HttpServletResponse response, DmAuthUserDO user);
 
     DecodedJWT verifyOpToken(HttpServletRequest request);
 
@@ -40,9 +40,9 @@ public interface JwtService {
 
     DecodedJWT verifyMfaActionToken(String mfaActionToken);
 
-    String genJwtToken(RdpUserDO user);
+    String genJwtToken(DmAuthUserDO user);
 
-    String genOpPwdToken(RdpUserDO user);
+    String genOpPwdToken(DmAuthUserDO user);
 
     String genMfaActionToken(String uid, MfaPreActionType actionType, String jwtToken);
 }

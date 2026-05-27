@@ -26,22 +26,21 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.ScmType;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectDevopsMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmProjectScmMapper;
-import com.clougence.clouddm.console.web.dal.model.DmProjectScmDO;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.project.DevopsScmAddFO;
 import com.clougence.clouddm.console.web.model.fo.project.DevopsScmUpdateFO;
 import com.clougence.clouddm.console.web.service.project.domain.DmBranchDef;
 import com.clougence.clouddm.console.web.service.project.domain.DmRepoDef;
 import com.clougence.clouddm.console.web.service.project.domain.DmScmDef;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.ProjectDal;
+import com.clougence.clouddm.platform.dal.model.project.DmProjectScmDO;
+import com.clougence.clouddm.platform.dal.model.project.ScmType;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.scm.ScmBranch;
 import com.clougence.clouddm.sdk.scm.ScmProviderSpi;
 import com.clougence.clouddm.sdk.scm.ScmRepo;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -50,12 +49,10 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class DmScmServiceImpl implements DmScmService, UnifiedPostConstruct {
+    @Resource
+    private ProjectDal           projectDal;
 
-    @Resource
-    private DmProjectScmMapper    dmProjectScmMapper;
-    @Resource
-    private DmProjectDevopsMapper dmProjectDevopsMapper;
-    private final List<DmScmDef>  scmDefList = new ArrayList<>();
+    private final List<DmScmDef> scmDefList = new ArrayList<>();
 
     @Override
     public void init() throws Exception {
@@ -90,17 +87,17 @@ public class DmScmServiceImpl implements DmScmService, UnifiedPostConstruct {
 
     @Override
     public List<DmProjectScmDO> queryScmByIds(String ownerUid, Collection<Long> scmIds) {
-        return this.dmProjectScmMapper.queryListByOwnerAndIds(ownerUid, scmIds);
+        return this.projectDal.scmMapper().queryListByOwnerAndIds(ownerUid, scmIds);
     }
 
     @Override
     public List<DmProjectScmDO> queryScmList(String ownerUid) {
-        return dmProjectScmMapper.queryListByOwner(ownerUid);
+        return projectDal.scmMapper().queryListByOwner(ownerUid);
     }
 
     @Override
     public DmProjectScmDO queryScmById(String ownerUid, long scmId) {
-        return dmProjectScmMapper.queryById(scmId);
+        return projectDal.scmMapper().queryById(scmId);
     }
 
     @Override
@@ -128,31 +125,31 @@ public class DmScmServiceImpl implements DmScmService, UnifiedPostConstruct {
         scmDO.setScmDisplay(fo.getDisplay());
         scmDO.setScmServiceUrl(fo.getServiceUrl());
         scmDO.setScmAccessToken(fo.getAccessToken());
-        this.dmProjectScmMapper.insert(scmDO);
+        this.projectDal.scmMapper().insert(scmDO);
     }
 
     @Override
     public void deleteScmById(String ownerUid, long scmId) {
-        this.dmProjectScmMapper.deleteByOwnerAndId(ownerUid, scmId);
-        this.dmProjectDevopsMapper.disableByOwnerAndScmId(ownerUid, scmId);
+        this.projectDal.scmMapper().deleteByOwnerAndId(ownerUid, scmId);
+        this.projectDal.devopsMapper().disableByOwnerAndScmId(ownerUid, scmId);
     }
 
     @Override
     public void updateScmById(String ownerUid, DevopsScmUpdateFO fo) {
         if (StringUtils.isNotBlank(fo.getNewDisplay())) {
-            this.dmProjectScmMapper.updateDisplayByOwnerAndId(ownerUid, fo.getScmId(), fo.getNewDisplay());
+            this.projectDal.scmMapper().updateDisplayByOwnerAndId(ownerUid, fo.getScmId(), fo.getNewDisplay());
         }
         if (StringUtils.isNotBlank(fo.getNewServiceUrl())) {
-            this.dmProjectScmMapper.updateServiceUrlByOwnerAndId(ownerUid, fo.getScmId(), fo.getNewServiceUrl());
+            this.projectDal.scmMapper().updateServiceUrlByOwnerAndId(ownerUid, fo.getScmId(), fo.getNewServiceUrl());
         }
         if (StringUtils.isNotBlank(fo.getNewAccessToken())) {
-            this.dmProjectScmMapper.updateAccessTokenByOwnerAndId(ownerUid, fo.getScmId(), fo.getNewAccessToken());
+            this.projectDal.scmMapper().updateAccessTokenByOwnerAndId(ownerUid, fo.getScmId(), fo.getNewAccessToken());
         }
     }
 
     @Override
     public List<DmRepoDef> fetchReposByScmId(String ownerUid, long scmId) {
-        DmProjectScmDO scmDO = dmProjectScmMapper.queryById(scmId);
+        DmProjectScmDO scmDO = projectDal.scmMapper().queryById(scmId);
         if (scmDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_NOT_EXIST_ERROR.name()));
         }
@@ -178,7 +175,7 @@ public class DmScmServiceImpl implements DmScmService, UnifiedPostConstruct {
 
     @Override
     public DmBranchDef fetchBranchByScmAndRepo(String ownerUid, long scmId, String repoName, String branch) {
-        DmProjectScmDO scmDO = dmProjectScmMapper.queryById(scmId);
+        DmProjectScmDO scmDO = projectDal.scmMapper().queryById(scmId);
         if (scmDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_NOT_EXIST_ERROR.name()));
         }

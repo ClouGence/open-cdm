@@ -15,11 +15,13 @@
  */
 package com.clougence.clouddm.console.web.util;
 
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.ast.StatementSet;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.utils.StringUtils;
 
 /**

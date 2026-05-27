@@ -21,7 +21,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.utils.JsonUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,7 @@ public class RdpSlackImAlertService extends AbstractRdpImAlertService {
     }
 
     @Override
-    protected String genParamsJsonStr(String signName, String msg, Map<String, Object> msgParams, List<RdpUserDO> users, boolean atAll) {
+    protected String genParamsJsonStr(String signName, String msg, Map<String, Object> msgParams, List<DmAuthUserDO> users, boolean atAll) {
         Map<String, Object> params = new HashMap<>();
         params.put("text", msg);
         return JsonUtils.toJson(params);

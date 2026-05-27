@@ -20,9 +20,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.console.web.dal.enumeration.QueryConstraintType;
-import com.clougence.clouddm.console.web.dal.mapper.DmQueryConstraintsMapper;
-import com.clougence.clouddm.console.web.dal.model.DmQueryConstraintsDO;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecQueryConstraintsDO;
+import com.clougence.clouddm.platform.dal.model.execution.QueryConstraintType;
 import com.clougence.clouddm.sdk.analysis.column.QueryConstraintService;
 import com.clougence.clouddm.sdk.analysis.column.QueryConstraintsDTO;
 
@@ -32,20 +32,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class ConsoleQueryConstraintServiceImpl implements QueryConstraintService {
-
     @Resource
-    private DmQueryConstraintsMapper constraintsMapper;
+    private ExecutionDal executionDal;
 
     @Override
     public List<QueryConstraintsDTO> fetchQueryConstraints(String primaryUid, long dsId, List<String> path) {
-        List<DmQueryConstraintsDO> dmConstraintsDOS = constraintsMapper.selectAllByUid(primaryUid, dsId, path);
+        List<DmExecQueryConstraintsDO> dmConstraintsDOS = executionDal.queryConstraintsMapper().selectAllByUid(primaryUid, dsId, path);
         List<QueryConstraintsDTO> result = new ArrayList<>();
-        for (DmQueryConstraintsDO dmConstraintsDO : dmConstraintsDOS) {
+        for (DmExecQueryConstraintsDO dmConstraintsDO : dmConstraintsDOS) {
             QueryConstraintsDTO dto = new QueryConstraintsDTO();
             dto.setDsId(dmConstraintsDO.getDsId());
             dto.setPath(dmConstraintsDO.getPath());
             dto.setConstraints(new ArrayList<>());
-            for (DmQueryConstraintsDO.Constraint constraint : dmConstraintsDO.getConstraints()) {
+            for (DmExecQueryConstraintsDO.Constraint constraint : dmConstraintsDO.getConstraints()) {
                 if (constraint.getType() == QueryConstraintType.SELECT_COLUMN) {
                     QueryConstraintsDTO.Constraint dtoConstraint = new QueryConstraintsDTO.Constraint();
                     dtoConstraint.setColumn(constraint.getColumn());

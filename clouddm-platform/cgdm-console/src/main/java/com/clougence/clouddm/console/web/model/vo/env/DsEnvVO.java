@@ -18,7 +18,7 @@ package com.clougence.clouddm.console.web.model.vo.env;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.clougence.clouddm.console.web.dal.model.RdpDsEnvDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -40,15 +40,15 @@ public class DsEnvVO {
 
     private Long   queryLimit;
 
-    public static List<DsEnvVO> generateVO(List<RdpDsEnvDO> dsEnvDOList) {
+    public static List<DsEnvVO> generateVO(List<DmSysEnvDO> dsEnvDOList) {
         List<DsEnvVO> dsEnvVOList = new ArrayList<>();
-        for (RdpDsEnvDO dsEnvDO : dsEnvDOList) {
+        for (DmSysEnvDO dsEnvDO : dsEnvDOList) {
             dsEnvVOList.add(generateVO(dsEnvDO));
         }
         return dsEnvVOList;
     }
 
-    public static DsEnvVO generateVO(RdpDsEnvDO dsEnvDO) {
+    public static DsEnvVO generateVO(DmSysEnvDO dsEnvDO) {
         DsEnvVO dsEnvVO = new DsEnvVO();
         dsEnvVO.setId(dsEnvDO.getId());
         dsEnvVO.setEnvName(dsEnvDO.getEnvName());

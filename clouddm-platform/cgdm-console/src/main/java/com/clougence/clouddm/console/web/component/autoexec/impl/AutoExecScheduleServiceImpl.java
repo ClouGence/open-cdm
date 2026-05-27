@@ -27,20 +27,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecManager;
-import com.clougence.clouddm.console.web.constants.DmMode;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.AutoExecTaskStatus;
-import com.clougence.clouddm.console.web.dal.enumeration.DmLogDependBizType;
-import com.clougence.clouddm.console.web.dal.enumeration.Loglevel;
-import com.clougence.clouddm.console.web.dal.mapper.DmAutoExecJobMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmAutoExecTaskMapper;
-import com.clougence.clouddm.console.web.dal.mapper.DmBizLogMapper;
-import com.clougence.clouddm.console.web.dal.model.exec.DmAutoExecJobDO;
-import com.clougence.clouddm.console.web.dal.model.exec.DmAutoExecTaskDO;
-import com.clougence.clouddm.console.web.dal.model.exec.DmBizLogDO;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.access.MonitorDal;
+import com.clougence.clouddm.platform.dal.model.execution.AutoExecTaskStatus;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoTaskDO;
+import com.clougence.clouddm.platform.dal.model.monitor.DmMonBizLogDO;
+import com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType;
+import com.clougence.clouddm.platform.dal.model.monitor.Loglevel;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.ThreadUtils;
 
@@ -52,13 +50,11 @@ import lombok.extern.slf4j.Slf4j;
 public class AutoExecScheduleServiceImpl implements UnifiedPostConstruct, DmWorkerRegisterNotify {
 
     @Resource
+    private MonitorDal                  monitorDal;
+    @Resource
+    private ExecutionDal                executionDal;
+    @Resource
     private DmConsoleConfig             dmConfig;
-    @Resource
-    private DmAutoExecJobMapper         jobMapper;
-    @Resource
-    private DmAutoExecTaskMapper        taskMapper;
-    @Resource
-    private DmBizLogMapper              dmBizLogMapper;
     @Resource
     private AutoExecManager             autoExecManager;
 
@@ -69,7 +65,7 @@ public class AutoExecScheduleServiceImpl implements UnifiedPostConstruct, DmWork
 
     @Override
     public void init() {
-        if (dmConfig.getDmMode() == DmMode.desktop || !inited.compareAndSet(false, true)) {
+        if (!inited.compareAndSet(false, true)) {
             return;
         }
 
@@ -93,7 +89,7 @@ public class AutoExecScheduleServiceImpl implements UnifiedPostConstruct, DmWork
     private void updateOverOutJob() {
         try {
             Date date = new Date(new Date().getTime() - 5 * 60 * 1000);
-            this.jobMapper.updateOverOutJob(date);
+            this.executionDal.autoJobMapper().updateOverOutJob(date);
         } catch (Exception e) {
             log.error("updateOverOutJob failed, msg:" + ExceptionUtils.getRootCauseMessage(e), e);
         }
@@ -104,7 +100,7 @@ public class AutoExecScheduleServiceImpl implements UnifiedPostConstruct, DmWork
         date = new Date(date.getTime() - 5 * 1000);
 
         try {
-            List<Long> doList = this.jobMapper.listUnFinishJobIdList(date);
+            List<Long> doList = this.executionDal.autoJobMapper().listUnFinishJobIdList(date);
 
             // schedule task
             for (Long id : doList) {
@@ -138,19 +134,19 @@ public class AutoExecScheduleServiceImpl implements UnifiedPostConstruct, DmWork
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void notifyRegister(String wsn) {
-        List<DmAutoExecJobDO> jobList = this.jobMapper.queryErrorJob(wsn);
-        for (DmAutoExecJobDO jobDO : jobList) {
-            DmAutoExecTaskDO execTaskDO = this.taskMapper.queryOneByJobIdAndStatus(jobDO.getId(), AutoExecTaskStatus.EXECUTING);
+        List<DmExecAutoJobDO> jobList = this.executionDal.autoJobMapper().queryErrorJob(wsn);
+        for (DmExecAutoJobDO jobDO : jobList) {
+            DmExecAutoTaskDO execTaskDO = this.executionDal.autoTaskMapper().queryOneByJobIdAndStatus(jobDO.getId(), AutoExecTaskStatus.EXECUTING);
             if (execTaskDO == null) {
                 continue;
             }
 
             String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_PAUSE_BY_WORKER_RESTART.name(), execTaskDO.getExecOrder());
-            DmBizLogDO logDO = new DmBizLogDO(Loglevel.ERROR, message, DmLogDependBizType.AUTO_EXEC_JOB, jobDO.getBizId());
-            this.dmBizLogMapper.insert(logDO);
+            DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.ERROR, message, LogDependBizType.AUTO_EXEC_JOB, jobDO.getBizId());
+            this.monitorDal.bizLogMapper().insert(logDO);
         }
 
-        this.jobMapper.updateWorkerErrorJob(wsn);
-        this.jobMapper.updateWorkerWaitExecuteJob(wsn);
+        this.executionDal.autoJobMapper().updateWorkerErrorJob(wsn);
+        this.executionDal.autoJobMapper().updateWorkerWaitExecuteJob(wsn);
     }
 }

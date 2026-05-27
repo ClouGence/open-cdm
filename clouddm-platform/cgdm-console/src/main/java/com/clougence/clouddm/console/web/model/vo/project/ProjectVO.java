@@ -15,11 +15,11 @@
  */
 package com.clougence.clouddm.console.web.model.vo.project;
 
-import com.clougence.clouddm.console.web.dal.enumeration.DmChangeApproveStrategy;
-import com.clougence.clouddm.console.web.dal.enumeration.DmChangeCheckStrategy;
-import com.clougence.clouddm.console.web.dal.enumeration.DmChangeExecStrategy;
-import com.clougence.clouddm.console.web.dal.enumeration.ProjectStatus;
-import com.clougence.clouddm.console.web.dal.model.DmProjectOption;
+import com.clougence.clouddm.platform.dal.model.project.ChangeApproveStrategy;
+import com.clougence.clouddm.platform.dal.model.project.ChangeCheckStrategy;
+import com.clougence.clouddm.platform.dal.model.project.ChangeExecStrategy;
+import com.clougence.clouddm.platform.dal.model.project.ProjectStatus;
+import com.clougence.clouddm.platform.dal.model.project.RsProjectOptionObj;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -36,10 +36,10 @@ public class ProjectVO {
     private String                  desc;
     private String                  projectOwnerName;
     private String                  projectOwnerUID;
-    private DmChangeCheckStrategy   flowCheck;
-    private DmChangeApproveStrategy flowApprove;
-    private DmChangeExecStrategy    flowExecute;
-    private DmProjectOption         options;
+    private ChangeCheckStrategy   flowCheck;
+    private ChangeApproveStrategy flowApprove;
+    private ChangeExecStrategy    flowExecute;
+    private RsProjectOptionObj         options;
     private String                  createTime;
 
 }

@@ -18,7 +18,7 @@ package com.clougence.clouddm.console.web.service.browse.model;
 import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.schema.umi.struts.UmiTypes;
 
 import lombok.Getter;
@@ -31,7 +31,7 @@ public class ActionInfo {
     private String                envId;
     private List<String>          oriLevels;
     private List<String>          dbLevels;
-    private RdpDataSourceDO       dsDO;
+    private DmDsDO       dsDO;
     private List<UmiTypes>        levelsDef;
     private Map<UmiTypes, Object> levelsParam;
     private String                dataAuth;

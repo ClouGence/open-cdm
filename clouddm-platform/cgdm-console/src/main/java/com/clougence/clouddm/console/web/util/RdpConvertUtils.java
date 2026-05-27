@@ -15,14 +15,33 @@
  */
 package com.clougence.clouddm.console.web.util;
 
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
-import com.clougence.clouddm.console.web.dal.enumeration.*;
-import com.clougence.clouddm.console.web.dal.mapper.RdpDataSourceMapper;
-import com.clougence.clouddm.console.web.dal.model.*;
+import com.clougence.clouddm.console.web.constants.RdpTicketProcessActivityStatus;
+import com.clougence.clouddm.platform.dal.model.*;
+import com.clougence.clouddm.platform.dal.model.approval.*;
+import com.clougence.clouddm.platform.dal.model.auth.*;
+import com.clougence.clouddm.platform.dal.model.datasource.*;
+import com.clougence.clouddm.platform.dal.model.execution.*;
+import com.clougence.clouddm.platform.dal.model.monitor.*;
+import com.clougence.clouddm.platform.dal.model.project.*;
+import com.clougence.clouddm.platform.dal.model.secrule.*;
+import com.clougence.clouddm.platform.dal.model.system.*;
+import com.clougence.clouddm.platform.dal.model.monitor.*;
+import com.clougence.clouddm.platform.dal.model.datasource.*;
+import com.clougence.clouddm.platform.dal.model.execution.*;
+import com.clougence.clouddm.platform.dal.model.system.*;
+import com.clougence.clouddm.platform.dal.model.system.*;
+import com.clougence.clouddm.platform.dal.model.system.*;
+import com.clougence.clouddm.platform.dal.model.secrule.*;
+import com.clougence.clouddm.platform.dal.model.approval.*;
+import com.clougence.clouddm.platform.dal.model.auth.*;
+import com.clougence.clouddm.platform.dal.model.project.*;
 import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.AddDsFO;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForAppend;
@@ -45,7 +64,7 @@ import com.clougence.clouddm.sdk.service.approval.ApprovalActivityStatus;
 import com.clougence.clouddm.sdk.service.config.ConfigData;
 import com.clougence.clouddm.sdk.service.config.RoleData;
 import com.clougence.clouddm.sdk.service.config.UserData;
-import com.clougence.rdp.constant.KvConfValType;
+import com.clougence.clouddm.platform.dal.model.system.KvConfValType;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.JsonUtils;
@@ -71,7 +90,7 @@ public class RdpConvertUtils {
         }
     }
 
-    public static ListUserVO convertToListUserVO(RdpUserDO userDO, Map<Long, RdpRoleDO> roleMap) {
+    public static ListUserVO convertToListUserVO(DmAuthUserDO userDO, Map<Long, DmAuthRoleDO> roleMap) {
         if (userDO == null) {
             return null;
         }
@@ -95,7 +114,7 @@ public class RdpConvertUtils {
 
         vo.setRoleId(userDO.getRoleId());
         if (roleMap.containsKey(userDO.getRoleId())) {
-            RdpRoleDO roleDO = roleMap.get(userDO.getRoleId());
+            DmAuthRoleDO roleDO = roleMap.get(userDO.getRoleId());
             if (roleDO.isInnerTag()) {
                 vo.setInnerRole(true);
                 vo.setRoleName(DmI18nUtils.getMessage(roleDO.getRoleName()));
@@ -118,7 +137,7 @@ public class RdpConvertUtils {
         return vo;
     }
 
-    public static LoginUserVO convertToLoginUserVO(RdpUserDO userDO, RdpUserDO primaryUserDO) {
+    public static LoginUserVO convertToLoginUserVO(DmAuthUserDO userDO, DmAuthUserDO primaryUserDO) {
         if (userDO == null) {
             return null;
         }
@@ -151,7 +170,7 @@ public class RdpConvertUtils {
         return vo;
     }
 
-    public static RoleVO convertToRoleVO(RdpRoleDO info, List<String> currentAllAuth) {
+    public static RoleVO convertToRoleVO(DmAuthRoleDO info, List<String> currentAllAuth) {
         RoleVO vo = new RoleVO();
 
         vo.setRoleId(info.getId());
@@ -167,7 +186,7 @@ public class RdpConvertUtils {
         return vo;
     }
 
-    public static RoleInfoVO convertToRoleInfoVO(RdpRoleDO info) {
+    public static RoleInfoVO convertToRoleInfoVO(DmAuthRoleDO info) {
         RoleInfoVO vo = new RoleInfoVO();
         vo.setRoleId(info.getId());
         vo.setRoleName(info.getRoleName());
@@ -180,7 +199,7 @@ public class RdpConvertUtils {
         return vo;
     }
 
-    public static ResAuthVO convertToResAuthVO(DmResAuthDO dsAuthDO) {
+    public static ResAuthVO convertToResAuthVO(DmAuthResDO dsAuthDO) {
         ResAuthVO vo = new ResAuthVO();
 
         vo.setId(dsAuthDO.getId());
@@ -313,7 +332,7 @@ public class RdpConvertUtils {
         }
     }
 
-    public static RdpDsKvConfigVO convertToDsKvConfigVO(RdpDsKvBaseConfigDO config) {
+    public static RdpDsKvConfigVO convertToDsKvConfigVO(DmDsConfigKv4RdpDO config) {
         RdpDsKvConfigVO vo = new RdpDsKvConfigVO();
 
         if (!config.isSecret()) {
@@ -340,7 +359,7 @@ public class RdpConvertUtils {
         return vo;
     }
 
-    public static RdpDataSourceVO convertToRdpDataSourceVO(RdpDataSourceDO dsDO) {
+    public static RdpDataSourceVO convertToRdpDataSourceVO(DmDsDO dsDO) {
         RdpDataSourceVO vo = new RdpDataSourceVO();
 
         vo.setId(dsDO.getId());
@@ -378,8 +397,8 @@ public class RdpConvertUtils {
         return vo;
     }
 
-    public static DmResAuthDO convertToAuthDOFromInsert(String targetUid, ModifyAuthForAppend info, String instId, String instDesc, AuthKind authKind) {
-        DmResAuthDO dsAuthDO = new DmResAuthDO();
+    public static DmAuthResDO convertToAuthDOFromInsert(String targetUid, ModifyAuthForAppend info, String instId, String instDesc, AuthKind authKind) {
+        DmAuthResDO dsAuthDO = new DmAuthResDO();
         dsAuthDO.setResId(info.getResId());
         dsAuthDO.setResInstId(instId);
         dsAuthDO.setResDesc(instDesc);
@@ -392,8 +411,8 @@ public class RdpConvertUtils {
         return dsAuthDO;
     }
 
-    public static DmResAuthDO convertToAuthDOFromApply(String targetUid, ApplyAuth info, AuthKind authKind) {
-        DmResAuthDO dsAuthDO = new DmResAuthDO();
+    public static DmAuthResDO convertToAuthDOFromApply(String targetUid, ApplyAuth info, AuthKind authKind) {
+        DmAuthResDO dsAuthDO = new DmAuthResDO();
         dsAuthDO.setResId(info.getResId());
         dsAuthDO.setResInstId(info.getResInstId());
         dsAuthDO.setResDesc(info.getResDesc());
@@ -406,8 +425,8 @@ public class RdpConvertUtils {
         return dsAuthDO;
     }
 
-    public static DmResAuthDO convertToAuthDOFromUpdate(String targetUid, ModifyAuthForUpdate info, String instId, String instDesc, AuthKind authKind) {
-        DmResAuthDO dsAuthDO = new DmResAuthDO();
+    public static DmAuthResDO convertToAuthDOFromUpdate(String targetUid, ModifyAuthForUpdate info, String instId, String instDesc, AuthKind authKind) {
+        DmAuthResDO dsAuthDO = new DmAuthResDO();
         dsAuthDO.setId(info.getAuthId());
         dsAuthDO.setResId(info.getResId());
         fillResPath(dsAuthDO, info.getResPaths());
@@ -421,7 +440,7 @@ public class RdpConvertUtils {
         return dsAuthDO;
     }
 
-    private static void fillResPath(DmResAuthDO dsAuthDO, List<String> resPaths) {
+    private static void fillResPath(DmAuthResDO dsAuthDO, List<String> resPaths) {
         dsAuthDO.setResPath(RdpAuthUtils.genResPathByList(resPaths).getResPath());
         // default
         dsAuthDO.setLevelOne("/");
@@ -442,25 +461,6 @@ public class RdpConvertUtils {
         }
     }
 
-    public static DmResAuthDO convertToAuthDOFromUpdate(String targetUid, DmResAuthDO info, AuthKind authKind, RdpDataSourceMapper rdpDsMapper) {
-        RdpDataSourceDO dsDO = rdpDsMapper.selectById(info.getResId());
-        DmResAuthDO dsAuthDO = new DmResAuthDO();
-        dsAuthDO.setResId(info.getResId());
-        dsAuthDO.setResInstId(dsDO.getInstanceId());
-        dsAuthDO.setResDesc(dsDO.getInstanceDesc());
-        dsAuthDO.setResPath(info.getResPath());
-        dsAuthDO.setAuthLabels(info.getAuthLabels());
-        dsAuthDO.setLevelOne(info.getLevelOne());
-        dsAuthDO.setLevelTwo(info.getLevelTwo());
-        dsAuthDO.setLevelThree(info.getLevelThree());
-        dsAuthDO.setLevelFour(info.getLevelFour());
-        dsAuthDO.setKindType(authKind);
-        dsAuthDO.setOwnerUid(targetUid);
-        dsAuthDO.setStartTime(info.getStartTime());
-        dsAuthDO.setEndTime(info.getEndTime());
-        return dsAuthDO;
-    }
-
     private static Date parseData(String date) {
         if (StringUtils.isBlank(date)) {
             return null;
@@ -472,8 +472,8 @@ public class RdpConvertUtils {
         }
     }
 
-    public static DmResAuthDO convertToAuthDOFromDelete(String targetUid, ModifyAuthForDelete info, AuthKind authKind) {
-        DmResAuthDO dsAuthDO = new DmResAuthDO();
+    public static DmAuthResDO convertToAuthDOFromDelete(String targetUid, ModifyAuthForDelete info, AuthKind authKind) {
+        DmAuthResDO dsAuthDO = new DmAuthResDO();
         dsAuthDO.setId(info.getAuthId());
         dsAuthDO.setResId(info.getResId());
         //dsAuthDO.setResInstId(dsDO.getInstanceId());
@@ -487,8 +487,8 @@ public class RdpConvertUtils {
         return dsAuthDO;
     }
 
-    public static DmResAuthDO convertToAuthDOByDataSource(RdpDataSourceDO rdpDatasourceDo, List<String> authLabels) {
-        DmResAuthDO resAuthDO = new DmResAuthDO();
+    public static DmAuthResDO convertToAuthDOByDataSource(DmDsDO rdpDatasourceDo, List<String> authLabels) {
+        DmAuthResDO resAuthDO = new DmAuthResDO();
         resAuthDO.setResId(rdpDatasourceDo.getId());
         resAuthDO.setResInstId(rdpDatasourceDo.getInstanceId());
         resAuthDO.setResDesc(rdpDatasourceDo.getInstanceDesc());
@@ -497,7 +497,7 @@ public class RdpConvertUtils {
         return resAuthDO;
     }
 
-    public static ConfigData convertToRdpConfigData(RdpUserKvBaseConfigDO kvConfig) {
+    public static ConfigData convertToRdpConfigData(DmSysUserConfDO kvConfig) {
         ConfigData data = new ConfigData();
         data.setConfigName(kvConfig.getConfigName());
         data.setConfigValue(kvConfig.getConfigValue());
@@ -505,7 +505,7 @@ public class RdpConvertUtils {
         return data;
     }
 
-    public static RoleData convertToRdpRoleData(RdpRoleDO rdpRoleDO) {
+    public static RoleData convertToRdpRoleData(DmAuthRoleDO rdpRoleDO) {
         RoleData data = new RoleData();
         data.setRoleId(rdpRoleDO.getId());
         data.setRoleName(rdpRoleDO.getRoleName());
@@ -515,7 +515,7 @@ public class RdpConvertUtils {
         return data;
     }
 
-    public static UserData convertToRdpUserData(RdpUserDO userDO) {
+    public static UserData convertToRdpUserData(DmAuthUserDO userDO) {
         UserData data = new UserData();
         data.setInternalUID(userDO.getUid());
         data.setUserName(userDO.getUsername());
@@ -528,8 +528,8 @@ public class RdpConvertUtils {
         return data;
     }
 
-    public static RdpUserDO convertToRdpUserDO(LoginAuthType loginType, RdpUserDO primaryUser, UserData loginUser) {
-        RdpUserDO user = new RdpUserDO();
+    public static DmAuthUserDO convertToRdpUserDO(LoginAuthType loginType, DmAuthUserDO primaryUser, UserData loginUser) {
+        DmAuthUserDO user = new DmAuthUserDO();
         user.setUsername(loginUser.getUserName());
         user.setEmail(loginUser.getEmail());
         user.setPhone(loginUser.getPhone());
@@ -577,7 +577,7 @@ public class RdpConvertUtils {
         return vo;
     }
 
-    public static List<RdpTicketActivityVO> convertToTicketActivityVO(RdpTicketProcessStatus processStatus, DmApprovalProcessActivityDO activityDO) {
+    public static List<RdpTicketActivityVO> convertToTicketActivityVO(ApprovalProcessStatus processStatus, DmApprovalProcessActivityDO activityDO) {
 
         // not arrived nodes
         if (StringUtils.isEmpty(activityDO.getContext())) {
@@ -591,11 +591,11 @@ public class RdpConvertUtils {
             vo.setGmtModified(DateFormatType.s_yyyyMMdd_HHmmss.format(activityDO.getGmtModified()));
             vo.setGmtCreate(DateFormatType.s_yyyyMMdd_HHmmss.format(activityDO.getGmtCreate()));
 
-            if (processStatus == RdpTicketProcessStatus.INIT) {
+            if (processStatus == ApprovalProcessStatus.INIT) {
                 vo.setActivityStatus(RdpTicketProcessActivityStatus.NEW);
-            } else if (processStatus == RdpTicketProcessStatus.REJECT) {
+            } else if (processStatus == ApprovalProcessStatus.REJECT) {
                 vo.setActivityStatus(RdpTicketProcessActivityStatus.CANCELED);
-            } else if (processStatus == RdpTicketProcessStatus.CLOSED) {
+            } else if (processStatus == ApprovalProcessStatus.CLOSED) {
                 vo.setActivityStatus(RdpTicketProcessActivityStatus.CANCELED);
             }
 

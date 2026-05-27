@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo.ticket;
 
-import com.clougence.clouddm.console.web.dal.enumeration.RdpTicketStatus;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus;
 import com.clougence.clouddm.console.web.util.RdpPageDO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -36,7 +36,7 @@ public class RdpListTicketFO {
 
     private String            ticketTitleName;
 
-    private RdpTicketStatus   ticketStatus;
+    private ApprovalStatus   ticketStatus;
 
     private RdpTicketListType ticketListType;
 

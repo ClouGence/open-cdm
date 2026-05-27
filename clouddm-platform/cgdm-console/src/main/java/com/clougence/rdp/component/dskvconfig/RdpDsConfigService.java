@@ -20,21 +20,21 @@ import java.util.List;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 
 /**
  * @author bucketli 2020/11/7 14:25
  */
 public interface RdpDsConfigService {
 
-    void persistDsConfig(RdpDataSourceDO dataSourceDO, List<InitDsKvBaseConfigFO> kvConfigs);
+    void persistDsConfig(DmDsDO dataSourceDO, List<InitDsKvBaseConfigFO> kvConfigs);
 
-    List<RdpDsKvBaseConfigDO> fetchDefaultConfig(long dataSourceId, DataSourceType dataSourceType);
+    List<DmDsConfigKv4RdpDO> fetchDefaultConfig(long dataSourceId, DataSourceType dataSourceType);
 
     DsExtraConfig fetchDsExtraConfig(long dataSourceId, DataSourceType dataSourceType);
 
-    RdpDsKvBaseConfigDO getSpecifiedConfig(long dataSourceId, String configName);
+    DmDsConfigKv4RdpDO getSpecifiedConfig(long dataSourceId, String configName);
 
     void cleanDsConfig(long dataSourceId);
 

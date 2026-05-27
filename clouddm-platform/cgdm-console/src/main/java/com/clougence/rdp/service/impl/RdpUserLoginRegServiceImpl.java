@@ -15,6 +15,10 @@
  */
 package com.clougence.rdp.service.impl;
 
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -26,12 +30,11 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.constants.MfaPreActionType;
-import com.clougence.clouddm.console.web.constants.VerifyCodeType;
-import com.clougence.clouddm.console.web.constants.VerifyType;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountBindType;
-import com.clougence.clouddm.console.web.dal.enumeration.AccountType;
-import com.clougence.clouddm.console.web.dal.enumeration.AreaCode;
-import com.clougence.clouddm.console.web.dal.model.DmCsrfTokenDO;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthCsrfTokenDO;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.csrf.CsrfTokenService;
 import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
@@ -45,12 +48,11 @@ import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
 import com.clougence.clouddm.sdk.security.login.LoginRequest;
 import com.clougence.clouddm.sdk.security.login.LoginResponse;
 import com.clougence.clouddm.sdk.service.config.UserData;
-import com.clougence.rdp.constant.I18nRdpMsgKeys;
-import com.clougence.clouddm.console.web.dal.mapper.RdpUserMapper;
-import com.clougence.clouddm.console.web.dal.model.RdpUserDO;
-import com.clougence.clouddm.console.web.dal.model.RdpUserKvBaseConfigDO;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
-import com.clougence.rdp.global.exception.ErrorMessageException;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpUserConfigService;
 import com.clougence.rdp.service.RdpUserLoginRegService;
 import com.clougence.rdp.service.RdpUserService;
@@ -73,9 +75,10 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
 
     @Resource
-    private DmConsoleConfig      rdpConfig;
+    private AuthDal authDal;
+
     @Resource
-    private RdpUserMapper        rdpUserMapper;
+    private DmConsoleConfig      rdpConfig;
     @Resource
     private RdpUserService       rdpUserService;
     @Resource
@@ -111,16 +114,16 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
 
     private LoginMO loginByPrimaryAccount(LoginFO loginFO) {
         //find user
-        RdpUserDO user;
+        DmAuthUserDO user;
         switch (loginFO.getLoginType()) {
             case VERIFY: {
-                user = this.rdpUserMapper.queryPrimaryByPhone(loginFO.getAccount());
+                user = this.authDal.userMapper().queryPrimaryByPhone(loginFO.getAccount());
                 break;
             }
             case PASSWORD: {
-                user = this.rdpUserMapper.queryPrimaryByEmail(loginFO.getAccount());
+                user = this.authDal.userMapper().queryPrimaryByEmail(loginFO.getAccount());
                 if (user == null) {
-                    user = this.rdpUserMapper.queryPrimaryByPhone(loginFO.getAccount());
+                    user = this.authDal.userMapper().queryPrimaryByPhone(loginFO.getAccount());
                 }
                 break;
             }
@@ -154,7 +157,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
 
     private LoginMO loginBySubAccount(LoginFO loginFO) {
         if (loginFO.getLoginType() == LoginAuthType.PASSWORD) {
-            RdpUserDO user = this.rdpUserMapper.queryBySubAccount(loginFO.getAccount());
+            DmAuthUserDO user = this.authDal.userMapper().queryBySubAccount(loginFO.getAccount());
             try {
                 checkAccountStatus(loginFO, user);
             } catch (ErrorMessageException e) {
@@ -176,7 +179,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
         }
     }
 
-    private void checkAccountStatus(LoginFO loginFO, RdpUserDO user) {
+    private void checkAccountStatus(LoginFO loginFO, DmAuthUserDO user) {
         if (user == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_NOT_EXIST.name()));
         }
@@ -189,7 +192,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
             if (isAccountLockTimeExpire(user)) {
                 Date t = new Date();
                 // release the lock and reset the login fail count to 0
-                this.rdpUserMapper.updateLoginLimitInfo(t, 0, false, user.getId());
+                this.authDal.userMapper().updateLoginLimitInfo(t, 0, false, user.getId());
                 user.setLastTryLoginTime(t);
                 user.setLoginLocked(false);
                 user.setLoginFailCount(0);
@@ -204,7 +207,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
         }
     }
 
-    private void checkByVerify(LoginFO loginFO, RdpUserDO user) {
+    private void checkByVerify(LoginFO loginFO, DmAuthUserDO user) {
         if (StringUtils.isBlank(loginFO.getVerifyCode())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_VERIFY_CODE_EMPTY.name()));
         }
@@ -216,8 +219,6 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
             mo.setVerifyCode(loginFO.getVerifyCode());
             mo.setPhoneNumber(loginFO.getAccount());
             //now only support phone login in china
-            mo.setPhoneAreaCode(AreaCode.CHINA);
-
             this.rdpVerifyService.checkVerifyCode(mo);
         } catch (Exception e) {
             log.error("login verify code failed.msg:" + ExceptionUtils.getRootCauseMessage(e), e);
@@ -225,7 +226,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
         }
     }
 
-    private void checkByPasswordForPrimary(LoginFO loginFO, RdpUserDO user) {
+    private void checkByPasswordForPrimary(LoginFO loginFO, DmAuthUserDO user) {
         if (StringUtils.isBlank(loginFO.getPassword())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWD_CAN_NOT_BE_BLANK.name()));
         }
@@ -237,13 +238,13 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
         }
     }
 
-    private void checkByPasswordSubAccount(LoginFO loginFO, RdpUserDO user) {
+    private void checkByPasswordSubAccount(LoginFO loginFO, DmAuthUserDO user) {
         if (StringUtils.isBlank(loginFO.getPassword())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWD_CAN_NOT_BE_BLANK.name()));
         }
 
-        RdpUserDO pUserDO = this.rdpUserMapper.queryById(user.getParentId());
-        RdpUserKvBaseConfigDO configDO = this.rdpUserConfigService.getSpecifiedConfig(pUserDO.getUid(), UserDefinedConfig.Fields.subAccountPwdExpireDays);
+        DmAuthUserDO pUserDO = this.authDal.userMapper().queryById(user.getParentId());
+        DmSysUserConfDO configDO = this.rdpUserConfigService.getSpecifiedConfig(pUserDO.getUid(), UserDefinedConfig.Fields.subAccountPwdExpireDays);
         if (configDO != null && StringUtils.isNotBlank(configDO.getConfigValue())) {
             int days = Integer.parseInt(configDO.getConfigValue());
             if (days > 0) {
@@ -255,7 +256,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
                         throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PASSWORD_EXPIRED.name(), days));
                     }
                 } else {
-                    this.rdpUserMapper.updateLastUpdatePwdTimeById(user.getId());
+                    this.authDal.userMapper().updateLastUpdatePwdTimeById(user.getId());
                 }
             }
         }
@@ -281,7 +282,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
 
         String userAccount = loginProviderSpi.loginExtractAccount(loginFO.getAccount());
         String userDomain = loginProviderSpi.loginExtractDomain(loginFO.getAccount());
-        RdpUserDO primaryUser = this.rdpUserMapper.queryPrimaryByDomain(userDomain);
+        DmAuthUserDO primaryUser = this.authDal.userMapper().queryPrimaryByDomain(userDomain);
         if (primaryUser == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PRIMARY_ACCOUNT_NOT_EXIST.name()));
         }
@@ -296,7 +297,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
         request.setLoginVerifyCode(loginFO.getVerifyCode());
         request.setAccessToken(loginFO.getAccessToken());
         if (StringUtils.isNotBlank(loginFO.getToken())) {
-            DmCsrfTokenDO csrfTokenDO = this.csrfTokenService.pullToken(loginFO.getToken());
+            DmAuthCsrfTokenDO csrfTokenDO = this.csrfTokenService.pullToken(loginFO.getToken());
             if (csrfTokenDO != null) {
                 request.setAccessToken(csrfTokenDO.getSecretToken());
             }
@@ -305,15 +306,15 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
         UserData loginData = authUserDTO.getLoginUser();
 
         if (!authUserDTO.isSuccess()) {
-            RdpUserDO loginUser = RdpConvertUtils.convertToRdpUserDO(loginType, primaryUser, loginData);
+            DmAuthUserDO loginUser = RdpConvertUtils.convertToRdpUserDO(loginType, primaryUser, loginData);
             return loginFailedNotLimit(loginUser, new ErrorMessageException(authUserDTO.getErrMsg()));
         }
         if (loginData == null) {
             return loginFailedNotLimit(primaryUser, new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_ACCOUNT_NOT_EXIST.name())));
         }
 
-        RdpUserDO loginUser = RdpConvertUtils.convertToRdpUserDO(loginType, primaryUser, loginData);
-        RdpUserDO bindUser = this.rdpUserMapper.queryBySubAccountAndBind(String.valueOf(primaryUser.getId()), loginFO.getAccount(), loginType.getBindType().name());
+        DmAuthUserDO loginUser = RdpConvertUtils.convertToRdpUserDO(loginType, primaryUser, loginData);
+        DmAuthUserDO bindUser = this.authDal.userMapper().queryBySubAccountAndBind(String.valueOf(primaryUser.getId()), loginFO.getAccount(), loginType.getBindType().name());
         if (bindUser == null) {
             if (loginFO.getRegisterInfo() == null) {
                 String csrfToken;
@@ -347,7 +348,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
                 }
             }
         } else {
-            this.rdpUserMapper.updateAccessTokenByUid(bindUser.getUid(), loginUser.getAccessToken());
+            this.authDal.userMapper().updateAccessTokenByUid(bindUser.getUid(), loginUser.getAccessToken());
         }
 
         try {
@@ -358,10 +359,10 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
         }
     }
 
-    private LoginMO loginDone(RdpUserDO user) {
+    private LoginMO loginDone(DmAuthUserDO user) {
         long nowMs = System.currentTimeMillis();
 
-        this.rdpUserMapper.updateLoginLimitInfo(new Date(nowMs), 0, false, user.getId());
+        this.authDal.userMapper().updateLoginLimitInfo(new Date(nowMs), 0, false, user.getId());
         LoginMO re = new LoginMO();
         re.setSuccess(true);
         re.setUid(user.getUid());
@@ -370,7 +371,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
         String jwtToken = this.jwtService.genJwtToken(user);
         re.setToken(jwtToken);
         if (user.getParentId() != null) {
-            RdpUserDO rdpUserDO = rdpUserMapper.queryById(user.getParentId());
+            DmAuthUserDO rdpUserDO = authDal.userMapper().queryById(user.getParentId());
             if (rdpUserDO != null) {
                 re.setPuid(rdpUserDO.getUid());
             }
@@ -384,11 +385,11 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
         return re;
     }
 
-    private LoginMO loginFailed(LoginFO loginFO, RdpUserDO user, ErrorMessageException e) {
+    private LoginMO loginFailed(LoginFO loginFO, DmAuthUserDO user, ErrorMessageException e) {
         String errorMsg = e.getErrorMessage();
         if (isExceedLoginFailCount(user)) {
             long nowMs = System.currentTimeMillis();
-            this.rdpUserMapper.updateLoginLimitInfo(new Date(nowMs), user.getLoginFailCount() + 1, true, user.getId());
+            this.authDal.userMapper().updateLoginLimitInfo(new Date(nowMs), user.getLoginFailCount() + 1, true, user.getId());
 
             long needWaitSeconds = Integer.parseInt(this.rdpConfig.getResetLoginLimitationWaitTimeMin()) * 60L -
                                    (System.currentTimeMillis() - user.getLastTryLoginTime().getTime()) / 1000;
@@ -398,14 +399,14 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
             errorMsg = DmI18nUtils.getMessage(i18nKey, failCnt, String.valueOf(needWaitSeconds));
         } else {
             long nowMs = System.currentTimeMillis();
-            this.rdpUserMapper.updateLoginLimitInfo(new Date(nowMs), user.getLoginFailCount() + 1, false, user.getId());
+            this.authDal.userMapper().updateLoginLimitInfo(new Date(nowMs), user.getLoginFailCount() + 1, false, user.getId());
         }
 
         LoginMO loginMO = new LoginMO(false, errorMsg);
         if (user.getParentId() == null) {
             loginMO.setPuid(user.getUid());
         } else {
-            RdpUserDO rdpUserDO = rdpUserMapper.queryById(user.getParentId());
+            DmAuthUserDO rdpUserDO = authDal.userMapper().queryById(user.getParentId());
             if (rdpUserDO != null) {
                 loginMO.setPuid(rdpUserDO.getUid());
             }
@@ -415,7 +416,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
         return loginMO;
     }
 
-    private LoginMO loginFailedNotLimit(RdpUserDO user, ErrorMessageException e) {
+    private LoginMO loginFailedNotLimit(DmAuthUserDO user, ErrorMessageException e) {
         LoginMO loginMO = new LoginMO(false, e.getErrorMessage());
         if (user == null) {
             return loginMO;
@@ -423,7 +424,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
         if (user.getParentId() == null) {
             loginMO.setPuid(user.getUid());
         } else {
-            RdpUserDO rdpUserDO = rdpUserMapper.queryById(user.getParentId());
+            DmAuthUserDO rdpUserDO = authDal.userMapper().queryById(user.getParentId());
             if (rdpUserDO != null) {
                 loginMO.setPuid(rdpUserDO.getUid());
             }
@@ -433,7 +434,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
         return loginMO;
     }
 
-    private RdpUserDO registerBindUser(RdpUserDO primaryUser, AccountBindType bindType, RdpUserDO bindUser, LoginAutoRegisterFO moreInfo) {
+    private DmAuthUserDO registerBindUser(DmAuthUserDO primaryUser, AccountBindType bindType, DmAuthUserDO bindUser, LoginAutoRegisterFO moreInfo) {
         bindUser.setUsername(moreInfo.getName());
         bindUser.setEmail(moreInfo.getEmail());
         bindUser.setPhone(moreInfo.getPhone());
@@ -456,7 +457,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
             return;
         }
 
-        RdpUserKvBaseConfigDO configDO = this.rdpUserConfigService.getSpecifiedConfig(pUid, UserDefinedConfig.Fields.subAccountPwdExpireDays);
+        DmSysUserConfDO configDO = this.rdpUserConfigService.getSpecifiedConfig(pUid, UserDefinedConfig.Fields.subAccountPwdExpireDays);
         if (configDO == null || StringUtils.isBlank(configDO.getConfigValue())) {
             return;
         }
@@ -478,11 +479,11 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
         userVO.setSubAccountPwdValidDays((long) (Math.floor(diffDays)));
     }
 
-    protected boolean isExceedLoginFailCount(RdpUserDO userDO) {
+    protected boolean isExceedLoginFailCount(DmAuthUserDO userDO) {
         return userDO.getLoginFailCount() + 1 >= this.rdpConfig.getRetryLoginMaxCount();
     }
 
-    private boolean isAccountLockTimeExpire(RdpUserDO userDO) {
+    private boolean isAccountLockTimeExpire(DmAuthUserDO userDO) {
         return System.currentTimeMillis() - userDO.getLastTryLoginTime().getTime() > Long.parseLong(this.rdpConfig.getResetLoginLimitationWaitTimeMin()) * 60 * 1000;
     }
 
@@ -492,7 +493,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
 
     @Override
     public boolean isLogoutUsingJump(String uid) {
-        RdpUserDO user = this.rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
         if (user.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
             return false;
         }
@@ -509,7 +510,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
             homePath = "/";
         }
 
-        RdpUserDO user = this.rdpUserMapper.queryByUid(uid);
+        DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
         if (user.getAccountType() == AccountType.PRIMARY_ACCOUNT || user.getBindType() == AccountBindType.INTERNAL) {
             return homePath;
         }

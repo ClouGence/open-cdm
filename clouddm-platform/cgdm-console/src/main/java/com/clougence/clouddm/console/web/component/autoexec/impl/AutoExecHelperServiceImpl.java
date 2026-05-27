@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecHelper;
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecHelperService;
-import com.clougence.clouddm.console.web.dal.enumeration.SQLJobBizType;
+import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 
 @Service
 public class AutoExecHelperServiceImpl implements AutoExecHelperService {

@@ -16,9 +16,9 @@
 package com.clougence.clouddm.console.web.model.vo;
 
 import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
-import com.clougence.rdp.constant.KvConfValType;
-import com.clougence.clouddm.console.web.dal.model.RdpDsKvBaseConfigDO;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.model.system.KvConfValType;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -44,7 +44,7 @@ public class DefaultDsKvConfigVO {
 
     private KvConfValType confValType;
 
-    public void convertFromDO(RdpDsKvBaseConfigDO config) {
+    public void convertFromDO(DmDsConfigKv4RdpDO config) {
         this.description = DmI18nUtils.getMessage(config.getDescKey());
         this.configName = config.getConfigName();
         this.configGroup = config.getConfigGroup();

@@ -24,21 +24,20 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.api.common.exception.ConsoleRuntimeException;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultList;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.DsClassify;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
-import com.clougence.clouddm.console.web.component.dsconfig.DmDsDeletePrepareService;
-import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.execute.QueryService;
 import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
-import com.clougence.clouddm.console.web.constants.DmMode;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.object.ObjectEditorDefFO;
 import com.clougence.clouddm.console.web.model.vo.editor.table.TableEditorFieldForm;
 import com.clougence.clouddm.console.web.model.vo.editor.table.TableEditorPanelForm;
@@ -47,8 +46,8 @@ import com.clougence.clouddm.console.web.service.browse.model.ActionTargetMO;
 import com.clougence.clouddm.console.web.service.browse.model.GenerateSqlDataAuthEnum;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
 import com.clougence.clouddm.console.web.util.UiWebUtil;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.resultset.echo.Result;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultMessage;
@@ -60,10 +59,6 @@ import com.clougence.clouddm.sdk.ui.editor.EditorViewMode;
 import com.clougence.clouddm.sdk.ui.editor.table.TableEditorVarKeys;
 import com.clougence.clouddm.sdk.ui.template.CmdTemplateOption;
 import com.clougence.clouddm.sdk.ui.template.CmdTemplateSpi;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.rdp.global.exception.ConsoleRuntimeException;
-import com.clougence.rdp.global.exception.ErrorMessageException;
-import com.clougence.rdp.service.RdpDsService;
 import com.clougence.rdp.service.RdpNotifyService;
 import com.clougence.schema.dialect.Dialect;
 import com.clougence.schema.editor.EditorContext;
@@ -94,19 +89,9 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
     private DmDsConfigService                                                      dmDsConfigService;
     @Resource
     private QueryService                                                           dmQueryService;
-    @Resource
-    private DmDsDeletePrepareService                                               dmDsDeletePrepareService;
-    @Resource
-    private DmDsService                                                            dmDsService;
-    @Resource
-    private RdpDsService                                                           rdpDsService;
-    @Resource
-    private DmConsoleConfig                                                        dmConfig;
-    @Resource
+
     private List<RdpNotifyService>                                                 notifyServices;
-
     private final Map<GenerateSqlDataAuthEnum, Function<ActionInfo, List<String>>> generateMap = new HashMap<>();
-
     private final Map<String, List<TableEditorFieldForm>>                          editorCache = new ConcurrentHashMap<>();
 
     @Override
@@ -305,12 +290,7 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
     @Override
     public void instanceRemarks(String puid, String uid, DsLevels levels, String newRemark) {
         try {
-            if (this.dmConfig.getDmMode() == DmMode.desktop) {
-                this.dmDsService.updateDsDesc(puid, uid, levels.dsDO().getId(), newRemark);
-            } else {
-                // this.dmDsService.updateDsTag(levels.getDsDO().getId(), uid, newRemark);
-                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_BROWSE_INSTANCE_REMARKS_TO_MANAGER_ERROR.name()));
-            }
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_BROWSE_INSTANCE_REMARKS_TO_MANAGER_ERROR.name()));
         } finally {
             this.notifyServices.forEach(s -> s.onDsUpdate(levels.dsDO().getId()));
         }
@@ -321,17 +301,7 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
      */
     @Override
     public void instanceDelete(String puid, String uid, DsLevels levels) {
-        if (this.dmConfig.getDmMode() != DmMode.desktop) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_BROWSE_REMOVE_DS_ERROR.name()));
-        }
-
-        try {
-            RdpDataSourceDO dsDO = levels.dsDO();
-            this.dmDsDeletePrepareService.prepareDelete(puid, dsDO.getId());
-            this.rdpDsService.delDataSource(puid, dsDO.getId());
-        } finally {
-            this.notifyServices.forEach(s -> s.onDsDelete(levels.dsDO().getId()));
-        }
+        throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_BROWSE_REMOVE_DS_ERROR.name()));
     }
 
     @Override
@@ -383,7 +353,7 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
     private TableEditor buildTableEditor(String uid, String tableName, ActionInfo info) {
         CmdTemplateOption cmdOption = SqlGenerateUtils.resolverOptions(info);
         Map<UmiTypes, Object> levelsParam = info.getLevelsParam();
-        RdpDataSourceDO dsDO = info.getDsDO();
+        DmDsDO dsDO = info.getDsDO();
 
         EditorOptions editorOption = new EditorOptions();
         editorOption.setUseDelimited(cmdOption.isDelimited());
@@ -415,7 +385,7 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
     }
 
     private List<String> executeSql(String puid, String uid, String clientIp, ActionInfo info, Map<UmiTypes, Object> levelsParam, List<String> generateSql, ActionTargetMO mo) {
-        RdpDataSourceDO dsDO = info.getDsDO();
+        DmDsDO dsDO = info.getDsDO();
         DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId(), dsDO.getDataSourceType());
         DsConfig dsSetting = this.dmDsConfigService.dsConstantSettings(dsDO.getDataSourceType());
         SessionSpi sessionSpi = PluginManager.findSessionSpi(dsDO.getDataSourceType());
@@ -474,7 +444,7 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
 
     @Override
     public List<TableEditorFieldForm> loadObjectEditorDef(String puid, String uid, DsLevels levels, ObjectEditorDefFO defFO) {
-        RdpDataSourceDO dsDO = levels.dsDO();
+        DmDsDO dsDO = levels.dsDO();
 
         String i18nKey = I18nUtils.toI18nKey(DmI18nUtils.getLocale());
         UmiTypes umiTypes = UmiTypes.valueOfCode(defFO.getTargetType());

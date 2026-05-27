@@ -29,7 +29,6 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.api.common.DmBuildInfo;
 import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
-import com.clougence.clouddm.console.web.constants.DmMode;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.model.vo.version.VersionDetailVO;
 import com.clougence.clouddm.console.web.model.vo.version.VersionPromptVO;
@@ -83,17 +82,8 @@ public class VersionPromptServiceImpl implements VersionPromptService, UnifiedPo
     @Override
     public VersionPromptVO check() {
         VersionPromptVO promptVO = new VersionPromptVO();
-        if (this.dmConfig.getDmMode() != DmMode.desktop) {
-            promptVO.setNewVersion(false);
-            promptVO.setPrompt(false);
-            return promptVO;
-        }
-
-        remoteGetDifference(true);
-
         promptVO.setNewVersion(false);
-        promptVO.setNewVersion(!this.versionCache.isEmpty() && !StringUtils.equals(currentVersion(), this.versionCache.get(0))); // versionCache is desc order
-        promptVO.setPrompt(isIgnoreVersion());
+        promptVO.setPrompt(false);
         return promptVO;
     }
 

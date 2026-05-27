@@ -22,13 +22,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.detectrule.SecRangeVerify;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRange;
-import com.clougence.clouddm.console.web.constants.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.dal.enumeration.*;
-import com.clougence.clouddm.console.web.dal.mapper.*;
-import com.clougence.clouddm.console.web.dal.model.*;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.checkrules.RangeDeleteFO;
 import com.clougence.clouddm.console.web.model.fo.checkrules.RuleSaveFO;
 import com.clougence.clouddm.console.web.model.fo.checkrules.SpecRulesFO;
@@ -41,7 +40,8 @@ import com.clougence.clouddm.console.web.service.security.mode.DmSecRuleConfig;
 import com.clougence.clouddm.console.web.service.security.mode.DmSecRuleMO;
 import com.clougence.clouddm.console.web.service.system.NamingService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.SecRuleDal;
+import com.clougence.clouddm.platform.dal.model.secrule.*;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.analysis.secrules.SecRulesSupportSpi;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
@@ -50,7 +50,6 @@ import com.clougence.clouddm.sdk.service.secrules.SecRulesCheckerService;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.ast.StatementSet;
-import com.clougence.rdp.global.exception.ErrorMessageException;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -65,17 +64,8 @@ import lombok.SneakyThrows;
  */
 @Service
 public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostConstruct {
-
     @Resource
-    private DmSecSpecMapper                      dmSecSpecMapper;
-    @Resource
-    private DmSecRefererMapper                   dmSecRefererMapper;
-    @Resource
-    private DmSecRulesMapper                     dmSecRulesMapper;
-    @Resource
-    private DmSecSensitiveMapper                 dmSecSensitiveMapper;
-    @Resource
-    private DmSecRangeMapper                     dmSecRangeMapper;
+    private SecRuleDal                           secRuleDal;
     @Resource
     private NamingService                        namingService;
     private Map<DataSourceType, DmSecRuleConfig> ruleSupportDsTypes;
@@ -281,12 +271,12 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
     public List<DmSecSpecDO> querySpecList(String ownerUid, String search) {
         //Page<?> page = PageUtil.startPage(pageInfo);
         search = StringUtils.isBlank(search) ? null : search.trim();
-        return this.dmSecSpecMapper.searchSpec(ownerUid, search);
+        return this.secRuleDal.specMapper().searchSpec(ownerUid, search);
     }
 
     @Override
     public DmSecSpecDO querySpecById(String ownerUid, long specId) {
-        return this.dmSecSpecMapper.queryByIdAndUid(ownerUid, specId);
+        return this.secRuleDal.specMapper().queryByIdAndUid(ownerUid, specId);
     }
 
     @Override
@@ -298,7 +288,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
         specDO.setDescription(specDesc);
         specDO.setEnable(true);
 
-        this.dmSecSpecMapper.insert(specDO);
+        this.secRuleDal.specMapper().insert(specDO);
 
         if (initSpec) {
             List<DmSecRuleDO> ruleList = this.listQueryRuleByUid(ownerUid);
@@ -322,7 +312,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
                         refDO.getRuleParam().put(paramVO.getName(), paramVO.getDefaultValue());
                     }
                 }
-                this.dmSecRefererMapper.insert(refDO);
+                this.secRuleDal.refererMapper().insert(refDO);
             }
         }
 
@@ -331,24 +321,24 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
 
     @Override
     public void updateSpec(String ownerUid, long specId, String newName, String newDesc) {
-        this.dmSecSpecMapper.updateInfo(ownerUid, specId, newName, newDesc);
+        this.secRuleDal.specMapper().updateInfo(ownerUid, specId, newName, newDesc);
     }
 
     @Override
     public void configStatus(String ownerUid, long specId, boolean enable) {
         if (enable) {
-            this.dmSecSpecMapper.enableSpec(ownerUid, specId);
+            this.secRuleDal.specMapper().enableSpec(ownerUid, specId);
         } else {
-            this.dmSecSpecMapper.disableSpec(ownerUid, specId);
+            this.secRuleDal.specMapper().disableSpec(ownerUid, specId);
         }
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void deleteSpec(String ownerUid, long specId) {
-        this.dmSecRangeMapper.deleteBySpecId(ownerUid, specId);
-        this.dmSecRefererMapper.deleteBySpecId(ownerUid, specId);
-        this.dmSecSpecMapper.deleteByUidAndId(ownerUid, specId);
+        this.secRuleDal.rangeMapper().deleteBySpecId(ownerUid, specId);
+        this.secRuleDal.refererMapper().deleteBySpecId(ownerUid, specId);
+        this.secRuleDal.specMapper().deleteByUidAndId(ownerUid, specId);
     }
 
     @Override
@@ -365,8 +355,8 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
         });
 
         // group by info
-        List<DmSecRuleDO> queryRules = queryRuleIds.isEmpty() ? Collections.emptyList() : this.dmSecRulesMapper.queryByIds(ownerUid, queryRuleIds);
-        List<DmSecSensitiveDO> senRules = senRuleIds.isEmpty() ? Collections.emptyList() : this.dmSecSensitiveMapper.queryByIds(ownerUid, senRuleIds);
+        List<DmSecRuleDO> queryRules = queryRuleIds.isEmpty() ? Collections.emptyList() : this.secRuleDal.rulesMapper().queryByIds(ownerUid, queryRuleIds);
+        List<DmSecSensitiveDO> senRules = senRuleIds.isEmpty() ? Collections.emptyList() : this.secRuleDal.sensitiveMapper().queryByIds(ownerUid, senRuleIds);
         Map<Long, DmSecRuleDO> queryRuleGroupBy = new HashMap<>();
         Map<Long, DmSecSensitiveDO> senRuleGroupBy = new HashMap<>();
         queryRules.forEach(r -> queryRuleGroupBy.put(r.getId(), r));
@@ -395,11 +385,11 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
         }).collect(Collectors.toList());
 
         for (DmSecRefererDO refererDO : collect) {
-            DmSecRefererDO refDO = this.dmSecRefererMapper.queryBySpecAndRuleOrSen(ownerUid, refererDO.getRefSpec(), refererDO.getRefRule(), refererDO.getRefRuleKind());
+            DmSecRefererDO refDO = this.secRuleDal.refererMapper().queryBySpecAndRuleOrSen(ownerUid, refererDO.getRefSpec(), refererDO.getRefRule(), refererDO.getRefRuleKind());
             if (refDO == null) {
-                this.dmSecRefererMapper.insert(refererDO);
+                this.secRuleDal.refererMapper().insert(refererDO);
             } else {
-                this.dmSecRefererMapper.updateRuleReferer(ownerUid, refDO.getId(), refererDO);
+                this.secRuleDal.refererMapper().updateRuleReferer(ownerUid, refDO.getId(), refererDO);
             }
         }
     }
@@ -408,8 +398,8 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
     @Transactional(rollbackFor = Throwable.class)
     public void deleteSpecRules(String ownerUid, long specId, List<SpecRulesFO> rules) {
         for (SpecRulesFO r : rules) {
-            this.dmSecRangeMapper.deleteByRefId(ownerUid, r.getRefId());
-            this.dmSecRefererMapper.deleteById(ownerUid, r.getRuleId());
+            this.secRuleDal.rangeMapper().deleteByRefId(ownerUid, r.getRefId());
+            this.secRuleDal.refererMapper().deleteById(ownerUid, r.getRuleId());
         }
     }
 
@@ -480,16 +470,16 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
 
     @Override
     public List<DmSecRuleDO> listQueryRuleByUid(String ownerUid) {
-        return this.dmSecRulesMapper.listByUid(ownerUid);
+        return this.secRuleDal.rulesMapper().listByUid(ownerUid);
     }
 
     @Override
     public DmSecRuleMO queryRuleById(String ownerUid, long refRuleOrSenId, RuleKind ruleKind) {
         if (ruleKind == RuleKind.QUERY) {
-            DmSecRuleDO ruleDO = this.dmSecRulesMapper.queryById(ownerUid, refRuleOrSenId);
+            DmSecRuleDO ruleDO = this.secRuleDal.rulesMapper().queryById(ownerUid, refRuleOrSenId);
             return ruleDO == null ? null : new DmSecRuleMO(ruleDO);
         } else if (ruleKind == RuleKind.SENSITIVE) {
-            DmSecSensitiveDO senDO = this.dmSecSensitiveMapper.queryById(ownerUid, refRuleOrSenId);
+            DmSecSensitiveDO senDO = this.secRuleDal.sensitiveMapper().queryById(ownerUid, refRuleOrSenId);
             return senDO == null ? null : new DmSecRuleMO(senDO);
         } else {
             return null;
@@ -501,7 +491,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
         //Page<?> page = PageUtil.startPage(pageInfo);
         search = StringUtils.isBlank(search) ? null : search.trim();
         if (ruleKind == RuleKind.QUERY) {
-            List<DmSecRuleDO> list = this.dmSecRulesMapper.searchRules(ownerUid, search);
+            List<DmSecRuleDO> list = this.secRuleDal.rulesMapper().searchRules(ownerUid, search);
             return list.stream().map(DmSecRuleMO::new).sorted((o1, o2) -> {
                 if (o1.getRuleDO().getRuleDsRange().size() == o2.getRuleDO().getRuleDsRange().size()) {
                     String dsStr1 = o1.getRuleDO().getRuleDsRange().stream().map(Enum::name).sorted().reduce((s1, s2) -> s1 + "," + s2).orElse("");
@@ -512,7 +502,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
                 }
             }).collect(Collectors.toList());
         } else if (ruleKind == RuleKind.SENSITIVE) {
-            List<DmSecSensitiveDO> list = this.dmSecSensitiveMapper.searchSens(ownerUid, search);
+            List<DmSecSensitiveDO> list = this.secRuleDal.sensitiveMapper().searchSens(ownerUid, search);
             return list.stream().map(DmSecRuleMO::new).collect(Collectors.toList());
         } else {
             return Collections.emptyList();
@@ -521,24 +511,24 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
 
     @Override
     public List<DmSecRefererDO> queryRuleRefererBySpec(String ownerUid, long specId, RuleKind ruleKind) {
-        return dmSecRefererMapper.listBySpecAndKind(ownerUid, specId, ruleKind);
+        return secRuleDal.refererMapper().listBySpecAndKind(ownerUid, specId, ruleKind);
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void deleteRule(String ownerUid, long refRuleOrSenId, RuleKind ruleKind) {
         // delete referer and range
-        List<DmSecRefererDO> refs = this.dmSecRefererMapper.listByRuleId(ownerUid, refRuleOrSenId, ruleKind);
+        List<DmSecRefererDO> refs = this.secRuleDal.refererMapper().listByRuleId(ownerUid, refRuleOrSenId, ruleKind);
         for (DmSecRefererDO ref : refs) {
-            this.dmSecRefererMapper.deleteById(ownerUid, ref.getId());
-            this.dmSecRangeMapper.deleteByRefId(ownerUid, ref.getId());
+            this.secRuleDal.refererMapper().deleteById(ownerUid, ref.getId());
+            this.secRuleDal.rangeMapper().deleteByRefId(ownerUid, ref.getId());
         }
 
         // delete rule
         if (ruleKind == RuleKind.QUERY) {
-            this.dmSecRulesMapper.deleteByUidAndId(ownerUid, refRuleOrSenId);
+            this.secRuleDal.rulesMapper().deleteByUidAndId(ownerUid, refRuleOrSenId);
         } else if (ruleKind == RuleKind.SENSITIVE) {
-            this.dmSecSensitiveMapper.deleteByUidAndId(ownerUid, refRuleOrSenId);
+            this.secRuleDal.sensitiveMapper().deleteByUidAndId(ownerUid, refRuleOrSenId);
         } else {
             throw new UnsupportedOperationException("RuleKind: " + ruleKind + " not supported");
         }
@@ -570,7 +560,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
             ruleDO.setRuleDsRange(fo.getDsRange());
             ruleDO.setRuleTarget(fo.getTargetType());
 
-            this.dmSecRulesMapper.updateRule(ownerUid, ruleId, ruleDO);
+            this.secRuleDal.rulesMapper().updateRule(ownerUid, ruleId, ruleDO);
         } else if (fo.getRuleKind() == RuleKind.SENSITIVE) {
             DmSecSensitiveDO senDO = new DmSecSensitiveDO();
             senDO.setName(fo.getRuleName());
@@ -582,7 +572,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
 
             senDO.setSenMode(fo.getSenMode());
 
-            this.dmSecSensitiveMapper.updateSen(ownerUid, ruleId, senDO);
+            this.secRuleDal.sensitiveMapper().updateSen(ownerUid, ruleId, senDO);
         } else {
             throw new UnsupportedOperationException("RuleKind: " + fo.getRuleKind() + " not supported.");
         }
@@ -611,7 +601,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
 
             ruleDO.setRuleDsRange(fo.getDsRange());
             ruleDO.setRuleTarget(fo.getTargetType());
-            this.dmSecRulesMapper.insert(ruleDO);
+            this.secRuleDal.rulesMapper().insert(ruleDO);
             return new DmSecRuleMO(ruleDO);
         } else if (fo.getRuleKind() == RuleKind.SENSITIVE) {
             if (fo.getSenMode() == null) {
@@ -630,7 +620,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
             senDO.setInnerShare(false);
 
             senDO.setSenMode(fo.getSenMode());
-            this.dmSecSensitiveMapper.insert(senDO);
+            this.secRuleDal.sensitiveMapper().insert(senDO);
             return new DmSecRuleMO(senDO);
         } else {
             throw new UnsupportedOperationException("RuleKind: " + fo.getRuleKind() + " not supported.");
@@ -696,34 +686,34 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
 
     @Override
     public DmSecRefererDO querySpecRefererById(String ownerUid, long specId, long refRuleOrSenId, RuleKind ruleKind) {
-        return this.dmSecRefererMapper.queryBySpecAndRuleOrSen(ownerUid, specId, refRuleOrSenId, ruleKind);
+        return this.secRuleDal.refererMapper().queryBySpecAndRuleOrSen(ownerUid, specId, refRuleOrSenId, ruleKind);
     }
 
     @Override
     public DmSecRefererDO querySpecRefererById(String ownerUid, long refId) {
-        return this.dmSecRefererMapper.queryById(ownerUid, refId);
+        return this.secRuleDal.refererMapper().queryById(ownerUid, refId);
     }
 
     @Override
     public List<DmSecSpecDO> querySpecListByRuleId(String ownerUid, long refRuleOrSenId, RuleKind ruleKind) {
-        List<DmSecRefererDO> refererList = this.dmSecRefererMapper.listByRuleId(ownerUid, refRuleOrSenId, ruleKind);
+        List<DmSecRefererDO> refererList = this.secRuleDal.refererMapper().listByRuleId(ownerUid, refRuleOrSenId, ruleKind);
         Set<Long> secIds = refererList.stream().map(DmSecRefererDO::getRefSpec).collect(Collectors.toSet());
         if (secIds.isEmpty()) {
             return Collections.emptyList();
         } else {
-            return this.dmSecSpecMapper.queryByIds(ownerUid, secIds);
+            return this.secRuleDal.specMapper().queryByIds(ownerUid, secIds);
         }
     }
 
     @Override
     public List<SecRange> fetchRangeBySpec(String ownerUid, long specId) {
-        List<DmSecRangeDO> rangeList = this.dmSecRangeMapper.queryListBySpecId(ownerUid, specId);
+        List<DmSecRangeDO> rangeList = this.secRuleDal.rangeMapper().queryListBySpecId(ownerUid, specId);
         return parseSecRanges(rangeList);
     }
 
     @Override
     public List<SecRange> fetchRangeByRef(String ownerUid, long refId) {
-        List<DmSecRangeDO> rangeList = this.dmSecRangeMapper.queryListByRefId(ownerUid, refId);
+        List<DmSecRangeDO> rangeList = this.secRuleDal.rangeMapper().queryListByRefId(ownerUid, refId);
         return parseSecRanges(rangeList);
     }
 
@@ -782,7 +772,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
 
     @Override
     public DmSecRangeDO saveRange(String ownerUid, SpecSaveRangeFO fo) {
-        DmSecRefererDO refDO = this.dmSecRefererMapper.queryBySpecAndRuleOrSen(ownerUid, fo.getSpecId(), fo.getRuleId(), fo.getRuleKind());
+        DmSecRefererDO refDO = this.secRuleDal.refererMapper().queryBySpecAndRuleOrSen(ownerUid, fo.getSpecId(), fo.getRuleId(), fo.getRuleKind());
         if (refDO == null || !refDO.isEnable()) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RULE_IS_DISABLED_MESSAGE.name()));
         }
@@ -794,7 +784,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
             rangeDO.setRefSpec(fo.getSpecId());
             rangeDO.setRefId(refDO.getId());
         } else {
-            rangeDO = this.dmSecRangeMapper.selectById(fo.getRangeId());
+            rangeDO = this.secRuleDal.rangeMapper().selectById(fo.getRangeId());
         }
 
         rangeDO.setMatchMode(fo.getMatchMode());
@@ -854,9 +844,9 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
         rangeDO.setLevelNodes(fo.getNodes());
 
         if (fo.getRangeId() == null) {
-            this.dmSecRangeMapper.insert(rangeDO);
+            this.secRuleDal.rangeMapper().insert(rangeDO);
         } else {
-            this.dmSecRangeMapper.updateRange(ownerUid, fo.getRangeId(), rangeDO);
+            this.secRuleDal.rangeMapper().updateRange(ownerUid, fo.getRangeId(), rangeDO);
         }
 
         return rangeDO;
@@ -864,11 +854,11 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
 
     @Override
     public void deleteRange(String ownerUid, RangeDeleteFO fo) {
-        DmSecRangeDO rangeDO = this.dmSecRangeMapper.selectById(fo.getRangeId());
+        DmSecRangeDO rangeDO = this.secRuleDal.rangeMapper().selectById(fo.getRangeId());
         if (rangeDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RANGE_NOT_EXIST_ERROR.name()));
         }
 
-        this.dmSecRangeMapper.deleteRange(ownerUid, fo.getRangeId());
+        this.secRuleDal.rangeMapper().deleteRange(ownerUid, fo.getRangeId());
     }
 }

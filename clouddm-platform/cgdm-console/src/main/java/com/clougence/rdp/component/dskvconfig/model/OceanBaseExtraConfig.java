@@ -18,7 +18,7 @@ package com.clougence.rdp.component.dskvconfig.model;
 import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ObIncreMode;
 import com.clougence.rdp.constant.DsConfigDef;
-import com.clougence.rdp.constant.I18nDsConfigMsgKeys;
+import com.clougence.clouddm.console.web.global.i18n.I18nDsConfigMsgKeys;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;

@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo.project;
 
-import com.clougence.clouddm.console.web.dal.enumeration.ScmType;
+import com.clougence.clouddm.platform.dal.model.project.ScmType;
 
 import lombok.Getter;
 import lombok.Setter;

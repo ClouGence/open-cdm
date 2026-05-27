@@ -19,21 +19,21 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.clougence.clouddm.console.web.dal.model.DmResAuthDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
-import com.clougence.clouddm.console.web.component.auth.BizResOwnerCacheService;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsDeletePrepareService;
-import com.clougence.clouddm.console.web.dal.enumeration.HostType;
+import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.AddDsFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsKvConfigFO;
 import com.clougence.clouddm.console.web.model.vo.RdpDsKvConfigVO;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO;
-import com.clougence.clouddm.console.web.dal.model.queryobj.DsQueryParam;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
 import com.clougence.rdp.service.RdpAuthServiceForBiz;
 import com.clougence.rdp.service.RdpDsService;
 import com.clougence.rdp.service.openapi.RdpDsOpenApiService;
@@ -56,13 +56,13 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
     @Resource
     private RdpDsService             rdpDsService;
     @Resource
-    private BizResOwnerCacheService  rdpResOwnerCacheService;
+    private ObjectCacheDao  rdpResOwnerCacheService;
     @Resource
     private DmDsDeletePrepareService dmDsDeletePrepareService;
 
     @Override
     public List<ApiDataSourceVO> listDs(String requestId, String puid, ApiListDsFO fo) {
-        DsQueryParam dsQueryParam = DsQueryParam.builder()
+        ArgDsQueryParamObj dsQueryParam = ArgDsQueryParamObj.builder()
             .dataSourceType(fo.getType())
             .dataSourceDescLike(fo.getDataSourceDescLike())
             .dataSourceIds(Stream.of(fo.getDataSourceId()).filter(Objects::nonNull).collect(Collectors.toList()))
@@ -73,12 +73,12 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
             .instanceIdLike(fo.getInstanceIdLike())
             .build();
 
-        List<DmResAuthDO> authList = this.rdpAuthServiceForBiz.listAuthByUser(puid, AuthKind.DataSource);
+        List<DmAuthResDO> authList = this.rdpAuthServiceForBiz.listAuthByUser(puid, AuthKind.DataSource);
         if (authList == null || authList.isEmpty()) {
             return new ArrayList<>();
         }
 
-        Set<Long> ids = authList.stream().map(DmResAuthDO::getResId).distinct().collect(Collectors.toSet());
+        Set<Long> ids = authList.stream().map(DmAuthResDO::getResId).distinct().collect(Collectors.toSet());
 
         if (CollectionUtils.isEmpty(dsQueryParam.getDataSourceIds())) {
             dsQueryParam.setDataSourceIds(new ArrayList<>(ids));
@@ -88,7 +88,7 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
             }
         }
 
-        List<RdpDataSourceDO> result = rdpDsService.fetchByCondition(dsQueryParam);
+        List<DmDsDO> result = rdpDsService.fetchByCondition(dsQueryParam);
         if (CollectionUtils.isEmpty(result)) {
             return new ArrayList<>();
         }
@@ -106,9 +106,9 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
         return genFromDsVOs(result);
     }
 
-    protected List<ApiDataSourceVO> genFromDsVOs(List<RdpDataSourceDO> dos) {
+    protected List<ApiDataSourceVO> genFromDsVOs(List<DmDsDO> dos) {
         List<ApiDataSourceVO> apiVos = new ArrayList<>();
-        for (RdpDataSourceDO d : dos) {
+        for (DmDsDO d : dos) {
             ApiDataSourceVO apiVo = new ApiDataSourceVO();
             apiVo.convertFromDsVO(d);
             apiVos.add(apiVo);
@@ -120,7 +120,7 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
     @Override
     public ApiDataSourceVO queryDs(String puid, ApiQueryDsFO fo) {
         rdpResOwnerCacheService.ownDataSource(puid, fo.getDataSourceId());
-        RdpDataSourceDO result = rdpDsService.queryDsByIdWithoutPasswd(fo.getDataSourceId());
+        DmDsDO result = rdpDsService.queryDsByIdWithoutPasswd(fo.getDataSourceId());
         ApiDataSourceVO apiVo = new ApiDataSourceVO();
         apiVo.convertFromDsVO(result);
 
