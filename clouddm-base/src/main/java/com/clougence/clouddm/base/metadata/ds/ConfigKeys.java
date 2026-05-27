@@ -21,7 +21,7 @@ package com.clougence.clouddm.base.metadata.ds;
 
 public interface ConfigKeys {
 
-    // map to com.clougence.clouddm.console.web.dal.model.RdpDataSourceDO field name
+    // map to com.clougence.clouddm.platform.dal.model.RdpDataSourceDO field name
     String RDP_DS_KEY_USERNAME       = "userName";
     String RDP_DS_KEY_PASSWORD       = "password";
     String RDP_DS_KEY_ACCESS_KEY     = "accessKey";

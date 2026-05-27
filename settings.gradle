@@ -17,6 +17,7 @@ include 'cgdm-pluginloader'; project(":cgdm-pluginloader").projectDir = file('cl
 include 'cgdm-plugin-sdk'; project(":cgdm-plugin-sdk").projectDir = file('clouddm-platform/cgdm-plugin-sdk')
 include 'cgdm-share-libs'; project(":cgdm-share-libs").projectDir = file('clouddm-platform/cgdm-share-libs')
 include 'cgdm-api'; project(":cgdm-api").projectDir = file('clouddm-platform/cgdm-api')
+include 'cgdm-dao'; project(":cgdm-dao").projectDir = file('clouddm-platform/cgdm-dao')
 include 'cgdm-web'; project(":cgdm-web").projectDir = file('clouddm-platform/cgdm-web')
 include 'cgdm-console'; project(":cgdm-console").projectDir = file('clouddm-platform/cgdm-console')
 include 'cgdm-sidecar'; project(":cgdm-sidecar").projectDir = file('clouddm-platform/cgdm-sidecar')
