@@ -87,7 +87,8 @@ export default {
       commit('SET_MENU_ITEMS', {
         myCatLog: this.state.myCatLog,
         globalSetting: filteredGlobalSetting,
-        userInfo: this.state.userInfo
+        userInfo: this.state.userInfo,
+        myAuth: this.state.myAuth
       });
 
       commit(UPDATE_GLOBAL_SETTING, filteredGlobalSetting);

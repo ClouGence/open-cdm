@@ -37,9 +37,6 @@ export default {
       return this.mySystemMenuItems.length || !!this.userInfo?.uid || !!this.userInfo?.username;
     },
     getDefaultSystemPath() {
-      if (this.mySystemMenuItems.length) {
-        return this.mySystemMenuItems[0].href;
-      }
       return '/#/system/profile';
     }
   },

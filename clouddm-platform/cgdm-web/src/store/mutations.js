@@ -27,7 +27,7 @@ import { supportsCloudCanalBuild, supportsCloudDMBuild } from '@/utils/product';
 
 const URL_AUTH_MAPPING = {};
 
-function applyMenuItems(state, myCatLog = state.myCatLog, globalSetting = state.globalSetting) {
+function applyMenuItems(state, myCatLog = state.myCatLog, globalSetting = state.globalSetting, myAuth = state.myAuth) {
   const systemMenuItems = [];
   if (myCatLog.includes('CAT_RDP_USER')) {
     systemMenuItems.push({
@@ -99,7 +99,7 @@ function applyMenuItems(state, myCatLog = state.myCatLog, globalSetting = state.
       iconName: 'icon-v2-SqlLog'
     });
   }
-  if (myCatLog.includes('CAT_RDP_PRI_PREFERENCE_CONF')) {
+  if (myCatLog.includes('CAT_RDP_PRI_PREFERENCE_CONF') && myAuth.includes('RDP_PRI_USER_KV_CONF_R')) {
     systemMenuItems.push({
       key: '/system/preference',
       href: '/#/system/preference',
@@ -219,8 +219,8 @@ export default {
     state.myCatLog = data;
     applyMenuItems(state, data);
   },
-  [SET_MENU_ITEMS](state, { myCatLog, globalSetting, userInfo }) {
-    applyMenuItems(state, myCatLog, globalSetting);
+  [SET_MENU_ITEMS](state, { myCatLog, globalSetting, userInfo, myAuth }) {
+    applyMenuItems(state, myCatLog, globalSetting, myAuth || state.myAuth);
   },
   updateMetaCenterSearchParam(state, params) {
     state.metaCenterSearchParams = params;
@@ -394,6 +394,7 @@ export default {
   },
   [UPDATE_MY_AUTH](state, data) {
     state.myAuth = data;
+    applyMenuItems(state);
   },
   [UPDATE_SOCKET_STATUS](state, socket) {
     console.log(socket);
