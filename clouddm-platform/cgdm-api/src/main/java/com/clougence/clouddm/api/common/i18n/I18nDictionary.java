@@ -13,14 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.rdp.service;
+package com.clougence.clouddm.api.common.i18n;
 
-import com.clougence.clouddm.console.web.model.fo.ticket.RdpAddAuthTicketFO;
-import com.clougence.clouddm.console.web.model.vo.ticket.RdpAuthTicketDetailVO;
+import java.util.Locale;
 
-public interface RdpAuthTicketService {
+public interface I18nDictionary {
+    Locale getLocale();
 
-    void createAuthTicket(String ownerUid, String uid, RdpAddAuthTicketFO fo);
+    String getMessage(String key);
 
-    RdpAuthTicketDetailVO queryAuthTicketDetail(String ownerUid, String uid, long ticketId);
+    String getMessage(String key, Object... args);
+
+    String getMessage(Enum<?> key, Object... args);
+
+    String getMessage(String key, Locale locale, Object... args);
 }

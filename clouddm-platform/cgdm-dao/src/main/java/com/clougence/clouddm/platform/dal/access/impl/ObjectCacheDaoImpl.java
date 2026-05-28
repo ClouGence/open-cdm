@@ -27,13 +27,15 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
-import com.clougence.clouddm.api.common.exception.ConsoleErrorCode;
-import com.clougence.clouddm.api.common.exception.ConsoleRuntimeException;
+import com.clougence.clouddm.api.common.exception.DmErrorCode;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.api.common.i18n.I18nDictionary;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.access.entry.*;
+import com.clougence.clouddm.platform.dal.i18n.I18nDaoKeys;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
@@ -59,9 +61,11 @@ public class ObjectCacheDaoImpl implements ObjectCacheDao, UnifiedPostConstruct 
     @Resource
     private SystemDal                          systemDal;
     @Resource
-    private DataSourceDal datasourceDal;
+    private DataSourceDal                      dsDal;
     @Resource
     private AuthDal                            authDal;
+    @Resource
+    private I18nDictionary                     i18nDictionary;
     @Resource
     private ApplicationContext                 appContext;
 
@@ -76,7 +80,7 @@ public class ObjectCacheDaoImpl implements ObjectCacheDao, UnifiedPostConstruct 
     public void init() throws Exception {
         if (running.compareAndSet(false, true)) {
             ClassLoader loader = ClassUtils.getClassLoader(this.appContext.getClassLoader());
-            ThreadFactory tFactory = ThreadUtils.daemonThreadFactory(loader, "biz-local-cache-cleaner");
+            ThreadFactory tFactory = ThreadUtils.daemonThreadFactory(loader, "dal-cache-cleaner");
             ScheduledExecutorService cleaner = Executors.newSingleThreadScheduledExecutor(tFactory);
             cleaner.scheduleAtFixedRate(() -> {
                 try {
@@ -257,7 +261,7 @@ public class ObjectCacheDaoImpl implements ObjectCacheDao, UnifiedPostConstruct 
             synchronized (this.idDsCache) {
                 result = this.idDsCache.get(dsId);
                 if (result == null) {
-                    DmDsDO dsDO = this.datasourceDal.dsMapper().selectById(dsId);
+                    DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
                     if (dsDO != null) {
                         result = new DsCacheEntry();
                         result.setDsNumId(dsDO.getId());
@@ -267,7 +271,7 @@ public class ObjectCacheDaoImpl implements ObjectCacheDao, UnifiedPostConstruct 
                         result.setDsType(dsDO.getDataSourceType());
                         result.setEnvId(dsDO.getDsEnvId());
 
-                        DmDsConfigDO configDO = this.datasourceDal.configMapper().queryById(dsDO.getUid(), dsDO.getId());
+                        DmDsConfigDO configDO = this.dsDal.configMapper().queryById(dsDO.getUid(), dsDO.getId());
                         if (configDO != null) {
                             result.setClusterId(configDO.getBindClusterId());
                         }
@@ -389,11 +393,12 @@ public class ObjectCacheDaoImpl implements ObjectCacheDao, UnifiedPostConstruct 
         DsCacheEntry entry = this.queryByDsId(dsId);
 
         if (entry == null) {
-            throw new IllegalArgumentException("DataSource (" + dsId + ") not exist.");
+            String msg = this.i18nDictionary.getMessage(I18nDaoKeys.DAO_DATA_SOURCE_NOT_EXIST, dsId);
+            throw new ErrorMessageException(DmErrorCode.O_DATA.code(), msg);
         }
 
         if (!entry.getOwnerUid().equals(uid)) {
-            throw new ConsoleRuntimeException(ConsoleErrorCode.NO_AUTHORITY_TO_OPERATE_ON_THIS_RESOURCE);
+            throw noAuthorityException();
         }
     }
 
@@ -402,11 +407,12 @@ public class ObjectCacheDaoImpl implements ObjectCacheDao, UnifiedPostConstruct 
         ClusterCacheEntry entry = this.queryByClusterId(clusterId);
 
         if (entry == null) {
-            throw new IllegalArgumentException("Cluster (" + clusterId + ") not exist.");
+            String msg = this.i18nDictionary.getMessage(I18nDaoKeys.DAO_CLUSTER_NOT_EXIST, clusterId);
+            throw new ErrorMessageException(DmErrorCode.O_DATA.code(), msg);
         }
 
         if (!entry.getOwnerUid().equals(uid)) {
-            throw new ConsoleRuntimeException(ConsoleErrorCode.NO_AUTHORITY_TO_OPERATE_ON_THIS_RESOURCE);
+            throw noAuthorityException();
         }
     }
 
@@ -415,11 +421,12 @@ public class ObjectCacheDaoImpl implements ObjectCacheDao, UnifiedPostConstruct 
         EnvCacheEntry entry = this.queryByEnvId(envId);
 
         if (entry == null) {
-            throw new IllegalArgumentException("Env (" + envId + ") not exist.");
+            String msg = this.i18nDictionary.getMessage(I18nDaoKeys.DAO_ENV_NOT_EXIST, envId);
+            throw new ErrorMessageException(DmErrorCode.O_DATA.code(), msg);
         }
 
         if (!entry.getOwnerUid().equals(uid)) {
-            throw new ConsoleRuntimeException(ConsoleErrorCode.NO_AUTHORITY_TO_OPERATE_ON_THIS_RESOURCE);
+            throw noAuthorityException();
         }
     }
 
@@ -428,12 +435,18 @@ public class ObjectCacheDaoImpl implements ObjectCacheDao, UnifiedPostConstruct 
         WorkerCacheEntry entry = this.queryByWorkerId(workerId);
 
         if (entry == null) {
-            throw new IllegalArgumentException("Worker (" + workerId + ") not exist.");
+            String msg = this.i18nDictionary.getMessage(I18nDaoKeys.DAO_WORKER_NOT_EXIST, workerId);
+            throw new ErrorMessageException(DmErrorCode.O_DATA.code(), msg);
         }
 
         if (!entry.getOwnerUid().equals(uid)) {
-            throw new ConsoleRuntimeException(ConsoleErrorCode.NO_AUTHORITY_TO_OPERATE_ON_THIS_RESOURCE);
+            throw noAuthorityException();
         }
+    }
+
+    private ErrorMessageException noAuthorityException() {
+        String msg = this.i18nDictionary.getMessage(I18nDaoKeys.DAO_NO_AUTHORITY_TO_OPERATE_ON_THIS_RESOURCE);
+        return new ErrorMessageException(DmErrorCode.O_AUTHORITY.code(), msg);
     }
 
     protected void removeUserFromCache(String ak) {

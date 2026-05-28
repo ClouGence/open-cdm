@@ -13,33 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.api.common.exception;
+package com.clougence.clouddm.platform.dal.i18n;
 
-public enum DmErrorCode {
+import com.clougence.utils.i18n.I18nResource;
 
-    //COMM ERROR 100xx
-    COMM_SYSTEM_ERROR("10001"),
+@I18nResource("/i18n/dao-msg")
+public enum I18nDaoKeys {
 
-    // DS ERROR  101xx
-    DS_DISCONNECT_ERROR("10103"),
-
-    //Worker & Cluster & RPC   102xx
-    CLUSTER_HAVE_NO_WORKS_ERROR("10201"),
-
-    // DAO ERROR 103xx
-    O_AUTHORITY("10301"),
-    O_DATA("10302"),
-
-    //Ticket error
-    TICKET_SQL_PARSE_FAILED("20001");
-
-    private final String code;
-
-    DmErrorCode(String code){
-        this.code = code;
-    }
-
-    public String code() {
-        return this.code;
-    }
+    DAO_NO_AUTHORITY_TO_OPERATE_ON_THIS_RESOURCE,
+    DAO_DATA_SOURCE_NOT_EXIST,
+    DAO_CLUSTER_NOT_EXIST,
+    DAO_ENV_NOT_EXIST,
+    DAO_WORKER_NOT_EXIST
 }
