@@ -25,7 +25,7 @@ public class V202605070046__sqlrewrite extends AbstractUpgradeJavaMigration {
     public List<String> collectScript() {
         return List.of("""
                      alter table dm_sql_audit
-                            add original_sql text null\
+                            add original_sql text null
                 """);
     }
 }

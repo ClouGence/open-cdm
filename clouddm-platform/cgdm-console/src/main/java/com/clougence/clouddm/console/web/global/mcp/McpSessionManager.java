@@ -9,10 +9,10 @@ import java.util.Map;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
-import com.clougence.rdp.component.openapi.OpenApiSigner;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.rdp.service.RdpUserService;
+import com.clougence.rdp.component.openapi.OpenApiSigner;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
 import com.fasterxml.uuid.Generators;

@@ -15,10 +15,6 @@
  */
 package com.clougence.rdp.service.impl;
 
-import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-
-import com.clougence.clouddm.platform.dal.access.AuthDal;
-
 import static com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys.MFA_CODE_IS_INVALID;
 
 import java.io.ByteArrayOutputStream;
@@ -29,13 +25,14 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.GlobalDeploySite;
-import com.clougence.clouddm.platform.dal.model.auth.MfaStatus;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthMFADO;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
-import com.clougence.rdp.service.RdpUserMfaService;
+import com.clougence.clouddm.base.metadata.rdp.enumeration.GlobalDeploySite;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.service.auth.RdpUserMfaService;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthMFADO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.MfaStatus;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 import com.google.zxing.BarcodeFormat;
@@ -52,7 +49,6 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpUserMfaServiceImpl implements RdpUserMfaService {
     @Resource
     private AuthDal authDal;
-
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)

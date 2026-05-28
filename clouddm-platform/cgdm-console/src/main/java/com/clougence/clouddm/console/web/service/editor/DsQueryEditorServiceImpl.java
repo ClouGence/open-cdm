@@ -119,7 +119,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
             return Collections.emptyList();
         }
 
-        List<SessionContextDTO> sessions = sessionList.stream().map(DmExecSessionDO::toRdbCtx).collect(Collectors.toList());
+        List<SessionContextDTO> sessions = sessionList.stream().map(DmExecSessionDO::toRdbCtx).toList();
         return sessions.stream().map(contextDTO -> {
             SessionVO sessionVO = new SessionVO();
             sessionVO.setSessionId(contextDTO.getSessionId());

@@ -34,9 +34,9 @@ public class V202605070003__add_sso extends AbstractUpgradeJavaMigration {
                             `register_status` varchar(32) NOT NULL,
                             PRIMARY KEY (`id`),
                             UNIQUE KEY `uk_request_id` (`request_id`) USING BTREE
-                        )\
+                        )
                 """, """
-                    alter table rdp_user add column `wechat_union_id` varchar(32) DEFAULT NULL\
+                    alter table rdp_user add column `wechat_union_id` varchar(32) DEFAULT NULL
                 """);
     }
 

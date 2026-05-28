@@ -27,9 +27,9 @@ import com.clougence.clouddm.console.web.component.approval.model.ApprovalMO;
 import com.clougence.clouddm.console.web.component.project.ImMessageType;
 import com.clougence.clouddm.console.web.component.project.ImSenderService;
 import com.clougence.clouddm.console.web.component.project.model.ChangeTicketInfo;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.PrimaryUserVO;
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.ProjectDal;
@@ -92,8 +92,8 @@ public class ProjectApprovalHandler implements ApprovalHandler {
         userVOS.add(primaryUserVO);
 
         // add sub account who have auth to approval ticket and manger datasource
-        List<RsAuthPersonObj> personDOS = this.authDal.userMapper()
-            .queryApproPerson(AccountType.SUB_ACCOUNT, parentUserDO.getId(), ticketDO.getBindDsId(), ticketDO.getLevelPath());
+        List<RsAuthPersonObj> personDOS = this.authDal.userMapper().queryApproPerson(//
+                AccountType.SUB_ACCOUNT, parentUserDO.getId(), ticketDO.getBindDsId(), ticketDO.getLevelPath());
         for (RsAuthPersonObj personDO : personDOS) {
             List<String> roleAuthLabels = personDO.getRoleAuthLabels();
             List<String> resAuthLabel = personDO.getResAuthLabel();

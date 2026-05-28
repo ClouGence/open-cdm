@@ -168,7 +168,7 @@ public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
     @Override
     public ApprovalInstanceInfo getLastInfo(String ownerUid, String identity) throws ThirdPartyApiException {
         if (StringUtils.isBlank(identity)) {
-            throw ThirdPartyApiException.asRDP().with(FeishuI18nKeys2.FEISHU_APPROVAL_INSTANCE_IS_EMPTY);
+            throw ThirdPartyApiException.as().with(FeishuI18nKeys2.FEISHU_APPROVAL_INSTANCE_IS_EMPTY);
         }
 
         FeishuApi approvalApi = this.approvalApi(ownerUid);

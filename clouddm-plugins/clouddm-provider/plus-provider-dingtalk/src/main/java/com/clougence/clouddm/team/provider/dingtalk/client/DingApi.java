@@ -108,7 +108,7 @@ public final class DingApi {
                     values = DingApiUtils.getChangeFormParam((ChangeForm) info);
                 } else {
                     String message = String.format("Unsupported approval form type %s", info.getClass().getName());
-                    throw ThirdPartyApiException.asRDP().with(ThirdPartyApiErrorType.OTHER, DingI18nKeys.DINGTALK_UNKNOWN_ERROR, message);
+                    throw ThirdPartyApiException.as().with(ThirdPartyApiErrorType.OTHER, DingI18nKeys.DINGTALK_UNKNOWN_ERROR, message);
                 }
 
                 //
@@ -128,7 +128,7 @@ public final class DingApi {
         } catch (TeaException e) {
             if (e.getCode().equals("processCodeError") || e.getCode().equals("processGetFailed")) {
                 logger.error("call dingtalk paid api startProcessInstanceWithOptions failed, msg is " + e.getMessage(), e);
-                throw ThirdPartyApiException.asRDP().with(e, ThirdPartyApiErrorType.APPROVAL_TEMPLATE_NOT_EXISTS, DingI18nKeys.DINGTALK_APPROVAL_TEMPLATE_NOT_EXISTS);
+                throw ThirdPartyApiException.as().with(e, ThirdPartyApiErrorType.APPROVAL_TEMPLATE_NOT_EXISTS, DingI18nKeys.DINGTALK_APPROVAL_TEMPLATE_NOT_EXISTS);
             }
             logger.error("call dingtalk paid api startProcessInstanceWithOptions failed, msg is " + e.getMessage(), e);
             throw e;
@@ -152,7 +152,7 @@ public final class DingApi {
         } catch (TeaException e) {
             if (e.getStatusCode().equals(400) && e.getCode().equals("processInstanceIdError")) {
                 logger.error("dingtalk approval instance was deleted or not exists");
-                throw ThirdPartyApiException.asRDP().with(DingI18nKeys.DINGTALK_APPROVAL_INSTANCE_NOT_EXISTS, "dingtalk approval instance was deleted or not exists");
+                throw ThirdPartyApiException.as().with(DingI18nKeys.DINGTALK_APPROVAL_INSTANCE_NOT_EXISTS, "dingtalk approval instance was deleted or not exists");
             }
             logger.error("call dingtalk paid api getProcessInstanceWithOptions failed, msg is " + e.getMessage(), e);
             throw e;
@@ -184,7 +184,7 @@ public final class DingApi {
         } catch (Exception e) {
             logger.error("call dingtalk api topapi/v2/user/getbymobile failed,phone is " + phone + ", msg is " + e.getMessage(), e);
             if (e.getMessage().contains("电话号码无效") || e.getMessage().contains("找不到该用户")) {
-                throw ThirdPartyApiException.asRDP().with(DingI18nKeys.DINGTALK_USER_NOT_FIND, phone);
+                throw ThirdPartyApiException.as().with(DingI18nKeys.DINGTALK_USER_NOT_FIND, phone);
             }
             throw e;
         }
@@ -221,7 +221,7 @@ public final class DingApi {
         } catch (TeaException e) {
             logger.error("call dingtalk paid api startProcessInstanceWithOptions failed, msg is " + e.getMessage(), e);
             if (e.getCode().equals("processCodeError") || e.getCode().equals("processGetFailed")) {
-                throw ThirdPartyApiException.asRDP().with(ThirdPartyApiErrorType.APPROVAL_TEMPLATE_NOT_EXISTS, DingI18nKeys.DINGTALK_APPROVAL_TEMPLATE_NOT_EXISTS);
+                throw ThirdPartyApiException.as().with(ThirdPartyApiErrorType.APPROVAL_TEMPLATE_NOT_EXISTS, DingI18nKeys.DINGTALK_APPROVAL_TEMPLATE_NOT_EXISTS);
             }
             throw e;
         } catch (Exception e) {
@@ -271,7 +271,7 @@ public final class DingApi {
             logger.error("call dingtalk paid api terminateProcessInstanceWithOptions error,msg is " + e.getMessage(), e);
             // if approval already close or not exists
             if (e.getCode().equals("aflowProcessInstStatusException") && e.getMessage().contains("提交审批后 15 秒内不允许撤销")) {
-                throw ThirdPartyApiException.asRDP().with(DingI18nKeys.DINGTALK_APPROVAL_CLOSE_FAILED_TIME);
+                throw ThirdPartyApiException.as().with(DingI18nKeys.DINGTALK_APPROVAL_CLOSE_FAILED_TIME);
             } else if (e.getCode().equals("aflowProcessInstNotExist") || e.getCode().equals("aflowProcessInstStatusException")) {
                 //
             } else {
@@ -311,7 +311,7 @@ public final class DingApi {
 
     public String getUserAccessToken(String authCode) {
         if (StringUtils.isBlank(authCode)) {
-            throw ThirdPartyApiException.asRDP().with(DingI18nKeys.DINGTALK_API_TOKEN_ERROR);
+            throw ThirdPartyApiException.as().with(DingI18nKeys.DINGTALK_API_TOKEN_ERROR);
         }
         try {
             com.aliyun.dingtalkoauth2_1_0.models.GetUserTokenRequest userTokenRequest = new com.aliyun.dingtalkoauth2_1_0.models.GetUserTokenRequest()
@@ -322,7 +322,7 @@ public final class DingApi {
             GetUserTokenResponse userToken = this.client.getAuthClient().getUserToken(userTokenRequest);
             return userToken.getBody().getAccessToken();
         } catch (Exception e) {
-            throw ThirdPartyApiException.asRDP().with(e, DingI18nKeys.DINGTALK_UNKNOWN_ERROR, e.getMessage());
+            throw ThirdPartyApiException.as().with(e, DingI18nKeys.DINGTALK_UNKNOWN_ERROR, e.getMessage());
         }
     }
 
@@ -340,7 +340,7 @@ public final class DingApi {
             userData.setAccessToken(accessToken);
             return userData;
         } catch (Exception e) {
-            throw ThirdPartyApiException.asRDP().with(e, DingI18nKeys.DINGTALK_FETCH_USER_ERROR, e.getMessage());
+            throw ThirdPartyApiException.as().with(e, DingI18nKeys.DINGTALK_FETCH_USER_ERROR, e.getMessage());
         }
     }
 }

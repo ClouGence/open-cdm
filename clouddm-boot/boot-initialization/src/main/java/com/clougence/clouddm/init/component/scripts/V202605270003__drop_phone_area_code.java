@@ -24,8 +24,9 @@ public class V202605270003__drop_phone_area_code extends AbstractUpgradeJavaMigr
     @Override
     public List<String> collectScript() {
         return List.of("""
-                    ALTER TABLE dm_auth_verify
-                        DROP COLUMN phone_area_code
+                    ALTER TABLE dm_auth_user DROP COLUMN phone_area_code
+                """, """
+                    ALTER TABLE dm_auth_verify DROP COLUMN phone_area_code
                 """);
     }
 }

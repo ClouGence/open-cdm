@@ -21,20 +21,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.clougence.clouddm.sdk.security.login.*;
+import com.clougence.clouddm.sdk.LifeSpiRequest;
+import com.clougence.clouddm.sdk.LifeSpiResponse;
+import com.clougence.clouddm.sdk.LifeSpiStatus;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.sdk.security.auth.def.SecSysRole;
+import com.clougence.clouddm.sdk.security.login.LoginProvider;
+import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
+import com.clougence.clouddm.sdk.security.login.LoginRequest;
+import com.clougence.clouddm.sdk.security.login.LoginResponse;
+import com.clougence.clouddm.sdk.service.config.ConfigData;
+import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
+import com.clougence.clouddm.sdk.service.config.RoleData;
+import com.clougence.clouddm.sdk.service.config.UserData;
 import com.clougence.clouddm.team.provider.feishu.client.FeishuApi;
 import com.clougence.clouddm.team.provider.feishu.client.FeishuClient;
 import com.clougence.clouddm.team.provider.feishu.constants.FeishuConfigKey;
 import com.clougence.clouddm.team.provider.feishu.constants.FeishuI18nKeys2;
-import com.clougence.clouddm.sdk.security.auth.def.SecSysRole;
-import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
-import com.clougence.clouddm.sdk.service.config.ConfigData;
-import com.clougence.clouddm.sdk.service.config.RoleData;
-import com.clougence.clouddm.sdk.service.config.UserData;
-import com.clougence.clouddm.sdk.LifeSpiRequest;
-import com.clougence.clouddm.sdk.LifeSpiResponse;
-import com.clougence.clouddm.sdk.LifeSpiStatus;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -139,7 +142,7 @@ public class FeishuLoginProviderSpi implements LoginProviderSpi {
     private String[] extractSplit(String fullLoginName) {
         int splitIdx = fullLoginName.lastIndexOf("@");
         if (splitIdx == -1) {
-            throw ThirdPartyApiException.asRDP().with(FeishuI18nKeys2.FEISHU_LOGIN_FAIL_PRIMARY_MISSING_ARGS);
+            throw ThirdPartyApiException.as().with(FeishuI18nKeys2.FEISHU_LOGIN_FAIL_PRIMARY_MISSING_ARGS);
         }
 
         String userAccount = fullLoginName.substring(0, splitIdx);
@@ -181,7 +184,7 @@ public class FeishuLoginProviderSpi implements LoginProviderSpi {
         RoleData role = CollectionUtils.isEmpty(roles) ? null : roles.get(0);
         if (role == null) {
             log.info("Feishu: user(" + dingUser.getSubAccount() + ") not found any role, memberOf=" + roleName);
-            throw ThirdPartyApiException.asRDP().with(FeishuI18nKeys2.FEISHU_ROLE_MAPPING_FAILED);
+            throw ThirdPartyApiException.as().with(FeishuI18nKeys2.FEISHU_ROLE_MAPPING_FAILED);
         }
         dingUser.setRoleId(role.getRoleId());
 

@@ -15,8 +15,6 @@
  */
 package com.clougence.clouddm.console.web.util;
 
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
-
 import java.util.List;
 
 import org.springframework.context.ApplicationContext;
@@ -25,21 +23,22 @@ import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.api.common.crypt.PasswordInfo;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.sdk.model.analysis.resource.DsResPathObj;
-import com.clougence.clouddm.sdk.security.auth.AuthInfo;
+import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.rdp.service.RdpAuthServiceForManage;
+import com.clougence.clouddm.sdk.model.analysis.resource.DsResPathObj;
+import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.utils.StringUtils;
 
 public class RdpAuthUtils {
 
-    private static RdpAuthServiceForManage rdpAuthServiceForManage;
-    private static DataSourceDal datasourceDal;
+    private static DmAuthServiceForManage rdpAuthServiceForManage;
+    private static DataSourceDal          datasourceDal;
 
     public static void initUtils(ApplicationContext spring) {
-        rdpAuthServiceForManage = spring.getBean(RdpAuthServiceForManage.class);
+        rdpAuthServiceForManage = spring.getBean(DmAuthServiceForManage.class);
         datasourceDal = spring.getBean(DataSourceDal.class);
     }
 

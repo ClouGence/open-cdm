@@ -15,10 +15,6 @@
  */
 package com.clougence.rdp.service.impl;
 
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
-
-import com.clougence.clouddm.platform.dal.access.AuthDal;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -28,34 +24,34 @@ import java.util.Date;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.constants.MfaPreActionType;
-import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
-import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
-import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
-import com.clougence.clouddm.platform.dal.model.auth.AccountType;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthCsrfTokenDO;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.csrf.CsrfTokenService;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.model.fo.LoginAutoRegisterFO;
 import com.clougence.clouddm.console.web.model.fo.LoginFO;
 import com.clougence.clouddm.console.web.model.vo.LoginUserVO;
-import com.clougence.clouddm.console.web.util.*;
+import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
+import com.clougence.clouddm.console.web.service.auth.RdpUserLoginRegService;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
+import com.clougence.clouddm.console.web.util.RdpAuthUtils;
+import com.clougence.clouddm.console.web.util.RdpConvertUtils;
+import com.clougence.clouddm.console.web.util.RdpWebUtils;
+import com.clougence.clouddm.console.web.util.Sm2Utils;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.model.auth.*;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.security.login.LoginProvider;
 import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
 import com.clougence.clouddm.sdk.security.login.LoginRequest;
 import com.clougence.clouddm.sdk.security.login.LoginResponse;
 import com.clougence.clouddm.sdk.service.config.UserData;
-import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
-import com.clougence.clouddm.api.common.exception.ErrorMessageException;
-import com.clougence.rdp.service.RdpUserConfigService;
-import com.clougence.rdp.service.RdpUserLoginRegService;
-import com.clougence.rdp.service.RdpUserService;
 import com.clougence.rdp.service.RdpVerifyService;
 import com.clougence.rdp.service.model.AddSubAccountMO;
 import com.clougence.rdp.service.model.CheckVerifyMO;
@@ -75,8 +71,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
 
     @Resource
-    private AuthDal authDal;
-
+    private AuthDal              authDal;
     @Resource
     private DmConsoleConfig      rdpConfig;
     @Resource

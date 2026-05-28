@@ -97,53 +97,53 @@ public class ConfigHelper {
 
     public static BaseConfig checkAdConfig(BaseConfig cfg) {
         if (StringUtils.isBlank(cfg.getLdapHost())) {
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapHost");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapHost");
         }
         if (StringUtils.isBlank(cfg.getLdapPort())) {
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapPort");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapPort");
         }
         if (StringUtils.isBlank(cfg.getLdapBase())) {
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapBase");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapBase");
         }
         if (StringUtils.isBlank(cfg.getLdapUser())) {
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapUser");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapUser");
         }
         if (StringUtils.isBlank(cfg.getLdapPassword())) {
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapPassword");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapPassword");
         }
         if (StringUtils.isBlank(cfg.getLdapFieldLogin())) {
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapFieldLogin");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapFieldLogin");
         }
         if (StringUtils.isBlank(cfg.getLdapRoleMap())) {
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapRoleMap");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapRoleMap");
         }
         if (StringUtils.isBlank(cfg.getLdapDomain())) {
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapDomain");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapDomain");
         }
         return cfg;
     }
 
     public static BaseConfig checkLdapConfig(BaseConfig conf) {
         if (StringUtils.isBlank(conf.getLdapHost())) {
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapHost");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapHost");
         }
         if (StringUtils.isBlank(conf.getLdapPort())) {
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapPort");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapPort");
         }
         if (StringUtils.isBlank(conf.getLdapBase())) {
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapBase");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapBase");
         }
         if (StringUtils.isBlank(conf.getLdapUser())) {
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapUser");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapUser");
         }
         if (StringUtils.isBlank(conf.getLdapPassword())) {
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapPassword");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapPassword");
         }
         if (StringUtils.isBlank(conf.getLdapFieldLogin())) {
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapFieldLogin");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapFieldLogin");
         }
         if (StringUtils.isBlank(conf.getLdapRoleMap())) {
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapRoleMap");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapRoleMap");
         }
 
         return conf;

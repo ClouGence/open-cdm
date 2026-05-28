@@ -87,7 +87,7 @@ public class OidcApi {
     private static Algorithm createAlgorithm(String algorithm, Jwk jwk, OidcCfg conf) throws Exception {
         AlgorithmCreator factory = algorithmFactory.get(algorithm);
         if (factory == null) {
-            throw ThirdPartyApiException.asRDP().with(OidcI18nKey.OIDC_API_ALGORITHM_ERROR, algorithm);
+            throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_API_ALGORITHM_ERROR, algorithm);
         } else {
             return factory.create(jwk, conf);
         }
@@ -111,7 +111,7 @@ public class OidcApi {
             Request request = new Request.Builder().url(this.conf.getWellKnownURL()).build();
             Response response = http.newCall(request).execute();
             if (!response.isSuccessful()) {
-                throw ThirdPartyApiException.asRDP().with(OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, response.code() + ":" + response.message());
+                throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, response.code() + ":" + response.message());
             }
 
             return JSONObject.parseObject(response.body().string());
@@ -128,13 +128,13 @@ public class OidcApi {
         // fetch jwks
         String jwksUrl = (String) wellKnownJson.get("jwks_uri");
         if (StringUtils.isBlank(jwksUrl)) {
-            throw ThirdPartyApiException.asRDP().with(OidcI18nKey.OIDC_API_WELLKNOWN_MISSING_JWKS_URI_ERROR);
+            throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_API_WELLKNOWN_MISSING_JWKS_URI_ERROR);
         }
         JSONObject jwksJson = this.client.callApi((client, http) -> {
             Request request = new Request.Builder().url(jwksUrl).build();
             Response response = http.newCall(request).execute();
             if (!response.isSuccessful()) {
-                throw ThirdPartyApiException.asRDP().with(OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, response.code() + ":" + response.message());
+                throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, response.code() + ":" + response.message());
             }
 
             return JSONObject.parseObject(response.body().string());
@@ -180,7 +180,7 @@ public class OidcApi {
 
     public String fetchIdToken(String code, String jumpUrl) {
         if (StringUtils.isBlank(code)) {
-            throw ThirdPartyApiException.asRDP().with(OidcI18nKey.OIDC_API_TOKEN_ERROR);
+            throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_API_TOKEN_ERROR);
         }
 
         JSONObject fetchToken = this.client.callApi((client, http) -> {
@@ -200,7 +200,7 @@ public class OidcApi {
                 JSONObject errorData = JSONObject.parseObject(response.body().string());
                 String errorCode = errorData.getString("error");
                 String errorDesc = errorData.getString("error_description");
-                throw ThirdPartyApiException.asRDP().with(OidcI18nKey.OIDC_UNKNOWN_CALL_API_ERROR, errorCode + ":" + errorDesc);
+                throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_UNKNOWN_CALL_API_ERROR, errorCode + ":" + errorDesc);
             }
 
             return JSONObject.parseObject(response.body().string());
@@ -225,9 +225,9 @@ public class OidcApi {
         } catch (Exception e) {
             log.error("oidc verify ID Token failed, " + e.getMessage());
             if (e instanceof InvalidClaimException && StringUtils.startsWithIgnoreCase(e.getMessage(), "The Token can't be used before")) {
-                throw ThirdPartyApiException.asRDP().with(e, OidcI18nKey.OIDC_VERIFY_TOKEN_ERROR, e.getMessage());
+                throw ThirdPartyApiException.as().with(e, OidcI18nKey.OIDC_VERIFY_TOKEN_ERROR, e.getMessage());
             } else {
-                throw ThirdPartyApiException.asRDP().with(e, OidcI18nKey.OIDC_VERIFY_TOKEN_ERROR, e.getMessage());
+                throw ThirdPartyApiException.as().with(e, OidcI18nKey.OIDC_VERIFY_TOKEN_ERROR, e.getMessage());
             }
         }
     }
@@ -266,7 +266,7 @@ public class OidcApi {
 
     private Map<String, Object> toStringObjectMap(Object value, String key) {
         if (!(value instanceof Map<?, ?>)) {
-            throw ThirdPartyApiException.asRDP().with(OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, "invalid " + key + " item");
+            throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, "invalid " + key + " item");
         }
 
         Map<?, ?> rawMap = (Map<?, ?>) value;
@@ -274,7 +274,7 @@ public class OidcApi {
         for (Map.Entry<?, ?> entry : rawMap.entrySet()) {
             Object entryKey = entry.getKey();
             if (!(entryKey instanceof String)) {
-                throw ThirdPartyApiException.asRDP().with(OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, "invalid " + key + " key");
+                throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, "invalid " + key + " key");
             }
             String stringKey = (String) entryKey;
             result.put(stringKey, entry.getValue());

@@ -25,7 +25,7 @@ public class V202605070034__hosttype_sql extends AbstractUpgradeJavaMigration {
     public List<String> collectScript() {
         return List.of("""
                     alter table `dm_ds_config`
-                            add `host_type` varchar(64) null\
+                            add `host_type` varchar(64) null
                 """);
     }
 }

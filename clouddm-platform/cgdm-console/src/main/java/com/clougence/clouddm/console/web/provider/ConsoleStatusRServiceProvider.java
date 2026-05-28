@@ -24,13 +24,12 @@ import com.clougence.clouddm.api.console.status.MetricStats;
 import com.clougence.clouddm.api.console.status.WorkerState;
 import com.clougence.clouddm.comm.RSocketApiClass;
 import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.cluster.WorkerService;
 import com.clougence.clouddm.platform.dal.access.entry.WorkerCacheEntry;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
-import com.clougence.rdp.service.RdpUserService;
-import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -106,17 +105,17 @@ public class ConsoleStatusRServiceProvider extends AbstractBasicProvider impleme
     }
 
     @Override
-    public void reportAddress(WorkerIdentity identity, Date sendTime, String localIp, String externalIp) {
-        if (!this.checkAccessKey(identity) || (StringUtils.isBlank(localIp) && StringUtils.isBlank(externalIp))) {
+    public void reportAddress(WorkerIdentity identity, Date sendTime, String localIp) {
+        if (!this.checkAccessKey(identity)) {
             return;
         }
 
-        WorkerCacheEntry workerDO = this.objectCacheDao.queryByWsn(identity.getWorkerSeqNumber());
+        WorkerCacheEntry workerDO = this.cacheDao.queryByWsn(identity.getWorkerSeqNumber());
         if (workerDO == null) {
             return;
         }
 
-        this.workerService.updateWorkerIp(workerDO.getWorkerNumId(), localIp, externalIp);
+        this.workerService.updateWorkerIp(workerDO.getWorkerNumId(), localIp);
     }
 
     @Override
@@ -125,7 +124,7 @@ public class ConsoleStatusRServiceProvider extends AbstractBasicProvider impleme
             return;
         }
 
-        WorkerCacheEntry workerDO = this.objectCacheDao.queryByWsn(identity.getWorkerSeqNumber());
+        WorkerCacheEntry workerDO = this.cacheDao.queryByWsn(identity.getWorkerSeqNumber());
         if (workerDO == null) {
             return;
         }

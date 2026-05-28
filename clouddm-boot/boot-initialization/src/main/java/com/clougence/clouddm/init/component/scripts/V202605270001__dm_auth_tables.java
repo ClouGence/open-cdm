@@ -24,9 +24,6 @@ public class V202605270001__dm_auth_tables extends AbstractUpgradeJavaMigration 
     @Override
     public List<String> collectScript() {
         return List.of("""
-                    ALTER TABLE rdp_user
-                        DROP COLUMN phone_area_code
-                """, """
                     RENAME TABLE rdp_user TO dm_auth_user
                 """, """
                     RENAME TABLE rdp_role TO dm_auth_role

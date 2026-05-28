@@ -15,14 +15,13 @@
  */
 package com.clougence.rdp.service.impl;
 
-import com.clougence.clouddm.platform.dal.access.DataSourceDal;
-
 import java.text.MessageFormat;
 
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityFileType;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsBlobResourceDO;
 import com.clougence.rdp.service.RdpSecurityService;
 import com.clougence.utils.StringUtils;
@@ -38,7 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpSecurityServiceImpl implements RdpSecurityService {
     @Resource
     private DataSourceDal datasourceDal;
-
 
     @Override
     public byte[] querySecurityFile(String instanceId, ResourceType ownerType, SecurityFileType fileType) {

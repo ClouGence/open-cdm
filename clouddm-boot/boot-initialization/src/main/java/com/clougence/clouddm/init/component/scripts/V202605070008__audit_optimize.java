@@ -24,7 +24,7 @@ public class V202605070008__audit_optimize extends AbstractUpgradeJavaMigration 
     @Override
     public List<String> collectScript() {
         return List.of("""
-                    ALTER TABLE `rdp_op_audit` add COLUMN `log_info` text\
+                    ALTER TABLE `rdp_op_audit` add COLUMN `log_info` text
                 """);
     }
 

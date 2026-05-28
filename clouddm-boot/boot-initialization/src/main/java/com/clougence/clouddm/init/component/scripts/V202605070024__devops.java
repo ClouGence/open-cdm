@@ -25,10 +25,10 @@ public class V202605070024__devops extends AbstractUpgradeJavaMigration {
     public List<String> collectScript() {
         return List.of("""
                     alter table rdp_ticket_process
-                                modify next_id bigint null\
+                                modify next_id bigint null
                 """, """
                     alter table rdp_ticket_process
-                                modify appro_biz varchar(64) null\
+                                modify appro_biz varchar(64) null
                 """);
     }
 }

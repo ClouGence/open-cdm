@@ -15,15 +15,14 @@
  */
 package com.clougence.clouddm.console.web.global.csrf;
 
-import com.clougence.clouddm.platform.dal.access.AuthDal;
-
 import java.util.Date;
 
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthCsrfTokenDO;
 import com.clougence.clouddm.console.web.util.RandomStrUtils;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthCsrfTokenDO;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.ThreadUtils;
 
@@ -35,8 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CsrfTokenServiceImpl implements CsrfTokenService, UnifiedPostConstruct {
     @Resource
     private AuthDal authDal;
-
-    private Thread            cleanerTokenThread;
+    private Thread  cleanerTokenThread;
 
     @Override
     public void init() throws Exception {

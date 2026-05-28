@@ -38,7 +38,7 @@ import com.clougence.clouddm.console.web.model.vo.checkrules.SecSettingDef;
 import com.clougence.clouddm.console.web.model.vo.checkrules.SensitiveRuleDef;
 import com.clougence.clouddm.console.web.service.security.mode.DmSecRuleConfig;
 import com.clougence.clouddm.console.web.service.security.mode.DmSecRuleMO;
-import com.clougence.clouddm.console.web.service.system.NamingService;
+import com.clougence.clouddm.platform.dal.access.NamingDao;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.SecRuleDal;
 import com.clougence.clouddm.platform.dal.model.secrule.*;
@@ -67,7 +67,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
     @Resource
     private SecRuleDal                           secRuleDal;
     @Resource
-    private NamingService                        namingService;
+    private NamingDao                        namingDao;
     private Map<DataSourceType, DmSecRuleConfig> ruleSupportDsTypes;
     private SecSettingDef                        ruleSettingDef;
 
@@ -590,7 +590,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
 
             DmSecRuleDO ruleDO = new DmSecRuleDO();
             ruleDO.setOwnerUid(ownerUid);
-            ruleDO.setRuleId(this.namingService.genSecRuleName(RuleKind.QUERY));
+            ruleDO.setRuleId(this.namingDao.genSecRuleName(RuleKind.QUERY));
             ruleDO.setName(fo.getRuleName());
             ruleDO.setDescription(fo.getRuleDesc());
             ruleDO.setScriptType(fo.getRuleType());
@@ -610,7 +610,7 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
 
             DmSecSensitiveDO senDO = new DmSecSensitiveDO();
             senDO.setOwnerUid(ownerUid);
-            senDO.setSenId(this.namingService.genSecRuleName(RuleKind.SENSITIVE));
+            senDO.setSenId(this.namingDao.genSecRuleName(RuleKind.SENSITIVE));
             senDO.setName(fo.getRuleName());
             senDO.setDescription(fo.getRuleDesc());
             senDO.setScriptType(fo.getRuleType());

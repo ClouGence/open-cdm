@@ -126,22 +126,17 @@ export default {
       return [this.driverFamily, this.driverVersion].filter(Boolean).join(' / ');
     },
     driverStatusTargetText() {
-      const resourceText = `${this.driverStatus.resourceCoordinate || ''}`.trim();
       const fileText = `${this.driverStatus.currentFileName || ''}`.trim();
       const driverText = this.driverStatusTitleText;
 
-      if (resourceText && fileText) {
-        return `${resourceText}（${fileText}）`;
-      }
-
-      return resourceText || fileText || driverText;
+      return fileText || driverText;
     },
     driverResourceText() {
       return this.driverStatusTargetText;
     },
     driverStatusMessageText() {
       const message = `${this.driverStatus.message || ''}`.trim();
-      if (!message || message === this.driverStatus.currentFileName || message === this.driverStatus.resourceCoordinate) {
+      if (!message || message === this.driverStatus.currentFileName) {
         return '';
       }
       if (message === this.driverStatusTargetText || message === this.driverResourceText) {

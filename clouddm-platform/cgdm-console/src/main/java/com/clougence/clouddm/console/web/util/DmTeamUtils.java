@@ -20,8 +20,8 @@ import static com.clougence.clouddm.console.web.util.RandomStrUtils.fixedLenRand
 import org.springframework.context.ApplicationContext;
 
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
-import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
+import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
 
 /**
  * @author mode create time is 2021/1/30

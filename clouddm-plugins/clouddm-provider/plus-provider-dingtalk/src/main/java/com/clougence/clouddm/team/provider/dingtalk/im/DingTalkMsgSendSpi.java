@@ -56,7 +56,7 @@ public class DingTalkMsgSendSpi implements MsgSendSpi {
         String robotToken = null;
         try {
             if (StringUtils.isBlank(config.getWebhookUrl())) {
-                throw ThirdPartyApiException.asRDP().with(DingTalkI18nKeys.DINGTALK_IM_CONFIG_MISSING_WEBHOOK_URL);
+                throw ThirdPartyApiException.as().with(DingTalkI18nKeys.DINGTALK_IM_CONFIG_MISSING_WEBHOOK_URL);
             }
 
             URL webHookUrl = new URL(config.getWebhookUrl());
@@ -64,13 +64,13 @@ public class DingTalkMsgSendSpi implements MsgSendSpi {
             Map<String, String> params = StringUtils.toMap(query, "&", "=");
             robotToken = params.get("access_token");
             if (StringUtils.isBlank(robotToken)) {
-                throw ThirdPartyApiException.asRDP().with(DingTalkI18nKeys.DINGTALK_IM_CONFIG_BAD_WEBHOOK_URL);
+                throw ThirdPartyApiException.as().with(DingTalkI18nKeys.DINGTALK_IM_CONFIG_BAD_WEBHOOK_URL);
             }
         } catch (Exception e) {
             if (e instanceof ThirdPartyApiException) {
                 throw (ThirdPartyApiException) e;
             } else {
-                throw ThirdPartyApiException.asRDP().with(e, DingTalkI18nKeys.DINGTALK_IM_CONFIG_ERROR, e.getMessage());
+                throw ThirdPartyApiException.as().with(e, DingTalkI18nKeys.DINGTALK_IM_CONFIG_ERROR, e.getMessage());
             }
         }
 
@@ -94,7 +94,7 @@ public class DingTalkMsgSendSpi implements MsgSendSpi {
                     req = textMessage(message);
                     break;
                 default:
-                    throw ThirdPartyApiException.asRDP().with(DingTalkI18nKeys.DINGTALK_IM_UNSUPPORT_TYPE, message.getType());
+                    throw ThirdPartyApiException.as().with(DingTalkI18nKeys.DINGTALK_IM_UNSUPPORT_TYPE, message.getType());
             }
 
             OapiRobotSendResponse rsp = client.execute(req, robotToken);
@@ -107,7 +107,7 @@ public class DingTalkMsgSendSpi implements MsgSendSpi {
             if (e instanceof ThirdPartyApiException) {
                 throw (ThirdPartyApiException) e;
             } else {
-                throw ThirdPartyApiException.asRDP().with(e, DingTalkI18nKeys.DINGTALK_IM_SEND_ERROR, e.getMessage());
+                throw ThirdPartyApiException.as().with(e, DingTalkI18nKeys.DINGTALK_IM_SEND_ERROR, e.getMessage());
             }
         }
     }

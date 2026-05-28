@@ -41,8 +41,8 @@ import com.clougence.clouddm.console.web.global.mcp.model.request.ToolCallParams
 import com.clougence.clouddm.console.web.global.mcp.model.response.*;
 import com.clougence.clouddm.console.web.global.mcp.utils.JacksonHelper;
 import com.clougence.clouddm.console.web.global.mcp.utils.Json;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.rdp.component.openapi.OpenApiHttpClient;
-import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 

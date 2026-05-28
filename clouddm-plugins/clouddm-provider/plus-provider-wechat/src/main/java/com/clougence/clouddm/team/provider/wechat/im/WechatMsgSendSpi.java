@@ -46,7 +46,7 @@ public class WechatMsgSendSpi implements MsgSendSpi {
     @SneakyThrows
     public MsgSendResult sendMessage(MsgSendConfig config, MsgContent message) {
         if (StringUtils.isBlank(config.getWebhookUrl())) {
-            throw ThirdPartyApiException.asRDP().with(WechatI18nKeys.WECHAT_IM_CONFIG_MISSING_WEBHOOK_URL);
+            throw ThirdPartyApiException.as().with(WechatI18nKeys.WECHAT_IM_CONFIG_MISSING_WEBHOOK_URL);
         }
         try (Response response = client.newCall(createRequest(config, message)).execute()) {
             ResponseBody obj = JsonUtils.toObj(response.body().string(), ResponseBody.class);
@@ -70,7 +70,7 @@ public class WechatMsgSendSpi implements MsgSendSpi {
         if (msgContent.getType() == MsgSendType.Text) {
             replace = replace.replace("{{TYPE}}", "text");
         } else {
-            throw ThirdPartyApiException.asRDP().with(WechatI18nKeys.WECHAT_IM_UNSUPPORT_TYPE, msgContent.getType());
+            throw ThirdPartyApiException.as().with(WechatI18nKeys.WECHAT_IM_UNSUPPORT_TYPE, msgContent.getType());
         }
 
         return new Request.Builder().url(config.getWebhookUrl()).method("POST", RequestBody.create(MediaType.get("application/json"), replace)).build();

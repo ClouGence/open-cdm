@@ -48,11 +48,10 @@ import com.clougence.clouddm.console.web.model.vo.RdpApproTemplateVO;
 import com.clougence.clouddm.console.web.model.vo.browse.BrowseLevelsVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.*;
 import com.clougence.clouddm.console.web.service.approval.ApprovalControlService;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.browse.BrowseService;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
-import com.clougence.rdp.service.RdpAuthTicketService;
-import com.clougence.rdp.service.RdpUserService;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.StringUtils;
 
@@ -74,8 +73,6 @@ public class ApprovalController {
     private ApprovalControlService approvalControlService;
     @Resource
     private ApprovalFlowService    approvalFlowService;
-    @Resource
-    private RdpAuthTicketService   rdpAuthTicketService;
     @Resource
     private BrowseService          browseService;
     @Resource
@@ -104,7 +101,7 @@ public class ApprovalController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
-        rdpAuthTicketService.createAuthTicket(puid, uid, fo);
+        approvalControlService.createAuthTicket(puid, uid, fo);
         return ResWebDataUtils.buildSuccess("ok.");
     }
 
@@ -265,7 +262,7 @@ public class ApprovalController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
-        RdpAuthTicketDetailVO vo = rdpAuthTicketService.queryAuthTicketDetail(puid, uid, fo.getTicketId());
+        RdpAuthTicketDetailVO vo = approvalControlService.queryAuthTicketDetail(puid, uid, fo.getTicketId());
         return ResWebDataUtils.buildSuccess(vo);
     }
 

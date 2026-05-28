@@ -34,7 +34,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public abstract class AbstractChangeAction implements ChangeAction {
-
     @Resource
     protected ProjectDal       projectDal;
     @Resource

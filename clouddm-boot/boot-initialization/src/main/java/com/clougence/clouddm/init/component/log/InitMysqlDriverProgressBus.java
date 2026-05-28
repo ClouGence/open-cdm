@@ -67,7 +67,6 @@ public final class InitMysqlDriverProgressBus {
         }
 
         DriverDownloadProgressVO copy = new DriverDownloadProgressVO();
-        copy.setUid(progressVO.getUid());
         copy.setClusterId(progressVO.getClusterId());
         copy.setDriverFamily(progressVO.getDriverFamily());
         copy.setDriverVersion(progressVO.getDriverVersion());
@@ -76,7 +75,6 @@ public final class InitMysqlDriverProgressBus {
         copy.setCurrentFilePercent(progressVO.getCurrentFilePercent());
         copy.setStatus(progressVO.getStatus());
         copy.setMessage(progressVO.getMessage());
-        copy.setResourceCoordinate(progressVO.getResourceCoordinate());
         copy.setCurrentFileName(progressVO.getCurrentFileName());
         copy.setAvailable(progressVO.isAvailable());
         return copy;

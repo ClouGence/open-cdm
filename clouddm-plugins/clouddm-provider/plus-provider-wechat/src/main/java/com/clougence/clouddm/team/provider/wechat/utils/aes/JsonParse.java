@@ -49,7 +49,7 @@ class JsonParse {
             result[2] = agentid;
             return result;
         } catch (Exception e) {
-            throw ThirdPartyApiException.asRDP().with(e, WechatI18nKey2.WECHAT_PARSE_JSON_ERROR);
+            throw ThirdPartyApiException.as().with(e, WechatI18nKey2.WECHAT_PARSE_JSON_ERROR);
         }
     }
 

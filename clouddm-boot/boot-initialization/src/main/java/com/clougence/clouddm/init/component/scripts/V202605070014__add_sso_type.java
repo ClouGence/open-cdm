@@ -32,9 +32,9 @@ public class V202605070014__add_sso_type extends AbstractUpgradeJavaMigration {
     @Override
     public List<String> collectScript() {
         return List.of("""
-                    ALTER TABLE `rdp_user` MODIFY COLUMN union_id varchar(128) CHARACTER SET utf8mb4 NULL AFTER `country`\
+                    ALTER TABLE `rdp_user` MODIFY COLUMN union_id varchar(128) CHARACTER SET utf8mb4 NULL AFTER `country`
                 """, """
-                    ALTER TABLE `rdp_user` ADD COLUMN `sso_type` varchar(128) NULL AFTER `union_id`\
+                    ALTER TABLE `rdp_user` ADD COLUMN `sso_type` varchar(128) NULL AFTER `union_id`
                 """);
     }
 

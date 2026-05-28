@@ -22,7 +22,6 @@ import lombok.Setter;
 @Setter
 public class DriverDownloadProgressVO {
 
-    private String  uid;
     private Long    clusterId;
     private String  driverFamily;
     private String  driverVersion;
@@ -31,7 +30,6 @@ public class DriverDownloadProgressVO {
     private int     currentFilePercent;
     private String  status;
     private String  message;
-    private String  resourceCoordinate;
     private String  currentFileName;
     private boolean available;
 }

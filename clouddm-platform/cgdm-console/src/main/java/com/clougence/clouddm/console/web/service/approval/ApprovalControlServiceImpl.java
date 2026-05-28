@@ -33,6 +33,7 @@ import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalMO;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
+import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecService;
 import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckContext;
 import com.clougence.clouddm.console.web.component.detectrule.SecRulesCheckResult;
@@ -42,6 +43,7 @@ import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.constants.DmConfirmActionType;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpLabelKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.security.ListMyAuthTicketFO;
 import com.clougence.clouddm.console.web.model.fo.ticket.*;
@@ -51,16 +53,13 @@ import com.clougence.clouddm.console.web.model.vo.envparam.DmEnvParamTicketDesVO
 import com.clougence.clouddm.console.web.model.vo.ticket.*;
 import com.clougence.clouddm.console.web.service.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
-import com.clougence.clouddm.console.web.service.system.NamingService;
+import com.clougence.clouddm.platform.dal.access.NamingDao;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.console.web.util.RdpPageUtil;
 import com.clougence.clouddm.platform.dal.access.*;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
 import com.clougence.clouddm.platform.dal.model.approval.*;
-import com.clougence.clouddm.platform.dal.model.auth.AccountType;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
+import com.clougence.clouddm.platform.dal.model.auth.*;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecType;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
@@ -70,6 +69,7 @@ import com.clougence.clouddm.platform.dal.model.monitor.DmMonBizLogDO;
 import com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType;
 import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysEnvParamDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.analysis.split.SplitScript;
 import com.clougence.clouddm.sdk.approval.ApprovalUrl;
@@ -77,8 +77,11 @@ import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
+import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiErrorType;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.sdk.security.auth.AuthInfo;
+import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
@@ -87,12 +90,14 @@ import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
 import com.clougence.rdp.component.resulttask.AsyncTaskWithResultService;
 import com.clougence.rdp.component.resulttask.TaskType;
 import com.clougence.rdp.service.RdpDsEnvService;
+import com.clougence.rdp.service.model.EnvTicketMO;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.format.DateFormatType;
 import com.clougence.utils.future.CgFuture;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -124,9 +129,11 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     @Resource
     private DmDsConfigService           dmDsConfigService;
     @Resource
-    private NamingService               namingService;
+    private NamingDao               namingDao;
     @Resource
     private ApprovalFlowService         approvalFlowService;
+    @Resource
+    private DmAuthServiceForManage      authServiceForManage;
     @Resource
     private SecRulesEngine              ruleCheckService;
     @Resource
@@ -198,7 +205,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         }
 
         // RDP ticket ins
-        String bizId = this.namingService.genTicketBizId();
+        String bizId = this.namingDao.genTicketBizId();
         DmApprovalDO ticket = new DmApprovalDO();
         ticket.setBizId(bizId);
         ticket.setOwnerUid(uid);
@@ -238,6 +245,123 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
 
         result.setTicketId(ticket.getId());
         return result;
+    }
+
+    @Transactional(rollbackFor = Throwable.class)
+    @Override
+    public void createAuthTicket(String ownerUid, String uid, RdpAddAuthTicketFO fo) {
+        List<Long> dsIds = fo.getApplyAuths().stream().map(ApplyAuth::getResId).sorted().collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(dsIds)) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_AUTH_TICKET_IS_EMPTY_MESSAGE.name()));
+        }
+
+        List<DmDsDO> dss = this.datasourceDal.dsMapper().listByIds(dsIds);
+        Map<Long, List<Long>> groupByEnv = CollectionUtils.groupBy(dss, DmDsDO::getDsEnvId, DmDsDO::getId);
+
+        for (Long envId : groupByEnv.keySet()) {
+            RdpAddAuthTicketFO tfo = new RdpAddAuthTicketFO();
+            tfo.setAuthKind(fo.getAuthKind());
+            tfo.setApplyAuths(fo.getApplyAuths().stream().filter(a -> groupByEnv.get(envId).contains(a.getResId())).collect(Collectors.toList()));
+            this.createAuthTicketItem(ownerUid, uid, tfo, envId);
+        }
+    }
+
+    private void createAuthTicketItem(String ownerUid, String uid, RdpAddAuthTicketFO fo, long envId) {
+        DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
+        String bizId = this.namingDao.genTicketBizId();
+        DmApprovalDO ticket = new DmApprovalDO();
+        ticket.setBizId(bizId);
+        ticket.setOwnerUid(uid);
+        ticket.setPrimaryUid(ownerUid);
+        ticket.setTargetInfo(DmI18nUtils.getMessage(I18nRdpLabelKeys.AUTH_TICKET_TARGET.name()));
+        ticket.setDescription(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TITLE_AUTH.name(), user.getUsername()));
+        ticket.setTicketTitle(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_TITLE_AUTH.name(), user.getUsername()));
+        ticket.setTicketStatus(ApprovalStatus.WAIT_APPROVAL);
+        ticket.setApproBiz(ApprovalBiz.DATA_SOURCE_AUTH);
+
+        DmSysEnvParamDO paramDO = this.systemDal.envParamMapper().queryByParamKey(ownerUid, EnvParamKeys.AUTH_TICKET_INFO, envId);
+        if (paramDO != null) {
+            EnvTicketMO ticketMO = JsonUtils.toObj(paramDO.getConfigValue(), EnvTicketMO.class);
+            ticket.setApproType(ApprovalType.getByName(ticketMO.getApprovalType()));
+            ticket.setApproTemplateIdentity(ticketMO.getTemplateId());
+            ticket.setApproTemplateName(ticketMO.getTemplateName());
+
+            if (ticket.getApproType() != ApprovalType.Internal) {
+                DmApprovalTemplateDO templateDO = this.approvalFlowService.checkApprovalAndReturnTemplate(ownerUid, ticket.getApproType(), ticketMO.getTemplateId(), null);
+                ticket.setApproTemplateName(templateDO.getTemplateName());
+            }
+        } else {
+            ticket.setApproType(ApprovalType.Internal);
+            ticket.setApproTemplateIdentity(ApprovalFlowService.INNER_TEMPLATE_ID);
+            ticket.setApproTemplateName(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_INTERNAL_TEMPLATE.name()));
+        }
+
+        this.fillAuthInfo(fo.getApplyAuths());
+
+        DmAuthApprovalDO authTicket = new DmAuthApprovalDO();
+        authTicket.setRdpTicketInsId(bizId);
+        authTicket.setApplyAuthInfo(JsonUtils.toJson(fo));
+        authTicket.setKindType(fo.getAuthKind());
+
+        DmApprovalPersonDO primary = new DmApprovalPersonDO();
+        primary.setPersonUid(ownerUid);
+        primary.setTicketBzId(bizId);
+
+        this.approvalDal.personMapper().insert(primary);
+        this.approvalDal.approvalMapper().insert(ticket);
+        this.authDal.approvalMapper().insert(authTicket);
+        this.approvalFlowService.createProcess(ticket.getId(), ApprovalBiz.DATA_SOURCE_AUTH, true);
+    }
+
+    @Override
+    public RdpAuthTicketDetailVO queryAuthTicketDetail(String ownerUid, String uid, long ticketId) {
+        DmApprovalDO ticketDO = this.approvalDal.approvalMapper().queryById(ticketId);
+        DmAuthApprovalDO authTicketInfo = this.authDal.approvalMapper().getAuthTicketInfo(ticketDO.getBizId());
+        RdpAddAuthTicketFO fo = JsonUtils.toList(authTicketInfo.getApplyAuthInfo(), new TypeReference<RdpAddAuthTicketFO>() {});
+
+        RdpAuthTicketDetailVO vo = new RdpAuthTicketDetailVO();
+        vo.setApplyAuths(fo.getApplyAuths().stream().map(this::labelI18).collect(Collectors.toList()));
+        vo.setAuthKind(fo.getAuthKind());
+        return vo;
+    }
+
+    private ApplyAuth labelI18(ApplyAuth applyAuth) {
+        List<AuthInfo> allAuthLabel = authServiceForManage.getAllAuthLabel(AuthKind.DataSource);
+        Map<String, String> collect = allAuthLabel.stream().collect(Collectors.toMap(AuthInfo::getKey, AuthInfo::getKeyI18n));
+        List<String> labels = new ArrayList<>();
+        for (String authLabel : applyAuth.getAuthLabels()) {
+            labels.add(DmI18nUtils.getMessage(collect.get(authLabel)));
+        }
+
+        applyAuth.setAuthLabels(labels);
+        return applyAuth;
+    }
+
+    private List<ApplyAuth> fillAuthInfo(List<ApplyAuth> applyAuths) {
+        Set<Long> dsIds = applyAuths.stream().map(ApplyAuth::getResId).collect(Collectors.toSet());
+        if (dsIds.isEmpty()) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_AUTH_TICKET_IS_EMPTY_MESSAGE.name()));
+        }
+
+        Map<Long, String> resInstIdMap = new HashMap<>();
+        Map<Long, String> resDescMap = new HashMap<>();
+        List<DmDsDO> dss = datasourceDal.dsMapper().listByIds(new ArrayList<>(dsIds));
+        for (DmDsDO ds : dss) {
+            resInstIdMap.put(ds.getId(), ds.getInstanceId());
+
+            if (StringUtils.isBlank(ds.getInstanceDesc())) {
+                resDescMap.put(ds.getId(), ds.getInstanceId());
+            } else {
+                resDescMap.put(ds.getId(), ds.getInstanceDesc());
+            }
+        }
+
+        for (ApplyAuth applyAuth : applyAuths) {
+            applyAuth.setResInstId(resInstIdMap.get(applyAuth.getResId()));
+            applyAuth.setResDesc(resDescMap.get(applyAuth.getResId()));
+        }
+
+        return applyAuths;
     }
 
     private int analysisSqlAndCheckResource(DmAddTicketFO fo, DataSourceType dsType, DsLevels dsLevels, ApprovalMO ticketInfo) {

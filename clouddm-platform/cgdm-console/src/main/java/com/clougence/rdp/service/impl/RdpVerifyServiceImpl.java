@@ -15,8 +15,6 @@
  */
 package com.clougence.rdp.service.impl;
 
-import com.clougence.clouddm.platform.dal.access.AuthDal;
-
 import static com.clougence.clouddm.platform.dal.model.auth.VerifyType.SMS_VERIFY_CODE;
 
 import java.time.Duration;
@@ -33,24 +31,21 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.api.common.exception.ConsoleErrorCode;
+import com.clougence.clouddm.api.common.exception.ConsoleRuntimeException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.AlarmLevel;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.GlobalDeploySite;
 import com.clougence.clouddm.console.web.component.alert.model.SendMsgResult;
-import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
-import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
-import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.VerifyMO;
 import com.clougence.clouddm.console.web.util.NamedThreadFactory;
 import com.clougence.clouddm.console.web.util.RandomStrUtils;
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
-import com.clougence.clouddm.api.common.exception.ConsoleErrorCode;
-import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthVerifyDO;
-import com.clougence.clouddm.api.common.exception.ConsoleRuntimeException;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.model.auth.*;
 import com.clougence.rdp.service.RdpUserAlertService;
 import com.clougence.rdp.service.RdpVerifyService;
 import com.clougence.rdp.service.model.CheckVerifyMO;
@@ -71,7 +66,7 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
     @Autowired
     private DmConsoleConfig     rdpConfig;
     @Resource
-    private AuthDal authDal;
+    private AuthDal             authDal;
 
     @Resource
     private RdpUserAlertService rdpUserAlertService;
@@ -173,8 +168,7 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
         DmAuthVerifyDO verifyRecord;
         switch (verifyData.getVerifyType()) {
             case SMS_VERIFY_CODE:
-                verifyRecord = initGetVerifyByPhone(verifyData.isSub(), verifyData.getAccount(), SMS_VERIFY_CODE, VerifyCodeType.RESET_PASSWORD, verifyData
-                    .getPhoneNumber());
+                verifyRecord = initGetVerifyByPhone(verifyData.isSub(), verifyData.getAccount(), SMS_VERIFY_CODE, VerifyCodeType.RESET_PASSWORD, verifyData.getPhoneNumber());
                 break;
             case EMAIL_VERIFY_CODE:
                 verifyRecord = initGetVerifyByMail(verifyData.isSub(), verifyData.getAccount(), VerifyType.EMAIL_VERIFY_CODE, VerifyCodeType.RESET_PASSWORD, verifyData.getEmail());

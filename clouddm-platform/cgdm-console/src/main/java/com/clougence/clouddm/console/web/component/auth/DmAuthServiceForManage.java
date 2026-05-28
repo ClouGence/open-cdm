@@ -17,7 +17,13 @@ package com.clougence.clouddm.console.web.component.auth;
 
 import java.util.List;
 
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.console.web.model.fo.security.ModifyUserAuthFO;
+import com.clougence.clouddm.console.web.model.fo.ticket.RdpAddAuthTicketFO;
 import com.clougence.clouddm.console.web.model.vo.RdpAuthObjectVO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
+import com.clougence.clouddm.sdk.security.auth.AuthElementType;
+import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 
 /**
@@ -25,5 +31,39 @@ import com.clougence.clouddm.sdk.security.auth.AuthKind;
  */
 public interface DmAuthServiceForManage {
 
+    // for Basic Info
+    AuthInfo getAuthLabel(String authLabelKey);
+
+    List<AuthInfo> getRoleAuthLabel();
+
+    List<AuthInfo> getDataAuthLabel();
+
+    List<AuthInfo> getAllAuthLabel(AuthKind kindType);
+
+    List<AuthInfo> getAllAuthLabelForAuthTreeDef(AuthKind kindType, AuthElementType elementType, DataSourceType dsType);
+
+    List<AuthInfo> getAllCategory();
+
+    List<AuthInfo> getCascadeAuthByLabel(String authLabel);
+
+    List<String> normalizeRoleAuthLabels(List<String> authLabels);
+
+    // for Commons
+    List<RdpAuthObjectVO> listElements(String uid, List<String> levels, AuthKind authKind);
+
     List<RdpAuthObjectVO> listElements(String puid, String envId, AuthKind authKind);
+
+    List<DmAuthResDO> listUserAuthWithoutLabels(String targetUid, AuthKind kind);
+
+    List<DmAuthResDO> listUserAuthByRes(String targetUid, long resId, List<String> authPrefixList, AuthKind authKind);
+
+    void modifyUserAuth(String puid, ModifyUserAuthFO fo);
+
+    void appendUserAuth(String puid, RdpAddAuthTicketFO fo);
+
+    void clearAuthOfRes(long resId, AuthKind authKind);
+
+    void clearAuthOfUser(String uid);
+
+    boolean isResourceMangerEnable(String targetUid);
 }

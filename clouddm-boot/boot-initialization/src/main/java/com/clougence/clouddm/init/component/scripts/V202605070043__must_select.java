@@ -35,10 +35,10 @@ public class V202605070043__must_select extends AbstractUpgradeJavaMigration {
                         constraints_json  text  not null,
                         primary key (id)
                         ) ENGINE = InnoDB
-                        DEFAULT CHARSET = utf8mb4\
+                        DEFAULT CHARSET = utf8mb4
                 """, """
                     create unique index id_path_uindex
-                        on dm_query_constraints (ds_id, path)\
+                        on dm_query_constraints (ds_id, path)
                 """);
     }
 }

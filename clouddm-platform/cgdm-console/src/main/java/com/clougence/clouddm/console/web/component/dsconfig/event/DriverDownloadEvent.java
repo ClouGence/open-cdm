@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.auth;
+package com.clougence.clouddm.console.web.component.dsconfig.event;
 
-import com.clougence.clouddm.sdk.security.login.LoginProvider;
+import com.clougence.clouddm.console.web.model.vo.datasource.DriverDownloadProgressVO;
 
-public interface RdpSubLoginService {
+public record DriverDownloadEvent(String uid, DriverDownloadProgressVO progressVO) {
 
-    boolean checkLoginEnable(String ownerUid, LoginProvider type);
 }

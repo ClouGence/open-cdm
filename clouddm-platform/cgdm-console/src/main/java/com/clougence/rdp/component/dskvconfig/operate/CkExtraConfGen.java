@@ -20,10 +20,10 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
-import com.clougence.rdp.component.dskvconfig.model.CkExtraConfig;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.rdp.component.dskvconfig.model.CkExtraConfig;
 import com.clougence.utils.StringUtils;
 
 /**

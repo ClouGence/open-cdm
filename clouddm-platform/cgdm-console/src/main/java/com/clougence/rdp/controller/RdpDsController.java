@@ -28,7 +28,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,10 +35,12 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.llm.LLMAction;
+import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDriverService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsDeletePrepareService;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
-import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.console.web.model.fo.*;
 import com.clougence.clouddm.console.web.model.fo.QueryDsConfigFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.*;
@@ -49,21 +50,20 @@ import com.clougence.clouddm.console.web.model.lo.UpdateDsDescLO;
 import com.clougence.clouddm.console.web.model.lo.UpdatePriHostLO;
 import com.clougence.clouddm.console.web.model.lo.UpdatePubHostLO;
 import com.clougence.clouddm.console.web.model.vo.*;
-import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.rdp.component.dskvconfig.model.LLMExtraConfig;
-import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.rdp.constant.RdpControllerUrlPrefix;
-import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
-import com.clougence.rdp.service.RdpAuthServiceForBiz;
-import com.clougence.rdp.service.RdpDsService;
-import com.clougence.rdp.service.RdpOpAuditService;
-import com.clougence.rdp.service.RdpUserService;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
+import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.HostType;
+import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
+import com.clougence.clouddm.sdk.security.auth.AuthKind;
+import com.clougence.rdp.component.dskvconfig.model.LLMExtraConfig;
+import com.clougence.rdp.constant.RdpControllerUrlPrefix;
+import com.clougence.rdp.service.RdpDsService;
+import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -84,7 +84,7 @@ public class RdpDsController {
     @Resource
     private RdpDsService             rdpDsService;
     @Resource
-    private RdpAuthServiceForBiz     rdpAuthService;
+    private DmAuthServiceForBiz      rdpAuthService;
     @Resource
     private RdpOpAuditService        rdpOpAuditService;
     @Resource

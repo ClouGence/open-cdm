@@ -16,13 +16,10 @@
 package com.clougence.clouddm.worker.component.report;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
-import com.clougence.clouddm.comm.component.http.CanalHttpClient;
 import com.clougence.clouddm.comm.model.auth.ConnAuthDTO;
 import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
-import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.HostUtil;
 import com.clougence.utils.StringUtils;
 
@@ -52,20 +49,6 @@ public class ReportUtils {
 
     public static String tryFetchLocalIp() {
         return HostUtil.getHostIp();
-    }
-
-    public static String tryFetchExternalIp() {
-        try {
-            String externalIp = CanalHttpClient.getWithString("http://getip.clougence.com/", new HashMap<>());
-            if (StringUtils.isNotBlank(externalIp)) {
-                return externalIp.trim();
-            } else {
-                return null;
-            }
-        } catch (Exception e) {
-            log.warn("fetch external ip failed, msg:" + ExceptionUtils.getRootCauseMessage(e));
-            return null;
-        }
     }
 
     public static void existSystem() {

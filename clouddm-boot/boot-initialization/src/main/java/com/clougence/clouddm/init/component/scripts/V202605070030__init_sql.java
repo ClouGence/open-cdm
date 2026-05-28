@@ -41,7 +41,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 PRIMARY KEY (`id`),
                                 unique key ds_id (`data_source_id`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE IF NOT EXISTS `dm_ds_statistics`
                             (
@@ -55,7 +55,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 PRIMARY KEY (`id`),
                                 unique key ds_id (`data_source_id`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE IF NOT EXISTS `dm_ds_tag`
                             (
@@ -68,7 +68,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 PRIMARY KEY (`id`),
                                 unique key ds_tag_dsid_uid (`uid`, `data_source_id`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE IF NOT EXISTS `dm_ds_kv_base_config`
                             (
@@ -91,7 +91,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 KEY `idx_ds_id_config_name` (`data_source_id`, `config_name`),
                                 KEY `idx_data_source_id` (`data_source_id`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE IF NOT EXISTS `console_job`
                             (
@@ -113,7 +113,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 KEY `idx_uid` (`uid`(127)),
                                 KEY `idx_resource_id_type` (`resource_id`, `resource_type`(127))
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE IF NOT EXISTS `console_task`
                             (
@@ -134,7 +134,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 PRIMARY KEY (`id`),
                                 KEY `idx_job_id` (`job_id`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE IF NOT EXISTS `data_export_job`
                             (
@@ -156,7 +156,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 KEY `idx_uid` (`uid`(127)),
                                 KEY `idx_biz_id` (`biz_id`(127))
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE IF NOT EXISTS `data_export_task`
                             (
@@ -190,7 +190,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 KEY `idx_worker_id` (`worker_id`),
                                 KEY `idx_worker_seq_number` (`worker_seq_number`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE IF NOT EXISTS `dm_cluster`
                             (
@@ -205,7 +205,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 PRIMARY KEY (`id`),
                                 UNIQUE KEY `idx_unique_name` (`cluster_name`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE IF NOT EXISTS `dm_worker`
                             (
@@ -247,7 +247,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 KEY `idx_worker_name` (`worker_name`),
                                 KEY `idx_worker_seq_number` (`worker_seq_number`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE IF NOT EXISTS `dm_worker_status`
                             (
@@ -265,7 +265,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 KEY `idx_wsn` (`worker_seq_number`),
                                 KEY `idx_uid` (`uid`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE IF NOT EXISTS `dm_worker_heartbeat`
                             (
@@ -279,7 +279,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 PRIMARY KEY (`id`),
                                 KEY `idx_worker_seq_number` (`worker_seq_number`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE IF NOT EXISTS `alert_config_detail`
                             (
@@ -303,7 +303,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 KEY `idx_event_type` (`event_type`),
                                 KEY `idx_worker_id` (`worker_id`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE IF NOT EXISTS `dm_ds_session`
                             (
@@ -321,7 +321,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 unique key (`session_id`),
                                 key `conn_session_uid` (`uid`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE `ticket_process`
                             (
@@ -339,7 +339,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 KEY `idx_data_source_id` (`ticket_id`),
                                 KEY `ticket_status` (`ticket_id`, `ticket_stage`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         create table IF NOT EXISTS sql_process
                             (
@@ -358,7 +358,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 risk_json    text                                 null,
                                 key idx_ticket_id (ticket_id)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         create table if not exists dm_ticket_inst
                             (
@@ -394,7 +394,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 key `idx_data_source_id` (`data_source_id`),
                                 unique key idx_unique_biz_id (`biz_id`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE IF NOT EXISTS `checker_parameter`
                             (
@@ -410,7 +410,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 PRIMARY KEY (`id`),
                                 KEY `idx_checker_parameter_ds_id` (`datasource_id`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE IF NOT EXISTS `checker_template`
                             (
@@ -426,7 +426,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 `group`           varchar(128) NULL COMMENT '分组',
                                 PRIMARY KEY (`id`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE IF NOT EXISTS `data_desensitize_rule`
                             (
@@ -442,7 +442,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 PRIMARY KEY (`id`),
                                 KEY `idx_resource_path` (`resource_path`(127))
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE IF NOT EXISTS `data_handle_config`
                             (
@@ -460,7 +460,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 KEY `idx_resource_path` (`resource_path`(127)),
                                 KEY `idx_package_id` (`package_id`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE IF NOT EXISTS `data_handle_package`
                             (
@@ -477,7 +477,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 KEY `idx_uid` (`owner_uid`(127)),
                                 UNIQUE KEY `uk_pkg_inst_name` (`pkg_instance_name`(127))
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                          CREATE TABLE IF NOT EXISTS `ds_appro_template`
                             (
@@ -493,7 +493,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 UNIQUE KEY `uk_ds_id_identity` (`datasource_id`, `template_identity`(127), approval_biz),
                                 KEY `idx_datasource_id` (`datasource_id`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         create table if not exists cache_appro_template
                             (
@@ -507,7 +507,7 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 dd_appro_url         text,
                                 index cache_appro_template_puid (primary_uid)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE IF NOT EXISTS `dm_res_auth`
                             (
@@ -537,58 +537,58 @@ public class V202605070030__init_sql extends AbstractUpgradeJavaMigration {
                                 KEY `idx_res_id` (`res_id`),
                                 KEY `idx_path` (`res_path`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         REPLACE INTO checker_template (id, gmt_create, gmt_modified, datasource_type, checker_name, enable, config, def_config,
                                                            category, `group`)
-                            VALUES (1, now(), now(), 'MySQL', 'CreateTableRequireComment', 0, '{}', '{}', '', '')\
+                            VALUES (1, now(), now(), 'MySQL', 'CreateTableRequireComment', 0, '{}', '{}', '', '')
                     """, """
                         REPLACE INTO checker_template (id, gmt_create, gmt_modified, datasource_type, checker_name, enable, config, def_config,
                                                            category, `group`)
-                            VALUES (2, now(), now(), 'MySQL', 'CreateTableColumnRequireComment', 0, '{}', '{}', '', '')\
+                            VALUES (2, now(), now(), 'MySQL', 'CreateTableColumnRequireComment', 0, '{}', '{}', '', '')
                     """, """
                         REPLACE INTO checker_template (id, gmt_create, gmt_modified, datasource_type, checker_name, enable, config, def_config,
                                                            category, `group`)
                             VALUES (3, now(), now(), 'MySQL', 'CreateTableNameCase', 0, '{''case'':''LowerCase''}',
                                     '[{''label'':''TableNameCase_Case'',''name'':''case'',''type'':''select'',''options'':[{''name'':''LowerCase'',''label'':''LabelLowerCase''},{''name'':''UpperCase'',''label'':''LabelUpperCase''}]}]',
-                                    '', '')\
+                                    '', '')
                     """, """
                         REPLACE INTO checker_template (id, gmt_create, gmt_modified, datasource_type, checker_name, enable, config, def_config,
                                                            category, `group`)
                             VALUES (4, now(), now(), 'MySQL', 'CreateTableColumnNameCase', 0, '{''case'':''LowerCase''}',
                                     '[{''label'':''ColumnNameCase_Case'',''name'':''case'',''type'':''select'',''options'':[{''name'':''LowerCase'',''label'':''LabelLowerCase''},{''name'':''UpperCase'',''label'':''LabelUpperCase''}]}]',
-                                    '', '')\
+                                    '', '')
                     """, """
                         REPLACE INTO checker_template (id, gmt_create, gmt_modified, datasource_type, checker_name, enable, config, def_config,
                                                            category, `group`)
                             VALUES (5, now(), now(), 'MySQL', 'CreateTableRequireColumn', 0, '{''requireColumns'':''gmt_create,gmt_modified''}',
-                                    '[{''label'':''RequireColumn'',''name'':''requireColumns'',''type'':''input'',''options'':[]}]', '', '')\
+                                    '[{''label'':''RequireColumn'',''name'':''requireColumns'',''type'':''input'',''options'':[]}]', '', '')
                     """, """
                         REPLACE INTO checker_template (id, gmt_create, gmt_modified, datasource_type, checker_name, enable, config, def_config,
                                                            category, `group`)
-                            VALUES (6, now(), now(), 'MySQL', 'CreateTableRequirePrimaryKey', 1, '{}', '{}', '', '')\
+                            VALUES (6, now(), now(), 'MySQL', 'CreateTableRequirePrimaryKey', 1, '{}', '{}', '', '')
                     """, """
                         REPLACE INTO checker_template (id, gmt_create, gmt_modified, datasource_type, checker_name, enable, config, def_config,
                                                            category, `group`)
                             VALUES (7, now(), now(), 'MySQL', 'CreateTableColumnTypeBlackList', 1, '{''blackList'':''bob''}',
-                                    '[{''label'':''RequireNotColumn'',''name'':''blackList'',''type'':''input'',''options'':[]}]', '', '')\
+                                    '[{''label'':''RequireNotColumn'',''name'':''blackList'',''type'':''input'',''options'':[]}]', '', '')
                     """, """
                         REPLACE INTO checker_template (id, gmt_create, gmt_modified, datasource_type, checker_name, enable, config, def_config,
                                                            category, `group`)
                             VALUES (8, now(), now(), 'MySQL', 'CreateTableCompositePrimaryKeyLimit', 0, '{''limit'':1}',
-                                    '[{''label'':''CompositePrimaryKeyLimit'',''name'':''limit'',''type'':''input'',''options'':[]}]', '', '')\
+                                    '[{''label'':''CompositePrimaryKeyLimit'',''name'':''limit'',''type'':''input'',''options'':[]}]', '', '')
                     """, """
                         REPLACE INTO checker_template (id, gmt_create, gmt_modified, datasource_type, checker_name, enable, config, def_config,
                                                            category, `group`)
                             VALUES (9, now(), now(), 'MySQL', 'CreateTableUniqueName', 0, '{''strategy'':''Prefix'',''test'':''uk_''}',
                                     '[{''label'':''UniqueKeyNameStrategy'',''name'':''strategy'',''type'':''select'',''options'':[{''name'':''Prefix'',''label'':''LabelPrefix''},{''name'':''Endfix'',''label'':''LabelEndfi''},{''name'':''Fixed'',''label'':''LabelFixed''}]},{''label'':''LabelValue'',''name'':''test'',''type'':''input'',''options'':[]}]',
-                                    '', '')\
+                                    '', '')
                     """, """
                         REPLACE INTO checker_template (id, gmt_create, gmt_modified, datasource_type, checker_name, enable, config, def_config,
                                                            category, `group`)
                             VALUES (10, now(), now(), 'MySQL', 'CreateTableIndexName', 0, '{''strategy'':''Prefix'',''test'':''idx_''}',
                                     '[{''label'':''IndexKeyNameStrategy'',''name'':''strategy'',''type'':''select'',''options'':[{''name'':''Prefix'',''label'':''LabelPrefix''},{''name'':''Endfix'',''label'':''LabelEndfi''},{''name'':''Fixed'',''label'':''LabelFixed''}]},{''label'':''LabelValue'',''name'':''test'',''type'':''input'',''options'':[]}]',
-                                    '', '')\
+                                    '', '')
                     """);
     }
 }

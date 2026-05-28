@@ -13,24 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.rdp.service;
+package com.clougence.clouddm.console.web.service.login;
 
-import java.util.Date;
+import com.clougence.clouddm.sdk.security.login.LoginProvider;
 
-import com.clougence.clouddm.console.web.model.fo.LoginFO;
-import com.clougence.clouddm.console.web.model.vo.LoginUserVO;
-import com.clougence.rdp.service.model.LoginMO;
+public interface RdpSubLoginService {
 
-/**
- * @author wanshao create time is 2019/12/12 9:36 下午
- **/
-public interface RdpUserLoginRegService {
-
-    LoginMO login(LoginFO loginFO);
-
-    void fillSubAccountPwdValidDays(LoginUserVO userVO, Date lastDateUpdatePwd, String pUid);
-
-    boolean isLogoutUsingJump(String uid);
-
-    String logoutJumpUrl(String puid, String uid);
+    boolean checkLoginEnable(String ownerUid, LoginProvider type);
 }

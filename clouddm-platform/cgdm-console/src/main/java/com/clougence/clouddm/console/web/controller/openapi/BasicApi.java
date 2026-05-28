@@ -17,9 +17,9 @@ package com.clougence.clouddm.console.web.controller.openapi;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
-import com.clougence.rdp.service.RdpUserConfigService;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;

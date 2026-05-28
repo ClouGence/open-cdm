@@ -15,9 +15,6 @@
  */
 package com.clougence.clouddm.boot;
 
-import com.clougence.clouddm.platform.dal.access.AuthDal;
-import com.clougence.clouddm.platform.dal.access.SystemDal;
-
 import java.util.Date;
 import java.util.List;
 
@@ -33,7 +30,9 @@ import com.clougence.clouddm.console.web.model.vo.cluster.ClusterVO;
 import com.clougence.clouddm.console.web.model.vo.cluster.WorkerDeployConfigVO;
 import com.clougence.clouddm.console.web.service.cluster.ClusterService;
 import com.clougence.clouddm.console.web.service.cluster.WorkerService;
-import com.clougence.clouddm.console.web.service.system.NamingService;
+import com.clougence.clouddm.platform.dal.access.NamingDao;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.system.CloudOrIdcName;
@@ -53,17 +52,15 @@ public class EmbeddedWorkerBootstrap {
 
     private static final String DEFAULT_REGION = "customer";
     @Resource
-    private SystemDal systemDal;
-
+    private SystemDal           systemDal;
     @Resource
-    private AuthDal authDal;
-
+    private AuthDal             authDal;
     @Resource
     private ClusterService      clusterService;
     @Resource
     private WorkerService       workerService;
     @Resource
-    private NamingService       namingService;
+    private NamingDao       namingDao;
 
     @Transactional(rollbackFor = Throwable.class)
     public void init() {
@@ -151,11 +148,11 @@ public class EmbeddedWorkerBootstrap {
             changed = true;
         }
         if (StringUtils.isBlank(worker.getWorkerSeqNumber())) {
-            worker.setWorkerSeqNumber(this.namingService.genWorkerSequenceNumber());
+            worker.setWorkerSeqNumber(this.namingDao.genWorkerSequenceNumber());
             changed = true;
         }
         if (StringUtils.isBlank(worker.getWorkerName())) {
-            worker.setWorkerName(this.namingService.genWorkerName());
+            worker.setWorkerName(this.namingDao.genWorkerName());
             changed = true;
         }
         if (StringUtils.isBlank(worker.getWorkerDesc())) {

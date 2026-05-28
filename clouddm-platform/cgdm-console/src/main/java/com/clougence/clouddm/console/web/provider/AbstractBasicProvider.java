@@ -30,19 +30,19 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractBasicProvider {
 
     @Resource
-    protected ObjectCacheDao objectCacheDao;
+    protected ObjectCacheDao cacheDao;
 
     protected boolean checkAccessKey(WorkerIdentity identity) {
         if (identity == null) {
             return false;
         }
 
-        WorkerCacheEntry workerDO = this.objectCacheDao.queryByWsn(identity.getWorkerSeqNumber());
+        WorkerCacheEntry workerDO = this.cacheDao.queryByWsn(identity.getWorkerSeqNumber());
         if (workerDO == null) {
             return false;
         }
 
-        UserCacheEntry userDO = this.objectCacheDao.queryByAk(identity.getAccessKey());
+        UserCacheEntry userDO = this.cacheDao.queryByAk(identity.getAccessKey());
         if (!workerDO.getOwnerUid().equals(userDO.getUid())) {
             log.error("worker (" + identity.getWorkerSeqNumber() + ") not belone user (" + identity.getAccessKey() + ")");
             return false;

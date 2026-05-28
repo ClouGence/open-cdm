@@ -15,8 +15,6 @@
  */
 package com.clougence.rdp.service.impl;
 
-import com.clougence.clouddm.platform.dal.access.AuthDal;
-
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,14 +26,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.api.common.crypt.PasswordInfo;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.GlobalDeploySite;
+import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
+import com.clougence.clouddm.console.web.component.auth.DmUserService;
 import com.clougence.clouddm.console.web.constants.CheckSubAccountType;
-import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
-import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
-import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
-import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.*;
 import com.clougence.clouddm.console.web.model.fo.role.UpdateUserRoleFO;
 import com.clougence.clouddm.console.web.model.fo.user.*;
@@ -44,9 +43,14 @@ import com.clougence.clouddm.console.web.model.lo.UpdateUserRoleLO;
 import com.clougence.clouddm.console.web.model.vo.ListUserVO;
 import com.clougence.clouddm.console.web.model.vo.PwdValidateExprVO;
 import com.clougence.clouddm.console.web.model.vo.RdpUserAkSkVO;
+import com.clougence.clouddm.console.web.service.auth.RdpRoleService;
+import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.model.auth.*;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.model.feature.RdpFeatureIDs;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
@@ -56,13 +60,10 @@ import com.clougence.clouddm.sdk.security.login.LoginProvider;
 import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
 import com.clougence.clouddm.sdk.security.login.LoginRequest;
 import com.clougence.clouddm.sdk.security.login.LoginResponse;
-import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
-import com.clougence.clouddm.api.common.exception.ErrorMessageException;
-import com.clougence.rdp.service.*;
+import com.clougence.rdp.service.RdpNamingService;
+import com.clougence.rdp.service.RdpNotifyService;
+import com.clougence.rdp.service.RdpVerifyService;
 import com.clougence.rdp.service.enumeration.OpVerifyErrType;
 import com.clougence.rdp.service.enumeration.UserOperationType;
 import com.clougence.rdp.service.model.*;
@@ -78,22 +79,21 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
-public class RdpUserServiceImpl implements RdpUserService {
+public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     @Resource
-    private AuthDal authDal;
-
+    private AuthDal                authDal;
     @Resource
-    private RdpRoleService          rdpRoleService;
+    private RdpRoleService         rdpRoleService;
     @Resource
-    private RdpVerifyService        rdpVerifyService;
+    private RdpVerifyService       rdpVerifyService;
     @Resource
-    private RdpNamingService        rdpNamingService;
+    private RdpNamingService       rdpNamingService;
     @Resource
-    private RdpUserConfigService    rdpUserConfigService;
+    private RdpUserConfigService   rdpUserConfigService;
     @Resource
-    private RdpAuthServiceForManage rdpDsAuthManagerService;
+    private DmAuthServiceForManage rdpDsAuthManagerService;
     @Resource
-    private List<RdpNotifyService>  notifyServices;
+    private List<RdpNotifyService> notifyServices;
 
     @Override
     public List<AuthInfo> allAuthLabelByUser(String puid, String uid) {
@@ -316,7 +316,8 @@ public class RdpUserServiceImpl implements RdpUserService {
 
         CheckVerifyMO verifyData = new CheckVerifyMO();
         verifyData.setVerifyType(VerifyType.SMS_VERIFY_CODE);
-        verifyData.setPhoneNumber(newPhone);        verifyData.setVerifyCodeType(VerifyCodeType.UPDATE_USER_PHONE);
+        verifyData.setPhoneNumber(newPhone);
+        verifyData.setVerifyCodeType(VerifyCodeType.UPDATE_USER_PHONE);
         verifyData.setVerifyCode(fo.getVerifyCode());
         rdpVerifyService.checkVerifyCode(verifyData);
         // phone console_user,alert_config_detail,system

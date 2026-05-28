@@ -176,7 +176,7 @@ public class DingApprovalProviderSpi implements ApprovalProviderSpi {
     @SneakyThrows
     public ApprovalInstanceInfo getLastInfo(String ownerUid, String identity) throws ThirdPartyApiException {
         if (StringUtils.isBlank(identity)) {
-            throw ThirdPartyApiException.asRDP().with(DingI18nKeys.DINGTALK_APPROVAL_INSTANCE_IS_EMPTY);
+            throw ThirdPartyApiException.as().with(DingI18nKeys.DINGTALK_APPROVAL_INSTANCE_IS_EMPTY);
         }
 
         DingApi approvalApi = this.approvalApi(ownerUid);

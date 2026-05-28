@@ -41,7 +41,7 @@ public class FeishuApiUtils {
             return getChangeFormParam(widgets, (ChangeForm) info);
         } else {
             String message = String.format("Unsupported approval form type %s", info.getClass().getName());
-            throw ThirdPartyApiException.asRDP().with(ThirdPartyApiErrorType.OTHER, FeishuI18nKeys2.FEISHU_UNKNOWN_CALL_API_ERROR, message);
+            throw ThirdPartyApiException.as().with(ThirdPartyApiErrorType.OTHER, FeishuI18nKeys2.FEISHU_UNKNOWN_CALL_API_ERROR, message);
         }
     }
 

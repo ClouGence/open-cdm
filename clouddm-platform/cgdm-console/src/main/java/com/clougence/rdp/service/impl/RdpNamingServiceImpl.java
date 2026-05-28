@@ -15,13 +15,12 @@
  */
 package com.clougence.rdp.service.impl;
 
-import com.clougence.clouddm.platform.dal.access.AuthDal;
-
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.console.web.util.RandomStrUtils;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.rdp.service.RdpNamingService;
-import com.clougence.clouddm.console.web.util.RandomStrUtils;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpNamingServiceImpl implements RdpNamingService {
     @Resource
     private AuthDal authDal;
-
 
     @Override
     public String genAccessKey() {

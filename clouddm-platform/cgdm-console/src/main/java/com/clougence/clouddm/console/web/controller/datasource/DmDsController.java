@@ -33,6 +33,7 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
+import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
@@ -50,6 +51,7 @@ import com.clougence.clouddm.console.web.model.vo.cluster.ClusterVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.ConnectDsResultVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.DmSimpleDsVO;
 import com.clougence.clouddm.console.web.model.vo.project.ProjectVO;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.cluster.ClusterService;
 import com.clougence.clouddm.console.web.service.project.DmProjectService;
 import com.clougence.clouddm.console.web.service.security.CheckRulesService;
@@ -61,9 +63,7 @@ import com.clougence.clouddm.platform.dal.model.datasource.*;
 import com.clougence.clouddm.platform.dal.model.project.DmProjectDevopsDO;
 import com.clougence.clouddm.platform.dal.model.secrule.DmSecSpecDO;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.rdp.service.RdpAuthServiceForBiz;
 import com.clougence.rdp.service.RdpDsService;
-import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -81,23 +81,23 @@ import lombok.extern.slf4j.Slf4j;
 public class DmDsController {
 
     @Resource
-    private DmDsService          dmDsService;
+    private DmDsService         dmDsService;
     @Resource
-    private DmProjectService     dmProjectService;
+    private DmProjectService    dmProjectService;
     @Resource
-    private RdpDsService         rdpDsService;
+    private RdpDsService        rdpDsService;
     @Resource
-    private DmResAuthService     dmDsAuthService;
+    private DmResAuthService    dmDsAuthService;
     @Resource
-    private ObjectCacheDao       objectCacheDao;
+    private ObjectCacheDao      objectCacheDao;
     @Resource
-    private RdpAuthServiceForBiz rdpAuthServiceForBiz;
+    private DmAuthServiceForBiz rdpAuthServiceForBiz;
     @Resource
-    private ClusterService       clusterService;
+    private ClusterService      clusterService;
     @Resource
-    private CheckRulesService    checkRulesService;
+    private CheckRulesService   checkRulesService;
     @Resource
-    private DmDsConfigService    dmDsConfigService;
+    private DmDsConfigService   dmDsConfigService;
 
     @RequestAuth(DM_DS_READ)
     @RequestMapping(value = "/listbycondition", method = RequestMethod.POST)

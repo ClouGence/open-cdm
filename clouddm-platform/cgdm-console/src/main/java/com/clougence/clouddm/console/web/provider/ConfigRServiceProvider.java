@@ -81,7 +81,7 @@ public class ConfigRServiceProvider extends AbstractBasicProvider implements Con
         if (!rules.isValid() || CollectionUtils.isEmpty(rules.getSenRuleList())) {
             return null;
         } else {
-            EnvCacheEntry envCache = this.objectCacheDao.queryByEnvId(rules.getEnvId());
+            EnvCacheEntry envCache = this.cacheDao.queryByEnvId(rules.getEnvId());
             SensitiveConfig config = new SensitiveConfig();
             config.setEnvId(envCache.getEnvNumId());
             config.setEnvName(envCache.getEnvName());

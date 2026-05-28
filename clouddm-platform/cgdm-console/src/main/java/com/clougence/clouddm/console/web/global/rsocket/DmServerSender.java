@@ -25,6 +25,8 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.MDC;
 import org.springframework.messaging.rsocket.RSocketRequester;
 
+import com.clougence.clouddm.api.common.exception.DmErrorCode;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.comm.RSocketSerialization;
 import com.clougence.clouddm.comm.component.RSocketRequestManager;
 import com.clougence.clouddm.comm.component.server.RSocketServerSender;
@@ -39,14 +41,12 @@ import com.clougence.clouddm.comm.model.RSocketRespDTO;
 import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
 import com.clougence.clouddm.comm.model.rsocket.AsyncRequestFuture;
 import com.clougence.clouddm.comm.util.RSocketRespUtil;
-import com.clougence.clouddm.api.common.exception.DmErrorCode;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.util.MessageUtils;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
-import com.clougence.clouddm.console.web.util.MessageUtils;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
-import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.utils.*;
 import com.google.common.base.Stopwatch;
 
@@ -245,8 +245,7 @@ public class DmServerSender implements RSocketServerSender {
     }
 
     private String buildRemoteForwardDisabledMessage(String apiMethodName, String workerSeqNumber) {
-        return String
-            .format("worker is not registered on the local console. route=%s, wsn=%s", apiMethodName, workerSeqNumber);
+        return String.format("worker is not registered on the local console. route=%s, wsn=%s", apiMethodName, workerSeqNumber);
     }
 
     @Override

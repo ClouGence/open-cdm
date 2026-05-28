@@ -20,11 +20,11 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
+import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.rdp.component.dskvconfig.RdpDsExtraConfGen;
 import com.clougence.rdp.component.dskvconfig.model.RagApiExtraConfig;
-import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 
 /**
  * @author bucketli 2022/8/10 10:00:22

@@ -39,6 +39,7 @@ import com.clougence.clouddm.console.web.model.vo.faker.FakerDefVO;
 import com.clougence.clouddm.console.web.model.vo.faker.FakerLogVO;
 import com.clougence.clouddm.console.web.model.vo.faker.FakerPreviewVO;
 import com.clougence.clouddm.console.web.service.asyntask.AsyncTaskService;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.faker.FakerService;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
@@ -46,7 +47,6 @@ import com.clougence.clouddm.sdk.model.analysis.resource.DsResPathObj;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.ui.faker.FakerUiData;
-import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.CollectionUtils;
 
 import jakarta.annotation.Resource;

@@ -19,22 +19,22 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsDeletePrepareService;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.AddDsFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsKvConfigFO;
 import com.clougence.clouddm.console.web.model.vo.RdpDsKvConfigVO;
-import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
-import com.clougence.rdp.service.RdpAuthServiceForBiz;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.HostType;
+import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.rdp.service.RdpDsService;
 import com.clougence.rdp.service.openapi.RdpDsOpenApiService;
 import com.clougence.rdp.service.openapi.model.*;
@@ -52,11 +52,11 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
 
     @Resource
-    private RdpAuthServiceForBiz     rdpAuthServiceForBiz;
+    private DmAuthServiceForBiz      rdpAuthServiceForBiz;
     @Resource
     private RdpDsService             rdpDsService;
     @Resource
-    private ObjectCacheDao  rdpResOwnerCacheService;
+    private ObjectCacheDao           rdpResOwnerCacheService;
     @Resource
     private DmDsDeletePrepareService dmDsDeletePrepareService;
 

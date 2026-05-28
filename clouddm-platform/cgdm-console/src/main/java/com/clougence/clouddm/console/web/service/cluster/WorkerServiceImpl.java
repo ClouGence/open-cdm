@@ -37,8 +37,9 @@ import com.clougence.clouddm.console.web.global.i18n.I18nDmLabelKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.cluster.CreateInitialWorkerFO;
 import com.clougence.clouddm.console.web.model.vo.cluster.WorkerDeployConfigVO;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.system.AlertConfigService;
-import com.clougence.clouddm.console.web.service.system.NamingService;
+import com.clougence.clouddm.platform.dal.access.NamingDao;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
@@ -49,7 +50,6 @@ import com.clougence.clouddm.platform.dal.model.system.ArgSysWorkerObj;
 import com.clougence.clouddm.platform.dal.model.system.CloudOrIdcName;
 import com.clougence.clouddm.platform.dal.model.system.DmSysClusterDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
-import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.HostUtil;
 import com.clougence.utils.StringUtils;
@@ -73,7 +73,7 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
     @Resource
     private WorkerDetector       workerDetector;
     @Resource
-    private NamingService        namingService;
+    private NamingDao        namingDao;
     @Resource
     private RdpUserService       rdpUserService;
     @Resource
@@ -89,8 +89,8 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
     @Override
     public DmSysWorkerDO createInitialWorker(String ownerUid, CreateInitialWorkerFO fo) {
         checkWorkerAndClusterPropMatch(fo.getCloudOrIdcName(), fo.getRegion(), fo.getClusterId());
-        String workerSeqNumber = this.namingService.genWorkerSequenceNumber();
-        String workerName = this.namingService.genWorkerName();
+        String workerSeqNumber = this.namingDao.genWorkerSequenceNumber();
+        String workerName = this.namingDao.genWorkerName();
 
         DmSysWorkerDO workerDO = new DmSysWorkerDO();
         workerDO.setCloudOrIdcName(fo.getCloudOrIdcName());
@@ -269,13 +269,9 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
     }
 
     @Override
-    public void updateWorkerIp(long workerId, String workerIp, String externalIp) {
+    public void updateWorkerIp(long workerId, String workerIp) {
         if (StringUtils.isNotBlank(workerIp)) {
             this.systemDal.workerMapper().updateWorkerIp(workerId, workerIp);
-        }
-        if (StringUtils.isNotBlank(externalIp)) {
-            int i = this.systemDal.workerMapper().updateExternalIp(workerId, externalIp);
-            log.info("update worker (" + workerId + ") life external ip (" + externalIp + "),affect row:" + i);
         }
     }
 

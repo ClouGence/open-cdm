@@ -20,7 +20,7 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource("/i18n/dao-msg")
 public enum I18nDaoKeys {
 
-    DAO_NO_AUTHORITY_TO_OPERATE_ON_THIS_RESOURCE,
+    DAO_NO_AUTHORITY,
     DAO_DATA_SOURCE_NOT_EXIST,
     DAO_CLUSTER_NOT_EXIST,
     DAO_ENV_NOT_EXIST,

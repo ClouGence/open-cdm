@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.auth;
+package com.clougence.clouddm.console.web.service.login;
 
 import java.util.List;
 

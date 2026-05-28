@@ -28,6 +28,7 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.menus.UiMenuDef;
+import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.component.dsconfig.impl.DsMenuUtils;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
@@ -42,14 +43,13 @@ import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.vo.ConsoleSettingsVO;
 import com.clougence.clouddm.console.web.model.vo.GlobalSettingsVO;
 import com.clougence.clouddm.console.web.model.vo.SystemStatusVO;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.system.DsVersionsServiceImpl;
 import com.clougence.clouddm.dsfamily.definition.ui.browser.RdbUiMenuDef;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.resultset.file.FileFormatConvert;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.clouddm.sdk.ui.menus.DsMenuType;
-import com.clougence.rdp.service.RdpAuthServiceForBiz;
-import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -64,7 +64,7 @@ public class DmHomeController {
     @Resource
     private DsVersionsServiceImpl dsVersionsService;
     @Resource
-    private RdpAuthServiceForBiz  rdpAuthServiceForBiz;
+    private DmAuthServiceForBiz   rdpAuthServiceForBiz;
     @Resource
     private DmDsService           dmDsService;
     @Resource

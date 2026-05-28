@@ -20,9 +20,7 @@ plugins {
 
 dependencies {
     // project
-    implementation('com.larksuite.oapi:oapi-sdk:2.4.10') {
-        exclude group: "org.slf4j", module: "slf4j-api"
-    }
+    implementation 'com.larksuite.oapi:oapi-sdk:2.7.1'
 
     // share lib (compileOnly)
     compileOnly project(':cgdm-share-libs')
@@ -30,7 +28,7 @@ dependencies {
     // for test
     testImplementation project(':cgdm-plugin-sdk')
     testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
-    testImplementation 'com.larksuite.oapi:oapi-sdk:2.4.10'
+    testImplementation 'com.larksuite.oapi:oapi-sdk:2.7.1'
 }
 
 description = 'plus-provider-feishu'

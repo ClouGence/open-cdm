@@ -55,10 +55,10 @@ public class V202605070039__sql_audit extends AbstractUpgradeJavaMigration {
                             message          text,
                             primary key (id)
                         ) ENGINE = InnoDB
-                          DEFAULT CHARSET = utf8mb4\
+                          DEFAULT CHARSET = utf8mb4
                 """, """
                     alter table dm_auto_exec_task
-                            drop column transactional_group\
+                            drop column transactional_group
                 """);
     }
 }

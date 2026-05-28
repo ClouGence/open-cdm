@@ -26,19 +26,19 @@ public class V202605070032__team_sql extends AbstractUpgradeJavaMigration {
         return List
             .of("""
                         alter table `dm_ds_session`
-                                add session_type varchar(16) null\
+                                add session_type varchar(16) null
                     """, """
                         alter table `dm_ds_session`
-                                modify datasource_id varchar(255) null\
+                                modify datasource_id varchar(255) null
                     """, """
                         alter table `dm_ds_session`
-                                add `attach` text null\
+                                add `attach` text null
                     """, """
                         alter table `dm_ds_session`
-                                add `last_query_time` datetime null\
+                                add `last_query_time` datetime null
                     """, """
                         alter table `dm_ds_session`
-                                drop `tx`\
+                                drop `tx`
                     """, """
                         CREATE TABLE IF NOT EXISTS `dm_async_task`
                             (
@@ -69,7 +69,7 @@ public class V202605070032__team_sql extends AbstractUpgradeJavaMigration {
                                 index dm_async_task_owner_uid (`owner_uid`),
                                 unique dm_async_task_biz_idx (`biz_id`, `biz_type`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         create table if not exists `dm_sec_spec`
                             (
@@ -83,7 +83,7 @@ public class V202605070032__team_sql extends AbstractUpgradeJavaMigration {
                                 primary key (`id`),
                                 index dm_sec_spec_owner_uid (`owner_uid`)
                             ) engine = innodb
-                              default charset = utf8mb4\
+                              default charset = utf8mb4
                     """, """
                         create table if not exists `dm_sec_rules`
                             (
@@ -102,7 +102,7 @@ public class V202605070032__team_sql extends AbstractUpgradeJavaMigration {
                                 primary key (`id`),
                                 index dm_sec_rules_owner_uid (`owner_uid`)
                             ) engine = innodb
-                              default charset = utf8mb4\
+                              default charset = utf8mb4
                     """, """
                         create table if not exists `dm_sec_referer`
                             (
@@ -119,7 +119,7 @@ public class V202605070032__team_sql extends AbstractUpgradeJavaMigration {
                                 index dm_sec_referer_owner_uid (`owner_uid`),
                                 index dm_sec_referer_refs (`ref_rule`, `ref_spec`)
                             ) engine = innodb
-                              default charset = utf8mb4\
+                              default charset = utf8mb4
                     """, """
                         CREATE TABLE `dm_ticket_details_inst`
                             (
@@ -142,23 +142,23 @@ public class V202605070032__team_sql extends AbstractUpgradeJavaMigration {
                                 PRIMARY KEY (`id`),
                                 UNIQUE KEY `idx_unique_biz_id` (`rdp_ticket_ins_id`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
-                        drop table `checker_parameter`\
+                        drop table `checker_parameter`
                     """, """
-                        drop table `checker_template`\
+                        drop table `checker_template`
                     """, """
-                        drop table `console_job`\
+                        drop table `console_job`
                     """, """
-                        drop table `console_task`\
+                        drop table `console_task`
                     """, """
-                        drop table `sql_process`\
+                        drop table `sql_process`
                     """, """
-                        drop table `ticket_process`\
+                        drop table `ticket_process`
                     """, """
-                        drop table `dm_ticket_inst`\
+                        drop table `dm_ticket_inst`
                     """, """
-                        drop table `ds_appro_template`\
+                        drop table `ds_appro_template`
                     """);
     }
 }

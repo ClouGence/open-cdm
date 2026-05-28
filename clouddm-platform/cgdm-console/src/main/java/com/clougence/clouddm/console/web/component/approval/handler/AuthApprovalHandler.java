@@ -22,13 +22,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
+import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.project.ImSenderService;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.ticket.ApplyAuth;
 import com.clougence.clouddm.console.web.model.fo.ticket.RdpAddAuthTicketFO;
 import com.clougence.clouddm.console.web.model.vo.PrimaryUserVO;
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.approval.*;
@@ -47,9 +50,6 @@ import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
-import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.api.common.exception.ErrorMessageException;
-import com.clougence.rdp.service.RdpAuthServiceForManage;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -62,11 +62,11 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthApprovalHandler implements ApprovalHandler {
 
     @Resource
-    private AuthDal                 authDal;
+    private AuthDal                authDal;
     @Resource
-    private ApprovalDal             approvalDal;
+    private ApprovalDal            approvalDal;
     @Resource
-    private RdpAuthServiceForManage authServiceForManage;
+    private DmAuthServiceForManage authServiceForManage;
 
     @Override
     public ApprovalBiz handleType() {
@@ -91,7 +91,6 @@ public class AuthApprovalHandler implements ApprovalHandler {
         DmApprovalProcessDO processExec = this.approvalDal.processMapper().queryByStage(approvalId, ApprovalStage.EXECUTION);
 
         this.approvalDal.approvalMapper().updateStatusByEnum(approvalId, ApprovalStatus.FINISHED, null);
-
         ApprovalStageMO mo = new ApprovalStageMO();
         mo.setAutoExecute(true);
         this.approvalDal.processMapper().updateTicketStatusByEnum(processExec.getId(), ApprovalProcessStatus.FINISH, JsonUtils.toJson(mo));

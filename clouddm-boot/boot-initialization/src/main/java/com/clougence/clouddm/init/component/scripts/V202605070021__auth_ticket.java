@@ -34,13 +34,13 @@ public class V202605070021__auth_ticket extends AbstractUpgradeJavaMigration {
                             kind_type         varchar(64)                          not null,
                             deleted           tinyint(1) default 0                 not null,
                             constraint idx_unique_biz_id unique (rdp_ticket_ins_id)
-                        )\
+                        )
                 """, """
-                    alter table rdp_ticket_inst modify bind_ds_id bigint null\
+                    alter table rdp_ticket_inst modify bind_ds_id bigint null
                 """, """
-                    drop index uk_path on rdp_res_auth\
+                    drop index uk_path on rdp_res_auth
                 """, """
-                    create index idx_id_path_type_uid on rdp_res_auth (res_id, res_path, kind_type, owner_uid)\
+                    create index idx_id_path_type_uid on rdp_res_auth (res_id, res_path, kind_type, owner_uid)
                 """);
     }
 }

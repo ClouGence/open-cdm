@@ -24,17 +24,17 @@ public class V202605070033__desensitive_sql extends AbstractUpgradeJavaMigration
     @Override
     public List<String> collectScript() {
         return List.of("""
-                    drop table if exists `data_handle_config`\
+                    drop table if exists `data_handle_config`
                 """, """
-                    drop table if exists `data_handle_package`\
+                    drop table if exists `data_handle_package`
                 """, """
-                    drop table if exists `data_desensitize_rule`\
+                    drop table if exists `data_desensitize_rule`
                 """, """
                     alter table `dm_sec_rules`
                             add `rule_md5` varchar(36) null,
-                            add `rule_id`  varchar(36) null\
+                            add `rule_id`  varchar(36) null
                 """, """
-                    create index `dm_sec_rules_rule_id` on `dm_sec_rules` (`rule_id`)\
+                    create index `dm_sec_rules_rule_id` on `dm_sec_rules` (`rule_id`)
                 """, """
                     CREATE TABLE `dm_sec_sensitive`
                         (
@@ -54,18 +54,18 @@ public class V202605070033__desensitive_sql extends AbstractUpgradeJavaMigration
                             PRIMARY KEY (`id`),
                             index `dm_sec_sensitive_sen_id` (`sen_id`)
                         ) ENGINE = InnoDB
-                          DEFAULT CHARSET = utf8mb4\
+                          DEFAULT CHARSET = utf8mb4
                 """, """
                     ALTER TABLE `dm_sec_referer`
                             ADD `ref_kind` VARCHAR(12) NOT NULL,
                             ADD `ref_md5`  varchar(36) NULL,
-                            ADD `sen_mode` varchar(12) NULL\
+                            ADD `sen_mode` varchar(12) NULL
                 """, """
-                    drop index `dm_sec_referer_refs` ON `dm_sec_referer`\
+                    drop index `dm_sec_referer_refs` ON `dm_sec_referer`
                 """, """
-                    create index `dm_sec_referer_refs` ON `dm_sec_referer` (`ref_rule`, `ref_spec`, `rule_kind`)\
+                    create index `dm_sec_referer_refs` ON `dm_sec_referer` (`ref_rule`, `ref_spec`, `rule_kind`)
                 """, """
-                    update `dm_sec_referer` set `ref_kind` = 'QUERY' where `ref_kind` is null\
+                    update `dm_sec_referer` set `ref_kind` = 'QUERY' where `ref_kind` is null
                 """, """
                     CREATE TABLE `dm_sec_range`
                         (
@@ -86,7 +86,7 @@ public class V202605070033__desensitive_sql extends AbstractUpgradeJavaMigration
                             index `dm_sec_range_by_id` (`owner_uid`, `ref_spec`, `ref_id`),
                             index `dm_sec_range_by_spec` (`owner_uid`, `ref_spec`)
                         ) ENGINE = InnoDB
-                          DEFAULT CHARSET = utf8mb4\
+                          DEFAULT CHARSET = utf8mb4
                 """);
     }
 }

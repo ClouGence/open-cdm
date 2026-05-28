@@ -15,14 +15,6 @@
  */
 package com.clougence.rdp.global.init;
 
-import com.clougence.clouddm.api.common.exception.ConsoleErrorCode;
-
-import com.clougence.clouddm.console.web.global.i18n.I18nUserConfigMsgKeys;
-
-import com.clougence.clouddm.console.web.global.i18n.I18nDsConfigMsgKeys;
-
-import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,10 +24,9 @@ import org.springframework.stereotype.Component;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstructOrder;
+import com.clougence.clouddm.api.common.exception.ConsoleErrorCode;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
-import com.clougence.clouddm.console.web.global.i18n.I18nRdpLabelKeys;
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
-import com.clougence.rdp.constant.*;
+import com.clougence.clouddm.console.web.global.i18n.*;
 import com.clougence.utils.ClassUtils;
 import com.clougence.utils.StringUtils;
 

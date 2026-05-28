@@ -38,9 +38,9 @@ import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.editor.query.QueryResultFO;
 import com.clougence.clouddm.console.web.model.fo.editor.query.WsQueryFO;
 import com.clougence.clouddm.console.web.model.vo.editor.query.*;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.editor.query.ConsoleQueryApi;
 import com.clougence.clouddm.console.web.util.Sm2Utils;
-import com.clougence.rdp.service.RdpUserService;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;

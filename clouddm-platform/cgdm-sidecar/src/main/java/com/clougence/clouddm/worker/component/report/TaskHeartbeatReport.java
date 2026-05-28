@@ -17,15 +17,14 @@ package com.clougence.clouddm.worker.component.report;
 
 import java.util.Date;
 
-import com.clougence.clouddm.api.console.status.ConsoleStatusRService;
-import jakarta.annotation.Resource;
-
 import org.springframework.stereotype.Component;
 
+import com.clougence.clouddm.api.console.status.ConsoleStatusRService;
 import com.clougence.clouddm.api.console.status.WorkerState;
 import com.clougence.clouddm.comm.model.auth.WorkerIdentity;
 import com.clougence.utils.ExceptionUtils;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -74,7 +73,7 @@ public class TaskHeartbeatReport implements Runnable {
                 if (state != WorkerState.ONLINE) {
                     this.statusRService.reportStatus(this.identity(), now, WorkerState.ONLINE);
                 }
-                this.statusRService.reportAddress(this.identity(), now, ReportUtils.tryFetchLocalIp(), ReportUtils.tryFetchExternalIp());
+                this.statusRService.reportAddress(this.identity(), now, ReportUtils.tryFetchLocalIp());
                 break;
             }
             case NOT_EXIST:

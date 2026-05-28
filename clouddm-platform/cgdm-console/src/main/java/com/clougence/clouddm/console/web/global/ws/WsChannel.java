@@ -66,7 +66,7 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
         // async task
         DmGlobalEventBus.addDmAsyncEventListen(taskDO -> this.wsBroadcastChannel(WsType.WS_RES_ASYNC_EVENT, taskDO.getUid(), DmConvertUtils.convertToDmAsyncTaskVO(taskDO)));
         // driver download
-        DmGlobalEventBus.addDriverDownloadEventListen(progressVO -> this.wsBroadcastChannel(WsType.WS_RES_DRIVER_DOWNLOAD_EVENT, progressVO.getUid(), progressVO));
+        DmGlobalEventBus.addDriverDownloadEventListen(event -> this.wsBroadcastChannel(WsType.WS_RES_DRIVER_DOWNLOAD_EVENT, event.uid(), event.progressVO()));
     }
 
     @Override

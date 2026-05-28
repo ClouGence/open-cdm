@@ -42,6 +42,7 @@ import com.clougence.clouddm.console.web.model.fo.project.DevopsImDeleteFO;
 import com.clougence.clouddm.console.web.model.fo.project.DevopsImProviderListFO;
 import com.clougence.clouddm.console.web.model.fo.project.DevopsImUpdateFO;
 import com.clougence.clouddm.console.web.model.vo.project.DevopsImVO;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.project.DmImService;
 import com.clougence.clouddm.console.web.service.project.DmProjectService;
 import com.clougence.clouddm.console.web.service.project.domain.DmImDef;
@@ -49,7 +50,6 @@ import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.model.project.DmProjectMsgDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysMessengerDO;
 import com.clougence.clouddm.platform.dal.model.system.ImType;
-import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;

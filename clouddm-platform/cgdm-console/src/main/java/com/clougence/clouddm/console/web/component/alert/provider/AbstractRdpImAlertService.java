@@ -32,6 +32,7 @@ import com.clougence.clouddm.base.metadata.rdp.enumeration.AlarmLevel;
 import com.clougence.clouddm.console.web.component.alert.RdpImAlertService;
 import com.clougence.clouddm.console.web.component.alert.model.SendMsgResult;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
 import com.clougence.clouddm.console.web.util.HealthCheckInterceptor;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.monitor.AlertEventStatus;
@@ -39,7 +40,6 @@ import com.clougence.clouddm.platform.dal.model.monitor.AlertMediaType;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.rdp.service.RdpAlertEventLogService;
-import com.clougence.rdp.service.RdpUserConfigService;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
@@ -101,8 +101,8 @@ public abstract class AbstractRdpImAlertService implements RdpImAlertService {
     }
 
     @Override
-    public SendMsgResult sendMsg(String signName, String msg, Map<String, Object> msgParams, DmAuthUserDO owner, List<DmAuthUserDO> receivers, AlarmLevel alarmLevel,
-                                 boolean atAll) {
+    public SendMsgResult sendMsg(String signName, String msg, Map<String, Object> msgParams,//
+                                 DmAuthUserDO owner, List<DmAuthUserDO> receivers, AlarmLevel alarmLevel, boolean atAll) {
         checkParams(msg, owner);
 
         String paramStr = genParamsJsonStr(signName, msg, msgParams, receivers, atAll);
@@ -122,8 +122,8 @@ public abstract class AbstractRdpImAlertService implements RdpImAlertService {
     }
 
     @Override
-    public SendMsgResult sendMsgWithWebHook(String webHook, String proxyAddr, String signName, String msg, Map<String, Object> msgParams, DmAuthUserDO owner,
-                                            List<DmAuthUserDO> receivers, AlarmLevel alarmLevel, boolean atAll) {
+    public SendMsgResult sendMsgWithWebHook(String webHook, String proxyAddr, String signName, String msg, Map<String, Object> msgParams, //
+                                            DmAuthUserDO owner, List<DmAuthUserDO> receivers, AlarmLevel alarmLevel, boolean atAll) {
         checkParams(msg, owner);
 
         String paramStr = genParamsJsonStr(signName, msg, msgParams, receivers, atAll);
@@ -152,7 +152,8 @@ public abstract class AbstractRdpImAlertService implements RdpImAlertService {
     }
 
     @Override
-    public SendMsgResult sendMsgToOwner(String signName, String msg, Map<String, Object> msgParams, DmAuthUserDO owner, AlarmLevel alarmLevel, boolean atAll) {
+    public SendMsgResult sendMsgToOwner(String signName, String msg, Map<String, Object> msgParams,//
+                                        DmAuthUserDO owner, AlarmLevel alarmLevel, boolean atAll) {
         List<DmAuthUserDO> receivers = new ArrayList<>();
         receivers.add(owner);
         return sendMsg(signName, msg, msgParams, owner, receivers, alarmLevel, atAll);

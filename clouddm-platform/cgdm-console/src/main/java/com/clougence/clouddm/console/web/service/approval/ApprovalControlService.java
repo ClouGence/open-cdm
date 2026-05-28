@@ -50,6 +50,8 @@ public interface ApprovalControlService {
 
     void endAutoExecJob(String puid, String uid, long ticketId);
 
+    void createAuthTicket(String ownerUid, String uid, RdpAddAuthTicketFO fo);
+
     //
     // query
     //
@@ -61,6 +63,8 @@ public interface ApprovalControlService {
     RdpTicketBaseInfoVO queryTicketBaseInfo(String puid, String uid, RdpQueryTicketDetailFO fo);
 
     DmQueryTicketVO queryQueryTicketDetail(String puid, DmQueryTicketDetailFO fo);
+
+    RdpAuthTicketDetailVO queryAuthTicketDetail(String ownerUid, String uid, long ticketId);
 
     DmAutoExecJobVO queryExecJobInfo(String puid, String uid, long ticketId);
 

@@ -15,11 +15,10 @@
  */
 package com.clougence.rdp.service.impl;
 
-import com.clougence.clouddm.platform.dal.access.MonitorDal;
-
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.console.web.model.fo.AddWebViewLogFO;
+import com.clougence.clouddm.platform.dal.access.MonitorDal;
 import com.clougence.clouddm.platform.dal.model.monitor.DmMonWebViewLogDO;
 import com.clougence.rdp.service.RdpWebViewLogService;
 
@@ -34,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpWebViewLogServiceImpl implements RdpWebViewLogService {
     @Resource
     private MonitorDal monitorDal;
-
 
     @Override
     public void addOneLog(AddWebViewLogFO logFO, String uid) {

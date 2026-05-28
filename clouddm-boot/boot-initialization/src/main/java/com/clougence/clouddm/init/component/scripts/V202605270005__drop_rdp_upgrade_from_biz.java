@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.rdp.service;
+package com.clougence.clouddm.init.component.scripts;
 
-public interface RdpUserMfaService {
+import java.util.List;
 
-    String MFA_PRE_ACTION_TYPE = "MFA_PRE_ACTION_TYPE";
+import com.clougence.clouddm.init.component.flyway.AbstractUpgradeJavaMigration;
 
-    String MFA_LOGIN_JWT_TOKEN = "MFA_LOGIN_JWT_TOKEN";
+public class V202605270005__drop_rdp_upgrade_from_biz extends AbstractUpgradeJavaMigration {
 
-    byte[] initUserMfaSetting(String uid);
-
-    byte[] resetMfaSetting(String uid, int mfaCode);
-
-    void confirmUserMfaSetting(String uid, boolean reset, int mfaCode);
-
-    boolean validMfaCode(String uid, int mfaCode);
-
-    void closeUserMfa(String uid, int mfaCode);
+    @Override
+    public List<String> collectScript() {
+        return List.of("""
+                    DROP TABLE IF EXISTS rdp_upgrade_from_biz
+                """);
+    }
 }

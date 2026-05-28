@@ -15,8 +15,6 @@
  */
 package com.clougence.rdp.controller;
 
-import com.clougence.clouddm.platform.dal.access.AuthDal;
-
 import static com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel.HIGH;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.*;
 
@@ -27,33 +25,34 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
-import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
-import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.console.web.model.fo.ResetPasswdFO;
 import com.clougence.clouddm.console.web.model.fo.UpdateResourceManageFO;
 import com.clougence.clouddm.console.web.model.fo.role.UpdateUserRoleFO;
 import com.clougence.clouddm.console.web.model.fo.user.*;
 import com.clougence.clouddm.console.web.model.lo.UpdateUserRoleLO;
 import com.clougence.clouddm.console.web.model.vo.ListUserVO;
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.Sm2Utils;
-import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
 import com.clougence.rdp.constant.RdpErrorCode;
-import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
-import com.clougence.clouddm.api.common.exception.ErrorMessageException;
-import com.clougence.rdp.service.RdpAuthServiceForBiz;
 import com.clougence.rdp.service.RdpOpAuditService;
-import com.clougence.rdp.service.RdpUserConfigService;
-import com.clougence.rdp.service.RdpUserService;
 import com.clougence.rdp.service.model.AddSubAccountMO;
 import com.clougence.rdp.service.model.CheckSubAccountMO;
 import com.clougence.rdp.service.model.UpdateUserInfoMO;
@@ -76,14 +75,11 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpUserManagerController {
 
     @Resource
-    private AuthDal authDal;
-
+    private AuthDal              authDal;
     @Resource
     private RdpUserService       rdpUserService;
-
     @Resource
-    private RdpAuthServiceForBiz rdpAuthServiceForBiz;
-
+    private DmAuthServiceForBiz  rdpAuthServiceForBiz;
     @Resource
     private RdpUserConfigService rdpUserConfigService;
 

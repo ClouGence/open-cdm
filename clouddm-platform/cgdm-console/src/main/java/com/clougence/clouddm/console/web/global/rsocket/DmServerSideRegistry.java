@@ -29,11 +29,11 @@ import com.clougence.clouddm.comm.component.server.ServerSideRegistry;
 import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
 import com.clougence.clouddm.comm.model.auth.ConnAuthDTO;
 import com.clougence.clouddm.comm.model.rsocket.RSocketRegisterInfo;
+import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
-import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
-import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.utils.ExceptionUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -52,8 +52,7 @@ public class DmServerSideRegistry implements ServerSideRegistry {
     private final RSocketExceptionManager      exceptionManager;
     private final List<DmWorkerRegisterNotify> notifyServices;
 
-    public DmServerSideRegistry(AuthDal authDal, SystemDal systemDal, List<DmWorkerRegisterNotify> notifyServices,
-                                RSocketExceptionManager exceptionManager){
+    public DmServerSideRegistry(AuthDal authDal, SystemDal systemDal, List<DmWorkerRegisterNotify> notifyServices, RSocketExceptionManager exceptionManager){
         this.authDal = authDal;
         this.systemDal = systemDal;
         this.notifyServices = notifyServices;

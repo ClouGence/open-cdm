@@ -36,10 +36,10 @@ public class V202605070040__information_cache extends AbstractUpgradeJavaMigrati
                         context      longtext      not null,
                         primary key (id)
                         ) ENGINE = InnoDB
-                        DEFAULT CHARSET = utf8mb4\
+                        DEFAULT CHARSET = utf8mb4
                 """, """
                     create unique index id_path_type_uindex
-                            on dm_meta_information_cache (ds_id, path, type)\
+                            on dm_meta_information_cache (ds_id, path, type)
                 """);
     }
 }

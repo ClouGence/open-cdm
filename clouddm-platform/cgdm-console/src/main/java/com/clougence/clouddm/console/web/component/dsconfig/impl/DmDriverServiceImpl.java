@@ -30,6 +30,7 @@ import com.clougence.clouddm.api.sidecar.session.drivers.DsDriverVer;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDriverService;
+import com.clougence.clouddm.console.web.component.dsconfig.event.DriverDownloadEvent;
 import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
 import com.clougence.clouddm.console.web.model.vo.DriverVersionStatusVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.DriverDownloadProgressVO;
@@ -117,7 +118,7 @@ public class DmDriverServiceImpl implements DmDriverService {
                 new DmDriverDownloadTask(uid, clusterId, driverFamily, driverVersion, this.systemDal, this.driversRService).run();
             } catch (Exception e) {
                 log.error("download driver failed, uid={}, clusterId={}, family={}, version={}", uid, clusterId, driverFamily, driverVersion, e);
-                publishProgress(uid, clusterId, driverFamily, driverVersion, 0, 0, 0, "FAILED", false, null, null, e.getMessage());
+                publishProgress(uid, clusterId, driverFamily, driverVersion, 0, 0, 0, "FAILED", false, null, e.getMessage());
             } finally {
                 this.runningTasks.remove(taskKey);
             }
@@ -157,9 +158,8 @@ public class DmDriverServiceImpl implements DmDriverService {
     }
 
     public static void publishProgress(String uid, Long clusterId, String driverFamily, String driverVersion, int totalFileCount, int completedFileCount, int currentFilePercent,
-                                       String status, boolean available, String resourceCoordinate, String currentFileName, String message) {
+                                       String status, boolean available, String currentFileName, String message) {
         DriverDownloadProgressVO progressVO = new DriverDownloadProgressVO();
-        progressVO.setUid(uid);
         progressVO.setClusterId(clusterId);
         progressVO.setDriverFamily(driverFamily);
         progressVO.setDriverVersion(driverVersion);
@@ -169,30 +169,25 @@ public class DmDriverServiceImpl implements DmDriverService {
         progressVO.setStatus(status);
         progressVO.setAvailable(available);
         progressVO.setMessage(message);
-        progressVO.setResourceCoordinate(resourceCoordinate);
         progressVO.setCurrentFileName(currentFileName);
-        logProgress(progressVO);
-        DmGlobalEventBus.triggerDriverDownloadEvent(progressVO);
+        logProgress(uid, progressVO);
+        DmGlobalEventBus.triggerDriverDownloadEvent(new DriverDownloadEvent(uid, progressVO));
     }
 
-    private static void logProgress(DriverDownloadProgressVO progressVO) {
-        String taskKey = buildTaskKey(progressVO);
+    private static void logProgress(String uid, DriverDownloadProgressVO progressVO) {
+        String taskKey = buildTaskKey(uid, progressVO.getClusterId(), progressVO.getDriverFamily(), progressVO.getDriverVersion());
         String signature = buildProgressSignature(progressVO);
         String previous = progressLogState.put(taskKey, signature);
         if (!signature.equals(previous)) {
-            log.info("driver download progress, uid={}, clusterId={}, family={}, version={}, status={}, completed={}/{}, percent={}%, resource={}, file={}, message={}",//
-                    progressVO.getUid(), progressVO.getClusterId(), progressVO.getDriverFamily(), progressVO.getDriverVersion(), progressVO.getStatus(), //
-                    progressVO.getCompletedFileCount(), progressVO.getTotalFileCount(), progressVO.getCurrentFilePercent(), progressVO.getResourceCoordinate(),//
-                    progressVO.getCurrentFileName(), progressVO.getMessage());
+            log.info("driver download progress, uid={}, clusterId={}, family={}, version={}, status={}, completed={}/{}, percent={}%, file={}, message={}",//
+                    uid, progressVO.getClusterId(), progressVO.getDriverFamily(), progressVO.getDriverVersion(), progressVO.getStatus(), //
+                    progressVO.getCompletedFileCount(), progressVO.getTotalFileCount(), progressVO.getCurrentFilePercent(), progressVO.getCurrentFileName(), progressVO
+                        .getMessage());
         }
 
         if (isTerminalStatus(progressVO.getStatus())) {
             progressLogState.remove(taskKey);
         }
-    }
-
-    private static String buildTaskKey(DriverDownloadProgressVO progressVO) {
-        return buildTaskKey(progressVO.getUid(), progressVO.getClusterId(), progressVO.getDriverFamily(), progressVO.getDriverVersion());
     }
 
     private static String buildTaskKey(String uid, Long clusterId, String driverFamily, String driverVersion) {
@@ -202,11 +197,10 @@ public class DmDriverServiceImpl implements DmDriverService {
 
     private static String buildProgressSignature(DriverDownloadProgressVO progressVO) {
         int roundedPercent = roundPercent(progressVO.getCurrentFilePercent());
-        String resourceCoordinate = progressVO.getResourceCoordinate() == null ? "" : progressVO.getResourceCoordinate();
         String currentFileName = progressVO.getCurrentFileName() == null ? "" : progressVO.getCurrentFileName();
         String message = progressVO.getMessage() == null ? "" : progressVO.getMessage();
-        return progressVO.getStatus() + "::" + progressVO.getCompletedFileCount() + '/' + progressVO.getTotalFileCount() + "::" + roundedPercent + "::" + resourceCoordinate + "::"
-               + currentFileName + "::" + message;
+        return progressVO.getStatus() + "::" + progressVO.getCompletedFileCount() + '/' + progressVO.getTotalFileCount() + "::" + roundedPercent + "::" + currentFileName + "::"
+               + message;
     }
 
     private static int roundPercent(int currentFilePercent) {

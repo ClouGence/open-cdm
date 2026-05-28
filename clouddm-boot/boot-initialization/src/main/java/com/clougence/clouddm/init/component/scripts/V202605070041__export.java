@@ -40,7 +40,7 @@ public class V202605070041__export extends AbstractUpgradeJavaMigration {
                             heartbeat    datetime     null,
                             PRIMARY KEY (id),
                             unique key unique_id (unique_id)
-                        ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4\
+                        ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4
                 """);
     }
 }

@@ -61,7 +61,7 @@ class SHA1 {
             }
             return hexstr.toString();
         } catch (Exception e) {
-            throw ThirdPartyApiException.asRDP().with(e, WechatI18nKey2.WECHAT_COMPUTE_SIGNATURE_ERROR);
+            throw ThirdPartyApiException.as().with(e, WechatI18nKey2.WECHAT_COMPUTE_SIGNATURE_ERROR);
         }
     }
 }

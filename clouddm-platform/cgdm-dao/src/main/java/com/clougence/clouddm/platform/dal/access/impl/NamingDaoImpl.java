@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.service.system;
+package com.clougence.clouddm.platform.dal.access.impl;
 
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.NamingDao;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
@@ -34,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
-public class NamingServiceImpl implements NamingService {
+public class NamingDaoImpl implements NamingDao {
     @Resource
     private SystemDal   systemDal;
     @Resource

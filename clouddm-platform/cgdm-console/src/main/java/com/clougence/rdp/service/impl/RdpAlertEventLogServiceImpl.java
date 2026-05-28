@@ -15,18 +15,17 @@
  */
 package com.clougence.rdp.service.impl;
 
-import com.clougence.clouddm.platform.dal.access.MonitorDal;
-
 import java.util.Date;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
-import com.clougence.clouddm.platform.dal.model.monitor.DmMonAlertEventLogDO;
-import com.clougence.rdp.service.RdpAlertEventLogService;
+import com.clougence.clouddm.platform.dal.access.MonitorDal;
 import com.clougence.clouddm.platform.dal.model.monitor.AlertEventStatus;
 import com.clougence.clouddm.platform.dal.model.monitor.AlertMediaType;
+import com.clougence.clouddm.platform.dal.model.monitor.DmMonAlertEventLogDO;
+import com.clougence.rdp.service.RdpAlertEventLogService;
 import com.clougence.utils.CollectionUtils;
 
 import jakarta.annotation.Resource;
@@ -35,10 +34,9 @@ import jakarta.annotation.Resource;
 public class RdpAlertEventLogServiceImpl implements RdpAlertEventLogService {
 
     @Resource
-    private MonitorDal monitorDal;
-
+    private MonitorDal      monitorDal;
     @Resource
-    private DmConsoleConfig        rdpConfig;
+    private DmConsoleConfig rdpConfig;
 
     @Override
     public List<DmMonAlertEventLogDO> listAlertEventLogs(Long startTimeMillis, Long endTimeMillis, AlertEventStatus status, String uid, long startId, int pageSize) {

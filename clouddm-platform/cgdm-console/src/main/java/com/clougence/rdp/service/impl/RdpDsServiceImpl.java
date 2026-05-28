@@ -15,15 +15,10 @@
  */
 package com.clougence.rdp.service.impl;
 
-import com.clougence.clouddm.platform.dal.access.AuthDal;
-import com.clougence.clouddm.platform.dal.access.DataSourceDal;
-import com.clougence.clouddm.platform.dal.access.SystemDal;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,16 +26,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.crypt.CryptService;
+import com.clougence.clouddm.api.common.exception.ConsoleErrorCode;
+import com.clougence.clouddm.api.common.exception.ConsoleRuntimeException;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityFileType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
-import com.clougence.clouddm.platform.dal.model.auth.AccountType;
-import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType;
-import com.clougence.clouddm.platform.dal.model.LifeCycleState;
-import com.clougence.clouddm.platform.dal.model.datasource.SecurityFileStoreType;
+import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.AddDsFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsKvConfigFO;
@@ -50,24 +47,28 @@ import com.clougence.clouddm.console.web.model.lo.UpdatePriHostLO;
 import com.clougence.clouddm.console.web.model.lo.UpdatePubHostLO;
 import com.clougence.clouddm.console.web.model.vo.DefaultDsKvConfigVO;
 import com.clougence.clouddm.console.web.model.vo.RdpDsKvConfigVO;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
+import com.clougence.clouddm.console.web.util.RandomStrUtils;
+import com.clougence.clouddm.console.web.util.RdpAuthUtils;
+import com.clougence.clouddm.console.web.util.RdpConvertUtils;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.LifeCycleState;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.datasource.*;
+import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.rdp.component.dskvconfig.RdpDsConfigService;
 import com.clougence.rdp.component.dskvconfig.util.PropsCryptUtil;
-import com.clougence.clouddm.api.common.exception.ConsoleErrorCode;
-import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.platform.dal.model.datasource.*;
-import com.clougence.clouddm.platform.dal.model.system.*;
-import com.clougence.clouddm.platform.dal.model.auth.*;
-import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
-import com.clougence.clouddm.api.common.exception.ConsoleRuntimeException;
-import com.clougence.clouddm.api.common.exception.ErrorMessageException;
-import com.clougence.rdp.service.*;
-import com.clougence.clouddm.console.web.util.RandomStrUtils;
-import com.clougence.clouddm.console.web.util.RdpAuthUtils;
-import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.rdp.service.RdpDsService;
+import com.clougence.rdp.service.RdpDsUsageService;
+import com.clougence.rdp.service.RdpNotifyService;
+import com.clougence.rdp.service.RdpSecurityService;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
@@ -83,26 +84,23 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
 
     @Resource
-    private SystemDal systemDal;
-
+    private SystemDal              systemDal;
     @Resource
-    private DataSourceDal datasourceDal;
-
+    private DataSourceDal          datasourceDal;
     @Resource
-    private AuthDal authDal;
-
+    private AuthDal                authDal;
     @Resource
-    private RdpUserService          rdpUserService;
+    private RdpUserService         rdpUserService;
     @Resource
-    private RdpAuthServiceForManage rdpAuthServiceForManager;
+    private DmAuthServiceForManage rdpAuthServiceForManager;
     @Resource
-    private RdpDsUsageService       rdpDsUsageService;
+    private RdpDsUsageService      rdpDsUsageService;
     @Resource
-    private RdpSecurityService      rdpSecurityService;
+    private RdpSecurityService     rdpSecurityService;
     @Resource
-    private RdpDsConfigService      rdpDsConfigService;
+    private RdpDsConfigService     rdpDsConfigService;
     @Resource
-    private List<RdpNotifyService>  notifyServices;
+    private List<RdpNotifyService> notifyServices;
 
     @Override
     public void init() {
@@ -354,8 +352,9 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
         if (StringUtils.isNotBlank(fo.getSecretFilePassword())) {
             secretFilePassword = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(fo.getSecretFilePassword());
         }
-        this.datasourceDal.dsMapper().updateSecurityAllInfo(dsDo.getId(), fo.getUserName(), encPasswd, fo.getSecurityType(), SecurityFileStoreType.META_DB, dsDo.getAccessKey(), dsDo
-            .getSecretKey(), securityFilePath, securityFilePassword, clientSecurityFilePath, clientSecurityFilePassword, secretFilePath, secretFilePassword);
+        this.datasourceDal.dsMapper()
+            .updateSecurityAllInfo(dsDo.getId(), fo.getUserName(), encPasswd, fo.getSecurityType(), SecurityFileStoreType.META_DB, dsDo.getAccessKey(), dsDo
+                .getSecretKey(), securityFilePath, securityFilePassword, clientSecurityFilePath, clientSecurityFilePassword, secretFilePath, secretFilePassword);
 
         SecurityType securityType = fo.getSecurityType();
         if (securityType == null || securityType == SecurityType.AK_SK) {

@@ -39,10 +39,10 @@ public class V202605070025__aws_marketplace extends AbstractUpgradeJavaMigration
                             KEY `idx_uid` (`uid`),
                             KEY `idx_aws_uniq` (`aws_customer_id`, `aws_product_code`,`aws_account_id`)
                         ) ENGINE = InnoDB
-                             DEFAULT CHARSET = utf8mb4\
+                             DEFAULT CHARSET = utf8mb4
                 """, """
                     ALTER TABLE `rdp_user`
-                            ADD COLUMN `marketplace_type` varchar(64) DEFAULT 'NONE'\
+                            ADD COLUMN `marketplace_type` varchar(64) DEFAULT 'NONE'
                 """);
     }
 }

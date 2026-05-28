@@ -18,8 +18,8 @@ package com.clougence.clouddm.console.web.component.approval;
 import java.util.List;
 
 import com.clougence.clouddm.console.web.component.project.ImSenderService;
-import com.clougence.clouddm.platform.dal.model.approval.ApprovalBiz;
 import com.clougence.clouddm.console.web.model.vo.PrimaryUserVO;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalBiz;
 
 public interface ApprovalHandler {
 

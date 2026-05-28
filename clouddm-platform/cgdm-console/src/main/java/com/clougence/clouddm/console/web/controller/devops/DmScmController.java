@@ -41,6 +41,7 @@ import com.clougence.clouddm.console.web.model.fo.project.DevopsScmAddFO;
 import com.clougence.clouddm.console.web.model.fo.project.DevopsScmDeleteFO;
 import com.clougence.clouddm.console.web.model.fo.project.DevopsScmUpdateFO;
 import com.clougence.clouddm.console.web.model.vo.project.DevopsScmVO;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.project.DmProjectService;
 import com.clougence.clouddm.console.web.service.project.DmScmService;
 import com.clougence.clouddm.console.web.service.project.domain.DmScmDef;
@@ -48,7 +49,6 @@ import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.model.project.DmProjectDevopsDO;
 import com.clougence.clouddm.platform.dal.model.project.DmProjectScmDO;
 import com.clougence.clouddm.platform.dal.model.project.ScmType;
-import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;

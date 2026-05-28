@@ -59,7 +59,7 @@ public class WXBizJsonMsgCrypt {
      */
     public WXBizJsonMsgCrypt(String token, String encodingAesKey, String receiveid){
         if (encodingAesKey.length() != 43) {
-            throw ThirdPartyApiException.asRDP().with(WechatI18nKey2.WECHAT_ILLEGAL_AES_KEY_ERROR);
+            throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_ILLEGAL_AES_KEY_ERROR);
         }
 
         this.token = token;
@@ -139,7 +139,7 @@ public class WXBizJsonMsgCrypt {
 
             return base64.encodeToString(encrypted);
         } catch (Exception e) {
-            throw ThirdPartyApiException.asRDP().with(e, WechatI18nKey2.WECHAT_ENCRYPT_AES_ERROR);
+            throw ThirdPartyApiException.as().with(e, WechatI18nKey2.WECHAT_ENCRYPT_AES_ERROR);
         }
     }
 
@@ -164,7 +164,7 @@ public class WXBizJsonMsgCrypt {
             // decrypt
             original = cipher.doFinal(encrypted);
         } catch (Exception e) {
-            throw ThirdPartyApiException.asRDP().with(e, WechatI18nKey2.WECHAT_DECRYPT_AES_ERROR);
+            throw ThirdPartyApiException.as().with(e, WechatI18nKey2.WECHAT_DECRYPT_AES_ERROR);
         }
 
         String jsonContent, from_receiveid;
@@ -180,12 +180,12 @@ public class WXBizJsonMsgCrypt {
             jsonContent = new String(Arrays.copyOfRange(bytes, 20, 20 + jsonLength), CHARSET);
             from_receiveid = new String(Arrays.copyOfRange(bytes, 20 + jsonLength, bytes.length), CHARSET);
         } catch (Exception e) {
-            throw ThirdPartyApiException.asRDP().with(e, WechatI18nKey2.WECHAT_ILLEGAL_BUFFER_ERROR);
+            throw ThirdPartyApiException.as().with(e, WechatI18nKey2.WECHAT_ILLEGAL_BUFFER_ERROR);
         }
 
         // The situation where the receivers have different IDs
         if (!from_receiveid.equals(receiveid)) {
-            throw ThirdPartyApiException.asRDP().with(WechatI18nKey2.WECHAT_VALIDATE_CORP_ID_ERROR);
+            throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_VALIDATE_CORP_ID_ERROR);
         }
         return jsonContent;
 
@@ -245,7 +245,7 @@ public class WXBizJsonMsgCrypt {
 
         // Compare with the signature in the URL to see if it is equal
         if (!signature.equals(msgSignature)) {
-            throw ThirdPartyApiException.asRDP().with(WechatI18nKey2.WECHAT_VALIDATE_SIGNATURE_ERROR);
+            throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_VALIDATE_SIGNATURE_ERROR);
         }
 
         // decrypt
@@ -265,7 +265,7 @@ public class WXBizJsonMsgCrypt {
         String signature = SHA1.getSHA1(token, timeStamp, nonce, echoStr);
 
         if (!signature.equals(msgSignature)) {
-            throw ThirdPartyApiException.asRDP().with(WechatI18nKey2.WECHAT_VALIDATE_SIGNATURE_ERROR);
+            throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_VALIDATE_SIGNATURE_ERROR);
         }
 
         return decrypt(echoStr);

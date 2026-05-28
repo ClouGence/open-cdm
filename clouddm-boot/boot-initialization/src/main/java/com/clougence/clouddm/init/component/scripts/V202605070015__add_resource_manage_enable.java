@@ -25,7 +25,7 @@ public class V202605070015__add_resource_manage_enable extends AbstractUpgradeJa
     public List<String> collectScript() {
         return List.of("""
                         ALTER TABLE rdp_user
-                            ADD COLUMN resource_manage_enable tinyint(1) DEFAULT 0\
+                            ADD COLUMN resource_manage_enable tinyint(1) DEFAULT 0
                 """);
     }
 }

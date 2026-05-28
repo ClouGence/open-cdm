@@ -17,11 +17,11 @@ package com.clougence.rdp.global.config.user;
 
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SchemaLessValueFormat;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
-import com.clougence.clouddm.platform.dal.model.system.ConfBelong;
 import com.clougence.clouddm.console.web.global.i18n.I18nUserConfigMsgKeys;
+import com.clougence.clouddm.platform.dal.model.system.ConfBelong;
 import com.clougence.clouddm.platform.dal.model.system.KvConfValType;
-import com.clougence.rdp.constant.UserConfigDef;
 import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
+import com.clougence.rdp.constant.UserConfigDef;
 import com.clougence.rdp.service.enumeration.AlertImType;
 import com.clougence.rdp.service.enumeration.AlertSmsType;
 import com.clougence.rdp.service.enumeration.AlertVoiceType;
@@ -395,9 +395,6 @@ public class UserDefinedConfig {
 
     @UserConfigDef(name = "pkSeparator", descKey = I18nUserConfigMsgKeys.USER_CONFIG_ES_PK_SEPARATOR_DESCRIPTION, valueRange = "$ / _ / - / ...", configTagType = UserConfigTagType.CC_FUNCTION, confBelong = ConfBelong.CloudCanal)
     private String                pkSeparator;
-
-    @UserConfigDef(name = "workerAutoFetchExternalIp", defaultValue = "false", descKey = I18nUserConfigMsgKeys.USER_CONFIG_WORKER_AUTO_FETCH_EXTERNAL_IP, valueRange = "true / false", configTagType = UserConfigTagType.CC_FUNCTION, confBelong = ConfBelong.CloudCanal, kvConfWebOp = KvConfValType.BOOLEAN)
-    private Boolean               workerAutoFetchExternalIp;
 
     //    @UserConfigDef(name = "jobTableDefaultSelectAll", defaultValue = "false", descKey = I18nUserConfigMsgKeys.CREATE_JOB_TABLE_DEFAULT_SELECT_ALL, valueRange = "true / false", configTagType = UserConfigTagType.CC_FUNCTION, confBelong = ConfBelong.CloudCanal, kvConfWebOp = KvConfValType.BOOLEAN)
     //    private Boolean               jobTableDefaultSelectAll;

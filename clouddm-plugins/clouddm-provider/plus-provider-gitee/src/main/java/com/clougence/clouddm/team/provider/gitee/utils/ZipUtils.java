@@ -54,10 +54,10 @@ public class ZipUtils {
 
     public void unZip(File sourceFile, File targetDir, String keepPath, int floor, ESupplier<Boolean, Exception> watchdog) {
         if (!sourceFile.exists()) {
-            throw ThirdPartyApiException.asDM().with(GiteeI18nKeys.GITEE_UNZIP_ZIP_NOT_EXIST_ERROR, sourceFile.getAbsolutePath());
+            throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_UNZIP_ZIP_NOT_EXIST_ERROR, sourceFile.getAbsolutePath());
         }
         if (targetDir.isFile()) {
-            throw ThirdPartyApiException.asDM().with(GiteeI18nKeys.GITEE_UNZIP_DST_IS_FILE_ERROR, targetDir.getAbsolutePath());
+            throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_UNZIP_DST_IS_FILE_ERROR, targetDir.getAbsolutePath());
         }
 
         targetDir.mkdirs();
@@ -116,7 +116,7 @@ public class ZipUtils {
 
             log.info("unZip cost " + (System.currentTimeMillis() - start) + " ms");
         } catch (Exception e) {
-            throw ThirdPartyApiException.asDM().with(e, GiteeI18nKeys.GITEE_UNZIP_ERROR, e.getMessage());
+            throw ThirdPartyApiException.as().with(e, GiteeI18nKeys.GITEE_UNZIP_ERROR, e.getMessage());
         }
     }
 

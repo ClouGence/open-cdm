@@ -15,9 +15,6 @@
  */
 package com.clougence.rdp.service.impl;
 
-import com.clougence.clouddm.platform.dal.access.AuthDal;
-import com.clougence.clouddm.platform.dal.access.SystemDal;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,14 +27,16 @@ import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.model.fo.UpsertUserConfigFO;
 import com.clougence.clouddm.console.web.model.lo.UpsertUserConfigLO;
 import com.clougence.clouddm.console.web.model.vo.RdpUserConfigVO;
-import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
+import com.clougence.clouddm.console.web.service.auth.RdpUserConfigHelper;
+import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
+import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
 import com.clougence.rdp.global.config.user.SubAccountConfig;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.rdp.service.RdpNotifyService;
-import com.clougence.rdp.service.RdpUserConfigHelper;
-import com.clougence.rdp.service.RdpUserConfigService;
 import com.clougence.rdp.service.model.UserConfigMO;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
@@ -53,46 +52,15 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpUserConfigServiceImpl implements RdpUserConfigService {
 
     @Resource
-    private SystemDal systemDal;
-
+    private SystemDal              systemDal;
     @Resource
-    private AuthDal authDal;
-
+    private AuthDal                authDal;
     @Resource
-    private RdpUserConfigHelper       rdpUserConfigHelper;
-
+    private RdpUserConfigHelper    rdpUserConfigHelper;
     @Resource
-    private DmConsoleConfig           rdpConfig;
-
+    private DmConsoleConfig        rdpConfig;
     @Resource
-    private List<RdpNotifyService>    notifyServices;
-
-    @Override
-    public UserDefinedConfig fetchPriUserConfig(String uid) {
-        List<DmSysUserConfDO> configs = systemDal.userConfMapper().listByUid(uid);
-
-        Map<String, String> configMap = new HashMap<>();
-        if (configs != null && !configs.isEmpty()) {
-            configs.forEach(kvBaseConfigDO -> configMap.put(kvBaseConfigDO.getConfigName(), kvBaseConfigDO.getConfigValue()));
-        }
-
-        UserDefinedConfig config = new UserDefinedConfig();
-        rdpUserConfigHelper.fillFieldValue(config, configMap);
-        return config;
-    }
-
-    @Override
-    public List<RdpUserConfigVO> getAllConfig(String uid) {
-        List<DmSysUserConfDO> configs = systemDal.userConfMapper().listByUid(uid);
-        for (DmSysUserConfDO configDO : configs) {
-            if (configDO.isSecret() && StringUtils.isNotBlank(configDO.getConfigValue())) {
-                String val = CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(configDO.getConfigValue());
-                configDO.setConfigValue(val);
-            }
-        }
-
-        return convertToVO(configs);
-    }
+    private List<RdpNotifyService> notifyServices;
 
     @Override
     public List<RdpUserConfigVO> queryUserConfigVosWithNewEntries(String uid) {
@@ -296,11 +264,6 @@ public class RdpUserConfigServiceImpl implements RdpUserConfigService {
     }
 
     @Override
-    public DmSysUserConfDO getDefaultClusterName(String uid) {
-        return systemDal.userConfMapper().queryByUidAndConfigName(uid, "defaultClusterName");
-    }
-
-    @Override
     public DmSysUserConfDO getSpecifiedConfig(String uid, String configName) {
         DmSysUserConfDO configDO = systemDal.userConfMapper().queryByUidAndConfigName(uid, configName);
         if (configDO != null && configDO.isSecret() && StringUtils.isNotBlank(configDO.getConfigValue())) {
@@ -322,13 +285,6 @@ public class RdpUserConfigServiceImpl implements RdpUserConfigService {
         }
 
         return convertToVO(configs);
-    }
-
-    @Override
-    public void initUserConfigs(String uid) {
-        UserDefinedConfig config = new UserDefinedConfig();
-        List<DmSysUserConfDO> dos = rdpUserConfigHelper.collectConfigs(config, uid);
-        insertConfigDOs(dos);
     }
 
     @Override

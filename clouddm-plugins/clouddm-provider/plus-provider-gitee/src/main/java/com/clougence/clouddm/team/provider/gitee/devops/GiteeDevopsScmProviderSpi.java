@@ -96,7 +96,7 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
             Response response = this.httpClient.newCall(request).execute();
             if (!response.isSuccessful()) {
                 String errorMessage = response.code() + ":" + response.message();
-                throw ThirdPartyApiException.asDM().with(GiteeI18nKeys.GITEE_SCM_FETCH_REPOS_ERROR, errorMessage);
+                throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_FETCH_REPOS_ERROR, errorMessage);
             }
 
             String jsonStr = response.body().string();
@@ -104,7 +104,7 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
         } catch (ThirdPartyApiException e) {
             throw e;
         } catch (Exception e) {
-            throw ThirdPartyApiException.asDM().with(e, GiteeI18nKeys.GITEE_SCM_FETCH_REPOS_ERROR, e.getMessage());
+            throw ThirdPartyApiException.as().with(e, GiteeI18nKeys.GITEE_SCM_FETCH_REPOS_ERROR, e.getMessage());
         }
     }
 
@@ -120,7 +120,7 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
         if (repoList.isEmpty()) {
             return Collections.emptyList();
         } else if (repoList.size() > 1) {
-            throw ThirdPartyApiException.asDM().with(GiteeI18nKeys.GITEE_SCM_FETCH_BRANCH_MULTIPLE_REPOS_ERROR);
+            throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_FETCH_BRANCH_MULTIPLE_REPOS_ERROR);
         } else {
             repoObject = repoList.get(0);
         }
@@ -134,7 +134,7 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
             Response response = this.httpClient.newCall(request).execute();
             if (!response.isSuccessful()) {
                 String errorMessage = response.code() + ":" + response.message();
-                throw ThirdPartyApiException.asDM().with(GiteeI18nKeys.GITEE_SCM_FETCH_BRANCH_ERROR, errorMessage);
+                throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_FETCH_BRANCH_ERROR, errorMessage);
             }
 
             String jsonStr = response.body().string();
@@ -154,7 +154,7 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
         } catch (ThirdPartyApiException e) {
             throw e;
         } catch (Exception e) {
-            throw ThirdPartyApiException.asDM().with(e, GiteeI18nKeys.GITEE_SCM_FETCH_BRANCH_ERROR, e.getMessage());
+            throw ThirdPartyApiException.as().with(e, GiteeI18nKeys.GITEE_SCM_FETCH_BRANCH_ERROR, e.getMessage());
         }
     }
 
@@ -198,7 +198,7 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
         try {
             GiteeWebHookEvent hookInfo = JsonUtils.toObjUseType(jsonBody, GiteeWebHookEvent.class);
             if (StringUtils.isNotBlank(password) && !StringUtils.equals(hookInfo.getPassword(), password)) {
-                throw ThirdPartyApiException.asDM().with(GiteeI18nKeys.GITEE_SCM_EVENT_PASSWORD_ERROR);
+                throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_EVENT_PASSWORD_ERROR);
             }
 
             ScmEventType eventType = null;
@@ -373,7 +373,7 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
         } catch (ThirdPartyApiException e) {
             throw e;
         } catch (Exception e) {
-            throw ThirdPartyApiException.asDM().with(e, GiteeI18nKeys.GITEE_SCM_EVENT_DECODER_ERROR, e.getMessage());
+            throw ThirdPartyApiException.as().with(e, GiteeI18nKeys.GITEE_SCM_EVENT_DECODER_ERROR, e.getMessage());
         }
     }
 
@@ -387,7 +387,7 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
         // check
         DownloadInfo info;
         if (!groupByRepo.containsKey(scmRepoName)) {
-            throw ThirdPartyApiException.asDM().with(GiteeI18nKeys.GITEE_SCM_NOT_FOUND_REPO_ERROR);
+            throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_NOT_FOUND_REPO_ERROR);
         } else {
             info = groupByRepo.get(scmRepoName);
         }
@@ -422,7 +422,7 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
         try (Response response = this.httpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 String errorMessage = response.code() + ":" + response.message();
-                throw ThirdPartyApiException.asDM().with(GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, errorMessage);
+                throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, errorMessage);
             }
 
             long time = System.currentTimeMillis();
@@ -453,7 +453,7 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
         } catch (ThirdPartyApiException e) {
             throw e;
         } catch (Exception e) {
-            throw ThirdPartyApiException.asDM().with(GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, e.getMessage());
+            throw ThirdPartyApiException.as().with(GiteeI18nKeys.GITEE_SCM_DOWNLOAD_REPOS_ERROR, e.getMessage());
         }
 
         return true;

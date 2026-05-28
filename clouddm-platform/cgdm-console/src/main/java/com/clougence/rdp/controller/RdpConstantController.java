@@ -29,11 +29,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.console.web.constants.RegionArea;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy;
 import com.clougence.clouddm.console.web.model.vo.RegionAreaVO;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
-import com.clougence.clouddm.console.web.constants.RegionArea;
 
 /**
  * @author bucketli 2020/12/30 12:17

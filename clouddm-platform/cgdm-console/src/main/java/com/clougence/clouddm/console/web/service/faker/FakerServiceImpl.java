@@ -16,7 +16,6 @@
 package com.clougence.clouddm.console.web.service.faker;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -71,21 +70,20 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class FakerServiceImpl implements FakerService, FakerMethod {
 
-    private final Map<String, FakerDefVO> dsUiCache = new ConcurrentHashMap<>();
     @Resource
-    private ExecutionDal                  executionDal;
+    private ExecutionDal             executionDal;
     @Resource
-    private DataSourceDal                 dsDal;
+    private DataSourceDal            dsDal;
     @Resource
-    private AsyncTaskService              asyncTaskService;
+    private AsyncTaskService         asyncTaskService;
     @Resource
-    private ToolsService                  toolsService;
+    private ToolsService             toolsService;
     @Resource
-    private DsSchemaService               dsSchemaService;
+    private DsSchemaService          dsSchemaService;
     @Resource
-    private DmDsConfigService             dsConfigService;
+    private DmDsConfigService        dsConfigService;
     @Resource
-    private AsyncTaskScheduleService      scheduleService;
+    private AsyncTaskScheduleService scheduleService;
 
     @Override
     public FakerDefVO loadFakerDef(String puid, String uid, FakerDefFO fo) {

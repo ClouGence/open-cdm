@@ -15,8 +15,6 @@
  */
 package com.clougence.rdp.controller;
 
-import com.clougence.clouddm.platform.dal.access.AuthDal;
-
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Map;
@@ -26,24 +24,30 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.constants.EventType;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
-import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
-import com.clougence.clouddm.platform.dal.model.auth.AccountType;
-import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthCsrfTokenDO;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.csrf.CsrfTokenService;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
-import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.console.web.model.fo.LoginFO;
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.service.auth.RdpUserLoginRegService;
+import com.clougence.clouddm.console.web.service.login.RdpSubLoginService;
 import com.clougence.clouddm.console.web.util.RdpWebUtils;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthCsrfTokenDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.approval.ApprovalCallbackSpi;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
@@ -52,12 +56,7 @@ import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
 import com.clougence.clouddm.sdk.security.login.LoginRequest;
 import com.clougence.clouddm.sdk.security.login.LoginResponse;
 import com.clougence.clouddm.sdk.service.config.UserData;
-import com.clougence.clouddm.console.web.component.auth.RdpSubLoginService;
-import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
-import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.rdp.service.RdpOpAuditService;
-import com.clougence.rdp.service.RdpUserLoginRegService;
 import com.clougence.rdp.service.model.LoginMO;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
@@ -74,7 +73,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/callback")
 public class RdpCallbackController {
     @Resource
-    private AuthDal authDal;
+    private AuthDal                authDal;
 
     @Resource
     private ApprovalFlowService    approvalFlowService;
@@ -239,8 +238,6 @@ public class RdpCallbackController {
                         .getErrMsg(), SecurityLevel.NORMAL, AuditType.LOGIN_FAIL, ResourceType.ACCOUNT);
                 }
                 return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_LOGIN_ERROR.name(), login.getErrMsg());
-            } else if (login.isNeedMore()) {
-                return redirectToLogin(request, response, login.getToken(), primaryUser.getUid(), fetchUser);
             } else {
                 this.authDal.userMapper().updateUserName(login.getUid(), fetchUser.getUserName());
             }
@@ -280,16 +277,11 @@ public class RdpCallbackController {
         } else if (!StringUtils.endsWith(contextPath, "/")) {
             contextPath += "/";
         }
-        String subAccount = fetchUser.getSubAccount();
-        String userDomain = fetchUser.getUserDomain();
-        String domainSuffix = StringUtils.isBlank(userDomain) ? "" : "@" + userDomain;
-        if (StringUtils.isNotBlank(subAccount) && StringUtils.isNotBlank(domainSuffix) && StringUtils.endsWith(subAccount, domainSuffix)) {
-            subAccount = subAccount.substring(0, subAccount.length() - domainSuffix.length());
-        }
+        String subAccount = fetchUser.getSubAccount().substring(0, fetchUser.getUserDomain().length());
         String redirectUrl = contextPath + "#/login?" +//
                              "token=" + URLEncoder.encode(StringUtils.defaultString(registerToken, ""), "UTF-8") + "&" +//
                              "sub=" + URLEncoder.encode(StringUtils.defaultString(subAccount, ""), "UTF-8") + "&" +//
-                             "account=" + URLEncoder.encode(StringUtils.defaultString(subAccount, ""), "UTF-8") + "&" +//
+                             "account=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getSubAccount(), ""), "UTF-8") + "&" +//
                              "user=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getUserName(), ""), "UTF-8") + "&" +//
                              "phone=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getPhone(), ""), "UTF-8") + "&" +//
                              "email=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getEmail(), ""), "UTF-8") + "&" +//

@@ -15,11 +15,6 @@
  */
 package com.clougence.rdp.service.impl;
 
-import com.clougence.clouddm.platform.dal.access.AuthDal;
-import com.clougence.clouddm.platform.dal.access.DataSourceDal;
-import com.clougence.clouddm.platform.dal.access.MonitorDal;
-import com.clougence.clouddm.platform.dal.access.SystemDal;
-
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,17 +24,21 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceFlagEnum;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
-import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.model.fo.ExportOpAuditFO;
 import com.clougence.clouddm.console.web.model.vo.*;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.access.MonitorDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
-import com.clougence.clouddm.platform.dal.model.monitor.*;
-import com.clougence.clouddm.platform.dal.model.datasource.*;
-import com.clougence.clouddm.platform.dal.model.system.*;
-import com.clougence.clouddm.platform.dal.model.auth.*;
+import com.clougence.clouddm.platform.dal.model.monitor.DmMonOpAuditDO;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
+import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.rdp.service.RdpOpAuditService;
-import com.clougence.rdp.service.RdpUserService;
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.NumberUtils;
@@ -69,20 +68,13 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
     private final Set<String>                     isExistsLogSet = new HashSet<>();
 
     @Resource
-    private SystemDal systemDal;
-
+    private SystemDal                             systemDal;
     @Resource
-    private MonitorDal monitorDal;
-
+    private MonitorDal                            monitorDal;
     @Resource
-    private DataSourceDal datasourceDal;
-
+    private DataSourceDal                         datasourceDal;
     @Resource
-    private AuthDal authDal;
-
-    @Resource
-    private RdpUserService                        rdpUserService;
-
+    private AuthDal                               authDal;
     @Resource
     private DmConsoleConfig                       rdpConfig;
 

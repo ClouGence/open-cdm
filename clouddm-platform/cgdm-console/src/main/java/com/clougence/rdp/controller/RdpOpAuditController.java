@@ -42,9 +42,9 @@
 //import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 //import com.clougence.clouddm.api.common.rpc.ResWebData;
 //import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-//import com.clougence.rdp.service.RdpAuthServiceForBiz;
+//import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 //import com.clougence.rdp.service.RdpOpAuditService;
-//import com.clougence.rdp.service.RdpUserService;
+//import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 //
 //import lombok.extern.slf4j.Slf4j;
 //
@@ -63,7 +63,7 @@
 //    private RdpUserService       rdpUserService;
 //
 //    @Resource
-//    private RdpAuthServiceForBiz rdpAuthServiceForBiz;
+//    private DmAuthServiceForBiz rdpAuthServiceForBiz;
 //
 //    @RequestAuth(RDP_OP_AUDIT_READ)
 //    @RequestMapping(value = "/ctrl_queryAll", method = RequestMethod.POST)

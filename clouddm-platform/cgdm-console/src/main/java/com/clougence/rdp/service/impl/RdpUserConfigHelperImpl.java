@@ -18,15 +18,13 @@ package com.clougence.rdp.service.impl;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.rdp.constant.UserConfigDef;
+import com.clougence.clouddm.console.web.service.auth.RdpUserConfigHelper;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
-import com.clougence.rdp.service.RdpUserConfigHelper;
+import com.clougence.rdp.constant.UserConfigDef;
 import com.clougence.utils.ExceptionUtils;
-import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,11 +34,6 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class RdpUserConfigHelperImpl implements RdpUserConfigHelper {
-
-    @Override
-    public void fillFieldValue(Object instance, Map<String, String> configMap) {
-        fillFieldValue(instance, instance.getClass(), configMap);
-    }
 
     @Override
     public List<DmSysUserConfDO> collectConfigs(Object instance, String uid) {
@@ -98,47 +91,5 @@ public class RdpUserConfigHelperImpl implements RdpUserConfigHelper {
         configDO.setDescKey(configDef.descKey().name());
 
         return configDO;
-    }
-
-    protected void fillFieldValue(Object instance, Class clazz, Map<String, String> configMap) {
-        Field[] fields = clazz.getDeclaredFields();
-
-        for (Field field : fields) {
-            field.setAccessible(true);
-
-            UserConfigDef configDef = field.getAnnotation(UserConfigDef.class);
-            if (configDef == null) {
-                continue;
-            }
-
-            String configValue = configMap.get(configDef.name());
-
-            if (configValue == null) {
-                continue;
-            }
-
-            Object convert = null;
-            //            Object convert = ConverterUtils.convert(configValue, field.getType());
-            //            if (convert == null && field.getType().isPrimitive()) {
-            //                convert = BeanUtils.getDefaultValue(field.getType());
-            //            }
-
-            try {
-                if (StringUtils.isBlank(configValue)) {
-                    field.set(instance, null);
-                } else {
-                    field.set(instance, convert);
-                }
-            } catch (Exception e) {
-                String msg = "fill field value failed,msg:" + ExceptionUtils.getRootCauseMessage(e);
-                log.error(msg, e);
-                throw new RuntimeException(msg, e);
-            }
-
-        }
-
-        if (clazz.getSuperclass() != null && clazz.getSuperclass() != Object.class) {
-            fillFieldValue(instance, clazz.getSuperclass(), configMap);
-        }
     }
 }

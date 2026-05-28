@@ -29,9 +29,9 @@ import com.clougence.clouddm.console.web.model.fo.mfa.CloseMfaSettingsFO;
 import com.clougence.clouddm.console.web.model.fo.mfa.ConfirmInitMfaSettingsFO;
 import com.clougence.clouddm.console.web.model.fo.mfa.ConfirmResetMfaSettingsFO;
 import com.clougence.clouddm.console.web.model.fo.mfa.ResetMfaSettingsFO;
+import com.clougence.clouddm.console.web.service.auth.RdpUserMfaService;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
-import com.clougence.rdp.service.RdpUserMfaService;
-import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.ExceptionUtils;
 
 import jakarta.annotation.Resource;

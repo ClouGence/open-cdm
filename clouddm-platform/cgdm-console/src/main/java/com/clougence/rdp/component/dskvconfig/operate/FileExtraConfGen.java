@@ -20,12 +20,12 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
+import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.rdp.component.dskvconfig.RdpDsExtraConfGen;
 import com.clougence.rdp.component.dskvconfig.model.FileExtraConfig;
-import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -39,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class FileExtraConfGen implements RdpDsExtraConfGen {
 
     @Resource
-    protected DmConsoleConfig  rdpConsoleConfig;
+    protected DmConsoleConfig rdpConsoleConfig;
 
     @Override
     public DsExtraConfig genDsExtraConfig(DmDsDO dsDO, List<InitDsKvBaseConfigFO> fos) {

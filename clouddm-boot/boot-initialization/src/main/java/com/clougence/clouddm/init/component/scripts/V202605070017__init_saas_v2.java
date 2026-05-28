@@ -26,7 +26,7 @@ public class V202605070017__init_saas_v2 extends AbstractUpgradeJavaMigration {
         return List.of("""
                         ALTER TABLE rdp_user
                             ADD COLUMN `saas_user_status` varchar(128) DEFAULT 'SAAS_UN_BIND_BANK',
-                            ADD COLUMN `customer_id` varchar(128) DEFAULT NULL\
+                            ADD COLUMN `customer_id` varchar(128) DEFAULT NULL
                 """);
     }
 }

@@ -21,10 +21,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 
-import com.clougence.clouddm.team.provider.feishu.constants.FeishuI18nKeys2;
+import com.clougence.clouddm.sdk.LoggerUtil;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiErrorType;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.clouddm.sdk.LoggerUtil;
+import com.clougence.clouddm.team.provider.feishu.constants.FeishuI18nKeys2;
 import com.lark.oapi.Client;
 import com.lark.oapi.core.exception.ObtainAccessTokenException;
 import com.lark.oapi.core.request.EventReq;
@@ -125,48 +125,56 @@ public class FeishuClient implements Closeable {
         try {
             return caller.call(this);
         } catch (IOException e) {
-            throw ThirdPartyApiException.asRDP().with(e, ThirdPartyApiErrorType.CONNECTION_ERROR, FeishuI18nKeys2.FEISHU_CONNECTION_ERROR);
+            throw ThirdPartyApiException.as().with(e, ThirdPartyApiErrorType.CONNECTION_ERROR, FeishuI18nKeys2.FEISHU_CONNECTION_ERROR, exceptionDescription(e));
         } catch (CallApiException e) {
             if (e.getCode() == 99991400 && count < 3) {
                 return callApi(caller, count + 1);
             }
             handleCallApiException(e);
-            throw ThirdPartyApiException.asRDP().with(e, FeishuI18nKeys2.FEISHU_UNKNOWN_CALL_API_ERROR, e.getMessage());
+            throw ThirdPartyApiException.as().with(e, FeishuI18nKeys2.FEISHU_UNKNOWN_CALL_API_ERROR, e.getMessage());
         } catch (ThirdPartyApiException e) {
             throw e;
         } catch (ObtainAccessTokenException e) {
             // appid or secret error
-            throw ThirdPartyApiException.asRDP().with(e, FeishuI18nKeys2.FEISHU_APP_CONFIG_ERROR);
+            throw ThirdPartyApiException.as().with(e, FeishuI18nKeys2.FEISHU_APP_CONFIG_ERROR);
         } catch (Exception e) {
-            throw ThirdPartyApiException.asRDP().with(e, FeishuI18nKeys2.FEISHU_UNKNOWN_CALL_API_ERROR, e.getMessage());
+            throw ThirdPartyApiException.as().with(e, FeishuI18nKeys2.FEISHU_UNKNOWN_CALL_API_ERROR, e.getMessage());
         }
     }
 
     private void handleCallApiException(CallApiException e) {
         switch (e.getCode()) {
             case 99991400: {
-                throw ThirdPartyApiException.asRDP().with(e, ThirdPartyApiErrorType.CONNECTION_ERROR, FeishuI18nKeys2.FEISHU_REQUEST_FREQUENCY);
+                throw ThirdPartyApiException.as().with(e, ThirdPartyApiErrorType.CONNECTION_ERROR, FeishuI18nKeys2.FEISHU_REQUEST_FREQUENCY);
             }
             case 1390002:
             case 1390016:
             case 1390015: {
-                throw ThirdPartyApiException.asRDP().with(e, ThirdPartyApiErrorType.APPROVAL_TEMPLATE_NOT_EXISTS, FeishuI18nKeys2.FEISHU_APPROVAL_TEMPLATE_NOT_EXIST);
+                throw ThirdPartyApiException.as().with(e, ThirdPartyApiErrorType.APPROVAL_TEMPLATE_NOT_EXISTS, FeishuI18nKeys2.FEISHU_APPROVAL_TEMPLATE_NOT_EXIST);
             }
             case 1390003: {
-                throw ThirdPartyApiException.asRDP().with(e, FeishuI18nKeys2.FEISHU_APPROVAL_INSTANCE_NOT_EXIST);
+                throw ThirdPartyApiException.as().with(e, FeishuI18nKeys2.FEISHU_APPROVAL_INSTANCE_NOT_EXIST);
             }
             case 99991672: {
-                throw ThirdPartyApiException.asRDP().with(e, FeishuI18nKeys2.FEISHU_API_ACCESS_DENY);
+                throw ThirdPartyApiException.as().with(e, FeishuI18nKeys2.FEISHU_API_ACCESS_DENY);
             }
             case 99991403: {
-                throw ThirdPartyApiException.asRDP().with(e, FeishuI18nKeys2.FEISHU_API_CALL_COUNT_LIMIT);
+                throw ThirdPartyApiException.as().with(e, FeishuI18nKeys2.FEISHU_API_CALL_COUNT_LIMIT);
             }
             case 99991401: {
-                throw ThirdPartyApiException.asRDP().with(e, FeishuI18nKeys2.FEISHU_API_CALL_IP_DENY, e.getMessage().split(" ")[1]);
+                throw ThirdPartyApiException.as().with(e, FeishuI18nKeys2.FEISHU_API_CALL_IP_DENY, e.getMessage().split(" ")[1]);
             }
             default: {
-                throw ThirdPartyApiException.asRDP().with(e, FeishuI18nKeys2.FEISHU_UNKNOWN_CALL_API_ERROR, e.getMessage());
+                throw ThirdPartyApiException.as().with(e, FeishuI18nKeys2.FEISHU_UNKNOWN_CALL_API_ERROR, e.getMessage());
             }
         }
+    }
+
+    private static String exceptionDescription(Throwable e) {
+        if (e == null) {
+            return "";
+        }
+        String message = e.getMessage();
+        return message == null ? e.getClass().getName() : e.getClass().getName() + ": " + message;
     }
 }

@@ -52,7 +52,7 @@ public class V202605070007__dm_order extends AbstractUpgradeJavaMigration {
                                 UNIQUE KEY `idx_unique_biz_id` (`biz_id`),
                                 KEY `idx_data_source_id` (`bind_ds_id`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE `rdp_cache_appro_template`
                             (
@@ -68,7 +68,7 @@ public class V202605070007__dm_order extends AbstractUpgradeJavaMigration {
                                 PRIMARY KEY (`id`),
                                 KEY `cache_appro_template_puid` (`primary_uid`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE `rdp_async_task`
                             (
@@ -99,7 +99,7 @@ public class V202605070007__dm_order extends AbstractUpgradeJavaMigration {
                                 UNIQUE KEY `rdp_async_task_biz_idx` (`biz_id`, `biz_type`),
                                 KEY `rdp_async_task_owner_uid` (`owner_uid`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE `rdp_env_param`
                             (
@@ -112,7 +112,7 @@ public class V202605070007__dm_order extends AbstractUpgradeJavaMigration {
                                 `primary_uid`  varchar(256) NOT NULL DEFAULT '',
                                 PRIMARY KEY (`id`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE `rdp_ticket_process`
                             (
@@ -131,7 +131,7 @@ public class V202605070007__dm_order extends AbstractUpgradeJavaMigration {
                                 KEY `idx_data_source_id` (`ticket_id`),
                                 KEY `ticket_status` (`ticket_id`, `ticket_stage`)
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """, """
                         CREATE TABLE `rdp_approval_person`
                             (
@@ -143,7 +143,7 @@ public class V202605070007__dm_order extends AbstractUpgradeJavaMigration {
                                 PRIMARY KEY (`id`),
                                 UNIQUE KEY `uk_bz_uid` (`ticket_bz_id`, `person_uid`) USING BTREE
                             ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                     """);
     }
 

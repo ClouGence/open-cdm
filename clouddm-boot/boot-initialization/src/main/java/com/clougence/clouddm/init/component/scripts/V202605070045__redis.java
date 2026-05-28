@@ -25,7 +25,7 @@ public class V202605070045__redis extends AbstractUpgradeJavaMigration {
     public List<String> collectScript() {
         return List.of("""
                     alter table `dm_sec_rules`
-                        modify rule_target  varchar(64) null\
+                        modify rule_target  varchar(64) null
                 """);
     }
 }

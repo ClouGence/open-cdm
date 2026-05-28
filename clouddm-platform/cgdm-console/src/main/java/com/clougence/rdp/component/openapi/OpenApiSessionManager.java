@@ -22,9 +22,9 @@ import java.util.Map;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
+import com.clougence.clouddm.console.web.component.auth.DmUserService;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
 import com.fasterxml.uuid.Generators;
@@ -49,7 +49,7 @@ public class OpenApiSessionManager implements HandlerInterceptor {
     private final String       OPEN_API_URI_PREFIX;
 
     @Resource
-    private RdpUserService     rdpUserService;
+    private DmUserService      dmUserService;
 
     public OpenApiSessionManager(String openApiUriPrefix){
         this.OPEN_API_URI_PREFIX = openApiUriPrefix;
@@ -80,7 +80,7 @@ public class OpenApiSessionManager implements HandlerInterceptor {
             return false;
         }
 
-        DmAuthUserDO userDO = rdpUserService.getUserByAk(ak);
+        DmAuthUserDO userDO = dmUserService.getUserByAk(ak);
         if (userDO == null) {
             responseSystemError(response, USER_NOT_EXIST);
             return false;
@@ -101,15 +101,15 @@ public class OpenApiSessionManager implements HandlerInterceptor {
             return false;
         }
 
-        request.setAttribute(RdpUserService.UID, userDO.getUid());
-        request.setAttribute(RdpUserService.USER_ROLE, userDO.getRoleId());
-        request.setAttribute(RdpUserService.IS_MAINTAINER, userDO.isMaintainer());
+        request.setAttribute(DmUserService.UID, userDO.getUid());
+        request.setAttribute(DmUserService.USER_ROLE, userDO.getRoleId());
+        request.setAttribute(DmUserService.IS_MAINTAINER, userDO.isMaintainer());
 
         if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
-            request.setAttribute(RdpUserService.PUID, userDO.getUid());
+            request.setAttribute(DmUserService.PUID, userDO.getUid());
         } else {
-            DmAuthUserDO primaryUser = this.rdpUserService.getUserById(userDO.getParentId());
-            request.setAttribute(RdpUserService.PUID, primaryUser.getUid());
+            DmAuthUserDO primaryUser = this.dmUserService.getUserById(userDO.getParentId());
+            request.setAttribute(DmUserService.PUID, primaryUser.getUid());
         }
 
         request.setAttribute(OPEN_API_REQUEST_ID, generateRequestId());

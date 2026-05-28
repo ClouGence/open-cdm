@@ -24,7 +24,7 @@ import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
-import com.clougence.rdp.service.RdpUserService;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;

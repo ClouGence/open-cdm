@@ -15,23 +15,22 @@
  */
 package com.clougence.rdp.service.impl;
 
-import com.clougence.clouddm.platform.dal.access.AuthDal;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
+import com.clougence.clouddm.console.web.util.RdpConvertUtils;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.clouddm.sdk.service.config.ConfigData;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.sdk.service.config.RoleData;
 import com.clougence.clouddm.sdk.service.config.UserData;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
-import com.clougence.rdp.service.RdpUserConfigService;
-import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.utils.CollectionUtils;
 
 import jakarta.annotation.Resource;
@@ -45,8 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConfigServiceImpl implements ConsoleConfigService {
     @Resource
-    private AuthDal authDal;
-
+    private AuthDal              authDal;
     @Resource
     private RdpUserConfigService rdpUserConfigService;
 

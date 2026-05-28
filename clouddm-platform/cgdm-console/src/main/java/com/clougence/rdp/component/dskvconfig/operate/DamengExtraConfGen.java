@@ -19,12 +19,12 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.rdp.component.dskvconfig.RdpDsExtraConfGen;
 import com.clougence.rdp.component.dskvconfig.model.DamengExtraConfig;
-import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -35,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DamengExtraConfGen implements RdpDsExtraConfGen {
 
     @Resource
-    private DmConsoleConfig  rdpConfig;
+    private DmConsoleConfig rdpConfig;
 
     @Override
     public DamengExtraConfig newDsExtraConfig() {

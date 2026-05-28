@@ -24,7 +24,7 @@ public class V202605070027__mfa extends AbstractUpgradeJavaMigration {
     @Override
     public List<String> collectScript() {
         return List.of("""
-                    ALTER TABLE `rdp_user` ADD COLUMN `use_mfa` tinyint(1) NOT NULL DEFAULT 0\
+                    ALTER TABLE `rdp_user` ADD COLUMN `use_mfa` tinyint(1) NOT NULL DEFAULT 0
                 """, """
                     CREATE TABLE IF NOT EXISTS `rdp_user_mfa`
                         (
@@ -40,7 +40,7 @@ public class V202605070027__mfa extends AbstractUpgradeJavaMigration {
                             KEY `idx_user_id` (`user_id`),
                             KEY `idx_uid` (`uid`)
                         ) ENGINE = InnoDB
-                          DEFAULT CHARSET = utf8mb4\
+                          DEFAULT CHARSET = utf8mb4
                 """);
     }
 }

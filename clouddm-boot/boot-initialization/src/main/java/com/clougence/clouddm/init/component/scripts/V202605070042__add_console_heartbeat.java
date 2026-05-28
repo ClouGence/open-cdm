@@ -39,7 +39,7 @@ public class V202605070042__add_console_heartbeat extends AbstractUpgradeJavaMig
                         console_send_time DATETIME    DEFAULT CURRENT_TIMESTAMP NULL,
                         hardware_uuid     VARCHAR(127) NULL,
                         PRIMARY KEY (`id`)
-                    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4\
+                    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4
                 """);
     }
 }

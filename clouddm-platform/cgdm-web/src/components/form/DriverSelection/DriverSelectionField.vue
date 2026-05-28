@@ -36,7 +36,6 @@ const createInitialDriverStatus = () => ({
   status: 'IDLE',
   retryAction: 'CHECK',
   message: '',
-  resourceCoordinate: '',
   currentFileName: ''
 });
 
@@ -290,7 +289,6 @@ export default {
         status: 'CHECKING',
         retryAction: 'CHECK',
         message: '',
-        resourceCoordinate: '',
         currentFileName: '',
         totalFileCount: 0,
         completedFileCount: 0,
@@ -362,7 +360,6 @@ export default {
         status: 'DOWNLOADING',
         retryAction: 'DOWNLOAD',
         message: '',
-        resourceCoordinate: '',
         currentFileName: ''
       };
 
@@ -411,7 +408,6 @@ export default {
           status: 'DOWNLOADING',
           retryAction: 'DOWNLOAD',
           message: event.message || '',
-          resourceCoordinate: event.resourceCoordinate || this.driverStatus.resourceCoordinate,
           currentFileName: event.currentFileName || this.driverStatus.currentFileName
         };
         this.refreshDriverStatus();
@@ -425,7 +421,6 @@ export default {
           totalFileCount: Number.isFinite(event.totalFileCount) ? event.totalFileCount : this.driverStatus.totalFileCount,
           completedFileCount: Number.isFinite(event.completedFileCount) ? event.completedFileCount : this.driverStatus.completedFileCount,
           currentFilePercent: Number.isFinite(event.currentFilePercent) ? event.currentFilePercent : this.driverStatus.currentFilePercent,
-          resourceCoordinate: event.resourceCoordinate || this.driverStatus.resourceCoordinate,
           currentFileName: event.currentFileName || this.driverStatus.currentFileName
         };
         this.$Message.error(event.message || this.$t('xia-zai-shi-bai'));
@@ -442,7 +437,6 @@ export default {
         status: event.status || 'DOWNLOADING',
         retryAction: 'DOWNLOAD',
         message: event.message || '',
-        resourceCoordinate: event.resourceCoordinate || this.driverStatus.resourceCoordinate,
         currentFileName: event.currentFileName || this.driverStatus.currentFileName
       };
     }

@@ -20,11 +20,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.utils.StringUtils;
 
 import jakarta.servlet.http.Cookie;
@@ -74,13 +74,13 @@ public class RdpWebUtils {
     @Setter
     public static class RequestData {
 
-        private String[]  authLabel;
+        private String[]     authLabel;
         private DmAuthUserDO currentUser;
         private DmAuthRoleDO currentRole;
         private DmAuthUserDO primaryUser;
-        private boolean   request;
-        private String    requestUri;
-        private String    requestContextPath;
+        private boolean      request;
+        private String       requestUri;
+        private String       requestContextPath;
     }
 
     //

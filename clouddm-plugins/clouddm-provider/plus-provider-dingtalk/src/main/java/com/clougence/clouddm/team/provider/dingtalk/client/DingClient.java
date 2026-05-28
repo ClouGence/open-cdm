@@ -126,27 +126,27 @@ public class DingClient implements Closeable {
             return caller.call(this, getToken());
         } catch (TeaUnretryableException e) {
             logger.error(e.getMessage());
-            throw ThirdPartyApiException.asRDP().with(e, ThirdPartyApiErrorType.CONNECTION_ERROR, DingI18nKeys.DINGTALK_CONNECTION_ERROR);
+            throw ThirdPartyApiException.as().with(e, ThirdPartyApiErrorType.CONNECTION_ERROR, DingI18nKeys.DINGTALK_CONNECTION_ERROR);
         } catch (ApiException e) {
             if (e.getCause() instanceof IOException) {
                 logger.error(e.getMessage());
-                throw ThirdPartyApiException.asRDP().with(e, ThirdPartyApiErrorType.CONNECTION_ERROR, DingI18nKeys.DINGTALK_CONNECTION_ERROR);
+                throw ThirdPartyApiException.as().with(e, ThirdPartyApiErrorType.CONNECTION_ERROR, DingI18nKeys.DINGTALK_CONNECTION_ERROR);
             }
-            throw ThirdPartyApiException.asRDP().with(e, DingI18nKeys.DINGTALK_UNKNOWN_ERROR, e.getErrMsg());
+            throw ThirdPartyApiException.as().with(e, DingI18nKeys.DINGTALK_UNKNOWN_ERROR, e.getErrMsg());
         } catch (IOException e) {
-            throw ThirdPartyApiException.asRDP().with(e, ThirdPartyApiErrorType.CONNECTION_ERROR, DingI18nKeys.DINGTALK_CONNECTION_ERROR);
+            throw ThirdPartyApiException.as().with(e, ThirdPartyApiErrorType.CONNECTION_ERROR, DingI18nKeys.DINGTALK_CONNECTION_ERROR);
         } catch (TeaException e) {
             if (e.statusCode.equals(403)) {
                 if (e.getCode().equals("Forbidden.AccessDenied.ApiCountLimitForOrg")) {
-                    throw ThirdPartyApiException.asRDP().with(e, DingI18nKeys.DINGTALK_PAID_API_EXHAUSTION);
+                    throw ThirdPartyApiException.as().with(e, DingI18nKeys.DINGTALK_PAID_API_EXHAUSTION);
                 } else if (e.getCode().equals("Forbidden.AccessDenied.AccessTokenPermissionDenied")) {
-                    throw ThirdPartyApiException.asRDP().with(e, DingI18nKeys.DINGTALK_ACCESS_PERMISSION_DENY);
+                    throw ThirdPartyApiException.as().with(e, DingI18nKeys.DINGTALK_ACCESS_PERMISSION_DENY);
                 }
             }
             if (e.getStatusCode() == 500) {
-                throw ThirdPartyApiException.asRDP().with(e, DingI18nKeys.DINGTALK_SERVER_INNER_ERROR);
+                throw ThirdPartyApiException.as().with(e, DingI18nKeys.DINGTALK_SERVER_INNER_ERROR);
             }
-            throw ThirdPartyApiException.asRDP().with(e, DingI18nKeys.DINGTALK_UNKNOWN_ERROR, e.getMessage());
+            throw ThirdPartyApiException.as().with(e, DingI18nKeys.DINGTALK_UNKNOWN_ERROR, e.getMessage());
         } catch (ThirdPartyApiException e) {
             throw e;
         } catch (Exception e) {
@@ -154,7 +154,7 @@ public class DingClient implements Closeable {
             if (retryCount >= 5) {
                 // handle as connect question,wait next execute
                 if (e.getMessage().contains("qps流控")) {
-                    throw ThirdPartyApiException.asRDP().with(e, ThirdPartyApiErrorType.CONNECTION_ERROR, DingI18nKeys.DINGTALK_QPS_EXHAUSTION);
+                    throw ThirdPartyApiException.as().with(e, ThirdPartyApiErrorType.CONNECTION_ERROR, DingI18nKeys.DINGTALK_QPS_EXHAUSTION);
                 }
                 throw e;
             }
@@ -171,7 +171,7 @@ public class DingClient implements Closeable {
                 return callApi(caller, retryCount + 1);
             }
 
-            throw ThirdPartyApiException.asRDP().with(e, DingI18nKeys.DINGTALK_UNKNOWN_ERROR, e.getMessage());
+            throw ThirdPartyApiException.as().with(e, DingI18nKeys.DINGTALK_UNKNOWN_ERROR, e.getMessage());
         }
     }
 
@@ -200,7 +200,7 @@ public class DingClient implements Closeable {
             return accessToken.getBody().getAccessToken();
         } catch (TeaException e) {
             if (e.getCode().equals("invalidClientIdOrSecret")) {
-                throw ThirdPartyApiException.asRDP().with(e, DingI18nKeys.DINGTALK_CONFIG_ERROR);
+                throw ThirdPartyApiException.as().with(e, DingI18nKeys.DINGTALK_CONFIG_ERROR);
             }
             logger.error("call dingtalk api getAccessToken failed, msg is " + e.getMessage(), e);
             throw e;

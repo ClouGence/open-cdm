@@ -43,6 +43,7 @@ import com.clougence.clouddm.console.web.model.fo.editor.query.WsQueryType;
 import com.clougence.clouddm.console.web.model.vo.editor.query.MessageLevel;
 import com.clougence.clouddm.console.web.model.vo.editor.query.WsResMsg;
 import com.clougence.clouddm.console.web.service.analysis.QueryAnalysisService;
+import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
 import com.clougence.clouddm.console.web.service.editor.DsQueryEditorService;
 import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
@@ -97,7 +98,6 @@ import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.ast.location.CodeLocation;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
-import com.clougence.rdp.service.RdpUserConfigService;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
@@ -686,10 +686,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             List<RealColumn> columnList = scriptColumnMap.values().stream().flatMap(List::stream).map(SelectItem::getColumns).flatMap(List::stream).collect(Collectors.toList());
             List<String> pathList = columnList.stream().map(RealColumn::toDsResPath).distinct().collect(Collectors.toList());
 
-            List<String> skipDesensitizationPath = resAuthService.listAuthByUser(dsId, curUserUid, AuthKind.DataSource, pathList)
-                .stream()
-                .map(DmAuthResDO::getResPath)
-                .collect(Collectors.toList());
+            List<String> skipDesensitizationPath = resAuthService.listAuthByUser(dsId, curUserUid, AuthKind.DataSource, pathList).stream().map(DmAuthResDO::getResPath).toList();
 
             for (RealColumn realColumn : columnList) {
                 for (String path : skipDesensitizationPath) {
@@ -753,7 +750,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             list = list.stream().filter(o -> {
                 TargetType type = o.getType();
                 return type == TargetType.Table || type == TargetType.View || type == TargetType.Materialized;
-            }).collect(Collectors.toList());
+            }).toList();
             if (CollectionUtils.isNotEmpty(list)) {
                 clone.setResource(list.stream().map(resObject -> {
                     return DmConvertUtils.convertToResource(ctx.getLevels(), resObject.getName());

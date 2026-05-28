@@ -36,16 +36,8 @@ public class ThirdPartyApiException extends RuntimeException {
         this.messageArgs = messageArgs;
     }
 
-    public static ThirdPartyApiExceptionBuilder asRDP() {
-        return new ThirdPartyApiExceptionBuilderImpl(RdpFeatureIDs.PRODUCT_CLOUD_RDP);
-    }
-
-    public static ThirdPartyApiExceptionBuilder asDM() {
+    public static ThirdPartyApiExceptionBuilder as() {
         return new ThirdPartyApiExceptionBuilderImpl(RdpFeatureIDs.PRODUCT_CLOUD_DM);
-    }
-
-    public static ThirdPartyApiExceptionBuilder asCC() {
-        return new ThirdPartyApiExceptionBuilderImpl(RdpFeatureIDs.PRODUCT_CLOUD_CANAL);
     }
 
     public interface ThirdPartyApiExceptionBuilder {

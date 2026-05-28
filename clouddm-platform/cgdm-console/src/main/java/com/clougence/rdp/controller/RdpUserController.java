@@ -15,8 +15,6 @@
  */
 package com.clougence.rdp.controller;
 
-import com.clougence.clouddm.platform.dal.access.AuthDal;
-
 import static com.clougence.clouddm.console.web.global.jwtsession.JwtService.jwtTokenName;
 import static com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy.Ignore;
 import static com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy.RefAnyOnes;
@@ -26,8 +24,6 @@ import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.console.web.model.fo.*;
-import com.clougence.clouddm.console.web.model.fo.user.ResetSubAccountPwdFO;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,30 +33,38 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
+import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
-import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
-import com.clougence.clouddm.sdk.security.auth.AuthInfo;
-import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
-import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
-import com.clougence.rdp.constant.RdpControllerUrlPrefix;
+import com.clougence.clouddm.console.web.model.fo.*;
+import com.clougence.clouddm.console.web.model.fo.user.ResetSubAccountPwdFO;
 import com.clougence.clouddm.console.web.model.vo.LoginUserVO;
 import com.clougence.clouddm.console.web.model.vo.PwdValidateExprVO;
 import com.clougence.clouddm.console.web.model.vo.RdpUserAkSkVO;
 import com.clougence.clouddm.console.web.model.vo.ResourceSummaryVO;
+import com.clougence.clouddm.console.web.service.auth.RdpRoleService;
+import com.clougence.clouddm.console.web.service.auth.RdpUserLoginRegService;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
+import com.clougence.clouddm.console.web.util.RdpConvertUtils;
+import com.clougence.clouddm.console.web.util.Sm2Utils;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.rdp.service.*;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
+import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
+import com.clougence.clouddm.sdk.security.auth.AuthInfo;
+import com.clougence.rdp.constant.RdpControllerUrlPrefix;
+import com.clougence.rdp.service.RdpOpAuditService;
+import com.clougence.rdp.service.RdpVerifyService;
 import com.clougence.rdp.service.enumeration.OpVerifyErrType;
 import com.clougence.rdp.service.model.CheckVerifyMO;
 import com.clougence.rdp.service.model.OpPasswdVerifyMO;
 import com.clougence.rdp.service.model.UpdateUserInfoMO;
 import com.clougence.rdp.service.model.ValidateResultMO;
-import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
-import com.clougence.clouddm.console.web.util.Sm2Utils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.format.DateFormatType;
 
@@ -80,7 +84,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpUserController {
 
     @Resource
-    private AuthDal authDal;
+    private AuthDal                authDal;
 
     @Resource
     private RdpUserService         rdpUserService;
@@ -94,7 +98,7 @@ public class RdpUserController {
     private RdpVerifyService       rdpVerifyService;
 
     @Resource
-    private RdpAuthServiceForBiz   rdpAuthService;
+    private DmAuthServiceForBiz    rdpAuthService;
 
     @Resource
     private RdpUserLoginRegService rdpUserLoginRegService;

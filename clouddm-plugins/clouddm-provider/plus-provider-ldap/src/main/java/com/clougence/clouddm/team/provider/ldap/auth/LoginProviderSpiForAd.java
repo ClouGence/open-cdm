@@ -118,7 +118,7 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
 
             String[] split = StringUtils.split(ldapAccount, "\\");
             if (!roleMap.containsKey(split[0])) {
-                throw ThirdPartyApiException.asRDP().with(LdapI18nKey.AD_NET_BIOS_IP_MAP.name());
+                throw ThirdPartyApiException.as().with(LdapI18nKey.AD_NET_BIOS_IP_MAP.name());
             }
 
             return "ldap://" + roleMap.get(split[0]) + ":" + cfg.getLdapPort();
@@ -174,7 +174,7 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
     private String[] extractSplit(String fullLoginName) {
         int splitIdx = fullLoginName.lastIndexOf("@");
         if (splitIdx == -1) {
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_LOGIN_FAIL_PRIMARY_MISSING_ARGS.name());
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_LOGIN_FAIL_PRIMARY_MISSING_ARGS.name());
         }
 
         String userAccount = fullLoginName.substring(0, splitIdx);
@@ -230,7 +230,7 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
         if (!match) {
             String objClass = StringUtils.join(filterd.toArray(), ",");
             log.info("LDAP: user objectClass {} does not match any userType.", objClass);
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_OBJECTCLASS_NOT_ALLOWED_ERROR.name());
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_OBJECTCLASS_NOT_ALLOWED_ERROR.name());
         }
 
         // user ACL
@@ -258,7 +258,7 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
         RoleData role = searchRole(primaryUser.getInternalUID(), ldapCtx);
         if (role == null) {
             log.info("Ad: user(" + user.getSubAccount() + ") not found any role, find roleName=" + ldapCtx.getLdapConfig().getLdapRoleMap());
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_USER_ROLE_MAPPING_FAILED.name());
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_USER_ROLE_MAPPING_FAILED.name());
         }
         user.setRoleId(role.getRoleId());
 
@@ -269,30 +269,30 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
     protected void checkThrowError(Exception e) {
         // https://blog.csdn.net/chaijunkun/article/details/23695001
         if (StringUtils.contains(e.getMessage(), "AcceptSecurityContext error, data 525")) {
-            throw ThirdPartyApiException.asRDP().with(e, LdapI18nKey.AD_LOGIN_FAIL_ACCOUNT_NOT_EXIST.name());
+            throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_ACCOUNT_NOT_EXIST.name());
         } else if (StringUtils.contains(e.getMessage(), "AcceptSecurityContext error, data 52e")) {
-            throw ThirdPartyApiException.asRDP().with(e, LdapI18nKey.AD_LOGIN_FAIL_PASSWORD_ERROR.name());
+            throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_PASSWORD_ERROR.name());
         } else if (StringUtils.contains(e.getMessage(), "AcceptSecurityContext error, data 530")) {
-            throw ThirdPartyApiException.asRDP().with(e, LdapI18nKey.AD_LOGIN_FAIL_LOGIN_NOT_ALLOWED_THIS_TIME.name());
+            throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_LOGIN_NOT_ALLOWED_THIS_TIME.name());
         } else if (StringUtils.contains(e.getMessage(), "AcceptSecurityContext error, data 531")) {
-            throw ThirdPartyApiException.asRDP().with(e, LdapI18nKey.AD_LOGIN_FAIL_LOGIN_NOT_ALLOWED_THIS_PC.name());
+            throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_LOGIN_NOT_ALLOWED_THIS_PC.name());
         } else if (StringUtils.contains(e.getMessage(), "AcceptSecurityContext error, data 532")) {
-            throw ThirdPartyApiException.asRDP().with(e, LdapI18nKey.AD_LOGIN_FAIL_PASSWORD_EXPIRED.name());
+            throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_PASSWORD_EXPIRED.name());
         } else if (StringUtils.contains(e.getMessage(), "AcceptSecurityContext error, data 533")) {
-            throw ThirdPartyApiException.asRDP().with(e, LdapI18nKey.AD_LOGIN_FAIL_USER_DISABLED.name());
+            throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_USER_DISABLED.name());
         } else if (StringUtils.contains(e.getMessage(), "AcceptSecurityContext error, data 701")) {
-            throw ThirdPartyApiException.asRDP().with(e, LdapI18nKey.AD_LOGIN_FAIL_ACCOUNT_EXPIRED.name());
+            throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_ACCOUNT_EXPIRED.name());
         } else if (StringUtils.contains(e.getMessage(), "AcceptSecurityContext error, data 773")) {
-            throw ThirdPartyApiException.asRDP().with(e, LdapI18nKey.AD_LOGIN_FAIL_NEED_RESET_PASSWORD.name());
+            throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_NEED_RESET_PASSWORD.name());
         } else if (StringUtils.contains(e.getMessage(), "AcceptSecurityContext error, data 775")) {
-            throw ThirdPartyApiException.asRDP().with(e, LdapI18nKey.AD_LOGIN_FAIL_ACCOUNT_LOCKED.name());
+            throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_ACCOUNT_LOCKED.name());
         }
     }
 
     private void checkUserAcl(long userAclNum) {
         //https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/useraccountcontrol-manipulate-account-properties
         if (userAclNum == (userAclNum | 2)) {
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_USER_IS_DISABLED_ERROR.name());
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_USER_IS_DISABLED_ERROR.name());
         }
     }
 

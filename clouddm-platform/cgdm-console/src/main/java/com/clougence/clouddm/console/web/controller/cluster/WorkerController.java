@@ -34,6 +34,7 @@ import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.cluster.*;
 import com.clougence.clouddm.console.web.model.vo.cluster.WorkerDeployConfigVO;
 import com.clougence.clouddm.console.web.model.vo.cluster.WorkerVO;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.cluster.WorkerDetector;
 import com.clougence.clouddm.console.web.service.cluster.WorkerService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
@@ -42,7 +43,6 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
 import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
 import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
-import com.clougence.rdp.service.RdpUserService;
 import com.clougence.rdp.service.RdpVerifyService;
 import com.clougence.rdp.service.model.CheckVerifyMO;
 

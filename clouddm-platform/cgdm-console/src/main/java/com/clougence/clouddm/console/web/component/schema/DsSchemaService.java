@@ -20,11 +20,11 @@ import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.sdk.execute.meta.DsElement;
 import com.clougence.clouddm.sdk.ui.editor.property.PropertyUiPanel;
 import com.clougence.clouddm.sdk.ui.editor.table.TableEditorUiPanel;
 import com.clougence.clouddm.sdk.ui.template.CmdTemplateOption;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.schema.editor.EditorContext;
 import com.clougence.schema.editor.EditorOptions;
 import com.clougence.schema.umi.special.rdb.RdbColumn;

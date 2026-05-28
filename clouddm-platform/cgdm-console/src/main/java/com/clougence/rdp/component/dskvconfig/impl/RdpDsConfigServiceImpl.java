@@ -15,8 +15,6 @@
  */
 package com.clougence.rdp.component.dskvconfig.impl;
 
-import com.clougence.clouddm.platform.dal.access.DataSourceDal;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,13 +25,14 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
+import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.rdp.component.dskvconfig.RdpDsConfigService;
 import com.clougence.rdp.component.dskvconfig.RdpDsExtraConfGen;
 import com.clougence.rdp.component.dskvconfig.RdpDsKvConfigHelper;
 import com.clougence.rdp.component.dskvconfig.RdpDsResourceService;
-import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -46,13 +45,13 @@ import jakarta.annotation.Resource;
 public class RdpDsConfigServiceImpl implements RdpDsConfigService {
 
     @Resource
-    private DataSourceDal datasourceDal;
+    private DataSourceDal        datasourceDal;
 
     @Resource
-    private RdpDsKvConfigHelper     rdpDsKvConfigHelper;
+    private RdpDsKvConfigHelper  rdpDsKvConfigHelper;
 
     @Resource
-    private RdpDsResourceService    rdpDsResourceService;
+    private RdpDsResourceService rdpDsResourceService;
 
     @Override
     public void persistDsConfig(DmDsDO dataSourceDO, List<InitDsKvBaseConfigFO> kvConfigs) {

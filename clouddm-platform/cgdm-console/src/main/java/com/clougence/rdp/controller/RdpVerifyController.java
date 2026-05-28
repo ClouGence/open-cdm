@@ -29,8 +29,8 @@ import com.clougence.clouddm.console.web.model.fo.SendCodeAfterLoginFO;
 import com.clougence.clouddm.console.web.model.fo.SendCodeByAccountFO;
 import com.clougence.clouddm.console.web.model.fo.SendCodeFO;
 import com.clougence.clouddm.console.web.model.fo.VerifyMO;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
-import com.clougence.rdp.service.RdpUserService;
 import com.clougence.rdp.service.RdpVerifyService;
 
 import jakarta.annotation.Resource;
@@ -57,7 +57,8 @@ public class RdpVerifyController {
         m.setAccount(sendCodeFO.getAccount());
         m.setSub(sendCodeFO.isSub());
         m.setEmail(sendCodeFO.getEmail());
-        m.setPhoneNumber(sendCodeFO.getPhoneNumber());        m.setVerifyType(sendCodeFO.getVerifyType());
+        m.setPhoneNumber(sendCodeFO.getPhoneNumber());
+        m.setVerifyType(sendCodeFO.getVerifyType());
         m.setVerifyCodeType(sendCodeFO.getVerifyCodeType());
 
         switch (sendCodeFO.getVerifyCodeType()) {
@@ -105,7 +106,8 @@ public class RdpVerifyController {
 
         VerifyMO m = new VerifyMO();
         m.setEmail(sendCodeFO.getEmail());
-        m.setPhoneNumber(sendCodeFO.getPhoneNumber());        m.setVerifyType(sendCodeFO.getVerifyType());
+        m.setPhoneNumber(sendCodeFO.getPhoneNumber());
+        m.setVerifyType(sendCodeFO.getVerifyType());
         m.setVerifyCodeType(sendCodeFO.getVerifyCodeType());
 
         rdpVerifyService.sendVerifyCodeByChangeAccount(m, uid, sendCodeFO.getVerifyCodeType(), null);

@@ -15,8 +15,6 @@
  */
 package com.clougence.clouddm.console.web.util;
 
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
-
 import static com.clougence.schema.umi.special.rdb.RdbAttributeNames.OBJ_UI_TIPS;
 
 import java.net.URI;
@@ -28,41 +26,18 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultPageDTO;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
 import com.clougence.clouddm.console.web.component.detectrule.SecHintInfo;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRange;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRangeItem;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsDriverFamily;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.project.model.ChangeCheckItemMO;
-import com.clougence.clouddm.platform.dal.model.system.CloudOrIdcName;
-import com.clougence.clouddm.console.web.global.i18n.I18nDmLabelKeys;
-import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.global.i18n.UiMenus18nKey;
-import com.clougence.clouddm.platform.dal.model.*;
-import com.clougence.clouddm.platform.dal.model.approval.*;
-import com.clougence.clouddm.platform.dal.model.auth.*;
-import com.clougence.clouddm.platform.dal.model.datasource.*;
-import com.clougence.clouddm.platform.dal.model.execution.*;
-import com.clougence.clouddm.platform.dal.model.monitor.*;
-import com.clougence.clouddm.platform.dal.model.project.*;
-import com.clougence.clouddm.platform.dal.model.secrule.*;
-import com.clougence.clouddm.platform.dal.model.system.*;
-import com.clougence.clouddm.platform.dal.model.monitor.*;
-import com.clougence.clouddm.platform.dal.model.datasource.*;
-import com.clougence.clouddm.platform.dal.model.execution.*;
-import com.clougence.clouddm.platform.dal.model.system.*;
-import com.clougence.clouddm.platform.dal.model.system.*;
-import com.clougence.clouddm.platform.dal.model.system.*;
-import com.clougence.clouddm.platform.dal.model.secrule.*;
-import com.clougence.clouddm.platform.dal.model.approval.*;
-import com.clougence.clouddm.platform.dal.model.auth.*;
-import com.clougence.clouddm.platform.dal.model.project.*;
+import com.clougence.clouddm.console.web.global.i18n.*;
 import com.clougence.clouddm.console.web.model.fo.browse.BrowseActionFO;
 import com.clougence.clouddm.console.web.model.fo.browse.BrowseConvertDDLFO;
 import com.clougence.clouddm.console.web.model.fo.browse.BrowseGenerateFO;
@@ -95,6 +70,14 @@ import com.clougence.clouddm.console.web.service.project.domain.DmImDef;
 import com.clougence.clouddm.console.web.service.project.domain.DmRepoDef;
 import com.clougence.clouddm.console.web.service.project.domain.DmScmDef;
 import com.clougence.clouddm.console.web.service.security.mode.DmSecRuleMO;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
+import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
+import com.clougence.clouddm.platform.dal.model.datasource.*;
+import com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO;
+import com.clougence.clouddm.platform.dal.model.project.*;
+import com.clougence.clouddm.platform.dal.model.secrule.*;
+import com.clougence.clouddm.platform.dal.model.system.*;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.meta.DsElement;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ReceiveMode;
@@ -120,13 +103,6 @@ import com.clougence.clouddm.sdk.ui.editor.user.UserFields;
 import com.clougence.clouddm.sdk.ui.editor.view.ViewEditorFields;
 import com.clougence.clouddm.sdk.ui.menus.DsMenuType;
 import com.clougence.drivers.DriverFamily;
-import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
-import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
-import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.rdp.service.openapi.model.ApiDataSourceVO;
 import com.clougence.rdp.service.openapi.model.ApiListDsFO;
 import com.clougence.schema.metadata.FieldType;
@@ -1677,8 +1653,7 @@ public class DmConvertUtils {
         return msgVO;
     }
 
-    public static ProjectDevopsVO convertToProjectDevopsVO(DmProjectDevopsDO devopsDO, Map<Long, DmProjectScmDO> scmMap, Map<Long, DmDsDO> dsMap,
-                                                           DmScmService dmScmService) {
+    public static ProjectDevopsVO convertToProjectDevopsVO(DmProjectDevopsDO devopsDO, Map<Long, DmProjectScmDO> scmMap, Map<Long, DmDsDO> dsMap, DmScmService dmScmService) {
         DmProjectScmDO scmDO = scmMap.get(devopsDO.getRefScmId());
         DmDsDO dsDO = dsMap.get(devopsDO.getDsId());
 

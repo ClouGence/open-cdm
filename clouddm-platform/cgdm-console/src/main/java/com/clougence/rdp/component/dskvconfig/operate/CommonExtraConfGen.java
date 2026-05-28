@@ -19,10 +19,10 @@ import java.util.List;
 
 import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ProxyMode;
-import com.clougence.rdp.component.dskvconfig.RdpDsExtraConfGen;
-import com.clougence.rdp.component.dskvconfig.model.CommonDsExtraConfig;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.rdp.component.dskvconfig.RdpDsExtraConfGen;
+import com.clougence.rdp.component.dskvconfig.model.CommonDsExtraConfig;
 import com.clougence.utils.StringUtils;
 
 public abstract class CommonExtraConfGen implements RdpDsExtraConfGen {

@@ -23,6 +23,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 
+import com.clougence.clouddm.platform.dal.i18n.I18nDaoKeys;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.security.auth.def.SecAuthI18nKeys;
 import com.clougence.clouddm.sdk.security.auth.def.SecSysRole;
@@ -57,6 +58,7 @@ public class DmI18nUtils {
         I18N_UTILS.loadResources("/i18n/mcp");
         I18N_UTILS.loadResources(I18nDmLabelKeys.class);
         I18N_UTILS.loadResources(I18nDmMsgKeys.class);
+        I18N_UTILS.loadResources(I18nDaoKeys.class);
         I18N_UTILS.loadResources(UiMenus18nKey.class);
         I18N_UTILS.loadResources(SecAuthI18nKeys.class);
 

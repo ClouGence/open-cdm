@@ -46,11 +46,11 @@ public class V202605070037__sql_auto_exec extends AbstractUpgradeJavaMigration {
                             schedule_time    datetime                           not null,
                             normal           tinyint(1)                         not null default 1
                         ) ENGINE = InnoDB
-                          DEFAULT CHARSET = utf8mb4\
+                          DEFAULT CHARSET = utf8mb4
                 """, """
-                    create unique index idx_depend_biz on dm_auto_exec_job (depend_on_biz_id,depend_on_biz_type)\
+                    create unique index idx_depend_biz on dm_auto_exec_job (depend_on_biz_id,depend_on_biz_type)
                 """, """
-                    create unique index idx_biz on dm_auto_exec_job (biz_id)\
+                    create unique index idx_biz on dm_auto_exec_job (biz_id)
                 """, """
                     create table if not exists dm_auto_exec_task
                         (
@@ -69,12 +69,12 @@ public class V202605070037__sql_auto_exec extends AbstractUpgradeJavaMigration {
                             transactional_group int               default 0      not null,
                             exec_count        int                 default 0      not null
                         ) ENGINE = InnoDB
-                          DEFAULT CHARSET = utf8mb4\
+                          DEFAULT CHARSET = utf8mb4
                 """, """
                     create index idx_sql_job_id
-                            on dm_auto_exec_task (auto_exec_job_id)\
+                            on dm_auto_exec_task (auto_exec_job_id)
                 """, """
-                    create unique index idx_biz on dm_auto_exec_task (biz_id)\
+                    create unique index idx_biz on dm_auto_exec_task (biz_id)
                 """, """
                     create table if not exists dm_biz_log
                         (
@@ -86,13 +86,13 @@ public class V202605070037__sql_auto_exec extends AbstractUpgradeJavaMigration {
                             content        text                               not null,
                             log_level      varchar(32)                      not null
                         ) ENGINE = InnoDB
-                          DEFAULT CHARSET = utf8mb4\
+                          DEFAULT CHARSET = utf8mb4
                 """, """
-                    create index idx_depend_biz on dm_biz_log (depend_on_biz_id,depend_on_biz_type)\
+                    create index idx_depend_biz on dm_biz_log (depend_on_biz_id,depend_on_biz_type)
                 """, """
-                    drop table data_export_job\
+                    drop table data_export_job
                 """, """
-                    drop table data_export_task\
+                    drop table data_export_task
                 """);
     }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.rdp.service;
+package com.clougence.clouddm.console.web.service.auth;
 
 import java.util.List;
 import java.util.Set;

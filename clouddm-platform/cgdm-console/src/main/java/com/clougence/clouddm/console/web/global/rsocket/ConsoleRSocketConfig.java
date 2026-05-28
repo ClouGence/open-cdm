@@ -15,9 +15,6 @@
  */
 package com.clougence.clouddm.console.web.global.rsocket;
 
-import com.clougence.clouddm.platform.dal.access.AuthDal;
-import com.clougence.clouddm.platform.dal.access.SystemDal;
-
 import java.util.List;
 
 import org.springframework.context.ApplicationContext;
@@ -40,6 +37,8 @@ import com.clougence.clouddm.comm.component.server.RSocketServerSender;
 import com.clougence.clouddm.comm.component.server.ServerSideRegistry;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
 
 import io.rsocket.plugins.SocketAcceptorInterceptor;
 import jakarta.annotation.Resource;
@@ -51,17 +50,13 @@ import jakarta.annotation.Resource;
 public class ConsoleRSocketConfig {
 
     @Resource
-    private SystemDal systemDal;
-
+    private SystemDal                    systemDal;
     @Resource
-    private AuthDal authDal;
-
+    private AuthDal                      authDal;
     @Resource
     private ApplicationContext           appCtx;
-
     @Resource
     private DmConsoleConfig              consoleConfig;
-
     @Resource
     private List<DmWorkerRegisterNotify> notifyServices;
 

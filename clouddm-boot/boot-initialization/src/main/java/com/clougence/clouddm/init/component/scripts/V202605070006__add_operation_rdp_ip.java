@@ -25,16 +25,16 @@ public class V202605070006__add_operation_rdp_ip extends AbstractUpgradeJavaMigr
     public List<String> collectScript() {
         return List.of("""
                     ALTER TABLE `rdp_op_audit`
-                        ADD COLUMN `ip` varchar(255) DEFAULT NULL\
+                        ADD COLUMN `ip` varchar(255) DEFAULT NULL
                 """, """
                     ALTER TABLE `rdp_op_audit`
-                        ADD COLUMN `audit_type` varchar(255) DEFAULT NULL\
+                        ADD COLUMN `audit_type` varchar(255) DEFAULT NULL
                 """, """
                     ALTER TABLE `rdp_op_audit`
-                        ADD COLUMN `operation_uri` varchar(255) DEFAULT NULL\
+                        ADD COLUMN `operation_uri` varchar(255) DEFAULT NULL
                 """, """
                     ALTER TABLE `rdp_op_audit`
-                        MODIFY COLUMN `resource_value` varchar(512) DEFAULT NULL\
+                        MODIFY COLUMN `resource_value` varchar(512) DEFAULT NULL
                 """);
     }
 

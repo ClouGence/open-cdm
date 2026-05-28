@@ -78,12 +78,12 @@ public class DmDriverDownloadTask implements Runnable {
         List<DriverFile> transferFiles = resolveTransferFiles(localVersion);
         int totalFileCount = transferFiles.size();
         DmDriverServiceImpl
-            .publishProgress(this.uid, this.clusterId, this.driverFamily, this.driverVersion, totalFileCount, 0, 0, "SYNCING", false, null, null, i18n(I18nDmMsgKeys.DS_DRIVER_SYNC_STARTED_MESSAGE));
+            .publishProgress(this.uid, this.clusterId, this.driverFamily, this.driverVersion, totalFileCount, 0, 0, "SYNCING", false, null, i18n(I18nDmMsgKeys.DS_DRIVER_SYNC_STARTED_MESSAGE));
         syncFilesToWorkers(transferFiles, totalFileCount);
 
         DriverVersionStatusVO statusVO = checkDriverStatus();
         DmDriverServiceImpl.publishProgress(this.uid, this.clusterId, this.driverFamily, this.driverVersion, totalFileCount, totalFileCount, 100, "COMPLETED", statusVO
-            .isAvailable(), null, null, statusVO.isAvailable() ? i18n(I18nDmMsgKeys.DS_DRIVER_READY_MESSAGE) : i18n(I18nDmMsgKeys.DS_DRIVER_UNAVAILABLE_MESSAGE));
+            .isAvailable(), null, statusVO.isAvailable() ? i18n(I18nDmMsgKeys.DS_DRIVER_READY_MESSAGE) : i18n(I18nDmMsgKeys.DS_DRIVER_UNAVAILABLE_MESSAGE));
         log.info("driver download finished, clusterId={}, family={}, version={}, available={}, workerWsn={}", this.clusterId, this.driverFamily, this.driverVersion, statusVO
             .isAvailable(), statusVO.getWorkerWsn());
     }
@@ -116,7 +116,7 @@ public class DmDriverDownloadTask implements Runnable {
         }
 
         DmDriverServiceImpl
-            .publishProgress(this.uid, this.clusterId, this.driverFamily, this.driverVersion, resolveDriverFileCount(resources), 0, 0, "PREPARING", false, null, null, i18n(I18nDmMsgKeys.DS_DRIVER_PREPARE_STARTED_MESSAGE));
+            .publishProgress(this.uid, this.clusterId, this.driverFamily, this.driverVersion, resolveDriverFileCount(resources), 0, 0, "PREPARING", false, null, i18n(I18nDmMsgKeys.DS_DRIVER_PREPARE_STARTED_MESSAGE));
         Set<String> completedFiles = ConcurrentHashMap.newKeySet();
         for (ResDef resource : resources) {
             if (resource == null || StringUtils.isBlank(resource.getCoordinate())) {
@@ -132,7 +132,7 @@ public class DmDriverDownloadTask implements Runnable {
                     public void onStart(DriverVersion driverVersionValue, ResDef driverResource, int resourceIndex, int totalCount) {
                         DmDriverServiceImpl
                             .publishProgress(uid, DmDriverDownloadTask.this.clusterId, driverFamily, DmDriverDownloadTask.this.driverVersion, resolveDriverFileCount(resources), completedFiles
-                                .size(), 0, "PREPARING", false, buildResourceCoordinate(driverResource), null, i18n(I18nDmMsgKeys.DS_DRIVER_PREPARE_STARTED_MESSAGE));
+                                .size(), 0, "PREPARING", false, null, i18n(I18nDmMsgKeys.DS_DRIVER_PREPARE_STARTED_MESSAGE));
                     }
 
                     @Override
@@ -140,7 +140,7 @@ public class DmDriverDownloadTask implements Runnable {
                         markCompletedFile(completedFiles, driverResource, fileName, current, total);
                         DmDriverServiceImpl
                             .publishProgress(uid, DmDriverDownloadTask.this.clusterId, driverFamily, DmDriverDownloadTask.this.driverVersion, resolveDriverFileCount(resources), completedFiles
-                                .size(), calcPercent(current, total), "PREPARING", false, buildResourceCoordinate(driverResource), fileName, buildDownloadMessage(fileName, current, total));
+                                .size(), calcPercent(current, total), "PREPARING", false, fileName, buildDownloadMessage(fileName, current, total));
                     }
 
                     @Override
@@ -148,21 +148,21 @@ public class DmDriverDownloadTask implements Runnable {
                         markCompletedResourceFiles(completedFiles, resDef);
                         DmDriverServiceImpl
                             .publishProgress(uid, DmDriverDownloadTask.this.clusterId, driverFamily, DmDriverDownloadTask.this.driverVersion, resolveDriverFileCount(resources), completedFiles
-                                .size(), 100, "PREPARING", false, buildResourceCoordinate(resDef), null, i18n(I18nDmMsgKeys.DS_DRIVER_FILE_DOWNLOAD_COMPLETE_MESSAGE));
+                                .size(), 100, "PREPARING", false, null, i18n(I18nDmMsgKeys.DS_DRIVER_FILE_DOWNLOAD_COMPLETE_MESSAGE));
                     }
 
                     @Override
                     public void onError(DriverVersion driverVersionValue, ResDef resourceValue, Exception exception) {
                         DmDriverServiceImpl
                             .publishProgress(uid, DmDriverDownloadTask.this.clusterId, driverFamily, DmDriverDownloadTask.this.driverVersion, resolveDriverFileCount(resources), completedFiles
-                                .size(), 0, "FAILED", false, buildResourceCoordinate(resourceValue), null, exception.getMessage());
+                                .size(), 0, "FAILED", false, null, exception.getMessage());
                     }
                 });
             }
 
             markCompletedResourceFiles(completedFiles, resource);
             DmDriverServiceImpl.publishProgress(this.uid, this.clusterId, this.driverFamily, this.driverVersion, resolveDriverFileCount(resources), completedFiles
-                .size(), 100, "PREPARING", false, buildResourceCoordinate(resource), null, i18n(I18nDmMsgKeys.DS_DRIVER_FILE_DOWNLOAD_COMPLETE_MESSAGE));
+                .size(), 100, "PREPARING", false, null, i18n(I18nDmMsgKeys.DS_DRIVER_FILE_DOWNLOAD_COMPLETE_MESSAGE));
         }
     }
 
@@ -306,7 +306,7 @@ public class DmDriverDownloadTask implements Runnable {
                         currentBytes += readLength;
                         DmDriverServiceImpl
                             .publishProgress(this.uid, this.clusterId, this.driverFamily, this.driverVersion, totalFileCount, currentIndex -
-                                                                                                                              1, calcPercent(currentBytes, totalBytes), "SYNCING", false, null, targetFileName, buildSyncMessage(targetFileName, currentBytes, totalBytes));
+                                                                                                                              1, calcPercent(currentBytes, totalBytes), "SYNCING", false, targetFileName, buildSyncMessage(targetFileName, currentBytes, totalBytes));
                     }
                 }
             } catch (Exception e) {
@@ -315,7 +315,7 @@ public class DmDriverDownloadTask implements Runnable {
             }
         }
         DmDriverServiceImpl
-            .publishProgress(this.uid, this.clusterId, this.driverFamily, this.driverVersion, totalFileCount, currentIndex, 100, "SYNCING", false, null, targetFileName, i18n(I18nDmMsgKeys.DS_DRIVER_FILE_SYNC_COMPLETE_MESSAGE));
+            .publishProgress(this.uid, this.clusterId, this.driverFamily, this.driverVersion, totalFileCount, currentIndex, 100, "SYNCING", false, targetFileName, i18n(I18nDmMsgKeys.DS_DRIVER_FILE_SYNC_COMPLETE_MESSAGE));
     }
 
     private List<DmSysWorkerDO> queryTargetWorkers() {

@@ -24,7 +24,7 @@ public class V202605070011__dm_license_support extends AbstractUpgradeJavaMigrat
     @Override
     public List<String> collectScript() {
         return List.of("""
-                    ALTER TABLE `rdp_auth_result_info` MODIFY COLUMN `auth_result_status` VARCHAR(128) NOT  NULL  COMMENT ''\
+                    ALTER TABLE `rdp_auth_result_info` MODIFY COLUMN `auth_result_status` VARCHAR(128) NOT  NULL  COMMENT ''
                 """);
     }
 

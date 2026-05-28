@@ -33,6 +33,7 @@ import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.editor.table.*;
 import com.clougence.clouddm.console.web.model.vo.editor.table.TableEditorForm;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.editor.DsTableEditorService;
 import com.clougence.clouddm.console.web.service.editor.model.ResultSetDTO;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
@@ -41,7 +42,6 @@ import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.ui.editor.table.TableEditorUiData;
-import com.clougence.rdp.service.RdpUserService;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;

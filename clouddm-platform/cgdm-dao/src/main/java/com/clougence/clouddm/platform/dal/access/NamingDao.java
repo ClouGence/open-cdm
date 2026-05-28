@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.service.system;
+package com.clougence.clouddm.platform.dal.access;
 
 import com.clougence.clouddm.platform.dal.model.secrule.RuleKind;
 
 /**
  * @author bucketli 2020/7/10 21:14
  */
-public interface NamingService {
+public interface NamingDao {
 
     String genLocalClusterName();
 
@@ -40,9 +40,6 @@ public interface NamingService {
 
     String genUid();
 
-    /**
-     * @return random password for inner user
-     */
     String genInnerUserPwd();
 
     String genSecRuleName(RuleKind ruleKind);

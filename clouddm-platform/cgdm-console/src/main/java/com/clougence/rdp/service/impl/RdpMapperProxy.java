@@ -15,14 +15,13 @@
  */
 package com.clougence.rdp.service.impl;
 
-import com.clougence.clouddm.platform.dal.access.AuthDal;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
 
 import org.springframework.stereotype.Component;
 
+import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.CanBeReplaced;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.utils.ExceptionUtils;
@@ -40,7 +39,6 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpMapperProxy<T> {
     @Resource
     private AuthDal authDal;
-
 
     private String getPrimaryUid(String uid) {
         DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);

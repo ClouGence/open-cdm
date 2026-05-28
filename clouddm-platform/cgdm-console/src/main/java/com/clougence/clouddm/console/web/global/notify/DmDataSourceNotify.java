@@ -15,8 +15,6 @@
  */
 package com.clougence.clouddm.console.web.global.notify;
 
-import com.clougence.clouddm.platform.dal.access.DataSourceDal;
-
 import java.util.Collections;
 
 import org.springframework.stereotype.Service;
@@ -24,22 +22,19 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
+import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForAppend;
+import com.clougence.clouddm.console.web.model.fo.security.ModifyUserAuthFO;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
+import com.clougence.clouddm.console.web.util.DmConvertUtils;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
-import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForAppend;
-import com.clougence.clouddm.console.web.model.fo.security.ModifyUserAuthFO;
-import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.rdp.service.RdpAuthServiceForManage;
+import com.clougence.clouddm.platform.dal.model.datasource.*;
+import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.rdp.service.RdpNotifyService;
-import com.clougence.rdp.service.RdpUserService;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -52,16 +47,13 @@ import lombok.extern.slf4j.Slf4j;
 public class DmDataSourceNotify implements RdpNotifyService {
 
     @Resource
-    private DataSourceDal datasourceDal;
-
+    private DataSourceDal          dsDal;
     @Resource
-    private RdpAuthServiceForManage authServiceForManage;
-
+    private DmAuthServiceForManage authServiceForManage;
     @Resource
-    private ObjectCacheDao ownerCacheService;
-
+    private ObjectCacheDao         cacheDao;
     @Resource
-    private RdpUserService          rdpUserService;
+    private RdpUserService         rdpUserService;
 
     @Override
     public void onDsAdd(String operatorUid, long dsId) {
@@ -71,10 +63,10 @@ public class DmDataSourceNotify implements RdpNotifyService {
 
     @Override
     public void onDsUpdate(long dsId) {
-        DmDsConfigKv4DmDO dsKvConf = this.datasourceDal.configKv4DmMapper().queryByDsIdAndConfigName(dsId, DataSourceConfig.DM_DS_KEY_CONFIG_VERSION);
+        DmDsConfigKv4DmDO dsKvConf = this.dsDal.configKv4DmMapper().queryByDsIdAndConfigName(dsId, DataSourceConfig.DM_DS_KEY_CONFIG_VERSION);
         if (dsKvConf != null) {
             long nextVersion = Long.parseLong(dsKvConf.getConfigValue()) + 1;
-            this.datasourceDal.configKv4DmMapper().updateDsConfig(dsId, DataSourceConfig.DM_DS_KEY_CONFIG_VERSION, Long.toString(nextVersion));
+            this.dsDal.configKv4DmMapper().updateDsConfig(dsId, DataSourceConfig.DM_DS_KEY_CONFIG_VERSION, Long.toString(nextVersion));
         }
 
         this.syncConf(dsId, false);
@@ -99,7 +91,7 @@ public class DmDataSourceNotify implements RdpNotifyService {
         authFO.setUpdates(Collections.emptyList());
         authFO.setDeletes(Collections.emptyList());
 
-        UserCacheEntry userCache = this.ownerCacheService.queryByUid(operatorUid);
+        UserCacheEntry userCache = this.cacheDao.queryByUid(operatorUid);
         this.authServiceForManage.modifyUserAuth(userCache.getParentUid(), authFO);
     }
 
@@ -108,16 +100,16 @@ public class DmDataSourceNotify implements RdpNotifyService {
     }
 
     protected void syncConf(long dsId, boolean init) {
-        DmDsDO dsDO = this.datasourceDal.dsMapper().selectById(dsId);
-        this.datasourceDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_SEC_TYPE, dsDO.getSecurityType().name());
-        this.datasourceDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_USERNAME, dsDO.getAccount());
-        this.datasourceDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_PASSWORD, dsDO.getPassword());
+        DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
+        this.dsDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_SEC_TYPE, dsDO.getSecurityType().name());
+        this.dsDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_USERNAME, dsDO.getAccount());
+        this.dsDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_PASSWORD, dsDO.getPassword());
 
-        DmDsConfigDO dmDsConfigDO = datasourceDal.configMapper().queryByDataSourceId(dsId);
+        DmDsConfigDO dmDsConfigDO = dsDal.configMapper().queryByDataSourceId(dsId);
         if (dmDsConfigDO != null && dmDsConfigDO.getHostType() == HostType.PRIVATE) {
-            this.datasourceDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_HOST, dsDO.getPrivateHost());
+            this.dsDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_HOST, dsDO.getPrivateHost());
         } else {
-            this.datasourceDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_HOST, dsDO.getPublicHost());
+            this.dsDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.DM_DS_KEY_HOST, dsDO.getPublicHost());
         }
 
         dataSourceConfig(dsId, init, dsDO);
@@ -125,23 +117,23 @@ public class DmDataSourceNotify implements RdpNotifyService {
 
     private void dataSourceConfig(long dsId, boolean init, DmDsDO dsDO) {
         if (dsDO.getDataSourceType() == DataSourceType.MaxCompute) {
-            DmDsConfigKv4RdpDO style = datasourceDal.configKv4RdpMapper().queryByDsIdAndConfigName(dsDO.getId(), ConfigKeys.RDP_EXTRA_MC_SCHEMA_STYLE);
-            DmDsConfigKv4RdpDO endPoint = datasourceDal.configKv4RdpMapper().queryByDsIdAndConfigName(dsDO.getId(), ConfigKeys.RDP_EXTRA_MC_SDK_ENDPOINT);
+            DmDsConfigKv4RdpDO style = dsDal.configKv4RdpMapper().queryByDsIdAndConfigName(dsDO.getId(), ConfigKeys.RDP_EXTRA_MC_SCHEMA_STYLE);
+            DmDsConfigKv4RdpDO endPoint = dsDal.configKv4RdpMapper().queryByDsIdAndConfigName(dsDO.getId(), ConfigKeys.RDP_EXTRA_MC_SDK_ENDPOINT);
             if (init) {
                 if (style != null) {
                     DmDsConfigKv4DmDO config1 = DmConvertUtils.convertToDmDsKvBaseConfigDOForInsert(style);
-                    datasourceDal.configKv4DmMapper().insert(config1);
+                    dsDal.configKv4DmMapper().insert(config1);
                 }
                 if (endPoint != null) {
                     DmDsConfigKv4DmDO config2 = DmConvertUtils.convertToDmDsKvBaseConfigDOForInsert(endPoint);
-                    datasourceDal.configKv4DmMapper().insert(config2);
+                    dsDal.configKv4DmMapper().insert(config2);
                 }
             } else {
                 if (style != null) {
-                    this.datasourceDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.RDP_EXTRA_MC_SCHEMA_STYLE, style.getConfigValue());
+                    this.dsDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.RDP_EXTRA_MC_SCHEMA_STYLE, style.getConfigValue());
                 }
                 if (endPoint != null) {
-                    this.datasourceDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.RDP_EXTRA_MC_SDK_ENDPOINT, endPoint.getConfigValue());
+                    this.dsDal.configKv4DmMapper().updateDsConfig(dsId, ConfigKeys.RDP_EXTRA_MC_SDK_ENDPOINT, endPoint.getConfigValue());
                 }
             }
         }

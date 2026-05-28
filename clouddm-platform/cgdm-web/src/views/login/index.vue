@@ -177,7 +177,7 @@
               {{ $t('yan-zheng') }}
             </a-button>
             <div class="flex items-center justify-center">
-              <a-button
+              <button
                 v-if="
                   !showMfa &&
                   jumpLoginType.includes(selectDomainData.loginType) &&
@@ -185,14 +185,15 @@
                   !loginCallbackData.token
                 "
                 :disabled="loginLoading"
-                :loading="loginLoading"
-                size="large"
+                :aria-busy="loginLoading"
+                type="button"
                 class="provider-login-button"
+                :class="{ 'is-loading': loginLoading }"
                 @click="handleGoJump"
               >
                 <CustomIcon :type="resolveLoginProviderIcon(selectDomainData.loginType)" size="40px" bottomMargin="16px" />
                 {{ selectDomainData.title }} {{ $t('deng-lu') }}
-              </a-button>
+              </button>
             </div>
             <div class="msgContent" v-if="errMsg">
               <a-alert banner type="error">
@@ -823,26 +824,32 @@ export default {
           margin-bottom: 20px;
           padding: 18px 12px;
           border-radius: 8px;
-          border-color: #e5e7eb;
+          border: 1px solid #e5e7eb;
+          background: #ffffff;
+          color: rgba(0, 0, 0, 0.88);
+          cursor: pointer;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
           gap: 0;
+          font: inherit;
           line-height: 1.35;
           white-space: normal;
           box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+          appearance: none;
           transition:
             border-color 0.2s ease,
             background-color 0.2s ease,
             box-shadow 0.2s ease;
 
           &:hover,
-          &:focus {
+          &:focus-visible {
             color: #2563eb;
             border-color: #60a5fa;
             background-color: #eff6ff;
             box-shadow: 0 4px 14px rgba(37, 99, 235, 0.14);
+            outline: none;
           }
 
           &:active {
@@ -851,6 +858,15 @@ export default {
             background-color: #eff6ff;
             box-shadow: 0 4px 14px rgba(37, 99, 235, 0.14);
             transform: none;
+          }
+
+          &:disabled {
+            cursor: not-allowed;
+            opacity: 0.65;
+          }
+
+          &.is-loading {
+            pointer-events: none;
           }
 
           span {

@@ -80,7 +80,7 @@ public class FeishuApi {
             } catch (CallApiException e) {
                 // code template not exists
                 if (e.getCode() == 1390002 || e.getCode() == 99991663) {
-                    throw ThirdPartyApiException.asRDP().with(e, FeishuI18nKeys2.FEISHU_TEMPLATE_CODE_ERROR, code);
+                    throw ThirdPartyApiException.as().with(e, FeishuI18nKeys2.FEISHU_TEMPLATE_CODE_ERROR, code);
                 }
                 throw e;
             }
@@ -106,7 +106,7 @@ public class FeishuApi {
 
             UserContactInfo userContactInfo = resp.getData().getUserList()[0];
             if (userContactInfo.getUserId() == null) {
-                throw ThirdPartyApiException.asRDP().with(FeishuI18nKeys2.FEISHU_NOT_FIND_USER_BY_PHONE);
+                throw ThirdPartyApiException.as().with(FeishuI18nKeys2.FEISHU_NOT_FIND_USER_BY_PHONE);
             }
             return userContactInfo.getUserId();
         });
@@ -223,7 +223,7 @@ public class FeishuApi {
 
     public String getUserAccessToken(String authCode) {
         if (StringUtils.isBlank(authCode)) {
-            throw ThirdPartyApiException.asRDP().with(FeishuI18nKeys2.FEISHU_API_TOKEN_ERROR);
+            throw ThirdPartyApiException.as().with(FeishuI18nKeys2.FEISHU_API_TOKEN_ERROR);
         }
         return this.client.callApi(client -> {
             CreateOidcAccessTokenReq req = CreateOidcAccessTokenReq.newBuilder()

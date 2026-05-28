@@ -31,13 +31,13 @@ import com.clougence.clouddm.console.web.model.fo.cluster.ClusterWithWorkerNetVO
 import com.clougence.clouddm.console.web.model.fo.cluster.CreateClusterFO;
 import com.clougence.clouddm.console.web.model.fo.cluster.WorkerNetVO;
 import com.clougence.clouddm.console.web.model.vo.cluster.ClusterVO;
-import com.clougence.clouddm.console.web.service.system.NamingService;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
+import com.clougence.clouddm.platform.dal.access.NamingDao;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.system.CloudOrIdcName;
 import com.clougence.clouddm.platform.dal.model.system.DmSysClusterDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
-import com.clougence.rdp.service.RdpUserService;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -56,14 +56,14 @@ public class ClusterServiceImpl implements ClusterService {
     @Resource
     private WorkerDetector workerDetector;
     @Resource
-    private NamingService  namingService;
+    private NamingDao  namingDao;
     @Resource
     private RdpUserService userService;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public long addCluster(String puid, String uid, CreateClusterFO fo) {
-        String clusterName = this.namingService.genClusterName();
+        String clusterName = this.namingDao.genClusterName();
         DmSysClusterDO clusterDO = new DmSysClusterDO();
         clusterDO.setCloudOrIdcName(fo.getCloudOrIdcName());
         clusterDO.setClusterName(clusterName);

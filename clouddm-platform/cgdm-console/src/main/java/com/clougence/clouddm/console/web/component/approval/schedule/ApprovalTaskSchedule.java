@@ -28,6 +28,7 @@ import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalBiz;
@@ -37,7 +38,6 @@ import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiErrorType;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.rdp.global.exception.RemoteInvokeTimeoutException;
 import com.clougence.rdp.service.RdpDsService;
 import com.clougence.utils.ExceptionUtils;
@@ -56,11 +56,11 @@ public class ApprovalTaskSchedule {
     @Resource
     private ApprovalFlowService         approvalFlowService;
     @Resource
+    private ApprovalTaskScheduleProcess scheduleProcess;
+    @Resource
     private RdpDsService                rdpDsService;
     @Resource
     private ApprovalProviderServiceImpl approvalProviderServiceImpl;
-    @Resource
-    private ApprovalTaskScheduleProcess ticketProcess;
     @Resource
     private ApplicationContext          applicationContext;
 
@@ -126,7 +126,7 @@ public class ApprovalTaskSchedule {
                 return;
             }
             this.approvalDal.approvalMapper().updateModified(id);
-            threadPoolExecutor.submit(() -> {
+            this.threadPoolExecutor.submit(() -> {
                 try {
                     run(id);
                 } finally {
@@ -154,7 +154,7 @@ public class ApprovalTaskSchedule {
         switch (afterCheck.getTicketStatus()) {
             case PRE_INIT: {
                 try {
-                    ticketProcess.processPreInit(afterCheck);
+                    this.scheduleProcess.processPreInit(afterCheck);
                     //                    this.delayTask(2, TimeUnit.SECONDS);
                 } catch (Exception e) {
                     boolean isRpcTimeout = e instanceof RemoteInvokeTimeoutException;
@@ -165,19 +165,19 @@ public class ApprovalTaskSchedule {
                         log.error("processExplain failed msg:" + rootException.getMessage(), rootException);
                         String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_EXPLAIN_FAILED_MESSAGE.name()) + rootException.getMessage();
                         this.approvalFlowService.closeTicket(afterCheck.getId(), message, puid);
-                        //                        this.finishTask(FINISH_MSG);
+                        // this.finishTask(FINISH_MSG);
                     }
                 }
                 break;
             }
             case WAIT_APPROVAL: {
                 try {
-                    ticketProcess.processWaitApproval(afterCheck);
-                    ticketProcess.processApprovalPerson(puid, uid, afterCheck);
+                    this.scheduleProcess.processWaitApproval(afterCheck);
+                    this.scheduleProcess.processApprovalPerson(puid, uid, afterCheck);
                 } catch (ThirdPartyApiException e) {
                     if (e.getErrorType() == ThirdPartyApiErrorType.APPROVAL_TEMPLATE_NOT_EXISTS) {
-                        approvalFlowService.failTicket(ticketId, DmI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()), approvalDO.getPrimaryUid());
-                        approvalDal.templateMapper().deleteByPrimaryUid(approvalDO.getPrimaryUid(), approvalDO.getApproType());
+                        this.approvalFlowService.failTicket(ticketId, DmI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()), approvalDO.getPrimaryUid());
+                        this.approvalDal.templateMapper().deleteByPrimaryUid(approvalDO.getPrimaryUid(), approvalDO.getApproType());
                     } else {
                         this.approvalFlowService.failTicket(approvalDO.getId(), DmI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs()), puid);
                     }
@@ -191,28 +191,28 @@ public class ApprovalTaskSchedule {
             }
             case WAIT_EXEC: {
                 try {
-                    ticketProcess.processWaitExec(afterCheck);
+                    this.scheduleProcess.processWaitExec(afterCheck);
                 } catch (Exception e) {
                     log.error("processWaitApproval failed msg:" + e.getMessage(), e);
                 }
                 break;
             }
             case WAIT_CONFIRM: {
-                ticketProcess.processWaitConfirm(afterCheck);
+                this.scheduleProcess.processWaitConfirm(afterCheck);
                 break;
             }
             case RUNNING:
             case EXEC_PAUSE:
             case FAILED: {
-                ticketProcess.processRunningCheck(afterCheck);
+                this.scheduleProcess.processRunningCheck(afterCheck);
                 break;
             }
             case REJECTED: {
-                ticketProcess.processReject(afterCheck);
+                this.scheduleProcess.processReject(afterCheck);
                 break;
             }
             case CANCELED: {
-                ticketProcess.processCanceled(afterCheck);
+                this.scheduleProcess.processCanceled(afterCheck);
                 break;
             }
             case EXEC_FAIL:

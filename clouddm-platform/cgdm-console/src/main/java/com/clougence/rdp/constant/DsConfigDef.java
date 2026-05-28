@@ -20,8 +20,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.clougence.clouddm.console.web.global.i18n.I18nDsConfigMsgKeys;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
+import com.clougence.clouddm.console.web.global.i18n.I18nDsConfigMsgKeys;
 import com.clougence.clouddm.platform.dal.model.system.KvConfValType;
 
 /**

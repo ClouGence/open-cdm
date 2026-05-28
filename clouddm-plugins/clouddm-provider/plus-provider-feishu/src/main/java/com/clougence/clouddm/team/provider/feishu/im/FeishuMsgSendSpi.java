@@ -52,7 +52,7 @@ public class FeishuMsgSendSpi implements MsgSendSpi {
     @SneakyThrows
     public MsgSendResult sendMessage(MsgSendConfig config, MsgContent message) {
         if (StringUtils.isBlank(config.getWebhookUrl())) {
-            throw ThirdPartyApiException.asRDP().with(FeishuI18nKeys.FEISHU_IM_CONFIG_MISSING_WEBHOOK_URL);
+            throw ThirdPartyApiException.as().with(FeishuI18nKeys.FEISHU_IM_CONFIG_MISSING_WEBHOOK_URL);
         }
 
         try (Response response = client.newCall(createRequest(config, message)).execute()) {
@@ -84,7 +84,7 @@ public class FeishuMsgSendSpi implements MsgSendSpi {
         if (msgContent.getType() == MsgSendType.Text) {
             content.setMsg_type("text");
         } else {
-            throw ThirdPartyApiException.asRDP().with(FeishuI18nKeys.FEISHU_IM_UNSUPPORT_TYPE, msgContent.getType());
+            throw ThirdPartyApiException.as().with(FeishuI18nKeys.FEISHU_IM_UNSUPPORT_TYPE, msgContent.getType());
         }
 
         return new Request.Builder().url(config.getWebhookUrl()).method("POST", RequestBody.create(MediaType.get("application/json"), JsonUtils.toJson(content))).build();

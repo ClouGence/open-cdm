@@ -30,7 +30,7 @@ public interface ConsoleStatusRService {
 
     void reportStatus(WorkerIdentity identity, Date sendTime, WorkerState workerState);
 
-    void reportAddress(WorkerIdentity identity, Date sendTime, String localIp, String externalIp);
+    void reportAddress(WorkerIdentity identity, Date sendTime, String localIp);
 
     void reportMetric(WorkerIdentity identity, Date sendTime, MetricStats stats);
 }

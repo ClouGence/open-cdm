@@ -445,7 +445,7 @@ public class ObjectCacheDaoImpl implements ObjectCacheDao, UnifiedPostConstruct 
     }
 
     private ErrorMessageException noAuthorityException() {
-        String msg = this.i18nDictionary.getMessage(I18nDaoKeys.DAO_NO_AUTHORITY_TO_OPERATE_ON_THIS_RESOURCE);
+        String msg = this.i18nDictionary.getMessage(I18nDaoKeys.DAO_NO_AUTHORITY);
         return new ErrorMessageException(DmErrorCode.O_AUTHORITY.code(), msg);
     }
 

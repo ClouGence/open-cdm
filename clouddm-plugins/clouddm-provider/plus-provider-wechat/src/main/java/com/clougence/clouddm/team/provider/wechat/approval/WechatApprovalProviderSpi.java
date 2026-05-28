@@ -194,7 +194,7 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
             );
         } else {
             String message = String.format("Unsupported approval form type %s", form.getClass().getName());
-            throw ThirdPartyApiException.asRDP().with(ThirdPartyApiErrorType.OTHER, WechatI18nKey2.WECHAT_CALL_API_UNKNOWN_ERROR, message);
+            throw ThirdPartyApiException.as().with(ThirdPartyApiErrorType.OTHER, WechatI18nKey2.WECHAT_CALL_API_UNKNOWN_ERROR, message);
         }
     }
 
@@ -229,7 +229,7 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
     @Override
     public ApprovalInstanceInfo getLastInfo(String ownerUid, String identity) throws ThirdPartyApiException {
         if (StringUtils.isBlank(identity)) {
-            throw ThirdPartyApiException.asRDP().with(WechatI18nKey2.WECHAT_APPROVAL_INSTANCE_IS_EMPTY);
+            throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_APPROVAL_INSTANCE_IS_EMPTY);
         }
 
         WechatApi approvalApi = this.wechatApi(ownerUid);
@@ -328,6 +328,6 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
 
     @Override
     public void cancelApprovalInst(String ownerUid, ApprovalInstanceCancelInfo info) throws ThirdPartyApiException {
-        throw ThirdPartyApiException.asRDP().with(WechatI18nKey2.WECHAT_NOT_SUPPORT_CLOSE_TICKET);
+        throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_NOT_SUPPORT_CLOSE_TICKET);
     }
 }

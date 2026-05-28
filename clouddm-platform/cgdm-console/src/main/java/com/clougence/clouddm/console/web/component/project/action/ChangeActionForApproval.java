@@ -34,7 +34,7 @@ import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.ticket.CheckedVO;
-import com.clougence.clouddm.console.web.service.system.NamingService;
+import com.clougence.clouddm.platform.dal.access.NamingDao;
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.approval.*;
@@ -62,7 +62,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
     @Resource
     private ApprovalDal         approvalDal;
     @Resource
-    private NamingService       namingService;
+    private NamingDao       namingDao;
     @Resource
     private DmDsConfigService   dmDsConfigService;
     @Resource
@@ -198,7 +198,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         }
 
         // create Ticket
-        String bizId = this.namingService.genTicketBizId();
+        String bizId = this.namingDao.genTicketBizId();
         DmApprovalDO ticket = new DmApprovalDO();
         ticket.setBizId(bizId);
         ticket.setOwnerUid(projectDO.getProjectUid());

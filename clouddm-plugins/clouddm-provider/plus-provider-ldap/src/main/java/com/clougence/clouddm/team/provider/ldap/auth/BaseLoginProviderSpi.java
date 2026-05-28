@@ -74,7 +74,7 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
             if (e instanceof ThirdPartyApiException) {
                 throw e;
             } else {
-                throw ThirdPartyApiException.asRDP().with(e, LdapI18nKey.LDAP_SERVICE_ERROR.name(), ExceptionUtils.getRootCauseMessage(e));
+                throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_SERVICE_ERROR.name(), ExceptionUtils.getRootCauseMessage(e));
             }
         }
 
@@ -95,7 +95,7 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
             if (e instanceof ThirdPartyApiException) {
                 throw e;
             } else {
-                throw ThirdPartyApiException.asRDP().with(e, LdapI18nKey.LDAP_SERVICE_ERROR.name(), ExceptionUtils.getRootCauseMessage(e));
+                throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_SERVICE_ERROR.name(), ExceptionUtils.getRootCauseMessage(e));
             }
         }
     }
@@ -120,7 +120,7 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
             if (e instanceof ThirdPartyApiException) {
                 throw e;
             } else {
-                throw ThirdPartyApiException.asRDP().with(e, LdapI18nKey.LDAP_SERVICE_ERROR.name(), ExceptionUtils.getRootCauseMessage(e));
+                throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_SERVICE_ERROR.name(), ExceptionUtils.getRootCauseMessage(e));
             }
         }
 
@@ -128,7 +128,7 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
         if (searchResult.isEmpty()) {
             return null;
         } else if (searchResult.size() > 1) {
-            throw ThirdPartyApiException.asRDP()
+            throw ThirdPartyApiException.as()
                 .with(LdapI18nKey.LDAP_MATCH_MULTIPLE_ACCOUNT.name(), ldapSearch.getLdapWhere(), ldapSearch.getLdapCondition(), searchResult.size());
         } else {
             return searchResult.get(0);

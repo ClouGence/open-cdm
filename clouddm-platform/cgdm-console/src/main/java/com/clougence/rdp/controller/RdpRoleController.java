@@ -30,26 +30,26 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
-import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
-import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
-import com.clougence.clouddm.sdk.security.auth.AuthInfo;
+import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
-import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
+import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.role.CreateRoleFO;
 import com.clougence.clouddm.console.web.model.fo.role.DeleteRoleFO;
 import com.clougence.clouddm.console.web.model.fo.role.FetchRoleFO;
 import com.clougence.clouddm.console.web.model.fo.role.UpdateRoleFO;
-import com.clougence.rdp.constant.RdpControllerUrlPrefix;
 import com.clougence.clouddm.console.web.model.vo.role.RoleAuthTreeVO;
 import com.clougence.clouddm.console.web.model.vo.role.RoleVO;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
-import com.clougence.rdp.service.RdpAuthServiceForManage;
-import com.clougence.rdp.service.RdpOpAuditService;
-import com.clougence.rdp.service.RdpRoleService;
-import com.clougence.rdp.service.RdpUserService;
-import com.clougence.rdp.service.model.AddRoleMO;
+import com.clougence.clouddm.console.web.service.auth.RdpRoleService;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
+import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
+import com.clougence.clouddm.sdk.security.auth.AuthInfo;
+import com.clougence.rdp.constant.RdpControllerUrlPrefix;
+import com.clougence.rdp.service.RdpOpAuditService;
+import com.clougence.rdp.service.model.AddRoleMO;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -66,11 +66,11 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpRoleController {
 
     @Resource
-    private RdpAuthServiceForManage rdpDsAuthManagerService;
+    private DmAuthServiceForManage rdpDsAuthManagerService;
     @Resource
-    private RdpRoleService          rdpRoleService;
+    private RdpRoleService         rdpRoleService;
     @Resource
-    private RdpOpAuditService       rdpOpAuditService;
+    private RdpOpAuditService      rdpOpAuditService;
 
     @RequestAuth(strategy = Ignore)
     @RequestMapping(value = "/listRoleAuthLabelTree", method = { RequestMethod.POST })

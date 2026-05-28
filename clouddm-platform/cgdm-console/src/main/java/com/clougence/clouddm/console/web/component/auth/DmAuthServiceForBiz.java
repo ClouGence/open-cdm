@@ -15,6 +15,9 @@
  */
 package com.clougence.clouddm.console.web.component.auth;
 
+import java.util.List;
+
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 
@@ -22,6 +25,22 @@ import com.clougence.clouddm.sdk.security.auth.AuthKind;
  * @author bucketli 2024/2/21 09:40:00
  */
 public interface DmAuthServiceForBiz {
+
+    boolean checkRoleAuth(String puid, String uid, String roleAuth);
+
+    void checkOperateOtherUserAuth(String loginUid, String targetUid);
+
+    void checkResOwnership(String puid, long resId, AuthKind authKind);
+
+    boolean checkResAuthWithoutError(String puid, String uid, long resId, DsResPath resPath, String dataAuthLabel, AuthKind authKind);
+
+    void checkResAuth(String puid, String uid, long resId, DsResPath resPath, String dataAuthLabel, AuthKind authKind);
+
+    List<DmAuthResDO> listAuthByUser(String targetUid, AuthKind authKind);
+
+    List<Long> listResByUser(String targetUid, AuthKind authKind);
+
+    List<DmAuthResDO> listSpecifiedAuthOfUser(String targetUid, String dataAuthLabel, AuthKind authKind);
 
     void checkResPath(String puid, String uid, long resID, AuthKind authKind, DsResPath resPath, String dataAuthLabel);
 

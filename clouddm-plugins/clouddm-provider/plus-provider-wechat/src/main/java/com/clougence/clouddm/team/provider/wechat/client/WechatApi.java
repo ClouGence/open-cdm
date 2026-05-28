@@ -106,7 +106,7 @@ public class WechatApi {
         } catch (WeComException e) {
             log.error("call wechat api 'getUserIdByPhone' failed，message: " + e.getMessage());
             if (e.getErrcode().equals(46004)) {
-                throw ThirdPartyApiException.asRDP().with(e, WechatI18nKey2.WECHAT_NOT_FIND_USER_BY_PHONE, phone);
+                throw ThirdPartyApiException.as().with(e, WechatI18nKey2.WECHAT_NOT_FIND_USER_BY_PHONE, phone);
             }
             throw e;
         }
@@ -122,7 +122,7 @@ public class WechatApi {
         } catch (WeComException e) {
             log.error("call wechat api 'getInstanceDetail' failed，message: " + e.getMessage());
             if (e.getErrcode().equals(301026)) {
-                throw ThirdPartyApiException.asRDP().with(e, WechatI18nKey2.WECHAT_NOT_FIND_APPROVAL_INSTANCE, instanceId);
+                throw ThirdPartyApiException.as().with(e, WechatI18nKey2.WECHAT_NOT_FIND_APPROVAL_INSTANCE, instanceId);
             }
             throw e;
         }
@@ -187,7 +187,7 @@ public class WechatApi {
         } catch (WeComException e) {
             log.error("call wechat api 'getTemplateDetail' failed，message: " + e.getMessage());
             if (e.getErrcode().equals(301025)) {
-                throw ThirdPartyApiException.asRDP().with(e, ThirdPartyApiErrorType.APPROVAL_TEMPLATE_NOT_EXISTS, WechatI18nKey2.WECHAT_APPROVAL_TEMPLATE_NOT_EXISTS, code);
+                throw ThirdPartyApiException.as().with(e, ThirdPartyApiErrorType.APPROVAL_TEMPLATE_NOT_EXISTS, WechatI18nKey2.WECHAT_APPROVAL_TEMPLATE_NOT_EXISTS, code);
             }
             throw e;
         }
@@ -216,12 +216,12 @@ public class WechatApi {
             Request request = new Request.Builder().url(tokenEndpoint).get().build();
             Response response = httpClient.newCall(request).execute();
             if (!response.isSuccessful()) {
-                throw ThirdPartyApiException.asRDP().with(WechatI18nKey2.WECHAT_API_USERTICKET_ERROR, response.code() + ":" + response.body().string());
+                throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_API_USERTICKET_ERROR, response.code() + ":" + response.body().string());
             }
             JSONObject object = JSONObject.parseObject(response.body().string());
             int errcode = object.getIntValue("errcode");
             if (errcode != 0) {
-                throw ThirdPartyApiException.asRDP().with(WechatI18nKey2.WECHAT_API_USERTICKET_ERROR, object.getString("errmsg"));
+                throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_API_USERTICKET_ERROR, object.getString("errmsg"));
             }
 
             // test user role
@@ -229,13 +229,13 @@ public class WechatApi {
             if (StringUtils.isNotBlank(userTicket)) {
                 return userTicket;
             } else {
-                throw ThirdPartyApiException.asRDP().with(WechatI18nKey2.WECHAT_IS_OPEN_USER_ERROR);
+                throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_IS_OPEN_USER_ERROR);
             }
         } catch (ThirdPartyApiException e) {
             throw e;
         } catch (Exception e) {
             log.error("wechat getUserinfo failed, " + e.getMessage());
-            throw ThirdPartyApiException.asRDP().with(e, WechatI18nKey2.WECHAT_API_USERTICKET_ERROR, e.getMessage());
+            throw ThirdPartyApiException.as().with(e, WechatI18nKey2.WECHAT_API_USERTICKET_ERROR, e.getMessage());
         }
     }
 
@@ -252,13 +252,13 @@ public class WechatApi {
             OkHttpClient httpClient = this.getClient().getHttpClient();
             Response response = httpClient.newCall(request).execute();
             if (!response.isSuccessful()) {
-                throw ThirdPartyApiException.asRDP().with(WechatI18nKey2.WECHAT_GETUSERINFO_ERROR, response.code() + ":" + response.body().string());
+                throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_GETUSERINFO_ERROR, response.code() + ":" + response.body().string());
             }
 
             JSONObject object = JSONObject.parseObject(response.body().string());
             int errcode = object.getIntValue("errcode");
             if (errcode != 0) {
-                throw ThirdPartyApiException.asRDP().with(WechatI18nKey2.WECHAT_GETUSERINFO_ERROR, object.getString("errmsg"));
+                throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_GETUSERINFO_ERROR, object.getString("errmsg"));
             }
 
             UserData userData = new UserData();
@@ -275,7 +275,7 @@ public class WechatApi {
             return userData;
         } catch (Exception e) {
             log.error("wechat getUserInfo failed, " + e.getMessage());
-            throw ThirdPartyApiException.asRDP().with(e, WechatI18nKey2.WECHAT_GETUSERINFO_ERROR, e.getMessage());
+            throw ThirdPartyApiException.as().with(e, WechatI18nKey2.WECHAT_GETUSERINFO_ERROR, e.getMessage());
         }
     }
 }

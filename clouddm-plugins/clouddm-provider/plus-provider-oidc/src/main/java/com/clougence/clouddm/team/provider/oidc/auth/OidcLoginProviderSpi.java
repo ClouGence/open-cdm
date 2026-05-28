@@ -125,7 +125,7 @@ public class OidcLoginProviderSpi implements LoginProviderSpi {
     private String[] extractSplit(String fullLoginName) {
         int splitIdx = fullLoginName.lastIndexOf("@");
         if (splitIdx == -1) {
-            throw ThirdPartyApiException.asRDP().with(OidcI18nKey.OIDC_LOGIN_FAIL_PRIMARY_MISSING_ARGS);
+            throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_LOGIN_FAIL_PRIMARY_MISSING_ARGS);
         }
 
         String userAccount = fullLoginName.substring(0, splitIdx);
@@ -168,7 +168,7 @@ public class OidcLoginProviderSpi implements LoginProviderSpi {
         RoleData role = CollectionUtils.isEmpty(roles) ? null : roles.get(0);
         if (role == null) {
             log.info("OIDC: user(" + oidcUser.getSubAccount() + ") not found any role, memberOf=" + roleName);
-            throw ThirdPartyApiException.asRDP().with(OidcI18nKey.OIDC_ROLE_MAPPING_FAILED);
+            throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_ROLE_MAPPING_FAILED);
         }
         oidcUser.setRoleId(role.getRoleId());
 

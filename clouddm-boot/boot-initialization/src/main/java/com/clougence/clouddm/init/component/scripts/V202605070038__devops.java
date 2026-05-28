@@ -25,16 +25,16 @@ public class V202605070038__devops extends AbstractUpgradeJavaMigration {
     public List<String> collectScript() {
         return List.of("""
                     alter table dm_ds_config
-                            add column enable_devops tinyint default 0\
+                            add column enable_devops tinyint default 0
                 """, """
                     alter table dm_ticket_details_inst
-                            drop ddl_sql_exec_type\
+                            drop ddl_sql_exec_type
                 """, """
                     alter table dm_ticket_details_inst
-                            drop none_ddl_sql_exec_type\
+                            drop none_ddl_sql_exec_type
                 """, """
                     alter table dm_ticket_details_inst
-                            drop immediately\
+                            drop immediately
                 """, """
                      create table dm_project_scm
                         (
@@ -48,7 +48,7 @@ public class V202605070038__devops extends AbstractUpgradeJavaMigration {
                             scm_access_token text,
                             primary key (id)
                         ) ENGINE = InnoDB
-                          DEFAULT CHARSET = utf8mb4\
+                          DEFAULT CHARSET = utf8mb4
                 """, """
                      create table dm_messenger
                         (
@@ -63,7 +63,7 @@ public class V202605070038__devops extends AbstractUpgradeJavaMigration {
                             enable       tinyint     not null default 1,
                             primary key (id)
                         ) ENGINE = InnoDB
-                          DEFAULT CHARSET = utf8mb4\
+                          DEFAULT CHARSET = utf8mb4
                 """, """
                     create table dm_project
                         (
@@ -84,7 +84,7 @@ public class V202605070038__devops extends AbstractUpgradeJavaMigration {
                             primary key (id),
                             unique key (project_code)
                         ) ENGINE = InnoDB
-                          DEFAULT CHARSET = utf8mb4\
+                          DEFAULT CHARSET = utf8mb4
                 """, """
                     create table dm_project_devops
                         (
@@ -120,7 +120,7 @@ public class V202605070038__devops extends AbstractUpgradeJavaMigration {
                             primary key (id),
                             key (devops_hashcode)
                         ) ENGINE = InnoDB
-                          DEFAULT CHARSET = utf8mb4\
+                          DEFAULT CHARSET = utf8mb4
                 """, """
                     create table dm_project_msg
                         (
@@ -140,7 +140,7 @@ public class V202605070038__devops extends AbstractUpgradeJavaMigration {
                             primary key (id),
                             unique key (owner_uid, ref_project_id)
                         ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                 """, """
                     create table dm_project_change
                         (
@@ -165,7 +165,7 @@ public class V202605070038__devops extends AbstractUpgradeJavaMigration {
                             primary key (id),
                             key change_idx(ref_project_id, ref_devops_id, last_commit_id)
                         ) ENGINE = InnoDB
-                          DEFAULT CHARSET = utf8mb4\
+                          DEFAULT CHARSET = utf8mb4
                 """, """
                     create table dm_project_change_item
                         (
@@ -181,7 +181,7 @@ public class V202605070038__devops extends AbstractUpgradeJavaMigration {
                             content              longtext     not null,
                             primary key (id)
                         ) ENGINE = InnoDB
-                          DEFAULT CHARSET = utf8mb4\
+                          DEFAULT CHARSET = utf8mb4
                 """, """
                     create table dm_project_version
                         (
@@ -198,7 +198,7 @@ public class V202605070038__devops extends AbstractUpgradeJavaMigration {
                             type                 varchar(24) not null,
                             primary key (id)
                         ) ENGINE = InnoDB
-                          DEFAULT CHARSET = utf8mb4\
+                          DEFAULT CHARSET = utf8mb4
                 """, """
                     create table dm_project_devops_item
                         (
@@ -213,7 +213,7 @@ public class V202605070038__devops extends AbstractUpgradeJavaMigration {
                             content              longtext     not null,
                             primary key (id)
                         ) ENGINE = InnoDB
-                              DEFAULT CHARSET = utf8mb4\
+                              DEFAULT CHARSET = utf8mb4
                 """);
     }
 }

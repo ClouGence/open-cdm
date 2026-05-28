@@ -157,7 +157,7 @@ public class LoginProviderSpiForLdap extends BaseLoginProviderSpi implements Log
     private String[] extractSplit(String fullLoginName) {
         String[] split = fullLoginName.split("@");
         if (split.length == 1) {
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_LOGIN_FAIL_PRIMARY_MISSING_ARGS.name());
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_LOGIN_FAIL_PRIMARY_MISSING_ARGS.name());
         }
 
         String userAccount = split[0];
@@ -192,7 +192,7 @@ public class LoginProviderSpiForLdap extends BaseLoginProviderSpi implements Log
                 }
                 if (!match) {
                     log.info("LDAP: user objectClass {} does not match any group.", StringUtils.join(filterd.toArray(), ","));
-                    throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_OBJECTCLASS_NOT_ALLOWED_ERROR.name());
+                    throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_OBJECTCLASS_NOT_ALLOWED_ERROR.name());
                 }
             }
         }
@@ -211,7 +211,7 @@ public class LoginProviderSpiForLdap extends BaseLoginProviderSpi implements Log
         RoleData role = searchRole(primaryUser.getInternalUID(), ldapCtx);
         if (role == null) {
             log.info("LDAP: user(" + user.getSubAccount() + ") not found any role, find roleName=" + ldapCtx.getLdapConfig().getLdapRoleMap());
-            throw ThirdPartyApiException.asRDP().with(LdapI18nKey.LDAP_USER_ROLE_MAPPING_FAILED.name());
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_USER_ROLE_MAPPING_FAILED.name());
         }
         user.setRoleId(role.getRoleId());
 
@@ -221,7 +221,7 @@ public class LoginProviderSpiForLdap extends BaseLoginProviderSpi implements Log
     @Override
     protected void checkThrowError(Exception e) {
         if (StringUtils.contains(e.getMessage(), "Invalid Credentials")) {
-            throw ThirdPartyApiException.asRDP().with(e, LdapI18nKey.LDAP_LOGIN_FAIL_PASSWORD_ERROR.name());
+            throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_LOGIN_FAIL_PASSWORD_ERROR.name());
         }
     }
 
