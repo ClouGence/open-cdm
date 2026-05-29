@@ -14,111 +14,87 @@
             <a-tab-pane key="MFA" v-if="showMfa" :tab="$t('duo-yin-zi-ren-zheng-yan-zheng-ma')"></a-tab-pane>
           </a-tabs>
           <div class="tabs-content">
-            <div
-              class="input-wrapper mt-4"
-              :class="{ 'is-completion': loginCallbackData.token && loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT }"
-              v-if="!showMfa"
-            >
-              <div style="display: flex; align-items: center">
-                <a-input
-                  class="h-12"
-                  v-model:value="loginForm.account"
-                  @keydown.enter="handleEnter"
+            <div class="input-wrapper mt-4" :class="{ 'is-completion': isCompletionMode }" v-if="!showMfa">
+              <div class="login-fields" v-if="!isCompletionMode">
+                <div
+                  class="floating-field"
+                  :class="{ 'has-value': loginForm.account }"
                   v-if="loginForm.accountType === ACCOUNT_TYPE.PRIMARY_ACCOUNT || !isPrivate"
-                  :placeholder="loginForm.loginType === LOGIN_TYPE.LOGIN_VERIFY ? $t('you-xiang-shou-ji-hao') : $t('you-xiang-shou-ji-hao')"
-                  size="large"
-                ></a-input>
-                <a-input
-                  class="input-with-addon"
-                  v-model:value="loginForm.account"
-                  @focus="handlleSubAccountFocus"
-                  @blur="handleSubAccountBlur"
-                  @keydown.enter="handleEnter"
-                  v-if="isPrivate && loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT && !jumpLoginType.includes(selectDomainData.loginType)"
-                  :placeholder="
-                    loginForm.accountType === ACCOUNT_TYPE.PRIMARY_ACCOUNT
-                      ? loginForm.loginType === LOGIN_TYPE.LOGIN_VERIFY
-                        ? $t('shou-ji')
-                        : $t('shou-ji-you-xiang-di-zhi')
-                      : selectDomain
-                        ? selectDomainData.title
-                        : $t('zi-zhang-hao')
-                  "
-                  size="large"
                 >
-                  <template #addonAfter>
-                    <a-select
-                      v-model:value="selectDomain"
-                      size="large"
-                      :style="`width:${domainSelectWidth}px;border-left:none; height: 100%`"
-                      @change="handleDomainChange"
-                      v-if="primaryUserDomainList.length > 1"
-                    >
-                      <a-select-option v-for="domain in primaryUserDomainList" :key="domain.domain" :value="domain.domain">
-                        @{{ domain.domain }}
-                      </a-select-option>
-                    </a-select>
-                    <div
-                      :style="`width:${domainSelectWidth}px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap; height: 100%`"
-                      v-if="
-                        primaryUserDomainList.length <= 1 &&
-                        !(selectDomainData.loginType === LOGIN_TYPE.LOGIN_AD || selectDomainData.loginType === LOGIN_TYPE.LOGIN_LDAP)
-                      "
-                    >
-                      @{{ selectDomain }}
-                    </div>
-                  </template>
-                </a-input>
+                  <span class="floating-label">
+                    {{ loginForm.loginType === LOGIN_TYPE.LOGIN_VERIFY ? $t('you-xiang-shou-ji-hao') : $t('you-xiang-shou-ji-hao') }}
+                  </span>
+                  <a-input class="field-input" v-model:value="loginForm.account" @keydown.enter="handleEnter" size="large"></a-input>
+                </div>
+                <div
+                  class="floating-field"
+                  :class="{ 'has-value': loginForm.account }"
+                  v-if="isPrivate && loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT && !isJumpLogin()"
+                >
+                  <span class="floating-label">{{ subAccountLabel }}</span>
+                  <a-input
+                    class="field-input input-with-addon"
+                    v-model:value="loginForm.account"
+                    @focus="handlleSubAccountFocus"
+                    @blur="handleSubAccountBlur"
+                    @keydown.enter="handleEnter"
+                    size="large"
+                  >
+                    <template #addonAfter>
+                      <a-select
+                        v-model:value="selectDomain"
+                        size="large"
+                        :style="`width:${domainSelectWidth}px;border-left:none; height: 100%`"
+                        @change="handleDomainChange"
+                        v-if="primaryUserDomainList.length > 1"
+                      >
+                        <a-select-option v-for="domain in primaryUserDomainList" :key="domain.domain" :value="domain.domain">
+                          @{{ domain.domain }}
+                        </a-select-option>
+                      </a-select>
+                    </template>
+                  </a-input>
+                </div>
+              </div>
+              <div class="floating-field has-value" v-if="isCompletionMode">
+                <span class="floating-label">{{ $t('yong-hu-ming') }}</span>
+                <a-input class="field-input" disabled v-model:value="loginCallbackData.user" size="large"></a-input>
+              </div>
+              <div class="floating-field" :class="{ 'has-value': loginForm.registerInfo.phone }" v-if="isCompletionMode">
+                <span class="floating-label">{{ $t('shou-ji-hao') }}</span>
+                <a-input class="field-input" v-model:value="loginForm.registerInfo.phone" @keydown.enter="handleEnter" size="large" />
+              </div>
+              <div class="floating-field" :class="{ 'has-value': loginForm.registerInfo.email }" v-if="isCompletionMode">
+                <span class="floating-label">{{ $t('you-xiang') }}</span>
+                <a-input class="field-input" v-model:value="loginForm.registerInfo.email" @keydown.enter="handleEnter" size="large" />
+              </div>
+              <div
+                class="floating-field field-with-action"
+                :class="{ 'has-value': loginForm.verifyCode }"
+                v-if="loginForm.loginType === LOGIN_TYPE.LOGIN_VERIFY"
+              >
+                <span class="floating-label">{{ $t('yan-zheng-ma') }}</span>
+                <a-input class="field-input" v-model:value="loginForm.verifyCode" @keydown.enter="handleEnter" size="large" />
                 <cc-sms-button
-                  v-if="loginForm.loginType === LOGIN_TYPE.LOGIN_VERIFY"
                   :phone-number="loginForm.account"
                   size="large"
-                  style="width: 120px; margin: 0 0 0 10px"
+                  class="field-action"
                   verify-code-type="LOGIN"
                   verify-type="SMS_VERIFY_CODE"
                 />
               </div>
-              <a-input
-                class="mb-6 h-12"
-                disabled
-                v-model:value="loginCallbackData.user"
-                v-if="loginCallbackData.token && loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT"
-                size="large"
-              ></a-input>
-              <a-input
-                class="mb-6 h-12"
-                v-if="loginCallbackData.token && loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT"
-                v-model:value="loginForm.registerInfo.phone"
-                :placeholder="$t('shou-ji-hao')"
-                @keydown.enter="handleEnter"
-                size="large"
-              />
-              <a-input
-                class="h-12"
-                v-if="loginCallbackData.token && loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT"
-                v-model:value="loginForm.registerInfo.email"
-                :placeholder="$t('you-xiang')"
-                @keydown.enter="handleEnter"
-                size="large"
-              />
-              <a-input
-                class="h-12"
-                v-if="loginForm.loginType === LOGIN_TYPE.LOGIN_VERIFY"
-                v-model:value="loginForm.verifyCode"
-                @keydown.enter="handleEnter"
-                :placeholder="$t('yan-zheng-ma')"
-                size="large"
-              />
-              <cc-password-input
+              <div
+                class="floating-field"
+                :class="{ 'has-value': loginForm.password }"
                 v-if="
+                  !isCompletionMode &&
                   loginForm.loginType !== LOGIN_TYPE.LOGIN_VERIFY &&
-                  !(jumpLoginType.includes(selectDomainData.loginType) && loginForm.accountType !== ACCOUNT_TYPE.PRIMARY_ACCOUNT)
+                  !(isJumpLogin() && loginForm.accountType !== ACCOUNT_TYPE.PRIMARY_ACCOUNT)
                 "
-                v-model:value="loginForm.password"
-                :handleEnter="handleEnter"
-                :placeholder="$t('mi-ma')"
-                size="large"
-              />
+              >
+                <span class="floating-label">{{ $t('mi-ma') }}</span>
+                <a-input-password class="field-input" v-model:value="loginForm.password" @keydown.enter="handleEnter" size="large" />
+              </div>
             </div>
             <div class="input-wrapper mt-4" v-if="showMfa">
               <a-input
@@ -133,15 +109,7 @@
                 {{ $t('nin-yi-kai-qi-le-duo-zi-yin-ren-zheng-pei-zhi-mei-ci-deng-lu-xu-yan-zheng-duo-yin-zi-ren-zheng-yan-zheng-ma') }}
               </p>
             </div>
-            <div
-              class="completion-actions"
-              v-if="
-                !showMfa &&
-                jumpLoginType.includes(selectDomainData.loginType) &&
-                loginCallbackData.token &&
-                loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT
-              "
-            >
+            <div class="completion-actions" v-if="!showMfa && isCompletionMode">
               <a-button :disabled="loginLoading" :loading="loginLoading" type="primary" size="large" class="completion-submit" @click="handleLogin">
                 {{ $t('bu-quan-xin-xi-bing-deng-lu') }}
               </a-button>
@@ -150,11 +118,7 @@
               </a-button>
             </div>
             <a-button
-              v-if="
-                !showMfa &&
-                !(loginCallbackData.token && loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT) &&
-                (!jumpLoginType.includes(selectDomainData.loginType) || loginForm.accountType === ACCOUNT_TYPE.PRIMARY_ACCOUNT)
-              "
+              v-if="!showMfa && !isCompletionMode && (!isJumpLogin() || loginForm.accountType === ACCOUNT_TYPE.PRIMARY_ACCOUNT)"
               :disabled="loginLoading"
               :loading="loginLoading"
               type="primary"
@@ -178,12 +142,7 @@
             </a-button>
             <div class="flex items-center justify-center">
               <button
-                v-if="
-                  !showMfa &&
-                  jumpLoginType.includes(selectDomainData.loginType) &&
-                  loginForm.accountType !== ACCOUNT_TYPE.PRIMARY_ACCOUNT &&
-                  !loginCallbackData.token
-                "
+                v-if="!showMfa && isJumpLogin() && loginForm.accountType !== ACCOUNT_TYPE.PRIMARY_ACCOUNT && !loginCallbackData.token"
                 :disabled="loginLoading"
                 :aria-busy="loginLoading"
                 type="button"
@@ -203,31 +162,12 @@
               </a-alert>
             </div>
             <p
-              v-if="
-                primaryUserDomainList.length > 1 &&
-                jumpLoginType.includes(selectDomainData.loginType) &&
-                loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT
-              "
+              v-if="primaryUserDomainList.length > 1 && isJumpLogin() && loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT"
               class="text-red-700 text-sm"
             >
               *{{ $t('dang-qian-cun-zai-duo-ge-zhu-zhang-hao-mo-ren-xuan-ze-di-yi-ge-ru-xu-bang-zhu-qing-lian-xi-guan-fang-gong-zuo-ren-yuan') }}
             </p>
           </div>
-          <Modal v-model:visible="showAccountInformationCompletionModal" :title="$t('zhang-hao-xin-xi-bu-quan')" :mask-closable="false" :width="400">
-            <Alert>{{ $t('shou-ci-deng-lu-xu-yao-tian-xieewai-xin-xi') }}</Alert>
-            <Form :model="completeForm" :rules="rules" ref="completeModalRef" :label-width="60">
-              <FormItem :label="$t('you-xiang')" prop="email">
-                <Input v-model:value="completeForm.email" />
-              </FormItem>
-              <FormItem :label="$t('shou-ji-hao')" prop="phone">
-                <Input v-model:value="completeForm.phone" />
-              </FormItem>
-            </Form>
-            <template #footer>
-              <Button @click="hideCompleteModal">{{ $t('qu-xiao') }}</Button>
-              <Button type="primary" @click="handleComplete">{{ $t('bao-cun') }}</Button>
-            </template>
-          </Modal>
         </div>
       </div>
     </div>
@@ -238,7 +178,6 @@
 </template>
 
 <script>
-import cloneDeep from 'lodash.clonedeep';
 import DmFooter from '@/components/DmFooter';
 import DmLogoHeader from '@/components/DmLogoHeader';
 import { ACCOUNT_TYPE, AUTH_TYPE_I18N, LOGIN_TYPE } from '@/const';
@@ -261,41 +200,24 @@ export default {
     ...mapGetters(['isDesktop']),
     backgroundClass() {
       return 'dm-background';
+    },
+    isCompletionMode() {
+      return Boolean(this.loginCallbackData.completion && this.loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT);
+    },
+    subAccountLabel() {
+      if (this.loginForm.accountType === ACCOUNT_TYPE.PRIMARY_ACCOUNT) {
+        return this.loginForm.loginType === LOGIN_TYPE.LOGIN_VERIFY ? this.$t('shou-ji') : this.$t('shou-ji-you-xiang-di-zhi');
+      }
+
+      return this.$t('zhang-hao');
     }
   },
   data() {
-    const validateSubaccount = async (checkType, checkContent, callback) => {
-      if (checkContent === this.preCompleteForm[checkType.toLowerCase()]) {
-        callback();
-      } else {
-        const res = await this.$services.checkSupplement({
-          data: {
-            checkType,
-            checkContent,
-            primaryUid: this.preCompleteForm.primaryUid
-          },
-          modal: false
-        });
-        if (res.success) {
-          callback();
-        } else {
-          callback(new Error(res.msgContent));
-        }
-      }
-    };
-    const validateSubaccountPhone = (rule, value, callback) => {
-      validateSubaccount('PHONE', value, callback);
-    };
-    const validateSubaccountEmail = (rule, value, callback) => {
-      validateSubaccount('EMAIL', value, callback);
-    };
     return {
       domainSelectWidth: 250,
       AUTH_TYPE_I18N,
-      showAccountInformationCompletionModal: false,
       ACCOUNT_TYPE,
       LOGIN_TYPE,
-      loginedForm: {},
       loginForm: {
         accountType: ACCOUNT_TYPE.SUB_ACCOUNT,
         loginType: LOGIN_TYPE.LOGIN_PASSWORD,
@@ -305,16 +227,11 @@ export default {
       },
       mfaCode: '',
       mfaPreActionToken: '',
-      completeForm: {
-        email: '',
-        phone: ''
-      },
       jumpLoginType: ['OIDC', 'Feishu', 'DingTalk', 'Wechat'],
       primaryUserDomainList: [],
       selectDomain: '',
       selectDomainData: {},
       isPrivate: false,
-      preCompleteForm: {},
       errMsg: '',
       loginLoading: false,
       showMfa: false,
@@ -322,16 +239,6 @@ export default {
       loginCallbackData: {},
       globalSettings: {
         features: {}
-      },
-      rules: {
-        email: [
-          { required: true, trigger: 'blur', message: this.$t('you-xiang-bu-neng-wei-kong') },
-          { validator: validateSubaccountEmail, trigger: 'blur' }
-        ],
-        phone: [
-          { required: true, trigger: 'blur', message: this.$t('shou-ji-hao-bu-neng-wei-kong') },
-          { validator: validateSubaccountPhone, trigger: 'blur' }
-        ]
       }
     };
   },
@@ -368,6 +275,21 @@ export default {
     async redirectToHome() {
       await this.$router.push(this.resolveRedirectUrl());
     },
+    isJumpLogin(loginType = this.selectDomainData.loginType) {
+      const selectedDomainMatches = this.selectDomainData && this.selectDomainData.loginType === loginType;
+      return Boolean(selectedDomainMatches && this.selectDomainData.jump) || this.jumpLoginType.includes(loginType);
+    },
+    buildLoginAccount(currentLoginType) {
+      if (this.loginForm.accountType !== ACCOUNT_TYPE.SUB_ACCOUNT) {
+        return this.loginForm.account;
+      }
+
+      if (!this.selectDomain || this.loginForm.account.includes('@')) {
+        return this.loginForm.account;
+      }
+
+      return `${this.loginForm.account}@${this.selectDomain}`;
+    },
     async requestJumpUrl(primaryUser) {
       try {
         const res = await this.$services.requestJumpUrl({
@@ -397,33 +319,21 @@ export default {
       const rawMsg = error.msgContent || error.msg || error.message;
       return formatError(rawMsg) || this.$t('xi-tong-yi-chang-qing-lian-xi-guan-li-yuan');
     },
-    async handleComplete() {
-      this.$refs.completeModalRef.validate(async (valid) => {
-        if (valid) {
-          try {
-            const res = await this.$services.login({
-              data: {
-                ...this.loginedForm,
-                registerInfo: this.completeForm,
-                loginType: this.loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT ? this.selectDomainData.loginType : this.loginForm.loginType
-              },
-              modal: false
-            });
-            this.hideCompleteModal();
-            if (res.success) {
-              await this.getUserInfo();
-              await this.redirectToHome();
-            } else {
-              this.errMsg = this.resolveErrorMessage(res);
-            }
-          } catch (error) {
-            this.errMsg = this.resolveErrorMessage(error);
-          }
-        }
-      });
-    },
-    hideCompleteModal() {
-      this.showAccountInformationCompletionModal = false;
+    showCompleteForm(loginData, submittedForm) {
+      const moreInfo = loginData.moreInfo || {};
+      this.loginCallbackData = {
+        completion: true,
+        token: loginData.token || submittedForm.token,
+        user: moreInfo.name,
+        phone: moreInfo.phone,
+        email: moreInfo.email
+      };
+      this.loginForm.registerInfo = {
+        email: moreInfo.email,
+        phone: moreInfo.phone,
+        name: moreInfo.name,
+        primaryUid: moreInfo.primaryUid
+      };
     },
     filterOption(input, option) {
       return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0;
@@ -441,7 +351,7 @@ export default {
 
       this.errMsg = '';
       const currentLoginType = this.loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT ? this.selectDomainData.loginType : this.loginForm.loginType;
-      if (currentLoginType === LOGIN_TYPE.LOGIN_VERIFY || this.jumpLoginType.includes(currentLoginType)) {
+      if (currentLoginType === LOGIN_TYPE.LOGIN_VERIFY || this.isJumpLogin(currentLoginType)) {
         this.loginForm.password = '';
       } else {
         if (!this.loginForm.password) {
@@ -455,18 +365,14 @@ export default {
         }
       }
       this.loginLoading = true;
-      const isCompletionLogin = this.loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT && this.loginCallbackData.token;
+      const isCompletionLogin = this.isCompletionMode;
       const data = {
         ...this.loginForm,
         password: this.loginForm.password ? this.passwordEncrypt(this.loginForm.password) : '',
-        account:
-          this.loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT && currentLoginType !== LOGIN_TYPE.OIDC
-            ? `${this.loginForm.account}@${this.selectDomain}`
-            : this.loginForm.account,
+        account: this.buildLoginAccount(currentLoginType),
         loginType: this.loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT ? this.selectDomainData.loginType : this.loginForm.loginType,
         token: isCompletionLogin ? this.loginCallbackData.token : null
       };
-      this.loginedForm = data;
       try {
         const res = await this.$services.login({
           data,
@@ -475,9 +381,7 @@ export default {
         if (res.success) {
           this.errMsg = '';
           if (res.data.needMore) {
-            this.showAccountInformationCompletionModal = true;
-            this.completeForm = res.data.moreInfo;
-            this.preCompleteForm = cloneDeep(res.data.moreInfo);
+            this.showCompleteForm(res.data, data);
           } else if (res.data.needMfa) {
             this.showMfa = true;
             this.mfaPreActionToken = res.data.mfaPreActionToken;
@@ -608,22 +512,30 @@ export default {
             this.primaryUserDomainList = res1.data;
             this.selectDomain = res1.data[0].domain;
             this.selectDomainData = res1.data[0];
-            if (this.jumpLoginType.includes(this.selectDomainData.loginType)) {
-              console.log('route', this.$route);
-              if (this.$route.query && this.$route.query.token) {
-                this.loginCallbackData = this.$route.query;
+            console.log('route', this.$route);
+            if (this.$route.query && this.$route.query.token) {
+              this.loginCallbackData = {
+                ...this.$route.query,
+                completion: true
+              };
+              const callbackPrimary = this.primaryUserDomainList.find((domain) => domain.domainUid === this.loginCallbackData.primary);
+              if (callbackPrimary) {
+                this.selectDomain = callbackPrimary.domain;
+                this.selectDomainData = callbackPrimary;
+              }
+              if (this.isJumpLogin(this.selectDomainData.loginType)) {
                 this.loginForm.accountType = ACCOUNT_TYPE.SUB_ACCOUNT;
-                this.loginForm.account = this.loginCallbackData.sub || this.loginCallbackData.account;
+                this.loginForm.account = this.loginCallbackData.account || this.loginCallbackData.sub;
                 this.loginForm.registerInfo = {};
                 this.loginForm.registerInfo.email = this.loginCallbackData.email;
                 this.loginForm.registerInfo.phone = this.loginCallbackData.phone;
                 this.loginForm.registerInfo.name = this.loginCallbackData.user;
                 this.loginForm.registerInfo.primaryUid = this.selectDomainData.domainUid;
-              } else if (this.$route.query && this.$route.query.error) {
-                this.loginForm.accountType = ACCOUNT_TYPE.SUB_ACCOUNT;
-                this.loginCallbackData = this.$route.query;
-                this.errMsg = `${this.$route.query.error}:${this.$route.query.error_description}`;
               }
+            } else if (this.$route.query && this.$route.query.error && this.isJumpLogin(this.selectDomainData.loginType)) {
+              this.loginForm.accountType = ACCOUNT_TYPE.SUB_ACCOUNT;
+              this.loginCallbackData = this.$route.query;
+              this.errMsg = `${this.$route.query.error}:${this.$route.query.error_description}`;
             }
           }
         });
@@ -714,7 +626,8 @@ export default {
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
 
       :deep(.ant-tabs-tab-btn) {
-        font-size: 16px;
+        font-size: 18px;
+        line-height: 24px;
         color: var(--text-primary, rgba(0, 0, 0, 0.88));
       }
 
@@ -729,8 +642,8 @@ export default {
           padding-right: 80px;
 
           .ant-tabs-tab {
-            line-height: 48px;
-            font-size: 16px;
+            line-height: 40px;
+            font-size: 18px;
             color: var(--text-primary, rgba(0, 0, 0, 0.88));
           }
 
@@ -772,6 +685,132 @@ export default {
             & > div {
               margin-bottom: 10px;
             }
+          }
+        }
+
+        .login-fields {
+          margin-bottom: 0 !important;
+        }
+
+        .floating-field {
+          --field-border: #d0d7e2;
+          --field-active: #4f82d9;
+          position: relative;
+          display: flex;
+          align-items: center;
+          min-height: 44px;
+          width: 100%;
+          margin-bottom: 14px;
+          padding: 0 14px;
+          border: 1px solid var(--field-border);
+          border-radius: 12px;
+          background: #ffffff;
+          transition:
+            border-color 0.18s ease,
+            box-shadow 0.18s ease;
+
+          &:focus-within {
+            border-color: var(--field-active);
+            box-shadow: 0 0 0 1px rgba(79, 130, 217, 0.16);
+          }
+
+          .floating-label {
+            position: absolute;
+            top: -10px;
+            left: 16px;
+            z-index: 2;
+            max-width: calc(100% - 40px);
+            padding: 0 8px;
+            background: #ffffff;
+            color: #9aa4b2;
+            font-size: 15px;
+            line-height: 18px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            pointer-events: none;
+            transition: color 0.18s ease;
+          }
+
+          &:focus-within .floating-label,
+          &.has-value .floating-label {
+            color: var(--field-active);
+          }
+
+          :deep(.ant-input),
+          :deep(.ant-input-affix-wrapper),
+          :deep(.ant-input-group-wrapper),
+          :deep(.ant-input-wrapper),
+          :deep(.ant-input-group),
+          :deep(.ant-input-group-addon) {
+            border: 0;
+            box-shadow: none;
+            background: transparent;
+          }
+
+          :deep(.ant-input),
+          :deep(.ant-input-affix-wrapper) {
+            height: 32px;
+            padding: 0;
+            color: rgba(15, 23, 42, 0.92);
+            font-size: 16px;
+          }
+
+          :deep(.ant-input:focus),
+          :deep(.ant-input-focused),
+          :deep(.ant-input-affix-wrapper:focus),
+          :deep(.ant-input-affix-wrapper-focused) {
+            border: 0;
+            box-shadow: none;
+          }
+
+          :deep(.ant-input-affix-wrapper input) {
+            font-size: 16px;
+          }
+
+          :deep(.ant-input[disabled]) {
+            color: rgba(15, 23, 42, 0.7);
+            background: transparent;
+          }
+
+          :deep(.ant-input-group-addon) {
+            padding: 0;
+          }
+
+          :deep(.ant-select-selector) {
+            height: 32px !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            background: transparent !important;
+          }
+
+          :deep(.ant-select-selection-item) {
+            line-height: 32px !important;
+            color: #4f82d9;
+            font-size: 15px;
+          }
+        }
+
+        .field-with-action {
+          padding-right: 0;
+
+          .field-input {
+            flex: 1 1 auto;
+            min-width: 0;
+          }
+
+          .field-action {
+            flex: 0 0 auto;
+            width: auto !important;
+            min-width: 96px;
+            height: 40px;
+            margin: 0 !important;
+            padding: 0 20px;
+            border: 0;
+            background: transparent;
+            color: #4f82d9;
+            box-shadow: none;
+            font-size: 15px;
           }
         }
 

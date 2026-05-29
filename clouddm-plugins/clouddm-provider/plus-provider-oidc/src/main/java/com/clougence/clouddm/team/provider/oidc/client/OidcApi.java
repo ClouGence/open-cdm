@@ -19,11 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.alibaba.fastjson2.JSONObject;
@@ -33,9 +29,9 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.clougence.clouddm.team.provider.oidc.constants.OidcI18nKey;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.service.config.UserData;
+import com.clougence.clouddm.team.provider.oidc.constants.OidcI18nKey;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 
@@ -105,60 +101,69 @@ public class OidcApi {
 
     public OidcCfg getConf() { return conf; }
 
-    void initWellKnown() throws Exception {
-        // fetch well-known
-        JSONObject wellKnownJson = this.client.callApi((client, http) -> {
-            Request request = new Request.Builder().url(this.conf.getWellKnownURL()).build();
-            Response response = http.newCall(request).execute();
-            if (!response.isSuccessful()) {
-                throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, response.code() + ":" + response.message());
+    void initWellKnown() {
+        try {
+            // fetch well-known
+            JSONObject wellKnownJson = this.client.callApi((client, http) -> {
+                Request request = new Request.Builder().url(this.conf.getWellKnownURL()).build();
+                Response response = http.newCall(request).execute();
+                if (!response.isSuccessful()) {
+                    throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, response.code() + ":" + response.message());
+                }
+
+                return JSONObject.parseObject(response.body().string());
+            });
+            log.info("oidcWellKnownJson primaryUid：" + this.primaryUid + " is " + JsonUtils.toJson(wellKnownJson));
+
+            // authMethod support check
+            // JSONArray authMethodType = wellKnownJson.getJSONArray("token_endpoint_auth_methods_supported");
+            // List<String> typeSet = authMethodType.toList(String.class);
+            // if (!typeSet.contains("client_secret_basic")) {
+            //     throw ThirdPartyApiException.asRDP().with(OidcI18nKey.OIDC_VERIFY_AUTH_METHOD_ERROR, "client_secret_basic");
+            // }
+
+            // fetch jwks
+            String jwksUrl = (String) wellKnownJson.get("jwks_uri");
+            if (StringUtils.isBlank(jwksUrl)) {
+                throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_API_WELLKNOWN_MISSING_JWKS_URI_ERROR);
             }
+            JSONObject jwksJson = this.client.callApi((client, http) -> {
+                Request request = new Request.Builder().url(jwksUrl).build();
+                Response response = http.newCall(request).execute();
+                if (!response.isSuccessful()) {
+                    throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, response.code() + ":" + response.message());
+                }
 
-            return JSONObject.parseObject(response.body().string());
-        });
-        log.info("oidcWellKnownJson primaryUid：" + this.primaryUid + " is " + JsonUtils.toJson(wellKnownJson));
+                return JSONObject.parseObject(response.body().string());
+            });
+            List<Map<String, Object>> keys = getObjectMaps(jwksJson, "keys");
+            for (Map<String, Object> jwkData : keys) {
+                String use = (String) jwkData.getOrDefault("use", null);
+                Jwk jwk = Jwk.fromValues(jwkData);
+                if (StringUtils.equalsIgnoreCase(use, "enc")) {
+                    encJwkMap.put(jwk.getId(), jwk);
+                }
+                if (StringUtils.equalsIgnoreCase(use, "sig")) {
+                    sigJwkMap.put(jwk.getId(), jwk);
+                }
+            }
+            log.info("oidcJwkList primaryUid：" + this.primaryUid + ", " +//
+                     "sigJwk keys [" + StringUtils.join(this.sigJwkMap.keySet(), ",") + "], " +//
+                     "encJwk keys [" + StringUtils.join(this.encJwkMap.keySet(), ",") + "];");
 
-        // authMethod support check
-        // JSONArray authMethodType = wellKnownJson.getJSONArray("token_endpoint_auth_methods_supported");
-        // List<String> typeSet = authMethodType.toList(String.class);
-        // if (!typeSet.contains("client_secret_basic")) {
-        //     throw ThirdPartyApiException.asRDP().with(OidcI18nKey.OIDC_VERIFY_AUTH_METHOD_ERROR, "client_secret_basic");
-        // }
-
-        // fetch jwks
-        String jwksUrl = (String) wellKnownJson.get("jwks_uri");
-        if (StringUtils.isBlank(jwksUrl)) {
-            throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_API_WELLKNOWN_MISSING_JWKS_URI_ERROR);
+            // 2. fetch token by code
+            this.issuer = (String) wellKnownJson.get("issuer");
+            this.loginEndpoint = (String) wellKnownJson.get("authorization_endpoint");
+            this.tokenEndpoint = (String) wellKnownJson.get("token_endpoint");
+            this.logoutEndpoint = (String) wellKnownJson.get("end_session_endpoint");
+        } catch (ThirdPartyApiException e) {
+            if (StringUtils.equals(e.getMessageKey(), OidcI18nKey.OIDC_UNKNOWN_CALL_API_ERROR)) {
+                throw ThirdPartyApiException.as().with(e, OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, e.getMessage());
+            }
+            throw e;
+        } catch (Exception e) {
+            throw ThirdPartyApiException.as().with(e, OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, e.getMessage());
         }
-        JSONObject jwksJson = this.client.callApi((client, http) -> {
-            Request request = new Request.Builder().url(jwksUrl).build();
-            Response response = http.newCall(request).execute();
-            if (!response.isSuccessful()) {
-                throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, response.code() + ":" + response.message());
-            }
-
-            return JSONObject.parseObject(response.body().string());
-        });
-        List<Map<String, Object>> keys = getObjectMaps(jwksJson, "keys");
-        for (Map<String, Object> jwkData : keys) {
-            String use = (String) jwkData.getOrDefault("use", null);
-            Jwk jwk = Jwk.fromValues(jwkData);
-            if (StringUtils.equalsIgnoreCase(use, "enc")) {
-                encJwkMap.put(jwk.getId(), jwk);
-            }
-            if (StringUtils.equalsIgnoreCase(use, "sig")) {
-                sigJwkMap.put(jwk.getId(), jwk);
-            }
-        }
-        log.info("oidcJwkList primaryUid：" + this.primaryUid + ", " +//
-                 "sigJwk keys [" + StringUtils.join(this.sigJwkMap.keySet(), ",") + "], " +//
-                 "encJwk keys [" + StringUtils.join(this.encJwkMap.keySet(), ",") + "];");
-
-        // 2. fetch token by code
-        this.issuer = (String) wellKnownJson.get("issuer");
-        this.loginEndpoint = (String) wellKnownJson.get("authorization_endpoint");
-        this.tokenEndpoint = (String) wellKnownJson.get("token_endpoint");
-        this.logoutEndpoint = (String) wellKnownJson.get("end_session_endpoint");
     }
 
     public String getJumpUrl(String state, String jumpUrl) throws UnsupportedEncodingException {

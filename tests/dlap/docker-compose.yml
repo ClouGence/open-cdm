@@ -2,6 +2,17 @@ version: '3.1'
 
 # use this yml for docker-compose up -d
 services:
+  keycloak:
+    image: keycloak/keycloak
+    container_name: keycloak
+    restart: always
+    command: start-dev
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    ports:
+      - 18080:8080
+
   ldap_admin:
     image: osixia/phpldapadmin
     container_name: ldap_admin

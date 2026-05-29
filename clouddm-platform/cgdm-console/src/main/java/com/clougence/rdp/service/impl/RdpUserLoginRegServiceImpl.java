@@ -275,11 +275,24 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_PLUGIN_NOT_FOUND.name()));
         }
 
-        String userAccount = loginProviderSpi.loginExtractAccount(loginFO.getAccount());
-        String userDomain = loginProviderSpi.loginExtractDomain(loginFO.getAccount());
-        DmAuthUserDO primaryUser = this.authDal.userMapper().queryPrimaryByDomain(userDomain);
+        String loginAccount = StringUtils.defaultString(loginFO.getAccount());
+        String userAccount = null;
+        DmAuthUserDO primaryUser = null;
+        if (loginFO.getRegisterInfo() != null && StringUtils.isNotBlank(loginFO.getRegisterInfo().getPrimaryUid())) {
+            primaryUser = this.authDal.userMapper().queryByUid(loginFO.getRegisterInfo().getPrimaryUid());
+            int splitIdx = StringUtils.lastIndexOf(loginAccount, "@");
+            userAccount = splitIdx > -1 ? loginAccount.substring(0, splitIdx) : loginAccount;
+        }
+        if (primaryUser == null) {
+            userAccount = loginProviderSpi.loginExtractAccount(loginAccount);
+            String userDomain = loginProviderSpi.loginExtractDomain(loginAccount);
+            primaryUser = this.authDal.userMapper().queryPrimaryByDomain(userDomain);
+        }
         if (primaryUser == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PRIMARY_ACCOUNT_NOT_EXIST.name()));
+        }
+        if (primaryUser.getAccountType() != AccountType.PRIMARY_ACCOUNT) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_OWNER_IS_NOT_PRIMARY_ERROR.name()));
         }
 
         if (primaryUser.isDisable()) {

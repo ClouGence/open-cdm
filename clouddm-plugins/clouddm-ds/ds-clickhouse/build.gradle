@@ -38,4 +38,3 @@ description = 'ds-clickhouse'
 
 configureClougenceAntlrGrammar([outputPath : 'src/main/java/com/clougence/clouddm/ds/clickhouse/parser/antlr',
                                 packageName: 'com.clougence.clouddm.ds.clickhouse.parser.antlr'])
-

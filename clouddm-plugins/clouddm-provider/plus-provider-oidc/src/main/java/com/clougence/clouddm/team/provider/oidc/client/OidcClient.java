@@ -48,6 +48,8 @@ public class OidcClient implements Closeable {
     private <T> T callApi(OidcApiCaller<T> caller, int count) {
         try {
             return caller.call(this, this.client);
+        } catch (ThirdPartyApiException e) {
+            throw e;
         } catch (Exception e) {
             if (count < 3) {
                 return callApi(caller, count + 1);

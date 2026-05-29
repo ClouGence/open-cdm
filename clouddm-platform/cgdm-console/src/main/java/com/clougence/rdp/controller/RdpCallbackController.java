@@ -277,7 +277,11 @@ public class RdpCallbackController {
         } else if (!StringUtils.endsWith(contextPath, "/")) {
             contextPath += "/";
         }
-        String subAccount = fetchUser.getSubAccount().substring(0, fetchUser.getUserDomain().length());
+        String subAccount = fetchUser.getSubAccount();
+        int domainSeparator = StringUtils.lastIndexOf(subAccount, "@");
+        if (domainSeparator > -1) {
+            subAccount = subAccount.substring(0, domainSeparator);
+        }
         String redirectUrl = contextPath + "#/login?" +//
                              "token=" + URLEncoder.encode(StringUtils.defaultString(registerToken, ""), "UTF-8") + "&" +//
                              "sub=" + URLEncoder.encode(StringUtils.defaultString(subAccount, ""), "UTF-8") + "&" +//
