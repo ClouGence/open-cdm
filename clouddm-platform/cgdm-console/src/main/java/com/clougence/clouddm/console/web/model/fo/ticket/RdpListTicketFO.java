@@ -16,7 +16,7 @@
 package com.clougence.clouddm.console.web.model.fo.ticket;
 
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus;
-import com.clougence.clouddm.console.web.util.RdpPageDO;
+import com.clougence.clouddm.platform.dal.util.RdpPageDO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;

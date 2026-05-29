@@ -54,13 +54,7 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-jdbc:${SPRINGBOOT_VERSION}"
     implementation "org.springframework.boot:spring-boot-starter-validation:${SPRINGBOOT_VERSION}"
     implementation "org.springframework.boot:spring-boot-starter-logging:${SPRINGBOOT_VERSION}"
-    implementation 'org.springframework.ldap:spring-ldap-core:2.4.4'
     implementation "org.springframework.boot:spring-boot-starter-mail:${SPRINGBOOT_VERSION}"
-
-    // database
-    implementation "com.zaxxer:HikariCP:${HIKARICP_VERSION}"
-    implementation "com.baomidou:mybatis-plus-spring-boot4-starter:${MYBATISPLUS_VERSION}"
-    implementation "com.baomidou:mybatis-plus-extension:${MYBATISPLUS_VERSION}"
 
     // utils
     implementation "com.fasterxml.uuid:java-uuid-generator:4.0"

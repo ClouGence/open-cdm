@@ -55,7 +55,7 @@ import com.clougence.clouddm.console.web.service.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
 import com.clougence.clouddm.platform.dal.access.NamingDao;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.console.web.util.RdpPageUtil;
+import com.clougence.clouddm.platform.dal.util.DaoPageUtils;
 import com.clougence.clouddm.platform.dal.access.*;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
 import com.clougence.clouddm.platform.dal.model.approval.*;
@@ -592,7 +592,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
 
     @Override
     public IPage<RdpTicketBasicVO> queryAuthTicketListByPage(String puid, ListMyAuthTicketFO fo) {
-        Page<?> page = RdpPageUtil.startPage(fo.getPage());
+        Page<?> page = DaoPageUtils.startPage(fo.getPage());
         ArgApprovalQueryObj queryParams = ArgApprovalQueryObj.builder()
             .ticketStatus(fo.getTicketStatus())
             .ticketTitleName(fo.getTicketTitleName())
@@ -925,7 +925,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     }
 
     private IPage<DmApprovalDO> getCanConfirmTicketsByPage(RdpListTicketFO fo) {
-        Page<?> page = RdpPageUtil.startPage(fo.getPage());
+        Page<?> page = DaoPageUtils.startPage(fo.getPage());
         ArgApprovalQueryObj queryParams = ArgApprovalQueryObj.builder()
             .ticketStatus(fo.getTicketStatus())
             .ticketTitleName(fo.getTicketTitleName())
@@ -974,7 +974,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     }
 
     private IPage<DmApprovalDO> getUserCreatedTicketsByPage(RdpListTicketFO fo, String puid) {
-        Page<?> page = RdpPageUtil.startPage(fo.getPage());
+        Page<?> page = DaoPageUtils.startPage(fo.getPage());
         DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(fo.getUid());
         ArgApprovalQueryObj queryParams = ArgApprovalQueryObj.builder()
             .ticketStatus(fo.getTicketStatus())
@@ -988,7 +988,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     }
 
     private IPage<DmApprovalDO> getAllTicketsByPage(RdpListTicketFO fo, String puid) {
-        Page<?> page = RdpPageUtil.startPage(fo.getPage());
+        Page<?> page = DaoPageUtils.startPage(fo.getPage());
         ArgApprovalQueryObj queryParams = ArgApprovalQueryObj.builder()
             .ticketStatus(fo.getTicketStatus())
             .ticketTitleName(fo.getTicketTitleName())

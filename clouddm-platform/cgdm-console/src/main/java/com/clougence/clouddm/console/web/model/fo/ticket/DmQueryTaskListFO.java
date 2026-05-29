@@ -16,7 +16,7 @@
 package com.clougence.clouddm.console.web.model.fo.ticket;
 
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecTaskStatus;
-import com.clougence.clouddm.console.web.util.RdpPageDO;
+import com.clougence.clouddm.platform.dal.util.RdpPageDO;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;

@@ -25,8 +25,7 @@ import com.clougence.clouddm.team.provider.ldap.auth.LoginProviderSpiForLdap;
 import com.clougence.clouddm.team.provider.ldap.constants.LdapI18nKey;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 
-@Plugin(includePackages = { "com.clougence.clouddm.team.provider.ldap.*" },//
-        excludePackages = { "org.springframework.ldap" })
+@Plugin(includePackages = { "com.clougence.clouddm.team.provider.ldap.*" })
 public class LdapPlugin implements DsPlugin {
 
     @Override

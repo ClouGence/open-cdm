@@ -9,12 +9,18 @@ TARGET="${1:-all}"
 
 usage() {
 	cat <<'EOF'
-Usage: ./all_build.sh [all|web|help]
+Usage: ./all_build.sh [all|web|plugin <module>|help]
 
 Targets:
-  all   Full CloudDM build and publish flow. Default.
-  web   Build cgdm-web web resources only.
-  help  Show this help message.
+  all              Full CloudDM build and publish flow. Default.
+  web              Build cgdm-web web resources only.
+  plugin <module>  Rebuild one plugin package via :<module>:customFatJar.
+                   Example: ./all_build.sh plugin plus-provider-ldap
+  help             Show this help message.
+
+Notes:
+  Normal distribution/package builds are intentionally full-build only.
+  Use the plugin target only for modules that provide customFatJar.
 EOF
 }
 
@@ -30,12 +36,33 @@ build_web() {
 	./gradlew -PbuildFrontend=true :cgdm-web:processResources --parallel --max-workers=16
 }
 
+build_plugin() {
+	local module="${1:-}"
+	if [[ -z "$module" ]]; then
+		echo "missing plugin module name" >&2
+		usage >&2
+		exit 1
+	fi
+
+	module="${module#:}"
+	if [[ "$module" == *:* ]]; then
+		echo "plugin module must be a single Gradle module name, e.g. plus-provider-ldap" >&2
+		exit 1
+	fi
+
+	echo "start to build CloudDM plugin($module)"
+	./gradlew ":${module}:customFatJar" --rerun-tasks --max-workers=8
+}
+
 case "$TARGET" in
 	all)
 		build_all
 		;;
 	web)
 		build_web
+		;;
+	plugin)
+		build_plugin "${2:-}"
 		;;
 	help|-h|--help)
 		usage

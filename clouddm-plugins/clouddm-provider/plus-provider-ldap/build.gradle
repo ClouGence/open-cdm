@@ -20,7 +20,6 @@ plugins {
 
 dependencies {
     // project
-    implementation 'org.springframework.ldap:spring-ldap-core:2.4.4'
     //implementation 'org.apache.directory.api:api-all:2.1.7' //https://directory.apache.org/api/five-minutes-tutorial.html
 
     // share lib (compileOnly)

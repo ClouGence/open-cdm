@@ -42,10 +42,8 @@ dependencies {
     implementation "org.springframework:spring-context:${SPRING_VERSION}"
 
     // database
-    implementation "com.zaxxer:HikariCP:${HIKARICP_VERSION}"
     implementation 'org.flywaydb:flyway-core:9.22.3'
     implementation 'org.flywaydb:flyway-mysql:9.22.3'
-    implementation "com.baomidou:mybatis-plus-extension:${MYBATISPLUS_VERSION}"
 
     // utils
     implementation "org.apache.commons:commons-lang3:3.12.0"

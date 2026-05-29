@@ -273,7 +273,7 @@ public class RdpHomeController {
             attr.put("domain", primary.getUserDomain());
             attr.put("domainUid", primary.getUid());
             attr.put("title", DmI18nUtils.getMessage(authType.getI18nKey()));
-            attr.put("tabTitle", DmI18nUtils.getMessage(accountLoginTabTitleKey(authType)));
+            attr.put("tabTitle", DmI18nUtils.getMessage(tabTitleKey(authType)));
             attr.put("loginType", authType.name());
             attr.put("jump", loginProvider != null && loginProvider.isJumpIn());
             orgList.add(attr);
@@ -281,7 +281,7 @@ public class RdpHomeController {
         return ResWebDataUtils.buildSuccess(orgList);
     }
 
-    private String accountLoginTabTitleKey(LoginAuthType authType) {
+    private String tabTitleKey(LoginAuthType authType) {
         return switch (authType) {
             case LDAP -> I18nRdpLabelKeys.LOGIN_TAB_LDAP.name();
             case AD -> I18nRdpLabelKeys.LOGIN_TAB_AD.name();

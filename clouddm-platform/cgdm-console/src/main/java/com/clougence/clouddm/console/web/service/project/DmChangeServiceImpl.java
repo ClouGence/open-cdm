@@ -51,7 +51,7 @@ import com.clougence.clouddm.console.web.service.project.domain.CreateSuggest;
 import com.clougence.clouddm.console.web.service.project.domain.CreateSuggestType;
 import com.clougence.clouddm.console.web.service.project.domain.Item;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.console.web.util.RdpPageUtil;
+import com.clougence.clouddm.platform.dal.util.DaoPageUtils;
 import com.clougence.clouddm.platform.dal.access.*;
 import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
@@ -99,7 +99,7 @@ public class DmChangeServiceImpl implements DmChangeService {
 
     @Override
     public IPage<ProjectChangeVO> queryChangeByProjectAndQuery(String ownerUid, long projectId, ProjectChangeListFO fo) {
-        Page<?> page = RdpPageUtil.startPage(fo.getPage());
+        Page<?> page = DaoPageUtils.startPage(fo.getPage());
 
         // page
         ArgProjectChangeQueryObj queryParams = ArgProjectChangeQueryObj.builder()//

@@ -16,7 +16,7 @@
 package com.clougence.clouddm.team.provider.ldap.auth;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,12 +25,6 @@ import java.util.stream.Collectors;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-
-import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.ldap.core.support.DefaultDirObjectFactory;
-import org.springframework.ldap.core.support.LdapContextSource;
-import org.springframework.ldap.query.ContainerCriteria;
-import org.springframework.ldap.query.LdapQueryBuilder;
 
 import com.clougence.clouddm.sdk.LifeSpiRequest;
 import com.clougence.clouddm.sdk.LifeSpiResponse;
@@ -119,26 +113,16 @@ public class LoginProviderSpiForLdap extends BaseLoginProviderSpi implements Log
         return this.contextMap.computeIfAbsent(ownerUid, s -> {
             BaseConfig cfg = this.configMap.get(ownerUid);
 
-            LdapContextSource ldapSource = new LdapContextSource();
-            ldapSource.setUrl("ldap://" + cfg.getLdapHost() + ":" + cfg.getLdapPort());
-            ldapSource.setBase(cfg.getLdapBase());
-            ldapSource.setUserDn(cfg.getLdapUser());
-            ldapSource.setPassword(cfg.getLdapPassword());
-            //ldapSource.setReferral("follow");
-
-            Map<String, Object> config = new HashMap<>();
-            config.put("java.naming.ldap.attributes.binary", "objectGUID");
-            config.put("com.sun.jndi.ldap.read.timeout", StringUtils.isBlank(cfg.getLdapSoTimeout()) ? "3000" : cfg.getLdapSoTimeout());
-            config.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-            config.put(Context.OBJECT_FACTORIES, new DefaultDirObjectFactory());
-
-            ldapSource.setPooled(false);
-            ldapSource.setBaseEnvironmentProperties(config);
-            ldapSource.afterPropertiesSet();
-
-            LdapTemplate ldapTemplate = new LdapTemplate(ldapSource);
-            ldapTemplate.setIgnorePartialResultException(false);
-            return new BaseCtx(cfg, ldapTemplate);
+            String ldapUrl = "ldap://" + cfg.getLdapHost() + ":" + cfg.getLdapPort();
+            Hashtable<String, Object> env = new Hashtable<>();
+            env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+            env.put(Context.PROVIDER_URL, ldapUrl);
+            env.put(Context.SECURITY_AUTHENTICATION, "simple");
+            env.put(Context.SECURITY_PRINCIPAL, cfg.getLdapUser());
+            env.put(Context.SECURITY_CREDENTIALS, cfg.getLdapPassword());
+            env.put("java.naming.ldap.attributes.binary", "objectGUID");
+            env.put("com.sun.jndi.ldap.read.timeout", StringUtils.isBlank(cfg.getLdapSoTimeout()) ? "3000" : cfg.getLdapSoTimeout());
+            return new BaseCtx(cfg, env);
         });
     }
 
@@ -169,8 +153,7 @@ public class LoginProviderSpiForLdap extends BaseLoginProviderSpi implements Log
     protected BaseSearch buildQuery(BaseCtx ldapCtx, String ldapAccount) {
         String ldapWhere = ldapCtx.getLdapConfig().getLdapFieldLogin();
         String ldapCondition = ldapAccount;
-        ContainerCriteria ldapQuery = LdapQueryBuilder.query().where(ldapWhere).is(ldapCondition);
-        return new BaseSearch(ldapQuery, ldapWhere, ldapCondition);
+        return new BaseSearch(eqFilter(ldapWhere, ldapCondition), ldapWhere, ldapCondition);
     }
 
     @Override

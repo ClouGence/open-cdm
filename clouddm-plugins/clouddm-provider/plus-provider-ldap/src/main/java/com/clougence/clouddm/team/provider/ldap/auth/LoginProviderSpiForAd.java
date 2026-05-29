@@ -16,7 +16,7 @@
 package com.clougence.clouddm.team.provider.ldap.auth;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,23 +25,17 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
-import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
-import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.ldap.core.support.DefaultDirObjectFactory;
-import org.springframework.ldap.core.support.LdapContextSource;
-import org.springframework.ldap.query.ContainerCriteria;
-import org.springframework.ldap.query.LdapQueryBuilder;
-
-import com.clougence.clouddm.team.provider.ldap.constants.LdapI18nKey;
-import com.clougence.clouddm.sdk.security.auth.def.SecSysRole;
-import com.clougence.clouddm.sdk.security.login.LoginProvider;
-import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
-import com.clougence.clouddm.sdk.service.config.RoleData;
-import com.clougence.clouddm.sdk.service.config.UserData;
 import com.clougence.clouddm.sdk.LifeSpiRequest;
 import com.clougence.clouddm.sdk.LifeSpiResponse;
 import com.clougence.clouddm.sdk.LifeSpiStatus;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.sdk.security.auth.def.SecSysRole;
+import com.clougence.clouddm.sdk.security.login.LoginProvider;
+import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
+import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
+import com.clougence.clouddm.sdk.service.config.RoleData;
+import com.clougence.clouddm.sdk.service.config.UserData;
+import com.clougence.clouddm.team.provider.ldap.constants.LdapI18nKey;
 import com.clougence.utils.*;
 import com.clougence.utils.ref.LinkedCaseInsensitiveMap;
 
@@ -133,29 +127,19 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
             throw new UnsupportedOperationException("adLoginService is was closed");
         }
 
-        return this.contextMap.get(ownerUid).computeIfAbsent(ownerUid, s -> {
+        String ldapUrl = extractLdapUrl(ownerUid, ldapAccount);
+        return this.contextMap.get(ownerUid).computeIfAbsent(ldapUrl, s -> {
             BaseConfig cfg = this.configMap.get(ownerUid);
 
-            LdapContextSource source = new LdapContextSource();
-            source.setUrl(extractLdapUrl(ownerUid, ldapAccount));
-            source.setBase(cfg.getLdapBase());
-            source.setUserDn(cfg.getLdapUser());
-            source.setPassword(cfg.getLdapPassword());
-            //source.setReferral("follow");
-
-            Map<String, Object> config = new HashMap<>();
-            config.put("java.naming.ldap.attributes.binary", "objectGUID");
-            config.put("com.sun.jndi.ldap.read.timeout", StringUtils.isBlank(cfg.getLdapSoTimeout()) ? "3000" : cfg.getLdapSoTimeout());
-            config.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-            config.put(Context.OBJECT_FACTORIES, new DefaultDirObjectFactory());
-
-            source.setPooled(false);
-            source.setBaseEnvironmentProperties(config);
-            source.afterPropertiesSet();
-
-            LdapTemplate template = new LdapTemplate(source);
-            template.setIgnorePartialResultException(false);
-            return new BaseCtx(cfg, template);
+            Hashtable<String, Object> env = new Hashtable<>();
+            env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+            env.put(Context.PROVIDER_URL, ldapUrl);
+            env.put(Context.SECURITY_AUTHENTICATION, "simple");
+            env.put(Context.SECURITY_PRINCIPAL, cfg.getLdapUser());
+            env.put(Context.SECURITY_CREDENTIALS, cfg.getLdapPassword());
+            env.put("java.naming.ldap.attributes.binary", "objectGUID");
+            env.put("com.sun.jndi.ldap.read.timeout", StringUtils.isBlank(cfg.getLdapSoTimeout()) ? "3000" : cfg.getLdapSoTimeout());
+            return new BaseCtx(cfg, env);
         });
     }
 
@@ -196,22 +180,18 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
             // UPN format
             String ldapWhere = AD_UserPrincipalName;
             String ldapCondition = ldapAccount;
-            ContainerCriteria ldapQuery = LdapQueryBuilder.query().where(ldapWhere).is(ldapCondition);
-            return new BaseSearch(ldapQuery, ldapWhere, ldapCondition);
+            return new BaseSearch(eqFilter(ldapWhere, ldapCondition), ldapWhere, ldapCondition);
         } else if (ldapAccount.contains("\\")) {
             // NetBIOS format
             String[] split = StringUtils.split(ldapAccount, "\\");
 
             String ldapWhere = AD_SamAccountName;
-            String ldapDomain = split[0];
             String ldapCondition = split[1];
-            ContainerCriteria ldapQuery = LdapQueryBuilder.query().where(ldapWhere).is(ldapCondition);
-            return new BaseSearch(ldapQuery, ldapWhere, ldapCondition);
+            return new BaseSearch(eqFilter(ldapWhere, ldapCondition), ldapWhere, ldapCondition);
         } else {
             String ldapWhere = AD_UserPrincipalName;
             String ldapCondition = ldapAccount + "@" + ldapCtx.getLdapConfig().getLdapDomain();
-            ContainerCriteria ldapQuery = LdapQueryBuilder.query().where(ldapWhere).is(ldapCondition);
-            return new BaseSearch(ldapQuery, ldapWhere, ldapCondition);
+            return new BaseSearch(eqFilter(ldapWhere, ldapCondition), ldapWhere, ldapCondition);
         }
     }
 

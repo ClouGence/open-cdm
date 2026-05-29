@@ -212,9 +212,7 @@ export default {
       return this.$t('zhang-hao');
     },
     subAccountTabTitle() {
-      return (
-        this.selectDomainData.tabTitle || this.selectDomainData.accountLoginTabTitle || this.selectDomainData.title || this.$t('zhang-hao-deng-lu')
-      );
+      return this.selectDomainData.tabTitle || this.selectDomainData.title || this.$t('zhang-hao-deng-lu');
     }
   },
   data() {

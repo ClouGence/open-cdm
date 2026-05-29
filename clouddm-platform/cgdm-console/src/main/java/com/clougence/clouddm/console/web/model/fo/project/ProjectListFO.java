@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo.project;
 
-import com.clougence.clouddm.console.web.util.RdpPageDO;
+import com.clougence.clouddm.platform.dal.util.RdpPageDO;
 
 import lombok.Getter;
 import lombok.Setter;

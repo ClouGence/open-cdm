@@ -16,9 +16,8 @@
 package com.clougence.clouddm.team.provider.ldap.auth;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
-
-import org.springframework.ldap.core.LdapTemplate;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -27,13 +26,13 @@ import lombok.Setter;
 @Setter
 public class BaseCtx {
 
-    private final BaseConfig   ldapConfig;
-    private final List<String> fields;
-    private final LdapTemplate ldapTemplate;
+    private final BaseConfig                ldapConfig;
+    private final List<String>              fields;
+    private final Hashtable<String, Object> environment;
 
-    public BaseCtx(BaseConfig ldapConfig, LdapTemplate ldapTemplate){
+    public BaseCtx(BaseConfig ldapConfig, Hashtable<String, Object> environment){
         this.ldapConfig = ldapConfig;
-        this.ldapTemplate = ldapTemplate;
+        this.environment = environment;
         this.fields = new ArrayList<>();
         this.fields.add(ldapConfig.getLdapFieldLogin());
         this.fields.add(ldapConfig.getLdapFieldUser());

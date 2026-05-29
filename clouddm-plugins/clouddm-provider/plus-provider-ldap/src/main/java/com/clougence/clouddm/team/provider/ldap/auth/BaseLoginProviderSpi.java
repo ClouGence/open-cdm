@@ -16,25 +16,29 @@
 package com.clougence.clouddm.team.provider.ldap.auth;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
-import org.springframework.ldap.core.AttributesMapper;
-
-import com.clougence.clouddm.team.provider.ldap.constants.LdapI18nKey;
 import com.clougence.clouddm.sdk.security.login.LoginRequest;
 import com.clougence.clouddm.sdk.security.login.LoginResponse;
-import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.sdk.service.config.RoleData;
 import com.clougence.clouddm.sdk.service.config.UserData;
+import com.clougence.clouddm.team.provider.ldap.constants.LdapI18nKey;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 
@@ -72,7 +76,7 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             if (e instanceof ThirdPartyApiException) {
-                throw e;
+                throw (ThirdPartyApiException) e;
             } else {
                 throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_SERVICE_ERROR.name(), ExceptionUtils.getRootCauseMessage(e));
             }
@@ -88,12 +92,12 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
             return new LoginResponse(null, true);
         }
         try {
-            ldapCtx.getLdapTemplate().authenticate(ldapSearch.getLdapQuery(), ldapPassword, (ctx, ei) -> null);
+            authenticate(ldapCtx, ldapSearch, ldapPassword);
             return new LoginResponse(ldapUser, true);
         } catch (Exception e) {
             this.checkThrowError(e);
             if (e instanceof ThirdPartyApiException) {
-                throw e;
+                throw (ThirdPartyApiException) e;
             } else {
                 throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_SERVICE_ERROR.name(), ExceptionUtils.getRootCauseMessage(e));
             }
@@ -105,7 +109,7 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
         List<UserData> searchResult;
         BaseSearch ldapSearch = this.buildQuery(ldapCtx, ldapAccount);
         try {
-            searchResult = ldapCtx.getLdapTemplate().search(ldapSearch.getLdapQuery(), (AttributesMapper<UserData>) attributes -> {
+            searchResult = search(ldapCtx, ldapSearch).stream().map(attributes -> {
                 try {
                     return this.mapUser(ldapCtx, primaryUser, ldapAccount, attributes);
                 } catch (ThirdPartyApiException e) {
@@ -114,11 +118,11 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
                     log.error(e.getMessage(), e);
                     return null;
                 }
-            }).stream().filter(Objects::nonNull).collect(Collectors.toList());
+            }).filter(Objects::nonNull).collect(Collectors.toList());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             if (e instanceof ThirdPartyApiException) {
-                throw e;
+                throw (ThirdPartyApiException) e;
             } else {
                 throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_SERVICE_ERROR.name(), ExceptionUtils.getRootCauseMessage(e));
             }
@@ -128,10 +132,108 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
         if (searchResult.isEmpty()) {
             return null;
         } else if (searchResult.size() > 1) {
-            throw ThirdPartyApiException.as()
-                .with(LdapI18nKey.LDAP_MATCH_MULTIPLE_ACCOUNT.name(), ldapSearch.getLdapWhere(), ldapSearch.getLdapCondition(), searchResult.size());
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_MATCH_MULTIPLE_ACCOUNT.name(), ldapSearch.getLdapWhere(), ldapSearch.getLdapCondition(), searchResult.size());
         } else {
             return searchResult.get(0);
+        }
+    }
+
+    private void authenticate(BaseCtx ldapCtx, BaseSearch ldapSearch, String password) throws NamingException {
+        SearchResult searchResult = findSingleSearchResult(ldapCtx, ldapSearch);
+        String userDn = searchResult.getNameInNamespace();
+        Hashtable<String, Object> env = new Hashtable<>(ldapCtx.getEnvironment());
+        env.put(Context.SECURITY_AUTHENTICATION, "simple");
+        env.put(Context.SECURITY_PRINCIPAL, userDn);
+        env.put(Context.SECURITY_CREDENTIALS, password);
+        close(new InitialDirContext(env));
+    }
+
+    private List<Attributes> search(BaseCtx ldapCtx, BaseSearch ldapSearch) throws NamingException {
+        List<Attributes> result = new ArrayList<>();
+        DirContext ctx = null;
+        NamingEnumeration<SearchResult> enumeration = null;
+        try {
+            ctx = new InitialDirContext(ldapCtx.getEnvironment());
+            enumeration = ctx.search(ldapCtx.getLdapConfig().getLdapBase(), ldapSearch.getLdapFilter(), searchControls());
+            while (enumeration.hasMore()) {
+                result.add(enumeration.next().getAttributes());
+            }
+        } finally {
+            close(enumeration);
+            close(ctx);
+        }
+        return result;
+    }
+
+    private SearchResult findSingleSearchResult(BaseCtx ldapCtx, BaseSearch ldapSearch) throws NamingException {
+        List<SearchResult> result = new ArrayList<>();
+        DirContext ctx = null;
+        NamingEnumeration<SearchResult> enumeration = null;
+        try {
+            ctx = new InitialDirContext(ldapCtx.getEnvironment());
+            enumeration = ctx.search(ldapCtx.getLdapConfig().getLdapBase(), ldapSearch.getLdapFilter(), searchControls());
+            while (enumeration.hasMore()) {
+                result.add(enumeration.next());
+            }
+        } finally {
+            close(enumeration);
+            close(ctx);
+        }
+
+        if (result.isEmpty()) {
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_LOGIN_FAIL_PASSWORD_ERROR.name());
+        }
+        if (result.size() > 1) {
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_MATCH_MULTIPLE_ACCOUNT.name(), ldapSearch.getLdapWhere(), ldapSearch.getLdapCondition(), result.size());
+        }
+        return result.get(0);
+    }
+
+    private SearchControls searchControls() {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        return controls;
+    }
+
+    protected String eqFilter(String attrName, String attrValue) {
+        return "(" + escapeFilter(attrName) + "=" + escapeFilter(attrValue) + ")";
+    }
+
+    private String escapeFilter(String value) {
+        StringBuilder sb = new StringBuilder(value.length());
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            switch (c) {
+                case '\\' -> sb.append("\\5c");
+                case '*' -> sb.append("\\2a");
+                case '(' -> sb.append("\\28");
+                case ')' -> sb.append("\\29");
+                case '\u0000' -> sb.append("\\00");
+                default -> sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
+    private void close(NamingEnumeration<?> enumeration) {
+        if (enumeration == null) {
+            return;
+        }
+        try {
+            enumeration.close();
+        } catch (NamingException e) {
+            log.warn("LDAP: close search result failed, but ignore.", e);
+        }
+    }
+
+    private void close(Context ctx) {
+        if (ctx == null) {
+            return;
+        }
+        try {
+            ctx.close();
+        } catch (NamingException e) {
+            log.warn("LDAP: close context failed, but ignore.", e);
         }
     }
 
