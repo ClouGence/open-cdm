@@ -22,7 +22,6 @@ import org.springframework.context.annotation.Configuration;
 
 import com.clougence.clouddm.console.web.constants.DmModeFeatured;
 import com.clougence.clouddm.console.web.constants.RdpProduct;
-import com.clougence.rdp.global.config.RdpDeployEnv;
 import com.clougence.rdp.global.config.RdpPackageMode;
 import com.clougence.rdp.service.enumeration.AlertImType;
 
@@ -98,8 +97,6 @@ public class DmConsoleConfig {
     private int            retryLoginMaxCount;
     @Value("${clougence.rdp.login.reset.period.minuetes:5}")
     private String         resetLoginLimitationWaitTimeMin;
-    @Value("${clougence.rdp.deploy.env}")
-    private RdpDeployEnv   deployEnv;
     @Value("${clougence.rdp.deploy.context-path:#{NULL}}")
     private String         deployContextPath;
     @Value("${clougence.rdp.black.ds.self:#{NULL}}")

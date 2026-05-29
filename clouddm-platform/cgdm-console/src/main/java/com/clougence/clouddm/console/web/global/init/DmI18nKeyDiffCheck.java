@@ -23,11 +23,11 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.api.common.exception.ConsoleErrorCode;
 import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
+import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
 import com.clougence.clouddm.console.web.constants.DsResElement;
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
-import com.clougence.clouddm.console.web.global.i18n.I18nDmLabelKeys;
-import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.global.i18n.*;
 import com.clougence.clouddm.sdk.security.auth.def.SecAuthI18nKeys;
 import com.clougence.utils.ClassUtils;
 import com.clougence.utils.StringUtils;
@@ -84,6 +84,13 @@ public class DmI18nKeyDiffCheck implements UnifiedPostConstruct {
 
     private Set<String> allKey() {
         HashSet<String> result = new HashSet<>();
+        result.addAll(Arrays.stream(SecurityType.values()).map(SecurityType::getI18nKey).collect(Collectors.toList()));
+        result.addAll(loadKeys(ConsoleErrorCode.class));
+        result.addAll(loadKeys(I18nRdpMsgKeys.class));
+        result.addAll(loadKeys(I18nDsConfigMsgKeys.class));
+        result.addAll(loadKeys(I18nUserConfigMsgKeys.class));
+        result.addAll(loadKeys(I18nRdpLabelKeys.class));
+
         result.addAll(Arrays.stream(ConfigI18nKey.values()).map(Enum::name).collect(Collectors.toList()));
         result.addAll(Arrays.stream(DsResElement.values()).map(Enum::name).collect(Collectors.toList()));
         result.addAll(Arrays.stream(I18nDmMsgKeys.values()).map(Enum::name).collect(Collectors.toList()));

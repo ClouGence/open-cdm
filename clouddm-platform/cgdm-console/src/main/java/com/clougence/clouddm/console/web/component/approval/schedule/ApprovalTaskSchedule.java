@@ -38,7 +38,6 @@ import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiErrorType;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.rdp.global.exception.RemoteInvokeTimeoutException;
 import com.clougence.rdp.service.RdpDsService;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.ThreadUtils;
@@ -155,7 +154,7 @@ public class ApprovalTaskSchedule {
             case PRE_INIT: {
                 try {
                     this.scheduleProcess.processPreInit(afterCheck);
-                    //                    this.delayTask(2, TimeUnit.SECONDS);
+                    // this.delayTask(2, TimeUnit.SECONDS);
                 } catch (Exception e) {
                     boolean isRpcTimeout = e instanceof RemoteInvokeTimeoutException;
                     if (isRpcTimeout) {

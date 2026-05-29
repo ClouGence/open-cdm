@@ -212,18 +212,6 @@
             >
               *{{ $t('dang-qian-cun-zai-duo-ge-zhu-zhang-hao-mo-ren-xuan-ze-di-yi-ge-ru-xu-bang-zhu-qing-lian-xi-guan-fang-gong-zuo-ren-yuan') }}
             </p>
-            <!--            <a-button v-if="jumpLoginType.includes(selectDomainData.loginType) && loginForm.accountType !== ACCOUNT_TYPE.PRIMARY_ACCOUNT && !loginCallbackData.token" :disabled="loginLoading" :loading="loginLoading" size="large"-->
-            <!--                      style="margin-top: 20px;width: 100%;"-->
-            <!--                      @click="handleGoJump"-->
-            <!--            >-->
-            <!--              <CustomIcon :type="`icon-v2-${selectDomainData.loginType}`" hoverStyle size="14px" />-->
-            <!--              {{ selectDomainData.title }} {{$t('deng-lu')}}-->
-            <!--            </a-button>-->
-            <div class="login-operation">
-              <div v-if="globalSettings.features.ENABLE_REGISTER">
-                <!--                {{ $t('mei-you-zhang-hao-qu') }}<span style="margin-left: 4px" @click="goRegister">{{ $t('zhu-ce') }}</span>-->
-              </div>
-            </div>
           </div>
           <Modal v-model:visible="showAccountInformationCompletionModal" :title="$t('zhang-hao-xin-xi-bu-quan')" :mask-closable="false" :width="400">
             <Alert>{{ $t('shou-ci-deng-lu-xu-yao-tian-xieewai-xin-xi') }}</Alert>
