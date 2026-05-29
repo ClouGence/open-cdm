@@ -46,6 +46,12 @@ CloudDM supports Git Push, Web Hook, and HttpCall triggers for database CI/CD wo
 
 Build and packaging outputs are generated under `package/build`.
 
+### What should I do if I forget the administrator account password?
+
+You can reset the administrator account and password through the system initialization flow. Find the system MySQL driver directory under `drivers`, usually `drivers/cgdm-runtime-mysql`, delete that directory, and restart the application. The application will enter the new installation initialization flow because it cannot connect to the metadata database, and you can reset the administrator account and password there.
+
+Important: do not choose to rebuild the database during initialization, otherwise existing metadata will be cleared.
+
 ### Which repository is canonical?
 
 The canonical public source repository is [https://github.com/ClouGence/open-cdm](https://github.com/ClouGence/open-cdm). The Gitee repository is a mirror for China users.
