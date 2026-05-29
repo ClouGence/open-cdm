@@ -223,11 +223,8 @@ public abstract class AbstractDriverLoader implements DriverLoader {
                     continue;
                 }
 
-                // Only analyze the resource when no in-memory or indexed file definitions are available.
-                preparer.analysis(driverVersion, driverResource, dsFactoryClassLoader, ResourcePreparer.NONE);
-                syncFilesIndex(preparer, driverVersion, driverResource);
-                preparer.refresh(driverVersion, driverResource, dsFactoryClassLoader, ResourcePreparer.NONE);
-                allPrepared = allPrepared && driverResource.isPrepared();
+                driverResource.setPrepared(false);
+                allPrepared = false;
             } catch (Exception e) {
                 if (!restoreFilesIndex(preparer, driverVersion, driverResource, e)) {
                     log.error(e.getMessage(), e);

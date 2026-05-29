@@ -135,7 +135,8 @@ export default {
       return this.driverStatusTargetText;
     },
     driverStatusMessageText() {
-      const message = `${this.driverStatus.message || ''}`.trim();
+      const message =
+        `${this.driverUiState === 'error' ? this.driverStatus.detailMessage || this.driverStatus.message || '' : this.driverStatus.message || ''}`.trim();
       if (!message || message === this.driverStatus.currentFileName) {
         return '';
       }

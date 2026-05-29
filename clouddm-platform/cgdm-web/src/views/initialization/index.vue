@@ -211,7 +211,8 @@ function createInitialMysqlDriverStatus() {
     status: 'CHECKING',
     uiState: 'checking',
     available: false,
-    message: ''
+    message: '',
+    detailMessage: ''
   };
 }
 
@@ -556,7 +557,7 @@ export default {
         case 'downloading':
           return this.mysqlDriverStatus.message || this.$t('initialization.mysqlDriverPreparing');
         case 'error':
-          return this.mysqlDriverStatus.message || this.$t('initialization.mysqlDriverDownloadRequired');
+          return this.mysqlDriverStatus.detailMessage || this.mysqlDriverStatus.message || this.$t('initialization.mysqlDriverDownloadRequired');
         default:
           return this.$t('initialization.mysqlDriverDownloadRequired');
       }

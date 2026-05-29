@@ -155,7 +155,8 @@ public class DmDriverDownloadTask implements Runnable {
                     public void onError(DriverVersion driverVersionValue, ResDef resourceValue, Exception exception) {
                         DmDriverServiceImpl
                             .publishProgress(uid, DmDriverDownloadTask.this.clusterId, driverFamily, DmDriverDownloadTask.this.driverVersion, resolveDriverFileCount(resources), completedFiles
-                                .size(), 0, "FAILED", false, null, exception.getMessage());
+                                .size(), 0, "FAILED", false, null, i18n(I18nDmMsgKeys.DS_DRIVER_PREPARE_FAILED_MESSAGE), DmDriverServiceImpl
+                                    .buildDriverDownloadErrorDetail(exception));
                     }
                 });
             }

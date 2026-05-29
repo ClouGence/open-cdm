@@ -27,6 +27,7 @@ import org.springframework.core.io.DefaultResourceLoader;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstructUtils;
 import com.clougence.clouddm.boot.config.FullAppConfig;
 import com.clougence.clouddm.worker.component.rsocket.RSocketClientServiceImpl;
+import com.clougence.utils.ShutdownHook;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -70,6 +71,7 @@ public class DmWorkerLauncher {
     private static ConfigurableApplicationContext initSpring(String[] args, ClassLoader parentClassLoader) {
         DefaultResourceLoader resourceLoader = new DefaultResourceLoader(parentClassLoader);
         SpringApplication application = new SpringApplication(resourceLoader, FullAppConfig.class);
+        application.setRegisterShutdownHook(false);
         ConfigurableApplicationContext context = application.run(args);
         ClassLoader parentLoader = context.getClassLoader();
         log.info("main classloader is " + parentLoader);

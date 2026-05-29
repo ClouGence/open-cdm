@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.init;
+package com.clougence.utils;
 
 import java.util.concurrent.ExecutionException;
 
@@ -21,9 +21,6 @@ import com.clougence.utils.future.BasicFuture;
 
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Shutdown hook that keeps the initialization launcher blocked until the JVM enters its shutdown phase.
- */
 @Slf4j
 public class ShutdownHook extends Thread implements Runnable {
 
@@ -36,9 +33,6 @@ public class ShutdownHook extends Thread implements Runnable {
         }
     }
 
-    /**
-     * Registers the hook and blocks the caller until the JVM starts shutting down.
-     */
     public static void joinShutdown() {
         try {
             ShutdownHook hook = new ShutdownHook();

@@ -55,7 +55,13 @@ import com.clougence.utils.io.FileUtils;
 public class MavenResourcePreparer extends AbstractResourcePreparer {
 
     public static final String                    REPOSITORY_KEY           = "cg.driver.maven.repository";
+    public static final String                    CONNECT_TIMEOUT_KEY      = "cg.driver.maven.connectTimeout";
+    public static final String                    REQUEST_TIMEOUT_KEY      = "cg.driver.maven.requestTimeout";
     public static final String                    DEFAULT_MAVEN_REPOSITORY = "https://repo1.maven.org/maven2";
+    private static final String                   AETHER_CONNECT_TIMEOUT   = "aether.connector.connectTimeout";
+    private static final String                   AETHER_REQUEST_TIMEOUT   = "aether.connector.requestTimeout";
+    private static final int                      DEFAULT_CONNECT_TIMEOUT  = 10000;
+    private static final int                      DEFAULT_REQUEST_TIMEOUT  = 30000;
     private final RepositorySystem                repositorySystem;
     protected final File                          analysisDir;
     private final Map<String, List<MavenFileDef>> analysisCache            = new ConcurrentHashMap<>();
@@ -212,10 +218,29 @@ public class MavenResourcePreparer extends AbstractResourcePreparer {
         LocalRepositoryManager repositoryManager = repositorySystem.newLocalRepositoryManager(session, new LocalRepository(versionDir));
         session.setLocalRepositoryManager(repositoryManager);
         session.setOffline(false);
+        session.setConfigProperty(AETHER_CONNECT_TIMEOUT, resolveTimeout(CONNECT_TIMEOUT_KEY, "sun.net.client.defaultConnectTimeout", DEFAULT_CONNECT_TIMEOUT));
+        session.setConfigProperty(AETHER_REQUEST_TIMEOUT, resolveTimeout(REQUEST_TIMEOUT_KEY, "sun.net.client.defaultReadTimeout", DEFAULT_REQUEST_TIMEOUT));
         if (progress != null) {
             session.setTransferListener(new MavenProgressTransferListener(driverVersion, driverResource, progress));
         }
         return session;
+    }
+
+    private int resolveTimeout(String configKey, String systemPropertyKey, int defaultValue) {
+        String configuredValue = StringUtils.trimToNull(config.getProperty(configKey));
+        if (configuredValue == null) {
+            configuredValue = StringUtils.trimToNull(System.getProperty(systemPropertyKey));
+        }
+        if (configuredValue == null) {
+            return defaultValue;
+        }
+
+        try {
+            int timeout = Integer.parseInt(configuredValue);
+            return timeout > 0 ? timeout : defaultValue;
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
     }
 
     private List<Artifact> collectJarArtifacts(DefaultRepositorySystemSession session, Artifact artifact, List<RemoteRepository> repositories) throws Exception {

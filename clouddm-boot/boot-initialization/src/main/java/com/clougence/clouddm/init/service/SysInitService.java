@@ -215,6 +215,7 @@ public class SysInitService {
             boolean createIfMissing = Boolean.parseBoolean(userConfig.getOrDefault(INIT_DB_CREATE_IF_MISSING, "false"));
             boolean rebuildIfNotEmpty = Boolean.parseBoolean(userConfig.getOrDefault(INIT_DB_REBUILD_IF_NOT_EMPTY, "false"));
             boolean bootstrapAdmin = false;
+            List<String> pendingScripts = Collections.emptyList();
 
             if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser)) {
                 DatabaseInspection inspection = inspectDatabase(jdbcUrl, dbUser, dbPass, false);
@@ -226,16 +227,20 @@ public class SysInitService {
             }
 
             if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser)) {
+                String databaseName = InitDBStatusDetector.getDatabaseName(jdbcUrl);
+                pendingScripts = DmFlywayInit.listUpgradeRequiredScriptNames(jdbcUrl, dbUser, dbPass, databaseName);
                 runFlywayMigration(jdbcUrl, dbUser, dbPass, bootstrapAdmin ? adminEmail : null, bootstrapAdmin ? adminPassword : null);
             }
 
-            if (bootstrapAdmin && StringUtils.isNotBlank(adminEmail) && StringUtils.isNotBlank(adminPassword)) {
+            if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser) && StringUtils.isNotBlank(adminEmail) && StringUtils.isNotBlank(adminPassword)) {
                 InstallUpgradeLogBus.info("Updating administrator account.");
                 updateAdminUser(jdbcUrl, dbUser, dbPass, adminEmail, adminPassword);
             }
 
-            if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser)) {
+            if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser) && (bootstrapAdmin || !pendingScripts.isEmpty())) {
                 runFixTasks(jdbcUrl, dbUser, dbPass, true);
+            } else {
+                log.info("[SysInitService] Skip post-migration fix tasks, bootstrapAdmin={}, pendingScriptCount={}", bootstrapAdmin, pendingScripts.size());
             }
 
             InstallUpgradeLogBus.complete("Initialization completed successfully.");

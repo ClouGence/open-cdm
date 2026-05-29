@@ -28,6 +28,7 @@ const createInitialDriverStatus = () => ({
   status: 'IDLE',
   retryAction: 'CHECK',
   message: '',
+  detailMessage: '',
   driverFamily: '',
   driverVersion: ''
 });
@@ -207,11 +208,12 @@ export default {
           available: false,
           status: 'ERROR',
           retryAction: 'CHECK',
-          message: this.$t('initialization.mysqlDriverCheckTimeout')
+          message: this.$t('initialization.mysqlDriverCheckTimeout'),
+          detailMessage: ''
         };
       }, 15000);
     },
-    setErrorStatus(message, retryAction = 'CHECK') {
+    setErrorStatus(message, retryAction = 'CHECK', detailMessage = '') {
       this.clearDriverStatusTimeout();
       this.driverStatus = {
         ...this.driverStatus,
@@ -219,7 +221,8 @@ export default {
         available: false,
         status: 'ERROR',
         retryAction,
-        message: message || ''
+        message: message || '',
+        detailMessage: detailMessage || ''
       };
     },
     async refreshDriverStatus() {
@@ -237,7 +240,8 @@ export default {
         completedFileCount: 0,
         status: 'CHECKING',
         retryAction: 'CHECK',
-        message: ''
+        message: '',
+        detailMessage: ''
       };
       this.scheduleDriverStatusTimeout(requestKey);
 
@@ -260,7 +264,8 @@ export default {
             driverVersion: INIT_MYSQL_RUNTIME_DRIVER_VERSION,
             status: available ? 'AVAILABLE' : downloading ? 'PREPARING' : 'UNAVAILABLE',
             retryAction: available ? 'CHECK' : 'DOWNLOAD',
-            message: ''
+            message: '',
+            detailMessage: ''
           };
           return;
         }
@@ -287,7 +292,8 @@ export default {
         completedFileCount: 0,
         status: 'PREPARING',
         retryAction: 'DOWNLOAD',
-        message: this.$t('initialization.mysqlDriverPreparing')
+        message: this.$t('initialization.mysqlDriverPreparing'),
+        detailMessage: ''
       };
 
       try {
@@ -354,7 +360,8 @@ export default {
             driverVersion: event.driverVersion || this.driverStatus.driverVersion,
             status: event.available ? 'AVAILABLE' : 'UNAVAILABLE',
             retryAction: event.available ? 'CHECK' : 'DOWNLOAD',
-            message: event.message || ''
+            message: event.message || '',
+            detailMessage: event.detailMessage || ''
           };
           return;
         }
@@ -367,7 +374,7 @@ export default {
             driverFamily: event.driverFamily || this.driverStatus.driverFamily,
             driverVersion: event.driverVersion || this.driverStatus.driverVersion
           };
-          this.setErrorStatus(event.message || '', 'DOWNLOAD');
+          this.setErrorStatus(event.message || '', 'DOWNLOAD', event.detailMessage || event.message || '');
           return;
         }
 
@@ -381,7 +388,8 @@ export default {
           driverVersion: event.driverVersion || this.driverStatus.driverVersion,
           status: event.status || 'PREPARING',
           retryAction: 'DOWNLOAD',
-          message: event.message || ''
+          message: event.message || '',
+          detailMessage: event.detailMessage || ''
         };
       } catch (error) {
         console.error('Failed to parse mysql driver status message', error);

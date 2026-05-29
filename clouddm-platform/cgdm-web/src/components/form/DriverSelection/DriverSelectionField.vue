@@ -36,6 +36,7 @@ const createInitialDriverStatus = () => ({
   status: 'IDLE',
   retryAction: 'CHECK',
   message: '',
+  detailMessage: '',
   currentFileName: ''
 });
 
@@ -258,11 +259,12 @@ export default {
           available: false,
           status: 'UNKNOWN',
           retryAction: 'CHECK',
-          message: ''
+          message: '',
+          detailMessage: ''
         };
       }, 15000);
     },
-    setDriverErrorStatus(message, retryAction = 'CHECK') {
+    setDriverErrorStatus(message, retryAction = 'CHECK', detailMessage = '') {
       this.clearDriverStatusCheckTimeout();
       this.driverStatus = {
         ...this.driverStatus,
@@ -270,7 +272,8 @@ export default {
         available: false,
         status: 'ERROR',
         retryAction,
-        message: message || ''
+        message: message || '',
+        detailMessage: detailMessage || ''
       };
     },
     async refreshDriverStatus() {
@@ -289,6 +292,7 @@ export default {
         status: 'CHECKING',
         retryAction: 'CHECK',
         message: '',
+        detailMessage: '',
         currentFileName: '',
         totalFileCount: 0,
         completedFileCount: 0,
@@ -319,7 +323,8 @@ export default {
             available,
             status: available ? 'AVAILABLE' : 'UNAVAILABLE',
             retryAction: available ? 'CHECK' : 'DOWNLOAD',
-            message: ''
+            message: '',
+            detailMessage: ''
           };
           return;
         }
@@ -360,6 +365,7 @@ export default {
         status: 'DOWNLOADING',
         retryAction: 'DOWNLOAD',
         message: '',
+        detailMessage: '',
         currentFileName: ''
       };
 
@@ -408,6 +414,7 @@ export default {
           status: 'DOWNLOADING',
           retryAction: 'DOWNLOAD',
           message: event.message || '',
+          detailMessage: event.detailMessage || '',
           currentFileName: event.currentFileName || this.driverStatus.currentFileName
         };
         this.refreshDriverStatus();
@@ -415,7 +422,7 @@ export default {
       }
 
       if (event.status === 'FAILED') {
-        this.setDriverErrorStatus(event.message || this.$t('xia-zai-shi-bai'), 'DOWNLOAD');
+        this.setDriverErrorStatus(event.message || this.$t('xia-zai-shi-bai'), 'DOWNLOAD', event.detailMessage || event.message || '');
         this.driverStatus = {
           ...this.driverStatus,
           totalFileCount: Number.isFinite(event.totalFileCount) ? event.totalFileCount : this.driverStatus.totalFileCount,
@@ -437,6 +444,7 @@ export default {
         status: event.status || 'DOWNLOADING',
         retryAction: 'DOWNLOAD',
         message: event.message || '',
+        detailMessage: event.detailMessage || '',
         currentFileName: event.currentFileName || this.driverStatus.currentFileName
       };
     }

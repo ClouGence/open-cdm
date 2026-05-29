@@ -75,6 +75,7 @@ public final class InitMysqlDriverProgressBus {
         copy.setCurrentFilePercent(progressVO.getCurrentFilePercent());
         copy.setStatus(progressVO.getStatus());
         copy.setMessage(progressVO.getMessage());
+        copy.setDetailMessage(progressVO.getDetailMessage());
         copy.setCurrentFileName(progressVO.getCurrentFileName());
         copy.setAvailable(progressVO.isAvailable());
         return copy;

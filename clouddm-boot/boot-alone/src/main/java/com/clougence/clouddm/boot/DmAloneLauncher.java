@@ -33,6 +33,7 @@ import com.clougence.clouddm.init.InitApplication;
 import com.clougence.clouddm.init.model.SystemStatusResult;
 import com.clougence.clouddm.init.service.InitDBStatusDetector;
 import com.clougence.clouddm.init.service.SysInitDefService;
+import com.clougence.utils.ShutdownHook;
 import com.clougence.utils.format.DateFormatType;
 
 import lombok.extern.slf4j.Slf4j;
@@ -89,6 +90,7 @@ public class DmAloneLauncher {
         ClassLoader parentClassLoader = world != null ? world.getRealm("plexus.core") : Thread.currentThread().getContextClassLoader();
         DefaultResourceLoader resourceLoader = new DefaultResourceLoader(parentClassLoader);
         SpringApplication application = new SpringApplication(resourceLoader, FullAppConfig.class);
+        application.setRegisterShutdownHook(false);
         ConfigurableApplicationContext context = application.run(args);
 
         // start:console

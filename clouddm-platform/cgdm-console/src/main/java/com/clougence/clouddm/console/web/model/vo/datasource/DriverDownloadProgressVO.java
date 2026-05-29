@@ -30,6 +30,7 @@ public class DriverDownloadProgressVO {
     private int     currentFilePercent;
     private String  status;
     private String  message;
+    private String  detailMessage;
     private String  currentFileName;
     private boolean available;
 }
