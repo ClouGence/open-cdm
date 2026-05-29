@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo.project;
 
-import com.clougence.clouddm.platform.dal.util.RdpPageDO;
+import com.clougence.clouddm.platform.dal.util.PageObj;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -27,6 +27,6 @@ public class ProjectListFO {
     private String    searchKeywords;
     private String    mark;
     private String    status;
-    private RdpPageDO page;
+    private PageObj page;
 
 }

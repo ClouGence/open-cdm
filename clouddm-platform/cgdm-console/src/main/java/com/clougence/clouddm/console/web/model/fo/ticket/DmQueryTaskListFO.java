@@ -16,7 +16,7 @@
 package com.clougence.clouddm.console.web.model.fo.ticket;
 
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecTaskStatus;
-import com.clougence.clouddm.platform.dal.util.RdpPageDO;
+import com.clougence.clouddm.platform.dal.util.PageObj;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -30,5 +30,5 @@ public class DmQueryTaskListFO {
     private Long               ticketId;
 
     private AutoExecTaskStatus taskStatus;
-    private RdpPageDO          page;
+    private PageObj page;
 }

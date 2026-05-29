@@ -16,7 +16,7 @@
 package com.clougence.clouddm.console.web.model.fo.security;
 
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus;
-import com.clougence.clouddm.platform.dal.util.RdpPageDO;
+import com.clougence.clouddm.platform.dal.util.PageObj;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
@@ -34,7 +34,7 @@ public class ListMyAuthTicketFO {
 
     private ApprovalStatus ticketStatus;
 
-    private RdpPageDO       page;
+    private PageObj page;
 
     @JsonIgnore
     private String          uid;

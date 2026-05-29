@@ -43,7 +43,7 @@ import com.clougence.clouddm.console.web.service.project.domain.DmBranchDef;
 import com.clougence.clouddm.console.web.service.project.domain.DmScmDef;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.RandomStrUtils;
-import com.clougence.clouddm.platform.dal.util.DaoPageUtils;
+import com.clougence.clouddm.platform.dal.util.PageUtils;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.ProjectDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
@@ -84,7 +84,7 @@ public class DmProjectServiceImpl implements DmProjectService {
 
     @Override
     public IPage<ProjectVO> queryProjectListByPage(String ownerUid, ProjectListFO fo) {
-        Page<?> page = DaoPageUtils.startPage(fo.getPage());
+        Page<?> page = PageUtils.startPage(fo.getPage());
 
         ArgDmProjectQueryObj queryParams = ArgDmProjectQueryObj.builder()//
             .searchKeywords(StringUtils.isBlank(fo.getSearchKeywords()) ? null : fo.getSearchKeywords())

@@ -36,8 +36,8 @@ import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecJobVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecTaskVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmPageVO;
 import com.clougence.clouddm.console.web.util.DmTeamUtils;
-import com.clougence.clouddm.platform.dal.util.RdpPageDO;
-import com.clougence.clouddm.platform.dal.util.DaoPageUtils;
+import com.clougence.clouddm.platform.dal.util.PageObj;
+import com.clougence.clouddm.platform.dal.util.PageUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.access.MonitorDal;
@@ -236,9 +236,9 @@ public class AutoExecServiceImpl implements AutoExecService {
     }
 
     @Override
-    public DmPageVO<DmAutoExecTaskVO> queryAutoExecTaskList(String bizId, SQLJobBizType type, boolean canOperate, AutoExecTaskStatus status, RdpPageDO pageDO) {
+    public DmPageVO<DmAutoExecTaskVO> queryAutoExecTaskList(String bizId, SQLJobBizType type, boolean canOperate, AutoExecTaskStatus status, PageObj pageDO) {
         DmExecAutoJobDO job = this.executionDal.autoJobMapper().queryByDependOnBizId(bizId);
-        Page<?> page = DaoPageUtils.startPage(pageDO);
+        Page<?> page = PageUtils.startPage(pageDO);
         IPage<DmExecAutoTaskDO> iPage = this.executionDal.autoTaskMapper().queryListByJobId(page, job.getId(), status);
         DmPageVO<DmAutoExecTaskVO> result = new DmPageVO<>(iPage);
 

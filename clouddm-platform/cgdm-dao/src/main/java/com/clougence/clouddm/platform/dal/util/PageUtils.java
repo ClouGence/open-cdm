@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.fo.project;
+package com.clougence.clouddm.platform.dal.util;
 
-import com.clougence.clouddm.platform.dal.util.PageObj;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
-import lombok.Getter;
-import lombok.Setter;
+public final class PageUtils {
 
-@Getter
-@Setter
-public class ProjectChangeListFO {
+    private PageUtils(){
+    }
 
-    private long      projectId;
-    private String    searchKeywords;
-    private PageObj page;
-
+    public static Page<?> startPage(PageObj pageObj) {
+        Page<?> page = new Page<>();
+        if (pageObj == null) {
+            return page;
+        }
+        page.setCurrent(pageObj.getPageNum());
+        page.setSize(pageObj.getPageSize());
+        return page;
+    }
 }

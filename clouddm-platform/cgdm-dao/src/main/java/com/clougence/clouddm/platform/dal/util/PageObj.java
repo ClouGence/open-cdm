@@ -13,19 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.fo.project;
-
-import com.clougence.clouddm.platform.dal.util.PageObj;
+package com.clougence.clouddm.platform.dal.util;
 
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+* @author Ekko
+* @date 2022/11/24 11:49
+* page limit
+*/
 @Getter
 @Setter
-public class ProjectChangeListFO {
+public class PageObj {
 
-    private long      projectId;
-    private String    searchKeywords;
-    private PageObj page;
+    private int pageNum;
+    private int pageSize;
 
+    public PageObj(int pageNum, int pageSize){
+        this.pageNum = pageNum;
+        this.pageSize = pageSize;
+    }
+
+    public PageObj(){
+    }
 }
