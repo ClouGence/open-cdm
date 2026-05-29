@@ -45,6 +45,13 @@ public enum I18nRdpLabelKeys {
     LOGIN_GOOGLE,
     LOGIN_OAUTH2,
     LOGIN_OIDC,
+    LOGIN_TAB_PASSWORD,
+    LOGIN_TAB_LDAP,
+    LOGIN_TAB_AD,
+    LOGIN_TAB_DINGTALK,
+    LOGIN_TAB_FEISHU,
+    LOGIN_TAB_WECHAT,
+    LOGIN_TAB_OIDC,
 
     // -- for com.clougence.clouddm.platform.dal.model.approval.ApprovalStage
     TICKET_STAGE_EXPLAIN,

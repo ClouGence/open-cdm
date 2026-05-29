@@ -9,7 +9,7 @@
       <div :class="`has-background ${backgroundClass}`">
         <div class="tabs">
           <a-tabs v-model:activeKey="loginForm.accountType" size="large" @change="handleTabChange">
-            <a-tab-pane :key="ACCOUNT_TYPE.SUB_ACCOUNT" v-if="primaryUserDomainList.length && !showMfa" :tab="$t('zhang-hao-deng-lu')"></a-tab-pane>
+            <a-tab-pane :key="ACCOUNT_TYPE.SUB_ACCOUNT" v-if="primaryUserDomainList.length && !showMfa" :tab="subAccountTabTitle"></a-tab-pane>
             <a-tab-pane :key="ACCOUNT_TYPE.PRIMARY_ACCOUNT" :tab="$t('guan-li-deng-lu')" v-if="!showMfa"></a-tab-pane>
             <a-tab-pane key="MFA" v-if="showMfa" :tab="$t('duo-yin-zi-ren-zheng-yan-zheng-ma')"></a-tab-pane>
           </a-tabs>
@@ -210,6 +210,11 @@ export default {
       }
 
       return this.$t('zhang-hao');
+    },
+    subAccountTabTitle() {
+      return (
+        this.selectDomainData.tabTitle || this.selectDomainData.accountLoginTabTitle || this.selectDomainData.title || this.$t('zhang-hao-deng-lu')
+      );
     }
   },
   data() {

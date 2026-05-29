@@ -40,6 +40,7 @@ import com.clougence.clouddm.console.web.constants.RdpProduct;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.csrf.CsrfTokenService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nRdpLabelKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
@@ -272,11 +273,24 @@ public class RdpHomeController {
             attr.put("domain", primary.getUserDomain());
             attr.put("domainUid", primary.getUid());
             attr.put("title", DmI18nUtils.getMessage(authType.getI18nKey()));
+            attr.put("tabTitle", DmI18nUtils.getMessage(accountLoginTabTitleKey(authType)));
             attr.put("loginType", authType.name());
             attr.put("jump", loginProvider != null && loginProvider.isJumpIn());
             orgList.add(attr);
         }
         return ResWebDataUtils.buildSuccess(orgList);
+    }
+
+    private String accountLoginTabTitleKey(LoginAuthType authType) {
+        return switch (authType) {
+            case LDAP -> I18nRdpLabelKeys.LOGIN_TAB_LDAP.name();
+            case AD -> I18nRdpLabelKeys.LOGIN_TAB_AD.name();
+            case DingTalk -> I18nRdpLabelKeys.LOGIN_TAB_DINGTALK.name();
+            case Feishu -> I18nRdpLabelKeys.LOGIN_TAB_FEISHU.name();
+            case Wechat -> I18nRdpLabelKeys.LOGIN_TAB_WECHAT.name();
+            case OIDC -> I18nRdpLabelKeys.LOGIN_TAB_OIDC.name();
+            case VERIFY, PASSWORD -> I18nRdpLabelKeys.LOGIN_TAB_PASSWORD.name();
+        };
     }
 
     @RequestAuth(strategy = AuthStrategy.Ignore)
