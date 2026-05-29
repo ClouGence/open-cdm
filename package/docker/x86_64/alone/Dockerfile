@@ -3,6 +3,14 @@ FROM ${BASE_IMAGE}
 
 ARG MYSQL_MAJOR=8.0
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends mysql-server \
+    && mysqld --version | grep -Fq "Ver ${MYSQL_MAJOR}." \
+    && rm -rf /var/lib/apt/lists/* \
+    && find /var/lib/mysql -mindepth 1 -maxdepth 1 -exec rm -rf {} + \
+    && mkdir -p /var/lib/mysql /run/mysqld \
+    && chown -R mysql:mysql /var/lib/mysql /run/mysqld
+
 # CloudDM Web Service Port (config: server.port)
 ENV APP_WEB_PORT=8222
 # CloudDM Web JWT secret(config: jwt.secret)
@@ -25,15 +33,8 @@ ADD build/cgdm-alone.tar.gz /root/
 COPY docker/x86_64/alone/alone.properties /docker-entrypoint-init/copy_alone.properties
 COPY docker/x86_64/alone/init.sh /docker-entrypoint-init/init.sh
 RUN chmod +x /docker-entrypoint-init/init.sh \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends mysql-server \
-    && mysqld --version | grep -Fq "Ver ${MYSQL_MAJOR}." \
-    && rm -rf /var/lib/apt/lists/* \
-    && find /var/lib/mysql -mindepth 1 -maxdepth 1 -exec rm -rf {} + \
     && rm -rf /root/cgdm/alone/logs \
     && mkdir -p /root/cgdm/alone/logs \
-    && mkdir -p /var/lib/mysql /run/mysqld \
-    && chown -R mysql:mysql /var/lib/mysql /run/mysqld \
     && rm -f /root/cgdm/alone/conf/alone.properties
 
 ENTRYPOINT ["/docker-entrypoint-init/init.sh"]

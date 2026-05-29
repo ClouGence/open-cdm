@@ -9,6 +9,9 @@
 # ============================================================================
 set -euo pipefail
 
+UBUNTU_MIRROR_X86_64="http://mirrors.aliyun.com/ubuntu"
+UBUNTU_MIRROR_ARM64="http://mirrors.aliyun.com/ubuntu-ports"
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PACKAGE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 PACKAGE_BUILD_DIR="$PACKAGE_DIR/build"
@@ -17,14 +20,16 @@ SERVICES=(console sidecar alone)
 VERSION="${1:-local}"
 PLATFORMS=()
 PLATFORM_SPECIFIED=0
+USE_MIRRORS=0
 
 for arg in "$@"; do
   case "$arg" in
     --platform=all)  PLATFORMS=(x86_64 arm64); PLATFORM_SPECIFIED=1 ;;
     --platform=x86_64) PLATFORMS=(x86_64); PLATFORM_SPECIFIED=1 ;;
     --platform=arm64)  PLATFORMS=(arm64); PLATFORM_SPECIFIED=1 ;;
+    --mirrors) USE_MIRRORS=1 ;;
     -h|--help)
-      echo "usage: $0 VERSION --platform=x86_64|arm64|all"; exit 0 ;;
+      echo "usage: $0 VERSION [--platform=x86_64|arm64|all] [--mirrors]"; exit 0 ;;
     *) ;;  # first arg is VERSION
   esac
 done
@@ -36,6 +41,13 @@ done
 docker_platform()  { case "$1" in x86_64) echo "linux/amd64" ;; arm64) echo "linux/arm64" ;; esac; }
 base_image_tag()   { echo "clougence/cgdm-${1}-base:local"; }
 image_tag()        { echo "${1}-${2}"; }
+apt_mirror() {
+  [ "$USE_MIRRORS" -eq 1 ] || return 0
+  case "$1" in
+    x86_64) echo "$UBUNTU_MIRROR_X86_64" ;;
+    arm64) echo "$UBUNTU_MIRROR_ARM64" ;;
+  esac
+}
 
 require_package_artifacts() {
   for file_name in cgdm-console.tar.gz cgdm-sidecar.tar.gz cgdm-alone.tar.gz; do
@@ -53,9 +65,12 @@ build_base_image() {
   local plat="$1"
   local dockerfile="$SCRIPT_DIR/${plat}/base/Dockerfile"
   local tag; tag="$(base_image_tag "$plat")"
+  local mirror; mirror="$(apt_mirror "$plat")"
   echo "  building base image: $tag ($(docker_platform "$plat"))"
+  [ -n "$mirror" ] && echo "    apt mirror: $mirror"
   BUILDX_NO_DEFAULT_ATTESTATIONS=1 DOCKER_DEFAULT_PLATFORM="$(docker_platform "$plat")" docker build \
     --provenance=false --sbom=false \
+    --build-arg APT_MIRROR="$mirror" \
     -t "$tag" \
     -f "$dockerfile" \
     "$PACKAGE_DIR"
