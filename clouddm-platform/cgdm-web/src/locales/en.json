@@ -2291,6 +2291,7 @@
   "zao-shu-ju-zhong-jiang-shu-ju-xie-ru-shu-ju-ku-xian-cheng-de-shu-liang": "The number of threads that write data to the database during data creation",
   "zao-shu-ju-zhong-sheng-cheng-sui-ji-shu-ju-de-shu-liang": "The amount of random data generated in the data",
   "guan-li-deng-lu": "Admin Login",
+  "manager-login-badge": "Manager",
   "zhu-zhang-hao-deng-lu": "Primary Account",
   "cha-ru-cao-zuo-de-bi-shuai": "Insertion rate",
   "geng-xin-cao-zuo-de-bi-shuai": "rate of update operations",

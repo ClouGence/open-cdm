@@ -32,7 +32,7 @@
 | 官网 | https://www.cdmgr.com/ |
 | 文档 | https://www.cdmgr.com/docs/intro/product_intro |
 | 开源协议 | Apache License 2.0 |
-| 当前版本 | 3.0.7 |
+| 当前版本 | 3.1.0 |
 | 主要语言 | Java、JavaScript / TypeScript |
 | 部署模式 | 单机模式（Alone）、集群模式（Console + Sidecar） |
 | 部署方式 | 安装包、Docker、Kubernetes |
@@ -88,11 +88,11 @@ CloudDM 支持 **单机模式（Alone）** 和 **集群模式（Console + Sideca
 
 ```bash
 # 快速启动
-docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:3.0.7
+docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:3.1.0
 
 # 中国地区，使用镜像加速
 docker run -d --name cgdm-alone -p 8222:8222 \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.0.7
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.0
 ```
 
 ### 初始化

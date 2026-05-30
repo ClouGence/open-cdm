@@ -31,7 +31,7 @@
 | Homepage | https://www.cdmgr.com/ |
 | Documentation | https://www.cdmgr.com/docs/intro/product_intro |
 | License | Apache License 2.0 |
-| Current version | 3.0.7 |
+| Current version | 3.1.0 |
 | Main languages | Java, JavaScript / TypeScript |
 | Deployment modes | Standalone (Alone), Cluster (Console + Sidecar) |
 | Deployment targets | Install package, Docker, Kubernetes |
@@ -87,11 +87,11 @@ The example below demonstrates how to use standalone deployment. If you need ins
 
 ```bash
 # Quick start
-docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:3.0.7
+docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:3.1.0
 
 # Faster image pulls in China
 docker run -d --name cgdm-alone -p 8222:8222 \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.0.7
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.0
 ```
 
 ### Initialization

@@ -355,8 +355,9 @@ async function pollDmGlobalSettings() {
   }
 }
 
-function redirectToLoginPage() {
-  window.location.replace(`${window.location.origin}${window.location.pathname}#/login`);
+function redirectToLoginPage(defaultLogin) {
+  const query = defaultLogin ? `?defaultLogin=${encodeURIComponent(defaultLogin)}` : '';
+  window.location.replace(`${window.location.origin}${window.location.pathname}#/login${query}`);
 }
 
 export default {
@@ -713,7 +714,7 @@ export default {
 
       const { status, initReason, dbError, upgradeScripts = [] } = getDmSystemStatus(res);
       if (status === 'Ready') {
-        redirectToLoginPage();
+        redirectToLoginPage('manage');
         return;
       }
 
@@ -1042,7 +1043,7 @@ export default {
         }
 
         if (isDmSystemReady(res)) {
-          redirectToLoginPage();
+          redirectToLoginPage('manage');
           return;
         }
 

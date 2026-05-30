@@ -7,12 +7,13 @@
     </header>
     <div class="content">
       <div :class="`has-background ${backgroundClass}`">
-        <div class="tabs">
+        <div class="tabs" :class="{ 'is-manager-login': isManagerLogin }">
           <a-tabs v-model:activeKey="loginForm.accountType" size="large" @change="handleTabChange">
             <a-tab-pane :key="ACCOUNT_TYPE.SUB_ACCOUNT" v-if="primaryUserDomainList.length && !showMfa" :tab="subAccountTabTitle"></a-tab-pane>
             <a-tab-pane :key="ACCOUNT_TYPE.PRIMARY_ACCOUNT" :tab="$t('guan-li-deng-lu')" v-if="!showMfa"></a-tab-pane>
             <a-tab-pane key="MFA" v-if="showMfa" :tab="$t('duo-yin-zi-ren-zheng-yan-zheng-ma')"></a-tab-pane>
           </a-tabs>
+          <div v-if="isManagerLogin && !showMfa" class="manager-corner-badge">{{ $t('manager-login-badge') }}</div>
           <div class="tabs-content">
             <div class="input-wrapper mt-4" :class="{ 'is-completion': isCompletionMode }" v-if="!showMfa">
               <div class="login-fields" v-if="!isCompletionMode">
@@ -201,6 +202,9 @@ export default {
     backgroundClass() {
       return 'dm-background';
     },
+    isManagerLogin() {
+      return this.loginForm.accountType === ACCOUNT_TYPE.PRIMARY_ACCOUNT;
+    },
     isCompletionMode() {
       return Boolean(this.loginCallbackData.completion && this.loginForm.accountType === ACCOUNT_TYPE.SUB_ACCOUNT);
     },
@@ -250,6 +254,10 @@ export default {
   },
   methods: {
     ...mapActions(['getUserInfo']),
+    applyDefaultLoginFromRoute() {
+      this.loginForm.accountType =
+        this.$route.query && this.$route.query.defaultLogin === 'manage' ? ACCOUNT_TYPE.PRIMARY_ACCOUNT : ACCOUNT_TYPE.SUB_ACCOUNT;
+    },
     async ensurePublicKeyLoaded() {
       if (this.publicKey) {
         return true;
@@ -546,6 +554,7 @@ export default {
     }
   },
   created() {
+    this.applyDefaultLoginFromRoute();
     this.ensurePublicKeyLoaded();
     this.getGlobalSettings();
   }
@@ -625,8 +634,46 @@ export default {
       width: 520px;
       max-width: calc(100vw - 48px);
       background: var(--card-bg, #ffffff);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid transparent;
       border-radius: 4px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+      transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+
+      &.is-manager-login {
+        border-color: #ff7875;
+        outline: 2px solid rgba(245, 34, 45, 0.18);
+        outline-offset: 2px;
+        box-shadow:
+          inset 0 0 0 1px rgba(245, 34, 45, 0.18),
+          0 0 0 4px rgba(245, 34, 45, 0.08),
+          0 2px 12px rgba(120, 38, 32, 0.08);
+      }
+
+      .manager-corner-badge {
+        position: absolute;
+        right: -42px;
+        bottom: 18px;
+        z-index: 3;
+        width: 150px;
+        height: 28px;
+        transform: rotate(-38deg);
+        transform-origin: center;
+        background: #fff1f0;
+        border-top: 1px solid #f2b8b5;
+        border-bottom: 1px solid #f2b8b5;
+        color: #b42318;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 26px;
+        letter-spacing: 0;
+        text-align: center;
+        pointer-events: none;
+        text-transform: uppercase;
+      }
 
       :deep(.ant-tabs-tab-btn) {
         font-size: 18px;
