@@ -17,6 +17,7 @@
 import com.clougence.gradle.AntlrBuildSupport
 
 import java.text.SimpleDateFormat
+import java.util.regex.Pattern
 
 plugins {
     id 'java-library'
@@ -79,6 +80,23 @@ java {
 }
 
 task customFatJar(type: Jar, dependsOn: jar) {
+    def sharedRuntimeArtifactNames = providers.provider {
+        def sharedRuntime = configurations.detachedConfiguration(project.dependencies.project(path: ':cgdm-share-libs'))
+        sharedRuntime.transitive = true
+        return sharedRuntime.incoming.resolutionResult.allComponents.collectMany { component ->
+            def moduleVersion = component.moduleVersion
+            if (moduleVersion != null) {
+                return [moduleVersion.name]
+            }
+
+            def projectPath = component.id.hasProperty('projectPath') ? component.id.projectPath : null
+            if (projectPath != null) {
+                return [projectPath.substring(projectPath.lastIndexOf(':') + 1)]
+            }
+            return []
+        }.toSet()
+    }
+
     Properties properties = new Properties()
     properties.setProperty("buildDate", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))
 
@@ -96,7 +114,14 @@ task customFatJar(type: Jar, dependsOn: jar) {
 
     entryCompression = 'STORED'
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from configurations.runtimeClasspath, buildDsInfo
+    from(configurations.runtimeClasspath) {
+        exclude { details ->
+            sharedRuntimeArtifactNames.get().any { artifactName ->
+                details.file.name ==~ /^${Pattern.quote(artifactName)}-.+\.jar$/
+            }
+        }
+    }
+    from buildDsInfo
     with jar
 }
 

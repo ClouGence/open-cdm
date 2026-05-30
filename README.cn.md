@@ -142,7 +142,7 @@ docker run -d --name cgdm-alone \
 http://localhost:8222
 ```
 
-> 首次访问会进入初始化向导
+> 首次部署访问会进入初始化向导；升级时会进入升级向导。
 > 
 > 如果你并未修改过账号，则默认为 **admin@cdmgr.com**
 

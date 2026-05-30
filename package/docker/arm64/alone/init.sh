@@ -26,7 +26,11 @@ sed_replacement_escape() {
 }
 
 mysql_sql() {
-  mysql --protocol=socket --socket="$MYSQL_SOCKET" -uroot "$@"
+  if mysql --protocol=socket --socket="$MYSQL_SOCKET" -uroot -e "SELECT 1" >/dev/null 2>&1; then
+    mysql --protocol=socket --socket="$MYSQL_SOCKET" -uroot "$@"
+  else
+    mysql --protocol=socket --socket="$MYSQL_SOCKET" -uroot -p"$MYSQL_ROOT_PASSWORD" "$@"
+  fi
 }
 
 setup_mysql_directories() {
