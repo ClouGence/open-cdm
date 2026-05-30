@@ -86,11 +86,50 @@ CloudDM supports **Standalone (Alone)** and **Cluster (Console + Sidecar)** mode
 The example below demonstrates how to use standalone deployment. If you need install-package deployment, cluster deployment, or Kubernetes deployment, you can continue deploying with the install packages and yml files generated after local packaging. For complete deployment instructions, see [DEPLOY.en.md](./DEPLOY.en.md).
 
 ```bash
-# Quick start
-docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:3.1.0
+# Quick start, default image
+docker run -d --name cgdm-alone \
+  -p 8222:8222 \
+  -v cgdm_alone_conf:/root/cgdm/alone/conf \
+  -v cgdm_alone_logs:/root/cgdm/alone/logs \
+  -v cgdm_alone_data:/root/cgdm/alone/data \
+  -v cgdm_mysql_data:/var/lib/mysql \
+  bladepipe/cgdm-alone:3.1.0
 
 # Faster image pulls in China
-docker run -d --name cgdm-alone -p 8222:8222 \
+docker run -d --name cgdm-alone \
+  -p 8222:8222 \
+  -v cgdm_alone_conf:/root/cgdm/alone/conf \
+  -v cgdm_alone_logs:/root/cgdm/alone/logs \
+  -v cgdm_alone_data:/root/cgdm/alone/data \
+  -v cgdm_mysql_data:/var/lib/mysql \
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.0
+```
+
+### Quick Upgrade
+
+Before upgrading, back up Docker volumes or database data. To upgrade, remove the old container and start the new image with the same volumes.
+
+```bash
+# Default image
+docker rm -f cgdm-alone
+docker pull bladepipe/cgdm-alone:3.1.0
+docker run -d --name cgdm-alone \
+  -p 8222:8222 \
+  -v cgdm_alone_conf:/root/cgdm/alone/conf \
+  -v cgdm_alone_logs:/root/cgdm/alone/logs \
+  -v cgdm_alone_data:/root/cgdm/alone/data \
+  -v cgdm_mysql_data:/var/lib/mysql \
+  bladepipe/cgdm-alone:3.1.0
+
+# China acceleration image
+docker rm -f cgdm-alone
+docker pull cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.0
+docker run -d --name cgdm-alone \
+  -p 8222:8222 \
+  -v cgdm_alone_conf:/root/cgdm/alone/conf \
+  -v cgdm_alone_logs:/root/cgdm/alone/logs \
+  -v cgdm_alone_data:/root/cgdm/alone/data \
+  -v cgdm_mysql_data:/var/lib/mysql \
   cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.0
 ```
 

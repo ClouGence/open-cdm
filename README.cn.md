@@ -87,11 +87,50 @@ CloudDM 支持 **单机模式（Alone）** 和 **集群模式（Console + Sideca
 下面以单机模式部署来展示如何使用。如果你需要安装包部署、集群部署或 Kubernetes 部署，可使用本地打包后生成的安装包和 yml 文件继续部署。完整部署说明请参考 [DEPLOY.cn.md](./DEPLOY.cn.md)。
 
 ```bash
-# 快速启动
-docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:3.1.0
+# 快速启动，默认镜像
+docker run -d --name cgdm-alone \
+  -p 8222:8222 \
+  -v cgdm_alone_conf:/root/cgdm/alone/conf \
+  -v cgdm_alone_logs:/root/cgdm/alone/logs \
+  -v cgdm_alone_data:/root/cgdm/alone/data \
+  -v cgdm_mysql_data:/var/lib/mysql \
+  bladepipe/cgdm-alone:3.1.0
 
-# 中国地区，使用镜像加速
-docker run -d --name cgdm-alone -p 8222:8222 \
+# 中国地区，使用加速镜像
+docker run -d --name cgdm-alone \
+  -p 8222:8222 \
+  -v cgdm_alone_conf:/root/cgdm/alone/conf \
+  -v cgdm_alone_logs:/root/cgdm/alone/logs \
+  -v cgdm_alone_data:/root/cgdm/alone/data \
+  -v cgdm_mysql_data:/var/lib/mysql \
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.0
+```
+
+### 快速升级
+
+升级前建议先备份 Docker 卷或数据库数据。升级时删除旧容器并使用相同卷启动新版本镜像即可保留已有数据。
+
+```bash
+# 默认镜像
+docker rm -f cgdm-alone
+docker pull bladepipe/cgdm-alone:3.1.0
+docker run -d --name cgdm-alone \
+  -p 8222:8222 \
+  -v cgdm_alone_conf:/root/cgdm/alone/conf \
+  -v cgdm_alone_logs:/root/cgdm/alone/logs \
+  -v cgdm_alone_data:/root/cgdm/alone/data \
+  -v cgdm_mysql_data:/var/lib/mysql \
+  bladepipe/cgdm-alone:3.1.0
+
+# 中国区加速镜像
+docker rm -f cgdm-alone
+docker pull cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.0
+docker run -d --name cgdm-alone \
+  -p 8222:8222 \
+  -v cgdm_alone_conf:/root/cgdm/alone/conf \
+  -v cgdm_alone_logs:/root/cgdm/alone/logs \
+  -v cgdm_alone_data:/root/cgdm/alone/data \
+  -v cgdm_mysql_data:/var/lib/mysql \
   cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.0
 ```
 
