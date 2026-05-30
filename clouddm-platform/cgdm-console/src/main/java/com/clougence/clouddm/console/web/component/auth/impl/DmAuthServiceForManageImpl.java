@@ -16,12 +16,10 @@
 package com.clougence.clouddm.console.web.component.auth.impl;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -30,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.console.web.component.auth.DmAuthLabelService;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForAppend;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForDelete;
@@ -46,10 +45,11 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.model.analysis.resource.AuthBrowseObject;
-import com.clougence.clouddm.sdk.model.feature.RdpFeatureIDs;
-import com.clougence.clouddm.sdk.security.auth.*;
+import com.clougence.clouddm.sdk.security.auth.AuthElementType;
+import com.clougence.clouddm.sdk.security.auth.AuthInfo;
+import com.clougence.clouddm.sdk.security.auth.AuthInfoType;
+import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
@@ -62,28 +62,20 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Service
 @Slf4j
-public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, UnifiedPostConstruct, AuthBinder {
+public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, UnifiedPostConstruct {
 
     @Resource
-    private DataSourceDal                       dsDal;
+    private DataSourceDal            dsDal;
     @Resource
-    private AuthDal                             authDal;
-    private ScheduledExecutorService            cleanExpiredAuthExecutor;
+    private AuthDal                  authDal;
+    @Resource
+    private DmAuthLabelService       authLabelService;
+    private ScheduledExecutorService cleanExpiredAuthExecutor;
 
-    private final AtomicBoolean                 running                  = new AtomicBoolean(false);
-    private final Map<String, AuthInfo>         labelMap                 = new ConcurrentHashMap<>();
-    private final Map<AuthKind, List<AuthInfo>> allAuthGroupByKind       = new ConcurrentHashMap<>();
-    private final Map<String, AuthInfo>         labelMapOfTree           = new ConcurrentHashMap<>();
-    private final Map<AuthKind, List<AuthInfo>> allAuthGroupByKindOfTree = new ConcurrentHashMap<>();
+    private final AtomicBoolean      running = new AtomicBoolean(false);
 
     public void init() {
         if (running.compareAndSet(false, true)) {
-            List<AuthInfoSpi> list = PluginManager.findSpi(AuthInfoSpi.class);
-            for (AuthInfoSpi spi : list) {
-                log.info("[DmAuthServiceForManageImpl] SPI AuthRegistrySpi -> " + spi.getClass().getName());
-                spi.registryAuthLabel(this);
-            }
-
             cleanExpiredAuthExecutor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("rdp-expired-auth-cleaner", false));
             cleanExpiredAuthExecutor.scheduleAtFixedRate(() -> {
                 try {
@@ -101,196 +93,38 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
 
     }
 
-    private List<String> products() {
-        List<String> strings = new ArrayList<>();
-        strings.add(RdpFeatureIDs.PRODUCT_CLOUD_DM);
-        return strings;
-    }
-
-    public AuthBinder addAuthInfo(AuthInfo authInfo) {
-        this.labelMap.put(authInfo.getKey(), authInfo);
-        this.labelMapOfTree.put(authInfo.getDefField(), authInfo);
-        this.allAuthGroupByKind.clear();
-        return this;
-    }
-
-    public List<AuthInfo> getAllCategory() {
-        return this.labelMap.values().stream().filter(a -> {
-            return a.getAuthType() == AuthInfoType.Category;
-        }).collect(Collectors.toList());
-    }
+    public List<AuthInfo> getAllCategory() { return this.authLabelService.getAllCategory(); }
 
     public List<AuthInfo> getCascadeAuthByLabel(String authLabel) {
-        List<AuthInfo> result = Collections.emptyList();
-        if (this.labelMap.containsKey(authLabel)) {
-            AuthInfo info = this.labelMap.get(authLabel);
-
-            result = new ArrayList<>();
-            result.add(info);
-            if (info.getAuthType() == AuthInfoType.Auth && info.getInclude() != null) {
-                for (String include : info.getInclude()) {
-                    result.addAll(this.getCascadeAuthByLabel(include));
-                }
-            }
-        }
-
-        // duplicate removal.
-        Map<String, AuthInfo> tempData = new TreeMap<>();
-        for (AuthInfo info : result) {
-            tempData.put(info.getKey(), info);
-        }
-
-        return new ArrayList<>(tempData.values());
+        return this.authLabelService.getCascadeAuthByLabel(authLabel);
     }
 
     public List<String> normalizeRoleAuthLabels(List<String> authLabels) {
-        if (CollectionUtils.isEmpty(authLabels)) {
-            return Collections.emptyList();
-        }
-
-        Map<String, String> categoryParentMap = this.getAllCategory().stream().collect(Collectors.toMap(AuthInfo::getKey, AuthInfo::getParent, (left, right) -> left));
-        List<AuthInfo> roleAuthLabels = this.getRoleAuthLabel();
-        Set<String> result = new TreeSet<>();
-
-        for (String authLabel : authLabels) {
-            AuthInfo info = this.labelMap.get(authLabel);
-            if (info == null) {
-                continue;
-            }
-
-            if (info.getAuthType() == AuthInfoType.Auth) {
-                result.addAll(this.getCascadeAuthByLabel(authLabel).stream().filter(a -> a.getAuthType() == AuthInfoType.Auth).map(AuthInfo::getKey).collect(Collectors.toSet()));
-                continue;
-            }
-
-            for (AuthInfo roleAuth : roleAuthLabels) {
-                if (roleAuth.getAuthType() != AuthInfoType.Auth) {
-                    continue;
-                }
-
-                if (!belongsToCategory(roleAuth.getCategory(), authLabel, categoryParentMap)) {
-                    continue;
-                }
-
-                result.addAll(this.getCascadeAuthByLabel(roleAuth.getKey())
-                    .stream()
-                    .filter(a -> a.getAuthType() == AuthInfoType.Auth)
-                    .map(AuthInfo::getKey)
-                    .collect(Collectors.toSet()));
-            }
-        }
-
-        return new ArrayList<>(result);
-    }
-
-    private boolean belongsToCategory(String categoryKey, String targetCategoryKey, Map<String, String> categoryParentMap) {
-        String currentCategoryKey = categoryKey;
-        while (StringUtils.isNotBlank(currentCategoryKey)) {
-            if (StringUtils.equals(currentCategoryKey, targetCategoryKey)) {
-                return true;
-            }
-
-            currentCategoryKey = categoryParentMap.get(currentCategoryKey);
-        }
-
-        return false;
+        return this.authLabelService.normalizeRoleAuthLabels(authLabels);
     }
 
     private List<String> getCascadeAuthByLabel(List<String> authLabels) {
         Set<String> result = new TreeSet<>();
         for (String label : authLabels) {
-            result.addAll(getCascadeAuthByLabel(label).stream().map(AuthInfo::getKey).collect(Collectors.toList()));
+            result.addAll(getCascadeAuthByLabel(label).stream().map(AuthInfo::getKey).toList());
         }
         return new ArrayList<>(result);
     }
 
     public AuthInfo getAuthLabel(String authLabelKey) {
-        return this.labelMap.get(authLabelKey);
+        return this.authLabelService.getAuthLabel(authLabelKey);
     }
 
-    public List<AuthInfo> getRoleAuthLabel() {
-        List<String> products = products();
-        return this.labelMap.values().stream().filter(info -> {
-            return info.isUsedOfRole() && CollectionUtils.containsAny(info.getForProduct(), products);
-        }).collect(Collectors.toList());
-    }
+    public List<AuthInfo> getRoleAuthLabel() { return this.authLabelService.getRoleAuthLabel(); }
 
-    public List<AuthInfo> getDataAuthLabel() {
-        List<String> products = products();
-        return this.labelMap.values().stream().filter(info -> {
-            return !info.isUsedOfRole() && CollectionUtils.containsAny(info.getForProduct(), products);
-        }).collect(Collectors.toList());
-    }
+    public List<AuthInfo> getDataAuthLabel() { return this.authLabelService.getDataAuthLabel(); }
 
     public List<AuthInfo> getAllAuthLabel(AuthKind selectKind) {
-        List<String> products = products();
-        if (this.allAuthGroupByKind.isEmpty()) {
-            Map<AuthKind, List<AuthInfo>> groupByKind = new HashMap<>();
-
-            Collection<AuthInfo> allAuth = this.labelMap.values();
-            for (AuthKind kind : AuthKind.values()) {
-                List<AuthInfo> result = allAuth.stream().filter(i -> {
-                    if (i.getAuthType() != AuthInfoType.Auth) {
-                        return false;
-                    } else {
-                        return i.getKinds().contains(kind) && CollectionUtils.containsAny(i.getForProduct(), products);
-                    }
-                }).collect(Collectors.toList());
-                groupByKind.put(kind, result);
-            }
-
-            this.allAuthGroupByKind.putAll(groupByKind);
-        }
-
-        return this.allAuthGroupByKind.getOrDefault(selectKind, Collections.emptyList());
-    }
-
-    private List<AuthInfo> getAllAuthLabelForTree(AuthKind selectKind) {
-        List<String> products = products();
-        if (this.allAuthGroupByKindOfTree.isEmpty()) {
-            Map<AuthKind, List<AuthInfo>> groupByKind = new HashMap<>();
-
-            Collection<AuthInfo> allAuth = this.labelMapOfTree.values();
-            for (AuthKind kind : AuthKind.values()) {
-                List<AuthInfo> result = allAuth.stream().filter(i -> {
-                    if (i.getAuthType() != AuthInfoType.Auth) {
-                        return false;
-                    } else {
-                        return i.getKinds().contains(kind) && CollectionUtils.containsAny(i.getForProduct(), products);
-                    }
-                }).collect(Collectors.toList());
-                groupByKind.put(kind, result);
-            }
-
-            this.allAuthGroupByKindOfTree.putAll(groupByKind);
-        }
-
-        return this.allAuthGroupByKindOfTree.getOrDefault(selectKind, Collections.emptyList());
+        return this.authLabelService.getAllAuthLabel(selectKind);
     }
 
     public List<AuthInfo> getAllAuthLabelForAuthTreeDef(AuthKind kindType, AuthElementType elementType, DataSourceType dsType) {
-        List<AuthInfo> infos = this.getAllAuthLabelForTree(kindType);
-
-        Predicate<AuthInfo> hasAnyDsScope = a -> a.getScope() == AuthInfoScope.DataSource && a.getScopeDs() == dsType;
-        Predicate<AuthInfo> dataFilter;
-        if (dsType != null && infos.stream().anyMatch(hasAnyDsScope)) {
-            dataFilter = a -> {
-                boolean test1 = a.getScope() == AuthInfoScope.Public;
-                boolean test2 = a.getScope() == AuthInfoScope.DataSource && a.getScopeDs() == dsType;
-                return test1 || test2;
-            };
-        } else {
-            dataFilter = a -> {
-                boolean test1 = a.getScope() == AuthInfoScope.Public;
-                boolean test2 = a.getScope() == AuthInfoScope.Default;
-                return test1 || test2;
-            };
-        }
-
-        return infos.stream().filter(dataFilter).filter(info -> {
-            Map<AuthKind, List<AuthElementType>> condition = info.getCondition();
-            return condition.get(kindType).contains(elementType);
-        }).collect(Collectors.toList());
+        return this.authLabelService.getAllAuthLabelForAuthTreeDef(kindType, elementType, dsType);
     }
 
     public List<RdpAuthObjectVO> listElements(String puid, List<String> levels, AuthKind authKind) {

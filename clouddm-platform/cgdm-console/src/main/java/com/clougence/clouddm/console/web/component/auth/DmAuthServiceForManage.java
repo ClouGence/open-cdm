@@ -17,36 +17,16 @@ package com.clougence.clouddm.console.web.component.auth;
 
 import java.util.List;
 
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyUserAuthFO;
 import com.clougence.clouddm.console.web.model.fo.ticket.RdpAddAuthTicketFO;
 import com.clougence.clouddm.console.web.model.vo.RdpAuthObjectVO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
-import com.clougence.clouddm.sdk.security.auth.AuthElementType;
-import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 
 /**
  * @author bucketli 2020/12/8 15:21
  */
-public interface DmAuthServiceForManage {
-
-    // for Basic Info
-    AuthInfo getAuthLabel(String authLabelKey);
-
-    List<AuthInfo> getRoleAuthLabel();
-
-    List<AuthInfo> getDataAuthLabel();
-
-    List<AuthInfo> getAllAuthLabel(AuthKind kindType);
-
-    List<AuthInfo> getAllAuthLabelForAuthTreeDef(AuthKind kindType, AuthElementType elementType, DataSourceType dsType);
-
-    List<AuthInfo> getAllCategory();
-
-    List<AuthInfo> getCascadeAuthByLabel(String authLabel);
-
-    List<String> normalizeRoleAuthLabels(List<String> authLabels);
+public interface DmAuthServiceForManage extends DmAuthLabelService {
 
     // for Commons
     List<RdpAuthObjectVO> listElements(String uid, List<String> levels, AuthKind authKind);

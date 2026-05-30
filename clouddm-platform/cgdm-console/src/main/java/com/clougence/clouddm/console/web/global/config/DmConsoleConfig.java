@@ -157,8 +157,6 @@ public class DmConsoleConfig {
     protected int          asyncExecLifetimeHr;
     @Value("${clougence.rdp.consoletask.engine.async.fallbackmi:2}")
     protected int          asyncExecFallBackMi;
-    @Value("${clougence.rdp.license.server.address:http://127.0.0.1:8333}")
-    private String         licenseServerAddress;
     @Value("${spring.profiles.active:Unknown}")
     private String         activeProfile;
     @Value("${clougence.rdp.install.s3.ak:s3DownloadAk}")
@@ -171,8 +169,6 @@ public class DmConsoleConfig {
     private String         awsMarketplaceSk;
     @Value("${clougence.rdp.saas.marketplace.aws.region:#{NULL}}")
     private String         awsMarketplaceRegion;
-    @Value("${clougence.saas.managed.primaryuid:#{NULL}}")
-    private String         saasManagedPrimaryUid;
     @Value("${clougence.rdp.sms.aliyun.ak:accessKeyId}")
     private String         aliyunAlertAk;
     @Value("${clougence.rdp.sms.aliyun.sk:accessSecret}")

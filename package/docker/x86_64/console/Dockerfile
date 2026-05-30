@@ -4,7 +4,7 @@ FROM ${BASE_IMAGE}
 # CloudDM Web Service Port (config: server.port)
 ENV APP_WEB_PORT=8222
 # CloudDM Web JWT secret(config: jwt.secret)
-ENV APP_WEB_JWT=jwt67843ad4s118123ycgve45uk12ghd3vli4u510fd9z35hec2hegre876n1+g&3#s-a8s+\$!2o
+ENV APP_WEB_JWT=jwt67843ad4s118123ycgve45uk12ghd3vli4u510fd9z35hec2hegre876n1g3sa8s2o
 # CloudDM HA Service Name (config: clouddm.rsocket.dns)
 ENV APP_SERVE_NAME=127.0.0.1
 # Sidecar Service Port (config: clouddm.rsocket.console.port)

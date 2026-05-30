@@ -27,7 +27,7 @@ import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstructOrder;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
+import com.clougence.clouddm.console.web.component.auth.DmAuthLabelService;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
@@ -65,7 +65,7 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
     @Resource
     private DmConsoleConfig                rdpConfig;
     @Resource
-    private DmAuthServiceForManage         rdpDsAuthManagerService;
+    private DmAuthLabelService             authLabelService;
 
     private final AtomicBoolean            init             = new AtomicBoolean(false);
     private final Map<String, Set<String>> innerRoleInfoDef = new TreeMap<>();
@@ -178,7 +178,7 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
         roleDO.setRoleName(fo.getRoleName());
         roleDO.setAliasName(fo.getRoleName());
         roleDO.setInnerTag(false);
-        roleDO.setRoleAuthLabels(this.rdpDsAuthManagerService.normalizeRoleAuthLabels(fo.getAuthLabelList()));
+        roleDO.setRoleAuthLabels(this.authLabelService.normalizeRoleAuthLabels(fo.getAuthLabelList()));
 
         int insert = this.authDal.roleMapper().insert(roleDO);
         return new AddRoleMO(insert != 0, roleDO.getId());
@@ -232,10 +232,10 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.ROLE_UPDATE_IS_INNER_ERROR.name(), roleDO.getAliasName()));
         }
 
-        Set<String> keepLabel = new HashSet<>(this.rdpDsAuthManagerService.normalizeRoleAuthLabels(fo.getAuthLabelList()));
+        Set<String> keepLabel = new HashSet<>(this.authLabelService.normalizeRoleAuthLabels(fo.getAuthLabelList()));
 
         // find all need remove
-        List<AuthInfo> allLabel = this.rdpDsAuthManagerService.getRoleAuthLabel();
+        List<AuthInfo> allLabel = this.authLabelService.getRoleAuthLabel();
         List<String> removeLabel = allLabel.stream().filter(a -> a.getAuthType() == AuthInfoType.Auth).map(AuthInfo::getKey).collect(Collectors.toList());
         removeLabel.removeAll(keepLabel);
 
@@ -243,7 +243,7 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
         Set<String> finalLabel = new HashSet<>(roleDO.getRoleAuthLabels());
         finalLabel.removeAll(removeLabel);
         finalLabel.removeIf(label -> {
-            AuthInfo authInfo = this.rdpDsAuthManagerService.getAuthLabel(label);
+            AuthInfo authInfo = this.authLabelService.getAuthLabel(label);
             return authInfo != null && authInfo.getAuthType() == AuthInfoType.Category;
         });
         finalLabel.addAll(keepLabel);

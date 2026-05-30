@@ -30,7 +30,7 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.GlobalDeploySite;
-import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
+import com.clougence.clouddm.console.web.component.auth.DmAuthLabelService;
 import com.clougence.clouddm.console.web.component.auth.DmUserService;
 import com.clougence.clouddm.console.web.constants.CheckSubAccountType;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
@@ -91,22 +91,22 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     @Resource
     private RdpUserConfigService   rdpUserConfigService;
     @Resource
-    private DmAuthServiceForManage rdpDsAuthManagerService;
+    private DmAuthLabelService     authLabelService;
     @Resource
     private List<RdpNotifyService> notifyServices;
 
     @Override
     public List<AuthInfo> allAuthLabelByUser(String puid, String uid) {
         if (StringUtils.equals(puid, uid)) {
-            return this.rdpDsAuthManagerService.getRoleAuthLabel();
+            return this.authLabelService.getRoleAuthLabel();
         } else {
             DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(uid);
 
             Long roleId = userDO.getRoleId();
             DmAuthRoleDO dmRoleDO = this.authDal.roleMapper().selectById(roleId);
-            Set<String> effectiveAuthLabels = new HashSet<>(this.rdpDsAuthManagerService.normalizeRoleAuthLabels(dmRoleDO.getRoleAuthLabels()));
+            Set<String> effectiveAuthLabels = new HashSet<>(this.authLabelService.normalizeRoleAuthLabels(dmRoleDO.getRoleAuthLabels()));
 
-            return this.rdpDsAuthManagerService.getRoleAuthLabel().stream().filter(authInfo -> {
+            return this.authLabelService.getRoleAuthLabel().stream().filter(authInfo -> {
                 return authInfo.getAuthType() == AuthInfoType.Auth && effectiveAuthLabels.contains(authInfo.getKey());
             }).collect(Collectors.toList());
         }
@@ -114,7 +114,7 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
 
     @Override
     public Collection<AuthInfo> allAuthMenuCategoryByUser(String puid, String uid) {
-        List<AuthInfo> tmpDef = this.rdpDsAuthManagerService.getAllCategory();
+        List<AuthInfo> tmpDef = this.authLabelService.getAllCategory();
         List<String> support = new ArrayList<>();
         support.add(RdpFeatureIDs.PRODUCT_CLOUD_RDP);
         support.add(RdpFeatureIDs.PRODUCT_CLOUD_DM);
@@ -556,68 +556,6 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         this.authDal.userMapper().updateUserAkSk(puid, newAccessKey, newSecretKey);
         return ResWebDataUtils.buildSuccess("OK");
     }
-
-    //    @Override
-    //    public LoginMO switchSaasResMode(String puid, String uid, SwitchSaasModeFO fo) {
-    //        if (GlobalDeployMode.inPrivate()) {
-    //            throw new RuntimeException("On-premise mode deployment not support saas mode switch.");
-    //        }
-    //
-    //        String managedUid = rdpConfig.getSaasManagedPrimaryUid();
-    //        if (StringUtils.isBlank(managedUid)) {
-    //            throw new IllegalArgumentException("Have no saas managed uid config,can not switch saas resource mode.");
-    //        }
-    //
-    //        DmAuthUserDO managedUser = authDal.userMapper().queryByUid(managedUid);
-    //        if (managedUser == null) {
-    //            throw new IllegalArgumentException("Saas managed user (" + managedUser + ") not exist.");
-    //        }
-    //
-    //        DmAuthUserDO sUser;
-    //        if (fo.getSaasResMode() == SaasResMode.MANAGED && puid.equals(uid)) {
-    //            // Primary account change to MANAGED
-    //            DmAuthUserDO bindSubAccount = authDal.userMapper().queryBySubAccountByBindInfo(managedUser.getId(), puid, AccountBindType.MANAGED);
-    //            if (bindSubAccount == null) {
-    //                DmAuthUserDO pUser = authDal.userMapper().queryByUid(puid);
-    //
-    //                //init one
-    //                Long id = addSubAccountForSaasManagedBind(managedUser.getUid(), AccountBindType.MANAGED, pUser);
-    //                bindSubAccount = authDal.userMapper().selectById(id);
-    //
-    //                if (bindSubAccount == null) {
-    //                    throw new RuntimeException("Can not switch to MANAGED saas cause bind user failed.");
-    //                }
-    //            }
-    //
-    //            sUser = bindSubAccount;
-    //        } else if (fo.getSaasResMode() == SaasResMode.BYOC && !puid.equals(uid)) {
-    //            // Sub account change to BYOC
-    //            DmAuthUserDO bindSubAccount = authDal.userMapper().queryByUid(uid);
-    //            if (bindSubAccount == null || bindSubAccount.getParentId() == null || bindSubAccount.getParentId() <= 0) {
-    //                throw new IllegalArgumentException("Managed sub uid is not exist or user in managed is an primary user.uid:" + uid);
-    //            }
-    //
-    //            if (bindSubAccount.getBindType() != AccountBindType.MANAGED || StringUtils.isBlank(bindSubAccount.getBindAccount())) {
-    //                throw new IllegalArgumentException("Managed sub user account bind type is not MANAGED or bind account is blank.uid:" + uid);
-    //            }
-    //
-    //            DmAuthUserDO userDO = authDal.userMapper().queryByUid(bindSubAccount.getBindAccount());
-    //            if (userDO == null) {
-    //                throw new IllegalArgumentException("Managed sub user bind account user (" + bindSubAccount.getBindAccount() + ") is not exist.");
-    //            }
-    //
-    //            sUser = userDO;
-    //        } else {
-    //            throw new IllegalArgumentException("Current user " + uid + "  can not switch to " + fo.getSaasResMode());
-    //        }
-    //
-    //        String token = rdpJwtService.genJwtToken(sUser);
-    //
-    //        LoginMO l = new LoginMO();
-    //        l.setSuccess(true);
-    //        l.setToken(token);
-    //        return l;
-    //    }
 
     public Long addSubAccountForSaasManagedBind(String managedUid, AccountBindType bindType, DmAuthUserDO primaryUser) {
         String generatePwd = Long.toHexString(System.currentTimeMillis()) + "!@#";

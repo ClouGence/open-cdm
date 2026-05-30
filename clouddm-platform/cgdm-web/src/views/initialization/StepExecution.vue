@@ -43,7 +43,7 @@
       <div v-else class="summary-empty">{{ $t('initialization.noExecutionScripts') }}</div>
     </div>
 
-    <div v-if="showFallbackErrorDetail" class="summary-section summary-section-error">
+    <div v-if="showFallbackErrorDetail" ref="fallbackErrorDetail" class="summary-section summary-section-error">
       <div class="summary-title-row">
         <div class="summary-title error-title">{{ $t('initialization.processErrorDetail') }}</div>
         <button type="button" class="detail-fullscreen-button" @click="openFullscreenDetail()">[{{ $t('initialization.fullscreen') }}]</button>
@@ -112,6 +112,15 @@ export default {
   },
   watch: {
     executionScripts(newScripts, oldScripts) {
+      const errorScript = this.findNewErrorScript(newScripts, oldScripts);
+      if (errorScript && errorScript.scriptName) {
+        this.expandedScriptName = errorScript.scriptName;
+        this.$nextTick(() => {
+          this.scrollToScript(errorScript.scriptName);
+        });
+        return;
+      }
+
       const anchorScriptName = this.findAutoScrollAnchorScriptName(newScripts);
       if (!anchorScriptName || anchorScriptName === this.findAutoScrollAnchorScriptName(oldScripts)) {
         return;
@@ -119,6 +128,15 @@ export default {
 
       this.$nextTick(() => {
         this.scrollToScript(anchorScriptName);
+      });
+    },
+    operationErrorDetail(value) {
+      if (!value) {
+        return;
+      }
+
+      this.$nextTick(() => {
+        this.scrollToFallbackErrorDetail();
       });
     }
   },
@@ -188,8 +206,35 @@ export default {
       const anchorItem = scripts[anchorIndex];
       return anchorItem && anchorItem.scriptName ? anchorItem.scriptName : '';
     },
+    findNewErrorScript(newScripts, oldScripts) {
+      if (!Array.isArray(newScripts) || !newScripts.length) {
+        return null;
+      }
+
+      const oldStatusByName = new Map(
+        (Array.isArray(oldScripts) ? oldScripts : []).filter((item) => item && item.scriptName).map((item) => [item.scriptName, item.status])
+      );
+
+      return (
+        newScripts.find(
+          (item) => item && item.scriptName && item.status === 'ERROR' && item.errorDetail && oldStatusByName.get(item.scriptName) !== 'ERROR'
+        ) || null
+      );
+    },
     scrollToScript(scriptName) {
       const targetElement = this.scriptEntryRefs[scriptName];
+      if (!targetElement || typeof targetElement.scrollIntoView !== 'function') {
+        return;
+      }
+
+      targetElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+        inline: 'nearest'
+      });
+    },
+    scrollToFallbackErrorDetail() {
+      const targetElement = this.$refs.fallbackErrorDetail;
       if (!targetElement || typeof targetElement.scrollIntoView !== 'function') {
         return;
       }

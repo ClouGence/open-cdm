@@ -123,6 +123,52 @@ generate_k8s_files() {
   done
 }
 
+host_platform() {
+  case "$(uname -m)" in
+    x86_64|amd64) echo "x86_64" ;;
+    arm64|aarch64) echo "arm64" ;;
+    *) echo "" ;;
+  esac
+}
+
+contains_platform() {
+  local expected="$1"
+  local plat
+  for plat in "${PLATFORMS[@]}"; do
+    [ "$plat" = "$expected" ] && return 0
+  done
+  return 1
+}
+
+preferred_local_platform() {
+  local host; host="$(host_platform)"
+  if [ -n "$host" ] && contains_platform "$host"; then
+    echo "$host"
+    return
+  fi
+  echo "${PLATFORMS[0]}"
+}
+
+print_local_run_commands() {
+  local plat; plat="$(preferred_local_platform)"
+  local tag; tag="$(image_tag "$plat" "$VERSION")"
+  local image="clougence/cgdm-alone:${tag}"
+  local compose_file="$PACKAGE_BUILD_DIR/docker-alone-${tag}.yml"
+
+  cat <<EOF
+
+Local verification commands:
+  standalone container:
+    docker rm -f cgdm-alone >/dev/null 2>&1 || true; docker run -d --name cgdm-alone -p 8222:8222 -p 8008:8008 ${image}
+
+  compose with persisted volumes:
+    docker compose -f ${compose_file} down; docker compose -f ${compose_file} up -d
+
+  open:
+    http://localhost:8222/#/initialization
+EOF
+}
+
 # ============================================================================
 # main
 # ============================================================================
@@ -143,3 +189,4 @@ for plat in "${PLATFORMS[@]}"; do
 done
 
 echo "Docker build completed. platforms=${PLATFORMS[*]} version=${VERSION}"
+print_local_run_commands
