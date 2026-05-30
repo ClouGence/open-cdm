@@ -3775,7 +3775,7 @@
   "initialization.generate": "生成",
   "initialization.jdbcMode.generated": "生成模式",
   "initialization.jdbcMode.custom": "自定义模式",
-  "initialization.jdbcDataSourceType": "类型",
+  "initialization.jdbcDataSourceType": "驱动",
   "initialization.jdbcDataSourceTypeValue": "MySQL",
   "initialization.mysqlDriverLabel": "驱动",
   "initialization.mysqlDriverTitle": "MySQL 8.0+ 驱动",
