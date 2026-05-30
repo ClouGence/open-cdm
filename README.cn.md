@@ -106,7 +106,7 @@ docker run -d --name cgdm-alone \
   cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.0
 ```
 
-### 快速升级
+### 升级
 
 升级前建议先备份 Docker 卷或数据库数据。升级时删除旧容器并使用相同卷启动新版本镜像即可保留已有数据。
 

@@ -105,7 +105,7 @@ docker run -d --name cgdm-alone \
   cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.0
 ```
 
-### Quick Upgrade
+### Upgrade
 
 Before upgrading, back up Docker volumes or database data. To upgrade, remove the old container and start the new image with the same volumes.
 
