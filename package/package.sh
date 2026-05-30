@@ -71,6 +71,7 @@ Examples:
   ./package.sh --build                      compile & package only
   ./package.sh --docker                     compile → build all Docker images
   ./package.sh --build --docker             compile + all Docker images
+  ./package.sh --build --docker --mirrors   compile → build all Docker images with built-in mirrors
   ./package.sh --build --docker x86_64      compile + x86_64 Docker images only
   ./package.sh --docker arm64 --mirrors     Docker arm64 images with built-in mirrors
 
