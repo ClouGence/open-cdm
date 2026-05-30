@@ -21,6 +21,10 @@ sql_escape() {
   printf '%s' "$1" | sed "s/'/''/g"
 }
 
+sed_replacement_escape() {
+  printf '%s' "$1" | sed -e 's/[\/&\\]/\\&/g'
+}
+
 mysql_sql() {
   mysql --protocol=socket --socket="$MYSQL_SOCKET" -uroot "$@"
 }
@@ -137,15 +141,24 @@ DST_CONF_FILE=/root/cgdm/alone/conf/alone.properties
 if [ ! -f "$DST_CONF_FILE" ]; then
   echo "first startup: generating alone.properties from env."
   mkdir -p /root/cgdm/alone/conf
-  sed -e "s/%APP_WEB_PORT%/$APP_WEB_PORT/g" \
-      -e "s/%APP_WEB_JWT%/$APP_WEB_JWT/g" \
-      -e "s/%APP_SERVE_NAME%/$APP_SERVE_NAME/g" \
-      -e "s/%APP_SERVE_PORT%/$APP_SERVE_PORT/g" \
-      -e "s/%DB_HOST%/$DB_HOST/g" \
-      -e "s/%DB_PORT%/$DB_PORT/g" \
-      -e "s/%DB_DATABASE%/$DB_DATABASE/g" \
-      -e "s/%DB_USERNAME%/$DB_USERNAME/g" \
-      -e "s/%DB_PASSWORD%/$DB_PASSWORD/g" \
+  APP_WEB_PORT_SED=$(sed_replacement_escape "${APP_WEB_PORT:-}")
+  APP_WEB_JWT_SED=$(sed_replacement_escape "${APP_WEB_JWT:-}")
+  APP_SERVE_NAME_SED=$(sed_replacement_escape "${APP_SERVE_NAME:-}")
+  APP_SERVE_PORT_SED=$(sed_replacement_escape "${APP_SERVE_PORT:-}")
+  DB_HOST_SED=$(sed_replacement_escape "${DB_HOST:-}")
+  DB_PORT_SED=$(sed_replacement_escape "${DB_PORT:-}")
+  DB_DATABASE_SED=$(sed_replacement_escape "${DB_DATABASE:-}")
+  DB_USERNAME_SED=$(sed_replacement_escape "${DB_USERNAME:-}")
+  DB_PASSWORD_SED=$(sed_replacement_escape "${DB_PASSWORD:-}")
+  sed -e "s/%APP_WEB_PORT%/$APP_WEB_PORT_SED/g" \
+      -e "s/%APP_WEB_JWT%/$APP_WEB_JWT_SED/g" \
+      -e "s/%APP_SERVE_NAME%/$APP_SERVE_NAME_SED/g" \
+      -e "s/%APP_SERVE_PORT%/$APP_SERVE_PORT_SED/g" \
+      -e "s/%DB_HOST%/$DB_HOST_SED/g" \
+      -e "s/%DB_PORT%/$DB_PORT_SED/g" \
+      -e "s/%DB_DATABASE%/$DB_DATABASE_SED/g" \
+      -e "s/%DB_USERNAME%/$DB_USERNAME_SED/g" \
+      -e "s/%DB_PASSWORD%/$DB_PASSWORD_SED/g" \
     /docker-entrypoint-init/copy_alone.properties > "$DST_CONF_FILE"
 fi
 

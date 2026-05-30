@@ -31,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
-import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForAppend;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForDelete;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForUpdate;
@@ -69,8 +68,6 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
     private DataSourceDal                       dsDal;
     @Resource
     private AuthDal                             authDal;
-    @Resource
-    private DmDsService                         dmDsService;
     private ScheduledExecutorService            cleanExpiredAuthExecutor;
 
     private final AtomicBoolean                 running                  = new AtomicBoolean(false);
@@ -329,7 +326,7 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
         }
         List<Long> dsIds = dsDOs.stream().map(DmDsDO::getId).collect(Collectors.toList());
 
-        List<DmDsConfigDO> confList = this.dmDsService.fetchDsConfigByIds(puid, dsIds);
+        List<DmDsConfigDO> confList = this.dsDal.configMapper().queryByIds(puid, dsIds);
         List<Long> enableQueryDsIds = confList.stream().map(DmDsConfigDO::getDataSourceId).collect(Collectors.toList());
 
         List<AuthBrowseObject> objs = new ArrayList<>();
