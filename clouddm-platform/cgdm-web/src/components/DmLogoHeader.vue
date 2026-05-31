@@ -2,7 +2,9 @@
   <div class="logo-header" :class="{ 'is-dark': currentTheme === 'dark' }">
     <div class="logo-header-container">
       <div class="left">
-        <cc-iconfont name="dm" size="28" :color="`${currentTheme === 'dark' ? '#ffffff' : '#222222'}`" />
+        <span class="product-title-frame">
+          <img class="product-title" :src="headerTitleUrl" alt="CloudDM" />
+        </span>
         <div class="login-type">
           {{ TYPES[type] }}
         </div>
@@ -20,6 +22,7 @@
 
 <script>
 import LangSwitcher from '@/components/LangSwitcher';
+import { WEBSIDE_HEADER } from '@/utils/pluginResource';
 
 export default {
   name: 'DmLogoHeader',
@@ -32,6 +35,9 @@ export default {
   computed: {
     currentTheme() {
       return this.$store.state.theme || 'light';
+    },
+    headerTitleUrl() {
+      return WEBSIDE_HEADER;
     }
   },
   data() {
@@ -78,6 +84,24 @@ export default {
   .left {
     display: flex;
     align-items: center;
+
+    .product-title-frame {
+      width: 184px;
+      height: 32px;
+      flex: 0 0 184px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .product-title {
+      width: 184px;
+      height: 32px;
+      display: block;
+      object-fit: contain;
+      object-position: center;
+    }
 
     div {
       font-size: 24px;

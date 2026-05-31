@@ -188,6 +188,7 @@ import { encryptMixin } from '@/mixins/encryptMixin';
 import { isNumber } from '@/components/util';
 import { filterGlobalSettingByBuild } from '@/utils/product';
 import formatError from '@/services/formatError';
+import { setPageIcon, WEBSIDE_FAVICON } from '@/utils/pluginResource';
 
 export default {
   name: 'Login',
@@ -505,13 +506,9 @@ export default {
           }
         }
 
-        const icon_url = '/dm.ico';
+        const icon_url = WEBSIDE_FAVICON;
         const title = 'CloudDM';
-        const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
-        link.type = 'image/x-icon';
-        link.rel = 'shortcut icon';
-        link.href = icon_url;
-        document.getElementsByTagName('head')[0].appendChild(link);
+        setPageIcon(icon_url);
         document.title = title;
 
         // CloudDM 独立产品不支持暗色主题：强制设置为亮色并持久化

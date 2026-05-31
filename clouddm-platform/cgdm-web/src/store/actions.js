@@ -18,6 +18,7 @@ import i18n from '@/i18n';
 import { createWebSocket, hasWebSocketInstance } from '@/services/socket';
 import { services } from '@/services/http';
 import { filterGlobalSettingByBuild, supportsCloudCanalBuild, supportsCloudDMBuild } from '@/utils/product';
+import { setPageIcon, WEBSIDE_FAVICON } from '@/utils/pluginResource';
 
 const initWebsocket = (globalSetting, loggedIn) => {
   if (hasWebSocketInstance()) {
@@ -103,7 +104,7 @@ export default {
       let icon_url = '';
       let title = '';
       if (PRODUCT_CLOUD_DM && !PRODUCT_CLOUD_CANAL) {
-        icon_url = '/dm.ico';
+        icon_url = WEBSIDE_FAVICON;
         title = 'CloudDM';
       }
       if (PRODUCT_CLOUD_DM && PRODUCT_CLOUD_CANAL) {
@@ -114,11 +115,7 @@ export default {
         icon_url = '/cc.ico';
         title = 'CloudCanal';
       }
-      const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
-      link.type = 'image/x-icon';
-      link.rel = 'shortcut icon';
-      link.href = icon_url;
-      document.getElementsByTagName('head')[0].appendChild(link);
+      setPageIcon(icon_url);
       document.title = title;
     }
   },

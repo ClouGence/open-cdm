@@ -97,6 +97,7 @@ public class JwtManager {
         includeVerifyStartWith.add(DmControllerUrlPrefix.CONSOLE_PREFIX);
         ignoreEndWithUrl.add(DmControllerUrlPrefix.CONSOLE_PREFIX + "/version");
         ignoreEndWithUrl.add(DmControllerUrlPrefix.CONSOLE_PREFIX + "/dm_global_settings");
+        ignoreEndWithUrl.add(DmControllerUrlPrefix.CONSOLE_PREFIX + "/resource/fetch");
     }
 
     private boolean ignoreVerify(HttpServletRequest request) {

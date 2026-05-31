@@ -31,6 +31,7 @@ include 'boot-sidecar'; project(":boot-sidecar").projectDir = file('clouddm-boot
 // plugins for inner
 include 'inner-driver-loader'; project(":inner-driver-loader").projectDir = file('clouddm-plugins/clouddm-inner/inner-driver-loader')
 include 'inner-auth-define'; project(":inner-auth-define").projectDir = file('clouddm-plugins/clouddm-inner/inner-auth-define')
+include 'inner-website'; project(":inner-website").projectDir = file('clouddm-plugins/clouddm-inner/inner-website')
 
 // plugins for features
 include 'plus-sec-rules'; project(":plus-sec-rules").projectDir = file('clouddm-plugins/clouddm-features/plus-sec-rules')

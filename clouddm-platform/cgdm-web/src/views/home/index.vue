@@ -3,7 +3,9 @@
     <dm-water-mark :input-text="watermarkStr" ref="watermark" v-if="!isDesktop && globalSetting.enableWaterMark" />
     <div class="header">
       <div class="brand-container" @click="handleGoBackHome">
-        <cc-iconfont :size="18" color="#FEFEFE" name="dm"></cc-iconfont>
+        <span class="product-title-frame">
+          <img class="product-title" :src="headerTitleUrl" alt="CloudDM" />
+        </span>
       </div>
       <navbar style="flex: 1" />
       <div class="user-info" v-if="!isDesktop">
@@ -184,6 +186,7 @@ import { UPDATE_USERINFO } from '@/store/mutationTypes';
 import { hasWebSocketInstance, webSocketClose } from '@/services/socket';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import { setAppLanguage } from '@/i18n';
+import { WEBSIDE_HEADER } from '@/utils/pluginResource';
 
 export default {
   name: 'Home',
@@ -240,6 +243,9 @@ export default {
     ...mapGetters(['isDesktop', 'buildVersion', 'includesDM']),
     ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'remainTrialDay']),
     ...mapGetters(['isSaas']),
+    headerTitleUrl() {
+      return WEBSIDE_HEADER;
+    },
     getDmProductClusterList() {
       return [];
     }
@@ -576,6 +582,27 @@ export default {
 
     .brand-container {
       padding: 0 15px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+
+      .product-title-frame {
+        width: 184px;
+        height: 32px;
+        flex: 0 0 184px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .product-title {
+        width: 184px;
+        height: 32px;
+        display: block;
+        object-fit: contain;
+        object-position: center;
+      }
     }
 
     .ant-menu-horizontal {
