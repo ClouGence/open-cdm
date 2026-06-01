@@ -194,6 +194,10 @@ export default {
         let result = null;
         try {
           const response = await this.requestLanguageWebSocket('VALIDATE', request);
+          if (this.handleLanguageServiceMessage(response)) {
+            this.applyBackendDiagnostics([]);
+            return;
+          }
           result = response?.result;
         } catch {
           this.applyBackendDiagnostics([]);
@@ -677,6 +681,9 @@ export default {
       }
       try {
         const response = await this.requestLanguageWebSocket('COMPLETE', request);
+        if (this.handleLanguageServiceMessage(response)) {
+          return this.getFallbackKeywordSuggest();
+        }
         const result = response?.result;
         if (result && !result.degraded && result.supported !== false) {
           return (result.items || []).map((item) => this.toMonacoCompletionItem(item));
@@ -685,6 +692,18 @@ export default {
         // ignore language-service failures and use local fallback.
       }
       return this.getFallbackKeywordSuggest();
+    },
+    handleLanguageServiceMessage(response) {
+      if (response?.resultType !== 'Message') {
+        return false;
+      }
+
+      const entity = response.entities?.[0];
+      const message = entity?.message;
+      if (message) {
+        this.$Message.error(message);
+      }
+      return true;
     },
     async getDelayedBackendCompletionSuggest(model, position) {
       const versionId = model.getVersionId();
