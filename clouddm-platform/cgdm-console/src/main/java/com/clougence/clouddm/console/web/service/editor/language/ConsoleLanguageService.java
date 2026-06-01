@@ -18,6 +18,7 @@ package com.clougence.clouddm.console.web.service.editor.language;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -103,11 +104,11 @@ public class ConsoleLanguageService implements UnifiedPostConstruct, ConsoleLang
             switch (fo.getLanguageType()) {
                 case COMPLETE:
                     acquireOrThrow(fo);
-                    submitComplete(fo, (CompletionRequest) parsed, consumer);
+                    submitComplete(fo, (CompletionRequest) parsed, releaseRequestCounter(fo, consumer));
                     break;
                 case VALIDATE:
                     acquireOrThrow(fo);
-                    submitValidate(fo, (ValidateRequest) parsed, consumer);
+                    submitValidate(fo, (ValidateRequest) parsed, releaseRequestCounter(fo, consumer));
                     break;
                 case SPLIT:
                     submitSplit(fo, (SplitRequest) parsed, consumer);
@@ -187,6 +188,24 @@ public class ConsoleLanguageService implements UnifiedPostConstruct, ConsoleLang
             this.currentRequests.decrementAndGet();
             throw new ErrorMessageException(DmErrorCode.DS_LANGUAGE_ERROR.code(), DmI18nUtils.getMessage(I18nDmMsgKeys.DS_LANGUAGE_USER_BUSY.name()));
         }
+    }
+
+    private Consumer<WsResult> releaseRequestCounter(WsRequestFO fo, Consumer<WsResult> consumer) {
+        AtomicBoolean released = new AtomicBoolean();
+        return result -> {
+            try {
+                consumer.accept(result);
+            } finally {
+                if (released.compareAndSet(false, true)) {
+                    this.currentRequests.decrementAndGet();
+                    String userId = fo.getCurrentUserId();
+                    AtomicInteger userCounter = this.currentRequestsByUser.get(userId);
+                    if (userCounter != null && userCounter.decrementAndGet() <= 0) {
+                        this.currentRequestsByUser.remove(userId, userCounter);
+                    }
+                }
+            }
+        };
     }
 
     private void submitTask(WsLanguageFO fo, AbstractRequest request, Consumer<WsResult> consumer, Runnable task) {
