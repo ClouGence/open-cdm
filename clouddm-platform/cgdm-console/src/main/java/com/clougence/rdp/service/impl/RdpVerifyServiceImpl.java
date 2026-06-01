@@ -19,7 +19,6 @@ import static com.clougence.clouddm.platform.dal.model.auth.VerifyType.SMS_VERIF
 
 import java.time.Duration;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,11 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.exception.ConsoleErrorCode;
 import com.clougence.clouddm.api.common.exception.ConsoleRuntimeException;
-import com.clougence.clouddm.api.common.rpc.ResWebData;
-import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.AlarmLevel;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.GlobalDeploySite;
-import com.clougence.clouddm.console.web.component.alert.model.SendMsgResult;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
@@ -46,10 +41,8 @@ import com.clougence.clouddm.console.web.util.NamedThreadFactory;
 import com.clougence.clouddm.console.web.util.RandomStrUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.auth.*;
-import com.clougence.rdp.service.RdpUserAlertService;
 import com.clougence.rdp.service.RdpVerifyService;
 import com.clougence.rdp.service.model.CheckVerifyMO;
-import com.clougence.rdp.service.model.MailDTO;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -64,12 +57,9 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstruct {
 
     @Autowired
-    private DmConsoleConfig     rdpConfig;
+    private DmConsoleConfig rdpConfig;
     @Resource
-    private AuthDal             authDal;
-
-    @Resource
-    private RdpUserAlertService rdpUserAlertService;
+    private AuthDal         authDal;
 
     @Override
     public void init() {
@@ -330,32 +320,11 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
                 if (GlobalDeploySite.currDeploySite == GlobalDeploySite.china) {
                     throw new RuntimeException("China site not support sending email verify code.");
                 }
-                // email config not null will send email
-                if (StringUtils.isNotBlank(rdpConfig.getEmailHostConfigKey()) && StringUtils.isNotBlank(rdpConfig.getEmailFromConfigKey())
-                    && StringUtils.isNotBlank(rdpConfig.getEmailUserNameConfigKey()) && StringUtils.isNotBlank(rdpConfig.getEmailPasswordConfigKey())) {
-                    SendMsgResult r = rdpUserAlertService.chooseMailAlertService()
-                        .sendMail(MailDTO.builder()
-                            .subject(emailSubject)
-                            .mailTo(Collections.singletonList(verifyDO.getEmail()))
-                            .content(emailContent)
-                            .isHtml(true)
-                            .build(), null, null);
-                    handleSendResult(r);
-                    log.info(verifyDO.getVerifyCodeType() + " send code to email " + verifyDO.getEmail() + " successful.");
-                }
                 break;
             }
             default:
                 throw new RuntimeException("unsupported verify type:" + verifyDO.getVerifyType());
         }
-    }
-
-    protected void handleSendResult(SendMsgResult r) {
-        if (r.success() || rdpConfig.isProductTrial()) {
-            return;
-        }
-
-        throw new RuntimeException("Send message error.msg:" + r.errMsg());
     }
 
     private String fetchEmailMsg(VerifyCodeType verifyCodeType, String code, boolean isContent) {
@@ -660,111 +629,6 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
         if (userDO == null) {
             throw new ConsoleRuntimeException(ConsoleErrorCode.NEED_REGISTER_FIRST, phoneNumber);
         }
-    }
-
-    @Override
-    public ResWebData<Boolean> verifyMail(String uid) {
-        DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(uid);
-        if (userDO == null) {
-            throw new IllegalArgumentException("User not exist.");
-        }
-
-        boolean isSubAccount = (userDO.getAccountType() != null && userDO.getAccountType() == AccountType.SUB_ACCOUNT);
-        verifyEmailRegistered(isSubAccount, userDO.getSubAccount(), userDO.getEmail());
-
-        DmAuthVerifyDO verifyRecord;
-        if (isSubAccount) {
-            verifyRecord = authDal.verifyMapper().queryByUidAndType(VerifyType.EMAIL_VERIFY_CODE, VerifyCodeType.VERIFY_EMAIL_TEST, userDO.getUid());
-        } else {
-            verifyRecord = authDal.verifyMapper().queryByPrimaryEmail(VerifyType.EMAIL_VERIFY_CODE, VerifyCodeType.VERIFY_EMAIL_TEST, userDO.getEmail());
-        }
-
-        if (verifyRecord == null) {
-            DmAuthVerifyDO verifyDO = new DmAuthVerifyDO();
-            verifyDO.setEmail(userDO.getEmail());
-            verifyDO.setAccountType(userDO.getAccountType());
-            verifyDO.setVerifyCodeType(VerifyCodeType.VERIFY_EMAIL_TEST);
-            verifyDO.setVerifyType(VerifyType.EMAIL_VERIFY_CODE);
-            verifyDO.setUid(uid);
-            authDal.verifyMapper().insert(verifyDO);
-            verifyRecord = authDal.verifyMapper().queryByPrimaryEmail(VerifyType.EMAIL_VERIFY_CODE, VerifyCodeType.VERIFY_EMAIL_TEST, userDO.getEmail());
-        }
-
-        if (judgeCodeFrequencyTooFast(verifyRecord)) {
-            throw new ConsoleRuntimeException(ConsoleErrorCode.VERIFY_EMAIL_FREQUENCY_TOO_FAST);
-        }
-
-        authDal.verifyMapper().updateVerifyCodeAndSendTime(null, new Date(), verifyRecord.getId());
-
-        MailDTO mailDTO = MailDTO.builder()
-            .content(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_EMAIL_CONTENT_MSG.name(), GlobalDeploySite.rdpProductName()))
-            .subject(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_EMAIL_SUBJECT_MSG.name(), GlobalDeploySite.rdpProductName()))
-            .mailTo(Collections.singletonList(userDO.getEmail()))
-            .build();
-        SendMsgResult r1 = this.rdpUserAlertService.chooseMailAlertService().sendMail(mailDTO, userDO, Collections.singletonList(userDO.getUid()));
-        if (!r1.success()) {
-            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_EMAIL_SEND_ERROR.name(), r1.errMsg()));
-        } else {
-            return ResWebDataUtils.buildSuccess();
-        }
-    }
-
-    @Override
-    public ResWebData<Boolean> verifyIm(String uid, String puid) {
-        DmAuthUserDO receiver = this.authDal.userMapper().queryByUid(uid);
-        DmAuthUserDO owner = receiver;
-
-        if (receiver == null) {
-            throw new IllegalArgumentException("User not exist.");
-        }
-
-        boolean isSubAccount = (receiver.getAccountType() != null && receiver.getAccountType() == AccountType.SUB_ACCOUNT);
-        verifyEmailRegistered(isSubAccount, receiver.getSubAccount(), receiver.getEmail());
-
-        DmAuthVerifyDO verifyRecord;
-        if (isSubAccount) {
-            verifyRecord = authDal.verifyMapper().queryByUidAndType(VerifyType.SMS_VERIFY_CODE, VerifyCodeType.VERIFY_IM_TEST, receiver.getUid());
-            owner = this.authDal.userMapper().queryByUid(puid);
-        } else {
-            verifyRecord = authDal.verifyMapper().queryByPrimaryEmail(VerifyType.SMS_VERIFY_CODE, VerifyCodeType.VERIFY_IM_TEST, receiver.getEmail());
-        }
-
-        if (verifyRecord == null) {
-            DmAuthVerifyDO verifyDO = new DmAuthVerifyDO();
-            verifyDO.setEmail(receiver.getEmail());
-            verifyDO.setAccountType(receiver.getAccountType());
-            verifyDO.setVerifyCodeType(VerifyCodeType.VERIFY_IM_TEST);
-            verifyDO.setVerifyType(VerifyType.SMS_VERIFY_CODE);
-            verifyDO.setUid(uid);
-            authDal.verifyMapper().insert(verifyDO);
-            verifyRecord = authDal.verifyMapper().queryByPrimaryEmail(VerifyType.SMS_VERIFY_CODE, VerifyCodeType.VERIFY_IM_TEST, receiver.getEmail());
-        }
-
-        if (judgeCodeFrequencyTooFast(verifyRecord)) {
-            throw new ConsoleRuntimeException(ConsoleErrorCode.VERIFY_IM_FREQUENCY_TOO_FAST);
-        }
-
-        authDal.verifyMapper().updateVerifyCodeAndSendTime(null, new Date(), verifyRecord.getId());
-
-        String msg = DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_IM_CONTENT_MSG.name(), GlobalDeploySite.rdpProductName());
-
-        boolean imAlertAtAll = this.rdpUserAlertService.fetchUserImAlertAtAll(puid);
-
-        SendMsgResult r1 = this.rdpUserAlertService.chooseImAlertService(puid)
-            .sendMsg(buildMsgOwner(), "[MAJOR] " + msg, null, owner, Collections.singletonList(receiver), AlarmLevel.Major, imAlertAtAll);
-        if (!r1.success()) {
-            return ResWebDataUtils
-                .buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_IM_SEND_ERROR.name(), GlobalDeploySite.rdpProductName(), "[Major Level] " + r1.errMsg()));
-        }
-
-        SendMsgResult r2 = this.rdpUserAlertService.chooseImAlertService(puid)
-            .sendMsg(buildMsgOwner(), "[CRITICAL] " + msg, null, owner, Collections.singletonList(receiver), AlarmLevel.Critical, imAlertAtAll);
-        if (!r2.success()) {
-            return ResWebDataUtils
-                .buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_IM_SEND_ERROR.name(), GlobalDeploySite.rdpProductName(), "[Critical Level] " + r2.errMsg()));
-        }
-
-        return ResWebDataUtils.buildSuccess();
     }
 
     private String buildMsgOwner() {

@@ -35,6 +35,4 @@ public enum VerifyCodeType {
     FETCH_AUTH_CODE,
     VERIFY_OLD_ACCOUNT,
     SSO_REGISTER_BIND,
-    VERIFY_EMAIL_TEST,
-    VERIFY_IM_TEST,
 }

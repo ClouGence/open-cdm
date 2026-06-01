@@ -15,9 +15,8 @@
  */
 package com.clougence.rdp.service;
 
-import com.clougence.clouddm.api.common.rpc.ResWebData;
-import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
 import com.clougence.clouddm.console.web.model.fo.VerifyMO;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
 import com.clougence.rdp.service.model.CheckVerifyMO;
 
 /**
@@ -62,10 +61,6 @@ public interface RdpVerifyService {
     void updateEmailOrPhoneByUid(String uid, String phone, String email);
 
     void sendVerifyCodeByChangeAccount(VerifyMO verifyData, String uid, VerifyCodeType verifyCodeType, String smsTemplateCode);
-
-    ResWebData<Boolean> verifyIm(String uid, String puid);
-
-    ResWebData<Boolean> verifyMail(String uid);
 
     void sendSsoBindVerifyCode(VerifyMO verifyData);
 }

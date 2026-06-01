@@ -24,7 +24,6 @@ import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -507,22 +506,6 @@ public class RdpUserController {
                 return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.VERIFY_UNSUPPORTED_TYPE_ERROR.name()));
             }
         }
-    }
-
-    @RequestAuth(RDP_PRI_USER_NORMAL_CONF_R)
-    @RequestMapping(value = "/verifyMail", method = RequestMethod.POST)
-    public ResWebData<?> verifyMail(HttpServletRequest request) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.rdpVerifyService.verifyMail(puid);
-        return ResWebDataUtils.buildSuccess("success");
-    }
-
-    @RequestAuth(RDP_PRI_USER_NORMAL_CONF_R)
-    @RequestMapping(value = "/verifyIm", method = RequestMethod.POST)
-    public ResWebData<?> verifyIm(@NotNull HttpServletRequest request) {
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        return rdpVerifyService.verifyIm(uid, puid);
     }
 
     protected void addOpPwdTokenToCookie(HttpServletResponse response, String uid) {
