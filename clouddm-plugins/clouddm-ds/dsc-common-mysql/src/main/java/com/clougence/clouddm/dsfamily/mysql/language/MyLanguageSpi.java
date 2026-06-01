@@ -112,12 +112,56 @@ public class MyLanguageSpi implements DsLanguageSpi {
     }
 
     private static BlockLocation errorRange(AntlerSyntaxException e) {
+        int tokenLength = errorTokenLength(e.getMessage());
         CodeLocation start = new CodeLocation(e.getLine(), e.getColumn());
-        CodeLocation end = new CodeLocation(e.getLine(), e.getColumn() + 1);
+        CodeLocation end = new CodeLocation(e.getLine(), e.getColumn() + tokenLength);
         BlockLocation range = new BlockLocation();
         range.setStartPosition(start);
         range.setEndPosition(end);
         return range;
+    }
+
+    private static int errorTokenLength(String message) {
+        if (StringUtils.isBlank(message)) {
+            return 1;
+        }
+
+        String token = extractErrorToken(message, "mismatched input '");
+        if (token == null) {
+            token = extractErrorToken(message, "extraneous input '");
+        }
+        if (token == null) {
+            token = extractMissingToken(message);
+        }
+        return Math.max(1, token == null ? 1 : token.length());
+    }
+
+    private static String extractErrorToken(String message, String prefix) {
+        int start = message.indexOf(prefix);
+        if (start < 0) {
+            return null;
+        }
+
+        start += prefix.length();
+        int end = message.indexOf('\'', start);
+        if (end <= start) {
+            return null;
+        }
+        return message.substring(start, end);
+    }
+
+    private static String extractMissingToken(String message) {
+        int atIndex = message.lastIndexOf(" at '");
+        if (atIndex < 0) {
+            return null;
+        }
+
+        int start = atIndex + " at '".length();
+        int end = message.indexOf('\'', start);
+        if (end <= start) {
+            return null;
+        }
+        return message.substring(start, end);
     }
 
     private static String syntaxErrorMessage(AntlerSyntaxException e) {

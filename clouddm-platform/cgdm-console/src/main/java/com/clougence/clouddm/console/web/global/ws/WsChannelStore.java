@@ -68,9 +68,12 @@ public class WsChannelStore {
 
     public void handleMessage(WebSocketSession ws, WsMsg reqMsg) {
         String channelKey = reqMsg.getChannelKey();
-
-        //Objects.requireNonNull(body, "missing request info.");
-        log.info("WS[" + channelKey + "]:RECEIVE user(" + uid + "), type:" + reqMsg.getType().getCode());
+        if (reqMsg.getType() == null) {
+            log.warn("WS[" + channelKey + "]:RECEIVE user(" + uid + "), missing request type.");
+            return;
+        } else {
+            log.info("WS[" + channelKey + "]:RECEIVE user(" + uid + "), type:" + reqMsg.getType().getCode());
+        }
 
         switch (reqMsg.getType()) {
             case WS_REQ_ECHO:

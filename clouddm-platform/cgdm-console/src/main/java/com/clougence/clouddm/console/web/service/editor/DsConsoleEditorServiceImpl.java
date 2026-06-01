@@ -31,17 +31,17 @@ import jakarta.annotation.Resource;
 public class DsConsoleEditorServiceImpl implements DsConsoleEditorService {
 
     @Resource
-    private ConsoleQueryApi    queryApi;
+    private ConsoleQueryApi    consoleQueryApi;
     @Resource
-    private ConsoleLanguageApi languageApi;
+    private ConsoleLanguageApi consoleLanguageApi;
 
     @Override
     public void offerQueryRequest(WsQueryFO fo, Consumer<WsResult> consumer) {
-        this.queryApi.offerQueryRequest(fo, consumer::accept);
+        this.consoleQueryApi.offerQueryRequest(fo, consumer::accept);
     }
 
     @Override
     public void offerLanguageRequest(WsLanguageFO fo, Consumer<WsResult> consumer) {
-        this.languageApi.offerLanguageRequest(fo, consumer);
+        this.consoleLanguageApi.offerLanguageRequest(fo, consumer);
     }
 }
