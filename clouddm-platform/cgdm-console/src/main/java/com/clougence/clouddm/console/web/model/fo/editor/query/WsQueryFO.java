@@ -17,32 +17,23 @@ package com.clougence.clouddm.console.web.model.fo.editor.query;
 
 import java.util.List;
 
+import com.clougence.clouddm.console.web.model.fo.editor.WsRequestFO;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ReceiveMode;
 import com.clougence.clouddm.sdk.execute.session.QueryArg;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class WsQueryFO {
+public class WsQueryFO extends WsRequestFO {
 
-    @JsonIgnore
-    private String         channelKey;
     private String         sessionId;
-    private String         primaryUserId;
-    private String         currentUserId;
     private WsQueryType    queryType;
-    private long           requestTime;
-    private String         clientIp;
 
-    private List<String>   levels;
     private String         queryString;
     private List<QueryArg> queryArgs;
-    private int            basicCodeLine;
-    private int            basicCodeColumn;
     private boolean        force;
     private ReceiveMode    receiveMode;
 
@@ -51,4 +42,14 @@ public class WsQueryFO {
     private RdbIsolation   rdbIsolation;
 
     private boolean        viewOriginData;
+
+    @Override
+    public String resultOriginal() {
+        return this.queryType == null ? "" : this.queryType.name();
+    }
+
+    @Override
+    public String resultSessionId() {
+        return this.sessionId;
+    }
 }

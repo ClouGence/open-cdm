@@ -13,20 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.vo.editor;
+package com.clougence.clouddm.console.web.model.fo.editor;
+
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
 @Getter
-public class WsResult {
+@Setter
+public abstract class WsRequestFO {
 
     @JsonIgnore
-    private String curUserId;
-    @JsonIgnore
-    private String channelKey;
-    private String requestId;
+    private String       channelKey;
+    private String       primaryUserId;
+    private String       currentUserId;
+    private long         requestTime;
+    private String       clientIp;
 
+    private List<String> levels;
+    private int          basicCodeLine;
+    private int          basicCodeColumn;
+
+    @JsonIgnore
+    public String resultOriginal() {
+        return "";
+    }
+
+    @JsonIgnore
+    public String resultSessionId() {
+        return "";
+    }
+
+    @JsonIgnore
+    public String resultRequestId() {
+        return null;
+    }
 }

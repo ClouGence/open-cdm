@@ -26,6 +26,5 @@ import lombok.Setter;
 public class WsLanguageResult extends WsResult {
 
     private WsLanguageType languageType;
-    private String         requestId;
     private AbstractResult result;
 }

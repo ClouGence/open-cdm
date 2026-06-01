@@ -20,7 +20,7 @@ import java.io.IOException;
 import org.noear.dami.Dami;
 
 import com.clougence.clouddm.console.web.component.dsconfig.event.DriverDownloadEvent;
-import com.clougence.clouddm.console.web.model.vo.editor.language.WsLanguageResult;
+import com.clougence.clouddm.console.web.model.vo.editor.WsResult;
 import com.clougence.clouddm.console.web.model.vo.editor.query.WsQueryResult;
 import com.clougence.clouddm.console.web.model.vo.export.DmExportVO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO;
@@ -58,12 +58,12 @@ public class DmGlobalEventBus {
         Dami.bus().listen("/DmQueryResponse", payload -> consumer.eAccept((WsQueryResult) payload.getContent()));
     }
 
-    public static void triggerLanguageResultEvent(WsLanguageResult languageResult) {
+    public static void triggerLanguageResultEvent(WsResult languageResult) {
         Dami.bus().send("/DmLanguageResponse", languageResult);
     }
 
-    public static void addLanguageResultEventListen(EConsumer<WsLanguageResult, IOException> consumer) {
-        Dami.bus().listen("/DmLanguageResponse", payload -> consumer.eAccept((WsLanguageResult) payload.getContent()));
+    public static void addLanguageResultEventListen(EConsumer<WsResult, IOException> consumer) {
+        Dami.bus().listen("/DmLanguageResponse", payload -> consumer.eAccept((WsResult) payload.getContent()));
     }
 
     public static void triggerQueryResultExportEvent(DmExportVO exportVO) {
