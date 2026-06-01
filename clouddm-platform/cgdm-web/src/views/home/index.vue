@@ -186,7 +186,7 @@ import { UPDATE_USERINFO } from '@/store/mutationTypes';
 import { hasWebSocketInstance, webSocketClose } from '@/services/socket';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import { setAppLanguage } from '@/i18n';
-import { WEBSIDE_HEADER } from '@/utils/pluginResource';
+import { WEBSIDE_LOGO_HEADER } from '@/utils/pluginResource';
 
 export default {
   name: 'Home',
@@ -244,7 +244,7 @@ export default {
     ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'remainTrialDay']),
     ...mapGetters(['isSaas']),
     headerTitleUrl() {
-      return WEBSIDE_HEADER;
+      return WEBSIDE_LOGO_HEADER;
     },
     getDmProductClusterList() {
       return [];

@@ -232,6 +232,11 @@ const sendWebSocket = (data, callback = {}) => {
 
 const requestWebSocket = ({ type, responseType, object, timeout = DEFAULT_REQUEST_TIMEOUT }) =>
   new Promise((resolve, reject) => {
+    if (!type || !responseType) {
+      reject(new Error('missing websocket type'));
+      return;
+    }
+
     const requestId = object?.requestId;
     if (!requestId) {
       reject(new Error('missing websocket requestId'));

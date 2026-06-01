@@ -16,6 +16,7 @@ import { WS_TYPE } from '@/utils';
 
 const LANGUAGE_COMPLETION_DELAY_MS = 200;
 const MAX_LANGUAGE_FRAGMENT_BYTES = 1024 * 1024;
+const DS_LANGUAGE_ERROR = '10111';
 
 export default {
   name: 'Editor',
@@ -64,7 +65,9 @@ export default {
       languageRequestVersion: 0,
       validateTimer: null,
       keywordResourceCache: {},
-      diagnosticDecorationCollection: null
+      diagnosticDecorationCollection: null,
+      languageServiceErrorMessage: '',
+      languageServiceErrorTimer: null
     };
   },
   computed: {
@@ -185,30 +188,48 @@ export default {
     async validateSql() {
       const language = this.getDsLanguageCapability();
       if (language?.supported && language?.validate) {
-        const request = this.buildLanguageRequest();
-        if (this.isLanguageFragmentTooLarge(request.sqlText)) {
+        const fragments = this.getLanguageFragments();
+        if (!fragments.length) {
           this.applyBackendDiagnostics([]);
           return;
         }
 
-        let result = null;
-        try {
-          const response = await this.requestLanguageWebSocket('VALIDATE', request);
-          if (this.handleLanguageServiceMessage(response)) {
-            this.applyBackendDiagnostics([]);
-            return;
+        const model = this.monacoEditor.getModel();
+        const versionId = model.getVersionId();
+        const markers = [];
+        for (const fragment of fragments) {
+          if (this.isLanguageFragmentTooLarge(fragment.sqlText)) {
+            continue;
           }
-          result = response?.result;
-        } catch {
+
+          let result = null;
+          try {
+            const response = await this.requestLanguageWebSocket('VALIDATE', this.buildLanguageRequest(null, fragment));
+            if (this.handleLanguageServiceStatus(response)) {
+              this.applyBackendDiagnostics([]);
+              return;
+            }
+            if (this.handleLanguageServiceMessage(response)) {
+              this.applyBackendDiagnostics([]);
+              return;
+            }
+            result = response?.result;
+          } catch {
+            continue;
+          }
+          if (result) {
+            markers.push(...(result.diagnostics || []).map((diagnostic) => this.toMonacoMarker(diagnostic)));
+          }
+        }
+
+        if (model.isDisposed() || model.getVersionId() !== versionId) {
+          return;
+        }
+        if (!markers.length) {
           this.applyBackendDiagnostics([]);
           return;
         }
-        if (result && !result.degraded && result.supported !== false) {
-          const markers = (result.diagnostics || []).map((diagnostic) => this.toMonacoMarker(diagnostic));
-          this.applyBackendDiagnostics(markers);
-        } else {
-          this.applyBackendDiagnostics([]);
-        }
+        this.applyBackendDiagnostics(markers);
         return;
       }
 
@@ -330,21 +351,9 @@ export default {
       monaco.editor.setModelMarkers(model, 'ds-language', markers);
       monaco.editor.setModelMarkers(model, 'mysql', []);
 
-      if (!this.diagnosticDecorationCollection) {
-        this.diagnosticDecorationCollection = this.monacoEditor.createDecorationsCollection();
+      if (this.diagnosticDecorationCollection) {
+        this.diagnosticDecorationCollection.clear();
       }
-
-      this.diagnosticDecorationCollection.set(
-        markers.map((marker) => ({
-          range: new monaco.Range(marker.startLineNumber, 1, marker.startLineNumber, 1),
-          options: {
-            isWholeLine: true,
-            hoverMessage: {
-              value: marker.message
-            }
-          }
-        }))
-      );
     },
     clearBackendDiagnostics() {
       monaco.editor.setModelMarkers(this.monacoEditor.getModel(), 'ds-language', []);
@@ -533,7 +542,7 @@ export default {
       }
       return new TextEncoder().encode(sqlText).length > MAX_LANGUAGE_FRAGMENT_BYTES;
     },
-    getCurrentLanguageFragment(position = this.monacoEditor?.getPosition()) {
+    getCurrentLanguageFragment(position = this.monacoEditor?.getPosition(), endAtPosition = false) {
       const model = this.monacoEditor?.getModel();
       if (!model || !position) {
         return {
@@ -550,8 +559,9 @@ export default {
       const cursorOffset = model.getOffsetAt(position);
       const range = this.findSqlFragmentRange(text, cursorOffset);
       const startPosition = model.getPositionAt(range.startOffset);
+      const endOffset = endAtPosition ? cursorOffset : range.endOffset;
       return {
-        sqlText: text.slice(range.startOffset, range.endOffset).trimEnd(),
+        sqlText: text.slice(range.startOffset, endOffset).trimEnd(),
         startOffset: range.startOffset,
         startPosition: {
           lineNumber: startPosition.lineNumber,
@@ -559,9 +569,41 @@ export default {
         }
       };
     },
+    getLanguageFragments() {
+      const model = this.monacoEditor?.getModel();
+      if (!model) {
+        return [];
+      }
+
+      const text = model.getValue();
+      const ranges = this.findSqlFragmentRanges(text);
+      return ranges
+        .map((range) => {
+          const sqlText = text.slice(range.startOffset, range.endOffset).trimEnd();
+          const startPosition = model.getPositionAt(range.startOffset);
+          return {
+            sqlText,
+            startOffset: range.startOffset,
+            startPosition: {
+              lineNumber: startPosition.lineNumber,
+              columnNumber: startPosition.column - 1
+            }
+          };
+        })
+        .filter((fragment) => fragment.sqlText.trim());
+    },
     findSqlFragmentRange(text, cursorOffset) {
+      const ranges = this.findSqlFragmentRanges(text);
+      return (
+        ranges.find((range) => cursorOffset >= range.startOffset && cursorOffset <= range.endOffset) || {
+          startOffset: 0,
+          endOffset: text.length
+        }
+      );
+    },
+    findSqlFragmentRanges(text) {
+      const ranges = [];
       let startOffset = 0;
-      let endOffset = text.length;
       let quote = null;
       let lineComment = false;
       let blockComment = false;
@@ -587,7 +629,7 @@ export default {
 
         if (quote) {
           if (char === quote) {
-            if ((quote === '\'' || quote === '"') && next === quote) {
+            if ((quote === "'" || quote === '"') && next === quote) {
               i++;
             } else if (text[i - 1] !== '\\') {
               quote = null;
@@ -613,7 +655,7 @@ export default {
           continue;
         }
 
-        if (char === '\'' || char === '"' || char === '`') {
+        if (char === "'" || char === '"' || char === '`') {
           quote = char;
           continue;
         }
@@ -622,55 +664,49 @@ export default {
           continue;
         }
 
-        if (i < cursorOffset) {
-          startOffset = i + 1;
-        } else {
-          endOffset = i + 1;
-          break;
-        }
+        ranges.push({
+          startOffset,
+          endOffset: i + 1
+        });
+        startOffset = i + 1;
       }
 
-      return {
-        startOffset,
-        endOffset
-      };
+      if (startOffset < text.length) {
+        ranges.push({
+          startOffset,
+          endOffset: text.length
+        });
+      }
+
+      return ranges.length ? ranges : [{ startOffset: 0, endOffset: text.length }];
     },
-    buildLanguageRequest(position = this.monacoEditor?.getPosition()) {
-      const node = this.currentTab?.node || {};
-      const instance = node.INSTANCE || {};
-      const catalogNode = node.CATALOG || node.DATABASE;
-      const schemaNode = node.SCHEMA || node.DATABASE;
-      const fragment = this.getCurrentLanguageFragment(position);
+    buildLanguageRequest(position = this.monacoEditor?.getPosition(), languageFragment = null) {
+      const fragment = languageFragment || this.getCurrentLanguageFragment(position, true);
       return {
-        requestId: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-        requestVersion: ++this.languageRequestVersion,
-        dataSourceId: this.currentTab?.dsId || instance.id || instance.attr?.dsId,
-        dsType: this.currentTab?.dsType,
-        catalog: catalogNode?.title || catalogNode?.name || this.currentTab?.selectValue,
-        schema: schemaNode?.title || schemaNode?.name || this.currentTab?.selectValue,
         sqlText: fragment.sqlText,
-        lineNumber: fragment.startPosition.lineNumber,
-        colNumber: fragment.startPosition.columnNumber,
-        position: position
+        requestVersion: ++this.languageRequestVersion,
+        startPosition: fragment.startPosition,
+        cursorPosition: position
           ? {
               lineNumber: position.lineNumber,
               columnNumber: position.column
             }
-          : null,
-        options: {}
+          : fragment.startPosition
       };
     },
     requestLanguageWebSocket(languageType, request) {
+      const { startPosition, cursorPosition, ...languageRequest } = request;
+      const basicPosition = languageType === 'COMPLETE' ? cursorPosition : startPosition;
       return requestWebSocket({
         type: WS_TYPE.WS_REQ_LANGUAGE,
         responseType: WS_TYPE.WS_RES_LANGUAGE,
         object: {
           languageType,
-          requestId: request.requestId,
+          requestId: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
           levels: this.currentTab?.node ? this.browseGenLevelsData(this.currentTab.node) : [],
-          basicCodeLine: request.lineNumber,
-          basicCodeColumn: request.colNumber,
-          request
+          basicCodeLine: basicPosition.lineNumber,
+          basicCodeColumn: basicPosition.columnNumber,
+          request: languageRequest
         }
       });
     },
@@ -681,17 +717,33 @@ export default {
       }
       try {
         const response = await this.requestLanguageWebSocket('COMPLETE', request);
+        if (this.handleLanguageServiceStatus(response)) {
+          return this.getFallbackKeywordSuggest();
+        }
         if (this.handleLanguageServiceMessage(response)) {
           return this.getFallbackKeywordSuggest();
         }
         const result = response?.result;
-        if (result && !result.degraded && result.supported !== false) {
+        if (result) {
           return (result.items || []).map((item) => this.toMonacoCompletionItem(item));
         }
       } catch {
         // ignore language-service failures and use local fallback.
       }
       return this.getFallbackKeywordSuggest();
+    },
+    handleLanguageServiceStatus(response) {
+      if (response?.success === true) {
+        return false;
+      }
+      if (response?.code !== DS_LANGUAGE_ERROR) {
+        this.$Message.error(response?.msg || response?.result?.msg || response?.entities?.[0]?.message || response?.code || '语言服务请求失败');
+        return true;
+      }
+      this.showLanguageServiceError(
+        response?.msg || response?.result?.msg || response?.entities?.[0]?.message || response?.code || '语言服务请求失败'
+      );
+      return true;
     },
     handleLanguageServiceMessage(response) {
       if (response?.resultType !== 'Message') {
@@ -704,6 +756,19 @@ export default {
         this.$Message.error(message);
       }
       return true;
+    },
+    showLanguageServiceError(message) {
+      if (!message) {
+        return;
+      }
+      this.languageServiceErrorMessage = message;
+      if (this.languageServiceErrorTimer) {
+        clearTimeout(this.languageServiceErrorTimer);
+      }
+      this.languageServiceErrorTimer = setTimeout(() => {
+        this.languageServiceErrorMessage = '';
+        this.languageServiceErrorTimer = null;
+      }, 2400);
     },
     async getDelayedBackendCompletionSuggest(model, position) {
       const versionId = model.getVersionId();
@@ -970,6 +1035,10 @@ export default {
         this.diagnosticDecorationCollection.clear();
         this.diagnosticDecorationCollection = null;
       }
+      if (this.languageServiceErrorTimer) {
+        clearTimeout(this.languageServiceErrorTimer);
+        this.languageServiceErrorTimer = null;
+      }
       this.completionItemProviderList.forEach((provider) => {
         provider.dispose();
       });
@@ -1003,6 +1072,9 @@ export default {
 <template>
   <div class="monaco-editor">
     <div class="font-size-buttons" @mouseenter="fontSizePanelExpanded = true" @mouseleave="fontSizePanelExpanded = false">
+      <div class="language-service-error" v-if="languageServiceErrorMessage">
+        {{ languageServiceErrorMessage }}
+      </div>
       <ButtonGroup>
         <Button size="small" v-if="fontSizePanelExpanded" @click="setFontSize(12)">
           {{ $t('zi-hao-1') }}
@@ -1059,6 +1131,21 @@ export default {
   right: 17px;
   z-index: 10;
   display: flex;
+  align-items: flex-start;
   gap: 5px;
+}
+.language-service-error {
+  max-width: 360px;
+  padding: 4px 8px;
+  border: 1px solid #ffccc7;
+  border-radius: 4px;
+  background: #fff2f0;
+  color: #cf1322;
+  font-size: 12px;
+  line-height: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

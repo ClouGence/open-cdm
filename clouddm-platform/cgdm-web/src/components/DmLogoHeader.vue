@@ -22,7 +22,7 @@
 
 <script>
 import LangSwitcher from '@/components/LangSwitcher';
-import { WEBSIDE_HEADER } from '@/utils/pluginResource';
+import { WEBSIDE_LOGO_LOGIN } from '@/utils/pluginResource';
 
 export default {
   name: 'DmLogoHeader',
@@ -37,7 +37,7 @@ export default {
       return this.$store.state.theme || 'light';
     },
     headerTitleUrl() {
-      return WEBSIDE_HEADER;
+      return WEBSIDE_LOGO_LOGIN;
     }
   },
   data() {
