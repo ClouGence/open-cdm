@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.inner.website;
+package com.clougence.clouddm.dsfamily.mysql.resource;
 
 import java.util.Objects;
 
@@ -25,31 +25,32 @@ import com.clougence.clouddm.sdk.resource.impl.ClasspathResourceObject;
 import com.clougence.utils.loader.ResourceLoader;
 import com.clougence.utils.loader.providers.ClassPathResourceLoader;
 
-public class WebsiteResourceSpi implements ResourceSpi {
+public class MyEditorResourceSpi implements ResourceSpi {
 
     private final ResourceLoader resourceLoader;
 
-    public WebsiteResourceSpi(ClassLoader pluginClassLoader){
+    public MyEditorResourceSpi(ClassLoader pluginClassLoader){
         this.resourceLoader = new ClassPathResourceLoader(Objects.requireNonNull(pluginClassLoader, "pluginClassLoader"), "");
     }
 
-    private ResourceObject classpathResource(String resourceLocation, String contentType) {
-        if (!resourceLoader.exist(resourceLocation)) {
-            return null;
-        }
-        return new ClasspathResourceObject(resourceLoader, resourceLocation, contentType);
+    @Override
+    public String name() {
+        return "mysql";
     }
 
     @Override
     public ResourceObject findResource(String category, String resourcePath, ResourceRequest request) {
-        if (!ResourceCategory.WEBSIDE.getCode().equals(category)) {
+        if (!ResourceCategory.EDITOR.getCode().equals(category)) {
             return null;
         }
 
         return switch (resourcePath) {
-            case "header" -> classpathResource("webside/header.svg", "image/svg+xml");
-            case "favicon" -> classpathResource("webside/favicon.ico", "image/x-icon");
+            case "keywords", "keywords.txt", "mysql.keywords" -> keywordsResource();
             default -> null;
         };
+    }
+
+    private ResourceObject keywordsResource() {
+        return new ClasspathResourceObject(resourceLoader, "META-INF/clougence/db-keywords/mysql.keywords", "text/plain;charset=UTF-8", true, true);
     }
 }

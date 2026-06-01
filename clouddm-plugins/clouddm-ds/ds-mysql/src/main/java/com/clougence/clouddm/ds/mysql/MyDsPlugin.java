@@ -36,6 +36,8 @@ import com.clougence.clouddm.dsfamily.mysql.dialect.MySqlDialect;
 import com.clougence.clouddm.dsfamily.mysql.execute.MySessionSpi;
 import com.clougence.clouddm.dsfamily.mysql.execute.MySupportSpi;
 import com.clougence.clouddm.dsfamily.mysql.i18n.MyDsI18nKeys;
+import com.clougence.clouddm.dsfamily.mysql.language.MyLanguageSpi;
+import com.clougence.clouddm.dsfamily.mysql.resource.MyEditorResourceSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -67,6 +69,7 @@ public class MyDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -98,6 +101,12 @@ public class MyDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new MyDataEditorSpi());
         dsPlugin.addPluginSpi(new MyConvertTableDDLSpi());
         dsPlugin.addPluginSpi(new MyDetermineExceptionSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new MyLanguageSpi());
+        dsPlugin.addPluginSpi(new MyEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {

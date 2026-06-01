@@ -19,10 +19,10 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import com.clougence.schema.dialect.Dialect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.clougence.schema.dialect.Dialect;
 import com.clougence.utils.ResourcesUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
