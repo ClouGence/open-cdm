@@ -18,13 +18,13 @@ package com.clougence.clouddm.sdk.language.completion;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.clougence.clouddm.sdk.language.AbstractResult;
+import com.clougence.clouddm.sdk.language.LanguageResult;
 import lombok.Getter;
 import lombok.Setter;
 
 @Setter
 @Getter
-public class CompletionResult extends AbstractResult {
+public class CompletionResult extends LanguageResult {
 
     private boolean              incomplete;
     private List<CompletionItem> items = new ArrayList<>();

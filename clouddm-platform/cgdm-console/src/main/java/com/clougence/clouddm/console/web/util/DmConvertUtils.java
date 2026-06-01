@@ -30,6 +30,7 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultPageDTO;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.rdp.enumeration.ResultEnum;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
 import com.clougence.clouddm.console.web.component.detectrule.SecHintInfo;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRange;
@@ -85,7 +86,8 @@ import com.clougence.clouddm.sdk.execute.meta.DsElement;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ReceiveMode;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
-import com.clougence.clouddm.sdk.language.AbstractResult;
+import com.clougence.clouddm.sdk.language.AbstractRequest;
+import com.clougence.clouddm.sdk.language.LanguageResult;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.CheckerRange;
@@ -127,12 +129,35 @@ import com.fasterxml.jackson.core.type.TypeReference;
  **/
 public class DmConvertUtils {
 
-    public static WsLanguageResult convertToWsLanguageResult(WsLanguageFO fo, AbstractResult result) {
+    public static WsLanguageResult convertToWsLanguageResult(WsLanguageFO fo, LanguageResult result) {
         WsLanguageResult res = new WsLanguageResult();
         res.setCurUserId(fo.getCurrentUserId());
         res.setChannelKey(fo.getChannelKey());
         res.setLanguageType(fo.getLanguageType());
         res.setRequestId(result.getRequestId());
+        res.setSuccess(true);
+        res.setCode(ResultEnum.SUCCESS.getCode());
+        res.setMsg(ResultEnum.SUCCESS.getMsg());
+        res.setResult(result);
+        return res;
+    }
+
+    public static WsLanguageResult convertToWsLanguageErrorResult(WsLanguageFO fo, AbstractRequest request, String code, String msg) {
+        LanguageResult result = new LanguageResult();
+        if (request != null) {
+            result.setRequestId(request.getRequestId());
+            result.setRequestVersion(request.getRequestVersion());
+        } else {
+            result.setRequestId(fo.getRequestId());
+        }
+        WsLanguageResult res = new WsLanguageResult();
+        res.setCurUserId(fo.getCurrentUserId());
+        res.setChannelKey(fo.getChannelKey());
+        res.setLanguageType(fo.getLanguageType());
+        res.setRequestId(result.getRequestId());
+        res.setSuccess(false);
+        res.setCode(code);
+        res.setMsg(msg);
         res.setResult(result);
         return res;
     }

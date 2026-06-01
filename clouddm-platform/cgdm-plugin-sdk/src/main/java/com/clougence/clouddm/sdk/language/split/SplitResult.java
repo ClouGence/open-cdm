@@ -18,13 +18,13 @@ package com.clougence.clouddm.sdk.language.split;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.clougence.clouddm.sdk.language.AbstractResult;
+import com.clougence.clouddm.sdk.language.LanguageResult;
 import lombok.Getter;
 import lombok.Setter;
 
 @Setter
 @Getter
-public class SplitResult extends AbstractResult {
+public class SplitResult extends LanguageResult {
 
     private List<SplitSqlStatement> statements = new ArrayList<>();
 }

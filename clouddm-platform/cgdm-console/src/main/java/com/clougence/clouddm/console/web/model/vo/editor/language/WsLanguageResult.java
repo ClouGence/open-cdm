@@ -17,7 +17,7 @@ package com.clougence.clouddm.console.web.model.vo.editor.language;
 
 import com.clougence.clouddm.console.web.model.fo.editor.language.WsLanguageType;
 import com.clougence.clouddm.console.web.model.vo.editor.WsResult;
-import com.clougence.clouddm.sdk.language.AbstractResult;
+import com.clougence.clouddm.sdk.language.LanguageResult;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,5 +26,8 @@ import lombok.Setter;
 public class WsLanguageResult extends WsResult {
 
     private WsLanguageType languageType;
-    private AbstractResult result;
+    private boolean        success;
+    private String         code;
+    private String         msg;
+    private LanguageResult result;
 }

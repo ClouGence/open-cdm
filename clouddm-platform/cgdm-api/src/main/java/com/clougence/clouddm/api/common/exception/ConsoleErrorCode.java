@@ -56,6 +56,7 @@ public enum ConsoleErrorCode {
     }
 }
 
+@Deprecated
 enum ErrorType {
     SYSTEM,
     USER,

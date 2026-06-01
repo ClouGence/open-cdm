@@ -15,9 +15,22 @@
  */
 package com.clougence.clouddm.console.web.model.fo.editor.language;
 
+import com.clougence.clouddm.sdk.language.AbstractRequest;
+import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
+import com.clougence.clouddm.sdk.language.split.SplitRequest;
+import com.clougence.clouddm.sdk.language.validate.ValidateRequest;
+import lombok.Getter;
+
+@Getter
 public enum WsLanguageType {
 
-    COMPLETE,
-    VALIDATE,
-    SPLIT
+    COMPLETE(CompletionRequest.class),
+    VALIDATE(ValidateRequest.class),
+    SPLIT(SplitRequest.class);
+
+    private final Class<? extends AbstractRequest> requestType;
+
+    WsLanguageType(Class<? extends AbstractRequest> requestType){
+        this.requestType = requestType;
+    }
 }

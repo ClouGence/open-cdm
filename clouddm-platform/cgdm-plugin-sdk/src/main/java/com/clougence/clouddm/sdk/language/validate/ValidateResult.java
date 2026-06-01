@@ -18,13 +18,13 @@ package com.clougence.clouddm.sdk.language.validate;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.clougence.clouddm.sdk.language.AbstractResult;
+import com.clougence.clouddm.sdk.language.LanguageResult;
 import lombok.Getter;
 import lombok.Setter;
 
 @Setter
 @Getter
-public class ValidateResult extends AbstractResult {
+public class ValidateResult extends LanguageResult {
 
     private List<Diagnostic> diagnostics = new ArrayList<>();
 }

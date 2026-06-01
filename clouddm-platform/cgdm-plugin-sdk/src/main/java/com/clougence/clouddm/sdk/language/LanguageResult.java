@@ -20,10 +20,8 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public abstract class AbstractResult {
+public class LanguageResult {
 
     private String  requestId;
     private long    requestVersion;
-    private boolean supported = true;
-    private boolean degraded;
 }

@@ -22,6 +22,7 @@ public enum DmErrorCode {
 
     // DS ERROR  101xx
     DS_DISCONNECT_ERROR("10103"),
+    DS_LANGUAGE_ERROR("10104"),
 
     //Worker & Cluster & RPC   102xx
     CLUSTER_HAVE_NO_WORKS_ERROR("10201"),
