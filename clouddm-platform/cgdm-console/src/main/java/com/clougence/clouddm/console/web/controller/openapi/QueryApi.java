@@ -130,7 +130,7 @@ public class QueryApi {
     }
 
     // merge and apply message to result
-    private void applyMessageResult(WsQueryFO queryFO, WsResMsg msg, DmApiQueryResultVO vo, CgFuture<DmApiQueryResultVO> future) {
+    private void applyMessageResult(WsQueryFO queryFO, WsQueryResult msg, DmApiQueryResultVO vo, CgFuture<DmApiQueryResultVO> future) {
         if (future.isDone()) {
             return;
         }
@@ -160,7 +160,7 @@ public class QueryApi {
                 break;
             }
             case ResultSet: {
-                WsResultSetResMsg m = (WsResultSetResMsg) msg;
+                WsResultSetMsg m = (WsResultSetMsg) msg;
                 vo.setReceiveCost(m.getReceiveCost());
                 vo.setFetchCount(m.getFetchCount());
                 if (vo.getRows() == null) {

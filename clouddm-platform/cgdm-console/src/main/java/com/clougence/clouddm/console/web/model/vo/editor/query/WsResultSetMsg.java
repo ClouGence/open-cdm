@@ -15,6 +15,10 @@
  */
 package com.clougence.clouddm.console.web.model.vo.editor.query;
 
+import java.util.List;
+
+import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetRow;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,9 +27,10 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class WsResultSetRowsMsg extends WsQueryResult {
+public class WsResultSetMsg extends WsQueryResult {
 
-    private String resultId;
-    private int    fetchCount;
-    private String receiveCost;
+    private String             resultId;
+    private int                fetchCount;
+    private String             receiveCost;
+    private List<ResultSetRow> rowSet;
 }

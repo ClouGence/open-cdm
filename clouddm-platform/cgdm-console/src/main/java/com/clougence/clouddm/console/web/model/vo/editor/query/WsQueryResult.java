@@ -15,8 +15,8 @@
  */
 package com.clougence.clouddm.console.web.model.vo.editor.query;
 
+import com.clougence.clouddm.console.web.model.vo.editor.WsResult;
 import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,12 +26,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class WsResMsg {
-
-    @JsonIgnore
-    private String           curUserId;
-    @JsonIgnore
-    private String           channelKey;
+public class WsQueryResult extends WsResult {
 
     private String           original;
     private String           sessionId;

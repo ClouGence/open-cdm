@@ -13,24 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.vo.editor.query;
+package com.clougence.clouddm.console.web.model.vo.editor;
 
-import java.util.List;
-
-import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetRow;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * @author bucketli 2022/3/23 18:42:25
- */
-@Getter
 @Setter
-public class WsResultSetResMsg extends WsResMsg {
+@Getter
+public class WsResult {
 
-    private String             resultId;
-    private int                fetchCount;
-    private String             receiveCost;
-    private List<ResultSetRow> rowSet;
+    @JsonIgnore
+    private String curUserId;
+    @JsonIgnore
+    private String channelKey;
+
 }

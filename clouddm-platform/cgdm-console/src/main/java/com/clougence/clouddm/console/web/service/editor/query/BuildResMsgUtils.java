@@ -46,7 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BuildResMsgUtils {
 
-    public static WsResMsg buildRules(WsQueryFO queryDTO, SecRulesCheckResult checkResult) {
+    public static WsQueryResult buildRules(WsQueryFO queryDTO, SecRulesCheckResult checkResult) {
         WsRuleResMsg dto = new WsRuleResMsg();
         dto.setOriginal(queryDTO.getQueryType().name());
         dto.setChannelKey(queryDTO.getChannelKey());
@@ -70,7 +70,7 @@ public class BuildResMsgUtils {
         return dto;
     }
 
-    public static WsResMsg buildCost(WsQueryFO queryDTO, QueryCtx ctx, boolean isFinish) {
+    public static WsQueryResult buildCost(WsQueryFO queryDTO, QueryCtx ctx, boolean isFinish) {
         // step : Prepare -> Query  -> Receive    -> Finish
         // cost : (none)  -> preCost -> queryCost -> rcvCost
         WsCostResMsg dto = new WsCostResMsg();
@@ -88,7 +88,7 @@ public class BuildResMsgUtils {
         return dto;
     }
 
-    public static WsResMsg buildResultMeta(WsQueryFO queryDTO, QueryCtx ctx, ResultSetMeta result) {
+    public static WsQueryResult buildResultMeta(WsQueryFO queryDTO, QueryCtx ctx, ResultSetMeta result) {
         WsResultSetMetaMsg dto = new WsResultSetMetaMsg();
         dto.setOriginal(queryDTO.getQueryType().name());
         dto.setChannelKey(queryDTO.getChannelKey());
@@ -114,8 +114,8 @@ public class BuildResMsgUtils {
         return dto;
     }
 
-    public static WsResMsg buildResult(WsQueryFO queryDTO, QueryCtx ctx, ResultSet result) {
-        WsResultSetResMsg dto = new WsResultSetResMsg();
+    public static WsQueryResult buildResult(WsQueryFO queryDTO, QueryCtx ctx, ResultSet result) {
+        WsResultSetMsg dto = new WsResultSetMsg();
         dto.setOriginal(queryDTO.getQueryType().name());
         dto.setChannelKey(queryDTO.getChannelKey());
         dto.setSessionId(queryDTO.getSessionId());
@@ -129,7 +129,7 @@ public class BuildResMsgUtils {
         return dto;
     }
 
-    public static WsResMsg buildResultSetRows(WsQueryFO queryDTO, QueryCtx ctx, ResultSetCount result) {
+    public static WsQueryResult buildResultSetRows(WsQueryFO queryDTO, QueryCtx ctx, ResultSetCount result) {
         WsResultSetRowsMsg dto = new WsResultSetRowsMsg();
         dto.setOriginal(queryDTO.getQueryType().name());
         dto.setChannelKey(queryDTO.getChannelKey());
@@ -143,7 +143,7 @@ public class BuildResMsgUtils {
         return dto;
     }
 
-    public static WsResMsg buildStatus(WsQueryFO queryDTO, QueryCtx ctx, DsQueryEditorService queryService) {
+    public static WsQueryResult buildStatus(WsQueryFO queryDTO, QueryCtx ctx, DsQueryEditorService queryService) {
         DsAvailableDTO statusDTO = queryService.availableDataSource(queryDTO.getPrimaryUserId(), queryDTO.getCurrentUserId(), ctx.getLevels().dsDO().getId());
 
         WsStatusResMsg dto = new WsStatusResMsg();
@@ -163,7 +163,7 @@ public class BuildResMsgUtils {
         return dto;
     }
 
-    public static WsResMsg buildDone(WsQueryFO queryDTO) {
+    public static WsQueryResult buildDone(WsQueryFO queryDTO) {
         WsDoneResMsg dto = new WsDoneResMsg();
         dto.setOriginal(queryDTO.getQueryType().name());
         dto.setChannelKey(queryDTO.getChannelKey());
@@ -173,7 +173,7 @@ public class BuildResMsgUtils {
         return dto;
     }
 
-    public static WsResMsg buildCancelDone(WsQueryFO queryDTO) {
+    public static WsQueryResult buildCancelDone(WsQueryFO queryDTO) {
         WsDoneResMsg dto = new WsDoneResMsg();
         dto.setOriginal(queryDTO.getQueryType().name());
         dto.setChannelKey(queryDTO.getChannelKey());
@@ -183,7 +183,7 @@ public class BuildResMsgUtils {
         return dto;
     }
 
-    public static WsResMsg buildQueryMsg(WsQueryFO queryDTO, ResultPhase phase, QueryCtx ctx) {
+    public static WsQueryResult buildQueryMsg(WsQueryFO queryDTO, ResultPhase phase, QueryCtx ctx) {
         WsQueryInfoMsg dto = new WsQueryInfoMsg();
         dto.setOriginal(queryDTO.getQueryType().name());
         dto.setChannelKey(queryDTO.getChannelKey());
@@ -220,7 +220,7 @@ public class BuildResMsgUtils {
         return dto;
     }
 
-    public static WsResMsg buildConsoleMsg(WsQueryFO queryDTO, String message, MessageLevel level, boolean timestamp) {
+    public static WsQueryResult buildConsoleMsg(WsQueryFO queryDTO, String message, MessageLevel level, boolean timestamp) {
         WsInfoResMsg dto = new WsInfoResMsg();
         dto.setOriginal(queryDTO.getQueryType().name());
         dto.setChannelKey(queryDTO.getChannelKey());
@@ -239,7 +239,7 @@ public class BuildResMsgUtils {
         return dto;
     }
 
-    public static WsResMsg buildClearHint(WsQueryFO queryDTO) {
+    public static WsQueryResult buildClearHint(WsQueryFO queryDTO) {
         WsClearHintMsg dto = new WsClearHintMsg();
         dto.setOriginal(queryDTO.getQueryType().name());
         dto.setChannelKey(queryDTO.getChannelKey());
@@ -249,7 +249,7 @@ public class BuildResMsgUtils {
         return dto;
     }
 
-    public static WsResMsg buildHintMsg(WsQueryFO queryDTO, String message, MessageLevel level) {
+    public static WsQueryResult buildHintMsg(WsQueryFO queryDTO, String message, MessageLevel level) {
         WsInfoResMsg dto = new WsInfoResMsg();
         dto.setOriginal(queryDTO.getQueryType().name());
         dto.setChannelKey(queryDTO.getChannelKey());

@@ -15,8 +15,10 @@
  */
 package com.clougence.clouddm.console.web.model.fo.editor.language;
 
-import com.alibaba.fastjson.JSONObject;
+import java.util.List;
 
+import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,7 +26,18 @@ import lombok.Setter;
 @Setter
 public class WsLanguageFO {
 
+    @JsonIgnore
+    private String         channelKey;
+    private String         primaryUserId;
+    private String         currentUserId;
     private WsLanguageType languageType;
     private String         requestId;
+    private long           requestTime;
+    private String         clientIp;
+
+    private List<String>   levels;
+    private int            basicCodeLine;
+    private int            basicCodeColumn;
+
     private JSONObject     request;
 }

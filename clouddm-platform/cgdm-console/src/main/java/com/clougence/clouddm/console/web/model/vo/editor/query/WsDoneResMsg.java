@@ -23,6 +23,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class WsDoneResMsg extends WsResMsg {
+public class WsDoneResMsg extends WsQueryResult {
 
 }

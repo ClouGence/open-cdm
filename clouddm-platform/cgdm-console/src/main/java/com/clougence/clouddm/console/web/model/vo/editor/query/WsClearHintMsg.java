@@ -23,5 +23,5 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class WsClearHintMsg extends WsResMsg {
+public class WsClearHintMsg extends WsQueryResult {
 }

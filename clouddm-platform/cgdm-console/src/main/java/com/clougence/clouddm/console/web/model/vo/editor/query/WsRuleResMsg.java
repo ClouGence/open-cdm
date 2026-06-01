@@ -27,7 +27,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class WsRuleResMsg extends WsResMsg {
+public class WsRuleResMsg extends WsQueryResult {
 
     private String             queryBody;
     private List<WsRuleEntity> message;

@@ -51,16 +51,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TestController implements UnifiedPostConstruct {
 
-    private final Map<String, List<WsResMsg>> map      = new ConcurrentHashMap<>();
+    private final Map<String, List<WsQueryResult>> map      = new ConcurrentHashMap<>();
 
-    private final Map<String, Boolean>        checkMap = new ConcurrentHashMap<>();
+    private final Map<String, Boolean>          checkMap = new ConcurrentHashMap<>();
 
     @Resource
-    private DmConsoleConfig                   rdbConfig;
+    private DmConsoleConfig                     rdbConfig;
     @Resource
-    private ConsoleQueryApi                   queryServiceApi;
+    private ConsoleQueryApi                     queryServiceApi;
     @Value("${editor.query.test:false}")
-    private boolean                           openTest;
+    private boolean                             openTest;
 
     @Override
     public void init() throws Exception {
@@ -80,7 +80,7 @@ public class TestController implements UnifiedPostConstruct {
                         WsInfoResMsg wsInfoResMsg = (WsInfoResMsg) wsResMsg;
                         for (WsInfoEntity entity : wsInfoResMsg.getEntities()) {
                             if (entity.getMode() == MessageMode.Console) {
-                                List<WsResMsg> list = map.getOrDefault(wsResMsg.getSessionId(), new ArrayList<>());
+                                List<WsQueryResult> list = map.getOrDefault(wsResMsg.getSessionId(), new ArrayList<>());
                                 list.add(wsResMsg);
                                 map.put(wsResMsg.getSessionId(), list);
                                 break;
@@ -91,7 +91,7 @@ public class TestController implements UnifiedPostConstruct {
                     case ResultSet:
                     case RuleCheck:
                     case Status: {
-                        List<WsResMsg> list = map.getOrDefault(wsResMsg.getSessionId(), new ArrayList<>());
+                        List<WsQueryResult> list = map.getOrDefault(wsResMsg.getSessionId(), new ArrayList<>());
                         list.add(wsResMsg);
                         map.put(wsResMsg.getSessionId(), list);
                         break;
@@ -140,16 +140,16 @@ public class TestController implements UnifiedPostConstruct {
             throw new ErrorMessageException("query is running");
         }
         checkMap.remove(sessionId);
-        List<WsResMsg> wsResMsgs = map.remove(sessionId);
+        List<WsQueryResult> wsResMsgs = map.remove(sessionId);
 
-        for (WsResMsg wsResMsg : wsResMsgs) {
+        for (WsQueryResult wsResMsg : wsResMsgs) {
             if (wsResMsg instanceof WsInfoResMsg wsInfoResMsg) {
                 for (WsInfoEntity entity : wsInfoResMsg.getEntities()) {
                     if (entity.getMode() == MessageMode.Console) {
                         queryResultVO.getWsInfoResMsgList().add(wsInfoResMsg);
                     }
                 }
-            } else if (wsResMsg instanceof WsResultSetResMsg wsResultSetResMsg) {
+            } else if (wsResMsg instanceof WsResultSetMsg wsResultSetResMsg) {
                 queryResultVO.getResultSetResMsgList().add(wsResultSetResMsg);
             } else if (wsResMsg instanceof WsStatusResMsg wsStatusResMsg) {
                 queryResultVO.getStatusResMsgList().add(wsStatusResMsg);

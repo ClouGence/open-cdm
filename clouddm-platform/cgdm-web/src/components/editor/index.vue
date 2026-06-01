@@ -663,6 +663,9 @@ export default {
         object: {
           languageType,
           requestId: request.requestId,
+          levels: this.currentTab?.node ? this.browseGenLevelsData(this.currentTab.node) : [],
+          basicCodeLine: request.lineNumber,
+          basicCodeColumn: request.colNumber,
           request
         }
       });

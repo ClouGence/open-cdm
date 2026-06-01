@@ -25,7 +25,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class WsInfoResMsg extends WsResMsg {
+public class WsInfoResMsg extends WsQueryResult {
 
     private List<WsInfoEntity> entities;
 }

@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.vo.editor.query;
+package com.clougence.clouddm.console.web.model.vo.editor.language;
 
+import com.clougence.clouddm.console.web.model.fo.editor.language.WsLanguageType;
+import com.clougence.clouddm.console.web.model.vo.editor.WsResult;
+import com.clougence.clouddm.sdk.language.AbstractResult;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * @author bucketli 2022/3/23 18:42:25
- */
 @Getter
 @Setter
-public class WsResultSetRowsMsg extends WsQueryResult {
+public class WsLanguageResult extends WsResult {
 
-    private String resultId;
-    private int    fetchCount;
-    private String receiveCost;
+    private WsLanguageType languageType;
+    private String         requestId;
+    private AbstractResult result;
 }

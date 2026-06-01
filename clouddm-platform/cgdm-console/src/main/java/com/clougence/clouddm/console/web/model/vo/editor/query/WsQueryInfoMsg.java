@@ -25,7 +25,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class WsQueryInfoMsg extends WsResMsg {
+public class WsQueryInfoMsg extends WsQueryResult {
 
     private String       line;
     private String       script;

@@ -25,7 +25,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class WsStatusResMsg extends WsResMsg {
+public class WsStatusResMsg extends WsQueryResult {
 
     private String       rdbCatalog;
     private String       rdbSchema;

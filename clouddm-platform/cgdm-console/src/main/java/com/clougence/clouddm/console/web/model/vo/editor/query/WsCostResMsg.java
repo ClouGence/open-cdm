@@ -25,7 +25,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class WsCostResMsg extends WsResMsg {
+public class WsCostResMsg extends WsQueryResult {
 
     private QueryStatus step;
     private long        startTime;

@@ -27,7 +27,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class WsResultSetMetaMsg extends WsResMsg {
+public class WsResultSetMetaMsg extends WsQueryResult {
 
     private String       resultId;
     private String       resource;

@@ -25,11 +25,8 @@ import lombok.Setter;
 @Setter
 public class QueryResultVO {
 
-    private List<WsInfoResMsg>      wsInfoResMsgList    = new ArrayList<>();
-
-    private List<WsResultSetResMsg> resultSetResMsgList = new ArrayList<>();
-
-    private List<WsStatusResMsg>    statusResMsgList    = new ArrayList<>();
-
-    private List<WsRuleResMsg>      wsRuleResMsgList    = new ArrayList<>();
+    private List<WsInfoResMsg>   wsInfoResMsgList    = new ArrayList<>();
+    private List<WsResultSetMsg> resultSetResMsgList = new ArrayList<>();
+    private List<WsStatusResMsg> statusResMsgList    = new ArrayList<>();
+    private List<WsRuleResMsg>   wsRuleResMsgList    = new ArrayList<>();
 }
