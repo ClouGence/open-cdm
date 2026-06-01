@@ -50,7 +50,7 @@ public class DmGlobalEventBus {
     //                                                                   Result
     // ------------------------------------------------------------------------
 
-    public static void triggerQueryResultEvent(WsQueryResult queryFO) {
+    public static void triggerQueryResultEvent(WsResult queryFO) {
         Dami.bus().send("/DmQueryResponse", queryFO);
     }
 
