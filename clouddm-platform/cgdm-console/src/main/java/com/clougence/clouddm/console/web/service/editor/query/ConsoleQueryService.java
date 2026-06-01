@@ -41,7 +41,7 @@ import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.editor.query.WsQueryFO;
 import com.clougence.clouddm.console.web.model.fo.editor.query.WsQueryType;
 import com.clougence.clouddm.console.web.model.vo.editor.query.MessageLevel;
-import com.clougence.clouddm.console.web.model.vo.editor.query.WsResMsg;
+import com.clougence.clouddm.console.web.model.vo.editor.query.WsQueryResult;
 import com.clougence.clouddm.console.web.service.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
 import com.clougence.clouddm.console.web.service.editor.DsQueryEditorService;
@@ -116,7 +116,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     @Resource
     private AuthDal              authDal;
     @Resource
-    private ObjectCacheDao       objectCacheDao;
+    private ObjectCacheDao       cacheDao;
     @Resource
     private DmConsoleConfig      dmConfig;
     @Resource
@@ -154,23 +154,23 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     }
 
     @Override
-    public void offerQueryRequest(WsQueryFO queryDTO, Consumer<WsResMsg> consumer) {
-        if (!this.authCheckService.checkRoleAuthWithoutError(queryDTO.getPrimaryUserId(), queryDTO.getCurrentUserId(), SecRoleAuthLabel.DM_QUERY_CONSOLE)) {
+    public void offerQueryRequest(WsQueryFO fo, Consumer<WsQueryResult> consumer) {
+        if (!this.authCheckService.checkRoleAuthWithoutError(fo.getPrimaryUserId(), fo.getCurrentUserId(), SecRoleAuthLabel.DM_QUERY_CONSOLE)) {
             String message = RdpAuthUtils.missRoleAuthMsg(SecRoleAuthLabel.DM_QUERY_CONSOLE);
-            consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, message, MessageLevel.Error));
-            consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+            consumer.accept(BuildResMsgUtils.buildHintMsg(fo, message, MessageLevel.Error));
+            consumer.accept(BuildResMsgUtils.buildDone(fo));
             return;
         }
 
-        WsQueryType queryType = queryDTO.getQueryType();
-        String curUid = queryDTO.getCurrentUserId();
-        String sessionId = queryDTO.getSessionId();
+        WsQueryType queryType = fo.getQueryType();
+        String curUid = fo.getCurrentUserId();
+        String sessionId = fo.getSessionId();
 
         // 1. miss session id
         if (StringUtils.isBlank(sessionId)) {
             String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_NEED_SESSION_ID_ERROR.name());
-            consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, message, MessageLevel.Error));
-            consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+            consumer.accept(BuildResMsgUtils.buildHintMsg(fo, message, MessageLevel.Error));
+            consumer.accept(BuildResMsgUtils.buildDone(fo));
             return;
         }
 
@@ -183,8 +183,8 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
             if (!sessionInfo.toRdbCtx().isRdbAutoCommit()) {
                 String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_WORKER_STATUS_OFFLINE_RESET_SESSION_ERROR.name(), sessionInfo.getWsn());
-                consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, message, MessageLevel.Error));
-                consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
+                consumer.accept(BuildResMsgUtils.buildHintMsg(fo, message, MessageLevel.Error));
+                consumer.accept(BuildResMsgUtils.buildDone(fo));
                 return;
             }
         }
@@ -193,51 +193,51 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         switch (queryType) {
             case SwitchCtx:
                 if (this.queryService.isExecuting(curUid, sessionId)) {
-                    this.executingCheckAndResponseIt(queryDTO, consumer);
+                    this.executingCheckAndResponseIt(fo, consumer);
                 } else {
-                    this.switchCtx(queryDTO, consumer);
+                    this.switchCtx(fo, consumer);
                 }
                 break;
             case RequestQuery:
                 if (this.queryService.isExecuting(curUid, sessionId)) {
-                    this.executingCheckAndResponseIt(queryDTO, consumer);
+                    this.executingCheckAndResponseIt(fo, consumer);
                 } else {
-                    this.requestQuery(queryDTO, consumer, false);
+                    this.requestQuery(fo, consumer, false);
                 }
                 break;
             case RequestPlan:
                 if (this.queryService.isExecuting(curUid, sessionId)) {
-                    this.executingCheckAndResponseIt(queryDTO, consumer);
+                    this.executingCheckAndResponseIt(fo, consumer);
                 } else {
-                    this.requestQuery(queryDTO, consumer, true);
+                    this.requestQuery(fo, consumer, true);
                 }
                 break;
             case CancelQuery:
-                this.cancelQuery(queryDTO, consumer);
+                this.cancelQuery(fo, consumer);
                 break;
             case TxCommit:
                 if (this.queryService.isExecuting(curUid, sessionId)) {
-                    this.executingCheckAndResponseIt(queryDTO, consumer);
+                    this.executingCheckAndResponseIt(fo, consumer);
                 } else {
-                    this.txCommit(queryDTO, consumer);
+                    this.txCommit(fo, consumer);
                 }
                 break;
             case TxRollback:
                 if (this.queryService.isExecuting(curUid, sessionId)) {
-                    this.executingCheckAndResponseIt(queryDTO, consumer);
+                    this.executingCheckAndResponseIt(fo, consumer);
                 } else {
-                    this.txRollback(queryDTO, consumer);
+                    this.txRollback(fo, consumer);
                 }
                 break;
             case TxStatus:
                 if (this.queryService.isExecuting(curUid, sessionId)) {
-                    this.executingCheckAndResponseIt(queryDTO, consumer);
+                    this.executingCheckAndResponseIt(fo, consumer);
                 } else {
-                    this.txStatus(queryDTO, consumer);
+                    this.txStatus(fo, consumer);
                 }
                 break;
             case RecoveryStatus:
-                this.recoveryStatus(queryDTO, consumer);
+                this.recoveryStatus(fo, consumer);
                 break;
         }
     }
@@ -247,7 +247,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     // ------------------------------------------------------------------------
 
     // 4. operate of query
-    private void requestQuery(WsQueryFO queryDTO, Consumer<WsResMsg> consumer, boolean isExplain) {
+    private void requestQuery(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer, boolean isExplain) {
         QueryCtx ctx;
         try {
             ctx = this.createQueryCtx(queryDTO);
@@ -321,7 +321,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     private static final RuleLevel[] CHECK_LEVELS_NORMAL = new RuleLevel[] { RuleLevel.FAILURE, RuleLevel.TICKET, RuleLevel.SUGGEST };
 
     // 4.6. operate of query on specialCheck
-    private boolean specialCheck(WsQueryFO queryDTO, Consumer<WsResMsg> consumer, QueryCtx ctx) {
+    private boolean specialCheck(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer, QueryCtx ctx) {
         // 6.1 auth check
         String authMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_STAGE_AUTH_MESSAGE.name());
         consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, authMsg, MessageLevel.Info));
@@ -457,7 +457,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         return true;
     }
 
-    private ExitCode asyncQueryPrepare(WsQueryFO queryDTO, Consumer<WsResMsg> consumer, QueryCtx ctx, boolean isExplain) {
+    private ExitCode asyncQueryPrepare(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer, QueryCtx ctx, boolean isExplain) {
         String curUid = queryDTO.getCurrentUserId();
         String sessionId = queryDTO.getSessionId();
 
@@ -563,7 +563,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         RewriteSpi rewriteSpi = PluginManager.findRewriteSpi(ctx.getDsConfig().getDataSourceType());
         if (rewriteSpi != null && this.isUsingSelectRewrite(queryDTO, ctx)) {
             long dsId = ctx.getLevels().dsDO().getId();
-            DsCacheEntry dsCache = this.objectCacheDao.queryByDsId(dsId);
+            DsCacheEntry dsCache = this.cacheDao.queryByDsId(dsId);
             Map<String, String> configMap = dmDsConfigService.fetchSettingsMap(dsCache.getOwnerUid(), Arrays.asList(//
                     UserDefinedConfig.Fields.defaultColumnDisplayChars, //
                     UserDefinedConfig.Fields.onlineMaxRecordCount,      //
@@ -627,7 +627,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         }
     }
 
-    private boolean checkSecAndParseColumn(WsQueryFO queryDTO, Consumer<WsResMsg> consumer, QueryCtx ctx,//
+    private boolean checkSecAndParseColumn(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer, QueryCtx ctx,//
                                            List<SplitScript> scripts, Map<SplitScript, List<SelectItem>> scriptColumnMap) {
         String curUserUid = queryDTO.getCurrentUserId();
         DmAuthUserDO rdpUserDO = authDal.userMapper().queryByUid(curUserUid);
@@ -810,7 +810,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         //        }
     }
 
-    private void waitResultDown(WsQueryFO queryDTO, Consumer<WsResMsg> consumer, QueryCtx ctx) {
+    private void waitResultDown(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer, QueryCtx ctx) {
         String curUid = queryDTO.getCurrentUserId();
         String sessionId = queryDTO.getSessionId();
 
@@ -836,7 +836,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     }
 
     // 4.11. wait result.
-    private ExitCode asyncQueryWaitResult(WsQueryFO queryDTO, Consumer<WsResMsg> consumer, QueryCtx ctx) {
+    private ExitCode asyncQueryWaitResult(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer, QueryCtx ctx) {
         String primaryUid = queryDTO.getPrimaryUserId();
         String curUid = queryDTO.getCurrentUserId();
         String sessionId = queryDTO.getSessionId();
@@ -1083,7 +1083,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     //                                                            for SwitchCtx
     // ------------------------------------------------------------------------
 
-    private void switchCtx(WsQueryFO queryDTO, Consumer<WsResMsg> consumer) {
+    private void switchCtx(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer) {
         QueryCtx ctx;
         try {
             ctx = this.createQueryCtx(queryDTO);
@@ -1179,7 +1179,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         }
     }
 
-    private void switchCtxForAutoSession(WsQueryFO queryDTO, Consumer<WsResMsg> consumer, QueryCtx ctx, List<UmiTypes> levelsDef, Map<UmiTypes, String> changeTo) {
+    private void switchCtxForAutoSession(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer, QueryCtx ctx, List<UmiTypes> levelsDef, Map<UmiTypes, String> changeTo) {
         String curUid = queryDTO.getCurrentUserId();
         for (UmiTypes umiType : levelsDef) {
             if (!changeTo.containsKey(umiType)) {
@@ -1203,7 +1203,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
     }
 
-    private void switchCtxForKeepSession(WsQueryFO queryDTO, Consumer<WsResMsg> consumer, QueryCtx ctx, List<UmiTypes> levelsDef, Map<UmiTypes, String> changeTo) {
+    private void switchCtxForKeepSession(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer, QueryCtx ctx, List<UmiTypes> levelsDef, Map<UmiTypes, String> changeTo) {
         String curUid = queryDTO.getCurrentUserId();
         for (UmiTypes umiType : levelsDef) {
             if (!changeTo.containsKey(umiType)) {
@@ -1227,7 +1227,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
     }
 
-    private void switchCtxForNewSession(WsQueryFO queryDTO, Consumer<WsResMsg> consumer, QueryCtx ctx, List<UmiTypes> levelsDef, Map<UmiTypes, String> changeTo) {
+    private void switchCtxForNewSession(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer, QueryCtx ctx, List<UmiTypes> levelsDef, Map<UmiTypes, String> changeTo) {
         String curUid = queryDTO.getCurrentUserId();
         this.queryService.closeSession(curUid, queryDTO.getSessionId());
 
@@ -1264,7 +1264,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     //                                                          for CancelQuery
     // ------------------------------------------------------------------------
 
-    private void cancelQuery(WsQueryFO queryDTO, Consumer<WsResMsg> consumer) {
+    private void cancelQuery(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer) {
         String curUid = queryDTO.getCurrentUserId();
         String sessionId = queryDTO.getSessionId();
         String hintMessage = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_CANCEL_ING_MESSAGE.name());
@@ -1291,7 +1291,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     //                                                             for txCommit
     // ------------------------------------------------------------------------
 
-    private void txCommit(WsQueryFO queryDTO, Consumer<WsResMsg> consumer) {
+    private void txCommit(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer) {
         String curUid = queryDTO.getCurrentUserId();
         String sessionId = queryDTO.getSessionId();
 
@@ -1309,7 +1309,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
     }
 
-    private void txRollback(WsQueryFO queryDTO, Consumer<WsResMsg> consumer) {
+    private void txRollback(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer) {
         String curUid = queryDTO.getCurrentUserId();
         String sessionId = queryDTO.getSessionId();
 
@@ -1327,7 +1327,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
     }
 
-    private void txStatus(WsQueryFO queryDTO, Consumer<WsResMsg> consumer) {
+    private void txStatus(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer) {
         QueryCtx ctx;
         try {
             ctx = this.createQueryCtx(queryDTO);
@@ -1423,7 +1423,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         consumer.accept(BuildResMsgUtils.buildDone(queryDTO));
     }
 
-    private void recoveryStatus(WsQueryFO queryDTO, Consumer<WsResMsg> consumer) {
+    private void recoveryStatus(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer) {
         QueryCtx ctx;
         try {
             ctx = this.createQueryCtx(queryDTO);
@@ -1461,7 +1461,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     //                                                                for utils
     // ------------------------------------------------------------------------
 
-    private void executingCheckAndResponseIt(WsQueryFO queryDTO, Consumer<WsResMsg> consumer) {
+    private void executingCheckAndResponseIt(WsQueryFO queryDTO, Consumer<WsQueryResult> consumer) {
         String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_IN_EXECUTING_ERROR.name(), queryDTO.getSessionId());
         consumer.accept(BuildResMsgUtils.buildHintMsg(queryDTO, message, MessageLevel.Error));
         consumer.accept(BuildResMsgUtils.buildDone(queryDTO));

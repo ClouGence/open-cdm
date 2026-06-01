@@ -17,15 +17,12 @@ package com.clougence.clouddm.console.web.service.editor.query;
 
 import java.util.function.Consumer;
 
-import com.clougence.clouddm.console.web.model.fo.editor.language.WsLanguageFO;
 import com.clougence.clouddm.console.web.model.fo.editor.query.WsQueryFO;
-import com.clougence.clouddm.console.web.model.vo.editor.WsResult;
+import com.clougence.clouddm.console.web.model.vo.editor.query.WsQueryResult;
 
 public interface ConsoleQueryApi {
 
-    void offerQueryRequest(WsQueryFO fo, Consumer<WsResult> consumer);
-
-    void offerLanguageRequest(WsLanguageFO fo, Consumer<WsResult> consumer);
+    void offerQueryRequest(WsQueryFO fo, Consumer<WsQueryResult> consumer);
 
     //void offerQueryResponse(ResultList result);
 }
