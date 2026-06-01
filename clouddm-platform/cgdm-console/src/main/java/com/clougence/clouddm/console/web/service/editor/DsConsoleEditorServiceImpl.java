@@ -1,0 +1,47 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.clougence.clouddm.console.web.service.editor;
+
+import java.util.function.Consumer;
+
+import org.springframework.stereotype.Service;
+
+import com.clougence.clouddm.console.web.model.fo.editor.language.WsLanguageFO;
+import com.clougence.clouddm.console.web.model.fo.editor.query.WsQueryFO;
+import com.clougence.clouddm.console.web.model.vo.editor.WsResult;
+import com.clougence.clouddm.console.web.service.editor.language.ConsoleLanguageApi;
+import com.clougence.clouddm.console.web.service.editor.query.ConsoleQueryApi;
+
+import jakarta.annotation.Resource;
+
+@Service
+public class DsConsoleEditorServiceImpl implements DsConsoleEditorService {
+
+    @Resource
+    private ConsoleQueryApi    queryApi;
+    @Resource
+    private ConsoleLanguageApi languageApi;
+
+    @Override
+    public void offerQueryRequest(WsQueryFO fo, Consumer<WsResult> consumer) {
+        this.queryApi.offerQueryRequest(fo, consumer::accept);
+    }
+
+    @Override
+    public void offerLanguageRequest(WsLanguageFO fo, Consumer<WsResult> consumer) {
+        this.languageApi.offerLanguageRequest(fo, consumer);
+    }
+}

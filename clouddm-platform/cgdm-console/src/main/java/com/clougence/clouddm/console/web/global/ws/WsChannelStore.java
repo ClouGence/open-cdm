@@ -27,7 +27,7 @@ import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
 import com.clougence.clouddm.console.web.global.jwtsession.WebSoInterceptor;
 import com.clougence.clouddm.console.web.model.fo.editor.language.WsLanguageFO;
 import com.clougence.clouddm.console.web.model.fo.editor.query.WsQueryFO;
-import com.clougence.clouddm.console.web.service.editor.query.ConsoleQueryApi;
+import com.clougence.clouddm.console.web.service.editor.DsConsoleEditorService;
 import com.clougence.utils.StringUtils;
 
 import lombok.Getter;
@@ -40,12 +40,12 @@ import lombok.extern.slf4j.Slf4j;
 public class WsChannelStore {
 
     private final String                        uid;
-    private final ConsoleQueryApi               queryServiceApi;
+    private final DsConsoleEditorService        editorService;
     private final Map<String, WebSocketSession> channelMap = new ConcurrentHashMap<>();
 
-    public WsChannelStore(String uid, ConsoleQueryApi queryServiceApi){
+    public WsChannelStore(String uid, DsConsoleEditorService editorService){
         this.uid = uid;
-        this.queryServiceApi = queryServiceApi;
+        this.editorService = editorService;
     }
 
     public boolean containsChannel(String channelKey) {
@@ -83,7 +83,7 @@ public class WsChannelStore {
                 qfo.setCurrentUserId((String) ws.getAttributes().get(WebSoInterceptor.WS_USER_ID));
                 qfo.setRequestTime(System.currentTimeMillis());
                 qfo.setClientIp(getHost(ws));
-                this.queryServiceApi.offerQueryRequest(qfo, DmGlobalEventBus::triggerQueryResultEvent);
+                this.editorService.offerQueryRequest(qfo, DmGlobalEventBus::triggerQueryResultEvent);
                 return;
             case WS_REQ_LANGUAGE:
                 WsLanguageFO lfo = JSONObject.parseObject(reqMsg.getObject(), WsLanguageFO.class);
@@ -92,7 +92,7 @@ public class WsChannelStore {
                 lfo.setCurrentUserId((String) ws.getAttributes().get(WebSoInterceptor.WS_USER_ID));
                 lfo.setRequestTime(System.currentTimeMillis());
                 lfo.setClientIp(getHost(ws));
-                this.queryServiceApi.offerLanguageRequest(lfo, DmGlobalEventBus::triggerLanguageResultEvent);
+                this.editorService.offerLanguageRequest(lfo, DmGlobalEventBus::triggerLanguageResultEvent);
                 return;
             default:
                 throw new UnsupportedOperationException("Request WsType '" + reqMsg.getType() + "' Unsupported.");

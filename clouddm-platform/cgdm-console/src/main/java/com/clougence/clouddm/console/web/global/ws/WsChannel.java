@@ -35,7 +35,7 @@ import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrat
 import com.clougence.clouddm.console.web.global.jwtsession.WebSoInterceptor;
 import com.clougence.clouddm.console.web.model.vo.editor.WsResult;
 import com.clougence.clouddm.console.web.model.vo.system.WsSysMsg;
-import com.clougence.clouddm.console.web.service.editor.query.ConsoleQueryApi;
+import com.clougence.clouddm.console.web.service.editor.DsConsoleEditorService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
@@ -54,7 +54,7 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
     private final Map<String, WsChannelStore> sessionMap = new ConcurrentHashMap<>();
     private final AtomicBoolean               inited     = new AtomicBoolean(false);
     @Resource
-    private ConsoleQueryApi                   queryServiceApi;
+    private DsConsoleEditorService            editorApi;
 
     @Override
     public void init() throws Exception {
@@ -108,7 +108,7 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
             String uid = (String) ws.getAttributes().get(WebSoInterceptor.WS_USER_ID);
             String channelKey = WsUtils.getChannelKey(ws);
 
-            WsChannelStore channelStore = this.sessionMap.computeIfAbsent(uid, s -> new WsChannelStore(uid, this.queryServiceApi));
+            WsChannelStore channelStore = this.sessionMap.computeIfAbsent(uid, s -> new WsChannelStore(uid, this.editorApi));
             if (!channelStore.containsChannel(channelKey)) {
                 channelStore.acceptChannel(channelKey, ws);
             }
