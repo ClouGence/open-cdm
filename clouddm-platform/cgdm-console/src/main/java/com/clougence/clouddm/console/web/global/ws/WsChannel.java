@@ -27,6 +27,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.alibaba.fastjson.JSONObject;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.console.web.component.language.DsLanguageService;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
 import com.clougence.clouddm.console.web.global.jwtsession.JwtCheckResult;
@@ -55,6 +56,8 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
     private final AtomicBoolean               inited     = new AtomicBoolean(false);
     @Resource
     private ConsoleQueryApi                   queryServiceApi;
+    @Resource
+    private DsLanguageService                 dsLanguageService;
 
     @Override
     public void init() throws Exception {
@@ -106,7 +109,7 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
             String uid = (String) ws.getAttributes().get(WebSoInterceptor.WS_USER_ID);
             String channelKey = WsUtils.getChannelKey(ws);
 
-            WsChannelStore channelStore = this.sessionMap.computeIfAbsent(uid, s -> new WsChannelStore(uid, this.queryServiceApi));
+            WsChannelStore channelStore = this.sessionMap.computeIfAbsent(uid, s -> new WsChannelStore(uid, this.queryServiceApi, this.dsLanguageService));
             if (!channelStore.containsChannel(channelKey)) {
                 channelStore.acceptChannel(channelKey, ws);
             }

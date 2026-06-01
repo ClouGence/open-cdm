@@ -29,19 +29,6 @@
           />
         </div>
       </div>
-      <p style="margin-top: 20px">
-        <Button
-          :loading="verifyEmailLoading"
-          v-if="myAuth.includes('RDP_PRI_USER_NORMAL_CONF_R')"
-          style="font-size: 14px; margin-right: 16px"
-          @click="handleVerifyEmail"
-        >
-          {{ $t('yan-zheng-you-xiang-fu-wu-qi') }}
-        </Button>
-        <Button :loading="verifyIMLoading" v-if="myAuth.includes('RDP_PRI_USER_NORMAL_CONF_R')" style="font-size: 14px" @click="handleVerifyIm">
-          {{ $t('yan-zheng-im-gao-jing') }}
-        </Button>
-      </p>
     </div>
     <verify-code-modal
       :visible="showEditUserInfo"
@@ -165,8 +152,6 @@ export default {
       showAKSK: false,
       canEdit: false,
       confirmFetchLoading: false,
-      verifyEmailLoading: false,
-      verifyIMLoading: false,
       akskInfo: {},
       formatHour,
       updateUserInfo: {
@@ -571,24 +556,6 @@ export default {
       } else {
         this.showSmtp = false;
       }
-    },
-    handleVerifyEmail() {
-      this.verifyEmailLoading = true;
-      this.$services.rdpUserVerifyMail().then((res) => {
-        if (res.success) {
-          this.$Message.success(this.$t('yan-zheng-you-xiang-fu-wu-qi-cheng-gong'));
-        }
-        this.verifyEmailLoading = false;
-      });
-    },
-    handleVerifyIm() {
-      this.verifyIMLoading = true;
-      this.$services.rdpUserVerifyIm().then((res) => {
-        if (res.success) {
-          this.$Message.success(this.$t('yan-zheng-im-gao-jing-cheng-gong'));
-        }
-        this.verifyIMLoading = false;
-      });
     },
     handleShowEdit() {
       this.ifEdit = true;

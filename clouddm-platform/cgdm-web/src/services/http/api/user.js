@@ -72,8 +72,6 @@ export const userApi = {
   rdpUserCleanAliyunAkSk: '/rdp/console/api/v1/user/cleanaliyunaksk',
   rdpUserListMyAuth: '/rdp/console/api/v1/user/listMyAuth',
   rdpUserListRules: '/rdp/console/api/v1/user/listRules', // 规则列表
-  rdpUserVerifyMail: '/rdp/console/api/v1/user/verifyMail',
-  rdpUserVerifyIm: '/rdp/console/api/v1/user/verifyIm',
   rdpUserListMyAuthCategoryForMenu: '/rdp/console/api/v1/user/listMyAuthCategoryForMenu',
   rdpUserUpdateUserEmail: '/rdp/console/api/v1/user/updateUserEmail',
   rdpUserCheckVerifyCode: '/rdp/console/api/v1/user/checkVerifyCode',

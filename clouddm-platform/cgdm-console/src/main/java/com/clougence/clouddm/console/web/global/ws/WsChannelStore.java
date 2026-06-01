@@ -23,11 +23,18 @@ import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorato
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator.OverflowStrategy;
 
 import com.alibaba.fastjson.JSONObject;
+import com.clougence.clouddm.console.web.component.language.DsLanguageService;
 import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
 import com.clougence.clouddm.console.web.global.jwtsession.WebSoInterceptor;
+import com.clougence.clouddm.console.web.model.fo.editor.language.WsLanguageFO;
 import com.clougence.clouddm.console.web.model.fo.editor.query.WsQueryFO;
 import com.clougence.clouddm.console.web.model.vo.editor.query.WsResMsg;
 import com.clougence.clouddm.console.web.service.editor.query.ConsoleQueryApi;
+import com.clougence.clouddm.sdk.language.AbstractResult;
+import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
+import com.clougence.clouddm.sdk.language.split.SplitRequest;
+import com.clougence.clouddm.sdk.language.validate.ValidateRequest;
+import com.clougence.dslpaser.ast.location.CodeLocation;
 import com.clougence.utils.StringUtils;
 
 import lombok.Getter;
@@ -41,11 +48,13 @@ public class WsChannelStore {
 
     private final String                        uid;
     private final ConsoleQueryApi               queryServiceApi;
+    private final DsLanguageService             dsLanguageService;
     private final Map<String, WebSocketSession> channelMap = new ConcurrentHashMap<>();
 
-    public WsChannelStore(String uid, ConsoleQueryApi queryServiceApi){
+    public WsChannelStore(String uid, ConsoleQueryApi queryServiceApi, DsLanguageService dsLanguageService){
         this.uid = uid;
         this.queryServiceApi = queryServiceApi;
+        this.dsLanguageService = dsLanguageService;
     }
 
     public boolean containsChannel(String channelKey) {
@@ -85,13 +94,59 @@ public class WsChannelStore {
                 queryFO.setClientIp(getHost(ws));
                 this.queryServiceApi.offerQueryRequest(queryFO, DmGlobalEventBus::triggerQueryResultEvent);
                 return;
+            case WS_REQ_LANGUAGE:
+                handleLanguageMessage(ws, reqMsg.getObject());
+                return;
             default:
                 throw new UnsupportedOperationException("Request WsType '" + reqMsg.getType() + "' Unsupported.");
         }
     }
 
+    private void handleLanguageMessage(WebSocketSession ws, String object) {
+        WsLanguageFO languageFO = JSONObject.parseObject(object, WsLanguageFO.class);
+        JSONObject request = languageFO.getRequest();
+        AbstractResult result;
+        switch (languageFO.getLanguageType()) {
+            case COMPLETE:
+                result = this.dsLanguageService.complete(ownerUid(ws), parseCompletionRequest(request));
+                break;
+            case VALIDATE:
+                result = this.dsLanguageService.validate(ownerUid(ws), request.toJavaObject(ValidateRequest.class));
+                break;
+            case SPLIT:
+                result = this.dsLanguageService.split(ownerUid(ws), request.toJavaObject(SplitRequest.class));
+                break;
+            default:
+                throw new UnsupportedOperationException("Language WsType '" + languageFO.getLanguageType() + "' Unsupported.");
+        }
+
+        JSONObject response = new JSONObject();
+        response.put("languageType", languageFO.getLanguageType());
+        response.put("requestId", result.getRequestId());
+        response.put("result", result);
+        WsUtils.writeToSocket(ws, WsType.WS_RES_LANGUAGE, response);
+    }
+
+    private CompletionRequest parseCompletionRequest(String object) {
+        return parseCompletionRequest(JSONObject.parseObject(object));
+    }
+
+    private CompletionRequest parseCompletionRequest(JSONObject json) {
+        JSONObject position = json.getJSONObject("position");
+        json.remove("position");
+        CompletionRequest request = json.toJavaObject(CompletionRequest.class);
+        if (position != null) {
+            request.setPosition(new CodeLocation(position.getIntValue("lineNumber"), position.getIntValue("columnNumber")));
+        }
+        return request;
+    }
+
+    private String ownerUid(WebSocketSession ws) {
+        return (String) ws.getAttributes().get(WebSoInterceptor.WS_PUSER_ID);
+    }
+
     private String getHost(WebSocketSession ws) {
-        //aliyun  slb
+        // for aliyun  slb
         String host = ws.getHandshakeHeaders().getFirst("X-Forwarded-For");
         if (!StringUtils.isEmpty(host)) {
             return host;

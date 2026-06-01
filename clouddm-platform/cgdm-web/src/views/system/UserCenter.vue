@@ -910,20 +910,6 @@ export default {
         this.showSmtp = false;
       }
     },
-    handleVerifyEmail() {
-      this.$services.rdpUserVerifyMail().then((res) => {
-        if (res.success) {
-          this.$Message.success(this.$t('yan-zheng-you-xiang-fu-wu-qi-cheng-gong'));
-        }
-      });
-    },
-    handleVerifyIm() {
-      this.$services.rdpUserVerifyIm().then((res) => {
-        if (res.success) {
-          this.$Message.success(this.$t('yan-zheng-im-gao-jing-cheng-gong'));
-        }
-      });
-    },
     handleShowEdit() {
       this.ifEdit = true;
     },

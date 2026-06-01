@@ -31,6 +31,9 @@ public abstract class AbstractRequest {
     private String              dsType;
     private String              catalog;
     private String              schema;
+    private Integer             lineNumber;
+    private Integer             colNumber;
     private String              sqlText;
+
     private Map<String, Object> options = Collections.emptyMap();
 }

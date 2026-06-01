@@ -13,32 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.resource;
+package com.clougence.clouddm.console.web.model.fo.editor.language;
 
-import lombok.Getter;
+public enum WsLanguageType {
 
-@Getter
-public enum ResourceCategory {
-
-    WEBSIDE("webside"),
-    EDITOR("editor");
-
-    private final String code;
-
-    ResourceCategory(String code){
-        this.code = code;
-    }
-
-    public static ResourceCategory of(String code) {
-        if (code == null) {
-            return null;
-        }
-
-        for (ResourceCategory category : values()) {
-            if (category.code.equals(code)) {
-                return category;
-            }
-        }
-        return null;
-    }
+    COMPLETE,
+    VALIDATE,
+    SPLIT
 }

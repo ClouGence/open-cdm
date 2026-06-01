@@ -23,9 +23,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.file.resource.DefaultPluginResourceModel;
 import com.clougence.clouddm.console.web.component.file.resource.PluginResourceModel;
 import com.clougence.clouddm.console.web.component.file.resource.ResourceRoute;
+import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.resource.ResourceCategory;
 import com.clougence.clouddm.sdk.resource.ResourceSpi;
@@ -60,14 +62,27 @@ public class PluginResourceManager {
         synchronized (INDEX_LOCK) {
             RESOURCE_INDEX.clear();
             for (ResourceSpi spi : PluginManager.findSpi(ResourceSpi.class)) {
-                String module = StringUtils.isBlank(spi.name()) ? ResourceRoute.DEFAULT_MODULE : spi.name();
-                ResourceLoader loader = new ClassPathResourceLoader(spi.getClass().getClassLoader(), "");
-                PluginResourceDeclaration declaration = new PluginResourceDeclaration(spi, loader);
-                for (ResourceCategory category : ResourceCategory.values()) {
-                    RESOURCE_INDEX.computeIfAbsent(indexKey(category.getCode(), module), key -> new ArrayList<>()).add(declaration);
+                registerResourceSpi(spi);
+            }
+            for (DataSourceType dsType : DataSourceType.values()) {
+                DsPluginInfo dsPlugin = PluginManager.findDsPlugin(dsType);
+                if (dsPlugin == null) {
+                    continue;
+                }
+                for (ResourceSpi spi : dsPlugin.findSpi(ResourceSpi.class)) {
+                    registerResourceSpi(spi);
                 }
             }
             indexReady = true;
+        }
+    }
+
+    private static void registerResourceSpi(ResourceSpi spi) {
+        String module = StringUtils.isBlank(spi.name()) ? ResourceRoute.DEFAULT_MODULE : spi.name();
+        ResourceLoader loader = new ClassPathResourceLoader(spi.getClass().getClassLoader(), "");
+        PluginResourceDeclaration declaration = new PluginResourceDeclaration(spi, loader);
+        for (ResourceCategory category : ResourceCategory.values()) {
+            RESOURCE_INDEX.computeIfAbsent(indexKey(category.getCode(), module), key -> new ArrayList<>()).add(declaration);
         }
     }
 

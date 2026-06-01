@@ -15,6 +15,8 @@ let globalCallback = {
   error: null,
   close: null
 };
+const pendingRequests = new Map();
+const DEFAULT_REQUEST_TIMEOUT = 5000;
 
 const hasWebSocketInstance = () => !!rws;
 
@@ -106,6 +108,7 @@ const createWebSocket = async (url) => {
   rws.addEventListener('message', (e) => {
     try {
       const data = JSON.parse(e.data);
+      resolvePendingRequest(data);
       if (data && data.type === 'WS_SYS_STATUS' && data?.object?.serviceReady) {
         eventBus.emit(EVENT_BUS_NAME_LIST.SOCKET_CONNECTION_OPEN);
       }
@@ -132,6 +135,7 @@ const createWebSocket = async (url) => {
   });
 
   rws.addEventListener('close', () => {
+    rejectPendingRequests(new Error('websocket closed'));
     store?.commit(UPDATE_SOCKET_STATUS, { connected: false, msg: i18n.global.t('lian-jie-yi-duan-kai') });
     eventBus.emit(EVENT_BUS_NAME_LIST.SOCKET_CONNECTION_CLOSE);
     // rws.close();
@@ -154,6 +158,33 @@ const webSocketSend = (data) => {
   rws.send(JSON.stringify(data));
 };
 
+const pendingKey = (type, requestId) => `${type}:${requestId}`;
+
+const resolvePendingRequest = (data) => {
+  const requestId = data?.object?.requestId;
+  if (!data?.type || !requestId) {
+    return;
+  }
+
+  const key = pendingKey(data.type, requestId);
+  const pending = pendingRequests.get(key);
+  if (!pending) {
+    return;
+  }
+
+  clearTimeout(pending.timer);
+  pendingRequests.delete(key);
+  pending.resolve(data.object);
+};
+
+const rejectPendingRequests = (error) => {
+  pendingRequests.forEach((pending) => {
+    clearTimeout(pending.timer);
+    pending.reject(error);
+  });
+  pendingRequests.clear();
+};
+
 // const webSocketOnMessage = (data) => {
 //   globalCallback(data);
 // };
@@ -165,6 +196,7 @@ const webSocketClose = () => {
 
   rws.close();
   rws = null;
+  rejectPendingRequests(new Error('websocket closed'));
 };
 
 const sendWebSocket = (data, callback = {}) => {
@@ -198,4 +230,26 @@ const sendWebSocket = (data, callback = {}) => {
   }
 };
 
-export { createWebSocket, webSocketClose, sendWebSocket, hasWebSocketInstance };
+const requestWebSocket = ({ type, responseType, object, timeout = DEFAULT_REQUEST_TIMEOUT }) =>
+  new Promise((resolve, reject) => {
+    const requestId = object?.requestId;
+    if (!requestId) {
+      reject(new Error('missing websocket requestId'));
+      return;
+    }
+
+    if (!rws || rws.readyState !== rws.OPEN) {
+      reject(new Error('websocket is not connected'));
+      return;
+    }
+
+    const key = pendingKey(responseType, requestId);
+    const timer = setTimeout(() => {
+      pendingRequests.delete(key);
+      reject(new Error('websocket request timeout'));
+    }, timeout);
+    pendingRequests.set(key, { resolve, reject, timer });
+    webSocketSend({ type, object });
+  });
+
+export { createWebSocket, webSocketClose, sendWebSocket, requestWebSocket, hasWebSocketInstance };

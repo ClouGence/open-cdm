@@ -1,7 +1,7 @@
 <script>
 import * as monaco from 'monaco-editor';
 import * as actions from 'monaco-editor/esm/vs/platform/actions/common/actions';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import { markRaw, toRaw } from 'vue';
 import browseMixin from '@/mixins/browseMixin';
 import { getQuick } from '@/components/editor/snippets/quick';
@@ -10,6 +10,12 @@ import { format } from 'sql-formatter';
 import { getLanguage } from '@/utils/tools';
 import { MySQL, RedisSQL, StarRocksSQL, PostgresSQL } from './core';
 import { registerMongoDBLanguage } from './languages/mongodb';
+import { getPluginResourceUrl } from '@/utils/pluginResource';
+import { requestWebSocket } from '@/services/socket';
+import { WS_TYPE } from '@/utils';
+
+const LANGUAGE_COMPLETION_DELAY_MS = 200;
+const MAX_LANGUAGE_FRAGMENT_BYTES = 1024 * 1024;
 
 export default {
   name: 'Editor',
@@ -54,11 +60,16 @@ export default {
       commandList: [],
       actionList: [],
       hoverProviderList: [],
-      fontSizePanelExpanded: false
+      fontSizePanelExpanded: false,
+      languageRequestVersion: 0,
+      validateTimer: null,
+      keywordResourceCache: {},
+      diagnosticDecorationCollection: null
     };
   },
   computed: {
-    ...mapGetters(['getLevels', 'getLeafGroup', 'genQualifierText', 'removeQualifierText', 'getEditor'])
+    ...mapGetters(['getLevels', 'getLeafGroup', 'genQualifierText', 'removeQualifierText', 'getEditor']),
+    ...mapState(['dmGlobalSetting', 'globalDsSetting'])
   },
   mounted() {
     registerMongoDBLanguage();
@@ -166,21 +177,51 @@ export default {
         }
       });
       this.monacoEditor.onDidChangeModelContent(() => {
-        // this.validateSql();
+        this.debounceValidateSql();
         this.$emit('change', toRaw(this.monacoEditor.getValue()));
       });
       this.setParser();
     },
-    validateSql() {
-      if (!this.currentParser) {
+    async validateSql() {
+      const language = this.getDsLanguageCapability();
+      if (language?.supported && language?.validate) {
+        const request = this.buildLanguageRequest();
+        if (this.isLanguageFragmentTooLarge(request.sqlText)) {
+          this.applyBackendDiagnostics([]);
+          return;
+        }
+
+        let result = null;
+        try {
+          const response = await this.requestLanguageWebSocket('VALIDATE', request);
+          result = response?.result;
+        } catch {
+          this.applyBackendDiagnostics([]);
+          return;
+        }
+        if (result && !result.degraded && result.supported !== false) {
+          const markers = (result.diagnostics || []).map((diagnostic) => this.toMonacoMarker(diagnostic));
+          this.applyBackendDiagnostics(markers);
+        } else {
+          this.applyBackendDiagnostics([]);
+        }
         return;
       }
+
       const allSql = this.monacoEditor.getValue();
+      if (!this.currentParser) {
+        this.applyBackendDiagnostics([]);
+        return;
+      }
+      this.clearBackendDiagnostics();
       const sqlSlices = this.currentParser.splitSQLByStatement(allSql);
       console.log('validate sql', sqlSlices);
       const markers = [];
       if (sqlSlices) {
         sqlSlices.forEach((sql) => {
+          if (this.isLanguageFragmentTooLarge(sql.text)) {
+            return;
+          }
           const errors = this.currentParser.validate(sql.text);
           if (errors) {
             errors.forEach((error) => {
@@ -198,6 +239,123 @@ export default {
 
         monaco.editor.setModelMarkers(this.monacoEditor.getModel(), 'mysql', markers);
       }
+    },
+    debounceValidateSql() {
+      if (this.validateTimer) {
+        clearTimeout(this.validateTimer);
+      }
+      this.validateTimer = setTimeout(() => {
+        this.validateSql().catch(() => {});
+      }, 500);
+    },
+    clearAllDiagnostics() {
+      const model = this.monacoEditor.getModel();
+      monaco.editor.setModelMarkers(model, 'ds-language', []);
+      monaco.editor.setModelMarkers(model, 'mysql', []);
+      if (this.diagnosticDecorationCollection) {
+        this.diagnosticDecorationCollection.clear();
+      }
+    },
+    toMonacoMarker(diagnostic) {
+      const range = diagnostic.range || {};
+      const start = range.startPosition || {};
+      const end = range.endPosition || {};
+      const startLineNumber = Math.max(1, start.lineNumber || start.line || 1);
+      const startColumn = Math.max(1, (start.columnNumber ?? start.column ?? 0) + 1);
+      const endLineNumber = Math.max(startLineNumber, end.lineNumber || end.line || startLineNumber);
+      const endColumn = Math.max(startColumn + 1, (end.columnNumber ?? end.column ?? start.columnNumber ?? start.column ?? 0) + 1);
+
+      return {
+        startLineNumber,
+        startColumn,
+        endLineNumber,
+        endColumn,
+        message: this.formatDiagnosticMessage(diagnostic.message || diagnostic.msg || diagnostic.errorMessage),
+        severity: this.toMonacoMarkerSeverity(diagnostic.severity)
+      };
+    },
+    formatDiagnosticMessage(message) {
+      if (!message) {
+        return 'SQL 语法错误';
+      }
+
+      let match = message.match(/^mismatched input '(.+)' expecting (.+)$/);
+      if (match) {
+        return `语法错误：不应出现 "${match[1]}"，此处应为 ${this.formatExpectedTokens(match[2])}。`;
+      }
+
+      match = message.match(/^extraneous input '(.+)' expecting (.+)$/);
+      if (match) {
+        return `语法错误：多余的输入 "${match[1]}"，此处应为 ${this.formatExpectedTokens(match[2])}。`;
+      }
+
+      match = message.match(/^missing (.+) at '(.+)'$/);
+      if (match) {
+        return `语法错误：在 "${match[2]}" 附近缺少 ${this.formatExpectedTokens(match[1])}。`;
+      }
+
+      match = message.match(/^no viable alternative at input (.+)$/);
+      if (match) {
+        return `语法错误：无法识别 "${match[1]}" 附近的 SQL 结构。`;
+      }
+
+      return message;
+    },
+    formatExpectedTokens(expected) {
+      return expected
+        .replace(/^\{|\}$/g, '')
+        .split(',')
+        .map((token) => this.formatExpectedToken(token.trim()))
+        .filter(Boolean)
+        .join(' 或 ');
+    },
+    formatExpectedToken(token) {
+      const normalized = token.replace(/^'|'$/g, '');
+      const tokenNameMap = {
+        '<EOF>': '语句结束',
+        EOF: '语句结束',
+        '--': '"--" 注释',
+        ';': '分号',
+        ID: '标识符',
+        IDENTIFIER: '标识符'
+      };
+      return tokenNameMap[normalized] || `"${normalized}"`;
+    },
+    applyBackendDiagnostics(markers) {
+      const model = this.monacoEditor.getModel();
+      monaco.editor.setModelMarkers(model, 'ds-language', markers);
+      monaco.editor.setModelMarkers(model, 'mysql', []);
+
+      if (!this.diagnosticDecorationCollection) {
+        this.diagnosticDecorationCollection = this.monacoEditor.createDecorationsCollection();
+      }
+
+      this.diagnosticDecorationCollection.set(
+        markers.map((marker) => ({
+          range: new monaco.Range(marker.startLineNumber, 1, marker.startLineNumber, 1),
+          options: {
+            isWholeLine: true,
+            hoverMessage: {
+              value: marker.message
+            }
+          }
+        }))
+      );
+    },
+    clearBackendDiagnostics() {
+      monaco.editor.setModelMarkers(this.monacoEditor.getModel(), 'ds-language', []);
+      if (this.diagnosticDecorationCollection) {
+        this.diagnosticDecorationCollection.clear();
+      }
+    },
+    toMonacoMarkerSeverity(severity) {
+      const severityMap = {
+        ERROR: monaco.MarkerSeverity.Error,
+        WARNING: monaco.MarkerSeverity.Warning,
+        INFO: monaco.MarkerSeverity.Info,
+        HINT: monaco.MarkerSeverity.Hint
+      };
+      return severityMap[severity] || monaco.MarkerSeverity.Error;
     },
     handleSetDecorations(position) {
       const decorations = [
@@ -296,7 +454,7 @@ export default {
     registerCompletion(lang) {
       const providerItem = monaco.languages.registerCompletionItemProvider(lang, {
         triggerCharacters: [' ', '.', '`', '/', '$'],
-        provideCompletionItems: (model, position) => {
+        provideCompletionItems: async (model, position) => {
           console.log('registerCompletion', position);
           this.sortText = 0;
           let suggestions = [];
@@ -317,6 +475,8 @@ export default {
             // MongoDB 特殊处理：提供函数建议
             suggestions = suggestions.concat(this.getFunctionSuggest(this.currentTab.dsType));
             suggestions = suggestions.concat(this.getQuickSuggest(position));
+          } else if (this.getDsLanguageCapability()?.supported && this.getDsLanguageCapability()?.completion) {
+            suggestions = await this.getDelayedBackendCompletionSuggest(model, position);
           } else if (this.currentParser) {
             const syntaxSuggestions = toRaw(this.currentParser).getSuggestionAtCaretPosition(textUntilPosition, toRaw(position));
             console.log('syntaxSuggestions', syntaxSuggestions);
@@ -353,6 +513,249 @@ export default {
         }
       });
       this.completionItemProviderList.push(providerItem);
+    },
+    getDsLanguageCapability() {
+      const settings = this.dmGlobalSetting?.dsSettingDef || this.globalDsSetting || {};
+      const dsType = this.currentTab?.dsType;
+      if (settings?.[dsType]?.language) {
+        return settings[dsType].language;
+      }
+      const normalizedKey = Object.keys(settings || {}).find((key) => key.toLowerCase() === `${dsType}`.toLowerCase());
+      return normalizedKey ? settings[normalizedKey]?.language : null;
+    },
+    isLanguageFragmentTooLarge(sqlText) {
+      if (!sqlText) {
+        return false;
+      }
+      return new TextEncoder().encode(sqlText).length > MAX_LANGUAGE_FRAGMENT_BYTES;
+    },
+    getCurrentLanguageFragment(position = this.monacoEditor?.getPosition()) {
+      const model = this.monacoEditor?.getModel();
+      if (!model || !position) {
+        return {
+          sqlText: (this.monacoEditor?.getValue() || '').trimEnd(),
+          startOffset: 0,
+          startPosition: {
+            lineNumber: 1,
+            columnNumber: 0
+          }
+        };
+      }
+
+      const text = model.getValue();
+      const cursorOffset = model.getOffsetAt(position);
+      const range = this.findSqlFragmentRange(text, cursorOffset);
+      const startPosition = model.getPositionAt(range.startOffset);
+      return {
+        sqlText: text.slice(range.startOffset, range.endOffset).trimEnd(),
+        startOffset: range.startOffset,
+        startPosition: {
+          lineNumber: startPosition.lineNumber,
+          columnNumber: startPosition.column - 1
+        }
+      };
+    },
+    findSqlFragmentRange(text, cursorOffset) {
+      let startOffset = 0;
+      let endOffset = text.length;
+      let quote = null;
+      let lineComment = false;
+      let blockComment = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const next = text[i + 1];
+
+        if (lineComment) {
+          if (char === '\n') {
+            lineComment = false;
+          }
+          continue;
+        }
+
+        if (blockComment) {
+          if (char === '*' && next === '/') {
+            blockComment = false;
+            i++;
+          }
+          continue;
+        }
+
+        if (quote) {
+          if (char === quote) {
+            if ((quote === '\'' || quote === '"') && next === quote) {
+              i++;
+            } else if (text[i - 1] !== '\\') {
+              quote = null;
+            }
+          }
+          continue;
+        }
+
+        if (char === '-' && next === '-') {
+          lineComment = true;
+          i++;
+          continue;
+        }
+
+        if (char === '#') {
+          lineComment = true;
+          continue;
+        }
+
+        if (char === '/' && next === '*') {
+          blockComment = true;
+          i++;
+          continue;
+        }
+
+        if (char === '\'' || char === '"' || char === '`') {
+          quote = char;
+          continue;
+        }
+
+        if (char !== ';') {
+          continue;
+        }
+
+        if (i < cursorOffset) {
+          startOffset = i + 1;
+        } else {
+          endOffset = i + 1;
+          break;
+        }
+      }
+
+      return {
+        startOffset,
+        endOffset
+      };
+    },
+    buildLanguageRequest(position = this.monacoEditor?.getPosition()) {
+      const node = this.currentTab?.node || {};
+      const instance = node.INSTANCE || {};
+      const catalogNode = node.CATALOG || node.DATABASE;
+      const schemaNode = node.SCHEMA || node.DATABASE;
+      const fragment = this.getCurrentLanguageFragment(position);
+      return {
+        requestId: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        requestVersion: ++this.languageRequestVersion,
+        dataSourceId: this.currentTab?.dsId || instance.id || instance.attr?.dsId,
+        dsType: this.currentTab?.dsType,
+        catalog: catalogNode?.title || catalogNode?.name || this.currentTab?.selectValue,
+        schema: schemaNode?.title || schemaNode?.name || this.currentTab?.selectValue,
+        sqlText: fragment.sqlText,
+        lineNumber: fragment.startPosition.lineNumber,
+        colNumber: fragment.startPosition.columnNumber,
+        position: position
+          ? {
+              lineNumber: position.lineNumber,
+              columnNumber: position.column
+            }
+          : null,
+        options: {}
+      };
+    },
+    requestLanguageWebSocket(languageType, request) {
+      return requestWebSocket({
+        type: WS_TYPE.WS_REQ_LANGUAGE,
+        responseType: WS_TYPE.WS_RES_LANGUAGE,
+        object: {
+          languageType,
+          requestId: request.requestId,
+          request
+        }
+      });
+    },
+    async getBackendCompletionSuggest(position) {
+      const request = this.buildLanguageRequest(position);
+      if (this.isLanguageFragmentTooLarge(request.sqlText)) {
+        return this.getFallbackKeywordSuggest();
+      }
+      try {
+        const response = await this.requestLanguageWebSocket('COMPLETE', request);
+        const result = response?.result;
+        if (result && !result.degraded && result.supported !== false) {
+          return (result.items || []).map((item) => this.toMonacoCompletionItem(item));
+        }
+      } catch {
+        // ignore language-service failures and use local fallback.
+      }
+      return this.getFallbackKeywordSuggest();
+    },
+    async getDelayedBackendCompletionSuggest(model, position) {
+      const versionId = model.getVersionId();
+      await this.waitForLanguageCompletion();
+      if (model.isDisposed() || model.getVersionId() !== versionId) {
+        return [];
+      }
+      return this.getBackendCompletionSuggest(position);
+    },
+    waitForLanguageCompletion() {
+      return new Promise((resolve) => {
+        setTimeout(resolve, LANGUAGE_COMPLETION_DELAY_MS);
+      });
+    },
+    async getFallbackKeywordSuggest() {
+      const language = this.getDsLanguageCapability();
+      if (!language?.keywordResource) {
+        return [];
+      }
+
+      const keywords = await this.loadKeywordResource(language.keywordResource);
+      return this.getSQLSuggest(keywords).map((item) => ({
+        ...item,
+        additionalTextEdits: undefined
+      }));
+    },
+    async loadKeywordResource(resource) {
+      if (this.keywordResourceCache[resource]) {
+        return this.keywordResourceCache[resource];
+      }
+
+      try {
+        const response = await fetch(getPluginResourceUrl(resource, { format: 'text' }), {
+          credentials: 'include'
+        });
+        if (!response.ok) {
+          return [];
+        }
+        const text = await response.text();
+        const keywords = text
+          .split(/\r?\n/)
+          .map((line) => line.trim())
+          .filter((line) => line && !line.startsWith('#'));
+        this.keywordResourceCache[resource] = keywords;
+        return keywords;
+      } catch {
+        return [];
+      }
+    },
+    toMonacoCompletionItem(item) {
+      return {
+        label: item.label,
+        kind: this.toMonacoCompletionKind(item.kind),
+        detail: item.detail || `[${this.$t('guan-jian-zi')}]`,
+        documentation: item.documentation,
+        sortText: item.sortText || `${this.sortText++}`.padStart(8, '0'),
+        insertText: item.insertText || item.label
+      };
+    },
+    toMonacoCompletionKind(kind) {
+      const kindMap = {
+        KEYWORD: monaco.languages.CompletionItemKind.Keyword,
+        DATABASE: monaco.languages.CompletionItemKind.Module,
+        CATALOG: monaco.languages.CompletionItemKind.Module,
+        SCHEMA: monaco.languages.CompletionItemKind.Module,
+        TABLE: monaco.languages.CompletionItemKind.Method,
+        VIEW: monaco.languages.CompletionItemKind.Method,
+        COLUMN: monaco.languages.CompletionItemKind.Field,
+        FUNCTION: monaco.languages.CompletionItemKind.Function,
+        PROCEDURE: monaco.languages.CompletionItemKind.Function,
+        SNIPPET: monaco.languages.CompletionItemKind.Snippet,
+        TEXT: monaco.languages.CompletionItemKind.Text
+      };
+      return kindMap[kind] || monaco.languages.CompletionItemKind.Text;
     },
     registerHover(lang) {
       const providerItem = monaco.languages.registerHoverProvider(lang, {
@@ -537,6 +940,14 @@ export default {
       return list;
     },
     handleDispose() {
+      if (this.validateTimer) {
+        clearTimeout(this.validateTimer);
+        this.validateTimer = null;
+      }
+      if (this.diagnosticDecorationCollection) {
+        this.diagnosticDecorationCollection.clear();
+        this.diagnosticDecorationCollection = null;
+      }
       this.completionItemProviderList.forEach((provider) => {
         provider.dispose();
       });

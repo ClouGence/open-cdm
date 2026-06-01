@@ -46,6 +46,8 @@ import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigMap;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
+import com.clougence.clouddm.sdk.language.DsLanguageSpi;
+import com.clougence.clouddm.sdk.resource.ResourceCategory;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.sdk.ui.browser.DsBrowseSpi;
 import com.clougence.clouddm.sdk.ui.ddl.ConvertTableDDLSpi;
@@ -130,6 +132,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
             config.setDriverFamilies(familyNames.stream().map(s -> {
                 return DmConvertUtils.convertToDsDriverFamily(driverLoader.findDriver(s));
             }).filter(Objects::nonNull).collect(Collectors.toList()));
+            config.setLanguage(loadDsLanguage(dsPlugin));
 
             //
             RdbSupportSpi supportSpi = PluginManager.findRdbSupportSpi(dsType);
@@ -357,6 +360,23 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
             log.error(msg, e);
             throw new RuntimeException(msg, e);
         }
+    }
+
+    private DsLanguage loadDsLanguage(DsPluginInfo dsPlugin) {
+        List<DsLanguageSpi> languageSpis = dsPlugin.findSpi(DsLanguageSpi.class);
+        if (CollectionUtils.isEmpty(languageSpis)) {
+            return null;
+        }
+
+        DsLanguageSpi spi = languageSpis.get(0);
+        DsLanguage language = new DsLanguage();
+        language.setSupported(true);
+        language.setModule(spi.name());
+        language.setCompletion(true);
+        language.setValidate(true);
+        language.setSplit(true);
+        language.setKeywordResource(ResourceCategory.EDITOR.getCode() + "/" + spi.name() + "@keywords");
+        return language;
     }
 
     @Override
