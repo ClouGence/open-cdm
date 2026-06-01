@@ -42,6 +42,7 @@ import com.clougence.clouddm.console.web.model.fo.browse.BrowseActionFO;
 import com.clougence.clouddm.console.web.model.fo.browse.BrowseConvertDDLFO;
 import com.clougence.clouddm.console.web.model.fo.browse.BrowseGenerateFO;
 import com.clougence.clouddm.console.web.model.fo.browse.BrowseRequestFO;
+import com.clougence.clouddm.console.web.model.fo.editor.language.WsLanguageFO;
 import com.clougence.clouddm.console.web.model.fo.editor.query.WsQueryFO;
 import com.clougence.clouddm.console.web.model.fo.openapi.DmApiDsListFO;
 import com.clougence.clouddm.console.web.model.fo.openapi.DmApiDsQueryFO;
@@ -54,6 +55,7 @@ import com.clougence.clouddm.console.web.model.vo.checkrules.*;
 import com.clougence.clouddm.console.web.model.vo.cluster.ClusterVO;
 import com.clougence.clouddm.console.web.model.vo.cluster.WorkerVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.DmSimpleDsVO;
+import com.clougence.clouddm.console.web.model.vo.editor.language.WsLanguageResult;
 import com.clougence.clouddm.console.web.model.vo.editor.query.WsRuleEntity;
 import com.clougence.clouddm.console.web.model.vo.faker.DmAsyncTaskVO;
 import com.clougence.clouddm.console.web.model.vo.openapi.DmApiDataSourceVO;
@@ -83,6 +85,7 @@ import com.clougence.clouddm.sdk.execute.meta.DsElement;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ReceiveMode;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
+import com.clougence.clouddm.sdk.language.AbstractResult;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.CheckerRange;
@@ -123,6 +126,16 @@ import com.fasterxml.jackson.core.type.TypeReference;
  * @author mode create time is 2021/1/30
  **/
 public class DmConvertUtils {
+
+    public static WsLanguageResult convertToWsLanguageResult(WsLanguageFO fo, AbstractResult result) {
+        WsLanguageResult res = new WsLanguageResult();
+        res.setCurUserId(fo.getCurrentUserId());
+        res.setChannelKey(fo.getChannelKey());
+        res.setLanguageType(fo.getLanguageType());
+        res.setRequestId(result.getRequestId());
+        res.setResult(result);
+        return res;
+    }
 
     public static Map<TargetType, String> convertToResource(DsLevels dsLevels, String tableOrView) {
         Map<TargetType, String> result = new HashMap<>();
