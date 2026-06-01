@@ -682,21 +682,22 @@ export default {
     },
     buildLanguageRequest(position = this.monacoEditor?.getPosition(), languageFragment = null) {
       const fragment = languageFragment || this.getCurrentLanguageFragment(position, true);
+      const cursorLineNumber = position ? Math.max(1, position.lineNumber - fragment.startPosition.lineNumber + 1) : 1;
+      const cursorColNumber = position
+        ? position.lineNumber === fragment.startPosition.lineNumber
+          ? Math.max(0, position.column - 1 - fragment.startPosition.columnNumber)
+          : Math.max(0, position.column - 1)
+        : 0;
       return {
         sqlText: fragment.sqlText,
         requestVersion: ++this.languageRequestVersion,
         startPosition: fragment.startPosition,
-        cursorPosition: position
-          ? {
-              lineNumber: position.lineNumber,
-              columnNumber: position.column
-            }
-          : fragment.startPosition
+        cursorLineNumber,
+        cursorColNumber
       };
     },
     requestLanguageWebSocket(languageType, request) {
-      const { startPosition, cursorPosition, ...languageRequest } = request;
-      const basicPosition = languageType === 'COMPLETE' ? cursorPosition : startPosition;
+      const { startPosition, ...languageRequest } = request;
       return requestWebSocket({
         type: WS_TYPE.WS_REQ_LANGUAGE,
         responseType: WS_TYPE.WS_RES_LANGUAGE,
@@ -704,8 +705,8 @@ export default {
           languageType,
           requestId: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
           levels: this.currentTab?.node ? this.browseGenLevelsData(this.currentTab.node) : [],
-          basicCodeLine: basicPosition.lineNumber,
-          basicCodeColumn: basicPosition.columnNumber,
+          basicCodeLine: startPosition.lineNumber,
+          basicCodeColumn: startPosition.columnNumber,
           request: languageRequest
         }
       });

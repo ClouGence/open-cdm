@@ -278,8 +278,7 @@ public enum I18nDmMsgKeys {
 
     // -- for Language Service
     DS_LANGUAGE_BUSY,
-    DS_LANGUAGE_COMPLETION_USER_BUSY,
-    DS_LANGUAGE_COMPLETION_BUSY,
+    DS_LANGUAGE_USER_BUSY,
     DS_LANGUAGE_SERVICE_ERROR,
 
     // -- for Ticket

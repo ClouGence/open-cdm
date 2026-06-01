@@ -22,8 +22,8 @@ import java.util.Locale;
 import com.clougence.clouddm.dsfamily.mysql.dialect.MySqlDialect;
 import com.clougence.clouddm.dsfamily.mysql.parser.MyDslProvider;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
-import com.clougence.clouddm.sdk.language.AbstractResult;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
+import com.clougence.clouddm.sdk.language.LanguageResult;
 import com.clougence.clouddm.sdk.language.completion.CompletionItem;
 import com.clougence.clouddm.sdk.language.completion.CompletionItemKind;
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
@@ -49,7 +49,7 @@ public class MyLanguageSpi implements DsLanguageSpi {
         return "mysql";
     }
 
-    private static <T extends AbstractResult> T initResult(AbstractRequest request, T result) {
+    private static <T extends LanguageResult> T initResult(AbstractRequest request, T result) {
         if (request != null) {
             result.setRequestId(request.getRequestId());
             result.setRequestVersion(request.getRequestVersion());
@@ -172,40 +172,46 @@ public class MyLanguageSpi implements DsLanguageSpi {
     }
 
     private static String extractPrefix(CompletionRequest request) {
-        if (request == null || StringUtils.isBlank(request.getSqlText()) || request.getPosition() == null) {
+        if (request == null || StringUtils.isBlank(request.getSqlText())) {
             return "";
         }
 
-        int offset = offsetOf(request.getSqlText(), request.getPosition());
+        String sqlText = request.getSqlText();
+        int offset = offsetOf(sqlText, request.getCursorLineNumber(), request.getCursorColNumber());
         if (offset <= 0) {
             return "";
         }
 
         int start = offset;
         while (start > 0) {
-            char c = request.getSqlText().charAt(start - 1);
+            char c = sqlText.charAt(start - 1);
             if (Character.isLetterOrDigit(c) || c == '_') {
                 start--;
             } else {
                 break;
             }
         }
-        return request.getSqlText().substring(start, offset);
+        return sqlText.substring(start, offset);
     }
 
-    private static int offsetOf(String sqlText, CodeLocation position) {
-        int lineNumber = Math.max(1, position.getLineNumber());
-        int columnNumber = Math.max(1, position.getColumnNumber());
+    private static int offsetOf(String sqlText, Integer lineNumber, Integer colNumber) {
+        if (lineNumber == null || colNumber == null) {
+            return sqlText.length();
+        }
+
+        int targetLine = Math.max(1, lineNumber);
+        int targetColumn = Math.max(0, colNumber);
         int line = 1;
-        int column = 1;
+        int column = 0;
         for (int i = 0; i < sqlText.length(); i++) {
-            if (line == lineNumber && column == columnNumber) {
+            if (line == targetLine && column == targetColumn) {
                 return i;
             }
+
             char c = sqlText.charAt(i);
             if (c == '\n') {
                 line++;
-                column = 1;
+                column = 0;
             } else {
                 column++;
             }

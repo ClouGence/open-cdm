@@ -215,12 +215,10 @@ public class UserDefinedConfig {
     @UserConfigDef(name = "consoleMetadataCache", defaultValue = "false", valueRange = "true, false", descKey = I18nUserConfigMsgKeys.SQL_RESULT_METADATA_CACHE, configTagType = UserConfigTagType.QUERY_RESULT, confBelong = ConfBelong.CloudDM)
     private Boolean       consoleMetadataCache;
     //
-    @UserConfigDef(name = "dsLanguageMaxConcurrency", defaultValue = "8", valueRange = "1 ~ 128", descKey = I18nUserConfigMsgKeys.DS_LANGUAGE_MAX_CONCURRENCY, configTagType = UserConfigTagType.COMMON, confBelong = ConfBelong.CloudDM)
-    private Integer       dsLanguageMaxConcurrency;
-    @UserConfigDef(name = "dsLanguageCompletionMaxConcurrency", defaultValue = "4", valueRange = "1 ~ 64", descKey = I18nUserConfigMsgKeys.DS_LANGUAGE_COMPLETION_MAX_CONCURRENCY, configTagType = UserConfigTagType.COMMON, confBelong = ConfBelong.CloudDM)
-    private Integer       dsLanguageCompletionMaxConcurrency;
-    @UserConfigDef(name = "dsLanguageCompletionTotalMaxConcurrency", defaultValue = "64", valueRange = "1 ~ 1024", descKey = I18nUserConfigMsgKeys.DS_LANGUAGE_COMPLETION_TOTAL_MAX_CONCURRENCY, configTagType = UserConfigTagType.COMMON, confBelong = ConfBelong.CloudDM)
-    private Integer       dsLanguageCompletionTotalMaxConcurrency;
+    @UserConfigDef(name = "languageMaxRequests", defaultValue = "50", valueRange = "50 ~ 200", descKey = I18nUserConfigMsgKeys.LANGUAGE_MAX_REQUESTS, configTagType = UserConfigTagType.COMMON, confBelong = ConfBelong.CloudDM)
+    private Integer       languageMaxRequests;
+    @UserConfigDef(name = "languageMaxRequestsByUser", defaultValue = "2", valueRange = "1 ~ 3", descKey = I18nUserConfigMsgKeys.LANGUAGE_MAX_REQUESTS_BY_USER, configTagType = UserConfigTagType.COMMON, confBelong = ConfBelong.CloudDM)
+    private Integer       languageMaxRequestsByUser;
 
     /**
      * Query Result

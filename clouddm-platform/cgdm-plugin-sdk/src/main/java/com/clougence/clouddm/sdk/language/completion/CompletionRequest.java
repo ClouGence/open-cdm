@@ -16,7 +16,6 @@
 package com.clougence.clouddm.sdk.language.completion;
 
 import com.clougence.clouddm.sdk.language.AbstractRequest;
-import com.clougence.dslpaser.ast.location.CodeLocation;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,6 +23,7 @@ import lombok.Setter;
 @Getter
 public class CompletionRequest extends AbstractRequest {
 
-    private CodeLocation position;
+    private Integer cursorLineNumber;
+    private Integer cursorColNumber;
 
 }

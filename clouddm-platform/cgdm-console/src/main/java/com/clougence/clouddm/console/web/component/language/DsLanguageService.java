@@ -1,0 +1,170 @@
+/*
+ * Copyright 2026 杭州开云集致科技有限公司
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.clougence.clouddm.console.web.component.language;
+
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import org.springframework.stereotype.Service;
+
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
+import com.clougence.clouddm.platform.plugin.DsPluginInfo;
+import com.clougence.clouddm.platform.plugin.PluginManager;
+import com.clougence.clouddm.sdk.language.AbstractRequest;
+import com.clougence.clouddm.sdk.language.DsLanguageSpi;
+import com.clougence.clouddm.sdk.language.LanguageResult;
+import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
+import com.clougence.clouddm.sdk.language.completion.CompletionResult;
+import com.clougence.clouddm.sdk.language.split.SplitRequest;
+import com.clougence.clouddm.sdk.language.split.SplitResult;
+import com.clougence.clouddm.sdk.language.validate.Diagnostic;
+import com.clougence.clouddm.sdk.language.validate.ValidateRequest;
+import com.clougence.clouddm.sdk.language.validate.ValidateResult;
+import com.clougence.dslpaser.ast.location.BlockLocation;
+import com.clougence.dslpaser.ast.location.CodeLocation;
+import com.clougence.rdp.global.config.user.UserDefinedConfig;
+import com.clougence.utils.CollectionUtils;
+import com.clougence.utils.StringUtils;
+
+import jakarta.annotation.Resource;
+
+@Service
+public class DsLanguageService {
+
+    private static final int     DEFAULT_LANGUAGE_MAX_REQUESTS         = 8;
+    private static final int     DEFAULT_LANGUAGE_MAX_REQUESTS_BY_USER = 4;
+
+    @Resource
+    private RdpUserConfigService rdpUserConfigService;
+
+    private DsLanguageSpi findSpi(AbstractRequest request) {
+        DataSourceType dsType = DataSourceType.getTypeByName(request.getDsType());
+        if (dsType == null) {
+            return null;
+        }
+
+        DsPluginInfo dsPlugin = PluginManager.findDsPlugin(dsType);
+        if (dsPlugin == null) {
+            return null;
+        }
+
+        List<DsLanguageSpi> languageSpis = dsPlugin.findSpi(DsLanguageSpi.class);
+        if (CollectionUtils.isEmpty(languageSpis)) {
+            return null;
+        }
+        return languageSpis.get(0);
+    }
+
+    private <T extends LanguageResult> T invoke(String ownerUid, AbstractRequest request, Supplier<T> emptyResult, Function<DsLanguageSpi, T> action) {
+        T degraded = initResult(request, emptyResult.get());
+        DsLanguageSpi spi = findSpi(request);
+        if (spi == null) {
+            return degraded;
+        }
+
+        T result = action.apply(spi);
+        return result == null ? degraded : result;
+    }
+
+    //
+    //
+    //
+
+    public int languageMaxRequests(String ownerUid) {
+        return intConfig(ownerUid, UserDefinedConfig.Fields.languageMaxRequests, DEFAULT_LANGUAGE_MAX_REQUESTS);
+    }
+
+    public int languageMaxRequestsByUser(String ownerUid) {
+        return intConfig(ownerUid, UserDefinedConfig.Fields.languageMaxRequestsByUser, DEFAULT_LANGUAGE_MAX_REQUESTS_BY_USER);
+    }
+
+    public CompletionResult complete(String ownerUid, CompletionRequest request) {
+        return invoke(ownerUid, request, CompletionResult::new, spi -> spi.complete(request));
+    }
+
+    public ValidateResult validate(String ownerUid, ValidateRequest request) {
+        return invoke(ownerUid, request, ValidateResult::new, spi -> offsetValidateResult(request, spi.validate(request)));
+    }
+
+    public SplitResult split(String ownerUid, SplitRequest request) {
+        return invoke(ownerUid, request, SplitResult::new, spi -> spi.split(request));
+    }
+
+    private static <T extends LanguageResult> T initResult(AbstractRequest request, T result) {
+        if (request != null) {
+            result.setRequestId(request.getRequestId());
+            result.setRequestVersion(request.getRequestVersion());
+        }
+        return result;
+    }
+
+    private int intConfig(String ownerUid, String configName, int defaultValue) {
+        if (StringUtils.isBlank(ownerUid)) {
+            return defaultValue;
+        }
+
+        DmSysUserConfDO config = this.rdpUserConfigService.getSpecifiedConfig(ownerUid, configName);
+        String configValue = config == null ? null : config.getConfigValue();
+        if (StringUtils.isBlank(configValue) && config != null) {
+            configValue = config.getDefaultValue();
+        }
+        try {
+            int value = Integer.parseInt(StringUtils.isBlank(configValue) ? String.valueOf(defaultValue) : configValue.trim());
+            return Math.max(1, value);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    private static ValidateResult offsetValidateResult(AbstractRequest request, ValidateResult result) {
+        if (result == null || request == null || request.getLineNumber() == null) {
+            return result;
+        }
+
+        for (Diagnostic diagnostic : result.getDiagnostics()) {
+            if (diagnostic.getRange() == null) {
+                continue;
+            }
+            diagnostic.setRange(offsetRange(request, diagnostic.getRange()));
+        }
+        return result;
+    }
+
+    private static BlockLocation offsetRange(AbstractRequest request, BlockLocation range) {
+        BlockLocation offsetRange = new BlockLocation();
+        offsetRange.setStartPosition(offsetPosition(request, range.getStartPosition()));
+        offsetRange.setEndPosition(offsetPosition(request, range.getEndPosition()));
+        return offsetRange;
+    }
+
+    private static CodeLocation offsetPosition(AbstractRequest request, CodeLocation position) {
+        if (position == null || request.getLineNumber() == null) {
+            return position;
+        }
+
+        int lineNumber = Math.max(1, position.getLineNumber());
+        int columnNumber = Math.max(0, position.getColumnNumber());
+        int startLineNumber = Math.max(1, request.getLineNumber());
+        int startColumnNumber = Math.max(0, request.getColNumber() == null ? 0 : request.getColNumber());
+        int offsetLineNumber = startLineNumber + lineNumber - 1;
+        int offsetColumnNumber = lineNumber == 1 ? startColumnNumber + columnNumber : columnNumber;
+        return new CodeLocation(offsetLineNumber, offsetColumnNumber);
+    }
+
+}
