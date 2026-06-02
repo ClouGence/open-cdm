@@ -17,6 +17,9 @@ import { WS_TYPE } from '@/utils';
 const LANGUAGE_COMPLETION_DELAY_MS = 200;
 const MAX_LANGUAGE_FRAGMENT_BYTES = 1024 * 1024;
 const DS_LANGUAGE_ERROR = '10111';
+const STATIC_KEYWORD_WEIGHT = 100;
+const QUICK_SNIPPET_WEIGHT = 300;
+const STATIC_FUNCTION_WEIGHT = 700;
 
 export default {
   name: 'Editor',
@@ -67,7 +70,10 @@ export default {
       keywordResourceCache: {},
       diagnosticDecorationCollection: null,
       languageServiceErrorMessage: '',
-      languageServiceErrorTimer: null
+      languageServiceErrorTimer: null,
+      completionIconMap: {},
+      suggestIconObserver: null,
+      suggestIconFrame: null
     };
   },
   computed: {
@@ -143,6 +149,7 @@ export default {
       this.registerCommands();
       this.registerHover(this.defaultOpts.language);
       this.addActions();
+      this.installSuggestIconRenderer();
       this.setEditorInstance(this.monacoEditor);
       this.monacoEditor.onMouseDown((event) => {
         const decorations = this.monacoEditor.getLineDecorations(event.target.position.lineNumber);
@@ -520,12 +527,88 @@ export default {
             }
           }
 
+          this.updateCompletionIconMap(suggestions);
+          this.scheduleSuggestIconRender();
           return {
             suggestions
           };
         }
       });
       this.completionItemProviderList.push(providerItem);
+    },
+    updateCompletionIconMap(suggestions) {
+      const iconMap = {};
+      suggestions.forEach((item) => {
+        if (!item?.icon) {
+          return;
+        }
+        const label = this.getCompletionLabelText(item.label);
+        if (label) {
+          iconMap[label] = item.icon;
+        }
+      });
+      this.completionIconMap = iconMap;
+    },
+    installSuggestIconRenderer() {
+      if (this.suggestIconObserver) {
+        this.suggestIconObserver.disconnect();
+      }
+
+      this.suggestIconObserver = new MutationObserver(() => {
+        this.scheduleSuggestIconRender();
+      });
+      this.suggestIconObserver.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    },
+    scheduleSuggestIconRender() {
+      if (this.suggestIconFrame) {
+        cancelAnimationFrame(this.suggestIconFrame);
+      }
+      this.suggestIconFrame = requestAnimationFrame(() => {
+        this.suggestIconFrame = null;
+        this.renderSuggestIcons();
+      });
+    },
+    renderSuggestIcons() {
+      document.querySelectorAll('.suggest-widget .monaco-list-row').forEach((row) => {
+        const label = row.querySelector('.monaco-icon-label .label-name')?.textContent?.trim();
+        const icon = label ? this.completionIconMap[label] : null;
+        const iconEl = row.querySelector('.contents .main .suggest-icon');
+        if (!iconEl) {
+          return;
+        }
+        if (!icon || !/^[A-Z0-9_-]+$/.test(icon)) {
+          if (iconEl.hasAttribute('data-cgdm-icon')) {
+            iconEl.classList.remove('cgdm-completion-icon');
+            iconEl.removeAttribute('data-cgdm-icon');
+            iconEl.innerHTML = '';
+          }
+          return;
+        }
+        if (iconEl.getAttribute('data-cgdm-icon') === icon) {
+          return;
+        }
+
+        Array.from(iconEl.classList)
+          .filter((className) => className === 'codicon' || className.startsWith('codicon-'))
+          .forEach((className) => iconEl.classList.remove(className));
+
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+        use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', `#icon-svg-${icon}`);
+        use.setAttribute('href', `#icon-svg-${icon}`);
+        svg.setAttribute('aria-hidden', 'true');
+        svg.setAttribute('class', 'cgdm-completion-svg');
+        svg.setAttribute('style', 'width:16px;height:16px;display:block;');
+        svg.appendChild(use);
+
+        iconEl.innerHTML = '';
+        iconEl.appendChild(svg);
+        iconEl.classList.add('cgdm-completion-icon');
+        iconEl.setAttribute('data-cgdm-icon', icon);
+      });
     },
     getDsLanguageCapability() {
       return this.getCurrentDsSetting()?.language || null;
@@ -846,16 +929,20 @@ export default {
       }
     },
     toMonacoCompletionItem(item) {
+      const type = item.umiType || item.kind;
       return {
-        label: this.toCompletionLabel(item.label, this.getCompletionTypeText(item.kind)),
-        kind: this.toMonacoCompletionKind(item.kind),
+        label: this.toCompletionLabel(item.label, this.getCompletionTypeText(type)),
+        kind: this.toMonacoCompletionKind(item.kind, item.umiType),
         sortText: item.sortText || this.toCompletionSortText(item.weight, item.label),
-        insertText: item.insertText || item.label
+        insertText: item.insertText || item.label,
+        umiType: item.umiType,
+        icon: item.icon,
+        weight: item.weight
       };
     },
-    mergeCompletionSuggestions(fallbackSuggestions, backendSuggestions) {
+    mergeCompletionSuggestions(staticSuggestions, backendSuggestions) {
       const suggestions = new Map();
-      fallbackSuggestions.forEach((item) => {
+      staticSuggestions.forEach((item) => {
         suggestions.set(this.completionSuggestionKey(item), item);
       });
       backendSuggestions.forEach((item) => {
@@ -865,7 +952,7 @@ export default {
           ...item
         });
       });
-      return Array.from(suggestions.values());
+      return Array.from(suggestions.values()).sort((left, right) => this.compareCompletionSuggestions(left, right));
     },
     completionSuggestionKey(item) {
       return `${item.kind || ''}:${this.getCompletionLabelText(item.label).toUpperCase()}`;
@@ -876,6 +963,14 @@ export default {
         return `${rank}_${this.getCompletionLabelText(label)}`;
       }
       return `${this.sortText++}`.padStart(8, '0');
+    },
+    compareCompletionSuggestions(left, right) {
+      const leftSort = left.sortText || '';
+      const rightSort = right.sortText || '';
+      if (leftSort !== rightSort) {
+        return leftSort.localeCompare(rightSort);
+      }
+      return this.getCompletionLabelText(left.label).localeCompare(this.getCompletionLabelText(right.label));
     },
     toCompletionLabel(label, typeText) {
       const text = this.getCompletionLabelText(label);
@@ -897,26 +992,54 @@ export default {
       const typeMap = {
         KEYWORD: this.$t('guan-jian-zi'),
         DATABASE: this.$t('shu-ju-ku'),
+        Database: this.$t('shu-ju-ku'),
         CATALOG: 'Catalog',
+        Catalog: 'Catalog',
+        ExternalCatalog: 'Catalog',
         SCHEMA: 'Schema',
+        Schema: 'Schema',
+        ExternalSchema: 'Schema',
         TABLE: this.$t('biao'),
+        Table: this.$t('biao'),
+        ExternalTable: this.$t('biao'),
+        Materialized: this.$t('biao'),
         VIEW: this.$t('shi-tu'),
+        View: this.$t('shi-tu'),
         COLUMN: this.$t('lie'),
+        Column: this.$t('lie'),
         FUNCTION: this.$t('han-shu'),
+        Function: this.$t('han-shu'),
         PROCEDURE: 'Procedure',
+        Procedure: 'Procedure',
         SNIPPET: this.$t('mo-ban'),
         TEXT: 'Text'
       };
       return typeMap[kind] || '';
     },
-    toMonacoCompletionKind(kind) {
+    toMonacoCompletionKind(kind, umiType) {
+      const umiKindMap = {
+        Catalog: monaco.languages.CompletionItemKind.Module,
+        ExternalCatalog: monaco.languages.CompletionItemKind.Module,
+        Schema: monaco.languages.CompletionItemKind.Module,
+        ExternalSchema: monaco.languages.CompletionItemKind.Module,
+        Table: monaco.languages.CompletionItemKind.Struct,
+        ExternalTable: monaco.languages.CompletionItemKind.Struct,
+        Materialized: monaco.languages.CompletionItemKind.Struct,
+        View: monaco.languages.CompletionItemKind.Interface,
+        Column: monaco.languages.CompletionItemKind.Field,
+        Function: monaco.languages.CompletionItemKind.Function,
+        Procedure: monaco.languages.CompletionItemKind.Function
+      };
+      if (umiKindMap[umiType]) {
+        return umiKindMap[umiType];
+      }
       const kindMap = {
         KEYWORD: monaco.languages.CompletionItemKind.Keyword,
         DATABASE: monaco.languages.CompletionItemKind.Module,
         CATALOG: monaco.languages.CompletionItemKind.Module,
         SCHEMA: monaco.languages.CompletionItemKind.Module,
-        TABLE: monaco.languages.CompletionItemKind.Method,
-        VIEW: monaco.languages.CompletionItemKind.Method,
+        TABLE: monaco.languages.CompletionItemKind.Struct,
+        VIEW: monaco.languages.CompletionItemKind.Interface,
         COLUMN: monaco.languages.CompletionItemKind.Field,
         FUNCTION: monaco.languages.CompletionItemKind.Function,
         PROCEDURE: monaco.languages.CompletionItemKind.Function,
@@ -1006,7 +1129,7 @@ export default {
         label: this.toCompletionLabel(quick.label, this.$t('mo-ban')),
         kind: monaco.languages.CompletionItemKind.Function,
         // insertText: 'if(${1:logical_expression}, ${2:value_if_true}, ${3:value_if_false})',
-        sortText: `${this.sortText++}`.padStart(8, '0'),
+        sortText: this.toCompletionSortText(QUICK_SNIPPET_WEIGHT, quick.label),
         // eslint-disable-next-line no-template-curly-in-string
         insertText: quick.insertText,
         insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
@@ -1028,7 +1151,7 @@ export default {
         label: this.toCompletionLabel(f, this.$t('han-shu')),
         kind: monaco.languages.CompletionItemKind.Function,
         // insertText: 'if(${1:logical_expression}, ${2:value_if_true}, ${3:value_if_false})',
-        sortText: `${this.sortText++}`.padStart(8, '0'),
+        sortText: this.toCompletionSortText(STATIC_FUNCTION_WEIGHT, f),
         // eslint-disable-next-line no-template-curly-in-string
         insertText: `${f}(\${1:})`,
         insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
@@ -1048,7 +1171,8 @@ export default {
       const list = keywords.map((key) => ({
         label: this.toCompletionLabel(key, this.$t('guan-jian-zi')),
         kind: monaco.languages.CompletionItemKind.Keyword,
-        sortText: `${this.sortText++}`.padStart(8, '0'),
+        sortText: this.toCompletionSortText(STATIC_KEYWORD_WEIGHT, key),
+        weight: STATIC_KEYWORD_WEIGHT,
         insertText: `${key}`
       }));
 
@@ -1114,6 +1238,14 @@ export default {
       if (this.languageServiceErrorTimer) {
         clearTimeout(this.languageServiceErrorTimer);
         this.languageServiceErrorTimer = null;
+      }
+      if (this.suggestIconFrame) {
+        cancelAnimationFrame(this.suggestIconFrame);
+        this.suggestIconFrame = null;
+      }
+      if (this.suggestIconObserver) {
+        this.suggestIconObserver.disconnect();
+        this.suggestIconObserver = null;
       }
       this.completionItemProviderList.forEach((provider) => {
         provider.dispose();
@@ -1200,6 +1332,31 @@ export default {
   height: 100%;
   width: 100%;
   position: relative;
+}
+
+:deep(.suggest-widget .monaco-list .monaco-list-row > .contents > .main) {
+  width: 100%;
+}
+
+:deep(.suggest-widget .monaco-list .monaco-list-row > .contents > .main > .right) {
+  margin-left: auto;
+  padding-left: 16px;
+  flex-shrink: 0;
+}
+
+:deep(.suggest-widget .monaco-list .monaco-list-row > .contents > .main > .right > .details-label) {
+  margin-left: 0;
+  text-align: right;
+}
+
+:deep(.suggest-widget .cgdm-completion-icon::before) {
+  content: '';
+}
+
+:deep(.suggest-widget .cgdm-completion-svg) {
+  width: 16px;
+  height: 16px;
+  display: block;
 }
 
 .monaco-editor .font-size-buttons {

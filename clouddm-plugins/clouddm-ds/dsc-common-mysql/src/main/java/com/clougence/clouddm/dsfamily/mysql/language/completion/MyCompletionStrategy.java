@@ -13,22 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.language.completion;
+package com.clougence.clouddm.dsfamily.mysql.language.completion;
 
-import com.clougence.schema.umi.struts.UmiTypes;
+import java.util.List;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.clougence.clouddm.sdk.language.completion.CompletionItem;
+import com.clougence.clouddm.sdk.service.execute.MetaService;
 
-@Setter
-@Getter
-public class CompletionItem {
+public interface MyCompletionStrategy {
 
-    private String             label;
-    private CompletionItemKind kind;
-    private UmiTypes           umiType;
-    private String             icon;
-    private String             insertText;
-    private String             sortText;
-    private Integer            weight;
+    boolean support(MyCompletionContext context);
+
+    List<CompletionItem> complete(MyCompletionContext context, MetaService metaService);
 }
