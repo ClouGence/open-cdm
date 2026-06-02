@@ -105,7 +105,7 @@ public class MyDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configEditor(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new MyLanguageSpi());
+        dsPlugin.addPluginSpi(new MyLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
         dsPlugin.addPluginSpi(new MyEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
