@@ -30,9 +30,6 @@ public interface UserConfigService {
 
     List<RdpUserConfigVO> queryUserConfigVosWithNewEntries(String uid);
 
-    /**
-     * @return key is configName, value is config detail.
-     */
     Map<String, RdpUserConfigVO> queryWithNewEntriesAndSpecifiedConfs(String uid, List<String> configs);
 
     List<DmSysUserConfDO> getSpecifiedConfigs(String uid, List<String> configNames);
@@ -42,4 +39,8 @@ public interface UserConfigService {
     List<UpsertUserConfigLO> upsertConfigValue(String ownerUid, UpsertUserConfigFO config);
 
     void initSubAccountConfigs(String uid);
+
+    int languageMaxRequests(String uid);
+
+    int languageMaxRequestsByUser(String uid);
 }

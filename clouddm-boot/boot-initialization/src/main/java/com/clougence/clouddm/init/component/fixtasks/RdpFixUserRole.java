@@ -21,9 +21,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.clougence.clouddm.console.web.service.auth.RdpRoleService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.rdp.service.impl.RdpRoleServiceImpl;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -33,18 +33,18 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpFixUserRole {
 
     @Resource
-    private RdpUserService     rdpUserService;
+    private RdpUserService userService;
     @Resource
-    private RdpRoleServiceImpl rdpRoleService;
+    private RdpRoleService roleService;
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public void init() {
-        this.rdpRoleService.init();
+        this.roleService.init();
 
-        List<DmAuthUserDO> primaryUsers = this.rdpUserService.listPrimaryUser();
+        List<DmAuthUserDO> primaryUsers = this.userService.listPrimaryUser();
         for (DmAuthUserDO user : primaryUsers) {
             log.info("RdpFixUserRole: repairRoleForUser " + user.getUid());
-            this.rdpRoleService.repairRoleForUser(user.getUid());
+            this.roleService.repairRoleForUser(user.getUid());
         }
     }
 }

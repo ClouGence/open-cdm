@@ -30,6 +30,7 @@ import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.exception.DmErrorCode;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
+import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.language.DsLanguageService;
@@ -68,6 +69,8 @@ public class ConsoleLanguageService implements UnifiedPostConstruct, ConsoleLang
     private ApplicationContext               appContext;
     @Resource
     private DmAuthServiceForBiz              authCheckService;
+    @Resource
+    private UserConfigService                userConfigService;
     @Resource
     private DsLanguageService                dsLanguageService;
     @Resource
@@ -156,9 +159,13 @@ public class ConsoleLanguageService implements UnifiedPostConstruct, ConsoleLang
 
         AbstractRequest request = json.toJavaObject(languageType.getRequestType());
         request.setRequestId(fo.getRequestId());
+        request.setPrimaryUserId(fo.getPrimaryUserId());
+        request.setCurrentUserId(fo.getCurrentUserId());
         if (ctx.getLevels() != null && ctx.getLevels().dsDO() != null) {
             request.setDataSourceId(ctx.getLevels().dsDO().getId());
             request.setDsType(ctx.getLevels().dsDO().getDataSourceType().getTypeName());
+            request.setLevels(ctx.getLevels().levelsDef());
+            request.setLevelsParam(ctx.getLevels().levelsParam());
         }
 
         if (ctx.getCtxDTO() != null) {
@@ -172,14 +179,14 @@ public class ConsoleLanguageService implements UnifiedPostConstruct, ConsoleLang
     }
 
     private void acquireOrThrow(WsRequestFO fo) {
-        if (this.currentRequests.incrementAndGet() > this.dsLanguageService.languageMaxRequests(fo.getPrimaryUserId())) {
+        if (this.currentRequests.incrementAndGet() > this.userConfigService.languageMaxRequests(fo.getPrimaryUserId())) {
             this.currentRequests.decrementAndGet();
             throw new ErrorMessageException(DmErrorCode.DS_LANGUAGE_ERROR.code(), DmI18nUtils.getMessage(I18nDmMsgKeys.DS_LANGUAGE_BUSY.name()));
         }
 
         String userId = fo.getCurrentUserId();
         AtomicInteger userCounter = this.currentRequestsByUser.computeIfAbsent(userId, key -> new AtomicInteger());
-        if (userCounter.incrementAndGet() > this.dsLanguageService.languageMaxRequestsByUser(userId)) {
+        if (userCounter.incrementAndGet() > this.userConfigService.languageMaxRequestsByUser(userId)) {
             userCounter.decrementAndGet();
             if (userCounter.get() <= 0) {
                 this.currentRequestsByUser.remove(userId, userCounter);

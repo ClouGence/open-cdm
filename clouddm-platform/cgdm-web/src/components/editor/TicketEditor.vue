@@ -102,7 +102,6 @@ export default {
       const list = keywords.map((key) => ({
         label: key,
         kind: monaco.languages.CompletionItemKind.Keyword,
-        detail: `[${this.$t('guan-jian-zi')}]`,
         sortText: `${this.sortText++}`.padStart(8, '0'),
         insertText: `${key}`
       }));

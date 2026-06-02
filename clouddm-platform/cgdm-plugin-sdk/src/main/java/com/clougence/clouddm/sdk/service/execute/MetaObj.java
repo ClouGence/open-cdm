@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.language.completion;
+package com.clougence.clouddm.sdk.service.execute;
+
+import com.clougence.schema.umi.struts.UmiTypes;
 
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
 @Getter
-public class CompletionItem {
+@Setter
+public class MetaObj {
 
-    private String             label;
-    private CompletionItemKind kind;
-    private String             insertText;
-    private String             sortText;
-    private Integer            weight;
+    private UmiTypes type;
+    private String   name;
 }

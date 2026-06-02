@@ -23,5 +23,7 @@ import com.clougence.schema.umi.struts.UmiTypes;
 
 public interface MetaService extends Service {
 
-    List<MetaCol> fetchTableColumns(String uid, long dsId, Map<UmiTypes, Object> levelsParam, String tableName, int tableId);
+    List<MetaCol> fetchTableColumns(String uid, long dsId, Map<UmiTypes, Object> levelsParam, String tableName);
+
+    List<MetaObj> cachedObjectNames(String puid, String uid, long dsId, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam);
 }

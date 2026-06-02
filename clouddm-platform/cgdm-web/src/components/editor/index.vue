@@ -528,13 +528,41 @@ export default {
       this.completionItemProviderList.push(providerItem);
     },
     getDsLanguageCapability() {
+      return this.getCurrentDsSetting()?.language || null;
+    },
+    getCurrentDsSetting() {
       const settings = this.dmGlobalSetting?.dsSettingDef || this.globalDsSetting || {};
-      const dsType = this.currentTab?.dsType;
-      if (settings?.[dsType]?.language) {
-        return settings[dsType].language;
+      const dsType = this.currentTab?.dsType || this.currentTab?.node?.INSTANCE?.attr?.dsType;
+      if (!dsType) {
+        return null;
+      }
+      if (settings?.[dsType]) {
+        return settings[dsType];
       }
       const normalizedKey = Object.keys(settings || {}).find((key) => key.toLowerCase() === `${dsType}`.toLowerCase());
-      return normalizedKey ? settings[normalizedKey]?.language : null;
+      return normalizedKey ? settings[normalizedKey] : null;
+    },
+    getLanguageRequestLevels() {
+      const node = this.currentTab?.node;
+      if (!node) {
+        return [];
+      }
+
+      const configuredLevels = this.getCurrentDsSetting()?.categories?.levels;
+      if (!Array.isArray(configuredLevels) || !configuredLevels.length) {
+        return this.browseGenLevelsData(node);
+      }
+
+      return configuredLevels
+        .map((level) => this.findNodeLevelKey(node, level))
+        .filter((level) => level && node[level]?.id !== undefined && node[level]?.id !== null)
+        .map((level) => node[level].id);
+    },
+    findNodeLevelKey(node, level) {
+      if (node[level]) {
+        return level;
+      }
+      return Object.keys(node).find((key) => key.toLowerCase() === `${level}`.toLowerCase());
     },
     isLanguageFragmentTooLarge(sqlText) {
       if (!sqlText) {
@@ -704,7 +732,7 @@ export default {
         object: {
           languageType,
           requestId: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-          levels: this.currentTab?.node ? this.browseGenLevelsData(this.currentTab.node) : [],
+          levels: this.getLanguageRequestLevels(),
           basicCodeLine: startPosition.lineNumber,
           basicCodeColumn: startPosition.columnNumber,
           request: languageRequest
@@ -713,33 +741,31 @@ export default {
     },
     async getBackendCompletionSuggest(position) {
       const request = this.buildLanguageRequest(position);
+      const fallbackSuggestions = await this.getFallbackKeywordSuggest();
       if (this.isLanguageFragmentTooLarge(request.sqlText)) {
-        return this.getFallbackKeywordSuggest();
+        return fallbackSuggestions;
       }
       try {
         const response = await this.requestLanguageWebSocket('COMPLETE', request);
         if (this.handleLanguageServiceStatus(response)) {
-          return this.getFallbackKeywordSuggest();
+          return fallbackSuggestions;
         }
         if (this.handleLanguageServiceMessage(response)) {
-          return this.getFallbackKeywordSuggest();
+          return fallbackSuggestions;
         }
         const result = response?.result;
         if (result) {
-          return (result.items || []).map((item) => this.toMonacoCompletionItem(item));
+          const backendSuggestions = (result.items || []).map((item) => this.toMonacoCompletionItem(item));
+          return this.mergeCompletionSuggestions(fallbackSuggestions, backendSuggestions);
         }
       } catch {
         // ignore language-service failures and use local fallback.
       }
-      return this.getFallbackKeywordSuggest();
+      return fallbackSuggestions;
     },
     handleLanguageServiceStatus(response) {
       if (response?.success === true) {
         return false;
-      }
-      if (response?.code !== DS_LANGUAGE_ERROR) {
-        this.$Message.error(response?.msg || response?.result?.msg || response?.entities?.[0]?.message || response?.code || '语言服务请求失败');
-        return true;
       }
       this.showLanguageServiceError(
         response?.msg || response?.result?.msg || response?.entities?.[0]?.message || response?.code || '语言服务请求失败'
@@ -754,7 +780,7 @@ export default {
       const entity = response.entities?.[0];
       const message = entity?.message;
       if (message) {
-        this.$Message.error(message);
+        this.showLanguageServiceError(message);
       }
       return true;
     },
@@ -821,13 +847,67 @@ export default {
     },
     toMonacoCompletionItem(item) {
       return {
-        label: item.label,
+        label: this.toCompletionLabel(item.label, this.getCompletionTypeText(item.kind)),
         kind: this.toMonacoCompletionKind(item.kind),
-        detail: item.detail || `[${this.$t('guan-jian-zi')}]`,
-        documentation: item.documentation,
-        sortText: item.sortText || `${this.sortText++}`.padStart(8, '0'),
+        sortText: item.sortText || this.toCompletionSortText(item.weight, item.label),
         insertText: item.insertText || item.label
       };
+    },
+    mergeCompletionSuggestions(fallbackSuggestions, backendSuggestions) {
+      const suggestions = new Map();
+      fallbackSuggestions.forEach((item) => {
+        suggestions.set(this.completionSuggestionKey(item), item);
+      });
+      backendSuggestions.forEach((item) => {
+        const key = this.completionSuggestionKey(item);
+        suggestions.set(key, {
+          ...(suggestions.get(key) || {}),
+          ...item
+        });
+      });
+      return Array.from(suggestions.values());
+    },
+    completionSuggestionKey(item) {
+      return `${item.kind || ''}:${this.getCompletionLabelText(item.label).toUpperCase()}`;
+    },
+    toCompletionSortText(weight, label) {
+      if (Number.isFinite(weight)) {
+        const rank = `${Math.max(0, 1000000 - weight)}`.padStart(7, '0');
+        return `${rank}_${this.getCompletionLabelText(label)}`;
+      }
+      return `${this.sortText++}`.padStart(8, '0');
+    },
+    toCompletionLabel(label, typeText) {
+      const text = this.getCompletionLabelText(label);
+      if (!typeText) {
+        return text;
+      }
+      return {
+        label: text,
+        description: typeText
+      };
+    },
+    getCompletionLabelText(label) {
+      if (label && typeof label === 'object') {
+        return `${label.label || ''}`;
+      }
+      return `${label || ''}`;
+    },
+    getCompletionTypeText(kind) {
+      const typeMap = {
+        KEYWORD: this.$t('guan-jian-zi'),
+        DATABASE: this.$t('shu-ju-ku'),
+        CATALOG: 'Catalog',
+        SCHEMA: 'Schema',
+        TABLE: this.$t('biao'),
+        VIEW: this.$t('shi-tu'),
+        COLUMN: this.$t('lie'),
+        FUNCTION: this.$t('han-shu'),
+        PROCEDURE: 'Procedure',
+        SNIPPET: this.$t('mo-ban'),
+        TEXT: 'Text'
+      };
+      return typeMap[kind] || '';
     },
     toMonacoCompletionKind(kind) {
       const kindMap = {
@@ -923,13 +1003,12 @@ export default {
     // 获取 SQL 语法提示
     getQuickSuggest(position) {
       return getQuick(this.currentTab.dsType).map((quick) => ({
-        label: quick.label,
+        label: this.toCompletionLabel(quick.label, this.$t('mo-ban')),
         kind: monaco.languages.CompletionItemKind.Function,
         // insertText: 'if(${1:logical_expression}, ${2:value_if_true}, ${3:value_if_false})',
         sortText: `${this.sortText++}`.padStart(8, '0'),
         // eslint-disable-next-line no-template-curly-in-string
         insertText: quick.insertText,
-        detail: quick.detail,
         insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         additionalTextEdits: [
           {
@@ -946,13 +1025,12 @@ export default {
     getFunctionSuggest(position) {
       console.log(getFunction(this.currentTab.dsType));
       return getFunction(this.currentTab.dsType).map((f) => ({
-        label: f,
+        label: this.toCompletionLabel(f, this.$t('han-shu')),
         kind: monaco.languages.CompletionItemKind.Function,
         // insertText: 'if(${1:logical_expression}, ${2:value_if_true}, ${3:value_if_false})',
         sortText: `${this.sortText++}`.padStart(8, '0'),
         // eslint-disable-next-line no-template-curly-in-string
         insertText: `${f}(\${1:})`,
-        detail: `[${this.$t('han-shu')}]`,
         insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         additionalTextEdits: [
           {
@@ -968,9 +1046,8 @@ export default {
     },
     getSQLSuggest(keywords) {
       const list = keywords.map((key) => ({
-        label: key,
+        label: this.toCompletionLabel(key, this.$t('guan-jian-zi')),
         kind: monaco.languages.CompletionItemKind.Keyword,
-        detail: `[${this.$t('guan-jian-zi')}]`,
         sortText: `${this.sortText++}`.padStart(8, '0'),
         insertText: `${key}`
       }));
@@ -987,9 +1064,8 @@ export default {
         if (table.columnList && table.columnList.length) {
           table.columnList.forEach((child) => {
             list.push({
-              label: `${child.title} (${tableKey})`,
+              label: this.toCompletionLabel(`${child.title} (${tableKey})`, this.$t('lie')),
               kind: monaco.languages.CompletionItemKind.Enum,
-              detail: `[${this.$t('lie')}]${child.tips}`,
               sortText: `${this.sortText++}`.padStart(8, '0'),
               insertText: this.genQualifierText(node.INSTANCE.attr.dsType, child.title)
             });
@@ -1011,9 +1087,8 @@ export default {
       if (leafKey.type && this.completionData[node.key] && this.completionData[node.key][leafKey.type]) {
         Object.values(this.completionData[this.currentTab.node.key][leafKey.type]).forEach((table) => {
           list.push({
-            label: table.objName,
+            label: this.toCompletionLabel(table.objName, leafKey.i18n),
             kind: monaco.languages.CompletionItemKind.Method,
-            detail: `[${leafKey.i18n}]`,
             sortText: `${this.sortText++}`.padStart(8, '0'),
             insertText: this.genQualifierText(node.INSTANCE.attr.dsType, table.objName),
             command: {
@@ -1119,6 +1194,7 @@ export default {
 .monaco-editor {
   height: 250px;
   width: 100%;
+  position: relative;
 }
 .monaco-editor-content {
   height: 100%;

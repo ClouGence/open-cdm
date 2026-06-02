@@ -29,6 +29,7 @@ import com.clougence.rdp.service.model.AddRoleMO;
  * @author bucketli 2021/1/9 12:21
  */
 public interface RdpRoleService {
+    void init();
 
     Set<String> getInnerRoleLabel(String roleName);
 

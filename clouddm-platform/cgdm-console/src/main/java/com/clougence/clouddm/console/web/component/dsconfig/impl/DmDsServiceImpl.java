@@ -173,7 +173,7 @@ public class DmDsServiceImpl implements DmDsService {
         }
 
         try {
-            return this.dsSchemaService.getVersion(puid, clusterId, dsConfig, levelsParam);
+            return this.dsSchemaService.realTimeFetchVersion(puid, clusterId, dsConfig, levelsParam);
         } catch (ErrorMessageException e) {
             if (StringUtils.equals(e.getErrorCode(), DmErrorCode.CLUSTER_HAVE_NO_WORKS_ERROR.code())) {
                 throw e;
@@ -471,7 +471,7 @@ public class DmDsServiceImpl implements DmDsService {
         DmDsDO dsDO = levels.dsDO();
         DataSourceConfig dsConfig = dmDsConfigService.fetchDsConfigFromDM(dsDO.getId(), dsDO.getDataSourceType());
         try {
-            this.dsSchemaService.getVersion(uid, dsDO, levels.levelsParam());
+            this.dsSchemaService.realTimeFetchVersion(uid, dsDO, levels.levelsParam());
             this.dmDsStatusService.resetStatus(uid, dsConfig);
         } catch (Exception e) {
             this.dmDsStatusService.handleException(uid, dsConfig, e);

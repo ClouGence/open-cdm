@@ -28,13 +28,13 @@ import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.*;
 import com.clougence.clouddm.sdk.analysis.column.RealColumn;
 import com.clougence.clouddm.sdk.analysis.column.SelectItem;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.service.secrules.Domain;
-import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
+import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.execute.MetaCol;
 import com.clougence.clouddm.sdk.service.execute.MetaColConvert;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.service.secrules.Domain;
+import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
@@ -347,7 +347,7 @@ public abstract class RdbBuilderFactory {
                 levels.put(UmiTypes.Schema, tableDomain.getSchema());
             }
             int tableId = counter.getCount();
-            List<MetaCol> metaCols = this.metaService.fetchTableColumns(uid, dsID, levels, tableDomain.getTable(), tableId);
+            List<MetaCol> metaCols = this.metaService.fetchTableColumns(uid, dsID, levels, tableDomain.getTable());
             List<SelectItem> selectItems = MetaColConvert.toSelectItems(metaCols, tableId);
             for (SelectItem selectItem : selectItems) {
                 if (tableDomain.getAlias() != null) {

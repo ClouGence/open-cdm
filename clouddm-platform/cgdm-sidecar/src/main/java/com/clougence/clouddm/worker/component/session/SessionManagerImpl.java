@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.clougence.clouddm.worker.component.session;
+ */
+package com.clougence.clouddm.worker.component.session;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,13 +22,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jakarta.annotation.Resource;
-
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.GlobalConfUtils;
+import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.api.common.exception.DmErrorCode;
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.drivers.DriverRef;
 import com.clougence.clouddm.api.sidecar.session.drivers.DriverUtils;
-import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
@@ -39,9 +41,10 @@ import com.clougence.clouddm.sdk.execute.session.result.ValueProcessService;
 import com.clougence.clouddm.sdk.service.file.FileService;
 import com.clougence.clouddm.worker.component.notify.SidecarSqlNotifyService;
 import com.clougence.clouddm.worker.global.config.DmSidecarConfig;
-import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 
+import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -164,8 +167,30 @@ public class SessionManagerImpl implements SessionManager, UnifiedPostConstruct 
             return agent;
         } catch (Throwable e) {
             counter.decrementAndGet();
+            if (isPluginPackageCorrupted(e)) {
+                String message = "Datasource plugin is damaged, failed to load plugin resource. dsType='" + dsConfig.getDataSourceType()
+                                 + "', driverVersion='" + dsConfig.getDriverVersion() + "'.";
+                log.error(message, e);
+                throw new ErrorMessageException(DmErrorCode.PLUGIN_DAMAGED_ERROR.code(), message);
+            }
             throw e;
         }
+    }
+
+    private static boolean isPluginPackageCorrupted(Throwable e) {
+        for (Throwable item : ExceptionUtils.getThrowableList(e)) {
+            if (!(item instanceof IndexOutOfBoundsException)) {
+                continue;
+            }
+
+            for (StackTraceElement stack : item.getStackTrace()) {
+                String className = stack.getClassName();
+                if (StringUtils.startsWith(className, "com.clougence.utils.jar.") || StringUtils.startsWith(className, "com.clougence.utils.loader.")) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /** close by outside */

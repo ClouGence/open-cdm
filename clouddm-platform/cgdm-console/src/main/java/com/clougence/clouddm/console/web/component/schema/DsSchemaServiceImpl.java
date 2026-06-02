@@ -62,18 +62,39 @@ public class DsSchemaServiceImpl implements DsSchemaService {
     private RemoteDsSchemaService remoteSchemaService;
 
     @Override
-    public String getVersion(String uid, long clusterId, DataSourceConfig dsConfig, Map<UmiTypes, Object> levelsParam) {
-        return this.remoteSchemaService.getVersion(uid, clusterId, dsConfig, levelsParam);
+    public String realTimeFetchVersion(String uid, long clusterId, DataSourceConfig dsConfig, Map<UmiTypes, Object> levelsParam) {
+        return this.remoteSchemaService.realTimeFetchVersion(uid, clusterId, dsConfig, levelsParam);
     }
 
     @Override
-    public String getVersion(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam) {
-        String version = this.localSchemaService.getVersion(uid, dsDO, levelsParam);
+    public Value realTimeFetchSelectObject(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String leafName) {
+        return this.remoteSchemaService.realTimeFetchSelectObject(uid, dsDO, levelsParam, leafName);
+    }
+
+    @Override
+    public List<String> realTimeRequestObjectScript(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName) {
+        return this.remoteSchemaService.realTimeRequestObjectScript(uid, dsDO, levelsParam, leafType, leafName);
+    }
+
+    @Override
+    public String realTimeFetchVersion(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam) {
+        String version = this.localSchemaService.realTimeFetchVersion(uid, dsDO, levelsParam);
         if (StringUtils.isNotBlank(version)) {
             return version;
         }
-        return this.remoteSchemaService.getVersion(uid, dsDO, levelsParam);
+        return this.remoteSchemaService.realTimeFetchVersion(uid, dsDO, levelsParam);
     }
+
+    @Override
+    public List<DsElement> cachedObjectNames(String uid, DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
+        List<DsElement> elements = this.localSchemaService.cachedObjectNames(uid, dsDO, levels, levelsParam);
+        if (CollectionUtils.isNotEmpty(elements)) {
+            return elements;
+        }
+        return this.remoteSchemaService.cachedObjectNames(uid, dsDO, levels, levelsParam);
+    }
+
+    //
 
     @Override
     public List<DsElement> listLevels(String uid, DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam, boolean refreshCache) {
@@ -109,16 +130,6 @@ public class DsSchemaServiceImpl implements DsSchemaService {
             return result;
         }
         return this.remoteSchemaService.detailLeaf(uid, dsDO, levelsParam, leafType, leafName, refreshCache);
-    }
-
-    @Override
-    public Value fetchSelectObject(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String leafName) {
-        return this.remoteSchemaService.fetchSelectObject(uid, dsDO, levelsParam, leafName);
-    }
-
-    @Override
-    public List<String> requestObjectScript(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName) {
-        return this.remoteSchemaService.requestObjectScript(uid, dsDO, levelsParam, leafType, leafName);
     }
 
     @Override

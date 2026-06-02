@@ -265,7 +265,7 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
         String leafName = info.getTargetName();
 
         // request script
-        List<String> scriptList = this.dmDsSchemaService.requestObjectScript(uid, info.getDsDO(), info.getLevelsParam(), leafType, leafName);
+        List<String> scriptList = this.dmDsSchemaService.realTimeRequestObjectScript(uid, info.getDsDO(), info.getLevelsParam(), leafType, leafName);
         return StringUtils.join(scriptList.toArray(), "\n\n");
     }
 

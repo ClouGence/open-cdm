@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.component.config.impl;
+package com.clougence.clouddm.console.web.component.config;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
-import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.model.fo.UpsertUserConfigFO;
 import com.clougence.clouddm.console.web.model.lo.UpsertUserConfigLO;
@@ -49,6 +48,9 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class UserConfigServiceImpl implements UserConfigService {
+
+    private static final int       DEFAULT_LANGUAGE_MAX_REQUESTS         = 8;
+    private static final int       DEFAULT_LANGUAGE_MAX_REQUESTS_BY_USER = 4;
 
     @Resource
     private SystemDal              systemDal;
@@ -271,6 +273,34 @@ public class UserConfigServiceImpl implements UserConfigService {
         }
 
         return configDO;
+    }
+
+    @Override
+    public int languageMaxRequests(String uid) {
+        return intConfig(uid, UserDefinedConfig.Fields.languageMaxRequests, DEFAULT_LANGUAGE_MAX_REQUESTS);
+    }
+
+    @Override
+    public int languageMaxRequestsByUser(String uid) {
+        return intConfig(uid, UserDefinedConfig.Fields.languageMaxRequestsByUser, DEFAULT_LANGUAGE_MAX_REQUESTS_BY_USER);
+    }
+
+    private int intConfig(String uid, String configName, int defaultValue) {
+        if (StringUtils.isBlank(uid)) {
+            return defaultValue;
+        }
+
+        DmSysUserConfDO config = getSpecifiedConfig(uid, configName);
+        String configValue = config == null ? null : config.getConfigValue();
+        if (StringUtils.isBlank(configValue) && config != null) {
+            configValue = config.getDefaultValue();
+        }
+        try {
+            int value = Integer.parseInt(StringUtils.isBlank(configValue) ? String.valueOf(defaultValue) : configValue.trim());
+            return Math.max(1, value);
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
     }
 
     @Override

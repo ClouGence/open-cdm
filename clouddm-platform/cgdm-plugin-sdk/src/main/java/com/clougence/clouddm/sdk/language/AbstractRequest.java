@@ -16,7 +16,10 @@
 package com.clougence.clouddm.sdk.language;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+
+import com.clougence.schema.umi.struts.UmiTypes;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -25,15 +28,19 @@ import lombok.Setter;
 @Getter
 public abstract class AbstractRequest {
 
-    private String              requestId;
-    private long                requestVersion;
-    private Long                dataSourceId;
-    private String              dsType;
-    private String              catalog;
-    private String              schema;
-    private Integer             lineNumber;
-    private Integer             colNumber;
-    private String              sqlText;
+    private String                requestId;
+    private long                  requestVersion;
+    private String                primaryUserId;
+    private String                currentUserId;
+    private Long                  dataSourceId;
+    private String                dsType;
+    private String                catalog;
+    private String                schema;
+    private List<UmiTypes>        levels      = Collections.emptyList();
+    private Map<UmiTypes, Object> levelsParam = Collections.emptyMap();
+    private Integer               lineNumber;
+    private Integer               colNumber;
+    private String                sqlText;
 
-    private Map<String, Object> options = Collections.emptyMap();
+    private Map<String, Object>   options     = Collections.emptyMap();
 }

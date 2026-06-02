@@ -15,8 +15,11 @@
  */
 package com.clougence.clouddm.console.web.component.schema;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -29,6 +32,7 @@ import com.clougence.clouddm.comm.model.RSocketSendType;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsStatusService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevelLeaf;
 import com.clougence.clouddm.console.web.service.browse.MetaInformatinCacheService;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
@@ -45,6 +49,7 @@ import com.clougence.schema.umi.special.rdb.RdbColumn;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.schema.umi.struts.Value;
 import com.clougence.utils.JsonUtils;
+import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -80,7 +85,7 @@ public class RemoteDsSchemaService implements DsSchemaService {
     }
 
     @Override
-    public String getVersion(String uid, long clusterId, DataSourceConfig dsConfig, Map<UmiTypes, Object> levelsParam) {
+    public String realTimeFetchVersion(String uid, long clusterId, DataSourceConfig dsConfig, Map<UmiTypes, Object> levelsParam) {
         RSocketSendDTO sendDTO = new RSocketSendDTO();
         sendDTO.setClusterId(clusterId);
         sendDTO.setUid(uid);
@@ -89,11 +94,69 @@ public class RemoteDsSchemaService implements DsSchemaService {
     }
 
     @Override
-    public String getVersion(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam) {
+    public String realTimeFetchVersion(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam) {
         RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.dsMetaRService.getVersion(sendDTO, dsConfig, levelsParam);
     }
+
+    @Override
+    public Value realTimeFetchSelectObject(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String leafName) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+        DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
+        this.dmDsStatusService.changeStatusIfNecessary(sendDTO, dsConfig, levelsParam);
+        try {
+            return this.dsMetaRService.fetchSelectObject(sendDTO, dsConfig, levelsParam, leafName);
+        } catch (Exception e) {
+            dmDsStatusService.handleException(uid, dsConfig, e);
+            throw e;
+        }
+    }
+
+    @Override
+    public List<String> realTimeRequestObjectScript(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+        DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
+        this.dmDsStatusService.changeStatusIfNecessary(sendDTO, dsConfig, levelsParam);
+        try {
+            return this.dsMetaRService.requestObjectScript(sendDTO, dsConfig, levelsParam, leafType, leafName);
+        } catch (Exception e) {
+            dmDsStatusService.handleException(uid, dsConfig, e);
+            throw e;
+        }
+    }
+
+    @Override
+    public List<DsElement> cachedObjectNames(String uid, DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
+        List<DsElement> result = new ArrayList<>();
+        DsConfig dsConfig = this.dmDsConfigService.dsConstantSettings(dsDO.getDataSourceType());
+        if (shouldListLevels(dsConfig, levels)) {
+            List<DsElement> levelElements = this.listLevels(uid, dsDO, levels, levelsParam, false);
+            if (levelElements != null) {
+                result.addAll(levelElements);
+            }
+        }
+        if (levels != null && !levels.isEmpty()) {
+            List<DsLevelLeaf> leafTypes = dsConfig.getCategories().getLeafGroup().get(levels.get(levels.size() - 1).getTypeName());
+            if (leafTypes != null) {
+                for (DsLevelLeaf leafType : leafTypes) {
+                    UmiTypes umiType = UmiTypes.valueOfCode(leafType.getType());
+                    List<DsElement> leafElements = this.listLeaf(uid, dsDO, levelsParam, umiType, null, false);
+                    if (leafElements != null) {
+                        result.addAll(leafElements);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    private static boolean shouldListLevels(DsConfig dsConfig, List<UmiTypes> levels) {
+        int currentSize = levels == null ? 0 : levels.size();
+        return dsConfig != null && dsConfig.getCategories() != null && dsConfig.getCategories().getLevels() != null && dsConfig.getCategories().getLevels().size() > currentSize + 2;
+    }
+
+    //
 
     @Override
     public List<DsElement> listLevels(String uid, DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam, boolean refreshCache) {
@@ -166,32 +229,6 @@ public class RemoteDsSchemaService implements DsSchemaService {
             MetaInformationType metaType = MetaInformationType.valueOfCode(leafType.getTypeName());
             cacheService.putDetailCache(uid, dsDO.getId(), catalog, schema, metaType, leafName, JsonUtils.toJson(value));
             return value;
-        } catch (Exception e) {
-            dmDsStatusService.handleException(uid, dsConfig, e);
-            throw e;
-        }
-    }
-
-    @Override
-    public Value fetchSelectObject(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String leafName) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
-        DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
-        this.dmDsStatusService.changeStatusIfNecessary(sendDTO, dsConfig, levelsParam);
-        try {
-            return this.dsMetaRService.fetchSelectObject(sendDTO, dsConfig, levelsParam, leafName);
-        } catch (Exception e) {
-            dmDsStatusService.handleException(uid, dsConfig, e);
-            throw e;
-        }
-    }
-
-    @Override
-    public List<String> requestObjectScript(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
-        DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
-        this.dmDsStatusService.changeStatusIfNecessary(sendDTO, dsConfig, levelsParam);
-        try {
-            return this.dsMetaRService.requestObjectScript(sendDTO, dsConfig, levelsParam, leafType, leafName);
         } catch (Exception e) {
             dmDsStatusService.handleException(uid, dsConfig, e);
             throw e;

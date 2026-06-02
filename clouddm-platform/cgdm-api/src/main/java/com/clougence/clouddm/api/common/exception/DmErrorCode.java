@@ -31,6 +31,9 @@ public enum DmErrorCode {
     O_AUTHORITY("10301"),
     O_DATA("10302"),
 
+    // Plugin error 104xx
+    PLUGIN_DAMAGED_ERROR("10401"),
+
     //Ticket error
     TICKET_SQL_PARSE_FAILED("20001");
 

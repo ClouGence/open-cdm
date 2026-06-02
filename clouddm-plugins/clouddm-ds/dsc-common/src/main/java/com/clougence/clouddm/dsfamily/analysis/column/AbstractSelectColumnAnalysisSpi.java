@@ -23,8 +23,8 @@ import com.clougence.clouddm.sdk.analysis.column.SelectColumnAnalysisSpi;
 import com.clougence.clouddm.sdk.analysis.column.SelectItem;
 import com.clougence.clouddm.sdk.service.execute.MetaCol;
 import com.clougence.clouddm.sdk.service.execute.MetaColConvert;
-import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
@@ -211,7 +211,7 @@ public abstract class AbstractSelectColumnAnalysisSpi implements SelectColumnAna
             if (tableDomain.getSchema() != null) {
                 levels.put(UmiTypes.Schema, tableDomain.getSchema());
             }
-            List<MetaCol> metaCols = this.metaService.fetchTableColumns(uid, dsID, levels, tableDomain.getTable(), 0);
+            List<MetaCol> metaCols = this.metaService.fetchTableColumns(uid, dsID, levels, tableDomain.getTable());
             List<SelectItem> selectItems = MetaColConvert.toSelectItems(metaCols, 0);
             for (SelectItem selectItem : selectItems) {
                 if (tableDomain.getAlias() != null) {

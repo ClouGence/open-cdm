@@ -22,8 +22,6 @@ import java.util.function.Supplier;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
-import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
@@ -38,20 +36,10 @@ import com.clougence.clouddm.sdk.language.validate.ValidateRequest;
 import com.clougence.clouddm.sdk.language.validate.ValidateResult;
 import com.clougence.dslpaser.ast.location.BlockLocation;
 import com.clougence.dslpaser.ast.location.CodeLocation;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.utils.CollectionUtils;
-import com.clougence.utils.StringUtils;
-
-import jakarta.annotation.Resource;
 
 @Service
 public class DsLanguageService {
-
-    private static final int     DEFAULT_LANGUAGE_MAX_REQUESTS         = 8;
-    private static final int     DEFAULT_LANGUAGE_MAX_REQUESTS_BY_USER = 4;
-
-    @Resource
-    private RdpUserConfigService rdpUserConfigService;
 
     private DsLanguageSpi findSpi(AbstractRequest request) {
         DataSourceType dsType = DataSourceType.getTypeByName(request.getDsType());
@@ -68,12 +56,18 @@ public class DsLanguageService {
         if (CollectionUtils.isEmpty(languageSpis)) {
             return null;
         }
+
         return languageSpis.get(0);
     }
 
     private <T extends LanguageResult> T invoke(String ownerUid, AbstractRequest request, Supplier<T> emptyResult, Function<DsLanguageSpi, T> action) {
-        T degraded = initResult(request, emptyResult.get());
-        DsLanguageSpi spi = findSpi(request);
+        T degraded = emptyResult.get();
+        if (request != null) {
+            degraded.setRequestId(request.getRequestId());
+            degraded.setRequestVersion(request.getRequestVersion());
+        }
+
+        DsLanguageSpi spi = this.findSpi(request);
         if (spi == null) {
             return degraded;
         }
@@ -83,54 +77,26 @@ public class DsLanguageService {
     }
 
     //
-    //
-    //
-
-    public int languageMaxRequests(String ownerUid) {
-        return intConfig(ownerUid, UserDefinedConfig.Fields.languageMaxRequests, DEFAULT_LANGUAGE_MAX_REQUESTS);
-    }
-
-    public int languageMaxRequestsByUser(String ownerUid) {
-        return intConfig(ownerUid, UserDefinedConfig.Fields.languageMaxRequestsByUser, DEFAULT_LANGUAGE_MAX_REQUESTS_BY_USER);
-    }
 
     public CompletionResult complete(String ownerUid, CompletionRequest request) {
-        return invoke(ownerUid, request, CompletionResult::new, spi -> spi.complete(request));
+        return invoke(ownerUid, request, CompletionResult::new, spi -> {
+            return spi.complete(request);
+        });
     }
 
     public ValidateResult validate(String ownerUid, ValidateRequest request) {
-        return invoke(ownerUid, request, ValidateResult::new, spi -> offsetValidateResult(request, spi.validate(request)));
+        return invoke(ownerUid, request, ValidateResult::new, spi -> {
+            return offsetValidateResult(request, spi.validate(request));
+        });
     }
 
     public SplitResult split(String ownerUid, SplitRequest request) {
-        return invoke(ownerUid, request, SplitResult::new, spi -> spi.split(request));
+        return invoke(ownerUid, request, SplitResult::new, spi -> {
+            return spi.split(request);
+        });
     }
 
-    private static <T extends LanguageResult> T initResult(AbstractRequest request, T result) {
-        if (request != null) {
-            result.setRequestId(request.getRequestId());
-            result.setRequestVersion(request.getRequestVersion());
-        }
-        return result;
-    }
-
-    private int intConfig(String ownerUid, String configName, int defaultValue) {
-        if (StringUtils.isBlank(ownerUid)) {
-            return defaultValue;
-        }
-
-        DmSysUserConfDO config = this.rdpUserConfigService.getSpecifiedConfig(ownerUid, configName);
-        String configValue = config == null ? null : config.getConfigValue();
-        if (StringUtils.isBlank(configValue) && config != null) {
-            configValue = config.getDefaultValue();
-        }
-        try {
-            int value = Integer.parseInt(StringUtils.isBlank(configValue) ? String.valueOf(defaultValue) : configValue.trim());
-            return Math.max(1, value);
-        } catch (NumberFormatException e) {
-            return defaultValue;
-        }
-    }
+    //
 
     private static ValidateResult offsetValidateResult(AbstractRequest request, ValidateResult result) {
         if (result == null || request == null || request.getLineNumber() == null) {
@@ -141,16 +107,13 @@ public class DsLanguageService {
             if (diagnostic.getRange() == null) {
                 continue;
             }
-            diagnostic.setRange(offsetRange(request, diagnostic.getRange()));
+            BlockLocation range = diagnostic.getRange();
+            BlockLocation offsetRange = new BlockLocation();
+            offsetRange.setStartPosition(offsetPosition(request, range.getStartPosition()));
+            offsetRange.setEndPosition(offsetPosition(request, range.getEndPosition()));
+            diagnostic.setRange(offsetRange);
         }
         return result;
-    }
-
-    private static BlockLocation offsetRange(AbstractRequest request, BlockLocation range) {
-        BlockLocation offsetRange = new BlockLocation();
-        offsetRange.setStartPosition(offsetPosition(request, range.getStartPosition()));
-        offsetRange.setEndPosition(offsetPosition(request, range.getEndPosition()));
-        return offsetRange;
     }
 
     private static CodeLocation offsetPosition(AbstractRequest request, CodeLocation position) {

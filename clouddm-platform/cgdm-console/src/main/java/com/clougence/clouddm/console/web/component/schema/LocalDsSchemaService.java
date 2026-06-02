@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.console.web.component.schema;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +27,7 @@ import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevelLeaf;
 import com.clougence.clouddm.console.web.service.browse.MetaInformatinCacheService;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
@@ -84,14 +87,56 @@ public class LocalDsSchemaService implements DsSchemaService {
     }
 
     @Override
-    public String getVersion(String uid, long clusterId, DataSourceConfig dsConfig, Map<UmiTypes, Object> levelsParam) {
+    public String realTimeFetchVersion(String uid, long clusterId, DataSourceConfig dsConfig, Map<UmiTypes, Object> levelsParam) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public String getVersion(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam) {
+    public String realTimeFetchVersion(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam) {
         return null;
     }
+
+    @Override
+    public Value realTimeFetchSelectObject(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String leafName) {
+        return null;
+    }
+
+    @Override
+    public List<String> realTimeRequestObjectScript(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<DsElement> cachedObjectNames(String uid, DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
+        List<DsElement> result = new ArrayList<>();
+        DsConfig dsConfig = this.dmDsConfigService.dsConstantSettings(dsDO.getDataSourceType());
+        if (shouldListLevels(dsConfig, levels)) {
+            List<DsElement> levelElements = this.listLevels(uid, dsDO, levels, levelsParam, false);
+            if (levelElements != null) {
+                result.addAll(levelElements);
+            }
+        }
+        if (levels != null && !levels.isEmpty()) {
+            List<DsLevelLeaf> leafTypes = dsConfig.getCategories().getLeafGroup().get(levels.get(levels.size() - 1).getTypeName());
+            if (leafTypes != null) {
+                for (DsLevelLeaf leafType : leafTypes) {
+                    UmiTypes umiType = UmiTypes.valueOfCode(leafType.getType());
+                    List<DsElement> leafElements = this.listLeaf(uid, dsDO, levelsParam, umiType, null, false);
+                    if (leafElements != null) {
+                        result.addAll(leafElements);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    private static boolean shouldListLevels(DsConfig dsConfig, List<UmiTypes> levels) {
+        int currentSize = levels == null ? 0 : levels.size();
+        return dsConfig != null && dsConfig.getCategories() != null && dsConfig.getCategories().getLevels() != null && dsConfig.getCategories().getLevels().size() > currentSize + 2;
+    }
+
+    //
 
     @Override
     public List<DsElement> listLevels(String uid, DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam, boolean refreshCache) {
@@ -107,10 +152,11 @@ public class LocalDsSchemaService implements DsSchemaService {
             leafType = MetaInformationType.SchemaList;
         }
 
-        String context = cacheService.getListCache(uid, dsDO.getId(), (String) levelsParam.get(UmiTypes.Catalog), (String) levelsParam.get(UmiTypes.Schema), leafType);
-
+        String catalog = (String) levelsParam.get(UmiTypes.Catalog);
+        String schema = (String) levelsParam.get(UmiTypes.Schema);
+        String context = cacheService.getListCache(uid, dsDO.getId(), catalog, schema, leafType);
         if (context != null) {
-            return JsonUtils.toList(context, new TypeReference<List<DsElement>>() {});
+            return JsonUtils.toList(context, new TypeReference<>() {});
         }
         return null;
     }
@@ -126,11 +172,13 @@ public class LocalDsSchemaService implements DsSchemaService {
             return null;
         }
 
-        String context = cacheService.getListCache(uid, dsDO.getId(), (String) levelsParam.get(UmiTypes.Catalog), (String) levelsParam.get(UmiTypes.Schema), MetaInformationType
-            .valueOfCode(leafType.getTypeName() + "List"));
+        String catalog = (String) levelsParam.get(UmiTypes.Catalog);
+        String schema = (String) levelsParam.get(UmiTypes.Schema);
+        MetaInformationType metaType = MetaInformationType.valueOfCode(leafType.getTypeName() + "List");
+        String context = cacheService.getListCache(uid, dsDO.getId(), catalog, schema, metaType);
 
         if (context != null) {
-            return JsonUtils.toList(context, new TypeReference<List<DsElement>>() {});
+            return JsonUtils.toList(context, new TypeReference<>() {});
         }
         return null;
     }
@@ -141,22 +189,14 @@ public class LocalDsSchemaService implements DsSchemaService {
             return null;
         }
 
-        String context = cacheService.getDetailCache(uid, dsDO.getId(), (String) levelsParam.get(UmiTypes.Catalog), (String) levelsParam.get(UmiTypes.Schema), MetaInformationType
-            .valueOfCode(leafType.getTypeName()), leafName);
+        String catalog = (String) levelsParam.get(UmiTypes.Catalog);
+        String schema = (String) levelsParam.get(UmiTypes.Schema);
+        MetaInformationType metaType = MetaInformationType.valueOfCode(leafType.getTypeName());
+        String context = cacheService.getDetailCache(uid, dsDO.getId(), catalog, schema, metaType, leafName);
         if (context != null) {
             return JsonUtils.toObj(context, Value.class);
         }
         return null;
-    }
-
-    @Override
-    public Value fetchSelectObject(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String leafName) {
-        return null;
-    }
-
-    @Override
-    public List<String> requestObjectScript(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -276,8 +316,9 @@ public class LocalDsSchemaService implements DsSchemaService {
 
     @Override
     public String loadTableEditor(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String table, boolean refreshCache) {
-        return cacheService
-            .getDetailCache(uid, dsDO.getId(), (String) levelsParam.get(UmiTypes.Catalog), (String) levelsParam.get(UmiTypes.Schema), MetaInformationType.ETable, table);
+        String catalog = (String) levelsParam.get(UmiTypes.Catalog);
+        String schema = (String) levelsParam.get(UmiTypes.Schema);
+        return cacheService.getDetailCache(uid, dsDO.getId(), catalog, schema, MetaInformationType.ETable, table);
     }
 
     @Override
