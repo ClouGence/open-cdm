@@ -34,6 +34,7 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
+import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.constants.MfaPreActionType;
 import com.clougence.clouddm.console.web.constants.RdpProduct;
@@ -51,7 +52,6 @@ import com.clougence.clouddm.console.web.model.fo.RequestJumpUrlFO;
 import com.clougence.clouddm.console.web.model.fo.mfa.LoginMfaValidFO;
 import com.clougence.clouddm.console.web.model.fo.user.CheckSubAccountBindInfoFO;
 import com.clougence.clouddm.console.web.model.vo.RdpGlobalSettingsVO;
-import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserLoginRegService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserMfaService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
@@ -102,7 +102,7 @@ public class RdpHomeController {
     @Resource
     private RdpOpAuditService      rdpOpAuditService;
     @Resource
-    private RdpUserConfigService   rdpUserConfigService;
+    private UserConfigService      userConfigService;
     @Resource
     private JwtService             jwtService;
 
@@ -257,7 +257,7 @@ public class RdpHomeController {
     public ResWebData<?> primaryUserDomains(HttpServletRequest request) {
         List<Map<String, Object>> orgList = new ArrayList<>();
         for (DmAuthUserDO primary : this.rdpUserService.listPrimaryUser()) {
-            DmSysUserConfDO authTypeDO = this.rdpUserConfigService.getSpecifiedConfig(primary.getUid(), UserDefinedConfig.Fields.subAccountAuthType);
+            DmSysUserConfDO authTypeDO = this.userConfigService.getSpecifiedConfig(primary.getUid(), UserDefinedConfig.Fields.subAccountAuthType);
             LoginAuthType authType = LoginAuthType.PASSWORD;
             if (authTypeDO != null) {
                 try {
@@ -302,7 +302,7 @@ public class RdpHomeController {
             return ResWebDataUtils.buildSuccess("");
         }
 
-        DmSysUserConfDO authTypeDO = this.rdpUserConfigService.getSpecifiedConfig(primaryUid, UserDefinedConfig.Fields.subAccountAuthType);
+        DmSysUserConfDO authTypeDO = this.userConfigService.getSpecifiedConfig(primaryUid, UserDefinedConfig.Fields.subAccountAuthType);
         if (authTypeDO != null) {
             try {
                 authType = LoginAuthType.valueOfCode(authTypeDO.getConfigValue());

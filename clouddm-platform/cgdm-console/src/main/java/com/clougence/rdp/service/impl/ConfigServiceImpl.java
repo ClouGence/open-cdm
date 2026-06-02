@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.rdp.service.impl;
+package com.clougence.clouddm.console.web.component.config.impl;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
+import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
@@ -44,13 +44,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConfigServiceImpl implements ConsoleConfigService {
     @Resource
-    private AuthDal              authDal;
+    private AuthDal           authDal;
     @Resource
-    private RdpUserConfigService rdpUserConfigService;
+    private UserConfigService userConfigService;
 
     @Override
     public List<ConfigData> fetchSettings(String ownerUid, List<String> names) {
-        List<DmSysUserConfDO> configList = this.rdpUserConfigService.getSpecifiedConfigs(ownerUid, names);
+        List<DmSysUserConfDO> configList = this.userConfigService.getSpecifiedConfigs(ownerUid, names);
         if (CollectionUtils.isEmpty(configList)) {
             return Collections.emptyList();
         } else {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.service.auth;
+package com.clougence.clouddm.console.web.component.config;
 
 import java.util.List;
 import java.util.Map;
@@ -22,12 +22,11 @@ import com.clougence.clouddm.console.web.model.fo.UpsertUserConfigFO;
 import com.clougence.clouddm.console.web.model.lo.UpsertUserConfigLO;
 import com.clougence.clouddm.console.web.model.vo.RdpUserConfigVO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
-import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
 
 /**
  * @author bucketli 2022/1/10 20:18:18
  */
-public interface RdpUserConfigService {
+public interface UserConfigService {
 
     List<RdpUserConfigVO> queryUserConfigVosWithNewEntries(String uid);
 
@@ -39,8 +38,6 @@ public interface RdpUserConfigService {
     List<DmSysUserConfDO> getSpecifiedConfigs(String uid, List<String> configNames);
 
     DmSysUserConfDO getSpecifiedConfig(String uid, String configName);
-
-    List<RdpUserConfigVO> queryOneConfigTypeByUid(String uid, UserConfigTagType type);
 
     List<UpsertUserConfigLO> upsertConfigValue(String ownerUid, UpsertUserConfigFO config);
 

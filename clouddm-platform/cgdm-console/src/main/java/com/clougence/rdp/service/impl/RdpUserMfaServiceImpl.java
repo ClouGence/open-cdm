@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.rdp.service.impl;
+package com.clougence.clouddm.console.web.component.config.impl;
 
 import static com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys.MFA_CODE_IS_INVALID;
 

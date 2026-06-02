@@ -22,9 +22,9 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
+import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
-import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
 import com.clougence.clouddm.console.web.service.browse.MetaInformatinCacheService;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
@@ -61,17 +61,17 @@ public class LocalDsSchemaService implements DsSchemaService {
     @Resource
     private DmDsConfigService          dmDsConfigService;
     @Resource
-    private RdpUserConfigService       rdpUserConfigService;
+    private UserConfigService          userConfigService;
     @Resource
-    private ObjectCacheDao             objectCacheDao;
+    private ObjectCacheDao             cacheDao;
 
     private boolean isDisableMetaCache(String uid) {
-        UserCacheEntry byUID = this.objectCacheDao.queryByUid(uid);
+        UserCacheEntry byUID = this.cacheDao.queryByUid(uid);
         if (byUID.getUserType() == AccountType.SUB_ACCOUNT) {
-            byUID = this.objectCacheDao.queryByUid(byUID.getParentUid());
+            byUID = this.cacheDao.queryByUid(byUID.getParentUid());
         }
 
-        DmSysUserConfDO configDO = this.rdpUserConfigService.getSpecifiedConfig(byUID.getUid(), UserDefinedConfig.Fields.consoleMetadataCache);
+        DmSysUserConfDO configDO = this.userConfigService.getSpecifiedConfig(byUID.getUid(), UserDefinedConfig.Fields.consoleMetadataCache);
         if (configDO == null || StringUtils.isBlank(configDO.getConfigValue())) {
             return true;
         }

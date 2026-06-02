@@ -13,14 +13,14 @@
 // * See the License for the specific language governing permissions and
 // * limitations under the License.
 // */
-//package com.clougence.rdp.service.impl;
+//package com.clougence.clouddm.console.web.component.config.impl;
 //
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.beans.factory.annotation.Qualifier;
 //import org.springframework.stereotype.Service;
 //
 //import com.clougence.clouddm.console.web.component.alert.RdpMailAlertService;
-//import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
+//import com.clougence.clouddm.console.web.component.config.UserConfigService;
 //import com.clougence.rdp.service.RdpUserAlertService;
 //
 //import jakarta.annotation.Resource;
@@ -40,7 +40,7 @@
 //    protected RdpMailAlertService  rdpMailAlertService;
 //    @Resource
 //    @Setter
-//    protected RdpUserConfigService rdpUserConfigService;
+//    protected UserConfigService rdpUserConfigService;
 //
 //    @Override
 //    public RdpMailAlertService chooseMailAlertService() {

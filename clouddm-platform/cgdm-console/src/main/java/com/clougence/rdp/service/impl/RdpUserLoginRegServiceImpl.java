@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.rdp.service.impl;
+package com.clougence.clouddm.console.web.component.config.impl;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -25,6 +25,7 @@ import java.util.Date;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.constants.MfaPreActionType;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
@@ -35,7 +36,6 @@ import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.model.fo.LoginAutoRegisterFO;
 import com.clougence.clouddm.console.web.model.fo.LoginFO;
 import com.clougence.clouddm.console.web.model.vo.LoginUserVO;
-import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserLoginRegService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
@@ -71,19 +71,19 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
 
     @Resource
-    private AuthDal              authDal;
+    private AuthDal           authDal;
     @Resource
-    private DmConsoleConfig      rdpConfig;
+    private DmConsoleConfig   rdpConfig;
     @Resource
-    private RdpUserService       rdpUserService;
+    private RdpUserService    rdpUserService;
     @Resource
-    private JwtService           jwtService;
+    private JwtService        jwtService;
     @Resource
-    private RdpVerifyService     rdpVerifyService;
+    private RdpVerifyService  rdpVerifyService;
     @Resource
-    private RdpUserConfigService rdpUserConfigService;
+    private UserConfigService userConfigService;
     @Resource
-    private CsrfTokenService     csrfTokenService;
+    private CsrfTokenService  csrfTokenService;
 
     @Override
     public LoginMO login(LoginFO loginFO) {
@@ -239,7 +239,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
         }
 
         DmAuthUserDO pUserDO = this.authDal.userMapper().queryById(user.getParentId());
-        DmSysUserConfDO configDO = this.rdpUserConfigService.getSpecifiedConfig(pUserDO.getUid(), UserDefinedConfig.Fields.subAccountPwdExpireDays);
+        DmSysUserConfDO configDO = this.userConfigService.getSpecifiedConfig(pUserDO.getUid(), UserDefinedConfig.Fields.subAccountPwdExpireDays);
         if (configDO != null && StringUtils.isNotBlank(configDO.getConfigValue())) {
             int days = Integer.parseInt(configDO.getConfigValue());
             if (days > 0) {
@@ -465,7 +465,7 @@ public class RdpUserLoginRegServiceImpl implements RdpUserLoginRegService {
             return;
         }
 
-        DmSysUserConfDO configDO = this.rdpUserConfigService.getSpecifiedConfig(pUid, UserDefinedConfig.Fields.subAccountPwdExpireDays);
+        DmSysUserConfDO configDO = this.userConfigService.getSpecifiedConfig(pUid, UserDefinedConfig.Fields.subAccountPwdExpireDays);
         if (configDO == null || StringUtils.isBlank(configDO.getConfigValue())) {
             return;
         }

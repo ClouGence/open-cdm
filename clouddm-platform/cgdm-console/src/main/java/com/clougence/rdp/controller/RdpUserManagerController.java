@@ -30,6 +30,7 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
+import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
@@ -40,7 +41,6 @@ import com.clougence.clouddm.console.web.model.fo.role.UpdateUserRoleFO;
 import com.clougence.clouddm.console.web.model.fo.user.*;
 import com.clougence.clouddm.console.web.model.lo.UpdateUserRoleLO;
 import com.clougence.clouddm.console.web.model.vo.ListUserVO;
-import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.Sm2Utils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
@@ -75,19 +75,17 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpUserManagerController {
 
     @Resource
-    private AuthDal              authDal;
+    private AuthDal             authDal;
     @Resource
-    private RdpUserService       rdpUserService;
+    private RdpUserService      rdpUserService;
     @Resource
-    private DmAuthServiceForBiz  rdpAuthServiceForBiz;
+    private DmAuthServiceForBiz rdpAuthServiceForBiz;
     @Resource
-    private RdpUserConfigService rdpUserConfigService;
-
+    private UserConfigService   userConfigService;
     @Resource
-    private DmConsoleConfig      rdpConfig;
-
+    private DmConsoleConfig     rdpConfig;
     @Resource
-    private RdpOpAuditService    rdpOpAuditService;
+    private RdpOpAuditService   rdpOpAuditService;
 
     @RequestAuth(level = HIGH, value = RDP_USER_MANAGE)
     @RequestMapping(value = "/resetpasswd", method = { RequestMethod.POST })
@@ -217,7 +215,7 @@ public class RdpUserManagerController {
 
         rdpAuthServiceForBiz.checkOperateOtherUserAuth(uid, userDO.getUid());
 
-        DmSysUserConfDO configDO = rdpUserConfigService.getSpecifiedConfig(puid, UserDefinedConfig.Fields.forbidDelSubAccount);
+        DmSysUserConfDO configDO = userConfigService.getSpecifiedConfig(puid, UserDefinedConfig.Fields.forbidDelSubAccount);
         if (configDO != null) {
             boolean forbid = Boolean.parseBoolean(configDO.getConfigValue());
             if (forbid) {

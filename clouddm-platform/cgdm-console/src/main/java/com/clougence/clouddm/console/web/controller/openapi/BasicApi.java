@@ -17,7 +17,7 @@ package com.clougence.clouddm.console.web.controller.openapi;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
+import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.utils.StringUtils;
@@ -33,10 +33,10 @@ import lombok.extern.slf4j.Slf4j;
 public class BasicApi {
 
     @Resource
-    private RdpUserConfigService rdpUserConfigService;
+    private UserConfigService userConfigService;
 
     public boolean isEnableMcp(String puid) {
-        DmSysUserConfDO configDO = this.rdpUserConfigService.getSpecifiedConfig(puid, UserDefinedConfig.Fields.dmEnableMCP);
+        DmSysUserConfDO configDO = this.userConfigService.getSpecifiedConfig(puid, UserDefinedConfig.Fields.dmEnableMCP);
         if (configDO == null || StringUtils.isBlank(configDO.getConfigValue())) {
             return false;
         }

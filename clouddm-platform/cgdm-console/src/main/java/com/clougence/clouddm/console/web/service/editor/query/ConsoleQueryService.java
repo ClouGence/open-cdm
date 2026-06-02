@@ -31,6 +31,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
+import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.component.detectrule.*;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
@@ -43,7 +44,6 @@ import com.clougence.clouddm.console.web.model.fo.editor.query.WsQueryType;
 import com.clougence.clouddm.console.web.model.vo.editor.query.MessageLevel;
 import com.clougence.clouddm.console.web.model.vo.editor.query.WsQueryResult;
 import com.clougence.clouddm.console.web.service.analysis.QueryAnalysisService;
-import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
 import com.clougence.clouddm.console.web.service.editor.DsQueryEditorService;
 import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
@@ -126,7 +126,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     @Resource
     private DmDsConfigService    dmDsConfigService;
     @Resource
-    private RdpUserConfigService rdpUserConfigService;
+    private UserConfigService    userConfigService;
     @Resource
     private SecRulesService      rulesService;
     @Resource
@@ -1468,7 +1468,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     }
 
     private boolean isUsingCacheResult(WsQueryFO queryDTO) {
-        DmSysUserConfDO configDO = this.rdpUserConfigService.getSpecifiedConfig(queryDTO.getPrimaryUserId(), UserDefinedConfig.Fields.onlineResultCacheTimeoutSec);
+        DmSysUserConfDO configDO = this.userConfigService.getSpecifiedConfig(queryDTO.getPrimaryUserId(), UserDefinedConfig.Fields.onlineResultCacheTimeoutSec);
         if (configDO == null || StringUtils.isBlank(configDO.getConfigValue())) {
             return true;
         }
@@ -1480,7 +1480,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     }
 
     private boolean isUsingSelectRewrite(WsQueryFO queryDTO, QueryCtx ctx) {
-        DmSysUserConfDO configDO = this.rdpUserConfigService.getSpecifiedConfig(queryDTO.getPrimaryUserId(), UserDefinedConfig.Fields.onlineSelectRewriteDisable);
+        DmSysUserConfDO configDO = this.userConfigService.getSpecifiedConfig(queryDTO.getPrimaryUserId(), UserDefinedConfig.Fields.onlineSelectRewriteDisable);
         if (configDO == null || StringUtils.isBlank(configDO.getConfigValue())) {
             return true;
         }

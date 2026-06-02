@@ -30,6 +30,7 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
+import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
@@ -37,7 +38,6 @@ import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrat
 import com.clougence.clouddm.console.web.model.fo.UpsertUserConfigFO;
 import com.clougence.clouddm.console.web.model.fo.user.GetUserSpecifiedConfsFO;
 import com.clougence.clouddm.console.web.model.lo.UpsertUserConfigLO;
-import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
@@ -60,18 +60,16 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpUserConfigController {
 
     @Resource
-    private RdpUserConfigService rdpUserConfigService;
+    private UserConfigService userConfigService;
     @Resource
-    private RdpUserService       rdpUserService;
-    @Resource
-    private RdpOpAuditService    rdpOpAuditService;
+    private RdpOpAuditService rdpOpAuditService;
 
     @RequestAuth(strategy = AuthStrategy.RefAnyOnes)
     @RequestMapping(value = "/getcurruserconfigs", method = RequestMethod.POST)
     public ResWebData<?> getCurrUserConfigs(HttpServletRequest request) {
         // prepare auth info
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        return ResWebDataUtils.buildSuccess(rdpUserConfigService.queryUserConfigVosWithNewEntries(puid));
+        return ResWebDataUtils.buildSuccess(userConfigService.queryUserConfigVosWithNewEntries(puid));
     }
 
     @RequestAuth(strategy = AuthStrategy.RefAnyOnes)
@@ -87,7 +85,7 @@ public class RdpUserConfigController {
             throw new IllegalArgumentException("Empty puid.maybe not login.");
         }
 
-        return ResWebDataUtils.buildSuccess(rdpUserConfigService.queryWithNewEntriesAndSpecifiedConfs(puid, configFO.getConfigNames()));
+        return ResWebDataUtils.buildSuccess(userConfigService.queryWithNewEntriesAndSpecifiedConfs(puid, configFO.getConfigNames()));
     }
 
     @RequestAuth(level = HIGH, value = RDP_PRI_USER_KV_CONF_W)
@@ -100,7 +98,7 @@ public class RdpUserConfigController {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        List<UpsertUserConfigLO> configLOs = rdpUserConfigService.upsertConfigValue(puid, configFO);
+        List<UpsertUserConfigLO> configLOs = userConfigService.upsertConfigValue(puid, configFO);
 
         rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request
             .getRemoteAddr(), uid, configLOs, SecurityLevel.HIGH, AuditType.UPDATE_SYSTEM_CONFIG, ResourceType.ACCOUNT);

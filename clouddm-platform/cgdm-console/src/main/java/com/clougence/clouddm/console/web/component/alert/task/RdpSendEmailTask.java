@@ -30,7 +30,7 @@
 //import com.clougence.clouddm.console.web.component.asyntask.AsyncTask;
 //import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 //import com.clougence.clouddm.console.web.model.vo.RdpUserConfigVO;
-//import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
+//import com.clougence.clouddm.console.web.component.config.UserConfigService;
 //import com.clougence.clouddm.console.web.util.RdpJacksonUtil;
 //import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 //import com.clougence.clouddm.platform.dal.model.monitor.AlertEventStatus;
@@ -63,7 +63,7 @@
 //    private DmConsoleConfig         consoleConfig;
 //    @Setter
 //    @Resource
-//    private RdpUserConfigService    userConfigService;
+//    private UserConfigService    userConfigService;
 //    @Resource
 //    private RdpAlertEventLogService alertEventLogService;
 //

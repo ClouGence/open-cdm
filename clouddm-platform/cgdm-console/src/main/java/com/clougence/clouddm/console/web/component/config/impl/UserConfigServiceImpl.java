@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.rdp.service.impl;
+package com.clougence.clouddm.console.web.component.config.impl;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,17 +23,16 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
+import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.model.fo.UpsertUserConfigFO;
 import com.clougence.clouddm.console.web.model.lo.UpsertUserConfigLO;
 import com.clougence.clouddm.console.web.model.vo.RdpUserConfigVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserConfigHelper;
-import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
-import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
 import com.clougence.rdp.global.config.user.SubAccountConfig;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.rdp.service.RdpNotifyService;
@@ -49,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Service
 @Slf4j
-public class RdpUserConfigServiceImpl implements RdpUserConfigService {
+public class UserConfigServiceImpl implements UserConfigService {
 
     @Resource
     private SystemDal              systemDal;
@@ -272,19 +271,6 @@ public class RdpUserConfigServiceImpl implements RdpUserConfigService {
         }
 
         return configDO;
-    }
-
-    @Override
-    public List<RdpUserConfigVO> queryOneConfigTypeByUid(String uid, UserConfigTagType type) {
-        List<DmSysUserConfDO> configs = systemDal.userConfMapper().listOneConfigTypeByUid(uid, type);
-        for (DmSysUserConfDO configDO : configs) {
-            if (configDO.isSecret() && com.clougence.utils.StringUtils.isNotBlank(configDO.getConfigValue())) {
-                String val = CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(configDO.getConfigValue());
-                configDO.setConfigValue(val);
-            }
-        }
-
-        return convertToVO(configs);
     }
 
     @Override

@@ -32,7 +32,7 @@
 //import com.clougence.clouddm.console.web.component.alert.RdpImAlertService;
 //import com.clougence.clouddm.console.web.component.alert.model.SendMsgResult;
 //import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
-//import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
+//import com.clougence.clouddm.console.web.component.config.UserConfigService;
 //import com.clougence.clouddm.console.web.util.HealthCheckInterceptor;
 //import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 //import com.clougence.clouddm.platform.dal.model.monitor.AlertEventStatus;
@@ -61,7 +61,7 @@
 //    private final long              KEEP_ALIVE_TIME_MILLIS = 60000;
 //    @Resource
 //    @Setter
-//    protected RdpUserConfigService  rdpUserConfigService;
+//    protected UserConfigService  rdpUserConfigService;
 //    @Resource
 //    @Setter
 //    protected DmConsoleConfig       rdpConfig;

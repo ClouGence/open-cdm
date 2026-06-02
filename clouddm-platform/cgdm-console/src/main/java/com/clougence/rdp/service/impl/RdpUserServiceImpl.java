@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.rdp.service.impl;
+package com.clougence.clouddm.console.web.component.config.impl;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -32,6 +32,7 @@ import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.GlobalDeploySite;
 import com.clougence.clouddm.console.web.component.auth.DmAuthLabelService;
 import com.clougence.clouddm.console.web.component.auth.DmUserService;
+import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.constants.CheckSubAccountType;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
@@ -44,7 +45,6 @@ import com.clougence.clouddm.console.web.model.vo.ListUserVO;
 import com.clougence.clouddm.console.web.model.vo.PwdValidateExprVO;
 import com.clougence.clouddm.console.web.model.vo.RdpUserAkSkVO;
 import com.clougence.clouddm.console.web.service.auth.RdpRoleService;
-import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
@@ -89,7 +89,7 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     @Resource
     private RdpNamingService       rdpNamingService;
     @Resource
-    private RdpUserConfigService   rdpUserConfigService;
+    private UserConfigService      userConfigService;
     @Resource
     private DmAuthLabelService     authLabelService;
     @Resource
@@ -202,9 +202,9 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
             return getDefaultValidateExprVO();
         }
 
-        DmSysUserConfDO configDO = rdpUserConfigService.getSpecifiedConfig(puid, UserDefinedConfig.Fields.subAccountPwdVerifyExpr);
+        DmSysUserConfDO configDO = userConfigService.getSpecifiedConfig(puid, UserDefinedConfig.Fields.subAccountPwdVerifyExpr);
         if (configDO != null && StringUtils.isNotBlank(configDO.getConfigValue())) {
-            DmSysUserConfDO tipsConf = rdpUserConfigService.getSpecifiedConfig(puid, UserDefinedConfig.Fields.subAccountPwdVerifyTips);
+            DmSysUserConfDO tipsConf = userConfigService.getSpecifiedConfig(puid, UserDefinedConfig.Fields.subAccountPwdVerifyTips);
             if (tipsConf != null && StringUtils.isNotBlank(configDO.getConfigValue())) {
                 PwdValidateExprVO vo = new PwdValidateExprVO();
                 vo.setExpr(configDO.getConfigValue());
@@ -598,7 +598,7 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         userDO.setAccessKey(this.rdpNamingService.genAccessKey());
         userDO.setSecretKey(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(this.rdpNamingService.genSecretKey()));
         this.authDal.userMapper().insert(userDO);
-        this.rdpUserConfigService.initSubAccountConfigs(userDO.getUid());
+        this.userConfigService.initSubAccountConfigs(userDO.getUid());
         this.notifyServices.forEach(s -> s.notifyUser(managedUid, userDO.getUid(), UserOperationType.ADD));
 
         return userDO.getId();
@@ -822,7 +822,7 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         this.authDal.userMapper().insert(userDO);
         //        verifyService.initUserVerify(userDO);
 
-        this.rdpUserConfigService.initSubAccountConfigs(userDO.getUid());
+        this.userConfigService.initSubAccountConfigs(userDO.getUid());
 
         this.notifyServices.forEach(s -> s.notifyUser(puid, userDO.getUid(), UserOperationType.ADD));
         return new AddSubAccountMO(true, null, userDO.getUid());
@@ -858,7 +858,7 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         this.authDal.userMapper().insert(userDO);
         //        verifyService.initUserVerify(userDO);
 
-        this.rdpUserConfigService.initSubAccountConfigs(userDO.getUid());
+        this.userConfigService.initSubAccountConfigs(userDO.getUid());
 
         this.notifyServices.forEach(s -> s.notifyUser(puid, userDO.getUid(), UserOperationType.ADD));
         return new AddSubAccountMO(true, null, userDO.getUid());

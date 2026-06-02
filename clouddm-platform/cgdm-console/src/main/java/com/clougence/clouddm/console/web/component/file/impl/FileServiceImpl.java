@@ -31,10 +31,10 @@ import com.clougence.clouddm.api.sidecar.session.execute.ResultPageDTO;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultSetRService;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
+import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.component.file.FileService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
 import com.clougence.clouddm.console.web.service.editor.model.DataResultDataVO;
 import com.clougence.clouddm.console.web.service.editor.model.DataResultPageVO;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
@@ -63,7 +63,7 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
     @Resource
     private ResultSetRService           resultSetRService;
     @Resource
-    private RdpUserConfigService        rdpUserConfigService;
+    private UserConfigService           userConfigService;
     private ScheduledThreadPoolExecutor scheduledExecutor;
 
     @Override
@@ -158,7 +158,7 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
             return timeoutConfigCache.get(ownerUid);
         }
 
-        DmSysUserConfDO config = this.rdpUserConfigService.getSpecifiedConfig(ownerUid, UserDefinedConfig.Fields.onlineResultCacheTimeoutSec);
+        DmSysUserConfDO config = this.userConfigService.getSpecifiedConfig(ownerUid, UserDefinedConfig.Fields.onlineResultCacheTimeoutSec);
         if (config == null || StringUtils.isBlank(config.getConfigValue())) {
             timeoutConfigCache.put(ownerUid, 300);
             return 300;

@@ -29,7 +29,7 @@
 //import com.clougence.clouddm.console.web.component.asyntask.AsyncTaskConfig;
 //import com.clougence.clouddm.console.web.model.vo.RdpUserConfigVO;
 //import com.clougence.clouddm.console.web.service.asyntask.AsyncTaskService;
-//import com.clougence.clouddm.console.web.service.auth.RdpUserConfigService;
+//import com.clougence.clouddm.console.web.component.config.UserConfigService;
 //import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 //import com.clougence.clouddm.platform.dal.model.execution.AsyncTaskProcessType;
 //import com.clougence.clouddm.platform.dal.model.monitor.AlertEventStatus;
@@ -60,7 +60,7 @@
 //    private AsyncTaskService        asyncTaskService;
 //    @Resource
 //    @Setter
-//    private RdpUserConfigService    rdpUserConfigService;
+//    private UserConfigService    rdpUserConfigService;
 //    @Resource
 //    private RdpAlertEventLogService rdpAlertEventLogService;
 //
