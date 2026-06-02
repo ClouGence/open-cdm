@@ -22,7 +22,7 @@ dependencies {
     api project(':cgdm-api')
     api project(':cg-drivers')
     api project(':cg-utils')
-    api project(':cgdm-pluginloader')
+    api project(':cgdm-plugin-loader')
 
     // spring
     api "org.springframework.boot:spring-boot-starter-jdbc:${SPRINGBOOT_VERSION}"

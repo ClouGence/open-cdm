@@ -44,7 +44,7 @@ dependencies {
     implementation project(':boot-initialization')
     implementation project(':cgdm-api')
     implementation project(':cgdm-dao')
-    implementation project(':cgdm-pluginloader')
+    implementation project(':cgdm-plugin-loader')
     implementation project(':cgdm-share-libs')
     implementation project(':cgdm-sidecar')
     implementation project(':cgdm-console')

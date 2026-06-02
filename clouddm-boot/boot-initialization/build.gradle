@@ -29,7 +29,7 @@ dependencies {
     implementation project(':cgdm-api')
     implementation project(':cgdm-console')
     implementation project(':cgdm-web')
-    implementation project(':cgdm-pluginloader')
+    implementation project(':cgdm-plugin-loader')
     implementation project(':cgdm-plugin-sdk')
     implementation project(':cg-utils')
 

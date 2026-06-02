@@ -13,7 +13,7 @@ include 'cg-drivers'; project(":cg-drivers").projectDir = file('clouddm-utils/cg
 
 // clouddm:platform
 include 'clouddm-base'
-include 'cgdm-pluginloader'; project(":cgdm-pluginloader").projectDir = file('clouddm-platform/cgdm-pluginloader')
+include 'cgdm-plugin-loader'; project(":cgdm-plugin-loader").projectDir = file('clouddm-platform/cgdm-plugin-loader')
 include 'cgdm-plugin-sdk'; project(":cgdm-plugin-sdk").projectDir = file('clouddm-platform/cgdm-plugin-sdk')
 include 'cgdm-share-libs'; project(":cgdm-share-libs").projectDir = file('clouddm-platform/cgdm-share-libs')
 include 'cgdm-api'; project(":cgdm-api").projectDir = file('clouddm-platform/cgdm-api')

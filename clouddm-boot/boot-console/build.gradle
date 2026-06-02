@@ -40,7 +40,7 @@ dependencies {
     implementation project(':cgdm-dao')
     implementation project(':cgdm-api')
     implementation project(':cg-rpc')
-    implementation project(':cgdm-pluginloader')
+    implementation project(':cgdm-plugin-loader')
     implementation project(':dsc-common')
     implementation project(':cgdm-share-libs')
     implementation project(':cgdm-web')

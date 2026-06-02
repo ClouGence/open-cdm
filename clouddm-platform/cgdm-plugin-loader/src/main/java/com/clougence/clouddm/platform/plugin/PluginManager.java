@@ -26,8 +26,8 @@ import com.clougence.clouddm.platform.plugin.info.DsMeta;
 import com.clougence.clouddm.platform.plugin.info.GlobalMeta;
 import com.clougence.clouddm.sdk.Spi;
 import com.clougence.clouddm.sdk.analysis.column.SelectColumnAnalysisSpi;
-import com.clougence.clouddm.sdk.analysis.secrules.ResAnalysisSpi;
 import com.clougence.clouddm.sdk.analysis.rewrite.RewriteSpi;
+import com.clougence.clouddm.sdk.analysis.secrules.ResAnalysisSpi;
 import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.analysis.secrules.SecRulesSupportSpi;
 import com.clougence.clouddm.sdk.analysis.split.SplitAnalysisSpi;
@@ -74,7 +74,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PluginManager {
 
-    private static DriverLoader                          driverLoader;
+    private static final DriverLoader                    driverLoader;
     private static final GlobalMeta                      globalMeta;
     private static final Map<String, DsMeta>             dsMetaMap;
     private static final Map<String, Map<Class<?>, Spi>> dsSpiCache;

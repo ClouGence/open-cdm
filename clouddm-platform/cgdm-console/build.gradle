@@ -20,7 +20,7 @@ plugins {
 dependencies {
     // project
     implementation project(':cgdm-api')
-    implementation project(':cgdm-pluginloader')
+    implementation project(':cgdm-plugin-loader')
     implementation project(':cgdm-dao')
     implementation project(':dsc-common')
     implementation project(':cgdm-share-libs')

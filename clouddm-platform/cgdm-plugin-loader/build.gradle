@@ -24,4 +24,4 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 }
 
-description = 'cgdm-pluginloader'
+description = 'cgdm-plugin-loader'
