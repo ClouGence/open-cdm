@@ -19,8 +19,12 @@ plugins {
 }
 
 dependencies {
+    // project
+
+    // share lib (compileOnly)
     compileOnly project(':cgdm-share-libs')
 
+    // for test
     testImplementation project(':cgdm-plugin-sdk')
     testImplementation project(':cg-utils')
 }

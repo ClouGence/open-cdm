@@ -424,17 +424,17 @@
 
     <select id="queryApproPerson" resultMap="approvalPersonDO">
         SELECT
-            a.`uid`,
-            a.`username`,
-            b.`role_auth_labels`,
-            c.`res_auth_label`
+            a.uid,
+            a.username,
+            b.role_auth_labels,
+            c.res_auth_label
         FROM
-            `dm_auth_user` a
-            LEFT JOIN `dm_auth_role` b ON a.`role_id` = b.`id`
-            LEFT JOIN `rdp_res_auth` c ON a.`uid` = c.`owner_uid`
+            dm_auth_user a
+            LEFT JOIN dm_auth_role b ON a.role_id = b.id
+            LEFT JOIN dm_auth_res c ON a.uid = c.owner_uid
         WHERE
-            a.`account_type` = #{accountType}
-            AND a.`parent_id` = #{parentId}
+            a.account_type = #{accountType}
+            AND a.parent_id = #{parentId}
             AND c.res_id = #{resId}
             AND #{resPath} like concat(c.res_path,'%')
     </select>
@@ -701,17 +701,17 @@
 
     <select id="queryAuthApproPerson" resultMap="approvalPersonDO">
         SELECT
-            a.`uid`,
-            a.`username`,
-            b.`role_auth_labels`,
-            c.`res_auth_label`,
-            c.`res_id`
+            a.uid,
+            a.username,
+            b.role_auth_labels,
+            c.res_auth_label,
+            c.res_id
         FROM
-            `dm_auth_user` a
-                LEFT JOIN `dm_auth_role` b ON a.`role_id` = b.`id`
-                LEFT JOIN `rdp_res_auth` c ON a.`uid` = c.`owner_uid`
+            dm_auth_user a
+                LEFT JOIN dm_auth_role b ON a.role_id = b.id
+                LEFT JOIN dm_auth_res c ON a.uid = c.owner_uid
         WHERE
-            a.`account_type` = #{accountType}
-          AND a.`parent_id` = #{parentId}
+            a.account_type = #{accountType}
+            AND a.parent_id = #{parentId}
     </select>
 </mapper>

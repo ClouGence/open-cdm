@@ -47,9 +47,9 @@ public class WebsiteResourceSpi implements ResourceSpi {
         }
 
         return switch (resourcePath) {
-            case "header", "header.svg" -> classpathResource("webside/header.svg", "image/svg+xml");
-            case "favicon", "favicon.ico" -> classpathResource("webside/favicon.ico", "image/x-icon");
-            case "favicon.svg" -> classpathResource("webside/favicon.svg", "image/svg+xml");
+            case "logo_login" -> classpathResource("webside/logo_login.svg", "image/svg+xml");
+            case "logo_header" -> classpathResource("webside/logo_header.svg", "image/svg+xml");
+            case "favicon" -> classpathResource("webside/favicon.ico", "image/x-icon");
             default -> null;
         };
     }

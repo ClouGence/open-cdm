@@ -1072,30 +1072,6 @@ export default {
   background: #f0f2f5;
 }
 
-.initialization :deep(.ant-input),
-.initialization :deep(.ant-input-affix-wrapper) {
-  color-scheme: light;
-}
-
-.initialization :deep(.ant-input-affix-wrapper .ant-input) {
-  background-color: transparent !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
-}
-
-.initialization :deep(.ant-input:focus),
-.initialization :deep(.ant-input-focused),
-.initialization :deep(.ant-input-affix-wrapper-focused) {
-  box-shadow: none !important;
-}
-
-.initialization :deep(.ant-input-affix-wrapper .ant-input:focus),
-.initialization :deep(.ant-input-affix-wrapper .ant-input-focused) {
-  border-color: transparent !important;
-  box-shadow: none !important;
-  outline: none;
-}
-
 .init-error-page {
   width: 100%;
   max-width: 560px;
