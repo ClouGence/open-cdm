@@ -32,6 +32,8 @@ import com.clougence.clouddm.ds.maxcompute.execute.McSessionFactory;
 import com.clougence.clouddm.ds.maxcompute.execute.McSessionSpi;
 import com.clougence.clouddm.ds.maxcompute.execute.McSupportSpi;
 import com.clougence.clouddm.ds.maxcompute.i18n.McI18nKeys;
+import com.clougence.clouddm.ds.maxcompute.language.McLanguageSpi;
+import com.clougence.clouddm.ds.maxcompute.resource.McEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
@@ -63,6 +65,7 @@ public class McDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -94,6 +97,12 @@ public class McDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         //        dsPlugin.addSpi(new McDataEditorSpi());
         dsPlugin.addPluginSpi(new McConvertTableDDLSpi());
         //        dsPlugin.addSpi(new McDetermineExceptionSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new McLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new McEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {

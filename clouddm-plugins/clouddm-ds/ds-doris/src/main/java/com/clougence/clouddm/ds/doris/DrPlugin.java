@@ -34,6 +34,8 @@ import com.clougence.clouddm.ds.doris.dsconf.DrSerializationSpi;
 import com.clougence.clouddm.ds.doris.execute.DrSessionFactory;
 import com.clougence.clouddm.ds.doris.execute.DrSupportSpi;
 import com.clougence.clouddm.ds.doris.i18n.DrDsI18nKeys;
+import com.clougence.clouddm.ds.doris.language.DrLanguageSpi;
+import com.clougence.clouddm.ds.doris.resource.DrEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.execute.RdbSessionSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
@@ -67,6 +69,7 @@ public class DrPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -98,6 +101,12 @@ public class DrPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new DrDataEditorSpi());
         dsPlugin.addPluginSpi(new DrConvertTableDDLSpi());
         dsPlugin.addPluginSpi(new DrDetermineExceptionSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new DrLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new DrEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {

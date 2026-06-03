@@ -34,10 +34,13 @@ import com.clougence.clouddm.ds.sqlserver.execute.MsSqlSessionFactory;
 import com.clougence.clouddm.ds.sqlserver.execute.MsSqlSessionSpi;
 import com.clougence.clouddm.ds.sqlserver.execute.MsSqlSupportSpi;
 import com.clougence.clouddm.ds.sqlserver.i18n.MsSqlI18nKeys;
+import com.clougence.clouddm.ds.sqlserver.language.MsSqlLanguageSpi;
+import com.clougence.clouddm.ds.sqlserver.resource.MsSqlEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
+import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
@@ -64,6 +67,7 @@ public class MsSqlPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -94,6 +98,12 @@ public class MsSqlPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new SqlServerDataEditorSpi());
         dsPlugin.addPluginSpi(new MsConvertTableDDLSpi());
         dsPlugin.addPluginSpi(new MsDetermineExceptionSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new MsSqlLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new MsSqlEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {

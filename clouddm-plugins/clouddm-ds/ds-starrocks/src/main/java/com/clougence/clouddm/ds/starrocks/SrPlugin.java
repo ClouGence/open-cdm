@@ -34,6 +34,8 @@ import com.clougence.clouddm.ds.starrocks.dsconf.SrSqlSerializationSpi;
 import com.clougence.clouddm.ds.starrocks.execute.SrSessionFactory;
 import com.clougence.clouddm.ds.starrocks.execute.SrSupportSpi;
 import com.clougence.clouddm.ds.starrocks.i18n.SrDsI18nKeys;
+import com.clougence.clouddm.ds.starrocks.language.SrLanguageSpi;
+import com.clougence.clouddm.ds.starrocks.resource.SrEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.execute.RdbSessionSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
@@ -67,6 +69,7 @@ public class SrPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -98,6 +101,12 @@ public class SrPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new SrDataEditorSpi());
         dsPlugin.addPluginSpi(new SrConvertTableDDLSpi());
         dsPlugin.addPluginSpi(new SrDetermineExceptionSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new SrLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new SrEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {

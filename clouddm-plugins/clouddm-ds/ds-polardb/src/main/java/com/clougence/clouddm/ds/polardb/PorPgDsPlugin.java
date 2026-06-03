@@ -24,6 +24,7 @@ import com.clougence.clouddm.ds.polardb.definition.porpg.ui.ddl.PorPgConvertTabl
 import com.clougence.clouddm.ds.polardb.dsconf.porpg.PorPgConfigSpi;
 import com.clougence.clouddm.ds.polardb.dsconf.porpg.PorPgSerializationSpi;
 import com.clougence.clouddm.ds.polardb.execute.porpg.PorPgSessionFactory;
+import com.clougence.clouddm.ds.polardb.resource.PorPgEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.postgres.analysis.rewrite.PgRewriteSpi;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.browser.PgDsBrowseSpi;
@@ -36,6 +37,7 @@ import com.clougence.clouddm.dsfamily.postgres.dialect.PostgreDialect;
 import com.clougence.clouddm.dsfamily.postgres.execute.PgSessionSpi;
 import com.clougence.clouddm.dsfamily.postgres.execute.PgSupportSpi;
 import com.clougence.clouddm.dsfamily.postgres.i18n.PgDsI18nKeys;
+import com.clougence.clouddm.dsfamily.postgres.language.PgLanguageSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -67,6 +69,7 @@ public class PorPgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -98,6 +101,12 @@ public class PorPgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new PgDataEditorSpi());
         dsPlugin.addPluginSpi(new PorPgConvertTableDDLSpi());
         dsPlugin.addPluginSpi(new PgDetermineExceptionSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new PgLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new PorPgEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {

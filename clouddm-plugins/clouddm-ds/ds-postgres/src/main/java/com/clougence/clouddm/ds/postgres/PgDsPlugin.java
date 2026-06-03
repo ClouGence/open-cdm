@@ -37,6 +37,7 @@ import com.clougence.clouddm.dsfamily.postgres.execute.PgSessionSpi;
 import com.clougence.clouddm.dsfamily.postgres.execute.PgSupportSpi;
 import com.clougence.clouddm.dsfamily.postgres.i18n.PgDsI18nKeys;
 import com.clougence.clouddm.dsfamily.postgres.language.PgLanguageSpi;
+import com.clougence.clouddm.dsfamily.postgres.resource.PgEditorResourceSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -68,6 +69,7 @@ public class PgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -101,6 +103,12 @@ public class PgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new PgDetermineExceptionSpi());
     }
 
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new PgLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new PgEditorResourceSpi(dsPlugin.getPluginClassLoader()));
+    }
+
     private void configTeam(DsPluginBinder dsPlugin) {
         // SPIs
         dsPlugin.addPluginSpi(new PgResAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
@@ -108,7 +116,6 @@ public class PgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new PgSecDomainResolveSpi(dsPlugin.findGlobalService(MetaService.class)));
         dsPlugin.addPluginSpi(new PgSecRulesSupportSpi());
         dsPlugin.addPluginSpi(new PgSelectColumnAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
-        dsPlugin.addPluginSpi(new PgLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {

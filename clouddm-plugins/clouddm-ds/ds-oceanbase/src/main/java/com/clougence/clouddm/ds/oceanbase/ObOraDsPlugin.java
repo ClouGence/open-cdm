@@ -29,6 +29,8 @@ import com.clougence.clouddm.ds.oceanbase.execute.obforora.ObForOraSessionFactor
 import com.clougence.clouddm.ds.oceanbase.execute.obforora.ObForOraSessionSpi;
 import com.clougence.clouddm.ds.oceanbase.execute.obforora.ObForOraSupportSpi;
 import com.clougence.clouddm.ds.oceanbase.i18n.ObDsI18nKeys;
+import com.clougence.clouddm.ds.oceanbase.language.ObOraLanguageSpi;
+import com.clougence.clouddm.ds.oceanbase.resource.ObOraEditorResourceSpi;
 import com.clougence.clouddm.ds.oracle.definition.ui.editor.table.OraEditorProvider;
 import com.clougence.clouddm.ds.oracle.definition.ui.editor.table.OraTableEditorUiDataSpi;
 import com.clougence.clouddm.ds.oracle.definition.ui.exception.OraDetermineExceptionSpi;
@@ -66,6 +68,7 @@ public class ObOraDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -96,6 +99,12 @@ public class ObOraDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new ObForOraDataEditorSpi());
         dsPlugin.addPluginSpi(new ObDDLSpiConvert());
         dsPlugin.addPluginSpi(new OraDetermineExceptionSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new ObOraLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new ObOraEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {

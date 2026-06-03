@@ -33,6 +33,8 @@ import com.clougence.clouddm.ds.tidb.dsconf.TiSqlSerializationSpi;
 import com.clougence.clouddm.ds.tidb.execute.TiSessionFactory;
 import com.clougence.clouddm.ds.tidb.execute.TiSupportSpi;
 import com.clougence.clouddm.ds.tidb.i18n.TiDsI18nKeys;
+import com.clougence.clouddm.ds.tidb.language.TiLanguageSpi;
+import com.clougence.clouddm.ds.tidb.resource.TiEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.template.MyCmdTemplateSpi;
 import com.clougence.clouddm.dsfamily.mysql.execute.MySessionSpi;
@@ -67,6 +69,7 @@ public class TiDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -98,6 +101,12 @@ public class TiDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new TiDBDataEditorSpi());
         dsPlugin.addPluginSpi(new TiConvertTableDDLSpi());
         dsPlugin.addPluginSpi(new TiDetermineExceptionSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new TiLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new TiEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {

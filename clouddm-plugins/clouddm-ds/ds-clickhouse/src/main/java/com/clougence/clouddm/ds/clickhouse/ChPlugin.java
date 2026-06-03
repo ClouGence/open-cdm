@@ -34,6 +34,8 @@ import com.clougence.clouddm.ds.clickhouse.dsconf.ChSerializationSpi;
 import com.clougence.clouddm.ds.clickhouse.execute.ChSessionFactory;
 import com.clougence.clouddm.ds.clickhouse.execute.ChSupportSpi;
 import com.clougence.clouddm.ds.clickhouse.i18n.ChDsI18nKeys;
+import com.clougence.clouddm.ds.clickhouse.language.ChLanguageSpi;
+import com.clougence.clouddm.ds.clickhouse.resource.ChEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.execute.RdbSessionSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
@@ -66,6 +68,7 @@ public class ChPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -97,6 +100,12 @@ public class ChPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new ChDataEditorSpi());
         dsPlugin.addPluginSpi(new ChConvertTableDDLSpi());
         dsPlugin.addPluginSpi(new ChDetermineExceptionSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new ChLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new ChEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {

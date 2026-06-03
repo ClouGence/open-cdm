@@ -34,6 +34,8 @@ import com.clougence.clouddm.ds.oracle.execute.OraSessionFactory;
 import com.clougence.clouddm.ds.oracle.execute.OraSessionSpi;
 import com.clougence.clouddm.ds.oracle.execute.OraSupportSpi;
 import com.clougence.clouddm.ds.oracle.i18n.Ora18nKeys;
+import com.clougence.clouddm.ds.oracle.language.OraLanguageSpi;
+import com.clougence.clouddm.ds.oracle.resource.OraEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
@@ -65,6 +67,7 @@ public class OraDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -95,6 +98,12 @@ public class OraDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new OraDataEditorSpi());
         dsPlugin.addPluginSpi(new OraConvertTableDDLSpi());
         dsPlugin.addPluginSpi(new OraDetermineExceptionSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new OraLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new OraEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {

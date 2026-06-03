@@ -26,6 +26,7 @@ import com.clougence.clouddm.ds.mariadb.dsconf.MarConfigSpi;
 import com.clougence.clouddm.ds.mariadb.dsconf.MarSqlSerializationSpi;
 import com.clougence.clouddm.ds.mariadb.execute.MarSessionFactory;
 import com.clougence.clouddm.ds.mariadb.i18n.MarDsI18nKeys;
+import com.clougence.clouddm.ds.mariadb.resource.MarEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.mysql.analysis.rewrite.MyRewriteSpi;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.data.MyDataEditorSpi;
@@ -36,6 +37,7 @@ import com.clougence.clouddm.dsfamily.mysql.definition.ui.template.MyCmdTemplate
 import com.clougence.clouddm.dsfamily.mysql.dialect.MySqlDialect;
 import com.clougence.clouddm.dsfamily.mysql.execute.MySessionSpi;
 import com.clougence.clouddm.dsfamily.mysql.execute.MySupportSpi;
+import com.clougence.clouddm.dsfamily.mysql.language.MyLanguageSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -67,6 +69,7 @@ public class MarDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -98,6 +101,12 @@ public class MarDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new MyDataEditorSpi());
         dsPlugin.addPluginSpi(new MarConvertTableDDLSpi());
         dsPlugin.addPluginSpi(new MyDetermineExceptionSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new MyLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new MarEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {

@@ -26,6 +26,7 @@ import com.clougence.clouddm.ds.hologres.definition.ui.template.HgCmdTemplateSpi
 import com.clougence.clouddm.ds.hologres.dsconf.HgConfigSpi;
 import com.clougence.clouddm.ds.hologres.dsconf.HgSerializationSpi;
 import com.clougence.clouddm.ds.hologres.execute.HgSessionFactory;
+import com.clougence.clouddm.ds.hologres.resource.HgEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.postgres.analysis.PgSecRulesSupportSpi;
 import com.clougence.clouddm.dsfamily.postgres.analysis.PgSelectColumnAnalysisSpi;
@@ -38,6 +39,7 @@ import com.clougence.clouddm.dsfamily.postgres.dialect.PostgreDialect;
 import com.clougence.clouddm.dsfamily.postgres.execute.PgSessionSpi;
 import com.clougence.clouddm.dsfamily.postgres.execute.PgSupportSpi;
 import com.clougence.clouddm.dsfamily.postgres.i18n.PgDsI18nKeys;
+import com.clougence.clouddm.dsfamily.postgres.language.PgLanguageSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -69,6 +71,7 @@ public class HgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -100,6 +103,12 @@ public class HgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new PgDataEditorSpi());
         //        dsPlugin.addSpi(new PgConvertTableDDLSpi());
         dsPlugin.addPluginSpi(new PgDetermineExceptionSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new PgLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new HgEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {

@@ -28,7 +28,9 @@ import com.clougence.clouddm.ds.redis.dsconf.RedisSerializationSpi;
 import com.clougence.clouddm.ds.redis.execute.RedisSessionFactory;
 import com.clougence.clouddm.ds.redis.execute.RedisSessionSpi;
 import com.clougence.clouddm.ds.redis.execute.RedisSupportSpi;
+import com.clougence.clouddm.ds.redis.language.RedisLanguageSpi;
 import com.clougence.clouddm.ds.redis.parser.RedisDslProvider;
+import com.clougence.clouddm.ds.redis.resource.RedisEditorResourceSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -59,6 +61,7 @@ public class RedisDsPlugin implements DsPlugin, SchemaPlugin {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -89,6 +92,12 @@ public class RedisDsPlugin implements DsPlugin, SchemaPlugin {
         dsPlugin.addPluginSpi(new RedisDsBrowseSpi());
         dsPlugin.addPluginSpi(new RedisCmdTemplateSpi());
         dsPlugin.addPluginSpi(new RedisDetermineExceptionSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new RedisLanguageSpi(null));
+        dsPlugin.addPluginSpi(new RedisEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {

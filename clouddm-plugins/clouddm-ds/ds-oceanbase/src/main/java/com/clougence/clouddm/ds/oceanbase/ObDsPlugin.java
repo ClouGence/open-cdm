@@ -35,6 +35,8 @@ import com.clougence.clouddm.ds.oceanbase.execute.obformysql.ObSessionFactory;
 import com.clougence.clouddm.ds.oceanbase.execute.obformysql.ObSessionSpi;
 import com.clougence.clouddm.ds.oceanbase.execute.obformysql.ObSupportSpi;
 import com.clougence.clouddm.ds.oceanbase.i18n.ObDsI18nKeys;
+import com.clougence.clouddm.ds.oceanbase.language.ObMyLanguageSpi;
+import com.clougence.clouddm.ds.oceanbase.resource.ObMyEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
@@ -67,6 +69,7 @@ public class ObDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -98,6 +101,12 @@ public class ObDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new ObDataEditorSpi());
         dsPlugin.addPluginSpi(new ObDDLSpiConvert());
         dsPlugin.addPluginSpi(new ObDetermineExceptionSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new ObMyLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new ObMyEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {

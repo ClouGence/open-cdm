@@ -31,6 +31,8 @@ import com.clougence.clouddm.ds.ads.dsconf.ads4my.AdsMySerializationSpi;
 import com.clougence.clouddm.ds.ads.execute.ads4my.AdsMySessionFactory;
 import com.clougence.clouddm.ds.ads.execute.ads4my.AdsSupportSpi;
 import com.clougence.clouddm.ds.ads.i18n.AdsMyDsI18nKeys;
+import com.clougence.clouddm.ds.ads.language.AdsMyLanguageSpi;
+import com.clougence.clouddm.ds.ads.resource.AdsMyEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.data.MyDataEditorSpi;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.table.MyTableEditorUiDataSpi;
@@ -66,6 +68,7 @@ public class AdsMyPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -96,6 +99,12 @@ public class AdsMyPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new AdsMyCmdTemplateSpi());
         dsPlugin.addPluginSpi(new MyDataEditorSpi());
         dsPlugin.addPluginSpi(new AdsMyConvertTableDDLSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new AdsMyLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new AdsMyEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {

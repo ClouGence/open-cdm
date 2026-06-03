@@ -28,6 +28,8 @@ import com.clougence.clouddm.ds.mongodb.execute.MongoSessionFactory;
 import com.clougence.clouddm.ds.mongodb.execute.MongoSessionSpi;
 import com.clougence.clouddm.ds.mongodb.execute.MongoSupportSpi;
 import com.clougence.clouddm.ds.mongodb.i18n.MongoDsI18nKeys;
+import com.clougence.clouddm.ds.mongodb.language.MongoLanguageSpi;
+import com.clougence.clouddm.ds.mongodb.resource.MongoEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.schema.dialect.DefaultDialect;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
@@ -60,6 +62,7 @@ public class MongoDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -87,6 +90,12 @@ public class MongoDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new MongoDsBrowseSpi());
         dsPlugin.addPluginSpi(new MongoCmdTemplateSpi());
         //        dsPlugin.addSpi(new RedisDetermineExceptionSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new MongoLanguageSpi(null));
+        dsPlugin.addPluginSpi(new MongoEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {

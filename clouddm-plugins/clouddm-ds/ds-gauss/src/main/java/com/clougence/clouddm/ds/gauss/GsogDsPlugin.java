@@ -33,6 +33,8 @@ import com.clougence.clouddm.ds.gauss.execute.gsog.GsogSessionFactory;
 import com.clougence.clouddm.ds.gauss.execute.gsog.GsogSessionSpi;
 import com.clougence.clouddm.ds.gauss.execute.gsog.GsogSupportSpi;
 import com.clougence.clouddm.ds.gauss.i18n.gsog.GsogDsI18nKeys;
+import com.clougence.clouddm.ds.gauss.language.GsLanguageSpi;
+import com.clougence.clouddm.ds.gauss.resource.GsogEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.data.PgDataEditorSpi;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.exception.PgDetermineExceptionSpi;
@@ -68,6 +70,7 @@ public class GsogDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -99,6 +102,12 @@ public class GsogDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new PgDataEditorSpi());
         dsPlugin.addPluginSpi(new GsogConvertTableDDLSpi());
         dsPlugin.addPluginSpi(new PgDetermineExceptionSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new GsLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new GsogEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {
