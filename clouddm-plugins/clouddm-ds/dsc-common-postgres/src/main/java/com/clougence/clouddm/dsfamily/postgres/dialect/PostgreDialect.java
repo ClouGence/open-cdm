@@ -15,8 +15,8 @@
  */
 package com.clougence.clouddm.dsfamily.postgres.dialect;
 
+import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.schema.dialect.AbstractDialect;
-import com.clougence.schema.dialect.Dialect;
 import com.clougence.utils.StringUtils;
 
 /**
@@ -24,9 +24,9 @@ import com.clougence.utils.StringUtils;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class PostgreDialect extends AbstractDialect {
+public class PostgreDialect extends AbstractDialect implements CompletionDialect {
 
-    public static Dialect INSTANCE = new PostgreDialect();
+    public static PostgreDialect INSTANCE = new PostgreDialect();
 
     public int maxArg() {
         //https://blog.csdn.net/xiaowangbadan0_0/article/details/128663635
@@ -49,5 +49,19 @@ public class PostgreDialect extends AbstractDialect {
         }
 
         return str.replace("'", "''");
+    }
+
+    @Override
+    public boolean isIdentifierChar(char c) {
+        return Character.isLetterOrDigit(c) || c == '_' || c == '$' || c == '"';
+    }
+
+    @Override
+    public String unquoteIdentifier(String value) {
+        String text = StringUtils.toString(value).trim();
+        if (text.length() >= 2 && text.startsWith("\"") && text.endsWith("\"")) {
+            return text.substring(1, text.length() - 1).replace("\"\"", "\"");
+        }
+        return text;
     }
 }

@@ -36,6 +36,7 @@ import com.clougence.clouddm.dsfamily.postgres.dialect.PostgreDialect;
 import com.clougence.clouddm.dsfamily.postgres.execute.PgSessionSpi;
 import com.clougence.clouddm.dsfamily.postgres.execute.PgSupportSpi;
 import com.clougence.clouddm.dsfamily.postgres.i18n.PgDsI18nKeys;
+import com.clougence.clouddm.dsfamily.postgres.language.PgLanguageSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -107,6 +108,7 @@ public class PgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new PgSecDomainResolveSpi(dsPlugin.findGlobalService(MetaService.class)));
         dsPlugin.addPluginSpi(new PgSecRulesSupportSpi());
         dsPlugin.addPluginSpi(new PgSelectColumnAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new PgLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {
