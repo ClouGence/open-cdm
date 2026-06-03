@@ -1,6 +1,8 @@
 <script>
 import * as monaco from 'monaco-editor';
 import { markRaw } from 'vue';
+import { mapState } from 'vuex';
+import { applySqlEditorLanguage, resolveSqlEditorLanguage } from './sqlLanguage';
 
 export default {
   name: 'ReadOnlyEditor',
@@ -14,6 +16,10 @@ export default {
       type: String,
       default: 'sql'
     },
+    dsType: {
+      type: String,
+      default: ''
+    },
     border: {
       type: Number,
       default: 1
@@ -24,6 +30,9 @@ export default {
       if (newVal && newVal !== oldVal) {
         this.createEditor();
       }
+    },
+    dsType() {
+      this.applyLanguage();
     }
   },
   data() {
@@ -35,6 +44,7 @@ export default {
     this.createEditor();
   },
   computed: {
+    ...mapState(['dmGlobalSetting', 'globalDsSetting']),
     height() {
       if (!this.maxHeight) {
         const arr = this.text ? this.text.split('\n') : '';
@@ -48,15 +58,17 @@ export default {
     }
   },
   methods: {
-    createEditor() {
+    async createEditor() {
       if (this.text) {
         if (this.monacoEditor) {
           this.monacoEditor.getModel().setValue(this.text);
+          this.applyLanguage();
         } else {
+          const language = await this.resolveLanguage();
           this.monacoEditor = markRaw(
             monaco.editor.create(this.$refs.readOnlyEditor, {
               value: this.text, // 编辑器的值
-              language: this.language,
+              language,
               fontSize: 14,
               fontWeight: 'bold',
               scrollBeyondLastLine: false,
@@ -71,6 +83,15 @@ export default {
           );
         }
       }
+    },
+    resolveLanguage() {
+      return resolveSqlEditorLanguage(monaco, this.dsType, this.getDsSettings(), this.language);
+    },
+    applyLanguage() {
+      return applySqlEditorLanguage(monaco, this.monacoEditor, this.dsType, this.getDsSettings(), this.language);
+    },
+    getDsSettings() {
+      return this.dmGlobalSetting?.dsSettingDef || this.globalDsSetting || {};
     }
   },
   beforeUnmount() {

@@ -4,6 +4,8 @@
 
 <script>
 import * as monaco from 'monaco-editor';
+import { mapState } from 'vuex';
+import { resolveSqlEditorLanguage } from '@/components/editor/sqlLanguage';
 
 export default {
   name: 'MonacoDiff',
@@ -20,25 +22,38 @@ export default {
       type: String,
       default: 'sql'
     },
+    dsType: {
+      type: String,
+      default: ''
+    },
     theme: {
       type: String,
       default: 'vs'
     }
   },
-  mounted() {
+  computed: {
+    ...mapState(['dmGlobalSetting', 'globalDsSetting'])
+  },
+  async mounted() {
     this.editor = monaco.editor.createDiffEditor(this.$refs.container, {
       theme: this.theme,
       automaticLayout: true,
       readOnly: true
     });
 
-    const originalModel = monaco.editor.createModel(this.original, this.language);
-    const modifiedModel = monaco.editor.createModel(this.modified, this.language);
+    const language = await resolveSqlEditorLanguage(monaco, this.dsType, this.getDsSettings(), this.language);
+    const originalModel = monaco.editor.createModel(this.original, language);
+    const modifiedModel = monaco.editor.createModel(this.modified, language);
 
     this.editor.setModel({
       original: originalModel,
       modified: modifiedModel
     });
+  },
+  methods: {
+    getDsSettings() {
+      return this.dmGlobalSetting?.dsSettingDef || this.globalDsSetting || {};
+    }
   },
   beforeUnmount() {
     if (this.editor) {

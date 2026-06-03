@@ -143,7 +143,7 @@
               <div v-if="currentTab === 'sql-change'" class="tab-item">
                 <div v-if="isNotChangeReady" style="height: 100%">
                   <div v-if="subTabLabel === '结果'" style="height: 100%">
-                    <read-only-editor :text="rowSql" key="raw" v-if="rowSql.length" />
+                    <read-only-editor :text="rowSql" key="raw" v-if="rowSql.length" :ds-type="changeInfo?.dsType" />
                     <CCEmptyContent v-else :content="changeInfo?.remark ? changeInfo?.remark : $t('wu-bian-geng-nei-rong')" />
                   </div>
                   <div v-if="subTabLabel === 'Diff'" style="height: 100%">
@@ -152,7 +152,12 @@
                         {{ item.contentName }}
                         <template #content>
                           <div style="height: 400px">
-                            <ChangeBodyDiff :original="item.oldBody || ''" :modified="item.newBody || ''" language="sql" />
+                            <ChangeBodyDiff
+                              :original="item.oldBody || ''"
+                              :modified="item.newBody || ''"
+                              language="sql"
+                              :ds-type="changeInfo?.dsType"
+                            />
                           </div>
                         </template>
                       </Panel>
@@ -423,7 +428,7 @@
       {{ $t('qu-xiao-tiao-guo-hou-xia-ci-zhong-shi-ren-wu-shi-jiang-zhi-hang-gai-sql') }}
     </CCModal>
     <CCModal width="800" v-model="showAllSql" :title="$t('cha-kan-wan-zheng-sql')">
-      <read-only-editor :text="allSql" key="raw" :max-height="300" />
+      <read-only-editor :text="allSql" key="raw" :max-height="300" :ds-type="changeInfo?.dsType" />
     </CCModal>
     <CCModal width="800" v-model="showFinishTicket" :title="$t('jie-shu-gong-dan')">
       <Alert type="warning">
@@ -433,7 +438,7 @@
           )
         }}
       </Alert>
-      <read-only-editor :text="rowSql" key="raw" :max-height="600" />
+      <read-only-editor :text="rowSql" key="raw" :max-height="600" :ds-type="changeInfo?.dsType" />
       <template #footer>
         <div>
           <Button @click="copySql">{{ $t('fu-zhi-sql') }}</Button>

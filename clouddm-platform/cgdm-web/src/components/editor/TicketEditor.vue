@@ -2,6 +2,8 @@
 import * as monaco from 'monaco-editor';
 import { getLanguage } from '@/utils/tools';
 import { markRaw, nextTick } from 'vue';
+import { mapState } from 'vuex';
+import { applySqlEditorLanguage, resolveSqlEditorLanguage } from './sqlLanguage';
 
 export default {
   name: 'TicketEditor',
@@ -17,17 +19,27 @@ export default {
       dsType: this.dataSourceType
     };
   },
+  computed: {
+    ...mapState(['dmGlobalSetting', 'globalDsSetting'])
+  },
+  watch: {
+    dataSourceType(newVal) {
+      this.dsType = newVal;
+      this.applyLanguage();
+    }
+  },
   mounted() {
     this.createEditor();
   },
   methods: {
-    createEditor() {
+    async createEditor() {
       if (!this.monacoEditor) {
+        const language = await this.resolveLanguage();
         // 使用markRaw防止Monaco Editor实例被Vue3响应式系统包装
         this.monacoEditor = markRaw(
           monaco.editor.create(this.$refs.ticketEditor, {
             value: this.text, // 编辑器的值
-            language: getLanguage(this.dataSourceType),
+            language,
             fontSize: 14,
             fontWeight: 'bold',
             scrollBeyondLastLine: false,
@@ -40,6 +52,15 @@ export default {
           })
         );
       }
+    },
+    resolveLanguage() {
+      return resolveSqlEditorLanguage(monaco, this.dsType, this.getDsSettings(), getLanguage(this.dsType));
+    },
+    applyLanguage() {
+      return applySqlEditorLanguage(monaco, this.monacoEditor, this.dsType, this.getDsSettings(), getLanguage(this.dsType));
+    },
+    getDsSettings() {
+      return this.dmGlobalSetting?.dsSettingDef || this.globalDsSetting || {};
     },
     getSql() {
       if (this.monacoEditor) {

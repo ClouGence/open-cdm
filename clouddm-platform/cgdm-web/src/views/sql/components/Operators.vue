@@ -147,7 +147,7 @@ export default {
       return this.tab.support.explain.conf !== 'No';
     },
     isSupportFormat() {
-      return this.tab.support.format.conf !== 'No';
+      return false;
     },
     isRunning() {
       return this.tab.stopping || this.tab.running || !this.socket.connected || !this.tab.connected;

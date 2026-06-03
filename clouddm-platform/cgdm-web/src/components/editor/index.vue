@@ -4,21 +4,16 @@ import * as actions from 'monaco-editor/esm/vs/platform/actions/common/actions';
 import { mapGetters, mapState } from 'vuex';
 import { markRaw, toRaw } from 'vue';
 import browseMixin from '@/mixins/browseMixin';
-import { getQuick } from '@/components/editor/snippets/quick';
-import { getFunction } from '@/components/editor/snippets/functions';
-import { format } from 'sql-formatter';
 import { getLanguage } from '@/utils/tools';
-import { registerMongoDBLanguage } from './languages/mongodb';
 import { getPluginResourceUrl } from '@/utils/pluginResource';
 import { requestWebSocket } from '@/services/socket';
 import { WS_TYPE } from '@/utils';
+import { getDsSetting, resolveSqlEditorLanguage } from './sqlLanguage';
 
 const LANGUAGE_COMPLETION_DELAY_MS = 200;
 const MAX_LANGUAGE_FRAGMENT_BYTES = 1024 * 1024;
 const DS_LANGUAGE_ERROR = '10111';
 const STATIC_KEYWORD_WEIGHT = 100;
-const QUICK_SNIPPET_WEIGHT = 300;
-const STATIC_FUNCTION_WEIGHT = 700;
 
 export default {
   name: 'Editor',
@@ -78,40 +73,19 @@ export default {
     ...mapState(['dmGlobalSetting', 'globalDsSetting'])
   },
   mounted() {
-    registerMongoDBLanguage();
     this.init();
   },
   methods: {
-    getFormatterSql() {
-      switch (this.currentTab.dsType) {
-        case 'MySql':
-        case 'TiDB':
-          return 'mysql';
-        case 'Oracle':
-          return 'plsql';
-        case 'SQLServer':
-          return 'tsql';
-        case 'PostgreSQL':
-        case 'Greenplum':
-          return 'postgresql';
-        case 'Db2':
-          return 'db2';
-        case 'MongoDB':
-          return 'sql';
-        default:
-          return 'sql';
-      }
-    },
-    init() {
-      this.currentTab.language = getLanguage(this.currentTab.dsType);
+    async init() {
+      this.currentTab.language = await resolveSqlEditorLanguage(
+        monaco,
+        this.currentTab.dsType,
+        this.getDsSettings(),
+        getLanguage(this.currentTab.dsType)
+      );
       this.defaultOpts.language = this.currentTab.language;
       this.defaultOpts.value = this.currentTab.text;
-      // MongoDB 使用自定义主题以支持语法高亮
-      if (this.currentTab.dsType === 'MongoDB') {
-        this.defaultOpts.theme = 'vs-mongodb';
-      } else {
-        this.defaultOpts.theme = 'vs';
-      }
+      this.defaultOpts.theme = 'vs';
       if (this.monacoEditor) {
         this.handleDispose();
       }
@@ -394,15 +368,6 @@ export default {
           this.onRun('run');
         }
       });
-      this.monacoEditor.addAction({
-        id: 'formatter',
-        label: this.$t('ge-shi-hua'),
-        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyL],
-        contextMenuGroupId: 'navigation',
-        run: () => {
-          this.formatSql();
-        }
-      });
     },
     registerCommands() {
       monaco.editor.registerCommand('editor.action.triggerTableSuggest', (_, ...args) => {
@@ -429,17 +394,10 @@ export default {
           });
 
           console.log(textUntilPosition);
-          if (textUntilPosition === '/') {
-            suggestions = suggestions.concat(this.getQuickSuggest(position));
-          } else if (this.currentTab.dsType === 'MongoDB') {
-            // MongoDB 特殊处理：提供函数建议
-            suggestions = suggestions.concat(this.getFunctionSuggest(position));
-            suggestions = suggestions.concat(this.getQuickSuggest(position));
-          } else if (this.isDsLanguageSupport('COMPLETE')) {
+          if (this.isDsLanguageSupport('COMPLETE')) {
             suggestions = await this.getDelayedBackendCompletionSuggest(model, position);
           } else {
             suggestions = suggestions.concat(await this.getFallbackKeywordSuggest());
-            suggestions = suggestions.concat(this.getFunctionSuggest(position));
           }
 
           this.updateCompletionIconMap(suggestions);
@@ -546,16 +504,11 @@ export default {
       return legacyField ? !!language[legacyField] : false;
     },
     getCurrentDsSetting() {
-      const settings = this.dmGlobalSetting?.dsSettingDef || this.globalDsSetting || {};
       const dsType = this.currentTab?.dsType || this.currentTab?.node?.INSTANCE?.attr?.dsType;
-      if (!dsType) {
-        return null;
-      }
-      if (settings?.[dsType]) {
-        return settings[dsType];
-      }
-      const normalizedKey = Object.keys(settings || {}).find((key) => key.toLowerCase() === `${dsType}`.toLowerCase());
-      return normalizedKey ? settings[normalizedKey] : null;
+      return getDsSetting(this.getDsSettings(), dsType);
+    },
+    getDsSettings() {
+      return this.dmGlobalSetting?.dsSettingDef || this.globalDsSetting || {};
     },
     getLanguageRequestLevels() {
       const node = this.currentTab?.node;
@@ -1007,30 +960,7 @@ export default {
       });
       this.hoverProviderList.push(providerItem);
     },
-    formatSql() {
-      const selectionRange = this.monacoEditor.getSelection();
-      let range = selectionRange;
-      let sql = toRaw(this.monacoEditor.getModel()).getValueInRange(selectionRange);
-      if (!sql) {
-        sql = toRaw(this.monacoEditor).getValue();
-        range = this.monacoEditor.getModel().getFullModelRange();
-      }
-      const formatterSql = format(sql, {
-        language: this.getFormatterSql(),
-        tabWidth: 2,
-        keywordCase: 'upper',
-        expressionWidth: 100
-      });
-
-      this.monacoEditor.executeEdits(null, [
-        {
-          text: formatterSql,
-          range
-        }
-      ]);
-
-      this.monacoEditor.pushUndoStop();
-    },
+    formatSql() {},
     getCurrentSql() {
       const position = this.monacoEditor.getPosition();
       const allSql = this.monacoEditor.getValue();
@@ -1047,50 +977,6 @@ export default {
         this.monacoEditor.updateOptions({ fontSize: size });
         this.monacoEditorFountCss = `font-size-${size}`;
       }
-    },
-    // 获取 SQL 语法提示
-    getQuickSuggest(position) {
-      return getQuick(this.currentTab.dsType).map((quick) => ({
-        label: this.toCompletionLabel(quick.label, this.$t('mo-ban')),
-        kind: monaco.languages.CompletionItemKind.Function,
-        // insertText: 'if(${1:logical_expression}, ${2:value_if_true}, ${3:value_if_false})',
-        sortText: this.toCompletionSortText(QUICK_SNIPPET_WEIGHT, quick.label),
-        // eslint-disable-next-line no-template-curly-in-string
-        insertText: quick.insertText,
-        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-        additionalTextEdits: [
-          {
-            range: {
-              startLineNumber: position.lineNumber,
-              endLineNumber: position.lineNumber,
-              startColumn: position.column - 1,
-              endColumn: position.column
-            }
-          }
-        ]
-      }));
-    },
-    getFunctionSuggest(position) {
-      console.log(getFunction(this.currentTab.dsType));
-      return getFunction(this.currentTab.dsType).map((f) => ({
-        label: this.toCompletionLabel(f, this.$t('han-shu')),
-        kind: monaco.languages.CompletionItemKind.Function,
-        // insertText: 'if(${1:logical_expression}, ${2:value_if_true}, ${3:value_if_false})',
-        sortText: this.toCompletionSortText(STATIC_FUNCTION_WEIGHT, f),
-        // eslint-disable-next-line no-template-curly-in-string
-        insertText: `${f}(\${1:})`,
-        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-        additionalTextEdits: [
-          {
-            range: {
-              startLineNumber: position.lineNumber,
-              endLineNumber: position.lineNumber,
-              startColumn: position.column - 1,
-              endColumn: position.column
-            }
-          }
-        ]
-      }));
     },
     getSQLSuggest(keywords) {
       const list = keywords.map((key) => ({

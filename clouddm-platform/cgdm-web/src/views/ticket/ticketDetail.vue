@@ -316,7 +316,7 @@
           <span v-if="ticketDetail.ticketMessage" class="parse-error-msgContent">*{{ ticketDetail.ticketMessage }}</span>
         </div>
       </template>
-      <read-only-editor :text="ticketDetail.rawSql" key="raw" :border="0" />
+      <read-only-editor :text="ticketDetail.rawSql" key="raw" :border="0" :ds-type="ticketDetail.dataSourceType" />
     </Card>
     <Card class="ticket-content" v-if="ticketType === 'DATA_SOURCE_AUTH'">
       <template #title>
@@ -362,7 +362,7 @@
       </template>
     </CCModal>
     <CCModal v-model="showRollbackSqlModal" :title="$t('cha-kan-hui-gun-sql')" :width="1000">
-      <read-only-editor :text="ticketDetail.rollBackSql" key="rollback" :max-height="500" />
+      <read-only-editor :text="ticketDetail.rollBackSql" key="rollback" :max-height="500" :ds-type="ticketDetail.dataSourceType" />
       <template #footer>
         <Button type="primary" @click="copyText(ticketDetail.rollBackSql)">
           {{ $t('fu-zhi-sql') }}

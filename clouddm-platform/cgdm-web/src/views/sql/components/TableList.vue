@@ -92,7 +92,7 @@
         allowClear
       />
       <div style="margin: 5px 0; font-weight: bold" v-if="menuModal.sql">{{ $t('sql-yu-ju') }}:</div>
-      <read-only-editor :text="menuModal.sql" v-if="menuModal.sql" />
+      <read-only-editor :text="menuModal.sql" v-if="menuModal.sql" :ds-type="currentTab.dsType" />
       <template #footer>
         <a-button type="primary" @click="handleRightClickMenu(actionType)" v-if="!menuModal.sql" :disabled="!menuModal.name">
           {{ $t('sheng-cheng-sql-yu-ju') }}

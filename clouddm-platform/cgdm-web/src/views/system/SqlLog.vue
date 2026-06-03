@@ -144,9 +144,10 @@
           v-if="selectedRow.rewrite"
           :modified-sql="selectedRow.execSql"
           :original-sql="selectedRow.originalSql"
+          :ds-type="selectedRow.dataSourceType"
           style="height: 400px"
         />
-        <ReadOnlyEditor v-else :text="selectedRow?.execSql" style="height: 400px" />
+        <ReadOnlyEditor v-else :text="selectedRow?.execSql" :ds-type="selectedRow.dataSourceType" style="height: 400px" />
       </div>
     </CCModal>
   </div>

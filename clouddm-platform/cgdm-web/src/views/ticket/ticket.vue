@@ -24,7 +24,7 @@
               <span style="padding-left: 3px">{{ $t('zhi-hang-sql') }}</span>
             </div>
             <div class="content">
-              <ticket-editor ref="rawSqlEditor" />
+              <ticket-editor ref="rawSqlEditor" :data-source-type="ticketData.dataSourceType" />
             </div>
           </div>
           <div class="resize-handle" v-if="showValidationResult" @mousedown="startResize"></div>
@@ -59,7 +59,7 @@
           <div class="collapse rollback" v-if="showRollbackSql">
             <div class="title">{{ $t('hui-gun-sql') }}</div>
             <div class="content">
-              <ticket-editor ref="rollbackSqlEditor" />
+              <ticket-editor ref="rollbackSqlEditor" :data-source-type="ticketData.dataSourceType" />
             </div>
           </div>
         </div>
