@@ -1,6 +1,5 @@
 <script>
 import * as monaco from 'monaco-editor';
-import { MySQL, PostgresSQL, RedisSQL, StarRocksSQL } from '@/components/editor/core';
 import { getLanguage } from '@/utils/tools';
 import { markRaw, nextTick } from 'vue';
 
@@ -41,72 +40,6 @@ export default {
           })
         );
       }
-      this.registerCompletion(getLanguage(this.dataSourceType));
-      this.setParser();
-    },
-    registerCompletion(lang) {
-      const providerItem = monaco.languages.registerCompletionItemProvider(lang, {
-        triggerCharacters: [' ', '.', '`', '/'],
-        provideCompletionItems: (model, position) => {
-          this.sortText = 0;
-          let suggestions = [];
-
-          const { lineNumber, column } = position;
-
-          const textUntilPosition = model.getValueInRange({
-            startLineNumber: 1,
-            startColumn: 1,
-            endLineNumber: lineNumber,
-            endColumn: column
-          });
-
-          const syntaxSuggestions = this.currentParser.getSuggestionAtCaretPosition(textUntilPosition, position);
-
-          if (syntaxSuggestions) {
-            const { keywords } = syntaxSuggestions;
-
-            if (keywords.length) {
-              suggestions = suggestions.concat(this.getSQLSuggest(keywords));
-            }
-          }
-
-          return {
-            suggestions
-          };
-        }
-      });
-    },
-    setParser() {
-      switch (this.dsType) {
-        case 'Redis':
-          this.currentParser = new RedisSQL();
-          break;
-        case 'Mysql':
-        case 'TiDB':
-          this.currentParser = new MySQL();
-          break;
-        case 'Oracle':
-        case 'PostgreSQL':
-        case 'Greenplum':
-        case 'SQLServer':
-          this.currentParser = new PostgresSQL();
-          break;
-        case 'StarRocks':
-          this.currentParser = new StarRocksSQL();
-          break;
-        default:
-          this.currentParser = new MySQL();
-      }
-    },
-    getSQLSuggest(keywords) {
-      const list = keywords.map((key) => ({
-        label: key,
-        kind: monaco.languages.CompletionItemKind.Keyword,
-        sortText: `${this.sortText++}`.padStart(8, '0'),
-        insertText: `${key}`
-      }));
-
-      return list;
     },
     getSql() {
       if (this.monacoEditor) {

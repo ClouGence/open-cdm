@@ -8,7 +8,6 @@ import { getQuick } from '@/components/editor/snippets/quick';
 import { getFunction } from '@/components/editor/snippets/functions';
 import { format } from 'sql-formatter';
 import { getLanguage } from '@/utils/tools';
-import { MySQL, PostgresSQL, RedisSQL, StarRocksSQL } from './core';
 import { registerMongoDBLanguage } from './languages/mongodb';
 import { getPluginResourceUrl } from '@/utils/pluginResource';
 import { requestWebSocket } from '@/services/socket';
@@ -41,8 +40,6 @@ export default {
       currentSql: null,
       currentPosition: {},
       currentDecoration: null,
-      flinkParser: null,
-      currentParser: null,
       defaultOpts: {
         value: '', // 编辑器的值
         language: 'mysql',
@@ -105,32 +102,6 @@ export default {
           return 'sql';
       }
     },
-    setParser() {
-      switch (this.currentTab.dsType) {
-        case 'Redis':
-          this.currentParser = new RedisSQL();
-          break;
-        case 'Mysql':
-        case 'TiDB':
-          this.currentParser = new MySQL();
-          break;
-        case 'Oracle':
-        case 'PostgreSQL':
-        case 'Greenplum':
-        case 'SQLServer':
-          this.currentParser = new PostgresSQL();
-          break;
-        case 'StarRocks':
-          this.currentParser = new StarRocksSQL();
-          break;
-        case 'MongoDB':
-          // MongoDB 使用 JavaScript 语法，暂不需要 SQL parser
-          this.currentParser = null;
-          break;
-        default:
-          this.currentParser = new MySQL();
-      }
-    },
     init() {
       this.currentTab.language = getLanguage(this.currentTab.dsType);
       this.defaultOpts.language = this.currentTab.language;
@@ -190,7 +161,6 @@ export default {
         this.debounceValidateSql();
         this.$emit('change', toRaw(this.monacoEditor.getValue()));
       });
-      this.setParser();
     },
     async validateSql() {
       const language = this.getDsLanguageCapability();
@@ -240,37 +210,7 @@ export default {
         return;
       }
 
-      const allSql = this.monacoEditor.getValue();
-      if (!this.currentParser) {
-        this.applyBackendDiagnostics([]);
-        return;
-      }
-      this.clearBackendDiagnostics();
-      const sqlSlices = this.currentParser.splitSQLByStatement(allSql);
-      console.log('validate sql', sqlSlices);
-      const markers = [];
-      if (sqlSlices) {
-        sqlSlices.forEach((sql) => {
-          if (this.isLanguageFragmentTooLarge(sql.text)) {
-            return;
-          }
-          const errors = this.currentParser.validate(sql.text);
-          if (errors) {
-            errors.forEach((error) => {
-              markers.push({
-                startLineNumber: error.startLine,
-                startColumn: error.startCol,
-                endLineNumber: error.endLine,
-                endColumn: error.endCol,
-                message: error.message, // 提示文案
-                severity: monaco.MarkerSeverity.Error // 提示的类型
-              });
-            });
-          }
-        });
-
-        monaco.editor.setModelMarkers(this.monacoEditor.getModel(), 'mysql', markers);
-      }
+      this.applyBackendDiagnostics([]);
     },
     debounceValidateSql() {
       if (this.validateTimer) {
@@ -493,38 +433,13 @@ export default {
             suggestions = suggestions.concat(this.getQuickSuggest(position));
           } else if (this.currentTab.dsType === 'MongoDB') {
             // MongoDB 特殊处理：提供函数建议
-            suggestions = suggestions.concat(this.getFunctionSuggest(this.currentTab.dsType));
+            suggestions = suggestions.concat(this.getFunctionSuggest(position));
             suggestions = suggestions.concat(this.getQuickSuggest(position));
           } else if (this.getDsLanguageCapability()?.supported && this.getDsLanguageCapability()?.completion) {
             suggestions = await this.getDelayedBackendCompletionSuggest(model, position);
-          } else if (this.currentParser) {
-            const syntaxSuggestions = toRaw(this.currentParser).getSuggestionAtCaretPosition(textUntilPosition, toRaw(position));
-            console.log('syntaxSuggestions', syntaxSuggestions);
-
-            if (syntaxSuggestions) {
-              const { keywords, syntax } = syntaxSuggestions;
-
-              if (syntax.length) {
-                syntax.forEach((item) => {
-                  if (item.syntaxContextType === 'table') {
-                    suggestions = suggestions.concat(this.getTableSuggest('TABLE'));
-                  }
-                  if (item.syntaxContextType === 'key') {
-                    suggestions = suggestions.concat(this.getTableSuggest('KEY'));
-                  }
-                  if (item.syntaxContextType === 'column') {
-                    suggestions = suggestions.concat(this.getColumnSuggest(item));
-                  }
-                  if (item.syntaxContextType === 'function') {
-                    suggestions = suggestions.concat(this.getFunctionSuggest(this.currentTab.dsType));
-                  }
-                });
-              }
-
-              if (keywords.length) {
-                suggestions = suggestions.concat(this.getSQLSuggest(keywords));
-              }
-            }
+          } else {
+            suggestions = suggestions.concat(await this.getFallbackKeywordSuggest());
+            suggestions = suggestions.concat(this.getFunctionSuggest(position));
           }
 
           this.updateCompletionIconMap(suggestions);
@@ -1105,20 +1020,13 @@ export default {
     getCurrentSql() {
       const position = this.monacoEditor.getPosition();
       const allSql = this.monacoEditor.getValue();
-
-      if (!this.currentParser) {
-        // MongoDB 或其他没有 parser 的情况，返回全部内容
+      if (!position) {
         return allSql;
       }
 
-      const sqlSlice = this.currentParser.getSuggestionAtCaretPosition(allSql, position);
-      let currentSql = null;
-
-      if (sqlSlice) {
-        currentSql = sqlSlice.currentSql;
-      }
-
-      return currentSql;
+      const cursorOffset = this.monacoEditor.getModel().getOffsetAt(position);
+      const range = this.findSqlFragmentRange(allSql, cursorOffset);
+      return allSql.slice(range.startOffset, range.endOffset);
     },
     setFontSize(size) {
       if (this.monacoEditor) {

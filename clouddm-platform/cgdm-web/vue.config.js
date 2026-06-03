@@ -163,22 +163,6 @@ module.exports = {
           // vxe-table 相关库（仅非CC产品）
           ...(PRODUCT === 'CC'
             ? {
-                // ANTLR 相关库
-                antlr: {
-                  name: 'chunk-antlr',
-                  test: /[\\/]node_modules[\\/](antlr4|antlr4ts|antlr4-c3)[\\/]/,
-                  priority: 15,
-                  reuseExistingChunk: true,
-                  enforce: true
-                },
-                // Editor Core 编辑器核心
-                editorCore: {
-                  name: 'chunk-editor-core',
-                  test: /[\\/]src[\\/]components[\\/]editor[\\/]core[\\/]/,
-                  priority: 12,
-                  reuseExistingChunk: true,
-                  enforce: true
-                },
                 // Monaco 编辑器
                 monaco: {
                   name: 'chunk-monaco',
@@ -207,21 +191,6 @@ module.exports = {
     ],
     module: {
       rules: [
-        {
-          test: /\.m?js$/,
-          include: /node_modules(\/|\\)antlr4-c3/i,
-          use: {
-            loader: 'babel-loader',
-            options: {
-              presets: ['@babel/preset-env', '@vue/cli-plugin-babel/preset'],
-              plugins: [
-                '@babel/plugin-proposal-private-methods',
-                '@babel/plugin-proposal-class-properties',
-                '@babel/plugin-proposal-object-rest-spread'
-              ]
-            }
-          }
-        },
         {
           test: /monaco-editor(\/|\\).*\.js/,
           loader: 'babel-loader'
