@@ -34,10 +34,13 @@ import com.clougence.clouddm.dsfamily.db2.definition.ui.template.Db2CmdTemplateS
 import com.clougence.clouddm.dsfamily.db2.dialect.Db2Dialect;
 import com.clougence.clouddm.dsfamily.db2.execute.Db2SessionSpi;
 import com.clougence.clouddm.dsfamily.db2.i18n.Db2DsI18nKeys;
+import com.clougence.clouddm.dsfamily.db2.language.Db2LanguageSpi;
+import com.clougence.clouddm.dsfamily.db2.resource.Db2EditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
+import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
@@ -65,6 +68,7 @@ public class Db2ForiPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -95,6 +99,12 @@ public class Db2ForiPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new Db2DataEditorSpi());
         dsPlugin.addPluginSpi(new Db2ConvertTableDDLSpi());
         dsPlugin.addPluginSpi(new Db2DetermineExceptionSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new Db2LanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new Db2EditorResourceSpi(DataSourceType.Db2Fori, dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {

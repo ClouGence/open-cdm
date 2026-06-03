@@ -60,7 +60,5 @@ public abstract class CompletionStrategyCenter {
 
     protected abstract CompletionDialect dialect(CompletionRequest request);
 
-    protected CompletionContext context(CompletionRequest request, CompletionDialect dialect) {
-        return new CompletionContext(request, dialect);
-    }
+    protected abstract CompletionContext context(CompletionRequest request, CompletionDialect dialect);
 }

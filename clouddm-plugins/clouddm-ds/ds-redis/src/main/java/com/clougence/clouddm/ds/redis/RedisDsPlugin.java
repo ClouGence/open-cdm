@@ -96,7 +96,7 @@ public class RedisDsPlugin implements DsPlugin, SchemaPlugin {
 
     private void configEditor(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new RedisLanguageSpi(null));
+        dsPlugin.addPluginSpi(new RedisLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
         dsPlugin.addPluginSpi(new RedisEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 

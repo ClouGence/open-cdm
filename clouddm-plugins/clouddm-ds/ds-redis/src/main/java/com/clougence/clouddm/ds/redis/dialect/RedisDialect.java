@@ -16,7 +16,6 @@
 package com.clougence.clouddm.ds.redis.dialect;
 
 import com.clougence.clouddm.dsfamily.schema.dialect.AbstractDialect;
-import com.clougence.schema.dialect.Dialect;
 import com.clougence.utils.StringUtils;
 
 /**
@@ -26,7 +25,7 @@ import com.clougence.utils.StringUtils;
  */
 public class RedisDialect extends AbstractDialect {
 
-    public static Dialect INSTANCE = new RedisDialect();
+    public static RedisDialect INSTANCE = new RedisDialect();
 
     @Override
     protected String keyWordsResource() {

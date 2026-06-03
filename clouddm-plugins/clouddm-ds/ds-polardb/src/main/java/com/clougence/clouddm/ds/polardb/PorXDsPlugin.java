@@ -32,7 +32,7 @@ import com.clougence.clouddm.ds.polardb.execute.porx.PorXSessionFactory;
 import com.clougence.clouddm.ds.polardb.execute.porx.PorXSessionSpi;
 import com.clougence.clouddm.ds.polardb.execute.porx.PorXSupportSpi;
 import com.clougence.clouddm.ds.polardb.i18n.PorXDsI18nKeys;
-import com.clougence.clouddm.ds.polardb.language.PorXLanguageSpi;
+import com.clougence.clouddm.ds.polardb.language.porx.PorXLanguageSpi;
 import com.clougence.clouddm.ds.polardb.resource.PorXEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.data.MyDataEditorSpi;

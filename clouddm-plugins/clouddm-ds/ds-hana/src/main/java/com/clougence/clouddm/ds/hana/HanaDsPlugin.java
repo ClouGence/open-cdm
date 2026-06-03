@@ -37,10 +37,13 @@ import com.clougence.clouddm.ds.hana.execute.HanaSessionFactory;
 import com.clougence.clouddm.ds.hana.execute.HanaSessionSpi;
 import com.clougence.clouddm.ds.hana.execute.HanaSupportSpi;
 import com.clougence.clouddm.ds.hana.i18n.HanaDsI18nKeys;
+import com.clougence.clouddm.ds.hana.language.HanaLanguageSpi;
+import com.clougence.clouddm.ds.hana.resource.HanaEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
+import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
@@ -67,6 +70,7 @@ public class HanaDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -97,6 +101,12 @@ public class HanaDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new HanaDataEditorSpi());
         dsPlugin.addPluginSpi(new HanaConvertTableDDLSpi());
         dsPlugin.addPluginSpi(new HanaDetermineExceptionSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new HanaLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new HanaEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {

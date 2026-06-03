@@ -46,11 +46,6 @@ public class PgLanguageSpi implements DsLanguageSpi {
         this.validate = new PgValidateStrategyCenter();
     }
 
-    @Override
-    public String name() {
-        return "postgres";
-    }
-
     private static <T extends LanguageResult> T initResult(AbstractRequest request, T result) {
         if (request != null) {
             result.setRequestId(request.getRequestId());

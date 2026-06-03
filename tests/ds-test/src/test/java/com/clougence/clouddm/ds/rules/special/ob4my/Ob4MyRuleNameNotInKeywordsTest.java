@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import com.clougence.clouddm.ds.oceanbase.analysis.obformysql.ObSecDomainResolveSpi;
+import com.clougence.clouddm.ds.oceanbase.analysis.ob4my.ObSecDomainResolveSpi;
 import com.clougence.clouddm.ds.rules.rdb.using_my.MyAbstractRuleTest;
 import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;

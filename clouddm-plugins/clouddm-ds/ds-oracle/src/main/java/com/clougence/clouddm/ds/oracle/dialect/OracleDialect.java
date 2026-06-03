@@ -15,8 +15,8 @@
  */
 package com.clougence.clouddm.ds.oracle.dialect;
 
+import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.schema.dialect.AbstractDialect;
-import com.clougence.schema.dialect.Dialect;
 import com.clougence.utils.StringUtils;
 
 /**
@@ -24,9 +24,9 @@ import com.clougence.utils.StringUtils;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class OracleDialect extends AbstractDialect {
+public class OracleDialect extends AbstractDialect implements CompletionDialect {
 
-    public static Dialect INSTANCE = new OracleDialect();
+    public static OracleDialect INSTANCE = new OracleDialect();
 
     @Override
     protected String keyWordsResource() {
@@ -44,5 +44,19 @@ public class OracleDialect extends AbstractDialect {
         }
 
         return str.replace("'", "''");
+    }
+
+    @Override
+    public boolean isIdentifierChar(char c) {
+        return Character.isLetterOrDigit(c) || c == '_' || c == '$' || c == '"';
+    }
+
+    @Override
+    public String unquoteIdentifier(String value) {
+        String text = StringUtils.toString(value).trim();
+        if (text.length() >= 2 && text.startsWith("\"") && text.endsWith("\"")) {
+            return text.substring(1, text.length() - 1).replace("\"\"", "\"");
+        }
+        return text;
     }
 }

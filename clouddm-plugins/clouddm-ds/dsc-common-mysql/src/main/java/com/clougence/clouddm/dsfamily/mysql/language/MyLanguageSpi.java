@@ -46,11 +46,6 @@ public class MyLanguageSpi implements DsLanguageSpi {
         this.validate = new MyValidateStrategyCenter();
     }
 
-    @Override
-    public String name() {
-        return "mysql";
-    }
-
     private static <T extends LanguageResult> T initResult(AbstractRequest request, T result) {
         if (request != null) {
             result.setRequestId(request.getRequestId());

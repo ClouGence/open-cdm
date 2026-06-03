@@ -17,6 +17,8 @@ package com.clougence.clouddm.dsfamily.mysql.resource;
 
 import java.util.Objects;
 
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+
 import com.clougence.clouddm.sdk.resource.ResourceCategory;
 import com.clougence.clouddm.sdk.resource.ResourceObject;
 import com.clougence.clouddm.sdk.resource.ResourceRequest;
@@ -27,15 +29,15 @@ import com.clougence.utils.loader.providers.ClassPathResourceLoader;
 
 public class MyEditorResourceSpi implements ResourceSpi {
 
-    private final ResourceLoader resourceLoader;
+    private final ResourceLoader loader;
 
-    public MyEditorResourceSpi(ClassLoader pluginClassLoader){
-        this.resourceLoader = new ClassPathResourceLoader(Objects.requireNonNull(pluginClassLoader, "pluginClassLoader"), "");
+    public MyEditorResourceSpi(ClassLoader loader){
+        this.loader = new ClassPathResourceLoader(Objects.requireNonNull(loader, "loader"), "");
     }
 
     @Override
     public String name() {
-        return "mysql";
+        return DataSourceType.MySQL.name();
     }
 
     @Override
@@ -45,12 +47,12 @@ public class MyEditorResourceSpi implements ResourceSpi {
         }
 
         return switch (resourcePath) {
-            case "keywords", "keywords.txt", "mysql.keywords" -> keywordsResource();
+            case "keywords" -> keywordsResource();
             default -> null;
         };
     }
 
     private ResourceObject keywordsResource() {
-        return new ClasspathResourceObject(resourceLoader, "META-INF/clougence/db-keywords/mysql.keywords", "text/plain;charset=UTF-8", true, true);
+        return new ClasspathResourceObject(loader, "META-INF/clougence/db-keywords/mysql.keywords", "text/plain;charset=UTF-8", true, true);
     }
 }

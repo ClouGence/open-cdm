@@ -89,12 +89,12 @@ public class MongoDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         //dsPlugin.addUiSpi(new MySQLTableEditorUiDataSpi());
         dsPlugin.addPluginSpi(new MongoDsBrowseSpi());
         dsPlugin.addPluginSpi(new MongoCmdTemplateSpi());
-        //        dsPlugin.addSpi(new RedisDetermineExceptionSpi());
+        //dsPlugin.addSpi(new RedisDetermineExceptionSpi());
     }
 
     private void configEditor(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new MongoLanguageSpi(null));
+        dsPlugin.addPluginSpi(new MongoLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
         dsPlugin.addPluginSpi(new MongoEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 

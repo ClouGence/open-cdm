@@ -37,10 +37,13 @@ import com.clougence.clouddm.ds.dameng.execute.DmSessionFactory;
 import com.clougence.clouddm.ds.dameng.execute.DmSessionSpi;
 import com.clougence.clouddm.ds.dameng.execute.DmSupportSpi;
 import com.clougence.clouddm.ds.dameng.i18n.DmDsI18nKeys;
+import com.clougence.clouddm.ds.dameng.language.DmLanguageSpi;
+import com.clougence.clouddm.ds.dameng.resource.DmEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
+import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
@@ -67,6 +70,7 @@ public class DmDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         this.configBasic(dsPlugin);
         this.configExecute(dsPlugin);
         this.configUi(dsPlugin);
+        this.configEditor(dsPlugin);
         this.configTeam(dsPlugin);
         this.configFeature(dsPlugin);
     }
@@ -97,6 +101,12 @@ public class DmDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.addPluginSpi(new DmDataEditorSpi());
         dsPlugin.addPluginSpi(new DmConvertTableDDLSpi());
         dsPlugin.addPluginSpi(new DmDetermineExceptionSpi());
+    }
+
+    private void configEditor(DsPluginBinder dsPlugin) {
+        // SPIs
+        dsPlugin.addPluginSpi(new DmLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new DmEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {

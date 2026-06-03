@@ -15,8 +15,8 @@
  */
 package com.clougence.clouddm.ds.dameng.dialect;
 
+import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.schema.dialect.AbstractDialect;
-import com.clougence.schema.dialect.Dialect;
 import com.clougence.utils.StringUtils;
 
 /**
@@ -24,9 +24,9 @@ import com.clougence.utils.StringUtils;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class DmDialect extends AbstractDialect {
+public class DmDialect extends AbstractDialect implements CompletionDialect {
 
-    public static Dialect INSTANCE = new DmDialect();
+    public static DmDialect INSTANCE = new DmDialect();
 
     @Override
     protected String keyWordsResource() {
@@ -52,5 +52,19 @@ public class DmDialect extends AbstractDialect {
         }
         value = value.replace("'", "''");
         return "'" + value + "'";
+    }
+
+    @Override
+    public boolean isIdentifierChar(char c) {
+        return Character.isLetterOrDigit(c) || c == '_' || c == '$' || c == '"';
+    }
+
+    @Override
+    public String unquoteIdentifier(String value) {
+        String text = StringUtils.toString(value).trim();
+        if (text.length() >= 2 && text.startsWith("\"") && text.endsWith("\"")) {
+            return text.substring(1, text.length() - 1).replace("\"\"", "\"");
+        }
+        return text;
     }
 }

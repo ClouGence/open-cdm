@@ -27,6 +27,7 @@ import com.clougence.clouddm.ds.polardb.dsconf.pormy.PorMySerializationSpi;
 import com.clougence.clouddm.ds.polardb.execute.pormy.PorMySessionFactory;
 import com.clougence.clouddm.ds.polardb.execute.pormy.PorMySupportSpi;
 import com.clougence.clouddm.ds.polardb.i18n.PorMyDsI18nKeys;
+import com.clougence.clouddm.ds.polardb.language.pormy.PorMyLanguageSpi;
 import com.clougence.clouddm.ds.polardb.resource.PorMyEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.mysql.analysis.rewrite.MyRewriteSpi;
@@ -37,7 +38,6 @@ import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.table.MyTableEd
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.exception.MyDetermineExceptionSpi;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.template.MyCmdTemplateSpi;
 import com.clougence.clouddm.dsfamily.mysql.execute.MySessionSpi;
-import com.clougence.clouddm.dsfamily.mysql.language.MyLanguageSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -106,7 +106,7 @@ public class PorMyDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configEditor(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new MyLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addPluginSpi(new PorMyLanguageSpi(dsPlugin.findGlobalService(MetaService.class)));
         dsPlugin.addPluginSpi(new PorMyEditorResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 

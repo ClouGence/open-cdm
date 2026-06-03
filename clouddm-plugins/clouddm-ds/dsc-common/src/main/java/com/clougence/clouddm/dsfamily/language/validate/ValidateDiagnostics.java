@@ -74,6 +74,11 @@ public final class ValidateDiagnostics {
 
     private static BlockLocation errorRange(AntlerSyntaxException e, String sqlText) {
         String token = offendingToken(e.getMessage());
+        BlockLocation fallbackRange = eofFallbackRange(e, sqlText, token);
+        if (fallbackRange != null) {
+            return fallbackRange;
+        }
+
         int startColumn = e.getColumn();
         int endColumn = startColumn + Math.max(1, token == null ? 1 : token.length());
 
@@ -90,6 +95,27 @@ public final class ValidateDiagnostics {
         range.setStartPosition(start);
         range.setEndPosition(end);
         return range;
+    }
+
+    private static BlockLocation eofFallbackRange(AntlerSyntaxException e, String sqlText, String token) {
+        if (!isEofToken(token) && StringUtils.isNotBlank(lineText(sqlText, e.getLine()))) {
+            return null;
+        }
+
+        int offset = offsetAt(sqlText, e.getLine(), e.getColumn());
+        int[] tokenRange = previousTokenRange(sqlText, offset);
+        if (tokenRange == null) {
+            return null;
+        }
+
+        BlockLocation range = new BlockLocation();
+        range.setStartPosition(positionAt(sqlText, tokenRange[0]));
+        range.setEndPosition(positionAt(sqlText, tokenRange[1]));
+        return range;
+    }
+
+    private static boolean isEofToken(String token) {
+        return "<EOF>".equals(token) || "EOF".equalsIgnoreCase(token);
     }
 
     private static String offendingToken(String message) {
@@ -184,6 +210,61 @@ public final class ValidateDiagnostics {
             }
         }
         return new CodeLocation(line, column);
+    }
+
+    private static int offsetAt(String sqlText, int targetLine, int targetColumn) {
+        if (StringUtils.isBlank(sqlText)) {
+            return 0;
+        }
+
+        int line = 1;
+        int column = 0;
+        int offset = 0;
+        int normalizedLine = Math.max(1, targetLine);
+        int normalizedColumn = Math.max(0, targetColumn);
+        while (offset < sqlText.length()) {
+            if (line == normalizedLine && column >= normalizedColumn) {
+                return offset;
+            }
+
+            char c = sqlText.charAt(offset);
+            offset++;
+            if (c == '\n') {
+                line++;
+                column = 0;
+            } else if (c != '\r') {
+                column++;
+            }
+        }
+        return sqlText.length();
+    }
+
+    private static int[] previousTokenRange(String sqlText, int offset) {
+        if (StringUtils.isBlank(sqlText)) {
+            return null;
+        }
+
+        int end = Math.clamp(offset, 0, sqlText.length());
+        while (end > 0 && isIgnorableTrailing(sqlText.charAt(end - 1))) {
+            end--;
+        }
+        if (end <= 0) {
+            return null;
+        }
+
+        int start = end;
+        if (isTokenChar(sqlText.charAt(end - 1))) {
+            while (start > 0 && isTokenChar(sqlText.charAt(start - 1))) {
+                start--;
+            }
+        } else {
+            start--;
+        }
+        return new int[] { start, end };
+    }
+
+    private static boolean isIgnorableTrailing(char c) {
+        return Character.isWhitespace(c) || c == ';';
     }
 
     private static boolean isTokenChar(char c) {

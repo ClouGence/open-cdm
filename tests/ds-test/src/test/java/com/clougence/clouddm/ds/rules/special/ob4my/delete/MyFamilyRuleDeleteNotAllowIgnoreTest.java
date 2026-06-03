@@ -1,6 +1,6 @@
 package com.clougence.clouddm.ds.rules.special.ob4my.delete;
 
-import com.clougence.clouddm.ds.oceanbase.analysis.obformysql.ObSecDomainResolveSpi;
+import com.clougence.clouddm.ds.oceanbase.analysis.ob4my.ObSecDomainResolveSpi;
 import com.clougence.clouddm.ds.rules.special.mysql.delete.MyRuleDeleteNotAllowIgnoreTest;
 import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;

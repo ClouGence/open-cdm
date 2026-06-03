@@ -15,10 +15,11 @@
  */
 package com.clougence.clouddm.ds.sqlserver.dialect;
 
+import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.schema.dialect.AbstractDialect;
 import com.clougence.utils.StringUtils;
 
-public class SqlServerDialect extends AbstractDialect {
+public class SqlServerDialect extends AbstractDialect implements CompletionDialect {
 
     public static SqlServerDialect INSTANCE = new SqlServerDialect();
 
@@ -59,5 +60,19 @@ public class SqlServerDialect extends AbstractDialect {
     @Override
     public String rightQualifier() {
         return "]";
+    }
+
+    @Override
+    public boolean isIdentifierChar(char c) {
+        return Character.isLetterOrDigit(c) || c == '_' || c == '$' || c == '[' || c == ']';
+    }
+
+    @Override
+    public String unquoteIdentifier(String value) {
+        String text = StringUtils.toString(value).trim();
+        if (text.length() >= 2 && text.startsWith("[") && text.endsWith("]")) {
+            return text.substring(1, text.length() - 1).replace("]]", "]");
+        }
+        return text;
     }
 }

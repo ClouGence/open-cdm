@@ -15,6 +15,9 @@
  */
 package com.clougence.clouddm.sdk.language;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 import com.clougence.clouddm.sdk.Spi;
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
 import com.clougence.clouddm.sdk.language.completion.CompletionResult;
@@ -24,6 +27,10 @@ import com.clougence.clouddm.sdk.language.validate.ValidateRequest;
 import com.clougence.clouddm.sdk.language.validate.ValidateResult;
 
 public interface DsLanguageSpi extends Spi {
+
+    default Set<DsLanguageSupport> supports() {
+        return EnumSet.allOf(DsLanguageSupport.class);
+    }
 
     CompletionResult complete(CompletionRequest request);
 

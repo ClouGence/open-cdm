@@ -6,9 +6,9 @@ import java.util.List;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import org.junit.Test;
 
-import com.clougence.clouddm.ds.oceanbase.analysis.obformysql.ObResAnalysisSpi;
-import com.clougence.clouddm.ds.oceanbase.analysis.obformysql.ObSecDomainResolveSpi;
-import com.clougence.clouddm.ds.oceanbase.analysis.obformysql.ObSplitAnalysisSpi;
+import com.clougence.clouddm.ds.oceanbase.analysis.ob4my.ObResAnalysisSpi;
+import com.clougence.clouddm.ds.oceanbase.analysis.ob4my.ObSecDomainResolveSpi;
+import com.clougence.clouddm.ds.oceanbase.analysis.ob4my.ObSplitAnalysisSpi;
 import com.clougence.clouddm.ds.secdomain.family.mysql.MySecDomainTestSupport;
 import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbConstraintDomain;
 import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbIndexDomain;

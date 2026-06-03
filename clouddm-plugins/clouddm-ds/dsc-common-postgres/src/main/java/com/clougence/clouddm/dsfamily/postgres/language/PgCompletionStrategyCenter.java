@@ -21,14 +21,7 @@ import com.clougence.clouddm.dsfamily.language.completion.CompletionContext;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategy;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategyCenter;
-import com.clougence.clouddm.dsfamily.language.completion.rdb.ObjectCompletionStrategy;
-import com.clougence.clouddm.dsfamily.language.completion.rdb.OrderGroupByColumnCompletionStrategy;
-import com.clougence.clouddm.dsfamily.language.completion.rdb.PredicateColumnCompletionStrategy;
-import com.clougence.clouddm.dsfamily.language.completion.rdb.QualifiedColumnCompletionStrategy;
-import com.clougence.clouddm.dsfamily.language.completion.rdb.SelectAllCompletionStrategy;
-import com.clougence.clouddm.dsfamily.language.completion.rdb.SelectColumnCompletionStrategy;
-import com.clougence.clouddm.dsfamily.language.completion.rdb.SelectFromKeywordCompletionStrategy;
-import com.clougence.clouddm.dsfamily.language.completion.rdb.WhereColumnCompletionStrategy;
+import com.clougence.clouddm.dsfamily.language.completion.rdb.*;
 import com.clougence.clouddm.dsfamily.postgres.dialect.PostgreDialect;
 import com.clougence.clouddm.dsfamily.postgres.parser.PgDslProvider;
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
@@ -43,11 +36,7 @@ public class PgCompletionStrategyCenter extends CompletionStrategyCenter {
 
     @Override
     protected CompletionContext context(CompletionRequest request, CompletionDialect dialect) {
-        try {
-            return CompletionContext.build(request, dialect, DslHelper.splitDsl(PgDslProvider.INSTANCE, request.getSqlText()));
-        } catch (RuntimeException e) {
-            return super.context(request, dialect);
-        }
+        return CompletionContext.build(request, dialect, DslHelper.splitDsl(PgDslProvider.INSTANCE, request.getSqlText()));
     }
 
     @Override

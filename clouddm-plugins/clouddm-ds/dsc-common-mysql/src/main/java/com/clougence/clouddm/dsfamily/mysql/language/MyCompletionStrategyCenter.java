@@ -17,8 +17,8 @@ package com.clougence.clouddm.dsfamily.mysql.language;
 
 import java.util.List;
 
-import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionContext;
+import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategy;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategyCenter;
 import com.clougence.clouddm.dsfamily.language.completion.rdb.*;
@@ -36,11 +36,7 @@ public class MyCompletionStrategyCenter extends CompletionStrategyCenter {
 
     @Override
     protected CompletionContext context(CompletionRequest request, CompletionDialect dialect) {
-        try {
-            return CompletionContext.build(request, dialect, DslHelper.splitDsl(MyDslProvider.INSTANCE, request.getSqlText()));
-        } catch (RuntimeException e) {
-            return super.context(request, dialect);
-        }
+        return CompletionContext.build(request, dialect, DslHelper.splitDsl(MyDslProvider.INSTANCE, request.getSqlText()));
     }
 
     @Override

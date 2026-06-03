@@ -164,7 +164,7 @@ export default {
     },
     async validateSql() {
       const language = this.getDsLanguageCapability();
-      if (language?.supported && language?.validate) {
+      if (this.isDsLanguageSupport('VALIDATE', language)) {
         const fragments = this.getLanguageFragments();
         if (!fragments.length) {
           this.applyBackendDiagnostics([]);
@@ -435,7 +435,7 @@ export default {
             // MongoDB 特殊处理：提供函数建议
             suggestions = suggestions.concat(this.getFunctionSuggest(position));
             suggestions = suggestions.concat(this.getQuickSuggest(position));
-          } else if (this.getDsLanguageCapability()?.supported && this.getDsLanguageCapability()?.completion) {
+          } else if (this.isDsLanguageSupport('COMPLETE')) {
             suggestions = await this.getDelayedBackendCompletionSuggest(model, position);
           } else {
             suggestions = suggestions.concat(await this.getFallbackKeywordSuggest());
@@ -530,6 +530,20 @@ export default {
     },
     getDsLanguageCapability() {
       return this.getCurrentDsSetting()?.language || null;
+    },
+    isDsLanguageSupport(support, language = this.getDsLanguageCapability()) {
+      if (!language?.supported) {
+        return false;
+      }
+      if (Array.isArray(language.supports)) {
+        return language.supports.includes(support);
+      }
+      const legacyField = {
+        COMPLETE: 'completion',
+        VALIDATE: 'validate',
+        SPLIT: 'split'
+      }[support];
+      return legacyField ? !!language[legacyField] : false;
     },
     getCurrentDsSetting() {
       const settings = this.dmGlobalSetting?.dsSettingDef || this.globalDsSetting || {};

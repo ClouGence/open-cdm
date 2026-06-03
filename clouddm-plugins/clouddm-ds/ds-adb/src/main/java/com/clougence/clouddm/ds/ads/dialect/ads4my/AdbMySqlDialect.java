@@ -16,7 +16,6 @@
 package com.clougence.clouddm.ds.ads.dialect.ads4my;
 
 import com.clougence.clouddm.dsfamily.mysql.dialect.MySqlDialect;
-import com.clougence.schema.dialect.Dialect;
 
 /**
  * MySQL 的 SqlDialect 实现
@@ -25,7 +24,7 @@ import com.clougence.schema.dialect.Dialect;
  */
 public class AdbMySqlDialect extends MySqlDialect {
 
-    public static Dialect INSTANCE = new AdbMySqlDialect();
+    public static AdbMySqlDialect INSTANCE = new AdbMySqlDialect();
 
     @Override
     protected String keyWordsResource() {

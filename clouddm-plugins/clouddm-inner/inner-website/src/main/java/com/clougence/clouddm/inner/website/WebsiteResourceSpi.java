@@ -29,8 +29,8 @@ public class WebsiteResourceSpi implements ResourceSpi {
 
     private final ResourceLoader resourceLoader;
 
-    public WebsiteResourceSpi(ClassLoader pluginClassLoader){
-        this.resourceLoader = new ClassPathResourceLoader(Objects.requireNonNull(pluginClassLoader, "pluginClassLoader"), "");
+    public WebsiteResourceSpi(ClassLoader loader){
+        this.resourceLoader = new ClassPathResourceLoader(Objects.requireNonNull(loader, "loader"), "");
     }
 
     private ResourceObject classpathResource(String resourceLocation, String contentType) {

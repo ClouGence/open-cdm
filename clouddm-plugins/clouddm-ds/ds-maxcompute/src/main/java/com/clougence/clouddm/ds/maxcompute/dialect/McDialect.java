@@ -15,8 +15,8 @@
  */
 package com.clougence.clouddm.ds.maxcompute.dialect;
 
+import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.schema.dialect.AbstractDialect;
-import com.clougence.schema.dialect.Dialect;
 import com.clougence.utils.StringUtils;
 
 /**
@@ -24,9 +24,9 @@ import com.clougence.utils.StringUtils;
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */
-public class McDialect extends AbstractDialect {
+public class McDialect extends AbstractDialect implements CompletionDialect {
 
-    public static Dialect INSTANCE = new McDialect();
+    public static McDialect INSTANCE = new McDialect();
 
     @Override
     protected String keyWordsResource() {
@@ -60,5 +60,19 @@ public class McDialect extends AbstractDialect {
         sqlBuilder.append(fmtName(useDelimited, table));
 
         return sqlBuilder.toString();
+    }
+
+    @Override
+    public boolean isIdentifierChar(char c) {
+        return Character.isLetterOrDigit(c) || c == '_' || c == '$' || c == '`';
+    }
+
+    @Override
+    public String unquoteIdentifier(String value) {
+        String text = StringUtils.toString(value).trim();
+        if (text.length() >= 2 && text.startsWith("`") && text.endsWith("`")) {
+            return text.substring(1, text.length() - 1).replace("``", "`");
+        }
+        return text;
     }
 }

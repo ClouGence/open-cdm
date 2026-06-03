@@ -32,7 +32,7 @@ import com.clougence.clouddm.ds.gauss.execute.gs.GsSessionFactory;
 import com.clougence.clouddm.ds.gauss.execute.gs.GsSessionSpi;
 import com.clougence.clouddm.ds.gauss.execute.gs.GsSupportSpi;
 import com.clougence.clouddm.ds.gauss.i18n.gs.GsDsI18nKeys;
-import com.clougence.clouddm.ds.gauss.language.GsLanguageSpi;
+import com.clougence.clouddm.ds.gauss.language.gs.GsLanguageSpi;
 import com.clougence.clouddm.ds.gauss.resource.GsEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.data.PgDataEditorSpi;

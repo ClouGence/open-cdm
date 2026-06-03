@@ -16,7 +16,6 @@
 package com.clougence.clouddm.ds.tidb.dialect;
 
 import com.clougence.clouddm.dsfamily.mysql.dialect.MySqlDialect;
-import com.clougence.schema.dialect.Dialect;
 
 /**
  * MySQL 的 SqlDialect 实现
@@ -25,7 +24,7 @@ import com.clougence.schema.dialect.Dialect;
  */
 public class TiDBDialect extends MySqlDialect {
 
-    public static Dialect INSTANCE = new TiDBDialect();
+    public static TiDBDialect INSTANCE = new TiDBDialect();
 
     @Override
     protected String keyWordsResource() {

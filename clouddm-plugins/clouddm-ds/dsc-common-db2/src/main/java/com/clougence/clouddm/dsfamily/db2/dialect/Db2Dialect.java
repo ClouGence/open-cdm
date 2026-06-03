@@ -15,10 +15,11 @@
  */
 package com.clougence.clouddm.dsfamily.db2.dialect;
 
+import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.schema.dialect.AbstractDialect;
 import com.clougence.utils.StringUtils;
 
-public class Db2Dialect extends AbstractDialect {
+public class Db2Dialect extends AbstractDialect implements CompletionDialect {
 
     public static Db2Dialect INSTANCE = new Db2Dialect();
 
@@ -43,5 +44,19 @@ public class Db2Dialect extends AbstractDialect {
     @Override
     public String rightQualifier() {
         return "\"";
+    }
+
+    @Override
+    public boolean isIdentifierChar(char c) {
+        return Character.isLetterOrDigit(c) || c == '_' || c == '$' || c == '"';
+    }
+
+    @Override
+    public String unquoteIdentifier(String value) {
+        String text = StringUtils.toString(value).trim();
+        if (text.length() >= 2 && text.startsWith("\"") && text.endsWith("\"")) {
+            return text.substring(1, text.length() - 1).replace("\"\"", "\"");
+        }
+        return text;
     }
 }
