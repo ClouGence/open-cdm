@@ -11,6 +11,7 @@ import { WS_TYPE } from '@/utils';
 import { getDsSetting, resolveSqlEditorLanguage } from './sqlLanguage';
 
 const LANGUAGE_COMPLETION_DELAY_MS = 200;
+const LANGUAGE_SPLIT_DELAY_MS = 500;
 const MAX_LANGUAGE_FRAGMENT_BYTES = 1024 * 1024;
 const DS_LANGUAGE_ERROR = '10111';
 const STATIC_KEYWORD_WEIGHT = 100;
@@ -59,8 +60,13 @@ export default {
       fontSizePanelExpanded: false,
       languageRequestVersion: 0,
       validateTimer: null,
+      splitTimer: null,
       keywordResourceCache: {},
       diagnosticDecorationCollection: null,
+      currentStatementDecorationCollection: null,
+      splitStatements: [],
+      splitModelVersionId: 0,
+      activeSplitStatement: null,
       languageServiceErrorMessage: '',
       languageServiceErrorTimer: null,
       completionIconMap: {},
@@ -96,6 +102,7 @@ export default {
       this.addActions();
       this.installSuggestIconRenderer();
       this.setEditorInstance(this.monacoEditor);
+      this.currentStatementDecorationCollection = this.monacoEditor.createDecorationsCollection();
       this.monacoEditor.onMouseDown((event) => {
         const decorations = this.monacoEditor.getLineDecorations(event.target.position.lineNumber);
         if (decorations) {
@@ -125,16 +132,18 @@ export default {
         const { selection } = e;
         const { startLineNumber, startColumn, endLineNumber, endColumn } = selection;
         if (startLineNumber !== endLineNumber || startColumn !== endColumn) {
-          if (this.currentDecoration) {
-            this.currentDecoration.clear();
-            this.currentDecoration = null;
-          }
+          this.clearCurrentStatementDecorations();
+          return;
         }
+        this.updateCurrentSqlStatementDecoration();
       });
       this.monacoEditor.onDidChangeModelContent(() => {
+        this.invalidateSplitStatements();
+        this.debounceSplitSql();
         this.debounceValidateSql();
         this.$emit('change', toRaw(this.monacoEditor.getValue()));
       });
+      this.debounceSplitSql(0);
     },
     async validateSql() {
       const language = this.getDsLanguageCapability();
@@ -531,6 +540,153 @@ export default {
         return level;
       }
       return Object.keys(node).find((key) => key.toLowerCase() === `${level}`.toLowerCase());
+    },
+    debounceSplitSql(delay = LANGUAGE_SPLIT_DELAY_MS) {
+      if (this.splitTimer) {
+        clearTimeout(this.splitTimer);
+      }
+      this.splitTimer = setTimeout(() => {
+        this.splitTimer = null;
+        this.splitSql().catch(() => {});
+      }, delay);
+    },
+    async splitSql() {
+      const language = this.getDsLanguageCapability();
+      if (!this.isDsLanguageSupport('SPLIT', language)) {
+        this.invalidateSplitStatements();
+        return;
+      }
+
+      const model = this.monacoEditor?.getModel();
+      if (!model) {
+        this.invalidateSplitStatements();
+        return;
+      }
+
+      const sqlText = model.getValue();
+      if (!sqlText.trim() || this.isLanguageFragmentTooLarge(sqlText)) {
+        this.invalidateSplitStatements();
+        return;
+      }
+
+      const modelVersionId = model.getVersionId();
+      const request = this.buildLanguageRequest(null, {
+        sqlText,
+        startOffset: 0,
+        startPosition: {
+          lineNumber: 1,
+          columnNumber: 0
+        }
+      });
+
+      let response = null;
+      try {
+        response = await this.requestLanguageWebSocket('SPLIT', request);
+      } catch {
+        return;
+      }
+      if (model.isDisposed() || model.getVersionId() !== modelVersionId) {
+        return;
+      }
+      if (this.handleLanguageServiceStatus(response) || this.handleLanguageServiceMessage(response)) {
+        this.invalidateSplitStatements();
+        return;
+      }
+
+      const result = response?.result;
+      if (!result || result.requestVersion !== request.requestVersion) {
+        return;
+      }
+
+      this.splitStatements = (result.statements || []).filter((statement) => statement?.sql?.trim() && statement?.range);
+      this.splitModelVersionId = modelVersionId;
+      this.updateCurrentSqlStatementDecoration();
+    },
+    invalidateSplitStatements() {
+      this.splitStatements = [];
+      this.splitModelVersionId = 0;
+      this.activeSplitStatement = null;
+      this.clearCurrentStatementDecorations();
+    },
+    clearCurrentStatementDecorations() {
+      if (this.currentStatementDecorationCollection) {
+        this.currentStatementDecorationCollection.clear();
+      }
+      this.activeSplitStatement = null;
+    },
+    updateCurrentSqlStatementDecoration() {
+      const model = this.monacoEditor?.getModel();
+      const position = this.monacoEditor?.getPosition();
+      if (!model || !position || model.getVersionId() !== this.splitModelVersionId) {
+        this.clearCurrentStatementDecorations();
+        return;
+      }
+
+      const statement = this.findStatementAtPosition(position);
+      if (!statement) {
+        this.clearCurrentStatementDecorations();
+        return;
+      }
+
+      this.activeSplitStatement = statement;
+      this.applyCurrentStatementDecoration(statement.range);
+    },
+    findStatementAtPosition(position) {
+      return this.splitStatements.find((statement) => this.positionInLanguageRange(position, statement.range));
+    },
+    positionInLanguageRange(position, range) {
+      const start = range?.startPosition || {};
+      const end = range?.endPosition || {};
+      const startLine = Math.max(1, start.lineNumber || start.line || 1);
+      const startColumn = Math.max(0, start.columnNumber ?? start.column ?? 0);
+      const endLine = Math.max(startLine, end.lineNumber || end.line || startLine);
+      const endColumn = Math.max(0, end.columnNumber ?? end.column ?? startColumn);
+      const line = position.lineNumber;
+      const column = Math.max(0, position.column - 1);
+
+      if (line < startLine || line > endLine) {
+        return false;
+      }
+      if (line === startLine && column < startColumn) {
+        return false;
+      }
+      if (line === endLine && column > endColumn) {
+        return false;
+      }
+      return true;
+    },
+    applyCurrentStatementDecoration(range) {
+      if (!this.currentStatementDecorationCollection) {
+        this.currentStatementDecorationCollection = this.monacoEditor.createDecorationsCollection();
+      }
+
+      const start = range?.startPosition || {};
+      const end = range?.endPosition || {};
+      const startLine = Math.max(1, start.lineNumber || start.line || 1);
+      const endLine = Math.max(startLine, end.lineNumber || end.line || startLine);
+      const decorations = [];
+
+      for (let line = startLine; line <= endLine; line++) {
+        const classNames = ['current-sql-statement-line'];
+        if (startLine === endLine) {
+          classNames.push('current-sql-statement-single');
+        } else if (line === startLine) {
+          classNames.push('current-sql-statement-start');
+        } else if (line === endLine) {
+          classNames.push('current-sql-statement-end');
+        } else {
+          classNames.push('current-sql-statement-middle');
+        }
+        decorations.push({
+          range: new monaco.Range(line, 1, line, 1),
+          options: {
+            isWholeLine: true,
+            className: classNames.join(' ')
+          }
+        });
+      }
+
+      this.currentStatementDecorationCollection.set(decorations);
     },
     isLanguageFragmentTooLarge(sqlText) {
       if (!sqlText) {
@@ -961,16 +1117,47 @@ export default {
       this.hoverProviderList.push(providerItem);
     },
     formatSql() {},
-    getCurrentSql() {
-      const position = this.monacoEditor.getPosition();
-      const allSql = this.monacoEditor.getValue();
-      if (!position) {
-        return allSql;
+    getCurrentSqlTarget() {
+      const model = this.monacoEditor?.getModel();
+      const position = this.monacoEditor?.getPosition();
+      if (!model) {
+        return {
+          sql: '',
+          position: null
+        };
       }
 
-      const cursorOffset = this.monacoEditor.getModel().getOffsetAt(position);
-      const range = this.findSqlFragmentRange(allSql, cursorOffset);
-      return allSql.slice(range.startOffset, range.endOffset);
+      if (this.activeSplitStatement && model.getVersionId() === this.splitModelVersionId) {
+        return {
+          sql: this.activeSplitStatement.sql,
+          position: this.toSelectionFromLanguageRange(this.activeSplitStatement.range)
+        };
+      }
+
+      if (!position) {
+        return {
+          sql: model.getValue(),
+          position: new monaco.Selection(1, 1, 1, 1)
+        };
+      }
+
+      const text = model.getValue();
+      const cursorOffset = model.getOffsetAt(position);
+      const range = this.findSqlFragmentRange(text, cursorOffset);
+      const startPosition = model.getPositionAt(range.startOffset);
+      return {
+        sql: text.slice(range.startOffset, range.endOffset),
+        position: new monaco.Selection(startPosition.lineNumber, startPosition.column, startPosition.lineNumber, startPosition.column)
+      };
+    },
+    toSelectionFromLanguageRange(range) {
+      const start = range?.startPosition || {};
+      const lineNumber = Math.max(1, start.lineNumber || start.line || 1);
+      const column = Math.max(1, (start.columnNumber ?? start.column ?? 0) + 1);
+      return new monaco.Selection(lineNumber, column, lineNumber, column);
+    },
+    getCurrentSql() {
+      return this.getCurrentSqlTarget().sql;
     },
     setFontSize(size) {
       if (this.monacoEditor) {
@@ -1042,9 +1229,17 @@ export default {
         clearTimeout(this.validateTimer);
         this.validateTimer = null;
       }
+      if (this.splitTimer) {
+        clearTimeout(this.splitTimer);
+        this.splitTimer = null;
+      }
       if (this.diagnosticDecorationCollection) {
         this.diagnosticDecorationCollection.clear();
         this.diagnosticDecorationCollection = null;
+      }
+      if (this.currentStatementDecorationCollection) {
+        this.currentStatementDecorationCollection.clear();
+        this.currentStatementDecorationCollection = null;
       }
       if (this.languageServiceErrorTimer) {
         clearTimeout(this.languageServiceErrorTimer);
@@ -1143,6 +1338,38 @@ export default {
   height: 100%;
   width: 100%;
   position: relative;
+}
+
+:deep(.current-sql-statement-line) {
+  background: rgba(49, 139, 79, 0.08);
+}
+
+:deep(.current-sql-statement-single) {
+  box-shadow:
+    inset 0 1px #2f8f49,
+    inset 0 -1px #2f8f49,
+    inset 1px 0 #2f8f49,
+    inset -1px 0 #2f8f49;
+}
+
+:deep(.current-sql-statement-start) {
+  box-shadow:
+    inset 0 1px #2f8f49,
+    inset 1px 0 #2f8f49,
+    inset -1px 0 #2f8f49;
+}
+
+:deep(.current-sql-statement-middle) {
+  box-shadow:
+    inset 1px 0 #2f8f49,
+    inset -1px 0 #2f8f49;
+}
+
+:deep(.current-sql-statement-end) {
+  box-shadow:
+    inset 0 -1px #2f8f49,
+    inset 1px 0 #2f8f49,
+    inset -1px 0 #2f8f49;
 }
 
 :deep(.suggest-widget .monaco-list .monaco-list-row > .contents > .main) {

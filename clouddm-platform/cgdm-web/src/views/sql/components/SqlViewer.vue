@@ -306,32 +306,34 @@ export default {
       if (window._hmt && this.isDesktop) {
         window._hmt.push(['_trackEvent', 'execute sql', 'uid', 'personal']);
       }
-      let selectedSql = '';
-      console.log('get selected sql', selectedSql);
-      selectedSql = this.monacoEditor.getModel().getValueInRange(this.monacoEditor.getSelection());
-      console.log('get selected sql2', selectedSql);
-      // if (!selectedSql) {
-      //   selectedSql = this.$refs.editor.getCurrentSql();
-      // }
+      const selection = this.monacoEditor.getSelection();
+      const hasSelection =
+        selection.selectionStartLineNumber !== selection.positionLineNumber || selection.selectionStartColumn !== selection.positionColumn;
+      let selectedSql = this.monacoEditor.getModel().getValueInRange(selection);
+      let position = selection;
+      if (!hasSelection) {
+        const target = this.$refs.editor.getCurrentSqlTarget();
+        selectedSql = target.sql;
+        position = target.position || selection;
+      }
 
-      console.log('get selected sql3', selectedSql);
-      if (!selectedSql) {
+      if (!selectedSql || !selectedSql.trim()) {
         Modal.warning({
           title: this.$t('zhi-hang-yi-chang-ti-shi'),
-          content: this.$t('nin-dang-qian-mei-you-xuan-zhong-ren-he-sql-yu-ju-qing-xuan-zhong-hou-zai-zhi-hang'),
+          content: this.$t('dang-qian-mei-you-ke-zhi-hang-de-sql-yu-ju'),
           okText: this.$t('zhi-dao-le')
         });
         return;
       }
 
-      this.position = this.monacoEditor.getSelection();
+      this.position = position;
       switch (type) {
         case 'run':
-          await this.handleRun(selectedSql, this.position);
+          await this.handleRun(selectedSql, position);
           break;
         case 'plan':
           this.handleInterceptor('explain', async () => {
-            await this.handlePlan(selectedSql, this.position);
+            await this.handlePlan(selectedSql, position);
           });
           break;
         case 'ticket':
