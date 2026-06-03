@@ -8,7 +8,7 @@ import { getQuick } from '@/components/editor/snippets/quick';
 import { getFunction } from '@/components/editor/snippets/functions';
 import { format } from 'sql-formatter';
 import { getLanguage } from '@/utils/tools';
-import { MySQL, RedisSQL, StarRocksSQL, PostgresSQL } from './core';
+import { MySQL, PostgresSQL, RedisSQL, StarRocksSQL } from './core';
 import { registerMongoDBLanguage } from './languages/mongodb';
 import { getPluginResourceUrl } from '@/utils/pluginResource';
 import { requestWebSocket } from '@/services/socket';
@@ -539,11 +539,11 @@ export default {
     updateCompletionIconMap(suggestions) {
       const iconMap = {};
       suggestions.forEach((item) => {
-        if (!item?.icon) {
+        const label = this.getCompletionLabelText(item.label);
+        if (!label) {
           return;
         }
-        const label = this.getCompletionLabelText(item.label);
-        if (label) {
+        if (item?.icon) {
           iconMap[label] = item.icon;
         }
       });
@@ -559,7 +559,9 @@ export default {
       });
       this.suggestIconObserver.observe(document.body, {
         childList: true,
-        subtree: true
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class', 'aria-selected', 'style']
       });
     },
     scheduleSuggestIconRender() {
@@ -580,6 +582,8 @@ export default {
           return;
         }
         if (!icon || !/^[A-Z0-9_-]+$/.test(icon)) {
+          row.classList.remove('cgdm-completion-row');
+          row.removeAttribute('data-cgdm-icon');
           if (iconEl.hasAttribute('data-cgdm-icon')) {
             iconEl.classList.remove('cgdm-completion-icon');
             iconEl.removeAttribute('data-cgdm-icon');
@@ -587,10 +591,8 @@ export default {
           }
           return;
         }
-        if (iconEl.getAttribute('data-cgdm-icon') === icon) {
-          return;
-        }
 
+        iconEl.innerHTML = '';
         Array.from(iconEl.classList)
           .filter((className) => className === 'codicon' || className.startsWith('codicon-'))
           .forEach((className) => iconEl.classList.remove(className));
@@ -604,8 +606,9 @@ export default {
         svg.setAttribute('style', 'width:16px;height:16px;display:block;');
         svg.appendChild(use);
 
-        iconEl.innerHTML = '';
         iconEl.appendChild(svg);
+        row.classList.add('cgdm-completion-row');
+        row.setAttribute('data-cgdm-icon', icon);
         iconEl.classList.add('cgdm-completion-icon');
         iconEl.setAttribute('data-cgdm-icon', icon);
       });
@@ -1342,6 +1345,8 @@ export default {
   margin-left: auto;
   padding-left: 16px;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
 }
 
 :deep(.suggest-widget .monaco-list .monaco-list-row > .contents > .main > .right > .details-label) {
@@ -1350,10 +1355,48 @@ export default {
 }
 
 :deep(.suggest-widget .cgdm-completion-icon::before) {
-  content: '';
+  display: none !important;
+  content: '' !important;
+}
+
+:deep(.suggest-widget .cgdm-completion-row .codicon) {
+  display: none !important;
+}
+
+:deep(.suggest-widget .cgdm-completion-row .cgdm-completion-icon) {
+  display: inline-flex !important;
+}
+
+:deep(.suggest-widget .cgdm-completion-row .monaco-icon-label::before) {
+  display: none !important;
+  content: '' !important;
 }
 
 :deep(.suggest-widget .cgdm-completion-svg) {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+:global(.suggest-widget .cgdm-completion-icon::before) {
+  display: none !important;
+  content: '' !important;
+}
+
+:global(.suggest-widget .cgdm-completion-row .codicon) {
+  display: none !important;
+}
+
+:global(.suggest-widget .cgdm-completion-row .cgdm-completion-icon) {
+  display: inline-flex !important;
+}
+
+:global(.suggest-widget .cgdm-completion-row .monaco-icon-label::before) {
+  display: none !important;
+  content: '' !important;
+}
+
+:global(.suggest-widget .cgdm-completion-svg) {
   width: 16px;
   height: 16px;
   display: block;

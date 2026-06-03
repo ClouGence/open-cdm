@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.dsfamily.mysql.language.completion;
+package com.clougence.clouddm.dsfamily.language.completion.rdb;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.clougence.clouddm.dsfamily.language.completion.CompletionContext;
+import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategy;
 import com.clougence.clouddm.sdk.language.completion.CompletionItem;
 import com.clougence.clouddm.sdk.language.completion.CompletionItemKind;
 import com.clougence.clouddm.sdk.service.execute.MetaObj;
@@ -25,19 +27,24 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.StringUtils;
 
-public class ObjectCompletionStrategy implements MyCompletionStrategy {
+public class ObjectCompletionStrategy implements CompletionStrategy {
 
     @Override
-    public boolean support(MyCompletionContext context) {
+    public int weight() {
+        return 100;
+    }
+
+    @Override
+    public boolean match(CompletionContext context) {
         String previous = context.previousToken();
         return StringUtils.isBlank(previous) || switch (previous.toLowerCase()) {
             case "from", "join", "into", "update", "table" -> true;
-            default -> !context.hasQualifier();
+            default -> false;
         };
     }
 
     @Override
-    public List<CompletionItem> complete(MyCompletionContext context, MetaService metaService) {
+    public List<CompletionItem> complete(CompletionContext context, MetaService metaService) {
         List<CompletionItem> items = new ArrayList<>();
         List<MetaObj> metaObjs = metaService.cachedObjectNames(//
                 context.getRequest().getPrimaryUserId(),//

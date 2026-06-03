@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.dsfamily.mysql.language.completion;
+package com.clougence.clouddm.dsfamily.language.completion.rdb;
 
 import java.util.*;
 
+import com.clougence.clouddm.dsfamily.language.completion.CompletionContext;
+import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategy;
 import com.clougence.clouddm.sdk.language.completion.CompletionItem;
 import com.clougence.clouddm.sdk.language.completion.CompletionItemKind;
 import com.clougence.clouddm.sdk.service.execute.MetaCol;
@@ -24,43 +26,17 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.StringUtils;
 
-public class ColumnCompletionStrategy implements MyCompletionStrategy {
+abstract class AbstractColumnCompletionStrategy implements CompletionStrategy {
 
-    private static final int COLUMN_WEIGHT     = 900;
-    private static final int SELECT_ALL_WEIGHT = 1000;
+    private static final int COLUMN_WEIGHT = 900;
 
-    @Override
-    public boolean support(MyCompletionContext context) {
-        if (context.hasQualifier()) {
-            return true;
-        }
-
-        int offset = StringUtils.isBlank(context.getPrefix()) ? 0 : 1;
-        String previous = context.tokenFromEnd(offset).toLowerCase(Locale.ROOT);
-        String beforePrevious = context.tokenFromEnd(offset + 1).toLowerCase(Locale.ROOT);
-        return switch (previous) {
-            case "select", "where", "having", "on", "by", "set", "and", "or", "not" -> true;
-            default -> (("order".equals(beforePrevious) || "group".equals(beforePrevious)) && "by".equals(previous)) || isPredicateBoundary(context);
-        };
-    }
-
-    @Override
-    public List<CompletionItem> complete(MyCompletionContext context, MetaService metaService) {
-        List<CompletionItem> items = new ArrayList<>();
-        if (isSelectAllCandidate(context)) {
-            CompletionItem item = new CompletionItem();
-            item.setLabel("*");
-            item.setKind(CompletionItemKind.KEYWORD);
-            item.setInsertText("*");
-            item.setWeight(SELECT_ALL_WEIGHT);
-            items.add(item);
-        }
-
-        Map<String, String> aliasToTable = parseTableRefs(context.getSqlText());
+    protected List<CompletionItem> columnItems(CompletionContext context, MetaService metaService) {
+        Map<String, String> aliasToTable = parseTableRefs(context);
         if (aliasToTable.isEmpty()) {
-            return items;
+            return Collections.emptyList();
         }
 
+        List<CompletionItem> items = new ArrayList<>();
         List<String> tables = targetTables(context, aliasToTable);
         boolean showTableName = tables.size() > 1;
         for (String table : tables) {
@@ -74,7 +50,7 @@ public class ColumnCompletionStrategy implements MyCompletionStrategy {
                 item.setLabel(showTableName ? column.getColumn() + " (" + table + ")" : column.getColumn());
                 item.setKind(CompletionItemKind.COLUMN);
                 item.setUmiType(UmiTypes.Column);
-                item.setIcon("COLUMN");
+                item.setIcon(StringUtils.defaultIfBlank(column.getIcon(), "COLUMN-DEFAULT"));
                 item.setInsertText(column.getColumn());
                 item.setWeight(COLUMN_WEIGHT);
                 items.add(item);
@@ -83,7 +59,7 @@ public class ColumnCompletionStrategy implements MyCompletionStrategy {
         return items;
     }
 
-    private static List<String> targetTables(MyCompletionContext context, Map<String, String> aliasToTable) {
+    private static List<String> targetTables(CompletionContext context, Map<String, String> aliasToTable) {
         if (context.hasQualifier()) {
             String table = aliasToTable.get(context.getQualifier().toLowerCase(Locale.ROOT));
             return StringUtils.isBlank(table) ? List.of() : List.of(table);
@@ -92,8 +68,8 @@ public class ColumnCompletionStrategy implements MyCompletionStrategy {
         return aliasToTable.values().stream().distinct().toList();
     }
 
-    private static Map<String, String> parseTableRefs(String sqlText) {
-        List<String> tokens = MyCompletionContext.tokenize(sqlText);
+    private static Map<String, String> parseTableRefs(CompletionContext context) {
+        List<String> tokens = context.tokenize(context.getSqlText());
         Map<String, String> refs = new LinkedHashMap<>();
         for (int i = 0; i < tokens.size() - 1; i++) {
             String token = tokens.get(i).toLowerCase(Locale.ROOT);
@@ -119,46 +95,12 @@ public class ColumnCompletionStrategy implements MyCompletionStrategy {
         return refs;
     }
 
-    private static boolean isSelectAllCandidate(MyCompletionContext context) {
-        if (StringUtils.isNotBlank(context.getPrefix()) || context.hasQualifier()) {
-            return false;
-        }
-        return "select".equalsIgnoreCase(context.previousToken());
-    }
-
     private static boolean isStopToken(String token) {
         return switch (StringUtils.toString(token).toLowerCase(Locale.ROOT)) {
-            case "", "where", "join", "left", "right", "inner", "outer", "cross", "full", "on", "order", "group", "having", "limit", "union", "select" -> true;
+            case "", "where", "join", "left", "right", "inner", "outer", "cross",//
+                    "full", "on", "order", "group", "having", "limit", "union", "select" ->
+                true;
             default -> false;
         };
-    }
-
-    private static boolean isPredicateBoundary(MyCompletionContext context) {
-        return switch (context.getPreviousSignificantChar()) {
-            case ',', '(', ')' -> inColumnClause(context);
-            default -> false;
-        };
-    }
-
-    private static boolean inColumnClause(MyCompletionContext context) {
-        for (int i = 0; i < context.getTokensBeforeCursor().size(); i++) {
-            String token = context.tokenFromEnd(i).toLowerCase(Locale.ROOT);
-            switch (token) {
-                case "where", "having", "on", "select", "set" -> {
-                    return true;
-                }
-                case "by" -> {
-                    String before = context.tokenFromEnd(i + 1).toLowerCase(Locale.ROOT);
-                    return "order".equals(before) || "group".equals(before);
-                }
-                case "from", "join", "into", "update", "table", "values" -> {
-                    return false;
-                }
-                default -> {
-                    // continue scanning backwards
-                }
-            }
-        }
-        return false;
     }
 }

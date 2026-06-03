@@ -28,6 +28,7 @@ import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.sdk.execute.meta.DsElement;
@@ -37,6 +38,7 @@ import com.clougence.clouddm.sdk.service.execute.MetaCol;
 import com.clougence.clouddm.sdk.service.execute.MetaObj;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.schema.umi.special.rdb.RdbColumn;
+import com.clougence.schema.umi.special.rdb.RdbPrimaryKey;
 import com.clougence.schema.umi.special.rdb.RdbTable;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.schema.umi.struts.Value;
@@ -68,7 +70,17 @@ public class ConsoleMetaServiceImpl implements MetaService {
         }
 
         RdbTable rdbTable = (RdbTable) value;
-        return rdbTable.getColumns().values().stream().sorted(Comparator.comparingInt(RdbColumn::getIndex)).map(this::convertToMetaCol).collect(Collectors.toList());
+        RdbPrimaryKey primaryKey = rdbTable.getPrimaryKey();
+        List<String> keyCols = primaryKey == null ? Collections.emptyList() : primaryKey.getColumnList();
+        List<String> ukCols = notNullList(rdbTable.getUniqueKeys()).stream().flatMap(key -> key.getColumnList().stream()).collect(Collectors.toList());
+        List<String> idxCols = notNullList(rdbTable.getIndices()).stream().flatMap(index -> index.getColumnList().stream()).collect(Collectors.toList());
+        List<String> fkCols = notNullList(rdbTable.getForeignKeys()).stream().flatMap(key -> key.getColumnList().stream()).collect(Collectors.toList());
+        return rdbTable.getColumns()
+            .values()
+            .stream()
+            .sorted(Comparator.comparingInt(RdbColumn::getIndex))
+            .map(column -> this.convertToMetaCol(column, keyCols, idxCols, ukCols, fkCols))
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -95,13 +107,19 @@ public class ConsoleMetaServiceImpl implements MetaService {
         }).map(this::convertToMetaObj).collect(Collectors.toList());
     }
 
-    private MetaCol convertToMetaCol(RdbColumn rdbColumn) {
+    private MetaCol convertToMetaCol(RdbColumn rdbColumn, List<String> keyCols, List<String> idxCols, List<String> ukCols, List<String> fkCols) {
         MetaCol metaCol = new MetaCol();
         metaCol.setCatalog(rdbColumn.getCatalog());
         metaCol.setSchema(rdbColumn.getSchema());
         metaCol.setTable(rdbColumn.getTable());
         metaCol.setColumn(rdbColumn.getName());
+        var browseColumn = DmConvertUtils.convertToBrowseColumnMOTipsType(rdbColumn, keyCols, idxCols, ukCols, fkCols);
+        metaCol.setIcon(DmConvertUtils.convertToBrowseColumnIcon(browseColumn));
         return metaCol;
+    }
+
+    private static <T> List<T> notNullList(List<T> list) {
+        return CollectionUtils.isEmpty(list) ? Collections.emptyList() : list;
     }
 
     private MetaObj convertToMetaObj(DsElement element) {

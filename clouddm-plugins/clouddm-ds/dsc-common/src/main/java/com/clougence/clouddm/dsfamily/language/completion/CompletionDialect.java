@@ -13,27 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.service.execute;
+package com.clougence.clouddm.dsfamily.language.completion;
 
-import lombok.Getter;
-import lombok.Setter;
+public interface CompletionDialect {
 
-/**
- * The final return fields
- * such as
- * select id from a union select id from b
- * SelectColumn : {
- *     columnAlias: id,
- *     columns[ a.id, b.id]
- * }
- */
-@Getter
-@Setter
-public class MetaCol {
+    boolean isIdentifierChar(char c);
 
-    private String column;
-    private String table;
-    private String schema;
-    private String catalog;
-    private String icon;
+    String unquoteIdentifier(String value);
 }

@@ -13,27 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.service.execute;
+package com.clougence.clouddm.dsfamily.language.validate;
+
+import com.clougence.dslpaser.ast.location.BlockLocation;
+import com.clougence.dslpaser.parse.AstSplitScript;
 
 import lombok.Getter;
-import lombok.Setter;
 
-/**
- * The final return fields
- * such as
- * select id from a union select id from b
- * SelectColumn : {
- *     columnAlias: id,
- *     columns[ a.id, b.id]
- * }
- */
 @Getter
-@Setter
-public class MetaCol {
+public class ValidateStatementState {
 
-    private String column;
-    private String table;
-    private String schema;
-    private String catalog;
-    private String icon;
+    private final AstSplitScript splitScript;
+    private final String         sqlText;
+    private final BlockLocation  range;
+
+    public ValidateStatementState(AstSplitScript splitScript){
+        this.splitScript = splitScript;
+        this.sqlText = splitScript.getScript();
+        this.range = splitScript.toLocation();
+    }
 }

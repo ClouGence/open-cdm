@@ -13,27 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.sdk.service.execute;
+package com.clougence.clouddm.dsfamily.language.completion;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
 
-/**
- * The final return fields
- * such as
- * select id from a union select id from b
- * SelectColumn : {
- *     columnAlias: id,
- *     columns[ a.id, b.id]
- * }
- */
-@Getter
-@Setter
-public class MetaCol {
+import com.clougence.clouddm.sdk.language.completion.CompletionItem;
+import com.clougence.clouddm.sdk.service.execute.MetaService;
 
-    private String column;
-    private String table;
-    private String schema;
-    private String catalog;
-    private String icon;
+public interface CompletionStrategy {
+
+    int weight();
+
+    boolean match(CompletionContext context);
+
+    List<CompletionItem> complete(CompletionContext context, MetaService metaService);
 }

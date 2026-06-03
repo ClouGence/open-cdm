@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.dsfamily.mysql.language.completion;
+package com.clougence.clouddm.dsfamily.language.validate;
 
 import java.util.List;
 
-import com.clougence.clouddm.sdk.language.completion.CompletionItem;
+import com.clougence.clouddm.sdk.language.validate.Diagnostic;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 
-public interface MyCompletionStrategy {
+public interface ValidateStrategy {
 
-    boolean support(MyCompletionContext context);
+    boolean match(ValidateContext context);
 
-    List<CompletionItem> complete(MyCompletionContext context, MetaService metaService);
+    List<Diagnostic> validate(ValidateContext context, MetaService metaService);
+
+    default boolean stopOnDiagnostics() {
+        return false;
+    }
 }

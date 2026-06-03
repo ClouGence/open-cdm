@@ -38,8 +38,8 @@ public abstract class AbstractRequest {
     private String                schema;
     private List<UmiTypes>        levels      = Collections.emptyList();
     private Map<UmiTypes, Object> levelsParam = Collections.emptyMap();
-    private Integer               lineNumber;
-    private Integer               colNumber;
+    private int                   basicCodeLine;
+    private int                   basicCodeColumn;
     private String                sqlText;
 
     private Map<String, Object>   options     = Collections.emptyMap();

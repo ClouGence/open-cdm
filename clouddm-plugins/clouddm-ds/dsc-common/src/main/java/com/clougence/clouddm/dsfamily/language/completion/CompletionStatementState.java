@@ -13,37 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.dsfamily.mysql.language.completion;
+package com.clougence.clouddm.dsfamily.language.completion;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
+import com.clougence.dslpaser.ast.location.BlockLocation;
 import com.clougence.utils.StringUtils;
 
 import lombok.Getter;
 
 @Getter
-public class MyCompletionContext {
+public class CompletionStatementState {
 
-    private final CompletionRequest request;
-    private final String            sqlText;
-    private final int               cursorOffset;
-    private final String            prefix;
-    private final String            qualifier;
-    private final char              previousSignificantChar;
-    private final List<String>      tokensBeforeCursor;
+    private final String        sqlText;
+    private final BlockLocation range;
+    private final int           cursorOffset;
+    private final String        prefix;
+    private final String        qualifier;
+    private final char          previousSignificantChar;
+    private final List<String>  tokensBeforeCursor;
+    private final boolean       cursorInState;
 
-    public MyCompletionContext(CompletionRequest request){
-        this.request = request;
-        this.sqlText = StringUtils.toString(request.getSqlText());
-        this.cursorOffset = offsetOf(this.sqlText, request.getCursorLineNumber(), request.getCursorColNumber());
-        this.prefix = extractPrefix(request, this.sqlText, this.cursorOffset);
-        this.qualifier = extractQualifier(this.sqlText, this.cursorOffset, this.prefix);
+    public CompletionStatementState(String sqlText, BlockLocation range, CompletionRequest request, Integer cursorLineNumber, Integer cursorColNumber,
+                                    CompletionDialect dialect, boolean cursorInState){
+        this.sqlText = StringUtils.toString(sqlText);
+        this.range = range;
+        this.cursorOffset = offsetOf(this.sqlText, cursorLineNumber, cursorColNumber);
+        this.prefix = extractPrefix(request, this.sqlText, this.cursorOffset, dialect, cursorLineNumber, cursorColNumber);
+        this.qualifier = extractQualifier(this.sqlText, this.cursorOffset, this.prefix, dialect);
         this.previousSignificantChar = previousSignificantChar(this.sqlText, this.cursorOffset, this.prefix);
-        this.tokensBeforeCursor = tokenize(this.sqlText.substring(0, Math.min(this.cursorOffset, this.sqlText.length())));
+        this.tokensBeforeCursor = tokenize(this.sqlText.substring(0, Math.min(this.cursorOffset, this.sqlText.length())), dialect);
+        this.cursorInState = cursorInState;
     }
 
     public String previousToken() {
@@ -63,8 +66,8 @@ public class MyCompletionContext {
         return StringUtils.isNotBlank(qualifier);
     }
 
-    private static String extractPrefix(CompletionRequest request, String sqlText, int offset) {
-        if (StringUtils.isBlank(sqlText) || cursorAfterTrimmedWhitespace(sqlText, request.getCursorLineNumber(), request.getCursorColNumber())) {
+    private static String extractPrefix(CompletionRequest request, String sqlText, int offset, CompletionDialect dialect, Integer lineNumber, Integer colNumber) {
+        if (StringUtils.isBlank(sqlText) || cursorAfterTrimmedWhitespace(sqlText, lineNumber, colNumber)) {
             return "";
         }
         if (offset <= 0 || Character.isWhitespace(sqlText.charAt(offset - 1))) {
@@ -72,13 +75,13 @@ public class MyCompletionContext {
         }
 
         int start = offset;
-        while (start > 0 && isIdentChar(sqlText.charAt(start - 1))) {
+        while (start > 0 && dialect.isIdentifierChar(sqlText.charAt(start - 1))) {
             start--;
         }
         return sqlText.substring(start, offset);
     }
 
-    private static String extractQualifier(String sqlText, int offset, String prefix) {
+    private static String extractQualifier(String sqlText, int offset, String prefix, CompletionDialect dialect) {
         int end = Math.clamp(offset - StringUtils.toString(prefix).length(), 0, sqlText.length());
         int dot = end - 1;
         while (dot >= 0 && Character.isWhitespace(sqlText.charAt(dot))) {
@@ -89,10 +92,10 @@ public class MyCompletionContext {
         }
 
         int start = dot;
-        while (start > 0 && isIdentChar(sqlText.charAt(start - 1))) {
+        while (start > 0 && dialect.isIdentifierChar(sqlText.charAt(start - 1))) {
             start--;
         }
-        return unquote(sqlText.substring(start, dot));
+        return dialect.unquoteIdentifier(sqlText.substring(start, dot));
     }
 
     private static char previousSignificantChar(String sqlText, int offset, String prefix) {
@@ -112,7 +115,7 @@ public class MyCompletionContext {
         return lineText != null && Math.max(0, colNumber) > lineText.length();
     }
 
-    private static int offsetOf(String sqlText, Integer lineNumber, Integer colNumber) {
+    static int offsetOf(String sqlText, Integer lineNumber, Integer colNumber) {
         if (lineNumber == null || colNumber == null) {
             return sqlText.length();
         }
@@ -158,38 +161,26 @@ public class MyCompletionContext {
         return line == targetLine ? sqlText.substring(start).replace("\r", "") : null;
     }
 
-    public static List<String> tokenize(String text) {
+    public static List<String> tokenize(String text, CompletionDialect dialect) {
         if (StringUtils.isBlank(text)) {
             return Collections.emptyList();
         }
 
-        List<String> tokens = new ArrayList<>();
+        java.util.ArrayList<String> tokens = new java.util.ArrayList<>();
         int i = 0;
         while (i < text.length()) {
             char c = text.charAt(i);
-            if (!isIdentChar(c)) {
+            if (!dialect.isIdentifierChar(c)) {
                 i++;
                 continue;
             }
 
             int start = i;
-            while (i < text.length() && isIdentChar(text.charAt(i))) {
+            while (i < text.length() && dialect.isIdentifierChar(text.charAt(i))) {
                 i++;
             }
-            tokens.add(unquote(text.substring(start, i)));
+            tokens.add(dialect.unquoteIdentifier(text.substring(start, i)));
         }
         return tokens;
-    }
-
-    public static boolean isIdentChar(char c) {
-        return Character.isLetterOrDigit(c) || c == '_' || c == '$' || c == '`';
-    }
-
-    public static String unquote(String value) {
-        String text = StringUtils.toString(value).trim();
-        if (text.length() >= 2 && text.startsWith("`") && text.endsWith("`")) {
-            return text.substring(1, text.length() - 1);
-        }
-        return text;
     }
 }

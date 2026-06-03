@@ -173,8 +173,8 @@ public class ConsoleLanguageService implements UnifiedPostConstruct, ConsoleLang
             request.setSchema(ctx.getCtxDTO().getRdbSchema());
         }
 
-        request.setLineNumber(fo.getBasicCodeLine());
-        request.setColNumber(fo.getBasicCodeColumn());
+        request.setBasicCodeLine(fo.getBasicCodeColumn());
+        request.setBasicCodeColumn(fo.getBasicCodeColumn());
         return request;
     }
 

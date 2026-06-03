@@ -99,10 +99,6 @@ public class DsLanguageService {
     //
 
     private static ValidateResult offsetValidateResult(AbstractRequest request, ValidateResult result) {
-        if (result == null || request == null || request.getLineNumber() == null) {
-            return result;
-        }
-
         for (Diagnostic diagnostic : result.getDiagnostics()) {
             if (diagnostic.getRange() == null) {
                 continue;
@@ -117,17 +113,12 @@ public class DsLanguageService {
     }
 
     private static CodeLocation offsetPosition(AbstractRequest request, CodeLocation position) {
-        if (position == null || request.getLineNumber() == null) {
-            return position;
-        }
-
         int lineNumber = Math.max(1, position.getLineNumber());
         int columnNumber = Math.max(0, position.getColumnNumber());
-        int startLineNumber = Math.max(1, request.getLineNumber());
-        int startColumnNumber = Math.max(0, request.getColNumber() == null ? 0 : request.getColNumber());
+        int startLineNumber = Math.max(1, request.getBasicCodeLine());
+        int startColumnNumber = Math.max(0, request.getBasicCodeColumn());
         int offsetLineNumber = startLineNumber + lineNumber - 1;
         int offsetColumnNumber = lineNumber == 1 ? startColumnNumber + columnNumber : columnNumber;
         return new CodeLocation(offsetLineNumber, offsetColumnNumber);
     }
-
 }
