@@ -15,10 +15,10 @@
  */
 package com.clougence.clouddm.ds.redis.language;
 
-import java.util.List;
 import java.util.Set;
 
 import com.clougence.clouddm.ds.redis.parser.RedisDslProvider;
+import com.clougence.clouddm.dsfamily.language.split.SplitStrategyCenter;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
 import com.clougence.clouddm.sdk.language.DsLanguageSupport;
@@ -27,18 +27,14 @@ import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
 import com.clougence.clouddm.sdk.language.completion.CompletionResult;
 import com.clougence.clouddm.sdk.language.split.SplitRequest;
 import com.clougence.clouddm.sdk.language.split.SplitResult;
-import com.clougence.clouddm.sdk.language.split.SplitSqlStatement;
 import com.clougence.clouddm.sdk.language.validate.ValidateRequest;
 import com.clougence.clouddm.sdk.language.validate.ValidateResult;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
-import com.clougence.dslpaser.antlr.DslHelper;
-import com.clougence.dslpaser.ast.location.CodeLocation;
-import com.clougence.dslpaser.parse.AstSplitScript;
-import com.clougence.utils.StringUtils;
 
 public class RedisLanguageSpi implements DsLanguageSpi {
     private final MetaService                 metaService;
     private final RedisValidateStrategyCenter validate = new RedisValidateStrategyCenter();
+    private final SplitStrategyCenter         split    = new SplitStrategyCenter();
 
     public RedisLanguageSpi(MetaService metaService){
         this.metaService = metaService;
@@ -71,20 +67,6 @@ public class RedisLanguageSpi implements DsLanguageSpi {
 
     @Override
     public SplitResult split(SplitRequest request) {
-        String sqlText = request.getSqlText();
-        if (StringUtils.isBlank(sqlText)) {
-            return initResult(request, new SplitResult());
-        }
-
-        SplitResult result = initResult(request, new SplitResult());
-        CodeLocation location = new CodeLocation(request.getBasicCodeLine(), request.getBasicCodeColumn());
-        List<AstSplitScript> scripts = DslHelper.splitDsl(RedisDslProvider.INSTANCE, sqlText, location);
-        for (AstSplitScript ss : scripts) {
-            SplitSqlStatement statement = new SplitSqlStatement();
-            statement.setSql(ss.getScript());
-            statement.setRange(ss.toLocation());
-            result.getStatements().add(statement);
-        }
-        return result;
+        return this.split.split(request, RedisDslProvider.INSTANCE);
     }
 }
