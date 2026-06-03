@@ -16,7 +16,9 @@
 package com.clougence.clouddm.ds.oracle.language;
 
 import com.clougence.clouddm.ds.oracle.parser.OraDslProvider;
+import com.clougence.clouddm.dsfamily.language.split.SplitOptions;
 import com.clougence.clouddm.dsfamily.language.split.SplitStrategyCenter;
+import com.clougence.clouddm.dsfamily.language.split.SplitTerminator;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
 import com.clougence.clouddm.sdk.language.LanguageResult;
@@ -30,9 +32,10 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 
 public class OraLanguageSpi implements DsLanguageSpi {
     private final MetaService                 metaService;
-    private final OraCompletionStrategyCenter completion = new OraCompletionStrategyCenter();
-    private final OraValidateStrategyCenter   validate   = new OraValidateStrategyCenter();
-    private final SplitStrategyCenter         split      = new SplitStrategyCenter();
+    private final OraCompletionStrategyCenter completion   = new OraCompletionStrategyCenter();
+    private final OraValidateStrategyCenter   validate     = new OraValidateStrategyCenter();
+    private final SplitStrategyCenter         split        = new SplitStrategyCenter();
+    private final SplitOptions                splitOptions = SplitOptions.of(SplitTerminator.token(";"), SplitTerminator.lineAlone("/"));
 
     public OraLanguageSpi(MetaService metaService){
         this.metaService = metaService;
@@ -62,7 +65,7 @@ public class OraLanguageSpi implements DsLanguageSpi {
 
     @Override
     public SplitResult split(SplitRequest request) {
-        return this.split.split(request, OraDslProvider.INSTANCE);
+        return this.split.split(request, OraDslProvider.INSTANCE, this.splitOptions);
     }
 
 }

@@ -622,7 +622,7 @@ export default {
         return;
       }
 
-      const statement = this.findStatementAtPosition(position);
+      const statement = this.findStatementAtPosition(position, model);
       if (!statement) {
         this.clearCurrentStatementDecorations();
         return;
@@ -631,26 +631,44 @@ export default {
       this.activeSplitStatement = statement;
       this.applyCurrentStatementDecoration(statement.range);
     },
-    findStatementAtPosition(position) {
-      return this.splitStatements.find((statement) => this.positionInLanguageRange(position, statement.range));
-    },
-    positionInLanguageRange(position, range) {
-      const start = range?.startPosition || {};
-      const end = range?.endPosition || {};
-      const startLine = Math.max(1, start.lineNumber || start.line || 1);
-      const startColumn = Math.max(0, start.columnNumber ?? start.column ?? 0);
-      const endLine = Math.max(startLine, end.lineNumber || end.line || startLine);
-      const endColumn = Math.max(0, end.columnNumber ?? end.column ?? startColumn);
-      const line = position.lineNumber;
-      const column = Math.max(0, position.column - 1);
+    findStatementAtPosition(position, model = this.monacoEditor?.getModel()) {
+      const exactStatement = this.splitStatements.find((statement) => this.positionInLanguageRange(position, statement.range, model));
+      if (exactStatement || !model) {
+        return exactStatement;
+      }
 
-      if (line < startLine || line > endLine) {
+      return this.findStatementBeforeTrailingPosition(position, model);
+    },
+    findStatementBeforeTrailingPosition(position, model) {
+      const cursorOffset = model.getOffsetAt(position);
+      const candidates = this.splitStatements
+        .map((statement) => ({
+          statement,
+          range: this.toMonacoLanguageRange(statement.range, model)
+        }))
+        .filter(({ range }) => range && range.endLineNumber === position.lineNumber && range.endOffset <= cursorOffset)
+        .sort((a, b) => b.range.endOffset - a.range.endOffset);
+
+      const candidate = candidates[0];
+      if (!candidate) {
+        return null;
+      }
+
+      const trailingText = model.getValue().slice(candidate.range.endOffset, cursorOffset);
+      return /^[;\t ]*$/.test(trailingText) ? candidate.statement : null;
+    },
+    positionInLanguageRange(position, range, model = this.monacoEditor?.getModel()) {
+      const monacoRange = this.toMonacoLanguageRange(range, model);
+      if (!monacoRange) {
         return false;
       }
-      if (line === startLine && column < startColumn) {
+
+      const cursorOffset = model?.getOffsetAt(position);
+      if (cursorOffset === undefined) {
         return false;
       }
-      if (line === endLine && column > endColumn) {
+
+      if (cursorOffset < monacoRange.startOffset || cursorOffset >= monacoRange.endOffset) {
         return false;
       }
       return true;
@@ -660,33 +678,71 @@ export default {
         this.currentStatementDecorationCollection = this.monacoEditor.createDecorationsCollection();
       }
 
-      const start = range?.startPosition || {};
-      const end = range?.endPosition || {};
-      const startLine = Math.max(1, start.lineNumber || start.line || 1);
-      const endLine = Math.max(startLine, end.lineNumber || end.line || startLine);
+      const model = this.monacoEditor?.getModel();
+      const monacoRange = this.toMonacoLanguageRange(range, model);
+      if (!monacoRange) {
+        this.clearCurrentStatementDecorations();
+        return;
+      }
+
+      const { startLineNumber, startColumn, endLineNumber, endColumn } = monacoRange;
       const decorations = [];
 
-      for (let line = startLine; line <= endLine; line++) {
+      for (let line = startLineNumber; line <= endLineNumber; line++) {
         const classNames = ['current-sql-statement-line'];
-        if (startLine === endLine) {
+        if (startLineNumber === endLineNumber) {
           classNames.push('current-sql-statement-single');
-        } else if (line === startLine) {
+        } else if (line === startLineNumber) {
           classNames.push('current-sql-statement-start');
-        } else if (line === endLine) {
+        } else if (line === endLineNumber) {
           classNames.push('current-sql-statement-end');
         } else {
           classNames.push('current-sql-statement-middle');
         }
+
+        const lineStartColumn = line === startLineNumber ? startColumn : 1;
+        const lineEndColumn = line === endLineNumber ? endColumn : model.getLineMaxColumn(line);
         decorations.push({
-          range: new monaco.Range(line, 1, line, 1),
+          range: new monaco.Range(line, lineStartColumn, line, Math.max(lineStartColumn + 1, lineEndColumn)),
           options: {
-            isWholeLine: true,
-            className: classNames.join(' ')
+            className: classNames.join(' '),
+            inlineClassName: classNames.join(' ')
           }
         });
       }
 
       this.currentStatementDecorationCollection.set(decorations);
+    },
+    toMonacoLanguageRange(range, model = this.monacoEditor?.getModel()) {
+      if (!range || !model) {
+        return null;
+      }
+
+      const start = range.startPosition || {};
+      const end = range.endPosition || {};
+      const startLineNumber = Math.max(1, start.lineNumber || start.line || 1);
+      const startColumn = Math.max(1, (start.columnNumber ?? start.column ?? 0) + 1);
+      const endLineNumber = Math.max(startLineNumber, end.lineNumber || end.line || startLineNumber);
+      const rawEndColumn = end.columnNumber ?? end.column ?? start.columnNumber ?? start.column ?? 0;
+      const endColumn = Math.max(startLineNumber === endLineNumber ? startColumn + 1 : 1, rawEndColumn + 1);
+      const startPosition = {
+        lineNumber: Math.min(startLineNumber, model.getLineCount()),
+        column: Math.min(startColumn, model.getLineMaxColumn(Math.min(startLineNumber, model.getLineCount())))
+      };
+      const endLine = Math.min(endLineNumber, model.getLineCount());
+      const endPosition = {
+        lineNumber: endLine,
+        column: Math.min(Math.max(1, endColumn), model.getLineMaxColumn(endLine))
+      };
+
+      return {
+        startLineNumber: startPosition.lineNumber,
+        startColumn: startPosition.column,
+        endLineNumber: endPosition.lineNumber,
+        endColumn: endPosition.column,
+        startOffset: model.getOffsetAt(startPosition),
+        endOffset: model.getOffsetAt(endPosition)
+      };
     },
     isLanguageFragmentTooLarge(sqlText) {
       if (!sqlText) {
@@ -1151,10 +1207,11 @@ export default {
       };
     },
     toSelectionFromLanguageRange(range) {
-      const start = range?.startPosition || {};
-      const lineNumber = Math.max(1, start.lineNumber || start.line || 1);
-      const column = Math.max(1, (start.columnNumber ?? start.column ?? 0) + 1);
-      return new monaco.Selection(lineNumber, column, lineNumber, column);
+      const monacoRange = this.toMonacoLanguageRange(range);
+      if (!monacoRange) {
+        return new monaco.Selection(1, 1, 1, 1);
+      }
+      return new monaco.Selection(monacoRange.startLineNumber, monacoRange.startColumn, monacoRange.startLineNumber, monacoRange.startColumn);
     },
     getCurrentSql() {
       return this.getCurrentSqlTarget().sql;
@@ -1341,7 +1398,7 @@ export default {
 }
 
 :deep(.current-sql-statement-line) {
-  background: rgba(49, 139, 79, 0.08);
+  background: rgba(49, 139, 79, 0.035);
 }
 
 :deep(.current-sql-statement-single) {

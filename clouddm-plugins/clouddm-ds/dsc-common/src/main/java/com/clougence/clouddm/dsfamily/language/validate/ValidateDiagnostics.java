@@ -48,7 +48,13 @@ public final class ValidateDiagnostics {
             return defaultRange;
         }
 
-        int index = sqlText.indexOf(token);
+        int index = tokenIndex(sqlText, token, false);
+        if (index < 0) {
+            index = tokenIndex(sqlText, token, true);
+        }
+        if (index < 0) {
+            index = sqlText.indexOf(token);
+        }
         if (index < 0) {
             index = sqlText.toLowerCase().indexOf(token.toLowerCase());
         }
@@ -62,6 +68,24 @@ public final class ValidateDiagnostics {
         range.setStartPosition(start);
         range.setEndPosition(end);
         return range;
+    }
+
+    private static int tokenIndex(String sqlText, String token, boolean ignoreCase) {
+        String source = ignoreCase ? sqlText.toLowerCase() : sqlText;
+        String target = ignoreCase ? token.toLowerCase() : token;
+        int fromIndex = 0;
+        while (fromIndex < source.length()) {
+            int index = source.indexOf(target, fromIndex);
+            if (index < 0) {
+                return -1;
+            }
+            int end = index + target.length();
+            if ((index == 0 || !isTokenChar(sqlText.charAt(index - 1))) && (end >= sqlText.length() || !isTokenChar(sqlText.charAt(end)))) {
+                return index;
+            }
+            fromIndex = index + 1;
+        }
+        return -1;
     }
 
     private static String syntaxErrorMessage(AntlerSyntaxException e) {

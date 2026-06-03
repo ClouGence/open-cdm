@@ -15,23 +15,19 @@
  */
 package com.clougence.clouddm.dsfamily.language.validate.rdb;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.clougence.clouddm.dsfamily.language.validate.ValidateContext;
 import com.clougence.clouddm.dsfamily.language.validate.ValidateDiagnostics;
 import com.clougence.clouddm.dsfamily.language.validate.ValidateStrategy;
 import com.clougence.clouddm.sdk.language.validate.Diagnostic;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
+import com.clougence.clouddm.sdk.service.execute.MetaObj;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.dslpaser.ast.location.BlockLocation;
 import com.clougence.dslpaser.ast.location.CodeLocation;
+import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.StringUtils;
 
 public abstract class RdbTablePermissionValidateStrategy implements ValidateStrategy {
@@ -40,27 +36,41 @@ public abstract class RdbTablePermissionValidateStrategy implements ValidateStra
 
     @Override
     public boolean match(ValidateContext context) {
-        return !allowedTables(context).isEmpty();
+        return !context.getStatementStates().isEmpty();
     }
 
     @Override
     public List<Diagnostic> validate(ValidateContext context, MetaService metaService) {
         Set<String> allowedTables = allowedTables(context);
-        if (allowedTables.isEmpty()) {
+        if (allowedTables.isEmpty() && metaService == null) {
             return List.of();
         }
 
+        List<RuleDomain> domains = resolveDomains(context, metaService);
+        Set<String> knownTables = knownTables(context, metaService, domains);
         List<Diagnostic> diagnostics = new ArrayList<>();
-        for (RuleDomain domain : resolveDomains(context, metaService)) {
+        for (RuleDomain domain : domains) {
             for (Map<TargetType, String> resource : domain.resolveResource()) {
                 String table = resource.get(TargetType.Table);
-                if (StringUtils.isBlank(table) || allowedTables.contains(table.toLowerCase(Locale.ROOT))) {
+                if (StringUtils.isBlank(table)) {
+                    continue;
+                }
+
+                String tableKey = table.toLowerCase(Locale.ROOT);
+                if (!knownTables.isEmpty() && !knownTables.contains(tableKey)) {
+                    diagnostics.add(ValidateDiagnostics.error(//
+                            "Unknown or inaccessible table: " + table, //
+                            ValidateDiagnostics.tokenRange(context.getSqlText(), table, range(domain))));
+                    continue;
+                }
+
+                if (allowedTables.isEmpty() || allowedTables.contains(tableKey)) {
                     continue;
                 }
 
                 diagnostics.add(ValidateDiagnostics.error(//
-                    "No permission to access table: " + table, //
-                    ValidateDiagnostics.tokenRange(context.getSqlText(), table, range(domain))));
+                        "No permission to access table: " + table, //
+                        ValidateDiagnostics.tokenRange(context.getSqlText(), table, range(domain))));
             }
         }
         return diagnostics;
@@ -88,6 +98,39 @@ public abstract class RdbTablePermissionValidateStrategy implements ValidateStra
         if (StringUtils.isNotBlank(table)) {
             allowedTables.add(table.toLowerCase(Locale.ROOT));
         }
+    }
+
+    private static Set<String> knownTables(ValidateContext context, MetaService metaService, List<RuleDomain> domains) {
+        if (metaService == null || domains.isEmpty()) {
+            return Set.of();
+        }
+
+        try {
+            List<MetaObj> metaObjs = metaService.cachedObjectNames(//
+                    context.getRequest().getPrimaryUserId(), //
+                    context.getRequest().getCurrentUserId(), //
+                    context.getRequest().getDataSourceId(),  //
+                    context.getRequest().getLevels(),        //
+                    context.getRequest().getLevelsParam());
+            if (metaObjs == null || metaObjs.isEmpty()) {
+                return Set.of();
+            }
+
+            Set<String> result = new HashSet<>();
+            for (MetaObj metaObj : metaObjs) {
+                if (metaObj == null || !isTableLike(metaObj.getType()) || StringUtils.isBlank(metaObj.getName())) {
+                    continue;
+                }
+                result.add(metaObj.getName().toLowerCase(Locale.ROOT));
+            }
+            return result;
+        } catch (RuntimeException e) {
+            return Set.of();
+        }
+    }
+
+    private static boolean isTableLike(UmiTypes type) {
+        return type == UmiTypes.Table || type == UmiTypes.View || type == UmiTypes.ExternalTable || type == UmiTypes.Materialized;
     }
 
     private static BlockLocation range(RuleDomain domain) {
