@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo.editor.language;
 
+import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSupport;
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
 import com.clougence.clouddm.sdk.language.split.SplitRequest;
@@ -29,10 +30,10 @@ public enum WsLanguageType {
     VALIDATE(DsLanguageSupport.VALIDATE, ValidateRequest.class),
     SPLIT(DsLanguageSupport.SPLIT, SplitRequest.class);
 
-    private final Class<?>          requestType;
-    private final DsLanguageSupport support;
+    private final Class<? extends AbstractRequest> requestType;
+    private final DsLanguageSupport                support;
 
-    WsLanguageType(DsLanguageSupport support, Class<?> requestType){
+    WsLanguageType(DsLanguageSupport support, Class<? extends AbstractRequest> requestType){
         this.requestType = requestType;
         this.support = support;
     }

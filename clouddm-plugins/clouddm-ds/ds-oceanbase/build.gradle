@@ -66,10 +66,10 @@ registerClougenceAntlrGrammarTask('generateOceanBaseOraGrammarSource', [source  
 wireClougenceAntlrTasks('generateOceanBaseMyGrammarSource', 'generateOceanBaseOraGrammarSource')
 
 
-def visitorConfigs = [[taskName: 'ObForMyParser', frontPath: 'obformysql/AbstractObSQLParserVisitor.java', backPath: '../dsc-common-mysql/src/main/java/com/clougence/clouddm/dsfamily/mysql/analysis/MySQLParserVisitor.java'],
-                      [taskName: 'ObForMyVisitor', frontPath: 'obformysql/AbstractObSplitVisitor.java', backPath: '../dsc-common-mysql/src/main/java/com/clougence/clouddm/dsfamily/mysql/analysis/MySplitVisitor.java'],
-                      [taskName: 'ObForOraParser', frontPath: 'obforora/AbstractObForOraSQLParserVisitor.java', backPath: '../ds-oracle/src/main/java/com/clougence/clouddm/ds/oracle/analysis/OraSqlParserVisitor.java'],
-                      [taskName: 'ObForOraVisitor', frontPath: 'obforora/AbstractObForOraSplitVisitor.java', backPath: '../ds-oracle/src/main/java/com/clougence/clouddm/ds/oracle/analysis/OraSplitVisitor.java']]
+def visitorConfigs = [[taskName: 'ObForMyParser', frontPath: 'ob4my/AbstractObSQLParserVisitor.java', backPath: '../dsc-common-mysql/src/main/java/com/clougence/clouddm/dsfamily/mysql/analysis/MySQLParserVisitor.java'],
+                      [taskName: 'ObForMyVisitor', frontPath: 'ob4my/AbstractObSplitVisitor.java', backPath: '../dsc-common-mysql/src/main/java/com/clougence/clouddm/dsfamily/mysql/analysis/MySplitVisitor.java'],
+                      [taskName: 'ObForOraParser', frontPath: 'ob4ora/AbstractObForOraSQLParserVisitor.java', backPath: '../ds-oracle/src/main/java/com/clougence/clouddm/ds/oracle/analysis/OraSqlParserVisitor.java'],
+                      [taskName: 'ObForOraVisitor', frontPath: 'ob4ora/AbstractObForOraSplitVisitor.java', backPath: '../ds-oracle/src/main/java/com/clougence/clouddm/ds/oracle/analysis/OraSplitVisitor.java']]
 
 visitorConfigs.each { config ->
     tasks.register(config.taskName, VisitorMerger) {
