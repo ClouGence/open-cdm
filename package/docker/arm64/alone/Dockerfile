@@ -1,15 +1,29 @@
 ARG BASE_IMAGE=clougence/cgdm-arm64-base:local
 FROM ${BASE_IMAGE}
 
-ARG MYSQL_MAJOR=8.0
+ARG MYSQL_VERSION=8.0.41
+ARG MYSQL_PLATFORM=linux-glibc2.17-aarch64-minimal
+ARG MYSQL_DOWNLOAD_URL=https://downloads.mysql.com/archives/get/p/23/file/mysql-${MYSQL_VERSION}-${MYSQL_PLATFORM}.tar.xz
+
+ENV PATH="/usr/local/mysql/bin:$PATH"
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends mysql-server \
-    && mysqld --version | grep -Fq "Ver ${MYSQL_MAJOR}." \
+    && apt-get install -y --no-install-recommends curl xz-utils libaio1t64 libncurses6 libnuma1 \
+    && groupadd -r mysql \
+    && useradd -r -g mysql -s /usr/sbin/nologin mysql \
+    && mkdir -p /usr/local/mysql \
+    && libaio_path="$(find /usr/lib -name libaio.so.1t64 -print -quit)" \
+    && if [ -n "$libaio_path" ]; then \
+        libaio_dir="$(dirname "$libaio_path")"; \
+        [ -e "$libaio_dir/libaio.so.1" ] || ln -s libaio.so.1t64 "$libaio_dir/libaio.so.1"; \
+    fi \
+    && curl -fsSL "$MYSQL_DOWNLOAD_URL" -o /tmp/mysql.tar.xz \
+    && tar -xJf /tmp/mysql.tar.xz --strip-components=1 -C /usr/local/mysql \
+    && mysqld --version | grep -Fq "Ver ${MYSQL_VERSION}" \
     && rm -rf /var/lib/apt/lists/* \
-    && find /var/lib/mysql -mindepth 1 -maxdepth 1 -exec rm -rf {} + \
+    && rm -f /tmp/mysql.tar.xz \
     && mkdir -p /var/lib/mysql /run/mysqld \
-    && chown -R mysql:mysql /var/lib/mysql /run/mysqld
+    && chown -R mysql:mysql /usr/local/mysql /var/lib/mysql /run/mysqld
 
 # CloudDM Web Service Port (config: server.port)
 ENV APP_WEB_PORT=8222
@@ -35,7 +49,9 @@ COPY docker/arm64/alone/init.sh /docker-entrypoint-init/init.sh
 RUN chmod +x /docker-entrypoint-init/init.sh \
     && rm -rf /root/cgdm/alone/logs \
     && mkdir -p /root/cgdm/alone/logs \
-    && rm -f /root/cgdm/alone/conf/alone.properties
+    && rm -f /root/cgdm/alone/conf/alone.properties \
+    && mkdir -p /root/default_conf \
+    && cp -a /root/cgdm/alone/conf/. /root/default_conf/
 
 ENTRYPOINT ["/docker-entrypoint-init/init.sh"]
 WORKDIR /root
