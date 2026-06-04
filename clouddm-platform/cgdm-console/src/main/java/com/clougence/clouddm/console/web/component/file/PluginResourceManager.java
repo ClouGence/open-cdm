@@ -48,6 +48,10 @@ public class PluginResourceManager {
 
         List<PluginResourceDeclaration> declarations = RESOURCE_INDEX.get(indexKey(route.getCategory(), route.getModule()));
         if (declarations == null || declarations.isEmpty()) {
+            refreshIndex();
+            declarations = RESOURCE_INDEX.get(indexKey(route.getCategory(), route.getModule()));
+        }
+        if (declarations == null || declarations.isEmpty()) {
             return null;
         }
 

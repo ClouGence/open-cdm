@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.api.common.DmBuildInfo;
 import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
@@ -220,10 +219,13 @@ public class VersionPromptServiceImpl implements VersionPromptService, UnifiedPo
     }
 
     private static String currentVersion() {
-        String userVersion = DmBuildInfo.BUILD_VERSION;//xxx.xxx.xxx(2023-12-07)
+        String userVersion = GlobalConfUtils.getAppVersion();
         int index = userVersion.indexOf("(");
         if (index >= 0) {
             userVersion = userVersion.substring(0, index);
+        }
+        if (userVersion.startsWith("v") || userVersion.startsWith("V")) {
+            userVersion = userVersion.substring(1);
         }
         return userVersion;
     }

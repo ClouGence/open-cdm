@@ -97,11 +97,11 @@ The system automatically enters the initialization wizard. After completing data
 
 ```bash
 # One-click startup
-docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:3.0.7
+docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:3.1.1
 
 # China registry acceleration
 docker run -d --name cgdm-alone -p 8222:8222 \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.0.7
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.1
 ```
 
 Persistent data volumes:
@@ -114,7 +114,7 @@ docker run -d --name cgdm-alone \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  bladepipe/cgdm-alone:3.0.7
+  bladepipe/cgdm-alone:3.1.1
 
 # Mount to host directories
 mkdir -p /data/cgdm/{conf,logs,data,mysql}
@@ -125,8 +125,10 @@ docker run -d --name cgdm-alone \
   -v /data/cgdm/logs:/root/cgdm/alone/logs \
   -v /data/cgdm/data:/root/cgdm/alone/data \
   -v /data/cgdm/mysql:/var/lib/mysql \
-  bladepipe/cgdm-alone:3.0.7
+  bladepipe/cgdm-alone:3.1.1
 ```
+
+When `/data/cgdm/conf` is empty, the container initializes it with the default configuration files on startup.
 
 ### 3.3 Use Docker Compose
 
@@ -135,7 +137,7 @@ After the build is complete, deployment files named `docker-alone-xxx.yml` will 
 ```yml
 services:
   dm_alone:
-    image: clougence/cgdm-alone:3.0.7
+    image: clougence/cgdm-alone:3.1.1
     container_name: cgdm-alone
     restart: always
     ports:
@@ -217,7 +219,7 @@ spec:
     spec:
       containers:
         - name: alone
-          image: clougence/cgdm-alone:x86_64-3.0.7
+          image: clougence/cgdm-alone:x86_64-3.1.1
           ports:
             - containerPort: 8222
             - containerPort: 8008
@@ -318,7 +320,7 @@ docker run -d --name dm_console \
   -e DB_DATABASE=cdmgr \
   -e DB_USERNAME=root \
   -e DB_PASSWORD=123456 \
-  bladepipe/cgdm-console:3.0.7
+  bladepipe/cgdm-console:3.1.1
 
 # Start Sidecar
 docker run -d --name dm_sidecar \
@@ -329,13 +331,13 @@ docker run -d --name dm_sidecar \
   -e DM_CLIENT_WSN=<replace_with_actual_value> \
   -e APP_SERVE_NAME=dm_console \
   -e APP_SERVE_PORT=8008 \
-  bladepipe/cgdm-sidecar:3.0.7
+  bladepipe/cgdm-sidecar:3.1.1
 ```
 
 For China deployment, simply replace the images with:
 
-- `cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-console:3.0.7`
-- `cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-sidecar:3.0.7`
+- `cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-console:3.1.1`
+- `cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-sidecar:3.1.1`
 
 ### 4.3 Use Docker Compose
 
@@ -350,14 +352,14 @@ services:
     ports:
       - "26000:3306"
     volumes:
-      - cgdm_mysql_data:/var/lib/mysql
+      - cgdm-mysql-data:/var/lib/mysql
     environment:
       MYSQL_DATABASE: cdmgr
       MYSQL_ROOT_PASSWORD: 123456
     command: [ "mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
 
   dm_console:
-    image: clougence/cgdm-console:x86_64-3.0.7
+    image: clougence/cgdm-console:x86_64-3.1.1
     container_name: cgdm-console
     restart: always
     ports:
@@ -366,9 +368,9 @@ services:
     depends_on:
       - dm_mysql
     volumes:
-      - cgdm_console_conf:/root/cgdm/console/conf
-      - cgdm_console_logs:/root/cgdm/console/logs
-      - cgdm_console_data:/root/cgdm/console/data
+      - cgdm-console-conf:/root/cgdm/console/conf
+      - cgdm-console-logs:/root/cgdm/console/logs
+      - cgdm-console-data:/root/cgdm/console/data
     environment:
       APP_WEB_PORT: 8222
       APP_WEB_JWT: "ljgefdgjosdighjeroigh"
@@ -382,15 +384,15 @@ services:
       DB_PASSWORD: 123456
 
   dm_sidecar:
-    image: clougence/cgdm-sidecar:x86_64-3.0.7
+    image: clougence/cgdm-sidecar:x86_64-3.1.1
     container_name: cgdm-sidecar
     restart: always
     depends_on:
       - dm_console
     volumes:
-      - cgdm_sidecar_0_conf:/root/cgdm/sidecar/conf
-      - cgdm_sidecar_0_logs:/root/cgdm/sidecar/logs
-      - cgdm_sidecar_0_data:/root/cgdm/sidecar/data
+      - cgdm-sidecar-0-conf:/root/cgdm/sidecar/conf
+      - cgdm-sidecar-0-logs:/root/cgdm/sidecar/logs
+      - cgdm-sidecar-0-data:/root/cgdm/sidecar/data
     environment:
       APP_WEB_PORT: 8080
       # A default Worker is included during the first installation.
@@ -401,13 +403,13 @@ services:
       APP_SERVE_PORT: 8008
 
 volumes:
-  cgdm_console_conf:
-  cgdm_console_logs:
-  cgdm_console_data:
-  cgdm_sidecar_0_conf:
-  cgdm_sidecar_0_logs:
-  cgdm_sidecar_0_data:
-  cgdm_mysql_data:
+  cgdm-console-conf:
+  cgdm-console-logs:
+  cgdm-console-data:
+  cgdm-sidecar-0-conf:
+  cgdm-sidecar-0-logs:
+  cgdm-sidecar-0-data:
+  cgdm-mysql-data:
 ```
 
 Save it as `cluster-docker-compose.yml`, or start the image directly with the command below in the `build` directory:
@@ -443,7 +445,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cgdm_mysql_data
+  name: cgdm-mysql-data
   namespace: cgdm
 spec:
   accessModes:
@@ -517,7 +519,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cgdm_console_conf
+  name: cgdm-console-conf
   namespace: cgdm
 spec:
   accessModes:
@@ -529,7 +531,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cgdm_console_logs
+  name: cgdm-console-logs
   namespace: cgdm
 spec:
   accessModes:
@@ -541,7 +543,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cgdm_console_data
+  name: cgdm-console-data
   namespace: cgdm
 spec:
   accessModes:
@@ -567,7 +569,7 @@ spec:
     spec:
       containers:
         - name: console
-          image: clougence/cgdm-console:x86_64-3.0.7
+          image: clougence/cgdm-console:x86_64-3.1.1
           ports:
             - containerPort: 8222
             - containerPort: 8008
@@ -600,13 +602,13 @@ spec:
       volumes:
         - name: conf
           persistentVolumeClaim:
-            claimName: cgdm_console_conf
+            claimName: cgdm-console-conf
         - name: logs
           persistentVolumeClaim:
-            claimName: cgdm_console_logs
+            claimName: cgdm-console-logs
         - name: data
           persistentVolumeClaim:
-            claimName: cgdm_console_data
+            claimName: cgdm-console-data
 ---
 # ---------------------- dm_sidecar ----------------------
 apiVersion: v1
@@ -626,7 +628,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cgdm_sidecar_0_conf
+  name: cgdm-sidecar-0-conf
   namespace: cgdm
 spec:
   accessModes:
@@ -638,7 +640,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cgdm_sidecar_0_logs
+  name: cgdm-sidecar-0-logs
   namespace: cgdm
 spec:
   accessModes:
@@ -650,7 +652,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cgdm_sidecar_0_data
+  name: cgdm-sidecar-0-data
   namespace: cgdm
 spec:
   accessModes:
@@ -676,7 +678,7 @@ spec:
     spec:
       containers:
         - name: sidecar
-          image: clougence/cgdm-sidecar:x86_64-3.0.7
+          image: clougence/cgdm-sidecar:x86_64-3.1.1
           ports:
             - containerPort: 8080
           env:
@@ -702,13 +704,13 @@ spec:
       volumes:
         - name: conf
           persistentVolumeClaim:
-            claimName: cgdm_sidecar_0_conf
+            claimName: cgdm-sidecar-0-conf
         - name: logs
           persistentVolumeClaim:
-            claimName: cgdm_sidecar_0_logs
+            claimName: cgdm-sidecar-0-logs
         - name: data
           persistentVolumeClaim:
-            claimName: cgdm_sidecar_0_data
+            claimName: cgdm-sidecar-0-data
 ```
 
 Save it as `cluster-k8s.yml`, or deploy the image directly with the commands below in the `build` directory. After deployment, you can access Console directly through `port-forward`:
@@ -725,11 +727,11 @@ If you want to use the generated files directly, you can also run:
 cd open-cdm/package/build
 
 # x86_64
-kubectl apply -f k8s-cluster-x86_64-3.0.7.yml
+kubectl apply -f k8s-cluster-x86_64-3.1.1.yml
 kubectl port-forward -n cgdm svc/dm-console 8222:8222
 
 # arm64
-kubectl apply -f k8s-cluster-arm64-3.0.7.yml
+kubectl apply -f k8s-cluster-arm64-3.1.1.yml
 ```
 
 By default, the generated manifest creates:

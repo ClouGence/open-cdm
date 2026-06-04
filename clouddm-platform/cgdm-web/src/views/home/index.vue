@@ -9,6 +9,7 @@
       </div>
       <navbar style="flex: 1" />
       <div class="user-info" v-if="!isDesktop">
+        <span v-if="displayVersion" class="app-version-badge" translate="no">{{ displayVersion }}</span>
         <Dropdown @on-click="handleGoHelp" transfer>
           <CustomIcon type="icon-v2-help" hoverStyle size="18px" />
           <template #list>
@@ -102,9 +103,9 @@
         </div>
       </div>
       <div v-else style="display: flex">
-        <div class="version" style="display: flex; align-items: center; position: relative">
+        <div class="version" style="display: flex; align-items: center; position: relative" v-if="displayVersion">
           <a-button class="deemph-button" type="link" size="large" @click="checkVersion(true)" style="font-weight: bold">
-            {{ buildVersion }}
+            {{ displayVersion }}
             <span style="color: red" v-if="version.newVersion">{{ $t('new') }}</span>
           </a-button>
         </div>
@@ -150,7 +151,7 @@
     <a-modal v-model="showVersionDetailModal" :title="$t('ban-ben-jian-cha')" :width="800" :mask-closable="false" :closable="false">
       <div>
         <h2>{{ $t('xin-de-clouddm-ban-ben-ke-yong') }}</h2>
-        <h2>{{ $t('dang-qian-ban-ben') }}{{ this.buildVersion }}</h2>
+        <h2>{{ $t('dang-qian-ban-ben') }}{{ displayVersion }}</h2>
         <h2>{{ $t('zui-xin-ban-ben') }}{{ this.version.lastVersion }}</h2>
         <div style="max-height: 500px; overflow: auto">
           <pre v-for="(d, index) in version.detail" :key="index" v-html="d"></pre>
@@ -240,7 +241,7 @@ export default {
   },
   mixins: [setOpPasswordMixin, setApprovalProcessMixin, enterOpPwdMixin],
   computed: {
-    ...mapGetters(['isDesktop', 'buildVersion', 'includesDM']),
+    ...mapGetters(['isDesktop', 'displayVersion', 'includesDM']),
     ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'remainTrialDay']),
     ...mapGetters(['isSaas']),
     headerTitleUrl() {
@@ -626,6 +627,24 @@ export default {
 
       .icon-help {
         font-size: 20px;
+      }
+
+      .app-version-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 62px;
+        height: 24px;
+        padding: 0 12px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 22px;
+        letter-spacing: 0;
+        white-space: nowrap;
       }
 
       .avatar {

@@ -35,25 +35,42 @@ mysql_sql() {
   fi
 }
 
-is_mysqld_pid() {
+is_embedded_mysqld_pid() {
   local pid="$1"
-  local comm
   local cmdline
 
   if [ -z "$pid" ] || ! kill -0 "$pid" 2>/dev/null; then
     return 1
   fi
 
-  comm=$(cat "/proc/$pid/comm" 2>/dev/null || true)
-  if [ "$comm" = "mysqld" ]; then
-    return 0
-  fi
-
   cmdline=$(tr '\0' ' ' < "/proc/$pid/cmdline" 2>/dev/null || true)
   case "$cmdline" in
-    *mysqld*) return 0 ;;
+    *mysqld*"--datadir=$MYSQL_DATADIR"*|*mysqld*"--socket=$MYSQL_SOCKET"*|*mysqld*"--pid-file=$MYSQL_PID_FILE"*) return 0 ;;
     *) return 1 ;;
   esac
+}
+
+embedded_mysqld_pid() {
+  local proc
+  local pid
+
+  if [ -f "$MYSQL_PID_FILE" ]; then
+    pid=$(cat "$MYSQL_PID_FILE" 2>/dev/null || true)
+    if is_embedded_mysqld_pid "$pid"; then
+      printf '%s\n' "$pid"
+      return 0
+    fi
+  fi
+
+  for proc in /proc/[0-9]*; do
+    pid="${proc#/proc/}"
+    if is_embedded_mysqld_pid "$pid"; then
+      printf '%s\n' "$pid"
+      return 0
+    fi
+  done
+
+  return 1
 }
 
 setup_mysql_directories() {
@@ -64,12 +81,9 @@ setup_mysql_directories() {
 cleanup_mysql_runtime_files() {
   local pid
 
-  if [ -f "$MYSQL_PID_FILE" ]; then
-    pid=$(cat "$MYSQL_PID_FILE" 2>/dev/null || true)
-    if is_mysqld_pid "$pid"; then
-      echo "mysql pid file points to a running process: ${pid}"
-      return
-    fi
+  if pid=$(embedded_mysqld_pid); then
+    echo "embedded mysql is still running: ${pid}"
+    return
   fi
 
   rm -f "$MYSQL_SOCKET" "$MYSQL_SOCKET.lock" "$MYSQL_PID_FILE"
@@ -143,13 +157,10 @@ stop_embedded_mysql() {
     fi
   fi
 
-  if [ -f "$MYSQL_PID_FILE" ]; then
-    pid=$(cat "$MYSQL_PID_FILE" 2>/dev/null || true)
-    if is_mysqld_pid "$pid"; then
-      echo "stopping embedded mysql process: ${pid}"
-      kill -TERM "$pid" >/dev/null 2>&1 || true
-      wait_for_mysql_exit
-    fi
+  if pid=$(embedded_mysqld_pid); then
+    echo "stopping embedded mysql process: ${pid}"
+    kill -TERM "$pid" >/dev/null 2>&1 || true
+    wait_for_mysql_exit
   fi
 }
 
@@ -158,17 +169,9 @@ wait_for_mysql_exit() {
   local pid
 
   while [ -S "$MYSQL_SOCKET" ] || [ -f "$MYSQL_PID_FILE" ]; do
-    pid=""
-    if [ -f "$MYSQL_PID_FILE" ]; then
-      pid=$(cat "$MYSQL_PID_FILE" 2>/dev/null || true)
-    fi
+    pid=$(embedded_mysqld_pid || true)
 
-    if [ -n "$pid" ] && ! is_mysqld_pid "$pid"; then
-      rm -f "$MYSQL_SOCKET" "$MYSQL_SOCKET.lock" "$MYSQL_PID_FILE"
-      return
-    fi
-
-    if [ -z "$pid" ] && ! mysqladmin --protocol=socket --socket="$MYSQL_SOCKET" -uroot -p"$MYSQL_ROOT_PASSWORD" ping >/dev/null 2>&1; then
+    if [ -z "$pid" ]; then
       rm -f "$MYSQL_SOCKET" "$MYSQL_SOCKET.lock" "$MYSQL_PID_FILE"
       return
     fi

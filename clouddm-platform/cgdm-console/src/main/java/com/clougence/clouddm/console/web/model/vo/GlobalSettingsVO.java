@@ -27,8 +27,8 @@ import lombok.Setter;
 @Setter
 public class GlobalSettingsVO {
 
-    private String              buildVersion;
-    private String              buildId;
+    private String              version;
+    private boolean             aloneMode;
     private Map<String, Object> productVersions;
     private SystemStatusVO      systemStatus;
 }

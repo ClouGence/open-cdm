@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.clougence.clouddm.api.common.DmBuildInfo;
+import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
@@ -37,7 +37,6 @@ import com.clougence.clouddm.console.web.component.file.mode.FormatConvertDef;
 import com.clougence.clouddm.console.web.component.whitelist.WhiteListService;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.constants.SystemStatus;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.vo.ConsoleSettingsVO;
@@ -60,8 +59,6 @@ import jakarta.servlet.http.HttpServletRequest;
 public class DmHomeController {
 
     @Resource
-    private DmConsoleConfig       dmConfig;
-    @Resource
     private DsVersionsServiceImpl dsVersionsService;
     @Resource
     private DmAuthServiceForBiz   rdpAuthServiceForBiz;
@@ -72,17 +69,16 @@ public class DmHomeController {
 
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/dm_global_settings", method = { RequestMethod.POST })
-    public ResWebData<?> dmGlobalSettings(HttpServletRequest request) {
-        GlobalSettingsVO settings = new GlobalSettingsVO();
-        settings.setBuildVersion(DmBuildInfo.BUILD_VERSION);
-        settings.setBuildId(DmBuildInfo.BUILD_ID);
+    public ResWebData<?> dmGlobalSettings() {
+        GlobalSettingsVO vo = new GlobalSettingsVO();
+        vo.setVersion(GlobalConfUtils.getAppVersion());
+        vo.setAloneMode(GlobalConfUtils.isAloneMode());
+
         SystemStatusVO systemStatus = new SystemStatusVO();
         systemStatus.setStatus(SystemStatus.Ready);
-        settings.setSystemStatus(systemStatus);
-
-        settings.setProductVersions(this.dsVersionsService.fetchDsVersions());
-
-        return ResWebDataUtils.buildSuccess(settings);
+        vo.setSystemStatus(systemStatus);
+        vo.setProductVersions(this.dsVersionsService.fetchDsVersions());
+        return ResWebDataUtils.buildSuccess(vo);
     }
 
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)

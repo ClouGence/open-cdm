@@ -32,7 +32,7 @@
 | 官网 | https://www.cdmgr.com/ |
 | 文档 | https://www.cdmgr.com/docs/intro/product_intro |
 | 开源协议 | Apache License 2.0 |
-| 当前版本 | 3.1.0 |
+| 当前版本 | 3.1.1 |
 | 主要语言 | Java、JavaScript / TypeScript |
 | 部署模式 | 单机模式（Alone）、集群模式（Console + Sidecar） |
 | 部署方式 | 安装包、Docker、Kubernetes |
@@ -94,7 +94,7 @@ docker run -d --name cgdm-alone \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  bladepipe/cgdm-alone:3.1.0
+  bladepipe/cgdm-alone:3.1.1
 
 # 中国地区，使用加速镜像
 docker run -d --name cgdm-alone \
@@ -103,8 +103,24 @@ docker run -d --name cgdm-alone \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.0
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.1
 ```
+
+本地目录挂载示例：
+
+```bash
+mkdir -p /data/cgdm/{conf,logs,data,mysql}
+
+docker run -d --name cgdm-alone \
+  -p 8222:8222 \
+  -v /data/cgdm/conf:/root/cgdm/alone/conf \
+  -v /data/cgdm/logs:/root/cgdm/alone/logs \
+  -v /data/cgdm/data:/root/cgdm/alone/data \
+  -v /data/cgdm/mysql:/var/lib/mysql \
+  bladepipe/cgdm-alone:3.1.1
+```
+
+当 `/data/cgdm/conf` 是空目录时，CloudDM 会在启动时自动写入默认配置文件。
 
 ### 升级
 
@@ -113,25 +129,25 @@ docker run -d --name cgdm-alone \
 ```bash
 # 默认镜像
 docker rm -f cgdm-alone
-docker pull bladepipe/cgdm-alone:3.1.0
+docker pull bladepipe/cgdm-alone:3.1.1
 docker run -d --name cgdm-alone \
   -p 8222:8222 \
   -v cgdm_alone_conf:/root/cgdm/alone/conf \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  bladepipe/cgdm-alone:3.1.0
+  bladepipe/cgdm-alone:3.1.1
 
 # 中国区加速镜像
 docker rm -f cgdm-alone
-docker pull cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.0
+docker pull cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.1
 docker run -d --name cgdm-alone \
   -p 8222:8222 \
   -v cgdm_alone_conf:/root/cgdm/alone/conf \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.0
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.1
 ```
 
 ### 初始化
