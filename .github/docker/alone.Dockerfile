@@ -14,6 +14,8 @@ RUN apt-get update \
         ca-certificates curl fontconfig tzdata \
         mysql-server-core-8.0 mysql-client-core-8.0 \
     && rm -rf /var/lib/apt/lists/* \
+    && groupadd -r mysql \
+    && useradd -r -g mysql -s /usr/sbin/nologin mysql \
     && mkdir -p /docker-entrypoint-init /var/lib/mysql /run/mysqld \
     && chown -R mysql:mysql /var/lib/mysql /run/mysqld
 
