@@ -16,8 +16,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && groupadd -r mysql \
     && useradd -r -g mysql -s /usr/sbin/nologin mysql \
-    && mkdir -p /docker-entrypoint-init /var/lib/mysql /run/mysqld \
-    && chown -R mysql:mysql /var/lib/mysql /run/mysqld
+    && mkdir -p /docker-entrypoint-init /var/lib/mysql /var/lib/mysql-files /run/mysqld \
+    && chown -R mysql:mysql /var/lib/mysql /var/lib/mysql-files /run/mysqld
 
 # CloudDM Web Service Port (config: server.port)
 ENV APP_WEB_PORT=8222
