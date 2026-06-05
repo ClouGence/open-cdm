@@ -1,0 +1,122 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build-tgz:
+    name: Build tgz
+    runs-on: ubuntu-latest
+    outputs:
+      short_sha: ${{ steps.meta.outputs.short_sha }}
+      image_prefix: ${{ steps.meta.outputs.image_prefix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compute metadata
+        id: meta
+        run: |
+          {
+            echo "short_sha=$(git rev-parse --short=7 HEAD)"
+            echo "image_prefix=$(echo '${{ github.repository }}/clouddm' | tr '[:upper:]' '[:lower:]')"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set up Node.js 22.22.1
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.1
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci --no-audit --no-fund
+
+      - name: Build tgz packages
+        working-directory: package
+        run: ./package.sh --build
+
+      - name: Upload tgz artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cgdm-tgz
+          path: package/build/*.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload deployment yml templates
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-yml
+          path: package/docker/*.yml
+          if-no-files-found: warn
+          retention-days: 14
+
+  docker:
+    name: Docker ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    needs: build-tgz
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [alone, console, sidecar]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download tgz artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cgdm-tgz
+          path: docker-ctx
+
+      - name: Stage docker build context
+        run: |
+          cp -r .github/docker/shared docker-ctx/shared
+          ls -lh docker-ctx
+          ls -R docker-ctx/shared
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push ${{ matrix.service }}
+        uses: docker/build-push-action@v6
+        with:
+          context: docker-ctx
+          file: .github/docker/${{ matrix.service }}.Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ needs.build-tgz.outputs.image_prefix }}-${{ matrix.service }}:main
+            ${{ env.REGISTRY }}/${{ needs.build-tgz.outputs.image_prefix }}-${{ matrix.service }}:main-${{ needs.build-tgz.outputs.short_sha }}
+          provenance: false
