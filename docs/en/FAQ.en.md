@@ -8,7 +8,7 @@ CloudDM is a free and open-source database management platform for teams. It pro
 
 ### Is CloudDM open source?
 
-Yes. CloudDM is released under the Apache License 2.0. See [LICENSE.txt](./LICENSE.txt).
+Yes. CloudDM is released under the Apache License 2.0. See [LICENSE.txt](../../LICENSE.txt).
 
 ### What is the fastest way to try CloudDM?
 

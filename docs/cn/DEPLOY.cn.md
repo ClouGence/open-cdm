@@ -177,78 +177,35 @@ docker compose -f alone-docker-compose.yml up -d
 
 ### 3.4 Kubernetes 部署
 
-在构建完毕后 `open-cdm/package/build` 目录下会出现 `k8s-alone-xxx.yml` 的部署文件。下面以其中一个：
-
-```yml
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: cgdm
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: dm-alone
-  namespace: cgdm
-spec:
-  type: ClusterIP
-  ports:
-    - name: web
-      port: 8222
-      targetPort: 8222
-    - name: serve
-      port: 8008
-      targetPort: 8008
-  selector:
-    app: dm-alone
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: dm-alone
-  namespace: cgdm
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: dm-alone
-  template:
-    metadata:
-      labels:
-        app: dm-alone
-    spec:
-      containers:
-        - name: alone
-          image: clougence/cgdm-alone:x86_64-3.1.1
-          ports:
-            - containerPort: 8222
-            - containerPort: 8008
-          env:
-            - name: APP_WEB_PORT
-              value: "8222"
-            - name: MYSQL_EMBEDDED
-              value: "true"
-```
-
-将其保存为 `alone-k8s.yml` 或者在 `build` 目录下使用命令部署镜像
+Kubernetes 清单由打包流程生成，模板位于 `open-cdm/package/docker/k8s-alone.yml`，生成后位于 `open-cdm/package/build`。清单默认适合单副本验证或小规模使用，包含 Web 服务、配置/日志/数据 PVC，以及内置 MySQL 数据目录 PVC。
 
 ```bash
-kubectl apply -f alone-k8s.yml
+cd open-cdm/package
+./package.sh --build --docker x86_64
 ```
 
-如果直接使用打包生成的文件，也可以执行：
+部署前请确认集群具备可用的默认 `StorageClass`，并确认节点可以拉取清单中的镜像。如果使用本地构建镜像，需要先将 `docker-*.tar` 导入到集群节点的容器运行时，或推送到集群可访问的镜像仓库。
 
 ```bash
-kubectl apply -f alone-k8s.yml
+cd open-cdm/package/build
+kubectl apply -f k8s-alone-x86_64-<目标版本>.yml
+kubectl -n cgdm rollout status deploy/dm-alone
+kubectl -n cgdm get pods,svc,pvc
 ```
 
 自动生成的清单默认会创建：
 
 - `cgdm` 命名空间
-- MySQL Service 与 StatefulSet
 - Alone 的 PVC、Service、Deployment
+- `cgdm-mysql-data` PVC，用于内置 MySQL 数据持久化
 
-> 默认 Service 类型为 `ClusterIP`。如果需要集群外访问，请结合环境调整为 `NodePort`、`LoadBalancer` 或 Ingress。
+默认 Service 类型为 `ClusterIP`。本地验证可以使用端口转发：
+
+```bash
+kubectl -n cgdm port-forward svc/dm-alone 8222:8222
+```
+
+然后访问 `http://localhost:8222`。如果需要长期对外访问，请根据集群环境选择 `NodePort`、`LoadBalancer` 或 Ingress；生产环境还应替换默认密码、JWT 密钥，并按数据规模调整 PVC 容量。
 
 ---
 
@@ -420,328 +377,59 @@ docker compose -f cluster-docker-compose.yml up -d
 
 ### 4.4 Kubernetes 部署
 
-在构建完毕后 `open-cdm/package/build` 目录下会出现 `k8s-cluster-xxx.yml` 的部署文件。下面以其中一个：
-
-```yml
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: cgdm
----
-# ---------------------- MySQL ----------------------
-apiVersion: v1
-kind: Service
-metadata:
-  name: dm-mysql
-  namespace: cgdm
-spec:
-  ports:
-    - port: 3306
-      targetPort: 3306
-  selector:
-    app: dm-mysql
-  clusterIP: None
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: cgdm-mysql-data
-  namespace: cgdm
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
----
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: dm-mysql
-  namespace: cgdm
-spec:
-  serviceName: dm-mysql
-  replicas: 1
-  selector:
-    matchLabels:
-      app: dm-mysql
-  template:
-    metadata:
-      labels:
-        app: dm-mysql
-    spec:
-      containers:
-        - name: mysql
-          image: mysql:8.0
-          ports:
-            - containerPort: 3306
-          env:
-            - name: MYSQL_DATABASE
-              value: cdmgr
-            - name: MYSQL_ROOT_PASSWORD
-              value: "123456"
-          args:
-            - "mysqld"
-            - "--character-set-server=utf8mb4"
-            - "--collation-server=utf8mb4_unicode_ci"
-            - "--default-time-zone=+08:00"
-          volumeMounts:
-            - name: mysql-data
-              mountPath: /var/lib/mysql
-  volumeClaimTemplates:
-    - metadata:
-        name: mysql-data
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        resources:
-          requests:
-            storage: 10Gi
----
-# ---------------------- dm_console ----------------------
-apiVersion: v1
-kind: Service
-metadata:
-  name: dm-console
-  namespace: cgdm
-spec:
-  type: ClusterIP
-  ports:
-    - name: web
-      port: 8222
-      targetPort: 8222
-    - name: serve
-      port: 8008
-      targetPort: 8008
-  selector:
-    app: dm-console
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: cgdm-console-conf
-  namespace: cgdm
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: cgdm-console-logs
-  namespace: cgdm
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: cgdm-console-data
-  namespace: cgdm
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: dm-console
-  namespace: cgdm
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: dm-console
-  template:
-    metadata:
-      labels:
-        app: dm-console
-    spec:
-      containers:
-        - name: console
-          image: clougence/cgdm-console:x86_64-3.1.1
-          ports:
-            - containerPort: 8222
-            - containerPort: 8008
-          env:
-            - name: APP_WEB_PORT
-              value: "8222"
-            - name: APP_WEB_JWT
-              value: "ljgefdgjosdighjeroigh"
-            - name: APP_SERVE_NAME
-              value: dm_console
-            - name: APP_SERVE_PORT
-              value: "8008"
-            - name: DB_HOST
-              value: dm-mysql
-            - name: DB_PORT
-              value: "3306"
-            - name: DB_DATABASE
-              value: cdmgr
-            - name: DB_USERNAME
-              value: root
-            - name: DB_PASSWORD
-              value: "123456"
-          volumeMounts:
-            - name: conf
-              mountPath: /root/cgdm/console/conf
-            - name: logs
-              mountPath: /root/cgdm/console/logs
-            - name: data
-              mountPath: /root/cgdm/console/data
-      volumes:
-        - name: conf
-          persistentVolumeClaim:
-            claimName: cgdm-console-conf
-        - name: logs
-          persistentVolumeClaim:
-            claimName: cgdm-console-logs
-        - name: data
-          persistentVolumeClaim:
-            claimName: cgdm-console-data
----
-# ---------------------- dm_sidecar ----------------------
-apiVersion: v1
-kind: Service
-metadata:
-  name: dm-sidecar
-  namespace: cgdm
-spec:
-  type: ClusterIP
-  ports:
-    - name: serve
-      port: 8080
-      targetPort: 8080
-  selector:
-    app: dm-sidecar
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: cgdm-sidecar-0-conf
-  namespace: cgdm
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: cgdm-sidecar-0-logs
-  namespace: cgdm
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: cgdm-sidecar-0-data
-  namespace: cgdm
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: dm-sidecar
-  namespace: cgdm
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: dm-sidecar
-  template:
-    metadata:
-      labels:
-        app: dm-sidecar
-    spec:
-      containers:
-        - name: sidecar
-          image: clougence/cgdm-sidecar:x86_64-3.1.1
-          ports:
-            - containerPort: 8080
-          env:
-            - name: APP_WEB_PORT
-              value: "8080"
-            - name: DM_CLIENT_AK
-              value: "ak0a2c62tdo1ap2416655mpyx0v36l359p1v5rn782caw8t0qkk1s94b80lfs90"
-            - name: DM_CLIENT_SK
-              value: "sk6206iy4pb0eydz9hg97jo3tu5d80j97e91bbql65167u8wb75x4ej6e4v4aa4"
-            - name: DM_CLIENT_WSN
-              value: "wsn582nm54ca045p014288w6e919ec6294m430h427619v64g0pyqzcjb5040q3f"
-            - name: APP_SERVE_NAME
-              value: dm_console
-            - name: APP_SERVE_PORT
-              value: "8008"
-          volumeMounts:
-            - name: conf
-              mountPath: /root/cgdm/sidecar/conf
-            - name: logs
-              mountPath: /root/cgdm/sidecar/logs
-            - name: data
-              mountPath: /root/cgdm/sidecar/data
-      volumes:
-        - name: conf
-          persistentVolumeClaim:
-            claimName: cgdm-sidecar-0-conf
-        - name: logs
-          persistentVolumeClaim:
-            claimName: cgdm-sidecar-0-logs
-        - name: data
-          persistentVolumeClaim:
-            claimName: cgdm-sidecar-0-data
-```
-
-将其保存为 `cluster-k8s.yml` 或者在 `build` 目录下使用命令部署镜像。部署完成后，可以通过 `port-forward` 直接访问 Console：
+Kubernetes 清单由打包流程生成，模板位于 `open-cdm/package/docker/k8s-cluster.yml`，生成后位于 `open-cdm/package/build`。清单默认部署一个 MySQL、一个 Console 和一个 Sidecar，适合快速验证集群模式。
 
 ```bash
-kubectl apply -f cluster-k8s.yml
-kubectl get pods -n cgdm
-kubectl port-forward -n cgdm svc/dm-console 8222:8222
+cd open-cdm/package
+./package.sh --build --docker x86_64
 ```
 
-如果直接使用打包生成的文件，也可以执行：
+部署前请确认集群具备可用的默认 `StorageClass`，并确认节点可以拉取 `mysql:8.0` 和 CloudDM 镜像。如果使用本地构建镜像，需要先导入到集群节点或推送到可访问的镜像仓库。
 
 ```bash
 cd open-cdm/package/build
-
-# x86_64
-kubectl apply -f k8s-cluster-x86_64-3.1.1.yml
-kubectl port-forward -n cgdm svc/dm-console 8222:8222
-
-# arm64
-kubectl apply -f k8s-cluster-arm64-3.1.1.yml
+kubectl apply -f k8s-cluster-x86_64-<目标版本>.yml
+kubectl -n cgdm rollout status statefulset/dm-mysql
+kubectl -n cgdm rollout status deploy/dm-console
+kubectl -n cgdm rollout status deploy/dm-sidecar
+kubectl -n cgdm get pods,svc,pvc
 ```
 
 自动生成的清单默认会创建：
 
 - `cgdm` 命名空间
 - MySQL Service 与 StatefulSet
+- StatefulSet 自动创建的 MySQL 数据 PVC
 - Console 的 PVC、Service、Deployment
 - Sidecar 的 PVC、Service、Deployment
 
-默认情况下，Console Web 服务以 `ClusterIP` 方式暴露，端口为 `8222`。如果只是本地验证，使用上面的 `kubectl port-forward` 即可直接访问；如需集群外长期访问，请结合环境调整 Service 为 `NodePort`、`LoadBalancer` 或配置 Ingress。
+默认情况下，Console Web 服务以 `ClusterIP` 暴露，端口为 `8222`。本地验证可以使用端口转发：
+
+```bash
+kubectl -n cgdm port-forward svc/dm-console 8222:8222
+```
+
+然后访问 `http://localhost:8222`。如需集群外长期访问，请结合环境调整 Console Service 为 `NodePort`、`LoadBalancer` 或配置 Ingress。
+
+Sidecar 清单中带有默认 `DM_CLIENT_AK`、`DM_CLIENT_SK`、`DM_CLIENT_WSN`，只适合快速验证。生产环境建议先完成 Console 初始化，在 Console 中创建 Sidecar Worker 后，把实际生成的 `AK / SK / WSN` 写回清单，再重新部署：
+
+```bash
+kubectl -n cgdm set env deploy/dm-sidecar \
+  DM_CLIENT_AK=<实际 AK> \
+  DM_CLIENT_SK=<实际 SK> \
+  DM_CLIENT_WSN=<实际 WSN>
+```
+
+常用排查命令：
+
+```bash
+kubectl -n cgdm describe pod <pod-name>
+kubectl -n cgdm logs deploy/dm-console
+kubectl -n cgdm logs deploy/dm-sidecar
+kubectl -n cgdm logs statefulset/dm-mysql
+```
+
+生产环境还应替换默认 MySQL 密码、JWT 密钥，按数据规模调整 PVC 容量，并将敏感配置改为 `Secret` 管理。
 
 ---
 
@@ -791,6 +479,6 @@ cgdm.docker.global.password=<your_dockerhub_token>
 
 1. 在 `open-cdm/package` 下执行 `./package.sh --build --docker`，生成安装包、离线镜像和基础清单。
 2. 把镜像推送到远端仓库
-  - `./docker-publish-global.sh` 镜像推送到 DockerHub
-  - `./docker-publish-china.sh` 镜像推送到中国地区
+- `./docker-publish-global.sh` 镜像推送到 DockerHub
+- `./docker-publish-china.sh` 镜像推送到中国地区
 3. 生成渠道化 yml `open-cdm/package/docker/build-docker-yml.sh`。

@@ -13,11 +13,11 @@
 </p>
 
 <p align="center">
-    [<a target="_blank" href='./README.cn.md'>中文</a>]
+    [<a target="_blank" href='../cn/README.cn.md'>中文</a>]
     [<a target="_blank" href='./README.en.md'>English</a>]
 </p>
 
-![pic_en.png](.assets/pic_en.png)
+![pic_en.png](../assets/pic_en.png)
 
 ---
 
@@ -83,7 +83,7 @@
 ### Install
 CloudDM supports **Standalone (Alone)** and **Cluster (Console + Sidecar)** modes, and also supports **install packages**, **Docker**, and **Kubernetes** deployment methods.
 
-The example below demonstrates how to use standalone deployment. If you need install-package deployment, cluster deployment, or Kubernetes deployment, you can continue deploying with the install packages and yml files generated after local packaging. For complete deployment instructions, see [DEPLOY.en.md](./DEPLOY.en.md).
+The example below demonstrates how to use standalone deployment. If you need install-package deployment, cluster deployment, or Kubernetes deployment, you can continue deploying with the install packages and yml files generated after local packaging. For complete deployment instructions, see [DEPLOY.en.md](DEPLOY.en.md).
 
 ```bash
 # Quick start, default image
@@ -163,12 +163,12 @@ http://localhost:8222
 
 ### Add Data Source
 
-<img src=".assets/ds_add_en.png" alt="ds_add_en.png" style="border: 1px solid #d9d9d9;" />
+<img src="../assets/ds_add_en.png" alt="ds_add_en.png" style="border: 1px solid #d9d9d9;" />
 
 ### Query Data
 
-<img src=".assets/query_en.png" alt="query_en.png" style="border: 1px solid #d9d9d9;" />
+<img src="../assets/query_en.png" alt="query_en.png" style="border: 1px solid #d9d9d9;" />
 
 ## Open Source License
 
-CloudDM is released under the business-friendly [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html). See [LICENSE.txt](./LICENSE.txt) for details.
+CloudDM is released under the business-friendly [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html). See [LICENSE.txt](../../LICENSE.txt) for details.

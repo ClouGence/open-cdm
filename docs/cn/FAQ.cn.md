@@ -8,7 +8,7 @@ CloudDM 是一款免费且开源的团队化数据库管理平台，提供数据
 
 ### CloudDM 是开源项目吗？
 
-是。CloudDM 使用 Apache License 2.0 许可协议，详见 [LICENSE.txt](./LICENSE.txt)。
+是。CloudDM 使用 Apache License 2.0 许可协议，详见 [LICENSE.txt](../../LICENSE.txt)。
 
 ### 如何最快体验 CloudDM？
 

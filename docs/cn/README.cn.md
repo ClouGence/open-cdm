@@ -14,11 +14,11 @@
 
 <p align="center">
     [<a target="_blank" href='./README.cn.md'>中文</a>]
-    [<a target="_blank" href='./README.en.md'>English</a>]
-    [<a target="_blank" href='./FAQ.cn.md'>FAQ</a>]
+    [<a target="_blank" href='../en/README.en.md'>English</a>]
+    [<a target="_blank" href='FAQ.cn.md'>FAQ</a>]
 </p>
 
-![pic_cn.png](.assets/pic_cn.png)
+![pic_cn.png](../assets/pic_cn.png)
 
 ---
 
@@ -84,7 +84,7 @@
 ### 安装
 CloudDM 支持 **单机模式（Alone）** 和 **集群模式（Console + Sidecar）**，同时支持 **安装包**、**Docker**、**Kubernetes** 多种部署方式。
 
-下面以单机模式部署来展示如何使用。如果你需要安装包部署、集群部署或 Kubernetes 部署，可使用本地打包后生成的安装包和 yml 文件继续部署。完整部署说明请参考 [DEPLOY.cn.md](./DEPLOY.cn.md)。
+下面以单机模式部署来展示如何使用。如果你需要安装包部署、集群部署或 Kubernetes 部署，可使用本地打包后生成的安装包和 yml 文件继续部署。完整部署说明请参考 [DEPLOY.cn.md](DEPLOY.cn.md)。
 
 ```bash
 # 快速启动，默认镜像
@@ -164,12 +164,12 @@ http://localhost:8222
 
 ### 添加数据源
 
-<img src=".assets/ds_add_cn.png" alt="ds_add_cn.png" style="border: 1px solid #d9d9d9;" />
+<img src="../assets/ds_add_cn.png" alt="ds_add_cn.png" style="border: 1px solid #d9d9d9;" />
 
 ### 数据查询
 
-<img src=".assets/query_cn.png" alt="query_cn.png" style="border: 1px solid #d9d9d9;" />
+<img src="../assets/query_cn.png" alt="query_cn.png" style="border: 1px solid #d9d9d9;" />
 
 ## 开源协议
 
-CloudDM 使用商业友好的 [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html) 许可协议，详见 [LICENSE.txt](./LICENSE.txt)。
+CloudDM 使用商业友好的 [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html) 许可协议，详见 [LICENSE.txt](../../LICENSE.txt)。
