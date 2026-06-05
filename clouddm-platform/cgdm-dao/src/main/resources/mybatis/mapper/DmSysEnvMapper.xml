@@ -37,12 +37,12 @@
 
     <select id="queryListByParameterKey" resultMap="rdpDsEnvDO">
         SELECT
-            a.id `id`,
-            a.gmt_create `gmtCreate`,
-            a.gmt_modified `gmtModified`,
-            a.owner_uid `ownerUid`,
-            a.env_name `envName`,
-            a.description `description`
+            a.id,
+            a.gmt_create,
+            a.gmt_modified,
+            a.owner_uid,
+            a.env_name,
+            a.description
         FROM
             dm_sys_env a
         LEFT JOIN dm_sys_env_param b on a.id = b.env_id
