@@ -68,10 +68,8 @@ build_base_image() {
   local mirror; mirror="$(apt_mirror "$plat")"
   echo "  building base image: $tag ($(docker_platform "$plat"))"
   [ -n "$mirror" ] && echo "    apt mirror: $mirror"
-  BUILDX_NO_DEFAULT_ATTESTATIONS=1 docker buildx build \
+  docker build \
     --platform="$(docker_platform "$plat")" \
-    --load \
-    --provenance=false --sbom=false \
     --build-arg APT_MIRROR="$mirror" \
     -t "$tag" \
     -f "$dockerfile" \
@@ -83,10 +81,8 @@ build_service_image() {
   local dockerfile="$SCRIPT_DIR/${plat}/${svc}/Dockerfile"
   local tag; tag="clougence/cgdm-${svc}:$(image_tag "$plat" "$VERSION")"
   echo "  building $svc: $tag ($(docker_platform "$plat"))"
-  BUILDX_NO_DEFAULT_ATTESTATIONS=1 docker buildx build \
+  docker build \
     --platform="$(docker_platform "$plat")" \
-    --load \
-    --provenance=false --sbom=false \
     --build-arg BASE_IMAGE="$(base_image_tag "$plat")" \
     -t "$tag" \
     -f "$dockerfile" \

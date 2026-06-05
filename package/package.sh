@@ -108,13 +108,20 @@ fi
 # ---- Step 2: Docker ----
 if [ "$DO_DOCKER" -eq 1 ]; then
   echo "=== Docker: starting image build ==="
-  DOCKER_ARGS=()
-  [ "$USE_MIRRORS" -eq 1 ] && DOCKER_ARGS+=(--mirrors)
+  run_docker_build() {
+    local platform_arg="$1"
+    if [ "$USE_MIRRORS" -eq 1 ]; then
+      bash "$SCRIPT_DIR/docker/build-docker.sh" "$VERSION" "$platform_arg" --mirrors
+    else
+      bash "$SCRIPT_DIR/docker/build-docker.sh" "$VERSION" "$platform_arg"
+    fi
+  }
+
   if [ -z "$DOCKER_ARCH" ]; then
     echo "[DOCKER] building all platforms, version=${VERSION}..."
-    bash "$SCRIPT_DIR/docker/build-docker.sh" "$VERSION" --platform=all "${DOCKER_ARGS[@]}"
+    run_docker_build --platform=all
   else
     echo "[DOCKER] building $DOCKER_ARCH images, version=${VERSION}..."
-    bash "$SCRIPT_DIR/docker/build-docker.sh" "$VERSION" --platform="$DOCKER_ARCH" "${DOCKER_ARGS[@]}"
+    run_docker_build --platform="$DOCKER_ARCH"
   fi
 fi

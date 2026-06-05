@@ -17,6 +17,16 @@ RUN apt-get update \
         libaio_dir="$(dirname "$libaio_path")"; \
         [ -e "$libaio_dir/libaio.so.1" ] || ln -s libaio.so.1t64 "$libaio_dir/libaio.so.1"; \
     fi \
+    && libncurses_path="$(find /usr/lib -name libncurses.so.6 -print -quit)" \
+    && if [ -n "$libncurses_path" ]; then \
+        libncurses_dir="$(dirname "$libncurses_path")"; \
+        [ -e "$libncurses_dir/libncurses.so.5" ] || ln -s libncurses.so.6 "$libncurses_dir/libncurses.so.5"; \
+    fi \
+    && libtinfo_path="$(find /usr/lib -name libtinfo.so.6 -print -quit)" \
+    && if [ -n "$libtinfo_path" ]; then \
+        libtinfo_dir="$(dirname "$libtinfo_path")"; \
+        [ -e "$libtinfo_dir/libtinfo.so.5" ] || ln -s libtinfo.so.6 "$libtinfo_dir/libtinfo.so.5"; \
+    fi \
     && curl -fsSL "$MYSQL_DOWNLOAD_URL" -o /tmp/mysql.tar.xz \
     && tar -xJf /tmp/mysql.tar.xz --strip-components=1 -C /usr/local/mysql \
     && mysqld --version | grep -Fq "Ver ${MYSQL_VERSION}" \
