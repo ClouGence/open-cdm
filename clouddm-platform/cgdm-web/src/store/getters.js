@@ -1,5 +1,6 @@
 import { EDITIONS, VERIFY_TYPE } from '@/const/ccIndex';
 import { supportsCloudCanalBuild, supportsCloudDMBuild } from '@/utils/product';
+import { resolveVersionBadgeText } from '@/utils/version';
 
 const RULE_KIND_CONF_MAP = {
   QUERY: 'queryConf',
@@ -20,7 +21,7 @@ export default {
   includesCC: () => false,
   includesDM: () => true,
   ifShowDsExtraConf: (state) => state.globalSetting.features && state.globalSetting.features.ENABLE_VALIDATE_DS_EXTRA_CONF,
-  buildVersion: (state) => state.dmGlobalSetting.buildVersion,
+  displayVersion: (state) => resolveVersionBadgeText(state.dmGlobalSetting),
   getNodeType: (state) => (type, deep) => state.globalDsSetting[type].categories.levels[deep],
   getLevels: (state) => (type) => {
     if (state.globalDsSetting[type]) {

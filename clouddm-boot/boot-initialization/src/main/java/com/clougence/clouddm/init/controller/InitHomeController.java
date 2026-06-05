@@ -31,12 +31,12 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.constants.SystemStatus;
+import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.vo.GlobalSettingsVO;
 import com.clougence.clouddm.console.web.model.vo.SystemStatusVO;
 import com.clougence.clouddm.init.model.SystemStatusResult;
 import com.clougence.clouddm.init.service.InitDBStatusDetector;
 import com.clougence.clouddm.init.service.SysInitDefService;
-import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 
 import jakarta.annotation.Resource;
 
@@ -53,23 +53,29 @@ public class InitHomeController {
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/dm_global_settings", method = { RequestMethod.POST })
     public ResWebData<?> dmGlobalSettings() {
+        GlobalSettingsVO vo = new GlobalSettingsVO();
+        vo.setVersion(GlobalConfUtils.getAppVersion());
+        vo.setAloneMode(GlobalConfUtils.isAloneMode());
+
         SystemStatusVO statusVO = new SystemStatusVO();
         SystemStatusResult dbStatus = InitDBStatusDetector.detectDBStatus(this.defService.loadSystemProperties());
-
         if (isRestartPending()) {
             statusVO.setStatus(SystemStatus.Initial);
             statusVO.setInitReason("restarting");
             statusVO.setDbError(null);
         } else {
-            statusVO.setStatus(dbStatus.getStatus());
+            statusVO.setStatus(resolveInitApplicationStatus(dbStatus.getStatus()));
             statusVO.setInitReason(dbStatus.getInitReason());
             statusVO.setDbError(dbStatus.getDbError());
         }
         statusVO.setUpgradeScripts(dbStatus.getUpgradeScripts());
-
-        GlobalSettingsVO vo = new GlobalSettingsVO();
         vo.setSystemStatus(statusVO);
+
         return ResWebDataUtils.buildSuccess(vo);
+    }
+
+    private SystemStatus resolveInitApplicationStatus(SystemStatus status) {
+        return status == SystemStatus.Ready ? SystemStatus.Initial : status;
     }
 
     private boolean isRestartPending() {

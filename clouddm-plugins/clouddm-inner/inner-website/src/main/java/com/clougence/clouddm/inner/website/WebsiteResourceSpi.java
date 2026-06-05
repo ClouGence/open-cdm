@@ -37,7 +37,7 @@ public class WebsiteResourceSpi implements ResourceSpi {
         if (!resourceLoader.exist(resourceLocation)) {
             return null;
         }
-        return new ClasspathResourceObject(resourceLoader, resourceLocation, contentType);
+        return new ClasspathResourceObject(resourceLoader, resourceLocation, contentType, true, false);
     }
 
     @Override

@@ -39,6 +39,19 @@ wait_for_db() {
   echo "mysql is ready: ${host}:${port}"
 }
 
+init_conf_dir_if_empty() {
+  local conf_dir=/root/cgdm/console/conf
+  local default_conf_dir=/root/default_conf
+
+  mkdir -p "$conf_dir"
+  if [ -z "$(find "$conf_dir" -mindepth 1 -maxdepth 1 -print -quit)" ]; then
+    echo "conf dir is empty, initializing from ${default_conf_dir}."
+    cp -a "$default_conf_dir"/. "$conf_dir"/
+  fi
+}
+
+init_conf_dir_if_empty
+
 # first-time config generation (Flyway handles DB init on startup)
 DST_CONF_FILE=/root/cgdm/console/conf/console.properties
 if [ ! -f "$DST_CONF_FILE" ]; then

@@ -2,6 +2,7 @@
   <div class="initialization">
     <div v-if="mode === 'loading'" class="init-loading-page">
       <div class="loading-card">
+        <div class="init-version-badge" translate="no">{{ versionBadgeText }}</div>
         <h2 class="loading-title">{{ pageTitle }}</h2>
         <p class="loading-text">{{ $t('initialization.loading') }}</p>
       </div>
@@ -10,6 +11,7 @@
     <!-- 错误页模式 -->
     <div v-else-if="mode === 'dbError'" class="init-error-page">
       <div class="error-card">
+        <div class="init-version-badge" translate="no">{{ versionBadgeText }}</div>
         <h2 class="error-title">{{ $t('initialization.startFailed') }}</h2>
         <div class="error-detail">
           <p>{{ $t('initialization.errorDetail') }}</p>
@@ -24,6 +26,7 @@
 
     <!-- 初始化向导模式 -->
     <div v-else class="init-wizard">
+      <div class="init-version-badge" translate="no">{{ versionBadgeText }}</div>
       <div class="wizard-header">
         <h1>{{ pageTitle }}</h1>
         <div class="wizard-stage-progress">
@@ -64,7 +67,12 @@
 
         <!-- Step 2: 连接性配置 -->
         <div v-show="!isUpgradeMode && currentStep === connectivityStepIndex" class="step-panel">
-          <StepConnectivity :fieldDefs="connectivityFields" :formValues="formValues" @update:formValues="updateFormValues" />
+          <StepConnectivity
+            :fieldDefs="connectivityFields"
+            :formValues="formValues"
+            :readonly="isConnectivityReadonly"
+            @update:formValues="updateFormValues"
+          />
         </div>
 
         <!-- 确认步骤 -->
@@ -127,6 +135,7 @@ import StepConnectivity from './StepConnectivity.vue';
 import StepConfirm from './StepConfirm.vue';
 import StepExecution from './StepExecution.vue';
 import { consumeDmBootstrapStatus, getDmSystemStatus, isDmSystemReady } from '../../utils/dmGlobalSettings';
+import { resolveDeploymentModeText, resolveDisplayVersion } from '../../utils/version';
 
 const INIT_DB_CREATE_IF_MISSING = 'clougence.init.db.createIfMissing';
 const INIT_DB_REBUILD_IF_NOT_EMPTY = 'clougence.init.db.rebuildIfNotEmpty';
@@ -387,10 +396,15 @@ export default {
       executionPhaseStatusType: '',
       executionPhaseStatusMessage: '',
       restartStatusType: '',
-      restartStatusMessage: ''
+      restartStatusMessage: '',
+      displayVersion: 'unknow',
+      aloneMode: false
     };
   },
   computed: {
+    versionBadgeText() {
+      return `${resolveDeploymentModeText({ aloneMode: this.aloneMode })} ${this.displayVersion || 'unknow'}`;
+    },
     dbFields() {
       return this.fieldDefs.filter((f) => f.category === 'database');
     },
@@ -535,6 +549,9 @@ export default {
     },
     isDbFormReadonly() {
       return this.isUpgradeMode || !this.isMysqlDriverReady;
+    },
+    isConnectivityReadonly() {
+      return this.aloneMode;
     },
     mysqlDriverFooterType() {
       switch (this.mysqlDriverUiState) {
@@ -712,6 +729,8 @@ export default {
         return;
       }
 
+      this.displayVersion = resolveDisplayVersion(res.data) || 'unknow';
+      this.aloneMode = Boolean(res.data && res.data.aloneMode);
       const { status, initReason, dbError, upgradeScripts = [] } = getDmSystemStatus(res);
       if (status === 'Ready') {
         redirectToLoginPage('manage');
@@ -1063,6 +1082,7 @@ export default {
 
 <style scoped>
 .initialization {
+  position: relative;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -1070,6 +1090,26 @@ export default {
   padding: 24px;
   box-sizing: border-box;
   background: #f0f2f5;
+}
+
+.init-version-badge {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  z-index: 10;
+  min-width: 72px;
+  height: 24px;
+  padding: 0 12px;
+  border: 1px solid rgba(22, 119, 255, 0.28);
+  border-radius: 12px;
+  background: rgba(22, 119, 255, 0.08);
+  color: #1554ad;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 22px;
+  letter-spacing: 0;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .init-error-page {
@@ -1083,6 +1123,7 @@ export default {
 }
 
 .loading-card {
+  position: relative;
   background: #fff;
   border-radius: 8px;
   padding: 48px;
@@ -1106,6 +1147,7 @@ export default {
 }
 
 .error-card {
+  position: relative;
   background: #fff;
   border-radius: 8px;
   padding: 48px;
@@ -1150,6 +1192,7 @@ export default {
 }
 
 .init-wizard {
+  position: relative;
   width: 100%;
   max-width: 720px;
   background: #fff;

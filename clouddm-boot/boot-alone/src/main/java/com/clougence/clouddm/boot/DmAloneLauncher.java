@@ -18,7 +18,6 @@ package com.clougence.clouddm.boot;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
 
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.springframework.boot.SpringApplication;
@@ -34,7 +33,6 @@ import com.clougence.clouddm.init.model.SystemStatusResult;
 import com.clougence.clouddm.init.service.InitDBStatusDetector;
 import com.clougence.clouddm.init.service.SysInitDefService;
 import com.clougence.utils.ShutdownHook;
-import com.clougence.utils.format.DateFormatType;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,8 +42,6 @@ public class DmAloneLauncher {
     private static final String WORKER_PACKAGE_NAME = "com.clougence.clouddm.worker";
 
     public static void main(String[] args) throws Exception {
-        System.setProperty("app.buildId", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-        System.setProperty("app.buildVersion", "xxx.xxx.xxx(" + DateFormatType.s_yyyyMMdd.format(new Date()) + ")");
         System.setProperty("app.logPath", prepareRuntimePath("logs", "alone"));
         System.setProperty("app.data", prepareRuntimePath("data", "alone"));
 

@@ -26,6 +26,7 @@ tasks.register('tgz', Tar) {
     }
 
     def sidecarPath = "cgdm/alone"
+    def mainVersion = rootProject.findProperty("cg.clouddm.main.version") ?: "unknow"
 
     into("${sidecarPath}") {
         project.file("$buildDir/emptyFoldersRoot/logs").mkdirs()
@@ -48,6 +49,9 @@ tasks.register('tgz', Tar) {
         from "${buildDir}/../alone.properties"
         from "${buildDir}/../logback.xml"
         from "${buildDir}/../../java/java-security.properties"
+        from(project.layout.buildDirectory.file("generated/version")) {
+            rename { "version" }
+        }
     }
     into("${sidecarPath}/conf/ssl") {
         from "${buildDir}/../../ssl/server.crt"
@@ -67,5 +71,10 @@ tasks.register('tgz', Tar) {
     archiveFileName = "cgdm-alone.tar.gz"
     destinationDirectory = file("${buildDir}/dist")
     compression = Compression.GZIP
+    doFirst {
+        def versionFile = project.layout.buildDirectory.file("generated/version").get().asFile
+        versionFile.parentFile.mkdirs()
+        versionFile.text = "${mainVersion}\n"
+    }
     from "${buildDir}/cgdm"
 }

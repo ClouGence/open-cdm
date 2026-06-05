@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -46,6 +47,7 @@ public class GlobalConfUtils {
     public static final String              CLOUGENCE_AK           = "clouddm.auth.ak";
     public static final String              CLOUGENCE_SK           = "clouddm.auth.sk";
     public static final String              CONF_PATH_SUFFIX       = "global_conf.properties";
+    public static final String              UNKNOWN_VERSION        = "unknow";
     public static final Map<String, String> config                 = new HashMap<>();
     private static ConnAuthDTO              cacheAuth;
 
@@ -95,6 +97,35 @@ public class GlobalConfUtils {
         return jarPath;
     }
 
+    public static String getAppVersion() {
+        File versionFile = new File(getAppHome(), "conf" + File.separator + "version");
+        if (versionFile.isFile()) {
+            try (InputStream in = new FileInputStream(versionFile)) {
+                return normalizeVersion(new String(in.readAllBytes(), StandardCharsets.UTF_8));
+            } catch (IOException e) {
+                return UNKNOWN_VERSION;
+            }
+        }
+
+        try (InputStream in = GlobalConfUtils.class.getClassLoader().getResourceAsStream("conf/version")) {
+            if (in == null) {
+                return UNKNOWN_VERSION;
+            }
+            return normalizeVersion(new String(in.readAllBytes(), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            return UNKNOWN_VERSION;
+        }
+    }
+
+    private static String normalizeVersion(String version) {
+        if (StringUtils.isBlank(version)) {
+            return UNKNOWN_VERSION;
+        }
+        return version.trim();
+    }
+
+    public static boolean isAloneMode() { return StringUtils.equalsIgnoreCase(System.getProperty("app.mode"), "embedded"); }
+
     public static ConnAuthDTO loadGlobalConf() throws IOException {
         if (cacheAuth != null) {
             return cacheAuth;
@@ -107,7 +138,7 @@ public class GlobalConfUtils {
         String consoleHost = null;
         String consolePort = null;
 
-        if (StringUtils.equalsIgnoreCase(System.getProperty("app.mode"), "embedded")) {
+        if (isAloneMode()) {
             if (config.isEmpty()) {
                 throw new IllegalArgumentException("embedded worker not configured.");
             }

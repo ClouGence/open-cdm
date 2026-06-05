@@ -3,7 +3,7 @@
 # Generated from docker-cluster.yml
 # Usage: kubectl apply -f k8s-cluster.yml
 # Note: Replace ${build_version} with actual image tag,
-#       e.g. sed "s|\${build_version}|arm64-1.0.0|g" ...
+#       e.g. sed "s|\${build_version}|arm64-3.1.1|g" ...
 # ============================================================
 apiVersion: v1
 kind: Namespace
@@ -27,7 +27,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cgdm_mysql_data
+  name: cgdm-mysql-data
   namespace: cgdm
 spec:
   accessModes:
@@ -101,7 +101,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cgdm_console_conf
+  name: cgdm-console-conf
   namespace: cgdm
 spec:
   accessModes:
@@ -113,7 +113,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cgdm_console_logs
+  name: cgdm-console-logs
   namespace: cgdm
 spec:
   accessModes:
@@ -125,7 +125,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cgdm_console_data
+  name: cgdm-console-data
   namespace: cgdm
 spec:
   accessModes:
@@ -184,13 +184,13 @@ spec:
       volumes:
         - name: conf
           persistentVolumeClaim:
-            claimName: cgdm_console_conf
+            claimName: cgdm-console-conf
         - name: logs
           persistentVolumeClaim:
-            claimName: cgdm_console_logs
+            claimName: cgdm-console-logs
         - name: data
           persistentVolumeClaim:
-            claimName: cgdm_console_data
+            claimName: cgdm-console-data
 ---
 # ---------------------- dm_sidecar ----------------------
 apiVersion: v1
@@ -210,7 +210,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cgdm_sidecar_0_conf
+  name: cgdm-sidecar-0-conf
   namespace: cgdm
 spec:
   accessModes:
@@ -222,7 +222,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cgdm_sidecar_0_logs
+  name: cgdm-sidecar-0-logs
   namespace: cgdm
 spec:
   accessModes:
@@ -234,7 +234,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cgdm_sidecar_0_data
+  name: cgdm-sidecar-0-data
   namespace: cgdm
 spec:
   accessModes:
@@ -286,10 +286,10 @@ spec:
       volumes:
         - name: conf
           persistentVolumeClaim:
-            claimName: cgdm_sidecar_0_conf
+            claimName: cgdm-sidecar-0-conf
         - name: logs
           persistentVolumeClaim:
-            claimName: cgdm_sidecar_0_logs
+            claimName: cgdm-sidecar-0-logs
         - name: data
           persistentVolumeClaim:
-            claimName: cgdm_sidecar_0_data
+            claimName: cgdm-sidecar-0-data

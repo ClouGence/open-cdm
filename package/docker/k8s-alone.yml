@@ -3,7 +3,7 @@
 # Generated from docker-alone.yml
 # Usage: kubectl apply -f k8s-alone.yml
 # Note: Replace ${build_version} with actual image tag,
-#       e.g. sed "s|\${build_version}|arm64-1.0.0|g" ...
+#       e.g. sed "s|\${build_version}|arm64-3.1.1|g" ...
 # ============================================================
 apiVersion: v1
 kind: Namespace
@@ -31,7 +31,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cgdm_alone_conf
+  name: cgdm-alone-conf
   namespace: cgdm
 spec:
   accessModes:
@@ -43,7 +43,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cgdm_alone_logs
+  name: cgdm-alone-logs
   namespace: cgdm
 spec:
   accessModes:
@@ -55,7 +55,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cgdm_alone_data
+  name: cgdm-alone-data
   namespace: cgdm
 spec:
   accessModes:
@@ -67,7 +67,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: cgdm_mysql_data
+  name: cgdm-mysql-data
   namespace: cgdm
 spec:
   accessModes:
@@ -132,13 +132,13 @@ spec:
       volumes:
         - name: conf
           persistentVolumeClaim:
-            claimName: cgdm_alone_conf
+            claimName: cgdm-alone-conf
         - name: logs
           persistentVolumeClaim:
-            claimName: cgdm_alone_logs
+            claimName: cgdm-alone-logs
         - name: data
           persistentVolumeClaim:
-            claimName: cgdm_alone_data
+            claimName: cgdm-alone-data
         - name: mysql-data
           persistentVolumeClaim:
-            claimName: cgdm_mysql_data
+            claimName: cgdm-mysql-data

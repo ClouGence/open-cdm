@@ -22,7 +22,9 @@ COPY docker/x86_64/console/init.sh /docker-entrypoint-init/init.sh
 RUN chmod +x /docker-entrypoint-init/init.sh \
     && rm -rf /root/cgdm/console/logs \
     && mkdir -p /root/cgdm/console/logs \
-    && rm -f /root/cgdm/console/conf/console.properties
+    && rm -f /root/cgdm/console/conf/console.properties \
+    && mkdir -p /root/default_conf \
+    && cp -a /root/cgdm/console/conf/. /root/default_conf/
 
 ENTRYPOINT ["/docker-entrypoint-init/init.sh"]
 WORKDIR /root

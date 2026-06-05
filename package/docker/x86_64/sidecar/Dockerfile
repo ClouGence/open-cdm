@@ -22,7 +22,9 @@ RUN chmod +x /docker-entrypoint-init/init.sh /root/cgdm/sidecar/bin/checker.sh \
     && rm -rf /root/cgdm/sidecar/logs \
     && mkdir -p /root/cgdm/sidecar/logs \
     && rm -f /root/cgdm/sidecar/conf/sidecar.properties \
-    && rm -f /root/cgdm/sidecar/conf/global_conf.properties
+    && rm -f /root/cgdm/sidecar/conf/global_conf.properties \
+    && mkdir -p /root/default_conf \
+    && cp -a /root/cgdm/sidecar/conf/. /root/default_conf/
 
 ENTRYPOINT ["/docker-entrypoint-init/init.sh"]
 WORKDIR /root

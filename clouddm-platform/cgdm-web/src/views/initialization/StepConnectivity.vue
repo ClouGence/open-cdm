@@ -6,6 +6,7 @@
           v-if="field.inputType === 'text'"
           class="connectivity-full-width-control"
           :value="formValues[field.propertyKey] || ''"
+          :disabled="readonly"
           @input="(value) => onChange(field.propertyKey, normalizeInputValue(value))"
           :placeholder="field.description"
         />
@@ -14,6 +15,7 @@
           class="connectivity-full-width-control"
           :value="formValues[field.propertyKey]"
           type="number"
+          :disabled="readonly"
           @input="(value) => onChange(field.propertyKey, normalizeInputValue(value))"
           :placeholder="field.description"
         />
@@ -27,7 +29,8 @@ export default {
   name: 'StepConnectivity',
   props: {
     fieldDefs: { type: Array, default: () => [] },
-    formValues: { type: Object, default: () => ({}) }
+    formValues: { type: Object, default: () => ({}) },
+    readonly: { type: Boolean, default: false }
   },
   methods: {
     normalizeInputValue(payload) {
@@ -37,6 +40,9 @@ export default {
       return payload;
     },
     onChange(key, value) {
+      if (this.readonly) {
+        return;
+      }
       this.$emit('update:formValues', { [key]: value });
     }
   }

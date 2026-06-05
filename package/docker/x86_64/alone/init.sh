@@ -10,12 +10,14 @@ MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-123456}
 MYSQL_DATADIR=${MYSQL_DATADIR:-/var/lib/mysql}
 MYSQL_SOCKET=${MYSQL_SOCKET:-/run/mysqld/mysqld.sock}
 MYSQL_PID_FILE=${MYSQL_PID_FILE:-/run/mysqld/mysqld.pid}
+MYSQL_INIT_MARKER=${MYSQL_INIT_MARKER:-$MYSQL_DATADIR/.clouddm_mysql_initialized}
 DB_HOST=${DB_HOST:-127.0.0.1}
 DB_PORT=${DB_PORT:-3306}
 DB_DATABASE=${DB_DATABASE:-cdmgr}
 DB_USERNAME=${DB_USERNAME:-root}
 DB_PASSWORD=${DB_PASSWORD:-$MYSQL_ROOT_PASSWORD}
 WAIT_DB_TIMEOUT_SECONDS=${WAIT_DB_TIMEOUT_SECONDS:-120}
+WAIT_MYSQL_STOP_SECONDS=${WAIT_MYSQL_STOP_SECONDS:-30}
 
 sql_escape() {
   printf '%s' "$1" | sed "s/'/''/g"
@@ -33,9 +35,58 @@ mysql_sql() {
   fi
 }
 
+is_embedded_mysqld_pid() {
+  local pid="$1"
+  local cmdline
+
+  if [ -z "$pid" ] || ! kill -0 "$pid" 2>/dev/null; then
+    return 1
+  fi
+
+  cmdline=$(tr '\0' ' ' < "/proc/$pid/cmdline" 2>/dev/null || true)
+  case "$cmdline" in
+    *mysqld*"--datadir=$MYSQL_DATADIR"*|*mysqld*"--socket=$MYSQL_SOCKET"*|*mysqld*"--pid-file=$MYSQL_PID_FILE"*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+embedded_mysqld_pid() {
+  local proc
+  local pid
+
+  if [ -f "$MYSQL_PID_FILE" ]; then
+    pid=$(cat "$MYSQL_PID_FILE" 2>/dev/null || true)
+    if is_embedded_mysqld_pid "$pid"; then
+      printf '%s\n' "$pid"
+      return 0
+    fi
+  fi
+
+  for proc in /proc/[0-9]*; do
+    pid="${proc#/proc/}"
+    if is_embedded_mysqld_pid "$pid"; then
+      printf '%s\n' "$pid"
+      return 0
+    fi
+  done
+
+  return 1
+}
+
 setup_mysql_directories() {
   mkdir -p "$MYSQL_DATADIR" /run/mysqld
   chown -R mysql:mysql "$MYSQL_DATADIR" /run/mysqld
+}
+
+cleanup_mysql_runtime_files() {
+  local pid
+
+  if pid=$(embedded_mysqld_pid); then
+    echo "embedded mysql is still running: ${pid}"
+    return
+  fi
+
+  rm -f "$MYSQL_SOCKET" "$MYSQL_SOCKET.lock" "$MYSQL_PID_FILE"
 }
 
 initialize_mysql_data() {
@@ -93,13 +144,45 @@ SQL
 }
 
 stop_embedded_mysql() {
+  local pid
+
   if [ "$MYSQL_EMBEDDED" != "true" ]; then
     return
   fi
 
   if [ -S "$MYSQL_SOCKET" ]; then
-    mysqladmin --protocol=socket --socket="$MYSQL_SOCKET" -uroot -p"$MYSQL_ROOT_PASSWORD" shutdown >/dev/null 2>&1 || true
+    if mysqladmin --protocol=socket --socket="$MYSQL_SOCKET" -uroot -p"$MYSQL_ROOT_PASSWORD" shutdown >/dev/null 2>&1; then
+      wait_for_mysql_exit
+      return
+    fi
   fi
+
+  if pid=$(embedded_mysqld_pid); then
+    echo "stopping embedded mysql process: ${pid}"
+    kill -TERM "$pid" >/dev/null 2>&1 || true
+    wait_for_mysql_exit
+  fi
+}
+
+wait_for_mysql_exit() {
+  local waited=0
+  local pid
+
+  while [ -S "$MYSQL_SOCKET" ] || [ -f "$MYSQL_PID_FILE" ]; do
+    pid=$(embedded_mysqld_pid || true)
+
+    if [ -z "$pid" ]; then
+      rm -f "$MYSQL_SOCKET" "$MYSQL_SOCKET.lock" "$MYSQL_PID_FILE"
+      return
+    fi
+
+    waited=$((waited + 1))
+    if [ "$waited" -ge "$WAIT_MYSQL_STOP_SECONDS" ]; then
+      echo "embedded mysql did not stop after ${WAIT_MYSQL_STOP_SECONDS}s" >&2
+      return
+    fi
+    sleep 1
+  done
 }
 
 can_connect_db() {
@@ -127,18 +210,52 @@ wait_for_db() {
   echo "mysql is ready: ${host}:${port}"
 }
 
+wait_for_embedded_mysql() {
+  local waited=0
+
+  echo "waiting for embedded mysql to accept SQL ..."
+  until mysql_sql -e "SELECT 1" >/dev/null 2>&1; do
+    waited=$((waited + 1))
+    if [ "$waited" -ge "$WAIT_DB_TIMEOUT_SECONDS" ]; then
+      echo "embedded mysql is still unavailable after ${WAIT_DB_TIMEOUT_SECONDS}s" >&2
+      exit 1
+    fi
+    sleep 1
+  done
+  echo "embedded mysql is ready."
+}
+
 bootstrap_embedded_mysql() {
   setup_mysql_directories
   if [ ! -d "$MYSQL_DATADIR/mysql" ]; then
     initialize_mysql_data
+  elif [ ! -f "$MYSQL_INIT_MARKER" ]; then
+    echo "existing mysql data dir has no CloudDM init marker, will validate it by starting mysql."
   fi
 
+  cleanup_mysql_runtime_files
   start_embedded_mysql
-  wait_for_db 127.0.0.1 "$DB_PORT"
+  wait_for_embedded_mysql
   configure_embedded_mysql
+  touch "$MYSQL_INIT_MARKER"
 }
 
-trap stop_embedded_mysql EXIT INT TERM
+init_conf_dir_if_empty() {
+  local conf_dir=/root/cgdm/alone/conf
+  local default_conf_dir=/root/default_conf
+
+  mkdir -p "$conf_dir"
+  if [ -z "$(find "$conf_dir" -mindepth 1 -maxdepth 1 -print -quit)" ]; then
+    echo "conf dir is empty, initializing from ${default_conf_dir}."
+    cp -a "$default_conf_dir"/. "$conf_dir"/
+  fi
+}
+
+trap stop_embedded_mysql EXIT
+trap 'stop_embedded_mysql; exit 130' INT
+trap 'stop_embedded_mysql; exit 143' TERM
+
+init_conf_dir_if_empty
 
 # first-time config generation (Flyway handles DB init on startup)
 DST_CONF_FILE=/root/cgdm/alone/conf/alone.properties
