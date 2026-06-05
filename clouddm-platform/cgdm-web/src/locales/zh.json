@@ -2283,7 +2283,7 @@
   "huo-qu-ddl-yu-ju": "获取DDL语句",
   "sheng-cheng-ddl-yu-ju": "生成DDL语句",
   "zhi-hang-yi-chang-ti-shi": "执行异常提示",
-  "dang-qian-mei-you-ke-zhi-hang-de-sql-yu-ju": "当前没有可执行的 SQL 语句",
+  "dang-qian-mei-you-ke-zhi-hang-de-sql-yu-ju": "没有要执行的 SQL",
   "nin-dang-qian-mei-you-xuan-zhong-ren-he-sql-yu-ju-qing-xuan-zhong-hou-zai-zhi-hang": "您当前没有选中任何SQL语句，请选中后再执行。",
   "dang-qian-ye-mian-huan-you-wei-ti-jiao-de-xiu-gai-qing-xian-ti-jiao-hou-guan-bi-dian-ji-li-ji-guan-bi-jiang-diu-shi-dang-qian-xiu-gai": "当前页面还有未提交的修改，请先提交后关闭，点击立即关闭将丢失当前修改",
   "dang-qian-biao-jie-gou-huan-you-wei-ti-jiao-de-xiu-gai-qing-xian-ti-jiao-hou-guan-bi-dian-ji-li-ji-guan-bi-jiang-diu-shi-dang-qian-xiu-gai": "当前表结构还有未提交的修改，请先提交后关闭，点击立即关闭将丢失当前修改",

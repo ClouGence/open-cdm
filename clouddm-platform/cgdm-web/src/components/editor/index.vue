@@ -61,9 +61,11 @@ export default {
       languageRequestVersion: 0,
       validateTimer: null,
       splitTimer: null,
+      editorDisposableList: [],
       keywordResourceCache: {},
       diagnosticDecorationCollection: null,
-      currentStatementDecorationCollection: null,
+      currentStatementOverlayElement: null,
+      currentStatementOverlayFrame: null,
       splitStatements: [],
       splitModelVersionId: 0,
       activeSplitStatement: null,
@@ -102,7 +104,15 @@ export default {
       this.addActions();
       this.installSuggestIconRenderer();
       this.setEditorInstance(this.monacoEditor);
-      this.currentStatementDecorationCollection = this.monacoEditor.createDecorationsCollection();
+      this.installCurrentStatementOverlay();
+      this.editorDisposableList.push(
+        this.monacoEditor.onDidScrollChange(() => {
+          this.renderCurrentStatementOverlay();
+        }),
+        this.monacoEditor.onDidLayoutChange(() => {
+          this.renderCurrentStatementOverlay();
+        })
+      );
       this.monacoEditor.onMouseDown((event) => {
         const decorations = this.monacoEditor.getLineDecorations(event.target.position.lineNumber);
         if (decorations) {
@@ -290,6 +300,9 @@ export default {
       if (this.diagnosticDecorationCollection) {
         this.diagnosticDecorationCollection.clear();
       }
+    },
+    showNoExecutableSqlError(message) {
+      this.showLanguageServiceError(message);
     },
     toMonacoMarkerSeverity(severity) {
       const severityMap = {
@@ -609,10 +622,9 @@ export default {
       this.clearCurrentStatementDecorations();
     },
     clearCurrentStatementDecorations() {
-      if (this.currentStatementDecorationCollection) {
-        this.currentStatementDecorationCollection.clear();
-      }
+      this.clearCurrentStatementOverlay();
       this.activeSplitStatement = null;
+      this.emitExecutableSqlTargetChange();
     },
     updateCurrentSqlStatementDecoration() {
       const model = this.monacoEditor?.getModel();
@@ -630,6 +642,7 @@ export default {
 
       this.activeSplitStatement = statement;
       this.applyCurrentStatementDecoration(statement.range);
+      this.emitExecutableSqlTargetChange();
     },
     findStatementAtPosition(position, model = this.monacoEditor?.getModel()) {
       const exactStatement = this.splitStatements.find((statement) => this.positionInLanguageRange(position, statement.range, model));
@@ -674,44 +687,147 @@ export default {
       return true;
     },
     applyCurrentStatementDecoration(range) {
-      if (!this.currentStatementDecorationCollection) {
-        this.currentStatementDecorationCollection = this.monacoEditor.createDecorationsCollection();
-      }
-
-      const model = this.monacoEditor?.getModel();
-      const monacoRange = this.toMonacoLanguageRange(range, model);
-      if (!monacoRange) {
+      if (!this.toMonacoLanguageRange(range)) {
         this.clearCurrentStatementDecorations();
         return;
       }
 
-      const { startLineNumber, startColumn, endLineNumber, endColumn } = monacoRange;
-      const decorations = [];
-
-      for (let line = startLineNumber; line <= endLineNumber; line++) {
-        const classNames = ['current-sql-statement-line'];
-        if (startLineNumber === endLineNumber) {
-          classNames.push('current-sql-statement-single');
-        } else if (line === startLineNumber) {
-          classNames.push('current-sql-statement-start');
-        } else if (line === endLineNumber) {
-          classNames.push('current-sql-statement-end');
-        } else {
-          classNames.push('current-sql-statement-middle');
-        }
-
-        const lineStartColumn = line === startLineNumber ? startColumn : 1;
-        const lineEndColumn = line === endLineNumber ? endColumn : model.getLineMaxColumn(line);
-        decorations.push({
-          range: new monaco.Range(line, lineStartColumn, line, Math.max(lineStartColumn + 1, lineEndColumn)),
-          options: {
-            className: classNames.join(' '),
-            inlineClassName: classNames.join(' ')
-          }
-        });
+      this.renderCurrentStatementOverlay();
+    },
+    installCurrentStatementOverlay() {
+      this.disposeCurrentStatementOverlay();
+      const editorElement = this.$refs.monacoEditor;
+      if (!editorElement) {
+        return;
       }
 
-      this.currentStatementDecorationCollection.set(decorations);
+      const overlayElement = document.createElement('div');
+      overlayElement.className = 'current-sql-statement-overlays';
+      editorElement.appendChild(overlayElement);
+      this.currentStatementOverlayElement = overlayElement;
+    },
+    clearCurrentStatementOverlay() {
+      if (this.currentStatementOverlayFrame) {
+        cancelAnimationFrame(this.currentStatementOverlayFrame);
+        this.currentStatementOverlayFrame = null;
+      }
+      if (this.currentStatementOverlayElement) {
+        this.currentStatementOverlayElement.innerHTML = '';
+      }
+    },
+    disposeCurrentStatementOverlay() {
+      this.clearCurrentStatementOverlay();
+      if (this.currentStatementOverlayElement) {
+        this.currentStatementOverlayElement.remove();
+        this.currentStatementOverlayElement = null;
+      }
+    },
+    renderCurrentStatementOverlay() {
+      if (this.currentStatementOverlayFrame) {
+        cancelAnimationFrame(this.currentStatementOverlayFrame);
+      }
+      this.currentStatementOverlayFrame = requestAnimationFrame(() => {
+        this.currentStatementOverlayFrame = null;
+        this.doRenderCurrentStatementOverlay();
+      });
+    },
+    doRenderCurrentStatementOverlay() {
+      const overlayElement = this.currentStatementOverlayElement;
+      const model = this.monacoEditor?.getModel();
+      if (!overlayElement || !model || !this.activeSplitStatement) {
+        if (overlayElement) {
+          overlayElement.innerHTML = '';
+        }
+        return;
+      }
+
+      const range = this.toCurrentStatementVisualRange(this.toMonacoLanguageRange(this.activeSplitStatement.range, model), model);
+      if (!range) {
+        overlayElement.innerHTML = '';
+        return;
+      }
+
+      const box = this.getCurrentStatementOverlayBox(range, model);
+      if (!box) {
+        overlayElement.innerHTML = '';
+        return;
+      }
+
+      overlayElement.innerHTML = '';
+      const boxElement = document.createElement('div');
+      boxElement.className = 'current-sql-statement-box';
+      boxElement.style.top = `${box.top}px`;
+      boxElement.style.left = `${box.left}px`;
+      boxElement.style.width = `${box.width}px`;
+      boxElement.style.height = `${box.height}px`;
+      overlayElement.appendChild(boxElement);
+    },
+    getCurrentStatementOverlayBox(range, model) {
+      const layoutInfo = this.monacoEditor.getLayoutInfo();
+      const lineHeight = this.monacoEditor.getOption(monaco.editor.EditorOption.lineHeight);
+      const scrollTop = this.monacoEditor.getScrollTop();
+      const scrollLeft = this.monacoEditor.getScrollLeft();
+      const contentLeft = layoutInfo.contentLeft;
+      const startLine = range.startLineNumber;
+      const endLine = range.endLineNumber;
+      const top = this.monacoEditor.getTopForLineNumber(startLine) - scrollTop;
+      const height = this.monacoEditor.getTopForLineNumber(endLine) - this.monacoEditor.getTopForLineNumber(startLine) + lineHeight;
+
+      if (top + height < 0 || top > layoutInfo.height) {
+        return null;
+      }
+
+      if (startLine === endLine) {
+        const left = contentLeft + this.monacoEditor.getOffsetForColumn(startLine, range.startColumn) - scrollLeft;
+        const right = contentLeft + this.monacoEditor.getOffsetForColumn(endLine, range.endColumn) - scrollLeft;
+        return {
+          top,
+          left,
+          width: Math.max(2, right - left),
+          height
+        };
+      }
+
+      let left = contentLeft + this.monacoEditor.getOffsetForColumn(startLine, range.startColumn) - scrollLeft;
+      let right = left + 2;
+      for (let line = startLine; line <= endLine; line++) {
+        const lineStartColumn = line === startLine ? range.startColumn : 1;
+        const lineEndColumn = line === endLine ? range.endColumn : model.getLineMaxColumn(line);
+        const lineLeft = contentLeft + this.monacoEditor.getOffsetForColumn(line, lineStartColumn) - scrollLeft;
+        const lineRight = contentLeft + this.monacoEditor.getOffsetForColumn(line, lineEndColumn) - scrollLeft;
+        left = Math.min(left, lineLeft);
+        right = Math.max(right, lineRight, lineLeft + 2);
+      }
+
+      const width = Math.max(2, right - left);
+      return {
+        top,
+        left,
+        width,
+        height
+      };
+    },
+    toCurrentStatementVisualRange(range, model) {
+      if (!range || !model) {
+        return null;
+      }
+
+      const text = model.getValue().slice(range.startOffset, range.endOffset);
+      const leadingWhitespace = text.match(/^\s*/)?.[0].length || 0;
+      const trailingWhitespace = text.match(/\s*$/)?.[0].length || 0;
+      const startOffset = Math.min(range.endOffset, range.startOffset + leadingWhitespace);
+      const endOffset = Math.max(startOffset, range.endOffset - trailingWhitespace);
+      const startPosition = model.getPositionAt(startOffset);
+      const endPosition = model.getPositionAt(endOffset);
+
+      return {
+        startLineNumber: startPosition.lineNumber,
+        startColumn: startPosition.column,
+        endLineNumber: endPosition.lineNumber,
+        endColumn: startPosition.lineNumber === endPosition.lineNumber ? Math.max(startPosition.column + 1, endPosition.column) : endPosition.column,
+        startOffset,
+        endOffset
+      };
     },
     toMonacoLanguageRange(range, model = this.monacoEditor?.getModel()) {
       if (!range || !model) {
@@ -1213,6 +1329,37 @@ export default {
       }
       return new monaco.Selection(monacoRange.startLineNumber, monacoRange.startColumn, monacoRange.startLineNumber, monacoRange.startColumn);
     },
+    getExecutableSqlTargetState() {
+      const model = this.monacoEditor?.getModel();
+      const selection = this.monacoEditor?.getSelection();
+      if (!model || !selection) {
+        return {
+          canRun: false,
+          hasSelection: false,
+          hasStatement: false
+        };
+      }
+
+      const hasSelection =
+        selection.selectionStartLineNumber !== selection.positionLineNumber || selection.selectionStartColumn !== selection.positionColumn;
+      if (hasSelection) {
+        return {
+          canRun: !!model.getValueInRange(selection).trim(),
+          hasSelection: true,
+          hasStatement: false
+        };
+      }
+
+      const hasStatement = !!this.activeSplitStatement && model.getVersionId() === this.splitModelVersionId;
+      return {
+        canRun: hasStatement,
+        hasSelection: false,
+        hasStatement
+      };
+    },
+    emitExecutableSqlTargetChange() {
+      this.$emit('executable-sql-target-change', this.getExecutableSqlTargetState());
+    },
     getCurrentSql() {
       return this.getCurrentSqlTarget().sql;
     },
@@ -1294,10 +1441,6 @@ export default {
         this.diagnosticDecorationCollection.clear();
         this.diagnosticDecorationCollection = null;
       }
-      if (this.currentStatementDecorationCollection) {
-        this.currentStatementDecorationCollection.clear();
-        this.currentStatementDecorationCollection = null;
-      }
       if (this.languageServiceErrorTimer) {
         clearTimeout(this.languageServiceErrorTimer);
         this.languageServiceErrorTimer = null;
@@ -1322,6 +1465,11 @@ export default {
       this.actionList.forEach((action) => {
         action.dispose();
       });
+      this.editorDisposableList.forEach((disposable) => {
+        disposable.dispose();
+      });
+      this.editorDisposableList = [];
+      this.disposeCurrentStatementOverlay();
       this.monacoEditor.dispose();
     }
   },
@@ -1397,36 +1545,28 @@ export default {
   position: relative;
 }
 
-:deep(.current-sql-statement-line) {
-  background: rgba(49, 139, 79, 0.035);
+:deep(.current-sql-statement-overlays) {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
 }
 
-:deep(.current-sql-statement-single) {
-  box-shadow:
-    inset 0 1px #2f8f49,
-    inset 0 -1px #2f8f49,
-    inset 1px 0 #2f8f49,
-    inset -1px 0 #2f8f49;
+:deep(.current-sql-statement-box) {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px solid rgba(47, 143, 73, 0.9);
 }
 
-:deep(.current-sql-statement-start) {
-  box-shadow:
-    inset 0 1px #2f8f49,
-    inset 1px 0 #2f8f49,
-    inset -1px 0 #2f8f49;
+:deep(.monaco-editor .view-overlays .current-line) {
+  border: none;
+  background: rgba(83, 139, 183, 0.045);
 }
 
-:deep(.current-sql-statement-middle) {
-  box-shadow:
-    inset 1px 0 #2f8f49,
-    inset -1px 0 #2f8f49;
-}
-
-:deep(.current-sql-statement-end) {
-  box-shadow:
-    inset 0 -1px #2f8f49,
-    inset 1px 0 #2f8f49,
-    inset -1px 0 #2f8f49;
+:deep(.monaco-editor .margin-view-overlays .current-line-margin) {
+  border: none;
+  background: rgba(83, 139, 183, 0.035);
 }
 
 :deep(.suggest-widget .monaco-list .monaco-list-row > .contents > .main) {

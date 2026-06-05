@@ -61,7 +61,6 @@
 </template>
 <script>
 import * as monaco from 'monaco-editor';
-import { Modal } from 'ant-design-vue';
 import { mapGetters, mapMutations, mapState } from 'vuex';
 import Operators from '@/views/sql/components/Operators';
 import { chunk } from 'xe-utils';
@@ -136,7 +135,6 @@ export default {
       noPassedRuleList: [],
       showNoPassedRuleModal: false,
       stopping: false,
-      canRun: true,
       monacoEditor: null
     };
   },
@@ -156,6 +154,9 @@ export default {
     handleShowUnPassedRuleListModal(index) {
       this.noPassedRuleList = this.tab.executeInfo[index].ruleList;
       this.showNoPassedRuleModal = true;
+    },
+    showNoExecutableSqlError() {
+      this.$refs.editor?.showNoExecutableSqlError?.(this.$t('dang-qian-mei-you-ke-zhi-hang-de-sql-yu-ju'));
     },
     async handleReRunAfterRuleCheck() {
       const type = this.tab.currentQueryType || 'query';
@@ -312,17 +313,18 @@ export default {
       let selectedSql = this.monacoEditor.getModel().getValueInRange(selection);
       let position = selection;
       if (!hasSelection) {
+        const targetState = this.$refs.editor?.getExecutableSqlTargetState?.();
+        if (!targetState?.hasStatement) {
+          this.showNoExecutableSqlError();
+          return;
+        }
         const target = this.$refs.editor.getCurrentSqlTarget();
         selectedSql = target.sql;
         position = target.position || selection;
       }
 
       if (!selectedSql || !selectedSql.trim()) {
-        Modal.warning({
-          title: this.$t('zhi-hang-yi-chang-ti-shi'),
-          content: this.$t('dang-qian-mei-you-ke-zhi-hang-de-sql-yu-ju'),
-          okText: this.$t('zhi-dao-le')
-        });
+        this.showNoExecutableSqlError();
         return;
       }
 

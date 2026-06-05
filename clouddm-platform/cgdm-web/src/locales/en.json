@@ -2258,7 +2258,7 @@
   "dang-qian-biao-jie-gou-huan-you-wei-ti-jiao-de-xiu-gai-qing-xian-ti-jiao-hou-guan-bi-dian-ji-li-ji-guan-bi-jiang-diu-shi-dang-qian-xiu-gai": "There are still unsubmitted modifications to the current table structure. Please submit first and then close. Clicking Close Now will lose the current modifications.",
   "dang-qian-ye-mian-huan-you-wei-ti-jiao-de-xiu-gai-qing-xian-ti-jiao-hou-guan-bi-dian-ji-li-ji-guan-bi-jiang-diu-shi-dang-qian-xiu-gai": "There are still unsubmitted modifications on the current page. Please submit first and then close. Clicking Close Now will lose the current modifications.",
   "huo-qu-ddl-yu-ju": "Get DDL statement",
-  "dang-qian-mei-you-ke-zhi-hang-de-sql-yu-ju": "No executable SQL statement is available.",
+  "dang-qian-mei-you-ke-zhi-hang-de-sql-yu-ju": "No SQL to execute.",
   "nin-dang-qian-mei-you-xuan-zhong-ren-he-sql-yu-ju-qing-xuan-zhong-hou-zai-zhi-hang": "You have not selected any SQL statement currently, please select it and then execute it.",
   "sheng-cheng-ddl-yu-ju": "Generate DDL statements",
   "zhi-hang-yi-chang-ti-shi": "Execution exception prompt",
