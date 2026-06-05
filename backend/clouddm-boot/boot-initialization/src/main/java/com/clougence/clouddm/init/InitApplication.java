@@ -15,6 +15,12 @@
  */
 package com.clougence.clouddm.init;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
@@ -62,7 +68,7 @@ public class InitApplication implements WebMvcConfigurer {
         System.setProperty("server.port", "8222");
         System.setProperty("spring.config.name", "init");
         System.setProperty("spring.profiles.active", "init");
-        System.setProperty("spring.web.resources.static-locations", "classpath:/templates/");
+        System.setProperty("spring.web.resources.static-locations", resolveStaticLocations());
         System.setProperty("spring.autoconfigure.exclude", "org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration,"
                                                            + "org.springframework.boot.jdbc.autoconfigure.DataSourceTransactionManagerAutoConfiguration,"
                                                            + "org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration,"
@@ -73,6 +79,37 @@ public class InitApplication implements WebMvcConfigurer {
 
         log.info("[DmAloneLauncher] Alone All Context Inited.");
         ShutdownHook.joinShutdown();
+    }
+
+    private static String resolveStaticLocations() {
+        List<String> locations = new ArrayList<>();
+        Path repoRoot = resolveRepoRoot(Paths.get(System.getProperty("user.dir")).toAbsolutePath().normalize());
+        addStaticLocationIfPresent(locations, repoRoot.resolve("frontend/build/resources/main/templates"));
+        addStaticLocationIfPresent(locations, repoRoot.resolve("frontend/dist/templates"));
+        locations.add("classpath:/templates/");
+        return String.join(",", locations);
+    }
+
+    private static Path resolveRepoRoot(Path startDir) {
+        Path current = startDir;
+        while (current != null) {
+            if (Files.isDirectory(current.resolve("backend")) && Files.isDirectory(current.resolve("frontend"))) {
+                return current;
+            }
+            current = current.getParent();
+        }
+        return startDir;
+    }
+
+    private static void addStaticLocationIfPresent(List<String> locations, Path directory) {
+        if (!Files.isDirectory(directory)) {
+            return;
+        }
+        String location = directory.toAbsolutePath().normalize().toUri().toString();
+        if (!location.endsWith("/")) {
+            location = location + "/";
+        }
+        locations.add(location);
     }
 
     @Override
