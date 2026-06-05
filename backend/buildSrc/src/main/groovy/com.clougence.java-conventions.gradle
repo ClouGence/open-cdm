@@ -73,8 +73,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.46'
     testCompileOnly 'org.projectlombok:lombok:1.18.46'
-    testRuntimeOnly "org.slf4j:slf4j-api:${SLF4J_VERSION}"
-    testRuntimeOnly "org.slf4j:slf4j-simple:${SLF4J_VERSION}"
 }
 
 configurations {
