@@ -47,11 +47,10 @@ Supported unified authentication and SSO options include OpenLDAP, OpenID Connec
 
 | Module | Description |
 |--------|-------------|
-| `clouddm-boot/` | Console, Sidecar, Alone launchers, and initialization or upgrade modules. |
-| `clouddm-platform/` | Console, Web, Sidecar, plugin loading, and shared platform capabilities. |
-| `clouddm-plugins/` | Data source plugins, authentication providers, feature plugins, and internal extensions. |
-| `clouddm-utils/` | Standalone modules, frameworks, and shared utilities. |
-| `package/` | tgz packaging, Docker images, compose templates, Kubernetes manifests, and delivery artifacts. |
+| `backend/` | Gradle root with backend, plugins, launchers, utilities, and test modules. |
+| `frontend/` | Web frontend project. |
+| `package/` | Repository build entry, tgz packaging, Docker images, compose templates, Kubernetes manifests, and delivery artifacts. |
+| `docs/` | Documentation and image assets. |
 
 ## Deployment Model
 
@@ -93,15 +92,15 @@ Prerequisites include JDK 21+, Gradle 9.5.0+, Node.js 22.22.1, Git, Linux or mac
 Common build commands:
 
 ```bash
-./all_build.sh
-./all_build.sh web
+cd package && ./all_build.sh
+cd package && ./all_build.sh web
 cd package && ./package.sh --build
 cd package && ./package.sh --build --docker
 cd package && ./package.sh --build --docker arm64
 cd package && ./package.sh --build --docker x86_64
 ```
 
-The project version is defined in `gradle.properties` under `cg.clouddm.main.version`.
+The project version is defined in `backend/gradle.properties` under `cg.clouddm.main.version`.
 
 The packaging output directory is `package/build`. It contains `cgdm-*.tar.gz`, `docker-*.tar`, `docker-*.yml`, and `k8s-*.yml`.
 

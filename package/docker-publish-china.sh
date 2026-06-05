@@ -198,7 +198,7 @@ for arg in "$@"; do
   esac
 done
 
-VERSION="${VERSION:-$(grep '^cg\.clouddm\.main\.version=' "$OPEN_CDM_DIR/gradle.properties" | cut -d'=' -f2 | tr -d '[:space:]')}"
+VERSION="${VERSION:-$(grep '^cg\.clouddm\.main\.version=' "$OPEN_CDM_DIR/backend/gradle.properties" | cut -d'=' -f2 | tr -d '[:space:]')}"
 [ -z "$VERSION" ] && { echo "ERROR: no version"; exit 1; }
 
 do_login "$REGISTRY" "$(read_prop "cgdm.docker.${CRED_PREFIX}.username")" "$(read_prop "cgdm.docker.${CRED_PREFIX}.password")" "$LABEL"

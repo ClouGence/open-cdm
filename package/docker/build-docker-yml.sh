@@ -112,7 +112,7 @@ done
 # default targets
 [ ${#TARGETS[@]} -eq 0 ] && TARGETS=(china global)
 
-VERSION="${VERSION:-$(grep '^cg\.clouddm\.main\.version=' "$OPEN_CDM_DIR/gradle.properties" | cut -d'=' -f2 | tr -d '[:space:]')}"
+VERSION="${VERSION:-$(grep '^cg\.clouddm\.main\.version=' "$OPEN_CDM_DIR/backend/gradle.properties" | cut -d'=' -f2 | tr -d '[:space:]')}"
 [ -z "$VERSION" ] && { echo "ERROR: no version"; exit 1; }
 
 # resolve platforms

@@ -65,10 +65,10 @@ Feature suggestions are welcome. Please submit an Issue prefixed with `[Feature]
 
 ```bash
 # Full build (including frontend assets)
-./all_build.sh
+cd package && ./all_build.sh
 
 # Frontend assets only
-./all_build.sh web
+cd package && ./all_build.sh web
 
 # Compile and generate tgz install packages
 cd package && ./package.sh --build
@@ -86,7 +86,7 @@ cd package && ./package.sh --docker arm64
 cd package && ./package.sh --docker x86_64
 ```
 
-> **Version**: Defined in `gradle.properties` under `cg.clouddm.main.version`.
+> **Version**: Defined in `backend/gradle.properties` under `cg.clouddm.main.version`.
 >
 > **Build output directory**: `package/build`, which contains `cgdm-*.tar.gz`, `docker-*.tar`, `docker-*.yml`, and `k8s-*.yml`.
 
@@ -94,22 +94,21 @@ cd package && ./package.sh --docker x86_64
 
 | Module | Description |
 |--------|-------------|
-| `clouddm-boot/` | Console, Sidecar, Alone launchers, and init/upgrade modules |
-| `clouddm-platform/` | Console, Web, Sidecar, plugin loading, and shared platform capabilities |
-| `clouddm-plugins/` | Data source plugins, auth providers, feature plugins, and internal extensions |
-| `clouddm-utils/` | Standalone modules, frameworks, and utilities |
-| `package/` | tgz packaging, Docker images, compose templates, and delivery artifacts |
+| `backend/` | Gradle root with backend, plugins, launchers, utilities, and test modules |
+| `frontend/` | Web frontend project |
+| `package/` | Repository build entry, tgz packaging, Docker images, compose templates, and delivery artifacts |
+| `docs/` | Documentation and image assets |
 
 ### Import into IDE
 
-1. Clone the project and open the root directory with IntelliJ IDEA.
+1. Clone the project and open the `backend/` directory with IntelliJ IDEA.
 2. IDEA will automatically detect the Gradle project and begin importing.
 3. Wait for dependencies to download, then you're ready to develop.
 
 ### Debugging or Running
 
-1. Run `./all_build.sh` in the project root directory.
-2. Go to `clouddm-boot/boot-alone` and run `com.clougence.clouddm.boot.DmAloneLauncher` to start the application, and visit `http://localhost:8222`.
+1. Run `cd package && ./all_build.sh` in the project root directory.
+2. Go to `backend/clouddm-boot/boot-alone` and run `com.clougence.clouddm.boot.DmAloneLauncher` to start the application, and visit `http://localhost:8222`.
 3. **[First Run]** Open the web page for initial setup and fill in the database and other required information. When you see the message **"Waiting for application restart"**, repeat Step 2.
 
 ## Coding Standards
@@ -137,7 +136,7 @@ cd package && ./package.sh --docker x86_64
 ### Testing
 
 - New features should include appropriate unit or integration tests
-- Ensure `./all_build.sh` passes before submitting
+- Ensure `cd package && ./all_build.sh` passes before submitting
 
 ## PR Submission Process
 
@@ -193,7 +192,7 @@ docs: update README with quick start guide
 
 ### How do I add support for a new database?
 
-Refer to existing data source implementations under `clouddm-plugins/clouddm-ds/` (e.g., `ds-mysql`), create a new data source plugin module, and register it in `settings.gradle`.
+Refer to existing data source implementations under `backend/clouddm-plugins/clouddm-ds/` (e.g., `ds-mysql`), create a new data source plugin module, and register it in `backend/settings.gradle`.
 
 ### How do I create custom audit rules?
 

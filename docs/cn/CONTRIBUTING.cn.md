@@ -63,10 +63,10 @@
 
 ```bash
 # 完整构建（包含前端资源）
-./all_build.sh
+cd package && ./all_build.sh
 
 # 仅更新前端资源
-./all_build.sh web
+cd package && ./all_build.sh web
 
 # 编译并生成 tgz 安装包
 cd package && ./package.sh --build
@@ -84,7 +84,7 @@ cd package && ./package.sh --docker arm64
 cd package && ./package.sh --docker x86_64
 ```
 
-> **版本号**：定义在 `gradle.properties` 的 `cg.clouddm.main.version` 字段中。
+> **版本号**：定义在 `backend/gradle.properties` 的 `cg.clouddm.main.version` 字段中。
 >
 > **构建输出目录**：`package/build`。其中会生成 `cgdm-*.tar.gz`、`docker-*.tar`、`docker-*.yml` 和 `k8s-*.yml`。
 
@@ -92,22 +92,21 @@ cd package && ./package.sh --docker x86_64
 
 | 模块 | 说明 |
 |------|------|
-| `clouddm-boot/` | Console、Sidecar、Alone 启动入口，以及初始化升级模块 |
-| `clouddm-platform/` | Console、Web、Sidecar、插件装载和共享平台能力 |
-| `clouddm-plugins/` | 数据源插件、认证 Provider、功能插件和内部扩展 |
-| `clouddm-utils/` | 独立的模块、框架、工具 |
-| `package/` | tgz 打包、Docker 镜像、compose 模板和交付输出 |
+| `backend/` | Gradle 工程根，包含后端、插件、启动入口、工具和测试模块 |
+| `frontend/` | Web 前端项目 |
+| `package/` | 仓库构建入口、tgz 打包、Docker 镜像、compose 模板和交付输出 |
+| `docs/` | 文档和图片资源 |
 
 ### 导入 IDE
 
-1. 克隆项目后，使用 IntelliJ IDEA 打开项目根目录
+1. 克隆项目后，使用 IntelliJ IDEA 打开 `backend/` 目录
 2. IDEA 将自动识别 Gradle 项目并开始导入
 3. 等待依赖下载完成后即可开始开发
 
 ### Debugging 或运行
 
-1. 在项目根目录运行 `./all_build.sh`
-2. 进入 `clouddm-boot/boot-alone`，运行 `com.clougence.clouddm.boot.DmAloneLauncher` ，启动应用并访问 `http://localhost:8222`
+1. 在项目根目录运行 `cd package && ./all_build.sh`
+2. 进入 `backend/clouddm-boot/boot-alone`，运行 `com.clougence.clouddm.boot.DmAloneLauncher` ，启动应用并访问 `http://localhost:8222`
 3. **[初次运行]** 进入 web 页面初次初始化，填写数据库等信息，当看到 **等待应用重启** 提示 ，重新执行第 2 步
 
 ## 代码规范
@@ -135,7 +134,7 @@ cd package && ./package.sh --docker x86_64
 ### 测试
 
 - 新增功能应包含相应的单元测试或集成测试
-- 提交前确保 `./all_build.sh` 构建通过
+- 提交前确保 `cd package && ./all_build.sh` 构建通过
 
 ## 提交 PR 的流程
 
@@ -191,7 +190,7 @@ docs: update README with quick start guide
 
 ### 如何添加新的数据库支持？
 
-参考 `clouddm-plugins/clouddm-ds/` 下已有数据源实现（如 `ds-mysql`），创建一个新的数据源插件模块，并在 `settings.gradle` 中注册。
+参考 `backend/clouddm-plugins/clouddm-ds/` 下已有数据源实现（如 `ds-mysql`），创建一个新的数据源插件模块，并在 `backend/settings.gradle` 中注册。
 
 ### 如何自定义审核规则？
 

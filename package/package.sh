@@ -15,9 +15,10 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+BACKEND_DIR="$REPO_ROOT/backend"
 PACKAGE_BUILD_DIR="$SCRIPT_DIR/build"
 
-VERSION="$(grep '^cg\.clouddm\.main\.version=' "$REPO_ROOT/gradle.properties" | cut -d'=' -f2 | tr -d '[:space:]')"
+VERSION="$(grep '^cg\.clouddm\.main\.version=' "$BACKEND_DIR/gradle.properties" | cut -d'=' -f2 | tr -d '[:space:]')"
 [ -z "$VERSION" ] && { echo "error: cg.clouddm.main.version not found"; exit 1; }
 
 DO_BUILD=0
@@ -92,8 +93,8 @@ if [ "$DO_BUILD" -eq 1 ]; then
   rm -rf "$SCRIPT_DIR/pkg/alone/build"
   rm -rf "$PACKAGE_BUILD_DIR"
 
-  "$REPO_ROOT/gradlew" -p "$REPO_ROOT" -Ptarget=all clean
-  "$REPO_ROOT/gradlew" -p "$REPO_ROOT" -Ptarget=all -Pprofile=output -PbuildFrontend=true \
+  "$BACKEND_DIR/gradlew" -p "$BACKEND_DIR" -Ptarget=all clean
+  "$BACKEND_DIR/gradlew" -p "$BACKEND_DIR" -Ptarget=all -Pprofile=output -PbuildFrontend=true \
     buildx local installDist tgz -x test --rerun-tasks --parallel --max-workers=8
 
   mkdir -p "$PACKAGE_BUILD_DIR"
