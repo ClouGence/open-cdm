@@ -163,7 +163,7 @@ public class OidcLoginProviderSpi implements LoginProviderSpi {
         // map user
         UserData primaryUser = this.configService.findUserByUID(primaryUID);
         UserData oidcUser = oidcApi.fetchUserInfo(idToken);
-        oidcUser.setSubAccount(oidcUser.getBindAccount() + "@" + primaryUser.getUserDomain());
+        oidcUser.setAccount(oidcUser.getBindAccount() + "@" + primaryUser.getUserDomain());
         oidcUser.setUserDomain(primaryUser.getUserDomain());
         oidcUser.setAccessToken(idToken);
 
@@ -172,7 +172,7 @@ public class OidcLoginProviderSpi implements LoginProviderSpi {
         List<RoleData> roles = this.configService.findRoleByName(primaryUID, roleName);
         RoleData role = CollectionUtils.isEmpty(roles) ? null : roles.get(0);
         if (role == null) {
-            log.info("OIDC: user(" + oidcUser.getSubAccount() + ") not found any role, memberOf=" + roleName);
+            log.info("OIDC: user(" + oidcUser.getAccount() + ") not found any role, memberOf=" + roleName);
             throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_ROLE_MAPPING_FAILED);
         }
         oidcUser.setRoleId(role.getRoleId());

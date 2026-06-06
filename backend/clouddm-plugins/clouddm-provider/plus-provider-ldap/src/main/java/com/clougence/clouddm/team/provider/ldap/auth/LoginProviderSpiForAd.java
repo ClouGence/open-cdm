@@ -235,14 +235,14 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
         user.setUserName(getAttribute(attributes, AD_UserName));
         user.setEmail(StringUtils.isBlank(adEmail) ? adUPN : adEmail);
         user.setPhone(getAttribute(attributes, AD_UserPhone));
-        user.setSubAccount(finalAdName + "@" + primaryUser.getUserDomain());
+        user.setAccount(finalAdName + "@" + primaryUser.getUserDomain());
         user.setBindAccount(finalAdName);
         user.setUserDomain(primaryUser.getUserDomain());
 
         // mapping role
         RoleData role = searchRole(primaryUser.getInternalUID(), ldapCtx);
         if (role == null) {
-            log.info("Ad: user(" + user.getSubAccount() + ") not found any role, find roleName=" + ldapCtx.getLdapConfig().getLdapRoleMap());
+            log.info("Ad: user(" + user.getAccount() + ") not found any role, find roleName=" + ldapCtx.getLdapConfig().getLdapRoleMap());
             throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_USER_ROLE_MAPPING_FAILED.name());
         }
         user.setRoleId(role.getRoleId());

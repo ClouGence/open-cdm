@@ -178,7 +178,7 @@ public class FeishuLoginProviderSpi implements LoginProviderSpi {
         // map user
         UserData dingUser = loginApi(primaryUID).getUserInfo(accessToken);
         UserData primaryUser = this.configService.findUserByUID(primaryUID);
-        dingUser.setSubAccount(dingUser.getBindAccount() + "@" + primaryUser.getUserDomain());
+        dingUser.setAccount(dingUser.getBindAccount() + "@" + primaryUser.getUserDomain());
         dingUser.setUserDomain(primaryUser.getUserDomain());
         dingUser.setAccessToken(accessToken);
 
@@ -188,7 +188,7 @@ public class FeishuLoginProviderSpi implements LoginProviderSpi {
         List<RoleData> roles = this.configService.findRoleByName(primaryUID, roleName);
         RoleData role = CollectionUtils.isEmpty(roles) ? null : roles.get(0);
         if (role == null) {
-            log.info("Feishu: user(" + dingUser.getSubAccount() + ") not found any role, memberOf=" + roleName);
+            log.info("Feishu: user(" + dingUser.getAccount() + ") not found any role, memberOf=" + roleName);
             throw ThirdPartyApiException.as().with(FeishuI18nKeys2.FEISHU_ROLE_MAPPING_FAILED);
         }
         dingUser.setRoleId(role.getRoleId());

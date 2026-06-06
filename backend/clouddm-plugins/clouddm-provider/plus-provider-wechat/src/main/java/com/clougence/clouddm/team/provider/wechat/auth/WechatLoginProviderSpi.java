@@ -176,7 +176,7 @@ public class WechatLoginProviderSpi implements LoginProviderSpi {
         // map user
         UserData wechatUser = loginApi(primaryUID).getUserInfo(userTicket);
         UserData primaryUser = this.configService.findUserByUID(primaryUID);
-        wechatUser.setSubAccount(wechatUser.getBindAccount() + "@" + primaryUser.getUserDomain());
+        wechatUser.setAccount(wechatUser.getBindAccount() + "@" + primaryUser.getUserDomain());
         wechatUser.setUserDomain(primaryUser.getUserDomain());
         wechatUser.setAccessToken(userTicket);
 
@@ -186,7 +186,7 @@ public class WechatLoginProviderSpi implements LoginProviderSpi {
         List<RoleData> roles = this.configService.findRoleByName(primaryUID, roleName);
         RoleData role = CollectionUtils.isEmpty(roles) ? null : roles.get(0);
         if (role == null) {
-            log.info("Wechat: user(" + wechatUser.getSubAccount() + ") not found any role, memberOf=" + roleName);
+            log.info("Wechat: user(" + wechatUser.getAccount() + ") not found any role, memberOf=" + roleName);
             throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_ROLE_MAPPING_FAILED);
         }
         wechatUser.setRoleId(role.getRoleId());
