@@ -22,6 +22,7 @@ import com.clougence.clouddm.sdk.security.login.LoginProvider;
 import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
 import com.clougence.clouddm.team.provider.oidc.auth.OidcLoginProviderSpi;
 import com.clougence.clouddm.team.provider.oidc.constants.OidcI18nKey;
+import com.clougence.clouddm.team.provider.oidc.resource.OidcLoginIconResourceSpi;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 
 @Plugin(includePackages = { "com.clougence.clouddm.team.provider.oidc.*" })
@@ -36,5 +37,6 @@ public class OidcPlugin implements DsPlugin {
 
         // spi
         dsPlugin.addGlobalSpi(LoginProviderSpi.class, LoginProvider.OIDC.name(), new OidcLoginProviderSpi(configService));
+        dsPlugin.addGlobalSpi(new OidcLoginIconResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 }

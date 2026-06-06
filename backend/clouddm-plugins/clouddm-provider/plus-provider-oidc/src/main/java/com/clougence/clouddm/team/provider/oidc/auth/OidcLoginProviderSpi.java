@@ -59,6 +59,11 @@ public class OidcLoginProviderSpi implements LoginProviderSpi {
     }
 
     @Override
+    public int order() {
+        return 30;
+    }
+
+    @Override
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) throws Exception {
         // fetch config
         OidcCfg conf = OidcCfg.fetchConfig(this.configService, ownerUid);

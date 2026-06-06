@@ -28,6 +28,7 @@ import com.clougence.clouddm.team.provider.feishu.approval.FeishuApprovalProvide
 import com.clougence.clouddm.team.provider.feishu.auth.FeishuLoginProviderSpi;
 import com.clougence.clouddm.team.provider.feishu.constants.FeishuI18nKeys2;
 import com.clougence.clouddm.team.provider.feishu.im.FeishuMsgSendSpi;
+import com.clougence.clouddm.team.provider.feishu.resource.FeishuLoginIconResourceSpi;
 
 @Plugin
 public class FeishuPlugin implements DsPlugin {
@@ -44,5 +45,6 @@ public class FeishuPlugin implements DsPlugin {
         dsPlugin.addGlobalSpi(ApprovalProviderSpi.class, ApprovalProvider.Feishu.name(), new FeishuApprovalProviderSpi(configService, approvalService));
         dsPlugin.addGlobalSpi(LoginProviderSpi.class, LoginProvider.Feishu.name(), new FeishuLoginProviderSpi(configService));
         dsPlugin.addGlobalSpi(new FeishuMsgSendSpi());
+        dsPlugin.addGlobalSpi(new FeishuLoginIconResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 }

@@ -60,12 +60,17 @@ public class LoginProviderSpiForLdap extends BaseLoginProviderSpi implements Log
     }
 
     @Override
+    public int order() {
+        return 10;
+    }
+
+    @Override
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) {
         // fetch config
         BaseConfig conf = ConfigHelper.fetchConfig(this.configService, ownerUid);
 
         // enable is false.
-        if (!conf.getAuthType().equalsIgnoreCase(LoginProvider.LDAP.name())) {
+        if (!containsProvider(conf.getAuthType(), LoginProvider.LDAP)) {
             log.info("ignoreLogin[Ldap] primaryUid：" + ownerUid + ", enable is false.");
             return new LifeSpiResponse();
         }
@@ -214,5 +219,9 @@ public class LoginProviderSpiForLdap extends BaseLoginProviderSpi implements Log
         roleName = StringUtils.isEmpty(roleName) ? SecSysRole.DEV_ROLE_NAME : roleName;
         List<RoleData> roles = this.configService.findRoleByName(primaryUID, roleName);
         return CollectionUtils.isEmpty(roles) ? null : roles.get(0);
+    }
+
+    private boolean containsProvider(String authType, LoginProvider provider) {
+        return Arrays.stream(StringUtils.defaultString(authType).split("[,，;；]")).anyMatch(item -> StringUtils.equalsIgnoreCase(item.trim(), provider.name()));
     }
 }

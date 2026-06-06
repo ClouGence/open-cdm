@@ -22,6 +22,12 @@ import com.clougence.clouddm.sdk.LifeSpi;
  **/
 public interface LoginProviderSpi extends LifeSpi {
 
+    int DEFAULT_ORDER = 100;
+
+    default int order() {
+        return DEFAULT_ORDER;
+    }
+
     String loginExtractDomain(String fullLoginName);
 
     // for use account and password login, and use api fetch userinfo.

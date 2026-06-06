@@ -57,6 +57,11 @@ public class WechatLoginProviderSpi implements LoginProviderSpi {
     }
 
     @Override
+    public int order() {
+        return 60;
+    }
+
+    @Override
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) {
         // fetch config
         List<ConfigData> configList = configService.fetchSettings(ownerUid, Arrays.asList(//
@@ -73,7 +78,7 @@ public class WechatLoginProviderSpi implements LoginProviderSpi {
 
         // enable is false.
         String enableCfg = configMap.get(WechatConfigKey.LoginEnable.getConfigKey());
-        if (!StringUtils.equalsIgnoreCase(enableCfg, LoginProvider.Wechat.name())) {
+        if (!containsProvider(enableCfg, LoginProvider.Wechat)) {
             log.info("ignoreLogin[Wechat] primaryUid：" + ownerUid + ", enable is false.");
             return new LifeSpiResponse();
         }
@@ -187,5 +192,9 @@ public class WechatLoginProviderSpi implements LoginProviderSpi {
         wechatUser.setRoleId(role.getRoleId());
 
         return new LoginResponse(wechatUser, true, null);
+    }
+
+    private boolean containsProvider(String authType, LoginProvider provider) {
+        return Arrays.stream(StringUtils.defaultString(authType).split("[,，;；]")).anyMatch(item -> StringUtils.equalsIgnoreCase(item.trim(), provider.name()));
     }
 }

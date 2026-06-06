@@ -60,6 +60,11 @@ public class FeishuLoginProviderSpi implements LoginProviderSpi {
     }
 
     @Override
+    public int order() {
+        return 50;
+    }
+
+    @Override
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) {
         // fetch config
         List<ConfigData> configList = configService.fetchSettings(ownerUid, Arrays.asList(//
@@ -74,7 +79,7 @@ public class FeishuLoginProviderSpi implements LoginProviderSpi {
 
         // enable is false.
         String enableCfg = configMap.get(FeishuConfigKey.LoginEnable.getConfigKey());
-        if (!StringUtils.equalsIgnoreCase(enableCfg, LoginProvider.Feishu.name())) {
+        if (!containsProvider(enableCfg, LoginProvider.Feishu)) {
             log.info("ignoreLogin[Feishu] primaryUid：" + ownerUid + ", enable is false.");
             return new LifeSpiResponse();
         }
@@ -189,5 +194,9 @@ public class FeishuLoginProviderSpi implements LoginProviderSpi {
         dingUser.setRoleId(role.getRoleId());
 
         return new LoginResponse(dingUser, true, null);
+    }
+
+    private boolean containsProvider(String authType, LoginProvider provider) {
+        return Arrays.stream(StringUtils.defaultString(authType).split("[,，;；]")).anyMatch(item -> StringUtils.equalsIgnoreCase(item.trim(), provider.name()));
     }
 }

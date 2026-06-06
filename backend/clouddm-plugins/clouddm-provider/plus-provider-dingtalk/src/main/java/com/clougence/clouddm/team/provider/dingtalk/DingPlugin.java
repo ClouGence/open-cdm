@@ -28,6 +28,7 @@ import com.clougence.clouddm.team.provider.dingtalk.approval.DingApprovalProvide
 import com.clougence.clouddm.team.provider.dingtalk.auth.DingLoginProviderSpi;
 import com.clougence.clouddm.team.provider.dingtalk.constants.DingI18nKeys;
 import com.clougence.clouddm.team.provider.dingtalk.im.DingTalkMsgSendSpi;
+import com.clougence.clouddm.team.provider.dingtalk.resource.DingTalkLoginIconResourceSpi;
 
 @Plugin
 public class DingPlugin implements DsPlugin {
@@ -45,5 +46,6 @@ public class DingPlugin implements DsPlugin {
         dsPlugin.addGlobalSpi(ApprovalProviderSpi.class, ApprovalProvider.DingTalk.name(), new DingApprovalProviderSpi(configService, approvalService, pluginLoader));
         dsPlugin.addGlobalSpi(LoginProviderSpi.class, LoginProvider.DingTalk.name(), new DingLoginProviderSpi(configService));
         dsPlugin.addGlobalSpi(new DingTalkMsgSendSpi());
+        dsPlugin.addGlobalSpi(new DingTalkLoginIconResourceSpi(pluginLoader));
     }
 }

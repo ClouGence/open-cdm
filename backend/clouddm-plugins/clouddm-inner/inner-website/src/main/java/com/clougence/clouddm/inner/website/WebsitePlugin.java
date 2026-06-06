@@ -18,12 +18,15 @@ package com.clougence.clouddm.inner.website;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
+import com.clougence.clouddm.sdk.resource.ResourceSpi;
 
 @Plugin
 public class WebsitePlugin implements DsPlugin {
 
     @Override
     public void loadPlugin(DsPluginBinder binder) {
-        binder.addGlobalSpi(new WebsiteResourceSpi(binder.getPluginClassLoader()));
+        WebsiteResourceSpi resourceSpi = new WebsiteResourceSpi(binder.getPluginClassLoader());
+        binder.addGlobalSpi(resourceSpi);
+        binder.addGlobalSpi(ResourceSpi.class, "PASSWORD", resourceSpi);
     }
 }

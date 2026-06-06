@@ -21,23 +21,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.clougence.clouddm.sdk.LifeSpiRequest;
+import com.clougence.clouddm.sdk.LifeSpiResponse;
+import com.clougence.clouddm.sdk.LifeSpiStatus;
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.security.auth.def.SecSysRole;
 import com.clougence.clouddm.sdk.security.login.LoginProvider;
+import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
 import com.clougence.clouddm.sdk.security.login.LoginRequest;
 import com.clougence.clouddm.sdk.security.login.LoginResponse;
-import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
-import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.sdk.service.config.ConfigData;
+import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
+import com.clougence.clouddm.sdk.service.config.RoleData;
+import com.clougence.clouddm.sdk.service.config.UserData;
 import com.clougence.clouddm.team.provider.dingtalk.client.DingApi;
 import com.clougence.clouddm.team.provider.dingtalk.client.DingClient;
 import com.clougence.clouddm.team.provider.dingtalk.constants.DingConfigKey;
 import com.clougence.clouddm.team.provider.dingtalk.constants.DingI18nKeys;
-import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
-import com.clougence.clouddm.sdk.service.config.ConfigData;
-import com.clougence.clouddm.sdk.service.config.RoleData;
-import com.clougence.clouddm.sdk.service.config.UserData;
-import com.clougence.clouddm.sdk.LifeSpiRequest;
-import com.clougence.clouddm.sdk.LifeSpiResponse;
-import com.clougence.clouddm.sdk.LifeSpiStatus;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -60,6 +60,11 @@ public class DingLoginProviderSpi implements LoginProviderSpi {
     }
 
     @Override
+    public int order() {
+        return 40;
+    }
+
+    @Override
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) {
         // fetch config
         List<ConfigData> configList = configService.fetchSettings(ownerUid, Arrays.asList(//
@@ -74,7 +79,7 @@ public class DingLoginProviderSpi implements LoginProviderSpi {
 
         // enable is false.
         String enableCfg = configMap.get(DingConfigKey.LoginEnable.getConfigKey());
-        if (!StringUtils.equalsIgnoreCase(enableCfg, LoginProvider.DingTalk.name())) {
+        if (!containsProvider(enableCfg, LoginProvider.DingTalk)) {
             log.info("ignoreLogin[Ding] primaryUid：" + ownerUid + ", enable is false.");
             return new LifeSpiResponse();
         }
@@ -187,5 +192,9 @@ public class DingLoginProviderSpi implements LoginProviderSpi {
         dingUser.setRoleId(role.getRoleId());
 
         return new LoginResponse(dingUser, true, null);
+    }
+
+    private boolean containsProvider(String authType, LoginProvider provider) {
+        return Arrays.stream(StringUtils.defaultString(authType).split("[,，;；]")).anyMatch(item -> StringUtils.equalsIgnoreCase(item.trim(), provider.name()));
     }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.inner.website;
+package com.clougence.clouddm.team.provider.ldap.resource;
 
 import java.util.Objects;
 
@@ -25,33 +25,28 @@ import com.clougence.clouddm.sdk.resource.impl.ClasspathResourceObject;
 import com.clougence.utils.loader.ResourceLoader;
 import com.clougence.utils.loader.providers.ClassPathResourceLoader;
 
-public class WebsiteResourceSpi implements ResourceSpi {
+public class LdapLoginIconResourceSpi implements ResourceSpi {
 
     private final ResourceLoader resourceLoader;
+    private final String         name;
+    private final String         resourceLocation;
 
-    public WebsiteResourceSpi(ClassLoader loader){
+    public LdapLoginIconResourceSpi(ClassLoader loader, String name, String resourceLocation){
         this.resourceLoader = new ClassPathResourceLoader(Objects.requireNonNull(loader, "loader"), "");
+        this.name = Objects.requireNonNull(name, "name");
+        this.resourceLocation = Objects.requireNonNull(resourceLocation, "resourceLocation");
     }
 
-    private ResourceObject classpathResource(String resourceLocation, String contentType) {
-        if (!resourceLoader.exist(resourceLocation)) {
-            return null;
-        }
-        return new ClasspathResourceObject(resourceLoader, resourceLocation, contentType, true, false);
+    @Override
+    public String name() {
+        return this.name;
     }
 
     @Override
     public ResourceObject findResource(String category, String resourcePath, ResourceRequest request) {
-        if (!ResourceCategory.WEBSIDE.getCode().equals(category)) {
+        if (!ResourceCategory.WEBSIDE.getCode().equals(category) || !"login-icon".equals(resourcePath)) {
             return null;
         }
-
-        return switch (resourcePath) {
-            case "logo_login" -> classpathResource("webside/logo_login.svg", "image/svg+xml");
-            case "logo_header" -> classpathResource("webside/logo_header.svg", "image/svg+xml");
-            case "favicon", "favicon.ico" -> classpathResource("webside/favicon.ico", "image/x-icon");
-            case "login-icon" -> classpathResource("webside/password-login-icon.svg", "image/svg+xml");
-            default -> null;
-        };
+        return new ClasspathResourceObject(this.resourceLoader, this.resourceLocation, "image/svg+xml", true, false);
     }
 }

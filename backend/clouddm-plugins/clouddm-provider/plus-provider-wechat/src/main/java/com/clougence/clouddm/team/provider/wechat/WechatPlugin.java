@@ -30,6 +30,7 @@ import com.clougence.clouddm.team.provider.wechat.approval.WechatApprovalProvide
 import com.clougence.clouddm.team.provider.wechat.auth.WechatLoginProviderSpi;
 import com.clougence.clouddm.team.provider.wechat.constants.WechatI18nKey2;
 import com.clougence.clouddm.team.provider.wechat.im.WechatMsgSendSpi;
+import com.clougence.clouddm.team.provider.wechat.resource.WechatLoginIconResourceSpi;
 
 @Plugin
 public class WechatPlugin implements DsPlugin {
@@ -48,5 +49,6 @@ public class WechatPlugin implements DsPlugin {
         dsPlugin.addGlobalSpi(ApprovalCallbackSpi.class, ApprovalProvider.Wechat.name(), new WechatApprovalCallbackSpi(service, approvalService));
         dsPlugin.addGlobalSpi(LoginProviderSpi.class, LoginProvider.Wechat.name(), new WechatLoginProviderSpi(configService));
         dsPlugin.addGlobalSpi(new WechatMsgSendSpi());
+        dsPlugin.addGlobalSpi(new WechatLoginIconResourceSpi(dsPlugin.getPluginClassLoader()));
     }
 }

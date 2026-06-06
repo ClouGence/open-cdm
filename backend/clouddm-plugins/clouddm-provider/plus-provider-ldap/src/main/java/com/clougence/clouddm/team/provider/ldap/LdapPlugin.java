@@ -23,6 +23,7 @@ import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
 import com.clougence.clouddm.team.provider.ldap.auth.LoginProviderSpiForAd;
 import com.clougence.clouddm.team.provider.ldap.auth.LoginProviderSpiForLdap;
 import com.clougence.clouddm.team.provider.ldap.constants.LdapI18nKey;
+import com.clougence.clouddm.team.provider.ldap.resource.LdapLoginIconResourceSpi;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 
 @Plugin(includePackages = { "com.clougence.clouddm.team.provider.ldap.*" })
@@ -37,6 +38,8 @@ public class LdapPlugin implements DsPlugin {
 
         // spi
         dsPlugin.addGlobalSpi(LoginProviderSpi.class, LoginProvider.AD.name(), new LoginProviderSpiForAd(configService));
+        dsPlugin.addGlobalSpi(new LdapLoginIconResourceSpi(dsPlugin.getPluginClassLoader(), LoginProvider.AD.name(), "META-INF/clougence/webside/ad-login-icon.svg"));
         dsPlugin.addGlobalSpi(LoginProviderSpi.class, LoginProvider.LDAP.name(), new LoginProviderSpiForLdap(configService));
+        dsPlugin.addGlobalSpi(new LdapLoginIconResourceSpi(dsPlugin.getPluginClassLoader(), LoginProvider.LDAP.name(), "META-INF/clougence/webside/ldap-login-icon.svg"));
     }
 }

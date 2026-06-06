@@ -53,7 +53,8 @@ public class OidcCfg {
         }
 
         OidcCfg cfg = new OidcCfg();
-        cfg.enable = configMap.get(OidcConfigKey.AuthType.getConfigKey()).equalsIgnoreCase(LoginProvider.OIDC.name());
+        cfg.enable = Arrays.stream(String.valueOf(configMap.get(OidcConfigKey.AuthType.getConfigKey())).split("[,，;；]"))
+            .anyMatch(item -> item.trim().equalsIgnoreCase(LoginProvider.OIDC.name()));
         cfg.wellKnownURL = configMap.get(OidcConfigKey.WellKnownUrl.getConfigKey());
         cfg.clientId = configMap.get(OidcConfigKey.ClientId.getConfigKey());
         cfg.clientSecret = configMap.get(OidcConfigKey.ClientSecret.getConfigKey());

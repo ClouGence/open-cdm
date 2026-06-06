@@ -58,12 +58,17 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
     }
 
     @Override
+    public int order() {
+        return 20;
+    }
+
+    @Override
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) {
         // fetch config
         BaseConfig conf = ConfigHelper.fetchConfig(this.configService, ownerUid);
 
         // enable is false.
-        if (!conf.getAuthType().equalsIgnoreCase(LoginProvider.AD.name())) {
+        if (!containsProvider(conf.getAuthType(), LoginProvider.AD)) {
             log.info("ignoreLogin[Ad] primaryUid：" + ownerUid + ", enable is false.");
             return new LifeSpiResponse();
         }
@@ -282,5 +287,9 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
         roleName = StringUtils.isEmpty(roleName) ? SecSysRole.DEV_ROLE_NAME : roleName;
         List<RoleData> roles = this.configService.findRoleByName(primaryUID, roleName);
         return CollectionUtils.isEmpty(roles) ? null : roles.get(0);
+    }
+
+    private boolean containsProvider(String authType, LoginProvider provider) {
+        return Arrays.stream(StringUtils.defaultString(authType).split("[,，;；]")).anyMatch(item -> StringUtils.equalsIgnoreCase(item.trim(), provider.name()));
     }
 }
