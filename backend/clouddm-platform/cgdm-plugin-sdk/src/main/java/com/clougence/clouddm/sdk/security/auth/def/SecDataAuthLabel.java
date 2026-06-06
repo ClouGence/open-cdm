@@ -19,8 +19,6 @@ import static com.clougence.clouddm.sdk.security.auth.def.SecAuthCategory.CAT_RD
 import static com.clougence.clouddm.sdk.security.auth.def.SecAuthI18nKeys.RDP_AUTH_DATA_DS_MANAGE;
 import static com.clougence.clouddm.sdk.security.auth.def.SecAuthI18nKeys.RDP_AUTH_DATA_DS_READ;
 
-import com.clougence.clouddm.sdk.model.feature.AuthOwnerProduct;
-import com.clougence.clouddm.sdk.model.feature.RdpFeatureIDs;
 import com.clougence.clouddm.sdk.security.auth.AuthElementType;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.AuthKindCondition;
@@ -29,7 +27,6 @@ import com.clougence.clouddm.sdk.security.auth.AuthLabel;
 /**
  * @author mode 2021/1/6 19:00
  */
-@AuthOwnerProduct(RdpFeatureIDs.PRODUCT_CLOUD_DM)
 public interface SecDataAuthLabel {
 
     @AuthLabel(order = 0, category = CAT_RDP_DS, usedOfRole = false, i18nKey = RDP_AUTH_DATA_DS_READ, //

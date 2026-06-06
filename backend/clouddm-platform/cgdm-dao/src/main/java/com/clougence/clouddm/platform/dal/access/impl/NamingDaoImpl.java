@@ -21,8 +21,8 @@ import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.NamingDao;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
-import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
+import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.secrule.RuleKind;
 import com.clougence.clouddm.platform.dal.model.system.DmSysClusterDO;
@@ -150,6 +150,24 @@ public class NamingDaoImpl implements NamingDao {
     public String genInnerUserPwd() {
         String namePattern = "inner%s";
         return String.format(namePattern, fixedLenRandomStr(61));
+    }
+
+    @Override
+    public String genProductClusterName() {
+        String namePattern = "pc_name_%s";
+        return String.format(namePattern, fixedLenRandomStr(16));
+    }
+
+    @Override
+    public String genProductClusterCode() {
+        String namePattern = "pc_code_%s";
+        return String.format(namePattern, fixedLenRandomStr(16));
+    }
+
+    @Override
+    public String genConsoleJobToken() {
+        String namePattern = "cjtoken_" + System.currentTimeMillis() + "_%s";
+        return String.format(namePattern, fixedLenRandomStr(16));
     }
 
     @Override

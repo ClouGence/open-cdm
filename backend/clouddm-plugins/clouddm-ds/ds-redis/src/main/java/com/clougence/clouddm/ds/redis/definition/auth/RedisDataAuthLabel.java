@@ -15,8 +15,6 @@
  */
 package com.clougence.clouddm.ds.redis.definition.auth;
 
-import com.clougence.clouddm.sdk.model.feature.AuthOwnerProduct;
-import com.clougence.clouddm.sdk.model.feature.RdpFeatureIDs;
 import com.clougence.clouddm.sdk.security.auth.AuthElementType;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.AuthKindCondition;
@@ -28,7 +26,6 @@ import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 /**
  * @author mode 2021/1/6 19:00
  */
-@AuthOwnerProduct(RdpFeatureIDs.PRODUCT_CLOUD_DM)
 public interface RedisDataAuthLabel {
 
     @AuthLabel(order = 0, category = SecAuthCategory.CAT_DM_FOR_DAUTH_STATEMENTS, usedOfRole = false, kind = { AuthKind.DataSource }, i18nKey = SecAuthI18nKeys.AUTH_DATA_DM_REDIS_READ)

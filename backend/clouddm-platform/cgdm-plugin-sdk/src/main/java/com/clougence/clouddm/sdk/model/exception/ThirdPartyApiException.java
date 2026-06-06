@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.sdk.model.exception;
 
-import com.clougence.clouddm.sdk.model.feature.RdpFeatureIDs;
 import com.clougence.utils.ArrayUtils;
 
 import lombok.Getter;
@@ -23,21 +22,19 @@ import lombok.Getter;
 @Getter
 public class ThirdPartyApiException extends RuntimeException {
 
-    private final String                 productType;
     private final ThirdPartyApiErrorType errorType;
     private final String                 messageKey;
     private final Object[]               messageArgs;
 
-    public ThirdPartyApiException(Throwable e, String errorMessage, String productType, ThirdPartyApiErrorType errorType, String messageKey, Object... messageArgs){
+    public ThirdPartyApiException(Throwable e, String errorMessage, ThirdPartyApiErrorType errorType, String messageKey, Object... messageArgs){
         super(errorMessage, e);
-        this.productType = productType;
         this.errorType = errorType;
         this.messageKey = messageKey;
         this.messageArgs = messageArgs;
     }
 
     public static ThirdPartyApiExceptionBuilder as() {
-        return new ThirdPartyApiExceptionBuilderImpl(RdpFeatureIDs.PRODUCT_CLOUD_DM);
+        return new ThirdPartyApiExceptionBuilderImpl();
     }
 
     public interface ThirdPartyApiExceptionBuilder {
@@ -55,32 +52,26 @@ public class ThirdPartyApiException extends RuntimeException {
 
     private static final class ThirdPartyApiExceptionBuilderImpl implements ThirdPartyApiExceptionBuilder {
 
-        private final String productType;
-
-        public ThirdPartyApiExceptionBuilderImpl(String productType){
-            this.productType = productType;
-        }
-
         public ThirdPartyApiException with(String messageKey, Object... messageArgs) {
-            return new ThirdPartyApiException(null, messageKey, productType, ThirdPartyApiErrorType.OTHER, messageKey, messageArgs);
+            return new ThirdPartyApiException(null, messageKey, ThirdPartyApiErrorType.OTHER, messageKey, messageArgs);
         }
 
         public ThirdPartyApiException with(ThirdPartyApiErrorType errorType, String messageKey, Object... messageArgs) {
-            return new ThirdPartyApiException(null, messageKey, productType, errorType, messageKey, messageArgs);
+            return new ThirdPartyApiException(null, messageKey, errorType, messageKey, messageArgs);
         }
 
         public ThirdPartyApiException with(Throwable e) {
-            return new ThirdPartyApiException(e, e.getMessage(), productType, ThirdPartyApiErrorType.OTHER, e.getMessage(), ArrayUtils.EMPTY_OBJECT_ARRAY);
+            return new ThirdPartyApiException(e, e.getMessage(), ThirdPartyApiErrorType.OTHER, e.getMessage(), ArrayUtils.EMPTY_OBJECT_ARRAY);
         }
 
         @Override
         public ThirdPartyApiException with(Throwable e, String messageKey, Object... messageArgs) {
-            return new ThirdPartyApiException(e, e.getMessage(), productType, ThirdPartyApiErrorType.OTHER, messageKey, messageArgs);
+            return new ThirdPartyApiException(e, e.getMessage(), ThirdPartyApiErrorType.OTHER, messageKey, messageArgs);
         }
 
         @Override
         public ThirdPartyApiException with(Throwable e, ThirdPartyApiErrorType errorType, String messageKey, Object... messageArgs) {
-            return new ThirdPartyApiException(e, e.getMessage(), productType, errorType, messageKey, messageArgs);
+            return new ThirdPartyApiException(e, e.getMessage(), errorType, messageKey, messageArgs);
         }
     }
 }

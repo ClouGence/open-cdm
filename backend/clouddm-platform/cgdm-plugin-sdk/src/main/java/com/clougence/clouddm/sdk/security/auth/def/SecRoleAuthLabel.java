@@ -18,14 +18,11 @@ package com.clougence.clouddm.sdk.security.auth.def;
 import static com.clougence.clouddm.sdk.security.auth.def.SecAuthCategory.*;
 import static com.clougence.clouddm.sdk.security.auth.def.SecAuthI18nKeys.*;
 
-import com.clougence.clouddm.sdk.model.feature.AuthOwnerProduct;
-import com.clougence.clouddm.sdk.model.feature.RdpFeatureIDs;
 import com.clougence.clouddm.sdk.security.auth.AuthLabel;
 
 /**
  * @author mode 2021/1/6 19:00
  */
-@AuthOwnerProduct(RdpFeatureIDs.PRODUCT_CLOUD_DM)
 public interface SecRoleAuthLabel {
 
     // ================================ CAT_RDP_SYS ===============================================

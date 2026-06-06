@@ -21,7 +21,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.sdk.model.feature.AuthOwnerProduct;
 import com.clougence.utils.BeanUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.FieldUtils;
@@ -74,11 +73,7 @@ public final class AuthHelper {
     }
 
     public static List<AuthInfo> lookUp(Class<?> defType) {
-        List<String> forProduct = new ArrayList<>();
-        if (defType.isAnnotationPresent(AuthOwnerProduct.class)) {
-            AuthOwnerProduct defProduct = defType.getAnnotation(AuthOwnerProduct.class);
-            forProduct.addAll(Arrays.asList(defProduct.value()));
-        }
+        List<String> forProduct = Collections.emptyList();
 
         List<Field> allFields = BeanUtils.findALLFields(defType);
         List<AuthInfo> result = new ArrayList<>();

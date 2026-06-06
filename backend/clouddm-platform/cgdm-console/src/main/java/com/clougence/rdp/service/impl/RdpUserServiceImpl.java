@@ -29,7 +29,6 @@ import com.clougence.clouddm.api.common.crypt.PasswordInfo;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.GlobalDeploySite;
 import com.clougence.clouddm.console.web.component.auth.DmAuthLabelService;
 import com.clougence.clouddm.console.web.component.auth.DmUserService;
 import com.clougence.clouddm.console.web.component.config.UserConfigService;
@@ -49,25 +48,22 @@ import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.NamingDao;
 import com.clougence.clouddm.platform.dal.model.auth.*;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.model.feature.RdpFeatureIDs;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthInfoType;
-import com.clougence.clouddm.sdk.security.auth.def.SecSysRole;
 import com.clougence.clouddm.sdk.security.login.LoginProvider;
 import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
 import com.clougence.clouddm.sdk.security.login.LoginRequest;
 import com.clougence.clouddm.sdk.security.login.LoginResponse;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
-import com.clougence.rdp.service.RdpNamingService;
 import com.clougence.rdp.service.RdpNotifyService;
 import com.clougence.rdp.service.RdpVerifyService;
 import com.clougence.rdp.service.enumeration.OpVerifyErrType;
 import com.clougence.rdp.service.enumeration.UserOperationType;
 import com.clougence.rdp.service.model.*;
-import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -87,7 +83,7 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     @Resource
     private RdpVerifyService       rdpVerifyService;
     @Resource
-    private RdpNamingService       rdpNamingService;
+    private NamingDao              namingDao;
     @Resource
     private UserConfigService      userConfigService;
     @Resource
@@ -115,13 +111,7 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     @Override
     public Collection<AuthInfo> allAuthMenuCategoryByUser(String puid, String uid) {
         List<AuthInfo> tmpDef = this.authLabelService.getAllCategory();
-        List<String> support = new ArrayList<>();
-        support.add(RdpFeatureIDs.PRODUCT_CLOUD_RDP);
-        support.add(RdpFeatureIDs.PRODUCT_CLOUD_DM);
-
-        List<AuthInfo> catTreeDef = tmpDef.stream().filter(a -> {
-            return CollectionUtils.containsAny(a.getForProduct(), support);
-        }).collect(Collectors.toList());
+        List<AuthInfo> catTreeDef = tmpDef;
 
         if (StringUtils.equals(puid, uid)) {
             return catTreeDef;
@@ -551,70 +541,10 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         this.rdpVerifyService.checkVerifyCode(verifyData);
 
         //use parent user
-        String newAccessKey = this.rdpNamingService.genAccessKey();
-        String newSecretKey = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(this.rdpNamingService.genSecretKey());
+        String newAccessKey = this.namingDao.genAccessKey();
+        String newSecretKey = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(this.namingDao.genSecretKey());
         this.authDal.userMapper().updateUserAkSk(puid, newAccessKey, newSecretKey);
         return ResWebDataUtils.buildSuccess("OK");
-    }
-
-    public Long addSubAccountForSaasManagedBind(String managedUid, AccountBindType bindType, DmAuthUserDO primaryUser) {
-        String generatePwd = Long.toHexString(System.currentTimeMillis()) + "!@#";
-        DmAuthUserDO managedUser = this.authDal.userMapper().queryByUid(managedUid);
-        DmAuthRoleDO devRoleOfManager = findDevRoleForSaasManagedUser(managedUid);
-
-        String managedUserName = "m_" + primaryUser.getUsername();
-        String managedSubAccount = primaryUser.getUid() + "@" + managedUser.getUserDomain();
-        String managedSubEmail = "m_" + primaryUser.getEmail();
-        String managedSubPhone = "m_" + primaryUser.getPhone();
-
-        AddSubAccountFO fo = new AddSubAccountFO();
-        fo.setUserName(managedUserName);
-        fo.setSubAccount(managedSubAccount);
-        fo.setRoleId(devRoleOfManager.getId());
-        fo.setPassword(generatePwd);
-        fo.setEmail(managedSubEmail);
-        fo.setPhone(managedSubPhone);
-
-        if (GlobalDeploySite.outChina()) {
-            this.addSubAccountCheck(fo, managedUser, false, true);
-        } else {
-            this.addSubAccountCheck(fo, managedUser, true, false);
-        }
-
-        DmAuthUserDO userDO = new DmAuthUserDO();
-        userDO.setUid(this.rdpNamingService.genUid());
-        userDO.setCompany(primaryUser.getCompany());
-        userDO.setUsername(managedUserName);
-        userDO.setSubAccount(managedSubAccount);
-        userDO.setEmail(managedSubEmail);
-        userDO.setPhone(managedSubPhone);
-        userDO.setPassword(CryptService.INSTANCE.encryptForOneWay(generatePwd).getEncryptPassword());
-        userDO.setAccountType(AccountType.SUB_ACCOUNT);
-        userDO.setBindType(bindType);
-        userDO.setBindAccount(primaryUser.getUid());
-        userDO.setParentId(managedUser.getId());
-        userDO.setRoleId(devRoleOfManager.getId());
-        userDO.setUserDomain(primaryUser.getUserDomain());
-        userDO.setAccessKey(this.rdpNamingService.genAccessKey());
-        userDO.setSecretKey(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(this.rdpNamingService.genSecretKey()));
-        this.authDal.userMapper().insert(userDO);
-        this.userConfigService.initSubAccountConfigs(userDO.getUid());
-        this.notifyServices.forEach(s -> s.notifyUser(managedUid, userDO.getUid(), UserOperationType.ADD));
-
-        return userDO.getId();
-    }
-
-    public DmAuthRoleDO findDevRoleForSaasManagedUser(String managedUid) {
-        String roleName = SecSysRole.CC_SAAS_DEV_NAME;
-        List<DmAuthRoleDO> roles = this.authDal.roleMapper().queryByRoleName(managedUid, roleName);
-        DmAuthRoleDO role = CollectionUtils.isEmpty(roles) ? null : roles.get(0);
-        if (role == null) {
-            String msg = "User(" + managedUid + ") have no " + roleName + " role.";
-            log.info(msg);
-            throw new IllegalArgumentException(msg);
-        }
-
-        return role;
     }
 
     //
@@ -794,6 +724,7 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
             AddSubAccountFO fo = new AddSubAccountFO();
             fo.setUserName(bindUser.getUsername());
             fo.setSubAccount(bindUser.getSubAccount());
+            fo.setAccount(bindUser.getAccount());
             fo.setRoleId(bindUser.getRoleId());
             fo.setPassword(generatePwd);
             fo.setEmail(bindUser.getEmail());
@@ -804,10 +735,11 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         }
 
         DmAuthUserDO userDO = new DmAuthUserDO();
-        userDO.setUid(this.rdpNamingService.genUid());
+        userDO.setUid(this.namingDao.genUid());
         userDO.setCompany(primaryUser.getCompany());
         userDO.setUsername(bindUser.getUsername());
         userDO.setSubAccount(bindUser.getSubAccount());
+        userDO.setAccount(bindUser.getAccount());
         userDO.setEmail(bindUser.getEmail());
         userDO.setPhone(bindUser.getPhone());
         userDO.setPassword(CryptService.INSTANCE.encryptForOneWay(generatePwd).getEncryptPassword());
@@ -817,8 +749,8 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         userDO.setParentId(primaryUser.getId());
         userDO.setRoleId(bindUser.getRoleId());
         userDO.setUserDomain(primaryUser.getUserDomain());
-        userDO.setAccessKey(this.rdpNamingService.genAccessKey());
-        userDO.setSecretKey(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(this.rdpNamingService.genSecretKey()));
+        userDO.setAccessKey(this.namingDao.genAccessKey());
+        userDO.setSecretKey(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(this.namingDao.genSecretKey()));
         this.authDal.userMapper().insert(userDO);
         //        verifyService.initUserVerify(userDO);
 
@@ -840,7 +772,7 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         }
 
         DmAuthUserDO userDO = new DmAuthUserDO();
-        userDO.setUid(this.rdpNamingService.genUid());
+        userDO.setUid(this.namingDao.genUid());
         userDO.setCompany(primaryUser.getCompany());
         userDO.setUsername(fo.getUserName());
         userDO.setSubAccount(fo.getSubAccount());
@@ -853,8 +785,8 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         userDO.setParentId(primaryUser.getId());
         userDO.setRoleId(fo.getRoleId());
         userDO.setUserDomain(primaryUser.getUserDomain());
-        userDO.setAccessKey(this.rdpNamingService.genAccessKey());
-        userDO.setSecretKey(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(this.rdpNamingService.genSecretKey()));
+        userDO.setAccessKey(this.namingDao.genAccessKey());
+        userDO.setSecretKey(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(this.namingDao.genSecretKey()));
         this.authDal.userMapper().insert(userDO);
         //        verifyService.initUserVerify(userDO);
 

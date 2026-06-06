@@ -42,6 +42,12 @@ public interface NamingDao {
 
     String genInnerUserPwd();
 
+    String genProductClusterName();
+
+    String genProductClusterCode();
+
+    String genConsoleJobToken();
+
     String genLoginAccount();
 
     String genSecRuleName(RuleKind ruleKind);
