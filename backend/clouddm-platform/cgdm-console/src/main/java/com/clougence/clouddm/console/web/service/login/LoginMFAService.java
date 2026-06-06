@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.service.auth;
+package com.clougence.clouddm.console.web.service.login;
 
-public interface RdpUserMfaService {
+import com.clougence.clouddm.console.web.constants.MfaAccountType;
+
+public interface LoginMFAService {
 
     String MFA_PRE_ACTION_TYPE = "MFA_PRE_ACTION_TYPE";
-
     String MFA_LOGIN_JWT_TOKEN = "MFA_LOGIN_JWT_TOKEN";
 
-    byte[] initUserMfaSetting(String uid);
+    byte[] initMFA(String uid, MfaAccountType mfaAccountType);
 
-    byte[] resetMfaSetting(String uid, int mfaCode);
+    byte[] resetMFA(String uid, int mfaCode, MfaAccountType mfaAccountType);
 
-    void confirmUserMfaSetting(String uid, boolean reset, int mfaCode);
+    void confirmFMA(String uid, boolean reset, int mfaCode);
 
-    boolean validMfaCode(String uid, int mfaCode);
+    boolean validMFA(String uid, int mfaCode);
 
-    void closeUserMfa(String uid, int mfaCode);
+    void closeMFA(String uid, int mfaCode);
 }

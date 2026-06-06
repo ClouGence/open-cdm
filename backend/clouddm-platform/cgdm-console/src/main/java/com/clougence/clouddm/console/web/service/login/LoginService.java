@@ -15,9 +15,17 @@
  */
 package com.clougence.clouddm.console.web.service.login;
 
-import com.clougence.clouddm.sdk.security.login.LoginProvider;
+import com.clougence.clouddm.console.web.model.fo.LoginFO;
+import com.clougence.rdp.service.model.LoginMO;
 
-public interface RdpSubLoginService {
+/**
+ * @author wanshao create time is 2019/12/12 9:36 下午
+ **/
+public interface LoginService {
 
-    boolean checkLoginEnable(String ownerUid, LoginProvider type);
+    LoginMO login(LoginFO loginFO);
+
+    boolean isLogoutUsingJump(String uid);
+
+    String logoutJumpUrl(String puid, String uid);
 }
