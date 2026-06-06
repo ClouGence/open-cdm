@@ -56,11 +56,6 @@ public class DmAuthUserDO {
 
     private String          account;
 
-    /**
-     * for sub account login,account@primary userDomain
-     */
-    private String          subAccount;
-
     private String          company;
 
     private String          password;
@@ -118,15 +113,6 @@ public class DmAuthUserDO {
      * for maintainer (e.g., multi product cluster), can not be change on web and primary user (for saas manager)
      */
     private boolean         maintainer;
-
-    @Deprecated
-    private String          aliyunAk;
-
-    @Deprecated
-    private String          aliyunSk;
-
-    @Deprecated
-    private Date            lastDateUpdateAliyunAk;
 
     private Date            lastDateUpdatePwd;
 

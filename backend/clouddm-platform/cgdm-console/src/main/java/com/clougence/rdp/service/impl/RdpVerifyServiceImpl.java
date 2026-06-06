@@ -401,7 +401,7 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
 //         }
 // 
 //         boolean isSubAccount = (userDO.getAccountType() != null && userDO.getAccountType() == AccountType.SUB_ACCOUNT);
-//         verifyEmailRegistered(isSubAccount, userDO.getSubAccount(), userDO.getEmail());
+//         verifyEmailRegistered(isSubAccount, userDO.getAccount(), userDO.getEmail());
 // 
 //         DmAuthVerifyDO verifyRecord;
 //         if (isSubAccount) {
@@ -679,10 +679,6 @@ public class RdpVerifyServiceImpl implements RdpVerifyService, UnifiedPostConstr
 //     /** generate verify code and update login verify code and time */
 //     protected String generateCodeAndUpdateDbRecord(Long id) {
 //         String code = RandomStrUtils.fixedLenRandomNumberStr(6);
-//         if (this.rdpConfig.isProductTrial()) {
-//             code = this.rdpConfig.getProductTrialVerifyCode();
-//         }
-// 
 //         authDal.verifyMapper().updateVerifyCodeAndSendTime(code, new Date(), id);
 //         return code;
 //     }

@@ -30,7 +30,6 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
-import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
@@ -44,11 +43,11 @@ import com.clougence.clouddm.console.web.model.vo.ListUserVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.Sm2Utils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
-import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
 import com.clougence.rdp.constant.RdpErrorCode;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
@@ -81,7 +80,7 @@ public class RdpUserManagerController {
     @Resource
     private DmAuthServiceForBiz rdpAuthServiceForBiz;
     @Resource
-    private UserConfigService   userConfigService;
+    private SystemDal           systemDal;
     @Resource
     private DmConsoleConfig     rdpConfig;
     @Resource
@@ -101,11 +100,11 @@ public class RdpUserManagerController {
             userDO = this.authDal.userMapper().queryPrimaryByPhone(fo.getPhone());
             validatePwdMO = this.rdpUserService.validatePrimaryAccountPwd(fo.getPassword());
         } else if (fo.getAccountType() == AccountType.SUB_ACCOUNT) {
-            if (StringUtils.isBlank(fo.getSubAccount())) {
+            if (StringUtils.isBlank(fo.getAccount())) {
                 return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ACCOUNT_EMPTY_ERROR.name()));
             }
 
-            userDO = this.authDal.userMapper().queryBySubAccount(fo.getSubAccount());
+            userDO = this.authDal.userMapper().queryBySubAccount(fo.getAccount());
 
             String puid = (String) request.getAttribute(RdpUserService.PUID);
             validatePwdMO = this.rdpUserService.validateSubAccountPwd(puid, fo.getPassword());
@@ -199,11 +198,11 @@ public class RdpUserManagerController {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
-        if (StringUtils.isBlank(fo.getSubAccount())) {
+        if (StringUtils.isBlank(fo.getAccount())) {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ACCOUNT_EMPTY_ERROR.name()));
         }
 
-        DmAuthUserDO userDO = this.authDal.userMapper().queryBySubAccount(fo.getSubAccount());
+        DmAuthUserDO userDO = this.authDal.userMapper().queryBySubAccount(fo.getAccount());
 
         if (userDO == null) {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name()));
@@ -215,14 +214,14 @@ public class RdpUserManagerController {
 
         rdpAuthServiceForBiz.checkOperateOtherUserAuth(uid, userDO.getUid());
 
-        DmSysUserConfDO configDO = userConfigService.getSpecifiedConfig(puid, UserDefinedConfig.Fields.forbidDelSubAccount);
-        if (configDO != null) {
-            boolean forbid = Boolean.parseBoolean(configDO.getConfigValue());
+        String configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.forbidDelSubAccount);
+        if (StringUtils.isNotBlank(configValue)) {
+            boolean forbid = Boolean.parseBoolean(configValue);
             if (forbid) {
                 return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.NOT_ALLOW_DELETE_SUB_ACCOUNT.name()));
             }
         }
-        DmAuthUserDO rdpUserDO = authDal.userMapper().queryBySubAccount(fo.getSubAccount());
+        DmAuthUserDO rdpUserDO = authDal.userMapper().queryBySubAccount(fo.getAccount());
         ResWebData<Boolean> resWebData = this.rdpUserService.deleteSubAccount(puid, fo);
 
         if (resWebData.isSuccess()) {

@@ -2,10 +2,12 @@ package com.clougence.clouddm.platform.dal.access.impl;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.crypt.CryptService;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.mapper.system.*;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
-import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -29,6 +31,8 @@ public class SystemDalImpl implements SystemDal {
     private DmSysUserConfMapper  userConfMapper;
     @Resource
     private DmSysWorkerMapper    workerMapper;
+    @Resource
+    private AuthDal              authDal;
 
     @Override
     public DmSysClusterMapper clusterMapper() {
@@ -75,5 +79,13 @@ public class SystemDalImpl implements SystemDal {
             configDO.setConfigValue(val);
         }
         return configDO;
+    }
+
+    @Override
+    public String fetchSystemConf(String configName) {
+        DmAuthUserDO rootUser = this.authDal.queryRootUser();
+        String rootUid = rootUser == null ? AuthDal.ROOT_USER_UID : rootUser.getUid();
+        DmSysUserConfDO config = getSpecifiedConfig(rootUid, configName);
+        return config == null ? null : config.getConfigValue();
     }
 }

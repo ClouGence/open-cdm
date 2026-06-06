@@ -21,6 +21,11 @@ import static com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.Au
 import static com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel.HIGH;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.*;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,11 +50,12 @@ import com.clougence.clouddm.console.web.model.vo.PwdValidateExprVO;
 import com.clougence.clouddm.console.web.model.vo.RdpUserAkSkVO;
 import com.clougence.clouddm.console.web.model.vo.ResourceSummaryVO;
 import com.clougence.clouddm.console.web.service.auth.RdpRoleService;
-import com.clougence.clouddm.console.web.service.auth.RdpUserLoginRegService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.console.web.util.Sm2Utils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
@@ -57,6 +63,7 @@ import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
+import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.rdp.service.RdpVerifyService;
 import com.clougence.rdp.service.enumeration.OpVerifyErrType;
@@ -83,30 +90,23 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpUserController {
 
     @Resource
-    private AuthDal                authDal;
-
+    private AuthDal             authDal;
     @Resource
-    private RdpUserService         rdpUserService;
+    private RdpUserService      rdpUserService;
     @Resource
-    private RdpRoleService         rdpRoleService;
-
+    private RdpRoleService      rdpRoleService;
     @Resource
-    private JwtService             jwtService;
-
+    private JwtService          jwtService;
     @Resource
-    private RdpVerifyService       rdpVerifyService;
-
+    private RdpVerifyService    rdpVerifyService;
     @Resource
-    private DmAuthServiceForBiz    rdpAuthService;
-
+    private DmAuthServiceForBiz rdpAuthService;
     @Resource
-    private RdpUserLoginRegService rdpUserLoginRegService;
-
+    private RdpOpAuditService   rdpOpAuditService;
     @Resource
-    private RdpOpAuditService      rdpOpAuditService;
-
+    private DmConsoleConfig     rdpConfig;
     @Resource
-    private DmConsoleConfig        rdpConfig;
+    private SystemDal           systemDal;
 
     // --------------------------------
     //      for User Info
@@ -131,26 +131,41 @@ public class RdpUserController {
         }
 
         LoginUserVO userVO = RdpConvertUtils.convertToLoginUserVO(userDO, pUser);
-        rdpUserLoginRegService.fillSubAccountPwdValidDays(userVO, userDO.getLastDateUpdatePwd(), pUser.getUid());
+        this.fillPasswordValidDays(userVO, userDO.getLastDateUpdatePwd(), pUser.getUid());
 
         //if value is sub-zero,need logout
         if (userVO.getSubAccountPwdValidDays() != null && userVO.getSubAccountPwdValidDays() < 0) {
             logout(response);
         }
 
-        //        // refresh saas user status
-        //        if (GlobalDeployMode.inCloud()) {
-        //            String fuid = rdpUserService.findFinanceOwnerUid(uid, puid);
-        //            if (fuid != null && !fuid.equals(uid)) {
-        //                userVO.setSaasResMode(SaasResMode.MANAGED);
-        //                saasService.refreshUserStatus(fuid);
-        //            } else {
-        //                userVO.setSaasResMode(SaasResMode.BYOC);
-        //                saasService.refreshUserStatus(uid);
-        //            }
-        //        }
-
         return ResWebDataUtils.buildSuccess(userVO);
+    }
+
+    public void fillPasswordValidDays(LoginUserVO userVO, Date lastDateUpdatePwd, String pUid) {
+        if (lastDateUpdatePwd == null || userVO.getAccountType() == null || userVO.getAccountType() != AccountType.SUB_ACCOUNT) {
+            return;
+        }
+
+        String configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.subAccountPwdExpireDays);
+        if (StringUtils.isBlank(configValue)) {
+            return;
+        }
+
+        int days = Integer.parseInt(configValue);
+        if (days <= 0) {
+            return;
+        }
+
+        LocalDateTime lastUpdateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(lastDateUpdatePwd.getTime()), ZoneId.systemDefault());
+        LocalDateTime limit = lastUpdateTime.plusDays(days);
+
+        Instant r = limit.toInstant(ZoneOffset.UTC);
+        Instant n = LocalDateTime.now().toInstant(ZoneOffset.UTC);
+
+        long diffMinutes = ChronoUnit.MINUTES.between(n, r);
+        double diffDays = ((double) diffMinutes) / 60 / 24;
+
+        userVO.setSubAccountPwdValidDays((long) (Math.floor(diffDays)));
     }
 
     @RequestAuth(strategy = RefAnyOnes)
@@ -362,6 +377,23 @@ public class RdpUserController {
 
         this.rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), uid, res
             .getConfigLO(), SecurityLevel.HIGH, AuditType.UPDATE_ACCOUNT_EMAIL, ResourceType.ACCOUNT);
+
+        return ResWebDataUtils.buildSuccess();
+    }
+
+    @RequestAuth(strategy = Ignore)
+    @RequestMapping(value = "/updateUserName", method = RequestMethod.POST)
+    public ResWebData<?> updateUserName(@RequestBody @Valid UpdateUserNameFO fo, HttpServletRequest request) {
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+
+        UpdateUserInfoMO res = this.rdpUserService.updateUserName(uid, fo);
+        if (!res.isSuccess()) {
+            return ResWebDataUtils.buildError(res.getErrorMsg());
+        }
+
+        this.rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), uid, res
+            .getConfigLO(), SecurityLevel.NORMAL, AuditType.UPDATE_ACCOUNT_USER_NAME, ResourceType.ACCOUNT);
 
         return ResWebDataUtils.buildSuccess();
     }

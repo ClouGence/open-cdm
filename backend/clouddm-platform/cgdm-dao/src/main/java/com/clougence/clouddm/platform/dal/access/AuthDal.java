@@ -26,5 +26,7 @@ public interface AuthDal {
 
     DmAuthUserDO queryRootUser();
 
-    DmAuthUserDO queryLocalLoginUser(String loginText);
+    boolean isRootUser(String uid);
+
+    DmAuthUserDO queryLocalUserByLoginText(String loginText);
 }

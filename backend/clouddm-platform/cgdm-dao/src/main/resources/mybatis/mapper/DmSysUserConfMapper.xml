@@ -24,20 +24,20 @@
     </resultMap>
 
     <sql id="rdpUserKvBaseConfig">
-        dm_sys_user_conf.id id,
-        dm_sys_user_conf.gmt_create gmt_create,
-        dm_sys_user_conf.gmt_modified gmt_modified,
-        dm_sys_user_conf.uid uid,
-        dm_sys_user_conf.config_name config_name,
-        dm_sys_user_conf.config_value config_value,
-        dm_sys_user_conf.default_value default_value,
-        dm_sys_user_conf.value_range value_range,
-        dm_sys_user_conf.read_only read_only,
-        dm_sys_user_conf.user_config_tag_type user_config_tag_type,
-        dm_sys_user_conf.conf_val_type conf_val_type,
-        dm_sys_user_conf.conf_belong conf_belong,
-        dm_sys_user_conf.is_secret is_secret,
-        dm_sys_user_conf.desc_key desc_key
+        id,
+        gmt_create,
+        gmt_modified,
+        uid,
+        config_name,
+        config_value,
+        default_value,
+        value_range,
+        read_only,
+        user_config_tag_type,
+        conf_val_type,
+        conf_belong,
+        is_secret,
+        desc_key
     </sql>
 
     <select id="queryByUidAndConfigName" resultMap="rdpUserKvBaseConfigDO">
@@ -46,9 +46,9 @@
         FROM
         dm_sys_user_conf
         WHERE
-        dm_sys_user_conf.uid = #{uid}
+        uid = #{uid}
         AND
-        dm_sys_user_conf.config_name = #{configName}
+        config_name = #{configName}
     </select>
 
     <select id="listOneConfigTypeByUid" resultMap="rdpUserKvBaseConfigDO">
@@ -57,7 +57,7 @@
         FROM
         dm_sys_user_conf
         WHERE
-        dm_sys_user_conf.uid = #{uid} and dm_sys_user_conf.user_config_tag_type = #{type}
+        uid = #{uid} and user_config_tag_type = #{type}
     </select>
 
     <select id="listByUid" resultMap="rdpUserKvBaseConfigDO">
@@ -66,7 +66,7 @@
         FROM
         dm_sys_user_conf
         WHERE
-        dm_sys_user_conf.uid = #{uid}
+        uid = #{uid}
     </select>
 
     <select id="listByUidAndConfigNames" resultMap="rdpUserKvBaseConfigDO">
@@ -75,8 +75,8 @@
         FROM
         dm_sys_user_conf
         WHERE
-        dm_sys_user_conf.uid = #{uid}
-        AND dm_sys_user_conf.config_name in
+        uid = #{uid}
+        AND config_name in
         <foreach collection="configNames" item="item" separator="," open="(" close=")">
             #{item}
         </foreach>

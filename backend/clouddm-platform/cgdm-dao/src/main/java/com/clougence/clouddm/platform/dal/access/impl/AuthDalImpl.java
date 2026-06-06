@@ -73,7 +73,12 @@ public class AuthDalImpl implements AuthDal {
     }
 
     @Override
-    public DmAuthUserDO queryLocalLoginUser(String loginText) {
+    public boolean isRootUser(String uid) {
+        return StringUtils.equals(uid, ROOT_USER_UID);
+    }
+
+    @Override
+    public DmAuthUserDO queryLocalUserByLoginText(String loginText) {
         if (StringUtils.isBlank(loginText)) {
             return null;
         }

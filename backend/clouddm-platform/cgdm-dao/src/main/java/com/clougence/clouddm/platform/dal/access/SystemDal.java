@@ -22,4 +22,6 @@ public interface SystemDal {
     // ---------- dal service methods ----------
 
     DmSysUserConfDO getSpecifiedConfig(String uid, String configName);
+
+    String fetchSystemConf(String configName);
 }

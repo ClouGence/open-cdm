@@ -13,7 +13,6 @@
         <result column="company" property="company"/>
         <result column="phone" property="phone"/>
         <result column="account" property="account"/>
-        <result column="sub_account" property="subAccount"/>
         <result column="password" property="password"/>
         <result column="op_password" property="opPassword"/>
         <result column="role_id" property="roleId"/>
@@ -38,9 +37,6 @@
         <result column="client_id" property="clientId"/>
         <result column="country" property="country"/>
         <result column="maintainer" property="maintainer"/>
-        <result column="aliyun_ak" property="aliyunAk"/>
-        <result column="aliyun_sk" property="aliyunSk"/>
-        <result column="last_date_update_aliyun_ak" property="lastDateUpdateAliyunAk"/>
         <result column="last_date_update_pwd" property="lastDateUpdatePwd"/>
         <result column="union_id" property="unionId"/>
         <result column="sso_type" property="ssoType"/>
@@ -53,52 +49,48 @@
     </resultMap>
 
     <sql id="rdpUser">
-        dm_auth_user.id id,
-        dm_auth_user.gmt_create gmt_create,
-        dm_auth_user.gmt_modified gmt_modified,
-        dm_auth_user.uid uid,
-        dm_auth_user.email email,
-        dm_auth_user.username username,
-        dm_auth_user.company company,
-        dm_auth_user.phone phone,
-        dm_auth_user.account account,
-        dm_auth_user.sub_account sub_account,
-        dm_auth_user.password password,
-        dm_auth_user.op_password op_password,
-        dm_auth_user.role_id role_id,
-        dm_auth_user.access_key access_key,
-        dm_auth_user.secret_key secret_key,
-        dm_auth_user.last_try_login_time last_try_login_time,
-        dm_auth_user.login_fail_count login_fail_count,
-        dm_auth_user.login_locked login_locked,
-        dm_auth_user.last_try_op_verify_time last_try_op_verify_time,
-        dm_auth_user.op_verify_fail_count op_verify_fail_count,
-        dm_auth_user.op_locked op_locked,
-        dm_auth_user.account_type account_type,
-        dm_auth_user.bind_type bind_type,
-        dm_auth_user.bind_account bind_account,
-        dm_auth_user.disable disable,
-        dm_auth_user.user_domain user_domain,
-        dm_auth_user.parent_id parent_id,
-        dm_auth_user.user_status user_status,
-        dm_auth_user.contact_me contact_me,
-        dm_auth_user.src src,
-        dm_auth_user.keyword keyword,
-        dm_auth_user.client_id client_id,
-        dm_auth_user.country country,
-        dm_auth_user.maintainer maintainer,
-        dm_auth_user.aliyun_ak aliyun_ak,
-        dm_auth_user.aliyun_sk aliyun_sk,
-        dm_auth_user.last_date_update_aliyun_ak last_date_update_aliyun_ak,
-        dm_auth_user.last_date_update_pwd last_date_update_pwd,
-        dm_auth_user.union_id union_id,
-        dm_auth_user.sso_type sso_type,
-        dm_auth_user.resource_manage_enable resource_manage_enable,
-        dm_auth_user.customer_id customer_id,
-        dm_auth_user.saas_user_status saas_user_status,
-        dm_auth_user.access_token access_token,
-        dm_auth_user.marketplace_type marketplace_type,
-        dm_auth_user.use_mfa use_mfa
+        id,
+        gmt_create,
+        gmt_modified,
+        uid,
+        email,
+        username,
+        company,
+        phone,
+        account,
+        password,
+        op_password,
+        role_id,
+        access_key,
+        secret_key,
+        last_try_login_time,
+        login_fail_count,
+        login_locked,
+        last_try_op_verify_time,
+        op_verify_fail_count,
+        op_locked,
+        account_type,
+        bind_type,
+        bind_account,
+        disable,
+        user_domain,
+        parent_id,
+        user_status,
+        contact_me,
+        src,
+        keyword,
+        client_id,
+        country,
+        maintainer,
+        last_date_update_pwd,
+        union_id,
+        sso_type,
+        resource_manage_enable,
+        customer_id,
+        saas_user_status,
+        access_token,
+        marketplace_type,
+        use_mfa
     </sql>
 
     <resultMap id="approvalPersonDO" type="com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj">
@@ -216,7 +208,7 @@
             dm_auth_user
         WHERE
             phone = #{phone}
-            AND sub_account = #{subAccount}
+            AND account = #{subAccount}
             AND account_type = 'SUB_ACCOUNT'
     </select>
 
@@ -227,7 +219,7 @@
             dm_auth_user
         WHERE
             email = #{email}
-            AND sub_account = #{subAccount}
+            AND account = #{subAccount}
             AND account_type = 'SUB_ACCOUNT'
     </select>
 
@@ -257,7 +249,7 @@
         FROM
             dm_auth_user
         WHERE
-            sub_account = #{subAccount}
+            account = #{subAccount}
     </select>
 
     <select id="queryBySubAccountAndBind" resultMap="rdpUserDO">
@@ -267,7 +259,7 @@
             dm_auth_user
         WHERE
             parent_id = #{parentId} and
-            sub_account = #{subAccount} and
+            account = #{subAccount} and
             bind_type = #{bindType}
     </select>
 
@@ -279,6 +271,17 @@
         WHERE
             parent_id = #{parentId}
         and
+            bind_account = #{bindAccount}
+        and
+            bind_type = #{bindType,javaType=com.clougence.clouddm.platform.dal.model.auth.AccountBindType}
+    </select>
+
+    <select id="queryByBindInfo" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            dm_auth_user
+        WHERE
             bind_account = #{bindAccount}
         and
             bind_type = #{bindType,javaType=com.clougence.clouddm.platform.dal.model.auth.AccountBindType}
@@ -368,7 +371,7 @@
             </if>
             <if test="prefix != null">
                 AND (
-                    (username LIKE CONCAT(#{prefix},'%') OR sub_account LIKE
+                    (username LIKE CONCAT(#{prefix},'%') OR account LIKE
                     CONCAT(#{prefix},'%')) OR uid = #{prefix}
                 )
             </if>
@@ -583,7 +586,6 @@
         dm_auth_user
         <set>
             <if test="subAccount!=null and subAccount!=''">
-                sub_account = #{subAccount},
                 account = #{subAccount},
             </if>
             <if test="userName!=null and userName!=''">
@@ -616,17 +618,6 @@
         </set>
         WHERE
         uid = #{uid}
-    </update>
-
-    <update id="updateUserAliyunAkSk">
-        UPDATE
-            dm_auth_user
-        SET
-            aliyun_ak = #{aliyunAk},
-            aliyun_sk = #{aliyunSk},
-            last_date_update_aliyun_ak = now()
-        WHERE
-            uid = #{uid}
     </update>
 
     <update id="updateUserAkSk">

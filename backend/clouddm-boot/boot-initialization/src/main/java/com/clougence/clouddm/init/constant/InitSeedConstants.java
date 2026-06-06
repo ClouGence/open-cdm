@@ -18,8 +18,8 @@ package com.clougence.clouddm.init.constant;
 public final class InitSeedConstants {
 
     public static final String ADMIN_UID                  = "9999999999999999";
+    public static final String DEFAULT_PRIMARY_ACCOUNT    = "admin";
     public static final String DEFAULT_PRIMARY_EMAIL      = "admin@cdmgr.com";
-    public static final String DEFAULT_PRIMARY_PHONE      = "12345678900";
     public static final String DEFAULT_PRIMARY_PASSWORD   = "123456";
     public static final String DEFAULT_PRIMARY_ACCESS_KEY = "ak0a2c62tdo1ap2416655mpyx0v36l359p1v5rn782caw8t0qkk1s94b80lfs90";
     public static final String DEFAULT_PRIMARY_SECRET_KEY = "sk6206iy4pb0eydz9hg97jo3tu5d80j97e91bbql65167u8wb75x4ej6e4v4aa4";
@@ -31,10 +31,15 @@ public final class InitSeedConstants {
     public static final String DEFAULT_WORKER_IP          = "172.31.239.4";
     public static final String DEFAULT_CONSOLE_IP         = "172.31.239.3";
     public static final String DEFAULT_EXTERNAL_IP        = "183.134.161.226";
+    public static final String RUNTIME_ADMIN_ACCOUNT_KEY  = "clougence.init.admin.account";
     public static final String RUNTIME_ADMIN_EMAIL_KEY    = "clougence.init.admin.email";
     public static final String RUNTIME_ADMIN_PASSWORD_KEY = "clougence.init.admin.password";
 
     private InitSeedConstants(){
+    }
+
+    public static String resolveAdminAccount() {
+        return defaultIfBlank(System.getProperty(RUNTIME_ADMIN_ACCOUNT_KEY), DEFAULT_PRIMARY_ACCOUNT);
     }
 
     public static String resolveAdminEmail() {

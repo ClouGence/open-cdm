@@ -34,14 +34,6 @@
     },
     {
       "category": "security",
-      "propertyKey": "clougence.rdp.product.trial.verify_code",
-      "labelKey": "INIT_FIELD_TRIAL_VERIFY_CODE_LABEL",
-      "descriptionKey": "INIT_FIELD_TRIAL_VERIFY_CODE_DESC",
-      "inputType": "text",
-      "required": false
-    },
-    {
-      "category": "security",
       "propertyKey": "clougence.init.admin.email",
       "labelKey": "INIT_FIELD_ADMIN_EMAIL_LABEL",
       "descriptionKey": "INIT_FIELD_ADMIN_EMAIL_DESC",

@@ -14,13 +14,13 @@
     </resultMap>
 
     <sql id="rdpSystemConfig">
-        dm_sys_conf.id id,
-        dm_sys_conf.gmt_create gmt_create,
-        dm_sys_conf.gmt_modified gmt_modified,
-        dm_sys_conf.uid uid,
-        dm_sys_conf.config_name config_name,
-        dm_sys_conf.config_value config_value,
-        dm_sys_conf.description description
+        id,
+        gmt_create,
+        gmt_modified,
+        uid,
+        config_name,
+        config_value,
+        description
     </sql>
 
     <select id="queryByUid" resultMap="rdpSystemConfigDO">

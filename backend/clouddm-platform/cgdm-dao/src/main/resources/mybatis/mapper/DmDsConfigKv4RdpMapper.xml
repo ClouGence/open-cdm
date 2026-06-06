@@ -25,22 +25,22 @@
     </resultMap>
 
     <sql id="rdpDsKvBaseConfig">
-        dm_ds_config_kv_4rdp.id id,
-        dm_ds_config_kv_4rdp.gmt_create gmt_create,
-        dm_ds_config_kv_4rdp.gmt_modified gmt_modified,
-        dm_ds_config_kv_4rdp.data_source_id data_source_id,
-        dm_ds_config_kv_4rdp.config_name config_name,
-        dm_ds_config_kv_4rdp.config_group config_group,
-        dm_ds_config_kv_4rdp.display display,
-        dm_ds_config_kv_4rdp.desc_key desc_key,
-        dm_ds_config_kv_4rdp.value_require value_require,
-        dm_ds_config_kv_4rdp.value_valid_regex value_valid_regex,
-        dm_ds_config_kv_4rdp.config_value config_value,
-        dm_ds_config_kv_4rdp.default_value default_value,
-        dm_ds_config_kv_4rdp.value_advance value_advance,
-        dm_ds_config_kv_4rdp.read_only read_only,
-        dm_ds_config_kv_4rdp.is_secret is_secret,
-        dm_ds_config_kv_4rdp.conf_val_type conf_val_type
+        id,
+        gmt_create,
+        gmt_modified,
+        data_source_id,
+        config_name,
+        config_group,
+        display,
+        desc_key,
+        value_require,
+        value_valid_regex,
+        config_value,
+        default_value,
+        value_advance,
+        read_only,
+        is_secret,
+        conf_val_type
     </sql>
 
     <select id="queryByDsIdAndConfigName" resultMap="rdpDsKvBaseConfigDO">
@@ -49,9 +49,9 @@
         FROM
         dm_ds_config_kv_4rdp
         WHERE
-        dm_ds_config_kv_4rdp.data_source_id = #{dsId}
+        data_source_id = #{dsId}
         AND
-        dm_ds_config_kv_4rdp.config_name = #{configName}
+        config_name = #{configName}
     </select>
 
     <select id="listByDsId" resultMap="rdpDsKvBaseConfigDO">
@@ -60,7 +60,7 @@
         FROM
         dm_ds_config_kv_4rdp
         WHERE
-        dm_ds_config_kv_4rdp.data_source_id = #{dsId}
+        data_source_id = #{dsId}
     </select>
 
     <select id="listByDsIdAndConfigNames" resultMap="rdpDsKvBaseConfigDO">
@@ -69,8 +69,8 @@
         FROM
         dm_ds_config_kv_4rdp
         WHERE
-        dm_ds_config_kv_4rdp.data_source_id = #{dsId}
-        AND dm_ds_config_kv_4rdp.config_name in
+        data_source_id = #{dsId}
+        AND config_name in
         <foreach collection="configNames" item="item" separator="," open="(" close=")">
             #{item}
         </foreach>

@@ -72,6 +72,8 @@ public interface DmAuthUserMapper extends BaseMapper<DmAuthUserDO> {
 
     DmAuthUserDO queryBySubAccountByBindInfo(Long parentId, String bindAccount, AccountBindType bindType);
 
+    DmAuthUserDO queryByBindInfo(String bindAccount, AccountBindType bindType);
+
     DmAuthUserDO queryByUid(@CanBeReplaced String uid);
 
     DmAuthUserDO queryByAccessKey(String accessKey);
@@ -119,8 +121,6 @@ public interface DmAuthUserMapper extends BaseMapper<DmAuthUserDO> {
     void updateUserName(String uid, String userName);
 
     void updateUserContactInfo(String uid, String phone, String email);
-
-    void updateUserAliyunAkSk(String uid, String aliyunAk, String aliyunSk);
 
     void updateUserAkSk(String uid, String accessKey, String secretKey);
 

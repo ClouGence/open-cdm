@@ -49,8 +49,8 @@ import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.NamingDao;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.auth.*;
-import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthInfoType;
@@ -84,6 +84,8 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     private RdpVerifyService       rdpVerifyService;
     @Resource
     private NamingDao              namingDao;
+    @Resource
+    private SystemDal              systemDal;
     @Resource
     private UserConfigService      userConfigService;
     @Resource
@@ -192,13 +194,13 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
             return getDefaultValidateExprVO();
         }
 
-        DmSysUserConfDO configDO = userConfigService.getSpecifiedConfig(puid, UserDefinedConfig.Fields.subAccountPwdVerifyExpr);
-        if (configDO != null && StringUtils.isNotBlank(configDO.getConfigValue())) {
-            DmSysUserConfDO tipsConf = userConfigService.getSpecifiedConfig(puid, UserDefinedConfig.Fields.subAccountPwdVerifyTips);
-            if (tipsConf != null && StringUtils.isNotBlank(configDO.getConfigValue())) {
+        String validateExpr = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.subAccountPwdVerifyExpr);
+        if (StringUtils.isNotBlank(validateExpr)) {
+            String validateTips = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.subAccountPwdVerifyTips);
+            if (StringUtils.isNotBlank(validateTips)) {
                 PwdValidateExprVO vo = new PwdValidateExprVO();
-                vo.setExpr(configDO.getConfigValue());
-                vo.setTips(tipsConf.getConfigValue());
+                vo.setExpr(validateExpr);
+                vo.setTips(validateTips);
                 return vo;
             } else {
                 return getDefaultValidateExprVO();
@@ -375,6 +377,27 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    public UpdateUserInfoMO updateUserName(String uid, UpdateUserNameFO fo) {
+        DmAuthUserDO user = authDal.userMapper().queryByUid(uid);
+        if (user == null) {
+            throw new IllegalArgumentException("User(" + uid + ") is not exist.");
+        }
+
+        String oldUserName = user.getUsername();
+        String newUserName = fo.getUserName();
+        authDal.userMapper().updateUserName(uid, newUserName);
+
+        UpdateUserInfoMO mo = new UpdateUserInfoMO(true, null);
+        UpdateUserInfoLO lo = new UpdateUserInfoLO();
+        lo.setTargetUid(uid);
+        lo.setOldUserName(oldUserName);
+        lo.setNewUserName(newUserName);
+        mo.setConfigLO(lo);
+        return mo;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     public UpdateUserInfoMO updateUserPhoneWithPwd(String uid, UpdateUserPhoneWithPwdFO fo) {
         DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(uid);
 
@@ -476,17 +499,6 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     }
 
     @Override
-    public void updateAliyunAkSk(String puid, String ak, String sk) {
-        String encryptAliyunSk = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(sk);
-        this.authDal.userMapper().updateUserAliyunAkSk(puid, ak, encryptAliyunSk);
-    }
-
-    @Override
-    public void cleanAliyunAkSk(String puid) {
-        this.authDal.userMapper().updateUserAliyunAkSk(puid, null, null);
-    }
-
-    @Override
     public ResWebData<RdpUserAkSkVO> queryAkSk(String puid, QueryUserAkSkFO fo) {
         DmAuthUserDO userDO = this.authDal.userMapper().queryByUid(puid);
         CheckVerifyMO verifyData = new CheckVerifyMO();
@@ -563,11 +575,11 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
                 throw new IllegalArgumentException("Unsupported verify type:" + fo.getVerifyType());
             }
         } else if (fo.getAccountType() == AccountType.SUB_ACCOUNT) {
-            if (StringUtils.isBlank(fo.getSubAccount())) {
+            if (StringUtils.isBlank(fo.getAccount())) {
                 return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ACCOUNT_EMPTY_ERROR.name()));
             }
 
-            userDO = this.authDal.userMapper().queryBySubAccount(fo.getSubAccount());
+            userDO = this.authDal.userMapper().queryBySubAccount(fo.getAccount());
         }
 
         if (userDO == null) {
@@ -580,7 +592,7 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
 
         CheckVerifyMO verifyMO = new CheckVerifyMO();
         verifyMO.setSubAccount(fo.getAccountType() == AccountType.SUB_ACCOUNT);
-        verifyMO.setSubAccountName(fo.getSubAccount());
+        verifyMO.setSubAccountName(fo.getAccount());
         verifyMO.setPhoneNumber(fo.getPhone());
         verifyMO.setVerifyCode(fo.getVerifyCode());
         verifyMO.setVerifyType(fo.getVerifyType());
@@ -680,19 +692,19 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     private void addSubAccountCheck(AddSubAccountFO accountFO, DmAuthUserDO primaryUser, boolean skipMailCheck, boolean skipPhoneCheck) {
         //this.rdpLicenseCheckService.checkSubAccountCount();
 
-        DmAuthUserDO user = this.authDal.userMapper().queryBySubAccount(accountFO.getSubAccount());
+        DmAuthUserDO user = this.authDal.userMapper().queryBySubAccount(accountFO.getAccount());
         if (user != null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ADD_EXIST_ERROR.name(), accountFO.getSubAccount()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ADD_EXIST_ERROR.name(), accountFO.getAccount()));
         }
 
-        if (!skipMailCheck) {
+        if (!skipMailCheck && StringUtils.isNotBlank(accountFO.getEmail())) {
             DmAuthUserDO emailUser = this.authDal.userMapper().queryByEmailAndParentId(accountFO.getEmail(), primaryUser.getId());
             if (emailUser != null) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ADD_EXIST_ERROR.name(), accountFO.getEmail()));
             }
         }
 
-        if (!skipPhoneCheck) {
+        if (!skipPhoneCheck && StringUtils.isNotBlank(accountFO.getPhone())) {
             DmAuthUserDO phoneUser = this.authDal.userMapper().queryByPhoneAndParentId(accountFO.getPhone(), primaryUser.getId());
             if (phoneUser != null) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_ADD_EXIST_ERROR.name(), accountFO.getPhone()));
@@ -723,7 +735,6 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         try {
             AddSubAccountFO fo = new AddSubAccountFO();
             fo.setUserName(bindUser.getUsername());
-            fo.setSubAccount(bindUser.getSubAccount());
             fo.setAccount(bindUser.getAccount());
             fo.setRoleId(bindUser.getRoleId());
             fo.setPassword(generatePwd);
@@ -738,7 +749,6 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         userDO.setUid(this.namingDao.genUid());
         userDO.setCompany(primaryUser.getCompany());
         userDO.setUsername(bindUser.getUsername());
-        userDO.setSubAccount(bindUser.getSubAccount());
         userDO.setAccount(bindUser.getAccount());
         userDO.setEmail(bindUser.getEmail());
         userDO.setPhone(bindUser.getPhone());
@@ -775,7 +785,7 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         userDO.setUid(this.namingDao.genUid());
         userDO.setCompany(primaryUser.getCompany());
         userDO.setUsername(fo.getUserName());
-        userDO.setSubAccount(fo.getSubAccount());
+        userDO.setAccount(fo.getAccount());
         userDO.setEmail(fo.getEmail());
         userDO.setPhone(fo.getPhone());
         userDO.setPassword(CryptService.INSTANCE.encryptForOneWay(fo.getPassword()).getEncryptPassword());
@@ -800,17 +810,17 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     public UpdateUserInfoMO updateSubAccount(UpdateSubAccountFO fo, String puid) {
         UpdateUserInfoMO mo = new UpdateUserInfoMO();
 
-        if (StringUtils.isBlank(fo.getSubAccount()) && StringUtils.isBlank(fo.getUserName())) {
+        if (StringUtils.isBlank(fo.getAccount()) && StringUtils.isBlank(fo.getUserName())) {
             mo.setSuccess(false);
             mo.setErrorMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_INFO_EMPTY_ERROR.name()));
             return mo;
         }
 
-        if (StringUtils.isNotBlank(fo.getSubAccount())) {
-            DmAuthUserDO userWithNewSubAccount = this.authDal.userMapper().queryBySubAccount(fo.getSubAccount());
+        if (StringUtils.isNotBlank(fo.getAccount())) {
+            DmAuthUserDO userWithNewSubAccount = this.authDal.userMapper().queryBySubAccount(fo.getAccount());
             if (userWithNewSubAccount != null && !userWithNewSubAccount.getUid().equals(fo.getTargetUid())) {
                 mo.setSuccess(false);
-                mo.setErrorMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.REGISTER_ACCOUNT_EXIST_ERROR.name(), fo.getSubAccount()));
+                mo.setErrorMsg(DmI18nUtils.getMessage(I18nRdpMsgKeys.REGISTER_ACCOUNT_EXIST_ERROR.name(), fo.getAccount()));
                 return mo;
             }
         }
@@ -824,12 +834,12 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
 
         UpdateUserInfoLO lo = new UpdateUserInfoLO();
         lo.setTargetUid(fo.getTargetUid());
-        lo.setOldSubAccount(oldUser.getSubAccount());
+        lo.setOldSubAccount(oldUser.getAccount());
         lo.setOldUserName(oldUser.getUsername());
-        lo.setNewSubAccount(fo.getSubAccount());
+        lo.setNewSubAccount(fo.getAccount());
         lo.setNewUserName(fo.getUserName());
 
-        this.authDal.userMapper().updateSubAccountAndName(fo.getTargetUid(), fo.getSubAccount(), fo.getUserName());
+        this.authDal.userMapper().updateSubAccountAndName(fo.getTargetUid(), fo.getAccount(), fo.getUserName());
 
         mo.setConfigLO(lo);
         mo.setSuccess(true);
@@ -865,7 +875,7 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
     public ResWebData<Boolean> deleteSubAccount(String puid, DeleteSubAccountFO fo) {
-        DmAuthUserDO userDO = this.authDal.userMapper().queryBySubAccount(fo.getSubAccount());
+        DmAuthUserDO userDO = this.authDal.userMapper().queryBySubAccount(fo.getAccount());
         rdpVerifyService.dropUserVerify(userDO.getUid());
         authDal.userMapper().deleteById(userDO.getId());
         authDal.resMapper().deleteByUser(userDO.getUid());

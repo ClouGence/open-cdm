@@ -16,14 +16,14 @@
     </resultMap>
 
     <sql id="rdpWebViewLog">
-        dm_mon_web_view_log.id id,
-        dm_mon_web_view_log.gmt_create gmt_create,
-        dm_mon_web_view_log.gmt_modified gmt_modified,
-        dm_mon_web_view_log.uid uid,
-        dm_mon_web_view_log.src src,
-        dm_mon_web_view_log.keyword keyword,
-        dm_mon_web_view_log.uri uri,
-        dm_mon_web_view_log.client_id client_id,
-        dm_mon_web_view_log.vb_id vb_id
+        id,
+        gmt_create,
+        gmt_modified,
+        uid,
+        src,
+        keyword,
+        uri,
+        client_id,
+        vb_id
     </sql>
 </mapper>

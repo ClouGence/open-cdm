@@ -150,7 +150,6 @@ public class SysInitDefService {
         Properties props = new Properties();
         props.setProperty("spring.datasource.username", "");
         props.setProperty("spring.datasource.password", "");
-        props.setProperty("clougence.rdp.product.trial.verify_code", "777777");
         props.setProperty("clougence.init.admin.email", InitSeedConstants.DEFAULT_PRIMARY_EMAIL);
         props.setProperty("server.port", "8222");
         props.setProperty("clouddm.rsocket.dns", resolveDefaultHostIp());
