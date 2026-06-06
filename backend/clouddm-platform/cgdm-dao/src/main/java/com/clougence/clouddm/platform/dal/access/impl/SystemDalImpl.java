@@ -4,6 +4,9 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.mapper.system.*;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
+import com.clougence.clouddm.api.common.crypt.CryptService;
+import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -60,5 +63,17 @@ public class SystemDalImpl implements SystemDal {
     @Override
     public DmSysWorkerMapper workerMapper() {
         return workerMapper;
+    }
+
+    // ---------- dal service methods ----------
+
+    @Override
+    public DmSysUserConfDO getSpecifiedConfig(String uid, String configName) {
+        DmSysUserConfDO configDO = userConfMapper.queryByUidAndConfigName(uid, configName);
+        if (configDO != null && configDO.isSecret() && StringUtils.isNotBlank(configDO.getConfigValue())) {
+            String val = CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(configDO.getConfigValue());
+            configDO.setConfigValue(val);
+        }
+        return configDO;
     }
 }

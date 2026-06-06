@@ -68,4 +68,6 @@ public class ProjectDalImpl implements ProjectDal {
     public DmProjectVersionMapper versionMapper() {
         return versionMapper;
     }
+
+    // ---------- dal service methods ----------
 }

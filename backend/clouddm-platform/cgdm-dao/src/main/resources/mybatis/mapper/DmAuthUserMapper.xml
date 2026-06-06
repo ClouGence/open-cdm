@@ -12,6 +12,7 @@
         <result column="username" property="username"/>
         <result column="company" property="company"/>
         <result column="phone" property="phone"/>
+        <result column="account" property="account"/>
         <result column="sub_account" property="subAccount"/>
         <result column="password" property="password"/>
         <result column="op_password" property="opPassword"/>
@@ -60,6 +61,7 @@
         dm_auth_user.username username,
         dm_auth_user.company company,
         dm_auth_user.phone phone,
+        dm_auth_user.account account,
         dm_auth_user.sub_account sub_account,
         dm_auth_user.password password,
         dm_auth_user.op_password op_password,
@@ -152,6 +154,39 @@
         WHERE
             email = #{email}
             AND account_type = 'SUB_ACCOUNT'
+    </select>
+
+    <select id="queryUserByAccount" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            dm_auth_user
+        WHERE
+            account = #{account}
+            AND bind_type = #{bindType,javaType=com.clougence.clouddm.platform.dal.model.auth.AccountBindType}
+        limit 1
+    </select>
+
+    <select id="queryUserByEmail" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            dm_auth_user
+        WHERE
+            email = #{email}
+            AND bind_type = #{bindType,javaType=com.clougence.clouddm.platform.dal.model.auth.AccountBindType}
+        limit 1
+    </select>
+
+    <select id="queryUserByPhone" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            dm_auth_user
+        WHERE
+            phone = #{phone}
+            AND bind_type = #{bindType,javaType=com.clougence.clouddm.platform.dal.model.auth.AccountBindType}
+        limit 1
     </select>
 
     <select id="queryPrimaryByCompany" resultMap="rdpUserDO">
@@ -549,6 +584,7 @@
         <set>
             <if test="subAccount!=null and subAccount!=''">
                 sub_account = #{subAccount},
+                account = #{subAccount},
             </if>
             <if test="userName!=null and userName!=''">
                 username = #{userName},

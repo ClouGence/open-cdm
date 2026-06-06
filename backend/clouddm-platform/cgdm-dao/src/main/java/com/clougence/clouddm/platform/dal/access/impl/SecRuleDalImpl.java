@@ -47,4 +47,6 @@ public class SecRuleDalImpl implements SecRuleDal {
     public DmSecSpecMapper specMapper() {
         return specMapper;
     }
+
+    // ---------- dal service methods ----------
 }

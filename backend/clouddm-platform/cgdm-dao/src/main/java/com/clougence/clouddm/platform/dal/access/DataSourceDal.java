@@ -19,4 +19,6 @@ public interface DataSourceDal {
     DmDsTagMapper tagMapper();
 
     DmDsUsageMapper usageMapper();
+
+    // ---------- dal service methods ----------
 }

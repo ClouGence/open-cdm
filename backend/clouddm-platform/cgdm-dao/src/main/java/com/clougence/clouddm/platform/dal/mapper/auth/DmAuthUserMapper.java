@@ -21,12 +21,8 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
-import com.clougence.clouddm.platform.dal.model.auth.AccountType;
-import com.clougence.clouddm.platform.dal.model.auth.UserStatus;
 import com.clougence.clouddm.platform.dal.model.CanBeReplaced;
-import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.auth.*;
 
 /**
  * @author wanshao create time is 2021/1/5
@@ -48,13 +44,19 @@ public interface DmAuthUserMapper extends BaseMapper<DmAuthUserDO> {
     List<DmAuthUserDO> querySubByPrimaryId(long primaryId);
 
     List<RsAuthPersonObj> queryApproPerson(@Param("accountType") AccountType accountType, @Param("parentId") long parentId, @Param("resId") Long resId,
-                                                  @Param("resPath") String resPath);
+                                           @Param("resPath") String resPath);
 
     List<RsAuthPersonObj> queryAuthApproPerson(@Param("accountType") AccountType accountType, @Param("parentId") long parentId);
 
     DmAuthUserDO querySubByPhone(String phone);
 
     DmAuthUserDO querySubByEmail(String email);
+
+    DmAuthUserDO queryUserByAccount(@Param("account") String account, @Param("bindType") AccountBindType bindType);
+
+    DmAuthUserDO queryUserByEmail(@Param("email") String email, @Param("bindType") AccountBindType bindType);
+
+    DmAuthUserDO queryUserByPhone(@Param("phone") String phone, @Param("bindType") AccountBindType bindType);
 
     DmAuthUserDO querySubAccountByPhoneAndAccount(String phone, String subAccount);
 

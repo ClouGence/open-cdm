@@ -18,9 +18,6 @@ package com.clougence.clouddm.platform.dal.model.auth;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
-import com.clougence.clouddm.platform.dal.model.auth.AccountType;
-import com.clougence.clouddm.platform.dal.model.auth.UserStatus;
 import com.clougence.clouddm.platform.dal.handler.AccountBindTypeTypeHandler;
 
 import lombok.Getter;
@@ -56,6 +53,8 @@ public class DmAuthUserDO {
      * for primary acount login
      */
     private String          phone;
+
+    private String          account;
 
     /**
      * for sub account login,account@primary userDomain

@@ -19,4 +19,6 @@ public interface ProjectDal {
     DmProjectScmMapper scmMapper();
 
     DmProjectVersionMapper versionMapper();
+
+    // ---------- dal service methods ----------
 }

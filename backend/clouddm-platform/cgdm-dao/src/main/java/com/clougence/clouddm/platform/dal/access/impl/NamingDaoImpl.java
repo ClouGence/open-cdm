@@ -21,6 +21,7 @@ import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.NamingDao;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
 import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.secrule.RuleKind;
@@ -149,6 +150,17 @@ public class NamingDaoImpl implements NamingDao {
     public String genInnerUserPwd() {
         String namePattern = "inner%s";
         return String.format(namePattern, fixedLenRandomStr(61));
+    }
+
+    @Override
+    public String genLoginAccount() {
+        while (true) {
+            String account = fixedLenRandomStr(8);
+            DmAuthUserDO user = authDal.userMapper().queryUserByAccount(account, AccountBindType.INTERNAL);
+            if (user == null) {
+                return account;
+            }
+        }
     }
 
     @Override

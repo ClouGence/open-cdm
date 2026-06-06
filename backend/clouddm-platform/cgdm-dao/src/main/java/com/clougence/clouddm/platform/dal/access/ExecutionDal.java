@@ -17,4 +17,6 @@ public interface ExecutionDal {
     DmExecSessionMapper sessionMapper();
 
     DmExecSqlAuditMapper sqlAuditMapper();
+
+    // ---------- dal service methods ----------
 }

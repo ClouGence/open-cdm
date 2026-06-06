@@ -47,4 +47,6 @@ public class MonitorDalImpl implements MonitorDal {
     public DmMonWebViewLogMapper webViewLogMapper() {
         return webViewLogMapper;
     }
+
+    // ---------- dal service methods ----------
 }

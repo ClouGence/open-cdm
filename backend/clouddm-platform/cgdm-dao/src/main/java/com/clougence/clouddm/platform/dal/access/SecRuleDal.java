@@ -13,4 +13,6 @@ public interface SecRuleDal {
     DmSecSensitiveMapper sensitiveMapper();
 
     DmSecSpecMapper specMapper();
+
+    // ---------- dal service methods ----------
 }

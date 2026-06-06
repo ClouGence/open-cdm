@@ -13,4 +13,6 @@ public interface ApprovalDal {
     DmApprovalProcessMapper processMapper();
 
     DmApprovalTemplateMapper templateMapper();
+
+    // ---------- dal service methods ----------
 }

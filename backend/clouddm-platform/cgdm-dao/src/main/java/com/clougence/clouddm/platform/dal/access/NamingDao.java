@@ -42,5 +42,7 @@ public interface NamingDao {
 
     String genInnerUserPwd();
 
+    String genLoginAccount();
+
     String genSecRuleName(RuleKind ruleKind);
 }
