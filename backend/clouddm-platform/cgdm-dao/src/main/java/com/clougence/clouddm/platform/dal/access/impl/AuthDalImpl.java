@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.mapper.auth.*;
-import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.utils.StringUtils;
 
@@ -83,16 +82,16 @@ public class AuthDalImpl implements AuthDal {
             return null;
         }
 
-        DmAuthUserDO user = this.userMapper.queryUserByAccount(loginText, AccountBindType.INTERNAL);
+        DmAuthUserDO user = this.userMapper.queryLocalLoginUserByAccount(loginText);
         if (user != null) {
             return user;
         }
 
-        user = this.userMapper.queryUserByEmail(loginText, AccountBindType.INTERNAL);
+        user = this.userMapper.queryLocalLoginUserByEmail(loginText);
         if (user != null) {
             return user;
         }
 
-        return this.userMapper.queryUserByPhone(loginText, AccountBindType.INTERNAL);
+        return this.userMapper.queryLocalLoginUserByPhone(loginText);
     }
 }
