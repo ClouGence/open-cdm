@@ -38,9 +38,13 @@
             <CustomIcon type="icon-v2-TicketAuth" size="56" color="#000" />
           </div>
           <div class="action-text">{{ $t('shen-qing-quan-xian') }}</div>
-          <Button type="primary" @click="handleAuthDataSource">
-            {{ $t('shen-qing-quan-xian') }}
-          </Button>
+          <Tooltip :content="rootAccountUnsupportedTip" :disabled="!isRootAccount" transfer placement="top">
+            <span>
+              <Button type="primary" @click="handleAuthDataSource" :disabled="isRootAccount">
+                {{ $t('shen-qing-quan-xian') }}
+              </Button>
+            </span>
+          </Tooltip>
         </div>
 
         <div class="flow-arrow" v-if="!myAuth.includes('DM_DS_MANAGE')">
@@ -80,10 +84,20 @@ export default {
     ...mapState(['userInfo', 'myAuth']),
     hasRdpDsReadPermission() {
       return this.userInfo.authArr && this.userInfo.authArr.includes('RDP_DS_READ');
+    },
+    isRootAccount() {
+      return this.userInfo.accountType === 'PRIMARY_ACCOUNT';
+    },
+    rootAccountUnsupportedTip() {
+      return '管理员账号不支持此操作';
     }
   },
   methods: {
     handleAuthDataSource() {
+      if (this.isRootAccount) {
+        this.$Message.warning(this.rootAccountUnsupportedTip);
+        return;
+      }
       console.log('handleAuthDataSource');
       this.$router.push({ path: '/system/permission', query: { type: 'apply' } });
     },

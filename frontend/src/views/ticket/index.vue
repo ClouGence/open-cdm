@@ -97,14 +97,12 @@
     <CCModal v-model="showTicketCreateModal" :title="$t('xuan-ze-gong-dan-lei-xing')" width="400px">
       <div class="flex mt-[20px]">
         <div class="flex-1 flex justify-center items-center">
-          <div
-            style="border: 1px solid #ccc"
-            :class="`flex flex-col items-center p-[10px] px-[20px] cursor-pointer rounded-[4px] ${ticketType === 'auth' ? 'bg-[#ddd]' : ''}`"
-            @click="handleChangeTicketType('auth')"
-          >
-            <CustomIcon type="icon-v2-TicketAuth" size="48" />
-            <div class="mt-[10px]">{{ $t('quan-xian-gong-dan-config') }}</div>
-          </div>
+          <Tooltip :content="rootAccountUnsupportedTip" :disabled="!isRootAccount" transfer placement="top">
+            <div style="border: 1px solid #ccc" :class="authTicketClass" @click="handleChangeTicketType('auth')">
+              <CustomIcon type="icon-v2-TicketAuth" size="48" />
+              <div class="mt-[10px]">{{ $t('quan-xian-gong-dan-config') }}</div>
+            </div>
+          </Tooltip>
         </div>
         <div class="flex-1 flex justify-center items-center">
           <div
@@ -216,6 +214,19 @@ export default {
     TICKET_STATUS_COLOR() {
       return TICKET_STATUS_COLOR;
     },
+    isRootAccount() {
+      return this.userInfo.accountType === 'PRIMARY_ACCOUNT';
+    },
+    rootAccountUnsupportedTip() {
+      return '管理员账号不支持此操作';
+    },
+    authTicketClass() {
+      return [
+        'flex flex-col items-center p-[10px] px-[20px] rounded-[4px]',
+        this.ticketType === 'auth' ? 'bg-[#ddd]' : '',
+        this.isRootAccount ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+      ].join(' ');
+    },
     ...mapState(['userInfo', 'myCatLog', 'myAuth'])
   },
   methods: {
@@ -226,11 +237,18 @@ export default {
       if (this.ticketType === 'sql') {
         this.$router.push('/ticket_create');
       } else if (this.ticketType === 'auth') {
+        if (this.isRootAccount) {
+          this.$Message.warning(this.rootAccountUnsupportedTip);
+          return;
+        }
         this.$router.push({ path: '/system/permission', query: { type: 'apply' } });
       }
       this.handleCloseTicketCreateModal();
     },
     handleChangeTicketType(ticketType) {
+      if (ticketType === 'auth' && this.isRootAccount) {
+        return;
+      }
       this.ticketType = ticketType;
     },
     handlePageChange(pageNum) {
