@@ -218,7 +218,6 @@
                   <section class="option-section">
                     <div class="option-section-title">{{ $t('quan-bu-zi-yuan-quan-xian') }}</div>
                     <div class="all-resource-option">
-                      <span>{{ $t('quan-bu-zi-yuan-quan-xian') }}</span>
                       <i-switch
                         true-color="#52C41A"
                         :disabled="resourceManageDisabled"
@@ -226,6 +225,7 @@
                         v-model="authTarget.resourceManage"
                         @on-change="handleResourceManageChange"
                       />
+                      <div class="all-resource-tip">{{ $t('shou-quan-quan-bu-zi-yuan-gei-yong-hu') }}</div>
                     </div>
                   </section>
                 </div>
@@ -277,28 +277,6 @@
         <div class="right"></div>
       </div>
     </a-modal>
-    <CCModal :title="$t('ti-shi')" v-model="showEnableResourceModal">
-      <div>
-        {{ $t('que-ding-yao-shou-quan-quan-bu-zi-yuan-gei-selectedsubaccountusername', [authTargetName]) }}
-      </div>
-      <template #footer>
-        <Button @click="handleCloseEnableResourceModal">{{ $t('guan-bi') }}</Button>
-        <Button type="primary" :loading="resourceManageLoading" @click="handleEnableResource">
-          {{ $t('que-ding') }}
-        </Button>
-      </template>
-    </CCModal>
-    <CCModal :title="$t('ti-shi')" v-model="showDisableResourceModal">
-      <div>
-        {{ $t('que-ding-yao-qu-xiao-selectedsubaccountusername-de-quan-bu-shou-quan', [authTargetName]) }}
-      </div>
-      <template #footer>
-        <Button @click="handleCloseDisableResourceModal">{{ $t('guan-bi') }}</Button>
-        <Button type="primary" :loading="resourceManageLoading" @click="handleDisableResource">
-          {{ $t('que-ding') }}
-        </Button>
-      </template>
-    </CCModal>
   </div>
 </template>
 
@@ -321,8 +299,9 @@ export default {
       resourceManager: false,
       resourceManageLoading: false,
       globalResourceAuthId: null,
-      showEnableResourceModal: false,
-      showDisableResourceModal: false,
+      globalResourceOriginalEnabled: false,
+      globalResourceOriginalStartTime: null,
+      globalResourceOriginalEndTime: null,
       authTarget: {
         uid: '',
         username: '',
@@ -470,9 +449,6 @@ export default {
         }
       });
       return ccList;
-    },
-    authTargetName() {
-      return this.subAccount || this.authTarget.username || this.uid;
     },
     resourceManageDisabled() {
       return !this.isEdit || this.previewMode || this.authTarget.disable || this.resourceManageLoading || !this.myAuth.includes('RDP_AUTH_MANAGE');
@@ -647,6 +623,9 @@ export default {
     },
     async loadGlobalResourceAuth() {
       this.globalResourceAuthId = null;
+      this.globalResourceOriginalEnabled = false;
+      this.globalResourceOriginalStartTime = null;
+      this.globalResourceOriginalEndTime = null;
       const res = await this.$services.rdpAuthListUserAuthOfRes({
         data: {
           authKind: 'DataSource',
@@ -661,8 +640,11 @@ export default {
       });
       const globalAuth = Array.isArray(res.data) && res.data.length ? res.data[0] : null;
       this.authTarget.resourceManage = !!globalAuth;
+      this.globalResourceOriginalEnabled = !!globalAuth;
       if (globalAuth) {
         this.globalResourceAuthId = globalAuth.id;
+        this.globalResourceOriginalStartTime = this.formatAuthTime(globalAuth.startTime);
+        this.globalResourceOriginalEndTime = this.formatAuthTime(globalAuth.endTime);
         if (globalAuth.startTime) {
           this.authTime.startTime = dayjs(globalAuth.startTime);
         }
@@ -671,67 +653,13 @@ export default {
         }
       }
     },
-    handleResourceManageChange(enabled) {
-      if (enabled) {
-        this.showEnableResourceModal = true;
-      } else {
-        this.showDisableResourceModal = true;
+    async handleResourceManageChange() {
+      this.originLeftTree = this.markGlobalResourceAuthState(this.originLeftTree);
+      this.$refs.dataSourceTree.setData(this.getFilterOfTypeAndSearch(this.originLeftTree));
+      if (this.curNode?.key) {
+        await this.handleGetAuthTreeForDm(this.curNode);
       }
-    },
-    async handleEnableResource() {
-      await this.updateResourceManage(true);
-      this.showEnableResourceModal = false;
-    },
-    handleCloseEnableResourceModal() {
-      this.showEnableResourceModal = false;
-      this.authTarget.resourceManage = false;
-    },
-    async handleDisableResource() {
-      await this.updateResourceManage(false);
-      this.showDisableResourceModal = false;
-    },
-    handleCloseDisableResourceModal() {
-      this.showDisableResourceModal = false;
-      this.authTarget.resourceManage = true;
-    },
-    async updateResourceManage(resourceManage) {
-      this.resourceManageLoading = true;
-      try {
-        const data = {
-          authKind: 'DataSource',
-          targetUid: this.uid,
-          appends: [],
-          updates: [],
-          deletes: []
-        };
-        if (resourceManage) {
-          data.appends.push({
-            resId: 0,
-            resPaths: [],
-            authLabels: [],
-            startTime: this.formatAuthTime(this.authStartTime),
-            endTime: this.formatAuthTime(this.authEndTime)
-          });
-        } else if (this.globalResourceAuthId) {
-          data.deletes.push({
-            authId: this.globalResourceAuthId,
-            resId: 0,
-            resPaths: []
-          });
-        }
-        const res = await this.$services.rdpAuthModifyUserAuth({ data });
-        if (res.success) {
-          await this.loadGlobalResourceAuth();
-          this.$Message.success(resourceManage ? this.$t('shou-quan-cheng-gong') : this.$t('jie-chu-shou-quan-cheng-gong'));
-        } else {
-          this.authTarget.resourceManage = !resourceManage;
-        }
-      } catch (e) {
-        this.authTarget.resourceManage = !resourceManage;
-        throw e;
-      } finally {
-        this.resourceManageLoading = false;
-      }
+      await this.handleGetPreviewData();
     },
     formatAuthTime(value) {
       return value ? dayjs(value).format('YYYY-MM-DD HH:mm:ss') : null;
@@ -791,7 +719,8 @@ export default {
       function hasEditNode(tree) {
         return tree.some((node) => node.isEdit || (node.children && hasEditNode(node.children)));
       }
-      if (!hasEditNode(this.originLeftTree)) {
+      const hasGlobalResourceEdit = this.hasGlobalResourceAuthChanges();
+      if (!hasEditNode(this.originLeftTree) && !hasGlobalResourceEdit) {
         this.$Message.warning(this.$t('huan-mei-you-bian-ji-quan-xian'));
         return;
       }
@@ -806,7 +735,9 @@ export default {
         return;
       }
 
-      const filterTree = this.filterTreeWithEditedNodes(this.originLeftTree);
+      const filterTree = hasGlobalResourceEdit
+        ? this.getFilterOfTypeAndSearch(this.originLeftTree)
+        : this.filterTreeWithEditedNodes(this.originLeftTree);
       this.$refs.dataSourceTree.setData(filterTree);
       this.$refs.instanceTree.setData([]);
       this.$refs.schemaTree.setData([]);
@@ -927,11 +858,63 @@ export default {
         });
       });
 
+      const globalResourceAuthChanges = this.getGlobalResourceAuthChanges();
       return {
-        appends: this.mergeSubmitAuthData(appends),
-        updates: this.mergeSubmitAuthData(updates),
-        deletes: this.mergeSubmitAuthData(deletes)
+        appends: this.mergeSubmitAuthData(appends).concat(globalResourceAuthChanges.appends),
+        updates: this.mergeSubmitAuthData(updates).concat(globalResourceAuthChanges.updates),
+        deletes: this.mergeSubmitAuthData(deletes).concat(globalResourceAuthChanges.deletes)
       };
+    },
+    handleGetPreviewData() {
+      this.authedData = this.getSubmitAuthData();
+      return this.authedData;
+    },
+    hasGlobalResourceAuthChanges() {
+      const globalResourceAuthChanges = this.getGlobalResourceAuthChanges();
+      return !!(globalResourceAuthChanges.appends.length || globalResourceAuthChanges.updates.length || globalResourceAuthChanges.deletes.length);
+    },
+    getGlobalResourceAuthChanges() {
+      const changes = {
+        appends: [],
+        updates: [],
+        deletes: []
+      };
+      if (this.activeAuthTab !== 'DataSource') {
+        return changes;
+      }
+      const startTime = this.formatAuthTime(this.authStartTime);
+      const endTime = this.formatAuthTime(this.authEndTime);
+      const authData = {
+        resId: 0,
+        resPaths: [],
+        authLabels: [],
+        startTime,
+        endTime
+      };
+      if (this.authTarget.resourceManage && !this.globalResourceOriginalEnabled) {
+        changes.appends.push(authData);
+        return changes;
+      }
+      if (!this.authTarget.resourceManage && this.globalResourceOriginalEnabled && this.globalResourceAuthId) {
+        changes.deletes.push({
+          authId: this.globalResourceAuthId,
+          resId: 0,
+          resPaths: []
+        });
+        return changes;
+      }
+      if (
+        this.authTarget.resourceManage &&
+        this.globalResourceOriginalEnabled &&
+        this.globalResourceAuthId &&
+        (startTime !== this.globalResourceOriginalStartTime || endTime !== this.globalResourceOriginalEndTime)
+      ) {
+        changes.updates.push({
+          ...authData,
+          authId: this.globalResourceAuthId
+        });
+      }
+      return changes;
     },
     mergeSubmitAuthData(appends) {
       const map = new Map();
@@ -998,7 +981,7 @@ export default {
             )}
             <div>
               {node?.objDesc ? `${node?.objName}(${node?.objDesc})` : node?.objName}
-              {node?.isAuthed && <span class='authed-tip'></span>}
+              {this.isNodeAuthed(node) && <span class='authed-tip'></span>}
             </div>
           </div>
           {enableQuery && <i style='position: absolute; right: 10px' class='iconfont iconkechaxun'></i>}
@@ -1294,6 +1277,7 @@ export default {
           item.levels = [...parentObjIds, item.objId];
           return item;
         });
+        res.data = this.markGlobalResourceAuthState(res.data);
 
         // 3、渲染左侧资源树
         if (!this.originLeftTree?.length) {
@@ -1310,6 +1294,7 @@ export default {
 
           // 3.3 标记根节点的auth情况
           final = this.getRootTreeAuth(final);
+          final = this.markGlobalResourceAuthState(final);
 
           this.originLeftTree = final;
 
@@ -1391,6 +1376,29 @@ export default {
         }
       });
       return tree;
+    },
+    isGlobalResourceAuthActive() {
+      return this.activeAuthTab === 'DataSource' && !!this.authTarget.resourceManage;
+    },
+    isNodeAuthed(node) {
+      return !!(node?.isAuthed || node?.globalAuthed);
+    },
+    markGlobalResourceAuthState(tree = []) {
+      const active = this.isGlobalResourceAuthActive();
+      const traverse = (nodes) =>
+        nodes?.map?.((node) => {
+          const next = { ...node };
+          if (next.objName || next.objId || next.objType) {
+            next.globalAuthed = active;
+          }
+          if (node.children && node.children.length > 0 && node.children[0]?.objType) {
+            next.children = traverse(node.children);
+          } else if (node.children) {
+            next.children = node.children;
+          }
+          return next;
+        }) || [];
+      return traverse(tree);
     },
 
     getResTypeToIds(node = {}) {
@@ -1493,6 +1501,27 @@ export default {
 
       return filterAuth;
     },
+    handleAuthFromGlobal(auth) {
+      const filterAuth = JSON.parse(JSON.stringify(auth || []));
+      if (!this.isGlobalResourceAuthActive()) {
+        return filterAuth;
+      }
+
+      const traverse = (nodes = []) => {
+        nodes.forEach((item) => {
+          if (item.children?.length) {
+            traverse(item.children);
+          } else {
+            item.checked = true;
+            item.disabled = true;
+            item.inherited = true;
+            item.globalInherited = true;
+          }
+        });
+      };
+      traverse(filterAuth);
+      return filterAuth;
+    },
     handleAuthFromSelf(auth, hasAuth, node) {
       let selfAuth = [];
       hasAuth.forEach((item) => {
@@ -1564,7 +1593,9 @@ export default {
             }
 
             const hasAuthList = [];
-            hasAutn.data.forEach((authWrap) => {
+            const rawAuthData = Array.isArray(hasAutn.data) ? hasAutn.data : [];
+            const authData = this.isGlobalResourceAuthActive() ? rawAuthData : rawAuthData.filter((authWrap) => authWrap.level !== '/');
+            authData.forEach((authWrap) => {
               if (authWrap.startTime) this.authTime.startTime = dayjs(authWrap.startTime);
               if (authWrap.endTime) this.authTime.endTime = dayjs(authWrap.endTime);
               if (authWrap?.dsAuthKinds.length) hasAuthList.push(...authWrap.dsAuthKinds);
@@ -1601,8 +1632,10 @@ export default {
             filterAuth = this.handleAuthFromParent(node, filterAuth);
 
             // 3.4 再处理来自自身的权限
-            filterAuth = this.handleAuthFromSelf(filterAuth, hasAutn.data, node);
+            filterAuth = this.handleAuthFromSelf(filterAuth, authData, node);
           }
+          // 全部资源授权等同于每个层级都拥有权限
+          filterAuth = this.handleAuthFromGlobal(filterAuth);
           this.$nextTick(() => {
             switch (elementType) {
               case 'Instance':
@@ -1906,9 +1939,9 @@ export default {
           if (children[0]?.objType === 'Instance') {
             let newChildren = children;
             if (type === 'authed') {
-              newChildren = children.filter((child) => child.isAuthed);
+              newChildren = children.filter((child) => this.isNodeAuthed(child));
             } else if (type === 'unAuth') {
-              newChildren = children.filter((child) => !child.isAuthed);
+              newChildren = children.filter((child) => !this.isNodeAuthed(child));
             }
             if (type === 'authed' && node.objType === 'ENV' && newChildren.length === 0) {
               return null;
@@ -2325,8 +2358,14 @@ export default {
               }
               .all-resource-option {
                 display: flex;
+                flex-direction: column;
                 align-items: center;
-                justify-content: space-between;
+                gap: 8px;
+              }
+              .all-resource-tip {
+                color: #7a8499;
+                font-size: 13px;
+                line-height: 20px;
               }
               .time {
                 display: flex;

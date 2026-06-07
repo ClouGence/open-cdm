@@ -2679,6 +2679,7 @@
   "quan-bu-biao": "All tables",
   "que-ding-yao-qu-xiao-selectedsubaccountusername-de-quan-bu-shou-quan": "Are you sure you want to cancel all authorizations for {0}?",
   "que-ding-yao-shou-quan-quan-bu-zi-yuan-gei-selectedsubaccountusername": "Are you sure you want to authorize all resources to {0}?",
+  "shou-quan-quan-bu-zi-yuan-gei-yong-hu": "Authorize all resources to the user",
   "tong-yi-biao-ming": "Unified table name",
   "yi-xuan-zhong-de-biao": "Selected table",
   "ding-shi-zhong-pao-qing-kong-dui-duan-shu-ju": "Clear target data by timing/replay",

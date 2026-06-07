@@ -494,7 +494,13 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
     }
 
     private void normalizeGlobalAuth(DmAuthResDO authDO) {
-        if (authDO.getResId() == GLOBAL_RESOURCE_RES_ID && StringUtils.equals(authDO.getResPath(), GLOBAL_RESOURCE_PATH) && CollectionUtils.isEmpty(authDO.getAuthLabels())) {
+        if (authDO.getResId() != GLOBAL_RESOURCE_RES_ID || !StringUtils.equals(authDO.getResPath(), GLOBAL_RESOURCE_PATH)) {
+            return;
+        }
+        authDO.setResInstId("ALL");
+        authDO.setResDesc("ALL");
+        authDO.setLevelOne(GLOBAL_RESOURCE_PATH);
+        if (CollectionUtils.isEmpty(authDO.getAuthLabels())) {
             authDO.setAuthLabels(this.allDataAuthLabels());
         }
     }

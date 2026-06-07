@@ -2633,6 +2633,7 @@
   "yuan-duan-wu-zhu-jian-qie-wu-wei-yi-jian": "源端无主键且无唯一键",
   "nei-0": "内",
   "que-ding-yao-shou-quan-quan-bu-zi-yuan-gei-selectedsubaccountusername": "确定要授权全部资源给{0}？",
+  "shou-quan-quan-bu-zi-yuan-gei-yong-hu": "授权全部资源给用户",
   "que-ding-yao-qu-xiao-selectedsubaccountusername-de-quan-bu-shou-quan": "确定要取消{0}的全部授权？",
   "fen-qu-xin-xi-qian-yi": "分区信息迁移",
   "ce-shi-zhi": "测试值",
