@@ -13,7 +13,6 @@ export const authApi = {
   // listMyAuthOfRes: '/rdp/console/api/v1/auth/listMyAuthOfRes',
   // listMyAuthRes: '/rdp/console/api/v1/auth/listMyAuthRes',
   // modifyUserAuth: '/rdp/console/api/v1/auth/modifyUserAuth',
-  // checkResourceManger: '/rdp/console/api/v1/auth/checkResourceManger',
   // listMyAuthResForCC: '/rdp/console/api/v1/auth/listMyAuthRes',
 
   //dm
@@ -38,7 +37,6 @@ export const authApi = {
   rdpAuthListMyAuthOfRes: '/rdp/console/api/v1/auth/listMyAuthOfRes',
   rdpAuthListMyAuthRes: '/rdp/console/api/v1/auth/listMyAuthRes',
   rdpAuthModifyUserAuth: '/rdp/console/api/v1/auth/modifyUserAuth',
-  rdpAuthCheckResourceManger: '/rdp/console/api/v1/auth/checkResourceManger',
   rdpAuthListUserAuthOfRes: '/rdp/console/api/v1/auth/listUserAuthOfRes',
 
   //dm

@@ -53,8 +53,6 @@ public class ListUserVO {
 
     private boolean         loginLocked;
 
-    private boolean         resourceManage;
-
     private String          lastTryLoginTime;
 
     private boolean         useMfa;

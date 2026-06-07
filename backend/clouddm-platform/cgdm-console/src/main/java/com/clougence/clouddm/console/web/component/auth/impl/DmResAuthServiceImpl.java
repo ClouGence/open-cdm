@@ -78,7 +78,7 @@ public class DmResAuthServiceImpl implements DmResAuthService {
             if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
                 List<DmDsDO> dsDOs = this.dsDal.dsMapper().listByUserWithGmtOrder(targetUid);
                 return dsDOs.stream().map(DmDsDO::getId).collect(Collectors.toList());
-            } else if (userDO.isResourceManageEnable()) {
+            } else if (CollectionUtils.isNotEmpty(this.authServiceForManage.listEffectiveGlobalAuth(targetUid, AuthKind.DataSource))) {
                 UserCacheEntry cacheEntry = cacheDao.queryByUserNumberId(userDO.getParentId());
                 List<DmDsDO> dsDOs = this.dsDal.dsMapper().listByUserWithGmtOrder(cacheEntry.getUid());
                 return dsDOs.stream().map(DmDsDO::getId).collect(Collectors.toList());
@@ -102,7 +102,7 @@ public class DmResAuthServiceImpl implements DmResAuthService {
             if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
                 List<DmDsDO> dsDOs = this.dsDal.dsMapper().listByUserWithGmtOrder(targetUid);
                 return dsDOs.stream().map(DmDsDO::getId).collect(Collectors.toList());
-            } else if (userDO.isResourceManageEnable()) {
+            } else if (CollectionUtils.isNotEmpty(this.authServiceForManage.listEffectiveGlobalAuth(targetUid, AuthKind.DataSource))) {
                 UserCacheEntry cacheEntry = cacheDao.queryByUserNumberId(userDO.getParentId());
                 List<DmDsDO> dsDOs = this.dsDal.dsMapper().listByUserWithGmtOrder(cacheEntry.getUid());
                 return dsDOs.stream().map(DmDsDO::getId).collect(Collectors.toList());
@@ -139,6 +139,10 @@ public class DmResAuthServiceImpl implements DmResAuthService {
             return dsResource;
         }
 
+        if (this.authServiceForManage.hasGlobalAuth(uid, AuthKind.DataSource, resAuth)) {
+            return dsResource;
+        }
+
         // filter resAuth in dsObjs
         List<Predicate<String>> authedPathNames = new ArrayList<>();
         List<String> queryPathList = dsResource.stream().map(DsResPath::getResPath).collect(Collectors.toList());
@@ -167,7 +171,7 @@ public class DmResAuthServiceImpl implements DmResAuthService {
     @Override
     public ResourceAccessInfo getAllowBrowseInfo(DsLevels levels, String uid) {
         DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
-        if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || userDO.isResourceManageEnable()) {
+        if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || this.authServiceForManage.hasGlobalAuth(uid, AuthKind.DataSource, DM_DAUTH_QUERY)) {
             return new ResourceAccessInfo(true);
         }
 

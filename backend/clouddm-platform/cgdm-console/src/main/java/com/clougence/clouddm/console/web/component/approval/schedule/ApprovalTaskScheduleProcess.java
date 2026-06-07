@@ -39,6 +39,7 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
+import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.rdp.global.config.user.UserDefinedConfig;
@@ -268,8 +269,8 @@ public class ApprovalTaskScheduleProcess {
     }
 
     private void updatePerson(List<PrimaryUserVO> primaryUserVOS, DmApprovalDO ticketDO, ApprovalStage rdpTicketStage) {
-        // query all resource user.
-        List<DmAuthUserDO> allResUsers = this.authDal.userMapper().listSubResourceManagersByPrimaryUId(ticketDO.getPrimaryUid());
+        // query users with global datasource authorization.
+        List<DmAuthUserDO> allResUsers = this.authDal.resMapper().listEffectiveGlobalAuthUsersByPrimaryUid(ticketDO.getPrimaryUid(), AuthKind.DataSource);
 
         List<String> newUids1 = primaryUserVOS.stream().map(PrimaryUserVO::getUid).collect(Collectors.toList());
         List<String> newUids2 = allResUsers.stream().map(DmAuthUserDO::getUid).collect(Collectors.toList());

@@ -19,8 +19,9 @@ import java.util.Date;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.sdk.security.auth.AuthKind;
 
 /**
  * @author wanshao create time is 2021/1/5
@@ -37,6 +38,10 @@ public interface DmAuthResMapper extends BaseMapper<DmAuthResDO> {
 
     List<DmAuthResDO> listByKind(String ownerUid, AuthKind authKind);
 
+    List<DmAuthResDO> listEffectiveGlobalByUser(String ownerUid, AuthKind authKind);
+
+    List<DmAuthUserDO> listEffectiveGlobalAuthUsersByPrimaryUid(String puid, AuthKind authKind);
+
     List<DmAuthResDO> listWithoutLabels(String ownerUid, AuthKind authKind);
 
     DmAuthResDO queryByUniqueKey(long resId, String ownerUid, String resPath, AuthKind authKind);
@@ -48,6 +53,8 @@ public interface DmAuthResMapper extends BaseMapper<DmAuthResDO> {
     void deleteByRes(long resId, AuthKind authKind);
 
     void deleteByUser(String ownerUid);
+
+    void deleteGlobalByUser(String ownerUid, AuthKind authKind);
 
     void deleteByPrefix(String prefixPath, String kindType);
 

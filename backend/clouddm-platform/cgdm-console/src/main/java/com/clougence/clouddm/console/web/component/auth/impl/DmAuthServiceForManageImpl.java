@@ -213,16 +213,22 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
     }
 
     public List<DmAuthResDO> listUserAuthWithoutLabels(String targetUid, AuthKind authKind) {
-        if (authDal.userMapper().isResourceManger(targetUid) && authKind == AuthKind.DataSource) {
-            // fetch datasource from parent
-            Long pid = authDal.userMapper().queryByUid(targetUid).getParentId();
-            if (pid != null) {
-                String pUid = authDal.userMapper().queryById(pid).getUid();
-                return this.dsDal.dsMapper() //
-                    .listByUser(pUid)
-                    .stream()
-                    .map(ds -> RdpConvertUtils.convertToAuthDOByDataSource(ds, null))
-                    .collect(Collectors.toList());
+        if (authKind == AuthKind.DataSource) {
+            DmAuthUserDO userDO = authDal.userMapper().queryByUid(targetUid);
+            DmAuthResDO globalAuth = this.firstGlobalAuth(targetUid, authKind);
+            if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || globalAuth != null) {
+                String ownerUid = userDO.getUid();
+                if (userDO.getParentId() != null) {
+                    ownerUid = authDal.userMapper().queryById(userDO.getParentId()).getUid();
+                }
+                return this.dsDal.dsMapper().listByUser(ownerUid).stream().map(ds -> {
+                    DmAuthResDO authDO = RdpConvertUtils.convertToAuthDOByDataSource(ds, null);
+                    if (globalAuth != null) {
+                        authDO.setStartTime(globalAuth.getStartTime());
+                        authDO.setEndTime(globalAuth.getEndTime());
+                    }
+                    return authDO;
+                }).collect(Collectors.toList());
             }
         }
         return this.authDal.resMapper().listWithoutLabels(targetUid, authKind);
@@ -250,11 +256,14 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
 
         Map<Long, String> resInstIdMap = new HashMap<>();
         Map<Long, String> resDescMap = new HashMap<>();
-        fillExtraInfo(resInstIdMap, resDescMap, modifyData.getAppends(), modifyData.getUpdates(), modifyData.getAuthKind());
+        List<ModifyAuthForAppend> appends = modifyData.getAppends() == null ? Collections.emptyList() : modifyData.getAppends();
+        List<ModifyAuthForUpdate> updates = modifyData.getUpdates() == null ? Collections.emptyList() : modifyData.getUpdates();
+        List<ModifyAuthForDelete> deletes = modifyData.getDeletes() == null ? Collections.emptyList() : modifyData.getDeletes();
+        fillExtraInfo(resInstIdMap, resDescMap, appends, updates, modifyData.getAuthKind());
         String targetUid = modifyData.getTargetUid();
 
         // for delete
-        List<DmAuthResDO> delAuth = modifyData.getDeletes().stream().map(d -> {
+        List<DmAuthResDO> delAuth = deletes.stream().map(d -> {
             return RdpConvertUtils.convertToAuthDOFromDelete(targetUid, d, modifyData.getAuthKind());
         }).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(delAuth)) {
@@ -263,7 +272,7 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
 
         // for append
         List<DmAuthResDO> addAuth = new ArrayList<>();
-        for (ModifyAuthForAppend append : modifyData.getAppends()) {
+        for (ModifyAuthForAppend append : appends) {
             DmAuthResDO authDO = RdpConvertUtils
                 .convertToAuthDOFromInsert(targetUid, append, resInstIdMap.get(append.getResId()), resDescMap.get(append.getResId()), modifyData.getAuthKind());
             addAuth.add(authDO);
@@ -273,8 +282,7 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
         }
 
         // for update
-        List<DmAuthResDO> updateAuth = modifyData.getUpdates()
-            .stream()
+        List<DmAuthResDO> updateAuth = updates.stream()
             .map(u -> RdpConvertUtils.convertToAuthDOFromUpdate(targetUid, u, resInstIdMap.get(u.getResId()), resDescMap.get(u.getResId()), modifyData.getAuthKind()))
             .collect(Collectors.toList());
         this.appendDataAuth(targetUid, modifyData.getAuthKind(), updateAuth);
@@ -300,6 +308,7 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
             resIds.addAll(dResIds);
         }
 
+        resIds.remove(GLOBAL_RESOURCE_RES_ID);
         List<DmDsDO> dss = this.dsDal.dsMapper().listByUser(puid);
         Set<Long> dsIds = dss.stream().map(DmDsDO::getId).collect(Collectors.toSet());
         if (!dsIds.containsAll(resIds)) {
@@ -312,6 +321,7 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
         if (authKind == AuthKind.DataSource) {
             Set<Long> dsIds = appends.stream().map(ModifyAuthForAppend::getResId).collect(Collectors.toSet());
             dsIds.addAll(updates.stream().map(ModifyAuthForUpdate::getResId).collect(Collectors.toSet()));
+            dsIds.remove(GLOBAL_RESOURCE_RES_ID);
             if (!dsIds.isEmpty()) {
                 List<DmDsDO> dss = dsDal.dsMapper().listByIds(new ArrayList<>(dsIds));
                 for (DmDsDO ds : dss) {
@@ -331,6 +341,10 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
 
     private void deleteDataAuth(String targetUid, AuthKind kindType, List<DmAuthResDO> delAuth) {
         for (DmAuthResDO authDO : delAuth) {
+            if (authDO.getResId() == GLOBAL_RESOURCE_RES_ID && StringUtils.equals(authDO.getResPath(), GLOBAL_RESOURCE_PATH)) {
+                this.authDal.resMapper().deleteGlobalByUser(targetUid, kindType);
+                continue;
+            }
             List<DmAuthResDO> list = this.authDal.resMapper().queryByPath(authDO.getResId(), targetUid, kindType, authDO.getResPath());
             if (CollectionUtils.isEmpty(list)) {
                 continue;
@@ -343,6 +357,7 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
     }
 
     private void appendDataAuth(String targetUid, AuthKind kindType, List<DmAuthResDO> append) {
+        append.forEach(this::normalizeGlobalAuth);
         List<DmAuthResDO> authDOs = append.stream().filter(a -> CollectionUtils.isNotEmpty(a.getAuthLabels())).collect(Collectors.toList());
 
         Map<String, List<DmAuthResDO>> oldAuthMap = new HashMap<>();
@@ -426,21 +441,38 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
         this.authDal.resMapper().deleteByUser(uid);
     }
 
-    public boolean isResourceMangerEnable(String targetUid) {
-        Boolean isResourceManger = authDal.userMapper().isResourceManger(targetUid);
-        if (isResourceManger == null) {
-            return false;
-        }
-        return isResourceManger;
+    public List<DmAuthResDO> listEffectiveGlobalAuth(String targetUid, AuthKind authKind) {
+        return this.authDal.resMapper().listEffectiveGlobalByUser(targetUid, authKind);
+    }
+
+    public List<DmAuthUserDO> listEffectiveGlobalAuthUsersByPrimaryUid(String puid, AuthKind authKind) {
+        return this.authDal.resMapper().listEffectiveGlobalAuthUsersByPrimaryUid(puid, authKind);
+    }
+
+    public boolean hasGlobalAuth(String targetUid, AuthKind authKind, String dataAuthLabel) {
+        return this.listEffectiveGlobalAuth(targetUid, authKind)
+            .stream()
+            .anyMatch(auth -> CollectionUtils.isNotEmpty(auth.getAuthLabels()) && auth.getAuthLabels().contains(dataAuthLabel));
     }
 
     public List<DmAuthResDO> listUserAuthByRes(String targetUid, long resId, List<String> authPrefixList, AuthKind authKind) {
         if (authKind == AuthKind.DataSource) {
+            if (resId == GLOBAL_RESOURCE_RES_ID) {
+                return this.listEffectiveGlobalAuth(targetUid, authKind);
+            }
             DmAuthUserDO rdpUserDO = this.authDal.userMapper().queryByUid(targetUid);
-            if (rdpUserDO.isResourceManageEnable() || rdpUserDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
+            DmAuthResDO globalAuth = this.firstGlobalAuth(targetUid, authKind);
+            if (rdpUserDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || globalAuth != null) {
                 DmDsDO ds = this.dsDal.dsMapper().selectById(resId);
-                List<String> labels = this.getAllAuthLabel(authKind).stream().map(AuthInfo::getKey).collect(Collectors.toList());
-                return Collections.singletonList(RdpConvertUtils.convertToAuthDOByDataSource(ds, labels));
+                List<String> labels = globalAuth == null ? this.allDataAuthLabels() : globalAuth.getAuthLabels();
+                DmAuthResDO authDO = RdpConvertUtils.convertToAuthDOByDataSource(ds, labels);
+                authDO.setResPath(GLOBAL_RESOURCE_PATH);
+                authDO.setLevelOne(GLOBAL_RESOURCE_PATH);
+                if (globalAuth != null) {
+                    authDO.setStartTime(globalAuth.getStartTime());
+                    authDO.setEndTime(globalAuth.getEndTime());
+                }
+                return Collections.singletonList(authDO);
             }
 
             List<DmAuthResDO> resAuthDO = this.authDal.resMapper().queryByPathLike(resId, targetUid, authKind, authPrefixList);
@@ -449,6 +481,21 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
                 collect(Collectors.toList());
         } else {
             throw new IllegalArgumentException("Unsupported auth kind:" + authKind);
+        }
+    }
+
+    private DmAuthResDO firstGlobalAuth(String targetUid, AuthKind authKind) {
+        List<DmAuthResDO> globalAuths = this.listEffectiveGlobalAuth(targetUid, authKind);
+        return CollectionUtils.isEmpty(globalAuths) ? null : globalAuths.get(0);
+    }
+
+    private List<String> allDataAuthLabels() {
+        return this.getDataAuthLabel().stream().filter(a -> a.getAuthType() == AuthInfoType.Auth).map(AuthInfo::getKey).collect(Collectors.toList());
+    }
+
+    private void normalizeGlobalAuth(DmAuthResDO authDO) {
+        if (authDO.getResId() == GLOBAL_RESOURCE_RES_ID && StringUtils.equals(authDO.getResPath(), GLOBAL_RESOURCE_PATH) && CollectionUtils.isEmpty(authDO.getAuthLabels())) {
+            authDO.setAuthLabels(this.allDataAuthLabels());
         }
     }
 }

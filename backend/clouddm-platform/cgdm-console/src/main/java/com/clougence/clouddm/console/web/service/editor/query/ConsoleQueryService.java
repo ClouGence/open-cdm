@@ -631,7 +631,9 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         String curUserUid = queryDTO.getCurrentUserId();
         DmAuthUserDO rdpUserDO = authDal.userMapper().queryByUid(curUserUid);
 
-        if (rdpUserDO.isResourceManageEnable() || rdpUserDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
+        if (rdpUserDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || this.authCheckService
+            .checkResPathWithoutError(queryDTO.getPrimaryUserId(), curUserUid, ctx.getLevels().dsDO().getId(), AuthKind.DataSource, ctx.getLevels().asResPath(),
+                SecDataAuthLabel.DM_DAUTH_SENSITIVE)) {
             queryDTO.setViewOriginData(true);
             return false;
         }

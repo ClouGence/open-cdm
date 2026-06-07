@@ -131,6 +131,4 @@ public interface RdpUserService {
     DmAuthUserDO getPrimaryUser(String uid);
 
     List<DmAuthUserDO> listPrimaryUser();
-
-    UpdateUserInfoMO updateResourceManage(UpdateResourceManageFO fo, String puid);
 }

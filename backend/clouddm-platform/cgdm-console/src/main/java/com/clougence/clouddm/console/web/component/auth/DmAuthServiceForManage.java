@@ -22,6 +22,7 @@ import com.clougence.clouddm.console.web.model.fo.security.ModifyUserAuthFO;
 import com.clougence.clouddm.console.web.model.fo.ticket.RdpAddAuthTicketFO;
 import com.clougence.clouddm.console.web.model.vo.RdpAuthObjectVO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.sdk.security.auth.AuthElementType;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
@@ -30,6 +31,10 @@ import com.clougence.clouddm.sdk.security.auth.AuthKind;
  * @author bucketli 2020/12/8 15:21
  */
 public interface DmAuthServiceForManage {
+
+    long   GLOBAL_RESOURCE_RES_ID = 0L;
+
+    String GLOBAL_RESOURCE_PATH   = "/";
 
     AuthInfo getAuthLabel(String authLabelKey);
 
@@ -56,6 +61,12 @@ public interface DmAuthServiceForManage {
 
     List<DmAuthResDO> listUserAuthByRes(String targetUid, long resId, List<String> authPrefixList, AuthKind authKind);
 
+    List<DmAuthResDO> listEffectiveGlobalAuth(String targetUid, AuthKind authKind);
+
+    List<DmAuthUserDO> listEffectiveGlobalAuthUsersByPrimaryUid(String puid, AuthKind authKind);
+
+    boolean hasGlobalAuth(String targetUid, AuthKind authKind, String dataAuthLabel);
+
     void modifyUserAuth(String puid, ModifyUserAuthFO fo);
 
     void appendUserAuth(String puid, RdpAddAuthTicketFO fo);
@@ -64,5 +75,4 @@ public interface DmAuthServiceForManage {
 
     void clearAuthOfUser(String uid);
 
-    boolean isResourceMangerEnable(String targetUid);
 }

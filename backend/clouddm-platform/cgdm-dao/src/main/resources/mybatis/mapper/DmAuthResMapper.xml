@@ -116,6 +116,76 @@
         kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
     </select>
 
+    <select id="listEffectiveGlobalByUser" resultMap="resAuthDO">
+        SELECT
+        <include refid="rdpResAuth"/>
+        FROM
+        dm_auth_res
+        WHERE
+        owner_uid = #{ownerUid} and
+        kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind} and
+        res_id = 0 and
+        res_path = '/' and
+        (start_time is null or start_time &lt; now()) and
+        (end_time is null or end_time &gt; now())
+    </select>
+
+    <select id="listEffectiveGlobalAuthUsersByPrimaryUid" resultMap="com.clougence.clouddm.platform.dal.mapper.auth.DmAuthUserMapper.rdpUserDO">
+        SELECT
+        u.id,
+        u.gmt_create,
+        u.gmt_modified,
+        u.uid,
+        u.email,
+        u.username,
+        u.phone,
+        u.account,
+        u.password,
+        u.op_password,
+        u.role_id,
+        u.access_key,
+        u.secret_key,
+        u.last_try_login_time,
+        u.login_fail_count,
+        u.login_locked,
+        u.last_try_op_verify_time,
+        u.op_verify_fail_count,
+        u.op_locked,
+        u.account_type,
+        u.bind_type,
+        u.bind_account,
+        u.allow_local,
+        u.disable,
+        u.parent_id,
+        u.user_status,
+        u.contact_me,
+        u.src,
+        u.keyword,
+        u.client_id,
+        u.country,
+        u.maintainer,
+        u.last_date_update_pwd,
+        u.union_id,
+        u.sso_type,
+        u.customer_id,
+        u.saas_user_status,
+        u.access_token,
+        u.marketplace_type,
+        u.use_mfa
+        FROM dm_auth_user u
+        JOIN dm_auth_res r ON u.uid = r.owner_uid
+        WHERE r.kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
+        and r.res_id = 0
+        and r.res_path = '/'
+        and (r.start_time is null or r.start_time &lt; now())
+        and (r.end_time is null or r.end_time &gt; now())
+        and u.parent_id = (
+            SELECT p.id
+            FROM dm_auth_user p
+            WHERE p.uid = #{puid}
+        )
+    </select>
+
     <select id="listWithoutLabels" resultMap="resAuthDO">
         SELECT
         <include refid="rdpResAuthWithoutAuthLabel"/>
@@ -148,6 +218,15 @@
         DELETE
         FROM dm_auth_res
         WHERE owner_uid = #{ownerUid}
+    </delete>
+
+    <delete id="deleteGlobalByUser">
+        DELETE
+        FROM dm_auth_res
+        WHERE owner_uid = #{ownerUid}
+          and kind_type = #{authKind,javaType=com.clougence.clouddm.sdk.security.auth.AuthKind}
+          and res_id = 0
+          and res_path = '/'
     </delete>
 
     <delete id="deleteByPrefix">

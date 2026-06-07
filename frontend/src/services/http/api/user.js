@@ -18,7 +18,6 @@ export const userApi = {
   // resetSubAccountPwd: '/rdp/console/api/v1/user/resetSubAccountPwd',
   // watermark: '/rdp/console/api/v1/user/waterMark',*
   // getUserInfo: '/rdp/console/api/v1/user/queryLoginUser',*
-  // updateResourceManage: '/rdp/console/api/v1/user/manager/updateresourcemanage',
   // resetPassword: '/rdp/console/api/v1/user/manager/resetpasswd',
   // getSubAccountList: '/rdp/console/api/v1/user/manager/listsubaccounts',
   // updateSubAccount: '/rdp/console/api/v1/user/manager/updatesubaccount',
@@ -75,7 +74,6 @@ export const userApi = {
   rdpUserGetPrimaryAccountPwdPolicy: '/rdp/console/api/v1/user/getPrimaryAccountPwdPolicy',
   rdpUserGetSubAccountPwdPolicy: '/rdp/console/api/v1/user/getSubAccountPwdPolicy',
 
-  rdpUserManagerUpdateResourceManage: '/rdp/console/api/v1/user/manager/updateresourcemanage',
   rdpUserManagerListSubAccounts: '/rdp/console/api/v1/user/manager/listsubaccounts',
   rdpUserManagerUpdateSubAccount: '/rdp/console/api/v1/user/manager/updatesubaccount',
   // API

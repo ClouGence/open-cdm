@@ -553,7 +553,6 @@ export default {
         path: `/system/account/authdm/${record.uid}`,
         query: {
           name: this.displayAccount(record),
-          resourceManage: record.resourceManage ? 'true' : 'false',
           type: type
         }
       });

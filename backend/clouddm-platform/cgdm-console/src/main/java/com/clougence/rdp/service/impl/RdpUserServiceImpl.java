@@ -993,15 +993,4 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         return this.authDal.userMapper().listPrimaryAccount();
     }
 
-    @Override
-    public UpdateUserInfoMO updateResourceManage(UpdateResourceManageFO fo, String puid) {
-        DmAuthUserDO user = this.authDal.userMapper().queryByUid(fo.getTargetUid());
-        if (user == null) {
-            return new UpdateUserInfoMO(false, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NOT_EXIST_ERROR.name(), fo.getTargetUid()));
-        }
-
-        this.authDal.userMapper().updateResourceMangeEnable(fo.getTargetUid(), fo.isResourceManage());
-
-        return new UpdateUserInfoMO(true, null);
-    }
 }

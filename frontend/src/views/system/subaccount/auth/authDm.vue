@@ -320,6 +320,7 @@ export default {
     return {
       resourceManager: false,
       resourceManageLoading: false,
+      globalResourceAuthId: null,
       showEnableResourceModal: false,
       showDisableResourceModal: false,
       authTarget: {
@@ -573,6 +574,10 @@ export default {
         this.isView = this.$route.query.type === 'view';
         this.uid = this.isEdit || this.isView ? this.$route.params.uid : this.userInfo.uid;
         this.subAccount = this.isEdit || this.isView ? this.$route.query.name : '';
+        this.authTime = {
+          startTime: null,
+          endTime: null
+        };
         await this.loadAuthTarget();
         this.activeAuthTab = 'DataSource';
         this.activeAuthType = 'datasource';
@@ -585,10 +590,6 @@ export default {
         this.curRightTreeTab = null;
         this.originLeftTree = [];
         this.previewMode = false;
-        this.authTime = {
-          startTime: null,
-          endTime: null
-        };
         await this.listLevelsForDM();
 
         // 初次默认展开第一个节点的第一层
@@ -619,10 +620,11 @@ export default {
       this.authTarget = {
         uid: this.uid,
         username: this.subAccount,
-        resourceManage: this.$route.query.resourceManage === 'true',
+        resourceManage: false,
         disable: false
       };
       if (!this.isEdit && !this.isView) {
+        await this.loadGlobalResourceAuth();
         return;
       }
       const res = await this.$services.rdpUserManagerListSubAccounts({
@@ -636,9 +638,36 @@ export default {
         if (target) {
           this.authTarget = {
             ...target,
-            resourceManage: !!target.resourceManage,
+            resourceManage: false,
             username: target.username || this.subAccount
           };
+        }
+      }
+      await this.loadGlobalResourceAuth();
+    },
+    async loadGlobalResourceAuth() {
+      this.globalResourceAuthId = null;
+      const res = await this.$services.rdpAuthListUserAuthOfRes({
+        data: {
+          authKind: 'DataSource',
+          targetUid: this.uid,
+          groups: [
+            {
+              resId: 0,
+              resPaths: []
+            }
+          ]
+        }
+      });
+      const globalAuth = Array.isArray(res.data) && res.data.length ? res.data[0] : null;
+      this.authTarget.resourceManage = !!globalAuth;
+      if (globalAuth) {
+        this.globalResourceAuthId = globalAuth.id;
+        if (globalAuth.startTime) {
+          this.authTime.startTime = dayjs(globalAuth.startTime);
+        }
+        if (globalAuth.endTime) {
+          this.authTime.endTime = dayjs(globalAuth.endTime);
         }
       }
     },
@@ -668,14 +697,31 @@ export default {
     async updateResourceManage(resourceManage) {
       this.resourceManageLoading = true;
       try {
-        const res = await this.$services.rdpUserManagerUpdateResourceManage({
-          data: {
-            targetUid: this.uid,
-            resourceManage
-          }
-        });
+        const data = {
+          authKind: 'DataSource',
+          targetUid: this.uid,
+          appends: [],
+          updates: [],
+          deletes: []
+        };
+        if (resourceManage) {
+          data.appends.push({
+            resId: 0,
+            resPaths: [],
+            authLabels: [],
+            startTime: this.formatAuthTime(this.authStartTime),
+            endTime: this.formatAuthTime(this.authEndTime)
+          });
+        } else if (this.globalResourceAuthId) {
+          data.deletes.push({
+            authId: this.globalResourceAuthId,
+            resId: 0,
+            resPaths: []
+          });
+        }
+        const res = await this.$services.rdpAuthModifyUserAuth({ data });
         if (res.success) {
-          this.authTarget.resourceManage = resourceManage;
+          await this.loadGlobalResourceAuth();
           this.$Message.success(resourceManage ? this.$t('shou-quan-cheng-gong') : this.$t('jie-chu-shou-quan-cheng-gong'));
         } else {
           this.authTarget.resourceManage = !resourceManage;
@@ -686,6 +732,9 @@ export default {
       } finally {
         this.resourceManageLoading = false;
       }
+    },
+    formatAuthTime(value) {
+      return value ? dayjs(value).format('YYYY-MM-DD HH:mm:ss') : null;
     },
     // 对比权限树差异并标记编辑状态
     handleAuthCheck(selectedNodes) {

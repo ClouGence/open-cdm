@@ -223,16 +223,4 @@ public class RdpResAuthController {
         return ResWebDataUtils.buildSuccess(data);
     }
 
-    @RequestAuth(checkOpPassword = true, value = RDP_AUTH_MANAGE)
-    @RequestMapping(value = "/checkResourceManger", method = RequestMethod.POST)
-    public ResWebData<Boolean> checkResourceManger(@RequestBody CheckResourceMangerFO fo) {
-        return ResWebDataUtils.buildSuccess(authServiceForManage.isResourceMangerEnable(fo.getTargetUid()));
-    }
-
-    @RequestAuth(strategy = Ignore)
-    @RequestMapping(value = "/checkMyResourceManger", method = RequestMethod.POST)
-    public ResWebData<Boolean> checkMyResourceManger(HttpServletRequest request) {
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        return ResWebDataUtils.buildSuccess(authServiceForManage.isResourceMangerEnable(uid));
-    }
 }

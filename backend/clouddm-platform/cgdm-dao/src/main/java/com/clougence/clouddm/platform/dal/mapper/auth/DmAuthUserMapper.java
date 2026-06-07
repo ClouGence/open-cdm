@@ -130,15 +130,7 @@ public interface DmAuthUserMapper extends BaseMapper<DmAuthUserDO> {
 
     List<DmAuthUserDO> listSubAccountByPidAndAuth(Long pid, String authLabel);
 
-    void updateResourceMangeEnable(@Param("targetUid") String targetUid, @Param("resourceManage") boolean resourceManage);
-
     String queryUsernameByUid(String uid);
-
-    List<DmAuthUserDO> listSubResourceManagersByPrimaryUId(@Param("puid") String puid);
-
-    List<DmAuthUserDO> listSubResourceManagersByPrimaryId(@Param("pid") Long pid);
-
-    Boolean isResourceManger(@Param("targetUid") String targetUid);
 
     void updateMfaStatus(@Param("uid") String uid, @Param("useMfa") boolean useMfa);
 }

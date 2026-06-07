@@ -35,7 +35,6 @@ import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.ResetPasswdFO;
-import com.clougence.clouddm.console.web.model.fo.UpdateResourceManageFO;
 import com.clougence.clouddm.console.web.model.fo.role.UpdateUserRoleFO;
 import com.clougence.clouddm.console.web.model.fo.user.*;
 import com.clougence.clouddm.console.web.model.lo.UpdateUserRoleLO;
@@ -273,23 +272,6 @@ public class RdpUserManagerController {
             }
         }
         return resWebData;
-    }
-
-    @RequestAuth(level = HIGH, value = RDP_AUTH_MANAGE)
-    @RequestMapping(value = "/updateresourcemanage", method = RequestMethod.POST)
-    public ResWebData<?> updateResourceManage(@Valid @RequestBody UpdateResourceManageFO fo, HttpServletRequest request) {
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-
-        UpdateUserInfoMO mo = this.rdpUserService.updateResourceManage(fo, puid);
-        if (mo.isSuccess()) {
-            rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), fo
-                .getTargetUid(), fo, HIGH, AuditType.UPDATE_SUB_ACCOUNT_ROLE, ResourceType.ACCOUNT);
-            return ResWebDataUtils.buildSuccess();
-        } else {
-            return ResWebDataUtils.buildError(mo.getErrorMsg());
-        }
-
     }
 
     private void checkOperateUserAuth(String operateUid, String uid) {

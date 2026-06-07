@@ -53,9 +53,7 @@ import com.clougence.clouddm.console.web.model.vo.envparam.DmEnvParamTicketDesVO
 import com.clougence.clouddm.console.web.model.vo.ticket.*;
 import com.clougence.clouddm.console.web.service.analysis.QueryAnalysisService;
 import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
-import com.clougence.clouddm.platform.dal.access.NamingDao;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
-import com.clougence.clouddm.platform.dal.util.PageUtils;
 import com.clougence.clouddm.platform.dal.access.*;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
 import com.clougence.clouddm.platform.dal.model.approval.*;
@@ -70,6 +68,7 @@ import com.clougence.clouddm.platform.dal.model.monitor.LogDependBizType;
 import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvParamDO;
+import com.clougence.clouddm.platform.dal.util.PageUtils;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.analysis.split.SplitScript;
 import com.clougence.clouddm.sdk.approval.ApprovalUrl;
@@ -129,7 +128,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     @Resource
     private DmDsConfigService           dmDsConfigService;
     @Resource
-    private NamingDao               namingDao;
+    private NamingDao                   namingDao;
     @Resource
     private ApprovalFlowService         approvalFlowService;
     @Resource
@@ -250,6 +249,12 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     @Transactional(rollbackFor = Throwable.class)
     @Override
     public void createAuthTicket(String ownerUid, String uid, RdpAddAuthTicketFO fo) {
+        DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
+        if (user != null && user.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
+            throw new ErrorMessageException(
+                DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_AUTH_TICKET_ROOT_ACCOUNT_UNSUPPORTED.name()));
+        }
+
         List<Long> dsIds = fo.getApplyAuths().stream().map(ApplyAuth::getResId).sorted().collect(Collectors.toList());
         if (CollectionUtils.isEmpty(dsIds)) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_AUTH_TICKET_IS_EMPTY_MESSAGE.name()));

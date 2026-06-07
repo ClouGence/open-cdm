@@ -119,8 +119,6 @@ public class DmAuthUserDO {
     @Deprecated
     private String          ssoType;
 
-    private boolean         resourceManageEnable;
-
     @Deprecated
     private String          customerId;
 

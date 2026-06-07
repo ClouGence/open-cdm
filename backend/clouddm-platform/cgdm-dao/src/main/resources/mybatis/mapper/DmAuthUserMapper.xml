@@ -39,7 +39,6 @@
         <result column="last_date_update_pwd" property="lastDateUpdatePwd"/>
         <result column="union_id" property="unionId"/>
         <result column="sso_type" property="ssoType"/>
-        <result column="resource_manage_enable" property="resourceManageEnable" />
         <result column="saas_user_status" property="saasUserStatus"/>
         <result column="customer_id" property="customerId" />
         <result column="access_token" property="accessToken" />
@@ -83,7 +82,6 @@
         last_date_update_pwd,
         union_id,
         sso_type,
-        resource_manage_enable,
         customer_id,
         saas_user_status,
         access_token,
@@ -661,15 +659,6 @@
             id = #{id}
     </update>
 
-    <update id="updateResourceMangeEnable">
-        UPDATE
-            dm_auth_user
-        SET
-           resource_manage_enable = #{resourceManage}
-        WHERE
-            uid = #{targetUid}
-    </update>
-
     <update id="updateUserSaasStatus">
         UPDATE
             dm_auth_user
@@ -734,7 +723,6 @@
             dm_auth_user.last_date_update_pwd,
             dm_auth_user.union_id,
             dm_auth_user.sso_type,
-            dm_auth_user.resource_manage_enable,
             dm_auth_user.customer_id,
             dm_auth_user.saas_user_status,
             dm_auth_user.access_token,
@@ -752,30 +740,6 @@
             dm_auth_user
         WHERE
             uid = #{uid}
-    </select>
-    <select id="isResourceManger" resultType="java.lang.Boolean">
-        SELECT
-            dm_auth_user.resource_manage_enable
-        FROM dm_auth_user
-        WHERE uid = #{targetUid}
-    </select>
-    <select id="listSubResourceManagersByPrimaryUId" resultType="com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO">
-        SELECT
-            <include refid="rdpUser"/>
-        FROM dm_auth_user
-        WHERE dm_auth_user.resource_manage_enable = 1
-            AND dm_auth_user.parent_id = (
-                SELECT r_inner.id
-                FROM dm_auth_user r_inner
-                WHERE r_inner.uid = #{puid}
-            )
-    </select>
-
-    <select id="listSubResourceManagersByPrimaryId" resultType="com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO">
-        SELECT
-            <include refid="rdpUser"/>
-        FROM dm_auth_user
-        WHERE dm_auth_user.resource_manage_enable = 1 and dm_auth_user.parent_id = #{pid}
     </select>
 
     <select id="queryAuthApproPerson" resultMap="approvalPersonDO">

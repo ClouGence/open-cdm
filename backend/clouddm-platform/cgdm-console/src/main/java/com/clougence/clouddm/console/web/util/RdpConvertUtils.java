@@ -88,7 +88,6 @@ public class RdpConvertUtils {
         vo.setPhone(userDO.getPhone());
         vo.setAccount(userDO.getAccount());
         vo.setUsername(userDO.getUsername());
-        vo.setResourceManage(userDO.isResourceManageEnable());
 
         vo.setRoleId(userDO.getRoleId());
         if (roleMap.containsKey(userDO.getRoleId())) {
@@ -420,6 +419,9 @@ public class RdpConvertUtils {
     }
 
     private static void fillResPath(DmAuthResDO dsAuthDO, List<String> resPaths) {
+        if (resPaths == null) {
+            resPaths = Collections.emptyList();
+        }
         dsAuthDO.setResPath(RdpAuthUtils.genResPathByList(resPaths).getResPath());
         // default
         dsAuthDO.setLevelOne("/");

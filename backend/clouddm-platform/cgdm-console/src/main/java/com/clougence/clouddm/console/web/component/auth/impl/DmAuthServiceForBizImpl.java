@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
+import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
@@ -61,15 +62,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
     @Resource
-    private ExecutionDal      executionDal;
+    private ExecutionDal           executionDal;
     @Resource
-    private DataSourceDal     dsDal;
+    private DataSourceDal          dsDal;
     @Resource
-    private AuthDal           authDal;
+    private AuthDal                authDal;
     @Resource
-    private DmResAuthService  dmDsAuthService;
+    private DmResAuthService       dmDsAuthService;
     @Resource
-    private DmEnvParamService dmEnvParamService;
+    private DmAuthServiceForManage authServiceForManage;
+    @Resource
+    private DmEnvParamService      dmEnvParamService;
 
     @Override
     public void checkResPath(String puid, String uid, long resId, AuthKind authKind, DsResPath resPath, String dataAuthLabel) {
@@ -147,7 +150,7 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
 
     private boolean checkBrowseResPath(long dsId, String uid, String puid, String path, String dataAuthLabel) {
         DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
-        if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || userDO.isResourceManageEnable()) {
+        if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || this.authServiceForManage.hasGlobalAuth(uid, AuthKind.DataSource, dataAuthLabel)) {
             return true;
         }
 
@@ -277,8 +280,7 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
             return true;
         }
 
-        //the user role is ds manager
-        if (authDal.userMapper().queryByUid(uid).isResourceManageEnable()) {
+        if (this.authServiceForManage.hasGlobalAuth(uid, AuthKind.DataSource, dataAuthLabel)) {
             return true;
         }
 
@@ -315,7 +317,8 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
         if (authKind == AuthKind.DataSource) {
             List<DmAuthResDO> resAuthDOList = listDsAuth(targetUid, null);
             DmAuthUserDO userDO = authDal.userMapper().queryByUid(targetUid);
-            if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || userDO.isResourceManageEnable()) {
+            if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT
+                || this.authServiceForManage.listEffectiveGlobalAuth(targetUid, AuthKind.DataSource).stream().anyMatch(DmAuthResDO::isEffective)) {
                 return resAuthDOList;
             } else {
                 return resAuthDOList.stream().filter(r -> r.getAuthLabels().contains(RDP_DAUTH_DS_READ) && r.isEffective()).collect(Collectors.toList());
@@ -328,7 +331,8 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
     public List<Long> listResByUser(String targetUid, AuthKind authKind) {
         if (authKind == AuthKind.DataSource) {
             DmAuthUserDO userDO = authDal.userMapper().queryByUid(targetUid);
-            if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || userDO.isResourceManageEnable()) {
+            if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT
+                || CollectionUtils.isNotEmpty(this.authServiceForManage.listEffectiveGlobalAuth(targetUid, AuthKind.DataSource))) {
                 if (userDO.getParentId() != null) {
                     targetUid = authDal.userMapper().queryById(userDO.getParentId()).getUid();
                 }
@@ -354,7 +358,8 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
     private List<DmAuthResDO> listDsAuth(String targetUid, List<String> filterDataAuthLabels) {
         DmAuthUserDO userDO = authDal.userMapper().queryByUid(targetUid);
         List<DmAuthResDO> result = new ArrayList<>();
-        if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || userDO.isResourceManageEnable()) {
+        DmAuthResDO globalAuth = this.firstGlobalAuth(targetUid);
+        if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || globalAuth != null) {
             if (userDO.getParentId() != null) {
                 targetUid = authDal.userMapper().queryById(userDO.getParentId()).getUid();
             }
@@ -365,6 +370,14 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
                 authDO.setResId(dsDO.getId());
                 authDO.setResDesc(dsDO.getInstanceDesc());
                 authDO.setResInstId(dsDO.getInstanceId());
+                if (globalAuth != null) {
+                    if (filterDataAuthLabels != null && !globalAuth.getAuthLabels().containsAll(filterDataAuthLabels)) {
+                        continue;
+                    }
+                    authDO.setAuthLabels(globalAuth.getAuthLabels());
+                    authDO.setStartTime(globalAuth.getStartTime());
+                    authDO.setEndTime(globalAuth.getEndTime());
+                }
                 result.add(authDO);
             }
         } else {
@@ -375,5 +388,10 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
         }
 
         return result;
+    }
+
+    private DmAuthResDO firstGlobalAuth(String targetUid) {
+        List<DmAuthResDO> globalAuths = this.authServiceForManage.listEffectiveGlobalAuth(targetUid, AuthKind.DataSource);
+        return CollectionUtils.isEmpty(globalAuths) ? null : globalAuths.get(0);
     }
 }
