@@ -25,6 +25,8 @@ import lombok.Setter;
 @Setter
 public class LoginAutoRegisterFO {
 
+    private String account;
+
     private String email;
 
     private String phone;

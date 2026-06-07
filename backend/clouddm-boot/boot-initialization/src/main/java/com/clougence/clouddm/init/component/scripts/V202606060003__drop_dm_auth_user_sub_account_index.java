@@ -25,6 +25,8 @@ public class V202606060003__drop_dm_auth_user_sub_account_index extends Abstract
     public List<String> collectScript() {
         return List.of("""
                     ALTER TABLE dm_auth_user DROP INDEX idx_sub_account
+                """, """
+                    ALTER TABLE dm_auth_user DROP COLUMN sub_account
                 """);
     }
 }

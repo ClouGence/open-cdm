@@ -35,7 +35,6 @@ public enum I18nRdpLabelKeys {
     APPROVAL_CUSTOM,
 
     // -- for com.clougence.rdp.controller.model.enumeration.LoginAuthType
-    LOGIN_VERIFY,
     LOGIN_PASSWORD,
     LOGIN_LDAP,
     LOGIN_AD,
@@ -52,6 +51,7 @@ public enum I18nRdpLabelKeys {
     LOGIN_TAB_FEISHU,
     LOGIN_TAB_WECHAT,
     LOGIN_TAB_OIDC,
+    LOGIN_ACCOUNT,
 
     // -- for com.clougence.clouddm.platform.dal.model.approval.ApprovalStage
     TICKET_STAGE_EXPLAIN,

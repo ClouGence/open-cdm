@@ -13,25 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.constants;
+package com.clougence.clouddm.console.web.model.fo.mfa;
 
+import com.clougence.clouddm.console.web.constants.MfaAccountType;
+
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.Setter;
 
-/**
- * @author mode 2020/7/15 16:31
- */
 @Getter
-public enum SystemConfigEnum {
+@Setter
+public class InitMfaSettingsFO {
 
-    EMAIL_HOST_KEY("spring.mail.host"),
-    EMAIL_PORT_KEY("spring.mail.port"),
-    EMAIL_USERNAME_KEY("spring.mail.username"),
-    EMAIL_PASSWORD_KEY("spring.mail.password"),
-    EMAIL_FROM_KEY("spring.mail.properties.from");
-
-    private final String configCode;
-
-    SystemConfigEnum(String configCode){
-        this.configCode = configCode;
-    }
+    @NotNull(message = "{notnull.mfaAccountType}")
+    private MfaAccountType mfaAccountType;
 }

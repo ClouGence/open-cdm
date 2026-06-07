@@ -170,22 +170,6 @@
 //        return CollectionUtils.isNotEmpty(mailDTO.getMailTo()) && StringUtils.isNotBlank(mailDTO.getContent()) && StringUtils.isNotBlank(mailDTO.getSubject());
 //    }
 //
-//    protected JavaMailSenderImpl genSystemMailSender() {
-//        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-//        mailSender.getJavaMailProperties().setProperty("mail.smtp.auth", consoleConfig.getEmailSmtpAuthKey());
-//        mailSender.getJavaMailProperties().setProperty("mail.smtp.starttls.enable", consoleConfig.getEmailSmtpStarttlsEnableKey());
-//        mailSender.getJavaMailProperties().setProperty("mail.smtp.starttls.required", consoleConfig.getEmailSmtpStarttlsRequiredKey());
-//        mailSender.getJavaMailProperties().setProperty("mail.smtp.ssl.enable", consoleConfig.getEmailSmtpSslEnableKey());
-//        mailSender.getJavaMailProperties().setProperty("mail.transport.protocol", consoleConfig.getEmailTransportProtocolKey());
-//        mailSender.setHost(consoleConfig.getEmailHostConfigKey());
-//        mailSender.setPort(Integer.parseInt(consoleConfig.getEmailPortConfigKey()));
-//        mailSender.setUsername(consoleConfig.getEmailUserNameConfigKey());
-//        mailSender.setPassword(consoleConfig.getEmailPasswordConfigKey());
-//        mailSender.getJavaMailProperties().setProperty("from", consoleConfig.getEmailFromConfigKey());
-//        mailSender.getJavaMailProperties().setProperty("display", consoleConfig.getEmailDisplayConfigKey());
-//        return mailSender;
-//    }
-//
 //    protected JavaMailSenderImpl initMailSenderByConfig(DmAuthUserDO sendUser) {
 //        List<RdpUserConfigVO> emailConfigs = userConfigService.queryOneConfigTypeByUid(sendUser.getUid(), UserConfigTagType.EMAIL_CONFIG);
 //

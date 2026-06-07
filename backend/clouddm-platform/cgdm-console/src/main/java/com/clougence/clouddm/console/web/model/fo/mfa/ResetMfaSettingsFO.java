@@ -15,7 +15,10 @@
  */
 package com.clougence.clouddm.console.web.model.fo.mfa;
 
+import com.clougence.clouddm.console.web.constants.MfaAccountType;
+
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,5 +29,8 @@ public class ResetMfaSettingsFO {
 
     @NotBlank(message = "{notblank.mfaCode}")
     @Pattern(regexp = "^\\d{6}$", message = "{pattern.mfaCode}")
-    private String mfaCode;
+    private String         mfaCode;
+
+    @NotNull(message = "{notnull.mfaAccountType}")
+    private MfaAccountType mfaAccountType;
 }

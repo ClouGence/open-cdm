@@ -17,7 +17,6 @@ package com.clougence.clouddm.console.web.model.fo.user;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 /**
@@ -26,23 +25,24 @@ import lombok.Data;
 @Data
 public class AddSubAccountFO {
 
-    @NotBlank(message = "{notblank.username}")
-    private String userName;
+    private String  userName;
 
-    @NotBlank(message = "{notblank.subaccount}")
-    private String subAccount;
+    @NotBlank(message = "{notblank.account}")
+    private String  account;
 
     @Min(value = 1, message = "{min.roleid}")
-    private long   roleId;
+    private long    roleId;
 
     @NotBlank(message = "{notblank.password}")
-    private String password;
+    private String  password;
 
-    @NotBlank(message = "{notblank.email}")
-    @Pattern(regexp = "^[A-Za-z0-9+_.-]+@(.+)$", message = "email format is illegal.")
-    private String email;
+    private String  email;
 
-    @NotBlank(message = "{notblank.phone}")
-    @Pattern(regexp = "^\\d{5,20}$", message = "phone format is illegal.")
-    private String phone;
+    private String  phone;
+
+    private Boolean disable;
+
+    private Boolean loginLocked;
+
+    private Boolean allowLocal;
 }

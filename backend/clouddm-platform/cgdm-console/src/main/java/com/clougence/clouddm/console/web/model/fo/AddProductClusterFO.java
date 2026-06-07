@@ -15,8 +15,6 @@
  */
 package com.clougence.clouddm.console.web.model.fo;
 
-import com.clougence.clouddm.console.web.constants.RdpProduct;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -30,15 +28,15 @@ import lombok.Setter;
 public class AddProductClusterFO {
 
     @NotNull(message = "{notnull.product}")
-    private RdpProduct product;
+    private String product;
 
     @NotBlank(message = "{notblank.productversion}")
-    private String     productVersion;
+    private String productVersion;
 
-    private String     clusterDesc;
+    private String clusterDesc;
 
-    private String     clusterCode;
+    private String clusterCode;
 
     @NotBlank(message = "{notblank.apiaddr}")
-    private String     apiAddr;
+    private String apiAddr;
 }

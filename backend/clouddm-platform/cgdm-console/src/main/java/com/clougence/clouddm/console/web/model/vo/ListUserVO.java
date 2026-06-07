@@ -35,11 +35,13 @@ public class ListUserVO {
 
     private String          phone;
 
-    private String          subAccount;
+    private String          account;
 
     private AccountBindType bindType;
 
     private String          bindAccount;
+
+    private boolean         allowLocal;
 
     private Long            roleId;
 
@@ -47,9 +49,9 @@ public class ListUserVO {
 
     private boolean         innerRole;
 
-    private String          userDomain;
-
     private boolean         disable;
+
+    private boolean         loginLocked;
 
     private boolean         resourceManage;
 

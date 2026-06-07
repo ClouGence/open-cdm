@@ -86,16 +86,7 @@ public class RdpConvertUtils {
         vo.setUid(userDO.getUid());
         vo.setEmail(userDO.getEmail());
         vo.setPhone(userDO.getPhone());
-        vo.setSubAccount(userDO.getSubAccount());
-        if (userDO.getBindType() == AccountBindType.INTERNAL) {
-            if (userDO.getSubAccount().contains("@")) {
-                userDO.setBindAccount(userDO.getSubAccount().split("@")[0]);
-            } else {
-                userDO.setBindAccount(userDO.getSubAccount());
-            }
-        }
-        vo.setSubAccount(userDO.getSubAccount());
-        vo.setUserDomain(userDO.getUserDomain());
+        vo.setAccount(userDO.getAccount());
         vo.setUsername(userDO.getUsername());
         vo.setResourceManage(userDO.isResourceManageEnable());
 
@@ -112,7 +103,9 @@ public class RdpConvertUtils {
 
         vo.setBindType(userDO.getBindType());
         vo.setBindAccount(userDO.getBindAccount());
+        vo.setAllowLocal(userDO.isAllowLocal());
         vo.setDisable(userDO.isDisable());
+        vo.setLoginLocked(userDO.isLoginLocked());
         vo.setUseMfa(userDO.isUseMfa());
 
         if (userDO.getLastTryLoginTime() != null) {
@@ -140,13 +133,12 @@ public class RdpConvertUtils {
         vo.setUid(userDO.getUid());
         vo.setEmail(userDO.getEmail());
         vo.setUsername(userDO.getUsername());
-        vo.setUserDomain(userDO.getUserDomain());
-        vo.setOrganization(userDO.getCompany());
+        vo.setAccount(userDO.getAccount());
         vo.setPhone(userDO.getPhone());
         if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
             vo.setLoginAccount(userDO.getUsername());
         } else {
-            vo.setLoginAccount(userDO.getSubAccount());
+            vo.setLoginAccount(userDO.getAccount());
         }
         vo.setAccountType(userDO.getAccountType());
         vo.setBindType(userDO.getBindType());
@@ -508,8 +500,7 @@ public class RdpConvertUtils {
         data.setUserName(userDO.getUsername());
         data.setEmail(userDO.getEmail());
         data.setPhone(userDO.getPhone());
-        data.setSubAccount(userDO.getSubAccount());
-        data.setUserDomain(userDO.getUserDomain());
+        data.setAccount(userDO.getAccount());
         data.setRoleId(userDO.getRoleId());
         data.setBindAccount(userDO.getBindAccount());
         return data;
@@ -520,14 +511,13 @@ public class RdpConvertUtils {
         user.setUsername(loginUser.getUserName());
         user.setEmail(loginUser.getEmail());
         user.setPhone(loginUser.getPhone());
-        user.setSubAccount(loginUser.getSubAccount());
-        user.setCompany(primaryUser.getCompany());
+        user.setAccount(loginUser.getAccount());
         //user.setPassword(BCryptOneWayCryptService.getInstance().encrypt(Long.toHexString(System.currentTimeMillis())).getEncryptPassword());
         user.setLoginLocked(false);
         user.setAccountType(AccountType.SUB_ACCOUNT);
         user.setBindType(loginType.getBindType());
         user.setBindAccount(loginUser.getBindAccount());
-        user.setUserDomain(primaryUser.getUserDomain());
+        user.setAllowLocal(false);
         user.setDisable(false);
         user.setParentId(primaryUser.getId());
         user.setUserStatus(UserStatus.NORMAL);

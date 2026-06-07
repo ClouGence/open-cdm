@@ -15,28 +15,26 @@
  */
 package com.clougence.clouddm.console.web.model.vo;
 
-import java.util.Map;
+import com.clougence.clouddm.console.web.constants.LoginAuthType;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-/**
- * @author wanshao create time is 2020/4/16
- **/
-@Data
-public class RdpGlobalSettingsVO {
+@Getter
+@Setter
+public class LoginDefVO {
 
-    // for Product
-    private boolean             outputDeployEnv;
-    private boolean             onPremiseDeployMode;
+    private String        tabTitle;
 
-    // for Auth
-    private boolean             authOpPassword;
+    private LoginAuthType loginType;
 
-    private boolean             enableWaterMark;
-    private boolean             enableProductCluster;
-    private boolean             enableValidateDsExtraConf;
+    private String        icon;
 
-    private Map<String, Object> features;
+    private String        iconTitle;
 
-    private Integer             maxExportSize;
+    private boolean       jump;
+
+    private boolean       available = true;
+
+    private String        errorInfo;
 }

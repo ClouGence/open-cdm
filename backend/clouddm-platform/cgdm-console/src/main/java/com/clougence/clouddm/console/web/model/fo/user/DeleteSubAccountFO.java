@@ -24,6 +24,6 @@ import lombok.Data;
 @Data
 public class DeleteSubAccountFO {
 
-    @NotBlank(message = "{notblank.subaccount}")
-    private String subAccount;
+    @NotBlank(message = "{notblank.account}")
+    private String account;
 }

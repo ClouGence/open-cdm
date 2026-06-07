@@ -15,23 +15,8 @@
  */
 package com.clougence.clouddm.console.web.constants;
 
-import lombok.Getter;
-
-/**
- * @author mode 2020/7/15 16:31
- */
-@Getter
-public enum SystemConfigEnum {
-
-    EMAIL_HOST_KEY("spring.mail.host"),
-    EMAIL_PORT_KEY("spring.mail.port"),
-    EMAIL_USERNAME_KEY("spring.mail.username"),
-    EMAIL_PASSWORD_KEY("spring.mail.password"),
-    EMAIL_FROM_KEY("spring.mail.properties.from");
-
-    private final String configCode;
-
-    SystemConfigEnum(String configCode){
-        this.configCode = configCode;
-    }
+public enum MfaAccountType {
+    ACCOUNT,
+    EMAIL,
+    PHONE
 }

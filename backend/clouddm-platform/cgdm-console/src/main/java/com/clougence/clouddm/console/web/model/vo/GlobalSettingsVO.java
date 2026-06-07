@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.vo;
 
-import java.util.Map;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -27,8 +27,10 @@ import lombok.Setter;
 @Setter
 public class GlobalSettingsVO {
 
-    private String              version;
-    private boolean             aloneMode;
-    private Map<String, Object> productVersions;
-    private SystemStatusVO      systemStatus;
+    private String           version;
+    private boolean          aloneMode;
+    private SystemStatusVO   systemStatus;
+    private String           publicKey;
+    private Object           loginDefault;
+    private List<LoginDefVO> loginDef;
 }

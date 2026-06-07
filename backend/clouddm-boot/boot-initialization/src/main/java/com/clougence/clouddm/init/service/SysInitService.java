@@ -434,13 +434,12 @@ public class SysInitService {
                         String existingEmail = rs.getString(2);
                         log.info("[SysInitService] Admin user found (id={}, email={}), updating...", existingId, existingEmail);
                         try (PreparedStatement updateStmt = conn
-                            .prepareStatement("UPDATE dm_auth_user SET email = ?, phone = NULL, password = ?, username = ?, account = ?, user_domain = ? WHERE uid = ?")) {
+                            .prepareStatement("UPDATE dm_auth_user SET email = ?, phone = NULL, password = ?, username = ?, account = ?, allow_local = 1 WHERE uid = ?")) {
                             updateStmt.setString(1, adminEmail);
                             updateStmt.setString(2, encodedPassword);
                             updateStmt.setString(3, InitSeedConstants.DEFAULT_PRIMARY_ACCOUNT);
                             updateStmt.setString(4, resolvedAdminAccount);
-                            updateStmt.setString(5, InitSeedConstants.ADMIN_UID + ".cdmgr.com");
-                            updateStmt.setString(6, InitSeedConstants.ADMIN_UID);
+                            updateStmt.setString(5, InitSeedConstants.ADMIN_UID);
                             int affected = updateStmt.executeUpdate();
                             log.info("[SysInitService] Admin user updated, affected rows: {}", affected);
                         }
@@ -448,7 +447,7 @@ public class SysInitService {
                         log.warn("[SysInitService] Admin user not found by uid={}, inserting new admin user...", InitSeedConstants.ADMIN_UID);
                         String encryptedSecretKey = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(InitSeedConstants.DEFAULT_PRIMARY_SECRET_KEY);
                         try (PreparedStatement insertStmt = conn
-                            .prepareStatement("INSERT INTO dm_auth_user (uid, email, phone, password, username, account, access_key, secret_key, account_type, user_domain, gmt_create, gmt_modified) VALUES (?, ?, NULL, ?, ?, ?, ?, ?, 'PRIMARY_ACCOUNT', ?, now(), now())")) {
+                            .prepareStatement("INSERT INTO dm_auth_user (uid, email, phone, password, username, account, allow_local, access_key, secret_key, account_type, gmt_create, gmt_modified) VALUES (?, ?, NULL, ?, ?, ?, 1, ?, ?, 'PRIMARY_ACCOUNT', now(), now())")) {
                             insertStmt.setString(1, InitSeedConstants.ADMIN_UID);
                             insertStmt.setString(2, adminEmail);
                             insertStmt.setString(3, encodedPassword);
@@ -456,7 +455,6 @@ public class SysInitService {
                             insertStmt.setString(5, resolvedAdminAccount);
                             insertStmt.setString(6, InitSeedConstants.DEFAULT_PRIMARY_ACCESS_KEY);
                             insertStmt.setString(7, encryptedSecretKey);
-                            insertStmt.setString(8, InitSeedConstants.ADMIN_UID + ".cdmgr.com");
                             insertStmt.executeUpdate();
                         }
                         log.info("[SysInitService] New admin user inserted: {}", adminEmail);

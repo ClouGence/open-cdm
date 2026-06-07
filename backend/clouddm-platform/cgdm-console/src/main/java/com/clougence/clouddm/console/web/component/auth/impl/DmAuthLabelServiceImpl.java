@@ -27,7 +27,6 @@ import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.auth.DmAuthLabelService;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.model.feature.RdpFeatureIDs;
 import com.clougence.clouddm.sdk.security.auth.*;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
@@ -58,12 +57,6 @@ public class DmAuthLabelServiceImpl implements DmAuthLabelService, UnifiedPostCo
 
     public void stop() {
 
-    }
-
-    private List<String> products() {
-        List<String> strings = new ArrayList<>();
-        strings.add(RdpFeatureIDs.PRODUCT_CLOUD_DM);
-        return strings;
     }
 
     public AuthBinder addAuthInfo(AuthInfo authInfo) {
@@ -155,18 +148,11 @@ public class DmAuthLabelServiceImpl implements DmAuthLabelService, UnifiedPostCo
         return this.labelMap.get(authLabelKey);
     }
 
-    public List<AuthInfo> getRoleAuthLabel() {
-        List<String> products = products();
-        return this.labelMap.values().stream().filter(info -> info.isUsedOfRole() && CollectionUtils.containsAny(info.getForProduct(), products)).collect(Collectors.toList());
-    }
+    public List<AuthInfo> getRoleAuthLabel() { return this.labelMap.values().stream().filter(AuthInfo::isUsedOfRole).collect(Collectors.toList()); }
 
-    public List<AuthInfo> getDataAuthLabel() {
-        List<String> products = products();
-        return this.labelMap.values().stream().filter(info -> !info.isUsedOfRole() && CollectionUtils.containsAny(info.getForProduct(), products)).collect(Collectors.toList());
-    }
+    public List<AuthInfo> getDataAuthLabel() { return this.labelMap.values().stream().filter(info -> !info.isUsedOfRole()).collect(Collectors.toList()); }
 
     public List<AuthInfo> getAllAuthLabel(AuthKind selectKind) {
-        List<String> products = products();
         if (this.allAuthGroupByKind.isEmpty()) {
             Map<AuthKind, List<AuthInfo>> groupByKind = new HashMap<>();
 
@@ -175,9 +161,8 @@ public class DmAuthLabelServiceImpl implements DmAuthLabelService, UnifiedPostCo
                 List<AuthInfo> result = allAuth.stream().filter(i -> {
                     if (i.getAuthType() != AuthInfoType.Auth) {
                         return false;
-                    } else {
-                        return i.getKinds().contains(kind) && CollectionUtils.containsAny(i.getForProduct(), products);
                     }
+                    return i.getKinds().contains(kind);
                 }).collect(Collectors.toList());
                 groupByKind.put(kind, result);
             }
@@ -189,7 +174,6 @@ public class DmAuthLabelServiceImpl implements DmAuthLabelService, UnifiedPostCo
     }
 
     private List<AuthInfo> getAllAuthLabelForTree(AuthKind selectKind) {
-        List<String> products = products();
         if (this.allAuthGroupByKindOfTree.isEmpty()) {
             Map<AuthKind, List<AuthInfo>> groupByKind = new HashMap<>();
 
@@ -198,9 +182,8 @@ public class DmAuthLabelServiceImpl implements DmAuthLabelService, UnifiedPostCo
                 List<AuthInfo> result = allAuth.stream().filter(i -> {
                     if (i.getAuthType() != AuthInfoType.Auth) {
                         return false;
-                    } else {
-                        return i.getKinds().contains(kind) && CollectionUtils.containsAny(i.getForProduct(), products);
                     }
+                    return i.getKinds().contains(kind);
                 }).collect(Collectors.toList());
                 groupByKind.put(kind, result);
             }

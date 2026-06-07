@@ -33,10 +33,11 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.constants.MfaPreActionType;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
-import com.clougence.clouddm.console.web.service.auth.RdpUserMfaService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
+import com.clougence.clouddm.console.web.service.login.LoginMFAService;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
@@ -111,7 +112,9 @@ public class JwtServiceImpl implements JwtService {
     public void refreshJwtTokenPeriodOfValidity(HttpServletRequest request, HttpServletResponse response, DmAuthUserDO user) {
         Cookie cookie = WebUtils.getCookie(request, jwtTokenName);
         if (cookie != null) {
-            cookie.setValue(genJwtToken(user));
+            DecodedJWT jwt = verifyJwtToken(cookie.getValue());
+            LoginAuthType loginType = jwt == null ? null : LoginAuthType.valueOfCode(jwt.getClaim(LOGIN_TYPE).asString());
+            cookie.setValue(genJwtToken(user, loginType));
             // same name(path and domain) cookie merge/overwrite
             response.addCookie(cookie);
         }
@@ -167,6 +170,11 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String genJwtToken(DmAuthUserDO user) {
+        return genJwtToken(user, null);
+    }
+
+    @Override
+    public String genJwtToken(DmAuthUserDO user, LoginAuthType loginType) {
         // token expire time
         LocalDateTime localDateTime = LocalDateTime.now().minusMinutes(1);
         ZonedDateTime zdt = ZonedDateTime.of(localDateTime, ZoneId.systemDefault());
@@ -183,6 +191,7 @@ public class JwtServiceImpl implements JwtService {
             .withJWTId(user.getUid())
             .withClaim("email", user.getEmail())
             .withClaim("username", user.getUsername())
+            .withClaim(LOGIN_TYPE, loginType == null ? null : loginType.name())
             .withClaim(RdpUserService.ACCESSKEY, user.getAccessKey())
             .sign(algorithm());
     }
@@ -205,8 +214,8 @@ public class JwtServiceImpl implements JwtService {
             .withIssuedAt(now.atZone(ZoneId.systemDefault()).toInstant())
             .withExpiresAt(expireTime.atZone(ZoneId.systemDefault()).toInstant())
             .withJWTId(uid)
-            .withClaim(RdpUserMfaService.MFA_PRE_ACTION_TYPE, actionType.name())
-            .withClaim(RdpUserMfaService.MFA_LOGIN_JWT_TOKEN, jwtToken)
+            .withClaim(LoginMFAService.MFA_PRE_ACTION_TYPE, actionType.name())
+            .withClaim(LoginMFAService.MFA_LOGIN_JWT_TOKEN, jwtToken)
             .sign(algorithm());
     }
 }

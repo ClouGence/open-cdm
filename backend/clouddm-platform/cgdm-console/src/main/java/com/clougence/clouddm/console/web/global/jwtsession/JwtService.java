@@ -16,6 +16,7 @@
 package com.clougence.clouddm.console.web.global.jwtsession;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.constants.MfaPreActionType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 
@@ -26,6 +27,7 @@ public interface JwtService {
 
     String jwtTokenName      = "jwt_token";
     String opPwdToken        = "op_pwd_token";
+    String LOGIN_TYPE        = "loginType";
     int    minLoginExpireSec = 1200;
 
     DecodedJWT verify(HttpServletRequest request);
@@ -41,6 +43,8 @@ public interface JwtService {
     DecodedJWT verifyMfaActionToken(String mfaActionToken);
 
     String genJwtToken(DmAuthUserDO user);
+
+    String genJwtToken(DmAuthUserDO user, LoginAuthType loginType);
 
     String genOpPwdToken(DmAuthUserDO user);
 

@@ -13,24 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.constants;
+package com.clougence.clouddm.init.component.scripts;
 
-import com.clougence.clouddm.sdk.model.feature.RdpFeatureIDs;
+import java.util.List;
 
-import lombok.Getter;
+import com.clougence.clouddm.init.component.flyway.AbstractUpgradeJavaMigration;
 
-/**
- * @author bucketli 2023/11/23 15:01:50
- */
-public enum RdpProduct {
+public class V202606060005__dm_auth_user_allow_local extends AbstractUpgradeJavaMigration {
 
-    CloudCanal(RdpFeatureIDs.PRODUCT_CLOUD_CANAL),
-    CloudDM(RdpFeatureIDs.PRODUCT_CLOUD_DM);
-
-    @Getter
-    private final String featureID;
-
-    RdpProduct(String featureID){
-        this.featureID = featureID;
+    @Override
+    public List<String> collectScript() {
+        return List.of("""
+                    ALTER TABLE dm_auth_user ADD COLUMN allow_local tinyint(1) NOT NULL DEFAULT 0 AFTER bind_account
+                """, """
+                    UPDATE dm_auth_user SET allow_local = 1 WHERE account_type = 'PRIMARY_ACCOUNT' OR bind_type = 'INTERNAL'
+                """);
     }
 }

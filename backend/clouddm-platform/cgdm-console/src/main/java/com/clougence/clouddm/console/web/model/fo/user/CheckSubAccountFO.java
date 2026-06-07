@@ -34,4 +34,6 @@ public class CheckSubAccountFO {
 
     @NotNull(message = "{notnull.checktype}")
     private CheckSubAccountType checkType;
+
+    private String              targetUid;
 }

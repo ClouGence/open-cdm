@@ -23,9 +23,13 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class PwdValidateExprVO {
+public class PwdPolicyVO {
 
-    private String expr;
+    private String  expr;
 
-    private String tips;
+    private String  tips;
+
+    private Boolean strongPolicy;
+
+    private Integer minLength;
 }

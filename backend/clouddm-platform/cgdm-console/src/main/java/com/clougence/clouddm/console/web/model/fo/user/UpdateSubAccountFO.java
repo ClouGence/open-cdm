@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo.user;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -25,11 +26,25 @@ import lombok.Data;
 public class UpdateSubAccountFO {
 
     @NotBlank(message = "{notblank.targetuid}")
-    private String targetUid;
+    private String  targetUid;
 
     // @NotBlank(message = "{notblank.username}")
-    private String userName;
+    private String  userName;
 
-    // @NotBlank(message = "{notblank.subaccount}")
-    private String subAccount;
+    private String  account;
+
+    @Min(value = 1, message = "{min.roleid}")
+    private Long    roleId;
+
+    private String  password;
+
+    private String  email;
+
+    private String  phone;
+
+    private Boolean disable;
+
+    private Boolean loginLocked;
+
+    private Boolean allowLocal;
 }

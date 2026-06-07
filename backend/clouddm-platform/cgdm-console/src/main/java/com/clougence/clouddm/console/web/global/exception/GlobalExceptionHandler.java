@@ -33,10 +33,8 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.clouddm.sdk.model.feature.RdpFeatureIDs;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.JsonUtils;
-import com.clougence.utils.StringUtils;
 
 import io.sentry.Sentry;
 import lombok.extern.slf4j.Slf4j;
@@ -52,16 +50,8 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public ResWebData<?> handleNormalException(ThirdPartyApiException e) {
         logAndSaveExc(e);
-
-        if (StringUtils.equals(RdpFeatureIDs.PRODUCT_CLOUD_RDP, e.getProductType())) {
-            String i18nMsg = DmI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs());
-            return ResWebDataUtils.buildError(DmErrorCode.COMM_SYSTEM_ERROR.code(), i18nMsg);
-        } else if (StringUtils.equals(RdpFeatureIDs.PRODUCT_CLOUD_DM, e.getProductType())) {
-            String i18nMsg = DmI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs());
-            return ResWebDataUtils.buildError(DmErrorCode.COMM_SYSTEM_ERROR.code(), i18nMsg);
-        } else {
-            return ResWebDataUtils.buildError(DmErrorCode.COMM_SYSTEM_ERROR.code(), e.getMessageKey());
-        }
+        String i18nMsg = DmI18nUtils.getMessage(e.getMessageKey(), e.getMessageArgs());
+        return ResWebDataUtils.buildError(DmErrorCode.COMM_SYSTEM_ERROR.code(), i18nMsg);
     }
 
     @ExceptionHandler(value = Exception.class)

@@ -17,6 +17,7 @@ package com.clougence.clouddm.console.web.model.vo;
 
 import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.console.web.constants.LoginAuthType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -40,9 +41,7 @@ public class LoginUserVO {
 
     private String          username;
 
-    private String          userDomain;
-
-    private String          organization;
+    private String          account;
 
     private String          phone;
 
@@ -51,6 +50,8 @@ public class LoginUserVO {
     private AccountType     accountType;
 
     private AccountBindType bindType;
+
+    private LoginAuthType   loginType;
 
     private String          bindAccount;
 

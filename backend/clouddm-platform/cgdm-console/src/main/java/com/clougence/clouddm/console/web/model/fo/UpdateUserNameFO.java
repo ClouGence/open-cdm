@@ -13,30 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.vo;
+package com.clougence.clouddm.console.web.model.fo;
 
-import java.util.Map;
-
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-/**
- * @author wanshao create time is 2020/4/16
- **/
 @Data
-public class RdpGlobalSettingsVO {
+public class UpdateUserNameFO {
 
-    // for Product
-    private boolean             outputDeployEnv;
-    private boolean             onPremiseDeployMode;
-
-    // for Auth
-    private boolean             authOpPassword;
-
-    private boolean             enableWaterMark;
-    private boolean             enableProductCluster;
-    private boolean             enableValidateDsExtraConf;
-
-    private Map<String, Object> features;
-
-    private Integer             maxExportSize;
+    @NotBlank(message = "{notblank.username}")
+    private String userName;
 }

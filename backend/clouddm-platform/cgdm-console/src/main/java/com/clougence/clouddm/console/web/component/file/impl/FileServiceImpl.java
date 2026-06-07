@@ -31,7 +31,6 @@ import com.clougence.clouddm.api.sidecar.session.execute.ResultPageDTO;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultSetRService;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
-import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.component.file.FileService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
@@ -41,7 +40,6 @@ import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
-import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.resultset.file.DmFileType;
@@ -62,8 +60,6 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
     private ExecutionDal                executionDal;
     @Resource
     private ResultSetRService           resultSetRService;
-    @Resource
-    private UserConfigService           userConfigService;
     private ScheduledThreadPoolExecutor scheduledExecutor;
 
     @Override
@@ -158,12 +154,12 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
             return timeoutConfigCache.get(ownerUid);
         }
 
-        DmSysUserConfDO config = this.userConfigService.getSpecifiedConfig(ownerUid, UserDefinedConfig.Fields.onlineResultCacheTimeoutSec);
-        if (config == null || StringUtils.isBlank(config.getConfigValue())) {
+        String configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.onlineResultCacheTimeoutSec);
+        if (StringUtils.isBlank(configValue)) {
             timeoutConfigCache.put(ownerUid, 300);
             return 300;
         } else {
-            int defaultConfig = Integer.parseInt(config.getConfigValue());
+            int defaultConfig = Integer.parseInt(configValue);
             timeoutConfigCache.put(ownerUid, defaultConfig);
             return defaultConfig;
         }

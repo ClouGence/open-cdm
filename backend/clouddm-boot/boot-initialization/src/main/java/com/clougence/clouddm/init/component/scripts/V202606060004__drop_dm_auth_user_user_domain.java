@@ -13,25 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.constants;
+package com.clougence.clouddm.init.component.scripts;
 
-import lombok.Getter;
+import java.util.List;
 
-/**
- * @author mode 2020/7/15 16:31
- */
-@Getter
-public enum SystemConfigEnum {
+import com.clougence.clouddm.init.component.flyway.AbstractUpgradeJavaMigration;
 
-    EMAIL_HOST_KEY("spring.mail.host"),
-    EMAIL_PORT_KEY("spring.mail.port"),
-    EMAIL_USERNAME_KEY("spring.mail.username"),
-    EMAIL_PASSWORD_KEY("spring.mail.password"),
-    EMAIL_FROM_KEY("spring.mail.properties.from");
+public class V202606060004__drop_dm_auth_user_user_domain extends AbstractUpgradeJavaMigration {
 
-    private final String configCode;
-
-    SystemConfigEnum(String configCode){
-        this.configCode = configCode;
+    @Override
+    public List<String> collectScript() {
+        return List.of("""
+                    ALTER TABLE dm_auth_user DROP COLUMN user_domain
+                """);
     }
 }
