@@ -41,8 +41,8 @@ import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-@Service
 @Slf4j
+@Service
 public class LoginStarter implements UnifiedPostConstruct, RdpNotifyService {
     @Resource
     private AuthDal         authDal;
@@ -67,7 +67,7 @@ public class LoginStarter implements UnifiedPostConstruct, RdpNotifyService {
         }
 
         UserConfigMO authTypeConfig = new UserConfigMO();
-        authTypeConfig.setConfig(UserDefinedConfig.Fields.subAccountAuthType);
+        authTypeConfig.setConfig(UserDefinedConfig.Fields.accountAuthType);
         authTypeConfig.setNewValue(StringUtils.join(this.loginDefService.listConfLoginTypes(rootUser.getUid()).stream().map(Enum::name).toArray(), ","));
         notifyUserConfig(rootUser.getUid(), List.of(authTypeConfig));
     }
@@ -83,7 +83,7 @@ public class LoginStarter implements UnifiedPostConstruct, RdpNotifyService {
         }
 
         UserConfigMO authTypeConf = configList.stream()
-            .filter(c -> StringUtils.equalsIgnoreCase(c.getConfig(), UserDefinedConfig.Fields.subAccountAuthType))
+            .filter(c -> StringUtils.equalsIgnoreCase(c.getConfig(), UserDefinedConfig.Fields.accountAuthType))
             .findFirst()
             .orElse(null);
 

@@ -15,7 +15,6 @@
  */
 package com.clougence.rdp.service.model;
 
-import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
 import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
 
 import lombok.Data;
@@ -26,19 +25,12 @@ import lombok.Data;
 @Data
 public class CheckVerifyMO {
 
-    private boolean        isSubAccount;
-
-    private String         subAccountName;
-
-    private VerifyType     verifyType;
-
-    private String         email;
-
-    private String         phoneNumber;
-
-    private String         verifyCode;
-
-    private VerifyCodeType verifyCodeType;
-
-    private String         uid;
+    private boolean    isSubAccount;
+    private String     subAccountName;
+    private VerifyType verifyType;
+    private String     email;
+    private String     phoneNumber;
+    private String     verifyCode;
+    private String     verifyCodeType;
+    private String     uid;
 }

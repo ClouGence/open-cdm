@@ -68,7 +68,7 @@ export const userApi = {
   rdpUserListMyAuthCategoryForMenu: '/rdp/console/api/v1/user/listMyAuthCategoryForMenu',
   rdpUserUpdateUserEmail: '/rdp/console/api/v1/user/updateUserEmail',
   rdpUserUpdateUserName: '/rdp/console/api/v1/user/updateUserName',
-  rdpUserCheckVerifyCode: '/rdp/console/api/v1/user/checkVerifyCode',
+  rdpUserCheckProfileDuplicate: '/rdp/console/api/v1/user/checkProfileDuplicate',
   rdpUserUpdateUserPhone: '/rdp/console/api/v1/user/updateUserPhone',
   rdpUserQueryUserAkSk: '/rdp/console/api/v1/user/queryUserAkSk',
   rdpUserResetUserAkSk: '/rdp/console/api/v1/user/resetUserAkSk',

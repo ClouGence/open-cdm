@@ -154,6 +154,9 @@ public class UserConfigServiceImpl implements UserConfigService {
             for (Map.Entry<String, String> configEntry : config.getUpdateConfigs().entrySet()) {
                 String configName = configEntry.getKey();
                 DmSysUserConfDO oldConfig = systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, configName);
+                if (oldConfig == null) {
+                    continue;
+                }
                 String newValue = configEntry.getValue();
                 if (newValue != null) {
                     newValue = newValue.trim();
@@ -253,54 +256,56 @@ public class UserConfigServiceImpl implements UserConfigService {
     public List<DmSysUserConfDO> getSpecifiedConfigs(String uid, List<String> configNames) {
         List<DmSysUserConfDO> configs = systemDal.userConfMapper().listByUidAndConfigNames(uid, configNames);
         if (configs != null) {
+            Map<String, DmSysUserConfDO> configMap = new HashMap<>();
             for (DmSysUserConfDO configDO : configs) {
-                if (configDO.isSecret() && StringUtils.isNotBlank(configDO.getConfigValue())) {
-                    String val = CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(configDO.getConfigValue());
-                    configDO.setConfigValue(val);
-                }
+                configMap.put(configDO.getConfigName(), configDO);
             }
+
+            List<DmSysUserConfDO> normalizedConfigs = new ArrayList<>();
+            for (String configName : configNames) {
+                DmSysUserConfDO configDO = configMap.get(configName);
+                if (configDO == null) {
+                    continue;
+                }
+                decryptConfigValueIfNecessary(configDO);
+                configDO.setConfigName(configName);
+                normalizedConfigs.add(configDO);
+            }
+            return normalizedConfigs;
         }
 
-        return configs;
+        return Collections.emptyList();
     }
 
     @Override
     public DmSysUserConfDO getSpecifiedConfig(String uid, String configName) {
         DmSysUserConfDO configDO = systemDal.userConfMapper().queryByUidAndConfigName(uid, configName);
+        decryptConfigValueIfNecessary(configDO);
+        return configDO;
+    }
+
+    private void decryptConfigValueIfNecessary(DmSysUserConfDO configDO) {
         if (configDO != null && configDO.isSecret() && StringUtils.isNotBlank(configDO.getConfigValue())) {
             String val = CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(configDO.getConfigValue());
             configDO.setConfigValue(val);
         }
+    }
 
-        return configDO;
+    @Override
+    public int languageMaxRequests() {
+        return Math.max(1, this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.languageMaxRequests, Integer.class, DEFAULT_LANGUAGE_MAX_REQUESTS));
     }
 
     @Override
     public int languageMaxRequests(String uid) {
-        return intConfig(uid, UserDefinedConfig.Fields.languageMaxRequests, DEFAULT_LANGUAGE_MAX_REQUESTS);
-    }
-
-    @Override
-    public int languageMaxRequestsByUser(String uid) {
-        return intConfig(uid, UserDefinedConfig.Fields.languageMaxRequestsByUser, DEFAULT_LANGUAGE_MAX_REQUESTS_BY_USER);
-    }
-
-    private int intConfig(String uid, String configName, int defaultValue) {
+        int systemLimit = languageMaxRequests();
         if (StringUtils.isBlank(uid)) {
-            return defaultValue;
+            return systemLimit;
         }
 
-        DmSysUserConfDO config = getSpecifiedConfig(uid, configName);
-        String configValue = config == null ? null : config.getConfigValue();
-        if (StringUtils.isBlank(configValue) && config != null) {
-            configValue = config.getDefaultValue();
-        }
-        try {
-            int value = Integer.parseInt(StringUtils.isBlank(configValue) ? String.valueOf(defaultValue) : configValue.trim());
-            return Math.max(1, value);
-        } catch (NumberFormatException e) {
-            return defaultValue;
-        }
+        Integer value = this.systemDal.fetchUserConf(uid, UserDefinedConfig.Fields.languageMaxRequestsByUser, Integer.class, DEFAULT_LANGUAGE_MAX_REQUESTS_BY_USER);
+        int userLimit = Math.max(1, value);
+        return Math.min(systemLimit, userLimit);
     }
 
     @Override

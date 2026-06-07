@@ -27,7 +27,7 @@ public enum DingConfigKey {
     ApprovalClientId("dingApprovalConfigAk"),
     ApprovalClientSecret("dingApprovalConfigSk"),
 
-    LoginEnable("subAccountAuthType"),
+    LoginEnable("accountAuthType"),
     LoginClientId("dingLoginConfigAk"),
     LoginClientSecret("dingLoginConfigSk"),
     LoginRoleMap("dingLoginRoleMap");

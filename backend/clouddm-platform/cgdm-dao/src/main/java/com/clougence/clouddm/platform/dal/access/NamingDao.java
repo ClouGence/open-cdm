@@ -22,13 +22,9 @@ import com.clougence.clouddm.platform.dal.model.secrule.RuleKind;
  */
 public interface NamingDao {
 
-    String genLocalClusterName();
-
     String genClusterName();
 
-    String genTicketBizId();
-
-    String genDefaultClusterName();
+    String genApprovalBizId();
 
     String genWorkerSequenceNumber();
 
@@ -38,15 +34,7 @@ public interface NamingDao {
 
     String genSecretKey();
 
-    String genUid();
-
-    String genInnerUserPwd();
-
-    String genProductClusterName();
-
-    String genProductClusterCode();
-
-    String genConsoleJobToken();
+    String genUID();
 
     String genLoginAccount();
 

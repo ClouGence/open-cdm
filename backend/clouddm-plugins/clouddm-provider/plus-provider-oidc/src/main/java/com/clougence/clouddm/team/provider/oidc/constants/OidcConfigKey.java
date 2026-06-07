@@ -23,7 +23,7 @@ import lombok.Getter;
 @Getter
 public enum OidcConfigKey {
 
-    AuthType("subAccountAuthType"),
+    AuthType("accountAuthType"),
     WellKnownUrl("oidcLoginWellKnownUrl"),
     ClientId("oidcLoginClientId"),
     ClientSecret("oidcLoginClientSecret"),

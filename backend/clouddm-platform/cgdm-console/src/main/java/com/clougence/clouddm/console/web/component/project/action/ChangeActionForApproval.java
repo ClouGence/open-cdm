@@ -198,7 +198,7 @@ public class ChangeActionForApproval extends AbstractChangeAction {
         }
 
         // create Ticket
-        String bizId = this.namingDao.genTicketBizId();
+        String bizId = this.namingDao.genApprovalBizId();
         DmApprovalDO ticket = new DmApprovalDO();
         ticket.setBizId(bizId);
         ticket.setOwnerUid(projectDO.getProjectUid());

@@ -40,16 +40,14 @@ public class UserDefinedConfig {
      * Account config
      */
 
-    @UserConfigDef(name = "forbidDelSubAccount", defaultValue = "false", descKey = I18nUserConfigMsgKeys.USER_RDP_FORBID_DELETE_SUB_ACCOUNT, configTagType = UserConfigTagType.SECURITY, confBelong = ConfBelong.Common, kvConfWebOp = KvConfValType.BOOLEAN)
-    private Boolean       forbidDelSubAccount;
-    @UserConfigDef(name = "subAccountPwdExpireDays", descKey = I18nUserConfigMsgKeys.USER_RDP_SUB_ACCOUNT_PWD_EXPIRED_DAYS, configTagType = UserConfigTagType.SECURITY, confBelong = ConfBelong.Common)
-    private Integer       subAccountPwdExpireDays;
-    @UserConfigDef(name = "subAccountPwdVerifyExpr", descKey = I18nUserConfigMsgKeys.USER_RDP_SUB_ACCOUNT_PWD_VERIFY_EXPR, configTagType = UserConfigTagType.SECURITY, confBelong = ConfBelong.Common)
-    private String        subAccountPwdVerifyExpr;
-    @UserConfigDef(name = "subAccountPwdVerifyTips", descKey = I18nUserConfigMsgKeys.USER_RDP_SUB_ACCOUNT_PWD_VERIFY_TIPS, configTagType = UserConfigTagType.SECURITY, confBelong = ConfBelong.Common)
-    private String        subAccountPwdVerifyTips;
-    @UserConfigDef(name = "subAccountAuthType", defaultValue = "PASSWORD", descKey = I18nUserConfigMsgKeys.USER_RDP_SUB_ACCOUNT_AUTH_TYPE, valueRange = "PASSWORD / LDAP / AD / DingTalk / Feishu / Wechat / OIDC", configTagType = UserConfigTagType.SECURITY, confBelong = ConfBelong.Common)
-    private LoginAuthType subAccountAuthType;
+    @UserConfigDef(name = "accountPwdExpireDays", descKey = I18nUserConfigMsgKeys.USER_RDP_SUB_ACCOUNT_PWD_EXPIRED_DAYS, configTagType = UserConfigTagType.SECURITY, confBelong = ConfBelong.Common)
+    private Integer       accountPwdExpireDays;
+    @UserConfigDef(name = "accountPwdStrongPolicy", defaultValue = "false", descKey = I18nUserConfigMsgKeys.USER_RDP_SUB_ACCOUNT_PWD_STRONG_POLICY, configTagType = UserConfigTagType.SECURITY, confBelong = ConfBelong.Common, kvConfWebOp = KvConfValType.BOOLEAN)
+    private Boolean       accountPwdStrongPolicy;
+    @UserConfigDef(name = "accountPwdMinLength", defaultValue = "8", descKey = I18nUserConfigMsgKeys.USER_RDP_SUB_ACCOUNT_PWD_MIN_LENGTH, configTagType = UserConfigTagType.SECURITY, confBelong = ConfBelong.Common)
+    private Integer       accountPwdMinLength;
+    @UserConfigDef(name = "accountAuthType", defaultValue = "PASSWORD", descKey = I18nUserConfigMsgKeys.USER_RDP_SUB_ACCOUNT_AUTH_TYPE, valueRange = "PASSWORD / LDAP / AD / DingTalk / Feishu / Wechat / OIDC", configTagType = UserConfigTagType.SECURITY, confBelong = ConfBelong.Common)
+    private LoginAuthType accountAuthType;
     @UserConfigDef(name = "defaultLanguage", defaultValue = "zh_CN", descKey = I18nUserConfigMsgKeys.USER_RDP_DEFAULT_LANGUAGE, valueRange = "en_US / zh_CN", configTagType = UserConfigTagType.COMMON, confBelong = ConfBelong.Common)
     private String        defaultLanguage;
 

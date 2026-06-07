@@ -161,7 +161,7 @@ spec:
             - name: APP_WEB_JWT
               value: "ljgefdgjosdighjeroigh"
             - name: APP_SERVE_NAME
-              value: dm_console
+              value: dm-console
             - name: APP_SERVE_PORT
               value: "8008"
             - name: DB_HOST
@@ -273,7 +273,7 @@ spec:
             - name: DM_CLIENT_WSN
               value: "wsn582nm54ca045p014288w6e919ec6294m430h427619v64g0pyqzcjb5040q3f"
             - name: APP_SERVE_NAME
-              value: dm_console
+              value: dm-console
             - name: APP_SERVE_PORT
               value: "8008"
           volumeMounts:

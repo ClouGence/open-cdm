@@ -141,6 +141,9 @@ cd frontend && npm run check-i18n
 - 新增平台 API 时，同时检查 `cgdm-api`、`cgdm-console`、`cgdm-dao`、前端调用和测试是否需要同步调整。
 - 日志使用 Lombok `@Slf4j`；错误日志要带上下文和异常栈，不要吞异常。
 - 异常信息要简短、明确，避免只抛空泛的 `RuntimeException`。
+- 在插件执行过程中中抛出的异常使用 ThirdPartyApiException 类型抛出。
+- 业务异常抛出时要使用 ErrorMessageException 类型并配备国际化。
+- 初始化/升级脚本这一块，永远不能改历史 migration
 
 ## 前端规则
 

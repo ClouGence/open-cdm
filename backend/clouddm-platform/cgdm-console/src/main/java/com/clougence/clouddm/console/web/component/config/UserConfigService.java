@@ -40,7 +40,7 @@ public interface UserConfigService {
 
     void initSubAccountConfigs(String uid);
 
-    int languageMaxRequests(String uid);
+    int languageMaxRequests();
 
-    int languageMaxRequestsByUser(String uid);
+    int languageMaxRequests(String uid);
 }

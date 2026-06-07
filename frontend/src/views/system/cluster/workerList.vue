@@ -271,21 +271,6 @@
     >
       <a-input v-model:value="selectedWorker.workerDesc" type="textarea" />
     </CCModal>
-    <CCModal v-model="showGetConfigSms" footerHide :mask-closable="false" :width="370" :title="$t('huo-qu-yan-zheng-ma')">
-      <div class="sms-modal">
-        <div>{{ $t('huo-qu-pei-zhi-wen-jian-xu-duan-xin-yan-zheng') }}</div>
-        <div class="code">
-          <a-input style="margin-right: 6px" v-model:value="smsCode" />
-          <cc-sms-button login :verifyType="VERIFY_TYPE.SMS" :verifyCodeType="VERIFY_CODE_TYPE.FETCH_WORKER_DEPLOY_CORE_CONFIG" />
-        </div>
-        <div class="btn-group">
-          <a-button type="primary" @click="getWorkerConfig(selectedWorker)">
-            {{ $t('cha-kan') }}
-          </a-button>
-          <a-button @click="hideSmsModal">{{ $t('guan-bi') }}</a-button>
-        </div>
-      </div>
-    </CCModal>
   </div>
 </template>
 
@@ -294,7 +279,7 @@ import cloneDeep from 'lodash.clonedeep';
 import AddMachineModal from '@/views/system/cluster/components/AddMachineModal';
 // import { Modal } from 'view-ui-plus';
 import { Modal } from 'ant-design-vue';
-import { CLUSTER_ENV, CLUSTER_TYPE, DEPLOY_STATUS, HEALTH_LEVEL_COLOR, VERIFY_CODE_TYPE, VERIFY_TYPE, WORKER_STATE } from '@/const';
+import { CLUSTER_ENV, CLUSTER_TYPE, DEPLOY_STATUS, HEALTH_LEVEL_COLOR, WORKER_STATE } from '@/const';
 import { mapState } from 'vuex';
 import copyMixin from '@/mixins/copyMixin';
 
@@ -306,18 +291,12 @@ export default {
   mixins: [copyMixin],
   data() {
     return {
-      VERIFY_CODE_TYPE,
-      VERIFY_TYPE,
       CLUSTER_TYPE,
       cluster: {},
       DEPLOY_STATUS,
       WORKER_STATE,
       HEALTH_LEVEL_COLOR,
       CLUSTER_ENV,
-      countDown: 60,
-      codeBtnMsg: this.$t('huo-qu-yan-zheng-ma'),
-      timer: null,
-      smsCode: '',
       clusterId: '',
       downloadUrl: '',
       search: '',
@@ -399,7 +378,6 @@ export default {
       showWorkerList: [],
       selectedWorker: {},
       showEditWorkerNameModal: false,
-      showGetConfigSms: false,
       regions: []
     };
   },
@@ -638,42 +616,18 @@ export default {
           break;
         case 'conf':
           this.selectedWorker = data;
-          this.showGetConfigSms = true;
-          // Modal.confirm({
-          //   title: this.$t('pei-zhi-wen-jian-yan-zheng'),
-          //   width: 370,
-          //   okText: this.$t('que-ding'),
-          //   cancelText: this.$t('qu-xiao'),
-          //   onOk: () => this.getWorkerConfig(data),
-          //   onCancel: () => this.hideSmsModal(),
-          //   content: () => (
-          //     <div class="sms-modal">
-          //       <div>{ this.$t('huo-qu-pei-zhi-wen-jian-xu-duan-xin-yan-zheng') }</div>
-          //       <div class="code">
-          //         <a-input style="margin-right:6px" v-model={this.smsCode}/>
-          //         <cc-sms-button login verifyType={VERIFY_TYPE.SMS}
-          //                        verifyCodeType={VERIFY_CODE_TYPE.FETCH_WORKER_DEPLOY_CORE_CONFIG}/>
-          //       </div>
-          //     </div>
-          //   )
-          // });
+          this.getWorkerConfig(data);
           break;
         default:
           return false;
       }
     },
-    hideSmsModal() {
-      this.showGetConfigSms = false;
-      this.smsCode = '';
-    },
     async getWorkerConfig(data = {}) {
-      data.verifyCode = this.smsCode;
       const res = await this.$services.dmWorkerClientCoreConfig({ data });
       if (res.success) {
         Modal.destroyAll();
         this.workerConfig = res.data;
         this.showConfigModal = true;
-        this.smsCode = '';
       }
     },
     handleConsoleJob(record) {

@@ -10,7 +10,7 @@
     <slot />
     <Alert v-if="text">
       {{ $t('qing-shu-ru-dong-zuo-ming-cheng') }}
-      <span class="warn-font">{{ event }}</span>
+      <span class="warn-font">{{ confirmTarget }}</span>
       {{ text }}
     </Alert>
     <Input v-model="inputEvent" @on-change="handleValidate" style="margin-bottom: 10px" />
@@ -33,6 +33,7 @@ export default {
     handleConfirm: Function,
     handleClose: Function,
     event: String,
+    confirmText: String,
     text: String
   },
   data() {
@@ -41,9 +42,14 @@ export default {
       showError: false
     };
   },
+  computed: {
+    confirmTarget() {
+      return this.confirmText || this.event;
+    }
+  },
   methods: {
     handleOk() {
-      if (this.inputEvent.trim() === this.event) {
+      if (this.inputEvent.trim() === this.confirmTarget) {
         this.showError = false;
         this.inputEvent = '';
         this.handleConfirm();
@@ -57,7 +63,7 @@ export default {
       this.handleClose();
     },
     handleValidate() {
-      if (this.inputEvent.trim() !== this.event) {
+      if (this.inputEvent.trim() !== this.confirmTarget) {
         this.showError = true;
       } else {
         this.showError = false;

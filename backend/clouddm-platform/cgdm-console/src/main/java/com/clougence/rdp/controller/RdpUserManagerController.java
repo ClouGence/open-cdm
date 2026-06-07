@@ -43,14 +43,12 @@ import com.clougence.clouddm.console.web.model.vo.ListUserVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.Sm2Utils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
-import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
 import com.clougence.rdp.constant.RdpErrorCode;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.rdp.service.model.AddSubAccountMO;
 import com.clougence.rdp.service.model.CheckSubAccountMO;
@@ -79,8 +77,6 @@ public class RdpUserManagerController {
     private RdpUserService      rdpUserService;
     @Resource
     private DmAuthServiceForBiz rdpAuthServiceForBiz;
-    @Resource
-    private SystemDal           systemDal;
     @Resource
     private DmConsoleConfig     rdpConfig;
     @Resource
@@ -168,6 +164,9 @@ public class RdpUserManagerController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         checkOperateUserAuth(uid, fo.getTargetUid());
+        if (StringUtils.isNotBlank(fo.getPassword())) {
+            fo.setPassword(Sm2Utils.decrypt(rdpConfig.getPrivateKey(), fo.getPassword()));
+        }
 
         UpdateUserInfoMO accountMO = this.rdpUserService.updateSubAccount(fo, puid);
         if (accountMO.isSuccess()) {
@@ -214,13 +213,6 @@ public class RdpUserManagerController {
 
         rdpAuthServiceForBiz.checkOperateOtherUserAuth(uid, userDO.getUid());
 
-        String configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.forbidDelSubAccount);
-        if (StringUtils.isNotBlank(configValue)) {
-            boolean forbid = Boolean.parseBoolean(configValue);
-            if (forbid) {
-                return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nRdpMsgKeys.NOT_ALLOW_DELETE_SUB_ACCOUNT.name()));
-            }
-        }
         DmAuthUserDO rdpUserDO = authDal.userMapper().queryBySubAccount(fo.getAccount());
         ResWebData<Boolean> resWebData = this.rdpUserService.deleteSubAccount(puid, fo);
 

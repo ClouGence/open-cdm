@@ -141,8 +141,6 @@ const INIT_DB_CREATE_IF_MISSING = 'clougence.init.db.createIfMissing';
 const INIT_DB_REBUILD_IF_NOT_EMPTY = 'clougence.init.db.rebuildIfNotEmpty';
 const INIT_DB_CONFIRM_DATABASE_NAME = 'clougence.init.db.confirmDatabaseName';
 const INIT_WORKFLOW_MODE_KEY = 'clougence.init.workflowMode';
-const INIT_ADMIN_ACCOUNT_KEY = 'clougence.init.admin.account';
-const DEFAULT_ADMIN_ACCOUNT = 'admin';
 const INSTALL_PHASE_NOTICE_META = {
   DB_REBUILD: {
     titleKey: 'initialization.noticeDbRebuildTitle',
@@ -1006,7 +1004,6 @@ export default {
     buildExecutionPayload({ omitRebuild = false } = {}) {
       const payload = { ...this.formValues };
       payload[INIT_WORKFLOW_MODE_KEY] = this.workflowMode;
-      payload[INIT_ADMIN_ACCOUNT_KEY] = DEFAULT_ADMIN_ACCOUNT;
       if (omitRebuild) {
         delete payload[INIT_DB_REBUILD_IF_NOT_EMPTY];
       }

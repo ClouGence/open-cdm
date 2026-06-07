@@ -13,9 +13,7 @@
                 javaType="com.clougence.clouddm.platform.dal.model.auth.VerifyType"/>
         <result column="email" property="email"/>
         <result column="phone" property="phone"/>
-        <result column="phone" property="phone"/>
-        <result column="verify_code_type" property="verifyCodeType"
-                javaType="com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType"/>
+        <result column="verify_code_type" property="verifyCodeType"/>
         <result column="verify_code_send_time" property="verifyCodeSendTime"/>
         <result column="fail_times" property="failTimes"/>
         <result column="last_fail_date" property="lastFailDate"/>
@@ -54,7 +52,7 @@
         WHERE
             verify_type = #{verifyType,javaType=com.clougence.clouddm.platform.dal.model.auth.VerifyType}
             AND
-            verify_code_type=#{verifyCodeType,javaType=com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType}
+            verify_code_type=#{verifyCodeType}
             AND
             uid = #{uid}
     </select>
@@ -67,7 +65,7 @@
         WHERE
             verify_type = #{verifyType,javaType=com.clougence.clouddm.platform.dal.model.auth.VerifyType}
             AND
-            verify_code_type=#{verifyCodeType,javaType=com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType}
+            verify_code_type=#{verifyCodeType}
             AND
             email=#{email}
             AND
@@ -82,7 +80,7 @@
         WHERE
             verify_type = #{verifyType,javaType=com.clougence.clouddm.platform.dal.model.auth.VerifyType}
         AND
-            verify_code_type=#{verifyCodeType,javaType=com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType}
+            verify_code_type=#{verifyCodeType}
         AND
             phone=#{phone}
         AND
@@ -144,7 +142,7 @@
         AND
         verify_type = #{verifyType,javaType=com.clougence.clouddm.platform.dal.model.auth.VerifyType}
         AND
-        verify_code_type=#{verifyCodeType,javaType=com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType}
+        verify_code_type=#{verifyCodeType}
     </update>
 
 </mapper>

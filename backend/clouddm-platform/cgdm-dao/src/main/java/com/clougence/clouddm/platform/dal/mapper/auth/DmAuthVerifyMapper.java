@@ -19,9 +19,8 @@ import java.util.Date;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
-import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthVerifyDO;
+import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
 
 /**
  * @author bucketli 2020/2/27 19:57
@@ -31,13 +30,13 @@ public interface DmAuthVerifyMapper extends BaseMapper<DmAuthVerifyDO> {
     /** query by uid ,get all uid's {@link DmAuthVerifyDO}s */
     List<DmAuthVerifyDO> queryByUid(String uid);
 
-    DmAuthVerifyDO queryByUidAndType(VerifyType verifyType, VerifyCodeType verifyCodeType, String uid);
+    DmAuthVerifyDO queryByUidAndType(VerifyType verifyType, String verifyCodeType, String uid);
 
-    /** query by email（sql condition contain {@link VerifyType#EMAIL_VERIFY_CODE},{@link VerifyCodeType},email） */
-    DmAuthVerifyDO queryByPrimaryEmail(VerifyType verifyType, VerifyCodeType verifyCodeType, String email);
+    /** query by email（sql condition contain {@link VerifyType#EMAIL_VERIFY_CODE}, verifyCodeType, email） */
+    DmAuthVerifyDO queryByPrimaryEmail(VerifyType verifyType, String verifyCodeType, String email);
 
-    /** query by phone (sql condition contain {@link VerifyType#SMS_VERIFY_CODE},{@link VerifyCodeType},phone) */
-    DmAuthVerifyDO queryByPrimaryPhone(VerifyType verifyType, VerifyCodeType verifyCodeType, String phone);
+    /** query by phone (sql condition contain {@link VerifyType#SMS_VERIFY_CODE}, verifyCodeType, phone) */
+    DmAuthVerifyDO queryByPrimaryPhone(VerifyType verifyType, String verifyCodeType, String phone);
 
     /** update failTimes by {@link DmAuthVerifyDO id} */
     void updateFailTimesAndDateById(Integer failTimes, Date failDate, Long id);
@@ -50,5 +49,5 @@ public interface DmAuthVerifyMapper extends BaseMapper<DmAuthVerifyDO> {
     /** query by uid ,get all uid's {@link DmAuthVerifyDO}s */
     void deleteOldData(Date beforeThisTime);
 
-    void updatePhoneOrEmailByUid(String uid, String phone, String email, VerifyCodeType verifyCodeType, VerifyType verifyType);
+    void updatePhoneOrEmailByUid(String uid, String phone, String email, String verifyCodeType, VerifyType verifyType);
 }

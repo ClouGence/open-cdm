@@ -103,7 +103,7 @@ spec:
             - name: APP_WEB_JWT
               value: "ljgefdgjosdighjeroigh"
             - name: APP_SERVE_NAME
-              value: dm_alone
+              value: dm-alone
             - name: APP_SERVE_PORT
               value: "8008"
             - name: MYSQL_EMBEDDED

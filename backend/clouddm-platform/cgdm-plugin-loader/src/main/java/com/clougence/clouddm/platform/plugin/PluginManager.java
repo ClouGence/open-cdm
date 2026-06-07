@@ -151,9 +151,7 @@ public class PluginManager {
         ready.set(true);
     }
 
-    public static boolean isReady() {
-        return ready.get();
-    }
+    public static boolean isReady() { return ready.get(); }
 
     public static DsPluginInfo findDsPlugin(DataSourceType dsProduct) {
         return dsProduct == null ? null : dsMetaMap.get(dsProduct.getTypeName());

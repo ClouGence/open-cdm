@@ -89,7 +89,7 @@ public class SqlAuditController {
 
         DmAuthUserDO mainUser = this.authDal.userMapper().queryByUid(puid);
         String search = StringUtils.isBlank(fo.getSearch()) ? null : fo.getSearch();
-        List<RsAuthPersonObj> result = this.authDal.userMapper().searchUserByKeywords(mainUser.getUserDomain(), search);
+        List<RsAuthPersonObj> result = this.authDal.userMapper().searchUserByKeywords(mainUser.getId(), search);
         List<OperateUserVO> vos = result.stream().map(DmConvertUtils::convertToOperateUserVO).collect(Collectors.toList());
         return ResWebDataUtils.buildSuccess(vos);
     }

@@ -31,7 +31,6 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
-import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.component.detectrule.*;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
@@ -54,6 +53,7 @@ import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbTableDomain;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
@@ -63,7 +63,6 @@ import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSessionDO;
 import com.clougence.clouddm.platform.dal.model.execution.FileStatus;
 import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
-import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.analysis.column.RealColumn;
 import com.clougence.clouddm.sdk.analysis.column.SelectColumnAnalysisSpi;
@@ -126,7 +125,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     @Resource
     private DmDsConfigService    dmDsConfigService;
     @Resource
-    private UserConfigService    userConfigService;
+    private SystemDal            systemDal;
     @Resource
     private SecRulesService      rulesService;
     @Resource
@@ -1468,26 +1467,12 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     }
 
     private boolean isUsingCacheResult(WsQueryFO queryDTO) {
-        DmSysUserConfDO configDO = this.userConfigService.getSpecifiedConfig(queryDTO.getPrimaryUserId(), UserDefinedConfig.Fields.onlineResultCacheTimeoutSec);
-        if (configDO == null || StringUtils.isBlank(configDO.getConfigValue())) {
-            return true;
-        }
-        try {
-            return Long.parseLong(configDO.getConfigValue()) > 0;
-        } catch (Exception e) {
-            return false;
-        }
+        Long configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.onlineResultCacheTimeoutSec, Long.class);
+        return configValue == null || configValue > 0;
     }
 
     private boolean isUsingSelectRewrite(WsQueryFO queryDTO, QueryCtx ctx) {
-        DmSysUserConfDO configDO = this.userConfigService.getSpecifiedConfig(queryDTO.getPrimaryUserId(), UserDefinedConfig.Fields.onlineSelectRewriteDisable);
-        if (configDO == null || StringUtils.isBlank(configDO.getConfigValue())) {
-            return true;
-        }
-        try {
-            return !Boolean.parseBoolean(configDO.getConfigValue());
-        } catch (Exception e) {
-            return false;
-        }
+        Boolean configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.onlineSelectRewriteDisable, Boolean.class);
+        return configValue == null || !configValue;
     }
 }

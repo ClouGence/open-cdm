@@ -19,6 +19,7 @@ import static com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys.*;
 
 import java.io.ByteArrayOutputStream;
 import java.text.MessageFormat;
+import java.util.Base64;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -28,6 +29,7 @@ import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.constants.MfaAccountType;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.model.vo.MfaCodeVO;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthMFADO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
@@ -51,7 +53,7 @@ public class LoginMFAServiceImpl implements LoginMFAService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
-    public byte[] initMFA(String uid, MfaAccountType mfaAccountType) {
+    public MfaCodeVO initMFA(String uid, MfaAccountType mfaAccountType) {
         DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
         if (userDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_USER_NOT_EXIST.name()));
@@ -79,7 +81,10 @@ public class LoginMFAServiceImpl implements LoginMFAService {
             authDal.mfaMapper().insert(userMfaDO);
         }
 
-        return genCcTotpUriQrCodePicture(mfaKey, getMfaAccount(userDO, mfaAccountType));
+        MfaCodeVO vo = new MfaCodeVO();
+        vo.setMfaCode(mfaKey);
+        vo.setQrCode(toQrCodeDataUrl(genCcTotpUriQrCodePicture(mfaKey, getMfaAccount(userDO, mfaAccountType))));
+        return vo;
     }
 
     @Override
@@ -221,6 +226,10 @@ public class LoginMFAServiceImpl implements LoginMFAService {
 
     private static final String ccTotpUriFormat = "otpauth://totp/{0}?secret={1}&issuer={2}";
 
+    private String toQrCodeDataUrl(byte[] qrCode) {
+        return "data:image/png;base64," + Base64.getEncoder().encodeToString(qrCode);
+    }
+
     private byte[] genCcTotpUriQrCodePicture(String code, String account) {
         try {
             String totpUri = MessageFormat.format(ccTotpUriFormat, account, code, "CloudDM");
@@ -237,5 +246,4 @@ public class LoginMFAServiceImpl implements LoginMFAService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(MFA_QR_CODE_GENERATE_ERROR.name(), msg));
         }
     }
-
 }

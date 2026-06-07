@@ -25,8 +25,8 @@
           <div class="table-container">
             <Table :columns="imColumns" :data="filteredImList" :loading="loading" :locale="{ emptyText: $t('zan-wu-shu-ju') }" size="small" border>
               <template #provider="{ row }">
-                <div style="display: flex; align-items: center; gap: 6px">
-                  <CustomIcon :type="row.imType" size="20px" />
+                <div class="provider-cell">
+                  <img class="provider-icon" :src="providerIconUrl(row.imType)" :alt="row.imTypeI18n" @error="handleProviderIconError" />
                   <span>{{ row.imTypeI18n }}</span>
                 </div>
               </template>
@@ -61,7 +61,7 @@
             @click="handleImDefOne(im)"
             :class="`im ${imDefSelected.imType === im.imType ? 'im-selected' : ''} ${imEdit ? 'im-read' : ''}`"
           >
-            <CustomIcon :type="im.imType" size="24px" />
+            <img class="provider-icon provider-icon-large" :src="providerIconUrl(im.imType)" :alt="im.imTypeI18n" @error="handleProviderIconError" />
             <div>{{ im.imTypeI18n }}</div>
           </div>
         </div>
@@ -103,6 +103,7 @@ import { mapState, mapGetters } from 'vuex';
 import copyMixin from '@/mixins/copyMixin';
 import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
 import { encryptMixin } from '@/mixins/encryptMixin';
+import { getPluginResourceUrl } from '@/utils/pluginResource';
 
 export default {
   name: 'Devops',
@@ -181,6 +182,12 @@ export default {
   methods: {
     init() {
       this.getImList();
+    },
+    providerIconUrl(imType) {
+      return getPluginResourceUrl(`webside/${imType}@im-icon`);
+    },
+    handleProviderIconError(event) {
+      event.target.style.display = 'none';
     },
     async getImList() {
       this.loading = true;
@@ -335,6 +342,25 @@ export default {
   display: flex;
   padding: 20px;
   margin-bottom: 50px;
+}
+
+.provider-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.provider-icon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.provider-icon-large {
+  width: 24px;
+  height: 24px;
 }
 
 .im-list {

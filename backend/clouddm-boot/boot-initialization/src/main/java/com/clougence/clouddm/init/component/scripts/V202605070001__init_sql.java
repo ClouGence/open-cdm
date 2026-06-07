@@ -40,7 +40,7 @@ public class V202605070001__init_sql extends AbstractUpgradeJavaMigration {
                             `uid`                        varchar(127) COLLATE utf8mb4_general_ci NOT NULL,
                             `username`                   varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
                             `email`                      varchar(128) COLLATE utf8mb4_general_ci NOT NULL,
-                            `phone`                      varchar(128) COLLATE utf8mb4_general_ci          DEFAULT NULL,
+                            `phone`                      varchar(128) COLLATE utf8mb4_general_ci NOT NULL,
                             `sub_account`                varchar(128) COLLATE utf8mb4_general_ci          DEFAULT NULL,
                             `company`                    varchar(128) COLLATE utf8mb4_general_ci          DEFAULT NULL,
                             `password`                   varchar(512) COLLATE utf8mb4_general_ci NOT NULL,

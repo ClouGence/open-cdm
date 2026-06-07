@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.console.web.model.fo;
 
-import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
 import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
 
 import jakarta.validation.constraints.NotNull;
@@ -27,13 +26,12 @@ import lombok.Data;
 @Data
 public class SendCodeByAccountFO {
 
-    @NotNull(message = "{notnull.verifycodetype}")
-    private VerifyCodeType verifyCodeType;
+    private String     verifyCodeType;
 
     @NotNull(message = "{notnull.verifytype}")
-    private VerifyType     verifyType;
+    private VerifyType verifyType;
 
-    private String         email;
+    private String     email;
 
-    private String         phoneNumber;
+    private String     phoneNumber;
 }

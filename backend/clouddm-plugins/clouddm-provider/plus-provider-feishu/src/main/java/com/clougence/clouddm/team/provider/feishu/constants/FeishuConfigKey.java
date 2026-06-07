@@ -29,7 +29,7 @@ public enum FeishuConfigKey {
     ApprovalApiTimeoutSec("feishuApprovalApiTimeoutSec"),
     ApprovalTemplateList("feishuApprovalTemplateList"),
 
-    LoginEnable("subAccountAuthType"),
+    LoginEnable("accountAuthType"),
     LoginAppID("feishuLoginAppID"),
     LoginAppSecret("feishuLoginAppSecret"),
     LoginApiTimeoutSec("feishuLoginApiTimeoutSec"),

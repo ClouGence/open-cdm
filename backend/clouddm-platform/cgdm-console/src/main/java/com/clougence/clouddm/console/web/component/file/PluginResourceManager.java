@@ -65,8 +65,9 @@ public class PluginResourceManager {
     public static void refreshIndex() {
         synchronized (INDEX_LOCK) {
             RESOURCE_INDEX.clear();
-            for (ResourceSpi spi : PluginManager.findSpi(ResourceSpi.class)) {
-                registerResourceSpi(spi);
+            for (String resourceModule : PluginManager.getSpiNamesByType(ResourceSpi.class)) {
+                ResourceSpi spi = PluginManager.findSpi(ResourceSpi.class, resourceModule);
+                registerResourceSpi(resourceModule, spi);
             }
             for (DataSourceType dsType : DataSourceType.values()) {
                 DsPluginInfo dsPlugin = PluginManager.findDsPlugin(dsType);
@@ -83,6 +84,11 @@ public class PluginResourceManager {
 
     private static void registerResourceSpi(ResourceSpi spi) {
         String module = StringUtils.isBlank(spi.name()) ? ResourceRoute.DEFAULT_MODULE : spi.name();
+        registerResourceSpi(module, spi);
+    }
+
+    private static void registerResourceSpi(String module, ResourceSpi spi) {
+        module = StringUtils.isBlank(module) ? ResourceRoute.DEFAULT_MODULE : module;
         ResourceLoader loader = new ClassPathResourceLoader(spi.getClass().getClassLoader(), "");
         PluginResourceDeclaration declaration = new PluginResourceDeclaration(spi, loader);
         for (ResourceCategory category : ResourceCategory.values()) {

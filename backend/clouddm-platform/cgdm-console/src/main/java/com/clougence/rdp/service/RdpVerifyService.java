@@ -15,8 +15,6 @@
  */
 package com.clougence.rdp.service;
 
-import com.clougence.clouddm.console.web.model.fo.VerifyMO;
-import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
 import com.clougence.rdp.service.model.CheckVerifyMO;
 
 /**
@@ -35,32 +33,10 @@ public interface RdpVerifyService {
     void dropUserVerify(String uid);
 
     /**
-     * 1. verify phone or email whether is registered 2. verify login fail times ,if exceed the max value and fail datetime less than punish time (or re-count fail times), wait a period time 3.
-     * generate verify code and update login verify code and time 4. send SMS or email verify code
-     */
-    void sendLoginVerifyCode(VerifyMO verifyData);
-
-    /**
-     * 1. verify phone or email whether is registered 2. if not, check whether try to register other time , if not ,insert a verify do 3. if yes, check fail times, if exceed the max value and fail
-     * datetime less than punish time (or re-count fail times), wait a period time 4. send SMS or email verify code
-     */
-    void sendRegisterVerifyCode(VerifyMO verifyData);
-
-    void sendResetPasswordVerifyCode(VerifyMO verifyData);
-
-    void sendSmsVerifyCode(String uid, VerifyCodeType verifyCodeType, String smsTemplateCode);
-
-    void sendEmailVerifyCode(String uid, VerifyCodeType verifyCodeType);
-
-    /**
      * 1. query {@link CheckVerifyMO} by phone/email and code. 2. if exist, check fail times,if exceed the max value and fail datetime less than punish time (or re-count fail times), wait a period
      * time 3. if exist and valid ,return true 4. if is empty ,return false
      */
     void checkVerifyCode(CheckVerifyMO checkVerifyPO);
 
     void updateEmailOrPhoneByUid(String uid, String phone, String email);
-
-    void sendVerifyCodeByChangeAccount(VerifyMO verifyData, String uid, VerifyCodeType verifyCodeType, String smsTemplateCode);
-
-    void sendSsoBindVerifyCode(VerifyMO verifyData);
 }

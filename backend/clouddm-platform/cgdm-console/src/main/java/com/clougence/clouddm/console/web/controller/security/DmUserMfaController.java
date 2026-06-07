@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.rdp.controller;
+package com.clougence.clouddm.console.web.controller.security;
 
 import static com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy.RefAnyOnes;
 
@@ -25,12 +25,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
-import com.clougence.clouddm.console.web.model.fo.mfa.CloseMfaSettingsFO;
-import com.clougence.clouddm.console.web.model.fo.mfa.ConfirmInitMfaSettingsFO;
-import com.clougence.clouddm.console.web.model.fo.mfa.ConfirmResetMfaSettingsFO;
-import com.clougence.clouddm.console.web.model.fo.mfa.ResetMfaSettingsFO;
-import com.clougence.clouddm.console.web.service.auth.RdpUserMfaService;
+import com.clougence.clouddm.console.web.model.fo.mfa.*;
+import com.clougence.clouddm.console.web.model.vo.MfaCodeVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
+import com.clougence.clouddm.console.web.service.login.LoginMFAService;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
 import com.clougence.utils.ExceptionUtils;
 
@@ -44,10 +42,10 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping(value = RdpControllerUrlPrefix.CONSOLE_PREFIX + "/mfa")
 @Slf4j
-public class RdpUserMfaController {
+public class DmUserMfaController {
 
     @Resource
-    private RdpUserMfaService rdpUserMfaService;
+    private LoginMFAService mfaService;
 
     @RequestAuth(strategy = RefAnyOnes)
     @RequestMapping(value = "/ctrl_initMfaSetting", method = RequestMethod.POST)
@@ -57,17 +55,16 @@ public class RdpUserMfaController {
 
     @RequestAuth(strategy = RefAnyOnes)
     @RequestMapping(value = "/initMfaSetting", method = RequestMethod.POST)
-    public void initMfaSetting(HttpServletRequest request, HttpServletResponse response) {
+    public ResWebData<MfaCodeVO> initMfaSetting(@Valid @RequestBody InitMfaSettingsFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
-        byte[] qrCode = rdpUserMfaService.initUserMfaSetting(uid);
-        sendPictureToWeb(qrCode, response);
+        return ResWebDataUtils.buildSuccess(mfaService.initMFA(uid, fo.getMfaAccountType()));
     }
 
     @RequestAuth(strategy = RefAnyOnes)
     @RequestMapping(value = "/confirmInitMfaSetting", method = RequestMethod.POST)
     public ResWebData<?> confirmInitMfaSetting(@Valid @RequestBody ConfirmInitMfaSettingsFO settingsFO, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
-        rdpUserMfaService.confirmUserMfaSetting(uid, false, Integer.parseInt(settingsFO.getMfaCode()));
+        mfaService.confirmFMA(uid, false, Integer.parseInt(settingsFO.getMfaCode()));
         return ResWebDataUtils.buildSuccess("ok");
     }
 
@@ -75,7 +72,7 @@ public class RdpUserMfaController {
     @RequestMapping(value = "/resetMfaSetting", method = RequestMethod.POST)
     public void resetMfaSetting(@Valid @RequestBody ResetMfaSettingsFO fo, HttpServletRequest request, HttpServletResponse response) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
-        byte[] qrCode = rdpUserMfaService.resetMfaSetting(uid, Integer.parseInt(fo.getMfaCode()));
+        byte[] qrCode = mfaService.resetMFA(uid, Integer.parseInt(fo.getMfaCode()), fo.getMfaAccountType());
         sendPictureToWeb(qrCode, response);
     }
 
@@ -97,7 +94,7 @@ public class RdpUserMfaController {
     @RequestMapping(value = "/confirmResetMfaSetting", method = RequestMethod.POST)
     public ResWebData<?> confirmResetMfaSetting(@Valid @RequestBody ConfirmResetMfaSettingsFO settingsFO, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
-        rdpUserMfaService.confirmUserMfaSetting(uid, true, Integer.parseInt(settingsFO.getMfaCode()));
+        mfaService.confirmFMA(uid, true, Integer.parseInt(settingsFO.getMfaCode()));
         return ResWebDataUtils.buildSuccess("ok");
     }
 
@@ -105,7 +102,7 @@ public class RdpUserMfaController {
     @RequestMapping(value = "/closeMfaSettings", method = RequestMethod.POST)
     public ResWebData<?> closeMfaSettings(@Valid @RequestBody CloseMfaSettingsFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
-        rdpUserMfaService.closeUserMfa(uid, Integer.parseInt(fo.getMfaCode()));
+        mfaService.closeMFA(uid, Integer.parseInt(fo.getMfaCode()));
         return ResWebDataUtils.buildSuccess("ok");
     }
 }

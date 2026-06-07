@@ -28,9 +28,6 @@ import lombok.Setter;
 @Setter
 public class CreateClusterFO {
 
-    @NotNull(message = "{notnull.region}")
-    private String         region;
-
     @NotNull(message = "{notnull.cloudoridcname}")
     private CloudOrIdcName cloudOrIdcName;
 

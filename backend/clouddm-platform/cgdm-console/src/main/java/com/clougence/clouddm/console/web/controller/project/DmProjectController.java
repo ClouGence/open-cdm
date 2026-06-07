@@ -109,7 +109,7 @@ public class DmProjectController {
 
         DmAuthUserDO mainUser = this.authDal.userMapper().queryByUid(puid);
         String search = StringUtils.isBlank(fo.getSearch()) ? null : fo.getSearch();
-        List<RsAuthPersonObj> result = this.authDal.userMapper().searchUserByKeywords(mainUser.getUserDomain(), search);
+        List<RsAuthPersonObj> result = this.authDal.userMapper().searchUserByKeywords(mainUser.getId(), search);
         List<ProjectUserVO> vos = result.stream().map(DmConvertUtils::convertToProjectUserVO).collect(Collectors.toList());
         return ResWebDataUtils.buildSuccess(vos);
     }

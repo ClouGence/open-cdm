@@ -20,6 +20,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -48,6 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements LoginProviderSpi {
 
+    private static final Pattern                    AD_SUB_ERROR_CODE = Pattern.compile("data\\s+([0-9a-f]{3,4})\\b", Pattern.CASE_INSENSITIVE);
     private final Map<String, BaseConfig>           configMap;
     private final Map<String, Map<String, BaseCtx>> contextMap;
 
@@ -251,26 +254,34 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
 
     @Override
     protected void checkThrowError(Exception e) {
-        // https://blog.csdn.net/chaijunkun/article/details/23695001
-        if (StringUtils.contains(e.getMessage(), "AcceptSecurityContext error, data 525")) {
-            throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_ACCOUNT_NOT_EXIST.name());
-        } else if (StringUtils.contains(e.getMessage(), "AcceptSecurityContext error, data 52e")) {
-            throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_PASSWORD_ERROR.name());
-        } else if (StringUtils.contains(e.getMessage(), "AcceptSecurityContext error, data 530")) {
-            throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_LOGIN_NOT_ALLOWED_THIS_TIME.name());
-        } else if (StringUtils.contains(e.getMessage(), "AcceptSecurityContext error, data 531")) {
-            throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_LOGIN_NOT_ALLOWED_THIS_PC.name());
-        } else if (StringUtils.contains(e.getMessage(), "AcceptSecurityContext error, data 532")) {
-            throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_PASSWORD_EXPIRED.name());
-        } else if (StringUtils.contains(e.getMessage(), "AcceptSecurityContext error, data 533")) {
-            throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_USER_DISABLED.name());
-        } else if (StringUtils.contains(e.getMessage(), "AcceptSecurityContext error, data 701")) {
-            throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_ACCOUNT_EXPIRED.name());
-        } else if (StringUtils.contains(e.getMessage(), "AcceptSecurityContext error, data 773")) {
-            throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_NEED_RESET_PASSWORD.name());
-        } else if (StringUtils.contains(e.getMessage(), "AcceptSecurityContext error, data 775")) {
-            throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_ACCOUNT_LOCKED.name());
+        String subErrorCode = extractAdSubErrorCode(e);
+        if (StringUtils.isBlank(subErrorCode)) {
+            return;
         }
+
+        switch (subErrorCode.toLowerCase()) {
+            case "525" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_ACCOUNT_NOT_EXIST.name());
+            case "52e" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_PASSWORD_ERROR.name());
+            case "530" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_LOGIN_NOT_ALLOWED_THIS_TIME.name());
+            case "531" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_LOGIN_NOT_ALLOWED_THIS_PC.name());
+            case "532" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_PASSWORD_EXPIRED.name());
+            case "533" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_USER_DISABLED.name());
+            case "701" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_ACCOUNT_EXPIRED.name());
+            case "773" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_NEED_RESET_PASSWORD.name());
+            case "775" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_ACCOUNT_LOCKED.name());
+            default -> {
+            }
+        }
+    }
+
+    private String extractAdSubErrorCode(Throwable e) {
+        for (Throwable cursor = e; cursor != null; cursor = cursor.getCause()) {
+            Matcher matcher = AD_SUB_ERROR_CODE.matcher(StringUtils.defaultString(cursor.getMessage()));
+            if (matcher.find()) {
+                return matcher.group(1);
+            }
+        }
+        return null;
     }
 
     private void checkUserAcl(long userAclNum) {

@@ -28,7 +28,4 @@ public class ResetOpPasswdFO {
     @NotBlank(message = "{notblank.oppassword}")
     @Size(min = 8, max = 32, message = "operation password must between 8~32 character.")
     private String opPassword;
-
-    @NotBlank(message = "{notblank.verifycode}")
-    private String verifyCode;
 }

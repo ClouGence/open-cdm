@@ -28,15 +28,9 @@ import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.SendCodeAfterLoginFO;
 import com.clougence.clouddm.console.web.model.fo.SendCodeByAccountFO;
 import com.clougence.clouddm.console.web.model.fo.SendCodeFO;
-import com.clougence.clouddm.console.web.model.fo.VerifyMO;
-import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
-import com.clougence.rdp.service.RdpVerifyService;
 
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author bucketli 2020-01-14 21:36
@@ -44,73 +38,23 @@ import lombok.extern.slf4j.Slf4j;
  */
 @RestController
 @RequestMapping(value = RdpControllerUrlPrefix.CONSOLE_PREFIX + "/verify")
-@Slf4j
 public class RdpVerifyController {
-
-    @Resource
-    private RdpVerifyService rdpVerifyService;
 
     @RequestAuth(strategy = Ignore)
     @RequestMapping(value = "/sendcode", method = RequestMethod.POST)
     public ResWebData<?> sendCode(@Valid @RequestBody SendCodeFO sendCodeFO) {
-        VerifyMO m = new VerifyMO();
-        m.setAccount(sendCodeFO.getAccount());
-        m.setSub(sendCodeFO.isSub());
-        m.setEmail(sendCodeFO.getEmail());
-        m.setPhoneNumber(sendCodeFO.getPhoneNumber());
-        m.setVerifyType(sendCodeFO.getVerifyType());
-        m.setVerifyCodeType(sendCodeFO.getVerifyCodeType());
-
-        switch (sendCodeFO.getVerifyCodeType()) {
-            case LOGIN:
-                rdpVerifyService.sendLoginVerifyCode(m);
-                break;
-            case REGISTER:
-                rdpVerifyService.sendRegisterVerifyCode(m);
-                break;
-            case RESET_PASSWORD:
-                rdpVerifyService.sendResetPasswordVerifyCode(m);
-                break;
-            case SSO_REGISTER_BIND:
-                rdpVerifyService.sendSsoBindVerifyCode(m);
-                break;
-            default:
-                throw new RuntimeException("unsupported verify code type:" + m.getVerifyCodeType());
-        }
-
         return ResWebDataUtils.buildSuccess();
     }
 
     @RequestAuth(strategy = Ignore)
     @RequestMapping(value = "/sendcodeinloginstate", method = RequestMethod.POST)
-    public ResWebData<?> sendCodeInLoginState(@Valid @RequestBody SendCodeAfterLoginFO verifyData, HttpServletRequest request) {
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        switch (verifyData.getVerifyType()) {
-            case SMS_VERIFY_CODE:
-                rdpVerifyService.sendSmsVerifyCode(uid, verifyData.getVerifyCodeType(), null);
-                break;
-            case EMAIL_VERIFY_CODE:
-                rdpVerifyService.sendEmailVerifyCode(uid, verifyData.getVerifyCodeType());
-                break;
-            default:
-                throw new RuntimeException("unsupported verify type:" + verifyData.getVerifyType());
-        }
-
+    public ResWebData<?> sendCodeInLoginState(@Valid @RequestBody SendCodeAfterLoginFO verifyData) {
         return ResWebDataUtils.buildSuccess();
     }
 
     @RequestAuth(strategy = Ignore)
     @RequestMapping(value = "/sendcodebyaccount", method = RequestMethod.POST)
-    public ResWebData<?> sendCodeByAccount(@RequestBody @Valid SendCodeByAccountFO sendCodeFO, HttpServletRequest request) {
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-
-        VerifyMO m = new VerifyMO();
-        m.setEmail(sendCodeFO.getEmail());
-        m.setPhoneNumber(sendCodeFO.getPhoneNumber());
-        m.setVerifyType(sendCodeFO.getVerifyType());
-        m.setVerifyCodeType(sendCodeFO.getVerifyCodeType());
-
-        rdpVerifyService.sendVerifyCodeByChangeAccount(m, uid, sendCodeFO.getVerifyCodeType(), null);
+    public ResWebData<?> sendCodeByAccount(@RequestBody @Valid SendCodeByAccountFO sendCodeFO) {
         return ResWebDataUtils.buildSuccess();
     }
 }

@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.console.web.model.fo;
 
-import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
 import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
 
 import lombok.Getter;
@@ -28,15 +27,15 @@ import lombok.Setter;
 @Setter
 public class VerifyMO {
 
-    private VerifyType     verifyType;
+    private VerifyType verifyType;
 
-    private boolean        sub;
+    private boolean    sub;
 
-    private String         account;
+    private String     account;
 
-    private String         email;
+    private String     email;
 
-    private String         phoneNumber;
+    private String     phoneNumber;
 
-    private VerifyCodeType verifyCodeType;
+    private String     verifyCodeType;
 }

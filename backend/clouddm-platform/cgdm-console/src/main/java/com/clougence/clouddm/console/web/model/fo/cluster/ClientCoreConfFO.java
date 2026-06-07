@@ -16,7 +16,6 @@
 package com.clougence.clouddm.console.web.model.fo.cluster;
 
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,8 +27,5 @@ import lombok.Setter;
 public class ClientCoreConfFO {
 
     @Min(value = 1, message = "{cluster.worker.worker_id.min}")
-    private long   workerId;
-
-    @NotBlank(message = "{cluster.worker.verifycode.notblank}")
-    private String verifyCode;
+    private long workerId;
 }

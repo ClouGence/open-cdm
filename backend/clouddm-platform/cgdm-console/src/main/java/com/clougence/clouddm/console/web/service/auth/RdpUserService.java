@@ -24,7 +24,7 @@ import com.clougence.clouddm.console.web.model.fo.role.UpdateUserRoleFO;
 import com.clougence.clouddm.console.web.model.fo.user.*;
 import com.clougence.clouddm.console.web.model.lo.UpdateUserRoleLO;
 import com.clougence.clouddm.console.web.model.vo.ListUserVO;
-import com.clougence.clouddm.console.web.model.vo.PwdValidateExprVO;
+import com.clougence.clouddm.console.web.model.vo.PwdPolicyVO;
 import com.clougence.clouddm.console.web.model.vo.RdpUserAkSkVO;
 import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
@@ -46,10 +46,8 @@ public interface RdpUserService {
 
     long   OP_PASSWD_TOEKN_EXPIRE_MS  = 30 * 60 * 1000;
     long   MFA_TOKEN_EXPIRE_SEC       = 120;
-    String DEFAULT_USER_DOMAIN_SUFFIX = "cdmgr.com";
-
     //
-    String DEFAULT_PWD_REGEX          = "^(?=.*\\d)(?=.*[a-zA-Z])(?=.*[^\\da-zA-Z\\s]).{8,32}$";
+    int    DEFAULT_PWD_MIN_LENGTH     = 8;
     String EMAIL_VALIDATE_REGEX       = "^[A-Za-z0-9+_.-]+@(.+)$";
     String CHINA_PHONE_VALIDATE_REGEX = "^\\d{1,20}$";
 
@@ -65,7 +63,7 @@ public interface RdpUserService {
 
     boolean isMaintainer(String uid);
 
-    PwdValidateExprVO getPwdValidateExprWithoutEscape(String puid);
+    PwdPolicyVO getPwdPolicy(String puid);
 
     //
     // -- for Current User Manager
@@ -75,7 +73,7 @@ public interface RdpUserService {
 
     ValidateResultMO validateSubAccountPwd(String puid, String pwd);
 
-    ValidateResultMO validateByExpr(String expr, String errorMsg, String content);
+    ValidateResultMO validateByPolicy(PwdPolicyVO policy, String content);
 
     UpdateUserInfoMO resetOpPasswd(ResetOpPasswdFO fo, String uid);
 
@@ -85,13 +83,11 @@ public interface RdpUserService {
 
     UpdateUserInfoMO updateUserEmail(String uid, UpdateUserEmailFO fo);
 
+    UpdateUserInfoMO updateUserName(String uid, UpdateUserNameFO fo);
+
     UpdateUserInfoMO updateUserPhoneWithPwd(String uid, UpdateUserPhoneWithPwdFO fo);
 
     UpdateUserInfoMO updateUserEmailWithPwd(String uid, UpdateUserEmailWithPwdFO fo);
-
-    void updateAliyunAkSk(String puid, String ak, String sk);
-
-    void cleanAliyunAkSk(String puid);
 
     ResWebData<RdpUserAkSkVO> queryAkSk(String puid, QueryUserAkSkFO fo);
 

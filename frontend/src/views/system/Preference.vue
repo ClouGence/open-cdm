@@ -30,78 +30,6 @@
         </div>
       </div>
     </div>
-    <verify-code-modal
-      :visible="showEditUserInfo"
-      :title="$t('xiu-gai-updateuserinfotypephone-shou-ji-hao-you-xiang', [updateUserInfoType === `phone` ? $t('shou-ji-hao') : $t('you-xiang')])"
-      :verify-code-type="
-        updateUserInfoType === 'phone'
-          ? isVerifyPhone
-            ? 'VERIFY_OLD_ACCOUNT'
-            : 'UPDATE_USER_PHONE'
-          : isVerifyEmail
-            ? 'VERIFY_OLD_ACCOUNT'
-            : 'UPDATE_USER_EMAIL'
-      "
-      :handle-close-modal="handleCancelEdit"
-      :handle-confirm-callback="handleConfirmUpdateUserInfo"
-      :has-next-step="isVerifyPhone || isVerifyEmail"
-      :new-phone="newPhone"
-      :phone-number="updateUserInfo.phone"
-      :email="updateUserInfo.email"
-      :new-email="newEmail"
-      ref="clear-position-modal"
-      :width="580"
-    >
-      <template #content>
-        <Form label-position="right" :label-width="60">
-          <FormItem :label="$t('shou-ji-hao-0')" v-if="updateUserInfoType === 'phone' && !isVerifyPhone">
-            <Input v-model="updateUserInfo.phone" />
-          </FormItem>
-          <FormItem
-            :label="updateUserInfoType === `phone` ? $t('yuan-shou-ji-hao') : $t('shou-ji-hao-0')"
-            prop="phone"
-            v-if="isVerifyPhone || updateUserInfoType !== 'phone'"
-          >
-            <Input v-model="userInfo.phone" disabled />
-          </FormItem>
-          <FormItem :label="$t('you-xiang-0')" v-if="updateUserInfoType === 'email' && !isVerifyEmail">
-            <Input v-model="updateUserInfo.email" />
-          </FormItem>
-        </Form>
-      </template>
-    </verify-code-modal>
-    <verify-code-modal
-      :visible="showFetchAKSK"
-      :title="$t('huo-qu-aksk')"
-      verify-code-type="FETCH_USER_AK_SK"
-      :handle-close-modal="handleCancelEdit"
-      :handle-confirm-callback="handleConfirmFetchAKSK"
-      ref="clear-position-modal"
-      :loading="confirmFetchLoading"
-      :width="580"
-    >
-      <template #content>
-        <h3 style="margin-bottom: 20px">
-          {{ $t('wei-bao-zheng-an-quan-xing-qing-shu-ru-yan-zheng-ma-lai-huo-qu-aksk') }}
-        </h3>
-      </template>
-    </verify-code-modal>
-    <verify-code-modal
-      :visible="showResetAKSK"
-      :title="$t('chong-zhi-aksk')"
-      verify-code-type="RESET_USER_AK_SK"
-      :handle-close-modal="handleCancelEdit"
-      :handle-confirm-callback="handleConfirmSetAKSK"
-      ref="clear-position-modal"
-      :loading="confirmFetchLoading"
-      :width="580"
-    >
-      <template #content>
-        <h3 style="margin-bottom: 20px">
-          {{ $t('wei-bao-zheng-an-quan-xing-qing-shu-ru-yan-zheng-ma-lai-chong-zhi-aksk') }}
-        </h3>
-      </template>
-    </verify-code-modal>
     <CCModal v-model="showAKSK" title="AK/SK" width="600px">
       <div>
         <h3 style="margin-bottom: 20px">
@@ -129,29 +57,19 @@
 import fecha from 'fecha';
 // import { getGlobalSystemConfig } from '@/services/cc/api/constant';
 import { formatHour } from '@/components/util';
-import VerifyCodeModal from '@/components/modal/VerifyCodeModal';
 import UserConfigParamsEdit from '@/views/system/UserConfigParamsEdit';
 // import FollowedJobList from '@/views/system/FollowedJobList';
 import { mapGetters, mapState } from 'vuex';
 import Mapping from '../util';
 
 export default {
-  components: { UserConfigParamsEdit, VerifyCodeModal },
+  components: { UserConfigParamsEdit },
   data() {
     return {
-      updateUserInfoType: '',
       loading: false,
       editEmail: false,
-      isVerifyPhone: false,
-      isVerifyEmail: false,
-      newPhone: false,
-      newEmail: false,
-      showEditUserInfo: false,
-      showFetchAKSK: false,
-      showResetAKSK: false,
       showAKSK: false,
       canEdit: false,
-      confirmFetchLoading: false,
       akskInfo: {},
       formatHour,
       updateUserInfo: {
@@ -182,11 +100,8 @@ export default {
       pwContain: false,
       pwFormat: false,
       pwConfirm: false,
-      verifyCode: '',
       password: '',
       passwordAgain: '',
-      sendcodeDisabled: true,
-      sendCodeAgainTime: 60,
       systemForm: {
         EMAIL_HOST_KEY: '',
         EMAIL_PORT_KEY: '465',
@@ -224,8 +139,7 @@ export default {
       },
       editPasswordRule: {
         password: [{ required: true, message: 'The name cannot be empty', trigger: 'blur' }],
-        passwordAgain: [{ required: true, message: 'The name cannot be empty', trigger: 'blur' }],
-        verifyCode: [{ required: true, message: 'The verifyCode cannot be empty', trigger: 'blur' }]
+        passwordAgain: [{ required: true, message: 'The name cannot be empty', trigger: 'blur' }]
       },
       setMetaColumn: [
         {
@@ -346,149 +260,41 @@ export default {
       this.$router.push({ path: '/reset' });
       // window.location.reload();
     },
-    handleUpdateUserInfo(type) {
-      this.updateUserInfoType = type;
-      this.showEditUserInfo = true;
-      this.updateUserInfo.phone = this.userInfo.phone;
-      this.updateUserInfo.email = this.userInfo.email;
-      if (type === 'phone') {
-        this.isVerifyPhone = true;
-      }
-    },
     handleCancelEdit() {
-      this.verifyCode = '';
       this.password = '';
       this.passwordAgain = '';
       // this.ifEdit = false;
       this.showEditPassword = false;
       this.editEmail = false;
-      this.showEditUserInfo = false;
-      this.showFetchAKSK = false;
-      this.showResetAKSK = false;
       this.showAKSK = false;
-      this.isVerifyPhone = false;
-      this.isVerifyEmail = false;
     },
     handleShowFetchAKSK() {
-      this.showFetchAKSK = true;
+      this.handleConfirmFetchAKSK();
     },
     handleShowResetAKSK() {
-      this.showResetAKSK = true;
+      this.handleConfirmSetAKSK();
     },
-    handleConfirmFetchAKSK(verifyCode) {
-      this.confirmFetchLoading = true;
+    handleConfirmFetchAKSK() {
       this.$services
         .rdpUserQueryUserAkSk({
-          data: {
-            verifyCode,
-            verifyType: this.verifyType
-          }
+          data: {}
         })
         .then((res) => {
-          this.showFetchAKSK = false;
           if (res.success) {
             this.akskInfo = res.data;
             this.showAKSK = true;
           }
-          this.confirmFetchLoading = false;
         });
     },
-    handleConfirmSetAKSK(verifyCode) {
-      this.confirmFetchLoading = true;
+    handleConfirmSetAKSK() {
       this.$services
         .rdpUserResetUserAkSk({
-          data: {
-            verifyCode,
-            verifyType: this.verifyType
-          }
+          data: {}
         })
         .then((res) => {
-          this.showFetchAKSK = false;
           if (res.success) {
             this.$Message.success(this.$t('aksk-chong-zhi-cheng-gong'));
-            this.showResetAKSK = false;
           }
-          this.confirmFetchLoading = false;
-        });
-    },
-    handleConfirmUpdateUserInfo(verifyCode) {
-      if (this.isVerifyPhone || this.isVerifyEmail) {
-        const data = {
-          verifyCode,
-          verifyType: this.verifyType
-        };
-        this.$services.rdpUserCheckVerifyCode({ data }).then((res) => {
-          if (res.success) {
-            this.isVerifyPhone = false;
-            this.isVerifyEmail = false;
-            this.userInfo.verifyCode = '';
-            // this.$refs.verifyCount.counting = false;
-            this.newPhone = true;
-            this.newEmail = true;
-          }
-        });
-      } else {
-        const postFunc = this.updateUserInfoType === 'phone' ? this.$services.rdpUserUpdateUserPhone : this.$services.rdpUserUpdateUserEmail;
-        postFunc({
-          data: {
-            phone: this.updateUserInfo.phone,
-            email: this.updateUserInfo.email,
-            verifyCode,
-            verifyType: this.verifyType
-          }
-        }).then((res) => {
-          if (res.success) {
-            this.$Message.success(this.$t('xiu-gai-cheng-gong'));
-            this.showEditUserInfo = false;
-            setTimeout(() => {
-              this.getUserInfo();
-            }, 500);
-          }
-        });
-      }
-    },
-    handleVerify() {
-      this.sendcodeDisabled = false;
-      this.sendCodeAgainTime = 60;
-      const that = this;
-
-      this.sendCodeAgain = setInterval(() => {
-        if (that.sendCodeAgainTime > 0) {
-          that.sendCodeAgainTime--;
-        } else {
-          clearInterval(that.sendCodeAgain);
-          that.sendcodeDisabled = true;
-        }
-      }, 1000);
-
-      this.$services
-        .rdpVerifySendCodeInLoginState({
-          data: {
-            verifyType: 'SMS_VERIFY_CODE',
-            verifyCodeType: 'RESET_PASSWORD'
-          }
-        })
-        .then((res) => {
-          if (res.success) {
-            this.$Message.success(this.$t('fa-song-cheng-gong'));
-          } else {
-            this.sendcodeDisabled = true;
-            this.sendCodeAgainTime = 60;
-            clearInterval(this.sendCodeAgain);
-            this.$Modal.error({
-              title: 'ERROR',
-              content: `${res.msg}`
-            });
-          }
-        })
-        .catch((res) => {
-          this.sendcodeDisabled = true;
-          this.sendCodeAgainTime = 60;
-          clearInterval(this.sendCodeAgain);
-          this.$Modal.error({
-            title: 'ERROR',
-            content: `${res.data.msg}`
-          });
         });
     },
     handleCheckPasswordAgain() {

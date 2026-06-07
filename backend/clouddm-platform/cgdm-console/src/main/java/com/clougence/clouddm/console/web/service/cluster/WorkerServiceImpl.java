@@ -73,7 +73,7 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
     @Resource
     private WorkerDetector       workerDetector;
     @Resource
-    private NamingDao        namingDao;
+    private NamingDao            namingDao;
     @Resource
     private RdpUserService       rdpUserService;
     @Resource
@@ -317,17 +317,6 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
 
     @Override
     public String getClientDownloadUrl(long workerId) {
-        //        Region region = this.dmConfig.getOssDownloadRegion();
-        //        LocalDateTime expireDate = LocalDateTime.now().plusHours(1);
-        //
-        //        String ossAk = this.dmConfig.getOssDownloadAk();
-        //        String ossSk = this.dmConfig.getOssDownloadSk();
-        //        String ossEndpoint = this.rdpRegionService.getOssEndpoint(region, true);
-        //        String ossBucket = this.rdpRegionService.getOssBucket(region);
-        //        String ossDownPackName = this.dmConfig.getOssDownloadPackageName();
-        //
-        //        URL url = OssOpenApiImpl.getInstance().genTempUrlForFile(ossAk, ossSk, ossEndpoint, ossBucket, ossDownPackName, expireDate);
-        //        return this.dmConfig.getOssDownloadSite() + url.getFile();
         return "";
     }
 

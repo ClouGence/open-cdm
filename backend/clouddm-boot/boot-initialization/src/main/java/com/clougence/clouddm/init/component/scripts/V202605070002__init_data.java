@@ -45,13 +45,13 @@ public class V202605070002__init_data extends AbstractUpgradeJavaMigration {
         String encodedPassword = CryptService.INSTANCE.encryptForOneWay(InitSeedConstants.resolveAdminPassword()).getEncryptPassword();
         String encryptedSecretKey = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(InitSeedConstants.DEFAULT_PRIMARY_SECRET_KEY);
         return """
-                    INSERT INTO `rdp_user` (`id`,`gmt_create`, `gmt_modified`, `uid`, `username`, `email`, `sub_account`,
+                    INSERT INTO `rdp_user` (`id`,`gmt_create`, `gmt_modified`, `uid`, `username`, `email`, `phone`, `sub_account`,
                                                    `company`, `password`, `op_password`, `role_id`, `access_key`, `secret_key`,
                                                    `last_try_login_time`,`login_fail_count`, `login_locked`, `last_try_op_verify_time`, `op_verify_fail_count`,
                                                    `op_locked`, `account_type`, `user_domain`, `disable`, `parent_id`, `maintainer`, `aliyun_ak`, `aliyun_sk`,
                                                    `last_date_update_aliyun_ak`, `bind_type`, `bind_account`, `phone_area_code`,
                                                    `user_status`, `src`, `client_id`, `keyword`, `contact_me`, `country`)
-                        VALUES (1,now(), now(), '%s', 'Trial', '%s', null, '',
+                        VALUES (1,now(), now(), '%s', 'Trial', '%s', '%s', null, '',
                             '%s', null, %s,
                             '%s',
                             '%s',
@@ -60,6 +60,7 @@ public class V202605070002__init_data extends AbstractUpgradeJavaMigration {
                 """.formatted(                               //
                 InitSeedConstants.ADMIN_UID,                 //
                 adminEmail,                                  //
+                InitSeedConstants.DEFAULT_PRIMARY_PHONE,     //
                 encodedPassword, ADMIN_ROLE_ID,              //
                 InitSeedConstants.DEFAULT_PRIMARY_ACCESS_KEY,//
                 encryptedSecretKey,                          //

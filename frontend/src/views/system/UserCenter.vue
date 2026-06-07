@@ -32,8 +32,17 @@
               <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                 <dt class="text-sm/6 font-medium text-gray-900">{{ $t('yong-hu-ming') }}</dt>
                 <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
-                  {{ userInfo.username }}
-                  <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="handleUpdateUserName" />
+                  <template v-if="editingField === 'username'">
+                    <div class="inline-edit-row">
+                      <Input v-model="inlineForm.username" @on-enter="confirmInlineEdit('username')" />
+                      <Button type="primary" :loading="loading" @click="confirmInlineEdit('username')">{{ $t('que-ding') }}</Button>
+                      <Button @click="cancelInlineEdit">{{ $t('qu-xiao') }}</Button>
+                    </div>
+                  </template>
+                  <template v-else>
+                    {{ userInfo.username }}
+                    <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="startInlineEdit('username')" />
+                  </template>
                   <span
                     v-if="userInfo.saasUserStatus === 'SAAS_LOCKED'"
                     class="border border-red-700 border-solid ml-2 text-red-700 bg-red-50 rounded-md px-4 py-2 text-sm font-medium"
@@ -42,25 +51,63 @@
                   </span>
                 </dd>
               </div>
-              <div v-if="userInfo.phone" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                <dt class="text-sm/6 font-medium text-gray-900">{{ $t('shou-ji-hao') }}</dt>
+              <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                <dt class="text-sm/6 font-medium text-gray-900">{{ $t('shou-ji') }}</dt>
                 <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
-                  {{ userInfo.phone }}
-                  <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="handleUpdateUserInfo('phone')" />
+                  <template v-if="editingField === 'phone'">
+                    <div class="inline-edit-row">
+                      <Input v-model="inlineForm.phone" @on-blur="checkInlineDuplicate('phone')" @on-enter="confirmInlineEdit('phone')" />
+                      <Icon v-if="duplicateState.phone === 'ok'" type="md-checkmark" class="text-green-500 text-xl" />
+                      <Button type="primary" :loading="loading" @click="confirmInlineEdit('phone')">{{ $t('que-ding') }}</Button>
+                      <Button @click="cancelInlineEdit">{{ $t('qu-xiao') }}</Button>
+                    </div>
+                    <div v-if="duplicateError.phone" class="inline-edit-error">{{ duplicateError.phone }}</div>
+                  </template>
+                  <template v-else>
+                    <span :class="{ 'empty-value': !userInfo.phone }">{{ userInfo.phone || $t('initialization.emptyValue') }}</span>
+                    <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="startInlineEdit('phone')" />
+                  </template>
                 </dd>
               </div>
               <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                 <dt class="text-sm/6 font-medium text-gray-900">{{ $t('you-xiang') }}</dt>
                 <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
-                  {{ userInfo.email }}
-                  <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="handleUpdateUserInfo('email')" />
+                  <template v-if="editingField === 'email'">
+                    <div class="inline-edit-row">
+                      <Input v-model="inlineForm.email" @on-blur="checkInlineDuplicate('email')" @on-enter="confirmInlineEdit('email')" />
+                      <Icon v-if="duplicateState.email === 'ok'" type="md-checkmark" class="text-green-500 text-xl" />
+                      <Button type="primary" :loading="loading" @click="confirmInlineEdit('email')">{{ $t('que-ding') }}</Button>
+                      <Button @click="cancelInlineEdit">{{ $t('qu-xiao') }}</Button>
+                    </div>
+                    <div v-if="duplicateError.email" class="inline-edit-error">{{ duplicateError.email }}</div>
+                  </template>
+                  <template v-else>
+                    <span :class="{ 'empty-value': !userInfo.email }">{{ userInfo.email || $t('initialization.emptyValue') }}</span>
+                    <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="startInlineEdit('email')" />
+                  </template>
                 </dd>
               </div>
               <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                 <dt class="text-sm/6 font-medium text-gray-900">{{ $t('deng-lu-mi-ma') }}</dt>
                 <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
-                  *******
-                  <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="handleShowPassword" />
+                  <template v-if="editingField === 'password'">
+                    <div class="inline-edit-row password-edit-row">
+                      <Input v-model="inlineForm.originPassword" type="password" password :placeholder="$t('qing-shu-ru-lao-mi-ma')" />
+                      <Poptip trigger="focus" placement="right-start">
+                        <Input v-model="inlineForm.newPassword" type="password" password :placeholder="$t('xin-mi-ma')" />
+                        <template #content>
+                          <p>{{ passwordRule.tips }}</p>
+                        </template>
+                      </Poptip>
+                      <Button type="primary" :loading="loading" @click="confirmInlineEdit('password')">{{ $t('que-ding') }}</Button>
+                      <Button @click="cancelInlineEdit">{{ $t('qu-xiao') }}</Button>
+                    </div>
+                    <div v-if="errMsg" class="inline-edit-error">{{ errMsg }}</div>
+                  </template>
+                  <template v-else>
+                    *******
+                    <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="startInlineEdit('password')" />
+                  </template>
                 </dd>
               </div>
               <div v-if="userInfo.marketplaceType && userInfo.marketplaceType !== 'NONE'" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
@@ -109,7 +156,7 @@
               <Button style="font-size: 14px; margin-right: 16px" @click="handleShowFetchAKSK">
                 {{ $t('huo-qu-aksk') }}
               </Button>
-              <Button style="font-size: 14px; margin-right: 16px" @click="handleShowResetAKSK">
+              <Button type="error" ghost style="font-size: 14px; margin-right: 16px" @click="handleShowResetAKSK">
                 {{ $t('chong-zhi-aksk') }}
               </Button>
             </div>
@@ -117,133 +164,73 @@
         </div>
       </TabPane>
     </Tabs>
-    <CCModal v-model="showMfaModal" :title="$t('kai-qi-duo-yin-zi-ren-zheng')" width="400px">
+    <CCModal v-model="showMfaModal" :title="$t('kai-qi-duo-yin-zi-ren-zheng')" width="480px">
       <div v-if="mfaModalLoading" style="text-align: center; padding: 40px 0">
         <i class="ivu-icon ivu-icon-ios-loading ivu-load-loop" style="font-size: 32px"></i>
       </div>
-      <div v-else>
-        <Form label-position="top">
-          <FormItem :label="$t('mfa-zhang-hao')">
-            <RadioGroup v-model="mfaAccountType" vertical>
-              <Radio v-for="item in mfaAccountOptions" :key="item.value" :label="item.value" :disabled="item.disabled">
-                <span>{{ item.label }}</span>
-                <span class="ml-2 text-gray-500">{{ item.account || $t('wei-she-zhi-0') }}</span>
-              </Radio>
-            </RadioGroup>
-          </FormItem>
-        </Form>
-        <p class="mt-4 mb-8">
-          {{
-            $t(
-              'shi-yong-nin-de-an-quan-yan-zheng-app-lai-sao-miao-yi-xia-er-wei-ma-bing-jiang-ta-ti-gong-de-yi-ci-xing-de-yan-zheng-ma-tian-ru-xia-mian-de-shu-ru-kuang'
-            )
-          }}
-        </p>
-        <div
-          class="border-b border-solid border-[#dcdee2] pb-8"
-          style="display: flex; justify-content: center; align-items: center; margin-bottom: 16px; min-height: 180px"
-        >
-          <img
-            :src="mfaQrCode"
-            class="border border-solid border-[#dcdee2] rounded"
-            style="width: 180px; height: 180px; display: block"
-            v-if="mfaQrCode"
-          />
+      <div v-else class="mfa-modal-body">
+        <div v-if="mfaStep === 1">
+          <Form label-position="top">
+            <FormItem :label="$t('mfa-zhang-hao')">
+              <RadioGroup v-model="mfaAccountType" vertical>
+                <Radio v-for="item in mfaAccountOptions" :key="item.value" :label="item.value" :disabled="item.disabled">
+                  <span>{{ item.label }}</span>
+                  <span class="ml-2 text-gray-500">{{ item.account || $t('wei-she-zhi-0') }}</span>
+                </Radio>
+              </RadioGroup>
+            </FormItem>
+          </Form>
+          <p class="mt-4 mb-8">
+            {{
+              $t(
+                'wei-nin-de-zhang-hao-zeng-jia-yi-ceng-bao-zhang-kai-qi-hou-nin-xu-yao-zai-deng-lu-shi-ti-gong-zhang-hao-mi-ma-yi-ji-mfa-yan-zheng-ma'
+              )
+            }}
+          </p>
         </div>
-        <div class="mt-8">
+        <div v-else>
+          <p class="mt-4 mb-4">
+            {{
+              $t(
+                'shi-yong-nin-de-an-quan-yan-zheng-app-lai-sao-miao-yi-xia-er-wei-ma-bing-jiang-ta-ti-gong-de-yi-ci-xing-de-yan-zheng-ma-tian-ru-xia-mian-de-shu-ru-kuang'
+              )
+            }}
+          </p>
+          <Tabs v-model="mfaCodeTab" :animated="false" class="mfa-code-tabs">
+            <TabPane :label="$t('mfa-er-wei-ma')" name="qr">
+              <div class="mfa-qr-panel">
+                <img :src="mfaQrCode" class="mfa-qr-code" v-if="mfaQrCode" />
+                <div class="mfa-authenticator-links">
+                  <a href="https://support.google.com/accounts/answer/1066447" target="_blank" rel="noopener noreferrer">
+                    {{ $t('google-authenticator') }}
+                  </a>
+                  <a href="https://support.microsoft.com/authenticator/download-microsoft-authenticator" target="_blank" rel="noopener noreferrer">
+                    {{ $t('microsoft-authenticator') }}
+                  </a>
+                </div>
+              </div>
+            </TabPane>
+            <TabPane :label="$t('mfa-code')" name="code">
+              <div class="mfa-secret-panel">
+                <div class="mfa-secret-code">
+                  <div v-for="(row, rowIndex) in mfaSecretCodeRows" :key="rowIndex" class="mfa-secret-code-row">
+                    <span v-for="group in row" :key="group">{{ group }}</span>
+                  </div>
+                </div>
+                <Button type="primary" ghost @click="handleCopy(mfaSecretCode)">{{ $t('fu-zhi') }}</Button>
+              </div>
+            </TabPane>
+          </Tabs>
+          <div class="mfa-verify-divider"></div>
           <Input v-model="mfaInput" :placeholder="$t('qing-shu-ru-yi-ci-xing-de-duo-yin-zi-ren-zheng-ma')" />
-          <Alert class="mt-4" type="error" v-if="errMsg" show-icon>{{ errMsg }}</Alert>
         </div>
+        <Alert class="mt-4" type="error" v-if="errMsg" show-icon>{{ errMsg }}</Alert>
       </div>
       <template #footer>
         <Button @click="handleCloseMfaModal">{{ $t('qu-xiao') }}</Button>
-        <Button type="primary" @click="handleConfirmMfaModal">{{ mfaQrCode ? $t('que-ding') : $t('sheng-cheng-er-wei-ma') }}</Button>
+        <Button type="primary" @click="handleConfirmMfaModal">{{ mfaStep === 1 ? $t('sheng-cheng-mfa-code') : $t('que-ding') }}</Button>
       </template>
     </CCModal>
-    <verify-code-modal
-      v-model:visible="showEditUserInfo"
-      :title="$t('xiu-gai-updateuserinfotypephone-shou-ji-hao-you-xiang', [updateUserInfoType === `phone` ? $t('shou-ji-hao') : $t('you-xiang')])"
-      :verify-code-type="
-        updateUserInfoType === 'phone'
-          ? isVerifyPhone
-            ? 'VERIFY_OLD_ACCOUNT'
-            : 'UPDATE_USER_PHONE'
-          : isVerifyEmail
-            ? 'VERIFY_OLD_ACCOUNT'
-            : 'UPDATE_USER_EMAIL'
-      "
-      :handle-close-modal="handleCancelEdit"
-      :handle-confirm-callback="handleConfirmUpdateUserInfo"
-      :has-next-step="isVerifyPhone || isVerifyEmail"
-      :new-phone="newPhone"
-      :phone-number="updateUserInfo?.phone"
-      :email="updateUserInfo?.email"
-      :new-email="newEmail"
-      ref="clear-position-modal"
-      :width="500"
-      withMargin
-    >
-      <template #content>
-        <Form label-position="right" :label-width="80">
-          <FormItem :label="$t('shou-ji-hao-0')" v-if="updateUserInfoType === 'phone' && !isVerifyPhone">
-            <Input v-model="updateUserInfo.phone" />
-          </FormItem>
-          <FormItem
-            :label="updateUserInfoType === `phone` ? $t('yuan-shou-ji-hao') : $t('shou-ji-hao-0')"
-            prop="phone"
-            v-if="(isVerifyPhone || updateUserInfoType !== 'phone') && userInfo.phone"
-          >
-            <Input v-model="userInfo.phone" disabled />
-          </FormItem>
-          <FormItem :label="$t('you-xiang-0')" v-if="updateUserInfoType === 'email' && !isVerifyEmail">
-            <Input v-model="updateUserInfo.email" />
-          </FormItem>
-        </Form>
-      </template>
-    </verify-code-modal>
-    <CCModal v-model="showEditUserName" :title="`${$t('xiu-gai')} ${$t('yong-hu-ming')}`" :width="420">
-      <Form label-position="right" :label-width="80">
-        <FormItem :label="$t('yong-hu-ming')">
-          <Input v-model="updateUserInfo.userName" @on-enter="handleConfirmUpdateUserName" />
-        </FormItem>
-      </Form>
-      <template #footer>
-        <Button @click="handleCancelEdit">{{ $t('qu-xiao') }}</Button>
-        <Button type="primary" :loading="loading" @click="handleConfirmUpdateUserName">{{ $t('que-ding') }}</Button>
-      </template>
-    </CCModal>
-    <verify-code-modal
-      v-model:visible="showFetchAKSK"
-      :title="$t('huo-qu-aksk')"
-      verify-code-type="FETCH_USER_AK_SK"
-      :handle-close-modal="handleCancelEdit"
-      :handle-confirm-callback="handleConfirmFetchAKSK"
-      :loading="confirmFetchLoading"
-      ref="clear-position-modal"
-      :width="580"
-    >
-      <template #content>
-        <h3 style="margin-bottom: 20px">
-          {{ $t('wei-bao-zheng-an-quan-xing-qing-shu-ru-yan-zheng-ma-lai-huo-qu-aksk') }}
-        </h3>
-      </template>
-    </verify-code-modal>
-    <verify-code-modal
-      v-model:visible="showResetAKSK"
-      :title="$t('chong-zhi-aksk')"
-      verify-code-type="RESET_USER_AK_SK"
-      :handle-close-modal="handleCancelEdit"
-      :handle-confirm-callback="handleConfirmSetAKSK"
-      :loading="confirmFetchLoading"
-      ref="clear-position-modal"
-      :width="580"
-    >
-      <template #content>
-        <h3 style="margin-bottom: 20px">
-          {{ $t('wei-bao-zheng-an-quan-xing-qing-shu-ru-yan-zheng-ma-lai-chong-zhi-aksk') }}
-        </h3>
-      </template>
-    </verify-code-modal>
     <verify-mfa-modal
       v-model:visible="showCloseMfaModal"
       :title="$t('guan-bi-duo-yin-zi-ren-zheng')"
@@ -299,60 +286,6 @@
         </div>
       </div>
     </verify-mfa-modal>
-    <password-confirm-modal
-      v-model:visible="showEditPassword"
-      :title="$t('chong-zhi-mi-ma')"
-      :handle-close-modal="handleCancelEdit"
-      :handle-confirm-callback="handleConfirmEditPassword"
-      ref="clear-position-modal"
-      :width="500"
-      :err-msgContent="errMsg"
-    >
-      <template #content>
-        <FormItem :label="$t('xin-mi-ma')">
-          <Poptip trigger="focus" placement="right-start" style="width: 100%">
-            <Input style="width: 100%" v-model="newPassword" type="password" password :placeholder="$t('qing-shu-ru-xin-mi-ma')"></Input>
-            <template #content>
-              <p>{{ passwordRule.tips }}</p>
-            </template>
-          </Poptip>
-        </FormItem>
-      </template>
-    </password-confirm-modal>
-    <password-confirm-modal
-      :visible="showEditEmail"
-      :title="$t('xiu-gai-you-xiang')"
-      :handle-close-modal="handleCancelEdit"
-      :handle-confirm-callback="handleConfirmEditEmail"
-      ref="clear-position-modal"
-      :width="500"
-      :err-msgContent="errMsg"
-      :label="$t('mi-ma')"
-      :placeholder="$t('xu-yan-zheng-cao-zuo-ren-shen-fen')"
-    >
-      <template #content>
-        <FormItem :label="$t('xin-you-xiang')">
-          <Input style="width: 100%" v-model="newEmailToReset" :placeholder="$t('qing-shu-ru-xin-you-xiang')"></Input>
-        </FormItem>
-      </template>
-    </password-confirm-modal>
-    <password-confirm-modal
-      :visible="showEditPhone"
-      :title="$t('xiu-gai-shou-ji-hao')"
-      :handle-close-modal="handleCancelEdit"
-      :handle-confirm-callback="handleConfirmEditPhone"
-      ref="clear-position-modal"
-      :width="500"
-      :err-msgContent="errMsg"
-      :label="$t('mi-ma')"
-      :placeholder="$t('xu-yan-zheng-cao-zuo-ren-shen-fen')"
-    >
-      <template #content>
-        <FormItem :label="$t('xin-shou-ji-hao')">
-          <Input style="width: 100%" v-model="newPhoneToReset" :placeholder="$t('qing-shu-ru-xin-shou-ji-hao')"></Input>
-        </FormItem>
-      </template>
-    </password-confirm-modal>
     <CCModal v-model="showAKSK" title="AK/SK" width="640px" footer-hide>
       <h3 style="margin-bottom: 20px">
         {{ $t('wei-bao-zheng-nin-de-zhang-hao-an-quan-qing-wu-bi-bao-guan-hao-nin-de-aksk') }}
@@ -375,162 +308,51 @@
   </div>
 </template>
 <script>
-import fecha from 'fecha';
-import { formatHour, isNumber } from '@/components/util';
-import VerifyCodeModal from '@/components/modal/VerifyCodeModal';
-import PasswordConfirmModal from '@/components/modal/PasswordConfirmModal';
+import { isNumber } from '@/components/util';
 import verifyMfaModal from '@/components/modal/VerifyMfaModal';
 import { mapGetters, mapMutations, mapState } from 'vuex';
 import { encryptMixin } from '@/mixins/encryptMixin';
 import { UPDATE_USERINFO } from '@/store/mutationTypes';
-import store from '@/store';
-import Mapping from '../util';
 
 const DEFAULT_PASSWORD_MIN_LENGTH = 8;
 
 export default {
-  components: { VerifyCodeModal, PasswordConfirmModal, verifyMfaModal },
+  components: { verifyMfaModal },
   mixins: [encryptMixin],
   data() {
     return {
-      store,
-      updateUserInfoType: '',
       loading: false,
-      editEmail: false,
-      isVerifyPhone: false,
-      isVerifyEmail: false,
-      newPhone: false,
-      newEmail: false,
-      newEmailToReset: '',
-      newPhoneToReset: '',
-      showEditUserInfo: false,
-      showEditUserName: false,
-      showFetchAKSK: false,
       showAKSK: false,
-      confirmFetchLoading: false,
       akskInfo: {},
-      newPassword: '',
       passwordRule: {
         strongPolicy: false,
         minLength: DEFAULT_PASSWORD_MIN_LENGTH,
         tips: ''
       },
       errMsg: '',
-      formatHour,
-      updateUserInfo: {
-        userName: '',
+      editingField: '',
+      inlineForm: {
+        username: '',
+        phone: '',
+        email: '',
+        originPassword: '',
+        newPassword: ''
+      },
+      duplicateState: {
         phone: '',
         email: ''
       },
-      resourceData: {
-        fullCheckCount: 0,
-        fullTransferCount: 0,
-        incrementDuration: 0,
-        structTransferCount: 0
+      duplicateError: {
+        phone: '',
+        email: ''
       },
-      quotaData: {
-        workerCount: 0,
-        workerCountUsed: 0,
-        dataJobCount: 0,
-        dataSourceCount: 0,
-        dataJobCountUsed: 0,
-        dataSourceCountUsed: 0
-      },
-      applyCode: '',
-      ifEdit: true,
-      showTest: false,
-      connection: false,
-      showEditPassword: false,
-      showEditEmail: false,
-      showEditPhone: false,
-      showSmtp: false,
-      pwLength: false,
-      pwContain: false,
-      pwFormat: false,
-      pwConfirm: false,
-      verifyCode: '',
-      password: '',
-      passwordAgain: '',
-      sendcodeDisabled: true,
-      sendCodeAgainTime: 60,
-      systemForm: {
-        EMAIL_HOST_KEY: '',
-        EMAIL_PORT_KEY: '465',
-        EMAIL_USERNAME_KEY: '',
-        EMAIL_PASSWORD_KEY: '',
-        EMAIL_FROM_KEY: ''
-      },
-      alarmSetting: {},
-      setList: [],
-      licenseUrl: {},
-      emailList: [],
-      emailSuffix: ['qq.com', 'sina.com', '163.com', 'sohu.com', '126.com'],
-      smtpList: {
-        'qq.com': 'smtp.qq.com',
-        'sina.com': 'smtp.sina.com.cn',
-        '163.com': 'smtp.163.com',
-        'sohu.com': 'smtp.sohu.com',
-        '126.com': 'smtp.126.com'
-      },
-      smtpPort: {
-        'qq.com': '465',
-        'sina.com': '25',
-        '163.com': '465',
-        'sohu.com': '110',
-        '126.com': '25'
-      },
-      configKeyMap: {
-        EMAIL_HOST_KEY: 'spring.mail.host',
-        EMAIL_PORT_KEY: 'spring.mail.port',
-        EMAIL_USERNAME_KEY: 'spring.mail.username',
-        EMAIL_PASSWORD_KEY: 'spring.mail.password',
-        EMAIL_FROM_KEY: 'spring.mail.properties.from'
-      },
-      editPasswordRule: {
-        password: [{ required: true, message: 'The name cannot be empty', trigger: 'blur' }],
-        passwordAgain: [{ required: true, message: 'The name cannot be empty', trigger: 'blur' }],
-        verifyCode: [{ required: true, message: 'The verifyCode cannot be empty', trigger: 'blur' }]
-      },
-      setMetaColumn: [
-        {
-          title: this.$t('tao-can-ming-cheng'),
-          key: 'licenseSetMeta'
-        },
-        {
-          title: this.$t('nei-rong'),
-          slot: 'licenseContent'
-        },
-        {
-          title: this.$t('mu-lu-jia-ge'),
-          width: 120,
-          render: (h, params) =>
-            h('div', {}, this.$t('thisgetlicensepriceparamsrowlicensemetas-yuan', [this.getLicensePrice(params.row.licenseMetas)]))
-        }
-      ],
-      guotaColumn: [
-        {
-          title: this.$t('xian-zhi-xiang-mu'),
-          key: 'description',
-          minWidth: 160
-        },
-        {
-          title: this.$t('yi-yong-shu-liang'),
-          key: 'used',
-          minWidth: 80
-        },
-        {
-          title: this.$t('zong-shu'),
-          key: 'quota',
-          minWidth: 80
-        }
-      ],
-      userConfigList: [],
-      userConfigs: {},
-      showResetAKSK: false, // 新增
       showMfaModal: false,
       showCloseMfaModal: false,
       showResetMfaModal: false,
+      mfaStep: 1,
+      mfaCodeTab: 'qr',
       mfaQrCode: '',
+      mfaSecretCode: '',
       mfaInput: '',
       mfaAccountType: '',
       mfaModalLoading: false,
@@ -557,8 +379,8 @@ export default {
     await this.getConfigValueList();
   },
   computed: {
-    ...mapGetters(['verifyType', 'isInternalUser']),
-    ...mapState(['userInfo', 'globalSetting', 'myAuth', 'myCatLog']),
+    ...mapGetters(['isInternalUser']),
+    ...mapState(['userInfo']),
     mfaAccountOptions() {
       return [
         {
@@ -580,6 +402,14 @@ export default {
         ...item,
         disabled: !item.account
       }));
+    },
+    mfaSecretCodeRows() {
+      const groups = (this.mfaSecretCode || '').replace(/\s/g, '').match(/.{1,4}/g) || [];
+      const rows = [];
+      for (let i = 0; i < groups.length; i += 4) {
+        rows.push(groups.slice(i, i + 4));
+      }
+      return rows;
     }
   },
   methods: {
@@ -604,7 +434,10 @@ export default {
     async handleOpenMfaSetting() {
       this.resetMfaAccountTypeIfUnavailable();
       this.showMfaModal = true;
+      this.mfaStep = 1;
+      this.mfaCodeTab = 'qr';
       this.mfaQrCode = '';
+      this.mfaSecretCode = '';
       this.mfaInput = '';
       this.errMsg = '';
     },
@@ -629,13 +462,14 @@ export default {
           data: {
             mfaAccountType: this.mfaAccountType
           },
-          responseType: 'blob',
           modal: false
         });
-        console.log('res mfa', res, res.data);
-        if (res) {
-          const blob = new Blob([res], { type: 'image/png' });
-          this.mfaQrCode = URL.createObjectURL(blob);
+        if (res?.success) {
+          const mfaData = res.data || res;
+          this.mfaQrCode = mfaData?.qrCode || '';
+          this.mfaSecretCode = mfaData?.mfaCode || mfaData?.code || '';
+          this.mfaCodeTab = 'qr';
+          this.mfaStep = 2;
         }
       } finally {
         this.mfaModalLoading = false;
@@ -643,7 +477,10 @@ export default {
     },
     handleCloseMfaModal() {
       this.showMfaModal = false;
+      this.mfaStep = 1;
+      this.mfaCodeTab = 'qr';
       this.mfaQrCode = '';
+      this.mfaSecretCode = '';
       this.mfaInput = '';
       this.mfaAccountType = '';
     },
@@ -654,7 +491,7 @@ export default {
       this.showResetMfaModal = true;
     },
     async handleConfirmMfaModal() {
-      if (!this.mfaQrCode) {
+      if (this.mfaStep === 1) {
         await this.generateMfaQrCode();
         return;
       }
@@ -677,120 +514,173 @@ export default {
       }
       this.mfaModalLoading = false;
     },
-    handleShowPassword() {
-      this.showEditPassword = true;
-      // window.location.reload();
+    startInlineEdit(field) {
+      this.editingField = field;
+      this.errMsg = '';
+      this.duplicateState.phone = '';
+      this.duplicateState.email = '';
+      this.duplicateError.phone = '';
+      this.duplicateError.email = '';
+      this.inlineForm.username = this.userInfo.username || '';
+      this.inlineForm.phone = this.userInfo.phone || '';
+      this.inlineForm.email = this.userInfo.email || '';
+      this.inlineForm.originPassword = '';
+      this.inlineForm.newPassword = '';
     },
-    handleUpdateUserName() {
-      this.updateUserInfo.userName = this.userInfo.username;
-      this.showEditUserName = true;
+    cancelInlineEdit() {
+      this.editingField = '';
+      this.errMsg = '';
+      this.duplicateState.phone = '';
+      this.duplicateState.email = '';
+      this.duplicateError.phone = '';
+      this.duplicateError.email = '';
+      this.inlineForm.originPassword = '';
+      this.inlineForm.newPassword = '';
     },
-    async handleConfirmUpdateUserName() {
-      if (!this.updateUserInfo.userName) {
-        this.$Message.error(this.$t('yong-hu-ming-bu-neng-wei-kong'));
+    async checkInlineDuplicate(field) {
+      const value = this.inlineForm[field];
+      this.duplicateState[field] = '';
+      this.duplicateError[field] = '';
+      if (!value || value === this.userInfo[field]) {
+        return true;
+      }
+      const res = await this.$services.rdpUserCheckProfileDuplicate({
+        data: {
+          checkType: field.toUpperCase(),
+          checkContent: value,
+          targetUid: this.userInfo.uid
+        },
+        modal: false
+      });
+      if (res.success) {
+        this.duplicateState[field] = 'ok';
+        return true;
+      }
+      this.duplicateError[field] = res.msgContent || res.msg;
+      return false;
+    },
+    async confirmInlineEdit(field) {
+      this.errMsg = '';
+      if (field === 'username') {
+        if (!this.inlineForm.username) {
+          this.$Message.error(this.$t('yong-hu-ming-bu-neng-wei-kong'));
+          return;
+        }
+        this.loading = true;
+        try {
+          const res = await this.$services.rdpUserUpdateUserName({
+            data: {
+              userName: this.inlineForm.username
+            }
+          });
+          if (res.success) {
+            this.$Message.success(this.$t('xiu-gai-cheng-gong'));
+            this[UPDATE_USERINFO]({ username: this.inlineForm.username });
+            await this.$store.dispatch('getUserInfo');
+            this.cancelInlineEdit();
+          }
+        } finally {
+          this.loading = false;
+        }
         return;
       }
-      this.loading = true;
-      try {
-        const res = await this.$services.rdpUserUpdateUserName({
-          data: {
-            userName: this.updateUserInfo.userName
+
+      if (field === 'phone' || field === 'email') {
+        const duplicateOk = await this.checkInlineDuplicate(field);
+        if (!duplicateOk) {
+          return;
+        }
+        const postFunc = field === 'phone' ? this.$services.rdpUserUpdateUserPhone : this.$services.rdpUserUpdateUserEmail;
+        this.loading = true;
+        try {
+          const res = await postFunc({
+            data: {
+              [field]: this.inlineForm[field]
+            }
+          });
+          if (res.success) {
+            this.$Message.success(this.$t('xiu-gai-cheng-gong'));
+            this[UPDATE_USERINFO]({ [field]: this.inlineForm[field] });
+            await this.$store.dispatch('getUserInfo');
+            this.cancelInlineEdit();
           }
-        });
-        if (res.success) {
-          this.$Message.success(this.$t('xiu-gai-cheng-gong'));
-          this.showEditUserName = false;
-          this[UPDATE_USERINFO]({ username: this.updateUserInfo.userName });
-          await this.$store.dispatch('getUserInfo');
+        } finally {
+          this.loading = false;
         }
-      } finally {
-        this.loading = false;
+        return;
       }
-    },
-    handleUpdateUserInfo(type) {
-      if (this.globalSetting.onPremiseDeployMode) {
-        if (type === 'email') {
-          this.showEditEmail = true;
-        } else if (type === 'phone') {
-          this.showEditPhone = true;
+
+      if (field === 'password') {
+        if (!this.inlineForm.originPassword || !this.inlineForm.newPassword) {
+          this.errMsg = this.$t('qing-shu-ru-mi-ma');
+          return;
         }
-      } else {
-        this.updateUserInfoType = type;
-        this.showEditUserInfo = true;
-        this.updateUserInfo.phone = this.userInfo.phone;
-        this.updateUserInfo.email = this.userInfo.email;
-        if (type === 'phone') {
-          this.isVerifyPhone = true;
+        if (!this.isPasswordValid(this.inlineForm.newPassword)) {
+          this.errMsg = this.passwordRule.tips;
+          return;
+        }
+        this.loading = true;
+        try {
+          const res = await this.$services.rdpUserResetPwdWithOriginPwd({
+            data: {
+              originPassword: this.passwordEncrypt(this.inlineForm.originPassword),
+              newPassword: this.passwordEncrypt(this.inlineForm.newPassword)
+            },
+            modal: false
+          });
+          if (res.success) {
+            this.cancelInlineEdit();
+            this.$router.push({ path: '/login' });
+          } else {
+            this.errMsg = res.msgContent;
+          }
+        } finally {
+          this.loading = false;
         }
       }
     },
     handleCancelEdit() {
-      this.verifyCode = '';
-      this.password = '';
-      this.passwordAgain = '';
-      this.newPassword = '';
-      // this.ifEdit = false;
-      this.newEmailToReset = '';
-      this.newPhoneToReset = '';
       this.errMsg = '';
-      this.showEditPassword = false;
-      this.showEditUserName = false;
-      this.editEmail = false;
-      this.showEditUserInfo = false;
-      this.showFetchAKSK = false;
       this.showAKSK = false;
-      this.isVerifyPhone = false;
-      this.isVerifyEmail = false;
-      this.showEditEmail = false;
-      this.showEditPhone = false;
-      this.showResetAKSK = false;
       this.showCloseMfaModal = false;
       this.showResetMfaModal = false;
       this.hasConfirmReset = false;
+      this.mfaStep = 1;
+      this.mfaCodeTab = 'qr';
       this.mfaQrCode = '';
+      this.mfaSecretCode = '';
       this.mfaAccountType = '';
     },
     handleShowFetchAKSK() {
-      this.showFetchAKSK = true;
+      this.handleConfirmFetchAKSK();
     },
-    handleConfirmFetchAKSK(verifyCode) {
-      this.confirmFetchLoading = true;
-      this.$services
-        .rdpUserQueryUserAkSk({
-          data: {
-            verifyCode,
-            verifyType: this.verifyType
-          }
-        })
-        .then((res) => {
-          if (res.success) {
-            this.showFetchAKSK = false;
-            this.akskInfo = res.data;
-            this.showAKSK = true;
-          }
-          this.confirmFetchLoading = false;
-        });
+    async handleConfirmFetchAKSK() {
+      const res = await this.$services.rdpUserQueryUserAkSk({
+        data: {}
+      });
+      if (res.success) {
+        this.akskInfo = res.data;
+        this.showAKSK = true;
+      }
     },
     handleShowResetAKSK() {
-      this.showResetAKSK = true;
+      this.$Modal.confirm({
+        title: this.$t('que-ren-chong-zhi-aksk'),
+        content: this.$t('chong-zhi-aksk-hou-jiu-de-aksk-jiang-li-ji-shi-xiao-que-ren-yao-ji-xu-ma'),
+        okText: this.$t('que-ding'),
+        cancelText: this.$t('qu-xiao'),
+        onOk: () => {
+          this.handleConfirmSetAKSK();
+        }
+      });
     },
-    handleConfirmSetAKSK(verifyCode) {
-      this.confirmFetchLoading = true;
-      this.$services
-        .rdpUserResetUserAkSk({
-          data: {
-            verifyCode,
-            verifyType: this.verifyType
-          }
-        })
-        .then((res) => {
-          this.showFetchAKSK = false;
-          if (res.success) {
-            this.$Message.success(this.$t('aksk-chong-zhi-cheng-gong'));
-            this.showResetAKSK = false;
-          }
-          this.confirmFetchLoading = false;
-        });
+    async handleConfirmSetAKSK() {
+      const res = await this.$services.rdpUserResetUserAkSk({
+        data: {}
+      });
+      if (res.success) {
+        this.$Message.success(this.$t('aksk-chong-zhi-cheng-gong'));
+      }
     },
     async handleConfirmCloseMfa(mfaCode) {
       if (!mfaCode || !isNumber(mfaCode)) {
@@ -854,144 +744,6 @@ export default {
         }
         this.mfaModalLoading = false;
       }
-    },
-    handleConfirmEditPassword(originPassword) {
-      if (this.isPasswordValid(this.newPassword)) {
-        this.$services
-          .rdpUserResetPwdWithOriginPwd({
-            data: {
-              originPassword: this.passwordEncrypt(originPassword),
-              newPassword: this.passwordEncrypt(this.newPassword)
-            },
-            modal: false
-          })
-          .then((res) => {
-            if (res.success) {
-              this.showEditPassword = false;
-              this.newPassword = '';
-              this.$router.push({ path: '/login' });
-            } else {
-              this.errMsg = res.msgContent;
-            }
-          });
-      } else {
-        this.errMsg = this.passwordRule.tips;
-      }
-    },
-    handleConfirmEditEmail(originPassword) {
-      this.$services
-        .rdpUserUpdateUserEmailWithPwd({
-          data: {
-            password: this.passwordEncrypt(originPassword),
-            email: this.newEmailToReset
-          },
-          modal: false
-        })
-        .then((res) => {
-          if (res.success) {
-            this.$Message.success(this.$t('you-xiang-xiu-gai-cheng-gong'));
-            this.showEditEmail = false;
-            this[UPDATE_USERINFO]({ email: this.newEmailToReset });
-            this.newEmailToReset = '';
-          } else {
-            this.errMsg = res.msgContent;
-          }
-        });
-    },
-    handleConfirmEditPhone(originPassword) {
-      this.$services
-        .rdpUserUpdateUserPhoneWithPwd({
-          data: {
-            password: this.passwordEncrypt(originPassword),
-            phone: this.newPhoneToReset
-          },
-          modal: false
-        })
-        .then((res) => {
-          if (res.success) {
-            this.$Message.success(this.$t('shou-ji-xiu-gai-cheng-gong'));
-            this.showEditPhone = false;
-            this[UPDATE_USERINFO]({ phone: this.newPhoneToReset });
-            this.newPhoneToReset = '';
-          } else {
-            this.errMsg = res.msgContent;
-          }
-        });
-    },
-    handleConfirmUpdateUserInfo(verifyCode) {
-      if (this.isVerifyPhone || this.isVerifyEmail) {
-        const data = {
-          verifyCode,
-          verifyType: this.verifyType
-        };
-        this.$services.rdpUserCheckVerifyCode({ data }).then((res) => {
-          if (res.success) {
-            this.isVerifyPhone = false;
-            this.isVerifyEmail = false;
-            this.userInfo.verifyCode = '';
-            // this.$refs.verifyCount.counting = false;
-            this.newPhone = true;
-            this.newEmail = true;
-          }
-        });
-      } else {
-        const postFunc = this.updateUserInfoType === 'phone' ? this.$services.rdpUserUpdateUserPhone : this.$services.rdpUserUpdateUserEmail;
-        postFunc({
-          data: {
-            phone: this.updateUserInfo.phone,
-            email: this.updateUserInfo.email,
-            verifyCode,
-            verifyType: this.verifyType
-          }
-        }).then((res) => {
-          if (res.success) {
-            this.$Message.success(this.$t('xiu-gai-cheng-gong'));
-            this.showEditUserInfo = false;
-            this.$store.dispatch('getUserInfo');
-          }
-        });
-      }
-    },
-    handleShowStmp() {
-      if (this.systemForm.EMAIL_USERNAME_KEY) {
-        const list = this.systemForm.EMAIL_USERNAME_KEY.split('@');
-
-        if (list.length > 1) {
-          if (this.emailSuffix.indexOf(list[1]) < 0) {
-            this.showSmtp = true;
-          } else {
-            this.showSmtp = false;
-            this.systemForm.EMAIL_HOST_KEY = this.smtpList[list[1]];
-            this.systemForm.EMAIL_PORT_KEY = this.smtpPort[list[1]];
-          }
-        } else {
-          this.showSmtp = false;
-        }
-      } else {
-        this.showSmtp = false;
-      }
-    },
-    handleShowEdit() {
-      this.ifEdit = true;
-    },
-    getLicensePrice(data) {
-      let totalPrice = 0;
-
-      Object.keys(data).map((key) => {
-        const value = key.substring(14, key.length - 2);
-        const list = value.split(', ');
-        const map = {};
-
-        list.map((item) => {
-          const kv = item.split('=');
-
-          map[kv[0]] = kv[1];
-          return null;
-        });
-        totalPrice = map.price * data[key];
-        return null;
-      });
-      return totalPrice;
     },
     handleCopy(value) {
       const aux = document.createElement('input');
@@ -1477,5 +1229,87 @@ export default {
 }
 .empty-value {
   color: #a2a9b6;
+}
+.inline-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 680px;
+
+  .ivu-input-wrapper,
+  .ivu-poptip {
+    flex: 1 1 220px;
+    min-width: 160px;
+  }
+
+  .ivu-btn {
+    flex: 0 0 auto;
+  }
+}
+.password-edit-row {
+  max-width: 820px;
+}
+.inline-edit-error {
+  margin-top: 6px;
+  color: #ed4014;
+  font-size: 12px;
+}
+.mfa-code-tabs {
+  margin-top: 12px;
+}
+.mfa-modal-body {
+  min-height: 394px;
+}
+.mfa-qr-panel {
+  min-height: 208px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.mfa-qr-code {
+  width: 200px;
+  height: 200px;
+  display: block;
+}
+.mfa-authenticator-links {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  font-size: 13px;
+  line-height: 20px;
+
+  a {
+    color: #2d8cf0;
+  }
+}
+.mfa-secret-panel {
+  min-height: 208px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+.mfa-secret-code {
+  color: #515a6e;
+  font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 32px;
+  letter-spacing: 0;
+  text-align: center;
+}
+.mfa-secret-code-row {
+  display: grid;
+  grid-template-columns: repeat(4, 4.2em);
+  column-gap: 12px;
+  justify-content: center;
+}
+.mfa-verify-divider {
+  height: 1px;
+  margin: 20px 0 16px;
+  background-color: #dcdee2;
 }
 </style>

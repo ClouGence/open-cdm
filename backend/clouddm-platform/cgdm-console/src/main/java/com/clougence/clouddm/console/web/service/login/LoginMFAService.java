@@ -16,13 +16,14 @@
 package com.clougence.clouddm.console.web.service.login;
 
 import com.clougence.clouddm.console.web.constants.MfaAccountType;
+import com.clougence.clouddm.console.web.model.vo.MfaCodeVO;
 
 public interface LoginMFAService {
 
     String MFA_PRE_ACTION_TYPE = "MFA_PRE_ACTION_TYPE";
     String MFA_LOGIN_JWT_TOKEN = "MFA_LOGIN_JWT_TOKEN";
 
-    byte[] initMFA(String uid, MfaAccountType mfaAccountType);
+    MfaCodeVO initMFA(String uid, MfaAccountType mfaAccountType);
 
     byte[] resetMFA(String uid, int mfaCode, MfaAccountType mfaAccountType);
 

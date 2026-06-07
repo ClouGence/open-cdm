@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.rdp.controller;
+package com.clougence.clouddm.console.web.controller.system;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,10 +38,11 @@ import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.LoginFO;
-import com.clougence.clouddm.console.web.service.auth.RdpUserLoginRegService;
-import com.clougence.clouddm.console.web.service.login.RdpSubLoginService;
+import com.clougence.clouddm.console.web.service.login.LoginDefService;
+import com.clougence.clouddm.console.web.service.login.LoginService;
 import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.NamingDao;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
 import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
@@ -68,25 +70,26 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-@RestController
 @Slf4j
+@RestController
 @RequestMapping("/callback")
-public class RdpCallbackController {
+public class CallbackController {
     @Resource
-    private AuthDal                authDal;
-
+    private AuthDal             authDal;
     @Resource
-    private ApprovalFlowService    approvalFlowService;
+    private NamingDao           namingDao;
     @Resource
-    private RdpSubLoginService     subLoginService;
+    private ApprovalFlowService approvalFlowService;
     @Resource
-    private RdpUserLoginRegService loginRegService;
+    private LoginDefService     loginDefService;
     @Resource
-    private DmConsoleConfig        rdpConfig;
+    private LoginService        loginRegService;
     @Resource
-    private RdpOpAuditService      opAuditService;
+    private DmConsoleConfig     rdpConfig;
     @Resource
-    private CsrfTokenService       csrfTokenService;
+    private RdpOpAuditService   opAuditService;
+    @Resource
+    private CsrfTokenService    csrfTokenService;
 
     @RequestMapping(value = "/event", method = { RequestMethod.POST, RequestMethod.GET })
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
@@ -133,7 +136,6 @@ public class RdpCallbackController {
     @SneakyThrows
     public Object auth(@RequestParam(required = false) Map<String, String> params, HttpServletRequest request, HttpServletResponse response) {
         String provider = params.getOrDefault("provider", null);
-        String ownerUid = params.getOrDefault("ownerUid", null);
         String state = params.getOrDefault("state", null);
         String error = params.getOrDefault("error", null);
         String error_description = params.getOrDefault("error_description", null);
@@ -144,7 +146,7 @@ public class RdpCallbackController {
             String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_INVALID_TOKEN_ERROR.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_ARGS_ERROR.name(), message);
         }
-        if (StringUtils.isBlank(provider) || StringUtils.isBlank(ownerUid)) {
+        if (StringUtils.isBlank(provider)) {
             String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_MISSING_CORE_ARGS_ERROR.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_ARGS_ERROR.name(), message);
         }
@@ -170,8 +172,7 @@ public class RdpCallbackController {
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_PROVIDER_ERROR.name(), message);
         }
 
-        // for ownerUid
-        DmAuthUserDO primaryUser = this.authDal.userMapper().queryByUid(ownerUid);
+        DmAuthUserDO primaryUser = this.authDal.queryRootUser();
         if (primaryUser == null) {
             String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PRIMARY_ACCOUNT_NOT_EXIST.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_OWNER_ERROR.name(), message);
@@ -184,7 +185,7 @@ public class RdpCallbackController {
             String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PRIMARY_ACCOUNT_DISABLED.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_OWNER_ERROR.name(), message);
         }
-        if (!this.subLoginService.checkLoginEnable(ownerUid, providerEnum)) {
+        if (!this.loginDefService.checkLoginEnable(primaryUser.getUid(), providerEnum)) {
             String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_NOT_ENABLE.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_OWNER_ERROR.name(), message);
         }
@@ -193,7 +194,7 @@ public class RdpCallbackController {
         UserData fetchUser;
         try {
             LoginRequest loginReq = new LoginRequest();
-            loginReq.setLoginAccount("@" + primaryUser.getUserDomain());
+            loginReq.setLoginAccount(primaryUser.getAccount());
             loginReq.setAuthCode(code);
             loginReq.setJumpUrl(tokenDO.getJumpUrl());
             LoginResponse loginRes = service.authLogin(primaryUser.getUid(), loginReq);
@@ -214,12 +215,11 @@ public class RdpCallbackController {
         }
 
         // is first login
-        String loginAcc = fetchUser.getSubAccount();
-        String loginType = AccountBindType.valueOfProvider(providerEnum).name();
-        DmAuthUserDO bindUser = this.authDal.userMapper().queryBySubAccountAndBind(String.valueOf(primaryUser.getId()), loginAcc, loginType);
+        AccountBindType bindType = AccountBindType.valueOfProvider(providerEnum);
+        DmAuthUserDO bindUser = StringUtils.isBlank(fetchUser.getBindAccount()) ? null : this.authDal.userMapper().queryByBindInfo(fetchUser.getBindAccount(), bindType);
         if (bindUser == null) {
             String csrfToken = this.csrfTokenService.pushToken(fetchUser.getAccessToken());
-            return redirectToLogin(request, response, csrfToken, primaryUser.getUid(), fetchUser);
+            return redirectToLogin(request, response, csrfToken, LoginAuthType.valueOfProvider(providerEnum).name(), primaryUser.getUid(), fetchUser);
         }
 
         // sso login
@@ -227,7 +227,7 @@ public class RdpCallbackController {
             LoginFO loginFO = new LoginFO();
             loginFO.setAccountType(AccountType.SUB_ACCOUNT);
             loginFO.setLoginType(LoginAuthType.valueOfProvider(providerEnum));
-            loginFO.setAccount(fetchUser.getSubAccount());
+            loginFO.setAccount(fetchUser.getAccount());
             loginFO.setPassword("");//empty
             loginFO.setAccessToken(fetchUser.getAccessToken());
             LoginMO login = this.loginRegService.login(loginFO);
@@ -270,26 +270,29 @@ public class RdpCallbackController {
         return "failed.";
     }
 
-    protected Object redirectToLogin(HttpServletRequest request, HttpServletResponse response, String registerToken, String primaryUid, UserData fetchUser) throws IOException {
+    protected Object redirectToLogin(HttpServletRequest request, HttpServletResponse response, String registerToken, String loginType, String primaryUid,
+                                     UserData fetchUser) throws IOException {
         String contextPath = this.rdpConfig.getDeployContextPath();
         if (StringUtils.isBlank(contextPath)) {
             contextPath = "/";
         } else if (!StringUtils.endsWith(contextPath, "/")) {
             contextPath += "/";
         }
-        String subAccount = fetchUser.getSubAccount();
+        String subAccount = fetchUser.getAccount();
         int domainSeparator = StringUtils.lastIndexOf(subAccount, "@");
         if (domainSeparator > -1) {
             subAccount = subAccount.substring(0, domainSeparator);
         }
         String redirectUrl = contextPath + "#/login?" +//
-                             "token=" + URLEncoder.encode(StringUtils.defaultString(registerToken, ""), "UTF-8") + "&" +//
-                             "sub=" + URLEncoder.encode(StringUtils.defaultString(subAccount, ""), "UTF-8") + "&" +//
-                             "account=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getSubAccount(), ""), "UTF-8") + "&" +//
-                             "user=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getUserName(), ""), "UTF-8") + "&" +//
-                             "phone=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getPhone(), ""), "UTF-8") + "&" +//
-                             "email=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getEmail(), ""), "UTF-8") + "&" +//
-                             "primary=" + URLEncoder.encode(StringUtils.defaultString(primaryUid, ""), "UTF-8");
+                             "token=" + URLEncoder.encode(StringUtils.defaultString(registerToken, ""), StandardCharsets.UTF_8) + "&" +              //
+                             "sub=" + URLEncoder.encode(StringUtils.defaultString(subAccount, ""), StandardCharsets.UTF_8) + "&" +                   //
+                             "account=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getAccount(), ""), StandardCharsets.UTF_8) + "&" +//
+                             "registerAccount=" + URLEncoder.encode(this.namingDao.genLoginAccount(), StandardCharsets.UTF_8) + "&" +                //
+                             "user=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getUserName(), ""), StandardCharsets.UTF_8) + "&" +     //
+                             "phone=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getPhone(), ""), StandardCharsets.UTF_8) + "&" +       //
+                             "primaryUid=" + URLEncoder.encode(StringUtils.defaultString(primaryUid, ""), StandardCharsets.UTF_8) + "&" +            //
+                             "loginType=" + URLEncoder.encode(StringUtils.defaultString(loginType, ""), StandardCharsets.UTF_8) + "&" +              //
+                             "email=" + URLEncoder.encode(StringUtils.defaultString(fetchUser.getEmail(), ""), StandardCharsets.UTF_8);
         response.sendRedirect(redirectUrl);
         return "needMore.";
     }

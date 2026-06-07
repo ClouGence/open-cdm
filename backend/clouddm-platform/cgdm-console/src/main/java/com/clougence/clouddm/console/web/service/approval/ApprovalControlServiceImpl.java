@@ -205,7 +205,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         }
 
         // RDP ticket ins
-        String bizId = this.namingDao.genTicketBizId();
+        String bizId = this.namingDao.genApprovalBizId();
         DmApprovalDO ticket = new DmApprovalDO();
         ticket.setBizId(bizId);
         ticket.setOwnerUid(uid);
@@ -268,7 +268,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
 
     private void createAuthTicketItem(String ownerUid, String uid, RdpAddAuthTicketFO fo, long envId) {
         DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
-        String bizId = this.namingDao.genTicketBizId();
+        String bizId = this.namingDao.genApprovalBizId();
         DmApprovalDO ticket = new DmApprovalDO();
         ticket.setBizId(bizId);
         ticket.setOwnerUid(uid);

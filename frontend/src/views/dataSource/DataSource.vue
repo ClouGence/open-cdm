@@ -3,6 +3,7 @@
     <second-confirm-modal
       :title="$t('shan-chu-shu-ju-yuan')"
       :event="SECOND_CONFIRM_EVENT_LIST.DELETE_DATASOURCE"
+      :confirm-text="selectedRow.instanceId"
       :text="$t('yi-wan-cheng-shan-chu-selectedrowid-shu-ju-yuan-de-cao-zuo', [selectedRow.instanceId])"
       :visible="showDeleteDataSourceConfirm"
       ref="second-confirm-modal"

@@ -149,7 +149,7 @@ export default {
   computed: {
     displayResourceColumns() {
       if (this.type === 'dm') {
-        return this.resourceColumns.filter((column) => column.key !== 'cloudOrIdcName');
+        return this.resourceColumns.filter((column) => !['cloudOrIdcName', 'region', 'ownerName'].includes(column.key));
       }
       return this.resourceColumns;
     },
@@ -270,7 +270,7 @@ export default {
         },
         {
           title: this.$t('chuang-jian-shi-jian'),
-          key: 'ownerName',
+          key: 'gmtCreate',
           width: 200,
           render: (h, params) => h('div', {}, fecha.format(new Date(params.row.gmtCreate), 'YYYY-MM-DD HH:mm:ss'))
         },

@@ -24,13 +24,42 @@ public class V202606050001__dm_auth_user_account extends AbstractUpgradeJavaMigr
 
     @Override
     public List<String> collectScript() {
-        String adminAccount = InitSeedConstants.escapeSqlLiteral(InitSeedConstants.resolveAdminAccount());
+        String adminAccount = InitSeedConstants.escapeSqlLiteral(InitSeedConstants.DEFAULT_PRIMARY_ACCOUNT);
         return List.of("""
+                    ALTER TABLE dm_auth_user
+                        MODIFY COLUMN username varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+                        MODIFY COLUMN email varchar(128) COLLATE utf8mb4_general_ci DEFAULT NULL,
+                        MODIFY COLUMN phone varchar(128) COLLATE utf8mb4_general_ci DEFAULT NULL
+                """, """
                     ALTER TABLE dm_auth_user ADD COLUMN account varchar(128) COLLATE utf8mb4_general_ci DEFAULT NULL AFTER username
                 """, """
                     CREATE INDEX idx_account ON dm_auth_user(account)
                 """, String.format("""
                     UPDATE dm_auth_user SET account = '%s' WHERE uid = '9999999999999999' AND (account IS NULL OR account = '')
-                """, adminAccount));
+                """, adminAccount), """
+                    UPDATE dm_auth_user SET bind_type = 'INTERNAL' WHERE uid = '9999999999999999'
+                """, """
+                    ALTER TABLE dm_auth_user DROP COLUMN aliyun_ak
+                """, """
+                    ALTER TABLE dm_auth_user DROP COLUMN aliyun_sk
+                """, """
+                    ALTER TABLE dm_auth_user DROP COLUMN last_date_update_aliyun_ak
+                """, """
+                    UPDATE dm_auth_user
+                    SET account = COALESCE(NULLIF(sub_account, ''), LOWER(SUBSTRING(REPLACE(UUID(), '-', ''), 1, 8)))
+                    WHERE uid <> '9999999999999999' AND (account IS NULL OR account = '')
+                """, """
+                    ALTER TABLE dm_auth_user DROP INDEX idx_sub_account
+                """, """
+                    ALTER TABLE dm_auth_user DROP COLUMN sub_account
+                """, """
+                    ALTER TABLE dm_auth_user DROP COLUMN user_domain
+                """, """
+                    ALTER TABLE dm_auth_user ADD COLUMN allow_local tinyint(1) NOT NULL DEFAULT 0 AFTER bind_account
+                """, """
+                    UPDATE dm_auth_user SET allow_local = 1 WHERE account_type = 'PRIMARY_ACCOUNT' OR bind_type = 'INTERNAL'
+                """, """
+                    ALTER TABLE dm_auth_user DROP COLUMN company
+                """);
     }
 }

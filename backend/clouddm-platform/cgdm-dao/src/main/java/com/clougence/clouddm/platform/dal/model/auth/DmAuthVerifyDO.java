@@ -18,9 +18,6 @@ package com.clougence.clouddm.platform.dal.model.auth;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
-import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
-import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 
 import lombok.Data;
 
@@ -52,7 +49,7 @@ public class DmAuthVerifyDO {
 
     private String         verifyCode;
 
-    private VerifyCodeType verifyCodeType;
+    private String         verifyCodeType;
 
     private Date           verifyCodeSendTime;
 

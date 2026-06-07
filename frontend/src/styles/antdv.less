@@ -194,6 +194,18 @@
 .ant-table {
   border-color: #eaeaea;
 
+  &.ant-table-empty {
+    .ant-table-container,
+    .ant-table-content,
+    .ant-table-body {
+      overflow-x: hidden !important;
+    }
+
+    .ant-table-sticky-scroll {
+      display: none;
+    }
+  }
+
   .ant-table-thead {
     background: #f3f3f3;
 

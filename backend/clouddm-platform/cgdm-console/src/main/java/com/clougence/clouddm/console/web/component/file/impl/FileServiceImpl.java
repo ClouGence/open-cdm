@@ -154,14 +154,13 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
             return timeoutConfigCache.get(ownerUid);
         }
 
-        String configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.onlineResultCacheTimeoutSec);
-        if (StringUtils.isBlank(configValue)) {
+        Integer configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.onlineResultCacheTimeoutSec, Integer.class);
+        if (configValue == null) {
             timeoutConfigCache.put(ownerUid, 300);
             return 300;
         } else {
-            int defaultConfig = Integer.parseInt(configValue);
-            timeoutConfigCache.put(ownerUid, defaultConfig);
-            return defaultConfig;
+            timeoutConfigCache.put(ownerUid, configValue);
+            return configValue;
         }
     }
 

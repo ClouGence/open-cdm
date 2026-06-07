@@ -100,7 +100,6 @@ public class EmbeddedWorkerBootstrap {
 
         CreateClusterFO fo = new CreateClusterFO();
         fo.setCloudOrIdcName(CloudOrIdcName.SELF_MAINTENANCE);
-        fo.setRegion(DEFAULT_REGION);
         fo.setClusterDesc("Default Cluster");
         return this.clusterService.addCluster(ownerUid, ownerUid, fo);
     }

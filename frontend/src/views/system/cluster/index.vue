@@ -40,9 +40,6 @@
           {{ deployEnvListMap[record.deployEnvType] && deployEnvListMap[record.deployEnvType].name }}
         </span>
       </template>
-      <template #region="record">
-        {{ regionList[record.region] }}
-      </template>
       <template #num="record">
         <span>{{ record.runningCount }}/{{ record.workerCount }}</span>
       </template>
@@ -92,30 +89,27 @@
         </div>
       </div>
     </a-modal>
-    <a-modal v-model="showAddClusterModal" :closable="false" :mask-closable="false" :width="438" :title="$t('chuang-jian-ji-qun')">
-      <div class="add-cluster-modal">
-        <a-form-model ref="addClusterFormRef" :label-col="labelCol" :model="newClusterForm" :rules="newClusterFormRule" :wrapper-col="wrapperCol">
-          <a-form-model-item :label="$t('ji-qun-ming-cheng')" prop="clusterDesc">
-            <a-input v-model="newClusterForm.clusterDesc" style="width: 280px" />
-          </a-form-model-item>
-          <a-form-model-item :label="$t('yun-huo-ji-fang-ming-cheng')" prop="deployEnvType">
-            <!--            <a-radio-group v-model="newClusterForm.deployEnvType" button-style="solid">-->
-            <!--              <a-radio-button :value="env.value" :key="env.value" v-for="env in Object.values(deployEnvListMap)">-->
-            <!--                {{ env.name }}-->
-            <!--              </a-radio-button>-->
-            <!--            </a-radio-group>-->
-            <cc-cluster-type-select v-model="newClusterForm.deployEnvType" :deployEnvList="deployEnvList" />
-          </a-form-model-item>
-          <a-form-model-item :label="$t('di-qu')" prop="region">
-            <cc-region-select v-model="newClusterForm.region" :env="newClusterForm.deployEnvType" />
-          </a-form-model-item>
-        </a-form-model>
-        <div class="footer">
-          <a-button type="primary" @click="handleAddCluster">{{ $t('bao-cun') }}</a-button>
-          <a-button @click="showAddClusterModal = false">{{ $t('qu-xiao') }}</a-button>
-        </div>
+    <Drawer
+      :title="$t('chuang-jian-ji-qun')"
+      width="400"
+      class="drawer-wrap"
+      v-model="showAddClusterDrawer"
+      :mask-closable="false"
+      @on-close="handleCloseAddClusterDrawer"
+    >
+      <a-form-model ref="addClusterFormRef" :label-col="labelCol" :model="newClusterForm" :rules="newClusterFormRule" :wrapper-col="wrapperCol">
+        <a-form-model-item :label="$t('ji-qun-ming-cheng')" prop="clusterDesc">
+          <a-input v-model="newClusterForm.clusterDesc" />
+        </a-form-model-item>
+        <a-form-model-item :label="$t('yun-huo-ji-fang-ming-cheng')" prop="deployEnvType">
+          <cc-cluster-type-select v-model="newClusterForm.deployEnvType" :deployEnvList="deployEnvList" />
+        </a-form-model-item>
+      </a-form-model>
+      <div class="drawer-footer">
+        <a-button @click="handleCloseAddClusterDrawer" style="margin-right: 10px">{{ $t('qu-xiao') }}</a-button>
+        <a-button type="primary" @click="handleAddCluster">{{ $t('tian-jia') }}</a-button>
       </div>
-    </a-modal>
+    </Drawer>
   </div>
 </template>
 
@@ -141,7 +135,7 @@ export default {
         text: ''
       },
       showEditClusterNameModal: false,
-      showAddClusterModal: false,
+      showAddClusterDrawer: false,
       clusterDesc: '',
       selectedCluster: {},
       clusterFilterInfo: {
@@ -153,8 +147,7 @@ export default {
       clusterList: [{}],
       newClusterForm: {
         clusterDesc: '',
-        deployEnvType: 'ALIBABA_CLOUD_HOSTED',
-        region: ''
+        deployEnvType: 'ALIBABA_CLOUD_HOSTED'
       },
       newClusterFormRule: {
         clusterDesc: [
@@ -168,13 +161,6 @@ export default {
           {
             required: true,
             message: this.$t('huan-jing-bu-neng-wei-kong'),
-            trigger: 'blur'
-          }
-        ],
-        region: [
-          {
-            required: true,
-            message: this.$t('di-qu-bu-neng-wei-kong'),
             trigger: 'blur'
           }
         ]
@@ -201,10 +187,6 @@ export default {
           scopedSlots: { customRender: 'deployEnvType' }
         },
         {
-          title: this.$t('qu-yu-0'),
-          scopedSlots: { customRender: 'region' }
-        },
-        {
           title: this.$t('ke-yong-shu-liang-ji-qi-shu-liang'),
           scopedSlots: { customRender: 'num' }
         },
@@ -216,7 +198,7 @@ export default {
       ];
       return columns;
     },
-    ...mapState(['deployEnvListMap', 'userInfo', 'regionList', 'globalSetting']),
+    ...mapState(['deployEnvListMap', 'userInfo', 'globalSetting']),
     deployEnvList() {
       return Object.values(this.deployEnvListMap).filter(
         (env) => !(this.globalSetting.outputDeployEnv && env.value === CLUSTER_ENV.ALIBABA_CLOUD_HOSTED)
@@ -245,17 +227,30 @@ export default {
       }
     },
     handleClickAddBtn() {
-      this.showAddClusterModal = true;
+      this.showAddClusterDrawer = true;
+    },
+    handleCloseAddClusterDrawer() {
+      this.showAddClusterDrawer = false;
+      this.newClusterForm = {
+        clusterDesc: '',
+        deployEnvType: 'ALIBABA_CLOUD_HOSTED'
+      };
+      this.$nextTick(() => {
+        this.$refs.addClusterFormRef?.clearValidate();
+      });
     },
     async handleAddCluster() {
       this.$refs.addClusterFormRef.validate(async (valid) => {
         if (valid) {
           const res = await this.$services.dmClusterCreate({
-            data: this.newClusterForm,
+            data: {
+              clusterDesc: this.newClusterForm.clusterDesc,
+              cloudOrIdcName: this.newClusterForm.deployEnvType
+            },
             msg: this.$t('tian-jia-ji-qun-cheng-gong')
           });
           if (res.success) {
-            this.showAddClusterModal = false;
+            this.handleCloseAddClusterDrawer();
             await this.getClusterList();
           }
         } else {
@@ -332,5 +327,28 @@ export default {
     justify-content: space-between;
     margin-bottom: 12px;
   }
+}
+
+.drawer-wrap {
+  position: relative;
+
+  :deep(.ivu-drawer-content) {
+    padding-top: 0;
+  }
+
+  :deep(.ant-form-item) {
+    margin-bottom: 18px;
+  }
+}
+
+.drawer-footer {
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  border-top: 1px solid #e8e8e8;
+  padding: 10px 16px;
+  text-align: right;
+  background: #fff;
 }
 </style>

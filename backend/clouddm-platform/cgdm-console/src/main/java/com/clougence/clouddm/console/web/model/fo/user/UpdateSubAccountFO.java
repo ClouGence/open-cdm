@@ -27,24 +27,14 @@ public class UpdateSubAccountFO {
 
     @NotBlank(message = "{notblank.targetuid}")
     private String  targetUid;
-
-    // @NotBlank(message = "{notblank.username}")
     private String  userName;
-
     private String  account;
-
     @Min(value = 1, message = "{min.roleid}")
     private Long    roleId;
-
     private String  password;
-
     private String  email;
-
     private String  phone;
-
     private Boolean disable;
-
     private Boolean loginLocked;
-
     private Boolean allowLocal;
 }

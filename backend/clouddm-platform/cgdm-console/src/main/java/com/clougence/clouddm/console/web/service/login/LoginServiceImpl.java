@@ -112,7 +112,7 @@ public class LoginServiceImpl implements LoginService {
 
         try {
             this.checkByPassword(loginFO, user);
-            return loginDone(user);
+            return loginDone(user, LoginAuthType.PASSWORD);
         } catch (ErrorMessageException e) {
             return loginFailed(user, e);
         }
@@ -151,9 +151,8 @@ public class LoginServiceImpl implements LoginService {
         }
 
         if (user.getParentId() != null) {
-            String configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.subAccountPwdExpireDays);
-            if (StringUtils.isNotBlank(configValue)) {
-                int days = Integer.parseInt(configValue);
+            Integer days = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.accountPwdExpireDays, Integer.class);
+            if (days != null) {
                 if (days > 0) {
                     Date d = user.getLastDateUpdatePwd();
                     if (d != null) {
@@ -227,9 +226,9 @@ public class LoginServiceImpl implements LoginService {
         }
 
         DmAuthUserDO loginUser = RdpConvertUtils.convertToRdpUserDO(loginType, rootUser, loginData);
-        DmAuthUserDO bindUser = this.authDal.userMapper().queryBySubAccountAndBind(String.valueOf(rootUser.getId()), loginData.getSubAccount(), loginType.getBindType().name());
+        DmAuthUserDO bindUser = this.queryProviderBindUser(loginType.getBindType(), loginUser);
         if (bindUser == null) {
-            if (loginFO.getRegisterInfo() == null) {
+            if (!hasRegisterInfo(loginFO)) {
                 String csrfToken;
                 if (loginData.getAccessToken() != null) {
                     csrfToken = this.csrfTokenService.pushToken(loginData.getAccessToken());
@@ -238,9 +237,11 @@ public class LoginServiceImpl implements LoginService {
                 }
 
                 LoginAutoRegisterFO moreInfo = new LoginAutoRegisterFO();
+                moreInfo.setAccount(this.namingDao.genLoginAccount());
                 moreInfo.setName(loginUser.getUsername());
                 moreInfo.setEmail(loginUser.getEmail());
                 moreInfo.setPhone(loginUser.getPhone());
+                moreInfo.setPrimaryUid(rootUser.getUid());
 
                 LoginMO mo = new LoginMO();
                 mo.setSuccess(true);
@@ -252,6 +253,7 @@ public class LoginServiceImpl implements LoginService {
             } else {
                 LoginAutoRegisterFO moreInfo = loginFO.getRegisterInfo();
                 try {
+                    this.checkRegisterInfoUnique(rootUser, moreInfo);
                     bindUser = this.addProviderUser(rootUser, loginType.getBindType(), loginUser, moreInfo);
                 } catch (Exception e) {
                     this.csrfTokenService.storeSecretToken(loginFO.getToken(), loginData.getAccessToken());// restore
@@ -264,13 +266,13 @@ public class LoginServiceImpl implements LoginService {
 
         try {
             checkAccountStatus(bindUser);
-            return loginDone(bindUser);
+            return loginDone(bindUser, loginType);
         } catch (ErrorMessageException e) {
             return loginFailedNotLimit(bindUser, e);
         }
     }
 
-    private LoginMO loginDone(DmAuthUserDO user) {
+    private LoginMO loginDone(DmAuthUserDO user, LoginAuthType loginType) {
         long nowMs = System.currentTimeMillis();
 
         this.authDal.userMapper().updateLoginLimitInfo(new Date(nowMs), 0, false, user.getId());
@@ -278,8 +280,9 @@ public class LoginServiceImpl implements LoginService {
         re.setSuccess(true);
         re.setUid(user.getUid());
         re.setUsername(user.getUsername());
+        re.setLoginType(loginType);
 
-        String jwtToken = this.jwtService.genJwtToken(user);
+        String jwtToken = this.jwtService.genJwtToken(user, loginType);
         re.setToken(jwtToken);
         if (user.getParentId() != null) {
             DmAuthUserDO rdpUserDO = authDal.userMapper().queryById(user.getParentId());
@@ -345,10 +348,11 @@ public class LoginServiceImpl implements LoginService {
     }
 
     private DmAuthUserDO addProviderUser(DmAuthUserDO rootUser, AccountBindType bindType, DmAuthUserDO bindUser, LoginAutoRegisterFO moreInfo) {
-        bindUser.setUsername(moreInfo.getName());
+        String account = StringUtils.defaultIfBlank(moreInfo.getAccount(), this.namingDao.genLoginAccount());
+        bindUser.setAccount(account);
+        bindUser.setUsername(this.resolveProviderUsername(bindUser, moreInfo, account));
         bindUser.setEmail(moreInfo.getEmail());
         bindUser.setPhone(moreInfo.getPhone());
-        bindUser.setAccount(this.namingDao.genLoginAccount());
         AddSubAccountMO accountMO = this.rdpUserService.addSubAccountForBind(rootUser.getUid(), bindType, bindUser);
 
         if (!accountMO.isSuccess()) {
@@ -358,8 +362,56 @@ public class LoginServiceImpl implements LoginService {
         }
     }
 
-    //
-    //
+    private DmAuthUserDO queryProviderBindUser(AccountBindType bindType, DmAuthUserDO loginUser) {
+        if (StringUtils.isBlank(loginUser.getBindAccount())) {
+            return null;
+        }
+        return this.authDal.userMapper().queryByBindInfo(loginUser.getBindAccount(), bindType);
+    }
+
+    private void checkRegisterInfoUnique(DmAuthUserDO rootUser, LoginAutoRegisterFO moreInfo) {
+        if (StringUtils.isNotBlank(moreInfo.getPhone())) {
+            DmAuthUserDO phoneUser = this.authDal.userMapper().queryByPhoneAndParentId(moreInfo.getPhone(), rootUser.getId());
+            if (phoneUser != null) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.REGISTER_PHONE_EXIST_ERROR.name(), moreInfo.getPhone()));
+            }
+        }
+        if (StringUtils.isNotBlank(moreInfo.getEmail())) {
+            DmAuthUserDO emailUser = this.authDal.userMapper().queryByEmailAndParentId(moreInfo.getEmail(), rootUser.getId());
+            if (emailUser != null) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.REGISTER_EMAIL_EXIST_ERROR.name(), moreInfo.getEmail()));
+            }
+        }
+    }
+
+    private String resolveProviderUsername(DmAuthUserDO bindUser, LoginAutoRegisterFO moreInfo, String account) {
+        if (StringUtils.isNotBlank(moreInfo.getName())) {
+            return moreInfo.getName();
+        }
+        if (StringUtils.isNotBlank(bindUser.getUsername())) {
+            return bindUser.getUsername();
+        }
+        if (StringUtils.isNotBlank(account)) {
+            return account;
+        }
+        if (StringUtils.isNotBlank(bindUser.getBindAccount())) {
+            return bindUser.getBindAccount();
+        }
+        return bindUser.getAccount();
+    }
+
+    private boolean hasRegisterInfo(LoginFO loginFO) {
+        LoginAutoRegisterFO registerInfo = loginFO.getRegisterInfo();
+        if (registerInfo == null) {
+            return false;
+        }
+
+        return StringUtils.isNotBlank(registerInfo.getAccount()) || //
+               StringUtils.isNotBlank(registerInfo.getName()) ||    //
+               StringUtils.isNotBlank(registerInfo.getEmail()) ||   //
+               StringUtils.isNotBlank(registerInfo.getPhone());
+    }
+
     //
 
     protected boolean isExceedLoginFailCount(DmAuthUserDO userDO) {

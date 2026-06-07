@@ -9,7 +9,6 @@ import CCRegionSelect from '@/components/widgets/CCRegionSelect';
 import CCClusterTypeSelect from '@/components/widgets/CCClusterTypeSelect';
 import CCStatus from '@/components/widgets/CCStatus';
 import CCDataSourceIcon from '@/components/widgets/CCDataSourceIcon';
-import CCSmsButton from '@/components/widgets/CCSmsButton';
 import CCPasswordInput from '@/components/widgets/CCPasswordInput';
 import CCSchemaTreeSelect from '@/components/widgets/CCSchemaTreeSelect';
 import CCTableTreeSelect from '@/components/widgets/CCTableTreeSelect';
@@ -28,7 +27,6 @@ export default {
     app.component('CcClusterTypeSelect', CCClusterTypeSelect);
     app.component('CcStatus', CCStatus);
     app.component('CcDataSourceIcon', CCDataSourceIcon);
-    app.component('CcSmsButton', CCSmsButton);
     app.component('CcPasswordInput', CCPasswordInput);
     app.component('CcSchemaTreeSelect', CCSchemaTreeSelect);
     app.component('CcTableTreeSelect', CCTableTreeSelect);

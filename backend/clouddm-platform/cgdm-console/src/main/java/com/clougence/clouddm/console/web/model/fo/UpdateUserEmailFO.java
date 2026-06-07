@@ -15,9 +15,6 @@
  */
 package com.clougence.clouddm.console.web.model.fo;
 
-import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
-
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
@@ -27,11 +24,5 @@ public class UpdateUserEmailFO {
 
     @NotNull(message = "{notnull.email}")
     @Pattern(regexp = "^[A-Za-z0-9+_.-]+@(.+)$", message = "{pattern.email}")
-    private String     email;
-
-    @NotBlank(message = "{notblank.verifycode}")
-    private String     verifyCode;
-
-    @NotNull(message = "{notnull.verifycodetype}")
-    private VerifyType verifyType;
+    private String email;
 }

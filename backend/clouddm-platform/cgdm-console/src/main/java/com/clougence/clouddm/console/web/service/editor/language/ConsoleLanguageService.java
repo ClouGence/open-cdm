@@ -179,14 +179,14 @@ public class ConsoleLanguageService implements UnifiedPostConstruct, ConsoleLang
     }
 
     private void acquireOrThrow(WsRequestFO fo) {
-        if (this.currentRequests.incrementAndGet() > this.userConfigService.languageMaxRequests(fo.getPrimaryUserId())) {
+        if (this.currentRequests.incrementAndGet() > this.userConfigService.languageMaxRequests()) {
             this.currentRequests.decrementAndGet();
             throw new ErrorMessageException(DmErrorCode.DS_LANGUAGE_ERROR.code(), DmI18nUtils.getMessage(I18nDmMsgKeys.DS_LANGUAGE_BUSY.name()));
         }
 
         String userId = fo.getCurrentUserId();
         AtomicInteger userCounter = this.currentRequestsByUser.computeIfAbsent(userId, key -> new AtomicInteger());
-        if (userCounter.incrementAndGet() > this.userConfigService.languageMaxRequestsByUser(userId)) {
+        if (userCounter.incrementAndGet() > this.userConfigService.languageMaxRequests(userId)) {
             userCounter.decrementAndGet();
             if (userCounter.get() <= 0) {
                 this.currentRequestsByUser.remove(userId, userCounter);

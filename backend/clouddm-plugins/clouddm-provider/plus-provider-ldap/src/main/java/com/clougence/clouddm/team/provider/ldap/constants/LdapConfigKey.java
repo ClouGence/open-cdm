@@ -23,7 +23,7 @@ import lombok.Getter;
 @Getter
 public enum LdapConfigKey {
 
-    AuthType("subAccountAuthType"),
+    AuthType("accountAuthType"),
 
     LdapHost("ldapHost"),
     LdapPort("ldapPort"),

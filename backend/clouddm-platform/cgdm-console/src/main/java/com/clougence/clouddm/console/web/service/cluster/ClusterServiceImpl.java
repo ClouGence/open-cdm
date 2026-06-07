@@ -51,6 +51,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class ClusterServiceImpl implements ClusterService {
+    private static final String DEFAULT_CLUSTER_REGION = "customer";
+
     @Resource
     private SystemDal      systemDal;
     @Resource
@@ -68,7 +70,7 @@ public class ClusterServiceImpl implements ClusterService {
         clusterDO.setCloudOrIdcName(fo.getCloudOrIdcName());
         clusterDO.setClusterName(clusterName);
         clusterDO.setClusterDesc(fo.getClusterDesc());
-        clusterDO.setRegion(fo.getRegion());
+        clusterDO.setRegion(DEFAULT_CLUSTER_REGION);
         clusterDO.setUid(puid);
 
         if (StringUtils.isBlank(clusterDO.getClusterDesc())) {

@@ -15,9 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo;
 
-
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
@@ -26,11 +24,6 @@ public class UpdateUserPhoneFO {
 
     @NotBlank(message = "{notnull.phone}")
     @Pattern(regexp = "^\\d{1,20}$", message = "{pattern.phone}")
-    private String   phone;
+    private String phone;
 
-    @NotNull(message = "{notnull.phoneareacode}")
-
-    @NotNull(message = "{notnull.verifycode}")
-    @NotBlank(message = "{notblank.verifycode}")
-    private String   verifyCode;
 }

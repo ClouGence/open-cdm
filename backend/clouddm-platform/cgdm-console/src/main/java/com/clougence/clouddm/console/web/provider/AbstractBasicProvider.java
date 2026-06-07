@@ -43,6 +43,11 @@ public abstract class AbstractBasicProvider {
         }
 
         UserCacheEntry userDO = this.cacheDao.queryByAk(identity.getAccessKey());
+        if (userDO == null) {
+            log.error("worker ({}) access denied, access key not found", identity.getWorkerSeqNumber());
+            return false;
+        }
+
         if (!workerDO.getOwnerUid().equals(userDO.getUid())) {
             log.error("worker (" + identity.getWorkerSeqNumber() + ") not belone user (" + identity.getAccessKey() + ")");
             return false;

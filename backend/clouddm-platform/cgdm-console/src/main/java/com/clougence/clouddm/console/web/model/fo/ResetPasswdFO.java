@@ -49,9 +49,6 @@ public class ResetPasswdFO {
     @NotNull(message = "{notnull.verifytype}")
     private VerifyType  verifyType;
 
-    @NotBlank(message = "{notblank.verifycode}")
-    private String      verifyCode;
-
     @NotBlank(message = "{notblank.password}")
     private String      password;
 }

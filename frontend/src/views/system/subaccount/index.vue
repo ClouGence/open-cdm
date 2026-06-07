@@ -85,9 +85,6 @@
                   </div>
                 </div>
               </template>
-              <template #lastTryLoginTime="{ row }">
-                <div>{{ row.lastTryLoginTime }}</div>
-              </template>
               <template #action="{ row }">
                 <div class="action">
                   <a
@@ -101,15 +98,9 @@
                   <a v-if="myAuth.includes('RDP_USER_MANAGE')" @click="handleShowModifyAccount(row)">
                     {{ $t('xiu-gai') }}
                   </a>
-                  <Poptip
-                    v-if="!forbidDelSubAccount && myAuth.includes('RDP_USER_MANAGE')"
-                    :title="$t('que-ding-shan-chu-gai-zi-zhang-hao-ma')"
-                    transfer
-                    confirm
-                    @on-ok="handleDeleteSubAccount(row)"
-                  >
-                    <a type="primary" @click.stop>{{ $t('shan-chu') }}</a>
-                  </Poptip>
+                  <a v-if="myAuth.includes('RDP_USER_MANAGE')" @click="handleShowDeleteConfirm(row)">
+                    {{ $t('shan-chu') }}
+                  </a>
                 </div>
               </template>
             </Table>
@@ -169,7 +160,7 @@
             </Select>
           </FormItem>
         </div>
-        <div class="credential-source-row">
+        <div v-if="accountFormMode === 'edit'" class="credential-source-row">
           <FormItem :label="$t('lai-yuan')" class="credential-source-field">
             <div class="provider-info">
               <CustomIcon
@@ -229,16 +220,16 @@
         <FormItem :label="$t('qi-yong-jin-yong')">
           <i-switch v-model="newAccountForm.enabled" true-color="#52C41A" />
         </FormItem>
-        <FormItem :label="$t('suo-ding-deng-lu')">
+        <FormItem v-if="accountFormMode === 'edit'" :label="$t('suo-ding-deng-lu')">
           <span class="lock-state-text">{{ newAccountForm.loginLocked ? $t('yi-suo-ding') : $t('wei-suo-ding') }}</span>
         </FormItem>
-        <FormItem :label="$t('shang-ci-deng-lu-shi-jian')">
+        <FormItem v-if="accountFormMode === 'edit'" :label="$t('shang-ci-deng-lu-shi-jian')">
           <span class="readonly-status-text">{{ readonlyText(newAccountForm.lastLoginTime) }}</span>
         </FormItem>
-        <FormItem :label="$t('duo-yin-zi-ren-zheng')">
+        <FormItem v-if="accountFormMode === 'edit'" :label="$t('duo-yin-zi-ren-zheng')">
           <span class="readonly-status-text">{{ newAccountForm.useMfa ? $t('yi-qi-yong') : $t('wei-qi-yong') }}</span>
         </FormItem>
-        <FormItem v-if="newAccountForm.loginLocked" :label="$t('suo-ding-shi-jian')">
+        <FormItem v-if="accountFormMode === 'edit' && newAccountForm.loginLocked" :label="$t('suo-ding-shi-jian')">
           <div class="lock-time-row">
             <span class="readonly-status-text">{{ readonlyText(newAccountForm.lockedAt) }}</span>
             <Button style="margin-left: 10px" type="primary" ghost @click="unlockAccount">{{ $t('jie-suo') }}</Button>
@@ -350,15 +341,10 @@ export default {
           minWidth: 120
         },
         {
-          title: this.$t('shang-ci-deng-lu-shi-jian'),
-          slot: 'lastTryLoginTime',
-          width: 170
-        },
-        {
           title: this.$t('cao-zuo'),
           slot: 'action',
           fixed: 'right',
-          width: 210
+          width: 190
         }
       ],
       subAccountListLoading: false,
@@ -378,7 +364,6 @@ export default {
       subAccountList: [],
       showSubAccountList: [],
       roleList: [],
-      forbidDelSubAccount: false,
       passwordRule: {
         strongPolicy: false,
         minLength: DEFAULT_PASSWORD_MIN_LENGTH,
@@ -391,9 +376,6 @@ export default {
       },
       loading: false
     };
-  },
-  async mounted() {
-    await this.getConfigValueList();
   },
   methods: {
     accountStatus(row) {
@@ -443,19 +425,6 @@ export default {
     },
     showProviderIcon(row) {
       return row.bindType && row.bindType !== 'INTERNAL';
-    },
-    async getConfigValueList() {
-      const res = await this.$services.rdpUserConfigGetUserSpecifiedConfs({
-        data: {
-          configNames: ['subAccountAuthType', 'forbidDelSubAccount']
-        }
-      });
-
-      if (res.success && res.data) {
-        if (res.data.forbidDelSubAccount && res.data.forbidDelSubAccount.configValue) {
-          this.forbidDelSubAccount = JSON.parse(res.data.forbidDelSubAccount.configValue);
-        }
-      }
     },
     handleEnterSearch(e) {
       if (e.code === 'Enter') {
@@ -588,6 +557,16 @@ export default {
           name: this.displayAccount(record),
           resourceManage: record.resourceManage ? 'true' : 'false',
           type: type
+        }
+      });
+    },
+    handleShowDeleteConfirm(subAccount) {
+      this.$Modal.confirm({
+        title: this.$t('que-ding-shan-chu-gai-zi-zhang-hao-ma'),
+        okText: this.$t('que-ding'),
+        cancelText: this.$t('qu-xiao'),
+        onOk: () => {
+          this.handleDeleteSubAccount(subAccount);
         }
       });
     },

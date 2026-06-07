@@ -1,10 +1,8 @@
-import { VERIFY_CODE_TYPE, VERIFY_TYPE } from '@/const';
 import { Modal } from 'ant-design-vue';
 import { encryptMixin } from '@/mixins/encryptMixin';
 
 const EMPTY_OP_CONFIG = {
-  opPassword: '',
-  verifyCode: ''
+  opPassword: ''
 };
 const setOpPasswordMixin = {
   data() {
@@ -16,12 +14,10 @@ const setOpPasswordMixin = {
       },
       opForm: { ...EMPTY_OP_CONFIG },
       opModalErrMsg: {
-        opPassword: '',
-        verifyCode: ''
+        opPassword: ''
       },
       opErrorText: {
-        opPassword: this.$t('cao-zuo-mi-ma'),
-        verifyCode: this.$t('yan-zheng-ma')
+        opPassword: this.$t('cao-zuo-mi-ma')
       }
     };
   },
@@ -75,17 +71,6 @@ const setOpPasswordMixin = {
                 />
               )}
               <a-form-model label-col={this.opModalConfig.labelCol} wrapper-col={this.opModalConfig.wrapperCol}>
-                <a-form-model-item label={this.$t('duan-xin-yan-zheng-ma')}>
-                  <div style={{ display: 'flex' }}>
-                    <a-input
-                      v-model={this.opForm.verifyCode}
-                      style={{ marginRight: '8px' }}
-                      onBlur={() => this.handleBlurOpModalValidate('verifyCode')}
-                    />
-                    <cc-sms-button verifyType={VERIFY_TYPE.SMS} verifyCodeType={VERIFY_CODE_TYPE.RESET_OP_PASSWORD} login={true} />
-                  </div>
-                  <div className='error-msgContent'>{this.opModalErrMsg.verifyCode}</div>
-                </a-form-model-item>
                 <a-form-model-item label={this.$t('cao-zuo-mi-ma')}>
                   <a-input
                     v-model={this.opForm.opPassword}

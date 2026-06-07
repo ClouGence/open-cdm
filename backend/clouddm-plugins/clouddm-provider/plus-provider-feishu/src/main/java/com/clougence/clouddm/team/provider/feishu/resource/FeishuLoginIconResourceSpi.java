@@ -40,7 +40,8 @@ public class FeishuLoginIconResourceSpi implements ResourceSpi {
 
     @Override
     public ResourceObject findResource(String category, String resourcePath, ResourceRequest request) {
-        if (!ResourceCategory.WEBSIDE.getCode().equals(category) || !"login-icon".equals(resourcePath)) {
+        if (!ResourceCategory.WEBSIDE.getCode().equals(category)
+                || (!"login-icon".equals(resourcePath) && !"im-icon".equals(resourcePath))) {
             return null;
         }
         return new ClasspathResourceObject(this.resourceLoader, "META-INF/clougence/webside/login-icon.svg", "image/svg+xml", true, false);

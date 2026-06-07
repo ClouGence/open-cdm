@@ -32,8 +32,8 @@
           <div class="table-container">
             <Table :columns="scmColumns" :data="scmList" :loading="loading" :locale="{ emptyText: $t('zan-wu-shu-ju') }" size="small" border>
               <template #provider="{ row }">
-                <div style="display: flex; align-items: center; gap: 6px">
-                  <CustomIcon :type="row.scmType" size="20px" />
+                <div class="provider-cell">
+                  <img class="provider-icon" :src="providerIconUrl(row.scmType)" :alt="row.scmTypeI18n" @error="handleProviderIconError" />
                   <span>{{ row.scmTypeI18n }}</span>
                 </div>
               </template>
@@ -64,7 +64,12 @@
             :key="item.scmType"
             @click="handleChangeScmType(item)"
           >
-            <CustomIcon :type="item.scmType" :size="24" />
+            <img
+              class="provider-icon provider-icon-large"
+              :src="providerIconUrl(item.scmType)"
+              :alt="item.scmTypeI18n"
+              @error="handleProviderIconError"
+            />
             <div>{{ item.scmTypeI18n }}</div>
           </div>
         </div>
@@ -107,6 +112,7 @@ import { mapState, mapGetters } from 'vuex';
 import copyMixin from '@/mixins/copyMixin';
 import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
 import { encryptMixin } from '@/mixins/encryptMixin';
+import { getPluginResourceUrl } from '@/utils/pluginResource';
 import { scmColumns } from './constant';
 
 const EMPTY_SCM = {
@@ -190,6 +196,12 @@ export default {
     init() {
       this.getScmList();
       this.getScmTypeList();
+    },
+    providerIconUrl(scmType) {
+      return getPluginResourceUrl(`webside/${scmType}@scm-icon`);
+    },
+    handleProviderIconError(event) {
+      event.target.style.display = 'none';
     },
     handleChangeScmType(item) {
       if (this.scmEdit) return;
@@ -419,6 +431,25 @@ export default {
   .actions {
     font-size: 12px;
   }
+}
+
+.provider-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.provider-icon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.provider-icon-large {
+  width: 24px;
+  height: 24px;
 }
 
 .manage-role-modal {

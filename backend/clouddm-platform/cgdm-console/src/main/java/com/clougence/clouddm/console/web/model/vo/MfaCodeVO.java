@@ -13,26 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.platform.dal.model.auth;
+package com.clougence.clouddm.console.web.model.vo;
 
-/**
- * @author bucketli 2020/2/27 19:52
- */
-public enum VerifyCodeType {
-    REGISTER,
-    LOGIN,
-    RESET_PASSWORD,
-    RESET_OP_PASSWORD,
-    FETCH_WORKER_DEPLOY_CORE_CONFIG,
-    FETCH_USER_AK_SK,
-    RESET_USER_AK_SK,
-    PRODUCT_TRIAL,
-    DELETE_JOB,
-    DELETE_POSITION,
-    UPDATE_USER_INFO,
-    UPDATE_USER_PHONE,
-    UPDATE_USER_EMAIL,
-    FETCH_AUTH_CODE,
-    VERIFY_OLD_ACCOUNT,
-    SSO_REGISTER_BIND,
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class MfaCodeVO {
+
+    private String qrCode;
+
+    private String mfaCode;
 }

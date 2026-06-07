@@ -94,6 +94,11 @@ public class ConsoleStatusRServiceProvider extends AbstractBasicProvider impleme
 
     private WorkerState checkAndMaintainHb(DmSysWorkerDO workerDO, Date sendDate, WorkerIdentity identity) {
         DmAuthUserDO userDO = this.rdpUserService.getUserByAk(identity.getAccessKey());
+        if (userDO == null) {
+            log.error("worker ({}) access denied, access key not found", identity.getWorkerSeqNumber());
+            return WorkerState.NOT_EXIST;
+        }
+
         if (!workerDO.getUid().equals(userDO.getUid())) {
             log.error("worker (" + identity.getWorkerSeqNumber() + ") not belone user (" + identity.getAccessKey() + ")");
             return WorkerState.NOT_EXIST;

@@ -39,12 +39,7 @@ import com.clougence.clouddm.console.web.service.cluster.WorkerDetector;
 import com.clougence.clouddm.console.web.service.cluster.WorkerService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.clouddm.platform.dal.model.auth.VerifyCodeType;
-import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
 import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
-import com.clougence.rdp.service.RdpVerifyService;
-import com.clougence.rdp.service.model.CheckVerifyMO;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -61,15 +56,11 @@ import lombok.extern.slf4j.Slf4j;
 public class WorkerController {
 
     @Resource
-    private WorkerService    workerService;
+    private WorkerService  workerService;
     @Resource
-    private ObjectCacheDao   objectCacheDao;
+    private ObjectCacheDao objectCacheDao;
     @Resource
-    private RdpVerifyService rdpVerifyService;
-    @Resource
-    private WorkerDetector   workerDetector;
-    @Resource
-    private RdpUserService   rdpUserService;
+    private WorkerDetector workerDetector;
 
     @RequestAuth(DM_WORKER_READ)
     @RequestMapping(value = "/listworkers", method = RequestMethod.POST)
@@ -157,18 +148,8 @@ public class WorkerController {
     @RequestMapping(value = "/clientcoreconfig", method = RequestMethod.POST)
     public ResWebData<?> clientCoreConfig(@Valid @RequestBody ClientCoreConfFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
-        String uid = (String) request.getAttribute(RdpUserService.UID);
 
         this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
-        DmAuthUserDO userDO = this.rdpUserService.getUserByUid(uid);
-
-        CheckVerifyMO verifyData = new CheckVerifyMO();
-        verifyData.setUid(uid);
-        verifyData.setVerifyType(VerifyType.SMS_VERIFY_CODE);
-        verifyData.setPhoneNumber(userDO.getPhone());
-        verifyData.setVerifyCodeType(VerifyCodeType.FETCH_WORKER_DEPLOY_CORE_CONFIG);
-        verifyData.setVerifyCode(fo.getVerifyCode());
-        this.rdpVerifyService.checkVerifyCode(verifyData);
 
         WorkerDeployConfigVO coreConfig = this.workerService.getClientDeployCoreConfig(fo.getWorkerId(), puid);
         return ResWebDataUtils.buildSuccess(coreConfig);

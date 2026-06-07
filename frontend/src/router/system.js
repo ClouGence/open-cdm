@@ -149,66 +149,6 @@ export default [
     component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/SqlLog')
   },
   {
-    path: 'payment',
-    name: 'Payment',
-    component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/billingandpayment/Payment')
-  },
-  {
-    path: 'credits',
-    name: 'Credits',
-    component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/billingandpayment/Credits')
-  },
-  {
-    path: 'license',
-    name: 'License',
-    component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/billingandpayment/License')
-  },
-  {
-    path: 'order',
-    name: 'Order',
-    component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/billingandpayment/Order')
-  },
-  {
-    path: 'measurement',
-    name: 'Measurement',
-    component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/billingandpayment/Measurement')
-  },
-  {
-    path: 'billing',
-    name: 'Billing',
-    component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/billingandpayment/Billing')
-  },
-  {
-    path: 'billing/:id',
-    name: 'BillingDetail',
-    component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/billingandpayment/BillingDetail')
-  },
-  {
-    path: 'invoice',
-    name: 'Invoice',
-    component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/billingandpayment/Invoice')
-  },
-  {
-    path: 'invoiceApplyList',
-    name: 'InvoiceApplyList',
-    component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/billingandpayment/InvoiceApplyList')
-  },
-  {
-    path: 'invoiceApply',
-    name: 'InvoiceApply',
-    component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/billingandpayment/InvoiceApply')
-  },
-  {
-    path: 'balance',
-    name: 'Balance',
-    component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/billingandpayment/Balance')
-  },
-  {
-    path: 'prepay',
-    name: 'Prepay',
-    component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/billingandpayment/Prepay')
-  },
-  {
     path: 'profile',
     name: 'Profile',
     component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/UserCenter')

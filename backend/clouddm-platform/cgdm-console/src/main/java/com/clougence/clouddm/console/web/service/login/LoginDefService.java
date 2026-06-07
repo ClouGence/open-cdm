@@ -114,7 +114,7 @@ public class LoginDefService {
     }
 
     private String getLoginUnavailableReason(String ownerUid, LoginProvider type) {
-        String configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.subAccountAuthType);
+        String configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.accountAuthType);
         if (StringUtils.isBlank(configValue)) {
             return "login provider is not configured.";
         }
@@ -126,7 +126,7 @@ public class LoginDefService {
     }
 
     public List<LoginAuthType> listConfLoginTypes(String ownerUid) {
-        String configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.subAccountAuthType);
+        String configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.accountAuthType);
         List<LoginAuthType> loginTypes = new ArrayList<>();
         if (StringUtils.isBlank(configValue)) {
             loginTypes.add(LoginAuthType.PASSWORD);

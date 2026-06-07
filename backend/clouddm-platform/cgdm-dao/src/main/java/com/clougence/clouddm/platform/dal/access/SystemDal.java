@@ -1,7 +1,6 @@
 package com.clougence.clouddm.platform.dal.access;
 
 import com.clougence.clouddm.platform.dal.mapper.system.*;
-import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 
 public interface SystemDal {
 
@@ -21,7 +20,15 @@ public interface SystemDal {
 
     // ---------- dal service methods ----------
 
-    DmSysUserConfDO getSpecifiedConfig(String uid, String configName);
-
     String fetchSystemConf(String configName);
+
+    <T> T fetchSystemConf(String configName, Class<T> type);
+
+    <T> T fetchSystemConf(String configName, Class<T> type, T defaultValue);
+
+    String fetchUserConf(String uid, String configName);
+
+    <T> T fetchUserConf(String uid, String configName, Class<T> type);
+
+    <T> T fetchUserConf(String uid, String configName, Class<T> type, T defaultValue);
 }

@@ -22,6 +22,7 @@ import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.team.provider.gitee.constants.GiteeI18nKeys;
 import com.clougence.clouddm.team.provider.gitee.devops.GiteeDevopsScmProviderSpi;
+import com.clougence.clouddm.team.provider.gitee.resource.GiteeScmIconResourceSpi;
 
 import okhttp3.OkHttpClient;
 
@@ -35,6 +36,7 @@ public class GiteePlugin implements DsPlugin {
 
         // spi
         OkHttpClient client = new OkHttpClient.Builder().readTimeout(6, TimeUnit.SECONDS).build();
+        dsPlugin.addGlobalSpi(new GiteeScmIconResourceSpi(dsPlugin.getPluginClassLoader()));
         dsPlugin.addGlobalSpi(new GiteeDevopsScmProviderSpi(client));
     }
 }

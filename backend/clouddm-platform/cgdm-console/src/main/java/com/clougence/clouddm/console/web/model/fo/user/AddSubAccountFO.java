@@ -26,23 +26,15 @@ import lombok.Data;
 public class AddSubAccountFO {
 
     private String  userName;
-
     @NotBlank(message = "{notblank.account}")
     private String  account;
-
     @Min(value = 1, message = "{min.roleid}")
     private long    roleId;
-
     @NotBlank(message = "{notblank.password}")
     private String  password;
-
     private String  email;
-
     private String  phone;
-
     private Boolean disable;
-
     private Boolean loginLocked;
-
     private Boolean allowLocal;
 }

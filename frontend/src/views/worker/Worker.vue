@@ -981,21 +981,6 @@
       </template>
     </CCModal>
     <StToken ref="stToken" :nextStep="nextStep"></StToken>
-    <verify-code-modal
-      v-model:visible="showConfigVerify"
-      :title="$t('cha-kan-pei-zhi-wen-jian-que-ren')"
-      :handle-close-modal="hideConfigModal"
-      :loading="confirmFetchLoading"
-      :handle-confirm-callback="handleConfirmDownload"
-      verify-code-type="FETCH_WORKER_DEPLOY_CORE_CONFIG"
-      ref="verify-code-modal"
-    >
-      <template #content>
-        <p style="margin-bottom: 10px">
-          {{ $t('qing-shu-ru-yan-zheng-ma-yi-huo-qu-pei-zhi-wen-jian') }}
-        </p>
-      </template>
-    </verify-code-modal>
     <CCModal v-model="showDownloadClient" :title="$t('xia-zai-ke-hu-duan')" width="1100px">
       <div>
         <Alert type="warning" show-icon>
@@ -1158,7 +1143,6 @@ import store from '@/store';
 import JobOnWorker from '@/components/function/JobOnWorker';
 import StToken from '@/components/function/ApplyStToken';
 import AddWorker from '@/components/function/cluster/AddWorker';
-import VerifyCodeModal from '@/components/modal/VerifyCodeModal';
 import dayjs from 'dayjs';
 import { OPERATION_STATUS, OPERATION_STATUS_I18N, SECOND_CONFIRM_EVENT_LIST, WORKER_OPERATION, WORKER_OPERATION_I18N, WORKER_STATE } from '@/const';
 import { mapGetters, mapMutations, mapState } from 'vuex';
@@ -1173,7 +1157,6 @@ export default {
     JobOnWorker,
     StToken,
     AddWorker,
-    VerifyCodeModal,
     SecondConfirmModal
   },
   created() {
@@ -1309,16 +1292,11 @@ export default {
       downloadUrl: '',
       configData: '',
       externalIp: '',
-      showConfigVerify: false,
       showConfigData: false,
       enableBatch: false,
       isBatch: false,
       selectedTasks: [],
       currentMenOver: 0,
-      verifyCode: '',
-      verifyCodeError: '',
-      sendcodeDisabled: true,
-      sendCodeAgainTime: 60,
       offAlarm: false,
       workers: [],
       showDispatch: false,
@@ -2642,27 +2620,21 @@ export default {
       });
     },
     handleDownloadConfig(worker) {
-      this.showConfigVerify = true;
       this.selectWorker = worker;
-      this.verifyCodeError = '';
-      this.verifyCode = '';
+      this.handleConfirmDownload();
     },
-    handleConfirmDownload(verifyCode) {
+    handleConfirmDownload() {
       this.confirmFetchLoading = true;
       this.$services
         .ccWorkerClientCoreConfig({
           data: {
-            workerId: this.selectWorker.id,
-            verifyCode,
-            verifyType: this.verifyType
+            workerId: this.selectWorker.id
           }
         })
         .then((res) => {
           if (res.success) {
-            this.showConfigVerify = false;
             this.configData = res.data;
             this.showConfigData = true;
-            this.$refs['verify-code-modal'].handleEmptyVerifyCodeModalData();
           }
           this.confirmFetchLoading = false;
         });
@@ -2678,50 +2650,6 @@ export default {
       text += `${data.wsnLabel}=${data.wsnValue}\n`;
       text += `${data.consoleDomainLabel}=${data.consoleDomainValue}`;
       return text;
-    },
-    handleVerify() {
-      this.sendcodeDisabled = false;
-      this.sendCodeAgainTime = 60;
-      const that = this;
-
-      this.sendCodeAgain = setInterval(() => {
-        if (that.sendCodeAgainTime > 0) {
-          that.sendCodeAgainTime--;
-        } else {
-          clearInterval(that.sendCodeAgain);
-          that.sendcodeDisabled = true;
-        }
-      }, 1000);
-
-      this.$services
-        .rdpVerifySendCodeInLoginState({
-          data: {
-            verifyType: 'SMS_VERIFY_CODE',
-            verifyCodeType: 'FETCH_WORKER_DEPLOY_CORE_CONFIG'
-          }
-        })
-        .then((res) => {
-          if (res.success) {
-            this.$Message.success(this.$t('fa-song-cheng-gong'));
-          } else {
-            this.sendcodeDisabled = true;
-            this.sendCodeAgainTime = 60;
-            clearInterval(this.sendCodeAgain);
-            this.$Modal.error({
-              title: 'ERROR',
-              content: `${res.msg}`
-            });
-          }
-        })
-        .catch((res) => {
-          this.sendcodeDisabled = true;
-          this.sendCodeAgainTime = 60;
-          clearInterval(this.sendCodeAgain);
-          this.$Modal.error({
-            title: 'ERROR',
-            content: `${res.data.msg}`
-          });
-        });
     },
     handleAlarm(worker, data) {
       const alertConfigVO = {

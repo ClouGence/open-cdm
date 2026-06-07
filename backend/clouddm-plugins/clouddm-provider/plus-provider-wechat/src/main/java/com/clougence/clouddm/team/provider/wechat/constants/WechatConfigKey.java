@@ -32,7 +32,7 @@ public enum WechatConfigKey {
     ApprovalTemplateList("wechatApprovalTemplateList"),
     ApprovalTemplateLang("wechatApprovalTemplateLang"),
 
-    LoginEnable("subAccountAuthType"),
+    LoginEnable("accountAuthType"),
     LoginCorpId("wechatLoginCorpId"),
     LoginAgentId("wechatLoginAgentId"),
     LoginSecret("wechatLoginSecret"),

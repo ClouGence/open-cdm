@@ -15,10 +15,6 @@
  */
 package com.clougence.clouddm.console.web.model.fo;
 
-import com.clougence.clouddm.platform.dal.model.auth.VerifyType;
-
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,10 +24,4 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ResetUserAkSkFO {
-
-    @NotBlank(message = "{notblank.verifycode}")
-    private String     verifyCode;
-
-    @NotNull(message = "{notnull.verifytype}")
-    private VerifyType verifyType;
 }

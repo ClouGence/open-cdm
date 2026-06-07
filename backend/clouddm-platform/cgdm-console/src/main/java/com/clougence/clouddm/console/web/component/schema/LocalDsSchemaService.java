@@ -41,7 +41,6 @@ import com.clougence.schema.umi.special.rdb.RdbColumn;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.schema.umi.struts.Value;
 import com.clougence.utils.JsonUtils;
-import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import jakarta.annotation.Resource;
@@ -62,16 +61,8 @@ public class LocalDsSchemaService implements DsSchemaService {
     private SystemDal                  systemDal;
 
     private boolean isDisableMetaCache(String uid) {
-        String configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.consoleMetadataCache);
-        if (StringUtils.isBlank(configValue)) {
-            return true;
-        }
-
-        try {
-            return !Boolean.parseBoolean(configValue);
-        } catch (Exception e) {
-            return true;
-        }
+        Boolean configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.consoleMetadataCache, Boolean.class);
+        return configValue == null || !configValue;
     }
 
     @Override
@@ -121,8 +112,10 @@ public class LocalDsSchemaService implements DsSchemaService {
 
     private static boolean shouldListLevels(DsConfig dsConfig, List<UmiTypes> levels) {
         int currentSize = levels == null ? 0 : levels.size();
-        return dsConfig != null && dsConfig.getCategories() != null && dsConfig.getCategories().getLevels() != null
-               && dsConfig.getCategories().getLevels().size() > currentSize + 2;
+        return dsConfig != null &&                            //
+               dsConfig.getCategories() != null &&            //
+               dsConfig.getCategories().getLevels() != null &&//
+               dsConfig.getCategories().getLevels().size() > currentSize + 2;
     }
 
     //

@@ -12,7 +12,6 @@ import ContextMenu from '@imengyu/vue3-context-menu';
 import CommonMixin from '@/components/function/mixin/commonMixin';
 import CCModal from '@/components/ui/CCModal';
 import CCPasswordInput from '@/components/widgets/CCPasswordInput';
-import CCSmsButton from '@/components/widgets/CCSmsButton';
 import CCIconfont from '@/components/widgets/CCIconfont';
 import App from './App';
 import router from './router';
@@ -81,7 +80,6 @@ app.component('CustomIcon', CustomIcon);
 app.component('CCModal', CCModal);
 app.component('DataSourceIcon', DataSourceIcon);
 app.component('CcPasswordInput', CCPasswordInput);
-app.component('CcSmsButton', CCSmsButton);
 app.component('CcIconfont', CCIconfont);
 
 app.config.globalProperties.$bus = eventBus;

@@ -16,28 +16,33 @@
 package com.clougence.clouddm.console.web.component.approval.schedule;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
+import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.LifeSpiRequest;
 import com.clougence.clouddm.sdk.approval.ApprovalProvider;
 import com.clougence.clouddm.sdk.approval.ApprovalProviderSpi;
-import com.clougence.utils.CollectionUtils;
+import com.clougence.rdp.service.RdpNotifyService;
+import com.clougence.rdp.service.model.UserConfigMO;
 import com.clougence.utils.ExceptionUtils;
-import com.clougence.utils.StringUtils;
 import com.clougence.utils.ThreadUtils;
 
 import jakarta.annotation.Resource;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class ApprovalStarter implements UnifiedPostConstruct {
+public class ApprovalStarter implements UnifiedPostConstruct, RdpNotifyService {
     @Resource
     private AuthDal                     authDal;
     @Resource
@@ -56,38 +61,10 @@ public class ApprovalStarter implements UnifiedPostConstruct {
     }
 
     private void initApprovalProvider() {
-        List<String> serviceNames;
-        try {
-            serviceNames = PluginManager.getSpiNamesByType(ApprovalProviderSpi.class);
-            if (CollectionUtils.isNotEmpty(serviceNames)) {
-                log.info("[ApprovalStarter] ScheduleService found " + serviceNames.size() + " provider is " + StringUtils.join(serviceNames.toArray(), ","));
-            } else {
-                String msg = "[ApprovalStarter] ScheduleService not found any provider.";
-                log.error(msg);
-                return;
-            }
-        } catch (Exception e) {
-            String msg = "[ApprovalStarter] ScheduleService found provider error " + e.getMessage();
-            log.error(msg, e);
-            return;
-        }
-
-        // start plugin for user.
         List<DmAuthUserDO> users = this.authDal.userMapper().listPrimaryAccount();
         for (DmAuthUserDO rdpUserDO : users) {
-            for (String serviceName : serviceNames) {
-                ApprovalProvider providerType = ApprovalProvider.valueOf(serviceName);
-
-                if (!this.approvalService.checkEnableApproval(rdpUserDO.getUid(), providerType)) {
-                    continue;
-                }
-
-                ApprovalProviderSpi service = PluginManager.findSpi(ApprovalProviderSpi.class, serviceName);
-                try {
-                    service.start(rdpUserDO.getUid(), new LifeSpiRequest());
-                } catch (Exception e) {
-                    log.error("[ApprovalStarter] Switch " + serviceName + "client was failed", e);
-                }
+            for (ApprovalProvider provider : ApprovalFlowService.SUPPORT_LIST) {
+                startProviderIfEnabled(rdpUserDO.getUid(), provider);
             }
         }
 
@@ -99,5 +76,67 @@ public class ApprovalStarter implements UnifiedPostConstruct {
             String msg = "[ApprovalStarter] ScheduleService started failed, but will ignore exception, msg: " + ExceptionUtils.getRootCauseMessage(e);
             log.error(msg, e);
         }
+    }
+
+    @SneakyThrows
+    @Override
+    public void notifyUserConfig(String ownerUid, List<UserConfigMO> configList) {
+        if (configList == null || configList.isEmpty()) {
+            return;
+        }
+
+        restartModifiedProviders(ownerUid, configList);
+    }
+
+    private void restartModifiedProviders(String ownerUid, List<UserConfigMO> configList) throws Exception {
+        Set<UserConfigTagType> filtered = configList.stream()
+            .filter(config -> config != null && config.getTagType() != null && (config.isInsert() || config.isUpdate() || config.isDelete()))
+            .map(UserConfigMO::getTagType)
+            .collect(Collectors.toSet());
+
+        for (ApprovalProvider provider : ApprovalFlowService.SUPPORT_LIST) {
+            UserConfigTagType tagType = convertToConfigTagType(provider);
+            if (tagType == null || !filtered.contains(tagType)) {
+                continue;
+            }
+            restartProvider(ownerUid, provider);
+        }
+    }
+
+    private void restartProvider(String ownerUid, ApprovalProvider provider) throws Exception {
+        stopProvider(ownerUid, provider);
+        startProviderIfEnabled(ownerUid, provider);
+    }
+
+    private void stopProvider(String ownerUid, ApprovalProvider provider) throws Exception {
+        ApprovalProviderSpi service = PluginManager.findSpi(ApprovalProviderSpi.class, provider.name());
+        if (service != null) {
+            service.stop(ownerUid, new LifeSpiRequest());
+        }
+    }
+
+    private void startProviderIfEnabled(String ownerUid, ApprovalProvider provider) {
+        ApprovalProviderSpi service = PluginManager.findSpi(ApprovalProviderSpi.class, provider.name());
+        if (service == null) {
+            return;
+        }
+        if (!this.approvalService.checkEnableApproval(ownerUid, provider)) {
+            return;
+        }
+
+        try {
+            service.start(ownerUid, new LifeSpiRequest());
+        } catch (Exception e) {
+            log.error("[ApprovalStarter] Switch " + provider.name() + " client was failed", e);
+        }
+    }
+
+    private static UserConfigTagType convertToConfigTagType(ApprovalProvider provider) {
+        return switch (provider) {
+            case Feishu -> UserConfigTagType.FEISHU;
+            case Wechat -> UserConfigTagType.WECHAT;
+            case DingTalk -> UserConfigTagType.DINGTALK;
+            default -> null;
+        };
     }
 }

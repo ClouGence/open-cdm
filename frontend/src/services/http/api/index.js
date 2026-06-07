@@ -15,7 +15,6 @@ import { versionApi } from '@/services/http/api/version';
 import { authApi } from '@/services/http/api/auth';
 import { constantApi } from '@/services/http/api/constant';
 import { fakerApi } from '@/services/http/api/faker';
-import { authCodeApi } from '@/services/http/api/authCode';
 import { asyncTaskApi } from '@/services/http/api/asyncTask';
 import { securityApi } from '@/services/http/api/security';
 import { billingApi } from '@/services/http/api/billing';
@@ -49,7 +48,6 @@ import { systemConfigApi } from '@/services/http/api/systemConfig';
 import { taskRestartHistoryApi } from '@/services/http/api/taskRestartHistory';
 import { transferApi } from '@/services/http/api/transfer';
 import { initApi } from '@/services/http/api/init';
-import { verifyApi } from '@/services/http/api/verify';
 import { mfaApi } from '@/services/http/api/mfa';
 import { financeApi } from '@/services/http/api/finance';
 import { taskTemplateApi } from '@/services/http/api/taskTemplate';
@@ -76,7 +74,6 @@ export const api = {
   ...versionApi,
   ...constantApi,
   ...fakerApi,
-  ...authCodeApi,
   ...asyncTaskApi,
   ...securityApi,
   ...auditApi,
@@ -109,7 +106,6 @@ export const api = {
   ...taskRestartHistoryApi,
   ...transferApi,
   ...initApi,
-  ...verifyApi,
   ...mfaApi,
   ...financeApi,
   ...taskTemplateApi,
