@@ -51,6 +51,10 @@ class AntlrBuildSupport {
             project.delete(generatedOutputs)
             outputDirectory.mkdirs()
         }
+
+        task.doLast {
+            normalizeGeneratedFromComments(project, outputDirectory)
+        }
     }
 
     static void wireGrammarTasks(Project project, Iterable<?> taskRefs) {
@@ -77,5 +81,20 @@ class AntlrBuildSupport {
             throw new IllegalArgumentException("Missing required ANTLR config: ${key}")
         }
         return value.toString()
+    }
+
+    private static void normalizeGeneratedFromComments(Project project, File outputDirectory) {
+        def generatedSources = project.fileTree(outputDirectory) {
+            include '**/*.java'
+        }
+        generatedSources.each { File file ->
+            String text = file.getText('UTF-8')
+            String normalized = text.replaceFirst(
+                    /^\/\/ Generated from (?:.*[\/\\\\])?([^\/\\\\\r\n]+\.g4) by ANTLR ([^\r\n]+)/,
+                    '// Generated from $1 by ANTLR $2')
+            if (normalized != text) {
+                file.setText(normalized, 'UTF-8')
+            }
+        }
     }
 }

@@ -55,10 +55,11 @@
                   :class="{ 'is-loading': loginLoading }"
                   @click="handleGoJump(currentLoginDef)"
                 >
-                  <img
-                    class="provider-login-image"
-                    :src="resourceUrl(currentLoginDef.icon)"
+                  <CustomIcon
+                    v-if="currentLoginDef.icon"
+                    :resource="currentLoginDef.icon"
                     :alt="currentLoginDef.iconTitle || currentLoginDef.tabTitle"
+                    size="44px"
                   />
                   <span>{{ currentLoginDef.tabTitle || $t('deng-lu') }}</span>
                 </button>
@@ -137,7 +138,14 @@
                 @click="switchLoginType(item)"
               >
                 <span class="current-arrow" v-if="item.loginType === currentLoginType"></span>
-                <img :src="resourceUrl(item.icon)" :alt="item.iconTitle || item.tabTitle" />
+                <CustomIcon
+                  v-if="item.icon"
+                  :resource="item.icon"
+                  :alt="item.iconTitle || item.tabTitle"
+                  :disabled="!item.available"
+                  size="23px"
+                  topMargin="3px"
+                />
               </button>
             </div>
           </div>
@@ -160,7 +168,7 @@ import { encryptMixin } from '@/mixins/encryptMixin';
 import { isNumber } from '@/components/util';
 import { filterGlobalSettingByBuild, supportsCloudDMBuild } from '@/utils/product';
 import formatError from '@/services/formatError';
-import { getPluginResourceUrl, setPageIcon, WEBSIDE_FAVICON } from '@/utils/pluginResource';
+import { setPageIcon, WEBSIDE_FAVICON } from '@/utils/pluginResource';
 
 export default {
   name: 'Login',
@@ -236,12 +244,6 @@ export default {
   },
   methods: {
     ...mapActions(['getUserInfo']),
-    resourceUrl(resource) {
-      if (!resource) {
-        return '';
-      }
-      return getPluginResourceUrl(resource);
-    },
     providerTitle(item) {
       if (item.available) {
         return item.iconTitle || item.tabTitle;
@@ -849,12 +851,6 @@ export default {
             opacity: 0.65;
           }
 
-          .provider-login-image {
-            width: 44px;
-            height: 44px;
-            object-fit: contain;
-          }
-
           span {
             display: inline-flex;
             align-items: center;
@@ -885,21 +881,8 @@ export default {
           cursor: pointer;
           appearance: none;
 
-          img {
-            width: 23px;
-            height: 23px;
-            object-fit: contain;
-            display: block;
-            margin: 3px auto 0;
-          }
-
           &.active {
             cursor: default;
-          }
-
-          &.unavailable img {
-            filter: grayscale(1);
-            opacity: 0.45;
           }
 
           .current-arrow {

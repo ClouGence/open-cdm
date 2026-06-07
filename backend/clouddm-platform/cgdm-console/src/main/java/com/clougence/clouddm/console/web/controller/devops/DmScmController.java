@@ -80,6 +80,7 @@ public class DmScmController {
             item.put("serviceUrl", scmDef.getServiceUrl());
             item.put("custom", String.valueOf(scmDef.isCustom()));
             item.put("helpUrl", scmDef.getHelpUrl());
+            item.put("iconResource", "webside/" + scmDef.getScmType().name() + "@scm-icon");
             services.add(item);
         }
         return ResWebDataUtils.buildSuccess(services);

@@ -79,6 +79,7 @@ public class DmImController {
             item.put("imType", scmDef.getImType().name());
             item.put("imTypeI18n", DmI18nUtils.getMessage(scmDef.getImType().getI18nKey()));
             item.put("helpUrl", scmDef.getHelpUrl());
+            item.put("iconResource", "webside/" + scmDef.getImType().name() + "@im-icon");
             services.add(item);
         }
         return ResWebDataUtils.buildSuccess(services);

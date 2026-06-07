@@ -265,17 +265,17 @@ public class WhiteListServiceForBasic implements WhiteListService, DsFeatureIDs,
 
     @Override
     public boolean checkChangeIsolation(DataSourceType dsType) {
-        return false;
+        return true;
     }
 
     @Override
     public boolean checkChangeAutoCommit(DataSourceType dsType) {
-        return false;
+        return true;
     }
 
     @Override
     public boolean checkChangeReadOnly(DataSourceType dsType) {
-        return false;
+        return true;
     }
 
     @Override

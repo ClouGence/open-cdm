@@ -33,7 +33,12 @@
             <Table :columns="scmColumns" :data="scmList" :loading="loading" :locale="{ emptyText: $t('zan-wu-shu-ju') }" size="small" border>
               <template #provider="{ row }">
                 <div class="provider-cell">
-                  <img class="provider-icon" :src="providerIconUrl(row.scmType)" :alt="row.scmTypeI18n" @error="handleProviderIconError" />
+                  <CustomIcon
+                    v-if="providerIconResource(row.scmType)"
+                    :resource="providerIconResource(row.scmType)"
+                    :alt="row.scmTypeI18n"
+                    size="20px"
+                  />
                   <span>{{ row.scmTypeI18n }}</span>
                 </div>
               </template>
@@ -64,12 +69,7 @@
             :key="item.scmType"
             @click="handleChangeScmType(item)"
           >
-            <img
-              class="provider-icon provider-icon-large"
-              :src="providerIconUrl(item.scmType)"
-              :alt="item.scmTypeI18n"
-              @error="handleProviderIconError"
-            />
+            <CustomIcon v-if="item.iconResource" :resource="item.iconResource" :alt="item.scmTypeI18n" size="24px" />
             <div>{{ item.scmTypeI18n }}</div>
           </div>
         </div>
@@ -112,7 +112,6 @@ import { mapState, mapGetters } from 'vuex';
 import copyMixin from '@/mixins/copyMixin';
 import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
 import { encryptMixin } from '@/mixins/encryptMixin';
-import { getPluginResourceUrl } from '@/utils/pluginResource';
 import { scmColumns } from './constant';
 
 const EMPTY_SCM = {
@@ -197,11 +196,8 @@ export default {
       this.getScmList();
       this.getScmTypeList();
     },
-    providerIconUrl(scmType) {
-      return getPluginResourceUrl(`webside/${scmType}@scm-icon`);
-    },
-    handleProviderIconError(event) {
-      event.target.style.display = 'none';
+    providerIconResource(scmType) {
+      return this.scmTypeList.find((item) => item.scmType === scmType)?.iconResource || '';
     },
     handleChangeScmType(item) {
       if (this.scmEdit) return;
@@ -437,19 +433,6 @@ export default {
   display: flex;
   align-items: center;
   gap: 6px;
-}
-
-.provider-icon {
-  display: block;
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-  flex: 0 0 auto;
-}
-
-.provider-icon-large {
-  width: 24px;
-  height: 24px;
 }
 
 .manage-role-modal {

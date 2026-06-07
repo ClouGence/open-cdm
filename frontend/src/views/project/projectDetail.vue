@@ -61,7 +61,15 @@
                 <div class="info-item">
                   <div>{{ $t('im-xiao-xi') + ':' || '-' }}</div>
                   <div @click="handleImEdit" :class="projectReadOnly ? '' : 'hoverStyle'" style="display: flex">
-                    <CustomIcon :type="imProviderInfo.imType === 'none' ? 'Disable' : imProviderInfo.imType" leftMargin="5px" rightMargin="5px" />
+                    <CustomIcon v-if="imProviderInfo.imType === 'none'" type="Disable" leftMargin="5px" rightMargin="5px" />
+                    <CustomIcon
+                      v-else-if="providerIconResource(imProviderInfo.imType)"
+                      :resource="providerIconResource(imProviderInfo.imType)"
+                      :alt="imProviderInfo.imTypeI18n"
+                      size="20px"
+                      leftMargin="5px"
+                      rightMargin="5px"
+                    />
                     <span v-if="imProviderInfo.imType !== 'none'" :class="`im-tag${projectReadOnly ? '-readonly' : ''} im-text-ellipsis`">
                       {{ imProviderInfo.name }}
                     </span>
@@ -386,7 +394,8 @@
             :key="im.imType"
             @click="handleImDefOne(im)"
           >
-            <CustomIcon :type="im.imType === 'none' ? 'Disable' : im.imType" />
+            <CustomIcon v-if="im.imType === 'none'" type="Disable" />
+            <CustomIcon v-else-if="im.iconResource" :resource="im.iconResource" :alt="im.imTypeI18n" size="20px" />
             <div>{{ im.imTypeI18n }}</div>
           </div>
         </div>
@@ -399,7 +408,14 @@
           :not-found-text="$t('zan-wu-shu-ju')"
         >
           <template #prefix>
-            <CustomIcon :type="imDefSelected.imType === 'none' ? 'Disable' : imDefSelected.imType" rightMargin />
+            <CustomIcon v-if="imDefSelected.imType === 'none'" type="Disable" rightMargin />
+            <CustomIcon
+              v-else-if="imDefSelected.iconResource"
+              :resource="imDefSelected.iconResource"
+              :alt="imDefSelected.imTypeI18n"
+              size="20px"
+              rightMargin="5px"
+            />
           </template>
           <Option v-for="item in imProviderList" :key="item.imId" :value="item.imId" :label="item.display" :disabled="!item.enable">
             <span>{{ item.display }}</span>
@@ -796,6 +812,7 @@ export default {
     handleCopy,
     init() {
       this.projectId = this.$route.params.id;
+      this.fetchImDefList();
       this.fetchDetail(() => {
         this.fetchDetailApply();
         this.fetchMsgInfo();
@@ -1030,6 +1047,9 @@ export default {
         await this.handleImDefOne(this.imDefSelected);
         this.imDialogDrawerShow = true;
       }
+    },
+    providerIconResource(imType) {
+      return this.imDefList.find((item) => item.imType === imType)?.iconResource || '';
     },
     async handleImDefOne(imDef = {}) {
       this.imDefSelected = imDef;

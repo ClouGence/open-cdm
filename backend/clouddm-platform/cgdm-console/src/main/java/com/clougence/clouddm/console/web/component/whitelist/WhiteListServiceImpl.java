@@ -27,7 +27,6 @@ import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
 import com.clougence.clouddm.console.web.component.whitelist.impl.WhiteListServiceForBasic;
-import com.clougence.clouddm.console.web.component.whitelist.impl.WhiteListServiceForDesktop;
 import com.clougence.clouddm.console.web.component.whitelist.impl.WhiteListServiceForFull;
 import com.clougence.clouddm.console.web.constants.DmModeFeatured;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
@@ -55,7 +54,6 @@ public class WhiteListServiceImpl implements WhiteListService, DsFeatureIDs, Uni
             this.forFeatured = new HashMap<>();
             this.forFeatured.put(DmModeFeatured.basic, this.appContext.getBean(WhiteListServiceForBasic.class));
             this.forFeatured.put(DmModeFeatured.full, this.appContext.getBean(WhiteListServiceForFull.class));
-            this.forFeatured.put(DmModeFeatured.desktop, this.appContext.getBean(WhiteListServiceForDesktop.class));
 
             for (WhiteListService service : this.forFeatured.values()) {
                 try {

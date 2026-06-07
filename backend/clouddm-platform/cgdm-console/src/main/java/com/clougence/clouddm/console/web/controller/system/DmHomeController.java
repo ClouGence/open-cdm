@@ -98,9 +98,9 @@ import lombok.extern.slf4j.Slf4j;
 public class DmHomeController {
 
     @Resource
-    private DmAuthServiceForBiz  rdpAuthServiceForBiz;
+    private DmAuthServiceForBiz  authServiceForBiz;
     @Resource
-    private DmDsService          dmDsService;
+    private DmDsService          dsService;
     @Resource
     private WhiteListService     whiteListService;
     @Resource
@@ -361,7 +361,7 @@ public class DmHomeController {
         boolean isSubAccount = !StringUtils.equalsIgnoreCase(puid, uid);
 
         ConsoleSettingsVO settings = null;
-        if (this.rdpAuthServiceForBiz.checkRoleAuth(puid, uid, SecRoleAuthLabel.DM_DS_MAINTENANCE)) {
+        if (this.authServiceForBiz.checkRoleAuth(puid, uid, SecRoleAuthLabel.DM_DS_MAINTENANCE)) {
             List<DsMenu> envAllMenus = DsMenuUtils.generationDsMenus(UiMenuDef.DEFAULT_ENV);
             List<DsMenu> envMenus = envAllMenus.stream().filter(m -> {
                 return whiteListService.checkMenuMaintenance(m.getMenuId());
@@ -375,7 +375,7 @@ public class DmHomeController {
             settings.setDsSettingDef(filterMenuBy(m -> whiteListService.checkMenuMaintenance(m.getMenuId()), isSubAccount));
         }
 
-        if (settings == null && this.rdpAuthServiceForBiz.checkRoleAuth(puid, uid, SecRoleAuthLabel.DM_OBJECT_MANAGER)) {
+        if (settings == null && this.authServiceForBiz.checkRoleAuth(puid, uid, SecRoleAuthLabel.DM_OBJECT_MANAGER)) {
             List<DsMenu> envAllMenus = DsMenuUtils.generationDsMenus(UiMenuDef.DEFAULT_ENV);
             List<DsMenu> envMenus = envAllMenus.stream().filter(m -> whiteListService.checkMenuManager(m.getMenuId())).collect(Collectors.toList());
 
@@ -413,7 +413,7 @@ public class DmHomeController {
     }
 
     private Map<DataSourceType, DsConfig> filterMenuBy(Predicate<DsMenu> predicate, boolean isSubAccount) {
-        Map<DataSourceType, DsConfig> dsConfigMap = this.dmDsService.dsConstantSettings();
+        Map<DataSourceType, DsConfig> dsConfigMap = this.dsService.dsConstantSettings();
         dsConfigMap.forEach((dsType, dsConfig) -> {
             if (dsConfig == null) {
                 return;

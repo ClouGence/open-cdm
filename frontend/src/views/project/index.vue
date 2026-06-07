@@ -260,7 +260,8 @@
                 :key="im.imType"
                 @click="handleImDefOne(im)"
               >
-                <CustomIcon :type="im.imType === 'none' ? 'Disable' : im.imType" />
+                <CustomIcon v-if="im.imType === 'none'" type="Disable" />
+                <CustomIcon v-else-if="im.iconResource" :resource="im.iconResource" :alt="im.imTypeI18n" size="20px" />
                 <div>{{ im.imTypeI18n }}</div>
               </div>
             </div>
@@ -273,7 +274,14 @@
               :not-found-text="$t('zan-wu-shu-ju')"
             >
               <template #prefix>
-                <CustomIcon :type="imDefSelected.imType === 'none' ? 'Disable' : imDefSelected.imType" rightMargin />
+                <CustomIcon v-if="imDefSelected.imType === 'none'" type="Disable" rightMargin />
+                <CustomIcon
+                  v-else-if="imDefSelected.iconResource"
+                  :resource="imDefSelected.iconResource"
+                  :alt="imDefSelected.imTypeI18n"
+                  size="20px"
+                  rightMargin="5px"
+                />
               </template>
               <Option v-for="item in imProviderList" :key="item.imId" :value="item.imId" :label="item.display" :disabled="!item.enable">
                 <span>{{ item.display }}</span>

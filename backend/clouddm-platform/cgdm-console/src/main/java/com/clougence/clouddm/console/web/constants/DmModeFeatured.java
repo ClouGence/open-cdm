@@ -21,6 +21,5 @@ package com.clougence.clouddm.console.web.constants;
  */
 public enum DmModeFeatured {
     basic,
-    full,
-    desktop
+    full
 }

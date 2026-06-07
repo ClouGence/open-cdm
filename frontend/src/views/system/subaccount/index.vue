@@ -60,8 +60,9 @@
                   <span v-else class="empty-text">{{ emptyText() }}</span>
                   <Tooltip v-if="showProviderIcon(row)" :content="row.bindType" transfer placement="top">
                     <CustomIcon
-                      v-if="providerIcon(row.bindType)"
-                      :type="providerIcon(row.bindType)"
+                      v-if="providerIconResource(row.bindType)"
+                      :resource="providerIconResource(row.bindType)"
+                      :alt="providerName(row.bindType)"
                       size="18px"
                       leftMargin="6px"
                       class="provider-icon"
@@ -164,8 +165,9 @@
           <FormItem :label="$t('lai-yuan')" class="credential-source-field">
             <div class="provider-info">
               <CustomIcon
-                v-if="isExternalAccount && providerIcon(newAccountForm.bindType)"
-                :type="providerIcon(newAccountForm.bindType)"
+                v-if="isExternalAccount && providerIconResource(newAccountForm.bindType)"
+                :resource="providerIconResource(newAccountForm.bindType)"
+                :alt="providerName(newAccountForm.bindType)"
                 size="18px"
                 class="provider-icon"
               />
@@ -402,23 +404,19 @@ export default {
     readonlyText(value) {
       return value || this.noneText();
     },
-    providerIcon(bindType) {
-      const iconMap = {
-        AD: 'icon-v2-LDAP',
-        DingTalk: 'icon-v2-DingTalk',
-        DINGTALK: 'icon-v2-DingTalk',
-        Feishu: 'icon-v2-Feishu',
-        FEISHU: 'icon-v2-Feishu',
-        Gitee: 'icon-v2-Gitee',
-        GITEE: 'icon-v2-Gitee',
-        Github: 'icon-v2-Github',
-        GITHUB: 'icon-v2-Github',
-        LDAP: 'icon-v2-LDAP',
-        OIDC: 'icon-v2-OIDC',
-        Wechat: 'icon-v2-Wechat',
-        WECHAT: 'icon-v2-Wechat'
+    providerIconResource(bindType) {
+      const providerMap = {
+        AD: 'AD',
+        DINGTALK: 'DingTalk',
+        FEISHU: 'Feishu',
+        GITEE: 'Gitee',
+        GITHUB: 'Github',
+        LDAP: 'LDAP',
+        OIDC: 'OIDC',
+        WECHAT: 'Wechat'
       };
-      return iconMap[bindType] || '';
+      const providerName = providerMap[String(bindType || '').toUpperCase()];
+      return providerName ? `webside/${providerName}@login-icon` : '';
     },
     providerName(bindType) {
       return bindType || this.emptyText();
