@@ -1,7 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import UserCenter from '@/views/system/UserCenter';
 import Preference from '@/views/system/Preference';
-import TicketTokenSetting from '@/views/system/TicketTokenSetting';
 import Ticket from '@/views/ticket';
 import System from './system';
 import store from '@/store';
@@ -35,11 +34,6 @@ const systemChildren = [
     name: '/system/preference',
     component: Preference,
     meta: { requiredAuth: 'RDP_PRI_USER_KV_CONF_R' }
-  },
-  {
-    path: '/system/ticketTokenSetting',
-    name: '/system/ticketTokenSetting',
-    component: TicketTokenSetting
   }
 ].concat(System);
 
@@ -262,16 +256,6 @@ const routes = [
         //     path: 'datasource/add',
         //     name: 'System_DataSource_Add',
         //     component: () => import(/* webpackChunkName: "system-datasource" */'@/views/system/datasource/steps/Index')
-        //   },
-        //   {
-        //     path: 'sub_account',
-        //     name: 'System_Sub_Account',
-        //     component: () => import(/* webpackChunkName: "system-subaccount" */'@/views/system/subaccount/index')
-        //   },
-        //   {
-        //     path: 'sub_account/auth/:uid',
-        //     name: 'System_Sub_Account_Auth',
-        //     component: () => import(/* webpackChunkName: "system-subaccount-auth" */'@/views/system/subaccount/auth')
         //   },
         //   {
         //     path: 'env',

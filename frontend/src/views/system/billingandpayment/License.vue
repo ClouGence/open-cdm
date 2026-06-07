@@ -471,7 +471,6 @@ export default {
           buyTimeStandardId: this.license.buyTimeStandardId,
           buyTaskCount: this.license.buyTaskCount,
           buyType: this.license.buyType,
-          companyName: this.userInfo.company,
           email: this.userInfo.email,
           phone: this.userInfo.phone,
           userName: this.userInfo.username

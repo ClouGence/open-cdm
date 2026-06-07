@@ -276,7 +276,6 @@
       </div>
     </div>
     <StToken ref="stToken" :nextStep="handleGetEcsList"></StToken>
-    <AliyunAKSK ref="aliyunAKSK"></AliyunAKSK>
   </div>
 </template>
 <script>
@@ -285,15 +284,13 @@ import _ from 'lodash';
 import Mapping from '@/views/util';
 import { mapGetters, mapState } from 'vuex';
 import StToken from '../ApplyStToken';
-import AliyunAKSK from '../ApplyAKSK';
 import { Tooltip } from 'view-ui-plus';
 
 export default {
   name: 'AddWorker',
   components: {
     Tooltip,
-    StToken,
-    AliyunAKSK
+    StToken
   },
   props: {
     clusterInfo: Object,
@@ -636,8 +633,6 @@ export default {
             this.showData = this.filteredData.slice((this.page - 1) * this.size, this.page * this.size);
           } else if (res.code === '6028') {
             this.$refs.stToken.handleShowAkSk();
-          } else if (res.code === '2011') {
-            this.$refs.aliyunAKSK.handleShowAkSk();
           }
           this.loading = false;
         })
@@ -666,8 +661,6 @@ export default {
           this.handleShowSighin(res.data);
         } else if (res.code === '6028') {
           this.$refs.stToken.handleShowAkSk();
-        } else if (res.code === '2011') {
-          this.$refs.aliyunAKSK.handleShowAkSk();
         }
       });
     },

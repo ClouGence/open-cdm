@@ -5,8 +5,9 @@
         <div class="tab-panel">
           <div class="summary-section">
             <div v-for="item in summaryItems" :key="item.key" class="summary-item">
-              <span class="summary-key">{{ item.key }}</span>
-              <span class="summary-value">{{ item.value || '(empty)' }}</span>
+              <span class="summary-key">{{ item.label }}</span>
+              <span v-if="isEmptyValue(item.value)" class="summary-value summary-value-empty">{{ $t('initialization.emptyValue') }}</span>
+              <span v-else class="summary-value">{{ item.value }}</span>
             </div>
           </div>
         </div>
@@ -49,12 +50,14 @@ export default {
     summaryItems() {
       const items = this.fieldDefs.map((field) => ({
         key: field.propertyKey,
+        label: this.resolveFieldLabel(field),
         value: this.formValues[field.propertyKey] || ''
       }));
 
       if (this.formValues['clougence.init.db.createIfMissing'] === 'true') {
         items.push({
           key: this.$t('initialization.confirmCreateDatabase'),
+          label: this.$t('initialization.confirmCreateDatabase'),
           value: this.$t('initialization.optionYes')
         });
       }
@@ -66,6 +69,7 @@ export default {
       ) {
         items.push({
           key: this.$t('initialization.confirmRebuildDatabase'),
+          label: this.$t('initialization.confirmRebuildDatabase'),
           value:
             this.formValues['clougence.init.db.rebuildIfNotEmpty'] === 'true'
               ? this.$t('initialization.optionYes')
@@ -74,6 +78,14 @@ export default {
       }
 
       return items;
+    }
+  },
+  methods: {
+    resolveFieldLabel(field) {
+      return field.label || field.description || field.propertyKey;
+    },
+    isEmptyValue(value) {
+      return value === null || value === undefined || `${value}`.trim() === '';
     }
   }
 };
@@ -138,6 +150,9 @@ export default {
   color: #262626;
   word-break: break-all;
   font-size: 13px;
+}
+.summary-value-empty {
+  color: #bfbfbf;
 }
 .summary-empty {
   color: #8c8c8c;

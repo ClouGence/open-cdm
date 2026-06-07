@@ -6,7 +6,7 @@
     <div class="header">
       <div class="left">
         <Breadcrumb v-if="isEdit">
-          <BreadcrumbItem @click="goSubAccountPage" to="/system/sub_account">
+          <BreadcrumbItem @click="goSubAccountPage" to="/system/account">
             {{ $t('zi-zhang-hao-guan-li') }}
           </BreadcrumbItem>
           <BreadcrumbItem>
@@ -171,12 +171,15 @@
               <div class="auth-tree-container-right">
                 <div class="setting" v-if="!isView || previewMode">
                   <div class="label-title">
-                    {{ $t('shou-quan-shi-jian') }}
-                    <a-button size="small" v-if="isEdit" @click="handleClearAuthTime" style="float: right">
-                      {{ $t('qing-kong') }}
-                    </a-button>
+                    {{ $t('xuan-xiang') }}
                   </div>
-                  <section>
+                  <section class="option-section">
+                    <div class="option-section-title">
+                      <span>{{ $t('shou-quan-shi-jian') }}</span>
+                      <a-button size="small" v-if="isEdit" @click="handleClearAuthTime">
+                        {{ $t('qing-kong') }}
+                      </a-button>
+                    </div>
                     <div class="content">
                       <div class="ranges" v-if="isEdit">
                         <RadioGroup v-model="curRangeKey" type="button" @on-change="handleRangeChange">
@@ -210,6 +213,19 @@
                           @change="handleEndTimeChange"
                         />
                       </div>
+                    </div>
+                  </section>
+                  <section class="option-section">
+                    <div class="option-section-title">{{ $t('quan-bu-zi-yuan-quan-xian') }}</div>
+                    <div class="all-resource-option">
+                      <span>{{ $t('quan-bu-zi-yuan-quan-xian') }}</span>
+                      <i-switch
+                        true-color="#52C41A"
+                        :disabled="resourceManageDisabled"
+                        :loading="resourceManageLoading"
+                        v-model="authTarget.resourceManage"
+                        @on-change="handleResourceManageChange"
+                      />
                     </div>
                   </section>
                 </div>
@@ -261,6 +277,28 @@
         <div class="right"></div>
       </div>
     </a-modal>
+    <CCModal :title="$t('ti-shi')" v-model="showEnableResourceModal">
+      <div>
+        {{ $t('que-ding-yao-shou-quan-quan-bu-zi-yuan-gei-selectedsubaccountusername', [authTargetName]) }}
+      </div>
+      <template #footer>
+        <Button @click="handleCloseEnableResourceModal">{{ $t('guan-bi') }}</Button>
+        <Button type="primary" :loading="resourceManageLoading" @click="handleEnableResource">
+          {{ $t('que-ding') }}
+        </Button>
+      </template>
+    </CCModal>
+    <CCModal :title="$t('ti-shi')" v-model="showDisableResourceModal">
+      <div>
+        {{ $t('que-ding-yao-qu-xiao-selectedsubaccountusername-de-quan-bu-shou-quan', [authTargetName]) }}
+      </div>
+      <template #footer>
+        <Button @click="handleCloseDisableResourceModal">{{ $t('guan-bi') }}</Button>
+        <Button type="primary" :loading="resourceManageLoading" @click="handleDisableResource">
+          {{ $t('que-ding') }}
+        </Button>
+      </template>
+    </CCModal>
   </div>
 </template>
 
@@ -281,6 +319,15 @@ export default {
   data() {
     return {
       resourceManager: false,
+      resourceManageLoading: false,
+      showEnableResourceModal: false,
+      showDisableResourceModal: false,
+      authTarget: {
+        uid: '',
+        username: '',
+        resourceManage: false,
+        disable: false
+      },
       selectedNodeKey: null,
       canCheckedChange: false,
       selectedCcCluster: '',
@@ -413,7 +460,7 @@ export default {
   },
   computed: {
     ...mapGetters(['includesDM', 'includesCC']),
-    ...mapState(['userInfo', 'globalSetting', 'dmGlobalSetting', 'productClusterList']),
+    ...mapState(['userInfo', 'globalSetting', 'dmGlobalSetting', 'productClusterList', 'myAuth']),
     getCcProductClusterList() {
       const ccList = [];
       this.productClusterList.forEach((cluster) => {
@@ -422,6 +469,12 @@ export default {
         }
       });
       return ccList;
+    },
+    authTargetName() {
+      return this.subAccount || this.authTarget.username || this.uid;
+    },
+    resourceManageDisabled() {
+      return !this.isEdit || this.previewMode || this.authTarget.disable || this.resourceManageLoading || !this.myAuth.includes('RDP_AUTH_MANAGE');
     },
     datasourceTreeSearchKey: {
       get() {
@@ -520,6 +573,7 @@ export default {
         this.isView = this.$route.query.type === 'view';
         this.uid = this.isEdit || this.isView ? this.$route.params.uid : this.userInfo.uid;
         this.subAccount = this.isEdit || this.isView ? this.$route.query.name : '';
+        await this.loadAuthTarget();
         this.activeAuthTab = 'DataSource';
         this.activeAuthType = 'datasource';
         this.lastRightTreeData = [];
@@ -559,6 +613,78 @@ export default {
         });
       } finally {
         this.pageLoading = false;
+      }
+    },
+    async loadAuthTarget() {
+      this.authTarget = {
+        uid: this.uid,
+        username: this.subAccount,
+        resourceManage: this.$route.query.resourceManage === 'true',
+        disable: false
+      };
+      if (!this.isEdit && !this.isView) {
+        return;
+      }
+      const res = await this.$services.rdpUserManagerListSubAccounts({
+        data: {
+          roleId: 0,
+          userNameOrSubAccountPrefix: ''
+        }
+      });
+      if (res.success && Array.isArray(res.data)) {
+        const target = res.data.find((item) => item.uid === this.uid);
+        if (target) {
+          this.authTarget = {
+            ...target,
+            resourceManage: !!target.resourceManage,
+            username: target.username || this.subAccount
+          };
+        }
+      }
+    },
+    handleResourceManageChange(enabled) {
+      if (enabled) {
+        this.showEnableResourceModal = true;
+      } else {
+        this.showDisableResourceModal = true;
+      }
+    },
+    async handleEnableResource() {
+      await this.updateResourceManage(true);
+      this.showEnableResourceModal = false;
+    },
+    handleCloseEnableResourceModal() {
+      this.showEnableResourceModal = false;
+      this.authTarget.resourceManage = false;
+    },
+    async handleDisableResource() {
+      await this.updateResourceManage(false);
+      this.showDisableResourceModal = false;
+    },
+    handleCloseDisableResourceModal() {
+      this.showDisableResourceModal = false;
+      this.authTarget.resourceManage = true;
+    },
+    async updateResourceManage(resourceManage) {
+      this.resourceManageLoading = true;
+      try {
+        const res = await this.$services.rdpUserManagerUpdateResourceManage({
+          data: {
+            targetUid: this.uid,
+            resourceManage
+          }
+        });
+        if (res.success) {
+          this.authTarget.resourceManage = resourceManage;
+          this.$Message.success(resourceManage ? this.$t('shou-quan-cheng-gong') : this.$t('jie-chu-shou-quan-cheng-gong'));
+        } else {
+          this.authTarget.resourceManage = !resourceManage;
+        }
+      } catch (e) {
+        this.authTarget.resourceManage = !resourceManage;
+        throw e;
+      } finally {
+        this.resourceManageLoading = false;
       }
     },
     // 对比权限树差异并标记编辑状态
@@ -1578,7 +1704,7 @@ export default {
       }
       if (value === 'DataJob') {
         this.$router.push({
-          path: `/system/sub_account/authdm/${this.uid}`,
+          path: `/system/account/authdm/${this.uid}`,
           query: {
             name: this.subAccount,
             type: this.isEdit ? 'edit' : 'view'
@@ -1921,7 +2047,7 @@ export default {
     },
     handleGoAuth() {
       this.$router.push({
-        path: `/system/sub_account/authdm/${this.uid}`,
+        path: `/system/account/authdm/${this.uid}`,
         query: {
           name: this.subAccount,
           type: 'edit'
@@ -2137,19 +2263,34 @@ export default {
                 border-bottom: 1px solid #ccc;
                 padding: 14px 16px;
               }
+              .option-section {
+                padding: 14px 16px;
+                border-bottom: 1px solid #eee;
+              }
+              .option-section-title {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 10px;
+                font-weight: 500;
+              }
+              .all-resource-option {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              }
               .time {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                margin: 10px;
               }
               .time-mid {
                 display: flex;
                 justify-content: center;
               }
               .ranges {
-                padding-top: 20px;
-                padding-bottom: 20px;
+                padding-top: 4px;
+                padding-bottom: 12px;
                 text-align: center;
                 width: 210px;
                 margin: 0 auto;

@@ -33,7 +33,7 @@ const initWebsocket = (globalSetting, loggedIn) => {
     return;
   }
 
-  if (!globalSetting?.features?.PRODUCT_CLOUD_DM) {
+  if (!supportsCloudDMBuild) {
     return;
   }
 
@@ -55,10 +55,6 @@ export default {
     }
   },
   async getUserInfo({ commit }) {
-    const publicKeyRes = await services.getPublicKey();
-    if (publicKeyRes.success) {
-      commit(UPDATE_PUBLIC_KEY, publicKeyRes.data);
-    }
     const userInfoRes = await services.rdpUserQueryLoginUser();
     if (userInfoRes.success) {
       // if (!process.env.VUE_APP_IS_SAAS || process.env.VUE_APP_IS_TEST) {
@@ -95,23 +91,21 @@ export default {
       commit(UPDATE_GLOBAL_SETTING, filteredGlobalSetting);
       initWebsocket(filteredGlobalSetting, userInfoRes.success);
 
-      const { PRODUCT_CLOUD_DM, PRODUCT_CLOUD_CANAL } = filteredGlobalSetting.features;
-
-      if (PRODUCT_CLOUD_DM && !PRODUCT_CLOUD_CANAL) {
+      if (supportsCloudDMBuild && !supportsCloudCanalBuild) {
         commit(SET_THEME, 'light');
       }
 
       let icon_url = '';
       let title = '';
-      if (PRODUCT_CLOUD_DM && !PRODUCT_CLOUD_CANAL) {
+      if (supportsCloudDMBuild && !supportsCloudCanalBuild) {
         icon_url = WEBSIDE_FAVICON;
         title = 'CloudDM';
       }
-      if (PRODUCT_CLOUD_DM && PRODUCT_CLOUD_CANAL) {
+      if (supportsCloudDMBuild && supportsCloudCanalBuild) {
         icon_url = '/rdp.ico';
         title = 'ClouGence RDP';
       }
-      if (!PRODUCT_CLOUD_DM && PRODUCT_CLOUD_CANAL) {
+      if (!supportsCloudDMBuild && supportsCloudCanalBuild) {
         icon_url = '/cc.ico';
         title = 'CloudCanal';
       }
@@ -147,6 +141,9 @@ export default {
       }
 
       commit(UPDATE_DM_GLOBAL_SETTING, dmSetting);
+      if (dmSetting.publicKey) {
+        commit(UPDATE_PUBLIC_KEY, dmSetting.publicKey);
+      }
     }
   },
   async getDeployEnvList({ commit }) {

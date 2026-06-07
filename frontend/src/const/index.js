@@ -219,7 +219,6 @@ export const ACCOUNT_TYPE = {
 
 export const LOGIN_TYPE = {
   LOGIN_PASSWORD: 'PASSWORD',
-  LOGIN_VERIFY: 'VERIFY',
   LOGIN_LDAP: 'LDAP',
   LOGIN_AD: 'AD',
   OIDC: 'OIDC',

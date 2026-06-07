@@ -981,7 +981,6 @@
       </template>
     </CCModal>
     <StToken ref="stToken" :nextStep="nextStep"></StToken>
-    <AliyunAKSK ref="aliyunAKSK"></AliyunAKSK>
     <verify-code-modal
       v-model:visible="showConfigVerify"
       :title="$t('cha-kan-pei-zhi-wen-jian-que-ren')"
@@ -1159,7 +1158,6 @@ import store from '@/store';
 import JobOnWorker from '@/components/function/JobOnWorker';
 import StToken from '@/components/function/ApplyStToken';
 import AddWorker from '@/components/function/cluster/AddWorker';
-import AliyunAKSK from '@/components/function/ApplyAKSK';
 import VerifyCodeModal from '@/components/modal/VerifyCodeModal';
 import dayjs from 'dayjs';
 import { OPERATION_STATUS, OPERATION_STATUS_I18N, SECOND_CONFIRM_EVENT_LIST, WORKER_OPERATION, WORKER_OPERATION_I18N, WORKER_STATE } from '@/const';
@@ -1175,7 +1173,6 @@ export default {
     JobOnWorker,
     StToken,
     AddWorker,
-    AliyunAKSK,
     VerifyCodeModal,
     SecondConfirmModal
   },
@@ -1332,10 +1329,6 @@ export default {
       Mapping,
       store,
       nextStep: '',
-      addWorkerForm: {
-        aliyunAk: '',
-        aliyunSk: ''
-      },
       taskColumnBatch: [
         {
           type: 'selection',
@@ -2183,8 +2176,6 @@ export default {
             } else if (res.code === '6028') {
               // this.nextStep = this.handleChangeWorkerStatus(true);
               this.$refs.stToken.handleShowAkSk();
-            } else if (res.code === '2011') {
-              this.$refs.aliyunAKSK.handleShowAkSk();
             }
           });
         }
@@ -2196,8 +2187,6 @@ export default {
           } else if (res.code === '6028') {
             // this.nextStep = this.handleChangeWorkerStatus(false);
             this.$refs.stToken.handleShowAkSk();
-          } else if (res.code === '2011') {
-            this.$refs.aliyunAKSK.handleShowAkSk();
           }
         });
       }
@@ -2302,16 +2291,12 @@ export default {
                       clearInterval(that.getProcess);
                       that.nextStep = that.showDeployProgressFunc(workerIds);
                       that.$refs.stToken.handleShowAkSk();
-                    } else if (response1.code === '2011') {
-                      that.$refs.aliyunAKSK.handleShowAkSk();
                     }
                   });
               }, 5000);
             } else if (response.code === '6028') {
               this.nextStep = this.showDeployProgressFunc(workerIds);
               this.$refs.stToken.handleShowAkSk();
-            } else if (response.code === '2011') {
-              this.$refs.aliyunAKSK.handleShowAkSk();
             }
           });
       }
@@ -2362,8 +2347,6 @@ export default {
             } else if (res.code === '6028') {
               this.nextStep = this.handleInstall;
               this.$refs.stToken.handleShowAkSk();
-            } else if (res.code === '2011') {
-              this.$refs.aliyunAKSK.handleShowAkSk();
             }
           });
       }
@@ -2391,8 +2374,6 @@ export default {
             } else if (res.code === '6028') {
               this.nextStep = this.handleConfirmUnInstall;
               this.$refs.stToken.handleShowAkSk();
-            } else if (res.code === '2011') {
-              this.$refs.aliyunAKSK.handleShowAkSk();
             }
           });
       }
@@ -2418,8 +2399,6 @@ export default {
             this.showDeployProgressFunc(workerIds);
           } else if (res.code === '6028') {
             this.$refs.stToken.handleShowAkSk();
-          } else if (res.code === '2011') {
-            this.$refs.aliyunAKSK.handleShowAkSk();
           }
         });
     },
@@ -2440,8 +2419,6 @@ export default {
         this.$services
           .ccAliyunEcsStopInstallAndClean({
             data: {
-              userAk: this.addWorkerForm.aliyunAk,
-              userSk: this.addWorkerForm.aliyunSk,
               clusterId: this.clusterId,
               workerIds,
               pageData: this.pageData,
@@ -2458,8 +2435,6 @@ export default {
               clearInterval(this.getProcess);
               this.nextStep = this.stopInstall;
               this.$refs.stToken.handleShowAkSk();
-            } else if (res.code === '2011') {
-              this.$refs.aliyunAKSK.handleShowAkSk();
             }
           });
       }
@@ -2644,8 +2619,6 @@ export default {
             clearInterval(this.getProcess);
             this.nextStep = this.showDeployProgressFunc(workerIds);
             this.$refs.stToken.handleShowAkSk();
-          } else if (res.code === '2011') {
-            this.$refs.aliyunAKSK.handleShowAkSk();
           }
         });
     },

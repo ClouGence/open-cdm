@@ -1124,7 +1124,7 @@ export default {
       }
 
       try {
-        const response = await fetch(getPluginResourceUrl(resource, { format: 'text' }), {
+        const response = await fetch(getPluginResourceUrl(resource), {
           credentials: 'include'
         });
         if (!response.ok) {

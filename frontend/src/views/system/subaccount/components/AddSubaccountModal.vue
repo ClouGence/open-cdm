@@ -4,12 +4,8 @@
       <FormItem :label="$t('xing-ming')" prop="userName">
         <Input v-model="newAccountForm.userName" />
       </FormItem>
-      <FormItem :label="$t('zi-zhang-hao')" prop="subAccount">
-        <Input v-model="newAccountForm.subAccount">
-          <template #append>
-            <div>@{{ userInfo.userDomain }}</div>
-          </template>
-        </Input>
+      <FormItem :label="$t('zi-zhang-hao')" prop="account">
+        <Input v-model="newAccountForm.account" />
       </FormItem>
       <FormItem :label="$t('deng-lu-mi-ma')" prop="password">
         <div style="display: flex; width: 100%">
@@ -47,8 +43,13 @@
 <script>
 import { mapState } from 'vuex';
 import * as Vue from 'vue';
-import RandExp from 'randexp';
 import { encryptMixin } from '@/mixins/encryptMixin';
+
+const DEFAULT_PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_UPPER = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+const PASSWORD_LOWER = 'abcdefghijkmnopqrstuvwxyz';
+const PASSWORD_DIGIT = '23456789';
+const PASSWORD_ALL = `${PASSWORD_UPPER}${PASSWORD_LOWER}${PASSWORD_DIGIT}`;
 
 export default {
   name: 'AddSubAccountModal',
@@ -89,10 +90,19 @@ export default {
     const validateSubaccountEmail = (rule, value, callback) => {
       validateSubaccount('EMAIL', value, callback, this.$t('you-xiang'));
     };
+    const validatePassword = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error(this.$t('mi-ma-bu-neng-wei-kong')));
+      } else if (!this.isPasswordValid(value)) {
+        callback(new Error(this.passwordRule.tips));
+      } else {
+        callback();
+      }
+    };
     return {
       newAccountForm: {
         userName: '',
-        subAccount: '',
+        account: '',
         password: '',
         roleId: undefined,
         phone: '',
@@ -106,7 +116,7 @@ export default {
             message: this.$t('xing-ming-bu-neng-wei-kong')
           }
         ],
-        subAccount: [
+        account: [
           {
             required: true,
             trigger: 'blur',
@@ -124,8 +134,8 @@ export default {
             message: this.$t('mi-ma-bu-neng-wei-kong')
           },
           {
-            pattern: new RegExp(this.passwordRule.expr),
-            message: this.passwordRule.tips
+            validator: validatePassword,
+            trigger: 'blur'
           }
         ],
         roleId: [
@@ -162,15 +172,28 @@ export default {
   },
   methods: {
     generateRandomPwd() {
-      let result = '';
-      const regex = new RegExp(this.passwordRule.expr);
-      const randexp = new RandExp(regex);
-      result = randexp.gen();
-
-      // Randomize the string to ensure the first three characters aren't always number, letter, special char
-      // result = result.split('').sort(() => 0.5 - Math.random()).join('');
-      this.newAccountForm.password = result;
+      const length = Math.max(this.passwordRule.minLength || DEFAULT_PASSWORD_MIN_LENGTH, this.passwordRule.strongPolicy ? 3 : 1);
+      const chars = [];
+      if (this.passwordRule.strongPolicy) {
+        chars.push(this.randomPasswordChar(PASSWORD_UPPER), this.randomPasswordChar(PASSWORD_LOWER), this.randomPasswordChar(PASSWORD_DIGIT));
+      }
+      while (chars.length < length) {
+        chars.push(this.randomPasswordChar(PASSWORD_ALL));
+      }
+      this.newAccountForm.password = chars.sort(() => Math.random() - 0.5).join('');
       this.$refs.newAccountFormRef.validateField('password');
+    },
+    randomPasswordChar(chars) {
+      return chars[Math.floor(Math.random() * chars.length)];
+    },
+    isPasswordValid(value) {
+      if (!value || value.length < (this.passwordRule.minLength || DEFAULT_PASSWORD_MIN_LENGTH)) {
+        return false;
+      }
+      if (!this.passwordRule.strongPolicy) {
+        return true;
+      }
+      return /[A-Z]/.test(value) && /[a-z]/.test(value) && /\d/.test(value);
     },
     async handleAddSubAccount() {
       this.$refs.newAccountFormRef.validate(async (valid) => {
@@ -178,7 +201,6 @@ export default {
           const res = await this.$services.rdpUserManagerAddSubAccount({
             data: {
               ...this.newAccountForm,
-              subAccount: `${this.newAccountForm.subAccount}@${this.userInfo.userDomain}`,
               password: this.passwordEncrypt(this.newAccountForm.password)
             }
           });

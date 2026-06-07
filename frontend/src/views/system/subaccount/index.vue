@@ -45,73 +45,43 @@
               border
               stripe
             >
-              <template #status="{ row }">
-                <div class="center">
-                  <cc-status :type="row.disable ? 'error' : 'success'" />
-                </div>
+              <template #accountStatus="{ row }">
+                <Tooltip :content="accountStatus(row).label" transfer placement="top">
+                  <span class="account-status-dot" :class="`is-${accountStatus(row).type}`"></span>
+                </Tooltip>
               </template>
               <template #username="{ row }">
-                <span>{{ row.username }}</span>
+                <span v-if="row.username">{{ row.username }}</span>
+                <span v-else class="empty-text">{{ emptyText() }}</span>
+              </template>
+              <template #account="{ row }">
+                <div class="account-display">
+                  <span v-if="displayAccount(row)" class="account-display-text">{{ displayAccount(row) }}</span>
+                  <span v-else class="empty-text">{{ emptyText() }}</span>
+                  <Tooltip v-if="showProviderIcon(row)" :content="row.bindType" transfer placement="top">
+                    <CustomIcon
+                      v-if="providerIcon(row.bindType)"
+                      :type="providerIcon(row.bindType)"
+                      size="18px"
+                      leftMargin="6px"
+                      class="provider-icon"
+                    />
+                    <span v-else class="provider-fallback">{{ row.bindType }}</span>
+                  </Tooltip>
+                </div>
               </template>
               <template #phone="{ row }">
-                <div class="text">{{ row.phone }}</div>
+                <div v-if="row.phone" class="text">{{ row.phone }}</div>
+                <div v-else class="empty-text">{{ emptyText() }}</div>
               </template>
               <template #mail="{ row }">
-                <div class="text">{{ row.email }}</div>
+                <div v-if="row.email" class="text">{{ row.email }}</div>
+                <div v-else class="empty-text">{{ emptyText() }}</div>
               </template>
               <template #roleName="{ row }">
                 <div class="role-name-container">
                   <div class="role-name-text">
                     {{ row.roleName }}
-                  </div>
-                  <Tag class="rule-default-tag" v-if="row.innerRole" style="margin-left: 4px">
-                    {{ $t('nei-0') }}
-                  </Tag>
-                </div>
-              </template>
-              <template #resources="{ row }">
-                <i-switch
-                  true-color="#52C41A"
-                  :disabled="row.disable || !myAuth.includes('RDP_AUTH_MANAGE')"
-                  v-model="row.resourceManage"
-                  @on-change="handleEnableResourceChange(row, $event)"
-                ></i-switch>
-              </template>
-              <template #subAccount="{ row }">
-                <div class="py-4">
-                  <div class="flex items-center">
-                    <cc-status class="mr-2" :type="row.disable ? 'error' : 'success'" />
-                    <div>
-                      <div class="copy-account">
-                        <Tooltip :content="$t('dian-ji-fu-zhi-zi-zhang-hao')" transfer placement="top">
-                          <span
-                            class="text font-semibold text-base w-max max-w-[160px] truncate"
-                            @click="copyText(`${row.bindType == 'INTERNAL' ? row.subAccount : row.bindAccount}`, $t('fu-zhi-zhang-hao-cheng-gong'))"
-                          >
-                            {{ row.bindAccount }}
-                          </span>
-                        </Tooltip>
-                        <Tooltip :content="$t('mfa-yi-kai-qi')" transfer placement="top" v-if="row.useMfa">
-                          <Tag style="margin-left: 4px" color="primary" class="use-mfa">MFA</Tag>
-                        </Tooltip>
-                        <!--                        <Tooltip :content="$t('mfa-yi-guan-bi')" transfer placement="top" v-if="!row.useMfa">-->
-                        <!--                          <Tag style="margin-left: 4px" color="default" class="unuse-mfa">MFA</Tag>-->
-                        <!--                        </Tooltip>-->
-                        <Tag v-if="row.bindType !== 'INTERNAL' && row.bindType" style="margin-left: 4px" color="primary" class="use-mfa">
-                          {{ row.bindType }}
-                        </Tag>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="uid mt-2">
-                    <span class="opacity-60">{{ $t('yong-hu-uid-0') }}{{ row.uid }}</span>
-                    <cc-iconfont
-                      :size="12"
-                      name="copy"
-                      class="copy"
-                      @click.native="copyText(`${row.uid}`, $t('fu-zhi-uid-cheng-gong'))"
-                      style="margin-left: 3px"
-                    />
                   </div>
                 </div>
               </template>
@@ -122,19 +92,14 @@
                 <div class="action">
                   <a
                     v-if="myAuth.includes('RDP_AUTH_READ')"
-                    :style="{ color: row.disable || row.resourceManage ? '#ccc' : '' }"
-                    @click="!(row.disable || row.resourceManage) && goAuthPage('edit', row)"
+                    :style="{ color: row.disable ? '#ccc' : '' }"
+                    @click="!row.disable && goAuthPage('edit', row)"
                     type="primary"
                   >
                     {{ $t('shou-quan') }}
                   </a>
-                  <a
-                    v-if="myAuth.includes('RDP_USER_MANAGE')"
-                    :style="{ color: row.disable || row.resourceManage ? '#ccc' : '' }"
-                    type="primary"
-                    @click="handleTriggerStopAccount(row)"
-                  >
-                    {{ row.disable ? $t('qi-yong') : $t('ting-yong') }}
+                  <a v-if="myAuth.includes('RDP_USER_MANAGE')" @click="handleShowModifyAccount(row)">
+                    {{ $t('xiu-gai') }}
                   </a>
                   <Poptip
                     v-if="!forbidDelSubAccount && myAuth.includes('RDP_USER_MANAGE')"
@@ -143,59 +108,8 @@
                     confirm
                     @on-ok="handleDeleteSubAccount(row)"
                   >
-                    <a type="primary">{{ $t('shan-chu') }}</a>
+                    <a type="primary" @click.stop>{{ $t('shan-chu') }}</a>
                   </Poptip>
-                  <Dropdown transfer v-if="myAuth.includes('RDP_USER_MANAGE') || myAuth.includes('RDP_AUTH_READ')">
-                    <a href="javascript:void(0)">
-                      {{ $t('geng-duo') }}
-                      <Icon type="ios-arrow-down"></Icon>
-                    </a>
-                    <template #list>
-                      <DropdownMenu>
-                        <!-- 仅保留资源授权入口 -->
-                        <!-- <DropdownItem v-if="myAuth.includes('RDP_AUTH_READ')">
-                          <a @click="goAuthPage('view', row)">
-                            {{ $t('yi-shou-quan-xian') }}
-                          </a>
-                        </DropdownItem> -->
-                        <DropdownItem v-if="myAuth.includes('RDP_USER_MANAGE')" @click="handleShowModifyAccount(row)">
-                          <a v-if="row.bindType === 'INTERNAL'">
-                            {{ $t('xiu-gai-zhang-hao') }}
-                          </a>
-                          <Tooltip
-                            :content="$t('bu-zhi-chi-ldap-yu-zhang-hao-he-mi-ma-de-xiu-gai-qing-lian-xi-ldap-yu-guan-li-yuan')"
-                            v-else
-                            transfer
-                            placement="left"
-                          >
-                            <a style="color: #ccc">
-                              {{ $t('xiu-gai-zhang-hao') }}
-                            </a>
-                          </Tooltip>
-                        </DropdownItem>
-                        <DropdownItem v-if="myAuth.includes('RDP_USER_MANAGE')">
-                          <a v-if="row.bindType === 'INTERNAL'" @click="handleShowEditPasswordModal(row)">
-                            {{ $t('chong-zhi-mi-ma') }}
-                          </a>
-                          <Tooltip
-                            :content="$t('bu-zhi-chi-ldap-yu-zhang-hao-he-mi-ma-de-xiu-gai-qing-lian-xi-ldap-yu-guan-li-yuan')"
-                            v-else
-                            transfer
-                            placement="left"
-                          >
-                            <a :disabled="row.bindType !== 'INTERNAL'" @click="handleShowEditPasswordModal(row)">
-                              {{ $t('chong-zhi-mi-ma') }}
-                            </a>
-                          </Tooltip>
-                        </DropdownItem>
-                        <DropdownItem v-if="myAuth.includes('RDP_USER_MANAGE')">
-                          <a :style="{ color: row.disable ? '#ccc' : '' }" @click="!row.disable && handleClickChangeRoleModal(row)">
-                            {{ $t('xiu-gai-jiao-se') }}
-                          </a>
-                        </DropdownItem>
-                      </DropdownMenu>
-                    </template>
-                  </Dropdown>
                 </div>
               </template>
             </Table>
@@ -215,112 +129,72 @@
         />
       </div>
     </div>
-    <CCModal v-model="showAddNewSubAccountModal" :mask-closable="false" :width="646" :title="$t('chuang-jian-zi-zhang-hao')">
-      <Form ref="newAccountFormRef" :model="newAccountForm" :rules="newAccountRules" v-if="showAddNewSubAccountModal" :label-width="100">
-        <FormItem :label="$t('xing-ming')" prop="userName">
-          <Input v-model="newAccountForm.userName" />
-        </FormItem>
-        <FormItem :label="$t('zi-zhang-hao')" prop="subAccount">
-          <Input v-model="newAccountForm.subAccount">
-            <template #append>@{{ userInfo && userInfo.userDomain ? userInfo.userDomain : '' }}</template>
-          </Input>
-        </FormItem>
-        <FormItem :label="$t('deng-lu-mi-ma')" prop="password">
-          <div style="display: flex; width: 100%">
-            <Input v-model="newAccountForm.password" :placeholder="passwordRule.tips" />
-            <Button style="margin-left: 10px" @click="generateRandomPwd" type="primary" ghost>
-              {{ $t('zi-dong-sheng-cheng') }}
-            </Button>
-          </div>
-        </FormItem>
-        <FormItem :label="$t('jiao-se')" prop="roleId">
-          <div style="display: flex; width: 100%">
-            <Select v-model="newAccountForm.roleId" :placeholder="$t('qing-xuan-ze')" style="margin-right: 10px">
+    <CCModal v-model="accountFormVisible" :mask-closable="false" :width="680" :title="accountFormTitle" @on-cancel="handleCloseModal">
+      <Form
+        ref="newAccountFormRef"
+        class="account-form"
+        :model="newAccountForm"
+        :rules="newAccountRules"
+        v-if="accountFormVisible"
+        :label-width="100"
+      >
+        <div class="form-section-title">{{ $t('ping-zheng') }}</div>
+        <div class="credential-account-row">
+          <FormItem
+            :label="isExternalAccount ? $t('bang-ding-zhang-hao') : $t('deng-lu-zhang-hao')"
+            :prop="isExternalAccount ? '' : 'account'"
+            :required="isExternalAccount"
+            class="credential-account-field"
+          >
+            <div class="form-field-with-success">
+              <Input
+                v-if="!isExternalAccount"
+                v-model="newAccountForm.account"
+                @input="clearDuplicateCheck('account')"
+                @on-blur="handleDuplicateBlur('account')"
+              />
+              <Input v-else v-model="newAccountForm.bindAccount" :placeholder="noneText()" disabled />
+              <span class="field-success" v-if="!isExternalAccount && duplicateValid.account"></span>
+            </div>
+          </FormItem>
+          <FormItem :label="$t('jiao-se')" prop="roleId" class="credential-role-field" :label-width="52">
+            <Select v-model="newAccountForm.roleId" :placeholder="$t('qing-xuan-ze')">
               <Option v-for="role in roleList" :key="role.value" :value="role.value" :label="role.name">
                 <div class="role-name-container">
                   <div class="role-name-text">
                     {{ role.name }}
                   </div>
-                  <Tag class="rule-default-tag" color="default" v-if="role.innerTag" style="margin-left: 4px">
-                    {{ $t('nei-0') }}
-                  </Tag>
                 </div>
               </Option>
             </Select>
-            <Button type="text" to="/system/role">{{ $t('chuang-jian-jiao-se') }}</Button>
-          </div>
-        </FormItem>
-        <h4 class="mb-4">{{ $t('tong-zhi-jie-shou-she-zhi') }}</h4>
-        <FormItem :label="$t('shou-ji-hao')" prop="phone">
-          <Input v-model="newAccountForm.phone" />
-        </FormItem>
-        <FormItem :label="$t('you-xiang')" prop="email">
-          <Input v-model="newAccountForm.email" />
-        </FormItem>
-      </Form>
-      <template #footer>
-        <Button @click="handleCloseModal">{{ $t('qu-xiao') }}</Button>
-        <Button type="primary" :loading="loading" @click="handleAddSubAccount">
-          {{ $t('chuang-jian') }}
-        </Button>
-      </template>
-    </CCModal>
-    <CCModal v-model="showChangeRoleModal" :width="320" :title="$t('xiu-gai-jiao-se')" @on-cancel="handleCloseModal">
-      <Select v-model="newAccountForm.roleId" style="width: 276px">
-        <Option v-for="role in roleList" :label="role.name" :key="role.value" :value="role.value">
-          <div class="role-name-container">
-            <div class="role-name-text">
-              {{ role.name }}
+          </FormItem>
+        </div>
+        <div class="credential-source-row">
+          <FormItem :label="$t('lai-yuan')" class="credential-source-field">
+            <div class="provider-info">
+              <CustomIcon
+                v-if="isExternalAccount && providerIcon(newAccountForm.bindType)"
+                :type="providerIcon(newAccountForm.bindType)"
+                size="18px"
+                class="provider-icon"
+              />
+              <span>{{ isExternalAccount ? providerName(newAccountForm.bindType) : $t('ben-di-zhang-hao') }}</span>
             </div>
-            <Tag class="rule-default-tag" color="default" v-if="role.innerTag" style="margin-left: 4px">
-              {{ $t('nei-0') }}
-            </Tag>
+          </FormItem>
+          <FormItem :label="$t('yun-xu-shi-yong-ben-di-zhang-hao-deng-lu')" class="credential-allow-local-field" :label-width="190">
+            <i-switch v-model="newAccountForm.allowLocal" :disabled="!isExternalAccount" true-color="#52C41A" />
+          </FormItem>
+        </div>
+        <FormItem v-if="isExternalAccount && showLocalCredential" :label="$t('ben-di-zhang-hao')" prop="account">
+          <div class="form-field-with-success">
+            <Input v-model="newAccountForm.account" @input="clearDuplicateCheck('account')" @on-blur="handleDuplicateBlur('account')" />
+            <span class="field-success" v-if="duplicateValid.account"></span>
           </div>
-        </Option>
-      </Select>
-      <template #footer>
-        <Button @click="handleCloseModal">{{ $t('qu-xiao') }}</Button>
-        <Button type="primary" :loading="loading" @click="handleChangeUserRole">
-          {{ $t('que-ding') }}
-        </Button>
-      </template>
-    </CCModal>
-    <CCModal v-model="showModifySubAccount" :width="560" :title="$t('xiu-gai-zhang-hao')" @on-cancel="handleCloseModal">
-      <Form :model="newAccountForm" :label-width="100">
-        <FormItem :label="$t('xing-ming')" prop="userName">
-          <Input v-model="newAccountForm.userName" />
         </FormItem>
-        <FormItem :label="$t('zi-zhang-hao')" prop="subAccount">
-          <Input v-model="newAccountForm.accountName">
-            <template #append>@{{ newAccountForm.userDomain }}</template>
-          </Input>
-        </FormItem>
-      </Form>
-      <template #footer>
-        <Button @click="handleCloseModal">{{ $t('qu-xiao') }}</Button>
-        <Button type="primary" :disabled="!isEdited" :loading="loading" @click="handleModifySubAccount">
-          {{ $t('que-ding') }}
-        </Button>
-      </template>
-    </CCModal>
-    <CCModal v-model="showEditPasswordModal" :title="$t('chong-zhi-de-mi-ma', [newAccountForm.username])" width="640px" :mask-closable="false">
-      <div style="margin-bottom: 10px" v-if="editPasswordErrMsg">
-        <Alert type="error">{{ editPasswordErrMsg }}</Alert>
-      </div>
-      <Form :label-width="160" ref="passwordConfirmForm">
-        <FormItem :label="$t('cao-zuo-ren-mi-ma')">
-          <Input type="password" password v-model="opUserPassword" :placeholder="$t('xu-yan-zheng-cao-zuo-ren-shen-fen')"></Input>
-        </FormItem>
-        <FormItem :label="$t('xin-mi-ma')">
+        <FormItem v-if="showLocalCredential" :label="$t('deng-lu-mi-ma')" prop="password">
           <Poptip trigger="focus" placement="right-start" transfer style="width: 100%">
-            <div style="display: flex">
-              <Input
-                v-model="newPassword"
-                type="password"
-                password
-                style="width: 298px"
-                :placeholder="$t('qing-shu-ru-zi-zhang-hao-de-xin-mi-ma')"
-              ></Input>
+            <div style="display: flex; width: 100%">
+              <Input v-model="newAccountForm.password" type="password" password :placeholder="passwordRule.tips" />
               <Button style="margin-left: 10px" @click="generateRandomPwd" type="primary" ghost>
                 {{ $t('zi-dong-sheng-cheng') }}
               </Button>
@@ -330,33 +204,51 @@
             </template>
           </Poptip>
         </FormItem>
+        <FormItem v-if="showLocalCredential" :label="$t('que-ren-mi-ma')" prop="confirmPassword">
+          <Input v-model="newAccountForm.confirmPassword" type="password" password />
+        </FormItem>
+
+        <div class="form-section-title">{{ $t('yong-hu-xin-xi') }}</div>
+        <FormItem :label="$t('yong-hu-ming')" prop="userName">
+          <Input v-model="newAccountForm.userName" />
+        </FormItem>
+        <FormItem :label="$t('shou-ji')" prop="phone">
+          <div class="form-field-with-success">
+            <Input v-model="newAccountForm.phone" @input="clearDuplicateCheck('phone')" @on-blur="handleDuplicateBlur('phone')" />
+            <span class="field-success" v-if="duplicateValid.phone"></span>
+          </div>
+        </FormItem>
+        <FormItem :label="$t('you-xiang')" prop="email">
+          <div class="form-field-with-success">
+            <Input v-model="newAccountForm.email" @input="clearDuplicateCheck('email')" @on-blur="handleDuplicateBlur('email')" />
+            <span class="field-success" v-if="duplicateValid.email"></span>
+          </div>
+        </FormItem>
+
+        <div class="form-section-title">{{ $t('zhuang-tai') }}</div>
+        <FormItem :label="$t('qi-yong-jin-yong')">
+          <i-switch v-model="newAccountForm.enabled" true-color="#52C41A" />
+        </FormItem>
+        <FormItem :label="$t('suo-ding-deng-lu')">
+          <span class="lock-state-text">{{ newAccountForm.loginLocked ? $t('yi-suo-ding') : $t('wei-suo-ding') }}</span>
+        </FormItem>
+        <FormItem :label="$t('shang-ci-deng-lu-shi-jian')">
+          <span class="readonly-status-text">{{ readonlyText(newAccountForm.lastLoginTime) }}</span>
+        </FormItem>
+        <FormItem :label="$t('duo-yin-zi-ren-zheng')">
+          <span class="readonly-status-text">{{ newAccountForm.useMfa ? $t('yi-qi-yong') : $t('wei-qi-yong') }}</span>
+        </FormItem>
+        <FormItem v-if="newAccountForm.loginLocked" :label="$t('suo-ding-shi-jian')">
+          <div class="lock-time-row">
+            <span class="readonly-status-text">{{ readonlyText(newAccountForm.lockedAt) }}</span>
+            <Button style="margin-left: 10px" type="primary" ghost @click="unlockAccount">{{ $t('jie-suo') }}</Button>
+          </div>
+        </FormItem>
       </Form>
       <template #footer>
-        <Button @click="handleCloseModal">{{ $t('guan-bi') }}</Button>
-        <Button type="primary" :loading="loading" @click="handleConfirmEditPassword">
-          {{ $t('que-ding') }}
-        </Button>
-      </template>
-    </CCModal>
-    <CCModal :title="$t('ti-shi')" v-model="showEnableResourceModal">
-      <div>
-        {{ $t('que-ding-yao-shou-quan-quan-bu-zi-yuan-gei-selectedsubaccountusername', [selectedSubaccount.username]) }}
-      </div>
-      <template #footer>
-        <Button @click="handleCloseEnableResourceModal">{{ $t('guan-bi') }}</Button>
-        <Button type="primary" :loading="loading" @click="handleEnableResource">
-          {{ $t('que-ding') }}
-        </Button>
-      </template>
-    </CCModal>
-    <CCModal :title="$t('ti-shi')" v-model="showDisableResourceModal">
-      <div>
-        {{ $t('que-ding-yao-qu-xiao-selectedsubaccountusername-de-quan-bu-shou-quan', [selectedSubaccount.username]) }}
-      </div>
-      <template #footer>
-        <Button @click="handleCloseDisableResourceModal">{{ $t('guan-bi') }}</Button>
-        <Button type="primary" :loading="loading" @click="handleDisableResource">
-          {{ $t('que-ding') }}
+        <Button @click="handleCloseModal">{{ $t('qu-xiao') }}</Button>
+        <Button type="primary" :loading="loading" @click="handleSubmitAccountForm">
+          {{ accountFormMode === 'create' ? $t('chuang-jian') : $t('que-ding') }}
         </Button>
       </template>
     </CCModal>
@@ -369,16 +261,31 @@ import { generateData } from '@/utils';
 import copyMixin from '@/mixins/copyMixin';
 import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
 import { encryptMixin } from '@/mixins/encryptMixin';
-import RandExp from 'randexp';
 import deepClone from 'lodash.clonedeep';
+
+const PASSWORD_PLACEHOLDER = '******';
+const DEFAULT_PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_UPPER = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+const PASSWORD_LOWER = 'abcdefghijkmnopqrstuvwxyz';
+const PASSWORD_DIGIT = '23456789';
+const PASSWORD_ALL = `${PASSWORD_UPPER}${PASSWORD_LOWER}${PASSWORD_DIGIT}`;
 
 const EMPTY_SUB_ACCOUNT = {
   userName: '',
-  subAccount: '',
+  account: '',
   password: '',
+  confirmPassword: '',
   roleId: undefined,
   phone: '',
-  email: ''
+  email: '',
+  enabled: true,
+  loginLocked: false,
+  lockedAt: '',
+  lastLoginTime: '',
+  useMfa: false,
+  bindType: 'INTERNAL',
+  bindAccount: '',
+  allowLocal: true
 };
 
 // 数据和方法带2的都是数据库管理权限相关
@@ -388,26 +295,22 @@ export default {
   computed: {
     ...mapState(['userInfo', 'globalSetting', 'myCatLog', 'myAuth']),
     ...mapGetters(['includesDM']),
-    isEdited() {
-      // 如果有空值，视为未编辑
-      if (!this.newAccountForm.userName || !this.newAccountForm.accountName) {
-        return false;
-      }
-      return this.originAccount.userName !== this.newAccountForm.userName || this.originAccount.accountName !== this.newAccountForm.accountName;
+    accountFormTitle() {
+      return this.accountFormMode === 'create' ? this.$t('chuang-jian-zi-zhang-hao') : this.$t('xiu-gai');
+    },
+    isExternalAccount() {
+      return this.accountFormMode === 'edit' && this.newAccountForm.bindType && this.newAccountForm.bindType !== 'INTERNAL';
+    },
+    showLocalCredential() {
+      return !this.isExternalAccount || this.newAccountForm.allowLocal;
     }
   },
   data() {
     return {
       showAddBtn: false,
-      originAccount: {
-        userName: '',
-        accountName: ''
-      },
-      showEnableResourceModal: false,
-      showDisableResourceModal: false,
+      originAccount: {},
       newAccountForm: {
         userName: '',
-        accountName: '',
         ...deepClone(EMPTY_SUB_ACCOUNT)
       },
       newAccountRules: {},
@@ -416,61 +319,51 @@ export default {
         userNameOrSubAccountPrefix: ''
       },
       subAccountColumns: [
-        // {
-        //   title: ' ',
-        //   slot: 'status',
-        //   width: 45
-        // },
         {
-          title: this.$t('xing-ming'),
+          title: this.$t('zhuang-tai'),
+          slot: 'accountStatus',
+          width: 70
+        },
+        {
+          title: this.$t('yong-hu-ming'),
           slot: 'username',
           width: 150
         },
         {
           title: this.$t('zhang-hao'),
-          slot: 'subAccount',
-          minWidth: 320
+          slot: 'account',
+          width: 260
         },
         {
-          title: this.$t('shou-ji-hao'),
+          title: this.$t('shou-ji'),
           slot: 'phone',
-          minWidth: 150
+          width: 150
         },
         {
           title: this.$t('you-xiang'),
           slot: 'mail',
-          minWidth: 200
+          width: 260
         },
         {
           title: this.$t('jiao-se'),
           slot: 'roleName',
-          minWidth: 200
-        },
-        {
-          title: this.$t('quan-bu-zi-yuan-quan-xian'),
-          slot: 'resources',
-          width: 115
+          minWidth: 120
         },
         {
           title: this.$t('shang-ci-deng-lu-shi-jian'),
           slot: 'lastTryLoginTime',
-          width: 180
+          width: 170
         },
         {
           title: this.$t('cao-zuo'),
           slot: 'action',
           fixed: 'right',
-          width: 330
+          width: 210
         }
       ],
       subAccountListLoading: false,
-      showEditPasswordModal: false,
-      opUserPassword: '',
-      newPassword: '',
-      editPasswordErrMsg: '',
-      showChangeRoleModal: false,
-      showModifySubAccount: false,
-      showAddNewSubAccountModal: false,
+      accountFormVisible: false,
+      accountFormMode: 'create',
       showManageRoleModal: false,
       selectedSubaccount: {
         name: '',
@@ -487,8 +380,14 @@ export default {
       roleList: [],
       forbidDelSubAccount: false,
       passwordRule: {
-        expr: '',
+        strongPolicy: false,
+        minLength: DEFAULT_PASSWORD_MIN_LENGTH,
         tips: ''
+      },
+      duplicateValid: {
+        account: false,
+        phone: false,
+        email: false
       },
       loading: false
     };
@@ -497,6 +396,54 @@ export default {
     await this.getConfigValueList();
   },
   methods: {
+    accountStatus(row) {
+      if (row.disable) {
+        return { label: this.$t('jin-yong'), type: 'disabled' };
+      }
+      if (row.loginLocked) {
+        return { label: this.$t('yi-suo-ding'), type: 'locked' };
+      }
+      return { label: this.$t('zheng-chang'), type: 'normal' };
+    },
+    displayAccount(row) {
+      if (this.showProviderIcon(row)) {
+        return row.bindAccount || row.account || '';
+      }
+      return row.account || '';
+    },
+    emptyText() {
+      return '(空)';
+    },
+    noneText() {
+      return '(无)';
+    },
+    readonlyText(value) {
+      return value || this.noneText();
+    },
+    providerIcon(bindType) {
+      const iconMap = {
+        AD: 'icon-v2-LDAP',
+        DingTalk: 'icon-v2-DingTalk',
+        DINGTALK: 'icon-v2-DingTalk',
+        Feishu: 'icon-v2-Feishu',
+        FEISHU: 'icon-v2-Feishu',
+        Gitee: 'icon-v2-Gitee',
+        GITEE: 'icon-v2-Gitee',
+        Github: 'icon-v2-Github',
+        GITHUB: 'icon-v2-Github',
+        LDAP: 'icon-v2-LDAP',
+        OIDC: 'icon-v2-OIDC',
+        Wechat: 'icon-v2-Wechat',
+        WECHAT: 'icon-v2-Wechat'
+      };
+      return iconMap[bindType] || '';
+    },
+    providerName(bindType) {
+      return bindType || this.emptyText();
+    },
+    showProviderIcon(row) {
+      return row.bindType && row.bindType !== 'INTERNAL';
+    },
     async getConfigValueList() {
       const res = await this.$services.rdpUserConfigGetUserSpecifiedConfs({
         data: {
@@ -516,121 +463,88 @@ export default {
         this.getSubAccountList();
       }
     },
-    async handleEnableResource() {
-      const res = await this.$services.rdpUserManagerUpdateResourceManage({
-        data: {
-          targetUid: this.selectedSubaccount.uid,
-          resourceManage: true
-        }
-      });
-
-      if (res.success) {
-        this.showEnableResourceModal = false;
-        this.$Message.success(this.$t('shou-quan-cheng-gong'));
-      }
-      this.getSubAccountList();
-    },
-    handleCloseEnableResourceModal() {
-      this.showEnableResourceModal = false;
-      this.selectedSubaccount.resourceManage = false;
-    },
-    async handleDisableResource() {
-      const res = await this.$services.rdpUserManagerUpdateResourceManage({
-        data: {
-          targetUid: this.selectedSubaccount.uid,
-          resourceManage: false
-        }
-      });
-
-      if (res.success) {
-        this.showDisableResourceModal = false;
-        this.$Message.success(this.$t('jie-chu-shou-quan-cheng-gong'));
-        this.getSubAccountList();
+    clearDuplicateCheck(field) {
+      if (this.duplicateValid[field] !== undefined) {
+        this.duplicateValid[field] = false;
       }
     },
-    async handleCloseDisableResourceModal() {
-      this.showDisableResourceModal = false;
-      this.selectedSubaccount.resourceManage = true;
-    },
-    async handleEnableResourceChange(subAccount, e) {
-      this.selectedSubaccount = subAccount;
-      if (e) {
-        this.showEnableResourceModal = true;
-      } else {
-        this.showDisableResourceModal = true;
-      }
-    },
-    async handleModifySubAccount() {
-      this.loading = true;
-      const { uid, userDomain } = this.newAccountForm;
-      const data = { targetUid: uid };
-      // 只传递被修改的字段
-      if (this.originAccount.userName !== this.newAccountForm.userName) {
-        data.userName = this.newAccountForm.userName;
-      }
-      if (this.originAccount.accountName !== this.newAccountForm.accountName) {
-        data.subAccount = `${this.newAccountForm.accountName}@${userDomain}`;
-      }
-
-      const res = await this.$services.rdpUserManagerUpdateSubAccount({
-        data
-      });
-
-      if (res.success) {
-        this.$Message.success(this.$t('xiu-gai-zhang-hao-cheng-gong'));
-        await this.getSubAccountList();
-        this.handleCloseModal();
-      }
-      this.loading = false;
-    },
-    async handleChangeUserRole() {
-      this.loading = true;
-      const { parentId, uid, roleId } = this.newAccountForm;
-      const data = {
-        parentId,
-        subAccountUid: uid,
-        roleId
+    resetDuplicateValid() {
+      this.duplicateValid = {
+        account: false,
+        phone: false,
+        email: false
       };
-
-      const res = await this.$services.rdpUserManagerUpdateUserRole({
-        data
-      });
-
-      if (res.success) {
-        this.$Message.success(this.$t('geng-xin-jiao-se-cheng-gong'));
-        await this.getSubAccountList();
-        this.handleCloseModal();
-      }
-      this.loading = false;
     },
-    generateRandomPwd() {
-      const regex = new RegExp(this.passwordRule.expr);
-      const randexp = new RandExp(regex);
-      const password = randexp.gen();
-      if (regex.test(password)) {
-        this.newAccountForm.password = password;
-        this.newPassword = password;
-        if (this.$refs.newAccountFormRef && this.showAddNewSubAccountModal) {
-          this.$refs.newAccountFormRef.validateField('password');
+    handleDuplicateBlur(field) {
+      if (this.$refs.newAccountFormRef) {
+        this.$refs.newAccountFormRef.validateField(field);
+      }
+    },
+    unlockAccount() {
+      this.newAccountForm.loginLocked = false;
+      this.newAccountForm.lockedAt = '';
+    },
+    buildAccountPayload() {
+      return {
+        userName: this.newAccountForm.userName,
+        account: this.newAccountForm.account,
+        password: this.isExternalAccount ? '' : this.passwordEncrypt(this.newAccountForm.password),
+        roleId: this.newAccountForm.roleId,
+        phone: this.newAccountForm.phone,
+        email: this.newAccountForm.email,
+        disable: !this.newAccountForm.enabled,
+        loginLocked: this.newAccountForm.loginLocked,
+        allowLocal: true
+      };
+    },
+    buildUpdateAccountPayload() {
+      const payload = {
+        targetUid: this.newAccountForm.uid
+      };
+      const changed = (field, value) => {
+        if (this.originAccount[field] !== value) {
+          payload[field] = value;
         }
-      } else {
-        this.generateRandomPwd();
+      };
+      changed('userName', this.newAccountForm.userName);
+      changed('roleId', this.newAccountForm.roleId);
+      changed('phone', this.newAccountForm.phone);
+      changed('email', this.newAccountForm.email);
+      if (this.originAccount.disable !== !this.newAccountForm.enabled) {
+        payload.disable = !this.newAccountForm.enabled;
       }
+      if (this.originAccount.loginLocked !== this.newAccountForm.loginLocked) {
+        payload.loginLocked = this.newAccountForm.loginLocked;
+      }
+      if (this.isExternalAccount && this.originAccount.allowLocal !== this.newAccountForm.allowLocal) {
+        payload.allowLocal = this.newAccountForm.allowLocal;
+      }
+      if (this.showLocalCredential && this.originAccount.account !== this.newAccountForm.account) {
+        payload.account = this.newAccountForm.account;
+      }
+      if (this.showLocalCredential && this.newAccountForm.password !== PASSWORD_PLACEHOLDER) {
+        payload.password = this.passwordEncrypt(this.newAccountForm.password);
+      }
+      return payload;
     },
-    async handleAddSubAccount() {
+    async handleSubmitAccountForm() {
       this.loading = true;
       this.$refs.newAccountFormRef.validate(async (valid) => {
         if (valid) {
-          const res = await this.$services.rdpUserManagerAddSubAccount({
-            data: {
-              ...this.newAccountForm,
-              subAccount: `${this.newAccountForm.subAccount}@${this.userInfo && this.userInfo.userDomain ? this.userInfo.userDomain : ''}`,
-              password: this.passwordEncrypt(this.newAccountForm.password)
-            }
-          });
-
+          const payload = this.buildAccountPayload();
+          const request =
+            this.accountFormMode === 'create'
+              ? this.$services.rdpUserManagerAddSubAccount({
+                  data: payload
+                })
+              : this.$services.rdpUserManagerUpdateSubAccount({
+                  data: this.buildUpdateAccountPayload()
+                });
+          const res = await request;
           if (res.success) {
-            this.$Message.success(this.$t('chuang-jian-zi-zhang-hao-cheng-gong'));
+            this.$Message.success(
+              this.accountFormMode === 'create' ? this.$t('chuang-jian-zi-zhang-hao-cheng-gong') : this.$t('xiu-gai-zhang-hao-cheng-gong')
+            );
             await this.getSubAccountList();
             this.handleCloseModal();
           }
@@ -638,18 +552,48 @@ export default {
         this.loading = false;
       });
     },
+    generateRandomPwd() {
+      const length = Math.max(this.passwordRule.minLength || DEFAULT_PASSWORD_MIN_LENGTH, this.passwordRule.strongPolicy ? 3 : 1);
+      const chars = [];
+      if (this.passwordRule.strongPolicy) {
+        chars.push(this.randomPasswordChar(PASSWORD_UPPER), this.randomPasswordChar(PASSWORD_LOWER), this.randomPasswordChar(PASSWORD_DIGIT));
+      }
+      while (chars.length < length) {
+        chars.push(this.randomPasswordChar(PASSWORD_ALL));
+      }
+      const password = chars.sort(() => Math.random() - 0.5).join('');
+      this.newAccountForm.password = password;
+      this.newAccountForm.confirmPassword = password;
+      if (this.$refs.newAccountFormRef && this.accountFormVisible) {
+        this.$refs.newAccountFormRef.validateField('password');
+        this.$refs.newAccountFormRef.validateField('confirmPassword');
+      }
+    },
+    randomPasswordChar(chars) {
+      return chars[Math.floor(Math.random() * chars.length)];
+    },
+    isPasswordValid(value) {
+      if (!value || value.length < (this.passwordRule.minLength || DEFAULT_PASSWORD_MIN_LENGTH)) {
+        return false;
+      }
+      if (!this.passwordRule.strongPolicy) {
+        return true;
+      }
+      return /[A-Z]/.test(value) && /[a-z]/.test(value) && /\d/.test(value);
+    },
     goAuthPage(type, record) {
       this.$router.push({
-        path: `/system/sub_account/authdm/${record.uid}`,
+        path: `/system/account/authdm/${record.uid}`,
         query: {
-          name: record.subAccount,
+          name: this.displayAccount(record),
+          resourceManage: record.resourceManage ? 'true' : 'false',
           type: type
         }
       });
     },
     async handleDeleteSubAccount(subAccount) {
       const res = await this.$services.rdpUserManagerDeleteSubAccount({
-        data: { subAccount: subAccount.subAccount },
+        data: { account: subAccount.account },
         msg: this.$t('shan-chu-zi-zhang-hao-cheng-gong')
       });
 
@@ -658,61 +602,47 @@ export default {
       }
     },
     handleShowModifyAccount(row) {
-      this.originAccount = {
-        userName: row.username || '',
-        accountName: row.subAccount ? row.subAccount.split('@')[0] : ''
-      };
+      this.accountFormMode = 'edit';
+      this.originAccount = deepClone(row);
       this.newAccountForm = {
-        ...deepClone(row),
+        ...deepClone(EMPTY_SUB_ACCOUNT),
+        uid: row.uid,
         userName: row.username || '',
-        accountName: row.subAccount ? row.subAccount.split('@')[0] : ''
+        account: row.account || '',
+        password: row.bindType === 'INTERNAL' || row.allowLocal ? PASSWORD_PLACEHOLDER : '',
+        confirmPassword: row.bindType === 'INTERNAL' || row.allowLocal ? PASSWORD_PLACEHOLDER : '',
+        roleId: row.roleId,
+        phone: row.phone || '',
+        email: row.email || '',
+        enabled: !row.disable,
+        loginLocked: !!row.loginLocked,
+        lockedAt: row.loginLocked ? row.lastTryLoginTime : '',
+        lastLoginTime: row.lastTryLoginTime || '',
+        useMfa: !!row.useMfa,
+        bindType: row.bindType || 'INTERNAL',
+        bindAccount: row.bindAccount || row.account || '',
+        allowLocal: row.bindType === 'INTERNAL' || !!row.allowLocal
       };
-      this.showModifySubAccount = true;
-    },
-    handleShowEditPasswordModal(row) {
-      this.newAccountForm = deepClone(row);
-      this.showEditPasswordModal = true;
-    },
-    async handleClickChangeRoleModal(row) {
-      await this.getRoleList();
-      this.newAccountForm = deepClone(row);
-      this.showChangeRoleModal = true;
+      this.originAccount = {
+        ...this.originAccount,
+        userName: row.username || '',
+        roleId: row.roleId,
+        phone: row.phone || '',
+        email: row.email || '',
+        account: row.account || '',
+        allowLocal: row.bindType === 'INTERNAL' || !!row.allowLocal,
+        disable: !!row.disable,
+        loginLocked: !!row.loginLocked
+      };
+      this.resetDuplicateValid();
+      this.accountFormVisible = true;
     },
     handleCloseModal() {
       this.newAccountForm = deepClone(EMPTY_SUB_ACCOUNT);
-      this.showAddNewSubAccountModal = false;
-      this.showChangeRoleModal = false;
-      this.showModifySubAccount = false;
-      this.showEditPasswordModal = false;
-      this.opUserPassword = '';
-      this.newPassword = '';
-      this.editPasswordErrMsg = '';
-      this.showEnableResourceModal = false;
-      this.showDisableResourceModal = false;
-    },
-    async handleConfirmEditPassword() {
-      this.loading = true;
-      const regExp = new RegExp(this.passwordRule.expr);
-      if (regExp.test(this.newPassword)) {
-        const res = await this.$services.rdpUserResetSubAccountPwd({
-          data: {
-            operatorPwd: this.passwordEncrypt(this.opUserPassword),
-            newPassword: this.passwordEncrypt(this.newPassword),
-            subAccountUid: this.newAccountForm.uid
-          },
-          modal: false
-        });
-        if (res.success) {
-          this.$Message.success(this.$t('zi-zhang-hao-mi-ma-chong-zhi-cheng-gong'));
-          this.handleCloseModal();
-        } else {
-          this.editPasswordErrMsg = res.msg;
-        }
-      } else {
-        console.log('reset error');
-        this.editPasswordErrMsg = this.passwordRule.tips;
-      }
-      this.loading = false;
+      this.originAccount = {};
+      this.accountFormMode = 'create';
+      this.resetDuplicateValid();
+      this.accountFormVisible = false;
     },
     handlePageChange(pageNum) {
       console.log(pageNum);
@@ -751,7 +681,6 @@ export default {
         const roleList = [];
         roleListRes.data.forEach((role) => {
           roleList.push({
-            innerTag: role.innerTag,
             name: role.aliasName,
             value: role.roleId
           });
@@ -765,40 +694,45 @@ export default {
         return;
       }
       await this.getRoleList();
-      this.showAddNewSubAccountModal = true;
-    },
-    async handleTriggerStopAccount(row) {
-      const { disable, uid } = row;
-      const data = {
-        disable: !disable,
-        uid
-      };
-      const res = await this.$services.rdpUserManagerStopSubAccount({
-        data,
-        msg: disable ? this.$t('qi-yong-cheng-gong') : this.$t('ting-yong-cheng-gong')
-      });
-      if (res.success) {
-        await this.getSubAccountList();
-        // Vue.set(this.accountList[index], 'disable', !disable);
-      }
+      this.accountFormMode = 'create';
+      this.originAccount = {};
+      this.newAccountForm = deepClone(EMPTY_SUB_ACCOUNT);
+      this.resetDuplicateValid();
+      this.accountFormVisible = true;
     }
   },
   async created() {
     await this.getRoleList();
     await this.getSubAccountList();
-    this.$services.rdpUserGetSubAccountPwdValidateExpr().then((res) => {
+    this.$services.rdpUserGetSubAccountPwdPolicy().then((res) => {
       if (res.success) {
-        this.passwordRule.expr = res.data.expr;
+        this.passwordRule.strongPolicy = !!res.data.strongPolicy;
+        this.passwordRule.minLength = res.data.minLength || DEFAULT_PASSWORD_MIN_LENGTH;
         this.passwordRule.tips = res.data.tips;
         const validateSubAccount = async (checkType, checkContent, callback, msg) => {
+          const fieldMap = {
+            SUB_ACCOUNT: 'account',
+            PHONE: 'phone',
+            EMAIL: 'email'
+          };
+          const field = fieldMap[checkType];
+          this.clearDuplicateCheck(field);
+          if (!checkContent) {
+            callback();
+            return;
+          }
           const res2 = await this.$services.rdpUserManagerCheckSubAccountDuplicate({
             data: {
               checkType,
-              checkContent
+              checkContent,
+              targetUid: this.accountFormMode === 'edit' ? this.newAccountForm.uid : ''
             },
             modal: false
           });
           if (res2.success) {
+            if (field) {
+              this.duplicateValid[field] = true;
+            }
             callback();
           } else {
             callback(new Error(this.$t('msg-zhong-fu', [msg])));
@@ -808,20 +742,39 @@ export default {
           validateSubAccount('SUB_ACCOUNT', value, callback, this.$t('zi-zhang-hao'));
         };
         const validateSubAccountPhone = (rule, value, callback) => {
-          validateSubAccount('PHONE', value, callback, this.$t('shou-ji-hao'));
+          validateSubAccount('PHONE', value, callback, this.$t('shou-ji'));
         };
         const validateSubAccountEmail = (rule, value, callback) => {
           validateSubAccount('EMAIL', value, callback, this.$t('you-xiang'));
         };
+        const validateConfirmPassword = (rule, value, callback) => {
+          if (this.accountFormMode === 'edit' && this.newAccountForm.password === PASSWORD_PLACEHOLDER) {
+            callback();
+            return;
+          }
+          if (!value) {
+            callback(new Error(this.$t('que-ren-mi-ma-bu-neng-wei-kong')));
+          } else if (value !== this.newAccountForm.password) {
+            callback(new Error(this.$t('liang-ci-shu-ru-de-mi-ma-bu-yi-zhi')));
+          } else {
+            callback();
+          }
+        };
+        const validatePassword = (rule, value, callback) => {
+          if (this.accountFormMode === 'edit' && value === PASSWORD_PLACEHOLDER) {
+            callback();
+            return;
+          }
+          if (!value) {
+            callback(new Error(this.$t('mi-ma-bu-neng-wei-kong')));
+          } else if (!this.isPasswordValid(value)) {
+            callback(new Error(this.passwordRule.tips));
+          } else {
+            callback();
+          }
+        };
         this.newAccountRules = {
-          userName: [
-            {
-              required: true,
-              trigger: 'blur',
-              message: this.$t('xing-ming-bu-neng-wei-kong')
-            }
-          ],
-          subAccount: [
+          account: [
             {
               required: true,
               trigger: 'blur',
@@ -834,40 +787,31 @@ export default {
           ],
           password: [
             {
-              required: true,
-              trigger: 'blur',
-              message: this.$t('mi-ma-bu-neng-wei-kong')
-            },
+              validator: validatePassword,
+              trigger: 'blur'
+            }
+          ],
+          confirmPassword: [
             {
-              pattern: new RegExp(this.passwordRule.expr),
-              message: this.passwordRule.tips
+              validator: validateConfirmPassword,
+              trigger: 'blur'
             }
           ],
           roleId: [
             {
               required: true,
-              trigger: 'blur',
+              trigger: 'change',
               message: this.$t('jiao-se-bu-neng-wei-kong'),
               transform: (value) => String(value)
             }
           ],
           phone: [
             {
-              required: true,
-              trigger: 'blur',
-              message: this.$t('shou-ji-hao-bu-neng-wei-kong')
-            },
-            {
               validator: validateSubAccountPhone,
               trigger: 'blur'
             }
           ],
           email: [
-            {
-              required: true,
-              trigger: 'blur',
-              message: this.$t('you-xiang-bu-neng-wei-kong')
-            },
             {
               validator: validateSubAccountEmail,
               trigger: 'blur'
@@ -926,13 +870,67 @@ export default {
     }
   }
 
+  .account-display {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .account-display-text {
+    display: inline-block;
+    max-width: 190px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .empty-text {
+    color: #a8a8a8;
+  }
+
+  .account-status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    vertical-align: middle;
+
+    &.is-normal {
+      background: #19be6b;
+    }
+
+    &.is-locked {
+      background: #ff9900;
+    }
+
+    &.is-disabled {
+      background: #ed4014;
+    }
+  }
+
+  .provider-icon {
+    flex: 0 0 auto;
+  }
+
+  .provider-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+  }
+
+  .provider-fallback {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 6px;
+    color: #a8a8a8;
+    font-size: 12px;
+    line-height: 18px;
+  }
+
   .action {
-    //button {
-    //  margin-right: 12px;
-    //}
-    //.ivu-dropdown {
-    //  padding: 0 7px;
-    //}
+    white-space: nowrap;
+
     a {
       margin-right: 16px;
     }
@@ -990,6 +988,96 @@ export default {
 .rule-default-tag {
   display: flex;
   align-items: center;
+}
+
+.account-form {
+  :deep(.ivu-form-item) {
+    margin-bottom: 12px;
+  }
+}
+
+.form-section-title {
+  margin: 9px 0 6px;
+  padding-left: 8px;
+  border-left: 3px solid #2d8cf0;
+  color: #17233d;
+  font-weight: 600;
+  line-height: 16px;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.credential-account-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.credential-account-field {
+  flex: 1 1 0;
+}
+
+.credential-role-field {
+  flex: 0 0 25%;
+}
+
+.credential-source-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+}
+
+.credential-source-field {
+  flex: 1 1 0;
+}
+
+.credential-allow-local-field {
+  flex: 0 0 44%;
+}
+
+.form-field-with-success {
+  position: relative;
+  width: 100%;
+
+  :deep(.ivu-input) {
+    padding-right: 30px;
+  }
+}
+
+.field-success {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.field-success::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 6px;
+  width: 6px;
+  height: 11px;
+  border-right: 2px solid #22c55e;
+  border-bottom: 2px solid #22c55e;
+  transform: rotate(45deg);
+}
+
+.lock-state-text,
+.readonly-status-text {
+  color: #808695;
+}
+
+.lock-time-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
 
 .role-name-container {

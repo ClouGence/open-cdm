@@ -192,7 +192,6 @@ export default {
         EMAIL_PORT_KEY: '465',
         EMAIL_USERNAME_KEY: '',
         EMAIL_PASSWORD_KEY: '',
-        DINGDING_URL_TOKEN_KEY: '',
         EMAIL_FROM_KEY: ''
       },
       alarmSetting: {},
@@ -221,8 +220,7 @@ export default {
         EMAIL_PORT_KEY: 'spring.mail.port',
         EMAIL_USERNAME_KEY: 'spring.mail.username',
         EMAIL_PASSWORD_KEY: 'spring.mail.password',
-        EMAIL_FROM_KEY: 'spring.mail.properties.from',
-        DINGDING_URL_TOKEN_KEY: 'console.config.alert.dingtalk.alerturl'
+        EMAIL_FROM_KEY: 'spring.mail.properties.from'
       },
       editPasswordRule: {
         password: [{ required: true, message: 'The name cannot be empty', trigger: 'blur' }],
@@ -328,9 +326,6 @@ export default {
             }
             if (item.configName === 'spring.mail.password') {
               // this.systemForm.EMAIL_PASSWORD_KEY = item.configValue;
-            }
-            if (item.configName === 'console.config.alert.dingtalk.alerturl') {
-              this.systemForm.DINGDING_URL_TOKEN_KEY = item.configValue;
             }
             if (item.configName === 'spring.mail.properties.from') {
               this.systemForm.EMAIL_FROM_KEY = item.configValue;

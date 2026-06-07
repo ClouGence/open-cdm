@@ -8,9 +8,6 @@
 
 // export const updatePassword = (param) => instance.post('user/updatepassword', param);
 
-// export const updateAliyunAkSk = (param) => instance.post('user/updatealiyunaksk', param);
-
-// export const cleanAliyunAkSk = (param) => instance.post('user/cleanaliyunaksk', param);
 
 // export const takeoverUserRes = (param) => instance.post('user/takeoveruserres', param);
 

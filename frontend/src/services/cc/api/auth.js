@@ -7,5 +7,3 @@
 // export const logout = (param) => instance.post('logout', param);
 
 // export const resetdo = (param) => instance.post('resetpwd', param);
-
-// export const primaryUserDomains = (param) => instance.post('primary_user_domains', param);

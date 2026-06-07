@@ -135,12 +135,14 @@ import StepConnectivity from './StepConnectivity.vue';
 import StepConfirm from './StepConfirm.vue';
 import StepExecution from './StepExecution.vue';
 import { consumeDmBootstrapStatus, getDmSystemStatus, isDmSystemReady } from '../../utils/dmGlobalSettings';
-import { resolveDeploymentModeText, resolveDisplayVersion } from '../../utils/version';
+import { resolveDisplayVersion, resolveVersionBadgeText } from '../../utils/version';
 
 const INIT_DB_CREATE_IF_MISSING = 'clougence.init.db.createIfMissing';
 const INIT_DB_REBUILD_IF_NOT_EMPTY = 'clougence.init.db.rebuildIfNotEmpty';
 const INIT_DB_CONFIRM_DATABASE_NAME = 'clougence.init.db.confirmDatabaseName';
 const INIT_WORKFLOW_MODE_KEY = 'clougence.init.workflowMode';
+const INIT_ADMIN_ACCOUNT_KEY = 'clougence.init.admin.account';
+const DEFAULT_ADMIN_ACCOUNT = 'admin';
 const INSTALL_PHASE_NOTICE_META = {
   DB_REBUILD: {
     titleKey: 'initialization.noticeDbRebuildTitle',
@@ -364,9 +366,8 @@ async function pollDmGlobalSettings() {
   }
 }
 
-function redirectToLoginPage(defaultLogin) {
-  const query = defaultLogin ? `?defaultLogin=${encodeURIComponent(defaultLogin)}` : '';
-  window.location.replace(`${window.location.origin}${window.location.pathname}#/login${query}`);
+function redirectToLoginPage() {
+  window.location.replace(`${window.location.origin}${window.location.pathname}#/login`);
 }
 
 export default {
@@ -403,7 +404,10 @@ export default {
   },
   computed: {
     versionBadgeText() {
-      return `${resolveDeploymentModeText({ aloneMode: this.aloneMode })} ${this.displayVersion || 'unknow'}`;
+      return resolveVersionBadgeText({
+        aloneMode: this.aloneMode,
+        version: this.displayVersion
+      });
     },
     dbFields() {
       return this.fieldDefs.filter((f) => f.category === 'database');
@@ -733,7 +737,7 @@ export default {
       this.aloneMode = Boolean(res.data && res.data.aloneMode);
       const { status, initReason, dbError, upgradeScripts = [] } = getDmSystemStatus(res);
       if (status === 'Ready') {
-        redirectToLoginPage('manage');
+        redirectToLoginPage();
         return;
       }
 
@@ -1002,6 +1006,7 @@ export default {
     buildExecutionPayload({ omitRebuild = false } = {}) {
       const payload = { ...this.formValues };
       payload[INIT_WORKFLOW_MODE_KEY] = this.workflowMode;
+      payload[INIT_ADMIN_ACCOUNT_KEY] = DEFAULT_ADMIN_ACCOUNT;
       if (omitRebuild) {
         delete payload[INIT_DB_REBUILD_IF_NOT_EMPTY];
       }
@@ -1062,7 +1067,7 @@ export default {
         }
 
         if (isDmSystemReady(res)) {
-          redirectToLoginPage('manage');
+          redirectToLoginPage();
           return;
         }
 

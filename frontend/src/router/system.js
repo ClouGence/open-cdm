@@ -41,12 +41,12 @@ export default [
     component: () => import(/* webpackChunkName: "ccsystem-auth" */ '@/views/system/subaccount/auth/authDm')
   },
   {
-    path: 'sub_account',
+    path: 'account',
     name: 'System_Sub_Account',
     component: () => import(/* webpackChunkName: "ccsystem-subaccount" */ '@/views/system/subaccount/index')
   },
   {
-    path: 'sub_account/authdm/:uid',
+    path: 'account/authdm/:uid',
     name: 'System_Sub_Account_AuthDm',
     component: () => import(/* webpackChunkName: "ccsystem-subaccount-auth" */ '@/views/system/subaccount/auth/authDm')
   },

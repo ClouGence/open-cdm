@@ -101,12 +101,6 @@ module.exports = {
       '/auth': {
         target: HOST
       },
-      primary_user_domains: {
-        target: HOST
-      },
-      getPublicKey: {
-        target: HOST
-      },
       '/requestJumpUrl': {
         target: HOST
       }

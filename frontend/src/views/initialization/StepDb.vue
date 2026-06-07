@@ -118,22 +118,14 @@ import InitMysqlDriverStatus from './InitMysqlDriverStatus.vue';
 const DEFAULT_GENERATED_STATE = Object.freeze({
   host: '',
   port: '3306',
-  database: 'cdmgr',
-  serverTimezone: 'Asia/Shanghai',
-  connectTimeout: '3000',
-  socketTimeout: '30000',
-  extraOptions: [{ key: 'characterEncoding', value: 'utf8' }]
+  database: 'cdmgr'
 });
 
 function createGeneratedState(overrides = {}) {
   return {
     host: overrides.host ?? DEFAULT_GENERATED_STATE.host,
     port: overrides.port ?? DEFAULT_GENERATED_STATE.port,
-    database: overrides.database ?? DEFAULT_GENERATED_STATE.database,
-    serverTimezone: overrides.serverTimezone ?? DEFAULT_GENERATED_STATE.serverTimezone,
-    connectTimeout: overrides.connectTimeout ?? DEFAULT_GENERATED_STATE.connectTimeout,
-    socketTimeout: overrides.socketTimeout ?? DEFAULT_GENERATED_STATE.socketTimeout,
-    extraOptions: (overrides.extraOptions || DEFAULT_GENERATED_STATE.extraOptions).map((option) => ({ ...option }))
+    database: overrides.database ?? DEFAULT_GENERATED_STATE.database
   };
 }
 
@@ -162,40 +154,12 @@ function parseMysqlJdbcUrl(jdbcUrl) {
     return null;
   }
 
-  const [, host, port, database, queryString] = match;
-  const knownParams = {
-    serverTimezone: DEFAULT_GENERATED_STATE.serverTimezone,
-    connectTimeout: DEFAULT_GENERATED_STATE.connectTimeout,
-    socketTimeout: DEFAULT_GENERATED_STATE.socketTimeout
-  };
-  const extraOptions = [];
-
-  if (queryString) {
-    queryString.split('&').forEach((pair) => {
-      if (!pair) {
-        return;
-      }
-
-      const [rawKey, rawValue = ''] = pair.split('=');
-      const key = decodeJdbcValue(rawKey);
-      const value = decodeJdbcValue(rawValue);
-
-      if (Object.prototype.hasOwnProperty.call(knownParams, key)) {
-        knownParams[key] = value;
-      } else {
-        extraOptions.push({ key, value });
-      }
-    });
-  }
+  const [, host, port, database] = match;
 
   return createGeneratedState({
     host,
     port: port || DEFAULT_GENERATED_STATE.port,
-    database: decodeJdbcValue(database),
-    serverTimezone: knownParams.serverTimezone,
-    connectTimeout: knownParams.connectTimeout,
-    socketTimeout: knownParams.socketTimeout,
-    extraOptions
+    database: decodeJdbcValue(database)
   });
 }
 
@@ -208,90 +172,7 @@ function buildMysqlJdbcUrl(generatedState) {
     return '';
   }
 
-  const params = [];
-
-  if (generatedState.serverTimezone) {
-    params.push(`serverTimezone=${encodeURIComponent(generatedState.serverTimezone)}`);
-  }
-  if (generatedState.connectTimeout) {
-    params.push(`connectTimeout=${encodeURIComponent(generatedState.connectTimeout)}`);
-  }
-  if (generatedState.socketTimeout) {
-    params.push(`socketTimeout=${encodeURIComponent(generatedState.socketTimeout)}`);
-  }
-
-  (generatedState.extraOptions || []).forEach((option) => {
-    if (!option.key) {
-      return;
-    }
-    params.push(`${encodeURIComponent(option.key)}=${encodeURIComponent(option.value || '')}`);
-  });
-
-  const queryString = params.length ? `?${params.join('&')}` : '';
-  return `jdbc:mysql://${host}${port ? `:${port}` : ''}/${database}${queryString}`;
-}
-
-function serializeJdbcParams(generatedState) {
-  const lines = [];
-
-  if (generatedState.serverTimezone) {
-    lines.push(`serverTimezone=${generatedState.serverTimezone}`);
-  }
-  if (generatedState.connectTimeout) {
-    lines.push(`connectTimeout=${generatedState.connectTimeout}`);
-  }
-  if (generatedState.socketTimeout) {
-    lines.push(`socketTimeout=${generatedState.socketTimeout}`);
-  }
-
-  (generatedState.extraOptions || []).forEach((option) => {
-    if (!option.key) {
-      return;
-    }
-    lines.push(`${option.key}=${option.value || ''}`);
-  });
-
-  return lines.join('\n');
-}
-
-function parseJdbcParamsText(text) {
-  const nextState = {
-    serverTimezone: '',
-    connectTimeout: '',
-    socketTimeout: '',
-    extraOptions: []
-  };
-
-  (text || '')
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .forEach((line) => {
-      const separatorIndex = line.indexOf('=');
-      const key = separatorIndex >= 0 ? line.slice(0, separatorIndex).trim() : line;
-      const value = separatorIndex >= 0 ? line.slice(separatorIndex + 1).trim() : '';
-
-      if (!key) {
-        return;
-      }
-
-      if (key === 'serverTimezone') {
-        nextState.serverTimezone = value;
-        return;
-      }
-      if (key === 'connectTimeout') {
-        nextState.connectTimeout = value;
-        return;
-      }
-      if (key === 'socketTimeout') {
-        nextState.socketTimeout = value;
-        return;
-      }
-
-      nextState.extraOptions.push({ key, value });
-    });
-
-  return nextState;
+  return `jdbc:mysql://${host}${port ? `:${port}` : ''}/${database}`;
 }
 
 export default {

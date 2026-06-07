@@ -9,23 +9,37 @@
         <div>
           <div class="mt-6 border-t border-gray-100">
             <dl class="divide divide-gray-100">
+              <div v-if="userInfo.account" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                <dt class="text-sm/6 font-medium text-gray-900">{{ $t('zhang-hao') }}</dt>
+                <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
+                  {{ userInfo.account }}
+                </dd>
+              </div>
+              <div v-if="!isInternalUser" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                <dt class="text-sm/6 font-medium text-gray-900">{{ $t('lai-yuan') }}</dt>
+                <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
+                  {{ userInfo.bindType }}
+                </dd>
+              </div>
+              <div v-if="!isInternalUser" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                <dt class="text-sm/6 font-medium text-gray-900">{{ $t('guan-lian-zhang-hao') }}</dt>
+                <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
+                  <span :class="{ 'empty-value': !userInfo.bindAccount }">
+                    {{ userInfo.bindAccount || $t('initialization.emptyValue') }}
+                  </span>
+                </dd>
+              </div>
               <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                 <dt class="text-sm/6 font-medium text-gray-900">{{ $t('yong-hu-ming') }}</dt>
                 <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
                   {{ userInfo.username }}
+                  <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="handleUpdateUserName" />
                   <span
                     v-if="userInfo.saasUserStatus === 'SAAS_LOCKED'"
                     class="border border-red-700 border-solid ml-2 text-red-700 bg-red-50 rounded-md px-4 py-2 text-sm font-medium"
                   >
                     {{ $t('yi-suo-ding') }}
                   </span>
-                </dd>
-              </div>
-              <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                <dt class="text-sm/6 font-medium text-gray-900">{{ $t('you-xiang') }}</dt>
-                <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
-                  {{ userInfo.email }}
-                  <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="handleUpdateUserInfo('email')" />
                 </dd>
               </div>
               <div v-if="userInfo.phone" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
@@ -35,27 +49,18 @@
                   <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="handleUpdateUserInfo('phone')" />
                 </dd>
               </div>
-              <div v-if="isInternalUser" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                <dt class="text-sm/6 font-medium text-gray-900">{{ $t('you-xiang') }}</dt>
+                <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
+                  {{ userInfo.email }}
+                  <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="handleUpdateUserInfo('email')" />
+                </dd>
+              </div>
+              <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                 <dt class="text-sm/6 font-medium text-gray-900">{{ $t('deng-lu-mi-ma') }}</dt>
                 <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
                   *******
                   <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="handleShowPassword" />
-                </dd>
-              </div>
-              <div v-if="userInfo.accountType === 'SUB_ACCOUNT'" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                <dt class="text-sm/6 font-medium text-gray-900">{{ $t('zhang-hao') }}</dt>
-                <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
-                  {{ userInfo.loginAccount }}
-                </dd>
-              </div>
-              <div v-if="userInfo.accountType === 'SUB_ACCOUNT'" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                <dt class="text-sm/6 font-medium text-gray-900">{{ $t('suo-shu-zhu-zhang-hao') }}</dt>
-                <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ userInfo.pusername }}({{ userInfo.pemail }})</dd>
-              </div>
-              <div v-if="userInfo.organization" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                <dt class="text-sm/6 font-medium text-gray-900">{{ $t('gong-si-ming-cheng') }}</dt>
-                <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
-                  {{ userInfo.organization }}
                 </dd>
               </div>
               <div v-if="userInfo.marketplaceType && userInfo.marketplaceType !== 'NONE'" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
@@ -109,14 +114,6 @@
               </Button>
             </div>
           </div>
-          <!-- 新增：阿里云访问授权栏目 -->
-          <div v-if="myCatLog.includes('CAT_RDP_PRI_THIRD_PARTY_CONF')">
-            <div class="mt-12 mb-4" style="font-size: 14px; font-weight: bold">
-              {{ $t('a-li-yun-fang-wen-quan-xian') }}
-            </div>
-            <Button class="mr-4" @click="showAliyunModal = true">{{ $t('shou-quan-fang-wen') }}</Button>
-            <Button @click="handleShowAliyunCleanConfirm">{{ $t('jie-chu-fang-wen-quan-xian') }}</Button>
-          </div>
         </div>
       </TabPane>
     </Tabs>
@@ -125,6 +122,16 @@
         <i class="ivu-icon ivu-icon-ios-loading ivu-load-loop" style="font-size: 32px"></i>
       </div>
       <div v-else>
+        <Form label-position="top">
+          <FormItem :label="$t('mfa-zhang-hao')">
+            <RadioGroup v-model="mfaAccountType" vertical>
+              <Radio v-for="item in mfaAccountOptions" :key="item.value" :label="item.value" :disabled="item.disabled">
+                <span>{{ item.label }}</span>
+                <span class="ml-2 text-gray-500">{{ item.account || $t('wei-she-zhi-0') }}</span>
+              </Radio>
+            </RadioGroup>
+          </FormItem>
+        </Form>
         <p class="mt-4 mb-8">
           {{
             $t(
@@ -150,32 +157,7 @@
       </div>
       <template #footer>
         <Button @click="handleCloseMfaModal">{{ $t('qu-xiao') }}</Button>
-        <Button type="primary" @click="handleConfirmMfaModal">{{ $t('que-ding') }}</Button>
-      </template>
-    </CCModal>
-    <CCModal v-model="showAliyunModal" :title="$t('a-li-yun-fang-wen-quan-xian')" width="500px">
-      <div v-if="showAliyunModal">
-        <Alert type="warning" show-icon>
-          <p>
-            {{ $t('a-li-yun-aksk-xu-yao-fu-yu-bi-yao-de-quan-xian') }}
-            <a :href="`${store.state.docUrlPrefix}/reference/rds_mysql_ram_least_privilege`" target="_blank">
-              {{ $t('ru-he-fu-quan') }}
-            </a>
-          </p>
-          <!--          <p style="margin-top: 8px">{{ $t('a-li-yun-aksk-jin-bao-cun-2-xiao-shi-guo-qi-hou-zi-dong-shan-chu') }}</p>-->
-        </Alert>
-        <Form :model="aliyunForm" :rules="aliyunFormValidate" ref="aliyunForm" :label-width="160">
-          <FormItem label="AccessKey ID" prop="aliyunAk">
-            <Input v-model="aliyunForm.aliyunAk" />
-          </FormItem>
-          <FormItem label="AccessKey Secret" prop="aliyunSk">
-            <Input v-model="aliyunForm.aliyunSk" />
-          </FormItem>
-        </Form>
-      </div>
-      <template #footer>
-        <Button @click="handleCancelEdit">{{ $t('qu-xiao') }}</Button>
-        <Button type="primary" @click="handleAliyunApplyStToken">{{ $t('que-ding') }}</Button>
+        <Button type="primary" @click="handleConfirmMfaModal">{{ mfaQrCode ? $t('que-ding') : $t('sheng-cheng-er-wei-ma') }}</Button>
       </template>
     </CCModal>
     <verify-code-modal
@@ -219,6 +201,17 @@
         </Form>
       </template>
     </verify-code-modal>
+    <CCModal v-model="showEditUserName" :title="`${$t('xiu-gai')} ${$t('yong-hu-ming')}`" :width="420">
+      <Form label-position="right" :label-width="80">
+        <FormItem :label="$t('yong-hu-ming')">
+          <Input v-model="updateUserInfo.userName" @on-enter="handleConfirmUpdateUserName" />
+        </FormItem>
+      </Form>
+      <template #footer>
+        <Button @click="handleCancelEdit">{{ $t('qu-xiao') }}</Button>
+        <Button type="primary" :loading="loading" @click="handleConfirmUpdateUserName">{{ $t('que-ding') }}</Button>
+      </template>
+    </CCModal>
     <verify-code-modal
       v-model:visible="showFetchAKSK"
       :title="$t('huo-qu-aksk')"
@@ -281,6 +274,16 @@
         <p class="mb-4">
           {{ $t('qing-shu-ru-duo-yin-zi-yan-zheng-ma-yi-chong-zhi-duo-yin-zi-ren-zheng-pei-zhi') }}
         </p>
+        <Form v-if="!hasConfirmReset" label-position="top">
+          <FormItem :label="$t('mfa-zhang-hao')">
+            <RadioGroup v-model="mfaAccountType" vertical>
+              <Radio v-for="item in mfaAccountOptions" :key="item.value" :label="item.value" :disabled="item.disabled">
+                <span>{{ item.label }}</span>
+                <span class="ml-2 text-gray-500">{{ item.account || $t('wei-she-zhi-0') }}</span>
+              </Radio>
+            </RadioGroup>
+          </FormItem>
+        </Form>
         <div v-if="hasConfirmReset">
           <div
             class="border-b border-solid border-[#dcdee2] pb-8"
@@ -383,6 +386,8 @@ import { UPDATE_USERINFO } from '@/store/mutationTypes';
 import store from '@/store';
 import Mapping from '../util';
 
+const DEFAULT_PASSWORD_MIN_LENGTH = 8;
+
 export default {
   components: { VerifyCodeModal, PasswordConfirmModal, verifyMfaModal },
   mixins: [encryptMixin],
@@ -399,18 +404,21 @@ export default {
       newEmailToReset: '',
       newPhoneToReset: '',
       showEditUserInfo: false,
+      showEditUserName: false,
       showFetchAKSK: false,
       showAKSK: false,
       confirmFetchLoading: false,
       akskInfo: {},
       newPassword: '',
       passwordRule: {
-        expr: '',
+        strongPolicy: false,
+        minLength: DEFAULT_PASSWORD_MIN_LENGTH,
         tips: ''
       },
       errMsg: '',
       formatHour,
       updateUserInfo: {
+        userName: '',
         phone: '',
         email: ''
       },
@@ -450,14 +458,11 @@ export default {
         EMAIL_PORT_KEY: '465',
         EMAIL_USERNAME_KEY: '',
         EMAIL_PASSWORD_KEY: '',
-        DINGDING_URL_TOKEN_KEY: '',
         EMAIL_FROM_KEY: ''
       },
       alarmSetting: {},
       setList: [],
       licenseUrl: {},
-      aliyunAk: '',
-      aliyunSk: '',
       emailList: [],
       emailSuffix: ['qq.com', 'sina.com', '163.com', 'sohu.com', '126.com'],
       smtpList: {
@@ -479,8 +484,7 @@ export default {
         EMAIL_PORT_KEY: 'spring.mail.port',
         EMAIL_USERNAME_KEY: 'spring.mail.username',
         EMAIL_PASSWORD_KEY: 'spring.mail.password',
-        EMAIL_FROM_KEY: 'spring.mail.properties.from',
-        DINGDING_URL_TOKEN_KEY: 'console.config.alert.dingtalk.alerturl'
+        EMAIL_FROM_KEY: 'spring.mail.properties.from'
       },
       editPasswordRule: {
         password: [{ required: true, message: 'The name cannot be empty', trigger: 'blur' }],
@@ -523,50 +527,27 @@ export default {
       userConfigList: [],
       userConfigs: {},
       showResetAKSK: false, // 新增
-      aliyunForm: {
-        aliyunAk: '',
-        aliyunSk: ''
-      },
-      aliyunFormValidate: {
-        aliyunAk: [
-          {
-            required: true,
-            message: this.$t('a-li-yun-ak-bu-neng-wei-kong')
-          }
-        ],
-        aliyunSk: [
-          {
-            required: true,
-            message: this.$t('a-li-yun-sk-bu-neng-wei-kong')
-          }
-        ]
-      },
       showMfaModal: false,
       showCloseMfaModal: false,
       showResetMfaModal: false,
       mfaQrCode: '',
       mfaInput: '',
+      mfaAccountType: '',
       mfaModalLoading: false,
-      hasConfirmReset: false,
-      showAliyunModal: false,
-      showAliyunCleanConfirm: false
+      hasConfirmReset: false
     };
   },
   created() {
     if (this.userInfo.accountType === 'PRIMARY_ACCOUNT') {
-      this.$services.rdpUserGetPrimaryAccountPwdValidateExpr().then((res) => {
+      this.$services.rdpUserGetPrimaryAccountPwdPolicy().then((res) => {
         if (res.success) {
-          console.log('res', res);
-          this.passwordRule.tips = res.data.tips;
-          this.passwordRule.expr = res.data.expr;
+          this.applyPasswordRule(res.data);
         }
       });
     } else {
-      this.$services.rdpUserGetSubAccountPwdValidateExpr().then((res) => {
+      this.$services.rdpUserGetSubAccountPwdPolicy().then((res) => {
         if (res.success) {
-          console.log('res', res);
-          this.passwordRule.tips = res.data.tips;
-          this.passwordRule.expr = res.data.expr;
+          this.applyPasswordRule(res.data);
         }
       });
     }
@@ -577,44 +558,84 @@ export default {
   },
   computed: {
     ...mapGetters(['verifyType', 'isInternalUser']),
-    ...mapState(['userInfo', 'globalSetting', 'myAuth', 'myCatLog'])
+    ...mapState(['userInfo', 'globalSetting', 'myAuth', 'myCatLog']),
+    mfaAccountOptions() {
+      return [
+        {
+          value: 'ACCOUNT',
+          label: this.$t('zhang-hao'),
+          account: this.userInfo.account
+        },
+        {
+          value: 'EMAIL',
+          label: this.$t('you-xiang'),
+          account: this.userInfo.email
+        },
+        {
+          value: 'PHONE',
+          label: this.$t('shou-ji-hao'),
+          account: this.userInfo.phone
+        }
+      ].map((item) => ({
+        ...item,
+        disabled: !item.account
+      }));
+    }
   },
   methods: {
     ...mapMutations([UPDATE_USERINFO]),
     async getConfigValueList() {
-      const res = await this.$services.rdpUserConfigGetUserSpecifiedConfs({
-        data: {
-          configNames: ['subAccountPwdVerifyTips', 'subAccountPwdVerifyExpr']
-        }
-      });
-      if (res.success && res.data) {
-        let subAccountPwdVerifyTips = '';
-        let subAccountPwdVerifyExpr = '';
-
-        if (res.data.subAccountPwdVerifyTips) {
-          subAccountPwdVerifyTips = res.data.subAccountPwdVerifyTips.configValue;
-        } else if (res.data.subAccountPwdVerifyExpr) {
-          subAccountPwdVerifyExpr = res.data.subAccountPwdVerifyExpr.configValue;
-        }
-        if (subAccountPwdVerifyExpr && subAccountPwdVerifyTips) {
-          this.passwordRule.tips = subAccountPwdVerifyTips;
-          this.passwordRule.expr = subAccountPwdVerifyExpr;
-        }
+      return Promise.resolve();
+    },
+    applyPasswordRule(rule) {
+      this.passwordRule.strongPolicy = !!rule.strongPolicy;
+      this.passwordRule.minLength = rule.minLength || DEFAULT_PASSWORD_MIN_LENGTH;
+      this.passwordRule.tips = rule.tips;
+    },
+    isPasswordValid(value) {
+      if (!value || value.length < (this.passwordRule.minLength || DEFAULT_PASSWORD_MIN_LENGTH)) {
+        return false;
       }
+      if (!this.passwordRule.strongPolicy) {
+        return true;
+      }
+      return /[A-Z]/.test(value) && /[a-z]/.test(value) && /\d/.test(value);
     },
     async handleOpenMfaSetting() {
+      this.resetMfaAccountTypeIfUnavailable();
+      this.showMfaModal = true;
+      this.mfaQrCode = '';
+      this.mfaInput = '';
+      this.errMsg = '';
+    },
+    resetMfaAccountTypeIfUnavailable() {
+      if (this.mfaAccountOptions.some((item) => item.value === this.mfaAccountType && !item.disabled)) {
+        return;
+      }
+      this.mfaAccountType = '';
+    },
+    async generateMfaQrCode() {
+      if (!this.mfaAccountType) {
+        this.errMsg = this.$t('qing-xuan-ze-mfa-zhang-hao');
+        return;
+      }
       this.mfaModalLoading = true;
       try {
         const openRes = await this.$services.rdpMfaCtrlInitMfaSetting();
         if (!openRes.success) {
           return;
         }
-        const res = await this.$services.rdpMfaInitMfaSetting({ responseType: 'blob', modal: false });
+        const res = await this.$services.rdpMfaInitMfaSetting({
+          data: {
+            mfaAccountType: this.mfaAccountType
+          },
+          responseType: 'blob',
+          modal: false
+        });
         console.log('res mfa', res, res.data);
         if (res) {
           const blob = new Blob([res], { type: 'image/png' });
           this.mfaQrCode = URL.createObjectURL(blob);
-          this.showMfaModal = true;
         }
       } finally {
         this.mfaModalLoading = false;
@@ -624,11 +645,19 @@ export default {
       this.showMfaModal = false;
       this.mfaQrCode = '';
       this.mfaInput = '';
+      this.mfaAccountType = '';
     },
     handleResetMfa() {
+      this.resetMfaAccountTypeIfUnavailable();
+      this.mfaQrCode = '';
+      this.errMsg = '';
       this.showResetMfaModal = true;
     },
     async handleConfirmMfaModal() {
+      if (!this.mfaQrCode) {
+        await this.generateMfaQrCode();
+        return;
+      }
       if (!this.mfaInput || !isNumber(this.mfaInput)) {
         this.errMsg = this.$t('qing-shu-ru-zheng-que-de-yan-zheng-ma');
         return;
@@ -651,6 +680,32 @@ export default {
     handleShowPassword() {
       this.showEditPassword = true;
       // window.location.reload();
+    },
+    handleUpdateUserName() {
+      this.updateUserInfo.userName = this.userInfo.username;
+      this.showEditUserName = true;
+    },
+    async handleConfirmUpdateUserName() {
+      if (!this.updateUserInfo.userName) {
+        this.$Message.error(this.$t('yong-hu-ming-bu-neng-wei-kong'));
+        return;
+      }
+      this.loading = true;
+      try {
+        const res = await this.$services.rdpUserUpdateUserName({
+          data: {
+            userName: this.updateUserInfo.userName
+          }
+        });
+        if (res.success) {
+          this.$Message.success(this.$t('xiu-gai-cheng-gong'));
+          this.showEditUserName = false;
+          this[UPDATE_USERINFO]({ username: this.updateUserInfo.userName });
+          await this.$store.dispatch('getUserInfo');
+        }
+      } finally {
+        this.loading = false;
+      }
     },
     handleUpdateUserInfo(type) {
       if (this.globalSetting.onPremiseDeployMode) {
@@ -679,6 +734,7 @@ export default {
       this.newPhoneToReset = '';
       this.errMsg = '';
       this.showEditPassword = false;
+      this.showEditUserName = false;
       this.editEmail = false;
       this.showEditUserInfo = false;
       this.showFetchAKSK = false;
@@ -692,7 +748,7 @@ export default {
       this.showResetMfaModal = false;
       this.hasConfirmReset = false;
       this.mfaQrCode = '';
-      this.showAliyunModal = false;
+      this.mfaAccountType = '';
     },
     handleShowFetchAKSK() {
       this.showFetchAKSK = true;
@@ -776,9 +832,15 @@ export default {
         }
         this.mfaModalLoading = false;
       } else {
+        if (!this.mfaAccountType) {
+          this.errMsg = this.$t('qing-xuan-ze-mfa-zhang-hao');
+          this.mfaModalLoading = false;
+          return;
+        }
         const res = await this.$services.rdpMfaResetMfaSetting({
           data: {
-            mfaCode
+            mfaCode,
+            mfaAccountType: this.mfaAccountType
           },
           responseType: 'blob'
         });
@@ -794,8 +856,7 @@ export default {
       }
     },
     handleConfirmEditPassword(originPassword) {
-      const regExp = new RegExp(this.passwordRule.expr);
-      if (regExp.test(this.newPassword)) {
+      if (this.isPasswordValid(this.newPassword)) {
         this.$services
           .rdpUserResetPwdWithOriginPwd({
             data: {
@@ -913,33 +974,6 @@ export default {
     handleShowEdit() {
       this.ifEdit = true;
     },
-    handleApplyStToken() {
-      this.$services.ccAliyunStsInvalidStsToken().then((res) => {
-        if (res.success) {
-          this.$services
-            .ccAliyunStsApplyStsToken({
-              data: this.aliyunForm
-            })
-            .then((res1) => {
-              if (res1.success) {
-                this.$Message.success(this.$t('cao-zuo-cheng-gong'));
-                this.aliyunForm.aliyunAk = '';
-                this.aliyunForm.aliyunSk = '';
-                this.handleCancelEdit();
-              }
-            });
-        }
-      });
-    },
-    handleCleanStToken() {
-      this.$services.ccAliyunStsInvalidStsToken().then((res) => {
-        if (res.success) {
-          this.$Message.success(this.$t('cao-zuo-cheng-gong'));
-          this.aliyunForm.aliyunAk = '';
-          this.aliyunForm.aliyunSk = '';
-        }
-      });
-    },
     getLicensePrice(data) {
       let totalPrice = 0;
 
@@ -972,15 +1006,6 @@ export default {
     },
     handleShowCloseMf() {
       this.showCloseMfaModal = true;
-    },
-    handleShowAliyunCleanConfirm() {
-      this.$Modal.confirm({
-        title: this.$t('qing-chu-a-li-yun-fang-wen-quan-xian'),
-        content: this.$t('ni-que-ding-yao-qing-chu-a-li-yun-fang-wen-quan-xian-ma'),
-        onOk: () => {
-          this.handleAliyunCleanStToken();
-        }
-      });
     }
   }
 };
@@ -1449,5 +1474,8 @@ export default {
 }
 .ivu-poptip-rel {
   width: 100% !important;
+}
+.empty-value {
+  color: #a2a9b6;
 }
 </style>

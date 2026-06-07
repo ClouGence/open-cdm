@@ -4,8 +4,8 @@
       <a-form-model-item :label="$t('xing-ming')" prop="userName">
         <a-input v-model="newAccountForm.userName" style="width: 420px" />
       </a-form-model-item>
-      <a-form-model-item :label="$t('zi-zhang-hao')" prop="subAccount">
-        <a-input v-model="newAccountForm.accountName" :addon-after="`@${selectedSubaccount.userDomain}`" style="width: 420px" />
+      <a-form-model-item :label="$t('zi-zhang-hao')" prop="account">
+        <a-input v-model="newAccountForm.accountName" style="width: 420px" />
       </a-form-model-item>
     </a-form-model>
     <div class="footer">
@@ -32,11 +32,11 @@ export default {
   },
   methods: {
     async handleModifySubAccount() {
-      const { uid, userDomain } = this.selectedSubaccount;
+      const { uid } = this.selectedSubaccount;
       const data = {
         targetUid: uid,
         userName: this.newAccountForm.userName,
-        subAccount: `${this.newAccountForm.accountName}@${userDomain}`
+        account: this.newAccountForm.accountName
       };
 
       const res = await this.$services.rdpUserManagerUpdateSubAccount({
@@ -52,7 +52,7 @@ export default {
   },
   created() {
     this.newAccountForm.userName = this.selectedSubaccount.username;
-    this.newAccountForm.accountName = this.selectedSubaccount.subAccount.split('@')[0];
+    this.newAccountForm.accountName = this.selectedSubaccount.account.split('@')[0];
   }
 };
 </script>

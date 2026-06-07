@@ -50,19 +50,17 @@
       </div>
     </Modal>
     <StToken ref="stToken"></StToken>
-    <AliyunAKSK ref="aliyunAKSK"></AliyunAKSK>
   </div>
 </template>
 
 <script>
 import SelectCluster from '@/components/function/addDataSource/SelectCluster';
 import StToken from '@/components/function/ApplyStToken';
-import AliyunAKSK from '@/components/function/ApplyAKSK';
 import { mapGetters, mapState } from 'vuex';
 import store from '@/store';
 
 export default {
-  components: { AliyunAKSK, StToken, SelectCluster },
+  components: { StToken, SelectCluster },
   props: {
     showAddWhiteList: Boolean,
     selectedRow: Object,
@@ -177,8 +175,6 @@ export default {
             store.state.selectedCluster.selectedCluster = {};
           } else if (res.code === '6028') {
             this.$refs.stToken.handleShowAkSk();
-          } else if (res.code === '2011') {
-            this.$refs.aliyunAKSK.handleShowAkSk();
           } else if (res.success && !res.data) {
             this.$Modal.info({
               title: this.$i18n.global.t('cao-zuo-ti-shi'),

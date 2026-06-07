@@ -20,10 +20,10 @@ export function resolveDisplayVersion(settings = {}) {
 }
 
 export function resolveDeploymentModeText(settings = {}) {
-  return settings.aloneMode ? '独立' : '集群';
+  return settings.aloneMode ? '完整版' : '集群版';
 }
 
 export function resolveVersionBadgeText(settings = {}) {
   const displayVersion = resolveDisplayVersion(settings) || 'unknow';
-  return `${resolveDeploymentModeText(settings)} ${displayVersion}`;
+  return `${displayVersion}（${resolveDeploymentModeText(settings)}）`;
 }

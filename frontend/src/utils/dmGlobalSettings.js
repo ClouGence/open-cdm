@@ -16,6 +16,10 @@ export function isDmSystemUpgrade(dmGlobalSettingsRes) {
   return getDmSystemStatus(dmGlobalSettingsRes).status === 'Upgrade';
 }
 
+export function isDmSystemStarting(dmGlobalSettingsRes) {
+  return getDmSystemStatus(dmGlobalSettingsRes).status === 'Starting';
+}
+
 export function isDmSystemBootstrapRequired(dmGlobalSettingsRes) {
   const status = getDmSystemStatus(dmGlobalSettingsRes).status;
   return status === 'Initial' || status === 'Upgrade';

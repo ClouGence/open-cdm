@@ -650,7 +650,7 @@ export default {
       });
       if (res?.data) {
         this.$message.success(this.$t('shu-ju-ku-shou-quan-cheng-gong'));
-        this.$router.push({ path: '/system/sub_account' });
+        this.$router.push({ path: '/system/account' });
       }
     },
     renderNode(node) {
@@ -1680,7 +1680,7 @@ export default {
     },
     handleGoAuth() {
       this.$router.push({
-        path: `/system/sub_account/authdm/${this.uid}?name=${this.subAccount}&&type=edit`
+        path: `/system/account/authdm/${this.uid}?name=${this.subAccount}&&type=edit`
       });
     },
     handleDsExpand(node) {

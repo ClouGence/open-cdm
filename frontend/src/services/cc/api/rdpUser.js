@@ -3,8 +3,6 @@
 // API
 // export const getUserSpecifiedConfigs = (param) => instance.post('user/config/getUserSpecifiedConfs', param);
 
-// export const updateAliyunAkSk = (param) => instance.post('user/updateAliyunAkSk', param);
-// export const cleanAliyunAkSk = (param) => instance.post('user/cleanAliyunAkSk', param);
 // export const getCurrUserConfigs = (param) => instance.post('user/config/getcurruserconfigs', param);
 // export const updateUserConfigs = (param) => instance.post('user/config/upsertuserconfigs', param);
 // export const listMyAuthCategoryForMenu = (param) => instance.post('user/listMyAuthCategoryForMenu', param);
@@ -15,5 +13,5 @@
 // export const resetUserAkSk = (param) => instance.post('user/resetUserAkSk', param);
 // export const resetPwdWithOriginPwd = (param) => instance.post('user/resetPwdWithOriginPwd', param);
 // export const resetSubAccountPwd = (param) => instance.post('user/resetSubAccountPwd', param);
-// export const getPrimaryAccountPwdValidateExpr = (param) => instance.post('user/getPrimaryAccountPwdValidateExpr', param);
-// export const getSubAccountPwdValidateExpr = (param) => instance.post('user/getSubAccountPwdValidateExpr', param);
+// export const getPrimaryAccountPwdPolicy = (param) => instance.post('user/getPrimaryAccountPwdPolicy', param);
+// export const getSubAccountPwdPolicy = (param) => instance.post('user/getSubAccountPwdPolicy', param);

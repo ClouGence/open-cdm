@@ -20,7 +20,7 @@ export default {
   productClusterList: (state) => state.productClusterList,
   includesCC: () => false,
   includesDM: () => true,
-  ifShowDsExtraConf: (state) => state.globalSetting.features && state.globalSetting.features.ENABLE_VALIDATE_DS_EXTRA_CONF,
+  ifShowDsExtraConf: (state) => state.globalSetting.enableValidateDsExtraConf,
   displayVersion: (state) => resolveVersionBadgeText(state.dmGlobalSetting),
   getNodeType: (state) => (type, deep) => state.globalDsSetting[type].categories.levels[deep],
   getLevels: (state) => (type) => {

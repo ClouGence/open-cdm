@@ -20,7 +20,7 @@
             {{ $t('ge-ren-zi-liao') }}
           </a>
         </MenuItem>
-        <!-- 仅子账号下的dm，开放我的权限 -->
+        <!-- 仅账号下的dm，开放我的权限 -->
         <MenuItem name="permission" key="/system/permission" v-if="this.userInfo.accountType !== 'PRIMARY_ACCOUNT' && this.includesDM">
           <a href="/#/system/permission">
             <CustomIcon type="icon-v2-MyAuth" rightMargin />

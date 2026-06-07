@@ -58,10 +58,8 @@
             <div class="domain">
               <div>
                 {{ userInfo.username }}
-                <a-tag color="orange" class="parent-account-label" v-if="userInfo.accountType === 'PRIMARY_ACCOUNT' && !isSaas">
-                  {{ $t('zhu') }}
-                </a-tag>
               </div>
+              <div v-if="!isInternalUser" class="provider-wrap">{{ $t('lai-yuan') }}: {{ userInfo.bindType }}</div>
               <div class="uid-wrap" @click.stop="handleCopyApplyCode(userInfo.uid)">
                 <span>{{ `UID: ${userInfo.uid}` }}</span>
                 <CustomIcon type="icon-v2-CopyOutline" size="12px" hoverStyle leftMargin />
@@ -80,6 +78,8 @@
             <!--            </span>-->
           </div>
           <div class="two">
+            <div v-if="userInfo.account">{{ $t('zhang-hao') }}: {{ userInfo.account }}</div>
+            <div v-if="!isInternalUser">{{ $t('lai-yuan') }}: {{ userInfo.bindType }}</div>
             <div v-if="userInfo.phone">{{ $t('dian-hua') }}: {{ userInfo.phone }}</div>
             <div>{{ $t('you-xiang') }}: {{ userInfo.email }}</div>
             <!--            <div v-if="userInfo.accountType!=='PRIMARY_ACCOUNT'">{{$t('suo-shu-zhu-zhang-hao')}}: {{ userInfo.pusername }}({{userInfo.pemail}})</div>-->
@@ -94,10 +94,10 @@
           <!--              {{ $t('wo-de-quan-xian') }}-->
           <!--            </div>-->
           <!--          </div>-->
-          <a v-if="userInfo.bindType === 'OIDC'" class="four block" href="logout" @click="closeWebSocket">
+          <a v-if="isOidcLogout" class="four block" href="logout" @click="closeWebSocket">
             {{ $t('tui-chu-zhang-hao') }}
           </a>
-          <a v-if="userInfo.bindType !== 'OIDC'" class="four block" @click="logout">
+          <a v-if="!isOidcLogout" class="four block" @click="logout">
             {{ $t('tui-chu-zhang-hao') }}
           </a>
         </div>
@@ -176,7 +176,7 @@ import Navbar from '@/components/Navbar';
 import LangSwitcher from '@/components/LangSwitcher';
 import { setApprovalProcessMixin, setOpPasswordMixin } from '@/mixins/modal';
 import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
-import { CONSOLE_JOB_NAME } from '@/const';
+import { CONSOLE_JOB_NAME, LOGIN_TYPE } from '@/const';
 import XEClipboard from 'xe-clipboard';
 import DmWaterMark from '@/components/widgets/DmWaterMark';
 import store from '@/store';
@@ -241,11 +241,14 @@ export default {
   },
   mixins: [setOpPasswordMixin, setApprovalProcessMixin, enterOpPwdMixin],
   computed: {
-    ...mapGetters(['isDesktop', 'displayVersion', 'includesDM']),
+    ...mapGetters(['isDesktop', 'displayVersion', 'includesDM', 'isInternalUser']),
     ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'remainTrialDay']),
     ...mapGetters(['isSaas']),
     headerTitleUrl() {
       return WEBSIDE_LOGO_HEADER;
+    },
+    isOidcLogout() {
+      return this.userInfo.bindType === LOGIN_TYPE.OIDC && this.userInfo.loginType === LOGIN_TYPE.OIDC;
     },
     getDmProductClusterList() {
       return [];
@@ -707,8 +710,10 @@ export default {
             font-size: 14px;
           }
 
-          .parent-account-label {
-            margin-left: 6px;
+          .provider-wrap {
+            color: #8c8c8c;
+            font-size: 12px;
+            margin-top: 4px;
           }
         }
 

@@ -31,8 +31,8 @@ function applyMenuItems(state, myCatLog = state.myCatLog, globalSetting = state.
   const systemMenuItems = [];
   if (myCatLog.includes('CAT_RDP_USER')) {
     systemMenuItems.push({
-      key: '/system/sub_account',
-      href: '/#/system/sub_account',
+      key: '/system/account',
+      href: '/#/system/account',
       label: i18n.global.t('zi-zhang-hao-guan-li'),
       iconName: 'icon-v2-sub_account'
     });
@@ -340,8 +340,8 @@ export default {
   [UPDATE_GLOBAL_SETTING](state, globalSetting) {
     console.warn(UPDATE_GLOBAL_SETTING);
     state.globalSetting = globalSetting;
-    const includesCC = supportsCloudCanalBuild && globalSetting.features?.PRODUCT_CLOUD_CANAL;
-    const includesDM = supportsCloudDMBuild && globalSetting.features?.PRODUCT_CLOUD_DM;
+    const includesCC = supportsCloudCanalBuild;
+    const includesDM = supportsCloudDMBuild;
     applyMenuItems(state, state.myCatLog, globalSetting);
     // 在 globalSetting 初始化完成后设置菜单项
     let url = '';
