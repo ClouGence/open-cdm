@@ -31,15 +31,11 @@ public interface DmAuthUserMapper extends BaseMapper<DmAuthUserDO> {
 
     DmAuthUserDO queryById(long id);
 
-    List<RsAuthPersonObj> searchUserByKeywords(String userDomain, String keywords);
+    List<RsAuthPersonObj> searchUserByKeywords(@Param("primaryId") Long primaryId, @Param("keywords") String keywords);
 
     DmAuthUserDO queryPrimaryByPhone(String phone);
 
     DmAuthUserDO queryPrimaryByEmail(String email);
-
-    DmAuthUserDO queryPrimaryByCompany(String company);
-
-    DmAuthUserDO queryPrimaryByDomain(String domain);
 
     List<DmAuthUserDO> querySubByPrimaryId(long primaryId);
 
@@ -52,11 +48,11 @@ public interface DmAuthUserMapper extends BaseMapper<DmAuthUserDO> {
 
     DmAuthUserDO querySubByEmail(String email);
 
-    DmAuthUserDO queryUserByAccount(@Param("account") String account, @Param("bindType") AccountBindType bindType);
+    DmAuthUserDO queryLocalLoginUserByAccount(@Param("account") String account);
 
-    DmAuthUserDO queryUserByEmail(@Param("email") String email, @Param("bindType") AccountBindType bindType);
+    DmAuthUserDO queryLocalLoginUserByEmail(@Param("email") String email);
 
-    DmAuthUserDO queryUserByPhone(@Param("phone") String phone, @Param("bindType") AccountBindType bindType);
+    DmAuthUserDO queryLocalLoginUserByPhone(@Param("phone") String phone);
 
     DmAuthUserDO querySubAccountByPhoneAndAccount(String phone, String subAccount);
 
@@ -67,6 +63,12 @@ public interface DmAuthUserMapper extends BaseMapper<DmAuthUserDO> {
     DmAuthUserDO queryByEmailAndParentId(String email, Long parentId);
 
     DmAuthUserDO queryBySubAccount(String subAccount);
+
+    DmAuthUserDO queryBySubAccountExcludeUid(@Param("subAccount") String subAccount, @Param("excludeUid") String excludeUid);
+
+    DmAuthUserDO queryByPhoneAndParentIdExcludeUid(@Param("phone") String phone, @Param("parentId") Long parentId, @Param("excludeUid") String excludeUid);
+
+    DmAuthUserDO queryByEmailAndParentIdExcludeUid(@Param("email") String email, @Param("parentId") Long parentId, @Param("excludeUid") String excludeUid);
 
     DmAuthUserDO queryBySubAccountAndBind(String parentId, String subAccount, String bindType);
 

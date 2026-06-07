@@ -134,8 +134,8 @@ public class OidcLoginProviderSpi implements LoginProviderSpi {
         }
 
         String userAccount = fullLoginName.substring(0, splitIdx);
-        String userDomain = fullLoginName.substring(splitIdx + 1);
-        return new String[] { userAccount, userDomain };
+        String domain = fullLoginName.substring(splitIdx + 1);
+        return new String[] { userAccount, domain };
     }
 
     @Override
@@ -161,10 +161,8 @@ public class OidcLoginProviderSpi implements LoginProviderSpi {
         //https://openid.net/specs/openid-connect-core-1_0.html#RFC6819
         //
         // map user
-        UserData primaryUser = this.configService.findUserByUID(primaryUID);
         UserData oidcUser = oidcApi.fetchUserInfo(idToken);
-        oidcUser.setAccount(oidcUser.getBindAccount() + "@" + primaryUser.getUserDomain());
-        oidcUser.setUserDomain(primaryUser.getUserDomain());
+        oidcUser.setAccount(oidcUser.getBindAccount());
         oidcUser.setAccessToken(idToken);
 
         // mapping role

@@ -10,7 +10,6 @@
         <result column="uid" property="uid"/>
         <result column="email" property="email"/>
         <result column="username" property="username"/>
-        <result column="company" property="company"/>
         <result column="phone" property="phone"/>
         <result column="account" property="account"/>
         <result column="password" property="password"/>
@@ -27,8 +26,8 @@
         <result column="account_type" property="accountType" javaType="com.clougence.clouddm.platform.dal.model.auth.AccountType"/>
         <result column="bind_type" property="bindType" typeHandler="com.clougence.clouddm.platform.dal.handler.AccountBindTypeTypeHandler"/>
         <result column="bind_account" property="bindAccount"/>
+        <result column="allow_local" property="allowLocal"/>
         <result column="disable" property="disable"/>
-        <result column="user_domain" property="userDomain"/>
         <result column="parent_id" property="parentId"/>
         <result column="user_status" property="userStatus" javaType="com.clougence.clouddm.platform.dal.model.auth.UserStatus"/>
         <result column="contact_me" property="contactMe"/>
@@ -55,7 +54,6 @@
         uid,
         email,
         username,
-        company,
         phone,
         account,
         password,
@@ -72,8 +70,8 @@
         account_type,
         bind_type,
         bind_account,
+        allow_local,
         disable,
-        user_domain,
         parent_id,
         user_status,
         contact_me,
@@ -148,57 +146,37 @@
             AND account_type = 'SUB_ACCOUNT'
     </select>
 
-    <select id="queryUserByAccount" resultMap="rdpUserDO">
+    <select id="queryLocalLoginUserByAccount" resultMap="rdpUserDO">
         SELECT
             <include refid="rdpUser"/>
         FROM
             dm_auth_user
         WHERE
             account = #{account}
-            AND bind_type = #{bindType,javaType=com.clougence.clouddm.platform.dal.model.auth.AccountBindType}
+            AND (bind_type = 'INTERNAL' OR allow_local = 1)
         limit 1
     </select>
 
-    <select id="queryUserByEmail" resultMap="rdpUserDO">
+    <select id="queryLocalLoginUserByEmail" resultMap="rdpUserDO">
         SELECT
             <include refid="rdpUser"/>
         FROM
             dm_auth_user
         WHERE
             email = #{email}
-            AND bind_type = #{bindType,javaType=com.clougence.clouddm.platform.dal.model.auth.AccountBindType}
+            AND (bind_type = 'INTERNAL' OR allow_local = 1)
         limit 1
     </select>
 
-    <select id="queryUserByPhone" resultMap="rdpUserDO">
+    <select id="queryLocalLoginUserByPhone" resultMap="rdpUserDO">
         SELECT
             <include refid="rdpUser"/>
         FROM
             dm_auth_user
         WHERE
             phone = #{phone}
-            AND bind_type = #{bindType,javaType=com.clougence.clouddm.platform.dal.model.auth.AccountBindType}
+            AND (bind_type = 'INTERNAL' OR allow_local = 1)
         limit 1
-    </select>
-
-    <select id="queryPrimaryByCompany" resultMap="rdpUserDO">
-        SELECT
-            <include refid="rdpUser"/>
-        FROM
-            dm_auth_user
-        WHERE
-            company = #{company}
-            AND account_type = 'PRIMARY_ACCOUNT'
-    </select>
-
-    <select id="queryPrimaryByDomain" resultMap="rdpUserDO">
-        SELECT
-            <include refid="rdpUser"/>
-        FROM
-            dm_auth_user
-        WHERE
-            user_domain  = #{domain} AND
-            account_type = 'PRIMARY_ACCOUNT'
     </select>
 
     <select id="querySubAccountByPhoneAndAccount" resultMap="rdpUserDO">
@@ -250,6 +228,41 @@
             dm_auth_user
         WHERE
             account = #{subAccount}
+    </select>
+
+    <select id="queryBySubAccountExcludeUid" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            dm_auth_user
+        WHERE
+            account = #{subAccount}
+            AND uid != #{excludeUid}
+        limit 1
+    </select>
+
+    <select id="queryByPhoneAndParentIdExcludeUid" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            dm_auth_user
+        WHERE
+            phone = #{phone}
+            AND parent_id = #{parentId}
+            AND uid != #{excludeUid}
+        limit 1
+    </select>
+
+    <select id="queryByEmailAndParentIdExcludeUid" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            dm_auth_user
+        WHERE
+            email = #{email}
+            AND parent_id = #{parentId}
+            AND uid != #{excludeUid}
+        limit 1
     </select>
 
     <select id="queryBySubAccountAndBind" resultMap="rdpUserDO">
@@ -388,7 +401,7 @@
             email        != 'inner@clougence.com' and
             disable      = 0
         order by
-            company asc
+            username asc
     </select>
 
     <select id="listMaintainers" resultMap="rdpUserDO">
@@ -400,7 +413,7 @@
             maintainer = 1
             and disable = 0
             and login_locked = 0
-            order by company asc
+            order by username asc
         limit 5
     </select>
 
@@ -413,7 +426,6 @@
             phone = #{phone}
         AND username = #{username}
         AND email = #{email}
-        AND company = #{company}
         AND account_type = 'PRIMARY_ACCOUNT'
     </select>
 
@@ -424,7 +436,7 @@
         FROM
             dm_auth_user
         WHERE
-            user_domain  = #{userDomain} and
+            (id = #{primaryId} or parent_id = #{primaryId}) and
             disable      = 0 and
             login_locked = 0
             <if test="keywords != null">and (
@@ -687,7 +699,47 @@
 
     <select id="listSubAccountByPidAndAuth" resultType="com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO">
         SELECT
-            <include refid="rdpUser"/>
+            dm_auth_user.id,
+            dm_auth_user.gmt_create,
+            dm_auth_user.gmt_modified,
+            dm_auth_user.uid,
+            dm_auth_user.email,
+            dm_auth_user.username,
+            dm_auth_user.phone,
+            dm_auth_user.account,
+            dm_auth_user.password,
+            dm_auth_user.op_password,
+            dm_auth_user.role_id,
+            dm_auth_user.access_key,
+            dm_auth_user.secret_key,
+            dm_auth_user.last_try_login_time,
+            dm_auth_user.login_fail_count,
+            dm_auth_user.login_locked,
+            dm_auth_user.last_try_op_verify_time,
+            dm_auth_user.op_verify_fail_count,
+            dm_auth_user.op_locked,
+            dm_auth_user.account_type,
+            dm_auth_user.bind_type,
+            dm_auth_user.bind_account,
+            dm_auth_user.allow_local,
+            dm_auth_user.disable,
+            dm_auth_user.parent_id,
+            dm_auth_user.user_status,
+            dm_auth_user.contact_me,
+            dm_auth_user.src,
+            dm_auth_user.keyword,
+            dm_auth_user.client_id,
+            dm_auth_user.country,
+            dm_auth_user.maintainer,
+            dm_auth_user.last_date_update_pwd,
+            dm_auth_user.union_id,
+            dm_auth_user.sso_type,
+            dm_auth_user.resource_manage_enable,
+            dm_auth_user.customer_id,
+            dm_auth_user.saas_user_status,
+            dm_auth_user.access_token,
+            dm_auth_user.marketplace_type,
+            dm_auth_user.use_mfa
         FROM dm_auth_user left join dm_auth_role
              ON dm_auth_user.role_id=dm_auth_role.id
         WHERE parent_id=#{pid} and JSON_CONTAINS(dm_auth_role.role_auth_labels, '["' #{authLabel} '"]')

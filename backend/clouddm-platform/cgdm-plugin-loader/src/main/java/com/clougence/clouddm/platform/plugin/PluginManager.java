@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
@@ -78,6 +79,7 @@ public class PluginManager {
     private static final GlobalMeta                      globalMeta;
     private static final Map<String, DsMeta>             dsMetaMap;
     private static final Map<String, Map<Class<?>, Spi>> dsSpiCache;
+    private static final AtomicBoolean                   ready = new AtomicBoolean(false);
 
     private PluginManager(){
     }
@@ -139,6 +141,18 @@ public class PluginManager {
         if (dsMeta != null) {
             dsMetaMap.put(dsMeta.getDsType().getTypeName(), dsMeta);
         }
+    }
+
+    static void markStarting() {
+        ready.set(false);
+    }
+
+    static void markReady() {
+        ready.set(true);
+    }
+
+    public static boolean isReady() {
+        return ready.get();
     }
 
     public static DsPluginInfo findDsPlugin(DataSourceType dsProduct) {

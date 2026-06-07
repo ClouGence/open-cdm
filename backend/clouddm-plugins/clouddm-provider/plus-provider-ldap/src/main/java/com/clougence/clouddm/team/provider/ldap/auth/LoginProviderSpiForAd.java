@@ -167,8 +167,8 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
         }
 
         String userAccount = fullLoginName.substring(0, splitIdx);
-        String userDomain = fullLoginName.substring(splitIdx + 1);
-        return new String[] { userAccount, userDomain };
+        String domain = fullLoginName.substring(splitIdx + 1);
+        return new String[] { userAccount, domain };
     }
 
     private static final String AD_ObjectGUID         = "objectGUID";
@@ -235,9 +235,8 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
         user.setUserName(getAttribute(attributes, AD_UserName));
         user.setEmail(StringUtils.isBlank(adEmail) ? adUPN : adEmail);
         user.setPhone(getAttribute(attributes, AD_UserPhone));
-        user.setAccount(finalAdName + "@" + primaryUser.getUserDomain());
+        user.setAccount(finalAdName);
         user.setBindAccount(finalAdName);
-        user.setUserDomain(primaryUser.getUserDomain());
 
         // mapping role
         RoleData role = searchRole(primaryUser.getInternalUID(), ldapCtx);

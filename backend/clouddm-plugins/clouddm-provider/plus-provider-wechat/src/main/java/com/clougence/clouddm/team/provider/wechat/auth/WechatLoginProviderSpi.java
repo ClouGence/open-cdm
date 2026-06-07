@@ -149,8 +149,8 @@ public class WechatLoginProviderSpi implements LoginProviderSpi {
         }
 
         String userAccount = fullLoginName.substring(0, splitIdx);
-        String userDomain = fullLoginName.substring(splitIdx + 1);
-        return new String[] { userAccount, userDomain };
+        String domain = fullLoginName.substring(splitIdx + 1);
+        return new String[] { userAccount, domain };
     }
 
     @Override
@@ -175,9 +175,7 @@ public class WechatLoginProviderSpi implements LoginProviderSpi {
 
         // map user
         UserData wechatUser = loginApi(primaryUID).getUserInfo(userTicket);
-        UserData primaryUser = this.configService.findUserByUID(primaryUID);
-        wechatUser.setAccount(wechatUser.getBindAccount() + "@" + primaryUser.getUserDomain());
-        wechatUser.setUserDomain(primaryUser.getUserDomain());
+        wechatUser.setAccount(wechatUser.getBindAccount());
         wechatUser.setAccessToken(userTicket);
 
         // mapping role

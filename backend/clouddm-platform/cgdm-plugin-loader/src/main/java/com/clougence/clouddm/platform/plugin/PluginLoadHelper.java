@@ -60,18 +60,25 @@ public class PluginLoadHelper {
     // ---------------------------------------------
 
     public static void loadPlugins(ClassLoader appClassLoader, File... pluginPaths) {
-        List<BaseMeta> allPlugins = new ArrayList<>();
-        for (File path : pluginPaths) {
-            allPlugins.addAll(scanPluginDirectory(appClassLoader, path));
-        }
+        PluginManager.markStarting();
+        try {
+            List<BaseMeta> allPlugins = new ArrayList<>();
+            for (File path : pluginPaths) {
+                allPlugins.addAll(scanPluginDirectory(appClassLoader, path));
+            }
 
-        allPlugins.sort(Comparator.comparingInt(BaseMeta::getOrder));
+            allPlugins.sort(Comparator.comparingInt(BaseMeta::getOrder));
 
-        log.info("Total plugins discovered: {}", allPlugins.size());
-        for (BaseMeta plugin : allPlugins) {
-            activatePlugin(plugin);
+            log.info("Total plugins discovered: {}", allPlugins.size());
+            for (BaseMeta plugin : allPlugins) {
+                activatePlugin(plugin);
+            }
+            SchemaFramework.install(new SchemaInitPlugin());
+            PluginManager.markReady();
+        } catch (Throwable e) {
+            PluginManager.markStarting();
+            throw e;
         }
-        SchemaFramework.install(new SchemaInitPlugin());
     }
 
     private static List<BaseMeta> scanPluginDirectory(ClassLoader appClassLoader, File pluginPath) {

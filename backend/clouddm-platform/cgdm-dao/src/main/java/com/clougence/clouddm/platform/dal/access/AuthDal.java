@@ -5,8 +5,7 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 
 public interface AuthDal {
 
-    String ROOT_USER_UID     = "9999999999999999";
-    String ROOT_USER_ACCOUNT = "admin";
+    String ROOT_USER_UID = "9999999999999999";
 
     DmAuthApprovalMapper approvalMapper();
 

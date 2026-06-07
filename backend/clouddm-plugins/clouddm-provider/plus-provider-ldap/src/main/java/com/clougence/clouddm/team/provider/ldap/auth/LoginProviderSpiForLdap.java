@@ -150,8 +150,8 @@ public class LoginProviderSpiForLdap extends BaseLoginProviderSpi implements Log
         }
 
         String userAccount = split[0];
-        String userDomain = split[1];
-        return new String[] { userAccount, userDomain };
+        String domain = split[1];
+        return new String[] { userAccount, domain };
     }
 
     @Override
@@ -191,9 +191,8 @@ public class LoginProviderSpiForLdap extends BaseLoginProviderSpi implements Log
         user.setUserName(getAttribute(attributes, ldapConfig.getLdapFieldUser()));
         user.setEmail(getAttribute(attributes, ldapConfig.getLdapFieldEmail()));
         user.setPhone(getAttribute(attributes, ldapConfig.getLdapFieldPhone()));
-        user.setAccount(ldapAccount.trim() + "@" + primaryUser.getUserDomain());
+        user.setAccount(ldapAccount.trim());
         user.setBindAccount(getAttribute(attributes, ldapConfig.getLdapFieldLogin()));
-        user.setUserDomain(primaryUser.getUserDomain());
 
         // mapping role
         RoleData role = searchRole(primaryUser.getInternalUID(), ldapCtx);

@@ -151,8 +151,8 @@ public class FeishuLoginProviderSpi implements LoginProviderSpi {
         }
 
         String userAccount = fullLoginName.substring(0, splitIdx);
-        String userDomain = fullLoginName.substring(splitIdx + 1);
-        return new String[] { userAccount, userDomain };
+        String domain = fullLoginName.substring(splitIdx + 1);
+        return new String[] { userAccount, domain };
     }
 
     @Override
@@ -177,9 +177,7 @@ public class FeishuLoginProviderSpi implements LoginProviderSpi {
 
         // map user
         UserData dingUser = loginApi(primaryUID).getUserInfo(accessToken);
-        UserData primaryUser = this.configService.findUserByUID(primaryUID);
-        dingUser.setAccount(dingUser.getBindAccount() + "@" + primaryUser.getUserDomain());
-        dingUser.setUserDomain(primaryUser.getUserDomain());
+        dingUser.setAccount(dingUser.getBindAccount());
         dingUser.setAccessToken(accessToken);
 
         // mapping role

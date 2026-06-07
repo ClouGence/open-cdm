@@ -33,8 +33,7 @@ public class UserData {
     private String userName;
     private String email;
     private String phone;
-    private String subAccount;
-    private String userDomain;
+    private String account;
     private Long   roleId;
     private String bindAccount;
     private String accessToken; // AccessToken or IdToken
