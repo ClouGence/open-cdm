@@ -3,7 +3,7 @@
     <Breadcrumb style="margin-bottom: 14px">
       <BreadcrumbItem>{{ $t('ge-ren-zi-liao') }}</BreadcrumbItem>
     </Breadcrumb>
-    <Tabs value="profile" :animated="false">
+    <Tabs v-model="activeTab" :animated="false">
       <TabPane :label="$t('zhang-hu-xin-xi')" name="profile">
         <!-- 个人信息tab内容：原账户信息栏目 -->
         <div>
@@ -126,14 +126,15 @@
             <div class="mb-4" style="font-size: 14px; font-weight: bold">
               {{ $t('duo-yin-zi-ren-zheng') }}
               <span v-if="!userInfo.useMfa">{{ $t('wei-kai-qi') }}</span>
-              <span v-if="userInfo.useMfa">{{ $t('yi-kai-qi') }}</span>
+              <span v-else-if="mfaInvalid">{{ $t('yi-shi-xiao') }}</span>
+              <span v-else>{{ $t('yi-kai-qi') }}</span>
             </div>
             <div>
               <div>
-                <Button v-if="!userInfo.useMfa" style="margin-right: 12px" @click="handleOpenMfaSetting">
-                  {{ $t('kai-qi-1') }}
+                <Button v-if="!userInfo.useMfa || mfaInvalid" style="margin-right: 12px" @click="handleOpenMfaSetting">
+                  {{ mfaInvalid ? $t('chong-xin-qi-yong') : $t('kai-qi-1') }}
                 </Button>
-                <Button @click="handleResetMfa" v-if="userInfo.useMfa" type="default" style="margin-right: 12px">
+                <Button @click="handleResetMfa" v-if="userInfo.useMfa && !mfaInvalid" type="default" style="margin-right: 12px">
                   {{ $t('chong-zhi') }}
                 </Button>
                 <Button @click="handleShowCloseMf" v-if="userInfo.useMfa" type="error" ghost>{{ $t('guan-bi') }}</Button>
@@ -164,7 +165,7 @@
         </div>
       </TabPane>
     </Tabs>
-    <CCModal v-model="showMfaModal" :title="$t('kai-qi-duo-yin-zi-ren-zheng')" width="480px">
+    <CCModal v-model="showMfaModal" :title="$t('duo-yin-zi-ren-zheng')" width="480px">
       <div v-if="mfaModalLoading" style="text-align: center; padding: 40px 0">
         <i class="ivu-icon ivu-icon-ios-loading ivu-load-loop" style="font-size: 32px"></i>
       </div>
@@ -189,17 +190,19 @@
           </p>
         </div>
         <div v-else>
-          <p class="mt-4 mb-4">
-            {{
-              $t(
-                'shi-yong-nin-de-an-quan-yan-zheng-app-lai-sao-miao-yi-xia-er-wei-ma-bing-jiang-ta-ti-gong-de-yi-ci-xing-de-yan-zheng-ma-tian-ru-xia-mian-de-shu-ru-kuang'
-              )
-            }}
+          <p class="mfa-bind-instruction" :class="{ expired: mfaSettingExpired }">
+            {{ mfaBindInstruction }}
           </p>
           <Tabs v-model="mfaCodeTab" :animated="false" class="mfa-code-tabs">
             <TabPane :label="$t('mfa-er-wei-ma')" name="qr">
               <div class="mfa-qr-panel">
-                <img :src="mfaQrCode" class="mfa-qr-code" v-if="mfaQrCode" />
+                <div class="mfa-qr-wrapper">
+                  <img :src="mfaQrCode" class="mfa-qr-code" v-if="mfaQrCode" />
+                  <div v-if="mfaSettingExpired" class="mfa-expired-mask">
+                    <strong>{{ $t('yi-shi-xiao') }}</strong>
+                    <span>{{ $t('qing-zhong-xin-sheng-cheng') }}</span>
+                  </div>
+                </div>
                 <div class="mfa-authenticator-links">
                   <a href="https://support.google.com/accounts/answer/1066447" target="_blank" rel="noopener noreferrer">
                     {{ $t('google-authenticator') }}
@@ -217,7 +220,18 @@
                     <span v-for="group in row" :key="group">{{ group }}</span>
                   </div>
                 </div>
-                <Button type="primary" ghost @click="handleCopy(mfaSecretCode)">{{ $t('fu-zhi') }}</Button>
+                <div class="mfa-secret-actions">
+                  <Button type="primary" ghost @click="handleCopy(mfaSecretCode)">{{ $t('fu-zhi') }}</Button>
+                  <Button type="primary" ghost @click="handleDownloadMfaCode">{{ $t('xia-zai') }}</Button>
+                </div>
+                <div class="mfa-authenticator-links">
+                  <a href="https://support.google.com/accounts/answer/1066447" target="_blank" rel="noopener noreferrer">
+                    {{ $t('google-authenticator') }}
+                  </a>
+                  <a href="https://support.microsoft.com/authenticator/download-microsoft-authenticator" target="_blank" rel="noopener noreferrer">
+                    {{ $t('microsoft-authenticator') }}
+                  </a>
+                </div>
               </div>
             </TabPane>
           </Tabs>
@@ -231,61 +245,6 @@
         <Button type="primary" @click="handleConfirmMfaModal">{{ mfaStep === 1 ? $t('sheng-cheng-mfa-code') : $t('que-ding') }}</Button>
       </template>
     </CCModal>
-    <verify-mfa-modal
-      v-model:visible="showCloseMfaModal"
-      :title="$t('guan-bi-duo-yin-zi-ren-zheng')"
-      :handle-close-modal="handleCancelEdit"
-      :handle-confirm-callback="handleConfirmCloseMfa"
-      :loading="mfaModalLoading"
-      :err-msgContent="errMsg"
-      ref="close-mfa-modal"
-    >
-      <p class="mb-4">
-        {{
-          $t(
-            'guan-bi-duo-yin-zi-ren-zheng-hou-nin-de-zhang-hao-jiang-shao-yi-ceng-bao-hu-ru-que-ren-yao-guan-bi-qing-shu-ru-duo-yin-zi-yan-zheng-ma-hou-dian-ji-que-ding'
-          )
-        }}
-      </p>
-    </verify-mfa-modal>
-    <verify-mfa-modal
-      v-model:visible="showResetMfaModal"
-      :has-next-step="!hasConfirmReset"
-      :title="$t('chong-zhi-duo-yin-zi-ren-zheng')"
-      :handle-close-modal="handleCancelEdit"
-      :handle-confirm-callback="handleConfirmResetMfa"
-      :loading="mfaModalLoading"
-      :err-msgContent="errMsg"
-    >
-      <div>
-        <p class="mb-4">
-          {{ $t('qing-shu-ru-duo-yin-zi-yan-zheng-ma-yi-chong-zhi-duo-yin-zi-ren-zheng-pei-zhi') }}
-        </p>
-        <Form v-if="!hasConfirmReset" label-position="top">
-          <FormItem :label="$t('mfa-zhang-hao')">
-            <RadioGroup v-model="mfaAccountType" vertical>
-              <Radio v-for="item in mfaAccountOptions" :key="item.value" :label="item.value" :disabled="item.disabled">
-                <span>{{ item.label }}</span>
-                <span class="ml-2 text-gray-500">{{ item.account || $t('wei-she-zhi-0') }}</span>
-              </Radio>
-            </RadioGroup>
-          </FormItem>
-        </Form>
-        <div v-if="hasConfirmReset">
-          <div
-            class="border-b border-solid border-[#dcdee2] pb-8"
-            style="display: flex; justify-content: center; align-items: center; margin-bottom: 16px; min-height: 180px"
-          >
-            <img
-              :src="mfaQrCode"
-              class="border border-solid border-[#dcdee2] rounded"
-              style="width: 180px; height: 180px; display: block"
-              v-if="mfaQrCode"
-            />
-          </div>
-        </div>
-      </div>
-    </verify-mfa-modal>
     <CCModal v-model="showAKSK" title="AK/SK" width="640px" footer-hide>
       <h3 style="margin-bottom: 20px">
         {{ $t('wei-bao-zheng-nin-de-zhang-hao-an-quan-qing-wu-bi-bao-guan-hao-nin-de-aksk') }}
@@ -309,15 +268,14 @@
 </template>
 <script>
 import { isNumber } from '@/components/util';
-import verifyMfaModal from '@/components/modal/VerifyMfaModal';
 import { mapGetters, mapMutations, mapState } from 'vuex';
 import { encryptMixin } from '@/mixins/encryptMixin';
 import { UPDATE_USERINFO } from '@/store/mutationTypes';
 
 const DEFAULT_PASSWORD_MIN_LENGTH = 8;
+const MFA_SETTING_EXPIRE_MS = 10 * 60 * 1000;
 
 export default {
-  components: { verifyMfaModal },
   mixins: [encryptMixin],
   data() {
     return {
@@ -346,17 +304,19 @@ export default {
         phone: '',
         email: ''
       },
+      activeTab: 'profile',
       showMfaModal: false,
-      showCloseMfaModal: false,
-      showResetMfaModal: false,
       mfaStep: 1,
       mfaCodeTab: 'qr',
       mfaQrCode: '',
       mfaSecretCode: '',
       mfaInput: '',
       mfaAccountType: '',
-      mfaModalLoading: false,
-      hasConfirmReset: false
+      mfaMode: 'init',
+      mfaExpireAt: 0,
+      mfaNow: Date.now(),
+      mfaExpireTimer: null,
+      mfaModalLoading: false
     };
   },
   created() {
@@ -376,11 +336,20 @@ export default {
   },
   async mounted() {
     // this.listAllConfigs();
+    if (this.$route.query?.tab === 'security') {
+      this.activeTab = 'security';
+    }
     await this.getConfigValueList();
+  },
+  beforeUnmount() {
+    this.clearMfaExpireTimer();
   },
   computed: {
     ...mapGetters(['isInternalUser']),
     ...mapState(['userInfo']),
+    mfaInvalid() {
+      return this.userInfo.useMfa && this.userInfo.mfaStatus !== 'ACTIVE';
+    },
     mfaAccountOptions() {
       return [
         {
@@ -410,6 +379,16 @@ export default {
         rows.push(groups.slice(i, i + 4));
       }
       return rows;
+    },
+    mfaSettingExpired() {
+      return Boolean(this.mfaExpireAt && this.mfaNow >= this.mfaExpireAt);
+    },
+    mfaBindInstruction() {
+      if (this.mfaSettingExpired) {
+        return this.$t('mfa-code-yi-shi-xiao-qing-zhong-xin-sheng-cheng');
+      }
+      const target = this.mfaCodeTab === 'code' ? this.$t('mfa-code') : this.$t('mfa-er-wei-ma');
+      return this.$t('mfa-bang-ding-ti-shi', [target, this.formatMfaRemainTime(Math.max(this.mfaExpireAt - this.mfaNow, 0))]);
     }
   },
   methods: {
@@ -432,7 +411,9 @@ export default {
       return /[A-Z]/.test(value) && /[a-z]/.test(value) && /\d/.test(value);
     },
     async handleOpenMfaSetting() {
+      this.mfaMode = 'init';
       this.resetMfaAccountTypeIfUnavailable();
+      this.clearMfaExpireTimer();
       this.showMfaModal = true;
       this.mfaStep = 1;
       this.mfaCodeTab = 'qr';
@@ -445,7 +426,9 @@ export default {
       if (this.mfaAccountOptions.some((item) => item.value === this.mfaAccountType && !item.disabled)) {
         return;
       }
-      this.mfaAccountType = '';
+      const accountOption = this.mfaAccountOptions.find((item) => item.value === 'ACCOUNT' && !item.disabled);
+      const fallbackOption = this.mfaAccountOptions.find((item) => !item.disabled);
+      this.mfaAccountType = (accountOption || fallbackOption || {}).value || '';
     },
     async generateMfaQrCode() {
       if (!this.mfaAccountType) {
@@ -458,7 +441,8 @@ export default {
         if (!openRes.success) {
           return;
         }
-        const res = await this.$services.rdpMfaInitMfaSetting({
+        const generateService = this.mfaMode === 'reset' ? this.$services.rdpMfaResetMfaSetting : this.$services.rdpMfaInitMfaSetting;
+        const res = await generateService({
           data: {
             mfaAccountType: this.mfaAccountType
           },
@@ -470,6 +454,7 @@ export default {
           this.mfaSecretCode = mfaData?.mfaCode || mfaData?.code || '';
           this.mfaCodeTab = 'qr';
           this.mfaStep = 2;
+          this.startMfaExpireTimer();
         }
       } finally {
         this.mfaModalLoading = false;
@@ -483,12 +468,20 @@ export default {
       this.mfaSecretCode = '';
       this.mfaInput = '';
       this.mfaAccountType = '';
+      this.mfaMode = 'init';
+      this.clearMfaExpireTimer();
     },
     handleResetMfa() {
+      this.mfaMode = 'reset';
       this.resetMfaAccountTypeIfUnavailable();
+      this.clearMfaExpireTimer();
+      this.showMfaModal = true;
+      this.mfaStep = 1;
+      this.mfaCodeTab = 'qr';
       this.mfaQrCode = '';
+      this.mfaSecretCode = '';
+      this.mfaInput = '';
       this.errMsg = '';
-      this.showResetMfaModal = true;
     },
     async handleConfirmMfaModal() {
       if (this.mfaStep === 1) {
@@ -499,16 +492,20 @@ export default {
         this.errMsg = this.$t('qing-shu-ru-zheng-que-de-yan-zheng-ma');
         return;
       }
-      // 这里预留后续确认逻辑
+      if (this.mfaSettingExpired) {
+        this.errMsg = this.$t('mfa-code-yi-shi-xiao-qing-zhong-xin-sheng-cheng');
+        return;
+      }
       this.mfaModalLoading = true;
-      const res = await this.$services.rdpMfaConfirmInitMfaSetting({
+      const confirmService = this.mfaMode === 'reset' ? this.$services.rdpMfaConfirmResetMfaSetting : this.$services.rdpMfaConfirmInitMfaSetting;
+      const res = await confirmService({
         data: {
           mfaCode: this.mfaInput
         }
       });
       this.errMsg = '';
       if (res?.success) {
-        this.$Message.success(this.$t('kai-qi-cheng-gong'));
+        this.$Message.success(this.mfaMode === 'reset' ? this.$t('chong-zhi-duo-yin-zi-ren-zheng-cheng-gong') : this.$t('kai-qi-cheng-gong'));
         this.$store.dispatch('getUserInfo');
         this.handleCloseMfaModal();
       }
@@ -591,16 +588,24 @@ export default {
           return;
         }
         const postFunc = field === 'phone' ? this.$services.rdpUserUpdateUserPhone : this.$services.rdpUserUpdateUserEmail;
+        const confirmMfaInvalid = await this.confirmMfaInvalidIfNeeded(this.inlineForm[field] === this.userInfo[field] ? [] : [field]);
+        if (confirmMfaInvalid === null) {
+          return;
+        }
         this.loading = true;
         try {
           const res = await postFunc({
             data: {
-              [field]: this.inlineForm[field]
+              [field]: this.inlineForm[field],
+              confirmMfaInvalid
             }
           });
           if (res.success) {
             this.$Message.success(this.$t('xiu-gai-cheng-gong'));
-            this[UPDATE_USERINFO]({ [field]: this.inlineForm[field] });
+            this[UPDATE_USERINFO]({
+              [field]: this.inlineForm[field],
+              ...(confirmMfaInvalid ? { mfaStatus: 'INVALID' } : {})
+            });
             await this.$store.dispatch('getUserInfo');
             this.cancelInlineEdit();
           }
@@ -642,14 +647,13 @@ export default {
     handleCancelEdit() {
       this.errMsg = '';
       this.showAKSK = false;
-      this.showCloseMfaModal = false;
-      this.showResetMfaModal = false;
-      this.hasConfirmReset = false;
       this.mfaStep = 1;
       this.mfaCodeTab = 'qr';
       this.mfaQrCode = '';
       this.mfaSecretCode = '';
       this.mfaAccountType = '';
+      this.mfaMode = 'init';
+      this.clearMfaExpireTimer();
     },
     handleShowFetchAKSK() {
       this.handleConfirmFetchAKSK();
@@ -682,68 +686,67 @@ export default {
         this.$Message.success(this.$t('aksk-chong-zhi-cheng-gong'));
       }
     },
-    async handleConfirmCloseMfa(mfaCode) {
-      if (!mfaCode || !isNumber(mfaCode)) {
-        this.errMsg = this.$t('qing-shu-ru-zheng-que-de-yan-zheng-ma');
-        return;
-      }
-      this.mfaModalLoading = true;
-      const res = await this.$services.rdpMfaCloseMfaSettings({
-        data: {
-          mfaCode
-        }
+    confirmMfaInvalidIfNeeded(fields) {
+      const fieldTypeMap = {
+        account: 'ACCOUNT',
+        phone: 'PHONE',
+        email: 'EMAIL'
+      };
+      const affectedFields = fields.filter((field) => {
+        const type = fieldTypeMap[field];
+        const isActiveMfa = this.userInfo.useMfa && this.userInfo.mfaStatus === 'ACTIVE';
+        const isSameType = !this.userInfo.mfaAccountType || this.userInfo.mfaAccountType === type;
+        return isActiveMfa && isSameType;
       });
-      this.errMsg = '';
-      if (res.success) {
-        this.$Message.success(this.$t('guan-bi-cheng-gong'));
-        this.$store.dispatch('getUserInfo');
-        this.showCloseMfaModal = false;
+      if (!affectedFields.length) {
+        return Promise.resolve(false);
       }
-      this.mfaModalLoading = false;
+      const fieldNames = affectedFields.map((field) => this.mfaFieldLabel(field)).join('、');
+      return new Promise((resolve) => {
+        this.$Modal.confirm({
+          title: this.$t('mfa-shi-xiao-que-ren'),
+          content: this.$t('mfa-guan-lian-ziduan-xiugai-tishi', [fieldNames]),
+          okText: this.$t('ji-xu'),
+          cancelText: this.$t('qu-xiao'),
+          onOk: () => resolve(true),
+          onCancel: () => resolve(null)
+        });
+      });
     },
-    async handleConfirmResetMfa(mfaCode) {
-      if (!mfaCode || !isNumber(mfaCode)) {
-        this.errMsg = this.$t('qing-shu-ru-zheng-que-de-yan-zheng-ma');
-        return;
+    mfaFieldLabel(field) {
+      const labelMap = {
+        account: this.$t('zhang-hao'),
+        phone: this.$t('shou-ji'),
+        email: this.$t('you-xiang')
+      };
+      return labelMap[field] || field;
+    },
+    startMfaExpireTimer() {
+      this.clearMfaExpireTimer();
+      this.mfaNow = Date.now();
+      this.mfaExpireAt = this.mfaNow + MFA_SETTING_EXPIRE_MS;
+      this.mfaExpireTimer = window.setInterval(() => {
+        this.mfaNow = Date.now();
+        if (this.mfaSettingExpired) {
+          this.clearMfaExpireTimer(false);
+        }
+      }, 1000);
+    },
+    clearMfaExpireTimer(reset = true) {
+      if (this.mfaExpireTimer) {
+        window.clearInterval(this.mfaExpireTimer);
+        this.mfaExpireTimer = null;
       }
-      this.mfaModalLoading = true;
-      if (this.hasConfirmReset) {
-        const res = await this.$services.rdpMfaConfirmResetMfaSetting({
-          data: {
-            mfaCode
-          }
-        });
-        this.errMsg = '';
-        if (res.success) {
-          this.$Message.success(this.$t('chong-zhi-duo-yin-zi-ren-zheng-cheng-gong'));
-          this.$store.dispatch('getUserInfo');
-          this.showResetMfaModal = false;
-          this.hasConfirmReset = false;
-        }
-        this.mfaModalLoading = false;
-      } else {
-        if (!this.mfaAccountType) {
-          this.errMsg = this.$t('qing-xuan-ze-mfa-zhang-hao');
-          this.mfaModalLoading = false;
-          return;
-        }
-        const res = await this.$services.rdpMfaResetMfaSetting({
-          data: {
-            mfaCode,
-            mfaAccountType: this.mfaAccountType
-          },
-          responseType: 'blob'
-        });
-        this.errMsg = '';
-        if (res.fail) {
-          this.errMsg = res.msgContent;
-        } else {
-          const blob = new Blob([res], { type: 'image/png' });
-          this.mfaQrCode = URL.createObjectURL(blob);
-          this.hasConfirmReset = true;
-        }
-        this.mfaModalLoading = false;
+      if (reset) {
+        this.mfaExpireAt = 0;
+        this.mfaNow = Date.now();
       }
+    },
+    formatMfaRemainTime(ms) {
+      const seconds = Math.ceil(ms / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const restSeconds = seconds % 60;
+      return `${String(minutes).padStart(2, '0')}:${String(restSeconds).padStart(2, '0')}`;
     },
     handleCopy(value) {
       const aux = document.createElement('input');
@@ -756,8 +759,45 @@ export default {
 
       this.$Message.success(this.$t('fu-zhi-cheng-gong'));
     },
+    handleDownloadMfaCode() {
+      const code = (this.mfaSecretCode || '').replace(/\s/g, '');
+      if (!code) {
+        return;
+      }
+      const username = this.sanitizeDownloadFileName(this.userInfo.username || this.userInfo.account || this.userInfo.uid || 'user');
+      const blob = new Blob([`${code}\n`], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `clouddm-mfacode-${username}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    },
+    sanitizeDownloadFileName(name) {
+      return (
+        String(name || 'user')
+          .trim()
+          .replace(/[\\/:*?"<>|]+/g, '_')
+          .replace(/\s+/g, '_') || 'user'
+      );
+    },
     handleShowCloseMf() {
-      this.showCloseMfaModal = true;
+      this.$Modal.confirm({
+        title: this.$t('guan-bi-duo-yin-zi-ren-zheng'),
+        content: this.$t('mfa-guan-bi-wu-yan-zheng-ti-shi'),
+        okText: this.$t('que-ding'),
+        cancelText: this.$t('qu-xiao'),
+        onOk: async () => {
+          const service = this.mfaInvalid ? this.$services.rdpMfaCloseInvalidMfaSettings : this.$services.rdpMfaCloseMfaSettings;
+          const res = await service({ data: {} });
+          if (res.success) {
+            this.$Message.success(this.$t('guan-bi-cheng-gong'));
+            await this.$store.dispatch('getUserInfo');
+          }
+        }
+      });
     }
   }
 };
@@ -1267,10 +1307,61 @@ export default {
   align-items: center;
   justify-content: center;
 }
+.mfa-reset-qr-panel {
+  min-height: 208px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.mfa-qr-wrapper {
+  position: relative;
+  width: 200px;
+  height: 200px;
+
+  &.is-reset {
+    width: 180px;
+    height: 180px;
+  }
+}
 .mfa-qr-code {
   width: 200px;
   height: 200px;
   display: block;
+
+  &.is-reset {
+    width: 180px;
+    height: 180px;
+  }
+}
+.mfa-expired-mask {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #ed4014;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #f5b7b1;
+  font-size: 16px;
+  text-align: center;
+
+  strong {
+    font-size: 22px;
+  }
+}
+.mfa-bind-instruction {
+  margin: 16px 0;
+  color: #808695;
+  font-size: 13px;
+  line-height: 20px;
+
+  &.expired {
+    color: #ed4014;
+    font-weight: 600;
+  }
 }
 .mfa-authenticator-links {
   margin-top: 14px;
@@ -1295,16 +1386,21 @@ export default {
 .mfa-secret-code {
   color: #515a6e;
   font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 32px;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 42px;
   letter-spacing: 0;
   text-align: center;
 }
 .mfa-secret-code-row {
   display: grid;
-  grid-template-columns: repeat(4, 4.2em);
-  column-gap: 12px;
+  grid-template-columns: repeat(4, 4.4em);
+  column-gap: 16px;
+  justify-content: center;
+}
+.mfa-secret-actions {
+  display: flex;
+  gap: 12px;
   justify-content: center;
 }
 .mfa-verify-divider {

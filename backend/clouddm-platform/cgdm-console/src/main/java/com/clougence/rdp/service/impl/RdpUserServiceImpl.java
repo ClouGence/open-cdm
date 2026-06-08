@@ -31,6 +31,7 @@ import com.clougence.clouddm.console.web.component.auth.DmAuthLabelService;
 import com.clougence.clouddm.console.web.component.auth.DmUserService;
 import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.constants.CheckSubAccountType;
+import com.clougence.clouddm.console.web.constants.MfaAccountType;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.*;
@@ -43,6 +44,7 @@ import com.clougence.clouddm.console.web.model.vo.PwdPolicyVO;
 import com.clougence.clouddm.console.web.model.vo.RdpUserAkSkVO;
 import com.clougence.clouddm.console.web.service.auth.RdpRoleService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
+import com.clougence.clouddm.console.web.service.login.LoginMFAService;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
@@ -90,6 +92,8 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
     private DmAuthLabelService     authLabelService;
     @Resource
     private List<RdpNotifyService> notifyServices;
+    @Resource
+    private LoginMFAService        loginMFAService;
 
     @Override
     public List<AuthInfo> allAuthLabelByUser(String puid, String uid) {
@@ -296,6 +300,13 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
             }
         }
 
+        if (!StringUtils.equals(oldPhone, newPhone)) {
+            try {
+                this.loginMFAService.invalidateMFAIfAccountChanged(uid, Collections.singleton(MfaAccountType.PHONE), Boolean.TRUE.equals(fo.getConfirmMfaInvalid()));
+            } catch (ErrorMessageException e) {
+                return new UpdateUserInfoMO(false, e.getErrorMessage());
+            }
+        }
         // phone console_user,alert_config_detail,system
         authDal.userMapper().updateUserContactInfo(uid, newPhone, null);
 
@@ -326,6 +337,13 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
             }
         }
 
+        if (!StringUtils.equals(oldEmail, newEmail)) {
+            try {
+                this.loginMFAService.invalidateMFAIfAccountChanged(uid, Collections.singleton(MfaAccountType.EMAIL), Boolean.TRUE.equals(fo.getConfirmMfaInvalid()));
+            } catch (ErrorMessageException e) {
+                return new UpdateUserInfoMO(false, e.getErrorMessage());
+            }
+        }
         // phone console_user,alert_config_detail,system
         authDal.userMapper().updateUserContactInfo(uid, null, newEmail);
 
@@ -594,7 +612,23 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
             roleMap.put(role.getId(), role);
         }
 
-        return subAccounts.stream().map(u -> RdpConvertUtils.convertToListUserVO(u, roleMap)).collect(Collectors.toList());
+        return subAccounts.stream().map(u -> {
+            ListUserVO vo = RdpConvertUtils.convertToListUserVO(u, roleMap);
+            fillMfaInfo(vo, u.getUid());
+            return vo;
+        }).collect(Collectors.toList());
+    }
+
+    private void fillMfaInfo(ListUserVO vo, String uid) {
+        if (vo == null) {
+            return;
+        }
+        DmAuthMFADO mfaDO = this.loginMFAService.queryMFA(uid);
+        if (mfaDO == null) {
+            return;
+        }
+        vo.setMfaStatus(mfaDO.getMfaStatus());
+        vo.setMfaAccountType(mfaDO.getMfaAccountType());
     }
 
     private void addSubAccountCheck(AddSubAccountFO accountFO, DmAuthUserDO primaryUser, boolean skipMailCheck, boolean skipPhoneCheck) {
@@ -801,6 +835,15 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
             return mo;
         }
 
+        Set<MfaAccountType> changedMfaAccountTypes = changedMfaAccountTypes(oldUser, fo);
+        try {
+            this.loginMFAService.invalidateMFAIfAccountChanged(oldUser.getUid(), changedMfaAccountTypes, Boolean.TRUE.equals(fo.getConfirmMfaInvalid()));
+        } catch (ErrorMessageException e) {
+            mo.setSuccess(false);
+            mo.setErrorMsg(e.getErrorMessage());
+            return mo;
+        }
+
         UpdateUserInfoLO lo = new UpdateUserInfoLO();
         lo.setTargetUid(fo.getTargetUid());
         lo.setOldSubAccount(oldUser.getAccount());
@@ -843,6 +886,20 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         mo.setSuccess(true);
         mo.setErrorMsg(null);
         return mo;
+    }
+
+    private Set<MfaAccountType> changedMfaAccountTypes(DmAuthUserDO oldUser, UpdateSubAccountFO fo) {
+        Set<MfaAccountType> changedTypes = EnumSet.noneOf(MfaAccountType.class);
+        if (fo.getAccount() != null && !StringUtils.equals(oldUser.getAccount(), fo.getAccount())) {
+            changedTypes.add(MfaAccountType.ACCOUNT);
+        }
+        if (fo.getPhone() != null && !StringUtils.equals(oldUser.getPhone(), fo.getPhone())) {
+            changedTypes.add(MfaAccountType.PHONE);
+        }
+        if (fo.getEmail() != null && !StringUtils.equals(oldUser.getEmail(), fo.getEmail())) {
+            changedTypes.add(MfaAccountType.EMAIL);
+        }
+        return changedTypes;
     }
 
     @Override

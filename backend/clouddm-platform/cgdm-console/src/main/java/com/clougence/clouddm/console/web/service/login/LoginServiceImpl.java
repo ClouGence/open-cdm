@@ -80,6 +80,8 @@ public class LoginServiceImpl implements LoginService {
     private CsrfTokenService csrfTokenService;
     @Resource
     private RdpUserService   rdpUserService;
+    @Resource
+    private LoginMFAService  loginMFAService;
 
     @Override
     public LoginMO login(LoginFO loginFO) {
@@ -292,8 +294,12 @@ public class LoginServiceImpl implements LoginService {
         }
 
         if (user.isUseMfa()) {
-            re.setNeedMfa(true);
-            re.setMfaPreActionToken(this.jwtService.genMfaActionToken(user.getUid(), MfaPreActionType.LOGIN, jwtToken));
+            if (this.loginMFAService.isInvalidMFA(user.getUid())) {
+                re.setMfaInvalid(true);
+            } else {
+                re.setNeedMfa(true);
+                re.setMfaPreActionToken(this.jwtService.genMfaActionToken(user.getUid(), MfaPreActionType.LOGIN, jwtToken));
+            }
         }
 
         return re;

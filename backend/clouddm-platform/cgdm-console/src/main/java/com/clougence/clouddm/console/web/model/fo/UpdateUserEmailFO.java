@@ -25,4 +25,6 @@ public class UpdateUserEmailFO {
     @NotNull(message = "{notnull.email}")
     @Pattern(regexp = "^[A-Za-z0-9+_.-]+@(.+)$", message = "{pattern.email}")
     private String email;
+
+    private Boolean confirmMfaInvalid;
 }

@@ -5,5 +5,6 @@ export const mfaApi = {
   rdpMfaConfirmInitMfaSetting: '/rdp/console/api/v1/mfa/confirmInitMfaSetting',
   rdpMfaResetMfaSetting: '/rdp/console/api/v1/mfa/resetMfaSetting',
   rdpMfaConfirmResetMfaSetting: '/rdp/console/api/v1/mfa/confirmResetMfaSetting',
-  rdpMfaCloseMfaSettings: '/rdp/console/api/v1/mfa/closeMfaSettings'
+  rdpMfaCloseMfaSettings: '/rdp/console/api/v1/mfa/closeMfaSettings',
+  rdpMfaCloseInvalidMfaSettings: '/rdp/console/api/v1/mfa/closeInvalidMfaSettings'
 };

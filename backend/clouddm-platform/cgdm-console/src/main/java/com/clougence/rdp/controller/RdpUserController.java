@@ -55,11 +55,13 @@ import com.clougence.clouddm.console.web.model.vo.RdpUserAkSkVO;
 import com.clougence.clouddm.console.web.model.vo.ResourceSummaryVO;
 import com.clougence.clouddm.console.web.service.auth.RdpRoleService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
+import com.clougence.clouddm.console.web.service.login.LoginMFAService;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.console.web.util.Sm2Utils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthMFADO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
@@ -106,6 +108,8 @@ public class RdpUserController {
     private DmConsoleConfig     rdpConfig;
     @Resource
     private SystemDal           systemDal;
+    @Resource
+    private LoginMFAService     loginMFAService;
 
     // --------------------------------
     //      for User Info
@@ -130,6 +134,11 @@ public class RdpUserController {
         }
 
         LoginUserVO userVO = RdpConvertUtils.convertToLoginUserVO(userDO, pUser);
+        DmAuthMFADO mfaDO = this.loginMFAService.queryMFA(uid);
+        if (mfaDO != null) {
+            userVO.setMfaStatus(mfaDO.getMfaStatus());
+            userVO.setMfaAccountType(mfaDO.getMfaAccountType());
+        }
         DecodedJWT jwt = this.jwtService.verify(request);
         userVO.setLoginType(jwt == null ? null : LoginAuthType.valueOfCode(jwt.getClaim(JwtService.LOGIN_TYPE).asString()));
         this.fillPasswordValidDays(userVO, userDO.getLastDateUpdatePwd(), pUser.getUid());

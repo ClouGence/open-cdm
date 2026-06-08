@@ -276,6 +276,8 @@ const EMPTY_SUB_ACCOUNT = {
   lockedAt: '',
   lastLoginTime: '',
   useMfa: false,
+  mfaStatus: '',
+  mfaAccountType: '',
   bindType: 'INTERNAL',
   bindAccount: '',
   allowLocal: true
@@ -499,13 +501,22 @@ export default {
       this.$refs.newAccountFormRef.validate(async (valid) => {
         if (valid) {
           const payload = this.buildAccountPayload();
+          const updatePayload = this.accountFormMode === 'edit' ? this.buildUpdateAccountPayload() : null;
+          const confirmMfaInvalid = this.accountFormMode === 'edit' ? await this.confirmMfaInvalidIfNeeded(updatePayload) : false;
+          if (confirmMfaInvalid === null) {
+            this.loading = false;
+            return;
+          }
+          if (confirmMfaInvalid) {
+            updatePayload.confirmMfaInvalid = true;
+          }
           const request =
             this.accountFormMode === 'create'
               ? this.$services.rdpUserManagerAddSubAccount({
                   data: payload
                 })
               : this.$services.rdpUserManagerUpdateSubAccount({
-                  data: this.buildUpdateAccountPayload()
+                  data: updatePayload
                 });
           const res = await request;
           if (res.success) {
@@ -518,6 +529,44 @@ export default {
         }
         this.loading = false;
       });
+    },
+    confirmMfaInvalidIfNeeded(payload) {
+      const fieldTypeMap = {
+        account: 'ACCOUNT',
+        phone: 'PHONE',
+        email: 'EMAIL'
+      };
+      const affectedFields = Object.keys(fieldTypeMap).filter((field) => {
+        const type = fieldTypeMap[field];
+        return (
+          Object.prototype.hasOwnProperty.call(payload, field) &&
+          this.originAccount.useMfa &&
+          this.originAccount.mfaStatus === 'ACTIVE' &&
+          (!this.originAccount.mfaAccountType || this.originAccount.mfaAccountType === type)
+        );
+      });
+      if (!affectedFields.length) {
+        return Promise.resolve(false);
+      }
+      const fieldNames = affectedFields.map((field) => this.mfaFieldLabel(field)).join('、');
+      return new Promise((resolve) => {
+        this.$Modal.confirm({
+          title: this.$t('mfa-shi-xiao-que-ren'),
+          content: this.$t('mfa-guan-lian-ziduan-xiugai-tishi', [fieldNames]),
+          okText: this.$t('ji-xu'),
+          cancelText: this.$t('qu-xiao'),
+          onOk: () => resolve(true),
+          onCancel: () => resolve(null)
+        });
+      });
+    },
+    mfaFieldLabel(field) {
+      const labelMap = {
+        account: this.$t('zhang-hao'),
+        phone: this.$t('shou-ji'),
+        email: this.$t('you-xiang')
+      };
+      return labelMap[field] || field;
     },
     generateRandomPwd() {
       const length = Math.max(this.passwordRule.minLength || DEFAULT_PASSWORD_MIN_LENGTH, this.passwordRule.strongPolicy ? 3 : 1);
@@ -595,6 +644,8 @@ export default {
         lockedAt: row.loginLocked ? row.lastTryLoginTime : '',
         lastLoginTime: row.lastTryLoginTime || '',
         useMfa: !!row.useMfa,
+        mfaStatus: row.mfaStatus || '',
+        mfaAccountType: row.mfaAccountType || '',
         bindType: row.bindType || 'INTERNAL',
         bindAccount: row.bindAccount || row.account || '',
         allowLocal: row.bindType === 'INTERNAL' || !!row.allowLocal
@@ -607,6 +658,9 @@ export default {
         email: row.email || '',
         account: row.account || '',
         allowLocal: row.bindType === 'INTERNAL' || !!row.allowLocal,
+        useMfa: !!row.useMfa,
+        mfaStatus: row.mfaStatus || '',
+        mfaAccountType: row.mfaAccountType || '',
         disable: !!row.disable,
         loginLocked: !!row.loginLocked
       };

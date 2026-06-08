@@ -19,4 +19,5 @@ public enum MfaStatus {
 
     ACTIVE,
     INACTIVE,
+    INVALID,
 }

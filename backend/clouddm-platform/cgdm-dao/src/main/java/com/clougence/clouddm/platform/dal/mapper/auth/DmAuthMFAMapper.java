@@ -15,9 +15,11 @@
  */
 package com.clougence.clouddm.platform.dal.mapper.auth;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.clougence.clouddm.platform.dal.model.auth.MfaStatus;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthMFADO;
+import com.clougence.clouddm.platform.dal.model.auth.MfaStatus;
 
 /**
  * @author wanshao create time is 2021/1/5
@@ -26,13 +28,13 @@ public interface DmAuthMFAMapper extends BaseMapper<DmAuthMFADO> {
 
     DmAuthMFADO queryByUid(String uid);
 
-    void updateById(Long id, String mfaKey, MfaStatus mfaStatus);
+    void updateById(@Param("id") Long id, @Param("mfaKey") String mfaKey, @Param("mfaStatus") MfaStatus mfaStatus, @Param("mfaAccountType") String mfaAccountType);
 
-    void updateStatusById(Long id, MfaStatus mfaStatus);
+    void updateStatusById(@Param("id") Long id, @Param("mfaStatus") MfaStatus mfaStatus);
 
-    void emptyResetMfaKeyById(Long id);
+    void emptyResetMfaKeyById(@Param("id") Long id);
 
-    void updateResetMfaKeyById(Long id, String resetMfaKey);
+    void updateResetMfaKeyById(@Param("id") Long id, @Param("resetMfaKey") String resetMfaKey, @Param("resetMfaAccountType") String resetMfaAccountType);
 
     /**
      * For sub-account.

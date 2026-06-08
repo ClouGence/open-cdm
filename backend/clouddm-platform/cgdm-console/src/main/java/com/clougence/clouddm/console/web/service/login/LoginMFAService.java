@@ -15,8 +15,11 @@
  */
 package com.clougence.clouddm.console.web.service.login;
 
+import java.util.Collection;
+
 import com.clougence.clouddm.console.web.constants.MfaAccountType;
 import com.clougence.clouddm.console.web.model.vo.MfaCodeVO;
+import com.clougence.clouddm.platform.dal.model.auth.DmAuthMFADO;
 
 public interface LoginMFAService {
 
@@ -25,11 +28,19 @@ public interface LoginMFAService {
 
     MfaCodeVO initMFA(String uid, MfaAccountType mfaAccountType);
 
-    byte[] resetMFA(String uid, int mfaCode, MfaAccountType mfaAccountType);
+    MfaCodeVO resetMFA(String uid, MfaAccountType mfaAccountType);
 
     void confirmFMA(String uid, boolean reset, int mfaCode);
 
     boolean validMFA(String uid, int mfaCode);
 
-    void closeMFA(String uid, int mfaCode);
+    void closeMFA(String uid);
+
+    void closeInvalidMFA(String uid);
+
+    boolean isInvalidMFA(String uid);
+
+    void invalidateMFAIfAccountChanged(String uid, Collection<MfaAccountType> changedTypes, boolean confirmed);
+
+    DmAuthMFADO queryMFA(String uid);
 }

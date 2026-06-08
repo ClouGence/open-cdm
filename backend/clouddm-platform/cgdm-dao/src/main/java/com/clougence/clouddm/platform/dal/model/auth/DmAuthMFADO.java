@@ -45,7 +45,11 @@ public class DmAuthMFADO {
 
     private MfaStatus mfaStatus;
 
+    private String    mfaAccountType;
+
     private String    mfaKey;
+
+    private String    resetMfaAccountType;
 
     private String    resetMfaKey;
 }

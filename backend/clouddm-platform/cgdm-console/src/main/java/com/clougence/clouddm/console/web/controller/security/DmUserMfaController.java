@@ -30,18 +30,13 @@ import com.clougence.clouddm.console.web.model.vo.MfaCodeVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.login.LoginMFAService;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
-import com.clougence.utils.ExceptionUtils;
 
 import jakarta.annotation.Resource;
-import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping(value = RdpControllerUrlPrefix.CONSOLE_PREFIX + "/mfa")
-@Slf4j
 public class DmUserMfaController {
 
     @Resource
@@ -70,24 +65,9 @@ public class DmUserMfaController {
 
     @RequestAuth(strategy = RefAnyOnes)
     @RequestMapping(value = "/resetMfaSetting", method = RequestMethod.POST)
-    public void resetMfaSetting(@Valid @RequestBody ResetMfaSettingsFO fo, HttpServletRequest request, HttpServletResponse response) {
+    public ResWebData<MfaCodeVO> resetMfaSetting(@Valid @RequestBody ResetMfaSettingsFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
-        byte[] qrCode = mfaService.resetMFA(uid, Integer.parseInt(fo.getMfaCode()), fo.getMfaAccountType());
-        sendPictureToWeb(qrCode, response);
-    }
-
-    private void sendPictureToWeb(byte[] qrCode, HttpServletResponse response) {
-        response.setContentType("image/png");
-        response.setHeader("Content-Disposition", "inline; filename=\"qrcode\"");
-        response.setContentLength(qrCode.length);
-
-        try (ServletOutputStream outputStream = response.getOutputStream()) {
-            outputStream.write(qrCode);
-            outputStream.flush();
-        } catch (Exception e) {
-            String errorMsg = "Transport qrcode image error.msg：" + ExceptionUtils.getRootCauseMessage(e);
-            log.error(errorMsg, e);
-        }
+        return ResWebDataUtils.buildSuccess(mfaService.resetMFA(uid, fo.getMfaAccountType()));
     }
 
     @RequestAuth(strategy = RefAnyOnes)
@@ -100,9 +80,17 @@ public class DmUserMfaController {
 
     @RequestAuth(strategy = RefAnyOnes)
     @RequestMapping(value = "/closeMfaSettings", method = RequestMethod.POST)
-    public ResWebData<?> closeMfaSettings(@Valid @RequestBody CloseMfaSettingsFO fo, HttpServletRequest request) {
+    public ResWebData<?> closeMfaSettings(HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
-        mfaService.closeMFA(uid, Integer.parseInt(fo.getMfaCode()));
+        mfaService.closeMFA(uid);
+        return ResWebDataUtils.buildSuccess("ok");
+    }
+
+    @RequestAuth(strategy = RefAnyOnes)
+    @RequestMapping(value = "/closeInvalidMfaSettings", method = RequestMethod.POST)
+    public ResWebData<?> closeInvalidMfaSettings(HttpServletRequest request) {
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+        mfaService.closeInvalidMFA(uid);
         return ResWebDataUtils.buildSuccess("ok");
     }
 }
