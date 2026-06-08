@@ -1,5 +1,5 @@
 <template>
-  <div class="cluster-container" style="padding: 16px">
+  <div class="cluster-container">
     <Breadcrumb style="margin-bottom: 14px">
       <BreadcrumbItem>
         {{ type === 'dm' ? $t('cha-xun-ji-qi') : $t('tong-bu-ji-qi') }}
@@ -11,14 +11,7 @@
       :handleAddCluster="handleAddCluster"
       :params="searchData"
     ></ClusterHeader>
-    <Table
-      border
-      :columns="displayResourceColumns"
-      :data="showData"
-      size="small"
-      :loading="refreshLoading"
-      style="margin-top: 12px; margin-bottom: 64px"
-    >
+    <Table border :columns="displayResourceColumns" :data="showData" size="small" :loading="refreshLoading" style="margin-top: 12px">
       <template #cluster="{ row }">
         <div>
           <a @click="handleCluster(row)">{{ row.clusterName }}</a>

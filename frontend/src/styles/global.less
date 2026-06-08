@@ -6,6 +6,8 @@
 @import 'variables.less';
 @import 'mixins.less';
 @import 'modal.less';
+@import 'app-shell.less';
+@import 'dm-design-system.less';
 //@import '~@wsfe/ctree/src/styles/index.less';
 * {
   box-sizing: border-box;
@@ -14,12 +16,18 @@
 html {
   font-size: 14px;
   box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', Helvetica, Arial, sans-serif;
   color: @default-color;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 a {
-  color: #0bb9f8;
+  color: @link-color;
 }
 
 a[disabled] {
@@ -144,58 +152,14 @@ a[disabled] {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
 
   .table-list {
-    padding: 16px;
     flex: 1;
     display: flex;
     flex-direction: column;
     min-height: 0;
     height: 100%;
-
-    .header {
-      margin-bottom: 12px;
-    }
-
-    .content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      height: 100%;
-      overflow: auto;
-
-      .option {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        height: 60px;
-        border: 1px solid #ededed;
-        padding: 12px;
-        margin-bottom: 12px;
-
-        .left {
-          display: flex;
-        }
-
-        .right {
-        }
-      }
-
-      .table-container {
-        flex: 1;
-        min-height: 0;
-        overflow: auto;
-      }
-    }
-  }
-
-  .footer {
-    box-shadow: 6px 2px 23px 0 rgba(197, 197, 197, 0.5);
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 }
 
@@ -259,7 +223,9 @@ a,
 .ivu-dropdown a,
 .dropdown-content,
 .key-link-a,
-.ivu-menu-item a {
+.ivu-menu-item a,
+.app-sidebar-item,
+.management-section-tabs__item {
   &:hover {
     border-bottom: none;
   }

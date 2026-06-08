@@ -297,32 +297,38 @@
     }
 
     &-primary {
-      background-color: #0087c7 !important;
-      border-color: var(--border-radio) !important;
-      color: #ffffff !important;
+      background-color: var(--primary-color) !important;
+      border-color: var(--primary-color) !important;
+      color: #171717 !important;
+
+      span {
+        color: #171717 !important;
+      }
 
       &.ivu-btn-ghost {
-        border-color: #0bb9f9 !important;
-        color: #0bb9f9 !important;
+        border-color: var(--primary-color) !important;
+        color: var(--primary-color) !important;
+        background: transparent !important;
 
         span {
-          color: #0bb9f9 !important;
+          color: var(--primary-color) !important;
         }
 
         &:hover {
-          border-color: #0087c7 !important;
-          color: #0087c7 !important;
+          border-color: var(--primary-color) !important;
+          color: #171717 !important;
+          background-color: var(--primary-color) !important;
 
           span {
-            color: #0087c7 !important;
+            color: #171717 !important;
           }
         }
       }
 
       &:hover {
-        opacity: 0.8;
-        border-color: #ffffff !important;
-        color: #ffffff !important;
+        opacity: 0.92;
+        border-color: var(--primary-color) !important;
+        color: #171717 !important;
       }
     }
 

@@ -34,20 +34,13 @@
                   style="width: 280px; margin-right: 10px"
                   clearable
                 />
-                <Button class="search-btn" type="primary" @click="handleQuery">
+                <Button class="search-btn" type="primary" ghost @click="handleQuery">
                   {{ $t('cha-xun') }}
                 </Button>
               </div>
             </div>
             <div class="right">
-              <Button
-                v-if="myAuth.includes('DM_WORKER_MANAGE')"
-                ghost
-                icon="md-add"
-                style="margin-right: 10px"
-                type="primary"
-                @click="handleClickAddBtn"
-              >
+              <Button v-if="myAuth.includes('DM_WORKER_MANAGE')" icon="md-add" style="margin-right: 10px" type="primary" @click="handleClickAddBtn">
                 {{ $t('tian-jia-ji-qi') }}
               </Button>
               <Button class="refresh" @click="getWorkerList">

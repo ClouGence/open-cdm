@@ -1,5 +1,5 @@
 <template>
-  <div class="sql-home-container">
+  <div class="sql-home-container sql-workspace">
     <div class="content">
       <data-source-tree
         ref="dataSourceTree"
@@ -25,7 +25,7 @@
                     <div @contextmenu.prevent.stop="onContextmenu($event, tab)">
                       <div
                         v-if="tab.isEditing"
-                        style="position: absolute; width: 8px; height: 8px; border-radius: 50%; background: green; left: 13px"
+                        style="position: absolute; width: 8px; height: 8px; border-radius: 50%; background: var(--primary-color); left: 13px"
                       />
                       <cc-svg-icon name="TABLE" v-if="tab.icon === 'Table'" style="display: inline-block" />
                       <CustomIcon :type="tab.icon" v-else />
@@ -1658,37 +1658,29 @@ export default {
     :deep(.ant-tabs-extra-content) {
       height: 40px;
       line-height: 40px;
-      border-bottom: 1px solid #ccc;
-      padding-right: 5px;
+      border-bottom: 1px solid var(--border-primary);
+      padding-right: 8px;
     }
 
-    // 修改tab下边框颜色，使其更深
     :deep(.ant-tabs-nav-wrap) {
-      border-bottom: 1px solid #ccc !important;
+      border-bottom: 1px solid var(--border-primary) !important;
     }
 
-    :deep(.ant-tabs > .ant-tabs-nav .ant-tabs-nav-list) {
-      height: 90%;
-      top: 3px;
-    }
-
-    // 修改未被选中的tab颜色，使其更深
     :deep(.ant-tabs-tab) {
-      background-color: #f5f5f5 !important;
-      border-color: #d9d9d9 !important;
-      color: #666666 !important;
+      background-color: var(--bg-tertiary) !important;
+      border-color: var(--border-primary) !important;
+      color: var(--text-secondary) !important;
+      border-radius: 6px 6px 0 0 !important;
 
-      // hover 时不再加深背景色，只让文字变为主题色
       &:hover {
         color: var(--primary-color) !important;
       }
     }
 
-    // 修改被选中的tab颜色
     :deep(.ant-tabs-tab-active) {
-      background-color: #ffffff !important;
-      border-bottom-color: #666666 !important;
-      color: #333333 !important;
+      background-color: var(--bg-primary) !important;
+      border-bottom-color: var(--bg-primary) !important;
+      color: var(--text-primary) !important;
     }
 
     .tab-menus {

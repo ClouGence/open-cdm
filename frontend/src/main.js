@@ -13,6 +13,7 @@ import CommonMixin from '@/components/function/mixin/commonMixin';
 import CCModal from '@/components/ui/CCModal';
 import CCPasswordInput from '@/components/widgets/CCPasswordInput';
 import CCIconfont from '@/components/widgets/CCIconfont';
+import registerUiOverrides from '@/components/ui/registerUiOverrides';
 import App from './App';
 import router from './router';
 import store from './store';
@@ -66,6 +67,8 @@ app.use(ViewUIPlus, {
   },
   i18n
 });
+
+app.use(registerUiOverrides);
 app.use(router);
 app.use(store);
 app.use(vResize);

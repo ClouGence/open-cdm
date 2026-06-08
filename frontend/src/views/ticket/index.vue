@@ -2,11 +2,6 @@
   <div class="ticket-container">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb>
-            <BreadcrumbItem>{{ $t('gong-dan') }}</BreadcrumbItem>
-          </Breadcrumb>
-        </div>
         <Tabs v-model="ticketListType" @on-click="handleChangeTicketListType">
           <TabPane name="WAIT_SELF_PROCESS" :label="$t('dai-ban')" />
           <TabPane name="SELF_CREATE" :label="$t('wo-fa-qi-de')" />
@@ -34,7 +29,7 @@
                 style="width: 280px; margin-right: 4px"
                 clearable
               />
-              <Button type="primary" class="ticket-search-btn" @click="listTickets">
+              <Button type="primary" ghost class="ticket-search-btn" @click="listTickets">
                 {{ $t('cha-xun') }}
               </Button>
             </div>
@@ -43,7 +38,6 @@
                 @click="handleShowTicketCreateModal"
                 style="margin-right: 10px"
                 type="primary"
-                ghost
                 icon="md-add"
                 v-if="myAuth.includes('RDP_WORKER_ORDER_REQUEST')"
               >
@@ -298,6 +292,7 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow: auto;
+  min-height: 0;
+  overflow: hidden;
 }
 </style>

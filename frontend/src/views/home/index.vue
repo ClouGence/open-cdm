@@ -1,130 +1,45 @@
 <template>
-  <div class="home">
+  <div class="home" :class="{ 'home--sql': isSqlRoute }">
     <dm-water-mark :input-text="watermarkStr" ref="watermark" v-if="!isDesktop && globalSetting.enableWaterMark" />
-    <div class="header">
-      <div class="brand-container" @click="handleGoBackHome">
-        <span class="product-title-frame">
-          <img class="product-title" :src="headerTitleUrl" alt="CloudDM" />
-        </span>
-      </div>
-      <navbar style="flex: 1" />
-      <div class="user-info" v-if="!isDesktop">
-        <span v-if="displayVersion" class="app-version-badge" translate="no">{{ displayVersion }}</span>
-        <Dropdown @on-click="handleGoHelp" transfer>
-          <CustomIcon type="icon-v2-help" hoverStyle size="18px" />
-          <template #list>
-            <DropdownItem name="document">
-              <CustomIcon type="icon-v2-ic_document" hoverStyle size="14px" />
-              {{ $t('wen-dang') }}
-            </DropdownItem>
-            <DropdownItem name="contact">
-              <CustomIcon type="icon-v2-icon_contact" hoverStyle size="14px" />
-              {{ $t('lian-xi-wo-men') }}
-            </DropdownItem>
-          </template>
-        </Dropdown>
-        <!-- 主题切换按钮 -->
-        <a-dropdown v-if="userInfo.menuItems && userInfo.menuItems.includes('/ccsystem/console_job')" :trigger="['click']">
-          <span class="message-icon">
-            <cc-iconfont :size="20" name="message" />
-            <span v-if="messageList.length > 0" class="message-point"></span>
-          </span>
-          <template #overlay>
-            <p class="title">{{ $t('xiao-xi-zhong-xin') }}</p>
-            <div v-for="message in messageList" :key="message.id" class="message-item" @click="handleGoMessageDetail(message.id)">
-              <p>{{ CONSOLE_JOB_NAME[message.label] }}{{ $t('shi-bai') }}</p>
-              <p class="time">{{ message.gmtModified || formatTime('YYYY-MM-DD HH:mm:ss') }}</p>
-            </div>
-            <div class="message-footer" @click="handleGoMessage">
-              {{ $t('cha-kan-geng-duo') }}
-            </div>
-          </template>
-        </a-dropdown>
-        <!--        语言切换-->
-        <LangSwitcher>
-          <template #trigger>
-            <CustomIcon hover-style type="icon-v2-yuyanqiehuan" size="20px" />
-          </template>
-        </LangSwitcher>
-        <div class="domain" translate="no">{{ userInfo.username }}</div>
-        <div v-click-out-hide="hideMenu" class="avatar" @click="showMenu = !showMenu">
-          <img :alt="$t('useravatar')" src="../../assets/head.png" />
+
+    <template v-if="isSqlRoute && showChild">
+      <div class="sql-layout">
+        <header class="sql-compact-header">
+          <div class="sql-compact-header__brand" @click="handleGoAppHome">
+            <AppBrandLogo compact />
+            <span class="sql-compact-header__title">{{ $t('sql-cha-xun') }}</span>
+          </div>
+          <div class="sql-compact-header__actions">
+            <button type="button" class="sql-compact-header__back" @click="handleGoAppHome">
+              <span>{{ $t('fan-hui-gong-zuo-tai') }}</span>
+            </button>
+            <AppUserActions compact @check-version="checkVersion(true)" />
+          </div>
+        </header>
+        <div class="sql-layout-body">
+          <router-view />
         </div>
-        <div v-show="showMenu" class="menu">
-          <div class="one">
-            <div class="avatar">
-              <img :alt="$t('useravatar')" src="../../assets/head.png" width="28" height="28" />
-            </div>
-            <div class="domain">
-              <div>
-                {{ userInfo.username }}
-              </div>
-              <div v-if="!isInternalUser" class="provider-wrap">{{ $t('lai-yuan') }}: {{ userInfo.bindType }}</div>
-              <div class="uid-wrap" @click.stop="handleCopyApplyCode(userInfo.uid)">
-                <span>{{ `UID: ${userInfo.uid}` }}</span>
-                <CustomIcon type="icon-v2-CopyOutline" size="12px" hoverStyle leftMargin />
+      </div>
+    </template>
+
+    <template v-else-if="showChild">
+      <div class="app-layout">
+        <AppSidebar />
+        <main class="app-main">
+          <div class="app-main-body">
+            <div class="app-main-card">
+              <AppContentHeader @check-version="checkVersion(true)" />
+              <div class="app-main-card__body">
+                <router-view />
               </div>
             </div>
-            <!--            <span v-if="userInfo.accountType!=='PRIMARY_ACCOUNT'">-->
-            <!--              <a-popover v-model="showAccount" placement="left" trigger="hover">-->
-            <!--              <p slot="content">-->
-            <!--                {{ userInfo.loginAccount }}-->
-            <!--              </p>-->
-            <!--              <cc-iconfont style="margin-left: 10px;margin-right: 6px" name="account"-->
-            <!--                           color="#555555"-->
-            <!--                           :size="20"></cc-iconfont>-->
-            <!--            </a-popover>-->
-            <!--            <a @click="handleCopy(userInfo.loginAccount)">{{ $t('fu-zhi-zhang-hao') }}</a>-->
-            <!--            </span>-->
           </div>
-          <div class="two">
-            <div v-if="userInfo.account">{{ $t('zhang-hao') }}: {{ userInfo.account }}</div>
-            <div v-if="!isInternalUser">{{ $t('lai-yuan') }}: {{ userInfo.bindType }}</div>
-            <div v-if="userInfo.phone">{{ $t('dian-hua') }}: {{ userInfo.phone }}</div>
-            <div>{{ $t('you-xiang') }}: {{ userInfo.email }}</div>
-            <!--            <div v-if="userInfo.accountType!=='PRIMARY_ACCOUNT'">{{$t('suo-shu-zhu-zhang-hao')}}: {{ userInfo.pusername }}({{userInfo.pemail}})</div>-->
-          </div>
-          <!--          <div class="three" v-if="isAsia">-->
-          <!--            <div @click="goUserCenter">-->
-          <!--              <a-icon style="font-size:12px;color:#555555" type="user" />-->
-          <!--              {{ $t('zhang-hu-zhong-xin') }}-->
-          <!--            </div>-->
-          <!--            <div @click="goMyAuth" v-if="userInfo.accountType !== 'PRIMARY_ACCOUNT'">-->
-          <!--              <a-icon style="font-size:12px;color:#555555" type="crown" />-->
-          <!--              {{ $t('wo-de-quan-xian') }}-->
-          <!--            </div>-->
-          <!--          </div>-->
-          <a v-if="isOidcLogout" class="four block" href="logout" @click="closeWebSocket">
-            {{ $t('tui-chu-zhang-hao') }}
-          </a>
-          <a v-if="!isOidcLogout" class="four block" @click="logout">
-            {{ $t('tui-chu-zhang-hao') }}
-          </a>
-        </div>
+        </main>
       </div>
-      <div v-else style="display: flex">
-        <div class="version" style="display: flex; align-items: center; position: relative" v-if="displayVersion">
-          <a-button class="deemph-button" type="link" size="large" @click="checkVersion(true)" style="font-weight: bold">
-            {{ displayVersion }}
-            <span style="color: red" v-if="version.newVersion">{{ $t('new') }}</span>
-          </a-button>
-        </div>
-        <a-tooltip trigger="hover">
-          <cc-iconfont :size="20" name="help" style="margin-right: 30px" />
-          <template #title>
-            <div style="display: flex; flex-direction: column; align-items: center">
-              <div style="margin-bottom: 5px">{{ $t('jia-ru-wei-xin-jiao-liu-qun') }}</div>
-              <img src="../../assets/wechat-clouddm.png" :width="100" :height="100" />
-            </div>
-          </template>
-        </a-tooltip>
-      </div>
-    </div>
+    </template>
+
     <div class="user-expr-tip" v-if="userInfo.subAccountPwdValidDays !== null && userInfo.subAccountPwdValidDays < limitDays">
       {{ $t('gen-ju-zhu-zhang-hao-she-zhi-de-mi-ma-shi-xiao-ce-lue', [userInfo.subAccountPwdValidDays + 1]) }}
-    </div>
-    <div class="content-container" v-if="showChild">
-      <router-view />
     </div>
     <CCModal v-model="showDetailModal" :title="selectedCellDetail.column.property" v-if="showDetailModal" key="showDetailModal" :width="800">
       <div class="cell-detail">
@@ -172,29 +87,27 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex';
-import Navbar from '@/components/Navbar';
-import LangSwitcher from '@/components/LangSwitcher';
+import AppSidebar from '@/components/layout/AppSidebar';
+import AppBrandLogo from '@/components/layout/AppBrandLogo';
+import AppContentHeader from '@/components/layout/AppContentHeader';
+import AppUserActions from '@/components/layout/AppUserActions';
 import { setApprovalProcessMixin, setOpPasswordMixin } from '@/mixins/modal';
 import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
-import { CONSOLE_JOB_NAME, LOGIN_TYPE } from '@/const';
 import XEClipboard from 'xe-clipboard';
 import DmWaterMark from '@/components/widgets/DmWaterMark';
 import store from '@/store';
 import dayjs from 'dayjs';
-import { handleCopy } from '@/utils/clipboard';
 import fecha from 'fecha';
-import { UPDATE_USERINFO } from '@/store/mutationTypes';
-import { hasWebSocketInstance, webSocketClose } from '@/services/socket';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
-import { setAppLanguage } from '@/i18n';
-import { WEBSIDE_LOGO_HEADER } from '@/utils/pluginResource';
 
 export default {
   name: 'Home',
   components: {
     DmWaterMark,
-    Navbar,
-    LangSwitcher
+    AppSidebar,
+    AppBrandLogo,
+    AppContentHeader,
+    AppUserActions
   },
   data() {
     return {
@@ -227,12 +140,7 @@ export default {
       cellDetailContent: '',
       cellDetailLoading: false,
       hasMoreData: false,
-      showMenu: false,
-      showAccount: false,
-      hasMessage: false,
-      messageList: [],
       limitDays: 6,
-      CONSOLE_JOB_NAME,
       watermarkStr: '',
       store,
       fecha,
@@ -244,14 +152,8 @@ export default {
     ...mapGetters(['isDesktop', 'displayVersion', 'includesDM', 'isInternalUser']),
     ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'remainTrialDay']),
     ...mapGetters(['isSaas']),
-    headerTitleUrl() {
-      return WEBSIDE_LOGO_HEADER;
-    },
-    isOidcLogout() {
-      return this.userInfo.bindType === LOGIN_TYPE.OIDC && this.userInfo.loginType === LOGIN_TYPE.OIDC;
-    },
-    getDmProductClusterList() {
-      return [];
+    isSqlRoute() {
+      return this.$route.path === '/sql' || this.$route.path.startsWith('/sql/');
     }
   },
   async created() {
@@ -463,17 +365,16 @@ export default {
         this.$router.push({ path: this.defaultRedirectUrl });
       }
     },
+    handleGoAppHome() {
+      if (this.isSqlRoute) {
+        const target = this.defaultRedirectUrl && this.defaultRedirectUrl !== '/sql' ? this.defaultRedirectUrl : '/project';
+        this.$router.push({ path: target }).catch(() => {});
+        return;
+      }
+      this.handleGoBackHome();
+    },
     goAsyncJobList() {
       this.$router.push({ name: 'ASYNC_JOB_LIST' });
-    },
-    async listLastFiveFailedJob() {
-      const res = await this.$services.dmConsoleJobListLastFiveFailedJob();
-
-      if (res.success) {
-        if (res.data.length > 0) {
-          this.messageList = res.data;
-        }
-      }
     },
     _setApprovalProcessModal() {
       this.$store.dispatch('getUserInfo');
@@ -486,61 +387,9 @@ export default {
     goUserConfig() {
       this.$router.push({ name: 'User_Config' });
     },
-    hideMenu() {
-      this.showMenu = false;
-    },
-    closeWebSocket() {
-      if (hasWebSocketInstance()) {
-        webSocketClose();
-      }
-    },
-    async logout() {
-      const res = await this.$services.logout();
-
-      if (res.success) {
-        this.closeWebSocket();
-        await this.$store.commit(UPDATE_USERINFO);
-        // this.$refs.watermark.removeMaskDiv();
-        await this.$router.push({ name: 'Login' });
-      }
-    },
-    handleGoHelp(data) {
-      if (data === 'document') {
-        let url = `${store.state.dmDocUrlPrefix}/intro/product_intro`;
-        if (this.isDesktop) {
-          url = `${store.state.dmDocUrlPrefix}/dmp-doc/releaseinfo/desktop_latest`;
-        }
-        window.open(url);
-      } else if (data === 'contact') {
-        window.open(store.state.contactUsUrl);
-      }
-    },
-    handleGoMessage() {
-      this.$router.push({ path: '/system/info_center' }).catch(() => {});
-    },
-    handleGoMessageDetail(id) {
-      this.$router.push({ path: `/system/console_job/${id}` });
-    },
-    goUserCenter() {
-      this.$router.push({ path: '/userCenter' });
-    },
-    goMyAuth() {
-      this.$router.push({ path: '/system/permission' });
-    },
 
     handleCloseModal() {
       this.showInactiveModal = false;
-    },
-    handleCopyApplyCode(data) {
-      handleCopy(data);
-      this.$Message.success(this.$t('fu-zhi-cheng-gong'));
-    }
-  },
-  watch: {
-    userInfo(val) {
-      if (val.showMessage) {
-        this.listLastFiveFailedJob();
-      }
     }
   }
 };
@@ -556,200 +405,18 @@ export default {
     width: 100%;
     height: 16px;
     line-height: 16px;
-    background: rgba(255, 24, 21, 0.3);
-    position: absolute;
-    margin-top: 48px;
+    background: rgba(239, 68, 68, 0.15);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1001;
     text-align: center;
+    font-size: 12px;
+    color: var(--error-color);
   }
 
-  //overflow: hidden;
-  .header {
-    background: var(--header-bg);
-    display: flex;
-    justify-content: space-between;
-    color: var(--header-text);
-    height: 49px;
-    line-height: 48px;
-    background-position: left;
-    background-size: 200px 49px;
-    background-repeat: no-repeat;
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    z-index: 999;
-    box-shadow: var(--header-shadow);
-
-    .ant-menu-dark {
-      background: none;
-    }
-
-    .brand-container {
-      padding: 0 15px;
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-
-      .product-title-frame {
-        width: 184px;
-        height: 32px;
-        flex: 0 0 184px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-      }
-
-      .product-title {
-        width: 184px;
-        height: 32px;
-        display: block;
-        object-fit: contain;
-        object-position: center;
-      }
-    }
-
-    .ant-menu-horizontal {
-      line-height: 48px;
-    }
-
-    .user-info {
-      display: flex;
-      align-items: center;
-      position: relative;
-
-      & > i {
-        opacity: 0.7;
-        cursor: pointer;
-      }
-
-      & > *:not(:last-child) {
-        margin-right: 20px;
-        font-size: 14px;
-      }
-
-      .icon-help {
-        font-size: 20px;
-      }
-
-      .app-version-badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 62px;
-        height: 24px;
-        padding: 0 12px;
-        border: 1px solid rgba(255, 255, 255, 0.28);
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.1);
-        color: #fff;
-        font-size: 12px;
-        font-weight: 600;
-        line-height: 22px;
-        letter-spacing: 0;
-        white-space: nowrap;
-      }
-
-      .avatar {
-        cursor: pointer;
-        width: 28px;
-        height: 28px;
-
-        img {
-          width: 100%;
-          height: 100%;
-        }
-      }
-
-      .message-icon {
-        position: relative;
-        cursor: pointer;
-
-        i {
-          opacity: 0.7;
-        }
-
-        .message-point {
-          position: absolute;
-          background: #ff6e0d;
-          width: 6px;
-          height: 6px;
-          display: block;
-          border-radius: 50%;
-          right: -2px;
-          top: 6px;
-        }
-      }
-
-      .menu {
-        z-index: 999;
-        position: absolute;
-        width: 300px;
-        top: 40px;
-        right: 0;
-        color: rgba(0, 0, 0, 0.88);
-        box-shadow: 1px 1px 6px 0px rgba(164, 164, 164, 0.66);
-        background: white;
-
-        .avatar {
-          width: 42px;
-          height: 42px;
-        }
-
-        & > div:not(:last-child) {
-          border-bottom: 1px solid rgba(223, 223, 223, 1);
-        }
-
-        .one {
-          display: flex;
-          align-items: center;
-          padding: 20px;
-
-          .domain {
-            margin-left: 10px;
-            font-size: 14px;
-          }
-
-          .provider-wrap {
-            color: #8c8c8c;
-            font-size: 12px;
-            margin-top: 4px;
-          }
-        }
-
-        .two {
-          padding: 20px;
-          line-height: 22px;
-
-          div {
-            margin-left: 0;
-          }
-        }
-
-        .three {
-          padding: 15px 24px;
-
-          div {
-            cursor: pointer;
-            height: 22px;
-            line-height: 22px;
-
-            i {
-              margin-right: 15px;
-            }
-          }
-        }
-
-        .four {
-          height: 40px;
-          line-height: 40px;
-          text-align: center;
-          background: #ececec;
-          color: #ff6e0d;
-          cursor: pointer;
-        }
-      }
-    }
+  &--sql .user-expr-tip {
+    top: 44px;
   }
 
   .footer {
@@ -827,10 +494,9 @@ export default {
   }
 
   .content-container {
-    padding-top: 48px;
+    // padding-top defined in app-shell.less
     height: 100%;
     overflow-y: auto;
-    height: 100%;
   }
 }
 

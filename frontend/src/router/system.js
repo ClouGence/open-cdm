@@ -31,9 +31,7 @@ export default [
   },
   {
     path: 'role',
-    name: 'System_Role',
-    component: () => import(/* webpackChunkName: "ccsystem-role" */ '@/views/system/role/index'),
-    meta: { requiredAuth: 'RDP_ROLE_READ' }
+    redirect: '/system/management/accounts/role'
   },
   {
     path: 'authdm',
@@ -41,14 +39,51 @@ export default [
     component: () => import(/* webpackChunkName: "ccsystem-auth" */ '@/views/system/subaccount/auth/authDm')
   },
   {
-    path: 'account',
-    name: 'System_Sub_Account',
-    component: () => import(/* webpackChunkName: "ccsystem-subaccount" */ '@/views/system/subaccount/index')
-  },
-  {
     path: 'account/authdm/:uid',
     name: 'System_Sub_Account_AuthDm',
     component: () => import(/* webpackChunkName: "ccsystem-subaccount-auth" */ '@/views/system/subaccount/auth/authDm')
+  },
+  {
+    path: 'account',
+    redirect: '/system/management/accounts/account'
+  },
+  {
+    path: 'management/accounts',
+    component: () => import(/* webpackChunkName: "ccsystem-management-accounts" */ '@/views/system/management/ManagementAccountsLayout'),
+    redirect: '/system/management/accounts/account',
+    children: [
+      {
+        path: 'account',
+        name: 'Management_Accounts_Account',
+        component: () => import(/* webpackChunkName: "ccsystem-subaccount" */ '@/views/system/subaccount/index'),
+        meta: { managementTab: 'account' }
+      },
+      {
+        path: 'role',
+        name: 'Management_Accounts_Role',
+        component: () => import(/* webpackChunkName: "ccsystem-role" */ '@/views/system/role/index'),
+        meta: { requiredAuth: 'RDP_ROLE_READ', managementTab: 'role' }
+      }
+    ]
+  },
+  {
+    path: 'management/logs',
+    component: () => import(/* webpackChunkName: "ccsystem-management-logs" */ '@/views/system/management/ManagementLogsLayout'),
+    redirect: '/system/management/logs/operation',
+    children: [
+      {
+        path: 'operation',
+        name: 'Management_Logs_Operation',
+        component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/OperationLog'),
+        meta: { managementTab: 'operation' }
+      },
+      {
+        path: 'sql',
+        name: 'Management_Logs_Sql',
+        component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/SqlLog'),
+        meta: { managementTab: 'sql' }
+      }
+    ]
   },
   {
     path: 'env',
@@ -140,13 +175,11 @@ export default [
   },
   {
     path: 'operation_log',
-    name: 'rdpOperationLog',
-    component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/OperationLog')
+    redirect: '/system/management/logs/operation'
   },
   {
     path: 'sql_log',
-    name: 'sqlLog',
-    component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/SqlLog')
+    redirect: '/system/management/logs/sql'
   },
   {
     path: 'profile',

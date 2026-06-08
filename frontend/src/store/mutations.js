@@ -21,112 +21,24 @@ import {
   SET_MENU_ITEMS,
   SET_THEME
 } from '@/store/mutationTypes';
-import i18n from '@/i18n';
 import router from '@/router';
+import { buildSidebarMenu, flattenSidebarMenu } from '@/utils/buildSidebarMenu';
 import { supportsCloudCanalBuild, supportsCloudDMBuild } from '@/utils/product';
 
 const URL_AUTH_MAPPING = {};
 
 function applyMenuItems(state, myCatLog = state.myCatLog, globalSetting = state.globalSetting, myAuth = state.myAuth) {
-  const systemMenuItems = [];
-  if (myCatLog.includes('CAT_RDP_USER')) {
-    systemMenuItems.push({
-      key: '/system/account',
-      href: '/#/system/account',
-      label: i18n.global.t('zi-zhang-hao-guan-li'),
-      iconName: 'icon-v2-sub_account'
-    });
-  }
-  if (myCatLog.includes('CAT_RDP_ROLE')) {
-    systemMenuItems.push({
-      key: '/system/role',
-      href: '/#/system/role',
-      label: i18n.global.t('jiao-se-guan-li'),
-      iconName: 'icon-v2-role'
-    });
-  }
-  if (myCatLog.includes('CAT_RDP_ENV')) {
-    systemMenuItems.push({
-      key: '/system/env',
-      href: '/#/system/env',
-      label: i18n.global.t('huan-jing-guan-li'),
-      iconName: 'icon-v2-env'
-    });
-  }
-  if (myCatLog.includes('CAT_RDP_DS')) {
-    systemMenuItems.push({
-      key: '/system/ccdatasource',
-      href: '/#/system/ccdatasource',
-      label: i18n.global.t('shu-ju-yuan-guan-li'),
-      iconName: 'icon-v2-peizhishujuyuan'
-    });
-  }
-  if (myCatLog.includes('CAT_DM_SYS') && myCatLog.includes('CAT_DM_WORKER')) {
-    systemMenuItems.push({
-      key: '/system/dmmachine',
-      href: '/#/system/dmmachine',
-      label: i18n.global.t('cha-xun-ji-qi'),
-      iconName: 'icon-v2-cluster'
-    });
-  }
-  if (myCatLog.includes('CAT_DM_SYS') && myCatLog.includes('CAT_DM_SECRULES')) {
-    systemMenuItems.push({
-      key: '/system/dmrulelist',
-      href: '/#/system/dmrulelist',
-      label: i18n.global.t('an-quan-gui-ze'),
-      iconName: 'icon-v2-audit'
-    });
-    systemMenuItems.push({
-      key: '/system/dmspeclist',
-      href: '/#/system/dmspeclist',
-      label: i18n.global.t('an-quan-gui-fan'),
-      iconName: 'icon-v2-role'
-    });
-  }
-  if (myCatLog.includes('CAT_RDP_OP_AUDIT')) {
-    systemMenuItems.push({
-      key: '/system/operation_log',
-      href: '/#/system/operation_log',
-      label: i18n.global.t('cao-zuo-shen-ji'),
-      iconName: 'icon-v2-audit'
-    });
-  }
-  if (myCatLog.includes('CAT_DM_SQL_AUDIT')) {
-    systemMenuItems.push({
-      key: '/system/sql_log',
-      href: '/#/system/sql_log',
-      label: i18n.global.t('sql-shen-ji'),
-      iconName: 'icon-v2-SqlLog'
-    });
-  }
-  if (myCatLog.includes('CAT_RDP_PRI_PREFERENCE_CONF') && myAuth.includes('RDP_PRI_USER_KV_CONF_R')) {
-    systemMenuItems.push({
-      key: '/system/preference',
-      href: '/#/system/preference',
-      label: i18n.global.t('ge-ren-pian-hao'),
-      iconName: 'icon-v2-preference'
-    });
-  }
+  const includesDM = supportsCloudDMBuild;
+  const isDesktop = !!state.dmGlobalSetting.personal;
+  const sidebarMenu = buildSidebarMenu({
+    myCatLog,
+    myAuth,
+    includesDM,
+    isDesktop
+  });
 
-  if (myCatLog.includes('CAT_DM_CICD')) {
-    systemMenuItems.push({
-      key: '/system/devops',
-      href: '/#/system/devops',
-      label: 'CI/CD',
-      iconName: 'icon-v2-sub_account'
-    });
-  }
-
-  if (myCatLog.includes('CAT_DM_IM')) {
-    systemMenuItems.push({
-      key: '/system/im',
-      href: '/#/system/im',
-      label: i18n.global.t('im'),
-      iconName: 'icon-v2-sub_account'
-    });
-  }
-
-  state.mySystemMenuItems = systemMenuItems;
+  state.sidebarMenu = sidebarMenu;
+  state.mySystemMenuItems = flattenSidebarMenu(sidebarMenu);
 }
 
 export default {

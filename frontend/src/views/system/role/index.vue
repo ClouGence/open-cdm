@@ -2,23 +2,11 @@
   <div class="role">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb>
-            <BreadcrumbItem>{{ $t('jiao-se-guan-li') }}</BreadcrumbItem>
-          </Breadcrumb>
-        </div>
         <div class="content">
           <div class="option border-radius-card">
             <div class="left"></div>
             <div class="right">
-              <Button
-                v-if="myAuth.includes('RDP_ROLE_MANAGE')"
-                ghost
-                type="primary"
-                @click="handleClickAddBtn"
-                icon="md-add"
-                style="margin-right: 10px"
-              >
+              <Button v-if="myAuth.includes('RDP_ROLE_MANAGE')" type="primary" @click="handleClickAddBtn" icon="md-add" style="margin-right: 10px">
                 {{ $t('chuang-jian-jiao-se') }}
               </Button>
               <Button class="refresh" @click="getRoleList('init')" :loading="loading">

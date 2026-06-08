@@ -1,8 +1,5 @@
 <template>
   <div class="machine">
-    <Breadcrumb style="margin-bottom: 14px">
-      <BreadcrumbItem>{{ $t('ji-qi-guan-li') }}</BreadcrumbItem>
-    </Breadcrumb>
     <!--    <query-header :handle-click-add-btn="handleClickAddBtn" :handle-query="handleQuery"-->
     <!--                  :handle-refresh="handleRefresh"-->
     <!--                  :query="queryForm" :select-options="Object.values(deployEnvListMap)"-->

@@ -1,5 +1,5 @@
 <template>
-  <a-config-provider :locale="locale">
+  <a-config-provider :locale="locale" :theme="antdTheme">
     <div id="app">
       <div id="google_translate_element" class="google-translate-element" aria-hidden="true"></div>
       <router-view v-if="showChild" />
@@ -35,6 +35,39 @@ export default {
       startupDisplayMode: 'page',
       startupPollTimer: null,
       locale: zhCN,
+      antdTheme: {
+        token: {
+          colorPrimary: '#3ecf8e',
+          colorLink: '#00c573',
+          colorSuccess: '#22c55e',
+          colorWarning: '#f59e0b',
+          colorError: '#ef4444',
+          borderRadius: 8,
+          borderRadiusSM: 6,
+          borderRadiusLG: 12,
+          fontSize: 14,
+          colorBgContainer: '#ffffff',
+          colorBorder: '#dfdfdf',
+          colorText: '#171717',
+          colorTextSecondary: '#707070',
+          controlHeight: 32,
+          controlHeightSM: 28
+        },
+        components: {
+          Table: {
+            headerBg: '#fafafa',
+            headerColor: '#707070',
+            rowHoverBg: '#f0f0f0',
+            borderColor: '#efefef',
+            cellPaddingBlockSM: 8,
+            cellPaddingInlineSM: 12
+          },
+          Button: {
+            primaryShadow: 'none',
+            defaultShadow: 'none'
+          }
+        }
+      },
       position: {
         ele: null,
         canResize: false

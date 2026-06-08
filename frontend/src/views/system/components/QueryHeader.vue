@@ -9,7 +9,7 @@
       :placeholder="placeholder"
     />
     <div class="op">
-      <a-button ghost type="primary" @click="handleClickAddBtn" v-if="showAddBtn" icon="plus">
+      <a-button type="primary" @click="handleClickAddBtn" v-if="showAddBtn" icon="plus">
         {{ addBtnText }}
       </a-button>
       <slot></slot>

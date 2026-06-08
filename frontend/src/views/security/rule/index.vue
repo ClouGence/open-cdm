@@ -2,13 +2,6 @@
   <div class="rule-list-container">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb v-if="breadcrumbList.length">
-            <BreadcrumbItem v-for="breadcrumb in breadcrumbList" :to="breadcrumb.to" :key="breadcrumb.label">
-              {{ breadcrumb.label }}
-            </BreadcrumbItem>
-          </Breadcrumb>
-        </div>
         <Tabs v-model="activeTab" @on-click="handleTabClick">
           <TabPane :label="$t('cha-xun-gui-ze')" name="QUERY"></TabPane>
           <TabPane :label="$t('tuo-min-gui-ze')" name="SENSITIVE"></TabPane>
@@ -17,17 +10,10 @@
           <div class="option">
             <div class="left">
               <Input v-model="QUERY.search" style="width: 280px; margin-right: 10px" clearable></Input>
-              <Button @click="getRuleSearch" type="primary">{{ $t('cha-xun') }}</Button>
+              <Button @click="getRuleSearch" type="primary" ghost>{{ $t('cha-xun') }}</Button>
             </div>
             <div class="right">
-              <Button
-                @click="handleAddRule"
-                type="primary"
-                ghost
-                style="margin-right: 10px"
-                icon="md-add"
-                v-if="myAuth.includes('DM_SECRULES_MANAGE')"
-              >
+              <Button @click="handleAddRule" type="primary" style="margin-right: 10px" icon="md-add" v-if="myAuth.includes('DM_SECRULES_MANAGE')">
                 {{ $t('xin-jian-gui-ze') }}
               </Button>
               <Button @click="getRuleList">
@@ -78,17 +64,10 @@
           <div class="option">
             <div class="left">
               <Input v-model="SENSITIVE.search" style="width: 280px; margin-right: 10px" clearable></Input>
-              <Button @click="getRuleSearch" type="primary">{{ $t('cha-xun') }}</Button>
+              <Button @click="getRuleSearch" type="primary" ghost>{{ $t('cha-xun') }}</Button>
             </div>
             <div class="right">
-              <Button
-                @click="handleAddRule"
-                type="primary"
-                ghost
-                style="margin-right: 10px"
-                icon="md-add"
-                v-if="myAuth.includes('DM_SECRULES_MANAGE')"
-              >
+              <Button @click="handleAddRule" type="primary" style="margin-right: 10px" icon="md-add" v-if="myAuth.includes('DM_SECRULES_MANAGE')">
                 {{ $t('xin-jian-gui-ze') }}
               </Button>
               <Button @click="getRuleList">
@@ -177,7 +156,6 @@ export default {
       forceEvent: null,
       supportTypeList: ['int', 'integer', 'float', 'decimal', 'bool', 'string', 'date', 'time', 'datetime'],
       isEdit: false,
-      breadcrumbList: [{ label: this.$t('gui-ze-lie-biao') }],
       showForceRuleModal: false,
       forceRuleModalTitle: '',
       forceRuleModalText: '',

@@ -59,14 +59,13 @@
         />
       </FormItem>
       <FormItem>
-        <Button :loading="refreshLoading" type="primary" @click="_handleSearch">
+        <Button :loading="refreshLoading" type="primary" ghost @click="_handleSearch">
           {{ $t('cha-xun') }}
         </Button>
       </FormItem>
     </Form>
     <div class="page-header-function">
-      <Button v-if="supportAdd" type="primary" ghost @click="handleShowAddDataSource">
-        <Icon type="md-add" />
+      <Button v-if="supportAdd" type="primary" @click="handleShowAddDataSource">
         {{ $t('xin-zeng-shu-ju-yuan') }}
       </Button>
       <Button type="default" style="margin-left: 6px" @click="_handleSearch" :loading="refreshLoading">

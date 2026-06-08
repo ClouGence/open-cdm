@@ -2,11 +2,6 @@
   <div class="env">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb>
-            <BreadcrumbItem>{{ $t('huan-jing-guan-li') }}</BreadcrumbItem>
-          </Breadcrumb>
-        </div>
         <div class="content">
           <div class="option border-radius-card">
             <div class="left">
@@ -17,19 +12,12 @@
                 :placeholder="$t('qing-shu-ru-huan-jing-ming-cheng-cha-xun')"
                 @on-keydown="handleEnterSearch"
               ></Input>
-              <Button :loading="loading" @click="listEnv('init')" type="primary">
+              <Button :loading="loading" @click="listEnv('init')" type="primary" ghost>
                 {{ $t('cha-xun') }}
               </Button>
             </div>
             <div class="right">
-              <Button
-                @click="handleShowAddEnv"
-                type="primary"
-                ghost
-                style="margin-right: 10px"
-                icon="md-add"
-                v-if="myAuth.includes('RDP_ENV_MANAGE')"
-              >
+              <Button @click="handleShowAddEnv" type="primary" style="margin-right: 10px" icon="md-add" v-if="myAuth.includes('RDP_ENV_MANAGE')">
                 {{ $t('xin-jian-huan-jing') }}
               </Button>
               <Button @click="listEnv('init')">

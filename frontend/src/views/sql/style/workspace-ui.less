@@ -1,0 +1,175 @@
+// SQL workspace UI overrides — Supabase emerald theme
+
+.sql-workspace {
+  // ── VTree / CTree 选中 / hover（覆盖 @wsfe/vue-tree 默认蓝色）──
+  .datasource-tree,
+  .table-list-tree {
+    .vtree-tree-node__title,
+    .ctree-tree-node__title {
+      border-radius: 4px;
+      font-size: 12px;
+      transition: background-color 0.12s ease;
+
+      &:hover {
+        background-color: var(--bg-hover) !important;
+      }
+
+      &_selected {
+        background-color: rgba(62, 207, 142, 0.14) !important;
+        color: var(--text-primary);
+
+        &:hover {
+          background-color: rgba(62, 207, 142, 0.18) !important;
+        }
+      }
+    }
+
+    .ctree-tree-node__title_selected,
+    .vtree-tree-node__title_selected {
+      background-color: rgba(62, 207, 142, 0.14) !important;
+      color: var(--text-primary) !important;
+
+      &:hover {
+        background-color: rgba(62, 207, 142, 0.18) !important;
+      }
+    }
+
+    .vtree-tree-node__expand i::after,
+    .ctree-tree-node__expand i::after {
+      border-left-color: var(--text-tertiary) !important;
+    }
+  }
+
+  // ── 数据源面板 ──
+  .data-source-container {
+    background: var(--bg-secondary) !important;
+    border-right: 1px solid var(--border-primary) !important;
+
+    .data-source-filter {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-primary);
+
+      .filter-input :deep(.ivu-input) {
+        background: var(--bg-tertiary) !important;
+        border: 1px solid var(--border-primary) !important;
+        color: var(--text-primary);
+        border-radius: 6px;
+      }
+    }
+
+    .hide-icon {
+      background: var(--bg-card) !important;
+      border: 1px solid var(--border-primary);
+      border-radius: 4px;
+      box-shadow: var(--shadow-sm);
+    }
+  }
+
+  // ── 表结构树 / 搜索栏 ──
+  .table-list-container {
+    background: var(--bg-secondary) !important;
+    border-right: 1px solid var(--border-primary) !important;
+  }
+
+  .search-header {
+    background: var(--bg-secondary) !important;
+    border-bottom: 1px solid var(--border-primary) !important;
+    height: 36px;
+    padding: 4px 6px;
+
+    .search-border {
+      border: 1px solid var(--border-primary) !important;
+      border-radius: 6px;
+      background: var(--bg-tertiary);
+    }
+  }
+
+  // ── SQL 工具栏 ──
+  .operators {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border-primary);
+    background: var(--bg-secondary);
+
+    .ivu-btn-primary {
+      background: var(--primary-color) !important;
+      border-color: var(--primary-color) !important;
+      color: #171717 !important;
+      font-weight: 500;
+
+      span {
+        color: #171717 !important;
+      }
+
+      &[disabled] {
+        opacity: 0.45;
+      }
+    }
+
+    .ivu-btn-default {
+      background: var(--bg-tertiary) !important;
+      border-color: var(--border-primary) !important;
+      color: var(--text-primary) !important;
+    }
+  }
+
+  .sql-viewer {
+    :deep(.editor) {
+      border-bottom: 1px solid var(--border-primary) !important;
+    }
+  }
+
+  // ── 连接信息栏 ──
+  .query-schema-select {
+    background: var(--bg-secondary) !important;
+    border-bottom: 1px solid var(--border-primary) !important;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+
+  // ── Tab 栏 ──
+  .tab-wrap .sql-tabs-style {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-primary);
+
+    :deep(.ant-tabs-nav) {
+      margin: 0;
+      background: var(--bg-secondary);
+    }
+
+    :deep(.ant-tabs-tab) {
+      background: transparent !important;
+      border: none !important;
+      border-bottom: 2px solid transparent !important;
+      border-radius: 0 !important;
+      color: var(--text-secondary) !important;
+      padding: 8px 12px !important;
+      margin: 0 !important;
+      transition: color 0.12s ease, border-color 0.12s ease;
+
+      &:hover {
+        color: var(--text-primary) !important;
+      }
+    }
+
+    :deep(.ant-tabs-tab-active) {
+      background: transparent !important;
+      border-bottom-color: var(--primary-color) !important;
+      color: var(--text-primary) !important;
+    }
+
+    :deep(.ant-tabs-nav-wrap) {
+      border-bottom: 1px solid var(--border-primary) !important;
+    }
+
+    :deep(.ant-tabs-extra-content) {
+      border-bottom: 1px solid var(--border-primary);
+      background: var(--bg-secondary);
+    }
+  }
+
+  // ── 结果面板 ──
+  .result-wrapper {
+    border-top: 1px solid var(--border-primary);
+    background: var(--bg-primary);
+  }
+}

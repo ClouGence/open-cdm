@@ -877,13 +877,12 @@ export default {
           <div class="option">
             <div class="left">
               <Input v-model="search" style="width: 280px; margin-right: 10px"></Input>
-              <Button @click="getSpecRuleRange" type="primary">{{ $t('cha-xun') }}</Button>
+              <Button @click="getSpecRuleRange" type="primary" ghost>{{ $t('cha-xun') }}</Button>
             </div>
             <div class="right">
               <Button
                 @click="handleShowAddRangeModal(false)"
                 type="primary"
-                ghost
                 style="margin-right: 10px"
                 icon="md-add"
                 v-if="myAuth.includes('DM_SECRULES_MANAGE')"

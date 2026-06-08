@@ -11,7 +11,7 @@
       <div class="empty-actions">
         <div class="action-step">
           <div class="action-icon">
-            <CustomIcon type="icon-v2-tianjiashujuyuan1" size="56" />
+            <CustomIcon type="icon-v2-tianjiashujuyuan1" size="48" />
           </div>
           <div class="action-text">{{ $t('sql-empty-add-datasource') }}</div>
           <Button type="primary" :disabled="!myAuth.includes('RDP_DS_MANAGE')" @click="handleAddDataSource">
@@ -20,12 +20,12 @@
         </div>
 
         <div class="flow-arrow">
-          <CustomIcon type="icon-v2-right-circle-fill" size="28" />
+          <CustomIcon type="icon-v2-right-circle-fill" size="24" />
         </div>
 
         <div class="action-step">
           <div class="action-icon">
-            <CustomIcon type="icon-v2-peizhishujuyuan" size="56" />
+            <CustomIcon type="icon-v2-peizhishujuyuan" size="48" />
           </div>
           <div class="action-text">{{ $t('sql-empty-config-datasource') }}</div>
           <Button type="primary" :disabled="!myAuth.includes('DM_DS_MANAGE')" @click="handleConfigDataSource">
@@ -35,7 +35,7 @@
 
         <div class="action-step" v-if="!myAuth.includes('DM_DS_MANAGE')">
           <div class="action-icon">
-            <CustomIcon type="icon-v2-TicketAuth" size="56" color="#000" />
+            <CustomIcon type="icon-v2-TicketAuth" size="48" />
           </div>
           <div class="action-text">{{ $t('shen-qing-quan-xian') }}</div>
           <Tooltip :content="rootAccountUnsupportedTip" :disabled="!isRootAccount" transfer placement="top">
@@ -48,12 +48,12 @@
         </div>
 
         <div class="flow-arrow" v-if="!myAuth.includes('DM_DS_MANAGE')">
-          <CustomIcon type="icon-v2-right-circle-fill" size="28" />
+          <CustomIcon type="icon-v2-right-circle-fill" size="24" />
         </div>
 
         <div class="action-step">
           <div class="action-icon">
-            <CustomIcon type="icon-v2-zhihangSQLchaxun" size="56" />
+            <CustomIcon type="icon-v2-zhihangSQLchaxun" size="48" />
           </div>
           <div class="action-text">{{ $t('sql-empty-start-query') }}</div>
           <div class="action-button-placeholder" aria-hidden="true"></div>
@@ -98,7 +98,6 @@ export default {
         this.$Message.warning(this.rootAccountUnsupportedTip);
         return;
       }
-      console.log('handleAuthDataSource');
       this.$router.push({ path: '/system/permission', query: { type: 'apply' } });
     },
     handleAddDataSource() {
@@ -116,40 +115,41 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 60vh;
-  padding: 40px 20px;
-  background: #ffffff;
+  min-height: calc(100vh - 120px);
+  padding: 48px 24px;
+  background: var(--bg-primary);
 }
 
 .empty-content {
   text-align: center;
-  max-width: 1100px;
+  max-width: 960px;
   width: 100%;
 }
 
 .empty-title {
-  margin-bottom: 56px;
+  margin-bottom: 48px;
 
   h3 {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 500;
-    color: #262626;
-    margin: 0 0 14px 0;
+    color: var(--text-primary);
+    margin: 0 0 10px;
+    letter-spacing: -0.02em;
   }
 
   .empty-description {
-    font-size: 15px;
-    color: #8c8c8c;
+    font-size: 14px;
+    color: var(--text-secondary);
     margin: 0;
-    line-height: 1.5;
+    line-height: 1.55;
   }
 }
 
 .empty-actions {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  gap: 56px;
+  gap: 40px;
   flex-wrap: wrap;
 }
 
@@ -157,79 +157,40 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
+  gap: 14px;
+  width: 160px;
 }
 
 .action-icon {
-  color: #1890ff;
+  color: var(--primary-color);
+  opacity: 0.9;
 }
 
 .action-text {
-  font-size: 15px;
-  color: #262626;
+  font-size: 13px;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
 .flow-arrow {
-  color: #1890ff;
+  color: var(--text-tertiary);
+  margin-top: 12px;
 }
 
 .action-button-placeholder {
   height: 32px;
 }
 
-// 响应式设计
 @media (max-width: 768px) {
-  .sql-empty-state {
-    min-height: 50vh;
-    padding: 20px 16px;
-  }
-
-  .empty-title {
-    margin-bottom: 44px;
-  }
-
-  .empty-title h3 {
-    font-size: 22px;
-  }
-
-  .empty-description {
-    font-size: 14px;
-  }
-
   .empty-actions {
     flex-direction: column;
-    gap: 44px;
+    gap: 32px;
+    align-items: center;
   }
 
   .flow-arrow {
     transform: rotate(90deg);
-  }
-
-  .action-step {
-    gap: 15px;
-  }
-}
-
-@media (max-width: 480px) {
-  .empty-title {
-    margin-bottom: 36px;
-  }
-
-  .empty-title h3 {
-    font-size: 18px;
-  }
-
-  .empty-description {
-    font-size: 13px;
-  }
-
-  .empty-actions {
-    gap: 36px;
-  }
-
-  .action-step {
-    gap: 13px;
+    margin-top: 0;
   }
 }
 </style>

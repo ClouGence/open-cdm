@@ -79,7 +79,7 @@
           <a style="display:inline-block;cursor: pointer;margin-right: 12px" v-if="showSearch" @click="handleShowSearch(false)">
             {{ $t('he-shang') }}
           </a> -->
-          <Button v-if="myAuth.includes('CC_WORKER_MANAGE')" type="primary" style="margin-right: 6px" @click="handleAddWorker" ghost>
+          <Button v-if="myAuth.includes('CC_WORKER_MANAGE')" type="primary" style="margin-right: 6px" @click="handleAddWorker">
             <Icon type="md-add" />
             {{ $t('xin-zeng-ji-qi') }}
           </Button>

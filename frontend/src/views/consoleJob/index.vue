@@ -32,7 +32,7 @@
           </a-select>
         </a-form-item>
         <a-form-item>
-          <a-button type="primary" @click="getConsoleJobList">{{ $t('cha-xun') }}</a-button>
+          <a-button type="primary" ghost @click="getConsoleJobList">{{ $t('cha-xun') }}</a-button>
         </a-form-item>
       </a-form>
       <div class="page-header-function">
@@ -82,15 +82,15 @@
       </template>
     </a-table>
     <div class="page-footer-container">
-      <div class="page-footer-paging">
-        <Button :disabled="page === 1" style="font-size: 16px; padding: 0 16px 0 10px" @click="handlePre">
-          <Icon type="ios-arrow-back" style="font-size: 16px" />
+      <div class="page-footer-paging list-page-footer-nav">
+        <Button :disabled="page === 1" @click="handlePre">
+          <Icon type="ios-arrow-back" />
           {{ $t('shang-yi-ye') }}
         </Button>
-        <span style="margin: 0 10px">{{ $t('di-page-ye', [page]) }}</span>
-        <Button :disabled="noMoreData" style="font-size: 16px; padding: 0 16px 0 10px; margin-left: 5px" @click="handleNext">
-          <Icon type="ios-arrow-forward" style="font-size: 16px" />
+        <span>{{ $t('di-page-ye', [page]) }}</span>
+        <Button :disabled="noMoreData" @click="handleNext">
           {{ $t('xia-yi-ye') }}
+          <Icon type="ios-arrow-forward" />
         </Button>
       </div>
     </div>

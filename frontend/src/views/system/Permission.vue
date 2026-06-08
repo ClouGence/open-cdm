@@ -3,11 +3,11 @@
     <div v-if="pageLoading" class="page-loading-mask">
       <a-spin size="large" :tip="$t('zheng-zai-jia-zai')" />
     </div>
-    <div class="header">
+    <div v-if="!isView" class="header">
       <div class="left">
         <Breadcrumb>
-          <BreadcrumbItem>{{ $t('wo-de-quan-xian') }}</BreadcrumbItem>
-          <BreadcrumbItem v-if="!isView">{{ $t('shen-qing-quan-xian') }}</BreadcrumbItem>
+          <BreadcrumbItem to="/system/permission">{{ $t('wo-de-quan-xian') }}</BreadcrumbItem>
+          <BreadcrumbItem>{{ $t('shen-qing-quan-xian') }}</BreadcrumbItem>
         </Breadcrumb>
       </div>
     </div>
@@ -668,7 +668,7 @@ export default {
       });
       if (res?.data) {
         this.$message.success(this.$t('shu-ju-ku-shou-quan-cheng-gong'));
-        this.$router.push({ path: '/system/account' });
+        this.$router.push({ path: '/system/management/accounts/account' });
       }
     },
     renderNode(node) {
@@ -1694,7 +1694,7 @@ export default {
       // this.batchMode = true;
     },
     goSubAccountPage() {
-      this.$router.push({ name: 'System_Sub_Account' });
+      this.$router.push({ name: 'Management_Accounts_Account' });
     },
     handleGoAuth() {
       this.$router.push({

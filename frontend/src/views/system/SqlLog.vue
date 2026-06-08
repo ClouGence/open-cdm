@@ -2,11 +2,6 @@
   <div class="sql-log">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb>
-            <BreadcrumbItem>{{ $t('sql-shen-ji') }}</BreadcrumbItem>
-          </Breadcrumb>
-        </div>
         <div class="content">
           <div class="option border-radius-card">
             <div class="left" style="align-items: center">
@@ -126,15 +121,15 @@
           </div>
         </div>
       </div>
-      <div class="footer">
-        <Button :disabled="page === 1" style="font-size: 16px" @click="handlePre">
-          <Icon type="ios-arrow-back" style="font-size: 16px" />
+      <div class="footer list-page-footer-nav">
+        <Button :disabled="page === 1" @click="handlePre">
+          <Icon type="ios-arrow-back" />
           {{ $t('shang-yi-ye') }}
         </Button>
-        <span style="margin: 0 10px">{{ $t('di-page-ye', [page]) }}</span>
-        <Button :disabled="noMoreData" style="font-size: 16px" @click="handleNext">
-          <Icon type="ios-arrow-forward" style="font-size: 16px" />
+        <span>{{ $t('di-page-ye', [page]) }}</span>
+        <Button :disabled="noMoreData" @click="handleNext">
           {{ $t('xia-yi-ye') }}
+          <Icon type="ios-arrow-forward" />
         </Button>
       </div>
     </div>

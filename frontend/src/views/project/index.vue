@@ -2,11 +2,6 @@
   <div class="project-account">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb>
-            <BreadcrumbItem to="/project">{{ $t('xiang-mu-lie-biao') }}</BreadcrumbItem>
-          </Breadcrumb>
-        </div>
         <div class="content">
           <div class="option">
             <div class="left">
@@ -17,13 +12,12 @@
                 @on-enter="handleQuery"
                 @on-clear="handleQueryClear"
               />
-              <Button type="primary" @click="handleQuery">{{ $t('cha-xun') }}</Button>
+              <Button type="primary" ghost @click="handleQuery">{{ $t('cha-xun') }}</Button>
             </div>
             <div class="right">
               <Button
                 @click="handleShowAddProjectModal"
                 type="primary"
-                ghost
                 style="margin-right: 10px"
                 icon="md-add"
                 v-if="myAuth.includes('DM_PROJECT_MANAGE')"
@@ -57,19 +51,19 @@
               </template>
             </Table>
           </div>
-          <div class="footer">
-            <Page
-              :total="pageTotal"
-              show-total
-              show-elevator
-              @on-change="handlePageChange"
-              show-sizer
-              v-model="pageNum"
-              :page-size="pageSize"
-              @on-page-size-change="handlePageSizeChange"
-            />
-          </div>
         </div>
+      </div>
+      <div class="footer">
+        <Page
+          :total="pageTotal"
+          show-total
+          show-elevator
+          @on-change="handlePageChange"
+          show-sizer
+          v-model="pageNum"
+          :page-size="pageSize"
+          @on-page-size-change="handlePageSizeChange"
+        />
       </div>
     </div>
     <CCModal :title="getModalTitle" v-model="projectDialogShow" @on-cancel="handleCloseModal" :autoClean="false" :width="projectDialogWidth">
@@ -1074,6 +1068,9 @@ export default {
 <style lang="less" scoped>
 .project-account {
   height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .project {

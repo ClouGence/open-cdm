@@ -1,0 +1,394 @@
+@import './themes/supabase-tokens.less';
+
+// CloudDM unified UI — Ant Design visual language + design tokens
+
+@dm-radius-sm: @shell-radius-sm;
+@dm-radius-md: @shell-radius-md;
+@dm-radius-lg: @shell-radius-lg;
+
+// ─── List page layout ────────────────────────────────────────────────────────
+
+.table-list-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+
+  .table-list {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 20px 0;
+  }
+
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+
+    .option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: nowrap;
+      min-height: 56px;
+      height: auto;
+      border: 1px solid var(--border-light);
+      border-radius: @dm-radius-md;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      background: var(--bg-secondary);
+      gap: 12px;
+      flex-shrink: 0;
+
+      .left {
+        display: flex;
+        align-items: center;
+        flex: 1;
+        min-width: 0;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .right {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        margin-left: auto;
+        flex-wrap: nowrap;
+        gap: 8px;
+      }
+    }
+
+    .table-container {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      border: 1px solid var(--border-light);
+      border-radius: @dm-radius-md;
+      background: var(--bg-card);
+    }
+  }
+
+  .footer {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-height: 52px;
+    padding: 10px 20px;
+    background: var(--bg-card);
+    box-shadow: none;
+  }
+}
+
+.list-page-pagination.ant-pagination {
+  width: 100%;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px 12px;
+
+  .ant-pagination-total-text {
+    margin-right: auto;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+
+  .ant-pagination-options {
+    margin-left: 8px;
+  }
+}
+
+.list-page-footer-nav {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.content-wrapper,
+.cluster-container,
+.console-job-wrapper,
+.table-list-layout,
+.ticket-container,
+.project-account,
+.operation-log {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.content-wrapper {
+  padding: 16px;
+
+  .data-source-container {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+}
+
+.cluster-container {
+  padding: 16px;
+  overflow: hidden;
+}
+
+.page-footer-container {
+  flex-shrink: 0;
+  width: 100%;
+  margin-top: auto;
+  background: var(--bg-card);
+  box-shadow: none;
+  position: static;
+  z-index: 1;
+
+  .page-footer-paging {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-height: 52px;
+    padding: 10px 20px;
+    background: transparent;
+    line-height: normal;
+    height: auto;
+  }
+}
+
+// ─── DmTable / Ant Table ─────────────────────────────────────────────────────
+
+.dm-table,
+.ant-table-wrapper.dm-table {
+  .ant-table {
+    border-radius: @dm-radius-md;
+    color: var(--text-primary);
+    background: var(--bg-card);
+  }
+
+  .ant-table-container {
+    border-radius: @dm-radius-md;
+  }
+
+  .ant-table-thead > tr > th {
+    background: var(--bg-secondary) !important;
+    color: var(--text-secondary) !important;
+    font-weight: 600;
+    font-size: 12px;
+    border-bottom: 1px solid var(--border-light) !important;
+    padding: 10px 12px !important;
+  }
+
+  .ant-table-tbody > tr > td {
+    border-bottom: 1px solid var(--border-light) !important;
+    padding: 10px 12px !important;
+    font-size: 13px;
+    color: var(--text-primary);
+    transition: background-color 0.12s ease;
+  }
+
+  .ant-table-tbody > tr:hover > td {
+    background: var(--bg-hover) !important;
+  }
+}
+
+.dm-table--stripe {
+  .ant-table-tbody > tr:nth-child(even) > td {
+    background: var(--bg-secondary);
+  }
+
+  .ant-table-tbody > tr:nth-child(even):hover > td {
+    background: var(--bg-hover) !important;
+  }
+}
+
+// ─── Buttons / Inputs (Ant) ──────────────────────────────────────────────────
+
+.ant-btn {
+  border-radius: @dm-radius-sm;
+  font-weight: 500;
+  box-shadow: none;
+}
+
+.ant-btn-primary:not(:disabled) {
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: #171717 !important;
+
+  span {
+    color: #171717 !important;
+  }
+}
+
+.ant-btn-primary.ant-btn-background-ghost:not(:disabled) {
+  background: transparent !important;
+  color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+
+  span {
+    color: var(--primary-color) !important;
+  }
+
+  &:hover {
+    background: rgba(62, 207, 142, 0.08) !important;
+  }
+}
+
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-select-selector,
+.ant-picker {
+  border-radius: @dm-radius-sm !important;
+  border-color: var(--border-primary) !important;
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+.ant-input-affix-wrapper:hover,
+.ant-input:hover,
+.ant-select-selector:hover,
+.ant-picker:hover {
+  border-color: var(--border-secondary) !important;
+}
+
+.ant-input-affix-wrapper-focused,
+.ant-input-affix-wrapper:focus,
+.ant-input:focus,
+.ant-select-focused .ant-select-selector,
+.ant-picker-focused {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 2px rgba(62, 207, 142, 0.15) !important;
+}
+
+.ant-pagination {
+  .ant-pagination-item,
+  .ant-pagination-prev,
+  .ant-pagination-next,
+  .ant-pagination-jump-prev,
+  .ant-pagination-jump-next {
+    border-radius: @dm-radius-sm;
+    border-color: var(--border-primary);
+  }
+
+  .ant-pagination-item {
+    a {
+      color: var(--text-secondary);
+    }
+
+    &-active {
+      border-color: var(--primary-color);
+      background: rgba(62, 207, 142, 0.1);
+
+      a {
+        color: var(--primary-color);
+      }
+    }
+  }
+
+  .ant-pagination-options-quick-jumper input,
+  .ant-select-selector {
+    border-radius: @dm-radius-sm !important;
+  }
+}
+
+// ─── iView bridge (Select / Tabs / DatePicker until fully migrated) ───────────
+
+.ivu-tabs-bar {
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 12px;
+}
+
+.ivu-tabs-nav .ivu-tabs-tab {
+  border-radius: @dm-radius-sm @dm-radius-sm 0 0;
+  color: var(--text-secondary);
+  padding: 8px 16px;
+  margin-right: 4px;
+
+  &:hover {
+    color: var(--text-primary);
+  }
+
+  &-active {
+    color: var(--primary-color) !important;
+    font-weight: 500;
+  }
+}
+
+.ivu-tabs-ink-bar {
+  background-color: var(--primary-color) !important;
+  height: 2px !important;
+}
+
+.ivu-select-selection,
+.ivu-input,
+.ivu-date-picker .ivu-input {
+  border-radius: @dm-radius-sm !important;
+  border-color: var(--border-primary) !important;
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+.ivu-select-selection:hover,
+.ivu-input:hover {
+  border-color: var(--border-secondary) !important;
+}
+
+.ivu-select-visible .ivu-select-selection,
+.ivu-input:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 2px rgba(62, 207, 142, 0.15);
+}
+
+.ivu-table-wrapper {
+  border: 1px solid var(--border-light);
+  border-radius: @dm-radius-md;
+  overflow: hidden;
+}
+
+.ivu-table th {
+  background: var(--bg-secondary) !important;
+  color: var(--text-secondary) !important;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.ivu-table td {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.ivu-page-item-active {
+  border-color: var(--primary-color) !important;
+  background: rgba(62, 207, 142, 0.1) !important;
+
+  a {
+    color: var(--primary-color) !important;
+  }
+}
+
+.ivu-btn-primary {
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: #171717 !important;
+  border-radius: @dm-radius-sm;
+}
+
+.ivu-btn-ghost.ivu-btn-primary {
+  color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  background: transparent !important;
+}
+
+.ivu-breadcrumb {
+  color: var(--text-tertiary);
+  font-size: 13px;
+}

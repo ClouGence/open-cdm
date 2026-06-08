@@ -2,11 +2,6 @@
   <div class="devops">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb>
-            <BreadcrumbItem>{{ $t('ci-cd') }}</BreadcrumbItem>
-          </Breadcrumb>
-        </div>
         <div class="content">
           <div class="option">
             <div class="left">
@@ -18,10 +13,10 @@
                 @on-clear="handleQueryClear"
                 clearable
               />
-              <Button type="primary" @click="handleQuery">{{ $t('cha-xun') }}</Button>
+              <Button type="primary" ghost @click="handleQuery">{{ $t('cha-xun') }}</Button>
             </div>
             <div class="right">
-              <Button @click="handleAdd" type="primary" ghost style="margin-right: 10px" icon="md-add">
+              <Button @click="handleAdd" type="primary" style="margin-right: 10px" icon="md-add">
                 {{ $t('ti-gong-zhe') }}
               </Button>
               <Button @click="init" :loading="loading">

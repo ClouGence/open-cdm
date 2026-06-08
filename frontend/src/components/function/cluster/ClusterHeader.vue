@@ -38,13 +38,13 @@
         </Select>
       </FormItem>
       <FormItem>
-        <Button :loading="refreshLoading" type="primary" @click="_handleSearch(searchType, searchData)">
+        <Button :loading="refreshLoading" type="primary" ghost @click="_handleSearch(searchType, searchData)">
           {{ $t('cha-xun') }}
         </Button>
       </FormItem>
     </Form>
     <div class="page-header-function">
-      <Button v-if="hasManageAuth" type="primary" ghost @click="handleAddCluster">
+      <Button v-if="hasManageAuth" type="primary" @click="handleAddCluster">
         <Icon type="md-add" />
         {{ $t('xin-zeng-ji-qun') }}
       </Button>

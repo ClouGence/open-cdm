@@ -2,11 +2,6 @@
   <div class="sub-account">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb>
-            <BreadcrumbItem>{{ $t('zi-zhang-hao-guan-li') }}</BreadcrumbItem>
-          </Breadcrumb>
-        </div>
         <div class="content">
           <div class="option border-radius-card">
             <div class="left">
@@ -22,12 +17,12 @@
                 @on-keydown="handleEnterSearch"
                 clearable
               />
-              <Button :loading="subAccountListLoading" type="primary" @click="getSubAccountList('init')">
+              <Button :loading="subAccountListLoading" type="primary" ghost @click="getSubAccountList('init')">
                 {{ $t('cha-xun') }}
               </Button>
             </div>
             <div class="right">
-              <Button @click="handleClickAddBtn" type="primary" ghost style="margin-right: 10px" icon="md-add">
+              <Button @click="handleClickAddBtn" type="primary" style="margin-right: 10px" icon="md-add">
                 {{ $t('tian-jia-zi-zhang-hao') }}
               </Button>
               <Button @click="getSubAccountList('init')">

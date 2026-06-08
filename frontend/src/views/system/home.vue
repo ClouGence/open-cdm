@@ -45,14 +45,14 @@
           router-name="/system/ccdatasource"
         />
         <card
-          :handleClickBtn="() => handleClickAddBtn('/system/account')"
+          :handleClickBtn="() => handleClickAddBtn('/system/management/accounts/account')"
           :num="summary.subAccountCounts"
-          :show-btn="userInfo.menuItems.includes('/system/account')"
+          :show-btn="userInfo.menuItems.includes('/system/account') || userInfo.menuItems.includes('/system/management/accounts')"
           :btn-text="$t('chuang-jian')"
           name="subaccount"
           :quantifier="$t('ge')"
           :title="$t('zi-zhang-hao')"
-          router-name="/system/account"
+          router-name="/system/management/accounts/account"
         />
       </div>
     </div>

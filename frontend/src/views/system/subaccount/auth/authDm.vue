@@ -6,7 +6,7 @@
     <div class="header">
       <div class="left">
         <Breadcrumb v-if="isEdit">
-          <BreadcrumbItem @click="goSubAccountPage" to="/system/account">
+          <BreadcrumbItem @click="goSubAccountPage" to="/system/management/accounts/account">
             {{ $t('zi-zhang-hao-guan-li') }}
           </BreadcrumbItem>
           <BreadcrumbItem>
@@ -2152,7 +2152,7 @@ export default {
       }
     },
     goSubAccountPage() {
-      this.$router.push({ name: 'System_Sub_Account' });
+      this.$router.push({ name: 'Management_Accounts_Account' });
     },
     handleGoAuth() {
       this.$router.push({

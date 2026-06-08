@@ -17,7 +17,7 @@
           <div class="option">
             <div class="left">
               <Input v-model="QUERY.search" style="width: 280px; margin-right: 10px" clearable></Input>
-              <Button @click="handleRuleSearch('search')" type="primary">
+              <Button @click="handleRuleSearch('search')" type="primary" ghost>
                 {{ $t('cha-xun') }}
               </Button>
             </div>
@@ -80,7 +80,7 @@
           <div class="option">
             <div class="left">
               <Input v-model="SENSITIVE.search" style="width: 280px; margin-right: 10px" clearable></Input>
-              <Button @click="handleRuleSearch" type="primary">{{ $t('cha-xun') }}</Button>
+              <Button @click="handleRuleSearch" type="primary" ghost>{{ $t('cha-xun') }}</Button>
             </div>
             <div class="right">
               <Button @click="getSpecDetail">

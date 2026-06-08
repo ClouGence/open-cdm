@@ -86,7 +86,7 @@
               </div>
             </div>
             <div class="right">
-              <Button class="btn-wrap" type="primary" ghost icon="md-add" @click="handleGitOpsAdd" v-if="projectInfo.status === 'NORMAL'">
+              <Button class="btn-wrap" type="primary" icon="md-add" @click="handleGitOpsAdd" v-if="projectInfo.status === 'NORMAL'">
                 {{ $t('tian-jia-git-ops') }}
               </Button>
               <Button class="btn-wrap" @click="handleOperate('delate')" v-if="projectInfo.status === 'ARCHIVE'">
@@ -196,7 +196,7 @@
         <div class="option">
           <div class="left">
             <Input style="width: 280px; margin-right: 10px" clearable v-model="keyword" @on-enter="handleQuery" @on-clear="handleQueryClear" />
-            <Button @click="handleQuery" type="primary">{{ $t('cha-xun') }}</Button>
+            <Button @click="handleQuery" type="primary" ghost>{{ $t('cha-xun') }}</Button>
           </div>
         </div>
         <div class="table-container">

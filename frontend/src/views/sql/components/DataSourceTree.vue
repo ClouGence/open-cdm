@@ -1255,13 +1255,13 @@ export default {
 }
 
 .data-source-container {
-  background: #ffffff;
+  background: var(--bg-secondary);
   height: 100%;
   float: left;
   display: flex;
   flex-direction: column;
   position: relative;
-  border-right: 1px solid #ccc;
+  border-right: 1px solid var(--border-primary);
 
   .tree-resize {
     height: 100%;
@@ -1280,7 +1280,7 @@ export default {
     right: -28px;
     z-index: 9;
     top: 7px;
-    background: #fff;
+    background: var(--bg-card);
     padding: 2px 5px;
     cursor: pointer;
     box-shadow: rgba(0, 0, 0, 0.35) 0px 1px 2px;

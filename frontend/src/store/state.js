@@ -96,6 +96,10 @@ export default {
   bladePipeApply: 'https://www.clougence.com/dm-doc/clouddm',
   myCatLog: [],
   mySystemMenuItems: [],
+  sidebarMenu: {
+    primary: [],
+    groups: []
+  },
   myAuth: [],
   defaultRedirectUrl: '',
   publicKey: '',

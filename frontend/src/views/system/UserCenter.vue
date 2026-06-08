@@ -1,37 +1,29 @@
 <template>
-  <div class="user-center" style="padding: 16px">
-    <Breadcrumb style="margin-bottom: 14px">
-      <BreadcrumbItem>{{ $t('ge-ren-zi-liao') }}</BreadcrumbItem>
-    </Breadcrumb>
-    <Tabs value="profile" :animated="false">
-      <TabPane :label="$t('zhang-hu-xin-xi')" name="profile">
-        <!-- 个人信息tab内容：原账户信息栏目 -->
-        <div>
-          <div class="mt-6 border-t border-gray-100">
-            <dl class="divide divide-gray-100">
-              <div v-if="userInfo.account" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                <dt class="text-sm/6 font-medium text-gray-900">{{ $t('zhang-hao') }}</dt>
-                <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
-                  {{ userInfo.account }}
-                </dd>
+  <div class="profile-page user-center">
+    <div class="profile-card">
+      <Tabs value="profile" :animated="false">
+        <TabPane :label="$t('zhang-hu-xin-xi')" name="profile">
+          <div>
+            <dl class="profile-field-list">
+              <div v-if="userInfo.account" class="profile-field-row">
+                <dt>{{ $t('zhang-hao') }}</dt>
+                <dd>{{ userInfo.account }}</dd>
               </div>
-              <div v-if="!isInternalUser" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                <dt class="text-sm/6 font-medium text-gray-900">{{ $t('lai-yuan') }}</dt>
-                <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
-                  {{ userInfo.bindType }}
-                </dd>
+              <div v-if="!isInternalUser" class="profile-field-row">
+                <dt>{{ $t('lai-yuan') }}</dt>
+                <dd>{{ userInfo.bindType }}</dd>
               </div>
-              <div v-if="!isInternalUser" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                <dt class="text-sm/6 font-medium text-gray-900">{{ $t('guan-lian-zhang-hao') }}</dt>
-                <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
+              <div v-if="!isInternalUser" class="profile-field-row">
+                <dt>{{ $t('guan-lian-zhang-hao') }}</dt>
+                <dd>
                   <span :class="{ 'empty-value': !userInfo.bindAccount }">
                     {{ userInfo.bindAccount || $t('initialization.emptyValue') }}
                   </span>
                 </dd>
               </div>
-              <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                <dt class="text-sm/6 font-medium text-gray-900">{{ $t('yong-hu-ming') }}</dt>
-                <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
+              <div class="profile-field-row">
+                <dt>{{ $t('yong-hu-ming') }}</dt>
+                <dd>
                   <template v-if="editingField === 'username'">
                     <div class="inline-edit-row">
                       <Input v-model="inlineForm.username" @on-enter="confirmInlineEdit('username')" />
@@ -51,9 +43,9 @@
                   </span>
                 </dd>
               </div>
-              <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                <dt class="text-sm/6 font-medium text-gray-900">{{ $t('shou-ji') }}</dt>
-                <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
+              <div class="profile-field-row">
+                <dt>{{ $t('shou-ji') }}</dt>
+                <dd>
                   <template v-if="editingField === 'phone'">
                     <div class="inline-edit-row">
                       <Input v-model="inlineForm.phone" @on-blur="checkInlineDuplicate('phone')" @on-enter="confirmInlineEdit('phone')" />
@@ -69,9 +61,9 @@
                   </template>
                 </dd>
               </div>
-              <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                <dt class="text-sm/6 font-medium text-gray-900">{{ $t('you-xiang') }}</dt>
-                <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
+              <div class="profile-field-row">
+                <dt>{{ $t('you-xiang') }}</dt>
+                <dd>
                   <template v-if="editingField === 'email'">
                     <div class="inline-edit-row">
                       <Input v-model="inlineForm.email" @on-blur="checkInlineDuplicate('email')" @on-enter="confirmInlineEdit('email')" />
@@ -87,9 +79,9 @@
                   </template>
                 </dd>
               </div>
-              <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                <dt class="text-sm/6 font-medium text-gray-900">{{ $t('deng-lu-mi-ma') }}</dt>
-                <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
+              <div class="profile-field-row">
+                <dt>{{ $t('deng-lu-mi-ma') }}</dt>
+                <dd>
                   <template v-if="editingField === 'password'">
                     <div class="inline-edit-row password-edit-row">
                       <Input v-model="inlineForm.originPassword" type="password" password :placeholder="$t('qing-shu-ru-lao-mi-ma')" />
@@ -110,25 +102,23 @@
                   </template>
                 </dd>
               </div>
-              <div v-if="userInfo.marketplaceType && userInfo.marketplaceType !== 'NONE'" class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                <dt class="text-sm/6 font-medium text-gray-900">{{ $t('yun-shi-chang-lei-xing') }}</dt>
-                <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">
+              <div v-if="userInfo.marketplaceType && userInfo.marketplaceType !== 'NONE'" class="profile-field-row">
+                <dt>{{ $t('yun-shi-chang-lei-xing') }}</dt>
+                <dd>
                   {{ userInfo.marketplaceType === 'NONE' ? '' : userInfo.marketplaceType }}
                 </dd>
               </div>
             </dl>
           </div>
-        </div>
-      </TabPane>
-      <TabPane :label="$t('an-quan')" name="security">
-        <div class="mt-8">
+        </TabPane>
+        <TabPane :label="$t('an-quan')" name="security">
           <div>
-            <div class="mb-4" style="font-size: 14px; font-weight: bold">
-              {{ $t('duo-yin-zi-ren-zheng') }}
-              <span v-if="!userInfo.useMfa">{{ $t('wei-kai-qi') }}</span>
-              <span v-if="userInfo.useMfa">{{ $t('yi-kai-qi') }}</span>
-            </div>
-            <div>
+            <div class="profile-security-block">
+              <h3 class="profile-section-title">
+                {{ $t('duo-yin-zi-ren-zheng') }}
+                <span v-if="!userInfo.useMfa">{{ $t('wei-kai-qi') }}</span>
+                <span v-if="userInfo.useMfa">{{ $t('yi-kai-qi') }}</span>
+              </h3>
               <div>
                 <Button v-if="!userInfo.useMfa" style="margin-right: 12px" @click="handleOpenMfaSetting">
                   {{ $t('kai-qi-1') }}
@@ -138,7 +128,7 @@
                 </Button>
                 <Button @click="handleShowCloseMf" v-if="userInfo.useMfa" type="error" ghost>{{ $t('guan-bi') }}</Button>
               </div>
-              <p class="mt-4 max-w-xl">
+              <p class="profile-section-desc">
                 {{
                   $t(
                     'wei-nin-de-zhang-hao-zeng-jia-yi-ceng-bao-zhang-kai-qi-hou-nin-xu-yao-zai-deng-lu-shi-ti-gong-zhang-hao-mi-ma-yi-ji-mfa-yan-zheng-ma'
@@ -146,24 +136,23 @@
                 }}
               </p>
             </div>
-          </div>
-          <!-- aksk管理栏目 -->
-          <div v-if="userInfo.accountType === 'PRIMARY_ACCOUNT'">
-            <div class="mt-12 mb-4" style="font-size: 14px; font-weight: bold">
-              {{ $t('aksk-guan-li') }}
+            <div v-if="userInfo.accountType === 'PRIMARY_ACCOUNT'" class="profile-security-block">
+              <h3 class="profile-section-title">
+                {{ $t('aksk-guan-li') }}
+              </h3>
+              <div style="margin-bottom: 8px">
+                <Button style="font-size: 14px; margin-right: 16px" @click="handleShowFetchAKSK">
+                  {{ $t('huo-qu-aksk') }}
+                </Button>
+                <Button type="error" ghost style="font-size: 14px; margin-right: 16px" @click="handleShowResetAKSK">
+                  {{ $t('chong-zhi-aksk') }}
+                </Button>
+              </div>
             </div>
-            <div style="margin-bottom: 24px">
-              <Button style="font-size: 14px; margin-right: 16px" @click="handleShowFetchAKSK">
-                {{ $t('huo-qu-aksk') }}
-              </Button>
-              <Button type="error" ghost style="font-size: 14px; margin-right: 16px" @click="handleShowResetAKSK">
-                {{ $t('chong-zhi-aksk') }}
-              </Button>
-            </div>
           </div>
-        </div>
-      </TabPane>
-    </Tabs>
+        </TabPane>
+      </Tabs>
+    </div>
     <CCModal v-model="showMfaModal" :title="$t('kai-qi-duo-yin-zi-ren-zheng')" width="480px">
       <div v-if="mfaModalLoading" style="text-align: center; padding: 40px 0">
         <i class="ivu-icon ivu-icon-ios-loading ivu-load-loop" style="font-size: 32px"></i>
@@ -844,15 +833,14 @@ export default {
 
 .user-center {
   position: relative;
-  padding: 16px;
+  padding: 0;
 
   .ivu-tabs-nav .ivu-tabs-tab-active {
-    color: #0bb9f8;
-    font-family: PingFangSC-Semibold, serif;
+    color: var(--primary-color);
   }
 
   .ivu-table th {
-    background-color: #f5f5f5;
+    background-color: var(--bg-secondary);
   }
 }
 

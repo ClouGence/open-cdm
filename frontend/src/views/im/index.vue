@@ -2,19 +2,14 @@
   <div class="devops">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb>
-            <BreadcrumbItem>{{ $t('im') }}</BreadcrumbItem>
-          </Breadcrumb>
-        </div>
         <div class="content">
           <div class="option">
             <div class="left">
               <Input v-model="searchText" style="width: 280px; margin-right: 10px" clearable :placeholder="$t('shu-ru-ming-cheng-cha-zhao')" />
-              <Button type="primary">{{ $t('cha-xun') }}</Button>
+              <Button type="primary" ghost>{{ $t('cha-xun') }}</Button>
             </div>
             <div class="right">
-              <Button @click="handleImCreateDrawer" type="primary" ghost style="margin-right: 10px" icon="md-add">
+              <Button @click="handleImCreateDrawer" type="primary" style="margin-right: 10px" icon="md-add">
                 {{ $t('ti-gong-zhe') }}
               </Button>
               <Button @click="init" :loading="loading">
