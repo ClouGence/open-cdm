@@ -656,7 +656,7 @@ export default {
     async handleResourceManageChange() {
       this.originLeftTree = this.markGlobalResourceAuthState(this.originLeftTree);
       this.$refs.dataSourceTree.setData(this.getFilterOfTypeAndSearch(this.originLeftTree));
-      if (this.curNode?.key) {
+      if (this.curNode?.key && this.curNode?.objType !== 'ENV') {
         await this.handleGetAuthTreeForDm(this.curNode);
       }
       await this.handleGetPreviewData();
@@ -759,6 +759,20 @@ export default {
           }
           return null;
         };
+        const findFirstAuthNode = (nodes) => {
+          for (const node of nodes) {
+            if (node.objType && node.objType !== 'ENV') {
+              return node;
+            }
+            if (node.children && node.children.length > 0) {
+              const authNode = findFirstAuthNode(node.children);
+              if (authNode) {
+                return authNode;
+              }
+            }
+          }
+          return null;
+        };
 
         const firstEditedNode = findFirstEditedNode(this.originLeftTree);
         if (firstEditedNode) {
@@ -766,6 +780,14 @@ export default {
           this.$nextTick(() => {
             this.leftTreeNodeClick(firstEditedNode);
           });
+        } else if (hasGlobalResourceEdit) {
+          const firstAuthNode = findFirstAuthNode(this.originLeftTree);
+          if (firstAuthNode) {
+            this.selectedNodeKey = firstAuthNode.key;
+            this.$nextTick(() => {
+              this.leftTreeNodeClick(firstAuthNode);
+            });
+          }
         } else if (this.originLeftTree && this.originLeftTree.length > 0) {
           const firstNode = this.originLeftTree[0];
           if (firstNode) {
@@ -1335,7 +1357,9 @@ export default {
       });
     },
     renderPreviewLeftTree(node) {
-      const filterTree = this.filterTreeWithEditedNodes(this.originLeftTree);
+      const filterTree = this.hasGlobalResourceAuthChanges()
+        ? this.getFilterOfTypeAndSearch(this.originLeftTree)
+        : this.filterTreeWithEditedNodes(this.originLeftTree);
       this.$refs.dataSourceTree.setData(filterTree);
 
       this.handleGetAuthTreeForDm(node);
@@ -1542,10 +1566,13 @@ export default {
     async handleGetAuthTreeForDm(node = {}) {
       try {
         const elementType = node?.objType || '';
+        if (elementType === 'ENV') {
+          return;
+        }
         let allAuth = { data: [] };
         let hasAutn = { data: [] };
         let filterAuth;
-        if (elementType !== 'ENV') {
+        if (elementType) {
           this.curElementType = elementType;
           this.curRightTreeTab = elementType;
 
