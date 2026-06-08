@@ -92,7 +92,7 @@ jobs:
 
       - name: Stage docker build context
         run: |
-          cp -r .github/docker/shared docker-ctx/shared
+          cp -r package/docker/shared docker-ctx/shared
           ls -lh docker-ctx
           ls -R docker-ctx/shared
 
@@ -113,7 +113,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: docker-ctx
-          file: .github/docker/${{ matrix.service }}.Dockerfile
+          file: package/docker/${{ matrix.service }}.Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
