@@ -23,6 +23,7 @@ dependencies {
     implementation project(':cgdm-plugin-loader')
     implementation project(':cgdm-dao')
     implementation project(':dsc-common')
+    implementation project(':cg-results-file')
     implementation project(':cgdm-share-libs')
     implementation project(':cgdm-web')
 

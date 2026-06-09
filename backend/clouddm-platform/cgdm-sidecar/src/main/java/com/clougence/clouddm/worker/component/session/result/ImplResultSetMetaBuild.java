@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.clougence.clouddm.worker.component.session.result;
+ */
+package com.clougence.clouddm.worker.component.session.result;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,22 +24,22 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
+import com.clougence.clouddm.sdk.execute.resultset.echo.ReceiveMode;
+import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetMeta;
+import com.clougence.clouddm.sdk.execute.resultset.echo.ResultType;
+import com.clougence.clouddm.sdk.execute.resultset.file.DmFileType;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder.ResultSetMetaBuild;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder.ResultSetRowsBuild;
 import com.clougence.clouddm.sdk.execute.session.ResultColMeta;
 import com.clougence.clouddm.sdk.execute.session.result.ReaderOptions;
 import com.clougence.clouddm.sdk.execute.session.result.fetcher.ValueFetcherContext;
-import com.clougence.clouddm.sdk.execute.resultset.file.DmFileType;
-import com.clougence.clouddm.sdk.execute.resultset.echo.ReceiveMode;
-import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetMeta;
-import com.clougence.clouddm.sdk.execute.resultset.echo.ResultType;
-import com.clougence.clouddm.worker.component.result.ResultSetOutputStream;
 import com.clougence.clouddm.worker.component.session.SessionSupport;
 import com.clougence.clouddm.worker.component.session.storage.ResultStorage;
 import com.clougence.clouddm.worker.component.session.storage.RowStorage;
 import com.clougence.utils.HashUtils;
 import com.clougence.utils.JsonUtils;
+import com.clougence.utils.resultfile.ResultSetOutputStream;
 
 import lombok.extern.slf4j.Slf4j;
 

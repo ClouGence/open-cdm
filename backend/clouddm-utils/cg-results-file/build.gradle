@@ -12,10 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.clougence.clouddm.worker.component.result;
+ */
 
-public interface ResultDataTag {
-
-    int DATA_CROPPED_TAG = 0x01;
-    int DATA_MASK_TAG    = 0x02;
+plugins {
+    id 'com.clougence.java-conventions'
 }
+
+dependencies {
+    api project(':cg-utils')
+    api project(':cgdm-plugin-sdk')
+}
+
+description = 'cg-results-file'

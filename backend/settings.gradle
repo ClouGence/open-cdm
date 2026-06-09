@@ -10,6 +10,7 @@ include 'cg-utils'; project(":cg-utils").projectDir = file('clouddm-utils/cg-uti
 include 'cg-detectrule'; project(":cg-detectrule").projectDir = file('clouddm-utils/cg-detectrule')
 include 'cg-dslparser'; project(":cg-dslparser").projectDir = file('clouddm-utils/cg-dslparser')
 include 'cg-drivers'; project(":cg-drivers").projectDir = file('clouddm-utils/cg-drivers')
+include 'cg-results-file'; project(":cg-results-file").projectDir = file('clouddm-utils/cg-results-file')
 
 // clouddm:platform
 include 'clouddm-base'

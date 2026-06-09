@@ -55,59 +55,26 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class RdpOpAuditServiceImpl implements RdpOpAuditService {
-
-    //    @Value("${clougence.rdp.operation.audit.log.path}")
-    //    private String                                opAuditLogPath;
-
-    //    private static final Logger                   auditLogger    = LoggerFactory.getLogger("user_audit_detail");
-
-    private final Map<String, List<ResourceType>> resTypeMap     = new HashMap<>();
-
-    private final Map<String, List<AuditType>>    auditTypeMap   = new HashMap<>();
-
-    private final Set<String>                     isExistsLogSet = new HashSet<>();
+    private final List<ResourceType> resourceTypes  = new ArrayList<>();
+    private final List<AuditType>    auditTypes     = new ArrayList<>();
+    private final Set<String>        isExistsLogSet = new HashSet<>();
 
     @Resource
-    private SystemDal                             systemDal;
+    private SystemDal                systemDal;
     @Resource
-    private MonitorDal                            monitorDal;
+    private MonitorDal               monitorDal;
     @Resource
-    private DataSourceDal                         datasourceDal;
+    private DataSourceDal            datasourceDal;
     @Resource
-    private AuthDal                               authDal;
+    private AuthDal                  authDal;
     @Resource
-    private DmConsoleConfig                       rdpConfig;
+    private DmConsoleConfig          rdpConfig;
 
     @PostConstruct
     private void init() {
-        resTypeMap.put(QUERY_CONDITION_CC, Arrays.asList(ResourceType.DATA_JOB, ResourceType.ACCOUNT));
-        resTypeMap.put(QUERY_CONDITION_RDP, Arrays.asList(ResourceType.DATASOURCE, ResourceType.ACCOUNT, ResourceType.ROLE, ResourceType.DS_ENV));
+        resourceTypes.addAll(Arrays.asList(ResourceType.DATASOURCE, ResourceType.ACCOUNT, ResourceType.ROLE, ResourceType.DS_ENV));
 
-        List<AuditType> auditTypesForCc = Arrays.asList(AuditType.ADD_CHECK, //
-                AuditType.QUERY_JOB_INFO, //
-                AuditType.UPDATE_PARAMS, //
-                AuditType.UPDATE_SUBSCRIBE, //
-                AuditType.UPDATE_SUBSCRIBE_FULL, //
-                AuditType.CREATE_JOB, //
-                AuditType.START_JOB, //
-                AuditType.STOP_JOB, //
-                AuditType.RESTART_JOB, //
-                AuditType.DELETE_JOB, //
-                AuditType.MANUAL_MERGE, //
-                AuditType.REPLAY_JOB, //
-                AuditType.UPDATE_POSITION, //
-                AuditType.RESET_POSITION, //
-                AuditType.ATTACH_INCRE_TASK, //
-                AuditType.DETACH_INCRE_TASK, //
-                AuditType.ADD_REVISE, //
-                AuditType.PAUSE_SCHEDULE, //
-                AuditType.RESUME_SCHEDULE, //
-                AuditType.START_SCHEDULE, //
-                AuditType.ACTIVE_FSM, //
-                AuditType.MODIFY_SUB_ACCOUNT_AUTH);
-        auditTypeMap.put(QUERY_CONDITION_CC, auditTypesForCc);
-
-        List<AuditType> auditTypesForRdp = Arrays.asList(AuditType.ADD_DATA_SOURCE, //
+        auditTypes.addAll(Arrays.asList(AuditType.ADD_DATA_SOURCE, //
                 AuditType.DELETE_DATA_SOURCE, //
                 AuditType.QUERY_DATA_SOURCE_CONFIG, //
                 AuditType.UPDATE_DATA_SOURCE_CONFIG, //
@@ -139,21 +106,11 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
                 AuditType.UPDATE_ACCOUNT_OP_PWD, //
                 AuditType.UPDATE_SYSTEM_CONFIG, //
                 AuditType.AUTHORIZE_ACCESS_TO_ALIYUN, //
-                AuditType.REVOKE_ACCESS_TO_ALIYUN);
-
-        auditTypeMap.put(QUERY_CONDITION_RDP, auditTypesForRdp);
+                AuditType.REVOKE_ACCESS_TO_ALIYUN));
 
         isExistsLogSet.add(AuditType.QUERY_DATA_SOURCE_CONFIG.name());
         isExistsLogSet.add(AuditType.UPDATE_DATA_SOURCE_CONFIG.name());
         isExistsLogSet.add(AuditType.UPDATE_DATA_SOURCE_DESC.name());
-
-        isExistsLogSet.add(AuditType.UPDATE_PARAMS.name());
-        isExistsLogSet.add(AuditType.UPDATE_SUBSCRIBE.name());
-        isExistsLogSet.add(AuditType.UPDATE_SUBSCRIBE_FULL.name());
-        isExistsLogSet.add(AuditType.CREATE_JOB.name());
-        isExistsLogSet.add(AuditType.UPDATE_POSITION.name());
-        isExistsLogSet.add(AuditType.RESET_POSITION.name());
-        isExistsLogSet.add(AuditType.ADD_CHECK.name());
 
         isExistsLogSet.add(AuditType.UPDATE_SYSTEM_CONFIG.name());
         isExistsLogSet.add(AuditType.UPDATE_ACCOUNT_PHONE.name());
@@ -278,50 +235,41 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
         if (StringUtils.isEmpty(resourceIdStr)) {
             return "(null)";
         }
-        switch (type) {
-            case DATASOURCE: {
+        return switch (type) {
+            case DATASOURCE -> {
                 DmDsDO rdpDataSourceDO = datasourceDal.dsMapper().queryDsIdentityById(Long.valueOf(resourceIdStr));
-                return rdpDataSourceDO.getInstanceId();
+                yield rdpDataSourceDO.getInstanceId();
             }
-            case ROLE: {
+            case ROLE -> {
                 DmAuthRoleDO rdpRoleDO = authDal.roleMapper().selectById(Long.valueOf(resourceIdStr));
-                return rdpRoleDO.getRoleName();
+                yield rdpRoleDO.getRoleName();
             }
-            case ACCOUNT: {
+            case ACCOUNT -> {
                 DmAuthUserDO rdpUserDO = authDal.userMapper().queryByUid(resourceIdStr);
-                return rdpUserDO.getUsername();
+                yield rdpUserDO.getUsername();
             }
-            case DS_ENV: {
+            case DS_ENV -> {
                 DmSysEnvDO rdpDsEnvDO = systemDal.envMapper().selectById(Long.valueOf(resourceIdStr));
-                return rdpDsEnvDO.getEnvName();
+                yield rdpDsEnvDO.getEnvName();
             }
-            default: {
-                throw new UnsupportedOperationException("Unsupported resource type: " + type);
-            }
-        }
+            default -> throw new UnsupportedOperationException("Unsupported resource type: " + type);
+        };
     }
 
     @Override
-    public OpAuditConditionVO queryListCondition(String conditionType) {
+    public OpAuditConditionVO queryListCondition() {
         OpAuditConditionVO opAuditVO = new OpAuditConditionVO();
-        opAuditVO.setAuditTypeVOS(fillAuditTypes(conditionType));
-        opAuditVO.setResourceTypeVOS(fillResourceType(conditionType));
+        opAuditVO.setAuditTypeVOS(fillAuditTypes());
+        opAuditVO.setResourceTypeVOS(fillResourceType());
         return opAuditVO;
     }
 
-    @Override
-    public Boolean isExistsOpAuditLog(String auditType) {
-        return StringUtils.isNotBlank(auditType) && this.isExistsLogSet.contains(auditType);
-    }
-
-    private List<ResourceTypeVO> fillResourceType(String conditionType) {
-        List<ResourceType> resTypes = resTypeMap.get(conditionType);
-
-        if (resTypes == null || resTypes.isEmpty()) {
+    private List<ResourceTypeVO> fillResourceType() {
+        if (resourceTypes.isEmpty()) {
             return new ArrayList<>();
         }
 
-        return resTypes.stream().map(this::convertResourceType).collect(Collectors.toList());
+        return resourceTypes.stream().map(this::convertResourceType).collect(Collectors.toList());
     }
 
     private ResourceTypeVO convertResourceType(ResourceType resType) {
@@ -331,9 +279,7 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
         return resourceTypeVO;
     }
 
-    private List<AuditTypeVO> fillAuditTypes(String conditionType) {
-        List<AuditType> auditTypes = auditTypeMap.get(conditionType);
-
+    private List<AuditTypeVO> fillAuditTypes() {
         if (auditTypes == null || auditTypes.isEmpty()) {
             return new ArrayList<>();
         }
@@ -346,35 +292,6 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
         auditTypeVO.setAuditType(auditType.name());
         auditTypeVO.setAlias(DmI18nUtils.getMessage(auditType.name()));
         return auditTypeVO;
-    }
-
-    @Override
-    public List<RdpOpAuditVO> findAuditByUid(String uid, SecurityLevel securityLevel, String auditType, String resourceType, Date start, Date end, long startId, int pageSize) {
-        if (StringUtils.isBlank(uid)) {
-            throw new IllegalArgumentException("find audit by uid,but uid is empty.");
-        }
-
-        if (pageSize == 0) {
-            pageSize = DEFAULT_PAGE_SIZE;
-        } else if (pageSize > MAX_PAGE_SIZE) {
-            pageSize = MAX_PAGE_SIZE;
-        }
-
-        List<DmMonOpAuditDO> auditDOs = monitorDal.opAuditMapper().queryByUidJoinUrlAuth(uid, securityLevel, auditType, resourceType, start, end, startId, pageSize);
-
-        if (auditDOs == null || auditDOs.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<RdpOpAuditVO> auditVOs = auditDOs.stream().map(auditDO -> {
-            RdpOpAuditVO rdpOpAuditVO = new RdpOpAuditVO().convertFromDO(auditDO);
-            rdpOpAuditVO.setIsExistsLog(StringUtils.isNotBlank(rdpOpAuditVO.getAuditType()) && isExistsLogSet.contains(rdpOpAuditVO.getAuditType()));
-            return rdpOpAuditVO;
-        }).collect(Collectors.toList());
-
-        fillExtraVO(auditVOs);
-
-        return auditVOs;
     }
 
     @Override
@@ -402,19 +319,6 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
         return auditVOs;
     }
 
-    //    public RdpOpAuditVO fillAuditVO(RdpOpAuditVO vo) {
-    //        try {
-    //            DmAuthUserDO userDO = this.tempCache.get(vo.getUid());
-    //            if (userDO != null) {
-    //                vo.setUserName(userDO.getUsername());
-    //            }
-    //        } catch (ExecutionException e) {
-    //            throw new RuntimeException(e.getCause());
-    //        }
-    //
-    //        return vo;
-    //    }
-
     private String genUUIDKey(Date currentTime) {
         String date = new SimpleDateFormat("yyyyMMddHHmmss").format(currentTime);
         return date + UUID.randomUUID().toString().substring(0, 8);
@@ -424,18 +328,6 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
         fillResourceInfo(auditVOs);
 
         //        fillUserInfo(auditVOs, userNameMap);
-    }
-
-    private void fillUserInfo(List<RdpOpAuditVO> auditVOs, Map<String, String> userNameMap) {
-        if (userNameMap.isEmpty()) {
-            return;
-        }
-
-        auditVOs.forEach(auditVO -> {
-            if (userNameMap.containsKey(auditVO.getUid())) {
-                auditVO.setUserName(userNameMap.get(auditVO.getUid()));
-            }
-        });
     }
 
     private void fillResourceInfo(List<RdpOpAuditVO> auditVOs) {

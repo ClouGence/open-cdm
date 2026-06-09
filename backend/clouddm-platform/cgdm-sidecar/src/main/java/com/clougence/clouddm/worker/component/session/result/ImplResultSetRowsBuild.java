@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.clougence.clouddm.worker.component.session.result;
+ */
+package com.clougence.clouddm.worker.component.session.result;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -22,6 +23,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
+import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSet;
+import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetRow;
+import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
+import com.clougence.clouddm.sdk.execute.resultset.echo.ResultType;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder.ResultSetRowCountUpdateBuild;
 import com.clougence.clouddm.sdk.execute.session.ResultBuilder.ResultSetRowsBuild;
@@ -29,10 +34,6 @@ import com.clougence.clouddm.sdk.execute.session.ResultColMeta;
 import com.clougence.clouddm.sdk.execute.session.result.ValueProcessService;
 import com.clougence.clouddm.sdk.execute.session.result.fetcher.ValueFetcher;
 import com.clougence.clouddm.sdk.execute.session.result.fetcher.ValueFetcherContext;
-import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSet;
-import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetRow;
-import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
-import com.clougence.clouddm.sdk.execute.resultset.echo.ResultType;
 import com.clougence.clouddm.worker.component.session.SessionSupport;
 import com.clougence.clouddm.worker.component.session.storage.ResultStorage;
 import com.clougence.clouddm.worker.component.session.storage.RowStorage;

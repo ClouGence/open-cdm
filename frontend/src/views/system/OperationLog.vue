@@ -324,7 +324,6 @@ export default {
         }
       ],
       logData: [],
-      type: 'cc',
       auditTypeList: [],
       resourceTypeList: [],
       auditLogDetail: {},
@@ -337,26 +336,13 @@ export default {
     ...mapState(['globalSetting'])
   },
   created() {
-    if (this.$route.name === 'rdpOperationLog') {
-      this.type = 'rdp';
-      this.rdpQueryOperationListCondition();
-    } else if (this.$route.name === 'operationLog') {
-      this.type = 'cc';
-      this.ccQueryOperationListCondition();
-    }
+    this.rdpQueryOperationListCondition();
   },
   mounted() {
     this.handleSearch();
     this.searchData.pageData.pageSize = 20;
   },
   methods: {
-    async auditCtrlQueryAll() {
-      const res = await this.$services.rdpAuditCtrlQueryAll();
-
-      if (res.success) {
-        console.log(res.data);
-      }
-    },
     handleEnterSearch(e) {
       if (e.code === 'Enter') {
         e.preventDefault();
@@ -409,20 +395,11 @@ export default {
       const data = { ...this.searchData };
       data.exportType = 'EXCEL';
       data.pageData = null;
-      let res = null;
-      if (this.type === 'rdp') {
-        res = await this.$services.rdpAuditExport({
-          data,
-          responseType: 'blob',
-          modal: false
-        });
-      } else if (this.type === 'cc') {
-        res = await this.$services.ccAuditExport({
-          data,
-          responseType: 'blob',
-          modal: false
-        });
-      }
+      const res = await this.$services.rdpAuditExport({
+        data,
+        responseType: 'blob',
+        modal: false
+      });
       if (res && res.headers) {
         const contentDisposition = res.headers['content-disposition'];
 
@@ -457,14 +434,6 @@ export default {
       this.searchData.pageData.startId = 0;
       this.handleSearch();
     },
-    ccQueryOperationListCondition() {
-      this.$services.ccAuditQueryListCondition().then((res) => {
-        if (res.success) {
-          this.auditTypeList = res.data.auditTypeVOS;
-          this.resourceTypeList = res.data.resourceTypeVOS;
-        }
-      });
-    },
     rdpQueryOperationListCondition() {
       this.$services.rdpAuditQueryListCondition().then((res) => {
         if (res.success) {
@@ -474,11 +443,6 @@ export default {
       });
     },
     async handleSearch(type) {
-      const ctrlRes = await this.$services.rdpAuditCtrlQueryAll();
-
-      if (!ctrlRes.success) {
-        return;
-      }
       this.refreshLoading = true;
       if (this.timeRange.length > 0) {
         this.searchData.opStart =
@@ -490,11 +454,8 @@ export default {
         this.searchData.opEnd = '';
       }
       this.searchData.pageData.pageSize = 20;
-      let apiName = this.$services.ccAuditQueryAll;
-      if (this.type === 'rdp') {
-        apiName = this.$services.rdpAuditQueryAll;
-      }
-      apiName({ data: this.searchData })
+      this.$services
+        .rdpAuditQueryAll({ data: this.searchData })
         .then((res) => {
           if (res.success) {
             this.logData = res.data;
@@ -551,13 +512,7 @@ export default {
       this.handleSearch();
     },
     handleGetAuditDetail(row) {
-      let apiName = null;
-      if (this.type === 'cc') {
-        apiName = this.$services.ccLogViewGrepOperationLog;
-      } else if (this.type === 'rdp') {
-        apiName = this.$services.rdpLogViewGrepOperationLog;
-      }
-      apiName({
+      this.$services.rdpLogViewGrepOperationLog({
         data: { operationId: row.id }
       }).then((res) => {
         if (res.success) {
