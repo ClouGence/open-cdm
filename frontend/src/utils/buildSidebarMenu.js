@@ -66,10 +66,13 @@ export function buildSidebarMenu({ myCatLog, myAuth, includesDM, isDesktop }) {
 
   const integrationChildren = [];
   if (myCatLog.includes('CAT_DM_IM')) {
-    integrationChildren.push(linkItem('/system/im', '/#/system/im', 'im', 'icon-v2-sub_account'));
+    integrationChildren.push(linkItem('/system/im', '/#/system/im', 'nav-webhook', 'icon-v2-sub_account'));
   }
   if (myCatLog.includes('CAT_DM_CICD')) {
-    integrationChildren.push(linkItem('/system/devops', '/#/system/devops', 'nav-scm-provider', 'icon-v2-sub_account'));
+    integrationChildren.push(linkItem('/system/devops', '/#/system/devops', 'nav-git-ops', 'icon-v2-sub_account'));
+  }
+  if (includesDM) {
+    integrationChildren.push(linkItem('/system/sso', '/#/system/sso', 'nav-sso', 'icon-v2-sub_account'));
   }
   if (integrationChildren.length) {
     groups.push(group('integration', 'nav-ji-cheng', 'icon-v2-sub_account', integrationChildren));

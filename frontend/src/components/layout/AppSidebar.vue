@@ -100,11 +100,7 @@ export default {
       if (path.indexOf('/system/management/accounts') > -1 || path.indexOf('/system/account') > -1 || path.indexOf('/system/role') > -1) {
         return '/system/management/accounts';
       }
-      if (
-        path.indexOf('/system/management/logs') > -1 ||
-        path.indexOf('/system/operation_log') > -1 ||
-        path.indexOf('/system/sql_log') > -1
-      ) {
+      if (path.indexOf('/system/management/logs') > -1 || path.indexOf('/system/operation_log') > -1 || path.indexOf('/system/sql_log') > -1) {
         return '/system/management/logs';
       }
       if (path.indexOf('/system/profile') > -1) {

@@ -4,19 +4,19 @@
       <div class="left">
         <ButtonGroup class="operator-btn-group">
           <Button size="small" type="primary" :disabled="isRunning" :loading="tab.running" @click="handleRun('run')">
-            <div style="display: flex; align-items: center; padding-top: 2px">
+            <div class="operator-btn-content">
               <CustomIcon v-if="!tab.running" type="icon-v2-ConsoleRun" :color="tab.running ? '#999' : '#fff'" size="14px" right-margin="4px" />
               <span>{{ $t('zhi-hang') }}</span>
             </div>
           </Button>
           <Button size="small" v-if="isSupportExplain" :disabled="isRunning" @click="handlePlan('plan')">
-            <div style="display: flex; align-items: center; padding-top: 2px">
+            <div class="operator-btn-content">
               <CustomIcon type="icon-v2-ConsolePlan" :color="tab.running ? '#999' : isDark ? '#fff' : '#000'" size="14px" right-margin="4px" />
               <span>{{ $t('ji-hua') }}</span>
             </div>
           </Button>
           <Button size="small" v-if="isSupportCancel" :disabled="isStoping" :loading="tab.stopping" @click="handleStop">
-            <div style="display: flex; align-items: center; padding-top: 2px">
+            <div class="operator-btn-content">
               <CustomIcon
                 v-if="!tab.stopping"
                 type="icon-v2-ConsoleStop"
@@ -28,7 +28,7 @@
             </div>
           </Button>
           <Button size="small" v-if="isSupportFormat" @click="formatSql">
-            <div style="display: flex; align-items: center; padding-top: 2px">
+            <div class="operator-btn-content">
               <CustomIcon type="icon-v2-ConsoleFormat" size="12px" right-margin="2px" />
               <span>{{ $t('ge-shi') }}</span>
             </div>
@@ -217,5 +217,19 @@ export default {
   overflow: hidden;
   white-space: nowrap;
   display: inline-flex;
+
+  :deep(.ivu-btn) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.operator-btn-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding-top: 1px;
+  line-height: 1.2;
 }
 </style>

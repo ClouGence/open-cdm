@@ -49,11 +49,23 @@
       background: var(--bg-secondary);
       border-bottom: 1px solid var(--border-primary);
 
-      .filter-input :deep(.ivu-input) {
-        background: var(--bg-tertiary) !important;
-        border: 1px solid var(--border-primary) !important;
-        color: var(--text-primary);
-        border-radius: 6px;
+      .filter-input {
+        .ivu-input-wrapper {
+          background: var(--bg-tertiary) !important;
+          border: 1px solid var(--border-primary) !important;
+          border-radius: 6px;
+          box-shadow: none;
+
+          .ivu-input {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+          }
+
+          .ivu-input-icon {
+            color: var(--text-tertiary);
+          }
+        }
       }
     }
 
@@ -89,6 +101,12 @@
     padding: 6px 10px;
     border-bottom: 1px solid var(--border-primary);
     background: var(--bg-secondary);
+
+    .ivu-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
 
     .ivu-btn-primary {
       background: var(--primary-color) !important;

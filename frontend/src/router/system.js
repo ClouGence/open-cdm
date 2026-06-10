@@ -5,6 +5,11 @@ export default [
     component: () => import(/* webpackChunkName: "ccsystem-datasource" */ '@/views/devops')
   },
   {
+    path: 'sso',
+    name: 'DMSso',
+    component: () => import(/* webpackChunkName: "ccsystem-sso" */ '@/views/system/sso/index')
+  },
+  {
     path: 'im',
     name: 'DMIm',
     component: () => import(/* webpackChunkName: "ccsystem-datasource" */ '@/views/im')
