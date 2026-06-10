@@ -25,8 +25,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public interface JwtService {
 
-    String jwtTokenName      = "jwt_token";
-    String opPwdToken        = "op_pwd_token";
+    String jwtTokenName      = "dm_jwt_token";
+    String opPwdToken        = "dm_op_pwd_token";
     String LOGIN_TYPE        = "loginType";
     int    minLoginExpireSec = 1200;
 

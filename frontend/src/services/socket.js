@@ -9,6 +9,7 @@ import Cookies from 'js-cookie';
 
 let rws = null;
 let creatingWebSocket = false;
+const JWT_TOKEN_NAME = 'dm_jwt_token';
 let globalCallback = {
   open: null,
   message: null,
@@ -21,7 +22,7 @@ const DEFAULT_REQUEST_TIMEOUT = 5000;
 const hasWebSocketInstance = () => !!rws;
 
 const buildFullUrl = (url) => {
-  const jwtToken = Cookies.get('jwt_token');
+  const jwtToken = Cookies.get(JWT_TOKEN_NAME);
 
   const params = new URLSearchParams();
 
@@ -30,7 +31,7 @@ const buildFullUrl = (url) => {
 
   if (process.env.NODE_ENV === 'development' && jwtToken) {
     // Add jwt token to query parameters (server may read from query string)
-    params.append('jwt_token', jwtToken);
+    params.append(JWT_TOKEN_NAME, jwtToken);
   }
 
   // If a query parameter already exists in the URL, use & connection, otherwise use?

@@ -325,7 +325,7 @@ public class CallbackController {
             return this.redirectOrDone(request, response, "/");
         }
 
-        response.addCookie(RdpWebUtils.newCookie("jwt_token", StringUtils.EMPTY, true, 0));
+        response.addCookie(RdpWebUtils.newCookie(JwtService.jwtTokenName, StringUtils.EMPTY, true, 0));
         return this.redirectOrDone(request, response, "/");
     }
 

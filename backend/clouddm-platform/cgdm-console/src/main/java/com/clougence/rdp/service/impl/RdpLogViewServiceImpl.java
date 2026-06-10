@@ -86,7 +86,7 @@ import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 //    //        refreshJwtTokenIfNeed();
 //    //
 //    //        Map<String, String> headers = new HashMap<>();
-//    //        headers.put("jwt_token", jwtToken);
+//    //        headers.put("dm_jwt_token", jwtToken);
 //    //        headers.put(RdpJwtManager.CSRF_TOKEN_NAME, jwtToken);
 //    //        GrepOperationLogFO forwardDTO = new GrepOperationLogFO();
 //    //        forwardDTO.setOperationId(operationId);

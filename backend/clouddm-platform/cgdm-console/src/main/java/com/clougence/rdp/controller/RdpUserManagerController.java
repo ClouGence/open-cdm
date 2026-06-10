@@ -16,7 +16,8 @@
 package com.clougence.rdp.controller;
 
 import static com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel.HIGH;
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.*;
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_USER_MANAGE;
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_USER_READ;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.ResetPasswdFO;
 import com.clougence.clouddm.console.web.model.fo.role.UpdateUserRoleFO;
@@ -235,7 +237,7 @@ public class RdpUserManagerController {
             .getSubAccountUid(), lo, SecurityLevel.HIGH, AuditType.UPDATE_SUB_ACCOUNT_ROLE, ResourceType.ACCOUNT);
 
         if (StringUtils.equals(uid, fo.getSubAccountUid())) {
-            Cookie cookie = new Cookie("jwt_token", StringUtils.EMPTY);
+            Cookie cookie = new Cookie(JwtService.jwtTokenName, StringUtils.EMPTY);
             cookie.setHttpOnly(true);
             cookie.setMaxAge(0);
             cookie.setPath("/");

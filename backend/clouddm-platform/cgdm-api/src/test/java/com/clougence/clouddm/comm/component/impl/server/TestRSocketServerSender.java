@@ -256,7 +256,7 @@ public class TestRSocketServerSender implements RSocketServerSender {
         refreshJwtTokenIfNeed();
 
         Map<String, String> headers = new HashMap<>();
-        headers.put("jwt_token", jwtToken);
+        headers.put("dm_jwt_token", jwtToken);
         // headers.put(SessionManager.CSRF_TOKEN_NAME, jwtToken);
 
         log.info("[FORWARD] Send http request to worker api " + apiMethodName);
