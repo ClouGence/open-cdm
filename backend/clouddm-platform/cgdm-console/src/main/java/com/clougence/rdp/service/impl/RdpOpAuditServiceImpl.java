@@ -442,8 +442,8 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
     }
 
     @Override
-    public void exportAuditLog(ExportOpAuditFO exportOpAuditFO, HttpServletResponse response) {
-        String formatName = exportOpAuditFO.getFormatName();
+    public void exportAuditLog(ExportOpAuditFO fo, HttpServletResponse response) {
+        String formatName = fo.getFormatName();
         if (StringUtils.isBlank(formatName)) {
             throw new IllegalArgumentException("Export formatName must not be empty.");
         }
@@ -453,8 +453,8 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
             throw new IllegalArgumentException("Unsupported export formatName : " + formatName);
         }
 
-        String exportId = StringUtils.isBlank(exportOpAuditFO.getExportId()) ? UUID.randomUUID().toString() : exportOpAuditFO.getExportId();
-        String requesterUid = StringUtils.isBlank(exportOpAuditFO.getRequesterUid()) ? exportOpAuditFO.getPuid() : exportOpAuditFO.getRequesterUid();
+        String exportId = StringUtils.isBlank(fo.getExportId()) ? UUID.randomUUID().toString() : fo.getExportId();
+        String requesterUid = StringUtils.isBlank(fo.getRequesterUid()) ? fo.getPuid() : fo.getRequesterUid();
         String baseName = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_operation_audit";
         File exportDir = new File(GlobalConfUtils.getAppDataHome(), "export");
         File resultFile = new File(exportDir, exportId + ".resultset");
@@ -465,7 +465,7 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
                 throw new IOException("Create export directory failed: " + exportDir.getAbsolutePath());
             }
 
-            long rows = this.prepareAuditResultFile(exportOpAuditFO, requesterUid, exportId, resultFile);
+            long rows = this.prepareAuditResultFile(fo, requesterUid, exportId, resultFile);
             this.sendOpAuditExportProgress(requesterUid, exportId, OpAuditExportStage.CONVERTING, rows, 0, rows, 0, "Start converting operation audit export file.", null);
 
             String option = this.defaultConvertOption(formatName);
@@ -485,20 +485,20 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
         }
     }
 
-    private long prepareAuditResultFile(ExportOpAuditFO exportOpAuditFO, String requesterUid, String exportId, File resultFile) throws IOException {
+    private long prepareAuditResultFile(ExportOpAuditFO fo, String requesterUid, String exportId, File resultFile) throws IOException {
         ResultFileRequests.ResultFileRequest resultRequest = ResultFileRequests.fromColumns(exportId, "operation audit export", this.exportColumns(), this.exportVariables());
         long preparedRows = 0;
         int offset = 0;
         int batchSize = 1000;
-        long maxRows = exportOpAuditFO.getMaxRows() == null || exportOpAuditFO.getMaxRows() <= 0 ? Long.MAX_VALUE : exportOpAuditFO.getMaxRows();
+        long maxRows = fo.getMaxRows() == null || fo.getMaxRows() <= 0 ? Long.MAX_VALUE : fo.getMaxRows();
         long lastReportTime = 0;
 
         try (ResultFileWriter writer = ResultFileWriter.open(resultFile, resultRequest.getQuery(), resultRequest.getColumns())) {
             while (preparedRows < maxRows) {
                 int currentBatchSize = (int) Math.min(batchSize, maxRows - preparedRows);
                 List<DmMonOpAuditDO> auditDOs = monitorDal.opAuditMapper()
-                    .pageByCondition(exportOpAuditFO.getPuid(), exportOpAuditFO.getUid(), exportOpAuditFO.getSecurityLevel(), exportOpAuditFO.getAuditType(), exportOpAuditFO
-                        .getResourceType(), exportOpAuditFO.getUserNameLike(), exportOpAuditFO.getOpStart(), exportOpAuditFO.getOpEnd(), offset, currentBatchSize);
+                    .pageByCondition(fo.getPuid(), fo.getUid(), fo.getSecurityLevel(), fo.getAuditType(), fo.getResourceType(), fo.getUserNameLike(), fo.getOpStart(), fo
+                        .getOpEnd(), offset, currentBatchSize);
 
                 if (auditDOs == null || auditDOs.isEmpty()) {
                     break;
@@ -531,16 +531,16 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
 
     private LinkedHashMap<String, JDBCType> exportColumns() {
         LinkedHashMap<String, JDBCType> columns = new LinkedHashMap<>();
-        columns.put("userName", JDBCType.VARCHAR);
-        columns.put("uid", JDBCType.VARCHAR);
-        columns.put("operateDate", JDBCType.TIMESTAMP);
-        columns.put("resourceType", JDBCType.VARCHAR);
-        columns.put("auditType", JDBCType.VARCHAR);
-        columns.put("resource", JDBCType.VARCHAR);
-        columns.put("sourceIp", JDBCType.VARCHAR);
-        columns.put("logPathWorkerIp", JDBCType.VARCHAR);
-        columns.put("securityLevel", JDBCType.VARCHAR);
-        columns.put("uuidKey", JDBCType.VARCHAR);
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_USER_NAME"), JDBCType.VARCHAR);
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_UID"), JDBCType.VARCHAR);
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_OPERATE_DATE"), JDBCType.TIMESTAMP);
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_RESOURCE_TYPE"), JDBCType.VARCHAR);
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_AUDIT_TYPE"), JDBCType.VARCHAR);
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_RESOURCE_VALUE"), JDBCType.VARCHAR);
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_SOURCE_IP"), JDBCType.VARCHAR);
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_LOG_PATH_WORKER_IP"), JDBCType.VARCHAR);
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_SECURITY_LEVEL"), JDBCType.VARCHAR);
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_UUID_KEY"), JDBCType.VARCHAR);
         return columns;
     }
 

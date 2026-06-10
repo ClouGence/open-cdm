@@ -171,7 +171,8 @@ export default {
     // }
   },
   async getClusterList({ commit }, deployEnvType) {
-    const res = await services.dmConstantListCluster({ data: { deployEnvType } });
+    const data = deployEnvType ? { cloudOrIdcName: deployEnvType } : {};
+    const res = await services.dmClusterListByCondition({ data });
     if (res.success) {
       commit(UPDATE_CLUSTER_LIST, res.data);
     }

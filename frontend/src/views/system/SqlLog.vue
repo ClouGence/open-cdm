@@ -95,16 +95,10 @@
           </div>
           <div class="table-container">
             <Table size="small" border :columns="logColumn" :data="logData" :loading="refreshLoading">
-              <template #uid="{ row }">
-                <div class="uid">
-                  <span>{{ row.uid }}</span>
-                  <cc-iconfont
-                    :size="12"
-                    name="copy"
-                    class="copy"
-                    @click.native="copyText(`${row.uid}`, $t('fu-zhi-uid-cheng-gong'))"
-                    style="margin-left: 3px"
-                  />
+              <template #operator="{ row }">
+                <div class="operator-cell">
+                  <div>{{ row.userName }}</div>
+                  <div class="operator-uid">{{ formatUid(row.uid) }}</div>
                 </div>
               </template>
               <template #resource="{ row }">
@@ -157,13 +151,11 @@
 import fecha from 'fecha';
 import { mapState } from 'vuex';
 import { h, resolveComponent } from 'vue';
-import copyMixin from '@/mixins/copyMixin';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
 import ReadOnlyDiffEditor from '@/components/editor/ReadOnlyDiffEditor.vue';
 
 export default {
   name: 'SqlLog',
-  mixins: [copyMixin],
   components: { ReadOnlyDiffEditor, ReadOnlyEditor },
   data() {
     return {
@@ -195,7 +187,7 @@ export default {
       logColumn: [
         {
           title: this.$t('cao-zuo-zhe'),
-          key: 'userName',
+          slot: 'operator',
           width: 230
         },
         {
@@ -464,7 +456,6 @@ export default {
       this.prevFirst = {};
       this.currentPageSize = 10;
       this.searchData = {
-        uid: null,
         dsId: null,
         userUid: null,
         sqlKind: null,
@@ -477,10 +468,8 @@ export default {
       };
     },
 
-    handleSearchUid(row) {
-      this.searchType = 'uid';
-      this.searchData.uid = row.uid;
-      this.handleSearch();
+    formatUid(uid) {
+      return `UID: ${uid || ''}`;
     },
 
     showSqlDetail(row) {
@@ -502,18 +491,12 @@ export default {
   display: flex;
   flex-direction: column;
 
-  .uid {
-    display: flex;
-    align-items: center;
+  .operator-cell {
+    line-height: 20px;
 
-    .copy {
-      display: none;
-    }
-
-    &:hover {
-      .copy {
-        display: block;
-      }
+    .operator-uid {
+      color: #9ea7b4;
+      font-size: 12px;
     }
   }
 

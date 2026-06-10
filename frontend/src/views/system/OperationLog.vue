@@ -73,16 +73,10 @@
                   {{ row.operationUri || row.resourceValue }}
                 </p>
               </template>
-              <template #uid="{ row }">
-                <div class="uid">
-                  <a @click="handleSearchUid(row)">{{ row.uid }}</a>
-                  <cc-iconfont
-                    :size="12"
-                    name="copy"
-                    class="copy"
-                    @click="copyText(`${row.uid}`, $t('fu-zhi-uid-cheng-gong'))"
-                    style="margin-left: 3px"
-                  />
+              <template #operator="{ row }">
+                <div class="operator-cell">
+                  <div>{{ row.userName }}</div>
+                  <div class="operator-uid">{{ formatUid(row.uid) }}</div>
                 </div>
               </template>
               <template #detail="{ row }">
@@ -149,42 +143,7 @@
         <div>
           <Form :label-width="100">
             <FormItem :label="$t('shai-xuan-tiao-jian')">
-              <DatePicker
-                disabled
-                :editable="false"
-                v-model="timeRange"
-                type="datetimerange"
-                format="yyyy-MM-dd HH:mm"
-                style="width: 266px; margin-right: 10px"
-              ></DatePicker>
-              <Select disabled v-model="searchType" style="width: 100px; margin-right: 10px" @on-change="handleChangeSearchType">
-                <Option value="user" :label="$t('cao-zuo-ren')">
-                  <span>{{ $t('cao-zuo-ren') }}</span>
-                </Option>
-                <Option value="resourceType" :label="$t('zi-yuan-lei-xing')">
-                  <span>{{ $t('zi-yuan-lei-xing') }}</span>
-                </Option>
-                <Option value="auditType" :label="$t('cao-zuo-dong-zuo')">
-                  <span>{{ $t('cao-zuo-dong-zuo') }}</span>
-                </Option>
-                <Option value="uid" label="uid">
-                  <span>uid</span>
-                </Option>
-              </Select>
-              <Input disabled v-if="searchType === 'user'" v-model="searchData.userNameLike" style="width: 250px" clearable />
-              <Input disabled v-if="searchType === 'uid'" v-model="searchData.uid" style="width: 250px" clearable />
-              <Select disabled v-if="searchType === 'resourceType'" v-model="searchData.resourceType" style="width: 200px" clearable>
-                <Option value="" :label="$t('quan-bu')">{{ $t('quan-bu') }}</Option>
-                <Option v-for="item in resourceTypeList" :value="item.resourceType" :key="item.resourceType">
-                  {{ item.alias }}
-                </Option>
-              </Select>
-              <Select disabled v-if="searchType === 'auditType'" v-model="searchData.auditType" filterable style="width: 200px" clearable>
-                <Option value="" :label="$t('quan-bu')">{{ $t('quan-bu') }}</Option>
-                <Option v-for="item in auditTypeList" :value="item.auditType" :key="item.auditType">
-                  {{ item.alias }}
-                </Option>
-              </Select>
+              <div class="export-filter-summary">{{ exportFilterSummary }}</div>
             </FormItem>
             <FormItem :label="$t('dao-chu-tiao-shu')">
               <div class="export-row-count">
@@ -271,12 +230,7 @@ export default {
       logColumn: [
         {
           title: this.$t('cao-zuo-zhe'),
-          key: 'userName',
-          width: 150
-        },
-        {
-          title: 'uid',
-          slot: 'uid',
+          slot: 'operator',
           width: 200
         },
         {
@@ -374,9 +328,42 @@ export default {
     };
   },
   computed: {
-    ...mapState(['globalSetting']),
+    ...mapState(['dmGlobalSetting']),
     exportTypes() {
-      return this.globalSetting?.fmtConvertDef || [];
+      return this.dmGlobalSetting?.fmtConvertDef || [];
+    },
+    exportFilterSummary() {
+      return `${this.$t('cao-zuo-shi-jian')}: ${this.exportTimeRangeText} / ${this.exportSearchTypeText}: ${this.exportSearchValueText}`;
+    },
+    exportTimeRangeText() {
+      if (!this.timeRange || this.timeRange.length === 0 || !this.timeRange[0] || !this.timeRange[1]) {
+        return this.$t('quan-bu');
+      }
+      return `${fecha.format(new Date(this.timeRange[0]), 'YYYY-MM-DD HH:mm')} - ${fecha.format(new Date(this.timeRange[1]), 'YYYY-MM-DD HH:mm')}`;
+    },
+    exportSearchTypeText() {
+      const searchTypeMap = {
+        user: this.$t('cao-zuo-ren'),
+        resourceType: this.$t('zi-yuan-lei-xing'),
+        auditType: this.$t('cao-zuo-dong-zuo'),
+        uid: 'uid'
+      };
+      return searchTypeMap[this.searchType] || this.searchType;
+    },
+    exportSearchValueText() {
+      if (this.searchType === 'user') {
+        return this.searchData.userNameLike || this.$t('quan-bu');
+      }
+      if (this.searchType === 'uid') {
+        return this.searchData.uid || this.$t('quan-bu');
+      }
+      if (this.searchType === 'resourceType') {
+        return this.getResourceTypeI18n(this.searchData.resourceType) || this.$t('quan-bu');
+      }
+      if (this.searchType === 'auditType') {
+        return this.getAuditTypeI18n(this.searchData.auditType) || this.$t('quan-bu');
+      }
+      return this.$t('quan-bu');
     },
     exportProgressTooltip() {
       if (this.exportProgress.stage === 'PREPARING') {
@@ -622,10 +609,8 @@ export default {
         }
       };
     },
-    handleSearchUid(row) {
-      this.searchType = 'uid';
-      this.searchData.uid = row.uid;
-      this.handleSearch();
+    formatUid(uid) {
+      return `UID: ${uid || ''}`;
     },
     handleGetAuditDetail(row) {
       this.$services
@@ -692,18 +677,12 @@ export default {
   display: flex;
   flex-direction: column;
 
-  .uid {
-    display: flex;
-    cursor: pointer;
+  .operator-cell {
+    line-height: 20px;
 
-    .copy {
-      display: none;
-    }
-
-    &:hover {
-      .copy {
-        display: block;
-      }
+    .operator-uid {
+      color: #9ea7b4;
+      font-size: 12px;
     }
   }
 }
@@ -718,6 +697,12 @@ export default {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.export-filter-summary {
+  line-height: 32px;
+  color: #515a6e;
+  word-break: break-word;
 }
 
 .export-radio-group {
