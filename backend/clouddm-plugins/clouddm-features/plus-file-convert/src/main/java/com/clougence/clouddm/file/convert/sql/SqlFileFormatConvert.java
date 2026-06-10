@@ -22,20 +22,20 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.sdk.execute.resultset.file.*;
 import org.slf4j.Logger;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.file.convert.config.sql.SqlOption;
 import com.clougence.clouddm.file.convert.constants.ConvertI18nKeys;
 import com.clougence.clouddm.file.convert.sql.ds.*;
 import com.clougence.clouddm.sdk.execute.ExecuteVariables;
+import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
+import com.clougence.clouddm.sdk.execute.resultset.file.*;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.result.ValueProcessService;
-import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
 import com.clougence.clouddm.sdk.service.config.ConfigService;
 import com.clougence.clouddm.sdk.service.execute.SessionService;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.schema.dialect.Dialect;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
@@ -257,8 +257,7 @@ public class SqlFileFormatConvert implements FileFormatConvert {
     }
 
     private SqlOption readSqlOption(String optionStr, ColMetaData[] metaData) {
-        SqlOption option = StringUtils.isBlank(optionStr) ? new SqlOption() : JsonUtils.toList(optionStr, new TypeReference<SqlOption>() {
-        });
+        SqlOption option = StringUtils.isBlank(optionStr) ? new SqlOption() : JsonUtils.toList(optionStr, new TypeReference<SqlOption>() {});
 
         if (CollectionUtils.isEmpty(option.getColumns())) {
             option.setColumns(new ArrayList<>());

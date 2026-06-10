@@ -25,15 +25,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.sdk.execute.resultset.file.*;
 import org.slf4j.Logger;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
 import com.clougence.clouddm.file.convert.config.json.JsonOption;
 import com.clougence.clouddm.file.convert.constants.ConvertI18nKeys;
+import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
+import com.clougence.clouddm.sdk.execute.resultset.file.*;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.result.ValueProcessService;
-import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
 import com.clougence.clouddm.sdk.service.execute.SessionService;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
@@ -208,8 +208,7 @@ public class JsonFileFormatConvert implements FileFormatConvert {
     }
 
     private JsonOption readJSONOption(String optionStr, ColMetaData[] metaData) {
-        JsonOption option = StringUtils.isBlank(optionStr) ? new JsonOption() : JsonUtils.toList(optionStr, new TypeReference<JsonOption>() {
-        });
+        JsonOption option = StringUtils.isBlank(optionStr) ? new JsonOption() : JsonUtils.toList(optionStr, new TypeReference<JsonOption>() {});
 
         if (CollectionUtils.isEmpty(option.getColumns())) {
             option.setColumns(new ArrayList<>());

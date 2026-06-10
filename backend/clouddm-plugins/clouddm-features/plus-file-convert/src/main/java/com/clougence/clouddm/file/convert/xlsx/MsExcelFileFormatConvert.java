@@ -23,15 +23,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.sdk.execute.resultset.file.*;
 import org.slf4j.Logger;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
 import com.clougence.clouddm.file.convert.config.xlsx.XlsxOption;
 import com.clougence.clouddm.file.convert.constants.ConvertI18nKeys;
+import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
+import com.clougence.clouddm.sdk.execute.resultset.file.*;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.result.ValueProcessService;
-import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
 import com.clougence.clouddm.sdk.service.execute.SessionService;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
@@ -258,8 +258,7 @@ public class MsExcelFileFormatConvert implements FileFormatConvert {
     }
 
     private static XlsxOption readXLSXOption(String optionStr, ColMetaData[] metaData) {
-        XlsxOption option = StringUtils.isBlank(optionStr) ? new XlsxOption() : JsonUtils.toList(optionStr, new TypeReference<XlsxOption>() {
-        });
+        XlsxOption option = StringUtils.isBlank(optionStr) ? new XlsxOption() : JsonUtils.toList(optionStr, new TypeReference<XlsxOption>() {});
 
         if (CollectionUtils.isEmpty(option.getColumns())) {
             option.setColumns(new ArrayList<>());
