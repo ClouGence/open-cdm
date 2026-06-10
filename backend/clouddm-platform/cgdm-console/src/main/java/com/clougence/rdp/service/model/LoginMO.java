@@ -28,6 +28,7 @@ public class LoginMO {
     private boolean             success;
     private boolean             needMore;
     private boolean             needMfa;
+    private boolean             mfaInvalid;
     private String              mfaPreActionToken;
     private LoginAutoRegisterFO moreInfo;
     private String              errMsg;

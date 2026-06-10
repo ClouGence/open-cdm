@@ -77,6 +77,7 @@
             </div>
             <div class="input-wrapper mt-4" v-if="showMfa">
               <a-input
+                v-if="!mfaInvalidMode"
                 class="mb-4"
                 @pressEnter="handleEnter2"
                 @keydown.enter="handleEnter2"
@@ -84,9 +85,10 @@
                 size="large"
                 :placeholder="$t('qing-shu-ru-liu-wei-shu-de-mfa-yan-zheng-ma')"
               />
-              <p class="opacity-60">
+              <p v-if="!mfaInvalidMode" class="opacity-60">
                 {{ $t('nin-yi-kai-qi-le-duo-zi-yin-ren-zheng-pei-zhi-mei-ci-deng-lu-xu-yan-zheng-duo-yin-zi-ren-zheng-yan-zheng-ma') }}
               </p>
+              <p v-else class="opacity-60 mfa-invalid-tip">{{ $t('mfa-yi-shi-xiao-deng-lu-ti-shi') }}</p>
             </div>
             <div class="completion-actions" v-if="!showMfa && isCompletionMode">
               <a-button :disabled="loginLoading" :loading="loginLoading" type="primary" size="large" class="completion-submit" @click="handleLogin">
@@ -108,7 +110,7 @@
               {{ $t('deng-lu') }}
             </a-button>
             <a-button
-              v-if="showMfa"
+              v-if="showMfa && !mfaInvalidMode"
               key="mfa"
               :disabled="loginLoading"
               :loading="loginLoading"
@@ -119,6 +121,14 @@
             >
               {{ $t('yan-zheng') }}
             </a-button>
+            <div class="completion-actions" v-if="showMfa && mfaInvalidMode">
+              <a-button :disabled="loginLoading" size="large" class="completion-submit mfa-invalid-action" @click="goHandleInvalidMfa">
+                {{ $t('qu-chu-li') }}
+              </a-button>
+              <a-button :disabled="loginLoading" size="large" class="completion-back" @click="redirectToHome">
+                {{ $t('shao-hou-chu-li') }}
+              </a-button>
+            </div>
             <div class="msgContent" v-if="errMsg">
               <a-alert banner type="error">
                 <template #message>
@@ -221,6 +231,7 @@ export default {
       errMsg: '',
       loginLoading: false,
       showMfa: false,
+      mfaInvalidMode: false,
       loginCallbackData: {},
       completionErrors: {
         phone: '',
@@ -425,7 +436,11 @@ export default {
             this.showCompleteForm(res.data, data);
           } else if (res.data.needMfa) {
             this.showMfa = true;
+            this.mfaInvalidMode = false;
             this.mfaPreActionToken = res.data.mfaPreActionToken;
+          } else if (res.data.mfaInvalid) {
+            await this.getUserInfo();
+            this.handleMfaInvalidLogin();
           } else {
             await this.getUserInfo();
             await this.redirectToHome();
@@ -440,6 +455,9 @@ export default {
       }
     },
     async handleMfaValid() {
+      if (this.mfaInvalidMode) {
+        return;
+      }
       if (!this.mfaCode || !isNumber(this.mfaCode)) {
         this.errMsg = this.$t('qing-shu-ru-zheng-que-de-yan-zheng-ma');
         return;
@@ -464,6 +482,16 @@ export default {
       } finally {
         this.loginLoading = false;
       }
+    },
+    handleMfaInvalidLogin() {
+      this.showMfa = true;
+      this.mfaInvalidMode = true;
+      this.mfaCode = '';
+      this.mfaPreActionToken = '';
+      this.errMsg = '';
+    },
+    goHandleInvalidMfa() {
+      this.$router.push({ path: '/system/profile', query: { tab: 'security' } });
     },
     handleGoJump(loginDef = this.currentLoginDef) {
       if (!loginDef.available) {
@@ -668,6 +696,10 @@ export default {
             margin-bottom: 20px;
           }
 
+          .mfa-invalid-tip {
+            white-space: pre-line;
+          }
+
           &.is-completion {
             margin-top: 8px !important;
 
@@ -809,6 +841,19 @@ export default {
 
           .completion-back {
             flex: 0 0 25%;
+          }
+
+          .mfa-invalid-action {
+            color: #ed4014;
+            border-color: #ed4014;
+            background: #ffffff;
+
+            &:hover,
+            &:focus {
+              color: #ff5f57;
+              border-color: #ff5f57;
+              background: #ffffff;
+            }
           }
         }
 

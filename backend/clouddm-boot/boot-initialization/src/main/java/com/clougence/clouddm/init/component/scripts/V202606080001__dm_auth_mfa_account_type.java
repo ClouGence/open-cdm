@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.fo;
+package com.clougence.clouddm.init.component.scripts;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import lombok.Data;
+import java.util.List;
 
-@Data
-public class UpdateUserPhoneFO {
+import com.clougence.clouddm.init.component.flyway.AbstractUpgradeJavaMigration;
 
-    @NotBlank(message = "{notnull.phone}")
-    @Pattern(regexp = "^\\d{1,20}$", message = "{pattern.phone}")
-    private String phone;
+public class V202606080001__dm_auth_mfa_account_type extends AbstractUpgradeJavaMigration {
 
-    private Boolean confirmMfaInvalid;
+    @Override
+    public List<String> collectScript() {
+        return List.of("""
+                    ALTER TABLE dm_auth_mfa ADD COLUMN mfa_account_type varchar(32) DEFAULT NULL AFTER mfa_status
+                """, """
+                    ALTER TABLE dm_auth_mfa ADD COLUMN reset_mfa_account_type varchar(32) DEFAULT NULL AFTER mfa_key
+                """);
+    }
 }

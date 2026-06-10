@@ -187,7 +187,7 @@ const request = async (opt) => {
             }
             break;
           default:
-            if (['/login', '/datasource/connectds', '/rdp/console/api/v1/mfa/resetMfaSetting'].includes(requestUrl)) {
+            if (['/login', '/datasource/connectds'].includes(requestUrl)) {
               return res;
             }
             if (['/datasource/schema/rightclickschema'].includes(requestUrl) && res.data && res.data.next) {

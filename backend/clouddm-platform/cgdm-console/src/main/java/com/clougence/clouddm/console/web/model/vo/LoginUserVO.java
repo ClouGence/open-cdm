@@ -18,6 +18,7 @@ package com.clougence.clouddm.console.web.model.vo;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
+import com.clougence.clouddm.platform.dal.model.auth.MfaStatus;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -60,4 +61,8 @@ public class LoginUserVO {
     private Long            subAccountPwdValidDays;
 
     private boolean         useMfa;
+
+    private MfaStatus       mfaStatus;
+
+    private String          mfaAccountType;
 }
