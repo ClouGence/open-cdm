@@ -52,7 +52,7 @@ export default {
       handler(newVal) {
         this.schema = newVal;
 
-        // 处理有 children 的表单
+        // Processing forms with children
         if (newVal.children && newVal.children.length) {
           newVal.children.forEach((item) => {
             if (!(item.field in this.selectedData)) {
@@ -61,7 +61,7 @@ export default {
           });
         }
 
-        // 处理通过 options 字段渲染子表单的情况
+        // Deals with rendering sub-forms through options fields
         if (newVal.options && newVal.options.length && this.selectedIndex > -1) {
           if (!this.selectedData || Object.keys(this.selectedData).length === 0) {
             this.selectedData = this.formData[this.nodeType][this.selectedIndex];
@@ -164,7 +164,7 @@ export default {
     isAdd: {
       handler(newVal) {
         if (newVal) {
-          // 当isAdd变为true时，延迟聚焦name输入框
+          // Delay focusname input box when IsAdd becomes True
           this.$nextTick(() => {
             this.focusNameInput();
           });
@@ -492,7 +492,7 @@ export default {
       this.selectedData[this.schema.field] = tags;
     },
     focusNameInput() {
-      // 如果是name字段且是新添加的项目，则聚焦并全选
+      // If a name field is a newly added item, focus and select
       if (this.schema.field === 'name' && this.isAdd && this.$refs.nameInput) {
         this.$nextTick(() => {
           const input = this.$refs.nameInput.$el.querySelector('input');

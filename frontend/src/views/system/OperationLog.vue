@@ -437,7 +437,7 @@ export default {
         const link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);
         link.download = fileName;
-        document.body.appendChild(link); // 需要将链接添加到文档中
+        document.body.appendChild(link); // Need to add links to the document
         link.click();
         document.body.removeChild(link);
         window.URL.revokeObjectURL(link.href);
@@ -527,7 +527,7 @@ export default {
       this.handleSearch('next');
     },
     handleChangeSearchType() {
-      // 切换查询类型的时候，重置所有搜索的值
+      // Reset all search values when switching query type
       this.searchData = {
         uid: '',
         userName: '',

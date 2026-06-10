@@ -18,7 +18,7 @@ const getInitialLang = () => {
   const saved = localStorage.getItem('lang');
   if (saved) return normalizeLocale(saved);
 
-  // 没有用户选择时再看环境变量
+  // Read environment variables when no user selection is available
   if (process.env.VUE_APP_I18N_LOCALE === 'en') {
     return 'en-US';
   }
@@ -52,7 +52,7 @@ export const setAppLanguage = async (lang) => {
     return;
   }
 
-  // 其它语言走 Google Translate，但基准文案保持英文，翻译精度更高
+  // Other languages go Google Translate, but the benchmark text remains in English and translates with greater precision
   i18n.global.locale.value = DEFAULT_LOCALE;
   await applyGoogleTranslate(targetLang);
 };

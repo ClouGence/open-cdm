@@ -78,8 +78,8 @@ drop TRIGGER TRIG_P22K_TafaA6BLE_AdUTO;
 CREATE MATERIALIZED VIEW mv_daily_cust_amount
 BUILD IMMEDIATE
 REFRESH COMPLETE ON DEMAND
-START WITH TRUNC(SYSDATE) + 1        -- 明天 00:00 首次
-NEXT TRUNC(SYSDATE) + 1 + 1/24       -- 之后每小时
+START WITH TRUNC(SYSDATE) + 1        -- Tomorrow at 10:00. First time.
+NEXT TRUNC(SYSDATE) + 1 + 1/24       -- Every hour after that.
 AS
 SELECT c.customer_id, SUM(o.amount) AS daily_amount
 FROM orders o

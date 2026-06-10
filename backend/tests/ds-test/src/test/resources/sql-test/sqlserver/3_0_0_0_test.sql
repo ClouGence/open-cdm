@@ -1,22 +1,22 @@
--- 为 'dbo.Employees' 表创建一个名为 'MyEmployees' 的同义词
+-- Create a synonym for the 'dbo.employes' table called 'MyEmployes'
 CREATE SYNONYM MyEmployees FOR dbo.Employees;
--- 创建一个名为 TestSequence 的序列
--- 数据类型为 INT，起始值为 1，每次递增 1
+-- Create a sequence called TestSequence
+-- Data type is INT, starting with 1 and increasing 1 each time
 CREATE SEQUENCE dbo.TestSequence
     AS INT
     START WITH 1
     INCREMENT BY 1;
--- 创建一个在 Employees 表上响应 INSERT 操作的触发器
+-- Create a trigger that responds to INSERT operations on the Employes table
 CREATE TRIGGER trg_LogNewEmployee
 ON Employees
 AFTER INSERT
 AS
 BEGIN
-    -- SET NOCOUNT ON 避免返回受影响的行数
+    -- SET NOCOUNT ON Avoid returning affected rows
     SET NOCOUNT ON;
 
-    -- 将新插入的员工信息记录到审计表中
-    -- 从 'inserted' 虚拟表中获取新员工的 EmployeeID
+    -- Record newly inserted employee information in the audit form
+    -- Get EmployeeID from the `inserved ' virtual table
     INSERT INTO EmployeeAudit (EmployeeID, ActionDescription)
     SELECT
         i.EmployeeID,
@@ -29,28 +29,28 @@ CREATE FUNCTION dbo.udf_GetFullName
     @FirstName NVARCHAR(50),
     @LastName NVARCHAR(50)
 )
-RETURNS NVARCHAR(101) -- 返回类型和长度，需要足够容纳姓、名和中间的空格
+RETURNS NVARCHAR(101) -- Type and length of return, which requires adequate accommodation of last name, name and middle spaces
 AS
 BEGIN
-    -- 声明一个变量来存储结果
+    -- Declare a variable to store the result
     DECLARE @FullName NVARCHAR(101);
 
-    -- 拼接姓和名，中间用一个空格隔开。注意姓氏在前。
+    -- Spell names and names, separated by a space. Note the last name.
     SET @FullName = @LastName + N' ' + @FirstName;
 
-    -- 返回结果
+    -- Return Result
     RETURN @FullName;
 END;
--- 创建存储过程
+-- Create stored procedure
 CREATE PROCEDURE dbo.GetEmployeesByDepartment
-    -- 输入参数
+    -- Input parameters
     @DeptName NVARCHAR(50)
 AS
 BEGIN
-    -- SET NOCOUNT ON 用于防止返回受影响的行数，可以提高性能
+    -- SET NOCOUNT ON to prevent the return of affected rows and improve performance
     SET NOCOUNT ON;
 
-    -- 查询逻辑：联接 Employees 和 Departments 表，并根据部门名称进行筛选
+    -- Query logic: connect Employes and Departments tables and screen according to department name Select
     SELECT
         e.EmployeeID,
         e.FirstName,
@@ -63,4 +63,3 @@ BEGIN
     WHERE
         d.DepartmentName = @DeptName;
 END;
-

@@ -132,7 +132,7 @@ export default {
     async bootstrapApp() {
       const isInitializationRoute = () => window.location.hash.startsWith('#/initialization');
 
-      // 先检测系统是否需要初始化 - 使用 DM 接口
+      // Check whether the system needs initialization - use the DM interface
       try {
         const globalSettingRes = await this.resolveDmGlobalSettings();
         if (!globalSettingRes.success || isDmSystemBootstrapRequired(globalSettingRes)) {
@@ -168,7 +168,7 @@ export default {
         return;
       }
 
-      // 正常流程
+      // Normal process
       await this.$store.dispatch('getUserInfo');
       this.showChild = true;
       this.removeLoadingEle();

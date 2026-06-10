@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS auto_sale_detail2(
 AUTO PARTITIONED BY (TRUNC_TIME(_partitiontime, 'day') AS sale_date)
 TBLPROPERTIES('ingestion_time_partition'='true');
 ----------------------------
--- 对表中sale_date列，按月为粒度进行截取，生成了名为sale_month的分区列，并根据该分区列进行表的分区
+-- In the table, the sale date column was intercepted on a monthly basis, resulting in a partition column called sale mont and a partition according to which the table was made
 CREATE TABLE IF NOT EXISTS auto_sale_detail(
  shop_name     STRING,
  customer_id   STRING,

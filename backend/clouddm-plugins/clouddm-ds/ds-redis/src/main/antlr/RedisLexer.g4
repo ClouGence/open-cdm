@@ -19,7 +19,7 @@ lexer grammar RedisLexer;
 channels { COMMENT }
 
 /* skip spaces */
-WS      : [ \t\f]+              -> channel(HIDDEN); // skip spaces, (空格\水平制表符\换行\回车\换页)
+WS      : [ \t\f]+              -> channel(HIDDEN); // Skip spaces: space, horizontal tab, and form feed.
 COMMENT1: '//' (~[\n\r])* EOL?  -> channel(COMMENT);
 COMMENT2: '/*' .*? '*/'         -> channel(COMMENT);
 EOL     : ('\r''\n'? | '\n');
@@ -508,14 +508,14 @@ NOCOMMANDS     : [nN][oO][cC][oO][mM][mM][aA][nN][dD][sS];
 CLEARSELECTORS : [cC][lL][eE][aA][rR][sS][eE][lL][eE][cC][tT][oO][rR][sS];
 NOPASS         : [nN][oO][pP][aA][sS][sS];
 
-/* 数字 */
-BIT_VALUE       : [01];                                 // Bit 值
-HEX_NUM         : '0' [xX] [0-9a-fA-F]+;                // 十六进制：0x12345
-OCT_NUM         : '0' [oO] [0-7]+;                      // 八 进 制：0o1234567
-BIT_NUM         : '0' [bB] BIT_VALUE+;                  // 二 进 制：0b01010101100
-INTEGER_NUM     : '-'? [0-9]+;                          // 十进制数：-0000234 or 123
-DECIMAL_NUM     : '-'? (([0-9]* '.' [0-9]+) | [1-9]+)   // 浮点数
-                  ([eE] [+-]? [1-9][0-9]*)?;            // 科学计数法
+/* Numbers */
+BIT_VALUE       : [01];                                 // Bit Value
+HEX_NUM         : '0' [xX] [0-9a-fA-F]+;                // Hexadecimal: 0x12345
+OCT_NUM         : '0' [oO] [0-7]+;                      // Octal: 0o1234567
+BIT_NUM         : '0' [bB] BIT_VALUE+;                  // Binary: 0b010101100
+INTEGER_NUM     : '-'? [0-9]+;                          // Decimals: -000234 or 123
+DECIMAL_NUM     : '-'? (([0-9]* '.' [0-9]+) | [1-9]+)   // Float
+                  ([eE] [+-]? [1-9][0-9]*)?;            // Scientific mode
 N_INF           : '-'[iI][nN][fF];
 S_INF           : '+'[iI][nN][fF];
 RANGE_NUM       : [+-]
@@ -526,7 +526,7 @@ RANGE_NUM       : [+-]
 ARG             : '?';
 SEMI            : ';';
 
-/* 字符串 */
+/* String */
 //MULTI_STRING    : '"""' TRANS* '"""'
 //                | '\'\'\'' TRANS* '\'\'\''
 //                ;
@@ -553,7 +553,7 @@ fragment  PATTERN_TOKEN: ~(' ' | '\t' | '\'' | '"' | '\n' | '\r') | TRANS;
 ACL_RULE_PATTERN : ('~' | '%R~' | '%W~' | '%RW~' | '&') PATTERN_STRING;
 ACL_RULE_PRE_CMD : ('+' | '-') '@'?;
 
-/* 扩展代码块 */
+/* Extension Block */
 //mode EXT_MULTI2;
 //CLOS_TAG        : '"""' -> popMode;
 //BODY            : (CHAR1 | CHAR2)+;

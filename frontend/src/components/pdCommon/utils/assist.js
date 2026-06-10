@@ -2,7 +2,7 @@ import { createApp } from 'vue';
 
 const isServer = createApp().prototype.$isServer;
 
-// 判断参数是否是其中之一
+// Determines whether the parameter is one of them
 
 export function oneOf(value, validList) {
   for (let i = 0; i < validList.length; i++) {

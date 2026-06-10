@@ -1,10 +1,10 @@
 import i18n from '../i18n';
 
 export function formatSeconds(value) {
-  let theTime = parseInt(value, 10); // 秒
-  let theTime1 = 0; // 分
-  let theTime2 = 0; // 小时
-  let theTime3 = 0; // 天
+  let theTime = parseInt(value, 10); // sec
+  let theTime1 = 0; // min
+  let theTime2 = 0; // Hours
+  let theTime3 = 0; // days
 
   if (theTime > 60) {
     theTime1 = parseInt(theTime / 60, 10);
@@ -21,21 +21,21 @@ export function formatSeconds(value) {
 
   let result;
   if (theTime < 10 > 0) {
-    result = i18n.global.t('0parseintthetime-10-miao', [parseInt(theTime, 10)]); // 秒
+    result = i18n.global.t('0parseintthetime-10-miao', [parseInt(theTime, 10)]); // sec
   } else {
-    result = i18n.global.t('stringparseintthetime-10-miao', [String(parseInt(theTime, 10))]); // 秒
+    result = i18n.global.t('stringparseintthetime-10-miao', [String(parseInt(theTime, 10))]); // sec
   }
 
   if (theTime1 < 10 > 0) {
-    result = i18n.global.t('0parseintthetime1-10-fen-result', [parseInt(theTime1, 10), result]); // 分，不足两位数，首位补充0，
+    result = i18n.global.t('0parseintthetime1-10-fen-result', [parseInt(theTime1, 10), result]); // Scores, less than two digits.
   } else {
-    result = i18n.global.t('stringparseintthetime1-10-fen-result', [String(parseInt(theTime1, 10)), result]); // 分
+    result = i18n.global.t('stringparseintthetime1-10-fen-result', [String(parseInt(theTime1, 10)), result]); // min
   }
   if (theTime2 > 0) {
-    result = i18n.global.t('stringparseintthetime2-10-xiao-shi-result', [String(parseInt(theTime2, 10)), result]); // 时
+    result = i18n.global.t('stringparseintthetime2-10-xiao-shi-result', [String(parseInt(theTime2, 10)), result]); // Time
   }
   if (theTime3 > 0) {
-    result = i18n.global.t('stringparseintthetime3-10-tian-result', [String(parseInt(theTime3, 10)), result]); // 天
+    result = i18n.global.t('stringparseintthetime3-10-tian-result', [String(parseInt(theTime3, 10)), result]); // days
   }
 
   return result;
@@ -43,8 +43,8 @@ export function formatSeconds(value) {
 
 export function formatCount(value) {
   let value1 = parseInt(value, 10);
-  let value2 = 0; // 万
-  let value3 = 0; // 亿
+  let value2 = 0; // 10,000
+  let value3 = 0; // Billion.
 
   let result = parseInt(value1, 10);
 
@@ -90,24 +90,24 @@ export function formatEnCount(value) {
 }
 
 export function formatHour(value) {
-  let theTime = parseInt(value, 10); // 小时
-  let theTime3 = 0; // 天
+  let theTime = parseInt(value, 10); // Hours
+  let theTime3 = 0; // days
 
   if (theTime > 24) {
     theTime3 = parseInt(theTime / 24, 10);
     theTime = parseInt(theTime % 24, 10);
   }
 
-  let result = ''; // 小时
+  let result = ''; // Hours
 
   if (theTime > 0) {
-    result = i18n.global.t('stringparseintthetime2-10-xiao-shi-result', [String(parseInt(theTime, 10)), result]); // 时
+    result = i18n.global.t('stringparseintthetime2-10-xiao-shi-result', [String(parseInt(theTime, 10)), result]); // Time
   }
   if (theTime3 > 0) {
     if (theTime3 > 100) {
-      result = i18n.global.t('paramsrowamount-24-tian', [String(parseInt(theTime3, 10))]); // 天
+      result = i18n.global.t('paramsrowamount-24-tian', [String(parseInt(theTime3, 10))]); // days
     } else {
-      result = i18n.global.t('stringparseintthetime3-10-tian-result', [String(parseInt(theTime3, 10)), result]); // 天
+      result = i18n.global.t('stringparseintthetime3-10-tian-result', [String(parseInt(theTime3, 10)), result]); // days
     }
   }
 

@@ -64,7 +64,7 @@
               </a-tabs>
             </div>
           </div>
-          <!-- 空状态 -->
+          <!-- Empty Status -->
           <div v-if="!tabs.length" class="empty-state-container">
             <SqlEmptyState :has-datasource="hasDatasource" />
           </div>
@@ -157,7 +157,7 @@
         </div>
       </div>
     </div>
-    <!-- 隐藏，避免双重报错 -->
+    <!-- Hide, avoid double-counting. -->
     <CCModal v-model="showConnectedModal" :title="$t('cuo-wu')" :zIndex="1100">
       <div>{{ connectedInstance.connectedMsg }}</div>
       <template #footer>
@@ -655,7 +655,7 @@ export default {
 
       const leafList = [];
 
-      // 实例名称是否合法
+      // Invalid Name of Example
       const noLegal = node?.key?.includes('/');
       if (noLegal) {
         this.$Message.warning(this.$t('fa-mi-ming-cheng-bu-zhi-chi'));
@@ -800,7 +800,7 @@ export default {
       switch (type) {
         case TAB_TYPE.QUERY:
           tab.schemaParentKey = node._parent.key;
-          // 确保 children 是数组且包含对象
+          // Make sure Children is an array and contains objects
           if (Array.isArray(node._parent.children)) {
             tab.selectOptions = node._parent.children
               .filter((child) => child && typeof child === 'object' && child.title)
@@ -825,7 +825,7 @@ export default {
           tab.icon = node.INSTANCE.attr.dsType;
           tab.sessionId = '';
           tab.executeInfo = [];
-          // 根据节点层级决定使用哪个 leafGroup
+          // Which side group to use according to node level
           const lastLevel = node.levels[node.levels.length - 1];
           let leafGroup = this.getLeafGroup(tab.node.INSTANCE.attr.dsType, lastLevel);
 
@@ -931,7 +931,7 @@ export default {
       if (node.key && node._parent && node._parent.children) {
         this.tabs.forEach((tab) => {
           if (tab.type === TAB_TYPE.QUERY && tab.schemaParentKey === key) {
-            // 确保 children 是数组且包含对象
+            // Make sure Children is an array and contains objects
             if (Array.isArray(node.children)) {
               tab.selectOptions = node.children
                 .filter((child) => child && typeof child === 'object' && child.title)
@@ -1022,7 +1022,7 @@ export default {
               tab.executeInfo = [];
               tab.msgFromWs = false;
               tab.msgContent = '';
-              // 确保 selectOptions 存在
+              // Ensures that physical options exist
               if (!tab.selectOptions) {
                 tab.selectOptions = [];
               }
@@ -1386,7 +1386,7 @@ export default {
             }
           });
           await this.handleGetDsSetting();
-          // 保证刷新浏览器后，切换tab也能正常刷新出来数据刷新
+          // Make sure that when you refresh the browser, switch the tab and get the data up and up.
           if (this.currentTab.type === TAB_TYPE.QUERY && this.currentTab.connected) {
             await this.listLeaf();
           }
@@ -1430,7 +1430,7 @@ export default {
     },
     async handleGetDsSetting(restore = false) {
       if (this.currentTab && this.currentTab.dsId) {
-        // 如果已经有 websocket 返回的 msgContent，就不调用接口
+        // Do not call interface if websocket returns msgContent
         const hasWsMessage = this.currentTab.msgFromWs;
 
         if (hasWsMessage) {

@@ -17,13 +17,13 @@ const APP_LOCALE = process.env.VUE_APP_I18N_LOCALE;
 
 console.log(PRODUCT, HOST, indexHtml);
 
-// 提取host，便于后续将host注入全局
+// Take out the host so that it can be later injected into the world.
 const getHostFromUrl = (url) => {
   try {
     const urlObj = new URL(url);
     return urlObj.host;
   } catch (e) {
-    // 如果不是完整 URL，尝试直接提取
+    // If not complete URL, try to extract it directly
     return url.replace(/^https?:\/\//, '');
   }
 };
@@ -49,7 +49,7 @@ module.exports = {
     loaderOptions: {
       postcss: {
         postcssOptions: {
-          // 修改为 postcssOptions
+          // Modify to postcssOptions
           plugins: [require('tailwindcss'), require('autoprefixer')]
         }
       }
@@ -61,7 +61,7 @@ module.exports = {
     client: {
       overlay: false
     },
-    allowedHosts: 'all', // 替换 disableHostCheck
+    allowedHosts: 'all', // Replace Disable HostCheck
     proxy: {
       '/cloudcanal': {
         target: HOST
@@ -154,10 +154,10 @@ module.exports = {
       splitChunks: {
         chunks: 'all',
         cacheGroups: {
-          // vxe-table 相关库（仅非CC产品）
+          // vxe-table related library (non-CC product only)
           ...(PRODUCT === 'CC'
             ? {
-                // Monaco 编辑器
+                // Monaco Editor
                 monaco: {
                   name: 'chunk-monaco',
                   test: /[\\/]node_modules[\\/](monaco-editor)[\\/]/,

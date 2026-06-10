@@ -1,11 +1,11 @@
 #!/bin/bash
 # ============================================================================
-# build-docker.sh — 构建 CloudDM Docker 镜像（支持交叉编译）
+# bueld-docker.sh - Build CloudDM Docker Mirrors (support for cross-compilation)
 #
-# 用法:
-#   ./build-docker.sh --platform=all        # 构建所有平台
-#   ./build-docker.sh --platform=x86_64     # 仅构建 x86_64
-#   ./build-docker.sh --platform=arm64      # 仅构建 arm64
+# Usage:
+#   ./build-docker.sh --platform=all        # Build all platforms
+#   ./build-docker.sh --platform=x86_64     # Build x86_64 only
+#   ./build-docker.sh --platform=arm64      # Build arm64 only
 # ============================================================================
 set -euo pipefail
 

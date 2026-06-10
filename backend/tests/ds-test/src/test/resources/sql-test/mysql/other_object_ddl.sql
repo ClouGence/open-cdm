@@ -1,4 +1,4 @@
--- 创建 InnoDB 通用表空间
+-- Create InnoDB Common Table Space
 CREATE TABLESPACE `my_innodb_ts`
 ADD DATAFILE 'my_innodb_ts.ibd'
 ENGINE = InnoDB;
@@ -31,7 +31,7 @@ ENGINE = NDBCLUSTER;
 
 ALTER TABLESPACE old_ts_name RENAME TO new_ts_name;
 
--- 假设已有表空间 ts_ndb
+-- Assumes there is already surface space ts ndb
 ALTER TABLESPACE ts_ndb
 ADD DATAFILE 'data_002.dat'
 INITIAL_SIZE = 256M

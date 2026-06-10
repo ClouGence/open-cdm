@@ -402,7 +402,7 @@
           <input @change="handleJsonFileChange" type="file" name="uploadfile" id="uploadfile1" />
           <span style="margin-left: 10px; color: rgb(128, 134, 149)"></span>
         </FormItem>
-        <!-- mysql ssl相关 start -->
+        <!-- MySQL ssl related start -->
         <FormItem
           :label="$t('truststore-wen-jian')"
           prop="tlsTrustStoreFile"
@@ -446,7 +446,7 @@
           </Tooltip>
         </FormItem>
 
-        <!-- mysql ssl相关 end -->
+        <!-- MySQL ssl related end -->
         <FormItem
           :label="$t('ke-hu-duan-ca-zheng-shu')"
           prop="clientSecurityFile"
@@ -2214,7 +2214,7 @@ export default {
         }
       });
     },
-    // 客户端CA证书
+    // Client CA Certificate
     handleClientCaFileChange(e) {
       const files = e.target.files;
       if (files && files[0]) {
@@ -2228,7 +2228,7 @@ export default {
         }, 0);
       }
     },
-    // 客户端私钥文件
+    // Client Private Key File
     handleClientKeyFileChange(e) {
       const files = e.target.files;
       if (files && files[0]) {

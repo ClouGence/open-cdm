@@ -11,11 +11,11 @@ const generateCancelReqKey = (type, config) => {
 
   if (data) {
     if (typeof data === 'string') {
-      // 如果已经是字符串，且长度过大，只取简略特征
+      // If already a string, too long, only abridged feature
       dataPart = data.length > 1000 ? `len_${data.length}_${data.substring(0, 100)}` : data;
     } else {
       try {
-        // 如果是大数据对象，避免全文序列化
+        // If big data objects, avoid full-text sequencing
         if (Array.isArray(data) && data.length > 1000) {
           dataPart = `array_len_${data.length}`;
         } else if (typeof data === 'object') {

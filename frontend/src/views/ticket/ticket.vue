@@ -414,7 +414,7 @@ export default {
               if (res.data.confirm && !res.data.failure) {
                 this.showForceBtn = true;
                 if (force) {
-                  // 强制递交，且没有阻塞规则
+                  // Forced surrender, no obstruction rules.
                   this.noPassedRuleList = [];
                   this.showForceBtn = false;
                   await this.$router.push({ path: `/ticket/${res.data.ticketId}` });

@@ -35,20 +35,20 @@ export default {
     async createEditor() {
       if (!this.monacoEditor) {
         const language = await this.resolveLanguage();
-        // 使用markRaw防止Monaco Editor实例被Vue3响应式系统包装
+        // Use mark Raw to prevent the example of Monaco Editor from being packaged by the Vue3 Response System
         this.monacoEditor = markRaw(
           monaco.editor.create(this.$refs.ticketEditor, {
-            value: this.text, // 编辑器的值
+            value: this.text, // The editor 's value
             language,
             fontSize: 14,
             fontWeight: 'bold',
             scrollBeyondLastLine: false,
-            theme: 'vs', // 编辑器主题：vs, hc-black, or vs-dark，更多选择详见官网
+            theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
             minimap: {
               enabled: false
             },
             automaticLayout: true,
-            autoIndent: true // 自动缩进
+            autoIndent: true // Auto Indent
           })
         );
       }
@@ -65,7 +65,7 @@ export default {
     getSql() {
       if (this.monacoEditor) {
         try {
-          // 在nextTick中获取值，避免Vue3响应式系统的循环依赖
+          // Get values in nextTick to avoid Vue3 response system loop dependence
           return this.monacoEditor.getValue();
         } catch (error) {
           console.error('Monaco Editor getValue error:', error);
@@ -74,7 +74,7 @@ export default {
       }
       return '';
     },
-    // 异步版本的getSql，推荐在Vue3中使用
+    // GetSQL, a different version, recommended for use in Vue3
     async getSqlAsync() {
       if (this.monacoEditor) {
         try {

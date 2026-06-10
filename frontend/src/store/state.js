@@ -105,5 +105,5 @@ export default {
   publicKey: '',
   remainTrialDay: null,
   lastChildTableSubOptions: {},
-  theme: 'light' // 当前主题：'light' | 'dark'
+  theme: 'light' // Current theme: 'light' | 'dark'
 };

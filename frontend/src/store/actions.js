@@ -183,7 +183,7 @@ export default {
       commit(UPDATE_DS_TYPE_LIST, res.data);
     }
   },
-  // 主题相关 actions
+  // Theme-related actions
   toggleTheme({ commit, state }) {
     const newTheme = state.theme === 'light' ? 'dark' : 'light';
     commit(SET_THEME, newTheme);
@@ -192,10 +192,10 @@ export default {
     commit(SET_THEME, theme);
   },
   initTheme({ commit }) {
-    // 默认跟随系统主题
+    // Follow the system theme by default
     let theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 
-    // 优先使用用户偏好
+    // Prefer the user preference
     if (localStorage.getItem('app-theme')) {
       theme = localStorage.getItem('app-theme');
     }

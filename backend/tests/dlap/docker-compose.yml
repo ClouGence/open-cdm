@@ -25,15 +25,15 @@ services:
       - 10004:80
 
   ldap_normal:
-    image: osixia/openldap  # 如果有私有仓库可以从自己的私有仓库拉取镜像
+    image: osixia/openldap  # If there's a private warehouse that can pull mirrors from its own private warehouse,
     container_name: ldap_normal
     restart: always
     environment:
       LDAP_LOG_LEVEL: "256"
-      LDAP_ORGANISATION: "clougence"      ## 您的组织名称
-      LDAP_DOMAIN: "clougence.com"        ## 公司域名
-      LDAP_BASE_DN: "dc=clougence,dc=com" ## 根据域名组成，登陆账号为：cn=admin,dc=clougence,dc=com
-      LDAP_ADMIN_PASSWORD: "admin"        ## 密码自己来设置
+      LDAP_ORGANISATION: "clougence"      ## Your organizational name
+      LDAP_DOMAIN: "clougence.com"        ## Company domain name
+      LDAP_BASE_DN: "dc=clougence,dc=com" ## Composed of domain names with login number: cn=admin, dc=clougence, dc=com
+      LDAP_ADMIN_PASSWORD: "admin"        ## Set the password yourself
       LDAP_CONFIG_PASSWORD: "admin"
       LDAP_READONLY_USER: "false"
       #LDAP_READONLY_USER_USERNAME: "readonly"
@@ -52,15 +52,15 @@ services:
     #      - /opt/openldap/slapd.d:/etc/ldap/slapd.d
     #      - /opt/openldap/certs:/container/service/lapd/assets/certs
   #  ldap_tls:
-  #    image: osixia/openldap:1.5.0  # 如果有私有仓库可以从自己的私有仓库拉取镜像
+  #    # If there's a private warehouse that can pull mirrors from its own private warehouse
   #    container_name: openldap
   #    restart: always
   #    environment:
   #      LDAP_LOG_LEVEL: "256"
-  #      LDAP_ORGANISATION: "clougence"   ### 您的组织名称
-  #      LDAP_DOMAIN: "clougence.com"    ### 公司域名
-  #      LDAP_BASE_DN: "dc=zaq,dc=test"   ### 根据域名组成
-  #      LDAP_ADMIN_PASSWORD: "admin"   ### 密码自己来设置
+  #      LDAP ORGANISATION: "claugence"## your organizational name
+  #      LDAP DOMAIN: "claugence.com"### company domain name
+  #      LDAP_BASE_DN: "dc=zaq,dc=test"   ### Built from the domain name
+  #      LDAP ADMIN PASSWORD: "admin"## password set itself
   #      LDAP_CONFIG_PASSWORD: "admin"
   #      LDAP_READONLY_USER: "false"
   #      #LDAP_READONLY_USER_USERNAME: "readonly"

@@ -1,13 +1,13 @@
 #!/bin/bash
 # ============================================================================
-# docker-publish-global.sh — 发布 CloudDM 镜像到国际区（Docker Hub）
+# docker-publish-global.sh - publish CloudDM images to global registries (Docker Hub)
 #
-# 用法:
-#   ./docker-publish-global.sh                         # 自动探测所有已构建平台
-#   ./docker-publish-global.sh --platform=x86_64       # 仅推送 x86_64
-#   ./docker-publish-global.sh --platform=x86_64,arm64 # 推送双平台
+# Usage:
+#   ./docker-publish-global.sh                         # Autodetect all built platforms
+#   ./docker-publish-global.sh --platform=x86_64       # Push x86_64 only
+#   ./docker-publish-global.sh --platform=x86_64,arm64 # Push both platforms
 #
-# 前置: 运行 package/package.sh --docker 完成编译和镜像构建
+# Prerequisite: run package/package.sh --docker to finish compilation and image build
 # ============================================================================
 set -euo pipefail
 
@@ -185,8 +185,8 @@ usage() {
   cat <<'EOF'
 用法: ./docker-publish-global.sh [--platform=PLATFORM]
 
---platform=PLATFORM  平台: x86_64 | arm64 | 逗号分隔（默认: 自动探测 package/build/）
--h, --help           显示帮助
+--platform=PLATFORM  Platform: x86_64 | arm64 | comma-separated (default: auto-detect package/build/)
+-h, --help           Help
 EOF
 }
 

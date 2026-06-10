@@ -132,7 +132,7 @@ export default {
       return !['Kudu', 'Redis', 'ClickHouse', 'ElasticSearch', 'RabbitMQ', 'RocketMQ', 'Kafka', 'MongoDB', 'PolarDbX'].includes(type);
     },
     testConnection() {
-      // 每次重新测试时先清空上一次的测试结果文案
+      // Empty the last test file for every retest.
       this.hasTest = false;
       this.testSuccess = false;
       this.msg = '';
@@ -170,7 +170,7 @@ export default {
     testConnectionBeforeAdd() {
       // parse useSSL from kvConfig
       this.extractUseSSL();
-      // 清空上一次的测试结果文案
+      // Empty last test file
       this.hasTest = false;
       this.testSuccess = false;
       this.msg = '';
@@ -333,7 +333,7 @@ export default {
   watch: {
     visible(val) {
       if (val) {
-        // 清除上一次测试连接的状态
+        // Clear status of last test connection
         this.hasTest = false;
         this.testSuccess = false;
         this.loading = false;

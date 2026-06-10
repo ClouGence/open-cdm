@@ -1,5 +1,5 @@
 /**
- * 用于webstorm识别alias
+ * For webstorm to recognize alias
  */
 
 const resolve = (dir) => require('path').join(__dirname, dir);

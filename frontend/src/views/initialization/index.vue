@@ -8,7 +8,7 @@
       </div>
     </div>
 
-    <!-- 错误页模式 -->
+    <!-- Error Page Mode -->
     <div v-else-if="mode === 'dbError'" class="init-error-page">
       <div class="error-card">
         <div class="init-version-badge" translate="no">{{ versionBadgeText }}</div>
@@ -24,7 +24,7 @@
       </div>
     </div>
 
-    <!-- 初始化向导模式 -->
+    <!-- Initialise Wizard Mode -->
     <div v-else class="init-wizard">
       <div class="init-version-badge" translate="no">{{ versionBadgeText }}</div>
       <div class="wizard-header">
@@ -41,7 +41,7 @@
       </div>
 
       <div class="wizard-content">
-        <!-- Step 0: 数据库配置 -->
+        <!-- Step 0: Database Configuration -->
         <div v-show="currentStep === 0" class="step-panel">
           <StepDb
             :fieldDefs="dbFields"
@@ -55,7 +55,7 @@
           />
         </div>
 
-        <!-- Step 1: 安全配置 -->
+        <!-- Step 1: Secure Configuration -->
         <div v-show="!isUpgradeMode && currentStep === 1" class="step-panel">
           <StepSecurity
             :fieldDefs="securityFields"
@@ -65,7 +65,7 @@
           />
         </div>
 
-        <!-- Step 2: 连接性配置 -->
+        <!-- Step 2: Connectivity Configuration -->
         <div v-show="!isUpgradeMode && currentStep === connectivityStepIndex" class="step-panel">
           <StepConnectivity
             :fieldDefs="connectivityFields"
@@ -75,7 +75,7 @@
           />
         </div>
 
-        <!-- 确认步骤 -->
+        <!-- Identification of steps -->
         <div v-show="isConfirmStep" class="step-panel">
           <StepConfirm
             :fieldDefs="fieldDefs"

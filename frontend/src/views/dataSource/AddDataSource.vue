@@ -364,9 +364,9 @@ export default {
           }
         });
 
-        // 处理不同类型源端字段映射
+        // Process different types of source field map
         switch (this.addDataSourceForm.type) {
-          // tls类型
+          // tls type
           case 'MySQL':
           case 'Kafka':
           case 'Tunnel':
@@ -376,7 +376,7 @@ export default {
             this.addDataSourceForm.securityFile = this.addDataSourceForm.tlsTrustStoreFile;
             this.addDataSourceForm.clientSecurityFile = this.addDataSourceForm.tlsKeystoreFile;
             break;
-          // ca 证书
+          // certificate
           case 'PostgreSQL':
             this.addDataSourceForm.secretFile = this.addDataSourceForm.clientSecretFile;
             break;

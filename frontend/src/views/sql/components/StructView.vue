@@ -316,11 +316,11 @@ export default {
       }
     },
     handleAddFromNode(item) {
-      // 先选中该节点
+      // Select this node first
       const schemaIndex = this.tab.order.findIndex((e) => e === item.schema);
       let pos = `0-${schemaIndex}`;
 
-      // 如果是子节点，需要找到它在父节点中的索引
+      // If it's a child, you need to find the index in the parent.
       if (item.parentKey) {
         const parentNode = this.tab.treeData.find((node) => node.key === item.parentKey);
         if (parentNode) {
@@ -336,13 +336,13 @@ export default {
         }
       });
 
-      // 然后执行添加操作
+      // Then perform the addition operation
       this.$nextTick(() => {
         this.handleAdd();
       });
     },
     handleDeleteFromNode(item) {
-      // 先选中该节点
+      // Select this node first
       const schemaIndex = this.tab.order.findIndex((e) => e === item.schema);
       const parentNode = this.tab.treeData.find((node) => node.key === item.parentKey);
       if (parentNode) {
@@ -354,7 +354,7 @@ export default {
           }
         });
 
-        // 然后执行删除操作
+        // Then execute the deletion operation
         this.$nextTick(() => {
           this.handleDelete();
         });
@@ -414,7 +414,7 @@ export default {
         }
       });
 
-      // 自动聚焦name
+      // Autofocus name
       this.$nextTick(() => {
         this.focusAndSelectNameField();
       });
@@ -468,7 +468,7 @@ export default {
       });
     },
     clearRightPanel() {
-      // 清空右边面板
+      // Empty the right panel
       this.showItem = false;
       this.tab.selectedKeys = [];
       this.tab.selectedNode = null;
@@ -818,12 +818,12 @@ export default {
       }
     },
     resetTicketForm() {
-      // 重置表单数据
+      // Reset Form Data
       this.ticketData = {
         ticketTitle: '',
         description: ''
       };
-      // 清除表单校验状态
+      // Clear Form Verify Status
       if (this.$refs.ticketContent) {
         this.$refs.ticketContent.clearValidate();
       }
@@ -833,12 +833,12 @@ export default {
       this.resetTicketForm();
     },
     handleOpenTicketModal() {
-      // 重置表单数据
+      // Reset Form Data
       this.ticketData = {
         ticketTitle: `${this.$t('gong-dan')}${new Date().getTime()}`,
         description: ''
       };
-      // 清除之前的校验状态
+      // Clear prevalidation status
       this.$nextTick(() => {
         if (this.$refs.ticketContent) {
           this.$refs.ticketContent.clearValidate();

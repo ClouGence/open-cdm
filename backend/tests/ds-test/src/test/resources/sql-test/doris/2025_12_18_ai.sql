@@ -31,14 +31,14 @@ UNSET DEFAULT STORAGE VAULT;
 SHOW ROUTINE LOAD TASK FROM my_database WHERE status = "RUNNING";
 SHOW ROUTINE LOAD FOR my_database.my_job;
 SHOW ROUTINE LOAD LIKE '%pattern%';
--- 或显示所有
+-- Or show all
 SHOW ALL ROUTINE LOAD;
 STOP ROUTINE LOAD FOR my_database.my_job;
 RESUME ROUTINE LOAD FOR my_database.my_job;
--- 或者恢复所有
+-- Or restore everything.
 RESUME ALL ROUTINE LOAD;
 PAUSE ROUTINE LOAD FOR my_database.my_job;
--- 或者暂停所有
+-- Or pause everything.
 PAUSE ALL ROUTINE LOAD;
 LOAD DATA LOCAL INFILE '/path/to/data.csv'
 INTO TABLE my_table
@@ -62,60 +62,60 @@ FROM KAFKA (
 SYNC;
 
 KILL CONNECTION 12345;
--- 或者简写形式
+-- Or in short form.
 KILL 12345;
--- 通过查询ID终止查询（整数形式）
+-- Termination of queries by query ID (integer form)
 KILL QUERY 67890;
 
--- 通过查询ID终止查询（字符串形式）
+-- Termination of query by query ID (string form)
 KILL QUERY 'query_1234567890';
 
--- 基本恢复数据库
+-- Basic restoration database
 RECOVER DATABASE my_database;
 
--- 指定数据库ID恢复
+-- Specify database ID recovery
 RECOVER DATABASE my_database 12345;
 
--- 恢复数据库并重命名
+-- Restore Database and Rename
 RECOVER DATABASE my_database AS new_database_name;
 
--- 指定ID并重命名恢复
+-- Specify ID and rename recovery
 RECOVER DATABASE my_database 12345 AS new_database_name;
--- 基本恢复分区
+-- Basic rehabilitation section
 RECOVER PARTITION my_partition FROM my_database.my_table;
 
--- 指定分区ID恢复
+-- Specify Partition ID Restore
 RECOVER PARTITION my_partition 54321 FROM my_database.my_table;
 
--- 恢复分区并重命名
+-- Restore partitions and rename them
 RECOVER PARTITION my_partition AS new_partition_name FROM my_database.my_table;
 
--- 指定ID并重命名恢复
+-- Specify ID and rename recovery
 RECOVER PARTITION my_partition 54321 AS new_partition_name FROM my_database.my_table;
 
--- 刷新特定分区
+-- Refresh selected partitions
 REFRESH MATERIALIZED VIEW my_database.my_mv PARTITION (p1, p2);
 
--- 完全刷新
+-- completely refresh
 REFRESH MATERIALIZED VIEW my_database.my_mv COMPLETE;
 
--- 自动刷新
+-- Auto Refresh
 REFRESH MATERIALIZED VIEW my_database.my_mv AUTO;
 ALTER MATERIALIZED VIEW my_database.old_mv RENAME new_mv_name;
--- 设置刷新方法
+-- Set a new way to brush
 ALTER MATERIALIZED VIEW my_database.my_mv REFRESH COMPLETE;
 
--- 设置刷新触发器
+-- Set Refresh Trigger
 ALTER MATERIALIZED VIEW my_database.my_mv REFRESH ON SCHEDULE EVERY 1 HOUR;
 
--- 同时设置刷新方法和触发器
+-- And set up a new brush and trigger.
 ALTER MATERIALIZED VIEW my_database.my_mv REFRESH COMPLETE ON SCHEDULE EVERY 30 MINUTE;
 ALTER MATERIALIZED VIEW my_database.my_mv
 REPLACE WITH MATERIALIZED VIEW new_mv_name
 PROPERTIES ("replication_num" = "3");
 ALTER MATERIALIZED VIEW my_database.my_mv
 SET ("partition_refresh_number" = "10", "excluded_trigger_tables" = "table1,table2");
--- 基本的 LOAD 语句
+-- Basic LOAD statement
 LOAD LABEL my_database.my_label
 (
     DATA INFILE( "/path/to/data.csv")
@@ -124,7 +124,7 @@ LOAD LABEL my_database.my_label
     LINES TERMINATED BY "\n"
 );
 
--- 带分区的 LOAD 语句
+-- LOAD statement with partition
 LOAD LABEL my_database.my_label
 (
     DATA INFILE ("/path/to/data.csv")
@@ -135,7 +135,7 @@ LOAD LABEL my_database.my_label
     (col1, col2, col3)
 );
 
--- 带属性和注释的 LOAD 语句
+-- LOAD statement with attributes and comments
 LOAD LABEL my_database.my_label
 (
     DATA INFILE ("/path/to/data.csv")
@@ -152,7 +152,7 @@ PROPERTIES (
 )
 COMMENT "Loading sales data";
 
--- 从远程存储系统加载数据
+-- Load data from remote storage system
 LOAD LABEL my_database.my_label
 (
     DATA INFILE ("s3://bucket/path/data.csv")

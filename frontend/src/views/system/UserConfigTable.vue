@@ -65,7 +65,7 @@
       </p>
     </template>
     <template #tag="{ row }">
-      <!-- 映射对不上，暂时隐藏popover内容 -->
+      <!-- Map is not right. Hide popover content for now -->
       <!-- <Tooltip placement="right-start" transfer class="ml-2"> -->
       <Button type="warning" size="small" ghost :style="getTagStyle(row)">
         {{ row.userConfigTagType }}

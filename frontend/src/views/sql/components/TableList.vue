@@ -1198,17 +1198,17 @@ export default {
       FAKER_TASK_STATUS,
       monacoEditor: null,
       defaultOpts: {
-        value: '', // 编辑器的值
+        value: '', // The editor 's value
         language: 'mysql',
         fontSize: 14,
         fontWeight: 'bold',
-        theme: 'vs', // 编辑器主题：vs, hc-black, or vs-dark，更多选择详见官网
+        theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
         minimap: {
           enabled: false
         },
         automaticLayout: true,
         lineNumbers: 'off',
-        autoIndent: true // 自动缩进
+        autoIndent: true // Auto Indent
       },
       functionModalReturnParamsColumns: [
         {
@@ -1411,7 +1411,7 @@ export default {
       'ddlList',
       'isDark'
     ]),
-    // 根据当前节点类型返回正确的 leafGroup
+    // Return correctly according to current node type
     showTaskCancelBtn() {
       const { INIT, RUNNING, PAUSE, WAITING_RESUME, WAITING_PAUSE } = FAKER_TASK_STATUS;
       return [INIT, RUNNING, PAUSE, WAITING_RESUME, WAITING_PAUSE].includes(this.genDataModal.status);
@@ -2078,7 +2078,7 @@ export default {
     async handleGenDataCheck(node) {
       console.log('check');
       if (!node.resume) {
-        this.$refs.genDataTree.setSelected(node.key, true); // 设置选中状态
+        this.$refs.genDataTree.setSelected(node.key, true); // Set the selected status
         await this.$refs.genDataTree.setExpand(node.key, true);
         setTimeout(() => {
           this.$refs.genDataTree.setChecked(node.key, true);

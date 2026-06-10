@@ -9,7 +9,7 @@ const exportMonitorMixin = {
     };
   },
   methods: {
-    // 临时修改样式确保元素完整显示
+    // Temporary change style to ensure complete display of elements
     prepareElementForCapture(element, index) {
       this.originalStyle = {
         overflow: element.style.overflow,
@@ -21,15 +21,15 @@ const exportMonitorMixin = {
         zIndex: element.style.zIndex
       };
 
-      // 临时修改样式：移除溢出隐藏，确保元素完整显示
+      // Temporary change style: remove the spill hide and ensure that the elements are shown in full
       element.style.overflow = 'visible';
       element.style.maxHeight = 'none';
 
-      // 计算元素实际高度（包括被隐藏的部分）
+      // Calculate the actual height of the element (including the hidden part)
       const actualHeight = element.scrollHeight;
       element.style.height = `${actualHeight}px`;
 
-      // 确保元素不被遮挡
+      // Make sure the elements are not covered.
       if (element.offsetParent) {
         element.style.position = 'relative';
         element.style.top = '0';
@@ -38,7 +38,7 @@ const exportMonitorMixin = {
       }
     },
 
-    // 恢复元素原始样式
+    // Restore Element Original Style
     restoreElementStyle(element) {
       if (this.originalStyle) {
         element.style.overflow = this.originalStyle.overflow;
@@ -50,16 +50,16 @@ const exportMonitorMixin = {
         element.style.zIndex = this.originalStyle.zIndex;
       }
     },
-    // 下载图片的通用方法
+    // Common method for downloading pictures
     downloadImage(canvas, filename) {
-      // 创建下载链接
+      // Create Download Link
       const link = document.createElement('a');
-      // 将canvas转为PNG图片
+      // Change Canvas to PNG Image
       link.href = canvas.toDataURL('image/png');
-      // 设置文件名（去除特殊字符）
+      // Set filename (delegate special characters)
       link.download = `${filename}.png`;
 
-      // 触发下载
+      // Trigger Download
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -69,9 +69,9 @@ const exportMonitorMixin = {
         console.log('handleExportMonitorImg');
         this.exportImgLoading = true;
 
-        // 等待 Vue 完成 DOM 更新，确保 loading 状态显示
+        // Waiting for Vue to complete DOM update to make sure status display
         await this.$nextTick();
-        // 额外延迟确保浏览器完成渲染
+        // Additional delay to ensure browser render
         await new Promise((resolve) => setTimeout(resolve, 50));
 
         const container = this.$refs.grid;
@@ -80,19 +80,19 @@ const exportMonitorMixin = {
           return;
         }
 
-        // 保存原始滚动位置
+        // Save original scroll position
         const originalScrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-        // 准备元素
+        // Prepare elements
         this.prepareElementForCapture(container);
 
-        // 滚动到元素位置
+        // Scroll to Element Position
         // container.scrollIntoView({ behavior: 'auto', block: 'start' });
         // await new Promise((resolve) => setTimeout(resolve, 300));
 
-        // 捕获元素为图片
+        // Capture elements as pictures
         const canvas = await html2canvas(container, {
-          scale: 2, // 高分辨率
+          scale: 2, // High Resolution
           useCORS: true,
           logging: false,
           windowWidth: container.scrollWidth,
@@ -100,18 +100,18 @@ const exportMonitorMixin = {
           allowTaint: true
         });
 
-        // 恢复样式和滚动位置
+        // Restore Styles and Scroll Positions
         this.restoreElementStyle(container);
         // window.scrollTo(0, originalScrollTop);
 
-        // 下载图片
+        // Download Pictures
         this.downloadImage(canvas, `${filename}_` + new Date().toLocaleString());
 
         this.exportImgLoading = false;
       } catch (error) {
         this.exportImgLoading = false;
         console.error(this.$t('shi-bai'), error);
-        // alert('图表导出失败，请重试');
+        // alert('Chart export failed, please try again');
         this.$Modal.error({
           title: this.$t('cao-zuo-shi-bai'),
           content: this.$t('tu-biao-dao-chu-shi-bai-qing-chong-shi')

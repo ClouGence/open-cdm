@@ -278,7 +278,7 @@ const EMPTY_SUB_ACCOUNT = {
   allowLocal: true
 };
 
-// 数据和方法带2的都是数据库管理权限相关
+// Data and methodology are related to database management privileges.
 export default {
   name: 'SubAccount',
   mixins: [copyMixin, enterOpPwdMixin, encryptMixin],

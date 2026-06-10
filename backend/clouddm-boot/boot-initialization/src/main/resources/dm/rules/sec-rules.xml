@@ -13,27 +13,27 @@
         enum ["utf8", "utf8mb4"]
         hint "允许使用的字符集"
 
-// 对于 alert 语句，只有当设置了 character set 选项时候才进行校验
+// For alert statements, validate only when the character set option is set
 if
   @domain.sqlType in ['ALERT_CATALOG'] and
   @func.string.isNotBlank(@domain.characterSet)
 then
 
     if @func.string.isBlank(#{character_set}) then
-      return false //规则配置错误
+      return false //Invalid rule configuration
     else
       return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
     end
 
 end
 
-// 对于 create 语句，检测是否必须设置 character set 选项
+// For create statements, check whether the character set option is required
 if @domain.sqlType == 'CREATE_CATALOG' then
 
   if cast(#{require} as bool) then
 
     if @func.string.isBlank(#{character_set}) then
-      return false //规则配置错误
+      return false //Invalid rule configuration
     else
       return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
     end
@@ -60,27 +60,27 @@ end
         enum ["utf8_unicode_ci", "utf8mb4_unicode_ci"]
         hint "允许使用的排序规则"
 
-// 对于 alert 语句，只有当设置了 collate 选项时候才进行校验
+// For alert statements, validate only when the collate option is set
 if
   @domain.sqlType in ['ALERT_CATALOG'] and
   @func.string.isNotBlank(@domain.collate)
 then
 
     if @func.string.isBlank(#{collate}) then
-      return false //规则配置错误
+      return false //Invalid rule configuration
     else
       return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
     end
 
 end
 
-// 对于 create 语句，检测是否必须设置 collate 选项
+// For create statements, check whether the collate option is required
 if @domain.sqlType == 'CREATE_CATALOG' then
 
   if cast(#{require} as bool) then
 
     if @func.string.isBlank(#{collate}) then
-      return false //规则配置错误
+      return false //Invalid rule configuration
     else
       return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
     end
@@ -143,27 +143,27 @@ end
         enum ["utf8", "utf8mb4"]
         hint "允许使用的字符集"
 
-// 对于 alter 语句，只有当设置了 character set 选项时候才进行校验
+// For alter statements, validate only when the character set option is set
 if
   @domain.sqlType in ['ALTER_CATALOG'] and
   @func.string.isNotBlank(@domain.characterSet)
 then
 
     if @func.string.isBlank(#{character_set}) then
-      return false //规则配置错误
+      return false //Invalid rule configuration
     else
       return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
     end
 
 end
 
-// 对于 create 语句，检测是否必须设置 character set 选项
+// For create statements, check whether the character set option is required
 if @domain.sqlType == 'CREATE_CATALOG' then
 
   if cast(#{require} as bool) then
 
     if @func.string.isBlank(#{character_set}) then
-      return false //规则配置错误
+      return false //Invalid rule configuration
     else
       return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
     end
@@ -190,27 +190,27 @@ end
         enum ["utf8_unicode_ci", "utf8mb4_unicode_ci"]
         hint "允许使用的排序规则"
 
-// 对于 alter 语句，只有当设置了 collate 选项时候才进行校验
+// For alter statements, validate only when the collate option is set
 if
   @domain.sqlType in ['ALTER_CATALOG'] and
   @func.string.isNotBlank(@domain.collate)
 then
 
     if @func.string.isBlank(#{collate}) then
-      return false //规则配置错误
+      return false //Invalid rule configuration
     else
       return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
     end
 
 end
 
-// 对于 create 语句，检测是否必须设置 collate 选项
+// For create statements, check whether the collate option is required
 if @domain.sqlType == 'CREATE_CATALOG' then
 
   if cast(#{require} as bool) then
 
     if @func.string.isBlank(#{collate}) then
-      return false //规则配置错误
+      return false //Invalid rule configuration
     else
       return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
     end
@@ -330,7 +330,7 @@ if @func.string.isBlank(@domain.autoIncrement) then
 else
 
   if @func.string.isBlank(#{number}) then
-    return false // 规则配置错误
+    return false // Invalid rule configuration
   else
     return cast(@domain.autoIncrement as int) == cast(#{number} as int)
   end
@@ -535,27 +535,27 @@ end
         enum ["utf8", "utf8mb4"]
         hint "允许使用的字符集"
 
-// 对于 ALTER 语句，只有当设置了 character set 选项时候才进行校验
+// For ALTER statements, validate only when the character set option is set
 if
   @domain.sqlType in ['ALTER_TABLE', 'ALTER_TABLE_CONVERT'] and
   @func.string.isNotBlank(@domain.characterSet)
 then
 
     if @func.string.isBlank(#{character_set}) then
-      return false //规则配置错误
+      return false //Invalid rule configuration
     else
       return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
     end
 
 end
 
-// 对于 create 语句，检测是否必须设置 character set 选项
+// For create statements, check whether the character set option is required
 if @domain.sqlType == 'CREATE_TABLE' then
 
   if cast(#{require} as bool) then
 
     if @func.string.isBlank(#{character_set}) then
-      return false //规则配置错误
+      return false //Invalid rule configuration
     else
       return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
     end
@@ -582,27 +582,27 @@ end
         enum ["utf8_unicode_ci", "utf8mb4_unicode_ci"]
         hint "允许使用的排序规则"
 
-// 对于 ALTER 语句，只有当设置了 collate 选项时候才进行校验
+// For ALTER statements, validate only when the collate option is set
 if
   @domain.sqlType in ['ALTER_TABLE', 'ALTER_TABLE_CONVERT'] and
   @func.string.isNotBlank(@domain.collate)
 then
 
     if @func.string.isBlank(#{collate}) then
-      return false //规则配置错误
+      return false //Invalid rule configuration
     else
       return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
     end
 
 end
 
-// 对于 create 语句，检测是否必须设置 collate 选项
+// For create statements, check whether the collate option is required
 if @domain.sqlType == 'CREATE_TABLE' then
 
   if cast(#{require} as bool) then
 
     if @func.string.isBlank(#{collate}) then
-      return false //规则配置错误
+      return false //Invalid rule configuration
     else
       return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
     end
@@ -629,27 +629,27 @@ end
         enum ["InnoDB", "MyISAM", "Memory"]
         hint "允许使用的存储引擎"
 
-// 对于 ALTER 语句，只有当设置了 engine 选项时候才进行校验
+// For ALTER statements, validate only when the engine option is set
 if
   @domain.sqlType in ['ALTER_TABLE', 'ALTER_TABLE_CONVERT'] and
   @func.string.isNotBlank(@domain.engine)
 then
 
     if @func.string.isBlank(#{engine}) then
-      return false //规则配置错误
+      return false //Invalid rule configuration
     else
       return @func.string.equalsIgnoreCase(@domain.engine, #{engine})
     end
 
 end
 
-// 对于 create 语句，检测是否必须设置 engine 选项
+// For create statements, check whether the engine option is required
 if @domain.sqlType == 'CREATE_TABLE' then
 
   if cast(#{require} as bool) then
 
     if @func.string.isBlank(#{engine}) then
-      return false //规则配置错误
+      return false //Invalid rule configuration
     else
       return @func.string.equalsIgnoreCase(@domain.engine, #{engine})
     end
@@ -720,27 +720,27 @@ end
         enum ["utf8", "utf8mb4"]
         hint "允许使用的字符集"
 
-// 对于 modify/change 语句，只有当设置了 character set 选项时候才进行校验
+// For modify/change statements, validate only when the character set option is set
 if
   @domain.sqlType == 'ALTER_TABLE_ALTER_COLUMN' and
   @func.string.isNotBlank(@domain.characterSet)
 then
 
     if @func.string.isBlank(#{character_set}) then
-      return false //规则配置错误
+      return false //Invalid rule configuration
     else
       return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
     end
 
 end
 
-// 对于 add column or create table 语句，检测是否必须设置 character set 选项
+// For add column or create table statements, check whether the character set option is required
 if @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN'] then
 
   if cast(#{require} as bool) then
 
     if @func.string.isBlank(#{character_set}) then
-      return false //规则配置错误
+      return false //Invalid rule configuration
     else
       return @func.string.equalsIgnoreCase(@domain.characterSet, #{character_set})
     end
@@ -767,27 +767,27 @@ end
         enum ["utf8_unicode_ci", "utf8mb4_unicode_ci"]
         hint "允许使用的排序规则"
 
-// 对于 modify/change 语句，只有当设置了 collate 选项时候才进行校验
+// For modify/change statements, validate only when the collate option is set
 if
   @domain.sqlType == 'ALTER_TABLE_ALTER_COLUMN' and
   @func.string.isNotBlank(@domain.collate)
 then
 
     if @func.string.isBlank(#{collate}) then
-      return false //规则配置错误
+      return false //Invalid rule configuration
     else
       return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
     end
 
 end
 
-// 对于 add column or create table 语句，检测是否必须设置 collate 选项
+// For add column or create table statements, check whether the collate option is required
 if @domain.sqlType in ['CREATE_TABLE_ADD_COLUMN', 'ALTER_TABLE_ADD_COLUMN'] then
 
   if cast(#{require} as bool) then
 
     if @func.string.isBlank(#{collate}) then
-      return false //规则配置错误
+      return false //Invalid rule configuration
     else
       return @func.string.equalsIgnoreCase(@domain.collate, #{collate})
     end
@@ -1062,7 +1062,7 @@ then
   end
 
   if @func.string.isBlank(@domain.length) then
-    return false // 语句中长度为空，例如 create table abc(name char);
+    return false // The statement has an empty length, for example create table abc(name char);
   else
     return cast(@domain.length as int) <= cast(#{length} as int)
   end
@@ -1097,7 +1097,7 @@ then
   end
 
   if @func.string.isBlank(@domain.length) then
-    return false // 语句中长度为空，例如 create table abc(name varchar);
+    return false // The statement has an empty length, for example create table abc(name varchar);
   else
     return cast(@domain.length as int) <= cast(#{length} as int)
   end

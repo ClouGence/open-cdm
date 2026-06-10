@@ -1,6 +1,6 @@
 /**
- * 错误队列管理器
- * 用于收集多个错误信息，统一显示在一个弹窗中
+ * Error Queue Manager
+ * To collect multiple errors and display them in one bullet window Medium
  */
 import i18n from '@/i18n';
 
@@ -14,13 +14,13 @@ class ErrorQueue {
   }
 
   /**
-   * 添加错误到队列
-   * @param {Object} error - 错误对象
-   * @param {string} error.title - 错误标题
-   * @param {string} error.content - 错误内容
-   * @param {string} error.type - 错误类型 (error/warning/info)
-   * @param {Function} error.onOk - 确定按钮回调
-   * @param {string} error.url - 请求 URL
+   * Add Error to Queue
+   * @param {Object} Error - Wrong Object
+   * @param {string} Error.title - Wrong Title
+   * @param {string} Error
+   * @param {string} Error. type - Error type (error/warning/info)
+   * @param {Function} Error.onOK - confirm button echo
+   * @param {string} Error.url - Request URL
    */
   addError(error) {
     const errorItem = {
@@ -40,17 +40,17 @@ class ErrorQueue {
     const now = Date.now();
     const timeSinceLastExecute = now - this.lastExecuteTime;
 
-    // 如果距离上次执行时间已经超过节流间隔，立即执行
+    // Implement immediately if the cut-off has exceeded the last execution time
     if (timeSinceLastExecute >= this.throttleDelay) {
       this.lastExecuteTime = now;
       this.showModal();
-      // 清除可能存在的定时器
+      // Clear a possible timer
       if (this.throttleTimer) {
         clearTimeout(this.throttleTimer);
         this.throttleTimer = null;
       }
     } else {
-      // 如果还在节流窗口内，且还没有设置定时器，设置定时器在窗口结束时执行
+      // Set the timer to be executed at the end of the window if it is still in the throttle window and the timer has not been set
       if (!this.throttleTimer) {
         const remainingTime = this.throttleDelay - timeSinceLastExecute;
         this.throttleTimer = setTimeout(() => {

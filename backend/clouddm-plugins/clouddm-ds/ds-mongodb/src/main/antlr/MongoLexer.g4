@@ -19,7 +19,7 @@ lexer grammar MongoLexer;
 channels { COMMENT }
 
 /* skip spaces */
-SPACE      : [ \t\f\r\n]+              -> channel(HIDDEN); // skip spaces, (空格\水平制表符\换行\回车\换页)
+SPACE      : [ \t\f\r\n]+              -> channel(HIDDEN); // Skip spaces: space, horizontal tab, line break, carriage return, and form feed.
 COMMENT1: '//' (~[\n\r])*   -> channel(COMMENT);
 COMMENT2: '/*' .*? '*/'         -> channel(COMMENT);
 //EOL     : ('\r''\n'? | '\n');
@@ -232,4 +232,3 @@ fragment EXP
     // exponent number permits leading 0s (e.g. `1e01`)
     : [Ee] [+-]? [0-9]+
     ;
-

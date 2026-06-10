@@ -1,7 +1,7 @@
 import { createApp } from 'vue';
 import 'ant-design-vue/dist/reset.css';
 
-// 仅按需引入你要用的组件
+// Include only the components you want as needed
 import {
   Alert,
   Breadcrumb,

@@ -74,7 +74,7 @@
       </p>
     </div>
     <div class="datasource-info-block">
-      <!--            <Divider class="datasource-info-block-title" orientation="left">账号信息</Divider>-->
+      <!--            <Divider class="datasource-info-block-title" orientation="left">Account information</Divider>-->
       <p style="margin-top: 8px">
         <span class="basic-info-label">{{ $t('zhang-hao-0') }}</span>
         <span class="basic-info-value">

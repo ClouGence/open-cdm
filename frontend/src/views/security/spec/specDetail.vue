@@ -564,9 +564,9 @@ export default {
   display: flex;
   flex-direction: column;
 
-  // 修复固定列表头高度不一致的问题
+  // Fix the problem of inconsistent height of the fixed list header
   :deep(.ivu-table-small) {
-    // 主表头文字居中
+    // Centre Main Header Text
     .ivu-table-header thead tr th,
     .ivu-table-fixed-header thead tr th {
       text-align: center !important;
@@ -583,7 +583,7 @@ export default {
       }
     }
 
-    // 确保固定列头部容器高度一致
+    // Ensure that the level of the fixed column header is consistent
     .ivu-table-fixed-header {
       height: 34px !important;
     }

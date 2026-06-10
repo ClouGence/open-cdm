@@ -1,4 +1,4 @@
-// 该文件需废弃，替换成 /src/utils/index.js
+// This document needs to be abandoned and replaced with /src/utils/index.js
 export const MySQL = ['MySQL'];
 export const PostgreSQL = ['PostgreSQL'];
 export const Greenplum = ['Greenplum'];

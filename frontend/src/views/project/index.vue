@@ -539,7 +539,7 @@ export default {
       projectFlowExecuteIsAuto: true,
       //
       //
-      step: PROJECT_STEP.BASIC1, // 控制步骤的显示
+      step: PROJECT_STEP.BASIC1, // Display of Control Steps
       webhookList: [],
       loading: false,
       repoLoading: false,

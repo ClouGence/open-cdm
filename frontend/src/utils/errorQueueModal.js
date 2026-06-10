@@ -9,7 +9,7 @@ import router from '@/router';
 let currentErrors = ref([]);
 let currentIndex = ref(0);
 
-// 浏览器前进/后退，关闭弹窗
+// Browser forward/back, off Window
 router.beforeEach((to, from, next) => {
   Modal.remove();
   errorQueue.clear();
@@ -23,7 +23,7 @@ function formatContent(content) {
     return '';
   }
 
-  // 确保字符串
+  // Make sure string
   let contentStr = content;
   if (typeof content !== 'string') {
     if (typeof content === 'object') {
@@ -114,7 +114,7 @@ function showErrorQueueModal(errors) {
     return html;
   };
 
-  // 挂到全局调用
+  // Hang to global call
   window.__errorQueuePrev = prevError;
   window.__errorQueueNext = nextError;
 

@@ -277,7 +277,7 @@
       </div>
     </Card>
 
-    <!-- 规则校验结果 -->
+    <!-- Rule Validation Results -->
     <Card class="ticket-content" v-if="(this.ticketType === 'DM_QUERY' || this.ticketType === 'DM_CHANGE') && showValidationResult">
       <template #title>
         <div>
@@ -898,10 +898,10 @@ export default {
         autoExecConfig: {
           enableTransactional: false,
           errorStrategy: 'NONE',
-          retryWaitTime: 111, // 单位秒
-          retryCount: 2, // 重试次数
-          autoExecType: 'IMMEDIATE', // [IMMEDIATE,SPECIFY_TIME]  立即执行，指定时间
-          execTime: new Date() // 预定执行时间
+          retryWaitTime: 111, // Unit seconds
+          retryCount: 2, // Number of retries
+          autoExecType: 'IMMEDIATE', // [IMMEDITE, SPECIFY TIME]
+          execTime: new Date() // Scheduled implementation time
         }
       };
       this.showAutoExecuteModal = true;

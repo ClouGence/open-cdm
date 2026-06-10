@@ -251,7 +251,7 @@ export default {
     }
   },
   methods: {
-    // base列
+    // Base Column
     generateBaseColumns() {
       return [
         {
@@ -287,7 +287,7 @@ export default {
       ];
     },
 
-    // AK/SK列
+    // Row AK/SK
     generateAliyunAkSkColumn() {
       return {
         title: this.$t('aksk-bi-tian-yong-yu-shu-ju-tong-bu-la-qu-bei-fen-de-ri-zhi-wen-jian'),
@@ -327,7 +327,7 @@ export default {
       };
     },
 
-    // tls列
+    // tls column
     generateTlsColumn() {
       return {
         title: 'Tls',
@@ -337,7 +337,7 @@ export default {
       };
     },
 
-    // file列（CA证书）
+    // File column (CA certificate)
     generateFileColumn() {
       return {
         title: this.$t('ca-zheng-shu'),
@@ -387,7 +387,7 @@ export default {
         return false;
       }
       this.addDataSourceForm.rdsList[index][key] = file;
-      return false; // 阻止自动上传
+      return false; // Stop Automatic Upload
     },
     handleUploadTlsFile(index, file) {
       if (file.size > 1024 * 1024) {
@@ -395,7 +395,7 @@ export default {
         return false;
       }
       this.addDataSourceForm.rdsList[index].securityFile = file;
-      return false; // 阻止自动上传
+      return false; // Stop Automatic Upload
     },
     handleKeyTabFileChange(e) {
       const files = e.target.files;
@@ -525,7 +525,7 @@ export default {
   }
 }
 
-// 暗色模式覆盖
+// Dark Mode Overwrite
 &.is-dark {
   .add-datasouce-title {
     background-color: var(--bg-tertiary);

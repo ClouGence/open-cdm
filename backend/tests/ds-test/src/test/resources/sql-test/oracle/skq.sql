@@ -111,7 +111,7 @@ WHERE
 
 CREATE OR REPLACE procedure            AD_TABLE_AM(p_id in number) as
     /**
-    * 判断修改的合理性
+    * Determining the reasonableness of the modification
     *
     */
     v_pk_column_id      number(10);
@@ -121,7 +121,7 @@ CREATE OR REPLACE procedure            AD_TABLE_AM(p_id in number) as
     v_ref_column_id     number(10);
     v_cnt               number(10);
 begin
-    --同步目录的描述和表的描述一致
+    --Synchronize the description of the directory and the description of the table
 
 update directory
 set description = (select description from ad_table where id = p_id)
@@ -132,9 +132,9 @@ set AD_TABLECATEGORY_ID = (select AD_TABLECATEGORY_ID
                            from ad_table
                            where id = p_id)
 where ad_table_id = p_id;
--- 如果为树型结构，必须设置parent_column_id 和 summary_column_id
--- parent_column_id 必须FK指向本表PK,
--- summary_column_id 必须是YESNO 型
+-- If tree structure is used, setup nlent column id and submary column id
+-- This post is part of our special coverage Global Voices 2011.
+-- Summary column id must be of Yesno type
 
 select istree, summary_column_id, parent_column_id, pk_column_id
 into v_istree, v_summary_column_id, v_parent_column_id, v_pk_column_id
@@ -150,11 +150,11 @@ select REF_COLUMN_ID
 into v_ref_column_id
 from ad_column
 where id = v_parent_column_id;
--- parent_column_id 必须FK指向本表PK,
+-- This post is part of our special coverage Global Voices 2011.
 if v_ref_column_id is null or v_ref_column_id <> v_pk_column_id then
             raise_application_error(-20201, '父节点字段应该以本表的PK为FK');
 end if;
-        -- summary_column_id 必须是YESNO 型
+        -- Summary column id must be of Yesno type
 select count(*)
 into v_cnt
 from ad_column

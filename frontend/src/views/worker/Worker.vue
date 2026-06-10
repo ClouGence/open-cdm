@@ -1777,7 +1777,7 @@ export default {
   },
   watch: {
     'autoDeploy.remotePassword'(newVal, oldVal) {
-      // 当密码变化且之前连接成功时，重置连接状态，需要重新测试连接
+      // Re-test the connection when the password changes and previous connection is successful
       if (this.connectionSucceeded && oldVal !== undefined && newVal !== oldVal) {
         this.connectionSucceeded = false;
         this.connectionErrorMsg = '';
@@ -1785,7 +1785,7 @@ export default {
       }
     },
     'autoDeploy.sshAuthType'(newVal, oldVal) {
-      // 当SSH认证类型变化时（从密钥切换到密码或反之），重置连接状态，需要重新测试连接
+      // Retest the connection when the SSH authentication type changes (from key to password or vice versa).
       if (this.connectionSucceeded && oldVal !== undefined && newVal !== oldVal) {
         this.connectionSucceeded = false;
         this.connectionErrorMsg = '';
@@ -1800,12 +1800,12 @@ export default {
       console.log('handle go task detail');
       this.$router.push({ path: `/ccsystem/state/task/${this.downloadTaskId}` });
     },
-    // 滚动日志内容到底部
+    // Bottom of scrolling log contents
     scrollLogToBottom() {
       this.$nextTick(() => {
         const logElements = this.$refs.logContentText;
         if (logElements && logElements.length > 0) {
-          // 找到当前激活的tab对应的元素
+          // Finds the current active Tab corresponding element
           const activeLogElement = Array.from(logElements).find((el) => el.offsetParent !== null);
           if (activeLogElement) {
             activeLogElement.scrollTop = activeLogElement.scrollHeight;
@@ -2808,7 +2808,7 @@ export default {
         }
         return null;
       });
-      // 切换日志文件后滚动到底部
+      // Scroll bottom after changing log file
       this.scrollLogToBottom();
     },
     handleShowLog(taskId, step, endRow) {
@@ -2849,7 +2849,7 @@ export default {
               this.logFileName = this.selectedLog.fileName;
             }
             this.showLog = true;
-            // 加载日志内容后滚动到底部
+            // Scroll bottom after loading log contents
             this.scrollLogToBottom();
           }
         });
@@ -3129,8 +3129,8 @@ export default {
         font-family: PingFangSC-Semibold, serif;
         vertical-align: middle;
         max-width: 260px;
-        white-space: nowrap; /* 保持文本在一行显示 */
-        overflow: hidden; /* 隐藏超出部分 */
+        white-space: nowrap; /* Keep text in line */
+        overflow: hidden; /* Hide excesses */
         text-overflow: ellipsis;
         display: inline-block;
       }

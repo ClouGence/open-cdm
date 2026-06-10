@@ -1,15 +1,15 @@
 #!/bin/bash
 # ============================================================================
-# package.sh — CloudDM 构建和打包脚本
+# Package.sh - CloudDM Build and Pack Scripts
 #
-# 用法:
-#   ./package.sh --build                       # 仅编译 + tgz 打包
-#   ./package.sh --docker                      # 仅 Docker 镜像(双平台)
-#   ./package.sh --docker x86_64               # 仅 Docker 镜像(x86_64)
-#   ./package.sh --docker arm64                # 仅 Docker 镜像(arm64)
-#   ./package.sh --docker arm64 --mirrors      # 使用内置 Ubuntu 镜像源构建 Docker 镜像
-#   ./package.sh --build --docker              # 编译 + tgz + Docker 全平台
-#   ./package.sh --build --docker x86_64       # 编译 + tgz + Docker(x86_64)
+# Usage:
+#   ./package.sh --build                       # Only compile + tgz pack
+#   ./package.sh --docker                      # Docker mirror only (two platforms)
+#   ./package.sh --docker x86_64               # Docker mirror only (x86 64)
+#   ./package.sh --docker arm64                # Docker mirror (arm64)
+#   ./package.sh --docker arm64 --mirrors      # Use the built in Ubuntu mirror source to build Docker mirrors
+#   ./package.sh --build --docker              # Compile + tgz + Docker Full Platform
+#   ./package.sh --build --docker x86_64       # Compiled + tgz + Docker(x86_64)
 # ============================================================================
 set -euo pipefail
 
@@ -55,7 +55,7 @@ HELP
   esac
 done
 
-# 无参数打印帮助
+# No Parameter Printing Help
 if [ "$DO_BUILD" -eq 0 ] && [ "$DO_DOCKER" -eq 0 ]; then
   echo "version: $VERSION"
   echo ""

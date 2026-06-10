@@ -62,7 +62,7 @@ services:
     # su - db2inst1
     # db2 list database directory
     # db2sampl
-    #  登陆 SAMPLE 数据库
+    #  Login SAMPLE Database
 
   clickhouse:
     image: clickhouse/clickhouse-server

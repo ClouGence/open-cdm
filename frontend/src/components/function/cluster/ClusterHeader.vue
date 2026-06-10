@@ -110,7 +110,7 @@ export default {
       this.handleSearch(searchData, 'init');
     },
     handleChangeSearchType() {
-      // 切换查询类型的时候，重置所有搜索的值
+      // Reset all search values when switching query type
       this.searchData = {
         cloudOrIdcName: '',
         clusterNameLike: '',

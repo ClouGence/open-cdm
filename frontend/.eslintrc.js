@@ -14,7 +14,7 @@ module.exports = {
     ecmaVersion: 2021,
     sourceType: 'module',
     ecmaFeatures: {
-      jsx: true // 启用 JSX 支持
+      jsx: true // Enable JSX support
     }
   },
   rules: {
@@ -86,7 +86,7 @@ module.exports = {
     'comma-dangle': [
       'error',
       {
-        // 逗号处理
+        // Comma Processing
         arrays: 'never',
         objects: 'never',
         imports: 'never',

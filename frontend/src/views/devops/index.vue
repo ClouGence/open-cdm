@@ -124,7 +124,7 @@ export default {
       scmEdit: false,
       selectedScmType: {},
       scmList: [],
-      rawScmList: [], // 用于前端搜索过滤
+      rawScmList: [], // For front-end search filter
       adminList: [],
       scmTypeList: [],
       searchKeywords: '',

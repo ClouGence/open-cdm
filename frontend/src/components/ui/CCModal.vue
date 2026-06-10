@@ -108,7 +108,7 @@ const { isDragging: dragState } = useDraggable(dragHandleRef, {
     const dxRaw = cx - dragPointerStart.x;
     const dyRaw = cy - dragPointerStart.y;
 
-    // 以起始矩形为基准预测移动后的矩形
+    // A rectangle with a starting rectangle as the baseline predicts the movement of a rectangle
     const candidateLeft = modalRectStart.left + dxRaw;
     const candidateRight = modalRectStart.right + dxRaw;
     const candidateTop = modalRectStart.top + dyRaw;
@@ -156,7 +156,7 @@ function handleUpdateOpen(val) {
 
 function onOk() {
   emit('on-ok');
-  // 默认弹窗，兼容一下，确认按钮关闭弹窗
+  // Default bullet window. Compatible. Confirm button off. Play. Window
   if (!isInfoType.value && !slots?.footer) {
     handleUpdateOpen(false);
   }
@@ -172,7 +172,7 @@ function onConfirm() {
 }
 
 function onAfterClose() {
-  // 关闭动画结束后再重置位置，确保关闭动画从拖拽后位置开始
+  // Reset after closing the animation to ensure that it starts with drag and drag
   resetModalPosition();
 }
 </script>
@@ -201,7 +201,7 @@ function onAfterClose() {
   background: rgba(0, 0, 0, 0.02) !important;
 }
 
-/* 确保modal可以拖拽 */
+/* Make sure Modal can drag. */
 :deep(.ant-modal) {
   transition: transform 0.2s ease;
 }

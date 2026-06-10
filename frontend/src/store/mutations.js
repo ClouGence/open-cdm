@@ -255,7 +255,7 @@ export default {
     const includesCC = supportsCloudCanalBuild;
     const includesDM = supportsCloudDMBuild;
     applyMenuItems(state, state.myCatLog, globalSetting);
-    // 在 globalSetting 初始化完成后设置菜单项
+    // Set menu entry after initialization of globalSetting
     let url = '';
     if (state.mySystemMenuItems.length) {
       url = state.mySystemMenuItems[0].key;
@@ -333,11 +333,11 @@ export default {
   },
   [SET_THEME](state, theme) {
     state.theme = theme;
-    //requestAnimationFrame：确保 DOM 修改与浏览器渲染同步，避免闪烁和卡顿
+    //RequestAnimationFrame: Ensure DOM changes are synchronized with browser rendering to avoid flashing and Carton
     requestAnimationFrame(() => {
       document.documentElement.setAttribute('data-theme', theme);
     });
-    // 异步持久化避免阻塞主线程
+    // Endurance of the walk to avoid blocking the main course
     try {
       requestIdleCallback
         ? requestIdleCallback(() => localStorage.setItem('app-theme', theme))

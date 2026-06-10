@@ -493,10 +493,10 @@ export default {
 
       let selectRange;
       if (position.column !== 1) {
-        // 插入了 \n${sql}，SQL 从新行第 1 列开始
+        // After inserting \n${sql}, the SQL starts at column 1 of the new line.
         selectRange = new monaco.Range(position.lineNumber + 1, 1, position.lineNumber + 1, 1 + sql.length);
       } else {
-        // 插入了 ${sql}\n，SQL 从当前行第 1 列开始
+        // After inserting ${sql}\n, the SQL starts at column 1 of the current line.
         selectRange = new monaco.Range(position.lineNumber, 1, position.lineNumber, 1 + sql.length);
       }
 
@@ -514,7 +514,7 @@ export default {
           headerClassName: 'seq-header'
         }
       ];
-      // 这边根据列和值来算width，值取一批的最长值，另需要设置最小宽度
+      // Calculate width from column names and values, using the longest sampled value and enforcing a minimum width.
       if (res.columnList) {
         res.columnList.forEach((item, index) => {
           const minWidth = 100;
@@ -551,25 +551,25 @@ export default {
           });
         }
 
-        // 对于导出事件，不需要依赖特定的tab
+        // Export events do not need to rely on a specific tab.
         if (!currentTab && queryData.type !== WS_TYPE.WS_RES_EXPORT_EVENT) {
           return;
         }
-        // 处理 ResultSetMeta - 包含列信息等元数据
+        // Process ResultSetMeta - contains metadata such as column information
         if (queryData.object.resultType === 'ResultSetMeta') {
           const metaData = queryData.object;
-          // 生成列配置
+          // Generate column configuration.
           metaData.columnListSeq = this.getColumnsList(metaData);
-          // 读取分页模式，默认为 PAGE_FULL（前端分页）
+          // Read pagination mode; default is PAGE_FULL (frontend pagination).
           const receiveMode = metaData.receiveMode || 'PAGE_FULL';
           metaData.receiveMode = receiveMode;
-          // 保存查询类型（计划或普通查询）
+          // Save query type (plan query or normal query).
           metaData.queryType = currentTab.currentQueryType || 'query';
 
-          // 初始化结果集对象（还没有数据）
+          // Initialize the result set object before data is available.
           const len = currentTab.result.list.length;
           metaData.showIndex = len ? currentTab.result.list[len - 1].showIndex + 1 : 1;
-          // 结果tab初始化exportState
+          // Initialize exportState for the result tab.
           metaData.exportState = {
             exporting: false,
             percent: 0,
@@ -581,31 +581,31 @@ export default {
             cacheFile: ''
           };
 
-          // 根据分页模式初始化不同的字段
+          // Initialize different fields according to pagination mode.
           if (receiveMode === 'PAGINATED') {
-            // 后端分页模式
+            // Backend pagination mode
             metaData.page = 1;
-            metaData.size = 30; // PAGINATED 模式固定为 30
-            metaData.total = 0; // 初始为 0，通过 ResultSetRows 更新
-            metaData.fetchCount = 0; // 已获取的总行数
+            metaData.size = 30; // PAGINATED mode is fixed to 30
+            metaData.total = 0; // Initially 0, updated by ResultSetRows
+            metaData.fetchCount = 0; // Total rows retrieved
             metaData.data = null;
-            metaData.dataArr = []; // 存储已加载的页面数据
+            metaData.dataArr = []; // Store loaded page data
             metaData.showData = [];
             metaData.rowSet = null;
-            metaData.pageCache = {}; // 缓存已加载的页面 {page: data}
+            metaData.pageCache = {}; // Cache loaded pages {page: data}
           } else if (receiveMode === 'STREAM') {
-            // 流式传输模式：数据持续累加，只显示最新 30 条
+            // STREAM mode: data continues to accumulate, showing only the latest 30 rows.
             metaData.page = 1;
             metaData.size = 30;
             metaData.total = 0;
-            metaData.fetchCount = 0; // 已获取的总行数（从 ResultSet 的 fetchCount 更新）
+            metaData.fetchCount = 0; // Total number of rows retrieved, updated from resultSet fetchCount
             metaData.data = null;
             metaData.dataArr = [];
             metaData.showData = [];
             metaData.rowSet = null;
-            metaData.streamData = []; // 流式数据存储（所有数据）
+            metaData.streamData = []; // Streaming data storage (all data)
           } else {
-            // PAGE_FULL 模式（前端分页，原有逻辑）
+            // PAGE_FULL mode: frontend pagination, original logic.
             metaData.page = 1;
             metaData.size = 50;
             metaData.total = 0;
@@ -615,11 +615,11 @@ export default {
             metaData.rowSet = null;
           }
 
-          // 添加到结果列表
+          // Add to the result list.
           currentTab.result.list.push(metaData);
           currentTab.result.active = metaData.resultId;
         }
-        // 处理 ResultSetRows - PAGINATED 模式下更新已获取的行数
+        // Update the number of retrieved rows from ResultSetRows in PAGINATED mode.
         if (queryData.object.resultType === 'ResultSetRows') {
           const { resultId, fetchCount } = queryData.object;
           const existingResult = currentTab.result.list.find((item) => item.resultId == resultId);
@@ -629,16 +629,16 @@ export default {
           }
         }
 
-        // 处理 ResultSet - 包含具体的行数据
+        // Process ResultSet, which contains row data.
         if (queryData.object.resultType === 'ResultSet') {
           const { rowSet, resultId } = queryData.object;
 
-          // 临时兼容：如果 rowSet 长度为 0，则不处理这个 ResultSet（后续会删除）
+          // Temporary compatibility: do not process this ResultSet if rowSet is empty.
           if (!rowSet || rowSet.length === 0) {
             return;
           }
 
-          // 根据 resultId 找到对应的结果集（应该已经通过 ResultSetMeta 创建）
+          // Find the corresponding result set by resultId; it should have been created from ResultSetMeta.
           const existingResult = currentTab.result.list.find((item) => item.resultId == resultId);
           const { columnList, receiveMode } = existingResult;
           const list = [];
@@ -646,7 +646,7 @@ export default {
           if (rowSet && columnList) {
             rowSet.forEach((item) => {
               const currentRow = {};
-              // 新数据结构使用 data 字段，旧结构使用 row 字段（向后兼容）
+              // The new data structure uses data; the old structure uses row for backward compatibility.
               const rowData = item.data || item.row;
               if (rowData) {
                 for (let i = 0; i < columnList?.length; i++) {
@@ -659,50 +659,50 @@ export default {
             });
           }
 
-          // 根据分页模式处理数据
+          // Process data according to pagination mode.
           if (receiveMode === 'PAGINATED') {
-            // 后端分页模式：只处理第一页数据
+            // Backend pagination mode: process only first-page data.
             existingResult.showData = list;
-            existingResult.pageCache[1] = list; // 缓存第一页
+            existingResult.pageCache[1] = list; // Cache the first page
             existingResult.page = 1;
-            // 保存原始 rowSet 数据，用于获取 moreSize 等信息
+            // Save original rowSet data for moreSize and other metadata.
             if (!existingResult.rowSetCache) {
               existingResult.rowSetCache = {};
             }
-            existingResult.rowSetCache[1] = rowSet; // 保存第一页的原始数据
+            existingResult.rowSetCache[1] = rowSet; // Save raw data on the first page
           } else if (receiveMode === 'STREAM') {
-            // 流式传输模式：数据持续累加，只显示最新 30 条
+            // STREAM mode: data continues to accumulate, showing only the latest 30 rows.
             existingResult.streamData = existingResult.streamData || [];
             existingResult.streamData.push(...list);
 
-            // 保存原始 rowSet 数据，用于获取 moreSize 等信息
+            // Save original rowSet data for moreSize and other metadata.
             if (!existingResult.rowSetCache) {
               existingResult.rowSetCache = {};
             }
-            // STREAM 模式下，rowSet 数据追加到流中
+            // In STREAM mode, append rowSet data to the stream.
             if (!existingResult.rowSetStream) {
               existingResult.rowSetStream = [];
             }
             existingResult.rowSetStream.push(...rowSet);
 
-            // 更新 fetchCount 和 total（从 ResultSet 中获取）
+            // Update fetchCount and total from resultSet.
             if (queryData.object.fetchCount !== undefined) {
               existingResult.fetchCount = queryData.object.fetchCount;
               existingResult.total = queryData.object.fetchCount;
             }
 
-            // 只保留最新的 30 条数据用于显示
+            // Keep only the latest 30 rows for display.
             const displayCount = 30;
             if (existingResult.streamData.length > displayCount) {
               existingResult.showData = existingResult.streamData.slice(-displayCount);
-              // 同时保留对应的原始数据索引
+              // Keep the corresponding raw data index.
               const startIndex = existingResult.streamData.length - displayCount;
               existingResult.rowSetStream = existingResult.rowSetStream.slice(startIndex);
             } else {
               existingResult.showData = existingResult.streamData;
             }
           } else {
-            // PAGE_FULL 模式：前端分页，原有逻辑
+            // PAGE_FULL mode: frontend pagination, original logic.
             const dataArr = chunk(list, 50);
             Object.assign(existingResult, {
               total: rowSet ? rowSet.length : 0,
@@ -734,7 +734,7 @@ export default {
         if (queryData.object.resultType === 'Message') {
           if (queryData.object.entities && queryData.object.entities.length) {
             const entity = queryData.object.entities[0];
-            // 当 level 为 Error 时，且 original 为 RecoveryStatus 时，使用 websocket 返回的 message 设置 tab.msgContent
+            // Set tab.msgContent from the websocket message when level is Error and original is RecoveryStatus.
             if (entity.message && entity.level === 'Error' && queryData.object?.original === 'RecoveryStatus') {
               currentTab.msgContent = entity.message;
               currentTab.msgFromWs = true;
@@ -895,7 +895,7 @@ export default {
           currentTab.isolation = queryData.object.rdbTxIsolation;
         }
 
-        // 导出信息可能在 ResultSetMeta 或 ResultSet 中，统一处理
+        // Export information may come from ResultSetMeta or ResultSet, so process it centrally.
         if (queryData.object.resultType === 'ResultSetMeta' || queryData.object.resultType === 'ResultSet') {
           const resultData =
             queryData.object.resultType === 'ResultSetMeta'

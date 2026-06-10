@@ -197,7 +197,7 @@ export default {
       return dayjs(time).format(formatStr);
     },
     handleChangeSearchType() {
-      // 切换查询类型的时候，重置所有搜索的值
+      // Reset all search values when switching query type
       this.searchKey = {
         consoleTaskState: '',
         label: '',

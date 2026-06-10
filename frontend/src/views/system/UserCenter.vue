@@ -1062,9 +1062,9 @@ export default {
   border-bottom: 1px solid rgb(243, 244, 246);
 }
 
-// 暗色模式适配
+// Dark pattern fit
 [data-theme='dark'] {
-  // 页面容器背景
+  // Page Container Background
   .user-center {
     background-color: var(--bg-primary) !important;
 
@@ -1073,7 +1073,7 @@ export default {
     }
   }
 
-  // Tailwind CSS 颜色类覆盖
+  // Tailwind CSS Colour Overwrite
   .border-gray-100 {
     border-color: var(--border-primary) !important;
   }
@@ -1086,12 +1086,12 @@ export default {
     color: var(--text-secondary) !important;
   }
 
-  // 个人信息列表样式
+  // Personal Information List Style
   .divide > * {
     border-bottom-color: var(--border-primary) !important;
   }
 
-  // 自定义样式适配
+  // Custom Style Fit
   .user-center-title-container {
     color: var(--text-primary) !important;
     border-left-color: var(--primary-color) !important;
@@ -1140,7 +1140,7 @@ export default {
     }
   }
 
-  // 锁定状态标签样式
+  // Lock state label style
   .border-red-700 {
     border-color: var(--error-color) !important;
   }
@@ -1153,7 +1153,7 @@ export default {
     background-color: var(--error-bg) !important;
   }
 
-  // 面包屑导航
+  // Bread Crumb Navigator
   .ivu-breadcrumb {
     color: var(--text-secondary) !important;
 
@@ -1166,12 +1166,12 @@ export default {
     }
   }
 
-  // 标签页内容区域
+  // Tab Content Area
   .ivu-tabs-content {
     background-color: var(--bg-primary) !important;
   }
 
-  // Icon 组件颜色
+  // Icon Component Colour
   .ivu-icon {
     color: var(--text-secondary) !important;
 
@@ -1180,7 +1180,7 @@ export default {
     }
   }
 
-  // 按钮样式（确保按钮在暗色模式下正确显示）
+  // Button Style (to ensure that buttons are displayed correctly in dark colour mode)
   .ivu-btn {
     &-default {
       background-color: var(--bg-secondary) !important;
@@ -1195,7 +1195,7 @@ export default {
     }
   }
 
-  // 表单输入框
+  // Form Input Box
   .ivu-input {
     background-color: var(--bg-tertiary) !important;
     border-color: var(--border-primary) !important;
@@ -1207,19 +1207,19 @@ export default {
     }
   }
 
-  // 表单标签
+  // Form Label
   .ivu-form-item-label {
     color: var(--text-primary) !important;
   }
 
-  // 警告提示框
+  // Warningtip Box
   .ivu-alert {
     background-color: var(--bg-tertiary) !important;
     border-color: var(--border-primary) !important;
     color: var(--text-primary) !important;
   }
 
-  // 模态框（已在全局样式中处理，这里确保覆盖）
+  // Modular frame (processed in global styles, ensure overlay here)
   .ivu-modal {
     &-content {
       background-color: var(--bg-secondary) !important;
@@ -1242,12 +1242,12 @@ export default {
     }
   }
 
-  // 安全标签页中的标题样式
+  // Title Style in Secure Tab
   h3 {
     color: var(--text-primary) !important;
   }
 
-  // 段落文字
+  // Paragraph Text
   p {
     color: var(--text-primary) !important;
   }

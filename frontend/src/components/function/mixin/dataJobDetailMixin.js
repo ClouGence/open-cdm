@@ -5,7 +5,7 @@ export default {
   computed: {
     getDelayColor() {
       return (delay) => {
-        // 位点延迟小于1分钟，正常，为绿色，展示数据延迟。1分钟<位点延迟<5分钟，黄色，展示位点延迟。位点延迟>5分钟，异常，为红色，展示位点延迟。
+        // Delay under one minute is normal (green); one to five minutes is delayed (orange); over five minutes is abnormal (red).
         if (delay <= 60000) {
           return 'color: #19be6b';
         }

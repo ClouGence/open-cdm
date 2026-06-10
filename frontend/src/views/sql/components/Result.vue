@@ -234,7 +234,7 @@
         <Button @click="hideShowInsertSqlModal">{{ $t('guan-bi') }}</Button>
       </template>
     </CCModal>
-    <!-- SQL导出弹窗 -->
+    <!-- SQL export modal -->
     <CCModal v-model="showSqlExportOptionModal" :title="$t('dao-chu') + ' SQL'" :width="860" :mask-closable="false" transfer>
       <div class="sql-export-modern">
         <div class="left">
@@ -319,7 +319,7 @@
       </template>
     </CCModal>
 
-    <!-- 通用导出弹窗（仅字段选择） -->
+    <!-- Generic export modal (field selection only) -->
     <CCModal v-model="showExportOptionModal" :title="exportModalTitle || $t('dao-chu')" :width="600" :mask-closable="false" transfer>
       <div class="export-option-modal">
         <div class="export-options-header" style="margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px">
@@ -433,10 +433,10 @@ export default {
       showSqlExportOptionModal: false,
       showExportOptionModal: false,
       exportModalTitle: '',
-      currentExportType: '', // 导出格式
-      exportRangeType: 'all', // 导出范围：'single' 单行, 'page' 单页, 'all' 全部
-      selectedRowIndex: null, // 选中的行索引（用于单行导出）
-      isFromContextMenu: false, // 是否从右键菜单进入
+      currentExportType: '', // Export format
+      exportRangeType: 'all', // Export range: 'single' single row, 'page' single page, 'all' all rows
+      selectedRowIndex: null, // Selected row index for single-row export
+      isFromContextMenu: false, // Whether this was opened from the context menu
       insertOption: {
         tableName: '',
         columns: [],
@@ -475,9 +475,9 @@ export default {
       },
       exportConfig: {},
       editorHeight: 250,
-      paginatedLoading: {}, // 存储每个结果集的loading状态 {resultId: boolean}
-      paginatedLoadingTimer: null, // loading 定时器
-      columnWidths: {} // 存储列宽度
+      paginatedLoading: {}, // Loading status for each result set
+      paginatedLoadingTimer: null, // Loading timer
+      columnWidths: {} // Stored column widths
     };
   },
   computed: {
@@ -559,7 +559,7 @@ export default {
     }
   },
   watch: {
-    // 监听 PAGINATED 模式下 fetchCount 的变化，显示 loading
+    // Show loading when fetchCount changes in PAGINATED mode.
     'selectedTab.fetchCount': {
       handler(newVal, oldVal) {
         if (this.selectedTab?.receiveMode === 'PAGINATED' && this.selectedTab?.resultId) {
@@ -583,21 +583,21 @@ export default {
     this.exportTypes = this.dmGlobalSetting.fmtConvertDef;
     this.initAllTabsExportState();
     this.$bus.on(EVENT_BUS_NAME_LIST.GET_RESULT_EXPORT_INFO, (info) => {
-      // 导出信息事件，ResultSetMeta 中包含 resultId，不再需要处理 cacheFile
-      // resultId 已经在 ResultSetMeta 对象中，会直接保存到 tab 中
+      // Export info events contain resultId in ResultSetMeta, so cacheFile no longer needs separate handling.
+      // resultId is already in the ResultSetMeta object and will be saved directly to the tab.
     });
     this.$bus.on(EVENT_BUS_NAME_LIST.WS_RES_EXPORT_EVENT, (exportData) => {
       const targetTab = this.tab.result.list.find((tab) => tab.exportState?.downloadFile?.trackId === exportData.trackId);
       if (targetTab && targetTab.exportState) {
         targetTab.exportState.percent = exportData.percent;
         if (exportData?.status === 'FAILED') {
-          // 保存错误信息到 exportState
+          // Save the error message to exportState.
           targetTab.exportState.errorStatus = exportData.status;
           targetTab.exportState.errorMessage = exportData.message || this.$t('cao-zuo-shi-bai-qing-zhong-xin-zhi-hang-cha-xun');
           targetTab.exportState.exporting = false;
           this.$Message.warning(this.$t('cao-zuo-shi-bai-qing-zhong-xin-zhi-hang-cha-xun'));
         } else if (exportData?.status === 'SUCCESS' || exportData?.percent === 100) {
-          // 成功时清除错误状态
+          // Clear error status on success
           if (targetTab.exportState.errorStatus) {
             targetTab.exportState.errorStatus = null;
             targetTab.exportState.errorMessage = null;
@@ -617,7 +617,7 @@ export default {
         this.pageHeight = window.innerHeight - 70;
       });
     };
-    // 初始化 SQL 导出配置默认值
+    // Initialize default SQL export options.
     this.resetInsertOption();
     this.initDsTypeOptions();
   },
@@ -666,11 +666,11 @@ export default {
       const page = this.selectedTab.page || 1;
       const receiveMode = this.selectedTab.receiveMode || 'PAGE_FULL';
 
-      let pageSize = 50; // 默认
+      let pageSize = 50; // Default page size
       if (receiveMode === 'PAGINATED') {
         pageSize = 30;
       } else if (receiveMode === 'STREAM') {
-        // STREAM 模式不分页，直接返回索引
+        // STREAM mode is not paginated; return the index directly.
         return index + 1;
       }
 
@@ -835,7 +835,7 @@ export default {
       };
     },
     handleRowClick(record, index, event) {
-      // 处理行点击
+      // Handle row clicks.
       this.rowIndex = index;
       this.selectedRow = record;
     },
@@ -869,7 +869,7 @@ export default {
         }
       }
     },
-    // 获取单元格的 complete 字段，用于判断是否显示角标
+    // Get the cell's complete flag to decide whether to show the corner marker.
     getCellComplete(column, rowIndex) {
       try {
         const colIndex = this.selectedTab.columnList?.findIndex((col) => col === column.dataIndex || col === column.property) ?? -1;
@@ -921,7 +921,7 @@ export default {
     handleCellDetail(record, column, rowIndex) {
       const colIndex = this.selectedTab.columnList?.findIndex((col) => col === column.dataIndex || col === column.property) ?? -1;
 
-      // 计算实际行号（考虑分页）
+      // Calculate the actual row number, accounting for pagination.
       let rowNumber = rowIndex;
       if (this.selectedTab.receiveMode === 'PAGINATED') {
         const pageSize = 30;
@@ -1146,24 +1146,24 @@ export default {
       const tab = this.selectedTab;
       const receiveMode = tab.receiveMode || 'PAGE_FULL';
 
-      // STREAM 模式不支持分页切换
+      // STREAM mode does not support pagination changes.
       if (receiveMode === 'STREAM') {
         return;
       }
 
       if (receiveMode === 'PAGINATED') {
-        // 后端分页模式
+        // Backend pagination mode
         tab.page = page;
         const pageSize = 30;
         const offsetRow = (page - 1) * pageSize;
 
-        // 检查缓存
+        // Check cache.
         if (tab.pageCache && tab.pageCache[page]) {
           tab.showData = tab.pageCache[page];
           return;
         }
 
-        // 调用接口获取数据
+        // Call API to fetch data.
         try {
           const res = await this.$services.dmQueryFetchResultPage({
             data: {
@@ -1198,11 +1198,11 @@ export default {
             }
             tab.pageCache[page] = list;
             tab.showData = list;
-            // 保存原始 rowSet 数据，用于获取 moreSize 等信息
+            // Save original rowSet data for moreSize and other metadata.
             if (!tab.rowSetCache) {
               tab.rowSetCache = {};
             }
-            tab.rowSetCache[page] = rowSet; // 保存当前页的原始数据
+            tab.rowSetCache[page] = rowSet; // Save raw data from the current page
           }
         } catch (error) {
           console.error('获取分页数据失败:', error);
@@ -1293,7 +1293,7 @@ export default {
           limit = 30;
         }
       } else {
-        // 全部导出：limit为-1
+        // Export all: limit is -1.
         offset = 0;
         limit = -1;
       }
@@ -1331,7 +1331,7 @@ export default {
     },
     finishEditField(col, idx) {
       col.isEditing = false;
-      // 如果字段名为空，恢复为原始字段名
+      // Restore the original field name if the edited field name is empty.
       if (!col.columnName.trim()) {
         col.columnName = col.originalColumnName;
       }
@@ -1378,7 +1378,7 @@ export default {
         let limit = -1;
 
         if (this.exportRangeType === 'single') {
-          // 单行导出
+          // Single-row export
           const receiveMode = this.selectedTab?.receiveMode || 'PAGE_FULL';
           const page = this.selectedTab?.page || 1;
           const rowIndex = this.selectedRowIndex !== null ? this.selectedRowIndex : 0;
@@ -1397,7 +1397,7 @@ export default {
             limit = 1;
           }
         } else if (this.exportRangeType === 'page') {
-          // 单页导出
+          // Single-page export
           const receiveMode = this.selectedTab?.receiveMode || 'PAGE_FULL';
           const page = this.selectedTab?.page || 1;
 
@@ -1412,12 +1412,12 @@ export default {
             limit = 30;
           }
         } else {
-          // 全部导出
+          // Export all rows
           offset = 0;
           limit = -1;
         }
 
-        // 更新insertOption中的offset和limit
+        // Update offset and limit from insertOption.
         const exportOption = {
           ...this.insertOption,
           offset,
@@ -1469,7 +1469,7 @@ export default {
           throw new Error('响应数据格式不正确');
         }
 
-        // 从 Content-Disposition 解析文件名
+        // Parse the file name from Content-Disposition.
         let fileName = '';
         try {
           const dispositionRaw = res && res.headers ? res.headers['Content-Disposition'] || res.headers['content-disposition'] || '' : '';
@@ -1705,7 +1705,7 @@ export default {
         padding: 2px 8px;
       }
 
-      // 去除空白行
+      // Remove blank lines.
       :deep(.ant-table-placeholder) {
         display: none;
       }
@@ -1940,7 +1940,7 @@ export default {
   }
 }
 
-// 通用导出弹窗样式
+// Generic export modal styles
 .export-option-modal {
   .toolbar {
     display: flex;

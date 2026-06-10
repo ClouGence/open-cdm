@@ -395,7 +395,7 @@
             <input @change="handleKeystoreFileChange" type="file" name="uploadKeytabFile" id="uploadKeytabFile" />
           </FormItem>
 
-          <!-- mysql ssl相关 start -->
+          <!-- MySQL ssl related start -->
           <FormItem
             :label="$t('truststore-wen-jian')"
             prop="tlsTrustStoreFile"
@@ -438,7 +438,7 @@
               </template>
             </Tooltip>
           </FormItem>
-          <!-- mysql ssl相关 end -->
+          <!-- MySQL ssl related end -->
         </Form>
       </div>
       <template #footer>
@@ -725,7 +725,7 @@ export default {
   },
   methods: {
     handleUpdateSearchKey(params) {
-      // 更新searchKey对象的属性
+      // Update properties of the searchkey object
       Object.assign(this.searchKey, params);
     },
     isOracle,
@@ -1023,7 +1023,7 @@ export default {
             secretFilePassword: this.accountInfo.secretFilePassword
           };
 
-          // 处理不同类型源端字段映射
+          // Process different types of source field map
           switch (this.sourceDetail?.dataSourceType) {
             case 'MySQL':
             case 'Kafka':
@@ -1088,7 +1088,7 @@ export default {
     handleShowTestConnectionModal(row) {
       this.showTestConnectionModal = true;
       this.selectedRow = row;
-      // 清除上一次测试连接的状态
+      // Clear status of last test connection
       this.$nextTick(() => {
         if (this.$refs.testConnectionModal) {
           this.$refs.testConnectionModal.hasTest = false;
@@ -1150,7 +1150,7 @@ export default {
       this.$router.push({ path: `/ccsystem/state/task/${row.consoleJobId}` });
     },
     handleChangeSearchType() {
-      // 切换查询类型的时候，重置所有搜索的值
+      // Reset all search values when switching query type
       this.searchKey = {
         host: '',
         region: '',

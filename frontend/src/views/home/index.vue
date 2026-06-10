@@ -189,9 +189,9 @@ export default {
           error: data.error || false,
           mask: data.mask || false
         };
-        // 初始化内容（显示初始值）
+        // Initialize content (show initial values)
         this.cellDetailContent = this.selectedCellDetail.cellValue || '';
-        // 如果 error 或 mask 为 true，则禁用加载更多
+        // Disable loading more if error or mask is true
         const canLoadMore = !this.selectedCellDetail.error && !this.selectedCellDetail.mask;
         this.hasMoreData = canLoadMore && (this.selectedCellDetail.moreSize || 0) > 0;
 
@@ -262,10 +262,10 @@ export default {
           }
         }
       ]);
-      window._hmt = _hmt; // 修改为window 全局变量
+      window._hmt = _hmt; // Change to Window Global Variable
       (function () {
         var hm = document.createElement('script');
-        hm.src = 'https://hm.baidu.com/hm.js?b86e2e73fd7517d78d5ccdf0cd12384c'; //此处请替换你的站点id
+        hm.src = 'https://hm.baidu.com/hm.js?b86e2e73fd7517d78d5ccdf0cd12384c'; //Please replace your station.
         var s = document.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(hm, s);
       })();
@@ -278,7 +278,7 @@ export default {
     },
     handleCloseCellDetailModal() {
       this.showDetailModal = false;
-      // 重置状态
+      // Reset Status
       this.cellDetailContent = '';
       this.hasMoreData = false;
       this.cellDetailLoading = false;
@@ -301,7 +301,7 @@ export default {
         return;
       }
 
-      // 如果 error 或 mask 为 true，则不允许加载更多
+      // More loads are not allowed if error or mask is true
       if (this.selectedCellDetail.error || this.selectedCellDetail.mask) {
         return;
       }
@@ -313,10 +313,10 @@ export default {
         return;
       }
 
-      // 计算 offset（当前内容的长度）
+      // Calculating item(s)
       const offset = this.cellDetailContent?.length || 0;
 
-      const fetchSize = 128 * 1024; // 128K 字符
+      const fetchSize = 128 * 1024; // 128K character
 
       this.cellDetailLoading = true;
 
@@ -332,7 +332,7 @@ export default {
         });
 
         if (res.success && res.data) {
-          // 接口返回的数据结构是 { value: { complete, mask, error, moreSize, totalSize, value } }
+          // The data structure returned from the interface is {value: {complete, mark, error, moreSize, totalSize, value}
           const dataValue = res.data.value || res.data;
           const { value, moreSize, totalSize, complete, error } = dataValue;
 
@@ -341,13 +341,13 @@ export default {
             return;
           }
 
-          // 追加内容（因为初始值已经显示，这里只需要追加新数据）
+          // Add content (because initial values have been shown, only new data will be required here)
           this.cellDetailContent += value || '';
 
-          // 更新 moreSize 和 totalSize
+          // Update moreSize and totalSize
           this.selectedCellDetail.moreSize = moreSize || 0;
           this.selectedCellDetail.totalSize = totalSize || 0;
-          // 如果 error 或 mask 为 true，则禁用加载更多
+          // Disable loading more if error or mask is true
           const canLoadMore = !this.selectedCellDetail.error && !this.selectedCellDetail.mask;
           this.hasMoreData = canLoadMore && (moreSize || 0) > 0;
         } else {

@@ -42,7 +42,7 @@ export const applyGoogleTranslate = async (lang) => {
 };
 
 export const clearGoogleTranslateArtifacts = () => {
-  // Best-effort清理，无法彻底卸载，只隐藏痕迹。
+  // Best-effort clean-up, which could not be completely unloaded, only hidden traces.
   const bannerFrame = document.querySelector('iframe.goog-te-banner-frame');
   if (bannerFrame && bannerFrame.parentNode) {
     bannerFrame.parentNode.removeChild(bannerFrame);

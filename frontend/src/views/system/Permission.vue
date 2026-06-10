@@ -563,7 +563,7 @@ export default {
         };
         await this.listLevelsForDM();
 
-        // 初次默认展开第一个节点的第一层
+        // Initial Default Start First Level
         this.$nextTick(async () => {
           let firstRoot = null;
           if (this.originLeftTree && this.originLeftTree.length > 0) {
@@ -575,7 +575,7 @@ export default {
             });
             if (firstRoot) {
               if (firstRoot.children && firstRoot.children.length > 0) {
-                // 只在 expandedKeys 不包含时 push，避免强制赋值导致无法收起
+                // Push only when extandedkeys are not included to avoid forced attributions that cannot be collected
                 if (!this.expandedKeys.includes(firstRoot.key)) {
                   this.expandedKeys.push(firstRoot.key);
                 }
@@ -588,7 +588,7 @@ export default {
       }
     },
     async handlePreviewForDm() {
-      // 检查是否有编辑权限节点
+      // Check for editing permission nodes
       function hasEditNode(tree) {
         return tree.some((node) => node.isEdit || (node.children && hasEditNode(node.children)));
       }
@@ -614,7 +614,7 @@ export default {
       this.$refs.schemaTree.setData([]);
       this.$refs.catalogTree.setData([]);
       this.$nextTick(() => {
-        // 查找第一个isEdit为true的节点
+        // Finds the first IsEdit for true
         const findFirstEditedNode = (nodes) => {
           for (const node of nodes) {
             if (node.isEdit) {
@@ -647,7 +647,7 @@ export default {
         }
       });
     },
-    // 对比权限树差异并标记编辑状态
+    // Compare permission tree differences and mark editing status
     handleAuthCheck(selectedNodes) {
       if (this.canCheckedChange) {
         const idx = this.parentAuthTree.findIndex((item) => item?.key === this.curNode?.key);
@@ -782,9 +782,9 @@ export default {
       this.canCheckedChange = false;
       this.curRangeKey = '';
 
-      // 兼容箭头收起行为
+      // Keep the arrows together.
       if (!shouldExpand) {
-        // 收起行为，不往下执行逻辑
+        // Put your behavior together and don't follow the logic.
         if (idx !== -1) this.expandedKeys.splice(idx, 1);
 
         this.lastLeftTreeClickNode = node;
@@ -802,14 +802,14 @@ export default {
         return;
       }
 
-      // 实例名称是否合法
+      // Invalid Name of Example
       const noLegal = node?.objName?.includes('/');
       if (noLegal) {
         this.$Message.warning(this.$t('fa-mi-ming-cheng-bu-zhi-chi'));
         return;
       }
 
-      // 实例未开启数据管理
+      // Example not started data management
       if (node?.objType === 'Instance' && !node?.objAttr?.enableQuery) {
         let final = [];
         final = this.removeChildrenByKey(this.originLeftTree, node?.key);
@@ -829,12 +829,12 @@ export default {
 
       this.listLevelsForDM(node);
     },
-    // 左树渲染
+    // Left tree rendering
     async listLevelsForDM(node = null) {
       try {
         this.leftTreeLoading = true;
 
-        // 0、记录当前的左树
+        // 0, log the current left tree
         if (node) {
           this.lastLeftTreeClickNode = node;
           this.curElementType = node?.objType;
@@ -844,7 +844,7 @@ export default {
         if (node?.children[0]?.levels?.length) {
           let final = [];
 
-          // 1.1 带上过滤条件和search条件
+          // 1.1 Filtering and search conditions
           final = this.getFilterOfTypeAndSearch(this.originLeftTree);
 
           this.$refs.dataSourceTree.setData(final);
@@ -865,13 +865,13 @@ export default {
           return;
         }
 
-        // 1、按层查询树节点
+        // 1 Query tree nodes by layer
         let res = {
           data: []
         };
-        // 查询用户拥有资源
+        // Query User Ownership Resource
         if (this.isView) {
-          // 叶子节点
+          // Leaf Node
           if (this.isLeafNode(node)) {
             res = await fetchWithTimeout((config) =>
               this.$services.dmAuthListMyElementOfLeaf({
@@ -942,34 +942,34 @@ export default {
           item.levels = [item?.objId];
           item.key = this.genUniqueId();
           item.parent = node;
-          // 2、递归获取所有父级 objId, 存入levels中
+          // 2. Recursively retrieve all parent grades
           const parentObjIds = this.getParentObjIds(item);
           item.levels = [...parentObjIds, item.objId];
           return item;
         });
 
-        // 3、渲染左侧资源树
+        // 3. Render left resource tree
         if (!this.originLeftTree?.length) {
           this.originLeftTree = res.data;
           const final = this.getFilterOfTypeAndSearch(res.data);
           await this.$refs.dataSourceTree.setData(final);
         } else {
           let final = [];
-          // 3.1 将新子树数据插入到原tree中
+          // 3.1 Insert new subtree data into original tree
           final = this.replaceChildren(this.originLeftTree, res.data, node?.key);
 
-          // 3.2 去掉leaf节点children属性
+          // 3.2 Remove leaf node phildren properties
           final = this.removeChildrenForTableNodes(final);
           this.originLeftTree = final;
 
-          // 3.3 带上过滤条件和search条件
+          // 3.3 filtration and search conditions
           final = this.getFilterOfTypeAndSearch(final);
 
-          // 3.4 渲染左树
+          // 3.4 Rendering left tree
           await this.$refs.dataSourceTree.setData(final);
         }
 
-        // 4、渲染右侧权限树
+        // 4. Render Right Permission Tree
         this.handleGetAuthTreeForDm(node);
         this.leftTreeLoading = false;
       } catch (err) {
@@ -1054,7 +1054,7 @@ export default {
         }
         resPath = resPath.concat(parentNames);
       }
-      // 对CATALOG做特殊处理
+      // Special treatment for CATALOG.
       if (resPath.length === 4) {
         [resPath[2], resPath[3]] = [resPath[3], resPath[2]];
       }
@@ -1070,7 +1070,7 @@ export default {
         if (typeLevels.length) {
           const idx = typeLevels.indexOf(ELEMENT_TYPE_MAP[node?.objType] || '');
           if (idx > START_RECORD_NAMES_CONUT) return 'Table';
-          return ELEMENT_REVERSE_TYPE_MAP[typeLevels[idx + 1]]; // +1 指向子节点的elemenType;
+          return ELEMENT_REVERSE_TYPE_MAP[typeLevels[idx + 1]]; // +1 elemenType pointing to subnodes;
         }
       }
       if (!dsType && node?.objType !== 'Env') {
@@ -1094,7 +1094,7 @@ export default {
             return null;
           })
           .filter(Boolean)
-          // 最外层环境若没有任何子数据则不展示
+          // The outermost environment is not displayed without any subdata
           .filter((node) => !(node?.objType === 'ENV' && (!node.children || node.children.length === 0)))
       );
     },
@@ -1120,7 +1120,7 @@ export default {
       }
       return parentObjIds.reverse();
     },
-    // 手动拼接新tree
+    // Manually Spell Newtree
     replaceChildren(originData, newData, nodeKey, maxDepth = 5) {
       if (!newData.length) return originData;
       if (originData === newData) return originData;
@@ -1148,16 +1148,16 @@ export default {
         this.curElementType = elementType;
         this.curRightTreeTab = elementType;
 
-        // 渲染时间
+        // Render Time
         const lastestNode = findNodeByKey(this.originLeftTree, node?.key);
         this.authTime = lastestNode?.authTime || { startTime: null, endTime: null };
 
         if (node?.markedWithActionRightTree && node.markedWithActionRightTree?.length) {
-          // 复用上次数据
+          // Other Organiser
           filterAuth = node?.markedWithActionRightTree;
           this.lastRightTreeData = filterAuth;
         } else {
-          // 获取全部权限树和用户拥有权限树，比对映射
+          // Retrieving all permissions tree and user-owned permissions tree, contrasting map
           const normalizedElementType = elementType === 'EXTERNAL_CATALOG' ? 'CATALOG' : elementType;
           const normalizedElementType2 = normalizedElementType === 'EXTERNAL_SCHEMA' ? 'SCHEMA' : normalizedElementType;
           allAuth = await this.$services.rdpAuthFetchAuthTreeDef({
@@ -1166,7 +1166,7 @@ export default {
               elementType: ELEMENT_REVERSE_TYPE_MAP[normalizedElementType2] || normalizedElementType2
             }
           });
-          // 本地缓存一下映射
+          // Local Cache Map
           const flattenAuthTree = flattenTree(allAuth.data);
           flattenAuthTree.forEach((item) => {
             if (!this.authMap[item.key]) {
@@ -1208,19 +1208,19 @@ export default {
             }
           });
           filterAuth = this.markRightTreeChecked(allAuth.data, [...new Set(hasAuthList)]);
-          // 3.1 记录上次用户的完整权限树，用于比对修改情况
+          // 3.1 The full permission tree of the last user is recorded for matching changes
           this.lastRightTreeData = deepClone(filterAuth);
 
-          // 3.2 记录父节点权限
+          // 3.2 Parental permission to record
           this.parentAuthTree.push({
             key: node?.key,
             authTree: deepClone(filterAuth)
           });
 
-          // 3.3 先处理继承父节点权限
+          // 3.3 Inheritance of paternity rights first
           filterAuth = this.handleAuthFromParent(node, filterAuth);
 
-          // 3.4 再处理来自自身的权限
+          // 3.4 Reprocessing from its own authority
           filterAuth = this.handleAuthFromSelf(filterAuth, hasAutn.data, node);
         }
         this.$nextTick(() => {
@@ -1279,7 +1279,7 @@ export default {
       const updateNodeInTree = function (tree, targetKey) {
         return tree?.map?.((item) => {
           if (item?.key === targetKey) {
-            // 权限变化判断
+            // Rights change judgement
             let isEdit = false;
             if (markedWithActionRightTree) {
               markedWithActionRightTree.forEach((authWrap) => {
@@ -1288,10 +1288,10 @@ export default {
                 });
               });
             }
-            // 时间变化判断
+            // Time change judgement
             const oldTime = item.authTime || {};
             const newTime = this.authTime || {};
-            // 只要 startTime 或 endTime 有变化就算编辑
+            // As long as the starttime or endtime changes
             const oldStart = oldTime.startTime ? (oldTime.startTime.valueOf ? oldTime.startTime.valueOf() : oldTime.startTime) : '';
             const oldEnd = oldTime.endTime ? (oldTime.endTime.valueOf ? oldTime.endTime.valueOf() : oldTime.endTime) : '';
             const newStart = newTime.startTime ? (newTime.startTime.valueOf ? newTime.startTime.valueOf() : newTime.startTime) : '';
@@ -1513,7 +1513,7 @@ export default {
           };
         }
 
-        // 不满足过滤条件，直接返回原始节点
+        // Do not meet filter conditions, return directly to original node
         return node;
       });
 
@@ -1582,7 +1582,7 @@ export default {
       const curTreeRef = refMap[normalizedTab];
       const rightTreeData = this.$refs[curTreeRef]?.getCheckedNodes?.() || [];
 
-      // 仅在选中了节点，切更改了时间才更新
+      // Update only when nodes are selected and times are changed
       if (this.curNode?.objId) {
         this.markLeftTreeEdited(this.curNode, this.curElementType, this.lastRightTreeData, rightTreeData);
       }
@@ -1732,7 +1732,7 @@ export default {
           if (firstRoot) {
             await this.listLevelsForDM(firstRoot);
             if (firstRoot.children && firstRoot.children.length > 0) {
-              // 只在 expandedKeys 不包含时 push，避免强制赋值导致无法收起
+              // Push only when extandedkeys are not included to avoid forced attributions that cannot be collected
               if (!this.expandedKeys.includes(firstRoot.key)) {
                 this.expandedKeys.push(firstRoot.key);
               }
@@ -1997,8 +1997,8 @@ export default {
               width: 100%;
               height: 100%;
               display: flex;
-              align-items: center; /* 垂直居中 */
-              justify-content: center; /* 水平居中，如果需要的话 */
+              align-items: center; /* Centre Vertically */
+              justify-content: center; /* Centre horizontally, if necessary */
               left: 0;
               top: 0;
               z-index: 999;

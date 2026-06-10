@@ -28,7 +28,7 @@ export const userApi = {
   // checkSubAccountDuplicate: '/rdp/console/api/v1/user/manager/checksubaccountduplicate',
   // getResourceSummary: '/rdp/console/api/v1/user/resourceSummary',
   // resetOpPwd: '/rdp/console/api/v1/user/resetOpPasswd',
-  // getDbOpAudits: '/clouddm/console/api/v1/user/dbopaudits', // 数据源操作记录
+  // getDbopAudits: '/clauddm/console/api/v1/user/dpopaudits', /// data source operating records
   // verifyOpPwd: '/rdp/console/api/v1/user/opPasswdVerify',
   // listMyAuth: '/rdp/console/api/v1/user/listMyAuth',
   // listRules: '/rdp/console/api/v1/user/listRules',
@@ -60,10 +60,10 @@ export const userApi = {
   rdpUserQueryLoginUser: '/rdp/console/api/v1/user/queryLoginUser',
   rdpUserResourceSummary: '/rdp/console/api/v1/user/resourceSummary',
   rdpUserResetOpPasswd: '/rdp/console/api/v1/user/resetOpPasswd',
-  rdpUserDbOpAudits: '/clouddm/console/api/v1/user/dbopaudits', // 数据源操作记录
+  rdpUserDbOpAudits: '/clouddm/console/api/v1/user/dbopaudits', // Data source operating records
   rdpUserOpPasswdVerify: '/rdp/console/api/v1/user/opPasswdVerify',
   rdpUserListMyAuth: '/rdp/console/api/v1/user/listMyAuth',
-  rdpUserListRules: '/rdp/console/api/v1/user/listRules', // 规则列表
+  rdpUserListRules: '/rdp/console/api/v1/user/listRules', // Rule List
   rdpUserListMyAuthCategoryForMenu: '/rdp/console/api/v1/user/listMyAuthCategoryForMenu',
   rdpUserUpdateUserEmail: '/rdp/console/api/v1/user/updateUserEmail',
   rdpUserUpdateUserName: '/rdp/console/api/v1/user/updateUserName',

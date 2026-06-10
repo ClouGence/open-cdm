@@ -53,10 +53,10 @@ const instance = axios.create({
             data[key] = null;
           } else {
             try {
-              // 性能优化：对于超大数据量，跳过递归 trim
+              // Performance optimization: Skip recursive trim for hyperdata volumes
               const value = data[key];
               if (value && typeof value === 'object' && ((Array.isArray(value) && value.length > 5000) || Object.keys(value).length > 5000)) {
-                // 大数据量不进行递归 trim
+                // Large data volume does not recur Trim
               } else {
                 data[key] = trimObj(value);
               }
@@ -194,7 +194,7 @@ const request = async (opt) => {
               return res;
             }
             if (modal) {
-              // 将错误添加到队列中
+              // Add an error to the queue
               let contentStr = formatError(res.msg) || i18n.global.t('xi-tong-yi-chang-qing-lian-xi-guan-li-yuan');
               errorQueue.addError({
                 title: i18n.global.t('cuo-wu'),
@@ -238,7 +238,7 @@ const request = async (opt) => {
         if (err.msg && typeof err.msg === 'string') {
           errmsg = err.msg;
         }
-        // 权限错误添加到队列
+        // Permission error added to queue
         errorQueue.addError({
           title: i18n.global.t('quan-xian-yi-chang'),
           content: errmsg,

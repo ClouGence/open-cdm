@@ -1,15 +1,15 @@
 #!/bin/bash
 # ============================================================================
-# build-docker-yml.sh — 根据 package/docker 模板生成 China / Global 部署 yml
+# build-docker-yml.sh - Generate China / Global Deployment yml based on package/docker templates
 #
-# 用法:
-#   ./build-docker-yml.sh                           # 自动探测所有已构建平台
-#   ./build-docker-yml.sh --platform=x86_64         # 仅生成 x86_64
-#   ./build-docker-yml.sh --platform=x86_64,arm64   # 生成双平台
-#   ./build-docker-yml.sh --target=china            # 仅 China 目标
-#   ./build-docker-yml.sh --target=global           # 仅 Global 目标
+# Usage:
+#   ./build-docker-yml.sh                           # Auto-detect all built platforms
+#   ./build-docker-yml.sh --platform=x86_64         # Generate x86_64 only
+#   ./build-docker-yml.sh --platform=x86_64,arm64   # Generate both platforms
+#   ./build-docker-yml.sh --target=china            # China target only
+#   ./build-docker-yml.sh --target=global           # Global target only
 #
-# 前置: 运行 package/package.sh --docker 完成编译 (用于获取 VERSION)
+# Prerequisite: run package/package.sh --docker to finish the build (used to obtain VERSION)
 # ============================================================================
 set -euo pipefail
 
@@ -92,11 +92,11 @@ generate_yml() {
 # ---- main ----
 usage() {
   cat <<'EOF'
-用法: ./build-docker-yml.sh [--platform=PLATFORM] [--target=TARGET]
+Usage: ./build-docker-yml.sh [--platform=PLATFORM] [--target=TARGET]
 
---platform=PLATFORM  x86_64 | arm64 | 逗号分隔 (默认: 自动探测)
---target=TARGET      china | global | china,global (默认: 全部)
--h, --help           显示帮助
+--platform=PLATFORM  x86_64 | arm64 | comma-separated (default: auto-detect)
+--target=TARGET      china | global | china,global (default: all)
+-h, --help           show help
 EOF
 }
 

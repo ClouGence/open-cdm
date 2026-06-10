@@ -3,21 +3,21 @@ import CCModalInstance from '@/components/ui/CCModalInstance';
 
 const CCMI = {
   confirm(config) {
-    // 创建一个 DOM 元素
+    // Create a DOM element
     const div = document.createElement('div');
     document.body.appendChild(div);
 
-    // 创建 VNode
+    // Create VNode
     const vnode = createVNode(CCModalInstance, {
       ...config,
       close: () => {
-        // 销毁组件实例
+        // Examples of destruction of components
         render(null, div);
         div.remove();
       }
     });
 
-    // 挂载组件
+    // Mount Component
     render(vnode, div);
   }
 };

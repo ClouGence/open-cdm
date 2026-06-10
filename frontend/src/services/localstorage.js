@@ -9,7 +9,7 @@ export const getItem = (key) => localStorage.getItem(key);
 export const removeItem = (key) => localStorage.removeItem(key);
 
 export const removeAll = () => {
-  localStorage.clear(); // 注意：localStorage 没有 removeAll 方法，应该是 clear
+  localStorage.clear(); // Note: LocalStorage does not removeAll method, should be clear
 };
 
 const app = createApp();

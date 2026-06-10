@@ -1,16 +1,16 @@
 export const initApi = {
-  // 获取默认配置字段定义
+  // Get Default Configuration Field Definition
   dmInitDefaultConfig: '/clouddm/console/api/v1/init/defaultConfig',
-  // 测试数据库连接 + 空库检测 + 已安装检测
+  // Test database connection + empty library detection + installed testing
   dmInitTestDb: '/clouddm/console/api/v1/init/testDb',
-  // 检查初始化程序驱动状态
+  // Check initializing program driver status
   dmInitCheckDriverStatus: '/clouddm/console/api/v1/init/checkDriverStatus',
-  // 下载初始化程序驱动
+  // Download Initialise Program Driver
   dmInitDownloadDriver: '/clouddm/console/api/v1/init/downloadDriver',
-  // 预览待执行脚本
+  // Preview pending script
   dmInitPreviewScripts: '/clouddm/console/api/v1/init/previewScripts',
-  // 保存初始化配置（完整模式）
+  // Save Initialisation Configuration (complete mode)
   dmInitApplyConfig: '/clouddm/console/api/v1/init/applyConfig',
-  // 触发系统重启
+  // Trigger system restart
   dmInitRestart: '/clouddm/console/api/v1/init/restart'
 };

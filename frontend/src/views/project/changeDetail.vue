@@ -772,7 +772,7 @@ export default {
         }
       });
 
-      // 手动执行
+      // Manual execution
       if (res.success && res?.data) {
         this.isScheduling = false;
         if (res?.data?.execType === 'MANUAL_EXEC') {

@@ -16,9 +16,9 @@
 
 parser grammar TypeProcessorDSLParser;
 options { tokenVocab = TypeProcessorDSLLexer; }
-/* ----------------------------------------------------------------------------------- 语句 & 命令 */
+/* ----------------------------------------------------------------------------------- Statement & Command */
 
-/* 入口 */
+/* Entry point */
 rootInstSet : defineInst? typeSetInst* EOF;
 
 defineInst  : DEFINE idStr (ALIAS LSBT defineAlias RSBT)? (OCBR defineConf* CCBR)?;
@@ -34,23 +34,23 @@ flowName    : colTypeName; // to alias name
 /*---------------------------------------------------------------------------*/
 anyValue    : extValue | baseValue | listValue | objectValue | envValue | funcCall;
 
-/* 函数 */
+/* Function */
 funcCall    : IDENTIFIER LBT ( anyValue (COMMA anyValue)* )? RBT;
-/* 基本类型 */
-baseValue   : STRING                                                     #stringValue    // 字符串
-            | NULL                                                       #nullValue      // 空值
-            | (TRUE | FALSE)                                             #booleanValue   // boolean 类型
-            | (DECIMAL_NUM | INTEGER_NUM | HEX_NUM | OCT_NUM | BIT_NUM)  #numberValue    // 数字类型
-            | TYPE                                                       #typeValue      // 类型
+/* Base type */
+baseValue   : STRING                                                     #stringValue    // String
+            | NULL                                                       #nullValue      // Null value
+            | (TRUE | FALSE)                                             #booleanValue   // boolean type
+            | (DECIMAL_NUM | INTEGER_NUM | HEX_NUM | OCT_NUM | BIT_NUM)  #numberValue    // Numeric type
+            | TYPE                                                       #typeValue      // Type
             ;
-/* 扩展类型 */
+/* Extended type */
 extValue    : SIZE | IDENTIFIER;
-/* 环境变量 */
+/* Environment variable */
 envValue    : ENV idStr CCBR;
-/* 列表结构 */
+/* List structure */
 listValue   : LSBT (anyValue+ (COMMA anyValue)*)? RSBT;
-/* 对象结构 */
+/* Object structure */
 objectValue : OCBR (objectItem+ ( COMMA objectItem)*)? CCBR;
 objectItem  : idStr COLON anyValue;
-/* ID\类型\字符串 */
+/* ID\type\string */
 idStr       : STRING | TYPE | IDENTIFIER;

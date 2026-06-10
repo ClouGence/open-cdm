@@ -1,4 +1,4 @@
--- PostgreSQL特有数据类型测试
+-- PostgreSQL-specific data type testing
 SELECT 
     c_uuid,
     c_json,
@@ -14,7 +14,7 @@ SELECT
 FROM tb_postgre_types 
 WHERE c_uuid IS NOT NULL;
 
--- JSON/JSONB操作测试
+-- JSON/JSONB OPERATION TEST
 SELECT 
     c_uuid,
     c_jsonb->'name' as jsonb_name,
@@ -25,7 +25,7 @@ SELECT
 FROM tb_postgre_types 
 WHERE jsonb_typeof(c_jsonb) = 'object';
 
--- 全文搜索测试
+-- Full Text Search Test
 SELECT 
     c_uuid,
     ts_rank_cd(c_tsvector, to_tsquery('english', 'test')) as rank,
@@ -33,7 +33,7 @@ SELECT
 FROM tb_postgre_types 
 WHERE c_tsvector IS NOT NULL;
 
--- 几何类型操作测试
+-- Geometric Type Operating Test
 SELECT
     c_uuid,
     c_point,
@@ -43,7 +43,7 @@ SELECT
 FROM tb_postgre_types
 WHERE c_point IS NOT NULL;
 
--- 网络地址类型测试
+-- Network Address Type Test
 SELECT 
     c_uuid,
     c_inet,
@@ -53,7 +53,7 @@ SELECT
 FROM tb_postgre_types 
 WHERE c_inet IS NOT NULL;
 
--- 范围类型测试
+-- Range Type Test
 SELECT 
     c_uuid,
     c_int4range,
@@ -64,7 +64,7 @@ SELECT
 FROM tb_postgre_types 
 WHERE c_int4range IS NOT NULL;
 
--- 窗口函数测试（PostgreSQL特有）
+-- Window Function Test (PostgreSQL-specific)
 SELECT 
     c_uuid,
     row_number() OVER (PARTITION BY c_boolean ORDER BY c_serial),
@@ -75,7 +75,7 @@ SELECT
     nth_value(c_smallint, 2) OVER (PARTITION BY c_boolean ORDER BY c_serial ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)
 FROM tb_postgre_types;
 
--- 递归CTE测试
+-- Recursive CTE testing
 WITH RECURSIVE tree AS (
     SELECT c_uuid, c_serial, 0 as level
     FROM tb_postgre_types 
@@ -90,7 +90,7 @@ WITH RECURSIVE tree AS (
 )
 SELECT * FROM tree;
 
--- 字符串函数测试（PostgreSQL特有）
+-- String Function Test (PostgreSQL-specific)
 SELECT 
     c_uuid,
     c_text,
@@ -102,7 +102,7 @@ SELECT
 FROM tb_postgre_types 
 WHERE c_text IS NOT NULL;
 
--- 数学函数测试（PostgreSQL特有）
+-- Math function test (PostgreSQL-specific)
 SELECT 
     c_uuid,
     c_numeric_p_s,
@@ -115,7 +115,7 @@ SELECT
 FROM tb_postgre_types 
 WHERE c_numeric_p_s IS NOT NULL;
 
--- 日期时间函数测试（PostgreSQL特有）
+-- Date time function test (PostgreSQL-specific)
 SELECT 
     c_timestamp,
     c_tstzrange,
@@ -126,7 +126,7 @@ SELECT
 FROM tb_postgre_types 
 WHERE c_timestamp IS NOT NULL;
 
--- 条件表达式测试
+-- Conditional Expression Test
 SELECT 
     c_uuid,
     c_integer,
@@ -140,7 +140,7 @@ SELECT
     COALESCE(c_integer, c_smallint, 0) as coalesced_value
 FROM tb_postgre_types;
 
--- 聚合函数测试（包括PostgreSQL特有）
+-- Aggregation function test (including PostgreSQL-specific)
 SELECT 
     c_boolean,
     count(*) as count_all,
@@ -153,7 +153,7 @@ SELECT
 FROM tb_postgre_types
 GROUP BY c_boolean;
 
--- 子查询和相关子查询测试
+-- Sub-Query and Related Sub-Query Test
 SELECT 
     c_uuid,
     c_integer,
@@ -163,19 +163,19 @@ SELECT
 FROM tb_postgre_types t1
 WHERE c_integer IS NOT NULL;
 
--- 锁定和并发控制测试
+-- Lock and co-exposure control tests
 SELECT * FROM tb_postgre_types WHERE c_serial = 1 FOR UPDATE;
 SELECT * FROM tb_postgre_types WHERE c_serial = 2 FOR SHARE;
 
 
--- 分区表相关操作测试（如果存在分区表）
+-- Relevant operating tests of partition table (if partition table exists)
 SELECT 
     inhparent::regclass as parent_table,
     inhrelid::regclass as child_table
 FROM pg_inherits 
 WHERE inhparent = 'tb_postgre_types'::regclass;
 
--- 系统表查询测试
+-- System table query testing
 SELECT 
     schemaname,
     tablename,
@@ -183,7 +183,7 @@ SELECT
 FROM pg_tables 
 WHERE tablename = 'tb_postgre_types';
 
--- 自定义类型和枚举类型测试（如果有）
+-- Custom type and list type tests (if any)
 SELECT 
     t.typname as type_name,
     t.typtype as type_type,
@@ -200,10 +200,10 @@ FROM pg_type t
 JOIN pg_namespace n ON n.oid = t.typnamespace
 WHERE n.nspname = 'public';
 
--- PostgreSQL高级功能测试语句
--- 包含存储过程、触发器、规则等复杂语句
+-- PostgreSQL Advanced Functional Test Statement
+-- Complex statements including stored procedures, triggers, rules, etc.
 
--- 创建测试表
+-- Create Test Table
 CREATE TABLE employees (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -219,7 +219,7 @@ CREATE TABLE employee_audit (
     changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 创建存储过程/函数
+-- Create stored procedure/function
 CREATE OR REPLACE FUNCTION update_employee_salary(emp_id INTEGER, new_salary NUMERIC)
 RETURNS VOID AS $$
 BEGIN
@@ -229,7 +229,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 创建触发器函数
+-- Create trigger function
 CREATE OR REPLACE FUNCTION audit_employee_changes()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -247,18 +247,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 创建触发器
+-- Create Trigger
 CREATE TRIGGER employee_audit_trigger
     AFTER INSERT OR UPDATE OR DELETE ON employees
     FOR EACH ROW EXECUTE FUNCTION audit_employee_changes();
 
--- 创建视图
+-- Create View
 CREATE VIEW high_paid_employees AS
 SELECT id, name, department, salary
 FROM employees
 WHERE salary > 80000;
 
--- 创建物化视图
+-- Create an objectistic view
 CREATE MATERIALIZED VIEW employee_department_stats AS
 SELECT department,
        COUNT(*) as employee_count,
@@ -266,7 +266,7 @@ SELECT department,
 FROM employees
 GROUP BY department;
 
--- 创建表使用自定义类型
+-- Create table with custom type
 CREATE TABLE contacts (
     id SERIAL PRIMARY KEY,
     name full_name,
@@ -274,17 +274,17 @@ CREATE TABLE contacts (
     status employee_status DEFAULT 'active'
 );
 
--- 插入测试数据
+-- Insert Test Data
 INSERT INTO employees (name, department, salary, hire_date) VALUES
 ('John Doe', 'Engineering', 75000, '2022-01-15'),
 ('Jane Smith', 'Marketing', 65000, '2021-03-22'),
 ('Bob Johnson', 'Engineering', 95000, '2020-07-10'),
 ('Alice Brown', 'Sales', 70000, '2023-02-01');
 
--- 更新语句调用存储过程
+-- Update statement call memory process
 SELECT update_employee_salary(1, 80000);
 
--- 复杂查询：窗口函数和CTE结合
+-- Complex query: Window function combined with CTE
 WITH department_salaries AS (
     SELECT
         department,
@@ -304,7 +304,7 @@ SELECT
 FROM department_salaries
 WHERE dept_rank <= 2;
 
--- JSONB操作示例
+-- Example of JSONB operation
 CREATE TABLE product_catalog (
     id SERIAL PRIMARY KEY,
     product_data JSONB
@@ -314,7 +314,7 @@ INSERT INTO product_catalog (product_data) VALUES
 ('{"name": "Laptop", "price": 1200, "specs": {"cpu": "Intel i7", "ram": "16GB"}}'),
 ('{"name": "Phone", "price": 800, "specs": {"cpu": "Snapdragon 888", "ram": "8GB"}}');
 
--- JSONB查询和更新
+-- JSONB queries and updates
 SELECT product_data->>'name' as product_name,
        product_data->'specs'->>'cpu' as cpu_spec
 FROM product_catalog
@@ -324,7 +324,7 @@ UPDATE product_catalog
 SET product_data = product_data || '{"discount": 0.1}'::jsonb
 WHERE product_data->>'name' = 'Laptop';
 
--- 全文搜索示例
+-- Other Organiser
 CREATE TABLE articles (
     id SERIAL PRIMARY KEY,
     title TEXT,
@@ -339,14 +339,14 @@ INSERT INTO articles (title, body) VALUES
 UPDATE articles
 SET search_vector = to_tsvector('chinese', coalesce(title,'') || ' ' || coalesce(body,''));
 
--- 创建全文搜索索引
+-- Create full-text search index
 CREATE INDEX idx_articles_search ON articles USING GIN (search_vector);
 
--- 全文搜索查询
+-- Full text search query
 SELECT title, body FROM articles
 WHERE search_vector @@ to_tsquery('chinese', '数据库');
 
--- 分区表示例
+-- Examples of divisions
 CREATE TABLE sales_data (
     id SERIAL,
     sale_date DATE NOT NULL,
@@ -359,11 +359,11 @@ FOR VALUES FROM ('2023-01-01') TO ('2023-12-31');
 CREATE TABLE sales_data_2024 PARTITION OF sales_data
 FOR VALUES FROM ('2024-01-01') TO ('2024-12-31');
 
--- 刷新物化视图
+-- Refresh Image View
 REFRESH MATERIALIZED VIEW employee_department_stats;
 
--- 查询物化视图
+-- Query Graphical View
 SELECT * FROM employee_department_stats;
 
--- 删除语句
+-- Delete statement
 DELETE FROM employees WHERE id = 4;

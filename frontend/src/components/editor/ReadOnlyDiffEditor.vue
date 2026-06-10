@@ -85,12 +85,12 @@ export default {
               renderSideBySideInlineBreakpoint: 0, // never collapse to inline view because of width
               useInlineViewWhenSpaceIsLimited: false, // keep two panes even on narrow screens
               readOnly: true,
-              theme: 'vs', // 编辑器主题：vs, hc-black, or vs-dark，更多选择详见官网
+              theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
               minimap: {
                 enabled: false
               },
               automaticLayout: true,
-              autoIndent: true // 自动缩进
+              autoIndent: true // Auto Indent
             })
           );
 

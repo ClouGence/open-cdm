@@ -18,7 +18,7 @@ parser grammar MongoParser;
 options { tokenVocab = MongoLexer; }
 /* ----------------------------------------------------------------------------------- basic type */
 
-/* 入口 */
+/* Entry point */
 root : command (SEMI+ command)* SEMI* EOF;
 
 command:

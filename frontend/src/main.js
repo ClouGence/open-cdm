@@ -43,22 +43,22 @@ import { LocaleProvider } from 'ant-design-vue';
 import * as filters from '@/filters';
 import { supportsCloudCanalBuild } from '@/utils/product';
 
-// 引入主题样式
+// Include Theme Styles
 import './styles/themes/theme.less';
 
 if (supportsCloudCanalBuild) {
   import('./styles/cloudCanal.less');
 }
 
-// 判断浏览器是否支持vue3
+// Determines whether the browser supports vue3
 checkES5Support();
 
-// 创建 Vue 应用实例
+// Create instance of Vue application
 const app = createApp(App);
 
 app.mixin(CommonMixin);
 
-// 使用插件
+// Use plugins
 app.use(i18n);
 app.use(ViewUIPlus, {
   capture: false,
@@ -77,7 +77,7 @@ app.use(components);
 app.use(directives);
 app.use(ContextMenu);
 
-// 注册全局组件
+// Register global components
 app.component('PdButton', PdButton);
 app.component('CustomIcon', CustomIcon);
 app.component('CCModal', CCModal);
@@ -90,11 +90,11 @@ app.config.globalProperties.$services = services;
 app.config.globalProperties.$i18n = i18n;
 app.config.globalProperties.$filters = filters;
 
-// 初始化主题系统
+// Initialize the theme system
 store.dispatch('initTheme');
 
-// 挂载应用
+// Mount Application
 app.mount('#app');
 
-// 非基础语言时，启动 Google Translate 翻译
+// Start Google Translate translation when non-basic language
 bootstrapGoogleTranslate();

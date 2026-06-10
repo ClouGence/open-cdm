@@ -1,6 +1,6 @@
 -- doris_full_queries.sql
--- 目标：尽可能覆盖 DorisParser.g4 中的查询与相关语法特性。
--- 将此文件按语句逐条送入解析器以检测未覆盖的语法规则。
+-- Objective: To cover, to the extent possible, queries in Doris Parser.g4 and related grammatical properties.
+-- Sends this file to the parser by statement to detect the syntax rules that are not covered.
 
 -- =====================
 -- Section: DDL - Databases / Tables / Views / MVs

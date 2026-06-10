@@ -41,9 +41,6 @@
           )
         }}
       </p>
-      <!--      <p>-->
-      <!--        第七步：如需CloudCanal工作人员更新许可证，可点击 <a @click="handleCopyAuthCode">复制</a> 获取<strong>当前授权码</strong>，将当前授权码、申请码和MAC地址提供给CloudCanal工作人员-->
-      <!--      </p>-->
       <p style="margin: 10px 0 20px 0; font-weight: bold">
         {{ $t('tips-ju-ti-gui-ze-qing-cha-kan') }}
         <a :href="`${store.state.docUrlPrefix}/license/license_use`">

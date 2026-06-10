@@ -76,7 +76,7 @@ COMPOUND TRIGGER
     old_emp_ids emp_ids_t := emp_ids_t();
     new_emp_ids emp_ids_t := emp_ids_t();
 
-    -- 声明变量用于保存操作类型
+    -- Declare variable to save operation type
     action_type VARCHAR2(10);
 
     BEFORE EACH ROW IS

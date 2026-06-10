@@ -114,9 +114,9 @@ export default {
       refreshOptions: [
         { value: 'off', label: this.$t('guan-bi') },
         { value: '10s', label: this.$t('mei-10-miao') }
-        // {value: '30s', label: '每30秒'},
-        // {value: '1m', label: '每分钟'},
-        // {value: '5m', label: '每5分钟'}
+        // {value: '30s', label: 'Every 30 seconds'},
+        // {value: '1m', label: 'Every minute'},
+        // {value: '5m', label: 'Every 5 minutes'}
       ],
       refreshValue: 'off',
 

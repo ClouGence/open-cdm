@@ -64,42 +64,42 @@ export default {
       const { target } = e;
       const scrollHeight = target.scrollHeight - target.scrollTop;
       const clientHeight = target.clientHeight;
-      // 下拉框不下拉的时候
+      // When you can't pull it down.
       if (scrollHeight === 0 && clientHeight === 0) {
         this.scrollPage = 1;
       } else {
-        // 当下拉框滚动条到达底部的时候
+        // When the bottom of the zipper is reached
         if (scrollHeight < clientHeight + 5) {
           this.scrollPage += 1;
-          const scrollPage = this.scrollPage; // 获取当前页
-          const treePageSize = this.treePageSize * (scrollPage || 1); // 新增数据量
-          const newData = []; // 存储新增数据
-          let max = ''; // max 为能展示的数据的最大条数
+          const scrollPage = this.scrollPage; // Get the current page
+          const treePageSize = this.treePageSize * (scrollPage || 1); // Add Data Volume
+          const newData = []; // Store new data
+          let max = ''; // max is the maximum number of bars that can be displayed
           if (this.dataZ.length > treePageSize) {
-            // 如果总数据的条数大于需要展示的数据
+            // If the number of entries in the total data is greater than the data to be displayed
             max = treePageSize;
           } else {
-            // 否则
+            // Otherwise...
             max = this.dataZ.length;
           }
-          // 判断是否有搜索
+          // To determine if there is a search.
           if (this.valueData) {
             this.allDataZ.forEach((item, index) => {
               if (index < max) {
-                // 当data数组的下标小于max时
+                // When the lower mark of the data array is less than max
                 newData.push(item);
               }
             });
           } else {
             this.dataZ.forEach((item, index) => {
               if (index < max) {
-                // 当data数组的下标小于max时
+                // When the lower mark of the data array is less than max
                 newData.push(item);
               }
             });
           }
 
-          this.frontDataZ = newData; // 将新增的数据赋值到要显示的数组中
+          this.frontDataZ = newData; // Adds new data values to arrays to display Medium
         }
       }
     }

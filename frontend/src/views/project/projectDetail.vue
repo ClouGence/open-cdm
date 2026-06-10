@@ -692,13 +692,13 @@ export default {
   computed: {
     ...mapState(['userInfo', 'globalSetting', 'dmGlobalSetting', 'myCatLog', 'myAuth']),
     ...mapGetters(['isSaas']),
-    // 判断IM配置完成按钮是否应该禁用
+    // Determines whether the IM configuration complete button should be disabled
     isImSubmitDisabled() {
-      // 如果选择了禁用类型，按钮不禁用
+      // Buttons are not disabled if the disabled type is selected
       if (this.imProviderSelected?.imType === 'none') {
         return false;
       }
-      // 如果选择了非禁用类型但没有选择具体的提供者，按钮禁用
+      // Button disabled if non-disable type selected but no specific provider selected
       if (this.imProviderSelected?.imType !== 'none' && !this.imProviderSelected?.imId) {
         return true;
       }

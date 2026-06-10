@@ -1,9 +1,9 @@
 @import './variables.less';
 @import './dark-theme.less';
 
-// 生成CSS变量
+// Generate CSS variables
 .generate-theme(@theme-map) {
-  // 背景色
+  // Background Colour
   --bg-primary: @theme-map[bg-primary];
   --bg-secondary: @theme-map[bg-secondary];
   --bg-tertiary: @theme-map[bg-tertiary];
@@ -12,27 +12,27 @@
   --bg-select: @theme-map[bg-select];
   --bg-radio: @theme-map[bg-radio];
 
-  // 文字颜色
+  // Text Colour
   --text-primary: @theme-map[text-primary];
   --text-secondary: @theme-map[text-secondary];
   --text-tertiary: @theme-map[text-tertiary];
   --text-disabled: @theme-map[text-disabled];
   --text-inverse: @theme-map[text-inverse];
 
-  // 边框颜色
+  // Border Colour
   --border-primary: @theme-map[border-primary];
   --border-secondary: @theme-map[border-secondary];
   --border-light: @theme-map[border-light];
   --border-radio: @theme-map[border-radio];
 
-  // 业务颜色
+  // Business Colours
   --primary-color: @theme-map[primary-color];
   --info-color: @theme-map[info-color];
   --success-color: @theme-map[success-color];
   --warning-color: @theme-map[warning-color];
   --error-color: @theme-map[error-color];
 
-  // 进度条颜色
+  // Progress bar colour
   --progress-normal: @theme-map[progress-normal];
   --progress-success: @theme-map[progress-success];
   --progress-error: @theme-map[progress-error];
@@ -41,7 +41,7 @@
   --progress-delay-warning: @theme-map[progress-delay-warning];
   --progress-delay-error: @theme-map[progress-delay-error];
 
-  // Header 颜色
+  // Header Colour
   --header-bg: @theme-map[header-bg];
   --header-text: @theme-map[header-text];
   --header-border: @theme-map[header-border];
@@ -59,24 +59,24 @@
   --content-header-bg: @theme-map[content-header-bg];
   --content-header-border: @theme-map[content-header-border];
 
-  // 阴影
+  // Shadow
   --shadow-sm: @theme-map[shadow-sm];
   --shadow-md: @theme-map[shadow-md];
   --shadow-lg: @theme-map[shadow-lg];
 }
 
-// 应用亮色主题（默认）
+// Apply bright theme (default)
 :root {
   .generate-theme(@light-theme);
 }
 
-// 应用暗色主题
+// Apply Dark Theme
 [data-theme='dark'] {
   .generate-theme(@dark-theme);
 }
 
-// 切换主题过渡
-// color-scheme：调整浏览器原生 UI 组件样式
+// Switch theme transition
+// color-scheme: adjust browser original UI component style
 :root {
   color-scheme: light;
 }

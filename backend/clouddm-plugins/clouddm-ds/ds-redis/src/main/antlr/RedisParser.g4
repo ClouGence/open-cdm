@@ -549,7 +549,7 @@ cmdInst :
         | cmdAuth | cmdEcho | cmdHello | cmdPing | cmdQuit | cmdReset | cmdSelect
         ;
 
-/* 入口 */
+/* Entry point */
 rootInstSet : commands? EOF;
 commands    : EOL* (cmdInst EOL*)
             | EOL* (cmdInst EOL+ commands)

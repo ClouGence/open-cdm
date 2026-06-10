@@ -1,6 +1,6 @@
 <template>
   <div class="theme-toggle-wrapper">
-    <!-- 全屏 loading 遮罩 - 使用 Teleport 渲染到 body，避免受父元素 transform 影响 -->
+    <!-- Fullscreen load mask - Use Teleport to render body to avoid parent elements -->
     <Teleport to="body">
       <Transition name="theme-loading">
         <div v-if="isSwitching" class="theme-switch-loading">
@@ -17,7 +17,7 @@
     </Teleport>
     <div class="theme-toggle" :class="currentTheme" @click="toggleTheme">
       <Transition name="fade" mode="out-in">
-        <!-- 浅色 -->
+        <!-- Light -->
         <svg v-if="currentTheme === 'light'" class="theme-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2" />
           <path
@@ -27,7 +27,7 @@
             stroke-linecap="round"
           />
         </svg>
-        <!-- 黑夜 -->
+        <!-- Night -->
         <svg v-else class="theme-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
@@ -54,23 +54,23 @@ export default {
     const isSwitching = ref(false);
 
     const toggleTheme = async () => {
-      // 1. 先显示 loading 遮罩
+      // 1. Show loating mask first
       isSwitching.value = true;
 
-      // 2. 等待遮罩渲染完成
+      // 2. Waiting for mask rendering to be completed
       await nextTick();
       requestAnimationFrame(() => {
-        // 3. 延迟 0.3s 后再切换主题
+        // 3. Delay 0.3s before switching themes
         setTimeout(() => {
-          // 切换主题
+          // Switch Theme
           store.dispatch('toggleTheme');
 
-          // 4. 等待 DOM 更新和样式应用
+          // 4. Waiting for DOM updates and style applications
           nextTick().then(() => {
-            // 使用双重 requestAnimationFrame 确保样式已完全应用
+            // Make sure that the style is fully applied using the dual referenceAnimationrama
             requestAnimationFrame(() => {
               requestAnimationFrame(() => {
-                // 5. 延迟隐藏 loading，确保过渡动画完成
+                // 5. Delayed hiding, ensuring transition animation is completed
                 setTimeout(() => {
                   isSwitching.value = false;
                 }, 400);
@@ -122,7 +122,7 @@ export default {
 
   &.light {
     .theme-icon {
-      color: #fff; // 亮色模式下也使用白色图标
+      color: #fff; // Use white icons in bright color mode
     }
   }
 }
@@ -148,9 +148,9 @@ export default {
 }
 </style>
 
-<!-- 全局样式：主题切换 loading 动画 -->
+<!-- Global Styles: Theme Switching -->
 <style lang="less">
-// 主题切换 loading 动画（全局样式，因为需要覆盖整个页面）
+// Theme Switching Animation (global style because the whole page needs to be covered)
 .theme-switch-loading {
   position: fixed !important;
   top: 0 !important;
@@ -211,7 +211,7 @@ export default {
   }
 }
 
-// 暗色模式下使用更深的背景
+// Use deeper background in dark color mode
 [data-theme='dark'] .theme-switch-loading {
   background-color: rgba(0, 0, 0, 0.95) !important;
 }
@@ -235,7 +235,7 @@ export default {
   }
 }
 
-// 主题切换 loading 过渡动画
+// Theme Switching Transition Animation
 .theme-loading-enter-active,
 .theme-loading-leave-active {
   transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;

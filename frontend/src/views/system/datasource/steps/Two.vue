@@ -35,7 +35,7 @@
               style="border: 1px solid rgba(11, 185, 248, 1); color: #0bb9f8"
               width="92"
             />
-            <!--            <a-button type="primary" @click="getRdsList">获取数据源</a-button>-->
+            <!--            <a-button type="primary" @click="getRdsList">Get data sources</a-button>-->
           </div>
           <a-table
             :columns="datasourceColumns"

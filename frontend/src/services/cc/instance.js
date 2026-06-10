@@ -89,7 +89,7 @@ const instance = axios.create({
 
 export { instance };
 
-// 返回结果拦截器,处理默认的错误
+// Response interceptor, handles default errors
 instance.interceptors.response.use(
   (response) => {
     let parseData = {};
@@ -252,15 +252,15 @@ instance.interceptors.response.use(
         content: i18n.global.t('que-shao-quan-xian') + response.data.needAuthKey
       });
     }
-    // 正常的请求前拦截,在这里处理
+    // Handle normal pre-request interception here
     return response;
   },
   (error) => {
-    // 非200请求时的错误处理'
+    // Error handling for non-200 responses
     Spin.hide();
     if (error.response) {
-      const res = error.response.data; // 请求data
-      const status = error.response.status; // 请求状态吗
+      const res = error.response.data; // Request data
+      const status = error.response.status; // Request status code
 
       if (status === 499) {
         window.location.href = res.url;

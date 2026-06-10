@@ -37,7 +37,7 @@ import Mapping from '@/views/util';
 
 export default {
   props: {
-    // 部署类型
+    // Type of deployment
     type: {
       type: String,
       default: 'source'
@@ -46,27 +46,27 @@ export default {
       type: Array,
       default: () => []
     },
-    // 部署类型
+    // Type of deployment
     selectDeployType: {
       type: String,
       default: ''
     },
-    // 数据源类型
+    // Type of data source
     selectDataSourceType: {
       type: String,
       default: ''
     },
-    // 数据源分组数据
+    // Data source grouping data
     dataSourceGroups: {
       type: Array,
       default: () => []
     },
-    // 部署类型change回调
+    // Deployment type Change back
     handleDeployTypeChange: {
       type: Function,
       default: () => {}
     },
-    // 数据源类型change回调
+    // Data source typechange echo
     handleTypeChange: {
       type: Function,
       default: () => {}
@@ -91,7 +91,7 @@ export default {
     }
   },
   methods: {
-    // 获取对应部署类型映射数据源名称
+    // Get the corresponding deployment type map data source name
     getShowNameByDeployTypeAndDsName(instanceType, type) {
       if (instanceType) {
         const typeNameList = Mapping.deployDsMap[instanceType];
