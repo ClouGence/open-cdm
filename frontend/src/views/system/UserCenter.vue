@@ -118,7 +118,7 @@
                 {{ $t('duo-yin-zi-ren-zheng') }}
                 <span v-if="!userInfo.useMfa">{{ $t('wei-kai-qi') }}</span>
                 <span v-else-if="mfaInvalid">{{ $t('yi-shi-xiao') }}</span>
-              <span v-else>{{ $t('yi-kai-qi') }}</span>
+                <span v-else>{{ $t('yi-kai-qi') }}</span>
               </h3>
               <div>
                 <Button v-if="!userInfo.useMfa || mfaInvalid" style="margin-right: 12px" @click="handleOpenMfaSetting">
