@@ -23,4 +23,4 @@ dependencies {
     api project(':cgdm-plugin-sdk')
 }
 
-description = 'cg-results-file'
+description = 'cg-com-results-file'

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
+import com.clougence.clouddm.platform.component.resultfile.ResultSetOutputStream;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ReceiveMode;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetMeta;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultType;
@@ -39,7 +40,6 @@ import com.clougence.clouddm.worker.component.session.storage.ResultStorage;
 import com.clougence.clouddm.worker.component.session.storage.RowStorage;
 import com.clougence.utils.HashUtils;
 import com.clougence.utils.JsonUtils;
-import com.clougence.utils.resultfile.ResultSetOutputStream;
 
 import lombok.extern.slf4j.Slf4j;
 

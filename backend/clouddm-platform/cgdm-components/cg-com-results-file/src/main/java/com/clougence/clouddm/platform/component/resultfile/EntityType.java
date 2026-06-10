@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.utils.resultfile;
+package com.clougence.clouddm.platform.component.resultfile;
 
 import com.clougence.clouddm.sdk.execute.resultset.file.ResultType;
 
 public interface EntityType {
 
-    /** see: StorageCode  */
+    /** see: StorageCode */
     byte Code       = ResultType.Code;      // (byte) 0x00;
     byte Boolean    = ResultType.Boolean;   // (byte) 0x01;
     byte Byte       = ResultType.Byte;      // (byte) 0x02;

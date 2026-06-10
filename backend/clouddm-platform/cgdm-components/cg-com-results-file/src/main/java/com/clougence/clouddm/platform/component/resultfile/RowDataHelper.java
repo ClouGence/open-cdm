@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.worker.component.session.storage;
+package com.clougence.clouddm.platform.component.resultfile;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

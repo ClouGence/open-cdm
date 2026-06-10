@@ -13,19 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.utils.resultfile;
+package com.clougence.clouddm.platform.component.resultfile;
 
-import java.io.IOException;
+public interface ResultDataTag {
 
-import lombok.Getter;
-
-@Getter
-public class ResultSetOverflowException extends IOException {
-
-    private final long overflowSize;
-
-    public ResultSetOverflowException(String s, long overflowSize){
-        super(s);
-        this.overflowSize = overflowSize;
-    }
+    int DATA_CROPPED_TAG = 0x01;
+    int DATA_MASK_TAG    = 0x02;
 }
