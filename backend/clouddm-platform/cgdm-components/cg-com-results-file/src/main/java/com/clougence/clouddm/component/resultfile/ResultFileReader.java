@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.platform.component.resultfile;
+package com.clougence.clouddm.component.resultfile;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -30,8 +30,8 @@ import com.clougence.clouddm.sdk.execute.session.result.ReaderOptions;
 import com.clougence.utils.HexadecimalUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.io.IOUtils;
-import com.clougence.clouddm.platform.component.resultfile.ResultSetInputStream.DataHeader;
-import com.clougence.clouddm.platform.component.resultfile.ResultSetInputStream.RowHeader;
+import com.clougence.clouddm.component.resultfile.ResultSetInputStream.DataHeader;
+import com.clougence.clouddm.component.resultfile.ResultSetInputStream.RowHeader;
 
 public class ResultFileReader implements ResultReader {
 
