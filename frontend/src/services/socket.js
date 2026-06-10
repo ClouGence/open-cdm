@@ -120,6 +120,10 @@ const createWebSocket = async (url) => {
       if (data && data.type === WS_TYPE.WS_RES_DRIVER_DOWNLOAD_EVENT) {
         eventBus.emit(EVENT_BUS_NAME_LIST.WS_RES_DRIVER_DOWNLOAD_EVENT, data.object || data);
       }
+
+      if (data && data.type === WS_TYPE.WS_RES_EXPORT_EVENT) {
+        eventBus.emit(EVENT_BUS_NAME_LIST.WS_RES_EXPORT_EVENT, data.object || data);
+      }
     } catch (error) {
       console.error(error);
     }

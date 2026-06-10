@@ -186,8 +186,37 @@
                 </Option>
               </Select>
             </FormItem>
-            <FormItem>
-              <p style="color: red">{{ $t('dan-ci-dao-chu-zui-da-hang-shu-wei') }}{{ globalSetting.maxExportSize }}</p>
+            <FormItem :label="$t('dao-chu-tiao-shu')">
+              <div class="export-row-count">
+                <RadioGroup v-model="exportForm.rowMode" type="button" class="export-radio-group" :disabled="exportLoading">
+                  <Radio :label="'all'" :disabled="exportLoading">{{ $t('quan-bu') }}</Radio>
+                  <Radio :label="'part'" :disabled="exportLoading">{{ $t('bu-fen') }}</Radio>
+                </RadioGroup>
+                <Input
+                  v-if="exportForm.rowMode === 'part'"
+                  v-model="exportForm.maxRows"
+                  type="number"
+                  :disabled="exportLoading"
+                  class="export-count-input"
+                  clearable
+                  :placeholder="$t('qing-shu-ru-dao-chu-tiao-shu')"
+                />
+              </div>
+            </FormItem>
+            <FormItem :label="$t('dao-chu-ge-shi')">
+              <RadioGroup v-model="exportForm.formatName" type="button" class="export-radio-group" :disabled="exportLoading">
+                <Radio v-for="item in exportTypes" :label="item.name" :key="item.name" :disabled="exportLoading">
+                  {{ item.description || item.name }}
+                </Radio>
+              </RadioGroup>
+            </FormItem>
+            <FormItem v-if="exportLoading">
+              <Tooltip transfer :content="exportProgressTooltip" placement="top">
+                <div style="width: 266px">
+                  <Progress v-if="exportProgress.stage === 'PREPARING'" :percent="100" status="active" hide-info />
+                  <Progress v-else type="circle" :percent="exportProgress.percent" :width="46" />
+                </div>
+              </Tooltip>
             </FormItem>
           </Form>
         </div>
@@ -195,8 +224,8 @@
       <template #footer>
         <div>
           <Button @click="handleCancel">{{ $t('guan-bi') }}</Button>
-          <Button :loading="exportLoading" type="primary" @click="handleConfirmExport">
-            {{ $t('dao-chu') }}
+          <Button :loading="exportLoading" :disabled="exportLoading" type="primary" @click="handleConfirmExport">
+            {{ exportButtonText }}
           </Button>
         </div>
       </template>
@@ -206,8 +235,9 @@
 <script>
 import fecha from 'fecha';
 import Mapping from '@/views/util';
-import { mapGetters, mapState } from 'vuex';
+import { mapState } from 'vuex';
 import copyMixin from '@/mixins/copyMixin';
+import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import { resolveComponent } from 'vue';
 
 export default {
@@ -328,19 +358,52 @@ export default {
       resourceTypeList: [],
       auditLogDetail: {},
       selectedRow: {},
+      exportForm: {
+        rowMode: 'all',
+        maxRows: '',
+        formatName: ''
+      },
+      exportProgress: {
+        exportId: '',
+        stage: '',
+        preparedRows: 0,
+        percent: 0
+      },
       exportPageSize: 1000,
       isParseError: false
     };
   },
   computed: {
-    ...mapState(['globalSetting'])
+    ...mapState(['globalSetting']),
+    exportTypes() {
+      return this.globalSetting?.fmtConvertDef || [];
+    },
+    exportProgressTooltip() {
+      if (this.exportProgress.stage === 'PREPARING') {
+        return this.$t('yi-zhun-bei-x-tiao-shu-ju', [this.exportProgress.preparedRows || 0]);
+      }
+      return `${this.exportProgress.percent || 0}%`;
+    },
+    exportButtonText() {
+      if (this.exportProgress.stage === 'PREPARING') {
+        return this.$t('zheng-zai-zhun-bei-shu-ju');
+      }
+      if (this.exportProgress.stage === 'CONVERTING') {
+        return this.$t('zheng-zai-zhuan-huan-wen-jian');
+      }
+      return this.$t('dao-chu');
+    }
   },
   created() {
     this.rdpQueryOperationListCondition();
   },
   mounted() {
+    this.$bus.on(EVENT_BUS_NAME_LIST.WS_RES_EXPORT_EVENT, this.handleOpAuditExportEvent);
     this.handleSearch();
     this.searchData.pageData.pageSize = 20;
+  },
+  beforeUnmount() {
+    this.$bus.off(EVENT_BUS_NAME_LIST.WS_RES_EXPORT_EVENT, this.handleOpAuditExportEvent);
   },
   methods: {
     handleEnterSearch(e) {
@@ -379,10 +442,57 @@ export default {
       return alias;
     },
     handleExport() {
+      this.ensureDefaultExportFormat();
+      this.exportProgress = {
+        exportId: '',
+        stage: '',
+        preparedRows: 0,
+        percent: 0
+      };
       this.showExport = true;
     },
+    ensureDefaultExportFormat() {
+      if (!this.exportForm.formatName && this.exportTypes.length > 0) {
+        this.exportForm.formatName = this.exportTypes[0].name;
+      }
+    },
+    handleOpAuditExportEvent(exportData) {
+      if (!exportData || exportData.exportId !== this.exportProgress.exportId) {
+        return;
+      }
+
+      this.exportProgress = {
+        ...this.exportProgress,
+        stage: exportData.stage,
+        preparedRows: exportData.preparedRows,
+        percent: exportData.percent || 0
+      };
+
+      if (exportData.stage === 'FAILED' && exportData.errorMessage) {
+        this.$Message.error(exportData.errorMessage);
+      }
+    },
     async handleConfirmExport() {
+      this.ensureDefaultExportFormat();
+      if (!this.exportForm.formatName) {
+        this.$Message.warning(this.$t('qing-xuan-ze-dao-chu-ge-shi'));
+        return;
+      }
+
+      const maxRows = this.exportForm.rowMode === 'all' ? null : Number(this.exportForm.maxRows);
+      if (maxRows !== null && (!Number.isInteger(maxRows) || maxRows <= 0)) {
+        this.$Message.warning(this.$t('qing-shu-ru-dao-chu-tiao-shu'));
+        return;
+      }
+
+      const exportId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
       this.exportLoading = true;
+      this.exportProgress = {
+        exportId,
+        stage: 'PREPARING',
+        preparedRows: 0,
+        percent: 0
+      };
       if (this.timeRange.length > 0) {
         this.searchData.opStart =
           this.timeRange[0] && fecha.format(new Date(new Date(this.timeRange[0]).getTime() - 8 * 3600 * 1000), 'YYYY-MM-DDTHH:mm:ss.SSS');
@@ -393,39 +503,45 @@ export default {
         this.searchData.opEnd = '';
       }
       const data = { ...this.searchData };
-      data.exportType = 'EXCEL';
+      data.exportId = exportId;
+      data.formatName = this.exportForm.formatName;
+      data.maxRows = maxRows;
       data.pageData = null;
-      const res = await this.$services.rdpAuditExport({
-        data,
-        responseType: 'blob',
-        modal: false
-      });
-      if (res && res.headers) {
-        const contentDisposition = res.headers['content-disposition'];
 
-        let fileName = '';
-        if (contentDisposition) {
-          const fileNameMatch = contentDisposition.match(/filename\*=UTF-8''(.+)|filename\*=(.+)|filename=(.+)/);
-          if (fileNameMatch && fileNameMatch[1]) {
-            fileName = decodeURIComponent(fileNameMatch[1]);
-          } else if (fileNameMatch && fileNameMatch[2]) {
-            fileName = decodeURIComponent(`${fileNameMatch[2].replace(/\+/g, ' ')}`);
-          } else if (fileNameMatch && fileNameMatch[3]) {
-            fileName = fileNameMatch[3];
+      try {
+        const res = await this.$services.rdpAuditExport({
+          data,
+          responseType: 'blob',
+          modal: false
+        });
+        if (res && res.headers) {
+          const contentDisposition = res.headers['content-disposition'];
+
+          let fileName = '';
+          if (contentDisposition) {
+            const fileNameMatch = contentDisposition.match(/filename\*=UTF-8''(.+)|filename\*=(.+)|filename=(.+)/);
+            if (fileNameMatch && fileNameMatch[1]) {
+              fileName = decodeURIComponent(fileNameMatch[1]);
+            } else if (fileNameMatch && fileNameMatch[2]) {
+              fileName = decodeURIComponent(`${fileNameMatch[2].replace(/\+/g, ' ')}`);
+            } else if (fileNameMatch && fileNameMatch[3]) {
+              fileName = fileNameMatch[3];
+            }
           }
-        }
 
-        const blob = new Blob([res.data], { type: 'application/vnd.ms-excel' });
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileName;
-        document.body.appendChild(link); // 需要将链接添加到文档中
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(link.href);
+          const blob = new Blob([res.data], { type: res.headers['content-type'] || 'application/octet-stream' });
+          const link = document.createElement('a');
+          link.href = window.URL.createObjectURL(blob);
+          link.download = fileName;
+          document.body.appendChild(link); // 需要将链接添加到文档中
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(link.href);
+        }
+        this.showExport = false;
+      } finally {
+        this.exportLoading = false;
       }
-      this.showExport = false;
-      this.exportLoading = false;
     },
     handleRefresh() {
       this.page = 1;
@@ -512,16 +628,18 @@ export default {
       this.handleSearch();
     },
     handleGetAuditDetail(row) {
-      this.$services.rdpLogViewGrepOperationLog({
-        data: { operationId: row.id }
-      }).then((res) => {
-        if (res.success) {
-          console.log('res', res);
-          this.auditLogDetail = res.data;
-          this.selectedRow = row;
-          this.showAuditDetail = true;
-        }
-      });
+      this.$services
+        .rdpLogViewGrepOperationLog({
+          data: { operationId: row.id }
+        })
+        .then((res) => {
+          if (res.success) {
+            console.log('res', res);
+            this.auditLogDetail = res.data;
+            this.selectedRow = row;
+            this.showAuditDetail = true;
+          }
+        });
     },
     handleCancel() {
       this.showAuditDetail = false;
@@ -594,5 +712,22 @@ export default {
   display: flex;
   align-items: flex-start;
   margin-bottom: 10px;
+}
+
+.export-row-count {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.export-radio-group {
+  :deep(.ivu-radio-wrapper) {
+    min-width: 82px;
+    text-align: center;
+  }
+}
+
+.export-count-input {
+  width: 180px;
 }
 </style>

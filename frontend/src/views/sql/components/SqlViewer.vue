@@ -912,12 +912,6 @@ export default {
           }
         }
 
-        if (queryData.type === WS_TYPE.WS_RES_LICENSE_ERROR) {
-          this.$bus.emit(EVENT_BUS_NAME_LIST.SHOW_INACTIVE_MODAL, queryData.object.msgContent);
-          currentTab.running = false;
-          currentTab.stopping = false;
-        }
-
         if (queryData.type === WS_TYPE.WS_RES_EXPORT_EVENT) {
           this.$bus.emit(EVENT_BUS_NAME_LIST.WS_RES_EXPORT_EVENT, queryData.object);
         }
