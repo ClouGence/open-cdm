@@ -18,29 +18,29 @@ package com.clougence.clouddm.faker.seed.geometry;
 import com.clougence.utils.StringUtils;
 
 /**
- * 几何形态
+ * Geometry
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum GeometryType {
 
-    /** 点 */
+    /** Points */
     Point,
-    /** 直线 */
+    /** Line */
     Line,
-    /** 线段 */
+    /** Segment */
     Lseg,
-    /** 矩形 */
+    /** Rectangle */
     Box,
-    /** 路径 */
+    /** Path */
     Path,
-    /** 多边形 */
+    /** Polygon */
     Polygon,
-    /** 多个多边形 */
+    /** Multiple polygons */
     MultiPolygon,
-    /** 圆形 */
+    /** Circle */
     Circle,
-    /** 所有图形中的任意一种 */
+    /** Any of the graphics */
     Random;
 
     public static GeometryType valueOfCode(String name) {

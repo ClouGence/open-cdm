@@ -20,7 +20,7 @@ import com.clougence.schema.dialect.Dialect;
 import com.clougence.utils.StringUtils;
 
 /**
- * ODPS 的 SqlDialect 实现
+ * SQLDialec of ODS
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */

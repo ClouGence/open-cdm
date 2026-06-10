@@ -27,7 +27,7 @@ import org.apache.ibatis.type.JdbcType;
 import com.clougence.utils.StringUtils;
 
 /**
- * PostgreSQL,Money 类型 BigDecimal 形式读写
+ * PostgreSQL, Money Type BigDecimal
  * @version : 2023-02-19
  * @author 赵永春 (zyc@hasor.net)
  */

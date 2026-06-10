@@ -30,7 +30,7 @@ import com.clougence.clouddm.faker.seed.SeedFactory;
 import com.clougence.utils.StringUtils;
 
 /**
- * 时间类型的 SeedFactory（BC、AD，不支持 BC）
+ * Time type SeedFactory (BC, AD, not supported BC)
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

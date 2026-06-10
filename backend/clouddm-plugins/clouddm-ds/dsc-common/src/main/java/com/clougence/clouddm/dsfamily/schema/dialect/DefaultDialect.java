@@ -19,7 +19,7 @@ import com.clougence.schema.dialect.Dialect;
 import com.clougence.utils.StringUtils;
 
 /**
- * 默认 SqlDialect 实现
+ * Default SQLDialec
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */

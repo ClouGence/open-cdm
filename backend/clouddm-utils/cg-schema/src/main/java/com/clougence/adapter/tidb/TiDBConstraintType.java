@@ -22,11 +22,11 @@ package com.clougence.adapter.tidb;
  */
 public enum TiDBConstraintType {
 
-    /** 主键 */
+    /** Primary key */
     PrimaryKey("PRIMARY KEY"),
-    /** 唯一 */
+    /** Unique */
     Unique("UNIQUE"),
-    /** 外建 */
+    /** Foreign key */
     ForeignKey("FOREIGN KEY"),;
 
     private final String typeName;

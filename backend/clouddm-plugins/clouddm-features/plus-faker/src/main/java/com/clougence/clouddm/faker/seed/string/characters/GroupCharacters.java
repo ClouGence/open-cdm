@@ -21,7 +21,7 @@ import java.util.Arrays;
 import com.clougence.clouddm.faker.seed.string.Characters;
 
 /**
- * 基于 UTF-16 的 字符集组
+ * UTF-16 based character set Group
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

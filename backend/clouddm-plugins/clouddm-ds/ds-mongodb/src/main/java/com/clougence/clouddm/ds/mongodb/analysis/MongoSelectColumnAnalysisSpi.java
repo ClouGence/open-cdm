@@ -30,7 +30,7 @@ public class MongoSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
 
     @Override
     public List<SelectItem> parseSelectColumn(String script, ContextInfo info) {
-        return Collections.emptyList(); // TODO 需要根据具体的Redis命令，返回对应的列信息
+        return Collections.emptyList(); // TODO return column information for the specific MongoDB command.
     }
 
     @Override

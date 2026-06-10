@@ -16,17 +16,17 @@
 package com.clougence.clouddm.faker.config;
 
 /**
- * 值的用途
+ * Use of value
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum UseFor {
-    /** 被用作 Insert */
+    /** Used as Insert */
     Insert,
-    /** 被用作 update 语句中 set 部分 */
+    /** Use as set part of update statement */
     UpdateSet,
-    /** 被用作 update 语句中的 where 部分 */
+    /** Use as where part of the update statement */
     UpdateWhere,
-    /** 被用作 delete 语句的 where 部分 */
+    /** Use as the location part of the delete statement */
     DeleteWhere,
 }

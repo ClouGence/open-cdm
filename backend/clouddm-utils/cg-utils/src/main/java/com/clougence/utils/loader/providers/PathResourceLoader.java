@@ -31,7 +31,7 @@ import com.clougence.utils.SystemUtils;
 import com.clougence.utils.loader.AbstractResourceLoader;
 
 /**
- * 将一个 File 对象所代表的路径作为根路径。
+ * Use the path represented by a File object as the root path.
  * @version : 2021-09-29
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -141,7 +141,7 @@ public class PathResourceLoader extends AbstractResourceLoader {
                 return;
             }
             if (fileItem.isHidden() || !fileItem.exists()) {
-                // 过滤掉：隐藏和不存在的
+                // Filtered: Hidden and non-existent
                 continue;
             }
 
@@ -151,11 +151,11 @@ public class PathResourceLoader extends AbstractResourceLoader {
             }
 
             if (!testFound(resourceName, scanPaths)) {
-                // 匹配失败
+                // Match Failed
                 continue;
             }
             if (fileItem.isDirectory()) {
-                // 目录继续向下搜索
+                // The directory continues to search down
                 scanDirFile(baseDir, result, fileItem, scanner, scanPaths, matchOnce);
                 continue;
             }

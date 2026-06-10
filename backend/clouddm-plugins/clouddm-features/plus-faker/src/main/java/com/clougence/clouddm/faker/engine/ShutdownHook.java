@@ -16,7 +16,7 @@
 package com.clougence.clouddm.faker.engine;
 
 /**
- * 停止钩子
+ * Stop the hook.
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

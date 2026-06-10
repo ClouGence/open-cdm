@@ -20,7 +20,7 @@ import com.clougence.clouddm.dsfamily.schema.dialect.AbstractDialect;
 import com.clougence.utils.StringUtils;
 
 /**
- * PostgreSQL 对象名有大小写敏感不敏感的问题
+ * PostgreSQL Object Name Case Sensitive and Insensitive Issues
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */

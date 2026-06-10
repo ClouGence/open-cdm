@@ -21,13 +21,13 @@ package com.clougence.utils;
  */
 public class MatchUtils {
     public static enum MatchTypeEnum {
-        /**通配符：通过：? 和 * 进行匹配。*/
+        /**wildcard: Match through: ? and *. */
         Wild,
-        /**正则表达式匹配。*/
+        /**Regular expression matches. */
         Regex
     }
 
-    /**将通配符转换成正则表达式。*/
+    /**Converts the wildcard to a regular expression. */
     public static String wildToRegex(final String wild) {
         if (wild == null) {
             throw new NullPointerException("wild param is null");
@@ -53,7 +53,7 @@ public class MatchUtils {
         return result.toString();
     }
 
-    /**使用通配符匹配字符串。*/
+    /**Use wildcards to match strings. */
     public static boolean matchWild(final String pattern, final String str) {
         if (str == null) {
             return false;
@@ -62,7 +62,7 @@ public class MatchUtils {
     }
     //
 
-    /**将通配符转换成正则表达式。*/
+    /**Converts the wildcard to a regular expression. */
     public static boolean wildToRegex(final String pattern, final String str, MatchTypeEnum matchType) {
         if (MatchTypeEnum.Regex == matchType) {
             return str.matches(pattern);

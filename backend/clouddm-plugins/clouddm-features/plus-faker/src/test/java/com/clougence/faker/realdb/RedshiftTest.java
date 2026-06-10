@@ -28,7 +28,7 @@ public class RedshiftTest {
     @Test
     public void workloadTest() throws Exception {
 //        LoggerFactory.useStdOutLogger();
-        // 全局配置
+        // Global Configuration
 //        FakerConfig fakerConfig = new FakerConfig();
 //        fakerConfig.setTransaction(false);
 ////        fakerConfig.setPolicy("extreme");
@@ -49,11 +49,11 @@ public class RedshiftTest {
 //        table.setUpdateSetPolitic(SqlPolitic.RandomCol);
 //        table.apply();
 
-//        // 生成数据
+//        // Generate Data
 //        FakerEngine engine = new FakerEngine(dataDs, generator);
 //        engine.start(40, 80);
 //
-//        // 监控信息
+//        // Monitor Information
 //        long t = System.currentTimeMillis();
 //        while (!engine.isExitSignal()) {
 //            if ((t + 1000) < System.currentTimeMillis()) {

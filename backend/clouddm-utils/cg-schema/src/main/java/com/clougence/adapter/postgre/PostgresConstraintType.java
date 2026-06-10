@@ -16,19 +16,19 @@
 package com.clougence.adapter.postgre;
 
 /**
- * PostgresSQL 约束类型
+ * PostgresSQL binding type
  * @version : 2021-03-30
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum PostgresConstraintType {
 
-    /** 主键 */
+    /** Primary key */
     PrimaryKey("PRIMARY KEY"),
-    /** 唯一 */
+    /** Unique */
     Unique("UNIQUE"),
-    /** 外建 */
+    /** Foreign key */
     ForeignKey("FOREIGN KEY"),
-    //    /** 检查 */
+    //    ** Inspection */
     //    Check("CHECK"),
     ;
 

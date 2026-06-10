@@ -30,7 +30,7 @@ import com.clougence.clouddm.sdk.execute.tools.ToolUtils;
 import com.clougence.utils.ThreadUtils;
 
 /**
- * 数据发生器
+ * Data generator
  *
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)

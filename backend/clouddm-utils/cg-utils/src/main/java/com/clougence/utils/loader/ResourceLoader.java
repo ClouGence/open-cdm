@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.jar.Manifest;
 
 /**
- * 资源加载器、资源扫描器
+ * Resource loader, resource scanner
  * @version : 2021-09-29
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -68,7 +68,7 @@ public interface ResourceLoader {
         InputStream getStream() throws IOException;
     }
 
-    /** 扫描的资源 */
+    /** Scan Resource */
     class ScanEvent {
 
         private final String         name;
@@ -92,29 +92,29 @@ public interface ResourceLoader {
         public InputStream getStream() throws IOException { return this.streamGetter.getStream(); }
     }
 
-    /** 扫描classpath时找到资源的回调接口方法 */
+    /** Find the resource's return interface method when scanning classpath */
     interface Scanner<T> {
 
         /**
-         * 找了一个资源
-         * @param event 找到资源事件。
+         * Found a resource.
+         * @param event Find resource event.
          */
         T found(ScanEvent event) throws IOException;
     }
 
-    /** 扫描器资源匹配类型 */
+    /** Scanner Resource Match Type */
     enum MatchType {
-        /** 扫描所有资源 */
+        /** Scan all resources */
         None,
-        /** 前缀匹配 */
+        /** Prefix Match */
         Prefix,
-        /** 含有字符串 */
+        /** Contains string */
         ContainsAny,
-        /** 尾缀匹配 */
+        /** Endfix Match */
         Suffix,
-        /** 全字匹配 */
+        /** Full Text Match */
         Match,
-        /** 正则表达式匹配 */
+        /** Regular expression matching */
         Regex,
     }
 }

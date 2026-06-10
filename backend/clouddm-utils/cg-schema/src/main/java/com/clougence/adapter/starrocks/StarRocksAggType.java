@@ -24,8 +24,8 @@ public enum StarRocksAggType {
     MAX("MAX"),
     MIN("MIN"),
     REPLACE("REPLACE"),
-    HLL_UNION("HLL_UNION"), //（仅用于HLL列，为HLL独有的聚合方式)。
-    BITMAP_UNION("BITMAP_UNION"), //（仅用于 BITMAP 列，为 BITMAP 独有的聚合方式)。
+    HLL_UNION("HLL_UNION"), //(For HLL column only, unique to HLL.
+    BITMAP_UNION("BITMAP_UNION"), //(For BITMAP columns only, a unique aggregation method for BITMAP).
     REPLACE_IF_NOT_NULL("REPLACE_IF_NOT_NULL"),;
 
     private final String typeName;

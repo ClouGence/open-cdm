@@ -19,7 +19,7 @@ import com.clougence.clouddm.dsfamily.schema.dialect.AbstractDialect;
 import com.clougence.utils.StringUtils;
 
 /**
- * Redis 的 SqlDialect 实现
+ * SQLDialect
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */

@@ -25,10 +25,10 @@ import com.clougence.utils.loader.AbstractResourceLoader;
 import com.clougence.utils.loader.ResourceLoader;
 
 /**
- * 仅允许将 ResourceLoader 的中的一部分资源设置为 '可见'
+ * Allow only a portion of the ResourcesLoader resource to be set to 'visible '
  *
- * -- 与 ImportResourceLoader 不同的是 ExportResourceLoader 是对某个特定 ResourceLoader 的增强。
- * -- 可以通过 setExportAll 方法开放所有资源被访问。
+ * -- Unlike ImportResourceLoader, ExportResourceLoader is an enhancement to a particular ResourceLoader.
+ * -- All resources can be accessed by settingExportAll.
  * @version : 2021-10-10
  * @author 赵永春 (zyc@hasor.net)
  */

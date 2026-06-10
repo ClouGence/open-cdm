@@ -30,7 +30,7 @@ public class RedisSelectColumnAnalysisSpi implements SelectColumnAnalysisSpi {
 
     @Override
     public List<SelectItem> parseSelectColumn(String script, ContextInfo info) {
-        return Collections.emptyList(); // TODO 需要根据具体的Redis命令，返回对应的列信息
+        return Collections.emptyList(); // TODO needs to return the corresponding column information according to the specific Redis command
     }
 
     @Override

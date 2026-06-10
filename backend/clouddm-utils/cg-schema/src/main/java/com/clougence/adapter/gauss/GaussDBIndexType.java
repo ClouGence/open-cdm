@@ -18,9 +18,9 @@ package com.clougence.adapter.gauss;
 
 public enum GaussDBIndexType {
 
-    /** 普通索引 */
+    /** Normal index */
     Normal,
-    /** 唯一索引 */
+    /** Unique index */
     Unique,;
 
     public static GaussDBIndexType valueOfCode(String code) {

@@ -18,7 +18,7 @@ package com.clougence.clouddm.faker.config;
 import com.clougence.utils.StringUtils;
 
 /**
- * 要执行的操作类型
+ * Type of operation to execute
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

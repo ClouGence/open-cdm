@@ -16,23 +16,23 @@
 package com.clougence.adapter.dameng;
 
 /**
- * 达梦 约束类型
+ * Dameng constraint type.
  * @version : 2021-05-07
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum DmConstraintType {
 
-    /** 主键 */
+    /** Primary key */
     PrimaryKey("P"),
-    /** 唯一 */
+    /** Unique */
     Unique("U"),
-    /** 外建 */
+    /** Foreign key */
     ForeignKey("R"),
     //    /** Supplemental logging */
     //    Supplemental("S"),
-    //    /** 检查 */
+    //    ** Inspection */
     //    Check("C"),
-    //    /** 视图检查 */
+    //    /** View Check */
     //    CheckView("V"),
     //    //
     //    /** With read only, on a view */

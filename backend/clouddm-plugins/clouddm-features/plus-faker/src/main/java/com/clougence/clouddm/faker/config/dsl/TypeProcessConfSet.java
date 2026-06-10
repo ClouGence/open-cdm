@@ -31,7 +31,7 @@ import com.clougence.clouddm.faker.config.dsl.model.DataModel;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 
 /**
- * 配置
+ * Configuration
  * @version : 2023-02-10
  * @author 赵永春 (zyc@hasor.net)
  */

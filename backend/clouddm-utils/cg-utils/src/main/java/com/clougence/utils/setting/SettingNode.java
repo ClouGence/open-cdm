@@ -21,12 +21,12 @@ import java.util.function.Predicate;
 import com.clougence.utils.setting.data.UpdateValue;
 
 /**
- * 属性节点。
+ * attribute nodes.
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-02-01
  */
 public interface SettingNode {
-    /** @return 获取父节点 */
+    /** @return Get Parent Node */
     SettingNode getParent();
 
     String getSpace();
@@ -35,16 +35,16 @@ public interface SettingNode {
 
     boolean isEmpty();
 
-    /** @return 获取节点名称 */
+    /** @return Get Node Name */
     String getName();
 
-    /** @return 获取节点完整的名称 */
+    /** @return Fetch the full name of the node */
     String getFullName();
 
-    /** @return 获取Xml节点文本值 */
+    /** @return Get Xml node text values */
     String getValue();
 
-    /** @return 获取Xml节点Xml文本值 */
+    /** @return Get Xml node xml text values */
     String[] getValues();
 
     void setValue(String value);
@@ -53,13 +53,13 @@ public interface SettingNode {
 
     void clearValue();
 
-    /** @return 获取Xml节点文本值 */
+    /** @return Get Xml node text values */
     String getSubValue(String elementName);
 
-    /** @return 获取Xml节点文本值 */
+    /** @return Get Xml node text values */
     String[] getSubValues(String elementName);
 
-    /** @return 获取属性集合 */
+    /** @return Get Properties Pool */
     SettingNode getSubNode(String elementName);
 
     SettingNode[] getSubNodes(String elementName);
@@ -68,7 +68,7 @@ public interface SettingNode {
 
     String[] getSubKeys();
 
-    /** @return 获取属性集合 */
+    /** @return Get Properties Pool */
     SettingNode[] getSubNodes();
 
     SettingNode newNode(String elementName);

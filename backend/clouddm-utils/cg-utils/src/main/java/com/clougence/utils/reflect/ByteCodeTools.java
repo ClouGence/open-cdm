@@ -24,13 +24,13 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
- * 生成字节码时候使用的工具类。
+ * The tool class that you use to generate bytes.
  * @author 赵永春 (zyc@hasor.net)
  * @version 2009-10-16
  */
 public class ByteCodeTools implements Opcodes {
 
-    /** 将某一个类型转为asm形式的表述， int 转为 I，String转为 Ljava/lang/String */
+    /** Convert a particular type to an asm, int to I, String to Ljava/lang/ String */
     public static String toAsmType(final Class<?> classType) {
         if (classType == int.class) {
             return "I";
@@ -57,7 +57,7 @@ public class ByteCodeTools implements Opcodes {
         }
     }
 
-    /** 将某一个类型转为asm形式的表述， int,int 转为 II，String,int转为 Ljava/lang/String;I */
+    /** Converting a particular type to an asm presentation, int, int to II, String, int to Ljava/lang/String; I */
     public static String toAsmType(final Class<?>[] classType) {
         String returnString = "";
         for (Class<?> c : classType) {
@@ -74,7 +74,7 @@ public class ByteCodeTools implements Opcodes {
         }
     }
 
-    /** 获取方法的Signature描述信息 */
+    /** Convert a method to its ASM signature. */
     public static String toAsmSignature(Method targetMethod) {
         class MoreType {
 
@@ -171,8 +171,8 @@ public class ByteCodeTools implements Opcodes {
             atString.append(toAsmType(paramType));
         } else if (type instanceof WildcardType) {
             WildcardType paramType = (WildcardType) type;
-            java.lang.reflect.Type[] upperType = paramType.getUpperBounds();//上边界
-            java.lang.reflect.Type[] lowerType = paramType.getLowerBounds();//下边界
+            java.lang.reflect.Type[] upperType = paramType.getUpperBounds();//Upper Border
+            java.lang.reflect.Type[] lowerType = paramType.getLowerBounds();//Lower Border
             if (lowerType.length == 0 && upperType.length != 0) {
                 atString.append("+");
                 for (java.lang.reflect.Type atType : upperType) {
@@ -193,7 +193,7 @@ public class ByteCodeTools implements Opcodes {
         return atString;
     }
 
-    /** 获取方法的ASM格式描述信息 */
+    /** Get method ASM description information */
     public static String toAsmFullDesc(Method method) {
         StringBuffer str = new StringBuffer();
         str.append(method.getName());
@@ -209,7 +209,7 @@ public class ByteCodeTools implements Opcodes {
         return str.toString();
     }
 
-    /** 获取方法的ASM格式描述信息 */
+    /** Get method ASM description information */
     public static String toAsmDesc(Method method) {
         StringBuffer str = new StringBuffer();
         str.append("(");
@@ -225,8 +225,8 @@ public class ByteCodeTools implements Opcodes {
     }
 
     /**
-     * 将IIIILjava/lang/Integer;F形式的ASM类型表述分解为数组。
-     * 测试字符串IIIILjava/lang/Integer;F[[[ILjava/lang.Boolean; ->
+     * Disaggregation of IIIILjava/lang/Integer; ASM-type presentation in F.
+     * Test string IIIILjava/lang/Integer; F[[[ILjava/lang.Boolean; ->]
      * ["I", "I", "I", "I", "Ljava/lang/Integer;", "F", "[[[I", "Ljava/lang.Boolean"]
      */
     public static String[] splitAsmType(final String asmTypes) {
@@ -238,7 +238,7 @@ public class ByteCodeTools implements Opcodes {
                 this.sread = new StringReader(sr);
             }
 
-            /** 读取到下一个分号为止或者结束为止。*/
+            /** Reads until the next semicolon or end. */
             private String readToSemicolon() throws IOException {
                 String res = "";
                 while (true) {
@@ -253,7 +253,7 @@ public class ByteCodeTools implements Opcodes {
                 }
             }
 
-            /** 读取一个类型 */
+            /** Read a type */
             private String readType() throws IOException {
                 int strInt = this.sread.read();
                 if (strInt == -1) {
@@ -269,7 +269,7 @@ public class ByteCodeTools implements Opcodes {
                 }
             }
 
-            /** 读取所有类型 */
+            /** Read All Types */
             public String[] readTypes() throws IOException {
                 ArrayList<String> ss = new ArrayList<String>(0);
                 while (true) {
@@ -292,7 +292,7 @@ public class ByteCodeTools implements Opcodes {
         }
     }
 
-    /** 将类名转换为asm类名 */
+    /** Convert class names to asm class names */
     public static String replaceClassName(final Class<?> targetClass) {
         return targetClass.getName().replace(".", "/");
     }
@@ -309,7 +309,7 @@ public class ByteCodeTools implements Opcodes {
         return typeStr;
     }
 
-    /** 将一个Ljava/lang/Object;形式的字符串转化为java/lang/Object形式 */
+    /** Convert a Ljava/lang/Object; in form to java/lang/Object */
     public static String asmTypeToType(final String asmType) {
         if (asmType.charAt(0) == 'L') {
             return asmType.substring(1, asmType.length() - 1);

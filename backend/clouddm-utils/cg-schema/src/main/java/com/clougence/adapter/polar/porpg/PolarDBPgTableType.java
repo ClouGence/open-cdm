@@ -18,7 +18,7 @@ package com.clougence.adapter.polar.porpg;
 import com.clougence.schema.metadata.TableType;
 
 /**
- * Postgres 的表类型
+ * Table type for Postgress
  * @version : 2021-05-10
  * @author 赵永春 (zyc@hasor.net)
  */

@@ -18,30 +18,30 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
- * <p> 配置文件设置 </p>
- * 环境变量来源以及加载顺序，靠后顺位会覆盖前一顺位的重复配置。
- * 1st，System.getProperties()
- * 2st，System.getenv()
- * 3st，配置文件"hasor.environmentVar"
- * 4st，传入的配置
+ * Configuration settings.
+ * Environment variables are loaded in the following order; later sources override duplicate values from earlier sources.
+ * 1st, System.getProperties()
+ * 2nd, System.getenv()
+ * 3rd, profile "hasor.environmentVar"
+ * 4th, incoming configuration
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-4-23
  */
 public interface Settings {
     String DefaultNameSpace = "https://www.hasor.net/sechma/main";
 
-    /** @return 已解析的命名空间列表 */
+    /** @return Parsed Namespace List */
     String[] getSettingArray();
 
-    /** 获取指在某个特定命名空间下的Settings接口对象 */
+    /** Getting a Settings interface object in a given named space */
     Settings getSettings(String namespace);
 
-    /** 如果配置的值采用了表达式，那么 refresh 会计算它们 */
+    /** If the configured values use expressions, refresh calculates them. */
     default void refresh() throws IOException {
     }
 
     /**
-     * 设置参数，如果出现多个值，则会覆盖。(使用默认命名空间 : DefaultNameSpace)
+     * Sets the parameters. If there are multiple values, the values are overwritten. (Use default naming space: DefaultNameSpace)
      * @see #DefaultNameSpace
      */
     default void setSetting(String key, Object value) {
@@ -52,218 +52,218 @@ public interface Settings {
         }
     }
 
-    /** 设置参数，如果出现多个值，则会覆盖 */
+    /** Set parameters, overwrite if multiple values appear */
     void setSetting(String key, Object value, String namespace);
 
-    /** 将整个配置项的多个值全部删除（全部命名空间） */
+    /** Remove multiple values from the entire configuration (all namespaces) */
     void removeSetting(String s);
 
-    /** 将整个配置项的多个值全部删除 */
+    /** Remove multiple values of the entire configuration item */
     void removeSetting(String key, String namespace);
 
-    /** 添加参数，如果参数名称相同则追加一项 */
+    /** Add parameters, and add an item if the parameter name is the same */
     default void addSetting(String key, Object value) {
         this.addSetting(key, value, DefaultNameSpace);
     }
 
-    /** 添加参数，如果参数名称相同则追加一项 */
+    /** Add parameters, and add an item if the parameter name is the same */
     void addSetting(String key, Object var, String namespace);
 
-    /** 计算字符串，并替换环境变量等信息 */
+    /** Calculate strings and replace information such as environment variables */
     String evalSetting(String evalString);
 
-    /** 解析全局配置参数，并且返回其{@link Character}形式对象 */
+    /** Parses a global configuration parameter and returns a {@link Character} object. */
     Character getChar(String name);
 
-    /** 解析全局配置参数，并且返回其{@link Character}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns a {@link Character} object. The second parameter is the default value. */
     Character getChar(String name, Character defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link String}形式对象 */
+    /** Parses a global configuration parameter and returns a {@link String} object. */
     String getString(String name);
 
-    /** 解析全局配置参数，并且返回其{@link String}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns a {@link String} object. The second parameter is the default value. */
     String getString(String name, String defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Boolean}形式对象 */
+    /** Parses a global configuration parameter and returns a {@link Boolean} object. */
     Boolean getBoolean(String name);
 
-    /** 解析全局配置参数，并且返回其{@link Boolean}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns a {@link Boolean} object. The second parameter is the default value. */
     Boolean getBoolean(String name, Boolean defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Short}形式对象 */
+    /** Parses a global configuration parameter and returns a {@link Short} object. */
     Short getShort(String name);
 
-    /** 解析全局配置参数，并且返回其{@link Short}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns a {@link Short} object. The second parameter is the default value. */
     Short getShort(String name, Short defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Integer}形式对象 */
+    /** Parses a global configuration parameter and returns an {@link Integer} object. */
     Integer getInteger(String name);
 
-    /** 解析全局配置参数，并且返回其{@link Integer}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns an {@link Integer} object. The second parameter is the default value. */
     Integer getInteger(String name, Integer defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Long}形式对象 */
+    /** Parses a global configuration parameter and returns a {@link Long} object. */
     Long getLong(String name);
 
-    /** 解析全局配置参数，并且返回其{@link Long}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns a {@link Long} object. The second parameter is the default value. */
     Long getLong(String name, Long defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Float}形式对象 */
+    /** Parses a global configuration parameter and returns a {@link Float} object. */
     Float getFloat(String name);
 
-    /** 解析全局配置参数，并且返回其{@link Float}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns a {@link Float} object. The second parameter is the default value. */
     Float getFloat(String name, Float defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Double}形式对象 */
+    /** Parses a global configuration parameter and returns a {@link Double} object. */
     Double getDouble(String name);
 
-    /** 解析全局配置参数，并且返回其{@link Double}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns a {@link Double} object. The second parameter is the default value. */
     Double getDouble(String name, Double defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象 */
+    /** Parses a global configuration parameter and returns a {@link Date} object. */
     Date getDate(String name);
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns a {@link Date} object. The second parameter is the default value. */
     Date getDate(String name, Date defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns a {@link Date} object. The second parameter is the default value. */
     Date getDate(String name, long defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象 */
+    /** Parses a global configuration parameter and returns a {@link Date} object. */
     Date getDate(String name, String format);
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象。第三个参数为默认值 */
+    /** Parses a global configuration parameter and returns a {@link Date} object. The third parameter is the default value. */
     Date getDate(String name, String format, Date defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象。第三个参数为默认值 */
+    /** Parses a global configuration parameter and returns a {@link Date} object. The third parameter is the default value. */
     Date getDate(String name, String format, long defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Enum}形式对象 */
+    /** Parses a global configuration parameter and returns an enum object. */
     <T extends Enum<?>> T getEnum(String name, Class<T> enmType);
 
-    /** 解析全局配置参数，并且返回其{@link Enum}形式对象。第三个参数为默认值 */
+    /** Parses a global configuration parameter and returns an enum object. The third parameter is the default value. */
     <T extends Enum<?>> T getEnum(String name, Class<T> enmType, T defaultValue);
 
-    /** 解析全局配置参数，并且返回字符串（用于表示文件，结尾不带‘/’） */
+    /** Parses a global configuration parameter and returns a file path string without a trailing '/'. */
     String getFilePath(String name);
 
-    /** 解析全局配置参数，并且返回字符串（用于表示文件，结尾不带‘/’）。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns a file path string without a trailing '/'. The second parameter is the default value. */
     String getFilePath(String name, String defaultValue);
 
-    /** 解析全局配置参数，并且返回字符串（用于表示目录，结尾带‘/’） */
+    /** Parses a global configuration parameter and returns a directory path string ending with '/'. */
     String getDirectoryPath(String name);
 
-    /** 解析全局配置参数，并且返回字符串（用于表示目录，结尾带‘/’）。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns a directory path string ending with '/'. The second parameter is the default value. */
     String getDirectoryPath(String name, String defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link SettingNode}形式对象 */
+    /** Parses a global configuration parameter and returns a {@link SettingNode} object. */
     SettingNode getNode(String name);
 
-    /** 解析全局配置参数，并且返回其{@link Character}形式对象 */
+    /** Parses a global configuration parameter and returns {@link Character} objects. */
     Character[] getCharArray(String name);
 
-    /** 解析全局配置参数，并且返回其{@link Character}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns {@link Character} objects. The second parameter is the default value. */
     Character[] getCharArray(String name, Character defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link String}形式对象 */
+    /** Parses a global configuration parameter and returns {@link String} objects. */
     String[] getStringArray(String name);
 
-    /** 解析全局配置参数，并且返回其{@link String}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns {@link String} objects. The second parameter is the default value. */
     String[] getStringArray(String name, String defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Boolean}形式对象 */
+    /** Parses a global configuration parameter and returns {@link Boolean} objects. */
     Boolean[] getBooleanArray(String name);
 
-    /** 解析全局配置参数，并且返回其{@link Boolean}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns {@link Boolean} objects. The second parameter is the default value. */
     Boolean[] getBooleanArray(String name, Boolean defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Short}形式对象 */
+    /** Parses a global configuration parameter and returns {@link Short} objects. */
     Short[] getShortArray(String name);
 
-    /** 解析全局配置参数，并且返回其{@link Short}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns {@link Short} objects. The second parameter is the default value. */
     Short[] getShortArray(String name, Short defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Integer}形式对象 */
+    /** Parses a global configuration parameter and returns {@link Integer} objects. */
     Integer[] getIntegerArray(String name);
 
-    /** 解析全局配置参数，并且返回其{@link Integer}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns {@link Integer} objects. The second parameter is the default value. */
     Integer[] getIntegerArray(String name, Integer defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Long}形式对象 */
+    /** Parses a global configuration parameter and returns {@link Long} objects. */
     Long[] getLongArray(String name);
 
-    /** 解析全局配置参数，并且返回其{@link Long}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns {@link Long} objects. The second parameter is the default value. */
     Long[] getLongArray(String name, Long defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Float}形式对象 */
+    /** Parses a global configuration parameter and returns {@link Float} objects. */
     Float[] getFloatArray(String name);
 
-    /** 解析全局配置参数，并且返回其{@link Float}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns {@link Float} objects. The second parameter is the default value. */
     Float[] getFloatArray(String name, Float defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Double}形式对象 */
+    /** Parses a global configuration parameter and returns {@link Double} objects. */
     Double[] getDoubleArray(String name);
 
-    /** 解析全局配置参数，并且返回其{@link Double}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns {@link Double} objects. The second parameter is the default value. */
     Double[] getDoubleArray(String name, Double defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象 */
+    /** Parses a global configuration parameter and returns {@link Date} objects. */
     Date[] getDateArray(String name);
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns {@link Date} objects. The second parameter is the default value. */
     Date[] getDateArray(String name, Date defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns {@link Date} objects. The second parameter is the default value. */
     Date[] getDateArray(String name, long defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象 */
+    /** Parses a global configuration parameter and returns {@link Date} objects. */
     Date[] getDateArray(String name, String format);
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象。第三个参数为默认值 */
+    /** Parses a global configuration parameter and returns {@link Date} objects. The third parameter is the default value. */
     Date[] getDateArray(String name, String format, Date defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象。第三个参数为默认值 */
+    /** Parses a global configuration parameter and returns {@link Date} objects. The third parameter is the default value. */
     Date[] getDateArray(String name, String format, long defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link Enum}形式对象 */
+    /** Parses a global configuration parameter and returns enum objects. */
     <T extends Enum<?>> T[] getEnumArray(String name, Class<T> enmType);
 
-    /** 解析全局配置参数，并且返回其{@link Enum}形式对象。第三个参数为默认值 */
+    /** Parses a global configuration parameter and returns enum objects. The third parameter is the default value. */
     <T extends Enum<?>> T[] getEnumArray(String name, Class<T> enmType, T defaultValue);
 
-    /** 解析全局配置参数，并且返回字符串（用于表示文件，结尾不带‘/’） */
+    /** Parses a global configuration parameter and returns file path strings without trailing '/'. */
     String[] getFilePathArray(String name);
 
-    /** 解析全局配置参数，并且返回字符串（用于表示文件，结尾不带‘/’）。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns file path strings without trailing '/'. The second parameter is the default value. */
     String[] getFilePathArray(String name, String defaultValue);
 
-    /** 解析全局配置参数，并且返回字符串（用于表示目录，结尾带‘/’） */
+    /** Parses a global configuration parameter and returns directory path strings ending with '/'. */
     String[] getDirectoryPathArray(String name);
 
-    /** 解析全局配置参数，并且返回字符串（用于表示目录，结尾带‘/’）。第二个参数为默认值 */
+    /** Parses a global configuration parameter and returns directory path strings ending with '/'. The second parameter is the default value. */
     String[] getDirectoryPathArray(String name, String defaultValue);
 
-    /** 解析全局配置参数，并且返回其{@link SettingNode}形式对象 */
+    /** Parses a global configuration parameter and returns {@link SettingNode} objects. */
     SettingNode[] getNodeArray(String name);
 
     String[] getEnvNames();
 
     /**
-     * 获取环境变量。
-     * @param name 环境变量名。
+     * Gets the environment variable.
+     * @param name Environmental variable name.
      */
     String getEnv(String name);
 
     /**
-     * 添加环境变量，添加的环境变量并不会影响到系统环境变量，它会使用内部Map保存环境变量从而避免影响JVM正常运行。
-     * @param name 环境变量名。
-     * @param value 环境变量值或环境变量表达式。
+     * Adding an environment variable does not affect the system environment variable, and it saves the environment variable using an internal Map to avoid affecting JVM operations.
+     * @param name Environmental variable name.
+     * @param value An environmental variable value or an expression of an environmental variable.
      */
     void addEnv(String name, String value);
 
     /**
-     * 删除环境变量，该方法从内部Map删除所保存的环境变量，这样做的目的是为了避免影响JVM正常运行。
-     * @param name 环境变量名。
+     * Delete the environmental variable, which is stored from the internal Map, in order to avoid affecting the proper operation of JVM.
+     * @param name Environmental variable name.
      */
     void removeEnv(String name);
 }

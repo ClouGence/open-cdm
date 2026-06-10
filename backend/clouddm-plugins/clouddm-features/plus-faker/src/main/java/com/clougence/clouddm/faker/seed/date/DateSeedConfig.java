@@ -28,7 +28,7 @@ import com.clougence.utils.format.DateFormatType;
 import com.clougence.utils.format.WellKnowFormat;
 
 /**
- * 时间类型的 SeedConfig
+ * SeedConfig
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -36,7 +36,7 @@ public class DateSeedConfig extends SeedConfig {
 
     private GenType           genType;
     private DateType          dateType;
-    private String            dateFormat;   // 首先搜索 DateTimeFormatter 中定义的 ISO 格式，其次在解析。
+    private String            dateFormat;   // Search first for ISO formats as defined in DateTimeFormatter, and second, interpret.
     private DateTimeFormatter dateFormatter;
     // in random
     private String            rangeForm;
@@ -49,7 +49,7 @@ public class DateSeedConfig extends SeedConfig {
     private Integer           maxInterval;
     private IntervalScope     intervalScope;
     //
-    private Integer           precision;    //时间小数精度
+    private Integer           precision;    //Time decimal precision
 
     public DateTimeFormatter getDateTimeFormatter() {
         if (this.dateFormatter == null) {

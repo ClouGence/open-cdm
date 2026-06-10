@@ -27,8 +27,8 @@ import org.apache.ibatis.type.JdbcType;
 import net.hasor.cobble.StringUtils;
 
 /**
- * 使用 {@link BigDecimal} 类型读写 jdbc string 数据。
- *  - 例如：已经超出了数据库存储精度范围的超大数就可以使用字符串存储，同时程序读取仍然是 {@link BigDecimal}。
+ * Reads and writes JDBC string values as {@link BigDecimal}.
+ *  - For example, very large numbers that exceed the database precision can be stored as strings while the application still reads them as {@link BigDecimal}.
  * @author 赵永春 (zyc@hasor.net)
  */
 public class StringAsBigDecimalTypeHandler extends BaseTypeHandler<BigDecimal> {

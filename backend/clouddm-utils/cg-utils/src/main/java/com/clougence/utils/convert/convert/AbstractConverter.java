@@ -47,25 +47,25 @@ import com.clougence.utils.convert.Converter;
  */
 public abstract class AbstractConverter implements Converter {
 
-    /** 当转换出错时是否返回默认值。*/
+    /** Returns the default value when the conversion is wrong. */
     private boolean useDefault   = false;
-    /**默认值*/
+    /**Default value */
     private Object  defaultValue = null;
     // ----------------------------------------------------------- Constructors
 
-    /**创建创造<i>Converter</i>转换器，可能会引发<code>ConversionException</code>异常。*/
+    /** Creates a converter that throws {@link ConversionException} on conversion errors. */
     public AbstractConverter(){
     }
 
-    /**创建创造<i>Converter</i>转换器，可能会引发<code>ConversionException</code>异常。*/
+    /** Creates a converter that returns the default value on conversion errors. */
     public AbstractConverter(final Object defaultValue){
         this.setDefaultValue(defaultValue);
     }
     // --------------------------------------------------------- Public Methods
 
     /**
-     * 当转换期间发生异常时是否使用默认值。
-     * @return 如果<code>true</code>则表示当遇到错误时设置的默认值会被返回。如果<code>false</code>会引发{@link ConversionException}异常。
+     * Whether to use the default value when an exception occurs during conversion.
+     * @return if <code>true</code>, the configured default value is returned when an error is encountered. If <code>false</code>, {@link ConversionException} is thrown.
      */
     public boolean isUseDefault() { return this.useDefault; }
 
@@ -82,7 +82,7 @@ public abstract class AbstractConverter implements Converter {
     @Override
     public Object convert(final Class<?> type, Object value) {
         Class<?> sourceType = value == null ? null : value.getClass();
-        value = this.convertArray(value);//如果数据源是一个Array 或 集合 那么取得第一个元素。
+        value = this.convertArray(value);//If the data source is an Array or a collection then get the first element.
         //Missing Value
         if (value == null) {
             return this.handleMissing(type);
@@ -105,8 +105,8 @@ public abstract class AbstractConverter implements Converter {
     }
 
     /**
-     * 处理转换错误。<p>
-     * 如果设置了default属性则当遇到错误时返回默认值。否则引发{@link ConversionException}异常。
+     * Handles conversion errors.
+     * Returns the default value when one is configured; otherwise throws {@link ConversionException}.
      */
     protected Object handleError(final Class<?> type, final Object value, final Throwable cause) {
         if (this.useDefault) {
@@ -121,21 +121,21 @@ public abstract class AbstractConverter implements Converter {
     }
 
     /**
-     * 转换对象成为String格式。<p>
-     * <b>注意：</b>这个方法简单使用<code>toString()</code>实现该功能，子类应当重写该方法以完成特殊的转换过程。
+     * Converts the object to a String representation.
+     * Note: this method simply uses {@link Object#toString()}, and subclasses should override it for specialized conversion logic.
      */
     protected String convertToString(final Object value) throws Throwable {
         return value.toString();
     }
 
-    /**执行类型转换代码。*/
+    /**Execute type conversion code. */
     protected abstract Object convertToType(Class<?> type, Object value) throws Throwable;
 
     /**
      * Return the first element from an Array (or Collection)
      * or the value unchanged if not an Array (or Collection).
      *
-     * N.B. This needs to be overriden for array/Collection converters.
+     * N.B. This needs to be overridden for array/Collection converters.
      *
      * @param value The value to convert
      * @return The first element in an Array (or Collection)
@@ -163,7 +163,7 @@ public abstract class AbstractConverter implements Converter {
         return value;
     }
 
-    /**设置默认值 */
+    /**Set Default */
     protected void setDefaultValue(final Object defaultValue) {
         this.useDefault = false;
         if (defaultValue == null) {
@@ -174,10 +174,10 @@ public abstract class AbstractConverter implements Converter {
         this.useDefault = true;
     }
 
-    /**获取默认值*/
+    /**Get Defaults */
     protected abstract Class<?> getDefaultType();
 
-    /**返回指定类型的默认值.*/
+    /**Returns the default value for the specified type. */
     protected Object getDefault(final Class<?> type) {
         if (type.equals(String.class)) {
             return null;
@@ -195,7 +195,7 @@ public abstract class AbstractConverter implements Converter {
         return this.toString(this.getClass()) + "[UseDefault=" + this.useDefault + "]";
     }
 
-    /**当遇到空值传入或者返回值为空的时候*/
+    /**When empty values are passed in or returned empty */
     protected Object handleMissing(final Class<?> type) {
         if (this.useDefault || type.equals(String.class)) {
             Object value = this.getDefault(type);

@@ -18,7 +18,7 @@ package com.clougence.adapter.oracle.driver;
 import java.sql.Types;
 
 /**
- * 参考 ojdbc8-19.8.0.0.jar
+ * Reference ojdbc8-19.8.0.0.jar
  */
 public class OracleTypes {
 

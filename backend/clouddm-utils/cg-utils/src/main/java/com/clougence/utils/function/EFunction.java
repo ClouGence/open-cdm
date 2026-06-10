@@ -20,7 +20,7 @@ import java.util.function.Function;
 import com.clougence.utils.ExceptionUtils;
 
 /**
- * Function 允许异常抛出。
+ * Function allows anomalies to be thrown.
  * @version 2021-01-23
  * @author 赵永春 (zyc@hasor.net)
  */

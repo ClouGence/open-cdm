@@ -38,7 +38,7 @@ import com.clougence.utils.format.WellKnowFormat;
 import lombok.Getter;
 
 /**
- * 状态监听
+ * Status listener.
  *
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-07-25

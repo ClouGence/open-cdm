@@ -19,7 +19,7 @@ import com.clougence.schema.metadata.CgTableType;
 import com.clougence.schema.metadata.TableType;
 
 /**
- * Oracle 表类型
+ * Oracle Table Type
  * @version : 2021-04-29
  * @author 赵永春 (zyc@hasor.net)
  */

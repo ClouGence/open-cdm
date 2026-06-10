@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import org.apache.ibatis.type.JdbcType;
 
 /**
- * 以 WKB 形式，读写 WKT 数据（数据库存储读使用 String）
+ * Read and write WKT data in WKB (ring for database storage)
  * @author 赵永春 (zyc@hasor.net)
  */
 public class JtsGeometryWktAsWkbTypeHandler extends AbstractJtsGeometryTypeHandler<byte[]> {

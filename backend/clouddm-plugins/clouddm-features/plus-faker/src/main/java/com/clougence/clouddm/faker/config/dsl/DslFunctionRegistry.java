@@ -23,7 +23,7 @@ import com.clougence.clouddm.faker.config.spi.PostgresqlSpiRegistry;
 import com.clougence.utils.ref.LinkedCaseInsensitiveMap;
 
 /**
- * DslFunction 注册器
+ * DslFunction Register
  * @version : 2023-02-14
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -41,12 +41,12 @@ public class DslFunctionRegistry {
         new HanaSpiRegistry().loopUp(DEFAULT);
     }
 
-    /** 注册 DslFunction */
+    /** Register DslFunction */
     public DslFunction findByName(String functionName) {
         return functionMap.get(functionName);
     }
 
-    /** 注册 DslFunction */
+    /** Register DslFunction */
     public void register(String functionName, DslFunction dslFunction) {
         functionMap.put(functionName, dslFunction);
     }

@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 集合类型
+ * Collection type
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2023-02-14
  */
@@ -37,17 +37,17 @@ public class ListModel implements DataModel {
         return unwrap;
     }
 
-    /** 向集合的末尾追加一个元素 */
+    /** Add an element to the end of the collection */
     public void add(DataModel object) {
         this.dataModel.add(object == null ? ValueModel.NULL : object);
     }
 
-    /** 获取某一个元素 */
+    /** Get an element */
     public DataModel get(int index) {
         return this.dataModel.get(index);
     }
 
-    /** 集合大小 */
+    /** Pool Size */
     public int size() {
         return this.dataModel.size();
     }

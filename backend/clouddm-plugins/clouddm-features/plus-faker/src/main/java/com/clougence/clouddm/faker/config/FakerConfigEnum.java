@@ -16,64 +16,64 @@
 package com.clougence.clouddm.faker.config;
 
 /**
- * FakerTable 构建器
+ * FakerTable Builder
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum FakerConfigEnum {
 
-    /** 表 处理 update/delete 生成 where 的存量数据加载器 */
+    /** Existing-row data loader used to build UPDATE/DELETE WHERE clauses. */
     GLOBAL_DATA_LOADER_FACTORY("dataLoaderFactory"),
-    /** sql 语句方言 */
+    /** SQL dialect. */
     GLOBAL_DIALECT("dialect"),
-    /** 数据默认生成策略 */
+    /** Default data generation strategy. */
     GLOBAL_STRATEGY("strategy"),
 
-    /** 表 catalog */
+    /** Table catalog. */
     TABLE_CATALOG("catalog"),
-    /** 表 schema */
+    /** Table schema. */
     TABLE_SCHEMA("schema"),
-    /** 表 生成的总条数 */
+    /** Total number of rows generated for the table. */
     TABLE_GENERATOR_TOTAL("total"),
-    /** 表 name */
+    /** Table name. */
     TABLE_TABLE("table"),
-    /** 列配置信息 */
+    /** Column configuration. */
     TABLE_COLUMNS("columns"),
-    /** 任何操作都不参与的列 */
+    /** Columns excluded from all operations. */
     TABLE_COL_IGNORE_ALL("ignoreColsAll"),
-    /** 不参与 insert 的列 */
+    /** Columns excluded from INSERT statements. */
     TABLE_COL_IGNORE_INSERT("ignoreColsInsert"),
-    /** 不参与 update set 的列 */
+    /** Columns excluded from UPDATE SET clauses. */
     TABLE_COL_IGNORE_UPDATE("ignoreColsUpdate"),
-    /** 不参与 delete where 条件的列 */
+    /** Columns excluded from DELETE WHERE conditions. */
     TABLE_COL_IGNORE_DELETE_WHERE("ignoreColsDeleteWhere"),
-    /** 不参与 update where 条件的列 */
+    /** Columns excluded from UPDATE WHERE conditions. */
     TABLE_COL_IGNORE_UPDATE_WHERE("ignoreColsUpdateWhere"),
-    /** INSERT 语句生成策略 */
+    /** INSERT statement generation strategy. */
     TABLE_ACT_POLITIC_INSERT("insertPolitic"),
-    /** UPDATE SET 语句生成策略 */
+    /** UPDATE SET statement generation policy */
     TABLE_ACT_POLITIC_UPDATE("updatePolitic"),
-    /** UPDATE/DELETE 语句的 WHERE 子句生成策略 */
+    /** WHERE clause generation strategy for UPDATE/DELETE statements. */
     TABLE_ACT_POLITIC_WHERE("wherePolitic"),
 
-    /** 自定义数据发生器类型 */
+    /** Custom data generator type. */
     COLUMN_SEED_TYPE("seedType"),
-    /** 自定义数据发生器 */
+    /** Custom data generator. */
     COLUMN_SEED_FACTORY("seedFactory"),
-    /** 是一个数组 */
+    /** Whether the column is an array. */
     COLUMN_ARRAY_TYPE("isArray"),
 
-    /** 用于 select 语句的参数，默认是：{name} */
+    /** Parameter template for SELECT statements, default: {name}. */
     SELECT_TEMPLATE("selectTemplate"),
-    /** 用于 insert 语句的参数，默认是：? */
+    /** Parameter template for INSERT statements, default: ?. */
     INSERT_TEMPLATE("insertTemplate"),
-    /** 用于 update 语句的列名，默认是：{name} */
+    /** Column-name template for UPDATE statements, default: {name}. */
     SET_COL_TEMPLATE("setColTemplate"),
-    /** 用于 update 语句的参数，默认是：? */
+    /** Parameter template for UPDATE statements, default: ?. */
     SET_VALUE_TEMPLATE("setValueTemplate"),
-    /** 用于 update/delete 中 where 子语句的列名，默认是：{name} */
+    /** Column-name template for UPDATE/DELETE WHERE clauses, default: {name}. */
     WHERE_COL_TEMPLATE("whereColTemplate"),
-    /** 用于 update/delete 中 where 子语句的参数，默认是：? */
+    /** Parameter template for UPDATE/DELETE WHERE clauses, default: ?. */
     WHERE_VALUE_TEMPLATE("whereValueTemplate");
 
     private final String configKey;

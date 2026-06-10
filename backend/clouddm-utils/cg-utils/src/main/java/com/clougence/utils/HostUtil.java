@@ -60,7 +60,7 @@ public class HostUtil {
         }
     }
 
-    /** 获取本机地址 */
+    /** Get your own address. */
     public static List<String> localAddrForIPv4() throws SocketException {
         List<String> ipList = new ArrayList<>();
         Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();

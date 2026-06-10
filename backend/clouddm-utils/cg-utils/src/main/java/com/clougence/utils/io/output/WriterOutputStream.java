@@ -19,7 +19,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 
 /**
- * 使用OutputStream输出Writer的工具类
+ * Output Writer with Outlook Category
  * @version 2009-5-13
  * @author 网络收集
  */
@@ -30,9 +30,9 @@ public class WriterOutputStream extends OutputStream {
     //========================================================================================
 
     /**
-     * 带Writer和字符编码格式参数的构造函数
-     * @param writer   - OutputStream使用的Reader
-     * @param encoding - OutputStream使用的字符编码格式。
+     * Constructive function with Writer and character encoding parameters
+     * @param writer   - Reader for OutputStream.
+     * @param encoding - The character code format used by OutputStream.
      */
     public WriterOutputStream(final Writer writer, final String encoding) {
         this.writer = writer;
@@ -40,8 +40,8 @@ public class WriterOutputStream extends OutputStream {
     }
 
     /**
-     * 带Writer参数构造函数
-     * @param writer - OutputStream使用的Writer
+     * Construct function with Writer parameters
+     * @param writer - Writer used in Outputstream.
      */
     public WriterOutputStream(final Writer writer) {
         this.writer = writer;

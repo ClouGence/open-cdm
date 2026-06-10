@@ -24,7 +24,7 @@ import com.clougence.schema.DsType;
 import com.clougence.schema.metadata.FieldType;
 
 /**
- * https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/Data-Types.html 参考 ojdbc8-19.8.0.0.jar
+ * https://docs.oracle.com/en/database/oracle/oracle-data/21/SQLf/Data-Types.html
  *
  * @version : 2021-03-30
  * @author 赵永春 (zyc@hasor.net)

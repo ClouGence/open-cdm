@@ -72,12 +72,12 @@ public class FakerRepository {
         }
     }
 
-    /** 从生成器中随机选择一张 fakerTable 表，并为这张表生成一个事务的语句。语句类型随机 */
+    /** Selects a FakerTable randomly from the generator and uses a random statement type. */
     public List<BoundQuery> generator(GenCondition condition, Session session) throws Exception {
         return this.generator(condition, session, this.engineConfig.randomOps());
     }
 
-    /** 从生成器中随机选择一张 fakerTable 表，并为这张表生成一个事务的语句。语句类型由 opsType 决定 */
+    /** Selects a FakerTable randomly from the generator and uses the statement type from opsType. */
     public List<BoundQuery> generator(GenCondition condition, Session session, OpsType opsType) throws Exception {
         FakerTable table = randomTable(condition);
         if (table == null) {
@@ -93,7 +93,7 @@ public class FakerRepository {
         return events;
     }
 
-    /** 为 fakerTable 生成一批 opsType 类型 DML 语句 */
+    /** Generates a batch of DML statements of the requested opsType for the FakerTable. */
     protected List<BoundQuery> generatorOps(GenCondition condition, Session session, FakerTable fakerTable, OpsType opsType) throws Exception {
         Objects.requireNonNull(fakerTable, "fakerTable is null.");
         Objects.requireNonNull(opsType, "opsType is null.");
@@ -111,7 +111,7 @@ public class FakerRepository {
         }
     }
 
-    /** 从生成器中随机选择一张 fakerTable 表 */
+    /** Selects a FakerTable randomly from the generator. */
     protected FakerTable randomTable(GenCondition condition) {
         if (!CollectionUtils.isEmpty(this.generatorTables)) {
             FakerTable fakerTable;
@@ -125,20 +125,20 @@ public class FakerRepository {
         return null;
     }
 
-    /** 添加一个表到生成器中，表的列信息通过元信息服务来补全。 */
+    /** Adds a table to the generator and completes its column information through the metadata service. */
     public FakerTable addTable(String catalog, String schema, String table) throws Exception {
         FakerTable fetchTable = this.fakerFactory.fetchTable(catalog, schema, table);
         this.addTable(fetchTable);
         return fetchTable;
     }
 
-    /** 添加一个表到生成器中 */
+    /** Adds a table to the generator. */
     protected FakerTable addTable(FakerTable table) {
         this.generatorTables.add(table);
         return table;
     }
 
-    /** 从生成器中查找某个表 */
+    /** Finds a table in the generator. */
     public FakerTable findTable(String catalog, String schema, String table) {
         return this.generatorTables.stream().filter(fakerTable -> {
             return StringUtils.equals(fakerTable.getCatalog(), catalog) && //

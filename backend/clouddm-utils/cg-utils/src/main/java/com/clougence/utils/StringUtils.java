@@ -6470,7 +6470,7 @@ public class StringUtils {
     }
 
     /**
-     * 转换首字母大写。
+     * Converts the initial capital letter.
      * <pre>
      * StringUtils.firstCharToUpperCase(null)      = null
      * StringUtils.firstCharToUpperCase("")        = ""
@@ -6491,7 +6491,7 @@ public class StringUtils {
     }
 
     /**
-     * 转换首字母小写。
+     * Converts the initial letter lowercase.
      * <pre>
      * StringUtils.firstCharToLowerCase(null)      = null
      * StringUtils.firstCharToLowerCase("")        = ""
@@ -6512,7 +6512,7 @@ public class StringUtils {
     }
 
     /**
-     * 执行字符串匹配。
+     * Execute string matching.
      * <pre>
      * StringUtils.equalsBlankIgnoreCase(null,"")         = true
      * StringUtils.equalsBlankIgnoreCase("","")           = true

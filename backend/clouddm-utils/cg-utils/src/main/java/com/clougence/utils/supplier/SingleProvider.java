@@ -18,7 +18,7 @@ package com.clougence.utils.supplier;
 import java.util.function.Supplier;
 
 /**
- * 单例对象的{@link Supplier}封装形式。
+ * Lazily creates and caches a single supplied object.
  * @version : 2014年7月8日
  * @author 赵永春 (zyc@hasor.net)
  */

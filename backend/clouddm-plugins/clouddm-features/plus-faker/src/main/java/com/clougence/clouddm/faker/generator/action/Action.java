@@ -21,7 +21,7 @@ import com.clougence.clouddm.faker.generator.BoundQuery;
 import com.clougence.clouddm.sdk.execute.session.Session;
 
 /**
- * 语句生成器
+ * Statement Generator
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

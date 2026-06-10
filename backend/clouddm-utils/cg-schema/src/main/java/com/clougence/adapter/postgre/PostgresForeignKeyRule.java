@@ -16,7 +16,7 @@
 package com.clougence.adapter.postgre;
 
 /**
- * Postgres 外建约束的及联更新策略
+ * Postgres external binding and linked update policy
  * @version : 2021-05-17
  * @author 赵永春 (zyc@hasor.net)
  */

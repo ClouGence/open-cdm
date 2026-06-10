@@ -22,7 +22,7 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.utils.StringUtils;
 
 /**
- * 元信息服务
+ * Metadata Service
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */

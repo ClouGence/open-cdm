@@ -16,7 +16,7 @@
 package com.clougence.adapter.mysql;
 
 /**
- * MySQL 外建约束的及联更新策略
+ * MySQL external bound and linked update policy
  * @version : 2021-03-30
  * @author 赵永春 (zyc@hasor.net)
  */

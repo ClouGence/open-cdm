@@ -18,17 +18,17 @@ package com.clougence.schema.umi.struts.constraint;
 import com.clougence.schema.umi.struts.UmiConstraintType;
 
 /**
- * 约束类型
+ * Type of binding
  * @version : 2021-03-30
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum GeneralConstraintType implements UmiConstraintType {
 
-    /** 非空的 */
+    /** Non-empty */
     NonNull("NonNull"),
-    /** 唯一的 */
+    /** Only */
     Unique("Unique"),
-    /** 主要的 */
+    /** Main */
     Primary("Primary"),
     Check("Check"),
     Foreign("Foreign"),;

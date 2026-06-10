@@ -23,21 +23,21 @@ package com.clougence.adapter.sqlserver;
  */
 public enum SqlServerIndexType {
 
-    //0 = 堆
+    //0 = Heap
     Heap("0"),
-    //1 = B 树 (聚集行存储)
+    //1 = B-tree (clustered rowstore)
     Clustered("1"),
-    //2 = 非聚集行存储 (B 树)
+    //2 = Nonclustered rowstore (B-tree)
     NonClustered("2"),
     //3 = XML
     Xml("3"),
-    //4 = 空间
+    //4 = Spatial
     Spatial("4"),
-    //5 = 聚集列存储索引。 适用于：SQL Server 2014 (12.x) 及更高版本。
+    //5 = Clustered columnstore index. Applies to: SQL Server 2014 (12.x) and later.
     ClusteredColumnStore("5"),
-    //6 = 非聚集列存储索引。 适用于：SQL Server 2012 (11.x) 及更高版本。
+    //6 = Nonclustered columnstore index. Applies to: SQL Server 2012 (11.x) and later.
     NonClusteredColumnStore("6"),
-    //7 = 非聚集哈希索引。 适用于：SQL Server 2014 (12.x) 及更高版本。
+    //7 = Nonclustered hash index. Applies to: SQL Server 2014 (12.x) and later.
     NonClusteredHash("7"),;
 
     private final String typeName;

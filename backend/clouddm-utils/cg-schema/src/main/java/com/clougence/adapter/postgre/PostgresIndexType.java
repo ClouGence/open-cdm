@@ -16,16 +16,16 @@
 package com.clougence.adapter.postgre;
 
 /**
- * Postgres 索引类型
+ * Postgres Index Type
  * 
  * @version : 2021-05-17
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum PostgresIndexType {
 
-    /** 普通索引 */
+    /** Normal index */
     Normal,
-    /** 唯一索引 */
+    /** Unique index */
     Unique,;
 
     public static PostgresIndexType valueOfCode(String code) {

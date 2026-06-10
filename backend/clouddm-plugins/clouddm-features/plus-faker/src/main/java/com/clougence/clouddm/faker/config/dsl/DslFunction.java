@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * DSL 函数。
+ * DSL function.
  * @version : 2023-02-14
  * @author 赵永春 (zyc@hasor.net)
  */

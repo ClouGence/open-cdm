@@ -471,7 +471,7 @@ public class PgSecDomainResolve4SchemaTest extends PgSecDomainTestSupport {
         }
     }
 
-    //@Test  // TODO 暂不支持因为 current_user 表示的是一个动态值
+    //@Test/ / TODO not support because current user indicates a dynamic Value
     public void createSchema_ifNotExists_2_2() {
         String sql = "create schema if not exists authorization current_user";
 
@@ -499,7 +499,7 @@ public class PgSecDomainResolve4SchemaTest extends PgSecDomainTestSupport {
         }
     }
 
-    //@Test  // TODO 暂不支持因为 current_role 表示的是一个动态值
+    //@Test / TODO is not supported because current rule indicates a dynamic Value
     public void createSchema_ifNotExists_2_3() {
         String sql = "create schema if not exists authorization current_role";
 
@@ -527,7 +527,7 @@ public class PgSecDomainResolve4SchemaTest extends PgSecDomainTestSupport {
         }
     }
 
-    //@Test  // TODO 暂不支持因为 session_user 表示的是一个动态值
+    //@test / TODO is not supported because session user indicates a dynamic Value
     public void createSchema_ifNotExists_2_4() {
         String sql = "create schema if not exists authorization session_user";
 

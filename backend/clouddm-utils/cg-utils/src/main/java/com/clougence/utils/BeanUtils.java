@@ -31,7 +31,7 @@ import com.clougence.utils.convert.ConverterUtils;
  */
 public class BeanUtils {
 
-    /**获取指定类型的默认值。*/
+    /**Gets the default value for the specified type. */
     public static Object getDefaultValue(final Class<?> returnType) {
         if (returnType == null || !returnType.isPrimitive()) {
             return null;
@@ -73,10 +73,10 @@ public class BeanUtils {
     }
 
     /**
-     * 该方法的作用是反射的形式调用目标的方法。
-     * @param target 被调用的对象
-     * @param methodName 要调用的反射方法名。
-     * @param objects 参数列表
+     * Invokes a method on the target object by reflection.
+     * @param target Callee.
+     * @param methodName Method name to call.
+     * @param objects Parameter list.
      */
     public static Object invokeMethod(final Object target, final String methodName, final Object... objects) throws IllegalArgumentException, IllegalAccessException,
                                                                                                              InvocationTargetException {
@@ -85,19 +85,19 @@ public class BeanUtils {
         }
         Class<?> targetType = target.getClass();
         Method invokeMethod = null;
-        //反射调用方法
+        //Reflection Call Method
         Method[] ms = targetType.getMethods();
         for (Method m : ms) {
-            //1.名字不相等的忽略
+            //1. Skip methods with a different name.
             if (!m.getName().equals(methodName)) {
                 continue;
             }
-            //2.目标方法参数列表个数与types字段中存放的个数不一样的忽略。
+            //2. Skip methods whose parameter count does not match.
             Class<?>[] paramTypes = m.getParameterTypes();
             if (paramTypes.length != objects.length) {
                 continue;
             }
-            //3.如果有参数类型不一样的也忽略---1
+            //3. Skip methods whose parameter types do not match.
             boolean isFind = true;
             for (int i = 0; i < paramTypes.length; i++) {
                 Object param_object = objects[i];
@@ -110,11 +110,11 @@ public class BeanUtils {
                     break;
                 }
             }
-            //5.如果有参数类型不一样的也忽略---2
+            //5. Skip unmatched parameter types.
             if (!isFind) {
                 continue;
             }
-            //符合条件执行调用
+            //Execute the matching method.
             invokeMethod = m;
         }
         if (invokeMethod == null) {
@@ -125,7 +125,7 @@ public class BeanUtils {
     }
     /*----------------------------------------------------------------------------------------*/
 
-    /**获取类定义的字段和继承父类中定义的字段以及父类的父类（子类重新定义同名字段也会被列入集合）。*/
+    /** Gets fields declared by the class and inherited from parent classes; fields redefined in subclasses are also included. */
     public static List<Field> findALLFields(final Class<?> target) {
         if (target == null) {
             return null;
@@ -156,7 +156,7 @@ public class BeanUtils {
         BeanUtils.findALLFields(superType, fList);
     }
 
-    /**获取类定义的方法和继承父类中定义的方法以及父类的父类（子类的重写方法也会被返回）。*/
+    /** Gets methods declared by the class and inherited from parent classes; overridden subclass methods are also returned. */
     public static List<Method> findALLMethods(final Class<?> target) {
         if (target == null) {
             return null;
@@ -188,17 +188,17 @@ public class BeanUtils {
     }
     /*----------------------------------------------------------------------------------------*/
 
-    /**查找一个可操作的字段列表。*/
+    /** Finds a list of accessible fields. */
     public static List<Field> getFields(final Class<?> type) {
         return Arrays.asList(type.getFields());
     }
 
-    /**查找一个可操作的方法列表。*/
+    /** Finds a list of accessible methods. */
     public static List<Method> getMethods(final Class<?> type) {
         return Arrays.asList(type.getMethods());
     }
 
-    /**查找一个可操作的字段。*/
+    /** Finds an accessible field. */
     public static Field getField(final String fieldName, final Class<?> type) {
         if (fieldName == null || type == null) {
             return null;
@@ -216,7 +216,7 @@ public class BeanUtils {
         return null;
     }
 
-    /**查找一个可操作的方法。*/
+    /** Finds an accessible method. */
     public static Method getMethod(final Class<?> atClass, final String name, final Class<?>[] paramType) {
         try {
             return atClass.getMethod(name, paramType);
@@ -229,7 +229,7 @@ public class BeanUtils {
         }
     }
 
-    /**获取属性名集合，该方法是{@link #getProperties(Class)}方法的升级版，通过该方法还可以同时返回可访问的字段作为属性。*/
+    /** Gets property names and also exposes accessible fields as properties. */
     public static List<String> getPropertiesAndFields(final Class<?> target) {
         List<String> mnames = BeanUtils.getProperties(target);
         List<Field> fnames = BeanUtils.getFields(target);
@@ -242,7 +242,7 @@ public class BeanUtils {
         return mnames;
     }
 
-    /**获取属性名集合，被包含的属性可能有些只是只读属性，有些是只写属性。也有读写属性。*/
+    /** Gets property names, including read-only, write-only, and read-write properties. */
     public static List<String> getProperties(final Class<?> target) {
         List<String> mnames = new ArrayList<>();
         List<Method> ms = BeanUtils.getMethods(target);
@@ -268,7 +268,7 @@ public class BeanUtils {
         return mnames;
     }
 
-    /**获取属性名集合，被包含的属性可能有些只是只读属性，有些是只写属性。也有读写属性。*/
+    /** Gets property descriptors, including read-only, write-only, and read-write properties. */
     public static PropertyDescriptor[] getPropertyDescriptors(final Class<?> defineType) {
         List<PropertyDescriptor> mnames = new ArrayList<>();
         List<String> ms = BeanUtils.getProperties(defineType);
@@ -281,7 +281,7 @@ public class BeanUtils {
         return mnames.toArray(new PropertyDescriptor[0]);
     }
 
-    /**获取一个属性的读取方法。*/
+    /** Gets the read method for a property. */
     public static Method getReadMethod(final String property, final Class<?> target) {
         if (property == null || target == null) {
             return null;
@@ -295,7 +295,7 @@ public class BeanUtils {
                 if (methodName.equals(methodName_1)) {
                     return m;
                 }
-                /*是否是布尔*/
+                /* Boolean getter. */
                 if (methodName.equals(methodName_2)) {
                     Class<?> t = m.getReturnType();
                     if (t == Boolean.class || t == boolean.class) {
@@ -307,7 +307,7 @@ public class BeanUtils {
         return null;
     }
 
-    /**获取一个属性的写入方法。*/
+    /** Gets the write method for a property. */
     public static Method getWriteMethod(final String property, final Class<?> target) {
         if (property == null || target == null) {
             return null;
@@ -323,21 +323,21 @@ public class BeanUtils {
         return null;
     }
 
-    /**测试是否具有propertyName所表示的属性，无论是读或写方法只要存在一个就表示存在该属性。*/
+    /** Tests whether the target has the named property through either a read or write method. */
     public static boolean hasProperty(final String propertyName, final Class<?> target) {
-        //get、set方法
+        //Get, set method
         if (BeanUtils.getReadMethod(propertyName, target) == null) {
             return BeanUtils.getWriteMethod(propertyName, target) != null;
         }
         return true;
     }
 
-    /**测试是否具有fieldName所表示的字段，无论是读或写方法只要存在一个就表示存在该属性。*/
+    /** Tests whether the target has the named field. */
     public static boolean hasField(final String propertyName, final Class<?> target) {
         return BeanUtils.getField(propertyName, target) != null;
     }
 
-    /**测试是否具有name所表示的属性，hasProperty或hasField有一个返回为true则返回true。*/
+    /** Tests whether the target has the named property or field. */
     public static boolean hasPropertyOrField(final String name, final Class<?> target) {
         if (!BeanUtils.hasProperty(name, target)) {
             return BeanUtils.hasField(name, target);
@@ -345,13 +345,13 @@ public class BeanUtils {
         return true;
     }
 
-    /**测试是否支持readProperty方法。返回true表示可以进行读取操作。*/
+    /** Tests whether {@link #readProperty(Object, String)} is supported. */
     public static boolean canReadProperty(final String propertyName, final Class<?> target) {
         Method readMethod = BeanUtils.getReadMethod(propertyName, target);
         return readMethod != null;
     }
 
-    /**测试是否支持readPropertyOrField方法。*/
+    /** Tests whether {@link #readPropertyOrField(Object, String)} is supported. */
     public static boolean canReadPropertyOrField(final String propertyName, final Class<?> target) {
         if (!BeanUtils.canReadProperty(propertyName, target)) {
             return BeanUtils.hasField(propertyName, target);
@@ -359,19 +359,19 @@ public class BeanUtils {
         return true;
     }
 
-    /**测试是否支持writeProperty方法。返回true表示可以进行写入操作。*/
+    /** Tests whether {@link #writeProperty(Object, String, Object)} is supported. */
     public static boolean canWriteProperty(final String propertyName, final Class<?> target) {
         Method writeMethod = BeanUtils.getWriteMethod(propertyName, target);
         return writeMethod != null;
     }
 
-    /**测试是否支持Field方法写。*/
+    /** Tests whether field writing is supported. */
     public static boolean canWriteField(final String propertyName, final Class<?> target) {
         Field field = getField(propertyName, target);
         return field != null && !Modifier.isFinal(field.getModifiers());
     }
 
-    /**测试是否支持writePropertyOrField方法。*/
+    /** Tests whether {@link #writePropertyOrField(Object, String, Object)} is supported. */
     public static boolean canWritePropertyOrField(final String propertyName, final Class<?> target) {
         if (!BeanUtils.canWriteProperty(propertyName, target)) {
             return BeanUtils.canWriteField(propertyName, target);
@@ -380,21 +380,21 @@ public class BeanUtils {
     }
     /*----------------------------------------------------------------------------------------*/
 
-    /**执行属性注入，除了注入int,short,long,等基本类型之外该方法还支持注入枚举类型。返回值表示执行是否成功。注意：该方法会根据属性类型进行尝试类型转换。*/
+    /** Writes a property value after converting the input to the property's type. Returns whether the write succeeded. */
     public static boolean writeProperty(final Object object, final String attName, final Object value) {
         if (object == null || attName == null) {
             return false;
         }
-        //1.查找方法
+        //1. Find the write method.
         Class<?> defineType = object.getClass();
         Method writeMethod = BeanUtils.getWriteMethod(attName, defineType);
         if (writeMethod == null) {
             return false;
         }
-        //2.执行属性转换
+        //2. Convert the property value.
         Class<?> toType = writeMethod.getParameterTypes()[0];
         Object attValueObject = ConverterUtils.convert(toType, value);
-        //3.执行属性注入
+        //3. Write the property value.
         try {
             writeMethod.invoke(object, attValueObject);
             return true;
@@ -403,21 +403,21 @@ public class BeanUtils {
         }
     }
 
-    /**执行字段注入，除了注入int,short,long,等基本类型之外该方法还支持注入枚举类型。注意：该方法会根据属性类型进行尝试类型转换。*/
+    /** Writes a field value after converting the input to the field's type. Returns whether the write succeeded. */
     public static boolean writeField(final Object object, final String fieldName, final Object value) {
         if (object == null || fieldName == null) {
             return false;
         }
-        //1.查找方法
+        //1. Find the field.
         Class<?> defineType = object.getClass();
         Field writeField = BeanUtils.getField(fieldName, defineType);
         if (writeField == null) {
             return false;
         }
-        //2.执行属性转换
+        //2. Convert the field value.
         Class<?> toType = writeField.getType();
         Object attValueObject = ConverterUtils.convert(toType, value);
-        //3.执行属性注入
+        //3. Write the field value.
         try {
             writeField.setAccessible(true);
             writeField.set(object, attValueObject);
@@ -427,30 +427,30 @@ public class BeanUtils {
         }
     }
 
-    /**执行注入，该方法首先会试图执行属性方法注入。如果失败则执行字段注入。注意：该方法会根据属性类型进行尝试类型转换。*/
+    /** Writes a property first; if that is not supported, writes the matching field. */
     public static boolean writePropertyOrField(final Object object, final String attName, final Object value) {
         Class<?> defineType = object.getClass();
         if (BeanUtils.canWriteProperty(attName, defineType)) {
-            return BeanUtils.writeProperty(object, attName, value);//支持方法写入
+            return BeanUtils.writeProperty(object, attName, value);//Support method writing
         }
         if (BeanUtils.hasField(attName, defineType)) {
-            return BeanUtils.writeField(object, attName, value);//支持字段写入
+            return BeanUtils.writeField(object, attName, value);//Support field writing
         }
         return false;
     }
 
-    /**执行属性读取。*/
+    /** Reads a property value. */
     public static Object readProperty(final Object object, final String attName) {
         if (object == null || attName == null) {
             return false;
         }
-        //1.查找方法
+        //1. Find the read method.
         Class<?> defineType = object.getClass();
         Method readMethod = BeanUtils.getReadMethod(attName, defineType);
         if (readMethod == null) {
             return null;
         }
-        //2.执行属性读取
+        //Read the property.
         try {
             return readMethod.invoke(object);
         } catch (Exception e) {
@@ -458,18 +458,18 @@ public class BeanUtils {
         }
     }
 
-    /**执行字段读取。*/
+    /** Reads a field value. */
     public static Object readField(final Object object, final String fieldName) {
         if (object == null || fieldName == null) {
             return null;
         }
-        //1.查找方法
+        //1. Find the field.
         Class<?> defineType = object.getClass();
         Field readField = BeanUtils.getField(fieldName, defineType);
         if (readField == null) {
             return null;
         }
-        //2.执行字段读取
+        //2. Execute field reading
         try {
             readField.setAccessible(true);
             return readField.get(object);
@@ -478,14 +478,14 @@ public class BeanUtils {
         }
     }
 
-    /**执行注入，该方法首先会试图执行属性方法注入。如果失败则执行字段注入。注意：该方法会根据属性类型进行尝试类型转换。*/
+    /** Reads a property first; if that is not supported, reads the matching field. */
     public static Object readPropertyOrField(final Object object, final String attName) {
         Class<?> defineType = object.getClass();
         if (BeanUtils.canReadProperty(attName, defineType)) {
-            return BeanUtils.readProperty(object, attName);//支持方法读取
+            return BeanUtils.readProperty(object, attName);//Support method reading
         }
         if (BeanUtils.hasField(attName, defineType)) {
-            return BeanUtils.readField(object, attName);//支持字段读取
+            return BeanUtils.readField(object, attName);//Support field reading
         }
         return null;
     }

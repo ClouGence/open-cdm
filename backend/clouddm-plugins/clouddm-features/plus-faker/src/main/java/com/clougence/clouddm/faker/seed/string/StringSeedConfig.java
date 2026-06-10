@@ -28,7 +28,7 @@ import com.clougence.clouddm.faker.types.TypeHandlerRegistryUtils;
 import com.clougence.utils.ref.LinkedCaseInsensitiveMap;
 
 /**
- * 字符串类型的 SeedConfig
+ * SeedConfig
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

@@ -48,7 +48,7 @@ import com.clougence.utils.setting.SettingNode;
 import com.clougence.utils.setting.data.TreeNode;
 
 /**
- * FakerTable 构建器
+ * FakerTable Builder
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

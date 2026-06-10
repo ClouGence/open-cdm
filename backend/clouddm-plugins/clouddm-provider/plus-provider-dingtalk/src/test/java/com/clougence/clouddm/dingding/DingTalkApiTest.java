@@ -57,7 +57,7 @@ public class DingTalkApiTest {
             Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
             OpenDingTalkClient build = OpenDingTalkStreamClientBuilder.custom()
                 .credential(new AuthClientCredential("dingfur8gzrfvyr2vc5eo", "PE5WKu9WwygPCVUBC6Sd0WoMTyizsy6cuS4TVc7NienkiyAb6qVNEIy-eeh9-nzl"))
-                //注册事件监听
+                //Recorded event listening
                 .registerAllEventListener(event -> {
                     try {
                         System.out.println(event);

@@ -16,7 +16,7 @@
 package com.clougence.clouddm.faker.seed.string;
 
 /**
- * 表示 固定的字符集，字符顺序也固定的
+ * is a fixed character set and a fixed character order
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

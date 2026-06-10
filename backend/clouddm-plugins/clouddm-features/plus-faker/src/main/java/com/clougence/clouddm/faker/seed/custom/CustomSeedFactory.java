@@ -19,7 +19,7 @@ import com.clougence.clouddm.faker.seed.SeedConfig;
 import com.clougence.clouddm.faker.seed.SeedFactory;
 
 /**
- * 自定义的 SeedConfig
+ * Custom SeedConfig
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

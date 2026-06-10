@@ -17,7 +17,7 @@ package com.clougence.utils.reflect.annotations;
 import java.lang.annotation.*;
 
 /**
- * 基于注解的 Mapper
+ * Comment-based Mapper
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-06-19
  */

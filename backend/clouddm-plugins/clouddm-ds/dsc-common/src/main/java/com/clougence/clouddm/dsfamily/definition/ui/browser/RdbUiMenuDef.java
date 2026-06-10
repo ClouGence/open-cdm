@@ -21,22 +21,22 @@ import java.util.List;
 import com.clougence.clouddm.base.metadata.ui.menus.UiMenuDef;
 
 public class RdbUiMenuDef extends UiMenuDef {
-    // create table       < 创建相关
+    // Create < Create Related
     // create view        <
     // create trigger     <
     // --- separator ---
-    // copy name          < 常用操作
-    // refresh            <     如：改名/修改/编辑数据/复制/粘贴/编辑/刷新
+    // Copy name < Common Operations
+    // Refresh <: rename/modify/edit data/copy/ paste/edit/update
     // --- separator ---
-    // compile            < 其它操作
+    // Compile < Other Operations
     // Enable             <
     // Disable            <
     // Properties         <
     // --- separator ---
-    // truncate           < 危险操作
+    // Tuncate < Hazardous Operations
     // Drop               <
     // --- separator ---
-    // table get ddl      < 获取脚本/导入导出数据/生成数据
+    // table get ddl< get script/ import export data/ generate data
     // import data
     // export data
     // generate table data

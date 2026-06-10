@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
- * Settings接口的抽象实现。
+ * Settings wrapper implementation.
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-4-2
  */

@@ -18,7 +18,7 @@ package com.clougence.adapter.polar.pormy;
 import com.clougence.schema.metadata.TableType;
 
 /**
- * MySQL 表类型
+ * MySQL Table Type
  * @version : 2021-03-30
  * @author 赵永春 (zyc@hasor.net)
  */

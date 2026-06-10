@@ -20,7 +20,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 可以标记多个索引。
+ * You can mark multiple indexes.
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-12-06
  */

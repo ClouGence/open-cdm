@@ -38,28 +38,28 @@ public class GiteeWebHookEvent {
     private String                      after;
     private String                      before;
     private String                      ref;     // target branch
-    private Boolean                     created; // 推送的是否是新分支
-    private Boolean                     deleted; // 推送的是否是删除分支
+    private Boolean                     created; // Is it a new branch?
+    private Boolean                     deleted; // Whether or not the branch is deleted
     private GiteeWebHookEventUser       pusher;
-    private GiteeWebHookEventUser       sender;  // 触发 hook 的用户信息
+    private GiteeWebHookEventUser       sender;  // Info to trigger hook
 
     // for issue or pr
-    private String                      state;     // 状态。eg：open
-    private String                      action;     // 状态。eg：tested
-    private String                      iid;        // 对应的标识（issue eg：IG6E9，pr 为数字）
-    private String                      title;      // 标题
-    private GiteeWebHookEventUser       user;       // PR/Issue 创建者。
-    private GiteeWebHookEventUser       updated_by; // PR/Issue 的更新者信息。
-    private GiteeWebHookEventUser       target_user;// PR/Issue 的被委托处理用户。
+    private String                      state;     // Status. eg:open
+    private String                      action;     // Status. eg:tested
+    private String                      iid;        // Corresponding identification (issue eg: IG6E9, pr is number)
+    private String                      title;      // Title
+    private GiteeWebHookEventUser       user;       // PR/Issue founder.
+    private GiteeWebHookEventUser       updated_by; // Updateer information for PR/Issue.
+    private GiteeWebHookEventUser       target_user;// PR/Issue's commissioned user.
 
     // for issue
-    private String                      description;    // 内容
+    private String                      description;    // Contents
 
     // for pr
-    private GiteeWebHookEventUser       author;          // PR 的创建者信息。
-    private String                      body;            // PR 的内容
-    private String                      merge_commit_sha;// PR 合并产生的 commit id。
-    private String                      merge_status;    // PR 的内容
+    private GiteeWebHookEventUser       author;          // PR's creator information.
+    private String                      body;            // Content of PR
+    private String                      merge_commit_sha;// PR Consolidated Committee id.
+    private String                      merge_status;    // Content of PR
     private String                      source_branch;   // source branch
     private String                      target_branch;   // target branch
     private DevOpsEventPrSource         source_repo;     // source
@@ -84,9 +84,9 @@ public class GiteeWebHookEvent {
     }
 
     // for note
-    // private GiteeWebHookEventUser       author;          // 评论的作者信息。
-    private String noteable_type;   // # 被评论的目标类型。eg：Issue
-    private String noteable_id;     // # 被评论的目标 id。
-    private String note;            // # 评论内容。eg：好的东西应该开源...
+    // private GiteeWebHookEventUser       author;          // Comment author information.
+    private String noteable_type;   // # The type of target commented upon. eg: Issue
+    private String noteable_id;     // # Commented target id.
+    private String note;            // # Comment. eg: Good things should open up...
 
 }

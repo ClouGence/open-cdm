@@ -4889,7 +4889,7 @@ public class ArrayUtils {
         return result;
     }
 
-    /**删除数组中空元素*/
+    /**Remove empty element in array */
     public static Object[] clearNull(final Object[] arr) {
         ArrayList<Object> list = new ArrayList<Object>();
         if (arr != null) {

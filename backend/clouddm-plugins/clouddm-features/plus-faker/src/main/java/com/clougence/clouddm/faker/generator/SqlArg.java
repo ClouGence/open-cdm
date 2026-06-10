@@ -29,7 +29,7 @@ import org.apache.ibatis.type.TypeHandler;
 import com.clougence.utils.HexadecimalUtils;
 
 /**
- * 生成的数据
+ * Data generated
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

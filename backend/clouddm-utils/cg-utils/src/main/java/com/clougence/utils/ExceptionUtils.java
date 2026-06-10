@@ -41,7 +41,7 @@ public class ExceptionUtils {
         });
     }
 
-    /**将异常包装为 {@link RuntimeException}*/
+    /** Wraps an exception as a {@link RuntimeException}. */
     public static RuntimeException toRuntime(Throwable proxy, Function<Throwable, RuntimeException> convert) {
         if (proxy instanceof InvocationTargetException && ((InvocationTargetException) proxy).getTargetException() != null) {
             proxy = ((InvocationTargetException) proxy).getTargetException();

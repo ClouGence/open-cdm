@@ -220,7 +220,7 @@ public class PolarDbXTableImporter extends AbstractRdbTableImporter {
                     //                } else if (StringUtils.equalsIgnoreCase(strategy, "UTC_ZERO")) {
                     //                    columnEditor.setNullable(false);
                     //                    columnEditor.setDateTimePrecision(0);
-                    //                    columnEditor.setDefault("1970-01-01 00:00:00", false);  // TODO 暂时不支持，需要加上数据库的时区偏移后才能建表成功，例如 数据库系统时区+8，那么这里需要 1970-01-01 08:00:00
+                    //                    columnEditor.setDefault("1970-01-01 00:00:00", false);  // TODO Not supported yet. The database timezone offset must be added before table creation can succeed, for example if the database system timezone is +8, this should be 1970-01-01 08:00:00
                 } else if (strategy == TimeDefaultStrategyEnum.IS_NULL) {
                     columnEditor.setNullable(true);
                     columnEditor.setDateTimePrecision(0);

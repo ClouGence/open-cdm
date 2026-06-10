@@ -20,7 +20,7 @@ import java.util.Map;
 import com.clougence.clouddm.faker.config.dsl.model.DataModel;
 
 /**
- * 配置项
+ * Configuration item
  * @version : 2023-02-10
  * @author 赵永春 (zyc@hasor.net)
  */

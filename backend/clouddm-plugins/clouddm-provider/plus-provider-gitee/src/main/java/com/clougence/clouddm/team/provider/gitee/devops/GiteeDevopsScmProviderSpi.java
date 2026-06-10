@@ -241,37 +241,37 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
                     return event;
                 }
                 case PullRequest: {
-                    // 以下信息来自 Gitee 官方人员权威解答
-                    //      'create_pr' => '新建代码评审'
-                    //      'merge_pr' => '合并代码评审'
-                    //      'close_pr' => '关闭代码评审'
-                    //      'assign_reviewer' => '指派审查者'
-                    //      'unassign_reviewer' => '取消审查者'
-                    //      'review_pass' => '审查通过'
-                    //      'assign_tester' => '指派测试者'
-                    //      'unassign_tester' => '取消测试者'
-                    //      'test_pass' => '测试通过'
-                    //      'update_issue' => '关联/取消关联 工作项'
-                    //      'push_code' => '更新源分支代码'
-                    //      'reopen' => '重新打开'
-                    //      'comment_pr' => '评论代码评审'
-                    //      'update_label' => '更新标签'
-                    //      'set_draft' => '设置草稿'
-                    //      'cancel_draft' => '取消草稿'
+                    // The following information comes from the authoritative answers of Gitee officials.
+                    //      'create_pr' => 'Create code review'
+                    //      'merge_pr' => 'Merge code review'
+                    //      'close_pr' => 'Close code review'
+                    //      'assign_reviewer' => 'Assign reviewer'
+                    //      'unassign_reviewer' => 'Unassign reviewer'
+                    //      'review_pass' => 'Review passed'
+                    //      'assign_tester' => 'Assign tester'
+                    //      'unassign_tester' => 'Unassign tester'
+                    //      'test_pass' => 'Test passed'
+                    //      'update_issue' => 'Link/unlink work item'
+                    //      'push_code' => 'Update source branch code'
+                    //      'reopen' => 'Reopen'
+                    //      'comment_pr' => 'Comment on code review'
+                    //      'update_label' => 'Update label'
+                    //      'set_draft' => 'Set draft'
+                    //      'cancel_draft' => 'Cancel draft'
                     //
                     String status = hookInfo.getState();
-                    // open 开启状态
-                    // closed 已经关闭
-                    // merged：已合并
+                    // Open Status
+                    // Closed
+                    // merged: merged
                     String action = hookInfo.getAction();
-                    // tested：测试通过
-                    // approved：评审通过
-                    // close：关闭 PR
-                    // reopen：重新打开 PR
-                    // open：新的 PR
-                    // merge：合并
-                    // update：更新信息
-                    // assign：指派审查、指派测试
+                    // Test passed.
+                    // Approved: Reviewed
+                    // Close: close PR
+                    // reopen: reopen PR
+                    // Open: New PR
+                    // Merge: Merge
+                    // update: update
+                    // Assign: Assign review, assign test
 
                     ScmEvent event = new ScmEvent();
                     event.setHookId(hookInfo.getHook_id());

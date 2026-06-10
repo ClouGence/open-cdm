@@ -108,7 +108,7 @@ public class DataSourceBridge implements DataSource {
         }
     }
 
-    /** 负责 Connection 到 DsObject<Connection> 的桥接 */
+    /** Bridges {@link Connection} calls to a {@link DsObject}<Connection>. */
     private static class ConnectionBridgeInvocationHandler implements InvocationHandler {
 
         private final DsObject<Connection> dsObject;

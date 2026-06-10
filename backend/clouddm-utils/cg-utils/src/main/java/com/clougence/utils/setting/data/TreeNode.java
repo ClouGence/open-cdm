@@ -406,13 +406,13 @@ public class TreeNode implements SettingNode {
         if (nodeList == null) {
             return;
         }
-        // 找到的 Nodes 执行 clear
+        // Clear matched nodes.
         List<TreeNode> afterClear = new ArrayList<>();
         for (SettingNode node : nodeList) {
             node.clear();
             afterClear.add((TreeNode) node);
         }
-        // 清扫空节点（由子及父）
+        // Clean up empty child and parent nodes.
         while (!afterClear.isEmpty()) {
             List<TreeNode> newAfterClear = new ArrayList<>();
             for (TreeNode treeNode : afterClear) {
@@ -570,11 +570,11 @@ public class TreeNode implements SettingNode {
     }
 
     private static String writeAttribute(String attVal) {
-        attVal = attVal.replace("<", "&lt;");   //小于号
-        attVal = attVal.replace(">", "&gt;");   //大于号
-        attVal = attVal.replace("'", "&apos;"); //'单引号
-        attVal = attVal.replace("\"", "&quot;");//'双引号
-        attVal = attVal.replace("&", "&amp;");  //& 和
+        attVal = attVal.replace("<", "&lt;");   //Less than
+        attVal = attVal.replace(">", "&gt;");   //Greater than
+        attVal = attVal.replace("'", "&apos;"); // single quote
+        attVal = attVal.replace("\"", "&quot;");// double quote
+        attVal = attVal.replace("&", "&amp;");  //& and
         return attVal;
     }
 }

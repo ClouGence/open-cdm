@@ -20,9 +20,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 标记在类型上表示映射到的表
- * - 若注解与 xml 同时配置 XML 将会覆盖注解。
- * - 若xml 配置为 resultMap 会把 catalog/schema/table or value 设置为空。
+ * Mark as a map table on type
+ * - If the note is configured with xml, XML will overwrite the note.
+ * - If xml is configured as a resultMap, the datalog/ schema/table or value is set to be empty.
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2020-10-31
  */
@@ -32,18 +32,18 @@ public @interface ResultMap {
     /** space */
     String space() default "";
 
-    /** 映射ID，为空的话表示采用类名为表名 see: {@link #id()} */
+    /** Map ID if empty */
     String value() default "";
 
-    /** 映射ID，为空的话表示采用类名为表名 see: {@link #value()} */
+    /** Map ID if empty */
     String id() default "";
 
-    /** 是否将类型下的所有字段都自动和数据库中的列进行映射匹配，true 表示自动。false 表示必须通过 @Column 注解声明 */
+    /** Whether or not to automatically map all fields under the type and columns in the database. false means you must adopt @Column */
     boolean autoMapping() default true;
 
-    /** 是否对表名列名敏感，默认 true 不敏感 */
+    /** Whether or not to be sensitive to listing, default true not sensitive */
     boolean caseInsensitive() default true;
 
-    /** 表名和属性名，根据驼峰规则转换为带有下划线的表名和列名 */
+    /** Convert table and attribute names to underscored names according to camel-case rules. */
     boolean mapUnderscoreToCamelCase() default false;
 }

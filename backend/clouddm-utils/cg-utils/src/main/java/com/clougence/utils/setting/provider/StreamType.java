@@ -15,7 +15,7 @@
  */
 package com.clougence.utils.setting.provider;
 /***
- * 配置文件类型
+ * Profile Type
  * @version : 2016/7/2
  * @author 赵永春 (zyc@byshell.org)
  */

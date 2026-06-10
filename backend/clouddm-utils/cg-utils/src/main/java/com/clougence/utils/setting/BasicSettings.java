@@ -33,7 +33,7 @@ import com.clougence.utils.token.TokenHandler;
 import com.clougence.utils.setting.data.TreeNode;
 
 /**
- * Settings接口的抽象实现。
+ * Basic implementation of the Settings interface.
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-4-2
  */
@@ -51,13 +51,13 @@ public class BasicSettings extends AbstractSettings implements Settings {
         return this.envMap;
     }
 
-    /** 清空已经装载的所有数据 */
+    /** Clear all loaded data */
     protected void cleanData() {
         this.envMap().clear();
         this.allSettingValue().clear();
     }
 
-    /** 加载预定义的环境变量 */
+    /** Load predefined environment variables */
     protected void loadEnvironment() throws IOException {
         // 1st，System.getProperties()
         Properties prop = System.getProperties();
@@ -76,7 +76,7 @@ public class BasicSettings extends AbstractSettings implements Settings {
         }
     }
 
-    /** 加载预定义的配置信息 */
+    /** Load predefined configuration information */
     protected void loadSettings() throws IOException {
 
     }
@@ -177,7 +177,7 @@ public class BasicSettings extends AbstractSettings implements Settings {
         return newEvalString;
     }
 
-    /** 获取可用的命名空间 */
+    /** Get Available Naming Space */
     public String[] getSettingArray() {
         Set<String> nsSet = this.allSettingValue().keySet();
         return nsSet.toArray(new String[0]);
@@ -187,7 +187,7 @@ public class BasicSettings extends AbstractSettings implements Settings {
         return false;
     }
 
-    /** 获取指在某个特定命名空间下的Settings接口对象 */
+    /** Getting a Settings interface object in a given named space */
     public final BasicSettings getSettings(final String namespace) {
         final Map<String, TreeNode> localData = Collections.unmodifiableMap(new HashMap<String, TreeNode>() {{
             put(namespace, allSettingValue().get(namespace));
@@ -203,7 +203,7 @@ public class BasicSettings extends AbstractSettings implements Settings {
         };
     }
 
-    /** 将整个配置项的多个值全部删除 */
+    /** Remove multiple values of the entire configuration item */
     public void removeSetting(String key) {
         if (StringUtils.isBlank(key)) {
             throw new IllegalArgumentException("namespace or key is blank.");
@@ -214,7 +214,7 @@ public class BasicSettings extends AbstractSettings implements Settings {
         }
     }
 
-    /** 将整个配置项的多个值全部删除 */
+    /** Remove multiple values of the entire configuration item */
     public void removeSetting(String key, String namespace) {
         if (StringUtils.isBlank(namespace) || StringUtils.isBlank(key)) {
             throw new IllegalArgumentException("namespace or key is blank.");
@@ -225,7 +225,7 @@ public class BasicSettings extends AbstractSettings implements Settings {
         }
     }
 
-    /** 设置参数，如果出现多个值，则会覆盖 */
+    /** Set parameters, overwrite if multiple values appear */
     public void setSetting(String key, Object value, String namespace) {
         if (StringUtils.isBlank(namespace) || StringUtils.isBlank(key)) {
             throw new IllegalArgumentException("namespace or key is blank.");
@@ -250,7 +250,7 @@ public class BasicSettings extends AbstractSettings implements Settings {
         }
     }
 
-    /** 添加参数，如果参数名称相同则追加一项 */
+    /** Add parameters, and add an item if the parameter name is the same */
     public void addSetting(String key, Object value, String namespace) {
         if (StringUtils.isBlank(key)) {
             throw new IllegalArgumentException("key is blank.");
@@ -298,8 +298,8 @@ public class BasicSettings extends AbstractSettings implements Settings {
         if (dataNodeList.isEmpty()) {
             return new SettingNode[0];
         }
-        // 排序 DefaultNameSpace 放到最后，同时 getToType 会取最后一条，相同命名空间的数据 add 最后一条要优先前面的。
-        // 因此只能通过排序放到最后。否则无法满足当 不同命名空间空间下 DefaultNameSpace 有两条数据情况下 DefaultNameSpace 中最后一条优先的要求。
+        // Sort DelfaultNameSpace to last, and get ToType to take the last one, the same namespace data add.
+        // So it can only be sorted to the last. Otherwise it will not be possible to meet the requirements of the last priority in DefaultNameSpace when there are two data in different namespaces.
         dataNodeList.sort((o1, o2) -> {
             int o1Index = DefaultNameSpace.equalsIgnoreCase(o1.getSpace()) ? 0 : -1;
             int o2Index = DefaultNameSpace.equalsIgnoreCase(o2.getSpace()) ? 0 : -1;
@@ -309,7 +309,7 @@ public class BasicSettings extends AbstractSettings implements Settings {
     }
 
     protected <T> T convertTo(Object oriObject, final Class<T> toType, final T defaultValue) {
-        // .获取不到数据，使用默认值替代
+        // ... data not available, replace with default values
         if (oriObject == null) {
             if (defaultValue != null) {
                 return defaultValue;
@@ -317,15 +317,15 @@ public class BasicSettings extends AbstractSettings implements Settings {
                 return (T) BeanUtils.getDefaultValue(toType);
             }
         }
-        // .如果数据就是目标需要的类型那么就直接返回
+        // If data are the type of target that needs to be returned directly
         if (toType.isInstance(oriObject)) {
             return (T) oriObject;
         }
-        // .转换类型
+        // Type of conversion
         return (T) ConverterUtils.convert(toType, oriObject);
     }
 
-    /** 解析全局配置参数，并且返回toType参数指定的类型。 */
+    /** Parses global configuration parameters and returns the type specified by the type parameter. */
     public final <T> T getToType(final String name, final Class<T> toType, final T defaultValue) {
         SettingNode[] settingVar = this.findSettingValue(name);
         if (settingVar == null || settingVar.length == 0) {

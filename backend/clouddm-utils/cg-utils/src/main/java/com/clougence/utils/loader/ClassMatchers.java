@@ -18,7 +18,7 @@ package com.clougence.utils.loader;
 import java.util.function.Predicate;
 
 /**
- * 扫描过程中的匹配器
+ * Matchor during Scan
  * @version : 2021-10-01
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -27,12 +27,12 @@ public class ClassMatchers {
     private ClassMatchers(){
     }
 
-    /** 任意类型 */
+    /** Any type */
     public static Predicate<?> any() {
         return t -> true;
     }
 
-    /** 类型 或 类上有 xx 注解 */
+    /** xx comments on type or class */
     public static ClassMatcher featureWith(final Class<?> annotationType) {
         String featureType = annotationType.getName();
         return context -> {
@@ -51,7 +51,7 @@ public class ClassMatchers {
         };
     }
 
-    /** 类上需要有 xx 注解 */
+    /** xx Description required for class */
     public static ClassMatcher annotatedWith(final Class<?> annotationType) {
         String featureType = annotationType.getName();
         return context -> {
@@ -65,7 +65,7 @@ public class ClassMatchers {
         };
     }
 
-    /** 子类 */
+    /** Subcategory */
     public static ClassMatcher subClassesOf(final Class<?> superclass) {
         String testType = superclass.getName();
         return context -> {

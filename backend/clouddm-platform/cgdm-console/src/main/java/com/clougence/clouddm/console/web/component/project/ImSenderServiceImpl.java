@@ -136,10 +136,10 @@ public class ImSenderServiceImpl implements ImSenderService {
     }
 
     private void sendRecord(String ownerUid, MsgContent message) {
-        // TODO 将消息记录到数据库
+        // TODO Record messages to database
     }
 
     private void sendDone(String ownerUid, MsgContent message, MsgSendResult result) {
-        // TODO 更新消息发送到状态
+        // TODO Update Message to Status
     }
 }

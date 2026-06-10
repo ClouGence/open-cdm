@@ -39,7 +39,7 @@ import com.clougence.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * PolarDBMy 元信息获取，参考资料：
+ * PolarDBMy meta-information access, reference:
  * <li>https://dev.mysql.com/doc/refman/8.0/en/information-schema.html</li>
  *
  * @version : 2020-01-22

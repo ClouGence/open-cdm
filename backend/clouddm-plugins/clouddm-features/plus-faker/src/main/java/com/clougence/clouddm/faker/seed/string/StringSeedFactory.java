@@ -26,7 +26,7 @@ import com.clougence.clouddm.faker.seed.SeedFactory;
 import com.clougence.clouddm.faker.seed.string.characters.GroupCharacters;
 
 /**
- * 字符串类型的 SeedFactory
+ * SeedFactory
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

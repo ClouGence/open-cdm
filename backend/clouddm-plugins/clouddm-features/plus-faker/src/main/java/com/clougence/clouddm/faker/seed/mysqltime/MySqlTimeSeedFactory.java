@@ -24,7 +24,7 @@ import com.clougence.clouddm.faker.seed.date.DateSeedFactory;
 import com.clougence.utils.StringUtils;
 
 /**
- * 可以生成负数的时间，例如， MySQL time 类型的值范围为是 '-838:59:59.000000' to '838:59:59.000000'
+ * Generates time values that may be negative; for example, MySQL TIME ranges from '-838:59:59.000000' to '838:59:59.000000'.
  * @version : 2022-09-03
  * @author 赵永春 (zyc@hasor.net)
  */

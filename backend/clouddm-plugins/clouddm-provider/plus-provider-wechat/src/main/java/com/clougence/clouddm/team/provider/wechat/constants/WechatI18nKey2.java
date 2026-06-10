@@ -40,7 +40,7 @@ public interface WechatI18nKey2 {
     String WECHAT_LOGIN_FAIL_PRIMARY_MISSING_ARGS = "WECHAT_LOGIN_FAIL_PRIMARY_MISSING_ARGS";
     String WECHAT_API_TOKEN_ERROR                 = "WECHAT_API_TOKEN_ERROR";
     String WECHAT_API_USERTICKET_ERROR            = "WECHAT_API_USERTICKET_ERROR";
-    String WECHAT_IS_OPEN_USER_ERROR              = "WECHAT_IS_OPEN_USER_ERROR"; // 用户必须是企业的成员。
+    String WECHAT_IS_OPEN_USER_ERROR              = "WECHAT_IS_OPEN_USER_ERROR"; // The user must be a member of the enterprise.
     String WECHAT_GETUSERINFO_ERROR               = "WECHAT_GETUSERINFO_ERROR";
     String WECHAT_ROLE_MAPPING_FAILED             = "WECHAT_ROLE_MAPPING_FAILED";
 

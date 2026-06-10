@@ -30,7 +30,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 结构类型
+ * Structure Type
  * 
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2020-05-21

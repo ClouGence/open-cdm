@@ -70,7 +70,7 @@ public class FeishuApi {
             String template;
             try {
                 template = this.client.callApi(client -> {
-                    // 创建请求对象
+                    // Create Requested Object
                     GetApprovalReq req = GetApprovalReq.newBuilder().approvalCode(code.trim()).build();
 
                     GetApprovalResp resp = client.apiClient().approval().approval().get(req);
@@ -146,13 +146,13 @@ public class FeishuApi {
 
     public void cancelInstance(final ApprovalInstanceCancelInfo info, final String userId) {
         this.client.callApi(client -> {
-            // 创建请求对象
+            // Create Requested Object
             CancelInstanceReq req = CancelInstanceReq.newBuilder()
                 .userIdType(USER_ID_TYPE)
                 .instanceCancel(InstanceCancel.newBuilder().instanceCode(info.getApprovalInstanceIdentity()).approvalCode(info.getApprovalTemplateCode()).userId(userId).build())
                 .build();
 
-            // 发起请求
+            // Request initiated
             CancelInstanceResp resp = client.apiClient().approval().instance().cancel(req);
 
             checkSuccess(resp, "Withdrawal of approval instance", true);
@@ -207,7 +207,7 @@ public class FeishuApi {
             return null;
         }
         return "https://applink.feishu.cn/client/mini_program/open?" +//
-               "appId=cli_9cb844403dbb9108" +// this app id is Feishu built-in app ID (审批 应用)
+               "appId=cli_9cb844403dbb9108" +// this app ID is the Feishu built-in Approval app ID
                "&mode=appCenter" +//
                "&path=pc%2Fpages%2Fin-process%2Findex%3FenableTrusteeship%3Dtrue%26instanceId%3D" + processInstanceId + "%26source%3Dapproval_bot" +//
                "&relaunch=true";

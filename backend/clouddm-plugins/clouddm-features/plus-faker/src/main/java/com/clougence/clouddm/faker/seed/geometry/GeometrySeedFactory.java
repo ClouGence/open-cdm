@@ -36,7 +36,7 @@ import com.clougence.clouddm.faker.utils.RandomRatio;
 import com.clougence.utils.StringUtils;
 
 /**
- * 几何信息 SeedFactory
+ * Geometric Information
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -126,7 +126,7 @@ public class GeometrySeedFactory implements SeedFactory<GeometrySeedConfig> {
                 forMulti[points.length] = points[0];
 
                 String multiPolygon = "((" + StringUtils.join(forMulti, ",") + "))";
-                return fmtResult(fmt, "MULTIPOLYGON(" + multiPolygon + ")"); // 生成的图形是没有挖洞的
+                return fmtResult(fmt, "MULTIPOLYGON(" + multiPolygon + ")"); // The graph is not dug.
             }
             case Circle: {
                 Point point = randomPoint(range.getPointA(), range.getPointB(), precision);
@@ -166,10 +166,10 @@ public class GeometrySeedFactory implements SeedFactory<GeometrySeedConfig> {
         String[] pathStr = new String[pointCount];
         double unitAngle = 360d / (double) pathStr.length;
         for (int i = 0; i < pathStr.length; i++) {
-            // 角度和半径
+            // Angle and Radius
             double curAngle = i * unitAngle;
             BigDecimal curRadius = nextRadius(centrePoint, curAngle, range, precision);
-            // 多边形上的点
+            // Point on Polygon
             BigDecimal x = centrePoint.getX().add(curRadius.multiply(BigDecimal.valueOf(Math.sin(curAngle)))).setScale(precision, ROUND_DOWN);
             BigDecimal y = centrePoint.getY().add(curRadius.multiply(BigDecimal.valueOf(Math.cos(curAngle)))).setScale(precision, ROUND_DOWN);
             pathStr[i] = fmtPoint.apply(new Point(x, y));
@@ -178,22 +178,22 @@ public class GeometrySeedFactory implements SeedFactory<GeometrySeedConfig> {
     }
 
     private BigDecimal nextRadius(Point point, double dipAngle, SpaceRange range, int precision) {
-        // TODO point 是矩形 range 中的一个点；dipAngle 是 point 为圆心的一个角；point 和 dipAngle 共同决定了一个射线；该射线最终会与 range 的一个边相交。
-        //    - 求：point 到 range 相交点之间的长度 len
-        //    - 返回 precision 表示能够表示的最小值 到 len 之间的一个随机数。结果如果有小数则最终精度按照 precision 来限定
+        // TODO point is a point in a rectangle range; diipAngle is a point in a circle; point and dipAngle jointly determine a ray; the ray eventually intersects with a side of range.
+        //    -Profession: point to length between range intersections
+        //    - returns the precision which indicates the minimum value that can be expressed to a random number between the pens. If decimals are available, the final precision is defined by precision
 
-        // 没有实现上面的逻辑，最多影响是 几何图形随机性不足或可能越出 range 的范围，不影响测试数据
+        // The maximum effect of not achieving the above logic is that geometric graphics are not random enough or are likely to go beyond the range of range without affecting test data
         BigDecimal minRadius = BigDecimal.ONE.divide(new BigDecimal("1" + StringUtils.repeat("0", precision)));
         BigDecimal maxRadius = BigDecimal.valueOf(100);
         return nextDecimal(minRadius, maxRadius, precision);
     }
 
     private BigDecimal nextRadius(Point point, SpaceRange range, int precision) {
-        // TODO point 是矩形 range 中的一个点；point 到 range 的边有无数的交点。
-        //    - 求：point 到 交点中距离最短的那个长度 len
-        //    - 返回 precision 表示能够表示的最小值 到 len 之间的一个随机数。结果如果有小数则最终精度按照 precision 来限定
+        // TODO point is one of the points of rectangle range; point point to range has countless nodes.
+        //    -Profession: point to the shortest distance at the nodal point
+        //    - returns the precision which indicates the minimum value that can be expressed to a random number between the pens. If decimals are available, the final precision is defined by precision
 
-        // 没有实现上面的逻辑，最多影响是 几何图形随机性不足或可能越出 range 的范围，不影响测试数据
+        // The maximum effect of not achieving the above logic is that geometric graphics are not random enough or are likely to go beyond the range of range without affecting test data
         BigDecimal minRadius = BigDecimal.ONE.divide(new BigDecimal("1" + StringUtils.repeat("0", precision)));
         BigDecimal maxRadius = BigDecimal.valueOf(100);
         return nextDecimal(minRadius, maxRadius, precision);

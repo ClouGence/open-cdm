@@ -113,7 +113,7 @@ public class OraHooks implements SessionHook {
             if (isolation == RdbIsolation.DEFAULT) {
                 conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
             } else {
-                // oracle only support READ_COMMITTED 和 SERIALIZABLE
+                // Oracle only support READ COMMITTED and SERIALIZABLE
                 conn.setTransactionIsolation(isolation.getValue());
             }
         }

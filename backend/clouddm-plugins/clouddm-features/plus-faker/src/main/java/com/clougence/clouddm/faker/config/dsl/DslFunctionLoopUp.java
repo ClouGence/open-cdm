@@ -16,7 +16,7 @@
 package com.clougence.clouddm.faker.config.dsl;
 
 /**
- * 发现和注册 DSL 函数。
+ * Found and registered DSL functions.
  * @version : 2023-02-14
  * @author 赵永春 (zyc@hasor.net)
  */

@@ -21,7 +21,7 @@ import java.io.Reader;
 import com.clougence.utils.io.IOUtils;
 
 /**
- * 具有自动关闭的输入流
+ * Input stream with Auto-Close
  * @author 赵永春 (zyc@hasor.net)
  * @version 2009-5-13
  */

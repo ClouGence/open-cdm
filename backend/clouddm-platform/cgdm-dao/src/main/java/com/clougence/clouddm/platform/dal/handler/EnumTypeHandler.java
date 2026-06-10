@@ -24,7 +24,7 @@ import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
 /**
- * 读写枚举类型，支持枚举实现 {@link EnumOfCode}、{@link EnumOfValue} 接口。
+ * Reads and writes enum values, supporting enums that implement {@link EnumOfCode} or {@link EnumOfValue}.
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2020-11-29
  */

@@ -459,7 +459,7 @@ public class BeanMap extends AbstractMap<String, Object> implements Cloneable {
         Class<?> beanClass = getBean().getClass();
         try {
             Map<String, PropertyDescriptor> pd = new LinkedHashMap<>();
-            // 为了有序
+            // To order.
             BeanInfo beanInfo = Introspector.getBeanInfo(beanClass);
             PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
             BeanUtils.getProperties(beanClass).forEach(s -> pd.put(s, null));
@@ -468,7 +468,7 @@ public class BeanMap extends AbstractMap<String, Object> implements Cloneable {
                     pd.put(propertyDescriptor.getName(), propertyDescriptor);
                 }
             }
-            // 为了有序
+            // To order.
             pd.forEach((name, propertyDescriptor) -> {
                 if (propertyDescriptor == null) {
                     return;

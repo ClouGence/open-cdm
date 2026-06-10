@@ -40,7 +40,7 @@ import com.clougence.clouddm.faker.seed.string.StringSeedUiFactory;
 import com.clougence.utils.StringUtils;
 
 /**
- * 类型
+ * Type
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

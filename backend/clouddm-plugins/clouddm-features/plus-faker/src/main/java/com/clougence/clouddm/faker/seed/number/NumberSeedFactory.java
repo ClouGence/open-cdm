@@ -27,7 +27,7 @@ import com.clougence.clouddm.faker.seed.SeedFactory;
 import com.clougence.clouddm.faker.utils.RandomRatio;
 
 /**
- * 数值类型的 SeedFactory
+ * SeedFactory
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

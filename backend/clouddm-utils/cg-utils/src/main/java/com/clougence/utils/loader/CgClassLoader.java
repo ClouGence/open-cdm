@@ -29,7 +29,7 @@ import com.clougence.utils.StringUtils;
 import lombok.Getter;
 
 /**
- * ResourceLoader 转 ClassLoader
+ * Resource Loader, turn.
  * @version : 2021-09-29
  * @author 赵永春 (zyc@hasor.net)
  */

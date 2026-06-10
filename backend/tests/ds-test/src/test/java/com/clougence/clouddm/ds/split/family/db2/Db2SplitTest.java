@@ -62,7 +62,7 @@
 //        String sql = "DROP schema sampledb;" +//
 //                "CREATE schema sampledb;" +//
 //                "CREATE TABLE employees (\n    id INT NOT NULL,\n    name VARCHAR(100),\n    position VARCHAR(100),\n    salary DECIMAL(10,2),\n    PRIMARY KEY (id)\n);" +//
-//                "INSERT INTO employees (id, name, position, salary) VALUES (1, '张三', '软件工程师', 75000);" +//
+//                "INSERT INTO employees (id, name, position, salary) VALUES (1, 'Zhang San', 'Software Engineer', 75000);" +//
 //                "UPDATE employees SET salary = 80000 WHERE id = 1;" +//
 //                "DELETE FROM employees WHERE id = 1;" +//
 //                "SELECT * FROM employees;" +//
@@ -83,7 +83,7 @@
 //        assert splitScript.getType() == SecQueryType.CREATE_TABLE;
 //
 //        splitScript = splitScripts.get(3);
-//        assert splitScript.getScript().equals("INSERT INTO employees (id, name, position, salary) VALUES (1, '张三', '软件工程师', 75000)");
+//        assert splitScript.getScript().equals("INSERT INTO employees (id, name, position, salary) VALUES (1, 'Zhang San', 'Software Engineer', 75000)");
 //        assert splitScript.getType() == SecQueryType.INSERT;
 //
 //        splitScript = splitScripts.get(4);

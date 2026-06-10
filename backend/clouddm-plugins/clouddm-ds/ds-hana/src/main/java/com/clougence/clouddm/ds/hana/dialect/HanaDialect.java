@@ -20,7 +20,7 @@ import com.clougence.clouddm.dsfamily.schema.dialect.AbstractDialect;
 import com.clougence.utils.StringUtils;
 
 /**
- * Hana 的 SqlDialect 实现
+ * Hana SQLDialect implementation.
  * @version : 2020-10-31
  * @author hanlizhi
  */

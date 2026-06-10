@@ -18,19 +18,19 @@ package com.clougence.clouddm.faker.config;
 import com.clougence.utils.StringUtils;
 
 /**
- * SQL 语句生成策略
+ * SQL Statement Generation Policy
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum SqlPolitic {
 
-    /** 全部随机 */
+    /** All Random */
     RandomCol,
-    /** 随机 KEY 列，(update/delete 有效) */
+    /** Random KEY column, (update/delete valid) */
     RandomKeyCol,
-    /** 全部列 */
+    /** All Columns */
     FullCol,
-    /** 仅 KEY 列，(update/delete 有效) */
+    /** KEY column only (update/delete valid) */
     KeyCol;
 
     public static SqlPolitic valueOfCode(String name, SqlPolitic defaultValue) {

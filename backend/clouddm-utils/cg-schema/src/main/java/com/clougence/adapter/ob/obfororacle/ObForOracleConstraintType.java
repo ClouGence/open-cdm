@@ -22,17 +22,17 @@ package com.clougence.adapter.ob.obfororacle;
  */
 public enum ObForOracleConstraintType {
 
-    /** 主键 */
+    /** Primary key */
     PrimaryKey("P"),
-    /** 唯一 */
+    /** Unique */
     Unique("U"),
-    /** 外建 */
+    /** Foreign key */
     ForeignKey("R"),
     //    /** Supplemental logging */
     //    Supplemental("S"),
-    //    /** 检查 */
+    //    ** Inspection */
     //    Check("C"),
-    //    /** 视图检查 */
+    //    /** View Check */
     //    CheckView("V"),
     //    //
     //    /** With read only, on a view */

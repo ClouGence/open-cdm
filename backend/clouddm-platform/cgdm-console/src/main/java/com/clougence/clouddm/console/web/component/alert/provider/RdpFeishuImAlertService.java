@@ -49,7 +49,7 @@
 //        Map<String, String> contents = new HashMap<>();
 //        String fullMsg;
 //        if (atAll) {
-//            fullMsg = "<at user_id=\"all\">所有人</at>" + signName + msg;
+//            fullMsg = "<at user_id=\"all\">All</at>" + signName + msg;
 //        } else {
 //            fullMsg = signName + msg;
 //        }

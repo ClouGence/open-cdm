@@ -27,7 +27,7 @@ import com.clougence.utils.loader.AbstractResourceLoader;
 import com.clougence.utils.loader.ResourceLoader;
 
 /**
- * 可以将不同的 ResourceLoader 汇聚到一起，不具备 '可见性' 控制。实现更加简单、效率更高。
+ * You can bring different sources Loader together without 'visibility' control. Achieving simpler and more efficient.
  * @version : 2021-09-29
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -48,7 +48,7 @@ public class MultiResourceLoader extends AbstractResourceLoader {
         }
     }
 
-    /**添加一个 {@link ResourceLoader} */
+    /** Adds a {@link ResourceLoader}. */
     public void addLoader(ResourceLoader loader) {
         if (loader == null) {
             return;

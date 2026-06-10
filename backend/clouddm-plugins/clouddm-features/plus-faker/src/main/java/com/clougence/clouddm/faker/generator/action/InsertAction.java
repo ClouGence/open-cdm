@@ -33,7 +33,7 @@ import com.clougence.utils.RandomUtils;
 import com.clougence.utils.StringUtils;
 
 /**
- * INSERT 生成器
+ * Insurt Generator
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

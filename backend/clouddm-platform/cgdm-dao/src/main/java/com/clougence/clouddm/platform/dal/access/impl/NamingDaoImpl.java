@@ -151,11 +151,11 @@ public class NamingDaoImpl implements NamingDao {
         for (int i = 0; i < length; i++) {
             flag = (int) (Math.random() * 2);
             if (flag == 0) {
-                // 产生数字
+                // Generate numbers
                 int charVal = (int) (Math.random() * 10 + 48);
                 fixedLenRandomCharArr[i] = (char) charVal;
             } else {
-                // 产生小写字母
+                // Generate lowercase letters
                 int charVal = (int) ((Math.random() * 26) + 97);
                 fixedLenRandomCharArr[i] = (char) charVal;
             }

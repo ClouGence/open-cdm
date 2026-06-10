@@ -30,9 +30,9 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpClassUtil {
 
     /**
-     * 扫描jar包中凡是匹配compareType参数的类均被返回。（对执行结果不缓存）
-     * @param matcherType 匹配的类型，可以是类标注的注解、实现的接口、继承的父类。
-     * @return 返回扫描结果。
+     * Returns all classes in the scanned jar package that match the compareType parameter. (Depends on implementation results.)
+     * @param matcherType Matching type, which can be the class description, implemented interfaces, or inherited parent class.
+     * @return Returns the results of the scan.
      */
     public static Set<Class<?>> getClassSet(ClassLoader classLoader, CgResourceScanner scanner, String[] loadPackages, Class<?> matcherType) throws ClassNotFoundException {
         Set<String> namesSet = scanner.getClassNamesSet(loadPackages, context -> {

@@ -20,7 +20,7 @@ import ognl.Ognl;
 import ognl.OgnlContext;
 
 /**
- * OGNL 执行工具。
+ * OGNL execution tool.
  * @version : 2021-06-05
  * @author 赵永春 (zyc@hasor.net)
  */

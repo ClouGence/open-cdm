@@ -18,7 +18,7 @@ package com.clougence.schema.umi.struts;
 import com.clougence.utils.StringUtils;
 
 /**
- * 类型
+ * Type
  * @version : 2021-05-10
  * @author 赵永春 (zyc@hasor.net)
  */

@@ -22,7 +22,7 @@ import com.clougence.clouddm.faker.seed.SeedType;
 import com.clougence.clouddm.faker.types.TypeHandlerRegistryUtils;
 
 /**
- * byte[] 类型的 SeedConfig
+ * Byte[] Type SeedConfig
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

@@ -49,8 +49,8 @@ import com.lark.oapi.ws.pb.Pbbp2;
 
 import lombok.Getter;
 
-// 1. 代码 100% 拷贝自 com.lark.oapi.ws.Client
-// 2. 改动点 增加 inited 字段并在 start 时做初始化 pingLoop 的循环判断依靠它
+// 1. Code 100% from com.mark.oapi.ws.Clint
+// Change Point Added Inated Field and relies on it for initializing ping Loop loop judgement on start
 
 @Getter
 public class WsClient {
@@ -151,14 +151,14 @@ public class WsClient {
 
         try {
             log.info("start reconnecting...");
-            // 首次重连随机抖动
+            // First reconnecting random shaking
             if (this.reconnectNonce > 0) {
                 Random rand = new Random();
                 int nonce = rand.nextInt(this.reconnectNonce * 1000);
                 this.sleep(nonce);
             }
 
-            // 重连
+            // Reconnect
             if (this.reconnectCount >= 0) {
                 for (int i = 0; i < this.reconnectCount; i++) {
                     if (this.conn != null) {
@@ -309,7 +309,7 @@ public class WsClient {
 
         byte[] pl = frame.getPayload().toByteArray();
         if (sum > 1) {
-            // 合包
+            // Pack
             pl = combine(msgId, sum, seq, pl);
             if (pl == null) {
                 return;

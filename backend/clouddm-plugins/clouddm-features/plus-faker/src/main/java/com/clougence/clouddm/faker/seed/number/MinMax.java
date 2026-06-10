@@ -18,7 +18,7 @@ package com.clougence.clouddm.faker.seed.number;
 import java.math.BigDecimal;
 
 /**
- * 表示一组最大最小值
+ * represents a minimum set of values
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

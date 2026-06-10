@@ -37,7 +37,7 @@ import com.clougence.utils.jdbc.mapper.ValueRowMapper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Oracle 元信息获取，参考资料：
+ * Oracle meta-information access, reference:
  * <li>https://docs.oracle.com/en/database/oracle/oracle-database/21/drdag/all_synonyms-drda-gateway.html#GUID-E814A6AC-5E00-4DB6-8170-DC147F7879F8</li>
  *
  * @version : 2021-04-29

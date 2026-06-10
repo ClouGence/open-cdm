@@ -18,7 +18,7 @@ package com.clougence.utils.loader;
 import java.io.IOException;
 
 /**
- * 资源加载器、资源扫描器
+ * Resource loader, resource scanner
  * @version : 2021-09-29
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -27,7 +27,7 @@ public interface ClassMatcher {
 
     boolean matcher(ClassMatcherContext context) throws IOException;
 
-    /** 类信息结构 */
+    /** Type Information Structure */
     class ClassInfo {
 
         public String   className  = null;

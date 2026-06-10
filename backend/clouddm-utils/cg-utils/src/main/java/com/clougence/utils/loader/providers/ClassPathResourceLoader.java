@@ -39,7 +39,7 @@ import com.clougence.utils.loader.AbstractResourceLoader;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 用于创建一个可以从 classpath 中获取资源的 ResourceLoader
+ * Creates a resource that can be retrieved from claspath
  * @version : 2021-10-10
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -63,7 +63,7 @@ public class ClassPathResourceLoader extends AbstractResourceLoader {
 
     public ClassLoader getClassLoader() { return this.classLoader; }
 
-    /** 获取ClassPath路径 */
+    /** GetClassPath Path */
     protected List<URL> getClassPath(ClassLoader classLoader, String resourcePrefix) {
         return ClassUtils.getClassPath(classLoader, resourcePrefix);
     }
@@ -305,7 +305,7 @@ public class ClassPathResourceLoader extends AbstractResourceLoader {
         if (manifest != null) {
             return manifest;
         }
-        //classpath:/META-INF/MANIFEST.MF, 从classpath中获取
+        //claspath:/MTA-INF/MANIFEST.MF, obtained from claspath
         for (URL url : classpath) {
             if (url.getProtocol().equals("file")) {
                 File file = FileUtils.toFile(url);

@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.clougence.utils.HexadecimalUtils;
 
 /**
- * TypeHandlerFactory 实现类，用于创建 PG 数组类型读写器。
+ * TypeHandlerFactorory Realm class to create PG array type readers.
  * @version : 2023-02-19
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -49,8 +49,8 @@ public class PgArrayTypeHandlerFactory implements TypeHandlerFactory {
 
     @Override
     public TypeHandler<?> createTypeHandler(Map<String, Object> context) {
-        String elementType = String.valueOf(context.get("columnType")); // 数组元素类型
-        int dimCount = 0; // 数组维度
+        String elementType = String.valueOf(context.get("columnType")); // Numerical element type
+        int dimCount = 0; // Cluster dimensions
 
         while (elementType.length() > 0 && elementType.charAt(0) == '_') {
             elementType = elementType.substring(1);

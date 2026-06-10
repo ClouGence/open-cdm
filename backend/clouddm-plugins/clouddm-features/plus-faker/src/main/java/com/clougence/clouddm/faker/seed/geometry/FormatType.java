@@ -18,7 +18,7 @@ package com.clougence.clouddm.faker.seed.geometry;
 import com.clougence.utils.StringUtils;
 
 /**
- * 格式
+ * Format
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

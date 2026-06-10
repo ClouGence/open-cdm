@@ -27,13 +27,13 @@ import java.util.function.Function;
 import com.clougence.utils.StringUtils;
 
 /**
- * 时间日期格式
+ * Time Date Format
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum WellKnowFormat {
 
-    // java DateTimeFormatter 定义的
+    // Java DateTimeFormatter
     BASIC_ISO_DATE(DateTimeFormatter.BASIC_ISO_DATE),
     ISO_LOCAL_DATE(DateTimeFormatter.ISO_LOCAL_DATE),
     ISO_OFFSET_DATE(DateTimeFormatter.ISO_OFFSET_DATE),

@@ -18,7 +18,7 @@ package com.clougence.clouddm.faker.seed.geometry;
 import java.math.BigDecimal;
 
 /**
- * 表示一个点
+ * A point.
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

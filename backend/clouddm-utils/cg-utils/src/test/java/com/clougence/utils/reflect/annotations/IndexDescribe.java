@@ -19,26 +19,26 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * 标记在类型上用于配置对应的索引，该注解能力有限。并不能替代纯 SQL 方式。
- * - 如果存在 xml 和注解共用的情况下，注解配置将会失效。
+ * The type of mark is used to configure the corresponding index, which has limited ability to comment. Could not close temporary folder: %s
+ * - If xml and note are shared, the note configuration will expire.
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-12-06
  */
 @Repeatable(IndexDescribeSet.class)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface IndexDescribe {
-    /** 索引名，如果不指定则会自动生成 */
+    /** index name, automatically generated if not specified */
     String name() default "";
 
-    /** 唯一索引 */
+    /** Unique index */
     boolean unique() default false;
 
-    /** 通过列名来确定索引的列有哪些 */
+    /** Listing to determine what is listed in the index */
     String[] columns();
 
-    /** 索引备注 */
+    /** Index Remarks */
     String comment() default "";
 
-    /** 在生成所以创建语句的时候用于拼接的其它信息，开发者可以随意指定。会在 'create index' 语句生成的最后时自动追加 */
+    /** When generating other information that you use to spell when you create a statement, the developer is free to specify. Auto-add to 'create index' statement */
     String other() default "";
 }

@@ -18,7 +18,7 @@ package com.clougence.clouddm.faker.seed.date;
 import com.clougence.utils.StringUtils;
 
 /**
- * 时间类型生成方式
+ * Time type generation method
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

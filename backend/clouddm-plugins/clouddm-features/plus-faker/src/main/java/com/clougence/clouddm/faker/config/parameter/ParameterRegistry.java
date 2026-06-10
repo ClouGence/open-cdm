@@ -25,7 +25,7 @@ import com.clougence.clouddm.faker.config.spi.PostgresqlSpiRegistry;
 import com.clougence.utils.ref.LinkedCaseInsensitiveMap;
 
 /**
- * ParameterProcessor 注册器
+ * ParameterProcessor Register
  * @version : 2023-02-14
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -44,7 +44,7 @@ public class ParameterRegistry {
         new HanaSpiRegistry().loopUp(DEFAULT);
     }
 
-    /** 查找 ParameterProcessor */
+    /** Find ParameterProcessor */
     public ParameterProcessor findByName(String parameterName, Class<?> seedConfigType) {
         if (seedConfigType == null) {
             return this.defaultProcessorMap.get(parameterName);
@@ -58,12 +58,12 @@ public class ParameterRegistry {
         }
     }
 
-    /** 注册 ParameterProcessor */
+    /** Register ParameterProcessor */
     public synchronized void register(String parameterName, ParameterProcessor processor) {
         register(parameterName, processor, null);
     }
 
-    /** 注册 ParameterProcessor */
+    /** Register ParameterProcessor */
     public synchronized void register(String parameterName, ParameterProcessor processor, Class<?> withConfigType) {
         Objects.requireNonNull(processor, "processor is null.");
 

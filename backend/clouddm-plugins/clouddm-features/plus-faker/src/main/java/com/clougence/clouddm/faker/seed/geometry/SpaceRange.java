@@ -16,7 +16,7 @@
 package com.clougence.clouddm.faker.seed.geometry;
 
 /**
- * 通过一个矩形框来限制随机图形范围
+ * Limit the range of random graphics by a rectangular frame
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

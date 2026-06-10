@@ -16,7 +16,7 @@
 package com.clougence.adapter.dameng;
 
 /**
- * 达梦 外建约束的及联更新策略
+ * Dameng foreign key rule.
  * @version : 2021-05-08
  * @author 赵永春 (zyc@hasor.net)
  */
