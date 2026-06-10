@@ -19,8 +19,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteOrder;
 
-import com.clougence.clouddm.platform.component.resultfile.FileResultSetOutputStream;
-import com.clougence.clouddm.platform.component.resultfile.ResultSetOutputStream;
+import com.clougence.clouddm.component.resultfile.FileResultSetOutputStream;
+import com.clougence.clouddm.component.resultfile.ResultSetOutputStream;
 import com.clougence.clouddm.sdk.service.file.FileService;
 import com.clougence.utils.io.IOUtils;
 

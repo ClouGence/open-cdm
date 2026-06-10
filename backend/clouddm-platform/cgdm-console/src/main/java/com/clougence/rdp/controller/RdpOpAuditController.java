@@ -106,7 +106,9 @@ public class RdpOpAuditController {
     @RequestMapping(value = "/export", method = RequestMethod.POST)
     public void export(@RequestBody() @Valid ExportOpAuditFO exportOpAuditFO, HttpServletRequest request, HttpServletResponse response) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
+        String uid = (String) request.getAttribute(RdpUserService.UID);
         exportOpAuditFO.setPuid(puid);
+        exportOpAuditFO.setRequesterUid(uid);
         auditService.exportAuditLog(exportOpAuditFO, response);
     }
 }

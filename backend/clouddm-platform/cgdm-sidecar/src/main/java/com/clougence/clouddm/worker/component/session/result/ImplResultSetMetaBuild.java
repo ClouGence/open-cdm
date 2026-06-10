@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
-import com.clougence.clouddm.platform.component.resultfile.ResultSetOutputStream;
+import com.clougence.clouddm.component.resultfile.ResultSetOutputStream;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ReceiveMode;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetMeta;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultType;

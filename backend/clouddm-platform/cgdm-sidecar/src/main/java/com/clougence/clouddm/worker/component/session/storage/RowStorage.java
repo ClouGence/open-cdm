@@ -28,9 +28,9 @@ import java.time.*;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
-import com.clougence.clouddm.platform.component.resultfile.ResultDataTag;
-import com.clougence.clouddm.platform.component.resultfile.ResultSetOutputStream;
-import com.clougence.clouddm.platform.component.resultfile.RowDataHelper;
+import com.clougence.clouddm.component.resultfile.ResultDataTag;
+import com.clougence.clouddm.component.resultfile.ResultSetOutputStream;
+import com.clougence.clouddm.component.resultfile.RowDataHelper;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
 import com.clougence.clouddm.sdk.execute.resultset.file.ResultSetFileCode;
 import com.clougence.clouddm.sdk.execute.session.result.fetcher.*;
