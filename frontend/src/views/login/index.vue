@@ -5,13 +5,13 @@
         <dm-logo-header />
       </div>
     </header>
-    <div class="content">
-      <div :class="`has-background ${backgroundClass}`">
+    <div class="content" :style="{ '--login-bg-pattern': `url(${backgroundPatternUrl})` }">
+      <div class="login-scene">
+        <LoginHero />
         <div class="login-card">
-          <a-tabs :activeKey="activeTabKey" size="large">
-            <a-tab-pane key="LOGIN" :tab="currentLoginTitle"></a-tab-pane>
-            <a-tab-pane key="MFA" v-if="showMfa" :tab="$t('duo-yin-zi-ren-zheng-yan-zheng-ma')"></a-tab-pane>
-          </a-tabs>
+          <div class="card-header">
+            <h2 class="card-title">{{ showMfa ? $t('duo-yin-zi-ren-zheng-yan-zheng-ma') : currentLoginTitle }}</h2>
+          </div>
           <div class="tabs-content">
             <div class="input-wrapper mt-4" :class="{ 'is-completion': isCompletionMode }" v-if="!showMfa">
               <template v-if="isCompletionMode">
@@ -76,15 +76,10 @@
               </template>
             </div>
             <div class="input-wrapper mt-4" v-if="showMfa">
-              <a-input
-                v-if="!mfaInvalidMode"
-                class="mb-4"
-                @pressEnter="handleEnter2"
-                @keydown.enter="handleEnter2"
-                v-model:value="mfaCode"
-                size="large"
-                :placeholder="$t('qing-shu-ru-liu-wei-shu-de-mfa-yan-zheng-ma')"
-              />
+              <div class="floating-field" :class="{ 'has-value': mfaCode }" v-if="!mfaInvalidMode">
+                <span class="floating-label">{{ $t('qing-shu-ru-liu-wei-shu-de-mfa-yan-zheng-ma') }}</span>
+                <a-input class="field-input" @pressEnter="handleEnter2" @keydown.enter="handleEnter2" v-model:value="mfaCode" size="large" />
+              </div>
               <p v-if="!mfaInvalidMode" class="opacity-60">
                 {{ $t('nin-yi-kai-qi-le-duo-zi-yin-ren-zheng-pei-zhi-mei-ci-deng-lu-xu-yan-zheng-duo-yin-zi-ren-zheng-yan-zheng-ma') }}
               </p>
@@ -171,6 +166,7 @@
 <script>
 import DmFooter from '@/components/DmFooter';
 import DmLogoHeader from '@/components/DmLogoHeader';
+import LoginHero from '@/views/login/LoginHero';
 import { ACCOUNT_TYPE, LOGIN_TYPE } from '@/const';
 import { mapGetters, mapState, mapActions } from 'vuex';
 import { UPDATE_DM_GLOBAL_SETTING, UPDATE_GLOBAL_SETTING, UPDATE_PUBLIC_KEY } from '@/store/mutationTypes';
@@ -179,22 +175,21 @@ import { isNumber } from '@/components/util';
 import { filterGlobalSettingByBuild, supportsCloudDMBuild } from '@/utils/product';
 import formatError from '@/services/formatError';
 import { setPageIcon, WEBSIDE_FAVICON } from '@/utils/pluginResource';
+import loginBgPattern from '@/assets/login/login-bg-pattern.svg';
 
 export default {
   name: 'Login',
   components: {
     DmLogoHeader,
-    DmFooter
+    DmFooter,
+    LoginHero
   },
   mixins: [encryptMixin],
   computed: {
     ...mapState(['defaultRedirectUrl']),
     ...mapGetters(['isDesktop']),
-    backgroundClass() {
-      return 'dm-background';
-    },
-    activeTabKey() {
-      return this.showMfa ? 'MFA' : 'LOGIN';
+    backgroundPatternUrl() {
+      return loginBgPattern;
     },
     currentLoginDef() {
       return this.loginDef.find((item) => item.loginType === this.currentLoginType) || this.loginDef[0] || {};
@@ -592,19 +587,30 @@ export default {
 
 <style lang="less" scoped>
 .login {
+  --login-ink: #171717;
+  --login-muted: #707070;
+  --login-hairline: #dfdfdf;
+  --login-emerald: #3ecf8e;
+  --login-emerald-deep: #24b47e;
+  --login-surface: #ffffff;
+  --login-canvas: #f8fafc;
+
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: var(--login-canvas);
 
   header {
     .width-full();
-    flex: 0 0 80px;
+    flex: 0 0 72px;
+    position: relative;
+    z-index: 2;
 
     .login-header {
       position: relative;
       display: block;
-      padding: 0 24px;
-      height: 80px;
+      padding: 0 32px;
+      height: 72px;
     }
   }
 
@@ -616,69 +622,54 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--bg-page, #c3d8e9);
     overflow: auto;
-    padding: 32px 24px;
+    padding: 24px 32px 40px;
+    position: relative;
+    background-color: var(--login-canvas);
+    background-image: var(--login-bg-pattern);
+    background-size: cover;
+    background-position: center;
 
-    .has-background {
-      min-height: 100%;
+    .login-scene {
       width: 100%;
-      max-width: 1200px;
+      max-width: 1080px;
       margin: 0 auto;
-      position: relative;
-      display: flex;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 440px;
+      gap: 48px;
       align-items: center;
-      justify-content: center;
-    }
-
-    .dm-background {
-      background: url('../../assets/loginBack.png') no-repeat 0 center;
-      background-size: 580px;
     }
 
     .login-card {
-      width: 520px;
-      max-width: calc(100vw - 48px);
-      background: var(--card-bg, #ffffff);
+      width: 100%;
+      background: var(--login-surface);
       position: relative;
       overflow: hidden;
-      border: 1px solid transparent;
-      border-radius: 4px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+      border: 1px solid var(--login-hairline);
+      border-radius: 16px;
+      box-shadow:
+        0 1px 2px rgba(23, 23, 23, 0.04),
+        0 12px 40px rgba(23, 23, 23, 0.08);
+      animation: card-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
 
-      :deep(.ant-tabs-tab-btn) {
-        font-size: 18px;
-        line-height: 24px;
-        color: var(--text-primary, rgba(0, 0, 0, 0.88));
+      .card-header {
+        padding: 32px 40px 0;
       }
 
-      :deep(.ant-tabs) {
-        .ant-tabs-bar {
-          border-bottom: 2px solid #ececec;
-        }
-
-        .ant-tabs-nav {
-          height: 64px;
-          padding-left: 80px;
-          padding-right: 80px;
-
-          .ant-tabs-tab {
-            line-height: 40px;
-            font-size: 18px;
-            color: var(--text-primary, rgba(0, 0, 0, 0.88));
-          }
-
-          .ant-tabs-ink-bar {
-            background: #0bb9f8;
-          }
-        }
+      .card-title {
+        margin: 0;
+        color: var(--login-ink);
+        font-size: 20px;
+        font-weight: 500;
+        line-height: 1.3;
+        letter-spacing: -0.02em;
       }
 
       .tabs-content {
-        padding: 20px 80px 72px;
+        padding: 28px 40px 40px;
         box-sizing: border-box;
         position: relative;
-        min-height: 312px;
+        min-height: 280px;
 
         .msgContent {
           position: relative;
@@ -688,12 +679,13 @@ export default {
           :deep(.ant-alert) {
             margin-top: 4px;
             text-align: left;
+            border-radius: 8px;
           }
         }
 
         .input-wrapper {
           & > div {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
           }
 
           .mfa-invalid-tip {
@@ -701,7 +693,7 @@ export default {
           }
 
           &.is-completion {
-            margin-top: 8px !important;
+            margin-top: 4px !important;
 
             & > div {
               margin-bottom: 10px;
@@ -710,57 +702,76 @@ export default {
         }
 
         .floating-field {
-          --field-border: #d0d7e2;
-          --field-active: #4f82d9;
+          --field-border: var(--login-hairline);
+          --field-active: var(--login-emerald-deep);
           position: relative;
           display: flex;
           align-items: center;
-          min-height: 44px;
+          min-height: 52px;
           width: 100%;
-          margin-bottom: 14px;
-          padding: 0 14px;
+          margin-bottom: 16px;
+          padding: 18px 16px 8px;
           border: 1px solid var(--field-border);
-          border-radius: 12px;
-          background: #ffffff;
+          border-radius: 10px;
+          background: var(--login-surface);
           transition:
-            border-color 0.18s ease,
-            box-shadow 0.18s ease;
+            border-color 0.2s ease,
+            box-shadow 0.2s ease,
+            background-color 0.2s ease;
+
+          &:hover:not(:focus-within) {
+            border-color: #c7c7c7;
+          }
 
           &:focus-within {
             border-color: var(--field-active);
-            box-shadow: 0 0 0 1px rgba(79, 130, 217, 0.16);
+            box-shadow: 0 0 0 3px rgba(62, 207, 142, 0.15);
           }
 
           .floating-label {
             position: absolute;
-            top: -10px;
             left: 16px;
+            top: 50%;
             z-index: 2;
-            max-width: calc(100% - 40px);
-            padding: 0 8px;
-            background: #ffffff;
-            color: #9aa4b2;
-            font-size: 15px;
-            line-height: 18px;
+            max-width: calc(100% - 48px);
+            padding: 0;
+            background: transparent;
+            color: #9a9a9a;
+            font-size: 16px;
+            line-height: 1;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             pointer-events: none;
+            transform: translateY(-50%);
+            transition:
+              top 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              font-size 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.2s ease,
+              transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.2s ease,
+              padding 0.2s ease;
           }
 
           &:focus-within .floating-label,
           &.has-value .floating-label {
+            top: 10px;
+            transform: translateY(0);
+            font-size: 12px;
             color: var(--field-active);
+            background: var(--login-surface);
+            padding: 0 4px;
+            left: 12px;
           }
 
           :deep(.ant-input),
           :deep(.ant-input-affix-wrapper) {
-            height: 32px;
+            height: 28px;
             padding: 0;
             border: 0;
             box-shadow: none;
             background: transparent;
-            color: rgba(15, 23, 42, 0.92);
+            color: var(--login-ink);
             font-size: 16px;
           }
 
@@ -774,6 +785,15 @@ export default {
 
           :deep(.ant-input-affix-wrapper input) {
             font-size: 16px;
+          }
+
+          :deep(.ant-input-password-icon) {
+            color: #9a9a9a;
+            transition: color 0.2s ease;
+          }
+
+          &:focus-within :deep(.ant-input-password-icon) {
+            color: var(--login-emerald-deep);
           }
 
           .field-success {
@@ -791,20 +811,20 @@ export default {
             left: 6px;
             width: 6px;
             height: 11px;
-            border-right: 2px solid #22c55e;
-            border-bottom: 2px solid #22c55e;
+            border-right: 2px solid var(--login-emerald);
+            border-bottom: 2px solid var(--login-emerald);
             transform: rotate(45deg);
           }
 
           :deep(.ant-input[disabled]) {
-            color: rgba(15, 23, 42, 0.7);
+            color: rgba(23, 23, 23, 0.55);
             background: transparent;
           }
         }
 
         .field-error {
-          margin: -6px 0 10px;
-          color: #ff4d4f;
+          margin: -8px 0 12px;
+          color: #ff2201;
           font-size: 12px;
           line-height: 18px;
           text-align: left;
@@ -812,16 +832,42 @@ export default {
 
         .login-submit {
           width: 100%;
+          height: 48px;
           margin-top: 8px;
-          margin-bottom: 20px;
+          margin-bottom: 8px;
+          border-radius: 10px;
           font-size: 16px;
+          font-weight: 500;
+          letter-spacing: 0.01em;
+          background: #3ecf8e;
+          border-color: #3ecf8e;
+          color: #171717;
+          box-shadow: 0 2px 8px rgba(62, 207, 142, 0.25);
+          transition:
+            transform 0.15s ease,
+            box-shadow 0.2s ease,
+            background 0.2s ease;
 
           span {
             font-size: 16px;
           }
 
+          &:hover,
+          &:focus {
+            background: #24b47e;
+            border-color: #24b47e;
+            color: #171717;
+            box-shadow: 0 4px 16px rgba(62, 207, 142, 0.35);
+          }
+
+          &:not(:disabled):active {
+            background: #1ea06a;
+            border-color: #1ea06a;
+            transform: scale(0.985);
+          }
+
           &.is-mfa {
-            margin-top: 46px;
+            margin-top: 32px;
           }
         }
 
@@ -829,10 +875,12 @@ export default {
           display: flex;
           gap: 12px;
           margin-top: 20px;
-          margin-bottom: 20px;
+          margin-bottom: 8px;
 
           .ant-btn {
             margin: 0;
+            height: 48px;
+            border-radius: 10px;
           }
 
           .completion-submit {
@@ -844,56 +892,62 @@ export default {
           }
 
           .mfa-invalid-action {
-            color: #ed4014;
-            border-color: #ed4014;
-            background: #ffffff;
+            color: #ff2201;
+            border-color: #ff2201;
+            background: var(--login-surface);
 
             &:hover,
             &:focus {
-              color: #ff5f57;
-              border-color: #ff5f57;
-              background: #ffffff;
+              color: #e2005a;
+              border-color: #e2005a;
+              background: var(--login-surface);
             }
           }
         }
 
         .provider-login-button {
-          width: 144px;
-          height: 144px;
-          margin: 10px auto 20px;
-          padding: 18px 12px;
-          border-radius: 8px;
-          border: 1px solid #e5e7eb;
-          background: #ffffff;
-          color: rgba(0, 0, 0, 0.88);
+          width: 160px;
+          height: 160px;
+          margin: 16px auto 24px;
+          padding: 20px 16px;
+          border-radius: 12px;
+          border: 1px solid var(--login-hairline);
+          background: var(--login-surface);
+          color: var(--login-ink);
           cursor: pointer;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 12px;
+          gap: 14px;
           font: inherit;
           line-height: 1.35;
           white-space: normal;
-          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+          box-shadow: 0 2px 8px rgba(23, 23, 23, 0.05);
           appearance: none;
           transition:
             border-color 0.2s ease,
             background-color 0.2s ease,
-            box-shadow 0.2s ease;
+            box-shadow 0.2s ease,
+            transform 0.15s ease;
 
           &:hover,
           &:focus-visible {
-            color: #2563eb;
-            border-color: #60a5fa;
-            background-color: #eff6ff;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.14);
+            color: var(--login-emerald-deep);
+            border-color: var(--login-emerald);
+            background-color: rgba(62, 207, 142, 0.06);
+            box-shadow: 0 8px 24px rgba(62, 207, 142, 0.12);
             outline: none;
+            transform: translateY(-2px);
           }
 
           &:disabled {
             cursor: not-allowed;
-            opacity: 0.65;
+            opacity: 0.55;
+          }
+
+          &.is-loading {
+            pointer-events: none;
           }
 
           span {
@@ -901,45 +955,60 @@ export default {
             align-items: center;
             justify-content: center;
             font-size: 14px;
+            font-weight: 500;
             text-align: center;
           }
         }
 
         .login-provider-switcher {
-          position: absolute;
-          right: 76px;
-          bottom: 32px;
           display: flex;
-          align-items: flex-end;
-          justify-content: flex-end;
-          gap: 10px;
-          min-height: 30px;
+          align-items: center;
+          justify-content: center;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-top: 20px;
+          padding-top: 20px;
+          border-top: 1px solid #efefef;
         }
 
         .login-provider-icon {
           position: relative;
-          width: 26px;
-          height: 26px;
+          width: 40px;
+          height: 40px;
           padding: 0;
-          border: 0;
-          background: transparent;
+          border: 1px solid var(--login-hairline);
+          border-radius: 10px;
+          background: var(--login-surface);
           cursor: pointer;
           appearance: none;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          transition:
+            border-color 0.2s ease,
+            background-color 0.2s ease,
+            box-shadow 0.2s ease,
+            transform 0.15s ease;
+
+          &:hover:not(.active):not(:disabled) {
+            border-color: var(--login-emerald);
+            background: rgba(62, 207, 142, 0.06);
+            transform: translateY(-1px);
+          }
 
           &.active {
             cursor: default;
+            border-color: var(--login-emerald);
+            background: rgba(62, 207, 142, 0.1);
+            box-shadow: 0 0 0 3px rgba(62, 207, 142, 0.12);
+          }
+
+          &.unavailable {
+            opacity: 0.45;
           }
 
           .current-arrow {
-            position: absolute;
-            top: -5px;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-left: 4px solid transparent;
-            border-right: 4px solid transparent;
-            border-bottom: 6px solid #4b5563;
-            transform: translateX(-50%);
+            display: none;
           }
         }
       }
@@ -948,29 +1017,67 @@ export default {
 
   > footer {
     flex: 0 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  &.is-dark {
+    --login-ink: #f5f5f5;
+    --login-muted: #9a9a9a;
+    --login-hairline: #333333;
+    --login-surface: #1c1c1c;
+    --login-canvas: #121212;
+
+    .content .login-card {
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.2),
+        0 12px 40px rgba(0, 0, 0, 0.35);
+    }
+  }
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 960px) {
+  .login {
+    .content {
+      .login-scene {
+        grid-template-columns: 1fr;
+        gap: 0;
+        max-width: 440px;
+      }
+    }
   }
 }
 
 @media (max-width: 680px) {
   .login {
+    header .login-header {
+      padding: 0 16px;
+    }
+
     .content {
-      padding: 20px 12px;
+      padding: 16px;
 
       .login-card {
-        max-width: calc(100vw - 24px);
+        border-radius: 12px;
 
-        .tabs-content {
-          padding: 20px 28px 76px;
-
-          .login-provider-switcher {
-            right: 24px;
-            bottom: 28px;
-          }
+        .card-header {
+          padding: 24px 24px 0;
         }
 
-        :deep(.ant-tabs .ant-tabs-nav) {
-          padding-left: 28px;
-          padding-right: 28px;
+        .tabs-content {
+          padding: 24px 24px 32px;
         }
       }
     }

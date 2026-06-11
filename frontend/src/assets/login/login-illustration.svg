@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="440" viewBox="0 0 520 440" fill="none">
+  <defs>
+    <linearGradient id="cloudGrad" x1="80" y1="60" x2="320" y2="220" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3ecf8e"/>
+      <stop offset="1" stop-color="#24b47e"/>
+    </linearGradient>
+    <linearGradient id="dbGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f0fdf6"/>
+    </linearGradient>
+    <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#3ecf8e" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#1b61c9" stop-opacity="0.45"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#171717" flood-opacity="0.07"/>
+    </filter>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="18" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <ellipse cx="260" cy="378" rx="210" ry="26" fill="#171717" fill-opacity="0.05"/>
+
+  <g filter="url(#softShadow)">
+    <rect x="88" y="118" width="96" height="148" rx="14" fill="url(#dbGrad)" stroke="#dfdfdf" stroke-width="1.5"/>
+    <rect x="104" y="142" width="64" height="10" rx="5" fill="#3ecf8e" fill-opacity="0.35"/>
+    <rect x="104" y="162" width="48" height="8" rx="4" fill="#171717" fill-opacity="0.08"/>
+    <rect x="104" y="178" width="56" height="8" rx="4" fill="#171717" fill-opacity="0.06"/>
+    <rect x="104" y="194" width="40" height="8" rx="4" fill="#171717" fill-opacity="0.06"/>
+    <ellipse cx="136" cy="118" rx="48" ry="10" fill="#ffffff" stroke="#dfdfdf" stroke-width="1.5"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="212" y="98" width="96" height="168" rx="14" fill="url(#dbGrad)" stroke="#dfdfdf" stroke-width="1.5"/>
+    <rect x="228" y="122" width="64" height="10" rx="5" fill="#1b61c9" fill-opacity="0.28"/>
+    <rect x="228" y="142" width="52" height="8" rx="4" fill="#171717" fill-opacity="0.08"/>
+    <rect x="228" y="158" width="44" height="8" rx="4" fill="#171717" fill-opacity="0.06"/>
+    <rect x="228" y="174" width="58" height="8" rx="4" fill="#171717" fill-opacity="0.06"/>
+    <rect x="228" y="190" width="36" height="8" rx="4" fill="#171717" fill-opacity="0.06"/>
+    <ellipse cx="260" cy="98" rx="48" ry="10" fill="#ffffff" stroke="#dfdfdf" stroke-width="1.5"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="336" y="138" width="96" height="128" rx="14" fill="url(#dbGrad)" stroke="#dfdfdf" stroke-width="1.5"/>
+    <rect x="352" y="162" width="64" height="10" rx="5" fill="#6b01c2" fill-opacity="0.22"/>
+    <rect x="352" y="182" width="50" height="8" rx="4" fill="#171717" fill-opacity="0.08"/>
+    <rect x="352" y="198" width="42" height="8" rx="4" fill="#171717" fill-opacity="0.06"/>
+    <ellipse cx="384" cy="138" rx="48" ry="10" fill="#ffffff" stroke="#dfdfdf" stroke-width="1.5"/>
+  </g>
+
+  <g filter="url(#glow)">
+    <path d="M168 82C168 58.804 186.804 40 210 40H310C333.196 40 352 58.804 352 82V118C352 141.196 333.196 160 310 160H210C186.804 160 168 141.196 168 118V82Z" fill="url(#cloudGrad)"/>
+    <circle cx="210" cy="88" r="18" fill="#ffffff" fill-opacity="0.22"/>
+    <circle cx="260" cy="76" r="24" fill="#ffffff" fill-opacity="0.18"/>
+    <circle cx="310" cy="90" r="16" fill="#ffffff" fill-opacity="0.2"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="228" y="278" width="64" height="72" rx="12" fill="#ffffff" stroke="#dfdfdf" stroke-width="1.5"/>
+    <path d="M244 326C244 314.954 252.954 306 264 306C275.046 306 284 314.954 284 326V338H244V326Z" fill="#3ecf8e" fill-opacity="0.18" stroke="#24b47e" stroke-width="2"/>
+    <rect x="252" y="338" width="24" height="12" rx="4" fill="#24b47e"/>
+    <circle cx="264" cy="302" r="10" fill="none" stroke="url(#ringGrad)" stroke-width="3"/>
+  </g>
+
+  <circle cx="120" cy="310" r="36" fill="none" stroke="url(#ringGrad)" stroke-width="2" stroke-dasharray="6 8" opacity="0.65"/>
+  <circle cx="400" cy="250" r="28" fill="none" stroke="#3ecf8e" stroke-width="2" stroke-opacity="0.3" stroke-dasharray="4 6"/>
+  <path d="M156 310 L228 314" stroke="#3ecf8e" stroke-width="2" stroke-opacity="0.3" stroke-dasharray="5 6"/>
+  <path d="M292 314 L364 278" stroke="#1b61c9" stroke-width="2" stroke-opacity="0.25" stroke-dasharray="5 6"/>
+</svg>

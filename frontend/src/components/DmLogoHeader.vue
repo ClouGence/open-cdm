@@ -65,8 +65,8 @@ export default {
 .logo-header {
   display: flex;
   align-items: center;
-  margin: 0 105px;
-  height: 80px;
+  margin: 0;
+  height: 72px;
   justify-content: space-between;
   position: relative;
 
@@ -78,7 +78,9 @@ export default {
   }
 
   .login-type {
-    color: #555555;
+    color: #707070;
+    font-size: 18px;
+    font-weight: 500;
   }
 
   .left {
@@ -104,11 +106,11 @@ export default {
     }
 
     div {
-      font-size: 24px;
-      font-weight: bold;
-      border-left: 1px solid #dadada;
-      padding-left: 20px;
-      margin-left: 20px;
+      font-size: 18px;
+      font-weight: 500;
+      border-left: 1px solid #dfdfdf;
+      padding-left: 16px;
+      margin-left: 16px;
     }
   }
 
