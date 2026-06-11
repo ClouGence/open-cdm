@@ -49,6 +49,7 @@ export default {
           colorBgContainer: '#ffffff',
           colorBorder: '#dfdfdf',
           colorText: '#171717',
+          colorTextLightSolid: '#ffffff',
           colorTextSecondary: '#707070',
           controlHeight: 32,
           controlHeightSM: 28
@@ -64,7 +65,8 @@ export default {
           },
           Button: {
             primaryShadow: 'none',
-            defaultShadow: 'none'
+            defaultShadow: 'none',
+            primaryColor: '#ffffff'
           }
         }
       },

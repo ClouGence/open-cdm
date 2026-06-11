@@ -54,6 +54,7 @@ export default {
   display: flex;
   align-items: flex-start;
   width: 100%;
+  margin-bottom: 14px;
 }
 .step-connectivity-form :deep(.ant-form-item-row) {
   display: flex;
@@ -70,12 +71,16 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
+  position: relative;
   min-height: 32px;
+  padding-left: 12px;
   white-space: normal;
   text-align: left;
 }
 .step-connectivity-form :deep(.ant-form-item-required::before) {
-  display: none !important;
+  position: absolute;
+  left: 0;
+  margin-right: 0;
 }
 .step-connectivity-form :deep(.ant-form-item-control-wrapper) {
   flex: 1;

@@ -86,6 +86,7 @@ cd frontend && npm run check-i18n
 - 使用 `package-lock.json`，默认使用 `npm`，不要擅自切换到其他包管理器。
 - 构建产物输出到 `dist/templates/`，由后端 Gradle `cgdm-web` 模块打包。
 - 全量构建前端资源也可通过 `cd package && ./all_build.sh web` 触发。
+- 每次完成前端改造后，必须从仓库根目录运行 `cd package && ./all_build.sh web` 作为最终验证。
 
 ### 本地联调
 

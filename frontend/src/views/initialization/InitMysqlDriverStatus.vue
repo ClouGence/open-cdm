@@ -8,9 +8,11 @@
       <CheckCircleOutlined v-else-if="driverUiState === 'ready'" class="init-mysql-driver-ready-icon" />
       <ExclamationCircleOutlined v-else class="init-mysql-driver-warning-icon" />
     </span>
-    <span class="init-mysql-driver-type">{{ $t('initialization.jdbcDataSourceTypeValue') }}</span>
-    <span v-if="driverInlineMessage" class="init-mysql-driver-message">（{{ driverInlineMessage }}）</span>
-    <a-button v-if="showActionButton" size="small" type="primary" :disabled="actionDisabled" @click="handleActionClick">
+    <span v-if="driverInlineMessage" class="init-mysql-driver-message">
+      <template v-if="driverUiState === 'ready'">{{ driverInlineMessage }}</template>
+      <template v-else>（{{ driverInlineMessage }}）</template>
+    </span>
+    <a-button v-if="showActionButton" class="init-mysql-driver-action-button" :disabled="actionDisabled" @click="handleActionClick">
       {{ actionLabel }}
     </a-button>
   </span>
@@ -175,6 +177,9 @@ export default {
       }
       if (this.driverUiState === 'error') {
         return message || this.$t('initialization.mysqlDriverUnavailable');
+      }
+      if (this.driverUiState === 'ready') {
+        return this.$t('initialization.mysqlDriverReady');
       }
       return '';
     }
@@ -404,20 +409,22 @@ export default {
   display: inline-flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
-  min-height: 32px;
-  line-height: 32px;
+  gap: 5px;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 28px;
+  line-height: 28px;
   color: rgba(0, 0, 0, 0.85);
   vertical-align: middle;
 }
 
 .init-mysql-driver-icon {
-  flex: 0 0 28px;
+  flex: 0 0 24px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   line-height: 1;
 }
 
@@ -425,12 +432,6 @@ export default {
 .init-mysql-driver-ready-icon,
 .init-mysql-driver-warning-icon {
   font-size: 16px;
-}
-
-.init-mysql-driver-type {
-  font-size: 14px;
-  line-height: 22px;
-  white-space: nowrap;
 }
 
 .init-mysql-driver-loading-icon,
@@ -443,15 +444,15 @@ export default {
 }
 
 .init-mysql-driver-progress-circle {
-  flex: 0 0 28px;
+  flex: 0 0 24px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  width: 28px;
-  min-width: 28px;
-  height: 28px;
-  min-height: 28px;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  min-height: 24px;
   aspect-ratio: 1 / 1;
   box-sizing: border-box;
   border-radius: 50%;
@@ -482,6 +483,12 @@ export default {
   font-size: 12px;
   line-height: 20px;
   color: rgba(0, 0, 0, 0.65);
+}
+
+.init-mysql-driver-action-button {
+  flex: 0 0 auto;
+  min-width: 96px;
+  margin-left: auto;
 }
 
 .init-mysql-driver-status.is-error .init-mysql-driver-message,
