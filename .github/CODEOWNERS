@@ -1,0 +1,5 @@
+# Request CDM Maintainers review for every pull request.
+* @ClouGence/cdm-maintainers
+
+# Protect reviewer routing changes.
+/.github/CODEOWNERS @ClouGence/cdm-maintainers
