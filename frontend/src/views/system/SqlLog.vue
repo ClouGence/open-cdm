@@ -101,6 +101,15 @@
                   <div class="operator-uid">{{ formatUid(row.uid) }}</div>
                 </div>
               </template>
+              <template #datasource="{ row }">
+                <div class="datasource-cell">
+                  <div class="datasource-id">
+                    <CustomIcon :type="row.dataSourceType" />
+                    <span>{{ row.dsResourceId }}</span>
+                  </div>
+                  <div class="datasource-desc">{{ formatDsRemark(row.dsRemark) }}</div>
+                </div>
+              </template>
               <template #resource="{ row }">
                 <Tooltip :content="row.resource" placement="top" transfer>
                   <span class="sql-log-resource-cell">
@@ -243,15 +252,8 @@ export default {
         },
         {
           title: this.$t('shu-ju-yuan'),
-          key: 'dsDesc',
-          width: 300,
-          render: (_, params) => {
-            const row = params.row || params;
-            return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
-              h(resolveComponent('CustomIcon'), { type: row.dataSourceType }),
-              h('span', { style: { marginLeft: '6px' } }, row.dsDesc)
-            ]);
-          }
+          slot: 'datasource',
+          width: 300
         },
         {
           title: this.$t('cao-zuo-zi-yuan'),
@@ -472,6 +474,10 @@ export default {
       return `UID: ${uid || ''}`;
     },
 
+    formatDsRemark(dsRemark) {
+      return `备注: ${dsRemark || ''}`;
+    },
+
     showSqlDetail(row) {
       this.selectedRow = row;
       this.showSqlModal = true;
@@ -495,6 +501,21 @@ export default {
     line-height: 20px;
 
     .operator-uid {
+      color: #9ea7b4;
+      font-size: 12px;
+    }
+  }
+
+  .datasource-cell {
+    line-height: 20px;
+
+    .datasource-id {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .datasource-desc {
       color: #9ea7b4;
       font-size: 12px;
     }

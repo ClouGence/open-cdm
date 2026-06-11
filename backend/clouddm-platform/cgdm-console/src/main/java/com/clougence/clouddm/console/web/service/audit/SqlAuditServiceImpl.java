@@ -17,7 +17,10 @@ package com.clougence.clouddm.console.web.service.audit;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -25,6 +28,8 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
 import com.clougence.clouddm.console.web.model.vo.audit.SqlAuditVO;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
@@ -37,6 +42,9 @@ import lombok.extern.slf4j.Slf4j;
 public class SqlAuditServiceImpl implements SqlAuditService {
     @Resource
     private ExecutionDal executionDal;
+
+    @Resource
+    private ObjectCacheDao objectCacheDao;
 
     private final int    DEFAULT_PAGE_SIZE = 20;
     private final int    MAX_PAGE_SIZE     = 60;
@@ -55,6 +63,17 @@ public class SqlAuditServiceImpl implements SqlAuditService {
             return new ArrayList<>();
         }
 
-        return auditDOs.stream().map(SqlAuditVO::convertFromDO).collect(Collectors.toList());
+        Map<Long, DsCacheEntry> dsCacheById = new HashMap<>();
+        auditDOs.stream().map(DmExecSqlAuditDO::getDsId).filter(Objects::nonNull).distinct().forEach(id -> dsCacheById.put(id, objectCacheDao.queryByDsId(id)));
+
+        return auditDOs.stream().map(auditDO -> {
+            SqlAuditVO vo = SqlAuditVO.convertFromDO(auditDO);
+            DsCacheEntry dsCache = dsCacheById.get(auditDO.getDsId());
+            if (dsCache != null) {
+                vo.setDsResourceId(dsCache.getDsInstId());
+                vo.setDsRemark(dsCache.getDsInstDesc());
+            }
+            return vo;
+        }).collect(Collectors.toList());
     }
 }
