@@ -100,7 +100,7 @@ public class DmDsController {
     private DmDsConfigService   dmDsConfigService;
 
     @RequestAuth(DM_DS_READ)
-    @RequestMapping(value = "/listbycondition", method = RequestMethod.POST)
+    @RequestMapping(value = "/listByCondition", method = RequestMethod.POST)
     public ResWebData<?> listByCondition(@RequestBody @Valid ListDsFO listDsFO, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
@@ -240,7 +240,7 @@ public class DmDsController {
     }
 
     @RequestAuth(DM_DS_READ)
-    @RequestMapping(value = "/querydsconfig", method = RequestMethod.POST)
+    @RequestMapping(value = "/queryDsConfig", method = RequestMethod.POST)
     public ResWebData<?> queryDsConfig(@RequestBody QueryDsConfigFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -256,7 +256,7 @@ public class DmDsController {
     }
 
     @RequestAuth(DM_DS_MANAGE)
-    @RequestMapping(value = "/connectds", method = RequestMethod.POST)
+    @RequestMapping(value = "/connectDs", method = RequestMethod.POST)
     public ResWebData<?> connectDs(@Valid @RequestBody ConnectDsFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
@@ -279,7 +279,7 @@ public class DmDsController {
     }
 
     @RequestAuth(value = DM_DS_MANAGE, level = HIGH)
-    @RequestMapping(value = "/upsertdsconfig", method = RequestMethod.POST)
+    @RequestMapping(value = "/upsertDsConfig", method = RequestMethod.POST)
     public ResWebData<?> upsertDsConfig(@RequestBody UpsertDsConfigFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         String puid = (String) request.getAttribute(RdpUserService.PUID);

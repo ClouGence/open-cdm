@@ -65,7 +65,7 @@ public class RdpUserConfigController {
     private RdpOpAuditService rdpOpAuditService;
 
     @RequestAuth(strategy = AuthStrategy.RefAnyOnes)
-    @RequestMapping(value = "/getcurruserconfigs", method = RequestMethod.POST)
+    @RequestMapping(value = "/getCurrUserConfigs", method = RequestMethod.POST)
     public ResWebData<?> getCurrUserConfigs(HttpServletRequest request) {
         // prepare auth info
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -89,7 +89,7 @@ public class RdpUserConfigController {
     }
 
     @RequestAuth(level = HIGH, value = RDP_PRI_USER_KV_CONF_W)
-    @RequestMapping(value = "/upsertuserconfigs", method = RequestMethod.POST)
+    @RequestMapping(value = "/upsertUserConfigs", method = RequestMethod.POST)
     public ResWebData<?> upsertUserConfigs(@RequestBody @Valid UpsertUserConfigFO configFO, HttpServletRequest request) {
         if (CollectionUtils.isEmpty(configFO.getUpdateConfigs()) && CollectionUtils.isEmpty(configFO.getNeedCreateConfigs())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.UPDATE_USER_CONFIG_PARAMS_ARE_EMPTY.name()));

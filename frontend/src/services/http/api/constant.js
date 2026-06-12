@@ -41,8 +41,8 @@ export const constantApi = {
   // listExportSqExecType: '/clouddm/console/api/v1/constant/listexportsqexectype',
   // rdp
   // dsLLMTypes: '/rdp/console/api/v1/constant/ds/dsllmtypes',
-  // dsLLMEmbeddingTypes: '/rdp/console/api/v1/constant/ds/dsllmembeddingtypes',
-  // dsLLMChatTypes: '/rdp/console/api/v1/constant/ds/dsllmchattypes',
+  // dsLLMEmbeddingTypes: '/rdp/console/api/v1/constant/ds/dsLlmEmbeddingTypes',
+  // dsLLMChatTypes: '/rdp/console/api/v1/constant/ds/dsLlmChatTypes',
   // listDownloadProduct: '/rdp/console/api/v1/constant/listDownloadProduct',
 
   // cc
@@ -124,15 +124,15 @@ export const constantApi = {
   dmConstantListDsConnectionOption: '/clouddm/console/api/v1/constant/listdsconnectionoption',
 
   // rdp
-  rdpConstantListRegionAreas: '/rdp/console/api/v1/constant/listregionareas',
+  rdpConstantListRegionAreas: '/rdp/console/api/v1/constant/listRegionAreas',
   rdpConstantDsSupportedRegion: '/rdp/console/api/v1/constant/dssupportedregion',
-  rdpConstantListFilterDsTypes: '/rdp/console/api/v1/constant/listfilterdstypes',
-  rdpConstantListDsTypesByDeployType: '/rdp/console/api/v1/constant/listdstypesbydeploytype',
+  rdpConstantListFilterDsTypes: '/rdp/console/api/v1/constant/listFilterDsTypes',
+  rdpConstantListDsTypesByDeployType: '/rdp/console/api/v1/constant/listDsTypesByDeployType',
 
-  rdpConstantDsLLMEmbeddingTypes: '/rdp/console/api/v1/constant/ds/dsllmembeddingtypes',
-  rdpConstantDsLLMChatTypes: '/rdp/console/api/v1/constant/ds/dsllmchattypes',
-  rdpConstantDsSecurityOption: '/rdp/console/api/v1/constant/ds/dssecurityoption',
-  rdpConstantDsDsConnectType: '/rdp/console/api/v1/constant/ds/dsconnecttype',
-  rdpConstantDsDsLlmEmbeddingTypes: '/rdp/console/api/v1/constant/ds/dsllmembeddingtypes',
-  rdpConstantDsDsLlmChatTypes: '/rdp/console/api/v1/constant/ds/dsllmchattypes'
+  rdpConstantDsLLMEmbeddingTypes: '/rdp/console/api/v1/constant/ds/dsLlmEmbeddingTypes',
+  rdpConstantDsLLMChatTypes: '/rdp/console/api/v1/constant/ds/dsLlmChatTypes',
+  rdpConstantDsSecurityOption: '/rdp/console/api/v1/constant/ds/dsSecurityOption',
+  rdpConstantDsDsConnectType: '/rdp/console/api/v1/constant/ds/dsConnectType',
+  rdpConstantDsDsLlmEmbeddingTypes: '/rdp/console/api/v1/constant/ds/dsLlmEmbeddingTypes',
+  rdpConstantDsDsLlmChatTypes: '/rdp/console/api/v1/constant/ds/dsLlmChatTypes'
 };

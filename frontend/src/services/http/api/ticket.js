@@ -56,7 +56,7 @@ export const ticketApi = {
   dmTicketQueryQueryTicketDetail: '/clouddm/console/api/v1/approval/queryQueryApprovalDetail',
 
   // rdp
-  rdpTicketListBasic: '/clouddm/console/api/v1/approval/listbasic',
+  rdpTicketListBasic: '/clouddm/console/api/v1/approval/listBasic',
   rdpTicketClose: '/clouddm/console/api/v1/approval/close',
   rdpTicketCreateDataSourceAuthTicket: '/clouddm/console/api/v1/approval/createDataSourceAuthApproval',
   rdpTicketQueryDataSourceAuthTicketDetail: '/clouddm/console/api/v1/approval/queryDataSourceAuthApprovalDetail',
@@ -65,7 +65,7 @@ export const ticketApi = {
 };
 
 // export const ticketApiRdp = {
-// listTickets: '/clouddm/console/api/v1/approval/listbasic',*
+// listTickets: '/clouddm/console/api/v1/approval/listBasic',*
 // listTickeBaseInfo: '/clouddm/console/api/v1/approval/queryApprovalBaseInfo',*
 // listTicketsAuthDetail: '/clouddm/console/api/v1/approval/queryDataSourceAuthApprovalDetail',*
 // approvalTicket: '/clouddm/console/api/v1/approval/approval',*

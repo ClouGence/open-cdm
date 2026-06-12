@@ -33,7 +33,6 @@ import com.clougence.clouddm.base.metadata.rdp.enumeration.ConnectType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy;
-import com.clougence.clouddm.console.web.model.fo.ConnectTypeByDsFO;
 import com.clougence.clouddm.console.web.model.fo.DsSecurityOptionFO;
 import com.clougence.clouddm.console.web.model.vo.ConnectTypeVO;
 import com.clougence.clouddm.console.web.model.vo.DsSecurityDetailVO;
@@ -61,44 +60,22 @@ public class RdpDsConstantController {
     }
 
     @RequestAuth(strategy = AuthStrategy.Ignore)
-    @RequestMapping(value = "/dsllmembeddingtypes", method = RequestMethod.POST)
+    @RequestMapping(value = "/dsLlmEmbeddingTypes", method = RequestMethod.POST)
     public ResWebData<?> dsLlmEmbeddingTypes() {
         return ResWebDataUtils.buildSuccess(LLM_EMBEDDING_DS);
     }
 
     @RequestAuth(strategy = AuthStrategy.Ignore)
-    @RequestMapping(value = "/dsllmchattypes", method = RequestMethod.POST)
+    @RequestMapping(value = "/dsLlmChatTypes", method = RequestMethod.POST)
     public ResWebData<?> dsLlmChatTypes() {
         return ResWebDataUtils.buildSuccess(LLM_CHAT_DS);
     }
 
     @RequestAuth(strategy = AuthStrategy.Ignore)
-    @RequestMapping(value = "/dsconnecttype", method = RequestMethod.POST)
+    @RequestMapping(value = "/dsConnectType", method = RequestMethod.POST)
     public ResWebData<?> dsConnectType() {
         List<ConnectTypeVO> vos = new ArrayList<>();
         for (ConnectType c : ConnectType.values()) {
-            ConnectTypeVO v;
-            if (c == ConnectType.ORACLE_SID || c == ConnectType.CLICKHOUSE_HTTP) {
-                v = new ConnectTypeVO(c, true);
-            } else {
-                v = new ConnectTypeVO(c, false);
-            }
-
-            vos.add(v);
-        }
-
-        return ResWebDataUtils.buildSuccess(vos);
-    }
-
-    @RequestAuth(strategy = AuthStrategy.Ignore)
-    @RequestMapping(value = "/connecttypebyds", method = RequestMethod.POST)
-    public ResWebData<?> connectTypeByDs(@Valid @RequestBody ConnectTypeByDsFO dsFO) {
-        List<ConnectTypeVO> vos = new ArrayList<>();
-        for (ConnectType c : ConnectType.values()) {
-            if (dsFO.getDataSourceType() != c.getDsType()) {
-                continue;
-            }
-
             ConnectTypeVO v;
             if (c == ConnectType.ORACLE_SID || c == ConnectType.CLICKHOUSE_HTTP) {
                 v = new ConnectTypeVO(c, true);
@@ -116,7 +93,7 @@ public class RdpDsConstantController {
     public static final String  DEFAULT_DB_NAME_LABEL_RDB    = DEFAULT_DB_NAME_LABEL_PREFIX + "RDB";
 
     @RequestAuth(strategy = AuthStrategy.Ignore)
-    @RequestMapping(value = "/dssecurityoption", method = RequestMethod.POST)
+    @RequestMapping(value = "/dsSecurityOption", method = RequestMethod.POST)
     public ResWebData<?> dsSecurityOption(@Valid @RequestBody DsSecurityOptionFO data) {
         DsSecurityDetailVO detail = new DsSecurityDetailVO();
 

@@ -195,7 +195,7 @@ const REDIRECT_HOME_DELAY_MS = 2500;
 
 function buildDmGlobalSettingsUrl() {
   const baseUrl = (process.env.VUE_APP_BASE_URL || '').replace(/\/$/, '');
-  return `${baseUrl}/clouddm/console/api/v1/dm_global_settings`;
+  return `${baseUrl}/clouddm/console/api/v1/dmGlobalSettings`;
 }
 
 function buildInitInstallLogWsUrl() {

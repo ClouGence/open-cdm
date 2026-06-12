@@ -102,7 +102,7 @@ public class QueryEditorController {
     private DmSupportSpiWrapper  dmSupportSpiWrapper;
 
     @RequestAuth(checkOpPassword = true, value = DM_QUERY_CONSOLE)
-    @RequestMapping(value = "/createsession", method = RequestMethod.POST)
+    @RequestMapping(value = "/createSession", method = RequestMethod.POST)
     public ResWebData<?> createSession(@Valid @RequestBody CreateSessionFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
@@ -116,23 +116,13 @@ public class QueryEditorController {
     }
 
     @RequestAuth(DM_QUERY_CONSOLE)
-    @RequestMapping(value = "/closesession", method = RequestMethod.POST)
+    @RequestMapping(value = "/closeSession", method = RequestMethod.POST)
     public ResWebData<?> closeSession(@Valid @RequestBody CloseSessionFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         this.queryService.closeSession(puid, uid, fo.getSessionId());
         return ResWebDataUtils.buildSuccess(fo.getSessionId());
-    }
-
-    @RequestAuth(checkOpPassword = true, value = DM_QUERY_CONSOLE)
-    @RequestMapping(value = "/listsession", method = RequestMethod.POST)
-    public ResWebData<List<SessionVO>> sessionList(HttpServletRequest request) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-
-        List<SessionVO> vos = this.queryService.getSessionList(puid, uid);
-        return ResWebDataUtils.buildSuccess(vos);
     }
 
     @RequestAuth(checkOpPassword = true, value = DM_QUERY_CONSOLE)
@@ -203,31 +193,6 @@ public class QueryEditorController {
             vo.setHint(null);
         }
         return vo;
-    }
-
-    @RequestAuth(DM_QUERY_CONSOLE)
-    @RequestMapping(value = "/rdbColumns", method = RequestMethod.POST)
-    public ResWebData<?> rdbColumns(@Valid @RequestBody BatchColumnsFO fo, HttpServletRequest request) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-
-        DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
-
-        UmiTypes leafType = UmiTypes.valueOfCode(fo.getTargetType());
-        List<String> leafName = fo.getTargetNames();
-
-        leafName = leafName.stream().filter(tabName -> {
-            DsResPath dsResource = RdpAuthUtils.genResPathByList(levels.dbLevels(), tabName);
-            return this.dmAuthServiceForBiz.checkResPathWithoutError(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, dsResource, SecDataAuthLabel.DM_DAUTH_QUERY);
-        }).collect(Collectors.toList());
-
-        if (leafName.isEmpty()) {
-            return ResWebDataUtils.buildSuccess(Collections.emptyMap());
-        }
-
-        Map<String, List<BrowseColumnMO>> result = this.queryService.rdbBatchColumns(puid, uid, levels, leafType, leafName);
-        return ResWebDataUtils.buildSuccess(result);
     }
 
     @RequestAuth(DM_QUERY_CONSOLE)

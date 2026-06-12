@@ -22,7 +22,7 @@ const UPDATE_DATA_SOURCE_STATUS_LIST = [
   '/clouddm/console/api/v1/editor/table/editorDef',
   '/clouddm/console/api/v1/editor/table/initEditor',
   '/clouddm/console/api/v1/editor/table/generateScript',
-  '/clouddm/console/api/v1/query/createsession',
+  '/clouddm/console/api/v1/query/createSession',
   '/clouddm/console/api/v1/browse/actions/requestScript',
   '/clouddm/console/api/v1/browse/actions/generateScript',
   '/clouddm/console/api/v1/editor/table/scriptExecute',
@@ -131,7 +131,7 @@ const request = async (opt) => {
   const { url: requestUrl, msg, modal = true, page } = options;
 
   try {
-    // if (!['/login', '/register', '/logout', '/global_settings', '/list_org', '/login_supplement', '/check_supplement', '/load_supplement_info'].includes(options.url)) {
+    // if (!['/login', '/register', '/logout', '/globalSettings', '/list_org', '/login_supplement', '/checkSupplement', '/load_supplement_info'].includes(options.url)) {
     //   options.baseURL = process.env.VUE_APP_BASE_URL;
     // }
     const res = await instance(options);

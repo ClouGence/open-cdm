@@ -63,7 +63,7 @@ public class WorkerController {
     private WorkerDetector workerDetector;
 
     @RequestAuth(DM_WORKER_READ)
-    @RequestMapping(value = "/listworkers", method = RequestMethod.POST)
+    @RequestMapping(value = "/listWorkers", method = RequestMethod.POST)
     public ResWebData<?> listWorkers(@Valid @RequestBody ListWorkersFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         this.objectCacheDao.ownCluster(puid, fo.getClusterId());
@@ -74,7 +74,7 @@ public class WorkerController {
     }
 
     @RequestAuth(DM_WORKER_MANAGE)
-    @RequestMapping(value = "/updateworkerdesc", method = RequestMethod.POST)
+    @RequestMapping(value = "/updateWorkerDesc", method = RequestMethod.POST)
     public ResWebData<?> updateWorkerDesc(@Valid @RequestBody UpdateWorkerDescFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
@@ -84,7 +84,7 @@ public class WorkerController {
     }
 
     @RequestAuth(DM_WORKER_READ)
-    @RequestMapping(value = "/queryworkerbyid", method = RequestMethod.POST)
+    @RequestMapping(value = "/queryWorkerById", method = RequestMethod.POST)
     public ResWebData<?> queryWorkerById(@Valid @RequestBody QueryWorkerFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
@@ -95,7 +95,7 @@ public class WorkerController {
     }
 
     @RequestAuth(level = HIGH, value = DM_WORKER_MANAGE)
-    @RequestMapping(value = "/createinitialworker", method = RequestMethod.POST)
+    @RequestMapping(value = "/createInitialWorker", method = RequestMethod.POST)
     public ResWebData<?> createInitialWorker(@Valid @RequestBody CreateInitialWorkerFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         this.objectCacheDao.ownCluster(puid, fo.getClusterId());
@@ -105,7 +105,7 @@ public class WorkerController {
     }
 
     @RequestAuth(level = HIGH, value = DM_WORKER_MANAGE)
-    @RequestMapping(value = "/deleteworker", method = RequestMethod.POST)
+    @RequestMapping(value = "/deleteWorker", method = RequestMethod.POST)
     public ResWebData<?> deleteWorker(@Valid @RequestBody DeleteWorkerFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
@@ -115,7 +115,7 @@ public class WorkerController {
     }
 
     @RequestAuth(level = HIGH, value = DM_WORKER_MANAGE)
-    @RequestMapping(value = "/waittooffline", method = RequestMethod.POST)
+    @RequestMapping(value = "/waitToOffline", method = RequestMethod.POST)
     public ResWebData<?> waitToOffline(@Valid @RequestBody WaitToOfflineFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
@@ -125,7 +125,7 @@ public class WorkerController {
     }
 
     @RequestAuth(level = HIGH, value = DM_WORKER_MANAGE)
-    @RequestMapping(value = "/waittoonline", method = RequestMethod.POST)
+    @RequestMapping(value = "/waitToOnline", method = RequestMethod.POST)
     public ResWebData<?> waitToOnline(@Valid @RequestBody WaitToOnlineFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
@@ -135,8 +135,8 @@ public class WorkerController {
     }
 
     @RequestAuth(DM_WORKER_READ)
-    @RequestMapping(value = "/downloadclienturl", method = RequestMethod.POST)
-    public ResWebData<?> downLoadClientUrl(@Valid @RequestBody ClientUrlFO fo, HttpServletRequest request) {
+    @RequestMapping(value = "/downloadClientUrl", method = RequestMethod.POST)
+    public ResWebData<?> downloadClientUrl(@Valid @RequestBody ClientUrlFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         this.objectCacheDao.ownWorker(puid, fo.getWorkerId());
 
@@ -145,7 +145,7 @@ public class WorkerController {
     }
 
     @RequestAuth(level = HIGH, value = DM_WORKER_READ)
-    @RequestMapping(value = "/clientcoreconfig", method = RequestMethod.POST)
+    @RequestMapping(value = "/clientCoreConfig", method = RequestMethod.POST)
     public ResWebData<?> clientCoreConfig(@Valid @RequestBody ClientCoreConfFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 

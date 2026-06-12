@@ -111,63 +111,6 @@ public class TestController implements UnifiedPostConstruct {
 
     }
 
-    @RequestMapping(value = "/doQuery", method = RequestMethod.POST)
-    public ResWebData<?> doQuery(@RequestBody WsQueryFO wsQueryFO, HttpServletRequest request) {
-        if (!openTest) {
-            throw new UnsupportedOperationException();
-        }
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-
-        wsQueryFO.setCurrentUserId(uid);
-        wsQueryFO.setPrimaryUserId(puid);
-        wsQueryFO.setChannelKey(UUID.randomUUID().toString());
-
-        checkMap.put(wsQueryFO.getSessionId(), false);
-
-        this.queryServiceApi.offerQueryRequest(wsQueryFO, DmGlobalEventBus::triggerQueryResultEvent);
-        return ResWebDataUtils.buildSuccess();
-    }
-
-    @RequestMapping(value = "/queryResults", method = RequestMethod.POST)
-    public ResWebData<?> queryResults(@RequestBody QueryResultFO fo, HttpServletRequest request) {
-        if (!openTest) {
-            throw new UnsupportedOperationException();
-        }
-        QueryResultVO queryResultVO = new QueryResultVO();
-        String sessionId = fo.getSessionId();
-        if (checkMap.get(sessionId) == null || !checkMap.get(sessionId)) {
-            throw new ErrorMessageException("query is running");
-        }
-        checkMap.remove(sessionId);
-        List<WsQueryResult> wsResMsgs = map.remove(sessionId);
-
-        for (WsQueryResult wsResMsg : wsResMsgs) {
-            if (wsResMsg instanceof WsInfoResMsg wsInfoResMsg) {
-                for (WsInfoEntity entity : wsInfoResMsg.getEntities()) {
-                    if (entity.getMode() == MessageMode.Console) {
-                        queryResultVO.getWsInfoResMsgList().add(wsInfoResMsg);
-                    }
-                }
-            } else if (wsResMsg instanceof WsResultSetMsg wsResultSetResMsg) {
-                queryResultVO.getResultSetResMsgList().add(wsResultSetResMsg);
-            } else if (wsResMsg instanceof WsStatusResMsg wsStatusResMsg) {
-                queryResultVO.getStatusResMsgList().add(wsStatusResMsg);
-            } else if (wsResMsg instanceof WsRuleResMsg wsRuleResMsg) {
-                queryResultVO.getWsRuleResMsgList().add(wsRuleResMsg);
-            }
-        }
-        return ResWebDataUtils.buildSuccess(queryResultVO);
-    }
-
-    @RequestMapping(value = "/checkQuery", method = RequestMethod.POST)
-    public ResWebData<?> checkQuery(@RequestBody QueryResultFO fo, HttpServletRequest request) {
-        if (!openTest) {
-            throw new UnsupportedOperationException();
-        }
-        return ResWebDataUtils.buildSuccess(checkMap.get(fo.getSessionId()));
-    }
-
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/encrypt", method = RequestMethod.POST)
     public ResWebData<?> encrypt(String password) {
