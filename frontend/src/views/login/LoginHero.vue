@@ -31,9 +31,9 @@
 
     <div class="hero-capabilities" aria-hidden="true">
       <p class="capability-text">
-        <template v-for="(item, idx) in capabilityLinks">
-          <a :key="item.key" :href="item.url" target="_blank" rel="noopener" class="capability-link">{{ $t(item.key) }}</a>
-          <span v-if="idx < capabilityLinks.length - 1" :key="'divider-' + item.key" class="cap-divider" aria-hidden="true"></span>
+        <template v-for="(item, idx) in capabilityLinks" :key="item.key">
+          <a :href="item.url" target="_blank" rel="noopener" class="capability-link">{{ $t(item.key) }}</a>
+          <span v-if="idx < capabilityLinks.length - 1" class="cap-divider" aria-hidden="true"></span>
         </template>
       </p>
     </div>

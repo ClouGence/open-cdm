@@ -145,7 +145,8 @@ module.exports = {
     'vue/require-prop-types': 'off',
     'vue/v-slot-style': 'off',
     'import/no-named-as-default': 'off',
-    'vue/no-v-model-argument': 'off'
+    'vue/no-v-model-argument': 'off',
+    'vue/no-v-for-template-key': 'off'
   },
   overrides: [
     {
