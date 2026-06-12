@@ -79,7 +79,7 @@ public class ClusterController {
     }
 
     @RequestAuth(DM_WORKER_MANAGE)
-    @RequestMapping(value = "/updatedesc", method = RequestMethod.POST)
+    @RequestMapping(value = "/updateDesc", method = RequestMethod.POST)
     public ResWebData<?> updateClusterDesc(@RequestBody @Valid UpdateClusterDescFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         this.objectCacheDao.ownCluster(puid, fo.getClusterId());
@@ -89,7 +89,7 @@ public class ClusterController {
     }
 
     @RequestAuth(DM_WORKER_READ)
-    @RequestMapping(value = "/listbycondition", method = RequestMethod.POST)
+    @RequestMapping(value = "/listByCondition", method = RequestMethod.POST)
     public ResWebData<?> listByCondition(@RequestBody @Valid ListClustersFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
@@ -98,7 +98,7 @@ public class ClusterController {
     }
 
     @RequestAuth(DM_WORKER_READ)
-    @RequestMapping(value = "/listwithworkernets", method = RequestMethod.POST)
+    @RequestMapping(value = "/listWithWorkerNets", method = RequestMethod.POST)
     public ResWebData<?> listWithWorkerNets(HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
@@ -113,7 +113,7 @@ public class ClusterController {
     }
 
     @RequestAuth(DM_WORKER_READ)
-    @RequestMapping(value = "/querybyid", method = RequestMethod.POST)
+    @RequestMapping(value = "/queryById", method = RequestMethod.POST)
     public ResWebData<?> queryById(@RequestBody @Valid QueryClusterFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         this.objectCacheDao.ownCluster(puid, fo.getClusterId());

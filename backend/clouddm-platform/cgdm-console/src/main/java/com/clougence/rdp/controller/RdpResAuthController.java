@@ -214,13 +214,4 @@ public class RdpResAuthController {
         return ResWebDataUtils.buildSuccess(collect);
     }
 
-    @RequestAuth(strategy = Ignore)
-    @RequestMapping(value = "/listMyAuthTicket", method = RequestMethod.POST)
-    public ResWebData<?> listMyAuthTicket(@Valid @RequestBody ListMyAuthTicketFO fo, HttpServletRequest request) {
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        fo.setUid(uid);
-        IPage<RdpTicketBasicVO> data = this.approvalControlService.queryAuthTicketListByPage(uid, fo);
-        return ResWebDataUtils.buildSuccess(data);
-    }
-
 }

@@ -209,7 +209,7 @@ public class DmHomeController {
     }
 
     @RequestAuth(strategy = AuthStrategy.Ignore)
-    @RequestMapping(value = "/check_supplement", method = { RequestMethod.POST })
+    @RequestMapping(value = "/checkSupplement", method = { RequestMethod.POST })
     public ResWebData<?> checkSupplement(@Valid @RequestBody CheckSubAccountBindInfoFO checkFO, HttpServletResponse response) {
         String puid = checkFO.getPrimaryUid();
         CheckSubAccountMO re = userService.checkSubAccount(puid, checkFO);
@@ -318,7 +318,7 @@ public class DmHomeController {
     }
 
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    @RequestMapping(value = DmControllerUrlPrefix.CONSOLE_PREFIX + "/dm_global_settings", method = { RequestMethod.POST })
+    @RequestMapping(value = DmControllerUrlPrefix.CONSOLE_PREFIX + "/dmGlobalSettings", method = { RequestMethod.POST })
     public ResWebData<?> dmGlobalSettings() {
         GlobalSettingsVO vo = new GlobalSettingsVO();
         vo.setVersion(GlobalConfUtils.getAppVersion());
@@ -337,7 +337,7 @@ public class DmHomeController {
     }
 
     @RequestAuth(strategy = AuthStrategy.Ignore)
-    @RequestMapping(value = "/global_settings", method = { RequestMethod.POST })
+    @RequestMapping(value = "/globalSettings", method = { RequestMethod.POST })
     public ResWebData<?> globalSettings(HttpServletRequest request, HttpServletResponse response) {
         RdpGlobalSettingsVO settings = new RdpGlobalSettingsVO();
         settings.setFeatures(new HashMap<>());
@@ -354,7 +354,7 @@ public class DmHomeController {
     }
 
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    @RequestMapping(value = DmControllerUrlPrefix.CONSOLE_PREFIX + "/dm_console_settings", method = { RequestMethod.POST })
+    @RequestMapping(value = DmControllerUrlPrefix.CONSOLE_PREFIX + "/dmConsoleSettings", method = { RequestMethod.POST })
     public ResWebData<?> dmConsoleSettings(HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);

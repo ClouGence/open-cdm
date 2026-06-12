@@ -41,19 +41,19 @@ import jakarta.validation.Valid;
 public class RdpVerifyController {
 
     @RequestAuth(strategy = Ignore)
-    @RequestMapping(value = "/sendcode", method = RequestMethod.POST)
+    @RequestMapping(value = "/sendCode", method = RequestMethod.POST)
     public ResWebData<?> sendCode(@Valid @RequestBody SendCodeFO sendCodeFO) {
         return ResWebDataUtils.buildSuccess();
     }
 
     @RequestAuth(strategy = Ignore)
-    @RequestMapping(value = "/sendcodeinloginstate", method = RequestMethod.POST)
+    @RequestMapping(value = "/sendCodeInLoginState", method = RequestMethod.POST)
     public ResWebData<?> sendCodeInLoginState(@Valid @RequestBody SendCodeAfterLoginFO verifyData) {
         return ResWebDataUtils.buildSuccess();
     }
 
     @RequestAuth(strategy = Ignore)
-    @RequestMapping(value = "/sendcodebyaccount", method = RequestMethod.POST)
+    @RequestMapping(value = "/sendCodeByAccount", method = RequestMethod.POST)
     public ResWebData<?> sendCodeByAccount(@RequestBody @Valid SendCodeByAccountFO sendCodeFO) {
         return ResWebDataUtils.buildSuccess();
     }

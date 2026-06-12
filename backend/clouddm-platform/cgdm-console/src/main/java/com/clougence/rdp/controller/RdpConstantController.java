@@ -47,7 +47,7 @@ public class RdpConstantController {
         .asList(Db2, Db2Fori, GaussDB, GaussDBForOpenGauss, KingbaseES, MariaDB, MySQL, ObForOracle, OceanBase, Oracle, PostgreSQL, SQLServer, TiDB, ClickHouse, Doris, Greenplum, SelectDB, StarRocks, PolarDBPg, PolarDbMySQL, PolarDbX, AdbForMySQL, Hologres, MaxCompute, MongoDB, Redis);
 
     @RequestAuth(strategy = AuthStrategy.Ignore)
-    @RequestMapping(value = "/listregionareas", method = RequestMethod.POST)
+    @RequestMapping(value = "/listRegionAreas", method = RequestMethod.POST)
     public ResWebData<?> listRegionAreas() {
         List<RegionAreaVO> re = new ArrayList<>();
         for (RegionArea ra : RegionArea.values()) {
@@ -59,14 +59,14 @@ public class RdpConstantController {
     }
 
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    @RequestMapping(value = "/listfilterdstypes", method = RequestMethod.POST)
+    @RequestMapping(value = "/listFilterDsTypes", method = RequestMethod.POST)
     public ResWebData<?> listFilterDsTypes() {
         List<String> dsTypes = Arrays.stream(DataSourceType.values()).map(Enum::name).collect(Collectors.toList());
         return ResWebDataUtils.buildSuccess(dsTypes);
     }
 
     @RequestAuth(strategy = AuthStrategy.Ignore)
-    @RequestMapping(value = "/listdstypesbydeploytype", method = RequestMethod.POST)
+    @RequestMapping(value = "/listDsTypesByDeployType", method = RequestMethod.POST)
     public ResWebData<?> listDsTypesByDeployType() {
         List<List<String>> result = DataSourceType.groupByDisplay(SUPPORTED_DS_TYPES).stream().map(this::toDsTypeNames).collect(Collectors.toList());
         return ResWebDataUtils.buildSuccess(result);

@@ -93,7 +93,7 @@ public class RdpDsController {
     private DmDsDeletePrepareService dmDsDeletePrepareService;
 
     @RequestAuth(RDP_DS_READ)
-    @RequestMapping(value = "/listbycondition", method = RequestMethod.POST)
+    @RequestMapping(value = "/listByCondition", method = RequestMethod.POST)
     public ResWebData<?> listByCondition(@RequestBody @Valid ListDsFO listDsFO, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
@@ -158,7 +158,7 @@ public class RdpDsController {
     }
 
     @RequestAuth(RDP_DS_READ)
-    @RequestMapping(value = "/queryds", method = RequestMethod.POST)
+    @RequestMapping(value = "/queryDs", method = RequestMethod.POST)
     public ResWebData<?> queryDs(@RequestBody @Valid QueryDsFO queryDsFO, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
@@ -245,7 +245,7 @@ public class RdpDsController {
     }
 
     @RequestAuth(RDP_DS_READ)
-    @RequestMapping(value = "/querydsconfig", method = RequestMethod.POST)
+    @RequestMapping(value = "/queryDsConfig", method = RequestMethod.POST)
     public ResWebData<?> queryDsConfig(@RequestBody QueryDsConfigFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
@@ -260,7 +260,7 @@ public class RdpDsController {
     }
 
     @RequestAuth(RDP_DS_READ)
-    @RequestMapping(value = "/queryllmconfig", method = RequestMethod.POST)
+    @RequestMapping(value = "/queryLLMConfig", method = RequestMethod.POST)
     public ResWebData<?> queryLLMConfig(@RequestBody DsLLMConfigModelsFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
@@ -298,7 +298,7 @@ public class RdpDsController {
     }
 
     @RequestAuth(level = SecurityLevel.HIGH, value = RDP_DS_MANAGE)
-    @RequestMapping(value = "/upsertdsconfig", method = RequestMethod.POST)
+    @RequestMapping(value = "/upsertDsConfig", method = RequestMethod.POST)
     public ResWebData<?> upsertDsConfig(@RequestBody UpsertDsKvConfigFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
@@ -313,7 +313,7 @@ public class RdpDsController {
     }
 
     @RequestAuth(level = SecurityLevel.HIGH, value = RDP_DS_MANAGE)
-    @RequestMapping(value = "/updatedatasourcedesc", method = RequestMethod.POST)
+    @RequestMapping(value = "/updateDataSourceDesc", method = RequestMethod.POST)
     public ResWebData<?> updateDataSourceDesc(@RequestBody @Valid UpdateDsDescFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
@@ -328,7 +328,7 @@ public class RdpDsController {
     }
 
     @RequestAuth(level = SecurityLevel.HIGH, value = RDP_DS_MANAGE)
-    @RequestMapping(value = "/updateaccountandpassword", method = RequestMethod.POST)
+    @RequestMapping(value = "/updateAccountAndPassword", method = RequestMethod.POST)
     public ResWebData<?> updateAccountAndPassword(@RequestParam("DataSourceUpdateData") String data,
                                                   @RequestParam(value = "securityFile", required = false) MultipartFile securityFile,
                                                   @RequestParam(value = "clientSecurityFile", required = false) MultipartFile clientSecurityFile,
@@ -354,7 +354,7 @@ public class RdpDsController {
     }
 
     @RequestAuth(level = SecurityLevel.HIGH, value = RDP_DS_MANAGE)
-    @RequestMapping(value = "/deleteaccount", method = RequestMethod.POST)
+    @RequestMapping(value = "/deleteAccount", method = RequestMethod.POST)
     public ResWebData<?> deleteAccount(@RequestBody @Valid DeleteAccountFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
@@ -368,7 +368,7 @@ public class RdpDsController {
     }
 
     @RequestAuth(level = SecurityLevel.HIGH, value = RDP_DS_MANAGE)
-    @RequestMapping(value = "/updatepublichost", method = RequestMethod.POST)
+    @RequestMapping(value = "/updatePublicHost", method = RequestMethod.POST)
     public ResWebData<?> updatePublicHost(@RequestBody @Valid UpdatePubHostFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
@@ -383,7 +383,7 @@ public class RdpDsController {
     }
 
     @RequestAuth(level = SecurityLevel.HIGH, value = RDP_DS_MANAGE)
-    @RequestMapping(value = "/updateprivatehost", method = RequestMethod.POST)
+    @RequestMapping(value = "/updatePrivateHost", method = RequestMethod.POST)
     public ResWebData<?> updatePrivateHost(@RequestBody @Valid UpdatePriHostFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);

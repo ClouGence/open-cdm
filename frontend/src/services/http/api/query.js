@@ -1,7 +1,7 @@
 export const queryApi = {
-  // createSession: '/clouddm/console/api/v1/query/createsession',*
+  // createSession: '/clouddm/console/api/v1/query/createSession',*
   // cancelQuery: '/clouddm/console/api/v1/query/cancel',*
-  // closesSession: '/clouddm/console/api/v1/query/closesession',*
+  // closesSession: '/clouddm/console/api/v1/query/closeSession',*
   // commit: '/clouddm/console/api/v1/query/commit',*
   // executeQuery: '/clouddm/console/api/v1/query/execute',*
   // getAutoCommit: '/clouddm/console/api/v1/query/getautocommit',*
@@ -13,8 +13,8 @@ export const queryApi = {
   // fetchDsStatusConf: '/clouddm/console/api/v1/query/fetchDsStatusConf',*
 
   // dm
-  dmQueryCreateSession: '/clouddm/console/api/v1/query/createsession',
-  dmQueryClosesSession: '/clouddm/console/api/v1/query/closesession',
+  dmQueryCreateSession: '/clouddm/console/api/v1/query/createSession',
+  dmQueryClosesSession: '/clouddm/console/api/v1/query/closeSession',
   dmQueryFetchDsStatusConf: '/clouddm/console/api/v1/query/fetchDsStatusConf',
   dmQueryExportResult: '/clouddm/console/api/v1/query/exportResult',
   dmQueryCloseResultWindow: '/clouddm/console/api/v1/query/closeResultWindow',
