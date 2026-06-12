@@ -274,4 +274,16 @@ public class ImportResourceLoader extends AbstractResourceLoader {
         ResourceLoader loader = findLoader(resource);
         return loader == null ? null : loader.getManifest(resource);
     }
+
+    @Override
+    public void close() throws IOException {
+        Set<ResourceLoader> closedLoaders = new HashSet<>();
+        Iterator<LoaderWrap> loaders = getAllLoader();
+        while (loaders.hasNext()) {
+            ResourceLoader loader = loaders.next().loader;
+            if (closedLoaders.add(loader)) {
+                loader.close();
+            }
+        }
+    }
 }

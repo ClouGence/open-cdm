@@ -33,7 +33,7 @@ import lombok.Getter;
  * @version : 2021-09-29
  * @author 赵永春 (zyc@hasor.net)
  */
-public class CgClassLoader extends ClassLoader {
+public class CgClassLoader extends ClassLoader implements Closeable {
 
     @Getter
     private final ResourceLoader        resourceLoader;
@@ -43,11 +43,11 @@ public class CgClassLoader extends ClassLoader {
     private final String                tempDirectory = "cobbleLoader/" + System.currentTimeMillis();
     private File                        tempDir;
 
-    public CgClassLoader(ClassLoader parent, ResourceLoader resourceLoader){
+    public CgClassLoader(ClassLoader parent, ResourceLoader loader){
         super(parent);
         this.includePackages = new HashSet<>();
         this.excludePackages = new HashSet<>();
-        this.resourceLoader = resourceLoader;
+        this.resourceLoader = loader;
     }
 
     public void addIncludePackages(String packageOrClass) {
@@ -56,6 +56,11 @@ public class CgClassLoader extends ClassLoader {
 
     public void addExcludePackages(String packageOrClass) {
         this.excludePackages.add(packageOrClass);
+    }
+
+    @Override
+    public void close() throws IOException {
+        this.resourceLoader.close();
     }
 
     @Override

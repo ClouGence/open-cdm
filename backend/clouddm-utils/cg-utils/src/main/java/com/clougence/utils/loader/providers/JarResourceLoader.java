@@ -274,4 +274,11 @@ public class JarResourceLoader extends AbstractResourceLoader {
         return result.isEmpty() ? null : result.get(0);
     }
 
+    @Override
+    public void close() throws IOException {
+        for (JarFile nestedJar : this.nestedJarFile) {
+            nestedJar.close();
+        }
+        this.jarFile.close();
+    }
 }
