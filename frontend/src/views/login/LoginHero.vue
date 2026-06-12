@@ -29,18 +29,13 @@
       </div>
     </div>
 
-    <div class="hero-workflow">
-      <template v-for="(step, idx) in workflowSteps">
-        <div class="workflow-step" :key="`step-${step.icon}`">
-          <div class="workflow-icon">
-            <CustomIcon :type="step.icon" size="26px" leftMargin="0" rightMargin="0" />
-          </div>
-          <span class="workflow-label">{{ $t(step.labelKey) }}</span>
-        </div>
-        <div v-if="idx < workflowSteps.length - 1" class="workflow-connector" :key="`conn-${step.icon}`">
-          <span class="connector-line"></span>
-        </div>
-      </template>
+    <div class="hero-capabilities" aria-hidden="true">
+      <p class="capability-text">
+        <template v-for="(item, idx) in capabilityLinks">
+          <a :key="item.key" :href="item.url" target="_blank" rel="noopener" class="capability-link">{{ $t(item.key) }}</a>
+          <span v-if="idx < capabilityLinks.length - 1" :key="'divider-' + item.key" class="cap-divider" aria-hidden="true"></span>
+        </template>
+      </p>
     </div>
   </div>
 </template>
@@ -147,11 +142,12 @@ export default {
       globalRotate: 0,
       rafId: null,
       lastTime: 0,
-      workflowSteps: [
-        { icon: 'icon-v2-peizhishujuyuan', labelKey: 'shu-ju-yuan-guan-li' },
-        { icon: 'icon-v2-audit', labelKey: 'an-quan-gui-ze' },
-        { icon: 'icon-v2-TicketAuth', labelKey: 'gong-dan-shen-pi-liu-cheng' },
-        { icon: 'icon-v2-zhihangSQLchaxun', labelKey: 'sql-cha-xun' }
+      capabilityLinks: [
+        { key: 'shu-ju-yuan-guan-li', url: 'https://www.cdmgr.com/docs/operation/dsmanager' },
+        { key: 'an-quan-gui-ze', url: 'https://www.cdmgr.com/docs/datamask/datamask_about' },
+        { key: 'gong-dan-shen-pi-liu-cheng', url: 'https://www.cdmgr.com/docs/approval/approval_about' },
+        { key: 'sql-cha-xun', url: 'https://www.cdmgr.com/docs/console/console_editor' },
+        { key: 'ci-cd-bian-geng-fa-bu', url: 'https://www.cdmgr.com/docs/devops/devops_about' }
       ]
     };
   },
@@ -224,6 +220,7 @@ export default {
   max-width: 480px;
   aspect-ratio: 1;
   margin: 0 auto;
+  overflow: hidden;
 }
 
 .stage-svg {
@@ -281,102 +278,46 @@ export default {
   }
 }
 
-.hero-workflow {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  margin-top: 24px;
-  padding: 24px 8px 0;
-  border-top: 1px solid #efefef;
-}
-
-.workflow-step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  width: 96px;
-  min-width: 0;
-}
-
-.workflow-icon {
-  width: 52px;
-  height: 52px;
-  flex: 0 0 52px;
-  border-radius: 14px;
-  border: 1px solid #dfdfdf;
-  background: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba(23, 23, 23, 0.03);
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
-
-  &:hover {
-    border-color: #3ecf8e;
-    box-shadow: 0 6px 20px rgba(62, 207, 142, 0.1);
-    transform: translateY(-2px);
-  }
-}
-
-.workflow-label {
-  color: #707070;
-  font-size: 12px;
-  line-height: 1.35;
+.hero-capabilities {
+  margin-top: 32px;
   text-align: center;
-  max-width: 96px;
-}
 
-.workflow-connector {
-  flex: 1 0 24px;
-  display: flex;
-  align-items: center;
-  margin-top: 26px;
-  min-width: 16px;
-  max-width: 32px;
+  .capability-text {
+    color: #707070;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+    margin: 0;
 
-  .connector-line {
-    display: block;
-    width: 100%;
-    height: 1px;
-    background: #dfdfdf;
-    position: relative;
+    .capability-link {
+      color: inherit;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: color 0.2s ease;
 
-    &::after {
-      content: '';
-      position: absolute;
-      right: -1px;
-      top: -2px;
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: #3ecf8e;
-      opacity: 0.5;
+      &:hover {
+        color: var(--login-emerald-deep, #24b47e);
+      }
+    }
+
+    .cap-divider::after {
+      content: '\00B7';
+      margin: 0 6px;
+      color: #d4d4d4;
     }
   }
 }
 
 .login-hero-panel.is-dark {
-  .fountain-card,
-  .workflow-icon {
+  .fountain-card {
     background: #1c1c1c;
     border-color: #333;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
   }
 
-  .workflow-label {
-    color: #9a9a9a;
-  }
-
-  .hero-workflow {
-    border-top-color: #333;
-  }
-
-  .workflow-connector .connector-line {
-    background: #333;
+  .hero-capabilities .capability-text {
+    color: #707070;
   }
 }
 

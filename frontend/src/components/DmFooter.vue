@@ -9,7 +9,7 @@ export default {
   name: 'DmFooter',
   computed: {
     footerText() {
-      return 'Copyright © 2025 ClouGence, Inc.';
+      return 'Copyright © 2026 ClouGence, Inc.';
     }
   }
 };
