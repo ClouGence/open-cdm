@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.worker.component.session.result;
+package com.clougence.clouddm.component.resultfile;
 
-public interface ResultListenerKey {
+public interface ResultDataTag {
 
-    String RESULT_LISTENER = "RESULT";
-    String AUDIT_LISTENER  = "AUDIT";
+    int DATA_CROPPED_TAG = 0x01;
+    int DATA_MASK_TAG    = 0x02;
 }

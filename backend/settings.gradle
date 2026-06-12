@@ -11,6 +11,9 @@ include 'cg-detectrule'; project(":cg-detectrule").projectDir = file('clouddm-ut
 include 'cg-dslparser'; project(":cg-dslparser").projectDir = file('clouddm-utils/cg-dslparser')
 include 'cg-drivers'; project(":cg-drivers").projectDir = file('clouddm-utils/cg-drivers')
 
+// clouddm:com
+include 'cg-com-results-file'; project(":cg-com-results-file").projectDir = file('clouddm-platform/cgdm-components/cg-com-results-file')
+
 // clouddm:platform
 include 'clouddm-base'
 include 'cgdm-plugin-loader'; project(":cgdm-plugin-loader").projectDir = file('clouddm-platform/cgdm-plugin-loader')

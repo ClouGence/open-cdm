@@ -180,7 +180,9 @@ export default [
   },
   {
     path: 'operation_log',
-    redirect: '/system/management/logs/operation'
+    name: 'rdpOperationLog',
+    component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/OperationLog'),
+    meta: { requiredAuth: 'RDP_OP_AUDIT_READ' }
   },
   {
     path: 'sql_log',

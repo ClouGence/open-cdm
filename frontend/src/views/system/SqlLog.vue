@@ -90,16 +90,19 @@
           </div>
           <div class="table-container">
             <Table size="small" border :columns="logColumn" :data="logData" :loading="refreshLoading">
-              <template #uid="{ row }">
-                <div class="uid">
-                  <span>{{ row.uid }}</span>
-                  <cc-iconfont
-                    :size="12"
-                    name="copy"
-                    class="copy"
-                    @click.native="copyText(`${row.uid}`, $t('fu-zhi-uid-cheng-gong'))"
-                    style="margin-left: 3px"
-                  />
+              <template #operator="{ row }">
+                <div class="operator-cell">
+                  <div>{{ row.userName }}</div>
+                  <div class="operator-uid">{{ formatUid(row.uid) }}</div>
+                </div>
+              </template>
+              <template #datasource="{ row }">
+                <div class="datasource-cell">
+                  <div class="datasource-id">
+                    <CustomIcon :type="row.dataSourceType" />
+                    <span>{{ row.dsResourceId }}</span>
+                  </div>
+                  <div class="datasource-desc">{{ formatDsRemark(row.dsRemark) }}</div>
                 </div>
               </template>
               <template #resource="{ row }">
@@ -152,13 +155,11 @@
 import fecha from 'fecha';
 import { mapState } from 'vuex';
 import { h, resolveComponent } from 'vue';
-import copyMixin from '@/mixins/copyMixin';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
 import ReadOnlyDiffEditor from '@/components/editor/ReadOnlyDiffEditor.vue';
 
 export default {
   name: 'SqlLog',
-  mixins: [copyMixin],
   components: { ReadOnlyDiffEditor, ReadOnlyEditor },
   data() {
     return {
@@ -190,7 +191,7 @@ export default {
       logColumn: [
         {
           title: this.$t('cao-zuo-zhe'),
-          key: 'userName',
+          slot: 'operator',
           width: 230
         },
         {
@@ -246,15 +247,8 @@ export default {
         },
         {
           title: this.$t('shu-ju-yuan'),
-          key: 'dsDesc',
-          width: 300,
-          render: (_, params) => {
-            const row = params.row || params;
-            return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
-              h(resolveComponent('CustomIcon'), { type: row.dataSourceType }),
-              h('span', { style: { marginLeft: '6px' } }, row.dsDesc)
-            ]);
-          }
+          slot: 'datasource',
+          width: 300
         },
         {
           title: this.$t('cao-zuo-zi-yuan'),
@@ -459,7 +453,6 @@ export default {
       this.prevFirst = {};
       this.currentPageSize = 10;
       this.searchData = {
-        uid: null,
         dsId: null,
         userUid: null,
         sqlKind: null,
@@ -472,10 +465,12 @@ export default {
       };
     },
 
-    handleSearchUid(row) {
-      this.searchType = 'uid';
-      this.searchData.uid = row.uid;
-      this.handleSearch();
+    formatUid(uid) {
+      return `UID: ${uid || ''}`;
+    },
+
+    formatDsRemark(dsRemark) {
+      return `备注: ${dsRemark || ''}`;
     },
 
     showSqlDetail(row) {
@@ -497,18 +492,27 @@ export default {
   display: flex;
   flex-direction: column;
 
-  .uid {
-    display: flex;
-    align-items: center;
+  .operator-cell {
+    line-height: 20px;
 
-    .copy {
-      display: none;
+    .operator-uid {
+      color: #9ea7b4;
+      font-size: 12px;
+    }
+  }
+
+  .datasource-cell {
+    line-height: 20px;
+
+    .datasource-id {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    &:hover {
-      .copy {
-        display: block;
-      }
+    .datasource-desc {
+      color: #9ea7b4;
+      font-size: 12px;
     }
   }
 

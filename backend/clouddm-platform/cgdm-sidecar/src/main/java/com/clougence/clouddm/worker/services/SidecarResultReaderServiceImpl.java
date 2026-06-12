@@ -12,29 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.clougence.clouddm.worker.services;
-
-import java.io.File;
-import java.io.IOException;
+ */
+package com.clougence.clouddm.worker.services;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.sdk.execute.resultset.file.ResultReader;
-import com.clougence.clouddm.sdk.execute.resultset.file.ResultReaderService;
+import com.clougence.clouddm.component.resultfile.ResultFileReaderService;
 
 @Service
-public class SidecarResultReaderServiceImpl implements ResultReaderService {
-
-    @Override
-    public ResultReader openReader(File resultFile) throws IOException {
-        if (resultFile == null) {
-            throw new NullPointerException("resultFile is null");
-        }
-        if (!resultFile.exists() || !resultFile.isFile()) {
-            throw new IOException("resultFile not exists or not file:" + resultFile.getAbsolutePath());
-        }
-
-        return new SidecarResultReaderImpl(resultFile.getAbsoluteFile());
-    }
-
+public class SidecarResultReaderServiceImpl extends ResultFileReaderService {
 }

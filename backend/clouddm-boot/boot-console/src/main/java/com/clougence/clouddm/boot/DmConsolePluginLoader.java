@@ -26,8 +26,10 @@ import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.analysis.column.QueryConstraintService;
 import com.clougence.clouddm.sdk.service.approval.ApprovalRefreshService;
 import com.clougence.clouddm.sdk.service.cache.CacheService;
+import com.clougence.clouddm.sdk.service.config.ConfigService;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.service.execute.SessionService;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -46,10 +48,15 @@ public class DmConsolePluginLoader {
     private MetaService             metaService;
     @Resource
     private QueryConstraintService  queryConstraintService;
+    @Resource
+    private SessionService          sessionServices;
+    @Resource
+    private ConfigService           pluginConfigService;
 
     public void loadPlugin(ClassLoader parentClassLoader) throws Exception {
         this.cacheService.init();
-        //PluginManager.putService(SessionService.class, this.sessionServices);
+        PluginManager.putService(SessionService.class, this.sessionServices);
+        PluginManager.putService(ConfigService.class, this.pluginConfigService);
         PluginManager.putService(CacheService.class, this.cacheService);
         PluginManager.putService(MetaService.class, this.metaService);
         PluginManager.putService(QueryConstraintService.class, this.queryConstraintService);

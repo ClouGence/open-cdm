@@ -12,15 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.clougence.clouddm.worker.component.session.storage;
+ */
+package com.clougence.clouddm.worker.component.session.storage;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteOrder;
 
+import com.clougence.clouddm.component.resultfile.FileResultSetOutputStream;
+import com.clougence.clouddm.component.resultfile.ResultSetOutputStream;
 import com.clougence.clouddm.sdk.service.file.FileService;
-import com.clougence.clouddm.worker.component.result.FileResultSetOutputStream;
-import com.clougence.clouddm.worker.component.result.ResultSetOutputStream;
 import com.clougence.utils.io.IOUtils;
 
 import lombok.extern.slf4j.Slf4j;

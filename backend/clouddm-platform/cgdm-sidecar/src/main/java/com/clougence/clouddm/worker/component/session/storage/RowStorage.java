@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.clougence.clouddm.worker.component.session.storage;
+ */
+package com.clougence.clouddm.worker.component.session.storage;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -27,11 +28,12 @@ import java.time.*;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
-import com.clougence.clouddm.sdk.execute.session.result.fetcher.*;
-import com.clougence.clouddm.sdk.execute.resultset.file.ResultSetFileCode;
+import com.clougence.clouddm.component.resultfile.ResultDataTag;
+import com.clougence.clouddm.component.resultfile.ResultSetOutputStream;
+import com.clougence.clouddm.component.resultfile.RowDataHelper;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
-import com.clougence.clouddm.worker.component.result.ResultDataTag;
-import com.clougence.clouddm.worker.component.result.ResultSetOutputStream;
+import com.clougence.clouddm.sdk.execute.resultset.file.ResultSetFileCode;
+import com.clougence.clouddm.sdk.execute.session.result.fetcher.*;
 import com.clougence.utils.HexadecimalUtils;
 import com.clougence.utils.convert.ConverterUtils;
 

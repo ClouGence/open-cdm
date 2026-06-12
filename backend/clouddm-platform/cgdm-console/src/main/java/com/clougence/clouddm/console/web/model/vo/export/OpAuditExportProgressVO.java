@@ -13,10 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.worker.component.session.result;
+package com.clougence.clouddm.console.web.model.vo.export;
 
-public interface ResultListenerKey {
+import lombok.Getter;
+import lombok.Setter;
 
-    String RESULT_LISTENER = "RESULT";
-    String AUDIT_LISTENER  = "AUDIT";
+@Getter
+@Setter
+public class OpAuditExportProgressVO {
+
+    private String             uid;
+    private String             exportId;
+    private OpAuditExportStage stage;
+    private long               preparedRows;
+    private long               current;
+    private long               total;
+    private int                percent;
+    private String             message;
+    private boolean            success;
+    private String             errorMessage;
 }

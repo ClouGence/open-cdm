@@ -12,39 +12,35 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.clougence.clouddm.worker.services;
+ */
+package com.clougence.clouddm.component.resultfile;
 
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.*;
 
-import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
+import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
+import com.clougence.clouddm.sdk.execute.resultset.file.ResultReader;
+import com.clougence.clouddm.sdk.execute.resultset.file.ResultSetFileCode;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.QueryResultConf;
 import com.clougence.clouddm.sdk.execute.session.result.ReaderOptions;
-import com.clougence.clouddm.sdk.execute.resultset.file.ResultReader;
-import com.clougence.clouddm.sdk.execute.resultset.file.ResultSetFileCode;
-import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
-import com.clougence.clouddm.worker.component.result.EntityType;
-import com.clougence.clouddm.worker.component.result.FileResultSetInputStream;
-import com.clougence.clouddm.worker.component.result.ResultDataTag;
-import com.clougence.clouddm.worker.component.result.ResultSetInputStream.DataHeader;
-import com.clougence.clouddm.worker.component.result.ResultSetInputStream.RowHeader;
-import com.clougence.clouddm.worker.component.session.storage.RowDataHelper;
 import com.clougence.utils.HexadecimalUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.io.IOUtils;
+import com.clougence.clouddm.component.resultfile.ResultSetInputStream.DataHeader;
+import com.clougence.clouddm.component.resultfile.ResultSetInputStream.RowHeader;
 
-class SidecarResultReaderImpl implements ResultReader {
+public class ResultFileReader implements ResultReader {
 
     private final FileResultSetInputStream resultInput;
     private final QueryRequest             queryRequest;
     private final ColMetaData[]            colMetaData;
     private final ReaderOptions            options;
 
-    public SidecarResultReaderImpl(File resultFile) throws IOException{
+    public ResultFileReader(File resultFile) throws IOException{
         this.resultInput = new FileResultSetInputStream(resultFile);
 
         this.resultInput.nextRow();
@@ -59,7 +55,7 @@ class SidecarResultReaderImpl implements ResultReader {
         this.options = new ReaderOptions();
         this.options.setColumnBytesLimit(this.queryRequest.getResultConf().getFetchColumnBytesLimit());
         this.options.setElementBytesLimit(this.queryRequest.getResultConf().getFetchElementBytesLimit());
-        this.options.setTempPath(GlobalConfUtils.getTempDataHome());
+        this.options.setTempPath(System.getProperty("java.io.tmpdir"));
         this.options.setDataFormat(this.queryRequest.getResultConf().getDataFormat());
         this.options.setTimeFormat(this.queryRequest.getResultConf().getTimeFormat());
         this.options.setDataTimeFormat(this.queryRequest.getResultConf().getDataTimeFormat());

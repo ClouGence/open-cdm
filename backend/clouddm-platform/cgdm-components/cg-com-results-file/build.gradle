@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.worker.component.session.result;
 
-public interface ResultListenerKey {
-
-    String RESULT_LISTENER = "RESULT";
-    String AUDIT_LISTENER  = "AUDIT";
+plugins {
+    id 'com.clougence.java-conventions'
 }
+
+dependencies {
+    api project(':cg-utils')
+    api project(':cgdm-plugin-sdk')
+}
+
+description = 'cg-com-results-file'
