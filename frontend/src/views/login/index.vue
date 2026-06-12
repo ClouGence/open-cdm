@@ -138,13 +138,6 @@
             {{ $t('shao-hou-chu-li') }}
           </a-button>
         </div>
-        <div class="msgContent" v-if="errMsg">
-          <a-alert banner type="error">
-            <template #message>
-              <div v-html="errMsg"></div>
-            </template>
-          </a-alert>
-        </div>
       </div>
     </div>
   </div>
@@ -163,6 +156,7 @@ import { filterGlobalSettingByBuild, supportsCloudDMBuild } from '@/utils/produc
 import formatError from '@/services/formatError';
 import { setPageIcon, WEBSIDE_FAVICON } from '@/utils/pluginResource';
 import loginBgPattern from '@/assets/login/login-bg-pattern.svg';
+import Toast from '@/utils/toast';
 
 export default {
   name: 'Login',
@@ -262,7 +256,7 @@ export default {
       }
       this.setCurrentLoginType(item.loginType);
       if (!item.available && item.errorInfo) {
-        this.errMsg = formatError(item.errorInfo);
+        Toast.error(formatError(item.errorInfo));
       }
     },
     resolveRedirectUrl() {
@@ -286,10 +280,10 @@ export default {
         if (res && res.success && res.data) {
           window.location.href = res.data;
         } else {
-          this.errMsg = this.resolveErrorMessage(res);
+          Toast.error(this.resolveErrorMessage(res));
         }
       } catch (error) {
-        this.errMsg = this.resolveErrorMessage(error);
+        Toast.error(this.resolveErrorMessage(error));
       } finally {
         this.loginLoading = false;
       }
@@ -379,15 +373,15 @@ export default {
     async handleLogin() {
       this.errMsg = '';
       if (!this.isCompletionMode && !this.loginForm.account) {
-        this.errMsg = this.$t('zhang-hao-bu-neng-wei-kong') || this.$t('qing-shu-ru-zhang-hao');
+        Toast.error(this.$t('zhang-hao-bu-neng-wei-kong') || this.$t('qing-shu-ru-zhang-hao'));
         return;
       }
       if (!this.isCompletionMode && !this.loginForm.password) {
-        this.errMsg = this.$t('mi-ma-bu-neng-wei-kong');
+        Toast.error(this.$t('mi-ma-bu-neng-wei-kong'));
         return;
       }
       if (!this.publicKey) {
-        this.errMsg = this.$t('xi-tong-yi-chang-qing-lian-xi-guan-li-yuan');
+        Toast.error(this.$t('xi-tong-yi-chang-qing-lian-xi-guan-li-yuan'));
         return;
       }
       if (this.isCompletionMode) {
@@ -428,10 +422,10 @@ export default {
             await this.redirectToHome();
           }
         } else {
-          this.errMsg = this.resolveErrorMessage(res);
+          Toast.error(this.resolveErrorMessage(res));
         }
       } catch (error) {
-        this.errMsg = this.resolveErrorMessage(error);
+        Toast.error(this.resolveErrorMessage(error));
       } finally {
         this.loginLoading = false;
       }
@@ -441,7 +435,7 @@ export default {
         return;
       }
       if (!this.mfaCode || !isNumber(this.mfaCode)) {
-        this.errMsg = this.$t('qing-shu-ru-zheng-que-de-yan-zheng-ma');
+        Toast.error(this.$t('qing-shu-ru-zheng-que-de-yan-zheng-ma'));
         return;
       }
       this.loginLoading = true;
@@ -457,10 +451,10 @@ export default {
           await this.$store.dispatch('getUserInfo');
           await this.redirectToHome();
         } else {
-          this.errMsg = this.resolveErrorMessage(res);
+          Toast.error(this.resolveErrorMessage(res));
         }
       } catch (error) {
-        this.errMsg = this.resolveErrorMessage(error);
+        Toast.error(this.resolveErrorMessage(error));
       } finally {
         this.loginLoading = false;
       }
@@ -477,7 +471,7 @@ export default {
     },
     handleGoJump(loginDef = this.currentLoginDef) {
       if (!loginDef.available) {
-        this.errMsg = this.resolveErrorMessage({ message: loginDef.errorInfo });
+        Toast.error(this.resolveErrorMessage({ message: loginDef.errorInfo }));
         return;
       }
       this.loginLoading = true;
@@ -530,7 +524,7 @@ export default {
         }
       } else if (this.$route.query && this.$route.query.error) {
         this.loginCallbackData = this.$route.query;
-        this.errMsg = `${this.$route.query.error}:${this.$route.query.error_description}`;
+        Toast.error(`${this.$route.query.error}:${this.$route.query.error_description}`);
       }
     },
     async getGlobalSettings() {
@@ -685,18 +679,6 @@ export default {
       width: 100%;
       max-width: 368px;
       box-sizing: border-box;
-
-      .msgContent {
-        position: relative;
-        margin-top: 4px;
-        margin-bottom: 12px;
-
-        :deep(.ant-alert) {
-          margin-top: 4px;
-          text-align: left;
-          border-radius: 8px;
-        }
-      }
 
       .input-wrapper {
         & > div {

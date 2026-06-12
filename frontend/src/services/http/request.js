@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { Message, Modal } from 'view-ui-plus';
+import Toast from '@/utils/toast';
+import { Modal } from 'view-ui-plus';
 import { showActiveLicense } from '@/utils';
 import { addPending, cancelPending, removePending } from '@/services/http/cancelRequest';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
@@ -210,7 +211,7 @@ const request = async (opt) => {
             }
         }
       } else if (res.success && msg) {
-        Message.success(options.msg);
+        Toast.success(options.msg);
       }
     }
     return res;

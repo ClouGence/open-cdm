@@ -202,6 +202,10 @@
                       text-overflow: ellipsis;
                       white-space: nowrap;
                     }
+
+                    &:hover {
+                      background: rgba(62, 207, 142, 0.08);
+                    }
                   }
 
                   .table-query-item-selected {
@@ -210,6 +214,18 @@
 
                     .cc-iconfont {
                       color: var(--primary-color);
+                    }
+                  }
+
+                  .vtree-tree-node__title:hover {
+                    background-color: rgba(62, 207, 142, 0.08) !important;
+                  }
+
+                  .vtree-tree-node__title_selected {
+                    background-color: rgba(62, 207, 142, 0.12) !important;
+
+                    &:hover {
+                      background-color: rgba(62, 207, 142, 0.12) !important;
                     }
                   }
                 }

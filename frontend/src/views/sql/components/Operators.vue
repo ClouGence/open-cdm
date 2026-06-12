@@ -222,6 +222,7 @@ export default {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    line-height: 1;
   }
 }
 
@@ -229,7 +230,10 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding-top: 1px;
-  line-height: 1.2;
+}
+
+.operator-btn-content span {
+  display: inline-flex;
+  align-items: center;
 }
 </style>

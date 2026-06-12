@@ -19,11 +19,13 @@
           />
         </svg>
       </div>
+      <SonnerToast />
     </div>
   </a-config-provider>
 </template>
 
 <script>
+import SonnerToast from '@/components/SonnerToast.vue';
 import enUS from 'ant-design-vue/es/locale/en_US';
 import zhCN from 'ant-design-vue/es/locale/zh_CN';
 import { cacheDmBootstrapStatus, isDmSystemBootstrapRequired, isDmSystemStarting } from './utils/dmGlobalSettings';
@@ -32,6 +34,9 @@ const SYSTEM_READY_POLL_INTERVAL_MS = 2000;
 
 export default {
   name: 'App',
+  components: {
+    SonnerToast
+  },
   data() {
     return {
       showChild: false,
@@ -43,7 +48,8 @@ export default {
       antdTheme: {
         token: {
           colorPrimary: '#3ecf8e',
-          colorLink: '#00c573',
+          colorLink: '#24b47e',
+          colorLinkHover: '#1ea06a',
           colorSuccess: '#22c55e',
           colorWarning: '#f59e0b',
           colorError: '#ef4444',
