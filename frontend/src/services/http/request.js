@@ -255,7 +255,7 @@ const request = async (opt) => {
           const url = new URL(err.config.url);
           const pathList = url.pathname.split('/');
           if (pathList.length > 1 && pathList[1] === 'clouddm') {
-            if (url.pathname !== '/clouddm/console/api/v1/dm_global_setting') {
+            if (url.pathname !== '/clouddm/console/api/v1/dmGlobalSettings') {
               errorQueue.addError({
                 title: 'ERROR',
                 content: i18n.global.t('chan-pin-ji-qun-wu-fa-fang-wen'),
