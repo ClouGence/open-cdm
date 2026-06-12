@@ -59,12 +59,16 @@ public class PluginLoadHelper {
     //                                          Scan
     // ---------------------------------------------
 
-    public static void loadPlugins(ClassLoader appClassLoader, File... pluginPaths) {
+    public static int loadPlugins(ClassLoader appClassLoader, File... pluginPaths) {
+        return loadPlugins(appClassLoader, null, pluginPaths);
+    }
+
+    public static int loadPlugins(ClassLoader appClassLoader, String pluginFileName, File... pluginPaths) {
         PluginManager.markStarting();
         try {
             List<BaseMeta> allPlugins = new ArrayList<>();
             for (File path : pluginPaths) {
-                allPlugins.addAll(scanPluginDirectory(appClassLoader, path));
+                allPlugins.addAll(scanPluginDirectory(appClassLoader, path, pluginFileName));
             }
 
             allPlugins.sort(Comparator.comparingInt(BaseMeta::getOrder));
@@ -75,19 +79,20 @@ public class PluginLoadHelper {
             }
             SchemaFramework.install(new SchemaInitPlugin());
             PluginManager.markReady();
+            return allPlugins.size();
         } catch (Throwable e) {
             PluginManager.markStarting();
             throw e;
         }
     }
 
-    private static List<BaseMeta> scanPluginDirectory(ClassLoader appClassLoader, File pluginPath) {
+    private static List<BaseMeta> scanPluginDirectory(ClassLoader appClassLoader, File pluginPath, String pluginFileName) {
         List<BaseMeta> result = new ArrayList<>();
         if (pluginPath == null || !pluginPath.exists() || !pluginPath.isDirectory()) {
             return result;
         }
 
-        File[] pluginEntries = pluginPath.listFiles(file -> file.exists() && !file.isHidden());
+        File[] pluginEntries = pluginPath.listFiles(file -> file.exists() && !file.isHidden() && isTargetPlugin(file, pluginFileName));
         if (pluginEntries == null || pluginEntries.length == 0) {
             return Collections.emptyList();
         }
@@ -100,6 +105,10 @@ public class PluginLoadHelper {
         }
 
         return result;
+    }
+
+    private static boolean isTargetPlugin(File file, String pluginFileName) {
+        return StringUtils.isEmpty(pluginFileName) || pluginFileName.equals(file.getName());
     }
 
     private static ResourceLoader scanPhysicalPlugin(File physicalPlugin) {
@@ -116,11 +125,11 @@ public class PluginLoadHelper {
         MultiResourceLoader pluginLoader = new MultiResourceLoader();
         pluginLoader.addLoader(new PathResourceLoader(physicalPlugin));
 
-        File[] nestedJarFiles = physicalPlugin.listFiles(file -> file.exists() && file.isFile() && isJarFile(file));
-        if (nestedJarFiles != null && nestedJarFiles.length > 0) {
-            Arrays.sort(nestedJarFiles, Comparator.comparing(File::getName, String.CASE_INSENSITIVE_ORDER));
-            for (File nestedJarFile : nestedJarFiles) {
-                ResourceLoader nestedLoader = loadPluginsFromJar(nestedJarFile);
+        File[] classpathJarFiles = physicalPlugin.listFiles(file -> file.exists() && file.isFile() && isJarFile(file));
+        if (classpathJarFiles != null && classpathJarFiles.length > 0) {
+            Arrays.sort(classpathJarFiles, Comparator.comparing(File::getName, String.CASE_INSENSITIVE_ORDER));
+            for (File classpathJarFile : classpathJarFiles) {
+                ResourceLoader nestedLoader = loadPluginsFromJar(classpathJarFile);
                 if (nestedLoader != null) {
                     pluginLoader.addLoader(nestedLoader);
                 }

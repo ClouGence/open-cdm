@@ -9,10 +9,6 @@
           </span>
         </a-form-item>
 
-        <a-form-item :label="$t('initialization.mysqlDriverLabel')" required class="jdbc-driver-form-item">
-          <InitMysqlDriverStatus :active="driverStatusActive" @status-change="handleDriverStatusChange" />
-        </a-form-item>
-
         <a-form-item :label="$t('initialization.jdbcHostPort')" required>
           <div class="jdbc-host-port-row">
             <div class="jdbc-inline-field jdbc-inline-field-host">
@@ -125,8 +121,6 @@
 </template>
 
 <script>
-import InitMysqlDriverStatus from './InitMysqlDriverStatus.vue';
-
 const DEFAULT_GENERATED_STATE = Object.freeze({
   host: '',
   port: '3306',
@@ -189,16 +183,12 @@ function buildMysqlJdbcUrl(generatedState) {
 
 export default {
   name: 'StepDb',
-  components: {
-    InitMysqlDriverStatus
-  },
-  emits: ['update:formValues', 'driver-status-change', 'validation-change', 'test-db'],
+  emits: ['update:formValues', 'validation-change', 'test-db'],
   props: {
     fieldDefs: { type: Array, default: () => [] },
     formValues: { type: Object, default: () => ({}) },
     dbTestResult: { type: Object, default: null },
     readonly: { type: Boolean, default: false },
-    driverStatusActive: { type: Boolean, default: true },
     showTestButton: { type: Boolean, default: false },
     testingDb: { type: Boolean, default: false }
   },
@@ -285,9 +275,6 @@ export default {
     }
   },
   methods: {
-    handleDriverStatusChange(status) {
-      this.$emit('driver-status-change', status || null);
-    },
     normalizeInputValue(payload) {
       if (payload && typeof payload === 'object' && 'target' in payload) {
         return payload.target ? payload.target.value : '';
@@ -376,11 +363,6 @@ export default {
 }
 .jdbc-generated-editor {
   width: 100%;
-}
-.jdbc-driver-form-item :deep(.ant-form-item-control-input-content) {
-  display: flex;
-  width: 100%;
-  min-width: 0;
 }
 .jdbc-database-type-value {
   display: inline-flex;

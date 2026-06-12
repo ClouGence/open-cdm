@@ -26,6 +26,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.boot.jdbc.autoconfigure.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
@@ -35,6 +36,7 @@ import com.clougence.clouddm.console.web.global.exception.PrintErrorUncaughtExcH
 import com.clougence.clouddm.console.web.global.handler.StaticResourceNoCacheFilter;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.init.constant.I18nInitFieldKeys;
+import com.clougence.clouddm.init.service.InitWebsitePluginLoader;
 import com.clougence.utils.ShutdownHook;
 
 import jakarta.annotation.PostConstruct;
@@ -75,7 +77,8 @@ public class InitApplication implements WebMvcConfigurer {
                                                            + "com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration");
         SpringApplication application = new SpringApplication(InitApplication.class);
         application.setRegisterShutdownHook(false);
-        application.run(args);
+        ConfigurableApplicationContext context = application.run(args);
+        context.getBean(InitWebsitePluginLoader.class).loadPlugin(InitApplication.class.getClassLoader());
 
         log.info("[DmAloneLauncher] Alone All Context Inited.");
         ShutdownHook.joinShutdown();

@@ -55,11 +55,9 @@
             :formValues="formValues"
             :dbTestResult="dbTestResult"
             :readonly="isDbFormReadonly"
-            :driverStatusActive="currentStep === 0"
             :showTestButton="!isUpgradeMode"
             :testingDb="testingDb"
             @update:formValues="updateFormValues"
-            @driver-status-change="handleMysqlDriverStatusChange"
             @validation-change="handleDbValidationChange"
             @test-db="handleTestDb"
           />
@@ -205,36 +203,6 @@ function buildInitInstallLogWsUrl() {
   const parsed = new URL(baseUrl, fallbackOrigin);
   const wsProtocol = parsed.protocol === 'https:' ? 'wss:' : 'ws:';
   return `${wsProtocol}//${parsed.host}/clouddm/console/api/v1/init/ws/install-log`;
-}
-
-function resolveMysqlDriverUiState(status) {
-  switch (status) {
-    case 'CHECKING':
-      return 'checking';
-    case 'AVAILABLE':
-      return 'ready';
-    case 'DOWNLOADING':
-    case 'PREPARING':
-    case 'SYNCING':
-      return 'downloading';
-    case 'ERROR':
-    case 'FAILED':
-      return 'error';
-    case 'UNAVAILABLE':
-      return 'unprepared';
-    default:
-      return 'idle';
-  }
-}
-
-function createInitialMysqlDriverStatus() {
-  return {
-    status: 'CHECKING',
-    uiState: 'checking',
-    available: false,
-    message: '',
-    detailMessage: ''
-  };
 }
 
 function normalizeExecutionScriptItem(entry) {
@@ -395,7 +363,6 @@ export default {
       dbTestResult: null,
       dbMissingFields: [],
       securityMissingFields: [],
-      mysqlDriverStatus: createInitialMysqlDriverStatus(),
       upgradeScripts: [],
       executionScripts: [],
       operationErrorDetail: '',
@@ -489,13 +456,6 @@ export default {
     },
     currentFooterMessage() {
       if (this.currentStep === 0) {
-        if (this.mysqlDriverFooterMessage) {
-          return {
-            type: this.mysqlDriverFooterType,
-            message: this.mysqlDriverFooterMessage
-          };
-        }
-
         if (this.isUpgradeMode) {
           return null;
         }
@@ -515,10 +475,10 @@ export default {
     canNext() {
       if (this.currentStep === 0) {
         if (this.isUpgradeMode) {
-          return this.isMysqlDriverReady;
+          return true;
         }
 
-        return this.isMysqlDriverReady && !this.dbMissingFields.length && Boolean(this.dbTestResult && this.dbTestResult.canProceed);
+        return !this.dbMissingFields.length && Boolean(this.dbTestResult && this.dbTestResult.canProceed);
       }
       if (!this.isUpgradeMode && this.currentStep === 1) {
         return !this.securityMissingFields.length;
@@ -548,43 +508,11 @@ export default {
 
       return this.$t('initialization.retryAction');
     },
-    mysqlDriverUiState() {
-      return resolveMysqlDriverUiState(this.mysqlDriverStatus.status);
-    },
-    isMysqlDriverReady() {
-      return this.mysqlDriverUiState === 'ready';
-    },
     isDbFormReadonly() {
       return this.isUpgradeMode;
     },
     isConnectivityReadonly() {
       return this.aloneMode;
-    },
-    mysqlDriverFooterType() {
-      switch (this.mysqlDriverUiState) {
-        case 'checking':
-        case 'downloading':
-          return 'info';
-        case 'error':
-          return 'error';
-        case 'unprepared':
-          return 'warning';
-        default:
-          return '';
-      }
-    },
-    mysqlDriverFooterMessage() {
-      switch (this.mysqlDriverUiState) {
-        case 'ready':
-          return '';
-        case 'checking':
-        case 'downloading':
-          return '';
-        case 'error':
-          return '';
-        default:
-          return '';
-      }
     },
     canTestDb() {
       return !this.dbMissingFields.length;
@@ -773,7 +701,6 @@ export default {
           this.dbTestResult = null;
           this.dbMissingFields = [];
           this.securityMissingFields = [];
-          this.mysqlDriverStatus = createInitialMysqlDriverStatus();
           this.executionScripts = [];
           this.operationErrorDetail = '';
           this.restartTimedOut = false;
@@ -794,17 +721,6 @@ export default {
 
     handleDbValidationChange(missingFields) {
       this.dbMissingFields = missingFields;
-    },
-
-    handleMysqlDriverStatusChange(status) {
-      this.mysqlDriverStatus = {
-        ...createInitialMysqlDriverStatus(),
-        ...(status || {})
-      };
-      this.mysqlDriverStatus.uiState = resolveMysqlDriverUiState(this.mysqlDriverStatus.status);
-      if (!['ready', 'checking'].includes(this.mysqlDriverStatus.uiState)) {
-        this.dbTestResult = null;
-      }
     },
 
     handleSecurityValidationChange(missingFields) {
@@ -904,12 +820,6 @@ export default {
         return;
       }
 
-      if (!this.isMysqlDriverReady) {
-        this.dbTestResult = null;
-        this.$message.error(this.$t('initialization.mysqlDriverNotLoaded'));
-        return;
-      }
-
       const params = {
         'spring.datasource.jdbcurl': this.formValues['spring.datasource.jdbcurl'],
         'spring.datasource.username': this.formValues['spring.datasource.username'],
@@ -976,10 +886,6 @@ export default {
 
     getNextStepBlockedMessage() {
       if (this.currentStep === 0) {
-        if (!this.isMysqlDriverReady) {
-          return this.$t('initialization.mysqlDriverNotLoaded');
-        }
-
         if (this.isUpgradeMode) {
           return '';
         }
@@ -1007,10 +913,6 @@ export default {
     getConfirmBlockedMessage() {
       if (this.isUpgradeMode) {
         return '';
-      }
-
-      if (!this.isMysqlDriverReady) {
-        return this.$t('initialization.mysqlDriverNotLoaded');
       }
 
       if (this.dbMissingFields.length) {
@@ -1073,10 +975,6 @@ export default {
     },
 
     async startExecution() {
-      if (!this.isUpgradeMode && !this.isMysqlDriverReady) {
-        return;
-      }
-
       this.currentStep = this.executionStepIndex;
       this.applyPendingExecutionStatus();
       await this.$nextTick();
