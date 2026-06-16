@@ -17,6 +17,7 @@ package com.clougence.clouddm.console.web.model.fo.ssh;
 
 import com.clougence.clouddm.base.metadata.ds.SshAuthType;
 import com.clougence.clouddm.base.metadata.ds.SshConFeatures;
+import com.clougence.clouddm.base.metadata.ds.SshProxyType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -35,7 +36,7 @@ public class SshConfigSaveFO {
     private String             privateKeyData;
     private String             privateKeyPassphrase;
     private SshConFeatures     conFeatures;
-    private String             proxyType;
+    private SshProxyType       proxyType;
     private SshProxyFeaturesFO proxyFeatures;
     private String             workerSeqNumber;
 }

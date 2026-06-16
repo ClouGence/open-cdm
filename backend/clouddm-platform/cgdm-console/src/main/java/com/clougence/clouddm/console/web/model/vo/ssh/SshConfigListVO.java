@@ -18,6 +18,7 @@ package com.clougence.clouddm.console.web.model.vo.ssh;
 import java.util.Date;
 
 import com.clougence.clouddm.base.metadata.ds.SshAuthType;
+import com.clougence.clouddm.base.metadata.ds.SshProxyType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,13 +27,13 @@ import lombok.Setter;
 @Setter
 public class SshConfigListVO {
 
-    private Long        id;
-    private Date        gmtCreate;
-    private Date        gmtModified;
-    private String      name;
-    private String      host;
-    private Integer     port;
-    private String      username;
-    private SshAuthType authType;
-    private String      proxyType;
+    private Long         id;
+    private Date         gmtCreate;
+    private Date         gmtModified;
+    private String       name;
+    private String       host;
+    private Integer      port;
+    private String       username;
+    private SshAuthType  authType;
+    private SshProxyType proxyType;
 }
