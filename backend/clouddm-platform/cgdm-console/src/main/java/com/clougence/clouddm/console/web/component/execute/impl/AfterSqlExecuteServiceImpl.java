@@ -85,7 +85,7 @@ public class AfterSqlExecuteServiceImpl implements AfterSqlExecuteService {
         SecDomainResolveSpi secDomainResolveSpi = PluginManager.findSecDomainResolveSpi(rdpDataSourceDO.getDataSourceType());
         CodeInfo codeInfo = CodeInfo.builder().baseLine(1).baseColumn(0).query(sql).build();
         ContextInfo contextInfo = ContextInfo.builder()
-            .dataSourceConfig(dmDsConfigService.fetchDsConfigFromDM(dsId, rdpDataSourceDO.getDataSourceType()))
+            .dataSourceConfig(dmDsConfigService.fetchDsConfigFromDM(dsId))
             .deepParser(false)
             .build();
         List<RuleDomain> list = secDomainResolveSpi.resolveDomain(rdpDataSourceDO.getDataSourceType(), codeInfo, contextInfo);

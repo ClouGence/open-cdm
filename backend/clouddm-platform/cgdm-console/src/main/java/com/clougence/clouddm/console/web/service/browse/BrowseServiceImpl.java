@@ -99,7 +99,7 @@ public class BrowseServiceImpl implements BrowseService {
                     dsRdbSupportMap.put(dsDO.getDataSourceType(), supportSpi);
                 }
 
-                DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId(), dsDO.getDataSourceType());
+                DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId());
                 String dsHost = this.dmDsConfigService.fetchDsConfig(dsDO.getId(), ConfigKeys.DM_DS_KEY_HOST);
                 dsConfigMap.put(dsDO.getId(), dsConfig);
                 dsHostMap.put(dsDO.getId(), dsHost);
@@ -187,7 +187,7 @@ public class BrowseServiceImpl implements BrowseService {
 
         DmDsDO detailDO = dsList.get(0);
         DmDsTagDO dsTags = this.dsDal.tagMapper().getByDsAndUser(detailDO.getId(), uid);
-        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(detailDO.getId(), detailDO.getDataSourceType());
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(detailDO.getId());
         RdbSupportSpi supportSpi = PluginManager.findRdbSupportSpi(dsConfig.getDataSourceType());
         String dsHost = this.dmDsConfigService.fetchDsConfig(detailDO.getId(), ConfigKeys.DM_DS_KEY_HOST);
         DmDsConfigDO dmDsConfigDO = dsDal.configMapper().queryByDataSourceId(dsLevels.dsDO().getId());

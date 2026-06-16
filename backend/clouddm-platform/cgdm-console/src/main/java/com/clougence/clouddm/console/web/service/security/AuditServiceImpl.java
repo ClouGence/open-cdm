@@ -140,7 +140,7 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
                     }
                 }
                 try {
-                    DataSourceConfig dataSourceConfig = dmDsConfigService.fetchDsConfigFromDM(rdpDataSourceDO.getId(), rdpDataSourceDO.getDataSourceType());
+                    DataSourceConfig dataSourceConfig = dmDsConfigService.fetchDsConfigFromDM(rdpDataSourceDO.getId());
                     Map<RuleDomain, List<ResObject>> objs = queryAnalysisService.analysisResourceV2(dataSourceConfig, dto.getSql(), map);
 
                     List<String> collect = objs.values().stream().flatMap(List::stream).map(obj -> {

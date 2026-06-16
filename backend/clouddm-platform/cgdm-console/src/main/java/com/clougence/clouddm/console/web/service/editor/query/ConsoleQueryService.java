@@ -992,7 +992,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         String sessionId = queryDTO.getSessionId();
         DsLevels levels = this.dmDsConfigService.parseLevels(queryDTO.getLevels());
         DmDsDO dsDO = levels.dsDO();
-        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId(), dsDO.getDataSourceType());
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId());
 
         Map<String, Object> params = new HashMap<>();
         levels.levelsParam().forEach((umiType, value) -> {

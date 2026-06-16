@@ -18,10 +18,6 @@ package com.clougence.clouddm.console.web.controller.editor.query;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_QUERY_CONSOLE;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,9 +39,7 @@ import com.clougence.clouddm.console.web.model.fo.editor.query.*;
 import com.clougence.clouddm.console.web.model.vo.editor.query.DsStatusConfVO;
 import com.clougence.clouddm.console.web.model.vo.editor.query.DsStatusSupportConfVO;
 import com.clougence.clouddm.console.web.model.vo.editor.query.OperationSessionVO;
-import com.clougence.clouddm.console.web.model.vo.editor.query.SessionVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
-import com.clougence.clouddm.console.web.service.browse.model.rdb.BrowseColumnMO;
 import com.clougence.clouddm.console.web.service.editor.DsQueryEditorService;
 import com.clougence.clouddm.console.web.service.editor.model.DataResultDataVO;
 import com.clougence.clouddm.console.web.service.editor.model.DataResultPageVO;
@@ -62,11 +56,7 @@ import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportLevel;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
-import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
-import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
-import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.i18n.I18nUtils;
@@ -152,7 +142,7 @@ public class QueryEditorController {
         }
 
         I18nUtils dsI18n = PluginManager.findDsI18nUtil(entry.getDsType());
-        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(entry.getDsNumId(), entry.getDsType());
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(entry.getDsNumId());
         if (supportSpi != null) {
             vo.setCatalog(convertToSupportedInfoMap(RdbSupportSpi.HINT_FOR_CHANGE_CATALOG, this.dmSupportSpiWrapper.supportChangeCatalog(supportSpi, dsConfig), dsI18n));
             vo.setSchema(convertToSupportedInfoMap(RdbSupportSpi.HINT_FOR_CHANGE_SCHEMA, this.dmSupportSpiWrapper.supportChangeSchema(supportSpi, dsConfig), dsI18n));

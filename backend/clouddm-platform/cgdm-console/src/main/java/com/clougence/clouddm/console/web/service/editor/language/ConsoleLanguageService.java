@@ -148,7 +148,7 @@ public class ConsoleLanguageService implements UnifiedPostConstruct, ConsoleLang
             }
         });
 
-        return new LanguageCtx(levels, this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId(), dsDO.getDataSourceType()), ctxDTO, params);
+        return new LanguageCtx(levels, this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId()), ctxDTO, params);
     }
 
     private static AbstractRequest parseRequest(WsLanguageFO fo, LanguageCtx ctx, JSONObject json) {

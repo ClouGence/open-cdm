@@ -181,7 +181,7 @@ public class QueryServiceImpl implements QueryService {
         }
 
         // create session
-        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId(), dsDO.getDataSourceType());
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId());
         try {
             this.sessionRService.createSession(sendDTO, dsConfig, context);
             this.dmDsStatusService.resetStatus(sendDTO.getUid(), dsConfig);

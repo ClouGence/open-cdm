@@ -37,9 +37,9 @@ public interface DmDsConfigService {
 
     DataSourceConfig fetchDsConfigFromTemp(DmDsDO dsDO, Map<String, String> configMap, HostType hostType);
 
-    DataSourceConfig fetchDsConfigFromRDP(long dsId, DataSourceType dsType, HostType hostType);
+    DataSourceConfig fetchDsConfigFromRDP(long dsId, HostType hostType);
 
-    DataSourceConfig fetchDsConfigFromDM(long dsId, DataSourceType dsType);
+    DataSourceConfig fetchDsConfigFromDM(long dsId);
 
     String fetchDsConfig(long dsId, String configKey);
 

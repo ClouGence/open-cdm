@@ -46,8 +46,8 @@ import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigMap;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
-import com.clougence.clouddm.sdk.language.DsLanguageSupport;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
+import com.clougence.clouddm.sdk.language.DsLanguageSupport;
 import com.clougence.clouddm.sdk.resource.ResourceCategory;
 import com.clougence.clouddm.sdk.resource.ResourceSpi;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
@@ -320,7 +320,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     }
 
     @Override
-    public DataSourceConfig fetchDsConfigFromDM(long dsId, DataSourceType dsType) {
+    public DataSourceConfig fetchDsConfigFromDM(long dsId) {
         List<DmDsConfigKv4DmDO> configs = this.dsDal.configKv4DmMapper().listByDsId(dsId);
         DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
 
@@ -395,7 +395,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     }
 
     @Override
-    public DataSourceConfig fetchDsConfigFromRDP(long dsId, DataSourceType dsType, HostType hostType) {
+    public DataSourceConfig fetchDsConfigFromRDP(long dsId, HostType hostType) {
         DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
         HostType ht = hostType == null ? dsDO.getHostType() : hostType;
         List<DmDsConfigKv4RdpDO> configs = this.collectConfigFromRdp(dsDO, ht, dsDO.getVersion());
@@ -520,7 +520,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
 
     @Override
     public Map<String, String> fetchSettingsMap(String ownerUid, List<String> names) {
-        return this.configService.fetchSettingsMap(ownerUid, names);
+        return this.configService.fetchSettingsMap(names);
     }
 
     public List<DmDsConfigKv4RdpDO> fetchDsConfigDef(DataSourceType dsType) {

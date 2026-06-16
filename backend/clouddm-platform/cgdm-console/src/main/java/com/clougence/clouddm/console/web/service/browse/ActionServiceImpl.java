@@ -386,7 +386,7 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
 
     private List<String> executeSql(String puid, String uid, String clientIp, ActionInfo info, Map<UmiTypes, Object> levelsParam, List<String> generateSql, ActionTargetMO mo) {
         DmDsDO dsDO = info.getDsDO();
-        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId(), dsDO.getDataSourceType());
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId());
         DsConfig dsSetting = this.dmDsConfigService.dsConstantSettings(dsDO.getDataSourceType());
         SessionSpi sessionSpi = PluginManager.findSessionSpi(dsDO.getDataSourceType());
 
