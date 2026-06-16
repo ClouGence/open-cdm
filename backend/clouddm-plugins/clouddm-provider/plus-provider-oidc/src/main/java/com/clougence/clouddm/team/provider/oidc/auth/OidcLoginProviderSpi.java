@@ -167,7 +167,7 @@ public class OidcLoginProviderSpi implements LoginProviderSpi {
 
         // mapping role
         String roleName = StringUtils.isEmpty(oidcApi.getConf().getRoleMap()) ? SecSysRole.DEV_ROLE_NAME : oidcApi.getConf().getRoleMap();
-        List<RoleData> roles = this.configService.findRoleByName(primaryUID, roleName);
+        List<RoleData> roles = this.configService.findRoleByName(roleName);
         RoleData role = CollectionUtils.isEmpty(roles) ? null : roles.get(0);
         if (role == null) {
             log.info("OIDC: user(" + oidcUser.getAccount() + ") not found any role, memberOf=" + roleName);

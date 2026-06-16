@@ -39,12 +39,12 @@ public class ConsolePluginConfigServiceImpl implements ConfigService {
     private ConsoleConfigService consoleConfigService;
 
     @Override
-    public List<ConfigData> fetchSettings(String ownerUid, List<String> names) {
-        return this.consoleConfigService.fetchSettings(ownerUid, names);
+    public List<ConfigData> fetchSettings(List<String> names) {
+        return this.consoleConfigService.fetchSettings(names);
     }
 
     @Override
-    public DataSourceConfig fetchDsConfig(long dsId, DataSourceType dsType) {
+    public DataSourceConfig fetchDsConfig(long dsId) {
         throw new UnsupportedOperationException("Console plugin config service does not support datasource config.");
     }
 

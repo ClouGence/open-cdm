@@ -20,11 +20,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.sdk.service.config.ConfigData;
+import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.team.provider.ldap.constants.LdapConfigKey;
 import com.clougence.clouddm.team.provider.ldap.constants.LdapI18nKey;
-import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
-import com.clougence.clouddm.sdk.service.config.ConfigData;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ConfigHelper {
 
     public static BaseConfig fetchConfig(ConsoleConfigService configService, final String primaryUID) {
-        List<ConfigData> configList = configService.fetchSettings(primaryUID, Arrays.asList(//
+        List<ConfigData> configList = configService.fetchSettings(Arrays.asList(//
                 LdapConfigKey.AuthType.getConfigKey(),           //
                 LdapConfigKey.LdapHost.getConfigKey(),           //
                 LdapConfigKey.LdapPort.getConfigKey(),           //

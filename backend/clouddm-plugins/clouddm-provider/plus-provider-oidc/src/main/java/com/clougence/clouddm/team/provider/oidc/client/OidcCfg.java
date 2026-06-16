@@ -20,10 +20,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.team.provider.oidc.constants.OidcConfigKey;
 import com.clougence.clouddm.sdk.security.login.LoginProvider;
-import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.sdk.service.config.ConfigData;
+import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
+import com.clougence.clouddm.team.provider.oidc.constants.OidcConfigKey;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -40,7 +40,7 @@ public class OidcCfg {
     private String  roleMap;
 
     public static OidcCfg fetchConfig(ConsoleConfigService configService, String ownerUid) {
-        List<ConfigData> configList = configService.fetchSettings(ownerUid, Arrays.asList(//
+        List<ConfigData> configList = configService.fetchSettings(Arrays.asList(//
                 OidcConfigKey.AuthType.getConfigKey(),    //
                 OidcConfigKey.WellKnownUrl.getConfigKey(),//
                 OidcConfigKey.ClientId.getConfigKey(),    //

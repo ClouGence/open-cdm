@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.console.configs.ConfigRService;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.ds.SshConfig;
 import com.clougence.clouddm.base.metadata.ds.ToolConfig;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityFileType;
@@ -30,6 +30,7 @@ import com.clougence.clouddm.console.web.component.detectrule.SecCheckerRules;
 import com.clougence.clouddm.console.web.component.detectrule.SecRulesService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmToolConfigService;
+import com.clougence.clouddm.console.web.service.ssh.SshConfigService;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.access.entry.EnvCacheEntry;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsBlobResourceDO;
@@ -59,15 +60,22 @@ public class ConfigRServiceProvider extends AbstractBasicProvider implements Con
     private SecRulesService      secRulesService;
     @Resource
     private ConsoleConfigService consoleConfigService;
+    @Resource
+    private SshConfigService     sshConfigService;
 
     @Override
-    public List<ConfigData> fetchSettings(String ownerUid, List<String> names) {
-        return this.consoleConfigService.fetchSettings(ownerUid, names);
+    public List<ConfigData> fetchSettings(List<String> names) {
+        return this.consoleConfigService.fetchSettings(names);
     }
 
     @Override
-    public DataSourceConfig fetchDsConfig(long dsId, DataSourceType dsType) {
-        return this.dsConfigService.fetchDsConfigFromDM(dsId, dsType);
+    public DataSourceConfig fetchDsConfig(long dsId) {
+        return this.dsConfigService.fetchDsConfigFromDM(dsId);
+    }
+
+    @Override
+    public SshConfig fetchSshConfig(long sshConfigId) {
+        return this.sshConfigService.fetchRuntimeConfig(sshConfigId);
     }
 
     @Override

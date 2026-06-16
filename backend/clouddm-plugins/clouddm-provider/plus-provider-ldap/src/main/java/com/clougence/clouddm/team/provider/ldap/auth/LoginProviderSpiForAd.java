@@ -295,7 +295,7 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
         BaseConfig ldapConfig = ldapCtx.getLdapConfig();
         String roleName = ldapConfig.getLdapRoleMap();
         roleName = StringUtils.isEmpty(roleName) ? SecSysRole.DEV_ROLE_NAME : roleName;
-        List<RoleData> roles = this.configService.findRoleByName(primaryUID, roleName);
+        List<RoleData> roles = this.configService.findRoleByName(roleName);
         return CollectionUtils.isEmpty(roles) ? null : roles.get(0);
     }
 

@@ -24,22 +24,15 @@ import java.util.stream.Collectors;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
+import javax.naming.directory.*;
 
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
 import com.clougence.clouddm.sdk.security.login.LoginRequest;
 import com.clougence.clouddm.sdk.security.login.LoginResponse;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
-import com.clougence.clouddm.sdk.service.config.RoleData;
 import com.clougence.clouddm.sdk.service.config.UserData;
 import com.clougence.clouddm.team.provider.ldap.constants.LdapI18nKey;
-import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -268,9 +261,4 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
     protected abstract UserData mapUser(BaseCtx ldapCtx, UserData primaryUser, String ldapAccount, Attributes attributes) throws NamingException;
 
     protected abstract void checkThrowError(Exception e);
-
-    protected RoleData findRole(String primaryUID, String roleName) {
-        List<RoleData> roles = this.configService.findRoleByName(primaryUID, roleName);
-        return CollectionUtils.isEmpty(roles) ? null : roles.get(0);
-    }
 }

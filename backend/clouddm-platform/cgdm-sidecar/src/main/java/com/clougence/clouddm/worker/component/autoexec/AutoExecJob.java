@@ -22,8 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jakarta.annotation.Resource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -45,6 +43,8 @@ import com.clougence.clouddm.worker.component.resource.TaskDsResourceManager;
 import com.clougence.clouddm.worker.component.session.SessionAgent;
 import com.clougence.clouddm.worker.component.session.SessionManager;
 import com.clougence.utils.ThreadUtils;
+
+import jakarta.annotation.Resource;
 
 @Service
 @Scope("prototype")
@@ -100,9 +100,9 @@ public class AutoExecJob implements Runnable {
             return;
         }
 
-        DataSourceConfig dataSourceConfig = configRService.fetchDsConfig(job.getDsId(), job.getDsType());
+        DataSourceConfig dataSourceConfig = configRService.fetchDsConfig(job.getDsId());
         try {
-            this.sessionAgent = (SessionAgent) sessionManager.createSession(backgroundRM, dataSourceConfig, job.getContextDTO());
+            this.sessionAgent = sessionManager.createSession(backgroundRM, dataSourceConfig, job.getContextDTO());
             String currentQueryId = this.sessionAgent.getCurrentQueryId();
             sendMessage(AutoExecMessageDTO.createQueryIdMessage(job.getJobId(), currentQueryId), true);
             log.info("create session success,query id: " + currentQueryId);

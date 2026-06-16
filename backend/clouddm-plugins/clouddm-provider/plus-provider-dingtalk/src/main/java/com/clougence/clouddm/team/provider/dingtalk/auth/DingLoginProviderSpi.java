@@ -67,7 +67,7 @@ public class DingLoginProviderSpi implements LoginProviderSpi {
     @Override
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) {
         // fetch config
-        List<ConfigData> configList = configService.fetchSettings(ownerUid, Arrays.asList(//
+        List<ConfigData> configList = configService.fetchSettings(Arrays.asList(//
                 DingConfigKey.LoginEnable.getConfigKey(),//
                 DingConfigKey.LoginClientId.getConfigKey(),//
                 DingConfigKey.LoginClientSecret.getConfigKey(),//
@@ -181,7 +181,7 @@ public class DingLoginProviderSpi implements LoginProviderSpi {
         // mapping role
         String roleName = dingApi.getClient().getRoleMapping();
         roleName = StringUtils.isEmpty(roleName) ? SecSysRole.DEV_ROLE_NAME : roleName;
-        List<RoleData> roles = this.configService.findRoleByName(primaryUID, roleName);
+        List<RoleData> roles = this.configService.findRoleByName(roleName);
         RoleData role = CollectionUtils.isEmpty(roles) ? null : roles.get(0);
         if (role == null) {
             log.info("Ding: user(" + dingUser.getAccount() + ") not found any role, memberOf=" + roleName);

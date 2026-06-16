@@ -67,7 +67,7 @@ public class FeishuLoginProviderSpi implements LoginProviderSpi {
     @Override
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) {
         // fetch config
-        List<ConfigData> configList = configService.fetchSettings(ownerUid, Arrays.asList(//
+        List<ConfigData> configList = configService.fetchSettings(Arrays.asList(//
                 FeishuConfigKey.LoginEnable.getConfigKey(),//
                 FeishuConfigKey.LoginAppID.getConfigKey(),//
                 FeishuConfigKey.LoginAppSecret.getConfigKey(),//
@@ -183,7 +183,7 @@ public class FeishuLoginProviderSpi implements LoginProviderSpi {
         // mapping role
         String roleName = feishuApi.getRoleMap();
         roleName = StringUtils.isEmpty(roleName) ? SecSysRole.DEV_ROLE_NAME : roleName;
-        List<RoleData> roles = this.configService.findRoleByName(primaryUID, roleName);
+        List<RoleData> roles = this.configService.findRoleByName(roleName);
         RoleData role = CollectionUtils.isEmpty(roles) ? null : roles.get(0);
         if (role == null) {
             log.info("Feishu: user(" + dingUser.getAccount() + ") not found any role, memberOf=" + roleName);

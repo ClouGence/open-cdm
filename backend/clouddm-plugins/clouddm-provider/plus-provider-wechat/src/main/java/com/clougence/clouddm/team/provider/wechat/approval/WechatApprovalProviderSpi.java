@@ -59,7 +59,7 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
     @Override
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) {
         // fetch config
-        List<ConfigData> configList = configService.fetchSettings(ownerUid, Arrays.asList(//
+        List<ConfigData> configList = configService.fetchSettings(Arrays.asList(//
                 WechatConfigKey.ApprovalEnable.getConfigKey(),//
                 WechatConfigKey.ApprovalCorpId.getConfigKey(),//
                 WechatConfigKey.ApprovalSecret.getConfigKey(),//
@@ -296,7 +296,7 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
         String templateListConfigKey = WechatConfigKey.ApprovalTemplateList.getConfigKey();
         String templateLangConfigKey = WechatConfigKey.ApprovalTemplateLang.getConfigKey();
 
-        List<ConfigData> configList = this.configService.fetchSettings(ownerUid, Arrays.asList(//
+        List<ConfigData> configList = this.configService.fetchSettings(Arrays.asList(//
                 templateListConfigKey,//
                 templateLangConfigKey //
         ));

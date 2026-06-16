@@ -61,7 +61,7 @@ public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
     @Override
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) {
         // fetch config
-        List<ConfigData> configList = configService.fetchSettings(ownerUid, Arrays.asList(//
+        List<ConfigData> configList = configService.fetchSettings(Arrays.asList(//
                 FeishuConfigKey.ApprovalEnable.getConfigKey(),//
                 FeishuConfigKey.ApprovalAppID.getConfigKey(),//
                 FeishuConfigKey.ApprovalAppSecret.getConfigKey(),//
@@ -221,7 +221,7 @@ public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
     @Override
     public List<ApprovalTemplate> getTemplates(String ownerUid) throws ThirdPartyApiException {
         FeishuApi approvalApi = this.approvalApi(ownerUid);
-        List<ConfigData> configList = this.configService.fetchSettings(ownerUid, Collections.singletonList(FeishuConfigKey.ApprovalTemplateList.getConfigKey()));
+        List<ConfigData> configList = this.configService.fetchSettings(Collections.singletonList(FeishuConfigKey.ApprovalTemplateList.getConfigKey()));
         if (configList.isEmpty()) {
             return Collections.emptyList();
         } else {

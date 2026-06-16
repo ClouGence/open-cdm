@@ -69,7 +69,7 @@ public class DingApprovalProviderSpi implements ApprovalProviderSpi {
     @Override
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) throws Exception {
         // fetch config
-        List<ConfigData> configList = configService.fetchSettings(ownerUid, Arrays.asList(//
+        List<ConfigData> configList = configService.fetchSettings(Arrays.asList(//
                 DingConfigKey.ApprovalEnable.getConfigKey(),//
                 DingConfigKey.ApprovalClientId.getConfigKey(),//
                 DingConfigKey.ApprovalClientSecret.getConfigKey()));
