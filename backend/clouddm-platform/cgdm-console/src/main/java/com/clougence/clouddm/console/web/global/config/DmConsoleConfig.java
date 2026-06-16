@@ -67,10 +67,8 @@ public class DmConsoleConfig {
     // for Product
     @Value("${clouddm.features.auto_upgrade_sec_rules:true}")
     private boolean        autoUpdateInnerRules;
-
     @Value("${clougence.clouddm.console.openapi.timeout:120}")
     private Integer        openApiTimeout;
-
     @Value("${clougence.rdp.console.csrf:false}")
     private Boolean        activeCsrfCheck;
     @Value("${clougence.rdp.login.retry.max-count:5}")

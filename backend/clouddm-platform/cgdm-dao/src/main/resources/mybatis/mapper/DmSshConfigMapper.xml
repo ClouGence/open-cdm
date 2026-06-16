@@ -62,10 +62,9 @@
         LIMIT 1
     </select>
 
-    <update id="markDeleted">
-        UPDATE dm_ssh_config
-        SET deleted = 1, gmt_modified = NOW()
+    <delete id="deleteById">
+        DELETE FROM dm_ssh_config
         WHERE id = #{id}
         LIMIT 1
-    </update>
+    </delete>
 </mapper>

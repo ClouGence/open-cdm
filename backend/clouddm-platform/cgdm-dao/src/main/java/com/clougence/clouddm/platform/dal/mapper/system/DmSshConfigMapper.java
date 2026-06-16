@@ -28,5 +28,5 @@ public interface DmSshConfigMapper extends BaseMapper<DmSshConfigDO> {
 
     DmSshConfigDO queryById(@Param("id") Long id);
 
-    int markDeleted(@Param("id") Long id);
+    int deleteById(@Param("id") Long id);
 }

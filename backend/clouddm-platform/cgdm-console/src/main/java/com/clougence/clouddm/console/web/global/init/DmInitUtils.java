@@ -47,6 +47,7 @@ public class DmInitUtils implements UnifiedPostConstruct {
         RdpWebUtils.initUtils(this.rdpConfig);
 
         MessageUtils.initUtils(this.applicationContext);
+        CallUtils.initUtils(this.applicationContext);
         DmDsUtils.initUtils(this.applicationContext);
         DmTeamUtils.initUtils(this.applicationContext);
         FetchRangeUtils.initUtils(this.applicationContext);
