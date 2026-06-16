@@ -15,17 +15,10 @@
  */
 package com.clougence.clouddm.base.metadata.ds;
 
-import java.io.Serializable;
+public enum SshProxyType {
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class SshHostKey implements Serializable {
-
-    private boolean strictChecking;
+    NO_PROXY,
+    HTTP,
+    SOCKS4,
+    SOCKS5
 }

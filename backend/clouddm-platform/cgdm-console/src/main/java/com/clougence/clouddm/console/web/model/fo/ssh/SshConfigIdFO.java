@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo.ssh;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,5 +23,6 @@ import lombok.Setter;
 @Setter
 public class SshConfigIdFO {
 
+    @NotNull(message = "{ssh.config.id.notnull}")
     private Long id;
 }

@@ -33,6 +33,6 @@ public class SshConFeatures implements Serializable {
     private Integer            serverAliveIntervalMs;
     private Integer            connectTimeoutMs;
     private SshHostKey         hostKey;
-    private String             strictHostKeyChecking;
+    private boolean            strictHostKeyChecking;
     private List<SshKnownHost> knownHosts = new ArrayList<>();
 }

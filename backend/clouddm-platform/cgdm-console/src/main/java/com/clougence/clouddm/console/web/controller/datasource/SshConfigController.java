@@ -31,9 +31,11 @@ import com.clougence.clouddm.console.web.model.fo.ssh.SshConfigIdFO;
 import com.clougence.clouddm.console.web.model.fo.ssh.SshConfigListFO;
 import com.clougence.clouddm.console.web.model.fo.ssh.SshConfigSaveFO;
 import com.clougence.clouddm.console.web.model.fo.ssh.TestSshConnectionFO;
+import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.ssh.SshConfigService;
 
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
@@ -59,21 +61,24 @@ public class SshConfigController {
 
     @RequestAuth(DM_SSH_CHANNEL_WRITE)
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public ResWebData<?> create(@Valid @RequestBody SshConfigSaveFO fo) {
-        return ResWebDataUtils.buildSuccess(this.sshConfigService.create(fo));
+    public ResWebData<?> create(@Valid @RequestBody SshConfigSaveFO fo, HttpServletRequest request) {
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+        return ResWebDataUtils.buildSuccess(this.sshConfigService.create(uid, fo));
     }
 
     @RequestAuth(DM_SSH_CHANNEL_WRITE)
     @RequestMapping(value = "/update", method = RequestMethod.POST)
-    public ResWebData<?> update(@Valid @RequestBody SshConfigSaveFO fo) {
-        this.sshConfigService.update(fo);
+    public ResWebData<?> update(@Valid @RequestBody SshConfigSaveFO fo, HttpServletRequest request) {
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+        this.sshConfigService.update(uid, fo);
         return ResWebDataUtils.buildSuccess();
     }
 
     @RequestAuth(DM_SSH_CHANNEL_WRITE)
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    public ResWebData<?> delete(@Valid @RequestBody SshConfigIdFO fo) {
-        this.sshConfigService.delete(fo.getId());
+    public ResWebData<?> delete(@Valid @RequestBody SshConfigIdFO fo, HttpServletRequest request) {
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+        this.sshConfigService.delete(uid, fo.getId());
         return ResWebDataUtils.buildSuccess();
     }
 

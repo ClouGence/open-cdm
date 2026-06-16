@@ -36,6 +36,6 @@ public class SshConfig implements Serializable {
     private String           privateKeyData;
     private String           privateKeyPassphrase;
     private SshConFeatures   conFeatures;
-    private String           proxyType;
+    private SshProxyType     proxyType;
     private SshProxyFeatures proxyFeatures;
 }

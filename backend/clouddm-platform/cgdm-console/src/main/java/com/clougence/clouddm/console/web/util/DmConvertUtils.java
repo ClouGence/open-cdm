@@ -30,6 +30,8 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultPageDTO;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.ds.SshAuthType;
+import com.clougence.clouddm.base.metadata.ds.SshProxyType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResultEnum;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
 import com.clougence.clouddm.console.web.component.detectrule.SecHintInfo;
@@ -61,6 +63,7 @@ import com.clougence.clouddm.console.web.model.vo.editor.query.WsRuleEntity;
 import com.clougence.clouddm.console.web.model.vo.faker.DmAsyncTaskVO;
 import com.clougence.clouddm.console.web.model.vo.openapi.DmApiDataSourceVO;
 import com.clougence.clouddm.console.web.model.vo.project.*;
+import com.clougence.clouddm.console.web.model.vo.ssh.SshConfigListVO;
 import com.clougence.clouddm.console.web.model.vo.system.CloudOrIdcNameVO;
 import com.clougence.clouddm.console.web.service.browse.model.ActionInfo;
 import com.clougence.clouddm.console.web.service.browse.model.ActionTargetMO;
@@ -1005,6 +1008,24 @@ public class DmConvertUtils {
 
         vo.setVersion(dsDO.getVersion());
         return vo;
+    }
+
+    public static SshConfigListVO convertToSshConfigListVO(DmSshConfigDO configDO) {
+        SshConfigListVO vo = new SshConfigListVO();
+        fillSshConfigListVO(configDO, vo);
+        return vo;
+    }
+
+    public static void fillSshConfigListVO(DmSshConfigDO configDO, SshConfigListVO vo) {
+        vo.setId(configDO.getId());
+        vo.setGmtCreate(configDO.getGmtCreate());
+        vo.setGmtModified(configDO.getGmtModified());
+        vo.setName(configDO.getName());
+        vo.setHost(configDO.getHost());
+        vo.setPort(configDO.getPort());
+        vo.setUsername(configDO.getUsername());
+        vo.setAuthType(StringUtils.isBlank(configDO.getAuthType()) ? null : SshAuthType.valueOf(configDO.getAuthType()));
+        vo.setProxyType(StringUtils.isBlank(configDO.getProxyType()) ? null : SshProxyType.valueOf(configDO.getProxyType()));
     }
 
     public static DmDsConfigKv4DmDO convertToDmDsKvBaseConfigDOForInsert(DmDsConfigKv4RdpDO config) {
