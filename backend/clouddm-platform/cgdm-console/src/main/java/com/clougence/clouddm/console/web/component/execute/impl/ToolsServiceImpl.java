@@ -31,6 +31,7 @@ import com.clougence.clouddm.console.web.component.dsconfig.DmToolConfigService;
 import com.clougence.clouddm.console.web.component.execute.ToolsService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.util.CallUtils;
 import com.clougence.clouddm.console.web.util.MessageUtils;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
@@ -79,21 +80,6 @@ public class ToolsServiceImpl implements ToolsService {
         return sendDTO;
     }
 
-    private RSocketSendDTO buildRSocketSendDTO(String wsn) {
-        DmSysWorkerDO workerStatus = this.systemDal.workerMapper().queryConnectedByWsn(wsn);
-        if (workerStatus != null) {
-            RSocketSendDTO sendDTO = new RSocketSendDTO();
-            sendDTO.setClusterId(workerStatus.getClusterId());
-            sendDTO.setWorkerSeqNumber(workerStatus.getWorkerSeqNumber());
-            sendDTO.setWorkerIP(workerStatus.getWorkerIp());
-            sendDTO.setUid(workerStatus.getUid());
-            sendDTO.setRSocketSendType(RSocketSendType.SPECIFIED);
-            return sendDTO;
-        } else {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.WORKER_STATUS_OFFLINE_ERROR.name(), wsn));
-        }
-    }
-
     @Override
     public boolean hasSession(String curUid, String sessionId) {
         DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
@@ -101,7 +87,7 @@ public class ToolsServiceImpl implements ToolsService {
             return false;
         }
 
-        RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO.getWsn());
+        RSocketSendDTO sendDTO = CallUtils.buildSendDTO(sessionDO.getWsn());
         return this.toolsRService.hasSession(sendDTO, sessionId);
     }
 
@@ -120,7 +106,7 @@ public class ToolsServiceImpl implements ToolsService {
         // close and remove old data.
         DmExecSessionDO sessionDO = this.executionDal.sessionMapper().queryBySessionId(curUid, sessionId);
         if (sessionDO != null) {
-            RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO.getWsn());
+            RSocketSendDTO sendDTO = CallUtils.buildSendDTO(sessionDO.getWsn());
             this.toolsRService.closeSession(sendDTO, sessionId);
             this.executionDal.sessionMapper().deleteBySessionId(sessionId);
         }
@@ -161,7 +147,7 @@ public class ToolsServiceImpl implements ToolsService {
             return;
         }
 
-        RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO.getWsn());
+        RSocketSendDTO sendDTO = CallUtils.buildSendDTO(sessionDO.getWsn());
         this.toolsRService.closeSession(sendDTO, sessionId);
         this.executionDal.sessionMapper().deleteBySessionId(sessionId);
     }
@@ -173,7 +159,7 @@ public class ToolsServiceImpl implements ToolsService {
             return null;
         }
 
-        RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO.getWsn());
+        RSocketSendDTO sendDTO = CallUtils.buildSendDTO(sessionDO.getWsn());
         ToolResultDTO resultDTO = this.toolsRService.invoke(sendDTO, sessionId, methodKey, requestDTO);
         if (!resultDTO.isSuccess()) {
             throw new RuntimeException(resultDTO.getMessage());
@@ -189,7 +175,7 @@ public class ToolsServiceImpl implements ToolsService {
             return null;
         }
 
-        RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO.getWsn());
+        RSocketSendDTO sendDTO = CallUtils.buildSendDTO(sessionDO.getWsn());
         ToolResultDTO resultDTO = this.toolsRService.tailLog(sendDTO, sessionId, requestDTO);
         if (!resultDTO.isSuccess()) {
             throw new RuntimeException(resultDTO.getMessage());
@@ -205,7 +191,7 @@ public class ToolsServiceImpl implements ToolsService {
             return null;
         }
 
-        RSocketSendDTO sendDTO = buildRSocketSendDTO(sessionDO.getWsn());
+        RSocketSendDTO sendDTO = CallUtils.buildSendDTO(sessionDO.getWsn());
         ToolResultDTO resultDTO = this.toolsRService.tailStatus(sendDTO, sessionId, requestDTO);
         if (!resultDTO.isSuccess()) {
             throw new RuntimeException(resultDTO.getMessage());

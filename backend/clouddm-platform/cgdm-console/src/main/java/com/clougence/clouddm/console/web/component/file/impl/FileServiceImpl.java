@@ -30,12 +30,12 @@ import com.clougence.clouddm.api.sidecar.session.execute.ResultFileReadDTO;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultPageDTO;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultSetRService;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
-import com.clougence.clouddm.comm.model.RSocketSendType;
 import com.clougence.clouddm.console.web.component.file.FileService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.service.editor.model.DataResultDataVO;
 import com.clougence.clouddm.console.web.service.editor.model.DataResultPageVO;
+import com.clougence.clouddm.console.web.util.CallUtils;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
@@ -72,21 +72,6 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
     @Override
     public void stop() {
 
-    }
-
-    private RSocketSendDTO buildRSocketSendDTO(String wsn) {
-        DmSysWorkerDO worker = this.systemDal.workerMapper().queryConnectedByWsn(wsn);
-        if (worker != null) {
-            RSocketSendDTO sendDTO = new RSocketSendDTO();
-            sendDTO.setClusterId(worker.getClusterId());
-            sendDTO.setWorkerSeqNumber(worker.getWorkerSeqNumber());
-            sendDTO.setWorkerIP(worker.getWorkerIp());
-            sendDTO.setUid(worker.getUid());
-            sendDTO.setRSocketSendType(RSocketSendType.SPECIFIED);
-            return sendDTO;
-        } else {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_WORKER_STATUS_OFFLINE_ERROR.name(), wsn));
-        }
     }
 
     private void doClearJob() {
@@ -169,7 +154,7 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
         String fsName = fileUri.getScheme().toLowerCase();
         if (StringUtils.equalsIgnoreCase(fsName, "wsn")) {
             String wsn = fileUri.getHost();
-            RSocketSendDTO sendDTO = this.buildRSocketSendDTO(wsn);
+            RSocketSendDTO sendDTO = CallUtils.buildSendDTO(wsn);
             this.resultSetRService.deleteFile(sendDTO, fileUri.getPath(), false);
             log.info("delete file [{}] on worker [{}] success.", fileUri.getPath(), wsn);
         }
@@ -181,7 +166,7 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
         String fsName = fileUri.getScheme().toLowerCase();
         if (StringUtils.equalsIgnoreCase(fsName, "wsn")) {
             String wsn = fileUri.getHost();
-            RSocketSendDTO sendDTO = this.buildRSocketSendDTO(wsn);
+            RSocketSendDTO sendDTO = CallUtils.buildSendDTO(wsn);
             return this.resultSetRService.fileSize(sendDTO, fileUri.getPath()) >= 0;
         } else {
             return false;
@@ -191,7 +176,7 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
     @Override
     public String submitFileConvert(String puid, String userId, String wsn, String srcFileId, String exportId, DmFileType dmFileType, String srcFile, String dstFile,
                                     String formatName, String option) {
-        RSocketSendDTO sendDTO = buildRSocketSendDTO(wsn);
+        RSocketSendDTO sendDTO = CallUtils.buildSendDTO(wsn);
         return this.resultSetRService.convertFile(sendDTO, puid, userId, srcFileId, exportId, dmFileType, srcFile, dstFile, formatName, option);
     }
 
@@ -207,25 +192,25 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
 
     @Override
     public void deleteFile(String wsn, String filePath) {
-        RSocketSendDTO sendDTO = buildRSocketSendDTO(wsn);
+        RSocketSendDTO sendDTO = CallUtils.buildSendDTO(wsn);
         this.resultSetRService.deleteFile(sendDTO, filePath, false);
     }
 
     @Override
     public void deleteTemp(String wsn, String filePath) {
-        RSocketSendDTO sendDTO = buildRSocketSendDTO(wsn);
+        RSocketSendDTO sendDTO = CallUtils.buildSendDTO(wsn);
         this.resultSetRService.deleteFile(sendDTO, filePath, true);
     }
 
     @Override
     public long fetchFileSize(String wsn, String filePath) {
-        RSocketSendDTO sendDTO = buildRSocketSendDTO(wsn);
+        RSocketSendDTO sendDTO = CallUtils.buildSendDTO(wsn);
         return this.resultSetRService.fileSize(sendDTO, filePath);
     }
 
     @Override
     public byte[] fetchFileData(String wsn, String filePath, long offset, int length) {
-        RSocketSendDTO sendDTO = buildRSocketSendDTO(wsn);
+        RSocketSendDTO sendDTO = CallUtils.buildSendDTO(wsn);
         ResultFileReadDTO readDTO = this.resultSetRService.fileRead(sendDTO, filePath, offset, length);
 
         if (readDTO.isSuccess()) {
@@ -237,7 +222,7 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
 
     @Override
     public DataResultPageVO fetchResultPage(String wsn, String filePath, long rowOffset, int pageSize) {
-        RSocketSendDTO sendDTO = buildRSocketSendDTO(wsn);
+        RSocketSendDTO sendDTO = CallUtils.buildSendDTO(wsn);
         ResultPageDTO readDTO = this.resultSetRService.resultPageRead(sendDTO, filePath, rowOffset, pageSize);
 
         if (readDTO.isSuccess()) {
@@ -249,7 +234,7 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
 
     @Override
     public DataResultDataVO fetchResultCol(String wsn, String filePath, long rowNumber, long colNumber, long offset, int length) {
-        RSocketSendDTO sendDTO = buildRSocketSendDTO(wsn);
+        RSocketSendDTO sendDTO = CallUtils.buildSendDTO(wsn);
         ResultColDTO readDTO = this.resultSetRService.resultDataRead(sendDTO, filePath, rowNumber, colNumber, offset, length);
 
         if (readDTO.isSuccess()) {

@@ -18,5 +18,17 @@ package com.clougence.clouddm.base.metadata.ds;
 public enum SshAuthType {
 
     PASSWORD,
-    PRIVATE_KEY
+    PRIVATE_KEY;
+
+    public static SshAuthType valueOfCode(String code) {
+        if (code == null || code.isEmpty()) {
+            return null;
+        }
+        for (SshAuthType authType : values()) {
+            if (authType.name().equalsIgnoreCase(code)) {
+                return authType;
+            }
+        }
+        return null;
+    }
 }

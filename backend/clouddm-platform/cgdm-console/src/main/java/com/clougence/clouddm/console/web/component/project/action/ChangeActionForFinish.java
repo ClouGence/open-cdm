@@ -28,7 +28,7 @@ import com.clougence.clouddm.console.web.component.project.ImMessageType;
 import com.clougence.clouddm.console.web.component.project.model.ChangeExecuteInfo;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.util.HttpUtils;
+import com.clougence.clouddm.console.web.util.CallUtils;
 import com.clougence.clouddm.platform.dal.model.project.*;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
@@ -122,9 +122,9 @@ public class ChangeActionForFinish extends AbstractChangeAction {
             String callbackMethod = devopsDO.getCallbackMethod();
             Response res;
             if (StringUtils.equalsIgnoreCase(callbackMethod, "post")) {
-                res = HttpUtils.post(devopsDO.getCallbackUrl(), Collections.emptyMap());
+                res = CallUtils.post(devopsDO.getCallbackUrl(), Collections.emptyMap());
             } else if (StringUtils.equalsIgnoreCase(callbackMethod, "get")) {
-                res = HttpUtils.get(devopsDO.getCallbackUrl());
+                res = CallUtils.get(devopsDO.getCallbackUrl());
             } else {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_CALLBACK_METHOD_NOT_SUPPORT_ERROR.name(), locale, change.getChangeName()));
             }

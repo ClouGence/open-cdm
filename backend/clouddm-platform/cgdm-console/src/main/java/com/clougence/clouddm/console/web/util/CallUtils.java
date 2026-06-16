@@ -81,10 +81,8 @@ public class CallUtils {
         }
 
         if (worker == null) {
-            if (StringUtils.isNotBlank(workerSeqNumber)) {
-                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.WORKER_STATUS_OFFLINE_ERROR.name(), workerSeqNumber));
-            }
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SSH_NO_CONNECTED_SIDECAR_ERROR.name()));
+            String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.WORKER_STATUS_OFFLINE_ERROR.name(), workerSeqNumber);
+            throw new ErrorMessageException(msg);
         }
 
         RSocketSendDTO sendDTO = new RSocketSendDTO();

@@ -20,5 +20,17 @@ public enum SshProxyType {
     NO_PROXY,
     HTTP,
     SOCKS4,
-    SOCKS5
+    SOCKS5;
+
+    public static SshProxyType valueOfCode(String code) {
+        if (code == null || code.isEmpty()) {
+            return null;
+        }
+        for (SshProxyType proxyType : values()) {
+            if (proxyType.name().equalsIgnoreCase(code)) {
+                return proxyType;
+            }
+        }
+        return null;
+    }
 }
