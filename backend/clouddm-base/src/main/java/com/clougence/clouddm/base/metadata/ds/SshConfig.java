@@ -31,7 +31,7 @@ public class SshConfig implements Serializable {
     private String           host;
     private Integer          port;
     private String           username;
-    private String           authType;
+    private SshAuthType      authType;
     private String           password;
     private String           privateKeyData;
     private String           privateKeyPassphrase;

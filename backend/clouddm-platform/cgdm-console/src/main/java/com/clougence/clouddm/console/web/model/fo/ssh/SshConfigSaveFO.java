@@ -15,8 +15,8 @@
  */
 package com.clougence.clouddm.console.web.model.fo.ssh;
 
+import com.clougence.clouddm.base.metadata.ds.SshAuthType;
 import com.clougence.clouddm.base.metadata.ds.SshConFeatures;
-import com.clougence.clouddm.base.metadata.ds.SshProxyFeatures;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -25,20 +25,17 @@ import lombok.Setter;
 @Setter
 public class SshConfigSaveFO {
 
-    private Long             id;
-    private String           name;
-    private String           host;
-    private Integer          port;
-    private String           username;
-    private String           authType;
-    private String           passwordAction;
-    private String           password;
-    private String           privateKeyDataAction;
-    private String           privateKeyData;
-    private String           privateKeyPassphraseAction;
-    private String           privateKeyPassphrase;
-    private SshConFeatures   conFeatures;
-    private String           proxyType;
-    private SshProxyFeatures proxyFeatures;
-    private String           workerSeqNumber;
+    private Long               id;
+    private String             name;
+    private String             host;
+    private Integer            port;
+    private String             username;
+    private SshAuthType        authType;
+    private String             password;
+    private String             privateKeyData;
+    private String             privateKeyPassphrase;
+    private SshConFeatures     conFeatures;
+    private String             proxyType;
+    private SshProxyFeaturesFO proxyFeatures;
+    private String             workerSeqNumber;
 }

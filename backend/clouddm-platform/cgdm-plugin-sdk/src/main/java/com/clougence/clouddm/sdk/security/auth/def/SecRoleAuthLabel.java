@@ -158,6 +158,10 @@ public interface SecRoleAuthLabel {
     String DM_DS_READ                      = "DM_DS_READ";
     @AuthLabel(order = 2, category = SecAuthCategory.CAT_DM_DS, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_DS_MANAGE, tag = SecSysRole.DBA_ROLE_NAME, include = DM_DS_READ)
     String DM_DS_MANAGE                    = "DM_DS_MANAGE";
+    @AuthLabel(order = 3, category = SecAuthCategory.CAT_DM_DS, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_SSH_CHANNEL_READ, tag = SecSysRole.DBA_ROLE_NAME)
+    String DM_SSH_CHANNEL_READ             = "DM_SSH_CHANNEL_READ";
+    @AuthLabel(order = 4, category = SecAuthCategory.CAT_DM_DS, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_SSH_CHANNEL_WRITE, tag = SecSysRole.DBA_ROLE_NAME, include = DM_SSH_CHANNEL_READ)
+    String DM_SSH_CHANNEL_WRITE            = "DM_SSH_CHANNEL_WRITE";
 
     //@AuthLabel(order = 1, category = SecAuthCategory.CAT_DM_DATA, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_DATA_READ, tag = SecSysRole.DBA_ROLE_NAME)
     //String DM_DATA_READ       = "DM_DATA_READ";

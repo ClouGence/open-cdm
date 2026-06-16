@@ -17,6 +17,7 @@ package com.clougence.clouddm.base.metadata.ds;
 
 import java.io.Serializable;
 
+import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
@@ -27,10 +28,9 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SshProxyFeatures implements Serializable {
 
-    private String  host;
-    private Integer port;
-    private String  username;
-    private String  password;
-    private String  passwordAction;
-    private Boolean passwordConfigured;
+    private String       host;
+    private Integer      port;
+    private SecurityType securityType;
+    private String       username;
+    private String       password;
 }

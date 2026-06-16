@@ -13,22 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.vo.ssh;
+package com.clougence.clouddm.console.web.model.fo.ssh;
 
-import com.clougence.clouddm.base.metadata.ds.SshConFeatures;
-import com.clougence.clouddm.base.metadata.ds.SshProxyFeatures;
+import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class SshConfigDetailVO extends SshConfigListVO {
+public class SshProxyFeaturesFO {
 
-    private Boolean          passwordConfigured;
-    private Boolean          privateKeyDataConfigured;
-    private Boolean          privateKeyPassphraseConfigured;
-    private Boolean          proxyPasswordConfigured;
-    private SshConFeatures   conFeatures;
-    private SshProxyFeatures proxyFeatures;
+    private String       host;
+    private Integer      port;
+    private SecurityType securityType;
+    private String       username;
+    private String       password;
 }
