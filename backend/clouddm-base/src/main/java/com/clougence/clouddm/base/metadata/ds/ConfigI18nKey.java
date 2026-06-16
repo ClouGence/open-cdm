@@ -37,6 +37,8 @@ public enum ConfigI18nKey {
     CONFIG_DS_DEPLOY_ALIYUN_INSTANCE_ID_DESCRIPTION,
     CONFIG_RDB_CONFIG_VERSION_DESCRIPTION,
     CONFIG_RDB_STORE_PASSWORD_DESCRIPTION,
+    CONFIG_DS_SSH_PROXY_ENABLED,
+    CONFIG_DS_SSH_CONFIG_ID,
 
     // ---------------------------------------------------------------------------------------------------
     // for Type ：com.clougence.clouddm.base.metadata.dsconfig.rdb.RdbConfig

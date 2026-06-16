@@ -35,6 +35,8 @@ public class SystemDalImpl implements SystemDal {
     @Resource
     private DmSysWorkerMapper    workerMapper;
     @Resource
+    private DmSshConfigMapper    sshConfigMapper;
+    @Resource
     private AuthDal              authDal;
 
     @Override
@@ -70,6 +72,11 @@ public class SystemDalImpl implements SystemDal {
     @Override
     public DmSysWorkerMapper workerMapper() {
         return workerMapper;
+    }
+
+    @Override
+    public DmSshConfigMapper sshConfigMapper() {
+        return sshConfigMapper;
     }
 
     // ---------- dal service methods ----------

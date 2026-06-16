@@ -38,17 +38,12 @@ public class DataSourceConfig implements DeserializeAble, ConfigKeys {
     // ------------------------------------------------------------------------------------------------------------------------ basic
     @ConfigDef(name = "instanceId", descKey = ConfigI18nKey.CONFIG_DS_INSTANCE_ID_DESCRIPTION)
     private String         instanceId;
-
-    /** DataSourceType */
     @ConfigDef(name = DM_DS_KEY_DS_TYPE, descKey = ConfigI18nKey.CONFIG_DS_TYPE_DESCRIPTION)
     private DataSourceType dataSourceType;
-
     @ConfigDef(name = DM_DS_KEY_VERSION, descKey = ConfigI18nKey.CONFIG_RDB_VERSION_DESCRIPTION)
     private String         version;
-
     @ConfigDef(name = DM_DS_KEY_DRIVER_VERSION, descKey = ConfigI18nKey.CONFIG_RDB_VERSION_DESCRIPTION, readOnly = false)
     private String         driverVersion;
-
     @ConfigDef(name = DM_DS_KEY_SEC_TYPE, descKey = ConfigI18nKey.CONFIG_DS_SECURITY_TYPE_DESCRIPTION, readOnly = false, valueAdvance = "NONE / USER_PASSWD / ONLY_PASSWD / ONLY_USER / USER_PASSWD_WITH_TLS / KERBEROS")
     private SecurityType   securityType;
 
@@ -77,26 +72,18 @@ public class DataSourceConfig implements DeserializeAble, ConfigKeys {
 
     @ConfigDef(name = DM_DS_KEY_USERNAME, descKey = ConfigI18nKey.CONFIG_RDB_USERNAME_DESCRIPTION, readOnly = false)
     private String         userName;
-
     @ConfigDef(name = DM_DS_KEY_PASSWORD, descKey = ConfigI18nKey.CONFIG_RDB_PASSWORD_DESCRIPTION, isSecret = true, readOnly = false)
     private String         password;
-
     @ConfigDef(name = "defaultDataBase", valueRequire = false, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_DB_DESCRIPTION, readOnly = false)
     private String         defaultDataBase;
-
     @ConfigDef(name = "defaultSchema", valueRequire = false, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION, readOnly = false)
     private String         defaultSchema;
-
-    /** ip:port */
     @ConfigDef(name = DM_DS_KEY_HOST, descKey = ConfigI18nKey.CONFIG_RDB_CONN_HOST_DESCRIPTION, readOnly = false)
     private String         host;
-
     @ConfigDef(name = "connectTimeoutMs", defaultValue = "5000", valueRequire = false, descKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_DESCRIPTION, readOnly = false, valueAdvance = "2000 - 100000", group = DsConfigGroup.OPTIONS)
     private Long           connectTimeoutMs;
-
     @ConfigDef(name = "isolation", defaultValue = "DEFAULT", valueAdvance = "DEFAULT/READ_UNCOMMITTED/READ_COMMITTED/REPEATABLE_READ/SERIALIZABLE", descKey = ConfigI18nKey.CONFIG_RDB_ISOLATION_DESCRIPTION, readOnly = false)
     private String         isolation;
-
     @ConfigDef(name = "autoCommit", defaultValue = "true", valueAdvance = "true or false", descKey = ConfigI18nKey.CONFIG_RDB_TRANSACTION_DESCRIPTION, readOnly = false)
     private Boolean        autoCommit;
 
@@ -109,6 +96,10 @@ public class DataSourceConfig implements DeserializeAble, ConfigKeys {
     // ----------------------------------------------------------------------------------------------- config version  UUID,for ssl file update
     @ConfigDef(name = "configVersion", descKey = ConfigI18nKey.CONFIG_RDB_CONFIG_VERSION_DESCRIPTION, defaultValue = "1")
     private Long           configVersion;
+    @ConfigDef(name = "sshProxyEnabled", defaultValue = "false", valueAdvance = "true or false", descKey = ConfigI18nKey.CONFIG_DS_SSH_PROXY_ENABLED, readOnly = false, group = DsConfigGroup.OPTIONS)
+    private Boolean        sshProxyEnabled;
+    @ConfigDef(name = "sshConfigId", valueRequire = false, descKey = ConfigI18nKey.CONFIG_DS_SSH_CONFIG_ID, readOnly = false, group = DsConfigGroup.OPTIONS)
+    private Long           sshConfigId;
 
     // aliyun config
     // ---------------------------------------------------------------------------------------------------

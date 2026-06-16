@@ -18,6 +18,8 @@ public interface SystemDal {
 
     DmSysWorkerMapper workerMapper();
 
+    DmSshConfigMapper sshConfigMapper();
+
     // ---------- dal service methods ----------
 
     String fetchSystemConf(String configName);

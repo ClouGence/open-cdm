@@ -156,7 +156,7 @@ public class DmDsUtils {
         UserCacheEntry userCache = ownerCacheService.queryByUid(curUser);
         DsCacheEntry dsCache = ownerCacheService.queryByDsId(dsId);
         EnvCacheEntry envCache = ownerCacheService.queryByEnvId(dsCache.getEnvId());
-        Map<String, String> configMap = consoleService.fetchSettingsMap(dsCache.getOwnerUid(), Arrays.asList(//
+        Map<String, String> configMap = consoleService.fetchSettingsMap(Arrays.asList(//
                 UserDefinedConfig.Fields.defaultColumnDisplayChars, //
                 UserDefinedConfig.Fields.onlineMaxRecordCount,      //
                 UserDefinedConfig.Fields.onlineMaxResultSetMegaByte,//
