@@ -23,7 +23,7 @@ import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalBiz;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus;
-import com.clougence.clouddm.platform.dal.handler.RdpApprovalTypeHandler;
+import com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler;
 import com.clougence.utils.CollectionUtils;
 
 import lombok.Data;

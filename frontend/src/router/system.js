@@ -124,6 +124,12 @@ export default [
     component: () => import(/* webpackChunkName: "ccsystem-cluster-list" */ '@/views/system/cluster/workerList')
   },
   {
+    path: 'sshConfig',
+    name: 'System_Ssh_Config',
+    component: () => import(/* webpackChunkName: "system-ssh-config" */ '@/views/sshConfig/index'),
+    meta: { requiredAuth: 'DM_SSH_CHANNEL_READ' }
+  },
+  {
     path: 'dmrulelist',
     name: 'DMRuleList',
     component: () => import(/* webpackChunkName: "ccsystem-datasource" */ '@/views/security/rule/index')

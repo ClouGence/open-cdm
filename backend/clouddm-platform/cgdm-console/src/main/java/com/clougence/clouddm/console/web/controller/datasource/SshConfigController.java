@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
+import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.ssh.SshConfigIdFO;
 import com.clougence.clouddm.console.web.model.fo.ssh.SshConfigListFO;
@@ -33,6 +34,7 @@ import com.clougence.clouddm.console.web.model.fo.ssh.SshConfigSaveFO;
 import com.clougence.clouddm.console.web.model.fo.ssh.TestSshConnectionFO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.ssh.SshConfigService;
+import com.clougence.clouddm.console.web.util.Sm2Utils;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,6 +48,8 @@ public class SshConfigController {
 
     @Resource
     private SshConfigService sshConfigService;
+    @Resource
+    private DmConsoleConfig  config;
 
     @RequestAuth(DM_SSH_CHANNEL_READ)
     @RequestMapping(value = "/list", method = RequestMethod.POST)
@@ -63,6 +67,12 @@ public class SshConfigController {
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public ResWebData<?> create(@Valid @RequestBody SshConfigSaveFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
+        fo.setPassword(decryptSubmittedSecret(fo.getPassword()));
+        fo.setPrivateKeyData(decryptSubmittedSecret(fo.getPrivateKeyData()));
+        fo.setPrivateKeyPassphrase(decryptSubmittedSecret(fo.getPrivateKeyPassphrase()));
+        if (fo.getProxyFeatures() != null) {
+            fo.getProxyFeatures().setPassword(decryptSubmittedSecret(fo.getProxyFeatures().getPassword()));
+        }
         return ResWebDataUtils.buildSuccess(this.sshConfigService.create(uid, fo));
     }
 
@@ -70,6 +80,12 @@ public class SshConfigController {
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     public ResWebData<?> update(@Valid @RequestBody SshConfigSaveFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
+        fo.setPassword(decryptSubmittedSecret(fo.getPassword()));
+        fo.setPrivateKeyData(decryptSubmittedSecret(fo.getPrivateKeyData()));
+        fo.setPrivateKeyPassphrase(decryptSubmittedSecret(fo.getPrivateKeyPassphrase()));
+        if (fo.getProxyFeatures() != null) {
+            fo.getProxyFeatures().setPassword(decryptSubmittedSecret(fo.getProxyFeatures().getPassword()));
+        }
         this.sshConfigService.update(uid, fo);
         return ResWebDataUtils.buildSuccess();
     }
@@ -85,6 +101,19 @@ public class SshConfigController {
     @RequestAuth(DM_SSH_CHANNEL_READ)
     @RequestMapping(value = "/testConnection", method = RequestMethod.POST)
     public ResWebData<?> testConnection(@Valid @RequestBody TestSshConnectionFO fo) {
+        if (fo != null && fo.getConfig() != null) {
+            SshConfigSaveFO config = fo.getConfig();
+            config.setPassword(decryptSubmittedSecret(config.getPassword()));
+            config.setPrivateKeyData(decryptSubmittedSecret(config.getPrivateKeyData()));
+            config.setPrivateKeyPassphrase(decryptSubmittedSecret(config.getPrivateKeyPassphrase()));
+            if (config.getProxyFeatures() != null) {
+                config.getProxyFeatures().setPassword(decryptSubmittedSecret(config.getProxyFeatures().getPassword()));
+            }
+        }
         return ResWebDataUtils.buildSuccess(this.sshConfigService.testConnection(fo));
+    }
+
+    private String decryptSubmittedSecret(String value) {
+        return value == null ? null : Sm2Utils.decrypt(this.config.getPrivateKey(), value);
     }
 }

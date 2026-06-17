@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2022 the original author or authors.
+ * Copyright 2026 杭州开云集致科技有限公司
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.platform.dal.handler;
+package com.clougence.clouddm.platform.dal.handler.encrypt;
 
-import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
+import com.clougence.clouddm.base.metadata.ds.SshProxyFeatures;
+import com.clougence.clouddm.platform.dal.handler.EncryptedJsonTypeHandler;
 
-public class RdpApprovalTypeHandler extends EnumTypeHandler<ApprovalType> {
+public class SshProxyFeaturesTypeHandler extends EncryptedJsonTypeHandler<SshProxyFeatures> {
 
-    public RdpApprovalTypeHandler(){
-        super(ApprovalType.class);
+    public SshProxyFeaturesTypeHandler(){
+        super(SshProxyFeatures.class);
     }
-
 }

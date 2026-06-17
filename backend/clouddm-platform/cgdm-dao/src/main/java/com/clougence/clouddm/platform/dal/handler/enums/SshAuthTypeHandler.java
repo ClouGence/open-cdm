@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.platform.dal.handler;
+package com.clougence.clouddm.platform.dal.handler.enums;
 
-import com.clougence.clouddm.platform.dal.model.secrule.SecRangeType;
+import com.clougence.clouddm.platform.dal.handler.EnumTypeHandler;
+import com.clougence.clouddm.base.metadata.ds.SshAuthType;
 
-public class SecRangeTypeHandler extends EnumTypeHandler<SecRangeType> {
+public class SshAuthTypeHandler extends EnumTypeHandler<SshAuthType> {
 
-    public SecRangeTypeHandler(){
-        super(SecRangeType.class);
+    public SshAuthTypeHandler(){
+        super(SshAuthType.class);
     }
 }

@@ -19,7 +19,7 @@ import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
-import com.clougence.clouddm.platform.dal.handler.RdpApprovalTypeHandler;
+import com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler;
 
 import lombok.Getter;
 import lombok.Setter;

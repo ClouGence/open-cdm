@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.Objects;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.clougence.clouddm.platform.dal.handler.AccountBindTypeTypeHandler;
+import com.clougence.clouddm.platform.dal.handler.enums.AccountBindTypeTypeHandler;
 
 import lombok.Getter;
 import lombok.Setter;

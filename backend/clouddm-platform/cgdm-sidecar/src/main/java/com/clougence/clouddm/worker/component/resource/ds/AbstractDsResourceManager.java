@@ -31,10 +31,9 @@ import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.platform.plugin.info.LeasedDsFactory;
 import com.clougence.clouddm.sdk.execute.resource.DsResourceManager;
-import com.clougence.clouddm.worker.component.resource.file.FileResourceManagerImpl;
+import com.clougence.clouddm.worker.component.resource.file.FileResourceManager;
 import com.clougence.drivers.DriverLoader;
 import com.clougence.drivers.DsConfigKeys;
-import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
 
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractDsResourceManager implements DsResourceManager {
 
     @Resource
-    private FileResourceManagerImpl          resourceManager;
+    private FileResourceManager resourceManager;
     private final Map<String, AtomicInteger> resourceCounter = new ConcurrentHashMap<>();
     private final Map<String, Integer>       resourceLimited = new ConcurrentHashMap<>();
 

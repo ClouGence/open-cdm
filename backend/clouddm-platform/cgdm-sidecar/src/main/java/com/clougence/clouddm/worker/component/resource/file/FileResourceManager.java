@@ -39,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class FileResourceManagerImpl {
+public class FileResourceManager {
 
     @Resource
     private ConfigRService           statusRService;

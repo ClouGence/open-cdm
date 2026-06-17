@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 杭州开云集致科技有限公司
+ * Copyright 2015-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.api.sidecar.session.ssh;
+package com.clougence.clouddm.platform.dal.handler.enums;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.clougence.clouddm.platform.dal.handler.EnumTypeHandler;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
 
-import lombok.Getter;
-import lombok.Setter;
+public class RdpApprovalTypeHandler extends EnumTypeHandler<ApprovalType> {
 
-@Getter
-@Setter
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class TestResultDTO {
+    public RdpApprovalTypeHandler(){
+        super(ApprovalType.class);
+    }
 
-    private Boolean success;
-    private String  message;
-    private long    costMs;
 }

@@ -75,7 +75,7 @@ public class ConfigRServiceProvider extends AbstractBasicProvider implements Con
 
     @Override
     public SshConfig fetchSshConfig(long sshConfigId) {
-        return this.sshConfigService.fetchRuntimeConfig(sshConfigId);
+        return this.sshConfigService.fetchSshConfig(sshConfigId);
     }
 
     @Override

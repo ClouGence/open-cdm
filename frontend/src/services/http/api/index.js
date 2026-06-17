@@ -53,6 +53,7 @@ import { financeApi } from '@/services/http/api/finance';
 import { taskTemplateApi } from '@/services/http/api/taskTemplate';
 import { taskTemplateDetailApi } from '@/services/http/api/taskTemplateDetail';
 import { metaSchemaApi } from '@/services/http/api/metaSchema';
+import { sshConfigApi } from '@/services/http/api/sshConfig';
 
 export const api = {
   ...authApi,
@@ -111,5 +112,6 @@ export const api = {
   ...taskTemplateApi,
   ...taskTemplateDetailApi,
   ...transferApi,
-  ...metaSchemaApi
+  ...metaSchemaApi,
+  ...sshConfigApi
 };

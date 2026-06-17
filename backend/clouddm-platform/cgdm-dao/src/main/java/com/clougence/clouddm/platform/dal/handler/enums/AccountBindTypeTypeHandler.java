@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.api.sidecar.session.ssh;
+package com.clougence.clouddm.platform.dal.handler.enums;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.clougence.clouddm.platform.dal.handler.EnumTypeHandler;
+import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
 
-import lombok.Getter;
-import lombok.Setter;
+public class AccountBindTypeTypeHandler extends EnumTypeHandler<AccountBindType> {
 
-@Getter
-@Setter
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class TestResultDTO {
+    public AccountBindTypeTypeHandler(){
+        super(AccountBindType.class);
+    }
 
-    private Boolean success;
-    private String  message;
-    private long    costMs;
 }

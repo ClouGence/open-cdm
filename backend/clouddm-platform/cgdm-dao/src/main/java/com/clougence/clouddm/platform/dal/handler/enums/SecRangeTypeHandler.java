@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.platform.dal.handler;
+package com.clougence.clouddm.platform.dal.handler.enums;
 
-import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
+import com.clougence.clouddm.platform.dal.handler.EnumTypeHandler;
+import com.clougence.clouddm.platform.dal.model.secrule.SecRangeType;
 
-public class AccountBindTypeTypeHandler extends EnumTypeHandler<AccountBindType> {
+public class SecRangeTypeHandler extends EnumTypeHandler<SecRangeType> {
 
-    public AccountBindTypeTypeHandler(){
-        super(AccountBindType.class);
+    public SecRangeTypeHandler(){
+        super(SecRangeType.class);
     }
-
 }

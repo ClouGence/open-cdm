@@ -32,8 +32,11 @@ public class SshConfig implements Serializable {
     private Integer          port;
     private String           username;
     private SshAuthType      authType;
+    @SecretField
     private String           password;
+    @SecretField
     private String           privateKeyData;
+    @SecretField
     private String           privateKeyPassphrase;
     private SshConFeatures   conFeatures;
     private SshProxyType     proxyType;

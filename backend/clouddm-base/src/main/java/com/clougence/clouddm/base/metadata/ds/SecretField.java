@@ -13,19 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.api.sidecar.session.ssh;
+package com.clougence.clouddm.base.metadata.ds;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class TestResultDTO {
-
-    private Boolean success;
-    private String  message;
-    private long    costMs;
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface SecretField {
 }

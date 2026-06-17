@@ -32,5 +32,6 @@ public class SshProxyFeatures implements Serializable {
     private Integer      port;
     private SecurityType securityType;
     private String       username;
+    @SecretField
     private String       password;
 }

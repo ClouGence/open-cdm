@@ -13,19 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.api.sidecar.session.ssh;
+package com.clougence.clouddm.platform.dal.handler.enums;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.clougence.clouddm.platform.dal.handler.EnumTypeHandler;
+import com.clougence.clouddm.base.metadata.ds.SshProxyType;
 
-import lombok.Getter;
-import lombok.Setter;
+public class SshProxyTypeHandler extends EnumTypeHandler<SshProxyType> {
 
-@Getter
-@Setter
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class TestResultDTO {
-
-    private Boolean success;
-    private String  message;
-    private long    costMs;
+    public SshProxyTypeHandler(){
+        super(SshProxyType.class);
+    }
 }

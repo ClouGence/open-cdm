@@ -18,36 +18,46 @@ package com.clougence.clouddm.platform.dal.model.datasource;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.clougence.clouddm.base.metadata.ds.SshAuthType;
+import com.clougence.clouddm.base.metadata.ds.SshConFeatures;
+import com.clougence.clouddm.base.metadata.ds.SshProxyFeatures;
+import com.clougence.clouddm.base.metadata.ds.SshProxyType;
+import com.clougence.clouddm.platform.dal.handler.encrypt.SshProxyFeaturesTypeHandler;
+import com.clougence.clouddm.platform.dal.handler.encrypt.StrSecretTypeHandler;
+import com.clougence.clouddm.platform.dal.handler.enums.SshAuthTypeHandler;
+import com.clougence.clouddm.platform.dal.handler.enums.SshProxyTypeHandler;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@TableName(value = "dm_ssh_config")
+@TableName(value = "dm_ssh_config", autoResultMap = true)
 public class DmSshConfigDO {
 
     @TableId(type = IdType.AUTO)
-    private Long    id;
+    private Long             id;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date    gmtCreate;
+    private Date             gmtCreate;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date    gmtModified;
-    private String  name;
-    private String  host;
-    private Integer port;
-    private String  username;
-    private String  authType;
-    @TableField(updateStrategy = FieldStrategy.ALWAYS)
-    private String  password;
-    @TableField(updateStrategy = FieldStrategy.ALWAYS)
-    private String  privateKeyData;
-    @TableField(updateStrategy = FieldStrategy.ALWAYS)
-    private String  privateKeyPassphrase;
-    @TableField(updateStrategy = FieldStrategy.ALWAYS)
-    private String  conFeatures;
-    private String  proxyType;
-    @TableField(updateStrategy = FieldStrategy.ALWAYS)
-    private String  proxyFeatures;
-    private boolean deleted;
+    private Date             gmtModified;
+    private String           name;
+    private String           host;
+    private Integer          port;
+    private String           username;
+    @TableField(typeHandler = SshAuthTypeHandler.class)
+    private SshAuthType      authType;
+    @TableField(updateStrategy = FieldStrategy.ALWAYS, typeHandler = StrSecretTypeHandler.class)
+    private String           password;
+    @TableField(updateStrategy = FieldStrategy.ALWAYS, typeHandler = StrSecretTypeHandler.class)
+    private String           privateKeyData;
+    @TableField(updateStrategy = FieldStrategy.ALWAYS, typeHandler = StrSecretTypeHandler.class)
+    private String           privateKeyPassphrase;
+    @TableField(updateStrategy = FieldStrategy.ALWAYS, typeHandler = JacksonTypeHandler.class)
+    private SshConFeatures   conFeatures;
+    @TableField(typeHandler = SshProxyTypeHandler.class)
+    private SshProxyType     proxyType;
+    @TableField(updateStrategy = FieldStrategy.ALWAYS, typeHandler = SshProxyFeaturesTypeHandler.class)
+    private SshProxyFeatures proxyFeatures;
 }

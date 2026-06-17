@@ -11,7 +11,7 @@
         <result column="owner_uid" property="ownerUid"/>
         <result column="bind_ds_id" property="bindDsId"/>
         <result column="target_info" property="targetInfo"/>
-        <result column="appro_type" property="approType" typeHandler="com.clougence.clouddm.platform.dal.handler.RdpApprovalTypeHandler"/>
+        <result column="appro_type" property="approType" typeHandler="com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler"/>
         <result column="appro_biz" property="approBiz"/>
         <result column="appro_identity" property="approIdentity"/>
         <result column="appro_template_name" property="approTemplateName"/>

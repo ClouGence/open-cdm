@@ -7,7 +7,7 @@
         <result column="gmt_create" property="gmtCreate"/>
         <result column="gmt_modified" property="gmtModified"/>
         <result column="primary_uid" property="primaryUid"/>
-        <result column="approval_type" property="approvalType" typeHandler="com.clougence.clouddm.platform.dal.handler.RdpApprovalTypeHandler"/>
+        <result column="approval_type" property="approvalType" typeHandler="com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler"/>
         <result column="template_name" property="templateName"/>
         <result column="template_identity" property="templateIdentity"/>
         <result column="appro_url" property="approUrl"/>
@@ -71,14 +71,14 @@
             dm_approval_template
         WHERE
             primary_uid = #{primaryUid}
-            and approval_type = #{type, typeHandler=com.clougence.clouddm.platform.dal.handler.RdpApprovalTypeHandler}
+            and approval_type = #{type, typeHandler=com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler}
     </select>
 
     <delete id="deleteByPrimaryUid">
         DELETE
         FROM dm_approval_template
         WHERE primary_uid = #{primaryUid}
-        AND approval_type = #{approvalType, typeHandler=com.clougence.clouddm.platform.dal.handler.RdpApprovalTypeHandler}
+        AND approval_type = #{approvalType, typeHandler=com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler}
     </delete>
 
     <insert id="insertTemplateBatch">
@@ -88,7 +88,7 @@
         <foreach collection="cacheList" item="item" separator=",">
             (
                 #{item.primaryUid},
-                #{item.approvalType, typeHandler=com.clougence.clouddm.platform.dal.handler.RdpApprovalTypeHandler},
+                #{item.approvalType, typeHandler=com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler},
                 #{item.templateName},
                 #{item.templateIdentity},
                 #{item.approUrl}

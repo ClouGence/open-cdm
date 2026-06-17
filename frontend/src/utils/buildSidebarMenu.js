@@ -56,6 +56,9 @@ export function buildSidebarMenu({ myCatLog, myAuth, includesDM, isDesktop }) {
   if (myCatLog.includes('CAT_DM_SYS') && myCatLog.includes('CAT_DM_WORKER')) {
     dataAccessChildren.push(linkItem('/system/dmmachine', '/#/system/dmmachine', 'nav-cha-xun-ji-qi-lie-biao', 'icon-v2-cluster'));
   }
+  if (myAuth.includes('DM_SSH_CHANNEL_READ')) {
+    dataAccessChildren.push(linkItem('/system/sshConfig', '/#/system/sshConfig', 'nav-ssh-tong-dao', 'icon-v2-MyAuth'));
+  }
   if (myCatLog.includes('CAT_DM_SYS') && myCatLog.includes('CAT_DM_SECRULES')) {
     dataAccessChildren.push(linkItem('/system/dmrulelist', '/#/system/dmrulelist', 'an-quan-gui-ze', 'icon-v2-audit'));
     dataAccessChildren.push(linkItem('/system/dmspeclist', '/#/system/dmspeclist', 'an-quan-gui-fan', 'icon-v2-role'));

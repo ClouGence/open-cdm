@@ -28,10 +28,7 @@ import java.util.stream.Stream;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultPageDTO;
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.base.metadata.ds.SshAuthType;
-import com.clougence.clouddm.base.metadata.ds.SshProxyType;
+import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResultEnum;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
 import com.clougence.clouddm.console.web.component.detectrule.SecHintInfo;
@@ -49,6 +46,8 @@ import com.clougence.clouddm.console.web.model.fo.editor.language.WsLanguageFO;
 import com.clougence.clouddm.console.web.model.fo.editor.query.WsQueryFO;
 import com.clougence.clouddm.console.web.model.fo.openapi.DmApiDsListFO;
 import com.clougence.clouddm.console.web.model.fo.openapi.DmApiDsQueryFO;
+import com.clougence.clouddm.console.web.model.fo.ssh.SshConfigSaveFO;
+import com.clougence.clouddm.console.web.model.fo.ssh.SshProxyFeaturesFO;
 import com.clougence.clouddm.console.web.model.vo.DsKvConfigVO;
 import com.clougence.clouddm.console.web.model.vo.audit.OperateUserVO;
 import com.clougence.clouddm.console.web.model.vo.browse.BrowseLevelsVO;
@@ -63,8 +62,8 @@ import com.clougence.clouddm.console.web.model.vo.editor.query.WsRuleEntity;
 import com.clougence.clouddm.console.web.model.vo.faker.DmAsyncTaskVO;
 import com.clougence.clouddm.console.web.model.vo.openapi.DmApiDataSourceVO;
 import com.clougence.clouddm.console.web.model.vo.project.*;
+import com.clougence.clouddm.console.web.model.vo.ssh.SshConfigDetailVO;
 import com.clougence.clouddm.console.web.model.vo.ssh.SshConfigListVO;
-import com.clougence.clouddm.console.web.model.vo.system.CloudOrIdcNameVO;
 import com.clougence.clouddm.console.web.service.browse.model.ActionInfo;
 import com.clougence.clouddm.console.web.service.browse.model.ActionTargetMO;
 import com.clougence.clouddm.console.web.service.browse.model.GenerateSqlDataAuthEnum;
@@ -966,14 +965,6 @@ public class DmConvertUtils {
         return vo;
     }
 
-    public static CloudOrIdcNameVO convertToCloudOrIdcNameVO(CloudOrIdcName cloudOrIdcName, CloudOrIdcName defaultOption) {
-        CloudOrIdcNameVO vo = new CloudOrIdcNameVO();
-        vo.setCloudOrIdcName(cloudOrIdcName);
-        vo.setDefaultCheck(cloudOrIdcName == defaultOption);
-        vo.setI18nName(DmI18nUtils.getMessage(cloudOrIdcName.name()));
-        return vo;
-    }
-
     public static DmSimpleDsVO convertToDmSimpleDsVO(DmDsDO dsDO, Map<Long, DmDsConfigDO> confMap) {
         DmSimpleDsVO vo = new DmSimpleDsVO();
         vo.setId(dsDO.getId());
@@ -1012,11 +1003,6 @@ public class DmConvertUtils {
 
     public static SshConfigListVO convertToSshConfigListVO(DmSshConfigDO configDO) {
         SshConfigListVO vo = new SshConfigListVO();
-        fillSshConfigListVO(configDO, vo);
-        return vo;
-    }
-
-    public static void fillSshConfigListVO(DmSshConfigDO configDO, SshConfigListVO vo) {
         vo.setId(configDO.getId());
         vo.setGmtCreate(configDO.getGmtCreate());
         vo.setGmtModified(configDO.getGmtModified());
@@ -1024,8 +1010,185 @@ public class DmConvertUtils {
         vo.setHost(configDO.getHost());
         vo.setPort(configDO.getPort());
         vo.setUsername(configDO.getUsername());
-        vo.setAuthType(StringUtils.isBlank(configDO.getAuthType()) ? null : SshAuthType.valueOf(configDO.getAuthType()));
-        vo.setProxyType(StringUtils.isBlank(configDO.getProxyType()) ? null : SshProxyType.valueOf(configDO.getProxyType()));
+        vo.setAuthType(configDO.getAuthType());
+        vo.setProxyType(configDO.getProxyType());
+        return vo;
+    }
+
+    public static SshConfigDetailVO convertToSshConfigDetailVO(DmSshConfigDO configDO) {
+        SshProxyFeatures proxyFeatures = configDO.getProxyFeatures() == null ? new SshProxyFeatures() : configDO.getProxyFeatures();
+        SshProxyFeatures maskedProxyFeatures = new SshProxyFeatures();
+        maskedProxyFeatures.setHost(proxyFeatures.getHost());
+        maskedProxyFeatures.setPort(proxyFeatures.getPort());
+        maskedProxyFeatures.setSecurityType(proxyFeatures.getSecurityType());
+        maskedProxyFeatures.setUsername(proxyFeatures.getUsername());
+
+        SshConfigDetailVO vo = new SshConfigDetailVO();
+        vo.setId(configDO.getId());
+        vo.setGmtCreate(configDO.getGmtCreate());
+        vo.setGmtModified(configDO.getGmtModified());
+        vo.setName(configDO.getName());
+        vo.setHost(configDO.getHost());
+        vo.setPort(configDO.getPort());
+        vo.setUsername(configDO.getUsername());
+        vo.setAuthType(configDO.getAuthType());
+        vo.setProxyType(configDO.getProxyType());
+        vo.setPasswordConfigured(StringUtils.isNotBlank(configDO.getPassword()));
+        vo.setPrivateKeyDataConfigured(StringUtils.isNotBlank(configDO.getPrivateKeyData()));
+        vo.setPrivateKeyPassphraseConfigured(StringUtils.isNotBlank(configDO.getPrivateKeyPassphrase()));
+        vo.setProxyPasswordConfigured(StringUtils.isNotBlank(proxyFeatures.getPassword()));
+        vo.setConFeatures(configDO.getConFeatures() == null ? new SshConFeatures() : configDO.getConFeatures());
+        vo.setProxyFeatures(maskedProxyFeatures);
+        return vo;
+    }
+
+    public static SshConfig convertToSshConfig(DmSshConfigDO configDO) {
+        return convertToSshConfig(configDO, configDO.getConFeatures(), configDO.getProxyFeatures());
+    }
+
+    public static SshConfig convertToSshConfig(DmSshConfigDO configDO, SshConFeatures conFeatures, SshProxyFeatures proxyFeatures) {
+        SshConfig cfg = new SshConfig();
+        cfg.setName(configDO.getName());
+        cfg.setHost(configDO.getHost());
+        cfg.setPort(configDO.getPort());
+        cfg.setUsername(configDO.getUsername());
+        cfg.setAuthType(configDO.getAuthType());
+        cfg.setPassword(configDO.getPassword());
+        cfg.setPrivateKeyData(configDO.getPrivateKeyData());
+        cfg.setPrivateKeyPassphrase(configDO.getPrivateKeyPassphrase());
+        cfg.setConFeatures(conFeatures);
+        cfg.setProxyType(configDO.getProxyType());
+
+        if (proxyFeatures != null) {
+            SshProxyFeatures features = new SshProxyFeatures();
+            features.setHost(proxyFeatures.getHost());
+            features.setPort(proxyFeatures.getPort());
+            features.setSecurityType(proxyFeatures.getSecurityType());
+            features.setUsername(proxyFeatures.getUsername());
+            features.setPassword(proxyFeatures.getPassword());
+            cfg.setProxyFeatures(features);
+        }
+        return cfg;
+    }
+
+    public static SshConfig convertToSshConfigForTest(DmSshConfigDO exists, SshConfigSaveFO configFO) {
+        SshConfig cfg = new SshConfig();
+        if (StringUtils.isNotBlank(configFO.getName())) {
+            cfg.setName(configFO.getName());
+        } else if (exists != null) {
+            cfg.setName(exists.getName());
+        }
+
+        if (StringUtils.isNotBlank(configFO.getHost())) {
+            cfg.setHost(configFO.getHost());
+        } else if (exists != null) {
+            cfg.setHost(exists.getHost());
+        }
+
+        if (configFO.getPort() != null) {
+            cfg.setPort(configFO.getPort());
+        } else if (exists != null) {
+            cfg.setPort(exists.getPort());
+        } else {
+            cfg.setPort(22);
+        }
+
+        if (StringUtils.isNotBlank(configFO.getUsername())) {
+            cfg.setUsername(configFO.getUsername());
+        } else if (exists != null) {
+            cfg.setUsername(exists.getUsername());
+        }
+
+        if (configFO.getAuthType() != null) {
+            cfg.setAuthType(configFO.getAuthType());
+        } else if (exists != null) {
+            cfg.setAuthType(exists.getAuthType());
+        }
+
+        String existsPassword = null;
+        String existsPrivateKeyData = null;
+        String existsPrivateKeyPassphrase = null;
+        SshConFeatures existsConFeatures = null;
+        SshProxyFeatures existsProxyFeatures = null;
+        SshProxyType savedProxyType = null;
+        if (exists != null) {
+            existsPassword = exists.getPassword();
+            existsPrivateKeyData = exists.getPrivateKeyData();
+            existsPrivateKeyPassphrase = exists.getPrivateKeyPassphrase();
+            existsConFeatures = exists.getConFeatures();
+            existsProxyFeatures = exists.getProxyFeatures();
+            savedProxyType = exists.getProxyType();
+        }
+        cfg.setPassword(StringUtils.defaultString(configFO.getPassword(), existsPassword));
+        cfg.setPrivateKeyData(StringUtils.defaultString(configFO.getPrivateKeyData(), existsPrivateKeyData));
+        cfg.setPrivateKeyPassphrase(StringUtils.defaultString(configFO.getPrivateKeyPassphrase(), existsPrivateKeyPassphrase));
+
+        //
+        SshConFeatures conFeatures = configFO.getConFeatures();
+        if (conFeatures == null) {
+            conFeatures = existsConFeatures;
+        }
+        if (conFeatures == null) {
+            conFeatures = new SshConFeatures();
+        }
+        if ((conFeatures.getKnownHosts() == null || conFeatures.getKnownHosts().isEmpty()) && existsConFeatures != null) {
+            conFeatures.setKnownHosts(existsConFeatures.getKnownHosts());
+        }
+        cfg.setConFeatures(conFeatures);
+
+        //
+        SshProxyType proxyType = configFO.getProxyType();
+        if (proxyType == null) {
+            proxyType = savedProxyType;
+        }
+        SshProxyFeatures proxyFeatures;
+        if (proxyType == SshProxyType.NO_PROXY) {
+            proxyFeatures = new SshProxyFeatures();
+        } else {
+            proxyFeatures = buildRuntimeSshProxyFeatures(configFO.getProxyFeatures(), existsProxyFeatures);
+        }
+        cfg.setProxyType(proxyType);
+        cfg.setProxyFeatures(proxyFeatures);
+        return cfg;
+    }
+
+    private static SshProxyFeatures buildRuntimeSshProxyFeatures(SshProxyFeaturesFO submitted, SshProxyFeatures exists) {
+        if (submitted == null) {
+            SshProxyFeatures features = exists == null ? new SshProxyFeatures() : copySshProxyFeatures(exists);
+            if (features.getSecurityType() == null) {
+                features.setSecurityType(StringUtils.isNotBlank(features.getPassword()) ? SecurityType.USER_PASSWD : SecurityType.ONLY_USER);
+            }
+            return features;
+        }
+
+        SshProxyFeatures features = new SshProxyFeatures();
+        features.setHost(submitted.getHost());
+        features.setPort(submitted.getPort());
+        SecurityType securityType = submitted.getSecurityType();
+        if (securityType == null) {
+            securityType = StringUtils.isNotBlank(submitted.getPassword()) ? SecurityType.USER_PASSWD : SecurityType.ONLY_USER;
+        }
+
+        features.setSecurityType(securityType);
+        features.setUsername(submitted.getUsername());
+        if (securityType == SecurityType.USER_PASSWD) {
+            String existsPassword = null;
+            if (exists != null) {
+                existsPassword = exists.getPassword();
+            }
+            features.setPassword(StringUtils.defaultString(submitted.getPassword(), existsPassword));
+        }
+        return features;
+    }
+
+    private static SshProxyFeatures copySshProxyFeatures(SshProxyFeatures source) {
+        SshProxyFeatures target = new SshProxyFeatures();
+        target.setHost(source.getHost());
+        target.setPort(source.getPort());
+        target.setSecurityType(source.getSecurityType());
+        target.setUsername(source.getUsername());
+        target.setPassword(source.getPassword());
+        return target;
     }
 
     public static DmDsConfigKv4DmDO convertToDmDsKvBaseConfigDOForInsert(DmDsConfigKv4RdpDO config) {

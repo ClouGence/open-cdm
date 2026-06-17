@@ -23,7 +23,7 @@ import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.platform.dal.model.secrule.SecMatchMode;
 import com.clougence.clouddm.platform.dal.model.secrule.SecRangeType;
-import com.clougence.clouddm.platform.dal.handler.SecRangeTypeHandler;
+import com.clougence.clouddm.platform.dal.handler.enums.SecRangeTypeHandler;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
 
 import lombok.Getter;

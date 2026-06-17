@@ -11,14 +11,13 @@
         <result column="host" property="host"/>
         <result column="port" property="port"/>
         <result column="username" property="username"/>
-        <result column="auth_type" property="authType"/>
-        <result column="password" property="password"/>
-        <result column="private_key_data" property="privateKeyData"/>
-        <result column="private_key_passphrase" property="privateKeyPassphrase"/>
-        <result column="con_features" property="conFeatures"/>
-        <result column="proxy_type" property="proxyType"/>
-        <result column="proxy_features" property="proxyFeatures"/>
-        <result column="deleted" property="deleted"/>
+        <result column="auth_type" property="authType" typeHandler="com.clougence.clouddm.platform.dal.handler.enums.SshAuthTypeHandler"/>
+        <result column="password" property="password" typeHandler="com.clougence.clouddm.platform.dal.handler.encrypt.StrSecretTypeHandler"/>
+        <result column="private_key_data" property="privateKeyData" typeHandler="com.clougence.clouddm.platform.dal.handler.encrypt.StrSecretTypeHandler"/>
+        <result column="private_key_passphrase" property="privateKeyPassphrase" typeHandler="com.clougence.clouddm.platform.dal.handler.encrypt.StrSecretTypeHandler"/>
+        <result column="con_features" property="conFeatures" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="proxy_type" property="proxyType" typeHandler="com.clougence.clouddm.platform.dal.handler.enums.SshProxyTypeHandler"/>
+        <result column="proxy_features" property="proxyFeatures" typeHandler="com.clougence.clouddm.platform.dal.handler.encrypt.SshProxyFeaturesTypeHandler"/>
     </resultMap>
 
     <sql id="dmSshConfigDO_select">
@@ -35,18 +34,17 @@
         private_key_passphrase,
         con_features,
         proxy_type,
-        proxy_features,
-        deleted
+        proxy_features
     </sql>
 
     <select id="queryList" resultMap="dmSshConfigDO">
         SELECT
             <include refid="dmSshConfigDO_select"/>
         FROM dm_ssh_config
-        WHERE deleted = 0
+        WHERE 1 = 1
         <if test="search != null and search != ''">
             AND (
-                name LIKE CONCAT('%', #{search}, '%')
+                   name LIKE CONCAT('%', #{search}, '%')
                 OR host LIKE CONCAT('%', #{search}, '%')
                 OR username LIKE CONCAT('%', #{search}, '%')
             )
@@ -58,7 +56,7 @@
         SELECT
             <include refid="dmSshConfigDO_select"/>
         FROM dm_ssh_config
-        WHERE id = #{id} AND deleted = 0
+        WHERE id = #{id}
         LIMIT 1
     </select>
 
