@@ -26,7 +26,7 @@
             </div>
           </div>
           <div class="table-container">
-            <Table border stripe :columns="QUERY.ruleColumns" :data="QUERY.showRuleList" size="small" :loading="QUERY.loading">
+            <Table border stripe :columns="queryRuleColumns" :data="QUERY.showRuleList" :scroll="queryTableScroll" size="small" :loading="QUERY.loading">
               <template #targetType="{ row }">
                 {{ getTargetType(row.targetType).i18n }}
               </template>
@@ -80,7 +80,7 @@
             </div>
           </div>
           <div class="table-container">
-            <Table border stripe :columns="SENSITIVE.ruleColumns" :data="SENSITIVE.showRuleList" size="small" :loading="SENSITIVE.loading">
+            <Table border stripe :columns="sensitiveRuleColumns" :data="SENSITIVE.showRuleList" :scroll="sensitiveTableScroll" size="small" :loading="SENSITIVE.loading">
               <template #ruleAction="{ row }">
                 <Button @click="handleViewRule(row)" type="text" size="small">
                   {{ $t('xiang-qing') }}
@@ -184,34 +184,7 @@ export default {
         search: '',
         allRuleList: [],
         ruleList: [],
-        showRuleList: [],
-        ruleColumns: [
-          {
-            title: this.$t('gui-ze-ming-cheng'),
-            key: 'ruleName',
-            width: 200
-          },
-          {
-            title: this.$t('gui-ze-miao-shu'),
-            key: 'ruleDesc'
-          },
-          {
-            title: this.$t('shu-ju-yuan'),
-            slot: 'dsRange',
-            width: 250
-          },
-          {
-            title: this.$t('dui-xiang-lei-xing'),
-            key: 'targetTypeI18n',
-            width: 100
-          },
-          {
-            title: this.$t('cao-zuo'),
-            slot: 'ruleAction',
-            width: 160,
-            fixed: 'right'
-          }
-        ]
+        showRuleList: []
       },
       SENSITIVE: {
         loading: false,
@@ -221,24 +194,7 @@ export default {
         search: '',
         allRuleList: [],
         ruleList: [],
-        showRuleList: [],
-        ruleColumns: [
-          {
-            title: this.$t('gui-ze-ming-cheng'),
-            key: 'ruleName',
-            width: 200
-          },
-          {
-            title: this.$t('gui-ze-miao-shu'),
-            key: 'ruleDesc'
-          },
-          {
-            title: this.$t('cao-zuo'),
-            slot: 'ruleAction',
-            width: 170,
-            fixed: 'right'
-          }
-        ]
+        showRuleList: []
       }
     };
   },
@@ -247,6 +203,62 @@ export default {
     ...mapState(['myAuth']),
     isQuery() {
       return this.activeTab === 'QUERY';
+    },
+    queryRuleColumns() {
+      return [
+        {
+          title: this.$t('gui-ze-ming-cheng'),
+          key: 'ruleName',
+          width: 200
+        },
+        {
+          title: this.$t('gui-ze-miao-shu'),
+          key: 'ruleDesc',
+          width: 360
+        },
+        {
+          title: this.$t('shu-ju-yuan'),
+          slot: 'dsRange',
+          width: 250
+        },
+        {
+          title: this.$t('dui-xiang-lei-xing'),
+          key: 'targetTypeI18n',
+          width: 100
+        },
+        {
+          title: this.$t('cao-zuo'),
+          slot: 'ruleAction',
+          width: 160,
+          fixed: 'right'
+        }
+      ];
+    },
+    queryTableScroll() {
+      return { x: 1070 };
+    },
+    sensitiveRuleColumns() {
+      return [
+        {
+          title: this.$t('gui-ze-ming-cheng'),
+          key: 'ruleName',
+          width: 200
+        },
+        {
+          title: this.$t('gui-ze-miao-shu'),
+          key: 'ruleDesc',
+          width: 360
+        },
+        {
+          title: this.$t('cao-zuo'),
+          slot: 'ruleAction',
+          width: 170,
+          fixed: 'right'
+        }
+      ];
+    },
+    sensitiveTableScroll() {
+      return { x: 730 };
     }
   },
   methods: {

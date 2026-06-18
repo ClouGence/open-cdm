@@ -3,22 +3,6 @@
     <div v-if="pageLoading" class="page-loading-mask">
       <a-spin size="large" tip="加载中..." />
     </div>
-    <div class="header">
-      <div class="left">
-        <Breadcrumb v-if="isEdit">
-          <BreadcrumbItem @click="goSubAccountPage" to="/system/management/accounts/account">
-            {{ $t('zi-zhang-hao-guan-li') }}
-          </BreadcrumbItem>
-          <BreadcrumbItem>
-            {{ $t('shu-ju-ku-shou-quan') }}
-            <span v-if="$route.query.name">（{{ $route.query.name }}）</span>
-          </BreadcrumbItem>
-        </Breadcrumb>
-        <Breadcrumb v-else>
-          <BreadcrumbItem>{{ $t('yi-shou-quan-xian') }}</BreadcrumbItem>
-        </Breadcrumb>
-      </div>
-    </div>
     <div class="auth-content">
       <div class="auth-container">
         <div class="auth" @mousemove="handleMouseMove" @mouseup="stopDragging">

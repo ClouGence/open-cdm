@@ -1,9 +1,5 @@
 <template>
   <div class="ticket-create-container">
-    <Breadcrumb>
-      <BreadcrumbItem to="/ticket">{{ $t('gong-dan') }}</BreadcrumbItem>
-      <BreadcrumbItem>{{ $t('ti-jiao-gong-dan') }}</BreadcrumbItem>
-    </Breadcrumb>
     <div class="create-content-container">
       <div class="create-ticket-editor">
         <div class="create-ticket-editor-operator">
