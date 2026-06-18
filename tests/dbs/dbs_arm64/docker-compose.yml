@@ -103,7 +103,7 @@ services:
     volumes:
       - ../ssh:/ssh-keys:ro
     ports:
-      - 2022:22
+      - 2022:2222
     restart: always
     # Password auth: sshuser/123456
     # Private key auth: ../ssh/id_rsa
