@@ -3,37 +3,10 @@
     <div v-if="pageLoading" class="page-loading-mask">
       <a-spin size="large" :tip="$t('zheng-zai-jia-zai')" />
     </div>
-    <div v-if="!isView" class="header">
-      <div class="left">
-        <Breadcrumb>
-          <BreadcrumbItem to="/system/permission">{{ $t('wo-de-quan-xian') }}</BreadcrumbItem>
-          <BreadcrumbItem>{{ $t('shen-qing-quan-xian') }}</BreadcrumbItem>
-        </Breadcrumb>
-      </div>
-    </div>
     <div class="auth-content">
       <div class="auth-container">
         <div class="auth" @mousemove="handleMouseMove" @mouseup="stopDragging">
           <div class="left" :style="{ width: leftWidth + 'px' }">
-            <div class="auth-btns">
-              <a-button
-                :type="activeAuthTab === authTab.value ? 'primary' : 'default'"
-                :disabled="disableAuthTab(authTab.value)"
-                v-for="authTab in authTabs"
-                :key="authTab.value"
-                class="auth-btn"
-                @click="handleSwitchAuth(authTab.value, authTab.type)"
-              >
-                {{ authTab.label }}
-              </a-button>
-            </div>
-            <div v-if="activeAuthTab === 'DataJob' && getCcProductClusterList.length > 0">
-              <a-select v-model:value="selectedCcCluster" style="width: 100%" @change="handleChangeCcCluster">
-                <a-select-option :value="cluster.clusterCode" :key="cluster.id" v-for="cluster in getCcProductClusterList">
-                  {{ cluster.clusterDesc }}
-                </a-select-option>
-              </a-select>
-            </div>
             <div class="search">
               <!-- <a-select v-if="isEdit" v-model="datasourceTreeSearchType" style="width: 130px" @change="onSearchTypChange">
                 <a-select-option value="all">{{ $t('quan-bu') }}</a-select-option>
@@ -71,11 +44,53 @@
           <div :class="`middle ${showAuthTree ? '' : 'no-auth'}`">
             <div class="auth-tree-container">
               <a-spin class="auth-loading" v-if="loadingAuth" />
-              <Tabs :animated="false" class="auth-tree" v-model="curRightTreeTab">
-                <template #tab>
-                  <a class="extra-tab" v-show="timeList?.[curNode.key]?.length">
-                    <Poptip trigger="hover" placement="bottom-end" width="350">
-                      <span>{{ $t('shou-quan-shi-jian-0') }}</span>
+              <div class="auth-tree">
+                <nav class="auth-tabs">
+                  <div class="auth-tabs__items">
+                    <span
+                      class="auth-tabs__item"
+                      :class="{
+                        'is-active': curRightTreeTab === 'Instance',
+                        'is-disabled': !['Instance', 'INSTANCE', 'AllType'].includes(curElementType)
+                      }"
+                      @click="handleAuthTabClick('Instance')"
+                    >
+                      {{ $t('shi-li-quan-xian') }}
+                    </span>
+                    <span
+                      class="auth-tabs__item"
+                      :class="{
+                        'is-active': curRightTreeTab === 'CATALOG',
+                        'is-disabled': !['Catalog', 'CATALOG', 'EXTERNAL_CATALOG', 'AllType'].includes(curElementType)
+                      }"
+                      @click="handleAuthTabClick('CATALOG')"
+                    >
+                      {{ $t('catalog-quan-xian') }}
+                    </span>
+                    <span
+                      class="auth-tabs__item"
+                      :class="{
+                        'is-active': curRightTreeTab === 'SCHEMA',
+                        'is-disabled': !['Schema', 'SCHEMA', 'EXTERNAL_SCHEMA', 'AllType'].includes(curElementType)
+                      }"
+                      @click="handleAuthTabClick('SCHEMA')"
+                    >
+                      {{ $t('schema-quan-xian') }}
+                    </span>
+                    <span
+                      class="auth-tabs__item"
+                      :class="{
+                        'is-active': curRightTreeTab === 'TABLE',
+                        'is-disabled': !['Table', 'TABLE', 'AllType'].includes(curElementType)
+                      }"
+                      @click="handleAuthTabClick('TABLE')"
+                    >
+                      {{ $t('biao-quan-xian') }}
+                    </span>
+                  </div>
+                  <div class="auth-tabs__extra">
+                    <Poptip v-show="timeList?.[curNode.key]?.length" trigger="hover" placement="bottom-end" width="350">
+                      <span class="auth-tabs__time-link">{{ $t('shou-quan-shi-jian-0') }}</span>
                       <template #content>
                         <div class="auth-time-popover">
                           <div v-for="(item, index) in processedTimeList" :key="index" class="time-range-item">
@@ -94,70 +109,63 @@
                         </div>
                       </template>
                     </Poptip>
-                  </a>
-                </template>
-
-                <TabPane :label="$t('shi-li-quan-xian')" name="Instance" :disabled="!['Instance', 'INSTANCE', 'AllType'].includes(curElementType)">
-                  <v-tree
-                    :emptyText="$t('zan-wu-shu-ju')"
-                    :render="renderAuthNode"
-                    ref="instanceTree"
-                    keyField="key"
-                    @checked-change="handleAuthCheck"
-                    checkable
-                    titleField="i18nName"
-                    :defaultExpandAll="true"
-                    :disableAll="previewMode || isView"
-                  />
-                </TabPane>
-                <TabPane
-                  :label="$t('catalog-quan-xian')"
-                  name="CATALOG"
-                  :disabled="!['Catalog', 'CATALOG', 'EXTERNAL_CATALOG', 'AllType'].includes(curElementType)"
-                >
-                  <v-tree
-                    :emptyText="$t('zan-wu-shu-ju')"
-                    :render="renderAuthNode"
-                    ref="catalogTree"
-                    keyField="key"
-                    @checked-change="handleAuthCheck"
-                    checkable
-                    titleField="i18nName"
-                    :defaultExpandAll="true"
-                    :disableAll="previewMode || isView"
-                  />
-                </TabPane>
-                <TabPane
-                  :label="$t('schema-quan-xian')"
-                  name="SCHEMA"
-                  :disabled="!['Schema', 'SCHEMA', 'EXTERNAL_SCHEMA', 'AllType'].includes(curElementType)"
-                >
-                  <v-tree
-                    :emptyText="$t('zan-wu-shu-ju')"
-                    :render="renderAuthNode"
-                    ref="schemaTree"
-                    keyField="key"
-                    @checked-change="handleAuthCheck"
-                    checkable
-                    titleField="i18nName"
-                    :defaultExpandAll="true"
-                    :disableAll="previewMode || isView"
-                  />
-                </TabPane>
-                <TabPane :label="$t('biao-quan-xian')" name="TABLE" :disabled="!['Table', 'TABLE', 'AllType'].includes(curElementType)">
-                  <v-tree
-                    :emptyText="$t('zan-wu-shu-ju')"
-                    :render="renderAuthNode"
-                    ref="tableTree"
-                    keyField="key"
-                    @checked-change="handleAuthCheck"
-                    checkable
-                    titleField="i18nName"
-                    :defaultExpandAll="true"
-                    :disableAll="previewMode || isView"
-                  />
-                </TabPane>
-              </Tabs>
+                  </div>
+                </nav>
+                <div class="auth-tabs__content">
+                  <div v-show="curRightTreeTab === 'Instance'">
+                    <v-tree
+                      :emptyText="$t('zan-wu-shu-ju')"
+                      :render="renderAuthNode"
+                      ref="instanceTree"
+                      keyField="key"
+                      @checked-change="handleAuthCheck"
+                      checkable
+                      titleField="i18nName"
+                      :defaultExpandAll="true"
+                      :disableAll="previewMode || isView"
+                    />
+                  </div>
+                  <div v-show="curRightTreeTab === 'CATALOG'">
+                    <v-tree
+                      :emptyText="$t('zan-wu-shu-ju')"
+                      :render="renderAuthNode"
+                      ref="catalogTree"
+                      keyField="key"
+                      @checked-change="handleAuthCheck"
+                      checkable
+                      titleField="i18nName"
+                      :defaultExpandAll="true"
+                      :disableAll="previewMode || isView"
+                    />
+                  </div>
+                  <div v-show="curRightTreeTab === 'SCHEMA'">
+                    <v-tree
+                      :emptyText="$t('zan-wu-shu-ju')"
+                      :render="renderAuthNode"
+                      ref="schemaTree"
+                      keyField="key"
+                      @checked-change="handleAuthCheck"
+                      checkable
+                      titleField="i18nName"
+                      :defaultExpandAll="true"
+                      :disableAll="previewMode || isView"
+                    />
+                  </div>
+                  <div v-show="curRightTreeTab === 'TABLE'">
+                    <v-tree
+                      :emptyText="$t('zan-wu-shu-ju')"
+                      :render="renderAuthNode"
+                      ref="tableTree"
+                      keyField="key"
+                      @checked-change="handleAuthCheck"
+                      checkable
+                      titleField="i18nName"
+                      :defaultExpandAll="true"
+                      :disableAll="previewMode || isView"
+                    />
+                  </div>
+                </div>
+              </div>
               <div class="auth-tree-container-right">
                 <div class="setting" v-if="!isView || previewMode">
                   <div class="label-title">
@@ -212,34 +220,29 @@
       </div>
     </div>
     <div class="option-wrap">
-      <Button @click="backToMyAuth" v-if="!isView && !previewMode" style="margin-right: 10px; width: 80px">
+      <Button @click="backToMyAuth" v-if="!isView && !previewMode" style="margin-right: 10px">
         {{ $t('fan-hui') }}
       </Button>
-      <Button @click="continueAuth" v-if="previewMode" style="margin-right: 10px; width: 80px">
+      <Button @click="continueAuth" v-if="previewMode" style="margin-right: 10px">
         {{ $t('shang-yi-bu') }}
-      </Button>
-      <!-- main ,next flow -->
-      <!-- 20250310本期暂禁用批量授权 -->
-      <Button v-if="false" @click="handleSwitchBatchModeForDm" style="margin-right: 10px; width: 80px">
-        {{ batchMode ? $t('tui-chu-pi-liang-shou-quan') : $t('pi-liang-shou-quan') }}
       </Button>
       <Tooltip v-if="isView && !previewMode" :content="rootAccountUnsupportedTip" :disabled="!isRootAccount" transfer placement="top">
         <span style="display: inline-block; margin-right: 10px">
-          <Button @click="goApplAuth" type="primary" style="width: 80px" :disabled="isRootAccount">
+          <Button @click="goApplAuth" type="primary" :disabled="isRootAccount">
             {{ $t('shen-qing-quan-xian') }}
           </Button>
         </span>
       </Tooltip>
       <Tooltip v-if="!isView" :content="rootAccountUnsupportedTip" :disabled="!isRootAccount" transfer placement="top">
         <span style="display: inline-block; margin-right: 10px">
-          <Button @click="previewAuth" type="primary" style="width: 80px" :disabled="isRootAccount">
+          <Button @click="previewAuth" type="primary" :disabled="isRootAccount">
             {{ $t('ti-jiao-shen-qing') }}
           </Button>
         </span>
       </Tooltip>
       <Tooltip v-if="previewMode" :content="rootAccountUnsupportedTip" :disabled="!isRootAccount" transfer placement="top">
         <span style="display: inline-block; margin-right: 10px">
-          <Button @click="submitAuthApply" type="primary" style="width: 80px" :disabled="isRootAccount">
+          <Button @click="submitAuthApply" type="primary" :disabled="isRootAccount">
             {{ $t('ti-jiao-que-ren') }}
           </Button>
         </span>
@@ -537,6 +540,17 @@ export default {
     }
   },
   methods: {
+    handleAuthTabClick(name) {
+      if (
+        (name === 'Instance' && !['Instance', 'INSTANCE', 'AllType'].includes(this.curElementType)) ||
+        (name === 'CATALOG' && !['Catalog', 'CATALOG', 'EXTERNAL_CATALOG', 'AllType'].includes(this.curElementType)) ||
+        (name === 'SCHEMA' && !['Schema', 'SCHEMA', 'EXTERNAL_SCHEMA', 'AllType'].includes(this.curElementType)) ||
+        (name === 'TABLE' && !['Table', 'TABLE', 'AllType'].includes(this.curElementType))
+      ) {
+        return;
+      }
+      this.curRightTreeTab = name;
+    },
     handleReloadPage() {
       this.initData();
     },
@@ -1880,13 +1894,6 @@ export default {
   padding: 16px;
   padding-bottom: 0;
 
-  .header {
-    margin-bottom: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
   .auth-content {
     height: calc(100% - 100px);
 
@@ -1938,18 +1945,6 @@ export default {
               display: flex;
               justify-content: center;
               align-items: center;
-            }
-          }
-
-          .auth-btns {
-            width: 100%;
-            display: flex;
-
-            .auth-btn {
-              flex: 1;
-            }
-            :deep(.ant-btn) {
-              border-radius: 0 !important;
             }
           }
 
@@ -2012,8 +2007,76 @@ export default {
             .auth-tree {
               flex: 1;
               min-height: 0;
+              display: flex;
+              flex-direction: column;
               border-top: none;
               border-left: none;
+            }
+
+            .auth-tabs {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              flex-shrink: 0;
+              border-bottom: 1px solid var(--border-light);
+
+              &__items {
+                display: flex;
+                align-items: center;
+              }
+
+              &__item {
+                position: relative;
+                padding: 10px 16px 8px;
+                font-size: 13px;
+                color: var(--text-secondary);
+                cursor: pointer;
+                transition: color 0.12s ease;
+
+                &:hover {
+                  color: var(--text-primary);
+                }
+
+                &.is-active {
+                  color: var(--primary-color);
+                  font-weight: 500;
+
+                  &::after {
+                    content: '';
+                    position: absolute;
+                    left: 16px;
+                    right: 16px;
+                    bottom: -1px;
+                    height: 2px;
+                    background: var(--primary-color);
+                  }
+                }
+
+                &.is-disabled {
+                  color: var(--text-disabled);
+                  cursor: not-allowed;
+                }
+              }
+
+              &__extra {
+                padding-right: 16px;
+              }
+
+              &__time-link {
+                font-size: 13px;
+                color: var(--text-secondary);
+                cursor: pointer;
+
+                &:hover {
+                  color: var(--primary-color);
+                }
+              }
+
+              &__content {
+                flex: 1;
+                min-height: 0;
+                overflow: auto;
+              }
             }
             .auth-tree-container-right {
               height: 100%;
