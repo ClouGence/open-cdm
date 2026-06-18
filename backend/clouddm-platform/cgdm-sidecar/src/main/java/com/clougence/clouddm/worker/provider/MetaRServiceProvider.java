@@ -12,14 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.clougence.clouddm.worker.provider;
+ */
+package com.clougence.clouddm.worker.provider;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import jakarta.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
@@ -43,6 +42,7 @@ import com.clougence.schema.umi.struts.Value;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -97,11 +97,15 @@ public class MetaRServiceProvider implements MetaRService {
     public String getVersion(RSocketSendDTO sendDTO, DataSourceConfig dbConfig, Map<UmiTypes, Object> levelsParam) {
         try {
             try (Session rdbSession = metaSession(dbConfig, levelsParam)) {
-                return rdbSession.getMetaService().getVersion();
+                String version = rdbSession.getMetaService().getVersion();
+                log.info("finish get datasource version, dsType={}, host={}, sshEnabled={}, sshConfigId={}, version={}",//
+                        dbConfig.getDataSourceType(), dbConfig.getHost(), dbConfig.getSshProxyEnabled(), dbConfig.getSshConfigId(), version);
+                return version;
             }
         } catch (Exception e) {
             String msg = "getVersion error.msg:" + ExceptionUtils.getRootCauseMessage(e);
-            log.error(msg, e);
+            log.error("get datasource version failed, dsType={}, host={}, sshEnabled={}, sshConfigId={}, msg={}",//
+                    dbConfig.getDataSourceType(), dbConfig.getHost(), dbConfig.getSshProxyEnabled(), dbConfig.getSshConfigId(), msg, e);
             throw new RuntimeException(msg, e);
         }
     }

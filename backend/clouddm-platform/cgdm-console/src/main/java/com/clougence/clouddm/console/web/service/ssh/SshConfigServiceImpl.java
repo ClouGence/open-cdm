@@ -40,9 +40,15 @@ import com.clougence.clouddm.platform.dal.model.datasource.DmSshConfigDO;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class SshConfigServiceImpl implements SshConfigService {
+
+    private record TestSshConfigDTO(String workerSeqNumber, SshConfig sshConfig, boolean strictHostKeyChecking) {
+    }
+
     @Resource
     private SystemDal   systemDal;
     @Resource
@@ -120,20 +126,98 @@ public class SshConfigServiceImpl implements SshConfigService {
         if (fo == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SSH_TEST_REQUEST_REQUIRED_ERROR.name()));
         }
-        if (fo.getConfig() == null) {
+
+        TestSshConfigDTO testConfig = prepareTestConfig(fo);
+        String workerSeqNumber = testConfig.workerSeqNumber();
+        SshConfig sshConfig = testConfig.sshConfig();
+        boolean strictHostKeyChecking = testConfig.strictHostKeyChecking();
+
+        // test connection
+        long start = System.currentTimeMillis();
+        log.info("start test ssh connection, sshConfigId={}, workerSeqNumber={}, host={}, port={}, username={}, authType={}, proxyType={}, strictHostKeyChecking={}",//
+                fo.getSshConfigId(), workerSeqNumber, sshConfig.getHost(), sshConfig.getPort(), sshConfig.getUsername(),//
+                sshConfig.getAuthType(), sshConfig.getProxyType(), strictHostKeyChecking);
+        try {
+            TestResultDTO result = this.sshRService.testConnection(CallUtils.buildSendDTO(workerSeqNumber), sshConfig);
+            if (Boolean.TRUE.equals(result.getSuccess())) {
+                log.info("finish test ssh connection, sshConfigId={}, workerSeqNumber={}, host={}, port={}, success=true, costMs={}",//
+                        fo.getSshConfigId(), workerSeqNumber, sshConfig.getHost(), sshConfig.getPort(), result.getCostMs());
+            } else {
+                log.warn("finish test ssh connection, sshConfigId={}, workerSeqNumber={}, host={}, port={}, success=false, costMs={}, message={}",//
+                        fo.getSshConfigId(), workerSeqNumber, sshConfig.getHost(), sshConfig.getPort(), result.getCostMs(), result.getMessage());
+            }
+            return result;
+        } catch (RuntimeException e) {
+            log.warn("test ssh connection request failed, sshConfigId={}, workerSeqNumber={}, host={}, port={}, costMs={}",//
+                    fo.getSshConfigId(), workerSeqNumber, sshConfig.getHost(), sshConfig.getPort(), System.currentTimeMillis() - start, e);
+            throw e;
+        }
+    }
+
+    private TestSshConfigDTO prepareTestConfig(TestSshConnectionFO fo) {
+        String workerSeqNumber;
+        if (StringUtils.isNotBlank(fo.getWorkerSeqNumber())) {
+            workerSeqNumber = fo.getWorkerSeqNumber();
+        } else if (fo.getConfig() != null) {
+            workerSeqNumber = fo.getConfig().getWorkerSeqNumber();
+        } else {
+            workerSeqNumber = null;
+        }
+
+        DmSshConfigDO exists = requireConfig(fo.getSshConfigId());
+        if (fo.getConfig() == null && exists == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SSH_CONFIG_REQUIRED_ERROR.name()));
+        }
+
+        SshConfig sshConfig = fo.getConfig() == null ? DmConvertUtils.convertToSshConfig(exists) : DmConvertUtils.convertToSshConfigForTest(exists, fo.getConfig());
+        SshConFeatures conFeatures = sshConfig.getConFeatures();
+        boolean strictHostKeyChecking = false;
+        if (conFeatures != null && conFeatures.getHostKey() != null) {
+            strictHostKeyChecking = conFeatures.getHostKey().isStrictChecking();
+        } else if (conFeatures != null) {
+            strictHostKeyChecking = conFeatures.isStrictHostKeyChecking();
+        }
+
+        if (fo.getConfig() == null && strictHostKeyChecking && (conFeatures == null || conFeatures.getKnownHosts() == null || conFeatures.getKnownHosts().isEmpty())) {
+            if (conFeatures == null) {
+                conFeatures = new SshConFeatures();
+                sshConfig.setConFeatures(conFeatures);
+                exists.setConFeatures(conFeatures);
+            }
+            log.info("auto probe and save missing ssh known hosts before test, sshConfigId={}, workerSeqNumber={}, host={}, port={}",//
+                    fo.getSshConfigId(), workerSeqNumber, sshConfig.getHost(), sshConfig.getPort());
+            conFeatures.setKnownHosts(this.sshRService.probeKnownHosts(CallUtils.buildSendDTO(workerSeqNumber), sshConfig));
+            exists.setGmtModified(new Date());
+            this.systemDal.sshConfigMapper().updateById(exists);
+        }
+
+        return new TestSshConfigDTO(workerSeqNumber, sshConfig, strictHostKeyChecking);
+    }
+
+    @Override
+    public List<SshKnownHost> probeKnownHosts(TestSshConnectionFO fo) {
+        if (fo == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SSH_TEST_REQUEST_REQUIRED_ERROR.name()));
         }
 
         String workerSeqNumber;
         if (StringUtils.isNotBlank(fo.getWorkerSeqNumber())) {
             workerSeqNumber = fo.getWorkerSeqNumber();
-        } else {
+        } else if (fo.getConfig() != null) {
             workerSeqNumber = fo.getConfig().getWorkerSeqNumber();
+        } else {
+            workerSeqNumber = null;
         }
 
         DmSshConfigDO exists = requireConfig(fo.getSshConfigId());
-        SshConfig sshConfig = DmConvertUtils.convertToSshConfigForTest(exists, fo.getConfig());
-        return this.sshRService.testConnection(CallUtils.buildSendDTO(workerSeqNumber), sshConfig);
+        if (fo.getConfig() == null && exists == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SSH_CONFIG_REQUIRED_ERROR.name()));
+        }
+
+        SshConfig sshConfig = fo.getConfig() == null ? DmConvertUtils.convertToSshConfig(exists) : DmConvertUtils.convertToSshConfigForTest(exists, fo.getConfig());
+        log.info("probe ssh known hosts, sshConfigId={}, workerSeqNumber={}, host={}, port={}",//
+                fo.getSshConfigId(), workerSeqNumber, sshConfig.getHost(), sshConfig.getPort());
+        return this.sshRService.probeKnownHosts(CallUtils.buildSendDTO(workerSeqNumber), sshConfig);
     }
 
     //
@@ -163,7 +247,7 @@ public class SshConfigServiceImpl implements SshConfigService {
         DmSshConfigDO configDO = new DmSshConfigDO();
         configDO.setName(fo.getName());
         configDO.setHost(fo.getHost());
-        configDO.setPort(fo.getPort() == null ? 22 : fo.getPort());
+        configDO.setPort(fo.getPort());
         configDO.setUsername(fo.getUsername());
         configDO.setAuthType(fo.getAuthType());
         if (fo.getPassword() == null && exists != null) {
@@ -203,43 +287,31 @@ public class SshConfigServiceImpl implements SshConfigService {
         }
         configDO.setProxyType(proxyType);
         configDO.setProxyFeatures(proxyFeatures);
-
-        // 
         boolean strictHostKeyChecking = conFeatures.isStrictHostKeyChecking();
         if (conFeatures.getHostKey() != null) {
             strictHostKeyChecking = conFeatures.getHostKey().isStrictChecking();
         }
-        if (strictHostKeyChecking) {
+        if (strictHostKeyChecking && (conFeatures.getKnownHosts() == null || conFeatures.getKnownHosts().isEmpty())) {
             SshConfig runtime = DmConvertUtils.convertToSshConfig(configDO);
-            List<SshKnownHost> knownHosts = this.sshRService.probeKnownHosts(CallUtils.buildSendDTO(fo.getWorkerSeqNumber()), runtime);
-            conFeatures.setKnownHosts(knownHosts);
+            log.info("auto probe missing ssh known hosts before save, sshConfigId={}, workerSeqNumber={}, host={}, port={}",//
+                    fo.getId(), fo.getWorkerSeqNumber(), runtime.getHost(), runtime.getPort());
+            conFeatures.setKnownHosts(this.sshRService.probeKnownHosts(CallUtils.buildSendDTO(fo.getWorkerSeqNumber()), runtime));
         }
+
         return configDO;
     }
 
     private SshProxyFeatures buildStorageProxyFeatures(SshProxyFeaturesFO submitted, SshProxyFeatures exists) {
         if (submitted == null) {
-            if (exists != null) {
-                return exists;
-            }
-            SshProxyFeatures features = new SshProxyFeatures();
-            if (features.getSecurityType() == null) {
-                features.setSecurityType(StringUtils.isNotBlank(features.getPassword()) ? SecurityType.USER_PASSWD : SecurityType.ONLY_USER);
-            }
-            return features;
+            return exists == null ? new SshProxyFeatures() : exists;
         }
 
         SshProxyFeatures features = new SshProxyFeatures();
         features.setHost(submitted.getHost());
         features.setPort(submitted.getPort());
-        SecurityType securityType = submitted.getSecurityType();
-        if (securityType == null) {
-            securityType = StringUtils.isNotBlank(submitted.getPassword()) ? SecurityType.USER_PASSWD : SecurityType.ONLY_USER;
-        }
-
-        features.setSecurityType(securityType);
-        features.setUsername(submitted.getUsername());
-        if (securityType == SecurityType.USER_PASSWD) {
+        features.setSecurityType(submitted.getSecurityType());
+        if (submitted.getSecurityType() == SecurityType.USER_PASSWD) {
+            features.setUsername(submitted.getUsername());
             if (submitted.getPassword() == null && exists != null) {
                 features.setPassword(exists.getPassword());
             } else {
@@ -248,4 +320,5 @@ public class SshConfigServiceImpl implements SshConfigService {
         }
         return features;
     }
+
 }

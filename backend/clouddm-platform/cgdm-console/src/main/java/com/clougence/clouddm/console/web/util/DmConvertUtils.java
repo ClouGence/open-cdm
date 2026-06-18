@@ -1154,9 +1154,13 @@ public class DmConvertUtils {
 
     private static SshProxyFeatures buildRuntimeSshProxyFeatures(SshProxyFeaturesFO submitted, SshProxyFeatures exists) {
         if (submitted == null) {
-            SshProxyFeatures features = exists == null ? new SshProxyFeatures() : copySshProxyFeatures(exists);
-            if (features.getSecurityType() == null) {
-                features.setSecurityType(StringUtils.isNotBlank(features.getPassword()) ? SecurityType.USER_PASSWD : SecurityType.ONLY_USER);
+            SshProxyFeatures features = new SshProxyFeatures();
+            if (exists != null) {
+                features.setHost(exists.getHost());
+                features.setPort(exists.getPort());
+                features.setSecurityType(exists.getSecurityType());
+                features.setUsername(exists.getUsername());
+                features.setPassword(exists.getPassword());
             }
             return features;
         }
@@ -1165,13 +1169,10 @@ public class DmConvertUtils {
         features.setHost(submitted.getHost());
         features.setPort(submitted.getPort());
         SecurityType securityType = submitted.getSecurityType();
-        if (securityType == null) {
-            securityType = StringUtils.isNotBlank(submitted.getPassword()) ? SecurityType.USER_PASSWD : SecurityType.ONLY_USER;
-        }
 
         features.setSecurityType(securityType);
-        features.setUsername(submitted.getUsername());
         if (securityType == SecurityType.USER_PASSWD) {
+            features.setUsername(submitted.getUsername());
             String existsPassword = null;
             if (exists != null) {
                 existsPassword = exists.getPassword();
@@ -1179,16 +1180,6 @@ public class DmConvertUtils {
             features.setPassword(StringUtils.defaultString(submitted.getPassword(), existsPassword));
         }
         return features;
-    }
-
-    private static SshProxyFeatures copySshProxyFeatures(SshProxyFeatures source) {
-        SshProxyFeatures target = new SshProxyFeatures();
-        target.setHost(source.getHost());
-        target.setPort(source.getPort());
-        target.setSecurityType(source.getSecurityType());
-        target.setUsername(source.getUsername());
-        target.setPassword(source.getPassword());
-        return target;
     }
 
     public static DmDsConfigKv4DmDO convertToDmDsKvBaseConfigDOForInsert(DmDsConfigKv4RdpDO config) {

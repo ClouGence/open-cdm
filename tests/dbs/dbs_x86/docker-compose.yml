@@ -124,9 +124,37 @@ services:
       - PUBLIC_KEY_FILE=/ssh-keys/authorized_keys
     volumes:
       - ../ssh:/ssh-keys:ro
+      - ../ssh/10-enable-tcp-forwarding.sh:/custom-cont-init.d/10-enable-tcp-forwarding.sh:ro
     ports:
-      - 2022:2222
+      - 2022:22
     restart: always
     # Password auth: sshuser/123456
     # Private key auth: ../ssh/id_rsa
     # Private key + passphrase auth: ../ssh/id_rsa_passphrase, passphrase: passphrase123
+
+  proxy:
+    image: 3proxy/3proxy:latest
+    volumes:
+      - ../proxy:/etc/3proxy:ro
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - 2080:3128
+      - 2085:1080
+    restart: always
+    # HTTP proxy: 127.0.0.1:2080
+    # SOCKS4/SOCKS5 proxy: 127.0.0.1:2085
+
+  proxy_auth:
+    image: 3proxy/3proxy:latest
+    volumes:
+      - ../proxy-auth:/etc/3proxy:ro
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - 2081:3128
+      - 2086:1080
+    restart: always
+    # HTTP proxy: 127.0.0.1:2081
+    # SOCKS5 proxy: 127.0.0.1:2086
+    # User/Password: proxyuser/123456

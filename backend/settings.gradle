@@ -83,7 +83,7 @@ include 'ds-maxcompute'; project(":ds-maxcompute").projectDir = file('clouddm-pl
 include 'ds-hologres'; project(":ds-hologres").projectDir = file('clouddm-plugins/clouddm-ds/ds-hologres')
 
 // test
-include 's-test'; project(":s-test").projectDir = file('tests/ds-test')
+include 's-test'; project(":s-test").projectDir = file('../tests/ds-test')
 
 // build
 def targetName = gradle.startParameter.projectProperties["target"]

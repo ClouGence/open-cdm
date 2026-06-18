@@ -34,7 +34,9 @@ import com.clougence.utils.StringUtils;
 import com.jcraft.jsch.*;
 
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class SshConnectionManager {
 
@@ -45,7 +47,11 @@ public class SshConnectionManager {
     private EncryptedFileCacheManager encryptedFileCacheManager;
 
     public Session openTunnelSession(Long sshConfigId) throws Exception {
-        return openSession(resolveConfig(sshConfigId, null), true, false);
+        SshConfig config = resolveConfig(sshConfigId, null);
+
+        log.info("open ssh tunnel session, sshConfigId={}, sshHost={}, sshPort={}, username={}, authType={}, proxyType={}, strictHostKeyChecking={}",//
+                sshConfigId, config.getHost(), config.getPort(), config.getUsername(), config.getAuthType(), config.getProxyType(), strictHostKeyChecking(config));
+        return this.openSession(config, true, false);
     }
 
     public Session openSession(SshConfig config, boolean useKnownHosts, boolean forceNoStrictChecking) throws Exception {
@@ -65,7 +71,7 @@ public class SshConnectionManager {
             }
         }
 
-        Session session = jsch.getSession(config.getUsername(), config.getHost(), config.getPort() == null ? 22 : config.getPort());
+        Session session = jsch.getSession(config.getUsername(), config.getHost(), config.getPort());
         if (StringUtils.isNotBlank(config.getPassword())) {
             session.setPassword(config.getPassword());
             session.setUserInfo(new StaticUserInfo(config.getPassword(), config.getPrivateKeyPassphrase()));
@@ -121,10 +127,7 @@ public class SshConnectionManager {
         int port = features.getPort() == null ? 0 : features.getPort();
         String user = features.getUsername();
         String password = features.getPassword();
-        SecurityType securityType = features.getSecurityType();
-        if (securityType == null && StringUtils.isNotBlank(user)) {
-            securityType = StringUtils.isNotBlank(password) ? SecurityType.USER_PASSWD : SecurityType.ONLY_USER;
-        }
+        boolean useUserPassword = features.getSecurityType() == SecurityType.USER_PASSWD;
         if (StringUtils.isBlank(host) || port <= 0) {
             throw new IllegalArgumentException("proxy host and port are required.");
         }
@@ -133,21 +136,21 @@ public class SshConnectionManager {
         switch (proxyType) {
             case HTTP -> {
                 ProxyHTTP http = new ProxyHTTP(host, port);
-                if (securityType == SecurityType.USER_PASSWD || securityType == SecurityType.ONLY_USER) {
+                if (useUserPassword) {
                     http.setUserPasswd(user, password);
                 }
                 proxy = http;
             }
             case SOCKS4 -> {
                 ProxySOCKS4 socks4 = new ProxySOCKS4(host, port);
-                if (securityType == SecurityType.USER_PASSWD || securityType == SecurityType.ONLY_USER) {
+                if (useUserPassword) {
                     socks4.setUserPasswd(user, password);
                 }
                 proxy = socks4;
             }
             case SOCKS5 -> {
                 ProxySOCKS5 socks5 = new ProxySOCKS5(host, port);
-                if (securityType == SecurityType.USER_PASSWD || securityType == SecurityType.ONLY_USER) {
+                if (useUserPassword) {
                     socks5.setUserPasswd(user, password);
                 }
                 proxy = socks5;
@@ -168,7 +171,7 @@ public class SshConnectionManager {
                 continue;
             }
             String host = item.getHost();
-            int port = item.getPort() == null ? 22 : item.getPort();
+            int port = item.getPort();
             String type = item.getType();
             String key = item.getKey();
             if (StringUtils.isBlank(host) || StringUtils.isBlank(type) || StringUtils.isBlank(key)) {

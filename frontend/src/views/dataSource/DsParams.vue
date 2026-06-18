@@ -257,7 +257,7 @@ export default {
       this.loading = true;
 
       try {
-        const res = await this.$services.rdpDataSourceQueryDsConfig({
+        const res = await this.$services.dmDataSourceQueryDsConfig({
           data: {
             dataSourceId: this.dsId
           }
@@ -329,16 +329,16 @@ export default {
         });
         return;
       }
-      const updateConfigs = {};
-      const needCreateConfigs = {};
+      const updateConfigMap = {};
+      const needCreateConfigMap = {};
 
       console.log('this.editedParams', this.editedParams);
 
       this.editedParams.forEach((config) => {
         if (config.needCreated) {
-          needCreateConfigs[config.configName] = config.currentCount || config.defaultValue;
+          needCreateConfigMap[config.configName] = config.currentCount || config.defaultValue;
         } else {
-          updateConfigs[config.configName] = config.currentCount;
+          updateConfigMap[config.configName] = config.currentCount;
         }
       });
 
@@ -357,11 +357,11 @@ export default {
       //   }
       // });
 
-      const res = await this.$services.rdpDataSourceUpsertDsConfig({
+      const res = await this.$services.dmDataSourceUpsertDsConfig({
         data: {
           dataSourceId: this.dsId,
-          needCreateConfigs,
-          updateConfigs
+          needCreateConfigMap,
+          updateConfigMap
         }
       });
 

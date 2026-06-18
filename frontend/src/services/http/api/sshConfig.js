@@ -4,5 +4,6 @@ export const sshConfigApi = {
   dmSshConfigCreate: '/clouddm/console/api/v1/sshConfig/create',
   dmSshConfigUpdate: '/clouddm/console/api/v1/sshConfig/update',
   dmSshConfigDelete: '/clouddm/console/api/v1/sshConfig/delete',
-  dmSshConfigTestConnection: '/clouddm/console/api/v1/sshConfig/testConnection'
+  dmSshConfigTestConnection: '/clouddm/console/api/v1/sshConfig/testConnection',
+  dmSshConfigProbeKnownHosts: '/clouddm/console/api/v1/sshConfig/probeKnownHosts'
 };

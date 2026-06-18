@@ -336,6 +336,9 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
 
         decryptValue(dsConfig, DataSourceConfig.class);
         decryptValue(dsConfig, dsConfig.getClass());
+        log.info("fetch datasource config from dm, dsId={}, dsType={}, host={}, sshProxyEnabled={}, sshConfigId={}, rawSshProxyEnabled={}, rawSshConfigId={}",//
+                dsId, dsConfig.getDataSourceType(), dsConfig.getHost(), dsConfig.getSshProxyEnabled(), dsConfig.getSshConfigId(),//
+                configMap.get("sshProxyEnabled"), configMap.get("sshConfigId"));
         return dsConfig;
     }
 

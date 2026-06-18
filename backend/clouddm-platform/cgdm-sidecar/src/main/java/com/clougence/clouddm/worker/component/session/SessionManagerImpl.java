@@ -145,6 +145,7 @@ public class SessionManagerImpl implements SessionManager, UnifiedPostConstruct 
         }
 
         SshTunnelHandle tunnel = null;
+        boolean sshEnabled = false;
         try {
             int configMaxSessionCount = this.dmConfig.getMaxSessionCount();
             if (counter.incrementAndGet() > configMaxSessionCount) {
@@ -159,7 +160,8 @@ public class SessionManagerImpl implements SessionManager, UnifiedPostConstruct 
             DriverRef driverRef = DriverUtils.parseDriverRef(dsConfig.getDriverVersion());
 
             // tunnel
-            if (this.sshTunnelManager.isEnabled(dsConfig)) {
+            sshEnabled = this.sshTunnelManager.isEnabled(dsConfig);
+            if (sshEnabled) {
                 tunnel = this.sshTunnelManager.open(dsConfig);
                 dsConfig = tunnel.getDsConfig();
             }
@@ -167,6 +169,8 @@ public class SessionManagerImpl implements SessionManager, UnifiedPostConstruct 
             // session
             SessionFactory factory = pluginInfo.createSessionFactory(driverRef.getDriverFamily(), driverRef.getDriverVersion());
             Session session = factory.createSession(rm, dsConfig, contextDTO);
+            log.info("finish create datasource session, sessionId={}, dsType={}, runtimeHost={}, sshEnabled={}, sshConfigId={}",//
+                    newSessionId, dsConfig.getDataSourceType(), dsConfig.getHost(), sshEnabled, dsConfig.getSshConfigId());
             SshTunnelHandle sessionTunnel = tunnel;
             session.addCloseListener(sessionId -> IOUtils.closeQuietly(sessionTunnel));
             session.addCloseListener(this::closeSessionById);
@@ -184,11 +188,12 @@ public class SessionManagerImpl implements SessionManager, UnifiedPostConstruct 
         } catch (Throwable e) {
             counter.decrementAndGet();
             IOUtils.closeQuietly(tunnel);
+            log.warn("failed create datasource session, sessionId={}, dsType={}, driverVersion={}, host={}, sshEnabled={}, sshConfigId={}",//
+                    newSessionId, dsConfig.getDataSourceType(), dsConfig.getDriverVersion(), dsConfig.getHost(), sshEnabled, dsConfig.getSshConfigId(), e);
 
             if (isPluginPackageCorrupted(e)) {
                 String message = "Datasource plugin is damaged, failed to load plugin resource. dsType='" + dsConfig.getDataSourceType() + "', driverVersion='"
                                  + dsConfig.getDriverVersion() + "'.";
-                log.error(message, e);
                 throw new ErrorMessageException(DmErrorCode.PLUGIN_DAMAGED_ERROR.code(), message);
             }
             throw e;

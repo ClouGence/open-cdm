@@ -156,7 +156,7 @@ public class DmDsServiceImpl implements DmDsService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
         }
 
-        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromRDP(dsDO.getId(), fo.getHostType());
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId());
         return getVersion(puid, fo.getClusterId(), dsConfig);
     }
 
@@ -237,7 +237,7 @@ public class DmDsServiceImpl implements DmDsService {
         this.notifyServices.forEach(s -> s.onDsUpdate(fo.getDataSourceId()));
 
         if (StringUtils.isBlank(dsDO.getVersion())) {
-            DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromRDP(dsDO.getId(), fo.getHostType());
+            DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId());
             try {
                 String version = this.getVersion(puid, fo.getClusterId(), dsConfig);
                 this.dsDal.dsMapper().updateVersionByInstanceId(dsDO.getId(), version);

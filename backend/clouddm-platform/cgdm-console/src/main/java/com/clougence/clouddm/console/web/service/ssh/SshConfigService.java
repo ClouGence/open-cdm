@@ -19,6 +19,7 @@ import java.util.List;
 
 import com.clougence.clouddm.api.sidecar.session.ssh.TestResultDTO;
 import com.clougence.clouddm.base.metadata.ds.SshConfig;
+import com.clougence.clouddm.base.metadata.ds.SshKnownHost;
 import com.clougence.clouddm.console.web.model.fo.ssh.SshConfigSaveFO;
 import com.clougence.clouddm.console.web.model.fo.ssh.TestSshConnectionFO;
 import com.clougence.clouddm.console.web.model.vo.ssh.SshConfigDetailVO;
@@ -37,6 +38,8 @@ public interface SshConfigService {
     void delete(String uid, Long id);
 
     TestResultDTO testConnection(TestSshConnectionFO fo);
+
+    List<SshKnownHost> probeKnownHosts(TestSshConnectionFO fo);
 
     SshConfig fetchSshConfig(Long id);
 }

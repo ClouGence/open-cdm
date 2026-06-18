@@ -12,15 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.clougence.clouddm.worker.provider;
+ */
+package com.clougence.clouddm.worker.provider;
 
 import java.util.Collections;
 import java.util.List;
 
-import jakarta.annotation.Resource;
-
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.sidecar.session.execute.AsyncWaitResult;
 import com.clougence.clouddm.api.sidecar.session.execute.ExecuteRService;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultList;
@@ -35,10 +35,10 @@ import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.worker.component.resource.OnlineDsResourceManager;
 import com.clougence.clouddm.worker.component.session.SessionAgent;
 import com.clougence.clouddm.worker.component.session.SessionManager;
-import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -80,6 +80,12 @@ public class SessionRServiceProvider implements ExecuteRService, UnifiedPostCons
             throw new RuntimeException(newSessionId + " session is exist.");
         }
         try {
+            if (dsConfig == null) {
+                log.info("receive create datasource session request, sessionId={}, configClass=null", newSessionId);
+            } else {
+                log.info("receive create datasource session request, sessionId={}, configClass={}, dsType={}, host={}, sshProxyEnabled={}, sshConfigId={}",//
+                        newSessionId, dsConfig.getClass().getName(), dsConfig.getDataSourceType(), dsConfig.getHost(), dsConfig.getSshProxyEnabled(), dsConfig.getSshConfigId());
+            }
             Session agent = this.sessionManager.createSession(this.onlineRM, dsConfig, context);
             return agent != null;
         } catch (Exception e) {

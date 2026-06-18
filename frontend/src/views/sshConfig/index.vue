@@ -1,144 +1,218 @@
 <template>
   <div class="ssh-config-page">
-    <div class="ssh-config-toolbar">
-      <Input v-model="search" clearable style="width: 280px" @on-enter="loadList" />
-      <Button type="primary" ghost @click="loadList">{{ $t('cha-xun') }}</Button>
-      <div class="ssh-config-toolbar__right">
-        <Button type="primary" icon="md-add" v-if="canWrite" @click="handleCreate">{{ $t('xin-jian') }}</Button>
-        <Button @click="loadList">
-          <CustomIcon type="icon-v2-Refresh" />
-        </Button>
+    <aside class="ssh-config-list">
+      <div class="ssh-config-list__searchbar">
+        <Input v-model="search" clearable size="small" @on-enter="loadList" />
+        <Tooltip :content="$t('shua-xin')" transfer>
+          <Button type="text" :loading="loading" @click="loadList">
+            <CustomIcon v-if="!loading" type="icon-v2-Refresh" size="16px" />
+          </Button>
+        </Tooltip>
       </div>
-    </div>
+      <div class="ssh-config-list__body">
+        <div v-if="!loading && rows.length === 0" class="ssh-config-empty-list">{{ $t('nothing-to-show') }}</div>
+        <button
+          v-for="row in rows"
+          :key="row.id"
+          type="button"
+          class="ssh-config-item"
+          :class="{ 'ssh-config-item--active': row.id === selectedId }"
+          @click="selectRow(row)"
+        >
+          <span class="ssh-config-item__title">{{ row.name }}</span>
+          <span class="ssh-config-item__meta">{{ formatEndpoint(row) }}</span>
+        </button>
+      </div>
+    </aside>
 
-    <Table border stripe size="small" :columns="columns" :data="rows" :loading="loading">
-      <template #endpoint="{ row }">{{ row.username }}@{{ row.host }}:{{ row.port || 22 }}</template>
-      <template #action="{ row }">
-        <Button type="text" size="small" @click="handleEdit(row)">{{ $t('xiang-qing') }}</Button>
-        <Button type="text" size="small" @click="handleTest(row)">{{ $t('ce-shi-lian-jie') }}</Button>
-        <Button type="text" size="small" v-if="canWrite" @click="handleEdit(row, true)">{{ $t('bian-ji') }}</Button>
-        <Poptip confirm transfer :title="$t('que-ding-yao-shan-chu-gai-pei-zhi-ma')" @on-ok="handleDelete(row)">
-          <Button type="text" size="small" v-if="canWrite">{{ $t('shan-chu') }}</Button>
-        </Poptip>
-      </template>
-    </Table>
-
-    <Modal v-model="showModal" :title="modalTitle" width="860" :mask-closable="false">
-      <Form :model="form" :label-width="150" class="ssh-config-form">
-        <div class="form-grid">
-          <FormItem :label="$t('ming-cheng')">
-            <Input v-model="form.name" :disabled="readonly" />
-          </FormItem>
-          <FormItem label="Host">
-            <Input v-model="form.host" :disabled="readonly" />
-          </FormItem>
-          <FormItem :label="$t('duan-kou')">
-            <InputNumber v-model="form.port" :min="1" :max="65535" :disabled="readonly" style="width: 100%" />
-          </FormItem>
-          <FormItem :label="$t('yong-hu-ming')">
-            <Input v-model="form.username" :disabled="readonly" />
-          </FormItem>
-          <FormItem :label="$t('ren-zheng-fang-shi')">
-            <Select v-model="form.authType" :disabled="readonly">
-              <Option value="PASSWORD">{{ $t('mi-ma') }}</Option>
-              <Option value="PRIVATE_KEY">{{ $t('private-key') }}</Option>
-            </Select>
-          </FormItem>
-          <FormItem :label="$t('mi-ma')">
-            <Input
-              v-model="form.password"
-              type="password"
-              password
-              :placeholder="secretPlaceholder(detail.passwordConfigured)"
-              :disabled="readonly"
-              @input="markSecretTouched('password')"
-            />
-          </FormItem>
-          <FormItem v-if="form.authType === 'PRIVATE_KEY'" :label="$t('private-key-data')">
-            <Input
-              v-model="form.privateKeyData"
-              type="textarea"
-              :rows="5"
-              :placeholder="secretPlaceholder(detail.privateKeyDataConfigured)"
-              :disabled="readonly"
-              @input="markSecretTouched('privateKeyData')"
-            />
-          </FormItem>
-          <FormItem v-if="form.authType === 'PRIVATE_KEY'" :label="$t('private-key-passphrase')">
-            <Input
-              v-model="form.privateKeyPassphrase"
-              type="password"
-              password
-              :placeholder="secretPlaceholder(detail.privateKeyPassphraseConfigured)"
-              :disabled="readonly"
-              @input="markSecretTouched('privateKeyPassphrase')"
-            />
-          </FormItem>
+    <main class="ssh-config-detail">
+      <div class="ssh-config-detail__toolbar">
+        <div class="ssh-config-detail__toolbar-title"></div>
+        <div class="ssh-config-detail__actions">
+          <Tooltip :content="$t('xin-jian')" transfer>
+            <Button :disabled="!canWrite" @click="handleCreate">
+              <CustomIcon type="icon-v2-add" size="16px" />
+              <span>{{ $t('xin-jian') }}</span>
+            </Button>
+          </Tooltip>
+          <Poptip confirm transfer :title="$t('que-ding-yao-shan-chu-gai-pei-zhi-ma')" @on-ok="handleDeleteSelected">
+            <Button :disabled="!canWrite || !selectedId || isEditing">
+              <Icon type="ios-remove" />
+              <span>{{ $t('shan-chu') }}</span>
+            </Button>
+          </Poptip>
+          <Tooltip :content="$t('fu-zhi')" transfer>
+            <Button :disabled="!canWrite || !selectedId || isEditing" @click="handleCopySelected">
+              <Icon type="ios-copy-outline" />
+              <span>{{ $t('fu-zhi') }}</span>
+            </Button>
+          </Tooltip>
+          <Tooltip :content="$t('bian-ji')" transfer>
+            <Button :disabled="!canWrite || !selectedId || isEditing" @click="handleEditSelected">
+              <CustomIcon type="icon-v2-EditSimple" size="16px" />
+              <span>{{ $t('bian-ji') }}</span>
+            </Button>
+          </Tooltip>
+          <Button v-if="isEditing" @click="handleCancelEdit">{{ $t('qu-xiao') }}</Button>
+          <Button type="primary" v-if="isEditing" :loading="saving" @click="handleSave">{{ $t('bao-cun') }}</Button>
         </div>
+      </div>
 
-        <Divider orientation="left">{{ $t('lian-jie-can-shu') }}</Divider>
-        <div class="form-grid">
-          <FormItem :label="$t('bao-chi-lian-jie')">
-            <Checkbox v-model="form.keepAliveEnabled" :disabled="readonly">{{ $t('qi-yong') }}</Checkbox>
-          </FormItem>
-          <FormItem :label="$t('bao-huo-jian-ge-ms')">
-            <InputNumber v-model="form.serverAliveIntervalMs" :min="1000" :disabled="readonly || !form.keepAliveEnabled" style="width: 100%" />
-          </FormItem>
-          <FormItem :label="$t('zhu-ji-mi-yao-xiao-yan')">
-            <Select v-model="form.strictChecking" :disabled="readonly">
-              <Option :value="true">{{ $t('shi') }}</Option>
-              <Option :value="false">{{ $t('fou') }}</Option>
-            </Select>
-          </FormItem>
-          <FormItem :label="$t('lian-jie-chao-shi-ms')">
-            <InputNumber v-model="form.connectTimeoutMs" :min="1000" :disabled="readonly" style="width: 100%" />
-          </FormItem>
-        </div>
+      <div v-if="!isEditing && !selectedId" class="ssh-config-empty-detail" @click="canWrite && handleCreate()">
+        {{ $t('add-ssh-configuration') }}
+      </div>
 
-        <Divider orientation="left">{{ proxyLabel }}</Divider>
-        <div class="form-grid">
-          <FormItem :label="proxyLabel">
-            <Select v-model="form.proxyType" :disabled="readonly">
-              <Option value="NO_PROXY">{{ $t('no-proxy') }}</Option>
-              <Option v-for="item in proxyOptions" :key="item" :value="item">{{ item }}</Option>
-            </Select>
-          </FormItem>
-          <template v-if="form.proxyType !== 'NO_PROXY'">
-            <FormItem :label="$t('proxy-host')">
-              <Input v-model="form.proxyHost" :disabled="readonly" />
+      <template v-else>
+        <Form :model="form" :label-width="150" class="ssh-config-form">
+          <div class="ssh-basic-settings">
+            <div class="ssh-basic-settings__title">{{ $t('ji-chu-pei-zhi') }}</div>
+            <FormItem :label="$t('ming-cheng')">
+              <Input v-model="form.name" :disabled="formReadonly" />
             </FormItem>
-            <FormItem :label="$t('proxy-port')">
-              <InputNumber v-model="form.proxyPort" :min="1" :max="65535" :disabled="readonly" style="width: 100%" />
-            </FormItem>
-            <FormItem :label="$t('proxy-user')">
-              <Input v-model="form.proxyUsername" :disabled="readonly" />
+            <div class="ssh-host-port-row">
+              <FormItem label="Host">
+                <Input v-model="form.host" :disabled="formReadonly" />
+              </FormItem>
+              <FormItem :label="$t('duan-kou')">
+                <InputNumber v-model="form.port" :min="1" :max="65535" :disabled="formReadonly" style="width: 100%" />
+              </FormItem>
+            </div>
+            <FormItem :label="$t('yong-hu-ming')">
+              <Input v-model="form.username" :disabled="formReadonly" />
             </FormItem>
             <FormItem :label="$t('ren-zheng-fang-shi')">
-              <Select v-model="form.proxySecurityType" :disabled="readonly">
-                <Option value="ONLY_USER">{{ $t('only-user') }}</Option>
-                <Option value="USER_PASSWD">{{ $t('user-password') }}</Option>
+              <Select v-model="form.authType" :disabled="formReadonly" @on-change="handleAuthTypeChange">
+                <Option value="PASSWORD">{{ $t('mi-ma') }}</Option>
+                <Option value="PRIVATE_KEY">{{ $t('key-pair') }}</Option>
               </Select>
             </FormItem>
-            <FormItem :label="$t('proxy-password')">
+            <FormItem v-if="form.authType === 'PASSWORD'" :label="$t('mi-ma')">
               <Input
-                v-model="form.proxyPassword"
+                v-model="form.password"
                 type="password"
                 password
-                :placeholder="secretPlaceholder(detail.proxyPasswordConfigured)"
-                :disabled="readonly || form.proxySecurityType !== 'USER_PASSWD'"
-                @input="markSecretTouched('proxyPassword')"
+                :placeholder="secretPlaceholder(detail.passwordConfigured)"
+                :disabled="formReadonly"
+                @input="markSecretTouched('password')"
               />
             </FormItem>
-          </template>
-        </div>
-      </Form>
+            <template v-if="form.authType === 'PRIVATE_KEY'">
+              <FormItem :label="$t('private-key-data')">
+                <textarea
+                  class="ssh-private-key-textarea"
+                  v-model="form.privateKeyData"
+                  :placeholder="secretPlaceholder(detail.privateKeyDataConfigured)"
+                  :disabled="formReadonly"
+                  @input="markSecretTouched('privateKeyData')"
+                ></textarea>
+              </FormItem>
+              <FormItem :label="$t('private-key-passphrase')">
+                <Input
+                  v-model="form.privateKeyPassphrase"
+                  type="password"
+                  password
+                  :placeholder="secretPlaceholder(detail.privateKeyPassphraseConfigured)"
+                  :disabled="formReadonly"
+                  @input="markSecretTouched('privateKeyPassphrase')"
+                />
+              </FormItem>
+            </template>
+          </div>
 
-      <template #footer>
-        <Button @click="handleModalTest" :loading="testing">{{ $t('ce-shi-lian-jie') }}</Button>
-        <Button @click="showModal = false">{{ $t('qu-xiao') }}</Button>
-        <Button type="primary" v-if="!readonly" :loading="saving" @click="handleSave">{{ $t('bao-cun') }}</Button>
+          <div class="ssh-section">
+            <button type="button" class="ssh-section__head" @click="conExpanded = !conExpanded">
+              <Icon :type="conExpanded ? 'ios-arrow-down' : 'ios-arrow-forward'" />
+              <span>{{ $t('lian-jie-can-shu') }}</span>
+            </button>
+            <div v-if="conExpanded" class="ssh-section__body ssh-feature-rows">
+              <div class="ssh-feature-row">
+                <Checkbox v-model="form.keepAliveEnabled" :disabled="formReadonly">{{ $t('send-keep-alive-messages-every') }}</Checkbox>
+                <InputNumber
+                  v-model="serverAliveIntervalSeconds"
+                  :min="1"
+                  :disabled="formReadonly || !form.keepAliveEnabled"
+                  class="ssh-feature-row__number"
+                />
+                <span class="ssh-feature-row__suffix">{{ $t('seconds') }}</span>
+              </div>
+              <div class="ssh-feature-row" :class="{ 'ssh-feature-row--error': showKnownHostsUpdateAction }">
+                <Checkbox v-model="form.strictChecking" :disabled="formReadonly">{{ $t('strict-host-key-checking') }}</Checkbox>
+                <Button
+                  v-if="showKnownHostsUpdateAction"
+                  size="small"
+                  @click="handleUpdateKnownHostsAndRetry"
+                  :loading="updatingKnownHosts"
+                  :disabled="testing"
+                >
+                  {{ $t('update-host-key-cache-and-retry') }}
+                </Button>
+              </div>
+              <div class="ssh-feature-row">
+                <Checkbox v-model="form.connectTimeoutEnabled" :disabled="formReadonly">{{ $t('connect-timeout') }}</Checkbox>
+                <InputNumber
+                  v-model="form.connectTimeoutMs"
+                  :min="1000"
+                  :disabled="formReadonly || !form.connectTimeoutEnabled"
+                  class="ssh-feature-row__number"
+                />
+                <span class="ssh-feature-row__suffix">{{ $t('milliseconds') }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ssh-section">
+            <button type="button" class="ssh-section__head" @click="proxyExpanded = !proxyExpanded">
+              <Icon :type="proxyExpanded ? 'ios-arrow-down' : 'ios-arrow-forward'" />
+              <span>{{ $t('http-socks-proxy') }}</span>
+            </button>
+            <div v-if="proxyExpanded" class="ssh-section__body ssh-proxy-form">
+              <FormItem :label="$t('proxy')">
+                <RadioGroup v-model="form.proxyType" type="button" class="ssh-proxy-form__radio">
+                  <Radio :label="'NO_PROXY'" :disabled="formReadonly">{{ $t('no-proxy') }}</Radio>
+                  <Radio v-for="item in proxyOptions" :key="item" :label="item" :disabled="formReadonly">{{ item }}</Radio>
+                </RadioGroup>
+              </FormItem>
+              <template v-if="form.proxyType !== 'NO_PROXY'">
+                <div class="ssh-proxy-host-port-row">
+                  <FormItem :label="$t('proxy-host')">
+                    <Input v-model="form.proxyHost" :disabled="formReadonly" />
+                  </FormItem>
+                  <FormItem :label="$t('proxy-port')">
+                    <InputNumber v-model="form.proxyPort" :min="1" :max="65535" :disabled="formReadonly" style="width: 100%" />
+                  </FormItem>
+                </div>
+                <FormItem :label="$t('ren-zheng-fang-shi')">
+                  <Select v-model="form.proxySecurityType" :disabled="formReadonly">
+                    <Option value="NONE">{{ $t('none-auth') }}</Option>
+                    <Option value="USER_PASSWD">{{ $t('user-password') }}</Option>
+                  </Select>
+                </FormItem>
+                <FormItem v-if="form.proxySecurityType === 'USER_PASSWD'" :label="$t('proxy-user')">
+                  <Input v-model="form.proxyUsername" :disabled="formReadonly" />
+                </FormItem>
+                <FormItem v-if="form.proxySecurityType === 'USER_PASSWD'" :label="$t('proxy-password')">
+                  <Input
+                    v-model="form.proxyPassword"
+                    type="password"
+                    password
+                    :placeholder="secretPlaceholder(detail.proxyPasswordConfigured)"
+                    :disabled="formReadonly"
+                    @input="markSecretTouched('proxyPassword')"
+                  />
+                </FormItem>
+              </template>
+            </div>
+          </div>
+          <div class="ssh-form-actions">
+            <Button @click="handleModalTest" :loading="testing" :disabled="!selectedId && !isEditing">{{ $t('ce-shi-lian-jie') }}</Button>
+            <span v-if="testErrorMessage" class="ssh-test-error">
+              <Icon type="ios-close-circle" />
+              <span>{{ testErrorMessage }}</span>
+            </span>
+          </div>
+        </Form>
       </template>
-    </Modal>
+    </main>
   </div>
 </template>
 
@@ -159,11 +233,13 @@ const emptyForm = () => ({
   keepAliveEnabled: false,
   serverAliveIntervalMs: 300000,
   strictChecking: false,
+  knownHosts: [],
+  connectTimeoutEnabled: true,
   connectTimeoutMs: 30000,
   proxyType: 'NO_PROXY',
   proxyHost: '',
   proxyPort: null,
-  proxySecurityType: 'ONLY_USER',
+  proxySecurityType: 'NONE',
   proxyUsername: '',
   proxyPassword: ''
 });
@@ -176,10 +252,15 @@ export default {
       search: '',
       rows: [],
       loading: false,
-      showModal: false,
-      readonly: false,
+      selectedId: null,
+      isEditing: false,
       saving: false,
       testing: false,
+      updatingKnownHosts: false,
+      showKnownHostsUpdateAction: false,
+      testErrorMessage: '',
+      conExpanded: false,
+      proxyExpanded: false,
       form: emptyForm(),
       detail: {},
       secretTouched: {
@@ -188,15 +269,7 @@ export default {
         privateKeyPassphrase: false,
         proxyPassword: false
       },
-      proxyLabel: 'Proxy',
-      proxyOptions: ['HTTP', 'SOCKS4', 'SOCKS5'],
-      columns: [
-        { title: this.$t('ming-cheng'), key: 'name', minWidth: 180 },
-        { title: this.$t('lian-jie-di-zhi'), slot: 'endpoint', minWidth: 240 },
-        { title: this.$t('ren-zheng-fang-shi'), key: 'authType', minWidth: 140 },
-        { title: 'Proxy', key: 'proxyType', minWidth: 140 },
-        { title: this.$t('cao-zuo'), slot: 'action', width: 260, align: 'center' }
-      ]
+      proxyOptions: ['HTTP', 'SOCKS4', 'SOCKS5']
     };
   },
   computed: {
@@ -204,11 +277,16 @@ export default {
     canWrite() {
       return this.myAuth.includes('DM_SSH_CHANNEL_WRITE');
     },
-    modalTitle() {
-      if (this.readonly) {
-        return this.$t('ssh-tong-dao-xiang-qing');
+    formReadonly() {
+      return !this.isEditing;
+    },
+    serverAliveIntervalSeconds: {
+      get() {
+        return Math.max(1, Math.floor((this.form.serverAliveIntervalMs || 300000) / 1000));
+      },
+      set(value) {
+        this.form.serverAliveIntervalMs = (value || 1) * 1000;
       }
-      return this.form.id ? this.$t('bian-ji-ssh-tong-dao') : this.$t('xin-jian-ssh-tong-dao');
     }
   },
   mounted() {
@@ -221,55 +299,131 @@ export default {
         const res = await this.$services.dmSshConfigList({ data: { search: this.search } });
         if (res.success) {
           this.rows = res.data || [];
+          if (this.selectedId && !this.rows.some((row) => row.id === this.selectedId)) {
+            this.resetSelection();
+          }
         }
       } finally {
         this.loading = false;
       }
     },
-    handleCreate() {
-      this.readonly = false;
-      this.detail = {};
-      this.form = emptyForm();
-      this.resetSecretTouched(true);
-      this.showModal = true;
+    async selectRow(row) {
+      if (this.isEditing && this.form.id !== row.id) {
+        this.isEditing = false;
+      }
+      await this.loadDetail(row.id, false);
     },
-    async handleEdit(row, editable = false) {
-      const res = await this.$services.dmSshConfigDetail({ data: { id: row.id } });
+    async loadDetail(id, editable) {
+      const res = await this.$services.dmSshConfigDetail({ data: { id } });
       if (!res.success) {
         return;
       }
+      this.selectedId = id;
       this.detail = {
         ...res.data,
         proxyPasswordConfigured: !!res.data?.proxyPasswordConfigured
       };
       this.form = this.detailToForm(res.data);
       this.resetSecretTouched(false);
-      this.readonly = !editable;
-      this.showModal = true;
+      this.showKnownHostsUpdateAction = false;
+      this.testErrorMessage = '';
+      this.isEditing = editable;
     },
-    async handleDelete(row) {
-      const res = await this.$services.dmSshConfigDelete({ data: { id: row.id } });
-      if (res.success) {
-        this.$Message.success(this.$t('shan-chu-cheng-gong'));
-        this.loadList();
+    handleCreate() {
+      this.selectedId = null;
+      this.detail = {};
+      this.form = emptyForm();
+      this.resetSecretTouched(true);
+      this.showKnownHostsUpdateAction = false;
+      this.testErrorMessage = '';
+      this.conExpanded = false;
+      this.proxyExpanded = false;
+      this.isEditing = true;
+    },
+    handleEditSelected() {
+      if (this.selectedId) {
+        this.isEditing = true;
       }
     },
-    async handleTest(row) {
-      const res = await this.$services.dmSshConfigTestConnection({ data: { sshConfigId: row.id } });
-      this.showTestResult(res);
+    async handleCopySelected() {
+      if (!this.selectedId) {
+        return;
+      }
+      const source = this.form;
+      this.selectedId = null;
+      this.detail = {};
+      this.form = {
+        ...source,
+        id: null,
+        name: source.name ? `${source.name} copy` : '',
+        password: '',
+        privateKeyData: '',
+        privateKeyPassphrase: '',
+        proxyPassword: ''
+      };
+      this.resetSecretTouched(false);
+      this.showKnownHostsUpdateAction = false;
+      this.testErrorMessage = '';
+      this.isEditing = true;
+    },
+    async handleDeleteSelected() {
+      if (!this.selectedId) {
+        return;
+      }
+      const res = await this.$services.dmSshConfigDelete({ data: { id: this.selectedId } });
+      if (res.success) {
+        this.$Message.success(this.$t('shan-chu-cheng-gong'));
+        this.resetSelection();
+        await this.loadList();
+      }
+    },
+    resetSelection() {
+      this.selectedId = null;
+      this.detail = {};
+      this.form = emptyForm();
+      this.resetSecretTouched(false);
+      this.showKnownHostsUpdateAction = false;
+      this.testErrorMessage = '';
+      this.isEditing = false;
+    },
+    handleCancelEdit() {
+      if (!this.form.id) {
+        this.resetSelection();
+        return;
+      }
+      this.loadDetail(this.form.id, false);
     },
     async handleModalTest() {
       this.testing = true;
+      this.testErrorMessage = '';
       try {
-        const res = await this.$services.dmSshConfigTestConnection({
-          data: {
-            sshConfigId: this.form.id,
-            config: this.buildPayload()
-          }
-        });
+        const data = {
+          sshConfigId: this.form.id || this.selectedId,
+          config: this.isEditing ? this.buildPayload() : null
+        };
+        const res = await this.$services.dmSshConfigTestConnection({ data });
         this.showTestResult(res);
       } finally {
         this.testing = false;
+      }
+    },
+    async handleUpdateKnownHostsAndRetry() {
+      this.updatingKnownHosts = true;
+      try {
+        const data = {
+          sshConfigId: this.form.id || this.selectedId,
+          config: this.buildPayload()
+        };
+        const res = await this.$services.dmSshConfigProbeKnownHosts({ data });
+        if (!res.success) {
+          this.testErrorMessage = res.message || this.$t('update-host-key-cache-failed');
+          return;
+        }
+        this.form.knownHosts = res.data || [];
+        this.showKnownHostsUpdateAction = false;
+        await this.handleModalTest();
+      } finally {
+        this.updatingKnownHosts = false;
       }
     },
     async handleSave() {
@@ -280,8 +434,13 @@ export default {
         const res = await this.$services[apiName]({ data: payload });
         if (res.success) {
           this.$Message.success(this.$t('bao-cun-cheng-gong'));
-          this.showModal = false;
-          this.loadList();
+          await this.loadList();
+          const id = typeof res.data === 'object' ? res.data?.id || this.form.id : res.data || this.form.id;
+          if (id) {
+            await this.loadDetail(id, false);
+          } else {
+            this.resetSelection();
+          }
         }
       } finally {
         this.saving = false;
@@ -289,11 +448,17 @@ export default {
     },
     showTestResult(res) {
       if (res.success && res.data?.success) {
+        this.showKnownHostsUpdateAction = false;
+        this.testErrorMessage = '';
         this.$Message.success(res.data.message || this.$t('ce-shi-lian-jie-cheng-gong'));
         return;
       }
       const message = res.data?.message || res.message || this.$t('ce-shi-lian-jie-shi-bai');
-      this.$Message.error(message);
+      this.showKnownHostsUpdateAction = this.isEditing && this.canWrite && this.form.strictChecking && this.isHostKeyCheckError(message);
+      this.testErrorMessage = message;
+    },
+    isHostKeyCheckError(message) {
+      return /reject HostKey|HostKey has been changed|UnknownHostKey|host key/i.test(message || '');
     },
     detailToForm(data) {
       const conFeatures = data.conFeatures || {};
@@ -310,11 +475,13 @@ export default {
         keepAliveEnabled: !!conFeatures.keepAliveEnabled,
         serverAliveIntervalMs: conFeatures.serverAliveIntervalMs || 300000,
         strictChecking: !!(hostKey.strictChecking ?? conFeatures.strictHostKeyChecking),
+        knownHosts: conFeatures.knownHosts || [],
+        connectTimeoutEnabled: !!conFeatures.connectTimeoutMs,
         connectTimeoutMs: conFeatures.connectTimeoutMs || 30000,
         proxyType: data.proxyType || 'NO_PROXY',
         proxyHost: proxyFeatures.host || '',
         proxyPort: proxyFeatures.port || null,
-        proxySecurityType: proxyFeatures.securityType || 'ONLY_USER',
+        proxySecurityType: proxyFeatures.securityType === 'USER_PASSWD' ? 'USER_PASSWD' : 'NONE',
         proxyUsername: proxyFeatures.username || '',
         proxyPassword: ''
       };
@@ -330,30 +497,49 @@ export default {
         conFeatures: {
           keepAliveEnabled: this.form.keepAliveEnabled,
           serverAliveIntervalMs: this.form.keepAliveEnabled ? this.form.serverAliveIntervalMs : 0,
-          connectTimeoutMs: this.form.connectTimeoutMs,
+          connectTimeoutMs: this.form.connectTimeoutEnabled ? this.form.connectTimeoutMs : 0,
           hostKey: {
             strictChecking: this.form.strictChecking
-          }
+          },
+          knownHosts: this.form.knownHosts || []
         },
         proxyType: this.form.proxyType,
         proxyFeatures: {}
       };
-      this.fillSecret(payload, 'password');
-      this.fillSecret(payload, 'privateKeyData');
-      this.fillSecret(payload, 'privateKeyPassphrase');
+      if (this.form.authType === 'PASSWORD') {
+        this.fillSecret(payload, 'password');
+      }
+      if (this.form.authType === 'PRIVATE_KEY') {
+        if (this.secretTouched.privateKeyData) {
+          payload.privateKeyData = this.form.privateKeyData;
+        }
+        this.fillSecret(payload, 'privateKeyPassphrase');
+      }
       if (this.form.proxyType !== 'NO_PROXY') {
         payload.proxyFeatures = {
           host: this.form.proxyHost,
           port: this.form.proxyPort,
-          securityType: this.form.proxySecurityType,
-          username: this.form.proxyUsername
+          securityType: this.form.proxySecurityType
         };
-        this.fillSecret(payload.proxyFeatures, 'proxyPassword', 'password');
+        if (this.form.proxySecurityType === 'USER_PASSWD') {
+          payload.proxyFeatures.username = this.form.proxyUsername;
+        }
+        if (this.form.proxySecurityType === 'USER_PASSWD') {
+          this.fillSecret(payload.proxyFeatures, 'proxyPassword', 'password');
+        }
       }
       return payload;
     },
+    handleAuthTypeChange() {
+      this.form.password = '';
+      this.form.privateKeyData = '';
+      this.form.privateKeyPassphrase = '';
+      this.secretTouched.password = true;
+      this.secretTouched.privateKeyData = true;
+      this.secretTouched.privateKeyPassphrase = true;
+    },
     markSecretTouched(field) {
-      this.$set(this.secretTouched, field, true);
+      this.secretTouched[field] = true;
     },
     resetSecretTouched(value) {
       this.secretTouched = {
@@ -374,6 +560,11 @@ export default {
     },
     secretPlaceholder(configured) {
       return configured ? this.$t('yi-pei-zhi-liu-kong-bao-chi-bu-bian') : '';
+    },
+    formatEndpoint(row) {
+      const username = row.username || '<username>';
+      const host = row.host || 'localhost';
+      return `${username}@${host}:${row.port || 22}`;
     }
   }
 };
@@ -381,36 +572,292 @@ export default {
 
 <style lang="less" scoped>
 .ssh-config-page {
-  padding: 8px;
+  height: calc(100vh - 116px);
+  min-height: 620px;
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  border: 1px solid #e8eaec;
+  background: #fff;
+  overflow: hidden;
 }
 
-.ssh-config-toolbar {
+.ssh-config-list {
+  min-width: 0;
+  min-height: 0;
+  border-right: 1px solid #e8eaec;
+  display: flex;
+  flex-direction: column;
+  background: #fafafa;
+  overflow: hidden;
+}
+
+.ssh-config-list__searchbar {
+  height: 48px;
+  padding: 8px 10px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 8px;
+  border-bottom: 1px solid #e8eaec;
 }
 
-.ssh-config-toolbar__right {
-  margin-left: auto;
+.ssh-config-list__searchbar :deep(.ivu-input-wrapper) {
+  flex: 1;
+  min-width: 0;
+}
+
+.ssh-config-list__body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 6px 8px 16px;
+}
+
+.ssh-config-empty-list,
+.ssh-config-empty-detail {
+  color: #8c8c8c;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.ssh-config-empty-list {
+  position: absolute;
+  inset: 0;
   display: flex;
-  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.ssh-config-item {
+  width: 100%;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #515a6e;
+  cursor: pointer;
+  display: block;
+  text-align: left;
+  padding: 8px 10px;
+  margin-bottom: 4px;
+  overflow: hidden;
+}
+
+.ssh-config-item:hover,
+.ssh-config-item--active {
+  background: #e8f2ff;
+  color: #2d8cf0;
+}
+
+.ssh-config-item__title,
+.ssh-config-item__meta {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ssh-config-item__title {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.ssh-config-item__meta {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.ssh-config-detail {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  overflow: hidden;
+}
+
+.ssh-config-detail__toolbar {
+  height: 48px;
+  flex: 0 0 48px;
+  padding: 8px 24px;
+  border-bottom: 1px solid #e8eaec;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ssh-config-detail__toolbar-title {
+  min-width: 0;
+  flex: 1;
+}
+
+.ssh-config-detail__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.ssh-config-empty-detail {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .ssh-config-form {
-  max-height: 62vh;
-  overflow: auto;
-  padding-right: 8px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px 28px 16px;
 }
 
-.form-grid {
+.ssh-basic-settings {
+  max-width: 900px;
+}
+
+.ssh-private-key-textarea {
+  width: 100%;
+  min-height: 168px;
+  padding: 6px 7px;
+  border: 1px solid #dcdee2;
+  border-radius: 4px;
+  color: #515a6e;
+  background: #fff;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.ssh-private-key-textarea:focus {
+  border-color: #57a3f3;
+}
+
+.ssh-private-key-textarea:disabled {
+  color: #c5c8ce;
+  background: #f3f3f3;
+  cursor: not-allowed;
+}
+
+.ssh-basic-settings__title {
+  height: 32px;
+  color: #515a6e;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.ssh-host-port-row {
   display: grid;
-  grid-template-columns: repeat(2, minmax(260px, 1fr));
-  column-gap: 20px;
+  grid-template-columns: minmax(360px, 1fr) 220px;
+  column-gap: 24px;
 }
 
-@media (max-width: 900px) {
-  .form-grid {
+.ssh-section {
+  margin-top: 12px;
+}
+
+.ssh-section__head {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid #e8eaec;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  color: #515a6e;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.ssh-section__body {
+  padding-top: 18px;
+}
+
+.ssh-feature-rows,
+.ssh-proxy-form {
+  padding-left: 38px;
+}
+
+.ssh-feature-row {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #515a6e;
+}
+
+.ssh-feature-row--error,
+.ssh-feature-row--error :deep(.ivu-checkbox-wrapper) {
+  color: #ed4014;
+}
+
+.ssh-feature-row--error :deep(.ivu-btn) {
+  color: #ed4014;
+  border-color: #ed4014;
+}
+
+.ssh-feature-row__number {
+  width: 92px;
+}
+
+.ssh-feature-row__suffix {
+  color: #515a6e;
+}
+
+.ssh-proxy-form {
+  max-width: 900px;
+}
+
+.ssh-proxy-form :deep(.ivu-form-item) {
+  margin-bottom: 14px;
+}
+
+.ssh-proxy-form__radio {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+}
+
+.ssh-proxy-host-port-row {
+  display: grid;
+  grid-template-columns: minmax(360px, 1fr) 220px;
+  column-gap: 24px;
+}
+
+.ssh-form-actions {
+  max-width: 900px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e8eaec;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-start;
+}
+
+.ssh-test-error {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #ed4014;
+  line-height: 1.4;
+}
+
+@media (max-width: 980px) {
+  .ssh-config-page {
+    grid-template-columns: 240px minmax(0, 1fr);
+  }
+
+  .ssh-host-port-row,
+  .ssh-proxy-host-port-row {
     grid-template-columns: 1fr;
   }
 }

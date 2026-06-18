@@ -23,10 +23,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
+import com.clougence.clouddm.base.metadata.ds.SshProxyType;
+import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.ssh.SshConfigIdFO;
 import com.clougence.clouddm.console.web.model.fo.ssh.SshConfigListFO;
@@ -66,12 +71,13 @@ public class SshConfigController {
     @RequestAuth(DM_SSH_CHANNEL_WRITE)
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public ResWebData<?> create(@Valid @RequestBody SshConfigSaveFO fo, HttpServletRequest request) {
+        validateRequest(fo);
         String uid = (String) request.getAttribute(RdpUserService.UID);
-        fo.setPassword(decryptSubmittedSecret(fo.getPassword()));
-        fo.setPrivateKeyData(decryptSubmittedSecret(fo.getPrivateKeyData()));
-        fo.setPrivateKeyPassphrase(decryptSubmittedSecret(fo.getPrivateKeyPassphrase()));
+        String privateKey = this.config.getPrivateKey();
+        fo.setPassword(Sm2Utils.decrypt(privateKey, fo.getPassword()));
+        fo.setPrivateKeyPassphrase(Sm2Utils.decrypt(privateKey, fo.getPrivateKeyPassphrase()));
         if (fo.getProxyFeatures() != null) {
-            fo.getProxyFeatures().setPassword(decryptSubmittedSecret(fo.getProxyFeatures().getPassword()));
+            fo.getProxyFeatures().setPassword(Sm2Utils.decrypt(privateKey, fo.getProxyFeatures().getPassword()));
         }
         return ResWebDataUtils.buildSuccess(this.sshConfigService.create(uid, fo));
     }
@@ -79,12 +85,13 @@ public class SshConfigController {
     @RequestAuth(DM_SSH_CHANNEL_WRITE)
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     public ResWebData<?> update(@Valid @RequestBody SshConfigSaveFO fo, HttpServletRequest request) {
+        validateRequest(fo);
         String uid = (String) request.getAttribute(RdpUserService.UID);
-        fo.setPassword(decryptSubmittedSecret(fo.getPassword()));
-        fo.setPrivateKeyData(decryptSubmittedSecret(fo.getPrivateKeyData()));
-        fo.setPrivateKeyPassphrase(decryptSubmittedSecret(fo.getPrivateKeyPassphrase()));
+        String privateKey = this.config.getPrivateKey();
+        fo.setPassword(Sm2Utils.decrypt(privateKey, fo.getPassword()));
+        fo.setPrivateKeyPassphrase(Sm2Utils.decrypt(privateKey, fo.getPrivateKeyPassphrase()));
         if (fo.getProxyFeatures() != null) {
-            fo.getProxyFeatures().setPassword(decryptSubmittedSecret(fo.getProxyFeatures().getPassword()));
+            fo.getProxyFeatures().setPassword(Sm2Utils.decrypt(privateKey, fo.getProxyFeatures().getPassword()));
         }
         this.sshConfigService.update(uid, fo);
         return ResWebDataUtils.buildSuccess();
@@ -102,18 +109,50 @@ public class SshConfigController {
     @RequestMapping(value = "/testConnection", method = RequestMethod.POST)
     public ResWebData<?> testConnection(@Valid @RequestBody TestSshConnectionFO fo) {
         if (fo != null && fo.getConfig() != null) {
+            validateRequest(fo.getConfig());
+            String privateKey = this.config.getPrivateKey();
             SshConfigSaveFO config = fo.getConfig();
-            config.setPassword(decryptSubmittedSecret(config.getPassword()));
-            config.setPrivateKeyData(decryptSubmittedSecret(config.getPrivateKeyData()));
-            config.setPrivateKeyPassphrase(decryptSubmittedSecret(config.getPrivateKeyPassphrase()));
+            config.setPassword(Sm2Utils.decrypt(privateKey, config.getPassword()));
+            config.setPrivateKeyPassphrase(Sm2Utils.decrypt(privateKey, config.getPrivateKeyPassphrase()));
             if (config.getProxyFeatures() != null) {
-                config.getProxyFeatures().setPassword(decryptSubmittedSecret(config.getProxyFeatures().getPassword()));
+                config.getProxyFeatures().setPassword(Sm2Utils.decrypt(privateKey, config.getProxyFeatures().getPassword()));
             }
         }
         return ResWebDataUtils.buildSuccess(this.sshConfigService.testConnection(fo));
     }
 
-    private String decryptSubmittedSecret(String value) {
-        return value == null ? null : Sm2Utils.decrypt(this.config.getPrivateKey(), value);
+    @RequestAuth(DM_SSH_CHANNEL_WRITE)
+    @RequestMapping(value = "/probeKnownHosts", method = RequestMethod.POST)
+    public ResWebData<?> probeKnownHosts(@Valid @RequestBody TestSshConnectionFO fo) {
+        if (fo != null && fo.getConfig() != null) {
+            validateRequest(fo.getConfig());
+            String privateKey = this.config.getPrivateKey();
+            SshConfigSaveFO config = fo.getConfig();
+            config.setPassword(Sm2Utils.decrypt(privateKey, config.getPassword()));
+            config.setPrivateKeyPassphrase(Sm2Utils.decrypt(privateKey, config.getPrivateKeyPassphrase()));
+            if (config.getProxyFeatures() != null) {
+                config.getProxyFeatures().setPassword(Sm2Utils.decrypt(privateKey, config.getProxyFeatures().getPassword()));
+            }
+        }
+        return ResWebDataUtils.buildSuccess(this.sshConfigService.probeKnownHosts(fo));
+    }
+
+    private void validateRequest(SshConfigSaveFO fo) {
+        if (fo == null) {
+            return;
+        }
+        if (fo.getPort() == null || fo.getPort() <= 0 || fo.getPort() > 65535) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SSH_PORT_REQUIRED_ERROR.name()));
+        }
+        if (fo.getProxyType() == null || fo.getProxyType() == SshProxyType.NO_PROXY) {
+            return;
+        }
+        if (fo.getProxyFeatures() == null || fo.getProxyFeatures().getSecurityType() == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SSH_PROXY_AUTH_TYPE_REQUIRED_ERROR.name()));
+        }
+        SecurityType securityType = fo.getProxyFeatures().getSecurityType();
+        if (securityType != SecurityType.NONE && securityType != SecurityType.USER_PASSWD) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SSH_PROXY_AUTH_TYPE_UNSUPPORTED_ERROR.name()));
+        }
     }
 }

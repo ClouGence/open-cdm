@@ -56,7 +56,7 @@ public class SshRServiceProvider implements SshRService {
 
             SshKnownHost item = new SshKnownHost();
             item.setHost(config.getHost());
-            item.setPort(config.getPort() == null ? 22 : config.getPort());
+            item.setPort(config.getPort());
             item.setType(hostKey.getType());
             item.setKey(hostKey.getKey());
             return Collections.singletonList(item);
@@ -70,20 +70,26 @@ public class SshRServiceProvider implements SshRService {
     @Override
     public TestResultDTO testConnection(RSocketSendDTO sendDTO, SshConfig config) {
         long start = System.currentTimeMillis();
+        String wsnString = (sendDTO == null) ? null : sendDTO.getWorkerSeqNumber();
         Session session = null;
+
         try {
             session = this.connectionManager.openSession(config, true, false);
             TestResultDTO result = new TestResultDTO();
             result.setSuccess(true);
             result.setMessage("connection successful");
             result.setCostMs(System.currentTimeMillis() - start);
+            log.info("finish test ssh connection in sidecar, workerSeqNumber={}, host={}, port={}, success=true, costMs={}",//
+                    wsnString, config.getHost(), config.getPort(), result.getCostMs());
             return result;
         } catch (Exception e) {
-            log.warn("test ssh connection failed.", e);
+            long costMs = System.currentTimeMillis() - start;
+            log.warn("test ssh connection failed in sidecar, workerSeqNumber={}, host={}, port={}, costMs={}",//
+                    wsnString, config.getHost(), config.getPort(), costMs, e);
             TestResultDTO result = new TestResultDTO();
             result.setSuccess(false);
             result.setMessage(e.getMessage());
-            result.setCostMs(System.currentTimeMillis() - start);
+            result.setCostMs(costMs);
             return result;
         } finally {
             disconnect(session);
