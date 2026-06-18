@@ -178,17 +178,19 @@ public class SshConfigServiceImpl implements SshConfigService {
             strictHostKeyChecking = conFeatures.isStrictHostKeyChecking();
         }
 
-        if (fo.getConfig() == null && strictHostKeyChecking && (conFeatures == null || conFeatures.getKnownHosts() == null || conFeatures.getKnownHosts().isEmpty())) {
+        if (strictHostKeyChecking && (conFeatures == null || conFeatures.getKnownHosts() == null || conFeatures.getKnownHosts().isEmpty())) {
             if (conFeatures == null) {
                 conFeatures = new SshConFeatures();
                 sshConfig.setConFeatures(conFeatures);
-                exists.setConFeatures(conFeatures);
             }
-            log.info("auto probe and save missing ssh known hosts before test, sshConfigId={}, workerSeqNumber={}, host={}, port={}",//
+            log.info("auto probe missing ssh known hosts before test, sshConfigId={}, workerSeqNumber={}, host={}, port={}",//
                     fo.getSshConfigId(), workerSeqNumber, sshConfig.getHost(), sshConfig.getPort());
             conFeatures.setKnownHosts(this.sshRService.probeKnownHosts(CallUtils.buildSendDTO(workerSeqNumber), sshConfig));
-            exists.setGmtModified(new Date());
-            this.systemDal.sshConfigMapper().updateById(exists);
+            if (fo.getConfig() == null) {
+                exists.setConFeatures(conFeatures);
+                exists.setGmtModified(new Date());
+                this.systemDal.sshConfigMapper().updateById(exists);
+            }
         }
 
         return new TestSshConfigDTO(workerSeqNumber, sshConfig, strictHostKeyChecking);
