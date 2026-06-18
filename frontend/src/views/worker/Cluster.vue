@@ -1,10 +1,5 @@
 <template>
   <div class="cluster-container">
-    <Breadcrumb style="margin-bottom: 14px">
-      <BreadcrumbItem>
-        {{ type === 'dm' ? $t('cha-xun-ji-qi') : $t('tong-bu-ji-qi') }}
-      </BreadcrumbItem>
-    </Breadcrumb>
     <ClusterHeader
       :handleSearch="handleRefresh"
       :refreshLoading="refreshLoading"

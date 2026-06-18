@@ -1,32 +1,23 @@
 <template>
-  <div class="user-center content-wrapper" style="padding: 0">
+  <div class="preference-page">
     <div>
       <div style="position: relative">
         <div>
-          <div v-if="myAuth.includes('RDP_PRI_USER_KV_CONF_R')" class="user-account-title border-radius-card" style="margin-bottom: 8px">
-            <div>{{ $t('yong-hu-she-zhi') }}</div>
-            <div>
-              <Button
-                :loading="loading"
-                type="default"
-                style="margin-right: 6px"
-                @click="handleSearch"
-                v-if="myAuth.includes('RDP_PRI_USER_KV_CONF_R')"
-                size="small"
-              >
-                <CustomIcon type="icon-v2-Refresh" v-if="!loading" />
-              </Button>
-              <Button v-if="myAuth.includes('RDP_PRI_USER_KV_CONF_W')" type="primary" @click="handleSubmitUserConfig" size="small">
-                {{ $t('bao-cun') }}
-              </Button>
-            </div>
-          </div>
           <user-config-params-edit
             :refresh-loading="loading"
             v-if="myAuth.includes('RDP_PRI_USER_KV_CONF_R')"
             ref="userConfigParamsEdit"
             :canEdit="canEdit"
-          />
+          >
+            <template v-if="myAuth.includes('RDP_PRI_USER_KV_CONF_R')" #actions>
+              <Button :loading="loading" type="default" size="small" @click="handleSearch">
+                <CustomIcon type="icon-v2-Refresh" v-if="!loading" />
+              </Button>
+              <Button v-if="myAuth.includes('RDP_PRI_USER_KV_CONF_W')" type="primary" size="small" @click="handleSubmitUserConfig">
+                {{ $t('bao-cun') }}
+              </Button>
+            </template>
+          </user-config-params-edit>
         </div>
       </div>
     </div>
@@ -465,270 +456,10 @@ export default {
 };
 </script>
 <style lang="less">
-.user-center-title {
-  font-size: 16px;
-  line-height: 16px;
-  padding-left: 8px;
-  color: rgba(0, 0, 0, 0.88);
-  font-family: PingFangSC-Semibold, serif;
-  font-weight: 500;
-  border-left: 3px solid #535c70;
-  margin-bottom: 6px;
-}
-
-.user-center-wrapper {
-  margin-top: 16px;
-  padding: 20px 40px;
-  background-color: #ffffff;
-  border: 1px solid #dadada;
-
-  & > p {
-    line-height: 36px;
-    font-size: 16px;
-    padding: 12px 0;
-    border-bottom: 1px solid #dadada;
-
-    .user-center-label {
-      font-family: PingFangSC-Semibold, serif;
-      font-weight: 500;
-      display: inline-block;
-      width: 104px;
-    }
-
-    .user-center-value {
-      margin-right: 10px;
-      display: inline-block;
-    }
-  }
-
-  .ivu-table td,
-  .ivu-table th {
-    height: 40px;
-  }
-}
-
-.user-center-wrapper-sp {
-  background-color: #ececec;
-  margin-bottom: 20px;
-
-  .ivu-input {
-    height: 40px;
-    line-height: 40px;
-  }
-
-  .user-center-wrapper-sp-btn {
-    background-color: #ffa30e;
-    color: #ffffff;
-    margin-top: 16px;
-    background-image: none;
-    border: none;
-    width: 100%;
-    height: 50px;
-    line-height: 50px;
-    font-size: 16px;
-    font-family: PingFangSC-Semibold, serif;
-    font-weight: 500;
-
-    &:hover {
-      background-color: #ffa30e !important;
-      background-image: none;
-    }
-  }
-}
-
-/*.ivu-form-item:last-child{*/
-/*    margin-bottom: 0;*/
-/*}*/
-.system-setting-title {
-  font-family: PingFangSC-Semibold, serif;
-  font-weight: 500;
-  margin-bottom: 20px;
-}
-
-.user-center {
-  position: relative;
-
-  .ivu-tabs-nav .ivu-tabs-tab-active {
-    color: #0bb9f8;
-    font-family: PingFangSC-Semibold, serif;
-  }
-
-  .ivu-table th {
-    background-color: #f5f5f5;
-  }
-}
-
-.password-check {
-  li {
-    font-size: 12px;
-    line-height: 25px;
-    color: #808695;
-
-    i {
-      margin-right: 5px;
-      font-size: 14px;
-    }
-
-    .ivu-icon-ios-close-circle-outline {
-      color: #ed4014;
-    }
-
-    .ivu-icon-ios-checkmark-circle-outline {
-      color: #19be6b;
-    }
-  }
-}
-
-.resource-basic {
-  height: 132px;
-  width: 100%;
-  /*padding: 20px 60px;*/
-  padding-top: 32px;
-  /*border-radius: 4px;*/
-  background-color: #ffffff;
-  position: relative;
-  box-shadow: 1px 1px 5px 0 rgba(197, 197, 197, 0.5);
-
-  .resource-content {
-    width: 200px;
-    margin: 0 auto;
-    /*padding-left: 96px;*/
-
-    .license-set-url {
-      cursor: pointer;
-      font-family: PingFangSC-Medium, serif;
-      font-weight: 500;
-      margin-bottom: 30px;
-
-      &:hover {
-        color: #0bb9f8;
-      }
-
-      &:active {
-        color: #0087c7;
-      }
-    }
-  }
-
-  .resource-basic-title {
-    font-size: 16px;
-    margin-bottom: 8px;
-  }
-
-  .resource-basic-count {
-    font-size: 24px;
-    font-family: PingFangSC-Semibold, serif;
-    font-weight: 500;
-    /*margin-bottom: 16px;*/
-  }
-
-  .resource-logo {
-    /*position: absolute;*/
-    font-size: 32px;
-    /*left: 20px;*/
-    /*top:37px;*/
-    display: inline-block;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    text-align: center;
-    line-height: 60px;
-    vertical-align: middle;
-    margin-right: 16px;
-
-    .iconfont {
-      font-size: 32px;
-    }
-
-    .iconxingzhuang {
-      color: #ffac25;
-    }
-
-    .iconquanliangqianyisvg {
-      color: #66a2ff;
-    }
-
-    .iconqianyi {
-      color: #67cd51;
-    }
-
-    .iconjiaoyan {
-      color: #838aff;
-    }
-  }
-}
-
-.resource-suggest {
-  background-color: #fff2de;
-  height: 580px;
-  overflow: hidden;
-
-  .iconfont {
-    color: #f1dab6;
-    font-size: 180px;
-    right: -50px;
-    bottom: -40px;
-  }
-}
-
-.quota-basic {
-  height: 125px;
-  background-color: #def3fc;
-  border-radius: 4px;
-  padding: 20px 26px;
-
-  .quota-basic-title {
-    font-size: 16px;
-    margin-bottom: 7px;
-  }
-
-  .quota-use-count {
-    font-size: 36px;
-    font-family: PingFangSC-Semibold, serif;
-    margin-right: 10px;
-  }
-
-  .quota-total-count {
-    font-size: 24px;
-    font-family: PingFangSC-Semibold, serif;
-    margin-top: 20px;
-  }
-}
-
-.user-account-title {
-  font-size: 16px;
-  font-family: PingFangSC-Semibold, serif;
-  margin-bottom: 10px;
-  border: 1px solid #dadada;
-  background-color: #eeeeee;
-  padding: 0 16px;
-  height: 40px;
-  line-height: 40px;
+.preference-page {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.user-quota-count {
-  font-family: PingFangSC-Medium, serif;
-  font-size: 20px;
-  font-weight: 500;
-  margin-bottom: 8px;
-  text-align: center;
-}
-
-.user-quota-title {
-  color: #888888;
-  text-align: center;
-}
-
-.license-set-detail-item {
-  height: 40px;
-  line-height: 40px;
-
-  span {
-    width: 100px;
-    display: inline-block;
-  }
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
 }
 </style>
