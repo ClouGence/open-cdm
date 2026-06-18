@@ -88,8 +88,8 @@
               </Button>
             </div>
           </div>
-          <div class="table-container">
-            <Table size="small" border :columns="logColumn" :data="logData" :loading="refreshLoading">
+          <div class="table-container audit-log-table">
+            <Table size="small" border :columns="logColumn" :data="logData" :loading="refreshLoading" :scroll="tableScroll">
               <template #operator="{ row }">
                 <div class="operator-cell">
                   <div>{{ row.userName }}</div>
@@ -192,12 +192,12 @@ export default {
         {
           title: this.$t('cao-zuo-zhe'),
           slot: 'operator',
-          width: 230
+          width: 160
         },
         {
           title: this.$t('cao-zuo-shi-jian'),
           key: 'operateTime',
-          width: 200,
+          width: 170,
           render: (_, params) => {
             const row = params.row || params;
             if (!row.operateTime) {
@@ -213,7 +213,7 @@ export default {
         {
           title: this.$t('zhuang-tai'),
           key: 'status',
-          width: 120,
+          width: 110,
           render: (_, params) => {
             const row = params.row || params;
             let color = '#ed4014';
@@ -248,12 +248,12 @@ export default {
         {
           title: this.$t('shu-ju-yuan'),
           slot: 'datasource',
-          width: 300
+          width: 240
         },
         {
           title: this.$t('cao-zuo-zi-yuan'),
           key: 'resource',
-          width: 150,
+          width: 200,
           slot: 'resource'
         },
         {
@@ -278,7 +278,7 @@ export default {
         {
           title: this.$t('sql-zhi-hang-shi-jian'),
           key: 'cost',
-          width: 150,
+          width: 140,
           render: (_, params) => {
             const row = params.row || params;
             return h('div', {}, `${row.cost || 0}ms`);
@@ -287,22 +287,22 @@ export default {
         {
           title: this.$t('ying-xiang-hang-shu'),
           key: 'affectLine',
-          width: 120
+          width: 110
         },
         {
           title: this.$t('cao-zuo-di-zhi'),
           key: 'clientIp',
-          minWidth: 150
+          width: 140
         },
         {
           title: this.$t('ri-zhi-di-zhi'),
           key: 'logIp',
-          minWidth: 150
+          width: 140
         },
         {
           title: this.$t('sql-nei-rong'),
           slot: 'execSql',
-          width: 200,
+          width: 100,
           fixed: 'right'
         }
       ],
@@ -310,7 +310,13 @@ export default {
     };
   },
   computed: {
-    ...mapState(['globalSetting'])
+    ...mapState(['globalSetting']),
+    tableScroll() {
+      const scrollX = this.logColumn.reduce((sum, column) => {
+        return sum + (column.width || column.minWidth || 0);
+      }, 0);
+      return { x: scrollX };
+    }
   },
   mounted() {
     this.getDsList();
@@ -538,7 +544,7 @@ export default {
 
   .sql-log-resource-cell {
     display: inline-block;
-    max-width: 130px;
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

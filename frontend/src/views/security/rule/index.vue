@@ -1,11 +1,15 @@
 <template>
   <div class="rule-list-container">
     <div class="table-list-layout">
+      <nav class="rule-tabs">
+        <span class="rule-tabs__item" :class="{ 'is-active': activeTab === 'QUERY' }" @click="handleTabClick('QUERY')">
+          {{ $t('cha-xun-gui-ze') }}
+        </span>
+        <span class="rule-tabs__item" :class="{ 'is-active': activeTab === 'SENSITIVE' }" @click="handleTabClick('SENSITIVE')">
+          {{ $t('tuo-min-gui-ze') }}
+        </span>
+      </nav>
       <div class="table-list">
-        <Tabs v-model="activeTab" @on-click="handleTabClick">
-          <TabPane :label="$t('cha-xun-gui-ze')" name="QUERY"></TabPane>
-          <TabPane :label="$t('tuo-min-gui-ze')" name="SENSITIVE"></TabPane>
-        </Tabs>
         <div class="content" v-if="isQuery">
           <div class="option">
             <div class="left">
@@ -248,6 +252,7 @@ export default {
   methods: {
     ...mapActions(['getRuleSetting']),
     handleTabClick(name) {
+      this.activeTab = name;
       this.$router.push({
         path: '/system/dmrulelist',
         query: {
@@ -369,6 +374,49 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+.rule-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 0 20px;
+  background: var(--bg-card);
+
+  &__item {
+    position: relative;
+    padding: 12px 14px 10px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    text-decoration: none;
+    cursor: pointer;
+    border-bottom: none;
+    transition: color 0.12s ease;
+
+    &:hover {
+      color: var(--text-primary);
+      border-bottom: none;
+    }
+
+    &.is-active {
+      color: var(--text-primary);
+      font-weight: 500;
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 14px;
+        right: 14px;
+        bottom: 0;
+        height: 2px;
+        border-radius: 2px 2px 0 0;
+        background: var(--primary-color);
+      }
+    }
+  }
+}
+
 :deep(.ivu-form-item) {
   margin-bottom: 10px;
 }
