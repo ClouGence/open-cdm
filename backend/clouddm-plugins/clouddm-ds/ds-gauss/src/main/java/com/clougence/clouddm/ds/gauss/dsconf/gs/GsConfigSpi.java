@@ -15,23 +15,35 @@
  */
 package com.clougence.clouddm.ds.gauss.dsconf.gs;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigMap;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
 
-public class GsConfigSpi implements DsConfigSpi, ConfigKeys {
+public class GsConfigSpi implements DsConfigSpi {
 
     @Override
-    public DataSourceConfig newConfig(Map<String, String> configMap) {
-        return new GsConfig();
+    public Class<? extends DataSourceConfig> newConfig() {
+        return GsConfig.class;
     }
 
     @Override
-    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, DsConfigMap dsConfigMap) {
-        ((GsConfig) dsConfig).setDefaultDataBase((String) dsConfigMap.getRdpDsBean().get(RDP_DS_KEY_DB_NAME));
+    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
+        GsConfig config = (GsConfig) dsConfig;
+        config.setDefaultCatalog(defaultConfig.get(GsConfig.Fields.defaultCatalog));
+        config.setDefaultSchema(defaultConfig.get(GsConfig.Fields.defaultSchema));
         return dsConfig;
+    }
+
+    @Override
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.NONE);
+        options.add(SecurityType.ONLY_USER);
+        options.add(SecurityType.USER_PASSWD);
+        return options;
     }
 }

@@ -8,28 +8,32 @@
       :label-width="110"
       :rules="addDataSourceRule"
     >
-      <FormItem :label="$t('shu-ju-ku-lei-xing')" prop="type">
+      <FormItem class="datasource-type-form-item" prop="type" :label-width="0">
         <RadioGroup
           v-model="addDataSourceForm.type"
           type="button"
-          class="radio-group-radius-warp-datasource custom-radio-group"
+          class="datasource-type-radio-group radio-group-radius-warp-datasource custom-radio-group"
           @on-change="handleDataSourceChange"
         >
-          <div class="mb-6" v-for="(dataSourceGroup, index) of dataSourceTypes" :key="index">
+          <div class="datasource-type-group" v-for="(dataSourceGroup, index) of dataSourceTypes" :key="index">
             <Radio
               translate="no"
-              class="custom-radio"
+              class="datasource-type-radio custom-radio"
               v-for="type of dataSourceGroup"
-              :label="type"
-              :disabled="supportedDsType[type] === 'NOT_AUTHED'"
-              :key="type"
-              style="width: 160px; text-align: center; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px"
+              :label="type.dsKey"
+              :disabled="supportedDsType[type.dsKey] === 'NOT_AUTHED'"
+              :key="type.dsKey"
             >
-              <span>
-                <span class="mid-text">
-                  {{ getShowNameByDeployTypeAndDsName(getDeployTypeByDsName(type), type) }}
+              <span class="datasource-type-card">
+                <DataSourceIcon
+                  class="datasource-type-icon"
+                  size="28px"
+                  :type="type.dsKey"
+                  :instanceType="getDeployTypeByDsName(type.dsKey)"
+                ></DataSourceIcon>
+                <span class="datasource-type-name" :title="type.displayName">
+                  {{ type.displayName }}
                 </span>
-                <DataSourceIcon class="ml-1" :type="type" :instanceType="getDeployTypeByDsName(type)"></DataSourceIcon>
               </span>
             </Radio>
           </div>
@@ -192,10 +196,7 @@
             </Tooltip>
           </div>
         </FormItem>
-        <FormItem
-          :label="$t('lian-jie-fang-shi')"
-          v-if="(isOracle(addDataSourceForm.type) || isCk(addDataSourceForm.type)) && !isHana(addDataSourceForm.type)"
-        >
+        <FormItem :label="$t('lian-jie-fang-shi')" v-if="isOracle(addDataSourceForm.type) && !isHana(addDataSourceForm.type)">
           <Select v-model="addDataSourceForm.connectType" style="width: 280px">
             <Option v-for="type in oracleConnectTypeList" :value="type.connectType" :key="type.connectType">
               {{ type.i18nName }}
@@ -229,44 +230,9 @@
             {{ $t('jian-yi-zhong-xin-sheng-cheng-he-cheng-hive-he-dui-ying-hdfs-principal-ren-zheng') }}
           </span>
         </FormItem>
-        <FormItem
-          :label="getSecurity(addDataSourceForm.securityType).dbNameLabel"
-          porp="default"
-          prop="dbName"
-          key="dbName"
-          :rules="[
-            {
-              required: true,
-              message: this.$t('mo-ren-shu-ju-ku-bu-neng-wei-kong'),
-              trigger: 'blur'
-            }
-          ]"
-          v-if="
-            getSecurity(addDataSourceForm.securityType).needDbName &&
-            (isDb2(addDataSourceForm.type) ||
-              isHana(addDataSourceForm.type) ||
-              isGaussDB(addDataSourceForm.type) ||
-              isMaxCompute(addDataSourceForm.type))
-          "
-        >
+        <FormItem :label="$t('mo-ren-shu-ju-ku')" prop="dbName" key="dbName" v-if="showDefaultDbName(addDataSourceForm.type)">
           <Input v-model="addDataSourceForm.dbName" style="width: 280px" />
           <a v-if="showFaq" style="margin-left: 10px" :href="urlForFaq" target="_blank">FAQ</a>
-        </FormItem>
-        <FormItem
-          :label="getSecurity(addDataSourceForm.securityType).dbNameLabel"
-          prop="noValidateDbName"
-          key="noValidateDbName"
-          v-if="
-            getSecurity(addDataSourceForm.securityType).needDbName &&
-            !(
-              isDb2(addDataSourceForm.type) ||
-              isHana(addDataSourceForm.type) ||
-              isGaussDB(addDataSourceForm.type) ||
-              isMaxCompute(addDataSourceForm.type)
-            )
-          "
-        >
-          <Input v-model="addDataSourceForm.noValidateDbName" style="width: 280px" />
         </FormItem>
         <FormItem
           :label="$t('zhang-hao')"
@@ -317,10 +283,7 @@
             </template>
           </Tooltip>
         </FormItem>
-        <FormItem
-          v-if="Mapping.testSecurityType.includes(addDataSourceForm.securityType) && canTestyDsList.includes(addDataSourceForm.type)"
-          key="testConnection"
-        >
+        <FormItem v-if="Mapping.testSecurityType.includes(addDataSourceForm.securityType)" key="testConnection">
           <Button :loading="testConnectionLoading" @click="handleTestConnection">{{ $t('ce-shi-lian-jie') }}</Button>
           <span v-if="hasTestConnectionResult" class="test-connection-result">
             <Icon :type="testConnectionSuccess ? 'ios-checkmark-circle' : 'ios-close-circle'" :color="testConnectionSuccess ? 'green' : 'red'" />
@@ -504,13 +467,13 @@
   </div>
 </template>
 <script>
-import { isBedrock, isCk, isDb2, isDuckDB, isHana, isOracle, isRabbitMQ, isStarRocks, separatePort, isGaussDB, isMaxCompute } from '@/utils';
+import { isBedrock, isDb2, isDuckDB, isHana, isOracle, isRabbitMQ, isStarRocks, separatePort, isGaussDB, isMaxCompute, isSQLServer } from '@/utils';
 import { CONNECT_TYPE, ORACLE_CONTENT_TYPE } from '@/const/ccIndex';
 import ConfigParamsEdit from '@/views/system/ConfigParamsEdit';
 import Mapping from '@/views/util';
 import utilMixin from '@/mixins/utilMixin';
 import store from '@/store';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 // import AddHive from './AddHive';
 import DataSourceIcon from '@/components/function/DataSourceIcon';
@@ -550,16 +513,9 @@ export default {
   created() {
     this.$bus.on(EVENT_BUS_NAME_LIST.WS_RES_DRIVER_DOWNLOAD_EVENT, this.handleDriverDownloadEvent);
     this.listDataSourceTypes();
-    // this.listRegions();
-    // this.listDataSourceTypes();
-    // this.getSecurityType();
-    this.getDefaultKVConfig();
-    if (this.includesCC) {
-      this.needTestBeforeAddDsTypes();
-    }
-    this.listEnv();
-    if (this.showQueryConfig || this.autoEnableFeatures) {
-      this.listQueryBindCluster();
+    this.fetchBindInfo();
+    if (this.currentStep === 1) {
+      this.fetchAddDsConfig();
     }
   },
   beforeUnmount() {
@@ -647,6 +603,9 @@ export default {
       testConnectionMessage: '',
       checkAll: false,
       securitySetting: [],
+      currentAddDsConfig: {},
+      addDsConfigLoading: false,
+      addDsConfigRequestKey: '',
       store,
       DataSourceGroup,
       showNoData: false,
@@ -654,6 +613,8 @@ export default {
       needCancelList: [],
       envData: [],
       queryClusterList: [],
+      envClusterTree: [],
+      bindClusters: [],
       currentQueryCluster: {},
       checkList: {},
       dataSourceTypes: [],
@@ -661,7 +622,6 @@ export default {
       supportedDsType: {},
       supportedRegions: [],
       regionAreas: [],
-      canTestyDsList: ['MySQL'],
       checkNetInfo: '',
       page: 1,
       size: 10,
@@ -925,7 +885,8 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['includesCC', 'isDesktop', 'ifShowDsExtraConf']),
+    ...mapGetters(['isDesktop', 'ifShowDsExtraConf']),
+    ...mapState(['dmGlobalSetting', 'globalDsSetting']),
     currentDriverFamilies() {
       return this.driverFamilyMap[this.addDataSourceForm.type] || [];
     },
@@ -1180,6 +1141,9 @@ export default {
     }
   },
   watch: {
+    dmGlobalSetting() {
+      this.refreshAddDsSettings();
+    },
     currentDriverFamilies: {
       handler() {
         this.applyDriverFamilySelection();
@@ -1200,6 +1164,7 @@ export default {
     currentStep(step) {
       if (step === 1) {
         this.refreshDriverStatus();
+        this.fetchAddDsConfig();
       }
     },
     driverStatus: {
@@ -1214,13 +1179,15 @@ export default {
     }
   },
   methods: {
-    isCk,
     isHana,
     isDb2,
     isMaxCompute,
     isOracle,
     isStarRocks,
     isGaussDB,
+    showDefaultDbName(type) {
+      return isDb2(type) || isHana(type) || isGaussDB(type) || isMaxCompute(type) || isSQLServer(type) || type === 'Hologres';
+    },
     isDriverReadyForSubmit() {
       return !this.currentDriverFamilies.length || this.driverUiState === 'ready';
     },
@@ -1582,37 +1549,26 @@ export default {
       this.addDataSourceForm.dsKvConfigs = [...dsKvConfigs];
     },
     async getDefaultKVConfig() {
-      const res = await this.$services.rdpDataSourceDsKvConfigDef({
-        data: {
-          dataSourceType: this.addDataSourceForm.type,
-          deployEnvType: this.addDataSourceForm.instanceType
+      const currentSetting = this.getCurrentDsSetting();
+      this.addDataSourceForm.dsKvConfigs = Array.isArray(currentSetting?.configDef) ? currentSetting.configDef.map((config) => ({ ...config })) : [];
+      this.addDataSourceForm.dsKvConfigs.forEach((config) => {
+        if (config.defaultValue && config.confValType === 'BOOLEAN') {
+          config.formatValue = JSON.parse(config.defaultValue);
         }
       });
-
-      if (res.success) {
-        this.addDataSourceForm.dsKvConfigs = res.data;
-        this.addDataSourceForm.dsKvConfigs.forEach((config) => {
-          if (config.defaultValue && config.confValType === 'BOOLEAN') {
-            config.formatValue = JSON.parse(config.defaultValue);
-          }
-        });
-      }
     },
     async getOracleConnectType() {
-      const res = await this.$services.rdpConstantDsDsConnectType();
       this.oracleConnectTypeList = [];
-      if (res.success) {
-        res.data.forEach((type) => {
-          if (type.dataSourceType === this.addDataSourceForm.type) {
-            this.oracleConnectTypeList.push(type);
-          }
-        });
-        for (let i = 0; i < this.oracleConnectTypeList.length; i++) {
-          const connectType = this.oracleConnectTypeList[i];
-          if (connectType.defaultCheck) {
-            this.addDataSourceForm.connectType = connectType.connectType;
-          }
-        }
+      if (isOracle(this.addDataSourceForm.type)) {
+        this.oracleConnectTypeList = CONNECT_TYPE.ORACLE.map((type) => ({
+          connectType: type.value,
+          i18nName: type.label,
+          defaultCheck: type.value === 'ORACLE_SID'
+        }));
+      }
+      const defaultConnectType = this.oracleConnectTypeList.find((connectType) => connectType.defaultCheck) || this.oracleConnectTypeList[0];
+      if (defaultConnectType) {
+        this.addDataSourceForm.connectType = defaultConnectType.connectType;
       }
     },
     handleHostTypeChange(index, type) {
@@ -1698,7 +1654,7 @@ export default {
               : config.defaultValue
         })),
         dsPropsJson: JSON.stringify({
-          database: isDb2(type) || isHana(type) ? dbName : noValidateDbName,
+          database: dbName || noValidateDbName,
           userName: account,
           password
         })
@@ -1869,50 +1825,90 @@ export default {
       }
     },
     async listDataSourceTypes() {
-      const res = await this.$services.rdpConstantListDsTypesByDeployType({ data: {} });
-      if (res.success) {
-        this.dataSourceTypes = Array.isArray(res.data)
-          ? res.data.map((group) => (Array.isArray(group) ? group.filter(Boolean) : [])).filter((group) => group.length > 0)
-          : [];
-        if (!this.dataSourceTypes.length) {
-          return;
-        }
-        const flatArray = this.dataSourceTypes.reduce((result, group) => result.concat(group), []);
-        if (!flatArray.includes(this.addDataSourceForm.type)) {
-          this.addDataSourceForm.type = this.dataSourceTypes[0][0];
-        }
-        this.addDataSourceForm.instanceType = this.getDeployTypeByDsName(this.addDataSourceForm.type);
-        this.getSecurityType();
-        this.getDefaultKVConfig();
-      } else {
-        this.dataSourceTypes = [];
+      const supportNames = this.dmGlobalSetting?.dsSupportNames || [];
+      this.dataSourceTypes = Array.isArray(supportNames)
+        ? supportNames
+            .map((group) => (Array.isArray(group) ? group.map(this.normalizeDsSupportName).filter(Boolean) : []))
+            .filter((group) => group.length > 0)
+        : [];
+      if (!this.dataSourceTypes.length) {
+        return;
       }
+      const flatArray = this.dataSourceTypes.reduce((result, group) => result.concat(group.map((type) => type.dsKey)), []);
+      if (!flatArray.includes(this.addDataSourceForm.type)) {
+        this.addDataSourceForm.type = this.dataSourceTypes[0][0].dsKey;
+      }
+      this.addDataSourceForm.instanceType = this.getDeployTypeByDsName(this.addDataSourceForm.type);
+    },
+    normalizeDsSupportName(type) {
+      if (!type) {
+        return null;
+      }
+      if (typeof type === 'string') {
+        return {
+          dsKey: type,
+          displayName: this.getShowNameByDeployTypeAndDsName(this.getDeployTypeByDsName(type), type)
+        };
+      }
+      if (!type.dsKey) {
+        return null;
+      }
+      return {
+        dsKey: type.dsKey,
+        displayName: type.displayName || type.dsKey
+      };
     },
     async listEnv() {
-      this.loading = true;
-      const data = {
-        envName: null
-      };
-      const res = await this.$services.rdpDsEnvList({ data });
-      if (res.success) {
-        this.envData = res.data;
-        if (res.data[0]) {
-          this.addDataSourceForm.envId = res.data[0].id;
-          this.clearFieldValidate('envId');
+      this.envData = this.envClusterTree.map((env) => ({
+        id: env.id,
+        ownerUid: env.ownerUid,
+        envName: env.envName,
+        description: env.description,
+        queryLimit: env.queryLimit
+      }));
+      if (this.envData[0]) {
+        const selectedEnv = this.envData.find((env) => env.id === this.addDataSourceForm.envId);
+        if (!selectedEnv) {
+          this.addDataSourceForm.envId = this.envData[0].id;
         }
+        this.clearFieldValidate('envId');
       }
+      this.listQueryBindCluster();
     },
     async listQueryBindCluster() {
-      const res = await this.$services.dmDataSourceListDsBindCluster();
-      if (res.success || res.code === '1') {
-        this.queryClusterList = res.data;
-        const availableCluster = this.queryClusterList.find((cluster) => cluster.runningCount > 0) || this.queryClusterList[0];
-        if (availableCluster) {
-          this.addDataSourceForm.queryClusterId = availableCluster.id;
-          this.currentQueryCluster = availableCluster;
-          this.clearFieldValidate('queryClusterId');
-        }
+      const envNode = this.envClusterTree.find((env) => env.id === this.addDataSourceForm.envId);
+      const clusters = envNode && Array.isArray(envNode.children) ? envNode.children : this.bindClusters;
+      this.queryClusterList = Array.isArray(clusters) ? clusters : [];
+      const selectedCluster = this.queryClusterList.find((cluster) => cluster.id === this.addDataSourceForm.queryClusterId);
+      const defaultCluster = selectedCluster || this.queryClusterList.find((cluster) => cluster.runningCount > 0) || this.queryClusterList[0];
+      if (defaultCluster) {
+        this.addDataSourceForm.queryClusterId = defaultCluster.id;
+        this.currentQueryCluster = defaultCluster;
+        this.clearFieldValidate('queryClusterId');
+      } else {
+        this.addDataSourceForm.queryClusterId = '';
+        this.currentQueryCluster = {};
       }
+    },
+    async fetchBindInfo() {
+      const res = await this.$services.dmDataSourceFetchBindInfo({ data: {} });
+      if (!res.success) {
+        return;
+      }
+
+      const data = res.data || {};
+      const envs = Array.isArray(data.envs) ? data.envs : [];
+      const clusters = Array.isArray(data.clusters) ? data.clusters : [];
+      const envClusterTree = Array.isArray(data.envClusterTree) ? data.envClusterTree : [];
+
+      this.bindClusters = clusters;
+      this.envClusterTree = envClusterTree.length
+        ? envClusterTree
+        : envs.map((env) => ({
+            ...env,
+            children: clusters
+          }));
+      this.listEnv();
     },
     clearFieldValidate(field) {
       this.$nextTick(() => {
@@ -1923,6 +1919,7 @@ export default {
     },
     handleEnvChange(value) {
       this.addDataSourceForm.envId = value;
+      this.listQueryBindCluster();
       this.clearFieldValidate('envId');
     },
     handleChangeQueryCluster() {
@@ -2047,12 +2044,14 @@ export default {
       this.page = page;
       this.showData = this.filterData.slice((this.page - 1) * this.size, this.page * this.size);
     },
-    handleDataSourceChange() {
+    async handleDataSourceChange() {
       this.addDataSourceForm.instanceType = this.getDeployTypeByDsName(this.addDataSourceForm.type);
+      this.currentAddDsConfig = {};
+      this.securitySetting = [];
+      this.setSecuritySetting([]);
       Object.keys(this.clearData).forEach((key) => {
         this.addDataSourceForm[key] = this.clearData[key];
       });
-      this.getDefaultKVConfig();
       if (this.$refs.addLocalDs) {
         this.$refs.addLocalDs.resetFields();
       }
@@ -2110,8 +2109,6 @@ export default {
           this.addDataSourceForm.publicPort = '1521';
           this.addDataSourceForm.hostList[0].port = '1521';
           this.addDataSourceForm.hostList[1].port = '1521';
-        } else if (this.addDataSourceForm.type === 'ClickHouse') {
-          this.getOracleConnectType();
         } else if (this.addDataSourceForm.type === 'OceanBase') {
           this.addDataSourceForm.port = '2881';
           this.addDataSourceForm.publicPort = '2881';
@@ -2131,49 +2128,76 @@ export default {
         this.applyDriverFamilySelection(true);
       } else if (this.addDataSourceForm.type === 'Kafka') {
         this.addDataSourceForm.securityType = 'USER_PASSWD_WITH_TLS';
-      } else {
+      } else if (this.securitySetting[0]) {
         this.addDataSourceForm.securityType = this.securitySetting[0].securityType;
       }
       this.addDataSourceForm.account = '';
       this.addDataSourceForm.password = '';
       this.addDataSourceForm.dbName = '';
-      this.addDataSourceForm.noValidateDbNam = '';
-      this.getSecurityType();
+      this.addDataSourceForm.noValidateDbName = '';
+      if (this.currentStep === 1) {
+        await this.fetchAddDsConfig();
+      }
       this.syncQueryHostType();
     },
+    async fetchAddDsConfig() {
+      const dataSourceType = this.addDataSourceForm.type;
+      if (!dataSourceType) {
+        this.applyAddDsConfig({});
+        return;
+      }
+
+      const requestKey = `${dataSourceType}-${Date.now()}`;
+      this.addDsConfigRequestKey = requestKey;
+      this.addDsConfigLoading = true;
+      try {
+        const res = await this.$services.dmDataSourceFetchAddConfig({ data: { dataSourceType } });
+        if (this.addDsConfigRequestKey !== requestKey) {
+          return;
+        }
+        if (!res.success) {
+          this.applyAddDsConfig({});
+          return;
+        }
+
+        this.applyAddDsConfig(res.data || {});
+      } catch (e) {
+        if (this.addDsConfigRequestKey !== requestKey) {
+          return;
+        }
+        this.applyAddDsConfig({});
+      } finally {
+        if (this.addDsConfigRequestKey === requestKey) {
+          this.addDsConfigLoading = false;
+        }
+      }
+    },
+    applyAddDsConfig(addDsConfig) {
+      this.currentAddDsConfig = addDsConfig || {};
+      this.getDefaultKVConfig();
+      this.getSecurityType();
+    },
     getSecurityType() {
-      this.$services
-        .rdpConstantDsSecurityOption({
-          data: {
-            deployEnvType: this.addDataSourceForm.instanceType,
-            dataSourceType: this.addDataSourceForm.type,
-            deployFetchType: 'MANUALLY_FILL'
+      const securityOptions = Array.isArray(this.getCurrentDsSetting()?.securityOptions) ? this.getCurrentDsSetting().securityOptions : [];
+      this.securitySetting = securityOptions;
+      this.setSecuritySetting(securityOptions);
+      if (securityOptions.length) {
+        const matchedSecurity = securityOptions.find((securityOption) => securityOption.securityType === this.addDataSourceForm.securityType);
+        const defaultSecurity = securityOptions.find((securityOption) => securityOption.defaultCheck) || securityOptions[0];
+
+        if (!matchedSecurity && defaultSecurity) {
+          this.addDataSourceForm.securityType = defaultSecurity.securityType;
+        }
+
+        securityOptions.forEach((securityOption) => {
+          if (securityOption.defaultCheck && defaultSecurity) {
+            this.addDataSourceForm.securityType = defaultSecurity.securityType;
           }
-        })
-        .then((res) => {
-          if (res.success) {
-            const securityOptions = Array.isArray(res.data?.securityOptions) ? res.data.securityOptions : [];
-            this.securitySetting = securityOptions;
-            this.setSecuritySetting(securityOptions);
-            if (securityOptions.length) {
-              const matchedSecurity = securityOptions.find((securityOption) => securityOption.securityType === this.addDataSourceForm.securityType);
-              const defaultSecurity = securityOptions.find((securityOption) => securityOption.defaultCheck) || securityOptions[0];
-
-              if (!matchedSecurity && defaultSecurity) {
-                this.addDataSourceForm.securityType = defaultSecurity.securityType;
-              }
-
-              securityOptions.forEach((securityOption) => {
-                if (securityOption.defaultCheck && defaultSecurity) {
-                  this.addDataSourceForm.securityType = defaultSecurity.securityType;
-                }
-                if (typeof securityOption.defaultHost === 'string' && securityOption.defaultHost.length > 0) {
-                  this.addDataSourceForm.hostList[0].host = securityOption.defaultHost;
-                }
-              });
-            }
+          if (typeof securityOption.defaultHost === 'string' && securityOption.defaultHost.length > 0) {
+            this.addDataSourceForm.hostList[0].host = securityOption.defaultHost;
           }
         });
+      }
     },
     handleSecurityTypeChange() {
       this.addDataSourceForm.account = '';
@@ -2207,12 +2231,14 @@ export default {
       });
       return security;
     },
-    needTestBeforeAddDsTypes() {
-      this.$services.ccConstantNeedTestBeforeAddDsTypes().then((res) => {
-        if (res.success) {
-          this.canTestyDsList = res.data;
-        }
-      });
+    getDsSettingDef() {
+      return this.currentAddDsConfig || {};
+    },
+    getCurrentDsSetting() {
+      return this.getDsSettingDef();
+    },
+    refreshAddDsSettings() {
+      this.listDataSourceTypes();
     },
     // Client CA Certificate
     handleClientCaFileChange(e) {
@@ -2252,6 +2278,81 @@ export default {
   .ivu-alert-with-desc.ivu-alert-with-icon {
     margin-bottom: 0;
   }
+}
+
+.datasource-type-form-item {
+  margin-bottom: 0;
+
+  :deep(.ivu-form-item-content) {
+    margin-left: 0 !important;
+  }
+}
+
+.datasource-type-radio-group {
+  display: block;
+  width: 100%;
+}
+
+.datasource-type-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.datasource-type-radio.custom-radio {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 128px;
+  height: 92px;
+  margin: 0 !important;
+  padding: 0;
+  border-radius: 4px !important;
+  line-height: normal;
+  text-align: center;
+  vertical-align: top;
+  white-space: normal;
+
+  :deep(.ivu-radio) {
+    display: none;
+  }
+
+  :deep(.ivu-radio-inner) {
+    display: none;
+  }
+}
+
+.datasource-type-card {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 10px;
+}
+
+.datasource-type-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+}
+
+.datasource-type-name {
+  display: -webkit-box;
+  max-width: 100%;
+  min-height: 34px;
+  overflow: hidden;
+  color: #17233d;
+  font-size: 13px;
+  line-height: 17px;
+  white-space: normal;
+  word-break: break-word;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .transfer-title {

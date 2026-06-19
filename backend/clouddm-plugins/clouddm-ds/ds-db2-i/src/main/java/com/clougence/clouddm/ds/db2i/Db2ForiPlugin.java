@@ -22,7 +22,9 @@ import com.clougence.clouddm.ds.db2i.definition.Db2ForiDefService;
 import com.clougence.clouddm.ds.db2i.dsconf.Db2ForiConfigSpi;
 import com.clougence.clouddm.ds.db2i.dsconf.Db2ForiSerializationSpi;
 import com.clougence.clouddm.ds.db2i.execute.Db2ForiSessionFactory;
+import com.clougence.clouddm.ds.db2i.execute.Db2ForiSessionSpi;
 import com.clougence.clouddm.ds.db2i.execute.Db2ForiSupportSpi;
+import com.clougence.clouddm.ds.db2i.i18n.Db2ForiDsI18nKeys;
 import com.clougence.clouddm.dsfamily.db2.analysis.*;
 import com.clougence.clouddm.dsfamily.db2.definition.ui.browser.Db2ForiDsBrowseSpi;
 import com.clougence.clouddm.dsfamily.db2.definition.ui.ddl.Db2ConvertTableDDLSpi;
@@ -32,8 +34,6 @@ import com.clougence.clouddm.dsfamily.db2.definition.ui.editor.table.Db2TableEdi
 import com.clougence.clouddm.dsfamily.db2.definition.ui.exception.Db2DetermineExceptionSpi;
 import com.clougence.clouddm.dsfamily.db2.definition.ui.template.Db2CmdTemplateSpi;
 import com.clougence.clouddm.dsfamily.db2.dialect.Db2Dialect;
-import com.clougence.clouddm.dsfamily.db2.execute.Db2SessionSpi;
-import com.clougence.clouddm.dsfamily.db2.i18n.Db2DsI18nKeys;
 import com.clougence.clouddm.dsfamily.db2.language.Db2LanguageSpi;
 import com.clougence.clouddm.dsfamily.db2.resource.Db2EditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
@@ -47,10 +47,11 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
 /** @author mode 2024/12/25 15:13 */
-@Plugin(includePackages = { "com.clougence.clouddm.dsfamily.execute.*",    //
-                            "com.clougence.clouddm.dsfamily.db2.execute.*",//
-                            "com.clougence.clouddm.ds.db2i.execute.*"      //
-}, dsProduct = DataSourceType.Db2Fori)
+@Plugin(name = "i18n::" + Db2ForiDsI18nKeys.PLUGIN_NAME_DB2_4_I,        //
+        includePackages = { "com.clougence.clouddm.dsfamily.execute.*",     //
+                            "com.clougence.clouddm.dsfamily.db2.execute.*", //
+                            "com.clougence.clouddm.ds.db2i.execute.*"       //
+        }, dsProduct = DataSourceType.Db2Fori)
 public class Db2ForiPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     @Override
@@ -81,13 +82,13 @@ public class Db2ForiPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(Db2ForiSessionFactory.class);
         dsPlugin.bindDsDriverFamily("IBM JTOpen", "IBM JCC");
-        dsPlugin.addPluginSpi(new Db2SessionSpi());
+        dsPlugin.addPluginSpi(new Db2ForiSessionSpi());
         dsPlugin.addPluginSpi(new Db2ForiSupportSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {
         //initI18n
-        dsPlugin.bindPluginI18n(Db2DsI18nKeys.class);
+        dsPlugin.bindPluginI18n(Db2ForiDsI18nKeys.class);
         //sqlBuilder
         dsPlugin.bindDsSqlBuilder(Db2EditorProvider.INSTANCE);
         dsPlugin.bindDsDialect(Db2Dialect.INSTANCE);

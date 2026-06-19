@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
 import com.clougence.clouddm.file.convert.config.json.JsonOption;
-import com.clougence.clouddm.file.convert.constants.ConvertI18nKeys;
+import com.clougence.clouddm.file.convert.i18n.ConvertI18nKeys;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;
 import com.clougence.clouddm.sdk.execute.resultset.file.*;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;

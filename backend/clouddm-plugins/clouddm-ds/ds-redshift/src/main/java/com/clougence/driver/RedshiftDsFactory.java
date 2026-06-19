@@ -116,17 +116,17 @@ public class RedshiftDsFactory implements DsFactory<Connection> {
         }
 
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
-        String defaultDataBase = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey().toLowerCase(Locale.ROOT));
+        String defaultCatalog = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey().toLowerCase(Locale.ROOT));
 
-        if (StringUtils.isBlank(defaultDataBase)) {
-            defaultDataBase = "dev";
+        if (StringUtils.isBlank(defaultCatalog)) {
+            defaultCatalog = "dev";
         }
 
         String[] ipPort = host.split(":");
         if (ipPort.length == 1) {
-            return String.format("jdbc:redshift://%s:5439/%s", ipPort[0], safeString(defaultDataBase));
+            return String.format("jdbc:redshift://%s:5439/%s", ipPort[0], safeString(defaultCatalog));
         } else if (ipPort.length == 2) {
-            return String.format("jdbc:redshift://%s:%s/%s", ipPort[0], ipPort[1], safeString(defaultDataBase));
+            return String.format("jdbc:redshift://%s:%s/%s", ipPort[0], ipPort[1], safeString(defaultCatalog));
         } else {
             throw new IllegalArgumentException("unsupported host format:" + host);
         }

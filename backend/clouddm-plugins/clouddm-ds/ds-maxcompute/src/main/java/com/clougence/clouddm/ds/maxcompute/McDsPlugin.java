@@ -45,9 +45,10 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
 /** @author mode 2024/12/25 15:13 */
-@Plugin(includePackages = { "com.clougence.clouddm.dsfamily.execute.*", //
+@Plugin(name = "i18n::" + McI18nKeys.PLUGIN_NAME_MAXCOMPUTE, //
+        includePackages = { "com.clougence.clouddm.dsfamily.execute.*", //
                             "com.clougence.clouddm.ds.maxcompute.execute.*" //
-}, dsProduct = DataSourceType.MaxCompute)
+        }, dsProduct = DataSourceType.MaxCompute)
 public class McDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     @Override

@@ -20,8 +20,6 @@ import java.util.List;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.SshConfig;
 import com.clougence.clouddm.base.metadata.ds.ToolConfig;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityFileType;
 import com.clougence.clouddm.comm.RSocketApiClass;
 import com.clougence.clouddm.sdk.service.config.ConfigData;
 import com.clougence.clouddm.sdk.service.secrules.SensitiveConfig;
@@ -36,11 +34,11 @@ public interface ConfigRService {
 
     DataSourceConfig fetchDsConfig(long dsId);
 
+    List<ConfigData> fetchDsConfig(String instanceId, List<String> names);
+
     ToolConfig fetchToolConfig(String toolName);
 
     SshConfig fetchSshConfig(long sshConfigId);
 
     SensitiveConfig fetchSensitiveConfigByDs(long dsId);
-
-    byte[] fetchDsFile(String instanceId, ResourceType resourceType, SecurityFileType fileType);
 }

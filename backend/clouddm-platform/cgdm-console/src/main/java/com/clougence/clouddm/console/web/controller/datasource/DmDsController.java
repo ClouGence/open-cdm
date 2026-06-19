@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
@@ -50,17 +50,17 @@ import com.clougence.clouddm.console.web.model.vo.checkrules.SpecVO;
 import com.clougence.clouddm.console.web.model.vo.cluster.ClusterVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.ConnectDsResultVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.DmSimpleDsVO;
-import com.clougence.clouddm.console.web.model.vo.project.ProjectVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.cluster.ClusterService;
-import com.clougence.clouddm.console.web.service.project.DmProjectService;
 import com.clougence.clouddm.console.web.service.security.CheckRulesService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
-import com.clougence.clouddm.platform.dal.model.datasource.*;
-import com.clougence.clouddm.platform.dal.model.project.DmProjectDevopsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
+import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 import com.clougence.clouddm.platform.dal.model.secrule.DmSecSpecDO;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.rdp.service.RdpDsService;
@@ -82,8 +82,6 @@ public class DmDsController {
 
     @Resource
     private DmDsService         dmDsService;
-    @Resource
-    private DmProjectService    dmProjectService;
     @Resource
     private RdpDsService        rdpDsService;
     @Resource
@@ -148,8 +146,8 @@ public class DmDsController {
 
         List<Long> dsIds = dos.stream().map(DmDsDO::getId).collect(Collectors.toList());
 
-        List<DmDsConfigDO> confList = this.dmDsService.fetchDsConfigByIds(puid, dsIds);
-        Map<Long, DmDsConfigDO> confMap = confList.stream().collect(Collectors.toMap(DmDsConfigDO::getDataSourceId, d -> d));
+        List<DmDsDO> confList = this.dmDsService.fetchDsConfigByIds(puid, dsIds);
+        Map<Long, DmDsDO> confMap = confList.stream().collect(Collectors.toMap(DmDsDO::getId, d -> d));
 
         vos = dos.stream().map(ds -> DmConvertUtils.convertToDmSimpleDsVO(ds, confMap)).filter(vo -> {
             if (HostType.PRIVATE == listDsFO.getHostType()) {
@@ -181,64 +179,6 @@ public class DmDsController {
         }
     }
 
-    @RequestAuth(value = DM_DS_MANAGE, level = HIGH)
-    @RequestMapping(value = "/enableDsQuery", method = RequestMethod.POST)
-    public ResWebData<?> enableDsQuery(@Valid @RequestBody EnableDsQueryFO fo, HttpServletRequest request) {
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.objectCacheDao.ownCluster(puid, fo.getClusterId());
-        this.objectCacheDao.ownDataSource(puid, fo.getDataSourceId());
-        this.rdpAuthServiceForBiz.checkResAuth(puid, uid, fo.getDataSourceId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
-
-        return this.dmDsService.enableDsQuery(puid, fo);
-    }
-
-    @RequestAuth(value = DM_DS_MANAGE, level = HIGH)
-    @RequestMapping(value = "/disableDsQuery", method = RequestMethod.POST)
-    public ResWebData<?> disableDsQuery(@Valid @RequestBody DisableDsQueryFO fo, HttpServletRequest request) {
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.objectCacheDao.ownDataSource(puid, fo.getDataSourceId());
-        this.rdpAuthServiceForBiz.checkResAuth(puid, uid, fo.getDataSourceId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
-
-        if (this.dmDsService.testEnableDsDevOps(puid, fo.getDataSourceId())) {
-            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_DEVOPS_NEED_DISABLE.name()));
-        }
-
-        return this.dmDsService.disableDsQuery(puid, fo.getDataSourceId());
-    }
-
-    @RequestAuth(value = DM_DS_MANAGE)
-    @RequestMapping(value = "/enableDsDevOps", method = RequestMethod.POST)
-    public ResWebData<?> enableDsDevOps(@Valid @RequestBody EnableDsDevOpsFO fo, HttpServletRequest request) {
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.objectCacheDao.ownDataSource(puid, fo.getDataSourceId());
-        this.rdpAuthServiceForBiz.checkResAuth(puid, uid, fo.getDataSourceId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
-
-        return this.dmDsService.enableDsDevOps(puid, fo.getDataSourceId());
-    }
-
-    @RequestAuth(value = DM_DS_MANAGE)
-    @RequestMapping(value = "/disableDsDevOps", method = RequestMethod.POST)
-    public ResWebData<?> disableDsDevOps(@Valid @RequestBody DisableDsDevOpsFO fo, HttpServletRequest request) {
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.objectCacheDao.ownDataSource(puid, fo.getDataSourceId());
-        this.rdpAuthServiceForBiz.checkResAuth(puid, uid, fo.getDataSourceId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
-
-        List<DmProjectDevopsDO> devopsDOS = this.dmProjectService.queryEnableDevopsByDsId(puid, fo.getDataSourceId());
-        if (!devopsDOS.isEmpty()) {
-            Set<Long> collect = devopsDOS.stream().map(DmProjectDevopsDO::getRefProjectId).collect(Collectors.toSet());
-            List<ProjectVO> projectVOS = dmProjectService.queryProjectListByIDs(puid, collect);
-            List<String> collect1 = projectVOS.stream().map(ProjectVO::getName).collect(Collectors.toList());
-            String join = String.join(",", collect1);
-            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_DISABLE_IN_USE.name(), devopsDOS.size(), "[" + join + "]"));
-        }
-
-        return this.dmDsService.disableDsDevOps(puid, fo.getDataSourceId());
-    }
-
     @RequestAuth(DM_DS_READ)
     @RequestMapping(value = "/queryDsConfig", method = RequestMethod.POST)
     public ResWebData<?> queryDsConfig(@RequestBody QueryDsConfigFO fo, HttpServletRequest request) {
@@ -247,8 +187,13 @@ public class DmDsController {
         this.objectCacheDao.ownDataSource(puid, fo.getDataSourceId());
         this.rdpAuthServiceForBiz.checkResAuth(puid, uid, fo.getDataSourceId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_READ, AuthKind.DataSource);
 
-        List<String> blackList = Arrays.asList(ConfigKeys.DM_DS_KEY_HOST, ConfigKeys.DM_DS_KEY_SEC_TYPE, ConfigKeys.DM_DS_KEY_USERNAME, //
-                ConfigKeys.DM_DS_KEY_PASSWORD, ConfigKeys.DM_DS_KEY_CONFIG_VERSION, ConfigKeys.DM_DS_KEY_STORE_PASSWORD);
+        List<String> blackList = Arrays.asList(       //
+                DataSourceConfig.Fields.host,         //
+                DataSourceConfig.Fields.securityType, //
+                DataSourceConfig.Fields.userName,     //
+                DataSourceConfig.Fields.password,     //
+                DataSourceConfig.Fields.configVersion,//
+                DataSourceConfig.Fields.storePassword);
 
         List<DsKvConfigVO> vos = this.dmDsService.queryDsConfigIncludeNewEntries(fo.getDataSourceId());
         vos = vos.stream().filter(c -> !blackList.contains(c.getConfigName())).collect(Collectors.toList());

@@ -37,7 +37,7 @@ import com.clougence.clouddm.sdk.service.config.UserData;
 import com.clougence.clouddm.team.provider.dingtalk.client.DingApi;
 import com.clougence.clouddm.team.provider.dingtalk.client.DingClient;
 import com.clougence.clouddm.team.provider.dingtalk.constants.DingConfigKey;
-import com.clougence.clouddm.team.provider.dingtalk.constants.DingI18nKeys;
+import com.clougence.clouddm.team.provider.dingtalk.constants.DingTalkI18nKeys;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -118,7 +118,7 @@ public class DingLoginProviderSpi implements LoginProviderSpi {
     public LifeSpiResponse status(String ownerUid, LifeSpiRequest requestDTO) {
         LifeSpiStatus dto = new LifeSpiStatus();
         dto.setRunning(this.clientMap.containsKey(ownerUid));
-        dto.setNameKey(DingI18nKeys.DINGTALK_LOGIN_SERVICES_NAME);
+        dto.setNameKey(DingTalkI18nKeys.DINGTALK_LOGIN_SERVICES_NAME);
         return new LifeSpiResponse(JsonUtils.toJson(dto));
     }
 
@@ -145,7 +145,7 @@ public class DingLoginProviderSpi implements LoginProviderSpi {
     private String[] extractSplit(String fullLoginName) {
         int splitIdx = fullLoginName.lastIndexOf("@");
         if (splitIdx == -1) {
-            throw ThirdPartyApiException.as().with(DingI18nKeys.DINGTALK_LOGIN_FAIL_PRIMARY_MISSING_ARGS);
+            throw ThirdPartyApiException.as().with(DingTalkI18nKeys.DINGTALK_LOGIN_FAIL_PRIMARY_MISSING_ARGS);
         }
 
         String userAccount = fullLoginName.substring(0, splitIdx);
@@ -185,7 +185,7 @@ public class DingLoginProviderSpi implements LoginProviderSpi {
         RoleData role = CollectionUtils.isEmpty(roles) ? null : roles.get(0);
         if (role == null) {
             log.info("Ding: user(" + dingUser.getAccount() + ") not found any role, memberOf=" + roleName);
-            throw ThirdPartyApiException.as().with(DingI18nKeys.DINGTALK_ROLE_MAPPING_FAILED);
+            throw ThirdPartyApiException.as().with(DingTalkI18nKeys.DINGTALK_ROLE_MAPPING_FAILED);
         }
         dingUser.setRoleId(role.getRoleId());
 

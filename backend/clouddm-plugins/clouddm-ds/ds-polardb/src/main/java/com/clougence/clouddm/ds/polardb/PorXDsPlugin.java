@@ -47,10 +47,11 @@ import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
-@Plugin(includePackages = { "com.clougence.clouddm.dsfamily.execute.*",      //
+@Plugin(name = "i18n::" + PorXDsI18nKeys.PLUGIN_NAME_POLARDB_X, //
+        includePackages = { "com.clougence.clouddm.dsfamily.execute.*",      //
                             "com.clougence.clouddm.dsfamily.mysql.execute.*",//
                             "com.clougence.clouddm.ds.polardb.execute.porx.*"//
-}, dsProduct = DataSourceType.PolarDbX)
+        }, dsProduct = DataSourceType.PolarDbX)
 public class PorXDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     @Override

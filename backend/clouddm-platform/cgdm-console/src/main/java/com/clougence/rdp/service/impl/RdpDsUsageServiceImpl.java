@@ -52,9 +52,8 @@ public class RdpDsUsageServiceImpl implements RdpDsUsageService {
     @Override
     public void deleteDsUsage(List<DmDsUsageDO> dsUsages) {
         for (DmDsUsageDO usageDO : dsUsages) {
-            //check for different product cluster with same res_id, res_instance_id and endpoint.
-            List<DmDsUsageDO> usageDOS = datasourceDal.usageMapper()
-                .listByRes(usageDO.getDsId(), usageDO.getResType(), usageDO.getResId(), usageDO.getResInstanceId(), usageDO.getEndpoint());
+            //check for different product cluster with same res_id and res_instance_id.
+            List<DmDsUsageDO> usageDOS = datasourceDal.usageMapper().listByRes(usageDO.getDsId(), usageDO.getResType(), usageDO.getResId(), usageDO.getResInstanceId());
             if (usageDOS != null && usageDOS.size() > 1) {
                 throw new IllegalArgumentException("DataSource usage info is duplicated, dsId:" + usageDO.getDsId() + ",resId:" + usageDO.getResId());
             }
@@ -64,7 +63,7 @@ public class RdpDsUsageServiceImpl implements RdpDsUsageService {
                 continue;
             }
 
-            datasourceDal.usageMapper().deleteByRes(usageDO.getDsId(), usageDO.getResType(), usageDO.getResId(), usageDO.getResInstanceId(), usageDO.getEndpoint());
+            datasourceDal.usageMapper().deleteByRes(usageDO.getDsId(), usageDO.getResType(), usageDO.getResId(), usageDO.getResInstanceId());
         }
     }
 }

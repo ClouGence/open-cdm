@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
-import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
@@ -38,7 +37,6 @@ import com.clougence.clouddm.console.web.service.browse.model.rdb.BrowseColumnMO
 import com.clougence.clouddm.console.web.service.browse.model.rdb.BrowseObjectMO;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsTagDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
@@ -77,8 +75,8 @@ public class BrowseServiceImpl implements BrowseService {
             return Collections.emptyList();
         }
 
-        List<DmDsConfigDO> confList = this.dmDsService.fetchDsConfigByIds(puid, dsIds);
-        dsIds = confList.stream().map(DmDsConfigDO::getDataSourceId).collect(Collectors.toList());
+        List<DmDsDO> confList = this.dmDsService.fetchDsConfigByIds(puid, dsIds);
+        dsIds = confList.stream().map(DmDsDO::getId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(dsIds)) {
             return Collections.emptyList();
         }
@@ -100,14 +98,14 @@ public class BrowseServiceImpl implements BrowseService {
                 }
 
                 DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId());
-                String dsHost = this.dmDsConfigService.fetchDsConfig(dsDO.getId(), ConfigKeys.DM_DS_KEY_HOST);
+                String dsHost = this.dmDsConfigService.fetchDsConfig(dsDO.getId(), DataSourceConfig.Fields.host);
                 dsConfigMap.put(dsDO.getId(), dsConfig);
                 dsHostMap.put(dsDO.getId(), dsHost);
             } catch (Exception ignored) {
             }
         }
 
-        Map<Long, DmDsConfigDO> dataSourceStatusMap = getDataSourceStatusMap(dsList);
+        Map<Long, DmDsDO> dataSourceStatusMap = getDataSourceStatusMap(dsList);
 
         return dsList.stream().map(dsDO -> {
             DataSourceConfig dsConfig = dsConfigMap.get(dsDO.getId());
@@ -122,9 +120,9 @@ public class BrowseServiceImpl implements BrowseService {
     @Override
     public List<BrowseLevelsVO> listDsIncludeAllEnv(String puid, String uid) {
         List<DmDsDO> dsList = this.dsDal.dsMapper().listByUserWithGmtOrder(puid);
-        List<DmDsConfigDO> dsConfList = this.dsDal.configMapper().queryByUid(puid);
+        List<DmDsDO> dsConfList = this.dsDal.dsMapper().listByOwner(puid);
 
-        Map<Long, DmDsConfigDO> ruleDOMap = dsConfList.stream().collect(Collectors.toMap(DmDsConfigDO::getDataSourceId, DmDsConfigDO -> DmDsConfigDO));
+        Map<Long, DmDsDO> ruleDOMap = dsConfList.stream().collect(Collectors.toMap(DmDsDO::getId, dsDO -> dsDO));
         dsList.removeIf(next -> !ruleDOMap.containsKey(next.getId()));
 
         List<Long> dsIds = dsList.stream().map(DmDsDO::getId).collect(Collectors.toList());
@@ -134,7 +132,7 @@ public class BrowseServiceImpl implements BrowseService {
         }
 
         dsConfList = this.dmDsService.fetchDsConfigByIds(puid, dsIds);
-        dsIds = dsConfList.stream().map(DmDsConfigDO::getDataSourceId).collect(Collectors.toList());
+        dsIds = dsConfList.stream().map(DmDsDO::getId).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(dsIds)) {
             return Collections.emptyList();
         }
@@ -150,14 +148,14 @@ public class BrowseServiceImpl implements BrowseService {
         }).collect(Collectors.toList());
     }
 
-    private Map<Long, DmDsConfigDO> getDataSourceStatusMap(List<DmDsDO> dsList) {
+    private Map<Long, DmDsDO> getDataSourceStatusMap(List<DmDsDO> dsList) {
         if (dsList == null || dsList.isEmpty()) {
             return new HashMap<>();
         }
-        List<Long> list = dsList.stream().map(dsDO -> dsDO.getId()).collect(Collectors.toList());
-        List<DmDsConfigDO> dmDsConfigDOList = dsDal.configMapper().queryByDataSourceIds(list);
+        List<Long> list = dsList.stream().map(DmDsDO::getId).collect(Collectors.toList());
+        List<DmDsDO> dmDsConfigDOList = dsDal.dsMapper().listByDataSourceIds(list);
 
-        return dmDsConfigDOList.stream().collect(Collectors.toMap(dsDO -> dsDO.getDataSourceId(), dsDO -> dsDO));
+        return dmDsConfigDOList.stream().collect(Collectors.toMap(DmDsDO::getId, dsDO -> dsDO));
     }
 
     /**
@@ -189,8 +187,8 @@ public class BrowseServiceImpl implements BrowseService {
         DmDsTagDO dsTags = this.dsDal.tagMapper().getByDsAndUser(detailDO.getId(), uid);
         DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(detailDO.getId());
         RdbSupportSpi supportSpi = PluginManager.findRdbSupportSpi(dsConfig.getDataSourceType());
-        String dsHost = this.dmDsConfigService.fetchDsConfig(detailDO.getId(), ConfigKeys.DM_DS_KEY_HOST);
-        DmDsConfigDO dmDsConfigDO = dsDal.configMapper().queryByDataSourceId(dsLevels.dsDO().getId());
+        String dsHost = this.dmDsConfigService.fetchDsConfig(detailDO.getId(), DataSourceConfig.Fields.host);
+        DmDsDO dmDsConfigDO = dsDal.dsMapper().queryByDataSourceId(dsLevels.dsDO().getId());
         BrowseLevelsVO levelVO = DmConvertUtils.convertToBrowseLevelsVO(detailDO, dsConfig, dmDsConfigDO, supportSpi, dsHost);
 
         levelVO.setObjAlias(dsTags != null ? dsTags.getInstanceDesc() : null);

@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.vo;
 
-import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -33,21 +33,7 @@ public class DsSecurityOption {
 
     private String       securityTypeI18nName;
 
-    private boolean      hasAutoGenAccountPasswdOption;
-
-    /**
-     * if hasAutoGenAccountPasswdOption is true,this option is significant
-     */
-    private boolean      checkAutoGenAccountPasswdOption;
-
-    private boolean      hasAutoCreateAccountOption;
-
     private String       defaultHost;
-
-    /**
-     * if hasAutoCreateAccountOption is true, this option is significant
-     */
-    private boolean      checkAutoCreateAccountOption;
 
     private boolean      needUserName;
 
@@ -56,10 +42,6 @@ public class DsSecurityOption {
     private boolean      needApiKey;
 
     private boolean      needAkSk;
-
-    private boolean      needExtraAliyunAkSk;
-
-    private boolean      isAccountAliyunAkSk;
 
     private boolean      isUserNamePrinciple;
 
@@ -82,12 +64,6 @@ public class DsSecurityOption {
     private boolean      needKeyTabFile;
 
     private boolean      defaultCheck;
-
-    private boolean      needDbName;
-
-    private boolean      needInstanceId;
-
-    private String       dbNameLabel;
 
     /*
         TLS/SSL related files

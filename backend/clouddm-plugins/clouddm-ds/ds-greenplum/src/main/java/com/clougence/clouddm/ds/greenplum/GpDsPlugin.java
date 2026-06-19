@@ -48,10 +48,11 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
 /** @author mode 2024/12/25 15:13 */
-@Plugin(includePackages = { "com.clougence.clouddm.dsfamily.execute.*",         //
+@Plugin(name = "i18n::" + GpDsI18nKeys.PLUGIN_NAME_GREENPLUM,                   //
+        includePackages = { "com.clougence.clouddm.dsfamily.execute.*",         //
                             "com.clougence.clouddm.dsfamily.postgres.execute.*",//
                             "com.clougence.clouddm.ds.greenplum.execute.*"      //
-}, dsProduct = DataSourceType.Greenplum)
+        }, dsProduct = DataSourceType.Greenplum)
 public class GpDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     @Override

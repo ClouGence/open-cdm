@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.console.web.model.fo.ssh;
 
-import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
 
 import lombok.Getter;
 import lombok.Setter;

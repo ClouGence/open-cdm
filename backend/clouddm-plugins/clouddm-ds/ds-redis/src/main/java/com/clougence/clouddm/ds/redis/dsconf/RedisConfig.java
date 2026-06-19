@@ -20,34 +20,36 @@ import java.util.Properties;
 import com.clougence.clouddm.base.metadata.ds.ConfigDef;
 import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 /**
  * @author bucketli 2020/11/6 10:23
  */
 @Getter
 @Setter
+@FieldNameConstants
 @Serialization(provider = RedisSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RedisConfig extends DataSourceConfig {
 
-    @ConfigDef(name = "connAndSoTimeoutMs", defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_REDIS_CON_AND_SO_TIMEOUT_MS_DESCRIPTION, readOnly = false)
+    @ConfigDef(name = Fields.defaultSchema, valueRequire = false, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION, readOnly = false)
+    private String  defaultSchema;
+    @ConfigDef(name = Fields.connAndSoTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_REDIS_CON_AND_SO_TIMEOUT_MS_DESCRIPTION, readOnly = false)
     private Integer connAndSoTimeoutMs;
 
     @JsonIgnore
     private String  ip;
-
     @JsonIgnore
     private Integer port;
-
     @JsonIgnore
     private String  database;
 

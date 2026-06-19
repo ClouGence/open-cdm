@@ -15,7 +15,7 @@
  */
 package com.clougence.rdp.service.openapi.model;
 
-import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.console.web.model.vo.RdpDsKvConfigVO;
 
 import lombok.Getter;
@@ -52,6 +52,8 @@ public class ApiDsKvConfigVo {
 
     private boolean       isSecret;
 
+    private boolean       lazy;
+
     private boolean       needCreated;
 
     public void convertFromDsKvConfigVO(RdpDsKvConfigVO configVO) {
@@ -66,6 +68,7 @@ public class ApiDsKvConfigVo {
         this.valueAdvance = configVO.getValueAdvance();
         this.readOnly = configVO.isReadOnly();
         this.isSecret = configVO.isSecret();
+        this.lazy = configVO.isLazy();
         this.needCreated = configVO.isNeedCreated();
     }
 }

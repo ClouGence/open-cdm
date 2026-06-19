@@ -15,38 +15,49 @@
  */
 package com.clougence.clouddm.ds.oracle.dsconf;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigMap;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ConnectType;
+import com.clougence.drivers.adapter.ConvertUtils;
 import com.clougence.utils.StringUtils;
 
-public class OraConfigSpi implements DsConfigSpi, ConfigKeys {
+public class OraConfigSpi implements DsConfigSpi {
 
     @Override
-    public DataSourceConfig newConfig(Map<String, String> configMap) {
-        return new OraConfig();
+    public Class<? extends DataSourceConfig> newConfig() {
+        return OraConfig.class;
     }
 
     @Override
-    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, DsConfigMap dsConfigMap) {
+    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
         OraConfig config = (OraConfig) dsConfig;
-        ConnectType connectType = (ConnectType) dsConfigMap.getRdpDsBean().get(RDP_DS_KEY_CONNECT_TYPE);
-        config.setConnectType(OraConnectType.valueOfCode(connectType));
+        config.setSid(defaultConfig.get(OraConfig.Fields.sid));
+        config.setServiceName(defaultConfig.get(OraConfig.Fields.serviceName));
+        config.setPdbName(defaultConfig.get(OraConfig.Fields.pdbName));
+        config.setTnsAdmin(defaultConfig.get(OraConfig.Fields.tnsAdmin));
+        config.setTnsName(defaultConfig.get(OraConfig.Fields.tnsName));
+
+        boolean excludeOraMaintainedSchemas = StringUtils.isBlank(defaultConfig.get(OraConfig.Fields.excludeOraMaintainedSchemas));
+        config.setExcludeOraMaintainedSchemas((excludeOraMaintainedSchemas ? Boolean.FALSE : //
+            ConvertUtils.toBoolean(defaultConfig.get(OraConfig.Fields.excludeOraMaintainedSchemas), false)));
+
+        OraConnectType connectType = OraConnectType.of(defaultConfig.get(OraConfig.Fields.connectType));
+        config.setConnectType(connectType);
+
         fillConnectionInfo(config, config.getHost(), connectType);
         return dsConfig;
     }
 
-    private void fillConnectionInfo(OraConfig config, String host, ConnectType connectType) {
+    private void fillConnectionInfo(OraConfig config, String host, OraConnectType connectType) {
         if (StringUtils.isBlank(host)) {
             throw new IllegalArgumentException("DataSource host can not be empty.");
         }
 
-        config.setConnectType(Objects.requireNonNull(OraConnectType.valueOfCode(connectType), "unsupported Oracle connect type:" + connectType));
+        config.setConnectType(connectType);
         String[] ipPort = host.split(":");
 
         if (ipPort.length == 3) {
@@ -66,4 +77,11 @@ public class OraConfigSpi implements DsConfigSpi, ConfigKeys {
         }
     }
 
+    @Override
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.NONE);
+        options.add(SecurityType.USER_PASSWD);
+        return options;
+    }
 }

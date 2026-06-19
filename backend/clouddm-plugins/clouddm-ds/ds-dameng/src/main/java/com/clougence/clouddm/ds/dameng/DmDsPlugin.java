@@ -50,9 +50,10 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
 /** @author mode 2024/12/25 15:13 */
-@Plugin(includePackages = { "com.clougence.clouddm.dsfamily.execute.*", //
+@Plugin(name = "i18n::" + DmDsI18nKeys.PLUGIN_NAME_DAMENG,              //
+        includePackages = { "com.clougence.clouddm.dsfamily.execute.*", //
                             "com.clougence.clouddm.ds.dameng.execute.*" //
-}, dsProduct = DataSourceType.Dameng)
+        }, dsProduct = DataSourceType.Dameng)
 public class DmDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     @Override

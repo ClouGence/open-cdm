@@ -28,7 +28,6 @@ import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.console.autoexec.ErrorStrategy;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
-import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.project.ImMessageType;
 import com.clougence.clouddm.console.web.component.project.ImSenderService;
@@ -43,17 +42,16 @@ import com.clougence.clouddm.console.web.service.project.domain.DmBranchDef;
 import com.clougence.clouddm.console.web.service.project.domain.DmScmDef;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.RandomStrUtils;
-import com.clougence.clouddm.platform.dal.util.PageUtils;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.ProjectDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
 import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.project.*;
 import com.clougence.clouddm.platform.dal.model.system.DmSysMessengerDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
+import com.clougence.clouddm.platform.dal.util.PageUtils;
 import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.HashUtils;
@@ -79,8 +77,6 @@ public class DmProjectServiceImpl implements DmProjectService {
     private DmScmService      dmScmService;
     @Resource
     private ImSenderService   senderService;
-    @Resource
-    private DmDsService       dmDsService;
 
     @Override
     public IPage<ProjectVO> queryProjectListByPage(String ownerUid, ProjectListFO fo) {
@@ -264,10 +260,6 @@ public class DmProjectServiceImpl implements DmProjectService {
         DmDsDO dsDO = dsLevels.dsDO();
         if (dsDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
-        }
-        DmDsConfigDO dmDsConfigDO = dmDsService.fetchDsConfigById(ownerUid, dsDO.getId());
-        if (dmDsConfigDO == null || !dmDsConfigDO.isEnableDevops()) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_DEVOPS_NEED_ENABLE.name()));
         }
         DmProjectScmDO scmDO = this.dmScmService.queryScmById(ownerUid, pipeline.getRepoScmId());
         if (scmDO == null) {
@@ -610,11 +602,6 @@ public class DmProjectServiceImpl implements DmProjectService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_NOT_EXIST_ERROR.name()));
         }
         DmProjectDevopsDO dmProjectDevopsDO = this.projectDal.devopsMapper().queryByOwnerAndId(ownerUid, devopsId);
-
-        DmDsConfigDO dmDsConfigDO = dmDsService.fetchDsConfigById(ownerUid, dmProjectDevopsDO.getDsId());
-        if (dmDsConfigDO == null || !dmDsConfigDO.isEnableDevops()) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_DEVOPS_NEED_ENABLE.name()));
-        }
 
         checkDevopsConflict(ownerUid, devopsDO);
         this.projectDal.devopsMapper().enableDevopsByProjectAndId(ownerUid, projectId, devopsId);

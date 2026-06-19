@@ -26,5 +26,8 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource("/META-INF/clougence/i18n/pormy-ui-editor-table")
 public interface PorMyDsI18nKeys extends MyDsI18nKeys {
 
+    String PLUGIN_NAME_POLARDB_MYSQL                  = "PLUGIN_NAME_POLARDB_MYSQL";
+
+
     String EDITOR_TABLEINFO_ENGINE_XENGINE_LABEL = "UI_EDITOR_TABLEINFO_ENGINE_XENGINE_LABEL";
 }

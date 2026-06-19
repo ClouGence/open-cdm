@@ -645,7 +645,6 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             DmDsDO dsDO = this.datasourceDal.dsMapper().queryDsIdentityById(approvalDO.getBindDsId());
             if (dsDO != null) {
                 vo.setDataSourceType(dsDO.getDataSourceType());
-                vo.setDsDeployType(dsDO.getDeployType());
             }
         }
         vo.setTargetInfo(approvalDO.getTargetInfo());

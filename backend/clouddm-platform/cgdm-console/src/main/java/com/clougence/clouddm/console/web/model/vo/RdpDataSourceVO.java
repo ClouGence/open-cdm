@@ -18,11 +18,9 @@ package com.clougence.clouddm.console.web.model.vo;
 import java.util.Date;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
-import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvInfoFetchType;
-import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
+import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -35,40 +33,34 @@ import lombok.Setter;
 public class RdpDataSourceVO {
 
     /** has password means user no need to enter account and pwd */
-    private boolean                hasPassword;
+    private boolean        hasPassword;
 
-    private Long                   id;
+    private Long           id;
 
-    private Date                   gmtCreate;
+    private Date           gmtCreate;
 
-    private DeployEnvType          deployType;
-
-    private String                 deployTypeI18n;
-
-    private DeployEnvInfoFetchType infoFetchType;
-
-    private DataSourceType         dataSourceType;
+    private DataSourceType dataSourceType;
 
     /** ip,port */
-    private String                 host;
+    private String         host;
 
-    private String                 privateHost;
+    private String         privateHost;
 
-    private String                 publicHost;
+    private String         publicHost;
 
-    private HostType               hostType;
+    private HostType       hostType;
 
-    private String                 instanceDesc;
+    private String         instanceDesc;
 
-    private String                 version;
+    private String         version;
 
-    private String                 instanceId;
+    private String         instanceId;
 
-    private String                 accountName;
+    private String         accountName;
 
-    private LifeCycleState         lifeCycleState;
+    private LifeCycleState lifeCycleState;
 
-    private SecurityType           securityType;
+    private SecurityType   securityType;
 
-    private Long                   dsEnvId;
+    private Long           dsEnvId;
 }

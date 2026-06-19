@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.console.configs.ConfigRService;
 import com.clougence.clouddm.base.metadata.ds.*;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
 import com.clougence.clouddm.worker.component.resource.file.EncryptedFileCacheManager;
 import com.clougence.utils.StringUtils;
 import com.jcraft.jsch.*;

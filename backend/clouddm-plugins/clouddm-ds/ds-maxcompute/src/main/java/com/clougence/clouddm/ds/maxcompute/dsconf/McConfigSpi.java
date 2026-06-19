@@ -15,30 +15,41 @@
  */
 package com.clougence.clouddm.ds.maxcompute.dsconf;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigMap;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.drivers.adapter.ConvertUtils;
+import com.clougence.utils.StringUtils;
 
-public class McConfigSpi implements DsConfigSpi, ConfigKeys {
+public class McConfigSpi implements DsConfigSpi {
 
     @Override
-    public DataSourceConfig newConfig(Map<String, String> configMap) {
-        return new McConfig();
+    public Class<? extends DataSourceConfig> newConfig() {
+        return McConfig.class;
     }
 
     @Override
-    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, DsConfigMap dsConfigMap) {
-        // dsConfig
-        ((McConfig) dsConfig).setUserName((String) dsConfigMap.getRdpDsBean().get(ConfigKeys.RDP_DS_KEY_ACCESS_KEY));
-        ((McConfig) dsConfig).setPassword((String) dsConfigMap.getRdpDsBean().get(ConfigKeys.RDP_DS_KEY_SECRET_KEY));
-        ((McConfig) dsConfig).setDefaultDataBase((String) dsConfigMap.getRdpDsBean().get(ConfigKeys.RDP_DS_KEY_DB_NAME));
+    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
+        ((McConfig) dsConfig).setDefaultCatalog(defaultConfig.get(McConfig.Fields.defaultCatalog));
+        ((McConfig) dsConfig).setDefaultSchema(defaultConfig.get(McConfig.Fields.defaultSchema));
+        ((McConfig) dsConfig).setUserName(defaultConfig.get(DataSourceConfig.Fields.userName));
+        ((McConfig) dsConfig).setPassword(defaultConfig.get(DataSourceConfig.Fields.password));
+        ((McConfig) dsConfig).setInteractiveMode(ConvertUtils.toBoolean(defaultConfig.get(McConfig.Fields.interactiveMode), false));
+        ((McConfig) dsConfig).setSdkEndpoint(defaultConfig.get(McConfig.Fields.sdkEndpoint));
 
-        // extraConfig
-        ((McConfig) dsConfig).setSdkEndpoint((String) dsConfigMap.getRdpExtraBean().get(ConfigKeys.RDP_EXTRA_MC_SDK_ENDPOINT));
-        ((McConfig) dsConfig).setSchemaStyle((Boolean) dsConfigMap.getRdpExtraBean().get(ConfigKeys.RDP_EXTRA_MC_SCHEMA_STYLE));
+        boolean blank = StringUtils.isBlank(defaultConfig.get(McConfig.Fields.schemaStyle));
+        ((McConfig) dsConfig).setSchemaStyle((blank ? Boolean.FALSE : ConvertUtils.toBoolean(defaultConfig.get(McConfig.Fields.schemaStyle), false)));
         return dsConfig;
+    }
+
+    @Override
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.AK_SK);
+        return options;
     }
 }

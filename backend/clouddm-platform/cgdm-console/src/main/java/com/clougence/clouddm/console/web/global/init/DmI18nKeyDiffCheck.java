@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.exception.ConsoleErrorCode;
 import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.console.web.constants.DsResElement;
 import com.clougence.clouddm.console.web.global.i18n.*;
 import com.clougence.clouddm.sdk.security.auth.def.SecAuthI18nKeys;

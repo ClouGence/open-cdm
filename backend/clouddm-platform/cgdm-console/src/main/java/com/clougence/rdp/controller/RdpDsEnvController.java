@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.env.AddDsEnvFO;
 import com.clougence.clouddm.console.web.model.fo.env.DeleteDsEnvFO;
@@ -37,6 +36,7 @@ import com.clougence.clouddm.console.web.model.fo.env.UpdateDsEnvFO;
 import com.clougence.clouddm.console.web.model.lo.UpdateDsEnvLO;
 import com.clougence.clouddm.console.web.model.vo.env.DsEnvVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
+import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;

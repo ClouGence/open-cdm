@@ -25,7 +25,6 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.ssh.SshRService;
 import com.clougence.clouddm.api.sidecar.session.ssh.TestResultDTO;
 import com.clougence.clouddm.base.metadata.ds.*;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.ssh.SshConfigSaveFO;

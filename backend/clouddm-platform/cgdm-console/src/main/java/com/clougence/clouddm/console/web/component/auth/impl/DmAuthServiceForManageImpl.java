@@ -43,7 +43,6 @@ import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.sdk.model.analysis.resource.AuthBrowseObject;
 import com.clougence.clouddm.sdk.security.auth.AuthElementType;
@@ -160,8 +159,8 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
         }
         List<Long> dsIds = dsDOs.stream().map(DmDsDO::getId).collect(Collectors.toList());
 
-        List<DmDsConfigDO> confList = this.dsDal.configMapper().queryByIds(puid, dsIds);
-        List<Long> enableQueryDsIds = confList.stream().map(DmDsConfigDO::getDataSourceId).collect(Collectors.toList());
+        List<DmDsDO> confList = this.dsDal.dsMapper().listByOwnerAndIds(puid, dsIds);
+        List<Long> enableQueryDsIds = confList.stream().map(DmDsDO::getId).toList();
 
         List<AuthBrowseObject> objs = new ArrayList<>();
         for (DmDsDO dsDO : dsDOs) {
@@ -176,7 +175,6 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
             obj.setObjDesc(dsDO.getInstanceDesc());
             obj.setObjType(AuthElementType.Instance);
             obj.setObjAttr(new HashMap<>());
-            obj.getObjAttr().put("dsDeployType", dsDO.getDeployType().name());
             obj.getObjAttr().put("dsType", dsDO.getDataSourceType().name());
             obj.getObjAttr().put("enableQuery", enable);
             obj.setLeaf(true);
@@ -203,7 +201,6 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
             obj.setObjDesc(dsDO.getInstanceDesc());
             obj.setObjType(AuthElementType.Instance);
             obj.setObjAttr(new HashMap<>());
-            obj.getObjAttr().put("dsDeployType", dsDO.getDeployType().name());
             obj.getObjAttr().put("dsType", dsDO.getDataSourceType().name());
             obj.setLeaf(true);
             objs.add(obj);

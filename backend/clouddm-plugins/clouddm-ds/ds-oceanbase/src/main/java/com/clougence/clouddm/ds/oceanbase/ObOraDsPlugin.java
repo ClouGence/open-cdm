@@ -46,10 +46,11 @@ import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
-@Plugin(includePackages = { "com.clougence.clouddm.dsfamily.execute.*",             //
+@Plugin(name = "i18n::" + ObDsI18nKeys.PLUGIN_NAME_OB_FOR_ORACLE, //
+        includePackages = { "com.clougence.clouddm.dsfamily.execute.*",             //
                             "com.clougence.clouddm.ds.oracle.execute.*",            //
                             "com.clougence.clouddm.ds.oceanbase.execute.obforora.*" //
-}, dsProduct = DataSourceType.ObForOracle)
+        }, dsProduct = DataSourceType.ObForOracle)
 public class ObOraDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     @Override

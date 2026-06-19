@@ -18,13 +18,16 @@ package com.clougence.clouddm.team.provider.github;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
+import com.clougence.clouddm.team.provider.github.constants.GithubI18nKeys;
 import com.clougence.clouddm.team.provider.github.resource.GithubScmIconResourceSpi;
 
-@Plugin
+@Plugin(name = "i18n::" + GithubI18nKeys.PLUGIN_NAME_GITHUB)
 public class GithubPlugin implements DsPlugin {
 
     @Override
     public void loadPlugin(DsPluginBinder dsPlugin) {
+        dsPlugin.bindGlobalI18n(GithubI18nKeys.class);
+
         dsPlugin.addGlobalSpi(new GithubScmIconResourceSpi(dsPlugin.getPluginClassLoader()));
         //dsPlugin.addService(new GithubDevopsScmProviderSpi());
     }

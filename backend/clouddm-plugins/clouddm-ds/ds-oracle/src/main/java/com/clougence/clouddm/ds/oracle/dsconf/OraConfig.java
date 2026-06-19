@@ -17,11 +17,7 @@ package com.clougence.clouddm.ds.oracle.dsconf;
 
 import java.util.Properties;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigDef;
-import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
+import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
@@ -29,35 +25,31 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 /**
  * @author mode 2020/11/6 10:23
  */
 @Getter
 @Setter
+@FieldNameConstants
 @Serialization(provider = OraSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OraConfig extends DataSourceConfig {
 
-    @ConfigDef(name = "connectType", valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_CONNECT_TYPE_DESCRIPTION, valueAdvance = "SID / SERVICE / TNS", readOnly = false)
+    @ConfigDef(name = Fields.connectType, valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_CONNECT_TYPE_DESCRIPTION, valueAdvance = "SID / SERVICE / TNS", readOnly = false)
     private OraConnectType connectType;
-
-    @ConfigDef(name = "sid", valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_SID_DESCRIPTION, readOnly = false)
+    @ConfigDef(name = Fields.sid, valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_SID_DESCRIPTION, readOnly = false)
     private String         sid;
-
-    @ConfigDef(name = "serviceName", valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_SERVICE_DESCRIPTION, readOnly = false)
+    @ConfigDef(name = Fields.serviceName, valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_SERVICE_DESCRIPTION, readOnly = false)
     private String         serviceName;
-
-    @ConfigDef(name = "pdbName", valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_PDB_DESCRIPTION, readOnly = false)
+    @ConfigDef(name = Fields.pdbName, valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_PDB_DESCRIPTION, readOnly = false)
     private String         pdbName;
-
-    @ConfigDef(name = "tnsAdmin", valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_TNS_ADMIN_DESCRIPTION, readOnly = false)
+    @ConfigDef(name = Fields.tnsAdmin, valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_TNS_ADMIN_DESCRIPTION, readOnly = false)
     private String         tnsAdmin;
-
-    @ConfigDef(name = "tnsName", valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_TNS_NAME_DESCRIPTION, readOnly = false)
+    @ConfigDef(name = Fields.tnsName, valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_TNS_NAME_DESCRIPTION, readOnly = false)
     private String         tnsName;
-
-    @ConfigDef(name = "excludeOraMaintainedSchemas", defaultValue = "false", valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_EXCLUDE_ORA_MAINTAINED_SCHEMAS_DESCRIPTION, readOnly = false, valueAdvance = "true - false", group = DsConfigGroup.OPTIONS)
+    @ConfigDef(name = Fields.excludeOraMaintainedSchemas, defaultValue = "false", valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_EXCLUDE_ORA_MAINTAINED_SCHEMAS_DESCRIPTION, readOnly = false, valueAdvance = "true - false", group = DsConfigGroup.OPTIONS)
     private Boolean        excludeOraMaintainedSchemas;
 
     public OraConfig(){

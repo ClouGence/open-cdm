@@ -38,6 +38,8 @@ public enum ConfigI18nKey {
     CONFIG_RDB_STORE_PASSWORD_DESCRIPTION,
     CONFIG_DS_SSH_PROXY_ENABLED,
     CONFIG_DS_SSH_CONFIG_ID,
+    CONFIG_DS_SSL_MODE,
+    CONFIG_DS_SSL_CLIENT_KEY_PASSWORD,
 
     // ---------------------------------------------------------------------------------------------------
     // for Type ：com.clougence.clouddm.base.metadata.dsconfig.rdb.RdbConfig
@@ -109,6 +111,7 @@ public enum ConfigI18nKey {
 
     // ---------------------------------------------------------------------------------------------------
     // for Type ：com.clougence.clouddm.base.metadata.ds.rdb.sqlserver.SqlServerConfig
+    CONFIG_MSSQL_INSTANCE_NAME_DESCRIPTION,
 
     // ---------------------------------------------------------------------------------------------------
     // for Type ：com.clougence.clouddm.base.metadata.ds.rdb.mongo.MongoConfig

@@ -105,7 +105,7 @@ public class LoginProviderSpiForLdap extends BaseLoginProviderSpi implements Log
     public LifeSpiResponse status(String ownerUid, LifeSpiRequest requestDTO) {
         LifeSpiStatus dto = new LifeSpiStatus();
         dto.setRunning(this.configMap.containsKey(ownerUid));
-        dto.setNameKey(LdapI18nKey.LDAP_LOGIN_SERVICES_NAME.name());
+        dto.setNameKey(LdapI18nKey.LDAP_LOGIN_SERVICES_NAME);
         return new LifeSpiResponse(JsonUtils.toJson(dto));
     }
 
@@ -146,7 +146,7 @@ public class LoginProviderSpiForLdap extends BaseLoginProviderSpi implements Log
     private String[] extractSplit(String fullLoginName) {
         String[] split = fullLoginName.split("@");
         if (split.length == 1) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_LOGIN_FAIL_PRIMARY_MISSING_ARGS.name());
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_LOGIN_FAIL_PRIMARY_MISSING_ARGS);
         }
 
         String userAccount = split[0];
@@ -180,7 +180,7 @@ public class LoginProviderSpiForLdap extends BaseLoginProviderSpi implements Log
                 }
                 if (!match) {
                     log.info("LDAP: user objectClass {} does not match any group.", StringUtils.join(filterd.toArray(), ","));
-                    throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_OBJECTCLASS_NOT_ALLOWED_ERROR.name());
+                    throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_OBJECTCLASS_NOT_ALLOWED_ERROR);
                 }
             }
         }
@@ -198,7 +198,7 @@ public class LoginProviderSpiForLdap extends BaseLoginProviderSpi implements Log
         RoleData role = searchRole(primaryUser.getInternalUID(), ldapCtx);
         if (role == null) {
             log.info("LDAP: user(" + user.getAccount() + ") not found any role, find roleName=" + ldapCtx.getLdapConfig().getLdapRoleMap());
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_USER_ROLE_MAPPING_FAILED.name());
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_USER_ROLE_MAPPING_FAILED);
         }
         user.setRoleId(role.getRoleId());
 
@@ -208,7 +208,7 @@ public class LoginProviderSpiForLdap extends BaseLoginProviderSpi implements Log
     @Override
     protected void checkThrowError(Exception e) {
         if (StringUtils.contains(e.getMessage(), "Invalid Credentials")) {
-            throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_LOGIN_FAIL_PASSWORD_ERROR.name());
+            throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_LOGIN_FAIL_PASSWORD_ERROR);
         }
     }
 

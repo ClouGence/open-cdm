@@ -17,7 +17,7 @@ package com.clougence.clouddm.console.web.model.fo;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

@@ -1,8 +1,6 @@
 export const datasourceApi = {
   // rdp
   rdpDataSourceListByCondition: '/rdp/console/api/v1/datasource/listByCondition',
-  rdpDataSourceDsKvConfigDef: '/rdp/console/api/v1/datasource/dsKvConfigDef',
-  rdpDataSourceQueryLLMConfig: '/rdp/console/api/v1/datasource/queryLLMConfig',
   rdpDataSourceDelete: '/rdp/console/api/v1/datasource/delete',
   rdpDataSourceUpdateDataSourceDesc: '/rdp/console/api/v1/datasource/updateDataSourceDesc',
   rdpDataSourceUpdateAliyunRdsAkSk: '/rdp/console/api/v1/datasource/updatealiyunrdsaksk',
@@ -33,7 +31,6 @@ export const datasourceApi = {
   ccDataSourceEsIndexQuery: '/cloudcanal/console/api/v1/inner/datasource/es/index/query',
 
   // dm
-  dmDataSourceListDsBindCluster: '/clouddm/console/api/v1/datasource/listDsBindCluster',
   dmDataSourceConnectDs: '/clouddm/console/api/v1/datasource/connectDs',
   dmDataSourceAddDs: '/clouddm/console/api/v1/datasource/addds',
   dmDataSourceListByCondition: '/clouddm/console/api/v1/datasource/listByCondition',
@@ -41,13 +38,10 @@ export const datasourceApi = {
   dmDataSourceUpsertDsConfig: '/clouddm/console/api/v1/datasource/upsertDsConfig',
   dmDataSourceQueryDs: '/clouddm/console/api/v1/datasource/queryDs',
   dmDataSourceUpdateDsAccount: '/clouddm/console/api/v1/datasource/updateDsAccount',
-  dmDataSourceEnableDsQuery: '/clouddm/console/api/v1/datasource/enableDsQuery',
   dmDataSourceListSpec: '/clouddm/console/api/v1/datasource/listSpec',
-  dmDataSourceTestEnableQuery: '/clouddm/console/api/v1/datasource/testEnableQuery',
+  dmDataSourceFetchAddConfig: '/clouddm/console/api/v1/datasource/fetchAddConfig',
+  dmDataSourceFetchBindInfo: '/clouddm/console/api/v1/datasource/fetchBindInfo',
   dmDataSourceTestConnect: '/clouddm/console/api/v1/datasource/testConnect',
-  dmDataSourceEnableDsDevOps: '/clouddm/console/api/v1/datasource/enableDsDevOps',
-  dmDataSourceDisableDsDevOps: '/clouddm/console/api/v1/datasource/disableDsDevOps',
-  dmDataSourceDisableDsQuery: '/clouddm/console/api/v1/datasource/disableDsQuery',
   dmDataSourceSpecialRedisTopKeysWithLimit: '/clouddm/console/api/v1/datasource/special/redis/top_keys_with_limit',
   dmDataSourceSchemaListFirstLevel: '/clouddm/console/api/v1/datasource/schema/listfirstlevel',
   dmDataSourceSchemaListSchemas: '/clouddm/console/api/v1/datasource/schema/listschemas',

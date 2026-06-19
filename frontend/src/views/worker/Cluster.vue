@@ -314,7 +314,6 @@ export default {
         //     }
         //   });
         this.listRegions();
-        this.listRegionAreas();
         this.listCloudOrIdcNames();
       }
       this.getClusterList(this.searchData);
@@ -464,17 +463,21 @@ export default {
           this.$services.ccConstantSupportedRegion({ data: { cloudOrIdcName: this.addCluster.cloudOrIdcName } }).then((res2) => {
             if (res2.success) {
               this.supportedRegions = res2.data;
+              this.regionAreas = this.buildRegionAreas(this.supportedRegions);
             }
           });
         }
       });
     },
-    listRegionAreas() {
-      this.$services.rdpConstantListRegionAreas().then((res) => {
-        if (res.success) {
-          this.regionAreas = res.data;
-        }
-      });
+    buildRegionAreas(regions) {
+      const regionAreas = Array.from(new Set((regions || []).map((region) => region.regionArea).filter(Boolean)));
+      if (regionAreas.length === 0) {
+        return this.buildDmRegionAreas();
+      }
+      return regionAreas.map((regionArea) => ({
+        regionArea,
+        i18nName: UtilMapping.region[regionArea] || regionArea
+      }));
     },
     listCloudOrIdcNames() {
       this.$services.ccConstantCloudOrIdcName().then((res) => {

@@ -26,6 +26,7 @@ import com.clougence.clouddm.ds.hologres.definition.ui.template.HgCmdTemplateSpi
 import com.clougence.clouddm.ds.hologres.dsconf.HgConfigSpi;
 import com.clougence.clouddm.ds.hologres.dsconf.HgSerializationSpi;
 import com.clougence.clouddm.ds.hologres.execute.HgSessionFactory;
+import com.clougence.clouddm.ds.hologres.i18n.HgDsI18nKeys;
 import com.clougence.clouddm.ds.hologres.resource.HgEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.postgres.analysis.PgSecRulesSupportSpi;
@@ -38,7 +39,6 @@ import com.clougence.clouddm.dsfamily.postgres.definition.ui.exception.PgDetermi
 import com.clougence.clouddm.dsfamily.postgres.dialect.PostgreDialect;
 import com.clougence.clouddm.dsfamily.postgres.execute.PgSessionSpi;
 import com.clougence.clouddm.dsfamily.postgres.execute.PgSupportSpi;
-import com.clougence.clouddm.dsfamily.postgres.i18n.PgDsI18nKeys;
 import com.clougence.clouddm.dsfamily.postgres.language.PgLanguageSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
@@ -50,10 +50,11 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
 /** @author mode 2024/12/25 15:13 */
-@Plugin(includePackages = { "com.clougence.clouddm.dsfamily.execute.*",         //
+@Plugin(name = "i18n::" + HgDsI18nKeys.PLUGIN_NAME_HOLOGRES,                //
+        includePackages = { "com.clougence.clouddm.dsfamily.execute.*",         //
                             "com.clougence.clouddm.dsfamily.postgres.execute.*",//
                             "com.clougence.clouddm.ds.hologres.execute.*"       //
-}, dsProduct = DataSourceType.Hologres)
+        }, dsProduct = DataSourceType.Hologres)
 public class HgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     @Override
@@ -91,7 +92,7 @@ public class HgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configUi(DsPluginBinder dsPlugin) {
         //initI18n
-        dsPlugin.bindPluginI18n(PgDsI18nKeys.class);
+        dsPlugin.bindPluginI18n(HgDsI18nKeys.class);
         //sqlBuilder
         dsPlugin.bindDsSqlBuilder(PgEditorProvider.INSTANCE);
         dsPlugin.bindDsDialect(PostgreDialect.INSTANCE);

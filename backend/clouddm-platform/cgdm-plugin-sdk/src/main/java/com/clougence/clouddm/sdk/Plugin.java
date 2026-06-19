@@ -24,6 +24,8 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 @Documented
 public @interface Plugin {
 
+    String name() default "";
+
     DataSourceType[] dsProduct() default {};
 
     int order() default 1;

@@ -51,7 +51,6 @@ import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
 import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecFileDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSessionDO;
@@ -194,7 +193,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
 
     @Override
     public DsAvailableDTO availableDataSource(String puid, String uid, long dsId) {
-        DmDsConfigDO dsConf = this.dsDal.configMapper().queryById(puid, dsId);
+        DmDsDO dsConf = this.dsDal.dsMapper().queryByOwnerAndId(puid, dsId);
         if (dsConf == null) {
             DsAvailableDTO dto = new DsAvailableDTO();
             dto.setDsId(dsId);
@@ -225,16 +224,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
             return dto;
         }
 
-        DmDsConfigDO dmDsConf = this.dsDal.configMapper().queryById(puid, dsId);
-        if (dmDsConf == null) {
-            DsAvailableDTO dto = new DsAvailableDTO();
-            dto.setDsId(dsId);
-            dto.setDsStatus(DataSourceStatus.QueryNotEnabled);
-            dto.setDsStatusMessage(DmConvertUtils.convertToDataSourceStatusI18n(DataSourceStatus.QueryNotEnabled, dsConf.getDataSourceType()));
-            return dto;
-        }
-
-        long bindClusterId = dmDsConf.getBindClusterId();
+        long bindClusterId = dsConf.getBindClusterId();
         List<DmSysWorkerDO> workers = this.systemDal.workerMapper().queryConnectedByClusterId(bindClusterId);
         if (workers.isEmpty()) {
             DsAvailableDTO dto = new DsAvailableDTO();
@@ -246,9 +236,9 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
 
         DsAvailableDTO dto = new DsAvailableDTO();
         dto.setDsId(dsId);
-        dto.setDsStatus(dmDsConf.getStatus());
-        dto.setDsStatusMessage(DmConvertUtils.convertToDataSourceStatusI18n(dmDsConf.getStatus(), dsConf.getDataSourceType()) + " "
-                               + StringUtils.defaultIfEmpty(dmDsConf.getStatusMessage(), ""));
+        dto.setDsStatus(dsConf.getStatus());
+        dto.setDsStatusMessage(DmConvertUtils.convertToDataSourceStatusI18n(dsConf.getStatus(), dsConf.getDataSourceType()) + " "
+                               + StringUtils.defaultIfEmpty(dsConf.getStatusMessage(), ""));
         return dto;
     }
 

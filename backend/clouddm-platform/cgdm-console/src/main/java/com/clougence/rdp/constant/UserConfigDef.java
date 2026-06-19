@@ -20,9 +20,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.clougence.clouddm.base.metadata.ds.ConfigValType;
 import com.clougence.clouddm.console.web.global.i18n.I18nUserConfigMsgKeys;
 import com.clougence.clouddm.platform.dal.model.system.ConfBelong;
-import com.clougence.clouddm.platform.dal.model.system.KvConfValType;
 import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
 
 /**
@@ -44,7 +44,7 @@ public @interface UserConfigDef {
 
     UserConfigTagType configTagType() default UserConfigTagType.COMMON;
 
-    KvConfValType kvConfWebOp() default KvConfValType.TEXT;
+    ConfigValType kvConfWebOp() default ConfigValType.TEXT;
 
     ConfBelong confBelong() default ConfBelong.Common;
 

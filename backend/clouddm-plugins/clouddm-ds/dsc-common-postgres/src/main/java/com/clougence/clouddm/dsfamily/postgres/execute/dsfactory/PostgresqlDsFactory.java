@@ -133,17 +133,17 @@ public class PostgresqlDsFactory implements DsFactory<Connection> {
         }
 
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
-        String defaultDataBase = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
+        String defaultCatalog = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
 
-        if (StringUtils.isBlank(defaultDataBase)) {
-            defaultDataBase = "postgres";
+        if (StringUtils.isBlank(defaultCatalog)) {
+            defaultCatalog = "postgres";
         }
 
         String[] ipPort = host.split(":");
         if (ipPort.length == 1) {
-            return String.format("jdbc:postgresql://%s:5432/%s", ipPort[0], safeString(defaultDataBase));
+            return String.format("jdbc:postgresql://%s:5432/%s", ipPort[0], safeString(defaultCatalog));
         } else if (ipPort.length == 2) {
-            return String.format("jdbc:postgresql://%s:%s/%s", ipPort[0], ipPort[1], safeString(defaultDataBase));
+            return String.format("jdbc:postgresql://%s:%s/%s", ipPort[0], ipPort[1], safeString(defaultCatalog));
         } else {
             throw new IllegalArgumentException("unsupported host format:" + host);
         }

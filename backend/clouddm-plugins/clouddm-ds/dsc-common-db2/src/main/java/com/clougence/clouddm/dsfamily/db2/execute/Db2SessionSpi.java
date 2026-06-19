@@ -31,7 +31,6 @@ public class Db2SessionSpi extends RdbSessionSpi {
     @Override
     public SessionContextDTO createSessionContext(DataSourceConfig dsConfig, Map<String, Object> params) {
         SessionContextDTO contextDTO = super.createSessionContext(dsConfig, params);
-        contextDTO.setRdbCatalog(dsConfig.getDefaultDataBase());
 
         if (contextDTO.getRdbTxIsolation() == null || contextDTO.getRdbTxIsolation() == RdbIsolation.DEFAULT) {
             contextDTO.setRdbTxIsolation(RdbIsolation.SERIALIZABLE);

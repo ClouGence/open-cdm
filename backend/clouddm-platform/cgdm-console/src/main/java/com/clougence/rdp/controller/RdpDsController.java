@@ -15,7 +15,6 @@
  */
 package com.clougence.rdp.controller;
 
-import static com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy.Ignore;
 import static com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel.RDP_DAUTH_DS_MANAGER;
 import static com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel.RDP_DAUTH_DS_READ;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_DS_MANAGE;
@@ -33,26 +32,29 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.llm.LLMAction;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDriverService;
-import com.clougence.clouddm.console.web.component.dsconfig.DmDsDeletePrepareService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
-import com.clougence.clouddm.console.web.model.fo.*;
+import com.clougence.clouddm.console.web.model.fo.CheckDriverVersionFO;
 import com.clougence.clouddm.console.web.model.fo.QueryDsConfigFO;
+import com.clougence.clouddm.console.web.model.fo.QueryDsFO;
+import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.*;
 import com.clougence.clouddm.console.web.model.fo.user.DeleteAccountFO;
 import com.clougence.clouddm.console.web.model.lo.UpdateDsConfigLO;
 import com.clougence.clouddm.console.web.model.lo.UpdateDsDescLO;
 import com.clougence.clouddm.console.web.model.lo.UpdatePriHostLO;
 import com.clougence.clouddm.console.web.model.lo.UpdatePubHostLO;
-import com.clougence.clouddm.console.web.model.vo.*;
+import com.clougence.clouddm.console.web.model.vo.DriverVersionStatusVO;
+import com.clougence.clouddm.console.web.model.vo.RdpDataSourceVO;
+import com.clougence.clouddm.console.web.model.vo.RdpDsKvConfigVO;
+import com.clougence.clouddm.console.web.model.vo.RdpSimpleDsVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
+import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
@@ -60,7 +62,6 @@ import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.rdp.component.dskvconfig.model.LLMExtraConfig;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
 import com.clougence.rdp.service.RdpDsService;
 import com.clougence.rdp.service.RdpOpAuditService;
@@ -82,15 +83,13 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpDsController {
 
     @Resource
-    private RdpDsService             rdpDsService;
+    private RdpDsService        rdpDsService;
     @Resource
-    private DmAuthServiceForBiz      rdpAuthService;
+    private DmAuthServiceForBiz rdpAuthService;
     @Resource
-    private RdpOpAuditService        rdpOpAuditService;
+    private RdpOpAuditService   rdpOpAuditService;
     @Resource
-    private DmDriverService          dmDriverService;
-    @Resource
-    private DmDsDeletePrepareService dmDsDeletePrepareService;
+    private DmDriverService     dmDriverService;
 
     @RequestAuth(RDP_DS_READ)
     @RequestMapping(value = "/listByCondition", method = RequestMethod.POST)
@@ -109,7 +108,6 @@ public class RdpDsController {
             .dataSourceType(listDsFO.getType())
             .dataSourceDescLike(listDsFO.getDataSourceDescLike())
             .dataSourceIds(Stream.of(listDsFO.getDataSourceId()).filter(Objects::nonNull).collect(Collectors.toList()))
-            .deployType(listDsFO.getDeployType())
             .lifeCycleState(listDsFO.getLifeCycleState())
             .dsHostLike(listDsFO.getDsHostLike())
             .dataSourceType(listDsFO.getType())
@@ -172,13 +170,6 @@ public class RdpDsController {
         return ResWebDataUtils.buildSuccess(vo);
     }
 
-    @RequestAuth(strategy = Ignore)
-    @RequestMapping(value = "/dsKvConfigDef", method = RequestMethod.POST)
-    public ResWebData<?> dsKvConfigDef(@RequestBody QueryDsDefaultKvConfigFO queryDsFO) {
-        List<DefaultDsKvConfigVO> vos = rdpDsService.queryDsDefaultConfig(queryDsFO.getDataSourceType(), queryDsFO.getDeployEnvType());
-        return ResWebDataUtils.buildSuccess(vos);
-    }
-
     @RequestAuth(RDP_DS_MANAGE)
     @RequestMapping(value = "/checkDriverStatus", method = RequestMethod.POST)
     public ResWebData<DriverVersionStatusVO> checkDriverStatus(@RequestBody @Valid CheckDriverVersionFO fo) {
@@ -233,7 +224,6 @@ public class RdpDsController {
         this.rdpAuthService.checkResAuth(puid, uid, resId, RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
 
         DmDsDO rdpDataSourceDO = rdpDsService.fetchAndCheckById(resId);
-        this.dmDsDeletePrepareService.prepareDelete(puid, resId);
         ResWebData<Long> longResWebData = this.rdpDsService.delDataSource(puid, resId);
 
         if (longResWebData.isSuccess()) {
@@ -257,44 +247,6 @@ public class RdpDsController {
         rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), fo
             .getDataSourceId(), vos, SecurityLevel.NORMAL, AuditType.QUERY_DATA_SOURCE_CONFIG, ResourceType.DATASOURCE);
         return ResWebDataUtils.buildSuccess(vos);
-    }
-
-    @RequestAuth(RDP_DS_READ)
-    @RequestMapping(value = "/queryLLMConfig", method = RequestMethod.POST)
-    public ResWebData<?> queryLLMConfig(@RequestBody DsLLMConfigModelsFO fo, HttpServletRequest request) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        long resId = fo.getDataSourceId();
-
-        this.rdpAuthService.checkResAuth(puid, uid, resId, RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_READ, AuthKind.DataSource);
-
-        LLMExtraConfig llmExtraConfig = new LLMExtraConfig();
-        RdpDsKvConfigVO vos;
-
-        if (fo.getLlmAction() == LLMAction.EMBEDDING) {
-            vos = this.rdpDsService.queryDsConfig(fo.getDataSourceId(), LLMExtraConfig.Fields.llmEmbedding);
-            if (vos != null) {
-                llmExtraConfig.setLlmEmbedding(vos.getConfigValue());
-            }
-        } else if (fo.getLlmAction() == LLMAction.CHAT) {
-            vos = this.rdpDsService.queryDsConfig(fo.getDataSourceId(), LLMExtraConfig.Fields.llmChat);
-            if (vos != null) {
-                llmExtraConfig.setLlmChat(vos.getConfigValue());
-            }
-        } else {
-            throw new IllegalArgumentException("Unsupported llm action: " + fo.getLlmAction());
-        }
-
-        llmExtraConfig.deserialize();
-
-        rdpOpAuditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request.getRemoteAddr(), fo
-            .getDataSourceId(), vos, SecurityLevel.NORMAL, AuditType.QUERY_DATA_SOURCE_CONFIG, ResourceType.DATASOURCE);
-
-        if (fo.getLlmAction() == LLMAction.EMBEDDING) {
-            return ResWebDataUtils.buildSuccess(llmExtraConfig.getLlmEmbeddingConfigs());
-        } else {
-            return ResWebDataUtils.buildSuccess(llmExtraConfig.getLlmChatConfigs());
-        }
     }
 
     @RequestAuth(level = SecurityLevel.HIGH, value = RDP_DS_MANAGE)

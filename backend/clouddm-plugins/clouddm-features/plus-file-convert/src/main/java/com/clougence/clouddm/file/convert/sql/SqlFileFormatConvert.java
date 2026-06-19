@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.file.convert.config.sql.SqlOption;
-import com.clougence.clouddm.file.convert.constants.ConvertI18nKeys;
+import com.clougence.clouddm.file.convert.i18n.ConvertI18nKeys;
 import com.clougence.clouddm.file.convert.sql.ds.*;
 import com.clougence.clouddm.sdk.execute.ExecuteVariables;
 import com.clougence.clouddm.sdk.execute.resultset.echo.ResultSetValue;

@@ -15,24 +15,38 @@
  */
 package com.clougence.clouddm.ds.oceanbase.dsconf.ob4ora;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigMap;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.drivers.adapter.ConvertUtils;
+import com.clougence.utils.StringUtils;
 
-public class ObForOraConfigSpi implements DsConfigSpi, ConfigKeys {
+public class ObForOraConfigSpi implements DsConfigSpi {
 
     @Override
-    public DataSourceConfig newConfig(Map<String, String> configMap) {
-        return new ObOraConfig();
+    public Class<? extends DataSourceConfig> newConfig() {
+        return ObOraConfig.class;
     }
 
     @Override
-    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, DsConfigMap dsConfigMap) {
-        ((ObOraConfig) dsConfig).setTenant((String) dsConfigMap.getRdpExtraBean().get(ConfigKeys.RDP_EXTRA_OB_TENANT));
-        ((ObOraConfig) dsConfig).setCluster((String) dsConfigMap.getRdpExtraBean().get(ConfigKeys.RDP_EXTRA_OB_CLUSTER_NAME));
+    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
+        ObOraConfig config = (ObOraConfig) dsConfig;
+        config.setDefaultSchema(defaultConfig.get(ObOraConfig.Fields.defaultSchema));
+        config.setConnectionCharset(StringUtils.defaultIfBlank(defaultConfig.get(ObOraConfig.Fields.connectionCharset), "utf8"));
+        config.setUseCursorFetch(ConvertUtils.toBoolean(defaultConfig.get(ObOraConfig.Fields.useCursorFetch), false));
+        config.setTenant(defaultConfig.get(ObOraConfig.Fields.tenant));
+        config.setCluster(defaultConfig.get(ObOraConfig.Fields.cluster));
         return dsConfig;
+    }
+
+    @Override
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.USER_PASSWD);
+        return options;
     }
 }

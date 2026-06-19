@@ -23,7 +23,7 @@
       <FormItem v-if="searchType === 'type'">
         <Select v-model="searchKey.dbType" style="width: 250px" filterable>
           <Option value="all">{{ $t('quan-bu') }}</Option>
-          <Option v-for="type of dataSourceTypes" :value="type" :key="type">{{ type }}</Option>
+          <Option v-for="type of dataSourceTypes" :value="type.dsKey" :key="type.dsKey">{{ type.displayName }}</Option>
         </Select>
       </FormItem>
       <FormItem v-if="searchType === 'dataSourceId'">
@@ -75,6 +75,8 @@
   </div>
 </template>
 <script>
+import { mapState } from 'vuex';
+
 export default {
   name: 'DataSourceHeader',
   emits: ['update-search-key'],
@@ -93,6 +95,14 @@ export default {
       dataSourceTypes: []
     };
   },
+  computed: {
+    ...mapState(['dmGlobalSetting'])
+  },
+  watch: {
+    dmGlobalSetting() {
+      this.refreshDataSourceTypes();
+    }
+  },
   mounted() {
     const params = JSON.parse(sessionStorage.getItem('datasource_search_params'));
     if (params) {
@@ -109,13 +119,32 @@ export default {
     } else {
       this.handleSearch(this.searchKey, 'init');
     }
-    this.$services.rdpConstantListFilterDsTypes().then((res) => {
-      if (res.success) {
-        this.dataSourceTypes = res.data;
-      }
-    });
+    this.refreshDataSourceTypes();
   },
   methods: {
+    refreshDataSourceTypes() {
+      this.dataSourceTypes = Array.isArray(this.dmGlobalSetting?.dsSupportNames)
+        ? this.dmGlobalSetting.dsSupportNames.flat().map(this.normalizeDsSupportName).filter(Boolean)
+        : [];
+    },
+    normalizeDsSupportName(type) {
+      if (!type) {
+        return null;
+      }
+      if (typeof type === 'string') {
+        return {
+          dsKey: type,
+          displayName: type
+        };
+      }
+      if (!type.dsKey) {
+        return null;
+      }
+      return {
+        dsKey: type.dsKey,
+        displayName: type.displayName || type.dsKey
+      };
+    },
     _handleSearch() {
       sessionStorage.setItem('datasource_search_params', JSON.stringify({ searchType: this.searchType, ...this.searchKey }));
       this.handleSearch(this.searchKey, 'init');

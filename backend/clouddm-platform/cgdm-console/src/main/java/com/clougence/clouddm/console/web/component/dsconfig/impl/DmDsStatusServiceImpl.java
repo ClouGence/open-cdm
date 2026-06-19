@@ -31,7 +31,6 @@ import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.ui.exception.ConnectionExceptionType;
@@ -79,7 +78,7 @@ public class DmDsStatusServiceImpl implements DmDsStatusService {
         if (!dataSourceStatus.equals(newStatus)) {
             this.map.put(dsConfig.getInstanceId(), DataSourceStatus.ConnectionFailed);
             DmDsDO ds = dsDal.dsMapper().getByInstanceId(dsConfig.getInstanceId());
-            dsDal.configMapper().updateStatusByDataSourceId(ds.getId(), newStatus);
+            dsDal.dsMapper().updateStatusByDataSourceId(ds.getId(), newStatus);
             this.notifyServices.forEach(s -> s.onDsUpdate(ds.getId()));
         }
     }
@@ -102,7 +101,7 @@ public class DmDsStatusServiceImpl implements DmDsStatusService {
 
         this.map.put(dsConfig.getInstanceId(), DataSourceStatus.Normal);
         DmDsDO ds = this.dsDal.dsMapper().getByInstanceId(dsConfig.getInstanceId());
-        dsDal.configMapper().updateStatusByDataSourceId(ds.getId(), DataSourceStatus.Normal);
+        dsDal.dsMapper().updateStatusByDataSourceId(ds.getId(), DataSourceStatus.Normal);
         this.notifyServices.forEach(s -> s.onDsUpdate(ds.getId()));
     }
 
@@ -123,11 +122,10 @@ public class DmDsStatusServiceImpl implements DmDsStatusService {
                 dataSourceStatus = this.map.get(instanceId);
                 if (dataSourceStatus == null) {
                     DmDsDO rdpDataSourceDO = dsDal.dsMapper().getByInstanceId(instanceId);
-                    DmDsConfigDO dmDsConfigDO = dsDal.configMapper().queryByDataSourceId(rdpDataSourceDO.getId());
-                    if (dmDsConfigDO == null) {
+                    if (rdpDataSourceDO == null || rdpDataSourceDO.getStatus() == null) {
                         throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
                     }
-                    map.put(instanceId, dmDsConfigDO.getStatus());
+                    map.put(instanceId, rdpDataSourceDO.getStatus());
                     dataSourceStatus = this.map.get(instanceId);
                 }
             }

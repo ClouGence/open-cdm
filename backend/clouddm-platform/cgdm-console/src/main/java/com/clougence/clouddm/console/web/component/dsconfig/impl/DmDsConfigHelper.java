@@ -18,15 +18,14 @@ package com.clougence.clouddm.console.web.component.dsconfig.impl;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.ConfigDef;
+import com.clougence.clouddm.base.metadata.ds.ConfigValType;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
-import com.clougence.clouddm.platform.dal.model.system.KvConfValType;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -38,26 +37,22 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DmDsConfigHelper {
 
-    public static <T extends DataSourceConfig> T initFieldDefaultValue(T instance) {
-        fillFieldValue(instance, instance.getClass(), Collections.emptyMap());
+    public static <T extends DataSourceConfig> T initBaseFieldDefaultValue(T instance) {
+        fillFieldValue(instance, DataSourceConfig.class, Map.of());
         return instance;
     }
 
-    public static void fillFieldValue(Object instance, Map<String, String> configMap) {
-        // fill
-        if (instance instanceof DataSourceConfig) {
-            fillFieldValue(instance, DataSourceConfig.class, configMap);
-        }
-        fillFieldValue(instance, instance.getClass(), configMap);
+    public static void fillBaseFieldValue(DataSourceConfig instance, Map<String, String> configMap) {
+        fillFieldValue(instance, DataSourceConfig.class, configMap);
     }
 
-    public static List<DmDsConfigKv4RdpDO> collectConfigs(Object instance) {
-        List<DmDsConfigKv4RdpDO> configs = new ArrayList<>();
+    public static List<DsConfigKvDef> collectConfigs(Object instance) {
+        List<DsConfigKvDef> configs = new ArrayList<>();
         collectConfigs(instance, instance.getClass(), configs);
         return configs;
     }
 
-    protected static void collectConfigs(Object instance, Class<?> clazz, List<DmDsConfigKv4RdpDO> configs) {
+    protected static void collectConfigs(Object instance, Class<?> clazz, List<DsConfigKvDef> configs) {
         try {
             Field[] fields = clazz.getDeclaredFields();
 
@@ -75,7 +70,7 @@ public class DmDsConfigHelper {
                     val = String.valueOf(oriVal);
                 }
 
-                DmDsConfigKv4RdpDO configDO = genConfigDo(configDef, val, field.getType());
+                DsConfigKvDef configDO = genConfigDef(configDef, val, field.getType());
 
                 configs.add(configDO);
             }
@@ -90,37 +85,47 @@ public class DmDsConfigHelper {
         }
     }
 
-    protected static DmDsConfigKv4RdpDO genConfigDo(ConfigDef configDef, String val, Class<?> fieldType) {
-        DmDsConfigKv4RdpDO configDO = new DmDsConfigKv4RdpDO();
-        //configDO.setDataSourceId(dataSourceId);
-        configDO.setConfigName(configDef.name());
+    protected static DsConfigKvDef genConfigDef(ConfigDef configDef, String val, Class<?> fieldType) {
+        DsConfigKvDef config = new DsConfigKvDef();
+        config.setConfigName(configDef.name());
         if (configDef.group() == null) {
-            configDO.setConfigGroup(null);
+            config.setConfigGroup(null);
         } else {
             switch (configDef.group()) {
                 case GENERAL:
-                    configDO.setConfigGroup(DsConfigGroup.GENERAL);
+                    config.setConfigGroup(DsConfigGroup.GENERAL);
                     break;
                 case CLOUD:
-                    configDO.setConfigGroup(DsConfigGroup.CLOUD);
+                    config.setConfigGroup(DsConfigGroup.CLOUD);
                     break;
                 case OPTIONS:
-                    configDO.setConfigGroup(DsConfigGroup.OPTIONS);
+                    config.setConfigGroup(DsConfigGroup.OPTIONS);
                     break;
             }
         }
 
-        configDO.setDisplay(configDef.display());
-        configDO.setDescKey(configDef.descKey().name());
-        configDO.setValueRequire(configDef.valueRequire());
-        configDO.setValueValidRegex(configDef.valueValidRegex());
-        configDO.setConfigValue(val);
-        configDO.setDefaultValue(configDef.defaultValue());
-        configDO.setValueAdvance(configDef.valueAdvance());
-        configDO.setConfValType(fieldType == Boolean.class || fieldType == boolean.class ? KvConfValType.BOOLEAN : KvConfValType.TEXT);
-        configDO.setReadOnly(configDef.readOnly());
-        configDO.setSecret(configDef.isSecret());
-        return configDO;
+        config.setDisplay(configDef.display());
+        config.setDescKey(configDef.descKey().name());
+        config.setValueRequire(configDef.valueRequire());
+        config.setValueValidRegex(configDef.valueValidRegex());
+        config.setConfigValue(configDef.lazy() ? "" : val);
+        config.setDefaultValue(configDef.defaultValue());
+        config.setValueAdvance(configDef.valueAdvance());
+        config.setConfValType(resolveValType(configDef, fieldType));
+        config.setReadOnly(configDef.readOnly());
+        config.setSecret(configDef.isSecret());
+        config.setLazy(configDef.lazy());
+        return config;
+    }
+
+    private static ConfigValType resolveValType(ConfigDef configDef, Class<?> fieldType) {
+        if (configDef.valType() != ConfigValType.AUTO) {
+            return configDef.valType();
+        }
+        if (fieldType == Boolean.class || fieldType == boolean.class) {
+            return ConfigValType.BOOLEAN;
+        }
+        return ConfigValType.TEXT;
     }
 
     protected static void fillFieldValue(Object instance, Class clazz, Map<String, String> configMap) {

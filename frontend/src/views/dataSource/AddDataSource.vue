@@ -45,7 +45,7 @@
 <script>
 import DataSourceInfo from '@/components/function/addDataSource/DataSourceInfo';
 import SuccessAdd from '@/components/function/addDataSource/SuccessAdd';
-import { isDb2, isHana, separatePort, isMySQL } from '@/utils';
+import { separatePort, isMySQL } from '@/utils';
 import { isPostgreSQL } from '@/const/dataSource';
 import { mapGetters, mapState } from 'vuex';
 import deepClone from 'lodash.clonedeep';
@@ -354,6 +354,7 @@ export default {
           //   hdfsPrincipal: this.addDataSourceForm.hdfsPrincipal
           // },
           driver: this.addDataSourceForm.driver,
+          bindClusterId: this.addDataSourceForm.queryClusterId,
           envId: this.addDataSourceForm.envId,
           infoFetchType: 'MANUALLY_FILL',
           secretFilePassword: this.addDataSourceForm?.secretFilePassword || ''
@@ -393,43 +394,9 @@ export default {
         this.$services.rdpDataSourceAdd({ data: formData }).then(async (res) => {
           this.addDatasourceLoading = false;
           if (res.success) {
-            await this.enableDatasourceFeatures(res.data);
             this.currentStep = 4;
           }
         });
-      }
-    },
-    async enableDatasourceFeatures(dataSourceId) {
-      if (!this.shouldAutoEnableFeatures || !dataSourceId) {
-        return;
-      }
-
-      if (!this.addDataSourceForm.queryClusterId) {
-        this.$Message.warning(this.$t('shu-ju-cha-xun-wei-kai-qi'));
-        return;
-      }
-
-      const queryRes = await this.$services.dmDataSourceEnableDsQuery({
-        data: {
-          dataSourceId,
-          clusterId: this.addDataSourceForm.queryClusterId,
-          hostType: this.addDataSourceForm.queryHostType
-        }
-      });
-
-      if (!queryRes.success) {
-        this.$Message.warning(this.$t('shu-ju-cha-xun-wei-kai-qi'));
-        return;
-      }
-
-      const devopsRes = await this.$services.dmDataSourceEnableDsDevOps({
-        data: {
-          dataSourceId
-        }
-      });
-
-      if (!devopsRes.success) {
-        this.$Message.warning('CI/CD 未开启');
       }
     },
     handleAddPersonalDataSource(testDs = false) {
@@ -489,10 +456,7 @@ export default {
           instanceId: this.addDataSourceForm.instanceId,
           password: this.addDataSourceForm.password,
           securityType: this.addDataSourceForm.securityType,
-          dbName:
-            isDb2(this.addDataSourceForm.type) || isHana(this.addDataSourceForm.type)
-              ? this.addDataSourceForm.dbName
-              : this.addDataSourceForm.noValidateDbName,
+          dbName: this.addDataSourceForm.dbName || this.addDataSourceForm.noValidateDbName,
           clientTrustStorePassword: this.addDataSourceForm.clientTrustStorePassword,
           dsKvConfigs: kvConfigs,
           // extraData: {

@@ -25,4 +25,7 @@ import com.clougence.utils.i18n.I18nResource;
 **/
 @I18nResource("/META-INF/clougence/i18n/sel-ui-editor-table")
 public interface SelDsI18nKeys extends DrDsI18nKeys {
+
+    String PLUGIN_NAME_SELECTDB = "PLUGIN_NAME_SELECTDB";
+
 }

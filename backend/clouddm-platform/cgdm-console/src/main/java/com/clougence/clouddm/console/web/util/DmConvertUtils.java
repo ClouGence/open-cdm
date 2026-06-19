@@ -26,14 +26,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.clougence.clouddm.api.common.ResultEnum;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultPageDTO;
 import com.clougence.clouddm.base.metadata.ds.*;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResultEnum;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
 import com.clougence.clouddm.console.web.component.detectrule.SecHintInfo;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRange;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRangeItem;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsDriverFamily;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.project.model.ChangeCheckItemMO;
@@ -194,7 +194,7 @@ public class DmConvertUtils {
         return vo;
     }
 
-    public static BrowseLevelsVO convertToBrowseLevelsVO(DmDsDO dsDO, DataSourceConfig dsConfig, DmDsConfigDO dmDsConfig, RdbSupportSpi supportSpi, String dsHost) {
+    public static BrowseLevelsVO convertToBrowseLevelsVO(DmDsDO dsDO, DataSourceConfig dsConfig, DmDsDO enabledDsDO, RdbSupportSpi supportSpi, String dsHost) {
         BrowseLevelsVO vo = new BrowseLevelsVO();
         vo.setObjId(String.valueOf(dsDO.getId()));
         if (RdpConvertUtils.removeNoDescription(dsDO.getInstanceDesc()) == null) {
@@ -208,12 +208,11 @@ public class DmConvertUtils {
         vo.getObjAttr().put("dsName", dsDO.getDataSourceType().getTypeName());
         vo.getObjAttr().put("dsVersion", dsDO.getVersion());
         vo.getObjAttr().put("dsHost", dsHost);
-        vo.getObjAttr().put("dsDeployType", dsDO.getDeployType().name());
         vo.getObjAttr().put("dsInstance", dsDO.getInstanceId());
         vo.getObjAttr().put("dsInstanceDesc", dsDO.getInstanceDesc());
         vo.getObjAttr().put("dsEnvId", dsDO.getDsEnvId());
-        vo.getObjAttr().put("status", dmDsConfig.getStatus());
-        vo.getObjAttr().put("msg", convertToDataSourceStatusI18n(dmDsConfig.getStatus(), dmDsConfig.getDataSourceType()));
+        vo.getObjAttr().put("status", enabledDsDO.getStatus());
+        vo.getObjAttr().put("msg", convertToDataSourceStatusI18n(enabledDsDO.getStatus(), enabledDsDO.getDataSourceType()));
 
         if (dsConfig != null) {
             I18nUtils dsI18n = PluginManager.findDsI18nUtil(dsConfig.getDataSourceType());
@@ -246,7 +245,7 @@ public class DmConvertUtils {
             //            // support default
             //            if (dsConfig instanceof RdbConfig) {
             //                RdbConfig rdbConfig = (RdbConfig) dsConfig;
-            //                vo.getObjAttr().put("defaultCatalog", StringUtils.isBlank(rdbConfig.getDefaultDataBase()) ? "" : rdbConfig.getDefaultDataBase());
+            //                vo.getObjAttr().put("defaultCatalog", StringUtils.isBlank(rdbConfig.getDefaultCatalog()) ? "" : rdbConfig.getDefaultCatalog());
             //                vo.getObjAttr().put("defaultSchema", StringUtils.isBlank(rdbConfig.getDefaultSchema()) ? "" : rdbConfig.getDefaultSchema());
             //                vo.getObjAttr().put("defaultIsolation", RdbIsolation.valueOfCode(rdbConfig.getIsolation()).getName());
             //                vo.getObjAttr().put("defaultAutoCommit", rdbConfig.getAutoCommit() == null || rdbConfig.getAutoCommit());
@@ -317,15 +316,6 @@ public class DmConvertUtils {
         return (list == null || list.isEmpty()) ? Collections.emptyList() : list;
     }
 
-    public static BrowseKeyMO convertToBrowseKeyMO(String key, String value) {
-        BrowseKeyMO mo = new BrowseKeyMO();
-        mo.setName(key);
-        mo.setType(DsMenuType.Key.getTypeName());
-        mo.setTips(key);
-        mo.setValue(value);
-        return mo;
-    }
-
     public static BrowseTableMO convertToBrowseTableMO(RdbTable rdbTable) {
         RdbPrimaryKey primaryKey = rdbTable.getPrimaryKey();
         List<String> keyCols = (primaryKey == null) ? Collections.emptyList() : primaryKey.getColumnList();
@@ -366,21 +356,18 @@ public class DmConvertUtils {
         }
 
         List<BrowseIndexMO> indexes = new ArrayList<>();
-        indexes.addAll(uniqueKeys.stream().map(DmConvertUtils::convertToBrowseIndexMO).collect(Collectors.toList()));
-        indexes.addAll(indices.stream().map(DmConvertUtils::convertToBrowseIndexMO).collect(Collectors.toList()));
+        indexes.addAll(uniqueKeys.stream().map(DmConvertUtils::convertToBrowseIndexMO).toList());
+        indexes.addAll(indices.stream().map(DmConvertUtils::convertToBrowseIndexMO).toList());
         mo.setIndexes(indexes);
 
         mo.setPartitions(Collections.emptyList());
 
         List<BrowseConstraintMO> constraints = new ArrayList<>();
-        constraints
-            .addAll(notNullList(rdbTable.getCheckConstraints()).stream().map(DmConvertUtils::convertToBrowseConstraintMO).filter(Objects::nonNull).collect(Collectors.toList()));
-        constraints
-            .addAll(notNullList(rdbTable.getUniqueConstraints()).stream().map(DmConvertUtils::convertToBrowseConstraintMO).filter(Objects::nonNull).collect(Collectors.toList()));
+        constraints.addAll(notNullList(rdbTable.getCheckConstraints()).stream().map(DmConvertUtils::convertToBrowseConstraintMO).filter(Objects::nonNull).toList());
+        constraints.addAll(notNullList(rdbTable.getUniqueConstraints()).stream().map(DmConvertUtils::convertToBrowseConstraintMO).filter(Objects::nonNull).toList());
         mo.setConstraints(constraints);
 
-        List<BrowseForeignKeyMO> fks = new ArrayList<>();
-        fks.addAll(foreignKeys.stream().map(fk -> convertToBrowseForeignMO(fk, rdbTable.getName())).collect(Collectors.toList()));
+        List<BrowseForeignKeyMO> fks = new ArrayList<>(foreignKeys.stream().map(fk -> convertToBrowseForeignMO(fk, rdbTable.getName())).toList());
         mo.setForeignKeys(fks);
 
         return mo;
@@ -653,10 +640,10 @@ public class DmConvertUtils {
         List<String> allIdx = new ArrayList<>();
         allIdx.addAll(mo.getKeys().stream().flatMap((Function<BrowsePrimaryMO, Stream<String>>) m -> {
             return m.getColumns().stream().map(BrowseTermMO::getName);
-        }).collect(Collectors.toList()));
+        }).toList());
         allIdx.addAll(mo.getIndexes().stream().flatMap((Function<BrowseIndexMO, Stream<String>>) m -> {
             return m.getColumns().stream().map(BrowseTermMO::getName);
-        }).collect(Collectors.toList()));
+        }).toList());
 
         BrowseObjectVO vo = new BrowseObjectVO();
         vo.setObjId(StringUtils.isBlank(mo.getObjId()) ? mo.getName() : mo.getObjId());
@@ -965,7 +952,7 @@ public class DmConvertUtils {
         return vo;
     }
 
-    public static DmSimpleDsVO convertToDmSimpleDsVO(DmDsDO dsDO, Map<Long, DmDsConfigDO> confMap) {
+    public static DmSimpleDsVO convertToDmSimpleDsVO(DmDsDO dsDO, Map<Long, DmDsDO> confMap) {
         DmSimpleDsVO vo = new DmSimpleDsVO();
         vo.setId(dsDO.getId());
         vo.setGmtCreate(dsDO.getGmtCreate());
@@ -984,19 +971,7 @@ public class DmConvertUtils {
         vo.setInstanceDesc(dsDO.getInstanceDesc());
         vo.setDataSourceType(dsDO.getDataSourceType());
 
-        if (dsDO.getDeployType() != null) {
-            vo.setDeployType(dsDO.getDeployType());
-            vo.setDeployTypeI18n(DmI18nUtils.getMessage(dsDO.getDeployType().name()));
-        }
-
-        if (confMap.containsKey(dsDO.getId())) {
-            vo.setEnableQuery(true);
-            vo.setEnableDevops(confMap.get(dsDO.getId()).isEnableDevops());
-        } else {
-            vo.setEnableQuery(false);
-            vo.setEnableDevops(false);
-        }
-
+        vo.setEnableQuery(confMap.containsKey(dsDO.getId()));
         vo.setVersion(dsDO.getVersion());
         return vo;
     }
@@ -1182,30 +1157,22 @@ public class DmConvertUtils {
         return features;
     }
 
-    public static DmDsConfigKv4DmDO convertToDmDsKvBaseConfigDOForInsert(DmDsConfigKv4RdpDO config) {
-        DmDsConfigKv4DmDO conf = new DmDsConfigKv4DmDO();
-        conf.setDataSourceId(config.getDataSourceId());
-        conf.setConfigName(config.getConfigName());
-        conf.setConfigGroup(config.getConfigGroup());
-        conf.setDisplay(config.isDisplay());
-        conf.setDescKey(config.getDescKey());
-        conf.setValueRequire(config.isValueRequire());
-        conf.setValueValidRegex(config.getValueValidRegex());
-        conf.setConfigValue(config.getConfigValue());
-        conf.setDefaultValue(config.getDefaultValue());
-        conf.setValueAdvance(config.getValueAdvance());
-        conf.setReadOnly(config.isReadOnly());
-        conf.setSecret(config.isSecret());
-        return conf;
+    public static DsKvConfigVO convertToDsKvConfigVO(DsConfigKvDef config) {
+        return convertToDsKvConfigVO(config, null);
     }
 
-    public static DsKvConfigVO convertToDsKvConfigVO(DmDsConfigKv4RdpDO config) {
+    public static DsKvConfigVO convertToDsKvConfigVO(DsConfigKvDef config, DmDsConfigKv4DmDO configValue) {
         DsKvConfigVO vo = new DsKvConfigVO();
 
-        vo.setId(config.getId());
-        vo.setConfigName(config.getConfigName());
-        if (!config.isSecret()) {
+        if (configValue == null) {
             vo.setConfigValue(config.getConfigValue());
+        } else {
+            vo.setId(configValue.getId());
+            vo.setConfigValue(configValue.getConfigValue());
+        }
+        vo.setConfigName(config.getConfigName());
+        if (config.isSecret()) {
+            vo.setConfigValue(null);
         }
         vo.setConfigGroup(config.getConfigGroup());
         vo.setSecret(config.isSecret());
@@ -1216,25 +1183,7 @@ public class DmConvertUtils {
         vo.setValueAdvance(config.getValueAdvance());
         vo.setConfValType(config.getConfValType());
         vo.setReadOnly(config.isReadOnly());
-        return vo;
-    }
-
-    public static DsKvConfigVO convertToDsKvConfigVO(DmDsConfigKv4DmDO config) {
-        DsKvConfigVO vo = new DsKvConfigVO();
-
-        vo.setId(config.getId());
-        vo.setConfigName(config.getConfigName());
-        if (!config.isSecret()) {
-            vo.setConfigValue(config.getConfigValue());
-        }
-        vo.setConfigGroup(config.getConfigGroup());
-        vo.setSecret(config.isSecret());
-        vo.setDescription(DmI18nUtils.getMessage(config.getDescKey()));
-        vo.setValueRequire(config.isValueRequire());
-        vo.setValueValidRegex(config.getValueValidRegex());
-        vo.setDefaultValue(config.getDefaultValue());
-        vo.setValueAdvance(config.getValueAdvance());
-        vo.setReadOnly(config.isReadOnly());
+        vo.setLazy(config.isLazy());
         return vo;
     }
 
@@ -1573,8 +1522,6 @@ public class DmConvertUtils {
                 return DmI18nUtils.getMessage(I18nDmLabelKeys.DM_DS_STATUS_DELETED.name());
             case NoAuthority:
                 return DmI18nUtils.getMessage(I18nDmLabelKeys.DM_DS_STATUS_NO_AUTHORITY.name());
-            case QueryNotEnabled:
-                return DmI18nUtils.getMessage(I18nDmLabelKeys.DM_DS_STATUS_QUERY_NOT_ENABLED.name());
             case NotWorker:
                 return DmI18nUtils.getMessage(I18nDmLabelKeys.DM_DS_STATUS_NOT_WORKER.name());
             case ConnectionFailed:
@@ -2014,11 +1961,7 @@ public class DmConvertUtils {
             vo.setDsDisplay(dsDO.getInstanceDesc());
         }
 
-        if (dsDO != null) {
-            vo.setDsHost(dsDO.getHostType() == HostType.PUBLIC ? dsDO.getPublicHost() : dsDO.getPrivateHost());
-        } else {
-            vo.setDsHost("Unknown");
-        }
+        vo.setDsHost(dsDO.getHostType() == HostType.PUBLIC ? dsDO.getPublicHost() : dsDO.getPrivateHost());
         vo.setDsLevels(Collections.emptyList());
         return vo;
     }
@@ -2249,7 +2192,6 @@ public class DmConvertUtils {
         copy.setDataSourceId(vo.getId());
         copy.setGmtCreate(vo.getGmtCreate());
         copy.setGmtModified(vo.getGmtModified());
-        //copy.setDeployType(vo.getDeployType());
         copy.setDataSourceType(vo.getDataSourceType());
 
         switch (vo.getHostType()) {

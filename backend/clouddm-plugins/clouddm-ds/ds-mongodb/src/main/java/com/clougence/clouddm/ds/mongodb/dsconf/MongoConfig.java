@@ -20,26 +20,28 @@ import java.util.Properties;
 import com.clougence.clouddm.base.metadata.ds.ConfigDef;
 import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 /**
  * @author bucketli 2020/11/5 20:29
  */
 @Getter
 @Setter
+@FieldNameConstants
 @Serialization(provider = "MongoDB")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MongoConfig extends DataSourceConfig {
 
-    @ConfigDef(name = "applicationName", defaultValue = "CloudDM", descKey = ConfigI18nKey.CONFIG_MONGODB_APPLICATION_NAME_DESCRIPTION, readOnly = false)
-    private String applicationName;
+    @ConfigDef(name = Fields.defaultSchema, valueRequire = false, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION, readOnly = false)
+    private String defaultSchema;
 
     public MongoConfig(){
         setDataSourceType(DataSourceType.MongoDB);

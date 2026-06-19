@@ -20,14 +20,11 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ConnectType;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.console.web.constants.WhiteListAddType;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
-import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvInfoFetchType;
-import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
+import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -41,8 +38,6 @@ import lombok.Setter;
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AddDsFO {
-
-    private DeployEnvType              deployType;
 
     private DataSourceType             type;
 
@@ -104,13 +99,9 @@ public class AddDsFO {
 
     private WhiteListAddType           whiteListAddType;
 
-    private Long                       parentDsId;
-
     private String                     version;
 
     private String                     driver;
-
-    private ConnectType                connectType;
 
     private List<InitDsKvBaseConfigFO> dsKvConfigs;
 
@@ -120,13 +111,7 @@ public class AddDsFO {
     // for CloudDM,change to optional
     private Long                       envId;
 
-    private DeployEnvInfoFetchType     infoFetchType;
-
     public void manualValidAndTrim() {
-        if (deployType == null) {
-            throw new IllegalArgumentException("deploy env type can not be empty.");
-        }
-
         if (type == null) {
             throw new IllegalArgumentException("data source type can not be empty.");
         }
@@ -155,34 +140,6 @@ public class AddDsFO {
 
         if (securityType == null) {
             throw new IllegalArgumentException("security type can not be empty.");
-        }
-
-        // instanceId is not necessary, e.g., OSS
-        //        if (deployType == DeployEnvType.ALIBABA_CLOUD_HOSTED && (infoFetchType == null || infoFetchType == DeployEnvInfoFetchType.OPENAPI) && StringUtils.isBlank(instanceId)) {
-        //            throw new IllegalArgumentException("data source is Aliyun RDS ,but instance id is blank.");
-        //        }
-
-        if (deployType == DeployEnvType.ALIBABA_CLOUD_HOSTED && (infoFetchType == null || infoFetchType == DeployEnvInfoFetchType.OPENAPI) && type == DataSourceType.MySQL
-            && (StringUtils.isBlank(accessKey) || StringUtils.isBlank(secretKey))) {
-            throw new IllegalArgumentException("data source is Aliyun RDS ,but accessKey and secretKey is blank.");
-        }
-
-        if (securityType == SecurityType.KERBEROS) {
-            if (securityFile == null || secretFile == null) {
-                throw new IllegalArgumentException("security file or secret file can not be null.");
-            }
-        } else if (securityType == SecurityType.USER_PASSWD_WITH_TLS) {
-            if (securityFile == null) {
-                throw new IllegalArgumentException("security file can not be null.");
-            }
-
-            if (clientTrustStorePassword == null && securityFilePassword == null) {
-                throw new IllegalArgumentException("client trust store password can not be null.");
-            }
-        } else if (securityType == SecurityType.CA_CERTIFICATE) {
-            if (securityFile == null) {
-                throw new IllegalArgumentException("security file can not be null.");
-            }
         }
     }
 }

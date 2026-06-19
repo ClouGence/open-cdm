@@ -18,8 +18,6 @@ package com.clougence.rdp.service;
 import java.util.List;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType;
 import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.AddDsFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsKvConfigFO;
@@ -27,10 +25,9 @@ import com.clougence.clouddm.console.web.model.lo.UpdateDsConfigLO;
 import com.clougence.clouddm.console.web.model.lo.UpdateDsDescLO;
 import com.clougence.clouddm.console.web.model.lo.UpdatePriHostLO;
 import com.clougence.clouddm.console.web.model.lo.UpdatePubHostLO;
-import com.clougence.clouddm.console.web.model.vo.DefaultDsKvConfigVO;
 import com.clougence.clouddm.console.web.model.vo.RdpDsKvConfigVO;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 
 /**
  * @author bucketli 2023/11/24 10:24:16
@@ -58,8 +55,6 @@ public interface RdpDsService {
     DmDsDO fetchAndCheckById(Long dataSourceId);
 
     DmDsDO fetchByInstanceId(String instanceId);
-
-    List<DefaultDsKvConfigVO> queryDsDefaultConfig(DataSourceType dsType, DeployEnvType envType);
 
     List<UpdateDsConfigLO> upsertDsConfigs(String puid, UpsertDsKvConfigFO fo);
 

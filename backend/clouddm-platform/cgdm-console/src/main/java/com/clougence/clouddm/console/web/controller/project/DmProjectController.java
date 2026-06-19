@@ -31,7 +31,6 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
-import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
@@ -58,12 +57,10 @@ import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.ProjectDal;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.project.*;
 import com.clougence.clouddm.platform.dal.model.system.DmSysMessengerDO;
 import com.clougence.clouddm.platform.dal.model.system.ImType;
-import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.format.WellKnowFormat;
 
@@ -99,8 +96,6 @@ public class DmProjectController {
     private DmDsConfigService dmDsConfigService;
     @Resource
     private BrowseService     browseService;
-    @Resource
-    private DmDsService       dmDsService;
 
     @RequestAuth(DM_PROJECT_MANAGE)
     @RequestMapping(value = "/devopsUsers", method = RequestMethod.POST)
@@ -145,16 +140,6 @@ public class DmProjectController {
 
         // ds list
         List<BrowseLevelsVO> levels = this.browseService.listDsIncludeAllEnv(puid, uid);
-        if (!CollectionUtils.isEmpty(levels)) {
-            List<Long> dsIds = levels.stream().map(BrowseLevelsVO::getObjId).map(Long::parseLong).collect(Collectors.toList());
-            List<DmDsConfigDO> confList = this.dmDsService.fetchDsConfigByIds(puid, dsIds);
-            Map<Long, DmDsConfigDO> confMap = confList.stream().collect(Collectors.toMap(DmDsConfigDO::getDataSourceId, d -> d));
-            levels = levels.stream().filter(vo -> {
-                Long dsId = Long.parseLong(vo.getObjId());
-                return confMap.containsKey(dsId) && confMap.get(dsId).isEnableDevops();
-            }).collect(Collectors.toList());
-        }
-
         return ResWebDataUtils.buildSuccess(levels);
     }
 

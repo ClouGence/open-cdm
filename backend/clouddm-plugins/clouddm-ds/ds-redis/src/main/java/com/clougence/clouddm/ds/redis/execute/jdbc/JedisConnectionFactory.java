@@ -52,7 +52,7 @@ public class JedisConnectionFactory implements AdapterFactory {
         String username = dsConfig.get(JedisKeys.USERNAME);
         String password = dsConfig.get(JedisKeys.PASSWORD);
         String clientName = dsConfig.get(JedisKeys.CLIENT_NAME);
-        String defaultDataBase = dsConfig.get(JedisKeys.DATABASE);
+        String defaultCatalog = dsConfig.get(JedisKeys.DATABASE);
         String connTimeoutMsStr = dsConfig.get(JedisKeys.CONN_TIMEOUT);
         String soTimeoutSecStr = dsConfig.get(JedisKeys.SO_TIMEOUT);
         String useTLSStr = "false";//dsConfig.getProperty(JedisKeys.SSL.getConfigKey());
@@ -61,7 +61,7 @@ public class JedisConnectionFactory implements AdapterFactory {
         username = "".equals(username) ? null : username;
         password = "".equals(password) ? null : password;
         clientName = StringUtils.isBlank(clientName) ? JedisKeys.DEFAULT_CLIENT_NAME : clientName;
-        int database = StringUtils.isNotBlank(defaultDataBase) ? Integer.parseInt(defaultDataBase) : Protocol.DEFAULT_DATABASE;
+        int database = StringUtils.isNotBlank(defaultCatalog) ? Integer.parseInt(defaultCatalog) : Protocol.DEFAULT_DATABASE;
         int connTimeoutMs = StringUtils.isBlank(connTimeoutMsStr) ? 5000 : Integer.parseInt(connTimeoutMsStr);
         int soTimeoutSec = (StringUtils.isBlank(soTimeoutSecStr) ? 10 : Integer.parseInt(soTimeoutSecStr)) * 1000;
         boolean useTLS = !StringUtils.isBlank(useTLSStr) && Boolean.parseBoolean(useTLSStr);
@@ -161,7 +161,7 @@ public class JedisConnectionFactory implements AdapterFactory {
 
         String host = caseProps.get(JedisKeys.SERVER);
         String customJedis = caseProps.get(JedisKeys.CUSTOM_JEDIS);
-        String defaultDataBase = caseProps.get(JedisKeys.DATABASE);
+        String defaultCatalog = caseProps.get(JedisKeys.DATABASE);
         Object jedisObject;
         int database;
 
@@ -170,7 +170,7 @@ public class JedisConnectionFactory implements AdapterFactory {
                 Class<?> customJedisClass = JedisConnectionFactory.class.getClassLoader().loadClass(customJedis);
                 CustomJedis customJedisCmd = (CustomJedis) customJedisClass.newInstance();
                 jedisObject = customJedisCmd.createJedisCmd(jdbcUrl, caseProps);
-                database = StringUtils.isNotBlank(defaultDataBase) ? Integer.parseInt(defaultDataBase) : Protocol.DEFAULT_DATABASE;
+                database = StringUtils.isNotBlank(defaultCatalog) ? Integer.parseInt(defaultCatalog) : Protocol.DEFAULT_DATABASE;
                 if (jedisObject == null) {
                     throw new SQLException("create jedis connection failed, custom jedis return null.");
                 }

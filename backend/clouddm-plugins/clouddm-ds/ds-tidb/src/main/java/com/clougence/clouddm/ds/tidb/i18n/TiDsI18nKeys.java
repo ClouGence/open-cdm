@@ -26,6 +26,8 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource("/META-INF/clougence/i18n/ti-ui-editor-table")
 public interface TiDsI18nKeys extends MyDsI18nKeys {
 
+    String PLUGIN_NAME_TIDB                         = "PLUGIN_NAME_TIDB";
+
     String EDITOR_TABLEINFO_SHARD_ROW_ID_BITS_TITLE = "UI_EDITOR_TABLEINFO_SHARD_ROW_ID_BITS_TITLE";
     String EDITOR_TABLEINFO_SHARD_ROW_ID_BITS_DESC  = "UI_EDITOR_TABLEINFO_SHARD_ROW_ID_BITS_DESC";
     String EDITOR_TABLEINFO_PRE_SPLIT_REGIONS_TITLE = "UI_EDITOR_TABLEINFO_PRE_SPLIT_REGIONS_TITLE";

@@ -21,7 +21,7 @@ import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 
 import lombok.Getter;
 import lombok.Setter;

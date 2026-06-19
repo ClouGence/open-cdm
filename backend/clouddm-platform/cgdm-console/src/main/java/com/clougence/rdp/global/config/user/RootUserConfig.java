@@ -15,10 +15,10 @@
  */
 package com.clougence.rdp.global.config.user;
 
+import com.clougence.clouddm.base.metadata.ds.ConfigValType;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.global.i18n.I18nUserConfigMsgKeys;
 import com.clougence.clouddm.platform.dal.model.system.ConfBelong;
-import com.clougence.clouddm.platform.dal.model.system.KvConfValType;
 import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
 import com.clougence.rdp.constant.UserConfigDef;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -42,7 +42,7 @@ public class RootUserConfig {
 
     @UserConfigDef(name = "accountPwdExpireDays", descKey = I18nUserConfigMsgKeys.USER_RDP_SUB_ACCOUNT_PWD_EXPIRED_DAYS, configTagType = UserConfigTagType.SECURITY, confBelong = ConfBelong.Common)
     private Integer       accountPwdExpireDays;
-    @UserConfigDef(name = "accountPwdStrongPolicy", defaultValue = "false", descKey = I18nUserConfigMsgKeys.USER_RDP_SUB_ACCOUNT_PWD_STRONG_POLICY, configTagType = UserConfigTagType.SECURITY, confBelong = ConfBelong.Common, kvConfWebOp = KvConfValType.BOOLEAN)
+    @UserConfigDef(name = "accountPwdStrongPolicy", defaultValue = "false", descKey = I18nUserConfigMsgKeys.USER_RDP_SUB_ACCOUNT_PWD_STRONG_POLICY, configTagType = UserConfigTagType.SECURITY, confBelong = ConfBelong.Common, kvConfWebOp = ConfigValType.BOOLEAN)
     private Boolean       accountPwdStrongPolicy;
     @UserConfigDef(name = "accountPwdMinLength", defaultValue = "8", descKey = I18nUserConfigMsgKeys.USER_RDP_SUB_ACCOUNT_PWD_MIN_LENGTH, configTagType = UserConfigTagType.SECURITY, confBelong = ConfBelong.Common)
     private Integer       accountPwdMinLength;
@@ -136,13 +136,13 @@ public class RootUserConfig {
     //    private String        emailDisplay;
     //    @UserConfigDef(name = "emailFrom", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_SENDER_FROM, configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common)
     //    private String        emailFrom;
-    //    @UserConfigDef(name = "emailSmtpAuth", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_SMTP_AUTH, valueRange = "true / false", configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common, kvConfWebOp = KvConfValType.BOOLEAN)
+    //    @UserConfigDef(name = "emailSmtpAuth", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_SMTP_AUTH, valueRange = "true / false", configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common, kvConfWebOp = ConfigValType.BOOLEAN)
     //    private Boolean       emailSmtpAuth;
-    //    @UserConfigDef(name = "emailEnableTls", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_SMTP_ENABLE_TLS, valueRange = "true / false", configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common, kvConfWebOp = KvConfValType.BOOLEAN)
+    //    @UserConfigDef(name = "emailEnableTls", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_SMTP_ENABLE_TLS, valueRange = "true / false", configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common, kvConfWebOp = ConfigValType.BOOLEAN)
     //    private Boolean       emailEnableTls;
-    //    @UserConfigDef(name = "emailRequiredTls", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_SMTP_REQUIRED_TLS, valueRange = "true / false", configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common, kvConfWebOp = KvConfValType.BOOLEAN)
+    //    @UserConfigDef(name = "emailRequiredTls", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_SMTP_REQUIRED_TLS, valueRange = "true / false", configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common, kvConfWebOp = ConfigValType.BOOLEAN)
     //    private Boolean       emailRequiredTls;
-    //    @UserConfigDef(name = "emailEnableSsl", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_SMTP_ENABLE_SSL, valueRange = "true / false", configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common, kvConfWebOp = KvConfValType.BOOLEAN)
+    //    @UserConfigDef(name = "emailEnableSsl", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_SMTP_ENABLE_SSL, valueRange = "true / false", configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common, kvConfWebOp = ConfigValType.BOOLEAN)
     //    private Boolean       emailEnableSsl;
     //    @UserConfigDef(name = "emailProtocol", descKey = I18nUserConfigMsgKeys.EMAIL_CONFIG_TRANSFER_PROTOCOL, valueRange = "smtps / smtp", configTagType = UserConfigTagType.EMAIL_CONFIG, confBelong = ConfBelong.Common)
     //    private String        emailProtocol;
@@ -154,14 +154,14 @@ public class RootUserConfig {
     @UserConfigDef(name = "updateApprovalStatusIntervalTime", descKey = I18nUserConfigMsgKeys.APPROVAL_UPDATE_INTERVAL_TIME, defaultValue = "86400", configTagType = UserConfigTagType.COMMON, confBelong = ConfBelong.Common, valueRange = "0 - 2592000")
     private String        updateApprovalStatusIntervalTime;
     //
-    @UserConfigDef(name = "dingEnableApprovalService", defaultValue = "false", descKey = I18nUserConfigMsgKeys.DING_ENABLE_APPROVAL_SERVICE, configTagType = UserConfigTagType.DINGTALK, confBelong = ConfBelong.Common, kvConfWebOp = KvConfValType.BOOLEAN)
+    @UserConfigDef(name = "dingEnableApprovalService", defaultValue = "false", descKey = I18nUserConfigMsgKeys.DING_ENABLE_APPROVAL_SERVICE, configTagType = UserConfigTagType.DINGTALK, confBelong = ConfBelong.Common, kvConfWebOp = ConfigValType.BOOLEAN)
     private String        dingEnableApprovalService;
     @UserConfigDef(name = "dingApprovalConfigAk", descKey = I18nUserConfigMsgKeys.DING_CONFIG_APPROVAL_AK, configTagType = UserConfigTagType.DINGTALK, confBelong = ConfBelong.Common)
     private String        dingApprovalConfigAk;
     @UserConfigDef(name = "dingApprovalConfigSk", descKey = I18nUserConfigMsgKeys.DING_CONFIG_APPROVAL_SK, configTagType = UserConfigTagType.DINGTALK, confBelong = ConfBelong.Common)
     private String        dingApprovalConfigSk;
     //
-    @UserConfigDef(name = "feishuEnableApprovalService", defaultValue = "false", descKey = I18nUserConfigMsgKeys.FEISHU_ENABLE_APPROVAL_SERVICE, configTagType = UserConfigTagType.FEISHU, confBelong = ConfBelong.Common, kvConfWebOp = KvConfValType.BOOLEAN)
+    @UserConfigDef(name = "feishuEnableApprovalService", defaultValue = "false", descKey = I18nUserConfigMsgKeys.FEISHU_ENABLE_APPROVAL_SERVICE, configTagType = UserConfigTagType.FEISHU, confBelong = ConfBelong.Common, kvConfWebOp = ConfigValType.BOOLEAN)
     private String        feishuEnableApprovalService;
     @UserConfigDef(name = "feishuApprovalAppID", descKey = I18nUserConfigMsgKeys.FEISHU_CONFIG_APPROVAL_APP_ID, configTagType = UserConfigTagType.FEISHU, confBelong = ConfBelong.Common)
     private String        feishuApprovalAppID;
@@ -172,7 +172,7 @@ public class RootUserConfig {
     @UserConfigDef(name = "feishuApprovalTemplateList", descKey = I18nUserConfigMsgKeys.FEISHU_CONFIG_APPROVAL_TEMPLATE_CODE, configTagType = UserConfigTagType.FEISHU, confBelong = ConfBelong.Common)
     private String        feishuApprovalTemplateList;
     //
-    @UserConfigDef(name = "wechatEnableApprovalService", defaultValue = "false", descKey = I18nUserConfigMsgKeys.WECHAT_ENABLE_APPROVAL_SERVICE, configTagType = UserConfigTagType.WECHAT, confBelong = ConfBelong.Common, kvConfWebOp = KvConfValType.BOOLEAN)
+    @UserConfigDef(name = "wechatEnableApprovalService", defaultValue = "false", descKey = I18nUserConfigMsgKeys.WECHAT_ENABLE_APPROVAL_SERVICE, configTagType = UserConfigTagType.WECHAT, confBelong = ConfBelong.Common, kvConfWebOp = ConfigValType.BOOLEAN)
     private String        wechatEnableApprovalService;
     @UserConfigDef(name = "wechatApprovalCorpId", descKey = I18nUserConfigMsgKeys.WECHAT_APPROVAL_CORP_ID, configTagType = UserConfigTagType.WECHAT, confBelong = ConfBelong.Common)
     private String        wechatApprovalCorpId;
@@ -257,7 +257,7 @@ public class RootUserConfig {
     //    private String                criticalImAlertUrl;
     //    @UserConfigDef(name = "webHookProxyHost", descKey = I18nUserConfigMsgKeys.USER_CONFIG_WEBHOOK_PROXY_HOST, configTagType = UserConfigTagType.CC_IM_ALERT, confBelong = ConfBelong.CloudCanal)
     //    private String                webHookProxyHost;
-    //    @UserConfigDef(name = "imAlertAtAll", defaultValue = "false", descKey = I18nUserConfigMsgKeys.USER_CONFIG_IM_ALERT_AT_ALL, configTagType = UserConfigTagType.CC_IM_ALERT, confBelong = ConfBelong.CloudCanal, kvConfWebOp = KvConfValType.BOOLEAN)
+    //    @UserConfigDef(name = "imAlertAtAll", defaultValue = "false", descKey = I18nUserConfigMsgKeys.USER_CONFIG_IM_ALERT_AT_ALL, configTagType = UserConfigTagType.CC_IM_ALERT, confBelong = ConfBelong.CloudCanal, kvConfWebOp = ConfigValType.BOOLEAN)
     //    private Boolean               imAlertAtAll;
     //
     //    /**

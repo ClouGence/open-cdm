@@ -24,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
-import com.clougence.clouddm.console.web.component.dsconfig.DmDsDeletePrepareService;
 import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.AddDsFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsKvConfigFO;
@@ -52,13 +51,11 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
 
     @Resource
-    private DmAuthServiceForBiz      rdpAuthServiceForBiz;
+    private DmAuthServiceForBiz rdpAuthServiceForBiz;
     @Resource
-    private RdpDsService             rdpDsService;
+    private RdpDsService        rdpDsService;
     @Resource
-    private ObjectCacheDao           rdpResOwnerCacheService;
-    @Resource
-    private DmDsDeletePrepareService dmDsDeletePrepareService;
+    private ObjectCacheDao      rdpResOwnerCacheService;
 
     @Override
     public List<ApiDataSourceVO> listDs(String requestId, String puid, ApiListDsFO fo) {
@@ -66,7 +63,6 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
             .dataSourceType(fo.getType())
             .dataSourceDescLike(fo.getDataSourceDescLike())
             .dataSourceIds(Stream.of(fo.getDataSourceId()).filter(Objects::nonNull).collect(Collectors.toList()))
-            .deployType(fo.getDeployType())
             .lifeCycleState(fo.getLifeCycleState())
             .dsHostLike(fo.getDsHostLike())
             .dataSourceType(fo.getType())
@@ -158,7 +154,6 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
     @Override
     public void deleteDs(String puid, ApiDeleteDsFO fo) {
         rdpResOwnerCacheService.ownDataSource(puid, fo.getDataSourceId());
-        this.dmDsDeletePrepareService.prepareDelete(puid, fo.getDataSourceId());
         rdpDsService.delDataSource(puid, fo.getDataSourceId());
     }
 

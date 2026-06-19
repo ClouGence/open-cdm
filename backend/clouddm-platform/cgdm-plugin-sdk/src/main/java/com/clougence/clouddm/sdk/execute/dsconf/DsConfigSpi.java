@@ -15,14 +15,18 @@
  */
 package com.clougence.clouddm.sdk.execute.dsconf;
 
+import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.sdk.Spi;
 
 public interface DsConfigSpi extends Spi {
 
-    DataSourceConfig newConfig(Map<String, String> configMap);
+    Class<? extends DataSourceConfig> newConfig();
 
-    DataSourceConfig fillConfig(DataSourceConfig dsConfig, DsConfigMap dsConfigMap);
+    List<SecurityType> securityTypes();
+
+    DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig);
 }

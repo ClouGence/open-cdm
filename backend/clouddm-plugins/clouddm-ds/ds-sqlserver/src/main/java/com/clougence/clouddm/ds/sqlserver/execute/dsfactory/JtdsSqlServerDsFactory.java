@@ -49,7 +49,6 @@ public class JtdsSqlServerDsFactory implements DsFactory<Connection> {
         String connTimeoutMs = dsConfig.getProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey());
         String soTimeoutSec = dsConfig.getProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey());
         String clientName = dsConfig.getProperty(DsConfigKeys.CLIENT_NAME.getConfigKey());
-        String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
         String clientEncoding = dsConfig.getProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey());
         String clientTimeZone = dsConfig.getProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey());
         String tcpKeepAlive = dsConfig.getProperty(DsConfigKeys.TCP_KEEP_ALIVE.getConfigKey());
@@ -110,17 +109,24 @@ public class JtdsSqlServerDsFactory implements DsFactory<Connection> {
         }
 
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
-        String defaultDataBase = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
+        String defaultCatalog = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
+        String instanceName = dsConfig.getProperty(DsConfigKeys.MSSQL_INSTANCE_NAME.getConfigKey());
 
-        if (StringUtils.isBlank(defaultDataBase)) {
-            defaultDataBase = "master";
+        if (StringUtils.isBlank(defaultCatalog)) {
+            defaultCatalog = "master";
         }
 
         String[] ipPort = host.split(":");
         if (ipPort.length == 1) {
-            return String.format("jdbc:jtds:sqlserver://%s:1433/%s", ipPort[0], safeString(defaultDataBase));
+            if (StringUtils.isNotBlank(instanceName)) {
+                return String.format("jdbc:jtds:sqlserver://%s/%s;instance=%s", ipPort[0], safeString(defaultCatalog), instanceName);
+            }
+            return String.format("jdbc:jtds:sqlserver://%s:1433/%s", ipPort[0], safeString(defaultCatalog));
         } else if (ipPort.length == 2) {
-            return String.format("jdbc:jtds:sqlserver://%s:%s/%s", ipPort[0], ipPort[1], safeString(defaultDataBase));
+            if (StringUtils.isNotBlank(instanceName)) {
+                return String.format("jdbc:jtds:sqlserver://%s:%s/%s;instance=%s", ipPort[0], ipPort[1], safeString(defaultCatalog), instanceName);
+            }
+            return String.format("jdbc:jtds:sqlserver://%s:%s/%s", ipPort[0], ipPort[1], safeString(defaultCatalog));
         } else {
             throw new IllegalArgumentException("unsupported host format:" + host);
         }

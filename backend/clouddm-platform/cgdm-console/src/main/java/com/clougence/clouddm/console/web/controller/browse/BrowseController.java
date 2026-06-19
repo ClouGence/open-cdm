@@ -47,7 +47,7 @@ import com.clougence.clouddm.console.web.service.browse.model.rdb.BrowseObjectMO
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
@@ -97,8 +97,8 @@ public class BrowseController {
             }
 
             List<DmSysEnvDO> dsEnvDOList = this.rdpDsEnvService.listDsEnv(puid, uid, null);
-            List<DmDsConfigDO> dmDsConfigDOS = this.dmDsService.fetchDsConfigByIds(puid, dsIds);
-            Set<Long> collect = dmDsConfigDOS.stream().map(DmDsConfigDO::getBindEnvId).collect(Collectors.toSet());
+            List<DmDsDO> dmDsConfigDOS = this.dmDsService.fetchDsConfigByIds(puid, dsIds);
+            Set<Long> collect = dmDsConfigDOS.stream().map(DmDsDO::getDsEnvId).collect(Collectors.toSet());
             List<BrowseLevelsVO> vos = dsEnvDOList.stream().filter(env -> {
                 return collect.contains(env.getId());
             }).map(DmConvertUtils::convertToBrowseLevelsVO).collect(Collectors.toList());

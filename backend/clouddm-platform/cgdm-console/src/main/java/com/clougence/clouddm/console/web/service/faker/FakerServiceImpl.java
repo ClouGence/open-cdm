@@ -45,7 +45,6 @@ import com.clougence.clouddm.console.web.service.faker.asyntask.FakerAsyncTaskCo
 import com.clougence.clouddm.console.web.util.UiWebUtil;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.AsyncTaskProcessType;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO;
@@ -156,7 +155,7 @@ public class FakerServiceImpl implements FakerService, FakerMethod {
             fakerConfig.setUpdateRatio(fo.getUpdateRatio());
         }
 
-        DmDsConfigDO dmDsConfigDO = this.dsDal.configMapper().queryById(ds.getUid(), ds.getId());
+        DmDsDO dmDsConfigDO = this.dsDal.dsMapper().queryByOwnerAndId(ds.getUid(), ds.getId());
         ToolSessionContextDTO contextDTO = new ToolSessionContextDTO();
         contextDTO.setSessionId(UUID.randomUUID().toString().replace("-", ""));
         contextDTO.setConfiguration(JsonUtils.toJson(fakerConfig));

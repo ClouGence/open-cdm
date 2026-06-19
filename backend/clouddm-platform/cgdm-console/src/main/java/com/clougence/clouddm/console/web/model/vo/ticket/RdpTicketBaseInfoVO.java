@@ -18,7 +18,6 @@ package com.clougence.clouddm.console.web.model.vo.ticket;
 import java.util.List;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalBiz;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus;
@@ -47,8 +46,6 @@ public class RdpTicketBaseInfoVO {
     private String                   dataSourceDesc;
 
     private DataSourceType           dataSourceType;
-
-    private DeployEnvType            dsDeployType;
 
     private String                   dsOwnerUid;
 

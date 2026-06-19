@@ -16,7 +16,6 @@
 package com.clougence.clouddm.console.web.component.dsconfig.impl;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,34 +29,31 @@ import com.clougence.clouddm.api.sidecar.session.drivers.DriverRef;
 import com.clougence.clouddm.api.sidecar.session.drivers.DriverUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.DsUsageEndpoint;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDriverService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsStatusService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.ConnectDsFO;
-import com.clougence.clouddm.console.web.model.fo.datasource.EnableDsQueryFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsConfigFO;
 import com.clougence.clouddm.console.web.model.vo.DriverVersionStatusVO;
 import com.clougence.clouddm.console.web.model.vo.DsKvConfigVO;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
-import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.access.SystemDal;
-import com.clougence.clouddm.platform.dal.model.datasource.*;
-import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsTagDO;
+import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.rdp.service.RdpDsService;
-import com.clougence.rdp.service.RdpDsUsageService;
 import com.clougence.rdp.service.RdpNotifyService;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
@@ -76,15 +72,9 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class DmDsServiceImpl implements DmDsService {
     @Resource
-    private SystemDal              systemDal;
-    @Resource
     private DataSourceDal          dsDal;
     @Resource
     private DmDsConfigService      dmDsConfigService;
-    @Resource
-    private ObjectCacheDao         dmOwnerCacheService;
-    @Resource
-    private RdpDsUsageService      rdpDsUsageService;
     @Resource
     private RdpDsService           rdpDsService;
     @Resource
@@ -109,18 +99,8 @@ public class DmDsServiceImpl implements DmDsService {
     }
 
     @Override
-    public List<DmDsConfigDO> fetchDsConfigByIds(String ownerUid, List<Long> ids) {
-        return this.dsDal.configMapper().queryByIds(ownerUid, ids);
-    }
-
-    @Override
-    public List<DmDsConfigDO> fetchDsConfigByOwnerUid(String ownerUid) {
-        return this.dsDal.configMapper().queryByUid(ownerUid);
-    }
-
-    @Override
-    public DmDsConfigDO fetchDsConfigById(String ownerUid, Long id) {
-        return this.dsDal.configMapper().queryById(ownerUid, id);
+    public List<DmDsDO> fetchDsConfigByIds(String ownerUid, List<Long> ids) {
+        return this.dsDal.dsMapper().listByOwnerAndIds(ownerUid, ids);
     }
 
     @Override
@@ -150,14 +130,14 @@ public class DmDsServiceImpl implements DmDsService {
     }
 
     @Override
-    public String testAndFetchDsVersion(String puid, EnableDsQueryFO fo) {
-        DmDsDO dsDO = this.rdpDsService.queryById(fo.getDataSourceId());
+    public String testConnect(String puid, long dsId, long clusterId) {
+        DmDsDO dsDO = this.rdpDsService.queryById(dsId);
         if (dsDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
         }
 
         DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId());
-        return getVersion(puid, fo.getClusterId(), dsConfig);
+        return getVersion(puid, clusterId, dsConfig);
     }
 
     private String getVersion(String puid, long clusterId, DataSourceConfig dsConfig) {
@@ -192,166 +172,8 @@ public class DmDsServiceImpl implements DmDsService {
     }
 
     @Override
-    public boolean testEnableDsQuery(String puid, long dsId) {
-        DmDsConfigDO configDO = this.dsDal.configMapper().queryById(puid, dsId);
-        return configDO != null;
-    }
-
-    @Override
-    public boolean testEnableDsDevOps(String puid, long dsId) {
-        DmDsConfigDO configDO = this.dsDal.configMapper().queryById(puid, dsId);
-        return configDO != null && configDO.isEnableDevops();
-    }
-
-    @Transactional(rollbackFor = Throwable.class)
-    @Override
-    public ResWebData<Boolean> enableDsQuery(String puid, EnableDsQueryFO fo) {
-        DmDsDO dsDO = this.rdpDsService.queryById(fo.getDataSourceId());
-        if (dsDO == null) {
-            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
-        }
-        DmDsConfigDO configDO = this.dsDal.configMapper().queryById(puid, fo.getDataSourceId());
-        if (configDO != null) {
-            return ResWebDataUtils.buildSuccess(true);
-        }
-
-        // store kv config
-        this.enableAndStore(puid, fo);
-        return ResWebDataUtils.buildSuccess(true);
-    }
-
-    @Transactional(rollbackFor = Throwable.class)
-    public void enableAndStore(String puid, EnableDsQueryFO fo) {
-        // this.dmAuthCodeCheckService.checkAuthDsQueryCount();
-
-        DmDsDO dsDO = this.rdpDsService.queryById(fo.getDataSourceId());
-        DmDsConfigDO configDO = this.insertNewDsConfig(dsDO, puid, fo);
-        DmDsUsageDO usageDO = new DmDsUsageDO();
-        usageDO.setDsId(dsDO.getId());
-        usageDO.setResId(configDO.getId());
-        usageDO.setResType(ResourceType.QUERY);
-        usageDO.setResInstanceId(configDO.getConfigInstanceId());
-        usageDO.setEndpoint(DsUsageEndpoint.NONE);
-        this.rdpDsUsageService.addDsUsages(Collections.singletonList(usageDO));
-        this.dmOwnerCacheService.removeDataSourceCache(configDO.getDataSourceId());
-        this.notifyServices.forEach(s -> s.onDsUpdate(fo.getDataSourceId()));
-
-        if (StringUtils.isBlank(dsDO.getVersion())) {
-            DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId());
-            try {
-                String version = this.getVersion(puid, fo.getClusterId(), dsConfig);
-                this.dsDal.dsMapper().updateVersionByInstanceId(dsDO.getId(), version);
-            } catch (Exception e) {
-                this.dsDal.configMapper().updateStatusByDataSourceId(dsDO.getId(), DataSourceStatus.ConnectionFailed);
-            }
-        }
-    }
-
-    @Transactional(rollbackFor = Throwable.class)
-    public DmDsConfigDO insertNewDsConfig(DmDsDO dsDO, String puid, EnableDsQueryFO fo) {
-        this.dmDsConfigService.persistDsConfig(dsDO, fo.getHostType(), dsDO.getVersion());
-
-        DmDsConfigDO configDO = new DmDsConfigDO();
-        configDO.setConfigInstanceId(UUID.randomUUID().toString().replace("-", ""));
-        configDO.setUid(puid);
-        configDO.setDataSourceId(dsDO.getId());
-        configDO.setDataSourceType(dsDO.getDataSourceType());
-        configDO.setStatus(DataSourceStatus.Normal);
-        configDO.setStatusMessage("");
-        configDO.setBindClusterId(fo.getClusterId());
-        configDO.setBindEnvId(dsDO.getDsEnvId());
-        configDO.setHostType(fo.getHostType());
-        this.dsDal.configMapper().insert(configDO);
-        return configDO;
-    }
-
-    @Transactional(rollbackFor = Throwable.class)
-    @Override
-    public ResWebData<Boolean> disableDsQuery(String puid, long dsId) {
-        DmDsConfigDO dsConfig = this.dsDal.configMapper().queryById(puid, dsId);
-        if (dsConfig == null) {
-            return ResWebDataUtils.buildSuccess(true);
-        }
-
-        this.dmDsConfigService.cleanDsConfig(dsConfig.getDataSourceId());
-        this.dsDal.configMapper().deleteByDisable(puid, dsId);
-
-        DmDsUsageDO usageDO = new DmDsUsageDO();
-        usageDO.setDsId(dsConfig.getDataSourceId());
-        usageDO.setResId(dsConfig.getId());
-        usageDO.setResType(ResourceType.QUERY);
-        usageDO.setResInstanceId(dsConfig.getConfigInstanceId());
-        usageDO.setEndpoint(DsUsageEndpoint.NONE);
-        this.rdpDsUsageService.deleteDsUsage(Collections.singletonList(usageDO));
-        this.dmOwnerCacheService.removeDataSourceCache(dsConfig.getDataSourceId());
-        this.notifyServices.forEach(s -> s.onDsUpdate(dsId));
-        return ResWebDataUtils.buildSuccess(true);
-    }
-
-    @Transactional(rollbackFor = Throwable.class)
-    @Override
-    public ResWebData<Boolean> enableDsDevOps(String puid, long dsId) {
-        DmDsConfigDO dsConfig = this.dsDal.configMapper().queryById(puid, dsId);
-        if (dsConfig == null) {
-            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_REQUIRE_ENABLE_QUERY.name()));
-        }
-
-        this.dsDal.configMapper().updateDevOps(puid, dsConfig.getDataSourceId(), true);
-        this.notifyServices.forEach(s -> s.onDsUpdate(dsId));
-        return ResWebDataUtils.buildSuccess(true);
-    }
-
-    @Transactional(rollbackFor = Throwable.class)
-    @Override
-    public ResWebData<Boolean> disableDsDevOps(String puid, long dsId) {
-        DmDsConfigDO dsConfig = this.dsDal.configMapper().queryById(puid, dsId);
-        if (dsConfig == null) {
-            return ResWebDataUtils.buildSuccess(true);
-        }
-
-        this.dsDal.configMapper().updateDevOps(puid, dsConfig.getDataSourceId(), false);
-        this.notifyServices.forEach(s -> s.onDsUpdate(dsId));
-        return ResWebDataUtils.buildSuccess(true);
-    }
-
-    @Override
     public List<DmDsDO> listDsByClusterId(long clusterId) {
-        List<DmDsConfigDO> configs = this.dsDal.configMapper().queryByClusterId(clusterId);
-        List<Long> dsIds = configs.stream().map(DmDsConfigDO::getDataSourceId).collect(Collectors.toList());
-        if (dsIds.isEmpty()) {
-            return Collections.emptyList();
-        } else {
-            return dsDal.dsMapper().listByIds(dsIds);
-        }
-    }
-
-    @Override
-    public DmDsDO fetchById(Long dsId) {
-        if (dsId == null || dsId <= 0) {
-            throw new RuntimeException("data source id cannot be null.");
-        }
-
-        DmDsDO re = this.rdpDsService.queryById(dsId);
-        if (re == null) {
-            throw new IllegalArgumentException("datasource(" + dsId + ") not exist.");
-        }
-
-        return re;
-    }
-
-    @Override
-    public DmDsDO queryDs(Long dsId) {
-        if (dsId == null) {
-            return null;
-        }
-        DmDsDO ds = this.rdpDsService.queryById(dsId);
-        if (ds == null) {
-            return null;
-        }
-
-        DmSysEnvDO dsEnvDO = this.systemDal.envMapper().selectById(ds.getDsEnvId());
-        ds.setDsEnvDO(dsEnvDO);
-        return ds;
+        return this.dsDal.dsMapper().listByClusterId(clusterId);
     }
 
     @Override
@@ -371,10 +193,10 @@ public class DmDsServiceImpl implements DmDsService {
             configMap.put(configDO.getConfigName(), configDO);
         }
 
-        List<DmDsConfigKv4RdpDO> defaultConfigs = this.dmDsConfigService.fetchDsConfigDef(ds.getDataSourceType());
+        List<DsConfigKvDef> defaultConfigs = this.dmDsConfigService.fetchDsConfigDef(ds.getDataSourceType());
 
         List<DsKvConfigVO> resultConfigs = new ArrayList<>();
-        for (DmDsConfigKv4RdpDO configDO : defaultConfigs) {
+        for (DsConfigKvDef configDO : defaultConfigs) {
             DmDsConfigKv4DmDO config = configMap.get(configDO.getConfigName());
             DsKvConfigVO v;
             if (config == null) {
@@ -382,8 +204,7 @@ public class DmDsServiceImpl implements DmDsService {
                 v.setNeedCreated(true);
                 resultConfigs.add(v);
             } else {
-                v = DmConvertUtils.convertToDsKvConfigVO(config);
-                v.setConfValType(configDO.getConfValType());
+                v = DmConvertUtils.convertToDsKvConfigVO(configDO, config);
                 resultConfigs.add(v);
             }
         }
@@ -489,40 +310,24 @@ public class DmDsServiceImpl implements DmDsService {
         throw new IllegalArgumentException("private host and public host can not be both blank.");
     }
 
-    @Override
-    public void fillDsEnvInfo(List<DmDsDO> dss) {
-        List<Long> dsEnvIds = dss.stream().filter(Objects::nonNull).map(DmDsDO::getDsEnvId).collect(Collectors.toCollection(ArrayList::new));
-        if (dsEnvIds.isEmpty()) {
-            return;
-        }
-
-        Map<Long, DmSysEnvDO> dsEnvDOMap = new HashMap<>();
-        List<DmSysEnvDO> dsEnvDOs = this.systemDal.envMapper().selectBatchIds(dsEnvIds);
-        for (DmSysEnvDO dsEnvDO : dsEnvDOs) {
-            dsEnvDOMap.put(dsEnvDO.getId(), dsEnvDO);
-        }
-
-        for (DmDsDO ds : dss) {
-            ds.setDsEnvDO(dsEnvDOMap.get(ds.getDsEnvId()));
-        }
-    }
-
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public void upsertDsConfigs(String puid, UpsertDsConfigFO fo) {
+    public void upsertConfigs(String puid, UpsertDsConfigFO fo) {
         if (CollectionUtils.isEmpty(fo.getUpdateConfigMap()) && CollectionUtils.isEmpty(fo.getNeedCreateConfigMap())) {
             throw new IllegalArgumentException("update config map and need create config map are both empty.");
         }
 
         DmDsDO rdpDs = this.rdpDsService.queryById(fo.getDataSourceId());
+        List<DsConfigKvDef> defaultConfigs = this.dmDsConfigService.fetchDsConfigDef(rdpDs.getDataSourceType());
         if (CollectionUtils.isNotEmpty(fo.getUpdateConfigMap())) {
             for (Map.Entry<String, String> config : fo.getUpdateConfigMap().entrySet()) {
                 DmDsConfigKv4DmDO configDO = this.dsDal.configKv4DmMapper().queryByDsIdAndConfigName(fo.getDataSourceId(), config.getKey());
-                if (configDO != null) {
+                DsConfigKvDef defaultConfig = defaultConfigs.stream().filter(c -> c.getConfigName().equals(config.getKey())).findFirst().orElse(null);
+                if (configDO != null && defaultConfig != null) {
                     String value = config.getValue();
                     if (value != null) {
                         value = value.trim();
-                        if (configDO.isSecret()) {
+                        if (defaultConfig.isSecret()) {
                             value = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(value);
                         }
                     }
@@ -533,12 +338,10 @@ public class DmDsServiceImpl implements DmDsService {
         }
 
         if (CollectionUtils.isNotEmpty(fo.getNeedCreateConfigMap())) {
-            List<DmDsConfigKv4RdpDO> defaultConfigs = this.dmDsConfigService.fetchDsConfigDef(rdpDs.getDataSourceType());
-
             for (Map.Entry<String, String> config : fo.getNeedCreateConfigMap().entrySet()) {
                 DmDsConfigKv4DmDO configDO = this.dsDal.configKv4DmMapper().queryByDsIdAndConfigName(fo.getDataSourceId(), config.getKey());
                 if (configDO == null) {
-                    DmDsConfigKv4RdpDO defaultConfig = defaultConfigs.stream().filter(c -> c.getConfigName().equals(config.getKey())).findFirst().orElse(null);
+                    DsConfigKvDef defaultConfig = defaultConfigs.stream().filter(c -> c.getConfigName().equals(config.getKey())).findFirst().orElse(null);
                     if (defaultConfig != null) {
                         String value = config.getValue();
                         if (value != null) {
@@ -546,13 +349,13 @@ public class DmDsServiceImpl implements DmDsService {
                         }
 
                         if (defaultConfig.isSecret()) {
-                            defaultConfig.setConfigValue(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(value));
-                        } else {
-                            defaultConfig.setConfigValue(value);
+                            value = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(value);
                         }
 
-                        DmDsConfigKv4DmDO dmKvConf = DmConvertUtils.convertToDmDsKvBaseConfigDOForInsert(defaultConfig);
+                        DmDsConfigKv4DmDO dmKvConf = new DmDsConfigKv4DmDO();
                         dmKvConf.setDataSourceId(rdpDs.getId());
+                        dmKvConf.setConfigName(defaultConfig.getConfigName());
+                        dmKvConf.setConfigValue(value);
                         this.dsDal.configKv4DmMapper().insert(dmKvConf);
                     }
                 }

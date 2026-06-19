@@ -16,37 +16,29 @@
 package com.clougence.clouddm.ds.clickhouse.dsconf;
 
 import java.util.Properties;
-
 import com.clougence.clouddm.base.metadata.ds.ConfigDef;
 import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ConnectType;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 @Getter
 @Setter
+@FieldNameConstants
 @Serialization(provider = ChSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChConfig extends DataSourceConfig {
 
-    @ConfigDef(name = "connectType", valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_CONNECT_TYPE_DESCRIPTION, valueAdvance = "HTTP / TCP", readOnly = false)
-    private ConnectType connectType;
-
-    @ConfigDef(name = "sessionTimeout", defaultValue = "15000", descKey = ConfigI18nKey.CONFIG_CLICKHOUSE_SESSION_TIME_OUT, readOnly = false)
-    private String      sessionTimeout;
-
-    @ConfigDef(name = "useConnectHttp", valueRequire = false, descKey = ConfigI18nKey.CONFIG_CLICKHOUSE_CONNECT_TYPE_HTTP, readOnly = false)
-    private Boolean     useConnectHttp;
-
-    @ConfigDef(name = "useConnectTcp", valueRequire = false, descKey = ConfigI18nKey.CONFIG_CLICKHOUSE_CONNECT_TYPE_TCP, readOnly = false)
-    private Boolean     useConnectTcp;
+    @ConfigDef(name = Fields.defaultSchema, valueRequire = false, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION, readOnly = false)
+    private String defaultSchema;
+    @ConfigDef(name = Fields.sessionTimeout, defaultValue = "15000", descKey = ConfigI18nKey.CONFIG_CLICKHOUSE_SESSION_TIME_OUT, readOnly = false)
+    private String sessionTimeout;
 
     public ChConfig(){
         setDataSourceType(DataSourceType.ClickHouse);
@@ -63,7 +55,6 @@ public class ChConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.HOST.getConfigKey(), safeStr(this.getHost()));
         properties.setProperty(DsConfigKeys.USER.getConfigKey(), safeStr(this.getUserName()));
         properties.setProperty(DsConfigKeys.PASSWORD.getConfigKey(), safeStr(this.getPassword()));
-        properties.setProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey(), safeStr(this.getDefaultDataBase()));
         properties.setProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey(), safeStr(this.getDefaultSchema()));
         properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), safeStr(StringUtils.toString(this.getConnectTimeoutMs())));
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));

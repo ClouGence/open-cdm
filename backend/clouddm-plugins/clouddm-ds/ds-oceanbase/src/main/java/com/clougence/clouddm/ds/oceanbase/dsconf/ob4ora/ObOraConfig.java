@@ -17,11 +17,7 @@ package com.clougence.clouddm.ds.oceanbase.dsconf.ob4ora;
 
 import java.util.Properties;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigDef;
-import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
+import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
@@ -29,26 +25,27 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 /**
  * @author bucketli 2020/11/5 20:29
  */
 @Getter
 @Setter
+@FieldNameConstants
 @Serialization(provider = ObForOraSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ObOraConfig extends DataSourceConfig {
 
-    @ConfigDef(name = "connectionCharset", defaultValue = "utf8", descKey = ConfigI18nKey.CONFIG_MYSQL_CONN_CHARSET_DESCRIPTION, readOnly = false)
+    @ConfigDef(name = Fields.defaultSchema, valueRequire = false, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION, readOnly = false)
+    private String  defaultSchema;
+    @ConfigDef(name = Fields.connectionCharset, defaultValue = "utf8", descKey = ConfigI18nKey.CONFIG_MYSQL_CONN_CHARSET_DESCRIPTION, readOnly = false)
     private String  connectionCharset;
-
-    @ConfigDef(name = "useCursorFetch", valueRequire = false, descKey = ConfigI18nKey.CONFIG_MYSQL_CONN_USE_CURSOR_FETCH, readOnly = false, valueAdvance = "true - false", group = DsConfigGroup.OPTIONS)
+    @ConfigDef(name = Fields.useCursorFetch, valueRequire = false, descKey = ConfigI18nKey.CONFIG_MYSQL_CONN_USE_CURSOR_FETCH, readOnly = false, valueAdvance = "true - false", group = DsConfigGroup.OPTIONS)
     private Boolean useCursorFetch;
-
-    @ConfigDef(name = "tenant", valueRequire = false, descKey = ConfigI18nKey.CONFIG_OCEANBASE_SUB_TENANT, readOnly = true, group = DsConfigGroup.OPTIONS)
+    @ConfigDef(name = Fields.tenant, valueRequire = false, descKey = ConfigI18nKey.CONFIG_OCEANBASE_SUB_TENANT, readOnly = true, group = DsConfigGroup.OPTIONS)
     private String  tenant;
-
-    @ConfigDef(name = "cluster", valueRequire = false, descKey = ConfigI18nKey.CONFIG_OCEANBASE_SUB_TENANT, readOnly = true, group = DsConfigGroup.OPTIONS)
+    @ConfigDef(name = Fields.cluster, valueRequire = false, descKey = ConfigI18nKey.CONFIG_OCEANBASE_SUB_TENANT, readOnly = true, group = DsConfigGroup.OPTIONS)
     private String  cluster;
 
     public ObOraConfig(){

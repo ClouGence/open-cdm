@@ -52,7 +52,6 @@ public class ChJdbcDsFactory implements DsFactory<Connection> {
         String connTimeoutMs = dsConfig.getProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey());
         String soTimeoutSec = dsConfig.getProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey());
         String clientName = dsConfig.getProperty(DsConfigKeys.CLIENT_NAME.getConfigKey());
-        String defaultDataBase = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
         String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
         String clientEncoding = dsConfig.getProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey());
         String clientTimeZone = dsConfig.getProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey());
@@ -67,9 +66,8 @@ public class ChJdbcDsFactory implements DsFactory<Connection> {
         if (StringUtils.isNotBlank(password)) {
             props.setProperty("password", password);
         }
-        String database = firstNotBlank(defaultSchema, defaultDataBase);
-        if (StringUtils.isNotBlank(database)) {
-            props.setProperty("database", database);
+        if (StringUtils.isNotBlank(defaultSchema)) {
+            props.setProperty("database", defaultSchema);
         }
         String connectTimeout = firstNotBlank(connTimeoutMs, loginTimeoutMs);
         if (StringUtils.isNotBlank(connectTimeout)) {
@@ -121,8 +119,8 @@ public class ChJdbcDsFactory implements DsFactory<Connection> {
         }
 
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
-        String defaultDataBase = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
-        String database = safeString(defaultDataBase);
+        String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
+        String database = safeString(defaultSchema);
 
         String[] ipPort = host.split(":");
         if (ipPort.length == 1) {
@@ -141,11 +139,11 @@ public class ChJdbcDsFactory implements DsFactory<Connection> {
         return String.format("jdbc:clickhouse:%s://%s:%s/%s", DEFAULT_PROTOCOL, host, port, database);
     }
 
-    private String firstNotBlank(String first, String second) {
-        return StringUtils.isNotBlank(first) ? first : second;
-    }
-
     private String safeString(String value) {
         return StringUtils.isBlank(value) ? "" : value;
+    }
+
+    private String firstNotBlank(String first, String second) {
+        return StringUtils.isNotBlank(first) ? first : second;
     }
 }

@@ -25,4 +25,7 @@ import com.clougence.utils.i18n.I18nResource;
  */
 @I18nResource("/META-INF/clougence/i18n/mssql-ui-editor-table")
 public interface MsSqlI18nKeys extends DsDataEditorI18nKeys, DsTableEditorI18nKeys {
+
+    String PLUGIN_NAME_SQLSERVER = "PLUGIN_NAME_SQLSERVER";
+
 }

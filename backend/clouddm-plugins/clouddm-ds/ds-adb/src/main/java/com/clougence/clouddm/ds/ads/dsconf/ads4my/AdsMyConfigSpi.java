@@ -15,22 +15,36 @@
  */
 package com.clougence.clouddm.ds.ads.dsconf.ads4my;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigMap;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.drivers.adapter.ConvertUtils;
+import com.clougence.utils.StringUtils;
 
-public class AdsMyConfigSpi implements DsConfigSpi, ConfigKeys {
+public class AdsMyConfigSpi implements DsConfigSpi {
 
     @Override
-    public DataSourceConfig newConfig(Map<String, String> configMap) {
-        return new AdsMyConfig();
+    public Class<? extends DataSourceConfig> newConfig() {
+        return AdsMyConfig.class;
     }
 
     @Override
-    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, DsConfigMap dsConfigMap) {
+    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
+        AdsMyConfig config = (AdsMyConfig) dsConfig;
+        config.setDefaultSchema(defaultConfig.get(AdsMyConfig.Fields.defaultSchema));
+        config.setConnectionCharset(StringUtils.defaultIfBlank(defaultConfig.get(AdsMyConfig.Fields.connectionCharset), "utf8"));
+        config.setUseCursorFetch(ConvertUtils.toBoolean(defaultConfig.get(AdsMyConfig.Fields.useCursorFetch), false));
         return dsConfig;
+    }
+
+    @Override
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.USER_PASSWD);
+        return options;
     }
 }

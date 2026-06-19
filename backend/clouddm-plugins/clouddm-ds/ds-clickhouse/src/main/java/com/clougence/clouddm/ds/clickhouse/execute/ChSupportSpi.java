@@ -22,6 +22,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportLevel;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
+import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,6 +34,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ChSupportSpi implements RdbSupportSpi {
 
+    private static final String DRIVER_FAMILY_NATIVE_JDBC = "Native JDBC";
+
     @Override
     public RdbSupportLevel supportChangeCatalog(DataSourceConfig dsConfig) {
         return RdbSupportLevel.No;
@@ -40,7 +43,7 @@ public class ChSupportSpi implements RdbSupportSpi {
 
     @Override
     public RdbSupportLevel supportChangeSchema(DataSourceConfig dsConfig) {
-        if (dsConfig.getDriverVersion().contains("Native JDBC")) {
+        if (StringUtils.contains(dsConfig.getDriverVersion(), DRIVER_FAMILY_NATIVE_JDBC)) {
             return RdbSupportLevel.Allow;
         } else {
             return RdbSupportLevel.No;
@@ -54,7 +57,7 @@ public class ChSupportSpi implements RdbSupportSpi {
 
     @Override
     public RdbSupportLevel supportChangeAutoCommit(DataSourceConfig dsConfig) {
-        return RdbSupportLevel.No;
+        return supportTransaction(dsConfig) ? RdbSupportLevel.Allow : RdbSupportLevel.No;
     }
 
     @Override
@@ -64,7 +67,7 @@ public class ChSupportSpi implements RdbSupportSpi {
 
     @Override
     public RdbSupportLevel supportCancelQuery(DataSourceConfig dsConfig) {
-        if (dsConfig.getDriverVersion().contains("Native JDBC")) {
+        if (StringUtils.contains(dsConfig.getDriverVersion(), DRIVER_FAMILY_NATIVE_JDBC)) {
             return RdbSupportLevel.Allow;
         } else {
             return RdbSupportLevel.No;
@@ -94,5 +97,9 @@ public class ChSupportSpi implements RdbSupportSpi {
     @Override
     public boolean supportMultiStatement(boolean isDesktop) {
         return true;
+    }
+
+    private boolean supportTransaction(DataSourceConfig dsConfig) {
+        return StringUtils.contains(dsConfig.getDriverVersion(), DRIVER_FAMILY_NATIVE_JDBC);
     }
 }

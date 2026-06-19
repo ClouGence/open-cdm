@@ -17,33 +17,35 @@ package com.clougence.clouddm.ds.mysql.dsconf;
 
 import java.util.Properties;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigDef;
-import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 /**
  * @author bucketli 2020/11/5 20:29
  */
 @Getter
 @Setter
+@FieldNameConstants
 @Serialization(provider = MySerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MyConfig extends DataSourceConfig {
 
-    @ConfigDef(name = "connectionCharset", defaultValue = "utf8", descKey = ConfigI18nKey.CONFIG_MYSQL_CONN_CHARSET_DESCRIPTION, readOnly = false)
+    @ConfigDef(name = Fields.defaultSchema, valueRequire = false, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION, readOnly = false)
+    private String  defaultSchema;
+    @ConfigDef(name = Fields.connectionCharset, defaultValue = "utf8", descKey = ConfigI18nKey.CONFIG_MYSQL_CONN_CHARSET_DESCRIPTION, readOnly = false)
     private String  connectionCharset;
-
-    @ConfigDef(name = "useCursorFetch", valueRequire = false, descKey = ConfigI18nKey.CONFIG_MYSQL_CONN_USE_CURSOR_FETCH, readOnly = false, valueAdvance = "true - false", group = DsConfigGroup.OPTIONS)
+    @ConfigDef(name = Fields.useCursorFetch, valueRequire = false, descKey = ConfigI18nKey.CONFIG_MYSQL_CONN_USE_CURSOR_FETCH, readOnly = false, valueAdvance = "true - false", group = DsConfigGroup.OPTIONS)
     private Boolean useCursorFetch;
+
+    @ConfigDef(name = Fields.useSSL, defaultValue = "false", valueRequire = false, descKey = ConfigI18nKey.CONFIG_DESCRIPTION_EMPTY, readOnly = false, valueAdvance = "true - false", group = DsConfigGroup.OPTIONS)
+    private Boolean useSSL;
 
     public MyConfig(){
         setDataSourceType(DataSourceType.MySQL);
@@ -66,7 +68,7 @@ public class MyConfig extends DataSourceConfig {
         properties.setProperty("use_cursor_fetch", safeStr(StringUtils.toString(this.getUseCursorFetch())));
         properties.setProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey(), safeStr(this.getConnectionCharset()));
         properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), "Asia/Shanghai");
-        properties.setProperty("useSSL", "false");
+        properties.setProperty("useSSL", safeStr(StringUtils.toString(this.getUseSSL())));
         properties.setProperty("allowPublicKeyRetrieval", "true");
         properties.setProperty("allowMultiQueries", "true");
         properties.setProperty("rewriteBatchedStatements", "true");

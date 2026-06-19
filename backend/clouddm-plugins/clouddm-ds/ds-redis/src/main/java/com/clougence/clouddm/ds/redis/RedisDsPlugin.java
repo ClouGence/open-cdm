@@ -28,6 +28,7 @@ import com.clougence.clouddm.ds.redis.dsconf.RedisSerializationSpi;
 import com.clougence.clouddm.ds.redis.execute.RedisSessionFactory;
 import com.clougence.clouddm.ds.redis.execute.RedisSessionSpi;
 import com.clougence.clouddm.ds.redis.execute.RedisSupportSpi;
+import com.clougence.clouddm.ds.redis.i18n.RedisDsI18nKeys;
 import com.clougence.clouddm.ds.redis.language.RedisLanguageSpi;
 import com.clougence.clouddm.ds.redis.parser.RedisDslProvider;
 import com.clougence.clouddm.ds.redis.resource.RedisEditorResourceSpi;
@@ -42,9 +43,10 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
 /** @author mode 2024/12/25 15:13 */
-@Plugin(includePackages = { "com.clougence.clouddm.dsfamily.execute.*", //
+@Plugin(name = "i18n::" + RedisDsI18nKeys.PLUGIN_NAME_REDIS,            //
+        includePackages = { "com.clougence.clouddm.dsfamily.execute.*", //
                             "com.clougence.clouddm.ds.redis.execute.*"  //
-}, dsProduct = DataSourceType.Redis)
+        }, dsProduct = DataSourceType.Redis)
 public class RedisDsPlugin implements DsPlugin, SchemaPlugin {
 
     @Override
@@ -82,7 +84,7 @@ public class RedisDsPlugin implements DsPlugin, SchemaPlugin {
 
     private void configUi(DsPluginBinder dsPlugin) {
         //initI18n
-        //dsPlugin.bindI18n(false, Ora18nKeys.class);
+        dsPlugin.bindPluginI18n(RedisDsI18nKeys.class);
         //sqlBuilder
         //dsPlugin.bindSqlBuilder(OraEditorProvider.INSTANCE);
         dsPlugin.bindDsDialect(RedisDialect.INSTANCE);

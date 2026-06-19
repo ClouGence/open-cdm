@@ -18,7 +18,6 @@ package com.clougence.clouddm.platform.dal.model.datasource;
 import java.util.List;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 
 import lombok.Builder;
@@ -32,8 +31,6 @@ import lombok.Data;
 public class ArgDsQueryParamObj {
 
     private DataSourceType dataSourceType;
-
-    private DeployEnvType  deployType;
 
     private LifeCycleState lifeCycleState;
 

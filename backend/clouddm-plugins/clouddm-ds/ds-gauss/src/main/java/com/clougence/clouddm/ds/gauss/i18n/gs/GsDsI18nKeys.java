@@ -21,6 +21,9 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource("/META-INF/clougence/i18n/gs-ui-editor-table")
 public interface GsDsI18nKeys extends PgDsI18nKeys {
 
+    String PLUGIN_NAME_GAUSSDB                        = "PLUGIN_NAME_GAUSSDB";
+
+
     //
     String EDITOR_TABLEINFO_TABLE_ORIENTATION_TITLE  = "UI_EDITOR_TABLEINFO_TABLE_ORIENTATION_TITLE";
     String EDITOR_TABLEINFO_TABLE_ORIENTATION_DESC   = "UI_EDITOR_TABLEINFO_TABLE_ORIENTATION_DESC";

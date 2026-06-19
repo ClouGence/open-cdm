@@ -26,11 +26,11 @@ import com.clougence.clouddm.sdk.service.approval.ApprovalRefreshService;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.team.provider.feishu.approval.FeishuApprovalProviderSpi;
 import com.clougence.clouddm.team.provider.feishu.auth.FeishuLoginProviderSpi;
-import com.clougence.clouddm.team.provider.feishu.constants.FeishuI18nKeys2;
+import com.clougence.clouddm.team.provider.feishu.constants.FeishuI18nKeys;
 import com.clougence.clouddm.team.provider.feishu.im.FeishuMsgSendSpi;
 import com.clougence.clouddm.team.provider.feishu.resource.FeishuLoginIconResourceSpi;
 
-@Plugin
+@Plugin(name = "i18n::" + FeishuI18nKeys.PLUGIN_NAME_FEISHU)
 public class FeishuPlugin implements DsPlugin {
 
     @Override
@@ -39,7 +39,7 @@ public class FeishuPlugin implements DsPlugin {
         ConsoleConfigService configService = dsPlugin.findGlobalService(ConsoleConfigService.class);
 
         // i18n
-        dsPlugin.bindGlobalI18n(FeishuI18nKeys2.class);
+        dsPlugin.bindGlobalI18n(FeishuI18nKeys.class);
 
         // spi
         dsPlugin.addGlobalSpi(ApprovalProviderSpi.class, ApprovalProvider.Feishu.name(), new FeishuApprovalProviderSpi(configService, approvalService));

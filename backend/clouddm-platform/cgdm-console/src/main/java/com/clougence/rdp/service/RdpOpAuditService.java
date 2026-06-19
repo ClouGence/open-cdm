@@ -18,13 +18,13 @@ package com.clougence.rdp.service;
 import java.util.Date;
 import java.util.List;
 
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
-import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.console.web.model.fo.ExportOpAuditFO;
 import com.clougence.clouddm.console.web.model.vo.OpAuditConditionVO;
 import com.clougence.clouddm.console.web.model.vo.RdpOpAuditVO;
+import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.DmMonOpAuditDO;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -33,9 +33,9 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 public interface RdpOpAuditService {
 
-    int    DEFAULT_PAGE_SIZE   = 20;
+    int DEFAULT_PAGE_SIZE = 20;
 
-    int    MAX_PAGE_SIZE       = 60;
+    int MAX_PAGE_SIZE     = 60;
 
     /**
      * add OperationAuditDO data to database.ORIGIN DATA, not referent any other metadata.

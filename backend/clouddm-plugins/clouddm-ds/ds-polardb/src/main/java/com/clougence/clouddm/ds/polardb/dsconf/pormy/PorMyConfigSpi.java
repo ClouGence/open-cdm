@@ -15,22 +15,36 @@
  */
 package com.clougence.clouddm.ds.polardb.dsconf.pormy;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigMap;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.drivers.adapter.ConvertUtils;
+import com.clougence.utils.StringUtils;
 
-public class PorMyConfigSpi implements DsConfigSpi, ConfigKeys {
+public class PorMyConfigSpi implements DsConfigSpi {
 
     @Override
-    public DataSourceConfig newConfig(Map<String, String> configMap) {
-        return new PorMyConfig();
+    public Class<? extends DataSourceConfig> newConfig() {
+        return PorMyConfig.class;
     }
 
     @Override
-    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, DsConfigMap dsConfigMap) {
+    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
+        PorMyConfig config = (PorMyConfig) dsConfig;
+        config.setDefaultSchema(defaultConfig.get(PorMyConfig.Fields.defaultSchema));
+        config.setConnectionCharset(StringUtils.defaultIfBlank(defaultConfig.get(PorMyConfig.Fields.connectionCharset), "utf8"));
+        config.setUseCursorFetch(ConvertUtils.toBoolean(defaultConfig.get(PorMyConfig.Fields.useCursorFetch), false));
         return dsConfig;
+    }
+
+    @Override
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.USER_PASSWD);
+        return options;
     }
 }

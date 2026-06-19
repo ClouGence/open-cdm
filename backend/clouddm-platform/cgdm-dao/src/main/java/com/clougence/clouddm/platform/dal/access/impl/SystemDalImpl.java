@@ -35,8 +35,6 @@ public class SystemDalImpl implements SystemDal {
     private DmSysWorkerMapper    workerMapper;
     @Resource
     private DmSshConfigMapper    sshConfigMapper;
-    @Resource
-    private AuthDal              authDal;
 
     @Override
     public DmSysClusterMapper clusterMapper() {

@@ -21,8 +21,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.console.web.component.config.UserConfigKvDef;
 import com.clougence.clouddm.console.web.service.auth.RdpUserConfigHelper;
-import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.rdp.constant.UserConfigDef;
 import com.clougence.utils.ExceptionUtils;
 
@@ -36,13 +36,13 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpUserConfigHelperImpl implements RdpUserConfigHelper {
 
     @Override
-    public List<DmSysUserConfDO> collectConfigs(Object instance, String uid) {
-        List<DmSysUserConfDO> configs = new ArrayList<>();
+    public List<UserConfigKvDef> collectConfigs(Object instance, String uid) {
+        List<UserConfigKvDef> configs = new ArrayList<>();
         collectConfigs(instance, uid, instance.getClass(), configs);
         return configs;
     }
 
-    protected void collectConfigs(Object instance, String uid, Class clazz, List<DmSysUserConfDO> configs) {
+    protected void collectConfigs(Object instance, String uid, Class clazz, List<UserConfigKvDef> configs) {
         try {
             Field[] fields = clazz.getDeclaredFields();
 
@@ -60,7 +60,7 @@ public class RdpUserConfigHelperImpl implements RdpUserConfigHelper {
                     val = String.valueOf(oriVal);
                 }
 
-                DmSysUserConfDO configDO = genConfigDo(configDef, val, uid);
+                UserConfigKvDef configDO = genConfigDef(configDef, val, uid);
 
                 configs.add(configDO);
             }
@@ -75,21 +75,21 @@ public class RdpUserConfigHelperImpl implements RdpUserConfigHelper {
         }
     }
 
-    protected DmSysUserConfDO genConfigDo(UserConfigDef configDef, String val, String uid) {
-        DmSysUserConfDO configDO = new DmSysUserConfDO();
-        configDO.setConfigName(configDef.name());
-        configDO.setConfigValue(val);
-        configDO.setUid(uid);
-        configDO.setValueRange(configDef.valueRange());
-        configDO.setUserConfigTagType(configDef.configTagType());
-        configDO.setConfBelong(configDef.confBelong());
-        configDO.setConfValType(configDef.kvConfWebOp());
+    protected UserConfigKvDef genConfigDef(UserConfigDef configDef, String val, String uid) {
+        UserConfigKvDef config = new UserConfigKvDef();
+        config.setConfigName(configDef.name());
+        config.setConfigValue(val);
+        config.setUid(uid);
+        config.setValueRange(configDef.valueRange());
+        config.setUserConfigTagType(configDef.configTagType());
+        config.setConfBelong(configDef.confBelong());
+        config.setConfValType(configDef.kvConfWebOp());
 
-        configDO.setDefaultValue(configDef.defaultValue());
-        configDO.setReadOnly(configDef.readOnly());
-        configDO.setSecret(configDef.isSecret());
-        configDO.setDescKey(configDef.descKey().name());
+        config.setDefaultValue(configDef.defaultValue());
+        config.setReadOnly(configDef.readOnly());
+        config.setSecret(configDef.isSecret());
+        config.setDescKey(configDef.descKey().name());
 
-        return configDO;
+        return config;
     }
 }

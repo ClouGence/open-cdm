@@ -60,6 +60,11 @@ public enum DsConfigKeys {
     ///////////////////////////////
     PG_INTERVAL_STYLE("pg_interval_style"), // use "set intervalstyle = 'xxx'"
 
+    ///////////////////////////////
+    //    Only for SQL Server    //
+    ///////////////////////////////
+    MSSQL_INSTANCE_NAME("mssql_instance_name"),
+
     ///////////////////////////
     //    Only for Oracle    //
     ///////////////////////////

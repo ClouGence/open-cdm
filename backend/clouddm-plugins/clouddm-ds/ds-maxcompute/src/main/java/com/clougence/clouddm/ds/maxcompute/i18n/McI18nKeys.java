@@ -26,6 +26,9 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource("/META-INF/clougence/i18n/mc-ui-editor-table")
 public interface McI18nKeys extends DsDataEditorI18nKeys, DsTableEditorI18nKeys, DsTriggerEditorI18nKeys, DsFunctionEditorI18nKeys, DsProcedureEditorI18nKeys, DsViewEditorI18nKeys {
 
+    String PLUGIN_NAME_MAXCOMPUTE                     = "PLUGIN_NAME_MAXCOMPUTE";
+
+
     // table
     String EDITOR_TABLEINFO_TABLE_ID_TITLE             = "UI_EDITOR_TABLEINFO_TABLE_ID_TITLE";
     String EDITOR_TABLEINFO_TABLE_ID_DESC              = "UI_EDITOR_TABLEINFO_TABLE_ID_DESC";

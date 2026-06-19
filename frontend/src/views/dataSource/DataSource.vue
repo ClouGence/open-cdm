@@ -986,25 +986,13 @@ export default {
           this.accountInfo.securityType = this.sourceDetail.securityType;
 
           if (security) {
-            const { deployType, dataSourceType } = res.data;
-            this.$services
-              .rdpConstantDsSecurityOption({
-                data: {
-                  deployEnvType: deployType,
-                  dataSourceType,
-                  deployFetchType: 'MANUALLY_FILL'
-                }
-              })
-              .then((res2) => {
-                if (res2.success) {
-                  this.securitySetting = res2.data.securityOptions;
-                  const obj = {};
-                  res2.data.securityOptions.forEach((s) => {
-                    obj[s.securityType] = s;
-                  });
-                  this.securitySettingObj = obj;
-                }
-              });
+            const securityOptions = this.dmGlobalSetting?.dsSettingDef?.[res.data.dataSourceType]?.securityOptions || [];
+            this.securitySetting = securityOptions;
+            const obj = {};
+            securityOptions.forEach((s) => {
+              obj[s.securityType] = s;
+            });
+            this.securitySettingObj = obj;
           }
         }
       });

@@ -49,10 +49,11 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
 /** @author mode 2024/12/25 15:13 */
-@Plugin(includePackages = { "com.clougence.clouddm.dsfamily.execute.*",      //
+@Plugin(name = "i18n::" + GsogDsI18nKeys.PLUGIN_NAME_GAUSSDB_FOR_OPENGAUSS,     //
+        includePackages = { "com.clougence.clouddm.dsfamily.execute.*",         //
                             "com.clougence.clouddm.dsfamily.postgres.execute.*",//
-                            "com.clougence.clouddm.ds.gauss.execute.gsog.*"//
-}, dsProduct = DataSourceType.GaussDBForOpenGauss)
+                            "com.clougence.clouddm.ds.gauss.execute.gsog.*"     //
+        }, dsProduct = DataSourceType.GaussDBForOpenGauss)
 public class GsogDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     @Override

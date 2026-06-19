@@ -15,22 +15,41 @@
  */
 package com.clougence.clouddm.ds.mariadb.dsconf;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigMap;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.drivers.adapter.ConvertUtils;
+import com.clougence.utils.StringUtils;
 
-public class MarConfigSpi implements DsConfigSpi, ConfigKeys {
+public class MarConfigSpi implements DsConfigSpi {
 
     @Override
-    public DataSourceConfig newConfig(Map<String, String> configMap) {
-        return new MarConfig();
+    public Class<? extends DataSourceConfig> newConfig() {
+        return MarConfig.class;
     }
 
     @Override
-    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, DsConfigMap dsConfigMap) {
+    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
+        MarConfig config = (MarConfig) dsConfig;
+        config.setDefaultSchema(defaultConfig.get(MarConfig.Fields.defaultSchema));
+        config.setConnectionCharset(StringUtils.defaultIfBlank(defaultConfig.get(MarConfig.Fields.connectionCharset), "utf8"));
+        config.setUseCursorFetch(ConvertUtils.toBoolean(defaultConfig.get(MarConfig.Fields.useCursorFetch), false));
+
+        boolean blank = StringUtils.isBlank(defaultConfig.get(MarConfig.Fields.useSSL));
+        config.setUseSSL(blank ? Boolean.FALSE : ConvertUtils.toBoolean(defaultConfig.get(MarConfig.Fields.useSSL), false));
         return dsConfig;
+    }
+
+    @Override
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.NONE);
+        options.add(SecurityType.ONLY_USER);
+        options.add(SecurityType.USER_PASSWD);
+        return options;
     }
 }

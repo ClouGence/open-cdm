@@ -16,7 +16,7 @@
 package com.clougence.clouddm.file.convert;
 
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.file.convert.constants.ConvertI18nKeys;
+import com.clougence.clouddm.file.convert.i18n.ConvertI18nKeys;
 import com.clougence.clouddm.file.convert.json.JsonFileFormatConvert;
 import com.clougence.clouddm.file.convert.sql.SqlFileFormatConvert;
 import com.clougence.clouddm.file.convert.xlsx.MsExcelFileFormatConvert;
@@ -29,7 +29,7 @@ import com.clougence.clouddm.sdk.service.execute.SessionService;
 /**
  * @author mode create time is 2023/05/21 13:27
  **/
-@Plugin()
+@Plugin(name = "i18n::" + ConvertI18nKeys.PLUGIN_NAME_FILE_CONVERT)
 public class FileConvertPlugin implements DsPlugin, DsFeatureIDs {
 
     @Override

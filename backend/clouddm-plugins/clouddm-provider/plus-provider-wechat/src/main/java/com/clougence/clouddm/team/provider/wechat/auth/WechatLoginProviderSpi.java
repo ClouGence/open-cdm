@@ -37,7 +37,7 @@ import com.clougence.clouddm.sdk.service.config.UserData;
 import com.clougence.clouddm.team.provider.wechat.client.WechatApi;
 import com.clougence.clouddm.team.provider.wechat.client.WechatClient;
 import com.clougence.clouddm.team.provider.wechat.constants.WechatConfigKey;
-import com.clougence.clouddm.team.provider.wechat.constants.WechatI18nKey2;
+import com.clougence.clouddm.team.provider.wechat.constants.WechatI18nKeys;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -121,7 +121,7 @@ public class WechatLoginProviderSpi implements LoginProviderSpi {
     public LifeSpiResponse status(String ownerUid, LifeSpiRequest requestDTO) {
         LifeSpiStatus dto = new LifeSpiStatus();
         dto.setRunning(this.clientMap.containsKey(ownerUid));
-        dto.setNameKey(WechatI18nKey2.WECHAT_LOGIN_SERVICES_NAME);
+        dto.setNameKey(WechatI18nKeys.WECHAT_LOGIN_SERVICES_NAME);
         return new LifeSpiResponse(JsonUtils.toJson(dto));
     }
 
@@ -148,7 +148,7 @@ public class WechatLoginProviderSpi implements LoginProviderSpi {
     private String[] extractSplit(String fullLoginName) {
         int splitIdx = fullLoginName.lastIndexOf("@");
         if (splitIdx == -1) {
-            throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_LOGIN_FAIL_PRIMARY_MISSING_ARGS);
+            throw ThirdPartyApiException.as().with(WechatI18nKeys.WECHAT_LOGIN_FAIL_PRIMARY_MISSING_ARGS);
         }
 
         String userAccount = fullLoginName.substring(0, splitIdx);
@@ -188,7 +188,7 @@ public class WechatLoginProviderSpi implements LoginProviderSpi {
         RoleData role = CollectionUtils.isEmpty(roles) ? null : roles.get(0);
         if (role == null) {
             log.info("Wechat: user(" + wechatUser.getAccount() + ") not found any role, memberOf=" + roleName);
-            throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_ROLE_MAPPING_FAILED);
+            throw ThirdPartyApiException.as().with(WechatI18nKeys.WECHAT_ROLE_MAPPING_FAILED);
         }
         wechatUser.setRoleId(role.getRoleId());
 

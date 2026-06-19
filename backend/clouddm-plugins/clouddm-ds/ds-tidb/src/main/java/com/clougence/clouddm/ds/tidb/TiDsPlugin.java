@@ -48,10 +48,11 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
 /** @author mode 2024/12/25 15:13 */
-@Plugin(includePackages = { "com.clougence.clouddm.dsfamily.execute.*",      //
+@Plugin(name = "i18n::" + TiDsI18nKeys.PLUGIN_NAME_TIDB,                     //
+        includePackages = { "com.clougence.clouddm.dsfamily.execute.*",      //
                             "com.clougence.clouddm.dsfamily.mysql.execute.*",//
                             "com.clougence.clouddm.ds.tidb.execute.*"        //
-}, dsProduct = DataSourceType.TiDB)
+        }, dsProduct = DataSourceType.TiDB)
 public class TiDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     @Override

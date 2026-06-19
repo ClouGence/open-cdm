@@ -9,7 +9,7 @@
         <result column="gmt_modified" property="gmtModified"/>
         <result column="ds_id" property="dsId"/>
         <result column="res_type" property="resType"
-                javaType="com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType"/>
+                javaType="com.clougence.clouddm.platform.dal.model.ResourceType"/>
         <result column="res_id" property="resId"/>
         <result column="res_instance_id" property="resInstanceId"/>
     </resultMap>
@@ -42,7 +42,7 @@
         WHERE
         ds_id = #{dsId}
         AND res_id = #{resId}
-        AND res_type = #{resType,javaType=com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType}
+        AND res_type = #{resType,javaType=com.clougence.clouddm.platform.dal.model.ResourceType}
         AND res_instance_id = #{resInstanceId}
     </select>
 
@@ -51,7 +51,7 @@
         FROM dm_ds_usage
         WHERE ds_id = #{dsId}
           AND res_id = #{resId}
-          AND res_type = #{resType,javaType=com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType}
+          AND res_type = #{resType,javaType=com.clougence.clouddm.platform.dal.model.ResourceType}
           AND res_instance_id = #{resInstanceId}
     </delete>
 </mapper>

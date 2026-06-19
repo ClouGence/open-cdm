@@ -15,22 +15,31 @@
  */
 package com.clougence.clouddm.ds.db2i.dsconf;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigMap;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
 
-public class Db2ForiConfigSpi implements DsConfigSpi, ConfigKeys {
+public class Db2ForiConfigSpi implements DsConfigSpi {
 
     @Override
-    public DataSourceConfig newConfig(Map<String, String> configMap) {
-        return new Db2ForiConfig();
+    public Class<? extends DataSourceConfig> newConfig() {
+        return Db2ForiConfig.class;
     }
 
     @Override
-    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, DsConfigMap dsConfigMap) {
+    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
+        ((Db2ForiConfig) dsConfig).setDefaultCatalog(defaultConfig.get(Db2ForiConfig.Fields.defaultCatalog));
         return dsConfig;
+    }
+
+    @Override
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.USER_PASSWD);
+        return options;
     }
 }

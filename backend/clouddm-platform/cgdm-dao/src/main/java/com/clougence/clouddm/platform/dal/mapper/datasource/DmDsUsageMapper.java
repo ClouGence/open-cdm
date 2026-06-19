@@ -18,7 +18,7 @@ package com.clougence.clouddm.platform.dal.mapper.datasource;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
+import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsUsageDO;
 
 /**

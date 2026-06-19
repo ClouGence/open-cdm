@@ -26,6 +26,8 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource("/META-INF/clougence/i18n/my-ui-editor-table")
 public interface MyDsI18nKeys extends DsDataEditorI18nKeys, DsTableEditorI18nKeys, DsProcedureEditorI18nKeys, DsFunctionEditorI18nKeys, DsTriggerEditorI18nKeys, DsViewEditorI18nKeys {
 
+    String PLUGIN_NAME_MYSQL                                   = "PLUGIN_NAME_MYSQL";
+
     String EDITOR_COMM_CHARACTER_SET_TITLE                     = "UI_EDITOR_COMM_CHARACTER_SET_TITLE";
     String EDITOR_COMM_CHARACTER_SET_DESC                      = "UI_EDITOR_COMM_CHARACTER_SET_DESC";
     String EDITOR_COMM_COLLATION_TITLE                         = "UI_EDITOR_COMM_COLLATION_TITLE";

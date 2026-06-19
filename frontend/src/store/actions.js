@@ -9,7 +9,6 @@ import {
   UPDATE_MY_AUTH,
   UPDATE_MY_CATALOG,
   UPDATE_RULE_SETTING,
-  UPDATE_PUBLIC_KEY,
   REMAIN_TRIAL_DAY,
   SET_MENU_ITEMS,
   SET_THEME
@@ -128,12 +127,10 @@ export default {
       return;
     }
 
-    const globalSettingRes = await services.dmGlobalSettings();
     const consoleSettingRes = await services.dmConsoleSettings();
-    if (globalSettingRes.success && consoleSettingRes.success) {
-      const dmSetting = globalSettingRes.data;
-      dmSetting.menus = consoleSettingRes.data.menus;
-      dmSetting.dsSettingDef = consoleSettingRes.data.dsSettingDef;
+    if (consoleSettingRes.success) {
+      const dmSetting = consoleSettingRes.data;
+      dmSetting.dsSupportNames = consoleSettingRes.data?.dsSupportNames || [];
       dmSetting.fmtConvertDef = consoleSettingRes.data?.fmtConvertDef;
 
       if (dmSetting.personal) {
@@ -141,9 +138,6 @@ export default {
       }
 
       commit(UPDATE_DM_GLOBAL_SETTING, dmSetting);
-      if (dmSetting.publicKey) {
-        commit(UPDATE_PUBLIC_KEY, dmSetting.publicKey);
-      }
     }
   },
   async getDeployEnvList({ commit }) {

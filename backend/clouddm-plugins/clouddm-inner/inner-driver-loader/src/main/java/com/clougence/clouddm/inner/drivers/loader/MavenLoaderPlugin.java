@@ -23,7 +23,7 @@ import com.clougence.clouddm.sdk.Plugin;
 /**
  * @author mode create time is 2023/05/21 13:27
  **/
-@Plugin()
+@Plugin
 public class MavenLoaderPlugin implements DsPlugin, DsFeatureIDs {
 
     @Override

@@ -71,7 +71,7 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
             if (e instanceof ThirdPartyApiException) {
                 throw (ThirdPartyApiException) e;
             } else {
-                throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_SERVICE_ERROR.name(), ExceptionUtils.getRootCauseMessage(e));
+                throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_SERVICE_ERROR, ExceptionUtils.getRootCauseMessage(e));
             }
         }
 
@@ -92,7 +92,7 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
             if (e instanceof ThirdPartyApiException) {
                 throw (ThirdPartyApiException) e;
             } else {
-                throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_SERVICE_ERROR.name(), ExceptionUtils.getRootCauseMessage(e));
+                throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_SERVICE_ERROR, ExceptionUtils.getRootCauseMessage(e));
             }
         }
     }
@@ -117,7 +117,7 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
             if (e instanceof ThirdPartyApiException) {
                 throw (ThirdPartyApiException) e;
             } else {
-                throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_SERVICE_ERROR.name(), ExceptionUtils.getRootCauseMessage(e));
+                throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_SERVICE_ERROR, ExceptionUtils.getRootCauseMessage(e));
             }
         }
 
@@ -125,7 +125,7 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
         if (searchResult.isEmpty()) {
             return null;
         } else if (searchResult.size() > 1) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_MATCH_MULTIPLE_ACCOUNT.name(), ldapSearch.getLdapWhere(), ldapSearch.getLdapCondition(), searchResult.size());
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_MATCH_MULTIPLE_ACCOUNT, ldapSearch.getLdapWhere(), ldapSearch.getLdapCondition(), searchResult.size());
         } else {
             return searchResult.get(0);
         }
@@ -174,10 +174,10 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
         }
 
         if (result.isEmpty()) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_LOGIN_FAIL_PASSWORD_ERROR.name());
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_LOGIN_FAIL_PASSWORD_ERROR);
         }
         if (result.size() > 1) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_MATCH_MULTIPLE_ACCOUNT.name(), ldapSearch.getLdapWhere(), ldapSearch.getLdapCondition(), result.size());
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_MATCH_MULTIPLE_ACCOUNT, ldapSearch.getLdapWhere(), ldapSearch.getLdapCondition(), result.size());
         }
         return result.get(0);
     }

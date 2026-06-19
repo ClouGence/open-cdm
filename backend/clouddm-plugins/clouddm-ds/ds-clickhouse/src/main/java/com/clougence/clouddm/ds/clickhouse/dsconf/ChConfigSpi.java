@@ -15,31 +15,35 @@
  */
 package com.clougence.clouddm.ds.clickhouse.dsconf;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ConnectType;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigMap;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.utils.StringUtils;
 
-public class ChConfigSpi implements DsConfigSpi, ConfigKeys {
+public class ChConfigSpi implements DsConfigSpi {
 
     @Override
-    public DataSourceConfig newConfig(Map<String, String> configMap) {
-        return new ChConfig();
+    public Class<? extends DataSourceConfig> newConfig() {
+        return ChConfig.class;
     }
 
     @Override
-    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, DsConfigMap dsConfigMap) {
+    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
         ChConfig config = (ChConfig) dsConfig;
-        // it will be modified in the future
-        ConnectType connectType = (ConnectType) dsConfigMap.getRdpDsBean().get(RDP_DS_KEY_CONNECT_TYPE);
-        if (connectType == ConnectType.CLICKHOUSE_TCP) {
-            config.setDriverVersion("[\"Native JDBC\",\"/2.7.1\"]");
-        } else {
-            config.setDriverVersion("[\"ClickHouse JDBC\",\"/0.9.8\"]");
-        }
+        config.setDefaultSchema(defaultConfig.get(ChConfig.Fields.defaultSchema));
+        config.setSessionTimeout(StringUtils.defaultIfBlank(defaultConfig.get(ChConfig.Fields.sessionTimeout), "15000"));
         return dsConfig;
+    }
+
+    @Override
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.NONE);
+        options.add(SecurityType.USER_PASSWD);
+        return options;
     }
 }

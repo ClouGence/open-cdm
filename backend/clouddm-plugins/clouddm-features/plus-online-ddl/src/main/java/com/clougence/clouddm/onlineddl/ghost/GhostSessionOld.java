@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.onlineddl.ghost;
 
-import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -293,8 +292,8 @@ public class GhostSessionOld {
         cmdBuidlerForLog.append(" --table=\"").append(tableName).append("\"");
         cmdBuidlerForLog.append(" --alter=\"").append(ddlSql).append("\"");
 
-        //if datasource is aliyun rds or proxy in front os ds or ds in docker.set this config and let --port affect.
-        if (StringUtils.isNotBlank(config.getAliyunInstanceId()) || (options != null && options.getAssumeDsProxyInFront() != null && options.getAssumeDsProxyInFront())) {
+        // If a proxy is in front of the data source or the data source is in Docker, let --port affect.
+        if (options != null && options.getAssumeDsProxyInFront() != null && options.getAssumeDsProxyInFront()) {
             cmdBuilder.append(" --aliyun-rds");
             cmdBuidlerForLog.append(" --aliyun-rds");
         }

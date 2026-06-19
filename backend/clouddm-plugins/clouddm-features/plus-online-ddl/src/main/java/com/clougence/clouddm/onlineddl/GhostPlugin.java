@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author wanshao create time is 2021/1/9
  **/
 @Slf4j
-@Plugin()
+@Plugin(name = "Online DDL")
 public class GhostPlugin implements DsPlugin, DsFeatureIDs {
 
     @Override

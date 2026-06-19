@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.constants.EventType;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
@@ -43,6 +42,7 @@ import com.clougence.clouddm.console.web.service.login.LoginService;
 import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.NamingDao;
+import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
 import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;

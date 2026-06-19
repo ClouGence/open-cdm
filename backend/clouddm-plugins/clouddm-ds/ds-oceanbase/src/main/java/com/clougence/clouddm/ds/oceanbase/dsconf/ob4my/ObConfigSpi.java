@@ -15,24 +15,38 @@
  */
 package com.clougence.clouddm.ds.oceanbase.dsconf.ob4my;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigMap;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.drivers.adapter.ConvertUtils;
+import com.clougence.utils.StringUtils;
 
-public class ObConfigSpi implements DsConfigSpi, ConfigKeys {
+public class ObConfigSpi implements DsConfigSpi {
 
     @Override
-    public DataSourceConfig newConfig(Map<String, String> configMap) {
-        return new ObConfig();
+    public Class<? extends DataSourceConfig> newConfig() {
+        return ObConfig.class;
     }
 
     @Override
-    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, DsConfigMap dsConfigMap) {
-        ((ObConfig) dsConfig).setTenant((String) dsConfigMap.getRdpExtraBean().get(ConfigKeys.RDP_EXTRA_OB_TENANT));
-        ((ObConfig) dsConfig).setCluster((String) dsConfigMap.getRdpExtraBean().get(ConfigKeys.RDP_EXTRA_OB_CLUSTER_NAME));
+    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
+        ObConfig config = (ObConfig) dsConfig;
+        config.setTenant(defaultConfig.get(ObConfig.Fields.tenant));
+        config.setCluster(defaultConfig.get(ObConfig.Fields.cluster));
+        config.setDefaultSchema(defaultConfig.get(ObConfig.Fields.defaultSchema));
+        config.setConnectionCharset(StringUtils.defaultIfBlank(defaultConfig.get(ObConfig.Fields.connectionCharset), "utf8"));
+        config.setUseCursorFetch(ConvertUtils.toBoolean(defaultConfig.get(ObConfig.Fields.useCursorFetch), false));
         return dsConfig;
+    }
+
+    @Override
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.USER_PASSWD);
+        return options;
     }
 }

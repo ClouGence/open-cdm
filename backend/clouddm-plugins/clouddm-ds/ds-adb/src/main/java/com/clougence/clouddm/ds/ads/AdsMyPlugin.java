@@ -47,10 +47,11 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
 /** @author mode 2024/12/25 15:13 */
-@Plugin(includePackages = { "com.clougence.clouddm.dsfamily.execute.*",      //
+@Plugin(name = "i18n::" + AdsMyDsI18nKeys.PLUGIN_NAME_ADB_FOR_MYSQL,         //
+        includePackages = { "com.clougence.clouddm.dsfamily.execute.*",      //
                             "com.clougence.clouddm.dsfamily.mysql.execute.*",//
                             "com.clougence.clouddm.ds.ads.execute.*"         //
-}, dsProduct = DataSourceType.AdbForMySQL)
+        }, dsProduct = DataSourceType.AdbForMySQL)
 public class AdsMyPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     @Override

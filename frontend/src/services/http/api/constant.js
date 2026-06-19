@@ -27,7 +27,6 @@ export const constantApi = {
   listDataTransformScripts: '/cloudcanal/console/api/v1/inner/constant/listDataTransformScripts',
   // dm
   // listRegions: '/clouddm/console/api/v1/constant/region',
-  // listRegionAreas: '/clouddm/console/api/v1/constant/listregionareas',
   // listSupportedRegions: '/clouddm/console/api/v1/constant/supportedregion',
   // supportedPushDown: '/cloudcanal/console/api/v1/inner/constant/supportedpushdown',
   // getDeployEnvList: '/clouddm/console/api/v1/constant/listdeployenv',
@@ -37,12 +36,8 @@ export const constantApi = {
   // getDesensitizeRuleTypeList: '/clouddm/console/api/v1/constant/listdesensitizeruletypes',
   // getDsDesensitizePathElements: '/clouddm/console/api/v1/constant/listdsdesensitizepathelements',
   // listPageElementsLevel: '/clouddm/console/api/v1/constant/listPageElementsLevel',
-  // listDsSecurityOption: '/clouddm/console/api/v1/constant/listdssecurityoption',
   // listExportSqExecType: '/clouddm/console/api/v1/constant/listexportsqexectype',
   // rdp
-  // dsLLMTypes: '/rdp/console/api/v1/constant/ds/dsllmtypes',
-  // dsLLMEmbeddingTypes: '/rdp/console/api/v1/constant/ds/dsLlmEmbeddingTypes',
-  // dsLLMChatTypes: '/rdp/console/api/v1/constant/ds/dsLlmChatTypes',
   // listDownloadProduct: '/rdp/console/api/v1/constant/listDownloadProduct',
 
   // cc
@@ -73,7 +68,6 @@ export const constantApi = {
   ccConstantSrOrDorisTableModel: '/cloudcanal/console/api/v1/inner/constant/srordoristablemodel',
   ccConstantDsPosTypes: '/cloudcanal/console/api/v1/inner/constant/dspostypes',
   ccConstantEditJobInitialSyncSwitch: '/cloudcanal/console/api/v1/inner/constant/editjobinitialsyncswitch',
-  ccConstantNeedTestBeforeAddDsTypes: '/cloudcanal/console/api/v1/inner/constant/needtestbeforeadddstypes',
   ccConstantShowPositionConf: '/cloudcanal/console/api/v1/inner/constant/show_position_conf',
   ccConstantTunnelValueFormats: '/cloudcanal/console/api/v1/inner/constant/tunnelvalueformats',
   ccConstantRdbTargetKeyConflictStrategy: '/cloudcanal/console/api/v1/inner/constant/rdbtargetkeyconflictstrategy',
@@ -119,20 +113,8 @@ export const constantApi = {
   dmConstantListDesensitizeRuleTypes: '/clouddm/console/api/v1/constant/listdesensitizeruletypes',
   dmConstantListDsDesensitizePathElements: '/clouddm/console/api/v1/constant/listdsdesensitizepathelements',
   dmConstantListPageElementsLevel: '/clouddm/console/api/v1/constant/listPageElementsLevel',
-  dmConstantListDsSecurityOption: '/clouddm/console/api/v1/constant/listdssecurityoption',
   dmConstantListExportSqExecType: '/clouddm/console/api/v1/constant/listexportsqexectype',
-  dmConstantListDsConnectionOption: '/clouddm/console/api/v1/constant/listdsconnectionoption',
 
   // rdp
-  rdpConstantListRegionAreas: '/rdp/console/api/v1/constant/listRegionAreas',
-  rdpConstantDsSupportedRegion: '/rdp/console/api/v1/constant/dssupportedregion',
-  rdpConstantListFilterDsTypes: '/rdp/console/api/v1/constant/listFilterDsTypes',
-  rdpConstantListDsTypesByDeployType: '/rdp/console/api/v1/constant/listDsTypesByDeployType',
-
-  rdpConstantDsLLMEmbeddingTypes: '/rdp/console/api/v1/constant/ds/dsLlmEmbeddingTypes',
-  rdpConstantDsLLMChatTypes: '/rdp/console/api/v1/constant/ds/dsLlmChatTypes',
-  rdpConstantDsSecurityOption: '/rdp/console/api/v1/constant/ds/dsSecurityOption',
-  rdpConstantDsDsConnectType: '/rdp/console/api/v1/constant/ds/dsConnectType',
-  rdpConstantDsDsLlmEmbeddingTypes: '/rdp/console/api/v1/constant/ds/dsLlmEmbeddingTypes',
-  rdpConstantDsDsLlmChatTypes: '/rdp/console/api/v1/constant/ds/dsLlmChatTypes'
+  rdpConstantDsSupportedRegion: '/rdp/console/api/v1/constant/dssupportedregion'
 };

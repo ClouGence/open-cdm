@@ -20,8 +20,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
-
 /**
  * @author bucketli 2020/11/5 19:42
  */
@@ -50,5 +48,7 @@ public @interface ConfigDef {
     boolean readOnly() default true;
 
     boolean isSecret() default false;
+
+    boolean lazy() default false;
 
 }

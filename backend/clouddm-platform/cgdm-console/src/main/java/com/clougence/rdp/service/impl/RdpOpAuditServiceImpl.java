@@ -28,8 +28,6 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceFlagEnum;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.component.resultfile.ResultFileRequests;
 import com.clougence.clouddm.component.resultfile.ResultFileWriter;
 import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
@@ -43,6 +41,7 @@ import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.access.MonitorDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
@@ -360,83 +359,29 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
                 dsEnvIds.add(Long.valueOf(auditVO.getResourceValue()));
             }
         }
-        //
-        //        List<DmDsDO> dsList = new ArrayList<>();
-        //        List<DmAuthRoleDO> roleList = new ArrayList<>();
-        //        List<DmSysEnvDO> dsEnvList = new ArrayList<>();
-        //        List<DmAuthUserDO> accountList = new ArrayList<>();
-        //        if (!dataSourceIds.isEmpty()) {
-        //            dsList = datasourceDal.dsMapper().listByIdsIncludeDeleted(dataSourceIds);
-        //        }
-        //        if (!roleIds.isEmpty()) {
-        //            roleList = authDal.roleMapper().listByIds(new ArrayList<>(roleIds));
-        //        }
-        //        if (!dsEnvIds.isEmpty()) {
-        //            dsEnvList = systemDal.envMapper().listByIds(new ArrayList<>(dsEnvIds));
-        //        }
-        //        if (!accountUids.isEmpty()) {
-        //            accountList = authDal.userMapper().listByUids(new ArrayList<>(accountUids));
-        //        }
-        //
-        //        Map<Long, DmDsDO> dsMap;
-        //        Map<Long, DmAuthRoleDO> roleMap;
-        //        Map<Long, DmSysEnvDO> dsEnvMap;
-        //        Map<String, DmAuthUserDO> accountMap;
-        //        if (CollectionUtils.isNotEmpty(dsList)) {
-        //            dsMap = dsList.stream().collect(Collectors.toMap(DmDsDO::getId, dsDO -> dsDO));
-        //        } else {
-        //            dsMap = new HashMap<>();
-        //        }
-        //        if (CollectionUtils.isNotEmpty(roleList)) {
-        //            roleMap = roleList.stream().collect(Collectors.toMap(DmAuthRoleDO::getId, roleDO -> roleDO));
-        //        } else {
-        //            roleMap = new HashMap<>();
-        //        }
-        //        if (CollectionUtils.isNotEmpty(dsEnvList)) {
-        //            dsEnvMap = dsEnvList.stream().collect(Collectors.toMap(DmSysEnvDO::getId, dsEnvDO -> dsEnvDO));
-        //        } else {
-        //            dsEnvMap = new HashMap<>();
-        //        }
-        //        if (CollectionUtils.isNotEmpty(accountList)) {
-        //            accountMap = accountList.stream().collect(Collectors.toMap(DmAuthUserDO::getUid, accountDO -> accountDO));
-        //        } else {
-        //            accountMap = new HashMap<>();
-        //        }
-
         auditVOs.forEach(auditVO -> {
             if (StringUtils.equals(auditVO.getResourceType(), ResourceType.DATASOURCE.name()) && NumberUtils.isNumber(auditVO.getResourceValue())) {
-                //                DmDsDO dataSourceDO = dsMap.get(Long.parseLong(auditVO.getResourceValue()));
-                //                if (dataSourceDO != null) {
-                //                    auditVO.setResourceVO(new ResourceVO(dataSourceDO.getId(), dataSourceDO.getInstanceId(), ResourceFlagEnum.getFlagDesc(ResourceType.DATASOURCE.name())));
-                //                }
-                auditVO.setResourceVO(new ResourceVO(Long.parseLong(auditVO.getResourceValue()),
-                    auditVO.getResourceName(),
-                    ResourceFlagEnum.getFlagDesc(ResourceType.DATASOURCE.name())));
+                auditVO.setResourceVO(new ResourceVO(Long.parseLong(auditVO.getResourceValue()), auditVO.getResourceName(), resourceFlagDesc(ResourceType.DATASOURCE)));
             } else if (StringUtils.equals(auditVO.getResourceType(), ResourceType.ACCOUNT.name())) {
-                //                DmAuthUserDO accountDO = accountMap.get(auditVO.getResourceValue());
-                //                if (accountDO != null) {
-                //                    auditVO.setResourceVO(new ResourceVO(accountDO.getId(), accountDO.getUsername(), ResourceFlagEnum.getFlagDesc(ResourceType.ACCOUNT.name())));
-                //                }
-                auditVO.setResourceVO(new ResourceVO(null, auditVO.getResourceName(), ResourceFlagEnum.getFlagDesc(ResourceType.ACCOUNT.name())));
+                auditVO.setResourceVO(new ResourceVO(null, auditVO.getResourceName(), resourceFlagDesc(ResourceType.ACCOUNT)));
 
             } else if (StringUtils.equals(auditVO.getResourceType(), ResourceType.ROLE.name()) && NumberUtils.isNumber(auditVO.getResourceValue())) {
-                //                DmAuthRoleDO roleDO = roleMap.get(Long.parseLong(auditVO.getResourceValue()));
-                //                if (roleDO != null) {
-                //                    auditVO.setResourceVO(new ResourceVO(roleDO.getId(), roleDO.getRoleName(), ResourceFlagEnum.getFlagDesc(ResourceType.ROLE.name())));
-                //                }
-                auditVO
-                    .setResourceVO(new ResourceVO(Long.parseLong(auditVO.getResourceValue()), auditVO.getResourceName(), ResourceFlagEnum.getFlagDesc(ResourceType.ROLE.name())));
-                //                }
+                auditVO.setResourceVO(new ResourceVO(Long.parseLong(auditVO.getResourceValue()), auditVO.getResourceName(), resourceFlagDesc(ResourceType.ROLE)));
             } else if (StringUtils.equals(auditVO.getResourceType(), ResourceType.DS_ENV.name()) && NumberUtils.isNumber(auditVO.getResourceValue())) {
-                //                DmSysEnvDO dsEnvDO = dsEnvMap.get(Long.parseLong(auditVO.getResourceValue()));
-                //                if (dsEnvDO != null) {
-                //                    auditVO.setResourceVO(new ResourceVO(dsEnvDO.getId(), dsEnvDO.getEnvName(), ResourceFlagEnum.getFlagDesc(ResourceType.DS_ENV.name())));
-                //                }
-                auditVO
-                    .setResourceVO(new ResourceVO(Long.parseLong(auditVO.getResourceValue()), auditVO.getResourceName(), ResourceFlagEnum.getFlagDesc(ResourceType.DS_ENV.name())));
+                auditVO.setResourceVO(new ResourceVO(Long.parseLong(auditVO.getResourceValue()), auditVO.getResourceName(), resourceFlagDesc(ResourceType.DS_ENV)));
 
             }
         });
+    }
+
+    private static String resourceFlagDesc(ResourceType resourceType) {
+        return switch (resourceType) {
+            case DATASOURCE -> "InstantId";
+            case ACCOUNT -> "Username";
+            case ROLE -> "RoleName";
+            case DS_ENV -> "DsEnvName";
+            default -> null;
+        };
     }
 
     @Override

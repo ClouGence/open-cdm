@@ -62,7 +62,7 @@
 
 <script>
 import { mapState } from 'vuex';
-import { isDb2, isHana, isMongoDB } from '@/utils';
+import { isMongoDB } from '@/utils';
 import DataSourceGroup from '@/views/dataSourceGroup.json';
 import { clearAllPending } from '@/services/http/cancelRequest';
 
@@ -142,7 +142,7 @@ export default {
       } else {
         this.loading = true;
         this.$services
-          .dmDataSourceTestEnableQuery({
+          .dmDataSourceTestConnect({
             data: {
               dataSourceId: this.datasource.id,
               clusterId: this.form.clusterId,
@@ -196,7 +196,7 @@ export default {
       const isSeparate = this.separatePort(type);
       this.loading = true;
       const formData = {
-        dbName: isDb2(type) || isHana(type) ? dbName : noValidateDbName,
+        dbName: dbName || noValidateDbName,
         clusterId,
         dsType: type,
         securityType,
@@ -287,9 +287,9 @@ export default {
       this.clusterList = [];
 
       if (this.type === 'dataSourceList') {
-        const res = await this.$services.dmDataSourceListDsBindCluster();
-        if (res.code === '1') {
-          this.clusterList = res.data || [];
+        const res = await this.$services.dmDataSourceFetchBindInfo({ data: {} });
+        if (res.success) {
+          this.clusterList = Array.isArray(res.data?.clusters) ? res.data.clusters : [];
         }
       } else {
         const res = await this.$services.ccClusterListByCondition({ data: {} });

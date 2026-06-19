@@ -21,8 +21,8 @@ import java.util.Map;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 
@@ -33,11 +33,11 @@ public interface DmDsConfigService {
 
     Map<String, String> fetchSettingsMap(String ownerUid, List<String> names);
 
-    List<DmDsConfigKv4RdpDO> fetchDsConfigDef(DataSourceType dsType);
+    List<DsConfigKvDef> fetchDsConfigDef(DataSourceType dsType);
+
+    List<DsConfigKvDef> fetchDsConfigDef(DataSourceType dsType, Map<String, String> defaultConfig);
 
     DataSourceConfig fetchDsConfigFromTemp(DmDsDO dsDO, Map<String, String> configMap, HostType hostType);
-
-    DataSourceConfig fetchDsConfigFromRDP(long dsId, HostType hostType);
 
     DataSourceConfig fetchDsConfigFromDM(long dsId);
 

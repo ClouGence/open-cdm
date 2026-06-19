@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.concurrent.Executor;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityFileType;
+import com.clougence.clouddm.sdk.execute.dsconf.SslConfig;
 import com.clougence.drivers.DsObject;
 import com.clougence.utils.timer.Timer;
 
@@ -35,5 +35,5 @@ public interface DsResourceManager {
 
     boolean isReady();
 
-    String getSecurityFilePath(DataSourceConfig config, String fileName, SecurityFileType fileType) throws IOException;
+    SslConfig fetchSslConfig(DataSourceConfig config) throws IOException;
 }

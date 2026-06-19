@@ -16,26 +16,32 @@
 package com.clougence.clouddm.ds.dameng.dsconf;
 
 import java.util.Properties;
+
+import com.clougence.clouddm.base.metadata.ds.ConfigDef;
+import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 /**
  * @author bucketli 2020/11/5 20:29
  */
 @Getter
 @Setter
+@FieldNameConstants
 @Serialization(provider = DmSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DmConfig extends DataSourceConfig {
 
-    private String sslFilePath;
+    @ConfigDef(name = Fields.defaultSchema, valueRequire = false, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION, readOnly = false)
+    private String defaultSchema;
 
     public DmConfig(){
         setDataSourceType(DataSourceType.Dameng);
@@ -47,7 +53,6 @@ public class DmConfig extends DataSourceConfig {
     }
 
     public Properties asDriverProperties() {
-
         Properties properties = new Properties();
         properties.setProperty(DsConfigKeys.ID.getConfigKey(), safeStr(this.getInstanceId()));
         properties.setProperty(DsConfigKeys.HOST.getConfigKey(), safeStr(this.getHost()));
@@ -60,8 +65,8 @@ public class DmConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
         properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), "");
         properties.setProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey(), "true");
-        properties.setProperty(DsConfigKeys.DM_SSL_FILE_PATH.getConfigKey(), safeStr(sslFilePath));
-        properties.setProperty(DsConfigKeys.DM_SSL_PASSWORD.getConfigKey(), safeStr(this.getStorePassword()));
+        properties.setProperty(DsConfigKeys.DM_SSL_FILE_PATH.getConfigKey(), safeStr(this.getSslCaFilePath()));
+        properties.setProperty(DsConfigKeys.DM_SSL_PASSWORD.getConfigKey(), safeStr(this.getSslClientKeyPassword()));
         return properties;
     }
 }

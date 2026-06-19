@@ -15,11 +15,6 @@
  */
 package com.clougence.clouddm.base.metadata.ds;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
 import lombok.Getter;
 
 /**
@@ -98,14 +93,4 @@ public enum DataSourceType {
         return result;
     }
 
-    public static List<List<DataSourceType>> groupByDisplay(List<DataSourceType> dataSourceTypes) {
-        Map<Integer, List<DataSourceType>> sRe = new TreeMap<>();
-
-        for (DataSourceType dataSourceType : dataSourceTypes) {
-            List<DataSourceType> l = sRe.computeIfAbsent(dataSourceType.getDisplayGroup(), t -> new ArrayList<>());
-            l.add(dataSourceType);
-        }
-
-        return new ArrayList<>(sRe.values());
-    }
 }

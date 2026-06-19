@@ -30,6 +30,7 @@ import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
 import com.clougence.clouddm.console.web.component.whitelist.WhiteListService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.rdp.global.config.user.RootUserConfig;
 
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +40,6 @@ import lombok.extern.slf4j.Slf4j;
 public class WhiteListServiceForFull implements WhiteListService, DsFeatureIDs, UnifiedPostConstruct {
 
     private final AtomicBoolean        inited          = new AtomicBoolean();
-    private final List<DataSourceType> whiteDs         = new ArrayList<>();
     private final Map<String, Range>   userConfigRange = new HashMap<>();
 
     @Override
@@ -52,36 +52,6 @@ public class WhiteListServiceForFull implements WhiteListService, DsFeatureIDs, 
             this.userConfigRange.put(RootUserConfig.Fields.onlineMaxColumnMegaByte, new Range(-1, 16));
             this.userConfigRange.put(RootUserConfig.Fields.onlineMaxElementMegaByte, new Range(-1, 16));
 
-            // my
-            this.whiteDs.add(DataSourceType.MySQL);
-            this.whiteDs.add(DataSourceType.MariaDB);
-            this.whiteDs.add(DataSourceType.TiDB);
-            this.whiteDs.add(DataSourceType.AdbForMySQL);
-            this.whiteDs.add(DataSourceType.OceanBase);
-            this.whiteDs.add(DataSourceType.PolarDbX);
-            this.whiteDs.add(DataSourceType.PolarDbMySQL);
-            this.whiteDs.add(DataSourceType.Doris);
-            this.whiteDs.add(DataSourceType.SelectDB);
-            this.whiteDs.add(DataSourceType.StarRocks);
-            this.whiteDs.add(DataSourceType.ClickHouse);
-            this.whiteDs.add(DataSourceType.MongoDB);
-            // pg
-            this.whiteDs.add(DataSourceType.PostgreSQL);
-            this.whiteDs.add(DataSourceType.Greenplum);
-            this.whiteDs.add(DataSourceType.PolarDBPg);
-            this.whiteDs.add(DataSourceType.GaussDBForOpenGauss);
-            this.whiteDs.add(DataSourceType.GaussDB);
-            //
-            this.whiteDs.add(DataSourceType.SQLServer);
-            // db2
-            this.whiteDs.add(DataSourceType.Db2);
-            this.whiteDs.add(DataSourceType.Db2Fori);
-            // oracle
-            this.whiteDs.add(DataSourceType.Oracle);
-            this.whiteDs.add(DataSourceType.ObForOracle);
-            // cloud for Aliyun
-            this.whiteDs.add(DataSourceType.MaxCompute);
-            this.whiteDs.add(DataSourceType.Hologres);
         }
     }
 
@@ -107,7 +77,7 @@ public class WhiteListServiceForFull implements WhiteListService, DsFeatureIDs, 
 
     @Override
     public boolean checkDs(DataSourceType dsType) {
-        return this.whiteDs.contains(dsType);
+        return PluginManager.findDsPlugin(dsType) != null;
     }
 
     @Override

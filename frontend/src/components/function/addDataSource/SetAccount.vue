@@ -60,25 +60,13 @@
       </template>
       <template #account="{ row, index }">
         <div class="account-form-container">
-          <div
-            v-if="
-              getSecurity(addDataSourceForm.rdsList[index].securityType).needUserName &&
-              !getSecurity(addDataSourceForm.rdsList[index].securityType).accountAliyunAkSk
-            "
-            class="form-item"
-          >
+          <div v-if="getSecurity(addDataSourceForm.rdsList[index].securityType).needUserName" class="form-item">
             <span class="form-label">{{ $t('zhang-hao') }}</span>
             <div class="form-input">
               <Input :disabled="row.autoCreate" size="small" v-model="addDataSourceForm.rdsList[index].account" style="width: 160px" />
             </div>
           </div>
-          <div
-            v-if="
-              getSecurity(addDataSourceForm.rdsList[index].securityType).needPassword &&
-              !getSecurity(addDataSourceForm.rdsList[index].securityType).accountAliyunAkSk
-            "
-            class="form-item"
-          >
+          <div v-if="getSecurity(addDataSourceForm.rdsList[index].securityType).needPassword" class="form-item">
             <span class="form-label">{{ $t('mi-ma') }}</span>
             <div class="form-input">
               <Input
@@ -89,34 +77,6 @@
                 password
                 type="password"
               />
-            </div>
-          </div>
-          <div v-if="getSecurity(addDataSourceForm.rdsList[index].securityType).accountAliyunAkSk">
-            <div class="form-item">
-              <span class="form-label">AK</span>
-              <div class="form-input">
-                <Input
-                  :disabled="row.autoCreate"
-                  size="small"
-                  v-model="addDataSourceForm.rdsList[index].account"
-                  style="width: 200px"
-                  :placeholder="$t('qing-shu-ruali-yun-accesskey-id')"
-                />
-              </div>
-            </div>
-            <div class="form-item">
-              <span class="form-label">SK</span>
-              <div class="form-input">
-                <Input
-                  :disabled="row.autoCreate"
-                  size="small"
-                  v-model="addDataSourceForm.rdsList[index].password"
-                  style="width: 200px"
-                  password
-                  type="password"
-                  :placeholder="$t('qing-shu-ruali-yun-accesskey-secret')"
-                />
-              </div>
             </div>
           </div>
           <div v-if="getSecurity(addDataSourceForm.rdsList[index].securityType).needClientTrustStorePassword" class="form-item">
@@ -141,11 +101,6 @@
               </Upload>
             </div>
           </div>
-          <!--          <Checkbox-->
-          <!--            v-if="getSecurity(addDataSourceForm.rdsList[index].securityType).hasAutoCreateAccountOption"-->
-          <!--            style="margin-left: 4px" v-model="row.autoCreate"-->
-          <!--            @on-change="handleChangeAuto(index,$event)">{{ $t('zi-dong-chuang-jian') }}-->
-          <!--          </Checkbox>-->
         </div>
       </template>
       <template #File="{ row, index }">
@@ -240,9 +195,6 @@ export default {
       }
       if (this.isTlsMode()) {
         return [...baseColumns, this.generateAliyunAkSkColumn(), this.generateTlsColumn()];
-      }
-      if (this.getSecurity(this.addDataSourceForm.rdsList[0].securityType)?.needExtraAliyunAkSk) {
-        return [...baseColumns, this.generateAliyunAkSkColumn()];
       }
       return baseColumns;
     },

@@ -1,8 +1,6 @@
 // import { instance } from '../rdpInstance';
 
-// export const queryDsDefaultKVConfig = (param) => instance.post('datasource/dsKvConfigDef', param);
 // export const listbycondition = (param) => instance.post('datasource/listbycondition', param);
-// export const queryLLMConfig = (param) => instance.post('datasource/queryllmconfig', param);
 // export const deleteDataSource = (param) => instance.post('datasource/delete', param);
 // export const updateDataSourceDesc = (param) => instance.post('datasource/updatedatasourcedesc', param);
 // export const updateAliyunRdsAkSk = (param) => instance.post('datasource/updatealiyunrdsaksk', param);

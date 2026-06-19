@@ -18,6 +18,7 @@ package com.clougence.clouddm.console.web.controller.editor.query;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_QUERY_CONSOLE;
 
 import java.net.URI;
+import java.util.Properties;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,6 +58,7 @@ import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportLevel;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
+import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.i18n.I18nUtils;
@@ -165,8 +167,11 @@ public class QueryEditorController {
             //vo.setArgSupport(convertToSupportedInfoMap(RdbSupportSpi.HINT_FOR_ARGS_QUERY, RdbSupportLevel.No, dsI18n));
         }
 
-        vo.getCatalog().setDefaultValue(StringUtils.isBlank(dsConfig.getDefaultDataBase()) ? "" : dsConfig.getDefaultDataBase());
-        vo.getSchema().setDefaultValue(StringUtils.isBlank(dsConfig.getDefaultSchema()) ? "" : dsConfig.getDefaultSchema());
+        Properties driverProperties = dsConfig.asDriverProperties();
+        String defaultCatalog = driverProperties.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
+        String defaultSchema = driverProperties.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
+        vo.getCatalog().setDefaultValue(StringUtils.isBlank(defaultCatalog) ? "" : defaultCatalog);
+        vo.getSchema().setDefaultValue(StringUtils.isBlank(defaultSchema) ? "" : defaultSchema);
         vo.getIsolation().setDefaultValue(RdbIsolation.valueOfCode(dsConfig.getIsolation()).getName());
         vo.getAutoCommit().setDefaultValue(String.valueOf(dsConfig.getAutoCommit() == null || dsConfig.getAutoCommit()));
         vo.getReadOnly().setDefaultValue(String.valueOf(Boolean.TRUE.equals(dsConfig.getReadOnly())));

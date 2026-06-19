@@ -30,18 +30,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.BrowseAuthTreeFO;
 import com.clougence.clouddm.console.web.model.fo.ListUserAuthResFO;
 import com.clougence.clouddm.console.web.model.fo.security.*;
-import com.clougence.clouddm.console.web.model.fo.ticket.RdpTicketBasicVO;
 import com.clougence.clouddm.console.web.model.vo.RdpAuthObjectVO;
 import com.clougence.clouddm.console.web.model.vo.ResAuthVO;
 import com.clougence.clouddm.console.web.model.vo.role.RoleAuthTreeVO;
@@ -49,6 +46,7 @@ import com.clougence.clouddm.console.web.service.approval.ApprovalControlService
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
+import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;

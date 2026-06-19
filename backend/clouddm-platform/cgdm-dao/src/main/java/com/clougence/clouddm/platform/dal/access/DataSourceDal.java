@@ -6,8 +6,6 @@ public interface DataSourceDal {
 
     DmDsMapper dsMapper();
 
-    DmDsBlobResourceMapper blobResourceMapper();
-
     DmDsConfigKv4DmMapper configKv4DmMapper();
 
     DmDsMetaDataMapper metaDataMapper();

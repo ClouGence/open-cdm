@@ -17,12 +17,12 @@ package com.clougence.clouddm.console.web.service.auth;
 
 import java.util.List;
 
-import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
+import com.clougence.clouddm.console.web.component.config.UserConfigKvDef;
 
 /**
  * @author bucketli 2020/11/7 18:01
  */
 public interface RdpUserConfigHelper {
 
-    List<DmSysUserConfDO> collectConfigs(Object instance, String uid);
+    List<UserConfigKvDef> collectConfigs(Object instance, String uid);
 }
