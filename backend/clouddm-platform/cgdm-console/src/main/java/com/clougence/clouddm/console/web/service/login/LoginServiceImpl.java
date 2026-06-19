@@ -50,7 +50,7 @@ import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
 import com.clougence.clouddm.sdk.security.login.LoginRequest;
 import com.clougence.clouddm.sdk.security.login.LoginResponse;
 import com.clougence.clouddm.sdk.service.config.UserData;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
+import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.rdp.service.model.AddSubAccountMO;
 import com.clougence.rdp.service.model.LoginMO;
 import com.clougence.utils.StringUtils;
@@ -153,7 +153,7 @@ public class LoginServiceImpl implements LoginService {
         }
 
         if (user.getParentId() != null) {
-            Integer days = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.accountPwdExpireDays, Integer.class);
+            Integer days = this.systemDal.fetchSystemConf(RootUserConfig.Fields.accountPwdExpireDays, Integer.class);
             if (days != null) {
                 if (days > 0) {
                     Date d = user.getLastDateUpdatePwd();

@@ -98,10 +98,6 @@ import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 //    //        return logViewVO;
 //    //    }
 //
-//    private boolean ifNeedForward(String consoleIp) {
-//        return !rdpConfig.getConsolePackageMode().getLocalIpOrHostName().equals(consoleIp);
-//    }
-//
 //    protected void refreshJwtTokenIfNeed() {
 //        if (StringUtils.isBlank(jwtToken) || rdpJwtService.verifyJwtToken(jwtToken) == null) {
 //            this.jwtToken = rdpJwtService.genJwtToken(rdpUserService.getInnerUser());

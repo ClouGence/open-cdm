@@ -34,7 +34,7 @@ import lombok.experimental.FieldNameConstants;
 @Setter
 @FieldNameConstants
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserDefinedConfig {
+public class RootUserConfig {
 
     /**
      * Account config

@@ -44,7 +44,7 @@ import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.resultset.file.DmFileType;
 import com.clougence.clouddm.sdk.execute.resultset.file.FileFormatConvert;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
+import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.ThreadUtils;
 
@@ -139,7 +139,7 @@ public class FileServiceImpl implements FileService, UnifiedPostConstruct {
             return timeoutConfigCache.get(ownerUid);
         }
 
-        Integer configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.onlineResultCacheTimeoutSec, Integer.class);
+        Integer configValue = this.systemDal.fetchSystemConf(RootUserConfig.Fields.onlineResultCacheTimeoutSec, Integer.class);
         if (configValue == null) {
             timeoutConfigCache.put(ownerUid, 300);
             return 300;

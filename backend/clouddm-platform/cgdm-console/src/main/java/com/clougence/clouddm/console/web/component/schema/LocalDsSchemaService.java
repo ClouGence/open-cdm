@@ -34,7 +34,7 @@ import com.clougence.clouddm.sdk.execute.meta.DsElement;
 import com.clougence.clouddm.sdk.ui.editor.property.PropertyUiPanel;
 import com.clougence.clouddm.sdk.ui.editor.table.TableEditorUiPanel;
 import com.clougence.clouddm.sdk.ui.template.CmdTemplateOption;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
+import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.schema.editor.EditorContext;
 import com.clougence.schema.editor.EditorOptions;
 import com.clougence.schema.umi.special.rdb.RdbColumn;
@@ -61,7 +61,7 @@ public class LocalDsSchemaService implements DsSchemaService {
     private SystemDal                  systemDal;
 
     private boolean isDisableMetaCache(String uid) {
-        Boolean configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.consoleMetadataCache, Boolean.class);
+        Boolean configValue = this.systemDal.fetchSystemConf(RootUserConfig.Fields.consoleMetadataCache, Boolean.class);
         return configValue == null || !configValue;
     }
 

@@ -31,7 +31,7 @@ import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.LifeSpiRequest;
 import com.clougence.clouddm.sdk.security.login.LoginProvider;
 import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
+import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.rdp.service.RdpNotifyService;
 import com.clougence.rdp.service.model.UserConfigMO;
 import com.clougence.utils.StringUtils;
@@ -67,7 +67,7 @@ public class LoginStarter implements UnifiedPostConstruct, RdpNotifyService {
         }
 
         UserConfigMO authTypeConfig = new UserConfigMO();
-        authTypeConfig.setConfig(UserDefinedConfig.Fields.accountAuthType);
+        authTypeConfig.setConfig(RootUserConfig.Fields.accountAuthType);
         authTypeConfig.setNewValue(StringUtils.join(this.loginDefService.listConfLoginTypes(rootUser.getUid()).stream().map(Enum::name).toArray(), ","));
         notifyUserConfig(rootUser.getUid(), List.of(authTypeConfig));
     }
@@ -83,7 +83,7 @@ public class LoginStarter implements UnifiedPostConstruct, RdpNotifyService {
         }
 
         UserConfigMO authTypeConf = configList.stream()
-            .filter(c -> StringUtils.equalsIgnoreCase(c.getConfig(), UserDefinedConfig.Fields.accountAuthType))
+            .filter(c -> StringUtils.equalsIgnoreCase(c.getConfig(), RootUserConfig.Fields.accountAuthType))
             .findFirst()
             .orElse(null);
 

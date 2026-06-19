@@ -54,7 +54,7 @@ import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.project.*;
 import com.clougence.clouddm.platform.dal.model.system.DmSysMessengerDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
+import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.HashUtils;
 import com.clougence.utils.StringUtils;
@@ -776,7 +776,7 @@ public class DmProjectServiceImpl implements DmProjectService {
 
     @Override
     public File getProjectSpace(String ownerUid, long projectId) {
-        DmSysUserConfDO currentConfig = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, UserDefinedConfig.Fields.defaultProjectSpace);
+        DmSysUserConfDO currentConfig = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, RootUserConfig.Fields.defaultProjectSpace);
         if (currentConfig == null) {
             return new File(GlobalConfUtils.getAppDataHome(), "default");
         }
@@ -796,7 +796,7 @@ public class DmProjectServiceImpl implements DmProjectService {
 
     @Override
     public File getTempSpace(String ownerUid, long projectId) {
-        DmSysUserConfDO currentConfig = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, UserDefinedConfig.Fields.defaultTempSpace);
+        DmSysUserConfDO currentConfig = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, RootUserConfig.Fields.defaultTempSpace);
         if (currentConfig == null) {
             return new File(GlobalConfUtils.getTempDataHome());
         }

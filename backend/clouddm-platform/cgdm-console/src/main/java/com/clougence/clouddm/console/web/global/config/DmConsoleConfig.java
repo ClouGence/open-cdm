@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import com.clougence.clouddm.console.web.constants.DmModeFeatured;
-import com.clougence.rdp.global.config.RdpPackageMode;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -91,8 +90,6 @@ public class DmConsoleConfig {
     private int            loginExpireTimeSec;
     @Value("${clougence.rdp.login.cookie.domain:#{NULL}}")
     private String         loginCookieDomain;
-    @Value("${console.config.package.mode:TGZ}")
-    private RdpPackageMode consolePackageMode;
     @Value("${clougence.rdp.crypt.publicKey:0443a779e887425e2fa3bcc92ed70e0fd17647c82191ef9b82e4ecc98cb83cd74b7e40b3334bfff818504f21e583a3846d236782bb12f36fb6663d7c391d232699}")
     private String         publicKey;
     @Value("${clougence.rdp.crypt.privateKey:48d75671c9f650e3f0d689b1ef213eecb3cfb7c9a3d41044aef6b71cc84b0880}")

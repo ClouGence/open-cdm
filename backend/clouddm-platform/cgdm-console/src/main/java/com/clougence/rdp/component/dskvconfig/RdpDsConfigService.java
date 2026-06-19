@@ -34,8 +34,6 @@ public interface RdpDsConfigService {
 
     DsExtraConfig fetchDsExtraConfig(long dataSourceId, DataSourceType dataSourceType);
 
-    DmDsConfigKv4RdpDO getSpecifiedConfig(long dataSourceId, String configName);
-
     void cleanDsConfig(long dataSourceId);
 
 }

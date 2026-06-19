@@ -32,13 +32,13 @@ import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceFlagEnum;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.component.resultfile.ResultFileRequests;
 import com.clougence.clouddm.component.resultfile.ResultFileWriter;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.model.fo.ExportOpAuditFO;
 import com.clougence.clouddm.console.web.model.vo.*;
 import com.clougence.clouddm.console.web.model.vo.export.OpAuditExportProgressVO;
 import com.clougence.clouddm.console.web.model.vo.export.OpAuditExportStage;
+import com.clougence.clouddm.console.web.util.RdpHostUtil;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.access.MonitorDal;
@@ -82,8 +82,6 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
     private DataSourceDal            datasourceDal;
     @Resource
     private AuthDal                  authDal;
-    @Resource
-    private DmConsoleConfig          rdpConfig;
 
     @PostConstruct
     private void init() {
@@ -215,7 +213,7 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
             opAuditDO.setSourceIp(remoteAddr);
             opAuditDO.setResourceType(resType);
             opAuditDO.setSecurityLevel(securityLevel);
-            opAuditDO.setIp(rdpConfig.getConsolePackageMode().getLocalIpOrHostName());
+            opAuditDO.setIp(RdpHostUtil.getHostIp());
             opAuditDO.setOperateDate(currentTime);
             // opAuditDO.setLogPath(this.opAuditLogPath);
             // record update detail info to log

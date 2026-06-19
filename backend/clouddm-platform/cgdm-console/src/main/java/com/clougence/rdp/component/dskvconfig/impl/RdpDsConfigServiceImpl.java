@@ -98,17 +98,6 @@ public class RdpDsConfigServiceImpl implements RdpDsConfigService {
     }
 
     @Override
-    public DmDsConfigKv4RdpDO getSpecifiedConfig(long dataSourceId, String configName) {
-        DmDsConfigKv4RdpDO configDO = this.datasourceDal.configKv4RdpMapper().queryByDsIdAndConfigName(dataSourceId, configName);
-        if (configDO != null && configDO.isSecret() && StringUtils.isNotBlank(configDO.getConfigValue())) {
-            String val = CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(configDO.getConfigValue());
-            configDO.setConfigValue(val);
-        }
-
-        return configDO;
-    }
-
-    @Override
     public void cleanDsConfig(long dataSourceId) {
         this.datasourceDal.configKv4RdpMapper().deleteDsConfigs(dataSourceId);
     }

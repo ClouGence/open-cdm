@@ -96,7 +96,7 @@ import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.ast.location.CodeLocation;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
+import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
@@ -564,11 +564,11 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             long dsId = ctx.getLevels().dsDO().getId();
             DsCacheEntry dsCache = this.cacheDao.queryByDsId(dsId);
             Map<String, String> configMap = dmDsConfigService.fetchSettingsMap(dsCache.getOwnerUid(), Arrays.asList(//
-                    UserDefinedConfig.Fields.defaultColumnDisplayChars, //
-                    UserDefinedConfig.Fields.onlineMaxRecordCount,      //
-                    UserDefinedConfig.Fields.onlineMaxResultSetMegaByte,//
-                    UserDefinedConfig.Fields.onlineMaxColumnMegaByte,   //
-                    UserDefinedConfig.Fields.onlineMaxElementMegaByte)  //
+                    RootUserConfig.Fields.defaultColumnDisplayChars, //
+                    RootUserConfig.Fields.onlineMaxRecordCount,      //
+                    RootUserConfig.Fields.onlineMaxResultSetMegaByte,//
+                    RootUserConfig.Fields.onlineMaxColumnMegaByte,   //
+                    RootUserConfig.Fields.onlineMaxElementMegaByte)  //
             );
 
             ResultLimit limit = DmDsUtils.fetchResultLimit(configMap, Requester.CONSOLE);
@@ -1469,12 +1469,12 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     }
 
     private boolean isUsingCacheResult(WsQueryFO queryDTO) {
-        Long configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.onlineResultCacheTimeoutSec, Long.class);
+        Long configValue = this.systemDal.fetchSystemConf(RootUserConfig.Fields.onlineResultCacheTimeoutSec, Long.class);
         return configValue == null || configValue > 0;
     }
 
     private boolean isUsingSelectRewrite(WsQueryFO queryDTO, QueryCtx ctx) {
-        Boolean configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.onlineSelectRewriteDisable, Boolean.class);
+        Boolean configValue = this.systemDal.fetchSystemConf(RootUserConfig.Fields.onlineSelectRewriteDisable, Boolean.class);
         return configValue == null || !configValue;
     }
 }

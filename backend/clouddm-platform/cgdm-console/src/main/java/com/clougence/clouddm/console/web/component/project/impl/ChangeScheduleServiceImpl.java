@@ -35,7 +35,7 @@ import com.clougence.clouddm.platform.dal.model.project.DmProjectChangeDO;
 import com.clougence.clouddm.platform.dal.model.project.ProjectChangeStatus;
 import com.clougence.clouddm.platform.dal.model.project.ProjectChangeStep;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
+import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.ThreadUtils;
@@ -159,7 +159,7 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
     }
 
     private int maxFailedTimes(String ownerUid) {
-        DmSysUserConfDO currentConfig = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, UserDefinedConfig.Fields.scmMaxFailedTimes);
+        DmSysUserConfDO currentConfig = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, RootUserConfig.Fields.scmMaxFailedTimes);
         if (currentConfig == null || StringUtils.isBlank(currentConfig.getConfigValue())) {
             return 3;
         } else {

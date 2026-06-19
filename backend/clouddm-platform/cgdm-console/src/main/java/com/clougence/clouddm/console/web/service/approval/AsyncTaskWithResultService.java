@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.rdp.component.resulttask;
+package com.clougence.clouddm.console.web.service.approval;
 
-public enum TaskType {
+import java.util.concurrent.Callable;
 
-    APPROVAL_LAST_STATUS,;
+import com.clougence.utils.future.CgFuture;
 
-    public static String getKey(TaskType taskType, Object id) {
-        return taskType.name() + "-" + id.toString();
-    }
+/**
+ *  for Asynchronous task wait result and not strongly required to return results
+ */
+public interface AsyncTaskWithResultService {
+
+    <T> CgFuture<T> submitTask(String key, Callable<T> task);
 }

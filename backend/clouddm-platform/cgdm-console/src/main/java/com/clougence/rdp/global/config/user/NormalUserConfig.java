@@ -13,23 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.rdp.constant;
+package com.clougence.rdp.global.config.user;
 
-public enum ApplyCollectType {
-    /**
-     * job level
-     */
-    LINK_MAX_TABLE_COUNT,
-    /**
-     * job level
-     */
-    FULL_MAX_DATA_COUNT,
-    /**
-     * task level
-     */
-    FULL_MAX_RPS,
-    /**
-     * task level
-     */
-    INCR_MAX_RPS
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import lombok.Getter;
+import lombok.Setter;
+
+/**
+ * @author bucketli 2022/1/10 18:34:57
+ */
+@Getter
+@Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class NormalUserConfig {
+
 }

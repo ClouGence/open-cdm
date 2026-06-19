@@ -32,8 +32,8 @@ import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
-import com.clougence.rdp.global.config.user.SubAccountConfig;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
+import com.clougence.rdp.global.config.user.NormalUserConfig;
+import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.rdp.service.RdpNotifyService;
 import com.clougence.rdp.service.model.UserConfigMO;
 import com.clougence.utils.CollectionUtils;
@@ -246,9 +246,9 @@ public class UserConfigServiceImpl implements UserConfigService {
         DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
         boolean isPrimary = userDO != null && (userDO.getParentId() == null || userDO.getParentId() <= 0);
         if (isPrimary) {
-            return rdpUserConfigHelper.collectConfigs(new UserDefinedConfig(), uid);
+            return rdpUserConfigHelper.collectConfigs(new RootUserConfig(), uid);
         } else {
-            return rdpUserConfigHelper.collectConfigs(new SubAccountConfig(), uid);
+            return rdpUserConfigHelper.collectConfigs(new NormalUserConfig(), uid);
         }
     }
 
@@ -293,7 +293,7 @@ public class UserConfigServiceImpl implements UserConfigService {
 
     @Override
     public int languageMaxRequests() {
-        return Math.max(1, this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.languageMaxRequests, Integer.class, DEFAULT_LANGUAGE_MAX_REQUESTS));
+        return Math.max(1, this.systemDal.fetchSystemConf(RootUserConfig.Fields.languageMaxRequests, Integer.class, DEFAULT_LANGUAGE_MAX_REQUESTS));
     }
 
     @Override
@@ -303,14 +303,14 @@ public class UserConfigServiceImpl implements UserConfigService {
             return systemLimit;
         }
 
-        Integer value = this.systemDal.fetchUserConf(uid, UserDefinedConfig.Fields.languageMaxRequestsByUser, Integer.class, DEFAULT_LANGUAGE_MAX_REQUESTS_BY_USER);
+        Integer value = this.systemDal.fetchUserConf(uid, RootUserConfig.Fields.languageMaxRequestsByUser, Integer.class, DEFAULT_LANGUAGE_MAX_REQUESTS_BY_USER);
         int userLimit = Math.max(1, value);
         return Math.min(systemLimit, userLimit);
     }
 
     @Override
     public void initSubAccountConfigs(String uid) {
-        SubAccountConfig config = new SubAccountConfig();
+        NormalUserConfig config = new NormalUserConfig();
         List<DmSysUserConfDO> dos = rdpUserConfigHelper.collectConfigs(config, uid);
         insertConfigDOs(dos);
     }

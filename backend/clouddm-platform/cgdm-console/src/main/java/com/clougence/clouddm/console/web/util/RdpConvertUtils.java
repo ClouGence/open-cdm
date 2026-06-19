@@ -52,7 +52,7 @@ import com.clougence.clouddm.sdk.service.approval.ApprovalActivityStatus;
 import com.clougence.clouddm.sdk.service.config.ConfigData;
 import com.clougence.clouddm.sdk.service.config.RoleData;
 import com.clougence.clouddm.sdk.service.config.UserData;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
+import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -531,11 +531,11 @@ public class RdpConvertUtils {
     public static String convertToApprovalEnableConfigKey(ApprovalProvider type) {
         switch (type) {
             case Feishu:
-                return UserDefinedConfig.Fields.feishuEnableApprovalService;
+                return RootUserConfig.Fields.feishuEnableApprovalService;
             case Wechat:
-                return UserDefinedConfig.Fields.wechatEnableApprovalService;
+                return RootUserConfig.Fields.wechatEnableApprovalService;
             case DingTalk:
-                return UserDefinedConfig.Fields.dingEnableApprovalService;
+                return RootUserConfig.Fields.dingEnableApprovalService;
             case Internal:
             case Custom:
             default:

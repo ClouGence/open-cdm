@@ -68,7 +68,7 @@ import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
+import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.rdp.service.enumeration.OpVerifyErrType;
 import com.clougence.rdp.service.model.OpPasswdVerifyMO;
@@ -156,7 +156,7 @@ public class RdpUserController {
             return;
         }
 
-        Integer days = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.accountPwdExpireDays, Integer.class);
+        Integer days = this.systemDal.fetchSystemConf(RootUserConfig.Fields.accountPwdExpireDays, Integer.class);
         if (days == null) {
             return;
         }

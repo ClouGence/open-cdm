@@ -32,7 +32,7 @@ import com.clougence.clouddm.platform.dal.model.system.DmSysMessengerDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.messenger.*;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
+import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.i18n.I18nUtils;
 
@@ -75,7 +75,7 @@ public class ImSenderServiceImpl implements ImSenderService {
             return msgDO.getLanguage();
         }
 
-        DmSysUserConfDO defaultLanguage = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, UserDefinedConfig.Fields.defaultLanguage);
+        DmSysUserConfDO defaultLanguage = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, RootUserConfig.Fields.defaultLanguage);
         if (defaultLanguage == null || StringUtils.isBlank(defaultLanguage.getConfigValue())) {
             return "zh_CN";
         } else {

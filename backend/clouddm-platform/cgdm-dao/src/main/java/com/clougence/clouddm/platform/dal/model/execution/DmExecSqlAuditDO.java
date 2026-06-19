@@ -44,7 +44,6 @@ public class DmExecSqlAuditDO {
     private String         uid;
     private String         userName;
     private String         primaryUid;
-
     private Date           operateTime;
     private Date           endTime;
     private String         clientIp;

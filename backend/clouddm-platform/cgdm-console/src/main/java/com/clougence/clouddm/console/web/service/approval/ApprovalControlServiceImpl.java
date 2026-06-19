@@ -86,8 +86,6 @@ import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
-import com.clougence.rdp.component.resulttask.AsyncTaskWithResultService;
-import com.clougence.rdp.component.resulttask.TaskType;
 import com.clougence.rdp.service.RdpDsEnvService;
 import com.clougence.rdp.service.model.EnvTicketMO;
 import com.clougence.schema.umi.struts.UmiTypes;

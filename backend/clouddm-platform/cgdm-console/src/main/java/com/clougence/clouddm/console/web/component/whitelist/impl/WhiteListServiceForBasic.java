@@ -30,7 +30,7 @@ import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
 import com.clougence.clouddm.console.web.component.whitelist.WhiteListService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
+import com.clougence.rdp.global.config.user.RootUserConfig;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,11 +49,11 @@ public class WhiteListServiceForBasic implements WhiteListService, DsFeatureIDs,
     public void init() throws Exception {
         if (this.inited.compareAndSet(false, true)) {
             // config check
-            this.userConfigRange.put(UserDefinedConfig.Fields.defaultColumnDisplayChars, new Range(10, 500));
-            this.userConfigRange.put(UserDefinedConfig.Fields.onlineMaxRecordCount, new Range(1, 1000000));
-            this.userConfigRange.put(UserDefinedConfig.Fields.onlineMaxResultSetMegaByte, new Range(4, 1024));
-            this.userConfigRange.put(UserDefinedConfig.Fields.onlineMaxColumnMegaByte, new Range(1, 16));
-            this.userConfigRange.put(UserDefinedConfig.Fields.onlineMaxElementMegaByte, new Range(1, 16));
+            this.userConfigRange.put(RootUserConfig.Fields.defaultColumnDisplayChars, new Range(10, 500));
+            this.userConfigRange.put(RootUserConfig.Fields.onlineMaxRecordCount, new Range(1, 1000000));
+            this.userConfigRange.put(RootUserConfig.Fields.onlineMaxResultSetMegaByte, new Range(4, 1024));
+            this.userConfigRange.put(RootUserConfig.Fields.onlineMaxColumnMegaByte, new Range(1, 16));
+            this.userConfigRange.put(RootUserConfig.Fields.onlineMaxElementMegaByte, new Range(1, 16));
 
             // my
             this.whiteDs.add(DataSourceType.MySQL);

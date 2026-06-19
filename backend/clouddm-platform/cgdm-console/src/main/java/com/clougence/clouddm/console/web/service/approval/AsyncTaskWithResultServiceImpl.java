@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.rdp.component.resulttask;
+package com.clougence.clouddm.console.web.service.approval;
 
 import java.util.Map;
 import java.util.concurrent.*;
