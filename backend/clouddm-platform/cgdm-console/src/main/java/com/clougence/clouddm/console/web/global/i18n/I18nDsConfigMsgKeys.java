@@ -190,11 +190,6 @@ public enum I18nDsConfigMsgKeys {
     // ---------- Pulsar --------
     DS_CONFIG_PULSAR_SERVICE_URL,
 
-    // ---------- LLM -----------
-    DS_CONFIG_LLM_PROVIDER_CONFIG,
-    DS_CONFIG_LLM_NAME_CONFIG,
-    DS_CONFIG_LLM_ACCESS_TOKEN_CONFIG,
-
     // ---------- GreptimeDB --------
     DS_CONFIG_GREPTIMEDB_GRPC_ADDR,
 
@@ -202,8 +197,6 @@ public enum I18nDsConfigMsgKeys {
     DS_CONFIG_FILE_SUFFIXES,
     DS_CONFIG_DEFAULT_SCHEMA,
     DS_CONFIG_WITH_METAFIELDS,
-    DS_CONFIG_ENABLE_LLM_EXTRACTION,
-    DS_CONFIG_LLM_EXTRACTION_PROMPT,
 
     // ---------- Google Drive --------
     DS_CONFIG_GOOGLE_CLOUD_SERVICE_ACCOUNT_PRIVATE_KEY_ID,
@@ -218,11 +211,6 @@ public enum I18nDsConfigMsgKeys {
     DS_CONFIG_YUQUE_COOKIE,
     DS_CONFIG_YUQUE_COOKIE_EXPIRE,
     DS_CONFIG_YUQUE_USER_AGENT,
-
-    // ---------- LLM ---------
-    DS_CONFIG_LLM_EMBEDDING,
-    DS_CONFIG_LLM_CHAT,
-    DS_CONFIG_LLM_URI_HTTPS_ENABLED,
 
     // ---------- MONGODB ---------
     DS_CONFIG_MONGODB_IS_ATLAS,
