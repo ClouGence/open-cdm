@@ -45,6 +45,8 @@ public @interface ConfigDef {
 
     String valueAdvance() default "";
 
+    ConfigValType valType() default ConfigValType.AUTO;
+
     boolean readOnly() default true;
 
     boolean isSecret() default false;

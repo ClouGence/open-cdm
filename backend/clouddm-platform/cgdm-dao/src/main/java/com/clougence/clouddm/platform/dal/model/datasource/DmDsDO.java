@@ -18,27 +18,20 @@ package com.clougence.clouddm.platform.dal.model.datasource;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ConnectType;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.rdp.enumeration.ConnectType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
-import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
-import com.clougence.clouddm.platform.dal.model.*;
-import com.clougence.clouddm.platform.dal.model.approval.*;
-import com.clougence.clouddm.platform.dal.model.auth.*;
-import com.clougence.clouddm.platform.dal.model.datasource.*;
-import com.clougence.clouddm.platform.dal.model.execution.*;
-import com.clougence.clouddm.platform.dal.model.monitor.*;
-import com.clougence.clouddm.platform.dal.model.project.*;
-import com.clougence.clouddm.platform.dal.model.secrule.*;
-import com.clougence.clouddm.platform.dal.model.system.*;
+import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 
 import lombok.Data;
+import lombok.experimental.FieldNameConstants;
 
 /**
  * @author wanshao create time is 2019/12/11 10:11 下午 finished
  **/
 @Data
+@FieldNameConstants
 @TableName(value = "dm_ds")
 public class DmDsDO {
 
@@ -94,11 +87,16 @@ public class DmDsDO {
 
     private LifeCycleState         lifeCycleState;
 
+    private DataSourceStatus       status;
+
+    private String                 statusMessage;
+
+    private Long                   bindClusterId;
+
+    private Boolean                enableDevops;
+
     //    @TableField(exist = false)
     //    private DataSourceExtraDO     extraDO;
-
-    @TableField(exist = false)
-    private DsExtraConfig          dsExtraConfig;
 
     // the server security file url, .e.g. krb5.conf, server-ca.crt, client.p12, server-ca.pem...
     private String                 securityFileUrl;

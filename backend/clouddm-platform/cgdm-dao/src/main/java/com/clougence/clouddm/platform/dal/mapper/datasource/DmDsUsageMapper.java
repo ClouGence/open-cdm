@@ -18,7 +18,6 @@ package com.clougence.clouddm.platform.dal.mapper.datasource;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.DsUsageEndpoint;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsUsageDO;
 
@@ -29,7 +28,7 @@ public interface DmDsUsageMapper extends BaseMapper<DmDsUsageDO> {
 
     List<DmDsUsageDO> listByDsId(Long dsId);
 
-    List<DmDsUsageDO> listByRes(Long dsId, ResourceType resType, Long resId, String resInstanceId, DsUsageEndpoint endpoint);
+    List<DmDsUsageDO> listByRes(Long dsId, ResourceType resType, Long resId, String resInstanceId);
 
-    void deleteByRes(Long dsId, ResourceType resType, Long resId, String resInstanceId, DsUsageEndpoint endpoint);
+    void deleteByRes(Long dsId, ResourceType resType, Long resId, String resInstanceId);
 }

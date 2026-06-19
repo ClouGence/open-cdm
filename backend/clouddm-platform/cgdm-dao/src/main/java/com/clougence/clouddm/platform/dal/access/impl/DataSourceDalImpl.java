@@ -17,11 +17,7 @@ public class DataSourceDalImpl implements DataSourceDal {
     @Resource
     private DmDsBlobResourceMapper blobResourceMapper;
     @Resource
-    private DmDsConfigMapper       configMapper;
-    @Resource
     private DmDsConfigKv4DmMapper  configKv4DmMapper;
-    @Resource
-    private DmDsConfigKv4RdpMapper configKv4RdpMapper;
     @Resource
     private DmDsMetaDataMapper     metaDataMapper;
     @Resource
@@ -40,18 +36,8 @@ public class DataSourceDalImpl implements DataSourceDal {
     }
 
     @Override
-    public DmDsConfigMapper configMapper() {
-        return configMapper;
-    }
-
-    @Override
     public DmDsConfigKv4DmMapper configKv4DmMapper() {
         return configKv4DmMapper;
-    }
-
-    @Override
-    public DmDsConfigKv4RdpMapper configKv4RdpMapper() {
-        return configKv4RdpMapper;
     }
 
     @Override

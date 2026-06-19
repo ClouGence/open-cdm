@@ -18,7 +18,6 @@ package com.clougence.clouddm.platform.dal.model.datasource;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -32,36 +31,12 @@ import lombok.Setter;
 public class DmDsConfigKv4DmDO {
 
     @TableId(type = IdType.AUTO)
-    private Long          id;
-
+    private Long   id;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date          gmtCreate;
-
+    private Date   gmtCreate;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date          gmtModified;
-
-    private Long          dataSourceId;
-
-    private String        configName;
-
-    private DsConfigGroup configGroup;
-
-    private boolean       display;
-
-    private String        descKey;
-
-    private boolean       valueRequire;
-
-    private String        valueValidRegex;
-
-    private String        configValue;
-
-    private String        defaultValue;
-
-    private String        valueAdvance;
-
-    private boolean       readOnly;
-
-    @TableField(value = "is_secret")
-    private boolean       secret;
+    private Date   gmtModified;
+    private Long   dataSourceId;
+    private String configName;
+    private String configValue;
 }

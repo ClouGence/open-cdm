@@ -18,7 +18,6 @@ package com.clougence.clouddm.platform.dal.model.datasource;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.DsUsageEndpoint;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 
 import lombok.Data;
@@ -31,21 +30,13 @@ import lombok.Data;
 public class DmDsUsageDO {
 
     @TableId(type = IdType.AUTO)
-    private Long            id;
-
+    private Long         id;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date            gmtCreate;
-
+    private Date         gmtCreate;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date            gmtModified;
-
-    private Long            dsId;
-
-    private ResourceType    resType;
-
-    private Long            resId;
-
-    private String          resInstanceId;
-
-    private DsUsageEndpoint endpoint;
+    private Date         gmtModified;
+    private Long         dsId;
+    private ResourceType resType;
+    private Long         resId;
+    private String       resInstanceId;
 }

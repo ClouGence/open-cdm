@@ -12,7 +12,6 @@
                 javaType="com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType"/>
         <result column="res_id" property="resId"/>
         <result column="res_instance_id" property="resInstanceId"/>
-        <result column="endpoint" property="endpoint" javaType="com.clougence.clouddm.base.metadata.rdp.enumeration.DsUsageEndpoint"/>
     </resultMap>
 
     <sql id="rdpDsUsage">
@@ -23,8 +22,7 @@
         ds_id,
         res_type,
         res_id,
-        res_instance_id,
-        endpoint
+        res_instance_id
     </sql>
 
     <select id="listByDsId" resultMap="rdpDsUsageDO">
@@ -46,7 +44,6 @@
         AND res_id = #{resId}
         AND res_type = #{resType,javaType=com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType}
         AND res_instance_id = #{resInstanceId}
-        AND endpoint = #{endpoint,javaType=com.clougence.clouddm.base.metadata.rdp.enumeration.DsUsageEndpoint}
     </select>
 
     <delete id="deleteByRes">
@@ -56,6 +53,5 @@
           AND res_id = #{resId}
           AND res_type = #{resType,javaType=com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType}
           AND res_instance_id = #{resInstanceId}
-          AND endpoint = #{endpoint,javaType=com.clougence.clouddm.base.metadata.rdp.enumeration.DsUsageEndpoint}
     </delete>
 </mapper>

@@ -24,11 +24,8 @@ import org.apache.ibatis.annotations.Param;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
-import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
-import com.clougence.clouddm.platform.dal.model.datasource.SecurityFileStoreType;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
+import com.clougence.clouddm.platform.dal.model.datasource.*;
 
 /**
  * @author wanshao create time is 2019/12/12 9:25 下午
@@ -56,6 +53,20 @@ public interface DmDsMapper extends BaseMapper<DmDsDO> {
     List<DmDsDO> listByIds(@Param("ids") List<Long> ids);
 
     List<DmDsDO> listByIdsIncludeDeleted(@Param("ids") Collection<Long> ids);
+
+    Long queryEnabledDsCount();
+
+    DmDsDO queryEnabledById(String ownerUid, long dataSourceId);
+
+    List<DmDsDO> listEnabledByIds(String ownerUid, List<Long> ids);
+
+    List<DmDsDO> listEnabledByUid(String ownerUid);
+
+    List<DmDsDO> listEnabledByClusterId(long clusterId);
+
+    DmDsDO queryEnabledByDataSourceId(long dataSourceId);
+
+    List<DmDsDO> listEnabledByDataSourceIds(List<Long> dataSourceIds);
 
     List<DmDsDO> listByIdsAndType(@Param("ids") List<Long> ids, DataSourceType dataSourceType);
 
@@ -108,6 +119,16 @@ public interface DmDsMapper extends BaseMapper<DmDsDO> {
     int updateClusterIdByInstanceId(Long id, long bindClusterId);
 
     //    int updateEnableQueryAndBindClusterId(Long id, boolean enableQuery, long bindClusterId);
+
+    void enableQuery(long dataSourceId, DataSourceStatus status, String statusMessage, long bindClusterId, long dsEnvId, HostType hostType);
+
+    void disableQuery(String ownerUid, long dataSourceId);
+
+    void updateStatusByDataSourceId(long dataSourceId, DataSourceStatus status);
+
+    void updateHostTypeById(long id, HostType hostType);
+
+    void updateDevOps(String ownerUid, long dataSourceId, boolean enableDevops);
 
     int updateInstanceIdByDataSourceId(Long id, String instanceId);
 

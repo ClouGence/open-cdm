@@ -43,6 +43,11 @@
         <result column="client_trust_store_password" property="clientTrustStorePassword"/>
         <result column="life_cycle_state" property="lifeCycleState"
                 javaType="com.clougence.clouddm.platform.dal.model.LifeCycleState"/>
+        <result column="status" property="status"
+                javaType="com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus"/>
+        <result column="status_message" property="statusMessage"/>
+        <result column="bind_cluster_id" property="bindClusterId"/>
+        <result column="enable_devops" property="enableDevops"/>
         <result column="console_job_id" property="consoleJobId"/>
         <result column="parent_ds_id" property="parentDsId"/>
         <result column="connect_type" property="connectType"/>
@@ -82,6 +87,10 @@
         public_security_type,
         client_trust_store_password,
         life_cycle_state,
+        status,
+        status_message,
+        bind_cluster_id,
+        enable_devops,
         console_job_id,
         parent_ds_id,
         connect_type,
@@ -224,6 +233,70 @@
         AND
             id IN <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach>
         ORDER BY gmt_create DESC
+    </select>
+
+    <select id="queryEnabledDsCount" resultType="java.lang.Long">
+        SELECT
+            COUNT(*)
+        FROM
+            dm_ds
+        WHERE
+            status IS NOT NULL
+    </select>
+
+    <select id="queryEnabledById" resultMap="rdpDataSourceDO">
+        SELECT
+            <include refid="rdpDataSource"/>
+        FROM
+            dm_ds
+        WHERE
+            uid = #{ownerUid} AND id = #{dataSourceId} AND status IS NOT NULL
+        LIMIT 1
+    </select>
+
+    <select id="listEnabledByIds" resultMap="rdpDataSourceDO">
+        SELECT
+            <include refid="rdpDataSource"/>
+        FROM
+            dm_ds
+        WHERE
+            uid = #{ownerUid} AND status IS NOT NULL AND id IN <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach>
+    </select>
+
+    <select id="listEnabledByUid" resultMap="rdpDataSourceDO">
+        SELECT
+            <include refid="rdpDataSource"/>
+        FROM
+            dm_ds
+        WHERE
+            uid = #{ownerUid} AND status IS NOT NULL
+    </select>
+
+    <select id="listEnabledByClusterId" resultMap="rdpDataSourceDO">
+        SELECT
+            <include refid="rdpDataSource"/>
+        FROM
+            dm_ds
+        WHERE
+            bind_cluster_id = #{clusterId} AND status IS NOT NULL
+    </select>
+
+    <select id="queryEnabledByDataSourceId" resultMap="rdpDataSourceDO">
+        SELECT
+            <include refid="rdpDataSource"/>
+        FROM
+            dm_ds
+        WHERE
+            id = #{dataSourceId} AND status IS NOT NULL
+    </select>
+
+    <select id="listEnabledByDataSourceIds" resultMap="rdpDataSourceDO">
+        SELECT
+            <include refid="rdpDataSource"/>
+        FROM
+            dm_ds
+        WHERE
+            status IS NOT NULL AND id IN <foreach collection="dataSourceIds" item="item" separator="," open="(" close=")">#{item}</foreach>
     </select>
 
     <select id="listByIdsAndType" resultMap="rdpDataSourceDO">
@@ -555,6 +628,59 @@
             bind_cluster_id = #{bindClusterId}
         WHERE
             id = #{id}
+    </update>
+
+    <update id="enableQuery">
+        UPDATE
+            dm_ds
+        SET
+            status = #{status},
+            status_message = #{statusMessage},
+            bind_cluster_id = #{bindClusterId},
+            ds_env_id = #{dsEnvId},
+            host_type = #{hostType},
+            enable_devops = 0
+        WHERE
+            id = #{dataSourceId}
+    </update>
+
+    <update id="disableQuery">
+        UPDATE
+            dm_ds
+        SET
+            status = NULL,
+            status_message = NULL,
+            bind_cluster_id = NULL,
+            enable_devops = 0
+        WHERE
+            uid = #{ownerUid} AND id = #{dataSourceId}
+    </update>
+
+    <update id="updateStatusByDataSourceId">
+        UPDATE
+            dm_ds
+        SET
+            status = #{status}
+        WHERE
+            id = #{dataSourceId}
+    </update>
+
+    <update id="updateHostTypeById">
+        UPDATE
+            dm_ds
+        SET
+            host_type = #{hostType}
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="updateDevOps">
+        UPDATE
+            dm_ds
+        SET
+            enable_devops = #{enableDevops}
+        WHERE
+            uid = #{ownerUid} AND id = #{dataSourceId}
     </update>
 
     <update id="updateInstanceIdByDataSourceId">

@@ -81,7 +81,6 @@ public enum DsType {
     SshFile("ssh", "SshFile"),
     GoogleDrive("gdrive", "GoogleDrive"),
     Yuque("yu", "Yuque"),
-    RagApi("rag", "RagApi"),
     MariaDB("mb", "MariaDB"),
     MaxCompute("mc", "MaxCompute"),
     Hologres("hg", "Hologres"),

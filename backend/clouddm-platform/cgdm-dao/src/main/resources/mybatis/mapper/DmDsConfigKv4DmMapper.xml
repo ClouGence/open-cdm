@@ -9,17 +9,7 @@
         <result column="gmt_modified" property="gmtModified"/>
         <result column="data_source_id" property="dataSourceId"/>
         <result column="config_name" property="configName"/>
-        <result column="config_group" property="configGroup"
-                javaType="com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup"/>
-        <result column="display" property="display"/>
-        <result column="desc_key" property="descKey"/>
-        <result column="value_require" property="valueRequire"/>
-        <result column="value_valid_regex" property="valueValidRegex"/>
         <result column="config_value" property="configValue"/>
-        <result column="default_value" property="defaultValue"/>
-        <result column="value_advance" property="valueAdvance"/>
-        <result column="read_only" property="readOnly"/>
-        <result column="is_secret" property="secret"/>
     </resultMap>
 
     <sql id="dmDsKvBaseConfig">
@@ -28,16 +18,7 @@
         gmt_modified,
         data_source_id,
         config_name,
-        config_group,
-        display,
-        desc_key,
-        value_require,
-        value_valid_regex,
-        config_value,
-        default_value,
-        value_advance,
-        read_only,
-        is_secret
+        config_value
     </sql>
 
     <select id="queryByDsIdAndConfigName" resultMap="dmDsKvBaseConfigDO">
@@ -76,7 +57,7 @@
         FROM
         dm_ds_config_kv_4dm
         WHERE
-        desc_key = #{configName}
+        config_name = #{configName}
     </select>
 
     <update id="updateDsConfig">

@@ -4,7 +4,6 @@ import java.util.Locale;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.mapper.system.*;
@@ -82,12 +81,7 @@ public class SystemDalImpl implements SystemDal {
     // ---------- dal service methods ----------
 
     private DmSysUserConfDO querySpecifiedConfig(String uid, String configName) {
-        DmSysUserConfDO configDO = userConfMapper.queryByUidAndConfigName(uid, configName);
-        if (configDO != null && configDO.isSecret() && StringUtils.isNotBlank(configDO.getConfigValue())) {
-            String val = CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(configDO.getConfigValue());
-            configDO.setConfigValue(val);
-        }
-        return configDO;
+        return userConfMapper.queryByUidAndConfigName(uid, configName);
     }
 
     @Override
@@ -119,7 +113,7 @@ public class SystemDalImpl implements SystemDal {
         if (config == null) {
             return null;
         }
-        return StringUtils.isBlank(config.getConfigValue()) ? config.getDefaultValue() : config.getConfigValue();
+        return config.getConfigValue();
     }
 
     @Override
