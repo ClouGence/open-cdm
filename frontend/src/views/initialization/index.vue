@@ -1,123 +1,137 @@
 <template>
-  <div class="initialization">
-    <div v-if="mode === 'loading'" class="init-loading-page">
-      <div class="loading-card init-page-card">
-        <div class="wizard-title-block init-page-title-block">
-          <img class="product-title" :src="productLogoUrl" alt="CloudDM" />
-          <h1 class="wizard-product-title">{{ wizardProductTitle }}</h1>
+  <div class="initialization" :style="{ '--init-bg-pattern': `url(${backgroundPatternUrl})` }">
+    <div class="init-left">
+      <header class="init-topbar">
+        <div class="init-header">
+          <dm-logo-header :title="wizardProductTitle" />
         </div>
-        <p class="loading-text">{{ $t('initialization.loading') }}</p>
-      </div>
+      </header>
+
+      <main class="init-shell">
+        <section class="init-hero">
+          <LoginHero />
+        </section>
+      </main>
+
+      <footer class="login-bottombar">
+        <dm-footer />
+      </footer>
     </div>
 
-    <!-- Error Page Mode -->
-    <div v-else-if="mode === 'dbError'" class="init-error-page">
-      <div class="error-card init-page-card">
-        <div class="wizard-title-block init-page-title-block">
-          <img class="product-title" :src="productLogoUrl" alt="CloudDM" />
-          <h1 class="wizard-product-title">{{ wizardProductTitle }}</h1>
-        </div>
-        <div class="error-detail">
-          <p>{{ $t('initialization.errorDetail') }}</p>
-          <pre class="error-message">{{ errorMessage }}</pre>
-        </div>
-        <div class="error-actions">
-          <a-button type="primary" @click="handleRetry">{{ $t('initialization.retry') }}</a-button>
-          <a-button @click="handleReconfigureDatabase">{{ $t('initialization.reconfigureDatabase') }}</a-button>
+    <section class="init-workspace">
+      <div v-if="mode === 'loading'" class="init-loading-page">
+        <div class="loading-card init-page-card">
+          <div class="wizard-title-block init-page-title-block">
+            <h1 class="wizard-product-title">{{ wizardProductTitle }}</h1>
+          </div>
+          <p class="loading-text">{{ $t('initialization.loading') }}</p>
         </div>
       </div>
-    </div>
 
-    <!-- Initialise Wizard Mode -->
-    <div v-else class="init-wizard">
-      <div class="wizard-header">
-        <div class="wizard-title-block">
-          <img class="product-title" :src="productLogoUrl" alt="CloudDM" />
-          <h1 class="wizard-product-title">{{ wizardProductTitle }}</h1>
-        </div>
-        <div class="wizard-stage-progress">
-          <div v-for="(stage, index) in stageItems" :key="stage.key" class="wizard-stage-item" :class="stageState(index)">
-            <div class="wizard-stage-marker">
-              <span class="wizard-stage-index">{{ index + 1 }}</span>
-            </div>
-            <span class="wizard-stage-label">{{ stage.label }}</span>
-            <div v-if="index < stageItems.length - 1" class="wizard-stage-line" />
+      <!-- Error Page Mode -->
+      <div v-else-if="mode === 'dbError'" class="init-error-page">
+        <div class="error-card init-page-card">
+          <div class="wizard-title-block init-page-title-block">
+            <h1 class="wizard-product-title">{{ wizardProductTitle }}</h1>
+          </div>
+          <div class="error-detail">
+            <p>{{ $t('initialization.errorDetail') }}</p>
+            <pre class="error-message">{{ errorMessage }}</pre>
+          </div>
+          <div class="error-actions">
+            <a-button type="primary" @click="handleRetry">{{ $t('initialization.retry') }}</a-button>
+            <a-button @click="handleReconfigureDatabase">{{ $t('initialization.reconfigureDatabase') }}</a-button>
           </div>
         </div>
       </div>
 
-      <div class="wizard-content">
-        <!-- Step 0: Database Configuration -->
-        <div v-show="!isUpgradeMode && currentStep === 0" class="step-panel">
-          <StepDb
-            :fieldDefs="dbFields"
-            :formValues="formValues"
-            :dbTestResult="dbTestResult"
-            :readonly="isDbFormReadonly"
-            :showTestButton="!isUpgradeMode"
-            :testingDb="testingDb"
-            @update:formValues="updateFormValues"
-            @validation-change="handleDbValidationChange"
-            @test-db="handleTestDb"
-          />
+      <!-- Initialise Wizard Mode -->
+      <div v-else class="init-wizard">
+        <div class="wizard-header">
+          <div class="wizard-title-block">
+            <h1 class="wizard-product-title">{{ wizardProductTitle }}</h1>
+          </div>
+          <div class="wizard-stage-progress">
+            <div v-for="(stage, index) in stageItems" :key="stage.key" class="wizard-stage-item" :class="stageState(index)">
+              <div class="wizard-stage-marker">
+                <span class="wizard-stage-index">{{ index + 1 }}</span>
+              </div>
+              <span class="wizard-stage-label">{{ stage.label }}</span>
+              <div v-if="index < stageItems.length - 1" class="wizard-stage-line" />
+            </div>
+          </div>
         </div>
 
-        <!-- Step 1: Secure Configuration -->
-        <div v-show="!isUpgradeMode && currentStep === 1" class="step-panel">
-          <StepSecurity
-            :fieldDefs="securityFields"
-            :formValues="formValues"
-            @update:formValues="updateFormValues"
-            @validation-change="handleSecurityValidationChange"
-          />
+        <div class="wizard-content">
+          <!-- Step 0: Database Configuration -->
+          <div v-show="!isUpgradeMode && currentStep === 0" class="step-panel">
+            <StepDb
+              :fieldDefs="dbFields"
+              :formValues="formValues"
+              :dbTestResult="dbTestResult"
+              :readonly="isDbFormReadonly"
+              :showTestButton="!isUpgradeMode"
+              :testingDb="testingDb"
+              @update:formValues="updateFormValues"
+              @validation-change="handleDbValidationChange"
+              @test-db="handleTestDb"
+            />
+          </div>
+
+          <!-- Step 1: Secure Configuration -->
+          <div v-show="!isUpgradeMode && currentStep === 1" class="step-panel">
+            <StepSecurity
+              :fieldDefs="securityFields"
+              :formValues="formValues"
+              @update:formValues="updateFormValues"
+              @validation-change="handleSecurityValidationChange"
+            />
+          </div>
+
+          <!-- Step 2: Connectivity Configuration -->
+          <div v-show="hasConnectivityStep && currentStep === connectivityStepIndex" class="step-panel">
+            <StepConnectivity
+              :fieldDefs="connectivityFields"
+              :formValues="formValues"
+              :readonly="isConnectivityReadonly"
+              @update:formValues="updateFormValues"
+            />
+          </div>
+
+          <!-- Identification of steps -->
+          <div v-show="isConfirmStep" class="step-panel">
+            <StepConfirm
+              :fieldDefs="visibleFieldDefs"
+              :formValues="formValues"
+              :mode="mode"
+              :workflowMode="workflowMode"
+              @update:formValues="updateFormValues"
+            />
+          </div>
+
+          <div v-show="isExecutionStep" class="step-panel">
+            <StepExecution
+              :executionScripts="executionScripts"
+              :operationErrorDetail="operationErrorDetail"
+              :executionMessage="currentExecutionMessage"
+            />
+          </div>
         </div>
 
-        <!-- Step 2: Connectivity Configuration -->
-        <div v-show="hasConnectivityStep && currentStep === connectivityStepIndex" class="step-panel">
-          <StepConnectivity
-            :fieldDefs="connectivityFields"
-            :formValues="formValues"
-            :readonly="isConnectivityReadonly"
-            @update:formValues="updateFormValues"
-          />
-        </div>
-
-        <!-- Identification of steps -->
-        <div v-show="isConfirmStep" class="step-panel">
-          <StepConfirm
-            :fieldDefs="visibleFieldDefs"
-            :formValues="formValues"
-            :mode="mode"
-            :workflowMode="workflowMode"
-            @update:formValues="updateFormValues"
-          />
-        </div>
-
-        <div v-show="isExecutionStep" class="step-panel">
-          <StepExecution
-            :executionScripts="executionScripts"
-            :operationErrorDetail="operationErrorDetail"
-            :executionMessage="currentExecutionMessage"
-          />
+        <div class="wizard-footer">
+          <div class="wizard-footer-actions">
+            <a-button v-if="showPrevButton" @click="prevStep">{{ $t('initialization.prev') }}</a-button>
+            <a-button v-if="showNextButton" class="wizard-next-button" type="primary" @click="nextStep">
+              {{ $t('initialization.next') }}
+            </a-button>
+            <a-button v-if="isConfirmStep" type="primary" :loading="applying" @click="handleConfirmAction">{{ confirmActionLabel }}</a-button>
+            <a-button v-if="showExecutionActionButton" type="primary" :loading="applying" @click="handleExecutionStageAction">
+              {{ executionActionLabel }}
+            </a-button>
+          </div>
         </div>
       </div>
-
-      <div class="wizard-footer">
-        <div v-if="currentFooterMessage" class="wizard-footer-message" :class="currentFooterMessage.type">
-          <span>{{ currentFooterMessage.message }}</span>
-        </div>
-        <div class="wizard-footer-actions">
-          <a-button v-if="showPrevButton" @click="prevStep">{{ $t('initialization.prev') }}</a-button>
-          <a-button v-if="showNextButton" class="wizard-next-button" type="primary" @click="nextStep">
-            {{ $t('initialization.next') }}
-          </a-button>
-          <a-button v-if="isConfirmStep" type="primary" :loading="applying" @click="handleConfirmAction">{{ confirmActionLabel }}</a-button>
-          <a-button v-if="showExecutionActionButton" type="primary" :loading="applying" @click="handleExecutionStageAction">
-            {{ executionActionLabel }}
-          </a-button>
-        </div>
-      </div>
-    </div>
+    </section>
   </div>
 </template>
 
@@ -128,7 +142,10 @@ import StepSecurity from './StepSecurity.vue';
 import StepConnectivity from './StepConnectivity.vue';
 import StepConfirm from './StepConfirm.vue';
 import StepExecution from './StepExecution.vue';
-import productLogo from '@/assets/logo-clouddm.svg';
+import DmFooter from '@/components/DmFooter';
+import DmLogoHeader from '@/components/DmLogoHeader';
+import LoginHero from '@/views/login/LoginHero.vue';
+import loginBgPattern from '@/assets/login/login-bg-pattern.svg';
 import { consumeDmBootstrapStatus, getDmSystemStatus, isDmSystemReady } from '../../utils/dmGlobalSettings';
 
 const INIT_DB_CREATE_IF_MISSING = 'clougence.init.db.createIfMissing';
@@ -330,7 +347,7 @@ function redirectToHomePage() {
 
 export default {
   name: 'Initialization',
-  components: { StepDb, StepSecurity, StepConnectivity, StepConfirm, StepExecution },
+  components: { DmFooter, DmLogoHeader, LoginHero, StepDb, StepSecurity, StepConnectivity, StepConfirm, StepExecution },
   data() {
     return {
       mode: 'loading', // 'loading' | 'full' | 'upgrade' | 'dbError'
@@ -357,8 +374,8 @@ export default {
     };
   },
   computed: {
-    productLogoUrl() {
-      return productLogo;
+    backgroundPatternUrl() {
+      return loginBgPattern;
     },
     wizardProductTitle() {
       return this.isUpgradeMode ? this.$t('initialization.productUpgradeTitle') : this.$t('initialization.productInitTitle');
@@ -427,24 +444,6 @@ export default {
         return {
           type: this.restartStatusType || 'info',
           message: this.restartStatusMessage
-        };
-      }
-
-      return null;
-    },
-    currentFooterMessage() {
-      if (this.currentStep === 0) {
-        if (this.isUpgradeMode) {
-          return null;
-        }
-
-        if (!this.dbTestResult || !this.dbTestResult.message) {
-          return null;
-        }
-
-        return {
-          type: this.dbTestResult.messageType || (this.dbTestResult.success ? 'success' : 'error'),
-          message: this.dbTestResult.message
         };
       }
 
@@ -1021,44 +1020,133 @@ export default {
 
 <style scoped>
 .initialization {
+  --init-ink: #171717;
+  --init-body: #333840;
+  --init-muted: #707070;
+  --init-hairline: #dfdfdf;
+  --init-canvas: #f8fafc;
+  --init-emerald: #3ecf8e;
+  --init-emerald-deep: #24b47e;
+  --init-panel-width: min(760px, 56vw);
+
   position: relative;
-  min-height: 100dvh;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--init-canvas);
+  background-image: var(--init-bg-pattern);
+  background-position: center;
+  background-size: cover;
+}
+
+.init-left {
+  position: relative;
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100vh;
+}
+
+.init-topbar {
+  position: relative;
+  z-index: 3;
+  flex: 0 0 72px;
+}
+
+.init-header {
+  position: relative;
+  display: block;
+  height: 72px;
+  padding: 0 32px;
+}
+
+.init-shell {
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  overflow: auto;
+  padding-right: var(--init-panel-width);
   box-sizing: border-box;
-  background: #f0f2f5;
 }
 
-.init-error-page {
+.login-bottombar {
+  position: relative;
+  flex: 0 0 auto;
+  padding: 0 32px 24px;
+  padding-right: calc(var(--init-panel-width) + 32px);
+  box-sizing: border-box;
+}
+
+.login-bottombar :deep(.footer) {
+  height: auto;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.init-hero {
   width: 100%;
-  max-width: 720px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 32px;
+  box-sizing: border-box;
 }
 
+.init-hero :deep(.login-hero-panel) {
+  max-width: 560px;
+}
+
+.init-hero :deep(.hero-capabilities) {
+  display: none;
+}
+
+.init-workspace {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  width: var(--init-panel-width);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  padding: 80px 48px 40px;
+  border-left: 1px solid var(--init-hairline);
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.init-error-page,
 .init-loading-page {
   width: 100%;
-  max-width: 720px;
+  max-width: 640px;
 }
 
 .init-page-card {
   position: relative;
-  background: #fff;
-  border-radius: 8px;
-  padding: 48px 32px 44px;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+  box-shadow: none;
 }
 
 .init-page-title-block {
-  gap: 22px;
+  gap: 0;
 }
 
 .loading-text {
   margin: 20px 0 0;
   font-size: 14px;
   line-height: 22px;
-  color: rgba(0, 0, 0, 0.65);
+  color: var(--init-muted);
 }
 
 .error-detail {
@@ -1129,54 +1217,51 @@ export default {
   margin-top: 24px;
   display: flex;
   gap: 12px;
-  justify-content: center;
+  justify-content: flex-end;
 }
 
 .init-wizard {
   position: relative;
   width: 100%;
-  max-width: 720px;
-  background: #fff;
-  border-radius: 8px;
-  padding: 28px 32px 24px;
-  max-height: calc(100dvh - 48px);
+  max-width: 640px;
+  min-height: 560px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  max-height: calc(100vh - 120px);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: none;
 }
 
 .wizard-header {
   flex: 0 0 auto;
   text-align: center;
-  margin-bottom: 18px;
+  margin-bottom: 22px;
 }
 
 .wizard-title-block {
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 22px;
-}
-
-.product-title {
-  display: block;
-  width: auto;
-  height: 52px;
-  max-width: 340px;
-  object-fit: contain;
+  gap: 0;
 }
 
 .wizard-product-title {
+  width: 100%;
   margin: 0;
-  color: #1f1f1f;
-  font-size: 34px;
-  font-weight: 800;
-  line-height: 44px;
+  color: var(--init-ink);
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 36px;
+  text-align: center;
 }
 
 .wizard-stage-progress {
-  margin-top: 30px;
+  margin-top: 28px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -1189,7 +1274,7 @@ export default {
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  color: #8c8c8c;
+  color: #8f949b;
 }
 
 .wizard-stage-marker {
@@ -1198,7 +1283,7 @@ export default {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--init-hairline);
   background: #fff;
   display: flex;
   align-items: center;
@@ -1214,6 +1299,7 @@ export default {
 .wizard-stage-label {
   font-size: 13px;
   line-height: 20px;
+  text-align: center;
 }
 
 .wizard-stage-line {
@@ -1222,36 +1308,37 @@ export default {
   left: calc(50% + 22px);
   width: calc(100% - 44px);
   height: 1px;
-  background: #d9d9d9;
+  background: var(--init-hairline);
 }
 
 .wizard-stage-item.completed,
 .wizard-stage-item.active {
-  color: #389e0d;
+  color: var(--init-emerald-deep);
 }
 
 .wizard-stage-item.completed .wizard-stage-marker,
 .wizard-stage-item.active .wizard-stage-marker {
-  border-color: #52c41a;
+  border-color: var(--init-emerald);
+  background: var(--init-emerald);
 }
 
-.wizard-stage-item.completed .wizard-stage-marker {
-  background: #52c41a;
+.wizard-stage-item.completed .wizard-stage-marker .wizard-stage-index,
+.wizard-stage-item.active .wizard-stage-marker .wizard-stage-index {
   color: #fff;
 }
 
 .wizard-stage-item.completed .wizard-stage-line {
-  background: #52c41a;
+  background: var(--init-emerald);
 }
 
 .wizard-content {
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   min-height: 0;
   overflow: hidden;
 }
 
 .step-panel {
-  max-height: calc(100dvh - 238px);
+  max-height: calc(100dvh - 292px);
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
@@ -1259,43 +1346,30 @@ export default {
   box-sizing: border-box;
 }
 
+.step-panel::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.step-panel::-webkit-scrollbar-thumb {
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #cfd6e0;
+}
+
+.step-panel::-webkit-scrollbar-track {
+  background: #fff;
+}
+
 .wizard-footer {
   flex: 0 0 auto;
-  margin-top: 12px;
-  padding-top: 12px;
+  margin-top: 16px;
+  padding-top: 14px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: stretch;
   gap: 10px;
-}
-
-.wizard-footer-message {
-  flex: none;
-  min-width: 0;
-  font-size: 13px;
-  text-align: left;
-}
-
-.wizard-footer-message.success {
-  color: #52c41a;
-}
-
-.wizard-footer-message.error {
-  color: #ff4d4f;
-}
-
-.wizard-footer-message.warning {
-  color: #d48806;
-}
-
-.wizard-footer-message.info {
-  color: #1677ff;
-}
-
-.wizard-footer-message-secondary {
-  margin-left: 8px;
-  color: #1677ff;
 }
 
 .warning-text {
@@ -1358,37 +1432,100 @@ export default {
   color: #ffffff;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1180px) {
   .initialization {
-    padding: 12px;
+    overflow: auto;
+    background-image: none;
+  }
+
+  .init-left {
+    display: contents;
+    min-height: auto;
+  }
+
+  .init-topbar {
+    order: 1;
+  }
+
+  .init-shell {
+    display: none;
+    padding-right: 0;
+  }
+
+  .init-hero {
+    display: none;
+  }
+
+  .init-workspace {
+    order: 2;
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    z-index: 1;
+    width: 100%;
+    min-height: calc(100vh - 72px);
+    padding: 40px 32px;
+    border-left: 0;
+    overflow: visible;
+  }
+
+  .login-bottombar {
+    order: 3;
+    padding-right: 32px;
+  }
+
+  .init-wizard,
+  .init-error-page,
+  .init-loading-page {
+    max-width: 760px;
   }
 
   .init-wizard {
     max-height: none;
-    padding: 24px 16px 20px;
-    border-radius: 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .init-header {
+    padding: 0 16px;
+  }
+
+  .init-workspace {
+    align-items: flex-start;
+    min-height: calc(100vh - 72px);
+    padding: 32px 24px 24px;
+  }
+
+  .login-bottombar {
+    padding: 0 16px 20px;
+  }
+
+  .init-wizard {
+    max-height: none;
+    min-height: auto;
+    padding: 0;
+    border-radius: 0;
   }
 
   .init-page-card {
-    padding: 32px 16px 28px;
+    padding: 0;
+    border-radius: 0;
   }
 
   .wizard-header {
     margin-bottom: 16px;
+    text-align: center;
   }
 
   .wizard-title-block {
-    gap: 14px;
-  }
-
-  .product-title {
-    height: 38px;
-    max-width: 240px;
+    align-items: center;
+    gap: 0;
   }
 
   .wizard-product-title {
-    font-size: 28px;
-    line-height: 36px;
+    font-size: 26px;
+    line-height: 34px;
   }
 
   .wizard-stage-progress {
@@ -1422,6 +1559,16 @@ export default {
     display: none;
   }
 
+  .wizard-content {
+    overflow: visible;
+  }
+
+  .step-panel {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
   .wizard-footer {
     flex-direction: column;
     align-items: stretch;
@@ -1429,6 +1576,7 @@ export default {
 
   .wizard-footer-actions {
     margin-left: 0;
+    flex-wrap: wrap;
   }
 }
 </style>
