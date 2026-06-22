@@ -281,8 +281,17 @@ export default {
       const valid = await this.$refs.ssoForm.validate();
       if (!valid) return;
 
+      const payload = { ...this.formData };
+      if (this.editMode) {
+        def.fields.forEach((field) => {
+          if (field.password && (payload[field.key] ?? '') === '') {
+            delete payload[field.key];
+          }
+        });
+      }
+
       this.saving = true;
-      const ok = await this.persistProvider(def, this.formData, [...this.enabledTypes, def.type]);
+      const ok = await this.persistProvider(def, payload, [...this.enabledTypes, def.type]);
       this.saving = false;
 
       if (ok) {
@@ -317,9 +326,8 @@ export default {
       const needCreateConfigs = {};
 
       def.fields.forEach((field) => {
+        if (!Object.prototype.hasOwnProperty.call(fieldValues, field.key)) return;
         const value = fieldValues[field.key] ?? '';
-        // 跳过未变更的密码空值，避免误把已有密码清空
-        if (field.password && value === '' && this.editMode) return;
         const config = this.configMap[field.key];
         if (config) {
           updateConfigs[field.key] = value;
