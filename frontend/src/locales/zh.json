@@ -3067,6 +3067,7 @@
   "sso-col-status": "状态",
   "sso-status-enabled": "已启用",
   "sso-provider-already-added": "该提供者已添加，可在列表中点击\"配置\"编辑",
+  "sso-provider-conflict-with-x": "与已添加的 {0} 互斥，请先删除后再切换",
   "sso-confirm-delete-x": "确定要删除提供者 {0} 吗？相关配置将被清空。",
   "sso-default-placeholder": "默认: {0}",
   "sso-field-required": "{0}不能为空",

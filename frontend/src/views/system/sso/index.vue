@@ -54,8 +54,8 @@
               <Tooltip
                 v-for="provider in providerCandidates"
                 :key="provider.type"
-                :disabled="editMode || !isProviderEnabled(provider.type)"
-                :content="$t('sso-provider-already-added')"
+                :disabled="editMode || (!isProviderEnabled(provider.type) && !conflictingPeer(provider.type))"
+                :content="providerTooltip(provider.type)"
                 placement="top"
                 transfer
               >
@@ -65,7 +65,7 @@
                     {
                       'is-selected': selectedProviderType === provider.type,
                       'is-readonly': editMode,
-                      'is-disabled': !editMode && isProviderEnabled(provider.type)
+                      'is-disabled': !editMode && (isProviderEnabled(provider.type) || !!conflictingPeer(provider.type))
                     }
                   ]"
                   @click="handleSelectProvider(provider.type)"
@@ -172,7 +172,7 @@ export default {
       );
     },
     hasUnenabledProvider() {
-      return SSO_PROVIDERS.some((p) => !this.enabledTypes.includes(p.type));
+      return SSO_PROVIDERS.some((p) => !this.enabledTypes.includes(p.type) && !this.conflictingPeer(p.type));
     },
     providerCandidates() {
       if (this.editMode) {
@@ -183,6 +183,25 @@ export default {
     },
     isProviderEnabled() {
       return (type) => this.enabledTypes.includes(type);
+    },
+    conflictingPeer() {
+      return (type) => {
+        const def = getProviderByType(type);
+        if (!def || !def.conflictsWith) return '';
+        return def.conflictsWith.find((peer) => this.enabledTypes.includes(peer)) || '';
+      };
+    },
+    providerTooltip() {
+      return (type) => {
+        if (this.isProviderEnabled(type)) return this.$t('sso-provider-already-added');
+        const peer = this.conflictingPeer(type);
+        if (peer) {
+          const peerDef = getProviderByType(peer);
+          const peerLabel = peerDef ? this.$t(peerDef.labelKey) : peer;
+          return this.$t('sso-provider-conflict-with-x', [peerLabel]);
+        }
+        return '';
+      };
     },
     currentProviderFields() {
       const def = getProviderByType(this.selectedProviderType);
@@ -241,7 +260,7 @@ export default {
       return defaultVal ? this.$t('sso-default-placeholder', [defaultVal]) : '';
     },
     handleOpenAddDrawer() {
-      const first = SSO_PROVIDERS.find((p) => !this.enabledTypes.includes(p.type));
+      const first = SSO_PROVIDERS.find((p) => !this.enabledTypes.includes(p.type) && !this.conflictingPeer(p.type));
       if (!first) return;
       this.editMode = false;
       this.selectedProviderType = first.type;
@@ -257,6 +276,7 @@ export default {
     handleSelectProvider(type) {
       if (this.editMode) return;
       if (this.enabledTypes.includes(type)) return;
+      if (this.conflictingPeer(type)) return;
       this.selectedProviderType = type;
       this.resetFormData(type, false);
     },

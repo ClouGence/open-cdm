@@ -3027,6 +3027,7 @@
   "sso-col-status": "Status",
   "sso-status-enabled": "Enabled",
   "sso-provider-already-added": "Already added. Use \"Settings\" in the row to edit.",
+  "sso-provider-conflict-with-x": "Conflicts with the configured {0}. Remove it before switching.",
   "sso-confirm-delete-x": "Delete provider {0}? Related configurations will be cleared.",
   "sso-default-placeholder": "Default: {0}",
   "sso-field-required": "{0} is required",

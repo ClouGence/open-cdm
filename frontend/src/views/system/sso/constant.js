@@ -10,6 +10,7 @@ export const SSO_PROVIDERS = [
     iconResource: 'webside/LDAP@login-icon',
     primaryField: 'ldapHost',
     primaryLabelKey: 'sso-field-ldap-host',
+    conflictsWith: ['AD'],
     fields: [
       { key: 'ldapHost', labelKey: 'sso-field-ldap-host', required: true },
       { key: 'ldapPort', labelKey: 'sso-field-ldap-port', required: true },
@@ -33,6 +34,7 @@ export const SSO_PROVIDERS = [
     iconResource: 'webside/AD@login-icon',
     primaryField: 'ldapHost',
     primaryLabelKey: 'sso-field-ldap-host',
+    conflictsWith: ['LDAP'],
     fields: [
       { key: 'ldapHost', labelKey: 'sso-field-ldap-host', required: true },
       { key: 'ldapPort', labelKey: 'sso-field-ldap-port', required: true },
