@@ -60,15 +60,17 @@ public class WsChannel extends TextWebSocketHandler implements UnifiedPostConstr
     public void init() throws Exception {
         this.inited.set(true);
         // query request & response
-        DmGlobalEventBus.addQueryResultEventListen(msg -> this.wsDirectChannel(WsType.WS_RES_QUERY, msg));
+        DmGlobalEventBus.addQueryResultEventListen(o -> this.wsDirectChannel(WsType.WS_RES_QUERY, o));
         // language request & response
-        DmGlobalEventBus.addLanguageResultEventListen(msg -> this.wsDirectChannel(WsType.WS_RES_LANGUAGE, msg));
+        DmGlobalEventBus.addLanguageResultEventListen(o -> this.wsDirectChannel(WsType.WS_RES_LANGUAGE, o));
         // export info
-        DmGlobalEventBus.addQueryResultExportListen(exportVO -> this.wsBroadcastChannel(WsType.WS_RES_EXPORT_EVENT, exportVO.getUid(), exportVO));
+        DmGlobalEventBus.addQueryResultExportListen(o -> this.wsBroadcastChannel(WsType.WS_RES_EXPORT_EVENT, o.getUid(), o));
+        // operation audit export info
+        DmGlobalEventBus.addOpAuditExportListen(o -> this.wsBroadcastChannel(WsType.WS_RES_EXPORT_EVENT, o.getUid(), o));
         // async task
-        DmGlobalEventBus.addDmAsyncEventListen(taskDO -> this.wsBroadcastChannel(WsType.WS_RES_ASYNC_EVENT, taskDO.getUid(), DmConvertUtils.convertToDmAsyncTaskVO(taskDO)));
+        DmGlobalEventBus.addDmAsyncEventListen(o -> this.wsBroadcastChannel(WsType.WS_RES_ASYNC_EVENT, o.getUid(), DmConvertUtils.convertToDmAsyncTaskVO(o)));
         // driver download
-        DmGlobalEventBus.addDriverDownloadEventListen(event -> this.wsBroadcastChannel(WsType.WS_RES_DRIVER_DOWNLOAD_EVENT, event.uid(), event.progressVO()));
+        DmGlobalEventBus.addDriverDownloadEventListen(o -> this.wsBroadcastChannel(WsType.WS_RES_DRIVER_DOWNLOAD_EVENT, o.uid(), o.progressVO()));
     }
 
     @Override

@@ -168,8 +168,8 @@ public class SessionManagerImpl implements SessionManager, UnifiedPostConstruct 
         } catch (Throwable e) {
             counter.decrementAndGet();
             if (isPluginPackageCorrupted(e)) {
-                String message = "Datasource plugin is damaged, failed to load plugin resource. dsType='" + dsConfig.getDataSourceType()
-                                 + "', driverVersion='" + dsConfig.getDriverVersion() + "'.";
+                String message = "Datasource plugin is damaged, failed to load plugin resource. dsType='" + dsConfig.getDataSourceType() + "', driverVersion='"
+                                 + dsConfig.getDriverVersion() + "'.";
                 log.error(message, e);
                 throw new ErrorMessageException(DmErrorCode.PLUGIN_DAMAGED_ERROR.code(), message);
             }

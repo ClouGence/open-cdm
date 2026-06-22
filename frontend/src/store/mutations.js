@@ -34,7 +34,8 @@ function applyMenuItems(state, myCatLog = state.myCatLog, globalSetting = state.
     myCatLog,
     myAuth,
     includesDM,
-    isDesktop
+    isDesktop,
+    accountType: state.userInfo?.accountType
   });
 
   state.sidebarMenu = sidebarMenu;
@@ -55,6 +56,7 @@ export default {
     } else {
       state.userInfo = {};
     }
+    applyMenuItems(state);
   },
   [UPDATE_CLUSTER_LIST](state, list) {
     const temp = {};

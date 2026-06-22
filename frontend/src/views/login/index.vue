@@ -1,176 +1,152 @@
 <template>
-  <div class="login" :class="{ 'is-dark': $store.state.theme === 'dark' }" v-if="!isDesktop">
-    <header>
-      <div class="login-header">
-        <dm-logo-header />
+  <div
+    class="login"
+    :class="{ 'is-dark': $store.state.theme === 'dark' }"
+    :style="{ '--login-bg-pattern': `url(${backgroundPatternUrl})` }"
+    v-if="!isDesktop"
+  >
+    <div class="login-left">
+      <header class="login-topbar">
+        <div class="login-header">
+          <dm-logo-header />
+        </div>
+      </header>
+      <div class="content">
+        <div class="hero-column">
+          <LoginHero />
+        </div>
       </div>
-    </header>
-    <div class="content">
-      <div :class="`has-background ${backgroundClass}`">
-        <div class="login-card">
-          <a-tabs :activeKey="activeTabKey" size="large">
-            <a-tab-pane key="LOGIN" :tab="currentLoginTitle"></a-tab-pane>
-            <a-tab-pane key="MFA" v-if="showMfa" :tab="$t('duo-yin-zi-ren-zheng-yan-zheng-ma')"></a-tab-pane>
-          </a-tabs>
-          <div class="tabs-content">
-            <div class="input-wrapper mt-4" :class="{ 'is-completion': isCompletionMode }" v-if="!showMfa">
-              <template v-if="isCompletionMode">
-                <div class="floating-field" :class="{ 'has-value': loginForm.registerInfo.name }">
-                  <span class="floating-label">{{ optionalLabel($t('yong-hu-ming')) }}</span>
-                  <a-input class="field-input" v-model:value="loginForm.registerInfo.name" @keydown.enter="handleEnter" size="large" />
-                </div>
-                <div class="floating-field" :class="{ 'has-value': loginForm.registerInfo.phone }">
-                  <span class="floating-label">{{ optionalLabel($t('shou-ji-hao')) }}</span>
-                  <a-input
-                    class="field-input"
-                    v-model:value="loginForm.registerInfo.phone"
-                    @update:value="clearCompletionCheck('phone')"
-                    @blur="checkCompletionDuplicate('phone', 'PHONE')"
-                    @keydown.enter="handleEnter"
-                    size="large"
-                  />
-                  <span class="field-success" v-if="completionValid.phone"></span>
-                </div>
-                <div class="field-error" v-if="completionErrors.phone" v-html="completionErrors.phone"></div>
-                <div class="floating-field" :class="{ 'has-value': loginForm.registerInfo.email }">
-                  <span class="floating-label">{{ optionalLabel($t('you-xiang')) }}</span>
-                  <a-input
-                    class="field-input"
-                    v-model:value="loginForm.registerInfo.email"
-                    @update:value="clearCompletionCheck('email')"
-                    @blur="checkCompletionDuplicate('email', 'EMAIL')"
-                    @keydown.enter="handleEnter"
-                    size="large"
-                  />
-                  <span class="field-success" v-if="completionValid.email"></span>
-                </div>
-                <div class="field-error" v-if="completionErrors.email" v-html="completionErrors.email"></div>
-              </template>
-              <template v-else-if="isJumpLogin(currentLoginType)">
-                <button
-                  :disabled="loginLoading || !currentLoginDef.available"
-                  :aria-busy="loginLoading"
-                  type="button"
-                  class="provider-login-button"
-                  :class="{ 'is-loading': loginLoading }"
-                  @click="handleGoJump(currentLoginDef)"
-                >
-                  <CustomIcon
-                    v-if="currentLoginDef.icon"
-                    :resource="currentLoginDef.icon"
-                    :alt="currentLoginDef.iconTitle || currentLoginDef.tabTitle"
-                    size="44px"
-                  />
-                  <span>{{ currentLoginDef.tabTitle || $t('deng-lu') }}</span>
-                </button>
-              </template>
-              <template v-else>
-                <div class="floating-field" :class="{ 'has-value': loginForm.account }">
-                  <span class="floating-label">{{ accountLabel }}</span>
-                  <a-input class="field-input" v-model:value="loginForm.account" @keydown.enter="handleEnter" size="large" />
-                </div>
-                <div class="floating-field" :class="{ 'has-value': loginForm.password }">
-                  <span class="floating-label">{{ $t('mi-ma') }}</span>
-                  <a-input-password class="field-input" v-model:value="loginForm.password" @keydown.enter="handleEnter" size="large" />
-                </div>
-              </template>
+      <footer class="login-bottombar">
+        <dm-footer />
+      </footer>
+    </div>
+
+    <div class="login-panel">
+      <div class="panel-header">
+        <h2 class="panel-title">{{ showMfa ? $t('duo-yin-zi-ren-zheng-yan-zheng-ma') : currentLoginTitle }}</h2>
+        <p class="panel-subtitle" v-if="!showMfa && !isCompletionMode">{{ $t('deng-lu-miao-shu') }}</p>
+      </div>
+      <div class="panel-body">
+        <div class="input-wrapper mt-4" :class="{ 'is-completion': isCompletionMode }" v-if="!showMfa">
+          <template v-if="isCompletionMode">
+            <div class="floating-field" :class="{ 'has-value': loginForm.registerInfo.name }">
+              <span class="floating-label">{{ optionalLabel($t('yong-hu-ming')) }}</span>
+              <a-input class="field-input" v-model:value="loginForm.registerInfo.name" @keydown.enter="handleEnter" size="large" />
             </div>
-            <div class="input-wrapper mt-4" v-if="showMfa">
+            <div class="floating-field" :class="{ 'has-value': loginForm.registerInfo.phone }">
+              <span class="floating-label">{{ optionalLabel($t('shou-ji-hao')) }}</span>
               <a-input
-                v-if="!mfaInvalidMode"
-                class="mb-4"
-                @pressEnter="handleEnter2"
-                @keydown.enter="handleEnter2"
-                v-model:value="mfaCode"
+                class="field-input"
+                v-model:value="loginForm.registerInfo.phone"
+                @update:value="clearCompletionCheck('phone')"
+                @blur="checkCompletionDuplicate('phone', 'PHONE')"
+                @keydown.enter="handleEnter"
                 size="large"
-                :placeholder="$t('qing-shu-ru-liu-wei-shu-de-mfa-yan-zheng-ma')"
               />
-              <p v-if="!mfaInvalidMode" class="opacity-60">
-                {{ $t('nin-yi-kai-qi-le-duo-zi-yin-ren-zheng-pei-zhi-mei-ci-deng-lu-xu-yan-zheng-duo-yin-zi-ren-zheng-yan-zheng-ma') }}
-              </p>
-              <p v-else class="opacity-60 mfa-invalid-tip">{{ $t('mfa-yi-shi-xiao-deng-lu-ti-shi') }}</p>
+              <span class="field-success" v-if="completionValid.phone"></span>
             </div>
-            <div class="completion-actions" v-if="!showMfa && isCompletionMode">
-              <a-button :disabled="loginLoading" :loading="loginLoading" type="primary" size="large" class="completion-submit" @click="handleLogin">
-                {{ $t('bu-quan-xin-xi-bing-deng-lu') }}
-              </a-button>
-              <a-button :disabled="loginLoading" size="large" class="completion-back" @click="goReLogin">
-                {{ $t('fan-hui') }}
-              </a-button>
+            <div class="field-error" v-if="completionErrors.phone" v-html="completionErrors.phone"></div>
+            <div class="floating-field" :class="{ 'has-value': loginForm.registerInfo.email }">
+              <span class="floating-label">{{ optionalLabel($t('you-xiang')) }}</span>
+              <a-input
+                class="field-input"
+                v-model:value="loginForm.registerInfo.email"
+                @update:value="clearCompletionCheck('email')"
+                @blur="checkCompletionDuplicate('email', 'EMAIL')"
+                @keydown.enter="handleEnter"
+                size="large"
+              />
+              <span class="field-success" v-if="completionValid.email"></span>
             </div>
-            <a-button
-              v-if="!showMfa && !isCompletionMode && !isJumpLogin(currentLoginType)"
+            <div class="field-error" v-if="completionErrors.email" v-html="completionErrors.email"></div>
+          </template>
+          <template v-else-if="isJumpLogin(currentLoginType)">
+            <button
               :disabled="loginLoading || !currentLoginDef.available"
-              :loading="loginLoading"
-              type="primary"
-              size="large"
-              class="login-submit"
-              @click="handleLogin"
+              :aria-busy="loginLoading"
+              type="button"
+              class="provider-login-button"
+              :class="{ 'is-loading': loginLoading }"
+              @click="handleGoJump(currentLoginDef)"
             >
-              {{ $t('deng-lu') }}
-            </a-button>
-            <a-button
-              v-if="showMfa && !mfaInvalidMode"
-              key="mfa"
-              :disabled="loginLoading"
-              :loading="loginLoading"
-              size="large"
-              class="login-submit is-mfa"
-              type="primary"
-              @click="handleMfaValid"
-            >
-              {{ $t('yan-zheng') }}
-            </a-button>
-            <div class="completion-actions" v-if="showMfa && mfaInvalidMode">
-              <a-button :disabled="loginLoading" size="large" class="completion-submit mfa-invalid-action" @click="goHandleInvalidMfa">
-                {{ $t('qu-chu-li') }}
-              </a-button>
-              <a-button :disabled="loginLoading" size="large" class="completion-back" @click="redirectToHome">
-                {{ $t('shao-hou-chu-li') }}
-              </a-button>
+              <CustomIcon
+                v-if="currentLoginDef.icon"
+                :resource="currentLoginDef.icon"
+                :alt="currentLoginDef.iconTitle || currentLoginDef.tabTitle"
+                size="44px"
+              />
+              <span>{{ currentLoginDef.tabTitle || $t('deng-lu') }}</span>
+            </button>
+          </template>
+          <template v-else>
+            <div class="floating-field" :class="{ 'has-value': loginForm.account }">
+              <span class="floating-label">{{ accountLabel }}</span>
+              <a-input class="field-input" v-model:value="loginForm.account" @keydown.enter="handleEnter" size="large" />
             </div>
-            <div class="msgContent" v-if="errMsg">
-              <a-alert banner type="error">
-                <template #message>
-                  <div v-html="errMsg"></div>
-                </template>
-              </a-alert>
+            <div class="floating-field" :class="{ 'has-value': loginForm.password }">
+              <span class="floating-label">{{ $t('mi-ma') }}</span>
+              <a-input-password class="field-input" v-model:value="loginForm.password" @keydown.enter="handleEnter" size="large" />
             </div>
-            <div class="login-provider-switcher" v-if="!showMfa && !isCompletionMode && loginDef.length">
-              <button
-                v-for="item in loginDef"
-                :key="item.loginType"
-                type="button"
-                class="login-provider-icon"
-                :class="{ active: item.loginType === currentLoginType, unavailable: !item.available }"
-                :disabled="item.loginType === currentLoginType"
-                :title="providerTitle(item)"
-                @click="switchLoginType(item)"
-              >
-                <span class="current-arrow" v-if="item.loginType === currentLoginType"></span>
-                <CustomIcon
-                  v-if="item.icon"
-                  :resource="item.icon"
-                  :alt="item.iconTitle || item.tabTitle"
-                  :disabled="!item.available"
-                  size="23px"
-                  topMargin="3px"
-                />
-              </button>
-            </div>
+          </template>
+        </div>
+        <div class="input-wrapper mt-4" v-if="showMfa">
+          <div class="floating-field" :class="{ 'has-value': mfaCode }" v-if="!mfaInvalidMode">
+            <span class="floating-label">{{ $t('qing-shu-ru-liu-wei-shu-de-mfa-yan-zheng-ma') }}</span>
+            <a-input class="field-input" @pressEnter="handleEnter2" @keydown.enter="handleEnter2" v-model:value="mfaCode" size="large" />
           </div>
+          <p v-if="!mfaInvalidMode" class="opacity-60">
+            {{ $t('nin-yi-kai-qi-le-duo-zi-yin-ren-zheng-pei-zhi-mei-ci-deng-lu-xu-yan-zheng-duo-yin-zi-ren-zheng-yan-zheng-ma') }}
+          </p>
+          <p v-else class="opacity-60 mfa-invalid-tip">{{ $t('mfa-yi-shi-xiao-deng-lu-ti-shi') }}</p>
+        </div>
+        <div class="completion-actions" v-if="!showMfa && isCompletionMode">
+          <a-button :disabled="loginLoading" :loading="loginLoading" type="primary" size="large" class="completion-submit" @click="handleLogin">
+            {{ $t('bu-quan-xin-xi-bing-deng-lu') }}
+          </a-button>
+          <a-button :disabled="loginLoading" size="large" class="completion-back" @click="goReLogin">
+            {{ $t('fan-hui') }}
+          </a-button>
+        </div>
+        <a-button
+          v-if="!showMfa && !isCompletionMode && !isJumpLogin(currentLoginType)"
+          :disabled="loginLoading || !currentLoginDef.available"
+          :loading="loginLoading"
+          type="primary"
+          size="large"
+          class="login-submit"
+          @click="handleLogin"
+        >
+          {{ $t('deng-lu') }}
+        </a-button>
+        <a-button
+          v-if="showMfa && !mfaInvalidMode"
+          key="mfa"
+          :disabled="loginLoading"
+          :loading="loginLoading"
+          size="large"
+          class="login-submit is-mfa"
+          type="primary"
+          @click="handleMfaValid"
+        >
+          {{ $t('yan-zheng') }}
+        </a-button>
+        <div class="completion-actions" v-if="showMfa && mfaInvalidMode">
+          <a-button :disabled="loginLoading" size="large" class="completion-submit mfa-invalid-action" @click="goHandleInvalidMfa">
+            {{ $t('qu-chu-li') }}
+          </a-button>
+          <a-button :disabled="loginLoading" size="large" class="completion-back" @click="redirectToHome">
+            {{ $t('shao-hou-chu-li') }}
+          </a-button>
         </div>
       </div>
     </div>
-    <footer>
-      <dm-footer />
-    </footer>
   </div>
 </template>
 
 <script>
 import DmFooter from '@/components/DmFooter';
 import DmLogoHeader from '@/components/DmLogoHeader';
+import LoginHero from '@/views/login/LoginHero';
 import { ACCOUNT_TYPE, LOGIN_TYPE } from '@/const';
 import { mapGetters, mapState, mapActions } from 'vuex';
 import { UPDATE_DM_GLOBAL_SETTING, UPDATE_GLOBAL_SETTING, UPDATE_PUBLIC_KEY } from '@/store/mutationTypes';
@@ -179,28 +155,28 @@ import { isNumber } from '@/components/util';
 import { filterGlobalSettingByBuild, supportsCloudDMBuild } from '@/utils/product';
 import formatError from '@/services/formatError';
 import { setPageIcon, WEBSIDE_FAVICON } from '@/utils/pluginResource';
+import loginBgPattern from '@/assets/login/login-bg-pattern.svg';
+import Toast from '@/utils/toast';
 
 export default {
   name: 'Login',
   components: {
     DmLogoHeader,
-    DmFooter
+    DmFooter,
+    LoginHero
   },
   mixins: [encryptMixin],
   computed: {
     ...mapState(['defaultRedirectUrl']),
     ...mapGetters(['isDesktop']),
-    backgroundClass() {
-      return 'dm-background';
-    },
-    activeTabKey() {
-      return this.showMfa ? 'MFA' : 'LOGIN';
+    backgroundPatternUrl() {
+      return loginBgPattern;
     },
     currentLoginDef() {
       return this.loginDef.find((item) => item.loginType === this.currentLoginType) || this.loginDef[0] || {};
     },
     currentLoginTitle() {
-      return this.currentLoginDef.tabTitle || this.$t('deng-lu');
+      return this.$t('huan-ying-hui-lai');
     },
     accountLabel() {
       if (this.currentLoginType === LOGIN_TYPE.LOGIN_PASSWORD) {
@@ -280,7 +256,7 @@ export default {
       }
       this.setCurrentLoginType(item.loginType);
       if (!item.available && item.errorInfo) {
-        this.errMsg = formatError(item.errorInfo);
+        Toast.error(formatError(item.errorInfo));
       }
     },
     resolveRedirectUrl() {
@@ -304,10 +280,10 @@ export default {
         if (res && res.success && res.data) {
           window.location.href = res.data;
         } else {
-          this.errMsg = this.resolveErrorMessage(res);
+          Toast.error(this.resolveErrorMessage(res));
         }
       } catch (error) {
-        this.errMsg = this.resolveErrorMessage(error);
+        Toast.error(this.resolveErrorMessage(error));
       } finally {
         this.loginLoading = false;
       }
@@ -397,15 +373,15 @@ export default {
     async handleLogin() {
       this.errMsg = '';
       if (!this.isCompletionMode && !this.loginForm.account) {
-        this.errMsg = this.$t('zhang-hao-bu-neng-wei-kong') || this.$t('qing-shu-ru-zhang-hao');
+        Toast.error(this.$t('zhang-hao-bu-neng-wei-kong') || this.$t('qing-shu-ru-zhang-hao'));
         return;
       }
       if (!this.isCompletionMode && !this.loginForm.password) {
-        this.errMsg = this.$t('mi-ma-bu-neng-wei-kong');
+        Toast.error(this.$t('mi-ma-bu-neng-wei-kong'));
         return;
       }
       if (!this.publicKey) {
-        this.errMsg = this.$t('xi-tong-yi-chang-qing-lian-xi-guan-li-yuan');
+        Toast.error(this.$t('xi-tong-yi-chang-qing-lian-xi-guan-li-yuan'));
         return;
       }
       if (this.isCompletionMode) {
@@ -446,10 +422,10 @@ export default {
             await this.redirectToHome();
           }
         } else {
-          this.errMsg = this.resolveErrorMessage(res);
+          Toast.error(this.resolveErrorMessage(res));
         }
       } catch (error) {
-        this.errMsg = this.resolveErrorMessage(error);
+        Toast.error(this.resolveErrorMessage(error));
       } finally {
         this.loginLoading = false;
       }
@@ -459,7 +435,7 @@ export default {
         return;
       }
       if (!this.mfaCode || !isNumber(this.mfaCode)) {
-        this.errMsg = this.$t('qing-shu-ru-zheng-que-de-yan-zheng-ma');
+        Toast.error(this.$t('qing-shu-ru-zheng-que-de-yan-zheng-ma'));
         return;
       }
       this.loginLoading = true;
@@ -475,10 +451,10 @@ export default {
           await this.$store.dispatch('getUserInfo');
           await this.redirectToHome();
         } else {
-          this.errMsg = this.resolveErrorMessage(res);
+          Toast.error(this.resolveErrorMessage(res));
         }
       } catch (error) {
-        this.errMsg = this.resolveErrorMessage(error);
+        Toast.error(this.resolveErrorMessage(error));
       } finally {
         this.loginLoading = false;
       }
@@ -495,7 +471,7 @@ export default {
     },
     handleGoJump(loginDef = this.currentLoginDef) {
       if (!loginDef.available) {
-        this.errMsg = this.resolveErrorMessage({ message: loginDef.errorInfo });
+        Toast.error(this.resolveErrorMessage({ message: loginDef.errorInfo }));
         return;
       }
       this.loginLoading = true;
@@ -548,7 +524,7 @@ export default {
         }
       } else if (this.$route.query && this.$route.query.error) {
         this.loginCallbackData = this.$route.query;
-        this.errMsg = `${this.$route.query.error}:${this.$route.query.error_description}`;
+        Toast.error(`${this.$route.query.error}:${this.$route.query.error_description}`);
       }
     },
     async getGlobalSettings() {
@@ -592,386 +568,457 @@ export default {
 
 <style lang="less" scoped>
 .login {
+  --login-ink: #171717;
+  --login-muted: #707070;
+  --login-hairline: #dfdfdf;
+  --login-emerald: #3ecf8e;
+  --login-emerald-deep: #24b47e;
+  --login-surface: #ffffff;
+  --login-canvas: #f8fafc;
+
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--login-canvas);
+  background-image: var(--login-bg-pattern);
+  background-size: cover;
+  background-position: center;
 
-  header {
-    .width-full();
-    flex: 0 0 80px;
+  .login-left {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    min-width: 0;
+    min-height: 0;
+    position: relative;
+  }
+
+  .login-topbar {
+    flex: 0 0 72px;
+    position: relative;
+    z-index: 3;
 
     .login-header {
       position: relative;
       display: block;
-      padding: 0 24px;
-      height: 80px;
+      padding: 0 32px;
+      height: 72px;
     }
   }
 
   .content {
-    width: 100%;
-    .width-full();
     flex: 1 1 auto;
     min-height: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--bg-page, #c3d8e9);
     overflow: auto;
-    padding: 32px 24px;
+    padding-right: 480px;
 
-    .has-background {
-      min-height: 100%;
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      position: relative;
+    .hero-column {
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 48px 32px;
+      min-height: 0;
+      width: 100%;
+    }
+  }
+
+  .login-bottombar {
+    flex: 0 0 auto;
+    position: relative;
+    padding: 0 32px 24px;
+    padding-right: calc(480px + 32px);
+
+    :deep(.footer) {
+      height: auto;
+      line-height: 1.5;
+      text-align: center;
+    }
+  }
+
+  .login-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 480px;
+    z-index: 2;
+    background: var(--login-surface);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 56px;
+    animation: panel-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+
+    .panel-header {
+      margin-bottom: 40px;
     }
 
-    .dm-background {
-      background: url('../../assets/loginBack.png') no-repeat 0 center;
-      background-size: 580px;
+    .panel-title {
+      margin: 0;
+      color: var(--login-ink);
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: -0.42px;
     }
 
-    .login-card {
-      width: 520px;
-      max-width: calc(100vw - 48px);
-      background: var(--card-bg, #ffffff);
-      position: relative;
-      overflow: hidden;
-      border: 1px solid transparent;
-      border-radius: 4px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    .panel-subtitle {
+      color: var(--login-muted);
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.5;
+      margin: 8px 0 0;
+    }
 
-      :deep(.ant-tabs-tab-btn) {
-        font-size: 18px;
-        line-height: 24px;
-        color: var(--text-primary, rgba(0, 0, 0, 0.88));
-      }
+    .panel-body {
+      width: 100%;
+      max-width: 368px;
+      box-sizing: border-box;
 
-      :deep(.ant-tabs) {
-        .ant-tabs-bar {
-          border-bottom: 2px solid #ececec;
+      .input-wrapper {
+        & > div {
+          margin-bottom: 16px;
         }
 
-        .ant-tabs-nav {
-          height: 64px;
-          padding-left: 80px;
-          padding-right: 80px;
-
-          .ant-tabs-tab {
-            line-height: 40px;
-            font-size: 18px;
-            color: var(--text-primary, rgba(0, 0, 0, 0.88));
-          }
-
-          .ant-tabs-ink-bar {
-            background: #0bb9f8;
-          }
-        }
-      }
-
-      .tabs-content {
-        padding: 20px 80px 72px;
-        box-sizing: border-box;
-        position: relative;
-        min-height: 312px;
-
-        .msgContent {
-          position: relative;
-          margin-top: 4px;
-          margin-bottom: 12px;
-
-          :deep(.ant-alert) {
-            margin-top: 4px;
-            text-align: left;
-          }
+        .mfa-invalid-tip {
+          white-space: pre-line;
         }
 
-        .input-wrapper {
+        &.is-completion {
+          margin-top: 4px !important;
+
           & > div {
-            margin-bottom: 20px;
-          }
-
-          .mfa-invalid-tip {
-            white-space: pre-line;
-          }
-
-          &.is-completion {
-            margin-top: 8px !important;
-
-            & > div {
-              margin-bottom: 10px;
-            }
+            margin-bottom: 10px;
           }
         }
+      }
 
-        .floating-field {
-          --field-border: #d0d7e2;
-          --field-active: #4f82d9;
-          position: relative;
-          display: flex;
-          align-items: center;
-          min-height: 44px;
-          width: 100%;
-          margin-bottom: 14px;
-          padding: 0 14px;
-          border: 1px solid var(--field-border);
-          border-radius: 12px;
-          background: #ffffff;
-          transition:
-            border-color 0.18s ease,
-            box-shadow 0.18s ease;
+      .floating-field {
+        --field-border: var(--login-hairline);
+        --field-active: var(--login-emerald-deep);
+        position: relative;
+        display: flex;
+        align-items: center;
+        min-height: 56px;
+        width: 100%;
+        margin-bottom: 16px;
+        padding: 16px;
+        border: 1px solid var(--field-border);
+        border-radius: 8px;
+        background: var(--login-surface);
+        transition:
+          border-color 0.2s ease,
+          box-shadow 0.2s ease;
 
-          &:focus-within {
-            border-color: var(--field-active);
-            box-shadow: 0 0 0 1px rgba(79, 130, 217, 0.16);
-          }
-
-          .floating-label {
-            position: absolute;
-            top: -10px;
-            left: 16px;
-            z-index: 2;
-            max-width: calc(100% - 40px);
-            padding: 0 8px;
-            background: #ffffff;
-            color: #9aa4b2;
-            font-size: 15px;
-            line-height: 18px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            pointer-events: none;
-          }
-
-          &:focus-within .floating-label,
-          &.has-value .floating-label {
-            color: var(--field-active);
-          }
-
-          :deep(.ant-input),
-          :deep(.ant-input-affix-wrapper) {
-            height: 32px;
-            padding: 0;
-            border: 0;
-            box-shadow: none;
-            background: transparent;
-            color: rgba(15, 23, 42, 0.92);
-            font-size: 16px;
-          }
-
-          :deep(.ant-input:focus),
-          :deep(.ant-input-focused),
-          :deep(.ant-input-affix-wrapper:focus),
-          :deep(.ant-input-affix-wrapper-focused) {
-            border: 0;
-            box-shadow: none;
-          }
-
-          :deep(.ant-input-affix-wrapper input) {
-            font-size: 16px;
-          }
-
-          .field-success {
-            position: relative;
-            flex: 0 0 18px;
-            width: 18px;
-            height: 18px;
-            margin-left: 8px;
-          }
-
-          .field-success::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 6px;
-            width: 6px;
-            height: 11px;
-            border-right: 2px solid #22c55e;
-            border-bottom: 2px solid #22c55e;
-            transform: rotate(45deg);
-          }
-
-          :deep(.ant-input[disabled]) {
-            color: rgba(15, 23, 42, 0.7);
-            background: transparent;
-          }
+        &:hover:not(:focus-within) {
+          border-color: #c7c7c7;
         }
 
-        .field-error {
-          margin: -6px 0 10px;
-          color: #ff4d4f;
-          font-size: 12px;
-          line-height: 18px;
-          text-align: left;
+        &:focus-within {
+          border-color: var(--field-active);
+          box-shadow: 0 0 0 3px rgba(62, 207, 142, 0.15);
         }
 
-        .login-submit {
-          width: 100%;
-          margin-top: 8px;
-          margin-bottom: 20px;
+        .floating-label {
+          position: absolute;
+          left: 16px;
+          top: 50%;
+          z-index: 2;
+          max-width: calc(100% - 48px);
+          padding: 0;
+          background: transparent;
+          color: #9a9a9a;
           font-size: 16px;
-
-          span {
-            font-size: 16px;
-          }
-
-          &.is-mfa {
-            margin-top: 46px;
-          }
-        }
-
-        .completion-actions {
-          display: flex;
-          gap: 12px;
-          margin-top: 20px;
-          margin-bottom: 20px;
-
-          .ant-btn {
-            margin: 0;
-          }
-
-          .completion-submit {
-            flex: 1 1 75%;
-          }
-
-          .completion-back {
-            flex: 0 0 25%;
-          }
-
-          .mfa-invalid-action {
-            color: #ed4014;
-            border-color: #ed4014;
-            background: #ffffff;
-
-            &:hover,
-            &:focus {
-              color: #ff5f57;
-              border-color: #ff5f57;
-              background: #ffffff;
-            }
-          }
-        }
-
-        .provider-login-button {
-          width: 144px;
-          height: 144px;
-          margin: 10px auto 20px;
-          padding: 18px 12px;
-          border-radius: 8px;
-          border: 1px solid #e5e7eb;
-          background: #ffffff;
-          color: rgba(0, 0, 0, 0.88);
-          cursor: pointer;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 12px;
-          font: inherit;
-          line-height: 1.35;
-          white-space: normal;
-          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
-          appearance: none;
+          line-height: 1;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          pointer-events: none;
+          transform: translateY(-50%);
           transition:
-            border-color 0.2s ease,
-            background-color 0.2s ease,
-            box-shadow 0.2s ease;
+            top 0.2s ease,
+            font-size 0.2s ease,
+            color 0.2s ease,
+            transform 0.2s ease;
+        }
+
+        &:focus-within .floating-label,
+        &.has-value .floating-label {
+          top: 0;
+          transform: translateY(-50%);
+          font-size: 12px;
+          color: var(--field-active);
+          background: var(--login-surface);
+          padding: 0 4px;
+          left: 12px;
+        }
+
+        :deep(.ant-input),
+        :deep(.ant-input-affix-wrapper) {
+          width: 100%;
+          height: 24px !important;
+          padding: 0 !important;
+          margin: 0;
+          border: 0 !important;
+          box-shadow: none !important;
+          outline: none !important;
+          background: transparent !important;
+          color: var(--login-ink);
+          font-size: 16px;
+          line-height: 24px;
+        }
+
+        :deep(.ant-input-affix-wrapper) {
+          display: flex;
+          align-items: center;
+        }
+
+        :deep(.ant-input-affix-wrapper .ant-input) {
+          height: auto !important;
+          flex: 1 1 auto;
+        }
+
+        :deep(.ant-input-affix-wrapper .ant-input-suffix) {
+          display: flex;
+          align-items: center;
+          background: transparent;
+        }
+
+        :deep(.ant-input-password-icon) {
+          color: #9a9a9a;
+          transition: color 0.2s ease;
+        }
+
+        &:focus-within :deep(.ant-input-password-icon) {
+          color: var(--login-emerald-deep);
+        }
+
+        .field-success {
+          position: relative;
+          flex: 0 0 18px;
+          width: 18px;
+          height: 18px;
+          margin-left: 8px;
+        }
+
+        .field-success::after {
+          content: '';
+          position: absolute;
+          top: 2px;
+          left: 6px;
+          width: 6px;
+          height: 11px;
+          border-right: 2px solid var(--login-emerald);
+          border-bottom: 2px solid var(--login-emerald);
+          transform: rotate(45deg);
+        }
+
+        :deep(.ant-input[disabled]) {
+          color: rgba(23, 23, 23, 0.55);
+          background: transparent;
+        }
+      }
+
+      .field-error {
+        margin: -8px 0 12px;
+        color: #ff2201;
+        font-size: 12px;
+        line-height: 18px;
+        text-align: left;
+      }
+
+      .login-submit {
+        width: 100%;
+        height: 48px;
+        margin-top: 8px;
+        margin-bottom: 8px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+        background: #3ecf8e;
+        border-color: #3ecf8e;
+        color: #171717;
+        box-shadow: 0 2px 8px rgba(62, 207, 142, 0.25);
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.2s ease,
+          background 0.2s ease;
+
+        span {
+          font-size: 16px;
+        }
+
+        &:hover,
+        &:focus {
+          background: #24b47e;
+          border-color: #24b47e;
+          color: #171717;
+          box-shadow: 0 4px 16px rgba(62, 207, 142, 0.35);
+        }
+
+        &:not(:disabled):active {
+          background: #1ea06a;
+          border-color: #1ea06a;
+          transform: scale(0.985);
+        }
+
+        &.is-mfa {
+          margin-top: 32px;
+        }
+      }
+
+      .completion-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+        margin-bottom: 8px;
+
+        .ant-btn {
+          margin: 0;
+          height: 48px;
+          border-radius: 10px;
+        }
+
+        .completion-submit {
+          flex: 1 1 75%;
+        }
+
+        .completion-back {
+          flex: 0 0 25%;
+        }
+
+        .mfa-invalid-action {
+          color: #ff2201;
+          border-color: #ff2201;
+          background: var(--login-surface);
 
           &:hover,
-          &:focus-visible {
-            color: #2563eb;
-            border-color: #60a5fa;
-            background-color: #eff6ff;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.14);
-            outline: none;
-          }
-
-          &:disabled {
-            cursor: not-allowed;
-            opacity: 0.65;
-          }
-
-          span {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            text-align: center;
+          &:focus {
+            color: #e2005a;
+            border-color: #e2005a;
+            background: var(--login-surface);
           }
         }
+      }
 
-        .login-provider-switcher {
-          position: absolute;
-          right: 76px;
-          bottom: 32px;
-          display: flex;
-          align-items: flex-end;
-          justify-content: flex-end;
-          gap: 10px;
-          min-height: 30px;
+      .provider-login-button {
+        width: 160px;
+        height: 160px;
+        margin: 16px auto 24px;
+        padding: 20px 16px;
+        border-radius: 12px;
+        border: 1px solid var(--login-hairline);
+        background: var(--login-surface);
+        color: var(--login-ink);
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        font: inherit;
+        line-height: 1.35;
+        white-space: normal;
+        box-shadow: 0 2px 8px rgba(23, 23, 23, 0.05);
+        appearance: none;
+        transition:
+          border-color 0.2s ease,
+          background-color 0.2s ease,
+          box-shadow 0.2s ease,
+          transform 0.15s ease;
+
+        &:hover,
+        &:focus-visible {
+          color: var(--login-emerald-deep);
+          border-color: var(--login-emerald);
+          background-color: rgba(62, 207, 142, 0.06);
+          box-shadow: 0 8px 24px rgba(62, 207, 142, 0.12);
+          outline: none;
+          transform: translateY(-2px);
         }
 
-        .login-provider-icon {
-          position: relative;
-          width: 26px;
-          height: 26px;
-          padding: 0;
-          border: 0;
-          background: transparent;
-          cursor: pointer;
-          appearance: none;
+        &:disabled {
+          cursor: not-allowed;
+          opacity: 0.55;
+        }
 
-          &.active {
-            cursor: default;
-          }
+        &.is-loading {
+          pointer-events: none;
+        }
 
-          .current-arrow {
-            position: absolute;
-            top: -5px;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-left: 4px solid transparent;
-            border-right: 4px solid transparent;
-            border-bottom: 6px solid #4b5563;
-            transform: translateX(-50%);
-          }
+        span {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 14px;
+          font-weight: 500;
+          text-align: center;
         }
       }
     }
   }
 
-  > footer {
-    flex: 0 0 auto;
+  &.is-dark {
+    --login-ink: #f5f5f5;
+    --login-muted: #9a9a9a;
+    --login-hairline: #333333;
+    --login-surface: #1c1c1c;
+    --login-canvas: #121212;
+  }
+}
+
+@keyframes panel-enter {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 960px) {
+  .login {
+    background-image: none;
+
+    .content {
+      padding-right: 0;
+    }
+
+    .login-bottombar {
+      padding-right: 32px;
+    }
+
+    .login-panel {
+      position: relative;
+      top: auto;
+      right: auto;
+      bottom: auto;
+      width: 100%;
+      padding: 48px 32px;
+    }
   }
 }
 
 @media (max-width: 680px) {
   .login {
-    .content {
-      padding: 20px 12px;
+    .login-topbar .login-header {
+      padding: 0 16px;
+    }
 
-      .login-card {
-        max-width: calc(100vw - 24px);
+    .login-panel {
+      padding: 40px 24px;
 
-        .tabs-content {
-          padding: 20px 28px 76px;
-
-          .login-provider-switcher {
-            right: 24px;
-            bottom: 28px;
-          }
-        }
-
-        :deep(.ant-tabs .ant-tabs-nav) {
-          padding-left: 28px;
-          padding-right: 28px;
-        }
+      .panel-title {
+        font-size: 22px;
       }
     }
   }

@@ -47,15 +47,6 @@
           </div>
         </div>
       </template>
-
-      <div v-if="userInfo.accountType !== 'PRIMARY_ACCOUNT' && includesDM" class="app-sidebar-divider" />
-      <div v-if="userInfo.accountType !== 'PRIMARY_ACCOUNT' && includesDM" class="app-sidebar-section">
-        <div class="app-sidebar-group-title">{{ $t('zhang-hao') }}</div>
-        <a href="/#/system/permission" class="app-sidebar-item" :class="{ 'is-active': activeKey === '/system/permission' }">
-          <CustomIcon type="icon-v2-MyAuth" size="16px" />
-          <span>{{ $t('my-permissions') }}</span>
-        </a>
-      </div>
     </nav>
   </aside>
 </template>
@@ -93,9 +84,6 @@ export default {
       }
       if (path.indexOf('/ticket') > -1) {
         return 'ticket';
-      }
-      if (path.indexOf('/system/permission') > -1) {
-        return '/system/permission';
       }
       if (path.indexOf('/system/management/accounts') > -1 || path.indexOf('/system/account') > -1 || path.indexOf('/system/role') > -1) {
         return '/system/management/accounts';

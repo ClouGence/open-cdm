@@ -15,6 +15,7 @@
  */
 package com.clougence.utils.loader;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -27,7 +28,7 @@ import java.util.jar.Manifest;
  * @version : 2021-09-29
  * @author 赵永春 (zyc@hasor.net)
  */
-public interface ResourceLoader {
+public interface ResourceLoader extends Closeable {
 
     default <T> List<T> scanResources(Scanner<T> scanner) throws IOException {
         return scanResources(MatchType.None, scanner, new String[0]);
@@ -62,6 +63,10 @@ public interface ResourceLoader {
     boolean exist(String resource);
 
     Manifest getManifest(String resource) throws IOException;
+
+    @Override
+    default void close() throws IOException {
+    }
 
     interface InputStreamGet {
 

@@ -73,6 +73,7 @@
     "vue-i18n": "11.1.1",
     "vue-loading-overlay": "6.0.6",
     "vue-router": "4.5.0",
+    "vue-sonner": "^2.0.9",
     "vuex": "4.1.0",
     "xe-clipboard": "1.10.1",
     "xe-utils": "3.7.8",

@@ -22,18 +22,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.Resource;
-
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.api.console.configs.ConfigRService;
 import com.clougence.clouddm.api.common.GlobalConfUtils;
+import com.clougence.clouddm.api.console.configs.ConfigRService;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityFileType;
 import com.clougence.utils.io.FileUtils;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -44,11 +43,8 @@ public class FileResourceManagerImpl {
 
     @Resource
     private ConfigRService           statusRService;
-
     private final AtomicBoolean      inited   = new AtomicBoolean(false);
-
     private final Map<String, Cache> cacheMap = new ConcurrentHashMap<>();
-
     private final File               fileDir  = new File(GlobalConfUtils.getPluginDir("files"));
 
     public String getFilePath(DataSourceConfig config, String fileName, SecurityFileType securityFileType) throws IOException {

@@ -323,6 +323,13 @@ router.beforeEach(async (to, from, next) => {
     return;
   }
 
+  if (to.matched.some((record) => record.meta.subAccountOnly)) {
+    if (store.state.userInfo?.accountType === 'PRIMARY_ACCOUNT') {
+      next({ path: store.state.defaultRedirectUrl || '/sql', replace: true });
+      return;
+    }
+  }
+
   next();
 });
 

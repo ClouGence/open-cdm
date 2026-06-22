@@ -36,7 +36,13 @@
 <script>
 import { EditOutlined } from '@ant-design/icons-vue';
 
-const UPGRADE_HIDDEN_FIELD_KEYS = new Set(['jwt.secret', 'clougence.init.admin.email', 'clougence.init.admin.password']);
+const INIT_DB_REBUILD_IF_NOT_EMPTY = 'clougence.init.db.rebuildIfNotEmpty';
+const UPGRADE_HIDDEN_FIELD_KEYS = new Set([
+  'jwt.secret',
+  'clougence.init.admin.account',
+  'clougence.init.admin.email',
+  'clougence.init.admin.password'
+]);
 
 export default {
   name: 'StepConfirm',
@@ -134,11 +140,14 @@ export default {
   display: inline-flex;
   align-items: center;
   font-weight: 500;
-  width: 280px;
+  width: 160px;
   min-height: 30px;
   flex-shrink: 0;
   color: #595959;
   font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .summary-value {
   display: inline-flex;
@@ -189,7 +198,7 @@ export default {
 }
 @media (max-width: 768px) {
   .summary-key {
-    width: 180px;
+    width: 104px;
   }
 }
 </style>

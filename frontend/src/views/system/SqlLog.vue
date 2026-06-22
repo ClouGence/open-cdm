@@ -88,18 +88,21 @@
               </Button>
             </div>
           </div>
-          <div class="table-container">
-            <Table size="small" border :columns="logColumn" :data="logData" :loading="refreshLoading">
-              <template #uid="{ row }">
-                <div class="uid">
-                  <span>{{ row.uid }}</span>
-                  <cc-iconfont
-                    :size="12"
-                    name="copy"
-                    class="copy"
-                    @click.native="copyText(`${row.uid}`, $t('fu-zhi-uid-cheng-gong'))"
-                    style="margin-left: 3px"
-                  />
+          <div class="table-container audit-log-table">
+            <Table size="small" border :columns="logColumn" :data="logData" :loading="refreshLoading" :scroll="tableScroll">
+              <template #operator="{ row }">
+                <div class="operator-cell">
+                  <div>{{ row.userName }}</div>
+                  <div class="operator-uid">{{ formatUid(row.uid) }}</div>
+                </div>
+              </template>
+              <template #datasource="{ row }">
+                <div class="datasource-cell">
+                  <div class="datasource-id">
+                    <CustomIcon :type="row.dataSourceType" />
+                    <span>{{ row.dsResourceId }}</span>
+                  </div>
+                  <div class="datasource-desc">{{ formatDsRemark(row.dsRemark) }}</div>
                 </div>
               </template>
               <template #resource="{ row }">
@@ -152,13 +155,11 @@
 import fecha from 'fecha';
 import { mapState } from 'vuex';
 import { h, resolveComponent } from 'vue';
-import copyMixin from '@/mixins/copyMixin';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
 import ReadOnlyDiffEditor from '@/components/editor/ReadOnlyDiffEditor.vue';
 
 export default {
   name: 'SqlLog',
-  mixins: [copyMixin],
   components: { ReadOnlyDiffEditor, ReadOnlyEditor },
   data() {
     return {
@@ -190,13 +191,13 @@ export default {
       logColumn: [
         {
           title: this.$t('cao-zuo-zhe'),
-          key: 'userName',
-          width: 230
+          slot: 'operator',
+          width: 160
         },
         {
           title: this.$t('cao-zuo-shi-jian'),
           key: 'operateTime',
-          width: 200,
+          width: 170,
           render: (_, params) => {
             const row = params.row || params;
             if (!row.operateTime) {
@@ -212,7 +213,7 @@ export default {
         {
           title: this.$t('zhuang-tai'),
           key: 'status',
-          width: 120,
+          width: 110,
           render: (_, params) => {
             const row = params.row || params;
             let color = '#ed4014';
@@ -246,20 +247,13 @@ export default {
         },
         {
           title: this.$t('shu-ju-yuan'),
-          key: 'dsDesc',
-          width: 300,
-          render: (_, params) => {
-            const row = params.row || params;
-            return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
-              h(resolveComponent('CustomIcon'), { type: row.dataSourceType }),
-              h('span', { style: { marginLeft: '6px' } }, row.dsDesc)
-            ]);
-          }
+          slot: 'datasource',
+          width: 240
         },
         {
           title: this.$t('cao-zuo-zi-yuan'),
           key: 'resource',
-          width: 150,
+          width: 200,
           slot: 'resource'
         },
         {
@@ -284,7 +278,7 @@ export default {
         {
           title: this.$t('sql-zhi-hang-shi-jian'),
           key: 'cost',
-          width: 150,
+          width: 140,
           render: (_, params) => {
             const row = params.row || params;
             return h('div', {}, `${row.cost || 0}ms`);
@@ -293,22 +287,22 @@ export default {
         {
           title: this.$t('ying-xiang-hang-shu'),
           key: 'affectLine',
-          width: 120
+          width: 110
         },
         {
           title: this.$t('cao-zuo-di-zhi'),
           key: 'clientIp',
-          minWidth: 150
+          width: 140
         },
         {
           title: this.$t('ri-zhi-di-zhi'),
           key: 'logIp',
-          minWidth: 150
+          width: 140
         },
         {
           title: this.$t('sql-nei-rong'),
           slot: 'execSql',
-          width: 200,
+          width: 100,
           fixed: 'right'
         }
       ],
@@ -316,7 +310,13 @@ export default {
     };
   },
   computed: {
-    ...mapState(['globalSetting'])
+    ...mapState(['globalSetting']),
+    tableScroll() {
+      const scrollX = this.logColumn.reduce((sum, column) => {
+        return sum + (column.width || column.minWidth || 0);
+      }, 0);
+      return { x: scrollX };
+    }
   },
   mounted() {
     this.getDsList();
@@ -459,7 +459,6 @@ export default {
       this.prevFirst = {};
       this.currentPageSize = 10;
       this.searchData = {
-        uid: null,
         dsId: null,
         userUid: null,
         sqlKind: null,
@@ -472,10 +471,12 @@ export default {
       };
     },
 
-    handleSearchUid(row) {
-      this.searchType = 'uid';
-      this.searchData.uid = row.uid;
-      this.handleSearch();
+    formatUid(uid) {
+      return `UID: ${uid || ''}`;
+    },
+
+    formatDsRemark(dsRemark) {
+      return `备注: ${dsRemark || ''}`;
     },
 
     showSqlDetail(row) {
@@ -497,18 +498,27 @@ export default {
   display: flex;
   flex-direction: column;
 
-  .uid {
-    display: flex;
-    align-items: center;
+  .operator-cell {
+    line-height: 20px;
 
-    .copy {
-      display: none;
+    .operator-uid {
+      color: #9ea7b4;
+      font-size: 12px;
+    }
+  }
+
+  .datasource-cell {
+    line-height: 20px;
+
+    .datasource-id {
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    &:hover {
-      .copy {
-        display: block;
-      }
+    .datasource-desc {
+      color: #9ea7b4;
+      font-size: 12px;
     }
   }
 
@@ -534,7 +544,7 @@ export default {
 
   .sql-log-resource-cell {
     display: inline-block;
-    max-width: 130px;
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

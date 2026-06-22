@@ -73,6 +73,19 @@ public class GlobalConfUtils {
 
     public static String getTempDataHome() { return getAppDataHome() + File.separator + "temporary"; }
 
+    public static String getTempData(String moduleName) {
+        if (StringUtils.isBlank(moduleName)) {
+            throw new NullPointerException("moduleName is null.");
+        }
+        String tempDataHome = getTempDataHome();
+        log.info("temporary[{}] path app.data is {}", moduleName, tempDataHome);
+        if (tempDataHome.endsWith(File.separator)) {
+            return tempDataHome + moduleName;
+        } else {
+            return tempDataHome + File.separator + moduleName;
+        }
+    }
+
     public static String getLogHome() {
         String dataPath = System.getProperty("app.logPath");
         if (StringUtils.isBlank(dataPath)) {

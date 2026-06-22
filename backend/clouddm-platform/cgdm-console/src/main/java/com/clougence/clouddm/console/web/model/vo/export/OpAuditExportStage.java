@@ -12,19 +12,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.clougence.clouddm.worker.component.result;
+ */
+package com.clougence.clouddm.console.web.model.vo.export;
 
-import java.io.IOException;
-
-import lombok.Getter;
-
-@Getter
-public class ResultSetOverflowException extends IOException {
-
-    private final long overflowSize;
-
-    public ResultSetOverflowException(String s, long overflowSize){
-        super(s);
-        this.overflowSize = overflowSize;
-    }
+public enum OpAuditExportStage {
+    PREPARING,
+    CONVERTING,
+    DONE,
+    FAILED
 }

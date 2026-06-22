@@ -39,6 +39,8 @@ import i18n, { bootstrapGoogleTranslate } from './i18n';
 import 'ant-design-vue/dist/reset.css';
 import '@wsfe/vue-tree/style.css';
 import '@wsfe/vue-tree/src/styles/index.less';
+import 'vue-sonner/style.css';
+import Toast from '@/utils/toast';
 import { LocaleProvider } from 'ant-design-vue';
 import * as filters from '@/filters';
 import { supportsCloudCanalBuild } from '@/utils/product';
@@ -89,6 +91,9 @@ app.config.globalProperties.$bus = eventBus;
 app.config.globalProperties.$services = services;
 app.config.globalProperties.$i18n = i18n;
 app.config.globalProperties.$filters = filters;
+
+app.config.globalProperties.$Message = Toast;
+app.config.globalProperties.$message = Toast;
 
 // Initialize the theme system
 store.dispatch('initTheme');

@@ -15,18 +15,30 @@
  */
 package com.clougence.clouddm.console.web.component.config.impl;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.sql.JDBCType;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceFlagEnum;
 import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
+import com.clougence.clouddm.component.resultfile.ResultFileRequests;
+import com.clougence.clouddm.component.resultfile.ResultFileWriter;
 import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.model.fo.ExportOpAuditFO;
 import com.clougence.clouddm.console.web.model.vo.*;
+import com.clougence.clouddm.console.web.model.vo.export.OpAuditExportProgressVO;
+import com.clougence.clouddm.console.web.model.vo.export.OpAuditExportStage;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.access.MonitorDal;
@@ -38,6 +50,9 @@ import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.DmMonOpAuditDO;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
+import com.clougence.clouddm.platform.plugin.PluginManager;
+import com.clougence.clouddm.sdk.execute.resultset.file.DmFileType;
+import com.clougence.clouddm.sdk.execute.resultset.file.FileFormatConvert;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.JsonUtils;
@@ -55,59 +70,26 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class RdpOpAuditServiceImpl implements RdpOpAuditService {
-
-    //    @Value("${clougence.rdp.operation.audit.log.path}")
-    //    private String                                opAuditLogPath;
-
-    //    private static final Logger                   auditLogger    = LoggerFactory.getLogger("user_audit_detail");
-
-    private final Map<String, List<ResourceType>> resTypeMap     = new HashMap<>();
-
-    private final Map<String, List<AuditType>>    auditTypeMap   = new HashMap<>();
-
-    private final Set<String>                     isExistsLogSet = new HashSet<>();
+    private final List<ResourceType> resourceTypes  = new ArrayList<>();
+    private final List<AuditType>    auditTypes     = new ArrayList<>();
+    private final Set<String>        isExistsLogSet = new HashSet<>();
 
     @Resource
-    private SystemDal                             systemDal;
+    private SystemDal                systemDal;
     @Resource
-    private MonitorDal                            monitorDal;
+    private MonitorDal               monitorDal;
     @Resource
-    private DataSourceDal                         datasourceDal;
+    private DataSourceDal            datasourceDal;
     @Resource
-    private AuthDal                               authDal;
+    private AuthDal                  authDal;
     @Resource
-    private DmConsoleConfig                       rdpConfig;
+    private DmConsoleConfig          rdpConfig;
 
     @PostConstruct
     private void init() {
-        resTypeMap.put(QUERY_CONDITION_CC, Arrays.asList(ResourceType.DATA_JOB, ResourceType.ACCOUNT));
-        resTypeMap.put(QUERY_CONDITION_RDP, Arrays.asList(ResourceType.DATASOURCE, ResourceType.ACCOUNT, ResourceType.ROLE, ResourceType.DS_ENV));
+        resourceTypes.addAll(Arrays.asList(ResourceType.DATASOURCE, ResourceType.ACCOUNT, ResourceType.ROLE, ResourceType.DS_ENV));
 
-        List<AuditType> auditTypesForCc = Arrays.asList(AuditType.ADD_CHECK, //
-                AuditType.QUERY_JOB_INFO, //
-                AuditType.UPDATE_PARAMS, //
-                AuditType.UPDATE_SUBSCRIBE, //
-                AuditType.UPDATE_SUBSCRIBE_FULL, //
-                AuditType.CREATE_JOB, //
-                AuditType.START_JOB, //
-                AuditType.STOP_JOB, //
-                AuditType.RESTART_JOB, //
-                AuditType.DELETE_JOB, //
-                AuditType.MANUAL_MERGE, //
-                AuditType.REPLAY_JOB, //
-                AuditType.UPDATE_POSITION, //
-                AuditType.RESET_POSITION, //
-                AuditType.ATTACH_INCRE_TASK, //
-                AuditType.DETACH_INCRE_TASK, //
-                AuditType.ADD_REVISE, //
-                AuditType.PAUSE_SCHEDULE, //
-                AuditType.RESUME_SCHEDULE, //
-                AuditType.START_SCHEDULE, //
-                AuditType.ACTIVE_FSM, //
-                AuditType.MODIFY_SUB_ACCOUNT_AUTH);
-        auditTypeMap.put(QUERY_CONDITION_CC, auditTypesForCc);
-
-        List<AuditType> auditTypesForRdp = Arrays.asList(AuditType.ADD_DATA_SOURCE, //
+        auditTypes.addAll(Arrays.asList(AuditType.ADD_DATA_SOURCE, //
                 AuditType.DELETE_DATA_SOURCE, //
                 AuditType.QUERY_DATA_SOURCE_CONFIG, //
                 AuditType.UPDATE_DATA_SOURCE_CONFIG, //
@@ -139,21 +121,11 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
                 AuditType.UPDATE_ACCOUNT_OP_PWD, //
                 AuditType.UPDATE_SYSTEM_CONFIG, //
                 AuditType.AUTHORIZE_ACCESS_TO_ALIYUN, //
-                AuditType.REVOKE_ACCESS_TO_ALIYUN);
-
-        auditTypeMap.put(QUERY_CONDITION_RDP, auditTypesForRdp);
+                AuditType.REVOKE_ACCESS_TO_ALIYUN));
 
         isExistsLogSet.add(AuditType.QUERY_DATA_SOURCE_CONFIG.name());
         isExistsLogSet.add(AuditType.UPDATE_DATA_SOURCE_CONFIG.name());
         isExistsLogSet.add(AuditType.UPDATE_DATA_SOURCE_DESC.name());
-
-        isExistsLogSet.add(AuditType.UPDATE_PARAMS.name());
-        isExistsLogSet.add(AuditType.UPDATE_SUBSCRIBE.name());
-        isExistsLogSet.add(AuditType.UPDATE_SUBSCRIBE_FULL.name());
-        isExistsLogSet.add(AuditType.CREATE_JOB.name());
-        isExistsLogSet.add(AuditType.UPDATE_POSITION.name());
-        isExistsLogSet.add(AuditType.RESET_POSITION.name());
-        isExistsLogSet.add(AuditType.ADD_CHECK.name());
 
         isExistsLogSet.add(AuditType.UPDATE_SYSTEM_CONFIG.name());
         isExistsLogSet.add(AuditType.UPDATE_ACCOUNT_PHONE.name());
@@ -278,50 +250,41 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
         if (StringUtils.isEmpty(resourceIdStr)) {
             return "(null)";
         }
-        switch (type) {
-            case DATASOURCE: {
+        return switch (type) {
+            case DATASOURCE -> {
                 DmDsDO rdpDataSourceDO = datasourceDal.dsMapper().queryDsIdentityById(Long.valueOf(resourceIdStr));
-                return rdpDataSourceDO.getInstanceId();
+                yield rdpDataSourceDO.getInstanceId();
             }
-            case ROLE: {
+            case ROLE -> {
                 DmAuthRoleDO rdpRoleDO = authDal.roleMapper().selectById(Long.valueOf(resourceIdStr));
-                return rdpRoleDO.getRoleName();
+                yield rdpRoleDO.getRoleName();
             }
-            case ACCOUNT: {
+            case ACCOUNT -> {
                 DmAuthUserDO rdpUserDO = authDal.userMapper().queryByUid(resourceIdStr);
-                return rdpUserDO.getUsername();
+                yield rdpUserDO.getUsername();
             }
-            case DS_ENV: {
+            case DS_ENV -> {
                 DmSysEnvDO rdpDsEnvDO = systemDal.envMapper().selectById(Long.valueOf(resourceIdStr));
-                return rdpDsEnvDO.getEnvName();
+                yield rdpDsEnvDO.getEnvName();
             }
-            default: {
-                throw new UnsupportedOperationException("Unsupported resource type: " + type);
-            }
-        }
+            default -> throw new UnsupportedOperationException("Unsupported resource type: " + type);
+        };
     }
 
     @Override
-    public OpAuditConditionVO queryListCondition(String conditionType) {
+    public OpAuditConditionVO queryListCondition() {
         OpAuditConditionVO opAuditVO = new OpAuditConditionVO();
-        opAuditVO.setAuditTypeVOS(fillAuditTypes(conditionType));
-        opAuditVO.setResourceTypeVOS(fillResourceType(conditionType));
+        opAuditVO.setAuditTypeVOS(fillAuditTypes());
+        opAuditVO.setResourceTypeVOS(fillResourceType());
         return opAuditVO;
     }
 
-    @Override
-    public Boolean isExistsOpAuditLog(String auditType) {
-        return StringUtils.isNotBlank(auditType) && this.isExistsLogSet.contains(auditType);
-    }
-
-    private List<ResourceTypeVO> fillResourceType(String conditionType) {
-        List<ResourceType> resTypes = resTypeMap.get(conditionType);
-
-        if (resTypes == null || resTypes.isEmpty()) {
+    private List<ResourceTypeVO> fillResourceType() {
+        if (resourceTypes.isEmpty()) {
             return new ArrayList<>();
         }
 
-        return resTypes.stream().map(this::convertResourceType).collect(Collectors.toList());
+        return resourceTypes.stream().map(this::convertResourceType).collect(Collectors.toList());
     }
 
     private ResourceTypeVO convertResourceType(ResourceType resType) {
@@ -331,9 +294,7 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
         return resourceTypeVO;
     }
 
-    private List<AuditTypeVO> fillAuditTypes(String conditionType) {
-        List<AuditType> auditTypes = auditTypeMap.get(conditionType);
-
+    private List<AuditTypeVO> fillAuditTypes() {
         if (auditTypes == null || auditTypes.isEmpty()) {
             return new ArrayList<>();
         }
@@ -346,35 +307,6 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
         auditTypeVO.setAuditType(auditType.name());
         auditTypeVO.setAlias(DmI18nUtils.getMessage(auditType.name()));
         return auditTypeVO;
-    }
-
-    @Override
-    public List<RdpOpAuditVO> findAuditByUid(String uid, SecurityLevel securityLevel, String auditType, String resourceType, Date start, Date end, long startId, int pageSize) {
-        if (StringUtils.isBlank(uid)) {
-            throw new IllegalArgumentException("find audit by uid,but uid is empty.");
-        }
-
-        if (pageSize == 0) {
-            pageSize = DEFAULT_PAGE_SIZE;
-        } else if (pageSize > MAX_PAGE_SIZE) {
-            pageSize = MAX_PAGE_SIZE;
-        }
-
-        List<DmMonOpAuditDO> auditDOs = monitorDal.opAuditMapper().queryByUidJoinUrlAuth(uid, securityLevel, auditType, resourceType, start, end, startId, pageSize);
-
-        if (auditDOs == null || auditDOs.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        List<RdpOpAuditVO> auditVOs = auditDOs.stream().map(auditDO -> {
-            RdpOpAuditVO rdpOpAuditVO = new RdpOpAuditVO().convertFromDO(auditDO);
-            rdpOpAuditVO.setIsExistsLog(StringUtils.isNotBlank(rdpOpAuditVO.getAuditType()) && isExistsLogSet.contains(rdpOpAuditVO.getAuditType()));
-            return rdpOpAuditVO;
-        }).collect(Collectors.toList());
-
-        fillExtraVO(auditVOs);
-
-        return auditVOs;
     }
 
     @Override
@@ -402,19 +334,6 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
         return auditVOs;
     }
 
-    //    public RdpOpAuditVO fillAuditVO(RdpOpAuditVO vo) {
-    //        try {
-    //            DmAuthUserDO userDO = this.tempCache.get(vo.getUid());
-    //            if (userDO != null) {
-    //                vo.setUserName(userDO.getUsername());
-    //            }
-    //        } catch (ExecutionException e) {
-    //            throw new RuntimeException(e.getCause());
-    //        }
-    //
-    //        return vo;
-    //    }
-
     private String genUUIDKey(Date currentTime) {
         String date = new SimpleDateFormat("yyyyMMddHHmmss").format(currentTime);
         return date + UUID.randomUUID().toString().substring(0, 8);
@@ -424,18 +343,6 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
         fillResourceInfo(auditVOs);
 
         //        fillUserInfo(auditVOs, userNameMap);
-    }
-
-    private void fillUserInfo(List<RdpOpAuditVO> auditVOs, Map<String, String> userNameMap) {
-        if (userNameMap.isEmpty()) {
-            return;
-        }
-
-        auditVOs.forEach(auditVO -> {
-            if (userNameMap.containsKey(auditVO.getUid())) {
-                auditVO.setUserName(userNameMap.get(auditVO.getUid()));
-            }
-        });
     }
 
     private void fillResourceInfo(List<RdpOpAuditVO> auditVOs) {
@@ -535,40 +442,183 @@ public class RdpOpAuditServiceImpl implements RdpOpAuditService {
     }
 
     @Override
-    public void exportAuditLog(ExportOpAuditFO exportOpAuditFO, HttpServletResponse response) {
-        //        ExportFileType exportType = exportOpAuditFO.getExportType();
-        //        if (exportType == ExportFileType.EXCEL) {
-        //            String fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_operation_audit" + ".xlsx";
-        //            ExcelExportUtils.exportExcel(exportOpAuditFO, new RsDmMonOpAuditExportObj(), fileName, "operationAudit", rdpConfig.getMaxExportSize(), response, this::getOpAuditExportDTO);
-        //        } else {
-        throw new IllegalArgumentException("Unsupported export type : xxxx");
-        //        }
+    public void exportAuditLog(ExportOpAuditFO fo, HttpServletResponse response) {
+        String formatName = fo.getFormatName();
+        if (StringUtils.isBlank(formatName)) {
+            throw new IllegalArgumentException("Export formatName must not be empty.");
+        }
+
+        FileFormatConvert convert = PluginManager.findSpi(FileFormatConvert.class, formatName);
+        if (convert == null) {
+            throw new IllegalArgumentException("Unsupported export formatName : " + formatName);
+        }
+
+        String exportId = StringUtils.isBlank(fo.getExportId()) ? UUID.randomUUID().toString() : fo.getExportId();
+        String requesterUid = StringUtils.isBlank(fo.getRequesterUid()) ? fo.getPuid() : fo.getRequesterUid();
+        String baseName = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + "_operation_audit";
+        File exportDir = new File(GlobalConfUtils.getAppDataHome(), "export");
+        File resultFile = new File(exportDir, exportId + ".resultset");
+        File exportFile = new File(exportDir, exportId + "." + convert.extension());
+
+        try {
+            if (!exportDir.exists() && !exportDir.mkdirs()) {
+                throw new IOException("Create export directory failed: " + exportDir.getAbsolutePath());
+            }
+
+            long rows = this.prepareAuditResultFile(fo, requesterUid, exportId, resultFile);
+            this.sendOpAuditExportProgress(requesterUid, exportId, OpAuditExportStage.CONVERTING, rows, 0, rows, 0, "Start converting operation audit export file.", null);
+
+            String option = this.defaultConvertOption(formatName);
+            convert.convert(exportId, DmFileType.ResultSet, resultFile, exportFile, log, (message, from, to, current) -> {
+                int percent = to <= 0 ? 0 : (int) Math.min(100, Math.max(0, current * 100 / to));
+                this.sendOpAuditExportProgress(requesterUid, exportId, OpAuditExportStage.CONVERTING, rows, current, to, percent, message, null);
+            }, option);
+
+            this.writeExportResponse(response, exportFile, baseName + "." + convert.extension());
+            this.sendOpAuditExportProgress(requesterUid, exportId, OpAuditExportStage.DONE, rows, rows, rows, 100, "Operation audit export finished.", null);
+        } catch (Exception e) {
+            this.sendOpAuditExportProgress(requesterUid, exportId, OpAuditExportStage.FAILED, 0, 0, 0, 0, "Operation audit export failed.", ExceptionUtils.getRootCauseMessage(e));
+            throw new RuntimeException("Export operation audit log failed: " + ExceptionUtils.getRootCauseMessage(e), e);
+        } finally {
+            this.deleteQuietly(resultFile);
+            this.deleteQuietly(exportFile);
+        }
     }
 
-    //    private List<RsDmMonOpAuditExportObj> getOpAuditExportDTO(ExportOpAuditFO exportOpAuditFO, int maxBatch, int currentBatch) {
-    //        String puid = exportOpAuditFO.getPuid();
-    //        String uid = exportOpAuditFO.getUid();
-    //        SecurityLevel securityLevel = exportOpAuditFO.getSecurityLevel();
-    //        String userNameLike = exportOpAuditFO.getUserNameLike();
-    //        String auditType = exportOpAuditFO.getAuditType();
-    //        String resourceType = exportOpAuditFO.getResourceType();
-    //        Date start = exportOpAuditFO.getOpStart();
-    //        Date end = exportOpAuditFO.getOpEnd();
-    //
-    //        List<DmMonOpAuditDO> auditDOs = rdpOpAuditMapper
-    //            .pageByCondition(puid, uid, securityLevel, auditType, resourceType, userNameLike, start, end, maxBatch * currentBatch, maxBatch);
-    //
-    //        if (auditDOs == null || auditDOs.isEmpty()) {
-    //            return new ArrayList<>();
-    //        }
-    //
-    //        Set<String> uids = auditDOs.stream().map(DmMonOpAuditDO::getUid).collect(Collectors.toSet());
-    //        List<DmAuthUserDO> users = authDal.userMapper().listByUids(new ArrayList<>(uids));
-    //        Map<String, String> userNameMap = users.stream().collect(Collectors.toMap(DmAuthUserDO::getUid, DmAuthUserDO::getUsername));
-    //        return auditDOs.stream().map(auditDO -> {
-    //            RsDmMonOpAuditExportObj auditDTO = new RsDmMonOpAuditExportObj().convertFromDO(auditDO);
-    //            auditDTO.setUserName(userNameMap.get(auditDTO.getUid()));
-    //            return auditDTO;
-    //        }).collect(Collectors.toList());
-    //    }
+    private long prepareAuditResultFile(ExportOpAuditFO fo, String requesterUid, String exportId, File resultFile) throws IOException {
+        ResultFileRequests.ResultFileRequest resultRequest = ResultFileRequests.fromColumns(exportId, "operation audit export", this.exportColumns(), this.exportVariables());
+        long preparedRows = 0;
+        int offset = 0;
+        int batchSize = 1000;
+        long maxRows = fo.getMaxRows() == null || fo.getMaxRows() <= 0 ? Long.MAX_VALUE : fo.getMaxRows();
+        long lastReportTime = 0;
+
+        try (ResultFileWriter writer = ResultFileWriter.open(resultFile, resultRequest.getQuery(), resultRequest.getColumns())) {
+            while (preparedRows < maxRows) {
+                int currentBatchSize = (int) Math.min(batchSize, maxRows - preparedRows);
+                List<DmMonOpAuditDO> auditDOs = monitorDal.opAuditMapper()
+                    .pageByCondition(fo.getPuid(), fo.getUid(), fo.getSecurityLevel(), fo.getAuditType(), fo.getResourceType(), fo.getUserNameLike(), fo.getOpStart(), fo
+                        .getOpEnd(), offset, currentBatchSize);
+
+                if (auditDOs == null || auditDOs.isEmpty()) {
+                    break;
+                }
+
+                List<RdpOpAuditVO> auditVOs = auditDOs.stream().map(auditDO -> new RdpOpAuditVO().convertFromDO(auditDO)).collect(Collectors.toList());
+                fillExtraVO(auditVOs);
+                for (RdpOpAuditVO auditVO : auditVOs) {
+                    writer.writeRow(this.exportRow(auditVO));
+                    preparedRows++;
+                }
+
+                offset += auditDOs.size();
+                long now = System.currentTimeMillis();
+                if (now - lastReportTime > 1000) {
+                    lastReportTime = now;
+                    this.sendOpAuditExportProgress(requesterUid, exportId, OpAuditExportStage.PREPARING, preparedRows, 0, 0, 0, "Prepared " + preparedRows
+                                                                                                                                + " operation audit rows.", null);
+                }
+
+                if (auditDOs.size() < currentBatchSize) {
+                    break;
+                }
+            }
+        }
+
+        this.sendOpAuditExportProgress(requesterUid, exportId, OpAuditExportStage.PREPARING, preparedRows, 0, 0, 0, "Prepared " + preparedRows + " operation audit rows.", null);
+        return preparedRows;
+    }
+
+    private LinkedHashMap<String, JDBCType> exportColumns() {
+        LinkedHashMap<String, JDBCType> columns = new LinkedHashMap<>();
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_USER_NAME"), JDBCType.VARCHAR);
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_UID"), JDBCType.VARCHAR);
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_OPERATE_DATE"), JDBCType.TIMESTAMP);
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_RESOURCE_TYPE"), JDBCType.VARCHAR);
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_AUDIT_TYPE"), JDBCType.VARCHAR);
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_RESOURCE_VALUE"), JDBCType.VARCHAR);
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_SOURCE_IP"), JDBCType.VARCHAR);
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_LOG_PATH_WORKER_IP"), JDBCType.VARCHAR);
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_SECURITY_LEVEL"), JDBCType.VARCHAR);
+        columns.put(DmI18nUtils.getMessage("EXPORT_OPAUDIT_UUID_KEY"), JDBCType.VARCHAR);
+        return columns;
+    }
+
+    private Map<String, String> exportVariables() {
+        Map<String, String> variables = new LinkedHashMap<>();
+        variables.put("Environment", "DM");
+        variables.put("DataSource", "operation_audit");
+        variables.put("User", "DM");
+        return variables;
+    }
+
+    private List<String> exportRow(RdpOpAuditVO auditVO) {
+        List<String> row = new ArrayList<>();
+        row.add(auditVO.getUserName());
+        row.add(auditVO.getUid());
+        row.add(auditVO.getOperateDate() == null ? null : new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(auditVO.getOperateDate()));
+        row.add(StringUtils.isBlank(auditVO.getResourceTypeDesc()) ? auditVO.getResourceType() : auditVO.getResourceTypeDesc());
+        row.add(StringUtils.isBlank(auditVO.getAuditTypeDesc()) ? auditVO.getAuditType() : auditVO.getAuditTypeDesc());
+        row.add(this.exportResource(auditVO));
+        row.add(auditVO.getSourceIp());
+        row.add(auditVO.getLogPathWorkerIp());
+        row.add(auditVO.getSecurityLevel() == null ? null : auditVO.getSecurityLevel().name());
+        row.add(auditVO.getUuidKey());
+        return row;
+    }
+
+    private String exportResource(RdpOpAuditVO auditVO) {
+        if (auditVO.getResourceVO() != null && StringUtils.isNotBlank(auditVO.getResourceVO().getResourceFlag())) {
+            return auditVO.getResourceVO().getResourceFlag();
+        } else if (StringUtils.isNotBlank(auditVO.getResourceName())) {
+            return auditVO.getResourceName();
+        } else if (StringUtils.isNotBlank(auditVO.getOperationUri())) {
+            return auditVO.getOperationUri();
+        } else {
+            return auditVO.getResourceValue();
+        }
+    }
+
+    private String defaultConvertOption(String formatName) {
+        if (StringUtils.equals(formatName, "application/sql")) {
+            return "{\"limit\":-1,\"tableName\":\"operation_audit\",\"dataSourceType\":\"MySQL\"}";
+        } else {
+            return "{\"limit\":-1}";
+        }
+    }
+
+    private void writeExportResponse(HttpServletResponse response, File exportFile, String fileName) throws IOException {
+        String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8).replace("+", "%20");
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + encodedFileName);
+        response.setContentLengthLong(exportFile.length());
+        Files.copy(exportFile.toPath(), response.getOutputStream());
+        response.flushBuffer();
+    }
+
+    private void sendOpAuditExportProgress(String uid, String exportId, OpAuditExportStage stage, long preparedRows, long current, long total, int percent, String message,
+                                           String errorMessage) {
+        OpAuditExportProgressVO vo = new OpAuditExportProgressVO();
+        vo.setUid(uid);
+        vo.setExportId(exportId);
+        vo.setStage(stage);
+        vo.setPreparedRows(preparedRows);
+        vo.setCurrent(current);
+        vo.setTotal(total);
+        vo.setPercent(percent);
+        vo.setMessage(message);
+        vo.setErrorMessage(errorMessage);
+        vo.setSuccess(stage == OpAuditExportStage.DONE);
+        DmGlobalEventBus.triggerOpAuditExportEvent(vo);
+    }
+
+    private void deleteQuietly(File file) {
+        if (file != null) {
+            try {
+                Files.deleteIfExists(file.toPath());
+            } catch (Exception e) {
+                log.warn("Delete temporary operation audit export file failed: " + file.getAbsolutePath(), e);
+            }
+        }
+    }
 }

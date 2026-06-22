@@ -30,7 +30,6 @@ import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.init.model.InitFieldDef;
 import com.clougence.clouddm.init.model.TestDbResult;
-import com.clougence.clouddm.init.service.InitMysqlDriverService;
 import com.clougence.clouddm.init.service.SysInitDefService;
 import com.clougence.clouddm.init.service.SysInitService;
 
@@ -48,8 +47,6 @@ public class InitController {
     private SysInitService         initService;
     @Resource
     private SysInitDefService      defService;
-    @Resource
-    private InitMysqlDriverService initMysqlDriverService;
 
     /**
      * Returns the default configuration field definitions.
@@ -73,19 +70,6 @@ public class InitController {
         String password = params.get("spring.datasource.password");
         TestDbResult result = initService.testDbConnection(jdbcUrl, username, password);
         return ResWebDataUtils.buildSuccess(result);
-    }
-
-    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    @RequestMapping(value = "/checkDriverStatus", method = { RequestMethod.POST })
-    public ResWebData<?> checkDriverStatus() {
-        return ResWebDataUtils.buildSuccess(this.initMysqlDriverService.driverStatus());
-    }
-
-    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    @RequestMapping(value = "/downloadDriver", method = { RequestMethod.POST })
-    public ResWebData<?> downloadDriver() {
-        this.initMysqlDriverService.downloadDriver();
-        return ResWebDataUtils.buildSuccess(null);
     }
 
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)

@@ -15,6 +15,11 @@
  */
 package com.clougence.clouddm.platform.dal.config;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -40,12 +45,13 @@ import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
-import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.drivers.*;
-import com.clougence.drivers.def.ResDef;
-import com.clougence.drivers.def.VerDef;
+import com.clougence.clouddm.api.common.GlobalConfUtils;
+import com.clougence.drivers.DataSourceBridge;
+import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
+import com.clougence.utils.io.IOUtils;
 import com.clougence.utils.loader.CgClassLoader;
+import com.clougence.utils.loader.providers.JarResourceLoader;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -59,10 +65,10 @@ import lombok.extern.slf4j.Slf4j;
 @EnableTransactionManagement
 @MapperScan(basePackages = "com.clougence.clouddm.platform.dal.mapper", sqlSessionFactoryRef = "sqlSessionFactory")
 public class DmDalConfig {
-    public static final String MYSQL_DRIVER_RUNTIME_FAMILY   = "cgdm-runtime-mysql";
-    public static final String MYSQL_DRIVER_VERSION          = "default";
-    public static final String MYSQL_DRIVER_CLASS_NAME       = "com.mysql.cj.jdbc.Driver";
-    public static final String MYSQL_DRIVER_MAVEN_COORDINATE = "com.mysql:mysql-connector-j:jar:8.0.33";
+    public static final String   MYSQL_DRIVER_CLASS_NAME = "com.mysql.cj.jdbc.Driver";
+    private static final String  DRIVER_JAR_RESOURCE     = "driver-jar/mysql-connector-j-8.0.33.jar";
+    private static final String  DRIVER_JAR_FILE         = "cgdm-mysq/mysql-connector-j-8.0.33.jar";
+    private static CgClassLoader driverClassLoader;
 
     @Primary
     @Bean(name = "dataSource")
@@ -97,21 +103,7 @@ public class DmDalConfig {
 
     public static DataSource createDriverDataSource(String jdbcUrl, String username, String password, long connectionTimeout) {
         // dsFactory
-        DriverLoader loader = PluginManager.driverLoader();
-        DriverVersion ver = DmDalConfig.mainDsDriverVersion();
-        if (!ver.isPrepared()) {
-            throw new IllegalStateException("Runtime MySQL driver is not ready. family=" + MYSQL_DRIVER_RUNTIME_FAMILY + ", version=" + MYSQL_DRIVER_VERSION);
-        }
-
-        DriverBinding binding = loader.createBinding(DmDalConfig.class.getClassLoader(), MYSQL_DRIVER_RUNTIME_FAMILY, MYSQL_DRIVER_VERSION);
-        if (binding == null) {
-            throw new IllegalStateException("MySQL driver binding is unavailable. family=" + MYSQL_DRIVER_RUNTIME_FAMILY + ", version=" + MYSQL_DRIVER_VERSION);
-        }
-        if (!isDriverClassAvailable(binding)) {
-            throw new IllegalStateException("Runtime MySQL driver class is unavailable.");
-        }
-
-        CgClassLoader classLoader = binding.asClassLoader();
+        CgClassLoader classLoader = ensureDriverAvailable();
         DmDalConfigDsFactory dsFactory = new DmDalConfigDsFactory(classLoader);
 
         // Hikari
@@ -124,39 +116,79 @@ public class DmDalConfig {
         return new DataSourceBridge(properties, dsFactory);
     }
 
-    public static boolean isDriverClassAvailable(DriverBinding binding) {
-        if (binding == null) {
-            return false;
+    public static synchronized CgClassLoader ensureDriverAvailable() {
+        if (driverClassLoader != null) {
+            try {
+                driverClassLoader.loadClass(MYSQL_DRIVER_CLASS_NAME);
+                return driverClassLoader;
+            } catch (ClassNotFoundException e) {
+                log.debug("Cached runtime MySQL driver class is unavailable: {}", e.getMessage());
+                IOUtils.closeQuietly(driverClassLoader);
+                driverClassLoader = null;
+            }
         }
 
+        CgClassLoader classLoader = createDriverClassLoader(false);
         try {
-            binding.asClassLoader().loadClass(MYSQL_DRIVER_CLASS_NAME);
-            return true;
+            classLoader.loadClass(MYSQL_DRIVER_CLASS_NAME);
+            driverClassLoader = classLoader;
+            return classLoader;
         } catch (ClassNotFoundException e) {
-            return false;
+            log.debug("Runtime MySQL driver class is unavailable after loading cache: {}", e.getMessage());
+            IOUtils.closeQuietly(classLoader);
+        }
+
+        classLoader = createDriverClassLoader(true);
+        try {
+            classLoader.loadClass(MYSQL_DRIVER_CLASS_NAME);
+            driverClassLoader = classLoader;
+            return classLoader;
+        } catch (ClassNotFoundException e) {
+            IOUtils.closeQuietly(classLoader);
+            throw new IllegalStateException("Runtime MySQL driver class is unavailable after refreshing cache: " + MYSQL_DRIVER_CLASS_NAME, e);
         }
     }
 
-    public static DriverVersion mainDsDriverVersion() {
-        DriverLoader internalLoader = PluginManager.driverLoader();
-        DriverFamily driverFamily = internalLoader.findDriver(MYSQL_DRIVER_RUNTIME_FAMILY);
-        if (driverFamily == null) {
-            driverFamily = internalLoader.addDriver(MYSQL_DRIVER_RUNTIME_FAMILY);
+    private static CgClassLoader createDriverClassLoader(boolean refresh) {
+        File driverJarFile = new File(GlobalConfUtils.getTempData(DRIVER_JAR_FILE));
+        if (refresh) {
+            try {
+                Files.deleteIfExists(driverJarFile.toPath());
+            } catch (IOException e) {
+                throw new IllegalStateException("Delete runtime MySQL driver cache failed: " + driverJarFile.getAbsolutePath(), e);
+            }
         }
-
-        VerDef ver = (VerDef) driverFamily.findVersion(MYSQL_DRIVER_VERSION);
-        if (ver == null) {
-            ver = (VerDef) driverFamily.addVersion(MYSQL_DRIVER_VERSION);
-            ver.setLocalDir(internalLoader.getDriverHome());
-            ver.setDsFactory(DmDalConfigDsFactory.class.getName());
-
-            ResDef resource = new ResDef();
-            resource.setResourceType("maven");
-            resource.setCoordinate(MYSQL_DRIVER_MAVEN_COORDINATE);
-            ver.addResource(resource);
+        if (!driverJarFile.isFile()) {
+            copyDriverJarResource(driverJarFile);
         }
+        if (!driverJarFile.isFile()) {
+            throw new IllegalStateException("Runtime MySQL driver jar is unavailable: " + driverJarFile.getAbsolutePath());
+        }
+        try {
+            return new JarResourceLoader(driverJarFile).toClassLoader(DmDalConfig.class.getClassLoader());
+        } catch (IOException e) {
+            throw new IllegalStateException("Load runtime MySQL driver jar failed: " + driverJarFile.getAbsolutePath(), e);
+        }
+    }
 
-        return ver;
+    private static void copyDriverJarResource(File driverJarFile) {
+        try (InputStream input = DmDalConfig.class.getClassLoader().getResourceAsStream(DRIVER_JAR_RESOURCE)) {
+            if (input == null) {
+                if (driverJarFile.isFile()) {
+                    log.warn("Runtime MySQL driver resource {} not found in classpath, use existing file {}.", DRIVER_JAR_RESOURCE, driverJarFile.getAbsolutePath());
+                    return;
+                }
+                throw new IllegalStateException("Runtime MySQL driver resource is missing: " + DRIVER_JAR_RESOURCE);
+            }
+
+            File parentFile = driverJarFile.getParentFile();
+            if (parentFile != null) {
+                Files.createDirectories(parentFile.toPath());
+            }
+            Files.copy(input, driverJarFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new IllegalStateException("Copy runtime MySQL driver resource failed: " + DRIVER_JAR_RESOURCE + " -> " + driverJarFile.getAbsolutePath(), e);
+        }
     }
 
     @Primary

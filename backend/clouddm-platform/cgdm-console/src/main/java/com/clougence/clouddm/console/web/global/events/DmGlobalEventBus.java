@@ -23,6 +23,7 @@ import com.clougence.clouddm.console.web.component.dsconfig.event.DriverDownload
 import com.clougence.clouddm.console.web.model.vo.editor.WsResult;
 import com.clougence.clouddm.console.web.model.vo.editor.query.WsQueryResult;
 import com.clougence.clouddm.console.web.model.vo.export.DmExportVO;
+import com.clougence.clouddm.console.web.model.vo.export.OpAuditExportProgressVO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO;
 import com.clougence.utils.function.EConsumer;
 
@@ -50,35 +51,43 @@ public class DmGlobalEventBus {
     //                                                                   Result
     // ------------------------------------------------------------------------
 
-    public static void triggerQueryResultEvent(WsResult queryFO) {
-        Dami.bus().send("/DmQueryResponse", queryFO);
+    public static void triggerQueryResultEvent(WsResult e) {
+        Dami.bus().send("/DmQueryResponse", e);
     }
 
-    public static void addQueryResultEventListen(EConsumer<WsQueryResult, IOException> consumer) {
-        Dami.bus().listen("/DmQueryResponse", payload -> consumer.eAccept((WsQueryResult) payload.getContent()));
+    public static void addQueryResultEventListen(EConsumer<WsQueryResult, IOException> c) {
+        Dami.bus().listen("/DmQueryResponse", p -> c.eAccept((WsQueryResult) p.getContent()));
     }
 
-    public static void triggerLanguageResultEvent(WsResult languageResult) {
-        Dami.bus().send("/DmLanguageResponse", languageResult);
+    public static void triggerLanguageResultEvent(WsResult r) {
+        Dami.bus().send("/DmLanguageResponse", r);
     }
 
-    public static void addLanguageResultEventListen(EConsumer<WsResult, IOException> consumer) {
-        Dami.bus().listen("/DmLanguageResponse", payload -> consumer.eAccept((WsResult) payload.getContent()));
+    public static void addLanguageResultEventListen(EConsumer<WsResult, IOException> c) {
+        Dami.bus().listen("/DmLanguageResponse", p -> c.eAccept((WsResult) p.getContent()));
     }
 
-    public static void triggerQueryResultExportEvent(DmExportVO exportVO) {
-        Dami.bus().send("/DmQueryExport", exportVO);
+    public static void triggerQueryResultExportEvent(DmExportVO e) {
+        Dami.bus().send("/DmQueryExport", e);
     }
 
-    public static void addQueryResultExportListen(EConsumer<DmExportVO, IOException> consumer) {
-        Dami.bus().listen("/DmQueryExport", payload -> consumer.eAccept((DmExportVO) payload.getContent()));
+    public static void addQueryResultExportListen(EConsumer<DmExportVO, IOException> c) {
+        Dami.bus().listen("/DmQueryExport", p -> c.eAccept((DmExportVO) p.getContent()));
     }
 
-    public static void triggerDriverDownloadEvent(DriverDownloadEvent event) {
-        Dami.bus().send("/DmDriverDownload", event);
+    public static void triggerOpAuditExportEvent(OpAuditExportProgressVO vo) {
+        Dami.bus().send("/DmOpAuditExport", vo);
     }
 
-    public static void addDriverDownloadEventListen(EConsumer<DriverDownloadEvent, IOException> consumer) {
-        Dami.bus().listen("/DmDriverDownload", payload -> consumer.eAccept((DriverDownloadEvent) payload.getContent()));
+    public static void addOpAuditExportListen(EConsumer<OpAuditExportProgressVO, IOException> c) {
+        Dami.bus().listen("/DmOpAuditExport", p -> c.eAccept((OpAuditExportProgressVO) p.getContent()));
+    }
+
+    public static void triggerDriverDownloadEvent(DriverDownloadEvent e) {
+        Dami.bus().send("/DmDriverDownload", e);
+    }
+
+    public static void addDriverDownloadEventListen(EConsumer<DriverDownloadEvent, IOException> c) {
+        Dami.bus().listen("/DmDriverDownload", p -> c.eAccept((DriverDownloadEvent) p.getContent()));
     }
 }

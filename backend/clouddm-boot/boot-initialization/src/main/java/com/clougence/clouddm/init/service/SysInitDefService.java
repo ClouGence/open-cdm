@@ -16,20 +16,11 @@
 package com.clougence.clouddm.init.service;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.init.constant.InitSeedConstants;
 import com.clougence.clouddm.init.model.InitFieldDef;
@@ -146,6 +137,7 @@ public class SysInitDefService {
         Properties props = new Properties();
         props.setProperty("spring.datasource.username", "");
         props.setProperty("spring.datasource.password", "");
+        props.setProperty("clougence.init.admin.account", InitSeedConstants.DEFAULT_PRIMARY_ACCOUNT);
         props.setProperty("clougence.init.admin.email", InitSeedConstants.DEFAULT_PRIMARY_EMAIL);
         props.setProperty("server.port", "8222");
         props.setProperty("clouddm.rsocket.dns", resolveDefaultHostIp());
@@ -165,28 +157,12 @@ public class SysInitDefService {
 
     private void loadRuntimeProperties(Properties props, String defaultConfigName, String runtimeConfigName) throws IOException {
         loadClasspathProperties(props, defaultConfigName);
-        if (!loadAppHomeProperties(props, runtimeConfigName)) {
-            loadClasspathProperties(props, runtimeConfigName);
-        }
+        loadClasspathProperties(props, runtimeConfigName);
     }
 
     private void loadClasspathProperties(Properties props, String resourcePath) throws IOException {
         Map<String, String> map = ResourcesUtils.getProperty(resourcePath);
-        if (map != null) {
-            props.putAll(map);
-        }
-    }
-
-    private boolean loadAppHomeProperties(Properties props, String configName) throws IOException {
-        Path configPath = Paths.get(GlobalConfUtils.getAppHome(), "conf", configName);
-        if (!Files.exists(configPath)) {
-            return false;
-        }
-
-        try (InputStream input = Files.newInputStream(configPath)) {
-            props.load(input);
-        }
-        return true;
+        props.putAll(map);
     }
 
     private void overlaySystemProperties(Properties props) {

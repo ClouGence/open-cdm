@@ -1,7 +1,7 @@
 <script>
 import * as monaco from 'monaco-editor';
 import { markRaw } from 'vue';
-import { Message } from 'view-ui-plus';
+import Toast from '@/utils/toast';
 
 export default {
   name: 'JSONEditor',
@@ -432,17 +432,17 @@ export default {
             document.execCommand('copy');
           } catch (err) {
             console.error('复制失败:', err);
-            Message.error('复制失败');
+            Toast.error('复制失败');
             return;
           } finally {
             document.body.removeChild(textArea);
           }
         }
 
-        Message.success(message);
+        Toast.success(message);
       } catch (err) {
         console.error('复制失败:', err);
-        Message.error('复制失败');
+        Toast.error('复制失败');
       }
     }
   },

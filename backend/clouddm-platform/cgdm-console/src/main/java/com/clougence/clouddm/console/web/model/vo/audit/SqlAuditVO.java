@@ -33,7 +33,7 @@ public class SqlAuditVO {
 
     private Long           id;
 
-    //    private String    uid;
+    private String         uid;
     private String         userName;
     private String         primaryUid;
 
@@ -53,6 +53,8 @@ public class SqlAuditVO {
 
     private Long           dsId;
     private String         dsDesc;
+    private String         dsResourceId;
+    private String         dsRemark;
     private DataSourceType dataSourceType;
     private String         message;
 
@@ -68,7 +70,8 @@ public class SqlAuditVO {
         }
 
         vo.setDataSourceType(auditDO.getDataSourceType());
-        vo.setUserName(auditDO.getUserName() + "(" + auditDO.getUid() + ")");
+        vo.setUid(auditDO.getUid());
+        vo.setUserName(auditDO.getUserName());
         vo.setPrimaryUid(auditDO.getPrimaryUid());
         vo.setOperateTime(auditDO.getOperateTime());
         vo.setExecSql(auditDO.getExecSql());
@@ -86,6 +89,7 @@ public class SqlAuditVO {
 
         vo.setDsId(auditDO.getDsId());
         vo.setDsDesc(auditDO.getDsDesc());
+        vo.setDsResourceId(auditDO.getDsDesc());
         vo.setMessage(auditDO.getMessage());
 
         return vo;

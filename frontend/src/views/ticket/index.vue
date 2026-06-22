@@ -1,12 +1,18 @@
 <template>
   <div class="ticket-container">
     <div class="table-list-layout">
+      <nav class="ticket-tabs">
+        <button
+          v-for="tab in ticketTabs"
+          :key="tab.name"
+          class="ticket-tabs__item"
+          :class="{ 'is-active': ticketListType === tab.name }"
+          @click="handleTabClick(tab.name)"
+        >
+          {{ tab.label }}
+        </button>
+      </nav>
       <div class="table-list">
-        <Tabs v-model="ticketListType" @on-click="handleChangeTicketListType">
-          <TabPane name="WAIT_SELF_PROCESS" :label="$t('dai-ban')" />
-          <TabPane name="SELF_CREATE" :label="$t('wo-fa-qi-de')" />
-          <TabPane name="ALL" :label="$t('quan-bu')" />
-        </Tabs>
         <div class="content">
           <div class="option">
             <div class="left">
@@ -133,6 +139,11 @@ export default {
       loading: false,
       ticketData: [],
       ticketListType: 'WAIT_SELF_PROCESS',
+      ticketTabs: [
+        { name: 'WAIT_SELF_PROCESS', label: this.$t('dai-ban') },
+        { name: 'SELF_CREATE', label: this.$t('wo-fa-qi-de') },
+        { name: 'ALL', label: this.$t('quan-bu') }
+      ],
       searchKey: {
         daterange: [],
         ticketStatus: '',
@@ -253,7 +264,11 @@ export default {
       this.pageSize = pageSize;
       this.handlePageChange(1);
     },
-    handleChangeTicketListType() {
+    handleTabClick(name) {
+      if (this.ticketListType === name) {
+        return;
+      }
+      this.ticketListType = name;
       this.pageNum = 1;
       this.listTickets();
     },
@@ -294,5 +309,48 @@ export default {
   height: 100%;
   min-height: 0;
   overflow: hidden;
+}
+
+.ticket-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 0;
+  background: var(--bg-card);
+
+  &__item {
+    position: relative;
+    padding: 12px 20px 10px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    border: none;
+    border-bottom: none;
+    background: none;
+    cursor: pointer;
+    transition: color 0.12s ease;
+
+    &:hover {
+      color: var(--text-primary);
+    }
+
+    &.is-active {
+      color: var(--text-primary);
+      font-weight: 500;
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        bottom: 0;
+        height: 2px;
+        border-radius: 2px 2px 0 0;
+        background: var(--primary-color);
+      }
+    }
+  }
 }
 </style>

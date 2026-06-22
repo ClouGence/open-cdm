@@ -13,7 +13,6 @@ import com.clougence.drivers.DsObject;
 import com.clougence.utils.StringUtils;
 
 public class DmDalConfigDsFactory implements DsFactory<Connection> {
-
     private static final String DEFAULT_CONNECT_TIMEOUT_MS = "3000";
     private static final String DEFAULT_SOCKET_TIMEOUT_MS  = "30000";
     private static final String DEFAULT_CHARACTER_ENCODING = "utf8";

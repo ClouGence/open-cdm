@@ -71,6 +71,7 @@ public class SysInitService {
     private static final Set<String> RUNTIME_INIT_CONFIG_KEYS     = Set.of( //
             INIT_WORKFLOW_MODE_KEY, //
             INIT_DB_CREATE_IF_MISSING, //
+            InitSeedConstants.RUNTIME_ADMIN_ACCOUNT_KEY, //
             InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY, //
             InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY);
     @Resource
@@ -181,8 +182,9 @@ public class SysInitService {
         String jdbcUrl = userConfig.get(JDBC_URL_CONFIG_KEY);
         InstallUpgradeLogBus.start("install", jdbcUrl);
         try {
-            log.info("[SysInitService] Applying initialization config, createIfMissing={}, adminEmail={}", //
+            log.info("[SysInitService] Applying initialization config, createIfMissing={}, adminAccount={}, adminEmail={}", //
                     userConfig.getOrDefault(INIT_DB_CREATE_IF_MISSING, "false"),    //
+                    userConfig.get(InitSeedConstants.RUNTIME_ADMIN_ACCOUNT_KEY),    //
                     userConfig.get(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY));
             InstallUpgradeLogBus.info("Applying initialization configuration.");
 
@@ -192,6 +194,7 @@ public class SysInitService {
             jdbcUrl = userConfig.getOrDefault(JDBC_URL_CONFIG_KEY, props.getProperty(JDBC_URL_CONFIG_KEY));
             String dbUser = userConfig.getOrDefault("spring.datasource.username", props.getProperty("spring.datasource.username"));
             String dbPass = userConfig.getOrDefault("spring.datasource.password", props.getProperty("spring.datasource.password"));
+            String adminAccount = userConfig.get(InitSeedConstants.RUNTIME_ADMIN_ACCOUNT_KEY);
             String adminEmail = userConfig.get(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY);
             String adminPassword = userConfig.get(InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY);
             boolean createIfMissing = Boolean.parseBoolean(userConfig.getOrDefault(INIT_DB_CREATE_IF_MISSING, "false"));
@@ -201,7 +204,7 @@ public class SysInitService {
             if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser)) {
                 DatabaseInspection inspection = inspectDatabase(jdbcUrl, dbUser, dbPass, false);
                 bootstrapAdmin = !inspection.databaseExists || inspection.empty;
-                log.info("[SysInitService] Initialization target inspection, bootstrapAdmin={}, databaseExists={}, empty={}, adminEmail={}", bootstrapAdmin, inspection.databaseExists, inspection.empty, adminEmail);
+                log.info("[SysInitService] Initialization target inspection, bootstrapAdmin={}, databaseExists={}, empty={}, rebuildIfNotEmpty={}, adminAccount={}, adminEmail={}", bootstrapAdmin, inspection.databaseExists, inspection.empty, adminAccount, adminEmail);
 
                 InstallUpgradeLogBus.info("Preparing database.");
                 prepareDatabase(jdbcUrl, dbUser, dbPass, createIfMissing);
@@ -210,12 +213,13 @@ public class SysInitService {
             if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser)) {
                 String databaseName = InitDBStatusDetector.getDatabaseName(jdbcUrl);
                 pendingScripts = DmFlywayInit.listUpgradeRequiredScriptNames(jdbcUrl, dbUser, dbPass, databaseName);
-                runFlywayMigration(jdbcUrl, dbUser, dbPass, bootstrapAdmin ? adminEmail : null, bootstrapAdmin ? adminPassword : null);
+                runFlywayMigration(jdbcUrl, dbUser, dbPass, bootstrapAdmin ? adminAccount : null, bootstrapAdmin ? adminEmail : null, bootstrapAdmin ? adminPassword : null);
             }
 
-            if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser) && StringUtils.isNotBlank(adminEmail) && StringUtils.isNotBlank(adminPassword)) {
+            if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser) && StringUtils.isNotBlank(adminAccount) && StringUtils.isNotBlank(adminEmail)
+                && StringUtils.isNotBlank(adminPassword)) {
                 InstallUpgradeLogBus.info("Updating administrator account.");
-                updateAdminUser(jdbcUrl, dbUser, dbPass, adminEmail, adminPassword);
+                updateAdminUser(jdbcUrl, dbUser, dbPass, adminAccount, adminEmail, adminPassword);
             }
 
             if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser) && (bootstrapAdmin || !pendingScripts.isEmpty())) {
@@ -319,8 +323,9 @@ public class SysInitService {
     }
 
     private void runFlywayMigration(String jdbcUrl, String dbUser, String dbPass,//
-                                    String adminEmail, String adminPassword) {
+                                    String adminAccount, String adminEmail, String adminPassword) {
         log.info("[SysInitService] Running Flyway migration with: {}", jdbcUrl);
+        String previousAdminAccount = System.getProperty(InitSeedConstants.RUNTIME_ADMIN_ACCOUNT_KEY);
         String previousAdminEmail = System.getProperty(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY);
         String previousAdminPassword = System.getProperty(InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY);
         try {
@@ -331,6 +336,7 @@ public class SysInitService {
             Properties props = buildTaskProperties(jdbcUrl, dbUser, dbPass);
             app.setDefaultProperties(props);
 
+            setRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_ACCOUNT_KEY, adminAccount);
             setRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY, adminEmail);
             setRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY, adminPassword);
             InstallUpgradeLogBus.notice("DB_INIT", "info");
@@ -344,6 +350,7 @@ public class SysInitService {
             log.error("[SysInitService] Flyway migration failed", e);
             throw new RuntimeException("Flyway migration failed: " + e.getMessage(), e);
         } finally {
+            restoreRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_ACCOUNT_KEY, previousAdminAccount);
             restoreRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY, previousAdminEmail);
             restoreRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY, previousAdminPassword);
         }
@@ -371,7 +378,7 @@ public class SysInitService {
     }
 
     private void updateAdminUser(String jdbcUrl, String dbUser, String dbPass,//
-                                 String adminEmail, String adminPassword) throws SQLException {
+                                 String adminAccount, String adminEmail, String adminPassword) throws SQLException {
         try (Connection conn = DmDalConfig.createDriverConnection(jdbcUrl, dbUser, dbPass, 1000L)) {
             // Encrypt the password using the same format as the Flyway seed scripts.
             PasswordInfo cryptResult = CryptService.INSTANCE.encryptForOneWay(adminPassword);
@@ -399,8 +406,8 @@ public class SysInitService {
                             .prepareStatement("UPDATE dm_auth_user SET email = ?, phone = NULL, password = ?, username = ?, account = ?, allow_local = 1 WHERE uid = ?")) {
                             updateStmt.setString(1, adminEmail);
                             updateStmt.setString(2, encodedPassword);
-                            updateStmt.setString(3, InitSeedConstants.DEFAULT_PRIMARY_ACCOUNT);
-                            updateStmt.setString(4, InitSeedConstants.DEFAULT_PRIMARY_ACCOUNT);
+                            updateStmt.setString(3, adminAccount);
+                            updateStmt.setString(4, adminAccount);
                             updateStmt.setString(5, InitSeedConstants.ADMIN_UID);
                             int affected = updateStmt.executeUpdate();
                             log.info("[SysInitService] Admin user updated, affected rows: {}", affected);
@@ -413,8 +420,8 @@ public class SysInitService {
                             insertStmt.setString(1, InitSeedConstants.ADMIN_UID);
                             insertStmt.setString(2, adminEmail);
                             insertStmt.setString(3, encodedPassword);
-                            insertStmt.setString(4, InitSeedConstants.DEFAULT_PRIMARY_ACCOUNT);
-                            insertStmt.setString(5, InitSeedConstants.DEFAULT_PRIMARY_ACCOUNT);
+                            insertStmt.setString(4, adminAccount);
+                            insertStmt.setString(5, adminAccount);
                             insertStmt.setString(6, InitSeedConstants.DEFAULT_PRIMARY_ACCESS_KEY);
                             insertStmt.setString(7, encryptedSecretKey);
                             insertStmt.executeUpdate();

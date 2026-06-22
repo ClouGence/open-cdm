@@ -1,9 +1,5 @@
 <template>
   <div class="ticket-detail-container">
-    <Breadcrumb>
-      <BreadcrumbItem to="/ticket">{{ $t('gong-dan') }}</BreadcrumbItem>
-      <BreadcrumbItem>{{ $t('gong-dan-xiang-qing') }}</BreadcrumbItem>
-    </Breadcrumb>
     <Card class="ticket-detail-status">
       <template #title>
         <p class="ticket-title-p" style="display: flex; align-items: center">

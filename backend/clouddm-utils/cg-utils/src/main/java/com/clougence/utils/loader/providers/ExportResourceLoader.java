@@ -180,4 +180,9 @@ public class ExportResourceLoader extends AbstractResourceLoader {
     public Manifest getManifest(String resource) throws IOException {
         return resourceLoader.getManifest(resource);
     }
+
+    @Override
+    public void close() throws IOException {
+        this.resourceLoader.close();
+    }
 }

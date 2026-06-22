@@ -1,11 +1,15 @@
 <template>
   <div class="rule-list-container">
     <div class="table-list-layout">
+      <nav class="rule-tabs">
+        <span class="rule-tabs__item" :class="{ 'is-active': activeTab === 'QUERY' }" @click="handleTabClick('QUERY')">
+          {{ $t('cha-xun-gui-ze') }}
+        </span>
+        <span class="rule-tabs__item" :class="{ 'is-active': activeTab === 'SENSITIVE' }" @click="handleTabClick('SENSITIVE')">
+          {{ $t('tuo-min-gui-ze') }}
+        </span>
+      </nav>
       <div class="table-list">
-        <Tabs v-model="activeTab" @on-click="handleTabClick">
-          <TabPane :label="$t('cha-xun-gui-ze')" name="QUERY"></TabPane>
-          <TabPane :label="$t('tuo-min-gui-ze')" name="SENSITIVE"></TabPane>
-        </Tabs>
         <div class="content" v-if="isQuery">
           <div class="option">
             <div class="left">
@@ -22,7 +26,7 @@
             </div>
           </div>
           <div class="table-container">
-            <Table border stripe :columns="QUERY.ruleColumns" :data="QUERY.showRuleList" size="small" :loading="QUERY.loading">
+            <Table border stripe :columns="queryRuleColumns" :data="QUERY.showRuleList" :scroll="queryTableScroll" size="small" :loading="QUERY.loading">
               <template #targetType="{ row }">
                 {{ getTargetType(row.targetType).i18n }}
               </template>
@@ -76,7 +80,7 @@
             </div>
           </div>
           <div class="table-container">
-            <Table border stripe :columns="SENSITIVE.ruleColumns" :data="SENSITIVE.showRuleList" size="small" :loading="SENSITIVE.loading">
+            <Table border stripe :columns="sensitiveRuleColumns" :data="SENSITIVE.showRuleList" :scroll="sensitiveTableScroll" size="small" :loading="SENSITIVE.loading">
               <template #ruleAction="{ row }">
                 <Button @click="handleViewRule(row)" type="text" size="small">
                   {{ $t('xiang-qing') }}
@@ -180,34 +184,7 @@ export default {
         search: '',
         allRuleList: [],
         ruleList: [],
-        showRuleList: [],
-        ruleColumns: [
-          {
-            title: this.$t('gui-ze-ming-cheng'),
-            key: 'ruleName',
-            width: 200
-          },
-          {
-            title: this.$t('gui-ze-miao-shu'),
-            key: 'ruleDesc'
-          },
-          {
-            title: this.$t('shu-ju-yuan'),
-            slot: 'dsRange',
-            width: 250
-          },
-          {
-            title: this.$t('dui-xiang-lei-xing'),
-            key: 'targetTypeI18n',
-            width: 100
-          },
-          {
-            title: this.$t('cao-zuo'),
-            slot: 'ruleAction',
-            width: 160,
-            fixed: 'right'
-          }
-        ]
+        showRuleList: []
       },
       SENSITIVE: {
         loading: false,
@@ -217,24 +194,7 @@ export default {
         search: '',
         allRuleList: [],
         ruleList: [],
-        showRuleList: [],
-        ruleColumns: [
-          {
-            title: this.$t('gui-ze-ming-cheng'),
-            key: 'ruleName',
-            width: 200
-          },
-          {
-            title: this.$t('gui-ze-miao-shu'),
-            key: 'ruleDesc'
-          },
-          {
-            title: this.$t('cao-zuo'),
-            slot: 'ruleAction',
-            width: 170,
-            fixed: 'right'
-          }
-        ]
+        showRuleList: []
       }
     };
   },
@@ -243,11 +203,68 @@ export default {
     ...mapState(['myAuth']),
     isQuery() {
       return this.activeTab === 'QUERY';
+    },
+    queryRuleColumns() {
+      return [
+        {
+          title: this.$t('gui-ze-ming-cheng'),
+          key: 'ruleName',
+          width: 200
+        },
+        {
+          title: this.$t('gui-ze-miao-shu'),
+          key: 'ruleDesc',
+          width: 360
+        },
+        {
+          title: this.$t('shu-ju-yuan'),
+          slot: 'dsRange',
+          width: 250
+        },
+        {
+          title: this.$t('dui-xiang-lei-xing'),
+          key: 'targetTypeI18n',
+          width: 100
+        },
+        {
+          title: this.$t('cao-zuo'),
+          slot: 'ruleAction',
+          width: 160,
+          fixed: 'right'
+        }
+      ];
+    },
+    queryTableScroll() {
+      return { x: 1070 };
+    },
+    sensitiveRuleColumns() {
+      return [
+        {
+          title: this.$t('gui-ze-ming-cheng'),
+          key: 'ruleName',
+          width: 200
+        },
+        {
+          title: this.$t('gui-ze-miao-shu'),
+          key: 'ruleDesc',
+          width: 360
+        },
+        {
+          title: this.$t('cao-zuo'),
+          slot: 'ruleAction',
+          width: 170,
+          fixed: 'right'
+        }
+      ];
+    },
+    sensitiveTableScroll() {
+      return { x: 730 };
     }
   },
   methods: {
     ...mapActions(['getRuleSetting']),
     handleTabClick(name) {
+      this.activeTab = name;
       this.$router.push({
         path: '/system/dmrulelist',
         query: {
@@ -369,6 +386,49 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+.rule-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 0;
+  background: var(--bg-card);
+
+  &__item {
+    position: relative;
+    padding: 12px 20px 10px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    text-decoration: none;
+    cursor: pointer;
+    border-bottom: none;
+    transition: color 0.12s ease;
+
+    &:hover {
+      color: var(--text-primary);
+      border-bottom: none;
+    }
+
+    &.is-active {
+      color: var(--text-primary);
+      font-weight: 500;
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        bottom: 0;
+        height: 2px;
+        border-radius: 2px 2px 0 0;
+        background: var(--primary-color);
+      }
+    }
+  }
+}
+
 :deep(.ivu-form-item) {
   margin-bottom: 10px;
 }

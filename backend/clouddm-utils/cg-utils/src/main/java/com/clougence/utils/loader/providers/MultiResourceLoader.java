@@ -130,4 +130,11 @@ public class MultiResourceLoader extends AbstractResourceLoader {
         ResourceLoader loader = findLoader(resource);
         return loader == null ? null : loader.getManifest(resource);
     }
+
+    @Override
+    public void close() throws IOException {
+        for (ResourceLoader loader : this.loaders) {
+            loader.close();
+        }
+    }
 }
