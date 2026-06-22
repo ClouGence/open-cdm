@@ -83,7 +83,7 @@ module.exports = {
       '/logout': {
         target: HOST
       },
-      '/global_settings': {
+      '/globalSettings': {
         target: HOST
       },
       '/list_org': {
@@ -92,7 +92,10 @@ module.exports = {
       '/login_supplement': {
         target: HOST
       },
-      '/check_supplement': {
+      '/checkSupplement': {
+        target: HOST
+      },
+      '/loginMfaValid': {
         target: HOST
       },
       '/load_supplement_info': {

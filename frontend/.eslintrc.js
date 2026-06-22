@@ -80,7 +80,7 @@ module.exports = {
     //   }
     // ],
     'linebreak-style': ['off', 'windows'],
-    'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    'no-console': 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-unused-vars': 'off',
     'comma-dangle': [
