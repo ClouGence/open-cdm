@@ -36,7 +36,6 @@
 <script>
 import { EditOutlined } from '@ant-design/icons-vue';
 
-const INIT_DB_REBUILD_IF_NOT_EMPTY = 'clougence.init.db.rebuildIfNotEmpty';
 const UPGRADE_HIDDEN_FIELD_KEYS = new Set(['jwt.secret', 'clougence.init.admin.email', 'clougence.init.admin.password']);
 
 export default {
@@ -46,7 +45,6 @@ export default {
   props: {
     fieldDefs: { type: Array, default: () => [] },
     formValues: { type: Object, default: () => ({}) },
-    dbTestResult: { type: Object, default: null },
     mode: { type: String, default: 'full' },
     workflowMode: { type: String, default: 'initial' }
   },
@@ -62,17 +60,6 @@ export default {
           inputType: field.inputType || 'text',
           editable: true
         }));
-
-      if (this.dbTestResult && this.dbTestResult.showRebuildChoice && ['true', 'false'].includes(this.formValues[INIT_DB_REBUILD_IF_NOT_EMPTY])) {
-        items.push({
-          key: INIT_DB_REBUILD_IF_NOT_EMPTY,
-          label: this.$t('initialization.confirmRebuildDatabase'),
-          rawValue: this.formValues[INIT_DB_REBUILD_IF_NOT_EMPTY],
-          value: this.formValues[INIT_DB_REBUILD_IF_NOT_EMPTY] === 'true' ? this.$t('initialization.optionYes') : this.$t('initialization.optionNo'),
-          inputType: 'boolean',
-          editable: true
-        });
-      }
 
       return items;
     }

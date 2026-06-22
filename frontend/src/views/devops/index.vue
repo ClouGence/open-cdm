@@ -103,7 +103,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import copyMixin from '@/mixins/copyMixin';
 import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
 import { encryptMixin } from '@/mixins/encryptMixin';
@@ -340,7 +340,7 @@ export default {
       }, 100);
     },
     goDetail(row) {
-      this.$router.push(`/project/${row?.id || 1}`);
+      this.$router.push(`/cicd/${row?.id || 1}`);
     },
     nextStep() {},
     confirmGuid() {

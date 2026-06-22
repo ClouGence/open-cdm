@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.clougence.clouddm.platform.dal.mapper.cicd.DmChangeFlowItemMapper">
+    <resultMap id="dmChangeFlowItemDO" type="com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowItemDO">
+        <result column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
+        <result column="owner_uid" property="ownerUid"/>
+        <result column="ref_flow_id" property="refFlowId"/>
+        <result column="content_name" property="contentName"/>
+        <result column="content_index" property="contentIndex"/>
+        <result column="content" property="content"/>
+    </resultMap>
+
+    <sql id="dmChangeFlowItemDO_select">
+        id,
+        gmt_create,
+        gmt_modified,
+        owner_uid,
+        ref_flow_id,
+        content_name,
+        content_index,
+        content
+    </sql>
+
+    <select id="queryItemByFlowId" resultMap="dmChangeFlowItemDO">
+        select
+        <include refid="dmChangeFlowItemDO_select"/>
+        from dm_change_flow_item
+        where owner_uid = #{ownerUid} and ref_flow_id = #{flowId}
+        order by content_index asc
+    </select>
+
+    <delete id="deleteItemByFlowId">
+        delete
+        from dm_change_flow_item
+        where owner_uid = #{ownerUid}
+          and ref_flow_id = #{flowId}
+    </delete>
+</mapper>
+

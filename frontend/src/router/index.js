@@ -54,19 +54,19 @@ const routes = [
         component: () => import(/* webpackChunkName: "sql" */ '@/views/sql/index')
       },
       {
-        path: 'project',
-        name: 'Project',
-        component: () => import(/* webpackChunkName: "project" */ '@/views/project/index')
+        path: 'cicd',
+        name: 'CICD',
+        component: () => import(/* webpackChunkName: "cicd" */ '@/views/cicd/index')
       },
       {
-        path: 'project/:id',
-        name: 'project/id',
-        component: () => import(/* webpackChunkName: "ticket" */ '../views/project/projectDetail')
+        path: 'cicd/:id',
+        name: 'cicd/id',
+        component: () => import(/* webpackChunkName: "ticket" */ '../views/cicd/flowDetail')
       },
       {
-        path: 'project/change/:id',
-        name: 'project/change/id',
-        component: () => import(/* webpackChunkName: "ticket" */ '@/views/project/changeDetail')
+        path: 'cicd/change/:id',
+        name: 'cicd/change/id',
+        component: () => import(/* webpackChunkName: "ticket" */ '@/views/cicd/changeDetail')
       },
       {
         path: 'ticket',

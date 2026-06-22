@@ -30,10 +30,10 @@ export default {
     pageTitle() {
       const path = this.$route.path;
 
-      if (path === '/project' || path === '/project/') {
+      if (path === '/cicd' || path === '/cicd/') {
         return this.$t('nav-ci-cd');
       }
-      if (path.indexOf('/project') === 0) {
+      if (path.indexOf('/cicd') === 0) {
         return this.$t('nav-ci-cd');
       }
       if (path === '/ticket' || path === '/ticket/') {
@@ -69,7 +69,7 @@ export default {
           return menuItem.label;
         }
       }
-      if (parts[0] === 'project') {
+      if (parts[0] === 'cicd') {
         return this.$t('nav-ci-cd');
       }
 

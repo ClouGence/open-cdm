@@ -26,8 +26,8 @@ export function buildSidebarMenu({ myCatLog, myAuth, includesDM, isDesktop }) {
   if (myCatLog.includes('CAT_RDP_DS')) {
     primary.push(linkItem('/system/ccdatasource', '/#/system/ccdatasource', 'nav-shu-ju-ku-guan-li', 'icon-v2-peizhishujuyuan'));
   }
-  if (includesDM && myCatLog.includes('CAT_DM_PROJECT') && !isDesktop) {
-    primary.push(linkItem('project', '/#/project', 'nav-ci-cd', 'icon-v2-DataBase2'));
+  if (includesDM && myCatLog.includes('CAT_DM_CICD_FLOW') && !isDesktop) {
+    primary.push(linkItem('cicd', '/#/cicd', 'nav-ci-cd', 'icon-v2-DataBase2'));
   }
   if (myCatLog.includes('CAT_RDP_ENV')) {
     primary.push(linkItem('/system/env', '/#/system/env', 'huan-jing', 'icon-v2-env'));
@@ -68,7 +68,7 @@ export function buildSidebarMenu({ myCatLog, myAuth, includesDM, isDesktop }) {
   if (myCatLog.includes('CAT_DM_IM')) {
     integrationChildren.push(linkItem('/system/im', '/#/system/im', 'nav-webhook', 'icon-v2-sub_account'));
   }
-  if (myCatLog.includes('CAT_DM_CICD')) {
+  if (myCatLog.includes('CAT_DM_GIT_OPS')) {
     integrationChildren.push(linkItem('/system/devops', '/#/system/devops', 'nav-git-ops', 'icon-v2-sub_account'));
   }
   if (includesDM) {

@@ -367,7 +367,7 @@ export default {
     },
     handleGoAppHome() {
       if (this.isSqlRoute) {
-        const target = this.defaultRedirectUrl && this.defaultRedirectUrl !== '/sql' ? this.defaultRedirectUrl : '/project';
+        const target = this.defaultRedirectUrl && this.defaultRedirectUrl !== '/sql' ? this.defaultRedirectUrl : '/cicd';
         this.$router.push({ path: target }).catch(() => {});
         return;
       }
@@ -560,6 +560,7 @@ export default {
     border-radius: 4px;
     z-index: 10;
   }
+
   white-space: pre-line;
   width: 100%;
   margin-top: 10px;

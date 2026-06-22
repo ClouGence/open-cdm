@@ -187,7 +187,7 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
                     TextValue.from(safeLength(changeForm.getTicketTitle(), 400, true)),//
                     TextValue.from(safeLength(changeForm.getTicketDesc(), 4000, false)), //
                     TextValue.from(safeLength(changeForm.getTargetDs(), 400, true)),   //
-                    TextValue.from(safeLength(changeForm.getProjectName(), 400, true)),//
+                    TextValue.from(safeLength(changeForm.getFlowName(), 400, true)),//
                     TextValue.from(safeLength(changeForm.getChangeName(), 400, true)), //
                     TextValue.from(safeLength(changeForm.getBranch(), 400, true)),     //
                     TextValue.from(safeLength(changeForm.getExecuteSql(), 4000, false))  //

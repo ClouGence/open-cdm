@@ -1,25 +1,25 @@
 import {
+  REMAIN_TRIAL_DAY,
+  SET_MENU_ITEMS,
+  SET_THEME,
+  UPDATE_CC_GLOBAL_SETTING,
   UPDATE_CLUSTER_LIST,
   UPDATE_DEPLOY_ENV_LIST_MAP,
+  UPDATE_DM_GLOBAL_SETTING,
   UPDATE_DS_TYPE_LIST,
   UPDATE_EDITOR_SET,
   UPDATE_GLOBAL_SETTING,
-  UPDATE_REGION_LIST_MAP,
-  UPDATE_USERINFO,
-  UPDATE_PRODUCT_CLUSTER,
-  UPDATE_SELECT_PRODUCT_CLUSTER,
-  UPDATE_CC_GLOBAL_SETTING,
-  UPDATE_DM_GLOBAL_SETTING,
-  UPDATE_MY_CATALOG,
   UPDATE_MY_AUTH,
-  UPDATE_SOCKET_STATUS,
-  UPDATE_RULE_SETTING,
+  UPDATE_MY_CATALOG,
+  UPDATE_PRODUCT_CLUSTER,
   UPDATE_PUBLIC_KEY,
-  REMAIN_TRIAL_DAY,
-  UPDATE_TASK_INFO_HISTORY,
+  UPDATE_REGION_LIST_MAP,
+  UPDATE_RULE_SETTING,
+  UPDATE_SELECT_PRODUCT_CLUSTER,
+  UPDATE_SOCKET_STATUS,
   UPDATE_TASK_INFO_DB_MAP_HISTORY,
-  SET_MENU_ITEMS,
-  SET_THEME
+  UPDATE_TASK_INFO_HISTORY,
+  UPDATE_USERINFO
 } from '@/store/mutationTypes';
 import router from '@/router';
 import { buildSidebarMenu, flattenSidebarMenu } from '@/utils/buildSidebarMenu';
@@ -274,8 +274,8 @@ export default {
       } else if (state.myCatLog.includes('CAT_DM_SECRULES')) {
         url = '/system/dmrulelist';
       }
-    } else if (state.myCatLog.includes('CAT_DM_PROJECT')) {
-      url = '/project';
+    } else if (state.myCatLog.includes('CAT_DM_CICD_FLOW')) {
+      url = '/cicd';
     }
 
     if (!url) {

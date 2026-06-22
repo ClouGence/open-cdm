@@ -20,17 +20,17 @@ import java.util.Locale;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecHelper;
-import com.clougence.clouddm.console.web.component.project.ImMessageType;
-import com.clougence.clouddm.console.web.component.project.ImSenderService;
+import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
+import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
-import com.clougence.clouddm.platform.dal.access.ProjectDal;
+import com.clougence.clouddm.platform.dal.model.cicd.ChangeStatus;
+import com.clougence.clouddm.platform.dal.model.cicd.ChangeStep;
+import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAutoJobDO;
 import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
-import com.clougence.clouddm.platform.dal.model.project.DmProjectChangeDO;
-import com.clougence.clouddm.platform.dal.model.project.ProjectChangeStatus;
-import com.clougence.clouddm.platform.dal.model.project.ProjectChangeStep;
 import com.clougence.utils.i18n.I18nUtils;
 
 import jakarta.annotation.Resource;
@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class AutoExecHelperForChange implements AutoExecHelper {
     @Resource
-    private ProjectDal      projectDal;
+    private ChangeFlowDal   changeFlowDal;
     @Resource
     private ExecutionDal    executionDal;
     @Resource
@@ -61,17 +61,17 @@ public class AutoExecHelperForChange implements AutoExecHelper {
             return;
         }
 
-        DmProjectChangeDO change = this.projectDal.changeMapper().queryChangeById(job.getPrimaryUid(), Long.parseLong(job.getDependOnBizId()));
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(job.getPrimaryUid(), Long.parseLong(job.getDependOnBizId()));
 
         // language
-        String language = this.senderService.getProjectLanguage(change.getOwnerUid(), change.getRefProjectId());
+        String language = this.senderService.getFlowLanguage(change.getOwnerUid(), change.getRefFlowId());
         Locale locale = I18nUtils.getLocale(language);
-        String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_EXECUTE_FINISH.name(), locale, change.getChangeName());
+        String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_EXECUTE_FINISH.name(), locale, change.getChangeName());
 
         // finish
-        int res1 = this.projectDal.changeMapper().updateStepTo(change.getId(), change.getVersion(), ProjectChangeStep.FINISH, "");
-        int res2 = this.projectDal.changeMapper().updateStatusTo(change.getId(), change.getVersion() + 1, ProjectChangeStatus.READY, "");
-        this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeLife, msg);
+        int res1 = this.changeFlowDal.changeMapper().updateStepTo(change.getId(), change.getVersion(), ChangeStep.FINISH, "");
+        int res2 = this.changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion() + 1, ChangeStatus.READY, "");
+        this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeLife, msg);
     }
 
     @Override
@@ -81,16 +81,16 @@ public class AutoExecHelperForChange implements AutoExecHelper {
             return;
         }
 
-        DmProjectChangeDO change = this.projectDal.changeMapper().queryChangeById(job.getPrimaryUid(), Long.parseLong(job.getDependOnBizId()));
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(job.getPrimaryUid(), Long.parseLong(job.getDependOnBizId()));
 
         // language
-        String language = this.senderService.getProjectLanguage(change.getOwnerUid(), change.getRefProjectId());
+        String language = this.senderService.getFlowLanguage(change.getOwnerUid(), change.getRefFlowId());
         Locale locale = I18nUtils.getLocale(language);
-        String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_EXECUTE_FAILED_BY_ABORT.name(), locale, change.getChangeName());
+        String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_EXECUTE_FAILED_BY_ABORT.name(), locale, change.getChangeName());
 
         // abort
-        int res = this.projectDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.FAILED, msg);
-        this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, msg);
+        int res = this.changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ChangeStatus.FAILED, msg);
+        this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeNotice, msg);
     }
 
     @Override
@@ -100,15 +100,15 @@ public class AutoExecHelperForChange implements AutoExecHelper {
             return;
         }
 
-        DmProjectChangeDO change = this.projectDal.changeMapper().queryChangeById(job.getPrimaryUid(), Long.parseLong(job.getDependOnBizId()));
+        DmChangeDO change = this.changeFlowDal.changeMapper().queryChangeById(job.getPrimaryUid(), Long.parseLong(job.getDependOnBizId()));
 
         // language
-        String language = this.senderService.getProjectLanguage(change.getOwnerUid(), change.getRefProjectId());
+        String language = this.senderService.getFlowLanguage(change.getOwnerUid(), change.getRefFlowId());
         Locale locale = I18nUtils.getLocale(language);
-        String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.PROJECT_CHANGE_EXECUTE_FAILED_BY_FAILED.name(), locale, change.getChangeName());
+        String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_EXECUTE_FAILED_BY_FAILED.name(), locale, change.getChangeName());
 
         // send message
-        int res = this.projectDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ProjectChangeStatus.FAILED, msg);
-        this.senderService.sendMessage(change.getOwnerUid(), change.getRefProjectId(), ImMessageType.ChangeNotice, msg);
+        int res = this.changeFlowDal.changeMapper().updateStatusTo(change.getId(), change.getVersion(), ChangeStatus.FAILED, msg);
+        this.senderService.sendMessage(change.getOwnerUid(), change.getRefFlowId(), ImMessageType.ChangeNotice, msg);
     }
 }

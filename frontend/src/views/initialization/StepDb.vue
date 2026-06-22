@@ -78,22 +78,6 @@
             </a-button>
           </div>
         </a-form-item>
-
-        <a-form-item v-if="showRebuildChoice" :label="$t('initialization.dbRebuildLabel')" required class="jdbc-form-item-full">
-          <div class="db-rebuild-option">
-            <div class="db-rebuild-line">
-              <div class="db-rebuild-text">{{ dbTestResult.rebuildPrompt }}</div>
-              <a-radio-group
-                :value="formValues['clougence.init.db.rebuildIfNotEmpty'] || ''"
-                :disabled="readonly"
-                @change="(e) => onChange('clougence.init.db.rebuildIfNotEmpty', e.target.value)"
-              >
-                <a-radio :value="'true'">{{ $t('initialization.optionYes') }}</a-radio>
-                <a-radio :value="'false'">{{ $t('initialization.optionNo') }}</a-radio>
-              </a-radio-group>
-            </div>
-          </div>
-        </a-form-item>
       </div>
 
       <a-form-item v-for="field in remainingFields" :key="field.propertyKey" :label="field.label" required>
@@ -224,9 +208,6 @@ export default {
     },
     jdbcUrlValue() {
       return this.formValues['spring.datasource.jdbcurl'] || '';
-    },
-    showRebuildChoice() {
-      return Boolean(this.dbTestResult && this.dbTestResult.showRebuildChoice);
     },
     hasPendingCreateDatabase() {
       const databaseName = `${this.generatedState.database || ''}`.trim();
@@ -496,22 +477,5 @@ export default {
   to {
     transform: rotate(360deg);
   }
-}
-.db-rebuild-option {
-  width: 100%;
-}
-.db-rebuild-line {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-  flex-wrap: wrap;
-}
-.db-rebuild-text {
-  flex: 1;
-  min-width: 0;
-  color: rgba(0, 0, 0, 0.85);
-  line-height: 22px;
 }
 </style>

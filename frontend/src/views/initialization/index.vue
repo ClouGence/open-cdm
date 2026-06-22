@@ -17,7 +17,6 @@
           <img class="product-title" :src="productLogoUrl" alt="CloudDM" />
           <h1 class="wizard-product-title">{{ wizardProductTitle }}</h1>
         </div>
-        <h2 class="error-title">{{ $t('initialization.startFailed') }}</h2>
         <div class="error-detail">
           <p>{{ $t('initialization.errorDetail') }}</p>
           <pre class="error-message">{{ errorMessage }}</pre>
@@ -90,7 +89,6 @@
           <StepConfirm
             :fieldDefs="visibleFieldDefs"
             :formValues="formValues"
-            :dbTestResult="dbTestResult"
             :mode="mode"
             :workflowMode="workflowMode"
             @update:formValues="updateFormValues"
@@ -108,19 +106,7 @@
 
       <div class="wizard-footer">
         <div v-if="currentFooterMessage" class="wizard-footer-message" :class="currentFooterMessage.type">
-          <template v-if="currentStep === 0 && dbTestResult && dbTestResult.requireConfirmInput">
-            <span class="warning-text">{{ currentFooterMessage.message }}</span>
-            <span class="warning-confirm-label">{{ dbTestResult.confirmInputLabel }}</span>
-            <input
-              class="warning-confirm-input"
-              :value="rebuildConfirmInput"
-              :placeholder="dbTestResult.confirmInputExpectedValue"
-              @input="handleRebuildConfirmInput"
-            />
-          </template>
-          <template v-else>
-            <span>{{ currentFooterMessage.message }}</span>
-          </template>
+          <span>{{ currentFooterMessage.message }}</span>
         </div>
         <div class="wizard-footer-actions">
           <a-button v-if="showPrevButton" @click="prevStep">{{ $t('initialization.prev') }}</a-button>
@@ -148,15 +134,9 @@ import productLogo from '@/assets/logo-clouddm.svg';
 import { consumeDmBootstrapStatus, getDmSystemStatus, isDmSystemReady } from '../../utils/dmGlobalSettings';
 
 const INIT_DB_CREATE_IF_MISSING = 'clougence.init.db.createIfMissing';
-const INIT_DB_REBUILD_IF_NOT_EMPTY = 'clougence.init.db.rebuildIfNotEmpty';
-const INIT_DB_CONFIRM_DATABASE_NAME = 'clougence.init.db.confirmDatabaseName';
 const INIT_WORKFLOW_MODE_KEY = 'clougence.init.workflowMode';
 const ALONE_HIDDEN_FIELD_KEYS = new Set(['server.port', 'clouddm.rsocket.dns', 'clouddm.rsocket.console.port']);
 const INSTALL_PHASE_NOTICE_META = {
-  DB_REBUILD: {
-    titleKey: 'initialization.noticeDbRebuildTitle',
-    level: 'info'
-  },
   DB_INIT: {
     titleKey: 'initialization.noticeDbInitTitle',
     level: 'info'
@@ -390,8 +370,6 @@ export default {
       errorMessage: '',
       fieldDefs: [],
       formValues: {},
-      rebuildConfirmInput: '',
-      testDbRefreshTimer: null,
       dbTestResult: null,
       dbMissingFields: [],
       securityMissingFields: [],
@@ -500,7 +478,7 @@ export default {
           return null;
         }
 
-        if (!this.dbTestResult || !this.dbTestResult.requireConfirmInput || !this.dbTestResult.message) {
+        if (!this.dbTestResult || !this.dbTestResult.message) {
           return null;
         }
 
@@ -599,7 +577,6 @@ export default {
     }
   },
   beforeUnmount() {
-    this.clearTestDbRefreshTimer();
     this.disconnectInstallLogSocket();
     this.executionPhaseStatusType = '';
     this.executionPhaseStatusMessage = '';
@@ -700,8 +677,7 @@ export default {
       const payload = {
         'spring.datasource.jdbcurl': this.formValues['spring.datasource.jdbcurl'] || '',
         'spring.datasource.username': this.formValues['spring.datasource.username'] || '',
-        'spring.datasource.password': this.formValues['spring.datasource.password'] || '',
-        [INIT_DB_REBUILD_IF_NOT_EMPTY]: this.formValues[INIT_DB_REBUILD_IF_NOT_EMPTY] || ''
+        'spring.datasource.password': this.formValues['spring.datasource.password'] || ''
       };
 
       try {
@@ -818,47 +794,21 @@ export default {
     updateFormValues(patch) {
       if (hasDbFieldChange(patch)) {
         const shouldPreserveCreateIfMissing = this.isConfirmStep && Object.prototype.hasOwnProperty.call(this.formValues, INIT_DB_CREATE_IF_MISSING);
-        this.clearTestDbRefreshTimer();
-        this.rebuildConfirmInput = '';
         this.dbTestResult = null;
         this.executionScripts = [];
         this.formValues = {
           ...this.formValues,
           ...patch,
-          [INIT_DB_CREATE_IF_MISSING]: shouldPreserveCreateIfMissing ? this.formValues[INIT_DB_CREATE_IF_MISSING] : 'false',
-          [INIT_DB_REBUILD_IF_NOT_EMPTY]: ''
+          [INIT_DB_CREATE_IF_MISSING]: shouldPreserveCreateIfMissing ? this.formValues[INIT_DB_CREATE_IF_MISSING] : 'false'
         };
         return;
       }
 
-      if (Object.prototype.hasOwnProperty.call(patch, INIT_DB_REBUILD_IF_NOT_EMPTY) && patch[INIT_DB_REBUILD_IF_NOT_EMPTY] !== 'true') {
-        this.rebuildConfirmInput = '';
-      }
-
       this.formValues = { ...this.formValues, ...patch };
-
-      if (Object.prototype.hasOwnProperty.call(patch, INIT_DB_REBUILD_IF_NOT_EMPTY) && this.dbTestResult && this.dbTestResult.showRebuildChoice) {
-        this.scheduleTestDbRefresh();
-      }
-    },
-
-    handleRebuildConfirmInput(event) {
-      this.rebuildConfirmInput = event && event.target ? event.target.value : '';
-
-      if (this.dbTestResult && this.dbTestResult.requireConfirmInput) {
-        this.scheduleTestDbRefresh(250);
-      }
-    },
-
-    clearTestDbRefreshTimer() {
-      if (this.testDbRefreshTimer) {
-        clearTimeout(this.testDbRefreshTimer);
-        this.testDbRefreshTimer = null;
-      }
     },
 
     showDbTestToast(result) {
-      if (!result || result.requireConfirmInput) {
+      if (!result) {
         return;
       }
 
@@ -882,17 +832,6 @@ export default {
       this.$message.error(message);
     },
 
-    scheduleTestDbRefresh(delay = 0) {
-      this.clearTestDbRefreshTimer();
-      this.testDbRefreshTimer = setTimeout(() => {
-        this.testDbRefreshTimer = null;
-        if (!this.canTestDb) {
-          return;
-        }
-        this.handleTestDb();
-      }, delay);
-    },
-
     async handleTestDb() {
       if (this.testingDb) {
         return;
@@ -913,32 +852,18 @@ export default {
       const params = {
         'spring.datasource.jdbcurl': this.formValues['spring.datasource.jdbcurl'],
         'spring.datasource.username': this.formValues['spring.datasource.username'],
-        'spring.datasource.password': this.formValues['spring.datasource.password'],
-        [INIT_DB_REBUILD_IF_NOT_EMPTY]: this.formValues[INIT_DB_REBUILD_IF_NOT_EMPTY] || '',
-        [INIT_DB_CONFIRM_DATABASE_NAME]: this.rebuildConfirmInput.trim()
+        'spring.datasource.password': this.formValues['spring.datasource.password']
       };
       this.testingDb = true;
       await this.$nextTick();
       try {
         const res = await this.$services.dmInitTestDb({ data: params });
         if (res.success) {
-          const nextRebuildValue =
-            res.data && res.data.showRebuildChoice
-              ? ['true', 'false'].includes(this.formValues[INIT_DB_REBUILD_IF_NOT_EMPTY])
-                ? this.formValues[INIT_DB_REBUILD_IF_NOT_EMPTY]
-                : ''
-              : 'false';
-
-          if (nextRebuildValue !== 'true') {
-            this.rebuildConfirmInput = '';
-          }
-
           this.dbTestResult = res.data;
           this.showDbTestToast(res.data);
           this.formValues = {
             ...this.formValues,
-            [INIT_DB_CREATE_IF_MISSING]: res.data && res.data.createDatabase ? 'true' : 'false',
-            [INIT_DB_REBUILD_IF_NOT_EMPTY]: nextRebuildValue
+            [INIT_DB_CREATE_IF_MISSING]: res.data && res.data.createDatabase ? 'true' : 'false'
           };
         } else {
           this.$message.error(res.msg || this.$t('ce-shi-lian-jie-shi-bai'));
@@ -1112,19 +1037,16 @@ export default {
       this.operationErrorDetail = '';
       this.applying = false;
 
-      return this.handleApply({ omitRebuild: true });
+      return this.handleApply();
     },
 
-    buildExecutionPayload({ omitRebuild = false } = {}) {
+    buildExecutionPayload() {
       const payload = { ...this.formValues };
       payload[INIT_WORKFLOW_MODE_KEY] = this.workflowMode;
-      if (omitRebuild) {
-        delete payload[INIT_DB_REBUILD_IF_NOT_EMPTY];
-      }
       return payload;
     },
 
-    async handleApply(options = {}) {
+    async handleApply() {
       this.applying = true;
       this.restartTimedOut = false;
       this.applyPendingExecutionStatus();
@@ -1134,7 +1056,7 @@ export default {
       this.operationErrorDetail = '';
       this.connectInstallLogSocket();
       try {
-        const payload = this.buildExecutionPayload(options);
+        const payload = this.buildExecutionPayload();
 
         const res = await this.$services.dmInitApplyConfig({ data: payload, modal: false });
         if (res.success) {
@@ -1241,33 +1163,68 @@ export default {
   color: rgba(0, 0, 0, 0.65);
 }
 
-.error-title {
-  margin: 24px 0 16px;
-  font-size: 20px;
-  line-height: 28px;
-  font-weight: 600;
-  color: #cf1322;
-}
-
 .error-detail {
-  margin: 24px 0;
+  margin: 24px 0 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fff;
+  overflow: hidden;
   text-align: left;
 }
 
 .error-detail p {
-  margin: 0 0 3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 14px;
+  border-bottom: 1px solid #eef0f3;
+  background: #f8fafc;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.error-detail p::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #cf1322;
+  box-shadow: 0 0 0 3px rgba(207, 19, 34, 0.08);
 }
 
 .error-message {
   margin: 0;
-  background: #fff2f0;
-  border: 1px solid #ffccc7;
-  border-radius: 4px;
-  padding: 12px;
-  font-size: 13px;
-  color: #cf1322;
+  max-height: 180px;
+  overflow: auto;
+  border: 0;
+  border-radius: 0;
+  background: #fcfcfd;
+  padding: 14px 16px;
+  color: #344054;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 12px;
+  line-height: 18px;
   white-space: pre-wrap;
-  word-break: break-all;
+  word-break: break-word;
+}
+
+.error-message::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.error-message::-webkit-scrollbar-thumb {
+  border: 2px solid #fcfcfd;
+  border-radius: 999px;
+  background: #cfd6e0;
+}
+
+.error-message::-webkit-scrollbar-track {
+  background: #fcfcfd;
 }
 
 .error-actions {

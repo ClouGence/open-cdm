@@ -82,11 +82,11 @@ export default {
       if (path.indexOf('/sql') > -1) {
         return 'sql';
       }
-      if (path === '/project' || path === '/project/') {
-        return 'project';
+      if (path === '/cicd' || path === '/cicd/') {
+        return 'cicd';
       }
-      if (path.indexOf('/project') > -1) {
-        return 'project';
+      if (path.indexOf('/cicd') > -1) {
+        return 'cicd';
       }
       if (path === '/ticket' || path === '/ticket/') {
         return 'ticket';
@@ -131,7 +131,7 @@ export default {
   },
   methods: {
     handleGoHome() {
-      const target = this.defaultRedirectUrl || '/project';
+      const target = this.defaultRedirectUrl || '/cicd';
       if (this.$route.path !== target) {
         this.$router.push({ path: target });
       }

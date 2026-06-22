@@ -18,19 +18,11 @@ package com.clougence.clouddm.platform.dal.model.datasource;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ConnectType;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
 import com.clougence.clouddm.base.metadata.ds.DsExtraConfig;
-import com.clougence.clouddm.platform.dal.model.*;
-import com.clougence.clouddm.platform.dal.model.approval.*;
-import com.clougence.clouddm.platform.dal.model.auth.*;
-import com.clougence.clouddm.platform.dal.model.datasource.*;
-import com.clougence.clouddm.platform.dal.model.execution.*;
-import com.clougence.clouddm.platform.dal.model.monitor.*;
-import com.clougence.clouddm.platform.dal.model.project.*;
-import com.clougence.clouddm.platform.dal.model.secrule.*;
-import com.clougence.clouddm.platform.dal.model.system.*;
+import com.clougence.clouddm.base.metadata.rdp.enumeration.ConnectType;
+import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
+import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 
 import lombok.Data;
