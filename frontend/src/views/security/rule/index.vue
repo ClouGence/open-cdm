@@ -26,7 +26,15 @@
             </div>
           </div>
           <div class="table-container">
-            <Table border stripe :columns="queryRuleColumns" :data="QUERY.showRuleList" :scroll="queryTableScroll" size="small" :loading="QUERY.loading">
+            <Table
+              border
+              stripe
+              :columns="queryRuleColumns"
+              :data="QUERY.showRuleList"
+              :scroll="queryTableScroll"
+              size="small"
+              :loading="QUERY.loading"
+            >
               <template #targetType="{ row }">
                 {{ getTargetType(row.targetType).i18n }}
               </template>
@@ -80,7 +88,15 @@
             </div>
           </div>
           <div class="table-container">
-            <Table border stripe :columns="sensitiveRuleColumns" :data="SENSITIVE.showRuleList" :scroll="sensitiveTableScroll" size="small" :loading="SENSITIVE.loading">
+            <Table
+              border
+              stripe
+              :columns="sensitiveRuleColumns"
+              :data="SENSITIVE.showRuleList"
+              :scroll="sensitiveTableScroll"
+              size="small"
+              :loading="SENSITIVE.loading"
+            >
               <template #ruleAction="{ row }">
                 <Button @click="handleViewRule(row)" type="text" size="small">
                   {{ $t('xiang-qing') }}
