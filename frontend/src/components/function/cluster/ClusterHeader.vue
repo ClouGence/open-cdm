@@ -1,49 +1,48 @@
 <template>
-  <div class="page-header-container border-radius-card">
-    <Form ref="formInline" :model="searchData" inline label-position="right" style="padding-right: 300px">
-      <FormItem>
-        <Select v-model="searchType" style="width: 140px" @on-change="handleChangeSearchType">
-          <Option value="clusterDesc" :label="$t('ji-qun-miao-shu')">
-            <span>{{ $t('ji-qun-miao-shu') }}</span>
-          </Option>
-          <Option value="clusterName" :label="$t('ji-qun-ming-cheng')">
-            <span>{{ $t('ji-qun-ming-cheng') }}</span>
-          </Option>
-          <!--                    <Option value="owner" label="创建人">-->
-          <!--                        <span>创建人</span>-->
-          <!--                    </Option>-->
-          <Option v-if="!isDmPage" value="type" :label="$t('lei-xing')">
-            <span>{{ $t('lei-xing') }}</span>
-          </Option>
-        </Select>
-      </FormItem>
-      <FormItem v-if="searchType === 'owner'">
-        <Input v-model="searchData.owner" style="width: 280px" @on-keydown="handleEnterSearch" />
-      </FormItem>
-      <FormItem v-if="searchType === 'clusterDesc'">
-        <Input v-model="searchData.clusterDescLike" style="width: 280px" @on-keydown="handleEnterSearch" />
-      </FormItem>
-      <FormItem v-if="searchType === 'clusterName'">
-        <Input v-model="searchData.clusterNameLike" style="width: 280px" @on-keydown="handleEnterSearch" />
-      </FormItem>
-      <FormItem v-if="searchType === 'type' && !isDmPage">
-        <Select v-model="searchData.cloudOrIdcName" style="width: 250px">
-          <Option value="ALIBABA_CLOUD" :label="$t('a-li-yun')">
-            <span>{{ $t('a-li-yun') }}</span>
-          </Option>
-          <Option value="SELF_MAINTENANCE" :label="$t('zi-jian-ji-fang')">
-            <span>{{ $t('zi-jian-ji-fang') }}</span>
-          </Option>
-          <Option value="" :label="$t('quan-bu')">{{ $t('quan-bu') }}</Option>
-        </Select>
-      </FormItem>
-      <FormItem>
-        <Button :loading="refreshLoading" type="primary" ghost @click="_handleSearch(searchType, searchData)">
-          {{ $t('cha-xun') }}
-        </Button>
-      </FormItem>
-    </Form>
-    <div class="page-header-function">
+  <div class="option">
+    <div class="left">
+      <Form ref="formInline" :model="searchData" inline label-position="right">
+        <FormItem>
+          <Select v-model="searchType" style="width: 140px" @on-change="handleChangeSearchType">
+            <Option value="clusterDesc" :label="$t('ji-qun-miao-shu')">
+              <span>{{ $t('ji-qun-miao-shu') }}</span>
+            </Option>
+            <Option value="clusterName" :label="$t('ji-qun-ming-cheng')">
+              <span>{{ $t('ji-qun-ming-cheng') }}</span>
+            </Option>
+            <Option v-if="!isDmPage" value="type" :label="$t('lei-xing')">
+              <span>{{ $t('lei-xing') }}</span>
+            </Option>
+          </Select>
+        </FormItem>
+        <FormItem v-if="searchType === 'owner'">
+          <Input v-model="searchData.owner" style="width: 280px" @on-keydown="handleEnterSearch" />
+        </FormItem>
+        <FormItem v-if="searchType === 'clusterDesc'">
+          <Input v-model="searchData.clusterDescLike" style="width: 280px" @on-keydown="handleEnterSearch" />
+        </FormItem>
+        <FormItem v-if="searchType === 'clusterName'">
+          <Input v-model="searchData.clusterNameLike" style="width: 280px" @on-keydown="handleEnterSearch" />
+        </FormItem>
+        <FormItem v-if="searchType === 'type' && !isDmPage">
+          <Select v-model="searchData.cloudOrIdcName" style="width: 250px">
+            <Option value="ALIBABA_CLOUD" :label="$t('a-li-yun')">
+              <span>{{ $t('a-li-yun') }}</span>
+            </Option>
+            <Option value="SELF_MAINTENANCE" :label="$t('zi-jian-ji-fang')">
+              <span>{{ $t('zi-jian-ji-fang') }}</span>
+            </Option>
+            <Option value="" :label="$t('quan-bu')">{{ $t('quan-bu') }}</Option>
+          </Select>
+        </FormItem>
+        <FormItem>
+          <Button :loading="refreshLoading" type="primary" ghost @click="_handleSearch(searchType, searchData)">
+            {{ $t('cha-xun') }}
+          </Button>
+        </FormItem>
+      </Form>
+    </div>
+    <div class="right">
       <Button v-if="hasManageAuth" type="primary" @click="handleAddCluster">
         <Icon type="md-add" />
         {{ $t('xin-zeng-ji-qun') }}
@@ -110,7 +109,6 @@ export default {
       this.handleSearch(searchData, 'init');
     },
     handleChangeSearchType() {
-      // Reset all search values when switching query type
       this.searchData = {
         cloudOrIdcName: '',
         clusterNameLike: '',
@@ -126,41 +124,3 @@ export default {
   }
 };
 </script>
-<style lang="less" scoped>
-.page-header-container {
-  background: #ffffff;
-  border: 1px solid #ededed;
-  height: 60px;
-  line-height: 54px;
-  padding: 0 20px;
-  position: relative;
-
-  .ivu-form-inline .ivu-form-item {
-    vertical-align: middle;
-    margin-bottom: 0;
-  }
-
-  .ivu-form-item {
-    margin-bottom: 0;
-  }
-
-  .page-header-function {
-    position: absolute;
-    right: 20px;
-    top: 2px;
-
-    a {
-      color: #333;
-      margin-right: 10px;
-    }
-
-    button {
-      margin-left: 8px;
-    }
-
-    .ivu-tooltip {
-      margin-left: 8px;
-    }
-  }
-}
-</style>

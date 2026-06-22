@@ -3,40 +3,42 @@
     <a-breadcrumb style="margin-bottom: 14px">
       <a-breadcrumb-item>{{ $t('xiao-xi-zhong-xin') }}</a-breadcrumb-item>
     </a-breadcrumb>
-    <div class="page-header-container border-radius-card">
-      <a-form style="padding-right: 300px" layout="inline">
-        <a-form-item>
-          <a-select v-model="searchType" style="width: 160px" @change="handleChangeSearchType">
-            <a-select-option value="type" :label="$t('ren-wu-lei-xing')">
-              <span>{{ $t('ren-wu-lei-xing') }}</span>
-            </a-select-option>
-            <a-select-option value="status" :label="$t('zhuang-tai')">
-              <span>{{ $t('ren-wu-zhuang-tai') }}</span>
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item v-if="searchType === 'type'">
-          <a-select v-model="searchKey.label" style="width: 250px">
-            <a-select-option value="">{{ $t('quan-bu') }}</a-select-option>
-            <a-select-option v-for="label of consoleJobLabels" :value="label" :key="label">
-              {{ CONSOLE_TASK_STATE[label] }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item v-if="searchType === 'status'">
-          <a-select v-model="searchKey.consoleTaskState" style="width: 250px">
-            <a-select-option value="">{{ $t('quan-bu') }}</a-select-option>
-            <a-select-option v-for="state of consoleTaskStates" :value="state" :key="state">
-              {{ state }}
-            </a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item>
-          <a-button type="primary" ghost @click="getConsoleJobList">{{ $t('cha-xun') }}</a-button>
-        </a-form-item>
-      </a-form>
-      <div class="page-header-function">
-        <a-button type="default" style="margin-right: 6px" @click="getConsoleJobList" :loading="refreshLoading">
+    <div class="option">
+      <div class="left">
+        <a-form layout="inline">
+          <a-form-item>
+            <a-select v-model="searchType" style="width: 160px" @change="handleChangeSearchType">
+              <a-select-option value="type" :label="$t('ren-wu-lei-xing')">
+                <span>{{ $t('ren-wu-lei-xing') }}</span>
+              </a-select-option>
+              <a-select-option value="status" :label="$t('zhuang-tai')">
+                <span>{{ $t('ren-wu-zhuang-tai') }}</span>
+              </a-select-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item v-if="searchType === 'type'">
+            <a-select v-model="searchKey.label" style="width: 250px">
+              <a-select-option value="">{{ $t('quan-bu') }}</a-select-option>
+              <a-select-option v-for="label of consoleJobLabels" :value="label" :key="label">
+                {{ CONSOLE_TASK_STATE[label] }}
+              </a-select-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item v-if="searchType === 'status'">
+            <a-select v-model="searchKey.consoleTaskState" style="width: 250px">
+              <a-select-option value="">{{ $t('quan-bu') }}</a-select-option>
+              <a-select-option v-for="state of consoleTaskStates" :value="state" :key="state">
+                {{ state }}
+              </a-select-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item>
+            <a-button type="primary" ghost @click="getConsoleJobList">{{ $t('cha-xun') }}</a-button>
+          </a-form-item>
+        </a-form>
+      </div>
+      <div class="right">
+        <a-button type="default" @click="getConsoleJobList" :loading="refreshLoading">
           <CustomIcon type="icon-v2-Refresh" v-if="!refreshLoading" />
         </a-button>
       </div>
@@ -313,16 +315,6 @@ export default {
 <style lang="less" scoped>
 .console-job-wrapper {
   position: relative;
-
-  .page-header-container {
-    position: relative;
-
-    .page-header-function {
-      position: absolute;
-      right: 0;
-      top: 0;
-    }
-  }
 
   .page-footer-container {
     position: fixed;

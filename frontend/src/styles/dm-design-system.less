@@ -8,6 +8,50 @@
 
 // ─── List page layout ────────────────────────────────────────────────────────
 
+.list-page-toolbar-option() {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  min-height: 56px;
+  height: auto;
+  border: 1px solid var(--border-light);
+  border-radius: @dm-radius-md;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  background: var(--bg-secondary);
+  gap: 12px;
+  flex-shrink: 0;
+
+  .left {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .right {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin-left: auto;
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .ivu-form-inline .ivu-form-item,
+  .ant-form-inline .ant-form-item {
+    margin-bottom: 0;
+    vertical-align: middle;
+  }
+
+  .ivu-form-item {
+    margin-bottom: 0;
+  }
+}
+
 .table-list-layout {
   display: flex;
   flex-direction: column;
@@ -31,37 +75,7 @@
     overflow: hidden;
 
     .option {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: nowrap;
-      min-height: 56px;
-      height: auto;
-      border: 1px solid var(--border-light);
-      border-radius: @dm-radius-md;
-      padding: 12px 14px;
-      margin-bottom: 14px;
-      background: var(--bg-secondary);
-      gap: 12px;
-      flex-shrink: 0;
-
-      .left {
-        display: flex;
-        align-items: center;
-        flex: 1;
-        min-width: 0;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-
-      .right {
-        display: flex;
-        align-items: center;
-        flex-shrink: 0;
-        margin-left: auto;
-        flex-wrap: nowrap;
-        gap: 8px;
-      }
+      .list-page-toolbar-option();
     }
 
     .table-container {
@@ -143,6 +157,8 @@
 .table-list-layout,
 .ticket-container,
 .project-account,
+.datasource-account,
+.ssh-config-account,
 .operation-log,
 .sql-log {
   display: flex;
@@ -164,6 +180,16 @@
 .cluster-container {
   padding: 16px;
   overflow: hidden;
+
+  .option {
+    .list-page-toolbar-option();
+  }
+}
+
+.console-job-wrapper {
+  .option {
+    .list-page-toolbar-option();
+  }
 }
 
 .page-footer-container {

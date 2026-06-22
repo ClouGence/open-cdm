@@ -1,5 +1,5 @@
 <template>
-  <div class="content-wrapper">
+  <div class="datasource-account">
     <second-confirm-modal
       :title="$t('shan-chu-shu-ju-yuan')"
       :event="SECOND_CONFIRM_EVENT_LIST.DELETE_DATASOURCE"
@@ -10,18 +10,20 @@
       :handle-confirm="deleteDataSource"
       :handle-close="handleCancelEdit"
     />
-    <DataSourceHeader
-      :handleSearch="getDataSourceList"
-      :searchKey="searchKey"
-      :supportAdd="canManageDataSource"
-      :handleShowAddDataSource="handleShowAddDataSource"
-      :handleChangeSearchType="handleChangeSearchType"
-      :refreshLoading="refreshLoading"
-      @update-search-key="handleUpdateSearchKey"
-    ></DataSourceHeader>
-    <div class="data-source-container">
-      <div style="margin-top: 16px">
-        <Table border :columns="dataSourceColumn" :data="showData" :loading="refreshLoading">
+    <div class="table-list-layout">
+      <div class="table-list">
+        <div class="content">
+          <DataSourceHeader
+            :handleSearch="getDataSourceList"
+            :searchKey="searchKey"
+            :supportAdd="canManageDataSource"
+            :handleShowAddDataSource="handleShowAddDataSource"
+            :handleChangeSearchType="handleChangeSearchType"
+            :refreshLoading="refreshLoading"
+            @update-search-key="handleUpdateSearchKey"
+          ></DataSourceHeader>
+          <div class="table-container data-source-container">
+            <Table border :columns="dataSourceColumn" :data="showData" :loading="refreshLoading">
           <template #instanceId="{ row }">
             <div style="padding: 14px 10px">
               <div style="display: flex; align-items: center">
@@ -182,11 +184,11 @@
               />
             </div>
           </template>
-        </Table>
+            </Table>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="page-footer-container">
-      <div class="page-footer-paging">
+      <div class="footer">
         <Page
           :total="total"
           show-total
@@ -1164,8 +1166,6 @@ export default {
 <style lang="less" scoped>
 .data-source-container {
   position: relative;
-  margin-top: 16px;
-  margin-bottom: 60px;
 
   .iconfont {
     color: #8d95a6;
