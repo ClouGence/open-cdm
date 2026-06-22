@@ -1,5 +1,13 @@
 <template>
-  <Table border size="small" :columns="paramsColumn" :data="userConfigMap" class="border-radius-card-bottom" max-height="600" :loading="loading">
+  <Table
+    border
+    size="small"
+    :columns="paramsColumn"
+    :data="userConfigMap"
+    class="border-radius-card-bottom"
+    :max-height="tableMaxHeight"
+    :loading="loading"
+  >
     <template #configValue="{ row }">
       <div class="config-value-cell" :class="{ 'is-edited': hasEditedValue(row) }">
         <div class="config-value-content">
@@ -103,6 +111,7 @@ export default {
   data() {
     return {
       UtilJson,
+      tableMaxHeight: 600,
       paramsColumn: [
         {
           title: this.$t('can-shu-ming-cheng'),
@@ -180,7 +189,23 @@ export default {
       ]
     };
   },
+  mounted() {
+    this.updateTableMaxHeight();
+    window.addEventListener('resize', this.updateTableMaxHeight);
+  },
+  beforeUnmount() {
+    window.removeEventListener('resize', this.updateTableMaxHeight);
+  },
   methods: {
+    updateTableMaxHeight() {
+      this.$nextTick(() => {
+        if (!this.$el || typeof this.$el.getBoundingClientRect !== 'function') return;
+        const top = this.$el.getBoundingClientRect().top;
+        const bottomReserve = 24;
+        const next = Math.max(240, Math.floor(window.innerHeight - top - bottomReserve));
+        this.tableMaxHeight = next;
+      });
+    },
     currentDisplayValue(row) {
       return this.hasEditedValue(row) ? row.currentCount : row.configValue;
     },
