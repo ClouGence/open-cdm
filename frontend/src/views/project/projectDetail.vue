@@ -1,14 +1,6 @@
 <template>
   <div class="table-list-layout">
     <div class="table-list project-wrap">
-      <div class="header">
-        <Breadcrumb>
-          <BreadcrumbItem to="/project">{{ $t('xiang-mu-lie-biao') }}</BreadcrumbItem>
-          <BreadcrumbItem class="project-overflow">
-            {{ projectInfo === null ? $t('wei-zhi') : projectInfo.name }}
-          </BreadcrumbItem>
-        </Breadcrumb>
-      </div>
       <div class="content" v-if="projectInfo === null">
         <div class="empty">
           <img src="@/assets/not-exist.svg" class="empty_image" />
@@ -102,11 +94,6 @@
                 <CustomIcon type="icon-v2-Refresh" :disabled="loading" />
               </Button>
             </div>
-          </div>
-          <div class="warp-empty" v-if="devopsList.length === 0">
-            <Button type="info" ghost :disabled="projectReadOnly" @click="handleGitOpsAdd">
-              {{ $t('qing-tian-jia-fa-bu-liu') }}
-            </Button>
           </div>
           <div class="bottom-card" v-if="devopsList.length !== 0">
             <div class="card-wrap" v-for="(item, index) in devopsList" :key="index">
@@ -1995,14 +1982,5 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: middle;
-}
-
-.project-overflow {
-  display: inline-block;
-  width: 150px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  vertical-align: bottom;
 }
 </style>

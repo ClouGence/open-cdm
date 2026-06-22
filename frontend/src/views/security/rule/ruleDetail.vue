@@ -188,14 +188,6 @@ export default {
 
 <template>
   <div class="rule-detail-container">
-    <Breadcrumb>
-      <BreadcrumbItem :to="`/system/dmrulelist?ruleKind=${ruleForm.ruleKind}`">
-        {{ $t('gui-ze-lie-biao') }}
-      </BreadcrumbItem>
-      <BreadcrumbItem>
-        {{ type === 'create' ? $t('xin-jian-gui-ze') : type === 'view' ? $t('gui-ze-xiang-qing') : $t('bian-ji-gui-ze') }}
-      </BreadcrumbItem>
-    </Breadcrumb>
     <div class="rule-detail">
       <div class="left">
         <div class="editor">

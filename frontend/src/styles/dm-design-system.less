@@ -71,6 +71,27 @@
       border: 1px solid var(--border-light);
       border-radius: @dm-radius-md;
       background: var(--bg-card);
+
+      &.audit-log-table {
+        overflow: hidden;
+
+        .dm-table {
+          .ant-table-thead > tr > th {
+            white-space: nowrap;
+          }
+
+          .ant-table-tbody > tr:not(.ant-table-measure-row) > td {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .operator-cell,
+          .datasource-cell {
+            white-space: normal;
+          }
+        }
+      }
     }
   }
 
@@ -122,7 +143,8 @@
 .table-list-layout,
 .ticket-container,
 .project-account,
-.operation-log {
+.operation-log,
+.sql-log {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -199,14 +221,30 @@
   .ant-table-tbody > tr:hover > td {
     background: var(--bg-hover) !important;
   }
+
+  .ant-table-tbody > tr.ant-table-measure-row > td {
+    padding: 0 !important;
+    border: 0 !important;
+    height: 0 !important;
+    line-height: 0 !important;
+    overflow: hidden !important;
+  }
 }
 
 .dm-table--stripe {
-  .ant-table-tbody > tr:nth-child(even) > td {
+  .ant-table-tbody > tr.ant-table-row:nth-child(even) > td {
     background: var(--bg-secondary);
   }
 
-  .ant-table-tbody > tr:nth-child(even):hover > td {
+  .ant-table-tbody:has(> tr.ant-table-measure-row) > tr.ant-table-row:nth-child(even) > td {
+    background: var(--bg-card);
+  }
+
+  .ant-table-tbody:has(> tr.ant-table-measure-row) > tr.ant-table-row:nth-child(odd) > td {
+    background: var(--bg-secondary);
+  }
+
+  .ant-table-tbody > tr.ant-table-row:hover > td {
     background: var(--bg-hover) !important;
   }
 }

@@ -224,13 +224,49 @@
   }
 
   .ant-table-tbody {
-    tr {
-      &:nth-child(2n) {
+    > tr.ant-table-row:nth-child(even) {
+      background-color: var(--bg-secondary);
+
+      > td {
         background-color: var(--bg-secondary);
       }
+    }
 
+    &:has(> tr.ant-table-measure-row) {
+      > tr.ant-table-row:nth-child(even) {
+        background-color: var(--bg-card);
+
+        > td {
+          background-color: var(--bg-card);
+        }
+      }
+
+      > tr.ant-table-row:nth-child(odd) {
+        background-color: var(--bg-secondary);
+
+        > td {
+          background-color: var(--bg-secondary);
+        }
+      }
+    }
+
+    tr {
       td {
         padding: 10px 12px !important;
+      }
+    }
+
+    tr.ant-table-measure-row {
+      height: 0 !important;
+      font-size: 0 !important;
+      line-height: 0 !important;
+
+      td {
+        padding: 0 !important;
+        border: 0 !important;
+        height: 0 !important;
+        line-height: 0 !important;
+        overflow: hidden !important;
       }
     }
 

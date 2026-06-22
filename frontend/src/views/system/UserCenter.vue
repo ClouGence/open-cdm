@@ -1,158 +1,164 @@
 <template>
   <div class="profile-page user-center">
-    <div class="profile-card">
-      <Tabs v-model="activeTab" :animated="false">
-        <TabPane :label="$t('zhang-hu-xin-xi')" name="profile">
-          <div>
-            <dl class="profile-field-list">
-              <div v-if="userInfo.account" class="profile-field-row">
-                <dt>{{ $t('zhang-hao') }}</dt>
-                <dd>{{ userInfo.account }}</dd>
-              </div>
-              <div v-if="!isInternalUser" class="profile-field-row">
-                <dt>{{ $t('lai-yuan') }}</dt>
-                <dd>{{ userInfo.bindType }}</dd>
-              </div>
-              <div v-if="!isInternalUser" class="profile-field-row">
-                <dt>{{ $t('guan-lian-zhang-hao') }}</dt>
-                <dd>
-                  <span :class="{ 'empty-value': !userInfo.bindAccount }">
-                    {{ userInfo.bindAccount || $t('initialization.emptyValue') }}
-                  </span>
-                </dd>
-              </div>
-              <div class="profile-field-row">
-                <dt>{{ $t('yong-hu-ming') }}</dt>
-                <dd>
-                  <template v-if="editingField === 'username'">
-                    <div class="inline-edit-row">
-                      <Input v-model="inlineForm.username" @on-enter="confirmInlineEdit('username')" />
-                      <Button type="primary" :loading="loading" @click="confirmInlineEdit('username')">{{ $t('que-ding') }}</Button>
-                      <Button @click="cancelInlineEdit">{{ $t('qu-xiao') }}</Button>
-                    </div>
-                  </template>
-                  <template v-else>
-                    {{ userInfo.username }}
-                    <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="startInlineEdit('username')" />
-                  </template>
-                  <span
-                    v-if="userInfo.saasUserStatus === 'SAAS_LOCKED'"
-                    class="border border-red-700 border-solid ml-2 text-red-700 bg-red-50 rounded-md px-4 py-2 text-sm font-medium"
-                  >
-                    {{ $t('yi-suo-ding') }}
-                  </span>
-                </dd>
-              </div>
-              <div class="profile-field-row">
-                <dt>{{ $t('shou-ji') }}</dt>
-                <dd>
-                  <template v-if="editingField === 'phone'">
-                    <div class="inline-edit-row">
-                      <Input v-model="inlineForm.phone" @on-blur="checkInlineDuplicate('phone')" @on-enter="confirmInlineEdit('phone')" />
-                      <Icon v-if="duplicateState.phone === 'ok'" type="md-checkmark" class="text-green-500 text-xl" />
-                      <Button type="primary" :loading="loading" @click="confirmInlineEdit('phone')">{{ $t('que-ding') }}</Button>
-                      <Button @click="cancelInlineEdit">{{ $t('qu-xiao') }}</Button>
-                    </div>
-                    <div v-if="duplicateError.phone" class="inline-edit-error">{{ duplicateError.phone }}</div>
-                  </template>
-                  <template v-else>
-                    <span :class="{ 'empty-value': !userInfo.phone }">{{ userInfo.phone || $t('initialization.emptyValue') }}</span>
-                    <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="startInlineEdit('phone')" />
-                  </template>
-                </dd>
-              </div>
-              <div class="profile-field-row">
-                <dt>{{ $t('you-xiang') }}</dt>
-                <dd>
-                  <template v-if="editingField === 'email'">
-                    <div class="inline-edit-row">
-                      <Input v-model="inlineForm.email" @on-blur="checkInlineDuplicate('email')" @on-enter="confirmInlineEdit('email')" />
-                      <Icon v-if="duplicateState.email === 'ok'" type="md-checkmark" class="text-green-500 text-xl" />
-                      <Button type="primary" :loading="loading" @click="confirmInlineEdit('email')">{{ $t('que-ding') }}</Button>
-                      <Button @click="cancelInlineEdit">{{ $t('qu-xiao') }}</Button>
-                    </div>
-                    <div v-if="duplicateError.email" class="inline-edit-error">{{ duplicateError.email }}</div>
-                  </template>
-                  <template v-else>
-                    <span :class="{ 'empty-value': !userInfo.email }">{{ userInfo.email || $t('initialization.emptyValue') }}</span>
-                    <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="startInlineEdit('email')" />
-                  </template>
-                </dd>
-              </div>
-              <div class="profile-field-row">
-                <dt>{{ $t('deng-lu-mi-ma') }}</dt>
-                <dd>
-                  <template v-if="editingField === 'password'">
-                    <div class="inline-edit-row password-edit-row">
-                      <Input v-model="inlineForm.originPassword" type="password" password :placeholder="$t('qing-shu-ru-lao-mi-ma')" />
-                      <Poptip trigger="focus" placement="right-start">
-                        <Input v-model="inlineForm.newPassword" type="password" password :placeholder="$t('xin-mi-ma')" />
-                        <template #content>
-                          <p>{{ passwordRule.tips }}</p>
-                        </template>
-                      </Poptip>
-                      <Button type="primary" :loading="loading" @click="confirmInlineEdit('password')">{{ $t('que-ding') }}</Button>
-                      <Button @click="cancelInlineEdit">{{ $t('qu-xiao') }}</Button>
-                    </div>
-                    <div v-if="errMsg" class="inline-edit-error">{{ errMsg }}</div>
-                  </template>
-                  <template v-else>
-                    *******
-                    <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="startInlineEdit('password')" />
-                  </template>
-                </dd>
-              </div>
-              <div v-if="userInfo.marketplaceType && userInfo.marketplaceType !== 'NONE'" class="profile-field-row">
-                <dt>{{ $t('yun-shi-chang-lei-xing') }}</dt>
-                <dd>
-                  {{ userInfo.marketplaceType === 'NONE' ? '' : userInfo.marketplaceType }}
-                </dd>
-              </div>
-            </dl>
-          </div>
-        </TabPane>
-        <TabPane :label="$t('an-quan')" name="security">
-          <div>
-            <div class="profile-security-block">
-              <h3 class="profile-section-title">
-                {{ $t('duo-yin-zi-ren-zheng') }}
-                <span v-if="!userInfo.useMfa">{{ $t('wei-kai-qi') }}</span>
-                <span v-else-if="mfaInvalid">{{ $t('yi-shi-xiao') }}</span>
-                <span v-else>{{ $t('yi-kai-qi') }}</span>
-              </h3>
-              <div>
-                <Button v-if="!userInfo.useMfa || mfaInvalid" style="margin-right: 12px" @click="handleOpenMfaSetting">
-                  {{ mfaInvalid ? $t('chong-xin-qi-yong') : $t('kai-qi-1') }}
-                </Button>
-                <Button @click="handleResetMfa" v-if="userInfo.useMfa && !mfaInvalid" type="default" style="margin-right: 12px">
-                  {{ $t('chong-zhi') }}
-                </Button>
-                <Button @click="handleShowCloseMf" v-if="userInfo.useMfa" type="error" ghost>{{ $t('guan-bi') }}</Button>
-              </div>
-              <p class="profile-section-desc">
-                {{
-                  $t(
-                    'wei-nin-de-zhang-hao-zeng-jia-yi-ceng-bao-zhang-kai-qi-hou-nin-xu-yao-zai-deng-lu-shi-ti-gong-zhang-hao-mi-ma-yi-ji-mfa-yan-zheng-ma'
-                  )
-                }}
-              </p>
+    <nav class="user-tabs">
+      <span class="user-tabs__item" :class="{ 'is-active': activeTab === 'profile' }" @click="handleTabClick('profile')">
+        {{ $t('zhang-hu-xin-xi') }}
+      </span>
+      <span class="user-tabs__item" :class="{ 'is-active': activeTab === 'security' }" @click="handleTabClick('security')">
+        {{ $t('an-quan') }}
+      </span>
+    </nav>
+    <div class="profile-page__body">
+      <div v-show="activeTab === 'profile'">
+        <div>
+          <dl class="profile-field-list">
+            <div v-if="userInfo.account" class="profile-field-row">
+              <dt>{{ $t('zhang-hao') }}</dt>
+              <dd>{{ userInfo.account }}</dd>
             </div>
-            <div v-if="userInfo.accountType === 'PRIMARY_ACCOUNT'" class="profile-security-block">
-              <h3 class="profile-section-title">
-                {{ $t('aksk-guan-li') }}
-              </h3>
-              <div style="margin-bottom: 8px">
-                <Button style="font-size: 14px; margin-right: 16px" @click="handleShowFetchAKSK">
-                  {{ $t('huo-qu-aksk') }}
-                </Button>
-                <Button type="error" ghost style="font-size: 14px; margin-right: 16px" @click="handleShowResetAKSK">
-                  {{ $t('chong-zhi-aksk') }}
-                </Button>
-              </div>
+            <div v-if="!isInternalUser" class="profile-field-row">
+              <dt>{{ $t('lai-yuan') }}</dt>
+              <dd>{{ userInfo.bindType }}</dd>
+            </div>
+            <div v-if="!isInternalUser" class="profile-field-row">
+              <dt>{{ $t('guan-lian-zhang-hao') }}</dt>
+              <dd>
+                <span :class="{ 'empty-value': !userInfo.bindAccount }">
+                  {{ userInfo.bindAccount || $t('initialization.emptyValue') }}
+                </span>
+              </dd>
+            </div>
+            <div class="profile-field-row">
+              <dt>{{ $t('yong-hu-ming') }}</dt>
+              <dd>
+                <template v-if="editingField === 'username'">
+                  <div class="inline-edit-row">
+                    <Input v-model="inlineForm.username" @on-enter="confirmInlineEdit('username')" />
+                    <Button type="primary" :loading="loading" @click="confirmInlineEdit('username')">{{ $t('que-ding') }}</Button>
+                    <Button @click="cancelInlineEdit">{{ $t('qu-xiao') }}</Button>
+                  </div>
+                </template>
+                <template v-else>
+                  {{ userInfo.username }}
+                  <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="startInlineEdit('username')" />
+                </template>
+                <span
+                  v-if="userInfo.saasUserStatus === 'SAAS_LOCKED'"
+                  class="border border-red-700 border-solid ml-2 text-red-700 bg-red-50 rounded-md px-4 py-2 text-sm font-medium"
+                >
+                  {{ $t('yi-suo-ding') }}
+                </span>
+              </dd>
+            </div>
+            <div class="profile-field-row">
+              <dt>{{ $t('shou-ji') }}</dt>
+              <dd>
+                <template v-if="editingField === 'phone'">
+                  <div class="inline-edit-row">
+                    <Input v-model="inlineForm.phone" @on-blur="checkInlineDuplicate('phone')" @on-enter="confirmInlineEdit('phone')" />
+                    <Icon v-if="duplicateState.phone === 'ok'" type="md-checkmark" class="text-green-500 text-xl" />
+                    <Button type="primary" :loading="loading" @click="confirmInlineEdit('phone')">{{ $t('que-ding') }}</Button>
+                    <Button @click="cancelInlineEdit">{{ $t('qu-xiao') }}</Button>
+                  </div>
+                  <div v-if="duplicateError.phone" class="inline-edit-error">{{ duplicateError.phone }}</div>
+                </template>
+                <template v-else>
+                  <span :class="{ 'empty-value': !userInfo.phone }">{{ userInfo.phone || $t('initialization.emptyValue') }}</span>
+                  <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="startInlineEdit('phone')" />
+                </template>
+              </dd>
+            </div>
+            <div class="profile-field-row">
+              <dt>{{ $t('you-xiang') }}</dt>
+              <dd>
+                <template v-if="editingField === 'email'">
+                  <div class="inline-edit-row">
+                    <Input v-model="inlineForm.email" @on-blur="checkInlineDuplicate('email')" @on-enter="confirmInlineEdit('email')" />
+                    <Icon v-if="duplicateState.email === 'ok'" type="md-checkmark" class="text-green-500 text-xl" />
+                    <Button type="primary" :loading="loading" @click="confirmInlineEdit('email')">{{ $t('que-ding') }}</Button>
+                    <Button @click="cancelInlineEdit">{{ $t('qu-xiao') }}</Button>
+                  </div>
+                  <div v-if="duplicateError.email" class="inline-edit-error">{{ duplicateError.email }}</div>
+                </template>
+                <template v-else>
+                  <span :class="{ 'empty-value': !userInfo.email }">{{ userInfo.email || $t('initialization.emptyValue') }}</span>
+                  <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="startInlineEdit('email')" />
+                </template>
+              </dd>
+            </div>
+            <div class="profile-field-row">
+              <dt>{{ $t('deng-lu-mi-ma') }}</dt>
+              <dd>
+                <template v-if="editingField === 'password'">
+                  <div class="inline-edit-row password-edit-row">
+                    <Input v-model="inlineForm.originPassword" type="password" password :placeholder="$t('qing-shu-ru-lao-mi-ma')" />
+                    <Poptip trigger="focus" placement="right-start">
+                      <Input v-model="inlineForm.newPassword" type="password" password :placeholder="$t('xin-mi-ma')" />
+                      <template #content>
+                        <p>{{ passwordRule.tips }}</p>
+                      </template>
+                    </Poptip>
+                    <Button type="primary" :loading="loading" @click="confirmInlineEdit('password')">{{ $t('que-ding') }}</Button>
+                    <Button @click="cancelInlineEdit">{{ $t('qu-xiao') }}</Button>
+                  </div>
+                  <div v-if="errMsg" class="inline-edit-error">{{ errMsg }}</div>
+                </template>
+                <template v-else>
+                  *******
+                  <Icon class="cursor-pointer text-2xl" type="ios-create-outline" @click="startInlineEdit('password')" />
+                </template>
+              </dd>
+            </div>
+            <div v-if="userInfo.marketplaceType && userInfo.marketplaceType !== 'NONE'" class="profile-field-row">
+              <dt>{{ $t('yun-shi-chang-lei-xing') }}</dt>
+              <dd>
+                {{ userInfo.marketplaceType === 'NONE' ? '' : userInfo.marketplaceType }}
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+      <div v-show="activeTab === 'security'">
+        <div>
+          <div class="profile-security-block">
+            <h3 class="profile-section-title">
+              {{ $t('duo-yin-zi-ren-zheng') }}
+              <span v-if="!userInfo.useMfa">{{ $t('wei-kai-qi') }}</span>
+              <span v-else-if="mfaInvalid">{{ $t('yi-shi-xiao') }}</span>
+              <span v-else>{{ $t('yi-kai-qi') }}</span>
+            </h3>
+            <div>
+              <Button v-if="!userInfo.useMfa || mfaInvalid" style="margin-right: 12px" @click="handleOpenMfaSetting">
+                {{ mfaInvalid ? $t('chong-xin-qi-yong') : $t('kai-qi-1') }}
+              </Button>
+              <Button @click="handleResetMfa" v-if="userInfo.useMfa && !mfaInvalid" type="default" style="margin-right: 12px">
+                {{ $t('chong-zhi') }}
+              </Button>
+              <Button @click="handleShowCloseMf" v-if="userInfo.useMfa" type="error" ghost>{{ $t('guan-bi') }}</Button>
+            </div>
+            <p class="profile-section-desc">
+              {{
+                $t(
+                  'wei-nin-de-zhang-hao-zeng-jia-yi-ceng-bao-zhang-kai-qi-hou-nin-xu-yao-zai-deng-lu-shi-ti-gong-zhang-hao-mi-ma-yi-ji-mfa-yan-zheng-ma'
+                )
+              }}
+            </p>
+          </div>
+          <div v-if="userInfo.accountType === 'PRIMARY_ACCOUNT'" class="profile-security-block">
+            <h3 class="profile-section-title">
+              {{ $t('aksk-guan-li') }}
+            </h3>
+            <div style="margin-bottom: 8px">
+              <Button style="font-size: 14px; margin-right: 16px" @click="handleShowFetchAKSK">
+                {{ $t('huo-qu-aksk') }}
+              </Button>
+              <Button type="error" ghost style="font-size: 14px; margin-right: 16px" @click="handleShowResetAKSK">
+                {{ $t('chong-zhi-aksk') }}
+              </Button>
             </div>
           </div>
-        </TabPane>
-      </Tabs>
+        </div>
+      </div>
     </div>
     <CCModal v-model="showMfaModal" :title="$t('duo-yin-zi-ren-zheng')" width="480px">
       <div v-if="mfaModalLoading" style="text-align: center; padding: 40px 0">
@@ -382,6 +388,9 @@ export default {
   },
   methods: {
     ...mapMutations([UPDATE_USERINFO]),
+    handleTabClick(name) {
+      this.activeTab = name;
+    },
     async getConfigValueList() {
       return Promise.resolve();
     },
@@ -792,6 +801,54 @@ export default {
 };
 </script>
 <style lang="less">
+.profile-page__body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.user-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 0;
+  background: var(--bg-card);
+
+  &__item {
+    position: relative;
+    padding: 12px 20px 10px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    cursor: pointer;
+    border-bottom: none;
+    transition: color 0.12s ease;
+
+    &:hover {
+      color: var(--text-primary);
+      border-bottom: none;
+    }
+
+    &.is-active {
+      color: var(--text-primary);
+      font-weight: 500;
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        bottom: 0;
+        height: 2px;
+        border-radius: 2px 2px 0 0;
+        background: var(--primary-color);
+      }
+    }
+  }
+}
+
 .user-center-title-container {
   font-size: 12px;
   padding-left: 8px;
@@ -874,10 +931,6 @@ export default {
 .user-center {
   position: relative;
   padding: 0;
-
-  .ivu-tabs-nav .ivu-tabs-tab-active {
-    color: var(--primary-color);
-  }
 
   .ivu-table th {
     background-color: var(--bg-secondary);

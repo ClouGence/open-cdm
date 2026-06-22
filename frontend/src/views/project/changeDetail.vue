@@ -2,15 +2,6 @@
   <div class="sub-account">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb>
-            <BreadcrumbItem to="/project">{{ $t('xiang-mu-lie-biao') }}</BreadcrumbItem>
-            <BreadcrumbItem :to="'/project/' + changeInfo.projectId">
-              {{ changeInfo.projectName }}
-            </BreadcrumbItem>
-            <BreadcrumbItem>{{ changeInfo?.changeName + $t('bian-geng') }}</BreadcrumbItem>
-          </Breadcrumb>
-        </div>
         <div class="sql-change-container">
           <div class="header">
             <div class="left-wrap">

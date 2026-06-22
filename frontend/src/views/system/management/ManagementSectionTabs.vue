@@ -39,12 +39,12 @@ export default {
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
-  padding: 0 20px;
+  padding: 0;
   background: var(--bg-card);
 
   &__item {
     position: relative;
-    padding: 12px 14px 10px;
+    padding: 12px 20px 10px;
     color: var(--text-secondary);
     font-size: 13px;
     font-weight: 400;
@@ -65,8 +65,8 @@ export default {
       &::after {
         content: '';
         position: absolute;
-        left: 14px;
-        right: 14px;
+        left: 20px;
+        right: 20px;
         bottom: 0;
         height: 2px;
         border-radius: 2px 2px 0 0;
