@@ -20,7 +20,7 @@ function group(key, labelKey, iconName, children) {
   };
 }
 
-export function buildSidebarMenu({ myCatLog, myAuth, includesDM, isDesktop }) {
+export function buildSidebarMenu({ myCatLog, myAuth, includesDM, isDesktop, accountType }) {
   const primary = [];
 
   if (myCatLog.includes('CAT_RDP_DS')) {
@@ -80,7 +80,9 @@ export function buildSidebarMenu({ myCatLog, myAuth, includesDM, isDesktop }) {
 
   const settingsChildren = [];
   settingsChildren.push(linkItem('/system/profile', '/#/system/profile', 'ge-ren-zi-liao', 'profile'));
-  settingsChildren.push(linkItem('/system/permission', '/#/system/permission', 'wo-de-quan-xian', 'icon-v2-MyAuth'));
+  if (accountType && accountType !== 'PRIMARY_ACCOUNT') {
+    settingsChildren.push(linkItem('/system/permission', '/#/system/permission', 'wo-de-quan-xian', 'icon-v2-MyAuth'));
+  }
   if (myCatLog.includes('CAT_RDP_PRI_PREFERENCE_CONF') && myAuth.includes('RDP_PRI_USER_KV_CONF_R')) {
     settingsChildren.push(linkItem('/system/preference', '/#/system/preference', 'nav-tong-yong', 'icon-v2-preference'));
   }

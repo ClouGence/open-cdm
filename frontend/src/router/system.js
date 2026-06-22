@@ -196,6 +196,7 @@ export default [
   {
     path: 'permission',
     name: 'Permission',
-    component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/Permission')
+    component: () => import(/* webpackChunkName: "ccsystem-env" */ '@/views/system/Permission'),
+    meta: { subAccountOnly: true }
   }
 ];
