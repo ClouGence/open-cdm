@@ -135,10 +135,16 @@ print_local_run_commands() {
 Local verification commands:
   standalone container:
     docker rm -f cgdm-alone >/dev/null 2>&1 || true; docker run -d --name cgdm-alone -p 8222:8222 -p 8008:8008 ${image}
+EOF
 
+  if [ -f "$compose_file" ]; then
+    cat <<EOF
   compose with persisted volumes:
     docker compose -f ${compose_file} down; docker compose -f ${compose_file} up -d
+EOF
+  fi
 
+  cat <<EOF
   open:
     http://localhost:8222/#/initialization
 EOF
