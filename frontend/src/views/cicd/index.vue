@@ -9,6 +9,7 @@
                 style="width: 280px; margin-right: 10px"
                 clearable
                 v-model="searchKeywords"
+                :placeholder="$t('qing-shu-ru-xiang-mu-ming-cheng-cha-xun')"
                 @on-enter="handleQuery"
                 @on-clear="handleQueryClear"
               />
