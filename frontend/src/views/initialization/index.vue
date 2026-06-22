@@ -342,7 +342,10 @@ async function pollDmGlobalSettings() {
 }
 
 function redirectToHomePage() {
-  window.location.replace(`${window.location.origin}${window.location.pathname}#/`);
+  window.location.replace(`${window.location.origin}${window.location.pathname}#/sql`);
+  window.setTimeout(() => {
+    window.location.reload();
+  }, 0);
 }
 
 export default {

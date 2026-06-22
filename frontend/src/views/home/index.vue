@@ -38,6 +38,11 @@
       </div>
     </template>
 
+    <div v-else class="home-entry-loading">
+      <a-spin />
+      <span>{{ $t('zheng-zai-jia-zai') }}</span>
+    </div>
+
     <div class="user-expr-tip" v-if="userInfo.subAccountPwdValidDays !== null && userInfo.subAccountPwdValidDays < limitDays">
       {{ $t('gen-ju-zhu-zhang-hao-she-zhi-de-mi-ma-shi-xiao-ce-lue', [userInfo.subAccountPwdValidDays + 1]) }}
     </div>
@@ -161,6 +166,10 @@ export default {
 
     await this.$store.dispatch('getDmGlobalConfig');
 
+    if (this.redirectBlankEntry()) {
+      return;
+    }
+
     this.showChild = true;
     await this.$store.dispatch('getRegionList');
     if (this.globalSetting.enableWaterMark) {
@@ -215,6 +224,14 @@ export default {
     this.$bus.off(EVENT_BUS_NAME_LIST.SHOW_INACTIVE_MODAL);
   },
   methods: {
+    redirectBlankEntry() {
+      if (this.$route.path !== '/') {
+        return false;
+      }
+
+      this.$router.replace({ path: this.defaultRedirectUrl || '/sql' }).catch(() => {});
+      return true;
+    },
     handleShowInactiveModal(msg) {
       console.log(msg);
       this.showInactiveModal = true;
@@ -417,6 +434,18 @@ export default {
 
   &--sql .user-expr-tip {
     top: 44px;
+  }
+
+  .home-entry-loading {
+    flex: 1;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--text-secondary);
+    background: #f5f7fa;
+    font-size: 14px;
   }
 
   .footer {

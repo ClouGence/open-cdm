@@ -24,9 +24,6 @@
               >
                 {{ $t('xin-jian-xiang-mu') }}
               </Button>
-              <Button @click="handleQuery" :loading="loading">
-                <CustomIcon type="icon-v2-Refresh" />
-              </Button>
             </div>
           </div>
           <div class="table-container">
@@ -1029,10 +1026,10 @@ export default {
       window.open(this.webhook?.webHookHelpUrl, '_blank');
     },
     goToAddScm() {
-      this.$router.push('system/devops');
+      this.$router.push('/integrations/git');
     },
     goToDsSetting() {
-      this.$router.push('ccdatasource');
+      this.$router.push('/datasource');
     },
     handleCopyTemp(item) {
       this.handleCopy(item);

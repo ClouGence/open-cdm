@@ -272,9 +272,9 @@ export default {
       url = '/ticket';
     } else if (state.myCatLog.includes('CAT_DM_SYS')) {
       if (state.myCatLog.includes('CAT_DM_WORKER')) {
-        url = '/system/dmmachine';
+        url = '/data-access/cluster';
       } else if (state.myCatLog.includes('CAT_DM_SECRULES')) {
-        url = '/system/dmrulelist';
+        url = '/data-access/rules';
       }
     } else if (state.myCatLog.includes('CAT_DM_CICD_FLOW')) {
       url = '/cicd';

@@ -25,34 +25,34 @@
           router-name="/system/permission"
         />
         <card
-          :handleClickBtn="() => handleClickAddBtn('/system/dmmachine')"
+          :handleClickBtn="() => handleClickAddBtn('/data-access/cluster')"
           :num="summary.workerCounts"
           :show-btn="userInfo.menuItems.includes('/ccsystem/machine')"
           :btn-text="$t('tian-jia')"
           name="worker"
           :quantifier="$t('tai')"
           :title="$t('fang-wen-ji-qi')"
-          router-name="/system/dmmachine"
+          router-name="/data-access/cluster"
         />
         <card
-          :handleClickBtn="() => handleClickAddBtn('/system/ccdatasource')"
+          :handleClickBtn="() => handleClickAddBtn('/datasource')"
           :num="summary.dsCounts"
           :show-btn="userInfo.menuItems.includes('/ccsystem/datasource')"
           :btn-text="$t('tian-jia')"
           name="datasource"
           :quantifier="$t('ge')"
           :title="$t('shu-ju-yuan')"
-          router-name="/system/ccdatasource"
+          router-name="/datasource"
         />
         <card
-          :handleClickBtn="() => handleClickAddBtn('/system/management/accounts/account')"
+          :handleClickBtn="() => handleClickAddBtn('/manager/account')"
           :num="summary.subAccountCounts"
           :show-btn="userInfo.menuItems.includes('/system/account') || userInfo.menuItems.includes('/system/management/accounts')"
           :btn-text="$t('chuang-jian')"
           name="subaccount"
           :quantifier="$t('ge')"
           :title="$t('zi-zhang-hao')"
-          router-name="/system/management/accounts/account"
+          router-name="/manager/account"
         />
       </div>
     </div>

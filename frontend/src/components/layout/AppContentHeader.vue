@@ -42,23 +42,51 @@ export default {
       if (path.indexOf('/ticket') === 0) {
         return this.$t('gong-dan');
       }
-      if (path.indexOf('/system/profile') > -1) {
+      if (path.indexOf('/settings/profile') === 0 || path.indexOf('/system/profile') > -1) {
         return this.$t('ge-ren-zi-liao');
+      }
+      if (path.indexOf('/settings/preferences') === 0 || path.indexOf('/system/preference') > -1) {
+        return this.$t('nav-tong-yong');
       }
       if (path.indexOf('/system/permission') > -1) {
         return this.$t('my-permissions');
       }
-      if (path.indexOf('/system/ccdatasource') > -1) {
+      if (path.indexOf('/datasource') === 0 || path.indexOf('/system/ccdatasource') > -1) {
         return this.$t('nav-shu-ju-ku-guan-li');
       }
-      if (path.indexOf('/system/env') > -1) {
+      if (path === '/env' || path.indexOf('/env/') === 0 || path.indexOf('/system/env') > -1) {
         return this.$t('huan-jing');
       }
-      if (path.indexOf('/system/management/accounts') > -1 || path.indexOf('/system/account') > -1 || path.indexOf('/system/role') > -1) {
+      if (
+        path.indexOf('/manager/account') === 0 ||
+        path.indexOf('/system/management/accounts') > -1 ||
+        path.indexOf('/system/account') > -1 ||
+        path.indexOf('/system/role') > -1
+      ) {
         return this.$t('nav-zhang-hu');
       }
-      if (path.indexOf('/system/management/logs') > -1 || path.indexOf('/system/operation_log') > -1 || path.indexOf('/system/sql_log') > -1) {
+      if (
+        path.indexOf('/manager/logs') === 0 ||
+        path.indexOf('/system/management/logs') > -1 ||
+        path.indexOf('/system/operation_log') > -1 ||
+        path.indexOf('/system/sql_log') > -1
+      ) {
         return this.$t('nav-ri-zhi');
+      }
+      if (path.indexOf('/data-access/cluster') === 0 || path.indexOf('/system/dmmachine') > -1) {
+        return this.$t('nav-cha-xun-ji-qi-lie-biao');
+      }
+      if (path.indexOf('/data-access/rules') === 0 || path.indexOf('/system/dmrule') > -1) {
+        return this.$t('an-quan-gui-ze');
+      }
+      if (path.indexOf('/integrations/im') === 0 || path.indexOf('/system/im') > -1) {
+        return this.$t('nav-webhook');
+      }
+      if (path.indexOf('/integrations/git') === 0 || path.indexOf('/system/devops') > -1) {
+        return this.$t('nav-git-ops');
+      }
+      if (path.indexOf('/integrations/sso') === 0 || path.indexOf('/system/sso') > -1) {
+        return this.$t('nav-sso');
       }
 
       const parts = path.split('/').filter(Boolean);

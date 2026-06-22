@@ -30,10 +30,14 @@ async function fetchMyAuthIfNeeded() {
 
 const systemChildren = [
   {
-    path: '/system/preference',
-    name: '/system/preference',
+    path: '/settings/preferences',
+    name: '/settings/preferences',
     component: Preference,
     meta: { requiredAuth: 'RDP_PRI_USER_KV_CONF_R' }
+  },
+  {
+    path: 'preference',
+    redirect: '/settings/preferences'
   }
 ].concat(System);
 
@@ -86,12 +90,12 @@ const routes = [
       {
         path: 'dmdatasource',
         name: 'System_DataSource_list',
-        redirect: '/system/ccdatasource'
+        redirect: '/datasource'
       },
       {
         path: 'ccdatasource',
         redirect: (to) => ({
-          path: '/system/ccdatasource',
+          path: '/datasource',
           query: to.query,
           hash: to.hash
         })
@@ -99,7 +103,7 @@ const routes = [
       {
         path: 'ccdatasource/params/:id/:instanceId',
         redirect: (to) => ({
-          path: `/system/ccdatasource/params/${to.params.id}/${to.params.instanceId}`,
+          path: `/datasource/params/${to.params.id}/${to.params.instanceId}`,
           query: to.query,
           hash: to.hash
         })
@@ -107,7 +111,7 @@ const routes = [
       {
         path: 'ccdatasource/add',
         redirect: (to) => ({
-          path: '/system/ccdatasource/add',
+          path: '/datasource/add',
           query: to.query,
           hash: to.hash
         })
@@ -139,7 +143,7 @@ const routes = [
       {
         path: 'dmrulelist',
         redirect: (to) => ({
-          path: '/system/dmrulelist',
+          path: '/data-access/rules',
           query: to.query,
           hash: to.hash
         })
@@ -147,7 +151,7 @@ const routes = [
       {
         path: 'dmrule/create',
         redirect: (to) => ({
-          path: '/system/dmrule/create',
+          path: '/data-access/rules/create',
           query: to.query,
           hash: to.hash
         })
@@ -155,7 +159,7 @@ const routes = [
       {
         path: 'dmrule/detail/:id',
         redirect: (to) => ({
-          path: `/system/dmrule/detail/${to.params.id}`,
+          path: `/data-access/rules/detail/${to.params.id}`,
           query: to.query,
           hash: to.hash
         })
@@ -163,12 +167,12 @@ const routes = [
       {
         path: 'dmdatasource/params/:id',
         name: 'DM_DataSource_Params_Id',
-        redirect: '/system/ccdatasource'
+        redirect: '/datasource'
       },
       {
         path: 'dmmachine',
         redirect: (to) => ({
-          path: '/system/dmmachine',
+          path: '/data-access/cluster',
           query: to.query,
           hash: to.hash
         })
@@ -176,7 +180,7 @@ const routes = [
       {
         path: 'dmmachine/list/:clusterId',
         redirect: (to) => ({
-          path: `/system/dmmachine/list/${to.params.clusterId}`,
+          path: `/data-access/cluster/list/${to.params.clusterId}`,
           query: to.query,
           hash: to.hash
         })

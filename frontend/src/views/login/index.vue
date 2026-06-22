@@ -467,7 +467,7 @@ export default {
       this.errMsg = '';
     },
     goHandleInvalidMfa() {
-      this.$router.push({ path: '/system/profile', query: { tab: 'security' } });
+      this.$router.push({ path: '/settings/profile', query: { tab: 'security' } });
     },
     handleGoJump(loginDef = this.currentLoginDef) {
       if (!loginDef.available) {

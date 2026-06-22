@@ -101,10 +101,10 @@ export default {
       this.$router.push({ path: '/system/permission', query: { type: 'apply' } });
     },
     handleAddDataSource() {
-      this.$router.push('/system/ccdatasource');
+      this.$router.push('/datasource');
     },
     handleConfigDataSource() {
-      this.$router.push('/system/ccdatasource');
+      this.$router.push('/datasource');
     }
   }
 };

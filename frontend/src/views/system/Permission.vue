@@ -682,7 +682,7 @@ export default {
       });
       if (res?.data) {
         this.$message.success(this.$t('shu-ju-ku-shou-quan-cheng-gong'));
-        this.$router.push({ path: '/system/management/accounts/account' });
+        this.$router.push({ path: '/manager/account' });
       }
     },
     renderNode(node) {
