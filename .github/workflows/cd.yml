@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release version, for example 3.2.0 or 3.2.0-rc.1"
+        description: "version (e.g., 3.2.0 or 3.2.0-rc.1)"
         required: true
         type: string
       latest:
-        description: "Publish Docker latest and mark the GitHub Release as Latest"
+        description: "latest (publish Docker latest and mark the GitHub Release as Latest)"
         required: true
         type: boolean
         default: false
@@ -49,6 +49,11 @@ jobs:
           project_version="$(sed -n 's/^cg\.clouddm\.main\.version=//p' backend/gradle.properties | tr -d '[:space:]')"
           if [[ "$VERSION" != "$project_version" ]]; then
             echo "::error::version $VERSION does not match backend/gradle.properties ($project_version)"
+            exit 1
+          fi
+          notes_file="docs/release-notes/${VERSION}.md"
+          if [[ ! -f "$notes_file" ]]; then
+            echo "::error::release notes file does not exist: $notes_file"
             exit 1
           fi
           if [[ "$VERSION" == *-* && "$LATEST" == "true" ]]; then
@@ -171,6 +176,9 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Download tgz artifact
         uses: actions/download-artifact@v4
         with:
@@ -189,9 +197,10 @@ jobs:
           assets=(release-assets/cgdm-*.tar.gz)
 
           tag="v${VERSION}"
+          notes_file="docs/release-notes/${VERSION}.md"
           gh release create "$tag" "${assets[@]}" \
             --target "$TARGET_SHA" \
             --title "$tag" \
-            --generate-notes \
+            --notes-file "$notes_file" \
             --prerelease="$PRERELEASE" \
             --latest="$LATEST"
