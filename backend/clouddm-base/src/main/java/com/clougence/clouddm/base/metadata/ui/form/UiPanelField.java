@@ -38,6 +38,7 @@ public class UiPanelField extends UiChildren implements UiI18n {
     private boolean          addReadOnly;
     private boolean          deleteReadOnly;
     private boolean          hide;
+    private UiActiveExpr     activeExpr;
     private ValueDef         defaultValue;
     private List<ValueDef>   options;
 
@@ -77,6 +78,8 @@ public class UiPanelField extends UiChildren implements UiI18n {
         this.readOnly = newValue.readOnly;
         this.addReadOnly = newValue.addReadOnly;
         this.deleteReadOnly = newValue.deleteReadOnly;
+        this.hide = newValue.hide;
+        this.activeExpr = newValue.activeExpr;
         this.defaultValue = newValue.defaultValue;
         this.options = newValue.options;
         this.titleI18N = newValue.titleI18N;

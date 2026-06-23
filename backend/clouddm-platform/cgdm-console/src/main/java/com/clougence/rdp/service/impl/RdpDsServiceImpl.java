@@ -423,7 +423,6 @@ public class RdpDsServiceImpl implements RdpDsService, UnifiedPostConstruct {
     protected long saveSelfMaintainDs(AddDsFO addDsFO, String uid, String owner) {
         DmDsDO entity = new DmDsDO();
         entity.setDataSourceType(addDsFO.getType());
-        entity.setDeployType(addDsFO.getDeployType());
         entity.setHost(addDsFO.getHost());
         entity.setPrivateHost(addDsFO.getPrivateHost());
         entity.setPublicHost(addDsFO.getPublicHost());

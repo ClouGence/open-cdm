@@ -13,18 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.base.metadata.ds;
+package com.clougence.clouddm.base.metadata.ui.form;
 
-/**
- * @author bucketli 2021/1/14 10:43
- */
-public enum DsConfigGroup {
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Tolerate;
 
-    GENERAL,
+@Builder
+@Getter
+@Setter
+public class UiActiveExpr {
 
-    OPTIONS,
+    private String field;
+    private String eqValue;
 
-    SSL,
-
-    ADVANCED
+    @Tolerate
+    public UiActiveExpr(){
+    }
 }

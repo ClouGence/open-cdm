@@ -88,21 +88,7 @@ public class DmDsConfigHelper {
     protected static DsConfigKvDef genConfigDef(ConfigDef configDef, String val, Class<?> fieldType) {
         DsConfigKvDef config = new DsConfigKvDef();
         config.setConfigName(configDef.name());
-        if (configDef.group() == null) {
-            config.setConfigGroup(null);
-        } else {
-            switch (configDef.group()) {
-                case GENERAL:
-                    config.setConfigGroup(DsConfigGroup.GENERAL);
-                    break;
-                case CLOUD:
-                    config.setConfigGroup(DsConfigGroup.CLOUD);
-                    break;
-                case OPTIONS:
-                    config.setConfigGroup(DsConfigGroup.OPTIONS);
-                    break;
-            }
-        }
+        config.setConfigGroup(configDef.group());
 
         config.setDisplay(configDef.display());
         config.setDescKey(configDef.descKey().name());
@@ -115,6 +101,8 @@ public class DmDsConfigHelper {
         config.setReadOnly(configDef.readOnly());
         config.setSecret(configDef.isSecret());
         config.setLazy(configDef.lazy());
+        config.setActiveField(configDef.activeField());
+        config.setActiveEquals(configDef.activeEquals());
         return config;
     }
 

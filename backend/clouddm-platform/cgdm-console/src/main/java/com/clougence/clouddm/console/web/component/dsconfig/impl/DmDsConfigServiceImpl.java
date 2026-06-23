@@ -79,8 +79,6 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     @Resource
     private DataSourceDal                       dsDal;
     @Resource
-    private RdpDsResourceService                dsResourceService;
-    @Resource
     private ConsoleConfigService                configService;
     @Resource
     private WhiteListService                    whiteListService;
@@ -291,10 +289,6 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DATA_PLUGIN_NOT_EXIST_ERROR.name()));
         }
 
-        if (this.dsDal.configMapper().queryById(dsDO.getUid(), dsDO.getId()) == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_QUERY_NEED_ENABLE.name()));
-        }
-
         List<String> levelsDef = dsConfig.getCategories().getLevels();
 
         List<UmiTypes> curLevelsDef = new ArrayList<>();
@@ -332,7 +326,6 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         }
 
         DataSourceConfig dsConfig = this.generateDsConfig(dsDO, configMap);
-        dsConfig.deserialize();
 
         decryptValue(dsConfig, DataSourceConfig.class);
         decryptValue(dsConfig, dsConfig.getClass());
@@ -398,29 +391,9 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     }
 
     @Override
-    public DataSourceConfig fetchDsConfigFromRDP(long dsId, HostType hostType) {
-        DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
-        HostType ht = hostType == null ? dsDO.getHostType() : hostType;
-        List<DmDsConfigKv4RdpDO> configs = this.collectConfigFromRdp(dsDO, ht, dsDO.getVersion());
-
-        Map<String, String> configMap = new HashMap<>();
-        if (CollectionUtils.isNotEmpty(configs)) {
-            configs.forEach(c -> configMap.put(c.getConfigName(), c.getConfigValue()));
-        }
-
-        DataSourceConfig dsConfig = this.generateDsConfig(dsDO, configMap);
-        DmDsConfigHelper.fillFieldValue(dsConfig, configMap);
-        dsConfig.deserialize();
-        return dsConfig;
-    }
-
-    @Override
     public DataSourceConfig fetchDsConfigFromTemp(DmDsDO dsDO, Map<String, String> configMap, HostType hostType) {
         Map<String, String> resolvedConfigMap = configMap == null ? Collections.emptyMap() : configMap;
-        DataSourceConfig dsConfig = this.genDsConfig(dsDO, null, hostType, dsDO.getVersion(), dsDO.getDriver());
-        DmDsConfigHelper.fillFieldValue(dsConfig, resolvedConfigMap);
-        dsConfig.deserialize();
-        return dsConfig;
+        return this.genDsConfig(dsDO, resolvedConfigMap, hostType, dsDO.getVersion(), dsDO.getDriver());
     }
 
     @Override
@@ -498,22 +471,6 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         }
 
         return dvConfigs;
-    }
-
-    private List<DmDsConfigKv4RdpDO> fetchConfig(long dsId) {
-        List<DmDsConfigKv4RdpDO> confList = this.dsDal.configKv4RdpMapper().listByDsId(dsId);
-
-        for (DmDsConfigKv4RdpDO confDO : confList) {
-            if (confDO.isSecret() && StringUtils.isNotBlank(confDO.getConfigValue())) {
-                try {
-                    confDO.setConfigValue(CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(confDO.getConfigValue()));
-                } catch (Exception e) {
-                    log.error(e.getMessage(), e);
-                }
-            }
-        }
-
-        return confList;
     }
 
     @Override

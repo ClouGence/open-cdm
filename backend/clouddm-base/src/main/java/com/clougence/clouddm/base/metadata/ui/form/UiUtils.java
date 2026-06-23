@@ -58,6 +58,10 @@ public class UiUtils {
         return FieldOptionValueDef.builder().labelI18N(labelI18N).value(value).readOnly(readOnly).build();
     }
 
+    public static UiActiveExpr activeWhenEquals(String field, String value) {
+        return UiActiveExpr.builder().field(field).eqValue(value).build();
+    }
+
     //    public static FieldOptionValueDef fieldOptionDef(String labelI18N, boolean value) {
     //        return FieldOptionValueDef.builder().labelI18N(labelI18N).value(value).build();
     //    }

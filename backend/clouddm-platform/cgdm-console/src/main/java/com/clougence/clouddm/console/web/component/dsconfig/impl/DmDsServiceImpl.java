@@ -220,9 +220,6 @@ public class DmDsServiceImpl implements DmDsService {
         if (fo.getDataSourceType() == null) {
             throw new IllegalArgumentException("data source type can not be empty.");
         }
-        if (fo.getDeployEnvType() == null) {
-            throw new IllegalArgumentException("deploy env type can not be empty.");
-        }
         if (fo.getSecurityType() == null) {
             throw new IllegalArgumentException("security type can not be empty.");
         }
@@ -249,13 +246,11 @@ public class DmDsServiceImpl implements DmDsService {
         tempDs.setInstanceId(UUID.randomUUID().toString().replace("-", ""));
         tempDs.setInstanceDesc(StringUtils.isNotBlank(fo.getInstanceDesc()) ? fo.getInstanceDesc() : fo.getDefaultHost());
         tempDs.setDataSourceType(fo.getDataSourceType());
-        tempDs.setDeployType(fo.getDeployEnvType());
         tempDs.setHostType(hostType);
         tempDs.setHost(hostType == HostType.PUBLIC ? fo.getPublicHost() : fo.getPrivateHost());
         tempDs.setPrivateHost(fo.getPrivateHost());
         tempDs.setPublicHost(fo.getPublicHost());
         tempDs.setSecurityType(fo.getSecurityType());
-        tempDs.setConnectType(fo.getConnectType());
         tempDs.setDriver(fo.getDriver());
         tempDs.setDefaultDbName(configMap.get("database"));
         tempDs.setDsEnvId(fo.getEnvId());

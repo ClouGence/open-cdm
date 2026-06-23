@@ -91,11 +91,13 @@ public class DmDsController {
     @Resource
     private DmAuthServiceForBiz rdpAuthServiceForBiz;
     @Resource
-    private ClusterService      clusterService;
-    @Resource
     private CheckRulesService   checkRulesService;
     @Resource
     private DmDsConfigService   dmDsConfigService;
+    @Resource
+    private ClusterService      clusterService;
+    @Resource
+    private RdpDsEnvService     rdpDsEnvService;
 
     @RequestAuth(DM_DS_READ)
     @RequestMapping(value = "/listByCondition", method = RequestMethod.POST)
@@ -114,7 +116,6 @@ public class DmDsController {
             .dataSourceType(listDsFO.getType())
             .dataSourceDescLike(listDsFO.getDataSourceDescLike())
             .dataSourceIds(Stream.of(listDsFO.getDataSourceId()).filter(Objects::nonNull).collect(Collectors.toList()))
-            .deployType(listDsFO.getDeployType())
             .lifeCycleState(listDsFO.getLifeCycleState())
             .dsHostLike(listDsFO.getDsHostLike())
             .dataSourceType(listDsFO.getType())
@@ -159,24 +160,6 @@ public class DmDsController {
             }
         }).collect(Collectors.toList());
         return vos;
-    }
-
-    @RequestAuth(DM_DS_MANAGE)
-    @RequestMapping(value = "/testEnableQuery", method = RequestMethod.POST)
-    public ResWebData<?> testEnableQuery(@Valid @RequestBody EnableDsQueryFO fo, HttpServletRequest request) {
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.objectCacheDao.ownCluster(puid, fo.getClusterId());
-        this.objectCacheDao.ownDataSource(puid, fo.getDataSourceId());
-        this.rdpAuthServiceForBiz.checkResAuth(puid, uid, fo.getDataSourceId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
-
-        try {
-            String version = this.dmDsService.testAndFetchDsVersion(puid, fo);
-            return ResWebDataUtils.buildSuccess(version);
-        } catch (Exception e) {
-            log.error("testDsQuery failed, " + e.getMessage());
-            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_TEST_CONNECT_ERROR.name(), e.getMessage()));
-        }
     }
 
     @RequestAuth(DM_DS_READ)
@@ -231,7 +214,7 @@ public class DmDsController {
         this.objectCacheDao.ownDataSource(puid, fo.getDataSourceId());
         this.rdpAuthServiceForBiz.checkResAuth(puid, uid, fo.getDataSourceId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
 
-        this.dmDsService.upsertDsConfigs(puid, fo);
+        this.dmDsService.upsertConfigs(puid, fo);
         return ResWebDataUtils.buildSuccess();
     }
 
@@ -253,15 +236,6 @@ public class DmDsController {
             this.dmDsService.testConnect(puid, uid, dsLevels);
             return ResWebDataUtils.buildSuccess();
         }
-    }
-
-    @RequestAuth(DM_DS_MANAGE)
-    @RequestMapping(value = "/listDsBindCluster", method = RequestMethod.POST)
-    public ResWebData<?> listBindCluster(HttpServletRequest request) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-
-        List<ClusterVO> clusterVOs = this.clusterService.listByOwnerUid(puid);
-        return ResWebDataUtils.buildSuccess(clusterVOs);
     }
 
     @RequestAuth(DM_DS_MANAGE)
