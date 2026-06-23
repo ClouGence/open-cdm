@@ -34,15 +34,21 @@ public class McConfigSpi implements DsConfigSpi {
 
     @Override
     public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
-        ((McConfig) dsConfig).setDefaultCatalog(defaultConfig.get(McConfig.Fields.defaultCatalog));
-        ((McConfig) dsConfig).setDefaultSchema(defaultConfig.get(McConfig.Fields.defaultSchema));
-        ((McConfig) dsConfig).setUserName(defaultConfig.get(DataSourceConfig.Fields.userName));
-        ((McConfig) dsConfig).setPassword(defaultConfig.get(DataSourceConfig.Fields.password));
-        ((McConfig) dsConfig).setInteractiveMode(ConvertUtils.toBoolean(defaultConfig.get(McConfig.Fields.interactiveMode), false));
-        ((McConfig) dsConfig).setSdkEndpoint(defaultConfig.get(McConfig.Fields.sdkEndpoint));
+        McConfig config = (McConfig) dsConfig;
+        Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(McConfig.Fields.connectTimeoutMs), false);
+        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(McConfig.Fields.soTimeoutSec), false);
+        config.setUserName(defaultConfig.get(DataSourceConfig.Fields.userName));
+        config.setPassword(defaultConfig.get(DataSourceConfig.Fields.password));
+        config.setSdkEndpoint(defaultConfig.get(McConfig.Fields.sdkEndpoint));
+        config.setDefaultCatalog(defaultConfig.get(McConfig.Fields.defaultCatalog));
+        config.setDefaultSchema(defaultConfig.get(McConfig.Fields.defaultSchema));
+        config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
+        config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
+        config.setClientTimeZone(defaultConfig.get(McConfig.Fields.clientTimeZone));
+        config.setInteractiveMode(ConvertUtils.toBoolean(defaultConfig.get(McConfig.Fields.interactiveMode), false));
 
         boolean blank = StringUtils.isBlank(defaultConfig.get(McConfig.Fields.schemaStyle));
-        ((McConfig) dsConfig).setSchemaStyle((blank ? Boolean.FALSE : ConvertUtils.toBoolean(defaultConfig.get(McConfig.Fields.schemaStyle), false)));
+        config.setSchemaStyle((blank ? Boolean.FALSE : ConvertUtils.toBoolean(defaultConfig.get(McConfig.Fields.schemaStyle), false)));
         return dsConfig;
     }
 

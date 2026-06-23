@@ -80,7 +80,10 @@ public class ChYandexDsFactory implements DsFactory<Connection> {
             properties.setDatabase(defaultSchema);
         }
         if (StringUtils.isNotBlank(chSessionTimeoutMs)) {
-            properties.setSessionTimeout(Long.parseLong(chSessionTimeoutMs));
+            properties.setSessionTimeout(Long.parseLong(chSessionTimeoutMs) / 1000);
+        }
+        if (StringUtils.isNotBlank(clientTimeZone)) {
+            properties.setUseTimeZone(clientTimeZone);
         }
 
         String jdbcUrl = buildJdbcUrl(dsConfig);

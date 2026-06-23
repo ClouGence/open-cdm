@@ -36,21 +36,26 @@ import lombok.experimental.FieldNameConstants;
 @Serialization(provider = AdsMySerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AdsMyConfig extends DataSourceConfig {
-
-    @ConfigDef(name = Fields.defaultSchema, valueRequire = false, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION, readOnly = false)
+    // ------------------------------------------------------------------------------------------------------------------------ GENERAL
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultSchema, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION)
     private String  defaultSchema;
-    @ConfigDef(name = Fields.connectionCharset, defaultValue = "utf8", descKey = ConfigI18nKey.CONFIG_ADSMYSQL_CONN_CHARSET_DESCRIPTION, readOnly = false)
+    // ------------------------------------------------------------------------------------------------------------------------ CONNECT
+    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.autoCommit, defaultValue = "true", descKey = ConfigI18nKey.CONFIG_RDB_TRANSACTION_DESCRIPTION)
+    private Boolean autoCommit;
+    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
+    private Integer soTimeoutSec;
+    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.connectTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_DESCRIPTION)
+    private Long    connectTimeoutMs;
+    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.clientTimeZone, defaultValue = "Asia/Shanghai", descKey = ConfigI18nKey.CONFIG_RDB_CLIENT_TIME_ZONE_DESCRIPTION)
+    private String  clientTimeZone;
+    // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
+    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.connectionCharset, defaultValue = "utf8", descKey = ConfigI18nKey.CONFIG_ADSMYSQL_CONN_CHARSET_DESCRIPTION)
     private String  connectionCharset;
-    @ConfigDef(name = Fields.useCursorFetch, valueRequire = false, descKey = ConfigI18nKey.CONFIG_ADSMYSQL_CONN_USE_CURSOR_FETCH, readOnly = false, valueAdvance = "true - false", group = DsConfigGroup.OPTIONS)
+    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.useCursorFetch, descKey = ConfigI18nKey.CONFIG_ADSMYSQL_CONN_USE_CURSOR_FETCH)
     private Boolean useCursorFetch;
 
     public AdsMyConfig(){
         setDataSourceType(DataSourceType.AdbForMySQL);
-    }
-
-    @Override
-    public void deserialize() {
-        super.deserialize();
     }
 
     public Properties asDriverProperties() {
@@ -60,11 +65,17 @@ public class AdsMyConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.USER.getConfigKey(), safeStr(this.getUserName()));
         properties.setProperty(DsConfigKeys.PASSWORD.getConfigKey(), safeStr(this.getPassword()));
         properties.setProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey(), safeStr(this.getDefaultSchema()));
+        properties.setProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey(), safeStr(StringUtils.toString(this.getAutoCommit())));
         properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), safeStr(StringUtils.toString(this.getConnectTimeoutMs())));
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
-        properties.setProperty("use_cursor_fetch", safeStr(StringUtils.toString(this.getUseCursorFetch())));
+        properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), safeStr(this.getClientTimeZone()));
         properties.setProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey(), safeStr(this.getConnectionCharset()));
-        properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), "Asia/Shanghai");
+        properties.setProperty("useCursorFetch", safeStr(StringUtils.toString(this.getUseCursorFetch())));
+        properties.setProperty("allowPublicKeyRetrieval", "true");
+        properties.setProperty("allowMultiQueries", "true");
+        properties.setProperty("rewriteBatchedStatements", "true");
+        properties.setProperty("useServerPrepStmts", "true");
+        properties.setProperty("useOldAliasMetadataBehavior", "true");
         return properties;
     }
 }

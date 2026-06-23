@@ -35,12 +35,15 @@ public class MyConfigSpi implements DsConfigSpi {
     @Override
     public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
         MyConfig config = (MyConfig) dsConfig;
+        Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(MyConfig.Fields.connectTimeoutMs), false);
+        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(MyConfig.Fields.soTimeoutSec), false);
         config.setDefaultSchema(defaultConfig.get(MyConfig.Fields.defaultSchema));
+        config.setAutoCommit(!"false".equalsIgnoreCase(defaultConfig.get(MyConfig.Fields.autoCommit)));
+        config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
+        config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
+        config.setClientTimeZone(StringUtils.defaultIfBlank(defaultConfig.get(MyConfig.Fields.clientTimeZone), "Asia/Shanghai"));
         config.setConnectionCharset(StringUtils.defaultIfBlank(defaultConfig.get(MyConfig.Fields.connectionCharset), "utf8"));
         config.setUseCursorFetch(ConvertUtils.toBoolean(defaultConfig.get(MyConfig.Fields.useCursorFetch), false));
-
-        boolean blank = StringUtils.isBlank(defaultConfig.get(MyConfig.Fields.useSSL));
-        config.setUseSSL(blank ? Boolean.FALSE : ConvertUtils.toBoolean(defaultConfig.get(MyConfig.Fields.useSSL), false));
         return dsConfig;
     }
 

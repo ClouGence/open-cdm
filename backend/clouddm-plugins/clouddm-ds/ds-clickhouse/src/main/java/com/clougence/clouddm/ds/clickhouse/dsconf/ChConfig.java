@@ -16,10 +16,7 @@
 package com.clougence.clouddm.ds.clickhouse.dsconf;
 
 import java.util.Properties;
-import com.clougence.clouddm.base.metadata.ds.ConfigDef;
-import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
@@ -34,19 +31,23 @@ import lombok.experimental.FieldNameConstants;
 @Serialization(provider = ChSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChConfig extends DataSourceConfig {
-
-    @ConfigDef(name = Fields.defaultSchema, valueRequire = false, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION, readOnly = false)
-    private String defaultSchema;
-    @ConfigDef(name = Fields.sessionTimeout, defaultValue = "15000", descKey = ConfigI18nKey.CONFIG_CLICKHOUSE_SESSION_TIME_OUT, readOnly = false)
-    private String sessionTimeout;
+    // ------------------------------------------------------------------------------------------------------------------------ GENERAL
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultSchema, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION)
+    private String  defaultSchema;
+    // ------------------------------------------------------------------------------------------------------------------------ CONNECT
+    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.autoCommit, defaultValue = "true", descKey = ConfigI18nKey.CONFIG_RDB_TRANSACTION_DESCRIPTION)
+    private Boolean autoCommit;
+    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
+    private Integer soTimeoutSec;
+    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.connectTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_DESCRIPTION)
+    private Long    connectTimeoutMs;
+    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.sessionTimeout, defaultValue = "15000", descKey = ConfigI18nKey.CONFIG_CLICKHOUSE_SESSION_TIME_OUT)
+    private String  sessionTimeout;
+    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.clientTimeZone, descKey = ConfigI18nKey.CONFIG_RDB_CLIENT_TIME_ZONE_DESCRIPTION)
+    private String  clientTimeZone;
 
     public ChConfig(){
         setDataSourceType(DataSourceType.ClickHouse);
-    }
-
-    @Override
-    public void deserialize() {
-        super.deserialize();
     }
 
     public Properties asDriverProperties() {
@@ -56,8 +57,10 @@ public class ChConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.USER.getConfigKey(), safeStr(this.getUserName()));
         properties.setProperty(DsConfigKeys.PASSWORD.getConfigKey(), safeStr(this.getPassword()));
         properties.setProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey(), safeStr(this.getDefaultSchema()));
+        properties.setProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey(), safeStr(StringUtils.toString(this.getAutoCommit())));
         properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), safeStr(StringUtils.toString(this.getConnectTimeoutMs())));
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
+        properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), safeStr(this.getClientTimeZone()));
         properties.setProperty(DsConfigKeys.CH_SESSION_TIMEOUT_MS.getConfigKey(), safeStr(StringUtils.toString(this.sessionTimeout)));
         return properties;
     }

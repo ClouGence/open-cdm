@@ -46,17 +46,11 @@ public class ChNativeDsFactory implements DsFactory<Connection> {
         String id = dsConfig.getProperty(DsConfigKeys.ID.getConfigKey());
         String username = dsConfig.getProperty(DsConfigKeys.USER.getConfigKey());
         String password = dsConfig.getProperty(DsConfigKeys.PASSWORD.getConfigKey());
-        String loginTimeoutMs = dsConfig.getProperty(DsConfigKeys.LOGIN_TIMEOUT_MS.getConfigKey());
         String connTimeoutMs = dsConfig.getProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey());
-        String soTimeoutSec = dsConfig.getProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey());
-        String clientName = dsConfig.getProperty(DsConfigKeys.CLIENT_NAME.getConfigKey());
         String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
         String clientEncoding = dsConfig.getProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey());
-        String clientTimeZone = dsConfig.getProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey());
         String tcpKeepAlive = dsConfig.getProperty(DsConfigKeys.TCP_KEEP_ALIVE.getConfigKey());
         String autoCommit = dsConfig.getProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey());
-
-        String chSessionTimeoutMs = dsConfig.getProperty(DsConfigKeys.CH_SESSION_TIMEOUT_MS.getConfigKey());
 
         if (StringUtils.isNotBlank(username)) {
             props.setProperty("user", username);

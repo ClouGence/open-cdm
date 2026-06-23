@@ -71,7 +71,7 @@ public class ChJdbcDsFactory implements DsFactory<Connection> {
         }
         String connectTimeout = firstNotBlank(connTimeoutMs, loginTimeoutMs);
         if (StringUtils.isNotBlank(connectTimeout)) {
-            props.setProperty("connection_timeout", connectTimeout);
+            props.setProperty("connect_timeout", connectTimeout);
         }
         if (StringUtils.isNotBlank(soTimeoutSec)) {
             props.setProperty("socket_timeout", String.valueOf(Integer.parseInt(soTimeoutSec) * 1000));
@@ -86,10 +86,10 @@ public class ChJdbcDsFactory implements DsFactory<Connection> {
             props.setProperty("charset", clientEncoding);
         }
         if (StringUtils.isNotBlank(clientTimeZone)) {
-            props.setProperty("clickhouse_setting_session_timezone", clientTimeZone);
+            props.setProperty("use_time_zone", clientTimeZone);
         }
         if (StringUtils.isNotBlank(chSessionTimeoutMs)) {
-            props.setProperty("clickhouse_setting_session_timeout", chSessionTimeoutMs);
+            props.setProperty("session_timeout", String.valueOf(Long.parseLong(chSessionTimeoutMs) / 1000));
         }
         props.putIfAbsent("jdbc_ignore_unsupported_values", "true");
 

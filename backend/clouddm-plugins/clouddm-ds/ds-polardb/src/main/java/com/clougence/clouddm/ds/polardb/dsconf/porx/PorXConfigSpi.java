@@ -35,12 +35,17 @@ public class PorXConfigSpi implements DsConfigSpi {
     @Override
     public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
         PorXConfig config = (PorXConfig) dsConfig;
+        Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(PorXConfig.Fields.connectTimeoutMs), false);
+        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(PorXConfig.Fields.soTimeoutSec), false);
         config.setDefaultSchema(defaultConfig.get(PorXConfig.Fields.defaultSchema));
+        config.setAutoCommit(!"false".equalsIgnoreCase(defaultConfig.get(PorXConfig.Fields.autoCommit)));
+        config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
+        config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
+        config.setClientTimeZone(StringUtils.defaultIfBlank(defaultConfig.get(PorXConfig.Fields.clientTimeZone), "Asia/Shanghai"));
         config.setConnectionCharset(StringUtils.defaultIfBlank(defaultConfig.get(PorXConfig.Fields.connectionCharset), "utf8"));
         config.setUseCursorFetch(ConvertUtils.toBoolean(defaultConfig.get(PorXConfig.Fields.useCursorFetch), false));
         return dsConfig;
     }
-
 
     @Override
     public List<SecurityType> securityTypes() {

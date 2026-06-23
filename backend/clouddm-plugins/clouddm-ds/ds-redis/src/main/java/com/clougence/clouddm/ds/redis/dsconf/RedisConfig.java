@@ -17,14 +17,10 @@ package com.clougence.clouddm.ds.redis.dsconf;
 
 import java.util.Properties;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigDef;
-import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
@@ -40,43 +36,17 @@ import lombok.experimental.FieldNameConstants;
 @Serialization(provider = RedisSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RedisConfig extends DataSourceConfig {
-
-    @ConfigDef(name = Fields.defaultSchema, valueRequire = false, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION, readOnly = false)
+    // ------------------------------------------------------------------------------------------------------------------------ GENERAL
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultSchema, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION)
     private String  defaultSchema;
-    @ConfigDef(name = Fields.connAndSoTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_REDIS_CON_AND_SO_TIMEOUT_MS_DESCRIPTION, readOnly = false)
+    // ------------------------------------------------------------------------------------------------------------------------ CONNECT
+    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
+    private Integer soTimeoutSec;
+    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.connAndSoTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_REDIS_CON_AND_SO_TIMEOUT_MS_DESCRIPTION)
     private Integer connAndSoTimeoutMs;
-
-    @JsonIgnore
-    private String  ip;
-    @JsonIgnore
-    private Integer port;
-    @JsonIgnore
-    private String  database;
 
     public RedisConfig(){
         setDataSourceType(DataSourceType.Redis);
-    }
-
-    @Override
-    public void deserialize() {
-        super.deserialize();
-
-        if (StringUtils.isNotBlank(this.getHost())) {
-            String[] ipPort = this.getHost().split(":");
-            if (ipPort.length == 2) {
-                this.ip = ipPort[0];
-                if (StringUtils.isNotBlank(ipPort[1])) {
-                    this.port = Integer.parseInt(ipPort[1]);
-                } else {
-                    this.port = 6379;
-                }
-            } else if (ipPort.length == 1) {
-                this.ip = ipPort[0];
-                this.port = 6379;
-            } else {
-                throw new IllegalArgumentException("unsupported Redis host format:" + this.getHost());
-            }
-        }
     }
 
     public Properties asDriverProperties() {
@@ -85,9 +55,9 @@ public class RedisConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.HOST.getConfigKey(), safeStr(this.getHost()));
         properties.setProperty(DsConfigKeys.USER.getConfigKey(), safeStr(this.getUserName()));
         properties.setProperty(DsConfigKeys.PASSWORD.getConfigKey(), safeStr(this.getPassword()));
+        properties.setProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey(), safeStr(this.getDefaultSchema()));
         properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), safeStr(StringUtils.toString(this.getConnAndSoTimeoutMs())));
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
-        properties.setProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey(), safeStr(this.getDefaultSchema()));
         return properties;
     }
 }

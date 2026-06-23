@@ -22,6 +22,7 @@ import java.util.Map;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.drivers.adapter.ConvertUtils;
 
 public class GsogConfigSpi implements DsConfigSpi {
 
@@ -33,8 +34,14 @@ public class GsogConfigSpi implements DsConfigSpi {
     @Override
     public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
         GsogConfig config = (GsogConfig) dsConfig;
+        Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(GsogConfig.Fields.connectTimeoutMs), false);
+        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(GsogConfig.Fields.soTimeoutSec), false);
         config.setDefaultCatalog(defaultConfig.get(GsogConfig.Fields.defaultCatalog));
         config.setDefaultSchema(defaultConfig.get(GsogConfig.Fields.defaultSchema));
+        config.setAutoCommit(!"false".equalsIgnoreCase(defaultConfig.get(GsogConfig.Fields.autoCommit)));
+        config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
+        config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
+        config.setClientTimeZone(defaultConfig.get(GsogConfig.Fields.clientTimeZone));
         return dsConfig;
     }
 

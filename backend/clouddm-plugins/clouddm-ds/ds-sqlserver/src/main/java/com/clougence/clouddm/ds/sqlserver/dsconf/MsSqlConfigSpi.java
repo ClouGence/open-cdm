@@ -22,6 +22,7 @@ import java.util.Map;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.drivers.adapter.ConvertUtils;
 
 public class MsSqlConfigSpi implements DsConfigSpi {
 
@@ -32,8 +33,14 @@ public class MsSqlConfigSpi implements DsConfigSpi {
 
     @Override
     public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
-        ((MsSqlConfig) dsConfig).setInstanceName(defaultConfig.get(MsSqlConfig.Fields.instanceName));
-        ((MsSqlConfig) dsConfig).setDefaultCatalog(defaultConfig.get(MsSqlConfig.Fields.defaultCatalog));
+        MsSqlConfig config = (MsSqlConfig) dsConfig;
+        Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(MsSqlConfig.Fields.connectTimeoutMs), false);
+        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(MsSqlConfig.Fields.soTimeoutSec), false);
+        config.setDefaultCatalog(defaultConfig.get(MsSqlConfig.Fields.defaultCatalog));
+        config.setInstanceName(defaultConfig.get(MsSqlConfig.Fields.instanceName));
+        config.setAutoCommit(!"false".equalsIgnoreCase(defaultConfig.get(MsSqlConfig.Fields.autoCommit)));
+        config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
+        config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
         return dsConfig;
     }
 

@@ -35,7 +35,13 @@ public class DrConfigSpi implements DsConfigSpi {
     @Override
     public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
         DrConfig config = (DrConfig) dsConfig;
+        Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(DrConfig.Fields.connectTimeoutMs), false);
+        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(DrConfig.Fields.soTimeoutSec), false);
         config.setDefaultSchema(defaultConfig.get(DrConfig.Fields.defaultSchema));
+        config.setAutoCommit(!"false".equalsIgnoreCase(defaultConfig.get(DrConfig.Fields.autoCommit)));
+        config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
+        config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
+        config.setClientTimeZone(StringUtils.defaultIfBlank(defaultConfig.get(DrConfig.Fields.clientTimeZone), "Asia/Shanghai"));
         config.setConnectionCharset(StringUtils.defaultIfBlank(defaultConfig.get(DrConfig.Fields.connectionCharset), "utf8"));
         config.setUseCursorFetch(ConvertUtils.toBoolean(defaultConfig.get(DrConfig.Fields.useCursorFetch), false));
         return dsConfig;

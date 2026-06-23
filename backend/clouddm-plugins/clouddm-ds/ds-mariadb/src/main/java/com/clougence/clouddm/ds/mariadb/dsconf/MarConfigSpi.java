@@ -35,12 +35,13 @@ public class MarConfigSpi implements DsConfigSpi {
     @Override
     public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
         MarConfig config = (MarConfig) dsConfig;
+        Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(MarConfig.Fields.connectTimeoutMs), false);
+        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(MarConfig.Fields.soTimeoutSec), false);
         config.setDefaultSchema(defaultConfig.get(MarConfig.Fields.defaultSchema));
-        config.setConnectionCharset(StringUtils.defaultIfBlank(defaultConfig.get(MarConfig.Fields.connectionCharset), "utf8"));
-        config.setUseCursorFetch(ConvertUtils.toBoolean(defaultConfig.get(MarConfig.Fields.useCursorFetch), false));
-
-        boolean blank = StringUtils.isBlank(defaultConfig.get(MarConfig.Fields.useSSL));
-        config.setUseSSL(blank ? Boolean.FALSE : ConvertUtils.toBoolean(defaultConfig.get(MarConfig.Fields.useSSL), false));
+        config.setAutoCommit(!"false".equalsIgnoreCase(defaultConfig.get(MarConfig.Fields.autoCommit)));
+        config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
+        config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
+        config.setClientTimeZone(StringUtils.defaultIfBlank(defaultConfig.get(MarConfig.Fields.clientTimeZone), "Asia/Shanghai"));
         return dsConfig;
     }
 

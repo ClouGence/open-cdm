@@ -35,7 +35,13 @@ public class SelConfigSpi implements DsConfigSpi {
     @Override
     public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
         SelConfig config = (SelConfig) dsConfig;
+        Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(SelConfig.Fields.connectTimeoutMs), false);
+        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(SelConfig.Fields.soTimeoutSec), false);
         config.setDefaultSchema(defaultConfig.get(SelConfig.Fields.defaultSchema));
+        config.setAutoCommit(!"false".equalsIgnoreCase(defaultConfig.get(SelConfig.Fields.autoCommit)));
+        config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
+        config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
+        config.setClientTimeZone(StringUtils.defaultIfBlank(defaultConfig.get(SelConfig.Fields.clientTimeZone), "Asia/Shanghai"));
         config.setConnectionCharset(StringUtils.defaultIfBlank(defaultConfig.get(SelConfig.Fields.connectionCharset), "utf8"));
         config.setUseCursorFetch(ConvertUtils.toBoolean(defaultConfig.get(SelConfig.Fields.useCursorFetch), false));
         return dsConfig;

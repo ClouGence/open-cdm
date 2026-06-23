@@ -22,6 +22,7 @@ import java.util.Map;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.drivers.adapter.ConvertUtils;
 
 public class DmConfigSpi implements DsConfigSpi {
 
@@ -32,7 +33,15 @@ public class DmConfigSpi implements DsConfigSpi {
 
     @Override
     public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
-        ((DmConfig) dsConfig).setDefaultSchema(defaultConfig.get(DmConfig.Fields.defaultSchema));
+        DmConfig config = (DmConfig) dsConfig;
+        Boolean autoCommit = ConvertUtils.toBoolean(defaultConfig.get(DmConfig.Fields.autoCommit), false);
+        Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(DmConfig.Fields.connectTimeoutMs), false);
+        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(DmConfig.Fields.soTimeoutSec), false);
+        config.setDefaultSchema(defaultConfig.get(DmConfig.Fields.defaultSchema));
+        config.setAutoCommit(autoCommit == null || autoCommit);
+        config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
+        config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
+        config.setClientTimeZone(defaultConfig.get(DmConfig.Fields.clientTimeZone));
         return dsConfig;
     }
 

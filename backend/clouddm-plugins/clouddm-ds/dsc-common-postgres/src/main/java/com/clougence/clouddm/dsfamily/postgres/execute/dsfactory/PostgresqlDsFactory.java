@@ -35,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PostgresqlDsFactory implements DsFactory<Connection> {
 
     private static final char[] INJECT_CHAR = new char[] { ' ', ';' };
+    private static final char[] TIME_ZONE_INJECT_CHAR = new char[] { ' ', ';', '\'' };
 
     @Override
     public DsObject<Connection> create(Properties dsConfig) throws SQLException {
@@ -101,6 +102,14 @@ public class PostgresqlDsFactory implements DsFactory<Connection> {
             }
             if (StringUtils.isNotBlank(pgIntervalStyle) && !StringUtils.containsAny(pgIntervalStyle, INJECT_CHAR)) {
                 String exec = "set intervalstyle = " + pgIntervalStyle;
+                try (Statement ps = pgConnect.createStatement()) {
+                    ps.execute(exec);
+                } catch (SQLException e) {
+                    log.error("create connection applyProps failed '" + exec + "'", e);
+                }
+            }
+            if (StringUtils.isNotBlank(clientTimeZone) && !StringUtils.containsAny(clientTimeZone, TIME_ZONE_INJECT_CHAR)) {
+                String exec = "set time zone '" + clientTimeZone + "'";
                 try (Statement ps = pgConnect.createStatement()) {
                     ps.execute(exec);
                 } catch (SQLException e) {

@@ -36,29 +36,32 @@ import lombok.experimental.FieldNameConstants;
 @Serialization(provider = OraSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OraConfig extends DataSourceConfig {
-
-    @ConfigDef(name = Fields.connectType, valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_CONNECT_TYPE_DESCRIPTION, valueAdvance = "SID / SERVICE / TNS", readOnly = false)
+    // ------------------------------------------------------------------------------------------------------------------------ GENERAL
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.connectType, descKey = ConfigI18nKey.CONFIG_ORACLE_CONNECT_TYPE_DESCRIPTION)
     private OraConnectType connectType;
-    @ConfigDef(name = Fields.sid, valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_SID_DESCRIPTION, readOnly = false)
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.sid, descKey = ConfigI18nKey.CONFIG_ORACLE_SID_DESCRIPTION)
     private String         sid;
-    @ConfigDef(name = Fields.serviceName, valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_SERVICE_DESCRIPTION, readOnly = false)
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.serviceName, descKey = ConfigI18nKey.CONFIG_ORACLE_SERVICE_DESCRIPTION)
     private String         serviceName;
-    @ConfigDef(name = Fields.pdbName, valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_PDB_DESCRIPTION, readOnly = false)
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.pdbName, descKey = ConfigI18nKey.CONFIG_ORACLE_PDB_DESCRIPTION)
     private String         pdbName;
-    @ConfigDef(name = Fields.tnsAdmin, valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_TNS_ADMIN_DESCRIPTION, readOnly = false)
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.tnsAdmin, descKey = ConfigI18nKey.CONFIG_ORACLE_TNS_ADMIN_DESCRIPTION)
     private String         tnsAdmin;
-    @ConfigDef(name = Fields.tnsName, valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_TNS_NAME_DESCRIPTION, readOnly = false)
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.tnsName, descKey = ConfigI18nKey.CONFIG_ORACLE_TNS_NAME_DESCRIPTION)
     private String         tnsName;
-    @ConfigDef(name = Fields.excludeOraMaintainedSchemas, defaultValue = "false", valueRequire = false, descKey = ConfigI18nKey.CONFIG_ORACLE_EXCLUDE_ORA_MAINTAINED_SCHEMAS_DESCRIPTION, readOnly = false, valueAdvance = "true - false", group = DsConfigGroup.OPTIONS)
+    // ------------------------------------------------------------------------------------------------------------------------ CONNECT
+    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.autoCommit, defaultValue = "true", descKey = ConfigI18nKey.CONFIG_RDB_TRANSACTION_DESCRIPTION)
+    private Boolean        autoCommit;
+    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
+    private Integer        soTimeoutSec;
+    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.connectTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_DESCRIPTION)
+    private Long           connectTimeoutMs;
+    // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
+    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.excludeOraMaintainedSchemas, defaultValue = "false", descKey = ConfigI18nKey.CONFIG_ORACLE_EXCLUDE_ORA_MAINTAINED_SCHEMAS_DESCRIPTION)
     private Boolean        excludeOraMaintainedSchemas;
 
     public OraConfig(){
         setDataSourceType(DataSourceType.Oracle);
-    }
-
-    @Override
-    public void deserialize() {
-        super.deserialize();
     }
 
     public Properties asDriverProperties() {
@@ -98,15 +101,15 @@ public class OraConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.HOST.getConfigKey(), safeStr(ipStr + ":" + portStr));
         properties.setProperty(DsConfigKeys.USER.getConfigKey(), safeStr(this.getUserName()));
         properties.setProperty(DsConfigKeys.PASSWORD.getConfigKey(), safeStr(this.getPassword()));
-        properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), safeStr(StringUtils.toString(this.getConnectTimeoutMs())));
-        properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
-
         properties.setProperty(DsConfigKeys.ORA_ORACLE_CONNECT_TYPE.getConfigKey(), safeStr(this.getConnectType().getDriverTypeCode()));
         properties.setProperty(DsConfigKeys.ORA_SID.getConfigKey(), safeStr(this.getSid()));
         properties.setProperty(DsConfigKeys.ORA_PDB.getConfigKey(), safeStr(this.getPdbName()));
         properties.setProperty(DsConfigKeys.ORA_SERVICE_NAME.getConfigKey(), safeStr(this.getServiceName()));
         properties.setProperty(DsConfigKeys.ORA_TNS_ADMIN.getConfigKey(), safeStr(this.getTnsAdmin()));
         properties.setProperty(DsConfigKeys.ORA_TNS_NAME.getConfigKey(), safeStr(this.getTnsName()));
+        properties.setProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey(), safeStr(StringUtils.toString(this.getAutoCommit())));
+        properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), safeStr(StringUtils.toString(this.getConnectTimeoutMs())));
+        properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
         return properties;
     }
 }

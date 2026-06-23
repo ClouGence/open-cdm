@@ -35,7 +35,9 @@ public class RedisConfigSpi implements DsConfigSpi {
     @Override
     public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
         RedisConfig config = (RedisConfig) dsConfig;
+        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(RedisConfig.Fields.soTimeoutSec), false);
         config.setDefaultSchema(defaultConfig.get(RedisConfig.Fields.defaultSchema));
+        config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
 
         boolean blank = StringUtils.isBlank(defaultConfig.get(RedisConfig.Fields.connAndSoTimeoutMs));
         config.setConnAndSoTimeoutMs((blank ? 5000 : ConvertUtils.toInteger(defaultConfig.get(RedisConfig.Fields.connAndSoTimeoutMs), false)));

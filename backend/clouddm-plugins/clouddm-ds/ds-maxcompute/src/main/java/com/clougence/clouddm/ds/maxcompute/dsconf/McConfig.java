@@ -17,10 +17,7 @@ package com.clougence.clouddm.ds.maxcompute.dsconf;
 
 import java.util.Properties;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigDef;
-import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
@@ -39,25 +36,28 @@ import lombok.experimental.FieldNameConstants;
 @Serialization(provider = McSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class McConfig extends DataSourceConfig {
-
-    @ConfigDef(name = Fields.defaultCatalog, valueRequire = false, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_DB_DESCRIPTION, readOnly = false)
-    private String  defaultCatalog;
-    @ConfigDef(name = Fields.defaultSchema, valueRequire = false, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION, readOnly = false)
-    private String  defaultSchema;
-    @ConfigDef(name = Fields.interactiveMode, descKey = ConfigI18nKey.CONFIG_MC_INTERACTIVE_MODE_DESCRIPTION, readOnly = false)
-    private Boolean interactiveMode;
-    @ConfigDef(name = Fields.sdkEndpoint, descKey = ConfigI18nKey.CONFIG_MC_SDK_ENDPOINT_DESCRIPTION, readOnly = true)
+    // ------------------------------------------------------------------------------------------------------------------------ GENERAL
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = true, name = Fields.sdkEndpoint, descKey = ConfigI18nKey.CONFIG_MC_SDK_ENDPOINT_DESCRIPTION)
     private String  sdkEndpoint;
-    @ConfigDef(name = Fields.schemaStyle, defaultValue = "false", descKey = ConfigI18nKey.CONFIG_MC_SCHEMA_STYLE_DESCRIPTION, readOnly = true)
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultCatalog, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_DB_DESCRIPTION)
+    private String  defaultCatalog;
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultSchema, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION)
+    private String  defaultSchema;
+    // ------------------------------------------------------------------------------------------------------------------------ CONNECT
+    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
+    private Integer soTimeoutSec;
+    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.connectTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_DESCRIPTION)
+    private Long    connectTimeoutMs;
+    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.clientTimeZone, descKey = ConfigI18nKey.CONFIG_RDB_CLIENT_TIME_ZONE_DESCRIPTION)
+    private String  clientTimeZone;
+    // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
+    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.interactiveMode, descKey = ConfigI18nKey.CONFIG_MC_INTERACTIVE_MODE_DESCRIPTION)
+    private Boolean interactiveMode;
+    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.schemaStyle, defaultValue = "false", descKey = ConfigI18nKey.CONFIG_MC_SCHEMA_STYLE_DESCRIPTION)
     private Boolean schemaStyle;
 
     public McConfig(){
         setDataSourceType(DataSourceType.MaxCompute);
-    }
-
-    @Override
-    public void deserialize() {
-        super.deserialize();
     }
 
     public Properties asDriverProperties() {
@@ -71,7 +71,7 @@ public class McConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey(), safeStr(getDefaultSchema()));
         properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), safeStr(StringUtils.toString(getConnectTimeoutMs())));
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(getSoTimeoutSec())));
-        //properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), safeStr(getz()));
+        properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), safeStr(this.getClientTimeZone()));
         properties.setProperty(DsConfigKeys.ODPS_INTERACTIVE.getConfigKey(), safeStr(StringUtils.toString(getInteractiveMode())));
         properties.setProperty(DsConfigKeys.ODPS_SCHEMA_STYLE.getConfigKey(), safeStr(StringUtils.toString(getSchemaStyle())));
         return properties;

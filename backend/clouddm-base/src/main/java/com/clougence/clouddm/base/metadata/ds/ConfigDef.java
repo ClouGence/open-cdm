@@ -29,19 +29,13 @@ public @interface ConfigDef {
 
     String name() default "";
 
-    DsConfigGroup group() default DsConfigGroup.GENERAL;
-
-    boolean display() default true;
+    DsConfigGroup group() default DsConfigGroup.SHADOW;
 
     ConfigI18nKey descKey() default ConfigI18nKey.CONFIG_DESCRIPTION_EMPTY;
-
-    boolean valueRequire() default true;
 
     String valueValidRegex() default "";
 
     String defaultValue() default "";
-
-    String valueAdvance() default "";
 
     ConfigValType valType() default ConfigValType.AUTO;
 
@@ -50,5 +44,9 @@ public @interface ConfigDef {
     boolean isSecret() default false;
 
     boolean lazy() default false;
+
+    String activeField() default "";
+
+    String activeEquals() default "";
 
 }

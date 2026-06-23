@@ -35,46 +35,45 @@ public class OraConfigSpi implements DsConfigSpi {
     @Override
     public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
         OraConfig config = (OraConfig) dsConfig;
+        Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(OraConfig.Fields.connectTimeoutMs), false);
+        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(OraConfig.Fields.soTimeoutSec), false);
+        OraConnectType connectType = OraConnectType.of(defaultConfig.get(OraConfig.Fields.connectType));
+        config.setConnectType(connectType);
         config.setSid(defaultConfig.get(OraConfig.Fields.sid));
         config.setServiceName(defaultConfig.get(OraConfig.Fields.serviceName));
         config.setPdbName(defaultConfig.get(OraConfig.Fields.pdbName));
         config.setTnsAdmin(defaultConfig.get(OraConfig.Fields.tnsAdmin));
         config.setTnsName(defaultConfig.get(OraConfig.Fields.tnsName));
-
-        boolean excludeOraMaintainedSchemas = StringUtils.isBlank(defaultConfig.get(OraConfig.Fields.excludeOraMaintainedSchemas));
-        config.setExcludeOraMaintainedSchemas((excludeOraMaintainedSchemas ? Boolean.FALSE : //
-            ConvertUtils.toBoolean(defaultConfig.get(OraConfig.Fields.excludeOraMaintainedSchemas), false)));
-
-        OraConnectType connectType = OraConnectType.of(defaultConfig.get(OraConfig.Fields.connectType));
-        config.setConnectType(connectType);
-
-        fillConnectionInfo(config, config.getHost(), connectType);
-        return dsConfig;
-    }
-
-    private void fillConnectionInfo(OraConfig config, String host, OraConnectType connectType) {
-        if (StringUtils.isBlank(host)) {
+        if (StringUtils.isBlank(config.getHost())) {
             throw new IllegalArgumentException("DataSource host can not be empty.");
         }
-
-        config.setConnectType(connectType);
-        String[] ipPort = host.split(":");
-
+        String[] ipPort = config.getHost().split(":");
         if (ipPort.length == 3) {
-            switch (config.getConnectType()) {
+            switch (connectType) {
                 case SID:
                     config.setSid(ipPort[2]);
                     break;
                 case SERVICE:
-                case PDB:
                     config.setServiceName(ipPort[2]);
+                    break;
+                case PDB:
+                    config.setPdbName(ipPort[2]);
                     break;
                 default:
                     throw new IllegalArgumentException("unsupported Oracle connect type:" + connectType);
             }
         } else {
-            throw new IllegalArgumentException("unsupported Oracle host format:" + host);
+            throw new IllegalArgumentException("unsupported Oracle host format:" + config.getHost());
         }
+
+        config.setAutoCommit(!"false".equalsIgnoreCase(defaultConfig.get(OraConfig.Fields.autoCommit)));
+        config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
+        config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
+
+        boolean excludeOraMaintainedSchemas = StringUtils.isBlank(defaultConfig.get(OraConfig.Fields.excludeOraMaintainedSchemas));
+        config.setExcludeOraMaintainedSchemas((excludeOraMaintainedSchemas ? Boolean.FALSE : //
+            ConvertUtils.toBoolean(defaultConfig.get(OraConfig.Fields.excludeOraMaintainedSchemas), false)));
+        return dsConfig;
     }
 
     @Override

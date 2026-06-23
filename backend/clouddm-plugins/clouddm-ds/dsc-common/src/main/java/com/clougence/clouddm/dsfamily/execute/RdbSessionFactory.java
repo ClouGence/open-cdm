@@ -37,16 +37,6 @@ public abstract class RdbSessionFactory<T extends DataSourceConfig> implements S
 
     @Override
     public Session createSession(DsResourceManager resourceRM, T dsConfig, SessionContextDTO contextDTO) throws Exception {
-        // so_timeout(SocketReadTimeout) must >= query timeout_sec
-        Integer soTimeoutSec = dsConfig.getSoTimeoutSec();
-        if (resourceRM.isTask()) {
-            Integer exportQueryTimeoutSec = dsConfig.getExportMaxQueryTimeoutSec();
-            dsConfig.setSoTimeoutSec(maxTimeoutSec(soTimeoutSec, exportQueryTimeoutSec));
-        } else {
-            Integer onlineQueryTimeoutSec = dsConfig.getOnlineMaxQueryTimeoutSec();
-            dsConfig.setSoTimeoutSec(maxTimeoutSec(soTimeoutSec, onlineQueryTimeoutSec));
-        }
-
         SecurityType securityType = dsConfig.getSecurityType();
         if (securityType != null) {
             switch (securityType) {
@@ -104,15 +94,4 @@ public abstract class RdbSessionFactory<T extends DataSourceConfig> implements S
         return sslFile.getFile().getAbsolutePath();
     }
 
-    private static Integer maxTimeoutSec(Integer firstTimeoutSec, Integer secTimeoutSec) {
-        if (firstTimeoutSec == null && secTimeoutSec == null) {
-            return null;
-        } else if (firstTimeoutSec == null) {
-            return secTimeoutSec;
-        } else if (secTimeoutSec == null) {
-            return firstTimeoutSec;
-        } else {
-            return Math.max(firstTimeoutSec, secTimeoutSec);
-        }
-    }
 }

@@ -22,6 +22,7 @@ import java.util.Map;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.drivers.adapter.ConvertUtils;
 
 public class HgConfigSpi implements DsConfigSpi {
 
@@ -32,13 +33,17 @@ public class HgConfigSpi implements DsConfigSpi {
 
     @Override
     public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
-        // dsConfig
         HgConfig config = (HgConfig) dsConfig;
+        Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(HgConfig.Fields.connectTimeoutMs), false);
+        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(HgConfig.Fields.soTimeoutSec), false);
         config.setUserName(defaultConfig.get(DataSourceConfig.Fields.userName));
         config.setPassword(defaultConfig.get(DataSourceConfig.Fields.password));
         config.setDefaultCatalog(defaultConfig.get(HgConfig.Fields.defaultCatalog));
         config.setDefaultSchema(defaultConfig.get(HgConfig.Fields.defaultSchema));
-
+        config.setAutoCommit(!"false".equalsIgnoreCase(defaultConfig.get(HgConfig.Fields.autoCommit)));
+        config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
+        config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
+        config.setClientTimeZone(defaultConfig.get(HgConfig.Fields.clientTimeZone));
         return dsConfig;
     }
 

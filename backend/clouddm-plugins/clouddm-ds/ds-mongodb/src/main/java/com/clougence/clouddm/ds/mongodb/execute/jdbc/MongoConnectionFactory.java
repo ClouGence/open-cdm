@@ -49,10 +49,12 @@ public class MongoConnectionFactory implements AdapterFactory {
 
     @Override
     public MongoConnection createConnection(Connection owner, String jdbcUrl, Properties props) throws SQLException {
-        String timeout = props.getProperty(MongoKeys.CONN_TIMEOUT);
+        String connTimeout = props.getProperty(MongoKeys.CONN_TIMEOUT);
+        String soTimeout = props.getProperty(MongoKeys.SO_TIMEOUT);
         String clientName = props.getProperty(MongoKeys.CLIENT_NAME);
 
-        int connTimeoutMs = StringUtils.isBlank(timeout) ? 5000 : Integer.parseInt(timeout);
+        int connTimeoutMs = StringUtils.isBlank(connTimeout) ? 5000 : Integer.parseInt(connTimeout);
+        int soTimeoutMs = StringUtils.isBlank(soTimeout) ? 10000 : Integer.parseInt(soTimeout);
 
         if (StringUtils.isBlank(clientName)) {
             clientName = MongoKeys.DEFAULT_CLIENT_NAME;
@@ -62,7 +64,10 @@ public class MongoConnectionFactory implements AdapterFactory {
         MongoClientSettings.Builder settingsBuilder = MongoClientSettings.builder()
             .applicationName(clientName)
             .applyConnectionString(new ConnectionString(jdbcUrl.substring(i)))
-            .applyToSocketSettings(builder -> builder.connectTimeout(connTimeoutMs, TimeUnit.MILLISECONDS));
+            .applyToSocketSettings(b -> {
+                b.connectTimeout(connTimeoutMs, TimeUnit.MILLISECONDS);
+                b.readTimeout(soTimeoutMs, TimeUnit.MILLISECONDS);
+            });
 
         MongoClient client = MongoClients.create(settingsBuilder.build());
         return new MongoConnection(owner, client, jdbcUrl, props, props.getProperty(MongoKeys.DATABASE));

@@ -22,6 +22,7 @@ import java.util.Map;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.drivers.adapter.ConvertUtils;
 
 public class Db2ForiConfigSpi implements DsConfigSpi {
 
@@ -32,7 +33,13 @@ public class Db2ForiConfigSpi implements DsConfigSpi {
 
     @Override
     public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
-        ((Db2ForiConfig) dsConfig).setDefaultCatalog(defaultConfig.get(Db2ForiConfig.Fields.defaultCatalog));
+        Db2ForiConfig config = (Db2ForiConfig) dsConfig;
+        Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(Db2ForiConfig.Fields.connectTimeoutMs), false);
+        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(Db2ForiConfig.Fields.soTimeoutSec), false);
+        config.setDefaultCatalog(defaultConfig.get(Db2ForiConfig.Fields.defaultCatalog));
+        config.setAutoCommit(!"false".equalsIgnoreCase(defaultConfig.get(Db2ForiConfig.Fields.autoCommit)));
+        config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
+        config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
         return dsConfig;
     }
 

@@ -36,6 +36,7 @@ public class RdbSessionSpi implements SessionSpi {
         Properties driverProperties = dsConfig.asDriverProperties();
         String defaultDb = driverProperties.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
         String defaultSchema = driverProperties.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
+        String autoCommit = driverProperties.getProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey());
 
         if (params != null) {
             if (params.containsKey(PARAMS_DEFAULT_DB)) {
@@ -52,7 +53,7 @@ public class RdbSessionSpi implements SessionSpi {
 
         contextDTO.setRdbCatalog(defaultDb);
         contextDTO.setRdbSchema(defaultSchema);
-        contextDTO.setRdbAutoCommit(dsConfig.getAutoCommit() == null || dsConfig.getAutoCommit());
+        contextDTO.setRdbAutoCommit(!StringUtils.equalsIgnoreCase("false", autoCommit));
         contextDTO.setRdbTxIsolation(RdbIsolation.valueOfCode(dsConfig.getIsolation()));
         contextDTO.setRdbReadOnly(Boolean.TRUE.equals(dsConfig.getReadOnly()));
         return contextDTO;

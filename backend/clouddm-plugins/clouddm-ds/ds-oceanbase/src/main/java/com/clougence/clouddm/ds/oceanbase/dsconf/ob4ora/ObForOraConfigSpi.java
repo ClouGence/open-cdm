@@ -35,11 +35,17 @@ public class ObForOraConfigSpi implements DsConfigSpi {
     @Override
     public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
         ObOraConfig config = (ObOraConfig) dsConfig;
-        config.setDefaultSchema(defaultConfig.get(ObOraConfig.Fields.defaultSchema));
-        config.setConnectionCharset(StringUtils.defaultIfBlank(defaultConfig.get(ObOraConfig.Fields.connectionCharset), "utf8"));
-        config.setUseCursorFetch(ConvertUtils.toBoolean(defaultConfig.get(ObOraConfig.Fields.useCursorFetch), false));
+        Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(ObOraConfig.Fields.connectTimeoutMs), false);
+        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(ObOraConfig.Fields.soTimeoutSec), false);
         config.setTenant(defaultConfig.get(ObOraConfig.Fields.tenant));
         config.setCluster(defaultConfig.get(ObOraConfig.Fields.cluster));
+        config.setDefaultSchema(defaultConfig.get(ObOraConfig.Fields.defaultSchema));
+        config.setAutoCommit(!"false".equalsIgnoreCase(defaultConfig.get(ObOraConfig.Fields.autoCommit)));
+        config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
+        config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
+        config.setClientTimeZone(StringUtils.defaultIfBlank(defaultConfig.get(ObOraConfig.Fields.clientTimeZone), "Asia/Shanghai"));
+        config.setConnectionCharset(StringUtils.defaultIfBlank(defaultConfig.get(ObOraConfig.Fields.connectionCharset), "utf8"));
+        config.setUseCursorFetch(ConvertUtils.toBoolean(defaultConfig.get(ObOraConfig.Fields.useCursorFetch), false));
         return dsConfig;
     }
 

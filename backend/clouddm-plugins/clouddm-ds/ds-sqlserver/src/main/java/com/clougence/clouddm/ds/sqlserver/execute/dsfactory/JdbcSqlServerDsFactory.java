@@ -51,7 +51,6 @@ public class JdbcSqlServerDsFactory implements DsFactory<Connection> {
         String soTimeoutSec = dsConfig.getProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey());
         String clientName = dsConfig.getProperty(DsConfigKeys.CLIENT_NAME.getConfigKey());
         String clientEncoding = dsConfig.getProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey());
-        String clientTimeZone = dsConfig.getProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey());
         String tcpKeepAlive = dsConfig.getProperty(DsConfigKeys.TCP_KEEP_ALIVE.getConfigKey());
         String autoCommit = dsConfig.getProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey());
 
@@ -61,8 +60,9 @@ public class JdbcSqlServerDsFactory implements DsFactory<Connection> {
         if (StringUtils.isNotBlank(password)) {
             props.put("password", password);
         }
-        if (StringUtils.isNotBlank(loginTimeoutMs)) {
-            int loginTimeoutSec = (int) (Long.parseLong(loginTimeoutMs) / 1000);
+        String connectTimeout = StringUtils.defaultIfBlank(loginTimeoutMs, connTimeoutMs);
+        if (StringUtils.isNotBlank(connectTimeout)) {
+            int loginTimeoutSec = (int) (Long.parseLong(connectTimeout) / 1000);
             props.put("loginTimeout", String.valueOf(loginTimeoutSec));
         }
         if (StringUtils.isNotBlank(soTimeoutSec)) {
