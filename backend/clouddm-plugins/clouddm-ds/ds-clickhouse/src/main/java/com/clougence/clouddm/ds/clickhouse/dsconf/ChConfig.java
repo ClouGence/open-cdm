@@ -34,17 +34,18 @@ public class ChConfig extends DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultSchema, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION)
     private String  defaultSchema;
-    // ------------------------------------------------------------------------------------------------------------------------ CONNECT
-    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.autoCommit, defaultValue = "true", descKey = ConfigI18nKey.CONFIG_RDB_TRANSACTION_DESCRIPTION)
+    // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
+    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.autoCommit, defaultValue = "true", descKey = ConfigI18nKey.CONFIG_RDB_TRANSACTION_DESCRIPTION)
     private Boolean autoCommit;
-    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
-    private Integer soTimeoutSec;
-    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.connectTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_DESCRIPTION)
-    private Long    connectTimeoutMs;
-    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.sessionTimeout, defaultValue = "15000", descKey = ConfigI18nKey.CONFIG_CLICKHOUSE_SESSION_TIME_OUT)
+    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.sessionTimeout, defaultValue = "15000", descKey = ConfigI18nKey.CONFIG_CLICKHOUSE_SESSION_TIME_OUT)
     private String  sessionTimeout;
-    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.clientTimeZone, descKey = ConfigI18nKey.CONFIG_RDB_CLIENT_TIME_ZONE_DESCRIPTION)
+    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.clientTimeZone, descKey = ConfigI18nKey.CONFIG_RDB_CLIENT_TIME_ZONE_DESCRIPTION)
     private String  clientTimeZone;
+    // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
+    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.connectTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_DESCRIPTION)
+    private Long    connectTimeoutMs;
+    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
+    private Integer soTimeoutSec;
 
     public ChConfig(){
         setDataSourceType(DataSourceType.ClickHouse);

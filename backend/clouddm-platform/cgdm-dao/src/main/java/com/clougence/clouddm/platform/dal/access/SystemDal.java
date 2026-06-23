@@ -6,8 +6,6 @@ public interface SystemDal {
 
     DmSysClusterMapper clusterMapper();
 
-    DmSysConfMapper confMapper();
-
     DmSysEnvMapper envMapper();
 
     DmSysEnvParamMapper envParamMapper();

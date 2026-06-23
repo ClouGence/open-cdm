@@ -20,7 +20,6 @@ import java.util.Date;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -32,35 +31,16 @@ import lombok.Setter;
 @Setter
 public class RdpDataSourceVO {
 
-    /** has password means user no need to enter account and pwd */
     private boolean        hasPassword;
-
     private Long           id;
-
     private Date           gmtCreate;
-
     private DataSourceType dataSourceType;
-
-    /** ip,port */
     private String         host;
-
-    private String         privateHost;
-
-    private String         publicHost;
-
-    private HostType       hostType;
-
     private String         instanceDesc;
-
     private String         version;
-
     private String         instanceId;
-
     private String         accountName;
-
     private LifeCycleState lifeCycleState;
-
     private SecurityType   securityType;
-
     private Long           dsEnvId;
 }

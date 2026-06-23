@@ -41,13 +41,14 @@ public class MsSqlConfig extends DataSourceConfig {
     private String  instanceName;
     @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultCatalog, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_DB_DESCRIPTION)
     private String  defaultCatalog;
-    // ------------------------------------------------------------------------------------------------------------------------ CONNECT
-    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.autoCommit, defaultValue = "true", descKey = ConfigI18nKey.CONFIG_RDB_TRANSACTION_DESCRIPTION)
+    // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
+    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.autoCommit, defaultValue = "true", descKey = ConfigI18nKey.CONFIG_RDB_TRANSACTION_DESCRIPTION)
     private Boolean autoCommit;
-    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
-    private Integer soTimeoutSec;
-    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.connectTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_DESCRIPTION)
+    // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
+    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.connectTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_DESCRIPTION)
     private Long    connectTimeoutMs;
+    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
+    private Integer soTimeoutSec;
 
     public MsSqlConfig(){
         setDataSourceType(DataSourceType.SQLServer);

@@ -28,9 +28,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.constants.EventType;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.csrf.CsrfTokenService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
@@ -85,7 +85,7 @@ public class CallbackController {
     @Resource
     private LoginService        loginRegService;
     @Resource
-    private DmConsoleConfig     rdpConfig;
+    private ConsoleConfig       config;
     @Resource
     private RdpOpAuditService   opAuditService;
     @Resource
@@ -257,7 +257,7 @@ public class CallbackController {
     }
 
     protected Object redirectToFailed(HttpServletRequest request, HttpServletResponse response, String errorCode, String errorMessage) throws IOException {
-        String contextPath = this.rdpConfig.getDeployContextPath();
+        String contextPath = this.config.getDeployContextPath();
         if (StringUtils.isBlank(contextPath)) {
             contextPath = "/";
         } else if (!StringUtils.endsWith(contextPath, "/")) {
@@ -272,7 +272,7 @@ public class CallbackController {
 
     protected Object redirectToLogin(HttpServletRequest request, HttpServletResponse response, String registerToken, String loginType, String primaryUid,
                                      UserData fetchUser) throws IOException {
-        String contextPath = this.rdpConfig.getDeployContextPath();
+        String contextPath = this.config.getDeployContextPath();
         if (StringUtils.isBlank(contextPath)) {
             contextPath = "/";
         } else if (!StringUtils.endsWith(contextPath, "/")) {
@@ -298,12 +298,12 @@ public class CallbackController {
     }
 
     protected Object redirectToHome(HttpServletRequest request, HttpServletResponse response, LoginMO login) throws IOException {
-        int cookieAge = Math.max(JwtService.minLoginExpireSec, this.rdpConfig.getLoginExpireTimeSec());
+        int cookieAge = Math.max(JwtService.minLoginExpireSec, this.config.getLoginExpireTimeSec());
         Cookie cookie = RdpWebUtils.newCookie(JwtService.jwtTokenName, login.getToken(), false, cookieAge);
 
         response.addCookie(cookie);
-        if (StringUtils.isNotBlank(this.rdpConfig.getDeployContextPath())) {
-            response.sendRedirect(this.rdpConfig.getDeployContextPath());
+        if (StringUtils.isNotBlank(this.config.getDeployContextPath())) {
+            response.sendRedirect(this.config.getDeployContextPath());
         } else {
             response.sendRedirect("/");
         }

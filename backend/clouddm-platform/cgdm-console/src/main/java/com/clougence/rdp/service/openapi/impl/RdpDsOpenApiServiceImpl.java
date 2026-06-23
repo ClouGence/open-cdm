@@ -28,13 +28,12 @@ import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.AddDsFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsKvConfigFO;
 import com.clougence.clouddm.console.web.model.vo.RdpDsKvConfigVO;
+import com.clougence.clouddm.console.web.service.datasource.DmDsWebService;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.rdp.service.RdpDsService;
 import com.clougence.rdp.service.openapi.RdpDsOpenApiService;
 import com.clougence.rdp.service.openapi.model.*;
 import com.clougence.utils.CollectionUtils;
@@ -51,11 +50,11 @@ import lombok.extern.slf4j.Slf4j;
 public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
 
     @Resource
-    private DmAuthServiceForBiz rdpAuthServiceForBiz;
+    private DmAuthServiceForBiz authServiceForBiz;
     @Resource
-    private RdpDsService        rdpDsService;
+    private DmDsWebService      dsService;
     @Resource
-    private ObjectCacheDao      rdpResOwnerCacheService;
+    private ObjectCacheDao      cacheDao;
 
     @Override
     public List<ApiDataSourceVO> listDs(String requestId, String puid, ApiListDsFO fo) {
@@ -69,7 +68,7 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
             .instanceIdLike(fo.getInstanceIdLike())
             .build();
 
-        List<DmAuthResDO> authList = this.rdpAuthServiceForBiz.listAuthByUser(puid, AuthKind.DataSource);
+        List<DmAuthResDO> authList = this.authServiceForBiz.listAuthByUser(puid, AuthKind.DataSource);
         if (authList == null || authList.isEmpty()) {
             return new ArrayList<>();
         }
@@ -84,20 +83,10 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
             }
         }
 
-        List<DmDsDO> result = rdpDsService.fetchByCondition(dsQueryParam);
+        List<DmDsDO> result = dsService.fetchByCondition(dsQueryParam);
         if (CollectionUtils.isEmpty(result)) {
             return new ArrayList<>();
         }
-
-        result = result.stream().filter(vo -> {
-            if (HostType.PRIVATE == fo.getHostType()) {
-                return StringUtils.isNotBlank(vo.getPrivateHost());
-            } else if (HostType.PUBLIC == fo.getHostType()) {
-                return StringUtils.isNotBlank(vo.getPublicHost());
-            } else {
-                return true;
-            }
-        }).collect(Collectors.toList());
 
         return genFromDsVOs(result);
     }
@@ -115,8 +104,8 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
 
     @Override
     public ApiDataSourceVO queryDs(String puid, ApiQueryDsFO fo) {
-        rdpResOwnerCacheService.ownDataSource(puid, fo.getDataSourceId());
-        DmDsDO result = rdpDsService.queryDsByIdWithoutPasswd(fo.getDataSourceId());
+        cacheDao.ownDataSource(puid, fo.getDataSourceId());
+        DmDsDO result = dsService.queryDsByIdWithoutPasswd(fo.getDataSourceId());
         ApiDataSourceVO apiVo = new ApiDataSourceVO();
         apiVo.convertFromDsVO(result);
 
@@ -148,19 +137,19 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
 
         // do not change the order for check security file and secret file;
         addDsFO.manualValidAndTrim();
-        return rdpDsService.addDataSource(puid, uid, addDsFO);
+        return dsService.addDataSource(puid, uid, addDsFO);
     }
 
     @Override
     public void deleteDs(String puid, ApiDeleteDsFO fo) {
-        rdpResOwnerCacheService.ownDataSource(puid, fo.getDataSourceId());
-        rdpDsService.delDataSource(puid, fo.getDataSourceId());
+        cacheDao.ownDataSource(puid, fo.getDataSourceId());
+        dsService.delDataSource(puid, fo.getDataSourceId());
     }
 
     @Override
     public void updateDsDesc(String puid, ApiUpdateDsDescFO fo) {
-        rdpResOwnerCacheService.ownDataSource(puid, fo.getDataSourceId());
-        rdpDsService.updateDataSourceDesc(puid, fo.getDataSourceId(), fo.getInstanceDesc());
+        cacheDao.ownDataSource(puid, fo.getDataSourceId());
+        dsService.updateDataSourceDesc(puid, fo.getDataSourceId(), fo.getInstanceDesc());
     }
 
     @Override
@@ -183,39 +172,27 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
             throw new IllegalArgumentException("datasource data is illegal.");
         }
 
-        rdpResOwnerCacheService.ownDataSource(puid, updateFO.getDataSourceId());
+        cacheDao.ownDataSource(puid, updateFO.getDataSourceId());
 
         updateFO.setSecurityFile(securityFile);
         updateFO.setSecretFile(secretFile);
 
-        rdpDsService.updateDataSourceAccount(puid, updateFO);
-    }
-
-    @Override
-    public void updatePrivateHost(String puid, ApiUpdatePriHostFO fo) {
-        rdpResOwnerCacheService.ownDataSource(puid, fo.getDataSourceId());
-        rdpDsService.updateDataSourcePrivateHost(puid, fo.getDataSourceId(), fo.getPrivateHost());
-    }
-
-    @Override
-    public void updatePublicHost(String puid, ApiUpdatePubHostFO fo) {
-        rdpResOwnerCacheService.ownDataSource(puid, fo.getDataSourceId());
-        rdpDsService.updateDataSourcePublicHost(puid, fo.getDataSourceId(), fo.getPublicHost());
+        dsService.updateDataSourceAccount(puid, updateFO);
     }
 
     @Override
     public void cleanDsAccount(String puid, ApiDeleteAccountFO fo) {
-        rdpResOwnerCacheService.ownDataSource(puid, fo.getDataSourceId());
-        rdpDsService.cleanDataSourceAccount(puid, fo.getDataSourceId());
+        cacheDao.ownDataSource(puid, fo.getDataSourceId());
+        dsService.cleanDataSourceAccount(puid, fo.getDataSourceId());
     }
 
     @Override
     public List<ApiDsKvConfigVo> listDsKvConfs(String puid, ApiListDsKvConfigsByDsIdFO fo) {
-        rdpResOwnerCacheService.ownDataSource(puid, fo.getDataSourceId());
+        cacheDao.ownDataSource(puid, fo.getDataSourceId());
 
         List<RdpDsKvConfigVO> confVos;
         if (StringUtils.isNotBlank(fo.getConfigName())) {
-            RdpDsKvConfigVO vo = rdpDsService.queryDsConfig(fo.getDataSourceId(), fo.getConfigName());
+            RdpDsKvConfigVO vo = dsService.queryDsConfig(fo.getDataSourceId(), fo.getConfigName());
 
             if (vo == null) {
                 return new ArrayList<>();
@@ -223,7 +200,7 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
 
             confVos = Collections.singletonList(vo);
         } else {
-            confVos = rdpDsService.queryDsConfigs(fo.getDataSourceId());
+            confVos = dsService.queryDsConfigs(fo.getDataSourceId());
         }
 
         List<ApiDsKvConfigVo> apiConfVos = new ArrayList<>();
@@ -242,9 +219,9 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
             throw new IllegalArgumentException("update config map and need create config map are both empty.");
         }
 
-        rdpResOwnerCacheService.ownDataSource(puid, fo.getDataSourceId());
+        cacheDao.ownDataSource(puid, fo.getDataSourceId());
 
         UpsertDsKvConfigFO c = fo.genUpsertDsKvConfigFo();
-        rdpDsService.upsertDsConfigs(puid, c);
+        dsService.upsertDsConfigs(puid, c);
     }
 }

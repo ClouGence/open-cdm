@@ -36,7 +36,8 @@ import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.menus.UiMenuDef;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
-import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
+import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.impl.DsMenuUtils;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsMenu;
@@ -46,14 +47,12 @@ import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.constants.MfaPreActionType;
 import com.clougence.clouddm.console.web.constants.SystemStatus;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.csrf.CsrfTokenService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy;
-import com.clougence.clouddm.console.web.model.fo.AddWebViewLogFO;
 import com.clougence.clouddm.console.web.model.fo.LoginFO;
 import com.clougence.clouddm.console.web.model.fo.RequestJumpUrlFO;
 import com.clougence.clouddm.console.web.model.fo.mfa.LoginMfaValidFO;
@@ -78,10 +77,8 @@ import com.clougence.clouddm.sdk.security.login.LoginProvider;
 import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
 import com.clougence.clouddm.sdk.ui.menus.DsMenuType;
 import com.clougence.rdp.service.RdpOpAuditService;
-import com.clougence.rdp.service.RdpWebViewLogService;
 import com.clougence.rdp.service.model.CheckSubAccountMO;
 import com.clougence.rdp.service.model.LoginMO;
-import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.i18n.I18nUtils;
 
@@ -97,31 +94,29 @@ import lombok.extern.slf4j.Slf4j;
 public class DmHomeController {
 
     @Resource
-    private DmAuthServiceForBiz  authServiceForBiz;
+    private DmAuthServiceForBiz authServiceForBiz;
     @Resource
-    private DmDsService          dsService;
+    private WhiteListService    whiteListService;
     @Resource
-    private WhiteListService     whiteListService;
+    private LoginDefService     loginDefService;
     @Resource
-    private LoginDefService      loginDefService;
+    private ConsoleConfig       config;
     @Resource
-    private DmConsoleConfig      rdpConfig;
+    private RdpUserService      userService;
     @Resource
-    private RdpUserService       userService;
+    private LoginService        loginService;
     @Resource
-    private LoginService         loginService;
+    private LoginMFAService     loginMFAService;
     @Resource
-    private LoginMFAService      loginMFAService;
+    private AuthDal             authDal;
     @Resource
-    private AuthDal              authDal;
+    private CsrfTokenService    csrfTokenService;
     @Resource
-    private CsrfTokenService     csrfTokenService;
+    private RdpOpAuditService   auditService;
     @Resource
-    private RdpWebViewLogService viewLogService;
+    private DmDsConfigService   dmDsConfigService;
     @Resource
-    private RdpOpAuditService    rdpOpAuditService;
-    @Resource
-    private JwtService           jwtService;
+    private JwtService          jwtService;
 
     @RequestAuth(strategy = AuthStrategy.Ignore)
     @RequestMapping(value = "/healthcheck")
@@ -177,20 +172,46 @@ public class DmHomeController {
         return commonLoginResult(re, request, response);
     }
 
+    protected ResWebData<?> commonLoginResult(LoginMO loginMO, HttpServletRequest request, HttpServletResponse response) {
+        if (loginMO.isSuccess()) {
+            if (!loginMO.isNeedMore() && !loginMO.isNeedMfa()) {
+                fillResponseJwtToken(loginMO.getToken(), response);
+            }
+
+            if (StringUtils.isBlank(loginMO.getPuid()) && StringUtils.isNotBlank(loginMO.getUid())) {
+                loginMO.setPuid(loginMO.getUid());
+            }
+
+            if (loginMO.isSuccess() && !loginMO.isNeedMore() && !loginMO.isNeedMfa()) {
+                auditService.logAndAddOperationAudit(loginMO.getPuid(), loginMO.getUid(), request.getRequestURI(), request.getRemoteAddr(), loginMO
+                    .getUid(), "", SecurityLevel.NORMAL, AuditType.LOGIN_SUCCESS, ResourceType.ACCOUNT);
+            }
+
+            return ResWebDataUtils.buildSuccess(loginMO);
+        } else {
+            if (StringUtils.isNotBlank(loginMO.getPuid()) && StringUtils.isNotBlank(loginMO.getUid())) {
+                auditService.logAndAddOperationAudit(loginMO.getPuid(), loginMO.getUid(), request.getRequestURI(), request.getRemoteAddr(), loginMO.getUid(), loginMO
+                    .getErrMsg(), SecurityLevel.NORMAL, AuditType.LOGIN_FAIL, ResourceType.ACCOUNT);
+            }
+
+            return ResWebDataUtils.buildError(loginMO.getErrMsg());
+        }
+    }
+
     @RequestAuth(strategy = AuthStrategy.RefAnyOnes, failedRedirectUrlTo = "/")
     @RequestMapping(value = "/logout", method = { RequestMethod.GET, RequestMethod.POST })
     public Object logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         response.addCookie(RdpWebUtils.newCookie(JwtService.jwtTokenName, StringUtils.EMPTY, true, 0));
-        rdpOpAuditService.logAndAddOperationAudit(//
+        auditService.logAndAddOperationAudit(//
                 puid, uid, request.getRequestURI(), request.getRemoteAddr(), uid, "", SecurityLevel.NORMAL, AuditType.LOGOUT, ResourceType.ACCOUNT);
 
         String redirectUrl;
         if (this.loginService.isLogoutUsingJump(uid)) {
             redirectUrl = this.loginService.logoutJumpUrl(puid, uid);
-        } else if (StringUtils.isNotBlank(this.rdpConfig.getDeployContextPath())) {
-            redirectUrl = this.rdpConfig.getDeployContextPath();
+        } else if (StringUtils.isNotBlank(this.config.getDeployContextPath())) {
+            redirectUrl = this.config.getDeployContextPath();
         } else {
             redirectUrl = "/";
         }
@@ -216,28 +237,6 @@ public class DmHomeController {
             return ResWebDataUtils.buildSuccess();
         } else {
             return ResWebDataUtils.buildError(re.getErrorMsg());
-        }
-    }
-
-    @RequestAuth(strategy = AuthStrategy.Ignore)
-    @RequestMapping(value = "/addviewlog", method = { RequestMethod.POST })
-    public ResWebData<?> addviewlog(HttpServletRequest request, HttpServletResponse response, @RequestBody @Valid AddWebViewLogFO logFO) {
-        try {
-            String s = request.getHeader("X-Forwarded-For");
-            if (StringUtils.isNotBlank(s)) {
-                String[] ip = s.split(",");
-                if (ip.length >= 1) {
-                    logFO.setClientId(ip[0]);
-                }
-            }
-
-            String uid = (String) request.getAttribute(RdpUserService.UID);
-            viewLogService.addOneLog(logFO, uid);
-
-            return ResWebDataUtils.buildSuccess();
-        } catch (Exception e) {
-            log.warn("add web log view failed,but ignore.msg:" + ExceptionUtils.getRootCauseMessage(e));
-            return ResWebDataUtils.buildSuccess();
         }
     }
 
@@ -284,34 +283,8 @@ public class DmHomeController {
         }
     }
 
-    protected ResWebData<?> commonLoginResult(LoginMO loginMO, HttpServletRequest request, HttpServletResponse response) {
-        if (loginMO.isSuccess()) {
-            if (!loginMO.isNeedMore() && !loginMO.isNeedMfa()) {
-                fillResponseJwtToken(loginMO.getToken(), response);
-            }
-
-            if (StringUtils.isBlank(loginMO.getPuid()) && StringUtils.isNotBlank(loginMO.getUid())) {
-                loginMO.setPuid(loginMO.getUid());
-            }
-
-            if (loginMO.isSuccess() && !loginMO.isNeedMore() && !loginMO.isNeedMfa()) {
-                rdpOpAuditService.logAndAddOperationAudit(loginMO.getPuid(), loginMO.getUid(), request.getRequestURI(), request.getRemoteAddr(), loginMO
-                    .getUid(), "", SecurityLevel.NORMAL, AuditType.LOGIN_SUCCESS, ResourceType.ACCOUNT);
-            }
-
-            return ResWebDataUtils.buildSuccess(loginMO);
-        } else {
-            if (StringUtils.isNotBlank(loginMO.getPuid()) && StringUtils.isNotBlank(loginMO.getUid())) {
-                rdpOpAuditService.logAndAddOperationAudit(loginMO.getPuid(), loginMO.getUid(), request.getRequestURI(), request.getRemoteAddr(), loginMO.getUid(), loginMO
-                    .getErrMsg(), SecurityLevel.NORMAL, AuditType.LOGIN_FAIL, ResourceType.ACCOUNT);
-            }
-
-            return ResWebDataUtils.buildError(loginMO.getErrMsg());
-        }
-    }
-
     protected void fillResponseJwtToken(String token, HttpServletResponse response) {
-        int cookieMaxAge = Math.max(JwtService.minLoginExpireSec, this.rdpConfig.getLoginExpireTimeSec());
+        int cookieMaxAge = Math.max(JwtService.minLoginExpireSec, this.config.getLoginExpireTimeSec());
         Cookie cookie = RdpWebUtils.newCookie(JwtService.jwtTokenName, token, false, cookieMaxAge);
         response.addCookie(cookie);
     }
@@ -327,7 +300,7 @@ public class DmHomeController {
         boolean ready = PluginManager.isReady();
         systemStatus.setStatus(ready ? SystemStatus.Ready : SystemStatus.Starting);
         vo.setSystemStatus(systemStatus);
-        vo.setPublicKey(this.rdpConfig.getPublicKey());
+        vo.setPublicKey(this.config.getPublicKey());
         if (ready) {
             vo.setLoginDef(this.loginDefService.listLoginDef());
             vo.setLoginDefault(this.loginDefService.resolveLoginDefault());
@@ -338,18 +311,15 @@ public class DmHomeController {
     @RequestAuth(strategy = AuthStrategy.Ignore)
     @RequestMapping(value = "/globalSettings", method = { RequestMethod.POST })
     public ResWebData<?> globalSettings(HttpServletRequest request, HttpServletResponse response) {
-        RdpGlobalSettingsVO settings = new RdpGlobalSettingsVO();
-        settings.setFeatures(new HashMap<>());
-        settings.getFeatures().putAll(PluginManager.getFeatures());
-
-        settings.setAuthOpPassword(this.rdpConfig.isOppassword());
-
-        settings.setEnableWaterMark(this.rdpConfig.isEnableWaterMark());
-        settings.setEnableProductCluster(this.rdpConfig.isEnableProductCluster());
-        settings.setEnableValidateDsExtraConf(rdpConfig.getRdpDsConfigValidateEnable());
-
-        settings.setMaxExportSize(this.rdpConfig.getMaxExportSize());
-        return ResWebDataUtils.buildSuccess(settings);
+        RdpGlobalSettingsVO vo = new RdpGlobalSettingsVO();
+        vo.setFeatures(new HashMap<>());
+        vo.getFeatures().putAll(PluginManager.getFeatures());
+        vo.setAuthOpPassword(this.config.isOppassword());
+        vo.setEnableWaterMark(this.config.isEnableWaterMark());
+        vo.setEnableProductCluster(this.config.isEnableProductCluster());
+        vo.setEnableValidateDsExtraConf(config.getRdpDsConfigValidateEnable());
+        vo.setMaxExportSize(this.config.getMaxExportSize());
+        return ResWebDataUtils.buildSuccess(vo);
     }
 
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
@@ -408,11 +378,47 @@ public class DmHomeController {
         }
         settings.getFmtConvertDef().sort(Comparator.comparing(FormatConvertDef::getName));
 
+        ArrayList<DataSourceType> dsList = new ArrayList<>(settings.getDsSettingDef().keySet());
+        settings.setDsSupportNames(groupDsTypesByDisplay(dsList).stream().map(this::toDsSupportNames).collect(Collectors.toList()));
+
         return ResWebDataUtils.buildSuccess(settings);
     }
 
+    private List<List<DataSourceType>> groupDsTypesByDisplay(List<DataSourceType> dsTypes) {
+        Map<Integer, List<DataSourceType>> result = new TreeMap<>();
+        for (DataSourceType dsType : dsTypes) {
+            result.computeIfAbsent(dsType.getDisplayGroup(), key -> new ArrayList<>()).add(dsType);
+        }
+        return new ArrayList<>(result.values());
+    }
+
+    private List<DsSupportNameVO> toDsSupportNames(List<DataSourceType> dsTypes) {
+        return dsTypes.stream().map(dsType -> {
+            DsSupportNameVO vo = new DsSupportNameVO();
+            vo.setDsKey(dsType.getTypeName());
+            vo.setDisplayName(resolveDsDisplayName(dsType));
+            return vo;
+        }).collect(Collectors.toList());
+    }
+
+    private String resolveDsDisplayName(DataSourceType dsType) {
+        DsPluginInfo dsPlugin = PluginManager.findDsPlugin(dsType);
+        if (dsPlugin == null || StringUtils.isBlank(dsPlugin.getDsName())) {
+            return dsType.getTypeName();
+        }
+
+        String name = dsPlugin.getDsName();
+        if (name.startsWith("i18n::")) {
+            String i18nKey = name.substring("i18n::".length());
+            I18nUtils i18nUtils = dsPlugin.getPlusI18nUtil();
+            String i18nName = i18nUtils == null ? null : i18nUtils.getMessage(i18nKey);
+            return StringUtils.isBlank(i18nName) || StringUtils.equals(i18nName, i18nKey) ? dsType.getTypeName() : i18nName;
+        }
+        return name;
+    }
+
     private Map<DataSourceType, DsConfig> filterMenuBy(Predicate<DsMenu> predicate, boolean isSubAccount) {
-        Map<DataSourceType, DsConfig> dsConfigMap = this.dsService.dsConstantSettings();
+        Map<DataSourceType, DsConfig> dsConfigMap = this.dmDsConfigService.dsConstantSettings();
         dsConfigMap.forEach((dsType, dsConfig) -> {
             if (dsConfig == null) {
                 return;

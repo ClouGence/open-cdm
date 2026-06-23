@@ -68,27 +68,17 @@ public interface DmDsMapper extends BaseMapper<DmDsDO> {
 
     List<DmDsDO> listDataSourceByHost(String host, String uid);
 
-    List<DmDsDO> listDataSourceByHosts(String privateHost, String publicHost, String uid);
-
     // List<DmDsDO> listByBindClusterId(long bindClusterId);
 
     List<DmDsDO> listByDsEnvId(long dsEnvId);
 
     //List<DmDsDO> listUserDsByDefaultHost(String defaultHost, @CanBeReplaced String uid);
 
-    int updateSecurityInfo(Long id, String account, String password, SecurityType securityType);
-
-    int updateAccountAndPasswordById(Long id, String account, String password);
-
-    int updateAkAndSk(Long id, String accessKey, String secretKey);
+    int updateSecurityInfo(Long id, String accessKey, String secretKey, SecurityType securityType);
 
     int updateVersionByInstanceId(Long id, String version);
 
     int updateDescByInstanceId(Long id, String instanceDesc);
-
-    int updatePublicHostByInstanceId(Long id, String publicHost);
-
-    int updatePrivateHostByInstanceId(Long id, String privateHost);
 
     int updateLifeCycleStateById(Long id, LifeCycleState lifeCycleState);
 
@@ -98,11 +88,7 @@ public interface DmDsMapper extends BaseMapper<DmDsDO> {
 
     void updateStatusByDataSourceId(long dataSourceId, DataSourceStatus status);
 
-    void updateHostTypeById(long id, HostType hostType);
-
     int updateInstanceIdByDataSourceId(Long id, String instanceId);
-
-    int updateHostsByInstanceId(Long id, String defaultHost, String privateHost, String publicHost);
 
     DmDsDO getByInstanceId(String instanceId);
 

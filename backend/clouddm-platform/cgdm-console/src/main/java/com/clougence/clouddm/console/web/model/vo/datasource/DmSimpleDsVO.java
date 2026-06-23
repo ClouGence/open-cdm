@@ -20,7 +20,6 @@ import java.util.Date;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -36,9 +35,6 @@ public class DmSimpleDsVO {
     private Date           gmtCreate;
     private DataSourceType dataSourceType;
     private String         host;
-    private String         privateHost;
-    private String         publicHost;
-    private HostType       hostType;
     private String         instanceDesc;
     private String         version;
     private String         instanceId;

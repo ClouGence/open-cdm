@@ -385,7 +385,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
                         break;
                 }
             });
-            DataSourceConfig dataSourceConfig = dmDsConfigService.fetchDsConfigFromDM(dsLevels.dsDO().getId());
+            DataSourceConfig dataSourceConfig = dmDsConfigService.fetchDsConfigFromExists(dsLevels.dsDO().getId());
             Map<RuleDomain, List<ResObject>> ruleDomainListMap = this.queryAnalysisService.analysisResourceV2(dataSourceConfig, fo.getRawSql(), params);
             List<ResObject> resObjects = ruleDomainListMap.values().stream().flatMap(List::stream).collect(Collectors.toList());
             String path = dsLevels.asResPath().getResPath();

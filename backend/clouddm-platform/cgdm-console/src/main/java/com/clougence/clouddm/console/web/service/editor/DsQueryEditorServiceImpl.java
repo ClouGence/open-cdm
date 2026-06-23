@@ -153,7 +153,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
         }
 
         DmDsDO dsDO = dsLevels.dsDO();
-        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId());
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
 
         SessionContextDTO sessionCtx = this.createSessionCtx(levels);
         sessionCtx.setSessionId(usingSessionId);
@@ -387,7 +387,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
         DmDsDO dsDO = parsed.dsDO();
         SessionSpi sessionSpi = PluginManager.findSessionSpi(dsDO.getDataSourceType());
 
-        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId());
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
 
         Map<String, Object> params = new HashMap<>();
         params.put(SessionSpi.PARAMS_DEFAULT_DB, StringUtils.toString(parsed.levelsParam().get(UmiTypes.Catalog)));

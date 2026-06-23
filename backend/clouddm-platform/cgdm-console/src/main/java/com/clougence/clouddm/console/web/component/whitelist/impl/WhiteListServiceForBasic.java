@@ -27,11 +27,11 @@ import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.whitelist.WhiteListService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.rdp.global.config.user.RootUserConfig;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,11 +39,11 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class WhiteListServiceForBasic implements WhiteListService, DsFeatureIDs, UnifiedPostConstruct {
 
-    private final AtomicBoolean        inited              = new AtomicBoolean();
-    private final List<String>         forQueryMenus       = new ArrayList<>(); // always
-    private final List<String>         forManagerMenus     = new ArrayList<>(); // need Auth
-    private final List<String>         forMaintenanceMenus = new ArrayList<>(); // need Auth
-    private final Map<String, Range>   userConfigRange     = new HashMap<>();
+    private final AtomicBoolean      inited              = new AtomicBoolean();
+    private final List<String>       forQueryMenus       = new ArrayList<>(); // always
+    private final List<String>       forManagerMenus     = new ArrayList<>(); // need Auth
+    private final List<String>       forMaintenanceMenus = new ArrayList<>(); // need Auth
+    private final Map<String, Range> userConfigRange     = new HashMap<>();
 
     @Override
     public void init() throws Exception {

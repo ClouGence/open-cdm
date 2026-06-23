@@ -23,10 +23,10 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevelLeaf;
-import com.clougence.clouddm.console.web.service.browse.MetaInformatinCacheService;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.datasource.MetaInformationType;
@@ -34,7 +34,6 @@ import com.clougence.clouddm.sdk.execute.meta.DsElement;
 import com.clougence.clouddm.sdk.ui.editor.property.PropertyUiPanel;
 import com.clougence.clouddm.sdk.ui.editor.table.TableEditorUiPanel;
 import com.clougence.clouddm.sdk.ui.template.CmdTemplateOption;
-import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.schema.editor.EditorContext;
 import com.clougence.schema.editor.EditorOptions;
 import com.clougence.schema.umi.special.rdb.RdbColumn;
@@ -54,11 +53,11 @@ import lombok.extern.slf4j.Slf4j;
 public class LocalDsSchemaService implements DsSchemaService {
 
     @Resource
-    private MetaInformatinCacheService cacheService;
+    private MetaDataService   cacheService;
     @Resource
-    private DmDsConfigService          dmDsConfigService;
+    private DmDsConfigService configService;
     @Resource
-    private SystemDal                  systemDal;
+    private SystemDal         systemDal;
 
     private boolean isDisableMetaCache(String uid) {
         Boolean configValue = this.systemDal.fetchSystemConf(RootUserConfig.Fields.consoleMetadataCache, Boolean.class);
@@ -88,7 +87,7 @@ public class LocalDsSchemaService implements DsSchemaService {
     @Override
     public List<DsElement> cachedObjectNames(String uid, DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
         List<DsElement> result = new ArrayList<>();
-        DsConfig dsConfig = this.dmDsConfigService.dsConstantSettings(dsDO.getDataSourceType());
+        DsConfig dsConfig = this.configService.dsConstantSettings(dsDO.getDataSourceType());
         if (shouldListLevels(dsConfig, levels)) {
             List<DsElement> levelElements = this.listLevels(uid, dsDO, levels, levelsParam, false);
             if (levelElements != null) {
@@ -126,7 +125,7 @@ public class LocalDsSchemaService implements DsSchemaService {
             return null;
         }
 
-        DsConfig dmDsConfig = dmDsConfigService.dsConstantSettings(dsDO.getDataSourceType());
+        DsConfig dmDsConfig = configService.dsConstantSettings(dsDO.getDataSourceType());
         MetaInformationType leafType;
         if (levelsParam.get(UmiTypes.Catalog) == null && UmiTypes.Catalog.getTypeName().equals(dmDsConfig.getCategories().getLevels().get(2))) {
             leafType = MetaInformationType.CatalogList;

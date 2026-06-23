@@ -32,15 +32,15 @@ public class DsConfigKvDef {
 
     private String        configName;
     private DsConfigGroup configGroup;
-    private boolean       display;
     private String        descKey;
     private boolean       valueRequire;
     private String        valueValidRegex;
     private String        configValue;
     private String        defaultValue;
-    private String        valueAdvance;
     private boolean       readOnly;
     private boolean       secret;
     private boolean       lazy;
     private ConfigValType confValType;
+    private String        activeField;
+    private String        activeEquals;
 }

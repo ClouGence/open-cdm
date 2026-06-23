@@ -44,26 +44,25 @@ public class OraConfigSpi implements DsConfigSpi {
         config.setPdbName(defaultConfig.get(OraConfig.Fields.pdbName));
         config.setTnsAdmin(defaultConfig.get(OraConfig.Fields.tnsAdmin));
         config.setTnsName(defaultConfig.get(OraConfig.Fields.tnsName));
-        if (StringUtils.isBlank(config.getHost())) {
-            throw new IllegalArgumentException("DataSource host can not be empty.");
-        }
-        String[] ipPort = config.getHost().split(":");
-        if (ipPort.length == 3) {
-            switch (connectType) {
-                case SID:
-                    config.setSid(ipPort[2]);
-                    break;
-                case SERVICE:
-                    config.setServiceName(ipPort[2]);
-                    break;
-                case PDB:
-                    config.setPdbName(ipPort[2]);
-                    break;
-                default:
-                    throw new IllegalArgumentException("unsupported Oracle connect type:" + connectType);
+        if (StringUtils.isNotBlank(config.getHost())) {
+            String[] ipPort = config.getHost().split(":");
+            if (ipPort.length == 3) {
+                switch (connectType) {
+                    case SID:
+                        config.setSid(ipPort[2]);
+                        break;
+                    case SERVICE:
+                        config.setServiceName(ipPort[2]);
+                        break;
+                    case PDB:
+                        config.setPdbName(ipPort[2]);
+                        break;
+                    default:
+                        throw new IllegalArgumentException("unsupported Oracle connect type:" + connectType);
+                }
+            } else {
+                throw new IllegalArgumentException("unsupported Oracle host format:" + config.getHost());
             }
-        } else {
-            throw new IllegalArgumentException("unsupported Oracle host format:" + config.getHost());
         }
 
         config.setAutoCommit(!"false".equalsIgnoreCase(defaultConfig.get(OraConfig.Fields.autoCommit)));

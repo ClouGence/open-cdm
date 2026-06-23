@@ -78,7 +78,10 @@ import com.clougence.clouddm.console.web.service.security.mode.DmSecRuleMO;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
 import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
-import com.clougence.clouddm.platform.dal.model.datasource.*;
+import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmSshConfigDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO;
 import com.clougence.clouddm.platform.dal.model.project.*;
 import com.clougence.clouddm.platform.dal.model.secrule.*;
@@ -957,10 +960,7 @@ public class DmConvertUtils {
         vo.setId(dsDO.getId());
         vo.setGmtCreate(dsDO.getGmtCreate());
         vo.setHost(dsDO.getHost());
-        vo.setPrivateHost(dsDO.getPrivateHost());
-        vo.setPublicHost(dsDO.getPublicHost());
-        vo.setHostType(dsDO.getHostType());
-        vo.setAccountName(dsDO.getAccount());
+        vo.setAccountName(dsDO.getAccessKey());
         vo.setLifeCycleState(dsDO.getLifeCycleState());
         vo.setSecurityType(dsDO.getSecurityType());
         vo.setDsEnvId(dsDO.getDsEnvId());
@@ -1180,7 +1180,6 @@ public class DmConvertUtils {
         vo.setValueRequire(config.isValueRequire());
         vo.setValueValidRegex(config.getValueValidRegex());
         vo.setDefaultValue(config.getDefaultValue());
-        vo.setValueAdvance(config.getValueAdvance());
         vo.setConfValType(config.getConfValType());
         vo.setReadOnly(config.isReadOnly());
         vo.setLazy(config.isLazy());
@@ -1850,7 +1849,7 @@ public class DmConvertUtils {
             vo.setDsType(dsDO.getDataSourceType());
             vo.setDsInstance(dsDO.getInstanceId());
             vo.setDsDesc(dsDO.getInstanceDesc());
-            vo.setDsHost(dsDO.getHostType() == HostType.PUBLIC ? dsDO.getPublicHost() : dsDO.getPrivateHost());
+            vo.setDsHost(dsDO.getHost());
         } else {
             vo.setDsId(devopsDO.getDsId());
             vo.setDsType(devopsDO.getDsType());
@@ -1961,7 +1960,7 @@ public class DmConvertUtils {
             vo.setDsDisplay(dsDO.getInstanceDesc());
         }
 
-        vo.setDsHost(dsDO.getHostType() == HostType.PUBLIC ? dsDO.getPublicHost() : dsDO.getPrivateHost());
+        vo.setDsHost(dsDO.getHost());
         vo.setDsLevels(Collections.emptyList());
         return vo;
     }
@@ -2194,17 +2193,7 @@ public class DmConvertUtils {
         copy.setGmtModified(vo.getGmtModified());
         copy.setDataSourceType(vo.getDataSourceType());
 
-        switch (vo.getHostType()) {
-            case PUBLIC:
-                copy.setHost(vo.getPublicHost());
-                break;
-            case PRIVATE:
-                copy.setHost(vo.getPrivateHost());
-                break;
-            default:
-                copy.setHost("hostType Unknown.");
-                break;
-        }
+        copy.setHost(vo.getHost());
 
         copy.setInstanceId(vo.getInstanceId());
         copy.setInstanceDesc(vo.getInstanceDesc());

@@ -22,8 +22,6 @@ public class SystemDalImpl implements SystemDal {
     @Resource
     private DmSysClusterMapper   clusterMapper;
     @Resource
-    private DmSysConfMapper      confMapper;
-    @Resource
     private DmSysEnvMapper       envMapper;
     @Resource
     private DmSysEnvParamMapper  envParamMapper;
@@ -41,11 +39,6 @@ public class SystemDalImpl implements SystemDal {
     @Override
     public DmSysClusterMapper clusterMapper() {
         return clusterMapper;
-    }
-
-    @Override
-    public DmSysConfMapper confMapper() {
-        return confMapper;
     }
 
     @Override

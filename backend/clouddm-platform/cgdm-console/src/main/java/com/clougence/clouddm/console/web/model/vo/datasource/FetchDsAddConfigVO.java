@@ -17,9 +17,6 @@ package com.clougence.clouddm.console.web.model.vo.datasource;
 
 import java.util.List;
 
-import com.clougence.clouddm.console.web.model.vo.DefaultDsKvConfigVO;
-import com.clougence.clouddm.console.web.model.vo.DsSecurityOption;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,7 +24,5 @@ import lombok.Setter;
 @Setter
 public class FetchDsAddConfigVO {
 
-    private List<DefaultDsKvConfigVO> configDef;
-
-    private List<DsSecurityOption>    securityOptions;
+    private List<DsAddUiPanelVO> panels;
 }

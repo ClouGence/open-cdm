@@ -93,7 +93,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         // create session/request
         String sessionId = null;
         try {
-            DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId());
+            DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
             SessionContextDTO sessionCtx = DmDsUtils.createSessionCtx(dsConfig, levelsParam);
             sessionId = this.queryService.createSession(uid, levels, sessionCtx);
 
@@ -162,7 +162,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         // create session/request
         String sessionId = null;
         try {
-            DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId());
+            DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
             SessionContextDTO sessionCtx = DmDsUtils.createSessionCtx(dsConfig, levelsParam);
             sessionId = this.queryService.createSession(uid, levels, sessionCtx);
 
@@ -234,7 +234,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
         // create session/request
         String sessionId = null;
         try {
-            DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId());
+            DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
             SessionContextDTO sessionCtx = DmDsUtils.createSessionCtx(dsConfig, levelsParam);
             sessionId = this.queryService.createSession(uid, levels, sessionCtx);
 

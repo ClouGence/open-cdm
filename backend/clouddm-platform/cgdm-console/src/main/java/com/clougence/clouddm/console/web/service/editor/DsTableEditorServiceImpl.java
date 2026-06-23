@@ -218,7 +218,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
 
         // execute sql
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
-        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId());
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
 
         String sessionId = "";
         try {
@@ -289,7 +289,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
     private void triggerToUiDataPlugins(EditorViewMode viewMode, ETable source, TableEditorUiData target, DmDsDO dataSourceDO) {
         TableEditorUiDataSpi spi = PluginManager.findTableEditorSpi(dataSourceDO.getDataSourceType());
         if (spi != null) {
-            DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dataSourceDO.getId());
+            DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dataSourceDO.getId());
             spi.fillUiData(viewMode, source, target, dsConfig.getVersion());
         }
     }
@@ -297,7 +297,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
     private void triggerToETablePlugins(EditorViewMode viewMode, TableEditorUiData source, ETable target, DmDsDO dataSourceDO) {
         TableEditorUiDataSpi spi = PluginManager.findTableEditorSpi(dataSourceDO.getDataSourceType());
         if (spi != null) {
-            DataSourceConfig dsConfig = dmDsConfigService.fetchDsConfigFromDM(dataSourceDO.getId());
+            DataSourceConfig dsConfig = dmDsConfigService.fetchDsConfigFromExists(dataSourceDO.getId());
             spi.fillETable(viewMode, source, target, dsConfig.getVersion());
         }
     }

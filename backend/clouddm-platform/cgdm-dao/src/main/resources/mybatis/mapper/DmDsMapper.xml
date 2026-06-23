@@ -12,16 +12,10 @@
         <result column="data_source_type" property="dataSourceType"
                 javaType="com.clougence.clouddm.base.metadata.ds.DataSourceType"/>
         <result column="host" property="host"/>
-        <result column="private_host" property="privateHost"/>
-        <result column="public_host" property="publicHost"/>
-        <result column="host_type" property="hostType"
-                javaType="com.clougence.clouddm.platform.dal.model.datasource.HostType"/>
         <result column="instance_desc" property="instanceDesc"/>
         <result column="version" property="version"/>
         <result column="driver" property="driver"/>
         <result column="instance_id" property="instanceId"/>
-        <result column="account" property="account"/>
-        <result column="password" property="password"/>
         <result column="access_key" property="accessKey"/>
         <result column="secret_key" property="secretKey"/>
         <result column="security_type" property="securityType"
@@ -43,15 +37,10 @@
         owner,
         data_source_type,
         host,
-        private_host,
-        public_host,
-        host_type,
         instance_desc,
         version,
         driver,
         instance_id,
-        account,
-        password,
         access_key,
         secret_key,
         security_type,
@@ -70,9 +59,6 @@
         owner,
         data_source_type,
         host,
-        private_host,
-        public_host,
-        host_type,
         instance_desc,
         version,
         ds_env_id,
@@ -277,19 +263,6 @@
         ORDER BY gmt_create DESC
     </select>
 
-    <select id="listDataSourceByHosts" resultMap="rdpDataSourceDO">
-        SELECT
-            <include refid="rdpDataSource"/>
-        FROM
-            dm_ds
-        WHERE
-            life_cycle_state != 'DELETED' AND
-            private_host = #{privateHost} AND
-            public_host = #{publicHost} AND
-            uid = #{uid}
-        ORDER BY gmt_create DESC
-    </select>
-
     <select id="listByDsEnvId" resultMap="rdpDataSourceDO">
         SELECT
             <include refid="rdpDataSource"/>
@@ -340,36 +313,18 @@
     <update id="cleanDataSourceAccount">
         UPDATE
             dm_ds
-        SET account  = null,
-            password = null
-        WHERE id = #{id}
-    </update>
-
-    <update id="updateAccountAndPasswordById">
-        UPDATE
-            dm_ds
-        SET account  = #{account},
-            password = #{password}
+        SET access_key = null,
+            secret_key = null
         WHERE id = #{id}
     </update>
 
     <update id="updateSecurityInfo">
         UPDATE
             dm_ds
-        SET account      = #{account},
-            password     = #{password},
+        SET access_key   = #{accessKey},
+            secret_key   = #{secretKey},
             security_type=#{securityType}
         WHERE id = #{id}
-    </update>
-
-    <update id="updateAkAndSk">
-        UPDATE
-            dm_ds
-        SET
-            access_key = #{accessKey},
-            secret_key = #{secretKey}
-        WHERE
-            id = #{id}
     </update>
 
     <update id="updateVersionByInstanceId">
@@ -386,24 +341,6 @@
             dm_ds
         SET
             instance_desc = #{instanceDesc}
-        WHERE
-            id = #{id}
-    </update>
-
-    <update id="updatePublicHostByInstanceId">
-        UPDATE
-            dm_ds
-        SET
-            public_host = #{publicHost}
-        WHERE
-            id = #{id}
-    </update>
-
-    <update id="updatePrivateHostByInstanceId">
-        UPDATE
-            dm_ds
-        SET
-            private_host = #{privateHost}
         WHERE
             id = #{id}
     </update>
@@ -444,31 +381,11 @@
             id = #{dataSourceId}
     </update>
 
-    <update id="updateHostTypeById">
-        UPDATE
-            dm_ds
-        SET
-            host_type = #{hostType}
-        WHERE
-            id = #{id}
-    </update>
-
     <update id="updateInstanceIdByDataSourceId">
         UPDATE
             dm_ds
         SET
             instance_id = #{instanceId}
-        WHERE
-            id = #{id}
-    </update>
-
-    <update id="updateHostsByInstanceId">
-        UPDATE
-            dm_ds
-        SET
-            host = #{defaultHost},
-            private_host = #{privateHost},
-            public_host = #{publicHost}
         WHERE
             id = #{id}
     </update>

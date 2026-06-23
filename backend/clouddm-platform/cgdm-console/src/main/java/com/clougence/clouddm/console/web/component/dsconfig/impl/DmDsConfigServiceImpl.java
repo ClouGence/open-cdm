@@ -19,14 +19,15 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
-import com.clougence.clouddm.base.metadata.ds.*;
+import com.clougence.clouddm.base.metadata.ds.ConfigDef;
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.*;
 import com.clougence.clouddm.console.web.component.whitelist.WhiteListService;
@@ -38,12 +39,9 @@ import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigMap;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
@@ -58,14 +56,11 @@ import com.clougence.clouddm.sdk.ui.menus.DsMenuType;
 import com.clougence.clouddm.sdk.ui.template.CmdTemplateOption;
 import com.clougence.clouddm.sdk.ui.template.CmdTemplateSpi;
 import com.clougence.drivers.DriverLoader;
-import com.clougence.rdp.component.dskvconfig.RdpDsExtraConfGen;
-import com.clougence.rdp.component.dskvconfig.RdpDsResourceService;
 import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.utils.ClassUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
-import com.clougence.utils.ref.BeanMap;
-
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
@@ -105,6 +100,18 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     }
 
     @Override
+    public Map<DataSourceType, DsConfig> dsConstantSettings() {
+        Map<DataSourceType, DsConfig> data = new HashMap<>();
+        for (DataSourceType dsType : DataSourceType.values()) {
+            DsConfig dsConfig = this.dsConstantSettings(dsType);
+            if (dsConfig != null) {
+                data.put(dsType, dsConfig.clone());
+            }
+        }
+        return data;
+    }
+
+    @Override
     public DsConfig dsConstantSettings(DataSourceType dsType) {
         if (PluginManager.findDsPlugin(dsType) == null || !this.whiteListService.checkDs(dsType)) {
             return null;
@@ -119,7 +126,6 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
             }
 
             DsConfig config = new DsConfig();
-            config.setClassify(dsType.getDsClassify());
             config.setFeatures(PluginManager.hasFeature(dsType));
             config.setConstant(new DsConstantConfig());
             config.setCategories(new DsCategories());
@@ -314,7 +320,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     }
 
     @Override
-    public DataSourceConfig fetchDsConfigFromDM(long dsId) {
+    public DataSourceConfig fetchDsConfigFromExists(long dsId) {
         List<DmDsConfigKv4DmDO> configs = this.dsDal.configKv4DmMapper().listByDsId(dsId);
         DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
 
@@ -391,9 +397,9 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     }
 
     @Override
-    public DataSourceConfig fetchDsConfigFromTemp(DmDsDO dsDO, Map<String, String> configMap, HostType hostType) {
+    public DataSourceConfig fetchDsConfigFromNotExist(DmDsDO dsDO, Map<String, String> configMap) {
         Map<String, String> resolvedConfigMap = configMap == null ? Collections.emptyMap() : configMap;
-        return this.genDsConfig(dsDO, resolvedConfigMap, hostType, dsDO.getVersion(), dsDO.getDriver());
+        return this.genDsConfig(dsDO, resolvedConfigMap, dsDO.getVersion(), dsDO.getDriver());
     }
 
     @Override
@@ -402,75 +408,8 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         return configs == null ? null : configs.getConfigValue();
     }
 
-    @Transactional(rollbackFor = Throwable.class)
-    @Override
-    public void persistDsConfig(DmDsDO dsDO, HostType hostType, String version) {
-        List<DmDsConfigKv4RdpDO> configs = this.collectConfigFromRdp(dsDO, hostType, version);
-        for (DmDsConfigKv4RdpDO config : configs) {
-            if (config.isSecret()) {
-                config.setConfigValue(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(config.getConfigValue()));
-            }
-            DmDsConfigKv4DmDO dmConfig = DmConvertUtils.convertToDmDsKvBaseConfigDOForInsert(config);
-            this.dsDal.configKv4DmMapper().insert(dmConfig);
-        }
-    }
-
     private DataSourceConfig generateDsConfig(DmDsDO dsDO, Map<String, String> configMap) {
-        RdpDsExtraConfGen gen = this.dsResourceService.getDsExtraConfGen(dsDO.getDataSourceType());
-        DsExtraConfig extraConfig = null;
-        if (gen != null) {
-            extraConfig = gen.genDsExtraConfigFromExist(dsDO, fetchConfig(dsDO.getId()));
-        }
-
-        DataSourceConfig dsConfig = this.genDsConfig(dsDO, extraConfig, dsDO.getHostType(), dsDO.getVersion(), dsDO.getDriver());
-        DmDsConfigHelper.fillFieldValue(dsConfig, configMap);
-        return dsConfig;
-    }
-
-    private List<DmDsConfigKv4RdpDO> collectConfigFromRdp(DmDsDO dsDO, HostType hostType, String version) {
-        RdpDsExtraConfGen gen = this.dsResourceService.getDsExtraConfGen(dsDO.getDataSourceType());
-        DsExtraConfig extraConfig = null;
-        if (gen != null) {
-            extraConfig = gen.genDsExtraConfigFromExist(dsDO, fetchConfig(dsDO.getId()));
-        }
-
-        DataSourceConfig dsConfig = this.genDsConfig(dsDO, extraConfig, hostType, version, dsDO.getDriver());
-        List<DmDsConfigKv4RdpDO> dvConfigs = DmDsConfigHelper.collectConfigs(dsConfig);
-        for (DmDsConfigKv4RdpDO config : dvConfigs) {
-            config.setDataSourceId(dsDO.getId());
-
-            if (config.isSecret() && StringUtils.isNotBlank(config.getConfigValue())) {
-                try {
-                    config.setConfigValue(CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(config.getConfigValue()));
-                } catch (Exception e) {
-                    log.error(e.getMessage(), e);
-                }
-            }
-
-            if (config.getConfigName().equals(ConfigKeys.DM_DS_KEY_HOST)) {
-                if (hostType == HostType.PUBLIC) {
-                    config.setConfigValue(dsDO.getPublicHost());
-                } else if (hostType == HostType.PRIVATE) {
-                    config.setConfigValue(dsDO.getPrivateHost());
-                } else {
-                    config.setConfigValue(dsDO.getHost());
-                }
-            } else if (config.getConfigName().equals(ConfigKeys.DM_DS_KEY_SEC_TYPE)) {
-                config.setConfigValue(dsDO.getSecurityType().name());
-            } else if (config.getConfigName().equals(ConfigKeys.DM_DS_KEY_USERNAME)) {
-                config.setConfigValue(dsDO.getAccount());
-            } else if (config.getConfigName().equals(ConfigKeys.DM_DS_KEY_PASSWORD)) {
-                config.setConfigValue(config.getConfigValue());
-            } else if (config.getConfigName().equals(ConfigKeys.DM_DS_KEY_VERSION)) {
-                config.setConfigValue(version);
-            } else if (config.getConfigName().equals(ConfigKeys.DM_DS_KEY_DRIVER_VERSION)) {
-                config.setConfigValue(dsDO.getDriver());
-            } else if (config.getConfigName().equals(ConfigKeys.DM_DS_KEY_STORE_PASSWORD)) {
-                config.setConfigValue(config.getConfigValue());
-            }
-        }
-
-        return dvConfigs;
+        return this.genDsConfig(dsDO, configMap, dsDO.getVersion(), dsDO.getDriver());
     }
 
     @Override
@@ -483,49 +422,70 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         return this.configService.fetchSettingsMap(names);
     }
 
-    public List<DmDsConfigKv4RdpDO> fetchDsConfigDef(DataSourceType dsType) {
+    @Override
+    public List<DsConfigKvDef> fetchDsConfigDef(DataSourceType dsType) {
+        return this.fetchDsConfigDef(dsType, Collections.emptyMap());
+    }
+
+    @Override
+    public List<UiPanel> fetchDsConfigPanels(DataSourceType dsType) {
+        Map<DsConfigGroup, Map<String, DsConfigKvDef>> fieldsByGroup = new EnumMap<>(DsConfigGroup.class);
+        for (DsConfigKvDef configDef : this.fetchDsConfigDef(dsType)) {
+            fieldsByGroup.computeIfAbsent(configDef.getConfigGroup(), key -> new LinkedHashMap<>()).put(configDef.getConfigName(), configDef);
+        }
+        return new DmDsConfigUiPanelFactory().create(dsType, fieldsByGroup);
+    }
+
+    @Override
+    public List<DsConfigKvDef> fetchDsConfigDef(DataSourceType dsType, Map<String, String> defaultConfig) {
+        Map<String, String> configMap = new HashMap<>();
+        if (defaultConfig != null) {
+            configMap.putAll(defaultConfig);
+        }
+
         DsConfigSpi configSpi = PluginManager.findDsConfigSpi(dsType);
-        DataSourceConfig dsConfig = configSpi.newConfig(globalDefault());
-        dsConfig = DmDsConfigHelper.initFieldDefaultValue(dsConfig);
-        dsConfig.deserialize();
+        DataSourceConfig dsConfig = ClassUtils.newInstance(configSpi.newConfig());
+
+        dsConfig = DmDsConfigHelper.initBaseFieldDefaultValue(dsConfig);
+        DmDsConfigHelper.fillBaseFieldValue(dsConfig, configMap);
+
+        configSpi.fillConfig(dsConfig, configMap);
         return DmDsConfigHelper.collectConfigs(dsConfig);
     }
 
-    protected Map<String, String> globalDefault() {
-        return Collections.emptyMap();
-    }
-
-    private DataSourceConfig genDsConfig(DmDsDO dsDO, DsExtraConfig extraConfig, HostType hostType, String version, String driver) {
-        Map<String, String> configMap = new HashMap<>(globalDefault());
-        // TODO put configMap from extraConfig
-
-        //
-        DsConfigSpi configSpi = PluginManager.findDsConfigSpi(dsDO.getDataSourceType());
-        DataSourceConfig config = configSpi.newConfig(configMap);
-        config = DmDsConfigHelper.initFieldDefaultValue(config);
-
-        config.setInstanceId(dsDO.getInstanceId());
-        config.setSecurityType(dsDO.getSecurityType());
-        config.setVersion(version);
-        config.setDriverVersion(driver);
-        dsDO.setHostType(hostType);
-
-        if (hostType == HostType.PUBLIC && StringUtils.isNotBlank(dsDO.getPublicHost())) {
-            config.setHost(dsDO.getPublicHost());
-        } else {
-            config.setHost(dsDO.getPrivateHost());
+    private DataSourceConfig genDsConfig(DmDsDO dsDO, Map<String, String> currentConfigMap, String version, String driver) {
+        Map<String, String> configMap = new HashMap<>();
+        if (currentConfigMap != null) {
+            configMap.putAll(currentConfigMap);
         }
 
-        config.setUserName(dsDO.getAccount());
-        config.setPassword(dsDO.getPassword());
-        config.setStorePassword(dsDO.getClientTrustStorePassword());
+        this.collectBaseConfigMap(dsDO, version, driver).forEach(configMap::putIfAbsent);
 
-        DsConfigMap dsConfigMap = new DsConfigMap();
-        dsConfigMap.setDefaultConfig(configMap);
-        dsConfigMap.setRdpDsBean(new BeanMap(dsDO));
-        dsConfigMap.setRdpExtraBean(new BeanMap(extraConfig));
-        configSpi.fillConfig(config, dsConfigMap);
-        config.deserialize();
+        // special apply for xxDs
+        DsConfigSpi configSpi = PluginManager.findDsConfigSpi(dsDO.getDataSourceType());
+        DataSourceConfig config = ClassUtils.newInstance(configSpi.newConfig());
+        config = DmDsConfigHelper.initBaseFieldDefaultValue(config);
+        DmDsConfigHelper.fillBaseFieldValue(config, configMap);
+        configSpi.fillConfig(config, configMap);
         return config;
+    }
+
+    private Map<String, String> collectBaseConfigMap(DmDsDO dsDO, String version, String driver) {
+        Map<String, String> configMap = new HashMap<>();
+        putIfNotBlank(configMap, DataSourceConfig.Fields.instanceId, dsDO.getInstanceId());
+        putIfNotBlank(configMap, DataSourceConfig.Fields.dataSourceType, dsDO.getDataSourceType() == null ? null : dsDO.getDataSourceType().name());
+        putIfNotBlank(configMap, DataSourceConfig.Fields.version, version);
+        putIfNotBlank(configMap, DataSourceConfig.Fields.driverVersion, driver);
+        putIfNotBlank(configMap, DataSourceConfig.Fields.securityType, dsDO.getSecurityType() == null ? null : dsDO.getSecurityType().name());
+        putIfNotBlank(configMap, DataSourceConfig.Fields.userName, dsDO.getAccessKey());
+        putIfNotBlank(configMap, DataSourceConfig.Fields.password, dsDO.getSecretKey());
+        putIfNotBlank(configMap, DataSourceConfig.Fields.host, dsDO.getHost());
+        return configMap;
+    }
+
+    private void putIfNotBlank(Map<String, String> configMap, String key, String value) {
+        if (StringUtils.isNotBlank(value)) {
+            configMap.putIfAbsent(key, value);
+        }
     }
 }

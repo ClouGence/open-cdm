@@ -87,7 +87,7 @@ public class SecRulesEngineImpl implements SecRulesEngine {
                 .dsId(context.getDsId())
                 .levelsParam(levelsParam)
                 .deepParser(true)
-                .dataSourceConfig(configService.fetchDsConfigFromDM(context.getDsId()))
+                .dataSourceConfig(configService.fetchDsConfigFromExists(context.getDsId()))
                 .build();
             CodeInfo codeInfo = CodeInfo.builder().baseLine(context.getBasicCodeLine()).baseColumn(context.getBasicCodeColumn()).query(querySql).build();
             domainList = resolveSpi.resolveDomain(dsType, codeInfo, ctxInfo);

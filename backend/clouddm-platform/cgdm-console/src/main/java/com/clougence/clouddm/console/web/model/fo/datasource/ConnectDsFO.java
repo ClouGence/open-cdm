@@ -31,26 +31,14 @@ import lombok.Setter;
 public class ConnectDsFO {
 
     private Long                       bindClusterId;
-
     private DataSourceType             dataSourceType;
-
-    private String                     privateHost;
-
-    private String                     publicHost;
-
+    private String                     host;
     private String                     defaultHost;
-
     private String                     region;
-
     private String                     instanceDesc;
-
     private SecurityType               securityType;
-
     private Long                       envId;
-
     private String                     driver;
-
     private String                     dsPropsJson;
-
     private List<InitDsKvBaseConfigFO> dsKvConfigs;
 }

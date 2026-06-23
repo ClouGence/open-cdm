@@ -22,6 +22,7 @@ import java.util.function.Function;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.platform.dal.access.ProjectDal;
@@ -32,7 +33,6 @@ import com.clougence.clouddm.platform.dal.model.system.DmSysMessengerDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.messenger.*;
-import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.i18n.I18nUtils;
 

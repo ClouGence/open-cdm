@@ -35,25 +35,8 @@ public class RdpHostUtil {
     /**
      * Need ignore other useless network's ip
      */
-    private static final List<String> blackPrefixs    = Arrays.asList("docker0", "br-", "veth", "bridge", "virbr", "utun");
-
-    private static String             hostIpCache     = null;
-
-    private static String             hostNameCache   = null;
-
-    public static final String        LOCAL_IP        = "local_ip";
-
-    public static final String        LOCAL_HOST_NAME = "local_host_name";
-
-    public static String getHostIpOrHostName(String type) {
-        try {
-            return LOCAL_IP.equals(type) ? getHostIp() : getHostName();
-        } catch (Exception e) {
-            String msg = "[RdpHostUtil] Get host ip or host name failed,msg:" + com.clougence.utils.ExceptionUtils.getRootCauseMessage(e);
-            log.error(msg, e);
-            throw new RuntimeException(msg, e);
-        }
-    }
+    private static final List<String> blackPrefixs = Arrays.asList("docker0", "br-", "veth", "bridge", "virbr", "utun");
+    private static String             hostIpCache  = null;
 
     public static String getHostIp() {
         if (com.clougence.utils.StringUtils.isNotBlank(hostIpCache)) {
@@ -62,16 +45,6 @@ public class RdpHostUtil {
             hostIpCache = getHostIpOrHostNameInner(false);
             log.info("[RdpHostUtil] fetched host ip:" + hostIpCache);
             return hostIpCache;
-        }
-    }
-
-    private static String getHostName() {
-        if (com.clougence.utils.StringUtils.isNotBlank(hostNameCache)) {
-            return hostNameCache;
-        } else {
-            hostNameCache = getHostIpOrHostNameInner(true);
-            log.info("[RdpHostUtil] Fetched host name:" + hostNameCache);
-            return hostNameCache;
         }
     }
 

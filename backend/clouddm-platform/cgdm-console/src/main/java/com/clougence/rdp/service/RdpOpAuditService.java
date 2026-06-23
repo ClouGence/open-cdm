@@ -34,7 +34,6 @@ import jakarta.servlet.http.HttpServletResponse;
 public interface RdpOpAuditService {
 
     int DEFAULT_PAGE_SIZE = 20;
-
     int MAX_PAGE_SIZE     = 60;
 
     /**

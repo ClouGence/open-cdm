@@ -39,7 +39,7 @@ public class HanaDsBrowseSpi extends AbstractDsBrowseSpi {
 
     @Override
     public Map<UmiTypes, List<UmiTypes>> getLeafGroupMap() {
-        List<UmiTypes> schemaList = Arrays.asList(UmiTypes.Table, UmiTypes.View, UmiTypes.Procedure, UmiTypes.Function, UmiTypes.Trigger, UmiTypes.Sequence, UmiTypes.Synonym);
+        List<UmiTypes> schemaList = Arrays.asList(UmiTypes.Table, UmiTypes.View, UmiTypes.Sequence, UmiTypes.Synonym);
         return CollectionUtils.asMap(UmiTypes.Schema, schemaList);
     }
 
@@ -66,7 +66,7 @@ public class HanaDsBrowseSpi extends AbstractDsBrowseSpi {
             }
             case RdbCatalog: {
                 List<String> menus = RdbUiMenuDef.DEFAULT_RDB_CATALOG;
-                return filterMenus(menus, Arrays.asList(MENU_BROWSE_CONSOLE, MENU_BROWSE_CATALOG_CREATE));
+                return filterMenus(menus, Arrays.asList(MENU_BROWSE_CONSOLE, MENU_BROWSE_CATALOG_CREATE, MENU_BROWSE_CATALOG_RENAME, MENU_BROWSE_CATALOG_DROP));
             }
             case RdbSchema: {
                 List<String> menus = RdbUiMenuDef.DEFAULT_RDB_SCHEMA;

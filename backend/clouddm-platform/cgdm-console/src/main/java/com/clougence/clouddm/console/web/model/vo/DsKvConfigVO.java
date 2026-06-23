@@ -36,7 +36,6 @@ public class DsKvConfigVO {
     private String        valueValidRegex;
     private String        configValue;
     private String        defaultValue;
-    private String        valueAdvance;
     private ConfigValType confValType;
     private boolean       readOnly;
     private boolean       isSecret;

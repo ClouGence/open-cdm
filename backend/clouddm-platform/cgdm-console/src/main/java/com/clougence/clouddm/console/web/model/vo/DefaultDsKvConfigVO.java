@@ -33,7 +33,6 @@ public class DefaultDsKvConfigVO {
     private String        description;
     private boolean       valueRequire;
     private String        defaultValue;
-    private String        valueAdvance;
     private ConfigValType confValType;
     private boolean       lazy;
 }

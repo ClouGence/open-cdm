@@ -23,9 +23,10 @@ import java.util.Date;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.constants.MfaPreActionType;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.csrf.CsrfTokenService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
@@ -50,7 +51,6 @@ import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
 import com.clougence.clouddm.sdk.security.login.LoginRequest;
 import com.clougence.clouddm.sdk.security.login.LoginResponse;
 import com.clougence.clouddm.sdk.service.config.UserData;
-import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.rdp.service.model.AddSubAccountMO;
 import com.clougence.rdp.service.model.LoginMO;
 import com.clougence.utils.StringUtils;
@@ -73,7 +73,7 @@ public class LoginServiceImpl implements LoginService {
     @Resource
     private NamingDao        namingDao;
     @Resource
-    private DmConsoleConfig  config;
+    private ConsoleConfig    config;
     @Resource
     private JwtService       jwtService;
     @Resource

@@ -29,7 +29,6 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultList;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.base.metadata.ds.DsClassify;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
@@ -89,7 +88,7 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
     private DmDsConfigService                                                      dmDsConfigService;
     @Resource
     private QueryService                                                           dmQueryService;
-
+    @Resource
     private List<RdpNotifyService>                                                 notifyServices;
     private final Map<GenerateSqlDataAuthEnum, Function<ActionInfo, List<String>>> generateMap = new HashMap<>();
     private final Map<String, List<TableEditorFieldForm>>                          editorCache = new ConcurrentHashMap<>();
@@ -170,15 +169,10 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
         String schemaStr = StringUtils.toString(levelsParam.get(UmiTypes.Schema));
         String targetNameStr = info.getTargetName();
         String targetNewNameStr = info.getTargetNewName();
-        if (dsType.getDsClassify() == DsClassify.RDB) {
-            catalogStr = SqlGenerateUtils.fmtName(option, dialect, catalogStr);
-            schemaStr = SqlGenerateUtils.fmtName(option, dialect, schemaStr);
-            targetNameStr = SqlGenerateUtils.fmtName(option, dialect, targetNameStr);
-            targetNewNameStr = SqlGenerateUtils.fmtName(option, dialect, targetNewNameStr);
-        } else {
-            targetNameStr = SqlGenerateUtils.fmtName(option, dialect, targetNameStr);
-            targetNewNameStr = SqlGenerateUtils.fmtName(option, dialect, targetNewNameStr);
-        }
+        catalogStr = SqlGenerateUtils.fmtName(option, dialect, catalogStr);
+        schemaStr = SqlGenerateUtils.fmtName(option, dialect, schemaStr);
+        targetNameStr = SqlGenerateUtils.fmtName(option, dialect, targetNameStr);
+        targetNewNameStr = SqlGenerateUtils.fmtName(option, dialect, targetNewNameStr);
 
         List<String> scripts = fooGen.apply(info);
         List<String> results = new ArrayList<>();
@@ -228,31 +222,31 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
      */
     @Override
     public List<String> doAction(String puid, String uid, DsLevels levels, ActionTargetMO mo, String clientIp) {
-        List<String> result = this.genAction(levels, mo);
         ActionInfo info = this.parseAction(levels, mo);
+        Function<ActionInfo, List<String>> fooGen = this.generateMap.get(mo.getActionType());
+        List<String> result = this.generateSql(info, fooGen);
+        Map<UmiTypes, Object> sessionLevelsParam = new HashMap<>(info.getLevelsParam());
         List<UmiTypes> levelsDef = info.getLevelsDef();
-        Map<UmiTypes, Object> levelsParam = info.getLevelsParam();
         switch (mo.getActionType()) {
             case MENU_BROWSE_CATALOG_CREATE:
             case MENU_BROWSE_CATALOG_DROP:
             case MENU_BROWSE_CATALOG_RENAME:
-                levelsParam.remove(UmiTypes.Catalog);
-                levelsParam.remove(UmiTypes.Schema);
+                sessionLevelsParam.remove(UmiTypes.Catalog);
+                sessionLevelsParam.remove(UmiTypes.Schema);
                 break;
             case MENU_BROWSE_SCHEMA_CREATE:
             case MENU_BROWSE_SCHEMA_DROP:
                 if (levelsDef.contains(UmiTypes.Catalog)) {
-                    levelsParam.remove(UmiTypes.Schema);
+                    sessionLevelsParam.remove(UmiTypes.Schema);
                 } else {
-                    levelsParam.remove(UmiTypes.Catalog);
-                    levelsParam.remove(UmiTypes.Schema);
+                    sessionLevelsParam.remove(UmiTypes.Catalog);
+                    sessionLevelsParam.remove(UmiTypes.Schema);
                 }
                 break;
             default:
                 break;
         }
-
-        return this.executeSql(puid, uid, clientIp, info, levelsParam, result, mo);
+        return this.executeSql(uid, clientIp, info, sessionLevelsParam, result, mo);
     }
 
     /**
@@ -329,20 +323,14 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_OBJECT_NOT_EXIST.name(), leafName));
         }
 
-        switch (leafType) {
-            case Trigger:
-                return DmConvertUtils.convertToBrowseTriggerVO((RdbTrigger) value);
-            case View:
-                return DmConvertUtils.convertToBrowseViewVO((RdbView) value);
-            case Procedure:
-                return DmConvertUtils.convertToBrowseProcedureVO((RdbProcedure) value);
-            case Function:
-                return DmConvertUtils.convertToBrowseFunctionVO((RdbFunction) value);
-            case Job:
-                return DmConvertUtils.convertToBrowseJobVO((RdbJob) value);
-            default:
-                throw new UnsupportedOperationException();
-        }
+        return switch (leafType) {
+            case Trigger -> DmConvertUtils.convertToBrowseTriggerVO((RdbTrigger) value);
+            case View -> DmConvertUtils.convertToBrowseViewVO((RdbView) value);
+            case Procedure -> DmConvertUtils.convertToBrowseProcedureVO((RdbProcedure) value);
+            case Function -> DmConvertUtils.convertToBrowseFunctionVO((RdbFunction) value);
+            case Job -> DmConvertUtils.convertToBrowseJobVO((RdbJob) value);
+            default -> throw new UnsupportedOperationException();
+        };
 
     }
 
@@ -367,13 +355,18 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
         String targetType = mo.getTargetType();
         String targetName = mo.getTargetName();
         GenerateSqlDataAuthEnum eventType = mo.getActionType();
+        Map<UmiTypes, Object> levelsParam = new HashMap<>();
+        if (levels.levelsParam() != null) {
+            levelsParam.putAll(levels.levelsParam());
+        }
 
         if (StringUtils.isNotBlank(targetType)) {
             UmiTypes umiType = UmiTypes.valueOfCode(targetType);
-            levels.levelsParam().put(umiType, targetName);
+            levelsParam.put(umiType, targetName);
         }
 
         ActionInfo info = DmConvertUtils.convertToActionInfo(levels);
+        info.setLevelsParam(levelsParam);
 
         info.setDataAuth((eventType == null) ? null : eventType.getDataAuth());
         info.setTargetType(UmiTypes.valueOfCode(targetType));
@@ -384,16 +377,16 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
         return info;
     }
 
-    private List<String> executeSql(String puid, String uid, String clientIp, ActionInfo info, Map<UmiTypes, Object> levelsParam, List<String> generateSql, ActionTargetMO mo) {
+    private List<String> executeSql(String uid, String clientIp, ActionInfo info, Map<UmiTypes, Object> sessionLevelsParam, List<String> generateSql, ActionTargetMO mo) {
         DmDsDO dsDO = info.getDsDO();
-        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId());
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
         DsConfig dsSetting = this.dmDsConfigService.dsConstantSettings(dsDO.getDataSourceType());
         SessionSpi sessionSpi = PluginManager.findSessionSpi(dsDO.getDataSourceType());
 
         //
         Map<String, Object> params = new HashMap<>();
-        params.put(SessionSpi.PARAMS_DEFAULT_DB, StringUtils.toString(levelsParam.get(UmiTypes.Catalog)));
-        params.put(SessionSpi.PARAMS_DEFAULT_SCHEMA, StringUtils.toString(levelsParam.get(UmiTypes.Schema)));
+        params.put(SessionSpi.PARAMS_DEFAULT_DB, StringUtils.toString(sessionLevelsParam.get(UmiTypes.Catalog)));
+        params.put(SessionSpi.PARAMS_DEFAULT_SCHEMA, StringUtils.toString(sessionLevelsParam.get(UmiTypes.Schema)));
         SessionContextDTO contextDTO = sessionSpi.createSessionContext(dsConfig, params);
 
         String sessionId = "";
@@ -406,7 +399,7 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
                 requestDTO.setQueryArgs(Collections.emptyList());
                 requestDTO.setRequester(Requester.CONSOLE);
 
-                setArgs(levelsParam, mo, requestDTO);
+                setArgs(info.getLevelsParam(), mo, requestDTO);
 
                 ResultList list = this.dmQueryService.syncExecuteQuery(uid, sessionId, requestDTO);
                 List<Result> collect = list.getResultList().stream().filter(r -> r.getResultType() == ResultType.Message).collect(Collectors.toList());

@@ -27,7 +27,6 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
-import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
@@ -35,6 +34,7 @@ import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.browse.BrowseLevelsVO;
 import com.clougence.clouddm.console.web.service.browse.model.rdb.BrowseColumnMO;
 import com.clougence.clouddm.console.web.service.browse.model.rdb.BrowseObjectMO;
+import com.clougence.clouddm.console.web.service.datasource.DmDsWebService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
@@ -59,7 +59,7 @@ public class BrowseServiceImpl implements BrowseService {
     @Resource
     private DataSourceDal     dsDal;
     @Resource
-    private DmDsService       dmDsService;
+    private DmDsWebService    dmDsService;
     @Resource
     private DmDsConfigService dmDsConfigService;
     @Resource
@@ -97,7 +97,7 @@ public class BrowseServiceImpl implements BrowseService {
                     dsRdbSupportMap.put(dsDO.getDataSourceType(), supportSpi);
                 }
 
-                DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId());
+                DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
                 String dsHost = this.dmDsConfigService.fetchDsConfig(dsDO.getId(), DataSourceConfig.Fields.host);
                 dsConfigMap.put(dsDO.getId(), dsConfig);
                 dsHostMap.put(dsDO.getId(), dsHost);
@@ -185,7 +185,7 @@ public class BrowseServiceImpl implements BrowseService {
 
         DmDsDO detailDO = dsList.get(0);
         DmDsTagDO dsTags = this.dsDal.tagMapper().getByDsAndUser(detailDO.getId(), uid);
-        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(detailDO.getId());
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(detailDO.getId());
         RdbSupportSpi supportSpi = PluginManager.findRdbSupportSpi(dsConfig.getDataSourceType());
         String dsHost = this.dmDsConfigService.fetchDsConfig(detailDO.getId(), DataSourceConfig.Fields.host);
         DmDsDO dmDsConfigDO = dsDal.dsMapper().queryByDataSourceId(dsLevels.dsDO().getId());

@@ -21,7 +21,6 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -34,43 +33,24 @@ import lombok.Setter;
 public class RdpSimpleDsVO {
 
     private Long           id;
-
     private Date           gmtCreate;
-
     private DataSourceType dataSourceType;
-
     private String         host;
-
-    private String         privateHost;
-
-    private String         publicHost;
-
-    private HostType       hostType;
-
     private String         instanceDesc;
-
     private String         version;
-
     private String         instanceId;
-
     private String         accountName;
-
     private LifeCycleState lifeCycleState;
-
     private SecurityType   securityType;
-
     private Long           dsEnvId;
-
     private String         dsEnvName;
 
     public void convertFromDO(DmDsDO dsDO) {
         this.id = dsDO.getId();
         this.gmtCreate = dsDO.getGmtCreate();
         this.host = dsDO.getHost();
-        this.privateHost = dsDO.getPrivateHost();
-        this.publicHost = dsDO.getPublicHost();
-        this.hostType = dsDO.getHostType();
-        this.accountName = dsDO.getAccount();
+        this.host = dsDO.getHost();
+        this.accountName = dsDO.getAccessKey();
         this.lifeCycleState = dsDO.getLifeCycleState();
         this.securityType = dsDO.getSecurityType();
         this.dsEnvId = dsDO.getDsEnvId();

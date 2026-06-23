@@ -72,7 +72,7 @@ public class ConfigRServiceProvider extends AbstractBasicProvider implements Con
 
     @Override
     public DataSourceConfig fetchDsConfig(long dsId) {
-        return this.dsConfigService.fetchDsConfigFromDM(dsId);
+        return this.dsConfigService.fetchDsConfigFromExists(dsId);
     }
 
     @Override

@@ -46,8 +46,6 @@ public class ApiDsKvConfigVo {
 
     private String        defaultValue;
 
-    private String        valueAdvance;
-
     private boolean       readOnly;
 
     private boolean       isSecret;
@@ -65,7 +63,6 @@ public class ApiDsKvConfigVo {
         this.valueValidRegex = configVO.getValueValidRegex();
         this.configValue = configVO.getConfigValue();
         this.defaultValue = configVO.getDefaultValue();
-        this.valueAdvance = configVO.getValueAdvance();
         this.readOnly = configVO.isReadOnly();
         this.isSecret = configVO.isSecret();
         this.lazy = configVO.isLazy();

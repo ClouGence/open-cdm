@@ -20,11 +20,11 @@ import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 
 /**
  * @author bucketli 2020/11/7 14:25
@@ -33,19 +33,21 @@ public interface DmDsConfigService {
 
     Map<String, String> fetchSettingsMap(String ownerUid, List<String> names);
 
+    String fetchDsConfig(long dsId, String configKey);
+
+    void cleanDsConfig(long dsId);
+
+    DataSourceConfig fetchDsConfigFromNotExist(DmDsDO dsDO, Map<String, String> configMap);
+
+    DataSourceConfig fetchDsConfigFromExists(long dsId);
+
     List<DsConfigKvDef> fetchDsConfigDef(DataSourceType dsType);
 
     List<DsConfigKvDef> fetchDsConfigDef(DataSourceType dsType, Map<String, String> defaultConfig);
 
-    DataSourceConfig fetchDsConfigFromTemp(DmDsDO dsDO, Map<String, String> configMap, HostType hostType);
+    List<UiPanel> fetchDsConfigPanels(DataSourceType dsType);
 
-    DataSourceConfig fetchDsConfigFromDM(long dsId);
-
-    String fetchDsConfig(long dsId, String configKey);
-
-    void persistDsConfig(DmDsDO dsDO, HostType hostType, String version);
-
-    void cleanDsConfig(long dsId);
+    Map<DataSourceType, DsConfig> dsConstantSettings();
 
     DsConfig dsConstantSettings(DataSourceType dsType);
 

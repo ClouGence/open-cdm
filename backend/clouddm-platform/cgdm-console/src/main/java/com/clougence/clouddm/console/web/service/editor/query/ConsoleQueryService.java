@@ -31,11 +31,12 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.detectrule.*;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.execute.QueryService;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.editor.query.WsQueryFO;
@@ -96,7 +97,6 @@ import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.ast.location.CodeLocation;
-import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
@@ -117,7 +117,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
     @Resource
     private ObjectCacheDao       cacheDao;
     @Resource
-    private DmConsoleConfig      dmConfig;
+    private ConsoleConfig        config;
     @Resource
     private ApplicationContext   appContext;
     @Resource
@@ -286,7 +286,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
         // 4.4. query limit.
         int curQueueSize = this.queryExecutor.getQueueSize();
-        int maxQueueSize = this.dmConfig.getConsoleQueryQueueSize();
+        int maxQueueSize = this.config.getConsoleQueryQueueSize();
         if (curQueueSize >= maxQueueSize) {
             log.warn("[" + curUid + "] submit query to queue failed, the queue is full. curSize = " + curQueueSize + ", maxSize = " + maxQueueSize);
             String message = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_QUEUE_FULL_ERROR.name());
@@ -631,9 +631,8 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         String curUserUid = queryDTO.getCurrentUserId();
         DmAuthUserDO rdpUserDO = authDal.userMapper().queryByUid(curUserUid);
 
-        if (rdpUserDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || this.authCheckService
-            .checkResPathWithoutError(queryDTO.getPrimaryUserId(), curUserUid, ctx.getLevels().dsDO().getId(), AuthKind.DataSource, ctx.getLevels().asResPath(),
-                SecDataAuthLabel.DM_DAUTH_SENSITIVE)) {
+        if (rdpUserDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || this.authCheckService.checkResPathWithoutError(queryDTO
+            .getPrimaryUserId(), curUserUid, ctx.getLevels().dsDO().getId(), AuthKind.DataSource, ctx.getLevels().asResPath(), SecDataAuthLabel.DM_DAUTH_SENSITIVE)) {
             queryDTO.setViewOriginData(true);
             return false;
         }
@@ -992,7 +991,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         String sessionId = queryDTO.getSessionId();
         DsLevels levels = this.dmDsConfigService.parseLevels(queryDTO.getLevels());
         DmDsDO dsDO = levels.dsDO();
-        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId());
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
 
         Map<String, Object> params = new HashMap<>();
         levels.levelsParam().forEach((umiType, value) -> {

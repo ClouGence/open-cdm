@@ -33,9 +33,9 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.constants.MfaPreActionType;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.login.LoginMFAService;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
@@ -56,13 +56,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JwtServiceImpl implements JwtService {
 
-    private final String    issuer = "CloudDM";
+    private final String  issuer = "CloudDM";
     /** default use hmacsha256 */
     @Value("${jwt.secret}")
-    private String          secret;
+    private String        secret;
     @Resource
-    private DmConsoleConfig rdpConfig;
-    private Algorithm       algorithm;
+    private ConsoleConfig config;
+    private Algorithm     algorithm;
 
     public Algorithm algorithm() {
         if (this.algorithm == null) {
@@ -97,11 +97,11 @@ public class JwtServiceImpl implements JwtService {
     public void refreshCookiePeriodOfValidity(HttpServletRequest request, HttpServletResponse response) {
         Cookie cookie = WebUtils.getCookie(request, jwtTokenName);
         if (cookie != null) {
-            cookie.setMaxAge(rdpConfig.getLoginExpireTimeSec());
+            cookie.setMaxAge(config.getLoginExpireTimeSec());
             cookie.setPath("/");
 
-            if (StringUtils.isNotBlank(rdpConfig.getLoginCookieDomain())) {
-                cookie.setDomain(rdpConfig.getLoginCookieDomain());
+            if (StringUtils.isNotBlank(config.getLoginCookieDomain())) {
+                cookie.setDomain(config.getLoginCookieDomain());
             }
 
             response.addCookie(cookie);
@@ -181,7 +181,7 @@ public class JwtServiceImpl implements JwtService {
         long nowMills = zdt.toInstant().toEpochMilli();
 
         Date issueAt = new Date(nowMills);
-        Date expresAt = new Date(nowMills + Math.max(JwtService.minLoginExpireSec * 1000, this.rdpConfig.getLoginExpireTimeSec() * 1000));
+        Date expresAt = new Date(nowMills + Math.max(JwtService.minLoginExpireSec * 1000, this.config.getLoginExpireTimeSec() * 1000));
 
         // username used for django-jwt
         return JWT.create()

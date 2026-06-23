@@ -17,8 +17,6 @@ package com.clougence.clouddm.console.web.model.fo.datasource;
 
 import java.util.List;
 
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,6 +27,5 @@ public class TestDsConnectionFO {
     private List<String> levels;
     private Long         dataSourceId;
     private Long         clusterId;
-    private HostType     hostType;
     //private String       keyWords;
 }

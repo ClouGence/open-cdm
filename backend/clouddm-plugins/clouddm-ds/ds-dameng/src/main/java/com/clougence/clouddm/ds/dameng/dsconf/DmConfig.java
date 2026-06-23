@@ -17,11 +17,7 @@ package com.clougence.clouddm.ds.dameng.dsconf;
 
 import java.util.Properties;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigDef;
-import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
+import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
@@ -43,15 +39,16 @@ public class DmConfig extends DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultSchema, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION)
     private String  defaultSchema;
-    // ------------------------------------------------------------------------------------------------------------------------ CONNECT
-    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.autoCommit, defaultValue = "true", descKey = ConfigI18nKey.CONFIG_RDB_TRANSACTION_DESCRIPTION)
+    // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
+    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.autoCommit, defaultValue = "true", descKey = ConfigI18nKey.CONFIG_RDB_TRANSACTION_DESCRIPTION)
     private Boolean autoCommit;
-    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.connectTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_DESCRIPTION)
-    private Long    connectTimeoutMs;
-    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
-    private Integer soTimeoutSec;
-    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.clientTimeZone, descKey = ConfigI18nKey.CONFIG_RDB_CLIENT_TIME_ZONE_DESCRIPTION)
+    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.clientTimeZone, descKey = ConfigI18nKey.CONFIG_RDB_CLIENT_TIME_ZONE_DESCRIPTION)
     private String  clientTimeZone;
+    // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
+    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.connectTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_DESCRIPTION)
+    private Long    connectTimeoutMs;
+    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
+    private Integer soTimeoutSec;
 
     public DmConfig(){
         setDataSourceType(DataSourceType.Dameng);

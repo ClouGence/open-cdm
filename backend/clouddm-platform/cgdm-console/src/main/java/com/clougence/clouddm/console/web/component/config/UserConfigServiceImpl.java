@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.console.web.component.config;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,21 +24,18 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.model.fo.UpsertUserConfigFO;
 import com.clougence.clouddm.console.web.model.lo.UpsertUserConfigLO;
 import com.clougence.clouddm.console.web.model.vo.RdpUserConfigVO;
-import com.clougence.clouddm.console.web.service.auth.RdpUserConfigHelper;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
-import com.clougence.rdp.global.config.user.NormalUserConfig;
-import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.rdp.service.RdpNotifyService;
 import com.clougence.rdp.service.model.UserConfigMO;
 import com.clougence.utils.CollectionUtils;
+import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -58,9 +56,7 @@ public class UserConfigServiceImpl implements UserConfigService {
     @Resource
     private AuthDal                authDal;
     @Resource
-    private RdpUserConfigHelper    rdpUserConfigHelper;
-    @Resource
-    private DmConsoleConfig        rdpConfig;
+    private ConsoleConfig rdpConfig;
     @Resource
     private List<RdpNotifyService> notifyServices;
 
@@ -253,9 +249,9 @@ public class UserConfigServiceImpl implements UserConfigService {
         DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
         boolean isPrimary = userDO != null && (userDO.getParentId() == null || userDO.getParentId() <= 0);
         if (isPrimary) {
-            return rdpUserConfigHelper.collectConfigs(new RootUserConfig(), uid);
+            return collectConfigs(new RootUserConfig(), uid);
         } else {
-            return rdpUserConfigHelper.collectConfigs(new NormalUserConfig(), uid);
+            return collectConfigs(new NormalUserConfig(), uid);
         }
     }
 
@@ -308,8 +304,63 @@ public class UserConfigServiceImpl implements UserConfigService {
     @Override
     public void initSubAccountConfigs(String uid) {
         NormalUserConfig config = new NormalUserConfig();
-        List<UserConfigKvDef> defs = rdpUserConfigHelper.collectConfigs(config, uid);
+        List<UserConfigKvDef> defs = collectConfigs(config, uid);
         insertConfigDefs(defs);
+    }
+
+    private List<UserConfigKvDef> collectConfigs(Object instance, String uid) {
+        List<UserConfigKvDef> configs = new ArrayList<>();
+        collectConfigs(instance, uid, instance.getClass(), configs);
+        return configs;
+    }
+
+    private void collectConfigs(Object instance, String uid, Class<?> clazz, List<UserConfigKvDef> configs) {
+        try {
+            Field[] fields = clazz.getDeclaredFields();
+
+            for (Field field : fields) {
+                field.setAccessible(true);
+
+                UserConfigDef configDef = field.getAnnotation(UserConfigDef.class);
+                if (configDef == null) {
+                    continue;
+                }
+
+                String val = configDef.defaultValue();
+                Object oriVal = field.get(instance);
+                if (oriVal != null) {
+                    val = String.valueOf(oriVal);
+                }
+
+                configs.add(genConfigDef(configDef, val, uid));
+            }
+
+            if (clazz.getSuperclass() != null && clazz.getSuperclass() != Object.class) {
+                collectConfigs(instance, uid, clazz.getSuperclass(), configs);
+            }
+        } catch (Exception e) {
+            String msg = "collect field value failed,msg:" + ExceptionUtils.getRootCauseMessage(e);
+            log.error(msg, e);
+            throw new RuntimeException(msg, e);
+        }
+    }
+
+    private UserConfigKvDef genConfigDef(UserConfigDef configDef, String val, String uid) {
+        UserConfigKvDef config = new UserConfigKvDef();
+        config.setConfigName(configDef.name());
+        config.setConfigValue(val);
+        config.setUid(uid);
+        config.setValueRange(configDef.valueRange());
+        config.setUserConfigTagType(configDef.configTagType());
+        config.setConfBelong(configDef.confBelong());
+        config.setConfValType(configDef.kvConfWebOp());
+
+        config.setDefaultValue(configDef.defaultValue());
+        config.setReadOnly(configDef.readOnly());
+        config.setSecret(configDef.isSecret());
+        config.setDescKey(configDef.descKey().name());
+
+        return config;
     }
 
     protected void insertConfigDefs(List<UserConfigKvDef> defs) {

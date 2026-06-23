@@ -24,7 +24,6 @@ import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.console.web.constants.WhiteListAddType;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -40,75 +39,26 @@ import lombok.Setter;
 public class AddDsFO {
 
     private DataSourceType             type;
-
     private String                     dbName;
-
     private String                     host;
-
-    private String                     privateHost;
-
-    private String                     publicHost;
-
-    private HostType                   hostType;
-
     private String                     instanceDesc;
-
     private String                     instanceId;
-
-    //    private boolean                    autoCreateAccount;
-
-    private String                     account;
-
-    private String                     password;
-
     private String                     accessKey;
-
     private String                     secretKey;
-
     private SecurityType               securityType;
-
-    //    TODO,remove
-    //    private DataSourceExtraData        extraData;
-
-    //    private List<Long>                 clusterIds;
-
     private LifeCycleState             lifeCycleState;
-
     private String                     clientTrustStorePassword;
-
     private String                     secretFilePassword;
-
-    /**
-     * like krb5 file,ssl trust store file(.jks)
-     */
     private MultipartFile              securityFile;
-
     private String                     securityFilePassword;
-
-    /**
-     * like client ssl ca file, ssl keystore file(.jks)
-     */
     private MultipartFile              clientSecurityFile;
-
     private String                     clientSecurityFilePassword;
-
-    /**
-     * like kerberos file , jaas file, client.pk8
-     */
     private MultipartFile              secretFile;
-
     private WhiteListAddType           whiteListAddType;
-
     private String                     version;
-
     private String                     driver;
-
     private List<InitDsKvBaseConfigFO> dsKvConfigs;
-
-    // for CloudDM,change to optional
     private Long                       bindClusterId;
-
-    // for CloudDM,change to optional
     private Long                       envId;
 
     public void manualValidAndTrim() {
@@ -120,22 +70,8 @@ public class AddDsFO {
             host = host.trim();
         }
 
-        if (StringUtils.isBlank(privateHost) && StringUtils.isBlank(publicHost)) {
-            throw new IllegalArgumentException("private host and public host can not be both blank.");
-        }
-
-        if (StringUtils.isBlank(privateHost) && StringUtils.isNotBlank(publicHost)) {
-            hostType = HostType.PUBLIC;
-        } else {
-            hostType = HostType.PRIVATE;
-        }
-
-        if (StringUtils.isNotBlank(privateHost)) {
-            privateHost = privateHost.trim();
-        }
-
-        if (StringUtils.isNotBlank(publicHost)) {
-            publicHost = publicHost.trim();
+        if (StringUtils.isBlank(host)) {
+            throw new IllegalArgumentException("host can not be empty.");
         }
 
         if (securityType == null) {

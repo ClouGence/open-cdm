@@ -17,8 +17,8 @@ package com.clougence.clouddm.console.web.controller.openapi;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
-import com.clougence.rdp.global.config.user.RootUserConfig;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;

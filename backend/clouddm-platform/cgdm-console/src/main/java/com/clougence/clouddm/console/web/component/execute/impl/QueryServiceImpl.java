@@ -32,7 +32,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
-import com.clougence.clouddm.console.web.component.dsconfig.DmDsStatusService;
+import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.execute.QueryService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
@@ -71,13 +71,13 @@ public class QueryServiceImpl implements QueryService {
     @Resource
     private ExecutionDal      executionDal;
     @Resource
-    private ObjectCacheDao    objectCacheDao;
+    private ObjectCacheDao    cacheDao;
     @Resource
-    private DmDsConfigService dmDsConfigService;
+    private DmDsConfigService dsConfigService;
     @Resource
     private ExecuteRService   sessionRService;
     @Resource
-    private DmDsStatusService dmDsStatusService;
+    private DmDsService       dsService;
 
     private RSocketSendDTO buildRSocketSendDTO(long bindClusterId) {
         List<DmSysWorkerDO> workers = this.systemDal.workerMapper().queryConnectedByClusterId(bindClusterId);
@@ -161,7 +161,7 @@ public class QueryServiceImpl implements QueryService {
         }
 
         // gen new session.
-        DsCacheEntry cacheEntry = this.objectCacheDao.queryByDsId(dsDO.getId());
+        DsCacheEntry cacheEntry = this.cacheDao.queryByDsId(dsDO.getId());
         RSocketSendDTO sendDTO = this.buildRSocketSendDTO(cacheEntry.getClusterId());
         sessionDO = new DmExecSessionDO();
         sessionDO.setUid(curUid);
@@ -181,12 +181,12 @@ public class QueryServiceImpl implements QueryService {
         }
 
         // create session
-        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId());
+        DataSourceConfig dsConfig = this.dsConfigService.fetchDsConfigFromExists(dsDO.getId());
         try {
             this.sessionRService.createSession(sendDTO, dsConfig, context);
-            this.dmDsStatusService.resetStatus(sendDTO.getUid(), dsConfig);
+            this.dsService.resetStatus(sendDTO.getUid(), dsConfig);
         } catch (Exception e) {
-            dmDsStatusService.handleException(curUid, dsConfig, e);
+            dsService.handleException(curUid, dsConfig, e);
             throw e;
         }
         return sessionId;

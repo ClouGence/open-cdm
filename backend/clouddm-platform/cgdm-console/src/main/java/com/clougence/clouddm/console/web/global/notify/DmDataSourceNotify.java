@@ -31,7 +31,6 @@ import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.rdp.service.RdpNotifyService;
 
@@ -52,7 +51,7 @@ public class DmDataSourceNotify implements RdpNotifyService {
     @Resource
     private ObjectCacheDao         cacheDao;
     @Resource
-    private RdpUserService         rdpUserService;
+    private RdpUserService         userService;
 
     @Override
     public void onDsAdd(String operatorUid, long dsId) {
@@ -72,7 +71,7 @@ public class DmDataSourceNotify implements RdpNotifyService {
     }
 
     protected void addAuth(String operatorUid, long dsId) {
-        DmAuthUserDO userDO = rdpUserService.getUserByUid(operatorUid);
+        DmAuthUserDO userDO = userService.getUserByUid(operatorUid);
 
         if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
             // primary user no need to add auth.
@@ -101,14 +100,8 @@ public class DmDataSourceNotify implements RdpNotifyService {
     protected void syncConf(long dsId, boolean init) {
         DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
         this.dsDal.configKv4DmMapper().updateDsConfig(dsId, DataSourceConfig.Fields.securityType, dsDO.getSecurityType().name());
-        this.dsDal.configKv4DmMapper().updateDsConfig(dsId, DataSourceConfig.Fields.userName, dsDO.getAccount());
-        this.dsDal.configKv4DmMapper().updateDsConfig(dsId, DataSourceConfig.Fields.password, dsDO.getPassword());
-
-        if (dsDO.getStatus() != null && dsDO.getHostType() == HostType.PRIVATE) {
-            this.dsDal.configKv4DmMapper().updateDsConfig(dsId, DataSourceConfig.Fields.host, dsDO.getPrivateHost());
-        } else {
-            this.dsDal.configKv4DmMapper().updateDsConfig(dsId, DataSourceConfig.Fields.host, dsDO.getPublicHost());
-        }
-
+        this.dsDal.configKv4DmMapper().updateDsConfig(dsId, DataSourceConfig.Fields.userName, dsDO.getAccessKey());
+        this.dsDal.configKv4DmMapper().updateDsConfig(dsId, DataSourceConfig.Fields.password, dsDO.getSecretKey());
+        this.dsDal.configKv4DmMapper().updateDsConfig(dsId, DataSourceConfig.Fields.host, dsDO.getHost());
     }
 }

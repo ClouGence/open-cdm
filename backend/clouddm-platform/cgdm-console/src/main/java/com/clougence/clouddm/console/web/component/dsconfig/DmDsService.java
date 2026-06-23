@@ -15,17 +15,14 @@
  */
 package com.clougence.clouddm.console.web.component.dsconfig;
 
-import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.api.common.rpc.ResWebData;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.model.fo.datasource.ConnectDsFO;
-import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsConfigFO;
-import com.clougence.clouddm.console.web.model.vo.DsKvConfigVO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.schema.umi.struts.UmiTypes;
 
 /**
  * @author bucketli 2020-01-13 18:08
@@ -33,23 +30,23 @@ import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
  */
 public interface DmDsService {
 
-    Map<DataSourceType, DsConfig> dsConstantSettings();
+    DmDsDO fetchAndCheckById(Long dataSourceId);
 
-    List<DmDsDO> fetchDsConfigByIds(String puid, List<Long> ids);
+    DmDsDO fetchByInstanceId(String instanceId);
+
+    void persistDsConfig(DmDsDO dsDO, String version);
 
     String testConnect(String puid, long dsId, long clusterId);
 
-    ResWebData<Boolean> updateDsDesc(String puid, String uid, long dsId, String desc);
+    String testConnect(String uid, ConnectDsFO fo);
 
     void updateDsTag(long dsId, String uid, String remark);
 
-    List<DmDsDO> listDsByClusterId(long clusterId);
-
-    List<DsKvConfigVO> queryDsConfigIncludeNewEntries(Long dsId);
-
-    void upsertConfigs(String puid, UpsertDsConfigFO fo);
-
-    String testConnect(String uid, ConnectDsFO fo);
-
     void testConnect(String puid, String uid, DsLevels dsLevels);
+
+    void handleException(String uid, DataSourceConfig dsConfig, Throwable e);
+
+    void resetStatus(String uid, DataSourceConfig dsConfig);
+
+    void changeStatusIfNecessary(RSocketSendDTO sendDTO, DataSourceConfig dbConfig, Map<UmiTypes, Object> levelsParam);
 }

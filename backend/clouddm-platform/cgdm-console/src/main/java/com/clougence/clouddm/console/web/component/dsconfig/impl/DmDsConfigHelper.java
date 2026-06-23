@@ -24,7 +24,6 @@ import java.util.Map;
 import com.clougence.clouddm.base.metadata.ds.ConfigDef;
 import com.clougence.clouddm.base.metadata.ds.ConfigValType;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
@@ -90,13 +89,11 @@ public class DmDsConfigHelper {
         config.setConfigName(configDef.name());
         config.setConfigGroup(configDef.group());
 
-        config.setDisplay(configDef.display());
         config.setDescKey(configDef.descKey().name());
-        config.setValueRequire(configDef.valueRequire());
         config.setValueValidRegex(configDef.valueValidRegex());
+        config.setValueRequire(StringUtils.isNotBlank(configDef.valueValidRegex()));
         config.setConfigValue(configDef.lazy() ? "" : val);
         config.setDefaultValue(configDef.defaultValue());
-        config.setValueAdvance(configDef.valueAdvance());
         config.setConfValType(resolveValType(configDef, fieldType));
         config.setReadOnly(configDef.readOnly());
         config.setSecret(configDef.isSecret());

@@ -28,7 +28,7 @@ import com.clougence.clouddm.api.common.boot.UnifiedPostConstructOrder;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.component.auth.DmAuthLabelService;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.role.CreateRoleFO;
@@ -63,7 +63,7 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
     @Resource
     private AuthDal                        authDal;
     @Resource
-    private DmConsoleConfig                rdpConfig;
+    private ConsoleConfig                  config;
     @Resource
     private DmAuthLabelService             authLabelService;
 
@@ -273,7 +273,7 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
         }
 
         for (String roleName : this.innerRoleInfoDef.keySet()) {
-            if (CollectionUtils.isEmpty(this.rdpConfig.getInnerRoles()) || !this.rdpConfig.getInnerRoles().contains(roleName)) {
+            if (CollectionUtils.isEmpty(this.config.getInnerRoles()) || !this.config.getInnerRoles().contains(roleName)) {
                 continue;
             }
 

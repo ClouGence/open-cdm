@@ -16,7 +16,6 @@
 package com.clougence.clouddm.console.web.model.fo.datasource;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 
 import lombok.Data;
@@ -28,16 +27,9 @@ import lombok.Data;
 public class ListDsFO {
 
     private DataSourceType type;
-
     private LifeCycleState lifeCycleState;
-
-    private HostType       hostType;
-
     private Long           dataSourceId;
-
     private String         dataSourceDescLike;
-
     private String         dsHostLike;
-
     private String         instanceIdLike;
 }

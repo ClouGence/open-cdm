@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.api.sidecar.session.execute.MetaRService;
 import com.clougence.clouddm.api.sidecar.session.execute.TestConnectResultDO;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DsClassify;
 import com.clougence.clouddm.comm.RSocketApiClass;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
@@ -124,12 +123,6 @@ public class MetaRServiceProvider implements MetaRService {
     @Override
     public DsElement detailLevel(RSocketSendDTO sendDTO, DataSourceConfig dbConfig, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
         Map<UmiTypes, Object> detailParam = new HashMap<>(levelsParam);
-        if (dbConfig.getDataSourceType().getDsClassify() == DsClassify.RDB) {
-            if (levels.size() == 1 && levels.contains(UmiTypes.Schema)) {
-                levelsParam.remove(UmiTypes.Schema);
-            }
-        }
-
         try (Session rdbSession = metaSession(dbConfig, levelsParam)) {
             return rdbSession.getMetaService().detailLevel(levels, detailParam);
         } catch (Exception e) {

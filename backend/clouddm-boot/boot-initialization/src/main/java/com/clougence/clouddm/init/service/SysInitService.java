@@ -485,7 +485,6 @@ public class SysInitService {
                 if (includeDefaultClusterWorker) {
                     ctx.getBean(DmFixDefaultClusterWorker.class).init();
                 }
-                ctx.getBean(DmFixDmDsConfig.class).init();
                 InstallUpgradeLogBus.info("Post-migration fix tasks completed.");
                 log.info("[SysInitService] Fix tasks completed successfully.");
             }

@@ -26,9 +26,10 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
+import com.clougence.clouddm.console.web.service.datasource.DmDsWebService;
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalBiz;
@@ -38,7 +39,6 @@ import com.clougence.clouddm.platform.dal.model.approval.DmApprovalDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiErrorType;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.rdp.service.RdpDsService;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.ThreadUtils;
 
@@ -49,7 +49,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class ApprovalTaskSchedule {
     @Resource
-    private DmConsoleConfig             consoleConfig;
+    private ConsoleConfig               config;
     @Resource
     private ApprovalDal                 approvalDal;
     @Resource
@@ -57,7 +57,7 @@ public class ApprovalTaskSchedule {
     @Resource
     private ApprovalTaskScheduleProcess scheduleProcess;
     @Resource
-    private RdpDsService                rdpDsService;
+    private DmDsWebService              dsService;
     @Resource
     private ApprovalProviderServiceImpl approvalProviderServiceImpl;
     @Resource
@@ -68,7 +68,7 @@ public class ApprovalTaskSchedule {
     private Set<Long>                   taskInQueueSet;
 
     public void start() {
-        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(this.consoleConfig.getRdpAsyncTaskQueueSize());
+        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(this.config.getRdpAsyncTaskQueueSize());
         ThreadFactory threadFactory = ThreadUtils.daemonThreadFactory(this.getClass().getClassLoader(), "Ticket-task-%s");
         // if queue is full, ignore the latest additions
         this.threadPoolExecutor = new ThreadPoolExecutor(10, 10, 1, TimeUnit.MINUTES, queue, threadFactory, new ThreadPoolExecutor.AbortPolicy());
@@ -227,7 +227,7 @@ public class ApprovalTaskSchedule {
     }
 
     private DmApprovalDO processCheck(DmApprovalDO ticketDO, String puid) {
-        DmDsDO dataSourceDO = this.rdpDsService.queryById(ticketDO.getBindDsId());
+        DmDsDO dataSourceDO = this.dsService.queryById(ticketDO.getBindDsId());
         if ((dataSourceDO == null || dataSourceDO.getLifeCycleState() == LifeCycleState.DELETED) && ticketDO.getApproBiz() != ApprovalBiz.DATA_SOURCE_AUTH) {
             // ds is deleted
             this.approvalFlowService.failTicket(ticketDO.getId(), DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_STATUS_DS_IS_DELETE.name()), puid);

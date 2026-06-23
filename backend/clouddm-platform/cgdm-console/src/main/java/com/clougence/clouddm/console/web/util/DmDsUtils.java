@@ -22,6 +22,7 @@ import org.springframework.context.ApplicationContext;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
@@ -38,7 +39,6 @@ import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.ui.menus.DsMenuType;
-import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.schema.dialect.Dialect;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;

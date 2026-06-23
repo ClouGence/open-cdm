@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 import com.clougence.clouddm.base.metadata.ds.ConfigValType;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.config.UserConfigKvDef;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
@@ -55,7 +56,6 @@ import com.clougence.clouddm.sdk.service.approval.ApprovalActivityStatus;
 import com.clougence.clouddm.sdk.service.config.ConfigData;
 import com.clougence.clouddm.sdk.service.config.RoleData;
 import com.clougence.clouddm.sdk.service.config.UserData;
-import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -331,7 +331,6 @@ public class RdpConvertUtils {
         vo.setConfigGroup(config.getConfigGroup());
         vo.setValueRequire(config.isValueRequire());
         vo.setDefaultValue(config.getDefaultValue());
-        vo.setValueAdvance(config.getValueAdvance());
         vo.setConfValType(config.getConfValType() == null ? ConfigValType.TEXT : config.getConfValType());
         vo.setLazy(config.isLazy());
         return vo;
@@ -425,7 +424,6 @@ public class RdpConvertUtils {
         vo.setDefaultValue(config.getDefaultValue());
         vo.setValueRequire(config.isValueRequire());
         vo.setValueValidRegex(config.getValueValidRegex());
-        vo.setValueAdvance(config.getValueAdvance());
 
         if (config.getConfValType() != null) {
             vo.setConfValType(config.getConfValType());
@@ -447,12 +445,10 @@ public class RdpConvertUtils {
         vo.setDataSourceType(dsDO.getDataSourceType());
         vo.setVersion(dsDO.getVersion());
         vo.setGmtCreate(dsDO.getGmtCreate());
-        vo.setHostType(dsDO.getHostType());
-        vo.setPrivateHost(dsDO.getPrivateHost());
-        vo.setPublicHost(dsDO.getPublicHost());
+        vo.setHost(dsDO.getHost());
 
-        vo.setHasPassword(StringUtils.isNotBlank(dsDO.getAccount()) || StringUtils.isNotBlank(dsDO.getPassword()));
-        vo.setAccountName(dsDO.getAccount());
+        vo.setHasPassword(StringUtils.isNotBlank(dsDO.getAccessKey()) || StringUtils.isNotBlank(dsDO.getSecretKey()));
+        vo.setAccountName(dsDO.getAccessKey());
         vo.setLifeCycleState(dsDO.getLifeCycleState());
         vo.setSecurityType(dsDO.getSecurityType());
         return vo;

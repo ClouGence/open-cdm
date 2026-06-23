@@ -30,16 +30,23 @@ import org.junit.Test;
 
 import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanelFieldType;
+import com.clougence.clouddm.base.metadata.ui.form.config.FoldTypeConfig;
+import com.clougence.clouddm.base.metadata.ui.form.value.OptionValueDef;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
+import com.clougence.clouddm.console.web.model.vo.datasource.DsAddUiPanelVO;
+import com.clougence.clouddm.console.web.util.UiWebUtil;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.mapper.datasource.DmDsConfigKv4DmMapper;
 import com.clougence.clouddm.platform.dal.mapper.datasource.DmDsMapper;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.utils.JsonUtils;
 import lombok.experimental.FieldNameConstants;
 
 public class DmDsConfigServiceImplTest {
@@ -62,11 +69,11 @@ public class DmDsConfigServiceImplTest {
         dsDO.setId(10L);
         dsDO.setDataSourceType(DataSourceType.MySQL);
         dsDO.setSecurityType(SecurityType.USER_PASSWD);
-        dsDO.setHostType(HostType.PRIVATE);
-        dsDO.setPrivateHost("10.0.0.8:3306");
+        dsDO.setHost("10.0.0.8:3306");
         dsDO.setVersion("8.0");
         dsDO.setDriver("mysql-driver");
-        dsDO.setAccount("root");
+        dsDO.setInstanceId("mysql-10");
+        dsDO.setAccessKey("root");
 
         DmDsConfigKv4DmDO historicalExtra = new DmDsConfigKv4DmDO();
         historicalExtra.setDataSourceId(dsDO.getId());
@@ -86,12 +93,17 @@ public class DmDsConfigServiceImplTest {
         DmDsConfigServiceImpl service = new DmDsConfigServiceImpl();
         setField(service, "dsDal", dsDal(dsDO, List.of(historicalExtra, sshProxyEnabled, sshConfigId)));
 
-        DataSourceConfig config = service.fetchDsConfigFromDM(dsDO.getId());
+        DataSourceConfig config = service.fetchDsConfigFromExists(dsDO.getId());
 
         assertTrue(config instanceof PluginConfig);
         PluginConfig pluginConfig = (PluginConfig) config;
         assertSame(config, configSpi.lastFillConfig);
         assertEquals("from-migrated-rdp-kv", pluginConfig.getPluginOnlyOption());
+        assertEquals("mysql-10", pluginConfig.getInstanceId());
+        assertEquals(DataSourceType.MySQL, pluginConfig.getDataSourceType());
+        assertEquals("8.0", pluginConfig.getVersion());
+        assertEquals("mysql-driver", pluginConfig.getDriverVersion());
+        assertEquals(SecurityType.USER_PASSWD, pluginConfig.getSecurityType());
         assertEquals("10.0.0.8:3306", pluginConfig.getHost());
         assertEquals("root", pluginConfig.getUserName());
         assertEquals(Boolean.TRUE, pluginConfig.getSshProxyEnabled());
@@ -109,6 +121,27 @@ public class DmDsConfigServiceImplTest {
         assertEquals(ConfigValType.TEXT, textConfig.getConfValType());
         assertEquals(ConfigValType.JSON, jsonConfig.getConfValType());
         assertEquals(ConfigValType.BOOLEAN, booleanConfig.getConfValType());
+    }
+
+    @Test
+    public void addDsUiPanelVoDoesNotExposeJacksonClassMetadata() {
+        UiPanel panel = new UiPanel();
+        panel.setKey("advanced");
+        panel.addField(UiPanelField.builder()
+            .field("connectTimeoutMs")
+            .type(UiPanelFieldType.Input)
+            .typeConfig(new FoldTypeConfig())
+            .defaultValue(OptionValueDef.builder().labelI18N("1000").value("1000").build())
+            .build());
+
+        assertTrue(JsonUtils.toJson(panel).contains("@class"));
+
+        List<DsAddUiPanelVO> panels = UiWebUtil.addDsUiPanels2VO(List.of(panel));
+
+        String json = JsonUtils.toJson(panels);
+        assertFalse(json, json.contains("@class"));
+        assertTrue(json, json.contains("\"defaultValue\""));
+        assertTrue(json, json.contains("\"typeConfig\""));
     }
 
     private void registerPlugin(DsConfigSpi configSpi) throws Exception {
@@ -222,7 +255,7 @@ public class DmDsConfigServiceImplTest {
     }
 
     @FieldNameConstants
-    private static class PluginConfig extends DataSourceConfig {
+    public static class PluginConfig extends DataSourceConfig {
 
         @ConfigDef(name = Fields.pluginOnlyOption, descKey = ConfigI18nKey.CONFIG_DESCRIPTION_EMPTY)
         private String  pluginOnlyOption;
@@ -233,7 +266,7 @@ public class DmDsConfigServiceImplTest {
         @ConfigDef(name = Fields.pluginBooleanOption, descKey = ConfigI18nKey.CONFIG_DESCRIPTION_EMPTY)
         private Boolean pluginBooleanOption;
 
-        private PluginConfig(){
+        public PluginConfig(){
             setDataSourceType(DataSourceType.MySQL);
         }
 

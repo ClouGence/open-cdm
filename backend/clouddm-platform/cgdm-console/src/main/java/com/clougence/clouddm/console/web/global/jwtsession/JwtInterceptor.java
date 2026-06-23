@@ -23,7 +23,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.utils.io.IOUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,13 +37,13 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtInterceptor implements HandlerInterceptor {
 
     @Resource
-    private JwtManager      jwtManager;
+    private JwtManager    jwtManager;
     @Resource
-    private DmConsoleConfig rdpConfig;
+    private ConsoleConfig config;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        RdpWebUtils.initLocal(rdpConfig, request);
+        RdpWebUtils.initLocal(config, request);
 
         if (handler instanceof ResourceHttpRequestHandler) {
             return true;

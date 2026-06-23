@@ -21,7 +21,6 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -40,9 +39,7 @@ public class ApiDataSourceVO {
     private String         uid;
     private String         owner;
     private DataSourceType dataSourceType;
-    private String         privateHost;
-    private String         publicHost;
-    private HostType       hostType;
+    private String         host;
     private String         instanceDesc;
     private String         version;
     private String         instanceId;
@@ -53,14 +50,12 @@ public class ApiDataSourceVO {
     private SecurityType   securityType;
 
     public void convertFromDsVO(DmDsDO dsDO) {
-        this.accountName = dsDO.getAccount();
+        this.accountName = dsDO.getAccessKey();
         // this.autoCreateAccount = dsDO.getAutoCreateAccount();
         this.dataSourceType = dsDO.getDataSourceType();
         this.gmtCreate = dsDO.getGmtCreate();
         this.gmtModified = dsDO.getGmtModified();
-        this.privateHost = dsDO.getPrivateHost();
-        this.publicHost = dsDO.getPublicHost();
-        this.hostType = dsDO.getHostType();
+        this.host = dsDO.getHost();
         this.id = dsDO.getId();
         this.instanceDesc = dsDO.getInstanceDesc();
         this.instanceId = dsDO.getInstanceId();

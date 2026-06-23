@@ -42,6 +42,7 @@ public class MySqlDsFactory implements DsFactory<Connection> {
         for (DsConfigKeys confKey : DsConfigKeys.values()) {
             props.remove(confKey.getConfigKey());
         }
+        props.entrySet().removeIf(entry -> entry.getValue() == null || StringUtils.isBlank(String.valueOf(entry.getValue())));
 
         String id = dsConfig.getProperty(DsConfigKeys.ID.getConfigKey());
         String username = dsConfig.getProperty(DsConfigKeys.USER.getConfigKey());

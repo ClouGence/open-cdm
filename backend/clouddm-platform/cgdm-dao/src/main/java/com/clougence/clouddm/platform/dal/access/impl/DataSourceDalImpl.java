@@ -20,8 +20,6 @@ public class DataSourceDalImpl implements DataSourceDal {
     private DmDsMetaDataMapper     metaDataMapper;
     @Resource
     private DmDsTagMapper          tagMapper;
-    @Resource
-    private DmDsUsageMapper        usageMapper;
 
     @Override
     public DmDsMapper dsMapper() {
@@ -40,11 +38,6 @@ public class DataSourceDalImpl implements DataSourceDal {
     @Override
     public DmDsTagMapper tagMapper() {
         return tagMapper;
-    }
-
-    @Override
-    public DmDsUsageMapper usageMapper() {
-        return usageMapper;
     }
 
     // ---------- dal service methods ----------

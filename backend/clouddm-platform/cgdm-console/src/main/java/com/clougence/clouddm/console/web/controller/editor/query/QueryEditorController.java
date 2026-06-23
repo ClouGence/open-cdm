@@ -144,7 +144,7 @@ public class QueryEditorController {
         }
 
         I18nUtils dsI18n = PluginManager.findDsI18nUtil(entry.getDsType());
-        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(entry.getDsNumId());
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(entry.getDsNumId());
         if (supportSpi != null) {
             vo.setCatalog(convertToSupportedInfoMap(RdbSupportSpi.HINT_FOR_CHANGE_CATALOG, this.dmSupportSpiWrapper.supportChangeCatalog(supportSpi, dsConfig), dsI18n));
             vo.setSchema(convertToSupportedInfoMap(RdbSupportSpi.HINT_FOR_CHANGE_SCHEMA, this.dmSupportSpiWrapper.supportChangeSchema(supportSpi, dsConfig), dsI18n));
@@ -170,10 +170,11 @@ public class QueryEditorController {
         Properties driverProperties = dsConfig.asDriverProperties();
         String defaultCatalog = driverProperties.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
         String defaultSchema = driverProperties.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
+        String autoCommit = driverProperties.getProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey());
         vo.getCatalog().setDefaultValue(StringUtils.isBlank(defaultCatalog) ? "" : defaultCatalog);
         vo.getSchema().setDefaultValue(StringUtils.isBlank(defaultSchema) ? "" : defaultSchema);
         vo.getIsolation().setDefaultValue(RdbIsolation.valueOfCode(dsConfig.getIsolation()).getName());
-        vo.getAutoCommit().setDefaultValue(String.valueOf(dsConfig.getAutoCommit() == null || dsConfig.getAutoCommit()));
+        vo.getAutoCommit().setDefaultValue(String.valueOf(!StringUtils.equalsIgnoreCase("false", autoCommit)));
         vo.getReadOnly().setDefaultValue(String.valueOf(Boolean.TRUE.equals(dsConfig.getReadOnly())));
         return ResWebDataUtils.buildSuccess(vo);
     }

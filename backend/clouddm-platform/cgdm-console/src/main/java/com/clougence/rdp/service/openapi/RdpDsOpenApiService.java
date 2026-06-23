@@ -36,10 +36,6 @@ public interface RdpDsOpenApiService {
 
     void updateAccountAndPasswd(String data, MultipartFile securityFile, MultipartFile secretFile, String puid);
 
-    void updatePrivateHost(String puid, ApiUpdatePriHostFO fo);
-
-    void updatePublicHost(String puid, ApiUpdatePubHostFO fo);
-
     void cleanDsAccount(String puid, ApiDeleteAccountFO fo);
 
     List<ApiDsKvConfigVo> listDsKvConfs(String puid, ApiListDsKvConfigsByDsIdFO fo);

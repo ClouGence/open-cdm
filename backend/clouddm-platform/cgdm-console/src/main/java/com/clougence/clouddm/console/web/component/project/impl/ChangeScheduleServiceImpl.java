@@ -23,10 +23,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.project.ImMessageType;
 import com.clougence.clouddm.console.web.component.project.ImSenderService;
 import com.clougence.clouddm.console.web.component.project.action.*;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.platform.dal.access.ProjectDal;
@@ -35,7 +36,6 @@ import com.clougence.clouddm.platform.dal.model.project.DmProjectChangeDO;
 import com.clougence.clouddm.platform.dal.model.project.ProjectChangeStatus;
 import com.clougence.clouddm.platform.dal.model.project.ProjectChangeStep;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
-import com.clougence.rdp.global.config.user.RootUserConfig;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.ThreadUtils;
@@ -53,7 +53,7 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
     @Resource
     private ProjectDal                           projectDal;
     @Resource
-    private DmConsoleConfig                      dmConfig;
+    private ConsoleConfig                        config;
     @Resource
     private ApplicationContext                   applicationContext;
     @Resource
@@ -72,7 +72,7 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
         }
         this.taskInQueueSet = new HashSet<>();
 
-        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(this.dmConfig.getAsyncTaskQueueSize());
+        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(this.config.getAsyncTaskQueueSize());
         ThreadFactory workerTF = ThreadUtils.daemonThreadFactory(this.getClass().getClassLoader(), "change-worker-%s");
         // if queue is full, ignore the latest additions
         this.threadPoolExecutor = new ThreadPoolExecutor(3, 10, 1, TimeUnit.MINUTES, queue, workerTF, new ThreadPoolExecutor.AbortPolicy());

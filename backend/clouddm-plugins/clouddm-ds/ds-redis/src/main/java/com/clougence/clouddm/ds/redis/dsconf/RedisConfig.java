@@ -39,10 +39,10 @@ public class RedisConfig extends DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultSchema, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION)
     private String  defaultSchema;
-    // ------------------------------------------------------------------------------------------------------------------------ CONNECT
-    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
+    // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
+    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
     private Integer soTimeoutSec;
-    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.connAndSoTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_REDIS_CON_AND_SO_TIMEOUT_MS_DESCRIPTION)
+    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.connAndSoTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_REDIS_CON_AND_SO_TIMEOUT_MS_DESCRIPTION)
     private Integer connAndSoTimeoutMs;
 
     public RedisConfig(){

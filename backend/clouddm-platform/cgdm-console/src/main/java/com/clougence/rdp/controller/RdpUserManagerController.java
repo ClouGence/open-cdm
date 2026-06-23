@@ -30,7 +30,7 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
@@ -79,7 +79,7 @@ public class RdpUserManagerController {
     @Resource
     private DmAuthServiceForBiz rdpAuthServiceForBiz;
     @Resource
-    private DmConsoleConfig     rdpConfig;
+    private ConsoleConfig       consoleConfig;
     @Resource
     private RdpOpAuditService   rdpOpAuditService;
 
@@ -89,7 +89,7 @@ public class RdpUserManagerController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         //decrypt
-        fo.setPassword(Sm2Utils.decrypt(rdpConfig.getPrivateKey(), fo.getPassword()));
+        fo.setPassword(Sm2Utils.decrypt(consoleConfig.getPrivateKey(), fo.getPassword()));
 
         DmAuthUserDO userDO = null;
         ValidateResultMO validatePwdMO = null;
@@ -146,7 +146,7 @@ public class RdpUserManagerController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         //decrypt
-        fo.setPassword(Sm2Utils.decrypt(rdpConfig.getPrivateKey(), fo.getPassword()));
+        fo.setPassword(Sm2Utils.decrypt(consoleConfig.getPrivateKey(), fo.getPassword()));
 
         AddSubAccountMO accountMO = this.rdpUserService.addSubAccountForInternal(puid, fo);
         if (accountMO.isSuccess()) {
@@ -166,7 +166,7 @@ public class RdpUserManagerController {
 
         checkOperateUserAuth(uid, fo.getTargetUid());
         if (StringUtils.isNotBlank(fo.getPassword())) {
-            fo.setPassword(Sm2Utils.decrypt(rdpConfig.getPrivateKey(), fo.getPassword()));
+            fo.setPassword(Sm2Utils.decrypt(consoleConfig.getPrivateKey(), fo.getPassword()));
         }
 
         UpdateUserInfoMO accountMO = this.rdpUserService.updateSubAccount(fo, puid);
@@ -242,8 +242,8 @@ public class RdpUserManagerController {
             cookie.setMaxAge(0);
             cookie.setPath("/");
 
-            if (StringUtils.isNotBlank(rdpConfig.getLoginCookieDomain())) {
-                cookie.setDomain(rdpConfig.getLoginCookieDomain());
+            if (StringUtils.isNotBlank(consoleConfig.getLoginCookieDomain())) {
+                cookie.setDomain(consoleConfig.getLoginCookieDomain());
             }
 
             response.addCookie(cookie);

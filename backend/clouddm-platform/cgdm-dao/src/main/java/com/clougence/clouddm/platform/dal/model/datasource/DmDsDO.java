@@ -44,15 +44,10 @@ public class DmDsDO {
     private String           owner;
     private DataSourceType   dataSourceType;
     private String           host;
-    private String           privateHost;
-    private String           publicHost;
-    private HostType         hostType;
     private String           instanceDesc;
     private String           version;
     private String           driver;
     private String           instanceId;
-    private String           account;
-    private String           password;
     private String           accessKey;
     private String           secretKey;
     private LifeCycleState   lifeCycleState;

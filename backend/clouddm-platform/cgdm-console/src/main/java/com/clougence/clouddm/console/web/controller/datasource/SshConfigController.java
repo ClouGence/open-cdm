@@ -28,8 +28,8 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.base.metadata.ds.SshProxyType;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
@@ -54,7 +54,7 @@ public class SshConfigController {
     @Resource
     private SshConfigService sshConfigService;
     @Resource
-    private DmConsoleConfig  config;
+    private ConsoleConfig    config;
 
     @RequestAuth(DM_SSH_CHANNEL_READ)
     @RequestMapping(value = "/list", method = RequestMethod.POST)

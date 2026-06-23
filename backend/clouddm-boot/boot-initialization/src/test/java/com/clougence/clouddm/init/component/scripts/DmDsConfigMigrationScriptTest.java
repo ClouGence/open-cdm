@@ -30,7 +30,7 @@ public class DmDsConfigMigrationScriptTest {
     public void shouldUnifyLegacyDsConfigStorageInOrder() {
         List<String> scripts = new V202606190001__dm_ds_config_unify().collectScript();
 
-        assertEquals(11, scripts.size());
+        assertEquals(13, scripts.size());
         assertContains(scripts.get(0), "INSERT INTO dm_ds_config_kv_4dm");
         assertContains(scripts.get(0), "FROM dm_ds_config_kv_4rdp r");
         assertContains(scripts.get(0), "WHERE NOT EXISTS");
@@ -48,15 +48,19 @@ public class DmDsConfigMigrationScriptTest {
         assertContains(migrateScript, "d.status = COALESCE(d.status, c.status)");
         assertContains(migrateScript, "d.bind_cluster_id = COALESCE(d.bind_cluster_id, c.bind_cluster_id)");
         assertContains(migrateScript, "d.ds_env_id = COALESCE(d.ds_env_id, c.bind_env_id)");
-        assertContains(migrateScript, "d.host_type = COALESCE(d.host_type, c.host_type)");
+        assertFalse(migrateScript.contains("host_type"));
 
-        String usageScript = scripts.get(5);
-        assertContains(usageScript, "UPDATE dm_ds_usage u");
-        assertContains(usageScript, "u.res_instance_id = c.config_instance_id");
-        assertContains(usageScript, "SET u.res_instance_id = d.instance_id");
+        String accountScript = scripts.get(5);
+        assertContains(accountScript, "UPDATE dm_ds");
+        assertContains(accountScript, "access_key = COALESCE(NULLIF(access_key, ''), account)");
+        assertContains(accountScript, "secret_key = COALESCE(NULLIF(secret_key, ''), password)");
 
-        assertContains(scripts.get(6), "ALTER TABLE dm_ds_usage");
-        assertContains(scripts.get(6), "DROP COLUMN endpoint");
+        assertContains(scripts.get(6), "ALTER TABLE dm_ds");
+        assertContains(scripts.get(6), "DROP COLUMN `account`");
+        assertContains(scripts.get(6), "DROP COLUMN `password`");
+        assertContains(scripts.get(6), "DROP COLUMN `private_host`");
+        assertContains(scripts.get(6), "DROP COLUMN `public_host`");
+        assertContains(scripts.get(6), "DROP COLUMN `host_type`");
 
         assertContains(scripts.get(7), "ALTER TABLE dm_ds_config_kv_4dm");
         assertContains(scripts.get(7), "DROP COLUMN `config_group`");
@@ -82,6 +86,8 @@ public class DmDsConfigMigrationScriptTest {
 
         assertContains(scripts.get(9), "DROP TABLE IF EXISTS dm_ds_config_kv_4rdp");
         assertContains(scripts.get(10), "DROP TABLE IF EXISTS dm_ds_config");
+        assertContains(scripts.get(11), "DROP TABLE IF EXISTS dm_ds_blob_resource");
+        assertContains(scripts.get(12), "DROP TABLE IF EXISTS dm_ds_usage");
     }
 
     private void assertContains(String actual, String expected) {

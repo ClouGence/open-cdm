@@ -84,8 +84,8 @@ public class AfterSqlExecuteServiceImpl implements AfterSqlExecuteService {
         DmDsDO rdpDataSourceDO = dsDal.dsMapper().queryDsIdentityById(dsId);
         SecDomainResolveSpi secDomainResolveSpi = PluginManager.findSecDomainResolveSpi(rdpDataSourceDO.getDataSourceType());
         CodeInfo codeInfo = CodeInfo.builder().baseLine(1).baseColumn(0).query(sql).build();
-        ContextInfo contextInfo = ContextInfo.builder()
-            .dataSourceConfig(dmDsConfigService.fetchDsConfigFromDM(dsId))
+        ContextInfo contextInfo = ContextInfo.builder()//
+            .dataSourceConfig(dmDsConfigService.fetchDsConfigFromExists(dsId))
             .deepParser(false)
             .build();
         List<RuleDomain> list = secDomainResolveSpi.resolveDomain(rdpDataSourceDO.getDataSourceType(), codeInfo, contextInfo);
