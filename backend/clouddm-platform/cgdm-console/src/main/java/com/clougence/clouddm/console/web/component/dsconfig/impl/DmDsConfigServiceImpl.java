@@ -418,7 +418,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     }
 
     @Override
-    public Map<String, String> fetchSettingsMap(String ownerUid, List<String> names) {
+    public Map<String, String> fetchSettingsMap(List<String> names) {
         return this.configService.fetchSettingsMap(names);
     }
 

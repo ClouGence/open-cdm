@@ -48,6 +48,16 @@ public class HgConfigSpi implements DsConfigSpi {
     }
 
     @Override
+    public boolean supportSSL() {
+        return true;
+    }
+
+    @Override
+    public boolean supportSSH() {
+        return true;
+    }
+
+    @Override
     public List<SecurityType> securityTypes() {
         List<SecurityType> options = new ArrayList<>();
         options.add(SecurityType.AK_SK);

@@ -68,6 +68,35 @@ public class HgConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), safeStr(StringUtils.toString(this.getConnectTimeoutMs())));
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
         properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), safeStr(this.getClientTimeZone()));
+        properties.setProperty("sslmode", this.pgSslMode());
+        if (StringUtils.isNotBlank(this.getSslCaFilePath())) {
+            properties.setProperty("sslrootcert", this.getSslCaFilePath());
+        }
+        if (StringUtils.isNotBlank(this.getSslClientCertFilePath())) {
+            properties.setProperty("sslcert", this.getSslClientCertFilePath());
+        }
+        if (StringUtils.isNotBlank(this.getSslClientKeyFilePath())) {
+            properties.setProperty("sslkey", this.getSslClientKeyFilePath());
+        }
+        if (StringUtils.isNotBlank(this.getSslClientKeyPassword())) {
+            properties.setProperty("sslpassword", this.getSslClientKeyPassword());
+        }
         return properties;
+    }
+
+    private String pgSslMode() {
+        if (this.getSslMode() == null) {
+            return "disable";
+        }
+        switch (this.getSslMode()) {
+            case TRUST:
+                return "require";
+            case CA:
+                return "verify-ca";
+            case CLIENT_CERT:
+                return "verify-full";
+            default:
+                return "disable";
+        }
     }
 }

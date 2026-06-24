@@ -53,6 +53,16 @@ public class McConfigSpi implements DsConfigSpi {
     }
 
     @Override
+    public boolean supportSSL() {
+        return false;
+    }
+
+    @Override
+    public boolean supportSSH() {
+        return false;
+    }
+
+    @Override
     public List<SecurityType> securityTypes() {
         List<SecurityType> options = new ArrayList<>();
         options.add(SecurityType.AK_SK);
