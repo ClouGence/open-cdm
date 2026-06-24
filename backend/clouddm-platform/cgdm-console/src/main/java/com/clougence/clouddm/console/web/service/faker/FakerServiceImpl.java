@@ -115,7 +115,7 @@ public class FakerServiceImpl implements FakerService, FakerMethod {
         DmDsDO ds = this.dsDal.dsMapper().selectById(fo.getLevels().get(1));
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
 
-        Map<String, List<RdbColumn>> columns = this.dsSchemaService.loadColumns(puid, ds, levelsParam, UmiTypes.Table, Collections.singletonList(tabName));
+        Map<String, List<RdbColumn>> columns = this.dsSchemaService.loadColumns(ds, levelsParam, UmiTypes.Table, Collections.singletonList(tabName));
         FakerUiDefService uiDefService = PluginManager.findService(FakerUiDefService.class);
         return uiDefService.fetchFakerUiData(ds.getDataSourceType(), columns.get(tabName), fo.getType());
     }

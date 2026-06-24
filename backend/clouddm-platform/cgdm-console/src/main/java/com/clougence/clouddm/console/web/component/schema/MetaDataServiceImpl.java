@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsMetaDataDO;
 import com.clougence.clouddm.platform.dal.model.datasource.MetaInformationType;
@@ -51,19 +52,19 @@ public class MetaDataServiceImpl implements MetaDataService, UnifiedPostConstruc
     }
 
     @Override
-    public void putListCache(String puid, Long dsId, String catalog, String schema, MetaInformationType type, String context) {
+    public void putListCache(Long dsId, String catalog, String schema, MetaInformationType type, String context) {
         if (!this.supportType(type)) {
             return;
         }
 
         String path = getListPath(catalog, schema);
-        dsDal.metaDataMapper().insertOrUpdate(puid, dsId, path, type, context);
+        dsDal.metaDataMapper().insertOrUpdate(AuthDal.ROOT_USER_UID, dsId, path, type, context);
     }
 
     @Override
-    public String getListCache(String puid, Long dsId, String catalog, String schema, MetaInformationType type) {
+    public String getListCache(Long dsId, String catalog, String schema, MetaInformationType type) {
         String path = getListPath(catalog, schema);
-        DmDsMetaDataDO cacheDO = dsDal.metaDataMapper().queryCache(puid, dsId, path, type);
+        DmDsMetaDataDO cacheDO = dsDal.metaDataMapper().queryCache(AuthDal.ROOT_USER_UID, dsId, path, type);
         if (cacheDO != null) {
             return cacheDO.getContext();
         }
@@ -71,19 +72,19 @@ public class MetaDataServiceImpl implements MetaDataService, UnifiedPostConstruc
     }
 
     @Override
-    public void putDetailCache(String puid, Long dsId, String catalog, String schema, MetaInformationType type, String objName, String context) {
+    public void putDetailCache(Long dsId, String catalog, String schema, MetaInformationType type, String objName, String context) {
         if (!this.supportType(type)) {
             return;
         }
 
         String path = getDetailPath(catalog, schema, objName);
-        dsDal.metaDataMapper().insertOrUpdate(puid, dsId, path, type, context);
+        dsDal.metaDataMapper().insertOrUpdate(AuthDal.ROOT_USER_UID, dsId, path, type, context);
     }
 
     @Override
-    public String getDetailCache(String puid, Long dsId, String catalog, String schema, MetaInformationType type, String objName) {
+    public String getDetailCache(Long dsId, String catalog, String schema, MetaInformationType type, String objName) {
         String path = getDetailPath(catalog, schema, objName);
-        DmDsMetaDataDO cacheDO = dsDal.metaDataMapper().queryCache(puid, dsId, path, type);
+        DmDsMetaDataDO cacheDO = dsDal.metaDataMapper().queryCache(AuthDal.ROOT_USER_UID, dsId, path, type);
         if (cacheDO != null) {
             return cacheDO.getContext();
         }

@@ -62,78 +62,78 @@ public class DsSchemaServiceImpl implements DsSchemaService {
     private RemoteDsSchemaService remoteSchemaService;
 
     @Override
-    public String realTimeFetchVersion(String uid, long clusterId, DataSourceConfig dsConfig, Map<UmiTypes, Object> levelsParam) {
-        return this.remoteSchemaService.realTimeFetchVersion(uid, clusterId, dsConfig, levelsParam);
+    public String realTimeFetchVersion(long clusterId, DataSourceConfig dsConfig, Map<UmiTypes, Object> levelsParam) {
+        return this.remoteSchemaService.realTimeFetchVersion(clusterId, dsConfig, levelsParam);
     }
 
     @Override
-    public Value realTimeFetchSelectObject(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String leafName) {
-        return this.remoteSchemaService.realTimeFetchSelectObject(uid, dsDO, levelsParam, leafName);
+    public Value realTimeFetchSelectObject(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String leafName) {
+        return this.remoteSchemaService.realTimeFetchSelectObject(dsDO, levelsParam, leafName);
     }
 
     @Override
-    public List<String> realTimeRequestObjectScript(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName) {
-        return this.remoteSchemaService.realTimeRequestObjectScript(uid, dsDO, levelsParam, leafType, leafName);
+    public List<String> realTimeRequestObjectScript(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName) {
+        return this.remoteSchemaService.realTimeRequestObjectScript(dsDO, levelsParam, leafType, leafName);
     }
 
     @Override
-    public String realTimeFetchVersion(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam) {
-        String version = this.localSchemaService.realTimeFetchVersion(uid, dsDO, levelsParam);
+    public String realTimeFetchVersion(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam) {
+        String version = this.localSchemaService.realTimeFetchVersion(dsDO, levelsParam);
         if (StringUtils.isNotBlank(version)) {
             return version;
         }
-        return this.remoteSchemaService.realTimeFetchVersion(uid, dsDO, levelsParam);
+        return this.remoteSchemaService.realTimeFetchVersion(dsDO, levelsParam);
     }
 
     @Override
-    public List<DsElement> cachedObjectNames(String uid, DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
-        List<DsElement> elements = this.localSchemaService.cachedObjectNames(uid, dsDO, levels, levelsParam);
+    public List<DsElement> cachedObjectNames(DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
+        List<DsElement> elements = this.localSchemaService.cachedObjectNames(dsDO, levels, levelsParam);
         if (CollectionUtils.isNotEmpty(elements)) {
             return elements;
         }
-        return this.remoteSchemaService.cachedObjectNames(uid, dsDO, levels, levelsParam);
+        return this.remoteSchemaService.cachedObjectNames(dsDO, levels, levelsParam);
     }
 
     //
 
     @Override
-    public List<DsElement> listLevels(String uid, DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam, boolean refreshCache) {
-        List<DsElement> elements = this.localSchemaService.listLevels(uid, dsDO, levels, levelsParam, refreshCache);
+    public List<DsElement> listLevels(DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam, boolean refreshCache) {
+        List<DsElement> elements = this.localSchemaService.listLevels(dsDO, levels, levelsParam, refreshCache);
         if (elements != null) {
             return elements;
         }
-        return this.remoteSchemaService.listLevels(uid, dsDO, levels, levelsParam, refreshCache);
+        return this.remoteSchemaService.listLevels(dsDO, levels, levelsParam, refreshCache);
     }
 
     @Override
-    public DsElement detailLevel(String uid, DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
-        DsElement element = this.localSchemaService.detailLevel(uid, dsDO, levels, levelsParam);
+    public DsElement detailLevel(DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
+        DsElement element = this.localSchemaService.detailLevel(dsDO, levels, levelsParam);
         if (element != null) {
             return element;
         }
-        return this.remoteSchemaService.detailLevel(uid, dsDO, levels, levelsParam);
+        return this.remoteSchemaService.detailLevel(dsDO, levels, levelsParam);
     }
 
     @Override
-    public List<DsElement> listLeaf(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String pattern, boolean refreshCache) {
-        List<DsElement> elements = this.localSchemaService.listLeaf(uid, dsDO, levelsParam, leafType, pattern, refreshCache);
+    public List<DsElement> listLeaf(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String pattern, boolean refreshCache) {
+        List<DsElement> elements = this.localSchemaService.listLeaf(dsDO, levelsParam, leafType, pattern, refreshCache);
         if (elements != null) {
             return elements;
         }
-        return this.remoteSchemaService.listLeaf(uid, dsDO, levelsParam, leafType, pattern, refreshCache);
+        return this.remoteSchemaService.listLeaf(dsDO, levelsParam, leafType, pattern, refreshCache);
     }
 
     @Override
-    public Value detailLeaf(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName, boolean refreshCache) {
-        Value result = this.localSchemaService.detailLeaf(uid, dsDO, levelsParam, leafType, leafName, refreshCache);
+    public Value detailLeaf(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName, boolean refreshCache) {
+        Value result = this.localSchemaService.detailLeaf(dsDO, levelsParam, leafType, leafName, refreshCache);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.detailLeaf(uid, dsDO, levelsParam, leafType, leafName, refreshCache);
+        return this.remoteSchemaService.detailLeaf(dsDO, levelsParam, leafType, leafName, refreshCache);
     }
 
     @Override
-    public List<String> generateObjectScript(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName, CmdTemplateOption option) {
+    public List<String> generateObjectScript(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName, CmdTemplateOption option) {
         if (leafType != UmiTypes.Table) {
             String objType = DmI18nUtils.getMessage("UI_LEAF_TITLE_" + leafType.getTypeName());
             return Collections.singletonList(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_BROWSE_SQL_GEN_NOT_SUPPORT_ERROR.name(), objType));
@@ -145,9 +145,9 @@ public class DsSchemaServiceImpl implements DsSchemaService {
             options.setUseDelimited(option.isDelimited());
         }
 
-        EditorContext editorContext = this.createEditorContext(uid, dsDO, levelsParam, options);
+        EditorContext editorContext = this.createEditorContext(dsDO, levelsParam, options);
         editorContext.setSkipHandlers(true);
-        String editorData = this.loadTableEditor(uid, dsDO, levelsParam, leafName, false);
+        String editorData = this.loadTableEditor(dsDO, levelsParam, leafName, false);
         TableEditor editor = EditorHelperDm.restoreTableEditor(editorData, editorContext);
 
         List<Action> actions = editor.diffActions(editor.getSource(), true);
@@ -161,227 +161,227 @@ public class DsSchemaServiceImpl implements DsSchemaService {
     }
 
     @Override
-    public TableEditorUiPanel fetchTableEditorUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        TableEditorUiPanel result = this.localSchemaService.fetchTableEditorUiPanel(uid, dsDO, levelsParam, envVariables);
+    public TableEditorUiPanel fetchTableEditorUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        TableEditorUiPanel result = this.localSchemaService.fetchTableEditorUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchTableEditorUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchTableEditorUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public UiPanel fetchFunctionUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        UiPanel result = this.localSchemaService.fetchFunctionUiPanel(uid, dsDO, levelsParam, envVariables);
+    public UiPanel fetchFunctionUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        UiPanel result = this.localSchemaService.fetchFunctionUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchFunctionUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchFunctionUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public UiPanel fetchProcedureUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        UiPanel result = this.localSchemaService.fetchProcedureUiPanel(uid, dsDO, levelsParam, envVariables);
+    public UiPanel fetchProcedureUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        UiPanel result = this.localSchemaService.fetchProcedureUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchProcedureUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchProcedureUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public UiPanel fetchViewUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        UiPanel result = this.localSchemaService.fetchViewUiPanel(uid, dsDO, levelsParam, envVariables);
+    public UiPanel fetchViewUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        UiPanel result = this.localSchemaService.fetchViewUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchViewUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchViewUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public UiPanel fetchTriggerEditorUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        UiPanel result = this.localSchemaService.fetchTriggerEditorUiPanel(uid, dsDO, levelsParam, envVariables);
+    public UiPanel fetchTriggerEditorUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        UiPanel result = this.localSchemaService.fetchTriggerEditorUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchTriggerEditorUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchTriggerEditorUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public UiPanel fetchTablespaceUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        UiPanel result = this.localSchemaService.fetchTablespaceUiPanel(uid, dsDO, levelsParam, envVariables);
+    public UiPanel fetchTablespaceUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        UiPanel result = this.localSchemaService.fetchTablespaceUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchTablespaceUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchTablespaceUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public UiPanel fetchDbLinkUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        UiPanel result = this.localSchemaService.fetchDbLinkUiPanel(uid, dsDO, levelsParam, envVariables);
+    public UiPanel fetchDbLinkUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        UiPanel result = this.localSchemaService.fetchDbLinkUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchDbLinkUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchDbLinkUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public UiPanel fetchJobUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        UiPanel result = this.localSchemaService.fetchJobUiPanel(uid, dsDO, levelsParam, envVariables);
+    public UiPanel fetchJobUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        UiPanel result = this.localSchemaService.fetchJobUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchJobUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchJobUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public UiPanel fetchScheduleJobEditorUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        UiPanel result = this.localSchemaService.fetchScheduleJobEditorUiPanel(uid, dsDO, levelsParam, envVariables);
+    public UiPanel fetchScheduleJobEditorUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        UiPanel result = this.localSchemaService.fetchScheduleJobEditorUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchScheduleJobEditorUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchScheduleJobEditorUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchJobPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        PropertyUiPanel result = this.localSchemaService.fetchJobPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+    public PropertyUiPanel fetchJobPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        PropertyUiPanel result = this.localSchemaService.fetchJobPropertyUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchJobPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchJobPropertyUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchUserPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        PropertyUiPanel result = this.localSchemaService.fetchUserPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+    public PropertyUiPanel fetchUserPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        PropertyUiPanel result = this.localSchemaService.fetchUserPropertyUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchUserPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchUserPropertyUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchSequencePropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        PropertyUiPanel result = this.localSchemaService.fetchSequencePropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+    public PropertyUiPanel fetchSequencePropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        PropertyUiPanel result = this.localSchemaService.fetchSequencePropertyUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchSequencePropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchSequencePropertyUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchSynonymPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        PropertyUiPanel result = this.localSchemaService.fetchSynonymPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+    public PropertyUiPanel fetchSynonymPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        PropertyUiPanel result = this.localSchemaService.fetchSynonymPropertyUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchSynonymPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchSynonymPropertyUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchTriggerPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        PropertyUiPanel result = this.localSchemaService.fetchTriggerPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+    public PropertyUiPanel fetchTriggerPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        PropertyUiPanel result = this.localSchemaService.fetchTriggerPropertyUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchTriggerPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchTriggerPropertyUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchViewPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        PropertyUiPanel result = this.localSchemaService.fetchViewPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+    public PropertyUiPanel fetchViewPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        PropertyUiPanel result = this.localSchemaService.fetchViewPropertyUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchViewPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchViewPropertyUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchMaterializedViewPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        PropertyUiPanel result = this.localSchemaService.fetchMaterializedViewPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+    public PropertyUiPanel fetchMaterializedViewPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        PropertyUiPanel result = this.localSchemaService.fetchMaterializedViewPropertyUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchMaterializedViewPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchMaterializedViewPropertyUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchRolePropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        PropertyUiPanel result = this.localSchemaService.fetchRolePropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+    public PropertyUiPanel fetchRolePropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        PropertyUiPanel result = this.localSchemaService.fetchRolePropertyUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchRolePropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchRolePropertyUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchScheduleJobPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        PropertyUiPanel result = this.localSchemaService.fetchScheduleJobPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+    public PropertyUiPanel fetchScheduleJobPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        PropertyUiPanel result = this.localSchemaService.fetchScheduleJobPropertyUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchScheduleJobPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchScheduleJobPropertyUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchProcedurePropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        PropertyUiPanel result = this.localSchemaService.fetchProcedurePropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+    public PropertyUiPanel fetchProcedurePropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        PropertyUiPanel result = this.localSchemaService.fetchProcedurePropertyUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchProcedurePropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchProcedurePropertyUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchFunctionPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        PropertyUiPanel result = this.localSchemaService.fetchFunctionPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+    public PropertyUiPanel fetchFunctionPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        PropertyUiPanel result = this.localSchemaService.fetchFunctionPropertyUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchFunctionPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchFunctionPropertyUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchDbLinkPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        PropertyUiPanel result = this.localSchemaService.fetchDbLinkPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+    public PropertyUiPanel fetchDbLinkPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        PropertyUiPanel result = this.localSchemaService.fetchDbLinkPropertyUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchDbLinkPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchDbLinkPropertyUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchTablePropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        PropertyUiPanel result = this.localSchemaService.fetchDbLinkPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+    public PropertyUiPanel fetchTablePropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        PropertyUiPanel result = this.localSchemaService.fetchDbLinkPropertyUiPanel(dsDO, levelsParam, envVariables);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.fetchTablePropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+        return this.remoteSchemaService.fetchTablePropertyUiPanel(dsDO, levelsParam, envVariables);
     }
 
     @Override
-    public String loadTableEditor(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String table, boolean refreshCache) {
-        String result = this.localSchemaService.loadTableEditor(uid, dsDO, levelsParam, table, refreshCache);
+    public String loadTableEditor(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String table, boolean refreshCache) {
+        String result = this.localSchemaService.loadTableEditor(dsDO, levelsParam, table, refreshCache);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.loadTableEditor(uid, dsDO, levelsParam, table, refreshCache);
+        return this.remoteSchemaService.loadTableEditor(dsDO, levelsParam, table, refreshCache);
     }
 
     @Override
-    public EditorContext createEditorContext(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, EditorOptions options) {
-        EditorContext result = this.localSchemaService.createEditorContext(uid, dsDO, levelsParam, options);
+    public EditorContext createEditorContext(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, EditorOptions options) {
+        EditorContext result = this.localSchemaService.createEditorContext(dsDO, levelsParam, options);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.createEditorContext(uid, dsDO, levelsParam, options);
+        return this.remoteSchemaService.createEditorContext(dsDO, levelsParam, options);
     }
 
     @Override
-    public Map<String, List<RdbColumn>> loadColumns(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, List<String> names) {
-        Map<String, List<RdbColumn>> result = this.localSchemaService.loadColumns(uid, dsDO, levelsParam, leafType, names);
+    public Map<String, List<RdbColumn>> loadColumns(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, List<String> names) {
+        Map<String, List<RdbColumn>> result = this.localSchemaService.loadColumns(dsDO, levelsParam, leafType, names);
         if (result != null) {
             return result;
         }
-        return this.remoteSchemaService.loadColumns(uid, dsDO, levelsParam, leafType, names);
+        return this.remoteSchemaService.loadColumns(dsDO, levelsParam, leafType, names);
     }
 }

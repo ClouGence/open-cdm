@@ -23,6 +23,7 @@ import lombok.Setter;
 public class TestSshConnectionFO {
 
     private Long            sshConfigId;
+    private Long            clusterId;
     private SshConfigSaveFO config;
     private String          workerSeqNumber;
 }

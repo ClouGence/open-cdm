@@ -168,7 +168,7 @@ public class BrowseServiceImpl implements BrowseService {
         List<UmiTypes> levelsDef = dsLevels.levelsDef();
         Map<UmiTypes, Object> levelsParam = dsLevels.levelsParam();
 
-        List<DsElement> dsObjects = this.dmDsSchemaService.listLevels(puid, dsDO, levelsDef, levelsParam, refreshCache);
+        List<DsElement> dsObjects = this.dmDsSchemaService.listLevels(dsDO, levelsDef, levelsParam, refreshCache);
         return dsObjects.stream().map(DmConvertUtils::convertToBrowseLevelsVO).collect(Collectors.toList());
     }
 
@@ -204,7 +204,7 @@ public class BrowseServiceImpl implements BrowseService {
         List<UmiTypes> levelsDef = levels.levelsDef();
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
 
-        DsElement dsObject = this.dmDsSchemaService.detailLevel(puid, dsDO, levelsDef, levelsParam);
+        DsElement dsObject = this.dmDsSchemaService.detailLevel(dsDO, levelsDef, levelsParam);
 
         return DmConvertUtils.convertToBrowseLevelsVO(dsObject);
     }
@@ -217,7 +217,7 @@ public class BrowseServiceImpl implements BrowseService {
         DmDsDO dsDO = levels.dsDO();
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
 
-        List<DsElement> dsObjects = this.dmDsSchemaService.listLeaf(puid, dsDO, levelsParam, leafType, pattern, refreshCache);
+        List<DsElement> dsObjects = this.dmDsSchemaService.listLeaf(dsDO, levelsParam, leafType, pattern, refreshCache);
 
         return dsObjects.stream().map(DmConvertUtils::convertToBrowseLevelsVO).collect(Collectors.toList());
     }
@@ -232,7 +232,7 @@ public class BrowseServiceImpl implements BrowseService {
         }
 
         DmDsDO dsDO = levels.dsDO();
-        Value value = this.dmDsSchemaService.detailLeaf(uid, dsDO, levels.levelsParam(), leafType, leafName, refreshCache);
+        Value value = this.dmDsSchemaService.detailLeaf(dsDO, levels.levelsParam(), leafType, leafName, refreshCache);
         if (value == null) {
             return null;
         }
@@ -271,7 +271,7 @@ public class BrowseServiceImpl implements BrowseService {
         }
 
         DmDsDO dsDO = levels.dsDO();
-        Map<String, List<RdbColumn>> value = this.dmDsSchemaService.loadColumns(uid, dsDO, levels.levelsParam(), leafType, Collections.singletonList(leafName));
+        Map<String, List<RdbColumn>> value = this.dmDsSchemaService.loadColumns(dsDO, levels.levelsParam(), leafType, Collections.singletonList(leafName));
         if (value == null || value.isEmpty() || !value.containsKey(leafName)) {
             return Collections.emptyList();
         }

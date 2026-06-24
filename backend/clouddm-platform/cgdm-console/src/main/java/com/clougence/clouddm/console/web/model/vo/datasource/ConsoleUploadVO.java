@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.fo.ssh;
+package com.clougence.clouddm.console.web.model.vo.datasource;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class SshConfigListFO {
+public class ConsoleUploadVO {
 
-    private Long   clusterId;
-    private String search;
+    private String fileId;
+    private String fileName;
+    private String format;
+    private long   size;
 }

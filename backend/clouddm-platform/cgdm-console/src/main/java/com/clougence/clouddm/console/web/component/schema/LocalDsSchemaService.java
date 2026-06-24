@@ -59,37 +59,37 @@ public class LocalDsSchemaService implements DsSchemaService {
     @Resource
     private SystemDal         systemDal;
 
-    private boolean isDisableMetaCache(String uid) {
+    private boolean isDisableMetaCache() {
         Boolean configValue = this.systemDal.fetchSystemConf(RootUserConfig.Fields.consoleMetadataCache, Boolean.class);
         return configValue == null || !configValue;
     }
 
     @Override
-    public String realTimeFetchVersion(String uid, long clusterId, DataSourceConfig dsConfig, Map<UmiTypes, Object> levelsParam) {
+    public String realTimeFetchVersion(long clusterId, DataSourceConfig dsConfig, Map<UmiTypes, Object> levelsParam) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public String realTimeFetchVersion(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam) {
+    public String realTimeFetchVersion(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam) {
         return null;
     }
 
     @Override
-    public Value realTimeFetchSelectObject(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String leafName) {
+    public Value realTimeFetchSelectObject(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String leafName) {
         return null;
     }
 
     @Override
-    public List<String> realTimeRequestObjectScript(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName) {
+    public List<String> realTimeRequestObjectScript(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public List<DsElement> cachedObjectNames(String uid, DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
+    public List<DsElement> cachedObjectNames(DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
         List<DsElement> result = new ArrayList<>();
         DsConfig dsConfig = this.configService.dsConstantSettings(dsDO.getDataSourceType());
         if (shouldListLevels(dsConfig, levels)) {
-            List<DsElement> levelElements = this.listLevels(uid, dsDO, levels, levelsParam, false);
+            List<DsElement> levelElements = this.listLevels(dsDO, levels, levelsParam, false);
             if (levelElements != null) {
                 result.addAll(levelElements);
             }
@@ -99,7 +99,7 @@ public class LocalDsSchemaService implements DsSchemaService {
             if (leafTypes != null) {
                 for (DsLevelLeaf leafType : leafTypes) {
                     UmiTypes umiType = UmiTypes.valueOfCode(leafType.getType());
-                    List<DsElement> leafElements = this.listLeaf(uid, dsDO, levelsParam, umiType, null, false);
+                    List<DsElement> leafElements = this.listLeaf(dsDO, levelsParam, umiType, null, false);
                     if (leafElements != null) {
                         result.addAll(leafElements);
                     }
@@ -120,8 +120,8 @@ public class LocalDsSchemaService implements DsSchemaService {
     //
 
     @Override
-    public List<DsElement> listLevels(String uid, DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam, boolean refreshCache) {
-        if (refreshCache || isDisableMetaCache(uid)) {
+    public List<DsElement> listLevels(DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam, boolean refreshCache) {
+        if (refreshCache || isDisableMetaCache()) {
             return null;
         }
 
@@ -135,7 +135,7 @@ public class LocalDsSchemaService implements DsSchemaService {
 
         String catalog = (String) levelsParam.get(UmiTypes.Catalog);
         String schema = (String) levelsParam.get(UmiTypes.Schema);
-        String context = cacheService.getListCache(uid, dsDO.getId(), catalog, schema, leafType);
+        String context = cacheService.getListCache(dsDO.getId(), catalog, schema, leafType);
         if (context != null) {
             return JsonUtils.toList(context, new TypeReference<>() {});
         }
@@ -143,20 +143,20 @@ public class LocalDsSchemaService implements DsSchemaService {
     }
 
     @Override
-    public DsElement detailLevel(String uid, DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
+    public DsElement detailLevel(DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
         return null;
     }
 
     @Override
-    public List<DsElement> listLeaf(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String pattern, boolean refreshCache) {
-        if (refreshCache || isDisableMetaCache(uid)) {
+    public List<DsElement> listLeaf(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String pattern, boolean refreshCache) {
+        if (refreshCache || isDisableMetaCache()) {
             return null;
         }
 
         String catalog = (String) levelsParam.get(UmiTypes.Catalog);
         String schema = (String) levelsParam.get(UmiTypes.Schema);
         MetaInformationType metaType = MetaInformationType.valueOfCode(leafType.getTypeName() + "List");
-        String context = cacheService.getListCache(uid, dsDO.getId(), catalog, schema, metaType);
+        String context = cacheService.getListCache(dsDO.getId(), catalog, schema, metaType);
 
         if (context != null) {
             return JsonUtils.toList(context, new TypeReference<>() {});
@@ -165,15 +165,15 @@ public class LocalDsSchemaService implements DsSchemaService {
     }
 
     @Override
-    public Value detailLeaf(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName, boolean refreshCache) {
-        if (refreshCache || isDisableMetaCache(uid)) {
+    public Value detailLeaf(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName, boolean refreshCache) {
+        if (refreshCache || isDisableMetaCache()) {
             return null;
         }
 
         String catalog = (String) levelsParam.get(UmiTypes.Catalog);
         String schema = (String) levelsParam.get(UmiTypes.Schema);
         MetaInformationType metaType = MetaInformationType.valueOfCode(leafType.getTypeName());
-        String context = cacheService.getDetailCache(uid, dsDO.getId(), catalog, schema, metaType, leafName);
+        String context = cacheService.getDetailCache(dsDO.getId(), catalog, schema, metaType, leafName);
         if (context != null) {
             return JsonUtils.toObj(context, Value.class);
         }
@@ -181,134 +181,134 @@ public class LocalDsSchemaService implements DsSchemaService {
     }
 
     @Override
-    public List<String> generateObjectScript(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName, CmdTemplateOption option) {
+    public List<String> generateObjectScript(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName, CmdTemplateOption option) {
         return null;
     }
 
     @Override
-    public TableEditorUiPanel fetchTableEditorUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public TableEditorUiPanel fetchTableEditorUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public UiPanel fetchFunctionUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public UiPanel fetchFunctionUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public UiPanel fetchProcedureUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public UiPanel fetchProcedureUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public UiPanel fetchViewUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public UiPanel fetchViewUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public UiPanel fetchTriggerEditorUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public UiPanel fetchTriggerEditorUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public UiPanel fetchTablespaceUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public UiPanel fetchTablespaceUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public UiPanel fetchDbLinkUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public UiPanel fetchDbLinkUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public UiPanel fetchJobUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public UiPanel fetchJobUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public UiPanel fetchScheduleJobEditorUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public UiPanel fetchScheduleJobEditorUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public PropertyUiPanel fetchJobPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public PropertyUiPanel fetchJobPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public PropertyUiPanel fetchUserPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public PropertyUiPanel fetchUserPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public PropertyUiPanel fetchSequencePropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public PropertyUiPanel fetchSequencePropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public PropertyUiPanel fetchSynonymPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public PropertyUiPanel fetchSynonymPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public PropertyUiPanel fetchTriggerPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public PropertyUiPanel fetchTriggerPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public PropertyUiPanel fetchViewPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public PropertyUiPanel fetchViewPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public PropertyUiPanel fetchMaterializedViewPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public PropertyUiPanel fetchMaterializedViewPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public PropertyUiPanel fetchRolePropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public PropertyUiPanel fetchRolePropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public PropertyUiPanel fetchScheduleJobPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public PropertyUiPanel fetchScheduleJobPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public PropertyUiPanel fetchProcedurePropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public PropertyUiPanel fetchProcedurePropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public PropertyUiPanel fetchFunctionPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public PropertyUiPanel fetchFunctionPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public PropertyUiPanel fetchDbLinkPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public PropertyUiPanel fetchDbLinkPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public PropertyUiPanel fetchTablePropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+    public PropertyUiPanel fetchTablePropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
         return null;
     }
 
     @Override
-    public String loadTableEditor(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String table, boolean refreshCache) {
+    public String loadTableEditor(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String table, boolean refreshCache) {
         String catalog = (String) levelsParam.get(UmiTypes.Catalog);
         String schema = (String) levelsParam.get(UmiTypes.Schema);
-        return cacheService.getDetailCache(uid, dsDO.getId(), catalog, schema, MetaInformationType.ETable, table);
+        return cacheService.getDetailCache(dsDO.getId(), catalog, schema, MetaInformationType.ETable, table);
     }
 
     @Override
-    public EditorContext createEditorContext(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, EditorOptions options) {
+    public EditorContext createEditorContext(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, EditorOptions options) {
         return null;
     }
 
     @Override
-    public Map<String, List<RdbColumn>> loadColumns(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, List<String> names) {
+    public Map<String, List<RdbColumn>> loadColumns(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, List<String> names) {
         return null;
     }
 }

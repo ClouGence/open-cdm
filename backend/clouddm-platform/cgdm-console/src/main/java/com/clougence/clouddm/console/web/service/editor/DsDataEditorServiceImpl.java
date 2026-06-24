@@ -113,7 +113,7 @@ public class DsDataEditorServiceImpl implements DsDataEditorService {
             }
 
             // column metadata
-            RdbTable rdbTable = (RdbTable) this.dsSchemaService.detailLeaf(uid, dsDO, levelsParam, targetType, table, true);
+            RdbTable rdbTable = (RdbTable) this.dsSchemaService.detailLeaf(dsDO, levelsParam, targetType, table, true);
             if (rdbTable == null) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_DATA_EDITOR_TABLE_NOT_EXIST_ERROR.name(), table));
             }

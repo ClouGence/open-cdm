@@ -27,7 +27,7 @@ import com.clougence.clouddm.console.web.model.vo.ssh.SshConfigListVO;
 
 public interface SshConfigService {
 
-    List<SshConfigListVO> list(String search);
+    List<SshConfigListVO> list(Long clusterId, String search);
 
     SshConfigDetailVO detail(long id);
 

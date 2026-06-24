@@ -563,7 +563,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         if (rewriteSpi != null && this.isUsingSelectRewrite(queryDTO, ctx)) {
             long dsId = ctx.getLevels().dsDO().getId();
             DsCacheEntry dsCache = this.cacheDao.queryByDsId(dsId);
-            Map<String, String> configMap = dmDsConfigService.fetchSettingsMap(dsCache.getOwnerUid(), Arrays.asList(//
+            Map<String, String> configMap = dmDsConfigService.fetchSettingsMap(Arrays.asList(//
                     RootUserConfig.Fields.defaultColumnDisplayChars, //
                     RootUserConfig.Fields.onlineMaxRecordCount,      //
                     RootUserConfig.Fields.onlineMaxResultSetMegaByte,//

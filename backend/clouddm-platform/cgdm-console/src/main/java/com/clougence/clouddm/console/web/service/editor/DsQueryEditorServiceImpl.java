@@ -180,7 +180,7 @@ public class DsQueryEditorServiceImpl implements DsQueryEditorService {
      */
     @Override
     public Map<String, List<BrowseColumnMO>> rdbBatchColumns(String puid, String uid, DsLevels levels, UmiTypes leafType, List<String> leafNames) {
-        Map<String, List<RdbColumn>> value = this.dsSchemaService.loadColumns(uid, levels.dsDO(), levels.levelsParam(), leafType, leafNames);
+        Map<String, List<RdbColumn>> value = this.dsSchemaService.loadColumns(levels.dsDO(), levels.levelsParam(), leafType, leafNames);
 
         // convert
         Map<String, List<BrowseColumnMO>> result = new HashMap<>();

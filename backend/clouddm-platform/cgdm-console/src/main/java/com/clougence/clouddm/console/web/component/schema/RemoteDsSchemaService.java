@@ -31,6 +31,7 @@ import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevelLeaf;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
@@ -67,11 +68,11 @@ public class RemoteDsSchemaService implements DsSchemaService {
     @Resource
     private DmDsService        dsService;
 
-    protected RSocketSendDTO genClusterSendDTO(DmDsDO dsDO, String uid) {
+    protected RSocketSendDTO genClusterSendDTO(DmDsDO dsDO) {
         DsCacheEntry dsCacheEntry = this.cacheDao.queryByDsId(dsDO.getId());
         RSocketSendDTO sendDTO = new RSocketSendDTO();
         sendDTO.setClusterId(dsCacheEntry.getClusterId());
-        sendDTO.setUid(uid);
+        sendDTO.setUid(AuthDal.ROOT_USER_UID);
         sendDTO.setRSocketSendType(RSocketSendType.CLUSTER);
         return sendDTO;
     }
@@ -81,53 +82,53 @@ public class RemoteDsSchemaService implements DsSchemaService {
     }
 
     @Override
-    public String realTimeFetchVersion(String uid, long clusterId, DataSourceConfig dsConfig, Map<UmiTypes, Object> levelsParam) {
+    public String realTimeFetchVersion(long clusterId, DataSourceConfig dsConfig, Map<UmiTypes, Object> levelsParam) {
         RSocketSendDTO sendDTO = new RSocketSendDTO();
         sendDTO.setClusterId(clusterId);
-        sendDTO.setUid(uid);
+        sendDTO.setUid(AuthDal.ROOT_USER_UID);
         sendDTO.setRSocketSendType(RSocketSendType.CLUSTER);
         return this.metaRService.getVersion(sendDTO, dsConfig, levelsParam);
     }
 
     @Override
-    public String realTimeFetchVersion(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public String realTimeFetchVersion(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.metaRService.getVersion(sendDTO, dsConfig, levelsParam);
     }
 
     @Override
-    public Value realTimeFetchSelectObject(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String leafName) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public Value realTimeFetchSelectObject(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String leafName) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         this.dsService.changeStatusIfNecessary(sendDTO, dsConfig, levelsParam);
         try {
             return this.metaRService.fetchSelectObject(sendDTO, dsConfig, levelsParam, leafName);
         } catch (Exception e) {
-            dsService.handleException(uid, dsConfig, e);
+            dsService.handleException(AuthDal.ROOT_USER_UID, dsConfig, e);
             throw e;
         }
     }
 
     @Override
-    public List<String> realTimeRequestObjectScript(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public List<String> realTimeRequestObjectScript(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         this.dsService.changeStatusIfNecessary(sendDTO, dsConfig, levelsParam);
         try {
             return this.metaRService.requestObjectScript(sendDTO, dsConfig, levelsParam, leafType, leafName);
         } catch (Exception e) {
-            dsService.handleException(uid, dsConfig, e);
+            dsService.handleException(AuthDal.ROOT_USER_UID, dsConfig, e);
             throw e;
         }
     }
 
     @Override
-    public List<DsElement> cachedObjectNames(String uid, DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
+    public List<DsElement> cachedObjectNames(DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
         List<DsElement> result = new ArrayList<>();
         DsConfig dsConfig = this.dsConfigService.dsConstantSettings(dsDO.getDataSourceType());
         if (shouldListLevels(dsConfig, levels)) {
-            List<DsElement> levelElements = this.listLevels(uid, dsDO, levels, levelsParam, false);
+            List<DsElement> levelElements = this.listLevels(dsDO, levels, levelsParam, false);
             if (levelElements != null) {
                 result.addAll(levelElements);
             }
@@ -137,7 +138,7 @@ public class RemoteDsSchemaService implements DsSchemaService {
             if (leafTypes != null) {
                 for (DsLevelLeaf leafType : leafTypes) {
                     UmiTypes umiType = UmiTypes.valueOfCode(leafType.getType());
-                    List<DsElement> leafElements = this.listLeaf(uid, dsDO, levelsParam, umiType, null, false);
+                    List<DsElement> leafElements = this.listLeaf(dsDO, levelsParam, umiType, null, false);
                     if (leafElements != null) {
                         result.addAll(leafElements);
                     }
@@ -158,8 +159,8 @@ public class RemoteDsSchemaService implements DsSchemaService {
     //
 
     @Override
-    public List<DsElement> listLevels(String uid, DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam, boolean refreshCache) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public List<DsElement> listLevels(DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam, boolean refreshCache) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         this.dsService.changeStatusIfNecessary(sendDTO, dsConfig, levelsParam);
         try {
@@ -175,30 +176,30 @@ public class RemoteDsSchemaService implements DsSchemaService {
 
             String catalog = (String) levelsParam.get(UmiTypes.Catalog);
             String schema = (String) levelsParam.get(UmiTypes.Schema);
-            metaService.putListCache(uid, dsDO.getId(), catalog, schema, metaType, JsonUtils.toJson(dsElements));
+            metaService.putListCache(dsDO.getId(), catalog, schema, metaType, JsonUtils.toJson(dsElements));
             return dsElements;
         } catch (Exception e) {
-            dsService.handleException(uid, dsConfig, e);
+            dsService.handleException(AuthDal.ROOT_USER_UID, dsConfig, e);
             throw e;
         }
     }
 
     @Override
-    public DsElement detailLevel(String uid, DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public DsElement detailLevel(DmDsDO dsDO, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         this.dsService.changeStatusIfNecessary(sendDTO, dsConfig, levelsParam);
         try {
             return this.metaRService.detailLevel(sendDTO, dsConfig, levels, levelsParam);
         } catch (Exception e) {
-            dsService.handleException(uid, dsConfig, e);
+            dsService.handleException(AuthDal.ROOT_USER_UID, dsConfig, e);
             throw e;
         }
     }
 
     @Override
-    public List<DsElement> listLeaf(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String pattern, boolean refreshCache) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public List<DsElement> listLeaf(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String pattern, boolean refreshCache) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         this.dsService.changeStatusIfNecessary(sendDTO, dsConfig, levelsParam);
         try {
@@ -207,17 +208,17 @@ public class RemoteDsSchemaService implements DsSchemaService {
             String catalog = (String) levelsParam.get(UmiTypes.Catalog);
             String schema = (String) levelsParam.get(UmiTypes.Schema);
             MetaInformationType metaType = MetaInformationType.valueOfCode(leafType.getTypeName() + "List");
-            metaService.putListCache(uid, dsDO.getId(), catalog, schema, metaType, JsonUtils.toJson(dsElements));
+            metaService.putListCache(dsDO.getId(), catalog, schema, metaType, JsonUtils.toJson(dsElements));
             return dsElements;
         } catch (Exception e) {
-            dsService.handleException(uid, dsConfig, e);
+            dsService.handleException(AuthDal.ROOT_USER_UID, dsConfig, e);
             throw e;
         }
     }
 
     @Override
-    public Value detailLeaf(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName, boolean refreshCache) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public Value detailLeaf(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName, boolean refreshCache) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         this.dsService.changeStatusIfNecessary(sendDTO, dsConfig, levelsParam);
         try {
@@ -226,182 +227,182 @@ public class RemoteDsSchemaService implements DsSchemaService {
             String catalog = (String) levelsParam.get(UmiTypes.Catalog);
             String schema = (String) levelsParam.get(UmiTypes.Schema);
             MetaInformationType metaType = MetaInformationType.valueOfCode(leafType.getTypeName());
-            metaService.putDetailCache(uid, dsDO.getId(), catalog, schema, metaType, leafName, JsonUtils.toJson(value));
+            metaService.putDetailCache(dsDO.getId(), catalog, schema, metaType, leafName, JsonUtils.toJson(value));
             return value;
         } catch (Exception e) {
-            dsService.handleException(uid, dsConfig, e);
+            dsService.handleException(AuthDal.ROOT_USER_UID, dsConfig, e);
             throw e;
         }
     }
 
     @Override
-    public List<String> generateObjectScript(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName, CmdTemplateOption option) {
+    public List<String> generateObjectScript(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName, CmdTemplateOption option) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public TableEditorUiPanel fetchTableEditorUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public TableEditorUiPanel fetchTableEditorUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         this.dsService.changeStatusIfNecessary(sendDTO, dsConfig, levelsParam);
         try {
             return this.defRService.fetchTableEditorUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
         } catch (Exception e) {
-            dsService.handleException(uid, dsConfig, e);
+            dsService.handleException(AuthDal.ROOT_USER_UID, dsConfig, e);
             throw e;
         }
     }
 
     @Override
-    public UiPanel fetchFunctionUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public UiPanel fetchFunctionUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchFunctionUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public UiPanel fetchProcedureUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public UiPanel fetchProcedureUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchProcedureUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public UiPanel fetchViewUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public UiPanel fetchViewUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchViewUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public UiPanel fetchTriggerEditorUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public UiPanel fetchTriggerEditorUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchTriggerEditorUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public UiPanel fetchTablespaceUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public UiPanel fetchTablespaceUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchTablespaceUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public UiPanel fetchDbLinkUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public UiPanel fetchDbLinkUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchDbLinkUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public UiPanel fetchJobUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public UiPanel fetchJobUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchJobUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public UiPanel fetchScheduleJobEditorUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public UiPanel fetchScheduleJobEditorUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchScheduleJobEditorUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchJobPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public PropertyUiPanel fetchJobPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchJobPropertyUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchUserPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public PropertyUiPanel fetchUserPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchUserPropertyUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchDbLinkPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public PropertyUiPanel fetchDbLinkPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchDbLinkPropertyUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchTablePropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public PropertyUiPanel fetchTablePropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchTablePropertyUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchSequencePropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public PropertyUiPanel fetchSequencePropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchSequencePropertyUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchSynonymPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public PropertyUiPanel fetchSynonymPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchSynonymPropertyUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchTriggerPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public PropertyUiPanel fetchTriggerPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchTriggerPropertyUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchViewPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public PropertyUiPanel fetchViewPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchViewPropertyUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchMaterializedViewPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public PropertyUiPanel fetchMaterializedViewPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchMaterializedViewPropertyUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchRolePropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public PropertyUiPanel fetchRolePropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchRolePropertyUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchScheduleJobPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public PropertyUiPanel fetchScheduleJobPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchScheduleJobPropertyUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchProcedurePropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public PropertyUiPanel fetchProcedurePropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchProcedurePropertyUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public PropertyUiPanel fetchFunctionPropertyUiPanel(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public PropertyUiPanel fetchFunctionPropertyUiPanel(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, Map<String, String> envVariables) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.defRService.fetchFunctionPropertyUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
     }
 
     @Override
-    public String loadTableEditor(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String table, boolean refreshCache) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public String loadTableEditor(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String table, boolean refreshCache) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         this.dsService.changeStatusIfNecessary(sendDTO, dsConfig, levelsParam);
         try {
@@ -413,16 +414,16 @@ public class RemoteDsSchemaService implements DsSchemaService {
             String catalog = (String) levelsParam.get(UmiTypes.Catalog);
             String schema = (String) levelsParam.get(UmiTypes.Schema);
             MetaInformationType metaType = MetaInformationType.ETable;
-            metaService.putDetailCache(uid, dsDO.getId(), catalog, schema, metaType, table, eTable);
+            metaService.putDetailCache(dsDO.getId(), catalog, schema, metaType, table, eTable);
             return eTable;
         } catch (Exception e) {
-            dsService.handleException(uid, dsConfig, e);
+            dsService.handleException(AuthDal.ROOT_USER_UID, dsConfig, e);
             throw e;
         }
     }
 
     @Override
-    public EditorContext createEditorContext(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, EditorOptions options) {
+    public EditorContext createEditorContext(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, EditorOptions options) {
         EditorContext ctx = new EditorContext(PluginManager.findDsSqlBuilder(dsDO.getDataSourceType()));
         ctx.setUseDelimited(options != null && options.isUseDelimited());
         ctx.setSkipHandlers(options != null && options.isSkipHandlers());
@@ -430,8 +431,8 @@ public class RemoteDsSchemaService implements DsSchemaService {
     }
 
     @Override
-    public Map<String, List<RdbColumn>> loadColumns(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, List<String> names) {
-        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO, uid);
+    public Map<String, List<RdbColumn>> loadColumns(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, UmiTypes leafType, List<String> names) {
+        RSocketSendDTO sendDTO = genClusterSendDTO(dsDO);
         DataSourceConfig dsConfig = this.fetchDsConfig(dsDO);
         return this.metaRService.loadColumns(sendDTO, dsConfig, levelsParam, leafType, names);
     }

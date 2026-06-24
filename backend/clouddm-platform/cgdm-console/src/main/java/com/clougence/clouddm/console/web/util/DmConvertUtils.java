@@ -979,6 +979,7 @@ public class DmConvertUtils {
     public static SshConfigListVO convertToSshConfigListVO(DmSshConfigDO configDO) {
         SshConfigListVO vo = new SshConfigListVO();
         vo.setId(configDO.getId());
+        vo.setClusterId(configDO.getClusterId());
         vo.setGmtCreate(configDO.getGmtCreate());
         vo.setGmtModified(configDO.getGmtModified());
         vo.setName(configDO.getName());
@@ -1000,6 +1001,7 @@ public class DmConvertUtils {
 
         SshConfigDetailVO vo = new SshConfigDetailVO();
         vo.setId(configDO.getId());
+        vo.setClusterId(configDO.getClusterId());
         vo.setGmtCreate(configDO.getGmtCreate());
         vo.setGmtModified(configDO.getGmtModified());
         vo.setName(configDO.getName());
@@ -1023,6 +1025,7 @@ public class DmConvertUtils {
 
     public static SshConfig convertToSshConfig(DmSshConfigDO configDO, SshConFeatures conFeatures, SshProxyFeatures proxyFeatures) {
         SshConfig cfg = new SshConfig();
+        cfg.setClusterId(configDO.getClusterId());
         cfg.setName(configDO.getName());
         cfg.setHost(configDO.getHost());
         cfg.setPort(configDO.getPort());
@@ -1048,6 +1051,11 @@ public class DmConvertUtils {
 
     public static SshConfig convertToSshConfigForTest(DmSshConfigDO exists, SshConfigSaveFO configFO) {
         SshConfig cfg = new SshConfig();
+        if (configFO.getClusterId() != null) {
+            cfg.setClusterId(configFO.getClusterId());
+        } else if (exists != null) {
+            cfg.setClusterId(exists.getClusterId());
+        }
         if (StringUtils.isNotBlank(configFO.getName())) {
             cfg.setName(configFO.getName());
         } else if (exists != null) {

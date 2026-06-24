@@ -59,7 +59,7 @@ public class SshConfigController {
     @RequestAuth(DM_SSH_CHANNEL_READ)
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     public ResWebData<?> list(@Valid @RequestBody SshConfigListFO fo) {
-        return ResWebDataUtils.buildSuccess(this.sshConfigService.list(fo.getSearch()));
+        return ResWebDataUtils.buildSuccess(this.sshConfigService.list(fo.getClusterId(), fo.getSearch()));
     }
 
     @RequestAuth(DM_SSH_CHANNEL_READ)

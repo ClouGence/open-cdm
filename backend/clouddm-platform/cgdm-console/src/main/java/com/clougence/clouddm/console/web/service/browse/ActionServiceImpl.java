@@ -259,7 +259,7 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
         String leafName = info.getTargetName();
 
         // request script
-        List<String> scriptList = this.dmDsSchemaService.realTimeRequestObjectScript(uid, info.getDsDO(), info.getLevelsParam(), leafType, leafName);
+        List<String> scriptList = this.dmDsSchemaService.realTimeRequestObjectScript(info.getDsDO(), info.getLevelsParam(), leafType, leafName);
         return StringUtils.join(scriptList.toArray(), "\n\n");
     }
 
@@ -274,7 +274,7 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
 
         // generate script
         CmdTemplateOption option = SqlGenerateUtils.resolverOptions(info);
-        List<String> scriptList = this.dmDsSchemaService.generateObjectScript(uid, info.getDsDO(), info.getLevelsParam(), leafType, leafName, option);
+        List<String> scriptList = this.dmDsSchemaService.generateObjectScript(info.getDsDO(), info.getLevelsParam(), leafType, leafName, option);
         return StringUtils.join(scriptList.toArray(), "\n\n");
     }
 
@@ -303,7 +303,7 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
         ActionInfo info = this.parseAction(levels, mo);
         DataSourceType srcDsType = info.getDsDO().getDataSourceType();
 
-        TableEditor sourceEditor = this.buildTableEditor(uid, mo.getTargetName(), info);
+        TableEditor sourceEditor = this.buildTableEditor(mo.getTargetName(), info);
 
         ConvertTableDDLSpi ddlSpi = PluginManager.findConvertDDLSpi(srcDsType);
         SqlBuilder targetSqlBuilder = PluginManager.findDsSqlBuilder(dstType);
@@ -318,7 +318,7 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_SCHEMA_NOT_EXIST_ERROR.name(), levels.get(levels.size() - 1)));
         }
 
-        Value value = this.dmDsSchemaService.detailLeaf(uid, result.dsDO(), result.levelsParam(), leafType, leafName, true);
+        Value value = this.dmDsSchemaService.detailLeaf(result.dsDO(), result.levelsParam(), leafType, leafName, true);
         if (value == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_OBJECT_NOT_EXIST.name(), leafName));
         }
@@ -338,7 +338,7 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
     // Utils Method
     //
 
-    private TableEditor buildTableEditor(String uid, String tableName, ActionInfo info) {
+    private TableEditor buildTableEditor(String tableName, ActionInfo info) {
         CmdTemplateOption cmdOption = SqlGenerateUtils.resolverOptions(info);
         Map<UmiTypes, Object> levelsParam = info.getLevelsParam();
         DmDsDO dsDO = info.getDsDO();
@@ -346,8 +346,8 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
         EditorOptions editorOption = new EditorOptions();
         editorOption.setUseDelimited(cmdOption.isDelimited());
 
-        EditorContext ctx = this.dmDsSchemaService.createEditorContext(uid, dsDO, levelsParam, editorOption);
-        String srcTableStruct = this.dmDsSchemaService.loadTableEditor(uid, dsDO, levelsParam, tableName, false);
+        EditorContext ctx = this.dmDsSchemaService.createEditorContext(dsDO, levelsParam, editorOption);
+        String srcTableStruct = this.dmDsSchemaService.loadTableEditor(dsDO, levelsParam, tableName, false);
         return EditorHelperDm.restoreTableEditor(srcTableStruct, ctx);
     }
 
@@ -460,31 +460,31 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
             UiPanel uiPanel;
             switch (umiTypes) {
                 case Function: {
-                    uiPanel = dmDsSchemaService.fetchFunctionUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = dmDsSchemaService.fetchFunctionUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 case Procedure: {
-                    uiPanel = dmDsSchemaService.fetchProcedureUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = dmDsSchemaService.fetchProcedureUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 case View: {
-                    uiPanel = dmDsSchemaService.fetchViewUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = dmDsSchemaService.fetchViewUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 case Trigger: {
-                    uiPanel = dmDsSchemaService.fetchTriggerEditorUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = dmDsSchemaService.fetchTriggerEditorUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 case DBLink: {
-                    uiPanel = dmDsSchemaService.fetchDbLinkUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = dmDsSchemaService.fetchDbLinkUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 case Job: {
-                    uiPanel = dmDsSchemaService.fetchJobUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = dmDsSchemaService.fetchJobUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 case ScheduleJob: {
-                    uiPanel = dmDsSchemaService.fetchScheduleJobEditorUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = dmDsSchemaService.fetchScheduleJobEditorUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 default:

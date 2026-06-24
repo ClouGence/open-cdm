@@ -64,7 +64,7 @@ public class ConsoleMetaServiceImpl implements MetaService {
     @Override
     public List<MetaCol> fetchTableColumns(String uid, long dsId, Map<UmiTypes, Object> levelsParam, String tableName) {
         DmDsDO dsDO = dsDal.dsMapper().queryDsIdentityById(dsId);
-        Value value = dsSchemaService.realTimeFetchSelectObject(uid, dsDO, levelsParam, tableName);
+        Value value = dsSchemaService.realTimeFetchSelectObject(dsDO, levelsParam, tableName);
         if (value == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_TABLE_NOT_EXIST_ERROR.name(), tableName));
         }
@@ -93,7 +93,7 @@ public class ConsoleMetaServiceImpl implements MetaService {
         DsLevels dsLevels = toDsLevels(dsDO, levels, levelsParam);
         this.authServiceForBiz.checkBrowseAuth(puid, uid, dsId, AuthKind.DataSource, dsLevels.asResPath(), SecDataAuthLabel.DM_DAUTH_QUERY);
 
-        List<DsElement> elements = this.dsSchemaService.cachedObjectNames(puid, dsDO, levels, levelsParam);
+        List<DsElement> elements = this.dsSchemaService.cachedObjectNames(dsDO, levels, levelsParam);
         if (CollectionUtils.isEmpty(elements)) {
             return Collections.emptyList();
         }

@@ -19,11 +19,11 @@ import com.clougence.clouddm.platform.dal.model.datasource.MetaInformationType;
 
 public interface MetaDataService {
 
-    void putListCache(String puid, Long dsId, String catalog, String schema, MetaInformationType type, String context);
+    void putListCache(Long dsId, String catalog, String schema, MetaInformationType type, String context);
 
-    void putDetailCache(String puid, Long dsId, String catalog, String schema, MetaInformationType type, String objName, String context);
+    void putDetailCache(Long dsId, String catalog, String schema, MetaInformationType type, String objName, String context);
 
-    String getListCache(String puid, Long dsId, String catalog, String schema, MetaInformationType type);
+    String getListCache(Long dsId, String catalog, String schema, MetaInformationType type);
 
-    String getDetailCache(String puid, Long dsId, String catalog, String schema, MetaInformationType type, String objName);
+    String getDetailCache(Long dsId, String catalog, String schema, MetaInformationType type, String objName);
 }

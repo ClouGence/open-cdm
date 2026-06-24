@@ -28,6 +28,7 @@ import lombok.Setter;
 public class SshConfigListVO {
 
     private Long         id;
+    private Long         clusterId;
     private Date         gmtCreate;
     private Date         gmtModified;
     private String       name;

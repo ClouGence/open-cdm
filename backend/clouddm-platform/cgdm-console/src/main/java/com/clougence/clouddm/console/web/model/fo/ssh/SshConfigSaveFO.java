@@ -27,6 +27,7 @@ import lombok.Setter;
 public class SshConfigSaveFO {
 
     private Long               id;
+    private Long               clusterId;
     private String             name;
     private String             host;
     private Integer            port;
