@@ -309,7 +309,7 @@ public class DmChangeFlowController {
 
         DmChangeFlowDO data = this.changeFlowService.queryMessageByFlowId(puid, fo.getFlowId());
         DmSysMessengerDO messengerDO = null;
-        if (data != null) {
+        if (data != null && data.getRefMsgId() != null) {
             messengerDO = this.dmImService.queryImById(puid, data.getRefMsgId());
         }
         return ResWebDataUtils.buildSuccess(DmConvertUtils.convertToChangeFlowImConfigVO(data, messengerDO));

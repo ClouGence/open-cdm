@@ -1,7 +1,17 @@
 <template>
   <header class="app-content-header">
     <div class="app-content-header__left">
-      <h1 class="app-content-header__title">{{ pageTitle }}</h1>
+      <h1 class="app-content-header__title">
+        <template v-for="(item, index) in pageBreadcrumbs" :key="`${item.label}-${index}`">
+          <router-link v-if="item.to" class="app-content-header__crumb" :class="{ 'is-current': index === pageBreadcrumbs.length - 1 }" :to="item.to">
+            {{ item.label }}
+          </router-link>
+          <span v-else class="app-content-header__crumb" :class="{ 'is-current': index === pageBreadcrumbs.length - 1 }">
+            {{ item.label }}
+          </span>
+          <span v-if="index < pageBreadcrumbs.length - 1" class="app-content-header__separator">/</span>
+        </template>
+      </h1>
     </div>
     <div class="app-content-header__right">
       <a v-if="showSqlLink" href="/#/sql" class="app-content-header__link">
@@ -102,7 +112,95 @@ export default {
       }
 
       return this.$t('pei-zhi');
+    },
+    pageSubTitle() {
+      const path = this.$route.path;
+
+      if (path === '/cicd/create') {
+        return this.$t('chuang-jian-xiang-mu');
+      }
+      if (/^\/cicd\/[^/]+\/change-records$/.test(path)) {
+        return this.$t('bian-geng-ji-lu');
+      }
+      if (/^\/cicd\/[^/]+$/.test(path)) {
+        return this.$t('cicd-bian-geng-liu-gai-lan');
+      }
+
+      return '';
+    },
+    pageBreadcrumbs() {
+      const path = this.$route.path;
+      const cicdRoot = { label: this.$t('nav-ci-cd'), to: '/cicd' };
+      const flowDetail = (flowId) => ({
+        label: this.$t('cicd-bian-geng-liu-xiang-qing'),
+        to: flowId ? `/cicd/${flowId}` : ''
+      });
+      const changeRecords = (flowId) => ({
+        label: this.$t('bian-geng-ji-lu'),
+        to: flowId ? `/cicd/${flowId}/change-records` : ''
+      });
+
+      if (path === '/cicd' || path === '/cicd/') {
+        return [cicdRoot];
+      }
+      if (path === '/cicd/create') {
+        return [cicdRoot, { label: this.$t('chuang-jian-xiang-mu'), to: path }];
+      }
+      if (/^\/cicd\/[^/]+\/release-flow\/add$/.test(path)) {
+        const flowId = this.$route.params.id;
+        return [cicdRoot, flowDetail(flowId), { label: this.$t('tian-jia-git-ops'), to: path }];
+      }
+      if (/^\/cicd\/[^/]+\/change-records$/.test(path)) {
+        const flowId = this.$route.params.id;
+        return [cicdRoot, flowDetail(flowId), changeRecords(flowId)];
+      }
+      if (/^\/cicd\/change\/[^/]+$/.test(path)) {
+        const flowId = this.$route.query.flowId;
+        return [cicdRoot, flowDetail(flowId), changeRecords(flowId), { label: this.$t('ji-lu-xiang-qing'), to: this.$route.fullPath }];
+      }
+      if (/^\/cicd\/[^/]+$/.test(path)) {
+        return [cicdRoot, { label: this.$t('cicd-bian-geng-liu-xiang-qing'), to: path }];
+      }
+      if (this.pageSubTitle) {
+        return [
+          { label: this.pageTitle, to: path },
+          { label: this.pageSubTitle, to: path }
+        ];
+      }
+      return [{ label: this.pageTitle, to: path }];
     }
   }
 };
 </script>
+
+<style lang="less" scoped>
+.app-content-header__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.app-content-header__crumb {
+  color: #4b5563;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 24px;
+  text-decoration: none;
+  transition: color 0.18s ease;
+
+  &:hover {
+    color: #0fac69;
+  }
+
+  &.is-current {
+    color: #1f2937;
+  }
+}
+
+.app-content-header__separator {
+  color: #6b7280;
+  font-weight: 600;
+}
+</style>

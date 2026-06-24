@@ -16,13 +16,7 @@
               <Button type="primary" ghost @click="handleQuery">{{ $t('cha-xun') }}</Button>
             </div>
             <div class="right">
-              <Button
-                @click="handleShowAddFlowModal"
-                type="primary"
-                style="margin-right: 10px"
-                icon="md-add"
-                v-if="myAuth.includes('DM_CICD_FLOW_MANAGE')"
-              >
+              <Button @click="goCreateFlow" type="primary" style="margin-right: 10px" icon="md-add" v-if="canManageFlow">
                 {{ $t('xin-jian-xiang-mu') }}
               </Button>
             </div>
@@ -37,14 +31,41 @@
               border
               stripe
             >
-              <template #mark="{ row }">
-                <CustomIcon type="icon-v2-Archive" v-if="row.status === 'ARCHIVE'" />
-                <CustomIcon type="icon-v2-Delete2" v-if="row.status === 'DELETE'" />
-                <CustomIcon :type="`icon-v2-${row.mark}`" v-if="row.status === 'NORMAL'" />
+              <template #flowStatus="{ row }">
+                <span class="flow-status-tag" :class="flowStatusMeta(row).className">{{ flowStatusMeta(row).text }}</span>
+              </template>
+              <template #gitOps="{ row }">
+                <div class="flow-list-inline flow-list-gitops">
+                  <CustomIcon v-if="row.scmType" :type="row.scmType" size="18px" rightMargin />
+                  <Tooltip :content="formatGitOps(row)">
+                    <span class="flow-list-ellipsis">{{ formatGitOps(row) }}</span>
+                  </Tooltip>
+                </div>
+              </template>
+              <template #databaseType="{ row }">
+                <div class="flow-list-inline">
+                  <CustomIcon v-if="row.dsType" :type="row.dsType" size="18px" rightMargin />
+                  <span>{{ databaseTypeText(row) }}</span>
+                </div>
               </template>
               <template #action="{ row }">
-                <div class="action">
-                  <Button type="text" @click="goDetail(row)" :disabled="row.status === 'DELETE'">{{ $t('jin-ru') }}</Button>
+                <div class="action flow-actions">
+                  <Button type="text" @click="goDetail(row)" :disabled="rowFlowStatus(row) === 'DELETE'">{{ $t('xiang-qing') }}</Button>
+                  <Button v-if="canManageFlow" type="text" :disabled="rowFlowStatus(row) !== 'NORMAL'" @click="handleSwitchFlow(row)">
+                    {{ flowSwitchText(row) }}
+                  </Button>
+                  <Button v-if="canManageFlow" type="text" :disabled="rowFlowStatus(row) === 'DELETE'" @click="handleArchiveToggleFlow(row)">
+                    {{ rowFlowStatus(row) === 'ARCHIVE' ? $t('hui-fu-gui-dang') : $t('gui-dang-xiang-mu') }}
+                  </Button>
+                  <Button
+                    v-if="canManageFlow"
+                    class="flow-action-danger"
+                    type="text"
+                    :disabled="rowFlowStatus(row) !== 'ARCHIVE'"
+                    @click="handleDeleteFlow(row)"
+                  >
+                    {{ $t('shan-chu-xiang-mu') }}
+                  </Button>
                 </div>
               </template>
             </Table>
@@ -552,6 +573,9 @@ export default {
   computed: {
     ...mapState(['userInfo', 'globalSetting', 'dmGlobalSetting', 'myCatLog', 'myAuth']),
     ...mapGetters(['isSaas']),
+    canManageFlow() {
+      return (this.myAuth || []).includes('DM_CICD_FLOW_MANAGE');
+    },
     getModalTitle() {
       let prefix = `${this.step}/ 5`;
 
@@ -587,12 +611,115 @@ export default {
   methods: {
     handleCopy,
     groupByRepoNamespace,
+    rowFlowStatus(row = {}) {
+      return row.flowStatus || row.status || 'NORMAL';
+    },
+    rowFlowEnable(row = {}) {
+      return row.enable !== false;
+    },
+    flowStatusMeta(row = {}) {
+      const status = this.rowFlowStatus(row);
+      const statusMap = {
+        NORMAL: {
+          text: this.rowFlowEnable(row) ? this.$t('cicd-qi-yong-zhong') : this.$t('yi-jin-yong'),
+          className: this.rowFlowEnable(row) ? 'is-normal' : 'is-archive'
+        },
+        ARCHIVE: {
+          text: this.$t('cicd-yi-gui-dang'),
+          className: 'is-archive'
+        },
+        DELETE: {
+          text: this.$t('yi-shan-chu'),
+          className: 'is-delete'
+        }
+      };
+      return (
+        statusMap[status] || {
+          text: status || '-',
+          className: 'is-default'
+        }
+      );
+    },
+    flowSwitchText(row = {}) {
+      if (this.rowFlowStatus(row) !== 'NORMAL') {
+        return this.$t('jin-yong');
+      }
+      return this.rowFlowEnable(row) ? this.$t('jin-yong') : this.$t('qi-yong');
+    },
+    formatGitOps(row = {}) {
+      return row.scmType || '-';
+    },
+    databaseTypeText(row = {}) {
+      return row.dsType || '-';
+    },
+    async operateFlow(row, serviceName) {
+      const res = await this.$services[serviceName]({
+        data: {
+          flowId: row.flowId
+        }
+      });
+      if (res.success) {
+        this.$Message.success(this.$t('cao-zuo-cheng-gong'));
+        this.fetchFlowList();
+      }
+    },
+    handleArchiveFlow(row) {
+      this.operateFlow(row, 'dmCicdFlowArchive');
+    },
+    handleRecoverFlow(row) {
+      this.operateFlow(row, 'dmCicdFlowRecover');
+    },
+    handleArchiveToggleFlow(row) {
+      if (this.rowFlowStatus(row) === 'ARCHIVE') {
+        this.handleRecoverFlow(row);
+        return;
+      }
+      if (this.rowFlowStatus(row) === 'NORMAL') {
+        this.handleArchiveFlow(row);
+      }
+    },
+    handleSwitchFlow(row) {
+      if (this.rowFlowStatus(row) !== 'NORMAL') {
+        return;
+      }
+      const enable = !this.rowFlowEnable(row);
+      this.$Modal.confirm({
+        title: enable ? this.$t('que-ren') : this.$t('que-ren-shi-fou-jin-yong'),
+        content: enable ? this.$t('shi-fou-qi-yong-fa-bu-liu') : this.$t('jin-yong-fa-bu-liu'),
+        onOk: async () => {
+          const res = await this.$services.dmCicdFlowDevopsSwitch({
+            data: {
+              flowId: row.flowId,
+              enable
+            }
+          });
+          if (res.success) {
+            this.$Message.success(this.$t('cao-zuo-cheng-gong'));
+            await this.fetchFlowList();
+          }
+        }
+      });
+    },
+    handleDeleteFlow(row) {
+      if (this.rowFlowStatus(row) !== 'ARCHIVE') {
+        return;
+      }
+      this.$Modal.confirm({
+        title: this.$t('que-ren-shan-chu-xiang-mu'),
+        onOk: async () => {
+          await this.operateFlow(row, 'dmCicdFlowDelete');
+        }
+      });
+    },
     handleQuery() {
       this.fetchFlowList();
     },
     handleQueryClear() {
       this.searchKeywords = '';
       this.fetchFlowList();
+    },
+    goCreateFlow() {
+      this.$router.push('/cicd/create');
     },
     async fetchFlowList() {
       this.loading = true;
@@ -818,6 +945,7 @@ export default {
         this.imProviderList = [];
         this.flowImForm.imId = null;
         this.flowImForm.imType = 'none';
+        this.resetFlowImSubscriptions();
         return;
       }
 
@@ -836,6 +964,12 @@ export default {
         this.flowImForm.imId = null;
         this.flowImForm.imType = this.imDefSelected.imType;
       }
+    },
+    resetFlowImSubscriptions() {
+      this.flowImForm.eventChangeFlowStatus = false;
+      this.flowImForm.eventFlowConfig = false;
+      this.flowImForm.eventChangeLife = false;
+      this.flowImForm.eventChangeNotice = false;
     },
     async handleImProviderSelected(im) {
       this.flowImForm.imId = im;
@@ -1051,6 +1185,74 @@ export default {
   min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+.flow-list-inline {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.flow-list-gitops {
+  max-width: 100%;
+}
+
+.flow-list-ellipsis {
+  display: inline-block;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flow-status-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &.is-normal {
+    color: #19be6b;
+    background: #e7f8ee;
+  }
+
+  &.is-archive {
+    color: #64748b;
+    background: #eef2f7;
+  }
+
+  &.is-delete {
+    color: #ed4014;
+    background: #fff1f0;
+  }
+}
+
+.flow-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+
+  :deep(.ivu-btn-text) {
+    height: 22px;
+    padding: 0 2px;
+    line-height: 20px;
+  }
+}
+
+.flow-action-danger:not(.ivu-btn-disabled):not([disabled]) {
+  color: #ed4014;
+}
+
+.flow-action-danger.ivu-btn-disabled,
+.flow-action-danger[disabled] {
+  color: #c5cedb !important;
 }
 
 .flow-list {

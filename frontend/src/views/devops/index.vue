@@ -19,9 +19,6 @@
               <Button @click="handleAdd" type="primary" style="margin-right: 10px" icon="md-add">
                 {{ $t('ti-gong-zhe') }}
               </Button>
-              <Button @click="init" :loading="loading">
-                <CustomIcon type="icon-v2-Refresh" v-if="!loading" />
-              </Button>
             </div>
           </div>
           <div class="table-container">

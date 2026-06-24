@@ -1,24 +1,16 @@
 <template>
-  <div class="sub-account">
-    <div class="table-list-layout">
-      <div class="table-list">
-        <div class="header">
-          <Breadcrumb>
-            <BreadcrumbItem to="/cicd">{{ $t('xiang-mu-lie-biao') }}</BreadcrumbItem>
-            <BreadcrumbItem :to="'/cicd/' + changeInfo.flowId">
-              {{ changeInfo.flowName }}
-            </BreadcrumbItem>
-            <BreadcrumbItem>{{ changeInfo?.changeName + $t('bian-geng') }}</BreadcrumbItem>
-          </Breadcrumb>
-        </div>
+  <div class="sub-account change-detail-page">
+    <div class="table-list-layout change-detail-layout">
+      <div class="table-list change-detail-shell">
         <div class="sql-change-container">
-          <div class="header">
+          <div class="header change-detail-hero">
             <div class="left-wrap">
               <div class="title-wrap">
-                <CustomIcon type="icon-v2-hebing" rightMargin size="18px" />
                 <Tooltip :content="changeInfo?.changeName">
-                  <span class="title-text-ellipsis">{{ $t('bian-geng-ming-cheng') + ': ' + changeInfo?.changeName }}</span>
+                  <span class="title-text-ellipsis">{{ changeInfo?.changeName || '-' }}</span>
                 </Tooltip>
+                <span class="change-status-pill" :class="changeStatusClass">{{ changeStatusLabel }}</span>
+                <span class="change-step-pill">{{ changeStepLabel }}</span>
                 <Tooltip :content="changeInfo.remark" style="width: 450px" v-if="changeInfo.remark">
                   <span
                     class="collapse-text-ellipsis"
@@ -30,31 +22,47 @@
                 </Tooltip>
               </div>
               <div class="card-wrap">
-                <div class="left">
-                  <CustomIcon :type="changeInfo?.scmType" size="25px" rightMargin="10px" />
-                  <div>
-                    <div>
-                      {{ $t('cang-ku') + ': ' + changeInfo?.repoName || '-' }}
+                <div class="left endpoint-summary-card">
+                  <div class="endpoint-summary-title">
+                    <CustomIcon :type="changeInfo?.scmType" size="24px" rightMargin="8px" />
+                    <span>{{ $t('cang-ku') }}</span>
+                  </div>
+                  <div class="endpoint-summary-lines">
+                    <div class="endpoint-summary-line">
+                      <span>{{ $t('cang-ku') }}：</span>
+                      <strong>{{ changeInfo?.repoName || '-' }}</strong>
                     </div>
-                    <div>
-                      {{ $t('fen-zhi') + ': ' + changeInfo?.repoBranch || '-' }}
+                    <div class="endpoint-summary-line">
+                      <span>{{ $t('fen-zhi') }}：</span>
+                      <strong>{{ changeInfo?.repoBranch || '-' }}</strong>
                     </div>
-                    <div>
-                      {{ $t('lu-jing') + changeInfo?.repoScriptPath || '-' }}
+                    <div class="endpoint-summary-line">
+                      <span>{{ $t('lu-jing') }}：</span>
+                      <strong>{{ changeInfo?.repoScriptPath || '-' }}</strong>
                     </div>
                   </div>
                 </div>
                 <div class="mid">
-                  <CustomIcon type="icon-v2-shuang-you" size="50px" />
+                  <span class="detail-flow-node" aria-hidden="true">
+                    <svg class="detail-flow-arrows" viewBox="0 0 28 28">
+                      <path d="M7 14h14"></path>
+                      <path d="m16.8 9.8 4.2 4.2-4.2 4.2"></path>
+                    </svg>
+                  </span>
                 </div>
-                <div class="right">
-                  <CustomIcon :type="changeInfo?.dsType" size="25px" rightMargin="10px" />
-                  <div>
-                    <div>
-                      {{ $t('shi-li-0') + ': ' + changeInfo?.dsInstance || '-' }}
+                <div class="right endpoint-summary-card">
+                  <div class="endpoint-summary-title">
+                    <CustomIcon :type="changeInfo?.dsType" size="24px" rightMargin="8px" />
+                    <span>{{ $t('shu-ju-ku') }}</span>
+                  </div>
+                  <div class="endpoint-summary-lines">
+                    <div class="endpoint-summary-line">
+                      <span>{{ $t('shi-li-0') }}：</span>
+                      <strong>{{ changeInfo?.dsInstance || '-' }}</strong>
                     </div>
-                    <div>
-                      {{ $t('miao-shu') + ': ' + changeInfo?.dsDesc || '-' }}
+                    <div class="endpoint-summary-line">
+                      <span>{{ $t('miao-shu') }}：</span>
+                      <strong>{{ changeInfo?.dsDesc || '-' }}</strong>
                     </div>
                   </div>
                 </div>
@@ -62,17 +70,30 @@
             </div>
             <div class="right-wrap">
               <div class="btns">
-                <Button @click="skipCheck" type="primary" v-if="!(isBtnOnlyRead || canJumpCheck || changeInfo.currentStep !== 'CHECK')">
+                <Button
+                  class="detail-action-btn primary-action"
+                  @click="skipCheck"
+                  type="primary"
+                  v-if="!(isBtnOnlyRead || canJumpCheck || changeInfo.currentStep !== 'CHECK')"
+                >
                   {{ isErrorCheck ? $t('tiao-guo') : $t('tiao-guo-jian-ce') }}
                 </Button>
-                <Button @click="retryChange" v-if="changeInfo.currentStep !== 'APPROVAL' && !(cantRetry || isBtnOnlyRead || isReadyStatus)">
+                <Button
+                  class="detail-action-btn"
+                  @click="retryChange"
+                  v-if="changeInfo.currentStep !== 'APPROVAL' && !(cantRetry || isBtnOnlyRead || isReadyStatus)"
+                >
                   {{ $t('zhong-shi-bian-geng') }}
                 </Button>
-                <Button @click="retryChange" v-if="changeInfo.currentStep === 'APPROVAL' && !(cantRetry || isBtnOnlyRead || isReadyStatus)">
+                <Button
+                  class="detail-action-btn"
+                  @click="retryChange"
+                  v-if="changeInfo.currentStep === 'APPROVAL' && !(cantRetry || isBtnOnlyRead || isReadyStatus)"
+                >
                   {{ $t('zhong-xin-fa-qi-gong-dan') }}
                 </Button>
-                <Button @click="closeChange" v-if="!isBtnOnlyRead">{{ $t('guan-bi-bian-geng') }}</Button>
-                <Button @click="handleRefresh" :loading="loading">
+                <Button class="detail-action-btn" @click="closeChange" v-if="!isBtnOnlyRead">{{ $t('guan-bi-bian-geng') }}</Button>
+                <Button class="detail-action-btn refresh-action-btn" @click="handleRefresh" :loading="loading">
                   <CustomIcon type="icon-v2-Refresh" v-if="!loading" />
                 </Button>
               </div>
@@ -532,6 +553,41 @@ export default {
       const status = this.currentTicket?.ticketStatus || '';
       return this.approveStatusMap[this.currentApproveStatus]?.text || '';
     },
+    changeStatusLabel() {
+      const statusMap = {
+        OPEN: this.$t('jin-hang-zhong'),
+        READY: this.$t('jin-hang-zhong'),
+        WAIT: this.$t('deng-dai-zhi-hang'),
+        FAILED: this.$t('shi-bai'),
+        FINISH: this.$t('wan-cheng'),
+        CLOSED: this.$t('yi-guan-bi')
+      };
+      return statusMap[this.changeInfo?.currentStatus] || this.changeInfo?.currentStatus || '-';
+    },
+    changeStatusClass() {
+      const status = this.changeInfo?.currentStatus;
+      if (status === 'FAILED') {
+        return 'danger';
+      }
+      if (status === 'CLOSED') {
+        return 'muted';
+      }
+      if (status === 'FINISH') {
+        return 'success';
+      }
+      return 'progress';
+    },
+    changeStepLabel() {
+      const stepMap = {
+        INIT_SNAPSHOT: this.$t('kuai-zhao-bian-geng'),
+        INIT: this.$t('di-jiao'),
+        CHECK: this.$t('sql-shen-he'),
+        APPROVAL: this.$t('shen-pi-liu'),
+        EXECUTE: this.$t('zhi-xing'),
+        FINISH: this.$t('wan-cheng')
+      };
+      return stepMap[this.changeInfo?.currentStep] || this.changeInfo?.currentStep || '-';
+    },
     isBtnOnlyRead() {
       return this.changeInfo.locked;
     },
@@ -729,8 +785,22 @@ export default {
 
       if (res.success) {
         this.changeInfo = res.data;
+        this.syncFlowIdQuery();
       }
       this.loading = false;
+    },
+    syncFlowIdQuery() {
+      const flowId = this.changeInfo?.flowId;
+      if (!flowId || String(this.$route.query.flowId || '') === String(flowId)) {
+        return;
+      }
+      this.$router.replace({
+        path: this.$route.path,
+        query: {
+          ...this.$route.query,
+          flowId: String(flowId)
+        }
+      });
     },
     async getRowSql() {
       this.loading = true;
@@ -1150,10 +1220,12 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.sub-account {
+.change-detail-page {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
+  background: #f6f9fc;
 
   .uid {
     display: flex;
@@ -1196,12 +1268,6 @@ export default {
   }
 
   .action {
-    //button {
-    //  margin-right: 12px;
-    //}
-    //.ivu-dropdown {
-    //  padding: 0 7px;
-    //}
     a {
       margin-right: 16px;
     }
@@ -1212,30 +1278,356 @@ export default {
   }
 }
 
-.sql-change-container {
+.change-detail-layout {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
-  border: 1px solid #ededed;
-  position: relative;
-  height: 100%;
-  overflow-y: hidden;
+  min-height: 0;
+  padding: 12px 20px 16px;
+  background: #f6f9fc;
+}
 
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    margin-bottom: 0 !important;
-    border-bottom: 1px solid #ededed;
-  }
+.change-detail-shell {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.sql-change-container {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid #dbe6f1;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(31, 45, 61, 0.05);
 
   .read-only-editor {
     border: none;
   }
 }
 
+.change-detail-hero {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: minmax(620px, 1.35fr) minmax(420px, 0.9fr);
+  gap: 24px;
+  align-items: start;
+  margin-bottom: 0 !important;
+  padding: 22px 24px 20px;
+  border-bottom: 1px solid #e1ebf3;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+}
+
+.left-wrap {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.title-wrap {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.title-text-ellipsis {
+  display: inline-block;
+  max-width: 520px;
+  overflow: hidden;
+  color: #111827;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 28px;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.change-status-pill,
+.change-step-pill {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  height: 26px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.change-status-pill {
+  &.success {
+    color: #0fac69;
+    background: #e0f8e9;
+  }
+
+  &.progress {
+    color: #2175d9;
+    background: #e8f2ff;
+  }
+
+  &.danger {
+    color: #d92d20;
+    background: #fff0ee;
+  }
+
+  &.muted {
+    color: #667085;
+    background: #eef2f7;
+  }
+}
+
+.change-step-pill {
+  color: #5b6a80;
+  background: #eef4fa;
+}
+
+.card-wrap {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 86px minmax(260px, 1fr);
+  align-items: stretch;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.endpoint-summary-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 116px;
+  padding: 2px 0;
+}
+
+.endpoint-summary-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: #111827;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 22px;
+}
+
+.endpoint-summary-lines {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.endpoint-summary-line {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  align-items: center;
+  min-width: 0;
+  color: #111827;
+  font-size: 14px;
+  line-height: 22px;
+
+  span {
+    color: #66758a;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  strong {
+    min-width: 0;
+    overflow: hidden;
+    color: #111827;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.mid {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 116px;
+  color: #0fac69;
+
+  &::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    border-left: 1px dashed #d5e0eb;
+    content: '';
+    transform: translateX(-50%);
+  }
+}
+
+.detail-flow-node {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  border: 1px dashed #d8ecdf;
+  border-radius: 999px;
+  background: #fff;
+}
+
+.detail-flow-node::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: #dff7eb;
+  content: '';
+  transform: translate(-50%, -50%);
+}
+
+.detail-flow-arrows {
+  position: relative;
+  z-index: 1;
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.3;
+}
+
+.right-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  min-width: 0;
+  min-height: 150px;
+
+  .btns {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  :deep(.ivu-steps.ivu-steps-small .ivu-steps-title) {
+    width: auto;
+    color: #5b6a80;
+    font-size: 12px;
+  }
+}
+
+.detail-action-btn {
+  height: 32px;
+  padding: 0 12px;
+  border-color: #d9e3ee;
+  border-radius: 5px;
+  color: #111827;
+  font-size: 12px;
+  font-weight: 500;
+  background: #fff;
+  box-shadow: 0 3px 8px rgba(31, 45, 61, 0.04);
+}
+
+.primary-action {
+  border-color: #14b86f;
+  background: #14b86f;
+}
+
+.refresh-action-btn {
+  width: 34px;
+  padding: 0;
+}
+
+.step-wrap {
+  width: 100%;
+  max-width: 560px;
+  margin-top: 20px;
+  padding: 0;
+  border-left: 0;
+}
+
 .progress-bar {
   width: 200px;
+}
+
+.content-wrap {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  background: #fff;
+
+  .tab-wrap {
+    flex: 0 0 auto;
+    width: 100%;
+    background-color: #fff;
+  }
+
+  :deep(.ivu-tabs-bar) {
+    margin-bottom: 0;
+    padding: 0 24px;
+    border-bottom: 1px solid #e1ebf3;
+  }
+
+  :deep(.ivu-tabs-nav .ivu-tabs-tab) {
+    padding: 14px 16px;
+    color: #66758a;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  :deep(.ivu-tabs-nav .ivu-tabs-tab-active) {
+    color: #0fac69;
+  }
+
+  :deep(.ivu-tabs-ink-bar) {
+    background-color: #14b86f;
+  }
+
+  .tab-item-wrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 18px 24px 22px;
+    overflow: auto;
+    background: #fff;
+  }
+
+  .tab-item {
+    height: 100%;
+    min-height: 0;
+  }
+
+  :deep(.ivu-tabs-content) {
+    height: auto;
+  }
+}
+
+:deep(.ivu-card) {
+  margin-bottom: 16px;
+  border-color: #dbe6f1;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+:deep(.ivu-table-wrapper) {
+  border-color: #dbe6f1;
+}
+
+:deep(.ivu-timeline-item-tail) {
+  border-left: 2px solid #e8eaec;
 }
 
 .section {
@@ -1248,94 +1640,15 @@ export default {
 }
 
 .item-list li {
-  padding: 8px 0;
-  border-bottom: 1px solid #e8eaec;
   display: flex;
   align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e8eaec;
 }
 
 .item-list li i {
   margin-right: 8px;
   color: #2d8cf0;
-}
-
-:deep(.ivu-tabs-bar) {
-  margin-bottom: 0;
-}
-
-:deep(.ivu-card) {
-  margin-bottom: 20px;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-}
-
-:deep(.ivu-timeline-item-tail) {
-  border-left: 2px solid #e8eaec;
-}
-
-.card-wrap {
-  position: relative;
-  display: flex;
-  max-width: 1000px;
-  justify-content: space-between;
-  align-items: center;
-  padding: 5px;
-
-  .left,
-  .right {
-    display: flex;
-  }
-
-  .right {
-    margin-right: 30px;
-  }
-
-  .right::after {
-    margin-right: 30px;
-  }
-
-  .delete-icon {
-    position: absolute;
-    right: 5px;
-    bottom: 2px;
-  }
-}
-
-.left-wrap {
-  display: flex;
-  flex-direction: column;
-  min-width: 700px;
-}
-
-.right-wrap {
-  height: 120px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: space-between;
-
-  .btns {
-    display: flex;
-
-    button {
-      margin-right: 10px;
-    }
-  }
-
-  :deep(.ivu-steps.ivu-steps-small .ivu-steps-title) {
-    width: 100px;
-  }
-}
-
-.title-wrap {
-  font-weight: bold;
-  display: flex;
-  margin-bottom: 20px;
-}
-
-.step-wrap {
-  border-left: 1px solid;
-  padding-left: 60px;
-  width: 500px;
 }
 
 .approv-wrap {
@@ -1350,31 +1663,6 @@ export default {
   }
 }
 
-.content-wrap {
-  flex: 1;
-  height: calc(100% - 161px);
-
-  .tab-wrap {
-    width: 100%;
-    // position: fixed;
-    z-index: 999;
-    background-color: #fff;
-  }
-
-  .tab-item {
-    height: 100%;
-  }
-
-  .tab-item-wrap {
-    height: calc(100% - 45px);
-    overflow-y: auto;
-  }
-
-  :deep(.ivu-tabs-content) {
-    height: calc(100% - 45px);
-  }
-}
-
 .extra-btn {
   margin: 5px 10px 0 0;
 }
@@ -1383,59 +1671,61 @@ export default {
   display: flex;
   height: 100%;
   width: 100%;
+  min-height: 0;
 
   .exec-left {
     flex: 1;
     height: 100%;
-    overflow: hidden;
+    min-width: 0;
+    overflow: auto;
   }
 
   .exec-right {
-    width: 100%;
-    height: 100%;
     display: flex;
     align-items: flex-end;
     flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
   }
 
   .exec-border {
-    padding: 10px;
-    height: 100%;
-    border-left: 1px solid #ccc;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    width: 100%;
+    max-width: 820px;
+    height: auto;
+    min-height: 220px;
+    padding: 16px;
+    border: 1px solid #dbe6f1;
+    border-radius: 8px;
+    background: #fbfdff;
   }
 
   .right-footer {
     display: flex;
-    justify-content: right;
+    justify-content: flex-end;
+    margin-top: 14px;
   }
 }
 
-.empty-wrap {
-  height: 100%;
+.empty-wrap,
+.empty-div {
   display: flex;
-  justify-content: center;
+  height: 100%;
+  min-height: 260px;
   align-items: center;
+  justify-content: center;
 }
 
 .collapse-text-ellipsis {
   display: inline-block;
   max-width: 90%;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: middle;
-}
-
-.title-text-ellipsis {
-  display: inline-block;
-  max-width: 100%;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: middle;
 }
 
 .collapse-btn {
@@ -1448,14 +1738,57 @@ export default {
 }
 
 .gray-text {
-  color: #aaa;
+  color: #66758a;
   margin-left: 5px;
 }
 
-.empty-div {
-  display: flex;
-  height: 100%;
-  justify-content: center;
-  align-items: center;
+@media (max-width: 1320px) {
+  .change-detail-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .right-wrap {
+    align-items: flex-start;
+    min-height: auto;
+
+    .btns {
+      justify-content: flex-start;
+    }
+  }
+
+  .step-wrap {
+    width: 100%;
+  }
+}
+
+@media (max-width: 980px) {
+  .change-detail-layout {
+    padding: 10px 14px 14px;
+  }
+
+  .change-detail-hero {
+    padding: 18px;
+  }
+
+  .title-wrap {
+    flex-wrap: wrap;
+  }
+
+  .title-text-ellipsis {
+    max-width: 100%;
+  }
+
+  .card-wrap {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .mid {
+    min-height: 56px;
+  }
+
+  .content-wrap .tab-item-wrap {
+    padding: 16px;
+  }
 }
 </style>

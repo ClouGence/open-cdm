@@ -49,9 +49,6 @@
               >
                 {{ $t('ti-jiao-gong-dan') }}
               </Button>
-              <Button type="default" @click="listTickets">
-                <CustomIcon type="icon-v2-Refresh" />
-              </Button>
             </div>
           </div>
           <div class="table-container">

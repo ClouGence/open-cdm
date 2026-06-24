@@ -63,6 +63,23 @@ const routes = [
         component: () => import(/* webpackChunkName: "cicd" */ '@/views/cicd/index')
       },
       {
+        path: 'cicd/create',
+        name: 'cicd/create',
+        component: () => import(/* webpackChunkName: "cicd-release-flow" */ '@/views/cicd/ReleaseFlowPage'),
+        meta: { requiredAuth: 'DM_CICD_FLOW_MANAGE' }
+      },
+      {
+        path: 'cicd/:id/release-flow/add',
+        name: 'cicd/release-flow/add',
+        component: () => import(/* webpackChunkName: "cicd-release-flow" */ '@/views/cicd/ReleaseFlowPage'),
+        meta: { requiredAuth: 'DM_CICD_FLOW_MANAGE' }
+      },
+      {
+        path: 'cicd/:id/change-records',
+        name: 'cicd/change-records',
+        component: () => import(/* webpackChunkName: "cicd-change-records" */ '@/views/cicd/changeRecordList')
+      },
+      {
         path: 'cicd/:id',
         name: 'cicd/id',
         component: () => import(/* webpackChunkName: "ticket" */ '../views/cicd/flowDetail')

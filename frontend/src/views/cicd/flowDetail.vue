@@ -1,257 +1,137 @@
 <template>
   <div class="table-list-layout">
     <div class="table-list flow-wrap">
-      <div class="header">
-        <Breadcrumb>
-          <BreadcrumbItem to="/cicd">{{ $t('xiang-mu-lie-biao') }}</BreadcrumbItem>
-          <BreadcrumbItem class="flow-overflow">
-            {{ flowInfo === null ? $t('wei-zhi') : flowInfo.flowName }}
-          </BreadcrumbItem>
-        </Breadcrumb>
-      </div>
       <div class="content" v-if="flowInfo === null">
         <div class="empty">
           <img src="@/assets/not-exist.svg" class="empty_image" />
           {{ $t('bu-cun-zai-de-xiang-mu') }}
         </div>
       </div>
-      <div class="content" v-if="flowInfo !== null">
-        <div class="option-wrap">
-          <div class="warp-top">
-            <div class="left">
-              <div class="flow-base-info">
-                <CustomIcon v-if="flowInfo.flowStatus === 'DELETE'" type="icon-v2-Delete2" size="18px" rightMargin="5px" />
-                <CustomIcon v-if="flowInfo.flowStatus === 'ARCHIVE'" type="icon-v2-Archive" size="18px" rightMargin="5px" />
-                <Dropdown v-if="flowInfo.flowStatus === 'NORMAL'" placement="bottom-start" @on-click="handleFlowMark">
-                  <CustomIcon :type="FLOW_MARK_MAP[flowInfo.mark]" hoverStyle size="18px" topMargin="5px" rightMargin="5px" />
-                  <template #list>
-                    <DropdownItem :name="key" v-for="(key, index) in Object.keys(FLOW_MARK_MAP)" :key="index">
-                      <CustomIcon :type="FLOW_MARK_MAP[key]" />
-                    </DropdownItem>
-                  </template>
-                </Dropdown>
-                <CCFieldEdit class="info-item" value-margin="5px" :fieldName="$t('xiang-mu-code')" :value="flowInfo.flowUid" :readOnly="true" />
-                <CCFieldEdit
-                  class="info-item"
-                  value-margin="5px"
-                  :fieldName="$t('xiang-mu-ming-cheng')"
-                  :value="flowInfo.flowName"
-                  :read-only="flowReadOnly"
-                  :onOK="handleNameEdit"
-                />
-                <CCSelectEdit
-                  class="info-item"
-                  value-margin="5px"
-                  :fieldName="$t('guan-li-yuan')"
-                  :read-only="flowReadOnly"
-                  :value="flowManagerInfo.flowManagerUid"
-                  :label="flowManagerInfo.flowManagerName"
-                  :options="devopsUsersList"
-                  :valueOfValue="fetchDevopsUsersListValueOfValue"
-                  :valueOfLabel="fetchDevopsUsersListValueOfLabel"
-                  :onOK="handleAdminEdit"
-                  :onEditor="fetchDevopsUsersList"
-                />
-                <div class="info-item">
-                  <div>{{ $t('im-xiao-xi') + ':' || '-' }}</div>
-                  <div @click="handleImEdit" :class="flowReadOnly ? '' : 'hoverStyle'" style="display: flex">
-                    <CustomIcon v-if="imProviderInfo.imType === 'none'" type="Disable" leftMargin="5px" rightMargin="5px" />
-                    <CustomIcon
-                      v-else-if="providerIconResource(imProviderInfo.imType)"
-                      :resource="providerIconResource(imProviderInfo.imType)"
-                      :alt="imProviderInfo.imTypeI18n"
-                      size="20px"
-                      leftMargin="5px"
-                      rightMargin="5px"
-                    />
-                    <span v-if="imProviderInfo.imType !== 'none'" :class="`im-tag${flowReadOnly ? '-readonly' : ''} im-text-ellipsis`">
-                      {{ imProviderInfo.name }}
-                    </span>
-                  </div>
+      <div class="content flow-detail-content" v-if="flowInfo !== null">
+        <div class="detail-hero-grid">
+          <section class="detail-card overview-card">
+            <div class="overview-card-header">
+              <div class="overview-title-row">
+                <strong class="overview-flow-name">{{ flowInfo.flowName || '-' }}</strong>
+                <span class="flow-status-pill" :class="flowStatusClass">{{ flowStatusText }}</span>
+              </div>
+              <div class="detail-toolbar">
+                <Button class="detail-toolbar-btn" @click="showRecordPanel">
+                  <span>{{ $t('bian-geng-ji-lu') }}</span>
+                </Button>
+                <Button
+                  class="detail-toolbar-btn detail-trigger-btn"
+                  type="primary"
+                  :disabled="flowReadOnly || !primaryDevops || !primaryDevops.enable"
+                  @click="triggerPrimaryChange"
+                >
+                  <span>{{ $t('chu-fa-bian-geng') }}</span>
+                </Button>
+                <Button
+                  class="detail-toolbar-btn detail-snapshot-btn"
+                  :disabled="flowReadOnly || !primaryDevops || !primaryDevops.enable"
+                  @click="triggerPrimarySnapshot"
+                >
+                  <span>{{ $t('jian-li-kuai-zhao') }}</span>
+                </Button>
+              </div>
+            </div>
+            <div class="overview-meta-grid">
+              <div class="overview-meta-item">
+                <div class="overview-meta-copy">
+                  <span>{{ $t('cicd-xiang-mu-code-colon') }}</span>
+                  <Tooltip :content="flowInfo.flowUid || '-'">
+                    <strong>{{ compactText(flowInfo.flowUid, 12) }}</strong>
+                  </Tooltip>
+                  <Icon class="inline-action-icon" type="ios-copy-outline" @click="handleCopyTemp(flowInfo.flowUid)" />
                 </div>
-                <div class="info-item">
-                  <div>{{ $t('liu-cheng-pei-zhi') + ':' || '-' }}</div>
-                  <div @click="handleFlowEdit" :class="`im-tag${flowReadOnly ? '-readonly' : ''} flow-icons${!flowReadOnly ? '-cursor' : ''}`">
-                    <CustomIcon type="icon-v2-shenhe" leftMargin :color="`${flowInfo.flowCheck !== 'Skip' ? '#43cf7c' : ''}`" />
-                    <CustomIcon type="icon-v2-shenpi" leftMargin :color="`${flowInfo.flowApprove === 'Enable' ? '#43cf7c' : ''}`" />
-                    <CustomIcon type="icon-v2-DataBase2" leftMargin :color="`${flowInfo.flowExecute !== 'Disabled' ? '#43cf7c' : ''}`" />
-                  </div>
+              </div>
+              <div class="overview-meta-item">
+                <div class="overview-meta-copy">
+                  <span>{{ $t('cicd-guan-li-yuan-colon') }}</span>
+                  <strong>{{ flowManagerInfo.flowManagerName || '-' }}</strong>
+                  <Icon class="inline-action-icon" type="ios-copy-outline" @click="handleCopyTemp(flowManagerInfo.flowManagerName || '-')" />
                 </div>
               </div>
             </div>
-            <div class="right">
-              <Button class="btn-wrap" type="primary" icon="md-add" @click="handleGitOpsAdd" v-if="flowInfo.flowStatus === 'NORMAL'">
-                {{ $t('tian-jia-git-ops') }}
-              </Button>
-              <Button class="btn-wrap" @click="handleOperate('delate')" v-if="flowInfo.flowStatus === 'ARCHIVE'">
-                <span style="color: red">{{ $t('shan-chu-xiang-mu') }}</span>
-              </Button>
-              <Button class="btn-wrap" @click="handleOperate('archive')" v-if="flowInfo.flowStatus === 'NORMAL'">
-                {{ $t('gui-dang-xiang-mu') }}
-              </Button>
-              <Button class="btn-wrap" @click="handleOperate('resetArchive')" v-if="flowInfo.flowStatus === 'ARCHIVE'">
-                {{ $t('hui-fu-gui-dang') }}
-              </Button>
-              <Button class="btn-wrap" @click="init">
-                <CustomIcon type="icon-v2-Refresh" :disabled="loading" />
-              </Button>
-            </div>
-          </div>
-          <div class="warp-empty" v-if="devopsList.length === 0">
-            <Button type="info" ghost :disabled="flowReadOnly" @click="handleGitOpsAdd">
-              {{ $t('qing-tian-jia-fa-bu-liu') }}
-            </Button>
-          </div>
-          <div class="bottom-card" v-if="devopsList.length !== 0">
-            <div class="card-wrap" v-for="(item, index) in devopsList" :key="index">
-              <div class="flow flex items-center gap-3 w-full">
-                <div class="part1 flex items-center gap-2 overflow-hidden">
-                  <CustomIcon :type="item.scmType" size="22" />
-                  <div class="text-overflow flex flex-col gap-2">
-                    <div class="card-item flex">
-                      <span class="label text-right">{{ $t('git-repo') }}：</span>
-                      <Tooltip :content="item.repoName + ':' + item.repoBranch">
-                        <span class="value im-text-ellipsis">{{ item.repoName }}:{{ item.repoBranch }}</span>
-                      </Tooltip>
-                    </div>
-                    <div class="card-item flex max-w-[250px]">
-                      <span class="label text-right">{{ $t('lu-jing') }}：</span>
-                      <Tooltip :content="item.repoScriptPath">
-                        <span class="value im-text-ellipsis">{{ item.repoScriptPath }}</span>
-                      </Tooltip>
-                    </div>
-                  </div>
+            <div class="pipeline-overview">
+              <div class="endpoint-card">
+                <div class="endpoint-title">
+                  <CustomIcon :type="scmIconType" size="24px" />
+                  <span>{{ $t('cicd-git-cang-ku') }}</span>
                 </div>
-                <div class="part2 flex-shrink-0">
-                  <CustomIcon type="ArrorRight2" size="23px" />
+                <div class="endpoint-row">
+                  <span>{{ $t('cicd-yuan-ma-cang-ku-colon') }}</span>
+                  <Tooltip :content="repoNameText">
+                    <strong>{{ compactText(repoNameText, 26) }}</strong>
+                  </Tooltip>
                 </div>
-                <div class="part3 flex items-center gap-2 overflow-hidden">
-                  <CustomIcon :type="item.dsType" size="22" />
-                  <div class="text-overflow flex flex-col gap-2">
-                    <div class="card-item flex">
-                      <span class="label text-right">{{ $t('shi-li-0') }}：</span>
-                      <Tooltip :content="item.dsInstance || '-'">
-                        <span class="value im-text-ellipsis">{{ item.dsInstance || '-' }}</span>
-                      </Tooltip>
-                    </div>
-                    <div class="card-item flex">
-                      <span class="label text-right">{{ $t('bian-geng-mu-biao') }}：</span>
-                      <Tooltip :content="envDevOpsTarget(item)">
-                        <span class="value im-text-ellipsis">{{ envDevOpsTarget(item) }}</span>
-                      </Tooltip>
-                    </div>
-                  </div>
+                <div class="endpoint-row">
+                  <span>{{ $t('fen-zhi') }}：</span>
+                  <Tooltip :content="repoBranchText">
+                    <strong>{{ compactText(repoBranchText, 26) }}</strong>
+                  </Tooltip>
+                </div>
+                <div class="endpoint-row">
+                  <span>{{ $t('cicd-jiao-ben-lu-jin-colon') }}</span>
+                  <Tooltip :content="repoScriptPathText">
+                    <strong>{{ compactText(repoScriptPathText, 28) }}</strong>
+                  </Tooltip>
                 </div>
               </div>
-              <hr class="my-3 ml-10 w-[calc(100%-40px)]" />
-              <div class="flow info flex flex-col gap-3 w-full">
-                <div class="flex gap-6">
-                  <div class="card-item flex items-start">
-                    <span class="label">{{ $t('chu-fa-pei-zhi') }}：</span>
-                    <span class="value flex items-center">
-                      <CustomIcon
-                        :type="`${item.webHookEnable || item.triggerEnable ? 'icon-v2-SuccessColorful' : 'icon-v2-Disable2'}`"
-                        rightMargin="3px"
-                        size="12"
-                      />
-                      <span @click="openTriggerConfig(item)" class="webhook-text">{{ $t('cha-kan-pei-zhi') }}</span>
-                    </span>
-                  </div>
-                  <div class="card-item flex items-start">
-                    <span class="label">{{ $t('callback-pei-zhi') }}：</span>
-                    <span class="value flex items-center">
-                      <CustomIcon :type="`${item.callbackEnable ? 'icon-v2-SuccessColorful' : 'icon-v2-Disable2'}`" rightMargin="3px" size="12" />
-                      <span @click="openCallBack(item)" class="webhook-text">{{ $t('cha-kan-pei-zhi') }}</span>
-                    </span>
-                  </div>
+              <div class="pipeline-link" aria-hidden="true">
+                <span class="pipeline-dash"></span>
+                <span class="pipeline-link-node">
+                  <svg class="flow-link-arrows" viewBox="0 0 28 28" aria-hidden="true">
+                    <path d="M7 14h14" />
+                    <path d="m16.8 9.8 4.2 4.2-4.2 4.2" />
+                  </svg>
+                </span>
+                <span class="pipeline-dash"></span>
+              </div>
+              <div class="endpoint-card">
+                <div class="endpoint-title database-title">
+                  <CustomIcon :type="primaryDevops?.dsType || 'icon-v2-DataBase2'" size="22px" />
+                  <span>{{ $t('shu-ju-ku') }}</span>
                 </div>
-                <div v-if="!flowReadOnly" class="flex gap-2 flex-wrap justify-end">
-                  <Button v-if="item.enable" size="small" type="primary" @click="triggerChange(item)">
-                    {{ $t('chu-fa-bian-geng') }}
-                  </Button>
-                  <Button v-if="item.enable" size="small" @click="triggerSnapshot(item)">
-                    {{ $t('jian-li-kuai-zhao') }}
-                  </Button>
-                  <Button v-if="item.enable" size="small" type="error" @click="disableDevops(item)">
-                    {{ $t('jin-yong-bian-geng') }}
-                  </Button>
-                  <Button v-if="!item.enable" size="small" type="success" @click="enableDevops(item)">
-                    {{ $t('ji-huo-bian-geng') }}
-                  </Button>
-                  <Button v-if="!item.enable" size="small" type="error" @click="deleteDevops(item)">
-                    {{ $t('shan-chu-bian-geng') }}
-                  </Button>
+                <div class="endpoint-row">
+                  <span>{{ $t('shu-ju-yuan-shi-li-0') }}</span>
+                  <Tooltip :content="primaryDevops?.dsInstance || '-'">
+                    <strong>{{ compactText(primaryDevops?.dsInstance, 22) }}</strong>
+                  </Tooltip>
+                </div>
+                <div class="endpoint-row">
+                  <span>{{ $t('schema') }}：</span>
+                  <Tooltip :content="targetDatabaseText">
+                    <strong>{{ compactText(targetDatabaseText, 22) }}</strong>
+                  </Tooltip>
                 </div>
               </div>
             </div>
+          </section>
+        </div>
+
+        <section class="detail-card config-card">
+          <div class="detail-card-title">{{ $t('cicd-pei-zhi-xiang') }}</div>
+          <div class="config-list">
+            <div class="config-row" v-for="item in configItems" :key="item.key">
+              <div class="config-leading">
+                <span class="config-name">{{ item.title }}</span>
+              </div>
+              <span class="config-status" :class="item.statusClass">{{ item.status }}</span>
+              <div class="config-desc">{{ item.desc }}</div>
+              <div class="config-actions">
+                <span v-for="(action, actionIndex) in item.actions" :key="`${item.key}-${action.type}`" class="config-action-item">
+                  <button type="button" class="config-action-link" @click="handleConfigAction(action.type)">
+                    {{ action.label }}
+                  </button>
+                  <span v-if="actionIndex < item.actions.length - 1" class="config-action-divider"></span>
+                </span>
+              </div>
+              <Icon class="config-arrow" type="ios-arrow-forward" />
+            </div>
           </div>
-        </div>
-        <CCTitle :content="$t('bian-geng-ji-lu')" />
-        <div class="option">
-          <div class="left">
-            <Input style="width: 280px; margin-right: 10px" clearable v-model="keyword" @on-enter="handleQuery" @on-clear="handleQueryClear" />
-            <Button @click="handleQuery" type="primary" ghost>{{ $t('cha-xun') }}</Button>
-          </div>
-        </div>
-        <div class="table-container">
-          <Table
-            :columns="flowDetailTableColumns"
-            :data="changeList"
-            :loading="loading"
-            :locale="{ emptyText: $t('zan-wu-shu-ju') }"
-            size="small"
-            border
-            stripe
-          >
-            <template #status="{ row }">
-              <div style="display: flex; align-items: center; justify-content: center">
-                <CustomIcon :type="changeStatueIcon(row)" size="18px" />
-              </div>
-            </template>
-            <template #flow="{ row }">
-              <div style="display: flex; flex-direction: column; max-width: 200px">
-                <div style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden">
-                  <Tag color="blue">{{ $t('mu-biao') }}</Tag>
-                  <CustomIcon :type="row.dsType" size="16px" />
-                  <span>{{ row.dsInstance }}</span>
-                </div>
-              </div>
-            </template>
-            <template #step="{ row }">
-              <div class="step-wrap" v-if="row.currentStep === 'INIT_SNAPSHOT'">
-                <CustomIcon type="icon-v2-Snapshot" :color="changeStepColor('INIT_SNAPSHOT', row)" size="18px" />
-              </div>
-              <div class="step-wrap" v-if="row.currentStep !== 'INIT_SNAPSHOT'">
-                <CustomIcon type="icon-v2-hebing" :color="changeStepColor('INIT', row)" size="18px" />
-                <CustomIcon type="icon-v2-shuang-you" size="12px" />
-                <CustomIcon type="icon-v2-shenhe" :color="changeStepColor('CHECK', row)" size="18px" />
-                <CustomIcon type="icon-v2-shuang-you" size="12px" />
-                <CustomIcon type="icon-v2-shenpi" :color="changeStepColor('APPROVAL', row)" size="18px" />
-                <CustomIcon type="icon-v2-shuang-you" size="12px" />
-                <CustomIcon type="icon-v2-DataBase2" :color="changeStepColor('EXECUTE', row)" size="18px" />
-              </div>
-            </template>
-            <template #action="{ row }">
-              <div class="action">
-                <router-link :to="`/cicd/change/${row?.changeId}`">
-                  {{ $t('xiang-qing') }}
-                </router-link>
-              </div>
-            </template>
-          </Table>
-        </div>
-        <div class="footer">
-          <Page
-            :total="pageTotal"
-            show-total
-            show-elevator
-            @on-change="handlePageChange"
-            show-sizer
-            v-model="pageNum"
-            :page-size="pageSize"
-            @on-page-size-change="handlePageSizeChange"
-          />
-        </div>
+        </section>
       </div>
     </div>
     <a-drawer
@@ -365,282 +245,329 @@
         <Button type="primary" @click="handleDevopsSubmit">{{ $t('wan-cheng') }}</Button>
       </div>
     </a-drawer>
-    <a-drawer
-      :title="$t('im-pei-zhi')"
-      width="420"
-      class="drawer-wrap"
-      :visible="imDialogDrawerShow"
-      :maskClosable="false"
-      @close="handleCloseAllDrawer"
-    >
-      <div class="drawer-content">
-        <CCTitle :content="$t('fu-wu-ti-gong-shang')" />
-        <div class="im-list">
-          <div
-            v-for="im in imDefList"
-            :class="`im ${imDefSelected.imType === im.imType ? 'im-selected' : ''}`"
-            :key="im.imType"
-            @click="handleImDefOne(im)"
-          >
-            <CustomIcon v-if="im.imType === 'none'" type="Disable" />
-            <CustomIcon v-else-if="im.iconResource" :resource="im.iconResource" :alt="im.imTypeI18n" size="20px" />
-            <div>{{ im.imTypeI18n }}</div>
+    <CCModal v-model="imDialogDrawerShow" width="1040px" class="notify-config-modal-wrap" :maskClosable="false" @on-cancel="handleCloseAllDrawer">
+      <div class="notify-config-modal">
+        <div class="notify-config-title">{{ $t('tong-zhi-pei-zhi') }}</div>
+        <div class="notify-config-layout">
+          <div class="notify-config-left">
+            <div class="notify-config-label required">{{ $t('tong-zhi-qu-dao') }}</div>
+            <div class="notify-channel-list">
+              <button
+                v-for="im in imDefList"
+                :key="im.imType"
+                type="button"
+                class="notify-channel-btn"
+                :class="{ active: imDefSelected.imType === im.imType }"
+                @click="handleImDefOne(im)"
+              >
+                <CustomIcon v-if="im.imType === 'none'" type="Disable" size="22px" />
+                <CustomIcon v-else-if="im.iconResource" :resource="im.iconResource" :alt="im.imTypeI18n" size="22px" />
+                <span>{{ im.imTypeI18n }}</span>
+              </button>
+            </div>
+            <div class="notify-config-label service-label">{{ $t('im-fu-wu') }}</div>
+            <Select
+              class="notify-service-select"
+              v-model="imProviderSelected.imId"
+              :disabled="imDefSelected.imType === 'none'"
+              @on-change="handleImProviderSelected"
+              :placeholder="$t('qing-xuan-ze-yi-ge-im-ti-gong-zhe')"
+              :not-found-text="$t('zan-wu-shu-ju')"
+            >
+              <template #prefix>
+                <CustomIcon v-if="imDefSelected.imType === 'none'" type="Disable" rightMargin />
+                <CustomIcon
+                  v-else-if="imDefSelected.iconResource"
+                  :resource="imDefSelected.iconResource"
+                  :alt="imDefSelected.imTypeI18n"
+                  size="20px"
+                  rightMargin="5px"
+                />
+              </template>
+              <Option v-for="item in imProviderList" :key="item.imId" :value="item.imId" :label="item.display" :disabled="!item.enable">
+                <span>{{ item.display }}</span>
+              </Option>
+            </Select>
           </div>
-        </div>
-        <Select
-          class="im-select"
-          v-model="imProviderSelected.imId"
-          :disabled="imDefSelected.imType === 'none'"
-          @on-change="handleImProviderSelected"
-          :placeholder="$t('qing-xuan-ze-yi-ge-im-ti-gong-zhe')"
-          :not-found-text="$t('zan-wu-shu-ju')"
-        >
-          <template #prefix>
-            <CustomIcon v-if="imDefSelected.imType === 'none'" type="Disable" rightMargin />
-            <CustomIcon
-              v-else-if="imDefSelected.iconResource"
-              :resource="imDefSelected.iconResource"
-              :alt="imDefSelected.imTypeI18n"
-              size="20px"
-              rightMargin="5px"
-            />
-          </template>
-          <Option v-for="item in imProviderList" :key="item.imId" :value="item.imId" :label="item.display" :disabled="!item.enable">
-            <span>{{ item.display }}</span>
-          </Option>
-        </Select>
-        <CCTitle :content="$t('ding-yue-de-xiao-xi')" />
-        <div>
-          <i-switch true-color="#52C41A" v-model="imProviderSelected.eventChangeFlowStatus" :disabled="imDefSelected.imType === 'none'" />
-          <span class="switch-text switch-btn">{{ $t('xiang-mu-zhuang-tai-de-bian-hua') }}</span>
-        </div>
-        <div>
-          <i-switch true-color="#52C41A" v-model="imProviderSelected.eventFlowConfig" :disabled="imDefSelected.imType === 'none'" />
-          <span class="switch-text switch-btn">{{ $t('xiang-mu-pei-zhi-gai-bian') }}</span>
-        </div>
-        <div>
-          <i-switch true-color="#52C41A" v-model="imProviderSelected.eventChangeLife" :disabled="imDefSelected.imType === 'none'" />
-          <span class="switch-text switch-btn">{{ $t('bian-geng-jie-duan-bian-hua') }}</span>
-        </div>
-        <div>
-          <i-switch true-color="#52C41A" v-model="imProviderSelected.eventChangeNotice" :disabled="imDefSelected.imType === 'none'" />
-          <span class="switch-text switch-btn">{{ $t('bian-geng-zhuang-tai-xiao-xi') }}</span>
-        </div>
-        <CCTitle :content="$t('mo-ren-yu-yan')" />
-        <RadioGroup size="small" v-model="imProviderSelected.language" type="button">
-          <Radio label="zh">{{ defaultLanguageMap.zh }}</Radio>
-          <!-- <Radio label="en">{{ defaultLanguageMap.en }}</Radio> -->
-        </RadioGroup>
-      </div>
-      <div class="drawer-footer">
-        <Button type="primary" @click="handleImSubmit" :disabled="isImSubmitDisabled">{{ $t('wan-cheng') }}</Button>
-      </div>
-    </a-drawer>
-    <a-drawer
-      :title="$t('fa-bu-pei-zhi')"
-      width="420"
-      class="drawer-wrap"
-      :visible="imDialogFlowShow"
-      :maskClosable="false"
-      @close="handleCloseAllDrawer"
-    >
-      <div class="flow-drawer drawer-content">
-        <Steps class="flow-drawer-steps" size="small" :current="-1">
-          <Step :title="$t('sql-shen-he-0')" />
-          <Step :title="$t('shen-pi-liu')"></Step>
-          <Step :title="$t('fa-bu-fang-shi')"></Step>
-        </Steps>
-        <CCTitle :content="$t('sql-shen-he-0')" />
-        <div class="flow-drawer-step">
-          <RadioGroup v-model="flowOption.checkStrategy" size="small" type="button">
-            <Radio label="Always">{{ SQL_REVIEW_MAP.always }}</Radio>
-            <Radio label="Suggest">{{ SQL_REVIEW_MAP.suggest }}</Radio>
-            <Radio label="Failure">{{ SQL_REVIEW_MAP.failure }}</Radio>
-            <Radio label="Skip">{{ SQL_REVIEW_MAP.skip }}</Radio>
-          </RadioGroup>
-          <div class="flow-drawer-step-tips">
-            {{ fetchChangeFlowDescription('check', flowOption.checkStrategy) }}
-          </div>
-        </div>
-        <CCTitle :content="$t('shen-pi-liu')" />
-        <div class="flow-drawer-step">
-          <RadioGroup v-model="flowOption.approveStrategy" size="small" type="button">
-            <Radio label="Enable">{{ APPROVE_MAP.Enable }}</Radio>
-            <Radio label="Disable">{{ APPROVE_MAP.Disable }}</Radio>
-          </RadioGroup>
-          <div class="flow-drawer-step-tips">
-            {{ fetchChangeFlowDescription('approve', flowOption.approveStrategy) }}
-          </div>
-        </div>
-        <CCTitle :content="$t('fa-bu-fang-shi')" />
-        <div class="flow-drawer-step">
-          <RadioGroup v-model="flowOption.executeStrategy" size="small" type="button" @on-change="handleFlowOfExecuteOption">
-            <Radio label="Auto">{{ PUBLISH_MAP.auto }}</Radio>
-            <Radio label="Manual">{{ PUBLISH_MAP.manual }}</Radio>
-            <Radio label="Disabled">{{ PUBLISH_MAP.disabled }}</Radio>
-          </RadioGroup>
-          <div class="flow-drawer-step-tips">
-            {{ fetchChangeFlowDescription('execute', flowOption.executeStrategy) }}
-          </div>
-          <br />
-          <div style="padding-bottom: 5px">{{ $t('shi-yong-shi-wu') }}</div>
-          <RadioGroup v-model="flowOption.transactional" size="small" type="button">
-            <Radio label="Enable" :disabled="!flowExecuteIsAuto">
-              {{ APPROVE_MAP.Enable }}
-            </Radio>
-            <Radio label="Disable" :disabled="!flowExecuteIsAuto">
-              {{ APPROVE_MAP.Disable }}
-            </Radio>
-          </RadioGroup>
-          <div class="flow-drawer-step-tips">
-            {{ fetchChangeFlowDescription('transactional', flowOption.transactional) }}
-          </div>
-          <br />
-          <div style="padding-bottom: 5px">{{ $t('cuo-wu-ce-lve') }}</div>
-          <RadioGroup v-model="flowOption.errorStrategy" size="small" type="button">
-            <Radio label="NONE" :disabled="!flowExecuteIsAuto">
-              {{ ERROR_STRATEGY_MAP.abort }}
-            </Radio>
-            <Radio label="RETRY" :disabled="!flowExecuteIsAuto">
-              {{ ERROR_STRATEGY_MAP.retry }}
-            </Radio>
-            <Radio label="SKIP" :disabled="!flowExecuteIsAuto">
-              {{ ERROR_STRATEGY_MAP.ignore }}
-            </Radio>
-          </RadioGroup>
-          <div class="flow-drawer-step-tips">
-            {{ fetchChangeFlowDescription('error', flowOption.errorStrategy) }}
-          </div>
-        </div>
-      </div>
-      <div class="drawer-footer">
-        <Button type="primary" @click="handleOptionSubmit">{{ $t('wan-cheng') }}</Button>
-      </div>
-    </a-drawer>
-    <CCModal v-model="showTriggerModal" :title="$t('chu-fa')">
-      <Tabs v-model="triggerTab" size="small" :animated="false" type="line">
-        <TabPane :label="triggerTabLabel('WebHook')" name="WebHook">
-          <div class="title-text">{{ $t('cha-kan-xiang-mu-webhook') }}</div>
-          <div class="finish-wrap">
-            <div class="finish-left">
-              <div class="finish-title">
-                <span style="padding-right: 5px; line-height: 32px; width: 100px; text-align: right">{{ $t('webhook-config') }}：</span>
-                <i-switch true-color="#52C41A" v-model="trigger.hookEnable" />
-              </div>
-              <div class="finish-title">
-                <span style="padding-right: 5px; line-height: 32px; width: 100px; text-align: right">{{ $t('cang-ku') }}：</span>
-                <Input v-model="trigger.hookRepoUrl" style="width: 380px" readonly>
-                  <template #suffix>
-                    <Icon type="ios-link" @click="handleJumpUrl(trigger.hookRepoUrl)" />
-                  </template>
-                </Input>
-              </div>
-              <div class="finish-title">
-                <span style="padding-right: 5px; line-height: 32px; width: 100px; text-align: right">{{ $t('webhook-url') }}：</span>
-                <Input v-model="trigger.hookUrl" style="width: 380px" readonly :disabled="!trigger.hookEnable">
-                  <template #suffix>
-                    <Icon type="ios-copy" @click="handleCopyTemp(trigger.hookUrl)" />
-                  </template>
-                </Input>
-              </div>
-              <div class="finish-title">
-                <span style="padding-right: 5px; line-height: 32px; width: 100px; text-align: right">{{ $t('webhook-mi-ma') }}：</span>
-                <Input v-model="trigger.hookPassword" style="width: 380px" readonly :disabled="!trigger.hookEnable">
-                  <template #suffix>
-                    <Icon type="ios-copy" @click="handleCopyTemp(trigger.hookPassword)" />
-                  </template>
-                </Input>
-              </div>
-              <div class="finish-title" style="height: 32px"></div>
+          <div class="notify-config-right">
+            <div class="notify-panel-title">{{ $t('ding-yue-xiao-xi') }}</div>
+            <div class="notify-subscription-grid">
+              <label class="notify-subscription-cell">
+                <i-switch true-color="#52C41A" v-model="imProviderSelected.eventChangeFlowStatus" :disabled="imDefSelected.imType === 'none'" />
+                <span>{{ $t('zhuang-tai-bian-geng-tong-zhi') }}</span>
+              </label>
+              <label class="notify-subscription-cell">
+                <i-switch true-color="#52C41A" v-model="imProviderSelected.eventFlowConfig" :disabled="imDefSelected.imType === 'none'" />
+                <span>{{ $t('pei-zhi-bian-geng-tong-zhi') }}</span>
+              </label>
+              <label class="notify-subscription-cell">
+                <i-switch true-color="#52C41A" v-model="imProviderSelected.eventChangeLife" :disabled="imDefSelected.imType === 'none'" />
+                <span>{{ $t('liu-cheng-tui-jin-tong-zhi') }}</span>
+              </label>
+              <label class="notify-subscription-cell">
+                <i-switch true-color="#52C41A" v-model="imProviderSelected.eventChangeNotice" :disabled="imDefSelected.imType === 'none'" />
+                <span>{{ $t('chu-li-zhuang-tai-tong-zhi') }}</span>
+              </label>
             </div>
           </div>
-        </TabPane>
-        <TabPane :label="triggerTabLabel('TriggerUrl')" name="TriggerUrl">
-          <div class="title-text">{{ $t('cha-kan-xiang-mu-chu-fa') }}</div>
-          <div class="finish-wrap">
-            <div class="finish-left">
-              <div class="finish-title">
-                <span style="padding-right: 5px; line-height: 32px; width: 100px; text-align: right">{{ $t('webhook-config') }}：</span>
-                <i-switch true-color="#52C41A" v-model="trigger.triggerEnable" />
-              </div>
-              <div class="finish-title">
-                <span style="padding-right: 5px; line-height: 32px; width: 100px; text-align: right">{{ $t('token') }}：</span>
-                <Input v-model="trigger.triggerToken" style="width: 380px" readonly>
-                  <template #suffix>
-                    <Icon type="ios-copy" @click="handleCopyTemp(trigger.triggerToken)" />
-                  </template>
-                </Input>
-              </div>
-              <div class="finish-title">
-                <span style="padding-right: 5px; line-height: 32px; width: 100px; text-align: right">{{ $t('shi-yong-fang-shi') }}：</span>
-                <RadioGroup v-model="trigger.triggerMethod" type="button" size="small" @on-change="handleTriggerUrlBuild">
-                  <Radio label="http">HTTP(GET)</Radio>
-                  <Radio label="wget">wget</Radio>
-                  <Radio label="curl">curl</Radio>
-                </RadioGroup>
-              </div>
-              <div class="finish-title">
-                <span style="padding-right: 5px; line-height: 32px; width: 100px; text-align: right">{{ $t('format') }}：</span>
-                <RadioGroup v-model="trigger.triggerFormat" type="button" size="small" @on-change="handleTriggerUrlBuild">
-                  <Radio label="text">{{ $t('text') }}</Radio>
-                  <Radio label="json">{{ $t('json') }}</Radio>
-                </RadioGroup>
-              </div>
-              <div class="finish-title">
-                <span style="padding-right: 5px; line-height: 32px; width: 100px; text-align: right" />
-                <Input v-model="trigger.triggerUrlShow" style="width: 380px" readonly :disabled="!trigger.triggerEnable">
-                  <template #suffix>
-                    <Icon type="ios-copy" @click="handleCopyTemp(trigger.triggerUrlShow)" />
-                  </template>
-                </Input>
-              </div>
-            </div>
-          </div>
-        </TabPane>
-      </Tabs>
+        </div>
+      </div>
       <template #footer>
-        <Button type="primary" @click="handleSaveTrigger">{{ $t('bao-cun') }}</Button>
-        <Button
-          type="primary"
-          @click="handleJumpUrl(triggerTab === 'WebHook' ? trigger.hookHelpUrl : 'https://www.clougence.com/dm-doc/devops/devops_trigger')"
-        >
-          {{ $t('cha-kan-wen-dang') }}
-        </Button>
+        <Button @click="handleCloseAllDrawer">{{ $t('qu-xiao') }}</Button>
+        <Button type="primary" @click="handleImSubmit" :disabled="isImSubmitDisabled">{{ $t('bao-cun') }}</Button>
       </template>
     </CCModal>
-    <CCModal v-model="showCallbackModal" :title="$t('callback')">
-      <div class="title-text">
-        <CustomIcon :type="`${callbackData.enable ? 'icon-v2-SuccessColorful' : 'icon-v2-InfoColorful'}`" size="70px" bottomMargin="20px" />
-        {{ $t('she-zhi-hui-diao-di-zhi-desc') }}
-      </div>
-      <div class="finish-wrap">
-        <div class="finish-left">
-          <div class="finish-title">
-            <span style="padding-right: 5px; line-height: 32px; width: 100px; text-align: right">{{ $t('callback-status') }}：</span>
-            <i-switch true-color="#52C41A" v-model="callbackData.enable" />
-          </div>
-          <div class="finish-title">
-            <span style="padding-right: 5px; line-height: 32px; width: 100px; text-align: right">{{ $t('callback-method') }}：</span>
-            <RadioGroup v-model="callbackData.method" type="button" size="small">
-              <Radio label="POST" style="width: 60px; text-align: center" :disabled="!this.callbackData.enable">POST</Radio>
-              <Radio label="GET" style="width: 60px; text-align: center" :disabled="!this.callbackData.enable">GET</Radio>
+    <CCModal v-model="imDialogFlowShow" width="960px" class="execution-config-modal-wrap" :maskClosable="false" @on-cancel="handleCloseAllDrawer">
+      <div class="execution-config-modal">
+        <div class="execution-config-title">{{ $t('zhi-xing-pei-zhi') }}</div>
+        <div class="execution-config-list">
+          <div class="execution-config-row">
+            <div class="execution-config-name">
+              <span>{{ $t('sql-jian-cha') }}</span>
+              <Tooltip :content="fetchChangeFlowDescription('check', flowOption.checkStrategy)">
+                <Icon type="ios-information-circle-outline" />
+              </Tooltip>
+            </div>
+            <RadioGroup v-model="flowOption.checkStrategy" class="execution-config-options">
+              <Radio label="Always">{{ SQL_REVIEW_MAP.always }}</Radio>
+              <Radio label="Suggest">{{ SQL_REVIEW_MAP.suggest }}</Radio>
+              <Radio label="Failure">{{ SQL_REVIEW_MAP.failure }}</Radio>
             </RadioGroup>
+            <div class="execution-config-desc">{{ fetchChangeFlowDescription('check', flowOption.checkStrategy) }}</div>
           </div>
-          <div class="finish-title">
-            <span style="padding-right: 5px; line-height: 32px; width: 100px; text-align: right">{{ $t('callback-url') }}：</span>
-            <Input v-model="callbackData.url" style="width: 380px" placeholder="http://... or https://..." :disabled="!this.callbackData.enable">
-              <template #suffix>
-                <Icon type="ios-copy" @click="handleCopyTemp(callbackData.url)" />
-              </template>
-            </Input>
+          <div class="execution-config-row">
+            <div class="execution-config-name">
+              <span>{{ $t('gong-dan-shen-pi') }}</span>
+              <Tooltip :content="fetchChangeFlowDescription('approve', flowOption.approveStrategy)">
+                <Icon type="ios-information-circle-outline" />
+              </Tooltip>
+            </div>
+            <RadioGroup v-model="flowOption.approveStrategy" class="execution-config-options">
+              <Radio label="Enable">{{ APPROVE_MAP.Enable }}</Radio>
+              <Radio label="Disable">{{ APPROVE_MAP.Disable }}</Radio>
+            </RadioGroup>
+            <div class="execution-config-desc">{{ fetchChangeFlowDescription('approve', flowOption.approveStrategy) }}</div>
+          </div>
+          <div class="execution-config-row">
+            <div class="execution-config-name">
+              <span>{{ $t('fa-bu-bian-geng') }}</span>
+              <Tooltip :content="fetchChangeFlowDescription('execute', flowOption.executeStrategy)">
+                <Icon type="ios-information-circle-outline" />
+              </Tooltip>
+            </div>
+            <RadioGroup v-model="flowOption.executeStrategy" class="execution-config-options" @on-change="handleFlowOfExecuteOption">
+              <Radio label="Auto">{{ PUBLISH_MAP.auto }}</Radio>
+              <Radio label="Manual">{{ PUBLISH_MAP.manual }}</Radio>
+              <Radio label="Disabled">{{ PUBLISH_MAP.disabled }}</Radio>
+            </RadioGroup>
+            <div class="execution-config-desc">{{ fetchChangeFlowDescription('execute', flowOption.executeStrategy) }}</div>
+          </div>
+          <div class="execution-config-row">
+            <div class="execution-config-name">
+              <span>{{ $t('shi-wu') }}</span>
+              <Tooltip :content="flowTransactionalDescription">
+                <Icon type="ios-information-circle-outline" />
+              </Tooltip>
+            </div>
+            <RadioGroup v-model="flowOption.transactional" class="execution-config-options">
+              <Radio label="Enable" :disabled="!flowExecuteIsAuto">{{ APPROVE_MAP.Enable }}</Radio>
+              <Radio label="Disable" :disabled="!flowExecuteIsAuto">{{ APPROVE_MAP.Disable }}</Radio>
+            </RadioGroup>
+            <div class="execution-config-desc">{{ flowTransactionalDescription }}</div>
+          </div>
+          <div class="execution-config-row">
+            <div class="execution-config-name">
+              <span>{{ $t('cuo-wu-ce-lve') }}</span>
+              <Tooltip :content="fetchChangeFlowDescription('error', flowOption.errorStrategy)">
+                <Icon type="ios-information-circle-outline" />
+              </Tooltip>
+            </div>
+            <RadioGroup v-model="flowOption.errorStrategy" class="execution-config-options">
+              <Radio label="NONE" :disabled="!flowExecuteIsAuto">{{ ERROR_STRATEGY_MAP.abort }}</Radio>
+              <Radio label="RETRY" :disabled="!flowExecuteIsAuto">{{ ERROR_STRATEGY_MAP.retry }}</Radio>
+              <Radio label="SKIP" :disabled="!flowExecuteIsAuto">{{ ERROR_STRATEGY_MAP.ignore }}</Radio>
+            </RadioGroup>
+            <div class="execution-config-desc">{{ fetchChangeFlowDescription('error', flowOption.errorStrategy) }}</div>
           </div>
         </div>
       </div>
       <template #footer>
-        <Button type="primary" @click="handleSaveCallBack">{{ $t('bao-cun') }}</Button>
-        <Button type="primary" @click="handleJumpUrl('https://clougence.com/dm-doc/devops/devops_callback')">
-          {{ $t('cha-kan-wen-dang') }}
-        </Button>
+        <Button @click="handleCloseAllDrawer">{{ $t('qu-xiao') }}</Button>
+        <Button type="primary" @click="handleOptionSubmit">{{ $t('bao-cun') }}</Button>
+      </template>
+    </CCModal>
+    <CCModal v-model="showTriggerModal" width="860px" class="trigger-config-modal-wrap">
+      <div class="trigger-config-modal">
+        <div class="trigger-config-title">{{ $t('chu-fa-pei-zhi') }}</div>
+        <Tabs v-model="triggerTab" class="config-modal-tabs" size="small" :animated="false" type="line">
+          <TabPane :label="triggerTabLabel('WebHook')" name="WebHook">
+            <div class="config-section-heading">{{ $t('cha-kan-xiang-mu-webhook') }}</div>
+            <div class="config-modal-list">
+              <div class="config-modal-row">
+                <div class="config-modal-label">{{ $t('webhook-config') }}</div>
+                <div class="config-modal-control">
+                  <i-switch true-color="#52C41A" v-model="trigger.hookEnable" />
+                </div>
+                <div class="config-modal-desc">{{ trigger.hookEnable ? $t('yi-kai-qi') : $t('wei-qi-yong') }}</div>
+              </div>
+              <div class="config-modal-row">
+                <div class="config-modal-label">{{ $t('cang-ku') }}</div>
+                <div class="config-modal-control">
+                  <Input v-model="trigger.hookRepoUrl" readonly>
+                    <template #suffix>
+                      <Icon type="ios-link" @click="handleJumpUrl(trigger.hookRepoUrl)" />
+                    </template>
+                  </Input>
+                </div>
+                <div class="config-modal-desc">{{ $t('cicd-devops-git-repository') }}</div>
+              </div>
+              <div class="config-modal-row">
+                <div class="config-modal-label">{{ $t('webhook-url') }}</div>
+                <div class="config-modal-control">
+                  <Input v-model="trigger.hookUrl" readonly :disabled="!trigger.hookEnable">
+                    <template #suffix>
+                      <Icon type="ios-copy" @click="handleCopyTemp(trigger.hookUrl)" />
+                    </template>
+                  </Input>
+                </div>
+                <div class="config-modal-desc">{{ $t('cicd-webhook-url-desc') }}</div>
+              </div>
+              <div class="config-modal-row">
+                <div class="config-modal-label">{{ $t('webhook-mi-ma') }}</div>
+                <div class="config-modal-control">
+                  <Input v-model="trigger.hookPassword" readonly :disabled="!trigger.hookEnable">
+                    <template #suffix>
+                      <Icon type="ios-copy" @click="handleCopyTemp(trigger.hookPassword)" />
+                    </template>
+                  </Input>
+                </div>
+                <div class="config-modal-desc">{{ $t('cicd-webhook-password-desc') }}</div>
+              </div>
+            </div>
+          </TabPane>
+          <TabPane :label="triggerTabLabel('TriggerUrl')" name="TriggerUrl">
+            <div class="config-section-heading">{{ $t('cha-kan-xiang-mu-chu-fa') }}</div>
+            <div class="config-modal-list">
+              <div class="config-modal-row">
+                <div class="config-modal-label">{{ $t('webhook-config') }}</div>
+                <div class="config-modal-control">
+                  <i-switch true-color="#52C41A" v-model="trigger.triggerEnable" />
+                </div>
+                <div class="config-modal-desc">{{ trigger.triggerEnable ? $t('yi-kai-qi') : $t('wei-qi-yong') }}</div>
+              </div>
+              <div class="config-modal-row">
+                <div class="config-modal-label">{{ $t('token') }}</div>
+                <div class="config-modal-control">
+                  <Input v-model="trigger.triggerToken" readonly>
+                    <template #suffix>
+                      <Icon type="ios-copy" @click="handleCopyTemp(trigger.triggerToken)" />
+                    </template>
+                  </Input>
+                </div>
+                <div class="config-modal-desc">{{ $t('cicd-trigger-token-desc') }}</div>
+              </div>
+              <div class="config-modal-row">
+                <div class="config-modal-label">{{ $t('shi-yong-fang-shi') }}</div>
+                <div class="config-modal-control">
+                  <RadioGroup
+                    v-model="trigger.triggerMethod"
+                    class="config-modal-radio"
+                    type="button"
+                    size="small"
+                    @on-change="handleTriggerUrlBuild"
+                  >
+                    <Radio label="http">HTTP(GET)</Radio>
+                    <Radio label="wget">wget</Radio>
+                    <Radio label="curl">curl</Radio>
+                  </RadioGroup>
+                </div>
+                <div class="config-modal-desc">{{ $t('cicd-trigger-method-desc') }}</div>
+              </div>
+              <div class="config-modal-row">
+                <div class="config-modal-label">{{ $t('format') }}</div>
+                <div class="config-modal-control">
+                  <RadioGroup
+                    v-model="trigger.triggerFormat"
+                    class="config-modal-radio"
+                    type="button"
+                    size="small"
+                    @on-change="handleTriggerUrlBuild"
+                  >
+                    <Radio label="text">{{ $t('text') }}</Radio>
+                    <Radio label="json">{{ $t('json') }}</Radio>
+                  </RadioGroup>
+                </div>
+                <div class="config-modal-desc">{{ $t('cicd-trigger-format-desc') }}</div>
+              </div>
+              <div class="config-modal-row config-modal-row-wide">
+                <div class="config-modal-label">{{ $t('yuan-cheng-chu-fa') }}</div>
+                <div class="config-modal-control">
+                  <Input v-model="trigger.triggerUrlShow" readonly :disabled="!trigger.triggerEnable">
+                    <template #suffix>
+                      <Icon type="ios-copy" @click="handleCopyTemp(trigger.triggerUrlShow)" />
+                    </template>
+                  </Input>
+                </div>
+                <div class="config-modal-desc">{{ $t('cicd-trigger-url-desc') }}</div>
+              </div>
+            </div>
+          </TabPane>
+        </Tabs>
+      </div>
+      <template #footer>
+        <div class="config-modal-footer">
+          <Button @click="showTriggerModal = false">{{ $t('qu-xiao') }}</Button>
+          <Button @click="handleJumpUrl(triggerTab === 'WebHook' ? trigger.hookHelpUrl : 'https://www.clougence.com/dm-doc/devops/devops_trigger')">
+            {{ $t('cha-kan-wen-dang') }}
+          </Button>
+          <Button type="primary" @click="handleSaveTrigger">{{ $t('bao-cun') }}</Button>
+        </div>
+      </template>
+    </CCModal>
+    <CCModal v-model="showCallbackModal" width="780px" class="callback-config-modal-wrap">
+      <div class="callback-config-modal">
+        <div class="callback-config-title">{{ $t('callback-pei-zhi') }}</div>
+        <div class="callback-config-summary">
+          <CustomIcon :type="`${callbackData.enable ? 'icon-v2-SuccessColorful' : 'icon-v2-InfoColorful'}`" size="38px" rightMargin="12px" />
+          <span>{{ $t('she-zhi-hui-diao-di-zhi-desc') }}</span>
+        </div>
+        <div class="config-modal-list">
+          <div class="config-modal-row callback-config-row">
+            <div class="config-modal-label">{{ $t('callback-status') }}</div>
+            <div class="config-modal-control">
+              <i-switch true-color="#52C41A" v-model="callbackData.enable" />
+            </div>
+            <div class="config-modal-desc">{{ callbackData.enable ? $t('yi-kai-qi') : $t('wei-qi-yong') }}</div>
+          </div>
+          <div class="config-modal-row callback-config-row">
+            <div class="config-modal-label">{{ $t('callback-method') }}</div>
+            <div class="config-modal-control">
+              <RadioGroup v-model="callbackData.method" class="config-modal-radio" type="button" size="small">
+                <Radio label="POST" :disabled="!callbackData.enable">POST</Radio>
+                <Radio label="GET" :disabled="!callbackData.enable">GET</Radio>
+              </RadioGroup>
+            </div>
+            <div class="config-modal-desc">{{ $t('cicd-callback-method-desc') }}</div>
+          </div>
+          <div class="config-modal-row callback-config-row config-modal-row-wide">
+            <div class="config-modal-label">{{ $t('callback-url') }}</div>
+            <div class="config-modal-control">
+              <Input v-model="callbackData.url" placeholder="http://... or https://..." :disabled="!callbackData.enable">
+                <template #suffix>
+                  <Icon type="ios-copy" @click="handleCopyTemp(callbackData.url)" />
+                </template>
+              </Input>
+            </div>
+            <div class="config-modal-desc">{{ $t('cicd-callback-url-desc') }}</div>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <div class="config-modal-footer">
+          <Button @click="showCallbackModal = false">{{ $t('qu-xiao') }}</Button>
+          <Button @click="handleJumpUrl('https://clougence.com/dm-doc/devops/devops_callback')">{{ $t('cha-kan-wen-dang') }}</Button>
+          <Button type="primary" @click="handleSaveCallBack">{{ $t('bao-cun') }}</Button>
+        </div>
       </template>
     </CCModal>
   </div>
@@ -650,10 +577,7 @@ import { mapGetters, mapState } from 'vuex';
 import copyMixin from '@/mixins/copyMixin';
 import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
 import { encryptMixin } from '@/mixins/encryptMixin';
-import CCTitle from '@/components/widgets/CCTitle';
 import { handleCopy } from '@/utils/clipboard';
-import CCFieldEdit from '@/components/widgets/CCFieldEdit';
-import CCSelectEdit from '@/components/widgets/CCSelectEdit';
 import {
   APPROVE_MAP,
   BECOME_STATUS_MAP,
@@ -691,6 +615,122 @@ export default {
         return true;
       }
       return false;
+    },
+    primaryDevops() {
+      return this.devopsList?.[0] || null;
+    },
+    scmIconType() {
+      return this.primaryDevops?.scmType || 'icon-v2-Gitee';
+    },
+    repoNameText() {
+      return this.primaryDevops?.repoName || '-';
+    },
+    repoBranchText() {
+      return this.primaryDevops?.repoBranch || '-';
+    },
+    repoScriptPathText() {
+      return this.primaryDevops?.repoScriptPath || '-';
+    },
+    targetDatabaseText() {
+      if (!this.primaryDevops) {
+        return '-';
+      }
+      const target = this.envDevOpsTarget(this.primaryDevops);
+      return target && target !== 'Unknown' ? target : '-';
+    },
+    flowStatusText() {
+      if (this.flowInfo?.flowStatus === 'DELETE') {
+        return this.$t('yi-shan-chu');
+      }
+      if (this.flowInfo?.flowStatus === 'ARCHIVE') {
+        return this.$t('cicd-yi-gui-dang');
+      }
+      if (this.primaryDevops && !this.primaryDevops.enable) {
+        return this.$t('yi-jin-yong');
+      }
+      return this.$t('cicd-qi-yong-zhong');
+    },
+    flowStatusClass() {
+      if (this.flowInfo?.flowStatus === 'DELETE') {
+        return 'danger';
+      }
+      if (this.flowInfo?.flowStatus === 'ARCHIVE' || (this.primaryDevops && !this.primaryDevops.enable)) {
+        return 'muted';
+      }
+      return 'success';
+    },
+    devopsStatusText() {
+      if (!this.primaryDevops) {
+        return this.$t('cicd-wei-pei-zhi');
+      }
+      return this.primaryDevops.enable ? this.$t('cicd-qi-yong-zhong') : this.$t('yi-jin-yong');
+    },
+    imStatusText() {
+      return this.imProviderInfo?.imType && this.imProviderInfo.imType !== 'none' ? this.$t('yi-kai-qi') : this.$t('cicd-wei-kai-qi');
+    },
+    flowConfigStatusText() {
+      return this.flowInfo?.flowCheck || this.flowInfo?.flowApprove || this.flowInfo?.flowExecute
+        ? this.$t('cicd-yi-pei-zhi')
+        : this.$t('cicd-wei-pei-zhi');
+    },
+    flowTransactionalDescription() {
+      return this.fetchChangeFlowDescription('transactional', this.flowOption.transactional === 'Enable');
+    },
+    triggerConfigured() {
+      return !!(this.primaryDevops && (this.primaryDevops.webHookEnable || this.primaryDevops.triggerEnable));
+    },
+    callbackConfigured() {
+      return !!(this.primaryDevops && this.primaryDevops.callbackEnable);
+    },
+    imConfigured() {
+      return this.imProviderInfo?.imType && this.imProviderInfo.imType !== 'none';
+    },
+    recentOperationTime() {
+      return this.changeList?.[0]?.changeTime || this.flowInfo?.createTime || '-';
+    },
+    configItems() {
+      const statusClass = (configured) => (configured ? 'success' : 'muted');
+      const statusText = (configured) => (configured ? this.$t('cicd-yi-pei-zhi') : this.$t('cicd-wei-pei-zhi'));
+
+      return [
+        {
+          key: 'trigger',
+          title: this.$t('chu-fa-pei-zhi'),
+          status: statusText(this.triggerConfigured),
+          statusClass: statusClass(this.triggerConfigured),
+          desc: this.$t('cicd-pei-zhi-chu-fa-tiao-jian-yu-zhi-xing-ce-lve'),
+          actions: [{ label: this.$t('cha-kan-pei-zhi'), type: this.triggerConfigured ? 'viewTrigger' : 'editTrigger' }]
+        },
+        {
+          key: 'callback',
+          title: this.$t('callback-pei-zhi'),
+          status: statusText(this.callbackConfigured),
+          statusClass: statusClass(this.callbackConfigured),
+          desc: this.$t('cicd-pei-zhi-bian-geng-jie-guo-hui-diao-tong-zhi'),
+          actions: [{ label: this.$t('cha-kan-pei-zhi'), type: 'editCallback' }]
+        },
+        {
+          key: 'flow',
+          title: this.$t('zhi-xing-pei-zhi'),
+          status: this.primaryDevops ? this.$t('cicd-yi-pei-zhi') : this.$t('cicd-wei-pei-zhi'),
+          statusClass: this.primaryDevops ? 'success' : 'muted',
+          desc: this.$t('cicd-pei-zhi-fa-bu-bu-zhou-yu-shen-pi-liu-cheng'),
+          actions: [
+            {
+              label: this.$t('cha-kan-pei-zhi'),
+              type: this.primaryDevops ? 'viewFlow' : 'addGitOps'
+            }
+          ]
+        },
+        {
+          key: 'im',
+          title: this.$t('im-xiao-xi'),
+          status: this.imConfigured ? this.$t('yi-kai-qi') : this.$t('cicd-wei-kai-qi'),
+          statusClass: this.imConfigured ? 'success' : 'muted',
+          desc: this.$t('cicd-pei-zhi-im-tong-zhi-jie-shou-yu-nei-rong-mo-ban'),
+          actions: [{ label: this.$t('cha-kan-pei-zhi'), type: 'editIm' }]
+        }
+      ];
     }
   },
   data() {
@@ -786,11 +826,6 @@ export default {
       EVEN_TYPE_MAP,
       CHANGE_STATUS_MAP
     };
-  },
-  components: {
-    CCTitle,
-    CCFieldEdit,
-    CCSelectEdit
   },
   mounted() {
     this.init();
@@ -1127,25 +1162,7 @@ export default {
     //
     handleGitOpsAdd() {
       if (!this.flowReadOnly) {
-        this.fetchDevopsScmList();
-        this.fetchInsList();
-        this.devopsScmSelected = null;
-        this.devopsRepoList = [];
-        this.devopsRepoSelected = null;
-        this.devopsInsSelected = null;
-        this.devopsInsHasCatalog = false;
-        this.devopsInsHasSchema = false;
-        this.devopsInsCatalogList = [];
-        this.devopsInsSchemaList = [];
-
-        this.formModal.eventType = 'Push';
-        this.formModal.initScript = 'Snapshot';
-        this.formModal.catalogName = '';
-        this.formModal.schemaName = '';
-
-        Promise.resolve().then(() => {
-          this.imDialogDevOpsShow = true;
-        });
+        this.$router.push(`/cicd/${this.flowId}/release-flow/add`);
       }
     },
     fetchFlowGitOpsDescription(option) {
@@ -1157,6 +1174,65 @@ export default {
       } catch (e) {
         console.error(e);
         return this.$t('zan-wu-miao-shu');
+      }
+    },
+    compactText(value, maxLength = 16) {
+      const text = value || '-';
+      if (text.length <= maxLength) {
+        return text;
+      }
+      return `${text.slice(0, maxLength)}...`;
+    },
+    showRecordPanel() {
+      this.$router.push(`/cicd/${this.flowId}/change-records`);
+    },
+    triggerPrimaryChange() {
+      if (this.primaryDevops) {
+        this.triggerChange(this.primaryDevops);
+      }
+    },
+    triggerPrimarySnapshot() {
+      if (this.primaryDevops) {
+        this.triggerSnapshot(this.primaryDevops);
+      }
+    },
+    handlePrimaryDevopsSwitch() {
+      if (!this.primaryDevops) {
+        return;
+      }
+      if (this.primaryDevops.enable) {
+        this.disableDevops(this.primaryDevops);
+      } else {
+        this.enableDevops(this.primaryDevops);
+      }
+    },
+    handleConfigAction(type) {
+      if (['viewTrigger', 'editTrigger'].includes(type)) {
+        if (this.primaryDevops) {
+          this.openTriggerConfig(this.primaryDevops);
+        } else {
+          this.handleGitOpsAdd();
+        }
+        return;
+      }
+      if (type === 'editCallback') {
+        if (this.primaryDevops) {
+          this.openCallBack(this.primaryDevops);
+        } else {
+          this.handleGitOpsAdd();
+        }
+        return;
+      }
+      if (type === 'viewFlow') {
+        this.handleFlowEdit();
+        return;
+      }
+      if (type === 'addGitOps') {
+        this.handleGitOpsAdd();
+        return;
+      }
+      if (type === 'editIm') {
+        this.handleImEdit();
       }
     },
     async fetchDevopsScmList() {
@@ -1335,7 +1411,7 @@ export default {
       this.imDialogFlowShow = false;
       this.imDialogDevOpsShow = false;
       setTimeout(() => {
-        this.$refs.formModal.resetFields();
+        this.$refs.formModal?.resetFields?.();
       }, 100);
     },
     envDevOpsTarget(row) {
@@ -1570,6 +1646,10 @@ export default {
               enable: true
             }
           });
+          if (res.success) {
+            this.$Message.success(this.$t('cao-zuo-cheng-gong'));
+            await this.fetchListDevops();
+          }
         }
       });
     },
@@ -1650,6 +1730,9 @@ export default {
 <style lang="less" scoped>
 .flow-wrap {
   padding-bottom: 0 !important;
+  min-height: 0;
+  overflow: hidden;
+  background: #f6f9fc;
 
   .empty {
     display: flex;
@@ -1661,6 +1744,13 @@ export default {
       height: 90px;
       filter: drop-shadow(0 0 0 #8b8b8b);
     }
+  }
+
+  .flow-detail-content {
+    flex: 1 1 auto;
+    height: 100%;
+    max-height: none;
+    overflow: auto;
   }
 }
 
@@ -2002,5 +2092,994 @@ export default {
   white-space: nowrap;
   text-overflow: ellipsis;
   vertical-align: bottom;
+}
+
+.flow-detail-content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  max-height: none;
+  padding: 14px 20px 18px;
+  background: #f6f9fc;
+  overflow: auto;
+}
+
+.detail-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 0;
+  min-width: 0;
+
+  .detail-toolbar-btn {
+    height: 32px;
+    padding: 0 12px;
+    border-color: #d9e3ee;
+    border-radius: 5px;
+    color: #111827;
+    font-size: 12px;
+    font-weight: 400;
+    background: #fff;
+    box-shadow: 0 3px 8px rgba(31, 45, 61, 0.04);
+
+    :deep(span) {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 400;
+    }
+
+    :deep(.ivu-icon) {
+      color: #536173;
+      font-size: 14px;
+    }
+  }
+
+  .detail-trigger-btn {
+    border-color: #0fac69;
+    color: #fff;
+    background: linear-gradient(180deg, #16be72 0%, #08a95e 100%);
+    box-shadow: 0 8px 18px rgba(15, 172, 105, 0.18);
+
+    :deep(.ivu-icon) {
+      color: currentColor;
+    }
+
+    &[disabled],
+    &.ivu-btn-disabled {
+      border-color: #d9e3ee;
+      color: #94a3b8;
+      background: #f4f7fa;
+      box-shadow: none;
+    }
+  }
+
+  .detail-snapshot-btn {
+    border-color: #22c779;
+    color: #0fac69;
+    background: #fff;
+
+    :deep(.ivu-icon) {
+      color: currentColor;
+    }
+
+    &[disabled],
+    &.ivu-btn-disabled {
+      border-color: #d9e3ee;
+      color: #94a3b8;
+      background: #f4f7fa;
+    }
+  }
+}
+
+.detail-card {
+  min-width: 0;
+  background: #fff;
+  border: 1px solid #dbe6f1;
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(31, 45, 61, 0.05);
+}
+
+.detail-card-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #111827;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.detail-card-title::before {
+  display: inline-block;
+  width: 4px;
+  height: 26px;
+  border-radius: 999px;
+  background: #14b86f;
+  content: '';
+}
+
+.detail-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  flex-shrink: 0;
+}
+
+.overview-card {
+  min-height: auto;
+  padding: 20px 24px 22px;
+}
+
+.overview-card-header {
+  display: grid;
+  grid-template-columns: minmax(110px, auto) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.overview-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 0;
+  min-width: 0;
+}
+
+.overview-flow-name {
+  max-width: 320px;
+  overflow: hidden;
+  color: #0f172a;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 24px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flow-status-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+
+  &.success {
+    color: #0ea568;
+    background: #dcf8e8;
+  }
+
+  &.muted {
+    color: #64748b;
+    background: #eef2f7;
+  }
+
+  &.danger {
+    color: #e5484d;
+    background: #ffe8e8;
+  }
+}
+
+.overview-meta-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 14px;
+  margin-top: 28px;
+  padding-left: 22px;
+  color: #0f172a;
+}
+
+.overview-meta-item {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 10px;
+  color: #111827;
+}
+
+.overview-meta-copy {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  color: #111827;
+  font-size: 12px;
+  line-height: 1;
+
+  > span:first-child {
+    flex-shrink: 0;
+    color: #111827;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  strong {
+    min-width: 0;
+    color: #111827;
+    font-size: 12px;
+    font-weight: 800;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.inline-action-icon {
+  margin-left: 8px;
+  color: #8795a8;
+  cursor: pointer;
+  font-size: 15px;
+  transition: color 0.18s ease;
+
+  &:hover {
+    color: #0fac69;
+  }
+}
+
+.text-link {
+  margin-left: 10px;
+  padding: 0;
+  border: 0;
+  color: #20c967;
+  font-size: 12px;
+  font-weight: 800;
+  background: transparent;
+  cursor: pointer;
+
+  &:hover {
+    color: #07864f;
+  }
+}
+
+.pipeline-overview {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 116px minmax(260px, 1fr);
+  align-items: stretch;
+  gap: 0;
+  margin-top: 30px;
+}
+
+.endpoint-card {
+  min-width: 0;
+  min-height: 132px;
+  padding: 12px 22px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.endpoint-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 800;
+
+  &.database-title {
+    :deep(.data-source-icon) {
+      color: #12b76a;
+    }
+  }
+}
+
+.endpoint-row {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  margin-top: 10px;
+  color: #111827;
+  font-size: 12px;
+  line-height: 18px;
+
+  span {
+    flex: 0 0 84px;
+    color: #5f6c80;
+    font-weight: 700;
+  }
+
+  strong {
+    min-width: 0;
+    overflow: hidden;
+    color: #111827;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.pipeline-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0fa958;
+  min-height: 132px;
+
+  .pipeline-dash {
+    display: none;
+  }
+}
+
+.pipeline-link::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  border-left: 1px dashed #d5e0eb;
+  content: '';
+  transform: translateX(-50%);
+}
+
+.pipeline-link-node {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 74px;
+  width: 74px;
+  min-width: 74px;
+  max-width: 74px;
+  height: 74px;
+  min-height: 74px;
+  max-height: 74px;
+  box-sizing: border-box;
+  aspect-ratio: 1 / 1;
+  border: 1px dashed #d8ecdf;
+  border-radius: 999px;
+  background: #fff;
+}
+
+.pipeline-link-node::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 52px;
+  min-width: 52px;
+  height: 52px;
+  min-height: 52px;
+  aspect-ratio: 1 / 1;
+  border-radius: 999px;
+  background: #dff7eb;
+  content: '';
+  transform: translate(-50%, -50%);
+}
+
+.flow-link-arrows {
+  position: relative;
+  z-index: 1;
+  width: 30px;
+  height: 30px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.3;
+}
+
+.config-card {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  margin-top: 14px;
+  padding: 18px 24px 20px;
+}
+
+.config-list {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 0;
+  min-height: 0;
+  margin-top: 18px;
+  border-top: 1px solid #e1ebf3;
+  overflow: auto;
+  background: #fff;
+}
+
+.config-row {
+  display: grid;
+  grid-template-columns: 220px 132px minmax(260px, 1fr) minmax(180px, auto) 16px;
+  align-items: center;
+  min-width: 770px;
+  min-height: 64px;
+  padding: 0 0 0 20px;
+  border-bottom: 1px solid #e1ebf3;
+  color: #1f2937;
+  font-size: 14px;
+  background: #fff;
+}
+
+.config-leading {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.config-name {
+  color: #5b6a80;
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.config-status {
+  display: inline-flex;
+  justify-content: center;
+  width: fit-content;
+  min-width: 64px;
+  height: 22px;
+  padding: 0 7px;
+  align-items: center;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 700;
+
+  &.success {
+    color: #0fac69;
+    background: #e0f8e9;
+  }
+
+  &.muted {
+    color: #667085;
+    background: #eef2f7;
+  }
+}
+
+.config-desc {
+  color: #465467;
+  font-size: 14px;
+}
+
+.config-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.config-action-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.config-action-link {
+  padding: 0;
+  border: 0;
+  color: #0fac69;
+  font-size: 14px;
+  font-weight: 700;
+  background: transparent;
+  cursor: pointer;
+
+  &:hover {
+    color: #07864f;
+  }
+}
+
+.config-action-divider {
+  color: #a9b4c2;
+}
+
+.config-arrow {
+  justify-self: end;
+  color: #44546a;
+  font-size: 14px;
+}
+
+.trigger-config-modal,
+.callback-config-modal {
+  padding: 6px 0 12px;
+  color: #111827;
+}
+
+.trigger-config-title,
+.callback-config-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 48px;
+  color: #111827;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.trigger-config-title::before,
+.callback-config-title::before {
+  display: inline-block;
+  width: 4px;
+  height: 28px;
+  border-radius: 999px;
+  background: #14b86f;
+  content: '';
+}
+
+.config-modal-tabs {
+  margin-top: 10px;
+
+  :deep(.ivu-tabs-bar) {
+    margin-bottom: 0;
+    border-bottom: 1px solid #e1ebf3;
+  }
+
+  :deep(.ivu-tabs-nav .ivu-tabs-tab) {
+    padding: 14px 18px 13px;
+    color: #66758a;
+    font-size: 14px;
+    font-weight: 800;
+  }
+
+  :deep(.ivu-tabs-nav .ivu-tabs-tab-active) {
+    color: #0fac69;
+  }
+
+  :deep(.ivu-tabs-ink-bar) {
+    background-color: #14b86f;
+  }
+}
+
+.config-section-heading {
+  margin-top: 18px;
+  color: #111827;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 24px;
+}
+
+.config-modal-list {
+  margin-top: 14px;
+  border-top: 1px solid #e1ebf3;
+}
+
+.config-modal-row {
+  display: grid;
+  grid-template-columns: 150px minmax(300px, 1fr) minmax(180px, 0.72fr);
+  column-gap: 20px;
+  align-items: center;
+  min-height: 76px;
+  border-bottom: 1px solid #e1ebf3;
+}
+
+.callback-config-row {
+  grid-template-columns: 150px minmax(260px, 1fr) minmax(180px, 0.75fr);
+}
+
+.config-modal-label {
+  min-width: 0;
+  color: #5b6a80;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 22px;
+  white-space: nowrap;
+}
+
+.config-modal-control {
+  min-width: 0;
+
+  :deep(.ivu-input-wrapper) {
+    width: 100%;
+  }
+
+  :deep(.ivu-input) {
+    height: 36px;
+    border-color: #d9e3ee;
+    border-radius: 6px;
+    color: #111827;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  :deep(.ivu-input[disabled]) {
+    color: #8b98aa;
+    background: #f6f9fc;
+  }
+
+  :deep(.ivu-input-suffix) {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+  }
+}
+
+.config-modal-radio {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  :deep(.ivu-radio-wrapper) {
+    min-width: 68px;
+    height: 32px;
+    margin-right: 0;
+    padding: 0 12px;
+    border-color: #d9e3ee;
+    color: #111827;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 30px;
+    text-align: center;
+    background: #fff;
+  }
+
+  :deep(.ivu-radio-wrapper-checked) {
+    border-color: #14b86f;
+    color: #0fac69;
+    box-shadow: -1px 0 0 0 #14b86f;
+  }
+
+  :deep(.ivu-radio-wrapper-disabled) {
+    color: #9aa7b7;
+    background: #f6f9fc;
+  }
+}
+
+.config-modal-desc {
+  min-width: 0;
+  color: #66758a;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.callback-config-summary {
+  display: flex;
+  align-items: center;
+  min-height: 58px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  border: 1px solid #dbe6f1;
+  border-radius: 8px;
+  color: #465467;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 22px;
+  background: #fbfdff;
+}
+
+.config-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.notify-config-modal {
+  padding: 6px 0 12px;
+  color: #111827;
+}
+
+.notify-config-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 48px;
+  color: #111827;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.notify-config-title::before {
+  display: inline-block;
+  width: 4px;
+  height: 28px;
+  border-radius: 999px;
+  background: #14b86f;
+  content: '';
+}
+
+.notify-config-layout {
+  display: grid;
+  grid-template-columns: minmax(360px, 1fr) minmax(440px, 1.15fr);
+  gap: 36px;
+  margin-top: 22px;
+}
+
+.notify-config-label,
+.notify-panel-title {
+  color: #111827;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 24px;
+}
+
+.notify-config-label.required::after {
+  margin-left: 6px;
+  color: #ed4014;
+  content: '*';
+}
+
+.notify-channel-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.notify-channel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid #d9e3ee;
+  border-radius: 6px;
+  color: #5f6c80;
+  font-size: 14px;
+  font-weight: 700;
+  background: #fff;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    color 0.18s ease,
+    background 0.18s ease;
+
+  span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &.active {
+    border-color: #14b86f;
+    color: #0fac69;
+    background: #f0fbf5;
+    box-shadow: inset 0 0 0 1px #14b86f;
+  }
+}
+
+.service-label {
+  margin-top: 22px;
+  color: #5b6a80;
+}
+
+.notify-service-select {
+  width: 100%;
+  margin-top: 12px;
+
+  :deep(.ivu-select-selection) {
+    min-height: 42px;
+    border-color: #d9e3ee;
+    border-radius: 6px;
+  }
+}
+
+.notify-config-right {
+  min-width: 0;
+}
+
+.notify-subscription-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 18px;
+  border: 1px solid #d9e3ee;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.notify-subscription-cell {
+  display: flex;
+  align-items: center;
+  min-height: 92px;
+  padding: 0 28px;
+  border-right: 1px dashed #d9e3ee;
+  border-bottom: 1px dashed #d9e3ee;
+  color: #5f6c80;
+  font-size: 15px;
+  font-weight: 800;
+
+  &:nth-child(2n) {
+    border-right: 0;
+  }
+
+  &:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+
+  span {
+    margin-left: 12px;
+  }
+}
+
+.execution-config-modal {
+  padding: 6px 0 12px;
+  color: #111827;
+}
+
+.execution-config-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 48px;
+  margin-bottom: 0;
+  color: #111827;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.execution-config-title::before {
+  display: inline-block;
+  width: 4px;
+  height: 28px;
+  border-radius: 999px;
+  background: #14b86f;
+  content: '';
+}
+
+.execution-config-list {
+  margin-top: 16px;
+  border-top: 1px solid #e1ebf3;
+}
+
+.execution-config-row {
+  display: grid;
+  grid-template-columns: 210px 390px minmax(260px, 1fr);
+  align-items: center;
+  min-height: 78px;
+  border-bottom: 1px solid #e1ebf3;
+}
+
+.execution-config-name {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  color: #5b6a80;
+  font-size: 17px;
+  font-weight: 800;
+  white-space: nowrap;
+
+  :deep(.ivu-icon) {
+    margin-left: 10px;
+    color: #64748b;
+    font-size: 15px;
+    cursor: default;
+  }
+}
+
+.execution-config-options {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+
+  :deep(.ivu-radio-wrapper) {
+    margin-right: 38px;
+    color: #111827;
+    font-size: 15px;
+    line-height: 22px;
+  }
+
+  :deep(.ivu-radio-wrapper-disabled) {
+    color: #9aa7b7;
+  }
+
+  :deep(.ivu-radio) {
+    margin-right: 8px;
+  }
+}
+
+.execution-config-desc {
+  min-width: 0;
+  color: #66758a;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+@media (max-width: 1280px) {
+  .detail-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pipeline-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .pipeline-link {
+    flex-direction: column;
+    min-height: 96px;
+  }
+
+  .pipeline-link .pipeline-dash {
+    display: none;
+  }
+
+  .pipeline-link-node {
+    margin: 10px 0;
+  }
+
+  .config-row {
+    grid-template-columns: 220px 140px minmax(180px, 1fr) minmax(220px, auto) 22px;
+  }
+}
+
+@media (max-width: 1120px), (max-height: 760px) {
+  .flow-detail-content {
+    padding: 10px 16px 16px;
+  }
+
+  .overview-card {
+    padding: 16px 20px 18px;
+  }
+
+  .overview-meta-grid {
+    margin-top: 22px;
+    padding-left: 18px;
+  }
+
+  .pipeline-overview {
+    margin-top: 22px;
+  }
+
+  .endpoint-card {
+    min-height: 120px;
+    padding: 12px 18px;
+  }
+
+  .config-card {
+    padding: 14px 20px 18px;
+  }
+}
+
+@media (max-width: 980px) {
+  .overview-card-header {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .detail-toolbar {
+    justify-content: flex-start;
+  }
+
+  .overview-meta-grid {
+    grid-template-columns: 1fr;
+    row-gap: 10px;
+  }
+
+  .notify-config-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .notify-channel-list,
+  .notify-subscription-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .notify-subscription-cell {
+    border-right: 0;
+
+    &:nth-last-child(2) {
+      border-bottom: 1px dashed #d9e3ee;
+    }
+  }
+
+  .execution-config-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 18px 0;
+  }
+
+  .config-modal-row,
+  .callback-config-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 16px 0;
+  }
+
+  .config-modal-desc {
+    font-size: 12px;
+  }
 }
 </style>

@@ -1583,6 +1583,11 @@ public class DmConvertUtils {
         flowVO.setFlowApprove(flowDO.getFlowApprove());
         flowVO.setFlowExecute(flowDO.getFlowExecute());
         flowVO.setOptions(flowDO.getOptions());
+        flowVO.setScmType(flowDO.getRefScmType());
+        flowVO.setRepoName(flowDO.getScmRepoName());
+        flowVO.setRepoBranch(flowDO.getScmRepoBranch());
+        flowVO.setDsType(flowDO.getDsType());
+        flowVO.setEnable(flowDO.isEnable());
         flowVO.setCreateTime(WellKnowFormat.WKF_DATE10.format(flowDO.getGmtCreate()));
 
         String flowManagerUid = flowDO.getFlowManagerUid();
@@ -1669,7 +1674,7 @@ public class DmConvertUtils {
     }
 
     public static ChangeFlowImConfigVO convertToChangeFlowImConfigVO(DmChangeFlowDO data, DmSysMessengerDO messengerDO) {
-        if (data == null) {
+        if (data == null || data.getRefMsgId() == null || data.getRefMsgType() == null) {
             return null;
         }
         ChangeFlowImConfigVO msgVO = new ChangeFlowImConfigVO();

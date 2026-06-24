@@ -2,14 +2,25 @@ import i18n from '@/i18n';
 
 const flowTableColumns = [
   {
-    title: '标记',
-    slot: 'mark',
-    width: 70,
+    title: i18n.global.t('xiang-mu-ming-cheng'),
+    key: 'flowName',
+    minWidth: 180
+  },
+  {
+    title: i18n.global.t('zhuang-tai'),
+    slot: 'flowStatus',
+    width: 110,
     align: 'center'
   },
   {
-    title: i18n.global.t('xiang-mu-ming-cheng'),
-    key: 'flowName'
+    title: 'GitOps',
+    slot: 'gitOps',
+    width: 130
+  },
+  {
+    title: i18n.global.t('shu-ju-ku-lei-xing'),
+    slot: 'databaseType',
+    width: 150
   },
   {
     title: i18n.global.t('fu-ze-ren'),
@@ -25,7 +36,7 @@ const flowTableColumns = [
     title: i18n.global.t('cao-zuo'),
     slot: 'action',
     fixed: 'right',
-    width: 100
+    width: 260
   }
 ];
 

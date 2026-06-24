@@ -15,7 +15,9 @@
  */
 package com.clougence.clouddm.console.web.model.vo.cicd;
 
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
+import com.clougence.clouddm.platform.dal.model.gitops.ScmType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -36,6 +38,11 @@ public class ChangeFlowVO {
     private ChangeApproveStrategy flowApprove;
     private ChangeExecStrategy    flowExecute;
     private RsChangeFlowOptionObj options;
+    private ScmType               scmType;
+    private String                repoName;
+    private String                repoBranch;
+    private DataSourceType        dsType;
+    private boolean               enable;
     private String                createTime;
 
 }
