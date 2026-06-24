@@ -51,21 +51,35 @@
               <template #action="{ row }">
                 <div class="action flow-actions">
                   <Button type="text" @click="goDetail(row)" :disabled="rowFlowStatus(row) === 'DELETE'">{{ $t('xiang-qing') }}</Button>
-                  <Button v-if="canManageFlow" type="text" :disabled="rowFlowStatus(row) !== 'NORMAL'" @click="handleSwitchFlow(row)">
-                    {{ flowSwitchText(row) }}
-                  </Button>
+                  <Tooltip
+                    v-if="canManageFlow"
+                    :content="flowSwitchDisabledReason(row)"
+                    :disabled="!flowSwitchDisabledReason(row)"
+                    transfer
+                    placement="top"
+                  >
+                    <span class="flow-action-tooltip-target">
+                      <Button type="text" :disabled="!!flowSwitchDisabledReason(row)" @click="handleSwitchFlow(row)">
+                        {{ flowSwitchText(row) }}
+                      </Button>
+                    </span>
+                  </Tooltip>
                   <Button v-if="canManageFlow" type="text" :disabled="rowFlowStatus(row) === 'DELETE'" @click="handleArchiveToggleFlow(row)">
                     {{ rowFlowStatus(row) === 'ARCHIVE' ? $t('hui-fu-gui-dang') : $t('gui-dang-xiang-mu') }}
                   </Button>
-                  <Button
+                  <Tooltip
                     v-if="canManageFlow"
-                    class="flow-action-danger"
-                    type="text"
-                    :disabled="rowFlowStatus(row) !== 'ARCHIVE'"
-                    @click="handleDeleteFlow(row)"
+                    :content="flowDeleteDisabledReason(row)"
+                    :disabled="!flowDeleteDisabledReason(row)"
+                    transfer
+                    placement="top"
                   >
-                    {{ $t('shan-chu-xiang-mu') }}
-                  </Button>
+                    <span class="flow-action-tooltip-target">
+                      <Button class="flow-action-danger" type="text" :disabled="!!flowDeleteDisabledReason(row)" @click="handleDeleteFlow(row)">
+                        {{ $t('shan-chu-xiang-mu') }}
+                      </Button>
+                    </span>
+                  </Tooltip>
                 </div>
               </template>
             </Table>
@@ -646,6 +660,26 @@ export default {
       }
       return this.rowFlowEnable(row) ? this.$t('jin-yong') : this.$t('qi-yong');
     },
+    flowSwitchDisabledReason(row = {}) {
+      const status = this.rowFlowStatus(row);
+      if (status === 'ARCHIVE') {
+        return this.$t('cicd-disable-flow-unavailable-archive');
+      }
+      if (status === 'DELETE') {
+        return this.$t('cicd-disable-flow-unavailable-delete');
+      }
+      return '';
+    },
+    flowDeleteDisabledReason(row = {}) {
+      const status = this.rowFlowStatus(row);
+      if (status === 'ARCHIVE') {
+        return '';
+      }
+      if (status === 'DELETE') {
+        return this.$t('cicd-delete-flow-unavailable-delete');
+      }
+      return this.$t('cicd-delete-flow-unavailable-normal');
+    },
     formatGitOps(row = {}) {
       return row.scmType || '-';
     },
@@ -1051,21 +1085,23 @@ export default {
     },
     async handleAddFlow(type = '') {
       this.createLoading = true;
+      const isAutoExecute = this.flowBasicForm.executeStrategy === 'Auto';
+      const flowOption = {
+        initScript: this.flowGitOpsForm.initScript,
+        checkStrategy: this.flowBasicForm.checkStrategy,
+        approveStrategy: this.flowBasicForm.approveStrategy,
+        executeStrategy: this.flowBasicForm.executeStrategy,
+        errorStrategy: isAutoExecute ? this.flowBasicForm.errorStrategy : 'NONE',
+        transactional: isAutoExecute ? this.flowBasicForm.transactional : 'false',
+        retryWaitTime: null,
+        retryCount: null
+      };
       if (type !== 'empty') {
         this.flowForm = {
           flowName: this.flowBasicForm.flowName,
           flowDesc: this.flowBasicForm.flowDesc,
           flowManagerUid: this.flowBasicForm.flowManagerUid,
-          option: {
-            initScript: this.flowGitOpsForm.initScript,
-            checkStrategy: this.flowBasicForm.checkStrategy,
-            approveStrategy: this.flowBasicForm.approveStrategy,
-            executeStrategy: this.flowBasicForm.executeStrategy,
-            errorStrategy: this.flowBasicForm.errorStrategy,
-            transactional: this.flowBasicForm.transactional,
-            retryWaitTime: null,
-            retryCount: null
-          },
+          option: flowOption,
           pipeline: {
             repoScmId: this.flowGitOpsForm.repoScmId,
             repoScmUrl: this.flowGitOpsForm.repoScmUrl,
@@ -1093,21 +1129,12 @@ export default {
           flowName: this.flowBasicForm.flowName,
           flowDesc: this.flowBasicForm.flowDesc,
           flowManagerUid: this.flowBasicForm.flowManagerUid,
-          option: {
-            initScript: this.flowGitOpsForm.initScript,
-            checkStrategy: this.flowBasicForm.checkStrategy,
-            approveStrategy: this.flowBasicForm.approveStrategy,
-            executeStrategy: this.flowBasicForm.executeStrategy,
-            errorStrategy: this.flowBasicForm.errorStrategy,
-            transactional: this.flowBasicForm.transactional,
-            retryWaitTime: null,
-            retryCount: null
-          }
+          option: flowOption
         };
       }
 
       const res = await this.$services.dmCicdCreate({
-        data: type === 'empty' ? this.flowBasicForm : this.flowForm
+        data: this.flowForm
       });
 
       if (res.success) {
@@ -1253,6 +1280,16 @@ export default {
 .flow-action-danger.ivu-btn-disabled,
 .flow-action-danger[disabled] {
   color: #c5cedb !important;
+}
+
+.flow-action-tooltip-target {
+  display: inline-flex;
+  align-items: center;
+
+  :deep(.ivu-btn-disabled),
+  :deep(.ivu-btn[disabled]) {
+    pointer-events: none;
+  }
 }
 
 .flow-list {

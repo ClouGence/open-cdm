@@ -122,9 +122,13 @@
               <div class="config-desc">{{ item.desc }}</div>
               <div class="config-actions">
                 <span v-for="(action, actionIndex) in item.actions" :key="`${item.key}-${action.type}`" class="config-action-item">
-                  <button type="button" class="config-action-link" @click="handleConfigAction(action.type)">
-                    {{ action.label }}
-                  </button>
+                  <Tooltip :content="action.disabledReason" :disabled="!action.disabledReason" transfer placement="top">
+                    <span class="config-action-tooltip-target">
+                      <button type="button" class="config-action-link" :disabled="action.disabled" @click="handleConfigAction(action.type, action)">
+                        {{ action.label }}
+                      </button>
+                    </span>
+                  </Tooltip>
                   <span v-if="actionIndex < item.actions.length - 1" class="config-action-divider"></span>
                 </span>
               </div>
@@ -668,6 +672,9 @@ export default {
     imStatusText() {
       return this.imProviderInfo?.imType && this.imProviderInfo.imType !== 'none' ? this.$t('yi-kai-qi') : this.$t('cicd-wei-kai-qi');
     },
+    flowArchived() {
+      return this.flowInfo?.flowStatus === 'ARCHIVE';
+    },
     flowConfigStatusText() {
       return this.flowInfo?.flowCheck || this.flowInfo?.flowApprove || this.flowInfo?.flowExecute
         ? this.$t('cicd-yi-pei-zhi')
@@ -718,7 +725,9 @@ export default {
           actions: [
             {
               label: this.$t('cha-kan-pei-zhi'),
-              type: this.primaryDevops ? 'viewFlow' : 'addGitOps'
+              type: this.primaryDevops ? 'viewFlow' : 'addGitOps',
+              disabled: this.flowArchived,
+              disabledReason: this.flowArchived ? this.$t('cicd-archived-execute-config-unavailable') : ''
             }
           ]
         },
@@ -728,7 +737,14 @@ export default {
           status: this.imConfigured ? this.$t('yi-kai-qi') : this.$t('cicd-wei-kai-qi'),
           statusClass: this.imConfigured ? 'success' : 'muted',
           desc: this.$t('cicd-pei-zhi-im-tong-zhi-jie-shou-yu-nei-rong-mo-ban'),
-          actions: [{ label: this.$t('cha-kan-pei-zhi'), type: 'editIm' }]
+          actions: [
+            {
+              label: this.$t('cha-kan-pei-zhi'),
+              type: 'editIm',
+              disabled: this.flowArchived,
+              disabledReason: this.flowArchived ? this.$t('cicd-archived-im-config-unavailable') : ''
+            }
+          ]
         }
       ];
     }
@@ -1206,7 +1222,10 @@ export default {
         this.enableDevops(this.primaryDevops);
       }
     },
-    handleConfigAction(type) {
+    handleConfigAction(type, action = {}) {
+      if (action.disabled) {
+        return;
+      }
       if (['viewTrigger', 'editTrigger'].includes(type)) {
         if (this.primaryDevops) {
           this.openTriggerConfig(this.primaryDevops);
@@ -2565,6 +2584,16 @@ export default {
   &:hover {
     color: #07864f;
   }
+
+  &:disabled {
+    color: #a9b4c2;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+.config-action-tooltip-target {
+  display: inline-flex;
 }
 
 .config-action-divider {

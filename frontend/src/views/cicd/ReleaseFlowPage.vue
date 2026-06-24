@@ -1,686 +1,108 @@
 <template>
   <div class="release-flow-page">
-    <div v-if="createResult" class="release-flow-success">
-      <div class="success-card">
-        <CustomIcon type="icon-v2-SuccessColorful" size="72px" />
-        <h2>{{ $t('xiang-mu-chuang-jian-cheng-gong') }}</h2>
-        <p>{{ $t('xiang-mu-yi-jing-chuang-jian-nin-huan-xu-yao-dao') }} {{ $t('cang-ku-pei-zhi-webhook') }}</p>
-
-        <div class="webhook-fields">
-          <div class="webhook-row">
-            <span>{{ $t('cang-ku-di-zhi') }}</span>
-            <Input v-model="webhook.repoUrl" readonly>
-              <template #suffix>
-                <Icon type="ios-link" @click="handleJumpUrl(webhook.repoUrl)" />
-              </template>
-            </Input>
-          </div>
-          <div class="webhook-row">
-            <span>{{ $t('webhook-url') }}</span>
-            <Input v-model="webhook.url" readonly>
-              <template #suffix>
-                <Icon type="ios-copy" @click="handleCopyTemp(webhook.url)" />
-              </template>
-            </Input>
-          </div>
-          <div class="webhook-row">
-            <span>{{ $t('webhook-mi-ma') }}</span>
-            <Input v-model="webhook.password" readonly>
-              <template #suffix>
-                <Icon type="ios-copy" @click="handleCopyTemp(webhook.password)" />
-              </template>
-            </Input>
-          </div>
-        </div>
-
-        <div class="success-actions">
-          <Button type="primary" ghost @click="jumpToWebhookDoc">{{ $t('cha-kan-wen-dang') }}</Button>
-          <Button type="primary" @click="goCreatedFlow">{{ $t('jin-ru-bian-geng-liu') }}</Button>
-        </div>
-      </div>
-    </div>
+    <ReleaseFlowSuccess
+      v-if="createResult"
+      :webhook="webhook"
+      @copy="handleCopyTemp"
+      @open-url="handleJumpUrl"
+      @jump-doc="jumpToWebhookDoc"
+      @go-created-flow="goCreatedFlow"
+    />
 
     <template v-else>
       <Spin v-if="loading" fix />
       <div class="release-flow-shell" :class="`release-flow-shell-${currentStepKey}`">
         <div class="release-flow-main">
-          <section v-if="currentStepKey === 'basic'" class="flow-section-card basic-info-card">
-            <div class="accent-title">
-              <span>{{ $t('ji-ben-xin-xi') }}</span>
-            </div>
-            <Form v-if="isCreateMode" ref="basicForm" :model="flowBasicForm" :rules="basicRules" label-position="top" class="basic-form">
-              <FormItem :label="$t('xiang-mu-ming-cheng')" prop="flowName">
-                <Input v-model="flowBasicForm.flowName" :placeholder="$t('qing-shu-ru-bian-geng-liu-cheng-ming-cheng')" />
-              </FormItem>
-              <FormItem :label="$t('miao-shu')" prop="flowDesc">
-                <Input v-model="flowBasicForm.flowDesc" :placeholder="$t('qing-shu-ru-miao-shu-ke-xuan')" />
-              </FormItem>
-              <FormItem :label="$t('fu-ze-ren')" prop="flowManagerUid">
-                <Select
-                  ref="managerSelect"
-                  v-model="flowBasicForm.flowManagerUid"
-                  placement="bottom-start"
-                  transfer
-                  transfer-class-name="release-flow-select-dropdown"
-                  events-enabled
-                  filterable
-                  @on-open-change="handleSelectDropdownOpen($event, $refs.managerSelect)"
-                >
-                  <template #prefix>
-                    <CustomIcon type="icon-v2-svg-USER" rightMargin />
-                  </template>
-                  <Option v-for="item in devopsUsers" :value="item.userUid" :key="item.userUid" :label="item.userName">
-                    {{ item.userName }}
-                  </Option>
-                </Select>
-              </FormItem>
-            </Form>
-          </section>
+          <ReleaseFlowBasicInfo
+            v-if="currentStepKey === 'basic'"
+            ref="basicInfo"
+            :is-create-mode="isCreateMode"
+            :flow-basic-form="flowBasicForm"
+            :basic-rules="basicRules"
+            :devops-users="devopsUsers"
+            @select-open-change="handleSelectDropdownOpen"
+          />
 
-          <section v-if="currentStepKey === 'basic'" class="flow-section-card release-config-card">
-            <div class="release-grid">
-              <div class="release-panel">
-                <div class="panel-heading">
-                  <CustomIcon type="icon-v2-Gitee" size="20px" />
-                  <span>{{ $t('fa-bu-yuan') }}</span>
-                </div>
-
-                <Form ref="releaseSourceForm" :model="flowGitOpsForm" :rules="releaseRules" label-position="left" :label-width="112">
-                  <FormItem :label="$t('fa-bu-yuan-lei-xing')" class="source-type-form-item force-required" required>
-                    <div class="type-card-group source-type-card-group">
-                      <button
-                        v-for="sourceType in sourceTypeCardList"
-                        :key="sourceType.value"
-                        type="button"
-                        class="type-card source-type-card"
-                        :class="{ active: sourceScmType === sourceType.value }"
-                        :aria-pressed="sourceScmType === sourceType.value"
-                        @click="handleSourceTypeSelect(sourceType.value)"
-                      >
-                        <CustomIcon v-if="sourceType.iconResource" :resource="sourceType.iconResource" :alt="sourceType.label" size="18px" />
-                        <CustomIcon v-else :type="sourceType.iconType" size="18px" />
-                        <span>{{ sourceType.label }}</span>
-                      </button>
-                    </div>
-                  </FormItem>
-
-                  <FormItem :label="$t('nav-git-ops')" prop="repoScmId" class="force-required" required>
-                    <Select
-                      ref="gitOpsSelect"
-                      v-if="filteredDevopsScmList.length"
-                      v-model="flowGitOpsForm.repoScmId"
-                      :placeholder="$t('qing-xuan-ze')"
-                      placement="bottom-start"
-                      transfer
-                      transfer-class-name="release-flow-select-dropdown"
-                      events-enabled
-                      @on-change="handleDevopsScmSelected"
-                      @on-open-change="handleSelectDropdownOpen($event, $refs.gitOpsSelect)"
-                    >
-                      <Option v-for="item in filteredDevopsScmList" :value="item.scmId" :key="item.scmId" :label="item.scmDisplay">
-                        <CustomIcon :type="item.scmType" rightMargin />
-                        {{ item.scmDisplay }}
-                      </Option>
-                    </Select>
-                    <Button v-else type="text" @click="goToAddScm">{{ $t('qu-pei-zhi') }}</Button>
-                  </FormItem>
-
-                  <FormItem :label="$t('cang-ku')" prop="repoName">
-                    <div class="inline-control repo-control">
-                      <Select
-                        ref="repoSelect"
-                        v-model="flowGitOpsForm.repoName"
-                        :disabled="!devopsScmSelected"
-                        placement="bottom-start"
-                        transfer
-                        transfer-class-name="release-flow-select-dropdown"
-                        events-enabled
-                        @on-change="handleDevopsRepoSelected"
-                        @on-open-change="handleSelectDropdownOpen($event, $refs.repoSelect)"
-                        filterable
-                        :not-found-text="$t('zan-wu-shu-ju')"
-                      >
-                        <OptionGroup v-for="(repoGroup, namespace) in devopsRepoListByGroup" :label="namespace" :key="namespace">
-                          <Option v-for="repo in repoGroup" :value="repo.repoName" :key="repo.repoUrl" :label="repo.repoName">
-                            <span>{{ repo.repoName }}</span>
-                            <span class="repo-link">
-                              <CustomIcon type="icon-v2-jicheng" @click.stop="handleDevopsJumpToRepo(repo.repoHome)" />
-                            </span>
-                          </Option>
-                        </OptionGroup>
-                      </Select>
-                      <button
-                        type="button"
-                        class="repo-refresh-action"
-                        :disabled="!devopsScmSelected || repoLoading"
-                        @mousedown.stop
-                        @click.stop.prevent="handleDevopsScmSelected()"
-                      >
-                        <span v-if="repoLoading" class="mini-spinner"></span>
-                        <CustomIcon v-else type="icon-v2-Refresh" />
-                      </button>
-                    </div>
-                  </FormItem>
-
-                  <FormItem :label="$t('mu-biao-fen-zhi')" prop="repoBranch">
-                    <Input v-model="flowGitOpsForm.repoBranch" :placeholder="$t('qing-shu-ru-mu-biao-fen-zhi')" />
-                  </FormItem>
-
-                  <FormItem :label="$t('jiao-ben-lu-jin')" prop="repoScriptPath">
-                    <Input v-model="flowGitOpsForm.repoScriptPath" :placeholder="$t('qing-shu-ru-jiao-ben-lu-jin-ke-xuan')" />
-                    <div class="field-hint">{{ $t('devops-script-hint') }}</div>
-                  </FormItem>
-
-                  <FormItem :label="$t('chu-fa-fang-shi')" prop="eventType">
-                    <RadioGroup v-model="flowGitOpsForm.eventType">
-                      <Radio label="Push">{{ EVEN_TYPE_MAP.push }}</Radio>
-                      <Radio label="PullRequest">{{ EVEN_TYPE_MAP.pr }}</Radio>
-                    </RadioGroup>
-                  </FormItem>
-                </Form>
-              </div>
-
-              <div class="link-divider">
-                <span>
-                  <svg class="flow-link-arrows" viewBox="0 0 28 28" aria-hidden="true">
-                    <path d="M7 14h14" />
-                    <path d="m16.8 9.8 4.2 4.2-4.2 4.2" />
-                  </svg>
-                </span>
-              </div>
-
-              <div class="release-panel">
-                <div class="panel-heading target-heading">
-                  <CustomIcon :type="devopsTo" size="20px" />
-                  <span>{{ $t('mu-biao-fa-bu-shu-ju-ku') }}</span>
-                </div>
-
-                <Form
-                  ref="releaseTargetForm"
-                  class="release-target-form"
-                  :model="flowGitOpsForm"
-                  :rules="releaseRules"
-                  label-position="left"
-                  :label-width="112"
-                >
-                  <FormItem :label="$t('shu-ju-ku-lei-xing')" class="target-select-form-item database-type-form-item force-required" required>
-                    <div class="type-card-group database-type-card-group">
-                      <button
-                        v-for="type in databaseTypeCardList"
-                        :key="type"
-                        type="button"
-                        class="type-card database-type-card"
-                        :class="{ active: flowGitOpsForm.databaseType === type }"
-                        :aria-pressed="flowGitOpsForm.databaseType === type"
-                        @click="handleDatabaseTypeSelect(type)"
-                      >
-                        <CustomIcon :type="type" size="18px" />
-                        <span>{{ type }}</span>
-                      </button>
-                    </div>
-                  </FormItem>
-
-                  <FormItem :label="$t('shi-li-1')" prop="instanceId" class="target-select-form-item">
-                    <Select
-                      ref="instanceSelect"
-                      v-if="devopsInsList.length"
-                      v-model="flowGitOpsForm.instanceId"
-                      :placeholder="$t('qing-xuan-ze-shu-ju-ku-shi-li')"
-                      placement="bottom-start"
-                      transfer
-                      transfer-class-name="release-flow-select-dropdown"
-                      events-enabled
-                      @on-change="handleDevopsChangeIns"
-                      @on-open-change="handleSelectDropdownOpen($event, $refs.instanceSelect)"
-                      filterable
-                      :not-found-text="$t('zan-wu-shu-ju')"
-                    >
-                      <Option v-for="ins in filteredDevopsInsList" :value="ins.objId" :key="ins.objId" :label="ins.objName">
-                        <CustomIcon :type="ins.objAttr.dsType" rightMargin />
-                        {{ ins.objName }}
-                      </Option>
-                    </Select>
-                    <Button v-else type="text" @click="goToDsSetting">{{ $t('qu-pei-zhi') }}</Button>
-                  </FormItem>
-
-                  <FormItem v-if="flowGitOpsForm.devopsInsHasCatalog" :label="$t('shu-ju-ku')" prop="catalogName">
-                    <div class="inline-control">
-                      <Select
-                        ref="catalogSelect"
-                        v-model="flowGitOpsForm.catalogName"
-                        placement="bottom-start"
-                        transfer
-                        transfer-class-name="release-flow-select-dropdown"
-                        events-enabled
-                        @on-change="handleChangeCatalog"
-                        @on-open-change="handleSelectDropdownOpen($event, $refs.catalogSelect)"
-                        filterable
-                      >
-                        <Option v-for="catalog in devopsInsCatalogList" :value="catalog.objName" :key="catalog.objName">
-                          {{ catalog.objName }}
-                        </Option>
-                      </Select>
-                      <CustomIcon type="icon-v2-Refresh" @click="fetchCatalogList(true)" leftMargin />
-                    </div>
-                  </FormItem>
-
-                  <FormItem :label="$t('schema')" prop="schemaName" class="schema-form-item target-select-form-item force-required" required>
-                    <div class="inline-control">
-                      <Select
-                        ref="schemaSelect"
-                        v-model="flowGitOpsForm.schemaName"
-                        :disabled="schemaSelectDisabled"
-                        :placeholder="$t('qing-xuan-ze')"
-                        placement="bottom-start"
-                        transfer
-                        transfer-class-name="release-flow-select-dropdown"
-                        events-enabled
-                        @on-open-change="handleSelectDropdownOpen($event, $refs.schemaSelect)"
-                        filterable
-                      >
-                        <Option v-for="schema in devopsInsSchemaList" :value="schema.objName" :key="schema.objName">
-                          {{ schema.objName }}
-                        </Option>
-                      </Select>
-                      <button
-                        type="button"
-                        class="inline-refresh-slot"
-                        :disabled="schemaSelectDisabled || schemaLoading"
-                        @mousedown.stop
-                        @click.stop.prevent="handleRefreshSchemaList"
-                      >
-                        <span v-if="schemaLoading" class="mini-spinner"></span>
-                        <CustomIcon v-else type="icon-v2-Refresh" />
-                      </button>
-                    </div>
-                  </FormItem>
-
-                  <FormItem prop="initScript" class="init-script-form-item">
-                    <div class="init-script-field">
-                      <div class="init-script-label">
-                        <span>*</span>
-                        {{ $t('chu-shi-hua-fang-shi') }}
-                      </div>
-                      <div class="init-script-control">
-                        <RadioGroup v-model="flowGitOpsForm.initScript" class="init-radio-row">
-                          <Radio v-for="item in initOptions" :key="item.value" :label="item.value">
-                            {{ item.label }}
-                          </Radio>
-                        </RadioGroup>
-                        <div class="field-hint init-radio-hint">{{ fetchFlowGitOpsDescription(flowGitOpsForm.initScript) }}</div>
-                      </div>
-                    </div>
-                  </FormItem>
-                </Form>
-              </div>
-            </div>
-          </section>
+          <ReleaseFlowPipelineConfig
+            v-if="currentStepKey === 'basic'"
+            ref="pipelineConfig"
+            :flow-git-ops-form="flowGitOpsForm"
+            :release-rules="releaseRules"
+            :source-scm-type="sourceScmType"
+            :source-type-card-list="sourceTypeCardList"
+            :filtered-devops-scm-list="filteredDevopsScmList"
+            :devops-scm-selected="devopsScmSelected"
+            :devops-repo-list-by-group="devopsRepoListByGroup"
+            :repo-loading="repoLoading"
+            :devops-to="devopsTo"
+            :database-type-card-list="databaseTypeCardList"
+            :devops-ins-list="devopsInsList"
+            :filtered-devops-ins-list="filteredDevopsInsList"
+            :devops-ins-catalog-list="devopsInsCatalogList"
+            :devops-ins-schema-list="devopsInsSchemaList"
+            :schema-select-disabled="schemaSelectDisabled"
+            :schema-loading="schemaLoading"
+            :init-options="initOptions"
+            :event-type-map="EVEN_TYPE_MAP"
+            :flow-git-ops-description="fetchFlowGitOpsDescription"
+            @source-type-select="handleSourceTypeSelect"
+            @devops-scm-change="handleDevopsScmSelected"
+            @devops-repo-change="handleDevopsRepoSelected"
+            @repo-jump="handleDevopsJumpToRepo"
+            @database-type-select="handleDatabaseTypeSelect"
+            @devops-ins-change="handleDevopsChangeIns"
+            @catalog-change="handleChangeCatalog"
+            @refresh-catalog-list="fetchCatalogList"
+            @select-open-change="handleSelectDropdownOpen"
+            @refresh-schema-list="handleRefreshSchemaList"
+            @add-scm="goToAddScm"
+            @ds-setting="goToDsSetting"
+          />
 
           <section v-if="currentStepKey === 'config'" class="flow-section-card flow-config-card">
-            <div class="flow-config-subsection">
-              <div class="flow-config-subtitle">{{ $t('tong-zhi-pei-zhi') }}</div>
-              <div class="notice-layout">
-                <div class="notice-channel-panel">
-                  <div class="field-label required notice-section-label">{{ $t('tong-zhi-qu-dao') }}</div>
-                  <div class="channel-grid channel-type-card-group">
-                    <button
-                      v-for="im in imDefList"
-                      :key="im.imType"
-                      type="button"
-                      :class="{ active: imDefSelected.imType === im.imType }"
-                      class="type-card channel-card"
-                      @click="handleImDefOne(im)"
-                    >
-                      <CustomIcon v-if="im.imType === 'none'" type="Disable" size="18px" />
-                      <CustomIcon v-else-if="im.iconResource" :resource="im.iconResource" :alt="im.imTypeI18n" size="18px" />
-                      <span>{{ im.imTypeI18n }}</span>
-                    </button>
-                  </div>
-
-                  <div class="notice-form-row">
-                    <Form label-position="top">
-                      <FormItem :label="$t('im-fu-wu-ti-gong-fang')">
-                        <Select
-                          ref="imProviderSelect"
-                          v-model="flowImForm.imId"
-                          :disabled="isImDisabled"
-                          :placeholder="$t('qing-xuan-ze-yi-ge-im-ti-gong-zhe')"
-                          :not-found-text="$t('zan-wu-shu-ju')"
-                          placement="bottom-start"
-                          transfer
-                          transfer-class-name="release-flow-select-dropdown"
-                          events-enabled
-                          @on-change="handleImProviderSelected"
-                          @on-open-change="handleSelectDropdownOpen($event, $refs.imProviderSelect)"
-                        >
-                          <template #prefix>
-                            <CustomIcon v-if="imDefSelected.imType === 'none'" type="Disable" rightMargin />
-                            <CustomIcon
-                              v-else-if="imDefSelected.iconResource"
-                              :resource="imDefSelected.iconResource"
-                              :alt="imDefSelected.imTypeI18n"
-                              size="20px"
-                              rightMargin
-                            />
-                          </template>
-                          <Option v-for="item in imProviderList" :key="item.imId" :value="item.imId" :label="item.display" :disabled="!item.enable">
-                            {{ item.display }}
-                          </Option>
-                        </Select>
-                      </FormItem>
-                    </Form>
-                  </div>
-                </div>
-
-                <div class="subscription-panel">
-                  <div class="subscription-title">{{ $t('ding-yue-xiao-xi') }}</div>
-                  <div class="subscription-list">
-                    <div v-for="item in subscriptionItems" :key="item.key" class="subscription-row">
-                      <i-switch v-model="flowImForm[item.key]" true-color="#18b566" :disabled="isImDisabled" />
-                      <span>{{ item.label }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="flow-config-subsection execution-config-subsection">
-              <div class="flow-config-subtitle">{{ $t('zhi-xing-pei-zhi') }}</div>
-              <div class="flow-config-list">
-                <div class="flow-config-row">
-                  <div class="flow-config-label">
-                    <span>{{ $t('sql-shen-he-0') }}</span>
-                    <Tooltip :content="fetchChangeFlowDescription('check', flowBasicForm.checkStrategy)">
-                      <Icon type="ios-information-circle-outline" />
-                    </Tooltip>
-                  </div>
-                  <div class="flow-config-control">
-                    <RadioGroup v-model="flowBasicForm.checkStrategy" class="strategy-radio-row flow-config-radio-row">
-                      <Radio v-for="item in checkOptions" :key="item.value" :label="item.value">
-                        {{ item.label }}
-                      </Radio>
-                    </RadioGroup>
-                    <div class="field-hint flow-config-hint">{{ fetchChangeFlowDescription('check', flowBasicForm.checkStrategy) }}</div>
-                  </div>
-                </div>
-
-                <div class="flow-config-row">
-                  <div class="flow-config-label">
-                    <span>{{ $t('shen-pi-liu') }}</span>
-                    <Tooltip :content="fetchChangeFlowDescription('approve', flowBasicForm.approveStrategy)">
-                      <Icon type="ios-information-circle-outline" />
-                    </Tooltip>
-                  </div>
-                  <div class="flow-config-control">
-                    <RadioGroup v-model="flowBasicForm.approveStrategy" class="strategy-radio-row flow-config-radio-row">
-                      <Radio v-for="item in approveOptions" :key="item.value" :label="item.value">
-                        {{ item.label }}
-                      </Radio>
-                    </RadioGroup>
-                    <div class="field-hint flow-config-hint">{{ fetchChangeFlowDescription('approve', flowBasicForm.approveStrategy) }}</div>
-                  </div>
-                </div>
-
-                <div class="flow-config-row">
-                  <div class="flow-config-label">
-                    <span>{{ $t('fa-bu-fang-shi') }}</span>
-                    <Tooltip :content="fetchChangeFlowDescription('execute', flowBasicForm.executeStrategy)">
-                      <Icon type="ios-information-circle-outline" />
-                    </Tooltip>
-                  </div>
-                  <div class="flow-config-control">
-                    <RadioGroup
-                      v-model="flowBasicForm.executeStrategy"
-                      class="execution-radio-row flow-config-radio-row"
-                      @on-change="setExecuteStrategy"
-                    >
-                      <Radio v-for="item in publishOptions" :key="item.value" :label="item.value">
-                        {{ item.label }}
-                      </Radio>
-                    </RadioGroup>
-                    <div class="field-hint flow-config-hint">{{ fetchChangeFlowDescription('execute', flowBasicForm.executeStrategy) }}</div>
-                  </div>
-                </div>
-
-                <div class="flow-config-row flow-config-row-reserved">
-                  <div class="flow-config-label">
-                    <span>{{ $t('shi-yong-shi-wu') }}</span>
-                    <Tooltip :content="fetchChangeFlowDescription('transactional', flowBasicForm.transactional)">
-                      <Icon type="ios-information-circle-outline" />
-                    </Tooltip>
-                  </div>
-                  <div class="flow-config-control">
-                    <RadioGroup v-model="flowBasicForm.transactional" class="execution-radio-row flow-config-radio-row">
-                      <Radio v-for="item in transactionalOptions" :key="item.value" :label="item.value" :disabled="!flowExecuteIsAuto">
-                        {{ item.label }}
-                      </Radio>
-                    </RadioGroup>
-                    <div class="field-hint flow-config-hint flow-config-hint-reserved">
-                      {{ fetchChangeFlowDescription('transactional', flowBasicForm.transactional) }}
-                    </div>
-                  </div>
-                </div>
-
-                <div class="flow-config-row flow-config-row-reserved">
-                  <div class="flow-config-label">
-                    <span>{{ $t('cuo-wu-ce-lve') }}</span>
-                    <Tooltip :content="fetchChangeFlowDescription('error', flowBasicForm.errorStrategy)">
-                      <Icon type="ios-information-circle-outline" />
-                    </Tooltip>
-                  </div>
-                  <div class="flow-config-control">
-                    <RadioGroup v-model="flowBasicForm.errorStrategy" class="execution-radio-row flow-config-radio-row">
-                      <Radio v-for="item in errorOptions" :key="item.value" :label="item.value" :disabled="!flowExecuteIsAuto">
-                        {{ item.label }}
-                      </Radio>
-                    </RadioGroup>
-                    <div class="field-hint flow-config-hint flow-config-hint-reserved">
-                      {{ fetchChangeFlowDescription('error', flowBasicForm.errorStrategy) }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ReleaseFlowNoticeConfig
+              :flow-im-form="flowImForm"
+              :im-def-list="imDefList"
+              :im-def-selected="imDefSelected"
+              :is-im-disabled="isImDisabled"
+              :im-provider-list="imProviderList"
+              :subscription-items="subscriptionItems"
+              @im-def-select="handleImDefOne"
+              @im-provider-change="handleImProviderSelected"
+              @select-open-change="handleSelectDropdownOpen"
+            />
+            <ReleaseFlowExecuteConfig
+              :flow-basic-form="flowBasicForm"
+              :check-options="checkOptions"
+              :approve-options="approveOptions"
+              :publish-options="publishOptions"
+              :transactional-options="transactionalOptions"
+              :error-options="errorOptions"
+              :flow-execute-is-auto="flowExecuteIsAuto"
+              :change-flow-description="fetchChangeFlowDescription"
+              @execute-strategy-change="setExecuteStrategy"
+            />
           </section>
         </div>
 
-        <aside class="release-flow-summary">
-          <div class="summary-card">
-            <div class="summary-title">
-              <div class="summary-title-main">
-                <CustomIcon type="icon-v2-jiaobenrenwu" size="24px" />
-                <span>{{ $t('pei-zhi-zhai-yao') }}</span>
-              </div>
-              <Button type="text" class="summary-help-link" @click="openHelp">
-                <Icon type="ios-help-circle-outline" />
-                <span>{{ $t('shi-yong-zhi-nan') }}</span>
-              </Button>
-            </div>
-
-            <template v-if="currentStepKey === 'strategy'">
-              <div class="summary-accordion-panel open">
-                <div class="summary-accordion-title">
-                  <CustomIcon type="icon-v2-jiaobenrenwu" size="18px" />
-                  <span>{{ $t('ji-ben-xin-xi') }}</span>
-                </div>
-                <div v-if="isCreateMode" class="summary-row">
-                  <span>{{ $t('xiang-mu-ming-cheng') }}</span>
-                  <strong>{{ summaryValue(flowBasicForm.flowName) }}</strong>
-                </div>
-                <div v-if="isCreateMode" class="summary-row">
-                  <span>{{ $t('fu-ze-ren') }}</span>
-                  <strong>{{ summaryValue(selectedManagerName) }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('cang-ku') }}</span>
-                  <strong>{{ summaryValue(flowGitOpsForm.repoName) }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('mu-biao-fen-zhi') }}</span>
-                  <strong>{{ summaryValue(flowGitOpsForm.repoBranch) }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('chu-fa-fang-shi') }}</span>
-                  <strong>{{ summaryValue(flowGitOpsForm.eventType) }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('shu-ju-ku-lei-xing') }}</span>
-                  <strong class="summary-value-with-icon">
-                    <template v-if="flowGitOpsForm.databaseType">
-                      <CustomIcon :type="flowGitOpsForm.databaseType" size="14px" />
-                      <span>{{ flowGitOpsForm.databaseType }}</span>
-                    </template>
-                    <template v-else>-</template>
-                  </strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('shi-li-1') }}</span>
-                  <strong>{{ summaryValue(selectedInstanceName) }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('schema') }}</span>
-                  <strong>{{ summaryValue(flowGitOpsForm.schemaName) }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('chu-shi-hua-fang-shi') }}</span>
-                  <strong>{{ summaryValue(selectedInitLabel) }}</strong>
-                </div>
-              </div>
-
-              <button type="button" class="summary-accordion-panel collapsed" aria-expanded="false">
-                <span class="summary-accordion-title">
-                  <Icon type="ios-notifications-outline" />
-                  <span>{{ $t('tong-zhi-pei-zhi') }}</span>
-                </span>
-                <Icon type="ios-arrow-forward" />
-              </button>
-
-              <div class="summary-accordion-panel open">
-                <div class="summary-accordion-title">
-                  <Icon type="ios-git-network" />
-                  <span>{{ $t('zhi-xing-pei-zhi') }}</span>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('sql-shen-he-0') }}</span>
-                  <strong>{{ selectedCheckLabel }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('shen-pi-liu') }}</span>
-                  <strong>{{ selectedApproveLabel }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('fa-bu-fang-shi') }}</span>
-                  <strong>{{ selectedPublishLabel }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('shi-yong-shi-wu') }}</span>
-                  <strong>{{ selectedTransactionalLabel }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('cuo-wu-ce-lve') }}</span>
-                  <strong>{{ selectedErrorLabel }}</strong>
-                </div>
-              </div>
-            </template>
-
-            <template v-else>
-              <div class="summary-group">
-                <h3>{{ $t('ji-ben-xin-xi') }}</h3>
-                <div v-if="isCreateMode" class="summary-row">
-                  <span>{{ $t('xiang-mu-ming-cheng') }}</span>
-                  <strong>{{ summaryValue(flowBasicForm.flowName) }}</strong>
-                </div>
-                <div v-if="isCreateMode" class="summary-row">
-                  <span>{{ $t('miao-shu') }}</span>
-                  <strong>{{ summaryValue(flowBasicForm.flowDesc) }}</strong>
-                </div>
-                <div v-if="isCreateMode" class="summary-row">
-                  <span>{{ $t('fu-ze-ren') }}</span>
-                  <strong>{{ summaryValue(selectedManagerName) }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('nav-git-ops') }}</span>
-                  <strong>{{ summaryValue(selectedScmName) }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('cang-ku') }}</span>
-                  <strong>{{ summaryValue(flowGitOpsForm.repoName) }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('mu-biao-fen-zhi') }}</span>
-                  <strong>{{ summaryValue(flowGitOpsForm.repoBranch) }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('jiao-ben-lu-jin') }}</span>
-                  <strong>{{ summaryValue(flowGitOpsForm.repoScriptPath) }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('chu-fa-fang-shi') }}</span>
-                  <strong>{{ summaryValue(flowGitOpsForm.eventType) }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('shu-ju-ku-lei-xing') }}</span>
-                  <strong class="summary-value-with-icon">
-                    <template v-if="flowGitOpsForm.databaseType">
-                      <CustomIcon :type="flowGitOpsForm.databaseType" size="14px" />
-                      <span>{{ flowGitOpsForm.databaseType }}</span>
-                    </template>
-                    <template v-else>-</template>
-                  </strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('shi-li-1') }}</span>
-                  <strong>{{ summaryValue(selectedInstanceName) }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('schema') }}</span>
-                  <strong>{{ summaryValue(flowGitOpsForm.schemaName) }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('chu-shi-hua-fang-shi') }}</span>
-                  <strong>{{ summaryValue(selectedInitLabel) }}</strong>
-                </div>
-              </div>
-
-              <div v-if="isCreateMode" class="summary-group">
-                <h3>{{ $t('tong-zhi-pei-zhi') }}</h3>
-                <div class="summary-row">
-                  <span>{{ $t('tong-zhi-qu-dao') }}</span>
-                  <strong>{{ summaryValue(summaryImChannel) }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('im-fu-wu') }}</span>
-                  <strong>{{ summaryValue(selectedImProviderName) }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('ding-yue-xiao-xi') }}</span>
-                  <strong>{{ subscriptionSummary }}</strong>
-                </div>
-                <h3>{{ $t('zhi-xing-pei-zhi') }}</h3>
-                <div class="summary-row">
-                  <span>{{ $t('sql-shen-he-0') }}</span>
-                  <strong>{{ selectedCheckLabel }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('shen-pi-liu') }}</span>
-                  <strong>{{ selectedApproveLabel }}</strong>
-                </div>
-                <div class="summary-row">
-                  <span>{{ $t('fa-bu-fang-shi') }}</span>
-                  <strong>{{ selectedPublishLabel }}</strong>
-                </div>
-                <div class="summary-row summary-row-reserved">
-                  <span>{{ $t('shi-yong-shi-wu') }}</span>
-                  <strong>{{ selectedTransactionalLabel }}</strong>
-                </div>
-                <div class="summary-row summary-row-reserved">
-                  <span>{{ $t('cuo-wu-ce-lve') }}</span>
-                  <strong>{{ selectedErrorLabel }}</strong>
-                </div>
-              </div>
-            </template>
-          </div>
-        </aside>
+        <ReleaseFlowSummary
+          :is-create-mode="isCreateMode"
+          :flow-basic-form="flowBasicForm"
+          :flow-git-ops-form="flowGitOpsForm"
+          :selected-manager-name="selectedManagerName"
+          :selected-scm-name="selectedScmName"
+          :selected-instance-name="selectedInstanceName"
+          :selected-init-label="selectedInitLabel"
+          :summary-im-channel="summaryImChannel"
+          :selected-im-provider-name="selectedImProviderName"
+          :subscription-summary="subscriptionSummary"
+          :selected-check-label="selectedCheckLabel"
+          :selected-approve-label="selectedApproveLabel"
+          :selected-publish-label="selectedPublishLabel"
+          :selected-transactional-label="selectedTransactionalLabel"
+          :selected-error-label="selectedErrorLabel"
+          @open-help="openHelp"
+        />
       </div>
 
       <div class="page-footer">
@@ -696,6 +118,12 @@
 <script>
 import { mapState } from 'vuex';
 import { handleCopy } from '@/utils/clipboard';
+import ReleaseFlowBasicInfo from './components/ReleaseFlowBasicInfo.vue';
+import ReleaseFlowExecuteConfig from './components/ReleaseFlowExecuteConfig.vue';
+import ReleaseFlowNoticeConfig from './components/ReleaseFlowNoticeConfig.vue';
+import ReleaseFlowPipelineConfig from './components/ReleaseFlowPipelineConfig.vue';
+import ReleaseFlowSuccess from './components/ReleaseFlowSuccess.vue';
+import ReleaseFlowSummary from './components/ReleaseFlowSummary.vue';
 import {
   APPROVE_MAP,
   CHANGE_FLOW_DESCRIPTION,
@@ -721,6 +149,14 @@ const getDefaultGitOpsInfo = () => ({
 
 export default {
   name: 'CicdReleaseFlowPage',
+  components: {
+    ReleaseFlowBasicInfo,
+    ReleaseFlowExecuteConfig,
+    ReleaseFlowNoticeConfig,
+    ReleaseFlowPipelineConfig,
+    ReleaseFlowSuccess,
+    ReleaseFlowSummary
+  },
   data() {
     return {
       loading: false,
@@ -791,9 +227,6 @@ export default {
     },
     submitButtonText() {
       return this.isLastStep ? this.$t('wan-cheng') : this.$t('xia-yi-bu');
-    },
-    flowStrategyStepIndex() {
-      return '2';
     },
     basicRules() {
       return {
@@ -1100,7 +533,7 @@ export default {
       this.devopsScmSelected = this.devopsScmList.find((scm) => String(scm.scmId) === String(this.flowGitOpsForm.repoScmId)) || null;
       this.syncSourceTypeWithProvider();
       this.$nextTick(() => {
-        this.$refs.releaseSourceForm?.clearValidate?.('repoScmId');
+        this.$refs.pipelineConfig?.clearSourceValidate?.('repoScmId');
       });
 
       this.flowGitOpsForm.repoName = '';
@@ -1395,16 +828,20 @@ export default {
       this.currentStep -= 1;
       this.scrollToStepTop();
     },
-    goToStep(step) {
-      if (step >= this.currentStep || step < 1) {
-        return;
-      }
-      this.currentStep = step;
-      this.scrollToStepTop();
-    },
     scrollToStepTop() {
       this.$nextTick(() => {
-        this.$el.querySelector('.release-flow-shell')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const pageEl = this.$el;
+        if (!pageEl || !pageEl.classList?.contains('release-flow-page')) {
+          return;
+        }
+
+        const resetScroll = () => {
+          pageEl.scrollTop = 0;
+          pageEl.scrollLeft = 0;
+        };
+
+        resetScroll();
+        window.requestAnimationFrame(resetScroll);
       });
     },
     resolveSelectRef(selectRef) {
@@ -1521,10 +958,9 @@ export default {
 
       const checks = [];
       if (this.isCreateMode) {
-        checks.push(this.$refs.basicForm.validate());
+        checks.push(this.$refs.basicInfo.validate());
       }
-      checks.push(this.$refs.releaseSourceForm.validate());
-      checks.push(this.$refs.releaseTargetForm.validate());
+      checks.push(this.$refs.pipelineConfig.validate());
       const result = await Promise.all(checks);
       return result.every(Boolean);
     },
@@ -1541,13 +977,14 @@ export default {
       };
     },
     buildFlowOptionPayload() {
+      const isAutoExecute = this.flowBasicForm.executeStrategy === 'Auto';
       return {
         initScript: this.flowGitOpsForm.initScript,
         checkStrategy: this.flowBasicForm.checkStrategy,
         approveStrategy: this.flowBasicForm.approveStrategy,
         executeStrategy: this.flowBasicForm.executeStrategy,
-        errorStrategy: this.flowBasicForm.errorStrategy,
-        transactional: this.flowBasicForm.transactional,
+        errorStrategy: isAutoExecute ? this.flowBasicForm.errorStrategy : 'NONE',
+        transactional: isAutoExecute ? this.flowBasicForm.transactional : 'false',
         retryWaitTime: null,
         retryCount: null
       };
@@ -1611,9 +1048,6 @@ export default {
         this.$Message.error(this.$t('cao-zuo-shi-bai'));
       }
     },
-    summaryValue(value) {
-      return value || '-';
-    },
     goBack() {
       if (this.isCreateMode) {
         this.$router.push('/cicd');
@@ -1657,12 +1091,25 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .release-flow-page {
-  min-height: calc(100vh - 64px);
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   padding-bottom: 76px;
   background: #f5f8fb;
   color: #1f2937;
+}
+
+.release-flow-page::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .release-flow-shell {
@@ -1725,29 +1172,6 @@ export default {
   content: '';
 }
 
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 22px;
-  color: #111827;
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.step-index {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #0fa958;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 700;
-}
-
 .basic-form {
   display: grid;
   width: 100%;
@@ -1757,27 +1181,27 @@ export default {
   row-gap: 18px;
 }
 
-.basic-form :deep(.ivu-form-item) {
+.basic-form .ivu-form-item {
   width: 100%;
   min-width: 0;
   margin-bottom: 0;
 }
 
-.basic-form :deep(.ivu-form-item-content) {
+.basic-form .ivu-form-item-content {
   width: 100%;
   min-width: 0;
 }
 
-.basic-form :deep(.ivu-input-wrapper),
-.basic-form :deep(.ant-input-affix-wrapper),
-.basic-form :deep(.dm-input),
-.basic-form :deep(.ivu-select) {
+.basic-form .ivu-input-wrapper,
+.basic-form .ant-input-affix-wrapper,
+.basic-form .dm-input,
+.basic-form .ivu-select {
   display: block;
   width: 100%;
   box-sizing: border-box;
 }
 
-.basic-form :deep(.ivu-form-item-error-tip) {
+.basic-form .ivu-form-item-error-tip {
   position: absolute;
   top: auto;
   bottom: 0;
@@ -1807,43 +1231,43 @@ export default {
   font-weight: 700;
 }
 
-.basic-info-card :deep(.ivu-form-item-label),
-.release-config-card :deep(.ivu-form-item-label) {
+.basic-info-card .ivu-form-item-label,
+.release-config-card .ivu-form-item-label {
   color: #5f6c80;
   font-size: 16px;
   font-weight: 500;
 }
 
-.basic-info-card :deep(.ivu-form-item-label) {
+.basic-info-card .ivu-form-item-label {
   padding: 0 0 14px;
 }
 
-.basic-info-card :deep(.ivu-form-item-content),
-.release-config-card :deep(.ivu-form-item-content) {
+.basic-info-card .ivu-form-item-content,
+.release-config-card .ivu-form-item-content {
   position: relative;
   padding-bottom: 20px;
 }
 
-.release-panel :deep(.ivu-form-item-content) {
+.release-panel .ivu-form-item-content {
   padding-right: 30px;
 }
 
-.release-config-card :deep(.ivu-form-item) {
+.release-config-card .ivu-form-item {
   margin-bottom: 0;
 }
 
-.release-config-card :deep(.ivu-form-item-label) {
+.release-config-card .ivu-form-item-label {
   position: relative;
   padding: 12px 12px 12px 14px;
 }
 
-.release-config-card :deep(.force-required .ivu-form-item-label::before) {
+.release-config-card .force-required .ivu-form-item-label::before {
   color: #ed4014;
   content: '*';
 }
 
-.release-config-card :deep(.ivu-form-item-required .ivu-form-item-label::before),
-.release-config-card :deep(.force-required .ivu-form-item-label::before) {
+.release-config-card .ivu-form-item-required .ivu-form-item-label::before,
+.release-config-card .force-required .ivu-form-item-label::before {
   position: absolute;
   top: 50%;
   left: 0;
@@ -1854,7 +1278,7 @@ export default {
   transform: translateY(-50%);
 }
 
-.release-config-card :deep(.ivu-form-item-error-tip) {
+.release-config-card .ivu-form-item-error-tip {
   position: absolute;
   top: auto;
   bottom: 0;
@@ -1863,8 +1287,8 @@ export default {
   line-height: 18px;
 }
 
-.basic-info-card :deep(.ivu-input),
-.release-config-card :deep(.ivu-input) {
+.basic-info-card .ivu-input,
+.release-config-card .ivu-input {
   height: 42px;
   border-color: #dce3eb;
   border-radius: 6px;
@@ -1872,8 +1296,8 @@ export default {
   font-size: 15px;
 }
 
-.basic-info-card :deep(.ant-input),
-.basic-info-card :deep(.ant-input-affix-wrapper) {
+.basic-info-card .ant-input,
+.basic-info-card .ant-input-affix-wrapper {
   height: 42px;
   border-color: #dce3eb !important;
   border-radius: 6px !important;
@@ -1881,33 +1305,33 @@ export default {
   font-size: 15px;
 }
 
-.basic-info-card :deep(.ant-input) {
+.basic-info-card .ant-input {
   padding: 0 14px;
   line-height: 40px;
 }
 
-.basic-info-card :deep(.ant-input-affix-wrapper) {
+.basic-info-card .ant-input-affix-wrapper {
   display: flex;
   align-items: center;
   padding: 0 14px;
 }
 
-.basic-info-card :deep(.ant-input-affix-wrapper .ant-input) {
+.basic-info-card .ant-input-affix-wrapper .ant-input {
   height: 40px;
   padding: 0;
   border: 0 !important;
   box-shadow: none !important;
 }
 
-.basic-info-card :deep(.ivu-select-selection),
-.release-config-card :deep(.ivu-select-selection) {
+.basic-info-card .ivu-select-selection,
+.release-config-card .ivu-select-selection {
   min-height: 42px;
   border-color: #dce3eb;
   border-radius: 6px;
 }
 
-.release-config-card :deep(.ivu-select.ivu-select-disabled .ivu-select-selection),
-.release-config-card :deep(.ivu-select-disabled .ivu-select-selection) {
+.release-config-card .ivu-select.ivu-select-disabled .ivu-select-selection,
+.release-config-card .ivu-select-disabled .ivu-select-selection {
   background: #f7f8fa !important;
   background-color: #f7f8fa !important;
   border-color: #dce3eb !important;
@@ -1916,34 +1340,48 @@ export default {
   opacity: 1;
 }
 
-.release-config-card :deep(.ivu-select.ivu-select-disabled .ivu-select-selection:hover),
-.release-config-card :deep(.ivu-select-disabled .ivu-select-selection:hover) {
+.release-config-card .ivu-select.ivu-select-disabled .ivu-select-selection:hover,
+.release-config-card .ivu-select-disabled .ivu-select-selection:hover {
   background: #f7f8fa !important;
   background-color: #f7f8fa !important;
   border-color: #dce3eb !important;
 }
 
-.basic-info-card :deep(.ivu-select-placeholder),
-.basic-info-card :deep(.ivu-select-selected-value),
-.basic-info-card :deep(.ivu-select-input),
-.release-config-card :deep(.ivu-select-placeholder),
-.release-config-card :deep(.ivu-select-selected-value),
-.release-config-card :deep(.ivu-select-input) {
+.basic-info-card .ivu-select-placeholder,
+.basic-info-card .ivu-select-selected-value,
+.basic-info-card .ivu-select-input,
+.release-config-card .ivu-select-placeholder,
+.release-config-card .ivu-select-selected-value,
+.release-config-card .ivu-select-input {
   height: 40px;
   line-height: 40px;
   font-size: 15px;
 }
 
-.release-config-card :deep(.ivu-select-disabled .ivu-select-placeholder),
-.release-config-card :deep(.ivu-select-disabled .ivu-select-selected-value),
-.release-config-card :deep(.ivu-select-disabled .ivu-select-input),
-.release-config-card :deep(.ivu-select-disabled .ivu-select-arrow) {
+.release-config-card .gitops-select-form-item .ivu-select-single .ivu-select-selection {
+  display: flex;
+  align-items: center;
+}
+
+.release-config-card .gitops-select-form-item .ivu-select-single .ivu-select-placeholder,
+.release-config-card .gitops-select-form-item .ivu-select-single .ivu-select-selected-value {
+  float: none;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: auto;
+  line-height: 1.2;
+}
+
+.release-config-card .ivu-select-disabled .ivu-select-placeholder,
+.release-config-card .ivu-select-disabled .ivu-select-selected-value,
+.release-config-card .ivu-select-disabled .ivu-select-input,
+.release-config-card .ivu-select-disabled .ivu-select-arrow {
   color: #8b98aa !important;
   -webkit-text-fill-color: #8b98aa;
   cursor: not-allowed;
 }
 
-.release-config-card :deep(.ivu-select-disabled .ivu-select-input) {
+.release-config-card .ivu-select-disabled .ivu-select-input {
   background-color: transparent !important;
 }
 
@@ -2010,8 +1448,8 @@ export default {
   gap: 8px;
 }
 
-.inline-control :deep(.ivu-select),
-.inline-control :deep(.ivu-input-wrapper) {
+.inline-control .ivu-select,
+.inline-control .ivu-input-wrapper {
   flex: 1;
   min-width: 0;
 }
@@ -2046,7 +1484,7 @@ export default {
   width: calc(100% + 36px);
 }
 
-.schema-form-item .inline-control :deep(.ivu-select) {
+.schema-form-item .inline-control .ivu-select {
   display: block;
   width: 100%;
 }
@@ -2062,8 +1500,8 @@ export default {
   color: #0f9f55;
 }
 
-.inline-refresh-slot :deep(.data-source-icon),
-.repo-refresh-action :deep(.data-source-icon) {
+.inline-refresh-slot .data-source-icon,
+.repo-refresh-action .data-source-icon {
   pointer-events: none;
 }
 
@@ -2078,7 +1516,7 @@ export default {
   position: relative;
 }
 
-.repo-control :deep(.ivu-select) {
+.repo-control .ivu-select {
   flex-basis: 100%;
 }
 
@@ -2197,7 +1635,7 @@ export default {
   display: none;
 }
 
-.link-divider span :deep(.data-source-icon) {
+.link-divider span .data-source-icon {
   position: relative;
   z-index: 1;
 }
@@ -2214,26 +1652,7 @@ export default {
   stroke-width: 2.3;
 }
 
-.segmented {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  overflow: hidden;
-  width: 100%;
-  border: 1px solid #dfe7ef;
-  min-height: 42px;
-  border-radius: 6px;
-  background: #fff;
-}
-
-.segmented.two {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.segmented.three {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.init-script-form-item :deep(.ivu-form-item-content) {
+.init-script-form-item .ivu-form-item-content {
   margin-left: 0 !important;
   padding-right: 0 !important;
 }
@@ -2274,7 +1693,7 @@ export default {
   width: 100%;
 }
 
-.init-radio-row :deep(.ivu-radio-wrapper) {
+.init-radio-row .ivu-radio-wrapper {
   flex: 0 1 auto;
   margin-right: 0;
   color: #1f2937;
@@ -2291,66 +1710,6 @@ export default {
   font-size: 12px;
   font-weight: 400;
   line-height: 1.5;
-}
-
-.segmented button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-  min-height: 42px;
-  padding: 0 12px;
-  overflow: hidden;
-  border: 0;
-  border-right: 1px solid #dfe7ef;
-  background: #fff;
-  color: #516074;
-  font-size: 14px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.segmented-label {
-  display: block;
-  max-width: 100%;
-  min-width: 0;
-  overflow: hidden;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.init-segmented .segmented-label {
-  max-width: 100%;
-  overflow: hidden !important;
-  text-overflow: clip !important;
-}
-
-.segmented button:last-child {
-  border-right: 0;
-}
-
-.segmented button:first-child {
-  border-radius: 5px 0 0 5px;
-}
-
-.segmented button:last-child {
-  border-radius: 0 5px 5px 0;
-}
-
-.segmented button.active {
-  position: relative;
-  z-index: 1;
-  background: #eefbf4;
-  color: #0f9f55;
-  font-weight: 700;
-  box-shadow: inset 0 0 0 1px #10a75a;
-}
-
-.segmented button:disabled {
-  color: #b6bfcb;
-  cursor: not-allowed;
 }
 
 .field-label {
@@ -2399,16 +1758,6 @@ export default {
   content: '';
 }
 
-.notice-step-card {
-  min-height: 690px;
-  padding: 36px 40px 42px;
-}
-
-.notice-step-title {
-  margin-bottom: 32px;
-  font-size: 22px;
-}
-
 .notice-layout {
   display: block;
 }
@@ -2444,108 +1793,49 @@ export default {
   box-shadow: inset 0 0 0 1px #48cf86;
 }
 
-.check-mark {
-  position: absolute;
-  top: -1px;
-  right: -1px;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 0 6px 0 12px;
-  background: #13a95f;
-  color: #fff;
-}
-
-.channel-card.selected .check-mark {
-  display: flex;
-}
-
-.flow-config-card :deep(.ivu-form-item-label) {
+.flow-config-card .ivu-form-item-label {
   padding: 0 0 10px;
   color: #5f6c80;
   font-size: 14px;
   font-weight: 500;
 }
 
-.flow-config-card :deep(.ivu-select-selection) {
+.flow-config-card .ivu-select-selection {
   min-height: 38px;
   border-color: #dce3eb;
   border-radius: 6px;
 }
 
-.flow-config-card :deep(.ivu-select-placeholder),
-.flow-config-card :deep(.ivu-select-selected-value),
-.flow-config-card :deep(.ivu-select-input) {
+.flow-config-card .ivu-select-placeholder,
+.flow-config-card .ivu-select-selected-value,
+.flow-config-card .ivu-select-input {
   height: 36px;
   line-height: 36px;
   font-size: 13px;
 }
 
-.flow-config-card :deep(.ivu-select-disabled .ivu-select-selection) {
+.flow-config-card .ivu-select-disabled .ivu-select-selection {
   background: #f7f8fa !important;
   border-color: #e0e6ee !important;
   opacity: 1;
 }
 
-.flow-config-card :deep(.ivu-select-disabled .ivu-select-placeholder),
-.flow-config-card :deep(.ivu-select-disabled .ivu-select-selected-value),
-.flow-config-card :deep(.ivu-select-disabled .ivu-select-input),
-.flow-config-card :deep(.ivu-select-disabled .ivu-select-arrow) {
+.flow-config-card .ivu-select-disabled .ivu-select-placeholder,
+.flow-config-card .ivu-select-disabled .ivu-select-selected-value,
+.flow-config-card .ivu-select-disabled .ivu-select-input,
+.flow-config-card .ivu-select-disabled .ivu-select-arrow {
   color: #b4bfcc !important;
   -webkit-text-fill-color: #b4bfcc;
 }
 
-.notice-form-row :deep(form) {
+.notice-form-row form {
   display: grid;
   grid-template-columns: minmax(260px, 1fr) minmax(260px, 1fr);
   gap: 42px;
 }
 
-.notice-form-row :deep(.ivu-form-item) {
+.notice-form-row .ivu-form-item {
   margin-bottom: 0;
-}
-
-.notice-step-card :deep(.ivu-form-item-label) {
-  padding: 0 0 12px;
-  color: #5f6c80;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.notice-step-card :deep(.ivu-select-selection) {
-  min-height: 44px;
-  border-color: #dce3eb;
-  border-radius: 6px;
-}
-
-.notice-step-card :deep(.ivu-select-placeholder),
-.notice-step-card :deep(.ivu-select-selected-value),
-.notice-step-card :deep(.ivu-select-input) {
-  height: 42px;
-  line-height: 42px;
-  font-size: 15px;
-}
-
-.notice-step-card :deep(.ivu-select-disabled .ivu-select-selection) {
-  background: #f7f8fa !important;
-  border-color: #e0e6ee !important;
-  opacity: 1;
-}
-
-.notice-step-card :deep(.ivu-select-disabled .ivu-select-placeholder),
-.notice-step-card :deep(.ivu-select-disabled .ivu-select-selected-value),
-.notice-step-card :deep(.ivu-select-disabled .ivu-select-input),
-.notice-step-card :deep(.ivu-select-disabled .ivu-select-arrow) {
-  color: #b4bfcc !important;
-  -webkit-text-fill-color: #b4bfcc;
-}
-
-.notice-divider {
-  height: 1px;
-  margin: 34px 0 28px;
-  background: #e6edf5;
 }
 
 .subscription-panel {
@@ -2582,19 +1872,14 @@ export default {
   border-bottom: 0;
 }
 
-.subscription-row :deep(.ivu-switch-disabled) {
+.subscription-row .ivu-switch-disabled {
   opacity: 1;
 }
 
-.subscription-row :deep(.ivu-switch-disabled.ivu-switch-checked),
-.subscription-row :deep(.ivu-switch-disabled) {
+.subscription-row .ivu-switch-disabled.ivu-switch-checked,
+.subscription-row .ivu-switch-disabled {
   background-color: #dfe4ec !important;
   border-color: #dfe4ec !important;
-}
-
-.strategy-step-card {
-  min-height: 690px;
-  padding: 36px 40px;
 }
 
 .flow-config-list {
@@ -2671,7 +1956,7 @@ export default {
   min-height: 24px;
 }
 
-.flow-config-radio-row :deep(.ivu-radio-wrapper) {
+.flow-config-radio-row .ivu-radio-wrapper {
   font-size: 13px;
   font-weight: 400;
   line-height: 22px;
@@ -2702,38 +1987,6 @@ export default {
   min-height: 22px;
 }
 
-.strategy-top-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
-  margin-bottom: 28px;
-}
-
-.strategy-card {
-  min-height: 230px;
-  padding: 28px 32px;
-  border: 1px solid #e1e9f2;
-  border-radius: 8px;
-  background: #fff;
-}
-
-.strategy-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 28px;
-  color: #111827;
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.strategy-card p {
-  margin: 22px 0 0;
-  color: #6b7789;
-  font-size: 15px;
-  line-height: 1.7;
-}
-
 .strategy-radio-row,
 .execution-radio-row {
   display: flex;
@@ -2743,8 +1996,8 @@ export default {
   min-height: 34px;
 }
 
-.strategy-radio-row :deep(.ivu-radio-wrapper),
-.execution-radio-row :deep(.ivu-radio-wrapper) {
+.strategy-radio-row .ivu-radio-wrapper,
+.execution-radio-row .ivu-radio-wrapper {
   display: inline-flex;
   align-items: center;
   margin-right: 0;
@@ -2755,102 +2008,14 @@ export default {
   white-space: nowrap;
 }
 
-.strategy-radio-row :deep(.ivu-radio),
-.execution-radio-row :deep(.ivu-radio) {
+.strategy-radio-row .ivu-radio,
+.execution-radio-row .ivu-radio {
   margin-right: 8px;
 }
 
-.strategy-radio-row :deep(.ivu-radio-disabled + span),
-.execution-radio-row :deep(.ivu-radio-disabled + span) {
+.strategy-radio-row .ivu-radio-disabled + span,
+.execution-radio-row .ivu-radio-disabled + span {
   color: #b4bfcc;
-}
-
-.strategy-step-card .segmented {
-  min-height: 54px;
-}
-
-.strategy-step-card .segmented button {
-  min-height: 54px;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.execution-strategy-card {
-  padding: 28px 32px 32px;
-  border: 1px solid #e1e9f2;
-  border-radius: 8px;
-  background: #fff;
-}
-
-.execution-strategy-card h3 {
-  margin: 0 0 24px;
-  color: #111827;
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.execution-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 42%);
-  align-items: center;
-  gap: 30px;
-  min-height: 108px;
-  padding: 20px 28px;
-  margin-bottom: 14px;
-  border: 1px solid #e1e9f2;
-  border-radius: 8px;
-  background: #fff;
-}
-
-.execution-row:last-child {
-  margin-bottom: 0;
-}
-
-.execution-meta {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  min-width: 0;
-}
-
-.execution-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 52px;
-  width: 52px;
-  height: 52px;
-  border: 2px solid #58c98a;
-  border-radius: 50%;
-  background: #eefbf4;
-  color: #13a95f;
-  font-size: 26px;
-}
-
-.execution-copy {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.execution-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: #111827;
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.execution-desc {
-  margin-top: 8px;
-  color: #6b7789;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.execution-segmented {
-  width: 100%;
 }
 
 .release-flow-summary {
@@ -2897,59 +2062,6 @@ export default {
   font-size: 13px;
   font-weight: 700;
   line-height: 1;
-}
-
-.release-flow-shell-notice .summary-card,
-.release-flow-shell-strategy .summary-card {
-  min-height: 690px;
-}
-
-.summary-accordion-panel {
-  width: 100%;
-  box-sizing: border-box;
-  margin-bottom: 14px;
-  border: 1px solid #e1e9f2;
-  border-radius: 8px;
-  background: #fff;
-}
-
-.summary-accordion-panel.open {
-  padding: 20px 22px 22px;
-}
-
-.summary-accordion-panel.collapsed {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 58px;
-  padding: 0 20px;
-  color: #111827;
-  font: inherit;
-  cursor: default;
-}
-
-.summary-accordion-panel:last-child {
-  margin-bottom: 0;
-}
-
-.summary-accordion-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-  color: #111827;
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.summary-accordion-panel.collapsed .summary-accordion-title {
-  margin-bottom: 0;
-}
-
-.summary-accordion-panel .summary-row {
-  grid-template-columns: 96px minmax(0, 1fr);
-  min-height: 26px;
-  font-size: 14px;
 }
 
 .summary-group {
@@ -3030,7 +2142,7 @@ export default {
   gap: 5px;
 }
 
-.summary-value-with-icon :deep(.data-source-icon) {
+.summary-value-with-icon .data-source-icon {
   flex: 0 0 auto;
 }
 
@@ -3137,17 +2249,6 @@ export default {
     padding: 22px 24px;
   }
 
-  .notice-step-card,
-  .strategy-step-card {
-    min-height: 560px;
-    padding: 24px 28px 28px;
-  }
-
-  .notice-step-title {
-    margin-bottom: 24px;
-    font-size: 18px;
-  }
-
   .notice-section-label,
   .subscription-title {
     font-size: 15px;
@@ -3164,12 +2265,8 @@ export default {
     font-size: 14px;
   }
 
-  .notice-form-row :deep(form) {
+  .notice-form-row form {
     gap: 28px;
-  }
-
-  .notice-divider {
-    margin: 24px 0 22px;
   }
 
   .subscription-row {
@@ -3206,48 +2303,54 @@ export default {
     font-size: 16px;
   }
 
-  .basic-info-card :deep(.ivu-form-item-label),
-  .release-config-card :deep(.ivu-form-item-label) {
+  .basic-info-card .ivu-form-item-label,
+  .release-config-card .ivu-form-item-label {
     font-size: 13px;
   }
 
-  .basic-info-card :deep(.ivu-input),
-  .release-config-card :deep(.ivu-input) {
+  .basic-info-card .ivu-input,
+  .release-config-card .ivu-input {
     height: 34px;
     font-size: 12px;
   }
 
-  .basic-info-card :deep(.ivu-select-selection),
-  .release-config-card :deep(.ivu-select-selection) {
+  .basic-info-card .ivu-select-selection,
+  .release-config-card .ivu-select-selection {
     min-height: 34px;
   }
 
-  .basic-info-card :deep(.ivu-select-placeholder),
-  .basic-info-card :deep(.ivu-select-selected-value),
-  .basic-info-card :deep(.ivu-select-input),
-  .release-config-card :deep(.ivu-select-placeholder),
-  .release-config-card :deep(.ivu-select-selected-value),
-  .release-config-card :deep(.ivu-select-input) {
+  .basic-info-card .ivu-select-placeholder,
+  .basic-info-card .ivu-select-selected-value,
+  .basic-info-card .ivu-select-input,
+  .release-config-card .ivu-select-placeholder,
+  .release-config-card .ivu-select-selected-value,
+  .release-config-card .ivu-select-input {
     height: 32px;
     line-height: 32px;
     font-size: 12px;
   }
 
-  .basic-info-card :deep(.ivu-form-item-content),
-  .release-config-card :deep(.ivu-form-item-content) {
+  .release-config-card .gitops-select-form-item .ivu-select-single .ivu-select-placeholder,
+  .release-config-card .gitops-select-form-item .ivu-select-single .ivu-select-selected-value {
+    height: auto;
+    line-height: 1.2;
+  }
+
+  .basic-info-card .ivu-form-item-content,
+  .release-config-card .ivu-form-item-content {
     padding-bottom: 18px;
   }
 
-  .release-panel :deep(.ivu-form-item-content) {
+  .release-panel .ivu-form-item-content {
     padding-right: 24px;
   }
 
-  .basic-form :deep(.ivu-form-item-error-tip),
-  .release-config-card :deep(.ivu-form-item-error-tip) {
+  .basic-form .ivu-form-item-error-tip,
+  .release-config-card .ivu-form-item-error-tip {
     line-height: 16px;
   }
 
-  .release-config-card :deep(.ivu-form-item) {
+  .release-config-card .ivu-form-item {
     margin-bottom: 0;
   }
 
@@ -3264,7 +2367,7 @@ export default {
     gap: 5px;
   }
 
-  .release-config-card :deep(.ivu-form-item-label) {
+  .release-config-card .ivu-form-item-label {
     padding: 7px 10px 7px 14px;
   }
 
@@ -3274,12 +2377,7 @@ export default {
     line-height: 1.45;
   }
 
-  .segmented,
-  .segmented button {
-    min-height: 38px;
-  }
-
-  .release-config-card :deep(.init-script-form-item.ivu-form-item .ivu-form-item-content) {
+  .release-config-card .init-script-form-item.ivu-form-item .ivu-form-item-content {
     display: block !important;
     margin-left: 0 !important;
     padding-right: 0 !important;
@@ -3308,7 +2406,7 @@ export default {
     min-height: 20px;
   }
 
-  .init-radio-row :deep(.ivu-radio-wrapper) {
+  .init-radio-row .ivu-radio-wrapper {
     font-size: 11px;
     font-weight: 400;
     line-height: 18px;
@@ -3349,11 +2447,6 @@ export default {
     padding: 22px 24px 22px;
   }
 
-  .release-flow-shell-notice .summary-card,
-  .release-flow-shell-strategy .summary-card {
-    min-height: 560px;
-  }
-
   .summary-title {
     margin-bottom: 18px;
     font-size: 17px;
@@ -3382,247 +2475,11 @@ export default {
     font-size: 13px;
     line-height: 1.45;
   }
-
-  .strategy-top-grid {
-    gap: 18px;
-    margin-bottom: 20px;
-  }
-
-  .strategy-card {
-    min-height: 178px;
-    padding: 22px 24px;
-  }
-
-  .strategy-title {
-    margin-bottom: 18px;
-    font-size: 15px;
-  }
-
-  .strategy-card p {
-    margin-top: 14px;
-    font-size: 12px;
-  }
-
-  .strategy-step-card .segmented,
-  .strategy-step-card .segmented button {
-    min-height: 42px;
-  }
-
-  .strategy-step-card .segmented button {
-    font-size: 13px;
-  }
-
-  .execution-strategy-card {
-    padding: 20px 22px;
-  }
-
-  .execution-strategy-card h3 {
-    margin-bottom: 18px;
-    font-size: 16px;
-  }
-
-  .execution-row {
-    grid-template-columns: minmax(0, 1fr) minmax(260px, 42%);
-    min-height: 76px;
-    gap: 18px;
-    padding: 14px 18px;
-  }
-
-  .execution-icon {
-    flex-basis: 40px;
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-  }
-
-  .execution-title {
-    font-size: 14px;
-  }
-
-  .execution-desc {
-    margin-top: 4px;
-    font-size: 12px;
-  }
-
-  .summary-accordion-panel.open {
-    padding: 16px 18px 18px;
-  }
-
-  .summary-accordion-panel.collapsed {
-    min-height: 50px;
-    padding: 0 18px;
-  }
-
-  .summary-accordion-title {
-    margin-bottom: 12px;
-    font-size: 14px;
-  }
-
-  .summary-accordion-panel .summary-row {
-    grid-template-columns: 86px minmax(0, 1fr);
-    min-height: 22px;
-    font-size: 12px;
-  }
-}
-
-.release-flow-shell-notice .notice-step-card,
-.release-flow-shell-strategy .strategy-step-card {
-  min-height: 690px;
-  padding: 36px 40px 42px;
-}
-
-.release-flow-shell-notice,
-.release-flow-shell-strategy {
-  grid-template-columns: minmax(0, 1fr) 340px;
-}
-
-.release-flow-shell-notice .summary-card,
-.release-flow-shell-strategy .summary-card {
-  min-height: 690px;
-  padding: 30px 32px 28px;
-}
-
-.release-flow-shell-notice .notice-step-card,
-.release-flow-shell-notice .summary-card {
-  min-height: 920px;
-}
-
-.release-flow-shell-notice .summary-row,
-.release-flow-shell-strategy .summary-row,
-.release-flow-shell-strategy .summary-accordion-panel .summary-row {
-  grid-template-columns: 106px minmax(0, 1fr);
-  min-height: 28px;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.release-flow-shell-notice .summary-group {
-  padding-bottom: 22px;
-  margin-bottom: 22px;
-}
-
-.release-flow-shell-notice .summary-group h3,
-.release-flow-shell-strategy .summary-accordion-title {
-  margin-bottom: 16px;
-}
-
-.release-flow-shell-notice .notice-layout,
-.release-flow-shell-strategy .strategy-step-card {
-  display: block !important;
-}
-
-.release-flow-shell-notice .notice-step-title {
-  margin-bottom: 32px;
-  font-size: 22px;
-}
-
-.release-flow-shell-notice .notice-section-label,
-.release-flow-shell-notice .subscription-title {
-  font-size: 17px;
-}
-
-.release-flow-shell-notice .channel-grid {
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
-  width: 100%;
-  margin-bottom: 32px;
-}
-
-.release-flow-shell-notice .channel-card {
-  min-height: 128px;
-  gap: 12px;
-  font-size: 16px;
-}
-
-.release-flow-shell-notice .notice-form-row :deep(form) {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 42px;
-}
-
-.release-flow-shell-notice .notice-divider {
-  height: 1px;
-  margin: 34px 0 28px;
-}
-
-.release-flow-shell-notice .subscription-list {
-  width: 100%;
-}
-
-.release-flow-shell-notice .subscription-row {
-  min-height: 70px;
-  padding: 0 24px;
-  font-size: 15px;
-}
-
-.release-flow-shell-strategy .strategy-top-grid {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 24px;
-  width: 100%;
-  margin-bottom: 28px;
-}
-
-.release-flow-shell-strategy .strategy-card {
-  min-height: 230px;
-  padding: 28px 32px;
-}
-
-.release-flow-shell-strategy .strategy-title {
-  margin-bottom: 28px;
-  font-size: 18px;
-}
-
-.release-flow-shell-strategy .strategy-card p {
-  margin-top: 22px;
-  font-size: 15px;
-}
-
-.release-flow-shell-strategy .strategy-step-card .segmented,
-.release-flow-shell-strategy .strategy-step-card .segmented button {
-  min-height: 54px;
-}
-
-.release-flow-shell-strategy .strategy-step-card .segmented button {
-  font-size: 16px;
-}
-
-.release-flow-shell-strategy .execution-strategy-card {
-  display: block;
-  width: 100%;
-  padding: 28px 32px 32px;
-}
-
-.release-flow-shell-strategy .execution-strategy-card h3 {
-  margin-bottom: 24px;
-  font-size: 20px;
-}
-
-.release-flow-shell-strategy .execution-row {
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 42%);
-  min-height: 108px;
-  gap: 30px;
-  padding: 20px 28px;
-}
-
-.release-flow-shell-strategy .execution-icon {
-  flex-basis: 52px;
-  width: 52px;
-  height: 52px;
-  font-size: 26px;
-}
-
-.release-flow-shell-strategy .execution-title {
-  font-size: 18px;
-}
-
-.release-flow-shell-strategy .execution-desc {
-  margin-top: 8px;
-  font-size: 14px;
 }
 
 .release-flow-shell-config {
   grid-template-columns: minmax(0, 1fr) 340px;
+  align-items: start;
   gap: 18px;
 }
 
@@ -3633,15 +2490,18 @@ export default {
   gap: 0;
 }
 
-.release-flow-shell-config .flow-config-card,
-.release-flow-shell-config .notice-step-card,
-.release-flow-shell-config .strategy-step-card {
-  height: 100%;
+.release-flow-shell-config .flow-config-card {
+  height: auto;
   min-height: 0;
   padding: 24px 28px 30px;
 }
 
+.release-flow-shell-config .release-flow-summary {
+  align-self: start;
+}
+
 .release-flow-shell-config .summary-card {
+  height: auto;
   min-height: 0;
   padding: 28px 30px 28px;
 }
@@ -3698,41 +2558,25 @@ export default {
   text-overflow: clip;
 }
 
-.release-flow-shell-config .check-mark {
-  width: 18px;
-  height: 18px;
-  border-radius: 0 6px 0 8px;
-  font-size: 12px;
-}
-
-.release-flow-shell-config .notice-form-row :deep(form) {
+.release-flow-shell-config .notice-form-row form {
   display: block;
 }
 
-.release-flow-shell-config .flow-config-card :deep(.ivu-form-item-label),
-.release-flow-shell-config .notice-step-card :deep(.ivu-form-item-label) {
+.release-flow-shell-config .flow-config-card .ivu-form-item-label {
   padding-bottom: 8px;
   font-size: 14px;
 }
 
-.release-flow-shell-config .flow-config-card :deep(.ivu-select-selection),
-.release-flow-shell-config .notice-step-card :deep(.ivu-select-selection) {
+.release-flow-shell-config .flow-config-card .ivu-select-selection {
   min-height: 38px;
 }
 
-.release-flow-shell-config .flow-config-card :deep(.ivu-select-placeholder),
-.release-flow-shell-config .flow-config-card :deep(.ivu-select-selected-value),
-.release-flow-shell-config .flow-config-card :deep(.ivu-select-input),
-.release-flow-shell-config .notice-step-card :deep(.ivu-select-placeholder),
-.release-flow-shell-config .notice-step-card :deep(.ivu-select-selected-value),
-.release-flow-shell-config .notice-step-card :deep(.ivu-select-input) {
+.release-flow-shell-config .flow-config-card .ivu-select-placeholder,
+.release-flow-shell-config .flow-config-card .ivu-select-selected-value,
+.release-flow-shell-config .flow-config-card .ivu-select-input {
   height: 36px;
   line-height: 36px;
   font-size: 13px;
-}
-
-.release-flow-shell-config .notice-divider {
-  margin: 22px 0 18px;
 }
 
 .release-flow-shell-config .subscription-title {
@@ -3760,90 +2604,21 @@ export default {
   border-bottom: 0;
 }
 
-.release-flow-shell-config .strategy-top-grid {
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.release-flow-shell-config .strategy-card {
-  min-height: 152px;
-  padding: 18px 22px;
-}
-
-.release-flow-shell-config .strategy-title {
-  margin-bottom: 16px;
-  font-size: 16px;
-}
-
-.release-flow-shell-config .strategy-card p {
-  margin-top: 12px;
-  font-size: 12px;
-  line-height: 1.55;
-}
-
 .release-flow-shell-config .strategy-radio-row,
 .release-flow-shell-config .execution-radio-row {
   gap: 8px 20px;
   min-height: 30px;
 }
 
-.release-flow-shell-config .strategy-radio-row :deep(.ivu-radio-wrapper),
-.release-flow-shell-config .execution-radio-row :deep(.ivu-radio-wrapper) {
+.release-flow-shell-config .strategy-radio-row .ivu-radio-wrapper,
+.release-flow-shell-config .execution-radio-row .ivu-radio-wrapper {
   font-size: 14px;
   line-height: 28px;
 }
 
-.release-flow-shell-config .strategy-radio-row :deep(.ivu-radio),
-.release-flow-shell-config .execution-radio-row :deep(.ivu-radio) {
+.release-flow-shell-config .strategy-radio-row .ivu-radio,
+.release-flow-shell-config .execution-radio-row .ivu-radio {
   margin-right: 6px;
-}
-
-.release-flow-shell-config .strategy-step-card .segmented,
-.release-flow-shell-config .strategy-step-card .segmented button {
-  min-height: 40px;
-}
-
-.release-flow-shell-config .strategy-step-card .segmented button {
-  font-size: 13px;
-}
-
-.release-flow-shell-config .execution-strategy-card {
-  padding: 20px 22px 22px;
-}
-
-.release-flow-shell-config .execution-strategy-card h3 {
-  margin-bottom: 16px;
-  font-size: 17px;
-}
-
-.release-flow-shell-config .execution-row {
-  grid-template-columns: minmax(190px, 1fr) minmax(190px, 40%);
-  min-height: 74px;
-  gap: 10px;
-  padding: 12px 16px;
-  margin-bottom: 10px;
-}
-
-.release-flow-shell-config .execution-meta {
-  gap: 12px;
-}
-
-.release-flow-shell-config .execution-icon {
-  flex-basis: 38px;
-  width: 38px;
-  height: 38px;
-  font-size: 19px;
-}
-
-.release-flow-shell-config .execution-title {
-  font-size: 14px;
-  white-space: nowrap;
-}
-
-.release-flow-shell-config .execution-desc {
-  margin-top: 4px;
-  font-size: 12px;
-  line-height: 1.45;
 }
 
 .release-flow-shell-config .flow-config-list {
@@ -3891,7 +2666,7 @@ export default {
   gap: 22px;
 }
 
-.release-flow-shell-config .flow-config-radio-row :deep(.ivu-radio-wrapper) {
+.release-flow-shell-config .flow-config-radio-row .ivu-radio-wrapper {
   font-size: 13px;
   font-weight: 400;
   line-height: 22px;
@@ -3942,9 +2717,7 @@ export default {
     gap: 14px;
   }
 
-  .release-flow-shell-config .flow-config-card,
-  .release-flow-shell-config .notice-step-card,
-  .release-flow-shell-config .strategy-step-card {
+  .release-flow-shell-config .flow-config-card {
     padding: 20px 22px 24px;
   }
 
@@ -3981,12 +2754,7 @@ export default {
 
   .basic-form,
   .release-grid,
-  .notice-layout,
-  .strategy-top-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .execution-row {
+  .notice-layout {
     grid-template-columns: 1fr;
   }
 
@@ -4023,7 +2791,7 @@ export default {
     grid-template-columns: repeat(2, minmax(92px, 1fr));
   }
 
-  .notice-form-row :deep(form) {
+  .notice-form-row form {
     grid-template-columns: 1fr;
   }
 }
