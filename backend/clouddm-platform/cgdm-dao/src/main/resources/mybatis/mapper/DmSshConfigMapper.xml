@@ -7,6 +7,7 @@
         <result column="id" property="id"/>
         <result column="gmt_create" property="gmtCreate"/>
         <result column="gmt_modified" property="gmtModified"/>
+        <result column="cluster_id" property="clusterId"/>
         <result column="name" property="name"/>
         <result column="host" property="host"/>
         <result column="port" property="port"/>
@@ -24,6 +25,7 @@
         id,
         gmt_create,
         gmt_modified,
+        cluster_id,
         name,
         host,
         port,
@@ -42,6 +44,9 @@
             <include refid="dmSshConfigDO_select"/>
         FROM dm_ssh_config
         WHERE 1 = 1
+        <if test="clusterId != null and clusterId > 0">
+            AND cluster_id = #{clusterId}
+        </if>
         <if test="search != null and search != ''">
             AND (
                    name LIKE CONCAT('%', #{search}, '%')

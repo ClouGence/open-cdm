@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.drivers.adapter.ConvertUtils;
 
 import org.junit.After;
@@ -74,11 +75,17 @@ public class DmDsConfigServiceImplTest {
         dsDO.setDriver("mysql-driver");
         dsDO.setInstanceId("mysql-10");
         dsDO.setAccessKey("root");
+        dsDO.setSecretKey(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt("fresh-password"));
 
         DmDsConfigKv4DmDO historicalExtra = new DmDsConfigKv4DmDO();
         historicalExtra.setDataSourceId(dsDO.getId());
         historicalExtra.setConfigName("pluginOnlyOption");
         historicalExtra.setConfigValue("from-migrated-rdp-kv");
+
+        DmDsConfigKv4DmDO stalePassword = new DmDsConfigKv4DmDO();
+        stalePassword.setDataSourceId(dsDO.getId());
+        stalePassword.setConfigName(DataSourceConfig.Fields.password);
+        stalePassword.setConfigValue(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt("stale-password"));
 
         DmDsConfigKv4DmDO sshProxyEnabled = new DmDsConfigKv4DmDO();
         sshProxyEnabled.setDataSourceId(dsDO.getId());
@@ -91,7 +98,7 @@ public class DmDsConfigServiceImplTest {
         sshConfigId.setConfigValue("12");
 
         DmDsConfigServiceImpl service = new DmDsConfigServiceImpl();
-        setField(service, "dsDal", dsDal(dsDO, List.of(historicalExtra, sshProxyEnabled, sshConfigId)));
+        setField(service, "dsDal", dsDal(dsDO, List.of(historicalExtra, stalePassword, sshProxyEnabled, sshConfigId)));
 
         DataSourceConfig config = service.fetchDsConfigFromExists(dsDO.getId());
 
@@ -106,6 +113,7 @@ public class DmDsConfigServiceImplTest {
         assertEquals(SecurityType.USER_PASSWD, pluginConfig.getSecurityType());
         assertEquals("10.0.0.8:3306", pluginConfig.getHost());
         assertEquals("root", pluginConfig.getUserName());
+        assertEquals("fresh-password", pluginConfig.getPassword());
         assertEquals(Boolean.TRUE, pluginConfig.getSshProxyEnabled());
         assertEquals(Long.valueOf(12L), pluginConfig.getSshConfigId());
     }
@@ -246,6 +254,16 @@ public class DmDsConfigServiceImplTest {
             config.pluginBooleanOption = ConvertUtils.toBoolean(defaultConfig.get(PluginConfig.Fields.pluginBooleanOption), false);
             return dsConfig;
         }
+
+    @Override
+    public boolean supportSSL() {
+        return false;
+    }
+
+    @Override
+    public boolean supportSSH() {
+        return true;
+    }
 
 
         @Override

@@ -24,7 +24,7 @@ import com.clougence.clouddm.platform.dal.model.datasource.DmSshConfigDO;
 
 public interface DmSshConfigMapper extends BaseMapper<DmSshConfigDO> {
 
-    List<DmSshConfigDO> queryList(@Param("search") String search);
+    List<DmSshConfigDO> queryList(@Param("clusterId") Long clusterId, @Param("search") String search);
 
     DmSshConfigDO queryById(@Param("id") Long id);
 

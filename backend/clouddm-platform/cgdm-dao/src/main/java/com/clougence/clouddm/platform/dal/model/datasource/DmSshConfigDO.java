@@ -42,6 +42,7 @@ public class DmSshConfigDO {
     private Date             gmtCreate;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
     private Date             gmtModified;
+    private Long             clusterId;
     private String           name;
     private String           host;
     private Integer          port;
