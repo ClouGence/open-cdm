@@ -256,6 +256,10 @@ public class DmDsConfigServiceImplTest {
         }
 
     @Override
+    public void customizeAddPanels(Map<DsConfigGroup, UiPanel> panels) {
+    }
+
+    
     public boolean supportSSL() {
         return false;
     }

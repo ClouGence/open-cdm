@@ -20,11 +20,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
+import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
 import com.clougence.drivers.adapter.ConvertUtils;
 
-public class DmConfigSpi implements DsConfigSpi {
+public class DmConfigSpi extends AbstractDsConfigSpi {
 
     @Override
     public Class<? extends DataSourceConfig> newConfig() {
@@ -46,6 +48,10 @@ public class DmConfigSpi implements DsConfigSpi {
     }
 
     @Override
+    public void customizeAddPanels(Map<DsConfigGroup, UiPanel> panels) {
+        setDefaultPort(panels, "5236");
+    }
+
     public boolean supportSSL() {
         return true;
     }

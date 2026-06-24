@@ -43,6 +43,10 @@ public class McConfig extends DataSourceConfig {
     private String  defaultCatalog;
     @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultSchema, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION)
     private String  defaultSchema;
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.interactiveMode, descKey = ConfigI18nKey.CONFIG_MC_INTERACTIVE_MODE_DESCRIPTION)
+    private Boolean interactiveMode;
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.schemaStyle, defaultValue = "false", descKey = ConfigI18nKey.CONFIG_MC_SCHEMA_STYLE_DESCRIPTION)
+    private Boolean schemaStyle;
     // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
     @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.clientTimeZone, descKey = ConfigI18nKey.CONFIG_RDB_CLIENT_TIME_ZONE_DESCRIPTION)
     private String  clientTimeZone;
@@ -51,10 +55,6 @@ public class McConfig extends DataSourceConfig {
     private Long    connectTimeoutMs;
     @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
     private Integer soTimeoutSec;
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.interactiveMode, descKey = ConfigI18nKey.CONFIG_MC_INTERACTIVE_MODE_DESCRIPTION)
-    private Boolean interactiveMode;
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.schemaStyle, defaultValue = "false", descKey = ConfigI18nKey.CONFIG_MC_SCHEMA_STYLE_DESCRIPTION)
-    private Boolean schemaStyle;
 
     public McConfig(){
         setDataSourceType(DataSourceType.MaxCompute);

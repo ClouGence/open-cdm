@@ -20,12 +20,14 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
+import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
 import com.clougence.drivers.adapter.ConvertUtils;
 import com.clougence.utils.StringUtils;
 
-public class DrConfigSpi implements DsConfigSpi {
+public class DrConfigSpi extends AbstractDsConfigSpi {
 
     @Override
     public Class<? extends DataSourceConfig> newConfig() {
@@ -45,6 +47,11 @@ public class DrConfigSpi implements DsConfigSpi {
         config.setConnectionCharset(StringUtils.defaultIfBlank(defaultConfig.get(DrConfig.Fields.connectionCharset), "utf8"));
         config.setUseCursorFetch(ConvertUtils.toBoolean(defaultConfig.get(DrConfig.Fields.useCursorFetch), false));
         return dsConfig;
+    }
+
+    @Override
+    public void customizeAddPanels(Map<DsConfigGroup, UiPanel> panels) {
+        setDefaultPort(panels, "9030");
     }
 
     @Override

@@ -20,11 +20,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
+import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
 import com.clougence.drivers.adapter.ConvertUtils;
 
-public class MongoConfigSpi implements DsConfigSpi {
+public class MongoConfigSpi extends AbstractDsConfigSpi {
 
     @Override
     public Class<? extends DataSourceConfig> newConfig() {
@@ -40,6 +42,11 @@ public class MongoConfigSpi implements DsConfigSpi {
         config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
         config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
         return dsConfig;
+    }
+
+    @Override
+    public void customizeAddPanels(Map<DsConfigGroup, UiPanel> panels) {
+        setDefaultPort(panels, "27017");
     }
 
     @Override

@@ -37,9 +37,9 @@ import lombok.experimental.FieldNameConstants;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ObOraConfig extends DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = true, name = Fields.tenant, descKey = ConfigI18nKey.CONFIG_OCEANBASE_SUB_TENANT)
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.tenant, descKey = ConfigI18nKey.CONFIG_OCEANBASE_TENANT_DESCRIPTION)
     private String  tenant;
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = true, name = Fields.cluster, descKey = ConfigI18nKey.CONFIG_OCEANBASE_SUB_TENANT)
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.cluster, descKey = ConfigI18nKey.CONFIG_OCEANBASE_CLUSTER_DESCRIPTION)
     private String  cluster;
     @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultSchema, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION)
     private String  defaultSchema;

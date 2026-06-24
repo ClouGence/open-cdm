@@ -19,12 +19,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
+import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
 import com.clougence.drivers.adapter.ConvertUtils;
 
-public class MsSqlConfigSpi implements DsConfigSpi {
+public class MsSqlConfigSpi extends AbstractDsConfigSpi {
 
     @Override
     public Class<? extends DataSourceConfig> newConfig() {
@@ -42,6 +46,16 @@ public class MsSqlConfigSpi implements DsConfigSpi {
         config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
         config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
         return dsConfig;
+    }
+
+    @Override
+    public void customizeAddPanels(Map<DsConfigGroup, UiPanel> panels) {
+        setDefaultPort(panels, "1433");
+        UiPanel general = panels.get(DsConfigGroup.GENERAL);
+
+        UiPanelField instanceName = general.findField(MsSqlConfig.Fields.instanceName);
+        instanceName.setTitleI18N(ConfigI18nKey.CONFIG_MSSQL_INSTANCE_NAME_LABEL.name());
+        instanceName.setDescI18N(ConfigI18nKey.CONFIG_MSSQL_INSTANCE_NAME_DESCRIPTION.name());
     }
 
     @Override
