@@ -28,6 +28,7 @@ import com.clougence.clouddm.ds.redis.dsconf.RedisSerializationSpi;
 import com.clougence.clouddm.ds.redis.execute.RedisSessionFactory;
 import com.clougence.clouddm.ds.redis.execute.RedisSessionSpi;
 import com.clougence.clouddm.ds.redis.execute.RedisSupportSpi;
+import com.clougence.clouddm.ds.redis.i18n.RedisConfigI18nKeys;
 import com.clougence.clouddm.ds.redis.i18n.RedisDsI18nKeys;
 import com.clougence.clouddm.ds.redis.language.RedisLanguageSpi;
 import com.clougence.clouddm.ds.redis.parser.RedisDslProvider;
@@ -85,6 +86,7 @@ public class RedisDsPlugin implements DsPlugin, SchemaPlugin {
     private void configUi(DsPluginBinder dsPlugin) {
         //initI18n
         dsPlugin.bindPluginI18n(RedisDsI18nKeys.class);
+        dsPlugin.bindPluginI18n(RedisConfigI18nKeys.class);
         //sqlBuilder
         //dsPlugin.bindSqlBuilder(OraEditorProvider.INSTANCE);
         dsPlugin.bindDsDialect(RedisDialect.INSTANCE);

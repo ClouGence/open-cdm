@@ -17,6 +17,7 @@ package com.clougence.clouddm.ds.clickhouse.dsconf;
 
 import java.util.Properties;
 import com.clougence.clouddm.base.metadata.ds.*;
+import com.clougence.clouddm.ds.clickhouse.i18n.ChConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
@@ -37,7 +38,7 @@ public class ChConfig extends DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
     @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.autoCommit, defaultValue = "true", descKey = ConfigI18nKey.CONFIG_RDB_TRANSACTION_DESCRIPTION)
     private Boolean autoCommit;
-    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.sessionTimeout, defaultValue = "15000", descKey = ConfigI18nKey.CONFIG_CLICKHOUSE_SESSION_TIME_OUT)
+    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.sessionTimeout, defaultValue = "15000", descKey = ChConfigI18nKeys.CONFIG_CLICKHOUSE_SESSION_TIME_OUT)
     private String  sessionTimeout;
     @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.clientTimeZone, descKey = ConfigI18nKey.CONFIG_RDB_CLIENT_TIME_ZONE_DESCRIPTION)
     private String  clientTimeZone;

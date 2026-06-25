@@ -24,10 +24,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
@@ -36,6 +34,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
+import com.clougence.clouddm.console.web.component.dsconfig.DmDriverService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
@@ -44,9 +43,16 @@ import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
+import com.clougence.clouddm.console.web.model.fo.CheckDriverVersionFO;
+import com.clougence.clouddm.console.web.model.fo.QueryDsFO;
+import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
 import com.clougence.clouddm.console.web.model.fo.checkrules.SpecListFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.*;
+import com.clougence.clouddm.console.web.model.fo.user.DeleteAccountFO;
+import com.clougence.clouddm.console.web.model.lo.UpdateDsDescLO;
+import com.clougence.clouddm.console.web.model.vo.DriverVersionStatusVO;
 import com.clougence.clouddm.console.web.model.vo.DsKvConfigVO;
+import com.clougence.clouddm.console.web.model.vo.RdpDataSourceVO;
 import com.clougence.clouddm.console.web.model.vo.checkrules.SpecVO;
 import com.clougence.clouddm.console.web.model.vo.cluster.ClusterVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.*;
@@ -55,17 +61,23 @@ import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.cluster.ClusterService;
 import com.clougence.clouddm.console.web.service.datasource.DmDsWebService;
 import com.clougence.clouddm.console.web.service.security.CheckRulesService;
+import com.clougence.clouddm.console.web.service.upload.ConsoleUploadService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
+import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.console.web.util.UiWebUtil;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
 import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.platform.dal.model.secrule.DmSecSpecDO;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.rdp.service.RdpDsEnvService;
+import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.utils.CollectionUtils;
 
 import jakarta.annotation.Resource;
@@ -82,23 +94,48 @@ import lombok.extern.slf4j.Slf4j;
 public class DmDsController {
 
     @Resource
-    private DmDsWebService      dsService;
+    private DmDsWebService       dsService;
     @Resource
-    private DmDsService         dmDsService;
+    private DmDsService          dmDsService;
     @Resource
-    private DmResAuthService    authService;
+    private DmResAuthService     authService;
     @Resource
-    private ObjectCacheDao      cacheDao;
+    private ObjectCacheDao       cacheDao;
     @Resource
-    private DmAuthServiceForBiz authServiceForBiz;
+    private DmAuthServiceForBiz  authServiceForBiz;
     @Resource
-    private CheckRulesService   rulesService;
+    private CheckRulesService    rulesService;
     @Resource
-    private DmDsConfigService   dsConfigService;
+    private DmDsConfigService    dsConfigService;
     @Resource
-    private ClusterService      clusterService;
+    private DmDriverService      driverService;
     @Resource
-    private RdpDsEnvService     envService;
+    private RdpOpAuditService    auditService;
+    @Resource
+    private ClusterService       clusterService;
+    @Resource
+    private RdpDsEnvService      envService;
+    @Resource
+    private ConsoleUploadService uploadService;
+
+    // drivers
+
+    @RequestAuth(RDP_DS_MANAGE)
+    @RequestMapping(value = "/checkDriverStatus", method = RequestMethod.POST)
+    public ResWebData<DriverVersionStatusVO> checkDriverStatus(@RequestBody @Valid CheckDriverVersionFO fo) {
+        DriverVersionStatusVO statusVO = this.driverService.checkDriverStatus(fo.getClusterId(), fo.getDriverFamily(), fo.getDriverVersion());
+        return ResWebDataUtils.buildSuccess(statusVO);
+    }
+
+    @RequestAuth(RDP_DS_MANAGE)
+    @RequestMapping(value = "/downloadDriver", method = RequestMethod.POST)
+    public ResWebData<?> downloadDriver(@RequestBody @Valid CheckDriverVersionFO fo, HttpServletRequest request) {
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+        this.driverService.downloadDriver(uid, fo.getClusterId(), fo.getDriverFamily(), fo.getDriverVersion());
+        return ResWebDataUtils.buildSuccess();
+    }
+
+    // ds manager
 
     @RequestAuth(DM_DS_READ)
     @RequestMapping(value = "/listByCondition", method = RequestMethod.POST)
@@ -111,8 +148,7 @@ public class DmDsController {
             return ResWebDataUtils.buildSuccess(new ArrayList<>());
         }
 
-        List<Long> authedDsIds = authList.stream().map(DmAuthResDO::getResId).distinct().collect(Collectors.toList());
-
+        List<Long> authedDsIds = authList.stream().map(DmAuthResDO::getResId).distinct().toList();
         ArgDsQueryParamObj queryMO = ArgDsQueryParamObj.builder()
             .dataSourceType(listDsFO.getType())
             .dataSourceDescLike(listDsFO.getDataSourceDescLike())
@@ -141,9 +177,9 @@ public class DmDsController {
     }
 
     @RequestAuth(DM_DS_MANAGE)
-    @RequestMapping(value = "/fetchAddConfig", method = RequestMethod.POST)
-    public ResWebData<?> fetchAddConfig(@RequestBody @Valid FetchDsAddConfigFO fo) {
-        DataSourceType dsType = fo.getDataSourceType();
+    @RequestMapping(value = "/fetchDsConfig", method = RequestMethod.POST)
+    public ResWebData<?> fetchDsConfig(@RequestBody @Valid FetchDsAddConfigFO fo) {
+        DataSourceType dsType = fo.getDsType();
 
         FetchDsAddConfigVO vo = new FetchDsAddConfigVO();
         vo.setPanels(UiWebUtil.addDsUiPanels2VO(this.dsConfigService.fetchDsConfigPanels(dsType)));

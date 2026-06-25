@@ -31,7 +31,7 @@ public @interface ConfigDef {
 
     DsConfigGroup group() default DsConfigGroup.SHADOW;
 
-    ConfigI18nKey descKey() default ConfigI18nKey.CONFIG_DESCRIPTION_EMPTY;
+    String descKey() default ConfigI18nKey.CONFIG_DESCRIPTION_EMPTY;
 
     String valueValidRegex() default "";
 
@@ -48,5 +48,4 @@ public @interface ConfigDef {
     String activeField() default "";
 
     String activeEquals() default "";
-
 }

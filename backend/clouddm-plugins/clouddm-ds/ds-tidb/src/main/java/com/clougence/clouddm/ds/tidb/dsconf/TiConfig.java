@@ -18,6 +18,7 @@ package com.clougence.clouddm.ds.tidb.dsconf;
 import java.util.Properties;
 
 import com.clougence.clouddm.base.metadata.ds.*;
+import com.clougence.clouddm.ds.tidb.i18n.TiConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
@@ -49,10 +50,8 @@ public class TiConfig extends DataSourceConfig {
     private Long    connectTimeoutMs;
     @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
     private Integer soTimeoutSec;
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.connectionCharset, defaultValue = "utf8", descKey = ConfigI18nKey.CONFIG_TIDB_CONN_CHARSET_DESCRIPTION)
+    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.connectionCharset, defaultValue = "utf8", descKey = TiConfigI18nKeys.CONFIG_RDB_CONN_CHARSET_DESCRIPTION)
     private String  connectionCharset;
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.useCursorFetch, descKey = ConfigI18nKey.CONFIG_TIDB_CONN_USE_CURSOR_FETCH)
-    private Boolean useCursorFetch;
 
     public TiConfig(){
         setDataSourceType(DataSourceType.TiDB);
@@ -71,7 +70,7 @@ public class TiConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), safeStr(this.getClientTimeZone()));
         properties.setProperty("sslMode", this.tiSslMode());
         properties.setProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey(), safeStr(this.getConnectionCharset()));
-        properties.setProperty("useCursorFetch", safeStr(StringUtils.toString(this.getUseCursorFetch())));
+        properties.setProperty("useCursorFetch", "false");
         properties.setProperty("allowPublicKeyRetrieval", "true");
         properties.setProperty("allowMultiQueries", "true");
         properties.setProperty("rewriteBatchedStatements", "true");

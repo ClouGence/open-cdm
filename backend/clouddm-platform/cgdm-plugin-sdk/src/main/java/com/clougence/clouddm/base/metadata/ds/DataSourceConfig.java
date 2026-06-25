@@ -49,14 +49,26 @@ public class DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.driverVersion, descKey = ConfigI18nKey.CONFIG_RDB_VERSION_DESCRIPTION)
     private String         driverVersion;
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.host, descKey = ConfigI18nKey.CONFIG_RDB_CONN_HOST_DESCRIPTION)
+    private String         host;
     @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.securityType, descKey = ConfigI18nKey.CONFIG_DS_SECURITY_TYPE_DESCRIPTION)
     private SecurityType   securityType;
     @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.userName, descKey = ConfigI18nKey.CONFIG_RDB_USERNAME_DESCRIPTION)
     private String         userName;
     @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.password, descKey = ConfigI18nKey.CONFIG_RDB_PASSWORD_DESCRIPTION, isSecret = true)
     private String         password;
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.host, descKey = ConfigI18nKey.CONFIG_RDB_CONN_HOST_DESCRIPTION)
-    private String         host;
+
+    // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
+    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.maxIdleTimeSec, defaultValue = "300", descKey = ConfigI18nKey.CONFIG_DS_MAX_IDLE_TIME_SEC_DESCRIPTION)
+    private Integer        maxIdleTimeSec;
+    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.readOnly, defaultValue = "false", descKey = ConfigI18nKey.CONFIG_DS_READONLY_DESCRIPTION)
+    private Boolean        readOnly;
+    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.isolation, defaultValue = "DEFAULT", descKey = ConfigI18nKey.CONFIG_RDB_ISOLATION_DESCRIPTION)
+    private String         isolation;
+    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.onlineMaxConnections, defaultValue = "100", descKey = ConfigI18nKey.CONFIG_DS_ONLINE_MAX_CONNECTIONS_DESCRIPTION)
+    private Integer        onlineMaxConnections;
+    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.exportMaxConnections, defaultValue = "50", descKey = ConfigI18nKey.CONFIG_DS_EXPORT_MAX_CONCURRENT_DESCRIPTION)
+    private Integer        exportMaxConnections;
 
     // ------------------------------------------------------------------------------------------------------------------------ SSH/SSL
     @ConfigDef(group = DsConfigGroup.SSH_SSL, readOnly = false, name = Fields.sshProxyEnabled, defaultValue = "false", descKey = ConfigI18nKey.CONFIG_DS_SSH_PROXY_ENABLED)
@@ -65,37 +77,25 @@ public class DataSourceConfig {
     private Long           sshConfigId;
     @ConfigDef(group = DsConfigGroup.SSH_SSL, readOnly = false, name = Fields.sslMode, defaultValue = "DISABLED", descKey = ConfigI18nKey.CONFIG_DS_SSL_MODE)
     private SslMode        sslMode;
-    @ConfigDef(group = DsConfigGroup.SSH_SSL, readOnly = false, name = Fields.sslCaData, isSecret = true, lazy = true)
+    @ConfigDef(group = DsConfigGroup.SSH_SSL, readOnly = false, name = Fields.sslCaData, descKey = ConfigI18nKey.CONFIG_DS_SSL_CA_DATA, isSecret = true, lazy = true)
     private String         sslCaData;
     @JsonIgnore
     private String         sslCaFilePath;
-    @ConfigDef(group = DsConfigGroup.SSH_SSL, readOnly = false, name = Fields.sslClientCertData, isSecret = true, lazy = true)
+    @ConfigDef(group = DsConfigGroup.SSH_SSL, readOnly = false, name = Fields.sslClientCertData, descKey = ConfigI18nKey.CONFIG_DS_SSL_CLIENT_CERT_DATA, isSecret = true, lazy = true)
     private String         sslClientCertData;
     @JsonIgnore
     private String         sslClientCertFilePath;
-    @ConfigDef(group = DsConfigGroup.SSH_SSL, readOnly = false, name = Fields.sslClientKeyData, isSecret = true, lazy = true)
+    @ConfigDef(group = DsConfigGroup.SSH_SSL, readOnly = false, name = Fields.sslClientKeyData, descKey = ConfigI18nKey.CONFIG_DS_SSL_CLIENT_KEY_DATA, isSecret = true, lazy = true)
     private String         sslClientKeyData;
     @JsonIgnore
     private String         sslClientKeyFilePath;
     @ConfigDef(group = DsConfigGroup.SSH_SSL, readOnly = false, name = Fields.sslClientKeyPassword, descKey = ConfigI18nKey.CONFIG_DS_SSL_CLIENT_KEY_PASSWORD, isSecret = true)
     private String         sslClientKeyPassword;
 
-    // ------------------------------------------------------------------------------------------------------------------------ CONNECT
-    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.maxIdleTimeSec, defaultValue = "300", descKey = ConfigI18nKey.CONFIG_DS_MAX_IDLE_TIME_SEC_DESCRIPTION)
-    private Integer        maxIdleTimeSec;
-    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.readOnly, defaultValue = "false", descKey = ConfigI18nKey.CONFIG_DS_READONLY_DESCRIPTION)
-    private Boolean        readOnly;
-    @ConfigDef(group = DsConfigGroup.CONNECT, readOnly = false, name = Fields.isolation, defaultValue = "DEFAULT", descKey = ConfigI18nKey.CONFIG_RDB_ISOLATION_DESCRIPTION)
-    private String         isolation;
-
-    // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
-    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.onlineMaxConnections, defaultValue = "100", descKey = ConfigI18nKey.CONFIG_DS_ONLINE_MAX_CONNECTIONS_DESCRIPTION)
-    private Integer        onlineMaxConnections;
-    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.onlineMaxQueryTimeoutSec, defaultValue = "30", descKey = ConfigI18nKey.CONFIG_DS_ONLINE_MAX_QUERY_TIMEOUT_SEC_DESCRIPTION)
+    // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
+    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.onlineMaxQueryTimeoutSec, defaultValue = "30", descKey = ConfigI18nKey.CONFIG_DS_ONLINE_MAX_QUERY_TIMEOUT_SEC_DESCRIPTION)
     private Integer        onlineMaxQueryTimeoutSec;
-    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.exportMaxConnections, defaultValue = "50", descKey = ConfigI18nKey.CONFIG_DS_EXPORT_MAX_CONCURRENT_DESCRIPTION)
-    private Integer        exportMaxConnections;
-    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.exportMaxQueryTimeoutSec, defaultValue = "300", descKey = ConfigI18nKey.CONFIG_DS_EXPORT_MAX_QUERY_TIMEOUT_SEC_DESCRIPTION)
+    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.exportMaxQueryTimeoutSec, defaultValue = "300", descKey = ConfigI18nKey.CONFIG_DS_EXPORT_MAX_QUERY_TIMEOUT_SEC_DESCRIPTION)
     private Integer        exportMaxQueryTimeoutSec;
 
     public void setDataSourceType(DataSourceType dataSourceType) {

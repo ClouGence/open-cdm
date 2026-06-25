@@ -74,6 +74,8 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     @Resource
     private DataSourceDal                       dsDal;
     @Resource
+    private ObjectCacheDao                      cacheDao;
+    @Resource
     private ConsoleConfigService                configService;
     @Resource
     private WhiteListService                    whiteListService;
@@ -406,6 +408,58 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     public String fetchDsConfig(long dsId, String configKey) {
         DmDsConfigKv4DmDO configs = this.dsDal.configKv4DmMapper().queryByDsIdAndConfigName(dsId, configKey);
         return configs == null ? null : configs.getConfigValue();
+    }
+
+    @Override
+    public void upsertDsConfig(long dsId, String configKey, String configValue) {
+        if (StringUtils.isBlank(configKey)) {
+            return;
+        }
+        DsCacheEntry dmDsDO = this.cacheDao.queryByDsId(dsId);
+        if (dmDsDO == null) {
+            return;
+        }
+
+        DataSourceType dsType = dmDsDO.getDsType();
+
+        if (StringUtils.equals(configKey, DataSourceConfig.Fields.version)) {
+            this.dsDal.dsMapper().updateVersionByInstanceId(dsId, configValue);
+            return;
+        }
+
+        DsConfigKvDef configDef = this.fetchDsConfigDef(dsType).stream().filter(config -> {
+            return StringUtils.equals(config.getConfigName(), configKey);
+        }).findFirst().orElse(null);
+        if (configDef == null) {
+            return;
+        }
+
+        String value = configValue;
+        if (configDef.isSecret()) {
+            value = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(value);
+        }
+
+        DmDsConfigKv4DmDO configDO = this.dsDal.configKv4DmMapper().queryByDsIdAndConfigName(dsId, configKey);
+        if (configDO == null) {
+            DmDsConfigKv4DmDO newConfig = new DmDsConfigKv4DmDO();
+            newConfig.setDataSourceId(dsId);
+            newConfig.setConfigName(configKey);
+            newConfig.setConfigValue(value);
+            this.dsDal.configKv4DmMapper().insert(newConfig);
+        } else if (configDef.isReadOnly()) {
+            return;
+        } else {
+            this.dsDal.configKv4DmMapper().updateDsConfig(dsId, configKey, value);
+        }
+    }
+
+    @Override
+    public void upsertDsConfigs(long dsId, Map<String, String> configMap) {
+        if (configMap == null || configMap.isEmpty()) {
+            return;
+        }
+
+        configMap.forEach((configKey, configValue) -> this.upsertDsConfig(dsId, configKey, configValue));
     }
 
     private DataSourceConfig generateDsConfig(DmDsDO dsDO, Map<String, String> configMap) {

@@ -19,10 +19,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
-import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.api.common.exception.DmErrorCode;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.drivers.DriverRef;
@@ -33,7 +31,6 @@ import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDriverService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
-import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
@@ -43,7 +40,6 @@ import com.clougence.clouddm.console.web.model.fo.datasource.ConnectDsFO;
 import com.clougence.clouddm.console.web.model.vo.DriverVersionStatusVO;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsTagDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
@@ -126,53 +122,6 @@ public class DmDsServiceImpl implements DmDsService, UnifiedPostConstruct {
     private void fillExtraConfig(DmDsDO re, Map<Long, DmSysEnvDO> envMap) {
         if (envMap != null && envMap.containsKey(re.getDsEnvId())) {
             re.setDsEnvDO(envMap.get(re.getDsEnvId()));
-        }
-    }
-
-    @Override
-    @Transactional(rollbackFor = Throwable.class)
-    public void persistDsConfig(DmDsDO dsDO, String version) {
-        List<DsConfigKvDef> configs = this.configService.fetchDsConfigDef(dsDO.getDataSourceType(), collectBaseConfigMap(dsDO, version, dsDO.getDriver()));
-        for (DsConfigKvDef config : configs) {
-            DmDsConfigKv4DmDO configDO = new DmDsConfigKv4DmDO();
-            configDO.setDataSourceId(dsDO.getId());
-            configDO.setConfigName(config.getConfigName());
-            configDO.setConfigValue(config.getConfigValue());
-            if (config.isSecret()) {
-                configDO.setConfigValue(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(config.getConfigValue()));
-            }
-            this.dsDal.configKv4DmMapper().insert(configDO);
-        }
-    }
-
-    private Map<String, String> collectBaseConfigMap(DmDsDO dsDO, String version, String driver) {
-        Map<String, String> configMap = new HashMap<>();
-        putIfNotBlank(configMap, DataSourceConfig.Fields.instanceId, dsDO.getInstanceId());
-        putIfNotBlank(configMap, DataSourceConfig.Fields.dataSourceType, dsDO.getDataSourceType() == null ? null : dsDO.getDataSourceType().name());
-        putIfNotBlank(configMap, DataSourceConfig.Fields.version, version);
-        putIfNotBlank(configMap, DataSourceConfig.Fields.driverVersion, driver);
-        putIfNotBlank(configMap, DataSourceConfig.Fields.securityType, dsDO.getSecurityType() == null ? null : dsDO.getSecurityType().name());
-        putIfNotBlank(configMap, DataSourceConfig.Fields.userName, dsDO.getAccessKey());
-        putIfNotBlank(configMap, DataSourceConfig.Fields.password, decryptSecretConfigValue(dsDO.getSecretKey()));
-        putIfNotBlank(configMap, DataSourceConfig.Fields.host, dsDO.getHost());
-        return configMap;
-    }
-
-    private String decryptSecretConfigValue(String value) {
-        if (StringUtils.isBlank(value)) {
-            return value;
-        }
-        try {
-            return CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(value);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return value;
-        }
-    }
-
-    private void putIfNotBlank(Map<String, String> configMap, String key, String value) {
-        if (StringUtils.isNotBlank(value)) {
-            configMap.putIfAbsent(key, value);
         }
     }
 
@@ -278,7 +227,23 @@ public class DmDsServiceImpl implements DmDsService, UnifiedPostConstruct {
         tempDs.setVersion(configMap.get(DataSourceConfig.Fields.version));
 
         DataSourceConfig dsConfig = this.configService.fetchDsConfigFromNotExist(tempDs, configMap);
-        return this.getVersion(uid, fo.getBindClusterId(), dsConfig);
+        return this.testConnect(uid, fo.getBindClusterId(), fo.getDriver(), dsConfig);
+    }
+
+    @Override
+    public String testConnect(String uid, long clusterId, String driver, DataSourceConfig dsConfig) {
+        if (clusterId <= 0) {
+            throw new IllegalArgumentException("bind cluster id can not be empty.");
+        }
+        if (dsConfig == null || dsConfig.getDataSourceType() == null) {
+            throw new IllegalArgumentException("data source type can not be empty.");
+        }
+        if (StringUtils.isBlank(dsConfig.getHost())) {
+            throw new IllegalArgumentException("host can not be empty.");
+        }
+
+        validateDriverReadyBeforeTestConnect(clusterId, driver);
+        return this.getVersion(uid, clusterId, dsConfig);
     }
 
     private void validateDriverReadyBeforeTestConnect(Long clusterId, String driverSpec) {

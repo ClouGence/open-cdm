@@ -18,6 +18,7 @@ package com.clougence.clouddm.ds.redis.dsconf;
 import java.util.Properties;
 
 import com.clougence.clouddm.base.metadata.ds.*;
+import com.clougence.clouddm.ds.redis.i18n.RedisConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
@@ -42,7 +43,7 @@ public class RedisConfig extends DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
     @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
     private Integer soTimeoutSec;
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.connAndSoTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_REDIS_CON_AND_SO_TIMEOUT_MS_DESCRIPTION)
+    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.connAndSoTimeoutMs, defaultValue = "5000", descKey = RedisConfigI18nKeys.CONFIG_REDIS_CON_AND_SO_TIMEOUT_MS_DESCRIPTION)
     private Integer connAndSoTimeoutMs;
 
     public RedisConfig(){

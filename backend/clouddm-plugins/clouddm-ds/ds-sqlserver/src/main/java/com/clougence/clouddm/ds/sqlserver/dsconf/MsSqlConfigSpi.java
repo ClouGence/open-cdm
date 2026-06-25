@@ -19,12 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
+import com.clougence.clouddm.ds.sqlserver.i18n.MsSqlConfigI18nKeys;
 import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
 import com.clougence.drivers.adapter.ConvertUtils;
 
@@ -54,8 +54,8 @@ public class MsSqlConfigSpi extends AbstractDsConfigSpi {
         UiPanel general = panels.get(DsConfigGroup.GENERAL);
 
         UiPanelField instanceName = general.findField(MsSqlConfig.Fields.instanceName);
-        instanceName.setTitleI18N(ConfigI18nKey.CONFIG_MSSQL_INSTANCE_NAME_LABEL.name());
-        instanceName.setDescI18N(ConfigI18nKey.CONFIG_MSSQL_INSTANCE_NAME_DESCRIPTION.name());
+        instanceName.setTitleI18N(MsSqlConfigI18nKeys.CONFIG_MSSQL_INSTANCE_NAME_LABEL);
+        instanceName.setDescI18N(MsSqlConfigI18nKeys.CONFIG_MSSQL_INSTANCE_NAME_DESCRIPTION);
     }
 
     @Override

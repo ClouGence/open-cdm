@@ -25,6 +25,7 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.ssh.SshRService;
 import com.clougence.clouddm.api.sidecar.session.ssh.TestResultDTO;
 import com.clougence.clouddm.base.metadata.ds.*;
+import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.ssh.SshConfigSaveFO;
@@ -54,9 +55,9 @@ public class SshConfigServiceImpl implements SshConfigService {
     private SshRService sshRService;
 
     @Override
-    public List<SshConfigListVO> list(String search) {
+    public List<SshConfigListVO> list(Long clusterId, String search) {
         return this.systemDal.sshConfigMapper()//
-            .queryList(search)
+            .queryList(clusterId, search)
             .stream()
             .map(DmConvertUtils::convertToSshConfigListVO)
             .collect(Collectors.toList());
@@ -100,6 +101,9 @@ public class SshConfigServiceImpl implements SshConfigService {
         if (StringUtils.isBlank(fo.getName())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SSH_CONFIG_NAME_BLANK_ERROR.name()));
         }
+        if (fo.getClusterId() == null || fo.getClusterId() <= 0) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SSH_CLUSTER_ID_REQUIRED_ERROR.name()));
+        }
         if (StringUtils.isBlank(fo.getHost())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SSH_HOST_BLANK_ERROR.name()));
         }
@@ -137,7 +141,7 @@ public class SshConfigServiceImpl implements SshConfigService {
                 fo.getSshConfigId(), workerSeqNumber, sshConfig.getHost(), sshConfig.getPort(), sshConfig.getUsername(),//
                 sshConfig.getAuthType(), sshConfig.getProxyType(), strictHostKeyChecking);
         try {
-            TestResultDTO result = this.sshRService.testConnection(CallUtils.buildSendDTO(workerSeqNumber), sshConfig);
+            TestResultDTO result = this.sshRService.testConnection(buildSendDTO(sshConfig.getClusterId(), workerSeqNumber), sshConfig);
             if (Boolean.TRUE.equals(result.getSuccess())) {
                 log.info("finish test ssh connection, sshConfigId={}, workerSeqNumber={}, host={}, port={}, success=true, costMs={}",//
                         fo.getSshConfigId(), workerSeqNumber, sshConfig.getHost(), sshConfig.getPort(), result.getCostMs());
@@ -169,6 +173,7 @@ public class SshConfigServiceImpl implements SshConfigService {
         }
 
         SshConfig sshConfig = fo.getConfig() == null ? DmConvertUtils.convertToSshConfig(exists) : DmConvertUtils.convertToSshConfigForTest(exists, fo.getConfig());
+        sshConfig.setClusterId(resolveClusterId(fo, exists));
         SshConFeatures conFeatures = sshConfig.getConFeatures();
         boolean strictHostKeyChecking = false;
         if (conFeatures != null && conFeatures.getHostKey() != null) {
@@ -184,7 +189,7 @@ public class SshConfigServiceImpl implements SshConfigService {
             }
             log.info("auto probe missing ssh known hosts before test, sshConfigId={}, workerSeqNumber={}, host={}, port={}",//
                     fo.getSshConfigId(), workerSeqNumber, sshConfig.getHost(), sshConfig.getPort());
-            conFeatures.setKnownHosts(this.sshRService.probeKnownHosts(CallUtils.buildSendDTO(workerSeqNumber), sshConfig));
+            conFeatures.setKnownHosts(this.sshRService.probeKnownHosts(buildSendDTO(sshConfig.getClusterId(), workerSeqNumber), sshConfig));
             if (fo.getConfig() == null) {
                 exists.setConFeatures(conFeatures);
                 exists.setGmtModified(new Date());
@@ -216,9 +221,10 @@ public class SshConfigServiceImpl implements SshConfigService {
         }
 
         SshConfig sshConfig = fo.getConfig() == null ? DmConvertUtils.convertToSshConfig(exists) : DmConvertUtils.convertToSshConfigForTest(exists, fo.getConfig());
+        sshConfig.setClusterId(resolveClusterId(fo, exists));
         log.info("probe ssh known hosts, sshConfigId={}, workerSeqNumber={}, host={}, port={}",//
                 fo.getSshConfigId(), workerSeqNumber, sshConfig.getHost(), sshConfig.getPort());
-        return this.sshRService.probeKnownHosts(CallUtils.buildSendDTO(workerSeqNumber), sshConfig);
+        return this.sshRService.probeKnownHosts(buildSendDTO(sshConfig.getClusterId(), workerSeqNumber), sshConfig);
     }
 
     //
@@ -246,6 +252,7 @@ public class SshConfigServiceImpl implements SshConfigService {
 
     private DmSshConfigDO buildStorageConfig(DmSshConfigDO exists, SshConfigSaveFO fo) {
         DmSshConfigDO configDO = new DmSshConfigDO();
+        configDO.setClusterId(fo.getClusterId());
         configDO.setName(fo.getName());
         configDO.setHost(fo.getHost());
         configDO.setPort(fo.getPort());
@@ -296,10 +303,33 @@ public class SshConfigServiceImpl implements SshConfigService {
             SshConfig runtime = DmConvertUtils.convertToSshConfig(configDO);
             log.info("auto probe missing ssh known hosts before save, sshConfigId={}, workerSeqNumber={}, host={}, port={}",//
                     fo.getId(), fo.getWorkerSeqNumber(), runtime.getHost(), runtime.getPort());
-            conFeatures.setKnownHosts(this.sshRService.probeKnownHosts(CallUtils.buildSendDTO(fo.getWorkerSeqNumber()), runtime));
+            conFeatures.setKnownHosts(this.sshRService.probeKnownHosts(buildSendDTO(fo.getClusterId(), fo.getWorkerSeqNumber()), runtime));
         }
 
         return configDO;
+    }
+
+    private Long resolveClusterId(TestSshConnectionFO fo, DmSshConfigDO exists) {
+        if (fo.getClusterId() != null && fo.getClusterId() > 0) {
+            return fo.getClusterId();
+        }
+        if (fo.getConfig() != null && fo.getConfig().getClusterId() != null && fo.getConfig().getClusterId() > 0) {
+            return fo.getConfig().getClusterId();
+        }
+        if (exists != null) {
+            return exists.getClusterId();
+        }
+        return null;
+    }
+
+    private RSocketSendDTO buildSendDTO(Long clusterId, String workerSeqNumber) {
+        if (StringUtils.isNotBlank(workerSeqNumber)) {
+            return CallUtils.buildSendDTO(workerSeqNumber);
+        }
+        if (clusterId == null || clusterId <= 0) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SSH_CLUSTER_ID_REQUIRED_ERROR.name()));
+        }
+        return CallUtils.buildSendDTOByCluster(clusterId);
     }
 
     private SshProxyFeatures buildStorageProxyFeatures(SshProxyFeaturesFO submitted, SshProxyFeatures exists) {

@@ -26,8 +26,7 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource("/META-INF/clougence/i18n/dr-ui-editor-table")
 public interface DrDsI18nKeys extends MyDsI18nKeys {
 
-    String PLUGIN_NAME_DORIS                          = "PLUGIN_NAME_DORIS";
-
+    String PLUGIN_NAME_DORIS                                 = "PLUGIN_NAME_DORIS";
 
     String EDITOR_TABLEINFO_BUCKET_NUMBER_TITLE              = "UI_EDITOR_TABLEEDITOR_BUCKET_NUMBER_TITLE";
     String EDITOR_TABLEINFO_BUCKET_NUMBER_DESC               = "UI_EDITOR_TABLEEDITOR_BUCKET_NUMBER_DESC";

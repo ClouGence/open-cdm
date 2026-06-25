@@ -35,6 +35,10 @@ public interface DmDsConfigService {
 
     String fetchDsConfig(long dsId, String configKey);
 
+    void upsertDsConfig(long dsId, String configKey, String configValue);
+
+    void upsertDsConfigs(long dsId, Map<String, String> configMap);
+
     void cleanDsConfig(long dsId);
 
     DataSourceConfig fetchDsConfigFromNotExist(DmDsDO dsDO, Map<String, String> configMap);

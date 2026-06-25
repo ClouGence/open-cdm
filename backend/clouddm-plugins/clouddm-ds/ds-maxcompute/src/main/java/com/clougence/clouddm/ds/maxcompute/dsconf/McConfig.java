@@ -18,6 +18,7 @@ package com.clougence.clouddm.ds.maxcompute.dsconf;
 import java.util.Properties;
 
 import com.clougence.clouddm.base.metadata.ds.*;
+import com.clougence.clouddm.ds.maxcompute.i18n.McConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
@@ -37,15 +38,15 @@ import lombok.experimental.FieldNameConstants;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class McConfig extends DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = true, name = Fields.sdkEndpoint, descKey = ConfigI18nKey.CONFIG_MC_SDK_ENDPOINT_DESCRIPTION)
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = true, name = Fields.sdkEndpoint, descKey = McConfigI18nKeys.CONFIG_MC_SDK_ENDPOINT_DESCRIPTION)
     private String  sdkEndpoint;
     @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultCatalog, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_DB_DESCRIPTION)
     private String  defaultCatalog;
     @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultSchema, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION)
     private String  defaultSchema;
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.interactiveMode, descKey = ConfigI18nKey.CONFIG_MC_INTERACTIVE_MODE_DESCRIPTION)
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.interactiveMode, descKey = McConfigI18nKeys.CONFIG_MC_INTERACTIVE_MODE_DESCRIPTION)
     private Boolean interactiveMode;
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.schemaStyle, defaultValue = "false", descKey = ConfigI18nKey.CONFIG_MC_SCHEMA_STYLE_DESCRIPTION)
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.schemaStyle, defaultValue = "false", descKey = McConfigI18nKeys.CONFIG_MC_SCHEMA_STYLE_DESCRIPTION)
     private Boolean schemaStyle;
     // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
     @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.clientTimeZone, descKey = ConfigI18nKey.CONFIG_RDB_CLIENT_TIME_ZONE_DESCRIPTION)

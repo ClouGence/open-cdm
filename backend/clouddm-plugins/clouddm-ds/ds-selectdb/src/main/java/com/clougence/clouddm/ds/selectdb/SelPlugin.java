@@ -33,6 +33,7 @@ import com.clougence.clouddm.ds.selectdb.dsconf.SelConfigSpi;
 import com.clougence.clouddm.ds.selectdb.dsconf.SelSerializationSpi;
 import com.clougence.clouddm.ds.selectdb.execute.SelSessionFactory;
 import com.clougence.clouddm.ds.selectdb.execute.SelSupportSpi;
+import com.clougence.clouddm.ds.selectdb.i18n.SelConfigI18nKeys;
 import com.clougence.clouddm.ds.selectdb.i18n.SelDsI18nKeys;
 import com.clougence.clouddm.ds.selectdb.language.SelLanguageSpi;
 import com.clougence.clouddm.ds.selectdb.resource.SelEditorResourceSpi;
@@ -92,6 +93,7 @@ public class SelPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configUi(DsPluginBinder dsPlugin) {
         //initI18n
         dsPlugin.bindPluginI18n(SelDsI18nKeys.class);
+        dsPlugin.bindPluginI18n(SelConfigI18nKeys.class);
         //sqlBuilder
         dsPlugin.bindDsSqlBuilder(DrEditorProvider.INSTANCE);
         dsPlugin.bindDsDialect(DorisDialect.INSTANCE);

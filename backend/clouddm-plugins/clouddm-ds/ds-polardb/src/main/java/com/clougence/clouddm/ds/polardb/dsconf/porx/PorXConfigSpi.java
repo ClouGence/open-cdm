@@ -45,7 +45,6 @@ public class PorXConfigSpi extends AbstractDsConfigSpi {
         config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
         config.setClientTimeZone(StringUtils.defaultIfBlank(defaultConfig.get(PorXConfig.Fields.clientTimeZone), "Asia/Shanghai"));
         config.setConnectionCharset(StringUtils.defaultIfBlank(defaultConfig.get(PorXConfig.Fields.connectionCharset), "utf8"));
-        config.setUseCursorFetch(ConvertUtils.toBoolean(defaultConfig.get(PorXConfig.Fields.useCursorFetch), false));
         return dsConfig;
     }
 

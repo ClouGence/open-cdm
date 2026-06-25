@@ -34,6 +34,7 @@ import com.clougence.clouddm.ds.oceanbase.dsconf.ob4my.ObSerializationSpi;
 import com.clougence.clouddm.ds.oceanbase.execute.ob4my.ObSessionFactory;
 import com.clougence.clouddm.ds.oceanbase.execute.ob4my.ObSessionSpi;
 import com.clougence.clouddm.ds.oceanbase.execute.ob4my.ObSupportSpi;
+import com.clougence.clouddm.ds.oceanbase.i18n.ObConfigI18nKeys;
 import com.clougence.clouddm.ds.oceanbase.i18n.ObDsI18nKeys;
 import com.clougence.clouddm.ds.oceanbase.language.ob4my.ObMyLanguageSpi;
 import com.clougence.clouddm.ds.oceanbase.resource.ObMyEditorResourceSpi;
@@ -91,6 +92,7 @@ public class ObDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configUi(DsPluginBinder dsPlugin) {
         //initI18n
         dsPlugin.bindPluginI18n(ObDsI18nKeys.class);
+        dsPlugin.bindPluginI18n(ObConfigI18nKeys.class);
         //sqlBuilder
         dsPlugin.bindDsSqlBuilder(ObEditorProvider.INSTANCE);
         dsPlugin.bindDsDialect(ObForMySQLDialect.INSTANCE);

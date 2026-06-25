@@ -45,7 +45,6 @@ public class MyConfigSpi extends AbstractDsConfigSpi {
         config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
         config.setClientTimeZone(StringUtils.defaultIfBlank(defaultConfig.get(MyConfig.Fields.clientTimeZone), "Asia/Shanghai"));
         config.setConnectionCharset(StringUtils.defaultIfBlank(defaultConfig.get(MyConfig.Fields.connectionCharset), "utf8"));
-        config.setUseCursorFetch(ConvertUtils.toBoolean(defaultConfig.get(MyConfig.Fields.useCursorFetch), false));
         return dsConfig;
     }
 

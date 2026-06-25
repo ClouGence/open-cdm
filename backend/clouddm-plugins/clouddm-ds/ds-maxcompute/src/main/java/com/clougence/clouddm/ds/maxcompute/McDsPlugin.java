@@ -31,6 +31,7 @@ import com.clougence.clouddm.ds.maxcompute.dsconf.McSerializationSpi;
 import com.clougence.clouddm.ds.maxcompute.execute.McSessionFactory;
 import com.clougence.clouddm.ds.maxcompute.execute.McSessionSpi;
 import com.clougence.clouddm.ds.maxcompute.execute.McSupportSpi;
+import com.clougence.clouddm.ds.maxcompute.i18n.McConfigI18nKeys;
 import com.clougence.clouddm.ds.maxcompute.i18n.McI18nKeys;
 import com.clougence.clouddm.ds.maxcompute.language.McLanguageSpi;
 import com.clougence.clouddm.ds.maxcompute.resource.McEditorResourceSpi;
@@ -87,6 +88,7 @@ public class McDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configUi(DsPluginBinder dsPlugin) {
         //initI18n
         dsPlugin.bindPluginI18n(McI18nKeys.class);
+        dsPlugin.bindPluginI18n(McConfigI18nKeys.class);
         //sqlBuilder
         dsPlugin.bindDsSqlBuilder(McEditorProvider.INSTANCE);
         dsPlugin.bindDsDialect(McDialect.INSTANCE);

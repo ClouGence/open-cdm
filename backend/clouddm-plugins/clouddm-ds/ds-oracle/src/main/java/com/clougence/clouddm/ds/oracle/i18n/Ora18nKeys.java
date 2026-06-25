@@ -25,9 +25,8 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource("/META-INF/clougence/i18n/ora-ui-editor-table")
 public interface Ora18nKeys extends DsDataEditorI18nKeys, DsTableEditorI18nKeys, DsProcedureEditorI18nKeys, DsFunctionEditorI18nKeys, DsJobEditorI18nKeys, DsViewEditorI18nKeys, DsTriggerEditorI18nKeys, DsDbLinkEditorI18nKeys {
 
-    String PLUGIN_NAME_ORACLE                         = "PLUGIN_NAME_ORACLE";
-
-
+    String PLUGIN_NAME_ORACLE                                 = "PLUGIN_NAME_ORACLE";
+    //
     String EDITOR_FORCE_CREATE_VIEW_TITLE                     = "UI_EDITOR_FORCE_CREATE_VIEW_TITLE";
     String EDITOR_FORCE_CREATE_VIEW_DESC                      = "UI_EDITOR_FORCE_CREATE_VIEW_DESC";
     String EDITOR_CREATE_TIME_TITLE                           = "UI_EDITOR_CREATE_TIME_TITLE";

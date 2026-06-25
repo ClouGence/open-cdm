@@ -20,7 +20,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
@@ -30,6 +29,7 @@ import com.clougence.clouddm.base.metadata.ui.form.UiPanelFieldType;
 import com.clougence.clouddm.base.metadata.ui.form.UiUtils;
 import com.clougence.clouddm.base.metadata.ui.form.value.FieldOptionValueDef;
 import com.clougence.clouddm.base.metadata.ui.form.value.ValueDef;
+import com.clougence.clouddm.ds.maxcompute.i18n.McConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
 import com.clougence.drivers.adapter.ConvertUtils;
 import com.clougence.utils.StringUtils;
@@ -76,8 +76,8 @@ public class McConfigSpi implements DsConfigSpi {
             UiPanelField endpoint = UiPanelField.builder()
                 .field("maxComputeEndpoint")
                 .type(UiPanelFieldType.MaxComputeEndpoint)
-                .titleI18N(ConfigI18nKey.CONFIG_ADD_DS_MC_ENDPOINT_LABEL.name())
-                .descI18N(ConfigI18nKey.CONFIG_ADD_DS_MC_ENDPOINT_DESC.name())
+                .titleI18N(McConfigI18nKeys.CONFIG_ADD_DS_MC_ENDPOINT_LABEL)
+                .descI18N(McConfigI18nKeys.CONFIG_ADD_DS_MC_ENDPOINT_DESC)
                 .defaultValue(UiUtils.strValueDef("cn-hangzhou|public"))
                 .options(maxComputeEndpointOptions())
                 .build();
@@ -88,16 +88,16 @@ public class McConfigSpi implements DsConfigSpi {
 
         UiPanelField defaultCatalog = general.findField(McConfig.Fields.defaultCatalog);
         if (defaultCatalog != null) {
-            defaultCatalog.setTitleI18N(ConfigI18nKey.CONFIG_MC_PROJECT_LABEL.name());
-            defaultCatalog.setDescI18N(ConfigI18nKey.CONFIG_MC_PROJECT_DESCRIPTION.name());
+            defaultCatalog.setTitleI18N(McConfigI18nKeys.CONFIG_MC_PROJECT_LABEL);
+            defaultCatalog.setDescI18N("");
         }
 
         UiPanel options = panels.get(DsConfigGroup.OPTIONS);
         UiPanelField interactiveMode = general.findField(McConfig.Fields.interactiveMode);
         if (interactiveMode != null) {
             general.removeField(McConfig.Fields.interactiveMode);
-            interactiveMode.setTitleI18N(ConfigI18nKey.CONFIG_MC_INTERACTIVE_MODE_LABEL.name());
-            interactiveMode.setDescI18N(ConfigI18nKey.CONFIG_MC_INTERACTIVE_MODE_DESCRIPTION.name());
+            interactiveMode.setTitleI18N(McConfigI18nKeys.CONFIG_MC_INTERACTIVE_MODE_LABEL);
+            interactiveMode.setDescI18N(McConfigI18nKeys.CONFIG_MC_INTERACTIVE_MODE_DESCRIPTION);
             if (options == null) {
                 general.addField(interactiveMode);
             } else {
@@ -108,9 +108,17 @@ public class McConfigSpi implements DsConfigSpi {
         UiPanelField schemaStyle = general.findField(McConfig.Fields.schemaStyle);
         if (schemaStyle != null) {
             general.removeField(McConfig.Fields.schemaStyle);
-            schemaStyle.setTitleI18N(ConfigI18nKey.CONFIG_MC_SCHEMA_STYLE_LABEL.name());
-            schemaStyle.setDescI18N(ConfigI18nKey.CONFIG_MC_SCHEMA_STYLE_DESCRIPTION.name());
-            general.beforeAddField(schemaStyle, McConfig.Fields.defaultSchema);
+            schemaStyle.setTitleI18N(McConfigI18nKeys.CONFIG_MC_SCHEMA_STYLE_LABEL);
+            schemaStyle.setDescI18N(McConfigI18nKeys.CONFIG_MC_SCHEMA_STYLE_DESCRIPTION);
+            schemaStyle.setDefaultValue(UiUtils.boolValueDef(false));
+            UiPanelField defaultSchema = general.findField(McConfig.Fields.defaultSchema);
+            if (defaultSchema != null) {
+                general.removeField(McConfig.Fields.defaultSchema);
+                defaultSchema.setActiveExpr(UiUtils.activeWhenEquals(McConfig.Fields.schemaStyle, "true"));
+                defaultSchema.setDescI18N(McConfigI18nKeys.CONFIG_MC_DEFAULT_SCHEMA_DESCRIPTION);
+                schemaStyle.addField(defaultSchema);
+            }
+            general.afterAddField(schemaStyle, McConfig.Fields.defaultCatalog);
         }
     }
 

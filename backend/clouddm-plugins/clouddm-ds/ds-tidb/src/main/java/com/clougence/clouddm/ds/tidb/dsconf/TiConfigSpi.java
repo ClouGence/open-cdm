@@ -45,7 +45,6 @@ public class TiConfigSpi extends AbstractDsConfigSpi {
         config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
         config.setClientTimeZone(StringUtils.defaultIfBlank(defaultConfig.get(TiConfig.Fields.clientTimeZone), "Asia/Shanghai"));
         config.setConnectionCharset(StringUtils.defaultIfBlank(defaultConfig.get(TiConfig.Fields.connectionCharset), "utf8"));
-        config.setUseCursorFetch(ConvertUtils.toBoolean(defaultConfig.get(TiConfig.Fields.useCursorFetch), false));
         return dsConfig;
     }
 

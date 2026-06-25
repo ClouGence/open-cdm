@@ -28,5 +28,4 @@ public interface PorXDsI18nKeys extends MyDsI18nKeys {
 
     String PLUGIN_NAME_POLARDB_X                      = "PLUGIN_NAME_POLARDB_X";
 
-
 }

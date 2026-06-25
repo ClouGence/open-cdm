@@ -34,11 +34,11 @@ public interface DmDsService {
 
     DmDsDO fetchByInstanceId(String instanceId);
 
-    void persistDsConfig(DmDsDO dsDO, String version);
-
     String testConnect(String puid, long dsId, long clusterId);
 
     String testConnect(String uid, ConnectDsFO fo);
+
+    String testConnect(String uid, long clusterId, String driver, DataSourceConfig dsConfig);
 
     void updateDsTag(long dsId, String uid, String remark);
 

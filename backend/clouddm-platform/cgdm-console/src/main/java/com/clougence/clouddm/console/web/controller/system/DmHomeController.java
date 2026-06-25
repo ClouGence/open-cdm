@@ -389,6 +389,9 @@ public class DmHomeController {
         for (DataSourceType dsType : dsTypes) {
             result.computeIfAbsent(dsType.getDisplayGroup(), key -> new ArrayList<>()).add(dsType);
         }
+        result.values().forEach(group -> {
+            group.sort(Comparator.comparingInt(DataSourceType::getOrder).thenComparingInt(Enum::ordinal).thenComparing(DataSourceType::getTypeName));
+        });
         return new ArrayList<>(result.values());
     }
 

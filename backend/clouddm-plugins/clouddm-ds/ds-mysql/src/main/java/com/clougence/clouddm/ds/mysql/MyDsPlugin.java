@@ -35,6 +35,7 @@ import com.clougence.clouddm.dsfamily.mysql.definition.ui.template.MyCmdTemplate
 import com.clougence.clouddm.dsfamily.mysql.dialect.MySqlDialect;
 import com.clougence.clouddm.dsfamily.mysql.execute.MySessionSpi;
 import com.clougence.clouddm.dsfamily.mysql.execute.MySupportSpi;
+import com.clougence.clouddm.dsfamily.mysql.i18n.MyConfigI18nKeys;
 import com.clougence.clouddm.dsfamily.mysql.i18n.MyDsI18nKeys;
 import com.clougence.clouddm.dsfamily.mysql.language.MyLanguageSpi;
 import com.clougence.clouddm.dsfamily.mysql.resource.MyEditorResourceSpi;
@@ -91,6 +92,7 @@ public class MyDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configUi(DsPluginBinder dsPlugin) {
         //initI18n
         dsPlugin.bindPluginI18n(MyDsI18nKeys.class);
+        dsPlugin.bindPluginI18n(MyConfigI18nKeys.class);
         //sqlBuilder
         dsPlugin.bindDsSqlBuilder(MyEditorProvider.INSTANCE);
         dsPlugin.bindDsDialect(MySqlDialect.INSTANCE);

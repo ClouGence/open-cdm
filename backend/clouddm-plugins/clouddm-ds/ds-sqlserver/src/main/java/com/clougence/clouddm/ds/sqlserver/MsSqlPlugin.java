@@ -33,6 +33,7 @@ import com.clougence.clouddm.ds.sqlserver.dsconf.MsSqlSerializationSpi;
 import com.clougence.clouddm.ds.sqlserver.execute.MsSqlSessionFactory;
 import com.clougence.clouddm.ds.sqlserver.execute.MsSqlSessionSpi;
 import com.clougence.clouddm.ds.sqlserver.execute.MsSqlSupportSpi;
+import com.clougence.clouddm.ds.sqlserver.i18n.MsSqlConfigI18nKeys;
 import com.clougence.clouddm.ds.sqlserver.i18n.MsSqlI18nKeys;
 import com.clougence.clouddm.ds.sqlserver.language.MsSqlLanguageSpi;
 import com.clougence.clouddm.ds.sqlserver.resource.MsSqlEditorResourceSpi;
@@ -88,6 +89,7 @@ public class MsSqlPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configUi(DsPluginBinder dsPlugin) {
         //initI18n
         dsPlugin.bindPluginI18n(MsSqlI18nKeys.class);
+        dsPlugin.bindPluginI18n(MsSqlConfigI18nKeys.class);
         //sqlBuilder
         dsPlugin.bindDsSqlBuilder(MsSqlEditorProvider.INSTANCE);
         dsPlugin.bindDsDialect(SqlServerDialect.INSTANCE);

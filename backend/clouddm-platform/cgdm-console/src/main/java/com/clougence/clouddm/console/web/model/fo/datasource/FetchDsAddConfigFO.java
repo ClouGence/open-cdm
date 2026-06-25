@@ -17,7 +17,6 @@ package com.clougence.clouddm.console.web.model.fo.datasource;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,6 +24,6 @@ import lombok.Setter;
 @Setter
 public class FetchDsAddConfigFO {
 
-    @NotNull
-    private DataSourceType dataSourceType;
+    private DataSourceType dsType;
+    private Long           dsId;
 }

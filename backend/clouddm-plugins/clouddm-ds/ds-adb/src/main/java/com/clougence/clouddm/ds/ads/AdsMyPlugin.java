@@ -30,6 +30,7 @@ import com.clougence.clouddm.ds.ads.dsconf.ads4my.AdsMyConfigSpi;
 import com.clougence.clouddm.ds.ads.dsconf.ads4my.AdsMySerializationSpi;
 import com.clougence.clouddm.ds.ads.execute.ads4my.AdsMySessionFactory;
 import com.clougence.clouddm.ds.ads.execute.ads4my.AdsSupportSpi;
+import com.clougence.clouddm.ds.ads.i18n.AdsMyConfigI18nKeys;
 import com.clougence.clouddm.ds.ads.i18n.AdsMyDsI18nKeys;
 import com.clougence.clouddm.ds.ads.language.ads4my.AdsMyLanguageSpi;
 import com.clougence.clouddm.ds.ads.resource.ads4my.AdsMyEditorResourceSpi;
@@ -90,6 +91,7 @@ public class AdsMyPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configUi(DsPluginBinder dsPlugin) {
         //initI18n
         dsPlugin.bindPluginI18n(AdsMyDsI18nKeys.class);
+        dsPlugin.bindPluginI18n(AdsMyConfigI18nKeys.class);
         //sqlBuilder
         dsPlugin.bindDsSqlBuilder(AdbMyEditorProvider.INSTANCE);
         dsPlugin.bindDsDialect(AdbMySqlDialect.INSTANCE);

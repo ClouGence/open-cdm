@@ -89,7 +89,7 @@ public class DmDsConfigHelper {
         config.setConfigName(configDef.name());
         config.setConfigGroup(configDef.group());
 
-        config.setDescKey(configDef.descKey().name());
+        config.setDescKey(configDef.descKey());
         config.setValueValidRegex(configDef.valueValidRegex());
         config.setValueRequire(StringUtils.isNotBlank(configDef.valueValidRegex()));
         config.setConfigValue(configDef.lazy() ? "" : val);

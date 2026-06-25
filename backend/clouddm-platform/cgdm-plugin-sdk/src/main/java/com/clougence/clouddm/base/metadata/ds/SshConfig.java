@@ -27,6 +27,7 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SshConfig implements Serializable {
 
+    private Long             clusterId;
     private String           name;
     private String           host;
     private Integer          port;

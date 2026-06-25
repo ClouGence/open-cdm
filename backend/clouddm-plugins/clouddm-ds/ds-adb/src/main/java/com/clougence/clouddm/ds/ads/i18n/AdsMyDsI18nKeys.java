@@ -26,9 +26,8 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource("/META-INF/clougence/i18n/adsmy-ui-editor-table")
 public interface AdsMyDsI18nKeys extends MyDsI18nKeys {
 
-    String PLUGIN_NAME_ADB_FOR_MYSQL                  = "PLUGIN_NAME_ADB_FOR_MYSQL";
-
-
+    String PLUGIN_NAME_ADB_FOR_MYSQL                          = "PLUGIN_NAME_ADB_FOR_MYSQL";
+    //
     String EDITOR_TABLEINFO_ENGINE_XUANWU_LABEL               = "UI_EDITOR_TABLEINFO_ENGINE_XUANWU_LABEL";
     String EDITOR_TABLEINFO_STORAGEPOLICY_TITLE               = "UI_EDITOR_TABLEINFO_STORAGEPOLICY_TITLE";
     String EDITOR_TABLEINFO_STORAGEPOLICY_DESC                = "UI_EDITOR_TABLEINFO_STORAGEPOLICY_DESC";

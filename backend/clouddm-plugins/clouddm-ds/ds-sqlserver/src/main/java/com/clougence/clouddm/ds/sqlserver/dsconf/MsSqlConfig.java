@@ -18,6 +18,7 @@ package com.clougence.clouddm.ds.sqlserver.dsconf;
 import java.util.Properties;
 
 import com.clougence.clouddm.base.metadata.ds.*;
+import com.clougence.clouddm.ds.sqlserver.i18n.MsSqlConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
@@ -37,7 +38,7 @@ import lombok.experimental.FieldNameConstants;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MsSqlConfig extends DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.instanceName, descKey = ConfigI18nKey.CONFIG_MSSQL_INSTANCE_NAME_DESCRIPTION)
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.instanceName, descKey = MsSqlConfigI18nKeys.CONFIG_MSSQL_INSTANCE_NAME_DESCRIPTION)
     private String  instanceName;
     @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultCatalog, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_DB_DESCRIPTION)
     private String  defaultCatalog;

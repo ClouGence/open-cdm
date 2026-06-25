@@ -84,17 +84,17 @@ public class DmI18nKeyDiffCheck implements UnifiedPostConstruct {
 
     private Set<String> allKey() {
         HashSet<String> result = new HashSet<>();
-        result.addAll(Arrays.stream(SecurityType.values()).map(SecurityType::getI18nKey).collect(Collectors.toList()));
+        result.addAll(Arrays.stream(SecurityType.values()).map(SecurityType::getI18nKey).toList());
         result.addAll(loadKeys(ConsoleErrorCode.class));
         result.addAll(loadKeys(I18nRdpMsgKeys.class));
         result.addAll(loadKeys(I18nDsConfigMsgKeys.class));
         result.addAll(loadKeys(I18nUserConfigMsgKeys.class));
         result.addAll(loadKeys(I18nRdpLabelKeys.class));
+        result.addAll(loadKeys(ConfigI18nKey.class));
 
-        result.addAll(Arrays.stream(ConfigI18nKey.values()).map(Enum::name).collect(Collectors.toList()));
-        result.addAll(Arrays.stream(DsResElement.values()).map(Enum::name).collect(Collectors.toList()));
-        result.addAll(Arrays.stream(I18nDmMsgKeys.values()).map(Enum::name).collect(Collectors.toList()));
-        result.addAll(Arrays.stream(I18nDmLabelKeys.values()).map(Enum::name).collect(Collectors.toList()));
+        result.addAll(Arrays.stream(DsResElement.values()).map(Enum::name).toList());
+        result.addAll(Arrays.stream(I18nDmMsgKeys.values()).map(Enum::name).toList());
+        result.addAll(Arrays.stream(I18nDmLabelKeys.values()).map(Enum::name).toList());
 
         result.addAll(loadKeys(SecAuthI18nKeys.class));
         for (Class<?> i18nType : DmI18nUtils.getInstance().getI18nTypes()) {

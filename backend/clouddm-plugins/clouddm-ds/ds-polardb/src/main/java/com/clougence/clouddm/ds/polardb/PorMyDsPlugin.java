@@ -26,6 +26,7 @@ import com.clougence.clouddm.ds.polardb.dsconf.pormy.PorMyConfigSpi;
 import com.clougence.clouddm.ds.polardb.dsconf.pormy.PorMySerializationSpi;
 import com.clougence.clouddm.ds.polardb.execute.pormy.PorMySessionFactory;
 import com.clougence.clouddm.ds.polardb.execute.pormy.PorMySupportSpi;
+import com.clougence.clouddm.ds.polardb.i18n.PorMyConfigI18nKeys;
 import com.clougence.clouddm.ds.polardb.i18n.PorMyDsI18nKeys;
 import com.clougence.clouddm.ds.polardb.language.pormy.PorMyLanguageSpi;
 import com.clougence.clouddm.ds.polardb.resource.PorMyEditorResourceSpi;
@@ -92,6 +93,7 @@ public class PorMyDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configUi(DsPluginBinder dsPlugin) {
         //initI18n
         dsPlugin.bindPluginI18n(PorMyDsI18nKeys.class);
+        dsPlugin.bindPluginI18n(PorMyConfigI18nKeys.class);
         //sqlBuilder
         dsPlugin.bindDsSqlBuilder(MyEditorProvider.INSTANCE);
         dsPlugin.bindDsDialect(PolarDBMyDialect.INSTANCE);

@@ -18,6 +18,7 @@ package com.clougence.clouddm.ds.oceanbase.dsconf.ob4my;
 import java.util.Properties;
 
 import com.clougence.clouddm.base.metadata.ds.*;
+import com.clougence.clouddm.ds.oceanbase.i18n.ObConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
@@ -37,9 +38,9 @@ import lombok.experimental.FieldNameConstants;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ObConfig extends DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = true, name = Fields.tenant, descKey = ConfigI18nKey.CONFIG_OCEANBASE_SUB_TENANT)
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = true, name = Fields.tenant, descKey = ObConfigI18nKeys.CONFIG_OCEANBASE_SUB_TENANT)
     private String  tenant;
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = true, name = Fields.cluster, descKey = ConfigI18nKey.CONFIG_OCEANBASE_SUB_TENANT)
+    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = true, name = Fields.cluster, descKey = ObConfigI18nKeys.CONFIG_OCEANBASE_SUB_TENANT)
     private String  cluster;
     @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultSchema, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION)
     private String  defaultSchema;
@@ -53,10 +54,8 @@ public class ObConfig extends DataSourceConfig {
     private Long    connectTimeoutMs;
     @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
     private Integer soTimeoutSec;
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.connectionCharset, defaultValue = "utf8", descKey = ConfigI18nKey.CONFIG_MYSQL_CONN_CHARSET_DESCRIPTION)
+    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.connectionCharset, defaultValue = "utf8", descKey = ObConfigI18nKeys.CONFIG_RDB_CONN_CHARSET_DESCRIPTION)
     private String  connectionCharset;
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.useCursorFetch, descKey = ConfigI18nKey.CONFIG_MYSQL_CONN_USE_CURSOR_FETCH)
-    private Boolean useCursorFetch;
 
     public ObConfig(){
         setDataSourceType(DataSourceType.OceanBase);
@@ -76,7 +75,7 @@ public class ObConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
         properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), safeStr(this.getClientTimeZone()));
         properties.setProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey(), safeStr(this.getConnectionCharset()));
-        properties.setProperty("useCursorFetch", safeStr(StringUtils.toString(this.getUseCursorFetch())));
+        properties.setProperty("useCursorFetch", "false");
         return properties;
     }
 }

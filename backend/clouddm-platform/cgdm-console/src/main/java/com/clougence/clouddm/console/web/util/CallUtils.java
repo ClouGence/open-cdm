@@ -93,4 +93,25 @@ public class CallUtils {
         sendDTO.setRSocketSendType(RSocketSendType.SPECIFIED);
         return sendDTO;
     }
+
+    public static RSocketSendDTO buildSendDTOByCluster(Long clusterId) {
+        if (clusterId == null || clusterId <= 0) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.SSH_CLUSTER_ID_REQUIRED_ERROR.name()));
+        }
+
+        List<DmSysWorkerDO> workers = systemDal.workerMapper().queryConnectedByClusterId(clusterId);
+        DmSysWorkerDO worker = workers == null || workers.isEmpty() ? null : workers.get(0);
+        if (worker == null) {
+            String msg = DmI18nUtils.getMessage(I18nDmMsgKeys.WORKER_STATUS_OFFLINE_ERROR.name(), clusterId);
+            throw new ErrorMessageException(msg);
+        }
+
+        RSocketSendDTO sendDTO = new RSocketSendDTO();
+        sendDTO.setClusterId(worker.getClusterId());
+        sendDTO.setWorkerSeqNumber(worker.getWorkerSeqNumber());
+        sendDTO.setWorkerIP(worker.getWorkerIp());
+        sendDTO.setUid(worker.getUid());
+        sendDTO.setRSocketSendType(RSocketSendType.SPECIFIED);
+        return sendDTO;
+    }
 }

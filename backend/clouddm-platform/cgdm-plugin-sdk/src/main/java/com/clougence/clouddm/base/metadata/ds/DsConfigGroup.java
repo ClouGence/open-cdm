@@ -21,9 +21,8 @@ package com.clougence.clouddm.base.metadata.ds;
 public enum DsConfigGroup {
 
     GENERAL,
-    CONNECT,
-    SSH_SSL,
     OPTIONS,
+    SSH_SSL,
     ADVANCED,
     SHADOW
 }

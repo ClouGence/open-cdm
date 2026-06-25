@@ -33,6 +33,7 @@ import com.clougence.clouddm.ds.doris.dsconf.DrConfigSpi;
 import com.clougence.clouddm.ds.doris.dsconf.DrSerializationSpi;
 import com.clougence.clouddm.ds.doris.execute.DrSessionFactory;
 import com.clougence.clouddm.ds.doris.execute.DrSupportSpi;
+import com.clougence.clouddm.ds.doris.i18n.DrConfigI18nKeys;
 import com.clougence.clouddm.ds.doris.i18n.DrDsI18nKeys;
 import com.clougence.clouddm.ds.doris.language.DrLanguageSpi;
 import com.clougence.clouddm.ds.doris.resource.DrEditorResourceSpi;
@@ -91,6 +92,7 @@ public class DrPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configUi(DsPluginBinder dsPlugin) {
         //initI18n
         dsPlugin.bindPluginI18n(DrDsI18nKeys.class);
+        dsPlugin.bindPluginI18n(DrConfigI18nKeys.class);
         //sqlBuilder
         dsPlugin.bindDsSqlBuilder(DrEditorProvider.INSTANCE);
         dsPlugin.bindDsDialect(DorisDialect.INSTANCE);

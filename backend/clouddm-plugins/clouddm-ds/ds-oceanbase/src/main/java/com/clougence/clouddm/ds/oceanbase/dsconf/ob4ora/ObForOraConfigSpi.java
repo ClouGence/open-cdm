@@ -19,12 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
+import com.clougence.clouddm.ds.oceanbase.i18n.ObConfigI18nKeys;
 import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
 import com.clougence.drivers.adapter.ConvertUtils;
 import com.clougence.utils.StringUtils;
@@ -49,7 +49,6 @@ public class ObForOraConfigSpi extends AbstractDsConfigSpi {
         config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
         config.setClientTimeZone(StringUtils.defaultIfBlank(defaultConfig.get(ObOraConfig.Fields.clientTimeZone), "Asia/Shanghai"));
         config.setConnectionCharset(StringUtils.defaultIfBlank(defaultConfig.get(ObOraConfig.Fields.connectionCharset), "utf8"));
-        config.setUseCursorFetch(ConvertUtils.toBoolean(defaultConfig.get(ObOraConfig.Fields.useCursorFetch), false));
         return dsConfig;
     }
 
@@ -64,14 +63,14 @@ public class ObForOraConfigSpi extends AbstractDsConfigSpi {
 
         UiPanelField tenant = general.findField(ObOraConfig.Fields.tenant);
         if (tenant != null) {
-            tenant.setTitleI18N(ConfigI18nKey.CONFIG_OCEANBASE_TENANT_LABEL.name());
-            tenant.setDescI18N(ConfigI18nKey.CONFIG_OCEANBASE_TENANT_DESCRIPTION.name());
+            tenant.setTitleI18N(ObConfigI18nKeys.CONFIG_OCEANBASE_TENANT_LABEL);
+            tenant.setDescI18N(ObConfigI18nKeys.CONFIG_OCEANBASE_TENANT_DESCRIPTION);
         }
 
         UiPanelField cluster = general.findField(ObOraConfig.Fields.cluster);
         if (cluster != null) {
-            cluster.setTitleI18N(ConfigI18nKey.CONFIG_OCEANBASE_CLUSTER_LABEL.name());
-            cluster.setDescI18N(ConfigI18nKey.CONFIG_OCEANBASE_CLUSTER_DESCRIPTION.name());
+            cluster.setTitleI18N(ObConfigI18nKeys.CONFIG_OCEANBASE_CLUSTER_LABEL);
+            cluster.setDescI18N(ObConfigI18nKeys.CONFIG_OCEANBASE_CLUSTER_DESCRIPTION);
         }
     }
 

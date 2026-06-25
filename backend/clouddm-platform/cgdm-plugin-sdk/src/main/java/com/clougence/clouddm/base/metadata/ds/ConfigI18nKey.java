@@ -18,129 +18,77 @@ package com.clougence.clouddm.base.metadata.ds;
 /**
  * @author bucketli 2020/11/5 20:50
  */
-public enum ConfigI18nKey {
-    CONFIG_DESCRIPTION_EMPTY,
-    // ---------------------------------------------------------------------------------------------------
-    // for Type ：com.clougence.clouddm.base.metadata.dsconfig.DataSourceConfig
-    CONFIG_DS_INSTANCE_ID_DESCRIPTION,
-    CONFIG_DS_TYPE_DESCRIPTION,
-    CONFIG_RDB_VERSION_DESCRIPTION,
-    CONFIG_DS_SECURITY_TYPE_DESCRIPTION,
-    CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION,
-    CONFIG_DS_MAX_IDLE_TIME_SEC_DESCRIPTION,
-    CONFIG_DS_ONLINE_MAX_CONNECTIONS_DESCRIPTION,
-    CONFIG_DS_ONLINE_MAX_CONCURRENT_DESCRIPTION,
-    CONFIG_DS_ONLINE_MAX_QUERY_TIMEOUT_SEC_DESCRIPTION,
-    CONFIG_DS_EXPORT_MAX_CONCURRENT_DESCRIPTION,
-    CONFIG_DS_EXPORT_MAX_QUERY_TIMEOUT_SEC_DESCRIPTION,
-    CONFIG_DS_READONLY_DESCRIPTION,
-    CONFIG_RDB_CONFIG_VERSION_DESCRIPTION,
-    CONFIG_DS_SSH_PROXY_ENABLED,
-    CONFIG_DS_SSH_CONFIG_ID,
-    CONFIG_DS_SSL_MODE,
-    CONFIG_DS_SSL_CLIENT_KEY_PASSWORD,
+public interface ConfigI18nKey {
 
-    // ---------------------------------------------------------------------------------------------------
-    // for Type ：com.clougence.clouddm.base.metadata.dsconfig.rdb.RdbConfig
-    CONFIG_RDB_USERNAME_DESCRIPTION,
-    CONFIG_RDB_PASSWORD_DESCRIPTION,
-    CONFIG_RDB_CONN_HOST_DESCRIPTION,
-    CONFIG_RDB_CONN_TIMEOUT_MS_DESCRIPTION,
-    CONFIG_RDB_CLIENT_TIME_ZONE_DESCRIPTION,
-    CONFIG_RDB_DEFAULT_DB_DESCRIPTION,
-    CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION,
-    CONFIG_RDB_ISOLATION_DESCRIPTION,
-    CONFIG_RDB_TRANSACTION_DESCRIPTION,
+    String CONFIG_DESCRIPTION_EMPTY                           = "CONFIG_DESCRIPTION_EMPTY";
 
-    // ---------------------------------------------------------------------------------------------------
-    // for Type ：com.clougence.clouddm.base.metadata.dsconfig.rdb.mysql.MySqlConfig
-    CONFIG_MYSQL_CONN_CHARSET_DESCRIPTION,
-    CONFIG_MYSQL_CONN_USE_CURSOR_FETCH,
+    String CONFIG_DS_INSTANCE_ID_DESCRIPTION                  = "CONFIG_DS_INSTANCE_ID_DESCRIPTION";
+    String CONFIG_DS_TYPE_DESCRIPTION                         = "CONFIG_DS_TYPE_DESCRIPTION";
+    String CONFIG_RDB_VERSION_DESCRIPTION                     = "CONFIG_RDB_VERSION_DESCRIPTION";
+    String CONFIG_DS_SECURITY_TYPE_DESCRIPTION                = "CONFIG_DS_SECURITY_TYPE_DESCRIPTION";
+    String CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION                = "CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION";
+    String CONFIG_DS_SO_TIMEOUT_MS_TITLE                      = "CONFIG_DS_SO_TIMEOUT_MS_TITLE";
+    String CONFIG_DS_MAX_IDLE_TIME_SEC_DESCRIPTION            = "CONFIG_DS_MAX_IDLE_TIME_SEC_DESCRIPTION";
+    String CONFIG_DS_MAX_IDLE_TIME_SEC_TITLE                  = "CONFIG_DS_MAX_IDLE_TIME_SEC_TITLE";
+    String CONFIG_DS_ONLINE_MAX_CONNECTIONS_DESCRIPTION       = "CONFIG_DS_ONLINE_MAX_CONNECTIONS_DESCRIPTION";
+    String CONFIG_DS_ONLINE_MAX_CONNECTIONS_TITLE             = "CONFIG_DS_ONLINE_MAX_CONNECTIONS_TITLE";
+    String CONFIG_DS_ONLINE_MAX_CONCURRENT_DESCRIPTION        = "CONFIG_DS_ONLINE_MAX_CONCURRENT_DESCRIPTION";
+    String CONFIG_DS_ONLINE_MAX_QUERY_TIMEOUT_SEC_DESCRIPTION = "CONFIG_DS_ONLINE_MAX_QUERY_TIMEOUT_SEC_DESCRIPTION";
+    String CONFIG_DS_ONLINE_MAX_QUERY_TIMEOUT_SEC_TITLE       = "CONFIG_DS_ONLINE_MAX_QUERY_TIMEOUT_SEC_TITLE";
+    String CONFIG_DS_EXPORT_MAX_CONCURRENT_DESCRIPTION        = "CONFIG_DS_EXPORT_MAX_CONCURRENT_DESCRIPTION";
+    String CONFIG_DS_EXPORT_MAX_CONCURRENT_TITLE              = "CONFIG_DS_EXPORT_MAX_CONCURRENT_TITLE";
+    String CONFIG_DS_EXPORT_MAX_QUERY_TIMEOUT_SEC_DESCRIPTION = "CONFIG_DS_EXPORT_MAX_QUERY_TIMEOUT_SEC_DESCRIPTION";
+    String CONFIG_DS_EXPORT_MAX_QUERY_TIMEOUT_SEC_TITLE       = "CONFIG_DS_EXPORT_MAX_QUERY_TIMEOUT_SEC_TITLE";
+    String CONFIG_DS_READONLY_DESCRIPTION                     = "CONFIG_DS_READONLY_DESCRIPTION";
+    String CONFIG_RDB_CONFIG_VERSION_DESCRIPTION              = "CONFIG_RDB_CONFIG_VERSION_DESCRIPTION";
+    String CONFIG_DS_SSH_PROXY_ENABLED                        = "CONFIG_DS_SSH_PROXY_ENABLED";
+    String CONFIG_DS_SSH_CONFIG_ID                            = "CONFIG_DS_SSH_CONFIG_ID";
+    String CONFIG_DS_SSL_MODE                                 = "CONFIG_DS_SSL_MODE";
+    String CONFIG_DS_SSL_CA_DATA                              = "CONFIG_DS_SSL_CA_DATA";
+    String CONFIG_DS_SSL_CLIENT_CERT_DATA                     = "CONFIG_DS_SSL_CLIENT_CERT_DATA";
+    String CONFIG_DS_SSL_CLIENT_KEY_DATA                      = "CONFIG_DS_SSL_CLIENT_KEY_DATA";
+    String CONFIG_DS_SSL_CLIENT_KEY_PASSWORD                  = "CONFIG_DS_SSL_CLIENT_KEY_PASSWORD";
 
-    // ---------------------------------------------------------------------------------------------------
-    // for Type ：com.clougence.clouddm.base.metadata.ds.rdb.adb.mysql.AdsMySqlConfig
-    CONFIG_ADSMYSQL_CONN_CHARSET_DESCRIPTION,
-    CONFIG_ADSMYSQL_CONN_USE_CURSOR_FETCH,
+    String CONFIG_ADD_DS_ENV_LABEL                            = "CONFIG_ADD_DS_ENV_LABEL";
+    String CONFIG_ADD_DS_CLUSTER_LABEL                        = "CONFIG_ADD_DS_CLUSTER_LABEL";
+    String CONFIG_ADD_DS_DRIVER_LABEL                         = "CONFIG_ADD_DS_DRIVER_LABEL";
+    String CONFIG_ADD_DS_ADDRESS_LABEL                        = "CONFIG_ADD_DS_ADDRESS_LABEL";
+    String CONFIG_ADD_DS_SECURITY_TYPE_LABEL                  = "CONFIG_ADD_DS_SECURITY_TYPE_LABEL";
+    String CONFIG_ADD_DS_USER_LABEL                           = "CONFIG_ADD_DS_USER_LABEL";
+    String CONFIG_ADD_DS_PASSWORD_LABEL                       = "CONFIG_ADD_DS_PASSWORD_LABEL";
+    String CONFIG_ADD_DS_API_KEY_LABEL                        = "CONFIG_ADD_DS_API_KEY_LABEL";
+    String CONFIG_ADD_DS_ACCESS_KEY_LABEL                     = "CONFIG_ADD_DS_ACCESS_KEY_LABEL";
+    String CONFIG_ADD_DS_SECRET_KEY_LABEL                     = "CONFIG_ADD_DS_SECRET_KEY_LABEL";
+    String CONFIG_ADD_DS_TRANSACTION_CONTROL_LABEL            = "CONFIG_ADD_DS_TRANSACTION_CONTROL_LABEL";
+    String CONFIG_ADD_DS_TRANSACTION_MODE_AUTO                = "CONFIG_ADD_DS_TRANSACTION_MODE_AUTO";
+    String CONFIG_ADD_DS_TRANSACTION_MODE_MANUAL              = "CONFIG_ADD_DS_TRANSACTION_MODE_MANUAL";
+    String CONFIG_ADD_DS_TIME_ZONE_LABEL                      = "CONFIG_ADD_DS_TIME_ZONE_LABEL";
+    String CONFIG_ADD_DS_SSH_TUNNEL_LABEL                     = "CONFIG_ADD_DS_SSH_TUNNEL_LABEL";
+    String CONFIG_ADD_DS_GROUP_GENERAL                        = "CONFIG_ADD_DS_GROUP_GENERAL";
+    String CONFIG_ADD_DS_GROUP_OPTIONS                        = "CONFIG_ADD_DS_GROUP_OPTIONS";
+    String CONFIG_ADD_DS_GROUP_SSH_SSL                        = "CONFIG_ADD_DS_GROUP_SSH_SSL";
+    String CONFIG_ADD_DS_GROUP_ADVANCED                       = "CONFIG_ADD_DS_GROUP_ADVANCED";
+    String CONFIG_ADD_DS_GROUP_SHADOW                         = "CONFIG_ADD_DS_GROUP_SHADOW";
+    String CONFIG_ADD_DS_SSL_MODE_DISABLED                    = "CONFIG_ADD_DS_SSL_MODE_DISABLED";
+    String CONFIG_ADD_DS_SSL_MODE_TRUST                       = "CONFIG_ADD_DS_SSL_MODE_TRUST";
+    String CONFIG_ADD_DS_SSL_MODE_CA                          = "CONFIG_ADD_DS_SSL_MODE_CA";
+    String CONFIG_ADD_DS_SSL_MODE_CLIENT_CERT                 = "CONFIG_ADD_DS_SSL_MODE_CLIENT_CERT";
+    String CONFIG_ADD_DS_SSL_CA_DATA_DESC                     = "CONFIG_ADD_DS_SSL_CA_DATA_DESC";
+    String CONFIG_ADD_DS_SSL_CLIENT_CERT_DATA_DESC            = "CONFIG_ADD_DS_SSL_CLIENT_CERT_DATA_DESC";
+    String CONFIG_ADD_DS_SSL_CLIENT_KEY_DATA_DESC             = "CONFIG_ADD_DS_SSL_CLIENT_KEY_DATA_DESC";
+    String CONFIG_ADD_DS_SSL_CLIENT_KEY_PASSWORD_DESC         = "CONFIG_ADD_DS_SSL_CLIENT_KEY_PASSWORD_DESC";
 
-    // ---------------------------------------------------------------------------------------------------
-    // for Type ：com.clougence.clouddm.base.metadata.ds.rdb.polardb.mysql.PolarDBMySqlConfig
-    CONFIG_POLARDBMYSQL_CONN_CHARSET_DESCRIPTION,
-    CONFIG_POLARDBMYSQL_CONN_USE_CURSOR_FETCH,
-
-    // ---------------------------------------------------------------------------------------------------
-    // for Type ：com.clougence.clouddm.base.metadata.ds.rdb.polardb.x.PolarDBXConfig
-    CONFIG_POLARDBX_CONN_CHARSET_DESCRIPTION,
-    CONFIG_POLARDBX_CONN_USE_CURSOR_FETCH,
-
-    // ---------------------------------------------------------------------------------------------------
-    // for Type ：com.clougence.clouddm.base.metadata.dsconfig.rdb.tidb.TiDBConfig
-    CONFIG_TIDB_CONN_CHARSET_DESCRIPTION,
-    CONFIG_TIDB_CONN_USE_CURSOR_FETCH,
-
-    // ---------------------------------------------------------------------------------------------------
-    // for Type ：com.clougence.clouddm.base.metadata.ds.rdb.postgres.config.PostgresConfig
-
-    // ---------------------------------------------------------------------------------------------------
-    // for Type ：com.clougence.clouddm.base.metadata.ds.rdb.polardb.pg.PolarDBPostgresConfig
-
-    // ---------------------------------------------------------------------------------------------------
-    // for Type ：com.clougence.clouddm.base.metadata.ds.rdb.greenplum.GreenplumConfig
-
-    // ---------------------------------------------------------------------------------------------------
-    // for Type ：com.clougence.clouddm.base.metadata.ds.rdb.oracle.OracleConfig
-    CONFIG_ORACLE_CONNECT_TYPE_DESCRIPTION,
-    CONFIG_ORACLE_DATABASE_DESCRIPTION,
-    CONFIG_ORACLE_SID_DESCRIPTION,
-    CONFIG_ORACLE_SERVICE_DESCRIPTION,
-    CONFIG_ORACLE_PDB_DESCRIPTION,
-    CONFIG_ORACLE_TNS_ADMIN_DESCRIPTION,
-    CONFIG_ORACLE_TNS_NAME_DESCRIPTION,
-    CONFIG_ORACLE_EXCLUDE_ORA_MAINTAINED_SCHEMAS_DESCRIPTION,
-
-    //
-    // ---------------------------------------------------------------------------------------------------
-    // for Type ：com.clougence.clouddm.ds.redis.dsconf.RedisConfig
-    CONFIG_REDIS_CONN_HOST_DESCRIPTION,
-    CONFIG_REDIS_USERNAME_DESCRIPTION,
-    CONFIG_REDIS_PASSWORD_DESCRIPTION,
-    CONFIG_REDIS_MAX_TOTAL_DESCRIPTION,
-    CONFIG_REDIS_CON_AND_SO_TIMEOUT_MS_DESCRIPTION,
-    CONFIG_REDIS_MAX_IDLE_DESCRIPTION,
-    CONFIG_REDIS_MIN_IDLE_DESCRIPTION,
-    CONFIG_REDIS_TEST_WHILE_IDLE_DESCRIPTION,
-
-    // ---------------------------------------------------------------------------------------------------
-    // for Type ：com.clougence.clouddm.base.metadata.ds.rdb.sqlserver.SqlServerConfig
-    CONFIG_MSSQL_INSTANCE_NAME_DESCRIPTION,
-
-    // ---------------------------------------------------------------------------------------------------
-    // for Type ：com.clougence.clouddm.base.metadata.ds.rdb.mongo.MongoConfig
-    CONFIG_MONGODB_APPLICATION_NAME_DESCRIPTION,
-
-    // ---------------------------------------------------------------------------------------------------
-    // for Type ：com.clougence.clouddm.base.metadata.dsconfig.rdb.starrocks.StarRocksConfig
-    CONFIG_STARROCKS_CONN_CHARSET_DESCRIPTION,
-    CONFIG_STARROCKS_CONN_USE_CURSOR_FETCH,
-
-    // ---------------------------------------------------------------------------------------------------
-    // for Type ：com.clougence.clouddm.base.metadata.dsconfig.rdb.doris.DorisConfig
-    CONFIG_DORIS_CONN_CHARSET_DESCRIPTION,
-    CONFIG_DORIS_CONN_USE_CURSOR_FETCH,
-
-    // ---------------------------------------------------------------------------------------------------
-    // for Type ：com.clougence.clouddm.base.metadata.dsconfig.rdb.clickhouse.ClickHouseConfig
-    CONFIG_CLICKHOUSE_SESSION_TIME_OUT,
-    CONFIG_CLICKHOUSE_CONNECT_TYPE_HTTP,
-    CONFIG_CLICKHOUSE_CONNECT_TYPE_TCP,
-
-    // ---------------------------------------------------------------------------------------------------
-    // for Type ：com.clougence.clouddm.base.metadata.dsconfig.rdb.clickhouse.ObOraConfig
-    CONFIG_OCEANBASE_SUB_TENANT,
-
-    // ---------------------------------------------------------------------------------------------------
-    // for Type ：com.clougence.clouddm.ds.maxcompute.dsconf.McConfig
-    CONFIG_MC_INTERACTIVE_MODE_DESCRIPTION,
-    CONFIG_MC_SDK_ENDPOINT_DESCRIPTION,
-    CONFIG_MC_SCHEMA_STYLE_DESCRIPTION;
-
+    String CONFIG_RDB_USERNAME_DESCRIPTION                    = "CONFIG_RDB_USERNAME_DESCRIPTION";
+    String CONFIG_RDB_PASSWORD_DESCRIPTION                    = "CONFIG_RDB_PASSWORD_DESCRIPTION";
+    String CONFIG_RDB_CONN_HOST_DESCRIPTION                   = "CONFIG_RDB_CONN_HOST_DESCRIPTION";
+    String CONFIG_RDB_CONN_TIMEOUT_MS_DESCRIPTION             = "CONFIG_RDB_CONN_TIMEOUT_MS_DESCRIPTION";
+    String CONFIG_RDB_CONN_TIMEOUT_MS_TITLE                   = "CONFIG_RDB_CONN_TIMEOUT_MS_TITLE";
+    String CONFIG_RDB_CONN_CHARSET_DESCRIPTION                = "CONFIG_RDB_CONN_CHARSET_DESCRIPTION";
+    String CONFIG_RDB_CLIENT_TIME_ZONE_DESCRIPTION            = "CONFIG_RDB_CLIENT_TIME_ZONE_DESCRIPTION";
+    String CONFIG_RDB_DEFAULT_DB_LABEL                        = "CONFIG_RDB_DEFAULT_DB_LABEL";
+    String CONFIG_RDB_DEFAULT_DB_DESCRIPTION                  = "CONFIG_RDB_DEFAULT_DB_DESCRIPTION";
+    String CONFIG_RDB_DEFAULT_SCHEMA_LABEL                    = "CONFIG_RDB_DEFAULT_SCHEMA_LABEL";
+    String CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION              = "CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION";
+    String CONFIG_RDB_ISOLATION_DESCRIPTION                   = "CONFIG_RDB_ISOLATION_DESCRIPTION";
+    String CONFIG_RDB_TRANSACTION_DESCRIPTION                 = "CONFIG_RDB_TRANSACTION_DESCRIPTION";
 }

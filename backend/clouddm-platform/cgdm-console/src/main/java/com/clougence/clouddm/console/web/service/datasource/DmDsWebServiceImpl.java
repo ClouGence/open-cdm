@@ -25,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
@@ -33,13 +35,16 @@ import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
 import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.AddDsFO;
+import com.clougence.clouddm.console.web.model.fo.datasource.DsConfigSubmitFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsConfigFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsKvConfigFO;
 import com.clougence.clouddm.console.web.model.lo.UpdateDsConfigLO;
 import com.clougence.clouddm.console.web.model.lo.UpdateDsDescLO;
 import com.clougence.clouddm.console.web.model.vo.DsKvConfigVO;
 import com.clougence.clouddm.console.web.model.vo.RdpDsKvConfigVO;
+import com.clougence.clouddm.console.web.model.vo.datasource.ConnectDsResultVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
+import com.clougence.clouddm.console.web.service.upload.ConsoleUploadService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.RandomStrUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
@@ -85,6 +90,8 @@ public class DmDsWebServiceImpl implements DmDsWebService {
     private DmDsService            dmDsService;
     @Resource
     private DmDsConfigService      configService;
+    @Resource
+    private ConsoleUploadService   uploadService;
     @Resource
     private List<RdpNotifyService> notifyServices;
 
@@ -311,6 +318,37 @@ public class DmDsWebServiceImpl implements DmDsWebService {
         return ResWebDataUtils.buildSuccess(dsId);
     }
 
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
+    @Override
+    public ResWebData<Long> addDataSource(String puid, String uid, DsConfigSubmitFO addFO) {
+        DmAuthUserDO pUserDO = this.userService.getUserByUid(puid);
+        Map<String, String> configMap = resolveConfigMap(addFO);
+        DataSourceConfig dsConfig = resolveDsConfig(addFO, configMap);
+
+        long dsId = saveDsConfig(addFO, dsConfig, configMap, puid, pUserDO.getUsername());
+        addCreatorAuth(uid, dsId);
+
+        this.notifyServices.forEach(s -> s.onDsAdd(uid, dsId));
+        return ResWebDataUtils.buildSuccess(dsId);
+    }
+
+    @Override
+    public ConnectDsResultVO testConnect(String uid, DsConfigSubmitFO fo) {
+        Map<String, String> configMap = resolveConfigMap(fo);
+        DataSourceConfig dsConfig = resolveDsConfig(fo, configMap);
+        ConnectDsResultVO result = new ConnectDsResultVO();
+        try {
+            String version = this.dmDsService.testConnect(uid, fo.getClusterId(), fo.getDriver(), dsConfig);
+            result.setSuccess(true);
+            result.setVersion(version);
+        } catch (Exception e) {
+            log.error("connectDs failed, uid={}, clusterId={}, dsType={}, {}", uid, fo.getClusterId(), fo.getDsType(), e.getMessage(), e);
+            result.setSuccess(false);
+            result.setMessage(e.getMessage());
+        }
+        return result;
+    }
+
     protected void addCreatorAuth(String uid, Long dsId) {
         DmAuthUserDO opUserDO = this.userService.getUserByUid(uid);
         if (opUserDO.getAccountType() != AccountType.SUB_ACCOUNT) {
@@ -352,8 +390,11 @@ public class DmDsWebServiceImpl implements DmDsWebService {
         entity.setDriver(addDsFO.getDriver());
         entity.setDsEnvId(addDsFO.getEnvId());
 
+        Map<String, String> dsConfigMap = collectDsConfigMap(addDsFO.getDsKvConfigs());
         if (StringUtils.isNotBlank(addDsFO.getVersion())) {
             entity.setVersion(addDsFO.getVersion());
+        } else if (StringUtils.isNotBlank(dsConfigMap.get(DataSourceConfig.Fields.version))) {
+            entity.setVersion(dsConfigMap.get(DataSourceConfig.Fields.version));
         }
 
         if (entity.getSecurityType() == null) {
@@ -373,10 +414,78 @@ public class DmDsWebServiceImpl implements DmDsWebService {
         fillInstanceIdAndDesc(addDsFO, entity);
 
         this.dsDal.dsMapper().insert(entity);
-        this.dmDsService.persistDsConfig(entity, entity.getVersion());
-        this.applyInitialDsConfigOverrides(entity.getId(), addDsFO.getDsKvConfigs());
+        this.configService.upsertDsConfigs(entity.getId(), dsConfigMap);
 
         return entity.getId();
+    }
+
+    protected long saveDsConfig(DsConfigSubmitFO addFO, DataSourceConfig dsConfig, Map<String, String> configMap, String uid, String owner) {
+        DmDsDO entity = new DmDsDO();
+        entity.setDataSourceType(dsConfig.getDataSourceType());
+        entity.setHost(dsConfig.getHost());
+        entity.setUid(uid);
+        entity.setOwner(owner);
+        entity.setSecurityType(dsConfig.getSecurityType() == null ? SecurityType.USER_PASSWD : dsConfig.getSecurityType());
+        entity.setLifeCycleState(LifeCycleState.CREATED);
+        entity.setStatus(DataSourceStatus.Normal);
+        entity.setStatusMessage("");
+        entity.setBindClusterId(addFO.getClusterId());
+        entity.setDriver(addFO.getDriver());
+        entity.setDsEnvId(addFO.getEnvId());
+        entity.setVersion(dsConfig.getVersion());
+        entity.setAccessKey(dsConfig.getUserName());
+        entity.setSecretKey(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(StringUtils.defaultString(dsConfig.getPassword())));
+
+        if (StringUtils.isBlank(dsConfig.getInstanceId())) {
+            dsConfig.setInstanceId(dsConfig.getDataSourceType().getShortName() + "-" + RandomStrUtils.fixedLenRandomStr(15));
+        }
+        entity.setInstanceId(dsConfig.getInstanceId());
+        entity.setInstanceDesc(StringUtils.isNotBlank(addFO.getInstanceDesc()) ? addFO.getInstanceDesc() : dsConfig.getInstanceId());
+
+        this.dsDal.dsMapper().insert(entity);
+        this.configService.upsertDsConfigs(entity.getId(), configMap);
+
+        return entity.getId();
+    }
+
+    private Map<String, String> resolveConfigMap(DsConfigSubmitFO fo) {
+        if (fo == null || fo.getDsType() == null) {
+            throw new IllegalArgumentException("data source type can not be empty.");
+        }
+
+        Map<String, String> configMap = new LinkedHashMap<>();
+        if (fo.getConfigMap() != null) {
+            configMap.putAll(fo.getConfigMap());
+        }
+
+        configMap.put(DataSourceConfig.Fields.dataSourceType, fo.getDsType().name());
+        configMap.putIfAbsent(DataSourceConfig.Fields.configVersion, "1");
+        if (StringUtils.isBlank(configMap.get(DataSourceConfig.Fields.instanceId))) {
+            configMap.put(DataSourceConfig.Fields.instanceId, fo.getDsType().getShortName() + "-" + RandomStrUtils.fixedLenRandomStr(15));
+        }
+
+        configMap.replaceAll((key, value) -> this.uploadService.resolveCertificateData(value));
+        return configMap;
+    }
+
+    private DataSourceConfig resolveDsConfig(DsConfigSubmitFO fo, Map<String, String> configMap) {
+        DataSourceType dsType = fo.getDsType();
+        DmDsDO tempDs = new DmDsDO();
+        tempDs.setInstanceId(configMap.get(DataSourceConfig.Fields.instanceId));
+        tempDs.setDataSourceType(dsType);
+        tempDs.setHost(configMap.get(DataSourceConfig.Fields.host));
+        tempDs.setDriver(fo.getDriver());
+        tempDs.setVersion(configMap.get(DataSourceConfig.Fields.version));
+
+        String securityType = configMap.get(DataSourceConfig.Fields.securityType);
+        if (StringUtils.isNotBlank(securityType)) {
+            tempDs.setSecurityType(SecurityType.valueOf(securityType));
+        }
+        tempDs.setAccessKey(configMap.get(DataSourceConfig.Fields.userName));
+        tempDs.setSecretKey(configMap.get(DataSourceConfig.Fields.password));
+        tempDs.setDsEnvId(fo.getEnvId());
+
+        return this.configService.fetchDsConfigFromNotExist(tempDs, configMap);
     }
 
     protected void fillInstanceIdAndDesc(AddDsFO addDsFO, DmDsDO entity) {
@@ -393,29 +502,19 @@ public class DmDsWebServiceImpl implements DmDsWebService {
         }
     }
 
-    private void applyInitialDsConfigOverrides(long dsId, List<InitDsKvBaseConfigFO> kvConfigs) {
+    private Map<String, String> collectDsConfigMap(List<InitDsKvBaseConfigFO> kvConfigs) {
         if (CollectionUtils.isEmpty(kvConfigs)) {
-            return;
+            return Collections.emptyMap();
         }
 
-        DmDsDO ds = this.dsDal.dsMapper().selectById(dsId);
-        if (ds == null) {
-            return;
-        }
-        List<DsConfigKvDef> defaultConfigs = this.configService.fetchDsConfigDef(ds.getDataSourceType());
+        Map<String, String> configMap = new LinkedHashMap<>();
         for (InitDsKvBaseConfigFO kvConfig : kvConfigs) {
-            DmDsConfigKv4DmDO configDO = this.dsDal.configKv4DmMapper().queryByDsIdAndConfigName(dsId, kvConfig.getConfigName());
-            DsConfigKvDef defaultConfig = defaultConfigs.stream().filter(c -> c.getConfigName().equals(kvConfig.getConfigName())).findFirst().orElse(null);
-            if (configDO == null || defaultConfig == null || defaultConfig.isReadOnly()) {
+            if (kvConfig == null || StringUtils.isBlank(kvConfig.getConfigName()) || kvConfig.getConfigValue() == null) {
                 continue;
             }
-
-            String value = kvConfig.getConfigValue();
-            if (defaultConfig.isSecret() && StringUtils.isNotBlank(value)) {
-                value = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(value);
-            }
-            this.dsDal.configKv4DmMapper().updateDsConfig(dsId, kvConfig.getConfigName(), value);
+            configMap.put(kvConfig.getConfigName(), kvConfig.getConfigValue());
         }
+        return configMap;
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
