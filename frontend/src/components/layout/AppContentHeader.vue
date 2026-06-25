@@ -161,6 +161,30 @@ export default {
       if (/^\/cicd\/[^/]+$/.test(path)) {
         return [cicdRoot, { label: this.$t('cicd-bian-geng-liu-xiang-qing'), to: path }];
       }
+      if (path === '/integrations/git/create') {
+        return [
+          { label: this.$t('nav-git-ops'), to: '/integrations/git' },
+          { label: this.$t('xin-zeng'), to: path }
+        ];
+      }
+      if (/^\/integrations\/git\/[^/]+\/edit$/.test(path)) {
+        return [
+          { label: this.$t('nav-git-ops'), to: '/integrations/git' },
+          { label: this.$t('bian-ji'), to: path }
+        ];
+      }
+      if (path === '/integrations/im/create') {
+        return [
+          { label: this.$t('nav-webhook'), to: '/integrations/im' },
+          { label: this.$t('xin-zeng'), to: path }
+        ];
+      }
+      if (/^\/integrations\/im\/[^/]+\/edit$/.test(path)) {
+        return [
+          { label: this.$t('nav-webhook'), to: '/integrations/im' },
+          { label: this.$t('bian-ji'), to: path }
+        ];
+      }
       if (this.pageSubTitle) {
         return [
           { label: this.pageTitle, to: path },

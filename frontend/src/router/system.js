@@ -5,6 +5,16 @@ export default [
     component: () => import(/* webpackChunkName: "ccsystem-datasource" */ '@/views/devops')
   },
   {
+    path: '/integrations/git/create',
+    name: 'DMDevopsCreate',
+    component: () => import(/* webpackChunkName: "ccsystem-datasource" */ '@/views/devops/form')
+  },
+  {
+    path: '/integrations/git/:scmId/edit',
+    name: 'DMDevopsEdit',
+    component: () => import(/* webpackChunkName: "ccsystem-datasource" */ '@/views/devops/form')
+  },
+  {
     path: 'devops',
     redirect: '/integrations/git'
   },
@@ -21,6 +31,16 @@ export default [
     path: '/integrations/im',
     name: 'DMIm',
     component: () => import(/* webpackChunkName: "ccsystem-datasource" */ '@/views/im')
+  },
+  {
+    path: '/integrations/im/create',
+    name: 'DMImCreate',
+    component: () => import(/* webpackChunkName: "ccsystem-datasource" */ '@/views/im/form')
+  },
+  {
+    path: '/integrations/im/:imId/edit',
+    name: 'DMImEdit',
+    component: () => import(/* webpackChunkName: "ccsystem-datasource" */ '@/views/im/form')
   },
   {
     path: 'im',
