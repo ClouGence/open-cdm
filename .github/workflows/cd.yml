@@ -21,10 +21,10 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  CHINA_REGISTRY: cloudcanal-registry.cn-shanghai.cr.aliyuncs.com
-  CHINA_IMAGE_PREFIX: cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm
-  GLOBAL_REGISTRY: docker.io
-  GLOBAL_IMAGE_PREFIX: docker.io/bladepipe/cgdm
+  CHINA_REGISTRY: ${{ vars.CHINA_REGISTRY || 'cloudcanal-registry.cn-shanghai.cr.aliyuncs.com' }}
+  CHINA_IMAGE_PREFIX: ${{ vars.CHINA_IMAGE_PREFIX || 'cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm' }}
+  GLOBAL_REGISTRY: ${{ vars.GLOBAL_REGISTRY || 'docker.io' }}
+  GLOBAL_IMAGE_PREFIX: ${{ vars.GLOBAL_IMAGE_PREFIX || 'docker.io/bladepipe/cgdm' }}
 
 jobs:
   build-tgz:
