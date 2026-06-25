@@ -35,7 +35,7 @@ export default {
     ...mapGetters(['includesDM', 'isDesktop']),
     ...mapState(['myCatLog', 'mySystemMenuItems', 'sidebarMenu']),
     showSqlLink() {
-      return this.includesDM && this.myCatLog.includes('CAT_DM_CONSOLE') && this.$route.path.indexOf('/sql') === -1;
+      return this.includesDM && this.myCatLog.includes('CAT_DM_CONSOLE') && !this.$route.path.startsWith('/sql');
     },
     pageTitle() {
       const path = this.$route.path;
