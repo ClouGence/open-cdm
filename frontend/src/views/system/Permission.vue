@@ -531,8 +531,8 @@ export default {
       async handler(newVal, oldVal) {
         console.log('uid', newVal, oldVal);
         if (newVal !== oldVal) {
-          this.uid = this.isEdit || this.isView ? this.$route.params.uid : this.userInfo.uid;
-          this.subAccount = this.isEdit || this.isView ? this.$route.query.name : '';
+          this.uid = this.$route.params.uid || this.userInfo.uid;
+          this.subAccount = this.$route.params.uid ? this.$route.query.name : '';
           await this.listLevelsForDM();
         }
       },
@@ -540,6 +540,47 @@ export default {
     }
   },
   methods: {
+    resetPermissionModeState(isView) {
+      this.isView = isView;
+      this.isEdit = true;
+      this.activeAuthTab = 'DataSource';
+      this.activeAuthType = 'datasource';
+      this.lastRightTreeData = [];
+      this.lastLeftTreeClickNode = '';
+      this.rightTreeKeyword = '';
+      this.leftTreeKeyword = '';
+      this.selectedNodeKey = null;
+      this.isSingleSelect = true;
+      this.curElementType = null;
+      this.curRightTreeTab = null;
+      this.curNode = '';
+      this.originLeftTree = [];
+      this.expandedKeys = [];
+      this.previewMode = false;
+      this.batchMode = false;
+      this.curRangeKey = '';
+      this.selectedRange = {};
+      this.authTime = {
+        startTime: null,
+        endTime: null
+      };
+      this.timeList = {};
+      this.authMap = {};
+      this.canCheckedChange = false;
+      this.parentAuthTree = [];
+      this.datasource.selectedNode = null;
+      this.datasource.searchKey = '';
+      this.datasource.searchType = 'all';
+      this.task.selectedNode = null;
+      this.task.searchKey = '';
+      this.task.searchType = 'all';
+      this.$nextTick(() => {
+        this.$refs.instanceTree?.setData?.([]);
+        this.$refs.catalogTree?.setData?.([]);
+        this.$refs.schemaTree?.setData?.([]);
+        this.$refs.tableTree?.setData?.([]);
+      });
+    },
     handleAuthTabClick(name) {
       if (
         (name === 'Instance' && !['Instance', 'INSTANCE', 'AllType'].includes(this.curElementType)) ||
@@ -557,24 +598,9 @@ export default {
     async initData() {
       this.pageLoading = true;
       try {
-        this.isEdit = true;
-        this.uid = this.isEdit || this.isView ? this.$route.params.uid : this.userInfo.uid;
-        this.subAccount = this.isEdit || this.isView ? this.$route.query.name : '';
-        this.activeAuthTab = 'DataSource';
-        this.activeAuthType = 'datasource';
-        this.lastRightTreeData = [];
-        this.lastLeftTreeClickNode = '';
-        this.rightTreeKeyword = '';
-        this.leftTreeKeyword = '';
-        this.isSingleSelect = true;
-        this.curElementType = null;
-        this.curRightTreeTab = null;
-        this.originLeftTree = [];
-        this.previewMode = false;
-        this.authTime = {
-          startTime: null,
-          endTime: null
-        };
+        this.resetPermissionModeState(true);
+        this.uid = this.$route.params.uid || this.userInfo.uid;
+        this.subAccount = this.$route.params.uid ? this.$route.query.name : '';
         await this.listLevelsForDM();
 
         // Initial Default Start First Level
@@ -1732,13 +1758,9 @@ export default {
         this.$Message.warning(this.rootAccountUnsupportedTip);
         return;
       }
-      this.isView = false;
-      this.isEdit = true;
-      this.lastRightTreeData = [];
-      this.lastLeftTreeClickNode = '';
-      this.originLeftTree = [];
-      this.curElementType = null;
-      this.curRightTreeTab = null;
+      this.resetPermissionModeState(false);
+      this.uid = this.$route.params.uid || this.userInfo.uid;
+      this.subAccount = this.$route.params.uid ? this.$route.query.name : '';
       await this.listLevelsForDM();
       this.$nextTick(async () => {
         if (this.originLeftTree && this.originLeftTree.length > 0) {

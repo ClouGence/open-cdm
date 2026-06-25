@@ -59,6 +59,9 @@ export default {
         return this.$t('nav-tong-yong');
       }
       if (path.indexOf('/system/permission') > -1) {
+        if (this.$route.query.type === 'apply') {
+          return this.$t('shen-qing-quan-xian');
+        }
         return this.$t('my-permissions');
       }
       if (path.indexOf('/datasource') === 0 || path.indexOf('/system/ccdatasource') > -1) {

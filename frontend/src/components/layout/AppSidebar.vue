@@ -112,6 +112,9 @@ export default {
       if (path.indexOf('/settings/preferences') === 0 || path.indexOf('/system/preference') > -1) {
         return '/settings/preferences';
       }
+      if (path.indexOf('/system/permission') > -1) {
+        return this.$route.query.type === 'apply' ? '/system/permission/apply' : '/system/permission';
+      }
       if (path.indexOf('/manager/account') === 0 || path.indexOf('/system/account') > -1 || path.indexOf('/system/role') > -1) {
         return '/manager/account';
       }

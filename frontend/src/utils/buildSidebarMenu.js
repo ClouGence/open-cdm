@@ -82,6 +82,7 @@ export function buildSidebarMenu({ myCatLog, myAuth, includesDM, isDesktop, acco
   settingsChildren.push(linkItem('/settings/profile', '/#/settings/profile', 'ge-ren-zi-liao', 'profile'));
   if (accountType && accountType !== 'PRIMARY_ACCOUNT') {
     settingsChildren.push(linkItem('/system/permission', '/#/system/permission', 'wo-de-quan-xian', 'icon-v2-MyAuth'));
+    settingsChildren.push(linkItem('/system/permission/apply', '/#/system/permission?type=apply', 'shen-qing-quan-xian', 'icon-v2-TicketAuth'));
   }
   if (myCatLog.includes('CAT_RDP_PRI_PREFERENCE_CONF') && myAuth.includes('RDP_PRI_USER_KV_CONF_R')) {
     settingsChildren.push(linkItem('/settings/preferences', '/#/settings/preferences', 'nav-tong-yong', 'icon-v2-preference'));
