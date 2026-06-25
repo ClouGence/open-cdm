@@ -28,7 +28,7 @@ import com.clougence.utils.ExceptionUtils;
 
 public abstract class AbstractUpgradeJavaMigration extends BaseJavaMigration {
 
-    private static final Set<Integer> IGNORABLE_ERROR_CODES = Set.of(1050, 1054, 1060, 1061, 1062, 1072, 1091);
+    private static final Set<Integer> IGNORABLE_ERROR_CODES = Set.of(1050, 1054, 1060, 1061, 1062, 1072, 1091, 1146);
 
     @Override
     public void migrate(Context context) throws Exception {
