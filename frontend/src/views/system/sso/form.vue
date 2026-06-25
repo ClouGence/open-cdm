@@ -415,7 +415,6 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin-left: auto;
 }
 
 .role-option-code {

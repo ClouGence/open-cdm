@@ -398,7 +398,6 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin-left: auto;
 }
 
 @media (max-width: 900px) {
