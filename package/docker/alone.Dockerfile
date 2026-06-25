@@ -5,7 +5,7 @@
 # Build context expected layout:
 #   <ctx>/cgdm-alone.tar.gz
 #   <ctx>/shared/alone/{alone.properties,init.sh}
-FROM eclipse-temurin:21-jre-noble
+FROM eclipse-temurin:17-jre-noble
 
 ARG DEBIAN_FRONTEND=noninteractive
 
