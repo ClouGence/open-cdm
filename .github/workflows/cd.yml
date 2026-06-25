@@ -160,14 +160,26 @@ jobs:
             type=raw,value=latest,enable=${{ inputs.latest }}
 
       - name: Build and push ${{ matrix.service }}
-        uses: docker/build-push-action@v6
+        uses: nick-fields/retry@v3
+        env:
+          TAGS: ${{ steps.meta.outputs.tags }}
+          SERVICE: ${{ matrix.service }}
         with:
-          context: docker-ctx
-          file: package/docker/${{ matrix.service }}.Dockerfile
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          provenance: false
+          timeout_minutes: 60
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            tag_args=()
+            while IFS= read -r tag; do
+              [[ -n "$tag" ]] && tag_args+=(--tag "$tag")
+            done <<< "$TAGS"
+            docker buildx build \
+              --file "package/docker/${SERVICE}.Dockerfile" \
+              --platform linux/amd64,linux/arm64 \
+              --provenance=false \
+              --push \
+              "${tag_args[@]}" \
+              docker-ctx
 
   release:
     name: Publish GitHub Release
