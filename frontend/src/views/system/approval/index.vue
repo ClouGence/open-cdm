@@ -167,7 +167,10 @@ export default {
             throw new Error('approval toggle failed');
           }
           this.$Message.success(this.$t('cao-zuo-cheng-gong'));
-          return this.init();
+          // iView Switch 在我们的 Promise resolve 之后才内部 toggle，
+          // toggle 时根据 currentValue 反转；若此刻 init 已把 :model-value
+          // 同步成新值，反转结果反而是旧值。推迟到下一个宏任务刷新。
+          setTimeout(() => this.init(), 0);
         })
         .finally(() => {
           this.togglingType = '';

@@ -3100,7 +3100,7 @@
   "approval-status-configured-not-enabled": "已配置未启用",
   "approval-provider-already-added": "该提供者已添加，可在列表中点击\"配置\"编辑",
   "approval-confirm-delete-x": "确定要删除审批提供者 {0} 吗？相关配置将被清空。",
-  "approval-enable-service": "启用服务",
+  "approval-enable-service": "立刻启用",
   "approval-field-dingtalk-ak": "App Key",
   "approval-field-dingtalk-sk": "App Secret",
   "approval-field-feishu-app-id": "App ID",

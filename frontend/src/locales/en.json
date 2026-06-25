@@ -3060,7 +3060,7 @@
   "approval-status-configured-not-enabled": "Configured (disabled)",
   "approval-provider-already-added": "This provider is already configured. Use \"Configure\" in the list to edit.",
   "approval-confirm-delete-x": "Delete approval provider {0}? Related configuration will be cleared.",
-  "approval-enable-service": "Enable service",
+  "approval-enable-service": "Enable immediately",
   "approval-field-dingtalk-ak": "App Key",
   "approval-field-dingtalk-sk": "App Secret",
   "approval-field-feishu-app-id": "App ID",
