@@ -1,25 +1,25 @@
 import {
+  REMAIN_TRIAL_DAY,
+  SET_MENU_ITEMS,
+  SET_THEME,
+  UPDATE_CC_GLOBAL_SETTING,
   UPDATE_CLUSTER_LIST,
   UPDATE_DEPLOY_ENV_LIST_MAP,
+  UPDATE_DM_GLOBAL_SETTING,
   UPDATE_DS_TYPE_LIST,
   UPDATE_EDITOR_SET,
   UPDATE_GLOBAL_SETTING,
-  UPDATE_REGION_LIST_MAP,
-  UPDATE_USERINFO,
-  UPDATE_PRODUCT_CLUSTER,
-  UPDATE_SELECT_PRODUCT_CLUSTER,
-  UPDATE_CC_GLOBAL_SETTING,
-  UPDATE_DM_GLOBAL_SETTING,
-  UPDATE_MY_CATALOG,
   UPDATE_MY_AUTH,
-  UPDATE_SOCKET_STATUS,
-  UPDATE_RULE_SETTING,
+  UPDATE_MY_CATALOG,
+  UPDATE_PRODUCT_CLUSTER,
   UPDATE_PUBLIC_KEY,
-  REMAIN_TRIAL_DAY,
-  UPDATE_TASK_INFO_HISTORY,
+  UPDATE_REGION_LIST_MAP,
+  UPDATE_RULE_SETTING,
+  UPDATE_SELECT_PRODUCT_CLUSTER,
+  UPDATE_SOCKET_STATUS,
   UPDATE_TASK_INFO_DB_MAP_HISTORY,
-  SET_MENU_ITEMS,
-  SET_THEME
+  UPDATE_TASK_INFO_HISTORY,
+  UPDATE_USERINFO
 } from '@/store/mutationTypes';
 import router from '@/router';
 import { buildSidebarMenu, flattenSidebarMenu } from '@/utils/buildSidebarMenu';
@@ -34,7 +34,8 @@ function applyMenuItems(state, myCatLog = state.myCatLog, globalSetting = state.
     myCatLog,
     myAuth,
     includesDM,
-    isDesktop
+    isDesktop,
+    accountType: state.userInfo?.accountType
   });
 
   state.sidebarMenu = sidebarMenu;
@@ -55,6 +56,7 @@ export default {
     } else {
       state.userInfo = {};
     }
+    applyMenuItems(state);
   },
   [UPDATE_CLUSTER_LIST](state, list) {
     const temp = {};
@@ -270,12 +272,12 @@ export default {
       url = '/ticket';
     } else if (state.myCatLog.includes('CAT_DM_SYS')) {
       if (state.myCatLog.includes('CAT_DM_WORKER')) {
-        url = '/system/dmmachine';
+        url = '/data-access/cluster';
       } else if (state.myCatLog.includes('CAT_DM_SECRULES')) {
-        url = '/system/dmrulelist';
+        url = '/data-access/rules';
       }
-    } else if (state.myCatLog.includes('CAT_DM_PROJECT')) {
-      url = '/project';
+    } else if (state.myCatLog.includes('CAT_DM_CICD_FLOW')) {
+      url = '/cicd';
     }
 
     if (!url) {

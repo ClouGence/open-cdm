@@ -41,7 +41,7 @@
                   {{ item.alias }}
                 </Option>
               </Select>
-              <Button type="primary" @click="handleRefresh" :loading="refreshLoading" style="margin-left: 10px">
+              <Button type="primary" @click="handleRefresh" :loading="refreshLoading" style="margin-left: 10px" ghost>
                 {{ $t('cha-xun') }}
               </Button>
             </div>
@@ -51,15 +51,10 @@
                   <CustomIcon type="icon-v2-daochu" />
                 </Button>
               </Tooltip>
-              <Tooltip transfer :content="$t('shua-xin')" placement="bottom">
-                <Button type="default" style="margin-right: 6px" @click="handleRefresh" :loading="refreshLoading">
-                  <CustomIcon type="icon-v2-Refresh" v-if="!refreshLoading" />
-                </Button>
-              </Tooltip>
             </div>
           </div>
-          <div class="table-container">
-            <Table size="small" border :columns="logColumn" :data="logData" :loading="refreshLoading">
+          <div class="table-container audit-log-table">
+            <Table size="small" border :columns="logColumn" :data="logData" :loading="refreshLoading" :scroll="tableScroll">
               <template #resourceValue="{ row }">
                 <p v-if="row.resourceType !== 'PURE_URL'">
                   {{ row.resourceVO && row.resourceVO.resourceFlag }}
@@ -226,43 +221,43 @@ export default {
         {
           title: this.$t('cao-zuo-zhe'),
           slot: 'operator',
-          width: 200
+          width: 160
         },
         {
           title: this.$t('cao-zuo-shi-jian'),
           key: 'operateDate',
-          width: 200,
+          width: 170,
           render: (h, params) => h('div', {}, fecha.format(new Date(params.row.operateDate), 'YYYY-MM-DD HH:mm:ss'))
         },
         {
           title: this.$t('zi-yuan-lei-xing'),
           key: 'resourceTypeDesc',
-          width: 150
+          width: 120
         },
         {
           title: this.$t('cao-zuo-dong-zuo'),
           key: 'auditTypeDesc',
-          width: 200
+          width: 140
         },
         {
           title: this.$t('cao-zuo-zi-yuan'),
           slot: 'resourceValue',
-          minWidth: 200
+          width: 220
         },
         {
           title: this.$t('cao-zuo-di-zhi'),
           key: 'sourceIp',
-          width: 150
+          width: 140
         },
         {
           title: this.$t('ri-zhi-di-zhi'),
           key: 'logPathWorkerIp',
-          width: 150
+          width: 140
         },
         {
           title: this.$t('an-quan-deng-ji'),
           key: 'securityLevel',
-          width: 150,
+          width: 110,
           render: (h, params) =>
             h(
               'div',
@@ -292,12 +287,12 @@ export default {
         {
           title: this.$t('ri-zhi-wei-yi-xin-xi'),
           key: 'uuidKey',
-          width: 520
+          width: 320
         },
         {
           title: this.$t('e-wai-can-shu'),
           slot: 'detail',
-          width: 130,
+          width: 120,
           fixed: 'right',
           renderHeader: this.renderHeaderName
         }
@@ -324,6 +319,12 @@ export default {
   },
   computed: {
     ...mapState(['dmGlobalSetting']),
+    tableScroll() {
+      const scrollX = this.logColumn.reduce((sum, column) => {
+        return sum + (column.width || column.minWidth || 0);
+      }, 0);
+      return { x: scrollX };
+    },
     exportTypes() {
       return this.dmGlobalSetting?.fmtConvertDef || [];
     },

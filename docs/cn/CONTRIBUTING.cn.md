@@ -51,7 +51,7 @@
 
 ### 前置要求
 
-- **JDK 21+**
+- **JDK 17+**
 - **Gradle 9.5.0+**
 - **Node.js 22.22.1**
 - **IntelliJ IDEA** 或 Eclipse（推荐 IntelliJ IDEA）

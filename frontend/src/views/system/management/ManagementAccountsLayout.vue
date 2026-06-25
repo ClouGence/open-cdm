@@ -23,14 +23,14 @@ export default {
         tabs.push({
           name: 'account',
           label: this.$t('zhang-hao'),
-          to: '/system/management/accounts/account'
+          to: '/manager/account'
         });
       }
       if (this.myCatLog.includes('CAT_RDP_ROLE')) {
         tabs.push({
           name: 'role',
           label: this.$t('jiao-se'),
-          to: '/system/management/accounts/role'
+          to: '/manager/account/role'
         });
       }
 

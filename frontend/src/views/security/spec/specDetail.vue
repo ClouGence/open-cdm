@@ -2,13 +2,6 @@
   <div class="spec-detail">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb v-if="breadcrumbList.length">
-            <BreadcrumbItem v-for="breadcrumb in breadcrumbList" :to="breadcrumb.to" :key="breadcrumb.label">
-              {{ breadcrumb.label }}
-            </BreadcrumbItem>
-          </Breadcrumb>
-        </div>
         <Tabs v-model="activeTab" @on-click="handleTabClick">
           <TabPane :label="$t('cha-xun-gui-ze')" name="QUERY"></TabPane>
           <TabPane :label="$t('tuo-min-gui-ze')" name="SENSITIVE"></TabPane>
@@ -249,15 +242,6 @@ export default {
     ...mapGetters(['getTargetType', 'getSenMode']),
     isQuery() {
       return this.activeTab === 'QUERY';
-    },
-    breadcrumbList() {
-      return [
-        {
-          label: this.$t('gui-fan-lie-biao'),
-          to: '/system/dmspeclist'
-        },
-        { label: this.specDetail.specName }
-      ];
     }
   },
   data() {

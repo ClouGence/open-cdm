@@ -6,12 +6,12 @@
           <img class="product-title" :src="headerTitleUrl" alt="CloudDM" />
         </span>
         <div class="login-type">
-          {{ TYPES[type] }}
+          {{ headerTypeText }}
         </div>
       </div>
       <div class="right">
         <LangSwitcher class="lang-switcher" />
-        <div class="go-login" v-if="type !== 'login'">
+        <div class="go-login" v-if="showGoLogin">
           {{ $t('yi-you-zhang-hao-qu') }}
           <a @click="goLogin">{{ $t('deng-lu') }}</a>
         </div>
@@ -22,7 +22,7 @@
 
 <script>
 import LangSwitcher from '@/components/LangSwitcher';
-import { WEBSIDE_LOGO_LOGIN } from '@/utils/pluginResource';
+import logoClouddm from '@/assets/logo-clouddm.svg';
 
 export default {
   name: 'DmLogoHeader',
@@ -30,6 +30,10 @@ export default {
     type: {
       type: String,
       default: 'login'
+    },
+    title: {
+      type: String,
+      default: ''
     }
   },
   computed: {
@@ -37,7 +41,13 @@ export default {
       return this.$store.state.theme || 'light';
     },
     headerTitleUrl() {
-      return WEBSIDE_LOGO_LOGIN;
+      return logoClouddm;
+    },
+    headerTypeText() {
+      return this.title || this.TYPES[this.type] || '';
+    },
+    showGoLogin() {
+      return this.type !== 'login' && !this.title;
     }
   },
   data() {

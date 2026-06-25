@@ -4,8 +4,8 @@
     <a-menu-item key="sql" v-if="includesDM && myCatLog.includes('CAT_DM_CONSOLE')">
       <a href="/#/sql">{{ $t('sql-cha-xun') }}</a>
     </a-menu-item>
-    <a-menu-item key="project" v-if="includesDM && myCatLog.includes('CAT_DM_PROJECT') && !isDesktop">
-      <a href="/#/project">{{ $t('xiang-mu') }}</a>
+    <a-menu-item key="cicd" v-if="includesDM && myCatLog.includes('CAT_DM_CICD_FLOW') && !isDesktop">
+      <a href="/#/cicd">{{ $t('xiang-mu') }}</a>
     </a-menu-item>
     <a-menu-item key="ticket" v-if="includesDM && myCatLog.includes('CAT_RDP_WORKER_ORDER') && !isDesktop">
       <a href="/#/ticket">{{ $t('gong-dan') }}</a>
@@ -40,8 +40,8 @@ export default {
         this.currentMenu = ['sql'];
       } else if (path.indexOf('/system') > -1) {
         this.currentMenu = [];
-      } else if (path.indexOf('/project') > -1) {
-        this.currentMenu = ['project'];
+      } else if (path.indexOf('/cicd') > -1) {
+        this.currentMenu = ['cicd'];
       } else if (path.indexOf('/ticket') > -1) {
         this.currentMenu = ['ticket'];
       } else {

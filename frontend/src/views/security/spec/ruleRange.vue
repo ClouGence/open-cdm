@@ -113,27 +113,6 @@ export default {
   computed: {
     ...mapGetters(['getMatchMode', 'getScopeByMatchMode', 'getMatchModeList', 'getScopeListByMatchMode', 'getScopeListByInstance']),
     ...mapState(['myAuth']),
-    breadcrumbList() {
-      return [
-        {
-          label: this.$t('gui-fan-lie-biao'),
-          to: '/system/dmspeclist',
-          key: 'one'
-        },
-        {
-          label: this.specName,
-          to: {
-            path: `/system/dmspec/${this.specId}`,
-            query: { ruleKind: this.ruleKind }
-          },
-          key: 'two'
-        },
-        {
-          label: `${this.ruleName}的范围列表`,
-          key: 'three'
-        }
-      ];
-    },
     scopeSelectList() {
       return this.scopeList.filter((scope) => !scope.hidden);
     }
@@ -866,13 +845,6 @@ export default {
   <div class="rule-range">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb v-if="breadcrumbList.length">
-            <BreadcrumbItem v-for="breadcrumb in breadcrumbList" :to="breadcrumb.to" :key="breadcrumb.key">
-              {{ breadcrumb.label }}
-            </BreadcrumbItem>
-          </Breadcrumb>
-        </div>
         <div class="content">
           <div class="option">
             <div class="left">

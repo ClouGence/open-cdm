@@ -47,15 +47,6 @@
           </div>
         </div>
       </template>
-
-      <div v-if="userInfo.accountType !== 'PRIMARY_ACCOUNT' && includesDM" class="app-sidebar-divider" />
-      <div v-if="userInfo.accountType !== 'PRIMARY_ACCOUNT' && includesDM" class="app-sidebar-section">
-        <div class="app-sidebar-group-title">{{ $t('zhang-hao') }}</div>
-        <a href="/#/system/permission" class="app-sidebar-item" :class="{ 'is-active': activeKey === '/system/permission' }">
-          <CustomIcon type="icon-v2-MyAuth" size="16px" />
-          <span>{{ $t('my-permissions') }}</span>
-        </a>
-      </div>
     </nav>
   </aside>
 </template>
@@ -82,11 +73,11 @@ export default {
       if (path.indexOf('/sql') > -1) {
         return 'sql';
       }
-      if (path === '/project' || path === '/project/') {
-        return 'project';
+      if (path === '/cicd' || path === '/cicd/') {
+        return 'cicd';
       }
-      if (path.indexOf('/project') > -1) {
-        return 'project';
+      if (path.indexOf('/cicd') > -1) {
+        return 'cicd';
       }
       if (path === '/ticket' || path === '/ticket/') {
         return 'ticket';
@@ -94,17 +85,50 @@ export default {
       if (path.indexOf('/ticket') > -1) {
         return 'ticket';
       }
+      if (path.indexOf('/datasource') === 0 || path.indexOf('/system/ccdatasource') > -1) {
+        return '/datasource';
+      }
+      if (path === '/env' || path.indexOf('/env/') === 0 || path.indexOf('/system/env') > -1) {
+        return '/env';
+      }
+      if (path.indexOf('/data-access/cluster') === 0 || path.indexOf('/system/dmmachine') > -1) {
+        return '/data-access/cluster';
+      }
+      if (path.indexOf('/data-access/rules') === 0 || path.indexOf('/system/dmrule') > -1) {
+        return '/data-access/rules';
+      }
+      if (path.indexOf('/integrations/im') === 0 || path.indexOf('/system/im') > -1) {
+        return '/integrations/im';
+      }
+      if (path.indexOf('/integrations/git') === 0 || path.indexOf('/system/devops') > -1) {
+        return '/integrations/git';
+      }
+      if (path.indexOf('/integrations/sso') === 0 || path.indexOf('/system/sso') > -1) {
+        return '/integrations/sso';
+      }
+      if (path.indexOf('/settings/profile') === 0 || path.indexOf('/system/profile') > -1) {
+        return '/settings/profile';
+      }
+      if (path.indexOf('/settings/preferences') === 0 || path.indexOf('/system/preference') > -1) {
+        return '/settings/preferences';
+      }
       if (path.indexOf('/system/permission') > -1) {
-        return '/system/permission';
+        return this.$route.query.type === 'apply' ? '/system/permission/apply' : '/system/permission';
+      }
+      if (path.indexOf('/manager/account') === 0 || path.indexOf('/system/account') > -1 || path.indexOf('/system/role') > -1) {
+        return '/manager/account';
+      }
+      if (path.indexOf('/manager/logs') === 0 || path.indexOf('/system/operation_log') > -1 || path.indexOf('/system/sql_log') > -1) {
+        return '/manager/logs';
       }
       if (path.indexOf('/system/management/accounts') > -1 || path.indexOf('/system/account') > -1 || path.indexOf('/system/role') > -1) {
-        return '/system/management/accounts';
+        return '/manager/account';
       }
       if (path.indexOf('/system/management/logs') > -1 || path.indexOf('/system/operation_log') > -1 || path.indexOf('/system/sql_log') > -1) {
-        return '/system/management/logs';
+        return '/manager/logs';
       }
       if (path.indexOf('/system/profile') > -1) {
-        return '/system/profile';
+        return '/settings/profile';
       }
       if (path.indexOf('/system') > -1) {
         const parts = path.split('/').filter(Boolean);
@@ -131,7 +155,7 @@ export default {
   },
   methods: {
     handleGoHome() {
-      const target = this.defaultRedirectUrl || '/project';
+      const target = this.defaultRedirectUrl || '/cicd';
       if (this.$route.path !== target) {
         this.$router.push({ path: target });
       }

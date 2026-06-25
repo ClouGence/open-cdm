@@ -344,8 +344,12 @@
 
   &__brand {
     display: flex;
+    align-self: flex-start;
     align-items: center;
     gap: 10px;
+    height: @shell-compact-header-height;
+    box-sizing: border-box;
+    padding: 20px 0 16px;
     cursor: pointer;
     min-width: 0;
   }
@@ -796,57 +800,27 @@
 // ─── Profile / settings page shell ───────────────────────────────────────────
 
 .profile-page {
-  max-width: 880px;
-  margin: 0 auto;
-  padding: 0 24px 24px;
-
-  .profile-card {
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    overflow: visible;
-
-    .ivu-tabs-bar {
-      margin-bottom: 0;
-      border-bottom: 1px solid var(--border-primary);
-      background: var(--bg-secondary);
-      padding: 0 8px;
-    }
-
-    .ivu-tabs-nav .ivu-tabs-tab {
-      padding: 12px 16px;
-      font-size: 13px;
-      color: var(--text-secondary);
-
-      &.ivu-tabs-tab-active {
-        color: var(--primary-color);
-        font-weight: 500;
-      }
-    }
-
-    .ivu-tabs-content {
-      padding: 8px 24px 24px;
-    }
-  }
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
 
   .profile-field-list {
     margin: 0;
-    padding: 0;
+    padding: 24px 20px 8px;
 
     .profile-field-row {
-      display: grid;
-      grid-template-columns: 160px 1fr;
-      gap: 16px;
-      align-items: start;
-      padding: 16px 0;
-      border-bottom: 1px solid var(--border-secondary);
+      display: flex;
+      align-items: flex-start;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-light);
 
       &:last-child {
         border-bottom: none;
       }
 
       dt {
+        flex: 0 0 120px;
         margin: 0;
         font-size: 13px;
         font-weight: 500;
@@ -855,6 +829,7 @@
       }
 
       dd {
+        flex: 1;
         margin: 0;
         font-size: 14px;
         color: var(--text-primary);
@@ -865,11 +840,23 @@
   }
 
   .profile-section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     font-size: 14px;
     font-weight: 500;
     color: var(--text-primary);
     margin: 0 0 12px;
     padding-top: 8px;
+
+    span {
+      font-size: 12px;
+      font-weight: 400;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+    }
   }
 
   .profile-section-desc {
@@ -881,8 +868,8 @@
   }
 
   .profile-security-block {
-    padding: 20px 0;
-    border-top: 1px solid var(--border-secondary);
+    padding: 24px 20px;
+    border-top: 1px solid var(--border-light);
 
     &:first-child {
       border-top: none;

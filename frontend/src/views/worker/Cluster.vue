@@ -1,10 +1,5 @@
 <template>
   <div class="cluster-container">
-    <Breadcrumb style="margin-bottom: 14px">
-      <BreadcrumbItem>
-        {{ type === 'dm' ? $t('cha-xun-ji-qi') : $t('tong-bu-ji-qi') }}
-      </BreadcrumbItem>
-    </Breadcrumb>
     <ClusterHeader
       :handleSearch="handleRefresh"
       :refreshLoading="refreshLoading"
@@ -325,7 +320,7 @@ export default {
     handleCluster(row) {
       if (this.type === 'dm') {
         localStorage.setItem(`dmcluster-${row.id}`, JSON.stringify(row));
-        this.$router.push({ path: `/system/dmmachine/list/${row.id}` });
+        this.$router.push({ path: `/data-access/cluster/list/${row.id}` });
       } else {
         localStorage.setItem(`cluster-${row.id}`, JSON.stringify(row));
         this.$router.push({ path: `/ccsystem/resource/${row.id}` });

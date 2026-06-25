@@ -58,7 +58,7 @@ public class GiteeDevopsScmProviderSpi implements ScmProviderSpi {
     public String getServiceUrl() { return "https://gitee.com/"; }
 
     @Override
-    public String getHelpUrl() { return "https://www.cdmgr.com/docs/devops/provider/devops_cicd_gitee#config"; }
+    public String getHelpUrl() { return "https://www.cdmgr.com/docs/integrations/devops/devops_cicd_gitee"; }
 
     @Override
     public List<ScmEventType> devopsSupportEvents() {

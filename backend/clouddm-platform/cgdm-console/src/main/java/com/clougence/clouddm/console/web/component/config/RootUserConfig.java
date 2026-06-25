@@ -192,12 +192,12 @@ public class RootUserConfig {
      * CI/CD
      */
 
-    @UserConfigDef(name = "defaultProjectSpace", defaultValue = "default", descKey = I18nUserConfigMsgKeys.PROJECT_DEFAULT_PROJECT_SPACE, valueRange = "absolute path or relative path (APP_HOME)", configTagType = UserConfigTagType.PROJECT, confBelong = ConfBelong.CloudDM)
-    private String        defaultProjectSpace;
-    @UserConfigDef(name = "defaultTempSpace", defaultValue = "temporary", descKey = I18nUserConfigMsgKeys.PROJECT_DEFAULT_TEMP_SPACE, valueRange = "absolute path or relative path (APP_HOME)", configTagType = UserConfigTagType.PROJECT, confBelong = ConfBelong.CloudDM)
-    private String        defaultTempSpace;
-    @UserConfigDef(name = "scmMaxFailedTimes", defaultValue = "3", descKey = I18nUserConfigMsgKeys.PROJECT_SCM_MAX_FAILED_TIMES, valueRange = "max retry times.", configTagType = UserConfigTagType.PROJECT, confBelong = ConfBelong.CloudDM)
-    private Integer       scmMaxFailedTimes;
+    @UserConfigDef(name = "defaultCicdWorkspace", defaultValue = "default", descKey = I18nUserConfigMsgKeys.CICD_DEFAULT_WORKSPACE, valueRange = "absolute path or relative path (APP_HOME)", configTagType = UserConfigTagType.CICD, confBelong = ConfBelong.CloudDM)
+    private String        defaultCicdWorkspace;
+    @UserConfigDef(name = "defaultCicdTempSpace", defaultValue = "temporary", descKey = I18nUserConfigMsgKeys.CICD_DEFAULT_TEMP_SPACE, valueRange = "absolute path or relative path (APP_HOME)", configTagType = UserConfigTagType.CICD, confBelong = ConfBelong.CloudDM)
+    private String        defaultCicdTempSpace;
+    @UserConfigDef(name = "cicdMaxFailedTimes", defaultValue = "3", descKey = I18nUserConfigMsgKeys.CICD_SCM_MAX_FAILED_TIMES, valueRange = "max retry times.", configTagType = UserConfigTagType.CICD, confBelong = ConfBelong.CloudDM)
+    private Integer       cicdMaxFailedTimes;
 
     /**
      * SQL Console

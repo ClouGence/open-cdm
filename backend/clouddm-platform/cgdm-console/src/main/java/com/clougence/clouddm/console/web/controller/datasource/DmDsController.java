@@ -51,6 +51,7 @@ import com.clougence.clouddm.console.web.model.vo.DriverVersionStatusVO;
 import com.clougence.clouddm.console.web.model.vo.DsKvConfigVO;
 import com.clougence.clouddm.console.web.model.vo.RdpDataSourceVO;
 import com.clougence.clouddm.console.web.model.vo.checkrules.SpecVO;
+import com.clougence.clouddm.console.web.model.vo.cicd.ChangeFlowVO;
 import com.clougence.clouddm.console.web.model.vo.cluster.ClusterVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.DmSimpleDsVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.DsBindEnvNodeVO;
@@ -58,6 +59,7 @@ import com.clougence.clouddm.console.web.model.vo.datasource.FetchDsAddConfigVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.FetchDsBindInfoVO;
 import com.clougence.clouddm.console.web.model.vo.env.DsEnvVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
+import com.clougence.clouddm.console.web.service.cicd.DmChangeFlowService;
 import com.clougence.clouddm.console.web.service.cluster.ClusterService;
 import com.clougence.clouddm.console.web.service.datasource.DmDsWebService;
 import com.clougence.clouddm.console.web.service.security.CheckRulesService;
@@ -104,6 +106,8 @@ public class DmDsController {
     private ObjectCacheDao       cacheDao;
     @Resource
     private DmAuthServiceForBiz  authServiceForBiz;
+    @Resource
+    private DmChangeFlowService  changeFlowService;
     @Resource
     private CheckRulesService    rulesService;
     @Resource

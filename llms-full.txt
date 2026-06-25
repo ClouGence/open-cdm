@@ -87,7 +87,7 @@ On first access, CloudDM opens the initialization wizard. If the account was not
 
 ## Build and Development
 
-Prerequisites include JDK 21+, Gradle 9.5.0+, Node.js 22.22.1, Git, Linux or macOS or Windows with Bash, and MySQL 8.0+ for the runtime database.
+Prerequisites include JDK 17+, Gradle 9.5.0+, Node.js 22.22.1, Git, Linux or macOS or Windows with Bash, and MySQL 8.0+ for the runtime database.
 
 Common build commands:
 

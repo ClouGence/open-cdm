@@ -138,6 +138,28 @@
             {{ $t('shao-hou-chu-li') }}
           </a-button>
         </div>
+        <div class="login-provider-switcher" v-if="!showMfa && !isCompletionMode && loginDef.length > 1">
+          <button
+            v-for="item in loginDef"
+            :key="item.loginType"
+            type="button"
+            class="login-provider-icon"
+            :class="{ active: item.loginType === currentLoginType, unavailable: !item.available }"
+            :disabled="item.loginType === currentLoginType"
+            :title="providerTitle(item)"
+            @click="switchLoginType(item)"
+          >
+            <CustomIcon
+              v-if="item.icon"
+              :resource="item.icon"
+              :alt="item.iconTitle || item.tabTitle"
+              :disabled="!item.available"
+              size="23px"
+              topMargin="3px"
+            />
+            <span v-else class="login-provider-text">{{ item.tabTitle || item.iconTitle }}</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -467,7 +489,7 @@ export default {
       this.errMsg = '';
     },
     goHandleInvalidMfa() {
-      this.$router.push({ path: '/system/profile', query: { tab: 'security' } });
+      this.$router.push({ path: '/settings/profile', query: { tab: 'security' } });
     },
     handleGoJump(loginDef = this.currentLoginDef) {
       if (!loginDef.available) {
@@ -511,7 +533,7 @@ export default {
           ...this.$route.query,
           completion: true
         };
-        this.loginForm.account = this.loginCallbackData.account || this.loginCallbackData.sub || '';
+        this.loginForm.account = this.loginCallbackData.account || this.loginCallbackData.sub || this.loginCallbackData.registerAccount || '';
         this.loginForm.registerInfo = {
           account: this.loginCallbackData.registerAccount || this.loginCallbackData.account,
           email: this.loginCallbackData.email,
@@ -904,6 +926,69 @@ export default {
             border-color: #e2005a;
             background: var(--login-surface);
           }
+        }
+      }
+
+      .login-provider-switcher {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px dashed var(--login-hairline);
+      }
+
+      .login-provider-icon {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border-radius: 10px;
+        border: 1px solid var(--login-hairline);
+        background: var(--login-surface);
+        color: var(--login-ink);
+        cursor: pointer;
+        appearance: none;
+        transition:
+          border-color 0.2s ease,
+          background-color 0.2s ease,
+          box-shadow 0.2s ease;
+
+        &:hover:not(:disabled) {
+          border-color: var(--login-emerald);
+          background-color: rgba(62, 207, 142, 0.06);
+        }
+
+        &.active {
+          border-color: var(--login-emerald-deep);
+          background-color: rgba(62, 207, 142, 0.1);
+          cursor: default;
+        }
+
+        &.unavailable {
+          opacity: 0.45;
+          cursor: not-allowed;
+        }
+
+        .current-arrow {
+          position: absolute;
+          top: -5px;
+          left: 50%;
+          width: 6px;
+          height: 6px;
+          background: var(--login-emerald-deep);
+          border-radius: 50%;
+          transform: translateX(-50%);
+        }
+
+        .login-provider-text {
+          font-size: 12px;
+          font-weight: 500;
+          line-height: 1;
         }
       }
 

@@ -1,7 +1,7 @@
 <template>
   <div style="padding: 16px">
     <Breadcrumb>
-      <BreadcrumbItem to="/system/ccdatasource">{{ $t('shu-ju-yuan-guan-li') }}</BreadcrumbItem>
+      <BreadcrumbItem to="/datasource">{{ $t('shu-ju-yuan-guan-li') }}</BreadcrumbItem>
       <BreadcrumbItem>{{ $t('xiu-gai-shu-ju-yuan-can-shu-shi-li', [instanceId]) }}</BreadcrumbItem>
     </Breadcrumb>
     <Tabs v-model="activeTab" style="margin-top: 10px">

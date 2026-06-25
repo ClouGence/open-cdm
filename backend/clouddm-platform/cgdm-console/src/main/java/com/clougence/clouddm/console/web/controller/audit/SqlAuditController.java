@@ -30,7 +30,7 @@ import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.audit.SqlAuditFO;
-import com.clougence.clouddm.console.web.model.fo.project.GuideUsersFO;
+import com.clougence.clouddm.console.web.model.fo.cicd.GuideUsersFO;
 import com.clougence.clouddm.console.web.model.vo.audit.OperateUserVO;
 import com.clougence.clouddm.console.web.model.vo.audit.SqlAuditVO;
 import com.clougence.clouddm.console.web.model.vo.browse.BrowseLevelsVO;

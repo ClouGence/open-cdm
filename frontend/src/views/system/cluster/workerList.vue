@@ -2,12 +2,6 @@
   <div class="machine-list">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb>
-            <BreadcrumbItem to="/system/dmmachine">{{ $t('cha-xun-ji-qi') }}</BreadcrumbItem>
-            <BreadcrumbItem>{{ $t('ji-qi-lie-biao') }}</BreadcrumbItem>
-          </Breadcrumb>
-        </div>
         <div class="content">
           <div class="option border-radius-card">
             <div class="left">

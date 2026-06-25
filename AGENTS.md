@@ -13,7 +13,7 @@
 - open-cdm 是 CloudDM 的开源工程，面向团队数据库管理。
 - 核心能力包括数据源管理、数据查询、权限控制、数据脱敏、SQL 审核、数据库 CI/CD、工单协作和多部署形态。
 - 主要技术栈：
-  - 后端：Java、JDK 21+、Gradle 9.5.0+、Spring / Spring Boot、MyBatis。
+  - 后端：Java、JDK 17+、Gradle 9.5.0+、Spring / Spring Boot、MyBatis。
   - 前端：Vue 3、Vue CLI、JavaScript / TypeScript、Node.js 22.22.1。
   - 运行数据库：MySQL 8.0+。
 
@@ -47,7 +47,7 @@
 
 ### 环境要求
 
-- JDK 21+
+- JDK 17+
 - Gradle 9.5.0+
 - Node.js 22.22.1
 - MySQL 8.0+

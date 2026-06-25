@@ -27,6 +27,9 @@ import com.clougence.clouddm.sdk.approval.form.ChangeForm;
 import com.clougence.clouddm.sdk.approval.form.QueryForm;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiErrorType;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.team.provider.feishu.constants.FeishuI18nKeys2;
+import com.clougence.clouddm.team.provider.feishu.constants.approval.FeishuConstant;
+import com.clougence.clouddm.team.provider.feishu.domain.mo.FeishuWidget;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 
@@ -165,8 +168,8 @@ public class FeishuApiUtils {
                     widget.setValue(safeLength(info.getTargetDs(), 400, true));
                     break;
                 }
-                case FeishuConstant.FORM_CHANGE_PROJECT: {
-                    widget.setValue(safeLength(info.getProjectName(), 400, true));
+                case FeishuConstant.FORM_CHANGE_FLOW: {
+                    widget.setValue(safeLength(info.getFlowName(), 400, true));
                     break;
                 }
                 case FeishuConstant.FORM_CHANGE_NAME: {

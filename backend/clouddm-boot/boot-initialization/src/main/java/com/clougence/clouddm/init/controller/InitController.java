@@ -68,9 +68,7 @@ public class InitController {
         String jdbcUrl = params.get("spring.datasource.jdbcurl");
         String username = params.get("spring.datasource.username");
         String password = params.get("spring.datasource.password");
-        String rebuildIfNotEmpty = params.get("clougence.init.db.rebuildIfNotEmpty");
-        String confirmDatabaseName = params.get("clougence.init.db.confirmDatabaseName");
-        TestDbResult result = initService.testDbConnection(jdbcUrl, username, password, rebuildIfNotEmpty, confirmDatabaseName);
+        TestDbResult result = initService.testDbConnection(jdbcUrl, username, password);
         return ResWebDataUtils.buildSuccess(result);
     }
 

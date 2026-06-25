@@ -34,7 +34,7 @@ public class GithubDevopsScmProviderSpi implements ScmProviderSpi {
     public String getServiceUrl() { return "https://github.com/"; }
 
     @Override
-    public String getHelpUrl() { return "https://www.clougence.com/dm-doc/devops/provider/devops_cicd_github"; }
+    public String getHelpUrl() { return ""; }
 
     @Override
     public List<ScmEventType> devopsSupportEvents() {
