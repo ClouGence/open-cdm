@@ -47,7 +47,7 @@
       <div v-else-if="!loading" class="sso-form-empty">{{ $t('zan-wu-shu-ju') }}</div>
 
       <div v-if="selectedProvider && selectedProvider.helpUrl" class="sso-form-help">
-        <a @click="jumpToHelp">{{ $t('cha-kan-wen-dang') }}</a>
+        <a @click="jumpToHelp">{{ $t('ru-he-dui-jie-x', [$t(selectedProvider.labelKey)]) }}</a>
       </div>
 
       <div v-if="selectedProvider" class="sso-form-footer">

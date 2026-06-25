@@ -3112,6 +3112,7 @@
   "approval-field-wechat-token": "回调 Token",
   "approval-field-wechat-encoding-aes-key": "回调 EncodingAESKey",
   "approval-field-wechat-template-lang": "模板语言",
+  "ru-he-dui-jie-x": "如何对接 {0}",
   "sso-add-provider": "添加提供者",
   "sso-edit-provider": "编辑提供者",
   "sso-edit-provider-x": "编辑提供者 - {0}",

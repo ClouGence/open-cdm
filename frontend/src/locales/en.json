@@ -3072,6 +3072,7 @@
   "approval-field-wechat-token": "Callback Token",
   "approval-field-wechat-encoding-aes-key": "Callback EncodingAESKey",
   "approval-field-wechat-template-lang": "Template Language",
+  "ru-he-dui-jie-x": "How to integrate {0}",
   "sso-add-provider": "Add provider",
   "sso-edit-provider": "Edit provider",
   "sso-edit-provider-x": "Edit provider - {0}",
