@@ -32,7 +32,7 @@ export const APPROVAL_PROVIDERS = [
       { key: 'feishuEnableApprovalService', labelKey: 'approval-enable-service', widget: 'switch' },
       { key: 'feishuApprovalAppID', labelKey: 'approval-field-feishu-app-id', required: true },
       { key: 'feishuApprovalAppSecret', labelKey: 'approval-field-feishu-app-secret', required: true, password: true },
-      { key: 'feishuApprovalApiTimeoutSec', labelKey: 'approval-field-feishu-api-timeout' }
+      { key: 'feishuApprovalApiTimeoutSec', labelKey: 'approval-field-feishu-api-timeout', required: true }
     ]
   },
   {
@@ -58,7 +58,9 @@ export const APPROVAL_PROVIDERS = [
 export const APPROVAL_MANAGED_FIELDS = ['feishuApprovalTemplateList', 'wechatApprovalTemplateList'];
 
 export function getProviderByType(type) {
-  return APPROVAL_PROVIDERS.find((p) => p.type === type);
+  if (!type) return undefined;
+  const lower = String(type).toLowerCase();
+  return APPROVAL_PROVIDERS.find((p) => p.type.toLowerCase() === lower);
 }
 
 function readConfig(configMap, key) {

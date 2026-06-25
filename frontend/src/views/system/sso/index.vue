@@ -149,7 +149,7 @@ export default {
       this.$router.push('/integrations/sso/create');
     },
     goEdit(row) {
-      this.$router.push(`/integrations/sso/${row.type}/edit`);
+      this.$router.push(`/integrations/sso/${row.type.toLowerCase()}/edit`);
     }
   }
 };

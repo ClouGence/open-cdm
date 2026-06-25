@@ -3,7 +3,7 @@
     <Spin v-if="loading" fix />
     <section class="approval-form-card">
       <Form v-if="selectedProvider" ref="approvalForm" class="approval-form" :model="formData" :rules="formRules" label-position="top">
-        <FormItem :label="$t('approval-col-provider')" prop="providerType">
+        <FormItem :label="$t('lei-xing')" required>
           <div class="approval-type-list">
             <Tooltip
               v-for="provider in visibleProviders"
@@ -156,8 +156,8 @@ export default {
           this.goBack();
           return;
         }
-        this.selectedProviderType = this.routeType;
-        this.resetFormData(this.routeType, true);
+        this.selectedProviderType = def.type;
+        this.resetFormData(def.type, true);
         return;
       }
       const first = APPROVAL_PROVIDERS.find((p) => !isConfigured(this.configMap, p));

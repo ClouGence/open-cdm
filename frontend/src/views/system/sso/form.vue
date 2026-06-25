@@ -3,7 +3,7 @@
     <Spin v-if="loading" fix />
     <section class="sso-form-card">
       <Form v-if="selectedProvider" ref="ssoForm" class="sso-form" :model="formData" :rules="formRules" label-position="top">
-        <FormItem :label="$t('sso-col-provider')" prop="providerType">
+        <FormItem :label="$t('lei-xing')" required>
           <div class="sso-type-list">
             <Tooltip
               v-for="provider in visibleProviders"
@@ -172,13 +172,14 @@ export default {
     },
     bootstrapSelection() {
       if (this.isEdit) {
-        if (!this.routeType || !getProviderByType(this.routeType) || !this.enabledTypes.includes(this.routeType)) {
+        const def = getProviderByType(this.routeType);
+        if (!def || !this.enabledTypes.includes(def.type)) {
           this.$Message.error(this.$t('zan-wu-shu-ju'));
           this.goBack();
           return;
         }
-        this.selectedProviderType = this.routeType;
-        this.resetFormData(this.routeType, true);
+        this.selectedProviderType = def.type;
+        this.resetFormData(def.type, true);
         return;
       }
       const first = SSO_PROVIDERS.find((p) => !this.enabledTypes.includes(p.type) && !this.conflictingPeer(p.type));

@@ -147,7 +147,7 @@ export default {
       this.$router.push('/integrations/approval/create');
     },
     goEdit(row) {
-      this.$router.push(`/integrations/approval/${row.type}/edit`);
+      this.$router.push(`/integrations/approval/${row.type.toLowerCase()}/edit`);
     },
     handleToggleEnable(row) {
       const def = getProviderByType(row.type);

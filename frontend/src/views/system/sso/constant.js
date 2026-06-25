@@ -92,7 +92,7 @@ export const SSO_PROVIDERS = [
     fields: [
       { key: 'feishuLoginAppID', labelKey: 'sso-field-feishu-app-id', required: true },
       { key: 'feishuLoginAppSecret', labelKey: 'sso-field-feishu-app-secret', required: true, password: true },
-      { key: 'feishuLoginApiTimeoutSec', labelKey: 'sso-field-feishu-api-timeout' },
+      { key: 'feishuLoginApiTimeoutSec', labelKey: 'sso-field-feishu-api-timeout', required: true },
       { key: 'feishuLoginRoleMap', labelKey: 'sso-field-role-map', widget: 'roleSelect' }
     ]
   },
@@ -117,7 +117,9 @@ export const PASSWORD_TYPE = 'PASSWORD';
 export const AUTH_TYPE_SEPARATOR = ',';
 
 export function getProviderByType(type) {
-  return SSO_PROVIDERS.find((p) => p.type === type);
+  if (!type) return undefined;
+  const lower = String(type).toLowerCase();
+  return SSO_PROVIDERS.find((p) => p.type.toLowerCase() === lower);
 }
 
 export function parseAuthTypes(value) {
