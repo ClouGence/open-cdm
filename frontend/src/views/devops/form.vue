@@ -33,7 +33,8 @@
       </Form>
 
       <div class="devops-form-help">
-        <a @click="jumpToHelp">{{ $t('ru-he-huo-qu-accesstoken') }}</a>
+        <a v-if="selectedScmType && selectedScmType.helpUrl" @click="jumpToHelp">{{ $t('ru-he-huo-qu-accesstoken') }}</a>
+        <span v-else></span>
         <div class="devops-test-result">
           <span v-show="isCorrect !== 'init'" :class="isCorrect ? 'green-text' : 'error-text'">
             {{ isCorrect ? $t('ce-shi-tong-guo') : $t('ce-shi-shi-bai') }}

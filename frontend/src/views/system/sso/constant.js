@@ -11,6 +11,7 @@ export const SSO_PROVIDERS = [
     primaryField: 'ldapHost',
     primaryLabelKey: 'sso-field-ldap-host',
     conflictsWith: ['AD'],
+    helpUrl: 'https://www.cdmgr.com/docs/integrations/sso/sso_ldap',
     fields: [
       { key: 'ldapHost', labelKey: 'sso-field-ldap-host', required: true },
       { key: 'ldapPort', labelKey: 'sso-field-ldap-port', required: true },
@@ -35,6 +36,7 @@ export const SSO_PROVIDERS = [
     primaryField: 'ldapHost',
     primaryLabelKey: 'sso-field-ldap-host',
     conflictsWith: ['LDAP'],
+    helpUrl: 'https://www.cdmgr.com/docs/integrations/sso/sso_ad',
     fields: [
       { key: 'ldapHost', labelKey: 'sso-field-ldap-host', required: true },
       { key: 'ldapPort', labelKey: 'sso-field-ldap-port', required: true },
@@ -58,6 +60,7 @@ export const SSO_PROVIDERS = [
     iconResource: 'webside/OIDC@login-icon',
     primaryField: 'oidcLoginClientId',
     primaryLabelKey: 'sso-field-oidc-client-id',
+    helpUrl: 'https://www.cdmgr.com/docs/integrations/sso/sso_oidc',
     fields: [
       { key: 'oidcLoginWellKnownUrl', labelKey: 'sso-field-oidc-well-known-url', required: true },
       { key: 'oidcLoginClientId', labelKey: 'sso-field-oidc-client-id', required: true },
@@ -72,6 +75,7 @@ export const SSO_PROVIDERS = [
     iconResource: 'webside/DingTalk@login-icon',
     primaryField: 'dingLoginConfigAk',
     primaryLabelKey: 'sso-field-dingtalk-ak',
+    helpUrl: 'https://www.cdmgr.com/docs/integrations/sso/sso_dingtalk',
     fields: [
       { key: 'dingLoginConfigAk', labelKey: 'sso-field-dingtalk-ak', required: true },
       { key: 'dingLoginConfigSk', labelKey: 'sso-field-dingtalk-sk', required: true, password: true },
@@ -84,6 +88,7 @@ export const SSO_PROVIDERS = [
     iconResource: 'webside/Feishu@login-icon',
     primaryField: 'feishuLoginAppID',
     primaryLabelKey: 'sso-field-feishu-app-id',
+    helpUrl: 'https://www.cdmgr.com/docs/integrations/sso/sso_feishu',
     fields: [
       { key: 'feishuLoginAppID', labelKey: 'sso-field-feishu-app-id', required: true },
       { key: 'feishuLoginAppSecret', labelKey: 'sso-field-feishu-app-secret', required: true, password: true },
@@ -97,6 +102,7 @@ export const SSO_PROVIDERS = [
     iconResource: 'webside/Wechat@login-icon',
     primaryField: 'wechatLoginCorpId',
     primaryLabelKey: 'sso-field-wechat-corp-id',
+    helpUrl: 'https://www.cdmgr.com/docs/integrations/sso/sso_wechat',
     fields: [
       { key: 'wechatLoginCorpId', labelKey: 'sso-field-wechat-corp-id', required: true },
       { key: 'wechatLoginAgentId', labelKey: 'sso-field-wechat-agent-id', required: true },

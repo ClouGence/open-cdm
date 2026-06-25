@@ -36,7 +36,8 @@
 
       <template v-if="imDefList.length !== 0">
         <div class="im-form-help">
-          <a @click="jumpToHelp">{{ $t('ru-he-huo-qu-accesstoken') }}</a>
+          <a v-if="selectedImDef && selectedImDef.helpUrl" @click="jumpToHelp">{{ $t('ru-he-huo-qu-accesstoken') }}</a>
+          <span v-else></span>
           <div class="im-test-result">
             <span v-show="isCorrect !== 'init'" :class="isCorrect ? 'green-text' : 'error-text'">
               {{ isCorrect ? $t('ce-shi-tong-guo') : $t('ce-shi-shi-bai') }}

@@ -46,6 +46,10 @@
 
       <div v-else-if="!loading" class="sso-form-empty">{{ $t('zan-wu-shu-ju') }}</div>
 
+      <div v-if="selectedProvider && selectedProvider.helpUrl" class="sso-form-help">
+        <a @click="jumpToHelp">{{ $t('cha-kan-wen-dang') }}</a>
+      </div>
+
       <div v-if="selectedProvider" class="sso-form-footer">
         <Button v-if="isEdit" type="error" @click="handleDelete">{{ $t('shan-chu') }}</Button>
         <div class="sso-form-footer__right">
@@ -294,6 +298,12 @@ export default {
     },
     goBack() {
       this.$router.push('/integrations/sso');
+    },
+    jumpToHelp() {
+      const url = this.selectedProvider?.helpUrl || '';
+      if (url) {
+        window.open(url, 'blank');
+      }
     }
   }
 };
@@ -400,13 +410,18 @@ export default {
   font-size: 14px;
 }
 
+.sso-form-help {
+  max-width: 960px;
+  margin-top: 18px;
+}
+
 .sso-form-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   max-width: 960px;
-  margin-top: 28px;
+  margin-top: 18px;
   padding-top: 18px;
   border-top: 1px solid #edf2f7;
 }

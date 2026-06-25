@@ -40,7 +40,7 @@ public class WechatMsgSendSpi implements MsgSendSpi {
     public String getServiceUrl() { return "https://work.weixin.qq.com/"; }
 
     @Override
-    public String getHelpUrl() { return "https://www.cdmgr.com/docs/devops/provider/devops_im_wechat"; }
+    public String getHelpUrl() { return "https://www.cdmgr.com/docs/integrations/devops/devops_im_wechat"; }
 
     @Override
     @SneakyThrows
