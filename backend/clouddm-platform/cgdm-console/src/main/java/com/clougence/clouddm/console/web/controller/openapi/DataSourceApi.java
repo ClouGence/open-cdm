@@ -291,21 +291,20 @@ public class DataSourceApi extends BasicApi {
     //
     //
     //
-
-    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    @RequestMapping(value = "/addds", method = RequestMethod.POST)
-    public ResApiData<?> addDataSource(@RequestParam("dataSourceAddData") String data, @RequestParam(value = "securityFile", required = false) MultipartFile securityFile,
-                                       @RequestParam(value = "secretFile", required = false) MultipartFile secretFile, HttpServletRequest request) {
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-
-        ResWebData<Long> res = rdpDsOpenApiService.addDs(data, securityFile, secretFile, uid, puid);
-        if (!res.isPermission() || !res.isSuccess()) {
-            return ResApiDataUtils.buildError(res.getCode(), res.getMsg());
-        } else {
-            return ResApiDataUtils.buildSuccess(res.getData());
-        }
-    }
+    //    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
+    //    @RequestMapping(value = "/addds", method = RequestMethod.POST)
+    //    public ResApiData<?> addDataSource(@RequestParam("dataSourceAddData") String data, @RequestParam(value = "securityFile", required = false) MultipartFile securityFile,
+    //                                       @RequestParam(value = "secretFile", required = false) MultipartFile secretFile, HttpServletRequest request) {
+    //        String uid = (String) request.getAttribute(RdpUserService.UID);
+    //        String puid = (String) request.getAttribute(RdpUserService.PUID);
+    //
+    //        ResWebData<Long> res = rdpDsOpenApiService.addDs(data, securityFile, secretFile, uid, puid);
+    //        if (!res.isPermission() || !res.isSuccess()) {
+    //            return ResApiDataUtils.buildError(res.getCode(), res.getMsg());
+    //        } else {
+    //            return ResApiDataUtils.buildSuccess(res.getData());
+    //        }
+    //    }
 
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/deleteds", method = RequestMethod.POST)

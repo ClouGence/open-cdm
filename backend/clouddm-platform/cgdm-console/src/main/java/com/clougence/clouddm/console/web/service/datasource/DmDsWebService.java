@@ -19,13 +19,14 @@ import java.util.List;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
-import com.clougence.clouddm.console.web.model.fo.datasource.AddDsFO;
+import com.clougence.clouddm.console.web.model.fo.datasource.DsConfigSubmitFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsConfigFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsKvConfigFO;
 import com.clougence.clouddm.console.web.model.lo.UpdateDsConfigLO;
 import com.clougence.clouddm.console.web.model.lo.UpdateDsDescLO;
 import com.clougence.clouddm.console.web.model.vo.DsKvConfigVO;
 import com.clougence.clouddm.console.web.model.vo.RdpDsKvConfigVO;
+import com.clougence.clouddm.console.web.model.vo.datasource.ConnectDsResultVO;
 import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 
@@ -34,7 +35,9 @@ import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
  */
 public interface DmDsWebService {
 
-    ResWebData<Long> addDataSource(String puid, String uid, AddDsFO addFO);
+    ResWebData<Long> addDataSource(String uid, DsConfigSubmitFO addFO);
+
+    ConnectDsResultVO testConnect(String uid, DsConfigSubmitFO fo);
 
     ResWebData<Long> delDataSource(String puid, long dsId);
 

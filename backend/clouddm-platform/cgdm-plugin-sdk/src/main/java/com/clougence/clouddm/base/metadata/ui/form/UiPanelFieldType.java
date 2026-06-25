@@ -19,6 +19,7 @@ public enum UiPanelFieldType {
 
     // standard
     Input("Input"),
+    Password("Password"),
     Options("Options"),
     Radios("Radios"),
     Check("Check"),
@@ -53,7 +54,17 @@ public enum UiPanelFieldType {
 
     Date("Date"),
     Time("Time"),
-    DateTime("DateTime");
+    DateTime("DateTime"),
+
+    // datasource add form
+    EnvironmentSelect("EnvironmentSelect"),
+    ClusterSelect("ClusterSelect"),
+    DriverSelection("DriverSelection"),
+    NetworkAddress("NetworkAddress"),
+    MaxComputeEndpoint("MaxComputeEndpoint"),
+    TransactionControl("TransactionControl"),
+    SshTunnel("SshTunnel"),
+    CertificateInput("CertificateInput");
 
     private final String type;
 

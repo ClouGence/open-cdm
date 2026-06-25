@@ -31,6 +31,7 @@ import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
+import com.clougence.clouddm.console.web.component.dsconfig.impl.DmDsConfigHelper;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
 import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
@@ -66,7 +67,6 @@ import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.rdp.service.RdpNotifyService;
 import com.clougence.utils.CollectionUtils;
-import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -304,28 +304,38 @@ public class DmDsWebServiceImpl implements DmDsWebService {
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
     @Override
-    public ResWebData<Long> addDataSource(String puid, String uid, AddDsFO addFO) {
-        DmAuthUserDO pUserDO = this.userService.getUserByUid(puid);
-        long dsId;
-        try {
-            dsId = saveSelfMaintainDs(addFO, puid, pUserDO.getUsername());
-            addCreatorAuth(uid, dsId);
-        } catch (Exception e) {
-            throw ExceptionUtils.toRuntime(ExceptionUtils.getRootCause(e));
-        }
-
-        this.notifyServices.forEach(s -> s.onDsAdd(uid, dsId));
-        return ResWebDataUtils.buildSuccess(dsId);
-    }
-
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)
-    @Override
-    public ResWebData<Long> addDataSource(String puid, String uid, DsConfigSubmitFO addFO) {
-        DmAuthUserDO pUserDO = this.userService.getUserByUid(puid);
+    public ResWebData<Long> addDataSource(String uid, DsConfigSubmitFO addFO) {
         Map<String, String> configMap = resolveConfigMap(addFO);
         DataSourceConfig dsConfig = resolveDsConfig(addFO, configMap);
+        mergeConfigMap(configMap, dsConfig);
 
-        long dsId = saveDsConfig(addFO, dsConfig, configMap, puid, pUserDO.getUsername());
+        //
+        DmDsDO entity = new DmDsDO();
+        entity.setDataSourceType(dsConfig.getDataSourceType());
+        entity.setHost(dsConfig.getHost());
+        entity.setUid(uid);
+        entity.setOwner(AuthDal.ROOT_USER_UID);
+        entity.setSecurityType(dsConfig.getSecurityType() == null ? SecurityType.USER_PASSWD : dsConfig.getSecurityType());
+        entity.setLifeCycleState(LifeCycleState.CREATED);
+        entity.setStatus(DataSourceStatus.Normal);
+        entity.setStatusMessage("");
+        entity.setBindClusterId(addFO.getClusterId());
+        entity.setDriver(addFO.getDriver());
+        entity.setDsEnvId(addFO.getEnvId());
+        entity.setVersion(dsConfig.getVersion());
+        entity.setAccessKey(dsConfig.getUserName());
+        entity.setSecretKey(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(StringUtils.defaultString(dsConfig.getPassword())));
+
+        if (StringUtils.isBlank(dsConfig.getInstanceId())) {
+            dsConfig.setInstanceId(dsConfig.getDataSourceType().getShortName() + "-" + RandomStrUtils.fixedLenRandomStr(15));
+        }
+        entity.setInstanceId(dsConfig.getInstanceId());
+        entity.setInstanceDesc(StringUtils.isNotBlank(addFO.getInstanceDesc()) ? addFO.getInstanceDesc() : dsConfig.getInstanceId());
+
+        this.dsDal.dsMapper().insert(entity);
+        this.configService.upsertDsConfigs(entity.getId(), entity.getDataSourceType(), configMap);
+
+        long dsId = entity.getId();
         addCreatorAuth(uid, dsId);
 
         this.notifyServices.forEach(s -> s.onDsAdd(uid, dsId));
@@ -415,35 +425,6 @@ public class DmDsWebServiceImpl implements DmDsWebService {
 
         this.dsDal.dsMapper().insert(entity);
         this.configService.upsertDsConfigs(entity.getId(), dsConfigMap);
-
-        return entity.getId();
-    }
-
-    protected long saveDsConfig(DsConfigSubmitFO addFO, DataSourceConfig dsConfig, Map<String, String> configMap, String uid, String owner) {
-        DmDsDO entity = new DmDsDO();
-        entity.setDataSourceType(dsConfig.getDataSourceType());
-        entity.setHost(dsConfig.getHost());
-        entity.setUid(uid);
-        entity.setOwner(owner);
-        entity.setSecurityType(dsConfig.getSecurityType() == null ? SecurityType.USER_PASSWD : dsConfig.getSecurityType());
-        entity.setLifeCycleState(LifeCycleState.CREATED);
-        entity.setStatus(DataSourceStatus.Normal);
-        entity.setStatusMessage("");
-        entity.setBindClusterId(addFO.getClusterId());
-        entity.setDriver(addFO.getDriver());
-        entity.setDsEnvId(addFO.getEnvId());
-        entity.setVersion(dsConfig.getVersion());
-        entity.setAccessKey(dsConfig.getUserName());
-        entity.setSecretKey(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(StringUtils.defaultString(dsConfig.getPassword())));
-
-        if (StringUtils.isBlank(dsConfig.getInstanceId())) {
-            dsConfig.setInstanceId(dsConfig.getDataSourceType().getShortName() + "-" + RandomStrUtils.fixedLenRandomStr(15));
-        }
-        entity.setInstanceId(dsConfig.getInstanceId());
-        entity.setInstanceDesc(StringUtils.isNotBlank(addFO.getInstanceDesc()) ? addFO.getInstanceDesc() : dsConfig.getInstanceId());
-
-        this.dsDal.dsMapper().insert(entity);
-        this.configService.upsertDsConfigs(entity.getId(), configMap);
 
         return entity.getId();
     }

@@ -13,27 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.rdp.service.openapi;
-
-import java.util.List;
+package com.clougence.clouddm.console.web.service.upload;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.clougence.rdp.service.openapi.model.*;
+import com.clougence.clouddm.console.web.model.vo.datasource.ConsoleUploadVO;
 
-public interface RdpDsOpenApiService {
+public interface ConsoleUploadService {
 
-    List<ApiDataSourceVO> listDs(String requestId, String puid, ApiListDsFO fo);
+    ConsoleUploadVO uploadCertificate(MultipartFile file);
 
-    ApiDataSourceVO queryDs(String puid, ApiQueryDsFO fo);
-
-    void deleteDs(String puid, ApiDeleteDsFO fo);
-
-    void updateDsDesc(String puid, ApiUpdateDsDescFO fo);
-
-    void updateAccountAndPasswd(String data, MultipartFile securityFile, MultipartFile secretFile, String puid);
-
-    List<ApiDsKvConfigVo> listDsKvConfs(String puid, ApiListDsKvConfigsByDsIdFO fo);
-
-    void upsertDsKvConfs(String puid, ApiUpsertDsKvConfigFO fo);
+    String resolveCertificateData(String value);
 }

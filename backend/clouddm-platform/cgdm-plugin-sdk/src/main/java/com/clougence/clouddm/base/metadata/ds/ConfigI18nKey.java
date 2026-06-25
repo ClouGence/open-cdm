@@ -16,6 +16,8 @@
 package com.clougence.clouddm.base.metadata.ds;
 
 /**
+ * Common i18n keys used by {@link DataSourceConfig} and shared add-data-source controls.
+ *
  * @author bucketli 2020/11/5 20:50
  */
 public interface ConfigI18nKey {

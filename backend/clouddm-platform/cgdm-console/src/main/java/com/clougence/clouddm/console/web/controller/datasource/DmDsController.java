@@ -55,7 +55,10 @@ import com.clougence.clouddm.console.web.model.vo.DsKvConfigVO;
 import com.clougence.clouddm.console.web.model.vo.RdpDataSourceVO;
 import com.clougence.clouddm.console.web.model.vo.checkrules.SpecVO;
 import com.clougence.clouddm.console.web.model.vo.cluster.ClusterVO;
-import com.clougence.clouddm.console.web.model.vo.datasource.*;
+import com.clougence.clouddm.console.web.model.vo.datasource.DmSimpleDsVO;
+import com.clougence.clouddm.console.web.model.vo.datasource.DsBindEnvNodeVO;
+import com.clougence.clouddm.console.web.model.vo.datasource.FetchDsAddConfigVO;
+import com.clougence.clouddm.console.web.model.vo.datasource.FetchDsBindInfoVO;
 import com.clougence.clouddm.console.web.model.vo.env.DsEnvVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.cluster.ClusterService;
@@ -66,6 +69,7 @@ import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.console.web.util.UiWebUtil;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
@@ -133,6 +137,40 @@ public class DmDsController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         this.driverService.downloadDriver(uid, fo.getClusterId(), fo.getDriverFamily(), fo.getDriverVersion());
         return ResWebDataUtils.buildSuccess();
+    }
+
+    // ds add
+
+    @RequestAuth(DM_DS_MANAGE)
+    @RequestMapping(value = "/fetchDsConfig", method = RequestMethod.POST)
+    public ResWebData<?> fetchDsConfig(@RequestBody @Valid FetchDsAddConfigFO fo) {
+        DataSourceType dsType = fo.getDsType();
+
+        FetchDsAddConfigVO vo = new FetchDsAddConfigVO();
+        vo.setPanels(UiWebUtil.addDsUiPanels2VO(this.dsConfigService.fetchDsConfigPanels(dsType)));
+
+        return ResWebDataUtils.buildSuccess(vo);
+    }
+
+    @RequestAuth(DM_DS_MANAGE)
+    @RequestMapping(value = "/uploadCertificate", method = RequestMethod.POST)
+    public ResWebData<?> uploadCertificate(@RequestParam("file") MultipartFile file) {
+        return ResWebDataUtils.buildSuccess(this.uploadService.uploadCertificate(file));
+    }
+
+    @RequestAuth(level = SecurityLevel.HIGH, value = RDP_DS_MANAGE)
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    public ResWebData<Long> addDs(@RequestBody @Valid DsConfigSubmitFO fo, HttpServletRequest request) {
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+
+        if (fo.getClusterId() != null) {
+            this.cacheDao.ownCluster(AuthDal.ROOT_USER_UID, fo.getClusterId());
+        }
+
+        ResWebData<Long> result = this.dsService.addDataSource(uid, fo);
+        this.auditService.logAndAddOperationAudit(AuthDal.ROOT_USER_UID, uid, request.getRequestURI(), request.getRemoteAddr(), result
+            .getData(), "", SecurityLevel.HIGH, AuditType.ADD_DATA_SOURCE, ResourceType.DATASOURCE);
+        return result;
     }
 
     // ds manager

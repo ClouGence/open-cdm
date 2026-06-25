@@ -29,6 +29,9 @@ public interface DsConfigSpi extends Spi {
     String ENV_ID_FIELD                  = "envId";
     String CLUSTER_ID_FIELD              = "clusterId";
     String PORT_FIELD                    = "port";
+    String CONNECT_TIMEOUT_MS_FIELD      = "connectTimeoutMs";
+    String SO_TIMEOUT_SEC_FIELD          = "soTimeoutSec";
+    String CONN_AND_SO_TIMEOUT_MS_FIELD  = "connAndSoTimeoutMs";
     String AUTO_COMMIT_FIELD             = "autoCommit";
     String TRANSACTION_CONTROL_FIELD     = "transactionControl";
     String TRANSACTION_MODE_AUTO_VALUE   = "txAuto";

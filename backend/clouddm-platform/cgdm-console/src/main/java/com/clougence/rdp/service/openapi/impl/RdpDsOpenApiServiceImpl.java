@@ -22,10 +22,8 @@ import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
-import com.clougence.clouddm.console.web.model.fo.datasource.AddDsFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsKvConfigFO;
 import com.clougence.clouddm.console.web.model.vo.RdpDsKvConfigVO;
 import com.clougence.clouddm.console.web.service.datasource.DmDsWebService;
@@ -113,34 +111,6 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
     }
 
     @Override
-    public ResWebData<Long> addDs(String data, MultipartFile securityFile, MultipartFile secretFile, String uid, String puid) {
-        if (StringUtils.isBlank(data)) {
-            throw new IllegalArgumentException("data can not be empty.");
-        }
-
-        AddDsFO addDsFO;
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            addDsFO = objectMapper.readValue(data, new TypeReference<AddDsFO>() {});
-        } catch (Exception e) {
-            String msg = "deserialize add ds info error.msg:" + ExceptionUtils.getRootCauseMessage(e);
-            log.error(msg, e);
-            throw new RuntimeException(msg, e);
-        }
-
-        if (addDsFO == null) {
-            throw new IllegalArgumentException("datasource data is illegal.");
-        }
-
-        addDsFO.setSecurityFile(securityFile);
-        addDsFO.setSecretFile(secretFile);
-
-        // do not change the order for check security file and secret file;
-        addDsFO.manualValidAndTrim();
-        return dsService.addDataSource(puid, uid, addDsFO);
-    }
-
-    @Override
     public void deleteDs(String puid, ApiDeleteDsFO fo) {
         cacheDao.ownDataSource(puid, fo.getDataSourceId());
         dsService.delDataSource(puid, fo.getDataSourceId());
@@ -178,12 +148,6 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
         updateFO.setSecretFile(secretFile);
 
         dsService.updateDataSourceAccount(puid, updateFO);
-    }
-
-    @Override
-    public void cleanDsAccount(String puid, ApiDeleteAccountFO fo) {
-        cacheDao.ownDataSource(puid, fo.getDataSourceId());
-        dsService.cleanDataSourceAccount(puid, fo.getDataSourceId());
     }
 
     @Override
