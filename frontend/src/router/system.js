@@ -24,6 +24,16 @@ export default [
     component: () => import(/* webpackChunkName: "ccsystem-sso" */ '@/views/system/sso/index')
   },
   {
+    path: '/integrations/sso/create',
+    name: 'DMSsoCreate',
+    component: () => import(/* webpackChunkName: "ccsystem-sso" */ '@/views/system/sso/form')
+  },
+  {
+    path: '/integrations/sso/:type/edit',
+    name: 'DMSsoEdit',
+    component: () => import(/* webpackChunkName: "ccsystem-sso" */ '@/views/system/sso/form')
+  },
+  {
     path: 'sso',
     redirect: '/integrations/sso'
   },

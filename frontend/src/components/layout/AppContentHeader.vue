@@ -188,6 +188,18 @@ export default {
           { label: this.$t('bian-ji'), to: path }
         ];
       }
+      if (path === '/integrations/sso/create') {
+        return [
+          { label: this.$t('nav-sso'), to: '/integrations/sso' },
+          { label: this.$t('xin-zeng'), to: path }
+        ];
+      }
+      if (/^\/integrations\/sso\/[^/]+\/edit$/.test(path)) {
+        return [
+          { label: this.$t('nav-sso'), to: '/integrations/sso' },
+          { label: this.$t('pei-zhi'), to: path }
+        ];
+      }
       if (this.pageSubTitle) {
         return [
           { label: this.pageTitle, to: path },
