@@ -265,8 +265,8 @@ public class CallbackController {
         }
 
         response.sendRedirect(contextPath + "#/login?" +//
-                              "error=" + URLEncoder.encode(DmI18nUtils.getMessage(errorCode), "UTF-8") + "&" +//
-                              "error_description=" + URLEncoder.encode(errorMessage, "UTF-8"));
+                              "error=" + URLEncoder.encode(StringUtils.defaultString(DmI18nUtils.getMessage(errorCode), errorCode), StandardCharsets.UTF_8) + "&" +//
+                              "error_description=" + URLEncoder.encode(StringUtils.defaultString(errorMessage, ""), StandardCharsets.UTF_8));
         return "failed.";
     }
 
