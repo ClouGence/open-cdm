@@ -45,11 +45,8 @@ import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.CheckDriverVersionFO;
 import com.clougence.clouddm.console.web.model.fo.QueryDsFO;
-import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
 import com.clougence.clouddm.console.web.model.fo.checkrules.SpecListFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.*;
-import com.clougence.clouddm.console.web.model.fo.user.DeleteAccountFO;
-import com.clougence.clouddm.console.web.model.lo.UpdateDsDescLO;
 import com.clougence.clouddm.console.web.model.vo.DriverVersionStatusVO;
 import com.clougence.clouddm.console.web.model.vo.DsKvConfigVO;
 import com.clougence.clouddm.console.web.model.vo.RdpDataSourceVO;
@@ -173,6 +170,18 @@ public class DmDsController {
         return result;
     }
 
+    @RequestAuth(DM_DS_MANAGE)
+    @RequestMapping(value = "/connectDs", method = RequestMethod.POST)
+    public ResWebData<?> connectDs(@Valid @RequestBody DsConfigSubmitFO fo, HttpServletRequest request) {
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+
+        if (fo.getClusterId() != null) {
+            this.cacheDao.ownCluster(puid, fo.getClusterId());
+        }
+        return ResWebDataUtils.buildSuccess(this.dsService.testConnect(uid, fo));
+    }
+
     // ds manager
 
     @RequestAuth(DM_DS_READ)
@@ -212,17 +221,6 @@ public class DmDsController {
             List<DmSimpleDsVO> vos = genAndFilterToSimpleVO(puid, result, listDsFO);
             return ResWebDataUtils.buildSuccess(vos);
         }
-    }
-
-    @RequestAuth(DM_DS_MANAGE)
-    @RequestMapping(value = "/fetchDsConfig", method = RequestMethod.POST)
-    public ResWebData<?> fetchDsConfig(@RequestBody @Valid FetchDsAddConfigFO fo) {
-        DataSourceType dsType = fo.getDsType();
-
-        FetchDsAddConfigVO vo = new FetchDsAddConfigVO();
-        vo.setPanels(UiWebUtil.addDsUiPanels2VO(this.dsConfigService.fetchDsConfigPanels(dsType)));
-
-        return ResWebDataUtils.buildSuccess(vo);
     }
 
     @RequestAuth(DM_DS_MANAGE)
@@ -289,41 +287,6 @@ public class DmDsController {
         return ResWebDataUtils.buildSuccess(vos);
     }
 
-    @RequestAuth(DM_DS_MANAGE)
-    @RequestMapping(value = "/connectDs", method = RequestMethod.POST)
-    public ResWebData<?> connectDs(@Valid @RequestBody ConnectDsFO fo, HttpServletRequest request) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-
-        this.cacheDao.ownCluster(puid, fo.getBindClusterId());
-
-        try {
-            String version = this.dmDsService.testConnect(uid, fo);
-            ConnectDsResultVO result = new ConnectDsResultVO();
-            result.setSuccess(true);
-            result.setVersion(version);
-            return ResWebDataUtils.buildSuccess(result);
-        } catch (Exception e) {
-            log.error("connectDs failed, uid={}, clusterId={}, dsType={}, {}", uid, fo.getBindClusterId(), fo.getDataSourceType(), e.getMessage(), e);
-            ConnectDsResultVO result = new ConnectDsResultVO();
-            result.setSuccess(false);
-            result.setMessage(e.getMessage());
-            return ResWebDataUtils.buildSuccess(result);
-        }
-    }
-
-    @RequestAuth(value = DM_DS_MANAGE, level = HIGH)
-    @RequestMapping(value = "/upsertDsConfig", method = RequestMethod.POST)
-    public ResWebData<?> upsertDsConfig(@RequestBody UpsertDsConfigFO fo, HttpServletRequest request) {
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.cacheDao.ownDataSource(puid, fo.getDataSourceId());
-        this.authServiceForBiz.checkResAuth(puid, uid, fo.getDataSourceId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
-
-        this.dsService.upsertConfigs(puid, fo);
-        return ResWebDataUtils.buildSuccess();
-    }
-
     @RequestAuth(DM_QUERY_CONSOLE)
     @RequestMapping(value = "/testConnect", method = RequestMethod.POST)
     public ResWebData<?> testConnect(@Valid @RequestBody TestDsConnectionFO fo, HttpServletRequest request) {
@@ -356,6 +319,18 @@ public class DmDsController {
             this.dmDsService.testConnect(puid, uid, dsLevels);
             return ResWebDataUtils.buildSuccess();
         }
+    }
+
+    @RequestAuth(value = DM_DS_MANAGE, level = HIGH)
+    @RequestMapping(value = "/upsertDsConfig", method = RequestMethod.POST)
+    public ResWebData<?> upsertDsConfig(@RequestBody UpsertDsConfigFO fo, HttpServletRequest request) {
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+        this.cacheDao.ownDataSource(puid, fo.getDataSourceId());
+        this.authServiceForBiz.checkResAuth(puid, uid, fo.getDataSourceId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
+
+        this.dsService.upsertConfigs(puid, fo);
+        return ResWebDataUtils.buildSuccess();
     }
 
     @RequestAuth(DM_DS_MANAGE)

@@ -33,9 +33,7 @@ import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.component.dsconfig.impl.DmDsConfigHelper;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
-import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
 import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
-import com.clougence.clouddm.console.web.model.fo.datasource.AddDsFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.DsConfigSubmitFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsConfigFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsKvConfigFO;
@@ -307,7 +305,14 @@ public class DmDsWebServiceImpl implements DmDsWebService {
     public ResWebData<Long> addDataSource(String uid, DsConfigSubmitFO addFO) {
         Map<String, String> configMap = resolveConfigMap(addFO);
         DataSourceConfig dsConfig = resolveDsConfig(addFO, configMap);
-        mergeConfigMap(configMap, dsConfig);
+        for (DsConfigKvDef configDef : DmDsConfigHelper.collectConfigs(dsConfig)) {
+            if (StringUtils.isBlank(configDef.getConfigName())) {
+                continue;
+            }
+            if (!configMap.containsKey(configDef.getConfigName()) || StringUtils.isBlank(configMap.get(configDef.getConfigName()))) {
+                configMap.put(configDef.getConfigName(), configDef.getConfigValue());
+            }
+        }
 
         //
         DmDsDO entity = new DmDsDO();
@@ -333,7 +338,7 @@ public class DmDsWebServiceImpl implements DmDsWebService {
         entity.setInstanceDesc(StringUtils.isNotBlank(addFO.getInstanceDesc()) ? addFO.getInstanceDesc() : dsConfig.getInstanceId());
 
         this.dsDal.dsMapper().insert(entity);
-        this.configService.upsertDsConfigs(entity.getId(), entity.getDataSourceType(), configMap);
+        this.configService.upsertDsConfigs(entity.getId(), configMap);
 
         long dsId = entity.getId();
         addCreatorAuth(uid, dsId);
@@ -348,6 +353,9 @@ public class DmDsWebServiceImpl implements DmDsWebService {
         DataSourceConfig dsConfig = resolveDsConfig(fo, configMap);
         ConnectDsResultVO result = new ConnectDsResultVO();
         try {
+            if (fo.getClusterId() == null || fo.getClusterId() <= 0) {
+                throw new IllegalArgumentException("bind cluster id can not be empty.");
+            }
             String version = this.dmDsService.testConnect(uid, fo.getClusterId(), fo.getDriver(), dsConfig);
             result.setSuccess(true);
             result.setVersion(version);
@@ -384,49 +392,6 @@ public class DmDsWebServiceImpl implements DmDsWebService {
         selfAudit.setLevelOne(RdpAuthUtils.genEmptyResPath().getResPath());
         selfAudit.setAuthLabels(new ArrayList<>(dsManageLabels));
         this.authDal.resMapper().insert(selfAudit);
-    }
-
-    protected long saveSelfMaintainDs(AddDsFO addDsFO, String uid, String owner) {
-        DmDsDO entity = new DmDsDO();
-        entity.setDataSourceType(addDsFO.getType());
-        entity.setHost(addDsFO.getHost());
-        entity.setUid(uid);
-        entity.setOwner(owner);
-        entity.setSecurityType(addDsFO.getSecurityType());
-        entity.setLifeCycleState(LifeCycleState.CREATED);
-        entity.setStatus(DataSourceStatus.Normal);
-        entity.setStatusMessage("");
-        entity.setBindClusterId(addDsFO.getBindClusterId());
-        entity.setDriver(addDsFO.getDriver());
-        entity.setDsEnvId(addDsFO.getEnvId());
-
-        Map<String, String> dsConfigMap = collectDsConfigMap(addDsFO.getDsKvConfigs());
-        if (StringUtils.isNotBlank(addDsFO.getVersion())) {
-            entity.setVersion(addDsFO.getVersion());
-        } else if (StringUtils.isNotBlank(dsConfigMap.get(DataSourceConfig.Fields.version))) {
-            entity.setVersion(dsConfigMap.get(DataSourceConfig.Fields.version));
-        }
-
-        if (entity.getSecurityType() == null) {
-            entity.setSecurityType(SecurityType.USER_PASSWD);
-        }
-
-        if (StringUtils.isNotBlank(addDsFO.getAccessKey())) {
-            entity.setAccessKey(addDsFO.getAccessKey());
-        }
-
-        if (StringUtils.isNotBlank(addDsFO.getSecretKey())) {
-            entity.setSecretKey(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(addDsFO.getSecretKey()));
-        } else {
-            entity.setSecretKey(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(""));
-        }
-
-        fillInstanceIdAndDesc(addDsFO, entity);
-
-        this.dsDal.dsMapper().insert(entity);
-        this.configService.upsertDsConfigs(entity.getId(), dsConfigMap);
-
-        return entity.getId();
     }
 
     private Map<String, String> resolveConfigMap(DsConfigSubmitFO fo) {
@@ -467,35 +432,6 @@ public class DmDsWebServiceImpl implements DmDsWebService {
         tempDs.setDsEnvId(fo.getEnvId());
 
         return this.configService.fetchDsConfigFromNotExist(tempDs, configMap);
-    }
-
-    protected void fillInstanceIdAndDesc(AddDsFO addDsFO, DmDsDO entity) {
-        if (addDsFO.getInstanceId() == null) {
-            entity.setInstanceId(addDsFO.getType().getShortName() + "-" + RandomStrUtils.fixedLenRandomStr(15));
-        } else {
-            entity.setInstanceId(addDsFO.getInstanceId());
-        }
-
-        if (StringUtils.isNotBlank(addDsFO.getInstanceDesc())) {
-            entity.setInstanceDesc(addDsFO.getInstanceDesc());
-        } else {
-            entity.setInstanceDesc(addDsFO.getInstanceId());
-        }
-    }
-
-    private Map<String, String> collectDsConfigMap(List<InitDsKvBaseConfigFO> kvConfigs) {
-        if (CollectionUtils.isEmpty(kvConfigs)) {
-            return Collections.emptyMap();
-        }
-
-        Map<String, String> configMap = new LinkedHashMap<>();
-        for (InitDsKvBaseConfigFO kvConfig : kvConfigs) {
-            if (kvConfig == null || StringUtils.isBlank(kvConfig.getConfigName()) || kvConfig.getConfigValue() == null) {
-                continue;
-            }
-            configMap.put(kvConfig.getConfigName(), kvConfig.getConfigValue());
-        }
-        return configMap;
     }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRED)

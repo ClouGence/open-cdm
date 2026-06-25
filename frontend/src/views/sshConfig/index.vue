@@ -1,5 +1,5 @@
 <template>
-  <div class="ssh-config-page">
+  <div class="ssh-config-page" :class="{ 'ssh-config-page--embedded': embedded }">
     <aside class="ssh-config-list">
       <div class="ssh-config-list__searchbar">
         <Input v-model="search" clearable size="small" @on-enter="loadList" />
@@ -205,9 +205,12 @@
           </div>
           <div class="ssh-form-actions">
             <Button @click="handleModalTest" :loading="testing" :disabled="!selectedId && !isEditing">{{ $t('ce-shi-lian-jie') }}</Button>
-            <span v-if="testErrorMessage" class="ssh-test-error">
-              <Icon type="ios-close-circle" />
-              <span>{{ testErrorMessage }}</span>
+            <span v-if="testResultStatus === 'success'" class="ssh-test-result ssh-test-result--success">
+              <Icon type="ios-checkmark-circle" class="ssh-test-result__icon" />
+            </span>
+            <span v-else-if="testResultStatus === 'error'" class="ssh-test-result ssh-test-result--error">
+              <Icon type="ios-close-circle" class="ssh-test-result__icon" />
+              <span>{{ testResultMessage }}</span>
             </span>
           </div>
         </Form>
@@ -222,6 +225,7 @@ import { encryptMixin } from '@/mixins/encryptMixin';
 
 const emptyForm = () => ({
   id: null,
+  clusterId: null,
   name: '',
   host: '',
   port: 22,
@@ -247,6 +251,21 @@ const emptyForm = () => ({
 export default {
   name: 'SshConfigList',
   mixins: [encryptMixin],
+  props: {
+    embedded: {
+      type: Boolean,
+      default: false
+    },
+    clusterId: {
+      type: [Number, String],
+      default: null
+    },
+    selectedConfigId: {
+      type: [Number, String],
+      default: null
+    }
+  },
+  emits: ['saved', 'deleted'],
   data() {
     return {
       search: '',
@@ -258,7 +277,8 @@ export default {
       testing: false,
       updatingKnownHosts: false,
       showKnownHostsUpdateAction: false,
-      testErrorMessage: '',
+      testResultStatus: '',
+      testResultMessage: '',
       conExpanded: false,
       proxyExpanded: false,
       form: emptyForm(),
@@ -277,6 +297,18 @@ export default {
     canWrite() {
       return this.myAuth.includes('DM_SSH_CHANNEL_WRITE');
     },
+    requestClusterId() {
+      if (this.clusterId === null || this.clusterId === undefined || this.clusterId === '') {
+        return null;
+      }
+      return Number(this.clusterId);
+    },
+    requestSelectedConfigId() {
+      if (this.selectedConfigId === null || this.selectedConfigId === undefined || this.selectedConfigId === '') {
+        return null;
+      }
+      return Number(this.selectedConfigId);
+    },
     formReadonly() {
       return !this.isEditing;
     },
@@ -292,16 +324,26 @@ export default {
   mounted() {
     this.loadList();
   },
+  watch: {
+    requestClusterId() {
+      this.resetSelection();
+      this.loadList();
+    },
+    requestSelectedConfigId() {
+      this.selectInitialConfig();
+    }
+  },
   methods: {
     async loadList() {
       this.loading = true;
       try {
-        const res = await this.$services.dmSshConfigList({ data: { search: this.search } });
+        const res = await this.$services.dmSshConfigList({ data: { search: this.search, clusterId: this.requestClusterId } });
         if (res.success) {
           this.rows = res.data || [];
           if (this.selectedId && !this.rows.some((row) => row.id === this.selectedId)) {
             this.resetSelection();
           }
+          await this.selectInitialConfig();
         }
       } finally {
         this.loading = false;
@@ -312,6 +354,15 @@ export default {
         this.isEditing = false;
       }
       await this.loadDetail(row.id, false);
+    },
+    async selectInitialConfig() {
+      if (!this.requestSelectedConfigId || this.selectedId === this.requestSelectedConfigId || this.isEditing) {
+        return;
+      }
+      const matched = this.rows.some((row) => row.id === this.requestSelectedConfigId);
+      if (matched) {
+        await this.loadDetail(this.requestSelectedConfigId, false);
+      }
     },
     async loadDetail(id, editable) {
       const res = await this.$services.dmSshConfigDetail({ data: { id } });
@@ -326,16 +377,17 @@ export default {
       this.form = this.detailToForm(res.data);
       this.resetSecretTouched(false);
       this.showKnownHostsUpdateAction = false;
-      this.testErrorMessage = '';
+      this.clearTestResult();
       this.isEditing = editable;
     },
     handleCreate() {
       this.selectedId = null;
       this.detail = {};
       this.form = emptyForm();
+      this.form.clusterId = this.requestClusterId;
       this.resetSecretTouched(true);
       this.showKnownHostsUpdateAction = false;
-      this.testErrorMessage = '';
+      this.clearTestResult();
       this.conExpanded = false;
       this.proxyExpanded = false;
       this.isEditing = true;
@@ -363,7 +415,7 @@ export default {
       };
       this.resetSecretTouched(false);
       this.showKnownHostsUpdateAction = false;
-      this.testErrorMessage = '';
+      this.clearTestResult();
       this.isEditing = true;
     },
     async handleDeleteSelected() {
@@ -375,6 +427,7 @@ export default {
         this.$Message.success(this.$t('shan-chu-cheng-gong'));
         this.resetSelection();
         await this.loadList();
+        this.$emit('deleted');
       }
     },
     resetSelection() {
@@ -383,7 +436,7 @@ export default {
       this.form = emptyForm();
       this.resetSecretTouched(false);
       this.showKnownHostsUpdateAction = false;
-      this.testErrorMessage = '';
+      this.clearTestResult();
       this.isEditing = false;
     },
     handleCancelEdit() {
@@ -395,9 +448,10 @@ export default {
     },
     async handleModalTest() {
       this.testing = true;
-      this.testErrorMessage = '';
+      this.clearTestResult();
       try {
         const data = {
+          clusterId: this.form.clusterId || this.requestClusterId,
           sshConfigId: this.form.id || this.selectedId,
           config: this.isEditing ? this.buildPayload() : null
         };
@@ -411,12 +465,13 @@ export default {
       this.updatingKnownHosts = true;
       try {
         const data = {
+          clusterId: this.form.clusterId || this.requestClusterId,
           sshConfigId: this.form.id || this.selectedId,
           config: this.buildPayload()
         };
         const res = await this.$services.dmSshConfigProbeKnownHosts({ data });
         if (!res.success) {
-          this.testErrorMessage = res.message || this.$t('update-host-key-cache-failed');
+          this.setTestError(res.message || this.$t('update-host-key-cache-failed'));
           return;
         }
         this.form.knownHosts = res.data || [];
@@ -438,6 +493,7 @@ export default {
           const id = typeof res.data === 'object' ? res.data?.id || this.form.id : res.data || this.form.id;
           if (id) {
             await this.loadDetail(id, false);
+            this.$emit('saved', id);
           } else {
             this.resetSelection();
           }
@@ -449,13 +505,21 @@ export default {
     showTestResult(res) {
       if (res.success && res.data?.success) {
         this.showKnownHostsUpdateAction = false;
-        this.testErrorMessage = '';
-        this.$Message.success(res.data.message || this.$t('ce-shi-lian-jie-cheng-gong'));
+        this.testResultStatus = 'success';
+        this.testResultMessage = res.data.message || this.$t('ce-shi-lian-jie-cheng-gong');
         return;
       }
       const message = res.data?.message || res.message || this.$t('ce-shi-lian-jie-shi-bai');
       this.showKnownHostsUpdateAction = this.isEditing && this.canWrite && this.form.strictChecking && this.isHostKeyCheckError(message);
-      this.testErrorMessage = message;
+      this.setTestError(message);
+    },
+    setTestError(message) {
+      this.testResultStatus = 'error';
+      this.testResultMessage = message;
+    },
+    clearTestResult() {
+      this.testResultStatus = '';
+      this.testResultMessage = '';
     },
     isHostKeyCheckError(message) {
       return /reject HostKey|HostKey has been changed|UnknownHostKey|host key/i.test(message || '');
@@ -467,6 +531,7 @@ export default {
       return {
         ...emptyForm(),
         id: data.id,
+        clusterId: data.clusterId || this.requestClusterId,
         name: data.name,
         host: data.host,
         port: data.port || 22,
@@ -489,6 +554,7 @@ export default {
     buildPayload() {
       const payload = {
         id: this.form.id,
+        clusterId: this.form.clusterId || this.requestClusterId,
         name: this.form.name,
         host: this.form.host,
         port: this.form.port,
@@ -579,6 +645,11 @@ export default {
   border: 1px solid #e8eaec;
   background: #fff;
   overflow: hidden;
+}
+
+.ssh-config-page--embedded {
+  height: 70vh;
+  min-height: 520px;
 }
 
 .ssh-config-list {
@@ -842,13 +913,24 @@ export default {
   justify-content: flex-start;
 }
 
-.ssh-test-error {
+.ssh-test-result {
   min-width: 0;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #ed4014;
   line-height: 1.4;
+}
+
+.ssh-test-result__icon {
+  font-size: 20px;
+}
+
+.ssh-test-result--success {
+  color: #19be6b;
+}
+
+.ssh-test-result--error {
+  color: #ed4014;
 }
 
 @media (max-width: 980px) {

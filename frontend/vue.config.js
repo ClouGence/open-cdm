@@ -83,6 +83,9 @@ module.exports = {
       '/logout': {
         target: HOST
       },
+      '/globalSettings': {
+        target: HOST
+      },
       '/global_settings': {
         target: HOST
       },
@@ -90,6 +93,9 @@ module.exports = {
         target: HOST
       },
       '/login_supplement': {
+        target: HOST
+      },
+      '/checkSupplement': {
         target: HOST
       },
       '/check_supplement': {

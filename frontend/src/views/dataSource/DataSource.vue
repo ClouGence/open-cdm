@@ -90,19 +90,6 @@
                       </span>
                     </DropdownItem>
                     <DropdownItem class="datasource-operation-dropdown" :disabled="row.lifeCycleState !== 'CREATED'">
-                      <span class="dropdown-content" v-if="row.lifeCycleState !== 'CREATED'" style="cursor: not-allowed; color: #babdc5">
-                        {{ $t('xiu-gai-shu-ju-yuan-di-zhi') }}
-                      </span>
-                      <a
-                        class="dropdown-content"
-                        v-if="row.lifeCycleState === 'CREATED'"
-                        style="width: 100%; display: inline-block"
-                        @click="handleUpdatePublicHost(row)"
-                      >
-                        {{ $t('xiu-gai-shu-ju-yuan-di-zhi') }}
-                      </a>
-                    </DropdownItem>
-                    <DropdownItem class="datasource-operation-dropdown" :disabled="row.lifeCycleState !== 'CREATED'">
                       <a
                         class="dropdown-content"
                         v-if="row.lifeCycleState === 'CREATED'"
@@ -446,24 +433,6 @@
         <Button @click="confirmEditAccount" type="primary">{{ $t('que-ding') }}</Button>
       </template>
     </CCModal>
-    <CCModal v-model="showEditPublicHost" :title="$t('xiu-gai-shu-ju-yuan-di-zhi')" width="620px">
-      <div>
-        <p>
-          {{
-            showUpdateHttpHost
-              ? $t('xiu-gai-id-wei-selectedrowinstanceid-de-shu-ju-yuan-de-client-di-zhi-wei', [selectedRow.instanceId])
-              : $t('xiu-gai-id-wei-selectedrowinstanceid-de-shu-ju-yuan-de-di-zhi-wei', [selectedRow.instanceId])
-          }}
-        </p>
-        <div style="margin-top: 20px">
-          <Input v-model="publicHost" :placeholder="$t('ip-huo-yu-ming-duan-kou')" style="width: 460px" />
-        </div>
-      </div>
-      <template #footer>
-        <Button @click="handleCancelEdit">{{ $t('guan-bi') }}</Button>
-        <Button @click="handleConfirmEditPublicHost" type="primary">{{ $t('que-ding') }}</Button>
-      </template>
-    </CCModal>
     <test-connection-modal
       ref="testConnectionModal"
       v-model:visible="showTestConnectionModal"
@@ -516,11 +485,8 @@ export default {
       showTestConnectionModal: false,
       securitySetting: [],
       securitySettingObj: {},
-      publicHost: '',
-      publicHttpHost: '',
       sid: '',
       publicSid: '',
-      showEditPublicHost: false,
       showEditAccount: false,
       accountInfo: {
         account: '',
@@ -707,9 +673,6 @@ export default {
     },
     DATASOURCE_DEPLOY_TYPE_I18N() {
       return DATASOURCE_DEPLOY_TYPE_I18N;
-    },
-    showUpdateHttpHost() {
-      return ['StarRocks', 'Doris', 'SelectDB'].includes(this.selectedRow.dataSourceType);
     },
     getEnvById() {
       return (id) => {
@@ -953,11 +916,8 @@ export default {
         });
     },
     handleCancelEdit() {
-      this.publicHost = '';
-      this.publicHttpHost = '';
       this.showEditDesc = false;
       this.showEditAccount = false;
-      this.showEditPublicHost = false;
       this.showDeleteDataSourceConfirm = false;
       if (this.$refs.caFileInput) {
         this.$refs.caFileInput.value = '';
@@ -1085,14 +1045,6 @@ export default {
         }
       });
     },
-    handleUpdatePublicHost(row) {
-      this.showEditPublicHost = true;
-      this.selectedRow = row;
-      this.publicHost = row.publicHost || row.privateHost || row.host;
-      if (row.extraVO) {
-        this.publicHttpHost = row.extraVO.publicStarRocksHttpHost;
-      }
-    },
     resetAccountInfo() {
       this.accountInfo = {
         account: '',
@@ -1114,25 +1066,6 @@ export default {
         accessKey: '',
         secretKey: ''
       };
-    },
-    handleConfirmEditPublicHost() {
-      this.$services
-        .rdpDataSourceUpdatePublicHost({
-          data: {
-            dataSourceId: this.selectedRow.id,
-            publicHost: this.publicHost,
-            publicHttpHost: this.publicHttpHost
-          }
-        })
-        .then((res) => {
-          if (res.success) {
-            this.publicHost = '';
-            this.publicHttpHost = '';
-            this.showEditPublicHost = false;
-            this.getDataSourceList();
-            this.$Message.success(this.$t('xiu-gai-cheng-gong'));
-          }
-        });
     },
     handleGoConsoleJob(row) {
       this.$router.push({ path: `/ccsystem/state/task/${row.consoleJobId}` });

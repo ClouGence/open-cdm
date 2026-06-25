@@ -1,14 +1,30 @@
 <template>
-  <div class="content-wrapper">
+  <div class="content-wrapper add-datasource-page">
     <Breadcrumb>
       <BreadcrumbItem to="/system/ccdatasource">{{ $t('shu-ju-yuan-guan-li') }}</BreadcrumbItem>
       <BreadcrumbItem>{{ $t('xin-zeng-shu-ju-yuan') }}</BreadcrumbItem>
     </Breadcrumb>
     <div class="add-datasource-wrapper">
-      <Steps class="add-dataSource-step" :current="currentStep > 1 ? 1 : currentStep">
-        <Step :title="$t('xuan-ze-shu-ju-yuan')"></Step>
-        <Step :title="$t('xin-zeng-shu-ju-yuan')"></Step>
-      </Steps>
+      <div class="add-datasource-flowbar">
+        <div class="add-datasource-flowbar-main">
+          <span v-if="selectedDsStepActive" class="add-datasource-flowbar-icon">
+            <DataSourceIcon :type="addDataSourceForm.type" size="34px" leftMargin="0" />
+          </span>
+          <span v-else class="add-datasource-flowbar-number">1</span>
+          <span class="add-datasource-flowbar-title">{{ selectedDsStepTitle }}</span>
+        </div>
+        <div class="add-datasource-flowbar-steps">
+          <span class="add-datasource-flowbar-step" :class="{ 'is-active': currentStep === 0, 'is-done': currentStep > 0 }">
+            <span class="add-datasource-flowbar-step-index">1</span>
+            <span>{{ $t('xuan-ze-shu-ju-yuan') }}</span>
+          </span>
+          <span class="add-datasource-flowbar-line"></span>
+          <span class="add-datasource-flowbar-step" :class="{ 'is-active': currentStep === 1 }">
+            <span class="add-datasource-flowbar-step-index">2</span>
+            <span>{{ $t('xin-zeng-shu-ju-yuan') }}</span>
+          </span>
+        </div>
+      </div>
       <div class="add-datasource-content">
         <DataSourceInfo
           :addDataSourceForm="addDataSourceForm"
@@ -23,8 +39,6 @@
         ></DataSourceInfo>
         <SuccessAdd v-if="currentStep > 2"></SuccessAdd>
       </div>
-    </div>
-    <div>
       <div class="add-dataSource-tools">
         <Button v-if="currentStep === 0" @click="handleReturn">
           {{ $t('fan-hui-shu-ju-yuan-guan-li') }}
@@ -35,6 +49,9 @@
         <Button v-if="currentStep === 1" @click="handleStep('pre')">
           {{ $t('shang-yi-bu') }}
         </Button>
+        <Button @click="handleTestConnection" :loading="testConnectionLoading" v-if="currentStep === 1">
+          {{ $t('ce-shi-lian-jie') }}
+        </Button>
         <Button type="primary" @click="handleAddDataSource" :loading="addDatasourceLoading" :disabled="disableAddDataSource" v-if="currentStep === 1">
           {{ $t('xin-zeng-shu-ju-yuan') }}
         </Button>
@@ -44,6 +61,7 @@
 </template>
 <script>
 import DataSourceInfo from '@/components/function/addDataSource/DataSourceInfo';
+import DataSourceIcon from '@/components/function/DataSourceIcon';
 import SuccessAdd from '@/components/function/addDataSource/SuccessAdd';
 import { separatePort, isMySQL } from '@/utils';
 import { isPostgreSQL } from '@/const/dataSource';
@@ -82,7 +100,6 @@ const EMPTY_DATA_SOURCE_FORM = {
   region: '',
   queryClusterId: '',
   queryHostType: 'PUBLIC',
-  instanceType: 'SELF_MAINTENANCE',
   rdsList: [],
   aliyunAk: '',
   aliyunSk: '',
@@ -101,17 +118,6 @@ const EMPTY_DATA_SOURCE_FORM = {
   service: '',
   accountRole: '',
   asSysDba: false,
-  securityFile: '',
-  caFile: '',
-  clientSecurityFile: '',
-  secretFile: '',
-  secretFilePassword: '',
-  clientTrustStorePassword: '',
-  keystoreFile: '',
-  tlsTrustStoreFile: '',
-  tlsTrustStoreFilePassword: '',
-  tlsKeystoreFile: '',
-  tlsKeystoreFilePassword: '',
   accessKey: '',
   secretKey: ''
 };
@@ -119,6 +125,7 @@ const EMPTY_DATA_SOURCE_FORM = {
 export default {
   name: 'AddDataSource',
   components: {
+    DataSourceIcon,
     DataSourceInfo,
     SuccessAdd
   },
@@ -137,7 +144,8 @@ export default {
       addDataSourceForm: deepClone(EMPTY_DATA_SOURCE_FORM),
       securitySetting: [],
       driverReadyForAdd: true,
-      driverRequiredForAdd: false
+      driverRequiredForAdd: false,
+      testConnectionLoading: false
     };
   },
   computed: {
@@ -156,6 +164,35 @@ export default {
     },
     disableAddDataSource() {
       return this.driverRequiredForAdd && !this.driverReadyForAdd;
+    },
+    selectedDsStepActive() {
+      return this.currentStep >= 1 && !!this.addDataSourceForm.type;
+    },
+    selectedDsStepTitle() {
+      if (!this.selectedDsStepActive) {
+        return this.$t('xuan-ze-shu-ju-yuan');
+      }
+      return `${this.$t('tian-jia')} ${this.selectedDsDisplayName}`;
+    },
+    selectedDsDisplayName() {
+      const dsType = this.addDataSourceForm.type;
+      if (!dsType) {
+        return '';
+      }
+      const supportNames = this.dmGlobalSetting?.dsSupportNames || [];
+      const groups = Array.isArray(supportNames) ? supportNames : [];
+      for (const group of groups) {
+        const items = Array.isArray(group) ? group : [group];
+        for (const item of items) {
+          if (typeof item === 'string' && item === dsType) {
+            return item;
+          }
+          if (item && item.dsKey === dsType) {
+            return item.displayName || item.dsKey;
+          }
+        }
+      }
+      return dsType;
     }
   },
   beforeUnmount() {
@@ -177,9 +214,24 @@ export default {
 
       this.addDataSourceForm.publicHost = visibleHost.host || '';
       this.addDataSourceForm.publicPort = visibleHost.port || '';
-      this.addDataSourceForm.host = visibleHost.host || '';
-      this.addDataSourceForm.port = visibleHost.port || '';
+      if (!this.addDataSourceForm.host) {
+        this.addDataSourceForm.host = visibleHost.host || '';
+      }
+      if (!this.addDataSourceForm.port) {
+        this.addDataSourceForm.port = visibleHost.port || '';
+      }
+      this.addDataSourceForm.resolvedHost = this.resolvePrimaryHost();
       this.addDataSourceForm.queryHostType = 'PUBLIC';
+    },
+    resolvePrimaryHost() {
+      if (this.addDataSourceForm.resolvedHost) {
+        return this.addDataSourceForm.resolvedHost;
+      }
+      const isSeparate = this.separatePort(this.addDataSourceForm.type) || this.addDataSourceForm.type === 'Db2Fori';
+      if (isSeparate && this.addDataSourceForm.host && this.addDataSourceForm.port) {
+        return `${this.addDataSourceForm.host}:${this.addDataSourceForm.port}`;
+      }
+      return this.addDataSourceForm.host || this.addDataSourceForm.publicHost || '';
     },
     setSecuritySetting(setting) {
       this.securitySetting = setting;
@@ -278,130 +330,51 @@ export default {
 
       this.$refs.dataSourceInfo.$refs.addLocalDs.validate((val) => {
         if (val) {
+          this.$refs.dataSourceInfo?.syncAddDsUiFormToKvConfigs?.();
           this.syncPrimaryHostFields();
           this.handleAdd();
         }
       });
     },
     handleAdd() {
-      if (!this.addDataSourceForm.host && !this.addDataSourceForm.publicHost) {
-        this.$Modal.warning({
-          title: this.$t('tian-jia-shu-ju-yuan-ti-shi'),
-          content: this.$t('qing-tian-xie-wan-zheng-qie-zheng-que-de-shu-ju-yuan-di-zhi')
-        });
-      } else {
-        const { dsKvConfigs } = this.addDataSourceForm;
-        let { connectTypeValue } = this.addDataSourceForm;
-        if (connectTypeValue && typeof connectTypeValue === 'string') {
-          connectTypeValue = connectTypeValue.trim();
+      const payload = this.$refs.dataSourceInfo?.buildDsSubmitPayload?.();
+      this.addDatasourceLoading = true;
+      this.$services.rdpDataSourceAdd({ data: payload }).then(async (res) => {
+        this.addDatasourceLoading = false;
+        if (res.success) {
+          this.currentStep = 4;
         }
-        const formData = new FormData();
-        const isSeparate = this.separatePort(this.addDataSourceForm.type);
-        let host = isSeparate
-          ? this.addDataSourceForm.host && this.addDataSourceForm.port
-            ? `${this.addDataSourceForm.host}:${this.addDataSourceForm.port}`
-            : ''
-          : this.addDataSourceForm.host;
-        if (this.addDataSourceForm.type === 'Db2Fori') {
-          host =
-            this.addDataSourceForm.host && this.addDataSourceForm.port
-              ? `${this.addDataSourceForm.host}:${this.addDataSourceForm.port}`
-              : this.addDataSourceForm.host;
-        }
-        const publicHost = isSeparate
-          ? this.addDataSourceForm.publicHost && this.addDataSourceForm.publicPort
-            ? `${this.addDataSourceForm.publicHost}:${this.addDataSourceForm.publicPort}`
-            : ''
-          : this.addDataSourceForm.publicHost;
-
-        const kvConfigs = [];
-        if (dsKvConfigs.length) {
-          dsKvConfigs.forEach((config) => {
-            const { configName, currentCount, defaultValue } = config;
-            kvConfigs.push({
-              configName,
-              configValue: currentCount || defaultValue
-            });
-          });
-        }
-        const DataSourceAddData = {
-          host: publicHost && this.addDataSourceForm.type === 'Oracle' ? `${publicHost}:${connectTypeValue}` : publicHost,
-          privateHost: '',
-          publicHost: publicHost && this.addDataSourceForm.type === 'Oracle' ? `${publicHost}:${connectTypeValue}` : publicHost,
-          type: this.addDataSourceForm.type,
-          connectType: this.addDataSourceForm.connectType,
-          deployType: this.addDataSourceForm.instanceType,
-          instanceDesc: this.addDataSourceForm.instanceDesc,
-          hostType: 'PUBLIC',
-          account:
-            DataSourceGroup.oracle.indexOf(this.addDataSourceForm.type) > -1
-              ? this.addDataSourceForm.asSysDba
-                ? `${this.addDataSourceForm.account} as SYSDBA`
-                : this.addDataSourceForm.account
-              : this.addDataSourceForm.account,
-          instanceId: this.addDataSourceForm.instanceId,
-          password: this.addDataSourceForm.password,
-          securityType: this.addDataSourceForm.securityType,
-          accessKey: this.addDataSourceForm.accessKey,
-          secretKey: this.addDataSourceForm.secretKey,
-          dbName: this.addDataSourceForm.dbName || this.addDataSourceForm.noValidateDbName,
-          clientTrustStorePassword: this.addDataSourceForm.clientTrustStorePassword,
-          dsKvConfigs: kvConfigs,
-          // extraData: {
-          //   hdfsIp: this.addDataSourceForm.hdfsIp,
-          //   hdfsPort: this.addDataSourceForm.hdfsPort,
-          //   hdfsDwDir: this.addDataSourceForm.hdfsDwDir,
-          //   hdfsPrincipal: this.addDataSourceForm.hdfsPrincipal
-          // },
-          driver: this.addDataSourceForm.driver,
-          bindClusterId: this.addDataSourceForm.queryClusterId,
-          envId: this.addDataSourceForm.envId,
-          infoFetchType: 'MANUALLY_FILL',
-          secretFilePassword: this.addDataSourceForm?.secretFilePassword || ''
-        };
-        Object.keys(DataSourceAddData).forEach((item) => {
-          if (typeof DataSourceAddData[item] === 'string') {
-            DataSourceAddData[item] = DataSourceAddData[item].trim();
-          }
-        });
-
-        // Process different types of source field map
-        switch (this.addDataSourceForm.type) {
-          // tls type
-          case 'MySQL':
-          case 'Kafka':
-          case 'Tunnel':
-          case 'AutoMQ':
-            DataSourceAddData.securityFilePassword = this.addDataSourceForm?.tlsTrustStoreFilePassword || '';
-            DataSourceAddData.clientSecurityFilePassword = this.addDataSourceForm?.tlsKeystoreFilePassword || '';
-            this.addDataSourceForm.securityFile = this.addDataSourceForm.tlsTrustStoreFile;
-            this.addDataSourceForm.clientSecurityFile = this.addDataSourceForm.tlsKeystoreFile;
-            break;
-          // certificate
-          case 'PostgreSQL':
-            this.addDataSourceForm.secretFile = this.addDataSourceForm.clientSecretFile;
-            break;
-          default:
-            break;
-        }
-
-        formData.append('secretFile', this.addDataSourceForm?.secretFile || '');
-        formData.append('securityFile', this.addDataSourceForm?.securityFile || '');
-        formData.append('clientSecurityFile', this.addDataSourceForm?.clientSecurityFile || '');
-        formData.append('DataSourceAddData', JSON.stringify(DataSourceAddData));
-
-        this.addDatasourceLoading = true;
-        this.$services.rdpDataSourceAdd({ data: formData }).then(async (res) => {
-          this.addDatasourceLoading = false;
-          if (res.success) {
-            this.currentStep = 4;
-          }
-        });
+      });
+    },
+    handleTestConnection() {
+      if (!this.ensureDriverReadyForAdd()) {
+        return;
       }
+      this.$refs.dataSourceInfo.$refs.addLocalDs.validate((valid) => {
+        if (!valid) {
+          return;
+        }
+        const payload = this.$refs.dataSourceInfo?.buildDsSubmitPayload?.();
+        this.testConnectionLoading = true;
+        this.$services
+          .dmDataSourceConnectDs({ data: payload })
+          .then((res) => {
+            const result = res.data || {};
+            if (res.success && result.success !== false) {
+              this.$Message.success(this.$t('ce-shi-lian-jie-cheng-gong'));
+            } else {
+              this.$Message.error(result.message || res.msg || this.$t('ce-shi-lian-jie-shi-bai'));
+            }
+          })
+          .finally(() => {
+            this.testConnectionLoading = false;
+          });
+      });
     },
     handleAddPersonalDataSource(testDs = false) {
       this.$refs.dataSourceInfo.$refs.addLocalDs.validate((val) => {
         if (val) {
+          this.$refs.dataSourceInfo?.syncAddDsUiFormToKvConfigs?.();
           this.syncPrimaryHostFields();
           this.handleAddPersonal(testDs);
         }
@@ -444,7 +417,6 @@ export default {
           publicHost: publicHost && this.addDataSourceForm.type === 'Oracle' ? `${publicHost}:${connectTypeValue}` : publicHost,
           type: this.addDataSourceForm.type,
           connectType: this.addDataSourceForm.connectType,
-          deployType: this.addDataSourceForm.instanceType,
           instanceDesc: this.addDataSourceForm.instanceDesc,
           hostType: 'PUBLIC',
           account:
@@ -457,7 +429,6 @@ export default {
           password: this.addDataSourceForm.password,
           securityType: this.addDataSourceForm.securityType,
           dbName: this.addDataSourceForm.dbName || this.addDataSourceForm.noValidateDbName,
-          clientTrustStorePassword: this.addDataSourceForm.clientTrustStorePassword,
           dsKvConfigs: kvConfigs,
           // extraData: {
           //   hdfsIp: this.addDataSourceForm.hdfsIp,
@@ -475,8 +446,6 @@ export default {
           }
         });
 
-        formData.append('secretFile', this.addDataSourceForm.secretFile);
-        formData.append('securityFile', this.addDataSourceForm.securityFile);
         formData.append('rdpConfig', JSON.stringify(DataSourceAddData));
         formData.append(
           'dmConfig',
@@ -521,7 +490,6 @@ export default {
         publicPort: '',
         type: 'MySQL',
         region: '',
-        instanceType: 'SELF_MAINTENANCE',
         rdsList: [],
         aliyunAk: '',
         aliyunSk: '',
@@ -532,7 +500,6 @@ export default {
         account: '',
         hdfsPort: '8020',
         securityType: 'KERBEROS',
-        securityFile: '',
         hdfsDwDir: '/user/hive/warehouse'
       };
     },
@@ -554,53 +521,155 @@ export default {
 };
 </script>
 <style lang="less">
+.add-datasource-page {
+  position: relative;
+  overflow: hidden;
+}
+
 .add-datasource-wrapper {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
   background: var(--bg-card);
   margin-top: 16px;
   border: 1px solid var(--border-primary);
+  overflow: hidden;
 
   .add-datasource-content {
     /*padding: 20px;*/
-    margin-bottom: 60px;
+    flex: 1;
+    min-height: 0;
+    margin-bottom: 0;
+    overflow: auto;
   }
 }
 
-.add-dataSource-step {
-  padding: 30px 24px;
+.add-datasource-flowbar {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 10px 28px;
   border-bottom: 1px solid var(--border-primary);
-
-  .ivu-steps-item,
-  .ivu-steps-main {
-    min-width: 0;
-  }
+  background: var(--bg-card);
 }
 
-@media screen and (min-width: 992px) {
-  .add-dataSource-step {
-    padding-left: 120px;
-    padding-right: 120px;
-  }
+.add-datasource-flowbar-main {
+  display: inline-flex;
+  min-width: 180px;
+  align-items: center;
+  gap: 12px;
 }
 
-@media screen and (min-width: 1440px) {
-  .add-dataSource-step {
-    padding-left: 380px;
-    padding-right: 380px;
+.add-datasource-flowbar-icon,
+.add-datasource-flowbar-number {
+  display: inline-flex;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+  line-height: 1;
+}
+
+.add-datasource-flowbar-number {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #fff;
+  font-weight: 600;
+}
+
+.add-datasource-flowbar-title {
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.add-datasource-flowbar-steps {
+  display: inline-flex;
+  min-width: 0;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.add-datasource-flowbar-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.add-datasource-flowbar-step-index {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--border-primary);
+  color: var(--text-tertiary);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.add-datasource-flowbar-step.is-active {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.add-datasource-flowbar-step.is-active .add-datasource-flowbar-step-index,
+.add-datasource-flowbar-step.is-done .add-datasource-flowbar-step-index {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #fff;
+}
+
+.add-datasource-flowbar-line {
+  height: 1px;
+  width: 64px;
+  flex: 0 0 64px;
+  background: var(--border-primary);
+}
+
+@media screen and (max-width: 900px) {
+  .add-datasource-flowbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .add-datasource-flowbar-steps {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .add-datasource-flowbar-line {
+    width: 48px;
+    flex-basis: 48px;
   }
 }
 
 .add-dataSource-tools {
   /*margin-top: 20px;*/
-  position: absolute;
-  bottom: 0;
-  left: 0;
+  flex: 0 0 60px;
   text-align: center;
   background: var(--bg-card);
   width: 100%;
   line-height: 60px;
   height: 60px;
-  z-index: 99;
-  box-shadow: 0 2px 23px 0 rgba(197, 197, 197, 0.5);
+  border-top: 1px solid var(--border-primary);
+  box-shadow: 0 -8px 18px -18px rgba(0, 0, 0, 0.35);
 
   button {
     margin: 0 8px;

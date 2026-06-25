@@ -3929,5 +3929,18 @@
   "strict-host-key-checking": "Strict host key checking",
   "connect-timeout": "Connect timeout",
   "update-host-key-cache-and-retry": "Update key cache",
-  "update-host-key-cache-failed": "Failed to update host key cache"
+  "update-host-key-cache-failed": "Failed to update host key cache",
+  "wen-ben": "Text",
+  "wen-jian": "File",
+  "wei-xuan-ze-wen-jian": "No file selected",
+  "zheng-shu-yi-pei-zhi": "Configured",
+  "zheng-shu-wei-pei-zhi": "Not configured",
+  "qing-shu-ru-zheng-shu-huo-mi-yao-wan-zheng-nei-rong": "Enter the full certificate or key content",
+  "qing-shu-ru-zheng-shu-huo-mi-yao-nei-rong": "Enter certificate or key content",
+  "qing-xuan-ze-wen-jian": "Select a file",
+  "pem-key-crt-cer-jian-yi-bu-chao-guo-1mb": "pem/key/crt/cer should not exceed 1 MB",
+  "p12-pfx-jks-jian-yi-bu-chao-guo-10mb": "p12/pfx/jks should not exceed 10 MB",
+  "zheng-shu-wen-ben-zhi-chi-ge-shi": "Supported formats: pem / key / crt / cer",
+  "zheng-shu-wen-jian-zhi-chi-ge-shi": "Supported formats: pem / key / crt / cer / p12 / pfx / jks",
+  "wen-ben-mo-shi-zhi-zhi-chi-wen-ben-zheng-shu-wen-jian": "The selected file is not a text certificate. Switch to file mode to upload it."
 }

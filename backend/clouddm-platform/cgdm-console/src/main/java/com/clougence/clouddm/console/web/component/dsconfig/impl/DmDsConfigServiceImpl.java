@@ -37,6 +37,8 @@ import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.UiMenus18nKey;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
@@ -334,6 +336,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         }
 
         DataSourceConfig dsConfig = this.generateDsConfig(dsDO, configMap);
+        tryClearSshConfig(dsConfig);
 
         decryptValue(dsConfig, DataSourceConfig.class);
         decryptValue(dsConfig, dsConfig.getClass());
@@ -421,7 +424,6 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         }
 
         DataSourceType dsType = dmDsDO.getDsType();
-
         if (StringUtils.equals(configKey, DataSourceConfig.Fields.version)) {
             this.dsDal.dsMapper().updateVersionByInstanceId(dsId, configValue);
             return;
@@ -512,8 +514,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         if (currentConfigMap != null) {
             configMap.putAll(currentConfigMap);
         }
-
-        this.collectBaseConfigMap(dsDO, version, driver).forEach(configMap::putIfAbsent);
+        configMap.putAll(this.collectBaseConfigMap(dsDO, version, driver));
 
         // special apply for xxDs
         DsConfigSpi configSpi = PluginManager.findDsConfigSpi(dsDO.getDataSourceType());
@@ -521,7 +522,14 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         config = DmDsConfigHelper.initBaseFieldDefaultValue(config);
         DmDsConfigHelper.fillBaseFieldValue(config, configMap);
         configSpi.fillConfig(config, configMap);
+        tryClearSshConfig(config);
         return config;
+    }
+
+    private void tryClearSshConfig(DataSourceConfig dsConfig) {
+        if (!Boolean.TRUE.equals(dsConfig.getSshProxyEnabled())) {
+            dsConfig.setSshConfigId(null);
+        }
     }
 
     private Map<String, String> collectBaseConfigMap(DmDsDO dsDO, String version, String driver) {
