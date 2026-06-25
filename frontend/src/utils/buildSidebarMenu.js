@@ -71,7 +71,7 @@ export function buildSidebarMenu({ myCatLog, myAuth, includesDM, isDesktop, acco
   if (myCatLog.includes('CAT_DM_CICD')) {
     integrationChildren.push(linkItem('/system/devops', '/#/system/devops', 'nav-git-ops', 'icon-v2-sub_account'));
   }
-  if (includesDM) {
+  if (includesDM && accountType === 'PRIMARY_ACCOUNT') {
     integrationChildren.push(linkItem('/system/sso', '/#/system/sso', 'nav-sso', 'icon-v2-sub_account'));
   }
   if (integrationChildren.length) {

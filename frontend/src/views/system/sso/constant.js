@@ -62,7 +62,7 @@ export const SSO_PROVIDERS = [
       { key: 'oidcLoginWellKnownUrl', labelKey: 'sso-field-oidc-well-known-url', required: true },
       { key: 'oidcLoginClientId', labelKey: 'sso-field-oidc-client-id', required: true },
       { key: 'oidcLoginClientSecret', labelKey: 'sso-field-oidc-client-secret', required: true, password: true },
-      { key: 'oidcLoginScope', labelKey: 'sso-field-oidc-scope' },
+      { key: 'oidcLoginScope', labelKey: 'sso-field-oidc-scope', required: true },
       { key: 'oidcLoginRoleMap', labelKey: 'sso-field-role-map', widget: 'roleSelect' }
     ]
   },
