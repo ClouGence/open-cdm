@@ -44,7 +44,6 @@
                     :disabled="!canEdit || togglingType === row.type"
                     :before-change="() => handleToggleEnable(row)"
                   />
-                  <span class="status-text">{{ row.statusText }}</span>
                 </div>
               </template>
               <template #action="{ row }">
@@ -107,8 +106,7 @@ export default {
           label: this.$t(def.labelKey),
           iconResource: def.iconResource,
           primaryValue: primaryConfig?.currentCount || primaryConfig?.configValue || '',
-          enabled,
-          statusText: this.$t(enabled ? 'approval-status-enabled' : 'approval-status-configured-not-enabled')
+          enabled
         };
       });
     },
@@ -201,10 +199,5 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-}
-
-.status-text {
-  color: #515a6e;
-  font-size: 12px;
 }
 </style>

@@ -377,15 +377,14 @@ export default {
 }
 
 .approval-form-enable {
-  max-width: 960px;
+  max-width: 720px;
 }
 
 .approval-form-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  column-gap: 24px;
+  grid-template-columns: minmax(0, 1fr);
   row-gap: 12px;
-  max-width: 960px;
+  max-width: 720px;
 }
 
 .approval-form-empty {
@@ -394,7 +393,7 @@ export default {
 }
 
 .approval-form-help {
-  max-width: 960px;
+  max-width: 720px;
   margin-top: 18px;
 }
 
@@ -403,7 +402,7 @@ export default {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  max-width: 960px;
+  max-width: 720px;
   margin-top: 18px;
   padding-top: 18px;
   border-top: 1px solid #edf2f7;
