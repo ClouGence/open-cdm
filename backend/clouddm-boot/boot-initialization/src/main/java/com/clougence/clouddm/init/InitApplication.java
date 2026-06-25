@@ -67,7 +67,7 @@ public class InitApplication implements WebMvcConfigurer {
 
     public static void main(String[] args) {
         Thread.setDefaultUncaughtExceptionHandler(new PrintErrorUncaughtExcHandler());
-        System.setProperty("server.port", "8222");
+        System.setProperty("server.port", System.getProperty("server.port", "8222"));
         System.setProperty("spring.config.name", "init");
         System.setProperty("spring.profiles.active", "init");
         System.setProperty("spring.web.resources.static-locations", resolveStaticLocations());

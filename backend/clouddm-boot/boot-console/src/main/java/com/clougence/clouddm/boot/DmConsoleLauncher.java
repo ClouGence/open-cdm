@@ -18,6 +18,7 @@ package com.clougence.clouddm.boot;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.springframework.boot.SpringApplication;
@@ -62,7 +63,8 @@ public class DmConsoleLauncher {
         Thread.setDefaultUncaughtExceptionHandler(new PrintErrorUncaughtExcHandler());
         System.setProperty("spring.config.name", "default_console,console");
 
-        SystemStatusResult statusResult = InitDBStatusDetector.detectDBStatus(new SysInitDefService().loadSystemProperties());
+        Properties runtimeProperties = new SysInitDefService().loadSystemProperties();
+        SystemStatusResult statusResult = InitDBStatusDetector.detectDBStatus(runtimeProperties);
         SystemStatus dbStatus = statusResult.getStatus();
         log.info("[DmConsoleLauncher] Database status check: {}, reason={}, dbError={}", dbStatus, statusResult.getInitReason(), statusResult.getDbError());
 
@@ -71,7 +73,15 @@ public class DmConsoleLauncher {
             startApp(args, world);
         } else {
             log.info("[DmConsoleLauncher] Starting in INIT mode (minimal web server)...");
+            applyInitServerPort(runtimeProperties);
             startInit(args, world);
+        }
+    }
+
+    private static void applyInitServerPort(Properties runtimeProperties) {
+        String serverPort = runtimeProperties.getProperty("server.port");
+        if (serverPort != null && !serverPort.trim().isEmpty()) {
+            System.setProperty("server.port", serverPort.trim());
         }
     }
 

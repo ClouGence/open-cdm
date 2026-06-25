@@ -18,6 +18,7 @@ package com.clougence.clouddm.boot;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.springframework.boot.SpringApplication;
@@ -64,7 +65,8 @@ public class DmAloneLauncher {
         System.setProperty("spring.config.name", "default_alone,alone");
         System.setProperty("app.mode", "embedded");
 
-        SystemStatusResult statusResult = InitDBStatusDetector.detectDBStatus(new SysInitDefService().loadSystemProperties());
+        Properties runtimeProperties = new SysInitDefService().loadSystemProperties();
+        SystemStatusResult statusResult = InitDBStatusDetector.detectDBStatus(runtimeProperties);
         SystemStatus dbStatus = statusResult.getStatus();
         log.info("[DmAloneLauncher] Database status check: {}, reason={}, dbError={}", dbStatus, statusResult.getInitReason(), statusResult.getDbError());
 
@@ -73,13 +75,17 @@ public class DmAloneLauncher {
             startApp(args, world);
         } else {
             log.info("[DmAloneLauncher] Starting in INIT mode (minimal web server)...");
-            startInit(args, world);
+            applyInitServerPort(runtimeProperties);
+            log.info("[DmAloneLauncher] Starting init application (separate Spring Boot app)...");
+            InitApplication.main(args);
         }
     }
 
-    private static void startInit(String[] args, ClassWorld world) throws Exception {
-        log.info("[DmAloneLauncher] Starting init application (separate Spring Boot app)...");
-        InitApplication.main(args);
+    private static void applyInitServerPort(Properties runtimeProperties) {
+        String serverPort = runtimeProperties.getProperty("server.port");
+        if (serverPort != null && !serverPort.trim().isEmpty()) {
+            System.setProperty("server.port", serverPort.trim());
+        }
     }
 
     private static void startApp(String[] args, ClassWorld world) throws Exception {
