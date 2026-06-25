@@ -2,40 +2,39 @@
   <div class="home" :class="{ 'home--sql': isSqlRoute }">
     <dm-water-mark :input-text="watermarkStr" ref="watermark" v-if="!isDesktop && globalSetting.enableWaterMark" />
 
-    <template v-if="isSqlRoute && showChild">
-      <div class="sql-layout">
-        <header class="sql-compact-header">
-          <div class="sql-compact-header__brand" @click="handleGoAppHome">
-            <AppBrandLogo />
-            <span class="sql-compact-header__title">{{ $t('sql-cha-xun') }}</span>
+    <template v-if="showChild">
+      <Transition name="layout-switch" mode="out-in">
+        <div v-if="isSqlRoute" key="sql" class="sql-layout">
+          <header class="sql-compact-header">
+            <div class="sql-compact-header__brand" @click="handleGoAppHome">
+              <AppBrandLogo />
+              <span class="sql-compact-header__title">{{ $t('sql-cha-xun') }}</span>
+            </div>
+            <div class="sql-compact-header__actions">
+              <button type="button" class="sql-compact-header__back" @click="handleGoAppHome">
+                <span>{{ $t('fan-hui-gong-zuo-tai') }}</span>
+              </button>
+              <AppUserActions compact @check-version="checkVersion(true)" />
+            </div>
+          </header>
+          <div class="sql-layout-body">
+            <router-view />
           </div>
-          <div class="sql-compact-header__actions">
-            <button type="button" class="sql-compact-header__back" @click="handleGoAppHome">
-              <span>{{ $t('fan-hui-gong-zuo-tai') }}</span>
-            </button>
-            <AppUserActions compact @check-version="checkVersion(true)" />
-          </div>
-        </header>
-        <div class="sql-layout-body">
-          <router-view />
         </div>
-      </div>
-    </template>
-
-    <template v-else-if="showChild">
-      <div class="app-layout">
-        <AppSidebar />
-        <main class="app-main">
-          <div class="app-main-body">
-            <div class="app-main-card">
-              <AppContentHeader @check-version="checkVersion(true)" />
-              <div class="app-main-card__body">
-                <router-view />
+        <div v-else key="app" class="app-layout">
+          <AppSidebar />
+          <main class="app-main">
+            <div class="app-main-body">
+              <div class="app-main-card">
+                <AppContentHeader @check-version="checkVersion(true)" />
+                <div class="app-main-card__body">
+                  <router-view />
+                </div>
               </div>
             </div>
-          </div>
-        </main>
-      </div>
+          </main>
+        </div>
+      </Transition>
     </template>
 
     <div v-else class="home-entry-loading">
@@ -914,5 +913,24 @@ export default {
   span {
     font-size: 11px;
   }
+}
+
+// Layout switch transition: masks the height difference between
+// sql-layout (compact header) and app-layout (card-based with padding)
+.layout-switch-enter-active,
+.layout-switch-leave-active {
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.layout-switch-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.layout-switch-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
 }
 </style>
