@@ -321,7 +321,7 @@ export default {
   }
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1024px) {
   .login-hero-panel {
     display: none;
   }

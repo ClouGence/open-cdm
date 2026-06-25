@@ -139,6 +139,9 @@
           </a-button>
         </div>
       </div>
+      <footer class="panel-footer">
+        <dm-footer />
+      </footer>
     </div>
   </div>
 </template>
@@ -675,6 +678,15 @@ export default {
       margin: 8px 0 0;
     }
 
+    .panel-footer {
+      display: none;
+
+      :deep(.footer) {
+        height: auto;
+        line-height: 1.5;
+      }
+    }
+
     .panel-body {
       width: 100%;
       max-width: 368px;
@@ -985,16 +997,21 @@ export default {
   }
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1024px) {
   .login {
     background-image: none;
+    overflow-y: auto;
+
+    .login-left {
+      flex: 0 0 auto;
+    }
 
     .content {
-      padding-right: 0;
+      display: none;
     }
 
     .login-bottombar {
-      padding-right: 32px;
+      display: none;
     }
 
     .login-panel {
@@ -1003,7 +1020,14 @@ export default {
       right: auto;
       bottom: auto;
       width: 100%;
+      flex: 1;
       padding: 48px 32px;
+
+      .panel-footer {
+        display: block;
+        margin-top: 48px;
+        text-align: center;
+      }
     }
   }
 }
