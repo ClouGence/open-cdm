@@ -37,17 +37,17 @@ import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy;
-import com.clougence.clouddm.console.web.model.fo.project.DevopsImAddFO;
-import com.clougence.clouddm.console.web.model.fo.project.DevopsImDeleteFO;
-import com.clougence.clouddm.console.web.model.fo.project.DevopsImProviderListFO;
-import com.clougence.clouddm.console.web.model.fo.project.DevopsImUpdateFO;
-import com.clougence.clouddm.console.web.model.vo.project.DevopsImVO;
+import com.clougence.clouddm.console.web.model.fo.cicd.DevopsImAddFO;
+import com.clougence.clouddm.console.web.model.fo.cicd.DevopsImDeleteFO;
+import com.clougence.clouddm.console.web.model.fo.cicd.DevopsImProviderListFO;
+import com.clougence.clouddm.console.web.model.fo.cicd.DevopsImUpdateFO;
+import com.clougence.clouddm.console.web.model.vo.cicd.DevopsImVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
-import com.clougence.clouddm.console.web.service.project.DmImService;
-import com.clougence.clouddm.console.web.service.project.DmProjectService;
-import com.clougence.clouddm.console.web.service.project.domain.DmImDef;
+import com.clougence.clouddm.console.web.service.cicd.DmChangeFlowService;
+import com.clougence.clouddm.console.web.service.cicd.DmImService;
+import com.clougence.clouddm.console.web.service.cicd.domain.DmImDef;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.platform.dal.model.project.DmProjectMsgDO;
+import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysMessengerDO;
 import com.clougence.clouddm.platform.dal.model.system.ImType;
 import com.clougence.utils.StringUtils;
@@ -66,9 +66,9 @@ import lombok.extern.slf4j.Slf4j;
 public class DmImController {
 
     @Resource
-    private DmImService      dmImService;
+    private DmImService         dmImService;
     @Resource
-    private DmProjectService projectService;
+    private DmChangeFlowService changeFlowService;
 
     @RequestAuth(strategy = AuthStrategy.Ignore)
     @RequestMapping(value = "/defList", method = RequestMethod.POST)
@@ -120,7 +120,7 @@ public class DmImController {
         }
 
         if (!fo.isForce()) {
-            List<DmProjectMsgDO> useList = this.projectService.queryEnableDevopsByImId(puid, fo.getImId());
+            List<DmChangeFlowDO> useList = this.changeFlowService.queryEnableDevopsByImId(puid, fo.getImId());
             if (!useList.isEmpty()) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_IM_INUSE_ERROR.name(), imDO.getImDisplay()));
             }
@@ -143,7 +143,7 @@ public class DmImController {
         // key config change
         if (StringUtils.isNotBlank(fo.getNewWebhookUrl())) {
             if (!fo.isForce()) {
-                List<DmProjectMsgDO> useList = this.projectService.queryEnableDevopsByImId(puid, fo.getImId());
+                List<DmChangeFlowDO> useList = this.changeFlowService.queryEnableDevopsByImId(puid, fo.getImId());
                 if (!useList.isEmpty()) {
                     throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_IM_INUSE_ERROR.name(), imDO.getImDisplay()));
                 }

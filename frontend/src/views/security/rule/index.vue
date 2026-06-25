@@ -282,7 +282,7 @@ export default {
     handleTabClick(name) {
       this.activeTab = name;
       this.$router.push({
-        path: '/system/dmrulelist',
+        path: '/data-access/rules',
         query: {
           ruleKind: name
         }
@@ -301,7 +301,7 @@ export default {
     },
     handleViewRule(row, type = 'view') {
       this.$router.push({
-        path: `/system/dmrule/detail/${row.ruleId}`,
+        path: `/data-access/rules/detail/${row.ruleId}`,
         query: { type, ruleKind: row.ruleKind }
       });
     },
@@ -342,7 +342,7 @@ export default {
     },
     handleAddRule() {
       this.$router.push({
-        path: '/system/dmrule/create',
+        path: '/data-access/rules/create',
         query: {
           ruleKind: this.activeTab
         }

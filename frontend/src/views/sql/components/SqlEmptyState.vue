@@ -4,12 +4,12 @@
       <div class="empty-title">
         <h3>{{ $t('sql-empty-title') }}</h3>
         <p class="empty-description">
-          {{ $t('sql-empty-description') }}
+          {{ emptyDescription }}
         </p>
       </div>
 
       <div class="empty-actions">
-        <div class="action-step">
+        <div v-if="showDataSourceSetupActions" class="action-step">
           <div class="action-icon">
             <CustomIcon type="icon-v2-tianjiashujuyuan1" size="48" />
           </div>
@@ -19,11 +19,11 @@
           </Button>
         </div>
 
-        <div class="flow-arrow">
+        <div v-if="showDataSourceSetupActions" class="flow-arrow">
           <CustomIcon type="icon-v2-right-circle-fill" size="24" />
         </div>
 
-        <div class="action-step">
+        <div v-if="showDataSourceSetupActions" class="action-step">
           <div class="action-icon">
             <CustomIcon type="icon-v2-peizhishujuyuan" size="48" />
           </div>
@@ -88,6 +88,12 @@ export default {
     isRootAccount() {
       return this.userInfo.accountType === 'PRIMARY_ACCOUNT';
     },
+    showDataSourceSetupActions() {
+      return this.isRootAccount;
+    },
+    emptyDescription() {
+      return this.showDataSourceSetupActions ? this.$t('sql-empty-description') : this.$t('sql-empty-subaccount-description');
+    },
     rootAccountUnsupportedTip() {
       return '管理员账号不支持此操作';
     }
@@ -101,10 +107,10 @@ export default {
       this.$router.push({ path: '/system/permission', query: { type: 'apply' } });
     },
     handleAddDataSource() {
-      this.$router.push('/system/ccdatasource');
+      this.$router.push('/datasource');
     },
     handleConfigDataSource() {
-      this.$router.push('/system/ccdatasource');
+      this.$router.push('/datasource');
     }
   }
 };

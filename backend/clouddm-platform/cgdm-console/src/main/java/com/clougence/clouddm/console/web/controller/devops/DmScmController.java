@@ -15,8 +15,8 @@
  */
 package com.clougence.clouddm.console.web.controller.devops;
 
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_CICD_MANAGE;
-import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_CICD_READ;
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_GIT_OPS_MANAGE;
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_GIT_OPS_READ;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,18 +37,18 @@ import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy;
-import com.clougence.clouddm.console.web.model.fo.project.DevopsScmAddFO;
-import com.clougence.clouddm.console.web.model.fo.project.DevopsScmDeleteFO;
-import com.clougence.clouddm.console.web.model.fo.project.DevopsScmUpdateFO;
-import com.clougence.clouddm.console.web.model.vo.project.DevopsScmVO;
+import com.clougence.clouddm.console.web.model.fo.cicd.DevopsScmAddFO;
+import com.clougence.clouddm.console.web.model.fo.cicd.DevopsScmDeleteFO;
+import com.clougence.clouddm.console.web.model.fo.cicd.DevopsScmUpdateFO;
+import com.clougence.clouddm.console.web.model.vo.cicd.DevopsScmVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
-import com.clougence.clouddm.console.web.service.project.DmProjectService;
-import com.clougence.clouddm.console.web.service.project.DmScmService;
-import com.clougence.clouddm.console.web.service.project.domain.DmScmDef;
+import com.clougence.clouddm.console.web.service.cicd.DmChangeFlowService;
+import com.clougence.clouddm.console.web.service.cicd.DmScmService;
+import com.clougence.clouddm.console.web.service.cicd.domain.DmScmDef;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.platform.dal.model.project.DmProjectDevopsDO;
-import com.clougence.clouddm.platform.dal.model.project.DmProjectScmDO;
-import com.clougence.clouddm.platform.dal.model.project.ScmType;
+import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowDO;
+import com.clougence.clouddm.platform.dal.model.gitops.DmGitOpsScmDO;
+import com.clougence.clouddm.platform.dal.model.gitops.ScmType;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -65,9 +65,9 @@ import lombok.extern.slf4j.Slf4j;
 public class DmScmController {
 
     @Resource
-    private DmScmService     dmScmService;
+    private DmScmService        dmScmService;
     @Resource
-    private DmProjectService dmProjectService;
+    private DmChangeFlowService dmProjectService;
 
     @RequestAuth(strategy = AuthStrategy.Ignore)
     @RequestMapping(value = "/defList", method = RequestMethod.POST)
@@ -86,7 +86,7 @@ public class DmScmController {
         return ResWebDataUtils.buildSuccess(services);
     }
 
-    @RequestAuth(value = DM_CICD_READ)
+    @RequestAuth(value = DM_GIT_OPS_READ)
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     public ResWebData<?> list(HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -94,14 +94,14 @@ public class DmScmController {
         List<DmScmDef> defList = this.dmScmService.getScmDefList();
         Map<ScmType, DmScmDef> defMap = defList.stream().collect(Collectors.toMap(DmScmDef::getScmType, d -> d));
 
-        List<DmProjectScmDO> scmList = this.dmScmService.queryScmList(puid);
+        List<DmGitOpsScmDO> scmList = this.dmScmService.queryScmList(puid);
         List<DevopsScmVO> vos = scmList.stream().map(scmDO -> {
             return DmConvertUtils.convertToDevopsScmVO(scmDO, defMap);
         }).collect(Collectors.toList());
         return ResWebDataUtils.buildSuccess(vos);
     }
 
-    @RequestAuth(value = DM_CICD_MANAGE)
+    @RequestAuth(value = DM_GIT_OPS_MANAGE)
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public ResWebData<?> add(HttpServletRequest request, @Valid @RequestBody DevopsScmAddFO fo) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -110,18 +110,18 @@ public class DmScmController {
         return ResWebDataUtils.buildSuccess(true);
     }
 
-    @RequestAuth(value = DM_CICD_MANAGE)
+    @RequestAuth(value = DM_GIT_OPS_MANAGE)
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public ResWebData<?> delete(HttpServletRequest request, @Valid @RequestBody DevopsScmDeleteFO fo) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
-        DmProjectScmDO scmDO = this.dmScmService.queryScmById(puid, fo.getScmId());
+        DmGitOpsScmDO scmDO = this.dmScmService.queryScmById(puid, fo.getScmId());
         if (scmDO == null) {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_NOT_EXIST_ERROR.name()));
         }
 
         if (!fo.isForce()) {
-            List<DmProjectDevopsDO> useList = this.dmProjectService.queryEnableDevopsByScmId(puid, fo.getScmId());
+            List<DmChangeFlowDO> useList = this.dmProjectService.queryEnableDevopsByScmId(puid, fo.getScmId());
             if (!useList.isEmpty()) {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_INUSE_ERROR.name(), scmDO.getScmDisplay()));
             }
@@ -131,12 +131,12 @@ public class DmScmController {
         return ResWebDataUtils.buildSuccess(true);
     }
 
-    @RequestAuth(value = DM_CICD_MANAGE)
+    @RequestAuth(value = DM_GIT_OPS_MANAGE)
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     public ResWebData<?> update(HttpServletRequest request, @Valid @RequestBody DevopsScmUpdateFO fo) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
-        DmProjectScmDO scmDO = this.dmScmService.queryScmById(puid, fo.getScmId());
+        DmGitOpsScmDO scmDO = this.dmScmService.queryScmById(puid, fo.getScmId());
         if (scmDO == null) {
             return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_NOT_EXIST_ERROR.name()));
         }
@@ -144,7 +144,7 @@ public class DmScmController {
         // key config change
         if (StringUtils.isNotBlank(fo.getNewAccessToken()) || StringUtils.isNotBlank(fo.getNewServiceUrl())) {
             if (!fo.isForce()) {
-                List<DmProjectDevopsDO> useList = this.dmProjectService.queryEnableDevopsByScmId(puid, fo.getScmId());
+                List<DmChangeFlowDO> useList = this.dmProjectService.queryEnableDevopsByScmId(puid, fo.getScmId());
                 if (!useList.isEmpty()) {
                     throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DEVOPS_SCM_INUSE_ERROR.name(), scmDO.getScmDisplay()));
                 }
@@ -155,13 +155,13 @@ public class DmScmController {
         return ResWebDataUtils.buildSuccess(true);
     }
 
-    @RequestAuth(value = DM_CICD_MANAGE)
+    @RequestAuth(value = DM_GIT_OPS_MANAGE)
     @RequestMapping(value = "/test", method = RequestMethod.POST)
     public ResWebData<?> test(HttpServletRequest request, @Valid @RequestBody DevopsScmAddFO fo) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
         if (fo.getScmId() != null) {
-            DmProjectScmDO scmDO = this.dmScmService.queryScmById(puid, fo.getScmId());
+            DmGitOpsScmDO scmDO = this.dmScmService.queryScmById(puid, fo.getScmId());
             fo.setScmType(scmDO.getScmType());
             fo.setDisplay(scmDO.getScmDisplay());
             fo.setServiceUrl(scmDO.getScmServiceUrl());

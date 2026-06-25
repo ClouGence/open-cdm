@@ -32,9 +32,4 @@ public class TestDbResult {
     private boolean charsetValid;
     private String  databaseCharset;
     private boolean createDatabase;
-    private boolean showRebuildChoice;
-    private String  rebuildPrompt;
-    private boolean requireConfirmInput;
-    private String  confirmInputLabel;
-    private String  confirmInputExpectedValue;
 }

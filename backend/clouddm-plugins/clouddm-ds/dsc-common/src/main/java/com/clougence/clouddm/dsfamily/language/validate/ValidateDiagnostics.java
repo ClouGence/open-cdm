@@ -195,7 +195,7 @@ public final class ValidateDiagnostics {
 
     private static int[] tokenRange(String lineText, int column, String token) {
         if (StringUtils.isNotBlank(token)) {
-            int fromIndex = Math.clamp(column, 0, lineText.length());
+            int fromIndex = clamp(column, 0, lineText.length());
             int tokenStart = lineText.indexOf(token, fromIndex);
             if (tokenStart < 0) {
                 tokenStart = lineText.indexOf(token);
@@ -205,12 +205,12 @@ public final class ValidateDiagnostics {
             }
         }
 
-        int start = Math.clamp(column, 0, lineText.length());
+        int start = clamp(column, 0, lineText.length());
         while (start > 0 && isTokenChar(lineText.charAt(start - 1))) {
             start--;
         }
 
-        int end = Math.clamp(column, 0, lineText.length());
+        int end = clamp(column, 0, lineText.length());
         while (end < lineText.length() && isTokenChar(lineText.charAt(end))) {
             end++;
         }
@@ -224,7 +224,7 @@ public final class ValidateDiagnostics {
     private static CodeLocation positionAt(String sqlText, int offset) {
         int line = 1;
         int column = 0;
-        int end = Math.clamp(offset, 0, sqlText.length());
+        int end = clamp(offset, 0, sqlText.length());
         for (int i = 0; i < end; i++) {
             if (sqlText.charAt(i) == '\n') {
                 line++;
@@ -268,7 +268,7 @@ public final class ValidateDiagnostics {
             return null;
         }
 
-        int end = Math.clamp(offset, 0, sqlText.length());
+        int end = clamp(offset, 0, sqlText.length());
         while (end > 0 && isIgnorableTrailing(sqlText.charAt(end - 1))) {
             end--;
         }
@@ -293,5 +293,9 @@ public final class ValidateDiagnostics {
 
     private static boolean isTokenChar(char c) {
         return Character.isLetterOrDigit(c) || c == '_' || c == '$';
+    }
+
+    private static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
     }
 }

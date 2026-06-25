@@ -2,7 +2,7 @@
   <div class="add-datasource-steps">
     <a-breadcrumb style="margin-bottom: 20px">
       <a-breadcrumb-item>
-        <a href="/#/system/ccdatasource">{{ $t('shu-ju-yuan-guan-li') }}</a>
+        <a href="/#/datasource">{{ $t('shu-ju-yuan-guan-li') }}</a>
       </a-breadcrumb-item>
       <a-breadcrumb-item>{{ $t('xin-zeng-shu-ju-yuan') }}</a-breadcrumb-item>
     </a-breadcrumb>

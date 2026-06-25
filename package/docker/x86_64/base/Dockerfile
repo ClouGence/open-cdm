@@ -2,11 +2,10 @@ FROM ubuntu:24.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG APT_MIRROR=""
-#ARG JDK_URL="https://download.java.net/java/GA/jdk26.0.1/458fda22e4c54d5ba572ab8d2b22eb83/8/GPL/openjdk-26.0.1_linux-x64_bin.tar.gz"
-ARG JDK_URL="https://download.java.net/java/GA/jdk21.0.2/f2283984656d49d69e91c558476027ac/13/GPL/openjdk-21.0.2_linux-x64_bin.tar.gz"
+ARG JDK_URL="https://download.java.net/java/GA/jdk17.0.2/dfd4a8d0985749f896bed50d7138ee7f/8/GPL/openjdk-17.0.2_linux-x64_bin.tar.gz"
 ARG JDK_SHA256_URL="${JDK_URL}.sha256"
 
-ENV JAVA_HOME=/opt/openjdk-26
+ENV JAVA_HOME=/opt/openjdk-17
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
 RUN if [ -n "$APT_MIRROR" ]; then \
@@ -21,9 +20,9 @@ RUN if [ -n "$APT_MIRROR" ]; then \
     && apt-get install -y --no-install-recommends ca-certificates curl fontconfig tzdata \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /opt /docker-entrypoint-init "$JAVA_HOME" \
-    && curl -fsSL "$JDK_URL" -o /tmp/openjdk26.tar.gz \
+    && curl -fsSL "$JDK_URL" -o /tmp/openjdk17.tar.gz \
     && expected_sha256=$(curl -fsSL "$JDK_SHA256_URL" | tr -d '[:space:]') \
-    && actual_sha256=$(sha256sum /tmp/openjdk26.tar.gz | awk '{print $1}') \
+    && actual_sha256=$(sha256sum /tmp/openjdk17.tar.gz | awk '{print $1}') \
     && [ "$actual_sha256" = "$expected_sha256" ] \
-    && tar -xzf /tmp/openjdk26.tar.gz --strip-components=1 -C "$JAVA_HOME" \
-    && rm -f /tmp/openjdk26.tar.gz
+    && tar -xzf /tmp/openjdk17.tar.gz --strip-components=1 -C "$JAVA_HOME" \
+    && rm -f /tmp/openjdk17.tar.gz

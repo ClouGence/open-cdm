@@ -32,7 +32,7 @@ if ! printf '%s' "$JAVA_MAJOR" | grep -Eq '^[0-9]+$'; then
   exit 1
 fi
 
-if [ "$JAVA_MAJOR" -lt 21 ]; then
-  echo "Error: CloudDM requires JDK 21 or later. Current version: $JAVA_VERSION_RAW" >&2
+if [ "$JAVA_MAJOR" -lt 17 ]; then
+  echo "Error: CloudDM requires JDK 17 or later. Current version: $JAVA_VERSION_RAW" >&2
   exit 1
 fi

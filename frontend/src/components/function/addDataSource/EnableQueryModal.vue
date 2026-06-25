@@ -31,7 +31,7 @@
             <i style="margin-left: 10px; margin-right: 8px" class="iconfont iconTIP"></i>
             {{ $t('gai-ji-qun-wu-cun-huo-ji-qi') }}
           </span>
-          <a class="text-cc-primary" :href="`/#/system/dmmachine/list/${form.clusterId}`">
+          <a class="text-cc-primary" :href="`/#/data-access/cluster/list/${form.clusterId}`">
             {{ $t('guan-li-ji-qi') }}
           </a>
         </span>

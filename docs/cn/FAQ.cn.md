@@ -49,9 +49,6 @@ CloudDM 支持通过 Git Push、Web Hook 和 HttpCall 触发数据库 CI/CD 流�
 ### 忘记管理账号密码怎么办？
 
 可以利用系统初始化安装机制重置管理员账号和密码。先找到 `drivers` 目录下的系统 MySQL 驱动目录 `drivers/cgdm-runtime-mysql`，删除该目录后重启应用。应用会因为无法连接元信息数据库而进入新安装初始化流程，在初始化过程中可以重新设置管理员账号和密码。
-
-注意：初始化时不要选择重建数据库，否则会清理已有元信息数据。
-
 ### 哪个仓库是官方主仓库？
 
 官方公开源码主仓库是 [https://github.com/ClouGence/open-cdm](https://github.com/ClouGence/open-cdm)。Gitee 仓库是面向中国用户的镜像仓库。

@@ -68,9 +68,6 @@
       <Button v-if="supportAdd" type="primary" @click="handleShowAddDataSource">
         {{ $t('xin-zeng-shu-ju-yuan') }}
       </Button>
-      <Button type="default" style="margin-left: 6px" @click="_handleSearch" :loading="refreshLoading">
-        <CustomIcon type="icon-v2-Refresh" v-if="!refreshLoading" />
-      </Button>
     </div>
   </div>
 </template>

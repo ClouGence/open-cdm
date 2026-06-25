@@ -748,7 +748,7 @@ export default {
       //   this.dsKvConfigs = res.data.data;
       //   this.showKvConfigsModal = true;
       // }
-      this.$router.push({ path: `/system/ccdatasource/params/${row.id}/${row.instanceId}` });
+      this.$router.push({ path: `/datasource/params/${row.id}/${row.instanceId}` });
     },
     handleKeyTabFileChange(e) {
       const files = e.target.files;
@@ -913,7 +913,7 @@ export default {
         });
     },
     handleShowAddDataSource() {
-      this.$router.push({ path: '/system/ccdatasource/add' });
+      this.$router.push({ path: '/datasource/add' });
     },
     deleteDataSource() {
       this.$services.rdpDataSourceDelete({ data: { dataSourceId: this.selectedRow.id } }).then((res) => {

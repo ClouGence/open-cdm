@@ -116,9 +116,9 @@ esac
 
 CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
 
-# Prefer a local JDK 21+ on macOS so Gradle is not launched with an older JAVA_HOME.
+# Prefer a local JDK 17 on macOS so Gradle is not launched with a different JAVA_HOME.
 if [ "$darwin" = "true" ] && [ -x /usr/libexec/java_home ] ; then
-    if JAVA_HOME_CANDIDATE=$( /usr/libexec/java_home -v 21+ 2>/dev/null ) ; then
+    if JAVA_HOME_CANDIDATE=$( /usr/libexec/java_home -v 17 2>/dev/null ) ; then
         JAVA_HOME=$JAVA_HOME_CANDIDATE
         export JAVA_HOME
     fi
@@ -211,6 +211,9 @@ fi
 
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
+if [ -n "$JAVA_HOME" ]; then
+    DEFAULT_JVM_OPTS="$DEFAULT_JVM_OPTS \"-Dorg.gradle.java.home=$JAVA_HOME\""
+fi
 
 # Collect all arguments for the java command:
 #   * DEFAULT_JVM_OPTS, JAVA_OPTS, and optsEnvironmentVar are not allowed to contain shell fragments,

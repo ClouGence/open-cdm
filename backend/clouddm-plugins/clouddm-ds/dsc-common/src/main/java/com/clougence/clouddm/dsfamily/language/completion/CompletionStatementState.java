@@ -82,7 +82,7 @@ public class CompletionStatementState {
     }
 
     private static String extractQualifier(String sqlText, int offset, String prefix, CompletionDialect dialect) {
-        int end = Math.clamp(offset - StringUtils.toString(prefix).length(), 0, sqlText.length());
+        int end = clamp(offset - StringUtils.toString(prefix).length(), 0, sqlText.length());
         int dot = end - 1;
         while (dot >= 0 && Character.isWhitespace(sqlText.charAt(dot))) {
             dot--;
@@ -99,7 +99,7 @@ public class CompletionStatementState {
     }
 
     private static char previousSignificantChar(String sqlText, int offset, String prefix) {
-        int index = Math.clamp(offset - StringUtils.toString(prefix).length(), 0, sqlText.length()) - 1;
+        int index = clamp(offset - StringUtils.toString(prefix).length(), 0, sqlText.length()) - 1;
         while (index >= 0 && Character.isWhitespace(sqlText.charAt(index))) {
             index--;
         }
@@ -182,5 +182,9 @@ public class CompletionStatementState {
             tokens.add(dialect.unquoteIdentifier(text.substring(start, i)));
         }
         return tokens;
+    }
+
+    private static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
     }
 }
