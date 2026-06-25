@@ -55,6 +55,8 @@ export const APPROVAL_PROVIDERS = [
   }
 ];
 
+export const APPROVAL_MANAGED_FIELDS = ['feishuApprovalTemplateList', 'wechatApprovalTemplateList'];
+
 export function getProviderByType(type) {
   return APPROVAL_PROVIDERS.find((p) => p.type === type);
 }
