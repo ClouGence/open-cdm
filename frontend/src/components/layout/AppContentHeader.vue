@@ -101,6 +101,9 @@ export default {
       if (path.indexOf('/integrations/sso') === 0 || path.indexOf('/system/sso') > -1) {
         return this.$t('nav-sso');
       }
+      if (path.indexOf('/integrations/approval') === 0) {
+        return this.$t('nav-shen-pi-yin-qing');
+      }
 
       const parts = path.split('/').filter(Boolean);
       if (parts[0] === 'system' && parts.length >= 2) {
@@ -197,6 +200,18 @@ export default {
       if (/^\/integrations\/sso\/[^/]+\/edit$/.test(path)) {
         return [
           { label: this.$t('nav-sso'), to: '/integrations/sso' },
+          { label: this.$t('pei-zhi'), to: path }
+        ];
+      }
+      if (path === '/integrations/approval/create') {
+        return [
+          { label: this.$t('nav-shen-pi-yin-qing'), to: '/integrations/approval' },
+          { label: this.$t('xin-zeng'), to: path }
+        ];
+      }
+      if (/^\/integrations\/approval\/[^/]+\/edit$/.test(path)) {
+        return [
+          { label: this.$t('nav-shen-pi-yin-qing'), to: '/integrations/approval' },
           { label: this.$t('pei-zhi'), to: path }
         ];
       }

@@ -72,6 +72,9 @@ export function buildSidebarMenu({ myCatLog, myAuth, includesDM, isDesktop, acco
     integrationChildren.push(linkItem('/integrations/git', '/#/integrations/git', 'nav-git-ops', 'icon-v2-sub_account'));
   }
   if (includesDM && accountType === 'PRIMARY_ACCOUNT') {
+    integrationChildren.push(linkItem('/integrations/approval', '/#/integrations/approval', 'nav-shen-pi-yin-qing', 'icon-v2-sub_account'));
+  }
+  if (includesDM && accountType === 'PRIMARY_ACCOUNT') {
     integrationChildren.push(linkItem('/integrations/sso', '/#/integrations/sso', 'nav-sso', 'icon-v2-sub_account'));
   }
   if (integrationChildren.length) {

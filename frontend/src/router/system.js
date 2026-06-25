@@ -38,6 +38,21 @@ export default [
     redirect: '/integrations/sso'
   },
   {
+    path: '/integrations/approval',
+    name: 'DMApproval',
+    component: () => import(/* webpackChunkName: "ccsystem-approval" */ '@/views/system/approval/index')
+  },
+  {
+    path: '/integrations/approval/create',
+    name: 'DMApprovalCreate',
+    component: () => import(/* webpackChunkName: "ccsystem-approval" */ '@/views/system/approval/form')
+  },
+  {
+    path: '/integrations/approval/:type/edit',
+    name: 'DMApprovalEdit',
+    component: () => import(/* webpackChunkName: "ccsystem-approval" */ '@/views/system/approval/form')
+  },
+  {
     path: '/integrations/im',
     name: 'DMIm',
     component: () => import(/* webpackChunkName: "ccsystem-datasource" */ '@/views/im')
