@@ -36,8 +36,16 @@
                 <span>{{ row.primaryValue || '-' }}</span>
               </template>
               <template #status="{ row }">
-                <span :class="['status-dot', row.enabled ? 'status-dot--enabled' : 'status-dot--disabled']"></span>
-                <span>{{ row.statusText }}</span>
+                <div class="status-cell">
+                  <i-switch
+                    :model-value="row.enabled"
+                    true-color="#52C41A"
+                    :loading="togglingType === row.type"
+                    :disabled="!canEdit || togglingType === row.type"
+                    :before-change="() => handleToggleEnable(row)"
+                  />
+                  <span class="status-text">{{ row.statusText }}</span>
+                </div>
               </template>
               <template #action="{ row }">
                 <div class="action">
@@ -63,7 +71,8 @@ export default {
       loading: false,
       searchText: '',
       appliedKeyword: '',
-      configList: []
+      configList: [],
+      togglingType: ''
     };
   },
   computed: {
@@ -141,6 +150,28 @@ export default {
     },
     goEdit(row) {
       this.$router.push(`/integrations/approval/${row.type}/edit`);
+    },
+    handleToggleEnable(row) {
+      const def = getProviderByType(row.type);
+      if (!def) return Promise.reject();
+      const newVal = !row.enabled;
+      const hasConfig = !!this.configMap[def.enableField];
+      const updateConfigs = hasConfig ? { [def.enableField]: String(newVal) } : {};
+      const needCreateConfigs = hasConfig ? {} : { [def.enableField]: String(newVal) };
+      this.togglingType = row.type;
+      return this.$services
+        .rdpUserConfigUpsertUserConfigs({ data: { updateConfigs, needCreateConfigs } })
+        .then((res) => {
+          if (!res.success) {
+            this.$Message.error(res.msg || this.$t('cao-zuo-shi-bai'));
+            throw new Error('approval toggle failed');
+          }
+          this.$Message.success(this.$t('cao-zuo-cheng-gong'));
+          return this.init();
+        })
+        .finally(() => {
+          this.togglingType = '';
+        });
     }
   }
 };
@@ -163,20 +194,14 @@ export default {
   gap: 12px;
 }
 
-.status-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-right: 6px;
-  border-radius: 50%;
-  vertical-align: middle;
+.status-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.status-dot--enabled {
-  background: #52c41a;
-}
-
-.status-dot--disabled {
-  background: #c5c8ce;
+.status-text {
+  color: #515a6e;
+  font-size: 12px;
 }
 </style>
