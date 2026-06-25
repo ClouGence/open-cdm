@@ -20,7 +20,7 @@
 export default {
   methods: {
     handleGoDatasource() {
-      this.$router.push({ path: '/system/ccdatasource' });
+      this.$router.push({ path: '/datasource' });
     },
     handleGooAddDatasource() {
       window.location.reload();

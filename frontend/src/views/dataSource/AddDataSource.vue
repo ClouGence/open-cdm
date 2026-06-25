@@ -1,7 +1,7 @@
 <template>
   <div class="content-wrapper">
     <Breadcrumb>
-      <BreadcrumbItem to="/system/ccdatasource">{{ $t('shu-ju-yuan-guan-li') }}</BreadcrumbItem>
+      <BreadcrumbItem to="/datasource">{{ $t('shu-ju-yuan-guan-li') }}</BreadcrumbItem>
       <BreadcrumbItem>{{ $t('xin-zeng-shu-ju-yuan') }}</BreadcrumbItem>
     </Breadcrumb>
     <div class="add-datasource-wrapper">
@@ -152,7 +152,7 @@ export default {
       }, {});
     },
     shouldAutoEnableFeatures() {
-      return !this.isDesktop && this.$route?.path === '/system/ccdatasource/add';
+      return !this.isDesktop && this.$route?.path === '/datasource/add';
     },
     disableAddDataSource() {
       return this.driverRequiredForAdd && !this.driverReadyForAdd;
@@ -547,7 +547,7 @@ export default {
       }
     },
     handleReturn() {
-      this.$router.push({ path: '/system/ccdatasource' });
+      this.$router.push({ path: '/datasource' });
     },
     handleReset() {
       this.addDataSourceForm = {

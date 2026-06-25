@@ -6,7 +6,7 @@
       <div class="sql-layout">
         <header class="sql-compact-header">
           <div class="sql-compact-header__brand" @click="handleGoAppHome">
-            <AppBrandLogo compact />
+            <AppBrandLogo />
             <span class="sql-compact-header__title">{{ $t('sql-cha-xun') }}</span>
           </div>
           <div class="sql-compact-header__actions">
@@ -37,6 +37,11 @@
         </main>
       </div>
     </template>
+
+    <div v-else class="home-entry-loading">
+      <a-spin />
+      <span>{{ $t('zheng-zai-jia-zai') }}</span>
+    </div>
 
     <div class="user-expr-tip" v-if="userInfo.subAccountPwdValidDays !== null && userInfo.subAccountPwdValidDays < limitDays">
       {{ $t('gen-ju-zhu-zhang-hao-she-zhi-de-mi-ma-shi-xiao-ce-lue', [userInfo.subAccountPwdValidDays + 1]) }}
@@ -161,6 +166,10 @@ export default {
 
     await this.$store.dispatch('getDmGlobalConfig');
 
+    if (this.redirectBlankEntry()) {
+      return;
+    }
+
     this.showChild = true;
     await this.$store.dispatch('getRegionList');
     if (this.globalSetting.enableWaterMark) {
@@ -215,6 +224,14 @@ export default {
     this.$bus.off(EVENT_BUS_NAME_LIST.SHOW_INACTIVE_MODAL);
   },
   methods: {
+    redirectBlankEntry() {
+      if (this.$route.path !== '/') {
+        return false;
+      }
+
+      this.$router.replace({ path: this.defaultRedirectUrl || '/sql' }).catch(() => {});
+      return true;
+    },
     handleShowInactiveModal(msg) {
       console.log(msg);
       this.showInactiveModal = true;
@@ -367,7 +384,7 @@ export default {
     },
     handleGoAppHome() {
       if (this.isSqlRoute) {
-        const target = this.defaultRedirectUrl && this.defaultRedirectUrl !== '/sql' ? this.defaultRedirectUrl : '/project';
+        const target = this.defaultRedirectUrl && this.defaultRedirectUrl !== '/sql' ? this.defaultRedirectUrl : '/cicd';
         this.$router.push({ path: target }).catch(() => {});
         return;
       }
@@ -416,7 +433,19 @@ export default {
   }
 
   &--sql .user-expr-tip {
-    top: 44px;
+    top: 58px;
+  }
+
+  .home-entry-loading {
+    flex: 1;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--text-secondary);
+    background: #f5f7fa;
+    font-size: 14px;
   }
 
   .footer {
@@ -560,6 +589,7 @@ export default {
     border-radius: 4px;
     z-index: 10;
   }
+
   white-space: pre-line;
   width: 100%;
   margin-top: 10px;

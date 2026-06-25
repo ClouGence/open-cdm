@@ -174,25 +174,25 @@ public interface SecRoleAuthLabel {
     @AuthLabel(order = 2, category = SecAuthCategory.CAT_DM_SECRULES, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_SECRULES_MANAGE, tag = SecSysRole.DBA_ROLE_NAME, include = DM_SECRULES_READ)
     String DM_SECRULES_MANAGE              = "DM_SECRULES_MANAGE";
 
-    @AuthLabel(order = 1, category = SecAuthCategory.CAT_DM_PROJECT, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_PROJECT_READ, tag = { SecSysRole.DEV_ROLE_NAME,
-                                                                                                                                 SecSysRole.PM_ROLE_NAME })
-    String DM_PROJECT_READ                 = "DM_PROJECT_READ";
-    @AuthLabel(order = 3, category = SecAuthCategory.CAT_DM_PROJECT, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_CHANGE_OPERATE, tag = { SecSysRole.DEV_ROLE_NAME,
-                                                                                                                                   SecSysRole.PM_ROLE_NAME }, include = DM_PROJECT_READ)
-    String DM_PROJECT_OPERATE              = "DM_PROJECT_OPERATE";
-    @AuthLabel(order = 2, category = SecAuthCategory.CAT_DM_PROJECT, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_PROJECT_MANAGE, tag = SecSysRole.PM_ROLE_NAME, include = { DM_PROJECT_READ,
-                                                                                                                                                                      DM_PROJECT_OPERATE })
-    String DM_PROJECT_MANAGE               = "DM_PROJECT_MANAGE";
+    @AuthLabel(order = 1, category = SecAuthCategory.CAT_DM_CICD_FLOW, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_CICD_FLOW_READ, tag = { SecSysRole.DEV_ROLE_NAME,
+                                                                                                                                     SecSysRole.PM_ROLE_NAME })
+    String DM_CICD_FLOW_READ               = "DM_CICD_FLOW_READ";
+    @AuthLabel(order = 3, category = SecAuthCategory.CAT_DM_CICD_FLOW, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_CICD_FLOW_OPERATE, tag = { SecSysRole.DEV_ROLE_NAME,
+                                                                                                                                        SecSysRole.PM_ROLE_NAME }, include = DM_CICD_FLOW_READ)
+    String DM_CICD_FLOW_OPERATE            = "DM_CICD_FLOW_OPERATE";
+    @AuthLabel(order = 2, category = SecAuthCategory.CAT_DM_CICD_FLOW, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_CICD_FLOW_MANAGE, tag = SecSysRole.PM_ROLE_NAME, include = { DM_CICD_FLOW_READ,
+                                                                                                                                                                          DM_CICD_FLOW_OPERATE })
+    String DM_CICD_FLOW_MANAGE             = "DM_CICD_FLOW_MANAGE";
 
     @AuthLabel(order = 7, category = SecAuthCategory.CAT_DM_IM, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_IM_READ, tag = SecSysRole.PM_ROLE_NAME)
     String DM_IM_READ                      = "DM_IM_READ";
     @AuthLabel(order = 8, category = SecAuthCategory.CAT_DM_IM, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_IM_MANAGE, tag = SecSysRole.PM_ROLE_NAME, include = DM_IM_READ)
     String DM_IM_MANAGE                    = "DM_IM_MANAGE";
 
-    @AuthLabel(order = 9, category = SecAuthCategory.CAT_DM_CICD, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_CICD_READ, tag = SecSysRole.PM_ROLE_NAME)
-    String DM_CICD_READ                    = "DM_CICD_READ";
-    @AuthLabel(order = 10, category = SecAuthCategory.CAT_DM_CICD, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_CICD_MANAGE, tag = SecSysRole.PM_ROLE_NAME, include = DM_CICD_READ)
-    String DM_CICD_MANAGE                  = "DM_CICD_MANAGE";
+    @AuthLabel(order = 9, category = SecAuthCategory.CAT_DM_GIT_OPS, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_GIT_OPS_READ, tag = SecSysRole.PM_ROLE_NAME)
+    String DM_GIT_OPS_READ                 = "DM_GIT_OPS_READ";
+    @AuthLabel(order = 10, category = SecAuthCategory.CAT_DM_GIT_OPS, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_GIT_OPS_MANAGE, tag = SecSysRole.PM_ROLE_NAME, include = DM_GIT_OPS_READ)
+    String DM_GIT_OPS_MANAGE               = "DM_GIT_OPS_MANAGE";
 
     @AuthLabel(order = 1, category = SecAuthCategory.CAT_DM_SQL_AUDIT, i18nKey = SecAuthI18nKeys.AUTH_KEY_DM_SQL_AUDIT_READ, tag = SecSysRole.DBA_ROLE_NAME)
     String DM_SQL_AUDIT                    = "DM_SQL_AUDIT";

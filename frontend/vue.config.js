@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const { codeInspectorPlugin } = require('code-inspector-plugin');
 
 const LOCAL_HOST_DM = 'http://localhost:8222';
 // const LOCAL_HOST_DM = 'http://192.168.0.168:8222';
@@ -14,6 +15,7 @@ let indexHtml = 'index.rdp.html';
 
 const PRODUCT = (process.env.VUE_PRODUCT || process.env.VUE_APP_PRODUCT || 'DM').toUpperCase();
 const APP_LOCALE = process.env.VUE_APP_I18N_LOCALE;
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 console.log(PRODUCT, HOST, indexHtml);
 
@@ -83,19 +85,19 @@ module.exports = {
       '/logout': {
         target: HOST
       },
+      '/signin': {
+        target: HOST
+      },
+      '/loginMfaValid': {
+        target: HOST
+      },
       '/globalSettings': {
         target: HOST
       },
       '/list_org': {
         target: HOST
       },
-      '/login_supplement': {
-        target: HOST
-      },
-      '/check_supplement': {
-        target: HOST
-      },
-      '/load_supplement_info': {
+      '/checkSupplement': {
         target: HOST
       },
       '/auth': {
@@ -142,6 +144,14 @@ module.exports = {
       .set('@/const', resolve('src/const'))
       .set('@/layout', resolve('src/layout'))
       .set('@/i18n', resolve('src/i18n'));
+
+    if (isDevelopment) {
+      config.plugin('code-inspector-plugin').use(
+        codeInspectorPlugin({
+          bundler: 'webpack'
+        })
+      );
+    }
   },
   pluginOptions: {
     'style-resources-loader': {

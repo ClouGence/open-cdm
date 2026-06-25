@@ -35,7 +35,7 @@ public class DingConstant {
     public static final String FORM_AUTH_TABLE_AUTH     = "权限列表";
 
     // for Change
-    public static final String FORM_CHANGE_PROJECT      = "项目";
+    public static final String FORM_CHANGE_FLOW         = "变更流";
     public static final String FORM_CHANGE_NAME         = "变更";
     public static final String FORM_CHANGE_BRANCH       = "分支";
     public static final String FORM_CHANGE_TARGET       = "目标数据源";

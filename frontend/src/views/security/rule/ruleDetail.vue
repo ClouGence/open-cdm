@@ -164,7 +164,7 @@ export default {
                 this.$Message.success(res.data.message);
                 this.forceRuleModal = deepClone(EMPTY_FORCE_RULE_MODAL);
                 await this.$router.push({
-                  path: '/system/dmrulelist',
+                  path: '/data-access/rules',
                   query: {
                     ruleKind: this.ruleForm.ruleKind
                   }

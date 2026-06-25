@@ -77,8 +77,12 @@ description = 'cgdm-web'
 // This module contains only static web resources — no Java source.
 // Declare the lowest compatibility so any Java consumer can resolve it.
 java {
-    sourceCompatibility = 21
-    targetCompatibility = 21
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
 }
 
 tasks.register('npmInstall', Exec) {

@@ -51,7 +51,7 @@ Feature suggestions are welcome. Please submit an Issue prefixed with `[Feature]
 
 ### Prerequisites
 
-- **JDK 21+**
+- **JDK 17+**
 - **Gradle 9.5.0+**
 - **Node.js 22.22.1**
 - **IntelliJ IDEA** or Eclipse (IntelliJ IDEA recommended)

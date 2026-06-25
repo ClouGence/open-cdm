@@ -76,8 +76,8 @@ public interface SecAuthCategory {
     @AuthCategory(order = 0, i18nKey = SecAuthI18nKeys.CAT_KEY_DM_CONSOLE)
     String CAT_DM_CONSOLE               = "CAT_DM_CONSOLE";
 
-    @AuthCategory(order = 1, i18nKey = SecAuthI18nKeys.CAT_KEY_DM_PROJECT)
-    String CAT_DM_PROJECT               = "CAT_DM_PROJECT";
+    @AuthCategory(order = 1, i18nKey = SecAuthI18nKeys.CAT_KEY_DM_CICD_FLOW)
+    String CAT_DM_CICD_FLOW             = "CAT_DM_CICD_FLOW";
 
     @AuthCategory(order = 2, i18nKey = SecAuthI18nKeys.CAT_KEY_DM_SYS)
     String CAT_DM_SYS                   = "CAT_DM_SYS";
@@ -97,8 +97,8 @@ public interface SecAuthCategory {
     @AuthCategory(order = 5, parent = CAT_RDP, i18nKey = SecAuthI18nKeys.CAT_KEY_DM_IM)
     String CAT_DM_IM                    = "CAT_DM_IM";
 
-    @AuthCategory(order = 6, parent = CAT_RDP, i18nKey = SecAuthI18nKeys.CAT_KEY_DM_CICD)
-    String CAT_DM_CICD                  = "CAT_DM_CICD";
+    @AuthCategory(order = 6, parent = CAT_RDP, i18nKey = SecAuthI18nKeys.CAT_KEY_DM_GIT_OPS)
+    String CAT_DM_GIT_OPS               = "CAT_DM_GIT_OPS";
 
     @AuthCategory(order = 7, parent = CAT_RDP, i18nKey = SecAuthI18nKeys.CAT_DM_SQL_AUDIT)
     String CAT_DM_SQL_AUDIT             = "CAT_DM_SQL_AUDIT";

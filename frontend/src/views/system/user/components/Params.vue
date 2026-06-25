@@ -4,7 +4,7 @@
       <div class="table-list">
         <div class="header">
           <Breadcrumb>
-            <BreadcrumbItem to="/system/ccdatasource">{{ $t('cha-xun-pei-zhi') }}</BreadcrumbItem>
+            <BreadcrumbItem to="/datasource">{{ $t('cha-xun-pei-zhi') }}</BreadcrumbItem>
             <BreadcrumbItem>{{ $t('xiu-gai-can-shu-pei-zhi') }}</BreadcrumbItem>
           </Breadcrumb>
         </div>

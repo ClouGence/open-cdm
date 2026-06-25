@@ -20,9 +20,6 @@
               <Button @click="handleShowAddEnv" type="primary" style="margin-right: 10px" icon="md-add" v-if="myAuth.includes('RDP_ENV_MANAGE')">
                 {{ $t('xin-jian-huan-jing') }}
               </Button>
-              <Button @click="listEnv('init')">
-                <CustomIcon type="icon-v2-Refresh" v-if="!loading" />
-              </Button>
             </div>
           </div>
           <div class="table-container">

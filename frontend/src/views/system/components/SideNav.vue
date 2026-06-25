@@ -14,8 +14,8 @@
         </MenuItem>
       </MenuGroup>
       <MenuGroup :title="$t('zhang-hao')">
-        <MenuItem name="/system/profile" key="/system/profile">
-          <a href="/#/system/profile">
+        <MenuItem name="/settings/profile" key="/settings/profile">
+          <a href="/#/settings/profile">
             <CustomIcon type="profile" rightMargin />
             {{ $t('ge-ren-zi-liao') }}
           </a>

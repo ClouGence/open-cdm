@@ -50,7 +50,7 @@ public enum UserConfigTagType {
 
     CC_IM_ALERT,
 
-    PROJECT,
+    CICD,
 
     QUERY_RESULT,
 

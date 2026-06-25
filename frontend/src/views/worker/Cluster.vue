@@ -321,7 +321,7 @@ export default {
     handleCluster(row) {
       if (this.type === 'dm') {
         localStorage.setItem(`dmcluster-${row.id}`, JSON.stringify(row));
-        this.$router.push({ path: `/system/dmmachine/list/${row.id}` });
+        this.$router.push({ path: `/data-access/cluster/list/${row.id}` });
       } else {
         localStorage.setItem(`cluster-${row.id}`, JSON.stringify(row));
         this.$router.push({ path: `/ccsystem/resource/${row.id}` });

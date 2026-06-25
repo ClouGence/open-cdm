@@ -74,22 +74,6 @@
             </a-button>
           </div>
         </a-form-item>
-
-        <a-form-item v-if="showRebuildChoice" :label="$t('initialization.dbRebuildLabel')" required class="jdbc-form-item-full">
-          <div class="db-rebuild-option">
-            <div class="db-rebuild-line">
-              <div class="db-rebuild-text">{{ dbTestResult.rebuildPrompt }}</div>
-              <a-radio-group
-                :value="formValues['clougence.init.db.rebuildIfNotEmpty'] || ''"
-                :disabled="readonly"
-                @change="(e) => onChange('clougence.init.db.rebuildIfNotEmpty', e.target.value)"
-              >
-                <a-radio :value="'true'">{{ $t('initialization.optionYes') }}</a-radio>
-                <a-radio :value="'false'">{{ $t('initialization.optionNo') }}</a-radio>
-              </a-radio-group>
-            </div>
-          </div>
-        </a-form-item>
       </div>
 
       <a-form-item v-for="field in remainingFields" :key="field.propertyKey" :label="field.label" required>
@@ -215,9 +199,6 @@ export default {
     jdbcUrlValue() {
       return this.formValues['spring.datasource.jdbcurl'] || '';
     },
-    showRebuildChoice() {
-      return Boolean(this.dbTestResult && this.dbTestResult.showRebuildChoice);
-    },
     hasPendingCreateDatabase() {
       const databaseName = `${this.generatedState.database || ''}`.trim();
       if (!this.dbTestResult || !this.dbTestResult.success || this.dbTestResult.databaseExists || !databaseName) {
@@ -328,8 +309,8 @@ export default {
   width: 100%;
 }
 .step-db-form :deep(.ant-form-item-label) {
-  flex: 0 0 120px;
-  max-width: 120px;
+  flex: 0 0 136px;
+  max-width: 136px;
   padding-right: 12px;
   text-align: left;
   line-height: 32px;
@@ -341,7 +322,7 @@ export default {
   position: relative;
   min-height: 32px;
   padding-left: 12px;
-  white-space: normal;
+  white-space: nowrap;
   text-align: left;
 }
 .step-db-form :deep(.ant-form-item-required::before) {
@@ -351,7 +332,7 @@ export default {
 }
 .step-db-form :deep(.ant-form-item-control-wrapper) {
   flex: 1;
-  max-width: calc(100% - 120px);
+  max-width: calc(100% - 136px);
 }
 .step-db-form :deep(.ant-form-item-control) {
   flex: 1 1 0;
@@ -479,21 +460,65 @@ export default {
     transform: rotate(360deg);
   }
 }
-.db-rebuild-option {
-  width: 100%;
-}
-.db-rebuild-line {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-  flex-wrap: wrap;
-}
-.db-rebuild-text {
-  flex: 1;
-  min-width: 0;
-  color: rgba(0, 0, 0, 0.85);
-  line-height: 22px;
+
+@media (max-width: 768px) {
+  .step-db-form :deep(.ant-form-item) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .step-db-form :deep(.ant-form-item-row) {
+    flex-direction: column;
+  }
+
+  .step-db-form :deep(.ant-form-item-label) {
+    flex: none;
+    max-width: 100%;
+    width: 100%;
+    padding: 0 0 6px;
+    line-height: 22px;
+  }
+
+  .step-db-form :deep(.ant-form-item-label > label) {
+    min-height: 22px;
+  }
+
+  .step-db-form :deep(.ant-form-item-control-wrapper) {
+    flex: none;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .step-db-form :deep(.ant-form-item-control),
+  .step-db-form :deep(.ant-form-item-control-input),
+  .step-db-form :deep(.ant-form-item-control-input-content) {
+    flex: none;
+    height: auto;
+    min-height: 0;
+    width: 100%;
+  }
+
+  .jdbc-host-port-row,
+  .jdbc-database-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .jdbc-inline-field-port {
+    width: 100%;
+  }
+
+  .jdbc-inline-field-port :deep(.ant-input) {
+    width: 100%;
+  }
+
+  .jdbc-inline-label {
+    flex: 0 0 auto;
+  }
+
+  .jdbc-test-button {
+    width: 100%;
+  }
 }
 </style>

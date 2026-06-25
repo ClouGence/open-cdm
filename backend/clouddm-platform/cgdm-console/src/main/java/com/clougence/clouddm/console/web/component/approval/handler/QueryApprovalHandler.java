@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
-import com.clougence.clouddm.console.web.component.project.ImSenderService;
+import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.model.vo.PrimaryUserVO;
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;

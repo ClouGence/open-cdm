@@ -78,14 +78,16 @@
                 <Option value="FAILURE" label="FAILURE">FAILURE</Option>
                 <Option value="ERROR" label="ERROR">ERROR</Option>
               </Select>
-              <Button type="primary" @click="handleRefresh" :loading="refreshLoading" style="margin-left: 10px">
+              <Button type="primary" @click="handleRefresh" :loading="refreshLoading" style="margin-left: 10px" ghost>
                 {{ $t('cha-xun') }}
               </Button>
             </div>
             <div class="right">
-              <Button type="default" style="margin-right: 6px" @click="handleRefresh" :loading="refreshLoading">
-                <CustomIcon type="icon-v2-Refresh" v-if="!refreshLoading" />
-              </Button>
+              <Tooltip v-if="canReadUserConfig" transfer :content="$t('shen-ji-ri-zhi-she-zhi')" placement="bottom">
+                <Button type="default" style="margin-right: 6px" @click="handleOpenRetentionSetting" :loading="retentionLoading">
+                  <CustomIcon type="icon-v2-preference" v-if="!retentionLoading" />
+                </Button>
+              </Tooltip>
             </div>
           </div>
           <div class="table-container audit-log-table">
@@ -148,6 +150,19 @@
         <ReadOnlyEditor v-else :text="selectedRow?.execSql" :ds-type="selectedRow.dataSourceType" style="height: 400px" />
       </div>
     </CCModal>
+    <CCModal v-model="showRetentionSetting" :title="$t('shen-ji-ri-zhi-she-zhi')" width="520px">
+      <Form ref="retentionFormRef" :model="retentionForm" :rules="retentionRules" :label-width="150">
+        <FormItem :label="$t('shen-ji-ri-zhi-bao-cun-tian-shu')" prop="sqlAuditRetentionDays">
+          <Input v-model="retentionForm.sqlAuditRetentionDays" type="number" :disabled="!canEditUserConfig" />
+        </FormItem>
+      </Form>
+      <template #footer>
+        <Button @click="handleCloseRetentionSetting">{{ $t('guan-bi') }}</Button>
+        <Button v-if="canEditUserConfig" type="primary" :loading="retentionSaveLoading" @click="handleSaveRetentionSetting">
+          {{ $t('bao-cun') }}
+        </Button>
+      </template>
+    </CCModal>
   </div>
 </template>
 
@@ -157,6 +172,8 @@ import { mapState } from 'vuex';
 import { h, resolveComponent } from 'vue';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
 import ReadOnlyDiffEditor from '@/components/editor/ReadOnlyDiffEditor.vue';
+
+const SQL_AUDIT_RETENTION_DAYS_KEY = 'sqlAuditRetentionDays';
 
 export default {
   name: 'SqlLog',
@@ -175,6 +192,33 @@ export default {
       operateUserList: [],
       selectedRow: null,
       showSqlModal: false,
+      showRetentionSetting: false,
+      retentionLoading: false,
+      retentionSaveLoading: false,
+      retentionConfig: null,
+      retentionForm: {
+        sqlAuditRetentionDays: ''
+      },
+      retentionRules: {
+        sqlAuditRetentionDays: [
+          {
+            required: true,
+            message: this.$t('qing-shu-ru-1-dao-60-de-zheng-shu'),
+            trigger: 'blur'
+          },
+          {
+            validator: (rule, value, callback) => {
+              const numValue = Number(value);
+              if (!Number.isInteger(numValue) || numValue < 1 || numValue > 60) {
+                callback(new Error(this.$t('qing-shu-ru-1-dao-60-de-zheng-shu')));
+                return;
+              }
+              callback();
+            },
+            trigger: 'blur'
+          }
+        ]
+      },
       timeRange: [new Date(new Date().getTime() - 24 * 3600 * 1000), new Date()],
       searchData: {
         dsId: null,
@@ -310,7 +354,13 @@ export default {
     };
   },
   computed: {
-    ...mapState(['globalSetting']),
+    ...mapState(['globalSetting', 'myAuth']),
+    canReadUserConfig() {
+      return this.myAuth.includes('RDP_PRI_USER_KV_CONF_R');
+    },
+    canEditUserConfig() {
+      return this.myAuth.includes('RDP_PRI_USER_KV_CONF_W');
+    },
     tableScroll() {
       const scrollX = this.logColumn.reduce((sum, column) => {
         return sum + (column.width || column.minWidth || 0);
@@ -366,6 +416,58 @@ export default {
       this.currentPageSize = this.searchData.pageData.pageSize;
       this.searchData.pageData.startId = 0;
       this.handleSearch();
+    },
+
+    async handleOpenRetentionSetting() {
+      this.showRetentionSetting = true;
+      await this.fetchRetentionSetting();
+    },
+
+    handleCloseRetentionSetting() {
+      this.showRetentionSetting = false;
+    },
+
+    async fetchRetentionSetting() {
+      this.retentionLoading = true;
+      try {
+        const res = await this.$services.rdpUserConfigGetCurrUserConfigs();
+        if (!res.success) {
+          this.$Message.error(res.msg || this.$t('cao-zuo-shi-bai'));
+          return;
+        }
+
+        const config = (res.data || []).find((item) => item.configName === SQL_AUDIT_RETENTION_DAYS_KEY);
+        this.retentionConfig = config || null;
+        this.retentionForm.sqlAuditRetentionDays = config ? String(config.configValue || config.defaultValue || '') : '';
+      } finally {
+        this.retentionLoading = false;
+      }
+    },
+
+    async handleSaveRetentionSetting() {
+      const valid = await this.$refs.retentionFormRef.validate();
+      if (!valid) return;
+
+      const value = String(Number(this.retentionForm.sqlAuditRetentionDays));
+      const hasCreatedConfig = this.retentionConfig && !this.retentionConfig.needCreated;
+      const updateConfigs = hasCreatedConfig ? { [SQL_AUDIT_RETENTION_DAYS_KEY]: value } : {};
+      const needCreateConfigs = hasCreatedConfig ? {} : { [SQL_AUDIT_RETENTION_DAYS_KEY]: value };
+
+      this.retentionSaveLoading = true;
+      try {
+        const res = await this.$services.rdpUserConfigUpsertUserConfigs({
+          data: { updateConfigs, needCreateConfigs }
+        });
+        if (!res.success) {
+          this.$Message.error(res.msg || this.$t('cao-zuo-shi-bai'));
+          return;
+        }
+        this.$Message.success(this.$t('cao-zuo-cheng-gong'));
+        this.showRetentionSetting = false;
+        await this.fetchRetentionSetting();
+      } finally {
+        this.retentionSaveLoading = false;
+      }
     },
 
     handleSearch(type) {

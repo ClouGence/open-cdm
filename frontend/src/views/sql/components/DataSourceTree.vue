@@ -890,7 +890,7 @@ export default {
 
       switch (actionType) {
         case DS_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_INSTANCE_CREATE:
-          await this.$router.push('/system/ccdatasource');
+          await this.$router.push('/datasource');
           break;
         case DS_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_INSTANCE_RENAME:
           if (!this.dsDesc) {

@@ -23,14 +23,14 @@ export default {
         tabs.push({
           name: 'operation',
           label: this.$t('cao-zuo-shen-ji'),
-          to: '/system/management/logs/operation'
+          to: '/manager/logs'
         });
       }
       if (this.myCatLog.includes('CAT_DM_SQL_AUDIT')) {
         tabs.push({
           name: 'sql',
           label: this.$t('nav-ri-zhi-shen-ji'),
-          to: '/system/management/logs/sql'
+          to: '/manager/logs/sql'
         });
       }
 
