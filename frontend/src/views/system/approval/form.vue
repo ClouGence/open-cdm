@@ -30,16 +30,16 @@
           </div>
         </FormItem>
 
-        <FormItem v-if="enableField" :label="$t(enableField.labelKey)" :prop="enableField.key" class="approval-form-enable">
-          <i-switch v-model="formData[enableField.key]" true-color="#52C41A" />
-        </FormItem>
-
         <div class="approval-form-grid">
           <FormItem v-for="field in dataFields" :key="field.key" :label="$t(field.labelKey)" :prop="field.key">
             <Input v-if="field.password" v-model="formData[field.key]" type="password" password :placeholder="getPlaceholder(field)" />
             <Input v-else v-model="formData[field.key]" :placeholder="getPlaceholder(field)" />
           </FormItem>
         </div>
+
+        <FormItem v-if="enableField" :label="$t(enableField.labelKey)" :prop="enableField.key" class="approval-form-enable">
+          <i-switch v-model="formData[enableField.key]" true-color="#52C41A" />
+        </FormItem>
       </Form>
 
       <div v-else-if="!loading" class="approval-form-empty">{{ $t('zan-wu-shu-ju') }}</div>
