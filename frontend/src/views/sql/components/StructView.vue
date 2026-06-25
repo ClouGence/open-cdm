@@ -8,7 +8,7 @@ import { ACTION_TYPE } from '@/const';
 import copyMixin from '@/mixins/copyMixin';
 import { isUndefined } from 'xe-utils';
 import browseMixin from '@/mixins/browseMixin';
-import deepClone from 'lodash.clonedeep';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 import CCModal from '@/components/ui/CCModal.vue';
 
 export default {

@@ -3,7 +3,7 @@ import { mapActions, mapState } from 'vuex';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
 import TicketEditor from '@/components/editor/TicketEditor';
 import { EMPTY_FORCE_RULE_MODAL } from '@/const';
-import deepClone from 'lodash.clonedeep';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 
 export default {
   name: 'RuleDetail',

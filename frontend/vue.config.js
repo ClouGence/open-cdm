@@ -83,7 +83,7 @@ module.exports = {
       '/logout': {
         target: HOST
       },
-      '/global_settings': {
+      '/globalSettings': {
         target: HOST
       },
       '/list_org': {
@@ -154,7 +154,20 @@ module.exports = {
       splitChunks: {
         chunks: 'all',
         cacheGroups: {
-          // vxe-table related library (non-CC product only)
+          antDesignVue: {
+            name: 'chunk-antdv',
+            test: /[\\/]node_modules[\\/](ant-design-vue)[\\/]/,
+            priority: 20,
+            reuseExistingChunk: true,
+            enforce: true
+          },
+          viewUiPlus: {
+            name: 'chunk-viewui',
+            test: /[\\/]node_modules[\\/](view-ui-plus)[\\/]/,
+            priority: 20,
+            reuseExistingChunk: true,
+            enforce: true
+          },
           ...(PRODUCT === 'CC'
             ? {
                 // Monaco Editor

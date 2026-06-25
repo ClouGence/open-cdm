@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import _ from 'lodash';
+import _ from '@/utils/lodash';
 
 export class ThresholdManager {
   constructor(panelCtrl) {

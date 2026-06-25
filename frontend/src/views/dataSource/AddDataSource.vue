@@ -48,7 +48,7 @@ import SuccessAdd from '@/components/function/addDataSource/SuccessAdd';
 import { isDb2, isHana, separatePort, isMySQL } from '@/utils';
 import { isPostgreSQL } from '@/const/dataSource';
 import { mapGetters, mapState } from 'vuex';
-import deepClone from 'lodash.clonedeep';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 import DataSourceGroup from '../dataSourceGroup.json';
 import store from '../../store/index';
 

@@ -173,7 +173,7 @@
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons-vue';
 import Loading from 'vue-loading-overlay';
 import 'vue-loading-overlay/dist/css/index.css';
-import deepClone from 'lodash.clonedeep';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 import { Modal } from 'ant-design-vue';
 import { mapGetters, mapMutations, mapState } from 'vuex';
 import dayjs from 'dayjs';

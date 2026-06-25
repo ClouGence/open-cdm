@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import moment from 'moment';
+import _ from '@/utils/lodash';
+import dayjs from '@/utils/dayjsSetup';
 
 const units = ['y', 'M', 'w', 'd', 'h', 'm', 's'];
 
@@ -7,11 +7,11 @@ export function parse(text, roundUp, timezone) {
   if (!text) {
     return undefined;
   }
-  if (moment.isMoment(text)) {
+  if (dayjs.isDayjs(text)) {
     return text;
   }
   if (_.isDate(text)) {
-    return moment(text);
+    return dayjs(text);
   }
 
   let time;
@@ -21,9 +21,9 @@ export function parse(text, roundUp, timezone) {
 
   if (text.substring(0, 3) === 'now') {
     if (timezone === 'utc') {
-      time = moment.utc();
+      time = dayjs.utc();
     } else {
-      time = moment();
+      time = dayjs();
     }
     mathString = text.substring('now'.length);
   } else {
@@ -36,7 +36,7 @@ export function parse(text, roundUp, timezone) {
       mathString = text.substring(index + 2);
     }
     // We're going to just require ISO8601 timestamps, k?
-    time = moment(parseString, moment.ISO_8601);
+    time = dayjs(parseString);
   }
 
   if (!mathString.length) {
@@ -53,7 +53,7 @@ export function isValid(text) {
     return false;
   }
 
-  if (moment.isMoment(date)) {
+  if (dayjs.isDayjs(date)) {
     return date.isValid();
   }
 

@@ -1,4 +1,4 @@
-import isEqual from 'lodash.isequal';
+import { isEqual } from '@/utils/lodash';
 
 const sqlMixin = {
   methods: {

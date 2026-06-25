@@ -1,4 +1,3 @@
-import html2canvas from 'html2canvas';
 import i18n from '../i18n';
 
 const exportMonitorMixin = {
@@ -91,6 +90,7 @@ const exportMonitorMixin = {
         // await new Promise((resolve) => setTimeout(resolve, 300));
 
         // Capture elements as pictures
+        const { default: html2canvas } = await import('html2canvas');
         const canvas = await html2canvas(container, {
           scale: 2, // High Resolution
           useCORS: true,

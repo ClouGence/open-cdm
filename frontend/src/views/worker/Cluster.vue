@@ -122,7 +122,7 @@
   </div>
 </template>
 <script>
-import _ from 'lodash';
+import _ from '@/utils/lodash';
 import { handleCopy as handleCopyUtil } from '@/utils/clipboard';
 import { mapGetters, mapState } from 'vuex';
 import store from '@/store';

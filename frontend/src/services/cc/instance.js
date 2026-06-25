@@ -5,7 +5,7 @@ import i18n from '@/i18n';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import eventBus from '@/utils/eventBus';
 // import CCMI from '@/utils/modalInstance';
-import { debounce } from 'lodash';
+import { debounce } from '@/utils/lodash';
 import MarkdownIt from 'markdown-it';
 import DOMPurify from 'dompurify';
 import { DOMPURIFY_CONFIG } from '../constants';

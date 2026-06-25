@@ -23,8 +23,7 @@ import {
   PROCESSOR_CONFIG_TYPE,
   SELECT_MODE
 } from '@/utils';
-import deepClone from 'lodash.clonedeep';
-import _ from 'lodash';
+import _, { cloneDeep as deepClone } from '@/utils/lodash';
 import { nanoid } from 'nanoid';
 import { UPDATE_TASK_INFO_DB_MAP_HISTORY, UPDATE_TASK_INFO_HISTORY } from '@/store/mutationTypes';
 // Use newTaskInfo in project

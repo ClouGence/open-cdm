@@ -1,5 +1,5 @@
-import moment from 'moment';
-import _ from 'lodash';
+import dayjs from '@/utils/dayjsSetup';
+import _ from '@/utils/lodash';
 import * as dateMath from '../panel/utils/datemath';
 import { Emitter } from '../panel/utils/emitter';
 
@@ -19,8 +19,8 @@ export default class Time {
 
   timeRange() {
     const raw = {
-      from: moment.isMoment(this.time.from) ? moment(this.time.from) : this.time.from,
-      to: moment.isMoment(this.time.to) ? moment(this.time.to) : this.time.to
+      from: dayjs.isDayjs(this.time.from) ? dayjs(this.time.from) : this.time.from,
+      to: dayjs.isDayjs(this.time.to) ? dayjs(this.time.to) : this.time.to
     };
 
     const timezone = 'browser';

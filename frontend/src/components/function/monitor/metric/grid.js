@@ -1,6 +1,6 @@
 import GridLayout from 'react-grid-layout';
 import React from 'react';
-import _ from 'lodash';
+import _ from '@/utils/lodash';
 import {
   EventEmitter
 } from 'eventemitter3';

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from '@/utils/lodash';
 import kbn from '../utils/kbn';
 
 export class ColumnOptionsCtrl {

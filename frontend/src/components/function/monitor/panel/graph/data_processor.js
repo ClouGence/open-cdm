@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from '@/utils/lodash';
 import TimeSeries from '../../core/time_series2';
 import colors from '../../core/colors';
 
