@@ -215,7 +215,7 @@ public class DmDsServiceImpl implements DmDsService, UnifiedPostConstruct {
         }
 
         try {
-            return this.schemaService.realTimeFetchVersion(puid, clusterId, dsConfig, levelsParam);
+            return this.schemaService.realTimeFetchVersion(clusterId, dsConfig, levelsParam);
         } catch (ErrorMessageException e) {
             if (StringUtils.equals(e.getErrorCode(), DmErrorCode.CLUSTER_HAVE_NO_WORKS_ERROR.code())) {
                 throw e;
@@ -306,7 +306,7 @@ public class DmDsServiceImpl implements DmDsService, UnifiedPostConstruct {
         DmDsDO dsDO = levels.dsDO();
         DataSourceConfig dsConfig = configService.fetchDsConfigFromExists(dsDO.getId());
         try {
-            this.schemaService.realTimeFetchVersion(uid, dsDO, levels.levelsParam());
+            this.schemaService.realTimeFetchVersion(dsDO, levels.levelsParam());
             this.resetStatus(uid, dsConfig);
         } catch (Exception e) {
             this.handleException(uid, dsConfig, e);

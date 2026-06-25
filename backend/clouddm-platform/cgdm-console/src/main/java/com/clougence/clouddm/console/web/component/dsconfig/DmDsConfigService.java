@@ -31,7 +31,7 @@ import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
  */
 public interface DmDsConfigService {
 
-    Map<String, String> fetchSettingsMap(String ownerUid, List<String> names);
+    Map<String, String> fetchSettingsMap(List<String> names);
 
     String fetchDsConfig(long dsId, String configKey);
 
