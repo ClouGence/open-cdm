@@ -3083,6 +3083,7 @@
   "sso-col-primary": "Identifier",
   "sso-col-status": "Status",
   "sso-status-enabled": "Enabled",
+  "sso-all-providers-enabled": "All available SSO providers have been added",
   "sso-provider-already-added": "Already added. Use \"Settings\" in the row to edit.",
   "sso-provider-conflict-with-x": "Conflicts with the configured {0}. Remove it before switching.",
   "sso-confirm-delete-x": "Delete provider {0}? Related configurations will be cleared.",

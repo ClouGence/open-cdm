@@ -73,30 +73,43 @@
 }
 
 .ant-btn-primary {
-  background: var(--primary-color) !important;
-  border-color: var(--primary-color) !important;
-  color: #ffffff !important;
-
-  span {
-    color: #ffffff !important;
-  }
-
-  &:hover {
-    background-color: @hover-color !important;
-    border-color: @hover-color !important;
-    color: #ffffff !important;
-  }
-
-  &:active {
-    background-color: @active-color !important;
-    border-color: @active-color !important;
-    color: #ffffff !important;
-  }
-
-  &:focus {
+  &:not(:disabled) {
     background: var(--primary-color) !important;
     border-color: var(--primary-color) !important;
     color: #ffffff !important;
+
+    span {
+      color: #ffffff !important;
+    }
+
+    &:hover {
+      background-color: @hover-color !important;
+      border-color: @hover-color !important;
+      color: #ffffff !important;
+    }
+
+    &:active {
+      background-color: @active-color !important;
+      border-color: @active-color !important;
+      color: #ffffff !important;
+    }
+
+    &:focus {
+      background: var(--primary-color) !important;
+      border-color: var(--primary-color) !important;
+      color: #ffffff !important;
+    }
+  }
+
+  &[disabled],
+  &:disabled {
+    background: #ececec !important;
+    border-color: #dadada !important;
+    color: #999 !important;
+
+    span {
+      color: #999 !important;
+    }
   }
 }
 

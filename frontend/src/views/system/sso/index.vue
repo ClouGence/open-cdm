@@ -16,9 +16,11 @@
               <Button type="primary" ghost @click="handleQuery">{{ $t('cha-xun') }}</Button>
             </div>
             <div class="right">
-              <Button v-if="canEdit" @click="goCreate" type="primary" style="margin-right: 10px" icon="md-add" :disabled="!hasUnenabledProvider">
-                {{ $t('xin-zeng') }}
-              </Button>
+              <a-tooltip v-if="canEdit" :title="hasUnenabledProvider ? '' : $t('sso-all-providers-enabled')">
+                <Button @click="goCreate" type="primary" style="margin-right: 10px" icon="md-add" :disabled="!hasUnenabledProvider">
+                  {{ $t('xin-zeng') }}
+                </Button>
+              </a-tooltip>
               <Button @click="init" :loading="loading">
                 <CustomIcon type="icon-v2-Refresh" v-if="!loading" />
               </Button>
