@@ -164,6 +164,22 @@ const iviewComponents = {
 Object.keys(iviewComponents).forEach((key) => {
   app.component(key, iviewComponents[key]);
 });
+// Extend Modal.confirm to honor a className option by tagging the freshly
+// mounted modal wrap. View UI Plus does not pass className through to the
+// modal wrap on its own, but we want destructive confirms (deletes) to be
+// able to opt their OK button into the error color via styles/modal.less.
+const originalModalConfirm = Modal.confirm.bind(Modal);
+Modal.confirm = function patchedConfirm(props = {}) {
+  const result = originalModalConfirm(props);
+  if (props.className) {
+    requestAnimationFrame(() => {
+      const wraps = document.body.querySelectorAll('.ivu-modal-wrap');
+      const latest = wraps[wraps.length - 1];
+      if (latest) latest.classList.add(props.className);
+    });
+  }
+  return result;
+};
 app.config.globalProperties.$Modal = Modal;
 app.config.globalProperties.$Message = Message;
 app.config.globalProperties.$Spin = Spin;

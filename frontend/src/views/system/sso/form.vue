@@ -235,6 +235,7 @@ export default {
       this.$Modal.confirm({
         title: this.$t('que-ren'),
         content: this.$t('sso-confirm-delete-x', [this.$t(def.labelKey)]),
+        className: 'dm-modal-destructive',
         onOk: async () => {
           const cleared = {};
           def.fields.forEach((field) => {
