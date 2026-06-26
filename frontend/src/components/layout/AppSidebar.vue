@@ -40,7 +40,6 @@
                 class="app-sidebar-item app-sidebar-item--depth-1"
                 :class="{ 'is-active': activeKey === child.key }"
               >
-                <CustomIcon v-if="child.iconName" :type="child.iconName" size="16px" />
                 <span>{{ child.label }}</span>
               </a>
             </div>

@@ -48,9 +48,6 @@
         <Icon type="md-add" />
         {{ $t('xin-zeng-ji-qun') }}
       </Button>
-      <Button type="default" @click="_handleSearch(searchType, searchData)" :loading="refreshLoading">
-        <CustomIcon type="icon-v2-Refresh" v-if="!refreshLoading" />
-      </Button>
     </div>
   </div>
 </template>

@@ -131,6 +131,24 @@ export default [
     component: () => import(/* webpackChunkName: "ccsystem-subaccount" */ '@/views/system/subaccount/index')
   },
   {
+    path: '/manager/role/create',
+    name: 'Management_Role_Create',
+    component: () => import(/* webpackChunkName: "ccsystem-role" */ '@/views/system/role/RoleEditorPage'),
+    meta: { requiredAuth: 'RDP_ROLE_MANAGE' }
+  },
+  {
+    path: '/manager/role/:roleId/edit',
+    name: 'Management_Role_Edit',
+    component: () => import(/* webpackChunkName: "ccsystem-role" */ '@/views/system/role/RoleEditorPage'),
+    meta: { requiredAuth: 'RDP_ROLE_MANAGE' }
+  },
+  {
+    path: '/manager/role/:roleId/view',
+    name: 'Management_Role_View',
+    component: () => import(/* webpackChunkName: "ccsystem-role" */ '@/views/system/role/RoleEditorPage'),
+    meta: { requiredAuth: 'RDP_ROLE_READ' }
+  },
+  {
     path: '/manager/role',
     name: 'Management_Role',
     component: () => import(/* webpackChunkName: "ccsystem-role" */ '@/views/system/role/index'),

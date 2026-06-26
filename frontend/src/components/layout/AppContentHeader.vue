@@ -168,6 +168,10 @@ export default {
         label: this.$t('nav-cha-xun-ji-qi-lie-biao'),
         to: '/data-access/cluster'
       };
+      const roleRoot = {
+        label: this.$t('jiao-se'),
+        to: '/manager/role'
+      };
 
       if (path === '/data-access/rules' || path === '/data-access/rules/') {
         return [{ ...securityRoot, to: this.$route.fullPath }];
@@ -217,6 +221,18 @@ export default {
       }
       if (/^\/data-access\/cluster\/list\/[^/]+$/.test(path)) {
         return [machineRoot, { label: this.$t('ji-qi-lie-biao'), to: this.$route.fullPath }];
+      }
+      if (path === '/manager/role' || path === '/manager/role/') {
+        return [{ ...roleRoot, to: this.$route.fullPath }];
+      }
+      if (path === '/manager/role/create') {
+        return [roleRoot, { label: this.$t('chuang-jian-jiao-se'), to: this.$route.fullPath }];
+      }
+      if (/^\/manager\/role\/[^/]+\/edit$/.test(path)) {
+        return [roleRoot, { label: this.$t('bian-ji-jue-se'), to: this.$route.fullPath }];
+      }
+      if (/^\/manager\/role\/[^/]+\/view$/.test(path)) {
+        return [roleRoot, { label: this.$t('cha-kan-jue-se'), to: this.$route.fullPath }];
       }
       if (path === '/integrations/git/create') {
         return [
