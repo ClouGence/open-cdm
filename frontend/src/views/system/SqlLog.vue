@@ -5,6 +5,14 @@
         <div class="content">
           <div class="option border-radius-card">
             <div class="left" style="align-items: center">
+              <Select v-model="auditLogType" style="width: 120px; margin-right: 10px" @on-change="handleChangeAuditLogType">
+                <Option value="operation" :label="$t('cao-zuo-shen-ji')">
+                  <span>{{ $t('cao-zuo-shen-ji') }}</span>
+                </Option>
+                <Option value="sql" :label="$t('nav-ri-zhi-shen-ji')">
+                  <span>{{ $t('nav-ri-zhi-shen-ji') }}</span>
+                </Option>
+              </Select>
               {{ $t('cao-zuo-shi-jian') }}
               <DatePicker
                 :editable="false"
@@ -78,7 +86,7 @@
                 <Option value="FAILURE" label="FAILURE">FAILURE</Option>
                 <Option value="ERROR" label="ERROR">ERROR</Option>
               </Select>
-              <Button type="primary" @click="handleRefresh" :loading="refreshLoading" style="margin-left: 10px" ghost>
+              <Button type="primary" ghost @click="handleRefresh" :loading="refreshLoading" style="margin-left: 10px">
                 {{ $t('cha-xun') }}
               </Button>
             </div>
@@ -126,16 +134,8 @@
           </div>
         </div>
       </div>
-      <div class="footer list-page-footer-nav">
-        <Button :disabled="page === 1" @click="handlePre">
-          <Icon type="ios-arrow-back" />
-          {{ $t('shang-yi-ye') }}
-        </Button>
-        <span>{{ $t('di-page-ye', [page]) }}</span>
-        <Button :disabled="noMoreData" @click="handleNext">
-          {{ $t('xia-yi-ye') }}
-          <Icon type="ios-arrow-forward" />
-        </Button>
+      <div class="footer">
+        <Page :total="pagerTotal" :page-size="1" :model-value="page" @on-change="handlePagerChange" />
       </div>
     </div>
     <CCModal v-model="showSqlModal" title="SQL" width="1000px" @on-ok="handleCloseSqlModal" @on-cancel="handleCloseSqlModal">
@@ -180,6 +180,7 @@ export default {
   components: { ReadOnlyDiffEditor, ReadOnlyEditor },
   data() {
     return {
+      auditLogType: 'sql',
       searchType: 'user',
       noMoreData: false,
       refreshLoading: false,
@@ -366,6 +367,9 @@ export default {
         return sum + (column.width || column.minWidth || 0);
       }, 0);
       return { x: scrollX };
+    },
+    pagerTotal() {
+      return this.noMoreData ? this.page : this.page + 1;
     }
   },
   mounted() {
@@ -406,6 +410,14 @@ export default {
         e.preventDefault();
         this.handleRefresh();
       }
+    },
+
+    handleChangeAuditLogType(value) {
+      if (value === 'operation') {
+        this.$router.push('/manager/logs');
+        return;
+      }
+      this.auditLogType = 'sql';
     },
 
     handleRefresh() {
@@ -552,6 +564,17 @@ export default {
       this.searchData.pageData.startId = this.lastId;
       this.handleSearch('next');
       this.page++;
+    },
+
+    handlePagerChange(nextPage) {
+      if (nextPage === this.page) {
+        return;
+      }
+      if (nextPage > this.page) {
+        this.handleNext();
+        return;
+      }
+      this.handlePre();
     },
 
     handleChangeSearchType() {

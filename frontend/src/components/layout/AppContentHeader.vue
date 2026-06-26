@@ -70,12 +70,10 @@ export default {
       if (path === '/env' || path.indexOf('/env/') === 0 || path.indexOf('/system/env') > -1) {
         return this.$t('huan-jing');
       }
-      if (
-        path.indexOf('/manager/account') === 0 ||
-        path.indexOf('/system/management/accounts') > -1 ||
-        path.indexOf('/system/account') > -1 ||
-        path.indexOf('/system/role') > -1
-      ) {
+      if (path.indexOf('/manager/role') === 0 || path.indexOf('/system/role') > -1) {
+        return this.$t('jiao-se');
+      }
+      if (path.indexOf('/manager/account') === 0 || path.indexOf('/system/management/accounts') > -1 || path.indexOf('/system/account') > -1) {
         return this.$t('nav-zhang-hu');
       }
       if (
@@ -89,8 +87,8 @@ export default {
       if (path.indexOf('/data-access/cluster') === 0 || path.indexOf('/system/dmmachine') > -1) {
         return this.$t('nav-cha-xun-ji-qi-lie-biao');
       }
-      if (path.indexOf('/data-access/rules') === 0 || path.indexOf('/system/dmrule') > -1) {
-        return this.$t('an-quan-gui-ze');
+      if (path.indexOf('/data-access/rules') === 0 || path.indexOf('/system/dmrule') > -1 || path.indexOf('/system/dmspec') > -1) {
+        return this.$t('an-quan-gui-fan');
       }
       if (path.indexOf('/integrations/im') === 0 || path.indexOf('/system/im') > -1) {
         return this.$t('nav-webhook');
@@ -136,6 +134,27 @@ export default {
     },
     pageBreadcrumbs() {
       const path = this.$route.path;
+      const securityRoot = {
+        label: this.$t('an-quan-gui-fan'),
+        to: {
+          path: '/data-access/rules',
+          query: { tab: 'security' }
+        }
+      };
+      const securityTemplateRoot = {
+        ...securityRoot,
+        to: {
+          path: '/data-access/rules',
+          query: { tab: 'template' }
+        }
+      };
+      const securityDetail = (specId) => ({
+        label: this.$t('gui-ze-xiang-qing'),
+        to: {
+          path: `/system/dmspec/${specId}`,
+          query: this.$route.query.ruleKind ? { ruleKind: this.$route.query.ruleKind } : {}
+        }
+      });
       const cicdRoot = { label: this.$t('nav-ci-cd'), to: '/cicd' };
       const flowDetail = (flowId) => ({
         label: this.$t('cicd-bian-geng-liu-xiang-qing'),
@@ -145,7 +164,33 @@ export default {
         label: this.$t('bian-geng-ji-lu'),
         to: flowId ? `/cicd/${flowId}/change-records` : ''
       });
+      const machineRoot = {
+        label: this.$t('nav-cha-xun-ji-qi-lie-biao'),
+        to: '/data-access/cluster'
+      };
 
+      if (path === '/data-access/rules' || path === '/data-access/rules/') {
+        return [{ ...securityRoot, to: this.$route.fullPath }];
+      }
+      if (path === '/data-access/rules/create') {
+        return [securityTemplateRoot, { label: this.$t('xin-jian-gui-ze-mo-ban'), to: this.$route.fullPath }];
+      }
+      if (/^\/data-access\/rules\/detail\/[^/]+$/.test(path)) {
+        return [securityTemplateRoot, { label: this.$t('gui-ze-mo-ban-xiang-qing'), to: this.$route.fullPath }];
+      }
+      if (/^\/system\/dmspec\/[^/]+$/.test(path)) {
+        return [securityRoot, { ...securityDetail(this.$route.params.specId), to: this.$route.fullPath }];
+      }
+      if (/^\/system\/dmspec\/[^/]+\/rule\/[^/]+\/range$/.test(path)) {
+        return [securityRoot, securityDetail(this.$route.params.specId), { label: this.$t('gui-ze-fan-wei'), to: this.$route.fullPath }];
+      }
+      if (/^\/system\/dmspec\/[^/]+\/rule\/[^/]+\/detail$/.test(path)) {
+        return [
+          securityRoot,
+          securityDetail(this.$route.params.specId),
+          { label: this.$route.query.ruleName || this.$t('gui-ze-xiang-qing'), to: this.$route.fullPath }
+        ];
+      }
       if (path === '/cicd' || path === '/cicd/') {
         return [cicdRoot];
       }
@@ -166,6 +211,12 @@ export default {
       }
       if (/^\/cicd\/[^/]+$/.test(path)) {
         return [cicdRoot, { label: this.$t('cicd-bian-geng-liu-xiang-qing'), to: path }];
+      }
+      if (path === '/data-access/cluster' || path === '/data-access/cluster/') {
+        return [{ ...machineRoot, to: this.$route.fullPath }];
+      }
+      if (/^\/data-access\/cluster\/list\/[^/]+$/.test(path)) {
+        return [machineRoot, { label: this.$t('ji-qi-lie-biao'), to: this.$route.fullPath }];
       }
       if (path === '/integrations/git/create') {
         return [

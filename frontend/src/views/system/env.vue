@@ -313,7 +313,7 @@
     >
       <Alert type="warning" v-if="!specList.length">
         {{ $t('dang-qian-mei-you-ke-yong-de-an-quan-gui-fan-qing-xian-qu') }}
-        <router-link to="/system/dmspeclist?type=create">{{ $t('an-quan-gui-fan-ye-mian') }}</router-link>
+        <router-link to="/data-access/rules?tab=security&type=create">{{ $t('an-quan-gui-fan-ye-mian') }}</router-link>
         {{ $t('chuang-jian') }}
       </Alert>
       <Form ref="specForm" :model="specData" :rules="specDataValidate">
@@ -414,7 +414,7 @@ export default {
         check_spec_id: ''
       },
       specDataValidate: {
-        check_spec_id: [{ required: true, message: '安全规范不能为空' }]
+        check_spec_id: [{ required: true, message: '安全规则不能为空' }]
       },
       specList: [],
       showEnableSpecModal: false,
@@ -710,7 +710,7 @@ export default {
       });
 
       if (res.success) {
-        this.$Message.success(`环境 ${this.currentEnv.envName} 上的安全规范已停用`);
+        this.$Message.success(`环境 ${this.currentEnv.envName} 上的安全规则已停用`);
         this.handleCloseModal();
         await this.listEnv();
       } else {
@@ -755,7 +755,7 @@ export default {
                 specName = spec.name;
               }
             });
-            this.$Message.success(`环境 ${this.currentEnv.envName} 上已启用 ${specName} 作为安全规范`);
+            this.$Message.success(`环境 ${this.currentEnv.envName} 上已启用 ${specName} 作为安全规则`);
             this.handleCloseModal();
             await this.listEnv();
           } else {

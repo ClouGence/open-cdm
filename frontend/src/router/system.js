@@ -93,7 +93,7 @@ export default [
   },
   {
     path: 'role',
-    redirect: '/manager/account/role'
+    redirect: '/manager/role'
   },
   {
     path: 'authdm',
@@ -119,25 +119,22 @@ export default [
   },
   {
     path: 'management/accounts/role',
-    redirect: '/manager/account/role'
+    redirect: '/manager/role'
+  },
+  {
+    path: '/manager/account/role',
+    redirect: '/manager/role'
   },
   {
     path: '/manager/account',
-    component: () => import(/* webpackChunkName: "ccsystem-management-accounts" */ '@/views/system/management/ManagementAccountsLayout'),
-    children: [
-      {
-        path: '',
-        name: 'Management_Accounts_Account',
-        component: () => import(/* webpackChunkName: "ccsystem-subaccount" */ '@/views/system/subaccount/index'),
-        meta: { managementTab: 'account' }
-      },
-      {
-        path: 'role',
-        name: 'Management_Accounts_Role',
-        component: () => import(/* webpackChunkName: "ccsystem-role" */ '@/views/system/role/index'),
-        meta: { requiredAuth: 'RDP_ROLE_READ', managementTab: 'role' }
-      }
-    ]
+    name: 'Management_Accounts_Account',
+    component: () => import(/* webpackChunkName: "ccsystem-subaccount" */ '@/views/system/subaccount/index')
+  },
+  {
+    path: '/manager/role',
+    name: 'Management_Role',
+    component: () => import(/* webpackChunkName: "ccsystem-role" */ '@/views/system/role/index'),
+    meta: { requiredAuth: 'RDP_ROLE_READ' }
   },
   {
     path: 'management/logs',
@@ -229,7 +226,7 @@ export default [
   {
     path: '/data-access/rules',
     name: 'DMRuleList',
-    component: () => import(/* webpackChunkName: "ccsystem-datasource" */ '@/views/security/rule/index')
+    component: () => import(/* webpackChunkName: "ccsystem-datasource" */ '@/views/security/index')
   },
   {
     path: 'dmrulelist',
@@ -255,8 +252,14 @@ export default [
   },
   {
     path: 'dmspeclist',
-    name: 'DMSpecList',
-    component: () => import(/* webpackChunkName: "ccsystem-datasource" */ '@/views/security/spec/index')
+    redirect: (to) => ({
+      path: '/data-access/rules',
+      query: {
+        ...to.query,
+        tab: 'security'
+      },
+      hash: to.hash
+    })
   },
   {
     path: 'dmspec/:specId',
@@ -267,6 +270,11 @@ export default [
     path: 'dmspec/:specId/rule/:ruleId/range',
     name: 'DMSpecDetailRuleRange',
     component: () => import(/* webpackChunkName: "ccsystem-datasource" */ '@/views/security/spec/ruleRange')
+  },
+  {
+    path: 'dmspec/:specId/rule/:ruleId/detail',
+    name: 'DMSpecDetailRuleDetail',
+    component: () => import(/* webpackChunkName: "ccsystem-datasource" */ '@/views/security/spec/ruleDetail')
   },
   {
     path: 'desensitization',

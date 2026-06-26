@@ -15,21 +15,17 @@
       </template>
       <template #action="{ row }">
         <a class="text-cc-primary" style="margin-right: 16px" @click="handleCluster(row)">
-          {{ $t('cha-kan-bai-ming-dan') }}
+          {{ $t('ji-qi-lie-biao') }}
         </a>
         <a class="text-cc-primary" v-if="hasManageAuth" style="margin-right: 16px" @click="handleDeleteCluster(row)">
           {{ $t('shan-chu') }}
         </a>
       </template>
       <template #clusterDesc="{ row }">
-        <span style="padding-right: 30px; display: block">{{ row.clusterDesc }}</span>
-        <CustomIcon
-          type="icon-v2-EditSimple"
-          @click="handleEditDClusterDesc(row)"
-          size="13px"
-          hoverStyle
-          style="position: absolute; right: 20px; top: 0"
-        />
+        <div class="cluster-desc-cell">
+          <span class="cluster-desc-text">{{ row.clusterDesc }}</span>
+          <CustomIcon type="icon-v2-EditSimple" @click="handleEditDClusterDesc(row)" size="13px" hoverStyle class="cluster-desc-edit" />
+        </div>
       </template>
     </Table>
     <div class="page-footer-container">
@@ -574,6 +570,26 @@ export default {
 .cluster-container {
   .iconfont {
     font-size: 12px;
+  }
+
+  .cluster-desc-cell {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .cluster-desc-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cluster-desc-edit {
+    flex: 0 0 auto;
+    color: #8d95a6;
+    cursor: pointer;
   }
 }
 

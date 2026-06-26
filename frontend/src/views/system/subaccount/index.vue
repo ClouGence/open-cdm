@@ -25,9 +25,6 @@
               <Button @click="handleClickAddBtn" type="primary" style="margin-right: 10px" icon="md-add">
                 {{ $t('tian-jia-zi-zhang-hao') }}
               </Button>
-              <Button @click="getSubAccountList('init')">
-                <CustomIcon type="icon-v2-Refresh" v-if="!subAccountListLoading" />
-              </Button>
             </div>
           </div>
           <div class="table-container">

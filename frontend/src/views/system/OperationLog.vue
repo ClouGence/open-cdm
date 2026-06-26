@@ -5,6 +5,14 @@
         <div class="content">
           <div class="option border-radius-card">
             <div class="left" style="align-items: center">
+              <Select v-model="auditLogType" style="width: 120px; margin-right: 10px" @on-change="handleChangeAuditLogType">
+                <Option value="operation" :label="$t('cao-zuo-shen-ji')">
+                  <span>{{ $t('cao-zuo-shen-ji') }}</span>
+                </Option>
+                <Option value="sql" :label="$t('nav-ri-zhi-shen-ji')">
+                  <span>{{ $t('nav-ri-zhi-shen-ji') }}</span>
+                </Option>
+              </Select>
               {{ $t('cao-zuo-shi-jian') }}
               <DatePicker
                 :editable="false"
@@ -41,7 +49,7 @@
                   {{ item.alias }}
                 </Option>
               </Select>
-              <Button type="primary" @click="handleRefresh" :loading="refreshLoading" style="margin-left: 10px" ghost>
+              <Button type="primary" ghost @click="handleRefresh" :loading="refreshLoading" style="margin-left: 10px">
                 {{ $t('cha-xun') }}
               </Button>
             </div>
@@ -81,16 +89,8 @@
           </div>
         </div>
       </div>
-      <div class="footer list-page-footer-nav">
-        <Button :disabled="page === 1" @click="handlePre">
-          <Icon type="ios-arrow-back" />
-          {{ $t('shang-yi-ye') }}
-        </Button>
-        <span>{{ $t('di-page-ye', [page]) }}</span>
-        <Button :disabled="noMoreData" @click="handleNext">
-          {{ $t('xia-yi-ye') }}
-          <Icon type="ios-arrow-forward" />
-        </Button>
+      <div class="footer">
+        <Page :total="pagerTotal" :page-size="1" :model-value="page" @on-change="handlePagerChange" />
       </div>
     </div>
     <CCModal v-model="showAuditDetail" :title="$t('cha-kan-ri-zhi')" width="1200px">
@@ -195,6 +195,7 @@ export default {
   data() {
     return {
       resourceType: Mapping.resourceType,
+      auditLogType: 'operation',
       searchType: 'user',
       noMoreData: false,
       refreshLoading: false,
@@ -375,6 +376,9 @@ export default {
         return this.$t('zheng-zai-zhuan-huan-wen-jian');
       }
       return this.$t('dao-chu');
+    },
+    pagerTotal() {
+      return this.noMoreData ? this.page : this.page + 1;
     }
   },
   created() {
@@ -394,6 +398,14 @@ export default {
         e.preventDefault();
         this.handleRefresh();
       }
+    },
+
+    handleChangeAuditLogType(value) {
+      if (value === 'sql') {
+        this.$router.push('/manager/logs/sql');
+        return;
+      }
+      this.auditLogType = 'operation';
     },
 
     getLogDetail(detail) {
@@ -563,8 +575,13 @@ export default {
                 this.prevFirst.push(this.firstId);
               }
             }
-            this.firstId = this.logData[0].id;
-            this.lastId = this.logData[this.logData.length - 1].id;
+            if (this.logData.length > 0) {
+              this.firstId = this.logData[0].id;
+              this.lastId = this.logData[this.logData.length - 1].id;
+            } else {
+              this.firstId = 0;
+              this.lastId = 0;
+            }
           }
           this.refreshLoading = false;
           this.noMoreData = res.data.length < this.searchData.pageData.pageSize;
@@ -574,6 +591,9 @@ export default {
         });
     },
     handlePre() {
+      if (this.page <= 1) {
+        return;
+      }
       this.page--;
       let startId = this.prevFirst[this.page - 1] + 1;
 
@@ -587,6 +607,16 @@ export default {
       this.searchData.pageData.startId = this.lastId;
       this.handleSearch('next');
       this.page++;
+    },
+    handlePagerChange(nextPage) {
+      if (nextPage === this.page) {
+        return;
+      }
+      if (nextPage > this.page) {
+        this.handleNext();
+        return;
+      }
+      this.handlePre();
     },
     handleChangeSize() {
       this.handleSearch('next');
