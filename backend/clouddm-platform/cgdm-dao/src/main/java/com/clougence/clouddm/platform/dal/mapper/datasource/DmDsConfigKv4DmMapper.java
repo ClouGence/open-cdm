@@ -37,5 +37,7 @@ public interface DmDsConfigKv4DmMapper extends BaseMapper<DmDsConfigKv4DmDO> {
 
     void updateDsConfig(long dsId, String configName, String configValue);
 
+    void deleteDsConfig(long dsId, String configName);
+
     void deleteDsConfigs(long dsId);
 }

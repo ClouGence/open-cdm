@@ -17,10 +17,12 @@ package com.clougence.clouddm.console.web.provider;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.api.console.configs.ConfigRService;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.SshConfig;
@@ -30,6 +32,7 @@ import com.clougence.clouddm.console.web.component.detectrule.SecCheckerRules;
 import com.clougence.clouddm.console.web.component.detectrule.SecRulesService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmToolConfigService;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.service.ssh.SshConfigService;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.access.entry.EnvCacheEntry;
@@ -91,10 +94,19 @@ public class ConfigRServiceProvider extends AbstractBasicProvider implements Con
             return Collections.emptyList();
         }
 
+        Map<String, DsConfigKvDef> configDefMap = this.dsConfigService.fetchDsConfigDef(dsDO.getDataSourceType())//
+            .stream()
+            .collect(Collectors.toMap(DsConfigKvDef::getConfigName, configDef -> configDef));
+
         return configs.stream().map(config -> {
             ConfigData result = new ConfigData();
             result.setConfigName(config.getConfigName());
-            result.setConfigValue(config.getConfigValue());
+            String configValue = config.getConfigValue();
+            DsConfigKvDef configDef = configDefMap.get(config.getConfigName());
+            if (configDef != null && configDef.isSecret() && StringUtils.isNotBlank(configValue)) {
+                configValue = CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(configValue);
+            }
+            result.setConfigValue(configValue);
             return result;
         }).collect(Collectors.toList());
     }

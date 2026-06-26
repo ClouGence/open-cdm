@@ -2,7 +2,7 @@ export const datasourceApi = {
   // datasource
   rdpDataSourceListByCondition: '/clouddm/console/api/v1/datasource/listByCondition',
   rdpDataSourceDelete: '/clouddm/console/api/v1/datasource/delete',
-  rdpDataSourceUpdateDataSourceDesc: '/clouddm/console/api/v1/datasource/updateDataSourceDesc',
+  rdpDataSourceUpdateDsDesc: '/clouddm/console/api/v1/datasource/updateDsDesc',
   rdpDataSourceDeleteAccount: '/clouddm/console/api/v1/datasource/deleteAccount',
   rdpDataSourceQueryDs: '/clouddm/console/api/v1/datasource/queryDs',
   rdpDataSourceAdd: '/clouddm/console/api/v1/datasource/add',
@@ -32,7 +32,6 @@ export const datasourceApi = {
   dmDataSourceUpsertDsConfig: '/clouddm/console/api/v1/datasource/upsertDsConfig',
   dmDataSourceQueryDs: '/clouddm/console/api/v1/datasource/queryDs',
   dmDataSourceUpdateDsAccount: '/clouddm/console/api/v1/datasource/updateDsAccount',
-  dmDataSourceListSpec: '/clouddm/console/api/v1/datasource/listSpec',
   dmDataSourceFetchDsConfig: '/clouddm/console/api/v1/datasource/fetchDsConfig',
   dmDataSourceFetchBindInfo: '/clouddm/console/api/v1/datasource/fetchBindInfo',
   dmDataSourceUploadCertificate: '/clouddm/console/api/v1/datasource/uploadCertificate',

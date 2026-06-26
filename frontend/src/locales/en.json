@@ -4074,9 +4074,11 @@
   "qing-shu-ru-zheng-shu-huo-mi-yao-wan-zheng-nei-rong": "Enter the full certificate or key content",
   "qing-shu-ru-zheng-shu-huo-mi-yao-nei-rong": "Enter certificate or key content",
   "qing-xuan-ze-wen-jian": "Select a file",
+  "shang-chuan-shi-bai": "Upload failed",
   "pem-key-crt-cer-jian-yi-bu-chao-guo-1mb": "pem/key/crt/cer should not exceed 1 MB",
-  "p12-pfx-jks-jian-yi-bu-chao-guo-10mb": "p12/pfx/jks should not exceed 10 MB",
+  "p12-pfx-jks-jian-yi-bu-chao-guo-10mb": "pk8/p12/pfx/jks should not exceed 10 MB",
   "zheng-shu-wen-ben-zhi-chi-ge-shi": "Supported formats: pem / key / crt / cer",
-  "zheng-shu-wen-jian-zhi-chi-ge-shi": "Supported formats: pem / key / crt / cer / p12 / pfx / jks",
-  "wen-ben-mo-shi-zhi-zhi-chi-wen-ben-zheng-shu-wen-jian": "The selected file is not a text certificate. Switch to file mode to upload it."
+  "zheng-shu-wen-jian-zhi-chi-ge-shi": "Supported formats: pem / key / crt / cer / pk8 / p12 / pfx / jks",
+  "wen-ben-mo-shi-zhi-zhi-chi-wen-ben-zheng-shu-wen-jian": "The selected file is not a text certificate. Switch to file mode to upload it.",
+  "qing-zai-xia-fang-zhong-fu-shu-ru-gai-id": ". Repeat this ID below to confirm."
 }

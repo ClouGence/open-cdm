@@ -39,4 +39,6 @@ public interface NamingDao {
     String genLoginAccount();
 
     String genSecRuleName(RuleKind ruleKind);
+
+    String genUploadFileId();
 }

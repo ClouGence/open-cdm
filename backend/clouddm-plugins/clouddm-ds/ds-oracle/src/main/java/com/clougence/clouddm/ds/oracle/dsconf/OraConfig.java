@@ -38,27 +38,33 @@ import lombok.experimental.FieldNameConstants;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OraConfig extends DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.connectType, descKey = OraConfigI18nKeys.CONFIG_ORACLE_CONNECT_TYPE_DESCRIPTION)
+    @ConfigDef(name = Fields.connectType, //
+            group = DsConfigGroup.GENERAL, labelKey = OraConfigI18nKeys.CONFIG_ORACLE_CONNECT_TYPE_LABEL, descKey = OraConfigI18nKeys.CONFIG_DESCRIPTION_EMPTY, readOnly = false)
     private OraConnectType connectType;
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.sid, descKey = OraConfigI18nKeys.CONFIG_ORACLE_SID_DESCRIPTION)
+    @ConfigDef(name = Fields.sid, //
+            group = DsConfigGroup.GENERAL, labelKey = OraConfigI18nKeys.CONFIG_ORACLE_SID_LABEL, descKey = OraConfigI18nKeys.CONFIG_DESCRIPTION_EMPTY, readOnly = false)
     private String         sid;
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.serviceName)
+    @ConfigDef(name = Fields.serviceName, //
+            group = DsConfigGroup.GENERAL, labelKey = OraConfigI18nKeys.CONFIG_ORACLE_SERVICE_LABEL, descKey = OraConfigI18nKeys.CONFIG_DESCRIPTION_EMPTY, readOnly = false)
     private String         serviceName;
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.pdbName, descKey = OraConfigI18nKeys.CONFIG_ORACLE_PDB_DESCRIPTION)
+    @ConfigDef(name = Fields.pdbName, //
+            group = DsConfigGroup.GENERAL, labelKey = OraConfigI18nKeys.CONFIG_ORACLE_PDB_LABEL, descKey = OraConfigI18nKeys.CONFIG_DESCRIPTION_EMPTY, readOnly = false)
     private String         pdbName;
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.tnsAdmin, descKey = OraConfigI18nKeys.CONFIG_ORACLE_TNS_ADMIN_DESCRIPTION)
+    @ConfigDef(name = Fields.tnsAdmin, //
+            group = DsConfigGroup.GENERAL, labelKey = OraConfigI18nKeys.CONFIG_ORACLE_TNS_ADMIN_LABEL, descKey = OraConfigI18nKeys.CONFIG_DESCRIPTION_EMPTY, readOnly = false)
     private String         tnsAdmin;
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.tnsName, descKey = OraConfigI18nKeys.CONFIG_ORACLE_TNS_NAME_DESCRIPTION)
+    @ConfigDef(name = Fields.tnsName, //
+            group = DsConfigGroup.GENERAL, labelKey = OraConfigI18nKeys.CONFIG_ORACLE_TNS_NAME_LABEL, descKey = OraConfigI18nKeys.CONFIG_DESCRIPTION_EMPTY, readOnly = false)
     private String         tnsName;
-    // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
-    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.autoCommit, defaultValue = "true", descKey = ConfigI18nKey.CONFIG_RDB_TRANSACTION_DESCRIPTION)
-    private Boolean        autoCommit;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.connectTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_DESCRIPTION)
+    @ConfigDef(name = Fields.connectTimeoutMs, defaultValue = "5000", //
+            group = DsConfigGroup.ADVANCED, labelKey = OraConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_LABEL, descKey = OraConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_DESC, readOnly = false)
     private Long           connectTimeoutMs;
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
+    @ConfigDef(name = Fields.soTimeoutSec, defaultValue = "10", //
+            group = DsConfigGroup.ADVANCED, labelKey = OraConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_LABEL, descKey = OraConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_DESC, readOnly = false)
     private Integer        soTimeoutSec;
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.excludeOraMaintainedSchemas, defaultValue = "false", descKey = OraConfigI18nKeys.CONFIG_ORACLE_EXCLUDE_ORA_MAINTAINED_SCHEMAS_DESCRIPTION)
+    @ConfigDef(name = Fields.excludeOraMaintainedSchemas, defaultValue = "false", //
+            group = DsConfigGroup.ADVANCED, labelKey = OraConfigI18nKeys.CONFIG_ORACLE_EXCLUDE_ORA_MAINTAINED_SCHEMAS_LABEL, descKey = OraConfigI18nKeys.CONFIG_ORACLE_EXCLUDE_ORA_MAINTAINED_SCHEMAS_DESC, readOnly = false)
     private Boolean        excludeOraMaintainedSchemas;
 
     public OraConfig(){

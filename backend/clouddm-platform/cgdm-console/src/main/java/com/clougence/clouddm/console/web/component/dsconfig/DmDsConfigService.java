@@ -43,13 +43,15 @@ public interface DmDsConfigService {
 
     DataSourceConfig fetchDsConfigFromNotExist(DmDsDO dsDO, Map<String, String> configMap);
 
+    DataSourceConfig fetchDsConfigFromNotExist(DataSourceType dsType, Map<String, String> configMap);
+
     DataSourceConfig fetchDsConfigFromExists(long dsId);
 
     List<DsConfigKvDef> fetchDsConfigDef(DataSourceType dsType);
 
     List<DsConfigKvDef> fetchDsConfigDef(DataSourceType dsType, Map<String, String> defaultConfig);
 
-    List<UiPanel> fetchDsConfigPanels(DataSourceType dsType);
+    List<UiPanel> fetchDsConfigPanels(DataSourceType dsType, Map<String, String> defaultConfig);
 
     Map<DataSourceType, DsConfig> dsConstantSettings();
 

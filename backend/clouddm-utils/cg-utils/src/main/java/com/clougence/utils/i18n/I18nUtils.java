@@ -23,6 +23,7 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 import com.clougence.utils.ClassUtils;
@@ -58,7 +59,7 @@ public class I18nUtils {
     }
 
     public static I18nUtils initI18n(I18nUtils parent) {
-        I18nUtils utils = new I18nUtils();
+        I18nUtils utils = new I18nUtils(parent);
         utils.parent = Objects.requireNonNull(parent, "parent is null.");
         return utils;
     }
@@ -171,7 +172,7 @@ public class I18nUtils {
     private I18nUtils                      parent;
     private final Set<String>              lockedKeys;
     private String                         name;
-    private String                         defaultI18nKey;
+    private final AtomicReference<String>  defaultI18nKey;
     private final I18nMessageSource        messageSource;
     private final Function<String, String> variablesSource;
     private final Map<String, ClassLoader> i18nSource;
@@ -179,7 +180,17 @@ public class I18nUtils {
     private final Set<String>              i18nLoaded;
 
     private I18nUtils(){
-        this.defaultI18nKey = toI18nKey(Locale.getDefault());
+        this.defaultI18nKey = new AtomicReference<>(toI18nKey(Locale.getDefault()));
+        this.messageSource = new I18nMessageSourceImpl();
+        this.variablesSource = new VariablesSourceImpl();
+        this.i18nSource = new LinkedHashMap<>();
+        this.i18nLoaded = new CopyOnWriteArraySet<>();
+        this.i18nSourceOfTypes = new LinkedHashSet<>();
+        this.lockedKeys = new CopyOnWriteArraySet<>();
+    }
+
+    private I18nUtils(I18nUtils parent){
+        this.defaultI18nKey = parent.defaultI18nKey;
         this.messageSource = new I18nMessageSourceImpl();
         this.variablesSource = new VariablesSourceImpl();
         this.i18nSource = new LinkedHashMap<>();
@@ -189,7 +200,7 @@ public class I18nUtils {
     }
 
     public I18nUtils(I18nMessageSource messageSource){
-        this.defaultI18nKey = toI18nKey(Locale.getDefault());
+        this.defaultI18nKey = new AtomicReference<>(toI18nKey(Locale.getDefault()));
         this.messageSource = Objects.requireNonNull(messageSource, "messageSource is null.");
         this.variablesSource = new VariablesSourceImpl();
         this.i18nSource = new LinkedHashMap<>();
@@ -199,7 +210,7 @@ public class I18nUtils {
     }
 
     public I18nUtils(I18nMessageSource messageSource, Function<String, String> variablesSource){
-        this.defaultI18nKey = toI18nKey(Locale.getDefault());
+        this.defaultI18nKey = new AtomicReference<>(toI18nKey(Locale.getDefault()));
         this.messageSource = Objects.requireNonNull(messageSource, "messageSource is null.");
         this.variablesSource = variablesSource == null ? new VariablesSourceImpl() : variablesSource;
         this.i18nSource = new LinkedHashMap<>();
@@ -249,11 +260,15 @@ public class I18nUtils {
 
     public void setName(String name) { this.name = name; }
 
-    public String getDefaultI18nKey() { return defaultI18nKey; }
+    public String getDefaultI18nKey() { return defaultI18nKey.get(); }
 
-    public void setDefaultI18nKey(String defaultI18nKey) { this.defaultI18nKey = defaultI18nKey; }
+    public void setDefaultI18nKey(String defaultI18nKey) {
+        this.defaultI18nKey.set(defaultI18nKey);
+    }
 
-    public void setDefaultI18nKey(Locale defaultLocale) { this.defaultI18nKey = toI18nKey(defaultLocale); }
+    public void setDefaultI18nKey(Locale defaultLocale) {
+        this.defaultI18nKey.set(toI18nKey(defaultLocale));
+    }
 
     public Set<String> getI18nSources() { return Collections.unmodifiableSet(this.i18nSource.keySet()); }
 
@@ -346,11 +361,11 @@ public class I18nUtils {
     }
 
     public String getMessage(String code) {
-        return getMessage(code, null, this.defaultI18nKey);
+        return getMessage(code, null, this.defaultI18nKey.get());
     }
 
     public String getMessage(String code, Object[] args) {
-        return getMessage(code, args, this.defaultI18nKey);
+        return getMessage(code, args, this.defaultI18nKey.get());
     }
 
     public String getMessage(String code, Object[] args, String i18nLocal) {

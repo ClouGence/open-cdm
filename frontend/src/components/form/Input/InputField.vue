@@ -1,5 +1,5 @@
 <template>
-  <Input v-model="form[field.field]" :type="inputType" :password="field.type === 'Password'" :disabled="disabled" style="width: 280px" />
+  <Input v-model="form[field.field]" class="ui-input-field" :type="inputType" :password="field.type === 'Password'" :disabled="disabled" />
 </template>
 
 <script>
@@ -26,3 +26,14 @@ export default {
   }
 };
 </script>
+
+<style lang="less" scoped>
+.ui-input-field {
+  width: 280px;
+
+  :deep(.ivu-input-wrapper),
+  :deep(.ivu-input) {
+    width: 100%;
+  }
+}
+</style>

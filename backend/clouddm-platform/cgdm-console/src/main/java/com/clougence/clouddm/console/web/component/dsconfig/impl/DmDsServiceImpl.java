@@ -20,7 +20,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.exception.DmErrorCode;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.drivers.DriverRef;
@@ -31,7 +30,6 @@ import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDriverService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
-import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.schema.DsSchemaService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
@@ -63,7 +61,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Service
 @Slf4j
-public class DmDsServiceImpl implements DmDsService, UnifiedPostConstruct {
+public class DmDsServiceImpl implements DmDsService {
 
     @Resource
     private DataSourceDal                       dsDal;
@@ -77,27 +75,17 @@ public class DmDsServiceImpl implements DmDsService, UnifiedPostConstruct {
     private MetaRService                        metaRService;
     @Resource
     private List<RdpNotifyService>              notifyServices;
-
     private final Map<String, DataSourceStatus> statusCache = new ConcurrentHashMap<>();
-
-    @Override
-    public void init() {
-    }
-
-    @Override
-    public void stop() {
-
-    }
 
     @Override
     public DmDsDO fetchAndCheckById(Long dataSourceId) {
         if (dataSourceId == null || dataSourceId <= 0) {
-            throw new RuntimeException("data source id cannot be null.");
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_ID_REQUIRED_ERROR.name()));
         }
 
         DmDsDO re = this.dsDal.dsMapper().selectById(dataSourceId);
         if (re == null) {
-            throw new IllegalArgumentException("datasource(" + dataSourceId + ") not exist.");
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_WITH_ID_ERROR.name(), dataSourceId));
         }
 
         fillExtraConfig(re, null);
@@ -107,12 +95,12 @@ public class DmDsServiceImpl implements DmDsService, UnifiedPostConstruct {
     @Override
     public DmDsDO fetchByInstanceId(String instanceId) {
         if (StringUtils.isBlank(instanceId)) {
-            throw new RuntimeException("instance id cannot be empty.");
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_INSTANCE_ID_REQUIRED_ERROR.name()));
         }
 
         DmDsDO re = this.dsDal.dsMapper().getByInstanceId(instanceId);
         if (re == null) {
-            throw new IllegalArgumentException("datasource(" + instanceId + ") not exist.");
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_WITH_ID_ERROR.name(), instanceId));
         }
 
         fillExtraConfig(re, null);
@@ -141,17 +129,21 @@ public class DmDsServiceImpl implements DmDsService, UnifiedPostConstruct {
     }
 
     @Override
-    public String testConnect(String puid, long dsId, long clusterId) {
+    public String testConnect(long dsId) {
         DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
         if (dsDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
         }
+        Long clusterId = dsDO.getBindClusterId();
+        if (clusterId == null || clusterId <= 0) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_BIND_CLUSTER_ID_REQUIRED_ERROR.name()));
+        }
 
         DataSourceConfig dsConfig = this.configService.fetchDsConfigFromExists(dsDO.getId());
-        return getVersion(puid, clusterId, dsConfig);
+        return getVersion(clusterId, dsConfig);
     }
 
-    private String getVersion(String puid, long clusterId, DataSourceConfig dsConfig) {
+    private String getVersion(long clusterId, DataSourceConfig dsConfig) {
         Map<UmiTypes, Object> levelsParam = new HashMap<>();
         try {
             SessionSpi spi = PluginManager.findSessionSpi(dsConfig.getDataSourceType());
@@ -171,30 +163,28 @@ public class DmDsServiceImpl implements DmDsService, UnifiedPostConstruct {
             }
 
             log.error(e.getMessage(), e);
-            String instId = dsConfig.getInstanceId();
             String msgStr = ExceptionUtils.getRootCauseMessage(e);
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_CONNECT_ERROR.name(), dsConfig.getDataSourceType().name(), instId, msgStr));
+            throw new ErrorMessageException(msgStr);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            String instId = dsConfig.getInstanceId();
             String msgStr = ExceptionUtils.getRootCauseMessage(e);
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_CONNECT_ERROR.name(), dsConfig.getDataSourceType().name(), instId, msgStr));
+            throw new ErrorMessageException(msgStr);
         }
     }
 
     @Override
-    public String testConnect(String uid, ConnectDsFO fo) {
+    public String testConnect(ConnectDsFO fo) {
         if (fo.getBindClusterId() == null || fo.getBindClusterId() <= 0) {
-            throw new IllegalArgumentException("bind cluster id can not be empty.");
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_BIND_CLUSTER_ID_REQUIRED_ERROR.name()));
         }
         if (fo.getDataSourceType() == null) {
-            throw new IllegalArgumentException("data source type can not be empty.");
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_TYPE_REQUIRED_ERROR.name()));
         }
         if (fo.getSecurityType() == null) {
-            throw new IllegalArgumentException("security type can not be empty.");
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_SECURITY_TYPE_REQUIRED_ERROR.name()));
         }
         if (StringUtils.isBlank(fo.getHost())) {
-            throw new IllegalArgumentException("host can not be empty.");
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_HOST_REQUIRED_ERROR.name()));
         }
 
         validateDriverReadyBeforeTestConnect(fo.getBindClusterId(), fo.getDriver());
@@ -227,23 +217,22 @@ public class DmDsServiceImpl implements DmDsService, UnifiedPostConstruct {
         tempDs.setVersion(configMap.get(DataSourceConfig.Fields.version));
 
         DataSourceConfig dsConfig = this.configService.fetchDsConfigFromNotExist(tempDs, configMap);
-        return this.testConnect(uid, fo.getBindClusterId(), fo.getDriver(), dsConfig);
+        return this.testConnect(fo.getBindClusterId(), fo.getDriver(), dsConfig);
     }
 
-    @Override
-    public String testConnect(String uid, long clusterId, String driver, DataSourceConfig dsConfig) {
+    private String testConnect(long clusterId, String driver, DataSourceConfig dsConfig) {
         if (clusterId <= 0) {
-            throw new IllegalArgumentException("bind cluster id can not be empty.");
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_BIND_CLUSTER_ID_REQUIRED_ERROR.name()));
         }
         if (dsConfig == null || dsConfig.getDataSourceType() == null) {
-            throw new IllegalArgumentException("data source type can not be empty.");
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_TYPE_REQUIRED_ERROR.name()));
         }
         if (StringUtils.isBlank(dsConfig.getHost())) {
-            throw new IllegalArgumentException("host can not be empty.");
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_HOST_REQUIRED_ERROR.name()));
         }
 
         validateDriverReadyBeforeTestConnect(clusterId, driver);
-        return this.getVersion(uid, clusterId, dsConfig);
+        return this.getVersion(clusterId, dsConfig);
     }
 
     private void validateDriverReadyBeforeTestConnect(Long clusterId, String driverSpec) {
@@ -267,31 +256,18 @@ public class DmDsServiceImpl implements DmDsService, UnifiedPostConstruct {
     }
 
     @Override
-    public void testConnect(String puid, String uid, DsLevels levels) {
-        DmDsDO dsDO = levels.dsDO();
-        DataSourceConfig dsConfig = configService.fetchDsConfigFromExists(dsDO.getId());
-        try {
-            this.schemaService.realTimeFetchVersion(dsDO, levels.levelsParam());
-            this.resetStatus(uid, dsConfig);
-        } catch (Exception e) {
-            this.handleException(uid, dsConfig, e);
-            throw e;
-        }
-    }
-
-    @Override
-    public void handleException(String uid, DataSourceConfig dsConfig, Throwable e) {
+    public void handleException(DataSourceConfig dsConfig, Throwable e) {
         DetermineExceptionSpi spi = PluginManager.findDetermineExceptionSpi(dsConfig.getDataSourceType());
         if (spi != null) {
             ConnectionExceptionType errorType = spi.checkExceptionType(e);
             switch (errorType) {
                 case ConnectionRefused: {
-                    updateDsStatusIfNecessary(uid, dsConfig, DataSourceStatus.ConnectionFailed);
+                    updateDsStatusIfNecessary(dsConfig, DataSourceStatus.ConnectionFailed);
                     throw new ErrorMessageException(DmErrorCode.DS_DISCONNECT_ERROR.code(),
                         DmI18nUtils.getMessage(I18nDmMsgKeys.DS_DISCONNECT_ERROR.name(), dsConfig.getInstanceId()));
                 }
                 case Authentication: {
-                    updateDsStatusIfNecessary(uid, dsConfig, DataSourceStatus.NoAuthentication);
+                    updateDsStatusIfNecessary(dsConfig, DataSourceStatus.NoAuthentication);
                     throw new ErrorMessageException(DmErrorCode.DS_DISCONNECT_ERROR.code(),
                         DmI18nUtils.getMessage(I18nDmMsgKeys.DS_AUTHENTICATION_ERROR.name(), dsConfig.getInstanceId()));
                 }
@@ -299,8 +275,8 @@ public class DmDsServiceImpl implements DmDsService, UnifiedPostConstruct {
         }
     }
 
-    private void updateDsStatusIfNecessary(String uid, DataSourceConfig dsConfig, DataSourceStatus newStatus) {
-        DataSourceStatus dataSourceStatus = getDataSourceStatus(dsConfig.getInstanceId());
+    private void updateDsStatusIfNecessary(DataSourceConfig dsConfig, DataSourceStatus newStatus) {
+        DataSourceStatus dataSourceStatus = fetchDsStatus(dsConfig.getInstanceId());
         if (!dataSourceStatus.equals(newStatus)) {
             this.statusCache.put(dsConfig.getInstanceId(), DataSourceStatus.ConnectionFailed);
             DmDsDO ds = dsDal.dsMapper().getByInstanceId(dsConfig.getInstanceId());
@@ -312,16 +288,22 @@ public class DmDsServiceImpl implements DmDsService, UnifiedPostConstruct {
     @Override
     public void changeStatusIfNecessary(RSocketSendDTO sendDTO, DataSourceConfig dbConfig, Map<UmiTypes, Object> levelsParam) {
         String instanceId = dbConfig.getInstanceId();
-        DataSourceStatus dataSourceStatus = getDataSourceStatus(instanceId);
+        DataSourceStatus dataSourceStatus = fetchDsStatus(instanceId);
 
         if (dataSourceStatus != DataSourceStatus.Normal) {
-            testConnect(sendDTO, dbConfig, levelsParam);
+            try {
+                this.metaRService.getVersion(sendDTO, dbConfig, levelsParam);
+                resetStatus(dbConfig);
+            } catch (Exception e) {
+                handleException(dbConfig, e);
+                throw e;
+            }
         }
     }
 
     @Override
-    public void resetStatus(String uid, DataSourceConfig dsConfig) {
-        if (getDataSourceStatus(dsConfig.getInstanceId()) == DataSourceStatus.Normal) {
+    public void resetStatus(DataSourceConfig dsConfig) {
+        if (fetchDsStatus(dsConfig.getInstanceId()) == DataSourceStatus.Normal) {
             return;
         }
 
@@ -331,17 +313,7 @@ public class DmDsServiceImpl implements DmDsService, UnifiedPostConstruct {
         this.notifyServices.forEach(s -> s.onDsUpdate(ds.getId()));
     }
 
-    private void testConnect(RSocketSendDTO sendDTO, DataSourceConfig dbConfig, Map<UmiTypes, Object> levelsParam) {
-        try {
-            this.metaRService.getVersion(sendDTO, dbConfig, levelsParam);
-            resetStatus(sendDTO.getUid(), dbConfig);
-        } catch (Exception e) {
-            handleException(sendDTO.getUid(), dbConfig, e);
-            throw e;
-        }
-    }
-
-    private DataSourceStatus getDataSourceStatus(String instanceId) {
+    private DataSourceStatus fetchDsStatus(String instanceId) {
         DataSourceStatus dataSourceStatus = this.statusCache.get(instanceId);
         if (dataSourceStatus == null) {
             synchronized (this) {

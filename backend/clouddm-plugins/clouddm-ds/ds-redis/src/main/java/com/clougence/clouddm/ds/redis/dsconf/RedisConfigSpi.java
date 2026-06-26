@@ -20,14 +20,18 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
-import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
-import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
+import com.clougence.clouddm.base.metadata.ds.SslMode;
+import com.clougence.clouddm.ds.common.dsconf.AbstractDsConfigSpi;
 import com.clougence.drivers.adapter.ConvertUtils;
 import com.clougence.utils.StringUtils;
 
 public class RedisConfigSpi extends AbstractDsConfigSpi {
+
+    @Override
+    public String defaultPort() {
+        return "6379";
+    }
 
     @Override
     public Class<? extends DataSourceConfig> newConfig() {
@@ -47,10 +51,24 @@ public class RedisConfigSpi extends AbstractDsConfigSpi {
     }
 
     @Override
-    public void customizeAddPanels(Map<DsConfigGroup, UiPanel> panels) {
-        setDefaultPort(panels, "6379");
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.ONLY_PASSWD);
+        options.add(SecurityType.USER_PASSWD);
+        return options;
     }
 
+    @Override
+    public List<SslMode> sslModeSet() {
+        return List.of();
+    }
+
+    @Override
+    public boolean supportTx() {
+        return false;
+    }
+
+    @Override
     public boolean supportSSL() {
         return false;
     }
@@ -60,11 +78,4 @@ public class RedisConfigSpi extends AbstractDsConfigSpi {
         return true;
     }
 
-    @Override
-    public List<SecurityType> securityTypes() {
-        List<SecurityType> options = new ArrayList<>();
-        options.add(SecurityType.ONLY_PASSWD);
-        options.add(SecurityType.USER_PASSWD);
-        return options;
-    }
 }

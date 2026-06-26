@@ -17,7 +17,10 @@ package com.clougence.clouddm.ds.ads.dsconf.ads4my;
 
 import java.util.Properties;
 
-import com.clougence.clouddm.base.metadata.ds.*;
+import com.clougence.clouddm.base.metadata.ds.ConfigDef;
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.ds.ads.i18n.AdsMyConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
@@ -38,19 +41,22 @@ import lombok.experimental.FieldNameConstants;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AdsMyConfig extends DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultSchema, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION)
+    @ConfigDef(name = Fields.defaultSchema, //
+            group = DsConfigGroup.GENERAL, labelKey = AdsMyConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_LABEL, descKey = AdsMyConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_DESC, readOnly = false)
     private String  defaultSchema;
     // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
-    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.autoCommit, defaultValue = "true", descKey = ConfigI18nKey.CONFIG_RDB_TRANSACTION_DESCRIPTION)
-    private Boolean autoCommit;
-    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.clientTimeZone, defaultValue = "Asia/Shanghai", descKey = ConfigI18nKey.CONFIG_RDB_CLIENT_TIME_ZONE_DESCRIPTION)
+    @ConfigDef(name = Fields.clientTimeZone, defaultValue = "Asia/Shanghai", //
+            group = DsConfigGroup.OPTIONS, labelKey = AdsMyConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_LABEL, descKey = AdsMyConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_DESC, readOnly = false)
     private String  clientTimeZone;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.connectTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_DESCRIPTION)
+    @ConfigDef(name = Fields.connectTimeoutMs, defaultValue = "5000", //
+            group = DsConfigGroup.ADVANCED, labelKey = AdsMyConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_LABEL, descKey = AdsMyConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_DESC, readOnly = false)
     private Long    connectTimeoutMs;
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
+    @ConfigDef(name = Fields.soTimeoutSec, defaultValue = "10", //
+            group = DsConfigGroup.ADVANCED, labelKey = AdsMyConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_LABEL, descKey = AdsMyConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_DESC, readOnly = false)
     private Integer soTimeoutSec;
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.connectionCharset, defaultValue = "utf8", descKey = AdsMyConfigI18nKeys.CONFIG_RDB_CONN_CHARSET_DESCRIPTION)
+    @ConfigDef(name = Fields.connectionCharset, defaultValue = "utf8", //
+            group = DsConfigGroup.ADVANCED, labelKey = AdsMyConfigI18nKeys.CONFIG_ADS_MY_CONN_CHARSET_LABEL, descKey = AdsMyConfigI18nKeys.CONFIG_ADS_MY_CONN_CHARSET_DESC, readOnly = false)
     private String  connectionCharset;
 
     public AdsMyConfig(){

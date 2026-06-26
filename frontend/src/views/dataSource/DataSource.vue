@@ -4,12 +4,24 @@
       :title="$t('shan-chu-shu-ju-yuan')"
       :event="SECOND_CONFIRM_EVENT_LIST.DELETE_DATASOURCE"
       :confirm-text="selectedRow.instanceId"
-      :text="$t('yi-wan-cheng-shan-chu-selectedrowid-shu-ju-yuan-de-cao-zuo', [selectedRow.instanceId])"
       :visible="showDeleteDataSourceConfirm"
+      :confirm-button-text="$t('shan-chu-shu-ju-yuan')"
+      confirm-button-type="text"
+      confirm-button-danger
+      hide-cancel-button
+      disable-confirm-until-matched
       ref="second-confirm-modal"
       :handle-confirm="deleteDataSource"
       :handle-close="handleCancelEdit"
-    />
+    >
+      <Alert class="delete-datasource-confirm-tip">
+        {{ $t('shan-chu-shu-ju-yuan') }}
+        <span class="delete-datasource-confirm-id" @dblclick="selectConfirmText">
+          {{ selectedRow.instanceId }}
+        </span>
+        {{ $t('qing-zai-xia-fang-zhong-fu-shu-ru-gai-id') }}
+      </Alert>
+    </second-confirm-modal>
     <DataSourceHeader
       :handleSearch="getDataSourceList"
       :searchKey="searchKey"
@@ -19,140 +31,71 @@
       :refreshLoading="refreshLoading"
       @update-search-key="handleUpdateSearchKey"
     ></DataSourceHeader>
-    <div class="data-source-container">
-      <div style="margin-top: 16px">
-        <Table border :columns="dataSourceColumn" :data="showData" :loading="refreshLoading">
+    <div class="data-source-container datasource-list-panel">
+      <div class="datasource-table-wrap">
+        <Table class="datasource-table" :columns="dataSourceColumn" :data="showData" :loading="refreshLoading">
           <template #instanceId="{ row }">
-            <div style="padding: 14px 10px">
-              <div style="display: flex; align-items: center">
-                <span>{{ row.instanceId }}</span>
-                <Tooltip v-if="row.lifeCycleState !== 'CREATED'" :content="$t('shu-ju-yuan-zheng-zai-chuang-jian-zhong')" placement="top" transfer>
-                  <span class="datasource-creating-indicator"></span>
-                </Tooltip>
-                <div>
-                  <Tooltip
-                    placement="right"
-                    class="alarm-icon"
-                    transfer
-                    :content="$t('cun-zai-yi-chang-de-hou-tai-ren-wu-qing-dian-ji-chu-li')"
-                    v-if="row.consoleTaskState === 'FAILED'"
-                  >
-                    <span style="display: inline-block; margin-left: 6px" @click="handleGoConsoleJob(row)">
-                      <i class="iconfont iconyibuforce"></i>
+            <div class="datasource-identity">
+              <DataSourceIcon class="datasource-type-icon" size="32px" :type="row.dataSourceType" :instanceType="row.deployType"></DataSourceIcon>
+              <div class="datasource-info-text">
+                <div class="datasource-main-info">
+                  <Tooltip :content="row.instanceDesc || $t('zan-wu-miao-shu')" placement="bottom" transfer>
+                    <span class="datasource-primary-content datasource-name">
+                      {{ row.instanceDesc || $t('zan-wu-miao-shu') }}
                     </span>
                   </Tooltip>
-                </div>
-              </div>
-              <div class="data-job-desc" style="position: relative; padding-right: 20px; margin-top: 4px">
-                <Tooltip :content="row.instanceDesc || $t('zan-wu-miao-shu')" placement="bottom" transfer>
-                  <span class="datasource-desc-content">
-                    {{ row.instanceDesc || $t('zan-wu-miao-shu') }}
-                  </span>
                   <CustomIcon
-                    class="iconfont icon"
+                    class="iconfont icon datasource-edit-icon"
                     v-if="myAuth.includes('RDP_DS_MANAGE') || myAuth.includes('RDP_ALL_DATASOURCE_MANAGE')"
                     @click="handleEditDataSourceDesc(row)"
-                    style="margin-left: 5px; cursor: pointer"
                     type="icon-v2-EditingPen"
                     size="16px"
                   />
-                </Tooltip>
+                  <Tooltip v-if="row.lifeCycleState !== 'CREATED'" :content="$t('shu-ju-yuan-zheng-zai-chuang-jian-zhong')" placement="top" transfer>
+                    <span class="datasource-creating-indicator"></span>
+                  </Tooltip>
+                  <div>
+                    <Tooltip
+                      placement="right"
+                      class="alarm-icon"
+                      transfer
+                      :content="$t('cun-zai-yi-chang-de-hou-tai-ren-wu-qing-dian-ji-chu-li')"
+                      v-if="row.consoleTaskState === 'FAILED'"
+                    >
+                      <span style="display: inline-block; margin-left: 6px" @click="handleGoConsoleJob(row)">
+                        <i class="iconfont iconyibuforce"></i>
+                      </span>
+                    </Tooltip>
+                  </div>
+                </div>
+                <div class="data-job-desc datasource-secondary-content datasource-id-text">
+                  {{ row.instanceId }}
+                </div>
               </div>
-              <Poptip placement="right" width="680" class="show-job-info-icon" transfer>
-                <CustomIcon type="icon-v2-Info" @click="getDataSourceDetail(row)" size="14px" />
-                <template #content>
-                  <DataSourceInDetail :dataSourceDetail="sourceDetail"></DataSourceInDetail>
-                </template>
-              </Poptip>
             </div>
           </template>
           <template #action="{ row }">
-            {{ '' }}
-            <div v-if="canManageDataSource">
-              <Dropdown transfer trigger="click">
-                <a>
-                  {{ $t('geng-duo') }}
-                  <CustomIcon type="icon-v2-ArrowDown" size="12x" />
-                </a>
-                <template #list>
-                  <DropdownMenu>
-                    <DropdownItem class="datasource-operation-dropdown" :disabled="row.lifeCycleState !== 'CREATED'">
-                      <a
-                        class="dropdown-content"
-                        v-if="row.lifeCycleState === 'CREATED'"
-                        style="width: 100%; display: inline-block"
-                        @click="handleShowTestConnectionModal(row)"
-                      >
-                        {{ $t('ce-shi-lian-jie') }}
-                      </a>
-                      <span class="dropdown-content" v-if="row.lifeCycleState !== 'CREATED'" style="cursor: not-allowed; color: #babdc5">
-                        {{ $t('ce-shi-lian-jie') }}
-                      </span>
-                    </DropdownItem>
-                    <DropdownItem class="datasource-operation-dropdown" :disabled="row.lifeCycleState !== 'CREATED'">
-                      <a
-                        class="dropdown-content"
-                        v-if="row.lifeCycleState === 'CREATED'"
-                        style="width: 100%; display: inline-block"
-                        @click="handleEditAccount(row)"
-                      >
-                        {{ $t('xiu-gai-zhang-hao') }}
-                      </a>
-                      <span class="dropdown-content" v-if="row.lifeCycleState !== 'CREATED'" style="cursor: not-allowed; color: #babdc5">
-                        {{ $t('xiu-gai-zhang-hao') }}
-                      </span>
-                    </DropdownItem>
-                    <DropdownItem class="datasource-operation-dropdown">
-                      <a class="dropdown-content" @click="handleKvConfigs(row)" style="width: 100%; display: inline-block">
-                        {{ $t('xiu-gai-shu-ju-yuan-can-shu') }}
-                      </a>
-                    </DropdownItem>
-                    <DropdownItem class="datasource-operation-dropdown" :disabled="row.lifeCycleState !== 'CREATED'">
-                      <a
-                        class="dropdown-content"
-                        v-if="row.lifeCycleState === 'CREATED'"
-                        style="width: 100%; display: inline-block"
-                        @click="handleShowDeleteAccountModal(row)"
-                      >
-                        {{ $t('shan-chu-zhang-hao') }}
-                      </a>
-                      <span class="dropdown-content" v-if="row.lifeCycleState !== 'CREATED'" style="cursor: not-allowed; color: #babdc5">
-                        {{ $t('shan-chu-zhang-hao') }}
-                      </span>
-                    </DropdownItem>
-                    <DropdownItem class="datasource-operation-dropdown">
-                      <a class="dropdown-content" @click="handleDeleteConfirm(row)" style="width: 100%; display: inline-block">
-                        {{ $t('shan-chu') }}
-                      </a>
-                    </DropdownItem>
-                  </DropdownMenu>
-                </template>
-              </Dropdown>
+            <div v-if="canManageDataSource" class="datasource-action-group">
+              <Button
+                type="text"
+                size="small"
+                :loading="testingDataSourceId === row.id"
+                :disabled="row.lifeCycleState !== 'CREATED' || testingDataSourceId !== null"
+                @click="handleTestConnection(row)"
+              >
+                {{ $t('ce-shi') }}
+              </Button>
+              <Button type="text" size="small" @click="handleKvConfigs(row)">
+                {{ $t('bian-ji') }}
+              </Button>
+              <Button type="text" size="small" class="datasource-action-danger" @click="handleDeleteConfirm(row)">
+                {{ $t('shan-chu') }}
+              </Button>
             </div>
           </template>
           <template #host="{ row }">
             <div class="host-type">
-              <p>{{ row.publicHost || row.privateHost || row.host || '-' }}</p>
-            </div>
-          </template>
-          <template #dataSourceType="{ row }">
-            <div>
-              <Tooltip
-                style="margin-left: 10px; font-size: 24px; cursor: pointer"
-                placement="right"
-                class="dataSource-icon mid-icon"
-                transfer
-                :content="`${
-                  row.deployType === 'ALIBABA_CLOUD_HOSTED' ? Mapping.aliyunType[row.dataSourceType] || row.dataSourceType : row.dataSourceType
-                }`"
-              >
-                <DataSourceIcon size="20px" :type="row.dataSourceType" :instanceType="row.deployType"></DataSourceIcon>
-              </Tooltip>
-            </div>
-          </template>
-          <template #deployType="{ row }">
-            <div>
-              <span>{{ DATASOURCE_DEPLOY_TYPE_I18N[row.deployType] }}</span>
+              <p class="datasource-primary-content">{{ row.publicHost || row.privateHost || row.host || '-' }}</p>
             </div>
           </template>
           <template #instanceDesc="{ row }">
@@ -171,35 +114,46 @@
           </template>
         </Table>
       </div>
-    </div>
-    <div class="page-footer-container">
-      <div class="page-footer-paging">
-        <Page
-          :total="total"
-          show-total
-          show-elevator
-          @on-change="handlePageChange"
-          show-sizer
-          :page-size="size"
-          @on-page-size-change="handlePageSizeChange"
-          :model-value="page"
-        />
+      <div class="page-footer-container datasource-list-footer">
+        <div class="page-footer-paging">
+          <Page
+            :total="total"
+            show-total
+            show-elevator
+            @on-change="handlePageChange"
+            show-sizer
+            :page-size="size"
+            @on-page-size-change="handlePageSizeChange"
+            :model-value="page"
+          />
+        </div>
       </div>
     </div>
     <!--    <Page class="page-container" :total="total" show-total show-elevator @on-change="handlePageChange" show-sizer-->
     <!--          :page-size="size"-->
     <!--          @on-page-size-change="handlePageSizeChange"/>-->
-    <CCModal v-model="showEditDesc" :title="$t('xiu-gai-shu-ju-yuan-miao-shu')" width="400px">
-      <div>
-        <p>
-          {{ $t('xiu-gai-id-wei-selectedrowinstanceid-de-shu-ju-yuan-de-miao-shu-wei', [selectedRow.instanceId]) }}
-        </p>
-        <Input v-model="instanceDesc" style="width: 280px; margin-top: 20px" />
+    <CCModal v-model="showEditDesc" :title="$t('xiu-gai-shu-ju-yuan-miao-shu')" width="520px" :mask-closable="false">
+      <div class="edit-desc-modal">
+        <Form label-position="top">
+          <FormItem>
+            <Input
+              ref="instanceDescInput"
+              v-model="instanceDesc"
+              type="textarea"
+              :rows="4"
+              :maxlength="128"
+              show-word-limit
+              clearable
+              :placeholder="$t('qing-shu-ru-miao-shu-ming-cheng')"
+            />
+          </FormItem>
+        </Form>
       </div>
       <template #footer>
-        <div>
-          <Button @click="handleCancelEdit">{{ $t('guan-bi') }}</Button>
-          <Button @click="handleConfirmEditDesc" type="primary">{{ $t('que-ding') }}</Button>
+        <div class="edit-desc-footer">
+          <Button @click="handleConfirmEditDesc" type="primary" :loading="editDescLoading" :disabled="!canSubmitDesc">
+            {{ $t('bao-cun') }}
+          </Button>
         </div>
       </template>
     </CCModal>
@@ -433,13 +387,6 @@
         <Button @click="confirmEditAccount" type="primary">{{ $t('que-ding') }}</Button>
       </template>
     </CCModal>
-    <test-connection-modal
-      ref="testConnectionModal"
-      v-model:visible="showTestConnectionModal"
-      :datasource="selectedRow"
-      :handle-close-modal="handleCloseTestConnectionModal"
-      type="dataSourceList"
-    />
     <CCModal v-model="showDeleteAccountModal" :title="$t('shan-chu-shu-ju-yuan-zhang-hao-que-ren')" :mask-closable="false">
       <div>
         {{ $t('que-ren-yao-shan-chu-rowinstanceid-de-zhang-hao-ma', [sourceDetail.instanceId]) }}
@@ -455,34 +402,23 @@
 import { mapGetters, mapState } from 'vuex';
 import _ from 'lodash';
 import DataSourceHeader from '@/components/function/addDataSource/DataSourceHeader';
-import DataSourceInDetail from '@/components/function/addDataSource/DataSourceInDetail';
 import { isOracle } from '@/utils';
-import fecha from 'fecha';
-import { DATASOURCE_DEPLOY_TYPE_I18N, SECOND_CONFIRM_EVENT_LIST } from '@/const';
+import { SECOND_CONFIRM_EVENT_LIST } from '@/const';
 import SecondConfirmModal from '@/components/modal/SecondConfirmModal';
 import DataSourceIcon from '@/components/function/DataSourceIcon';
-import Mapping from '../util';
-import TestConnectionModal from '../../components/function/addDataSource/TestConnectionModal';
-import { resolveComponent } from 'vue';
 
 export default {
   name: 'DataSource',
   components: {
     SecondConfirmModal,
-    TestConnectionModal,
     DataSourceHeader,
-    DataSourceInDetail,
     DataSourceIcon
-  },
-  mounted() {
-    // this.getDataSourceList();
-    this.listEnv();
   },
   data() {
     return {
       showDeleteAccountModal: false,
       dsKvConfigs: [],
-      showTestConnectionModal: false,
+      testingDataSourceId: null,
       securitySetting: [],
       securitySettingObj: {},
       sid: '',
@@ -559,10 +495,10 @@ export default {
         ]
       },
       sourceDetail: {},
-      Mapping,
-      envData: [],
       showEditDesc: false,
+      editDescLoading: false,
       instanceDesc: '',
+      originalInstanceDesc: '',
       selectedRow: {},
       refreshLoading: false,
       showAddDataSource: false,
@@ -587,33 +523,22 @@ export default {
       },
       dataSourceColumn: [
         {
-          title: this.$t('shu-ju-yuan-id'),
+          title: this.$t('shu-ju-yuan'),
           key: 'instanceId',
           slot: 'instanceId',
-          width: 280
+          minWidth: 420
         },
         {
-          title: this.$t('lei-xing'),
-          key: 'dataSourceType',
-          width: 80,
-          slot: 'dataSourceType'
-        },
-        {
-          title: this.$t('host'),
+          title: this.$t('wang-luo-di-zhi'),
           key: 'host',
-          minWidth: 500,
+          minWidth: 320,
           slot: 'host'
-        },
-        {
-          title: this.$t('huan-jing'),
-          key: 'dsEnvName',
-          width: 500
         },
         {
           title: this.$t('cao-zuo'),
           key: '',
           slot: 'action',
-          width: 160,
+          width: 240,
           fixed: 'right'
         }
       ],
@@ -671,19 +596,8 @@ export default {
     canManageDataSource() {
       return this.myAuth.includes('RDP_DS_MANAGE') || this.myAuth.includes('RDP_ALL_DATASOURCE_MANAGE');
     },
-    DATASOURCE_DEPLOY_TYPE_I18N() {
-      return DATASOURCE_DEPLOY_TYPE_I18N;
-    },
-    getEnvById() {
-      return (id) => {
-        let envName = '';
-        this.envData.forEach((env) => {
-          if (env.id === id) {
-            envName = env.envName;
-          }
-        });
-        return envName;
-      };
+    canSubmitDesc() {
+      return this.instanceDesc.trim().length > 0 && this.instanceDesc.trim() !== this.originalInstanceDesc.trim();
     }
   },
   methods: {
@@ -692,15 +606,6 @@ export default {
       Object.assign(this.searchKey, params);
     },
     isOracle,
-    async listEnv() {
-      const data = {
-        envName: ''
-      };
-      const res = await this.$services.rdpDsEnvList({ data });
-      if (res.success) {
-        this.envData = res.data;
-      }
-    },
     async handleKvConfigs(row) {
       this.selectedRow = row;
       // const res = await queryDsConfig({
@@ -891,6 +796,13 @@ export default {
       this.selectedRow = row;
       this.showDeleteDataSourceConfirm = true;
     },
+    selectConfirmText(event) {
+      const range = document.createRange();
+      const selection = window.getSelection();
+      range.selectNodeContents(event.currentTarget);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    },
     handlePageChange(page) {
       this.page = page;
       this.showData = this.pagingData.slice((this.page - 1) * this.size, this.page * this.size);
@@ -899,26 +811,32 @@ export default {
         return null;
       });
     },
-    handleConfirmEditDesc() {
-      this.showEditDesc = false;
-      this.$services
-        .rdpDataSourceUpdateDataSourceDesc({
+    async handleConfirmEditDesc() {
+      if (!this.canSubmitDesc) {
+        return;
+      }
+      this.editDescLoading = true;
+      try {
+        const res = await this.$services.rdpDataSourceUpdateDsDesc({
           data: {
             dataSourceId: this.selectedRow.id,
-            instanceDesc: this.instanceDesc
-          }
-        })
-        .then((res) => {
-          if (res.success) {
-            this.getDataSourceList();
-            this.$Message.success(this.$t('xiu-gai-cheng-gong'));
+            instanceDesc: this.instanceDesc.trim()
           }
         });
+        if (res.success) {
+          this.showEditDesc = false;
+          this.getDataSourceList();
+          this.$Message.success(this.$t('xiu-gai-cheng-gong'));
+        }
+      } finally {
+        this.editDescLoading = false;
+      }
     },
     handleCancelEdit() {
       this.showEditDesc = false;
       this.showEditAccount = false;
       this.showDeleteDataSourceConfirm = false;
+      this.editDescLoading = false;
       if (this.$refs.caFileInput) {
         this.$refs.caFileInput.value = '';
       }
@@ -930,9 +848,13 @@ export default {
       }
     },
     handleEditDataSourceDesc(row) {
-      this.instanceDesc = row.instanceDesc;
+      this.instanceDesc = row.instanceDesc || '';
+      this.originalInstanceDesc = row.instanceDesc || '';
       this.selectedRow = row;
       this.showEditDesc = true;
+      this.$nextTick(() => {
+        this.$refs.instanceDescInput?.focus?.();
+      });
     },
     handlePageSizeChange(size) {
       this.size = size;
@@ -1030,20 +952,24 @@ export default {
         }
       });
     },
-    handleCloseTestConnectionModal() {
-      this.showTestConnectionModal = false;
-    },
-    handleShowTestConnectionModal(row) {
-      this.showTestConnectionModal = true;
-      this.selectedRow = row;
-      // Clear status of last test connection
-      this.$nextTick(() => {
-        if (this.$refs.testConnectionModal) {
-          this.$refs.testConnectionModal.hasTest = false;
-          this.$refs.testConnectionModal.testSuccess = false;
-          this.$refs.testConnectionModal.loading = false;
+    async handleTestConnection(row) {
+      this.testingDataSourceId = row.id;
+      try {
+        const res = await this.$services.dmDataSourceTestConnect({
+          data: {
+            dataSourceId: row.id
+          }
+        });
+        if (res.success) {
+          this.$Message.success(this.$t('ce-shi-lian-jie-cheng-gong'));
+        } else {
+          this.$Message.error(res.msg || this.$t('ce-shi-lian-jie-shi-bai'));
         }
-      });
+      } catch (e) {
+        this.$Message.error(e?.message || this.$t('ce-shi-lian-jie-shi-bai'));
+      } finally {
+        this.testingDataSourceId = null;
+      }
     },
     resetAccountInfo() {
       this.accountInfo = {
@@ -1085,8 +1011,8 @@ export default {
 <style lang="less" scoped>
 .data-source-container {
   position: relative;
-  margin-top: 16px;
-  margin-bottom: 60px;
+  margin-top: 0;
+  margin-bottom: 0;
 
   .iconfont {
     color: #8d95a6;
@@ -1115,8 +1041,141 @@ export default {
     //margin-left: 24px;
   }
 
+  .datasource-main-info {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    height: 22px;
+  }
+
+  .datasource-primary-content {
+    color: var(--text-primary);
+    font-size: 13px;
+    line-height: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  .datasource-secondary-content {
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 16px;
+    margin-top: 2px;
+    opacity: 0.6;
+  }
+
   .mid-icon {
     display: flex;
+  }
+}
+
+.datasource-list-panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.datasource-table-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+
+  :deep(.ivu-table-wrapper) {
+    border: 0;
+    border-radius: 0;
+  }
+}
+
+.datasource-table {
+  :deep(.ivu-table) {
+    color: var(--text-primary);
+
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+
+  :deep(.ivu-table-header th) {
+    height: 44px;
+    background: var(--bg-secondary) !important;
+    border-right: 0;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-secondary) !important;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  :deep(.ivu-table-cell) {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  :deep(.ivu-table td) {
+    height: 54px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  :deep(.ivu-table-row-hover td),
+  :deep(.ivu-table-row:hover td) {
+    background: rgba(62, 207, 142, 0.04) !important;
+  }
+}
+
+.datasource-identity {
+  display: flex;
+  min-width: 0;
+  height: 40px;
+  align-items: center;
+  gap: 12px;
+}
+
+.datasource-type-icon {
+  display: inline-flex;
+  width: 36px;
+  flex: 0 0 36px;
+  align-items: center;
+  justify-content: center;
+}
+
+.datasource-info-text {
+  min-width: 0;
+}
+
+.datasource-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.datasource-id-text {
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.datasource-edit-icon {
+  flex: 0 0 auto;
+  margin-left: 6px;
+  cursor: pointer;
+}
+
+.datasource-list-footer {
+  border-top: 1px solid var(--border-light);
+  flex-shrink: 0;
+
+  .page-footer-paging {
+    height: 56px;
+    justify-content: flex-end;
+    padding: 0 20px;
   }
 }
 
@@ -1128,7 +1187,7 @@ export default {
 }
 
 .host-type {
-  padding: 12px 0;
+  padding: 0;
 }
 
 .host-type-label {
@@ -1160,15 +1219,6 @@ export default {
     font-size: 14px;
     color: #ff6e0d;
   }
-}
-
-.datasource-operation-dropdown {
-  padding: 0 !important;
-}
-
-.dropdown-content {
-  padding: 7px 16px;
-  display: block;
 }
 
 .datasource-creating-indicator {
@@ -1222,19 +1272,47 @@ export default {
   }
 }
 
-.show-job-info-icon {
-  color: #0bb9f8;
-  font-size: 20px;
-  position: absolute;
-  right: 10px;
-  top: 20px;
-  cursor: pointer;
+.datasource-action-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-start;
+  white-space: nowrap;
 
-  .iconfont {
-    color: #8d95a6;
-    cursor: pointer;
+  :deep(.ivu-btn-text) {
+    height: 28px;
+    padding: 0;
+    font-weight: 500;
   }
 }
+
+.datasource-action-danger {
+  color: #ed4014;
+}
+
+.delete-datasource-confirm-tip {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.delete-datasource-confirm-id {
+  color: var(--text-primary);
+  cursor: text;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.edit-desc-modal {
+  padding-top: 4px;
+}
+
+.edit-desc-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 [data-theme='dark'] {
   .host-type-label {
     color: var(--text-primary);

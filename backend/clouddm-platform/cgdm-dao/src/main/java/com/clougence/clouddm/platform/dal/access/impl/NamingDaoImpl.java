@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.platform.dal.access.impl;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
@@ -136,6 +138,11 @@ public class NamingDaoImpl implements NamingDao {
     public String genSecRuleName(RuleKind ruleKind) {
         String namePattern = "rule%s";
         return String.format(namePattern, fixedLenRandomStr(10));
+    }
+
+    @Override
+    public String genUploadFileId() {
+        return UUID.randomUUID().toString().replace("-", "");
     }
 
     /**

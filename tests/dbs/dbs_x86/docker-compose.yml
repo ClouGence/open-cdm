@@ -33,7 +33,7 @@ services:
         SQL
         exec container-entrypoint.sh
     healthcheck:
-      test: ["CMD", "healthcheck.sh"]
+      test: [ "CMD", "healthcheck.sh" ]
       interval: 30s
       timeout: 10s
       retries: 10
@@ -54,14 +54,31 @@ services:
       - POSTGRES_PASSWORD=123456
     ports:
       - 2543:5432
+    volumes:
+      - ../postgres_ssl/certs:/certs
+      - ../postgres_ssl/init:/docker-entrypoint-initdb.d:ro
+      - ../postgres_ssl/init-ssl.sh:/usr/local/bin/init-ssl.sh:ro
+    entrypoint:
+      - bash
+      - /usr/local/bin/init-ssl.sh
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
     restart: always
     # User/Password: postgres/123456
+    # SSL certs: ../postgres_ssl/certs
+    # TRUST: sslmode=require
+    # CA: sslmode=verify-ca, sslrootcert=../postgres_ssl/certs/ca.crt
+    # CLIENT_CERT: user=sslclient, sslmode=verify-full, sslrootcert=ca.crt, sslcert=client.crt, sslkey=client.pk8
 
   redis:
     image: redis:7.2.3
     privileged: true
     ports:
-      - 2639:6379
+      - 2637:6379
     restart: always
     command: redis-server --requirepass 123456
     # Password: 123456
@@ -83,7 +100,6 @@ services:
       - ACCEPT_EULA=Y
     ports:
       - 2143:1433
-    restart: always
     # User/Password: sa/Share123456!
 
   db2:
@@ -95,7 +111,6 @@ services:
     ports:
       - 2500:50000
     privileged: true
-    restart: always
     # User/Password: db2inst1/123456
 
   clickhouse:
@@ -139,8 +154,8 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
     ports:
-      - 2080:3128
-      - 2085:1080
+      - 2312:3128
+      - 2108:1080
     restart: always
     # HTTP proxy: 127.0.0.1:2080
     # SOCKS4/SOCKS5 proxy: 127.0.0.1:2085
@@ -152,8 +167,8 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
     ports:
-      - 2081:3128
-      - 2086:1080
+      - 2313:3128
+      - 2109:1080
     restart: always
     # HTTP proxy: 127.0.0.1:2081
     # SOCKS5 proxy: 127.0.0.1:2086

@@ -20,11 +20,9 @@ import java.util.List;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.DsConfigSubmitFO;
-import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsConfigFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsKvConfigFO;
 import com.clougence.clouddm.console.web.model.lo.UpdateDsConfigLO;
 import com.clougence.clouddm.console.web.model.lo.UpdateDsDescLO;
-import com.clougence.clouddm.console.web.model.vo.DsKvConfigVO;
 import com.clougence.clouddm.console.web.model.vo.RdpDsKvConfigVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.ConnectDsResultVO;
 import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
@@ -35,7 +33,9 @@ import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
  */
 public interface DmDsWebService {
 
-    ResWebData<Long> addDataSource(String uid, DsConfigSubmitFO addFO);
+    ResWebData<Long> addDs(String uid, DsConfigSubmitFO fo);
+
+    ResWebData<Long> updateDs(String uid, DsConfigSubmitFO fo);
 
     ConnectDsResultVO testConnect(String uid, DsConfigSubmitFO fo);
 
@@ -57,19 +57,11 @@ public interface DmDsWebService {
 
     List<DmDsDO> fetchDsConfigByIds(String puid, List<Long> ids);
 
-    ResWebData<Boolean> updateDsDesc(String puid, String uid, long dsId, String desc);
-
     List<DmDsDO> listDsByClusterId(long clusterId);
 
-    List<DsKvConfigVO> queryDsConfigIncludeNewEntries(Long dsId);
-
     List<UpdateDsConfigLO> upsertDsConfigs(String puid, UpsertDsKvConfigFO fo);
-
-    void upsertConfigs(String puid, UpsertDsConfigFO fo);
 
     UpdateDsDescLO updateDataSourceDesc(String puid, Long dataSourceId, String instanceDesc);
 
     void updateDataSourceAccount(String puid, UpdateSecurityInfoFO fo);
-
-    void cleanDataSourceAccount(String puid, long dsId);
 }

@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.rdp.controller;
+package com.clougence.clouddm.console.web.controller.env;
 
 import static com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy.Ignore;
 import static com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel.HIGH;
+import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_DS_MANAGE;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.RDP_ENV_MANAGE;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,16 +31,21 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
+import com.clougence.clouddm.console.web.model.fo.checkrules.SpecListFO;
 import com.clougence.clouddm.console.web.model.fo.env.AddDsEnvFO;
 import com.clougence.clouddm.console.web.model.fo.env.DeleteDsEnvFO;
 import com.clougence.clouddm.console.web.model.fo.env.ListAllDsEnvFO;
 import com.clougence.clouddm.console.web.model.fo.env.UpdateDsEnvFO;
 import com.clougence.clouddm.console.web.model.lo.UpdateDsEnvLO;
+import com.clougence.clouddm.console.web.model.vo.checkrules.SpecVO;
 import com.clougence.clouddm.console.web.model.vo.env.DsEnvVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
+import com.clougence.clouddm.console.web.service.security.CheckRulesService;
+import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
+import com.clougence.clouddm.platform.dal.model.secrule.DmSecSpecDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.rdp.constant.RdpControllerUrlPrefix;
 import com.clougence.rdp.service.RdpDsEnvService;
@@ -55,12 +62,14 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping(value = RdpControllerUrlPrefix.CONSOLE_PREFIX + "/dsenv")
 @Slf4j
-public class RdpDsEnvController {
+public class EnvController {
 
     @Resource
     private RdpDsEnvService   rdpDsEnvService;
     @Resource
     private RdpOpAuditService rdpOpAuditService;
+    @Resource
+    private CheckRulesService checkRulesService;
 
     @RequestAuth(strategy = Ignore)
     @RequestMapping(value = "/list", method = RequestMethod.POST)
@@ -70,6 +79,17 @@ public class RdpDsEnvController {
 
         List<DmSysEnvDO> dsEnvDOs = this.rdpDsEnvService.listDsEnv(puid, uid, listAllDsEnvFO.getEnvName());
         return ResWebDataUtils.buildSuccess(DsEnvVO.generateVO(dsEnvDOs));
+    }
+
+    @RequestAuth(DM_DS_MANAGE)
+    @RequestMapping(value = "/listSpec", method = RequestMethod.POST)
+    public ResWebData<?> listSpec(@RequestBody @Valid SpecListFO fo, HttpServletRequest request) {
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+
+        List<DmSecSpecDO> specPage = this.checkRulesService.querySpecList(puid, fo.getSearch());
+        List<SpecVO> collect = specPage.stream().map(DmConvertUtils::convertToDmSecSpecVO).collect(Collectors.toList());
+
+        return ResWebDataUtils.buildSuccess(collect);
     }
 
     @RequestAuth(level = HIGH, value = RDP_ENV_MANAGE)

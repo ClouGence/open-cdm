@@ -18,16 +18,13 @@ package com.clougence.clouddm.team.provider.feishu.approval;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.clougence.clouddm.team.provider.feishu.constants.FeishuI18nKeys;
-import com.clougence.clouddm.team.provider.feishu.constants.approval.FeishuConstant;
-import com.clougence.clouddm.team.provider.feishu.domain.mo.FeishuWidget;
 import com.clougence.clouddm.sdk.approval.ApprovalForm;
 import com.clougence.clouddm.sdk.approval.form.AuthForm;
 import com.clougence.clouddm.sdk.approval.form.ChangeForm;
 import com.clougence.clouddm.sdk.approval.form.QueryForm;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiErrorType;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.clouddm.team.provider.feishu.constants.FeishuI18nKeys2;
+import com.clougence.clouddm.team.provider.feishu.constants.FeishuI18nKeys;
 import com.clougence.clouddm.team.provider.feishu.constants.approval.FeishuConstant;
 import com.clougence.clouddm.team.provider.feishu.domain.mo.FeishuWidget;
 import com.clougence.utils.JsonUtils;

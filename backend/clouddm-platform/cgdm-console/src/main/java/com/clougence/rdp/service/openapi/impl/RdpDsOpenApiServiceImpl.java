@@ -131,7 +131,7 @@ public class RdpDsOpenApiServiceImpl implements RdpDsOpenApiService {
         UpdateSecurityInfoFO updateFO;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            updateFO = objectMapper.readValue(data, new TypeReference<UpdateSecurityInfoFO>() {});
+            updateFO = objectMapper.readValue(data, new TypeReference<>() {});
         } catch (Exception e) {
             String msg = "deserialize updateFO ds info error.msg:" + ExceptionUtils.getRootCauseMessage(e);
             log.error(msg, e);

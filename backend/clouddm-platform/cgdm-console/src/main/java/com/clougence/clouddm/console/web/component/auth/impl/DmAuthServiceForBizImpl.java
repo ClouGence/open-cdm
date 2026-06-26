@@ -333,10 +333,7 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
             DmAuthUserDO userDO = authDal.userMapper().queryByUid(targetUid);
             if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT
                 || CollectionUtils.isNotEmpty(this.authServiceForManage.listEffectiveGlobalAuth(targetUid, AuthKind.DataSource))) {
-                if (userDO.getParentId() != null) {
-                    targetUid = authDal.userMapper().queryById(userDO.getParentId()).getUid();
-                }
-                List<DmDsDO> dsDOs = this.dsDal.dsMapper().listByUserWithGmtOrder(targetUid);
+                List<DmDsDO> dsDOs = this.dsDal.dsMapper().listByUserWithGmtOrder(AuthDal.ROOT_USER_UID);
                 return dsDOs.stream().map(DmDsDO::getId).collect(Collectors.toList());
             } else {
                 List<DmAuthResDO> result = this.authDal.resMapper().listByKind(targetUid, AuthKind.DataSource);
@@ -360,10 +357,7 @@ public class DmAuthServiceForBizImpl implements DmAuthServiceForBiz {
         List<DmAuthResDO> result = new ArrayList<>();
         DmAuthResDO globalAuth = this.firstGlobalAuth(targetUid);
         if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT || globalAuth != null) {
-            if (userDO.getParentId() != null) {
-                targetUid = authDal.userMapper().queryById(userDO.getParentId()).getUid();
-            }
-            List<DmDsDO> dsDOs = this.dsDal.dsMapper().listByUserWithGmtOrder(targetUid);
+            List<DmDsDO> dsDOs = this.dsDal.dsMapper().listByUserWithGmtOrder(AuthDal.ROOT_USER_UID);
 
             for (DmDsDO dsDO : dsDOs) {
                 DmAuthResDO authDO = new DmAuthResDO();

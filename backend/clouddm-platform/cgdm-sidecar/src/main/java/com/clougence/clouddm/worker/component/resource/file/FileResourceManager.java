@@ -16,71 +16,25 @@
 package com.clougence.clouddm.worker.component.resource.file;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.utils.io.FileUtils;
+import com.clougence.clouddm.component.cache.LocalCacheComponent;
 
-import jakarta.annotation.PostConstruct;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
 public class FileResourceManager {
 
-    private final AtomicBoolean      inited   = new AtomicBoolean(false);
-    private final Map<String, Cache> cacheMap = new ConcurrentHashMap<>();
-    private final File               fileDir  = new File(GlobalConfUtils.getPluginDir("files"));
+    private final File fileDir = new File(GlobalConfUtils.getPluginDir("files"));
 
     public String cacheFile(DataSourceConfig config, String fileName, byte[] fileBytes) throws IOException {
-        String key = config.getInstanceId() + "-" + fileName;
-        Long configVersion = config.getConfigVersion();
-        if (!cacheMap.containsKey(key) || !cacheMap.get(key).getVersion().equals(configVersion)) {
-            synchronized (this) {
-                if (!cacheMap.containsKey(key) || !cacheMap.get(key).getVersion().equals(configVersion)) {
-                    File instanceDir = new File(fileDir, config.getInstanceId());
-                    File file = new File(instanceDir, fileName);
-                    if (file.exists()) {
-                        FileUtils.deleteQuietly(file);
-                    }
-                    try (FileOutputStream fileOutputStream = FileUtils.openOutputStream(file)) {
-                        fileOutputStream.write(fileBytes);
-                    }
-                    cacheMap.put(key, new Cache(configVersion, file.getAbsolutePath()));
-                    log.info("cache file location: {}", file.getAbsolutePath());
-                }
-            }
-        }
-        return cacheMap.get(key).getFilePath();
-    }
-
-    @PostConstruct
-    public void init() throws IOException {
-        if (inited.compareAndSet(false, true) && fileDir.exists()) {
-            FileUtils.deleteDirectory(fileDir);
-            log.info("Deleted file directory {}", fileDir.getAbsolutePath());
-        }
-    }
-
-    @Getter
-    @Setter
-    private static class Cache {
-
-        private Long   version;
-        private String filePath;
-
-        public Cache(Long version, String filePath){
-            this.version = version;
-            this.filePath = filePath;
-        }
+        String path = LocalCacheComponent.getInstance().cacheFile(this.fileDir, config.getInstanceId(), fileName, fileBytes);
+        log.info("cache file location: {}", path);
+        return path;
     }
 }

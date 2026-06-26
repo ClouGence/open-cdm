@@ -20,16 +20,18 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
-import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
-import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
-import com.clougence.clouddm.ds.oceanbase.i18n.ObConfigI18nKeys;
-import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
+import com.clougence.clouddm.base.metadata.ds.SslMode;
+import com.clougence.clouddm.ds.common.dsconf.AbstractDsConfigSpi;
 import com.clougence.drivers.adapter.ConvertUtils;
 import com.clougence.utils.StringUtils;
 
 public class ObForOraConfigSpi extends AbstractDsConfigSpi {
+
+    @Override
+    public String defaultPort() {
+        return "1521";
+    }
 
     @Override
     public Class<? extends DataSourceConfig> newConfig() {
@@ -44,7 +46,6 @@ public class ObForOraConfigSpi extends AbstractDsConfigSpi {
         config.setTenant(defaultConfig.get(ObOraConfig.Fields.tenant));
         config.setCluster(defaultConfig.get(ObOraConfig.Fields.cluster));
         config.setDefaultSchema(defaultConfig.get(ObOraConfig.Fields.defaultSchema));
-        config.setAutoCommit(!"false".equalsIgnoreCase(defaultConfig.get(ObOraConfig.Fields.autoCommit)));
         config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
         config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
         config.setClientTimeZone(StringUtils.defaultIfBlank(defaultConfig.get(ObOraConfig.Fields.clientTimeZone), "Asia/Shanghai"));
@@ -53,25 +54,10 @@ public class ObForOraConfigSpi extends AbstractDsConfigSpi {
     }
 
     @Override
-    public void customizeAddPanels(Map<DsConfigGroup, UiPanel> panels) {
-        UiPanel general = panels.get(DsConfigGroup.GENERAL);
-        if (general == null) {
-            return;
-        }
-
-        setDefaultPort(panels, "1521");
-
-        UiPanelField tenant = general.findField(ObOraConfig.Fields.tenant);
-        if (tenant != null) {
-            tenant.setTitleI18N(ObConfigI18nKeys.CONFIG_OCEANBASE_TENANT_LABEL);
-            tenant.setDescI18N(ObConfigI18nKeys.CONFIG_OCEANBASE_TENANT_DESCRIPTION);
-        }
-
-        UiPanelField cluster = general.findField(ObOraConfig.Fields.cluster);
-        if (cluster != null) {
-            cluster.setTitleI18N(ObConfigI18nKeys.CONFIG_OCEANBASE_CLUSTER_LABEL);
-            cluster.setDescI18N(ObConfigI18nKeys.CONFIG_OCEANBASE_CLUSTER_DESCRIPTION);
-        }
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.USER_PASSWD);
+        return options;
     }
 
     @Override
@@ -80,14 +66,17 @@ public class ObForOraConfigSpi extends AbstractDsConfigSpi {
     }
 
     @Override
+    public List<SslMode> sslModeSet() {
+        return List.of(SslMode.TRUST, SslMode.CA, SslMode.CLIENT_CERT);
+    }
+
+    @Override
     public boolean supportSSH() {
         return true;
     }
 
     @Override
-    public List<SecurityType> securityTypes() {
-        List<SecurityType> options = new ArrayList<>();
-        options.add(SecurityType.USER_PASSWD);
-        return options;
+    public boolean supportTx() {
+        return true;
     }
 }

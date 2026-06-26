@@ -20,13 +20,17 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
-import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
-import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
+import com.clougence.clouddm.base.metadata.ds.SslMode;
+import com.clougence.clouddm.ds.common.dsconf.AbstractDsConfigSpi;
 import com.clougence.drivers.adapter.ConvertUtils;
 
 public class HgConfigSpi extends AbstractDsConfigSpi {
+
+    @Override
+    public String defaultPort() {
+        return "5432";
+    }
 
     @Override
     public Class<? extends DataSourceConfig> newConfig() {
@@ -42,25 +46,10 @@ public class HgConfigSpi extends AbstractDsConfigSpi {
         config.setPassword(defaultConfig.get(DataSourceConfig.Fields.password));
         config.setDefaultCatalog(defaultConfig.get(HgConfig.Fields.defaultCatalog));
         config.setDefaultSchema(defaultConfig.get(HgConfig.Fields.defaultSchema));
-        config.setAutoCommit(!"false".equalsIgnoreCase(defaultConfig.get(HgConfig.Fields.autoCommit)));
         config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
         config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
         config.setClientTimeZone(defaultConfig.get(HgConfig.Fields.clientTimeZone));
         return dsConfig;
-    }
-
-    @Override
-    public void customizeAddPanels(Map<DsConfigGroup, UiPanel> panels) {
-        setDefaultPort(panels, "5432");
-    }
-
-    public boolean supportSSL() {
-        return true;
-    }
-
-    @Override
-    public boolean supportSSH() {
-        return true;
     }
 
     @Override
@@ -69,4 +58,25 @@ public class HgConfigSpi extends AbstractDsConfigSpi {
         options.add(SecurityType.AK_SK);
         return options;
     }
+
+    @Override
+    public boolean supportSSL() {
+        return true;
+    }
+
+    @Override
+    public List<SslMode> sslModeSet() {
+        return List.of(SslMode.TRUST, SslMode.CA, SslMode.CLIENT_CERT);
+    }
+
+    @Override
+    public boolean supportSSH() {
+        return true;
+    }
+
+    @Override
+    public boolean supportTx() {
+        return true;
+    }
+
 }

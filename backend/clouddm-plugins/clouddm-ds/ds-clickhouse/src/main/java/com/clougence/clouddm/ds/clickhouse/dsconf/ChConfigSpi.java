@@ -20,14 +20,18 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
-import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
-import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
+import com.clougence.clouddm.base.metadata.ds.SslMode;
+import com.clougence.clouddm.ds.common.dsconf.AbstractDsConfigSpi;
 import com.clougence.drivers.adapter.ConvertUtils;
 import com.clougence.utils.StringUtils;
 
 public class ChConfigSpi extends AbstractDsConfigSpi {
+
+    @Override
+    public String defaultPort() {
+        return "8123";
+    }
 
     @Override
     public Class<? extends DataSourceConfig> newConfig() {
@@ -40,7 +44,6 @@ public class ChConfigSpi extends AbstractDsConfigSpi {
         Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(ChConfig.Fields.connectTimeoutMs), false);
         Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(ChConfig.Fields.soTimeoutSec), false);
         config.setDefaultSchema(defaultConfig.get(ChConfig.Fields.defaultSchema));
-        config.setAutoCommit(!"false".equalsIgnoreCase(defaultConfig.get(ChConfig.Fields.autoCommit)));
         config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
         config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
         config.setSessionTimeout(StringUtils.defaultIfBlank(defaultConfig.get(ChConfig.Fields.sessionTimeout), "15000"));
@@ -49,8 +52,16 @@ public class ChConfigSpi extends AbstractDsConfigSpi {
     }
 
     @Override
-    public void customizeAddPanels(Map<DsConfigGroup, UiPanel> panels) {
-        setDefaultPort(panels, "8123");
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.NONE);
+        options.add(SecurityType.USER_PASSWD);
+        return options;
+    }
+
+    @Override
+    public List<SslMode> sslModeSet() {
+        return List.of();
     }
 
     @Override
@@ -64,10 +75,8 @@ public class ChConfigSpi extends AbstractDsConfigSpi {
     }
 
     @Override
-    public List<SecurityType> securityTypes() {
-        List<SecurityType> options = new ArrayList<>();
-        options.add(SecurityType.NONE);
-        options.add(SecurityType.USER_PASSWD);
-        return options;
+    public boolean supportTx() {
+        return true;
     }
+
 }

@@ -66,10 +66,13 @@ export default {
   },
   computed: {
     modeOptions() {
-      return this.normalizedOptions.filter((option) => option.value === 'txAuto' || option.value === 'txManual');
+      return [
+        { value: 'txAuto', label: this.$t('zi-dong') },
+        { value: 'txManual', label: this.$t('shou-dong') }
+      ];
     },
     isolationOptions() {
-      return this.normalizedOptions.filter((option) => option.value !== 'txAuto' && option.value !== 'txManual');
+      return this.normalizedOptions;
     },
     currentMode() {
       return String(this.form.autoCommit) === 'false' ? 'txManual' : 'txAuto';

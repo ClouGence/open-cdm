@@ -20,4 +20,7 @@ import com.clougence.utils.i18n.I18nResource;
 
 @I18nResource("/META-INF/clougence/i18n/my-config")
 public interface MyConfigI18nKeys extends ConfigI18nKey {
+
+    String CONFIG_MY_CONN_CHARSET_LABEL = "CONFIG_MY_CONN_CHARSET_LABEL";
+    String CONFIG_MY_CONN_CHARSET_DESC  = "CONFIG_MY_CONN_CHARSET_DESC";
 }

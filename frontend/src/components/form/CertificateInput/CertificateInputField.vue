@@ -23,6 +23,7 @@
           v-model="textValue"
           class="certificate-input-field__textarea"
           :placeholder="$t('qing-shu-ru-zheng-shu-huo-mi-yao-wan-zheng-nei-rong')"
+          @input="clearError"
           @dragover.prevent
           @drop.prevent="handleTextDrop"
         ></textarea>
@@ -46,6 +47,10 @@
           <div>{{ formatTip }}</div>
           <div>{{ limitTip }}</div>
         </div>
+        <div v-if="errorMessage" class="certificate-input-field__error">
+          <Icon type="ios-close-circle" />
+          <span>{{ errorMessage }}</span>
+        </div>
       </div>
       <template #footer>
         <Button @click="dialogVisible = false">{{ $t('qu-xiao') }}</Button>
@@ -56,7 +61,7 @@
 </template>
 
 <script>
-const CERTIFICATE_FORMATS = ['pem', 'key', 'crt', 'cer', 'p12', 'pfx', 'jks'];
+const CERTIFICATE_FORMATS = ['pem', 'key', 'crt', 'cer', 'pk8', 'p12', 'pfx', 'jks'];
 const TEXT_MAX_SIZE = 1024 * 1024;
 const BINARY_MAX_SIZE = 10 * 1024 * 1024;
 const INPUT_MODE_TEXT = 'text';
@@ -87,6 +92,7 @@ export default {
       textValue: '',
       selectedFile: null,
       configuredFileName: '',
+      errorMessage: '',
       saving: false
     };
   },
@@ -136,11 +142,13 @@ export default {
       }
       this.textValue = '';
       this.selectedFile = null;
+      this.clearError();
       this.dialogVisible = true;
     },
     handleInputModeChange() {
       this.textValue = '';
       this.selectedFile = null;
+      this.clearError();
     },
     handleBeforeUpload(file) {
       if (!file) {
@@ -148,15 +156,16 @@ export default {
       }
       const format = this.resolveFileFormat(file.name);
       if (!format) {
-        this.$Message.warning(this.formatTip);
+        this.setError(this.formatTip);
         return false;
       }
-      const maxSize = ['p12', 'pfx', 'jks'].includes(format) ? BINARY_MAX_SIZE : TEXT_MAX_SIZE;
+      const maxSize = ['pk8', 'p12', 'pfx', 'jks'].includes(format) ? BINARY_MAX_SIZE : TEXT_MAX_SIZE;
       if (file.size > maxSize) {
-        this.$Message.warning(this.limitTip);
+        this.setError(this.limitTip);
         return false;
       }
       this.selectedFile = file;
+      this.clearError();
       return false;
     },
     async handleTextDrop(event) {
@@ -165,30 +174,32 @@ export default {
         return;
       }
       if (file.size > TEXT_MAX_SIZE) {
-        this.$Message.warning(this.limitTip);
+        this.setError(this.limitTip);
         return;
       }
       const bytes = new Uint8Array(await file.arrayBuffer());
       const text = this.decodeText(bytes);
       if (!text || !this.isTextContent(bytes, text)) {
-        this.$Message.warning(this.$t('wen-ben-mo-shi-zhi-zhi-chi-wen-ben-zheng-shu-wen-jian'));
+        this.setError(this.$t('wen-ben-mo-shi-zhi-zhi-chi-wen-ben-zheng-shu-wen-jian'));
         return;
       }
       this.textValue = text;
+      this.clearError();
     },
     async confirmValue() {
       if (this.inputMode === INPUT_MODE_TEXT) {
         if (!this.textValue) {
-          this.$Message.warning(this.$t('qing-shu-ru-zheng-shu-huo-mi-yao-nei-rong'));
+          this.setError(this.$t('qing-shu-ru-zheng-shu-huo-mi-yao-nei-rong'));
           return;
         }
         const bytes = new Uint8Array(await new Blob([this.textValue]).arrayBuffer());
         if (bytes.length > TEXT_MAX_SIZE) {
-          this.$Message.warning(this.limitTip);
+          this.setError(this.limitTip);
           return;
         }
         this.form[this.field.field] = `text://${this.toBase64(bytes)}`;
         this.configuredFileName = '';
+        this.clearError();
         this.dialogVisible = false;
         return;
       }
@@ -196,7 +207,7 @@ export default {
     },
     async uploadFile() {
       if (!this.selectedFile) {
-        this.$Message.warning(this.$t('qing-xuan-ze-wen-jian'));
+        this.setError(this.$t('qing-xuan-ze-wen-jian'));
         return;
       }
       this.saving = true;
@@ -212,8 +223,13 @@ export default {
         if (res.success && res.data?.fileId) {
           this.form[this.field.field] = `${res.data.format}://upload:${res.data.fileId}`;
           this.configuredFileName = res.data.fileName || this.selectedFile.name;
+          this.clearError();
           this.dialogVisible = false;
+        } else {
+          this.setError(res.message || res.msg || this.$t('shang-chuan-shi-bai'));
         }
+      } catch (e) {
+        this.setError(e?.response?.data?.message || e?.response?.data?.msg || e?.message || this.$t('shang-chuan-shi-bai'));
       } finally {
         this.saving = false;
       }
@@ -255,6 +271,12 @@ export default {
         binary += String.fromCharCode(...bytes.slice(i, i + chunkSize));
       }
       return btoa(binary);
+    },
+    setError(message) {
+      this.errorMessage = message || '';
+    },
+    clearError() {
+      this.errorMessage = '';
     }
   }
 };
@@ -337,5 +359,22 @@ export default {
 .certificate-input-field__tip {
   color: #808695;
   font-size: 12px;
+}
+
+.certificate-input-field__error {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid #ffd5d5;
+  border-radius: 4px;
+  color: #ed4014;
+  background: #fff5f5;
+  line-height: 1.5;
+}
+
+.certificate-input-field__error .ivu-icon {
+  margin-top: 2px;
+  font-size: 16px;
 }
 </style>

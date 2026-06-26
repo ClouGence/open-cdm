@@ -28,10 +28,11 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DsConfigSubmitFO {
 
-    private DataSourceType       dsType;
-    private Long                 clusterId;
-    private Long                 envId;
-    private String               instanceDesc;
-    private String               driver;
-    private Map<String, String>  configMap;
+    private Long                dsId;
+    private DataSourceType      dsType;
+    private Long                clusterId;
+    private Long                envId;
+    private String              instanceDesc;
+    private String              driver;
+    private Map<String, String> configMap;
 }

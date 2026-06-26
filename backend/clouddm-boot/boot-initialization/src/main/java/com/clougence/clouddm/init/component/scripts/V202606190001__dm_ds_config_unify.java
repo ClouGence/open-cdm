@@ -62,84 +62,86 @@ public class V202606190001__dm_ds_config_unify extends AbstractUpgradeJavaMigrat
                         WHERE d.data_source_id = r.data_source_id
                           AND d.config_name = r.config_name
                     )
-                """, """
-                    ALTER TABLE dm_ds
-                        ADD COLUMN `status` varchar(64) DEFAULT NULL
-                        AFTER `life_cycle_state`
-                """, """
-                    ALTER TABLE dm_ds
-                        ADD COLUMN `status_message` text DEFAULT NULL
-                        AFTER `status`
-                """, """
-                    ALTER TABLE dm_ds
-                        ADD COLUMN `bind_cluster_id` bigint DEFAULT NULL
-                        AFTER `status_message`
-                """, """
-                    UPDATE dm_ds d
-                    JOIN dm_ds_config c
-                      ON d.id = c.data_source_id
-                    SET d.status = COALESCE(d.status, c.status),
-                        d.status_message = COALESCE(d.status_message, c.status_message),
-                        d.bind_cluster_id = COALESCE(d.bind_cluster_id, c.bind_cluster_id),
-                        d.ds_env_id = COALESCE(d.ds_env_id, c.bind_env_id)
-	                """, """
-	                    UPDATE dm_ds
-	                    SET access_key = COALESCE(NULLIF(access_key, ''), account),
-	                        secret_key = COALESCE(NULLIF(secret_key, ''), password)
-	                """, """
-	                    ALTER TABLE dm_ds
-	                        DROP COLUMN `security_file_url`,
-	                        DROP COLUMN `security_file_password`,
-	                        DROP COLUMN `client_security_file_url`,
-	                        DROP COLUMN `client_security_file_password`,
-	                        DROP COLUMN `secret_file_url`,
-	                        DROP COLUMN `secret_file_password`,
-	                        DROP COLUMN `security_file_store_type`,
-	                        DROP COLUMN `public_security_type`,
-	                        DROP COLUMN `client_trust_store_password`,
-	                        DROP COLUMN `deploy_type`,
-	                        DROP COLUMN `info_fetch_type`,
-	                        DROP COLUMN `connect_type`,
-	                        DROP COLUMN `default_db_name`,
-	                        DROP COLUMN `account`,
-	                        DROP COLUMN `password`,
-	                        DROP COLUMN `private_host`,
-	                        DROP COLUMN `public_host`,
-	                        DROP COLUMN `host_type`,
-	                        DROP COLUMN `console_job_id`,
-	                        DROP COLUMN `parent_ds_id`,
-	                        DROP INDEX `idx_parent_ds_id`
-                """, """
-                    ALTER TABLE dm_ds_config_kv_4dm
-                        DROP COLUMN `config_group`,
-                        DROP COLUMN `display`,
-                        DROP COLUMN `desc_key`,
-                        DROP COLUMN `value_require`,
-                        DROP COLUMN `value_valid_regex`,
-                        DROP COLUMN `default_value`,
-                        DROP COLUMN `value_advance`,
-                        DROP COLUMN `read_only`,
-                        DROP COLUMN `is_secret`
-                """, """
-                    ALTER TABLE dm_sys_user_conf
-                        DROP COLUMN `default_value`,
-                        DROP COLUMN `value_range`,
-                        DROP COLUMN `read_only`,
-                        DROP COLUMN `user_config_tag_type`,
-                        DROP COLUMN `conf_belong`,
-                        DROP COLUMN `conf_val_type`,
-                        DROP COLUMN `is_secret`,
-                        DROP COLUMN `desc_key`
-                """, """
-                    DROP TABLE IF EXISTS dm_ds_config_kv_4rdp
-                """, """
-                    DROP TABLE IF EXISTS dm_ds_config
-                """, """
-                    DROP TABLE IF EXISTS dm_ds_blob_resource
-                """, """
-                    DROP TABLE IF EXISTS dm_ds_usage
-                """, """
-                    DROP TABLE IF EXISTS dm_mon_web_view_log
-                """);
+                """,
+
+                """
+                            ALTER TABLE dm_ds
+                                ADD COLUMN `status` varchar(64) DEFAULT NULL
+                                AFTER `life_cycle_state`
+                        """, """
+                            ALTER TABLE dm_ds
+                                ADD COLUMN `status_message` text DEFAULT NULL
+                                AFTER `status`
+                        """, """
+                            ALTER TABLE dm_ds
+                                ADD COLUMN `bind_cluster_id` bigint DEFAULT NULL
+                                AFTER `status_message`
+                        """, """
+                           UPDATE dm_ds d
+                           JOIN dm_ds_config c
+                             ON d.id = c.data_source_id
+                           SET d.status = COALESCE(d.status, c.status),
+                               d.status_message = COALESCE(d.status_message, c.status_message),
+                               d.bind_cluster_id = COALESCE(d.bind_cluster_id, c.bind_cluster_id),
+                               d.ds_env_id = COALESCE(d.ds_env_id, c.bind_env_id)
+                        """, """
+                            UPDATE dm_ds
+                            SET access_key = COALESCE(NULLIF(access_key, ''), account),
+                                secret_key = COALESCE(NULLIF(secret_key, ''), password)
+                        """, """
+                             ALTER TABLE dm_ds
+                                 DROP COLUMN `security_file_url`,
+                                 DROP COLUMN `security_file_password`,
+                                 DROP COLUMN `client_security_file_url`,
+                                 DROP COLUMN `client_security_file_password`,
+                                 DROP COLUMN `secret_file_url`,
+                                 DROP COLUMN `secret_file_password`,
+                                 DROP COLUMN `security_file_store_type`,
+                                 DROP COLUMN `public_security_type`,
+                                 DROP COLUMN `client_trust_store_password`,
+                                 DROP COLUMN `deploy_type`,
+                                 DROP COLUMN `info_fetch_type`,
+                                 DROP COLUMN `connect_type`,
+                                 DROP COLUMN `default_db_name`,
+                                 DROP COLUMN `account`,
+                                 DROP COLUMN `password`,
+                                 DROP COLUMN `private_host`,
+                                 DROP COLUMN `public_host`,
+                                 DROP COLUMN `host_type`,
+                                 DROP COLUMN `console_job_id`,
+                                 DROP COLUMN `parent_ds_id`,
+                                 DROP INDEX `idx_parent_ds_id`
+                        """, """
+                            ALTER TABLE dm_ds_config_kv_4dm
+                                DROP COLUMN `config_group`,
+                                DROP COLUMN `display`,
+                                DROP COLUMN `desc_key`,
+                                DROP COLUMN `value_require`,
+                                DROP COLUMN `value_valid_regex`,
+                                DROP COLUMN `default_value`,
+                                DROP COLUMN `value_advance`,
+                                DROP COLUMN `read_only`,
+                                DROP COLUMN `is_secret`
+                        """, """
+                            ALTER TABLE dm_sys_user_conf
+                                DROP COLUMN `default_value`,
+                                DROP COLUMN `value_range`,
+                                DROP COLUMN `read_only`,
+                                DROP COLUMN `user_config_tag_type`,
+                                DROP COLUMN `conf_belong`,
+                                DROP COLUMN `conf_val_type`,
+                                DROP COLUMN `is_secret`,
+                                DROP COLUMN `desc_key`
+                        """, """
+                            DROP TABLE IF EXISTS dm_ds_config_kv_4rdp
+                        """, """
+                            DROP TABLE IF EXISTS dm_ds_config
+                        """, """
+                            DROP TABLE IF EXISTS dm_ds_blob_resource
+                        """, """
+                            DROP TABLE IF EXISTS dm_ds_usage
+                        """, """
+                            DROP TABLE IF EXISTS dm_mon_web_view_log
+                        """);
     }
 }

@@ -20,13 +20,17 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
-import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
-import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
+import com.clougence.clouddm.base.metadata.ds.SslMode;
+import com.clougence.clouddm.ds.common.dsconf.AbstractDsConfigSpi;
 import com.clougence.drivers.adapter.ConvertUtils;
 
 public class MongoConfigSpi extends AbstractDsConfigSpi {
+
+    @Override
+    public String defaultPort() {
+        return "27017";
+    }
 
     @Override
     public Class<? extends DataSourceConfig> newConfig() {
@@ -45,8 +49,21 @@ public class MongoConfigSpi extends AbstractDsConfigSpi {
     }
 
     @Override
-    public void customizeAddPanels(Map<DsConfigGroup, UiPanel> panels) {
-        setDefaultPort(panels, "27017");
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.NONE);
+        options.add(SecurityType.USER_PASSWD);
+        return options;
+    }
+
+    @Override
+    public List<SslMode> sslModeSet() {
+        return List.of(SslMode.TRUST);
+    }
+
+    @Override
+    public boolean supportTx() {
+        return false;
     }
 
     @Override
@@ -57,13 +74,5 @@ public class MongoConfigSpi extends AbstractDsConfigSpi {
     @Override
     public boolean supportSSH() {
         return true;
-    }
-
-    @Override
-    public List<SecurityType> securityTypes() {
-        List<SecurityType> options = new ArrayList<>();
-        options.add(SecurityType.NONE);
-        options.add(SecurityType.USER_PASSWD);
-        return options;
     }
 }

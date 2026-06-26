@@ -32,6 +32,7 @@ public class DsConfigKvDef {
 
     private String        configName;
     private DsConfigGroup configGroup;
+    private String        labelKey;
     private String        descKey;
     private boolean       valueRequire;
     private String        valueValidRegex;

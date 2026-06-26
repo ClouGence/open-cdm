@@ -1,61 +1,71 @@
 <template>
-  <div class="page-header-container border-radius-card">
-    <Form ref="formInline" :model="searchKey" inline label-position="right" style="padding-right: 300px">
+  <div class="page-header-container datasource-header-panel">
+    <Form ref="formInline" class="datasource-search-form" :model="searchKey" inline label-position="right">
       <FormItem>
-        <Select v-model="searchType" style="width: 160px" @on-change="handleChangeSearchType">
+        <Select v-model="searchType" class="datasource-search-type" @on-change="handleChangeSearchType">
           <Option value="type" :label="$t('lei-xing')">
             <span>{{ $t('lei-xing') }}</span>
           </Option>
-          <Option value="desc" :label="$t('shu-ju-yuan-miao-shu')">
-            <span>{{ $t('shu-ju-yuan-miao-shu') }}</span>
+          <Option value="desc" :label="$t('ming-cheng')">
+            <span>{{ $t('ming-cheng') }}</span>
           </Option>
-          <Option value="deploy" :label="$t('bu-shu-lei-xing')">
-            <span>{{ $t('bu-shu-lei-xing') }}</span>
-          </Option>
-          <Option value="host" :label="$t('host')">
-            <span>{{ $t('host') }}</span>
-          </Option>
-          <Option value="dataSourceId" :label="$t('shu-ju-yuan-shu-zi-id')">
-            <span>{{ $t('shu-ju-yuan-shu-zi-id') }}</span>
+          <Option value="host" :label="$t('di-zhi')">
+            <span>{{ $t('di-zhi') }}</span>
           </Option>
         </Select>
       </FormItem>
       <FormItem v-if="searchType === 'type'">
-        <Select v-model="searchKey.dbType" style="width: 250px" filterable>
-          <Option value="all">{{ $t('quan-bu') }}</Option>
-          <Option v-for="type of dataSourceTypes" :value="type.dsKey" :key="type.dsKey">{{ type.displayName }}</Option>
-        </Select>
-      </FormItem>
-      <FormItem v-if="searchType === 'dataSourceId'">
-        <Input
-          v-model="searchKey.dataSourceId"
-          :placeholder="$t('shu-ru-guan-jian-zi-jin-hang-mo-hu-sou-suo')"
-          @on-keydown="handleEnterSearch"
-          type="number"
-          style="width: 250px"
-        />
+        <Poptip v-model="typePanelVisible" trigger="click" placement="bottom-start" transfer :width="760" class="datasource-type-poptip">
+          <Button class="datasource-type-trigger">
+            <span class="datasource-type-trigger-label" :title="selectedTypeLabel">{{ selectedTypeLabel }}</span>
+            <Icon type="ios-arrow-down" class="datasource-type-trigger-icon" :class="{ 'is-open': typePanelVisible }" />
+          </Button>
+          <template #content>
+            <div class="datasource-type-panel">
+              <button
+                type="button"
+                class="datasource-type-all"
+                :class="{ 'is-active': selectedDbType === 'all' }"
+                @click="handleSelectDataSourceType('all')"
+              >
+                {{ $t('quan-bu') }}
+              </button>
+              <div class="datasource-type-panel-body">
+                <div class="datasource-type-group" v-for="(dataSourceGroup, index) of dataSourceTypes" :key="index">
+                  <button
+                    translate="no"
+                    type="button"
+                    class="datasource-type-card"
+                    :class="{ 'is-active': selectedDbType === type.dsKey }"
+                    v-for="type of dataSourceGroup"
+                    :key="type.dsKey"
+                    @click="handleSelectDataSourceType(type.dsKey)"
+                  >
+                    <DataSourceIcon class="datasource-type-icon" size="24px" :type="type.dsKey" leftMargin="0"></DataSourceIcon>
+                    <span class="datasource-type-name" :title="type.displayName">
+                      {{ type.displayName }}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </template>
+        </Poptip>
       </FormItem>
       <FormItem v-if="searchType === 'desc'">
         <Input
           v-model="searchKey.dataSourceDescLike"
           :placeholder="$t('shu-ru-guan-jian-zi-jin-hang-mo-hu-sou-suo')"
           @on-keydown="handleEnterSearch"
-          style="width: 250px"
+          class="datasource-search-value"
         />
-      </FormItem>
-      <FormItem v-if="searchType === 'deploy'">
-        <Select v-model="searchKey.deployType" style="width: 250px">
-          <Option value="all">{{ $t('quan-bu') }}</Option>
-          <Option value="SELF_MAINTENANCE">{{ $t('zi-jian') }}</Option>
-          <Option value="ALIBABA_CLOUD_HOSTED">{{ $t('a-li-yun') }}</Option>
-        </Select>
       </FormItem>
       <FormItem v-if="searchType === 'host'">
         <Input
           v-model="searchKey.dsHostLike"
           :placeholder="$t('shu-ru-guan-jian-zi-jin-hang-mo-hu-sou-suo')"
           @on-keydown="handleEnterSearch"
-          style="width: 250px"
+          class="datasource-search-value"
         />
       </FormItem>
       <FormItem>
@@ -66,16 +76,20 @@
     </Form>
     <div class="page-header-function">
       <Button v-if="supportAdd" type="primary" @click="handleShowAddDataSource">
-        {{ $t('xin-zeng-shu-ju-yuan') }}
+        {{ $t('xin-zeng') }}
       </Button>
     </div>
   </div>
 </template>
 <script>
 import { mapState } from 'vuex';
+import DataSourceIcon from '@/components/function/DataSourceIcon';
 
 export default {
   name: 'DataSourceHeader',
+  components: {
+    DataSourceIcon
+  },
   emits: ['update-search-key'],
   props: {
     handleSearch: Function,
@@ -88,12 +102,25 @@ export default {
   data() {
     return {
       searchType: 'type',
-      allowedSearchTypes: ['type', 'desc', 'deploy', 'host', 'dataSourceId'],
-      dataSourceTypes: []
+      allowedSearchTypes: ['type', 'desc', 'host'],
+      dataSourceTypes: [],
+      typePanelVisible: false
     };
   },
   computed: {
-    ...mapState(['dmGlobalSetting'])
+    ...mapState(['dmGlobalSetting']),
+    flatDataSourceTypes() {
+      return this.dataSourceTypes.flatMap((group) => group);
+    },
+    selectedDbType() {
+      return this.searchKey?.dbType || 'all';
+    },
+    selectedTypeLabel() {
+      if (this.selectedDbType === 'all') {
+        return this.$t('quan-bu');
+      }
+      return this.flatDataSourceTypes.find((type) => type.dsKey === this.selectedDbType)?.displayName || this.selectedDbType;
+    }
   },
   watch: {
     dmGlobalSetting() {
@@ -121,7 +148,9 @@ export default {
   methods: {
     refreshDataSourceTypes() {
       this.dataSourceTypes = Array.isArray(this.dmGlobalSetting?.dsSupportNames)
-        ? this.dmGlobalSetting.dsSupportNames.flat().map(this.normalizeDsSupportName).filter(Boolean)
+        ? this.dmGlobalSetting.dsSupportNames
+            .map((group) => (Array.isArray(group) ? group : [group]).map(this.normalizeDsSupportName).filter(Boolean))
+            .filter((group) => group.length > 0)
         : [];
     },
     normalizeDsSupportName(type) {
@@ -146,6 +175,10 @@ export default {
       sessionStorage.setItem('datasource_search_params', JSON.stringify({ searchType: this.searchType, ...this.searchKey }));
       this.handleSearch(this.searchKey, 'init');
     },
+    handleSelectDataSourceType(dsKey) {
+      this.searchKey.dbType = dsKey;
+      this.typePanelVisible = false;
+    },
     handleEnterSearch(e) {
       if (e.code === 'Enter') {
         e.preventDefault();
@@ -158,39 +191,190 @@ export default {
 <style lang="less" scoped>
 .page-header-container {
   background: #ffffff;
-  //border: 1px solid #EDEDED;
-  height: 60px;
-  line-height: 54px;
-  //padding: 0 20px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  min-height: 64px;
+  padding: 12px 16px;
   position: relative;
+}
 
-  .ivu-form-inline .ivu-form-item {
+.datasource-header-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.datasource-search-form {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+
+  :deep(.ivu-form-item) {
+    margin-bottom: 0;
     vertical-align: middle;
-    margin-bottom: 0;
+  }
+}
+
+.page-header-function {
+  position: static;
+  flex-shrink: 0;
+
+  a {
+    color: #333;
+    margin-right: 10px;
   }
 
-  .ivu-form-item {
-    margin-bottom: 0;
+  button {
+    margin-left: 8px;
+    min-width: 116px;
   }
 
-  .page-header-function {
-    position: absolute;
-    right: 20px;
-    top: 2px;
-
-    a {
-      color: #333;
-      margin-right: 10px;
-    }
-
-    button {
-      margin-left: 8px;
-    }
-
-    .ivu-tooltip {
-      margin-left: 8px;
-    }
+  .ivu-tooltip {
+    margin-left: 8px;
   }
+}
+
+.datasource-search-type {
+  width: 150px;
+}
+
+.datasource-search-value {
+  width: 280px;
+}
+
+.datasource-type-poptip {
+  display: inline-flex;
+}
+
+.datasource-type-trigger {
+  display: inline-flex;
+  width: 280px;
+  height: 36px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  border-color: var(--border-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 400;
+  text-align: left;
+
+  &:hover,
+  &:focus {
+    border-color: var(--primary-color);
+    color: var(--text-primary);
+  }
+}
+
+.datasource-type-trigger-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.datasource-type-trigger-icon {
+  flex: 0 0 auto;
+  margin-left: 8px;
+  color: var(--text-secondary);
+  transition: transform 0.2s ease;
+
+  &.is-open {
+    transform: rotate(180deg);
+  }
+}
+
+.datasource-type-panel {
+  width: 100%;
+  max-height: 360px;
+  padding: 6px 0 2px;
+  overflow-y: auto;
+}
+
+.datasource-type-all {
+  display: flex;
+  width: 100%;
+  height: 34px;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 14px;
+  text-align: left;
+
+  &:hover,
+  &.is-active {
+    border-color: var(--primary-color);
+    background: var(--bg-hover);
+    color: var(--primary-color);
+  }
+}
+
+.datasource-type-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.datasource-type-group {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.datasource-type-card {
+  display: flex;
+  min-width: 0;
+  height: 44px;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  background: #ffffff;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover,
+  &.is-active {
+    border-color: var(--primary-color);
+    background: var(--bg-hover);
+  }
+
+  &.is-active {
+    box-shadow: 0 0 0 1px var(--primary-color) inset;
+  }
+}
+
+.datasource-type-icon {
+  display: inline-flex;
+  width: 28px;
+  flex: 0 0 28px;
+  align-items: center;
+  justify-content: center;
+}
+
+.datasource-type-name {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .data-job-mode-switch {

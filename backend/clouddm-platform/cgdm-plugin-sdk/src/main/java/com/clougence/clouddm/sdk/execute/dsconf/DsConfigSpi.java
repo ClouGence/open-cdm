@@ -21,35 +21,43 @@ import java.util.Map;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
+import com.clougence.clouddm.base.metadata.ds.SslMode;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.sdk.Spi;
 
 public interface DsConfigSpi extends Spi {
 
-    String ENV_ID_FIELD                  = "envId";
-    String CLUSTER_ID_FIELD              = "clusterId";
-    String PORT_FIELD                    = "port";
-    String CONNECT_TIMEOUT_MS_FIELD      = "connectTimeoutMs";
-    String SO_TIMEOUT_SEC_FIELD          = "soTimeoutSec";
-    String CONN_AND_SO_TIMEOUT_MS_FIELD  = "connAndSoTimeoutMs";
-    String AUTO_COMMIT_FIELD             = "autoCommit";
-    String TRANSACTION_CONTROL_FIELD     = "transactionControl";
-    String TRANSACTION_MODE_AUTO_VALUE   = "txAuto";
-    String TRANSACTION_MODE_MANUAL_VALUE = "txManual";
-    String CLIENT_TIME_ZONE_FIELD        = "clientTimeZone";
-    String DEFAULT_CATALOG_FIELD         = "defaultCatalog";
-    String DEFAULT_SCHEMA_FIELD          = "defaultSchema";
-    String SSH_TUNNEL_FIELD              = "sshTunnel";
-
-    Class<? extends DataSourceConfig> newConfig();
+    String ENV_ID_FIELD              = "envId";
+    String CLUSTER_ID_FIELD          = "clusterId";
+    String ADDRESS_FIELD             = "address";
+    String PORT_FIELD                = "port";
+    String TRANSACTION_CONTROL_FIELD = "transactionControl";
+    String CLIENT_TIME_ZONE_FIELD    = "clientTimeZone";
+    String SSH_TUNNEL_FIELD          = "sshTunnel";
 
     boolean supportSSL();
 
     boolean supportSSH();
 
+    boolean supportTx();
+
     List<SecurityType> securityTypes();
 
-    void customizeAddPanels(Map<DsConfigGroup, UiPanel> panels);
+    List<SslMode> sslModeSet();
+
+    String defaultPort();
+
+    //
+
+    void customizePanels(Map<DsConfigGroup, UiPanel> panels);
+
+    Map<String, String> configMapFromUi(Map<String, String> configMap, Map<String, String> uiMap);
+
+    void customizeUiMap(Map<String, String> uiMap, Map<String, String> configMap);
+
+    //
+
+    Class<? extends DataSourceConfig> newConfig();
 
     DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig);
 }

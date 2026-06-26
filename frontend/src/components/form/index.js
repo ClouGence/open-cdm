@@ -8,7 +8,6 @@ export * from './MaxComputeEndpoint';
 export * from './NetworkAddress';
 export * from './Options';
 export * from './SshTunnel';
-export * from './TestConnection';
 export * from './TextArea';
 export * from './TransactionControl';
 export { default as UiFormField } from './UiFormField.vue';

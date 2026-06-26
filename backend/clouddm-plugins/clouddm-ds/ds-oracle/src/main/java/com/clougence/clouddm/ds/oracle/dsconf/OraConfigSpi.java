@@ -15,25 +15,61 @@
  */
 package com.clougence.clouddm.ds.oracle.dsconf;
 
+import static com.clougence.clouddm.base.metadata.ui.form.UiUtils.fieldOptionDef;
+import static com.clougence.clouddm.base.metadata.ui.form.UiUtils.strValueDef;
+
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
+import com.clougence.clouddm.base.metadata.ds.SslMode;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanelFieldType;
-import com.clougence.clouddm.base.metadata.ui.form.UiUtils;
-import com.clougence.clouddm.base.metadata.ui.form.value.FieldOptionValueDef;
 import com.clougence.clouddm.base.metadata.ui.form.value.ValueDef;
+import com.clougence.clouddm.ds.common.dsconf.AbstractDsConfigSpi;
 import com.clougence.clouddm.ds.oracle.i18n.OraConfigI18nKeys;
-import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
 import com.clougence.drivers.adapter.ConvertUtils;
 import com.clougence.utils.StringUtils;
 
 public class OraConfigSpi extends AbstractDsConfigSpi {
+
+    private static void generalPanel(UiPanel general) {
+        // connectType
+        List<ValueDef> options = new ArrayList<>();
+        options.add(fieldOptionDef(OraConfigI18nKeys.CONFIG_ORACLE_SID_LABEL, OraConnectType.SID.getDriverTypeCode())//
+            .addField(general.findField(OraConfig.Fields.sid)));
+        options.add(fieldOptionDef(OraConfigI18nKeys.CONFIG_ORACLE_SERVICE_LABEL, OraConnectType.SERVICE.getDriverTypeCode())
+            .addField(general.findField(OraConfig.Fields.serviceName)));
+        options.add(fieldOptionDef(OraConfigI18nKeys.CONFIG_ORACLE_PDB_LABEL, OraConnectType.PDB.getDriverTypeCode())//
+            .addField(general.findField(OraConfig.Fields.pdbName)));
+        options.add(fieldOptionDef(OraConfigI18nKeys.CONFIG_ORACLE_TNS_LABEL, OraConnectType.TNS.getDriverTypeCode())//
+            .addField(general.findField(OraConfig.Fields.tnsAdmin))
+            .addField(general.findField(OraConfig.Fields.tnsName)));
+
+        UiPanelField connectType = general.findField(OraConfig.Fields.connectType);
+        connectType.setType(UiPanelFieldType.Options);
+        connectType.setOptions(options);
+        connectType.setDefaultValue(strValueDef(OraConnectType.SID.getDriverTypeCode()));
+
+        // readd
+        general.removeField(OraConfig.Fields.connectType);
+        general.removeField(OraConfig.Fields.sid);
+        general.removeField(OraConfig.Fields.serviceName);
+        general.removeField(OraConfig.Fields.pdbName);
+        general.removeField(OraConfig.Fields.tnsAdmin);
+        general.removeField(OraConfig.Fields.tnsName);
+        general.beforeAddField(connectType, DataSourceConfig.Fields.securityType);
+    }
+
+    @Override
+    public String defaultPort() {
+        return "1521";
+    }
 
     @Override
     public Class<? extends DataSourceConfig> newConfig() {
@@ -80,7 +116,6 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
             }
         }
 
-        config.setAutoCommit(!"false".equalsIgnoreCase(defaultConfig.get(OraConfig.Fields.autoCommit)));
         config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
         config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
 
@@ -91,93 +126,19 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
     }
 
     @Override
-    public void customizeAddPanels(Map<DsConfigGroup, UiPanel> panels) {
-        setDefaultPort(panels, "1521");
-        UiPanel general = panels.get(DsConfigGroup.GENERAL);
-        if (general == null) {
-            return;
-        }
-        UiPanel advanced = panels.get(DsConfigGroup.ADVANCED);
-        if (advanced != null) {
-            UiPanelField excludeOraMaintainedSchemas = advanced.findField(OraConfig.Fields.excludeOraMaintainedSchemas);
-            if (excludeOraMaintainedSchemas != null) {
-                excludeOraMaintainedSchemas.setTitleI18N(OraConfigI18nKeys.CONFIG_ORACLE_EXCLUDE_ORA_MAINTAINED_SCHEMAS_LABEL);
-                excludeOraMaintainedSchemas.setDescI18N(OraConfigI18nKeys.CONFIG_ORACLE_EXCLUDE_ORA_MAINTAINED_SCHEMAS_DESCRIPTION);
-            }
-        }
-
-        UiPanelField connectType = general.findField(OraConfig.Fields.connectType);
-        if (connectType == null) {
-            return;
-        }
-
-        UiPanelField sid = general.findField(OraConfig.Fields.sid);
-        UiPanelField serviceName = general.findField(OraConfig.Fields.serviceName);
-        UiPanelField pdbName = general.findField(OraConfig.Fields.pdbName);
-        UiPanelField tnsAdmin = general.findField(OraConfig.Fields.tnsAdmin);
-        UiPanelField tnsName = general.findField(OraConfig.Fields.tnsName);
-
-        general.removeField(OraConfig.Fields.connectType);
-        general.removeField(OraConfig.Fields.sid);
-        general.removeField(OraConfig.Fields.serviceName);
-        general.removeField(OraConfig.Fields.pdbName);
-        general.removeField(OraConfig.Fields.tnsAdmin);
-        general.removeField(OraConfig.Fields.tnsName);
-
-        connectType.setType(UiPanelFieldType.Options);
-        connectType.setDefaultValue(UiUtils.strValueDef(OraConnectType.SID.name()));
-        connectType.setDescI18N("");
-        connectType.addField(hiddenField(OraConfig.Fields.connectType));
-        if (sid != null) {
-            connectType.addField(hiddenField(OraConfig.Fields.sid));
-        }
-        if (serviceName != null) {
-            connectType.addField(hiddenField(OraConfig.Fields.serviceName));
-        }
-        if (pdbName != null) {
-            connectType.addField(hiddenField(OraConfig.Fields.pdbName));
-        }
-        if (tnsAdmin != null) {
-            connectType.addField(hiddenField(OraConfig.Fields.tnsAdmin));
-        }
-        if (tnsName != null) {
-            connectType.addField(hiddenField(OraConfig.Fields.tnsName));
-        }
-
-        List<ValueDef> options = new ArrayList<>();
-        FieldOptionValueDef sidOption = UiUtils.fieldOptionDef("SID", OraConnectType.SID.name());
-        if (sid != null) {
-            sidOption.addField(sid);
-        }
-        options.add(sidOption);
-
-        FieldOptionValueDef serviceOption = UiUtils.fieldOptionDef(OraConfigI18nKeys.CONFIG_ORACLE_SERVICE_OPTION_LABEL, OraConnectType.SERVICE.name());
-        if (serviceName != null) {
-            serviceName.setTitleI18N(OraConfigI18nKeys.CONFIG_ORACLE_SERVICE_LABEL);
-            serviceName.setDescI18N("");
-            serviceOption.addField(serviceName);
-        }
-        options.add(serviceOption);
-
-        FieldOptionValueDef tnsOption = UiUtils.fieldOptionDef("TNS", OraConnectType.TNS.name());
-        if (tnsAdmin != null) {
-            tnsAdmin.setDescI18N("");
-            tnsOption.addField(tnsAdmin);
-        }
-        if (tnsName != null) {
-            tnsName.setDescI18N("");
-            tnsOption.addField(tnsName);
-        }
-        options.add(tnsOption);
-        connectType.setOptions(options);
-
-        general.beforeAddField(connectType, DataSourceConfig.Fields.securityType);
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.NONE);
+        options.add(SecurityType.USER_PASSWD);
+        return options;
     }
 
-    protected UiPanelField hiddenField(String field) {
-        return UiPanelField.builder().field(field).type(UiPanelFieldType.Input).hide(true).build();
+    @Override
+    public List<SslMode> sslModeSet() {
+        return List.of();
     }
 
+    @Override
     public boolean supportSSL() {
         return false;
     }
@@ -188,10 +149,124 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
     }
 
     @Override
-    public List<SecurityType> securityTypes() {
-        List<SecurityType> options = new ArrayList<>();
-        options.add(SecurityType.NONE);
-        options.add(SecurityType.USER_PASSWD);
-        return options;
+    public boolean supportTx() {
+        return true;
+    }
+
+    @Override
+    public Map<String, String> configMapFromUi(Map<String, String> configMap, Map<String, String> uiMap) {
+        Map<String, String> data = new LinkedHashMap<>();
+        if (uiMap == null || (!uiMap.containsKey(ADDRESS_FIELD) //
+                              && !uiMap.containsKey(PORT_FIELD) //
+                              && !uiMap.containsKey(OraConfig.Fields.connectType) //
+                              && !uiMap.containsKey(OraConfig.Fields.sid) //
+                              && !uiMap.containsKey(OraConfig.Fields.serviceName) //
+                              && !uiMap.containsKey(OraConfig.Fields.pdbName) //
+                              && !uiMap.containsKey(OraConfig.Fields.tnsAdmin) //
+                              && !uiMap.containsKey(OraConfig.Fields.tnsName))) {
+            return data;
+        }
+
+        String address = uiMap.get(ADDRESS_FIELD);
+        String port = uiMap.get(PORT_FIELD);
+        String host = configMap.get(DataSourceConfig.Fields.host);
+        if (StringUtils.isNotBlank(address) && StringUtils.isNotBlank(port)) {
+            host = address + ":" + port;
+        }
+
+        String connectTypeValue = uiMap.get(OraConfig.Fields.connectType);
+        if (StringUtils.isBlank(connectTypeValue)) {
+            connectTypeValue = configMap.get(OraConfig.Fields.connectType);
+        }
+        OraConnectType connectType = OraConnectType.of(connectTypeValue);
+        data.put(OraConfig.Fields.connectType, connectType.getDriverTypeCode());
+        switch (connectType) {
+            case SID:
+                String sid = uiMap.get(OraConfig.Fields.sid);
+                if (StringUtils.isNotBlank(host) && StringUtils.isNotBlank(sid)) {
+                    host = host + ":" + sid;
+                }
+                data.put(OraConfig.Fields.sid, sid);
+                data.put(OraConfig.Fields.serviceName, null);
+                data.put(OraConfig.Fields.pdbName, null);
+                data.put(OraConfig.Fields.tnsAdmin, null);
+                data.put(OraConfig.Fields.tnsName, null);
+                break;
+            case SERVICE:
+                String serviceName = uiMap.get(OraConfig.Fields.serviceName);
+                if (StringUtils.isNotBlank(host) && StringUtils.isNotBlank(serviceName)) {
+                    host = host + ":" + serviceName;
+                }
+                data.put(OraConfig.Fields.sid, null);
+                data.put(OraConfig.Fields.serviceName, serviceName);
+                data.put(OraConfig.Fields.pdbName, null);
+                data.put(OraConfig.Fields.tnsAdmin, null);
+                data.put(OraConfig.Fields.tnsName, null);
+                break;
+            case PDB:
+                String pdbName = uiMap.get(OraConfig.Fields.pdbName);
+                if (StringUtils.isNotBlank(host) && StringUtils.isNotBlank(pdbName)) {
+                    host = host + ":" + pdbName;
+                }
+                data.put(OraConfig.Fields.sid, null);
+                data.put(OraConfig.Fields.serviceName, null);
+                data.put(OraConfig.Fields.pdbName, pdbName);
+                data.put(OraConfig.Fields.tnsAdmin, null);
+                data.put(OraConfig.Fields.tnsName, null);
+                break;
+            case TNS:
+                data.put(OraConfig.Fields.sid, null);
+                data.put(OraConfig.Fields.serviceName, null);
+                data.put(OraConfig.Fields.pdbName, null);
+                data.put(OraConfig.Fields.tnsAdmin, uiMap.get(OraConfig.Fields.tnsAdmin));
+                data.put(OraConfig.Fields.tnsName, uiMap.get(OraConfig.Fields.tnsName));
+                break;
+            default:
+                throw new IllegalArgumentException("unsupported Oracle connect type:" + connectType);
+        }
+        data.put(DataSourceConfig.Fields.host, host);
+        return data;
+    }
+
+    @Override
+    public void customizeUiMap(Map<String, String> uiMap, Map<String, String> configMap) {
+        String host = configMap.get(DataSourceConfig.Fields.host);
+        if (StringUtils.isBlank(host)) {
+            return;
+        }
+        String[] parts = host.split(":");
+        if (parts.length < 2) {
+            return;
+        }
+        uiMap.put(ADDRESS_FIELD, parts[0]);
+        uiMap.put(PORT_FIELD, parts[1]);
+
+        if (parts.length != 3) {
+            return;
+        }
+        OraConnectType connectType = OraConnectType.of(configMap.get(OraConfig.Fields.connectType));
+        switch (connectType) {
+            case SID:
+                uiMap.putIfAbsent(OraConfig.Fields.sid, parts[2]);
+                break;
+            case SERVICE:
+                uiMap.putIfAbsent(OraConfig.Fields.serviceName, parts[2]);
+                break;
+            case PDB:
+                uiMap.putIfAbsent(OraConfig.Fields.pdbName, parts[2]);
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void customizePanels(Map<DsConfigGroup, UiPanel> panels) {
+        UiPanel general = panels.get(DsConfigGroup.GENERAL);
+        if (general == null) {
+            return;
+        }
+
+        generalPanel(general);
     }
 }

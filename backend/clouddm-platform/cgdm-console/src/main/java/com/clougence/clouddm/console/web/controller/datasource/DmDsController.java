@@ -37,21 +37,16 @@ import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDriverService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
-import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.CheckDriverVersionFO;
-import com.clougence.clouddm.console.web.model.fo.QueryDsFO;
-import com.clougence.clouddm.console.web.model.fo.checkrules.SpecListFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.*;
+import com.clougence.clouddm.console.web.model.lo.UpdateDsDescLO;
 import com.clougence.clouddm.console.web.model.vo.DriverVersionStatusVO;
 import com.clougence.clouddm.console.web.model.vo.DsKvConfigVO;
-import com.clougence.clouddm.console.web.model.vo.RdpDataSourceVO;
-import com.clougence.clouddm.console.web.model.vo.checkrules.SpecVO;
-import com.clougence.clouddm.console.web.model.vo.cicd.ChangeFlowVO;
 import com.clougence.clouddm.console.web.model.vo.cluster.ClusterVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.DmSimpleDsVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.DsBindEnvNodeVO;
@@ -59,25 +54,21 @@ import com.clougence.clouddm.console.web.model.vo.datasource.FetchDsAddConfigVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.FetchDsBindInfoVO;
 import com.clougence.clouddm.console.web.model.vo.env.DsEnvVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
-import com.clougence.clouddm.console.web.service.cicd.DmChangeFlowService;
 import com.clougence.clouddm.console.web.service.cluster.ClusterService;
 import com.clougence.clouddm.console.web.service.datasource.DmDsWebService;
-import com.clougence.clouddm.console.web.service.security.CheckRulesService;
 import com.clougence.clouddm.console.web.service.upload.ConsoleUploadService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
+import com.clougence.clouddm.console.web.util.RandomStrUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
-import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.console.web.util.UiWebUtil;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
-import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
-import com.clougence.clouddm.platform.dal.model.secrule.DmSecSpecDO;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.rdp.service.RdpDsEnvService;
 import com.clougence.rdp.service.RdpOpAuditService;
@@ -106,10 +97,6 @@ public class DmDsController {
     private ObjectCacheDao       cacheDao;
     @Resource
     private DmAuthServiceForBiz  authServiceForBiz;
-    @Resource
-    private DmChangeFlowService  changeFlowService;
-    @Resource
-    private CheckRulesService    rulesService;
     @Resource
     private DmDsConfigService    dsConfigService;
     @Resource
@@ -148,6 +135,9 @@ public class DmDsController {
         DataSourceType dsType = fo.getDsType();
 
         FetchDsAddConfigVO vo = new FetchDsAddConfigVO();
+        String instanceId = dsType.getShortName() + "-" + RandomStrUtils.fixedLenRandomStr(15);
+        vo.setInstanceId(instanceId);
+        vo.setInstanceName(instanceId);
         vo.setPanels(UiWebUtil.addDsUiPanels2VO(this.dsConfigService.fetchDsConfigPanels(dsType)));
 
         return ResWebDataUtils.buildSuccess(vo);
@@ -222,10 +212,72 @@ public class DmDsController {
         if (CollectionUtils.isEmpty(result)) {
             return ResWebDataUtils.buildSuccess(new ArrayList<>());
         } else {
-            List<DmSimpleDsVO> vos = genAndFilterToSimpleVO(puid, result, listDsFO);
+            List<Long> dsIds = result.stream().map(DmDsDO::getId).collect(Collectors.toList());
+            List<DmDsDO> confList = this.dsService.fetchDsConfigByIds(puid, dsIds);
+            Map<Long, DmDsDO> confMap = confList.stream().collect(Collectors.toMap(DmDsDO::getId, d -> d));
+            List<DmSimpleDsVO> vos = result.stream().map(ds -> DmConvertUtils.convertToDmSimpleDsVO(ds, confMap)).collect(Collectors.toList());
             return ResWebDataUtils.buildSuccess(vos);
         }
     }
+
+    @RequestAuth(value = DM_DS_MANAGE, level = HIGH)
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    public ResWebData<?> deleteDs(@RequestBody @Valid DeleteDsFO fo, HttpServletRequest request) {
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+        long dataSourceId = fo.getDataSourceId();
+
+        this.cacheDao.ownDataSource(puid, dataSourceId);
+        this.authServiceForBiz.checkResAuth(puid, uid, dataSourceId, RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
+
+        DmDsDO dsDO = this.dsService.queryById(dataSourceId);
+        String instanceId = dsDO == null ? String.valueOf(dataSourceId) : dsDO.getInstanceId();
+
+        ResWebData<Long> result = this.dsService.delDataSource(puid, dataSourceId);
+        this.auditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request
+            .getRemoteAddr(), dataSourceId, fo, HIGH, AuditType.DELETE_DATA_SOURCE, ResourceType.DATASOURCE, instanceId);
+        return result;
+    }
+
+    @RequestAuth(value = DM_DS_MANAGE, level = HIGH)
+    @RequestMapping(value = "/updateDsDesc", method = RequestMethod.POST)
+    public ResWebData<?> updateDsDesc(@RequestBody @Valid UpdateDsDescFO fo, HttpServletRequest request) {
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+        long dataSourceId = fo.getDataSourceId();
+
+        this.cacheDao.ownDataSource(puid, dataSourceId);
+        this.authServiceForBiz.checkResAuth(puid, uid, dataSourceId, RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
+
+        UpdateDsDescLO updateLO = this.dsService.updateDataSourceDesc(puid, dataSourceId, fo.getInstanceDesc());
+        this.auditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request
+            .getRemoteAddr(), dataSourceId, updateLO, HIGH, AuditType.UPDATE_DATA_SOURCE_DESC, ResourceType.DATASOURCE);
+        return ResWebDataUtils.buildSuccess();
+    }
+
+    @RequestAuth(DM_QUERY_CONSOLE)
+    @RequestMapping(value = "/testConnect", method = RequestMethod.POST)
+    public ResWebData<?> testConnect(@Valid @RequestBody TestDsConnectionFO fo, HttpServletRequest request) {
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+
+        if (fo.getDataSourceId() == null) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
+        }
+
+        this.cacheDao.ownDataSource(puid, fo.getDataSourceId());
+        this.authServiceForBiz.checkResAuth(puid, uid, fo.getDataSourceId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
+
+        try {
+            String version = this.dmDsService.testConnect(fo.getDataSourceId());
+            return ResWebDataUtils.buildSuccess(version);
+        } catch (Exception e) {
+            log.error("testDsConnect failed, " + e.getMessage());
+            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_TEST_CONNECT_ERROR.name(), e.getMessage()));
+        }
+    }
+
+    // form Utils
 
     @RequestAuth(DM_DS_MANAGE)
     @RequestMapping(value = "/fetchBindInfo", method = RequestMethod.POST)
@@ -256,21 +308,6 @@ public class DmDsController {
         return ResWebDataUtils.buildSuccess(vo);
     }
 
-    private List<DmSimpleDsVO> genAndFilterToSimpleVO(String puid, List<DmDsDO> dos, ListDsFO listDsFO) {
-        List<DmSimpleDsVO> vos = new ArrayList<>();
-        if (CollectionUtils.isEmpty(dos)) {
-            return vos;
-        }
-
-        List<Long> dsIds = dos.stream().map(DmDsDO::getId).collect(Collectors.toList());
-
-        List<DmDsDO> confList = this.dsService.fetchDsConfigByIds(puid, dsIds);
-        Map<Long, DmDsDO> confMap = confList.stream().collect(Collectors.toMap(DmDsDO::getId, d -> d));
-
-        vos = dos.stream().map(ds -> DmConvertUtils.convertToDmSimpleDsVO(ds, confMap)).collect(Collectors.toList());
-        return vos;
-    }
-
     @RequestAuth(DM_DS_READ)
     @RequestMapping(value = "/queryDsConfig", method = RequestMethod.POST)
     public ResWebData<?> queryDsConfig(@RequestBody QueryDsConfigFO fo, HttpServletRequest request) {
@@ -291,40 +328,6 @@ public class DmDsController {
         return ResWebDataUtils.buildSuccess(vos);
     }
 
-    @RequestAuth(DM_QUERY_CONSOLE)
-    @RequestMapping(value = "/testConnect", method = RequestMethod.POST)
-    public ResWebData<?> testConnect(@Valid @RequestBody TestDsConnectionFO fo, HttpServletRequest request) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-
-        if (fo.getDataSourceId() != null) {
-            this.cacheDao.ownCluster(puid, fo.getClusterId());
-            this.cacheDao.ownDataSource(puid, fo.getDataSourceId());
-            this.authServiceForBiz.checkResAuth(puid, uid, fo.getDataSourceId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
-
-            try {
-                String version = this.dmDsService.testConnect(puid, fo.getDataSourceId(), fo.getClusterId());
-                return ResWebDataUtils.buildSuccess(version);
-            } catch (Exception e) {
-                log.error("testDsConnect failed, " + e.getMessage());
-                return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_TEST_CONNECT_ERROR.name(), e.getMessage()));
-            }
-        }
-
-        if (CollectionUtils.isEmpty(fo.getLevels()) || fo.getLevels().size() < 2) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_BAD_ARG_ERROR.name()));
-        }
-
-        DsLevels dsLevels = this.dsConfigService.parseLevels(fo.getLevels());
-        List<Long> dsIds = this.authService.listResByUser(uid, AuthKind.DataSource);
-        if (!dsIds.contains(dsLevels.dsDO().getId())) {
-            return ResWebDataUtils.buildError(DmConvertUtils.convertToDataSourceStatusI18n(DataSourceStatus.NoAuthority, dsLevels.dsDO().getDataSourceType()));
-        } else {
-            this.dmDsService.testConnect(puid, uid, dsLevels);
-            return ResWebDataUtils.buildSuccess();
-        }
-    }
-
     @RequestAuth(value = DM_DS_MANAGE, level = HIGH)
     @RequestMapping(value = "/upsertDsConfig", method = RequestMethod.POST)
     public ResWebData<?> upsertDsConfig(@RequestBody UpsertDsConfigFO fo, HttpServletRequest request) {
@@ -337,14 +340,4 @@ public class DmDsController {
         return ResWebDataUtils.buildSuccess();
     }
 
-    @RequestAuth(DM_DS_MANAGE)
-    @RequestMapping(value = "/listSpec", method = RequestMethod.POST)
-    public ResWebData<?> listSpec(@RequestBody @Valid SpecListFO fo, HttpServletRequest request) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-
-        List<DmSecSpecDO> specPage = this.rulesService.querySpecList(puid, fo.getSearch());
-        List<SpecVO> collect = specPage.stream().map(DmConvertUtils::convertToDmSecSpecVO).collect(Collectors.toList());
-
-        return ResWebDataUtils.buildSuccess(collect);
-    }
 }

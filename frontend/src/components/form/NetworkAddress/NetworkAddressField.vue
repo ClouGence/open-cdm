@@ -1,12 +1,18 @@
 <template>
   <div class="network-address-field">
     <div class="network-address-row">
-      <Input :model-value="hostValue" style="width: 280px" :placeholder="addressPlaceholder" :disabled="disabled" @update:model-value="updateHost" />
+      <Input
+        class="network-address-input"
+        :model-value="hostValue"
+        :placeholder="addressPlaceholder"
+        :disabled="disabled"
+        @update:model-value="updateHost"
+      />
       <div v-if="shouldSeparatePort" class="network-address-port-label">{{ $t('duan-kou') }}</div>
       <Input
         v-if="shouldSeparatePort"
+        class="network-address-port-input"
         :model-value="portValue"
-        style="width: 80px"
         placeholder="port"
         :disabled="disabled"
         @update:model-value="updatePort"
@@ -76,7 +82,7 @@ export default {
   methods: {
     initAddress() {
       const defaultPort = this.fieldDefaultValue('port');
-      const defaultHostValue = this.fieldDefaultValue('host');
+      const defaultHostValue = this.fieldDefaultValue('address') || this.defaultValue(this.field.defaultValue) || this.fieldDefaultValue('host');
       const sourceHost = this.modelValue.host || defaultHostValue || '';
       const sourcePort = this.modelValue.port || defaultPort || '';
       const parsed = this.parseHost(sourceHost, sourcePort);
@@ -89,7 +95,9 @@ export default {
     },
     fieldDefaultValue(fieldName) {
       const child = (this.field.children || []).find((item) => item.field === fieldName);
-      const defaultValue = child?.defaultValue;
+      return this.defaultValue(child?.defaultValue);
+    },
+    defaultValue(defaultValue) {
       if (defaultValue && typeof defaultValue === 'object' && Object.prototype.hasOwnProperty.call(defaultValue, 'value')) {
         return defaultValue.value || '';
       }
@@ -187,5 +195,21 @@ export default {
 .network-address-port-label {
   margin: 0 8px;
   color: #515a6e;
+}
+
+.network-address-input {
+  width: 280px;
+}
+
+.network-address-port-input {
+  width: 80px;
+}
+
+.network-address-input,
+.network-address-port-input {
+  :deep(.ivu-input-wrapper),
+  :deep(.ivu-input) {
+    width: 100%;
+  }
 }
 </style>

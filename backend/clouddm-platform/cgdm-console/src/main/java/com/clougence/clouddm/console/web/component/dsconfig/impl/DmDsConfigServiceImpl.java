@@ -408,6 +408,20 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     }
 
     @Override
+    public DataSourceConfig fetchDsConfigFromNotExist(DataSourceType dsType, Map<String, String> configMap) {
+        Map<String, String> currentConfigMap = configMap == null ? Collections.emptyMap() : configMap;
+
+        DsConfigSpi configSpi = PluginManager.findDsConfigSpi(dsType);
+        DataSourceConfig config = ClassUtils.newInstance(configSpi.newConfig());
+        config = DmDsConfigHelper.initBaseFieldDefaultValue(config);
+
+        DmDsConfigHelper.fillBaseFieldValue(config, currentConfigMap);
+        configSpi.fillConfig(config, currentConfigMap);
+        tryClearSshConfig(config);
+        return config;
+    }
+
+    @Override
     public String fetchDsConfig(long dsId, String configKey) {
         DmDsConfigKv4DmDO configs = this.dsDal.configKv4DmMapper().queryByDsIdAndConfigName(dsId, configKey);
         return configs == null ? null : configs.getConfigValue();
@@ -419,20 +433,24 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
             return;
         }
         DsCacheEntry dmDsDO = this.cacheDao.queryByDsId(dsId);
-        if (dmDsDO == null) {
+        if (dmDsDO == null || dmDsDO.getDsType() == null) {
             return;
         }
 
-        DataSourceType dsType = dmDsDO.getDsType();
         if (StringUtils.equals(configKey, DataSourceConfig.Fields.version)) {
             this.dsDal.dsMapper().updateVersionByInstanceId(dsId, configValue);
             return;
         }
 
-        DsConfigKvDef configDef = this.fetchDsConfigDef(dsType).stream().filter(config -> {
+        DsConfigKvDef configDef = this.fetchDsConfigDef(dmDsDO.getDsType()).stream().filter(config -> {
             return StringUtils.equals(config.getConfigName(), configKey);
         }).findFirst().orElse(null);
         if (configDef == null) {
+            return;
+        }
+
+        if (StringUtils.isBlank(configValue)) {
+            this.dsDal.configKv4DmMapper().deleteDsConfig(dsId, configKey);
             return;
         }
 
@@ -484,9 +502,9 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     }
 
     @Override
-    public List<UiPanel> fetchDsConfigPanels(DataSourceType dsType) {
+    public List<UiPanel> fetchDsConfigPanels(DataSourceType dsType, Map<String, String> defaultConfig) {
         Map<DsConfigGroup, Map<String, DsConfigKvDef>> fieldsByGroup = new EnumMap<>(DsConfigGroup.class);
-        for (DsConfigKvDef configDef : this.fetchDsConfigDef(dsType)) {
+        for (DsConfigKvDef configDef : this.fetchDsConfigDef(dsType, defaultConfig)) {
             fieldsByGroup.computeIfAbsent(configDef.getConfigGroup(), key -> new LinkedHashMap<>()).put(configDef.getConfigName(), configDef);
         }
         return new DmDsConfigUiPanelFactory().create(dsType, fieldsByGroup);

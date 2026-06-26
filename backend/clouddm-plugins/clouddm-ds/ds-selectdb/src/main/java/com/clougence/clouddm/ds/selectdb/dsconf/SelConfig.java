@@ -35,19 +35,22 @@ import lombok.experimental.FieldNameConstants;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SelConfig extends DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultSchema, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION)
+    @ConfigDef(name = Fields.defaultSchema, //
+            group = DsConfigGroup.GENERAL, labelKey = SelConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_LABEL, descKey = SelConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_DESC, readOnly = false)
     private String  defaultSchema;
     // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
-    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.autoCommit, defaultValue = "true", descKey = ConfigI18nKey.CONFIG_RDB_TRANSACTION_DESCRIPTION)
-    private Boolean autoCommit;
-    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.clientTimeZone, defaultValue = "Asia/Shanghai", descKey = ConfigI18nKey.CONFIG_RDB_CLIENT_TIME_ZONE_DESCRIPTION)
+    @ConfigDef(name = Fields.clientTimeZone, defaultValue = "Asia/Shanghai", //
+            group = DsConfigGroup.OPTIONS, labelKey = SelConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_LABEL, descKey = SelConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_DESC, readOnly = false)
     private String  clientTimeZone;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.connectTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_DESCRIPTION)
+    @ConfigDef(name = Fields.connectTimeoutMs, defaultValue = "5000", //
+            group = DsConfigGroup.ADVANCED, labelKey = SelConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_LABEL, descKey = SelConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_DESC, readOnly = false)
     private Long    connectTimeoutMs;
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
+    @ConfigDef(name = Fields.soTimeoutSec, defaultValue = "10", //
+            group = DsConfigGroup.ADVANCED, labelKey = SelConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_LABEL, descKey = SelConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_DESC, readOnly = false)
     private Integer soTimeoutSec;
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.connectionCharset, defaultValue = "utf8", descKey = SelConfigI18nKeys.CONFIG_RDB_CONN_CHARSET_DESCRIPTION)
+    @ConfigDef(name = Fields.connectionCharset, defaultValue = "utf8", //
+            group = DsConfigGroup.ADVANCED, labelKey = SelConfigI18nKeys.CONFIG_SELECTDB_CONN_CHARSET_LABEL, descKey = SelConfigI18nKeys.CONFIG_SELECTDB_CONN_CHARSET_DESC, readOnly = false)
     private String  connectionCharset;
 
     public SelConfig(){

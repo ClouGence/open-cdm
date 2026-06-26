@@ -31,7 +31,7 @@ public class UiUtils {
         return ObjectValueDef.builder().value(value).build();
     }
 
-    public static ValueDef ListValueDef(List<Object> value) {
+    public static ValueDef listValueDef(List<Object> value) {
         return ObjectValueDef.builder().value(value).build();
     }
 

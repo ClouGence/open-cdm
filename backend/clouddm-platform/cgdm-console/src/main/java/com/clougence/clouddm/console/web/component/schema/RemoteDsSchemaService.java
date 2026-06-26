@@ -105,7 +105,7 @@ public class RemoteDsSchemaService implements DsSchemaService {
         try {
             return this.metaRService.fetchSelectObject(sendDTO, dsConfig, levelsParam, leafName);
         } catch (Exception e) {
-            dsService.handleException(AuthDal.ROOT_USER_UID, dsConfig, e);
+            dsService.handleException(dsConfig, e);
             throw e;
         }
     }
@@ -118,7 +118,7 @@ public class RemoteDsSchemaService implements DsSchemaService {
         try {
             return this.metaRService.requestObjectScript(sendDTO, dsConfig, levelsParam, leafType, leafName);
         } catch (Exception e) {
-            dsService.handleException(AuthDal.ROOT_USER_UID, dsConfig, e);
+            dsService.handleException(dsConfig, e);
             throw e;
         }
     }
@@ -179,7 +179,7 @@ public class RemoteDsSchemaService implements DsSchemaService {
             metaService.putListCache(dsDO.getId(), catalog, schema, metaType, JsonUtils.toJson(dsElements));
             return dsElements;
         } catch (Exception e) {
-            dsService.handleException(AuthDal.ROOT_USER_UID, dsConfig, e);
+            dsService.handleException(dsConfig, e);
             throw e;
         }
     }
@@ -192,7 +192,7 @@ public class RemoteDsSchemaService implements DsSchemaService {
         try {
             return this.metaRService.detailLevel(sendDTO, dsConfig, levels, levelsParam);
         } catch (Exception e) {
-            dsService.handleException(AuthDal.ROOT_USER_UID, dsConfig, e);
+            dsService.handleException(dsConfig, e);
             throw e;
         }
     }
@@ -211,7 +211,7 @@ public class RemoteDsSchemaService implements DsSchemaService {
             metaService.putListCache(dsDO.getId(), catalog, schema, metaType, JsonUtils.toJson(dsElements));
             return dsElements;
         } catch (Exception e) {
-            dsService.handleException(AuthDal.ROOT_USER_UID, dsConfig, e);
+            dsService.handleException(dsConfig, e);
             throw e;
         }
     }
@@ -230,7 +230,7 @@ public class RemoteDsSchemaService implements DsSchemaService {
             metaService.putDetailCache(dsDO.getId(), catalog, schema, metaType, leafName, JsonUtils.toJson(value));
             return value;
         } catch (Exception e) {
-            dsService.handleException(AuthDal.ROOT_USER_UID, dsConfig, e);
+            dsService.handleException(dsConfig, e);
             throw e;
         }
     }
@@ -248,7 +248,7 @@ public class RemoteDsSchemaService implements DsSchemaService {
         try {
             return this.defRService.fetchTableEditorUiPanel(sendDTO, dsConfig, levelsParam, envVariables);
         } catch (Exception e) {
-            dsService.handleException(AuthDal.ROOT_USER_UID, dsConfig, e);
+            dsService.handleException(dsConfig, e);
             throw e;
         }
     }
@@ -417,7 +417,7 @@ public class RemoteDsSchemaService implements DsSchemaService {
             metaService.putDetailCache(dsDO.getId(), catalog, schema, metaType, table, eTable);
             return eTable;
         } catch (Exception e) {
-            dsService.handleException(AuthDal.ROOT_USER_UID, dsConfig, e);
+            dsService.handleException(dsConfig, e);
             throw e;
         }
     }

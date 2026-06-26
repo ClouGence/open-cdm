@@ -23,18 +23,24 @@ import java.util.Map;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
+import com.clougence.clouddm.base.metadata.ds.SslMode;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanelFieldType;
 import com.clougence.clouddm.base.metadata.ui.form.UiUtils;
 import com.clougence.clouddm.base.metadata.ui.form.value.FieldOptionValueDef;
 import com.clougence.clouddm.base.metadata.ui.form.value.ValueDef;
+import com.clougence.clouddm.ds.common.dsconf.AbstractDsConfigSpi;
 import com.clougence.clouddm.ds.maxcompute.i18n.McConfigI18nKeys;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
 import com.clougence.drivers.adapter.ConvertUtils;
 import com.clougence.utils.StringUtils;
 
-public class McConfigSpi implements DsConfigSpi {
+public class McConfigSpi extends AbstractDsConfigSpi {
+
+    @Override
+    public String defaultPort() {
+        return null;
+    }
 
     @Override
     public Class<? extends DataSourceConfig> newConfig() {
@@ -62,7 +68,34 @@ public class McConfigSpi implements DsConfigSpi {
     }
 
     @Override
-    public void customizeAddPanels(Map<DsConfigGroup, UiPanel> panels) {
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.AK_SK);
+        return options;
+    }
+
+    @Override
+    public List<SslMode> sslModeSet() {
+        return List.of();
+    }
+
+    @Override
+    public boolean supportSSH() {
+        return false;
+    }
+
+    @Override
+    public boolean supportTx() {
+        return false;
+    }
+
+    @Override
+    public boolean supportSSL() {
+        return false;
+    }
+
+    @Override
+    public void customizePanels(Map<DsConfigGroup, UiPanel> panels) {
         UiPanel general = panels.get(DsConfigGroup.GENERAL);
         if (general == null) {
             return;
@@ -86,18 +119,10 @@ public class McConfigSpi implements DsConfigSpi {
             general.afterAddField(endpoint, DataSourceConfig.Fields.driverVersion);
         }
 
-        UiPanelField defaultCatalog = general.findField(McConfig.Fields.defaultCatalog);
-        if (defaultCatalog != null) {
-            defaultCatalog.setTitleI18N(McConfigI18nKeys.CONFIG_MC_PROJECT_LABEL);
-            defaultCatalog.setDescI18N("");
-        }
-
         UiPanel options = panels.get(DsConfigGroup.OPTIONS);
         UiPanelField interactiveMode = general.findField(McConfig.Fields.interactiveMode);
         if (interactiveMode != null) {
             general.removeField(McConfig.Fields.interactiveMode);
-            interactiveMode.setTitleI18N(McConfigI18nKeys.CONFIG_MC_INTERACTIVE_MODE_LABEL);
-            interactiveMode.setDescI18N(McConfigI18nKeys.CONFIG_MC_INTERACTIVE_MODE_DESCRIPTION);
             if (options == null) {
                 general.addField(interactiveMode);
             } else {
@@ -108,14 +133,11 @@ public class McConfigSpi implements DsConfigSpi {
         UiPanelField schemaStyle = general.findField(McConfig.Fields.schemaStyle);
         if (schemaStyle != null) {
             general.removeField(McConfig.Fields.schemaStyle);
-            schemaStyle.setTitleI18N(McConfigI18nKeys.CONFIG_MC_SCHEMA_STYLE_LABEL);
-            schemaStyle.setDescI18N(McConfigI18nKeys.CONFIG_MC_SCHEMA_STYLE_DESCRIPTION);
             schemaStyle.setDefaultValue(UiUtils.boolValueDef(false));
             UiPanelField defaultSchema = general.findField(McConfig.Fields.defaultSchema);
             if (defaultSchema != null) {
                 general.removeField(McConfig.Fields.defaultSchema);
                 defaultSchema.setActiveExpr(UiUtils.activeWhenEquals(McConfig.Fields.schemaStyle, "true"));
-                defaultSchema.setDescI18N(McConfigI18nKeys.CONFIG_MC_DEFAULT_SCHEMA_DESCRIPTION);
                 schemaStyle.addField(defaultSchema);
             }
             general.afterAddField(schemaStyle, McConfig.Fields.defaultCatalog);
@@ -171,22 +193,5 @@ public class McConfigSpi implements DsConfigSpi {
         vpcEndpoint.put("host", "https://service." + regionId + "-vpc.maxcompute.aliyun-inc.com/api");
         vpcEndpoint.put("sdkEndpoint", "maxcompute-vpc." + regionId + ".aliyuncs.com");
         options.add(FieldOptionValueDef.builder().labelI18N(regionName + " / VPC").value(vpcEndpoint).build());
-    }
-
-    @Override
-    public boolean supportSSL() {
-        return false;
-    }
-
-    @Override
-    public boolean supportSSH() {
-        return false;
-    }
-
-    @Override
-    public List<SecurityType> securityTypes() {
-        List<SecurityType> options = new ArrayList<>();
-        options.add(SecurityType.AK_SK);
-        return options;
     }
 }

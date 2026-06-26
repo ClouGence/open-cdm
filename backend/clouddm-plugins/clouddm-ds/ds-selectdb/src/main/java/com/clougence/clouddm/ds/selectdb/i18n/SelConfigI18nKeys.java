@@ -20,4 +20,7 @@ import com.clougence.utils.i18n.I18nResource;
 
 @I18nResource("/META-INF/clougence/i18n/sel-config")
 public interface SelConfigI18nKeys extends ConfigI18nKey {
+
+    String CONFIG_SELECTDB_CONN_CHARSET_LABEL = "CONFIG_SELECTDB_CONN_CHARSET_LABEL";
+    String CONFIG_SELECTDB_CONN_CHARSET_DESC  = "CONFIG_SELECTDB_CONN_CHARSET_DESC";
 }

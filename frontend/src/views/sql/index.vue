@@ -1407,7 +1407,7 @@ export default {
         try {
           const res = await this.$services.dmDataSourceTestConnect({
             data: {
-              levels: [this.connectedInstance.ENV.id, this.connectedInstance.INSTANCE.id]
+              dataSourceId: this.connectedInstance.INSTANCE.id
             }
           });
         } catch (e) {
@@ -1420,7 +1420,7 @@ export default {
         try {
           const res = await this.$services.dmDataSourceTestConnect({
             data: {
-              levels: [this.currentTab.node.ENV.id, this.currentTab.node.INSTANCE.id]
+              dataSourceId: this.currentTab.node.INSTANCE.id
             }
           });
         } catch (e) {

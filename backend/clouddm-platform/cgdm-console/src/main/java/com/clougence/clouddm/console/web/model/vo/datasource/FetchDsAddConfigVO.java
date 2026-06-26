@@ -17,6 +17,8 @@ package com.clougence.clouddm.console.web.model.vo.datasource;
 
 import java.util.List;
 
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,5 +26,11 @@ import lombok.Setter;
 @Setter
 public class FetchDsAddConfigVO {
 
+    private Long                 dsId;
+    private DataSourceType       dsType;
+    private Long                 envId;
+    private Long                 clusterId;
+    private String               instanceId;
+    private String               instanceName;
     private List<DsAddUiPanelVO> panels;
 }

@@ -20,4 +20,7 @@ import com.clougence.utils.i18n.I18nResource;
 
 @I18nResource("/META-INF/clougence/i18n/sr-config")
 public interface SrConfigI18nKeys extends ConfigI18nKey {
+
+    String CONFIG_STARROCKS_CONN_CHARSET_LABEL = "CONFIG_STARROCKS_CONN_CHARSET_LABEL";
+    String CONFIG_STARROCKS_CONN_CHARSET_DESC  = "CONFIG_STARROCKS_CONN_CHARSET_DESC";
 }

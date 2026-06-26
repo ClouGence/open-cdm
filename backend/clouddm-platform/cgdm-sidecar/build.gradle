@@ -22,6 +22,7 @@ dependencies {
     implementation project(':cgdm-api')
     implementation project(':cgdm-plugin-loader')
     implementation project(':dsc-common')
+    implementation project(':cg-com-cache')
     implementation project(':cg-com-results-file')
     implementation project(':cgdm-share-libs')
     implementation('com.github.oshi:oshi-core:6.6.2') { exclude group: 'org.slf4j', module: 'slf4j-api' }

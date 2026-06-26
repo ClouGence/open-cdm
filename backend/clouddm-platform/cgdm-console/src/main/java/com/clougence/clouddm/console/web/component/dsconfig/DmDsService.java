@@ -19,7 +19,6 @@ import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
-import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.model.fo.datasource.ConnectDsFO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -34,19 +33,17 @@ public interface DmDsService {
 
     DmDsDO fetchByInstanceId(String instanceId);
 
-    String testConnect(String puid, long dsId, long clusterId);
+    String testConnect(long dsId);
 
-    String testConnect(String uid, ConnectDsFO fo);
+    String testConnect(ConnectDsFO fo);
 
-    String testConnect(String uid, long clusterId, String driver, DataSourceConfig dsConfig);
+    //
 
     void updateDsTag(long dsId, String uid, String remark);
 
-    void testConnect(String puid, String uid, DsLevels dsLevels);
+    void handleException(DataSourceConfig dsConfig, Throwable e);
 
-    void handleException(String uid, DataSourceConfig dsConfig, Throwable e);
-
-    void resetStatus(String uid, DataSourceConfig dsConfig);
+    void resetStatus(DataSourceConfig dsConfig);
 
     void changeStatusIfNecessary(RSocketSendDTO sendDTO, DataSourceConfig dbConfig, Map<UmiTypes, Object> levelsParam);
 }

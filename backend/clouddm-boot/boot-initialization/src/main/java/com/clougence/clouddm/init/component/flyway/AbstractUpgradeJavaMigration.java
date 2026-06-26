@@ -37,9 +37,13 @@ public abstract class AbstractUpgradeJavaMigration extends BaseJavaMigration {
         for (String sql : collectScript()) {
             safeExecute(c, sql);
         }
+        afterMigrate(c);
     }
 
     protected void beforeMigrate(Connection connection) throws Exception {
+    }
+
+    protected void afterMigrate(Connection connection) throws Exception {
     }
 
     public abstract List<String> collectScript();

@@ -184,9 +184,9 @@ public class QueryServiceImpl implements QueryService {
         DataSourceConfig dsConfig = this.dsConfigService.fetchDsConfigFromExists(dsDO.getId());
         try {
             this.sessionRService.createSession(sendDTO, dsConfig, context);
-            this.dsService.resetStatus(sendDTO.getUid(), dsConfig);
+            this.dsService.resetStatus(dsConfig);
         } catch (Exception e) {
-            dsService.handleException(curUid, dsConfig, e);
+            dsService.handleException(dsConfig, e);
             throw e;
         }
         return sessionId;

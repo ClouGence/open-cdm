@@ -70,6 +70,13 @@
             AND config_name = #{configName}
     </update>
 
+    <delete id="deleteDsConfig">
+        DELETE
+        FROM dm_ds_config_kv_4dm
+        WHERE data_source_id = #{dsId}
+          AND config_name = #{configName}
+    </delete>
+
     <delete id="deleteDsConfigs">
         DELETE
         FROM dm_ds_config_kv_4dm

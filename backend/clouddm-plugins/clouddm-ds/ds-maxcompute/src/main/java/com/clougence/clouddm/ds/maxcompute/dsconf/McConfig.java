@@ -38,23 +38,31 @@ import lombok.experimental.FieldNameConstants;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class McConfig extends DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = true, name = Fields.sdkEndpoint, descKey = McConfigI18nKeys.CONFIG_MC_SDK_ENDPOINT_DESCRIPTION)
+    @ConfigDef(name = Fields.sdkEndpoint, //
+            group = DsConfigGroup.GENERAL, labelKey = McConfigI18nKeys.CONFIG_MC_SDK_ENDPOINT_LABEL, descKey = McConfigI18nKeys.CONFIG_MC_SDK_ENDPOINT_DESC, readOnly = true)
     private String  sdkEndpoint;
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultCatalog, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_DB_DESCRIPTION)
+    @ConfigDef(name = Fields.defaultCatalog, //
+            group = DsConfigGroup.GENERAL, labelKey = McConfigI18nKeys.CONFIG_MC_PROJECT_LABEL, descKey = McConfigI18nKeys.CONFIG_DESCRIPTION_EMPTY, readOnly = false)
     private String  defaultCatalog;
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultSchema, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION)
+    @ConfigDef(name = Fields.defaultSchema, //
+            group = DsConfigGroup.GENERAL, labelKey = McConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_LABEL, descKey = McConfigI18nKeys.CONFIG_MC_DEFAULT_SCHEMA_DESC, readOnly = false)
     private String  defaultSchema;
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.interactiveMode, descKey = McConfigI18nKeys.CONFIG_MC_INTERACTIVE_MODE_DESCRIPTION)
+    @ConfigDef(name = Fields.interactiveMode, //
+            group = DsConfigGroup.GENERAL, labelKey = McConfigI18nKeys.CONFIG_MC_INTERACTIVE_MODE_LABEL, descKey = McConfigI18nKeys.CONFIG_MC_INTERACTIVE_MODE_DESC, readOnly = false)
     private Boolean interactiveMode;
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.schemaStyle, defaultValue = "false", descKey = McConfigI18nKeys.CONFIG_MC_SCHEMA_STYLE_DESCRIPTION)
+    @ConfigDef(name = Fields.schemaStyle, defaultValue = "false", //
+            group = DsConfigGroup.GENERAL, labelKey = McConfigI18nKeys.CONFIG_MC_SCHEMA_STYLE_LABEL, descKey = McConfigI18nKeys.CONFIG_MC_SCHEMA_STYLE_DESC, readOnly = false)
     private Boolean schemaStyle;
     // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
-    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.clientTimeZone, descKey = ConfigI18nKey.CONFIG_RDB_CLIENT_TIME_ZONE_DESCRIPTION)
+    @ConfigDef(name = Fields.clientTimeZone, //
+            group = DsConfigGroup.OPTIONS, labelKey = McConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_LABEL, descKey = McConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_DESC, readOnly = false)
     private String  clientTimeZone;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.connectTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_DESCRIPTION)
+    @ConfigDef(name = Fields.connectTimeoutMs, defaultValue = "5000", //
+            group = DsConfigGroup.ADVANCED, labelKey = McConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_LABEL, descKey = McConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_DESC, readOnly = false)
     private Long    connectTimeoutMs;
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
+    @ConfigDef(name = Fields.soTimeoutSec, defaultValue = "10", //
+            group = DsConfigGroup.ADVANCED, labelKey = McConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_LABEL, descKey = McConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_DESC, readOnly = false)
     private Integer soTimeoutSec;
 
     public McConfig(){

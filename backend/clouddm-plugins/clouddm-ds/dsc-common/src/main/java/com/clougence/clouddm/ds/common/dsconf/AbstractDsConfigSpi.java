@@ -13,25 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.dsfamily.dsconf;
+package com.clougence.clouddm.ds.common.dsconf;
 
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
-import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
-import com.clougence.clouddm.base.metadata.ui.form.UiUtils;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.utils.StringUtils;
 
 public abstract class AbstractDsConfigSpi implements DsConfigSpi {
 
-    protected void setDefaultPort(Map<DsConfigGroup, UiPanel> panels, String defaultPort) {
-        UiPanel general = panels == null ? null : panels.get(DsConfigGroup.GENERAL);
-        UiPanelField host = general == null ? null : general.findField(DataSourceConfig.Fields.host);
-        UiPanelField port = host == null ? null : host.findField(DsConfigSpi.PORT_FIELD);
-        if (port != null) {
-            port.setDefaultValue(UiUtils.strValueDef(defaultPort));
+    @Override
+    public void customizePanels(Map<DsConfigGroup, UiPanel> panels) {
+    }
+
+    @Override
+    public Map<String, String> configMapFromUi(Map<String, String> configMap, Map<String, String> uiMap) {
+        return Map.of();
+    }
+
+    @Override
+    public void customizeUiMap(Map<String, String> uiMap, Map<String, String> configMap) {
+        String host = configMap.get(DataSourceConfig.Fields.host);
+        if (StringUtils.isBlank(host)) {
+            return;
+        }
+        int index = host.lastIndexOf(':');
+        if (index <= 0 || index == host.length() - 1) {
+            uiMap.put(ADDRESS_FIELD, host);
+        } else {
+            uiMap.put(ADDRESS_FIELD, host.substring(0, index));
+            uiMap.put(PORT_FIELD, host.substring(index + 1));
         }
     }
 }

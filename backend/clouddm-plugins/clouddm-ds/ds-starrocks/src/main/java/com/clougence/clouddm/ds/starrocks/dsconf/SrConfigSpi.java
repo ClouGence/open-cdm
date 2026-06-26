@@ -20,14 +20,18 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
-import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
-import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
+import com.clougence.clouddm.base.metadata.ds.SslMode;
+import com.clougence.clouddm.ds.common.dsconf.AbstractDsConfigSpi;
 import com.clougence.drivers.adapter.ConvertUtils;
 import com.clougence.utils.StringUtils;
 
 public class SrConfigSpi extends AbstractDsConfigSpi {
+
+    @Override
+    public String defaultPort() {
+        return "9030";
+    }
 
     @Override
     public Class<? extends DataSourceConfig> newConfig() {
@@ -40,26 +44,11 @@ public class SrConfigSpi extends AbstractDsConfigSpi {
         Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(SrConfig.Fields.connectTimeoutMs), false);
         Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(SrConfig.Fields.soTimeoutSec), false);
         config.setDefaultSchema(defaultConfig.get(SrConfig.Fields.defaultSchema));
-        config.setAutoCommit(!"false".equalsIgnoreCase(defaultConfig.get(SrConfig.Fields.autoCommit)));
         config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
         config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
         config.setClientTimeZone(StringUtils.defaultIfBlank(defaultConfig.get(SrConfig.Fields.clientTimeZone), "Asia/Shanghai"));
         config.setConnectionCharset(StringUtils.defaultIfBlank(defaultConfig.get(SrConfig.Fields.connectionCharset), "utf8"));
         return dsConfig;
-    }
-
-    @Override
-    public void customizeAddPanels(Map<DsConfigGroup, UiPanel> panels) {
-        setDefaultPort(panels, "9030");
-    }
-
-    public boolean supportSSL() {
-        return false;
-    }
-
-    @Override
-    public boolean supportSSH() {
-        return true;
     }
 
     @Override
@@ -70,4 +59,25 @@ public class SrConfigSpi extends AbstractDsConfigSpi {
         options.add(SecurityType.USER_PASSWD);
         return options;
     }
+
+    @Override
+    public List<SslMode> sslModeSet() {
+        return List.of();
+    }
+
+    @Override
+    public boolean supportSSL() {
+        return false;
+    }
+
+    @Override
+    public boolean supportSSH() {
+        return true;
+    }
+
+    @Override
+    public boolean supportTx() {
+        return true;
+    }
+
 }

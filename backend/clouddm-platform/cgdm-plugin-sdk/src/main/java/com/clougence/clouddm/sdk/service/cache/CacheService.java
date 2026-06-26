@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.sdk.service.cache;
 
+import java.util.concurrent.TimeUnit;
+
 import com.clougence.clouddm.sdk.service.Service;
 import com.clougence.utils.function.EFunction;
 
@@ -26,5 +28,11 @@ public interface CacheService extends Service {
 
     Object cacheAndReturn(String key, Object obj);
 
-    //Object cacheAndReturn(String key, Object obj, int timeout, TimeUnit timeUnit);
+    default Object getObjectIfAbsent(String key, int timeout, TimeUnit timeUnit, EFunction<String, Object, Exception> absent) throws Exception {
+        return getObjectIfAbsent(key, absent);
+    }
+
+    default Object cacheAndReturn(String key, Object obj, int timeout, TimeUnit timeUnit) {
+        return cacheAndReturn(key, obj);
+    }
 }

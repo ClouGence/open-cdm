@@ -38,7 +38,8 @@ public class FakerPluginConfig extends ToolConfig {
 
     public static final String TOOL_NAME = "FAKER";
 
-    @ConfigDef(name = "keepLog", defaultValue = "false", descKey = ConfigI18nKey.CONFIG_DS_ONLINE_MAX_CONCURRENT_DESCRIPTION, readOnly = false)
+    @ConfigDef(name = "keepLog", defaultValue = "false", //
+            labelKey = ConfigI18nKey.CONFIG_TOOL_KEEP_LOG_LABEL, descKey = ConfigI18nKey.CONFIG_DS_ONLINE_MAX_CONCURRENT_DESC, readOnly = false)
     private Boolean            keepLog;
 
     public FakerPluginConfig(){

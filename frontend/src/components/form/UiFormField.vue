@@ -15,11 +15,13 @@
       :data-source-type="dataSourceForm.type"
       :driver-family-map="driverFamilyMap"
       :query-cluster-id="dataSourceForm.queryClusterId"
+      :require-cluster="showQueryConfig"
       :current-query-cluster="currentQueryCluster"
       :current-step="currentStep"
       v-model:driverFamily="dataSourceForm.driverFamily"
       v-model:driverVersion="dataSourceForm.driverVersion"
       v-model:driverValue="dataSourceForm.driver"
+      @update:driverFamily="updateDriverFamily"
       @update:driverVersion="updateDriverVersion"
       @update:driverReady="$emit('update:driverReady', $event)"
     />
@@ -147,7 +149,12 @@ export default {
       return !!(this.driverFamilyMap[this.dataSourceForm.type] || []).length;
     },
     networkAddressValue() {
-      return this.dataSourceForm.hostList?.[0] || {};
+      const value = this.dataSourceForm.hostList?.[0] || {};
+      return {
+        ...value,
+        host: this.form.address || value.host || this.form[this.field.field] || '',
+        port: this.form.port || value.port || ''
+      };
     }
   },
   emits: ['update:driverReady', 'envChange', 'clusterChange'],
@@ -163,6 +170,9 @@ export default {
       this.dataSourceForm.queryClusterId = value;
       this.$emit('clusterChange', value);
     },
+    updateDriverFamily(value) {
+      this.form.driverFamily = value || '';
+    },
     updateDriverVersion(value) {
       this.form.driverVersion = value || '';
     },
@@ -175,10 +185,12 @@ export default {
         ...value
       };
       this.dataSourceForm.hostList = hostList;
-      this.dataSourceForm.host = value.host || '';
+      this.dataSourceForm.address = value.host || '';
+      this.dataSourceForm.host = value.value || '';
       this.dataSourceForm.port = value.port || '';
       this.dataSourceForm.resolvedHost = value.value || '';
-      this.form.host = value.value || value.host || '';
+      this.form.address = value.host || '';
+      this.form[this.field.field] = value.value || '';
       this.form.port = value.port || '';
     }
   }

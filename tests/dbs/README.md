@@ -63,6 +63,41 @@ docker compose -f tests/dbs/dbs_x86/docker-compose.yml up -d --force-recreate ss
 
 通过 SSH 通道访问这些数据源时，数据源 Host 使用 compose 服务名，例如 `mysql`、`postgres`、`oracle`，端口使用容器内端口。不要把数据源 Host 写成 `127.0.0.1`，因为在 SSH 转发场景下它表示 SSH Server 容器自身。
 
+## PostgreSQL SSL
+
+PostgreSQL 用于验证数据源 SSL 配置。x86 和 arm64 compose 共享同一套测试证书，证书已经内置在 `tests/dbs/postgres_ssl/certs`，文档和测试可以直接引用这些文件。
+
+证书文件：
+
+| 文件 | 用途 |
+| --- | --- |
+| `ca.crt` | CA 证书 |
+| `ca.key` | CA 私钥，仅用于维护这套测试证书，CloudDM 配置不需要上传 |
+| `server.crt` | PostgreSQL Server 证书，容器启动时使用 |
+| `server.key` | PostgreSQL Server 私钥，容器启动时使用 |
+| `client.crt` | 客户端证书 |
+| `client.key` | 客户端 PEM 私钥，适合 `psql` 本地验证 |
+| `client.pk8` | 客户端 PKCS#8 DER 私钥，适合 PostgreSQL JDBC/CloudDM |
+
+CloudDM 数据源基础配置：
+
+| 配置项 | 值 |
+| --- | --- |
+| 数据源类型 | PostgreSQL |
+| Host | `127.0.0.1` |
+| Port | `2543` |
+| Database | `postgres` |
+| 用户名 | `postgres` |
+| 密码 | `123456` |
+
+SSL 模式配置：
+
+| SSL 模式 | 认证用户 | 需要的证书配置 |
+| --- | --- | --- |
+| `TRUST` | `postgres` / `123456` | 不需要上传证书 |
+| `CA` | `postgres` / `123456` | 上传 `ca.crt` 到 CA file |
+| `CLIENT_CERT` | `sslclient` / 留空 | 上传 `ca.crt`、`client.crt`、`client.pk8` |
+
 ## SSH Server
 
 SSH Server 用于验证密码、私钥、私钥加密码短语，以及 SSH 端口转发。

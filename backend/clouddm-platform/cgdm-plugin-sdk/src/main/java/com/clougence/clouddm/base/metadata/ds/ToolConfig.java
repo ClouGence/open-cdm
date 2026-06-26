@@ -33,16 +33,20 @@ import lombok.Setter;
 public class ToolConfig {
 
     /** DataSourceType */
-    @ConfigDef(name = "toolName", descKey = ConfigI18nKey.CONFIG_DS_TYPE_DESCRIPTION)
+    @ConfigDef(name = "toolName", //
+            labelKey = ConfigI18nKey.CONFIG_DS_TYPE_LABEL, descKey = ConfigI18nKey.CONFIG_DS_TYPE_DESC)
     private String  toolName;
 
-    @ConfigDef(name = "version", descKey = ConfigI18nKey.CONFIG_RDB_VERSION_DESCRIPTION)
+    @ConfigDef(name = "version", //
+            labelKey = ConfigI18nKey.CONFIG_RDB_VERSION_LABEL, descKey = ConfigI18nKey.CONFIG_RDB_VERSION_DESC)
     private String  version;
 
-    @ConfigDef(name = "onlineMaxConcurrent", defaultValue = "50", descKey = ConfigI18nKey.CONFIG_DS_ONLINE_MAX_CONCURRENT_DESCRIPTION, readOnly = false)
+    @ConfigDef(name = "onlineMaxConcurrent", defaultValue = "50", //
+            labelKey = ConfigI18nKey.CONFIG_DS_ONLINE_MAX_CONCURRENT_LABEL, descKey = ConfigI18nKey.CONFIG_DS_ONLINE_MAX_CONCURRENT_DESC, readOnly = false)
     private Integer onlineMaxConcurrent;
 
-    @ConfigDef(name = "exportMaxConcurrent", defaultValue = "20", descKey = ConfigI18nKey.CONFIG_DS_EXPORT_MAX_CONCURRENT_DESCRIPTION, readOnly = false)
+    @ConfigDef(name = "exportMaxConcurrent", defaultValue = "20", //
+            labelKey = ConfigI18nKey.CONFIG_DS_EXPORT_MAX_CONCURRENT_LABEL, descKey = ConfigI18nKey.CONFIG_DS_EXPORT_MAX_CONCURRENT_DESC, readOnly = false)
     private Integer exportMaxConcurrent;
 
     protected String safeStr(String value) {

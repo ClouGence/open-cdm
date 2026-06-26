@@ -20,4 +20,7 @@ import com.clougence.utils.i18n.I18nResource;
 
 @I18nResource("/META-INF/clougence/i18n/dr-config")
 public interface DrConfigI18nKeys extends ConfigI18nKey {
+
+    String CONFIG_DORIS_CONN_CHARSET_LABEL = "CONFIG_DORIS_CONN_CHARSET_LABEL";
+    String CONFIG_DORIS_CONN_CHARSET_DESC  = "CONFIG_DORIS_CONN_CHARSET_DESC";
 }

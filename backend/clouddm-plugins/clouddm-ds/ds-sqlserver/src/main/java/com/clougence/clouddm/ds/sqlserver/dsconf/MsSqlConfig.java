@@ -38,17 +38,18 @@ import lombok.experimental.FieldNameConstants;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MsSqlConfig extends DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.instanceName, descKey = MsSqlConfigI18nKeys.CONFIG_MSSQL_INSTANCE_NAME_DESCRIPTION)
+    @ConfigDef(name = Fields.instanceName, //
+            group = DsConfigGroup.GENERAL, labelKey = MsSqlConfigI18nKeys.CONFIG_MSSQL_INSTANCE_NAME_LABEL, descKey = MsSqlConfigI18nKeys.CONFIG_MSSQL_INSTANCE_NAME_DESC, readOnly = false)
     private String  instanceName;
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultCatalog, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_DB_DESCRIPTION)
+    @ConfigDef(name = Fields.defaultCatalog, //
+            group = DsConfigGroup.GENERAL, labelKey = MsSqlConfigI18nKeys.CONFIG_RDB_DEFAULT_DB_LABEL, descKey = MsSqlConfigI18nKeys.CONFIG_RDB_DEFAULT_DB_DESC, readOnly = false)
     private String  defaultCatalog;
-    // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
-    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.autoCommit, defaultValue = "true", descKey = ConfigI18nKey.CONFIG_RDB_TRANSACTION_DESCRIPTION)
-    private Boolean autoCommit;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.connectTimeoutMs, defaultValue = "5000", descKey = ConfigI18nKey.CONFIG_RDB_CONN_TIMEOUT_MS_DESCRIPTION)
+    @ConfigDef(name = Fields.connectTimeoutMs, defaultValue = "5000", //
+            group = DsConfigGroup.ADVANCED, labelKey = MsSqlConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_LABEL, descKey = MsSqlConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_DESC, readOnly = false)
     private Long    connectTimeoutMs;
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
+    @ConfigDef(name = Fields.soTimeoutSec, defaultValue = "10", //
+            group = DsConfigGroup.ADVANCED, labelKey = MsSqlConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_LABEL, descKey = MsSqlConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_DESC, readOnly = false)
     private Integer soTimeoutSec;
 
     public MsSqlConfig(){

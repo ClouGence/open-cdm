@@ -31,7 +31,6 @@ import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
@@ -76,11 +75,10 @@ public class DmResAuthServiceImpl implements DmResAuthService {
         if (authKind == AuthKind.DataSource) {
             DmAuthUserDO userDO = authDal.userMapper().queryByUid(targetUid);
             if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
-                List<DmDsDO> dsDOs = this.dsDal.dsMapper().listByUserWithGmtOrder(targetUid);
+                List<DmDsDO> dsDOs = this.dsDal.dsMapper().listByUserWithGmtOrder(AuthDal.ROOT_USER_UID);
                 return dsDOs.stream().map(DmDsDO::getId).collect(Collectors.toList());
             } else if (CollectionUtils.isNotEmpty(this.authServiceForManage.listEffectiveGlobalAuth(targetUid, AuthKind.DataSource))) {
-                UserCacheEntry cacheEntry = cacheDao.queryByUserNumberId(userDO.getParentId());
-                List<DmDsDO> dsDOs = this.dsDal.dsMapper().listByUserWithGmtOrder(cacheEntry.getUid());
+                List<DmDsDO> dsDOs = this.dsDal.dsMapper().listByUserWithGmtOrder(AuthDal.ROOT_USER_UID);
                 return dsDOs.stream().map(DmDsDO::getId).collect(Collectors.toList());
             } else {
                 List<DmAuthResDO> result = this.authDal.resMapper().listByKind(targetUid, AuthKind.DataSource);
@@ -100,11 +98,10 @@ public class DmResAuthServiceImpl implements DmResAuthService {
         if (authKind == AuthKind.DataSource) {
             DmAuthUserDO userDO = authDal.userMapper().queryByUid(targetUid);
             if (userDO.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
-                List<DmDsDO> dsDOs = this.dsDal.dsMapper().listByUserWithGmtOrder(targetUid);
+                List<DmDsDO> dsDOs = this.dsDal.dsMapper().listByUserWithGmtOrder(AuthDal.ROOT_USER_UID);
                 return dsDOs.stream().map(DmDsDO::getId).collect(Collectors.toList());
             } else if (CollectionUtils.isNotEmpty(this.authServiceForManage.listEffectiveGlobalAuth(targetUid, AuthKind.DataSource))) {
-                UserCacheEntry cacheEntry = cacheDao.queryByUserNumberId(userDO.getParentId());
-                List<DmDsDO> dsDOs = this.dsDal.dsMapper().listByUserWithGmtOrder(cacheEntry.getUid());
+                List<DmDsDO> dsDOs = this.dsDal.dsMapper().listByUserWithGmtOrder(AuthDal.ROOT_USER_UID);
                 return dsDOs.stream().map(DmDsDO::getId).collect(Collectors.toList());
             } else {
                 List<DmAuthResDO> result = this.authDal.resMapper().listByKind(targetUid, AuthKind.DataSource);

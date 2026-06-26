@@ -4070,9 +4070,11 @@
   "qing-shu-ru-zheng-shu-huo-mi-yao-wan-zheng-nei-rong": "请输入证书或密钥完整内容",
   "qing-shu-ru-zheng-shu-huo-mi-yao-nei-rong": "请输入证书或密钥内容",
   "qing-xuan-ze-wen-jian": "请选择文件",
+  "shang-chuan-shi-bai": "上传失败",
   "pem-key-crt-cer-jian-yi-bu-chao-guo-1mb": "pem/key/crt/cer 建议不超过 1MB",
-  "p12-pfx-jks-jian-yi-bu-chao-guo-10mb": "p12/pfx/jks 建议不超过 10MB",
+  "p12-pfx-jks-jian-yi-bu-chao-guo-10mb": "pk8/p12/pfx/jks 建议不超过 10MB",
   "zheng-shu-wen-ben-zhi-chi-ge-shi": "支持格式：pem / key / crt / cer",
-  "zheng-shu-wen-jian-zhi-chi-ge-shi": "支持格式：pem / key / crt / cer / p12 / pfx / jks",
-  "wen-ben-mo-shi-zhi-zhi-chi-wen-ben-zheng-shu-wen-jian": "当前文件内容不是文本证书，请切换到文件模式上传"
+  "zheng-shu-wen-jian-zhi-chi-ge-shi": "支持格式：pem / key / crt / cer / pk8 / p12 / pfx / jks",
+  "wen-ben-mo-shi-zhi-zhi-chi-wen-ben-zheng-shu-wen-jian": "当前文件内容不是文本证书，请切换到文件模式上传",
+  "qing-zai-xia-fang-zhong-fu-shu-ru-gai-id": "，请在下方重复输入该 ID。"
 }

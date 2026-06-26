@@ -20,4 +20,7 @@ import com.clougence.utils.i18n.I18nResource;
 
 @I18nResource("/META-INF/clougence/i18n/pormy-config")
 public interface PorMyConfigI18nKeys extends ConfigI18nKey {
+
+    String CONFIG_POLARDB_MYSQL_CONN_CHARSET_LABEL = "CONFIG_POLARDB_MYSQL_CONN_CHARSET_LABEL";
+    String CONFIG_POLARDB_MYSQL_CONN_CHARSET_DESC  = "CONFIG_POLARDB_MYSQL_CONN_CHARSET_DESC";
 }

@@ -12,6 +12,7 @@ include 'cg-dslparser'; project(":cg-dslparser").projectDir = file('clouddm-util
 include 'cg-drivers'; project(":cg-drivers").projectDir = file('clouddm-utils/cg-drivers')
 
 // clouddm:com
+include 'cg-com-cache'; project(":cg-com-cache").projectDir = file('clouddm-platform/cgdm-components/cg-com-cache')
 include 'cg-com-results-file'; project(":cg-com-results-file").projectDir = file('clouddm-platform/cgdm-components/cg-com-results-file')
 
 // clouddm:platform

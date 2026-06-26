@@ -27,23 +27,29 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface ConfigDef {
 
+    // for Core
+
     String name() default "";
 
+    String defaultValue() default "";
+
+    boolean isSecret() default false;
+
+    boolean lazy() default false;
+
+    // for UI
+
     DsConfigGroup group() default DsConfigGroup.SHADOW;
+
+    String labelKey() default "";
 
     String descKey() default ConfigI18nKey.CONFIG_DESCRIPTION_EMPTY;
 
     String valueValidRegex() default "";
 
-    String defaultValue() default "";
-
     ConfigValType valType() default ConfigValType.AUTO;
 
     boolean readOnly() default true;
-
-    boolean isSecret() default false;
-
-    boolean lazy() default false;
 
     String activeField() default "";
 

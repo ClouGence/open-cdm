@@ -23,14 +23,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.api.common.crypt.CryptService;
-import com.clougence.drivers.adapter.ConvertUtils;
-
 import org.junit.After;
 import org.junit.Test;
 
+import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.base.metadata.ds.*;
-import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanelFieldType;
@@ -47,7 +44,9 @@ import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.drivers.adapter.ConvertUtils;
 import com.clougence.utils.JsonUtils;
+
 import lombok.experimental.FieldNameConstants;
 
 public class DmDsConfigServiceImplTest {
@@ -255,20 +254,18 @@ public class DmDsConfigServiceImplTest {
             return dsConfig;
         }
 
-    @Override
-    public void customizeAddPanels(Map<DsConfigGroup, UiPanel> panels) {
-    }
+        @Override
+        public void customizePanels(Map<DsConfigGroup, UiPanel> panels) {
+        }
 
-    
-    public boolean supportSSL() {
-        return false;
-    }
+        public boolean supportSSL() {
+            return false;
+        }
 
-    @Override
-    public boolean supportSSH() {
-        return true;
-    }
-
+        @Override
+        public boolean supportSSH() {
+            return true;
+        }
 
         @Override
         public List<SecurityType> securityTypes() {
@@ -279,13 +276,16 @@ public class DmDsConfigServiceImplTest {
     @FieldNameConstants
     public static class PluginConfig extends DataSourceConfig {
 
-        @ConfigDef(name = Fields.pluginOnlyOption, descKey = ConfigI18nKey.CONFIG_DESCRIPTION_EMPTY)
+        @ConfigDef(name = Fields.pluginOnlyOption, //
+                labelKey = ConfigI18nKey.CONFIG_DESCRIPTION_EMPTY, descKey = ConfigI18nKey.CONFIG_DESCRIPTION_EMPTY)
         private String  pluginOnlyOption;
 
-        @ConfigDef(name = Fields.pluginJsonOption, descKey = ConfigI18nKey.CONFIG_DESCRIPTION_EMPTY, valType = ConfigValType.JSON)
+        @ConfigDef(name = Fields.pluginJsonOption, //
+                labelKey = ConfigI18nKey.CONFIG_DESCRIPTION_EMPTY, descKey = ConfigI18nKey.CONFIG_DESCRIPTION_EMPTY, valType = ConfigValType.JSON)
         private String  pluginJsonOption;
 
-        @ConfigDef(name = Fields.pluginBooleanOption, descKey = ConfigI18nKey.CONFIG_DESCRIPTION_EMPTY)
+        @ConfigDef(name = Fields.pluginBooleanOption, //
+                labelKey = ConfigI18nKey.CONFIG_DESCRIPTION_EMPTY, descKey = ConfigI18nKey.CONFIG_DESCRIPTION_EMPTY)
         private Boolean pluginBooleanOption;
 
         public PluginConfig(){

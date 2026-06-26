@@ -89,6 +89,7 @@ public class DmDsConfigHelper {
         config.setConfigName(configDef.name());
         config.setConfigGroup(configDef.group());
 
+        config.setLabelKey(configDef.labelKey());
         config.setDescKey(configDef.descKey());
         config.setValueValidRegex(configDef.valueValidRegex());
         config.setValueRequire(StringUtils.isNotBlank(configDef.valueValidRegex()));

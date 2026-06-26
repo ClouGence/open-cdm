@@ -38,12 +38,15 @@ import lombok.experimental.FieldNameConstants;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RedisConfig extends DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.defaultSchema, descKey = ConfigI18nKey.CONFIG_RDB_DEFAULT_SCHEMA_DESCRIPTION)
+    @ConfigDef(name = Fields.defaultSchema, //
+            group = DsConfigGroup.GENERAL, labelKey = RedisConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_LABEL, descKey = RedisConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_DESC, readOnly = false)
     private String  defaultSchema;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.soTimeoutSec, defaultValue = "10", descKey = ConfigI18nKey.CONFIG_DS_SO_TIMEOUT_MS_DESCRIPTION)
+    @ConfigDef(name = Fields.soTimeoutSec, defaultValue = "10", //
+            group = DsConfigGroup.ADVANCED, labelKey = RedisConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_LABEL, descKey = RedisConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_DESC, readOnly = false)
     private Integer soTimeoutSec;
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.connAndSoTimeoutMs, defaultValue = "5000", descKey = RedisConfigI18nKeys.CONFIG_REDIS_CON_AND_SO_TIMEOUT_MS_DESCRIPTION)
+    @ConfigDef(name = Fields.connAndSoTimeoutMs, defaultValue = "5000", //
+            group = DsConfigGroup.ADVANCED, labelKey = RedisConfigI18nKeys.CONFIG_REDIS_CON_AND_SO_TIMEOUT_MS_LABEL, descKey = RedisConfigI18nKeys.CONFIG_REDIS_CON_AND_SO_TIMEOUT_MS_DESC, readOnly = false)
     private Integer connAndSoTimeoutMs;
 
     public RedisConfig(){

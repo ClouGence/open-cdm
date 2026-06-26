@@ -677,7 +677,7 @@ export default {
     async handleSwitchSpecChange(row) {
       this.currentEnv = row;
       if (!row.secDesVO.openSec) {
-        const res = await this.$services.dmDataSourceListSpec({
+        const res = await this.$services.rdpDsEnvListSpec({
           data: {}
         });
         if (res.success) {

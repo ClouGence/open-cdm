@@ -21,5 +21,6 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource("/META-INF/clougence/i18n/redis-config")
 public interface RedisConfigI18nKeys extends ConfigI18nKey {
 
-    String CONFIG_REDIS_CON_AND_SO_TIMEOUT_MS_DESCRIPTION = "CONFIG_REDIS_CON_AND_SO_TIMEOUT_MS_DESCRIPTION";
+    String CONFIG_REDIS_CON_AND_SO_TIMEOUT_MS_LABEL = "CONFIG_REDIS_CON_AND_SO_TIMEOUT_MS_LABEL";
+    String CONFIG_REDIS_CON_AND_SO_TIMEOUT_MS_DESC  = "CONFIG_REDIS_CON_AND_SO_TIMEOUT_MS_DESC";
 }

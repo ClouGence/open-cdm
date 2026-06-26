@@ -23,12 +23,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.console.configs.ConfigRService;
 import com.clougence.clouddm.base.metadata.ds.*;
-import com.clougence.clouddm.worker.component.resource.file.EncryptedFileCacheManager;
+import com.clougence.clouddm.sdk.service.cache.CacheService;
 import com.clougence.utils.StringUtils;
 import com.jcraft.jsch.*;
 
@@ -39,11 +40,10 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class SshConnectionManager {
 
-    private static final String       SSH_CONFIG_CACHE_NAMESPACE = "ssh-config";
     @Resource
-    private ConfigRService            configRService;
-    @Resource
-    private EncryptedFileCacheManager encryptedFileCacheManager;
+    private ConfigRService configRService;
+    @Resource(name = "sidecarCacheService")
+    private CacheService   cacheService;
 
     public Session openTunnelSession(Long sshConfigId) throws Exception {
         SshConfig config = resolveConfig(sshConfigId, null);
@@ -93,7 +93,7 @@ public class SshConnectionManager {
         return session;
     }
 
-    private SshConfig resolveConfig(Long sshConfigId, SshConfig sshConfig) {
+    private SshConfig resolveConfig(Long sshConfigId, SshConfig sshConfig) throws Exception {
         if (sshConfig != null) {
             return sshConfig;
         }
@@ -101,14 +101,7 @@ public class SshConnectionManager {
             throw new IllegalArgumentException("sshConfigId or sshConfig is required.");
         }
 
-        SshConfig cached = this.encryptedFileCacheManager.read(SSH_CONFIG_CACHE_NAMESPACE, sshConfigId.toString(), SshConfig.class);
-        if (cached != null) {
-            return cached;
-        }
-
-        SshConfig fetched = this.configRService.fetchSshConfig(sshConfigId);
-        this.encryptedFileCacheManager.write(SSH_CONFIG_CACHE_NAMESPACE, sshConfigId.toString(), fetched);
-        return fetched;
+        return (SshConfig) this.cacheService.getObjectIfAbsent("ssh-config:" + sshConfigId, 5, TimeUnit.MINUTES, key -> this.configRService.fetchSshConfig(sshConfigId));
     }
 
     private void configureProxy(Session session, SshConfig config) {

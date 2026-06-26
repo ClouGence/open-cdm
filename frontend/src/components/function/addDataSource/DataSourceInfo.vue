@@ -30,6 +30,11 @@
     </Form>
     <div v-if="currentStep === 1" class="add-datasource-form-stage">
       <Form ref="addLocalDs" :model="addDataSourceForm" label-position="right" :label-width="160" :rules="addDataSourceRule">
+        <div class="add-ds-name-form">
+          <FormItem prop="instanceDesc" :label="$t('shu-ju-yuan-ming-cheng')">
+            <Input v-model.trim="addDataSourceForm.instanceDesc" class="add-ds-name-input" />
+          </FormItem>
+        </div>
         <div v-if="visibleAddDsPanels.length" class="add-ds-ui-panel-preview">
           <Spin v-if="addDsConfigLoading" fix />
           <Tabs v-model="activeAddDsPanelKey" :animated="false">
@@ -125,6 +130,13 @@ export default {
         ]
       },
       addDataSourceRule: {
+        instanceDesc: [
+          {
+            required: true,
+            message: this.$t('ming-cheng-bu-neng-wei-kong'),
+            trigger: 'blur'
+          }
+        ],
         envId: [
           {
             validator: (rule, value, callback) => {
@@ -342,6 +354,7 @@ export default {
         password: '',
         accessKey: '',
         secretKey: '',
+        instanceDesc: '',
         type: dataSourceType
       });
 
@@ -381,6 +394,10 @@ export default {
     },
     applyAddDsConfig(addDsConfig) {
       this.currentAddDsConfig = addDsConfig || {};
+      if (!this.addDataSourceForm.instanceDesc && this.currentAddDsConfig.instanceName) {
+        this.addDataSourceForm.instanceDesc = this.currentAddDsConfig.instanceName;
+        this.clearFieldValidate('instanceDesc');
+      }
       this.initAddDsUiPanels();
       this.initDsKvConfigs();
       this.initSecurityOptions();
@@ -417,6 +434,9 @@ export default {
       if (securityOptions.length && !form.securityType) {
         const defaultSecurity = securityOptions.find((option) => option.defaultCheck) || securityOptions[0];
         form.securityType = defaultSecurity.securityType || defaultSecurity.value || '';
+      }
+      if (this.currentAddDsConfig?.instanceId && !form.instanceId) {
+        form.instanceId = this.currentAddDsConfig.instanceId;
       }
       this.addDsUiForm = form;
       this.ensureActiveAddDsPanel();
@@ -658,6 +678,20 @@ export default {
   :deep(.ivu-tabs-content) {
     padding: 28px 32px 36px;
   }
+}
+
+.add-ds-name-form {
+  padding: 28px 32px 0;
+  background: var(--bg-card);
+
+  :deep(.ivu-form-item) {
+    margin-bottom: 26px;
+  }
+}
+
+.add-ds-name-input {
+  width: 462px;
+  max-width: 100%;
 }
 
 .datasource-type-card {

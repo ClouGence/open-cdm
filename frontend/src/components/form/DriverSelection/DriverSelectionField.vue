@@ -68,6 +68,10 @@ export default {
       type: [Number, String],
       default: null
     },
+    requireCluster: {
+      type: Boolean,
+      default: false
+    },
     currentQueryCluster: {
       type: Object,
       default: () => ({})
@@ -120,6 +124,9 @@ export default {
       }
 
       const clusterId = this.normalizeDriverClusterId(this.queryClusterId);
+      if (this.requireCluster && !clusterId) {
+        return '';
+      }
       return `${this.selectedDriverKey}::${clusterId || 'ALL'}`;
     },
     isDriverPrepared() {
@@ -332,6 +339,9 @@ export default {
       const clusterId = this.normalizeDriverClusterId(this.queryClusterId);
       return clusterId || undefined;
     },
+    driverClusterReady() {
+      return !this.requireCluster || !!this.normalizeDriverClusterId(this.queryClusterId);
+    },
     syncDriverOutputs() {
       const driverValue =
         this.innerDriverFamily && this.innerDriverVersion ? JSON.stringify([this.innerDriverFamily, `/${this.innerDriverVersion}`]) : '';
@@ -425,7 +435,7 @@ export default {
     },
     async refreshDriverStatus() {
       const driverKey = this.selectedDriverStatusKey;
-      if (!driverKey) {
+      if (!driverKey || !this.driverClusterReady()) {
         this.resetDriverStatus();
         return;
       }

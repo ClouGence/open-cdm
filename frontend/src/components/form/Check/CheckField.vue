@@ -1,6 +1,6 @@
 <template>
-  <div class="check-field" :class="{ 'check-field-disabled': disabled }" @click="toggle">
-    <Checkbox v-model="form[field.field]" :disabled="disabled" @click.stop />
+  <div class="check-field" :class="{ 'check-field-disabled': disabled }" @click="handleWrapperClick">
+    <Checkbox v-model="checkedValue" :true-value="true" :false-value="false" :disabled="disabled" />
     <span v-if="field.descI18N" class="check-field-desc" v-html="field.descI18N"></span>
   </div>
 </template>
@@ -22,15 +22,45 @@ export default {
       default: false
     }
   },
+  computed: {
+    checked() {
+      return this.booleanValue(this.form[this.field.field]);
+    },
+    checkedValue: {
+      get() {
+        return this.checked;
+      },
+      set(value) {
+        this.setChecked(value);
+      }
+    }
+  },
   methods: {
-    toggle(event) {
+    booleanValue(value) {
+      if (typeof value === 'boolean') {
+        return value;
+      }
+      if (typeof value === 'string') {
+        return value.toLowerCase() === 'true';
+      }
+      return !!value;
+    },
+    setChecked(value) {
       if (this.disabled) {
         return;
       }
-      if (event.target && event.target.closest && event.target.closest('a')) {
+      this.form[this.field.field] = this.booleanValue(value);
+    },
+    handleWrapperClick(event) {
+      if (this.disabled) {
         return;
       }
-      this.form[this.field.field] = !this.form[this.field.field];
+      if (event.target && event.target.closest) {
+        if (event.target.closest('a') || event.target.closest('.ivu-checkbox-wrapper')) {
+          return;
+        }
+      }
+      this.setChecked(!this.checked);
     }
   }
 };

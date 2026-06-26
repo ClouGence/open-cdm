@@ -37,65 +37,91 @@ import lombok.experimental.FieldNameConstants;
 public class DataSourceConfig {
 
     // ------------------------------------------------------------------------------------------------------------------------ SHADOW
-    @ConfigDef(group = DsConfigGroup.SHADOW, readOnly = true, name = Fields.instanceId, descKey = ConfigI18nKey.CONFIG_DS_INSTANCE_ID_DESCRIPTION)
+    @ConfigDef(name = Fields.instanceId, //
+            group = DsConfigGroup.SHADOW, labelKey = ConfigI18nKey.CONFIG_DS_INSTANCE_ID_LABEL, descKey = ConfigI18nKey.CONFIG_DS_INSTANCE_ID_DESC, readOnly = true)
     private String         instanceId;
-    @ConfigDef(group = DsConfigGroup.SHADOW, readOnly = true, name = Fields.dataSourceType, descKey = ConfigI18nKey.CONFIG_DS_TYPE_DESCRIPTION)
+    @ConfigDef(name = Fields.dataSourceType, //
+            group = DsConfigGroup.SHADOW, labelKey = ConfigI18nKey.CONFIG_DS_TYPE_LABEL, descKey = ConfigI18nKey.CONFIG_DS_TYPE_DESC, readOnly = true)
     private DataSourceType dataSourceType;
-    @ConfigDef(group = DsConfigGroup.SHADOW, readOnly = true, name = Fields.configVersion, descKey = ConfigI18nKey.CONFIG_RDB_CONFIG_VERSION_DESCRIPTION, defaultValue = "1")
+    @ConfigDef(name = Fields.configVersion, defaultValue = "1", //
+            group = DsConfigGroup.SHADOW, labelKey = ConfigI18nKey.CONFIG_RDB_CONFIG_VERSION_LABEL, descKey = ConfigI18nKey.CONFIG_RDB_CONFIG_VERSION_DESC, readOnly = true)
     private Long           configVersion;
-    @ConfigDef(group = DsConfigGroup.SHADOW, readOnly = true, name = Fields.version, descKey = ConfigI18nKey.CONFIG_RDB_VERSION_DESCRIPTION)
+    @ConfigDef(name = Fields.version, //
+            group = DsConfigGroup.SHADOW, labelKey = ConfigI18nKey.CONFIG_RDB_VERSION_LABEL, descKey = ConfigI18nKey.CONFIG_RDB_VERSION_DESC, readOnly = true)
     private String         version;
 
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.driverVersion, descKey = ConfigI18nKey.CONFIG_RDB_VERSION_DESCRIPTION)
+    @ConfigDef(name = Fields.driverVersion, //
+            group = DsConfigGroup.GENERAL, labelKey = ConfigI18nKey.CONFIG_RDB_DRIVER_LABEL, descKey = ConfigI18nKey.CONFIG_RDB_DRIVER_DESC, readOnly = false)
     private String         driverVersion;
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.host, descKey = ConfigI18nKey.CONFIG_RDB_CONN_HOST_DESCRIPTION)
+    @ConfigDef(name = Fields.host, //
+            group = DsConfigGroup.GENERAL, labelKey = ConfigI18nKey.CONFIG_RDB_CONN_HOST_LABEL, descKey = ConfigI18nKey.CONFIG_RDB_CONN_HOST_DESC, readOnly = false)
     private String         host;
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.securityType, descKey = ConfigI18nKey.CONFIG_DS_SECURITY_TYPE_DESCRIPTION)
+    @ConfigDef(name = Fields.securityType, //
+            group = DsConfigGroup.GENERAL, labelKey = ConfigI18nKey.CONFIG_DS_SECURITY_TYPE_LABEL, descKey = ConfigI18nKey.CONFIG_DS_SECURITY_TYPE_DESC, readOnly = false)
     private SecurityType   securityType;
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.userName, descKey = ConfigI18nKey.CONFIG_RDB_USERNAME_DESCRIPTION)
+    @ConfigDef(name = Fields.userName, //
+            group = DsConfigGroup.GENERAL, labelKey = ConfigI18nKey.CONFIG_RDB_USERNAME_LABEL, descKey = ConfigI18nKey.CONFIG_RDB_USERNAME_DESC, readOnly = false)
     private String         userName;
-    @ConfigDef(group = DsConfigGroup.GENERAL, readOnly = false, name = Fields.password, descKey = ConfigI18nKey.CONFIG_RDB_PASSWORD_DESCRIPTION, isSecret = true)
+    @ConfigDef(name = Fields.password, //
+            group = DsConfigGroup.GENERAL, labelKey = ConfigI18nKey.CONFIG_RDB_PASSWORD_LABEL, descKey = ConfigI18nKey.CONFIG_RDB_PASSWORD_DESC, isSecret = true, readOnly = false)
     private String         password;
 
     // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
-    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.maxIdleTimeSec, defaultValue = "300", descKey = ConfigI18nKey.CONFIG_DS_MAX_IDLE_TIME_SEC_DESCRIPTION)
+    @ConfigDef(name = Fields.maxIdleTimeSec, defaultValue = "300", //
+            group = DsConfigGroup.OPTIONS, labelKey = ConfigI18nKey.CONFIG_DS_MAX_IDLE_TIME_SEC_LABEL, descKey = ConfigI18nKey.CONFIG_DS_MAX_IDLE_TIME_SEC_DESC, readOnly = false)
     private Integer        maxIdleTimeSec;
-    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.readOnly, defaultValue = "false", descKey = ConfigI18nKey.CONFIG_DS_READONLY_DESCRIPTION)
+    @ConfigDef(name = Fields.readOnly, defaultValue = "false", //
+            group = DsConfigGroup.OPTIONS, labelKey = ConfigI18nKey.CONFIG_DS_READONLY_LABEL, descKey = ConfigI18nKey.CONFIG_DS_READONLY_DESC, readOnly = false)
     private Boolean        readOnly;
-    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.isolation, defaultValue = "DEFAULT", descKey = ConfigI18nKey.CONFIG_RDB_ISOLATION_DESCRIPTION)
+    @ConfigDef(name = Fields.autoCommit, defaultValue = "true", //
+            group = DsConfigGroup.OPTIONS, labelKey = ConfigI18nKey.CONFIG_RDB_TRANSACTION_LABEL, descKey = ConfigI18nKey.CONFIG_RDB_TRANSACTION_DESC, readOnly = false)
+    private Boolean        autoCommit;
+    @ConfigDef(name = Fields.isolation, defaultValue = "DEFAULT", //
+            group = DsConfigGroup.OPTIONS, labelKey = ConfigI18nKey.CONFIG_RDB_ISOLATION_LABEL, descKey = ConfigI18nKey.CONFIG_RDB_ISOLATION_DESC, readOnly = false)
     private String         isolation;
-    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.onlineMaxConnections, defaultValue = "100", descKey = ConfigI18nKey.CONFIG_DS_ONLINE_MAX_CONNECTIONS_DESCRIPTION)
+    @ConfigDef(name = Fields.onlineMaxConnections, defaultValue = "100", //
+            group = DsConfigGroup.OPTIONS, labelKey = ConfigI18nKey.CONFIG_DS_ONLINE_MAX_CONNECTIONS_LABEL, descKey = ConfigI18nKey.CONFIG_DS_ONLINE_MAX_CONNECTIONS_DESC, readOnly = false)
     private Integer        onlineMaxConnections;
-    @ConfigDef(group = DsConfigGroup.OPTIONS, readOnly = false, name = Fields.exportMaxConnections, defaultValue = "50", descKey = ConfigI18nKey.CONFIG_DS_EXPORT_MAX_CONCURRENT_DESCRIPTION)
+    @ConfigDef(name = Fields.exportMaxConnections, defaultValue = "50", //
+            group = DsConfigGroup.OPTIONS, labelKey = ConfigI18nKey.CONFIG_DS_EXPORT_MAX_CONCURRENT_LABEL, descKey = ConfigI18nKey.CONFIG_DS_EXPORT_MAX_CONCURRENT_DESC, readOnly = false)
     private Integer        exportMaxConnections;
 
     // ------------------------------------------------------------------------------------------------------------------------ SSH/SSL
-    @ConfigDef(group = DsConfigGroup.SSH_SSL, readOnly = false, name = Fields.sshProxyEnabled, defaultValue = "false", descKey = ConfigI18nKey.CONFIG_DS_SSH_PROXY_ENABLED)
+    @ConfigDef(name = Fields.sshProxyEnabled, defaultValue = "false", //
+            group = DsConfigGroup.SSH_SSL, labelKey = ConfigI18nKey.CONFIG_DS_SSH_PROXY_ENABLED_LABEL, descKey = ConfigI18nKey.CONFIG_DS_SSH_PROXY_ENABLED_DESC, readOnly = false)
     private Boolean        sshProxyEnabled;
-    @ConfigDef(group = DsConfigGroup.SSH_SSL, readOnly = false, name = Fields.sshConfigId, descKey = ConfigI18nKey.CONFIG_DS_SSH_CONFIG_ID)
+    @ConfigDef(name = Fields.sshConfigId, //
+            group = DsConfigGroup.SSH_SSL, labelKey = ConfigI18nKey.CONFIG_DS_SSH_CONFIG_ID_LABEL, descKey = ConfigI18nKey.CONFIG_DS_SSH_CONFIG_ID_DESC, readOnly = false)
     private Long           sshConfigId;
-    @ConfigDef(group = DsConfigGroup.SSH_SSL, readOnly = false, name = Fields.sslMode, defaultValue = "DISABLED", descKey = ConfigI18nKey.CONFIG_DS_SSL_MODE)
+    @ConfigDef(name = Fields.sslMode, defaultValue = "DISABLED", //
+            group = DsConfigGroup.SSH_SSL, labelKey = ConfigI18nKey.CONFIG_DS_SSL_MODE_LABEL, descKey = ConfigI18nKey.CONFIG_DS_SSL_MODE_DESC, readOnly = false)
     private SslMode        sslMode;
-    @ConfigDef(group = DsConfigGroup.SSH_SSL, readOnly = false, name = Fields.sslCaData, descKey = ConfigI18nKey.CONFIG_DS_SSL_CA_DATA, isSecret = true, lazy = true)
+    @ConfigDef(name = Fields.sslCaData, //
+            group = DsConfigGroup.SSH_SSL, labelKey = ConfigI18nKey.CONFIG_DS_SSL_CA_DATA_LABEL, descKey = ConfigI18nKey.CONFIG_ADD_DS_SSL_CA_DATA_DESC, isSecret = true, lazy = true, readOnly = false)
     private String         sslCaData;
     @JsonIgnore
     private String         sslCaFilePath;
-    @ConfigDef(group = DsConfigGroup.SSH_SSL, readOnly = false, name = Fields.sslClientCertData, descKey = ConfigI18nKey.CONFIG_DS_SSL_CLIENT_CERT_DATA, isSecret = true, lazy = true)
+    @ConfigDef(name = Fields.sslClientCertData, //
+            group = DsConfigGroup.SSH_SSL, labelKey = ConfigI18nKey.CONFIG_DS_SSL_CLIENT_CERT_DATA_LABEL, descKey = ConfigI18nKey.CONFIG_ADD_DS_SSL_CLIENT_CERT_DATA_DESC, isSecret = true, lazy = true, readOnly = false)
     private String         sslClientCertData;
     @JsonIgnore
     private String         sslClientCertFilePath;
-    @ConfigDef(group = DsConfigGroup.SSH_SSL, readOnly = false, name = Fields.sslClientKeyData, descKey = ConfigI18nKey.CONFIG_DS_SSL_CLIENT_KEY_DATA, isSecret = true, lazy = true)
+    @ConfigDef(name = Fields.sslClientKeyData, //
+            group = DsConfigGroup.SSH_SSL, labelKey = ConfigI18nKey.CONFIG_DS_SSL_CLIENT_KEY_DATA_LABEL, descKey = ConfigI18nKey.CONFIG_ADD_DS_SSL_CLIENT_KEY_DATA_DESC, isSecret = true, lazy = true, readOnly = false)
     private String         sslClientKeyData;
     @JsonIgnore
     private String         sslClientKeyFilePath;
-    @ConfigDef(group = DsConfigGroup.SSH_SSL, readOnly = false, name = Fields.sslClientKeyPassword, descKey = ConfigI18nKey.CONFIG_DS_SSL_CLIENT_KEY_PASSWORD, isSecret = true)
+    @ConfigDef(name = Fields.sslClientKeyPassword, //
+            group = DsConfigGroup.SSH_SSL, labelKey = ConfigI18nKey.CONFIG_DS_SSL_CLIENT_KEY_PASSWORD_LABEL, descKey = ConfigI18nKey.CONFIG_ADD_DS_SSL_CLIENT_KEY_PASSWORD_DESC, isSecret = true, readOnly = false)
     private String         sslClientKeyPassword;
 
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.onlineMaxQueryTimeoutSec, defaultValue = "30", descKey = ConfigI18nKey.CONFIG_DS_ONLINE_MAX_QUERY_TIMEOUT_SEC_DESCRIPTION)
+    @ConfigDef(name = Fields.onlineMaxQueryTimeoutSec, defaultValue = "30", //
+            group = DsConfigGroup.ADVANCED, labelKey = ConfigI18nKey.CONFIG_DS_ONLINE_MAX_QUERY_TIMEOUT_SEC_LABEL, descKey = ConfigI18nKey.CONFIG_DS_ONLINE_MAX_QUERY_TIMEOUT_SEC_DESC, readOnly = false)
     private Integer        onlineMaxQueryTimeoutSec;
-    @ConfigDef(group = DsConfigGroup.ADVANCED, readOnly = false, name = Fields.exportMaxQueryTimeoutSec, defaultValue = "300", descKey = ConfigI18nKey.CONFIG_DS_EXPORT_MAX_QUERY_TIMEOUT_SEC_DESCRIPTION)
+    @ConfigDef(name = Fields.exportMaxQueryTimeoutSec, defaultValue = "300", //
+            group = DsConfigGroup.ADVANCED, labelKey = ConfigI18nKey.CONFIG_DS_EXPORT_MAX_QUERY_TIMEOUT_SEC_LABEL, descKey = ConfigI18nKey.CONFIG_DS_EXPORT_MAX_QUERY_TIMEOUT_SEC_DESC, readOnly = false)
     private Integer        exportMaxQueryTimeoutSec;
 
     public void setDataSourceType(DataSourceType dataSourceType) {
