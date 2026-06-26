@@ -8,7 +8,7 @@
             <Tooltip
               v-for="provider in visibleProviders"
               :key="provider.type"
-              :disabled="isEdit || (!isProviderEnabled(provider.type) && !conflictingPeer(provider.type))"
+              :disabled="isEdit || !isProviderEnabled(provider.type)"
               :content="providerTooltip(provider.type)"
               placement="top"
               transfer
@@ -19,7 +19,7 @@
                 :class="{
                   'is-selected': provider.type === selectedProvider.type,
                   'is-readonly': isEdit,
-                  'is-disabled': !isEdit && (isProviderEnabled(provider.type) || !!conflictingPeer(provider.type))
+                  'is-disabled': !isEdit && isProviderEnabled(provider.type)
                 }"
                 @click="handleSelectProvider(provider.type)"
               >
@@ -107,22 +107,9 @@ export default {
     isProviderEnabled() {
       return (type) => this.enabledTypes.includes(type);
     },
-    conflictingPeer() {
-      return (type) => {
-        const def = getProviderByType(type);
-        if (!def || !def.conflictsWith) return '';
-        return def.conflictsWith.find((peer) => this.enabledTypes.includes(peer)) || '';
-      };
-    },
     providerTooltip() {
       return (type) => {
         if (this.isProviderEnabled(type)) return this.$t('sso-provider-already-added');
-        const peer = this.conflictingPeer(type);
-        if (peer) {
-          const peerDef = getProviderByType(peer);
-          const peerLabel = peerDef ? this.$t(peerDef.labelKey) : peer;
-          return this.$t('sso-provider-conflict-with-x', [peerLabel]);
-        }
         return '';
       };
     },
@@ -182,7 +169,7 @@ export default {
         this.resetFormData(def.type, true);
         return;
       }
-      const first = SSO_PROVIDERS.find((p) => !this.enabledTypes.includes(p.type) && !this.conflictingPeer(p.type));
+      const first = SSO_PROVIDERS.find((p) => !this.enabledTypes.includes(p.type));
       if (!first) {
         this.goBack();
         return;
@@ -193,7 +180,6 @@ export default {
     handleSelectProvider(type) {
       if (this.isEdit) return;
       if (this.enabledTypes.includes(type)) return;
-      if (this.conflictingPeer(type)) return;
       this.selectedProviderType = type;
       this.resetFormData(type, false);
     },

@@ -113,14 +113,7 @@ export default {
       );
     },
     hasUnenabledProvider() {
-      return SSO_PROVIDERS.some((p) => !this.enabledTypes.includes(p.type) && !this.conflictingPeer(p.type));
-    },
-    conflictingPeer() {
-      return (type) => {
-        const def = getProviderByType(type);
-        if (!def || !def.conflictsWith) return '';
-        return def.conflictsWith.find((peer) => this.enabledTypes.includes(peer)) || '';
-      };
+      return SSO_PROVIDERS.some((p) => !this.enabledTypes.includes(p.type));
     }
   },
   mounted() {
