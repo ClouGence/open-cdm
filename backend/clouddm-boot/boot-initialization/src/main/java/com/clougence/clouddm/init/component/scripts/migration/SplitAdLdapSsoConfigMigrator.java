@@ -21,37 +21,44 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SplitAdLdapSsoConfigMigrator {
 
-    private static final String AUTH_TYPE_KEY = "accountAuthType";
-    private static final String LDAP_CONFIG_TAG = "LDAP_CONFIG";
-    private static final String COMMON_CONF_BELONG = "Common";
-    private static final String TEXT_CONF_VAL_TYPE = "TEXT";
+    private static final String                AUTH_TYPE_KEY      = "accountAuthType";
+    private static final String                LDAP_CONFIG_TAG    = "LDAP_CONFIG";
+    private static final String                COMMON_CONF_BELONG = "Common";
+    private static final String                TEXT_CONF_VAL_TYPE = "TEXT";
 
-    private static final List<ConfigMapping> CONFIG_MAPPINGS = List.of(//
-        new ConfigMapping("ldapHost", "adHost", "LDAP_CONFIG_HOST", "", ""),//
-        new ConfigMapping("ldapPort", "adPort", "LDAP_CONFIG_PORT", "", "LDAP:389 /AD:3268"),//
-        new ConfigMapping("ldapNetBIOSRoute", "adNetBIOSRoute", "LDAP_CONFIG_NET_BIOS_ROUTE", "", "Name=IP;Name=IP;"),//
-        new ConfigMapping("ldapSoTimeout", "adSoTimeout", "LDAP_CONFIG_SOCKET_TIMEOUT", "3000", ""),//
-        new ConfigMapping("ldapBase", "adBase", "LDAP_CONFIG_BASE", "", ""),//
-        new ConfigMapping("ldapUser", "adUser", "LDAP_CONFIG_USER", "", ""),//
-        new ConfigMapping("ldapPassword", "adPassword", "LDAP_CONFIG_PASSWORD", "", ""),//
-        new ConfigMapping("ldapDomain", "adDomain", "LDAP_CONFIG_DOMAIN", "", ""),//
-        new ConfigMapping("ldapRoleMap", "adRoleMap", "LDAP_CONFIG_ROLE_MAP", "Developers", ""),//
-        new ConfigMapping("ldapUserObjectClass", "adUserObjectClass", "LDAP_CONFIG_USER_OBJECT_CLASS", "posixAccount,sambaSamAccount", "posixAccount / sambaSamAccount / "),//
-        new ConfigMapping("ldapFieldLogin", "adFieldLogin", "LDAP_FIELD_LOGIN", "cn", "cn / userPrincipalName / ..."),//
-        new ConfigMapping("ldapFieldUser", "adFieldUser", "LDAP_FIELD_USER", "sn", "sn / displayName / ..."),//
-        new ConfigMapping("ldapFieldEmail", "adFieldEmail", "LDAP_FIELD_EMAIL", "mail", "mail / ..."),//
-        new ConfigMapping("ldapFieldPhone", "adFieldPhone", "LDAP_FIELD_PHONE", "mobile", "mobile / telephoneNumber / ...")//
+    private static final AuthTypeState         EMPTY_AUTH_TYPE    = new AuthTypeState(false, false);
+
+    private static final List<ConfigMapping>   CONFIG_MAPPINGS    = List.of(//
+            new ConfigMapping("ldapHost", "adHost", "LDAP_CONFIG_HOST", "", ""),//
+            new ConfigMapping("ldapPort", "adPort", "LDAP_CONFIG_PORT", "", "LDAP:389 /AD:3268"),//
+            new ConfigMapping("ldapNetBIOSRoute", "adNetBIOSRoute", "LDAP_CONFIG_NET_BIOS_ROUTE", "", "Name=IP;Name=IP;"),//
+            new ConfigMapping("ldapSoTimeout", "adSoTimeout", "LDAP_CONFIG_SOCKET_TIMEOUT", "3000", ""),//
+            new ConfigMapping("ldapBase", "adBase", "LDAP_CONFIG_BASE", "", ""),//
+            new ConfigMapping("ldapUser", "adUser", "LDAP_CONFIG_USER", "", ""),//
+            new ConfigMapping("ldapPassword", "adPassword", "LDAP_CONFIG_PASSWORD", "", ""),//
+            new ConfigMapping("ldapDomain", "adDomain", "LDAP_CONFIG_DOMAIN", "", ""),//
+            new ConfigMapping("ldapRoleMap", "adRoleMap", "LDAP_CONFIG_ROLE_MAP", "Developers", ""),//
+            new ConfigMapping("ldapUserObjectClass", "adUserObjectClass", "LDAP_CONFIG_USER_OBJECT_CLASS", "posixAccount,sambaSamAccount", "posixAccount / sambaSamAccount / "),//
+            new ConfigMapping("ldapFieldLogin", "adFieldLogin", "LDAP_FIELD_LOGIN", "cn", "cn / userPrincipalName / ..."),//
+            new ConfigMapping("ldapFieldUser", "adFieldUser", "LDAP_FIELD_USER", "sn", "sn / displayName / ..."),//
+            new ConfigMapping("ldapFieldEmail", "adFieldEmail", "LDAP_FIELD_EMAIL", "mail", "mail / ..."),//
+            new ConfigMapping("ldapFieldPhone", "adFieldPhone", "LDAP_FIELD_PHONE", "mobile", "mobile / telephoneNumber / ...")//
     );
 
-    private final Connection connection;
+    private static final Set<String>           OLD_NAMES          = CONFIG_MAPPINGS.stream().map(ConfigMapping::oldName).collect(Collectors.toUnmodifiableSet());
+    private static final Set<String>           NEW_NAMES          = CONFIG_MAPPINGS.stream().map(ConfigMapping::newName).collect(Collectors.toUnmodifiableSet());
+
+    private final Connection                   connection;
 
     public SplitAdLdapSsoConfigMigrator(Connection connection){
         this.connection = connection;
@@ -66,19 +73,18 @@ public class SplitAdLdapSsoConfigMigrator {
             }
 
             String uid = entry.getKey();
-            Map<String, ConfigRow> ldapConfigs = loadConfigs(uid, oldConfigNames());
-            Map<String, ConfigRow> adConfigs = loadConfigs(uid, newConfigNames());
+            UserConfigs configs = loadUserConfigs(uid);
             for (ConfigMapping mapping : CONFIG_MAPPINGS) {
-                ConfigRow source = ldapConfigs.get(mapping.oldName);
-                ConfigRow target = adConfigs.get(mapping.newName);
-                if (!authType.ldapEnabled && target != null && isResetLdapConfig(source)) {
+                ConfigRow source = configs.ldapConfigs.get(mapping.oldName);
+                boolean adExists = configs.existingAdNames.contains(mapping.newName);
+                if (!authType.ldapEnabled && adExists && isLdapValueUntouched(source)) {
                     continue;
                 }
                 upsertAdConfig(uid, mapping, source);
             }
 
             if (!authType.ldapEnabled) {
-                resetLdapConfigs(uid, ldapConfigs);
+                resetLdapConfigs(uid, configs.ldapConfigs);
             }
         }
     }
@@ -94,7 +100,7 @@ public class SplitAdLdapSsoConfigMigrator {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String uid = rs.getString("uid");
-                    AuthTypeState existing = authTypeByUid.getOrDefault(uid, new AuthTypeState(false, false));
+                    AuthTypeState existing = authTypeByUid.getOrDefault(uid, EMPTY_AUTH_TYPE);
                     AuthTypeState current = parseAuthType(rs.getString("config_value"));
                     authTypeByUid.put(uid, existing.merge(current));
                 }
@@ -104,67 +110,53 @@ public class SplitAdLdapSsoConfigMigrator {
     }
 
     private AuthTypeState parseAuthType(String value) {
-        AuthTypeState state = new AuthTypeState(false, false);
         if (value == null || value.isBlank()) {
-            return state;
+            return EMPTY_AUTH_TYPE;
         }
 
+        boolean ldapEnabled = false;
+        boolean adEnabled = false;
         for (String item : value.split("[,，;；]")) {
             String type = item.trim();
             if ("AD".equalsIgnoreCase(type)) {
-                state = new AuthTypeState(state.ldapEnabled, true);
+                adEnabled = true;
             } else if ("LDAP".equalsIgnoreCase(type)) {
-                state = new AuthTypeState(true, state.adEnabled);
+                ldapEnabled = true;
             }
         }
-        return state;
+        return new AuthTypeState(ldapEnabled, adEnabled);
     }
 
-    private List<String> oldConfigNames() {
-        List<String> names = new ArrayList<>();
-        for (ConfigMapping mapping : CONFIG_MAPPINGS) {
-            names.add(mapping.oldName);
-        }
-        return names;
-    }
-
-    private List<String> newConfigNames() {
-        List<String> names = new ArrayList<>();
-        for (ConfigMapping mapping : CONFIG_MAPPINGS) {
-            names.add(mapping.newName);
-        }
-        return names;
-    }
-
-    private boolean isResetLdapConfig(ConfigRow source) {
-        return source == null || Objects.equals(source.configValue, source.defaultValue);
-    }
-
-    private Map<String, ConfigRow> loadConfigs(String uid, List<String> configNames) throws SQLException {
-        Map<String, ConfigRow> configs = new HashMap<>();
+    private UserConfigs loadUserConfigs(String uid) throws SQLException {
+        Map<String, ConfigRow> ldapConfigs = new HashMap<>();
+        Set<String> existingAdNames = new HashSet<>();
         try (PreparedStatement ps = connection.prepareStatement("""
-                select id, gmt_create, gmt_modified, uid, config_name, config_value, default_value,
+                select gmt_create, gmt_modified, uid, config_name, config_value, default_value,
                        value_range, read_only, user_config_tag_type, conf_val_type, conf_belong, is_secret, desc_key
                 from dm_sys_user_conf
                 where uid = ?
-                order by id
                 """)) {
             ps.setString(1, uid);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     String configName = rs.getString("config_name");
-                    if (!configNames.contains(configName)) {
-                        continue;
+                    if (OLD_NAMES.contains(configName)) {
+                        ldapConfigs.put(configName, ConfigRow.from(rs));
+                    } else if (NEW_NAMES.contains(configName)) {
+                        existingAdNames.add(configName);
                     }
-                    configs.put(configName, ConfigRow.from(rs));
                 }
             }
         }
-        return configs;
+        return new UserConfigs(ldapConfigs, existingAdNames);
+    }
+
+    private boolean isLdapValueUntouched(ConfigRow source) {
+        return source == null || Objects.equals(source.configValue, source.defaultValue);
     }
 
     private void upsertAdConfig(String uid, ConfigMapping mapping, ConfigRow source) throws SQLException {
-        ConfigRow target = source == null ? ConfigRow.defaultFor(uid, mapping) : source.toAdConfig(mapping);
+        ConfigRow target = ConfigRow.forAd(uid, mapping, source);
         int updated;
         try (PreparedStatement ps = connection.prepareStatement("""
                 update dm_sys_user_conf
@@ -202,22 +194,21 @@ public class SplitAdLdapSsoConfigMigrator {
     }
 
     private void resetLdapConfigs(String uid, Map<String, ConfigRow> ldapConfigs) throws SQLException {
-        for (ConfigMapping mapping : CONFIG_MAPPINGS) {
-            ConfigRow source = ldapConfigs.get(mapping.oldName);
-            if (source == null) {
-                continue;
-            }
-            source.configValue = source.defaultValue;
-            source.gmtModified = Timestamp.from(Instant.now());
-            try (PreparedStatement ps = connection.prepareStatement("""
-                    update dm_sys_user_conf
-                    set gmt_modified = ?,
-                        config_value = ?
-                    where uid = ?
-                      and config_name = ?
-                    """)) {
-                ps.setTimestamp(1, source.gmtModified);
-                ps.setString(2, source.configValue);
+        try (PreparedStatement ps = connection.prepareStatement("""
+                update dm_sys_user_conf
+                set gmt_modified = ?,
+                    config_value = ?
+                where uid = ?
+                  and config_name = ?
+                """)) {
+            Timestamp now = Timestamp.from(Instant.now());
+            for (ConfigMapping mapping : CONFIG_MAPPINGS) {
+                ConfigRow source = ldapConfigs.get(mapping.oldName);
+                if (source == null) {
+                    continue;
+                }
+                ps.setTimestamp(1, now);
+                ps.setString(2, source.defaultValue());
                 ps.setString(3, uid);
                 ps.setString(4, mapping.oldName);
                 ps.executeUpdate();
@@ -226,32 +217,32 @@ public class SplitAdLdapSsoConfigMigrator {
     }
 
     private void bindUpdate(PreparedStatement ps, ConfigRow row) throws SQLException {
-        ps.setTimestamp(1, row.gmtModified);
-        ps.setString(2, row.configValue);
-        ps.setString(3, row.defaultValue);
-        ps.setString(4, row.valueRange);
-        ps.setInt(5, row.readOnly);
-        ps.setString(6, row.userConfigTagType);
-        ps.setString(7, row.confValType);
-        ps.setString(8, row.confBelong);
-        ps.setInt(9, row.secret);
-        ps.setString(10, row.descKey);
+        ps.setTimestamp(1, row.gmtModified());
+        ps.setString(2, row.configValue());
+        ps.setString(3, row.defaultValue());
+        ps.setString(4, row.valueRange());
+        ps.setInt(5, row.readOnly());
+        ps.setString(6, row.userConfigTagType());
+        ps.setString(7, row.confValType());
+        ps.setString(8, row.confBelong());
+        ps.setInt(9, row.secret());
+        ps.setString(10, row.descKey());
     }
 
     private void bindInsert(PreparedStatement ps, ConfigRow row) throws SQLException {
-        ps.setTimestamp(1, row.gmtCreate);
-        ps.setTimestamp(2, row.gmtModified);
-        ps.setString(3, row.uid);
-        ps.setString(4, row.configName);
-        ps.setString(5, row.configValue);
-        ps.setString(6, row.defaultValue);
-        ps.setString(7, row.valueRange);
-        ps.setInt(8, row.readOnly);
-        ps.setString(9, row.userConfigTagType);
-        ps.setString(10, row.confValType);
-        ps.setString(11, row.confBelong);
-        ps.setInt(12, row.secret);
-        ps.setString(13, row.descKey);
+        ps.setTimestamp(1, row.gmtCreate());
+        ps.setTimestamp(2, row.gmtModified());
+        ps.setString(3, row.uid());
+        ps.setString(4, row.configName());
+        ps.setString(5, row.configValue());
+        ps.setString(6, row.defaultValue());
+        ps.setString(7, row.valueRange());
+        ps.setInt(8, row.readOnly());
+        ps.setString(9, row.userConfigTagType());
+        ps.setString(10, row.confValType());
+        ps.setString(11, row.confBelong());
+        ps.setInt(12, row.secret());
+        ps.setString(13, row.descKey());
     }
 
     private record ConfigMapping(String oldName, String newName, String descKey, String defaultValue, String valueRange) {
@@ -264,75 +255,29 @@ public class SplitAdLdapSsoConfigMigrator {
         }
     }
 
-    private static class ConfigRow {
+    private record UserConfigs(Map<String, ConfigRow> ldapConfigs, Set<String> existingAdNames) {
+    }
 
-        private Timestamp gmtCreate;
-        private Timestamp gmtModified;
-        private String    uid;
-        private String    configName;
-        private String    configValue;
-        private String    defaultValue;
-        private String    valueRange;
-        private int       readOnly;
-        private String    userConfigTagType;
-        private String    confValType;
-        private String    confBelong;
-        private int       secret;
-        private String    descKey;
+    private record ConfigRow(Timestamp gmtCreate, Timestamp gmtModified, String uid, String configName, String configValue, String defaultValue,
+                             String valueRange, int readOnly, String userConfigTagType, String confValType, String confBelong, int secret, String descKey) {
 
         static ConfigRow from(ResultSet rs) throws SQLException {
-            ConfigRow row = new ConfigRow();
-            row.gmtCreate = rs.getTimestamp("gmt_create");
-            row.gmtModified = rs.getTimestamp("gmt_modified");
-            row.uid = rs.getString("uid");
-            row.configName = rs.getString("config_name");
-            row.configValue = rs.getString("config_value");
-            row.defaultValue = rs.getString("default_value");
-            row.valueRange = rs.getString("value_range");
-            row.readOnly = rs.getInt("read_only");
-            row.userConfigTagType = rs.getString("user_config_tag_type");
-            row.confValType = rs.getString("conf_val_type");
-            row.confBelong = rs.getString("conf_belong");
-            row.secret = rs.getInt("is_secret");
-            row.descKey = rs.getString("desc_key");
-            return row;
+            return new ConfigRow(rs.getTimestamp("gmt_create"), rs.getTimestamp("gmt_modified"), rs.getString("uid"), rs.getString("config_name"),
+                    rs.getString("config_value"), rs.getString("default_value"), rs.getString("value_range"), rs.getInt("read_only"),
+                    rs.getString("user_config_tag_type"), rs.getString("conf_val_type"), rs.getString("conf_belong"), rs.getInt("is_secret"),
+                    rs.getString("desc_key"));
         }
 
-        static ConfigRow defaultFor(String uid, ConfigMapping mapping) {
-            ConfigRow row = new ConfigRow();
+        static ConfigRow forAd(String uid, ConfigMapping mapping, ConfigRow source) {
             Timestamp now = Timestamp.from(Instant.now());
-            row.gmtCreate = now;
-            row.gmtModified = now;
-            row.uid = uid;
-            row.configName = mapping.newName;
-            row.configValue = null;
-            row.defaultValue = mapping.defaultValue;
-            row.valueRange = mapping.valueRange;
-            row.readOnly = 0;
-            row.userConfigTagType = LDAP_CONFIG_TAG;
-            row.confValType = TEXT_CONF_VAL_TYPE;
-            row.confBelong = COMMON_CONF_BELONG;
-            row.secret = 0;
-            row.descKey = mapping.descKey;
-            return row;
-        }
-
-        ConfigRow toAdConfig(ConfigMapping mapping) {
-            ConfigRow row = new ConfigRow();
-            row.gmtCreate = this.gmtCreate;
-            row.gmtModified = Timestamp.from(Instant.now());
-            row.uid = this.uid;
-            row.configName = mapping.newName;
-            row.configValue = this.configValue;
-            row.defaultValue = defaultString(this.defaultValue, mapping.defaultValue);
-            row.valueRange = defaultString(this.valueRange, mapping.valueRange);
-            row.readOnly = this.readOnly;
-            row.userConfigTagType = defaultString(this.userConfigTagType, LDAP_CONFIG_TAG);
-            row.confValType = defaultString(this.confValType, TEXT_CONF_VAL_TYPE);
-            row.confBelong = defaultString(this.confBelong, COMMON_CONF_BELONG);
-            row.secret = this.secret;
-            row.descKey = defaultString(this.descKey, mapping.descKey);
-            return row;
+            if (source == null) {
+                return new ConfigRow(now, now, uid, mapping.newName, null, mapping.defaultValue, mapping.valueRange, 0, LDAP_CONFIG_TAG,
+                        TEXT_CONF_VAL_TYPE, COMMON_CONF_BELONG, 0, mapping.descKey);
+            }
+            return new ConfigRow(source.gmtCreate, now, source.uid, mapping.newName, source.configValue,
+                    defaultString(source.defaultValue, mapping.defaultValue), defaultString(source.valueRange, mapping.valueRange), source.readOnly,
+                    defaultString(source.userConfigTagType, LDAP_CONFIG_TAG), defaultString(source.confValType, TEXT_CONF_VAL_TYPE),
+                    defaultString(source.confBelong, COMMON_CONF_BELONG), source.secret, defaultString(source.descKey, mapping.descKey));
         }
 
         private static String defaultString(String value, String defaultValue) {
