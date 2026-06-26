@@ -117,6 +117,29 @@
   background-color: #ff4d4f;
 }
 
+.ant-btn-primary.ant-btn-dangerous:not(:disabled) {
+  background: @error-color !important;
+  border-color: @error-color !important;
+  color: #ffffff !important;
+
+  span {
+    color: #ffffff !important;
+  }
+
+  &:hover {
+    background-color: lighten(@error-color, 8%) !important;
+    border-color: lighten(@error-color, 8%) !important;
+    color: #ffffff !important;
+  }
+
+  &:active,
+  &:focus {
+    background-color: darken(@error-color, 8%) !important;
+    border-color: darken(@error-color, 8%) !important;
+    color: #ffffff !important;
+  }
+}
+
 .ant-btn-background-ghost {
   background-image: linear-gradient(@white, @background-grey);
 
