@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import cloneDeep from 'lodash.clonedeep';
+import { cloneDeep } from '@/utils/lodash';
 import { APPROVAL_BIZ_TYPE } from '@/const';
 import AuthModal from '../modal/AuthModal';
 // import * as Vue from 'vue';

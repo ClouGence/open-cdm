@@ -35,7 +35,7 @@ export default {
     ...mapGetters(['includesDM', 'isDesktop']),
     ...mapState(['myCatLog', 'mySystemMenuItems', 'sidebarMenu']),
     showSqlLink() {
-      return this.includesDM && this.myCatLog.includes('CAT_DM_CONSOLE') && this.$route.path.indexOf('/sql') === -1;
+      return this.includesDM && this.myCatLog.includes('CAT_DM_CONSOLE') && !this.$route.path.startsWith('/sql');
     },
     pageTitle() {
       const path = this.$route.path;
@@ -100,6 +100,9 @@ export default {
       }
       if (path.indexOf('/integrations/sso') === 0 || path.indexOf('/system/sso') > -1) {
         return this.$t('nav-sso');
+      }
+      if (path.indexOf('/integrations/approval') === 0) {
+        return this.$t('nav-shen-pi-yin-qing');
       }
 
       const parts = path.split('/').filter(Boolean);
@@ -186,6 +189,30 @@ export default {
         return [
           { label: this.$t('nav-webhook'), to: '/integrations/im' },
           { label: this.$t('bian-ji'), to: path }
+        ];
+      }
+      if (path === '/integrations/sso/create') {
+        return [
+          { label: this.$t('nav-sso'), to: '/integrations/sso' },
+          { label: this.$t('xin-zeng'), to: path }
+        ];
+      }
+      if (/^\/integrations\/sso\/[^/]+\/edit$/.test(path)) {
+        return [
+          { label: this.$t('nav-sso'), to: '/integrations/sso' },
+          { label: this.$t('pei-zhi'), to: path }
+        ];
+      }
+      if (path === '/integrations/approval/create') {
+        return [
+          { label: this.$t('nav-shen-pi-yin-qing'), to: '/integrations/approval' },
+          { label: this.$t('xin-zeng'), to: path }
+        ];
+      }
+      if (/^\/integrations\/approval\/[^/]+\/edit$/.test(path)) {
+        return [
+          { label: this.$t('nav-shen-pi-yin-qing'), to: '/integrations/approval' },
+          { label: this.$t('pei-zhi'), to: path }
         ];
       }
       if (this.pageSubTitle) {

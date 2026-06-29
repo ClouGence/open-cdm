@@ -454,12 +454,12 @@ export default {
   flex-direction: column;
 }
 
-/deep/.ds-range-row {
+:deep(.ds-range-row) {
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
 }
-/deep/.more-count {
+:deep(.more-count) {
   white-space: nowrap;
   display: inline-block;
   margin-left: 6px;
@@ -470,7 +470,7 @@ export default {
   background: #f0f0f0;
   border-radius: 9px;
 }
-/deep/.more-count::before {
+:deep(.more-count::before) {
   content: '+';
   margin-right: 2px;
 }

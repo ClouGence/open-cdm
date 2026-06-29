@@ -41,7 +41,7 @@
                   {{ item.alias }}
                 </Option>
               </Select>
-              <Button type="primary" @click="handleRefresh" :loading="refreshLoading" style="margin-left: 10px">
+              <Button type="primary" @click="handleRefresh" :loading="refreshLoading" style="margin-left: 10px" ghost>
                 {{ $t('cha-xun') }}
               </Button>
             </div>
@@ -49,11 +49,6 @@
               <Tooltip transfer :content="$t('dao-chu')" placement="bottom">
                 <Button type="default" style="margin-right: 6px" @click="handleExport">
                   <CustomIcon type="icon-v2-daochu" />
-                </Button>
-              </Tooltip>
-              <Tooltip transfer :content="$t('shua-xin')" placement="bottom">
-                <Button type="default" style="margin-right: 6px" @click="handleRefresh" :loading="refreshLoading">
-                  <CustomIcon type="icon-v2-Refresh" v-if="!refreshLoading" />
                 </Button>
               </Tooltip>
             </div>

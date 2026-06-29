@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import moment from 'moment';
+import _ from '@/utils/lodash';
+import dayjs from '@/utils/dayjsSetup';
 
 const kbn = {};
 
@@ -829,25 +829,25 @@ kbn.valueFormats.timeticks = function (size, decimals, scaledDecimals) {
 };
 
 kbn.valueFormats.dateTimeAsIso = function (epoch) {
-  const time = moment(epoch);
+  const time = dayjs(epoch);
 
-  if (moment().isSame(epoch, 'day')) {
+  if (dayjs().isSame(epoch, 'day')) {
     return time.format('HH:mm:ss');
   }
   return time.format('YYYY-MM-DD HH:mm:ss');
 };
 
 kbn.valueFormats.dateTimeAsUS = function (epoch) {
-  const time = moment(epoch);
+  const time = dayjs(epoch);
 
-  if (moment().isSame(epoch, 'day')) {
+  if (dayjs().isSame(epoch, 'day')) {
     return time.format('h:mm:ss a');
   }
   return time.format('MM/DD/YYYY h:mm:ss a');
 };
 
 kbn.valueFormats.dateTimeFromNow = function (epoch) {
-  return moment(epoch).fromNow();
+  return dayjs(epoch).fromNow();
 };
 
 /// // FORMAT MENU /////

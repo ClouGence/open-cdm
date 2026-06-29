@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import cloneDeep from 'lodash.clonedeep';
+import { cloneDeep } from '@/utils/lodash';
 import * as Vue from 'vue';
 import { PG_GP } from '@/const';
 

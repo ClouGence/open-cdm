@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from '@/utils/lodash';
 import { calculate, is } from './vql';
 
 export function fetch($axios, metrics, start, end) {

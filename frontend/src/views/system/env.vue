@@ -347,7 +347,7 @@
 <script>
 import { h, resolveComponent } from 'vue';
 import { mapState } from 'vuex';
-import deepClone from 'lodash.clonedeep';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 import { Tooltip } from 'view-ui-plus';
 import { handleCopy } from '@/utils/clipboard';
 import { APPROVAL_TYPE_I18N } from '@/const';

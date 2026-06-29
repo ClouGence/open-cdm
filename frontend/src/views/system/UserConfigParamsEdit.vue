@@ -142,6 +142,7 @@
 <script>
 import { pick } from '@/components/function/monitor/utils/colors';
 import UserConfigTable from '@/views/system/UserConfigTable';
+import { isManagedUserConfig } from '@/views/system/managedUserConfigs';
 import { mapGetters } from 'vuex';
 import UtilJson from '../util';
 
@@ -363,17 +364,19 @@ export default {
         CLOUDDM: [],
         BLADEPIPE: []
       };
+      this.showTagList = [];
       const res = await this.$services.rdpUserConfigGetCurrUserConfigs();
       if (res.success) {
         this.userInfo.userConfig = res.data;
-        res.data.forEach((user) => {
+        const visibleConfigs = res.data.filter((config) => !isManagedUserConfig(config.configName));
+        visibleConfigs.forEach((user) => {
           if (this.showTagList.indexOf(user.userConfigTagType) === -1) {
             this.showTagList.push(user.userConfigTagType);
           }
         });
         this.$store.commit('updateUserInfo', this.userInfo);
         this.userConfigList = res.data;
-        this.userConfigList.forEach((config) => {
+        visibleConfigs.forEach((config) => {
           if (config.configValue && config.confValType === 'BOOLEAN') {
             config.formatValue = JSON.parse(config.configValue);
           }

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from '@/utils/lodash';
 import $ from 'jquery';
 import PerfectScrollbar from 'perfect-scrollbar';
 

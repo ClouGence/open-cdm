@@ -1,7 +1,6 @@
-import dayjs from 'dayjs';
-import moment from 'moment';
+import dayjs from '@/utils/dayjsSetup';
 import i18n from '@/i18n';
-import deepClone from 'lodash.clonedeep';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 import DataSourceGroup from '../views/dataSourceGroup.json';
 
 export const formatTime = (value, fmt = 'YYYY/MM/DD') => dayjs(value).format(fmt);
@@ -19,9 +18,9 @@ export const hasSchema = (type) => dsGroup.hasSchema.includes(type);
 export const noStruct = (type) => dsGroup.noStruct.includes(type);
 
 export const dateRange = {
-  1: [moment(), moment().add(1, 'd')],
-  7: [moment(), moment().add(1, 'w')],
-  30: [moment(), moment().add(1, 'M')]
+  1: [dayjs(), dayjs().add(1, 'd')],
+  7: [dayjs(), dayjs().add(1, 'w')],
+  30: [dayjs(), dayjs().add(1, 'M')]
 };
 
 export const isDb2 = (type) => DataSourceGroup.db2.includes(type);

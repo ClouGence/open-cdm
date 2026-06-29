@@ -262,7 +262,7 @@
 </template>
 
 <script lang="js">
-import cloneDeep from 'lodash.clonedeep';
+import { cloneDeep } from '@/utils/lodash';
 import AddMachineModal from '@/views/system/cluster/components/AddMachineModal';
 // import { Modal } from 'view-ui-plus';
 import { Modal } from 'ant-design-vue';

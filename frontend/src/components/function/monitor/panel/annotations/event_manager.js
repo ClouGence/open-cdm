@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import moment from 'moment';
+import _ from '@/utils/lodash';
+import dayjs from '@/utils/dayjsSetup';
 import tinycolor from 'tinycolor2';
 import { AnnotationEvent } from './event';
 import {
@@ -33,10 +33,10 @@ export class EventManager {
     }
 
     // update time
-    this.event.time = moment(range.from);
+    this.event.time = dayjs(range.from);
     this.event.isRegion = false;
     if (range.to) {
-      this.event.timeEnd = moment(range.to);
+      this.event.timeEnd = dayjs(range.to);
       this.event.isRegion = true;
     }
 

@@ -26,7 +26,7 @@ import {
   isRabbitMQ,
   MAPPING_METHOD
 } from '@/utils';
-import _ from 'lodash';
+import _ from '@/utils/lodash';
 import { parseCron } from '@/components/util';
 
 export default {

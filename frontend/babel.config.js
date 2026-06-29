@@ -6,10 +6,13 @@ if (process.env.NODE_ENV !== 'development') {
 module.exports = {
   presets: ['@vue/cli-plugin-babel/preset'],
   plugins: [
-    // ['import', {
-    //   libraryName: 'view-ui-plus',
-    //   libraryDirectory: 'src/components'
-    // }],
+    [
+      'import',
+      {
+        libraryName: 'view-ui-plus',
+        libraryDirectory: 'src/components'
+      }
+    ],
     '@vue/babel-plugin-jsx',
     ...prodPlugins
   ]

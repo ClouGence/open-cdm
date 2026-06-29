@@ -254,7 +254,7 @@
 <script lang="jsx">
 import dayjs from 'dayjs';
 import VTree from '@wsfe/vue-tree';
-import deepClone from 'lodash.clonedeep';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 import { mapGetters, mapState } from 'vuex';
 import i18n from '@/i18n';
 import { ELEMENT_REVERSE_TYPE_MAP, ELEMENT_TYPE_MAP, ELEMENT_TYPE_REF_MAP, START_RECORD_NAMES_CONUT } from './subaccount/auth/constant';
