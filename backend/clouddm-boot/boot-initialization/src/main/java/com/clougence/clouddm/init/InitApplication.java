@@ -37,6 +37,7 @@ import com.clougence.clouddm.console.web.global.handler.StaticResourceNoCacheFil
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.init.constant.I18nInitFieldKeys;
 import com.clougence.clouddm.init.service.InitWebsitePluginLoader;
+import com.clougence.clouddm.init.service.SysInitDefService;
 import com.clougence.utils.ShutdownHook;
 
 import jakarta.annotation.PostConstruct;
@@ -67,7 +68,7 @@ public class InitApplication implements WebMvcConfigurer {
 
     public static void main(String[] args) {
         Thread.setDefaultUncaughtExceptionHandler(new PrintErrorUncaughtExcHandler());
-        System.setProperty("server.port", System.getProperty("server.port", "8222"));
+        System.setProperty("server.port", resolveInitServerPort());
         System.setProperty("spring.config.name", "init");
         System.setProperty("spring.profiles.active", "init");
         System.setProperty("spring.web.resources.static-locations", resolveStaticLocations());
@@ -82,6 +83,14 @@ public class InitApplication implements WebMvcConfigurer {
 
         log.info("[DmAloneLauncher] Alone All Context Inited.");
         ShutdownHook.joinShutdown();
+    }
+
+    private static String resolveInitServerPort() {
+        String serverPort = new SysInitDefService().loadSystemProperties().getProperty("server.port");
+        if (serverPort != null && !serverPort.trim().isEmpty()) {
+            return serverPort.trim();
+        }
+        return "8222";
     }
 
     private static String resolveStaticLocations() {
