@@ -29,6 +29,8 @@ public interface DsPluginInfo extends PluginInfo {
 
     String getDsName();
 
+    boolean display();
+
     SqlBuilder getDsSqlBuilder();
 
     Dialect getDsDialect();

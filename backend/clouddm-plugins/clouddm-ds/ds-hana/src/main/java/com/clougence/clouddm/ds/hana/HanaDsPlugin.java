@@ -53,7 +53,7 @@ import com.clougence.schema.SchemaPlugin;
 @Plugin(name = "i18n::" + HanaDsI18nKeys.PLUGIN_NAME_HANA,              //
         includePackages = { "com.clougence.clouddm.dsfamily.execute.*", //
                             "com.clougence.clouddm.ds.hana.execute.*"   //
-        }, dsProduct = DataSourceType.Hana)
+        }, dsProduct = DataSourceType.Hana, display = false)
 public class HanaDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     @Override

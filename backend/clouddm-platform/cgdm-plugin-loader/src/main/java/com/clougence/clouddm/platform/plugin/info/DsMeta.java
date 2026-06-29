@@ -50,6 +50,7 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
     private final Map<String, Object>                dsFeatures;
     private final DataSourceType                     dsType;
     private final String                             dsName;
+    private final boolean                            display;
     private String                                   dsSessionFactory;
     private SqlBuilder                               dsSqlBuilder;
     private Dialect                                  dsDialect;
@@ -73,6 +74,7 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
             throw new InvalidClassException("Plugin dsProduct not support multi, class=" + pluginClass);
         }
         this.dsName = this.pluginInfo.getString("name");
+        this.display = this.pluginInfo.getBoolean("display", true);
     }
 
     @Override
@@ -89,6 +91,9 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
 
     @Override
     public String getDsName() { return this.dsName; }
+
+    @Override
+    public boolean display() { return this.display; }
 
     @Override
     public SqlBuilder getDsSqlBuilder() { return this.dsSqlBuilder; }

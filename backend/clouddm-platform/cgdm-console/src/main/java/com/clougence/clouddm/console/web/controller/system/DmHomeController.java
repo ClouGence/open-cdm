@@ -378,10 +378,19 @@ public class DmHomeController {
         }
         settings.getFmtConvertDef().sort(Comparator.comparing(FormatConvertDef::getName));
 
-        ArrayList<DataSourceType> dsList = new ArrayList<>(settings.getDsSettingDef().keySet());
+        ArrayList<DataSourceType> dsList = settings.getDsSettingDef()//
+            .keySet()
+            .stream()
+            .filter(this::displayDsPlugin)
+            .collect(Collectors.toCollection(ArrayList::new));
         settings.setDsSupportNames(groupDsTypesByDisplay(dsList).stream().map(this::toDsSupportNames).collect(Collectors.toList()));
 
         return ResWebDataUtils.buildSuccess(settings);
+    }
+
+    private boolean displayDsPlugin(DataSourceType dsType) {
+        DsPluginInfo dsPlugin = PluginManager.findDsPlugin(dsType);
+        return dsPlugin == null || dsPlugin.display();
     }
 
     private List<List<DataSourceType>> groupDsTypesByDisplay(List<DataSourceType> dsTypes) {

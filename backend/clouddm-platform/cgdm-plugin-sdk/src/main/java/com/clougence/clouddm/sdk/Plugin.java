@@ -30,6 +30,8 @@ public @interface Plugin {
 
     int order() default 1;
 
+    boolean display() default true;
+
     String[] includePackages() default {};
 
     String[] excludePackages() default {};
