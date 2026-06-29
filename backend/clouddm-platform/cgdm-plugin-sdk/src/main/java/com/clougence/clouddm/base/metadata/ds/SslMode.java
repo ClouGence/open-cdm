@@ -19,5 +19,7 @@ public enum SslMode {
     DISABLED,
     TRUST,
     CA,
+    TRUSTSTORE,
+    KEYSTORE_TRUSTSTORE,
     CLIENT_CERT
 }

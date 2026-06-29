@@ -152,6 +152,7 @@ public class UiWebUtil extends UiUtils {
             vo.setHide(uiField.isHide());
             vo.setActiveExpr(uiField.getActiveExpr());
             vo.setDefaultValue(toPlainObject(passerPanel(uiField.getDefaultValue())));
+            vo.setProps(uiField.getProps());
             if (uiField.getOptions() != null) {
                 vo.setOptions(uiField.getOptions().stream().map(UiWebUtil::addDsOption2VO).map(UiWebUtil::toPlainObject).collect(Collectors.toList()));
             } else {

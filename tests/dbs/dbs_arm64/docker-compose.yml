@@ -55,9 +55,9 @@ services:
     ports:
       - 2543:5432
     volumes:
-      - ../postgres_ssl/certs:/certs
-      - ../postgres_ssl/init:/docker-entrypoint-initdb.d:ro
-      - ../postgres_ssl/init-ssl.sh:/usr/local/bin/init-ssl.sh:ro
+      - ../certs:/certs
+      - ../postgres/init:/docker-entrypoint-initdb.d:ro
+      - ../postgres/init-ssl.sh:/usr/local/bin/init-ssl.sh:ro
     entrypoint:
       - bash
       - /usr/local/bin/init-ssl.sh
@@ -69,9 +69,9 @@ services:
       start_period: 30s
     restart: always
     # User/Password: postgres/123456
-    # SSL certs: ../postgres_ssl/certs
+    # SSL certs: ../certs
     # TRUST: sslmode=require
-    # CA: sslmode=verify-ca, sslrootcert=../postgres_ssl/certs/ca.crt
+    # CA: sslmode=verify-ca, sslrootcert=../certs/ca.crt
     # CLIENT_CERT: user=sslclient, sslmode=verify-full, sslrootcert=ca.crt, sslcert=client.crt, sslkey=client.pk8
 
   redis:
@@ -137,8 +137,8 @@ services:
       - 2312:3128
       - 2108:1080
     restart: always
-    # HTTP proxy: 127.0.0.1:2080
-    # SOCKS4/SOCKS5 proxy: 127.0.0.1:2085
+    # HTTP proxy: 127.0.0.1:2312
+    # SOCKS4/SOCKS5 proxy: 127.0.0.1:2108
 
   proxy_auth:
     image: 3proxy/3proxy:latest
@@ -150,6 +150,6 @@ services:
       - 2313:3128
       - 2109:1080
     restart: always
-    # HTTP proxy: 127.0.0.1:2081
-    # SOCKS5 proxy: 127.0.0.1:2086
+    # HTTP proxy: 127.0.0.1:2313
+    # SOCKS5 proxy: 127.0.0.1:2109
     # User/Password: proxyuser/123456

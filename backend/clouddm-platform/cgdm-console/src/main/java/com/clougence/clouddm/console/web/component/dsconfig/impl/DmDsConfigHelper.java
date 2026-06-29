@@ -36,6 +36,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DmDsConfigHelper {
 
+    public static final String CERTIFICATE_CONFIGURED_VALUE = "configured://certificate";
+
     public static <T extends DataSourceConfig> T initBaseFieldDefaultValue(T instance) {
         fillFieldValue(instance, DataSourceConfig.class, Map.of());
         return instance;
@@ -46,12 +48,16 @@ public class DmDsConfigHelper {
     }
 
     public static List<DsConfigKvDef> collectConfigs(Object instance) {
+        return collectConfigs(instance, false);
+    }
+
+    public static List<DsConfigKvDef> collectConfigs(Object instance, boolean includeLazyValue) {
         List<DsConfigKvDef> configs = new ArrayList<>();
-        collectConfigs(instance, instance.getClass(), configs);
+        collectConfigs(instance, instance.getClass(), configs, includeLazyValue);
         return configs;
     }
 
-    protected static void collectConfigs(Object instance, Class<?> clazz, List<DsConfigKvDef> configs) {
+    protected static void collectConfigs(Object instance, Class<?> clazz, List<DsConfigKvDef> configs, boolean includeLazyValue) {
         try {
             Field[] fields = clazz.getDeclaredFields();
 
@@ -69,13 +75,13 @@ public class DmDsConfigHelper {
                     val = String.valueOf(oriVal);
                 }
 
-                DsConfigKvDef configDO = genConfigDef(configDef, val, field.getType());
+                DsConfigKvDef configDO = genConfigDef(configDef, val, field.getType(), includeLazyValue);
 
                 configs.add(configDO);
             }
 
             if (clazz.getSuperclass() != null && clazz.getSuperclass() != Object.class) {
-                collectConfigs(instance, clazz.getSuperclass(), configs);
+                collectConfigs(instance, clazz.getSuperclass(), configs, includeLazyValue);
             }
         } catch (Exception e) {
             String msg = "collect field value failed,msg:" + ExceptionUtils.getRootCauseMessage(e);
@@ -85,6 +91,10 @@ public class DmDsConfigHelper {
     }
 
     protected static DsConfigKvDef genConfigDef(ConfigDef configDef, String val, Class<?> fieldType) {
+        return genConfigDef(configDef, val, fieldType, false);
+    }
+
+    protected static DsConfigKvDef genConfigDef(ConfigDef configDef, String val, Class<?> fieldType, boolean includeLazyValue) {
         DsConfigKvDef config = new DsConfigKvDef();
         config.setConfigName(configDef.name());
         config.setConfigGroup(configDef.group());
@@ -93,7 +103,7 @@ public class DmDsConfigHelper {
         config.setDescKey(configDef.descKey());
         config.setValueValidRegex(configDef.valueValidRegex());
         config.setValueRequire(StringUtils.isNotBlank(configDef.valueValidRegex()));
-        config.setConfigValue(configDef.lazy() ? "" : val);
+        config.setConfigValue(configValue(configDef, val, includeLazyValue));
         config.setDefaultValue(configDef.defaultValue());
         config.setConfValType(resolveValType(configDef, fieldType));
         config.setReadOnly(configDef.readOnly());
@@ -102,6 +112,18 @@ public class DmDsConfigHelper {
         config.setActiveField(configDef.activeField());
         config.setActiveEquals(configDef.activeEquals());
         return config;
+    }
+
+    private static String configValue(ConfigDef configDef, String val, boolean includeLazyValue) {
+        if (!configDef.lazy() || includeLazyValue) {
+            return val;
+        }
+        return isCertificateField(configDef.name()) && StringUtils.isNotBlank(val) ? CERTIFICATE_CONFIGURED_VALUE : "";
+    }
+
+    private static boolean isCertificateField(String configName) {
+        return StringUtils.equals(configName, DataSourceConfig.Fields.sslCaData) || StringUtils.equals(configName, DataSourceConfig.Fields.sslClientCertData)
+               || StringUtils.equals(configName, DataSourceConfig.Fields.sslClientKeyData);
     }
 
     private static ConfigValType resolveValType(ConfigDef configDef, Class<?> fieldType) {

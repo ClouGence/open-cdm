@@ -139,7 +139,7 @@ public class DmDsServiceImpl implements DmDsService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_BIND_CLUSTER_ID_REQUIRED_ERROR.name()));
         }
 
-        DataSourceConfig dsConfig = this.configService.fetchDsConfigFromExists(dsDO.getId());
+        DataSourceConfig dsConfig = this.configService.fetchFullDsConfigFromExists(dsDO.getId());
         return getVersion(clusterId, dsConfig);
     }
 
@@ -147,12 +147,23 @@ public class DmDsServiceImpl implements DmDsService {
         Map<UmiTypes, Object> levelsParam = new HashMap<>();
         try {
             SessionSpi spi = PluginManager.findSessionSpi(dsConfig.getDataSourceType());
+            if (spi == null) {
+                throw new UnsupportedOperationException("Unsupported " + dsConfig.getDataSourceType());
+            }
             SessionContextDTO ctxDTO = spi.createSessionContext(dsConfig, Collections.emptyMap());
             levelsParam.put(UmiTypes.Catalog, ctxDTO.getRdbCatalog());
             levelsParam.put(UmiTypes.Schema, ctxDTO.getRdbSchema());
-        } catch (Exception e) {
+        } catch (ErrorMessageException e) {
+            throw e;
+        } catch (IllegalArgumentException e) {
+            log.error(e.getMessage(), e);
+            throw new ErrorMessageException(e.getMessage());
+        } catch (UnsupportedOperationException e) {
             log.error(e.getMessage(), e);
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_UNSUPPORTED_ERROR.name(), dsConfig.getDataSourceType().name()));
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new ErrorMessageException(ExceptionUtils.getRootCauseMessage(e));
         }
 
         try {

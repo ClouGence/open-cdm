@@ -122,24 +122,40 @@ public class OraConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
         if (this.getSslMode() != null) {
             switch (this.getSslMode()) {
-                case CA -> {
+                case CA, TRUSTSTORE -> {
                     properties.setProperty("oracle.net.authentication_services", "(TCPS)");
-                    if (StringUtils.isNotBlank(this.getSslCaFilePath())) {
-                        properties.setProperty("javax.net.ssl.trustStore", this.getSslCaFilePath());
-                        properties.setProperty("javax.net.ssl.trustStoreType", "PKCS12");
+                    if (this.getSslMode() == SslMode.TRUSTSTORE && !hasSslCaConfig()) {
+                        throw new IllegalArgumentException("Oracle TrustStore is required.");
                     }
+                    applyTrustStore(properties);
+                }
+                case KEYSTORE_TRUSTSTORE -> {
+                    properties.setProperty("oracle.net.authentication_services", "(TCPS)");
+                    if (!hasSslCaConfig()) {
+                        throw new IllegalArgumentException("Oracle TrustStore is required.");
+                    }
+                    if (!hasSslClientCertConfig()) {
+                        throw new IllegalArgumentException("Oracle KeyStore is required.");
+                    }
+                    applyTrustStore(properties);
+                    applyKeyStore(properties);
                 }
                 case CLIENT_CERT -> {
                     properties.setProperty("oracle.net.authentication_services", "(TCPS)");
-                    if (StringUtils.isNotBlank(this.getSslCaFilePath())) {
-                        properties.setProperty("javax.net.ssl.trustStore", this.getSslCaFilePath());
-                        properties.setProperty("javax.net.ssl.trustStoreType", "PKCS12");
+                    if (!hasSslCaConfig()) {
+                        throw new IllegalArgumentException("Oracle CA certificate is required.");
                     }
+                    applyTrustStore(properties);
                     String keyStoreFilePath = StringUtils.isNotBlank(this.getSslClientKeyFilePath()) ? this.getSslClientKeyFilePath() : this.getSslClientCertFilePath();
-                    if (StringUtils.isNotBlank(keyStoreFilePath)) {
-                        properties.setProperty("javax.net.ssl.keyStore", keyStoreFilePath);
-                        properties.setProperty("javax.net.ssl.keyStoreType", "PKCS12");
+                    if (StringUtils.isBlank(keyStoreFilePath) && !hasSslClientKeyStoreConfig()) {
+                        throw new IllegalArgumentException("Oracle client KeyStore is required.");
                     }
+                    if (StringUtils.isBlank(keyStoreFilePath)) {
+                        break;
+                    }
+                    properties.setProperty("javax.net.ssl.keyStore", keyStoreFilePath);
+                    String keyStoreFormat = StringUtils.isNotBlank(this.getSslClientKeyFilePath()) ? this.getSslClientKeyFileFormat() : this.getSslClientCertFileFormat();
+                    properties.setProperty("javax.net.ssl.keyStoreType", keyStoreType(keyStoreFormat, "client certificate"));
                     if (StringUtils.isNotBlank(this.getSslClientKeyPassword())) {
                         properties.setProperty("javax.net.ssl.keyStorePassword", this.getSslClientKeyPassword());
                     }
@@ -149,5 +165,50 @@ public class OraConfig extends DataSourceConfig {
             }
         }
         return properties;
+    }
+
+    private boolean hasSslCaConfig() {
+        return StringUtils.isNotBlank(this.getSslCaFilePath()) || StringUtils.isNotBlank(this.getSslCaData());
+    }
+
+    private boolean hasSslClientCertConfig() {
+        return StringUtils.isNotBlank(this.getSslClientCertFilePath()) || StringUtils.isNotBlank(this.getSslClientCertData());
+    }
+
+    private boolean hasSslClientKeyStoreConfig() {
+        return hasSslClientCertConfig() || StringUtils.isNotBlank(this.getSslClientKeyFilePath()) || StringUtils.isNotBlank(this.getSslClientKeyData());
+    }
+
+    private void applyTrustStore(Properties properties) {
+        if (StringUtils.isBlank(this.getSslCaFilePath())) {
+            return;
+        }
+        properties.setProperty("javax.net.ssl.trustStore", this.getSslCaFilePath());
+        properties.setProperty("javax.net.ssl.trustStoreType", keyStoreType(this.getSslCaFileFormat(), "CA"));
+        if (StringUtils.isNotBlank(this.getSslCaPassword())) {
+            properties.setProperty("javax.net.ssl.trustStorePassword", this.getSslCaPassword());
+        }
+    }
+
+    private void applyKeyStore(Properties properties) {
+        if (StringUtils.isBlank(this.getSslClientCertFilePath())) {
+            return;
+        }
+        properties.setProperty("javax.net.ssl.keyStore", this.getSslClientCertFilePath());
+        properties.setProperty("javax.net.ssl.keyStoreType", keyStoreType(this.getSslClientCertFileFormat(), "client certificate"));
+        if (StringUtils.isNotBlank(this.getSslClientKeyPassword())) {
+            properties.setProperty("javax.net.ssl.keyStorePassword", this.getSslClientKeyPassword());
+        }
+    }
+
+    private String keyStoreType(String format, String usage) {
+        if (StringUtils.isBlank(format)) {
+            return "PKCS12";
+        }
+        return switch (format.toLowerCase()) {
+            case "p12", "pfx" -> "PKCS12";
+            case "jks" -> "JKS";
+            default -> throw new IllegalArgumentException("Oracle SSL " + usage + " file must be a KeyStore, unsupported format: " + format);
+        };
     }
 }

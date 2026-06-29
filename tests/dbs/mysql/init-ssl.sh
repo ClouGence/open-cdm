@@ -2,7 +2,9 @@
 set -euo pipefail
 
 SSL_DIR=/certs
-RUNTIME_SSL_DIR=/var/lib/postgresql/ssl
+RUNTIME_SSL_DIR=/var/lib/mysql-ssl
+STORE_PASSWORD=123456
+
 mkdir -p "${SSL_DIR}"
 
 if [ ! -f "${SSL_DIR}/ca.crt" ]; then
@@ -28,6 +30,8 @@ subjectAltName = @alt_names
 [alt_names]
 DNS.1 = localhost
 DNS.2 = postgres
+DNS.3 = mysql
+DNS.4 = oracle
 IP.1 = 127.0.0.1
 EOF
 
@@ -80,29 +84,33 @@ if [ ! -f "${SSL_DIR}/client.pk8" ]; then
     -nocrypt
 fi
 
+if [ ! -f "${SSL_DIR}/client.p12" ]; then
+  openssl pkcs12 -export \
+    -in "${SSL_DIR}/client.crt" \
+    -inkey "${SSL_DIR}/client.key" \
+    -certfile "${SSL_DIR}/ca.crt" \
+    -name mysql-client \
+    -out "${SSL_DIR}/client.p12" \
+    -passout "pass:${STORE_PASSWORD}"
+fi
+
+chmod 644 "${SSL_DIR}/client.p12"
+if [ -f "${SSL_DIR}/ca.p12" ]; then
+  chmod 644 "${SSL_DIR}/ca.p12"
+fi
+
 mkdir -p "${RUNTIME_SSL_DIR}"
 cp "${SSL_DIR}/ca.crt" "${RUNTIME_SSL_DIR}/ca.crt"
 cp "${SSL_DIR}/server.crt" "${RUNTIME_SSL_DIR}/server.crt"
 cp "${SSL_DIR}/server.key" "${RUNTIME_SSL_DIR}/server.key"
 
-cat > "${RUNTIME_SSL_DIR}/pg_hba.conf" <<'EOF'
-local all all trust
-hostssl all sslclient 0.0.0.0/0 cert clientcert=verify-full
-hostssl all sslclient ::/0 cert clientcert=verify-full
-hostssl all all 0.0.0.0/0 scram-sha-256
-hostssl all all ::/0 scram-sha-256
-hostnossl all all 0.0.0.0/0 scram-sha-256
-hostnossl all all ::/0 scram-sha-256
-EOF
-
-chown -R postgres:postgres "${RUNTIME_SSL_DIR}"
+chown -R mysql:mysql "${RUNTIME_SSL_DIR}"
 chmod 700 "${RUNTIME_SSL_DIR}"
 chmod 600 "${RUNTIME_SSL_DIR}/server.key"
-chmod 644 "${RUNTIME_SSL_DIR}/ca.crt" "${RUNTIME_SSL_DIR}/server.crt" "${RUNTIME_SSL_DIR}/pg_hba.conf"
+chmod 644 "${RUNTIME_SSL_DIR}/ca.crt" "${RUNTIME_SSL_DIR}/server.crt"
 
-exec docker-entrypoint.sh postgres \
-  -c ssl=on \
-  -c ssl_ca_file="${RUNTIME_SSL_DIR}/ca.crt" \
-  -c ssl_cert_file="${RUNTIME_SSL_DIR}/server.crt" \
-  -c ssl_key_file="${RUNTIME_SSL_DIR}/server.key" \
-  -c hba_file="${RUNTIME_SSL_DIR}/pg_hba.conf"
+exec docker-entrypoint.sh "$@" \
+  --ssl-ca="${RUNTIME_SSL_DIR}/ca.crt" \
+  --ssl-cert="${RUNTIME_SSL_DIR}/server.crt" \
+  --ssl-key="${RUNTIME_SSL_DIR}/server.key" \
+  --init-file=/docker-entrypoint-initdb.d/01-ssl-user.sql

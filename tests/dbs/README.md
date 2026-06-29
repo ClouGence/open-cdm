@@ -8,12 +8,16 @@
 tests/dbs
 ├── dbs_x86/docker-compose.yml      # x86 环境
 ├── dbs_arm64/docker-compose.yml    # arm64 环境
+├── certs/                          # MySQL、PostgreSQL 共用证书目录
+├── mysql/                          # MySQL 启动脚本和初始化 SQL（仅 x86 compose 挂载）
+├── oracle/                         # Oracle 初始化 SQL、TCPS 启动脚本和 listener wallet
+├── postgres/                       # PostgreSQL 启动脚本和初始化 SQL
 ├── proxy/3proxy.cfg                # 无认证 3proxy 配置
 ├── proxy-auth/3proxy.cfg           # 账号密码认证 3proxy 配置
 └── ssh/                            # SSH Server 使用的公私钥和初始化脚本
 ```
 
-`dbs_x86` 和 `dbs_arm64` 的宿主机暴露端口保持一致，只是镜像平台不同。同一台机器上不要同时启动两套 compose，除非先修改其中一套端口。
+`dbs_x86` 和 `dbs_arm64` 的常用服务端口基本保持一致，但能力不完全相同：x86 额外包含 SQL Server、DB2、MySQL 证书连接初始化，以及 Oracle TCPS 端口；arm64 只提供基础 MySQL、Oracle、PostgreSQL、Redis、MongoDB、ClickHouse、SSH 和代理服务。同一台机器上不要同时启动两套 compose，除非先修改其中一套端口。
 
 ## 启停命令
 
@@ -47,56 +51,60 @@ docker compose -f tests/dbs/dbs_x86/docker-compose.yml up -d --force-recreate ss
 
 ## 数据源连接信息
 
-宿主机直连时使用 `127.0.0.1` 和对外端口。
+- 宿主机直连时使用 `127.0.0.1` 和对外端口。
+- 代理或 SSH 通道，可以使用容器内服务名 + 对内端口。
 
-| 服务 | 容器内服务名 | 宿主机端口 | 容器内端口 | 用户名 | 密码 | 备注 |
-| --- | --- | ---: | ---: | --- | --- | --- |
-| MySQL | `mysql` | 2330 | 3306 | root | 123456 | database: `devtester` |
-| Oracle | `oracle` | 2521 | 1521 | devtester | 123456 | service: `DEVTESTDB` |
-| PostgreSQL | `postgres` | 2543 | 5432 | postgres | 123456 | database: `postgres` |
-| Redis | `redis` | 2639 | 6379 | - | 123456 | `requirepass` |
-| MongoDB | `mongo` | 2701 | 27017 | root | 123456 | admin 用户 |
-| SQL Server | `mssql` | 2143 | 1433 | sa | Share123456! | 仅 x86 compose |
-| DB2 | `db2` | 2500 | 50000 | db2inst1 | 123456 | 仅 x86 compose，database: `devtesterdb` |
-| ClickHouse HTTP | `clickhouse` | 2812 | 8123 | root | password123 | database: `default` |
-| ClickHouse Native | `clickhouse` | 2900 | 9000 | root | password123 | database: `default` |
+| 服务 | 容器内服务名 | Database/Service | 常规连接 | SSL（信任） | SSL（CA证书/单向） | SSL（双向） | 备注 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| MySQL | `mysql` | `devtester` | Port: `3306 (内)/2330 (外)`<br>用户: `root` / `123456` | x86: Port: `3306 (内)/2330 (外)`<br>用户: `root` / `123456`<br>证书: 不需要 | x86: Port: `3306 (内)/2330 (外)`<br>用户: `root` / `123456`<br>CA 证书: `certs/ca.p12`<br>CA 证书密码: 留空 | x86: Port: `3306 (内)/2330 (外)`<br>用户: `sslclient` / `123456`<br>CA 证书: `certs/ca.p12`<br>CA 证书密码: 留空<br>客户端 KeyStore: `certs/client.p12`<br>KeyStore 密码: `123456` | arm64 compose 未挂载 MySQL SSL 初始化；<br/>兼容文件: `ca-123456.p12`、`ca.jks`、`client.jks` |
+| Oracle | `oracle` | `DEVTESTDB` | Port: `1521 (内)/2521 (外)`<br>用户: `devtester` / `123456` | - | x86: Port: `2484 (内)/2484 (外)`<br>用户: `devtester` / `123456`<br>CA KeyStore: `certs/ca.p12`<br>KeyStore 密码: 留空 | x86: Port: `2485 (内)/2485 (外)`<br>用户: `devtester` / `123456`<br>CA KeyStore: `certs/ca.p12`<br>CA KeyStore 密码: 留空<br>客户端 KeyStore: `certs/client.p12`<br>KeyStore 密码: `123456` | x86 compose 使用 `oracle/wallet` 启动 TCPS listener |
+| PostgreSQL | `postgres` | `postgres` | Port: `5432 (内)/2543 (外)`<br>用户: `postgres` / `123456` | Port: `5432 (内)/2543 (外)`<br>用户: `postgres` / `123456`<br>证书: 不需要 | Port: `5432 (内)/2543 (外)`<br>用户: `postgres` / `123456`<br>CA 证书: `ca.crt` | Port: `5432 (内)/2543 (外)`<br>用户: `sslclient` / 留空<br>CA 证书: `ca.crt`<br>客户端证书: `client.crt`<br>客户端私钥: `client.pk8`<br>私钥短语: 留空 | x86 和 arm64 compose 共享同一套测试证书 |
+| Redis | `redis` | - | Port: `6379 (内)/2637 (外)`<br>密码: `123456` | - | - | - | `requirepass` |
+| MongoDB | `mongo` | `admin` | Port: `27017 (内)/2701 (外)`<br>用户: `root` / `123456` | - | - | - | admin 用户 |
+| SQL Server | `mssql` | - | Port: `1433 (内)/2143 (外)`<br>用户: `sa` / `Share123456!` | - | - | - | 仅 x86 compose |
+| DB2 | `db2` | `devtesterdb` | Port: `50000 (内)/2500 (外)`<br>用户: `db2inst1` / `123456` | - | - | - | 仅 x86 compose |
+| ClickHouse HTTP | `clickhouse` | `default` | Port: `8123 (内)/2812 (外)`<br>用户: `root` / `password123` | - | - | - | HTTP 端口 |
+| ClickHouse Native | `clickhouse` | `default` | Port: `9000 (内)/2900 (外)`<br>用户: `root` / `password123` | - | - | - | Native 端口 |
 
 通过 SSH 通道访问这些数据源时，数据源 Host 使用 compose 服务名，例如 `mysql`、`postgres`、`oracle`，端口使用容器内端口。不要把数据源 Host 写成 `127.0.0.1`，因为在 SSH 转发场景下它表示 SSH Server 容器自身。
 
-## PostgreSQL SSL
+## SSL 数据源配置方式
 
-PostgreSQL 用于验证数据源 SSL 配置。x86 和 arm64 compose 共享同一套测试证书，证书已经内置在 `tests/dbs/postgres_ssl/certs`，文档和测试可以直接引用这些文件。
+MySQL、Oracle 和 PostgreSQL 共用 `tests/dbs/certs` 根目录下的 CA、服务端证书和客户端证书。
 
-证书文件：
+公共证书文件：
+
+| 文件 | 类型 | 密码 | 用途 |
+| --- | --- | --- | --- |
+| `ca.crt` | PEM 文本 | - | CA 证书，适合 PostgreSQL JDBC/命令行 |
+| `ca.p12` | PKCS#12 TrustStore | 空密码 | CA 证书 TrustStore，适合 MySQL、Oracle JDBC |
+| `ca-123456.p12` | PKCS#12 TrustStore | `123456` | CA 证书 TrustStore 兼容版本 |
+| `ca.jks` | JKS TrustStore | `123456` | CA 证书 JKS 兼容版本 |
+| `client.crt` | PEM 文本 | - | 客户端证书，适合 PostgreSQL JDBC/命令行 |
+| `client.key` | PEM 文本 | - | 客户端私钥，适合命令行验证 |
+| `client.pk8` | PKCS#8 DER | - | 客户端私钥，适合 PostgreSQL JDBC/CloudDM |
+| `client.p12` | PKCS#12 KeyStore | `123456` | 客户端证书和私钥，适合 MySQL、Oracle JDBC |
+| `client.jks` | JKS KeyStore | `123456` | 客户端证书和私钥 JKS 兼容版本 |
+| `server.crt` | PEM 文本 | - | 服务端证书，容器启动时使用 |
+| `server.key` | PEM 文本 | - | 服务端私钥，容器启动时使用 |
+
+SSL 模式含义：
+
+| SSL 模式 | 含义 | 需要的证书字段 |
+| --- | --- | --- |
+| `DISABLED` | 不启用 SSL，使用普通 TCP 连接 | 不需要上传证书 |
+| `TRUST` | 启用 SSL，但不要求用户上传 CA 证书 | 不需要上传证书 |
+| `CA` | 单向 SSL，客户端校验服务端证书链 | 上传 CA 证书 |
+| `CLIENT_CERT` | 双向 SSL，客户端校验服务端证书链，服务端校验客户端证书 | 上传 CA 证书、客户端证书/私钥或客户端 KeyStore |
+
+Oracle listener 使用 `tests/dbs/oracle/wallet` 中预置的 auto-login wallet。该 wallet 使用 `tests/dbs/certs` 的服务端证书生成，2484 listener 不要求客户端证书，2485 listener 要求客户端证书。
+
+Oracle listener wallet 文件：
 
 | 文件 | 用途 |
 | --- | --- |
-| `ca.crt` | CA 证书 |
-| `ca.key` | CA 私钥，仅用于维护这套测试证书，CloudDM 配置不需要上传 |
-| `server.crt` | PostgreSQL Server 证书，容器启动时使用 |
-| `server.key` | PostgreSQL Server 私钥，容器启动时使用 |
-| `client.crt` | 客户端证书 |
-| `client.key` | 客户端 PEM 私钥，适合 `psql` 本地验证 |
-| `client.pk8` | 客户端 PKCS#8 DER 私钥，适合 PostgreSQL JDBC/CloudDM |
-
-CloudDM 数据源基础配置：
-
-| 配置项 | 值 |
-| --- | --- |
-| 数据源类型 | PostgreSQL |
-| Host | `127.0.0.1` |
-| Port | `2543` |
-| Database | `postgres` |
-| 用户名 | `postgres` |
-| 密码 | `123456` |
-
-SSL 模式配置：
-
-| SSL 模式 | 认证用户 | 需要的证书配置 |
-| --- | --- | --- |
-| `TRUST` | `postgres` / `123456` | 不需要上传证书 |
-| `CA` | `postgres` / `123456` | 上传 `ca.crt` 到 CA file |
-| `CLIENT_CERT` | `sslclient` / 留空 | 上传 `ca.crt`、`client.crt`、`client.pk8` |
+| `oracle/wallet/cwallet.sso` | 预生成 listener auto-login wallet，容器启动时挂载 |
+| `oracle/wallet/ewallet.p12` | 预生成 listener wallet，容器启动时挂载 |
 
 ## SSH Server
 
@@ -182,12 +190,12 @@ mysql -h 127.0.0.1 -P 13306 -uroot -p123456
 
 | 服务 | 认证 | 代理类型 | 宿主机地址 | 容器网络地址 | 用户名 | 密码 |
 | --- | --- | --- | --- | --- | --- | --- |
-| `proxy` | 无 | HTTP | `127.0.0.1:2080` | `proxy:3128` | - | - |
-| `proxy` | 无 | SOCKS4/SOCKS5 | `127.0.0.1:2085` | `proxy:1080` | - | - |
-| `proxy_auth` | 账号密码 | HTTP | `127.0.0.1:2081` | `proxy_auth:3128` | proxyuser | 123456 |
-| `proxy_auth` | 账号密码 | SOCKS5 | `127.0.0.1:2086` | `proxy_auth:1080` | proxyuser | 123456 |
+| `proxy` | 无 | HTTP | `127.0.0.1:2312` | `proxy:3128` | - | - |
+| `proxy` | 无 | SOCKS4/SOCKS5 | `127.0.0.1:2108` | `proxy:1080` | - | - |
+| `proxy_auth` | 账号密码 | HTTP | `127.0.0.1:2313` | `proxy_auth:3128` | proxyuser | 123456 |
+| `proxy_auth` | 账号密码 | SOCKS5 | `127.0.0.1:2109` | `proxy_auth:1080` | proxyuser | 123456 |
 
-从宿主机上的 CloudDM/Sidecar 通过代理访问 SSH Server 时，CloudDM/Sidecar 先连接宿主机暴露的代理端口，再由代理容器连接 SSH Server。链路是 `127.0.0.1:2080/2085 -> ssh_server:22 -> 数据源服务名:容器内端口`。为了明确验证是否经过代理，SSH Host 使用容器网络内的 SSH 服务地址：
+从宿主机上的 CloudDM/Sidecar 通过代理访问 SSH Server 时，CloudDM/Sidecar 先连接宿主机暴露的代理端口，再由代理容器连接 SSH Server。链路是 `127.0.0.1:2312/2108 -> ssh_server:22 -> 数据源服务名:容器内端口`。为了明确验证是否经过代理，SSH Host 使用容器网络内的 SSH 服务地址：
 
 | 配置项 | 值 |
 | --- | --- |
@@ -195,12 +203,12 @@ mysql -h 127.0.0.1 -P 13306 -uroot -p123456
 | SSH Port | `22` |
 | 代理类型 | HTTP、SOCKS4 或 SOCKS5 |
 | 代理主机 | `127.0.0.1` |
-| 代理端口 | 无认证：HTTP 使用 `2080`，SOCKS4/SOCKS5 使用 `2085`；账号密码认证：HTTP 使用 `2081`，SOCKS5 使用 `2086` |
+| 代理端口 | 无认证：HTTP 使用 `2312`，SOCKS4/SOCKS5 使用 `2108`；账号密码认证：HTTP 使用 `2313`，SOCKS5 使用 `2109` |
 | 代理认证 | 按上表选择无认证或账号密码 |
 
 ### 通过代理和 SSH 访问 MySQL
 
-该例子用于验证完整链路：`CloudDM/Sidecar -> proxy:1080 -> ssh_server:22 -> mysql:3306`。
+该例子用于验证完整链路：`CloudDM/Sidecar -> 127.0.0.1:2108 -> proxy:1080 -> ssh_server:22 -> mysql:3306`。
 
 SSH 通道配置：
 
@@ -213,7 +221,7 @@ SSH 通道配置：
 | 密码 | `123456` |
 | 代理类型 | SOCKS5 |
 | 代理主机 | `127.0.0.1` |
-| 代理端口 | `2085` |
+| 代理端口 | `2108` |
 | 代理认证 | 无 |
 
 数据源配置：
@@ -232,7 +240,7 @@ SSH 通道配置：
 | --- | --- |
 | 代理类型 | SOCKS5 |
 | 代理主机 | `127.0.0.1` |
-| 代理端口 | `2086` |
+| 代理端口 | `2109` |
 | 代理认证 | 账号密码 |
 | 代理用户名 | `proxyuser` |
 | 代理密码 | `123456` |

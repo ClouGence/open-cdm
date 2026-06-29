@@ -16,6 +16,7 @@
 package com.clougence.clouddm.base.metadata.ui.form;
 
 import java.util.List;
+import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ui.form.value.ValueDef;
 import com.clougence.utils.i18n.I18nUtils;
@@ -30,20 +31,21 @@ import lombok.experimental.Tolerate;
 @Setter
 public class UiPanelField extends UiChildren implements UiI18n {
 
-    private String           field;
-    private UiPanelFieldType type;
-    private TypeConfig       typeConfig;
-    private boolean          require;
-    private boolean          readOnly;
-    private boolean          addReadOnly;
-    private boolean          deleteReadOnly;
-    private boolean          hide;
-    private UiActiveExpr     activeExpr;
-    private ValueDef         defaultValue;
-    private List<ValueDef>   options;
+    private String              field;
+    private UiPanelFieldType    type;
+    private TypeConfig          typeConfig;
+    private boolean             require;
+    private boolean             readOnly;
+    private boolean             addReadOnly;
+    private boolean             deleteReadOnly;
+    private boolean             hide;
+    private UiActiveExpr        activeExpr;
+    private ValueDef            defaultValue;
+    private List<ValueDef>      options;
+    private Map<String, Object> props;
 
-    private String           titleI18N;
-    private String           descI18N;
+    private String              titleI18N;
+    private String              descI18N;
 
     @Tolerate
     public UiPanelField(){
@@ -82,6 +84,7 @@ public class UiPanelField extends UiChildren implements UiI18n {
         this.activeExpr = newValue.activeExpr;
         this.defaultValue = newValue.defaultValue;
         this.options = newValue.options;
+        this.props = newValue.props;
         this.titleI18N = newValue.titleI18N;
         this.descI18N = newValue.descI18N;
         this.children = newValue.children;

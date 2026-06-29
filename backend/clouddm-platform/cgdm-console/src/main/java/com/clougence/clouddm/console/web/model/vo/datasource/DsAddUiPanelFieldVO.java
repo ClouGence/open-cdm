@@ -16,6 +16,7 @@
 package com.clougence.clouddm.console.web.model.vo.datasource;
 
 import java.util.List;
+import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ui.form.UiActiveExpr;
 
@@ -26,18 +27,19 @@ import lombok.Setter;
 @Setter
 public class DsAddUiPanelFieldVO {
 
-    private String                       field;
-    private String                       type;
-    private Object                       typeConfig;
-    private boolean                      require;
-    private boolean                      readOnly;
-    private boolean                      addReadOnly;
-    private boolean                      deleteReadOnly;
-    private boolean                      hide;
-    private UiActiveExpr                 activeExpr;
-    private Object                       defaultValue;
-    private List<Object>                 options;
-    private String                       titleI18N;
-    private String                       descI18N;
-    private List<DsAddUiPanelFieldVO>    children;
+    private String                    field;
+    private String                    type;
+    private Object                    typeConfig;
+    private boolean                   require;
+    private boolean                   readOnly;
+    private boolean                   addReadOnly;
+    private boolean                   deleteReadOnly;
+    private boolean                   hide;
+    private UiActiveExpr              activeExpr;
+    private Object                    defaultValue;
+    private List<Object>              options;
+    private Map<String, Object>       props;
+    private String                    titleI18N;
+    private String                    descI18N;
+    private List<DsAddUiPanelFieldVO> children;
 }

@@ -41,6 +41,18 @@
             data_source_id = #{dsId}
     </select>
 
+    <select id="listByDsIdExcludeConfigNames" resultMap="dmDsKvBaseConfigDO">
+        SELECT
+            <include refid="dmDsKvBaseConfig"/>
+        FROM
+            dm_ds_config_kv_4dm
+        WHERE
+            data_source_id = #{dsId}
+            <if test="configNames != null and configNames.size() > 0">
+                AND config_name not in <foreach collection="configNames" item="item" separator="," open="(" close=")">#{item}</foreach>
+            </if>
+    </select>
+
     <select id="listByDsIdAndConfigNames" resultMap="dmDsKvBaseConfigDO">
         SELECT
             <include refid="dmDsKvBaseConfig"/>

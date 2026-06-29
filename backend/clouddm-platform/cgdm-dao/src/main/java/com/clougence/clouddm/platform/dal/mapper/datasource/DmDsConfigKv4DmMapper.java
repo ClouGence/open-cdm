@@ -31,7 +31,9 @@ public interface DmDsConfigKv4DmMapper extends BaseMapper<DmDsConfigKv4DmDO> {
 
     List<DmDsConfigKv4DmDO> listByDsId(@Param("dsId") long dsId);
 
-    List<DmDsConfigKv4DmDO> listByDsIdAndConfigNames(long dsId, List<String> configNames);
+    List<DmDsConfigKv4DmDO> listByDsIdExcludeConfigNames(@Param("dsId") long dsId, @Param("configNames") List<String> configNames);
+
+    List<DmDsConfigKv4DmDO> listByDsIdAndConfigNames(@Param("dsId") long dsId, @Param("configNames") List<String> configNames);
 
     List<DmDsConfigKv4DmDO> listByConfigName(String configName);
 

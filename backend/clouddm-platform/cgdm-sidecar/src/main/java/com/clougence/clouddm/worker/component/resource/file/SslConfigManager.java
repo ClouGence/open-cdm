@@ -54,9 +54,14 @@ public class SslConfigManager {
         SslConfig result = new SslConfig();
         result.setMode(dsConfig.getSslMode());
         result.setClientKeyPassword(dsConfig.getSslClientKeyPassword());
-        if (dsConfig.getSslMode() == SslMode.CA || dsConfig.getSslMode() == SslMode.CLIENT_CERT) {
+        if (dsConfig.getSslMode() == SslMode.CA || dsConfig.getSslMode() == SslMode.TRUSTSTORE || dsConfig.getSslMode() == SslMode.KEYSTORE_TRUSTSTORE
+            || dsConfig.getSslMode() == SslMode.CLIENT_CERT) {
             String caData = configData(dsConfig.getSslCaData(), sslConfigData, DataSourceConfig.Fields.sslCaData);
             result.setCaFile(localFile(dsConfig, DataSourceConfig.Fields.sslCaData, caData, "ca-certificate"));
+        }
+        if (dsConfig.getSslMode() == SslMode.KEYSTORE_TRUSTSTORE) {
+            String keyStoreData = configData(dsConfig.getSslClientCertData(), sslConfigData, DataSourceConfig.Fields.sslClientCertData);
+            result.setClientCertFile(localFile(dsConfig, DataSourceConfig.Fields.sslClientCertData, keyStoreData, "client-keystore"));
         }
         if (dsConfig.getSslMode() == SslMode.CLIENT_CERT) {
             String clientCertData = configData(dsConfig.getSslClientCertData(), sslConfigData, DataSourceConfig.Fields.sslClientCertData);
@@ -71,7 +76,12 @@ public class SslConfigManager {
         List<String> configNames = new ArrayList<>();
         switch (dsConfig.getSslMode()) {
             case CA:
+            case TRUSTSTORE:
                 addRemoteFetchConfigNameIfNecessary(configNames, dsConfig, DataSourceConfig.Fields.sslCaData, dsConfig.getSslCaData());
+                break;
+            case KEYSTORE_TRUSTSTORE:
+                addRemoteFetchConfigNameIfNecessary(configNames, dsConfig, DataSourceConfig.Fields.sslCaData, dsConfig.getSslCaData());
+                addRemoteFetchConfigNameIfNecessary(configNames, dsConfig, DataSourceConfig.Fields.sslClientCertData, dsConfig.getSslClientCertData());
                 break;
             case CLIENT_CERT:
                 addRemoteFetchConfigNameIfNecessary(configNames, dsConfig, DataSourceConfig.Fields.sslCaData, dsConfig.getSslCaData());
@@ -121,7 +131,7 @@ public class SslConfigManager {
         if (fileData.length == 0) {
             throw new IOException("SSL config file data is empty, dsId=" + dsConfig.getInstanceId() + ", configName=" + configName);
         }
-        if (DataSourceConfig.Fields.sslCaData.equals(configName)) {
+        if (DataSourceConfig.Fields.sslCaData.equals(configName) && shouldValidateAsX509Certificate(format)) {
             validateCaCertificate(dsConfig, fileData);
         }
 
@@ -181,6 +191,10 @@ public class SslConfigManager {
         }
         String format = data.substring(0, index).toLowerCase().replaceAll("[^a-z0-9]", "");
         return format.isBlank() ? "pem" : format;
+    }
+
+    private boolean shouldValidateAsX509Certificate(String format) {
+        return Set.of("crt", "cer", "pem").contains(format);
     }
 
     private byte[] decode(String data) {

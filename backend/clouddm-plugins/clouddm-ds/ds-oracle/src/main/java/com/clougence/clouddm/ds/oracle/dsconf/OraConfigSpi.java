@@ -139,7 +139,7 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
 
     @Override
     public List<SslMode> sslModeSet() {
-        return List.of(SslMode.CA, SslMode.CLIENT_CERT);
+        return List.of(SslMode.TRUSTSTORE, SslMode.KEYSTORE_TRUSTSTORE);
     }
 
     @Override

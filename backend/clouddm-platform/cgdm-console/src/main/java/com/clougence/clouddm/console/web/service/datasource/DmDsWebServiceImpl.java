@@ -32,6 +32,7 @@ import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
+import com.clougence.clouddm.console.web.component.dsconfig.impl.DmDsConfigHelper;
 import com.clougence.clouddm.console.web.component.dsconfig.impl.DmDsConfigUiDataFactory;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
@@ -65,6 +66,7 @@ import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.rdp.service.RdpNotifyService;
 import com.clougence.utils.CollectionUtils;
+import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 
@@ -350,8 +352,9 @@ public class DmDsWebServiceImpl implements DmDsWebService {
         }
 
         Map<String, String> configMap = resolveConfigMap(fo);
-        DmDsDO entity = resolveSubmitEntity(fo, configMap);
-        DataSourceConfig dsConfig = this.configService.fetchDsConfigFromNotExist(entity, configMap);
+        Map<String, String> mergedConfigMap = mergeExistingConfig(oldDs.getId(), configMap);
+        DmDsDO entity = resolveSubmitEntity(fo, mergedConfigMap);
+        DataSourceConfig dsConfig = this.configService.fetchDsConfigFromNotExist(entity, mergedConfigMap);
 
         DmDsDO updateDO = new DmDsDO();
         updateDO.setId(oldDs.getId());
@@ -378,18 +381,54 @@ public class DmDsWebServiceImpl implements DmDsWebService {
     @Override
     public ConnectDsResultVO testConnect(String uid, DsConfigSubmitFO fo) {
         Map<String, String> configMap = resolveConfigMap(fo);
-        DataSourceType dsType = DataSourceType.valueOf(configMap.get(DataSourceConfig.Fields.dataSourceType));
+        Map<String, String> runtimeConfigMap = fo.getDsId() == null || fo.getDsId() <= 0 ? configMap : mergeExistingConfig(fo.getDsId(), configMap);
+        DataSourceType dsType = DataSourceType.valueOf(runtimeConfigMap.get(DataSourceConfig.Fields.dataSourceType));
         ConnectDsResultVO result = new ConnectDsResultVO();
         try {
-            String version = this.dmDsService.testConnect(buildConnectDsFO(fo, dsType, configMap));
+            String version = this.dmDsService.testConnect(buildConnectDsFO(fo, dsType, runtimeConfigMap));
             result.setSuccess(true);
             result.setVersion(version);
         } catch (Exception e) {
             log.error("connectDs failed, uid={}, clusterId={}, dsType={}, {}", uid, fo.getClusterId(), dsType, e.getMessage(), e);
             result.setSuccess(false);
-            result.setMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_TEST_CONNECT_ERROR.name(), e.getMessage()));
+            result.setMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_TEST_CONNECT_ERROR.name(), connectErrorMessage(e, dsType)));
         }
         return result;
+    }
+
+    private String connectErrorMessage(Exception e, DataSourceType dsType) {
+        String message = ExceptionUtils.getRootCauseMessage(e);
+        if (StringUtils.isBlank(message)) {
+            message = e.getMessage();
+        }
+        return shortenConnectError(stripExceptionPrefix(message), dsType);
+    }
+
+    private String stripExceptionPrefix(String message) {
+        if (StringUtils.isBlank(message)) {
+            return message;
+        }
+        String result = message;
+        while (true) {
+            String stripped = result.replaceFirst("^(?:[\\w.$]+Exception|[\\w.$]+Error):\\s*", "");
+            if (stripped.equals(result)) {
+                return result;
+            }
+            result = stripped;
+        }
+    }
+
+    private String shortenConnectError(String message, DataSourceType dsType) {
+        if (StringUtils.isBlank(message)) {
+            return message;
+        }
+        if (StringUtils.contains(message, "failed to decrypt safe contents entry") || StringUtils.contains(message, "BadPaddingException")) {
+            if (dsType == DataSourceType.MySQL) {
+                return "MySQL KeyStore/TrustStore password is incorrect.";
+            }
+            return "KeyStore/TrustStore password is incorrect.";
+        }
+        return message;
     }
 
     private ConnectDsFO buildConnectDsFO(DsConfigSubmitFO fo, DataSourceType dsType, Map<String, String> configMap) {
@@ -453,6 +492,17 @@ public class DmDsWebServiceImpl implements DmDsWebService {
             .stream()
             .collect(Collectors.toMap(DsConfigKvDef::getConfigName, configDef -> configDef));
         return this.uiDataFactory.toKvMap(fo.getDsType(), configDefMap, configMap);
+    }
+
+    private Map<String, String> mergeExistingConfig(long dsId, Map<String, String> configMap) {
+        DataSourceConfig dsConfig = this.configService.fetchFullDsConfigFromExists(dsId);
+        Map<String, String> mergedConfigMap = DmDsConfigHelper.collectConfigs(dsConfig, true)
+            .stream()
+            .collect(Collectors.toMap(DsConfigKvDef::getConfigName, DsConfigKvDef::getConfigValue, (oldVal, newVal) -> newVal, LinkedHashMap::new));
+        if (configMap != null) {
+            mergedConfigMap.putAll(configMap);
+        }
+        return mergedConfigMap;
     }
 
     private DmDsDO resolveSubmitEntity(DsConfigSubmitFO fo, Map<String, String> configMap) {

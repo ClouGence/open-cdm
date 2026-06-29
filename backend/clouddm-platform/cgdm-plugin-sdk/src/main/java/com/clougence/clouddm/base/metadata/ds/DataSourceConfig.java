@@ -102,16 +102,25 @@ public class DataSourceConfig {
     private String         sslCaData;
     @JsonIgnore
     private String         sslCaFilePath;
+    @JsonIgnore
+    private String         sslCaFileFormat;
+    @ConfigDef(name = Fields.sslCaPassword, //
+            group = DsConfigGroup.SSH_SSL, labelKey = ConfigI18nKey.CONFIG_DS_SSL_CA_PASSWORD_LABEL, descKey = ConfigI18nKey.CONFIG_ADD_DS_SSL_CA_PASSWORD_DESC, isSecret = true, readOnly = false)
+    private String         sslCaPassword;
     @ConfigDef(name = Fields.sslClientCertData, //
             group = DsConfigGroup.SSH_SSL, labelKey = ConfigI18nKey.CONFIG_DS_SSL_CLIENT_CERT_DATA_LABEL, descKey = ConfigI18nKey.CONFIG_ADD_DS_SSL_CLIENT_CERT_DATA_DESC, isSecret = true, lazy = true, readOnly = false)
     private String         sslClientCertData;
     @JsonIgnore
     private String         sslClientCertFilePath;
+    @JsonIgnore
+    private String         sslClientCertFileFormat;
     @ConfigDef(name = Fields.sslClientKeyData, //
             group = DsConfigGroup.SSH_SSL, labelKey = ConfigI18nKey.CONFIG_DS_SSL_CLIENT_KEY_DATA_LABEL, descKey = ConfigI18nKey.CONFIG_ADD_DS_SSL_CLIENT_KEY_DATA_DESC, isSecret = true, lazy = true, readOnly = false)
     private String         sslClientKeyData;
     @JsonIgnore
     private String         sslClientKeyFilePath;
+    @JsonIgnore
+    private String         sslClientKeyFileFormat;
     @ConfigDef(name = Fields.sslClientKeyPassword, //
             group = DsConfigGroup.SSH_SSL, labelKey = ConfigI18nKey.CONFIG_DS_SSL_CLIENT_KEY_PASSWORD_LABEL, descKey = ConfigI18nKey.CONFIG_ADD_DS_SSL_CLIENT_KEY_PASSWORD_DESC, isSecret = true, readOnly = false)
     private String         sslClientKeyPassword;

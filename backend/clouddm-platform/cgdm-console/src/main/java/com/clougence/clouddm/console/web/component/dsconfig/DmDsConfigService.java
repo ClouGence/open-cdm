@@ -47,6 +47,8 @@ public interface DmDsConfigService {
 
     DataSourceConfig fetchDsConfigFromExists(long dsId);
 
+    DataSourceConfig fetchFullDsConfigFromExists(long dsId);
+
     List<DsConfigKvDef> fetchDsConfigDef(DataSourceType dsType);
 
     List<DsConfigKvDef> fetchDsConfigDef(DataSourceType dsType, Map<String, String> defaultConfig);

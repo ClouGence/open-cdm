@@ -189,7 +189,12 @@ public class DmDsConfigServiceImplTest {
         DmDsMapper dsMapper = (DmDsMapper) Proxy.newProxyInstance(DmDsConfigServiceImplTest.class
             .getClassLoader(), new Class<?>[] { DmDsMapper.class }, (proxy, method, args) -> "selectById".equals(method.getName()) ? dsDO : null);
         DmDsConfigKv4DmMapper configMapper = (DmDsConfigKv4DmMapper) Proxy.newProxyInstance(DmDsConfigServiceImplTest.class
-            .getClassLoader(), new Class<?>[] { DmDsConfigKv4DmMapper.class }, (proxy, method, args) -> "listByDsId".equals(method.getName()) ? configs : null);
+            .getClassLoader(), new Class<?>[] { DmDsConfigKv4DmMapper.class }, (proxy, method, args) -> {
+                if ("listByDsId".equals(method.getName()) || "listByDsIdExcludeConfigNames".equals(method.getName())) {
+                    return configs;
+                }
+                return null;
+            });
 
         return (DataSourceDal) Proxy.newProxyInstance(DmDsConfigServiceImplTest.class.getClassLoader(), new Class<?>[] { DataSourceDal.class }, (proxy, method, args) -> {
             if ("dsMapper".equals(method.getName())) {
@@ -258,6 +263,15 @@ public class DmDsConfigServiceImplTest {
         public void customizePanels(Map<DsConfigGroup, UiPanel> panels) {
         }
 
+        @Override
+        public void customizeUiMap(Map<String, String> uiMap, Map<String, String> configMap) {
+        }
+
+        @Override
+        public Map<String, String> configMapFromUi(Map<String, String> configMap, Map<String, String> uiMap) {
+            return Collections.emptyMap();
+        }
+
         public boolean supportSSL() {
             return false;
         }
@@ -268,8 +282,23 @@ public class DmDsConfigServiceImplTest {
         }
 
         @Override
+        public boolean supportTx() {
+            return false;
+        }
+
+        @Override
         public List<SecurityType> securityTypes() {
             return Collections.emptyList();
+        }
+
+        @Override
+        public List<SslMode> sslModeSet() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public String defaultPort() {
+            return "3306";
         }
     }
 

@@ -17,10 +17,7 @@ package com.clougence.clouddm.ds.mysql.dsconf;
 
 import java.util.Properties;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigDef;
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
+import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.dsfamily.mysql.i18n.MyConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
@@ -77,27 +74,38 @@ public class MyConfig extends DataSourceConfig {
         properties.setProperty("sslMode", this.mySslMode());
         if (this.getSslMode() != null) {
             switch (this.getSslMode()) {
-                case CA -> {
-                    if (StringUtils.isNotBlank(this.getSslCaFilePath())) {
-                        properties.setProperty("trustCertificateKeyStoreUrl", "file:" + this.getSslCaFilePath());
-                        properties.setProperty("trustCertificateKeyStoreType", "PKCS12");
-                        properties.setProperty("trustCertificateKeyStorePassword", "");
-                        properties.setProperty("fallbackToSystemTrustStore", "false");
+                case CA, TRUSTSTORE -> {
+                    if (this.getSslMode() == SslMode.TRUSTSTORE && !hasSslCaConfig()) {
+                        throw new IllegalArgumentException("MySQL TrustStore is required.");
                     }
+                    applyTrustStore(properties);
+                }
+                case KEYSTORE_TRUSTSTORE -> {
+                    if (!hasSslCaConfig()) {
+                        throw new IllegalArgumentException("MySQL TrustStore is required.");
+                    }
+                    if (!hasSslClientCertConfig()) {
+                        throw new IllegalArgumentException("MySQL KeyStore is required.");
+                    }
+                    applyTrustStore(properties);
+                    applyClientKeyStore(properties);
                 }
                 case CLIENT_CERT -> {
-                    if (StringUtils.isNotBlank(this.getSslCaFilePath())) {
-                        properties.setProperty("trustCertificateKeyStoreUrl", "file:" + this.getSslCaFilePath());
-                        properties.setProperty("trustCertificateKeyStoreType", "PKCS12");
-                        properties.setProperty("trustCertificateKeyStorePassword", "");
-                        properties.setProperty("fallbackToSystemTrustStore", "false");
+                    if (!hasSslCaConfig()) {
+                        throw new IllegalArgumentException("MySQL CA certificate is required.");
                     }
+                    applyTrustStore(properties, "");
                     String clientKeyStoreFilePath = StringUtils.isNotBlank(this.getSslClientKeyFilePath()) ? this.getSslClientKeyFilePath() : this.getSslClientCertFilePath();
-                    if (StringUtils.isNotBlank(clientKeyStoreFilePath)) {
-                        properties.setProperty("clientCertificateKeyStoreUrl", "file:" + clientKeyStoreFilePath);
-                        properties.setProperty("clientCertificateKeyStoreType", "PKCS12");
-                        properties.setProperty("fallbackToSystemKeyStore", "false");
+                    if (StringUtils.isBlank(clientKeyStoreFilePath) && !hasSslClientKeyStoreConfig()) {
+                        throw new IllegalArgumentException("MySQL client KeyStore is required.");
                     }
+                    if (StringUtils.isBlank(clientKeyStoreFilePath)) {
+                        break;
+                    }
+                    properties.setProperty("clientCertificateKeyStoreUrl", "file:" + clientKeyStoreFilePath);
+                    String clientKeyStoreFormat = StringUtils.isNotBlank(this.getSslClientKeyFilePath()) ? this.getSslClientKeyFileFormat() : this.getSslClientCertFileFormat();
+                    properties.setProperty("clientCertificateKeyStoreType", keyStoreType(clientKeyStoreFormat, "client certificate"));
+                    properties.setProperty("fallbackToSystemKeyStore", "false");
                     if (StringUtils.isNotBlank(this.getSslClientKeyPassword())) {
                         properties.setProperty("clientCertificateKeyStorePassword", this.getSslClientKeyPassword());
                     }
@@ -116,13 +124,61 @@ public class MyConfig extends DataSourceConfig {
         return properties;
     }
 
+    private boolean hasSslCaConfig() {
+        return StringUtils.isNotBlank(this.getSslCaFilePath()) || StringUtils.isNotBlank(this.getSslCaData());
+    }
+
+    private boolean hasSslClientCertConfig() {
+        return StringUtils.isNotBlank(this.getSslClientCertFilePath()) || StringUtils.isNotBlank(this.getSslClientCertData());
+    }
+
+    private boolean hasSslClientKeyStoreConfig() {
+        return hasSslClientCertConfig() || StringUtils.isNotBlank(this.getSslClientKeyFilePath()) || StringUtils.isNotBlank(this.getSslClientKeyData());
+    }
+
+    private void applyTrustStore(Properties properties) {
+        applyTrustStore(properties, safeStr(this.getSslCaPassword()));
+    }
+
+    private void applyTrustStore(Properties properties, String password) {
+        if (StringUtils.isBlank(this.getSslCaFilePath())) {
+            return;
+        }
+        properties.setProperty("trustCertificateKeyStoreUrl", "file:" + this.getSslCaFilePath());
+        properties.setProperty("trustCertificateKeyStoreType", keyStoreType(this.getSslCaFileFormat(), "CA"));
+        properties.setProperty("trustCertificateKeyStorePassword", password);
+        properties.setProperty("fallbackToSystemTrustStore", "false");
+    }
+
+    private void applyClientKeyStore(Properties properties) {
+        if (StringUtils.isBlank(this.getSslClientCertFilePath())) {
+            return;
+        }
+        properties.setProperty("clientCertificateKeyStoreUrl", "file:" + this.getSslClientCertFilePath());
+        properties.setProperty("clientCertificateKeyStoreType", keyStoreType(this.getSslClientCertFileFormat(), "client certificate"));
+        properties.setProperty("clientCertificateKeyStorePassword", safeStr(this.getSslClientKeyPassword()));
+        properties.setProperty("fallbackToSystemKeyStore", "false");
+    }
+
+    private String keyStoreType(String format, String usage) {
+        if (StringUtils.isBlank(format)) {
+            return "PKCS12";
+        }
+        return switch (format.toLowerCase()) {
+            case "p12", "pfx" -> "PKCS12";
+            case "jks" -> "JKS";
+            default -> throw new IllegalArgumentException("MySQL SSL " + usage + " file must be a KeyStore");
+        };
+    }
+
     private String mySslMode() {
         if (getSslMode() == null) {
             return "DISABLED";
         }
         return switch (getSslMode()) {
             case TRUST -> "REQUIRED";
-            case CA -> "VERIFY_CA";
+            case CA, TRUSTSTORE -> "VERIFY_CA";
+            case KEYSTORE_TRUSTSTORE -> "VERIFY_IDENTITY";
             case CLIENT_CERT -> "VERIFY_IDENTITY";
             default -> "DISABLED";
         };

@@ -1,7 +1,7 @@
 <template>
   <div class="certificate-input-field">
     <RadioGroup v-model="inputMode" type="button" :disabled="disabled" class="certificate-input-field__mode" @on-change="handleInputModeChange">
-      <Radio :label="INPUT_MODE_TEXT">
+      <Radio v-if="supportText" :label="INPUT_MODE_TEXT">
         <Icon type="ios-create-outline" />
       </Radio>
       <Radio :label="INPUT_MODE_FILE">
@@ -62,10 +62,12 @@
 
 <script>
 const CERTIFICATE_FORMATS = ['pem', 'key', 'crt', 'cer', 'pk8', 'p12', 'pfx', 'jks'];
+const TEXT_CERTIFICATE_FORMATS = ['pem', 'key', 'crt', 'cer', 'pk8'];
 const TEXT_MAX_SIZE = 1024 * 1024;
 const BINARY_MAX_SIZE = 10 * 1024 * 1024;
 const INPUT_MODE_TEXT = 'text';
 const INPUT_MODE_FILE = 'file';
+const CERTIFICATE_CONFIGURED_VALUE = 'configured://certificate';
 
 export default {
   name: 'CertificateInputField',
@@ -97,26 +99,52 @@ export default {
     };
   },
   computed: {
+    certificateProps() {
+      return this.field.props || {};
+    },
+    supportText() {
+      return this.certificateProps['certificate.supportText'] !== false;
+    },
+    supportedFormats() {
+      const formats = this.certificateProps['certificate.fileTypes'];
+      if (!Array.isArray(formats) || formats.length === 0) {
+        return CERTIFICATE_FORMATS;
+      }
+      const supportedFormats = formats.map((format) => String(format || '').toLowerCase()).filter((format) => CERTIFICATE_FORMATS.includes(format));
+      return supportedFormats.length > 0 ? supportedFormats : CERTIFICATE_FORMATS;
+    },
+    supportedTextFormats() {
+      return this.supportedFormats.filter((format) => TEXT_CERTIFICATE_FORMATS.includes(format));
+    },
+    supportedFormatText() {
+      const formats = this.inputMode === INPUT_MODE_TEXT ? this.supportedTextFormats : this.supportedFormats;
+      return formats.map((format) => `.${format}`).join(' / ');
+    },
     limitTip() {
       if (this.inputMode === INPUT_MODE_TEXT) {
-        return this.$t('pem-key-crt-cer-jian-yi-bu-chao-guo-1mb');
+        return this.$t('wen-ben-jian-yi-bu-chao-guo-1mb');
       }
-      return this.$t('pem-key-crt-cer-jian-yi-bu-chao-guo-1mb') + '；' + this.$t('p12-pfx-jks-jian-yi-bu-chao-guo-10mb');
+      const hasTextFormat = this.supportedFormats.some((format) => TEXT_CERTIFICATE_FORMATS.includes(format));
+      const hasBinaryFormat = this.supportedFormats.some((format) => !TEXT_CERTIFICATE_FORMATS.includes(format));
+      if (hasTextFormat && hasBinaryFormat) {
+        return this.$t('wen-ben-jian-yi-bu-chao-guo-1mb') + '；' + this.$t('er-jin-zhi-wen-jian-jian-yi-bu-chao-guo-10mb');
+      }
+      return hasBinaryFormat ? this.$t('er-jin-zhi-wen-jian-jian-yi-bu-chao-guo-10mb') : this.$t('wen-ben-jian-yi-bu-chao-guo-1mb');
     },
     formatTip() {
-      if (this.inputMode === INPUT_MODE_TEXT) {
-        return this.$t('zheng-shu-wen-ben-zhi-chi-ge-shi');
-      }
-      return this.$t('zheng-shu-wen-jian-zhi-chi-ge-shi');
+      return `${this.$t('zhi-chi-ge-shi')}：${this.supportedFormatText}`;
     },
     acceptFormats() {
-      return CERTIFICATE_FORMATS.map((format) => `.${format}`).join(',');
+      return this.supportedFormats.map((format) => `.${format}`).join(',');
     },
     displayValue() {
       if (!this.form[this.field.field]) {
         return this.$t('zheng-shu-wei-pei-zhi');
       }
       return this.configuredFileName || this.$t('zheng-shu-yi-pei-zhi');
+    },
+    isConfiguredValue() {
+      return this.currentValue === CERTIFICATE_CONFIGURED_VALUE;
     },
     currentValue() {
       return this.form[this.field.field];
@@ -129,7 +157,11 @@ export default {
     currentValue: {
       immediate: true,
       handler(value) {
-        if (String(value || '').includes('://upload:')) {
+        if (!this.supportText) {
+          this.inputMode = INPUT_MODE_FILE;
+          return;
+        }
+        if (value === CERTIFICATE_CONFIGURED_VALUE || String(value || '').includes('://upload:')) {
           this.inputMode = INPUT_MODE_FILE;
         }
       }
@@ -142,6 +174,9 @@ export default {
       }
       this.textValue = '';
       this.selectedFile = null;
+      if (!this.supportText) {
+        this.inputMode = INPUT_MODE_FILE;
+      }
       this.clearError();
       this.dialogVisible = true;
     },
@@ -173,6 +208,11 @@ export default {
       if (!file) {
         return;
       }
+      const format = this.resolveFileFormat(file.name);
+      if (!format || !this.supportedTextFormats.includes(format)) {
+        this.setError(this.formatTip);
+        return;
+      }
       if (file.size > TEXT_MAX_SIZE) {
         this.setError(this.limitTip);
         return;
@@ -188,6 +228,10 @@ export default {
     },
     async confirmValue() {
       if (this.inputMode === INPUT_MODE_TEXT) {
+        if (!this.supportText) {
+          this.inputMode = INPUT_MODE_FILE;
+          return;
+        }
         if (!this.textValue) {
           this.setError(this.$t('qing-shu-ru-zheng-shu-huo-mi-yao-nei-rong'));
           return;
@@ -207,6 +251,11 @@ export default {
     },
     async uploadFile() {
       if (!this.selectedFile) {
+        if (this.isConfiguredValue) {
+          this.clearError();
+          this.dialogVisible = false;
+          return;
+        }
         this.setError(this.$t('qing-xuan-ze-wen-jian'));
         return;
       }
@@ -240,7 +289,7 @@ export default {
         return '';
       }
       const format = fileName.substring(index + 1).toLowerCase();
-      return CERTIFICATE_FORMATS.includes(format) ? format : '';
+      return this.supportedFormats.includes(format) ? format : '';
     },
     decodeText(bytes) {
       try {

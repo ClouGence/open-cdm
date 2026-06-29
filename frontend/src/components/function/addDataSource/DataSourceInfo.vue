@@ -18,7 +18,7 @@
           <div class="datasource-type-group" v-for="(dataSourceGroup, index) of dataSourceTypes" :key="index">
             <Radio translate="no" class="datasource-type-radio custom-radio" v-for="type of dataSourceGroup" :label="type.dsKey" :key="type.dsKey">
               <span class="datasource-type-card">
-                <DataSourceIcon class="datasource-type-icon" size="42px" :type="type.dsKey" leftMargin="0"></DataSourceIcon>
+                <DataSourceIcon class="datasource-type-icon" size="30px" :type="type.dsKey" leftMargin="0"></DataSourceIcon>
                 <span class="datasource-type-name" :title="type.displayName">
                   {{ type.displayName }}
                 </span>
@@ -82,6 +82,8 @@ const emptyHostList = () => [
     port: ''
   }
 ];
+
+const CERTIFICATE_CONFIGURED_VALUE = 'configured://certificate';
 
 export default {
   name: 'DataSourceInfo',
@@ -496,6 +498,9 @@ export default {
       }
     },
     addDsFieldDefaultValue(field) {
+      if (field.type === 'Password') {
+        return '';
+      }
       if (field.defaultValue !== null && field.defaultValue !== undefined) {
         if (typeof field.defaultValue === 'object' && Object.prototype.hasOwnProperty.call(field.defaultValue, 'value')) {
           return field.defaultValue.value;
@@ -573,9 +578,45 @@ export default {
         if (value === undefined || value === null) {
           return;
         }
+        if (value === CERTIFICATE_CONFIGURED_VALUE) {
+          return;
+        }
+        if (this.isPasswordField(key) && String(value) === '') {
+          return;
+        }
         configMap[key] = String(value);
       });
       return configMap;
+    },
+    isPasswordField(fieldName) {
+      return this.findAddDsField(fieldName)?.type === 'Password';
+    },
+    findAddDsField(fieldName) {
+      const findInFields = (fields = []) => {
+        for (const field of fields) {
+          if (field.field === fieldName) {
+            return field;
+          }
+          const child = findInFields(field.children || []);
+          if (child) {
+            return child;
+          }
+          for (const option of field.options || []) {
+            const optionChild = findInFields(option.children || []);
+            if (optionChild) {
+              return optionChild;
+            }
+          }
+        }
+        return null;
+      };
+      for (const panel of this.currentAddDsPanels) {
+        const field = findInFields(panel.children || []);
+        if (field) {
+          return field;
+        }
+      }
+      return null;
     },
     buildDsSubmitPayload() {
       this.syncAddDsUiFormToKvConfigs();
@@ -595,7 +636,7 @@ export default {
 
 <style lang="less" scoped>
 .add-datasource-step1 {
-  padding: 20px;
+  padding: 16px 18px;
 
   &.is-form-step {
     padding: 0;
@@ -619,8 +660,8 @@ export default {
   display: flex;
   width: 100%;
   flex-wrap: wrap;
-  gap: 12px 14px;
-  margin-bottom: 24px;
+  gap: 10px;
+  margin-bottom: 18px;
 
   &:last-child {
     margin-bottom: 0;
@@ -631,8 +672,8 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 216px;
-  height: 70px;
+  width: 160px;
+  height: 52px;
   margin: 0 !important;
   padding: 0;
   border-radius: 4px !important;
@@ -730,24 +771,24 @@ export default {
   width: 100%;
   height: 100%;
   align-items: center;
-  gap: 14px;
-  padding: 10px 16px;
+  gap: 10px;
+  padding: 8px 12px;
   text-align: left;
 }
 
 .datasource-type-icon {
   display: flex;
-  width: 48px;
-  flex: 0 0 48px;
+  width: 34px;
+  flex: 0 0 34px;
   align-items: center;
   justify-content: center;
-  height: 48px;
+  height: 34px;
   line-height: 1;
 
   :deep(> div) {
     display: inline-flex !important;
-    width: 48px;
-    height: 48px;
+    width: 34px;
+    height: 34px;
     align-items: center;
     justify-content: center;
   }
@@ -759,8 +800,8 @@ export default {
   min-width: 0;
   overflow: hidden;
   color: #17233d;
-  font-size: 16px;
-  line-height: 20px;
+  font-size: 14px;
+  line-height: 18px;
   white-space: normal;
   word-break: break-word;
   -webkit-line-clamp: 2;

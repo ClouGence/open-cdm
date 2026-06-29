@@ -7,9 +7,21 @@ services:
       - TZ=Asia/Shanghai
     ports:
       - 2330:3306
+    volumes:
+      - ../certs:/certs
+      - ../mysql/init:/docker-entrypoint-initdb.d:ro
+      - ../mysql/init-ssl.sh:/usr/local/bin/init-ssl.sh:ro
+    entrypoint:
+      - bash
+      - /usr/local/bin/init-ssl.sh
     restart: always
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time_zone='+8:00'
     # User/Password: root/123456
+    # SSL certs: ../certs
+    # Non SSL: root/123456 is still supported
+    # TRUST: sslMode=REQUIRED
+    # CA: sslMode=VERIFY_CA, trustCertificateKeyStoreUrl=file:ca.p12, trustCertificateKeyStoreType=PKCS12, trustCertificateKeyStorePassword=
+    # CLIENT_CERT: user=sslclient, password=123456, sslMode=VERIFY_IDENTITY, trustCertificateKeyStoreUrl=file:ca.p12, trustCertificateKeyStorePassword=, clientCertificateKeyStoreUrl=file:client.p12, clientCertificateKeyStorePassword=123456
 
   oracle:
     image: gvenzl/oracle-xe:21-slim
@@ -20,18 +32,13 @@ services:
       - APP_USER_PASSWORD=123456
     ports:
       - 2521:1521
+      - 2484:2484
+      - 2485:2485
+    volumes:
+      - ../oracle/init:/container-entrypoint-initdb.d:ro
+      - ../oracle/startdb:/container-entrypoint-startdb.d:ro
+      - ../oracle/wallet:/wallet:ro
     restart: always
-    entrypoint:
-      - bash
-      - -c
-      - |
-        cat > /container-entrypoint-initdb.d/01-init.sql <<'SQL'
-        GRANT CREATE MATERIALIZED VIEW TO devtester;
-        GRANT CREATE SYNONYM TO devtester;
-        GRANT CREATE TYPE TO devtester;
-        GRANT CREATE DATABASE LINK TO devtester;
-        SQL
-        exec container-entrypoint.sh
     healthcheck:
       test: [ "CMD", "healthcheck.sh" ]
       interval: 30s
@@ -46,6 +53,8 @@ services:
     # App User/Password: devtester/123456
     # PDB Service: DEVTESTDB
     # JDBC URL: jdbc:oracle:thin:@localhost:2521/DEVTESTDB
+    # TCPS CA: port 2484, trustStore=../certs/ca.p12, trustStoreType=PKCS12, trustStorePassword=
+    # TCPS CLIENT_CERT: port 2485, trustStore=../certs/ca.p12, keyStore=../certs/client.p12, keyStorePassword=123456
 
   postgres:
     image: postgres:16
@@ -55,9 +64,9 @@ services:
     ports:
       - 2543:5432
     volumes:
-      - ../postgres_ssl/certs:/certs
-      - ../postgres_ssl/init:/docker-entrypoint-initdb.d:ro
-      - ../postgres_ssl/init-ssl.sh:/usr/local/bin/init-ssl.sh:ro
+      - ../certs:/certs
+      - ../postgres/init:/docker-entrypoint-initdb.d:ro
+      - ../postgres/init-ssl.sh:/usr/local/bin/init-ssl.sh:ro
     entrypoint:
       - bash
       - /usr/local/bin/init-ssl.sh
@@ -69,9 +78,9 @@ services:
       start_period: 30s
     restart: always
     # User/Password: postgres/123456
-    # SSL certs: ../postgres_ssl/certs
+    # SSL certs: ../certs
     # TRUST: sslmode=require
-    # CA: sslmode=verify-ca, sslrootcert=../postgres_ssl/certs/ca.crt
+    # CA: sslmode=verify-ca, sslrootcert=../certs/ca.crt
     # CLIENT_CERT: user=sslclient, sslmode=verify-full, sslrootcert=ca.crt, sslcert=client.crt, sslkey=client.pk8
 
   redis:
@@ -157,8 +166,8 @@ services:
       - 2312:3128
       - 2108:1080
     restart: always
-    # HTTP proxy: 127.0.0.1:2080
-    # SOCKS4/SOCKS5 proxy: 127.0.0.1:2085
+    # HTTP proxy: 127.0.0.1:2312
+    # SOCKS4/SOCKS5 proxy: 127.0.0.1:2108
 
   proxy_auth:
     image: 3proxy/3proxy:latest
@@ -170,6 +179,6 @@ services:
       - 2313:3128
       - 2109:1080
     restart: always
-    # HTTP proxy: 127.0.0.1:2081
-    # SOCKS5 proxy: 127.0.0.1:2086
+    # HTTP proxy: 127.0.0.1:2313
+    # SOCKS5 proxy: 127.0.0.1:2109
     # User/Password: proxyuser/123456

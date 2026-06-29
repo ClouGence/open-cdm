@@ -83,8 +83,11 @@ public abstract class RdbSessionFactory<T extends DataSourceConfig> implements S
         }
 
         dsConfig.setSslCaFilePath(localPath(sslConfig.getCaFile()));
+        dsConfig.setSslCaFileFormat(format(sslConfig.getCaFile()));
         dsConfig.setSslClientCertFilePath(localPath(sslConfig.getClientCertFile()));
+        dsConfig.setSslClientCertFileFormat(format(sslConfig.getClientCertFile()));
         dsConfig.setSslClientKeyFilePath(localPath(sslConfig.getClientKeyFile()));
+        dsConfig.setSslClientKeyFileFormat(format(sslConfig.getClientKeyFile()));
     }
 
     private static String localPath(SslFile sslFile) {
@@ -92,6 +95,13 @@ public abstract class RdbSessionFactory<T extends DataSourceConfig> implements S
             return null;
         }
         return sslFile.getFile().getAbsolutePath();
+    }
+
+    private static String format(SslFile sslFile) {
+        if (sslFile == null) {
+            return null;
+        }
+        return sslFile.getFormat();
     }
 
 }

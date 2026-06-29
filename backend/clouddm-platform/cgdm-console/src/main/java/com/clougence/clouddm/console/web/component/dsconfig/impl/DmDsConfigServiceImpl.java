@@ -325,9 +325,19 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
 
     @Override
     public DataSourceConfig fetchDsConfigFromExists(long dsId) {
-        List<DmDsConfigKv4DmDO> configs = this.dsDal.configKv4DmMapper().listByDsId(dsId);
         DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
+        List<DmDsConfigKv4DmDO> configs = this.dsDal.configKv4DmMapper().listByDsIdExcludeConfigNames(dsId, lazyConfigNames(dsDO.getDataSourceType()));
+        return fetchDsConfigFromExists(dsDO, configs);
+    }
 
+    @Override
+    public DataSourceConfig fetchFullDsConfigFromExists(long dsId) {
+        DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
+        List<DmDsConfigKv4DmDO> configs = this.dsDal.configKv4DmMapper().listByDsId(dsId);
+        return fetchDsConfigFromExists(dsDO, configs);
+    }
+
+    private DataSourceConfig fetchDsConfigFromExists(DmDsDO dsDO, List<DmDsConfigKv4DmDO> configs) {
         Map<String, String> configMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(configs)) {
             configs.forEach(c -> {
@@ -341,9 +351,13 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         decryptValue(dsConfig, DataSourceConfig.class);
         decryptValue(dsConfig, dsConfig.getClass());
         log.info("fetch datasource config from dm, dsId={}, dsType={}, host={}, sshProxyEnabled={}, sshConfigId={}, rawSshProxyEnabled={}, rawSshConfigId={}",//
-                dsId, dsConfig.getDataSourceType(), dsConfig.getHost(), dsConfig.getSshProxyEnabled(), dsConfig.getSshConfigId(),//
+                dsDO.getId(), dsConfig.getDataSourceType(), dsConfig.getHost(), dsConfig.getSshProxyEnabled(), dsConfig.getSshConfigId(),//
                 configMap.get("sshProxyEnabled"), configMap.get("sshConfigId"));
         return dsConfig;
+    }
+
+    private List<String> lazyConfigNames(DataSourceType dsType) {
+        return this.fetchDsConfigDef(dsType).stream().filter(DsConfigKvDef::isLazy).map(DsConfigKvDef::getConfigName).collect(Collectors.toList());
     }
 
     private void decryptValue(DataSourceConfig dsConfig, Class<?> clazz) {
@@ -518,9 +532,21 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
             if (!DataSourceConfig.Fields.host.equals(configDef.getConfigName()) && uiDefaultConfig.containsKey(configDef.getConfigName())) {
                 configDef.setConfigValue(uiDefaultConfig.get(configDef.getConfigName()));
             }
+            if (isCertificateConfigured(configDef.getConfigName(), uiDefaultConfig)) {
+                configDef.setConfigValue(DmDsConfigHelper.CERTIFICATE_CONFIGURED_VALUE);
+            }
             fieldsByGroup.computeIfAbsent(configDef.getConfigGroup(), key -> new LinkedHashMap<>()).put(configDef.getConfigName(), configDef);
         }
         return new DmDsConfigUiPanelFactory().create(dsType, fieldsByGroup);
+    }
+
+    private boolean isCertificateConfigured(String configName, Map<String, String> configMap) {
+        if (!StringUtils.equals(configName, DataSourceConfig.Fields.sslCaData) && !StringUtils.equals(configName, DataSourceConfig.Fields.sslClientCertData)
+            && !StringUtils.equals(configName, DataSourceConfig.Fields.sslClientKeyData)) {
+            return false;
+        }
+        String configValue = configMap == null ? null : configMap.get(configName);
+        return StringUtils.isNotBlank(configValue);
     }
 
     @Override

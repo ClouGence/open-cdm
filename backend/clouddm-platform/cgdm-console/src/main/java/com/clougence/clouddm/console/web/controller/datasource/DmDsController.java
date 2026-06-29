@@ -63,6 +63,7 @@ import com.clougence.clouddm.console.web.util.RandomStrUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.UiWebUtil;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
@@ -74,6 +75,8 @@ import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.rdp.service.RdpDsEnvService;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.utils.CollectionUtils;
+import com.clougence.utils.ExceptionUtils;
+import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -92,6 +95,8 @@ public class DmDsController {
     private DmDsWebService       dsService;
     @Resource
     private DmDsService          dmDsService;
+    @Resource
+    private DataSourceDal        dsDal;
     @Resource
     private DmResAuthService     authService;
     @Resource
@@ -144,7 +149,7 @@ public class DmDsController {
             this.authServiceForBiz.checkResAuth(puid, uid, fo.getDsId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_READ, AuthKind.DataSource);
             dsDO = this.dmDsService.fetchAndCheckById(fo.getDsId());
             dsType = dsDO.getDataSourceType();
-            DataSourceConfig dsConfig = this.dsConfigService.fetchDsConfigFromExists(fo.getDsId());
+            DataSourceConfig dsConfig = this.dsConfigService.fetchFullDsConfigFromExists(fo.getDsId());
             defaultConfig = DmDsConfigHelper.collectConfigs(dsConfig)
                 .stream()
                 .collect(Collectors.toMap(DsConfigKvDef::getConfigName, DsConfigKvDef::getConfigValue, (oldVal, newVal) -> newVal, LinkedHashMap::new));
@@ -311,13 +316,49 @@ public class DmDsController {
         this.cacheDao.ownDataSource(puid, fo.getDataSourceId());
         this.authServiceForBiz.checkResAuth(puid, uid, fo.getDataSourceId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
 
+        DataSourceType dsType = null;
+        DmDsDO dsDO = this.dsDal.dsMapper().selectById(fo.getDataSourceId());
+        if (dsDO != null) {
+            dsType = dsDO.getDataSourceType();
+        }
+
         try {
             String version = this.dmDsService.testConnect(fo.getDataSourceId());
             return ResWebDataUtils.buildSuccess(version);
         } catch (Exception e) {
             log.error("testDsConnect failed, " + e.getMessage());
-            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_TEST_CONNECT_ERROR.name(), e.getMessage()));
+            return ResWebDataUtils.buildError(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_TEST_CONNECT_ERROR.name(), connectErrorMessage(e, dsType)));
         }
+    }
+
+    private String connectErrorMessage(Exception e, DataSourceType dsType) {
+        String message = ExceptionUtils.getRootCauseMessage(e);
+        if (StringUtils.isBlank(message)) {
+            message = e.getMessage();
+        }
+        if (StringUtils.isBlank(message)) {
+            return message;
+        }
+        while (true) {
+            String stripped = message.replaceFirst("^(?:[\\w.$]+Exception|[\\w.$]+Error):\\s*", "");
+            if (stripped.equals(message)) {
+                return shortenConnectError(message, dsType);
+            }
+            message = stripped;
+        }
+    }
+
+    private String shortenConnectError(String message, DataSourceType dsType) {
+        if (StringUtils.isBlank(message)) {
+            return message;
+        }
+        if (StringUtils.contains(message, "failed to decrypt safe contents entry") || StringUtils.contains(message, "BadPaddingException")) {
+            if (dsType == DataSourceType.MySQL) {
+                return "MySQL KeyStore/TrustStore password is incorrect.";
+            }
+            return "KeyStore/TrustStore password is incorrect.";
+        }
+        return message;
     }
 
     // form Utils

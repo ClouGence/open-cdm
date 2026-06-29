@@ -67,7 +67,7 @@ public class MyConfigSpi extends AbstractDsConfigSpi {
 
     @Override
     public List<SslMode> sslModeSet() {
-        return List.of(SslMode.TRUST, SslMode.CA, SslMode.CLIENT_CERT);
+        return List.of(SslMode.TRUST, SslMode.TRUSTSTORE, SslMode.KEYSTORE_TRUSTSTORE);
     }
 
     @Override

@@ -4069,6 +4069,7 @@
   "wen-ben": "Text",
   "wen-jian": "File",
   "wei-xuan-ze-wen-jian": "No file selected",
+  "mi-ma-yi-yin-cang": "<Hidden>",
   "zheng-shu-yi-pei-zhi": "Configured",
   "zheng-shu-wei-pei-zhi": "Not configured",
   "qing-shu-ru-zheng-shu-huo-mi-yao-wan-zheng-nei-rong": "Enter the full certificate or key content",
@@ -4079,6 +4080,9 @@
   "p12-pfx-jks-jian-yi-bu-chao-guo-10mb": "pk8/p12/pfx/jks should not exceed 10 MB",
   "zheng-shu-wen-ben-zhi-chi-ge-shi": "Supported formats: pem / key / crt / cer",
   "zheng-shu-wen-jian-zhi-chi-ge-shi": "Supported formats: pem / key / crt / cer / pk8 / p12 / pfx / jks",
+  "zhi-chi-ge-shi": "Supported formats",
+  "wen-ben-jian-yi-bu-chao-guo-1mb": "Text content should not exceed 1 MB",
+  "er-jin-zhi-wen-jian-jian-yi-bu-chao-guo-10mb": "Binary files should not exceed 10 MB",
   "wen-ben-mo-shi-zhi-zhi-chi-wen-ben-zheng-shu-wen-jian": "The selected file is not a text certificate. Switch to file mode to upload it.",
   "qing-zai-xia-fang-zhong-fu-shu-ru-gai-id": ". Repeat this ID below to confirm."
 }
