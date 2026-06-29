@@ -37,6 +37,8 @@ import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDriverService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
+import com.clougence.clouddm.console.web.component.dsconfig.impl.DmDsConfigHelper;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
@@ -46,7 +48,6 @@ import com.clougence.clouddm.console.web.model.fo.CheckDriverVersionFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.*;
 import com.clougence.clouddm.console.web.model.lo.UpdateDsDescLO;
 import com.clougence.clouddm.console.web.model.vo.DriverVersionStatusVO;
-import com.clougence.clouddm.console.web.model.vo.DsKvConfigVO;
 import com.clougence.clouddm.console.web.model.vo.cluster.ClusterVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.DmSimpleDsVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.DsBindEnvNodeVO;
@@ -131,14 +132,34 @@ public class DmDsController {
 
     @RequestAuth(DM_DS_MANAGE)
     @RequestMapping(value = "/fetchDsConfig", method = RequestMethod.POST)
-    public ResWebData<?> fetchDsConfig(@RequestBody @Valid FetchDsAddConfigFO fo) {
+    public ResWebData<?> fetchDsConfig(@RequestBody @Valid FetchDsAddConfigFO fo, HttpServletRequest request) {
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+        String uid = (String) request.getAttribute(RdpUserService.UID);
         DataSourceType dsType = fo.getDsType();
+        Map<String, String> defaultConfig = new LinkedHashMap<>();
+        DmDsDO dsDO = null;
+
+        if (fo.getDsId() != null && fo.getDsId() > 0) {
+            this.cacheDao.ownDataSource(puid, fo.getDsId());
+            this.authServiceForBiz.checkResAuth(puid, uid, fo.getDsId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_READ, AuthKind.DataSource);
+            dsDO = this.dmDsService.fetchAndCheckById(fo.getDsId());
+            dsType = dsDO.getDataSourceType();
+            DataSourceConfig dsConfig = this.dsConfigService.fetchDsConfigFromExists(fo.getDsId());
+            defaultConfig = DmDsConfigHelper.collectConfigs(dsConfig)
+                .stream()
+                .collect(Collectors.toMap(DsConfigKvDef::getConfigName, DsConfigKvDef::getConfigValue, (oldVal, newVal) -> newVal, LinkedHashMap::new));
+            defaultConfig.put("dsId", String.valueOf(fo.getDsId()));
+        }
 
         FetchDsAddConfigVO vo = new FetchDsAddConfigVO();
-        String instanceId = dsType.getShortName() + "-" + RandomStrUtils.fixedLenRandomStr(15);
+        String instanceId = dsDO == null ? dsType.getShortName() + "-" + RandomStrUtils.fixedLenRandomStr(15) : dsDO.getInstanceId();
+        vo.setDsId(dsDO == null ? null : dsDO.getId());
+        vo.setDsType(dsType);
+        vo.setEnvId(dsDO == null ? null : dsDO.getDsEnvId());
+        vo.setClusterId(dsDO == null ? null : dsDO.getBindClusterId());
         vo.setInstanceId(instanceId);
-        vo.setInstanceName(instanceId);
-        vo.setPanels(UiWebUtil.addDsUiPanels2VO(this.dsConfigService.fetchDsConfigPanels(dsType)));
+        vo.setInstanceName(dsDO == null ? instanceId : dsDO.getInstanceDesc());
+        vo.setPanels(UiWebUtil.addDsUiPanels2VO(this.dsConfigService.fetchDsConfigPanels(dsType, defaultConfig)));
 
         return ResWebDataUtils.buildSuccess(vo);
     }
@@ -150,7 +171,7 @@ public class DmDsController {
     }
 
     @RequestAuth(level = SecurityLevel.HIGH, value = RDP_DS_MANAGE)
-    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    @RequestMapping(value = "/addDs", method = RequestMethod.POST)
     public ResWebData<Long> addDs(@RequestBody @Valid DsConfigSubmitFO fo, HttpServletRequest request) {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
@@ -158,7 +179,7 @@ public class DmDsController {
             this.cacheDao.ownCluster(AuthDal.ROOT_USER_UID, fo.getClusterId());
         }
 
-        ResWebData<Long> result = this.dsService.addDataSource(uid, fo);
+        ResWebData<Long> result = this.dsService.addDs(uid, fo);
         this.auditService.logAndAddOperationAudit(AuthDal.ROOT_USER_UID, uid, request.getRequestURI(), request.getRemoteAddr(), result
             .getData(), "", SecurityLevel.HIGH, AuditType.ADD_DATA_SOURCE, ResourceType.DATASOURCE);
         return result;
@@ -239,6 +260,28 @@ public class DmDsController {
         return result;
     }
 
+    @RequestAuth(level = SecurityLevel.HIGH, value = RDP_DS_MANAGE)
+    @RequestMapping(value = "/updateDs", method = RequestMethod.POST)
+    public ResWebData<Long> updateDs(@RequestBody @Valid DsConfigSubmitFO fo, HttpServletRequest request) {
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+        String uid = (String) request.getAttribute(RdpUserService.UID);
+        Long dsId = fo.getDsId();
+        if (dsId == null || dsId <= 0) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_ID_REQUIRED_ERROR.name()));
+        }
+
+        this.cacheDao.ownDataSource(puid, dsId);
+        this.authServiceForBiz.checkResAuth(puid, uid, dsId, RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
+        if (fo.getClusterId() != null) {
+            this.cacheDao.ownCluster(puid, fo.getClusterId());
+        }
+
+        ResWebData<Long> result = this.dsService.updateDs(uid, fo);
+        this.auditService.logAndAddOperationAudit(puid, uid, request.getRequestURI(), request
+            .getRemoteAddr(), dsId, fo, SecurityLevel.HIGH, AuditType.UPDATE_DATA_SOURCE_CONFIG, ResourceType.DATASOURCE);
+        return result;
+    }
+
     @RequestAuth(value = DM_DS_MANAGE, level = HIGH)
     @RequestMapping(value = "/updateDsDesc", method = RequestMethod.POST)
     public ResWebData<?> updateDsDesc(@RequestBody @Valid UpdateDsDescFO fo, HttpServletRequest request) {
@@ -307,37 +350,4 @@ public class DmDsController {
         }).collect(Collectors.toList()));
         return ResWebDataUtils.buildSuccess(vo);
     }
-
-    @RequestAuth(DM_DS_READ)
-    @RequestMapping(value = "/queryDsConfig", method = RequestMethod.POST)
-    public ResWebData<?> queryDsConfig(@RequestBody QueryDsConfigFO fo, HttpServletRequest request) {
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.cacheDao.ownDataSource(puid, fo.getDataSourceId());
-        this.authServiceForBiz.checkResAuth(puid, uid, fo.getDataSourceId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_READ, AuthKind.DataSource);
-
-        List<String> blackList = Arrays.asList(       //
-                DataSourceConfig.Fields.host,         //
-                DataSourceConfig.Fields.securityType, //
-                DataSourceConfig.Fields.userName,     //
-                DataSourceConfig.Fields.password,     //
-                DataSourceConfig.Fields.configVersion);
-
-        List<DsKvConfigVO> vos = this.dsService.queryDsConfigIncludeNewEntries(fo.getDataSourceId());
-        vos = vos.stream().filter(c -> !blackList.contains(c.getConfigName())).collect(Collectors.toList());
-        return ResWebDataUtils.buildSuccess(vos);
-    }
-
-    @RequestAuth(value = DM_DS_MANAGE, level = HIGH)
-    @RequestMapping(value = "/upsertDsConfig", method = RequestMethod.POST)
-    public ResWebData<?> upsertDsConfig(@RequestBody UpsertDsConfigFO fo, HttpServletRequest request) {
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        this.cacheDao.ownDataSource(puid, fo.getDataSourceId());
-        this.authServiceForBiz.checkResAuth(puid, uid, fo.getDataSourceId(), RdpAuthUtils.genEmptyResPath(), RDP_DAUTH_DS_MANAGER, AuthKind.DataSource);
-
-        this.dsService.upsertConfigs(puid, fo);
-        return ResWebDataUtils.buildSuccess();
-    }
-
 }

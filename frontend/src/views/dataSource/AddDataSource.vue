@@ -10,8 +10,11 @@
           :show-query-config="shouldAutoEnableFeatures"
           :auto-enable-features="shouldAutoEnableFeatures"
           :driver-family-map="driverFamilyMap"
+          :ds-id="editDataSourceId"
+          :edit-mode="editMode"
           :set-security-setting="setSecuritySetting"
           @driver-status-change="handleDriverStatusChange"
+          @config-loaded="handleConfigLoaded"
         ></DataSourceInfo>
         <SuccessAdd v-if="currentStep > 2"></SuccessAdd>
       </div>
@@ -27,7 +30,7 @@
             :disabled="disableAddDataSource"
             v-if="currentStep === 1"
           >
-            {{ $t('xin-zeng-shu-ju-yuan') }}
+            {{ editMode ? $t('bao-cun') : $t('xin-zeng-shu-ju-yuan') }}
           </Button>
           <Button @click="handleTestConnection" :loading="testConnectionLoading" v-if="currentStep === 1">
             {{ $t('ce-shi-lian-jie') }}
@@ -145,6 +148,13 @@ export default {
     shouldAutoEnableFeatures() {
       return !this.isDesktop && this.$route?.path === '/datasource/add';
     },
+    editMode() {
+      return this.$route.query.mode === 'edit' && !!this.editDataSourceId;
+    },
+    editDataSourceId() {
+      const dsId = Number(this.$route.query.dsId);
+      return Number.isFinite(dsId) && dsId > 0 ? dsId : null;
+    },
     disableAddDataSource() {
       return this.driverRequiredForAdd && !this.driverReadyForAdd;
     }
@@ -158,6 +168,11 @@ export default {
   },
   watch: {
     '$route.query.dsType': {
+      handler() {
+        this.syncStepFromRoute();
+      }
+    },
+    '$route.query.dsId': {
       handler() {
         this.syncStepFromRoute();
       }
@@ -317,12 +332,17 @@ export default {
     handleAdd() {
       const payload = this.$refs.dataSourceInfo?.buildDsSubmitPayload?.();
       this.addDatasourceLoading = true;
-      this.$services
-        .rdpDataSourceAdd({ data: payload })
+      const serviceName = this.editMode ? 'rdpDataSourceUpdateDs' : 'rdpDataSourceAddDs';
+      this.$services[serviceName]({ data: payload })
         .then(async (res) => {
           this.addDatasourceLoading = false;
           if (res.success) {
-            this.currentStep = 4;
+            if (this.editMode) {
+              this.$Message.success(this.$t('xiu-gai-cheng-gong'));
+              this.$router.push({ path: '/datasource' });
+            } else {
+              this.currentStep = 4;
+            }
             return;
           }
           this.setActionMessage(false, res.msg || this.$t('shu-ju-yuan-tian-jia-shi-bai'));
@@ -505,6 +525,14 @@ export default {
       return security;
     },
     syncStepFromRoute() {
+      if (this.editMode) {
+        const dsType = this.$route.query.dsType;
+        if (dsType) {
+          this.addDataSourceForm.type = dsType;
+        }
+        this.currentStep = 1;
+        return;
+      }
       const dsType = this.$route.query.dsType;
       if (dsType) {
         this.addDataSourceForm.type = dsType;
@@ -523,6 +551,18 @@ export default {
         return;
       }
       this.$router.replace({ path: '/datasource/add', query });
+    },
+    handleConfigLoaded(config) {
+      if (!this.editMode || !config?.instanceId || this.$route.query.instanceId === config.instanceId) {
+        return;
+      }
+      this.$router.replace({
+        path: '/datasource/add',
+        query: {
+          ...this.$route.query,
+          instanceId: config.instanceId
+        }
+      });
     }
   }
 };

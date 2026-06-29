@@ -17,7 +17,10 @@ package com.clougence.clouddm.ds.mysql.dsconf;
 
 import java.util.Properties;
 
-import com.clougence.clouddm.base.metadata.ds.*;
+import com.clougence.clouddm.base.metadata.ds.ConfigDef;
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.dsfamily.mysql.i18n.MyConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
@@ -72,6 +75,37 @@ public class MyConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
         properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), safeStr(this.getClientTimeZone()));
         properties.setProperty("sslMode", this.mySslMode());
+        if (this.getSslMode() != null) {
+            switch (this.getSslMode()) {
+                case CA -> {
+                    if (StringUtils.isNotBlank(this.getSslCaFilePath())) {
+                        properties.setProperty("trustCertificateKeyStoreUrl", "file:" + this.getSslCaFilePath());
+                        properties.setProperty("trustCertificateKeyStoreType", "PKCS12");
+                        properties.setProperty("trustCertificateKeyStorePassword", "");
+                        properties.setProperty("fallbackToSystemTrustStore", "false");
+                    }
+                }
+                case CLIENT_CERT -> {
+                    if (StringUtils.isNotBlank(this.getSslCaFilePath())) {
+                        properties.setProperty("trustCertificateKeyStoreUrl", "file:" + this.getSslCaFilePath());
+                        properties.setProperty("trustCertificateKeyStoreType", "PKCS12");
+                        properties.setProperty("trustCertificateKeyStorePassword", "");
+                        properties.setProperty("fallbackToSystemTrustStore", "false");
+                    }
+                    String clientKeyStoreFilePath = StringUtils.isNotBlank(this.getSslClientKeyFilePath()) ? this.getSslClientKeyFilePath() : this.getSslClientCertFilePath();
+                    if (StringUtils.isNotBlank(clientKeyStoreFilePath)) {
+                        properties.setProperty("clientCertificateKeyStoreUrl", "file:" + clientKeyStoreFilePath);
+                        properties.setProperty("clientCertificateKeyStoreType", "PKCS12");
+                        properties.setProperty("fallbackToSystemKeyStore", "false");
+                    }
+                    if (StringUtils.isNotBlank(this.getSslClientKeyPassword())) {
+                        properties.setProperty("clientCertificateKeyStorePassword", this.getSslClientKeyPassword());
+                    }
+                }
+                default -> {
+                }
+            }
+        }
         properties.setProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey(), safeStr(this.getConnectionCharset()));
         properties.setProperty("useCursorFetch", "false");
         properties.setProperty("allowPublicKeyRetrieval", "true");

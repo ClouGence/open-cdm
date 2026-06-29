@@ -503,8 +503,21 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
 
     @Override
     public List<UiPanel> fetchDsConfigPanels(DataSourceType dsType, Map<String, String> defaultConfig) {
+        Map<String, String> uiDefaultConfig = new LinkedHashMap<>();
+        if (defaultConfig != null) {
+            uiDefaultConfig.putAll(defaultConfig);
+        }
+
+        DsConfigSpi configSpi = PluginManager.findDsConfigSpi(dsType);
+        if (configSpi != null) {
+            configSpi.customizeUiMap(uiDefaultConfig, new LinkedHashMap<>(uiDefaultConfig));
+        }
+
         Map<DsConfigGroup, Map<String, DsConfigKvDef>> fieldsByGroup = new EnumMap<>(DsConfigGroup.class);
-        for (DsConfigKvDef configDef : this.fetchDsConfigDef(dsType, defaultConfig)) {
+        for (DsConfigKvDef configDef : this.fetchDsConfigDef(dsType, uiDefaultConfig)) {
+            if (!DataSourceConfig.Fields.host.equals(configDef.getConfigName()) && uiDefaultConfig.containsKey(configDef.getConfigName())) {
+                configDef.setConfigValue(uiDefaultConfig.get(configDef.getConfigName()));
+            }
             fieldsByGroup.computeIfAbsent(configDef.getConfigGroup(), key -> new LinkedHashMap<>()).put(configDef.getConfigName(), configDef);
         }
         return new DmDsConfigUiPanelFactory().create(dsType, fieldsByGroup);

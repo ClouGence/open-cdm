@@ -133,6 +133,7 @@ public class DmDsConfigUiPanelFactory {
         // host&port
         DsConfigSpi configSpi = PluginManager.findDsConfigSpi(dsType);
         DsConfigKvDef host = fields.get(DataSourceConfig.Fields.host);
+        String[] hostParts = splitHostPort(host.getConfigValue(), configSpi.defaultPort());
         panel.addField(UiPanelField.builder()
             .field(host.getConfigName())
             .type(UiPanelFieldType.NetworkAddress)
@@ -143,8 +144,8 @@ public class DmDsConfigUiPanelFactory {
             .titleI18N(host.getLabelKey())
             .descI18N(host.getDescKey())
             .build()
-            .addField(UiPanelField.builder().field(ADDRESS_FIELD).hide(true).defaultValue(UiUtils.strValueDef(host.getConfigValue())).build())
-            .addField(UiPanelField.builder().field(PORT_FIELD).hide(true).defaultValue(UiUtils.strValueDef(configSpi.defaultPort())).build()));
+            .addField(UiPanelField.builder().field(ADDRESS_FIELD).hide(true).defaultValue(UiUtils.strValueDef(hostParts[0])).build())
+            .addField(UiPanelField.builder().field(PORT_FIELD).hide(true).defaultValue(UiUtils.strValueDef(hostParts[1])).build()));
 
         // security
         DsConfigKvDef secTypeDef = fields.get(DataSourceConfig.Fields.securityType);
@@ -182,6 +183,17 @@ public class DmDsConfigUiPanelFactory {
             }
         }
         return secTypes.get(0);
+    }
+
+    private String[] splitHostPort(String host, String defaultPort) {
+        if (StringUtils.isBlank(host)) {
+            return new String[] { "", defaultPort };
+        }
+        int index = host.lastIndexOf(':');
+        if (host.contains("://") || index <= 0 || index == host.length() - 1 || host.indexOf(':') != index) {
+            return new String[] { host, defaultPort };
+        }
+        return new String[] { host.substring(0, index), host.substring(index + 1) };
     }
 
     private ValueDef buildSecOption(SecurityType type, Map<String, DsConfigKvDef> allFields) {
@@ -249,8 +261,8 @@ public class DmDsConfigUiPanelFactory {
         }
 
         Map<String, Object> defaultValues = new LinkedHashMap<>();
-        defaultValues.put(DataSourceConfig.Fields.autoCommit, autoCommit == null ? "true" : autoCommit.getDefaultValue());
-        defaultValues.put(DataSourceConfig.Fields.isolation, isolation == null ? "DEFAULT" : isolation.getDefaultValue());
+        defaultValues.put(DataSourceConfig.Fields.autoCommit, autoCommit == null ? "true" : configValue(autoCommit, "true"));
+        defaultValues.put(DataSourceConfig.Fields.isolation, isolation == null ? "DEFAULT" : configValue(isolation, "DEFAULT"));
 
         List<ValueDef> values = new ArrayList<>();
         // always DEFAULT as the first option
@@ -297,9 +309,16 @@ public class DmDsConfigUiPanelFactory {
         }
 
         field.setType(UiPanelFieldType.Options);
-        field.setDefaultValue(UiUtils.strValueDef(ZoneId.systemDefault().getId()));
+        field.setDefaultValue(UiUtils.strValueDef(configValue(clientTimeZone, ZoneId.systemDefault().getId())));
         field.setOptions(values);
         return field;
+    }
+
+    private String configValue(DsConfigKvDef configDef, String defaultValue) {
+        if (configDef == null || StringUtils.isBlank(configDef.getConfigValue())) {
+            return defaultValue;
+        }
+        return configDef.getConfigValue();
     }
 
     protected UiPanel sshSslPanel(DataSourceType dsType, Map<String, DsConfigKvDef> fields) {

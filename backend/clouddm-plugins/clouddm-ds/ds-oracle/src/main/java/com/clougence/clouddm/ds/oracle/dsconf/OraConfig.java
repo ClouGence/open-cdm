@@ -120,6 +120,34 @@ public class OraConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey(), safeStr(StringUtils.toString(this.getAutoCommit())));
         properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), safeStr(StringUtils.toString(this.getConnectTimeoutMs())));
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
+        if (this.getSslMode() != null) {
+            switch (this.getSslMode()) {
+                case CA -> {
+                    properties.setProperty("oracle.net.authentication_services", "(TCPS)");
+                    if (StringUtils.isNotBlank(this.getSslCaFilePath())) {
+                        properties.setProperty("javax.net.ssl.trustStore", this.getSslCaFilePath());
+                        properties.setProperty("javax.net.ssl.trustStoreType", "PKCS12");
+                    }
+                }
+                case CLIENT_CERT -> {
+                    properties.setProperty("oracle.net.authentication_services", "(TCPS)");
+                    if (StringUtils.isNotBlank(this.getSslCaFilePath())) {
+                        properties.setProperty("javax.net.ssl.trustStore", this.getSslCaFilePath());
+                        properties.setProperty("javax.net.ssl.trustStoreType", "PKCS12");
+                    }
+                    String keyStoreFilePath = StringUtils.isNotBlank(this.getSslClientKeyFilePath()) ? this.getSslClientKeyFilePath() : this.getSslClientCertFilePath();
+                    if (StringUtils.isNotBlank(keyStoreFilePath)) {
+                        properties.setProperty("javax.net.ssl.keyStore", keyStoreFilePath);
+                        properties.setProperty("javax.net.ssl.keyStoreType", "PKCS12");
+                    }
+                    if (StringUtils.isNotBlank(this.getSslClientKeyPassword())) {
+                        properties.setProperty("javax.net.ssl.keyStorePassword", this.getSslClientKeyPassword());
+                    }
+                }
+                default -> {
+                }
+            }
+        }
         return properties;
     }
 }

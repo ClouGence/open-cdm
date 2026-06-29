@@ -153,7 +153,7 @@ public class UiWebUtil extends UiUtils {
             vo.setActiveExpr(uiField.getActiveExpr());
             vo.setDefaultValue(toPlainObject(passerPanel(uiField.getDefaultValue())));
             if (uiField.getOptions() != null) {
-                vo.setOptions(uiField.getOptions().stream().map(UiWebUtil::passerPanel).map(UiWebUtil::toPlainObject).collect(Collectors.toList()));
+                vo.setOptions(uiField.getOptions().stream().map(UiWebUtil::addDsOption2VO).map(UiWebUtil::toPlainObject).collect(Collectors.toList()));
             } else {
                 vo.setOptions(Collections.emptyList());
             }
@@ -163,6 +163,19 @@ public class UiWebUtil extends UiUtils {
             vos.add(vo);
         }
         return vos;
+    }
+
+    private static Object addDsOption2VO(ValueDef valueDef) {
+        if (valueDef instanceof FieldOptionValueDef optionDef) {
+            Map<String, Object> value = new LinkedHashMap<>();
+            value.put("value", optionDef.getValue());
+            value.put("label", optionDef.getLabelI18N());
+            value.put("desc", optionDef.getDescI18N());
+            value.put("children", addDsFields2VO(optionDef.getChildren()));
+            value.put("readOnly", optionDef.isReadOnly());
+            return value;
+        }
+        return passerPanel(valueDef);
     }
 
     private static FakerPanelVO passerFakerPanel(UiPanel tableInfo) {

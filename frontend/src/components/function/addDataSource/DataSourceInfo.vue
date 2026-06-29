@@ -103,8 +103,17 @@ export default {
     driverFamilyMap: {
       type: Object,
       default: () => ({})
+    },
+    dsId: {
+      type: Number,
+      default: null
+    },
+    editMode: {
+      type: Boolean,
+      default: false
     }
   },
+  emits: ['driver-status-change', 'config-loaded'],
   data() {
     return {
       currentAddDsConfig: {},
@@ -185,6 +194,11 @@ export default {
     },
     currentStep(step) {
       if (step === 1) {
+        this.fetchAddDsConfig();
+      }
+    },
+    dsId() {
+      if (this.currentStep === 1) {
         this.fetchAddDsConfig();
       }
     },
@@ -368,16 +382,16 @@ export default {
     },
     async fetchAddDsConfig() {
       const dataSourceType = this.addDataSourceForm.type;
-      if (!dataSourceType) {
+      if (!dataSourceType && !this.dsId) {
         this.applyAddDsConfig({});
         return;
       }
 
-      const requestKey = `${dataSourceType}-${Date.now()}`;
+      const requestKey = `${dataSourceType || 'ds'}-${this.dsId || 'new'}-${Date.now()}`;
       this.addDsConfigRequestKey = requestKey;
       this.addDsConfigLoading = true;
       try {
-        const res = await this.$services.dmDataSourceFetchDsConfig({ data: { dsType: dataSourceType, dsId: null } });
+        const res = await this.$services.dmDataSourceFetchDsConfig({ data: { dsType: dataSourceType || null, dsId: this.dsId } });
         if (this.addDsConfigRequestKey !== requestKey) {
           return;
         }
@@ -394,7 +408,20 @@ export default {
     },
     applyAddDsConfig(addDsConfig) {
       this.currentAddDsConfig = addDsConfig || {};
-      if (!this.addDataSourceForm.instanceDesc && this.currentAddDsConfig.instanceName) {
+      this.$emit('config-loaded', this.currentAddDsConfig);
+      if (this.currentAddDsConfig.dsType) {
+        this.addDataSourceForm.type = this.currentAddDsConfig.dsType;
+      }
+      if (this.currentAddDsConfig.envId) {
+        this.addDataSourceForm.envId = this.currentAddDsConfig.envId;
+      }
+      if (this.currentAddDsConfig.clusterId) {
+        this.addDataSourceForm.queryClusterId = this.currentAddDsConfig.clusterId;
+      }
+      if (this.envClusterTree.length) {
+        this.listQueryBindCluster();
+      }
+      if ((this.editMode || !this.addDataSourceForm.instanceDesc) && this.currentAddDsConfig.instanceName) {
         this.addDataSourceForm.instanceDesc = this.currentAddDsConfig.instanceName;
         this.clearFieldValidate('instanceDesc');
       }
@@ -437,6 +464,9 @@ export default {
       }
       if (this.currentAddDsConfig?.instanceId && !form.instanceId) {
         form.instanceId = this.currentAddDsConfig.instanceId;
+      }
+      if (this.currentAddDsConfig?.dsId) {
+        form.dsId = this.currentAddDsConfig.dsId;
       }
       this.addDsUiForm = form;
       this.ensureActiveAddDsPanel();
@@ -550,6 +580,7 @@ export default {
     buildDsSubmitPayload() {
       this.syncAddDsUiFormToKvConfigs();
       return {
+        dsId: this.dsId,
         dsType: this.addDataSourceForm.type,
         clusterId: this.addDataSourceForm.queryClusterId,
         envId: this.addDataSourceForm.envId,

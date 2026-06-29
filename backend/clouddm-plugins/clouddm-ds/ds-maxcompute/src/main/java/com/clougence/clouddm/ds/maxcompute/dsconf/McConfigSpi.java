@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
@@ -104,6 +105,9 @@ public class McConfigSpi extends AbstractDsConfigSpi {
         UiPanelField host = general.findField(DataSourceConfig.Fields.host);
         UiPanelField sdkEndpoint = general.findField(McConfig.Fields.sdkEndpoint);
         if (host != null && sdkEndpoint != null) {
+            List<ValueDef> endpointOptions = maxComputeEndpointOptions();
+            String hostDefaultValue = stringDefaultValue(host);
+            String sdkEndpointDefaultValue = stringDefaultValue(sdkEndpoint);
             general.removeField(DataSourceConfig.Fields.host);
             general.removeField(McConfig.Fields.sdkEndpoint);
             UiPanelField endpoint = UiPanelField.builder()
@@ -111,11 +115,11 @@ public class McConfigSpi extends AbstractDsConfigSpi {
                 .type(UiPanelFieldType.MaxComputeEndpoint)
                 .titleI18N(McConfigI18nKeys.CONFIG_ADD_DS_MC_ENDPOINT_LABEL)
                 .descI18N(McConfigI18nKeys.CONFIG_ADD_DS_MC_ENDPOINT_DESC)
-                .defaultValue(UiUtils.strValueDef("cn-hangzhou|public"))
-                .options(maxComputeEndpointOptions())
+                .defaultValue(UiUtils.strValueDef(resolveMaxComputeEndpointValue(hostDefaultValue, sdkEndpointDefaultValue, endpointOptions)))
+                .options(endpointOptions)
                 .build();
-            endpoint.addField(hiddenField(DataSourceConfig.Fields.host));
-            endpoint.addField(hiddenField(McConfig.Fields.sdkEndpoint));
+            endpoint.addField(hiddenField(DataSourceConfig.Fields.host, hostDefaultValue));
+            endpoint.addField(hiddenField(McConfig.Fields.sdkEndpoint, sdkEndpointDefaultValue));
             general.afterAddField(endpoint, DataSourceConfig.Fields.driverVersion);
         }
 
@@ -133,7 +137,7 @@ public class McConfigSpi extends AbstractDsConfigSpi {
         UiPanelField schemaStyle = general.findField(McConfig.Fields.schemaStyle);
         if (schemaStyle != null) {
             general.removeField(McConfig.Fields.schemaStyle);
-            schemaStyle.setDefaultValue(UiUtils.boolValueDef(false));
+            schemaStyle.setDefaultValue(UiUtils.boolValueDef(booleanDefaultValue(schemaStyle, false)));
             UiPanelField defaultSchema = general.findField(McConfig.Fields.defaultSchema);
             if (defaultSchema != null) {
                 general.removeField(McConfig.Fields.defaultSchema);
@@ -145,7 +149,44 @@ public class McConfigSpi extends AbstractDsConfigSpi {
     }
 
     protected UiPanelField hiddenField(String field) {
-        return UiPanelField.builder().field(field).type(UiPanelFieldType.Input).hide(true).build();
+        return hiddenField(field, null);
+    }
+
+    protected UiPanelField hiddenField(String field, String defaultValue) {
+        UiPanelField panelField = UiPanelField.builder().field(field).type(UiPanelFieldType.Input).hide(true).build();
+        if (StringUtils.isNotBlank(defaultValue)) {
+            panelField.setDefaultValue(UiUtils.strValueDef(defaultValue));
+        }
+        return panelField;
+    }
+
+    private String stringDefaultValue(UiPanelField field) {
+        if (field == null || field.getDefaultValue() == null || field.getDefaultValue().asValue() == null) {
+            return null;
+        }
+        return String.valueOf(field.getDefaultValue().asValue());
+    }
+
+    private boolean booleanDefaultValue(UiPanelField field, boolean defaultValue) {
+        String value = stringDefaultValue(field);
+        if (StringUtils.isBlank(value)) {
+            return defaultValue;
+        }
+        return ConvertUtils.toBoolean(value, false);
+    }
+
+    private String resolveMaxComputeEndpointValue(String host, String sdkEndpoint, List<ValueDef> options) {
+        for (ValueDef option : options) {
+            if (!(option instanceof FieldOptionValueDef optionDef) || !(optionDef.getValue() instanceof Map<?, ?> endpoint)) {
+                continue;
+            }
+            String optionHost = Objects.toString(endpoint.get("host"), null);
+            String optionSdkEndpoint = Objects.toString(endpoint.get("sdkEndpoint"), null);
+            if (StringUtils.equals(host, optionHost) && StringUtils.equals(sdkEndpoint, optionSdkEndpoint)) {
+                return Objects.toString(endpoint.get("regionId"), "") + "|" + Objects.toString(endpoint.get("accessType"), "");
+            }
+        }
+        return "cn-hangzhou|public";
     }
 
     protected List<ValueDef> maxComputeEndpointOptions() {

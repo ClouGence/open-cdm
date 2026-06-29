@@ -118,14 +118,6 @@ const routes = [
         })
       },
       {
-        path: 'ccdatasource/params/:id/:instanceId',
-        redirect: (to) => ({
-          path: `/datasource/params/${to.params.id}/${to.params.instanceId}`,
-          query: to.query,
-          hash: to.hash
-        })
-      },
-      {
         path: 'ccdatasource/add',
         redirect: (to) => ({
           path: '/datasource/add',
@@ -180,11 +172,6 @@ const routes = [
           query: to.query,
           hash: to.hash
         })
-      },
-      {
-        path: 'dmdatasource/params/:id',
-        name: 'DM_DataSource_Params_Id',
-        redirect: '/datasource'
       },
       {
         path: 'dmmachine',
@@ -267,11 +254,6 @@ const routes = [
         //     path: 'auth',
         //     name: 'System_Auth',
         //     component: () => import(/* webpackChunkName: "system-auth" */'@/views/system/auth/index')
-        //   },
-        //   {
-        //     path: 'datasource/params/:id',
-        //     name: 'System_DataSource_Params/id',
-        //     component: () => import(/* webpackChunkName: "system-datasource" */'@/views/system/user/components/Params')
         //   },
         //   {
         //     path: 'datasource/add',

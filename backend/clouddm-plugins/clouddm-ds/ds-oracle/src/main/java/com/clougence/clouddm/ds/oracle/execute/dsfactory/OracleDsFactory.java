@@ -109,6 +109,8 @@ public class OracleDsFactory implements DsFactory<Connection> {
         String tnsAdmin = dsConfig.getProperty(DsConfigKeys.ORA_TNS_ADMIN.getConfigKey());
         String tnsName = dsConfig.getProperty(DsConfigKeys.ORA_TNS_NAME.getConfigKey());
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
+        boolean tcps = StringUtils.containsIgnoreCase(dsConfig.getProperty("oracle.net.authentication_services"), "TCPS");
+        String protocol = tcps ? "tcps" : "tcp";
 
         String[] ipPort = host.split(":");
         if (ipPort.length == 1) {
@@ -124,13 +126,31 @@ public class OracleDsFactory implements DsFactory<Connection> {
         String jdbcUrl;
 
         if ((StringUtils.equalsIgnoreCase("sid", connType) || StringUtils.equalsIgnoreCase("oracle_sid", connType)) && StringUtils.isNotBlank(sid)) {
-            jdbcUrl = String.format("jdbc:oracle:thin:@%s:%s:%s", ipPort[0], ipPort[1], sid);
+            if (tcps) {
+                jdbcUrl = String.format("jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=%s)(HOST=%s)(PORT=%s))(CONNECT_DATA=(SID=%s)))",//
+                        protocol, ipPort[0], ipPort[1], sid);
+            } else {
+                jdbcUrl = String.format("jdbc:oracle:thin:@%s:%s:%s",//
+                        ipPort[0], ipPort[1], sid);
+            }
 
         } else if ((StringUtils.equalsIgnoreCase("service", connType) || StringUtils.equalsIgnoreCase("oracle_service", connType)) && StringUtils.isNotBlank(serviceName)) {
-            jdbcUrl = String.format("jdbc:oracle:thin:@//%s:%s/%s", ipPort[0], ipPort[1], serviceName);
+            if (tcps) {
+                jdbcUrl = String.format("jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=%s)(HOST=%s)(PORT=%s))(CONNECT_DATA=(SERVICE_NAME=%s)))",//
+                        protocol, ipPort[0], ipPort[1], serviceName);
+            } else {
+                jdbcUrl = String.format("jdbc:oracle:thin:@//%s:%s/%s",//
+                        ipPort[0], ipPort[1], serviceName);
+            }
 
         } else if ((StringUtils.equalsIgnoreCase("pdb", connType) || (StringUtils.equalsIgnoreCase("oracle_pdb", connType))) && StringUtils.isNotBlank(pdbName)) {
-            jdbcUrl = String.format("jdbc:oracle:thin:@//%s:%s/%s", ipPort[0], ipPort[1], pdbName);
+            if (tcps) {
+                jdbcUrl = String.format("jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=%s)(HOST=%s)(PORT=%s))(CONNECT_DATA=(SERVICE_NAME=%s)))",//
+                        protocol, ipPort[0], ipPort[1], pdbName);
+            } else {
+                jdbcUrl = String.format("jdbc:oracle:thin:@//%s:%s/%s",//
+                        ipPort[0], ipPort[1], pdbName);
+            }
 
         } else if (StringUtils.equalsIgnoreCase("tns", connType) || (StringUtils.equalsIgnoreCase("oracle_tns", connType))) {
             System.setProperty("oracle.net.tns_admin", tnsAdmin);

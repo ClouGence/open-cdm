@@ -41,7 +41,7 @@ public abstract class AbstractDsConfigSpi implements DsConfigSpi {
             return;
         }
         int index = host.lastIndexOf(':');
-        if (index <= 0 || index == host.length() - 1) {
+        if (host.contains("://") || index <= 0 || index == host.length() - 1 || host.indexOf(':') != index) {
             uiMap.put(ADDRESS_FIELD, host);
         } else {
             uiMap.put(ADDRESS_FIELD, host.substring(0, index));

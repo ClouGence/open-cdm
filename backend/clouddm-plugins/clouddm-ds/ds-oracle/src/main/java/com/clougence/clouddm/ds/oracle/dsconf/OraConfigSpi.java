@@ -54,7 +54,11 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
         UiPanelField connectType = general.findField(OraConfig.Fields.connectType);
         connectType.setType(UiPanelFieldType.Options);
         connectType.setOptions(options);
-        connectType.setDefaultValue(strValueDef(OraConnectType.SID.getDriverTypeCode()));
+        if (connectType.getDefaultValue() == null ||            //
+            connectType.getDefaultValue().asValue() == null ||  //
+            StringUtils.isBlank(String.valueOf(connectType.getDefaultValue().asValue()))) {
+            connectType.setDefaultValue(strValueDef(OraConnectType.SID.getDriverTypeCode()));
+        }
 
         // readd
         general.removeField(OraConfig.Fields.connectType);
@@ -135,12 +139,12 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
 
     @Override
     public List<SslMode> sslModeSet() {
-        return List.of();
+        return List.of(SslMode.CA, SslMode.CLIENT_CERT);
     }
 
     @Override
     public boolean supportSSL() {
-        return false;
+        return true;
     }
 
     @Override
@@ -241,10 +245,11 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
         uiMap.put(ADDRESS_FIELD, parts[0]);
         uiMap.put(PORT_FIELD, parts[1]);
 
+        OraConnectType connectType = OraConnectType.of(configMap.get(OraConfig.Fields.connectType));
+        uiMap.put(OraConfig.Fields.connectType, connectType.getDriverTypeCode());
         if (parts.length != 3) {
             return;
         }
-        OraConnectType connectType = OraConnectType.of(configMap.get(OraConfig.Fields.connectType));
         switch (connectType) {
             case SID:
                 uiMap.putIfAbsent(OraConfig.Fields.sid, parts[2]);

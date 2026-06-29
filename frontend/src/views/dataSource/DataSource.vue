@@ -538,7 +538,7 @@ export default {
           title: this.$t('cao-zuo'),
           key: '',
           slot: 'action',
-          width: 240,
+          width: 120,
           fixed: 'right'
         }
       ],
@@ -608,15 +608,15 @@ export default {
     isOracle,
     async handleKvConfigs(row) {
       this.selectedRow = row;
-      // const res = await queryDsConfig({
-      //   dataSourceId: row.id
-      // });
-      //
-      // if (res.data.success) {
-      //   this.dsKvConfigs = res.data.data;
-      //   this.showKvConfigsModal = true;
-      // }
-      this.$router.push({ path: `/datasource/params/${row.id}/${row.instanceId}` });
+      this.$router.push({
+        path: '/datasource/add',
+        query: {
+          mode: 'edit',
+          dsId: row.id,
+          dsType: row.dataSourceType,
+          instanceId: row.instanceId
+        }
+      });
     },
     handleKeyTabFileChange(e) {
       const files = e.target.files;
@@ -1275,8 +1275,8 @@ export default {
 .datasource-action-group {
   display: flex;
   align-items: center;
-  gap: 12px;
-  justify-content: flex-start;
+  gap: 8px;
+  justify-content: center;
   white-space: nowrap;
 
   :deep(.ivu-btn-text) {

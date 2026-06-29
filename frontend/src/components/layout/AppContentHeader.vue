@@ -154,13 +154,17 @@ export default {
       }
       if (path === '/datasource/add') {
         const dsType = this.$route.query.dsType;
+        const instanceId = this.$route.query.instanceId;
+        const isEditMode = this.$route.query.mode === 'edit';
         const dsDisplayName = this.dataSourceDisplayName(dsType);
+        const actionLabel = isEditMode ? this.$t('bian-ji') : this.$t('xin-zeng-shu-ju-yuan');
+        const actionTo = isEditMode ? '/datasource' : dsType ? '/datasource/add' : '';
         const breadcrumbs = [
           { label: this.$t('nav-shu-ju-ku-guan-li'), to: '/datasource' },
-          { label: this.$t('xin-zeng-shu-ju-yuan'), to: dsType ? '/datasource/add' : '' }
+          { label: actionLabel, to: actionTo }
         ];
         if (dsDisplayName) {
-          breadcrumbs.push({ label: dsDisplayName, to: '' });
+          breadcrumbs.push({ label: isEditMode && instanceId ? `${dsDisplayName}(${instanceId})` : dsDisplayName, to: '' });
         }
         return breadcrumbs;
       }
