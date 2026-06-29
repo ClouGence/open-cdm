@@ -9,6 +9,7 @@ import { START_RECORD_NAMES_CONUT } from './constant';
 function flattenTree(tree) {
   const result = [];
   function traverse(nodes) {
+    if (!Array.isArray(nodes)) return;
     nodes.forEach((node) => {
       result.push(node);
       if (node?.children && node?.children?.length > 0) {

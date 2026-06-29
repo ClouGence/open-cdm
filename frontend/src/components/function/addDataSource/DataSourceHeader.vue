@@ -1,6 +1,6 @@
 <template>
-  <div class="page-header-container border-radius-card">
-    <Form ref="formInline" :model="searchKey" inline label-position="right" style="padding-right: 300px">
+  <div class="page-header-container border-radius-card data-source-filter-card">
+    <Form ref="formInline" class="data-source-filter-form" :model="searchKey" inline label-position="right">
       <FormItem>
         <Select v-model="searchType" style="width: 160px" @on-change="handleChangeSearchType">
           <Option value="type" :label="$t('lei-xing')">
@@ -130,10 +130,28 @@ export default {
 .page-header-container {
   background: #ffffff;
   //border: 1px solid #EDEDED;
-  height: 60px;
-  line-height: 54px;
+  min-height: 72px;
+  height: auto;
+  line-height: normal;
   //padding: 0 20px;
   position: relative;
+
+  &.data-source-filter-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 16px 18px;
+    border: 1px solid #dbe6f1;
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 12px 30px rgba(31, 45, 61, 0.04);
+  }
+
+  .data-source-filter-form {
+    flex: 1;
+    min-width: 0;
+  }
 
   .ivu-form-inline .ivu-form-item {
     vertical-align: middle;
@@ -145,9 +163,11 @@ export default {
   }
 
   .page-header-function {
-    position: absolute;
-    right: 20px;
-    top: 2px;
+    position: static;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin-left: auto;
 
     a {
       color: #333;

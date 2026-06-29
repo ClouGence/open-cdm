@@ -38,14 +38,13 @@
         </Select>
       </FormItem>
       <FormItem>
-        <Button :loading="refreshLoading" type="primary" ghost @click="_handleSearch(searchType, searchData)">
+        <Button class="cluster-search-button" :loading="refreshLoading" type="primary" ghost @click="_handleSearch(searchType, searchData)">
           {{ $t('cha-xun') }}
         </Button>
       </FormItem>
     </Form>
     <div class="page-header-function">
       <Button v-if="hasManageAuth" type="primary" @click="handleAddCluster">
-        <Icon type="md-add" />
         {{ $t('xin-zeng-ji-qun') }}
       </Button>
     </div>
@@ -139,6 +138,14 @@ export default {
 
   .ivu-form-item {
     margin-bottom: 0;
+  }
+
+  .cluster-search-button {
+    width: 88px;
+    min-width: 88px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .page-header-function {

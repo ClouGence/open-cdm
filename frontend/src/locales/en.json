@@ -2215,7 +2215,7 @@
   "han-shu": "function",
   "yun-hang": "run",
   "jin-tian": "Today",
-  "yi-tian": "24 Hours",
+  "yi-tian": "One Day",
   "yi-zhou": "7 Days",
   "yi-ge-yue": "1 Month",
   "yi-nian": "1 Year",
@@ -3433,7 +3433,7 @@
   "qing-xuan-ze-lie-bing-she-zhi-ying-she": "Please select the columns and set the mappings",
   "qing-xuan-ze-lie-bing-she-zhi-ying-she-0": "Please select the columns for {0} and set the mappings",
   "cha-kan-guan-lian-biao": "View the lookup table",
-  "huan-mei-you-bian-ji-quan-xian": "No editing permission yet",
+  "huan-mei-you-bian-ji-quan-xian": "No permission changes",
   "chong-zhi-aksk": "Reset AccessKey/SecretKey",
   "aksk-chong-zhi-cheng-gong": "AccessKey/SecretKey reset successful!",
   "que-ren-chong-zhi-aksk": "Confirm AccessKey/SecretKey Reset",
@@ -4065,5 +4065,9 @@
   "cicd-trigger-format-desc": "Response format returned by the remote trigger endpoint.",
   "cicd-trigger-url-desc": "Copy this address to trigger the change flow from an external system.",
   "cicd-callback-method-desc": "HTTP method used to send result notifications after a change finishes.",
-  "cicd-callback-url-desc": "HTTP or HTTPS endpoint that receives change result callbacks."
+  "cicd-callback-url-desc": "HTTP or HTTPS endpoint that receives change result callbacks.",
+  "dang-qian-zi-yuan": "Current Resource",
+  "yi-xuan-ze-quan-xian-shu": "Selected Permissions",
+  "quan-xian-xiang": "items",
+  "qing-xuan-ze-zuo-ce-zi-yuan": "Select a resource on the left"
 }

@@ -223,6 +223,8 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
                 }
                 return this.dsDal.dsMapper().listByUser(ownerUid).stream().map(ds -> {
                     DmAuthResDO authDO = RdpConvertUtils.convertToAuthDOByDataSource(ds, null);
+                    authDO.setResPath(GLOBAL_RESOURCE_PATH);
+                    authDO.setLevelOne(GLOBAL_RESOURCE_PATH);
                     if (globalAuth != null) {
                         authDO.setStartTime(globalAuth.getStartTime());
                         authDO.setEndTime(globalAuth.getEndTime());

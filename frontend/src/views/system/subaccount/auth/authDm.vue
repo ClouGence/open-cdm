@@ -52,125 +52,138 @@
           <div :class="`middle ${showAuthTree ? '' : 'no-auth'}`">
             <div class="auth-tree-container">
               <a-spin class="auth-loading" v-if="loadingAuth" />
-              <div class="auth-tree">
-                <nav class="auth-tabs">
-                  <div class="auth-tabs__items">
-                    <span
-                      class="auth-tabs__item"
-                      :class="{
-                        'is-active': curRightTreeTab === 'Instance',
-                        'is-disabled': !['Instance', 'INSTANCE', 'AllType'].includes(curElementType)
-                      }"
-                      @click="handleAuthTabClick('Instance')"
-                    >
-                      {{ $t('shi-li-quan-xian') }}
-                    </span>
-                    <span
-                      class="auth-tabs__item"
-                      :class="{
-                        'is-active': curRightTreeTab === 'CATALOG',
-                        'is-disabled': !['Catalog', 'CATALOG', 'EXTERNAL_CATALOG', 'AllType'].includes(curElementType)
-                      }"
-                      @click="handleAuthTabClick('CATALOG')"
-                    >
-                      {{ $t('catalog-quan-xian') }}
-                    </span>
-                    <span
-                      class="auth-tabs__item"
-                      :class="{
-                        'is-active': curRightTreeTab === 'SCHEMA',
-                        'is-disabled': !['Schema', 'SCHEMA', 'EXTERNAL_SCHEMA', 'AllType'].includes(curElementType)
-                      }"
-                      @click="handleAuthTabClick('SCHEMA')"
-                    >
-                      {{ $t('schema-quan-xian') }}
-                    </span>
-                    <span
-                      class="auth-tabs__item"
-                      :class="{
-                        'is-active': curRightTreeTab === 'TABLE',
-                        'is-disabled': !['Table', 'TABLE', 'AllType'].includes(curElementType)
-                      }"
-                      @click="handleAuthTabClick('TABLE')"
-                    >
-                      {{ $t('biao-quan-xian') }}
-                    </span>
-                  </div>
-                  <div class="auth-tabs__extra">
-                    <Poptip v-show="timeList?.[curNode.key]?.length" trigger="hover" placement="bottom-end" width="350">
-                      <span class="auth-tabs__time-link">{{ $t('shou-quan-shi-jian-0') }}</span>
-                      <template #content>
-                        <div class="auth-time-popover">
-                          <div v-for="(item, index) in processedTimeList" :key="index" class="time-range-item">
-                            <div class="time-range">
-                              <CustomIcon type="Time" rightMargin />
-                              {{ formattedTime(item) }}
-                            </div>
-                            <div>{{ item?.level }}</div>
-                            <div class="auth-tags">
-                              <Tag v-for="(auth, authIndex) in item.auths" :key="authIndex" color="primary" class="auth-tag">
-                                {{ authMap[auth] }}
-                              </Tag>
-                            </div>
-                            <Divider v-if="index < processedTimeList.length - 1" />
-                          </div>
-                        </div>
+              <div class="auth-main">
+                <div class="resource-summary">
+                  <div class="resource-summary__main">
+                    <div class="resource-summary__label">{{ $t('dang-qian-zi-yuan') }}</div>
+                    <div class="resource-summary__path" :title="currentResourceText">
+                      <template v-for="(item, index) in currentResourceBreadcrumb" :key="`${item}-${index}`">
+                        <span class="resource-summary__path-item">{{ item }}</span>
+                        <span v-if="index < currentResourceBreadcrumb.length - 1" class="resource-summary__separator">/</span>
                       </template>
-                    </Poptip>
+                    </div>
                   </div>
-                </nav>
-                <div class="auth-tabs__content">
-                  <div v-show="curRightTreeTab === 'Instance'">
-                    <v-tree
-                      :emptyText="$t('zan-wu-shu-ju')"
-                      :render="renderAuthNode"
-                      ref="instanceTree"
-                      keyField="key"
-                      checkable
-                      titleField="i18nName"
-                      @checked-change="handleAuthCheck"
-                      :defaultExpandAll="true"
-                      :disableAll="previewMode || isView"
-                    />
-                  </div>
-                  <div v-show="curRightTreeTab === 'CATALOG'">
-                    <v-tree
-                      :emptyText="$t('zan-wu-shu-ju')"
-                      :render="renderAuthNode"
-                      ref="catalogTree"
-                      keyField="key"
-                      checkable
-                      titleField="i18nName"
-                      @checked-change="handleAuthCheck"
-                      :defaultExpandAll="true"
-                      :disableAll="previewMode || isView"
-                    />
-                  </div>
-                  <div v-show="curRightTreeTab === 'SCHEMA'">
-                    <v-tree
-                      :emptyText="$t('zan-wu-shu-ju')"
-                      :render="renderAuthNode"
-                      ref="schemaTree"
-                      keyField="key"
-                      checkable
-                      titleField="i18nName"
-                      @checked-change="handleAuthCheck"
-                      :defaultExpandAll="true"
-                      :disableAll="previewMode || isView"
-                    />
-                  </div>
-                  <div v-show="curRightTreeTab === 'TABLE'">
-                    <v-tree
-                      :emptyText="$t('zan-wu-shu-ju')"
-                      :render="renderAuthNode"
-                      ref="tableTree"
-                      keyField="key"
-                      checkable
-                      titleField="i18nName"
-                      @checked-change="handleAuthCheck"
-                      :defaultExpandAll="true"
-                      :disableAll="previewMode || isView"
-                    />
+                </div>
+                <div class="auth-tree">
+                  <nav class="auth-tabs">
+                    <div class="auth-tabs__items">
+                      <span
+                        class="auth-tabs__item"
+                        :class="{
+                          'is-active': curRightTreeTab === 'Instance',
+                          'is-disabled': !['Instance', 'INSTANCE', 'AllType'].includes(curElementType)
+                        }"
+                        @click="handleAuthTabClick('Instance')"
+                      >
+                        {{ $t('shi-li-quan-xian') }}
+                      </span>
+                      <span
+                        class="auth-tabs__item"
+                        :class="{
+                          'is-active': curRightTreeTab === 'CATALOG',
+                          'is-disabled': !['Catalog', 'CATALOG', 'EXTERNAL_CATALOG', 'AllType'].includes(curElementType)
+                        }"
+                        @click="handleAuthTabClick('CATALOG')"
+                      >
+                        {{ $t('catalog-quan-xian') }}
+                      </span>
+                      <span
+                        class="auth-tabs__item"
+                        :class="{
+                          'is-active': curRightTreeTab === 'SCHEMA',
+                          'is-disabled': !['Schema', 'SCHEMA', 'EXTERNAL_SCHEMA', 'AllType'].includes(curElementType)
+                        }"
+                        @click="handleAuthTabClick('SCHEMA')"
+                      >
+                        {{ $t('schema-quan-xian') }}
+                      </span>
+                      <span
+                        class="auth-tabs__item"
+                        :class="{
+                          'is-active': curRightTreeTab === 'TABLE',
+                          'is-disabled': !['Table', 'TABLE', 'AllType'].includes(curElementType)
+                        }"
+                        @click="handleAuthTabClick('TABLE')"
+                      >
+                        {{ $t('biao-quan-xian') }}
+                      </span>
+                    </div>
+                    <div class="auth-tabs__extra">
+                      <Poptip v-show="timeList?.[curNode.key]?.length" trigger="hover" placement="bottom-end" width="350">
+                        <span class="auth-tabs__time-link">{{ $t('shou-quan-shi-jian-0') }}</span>
+                        <template #content>
+                          <div class="auth-time-popover">
+                            <div v-for="(item, index) in processedTimeList" :key="index" class="time-range-item">
+                              <div class="time-range">
+                                <CustomIcon type="Time" rightMargin />
+                                {{ formattedTime(item) }}
+                              </div>
+                              <div>{{ item?.level }}</div>
+                              <div class="auth-tags">
+                                <Tag v-for="(auth, authIndex) in item.auths" :key="authIndex" color="primary" class="auth-tag">
+                                  {{ authMap[auth] }}
+                                </Tag>
+                              </div>
+                              <Divider v-if="index < processedTimeList.length - 1" />
+                            </div>
+                          </div>
+                        </template>
+                      </Poptip>
+                    </div>
+                  </nav>
+                  <div class="auth-tabs__content">
+                    <div v-show="curRightTreeTab === 'Instance'">
+                      <v-tree
+                        :emptyText="$t('zan-wu-shu-ju')"
+                        :render="renderAuthNode"
+                        ref="instanceTree"
+                        keyField="key"
+                        checkable
+                        titleField="i18nName"
+                        @checked-change="handleAuthCheck"
+                        :defaultExpandAll="true"
+                        :disableAll="previewMode || isView"
+                      />
+                    </div>
+                    <div v-show="curRightTreeTab === 'CATALOG'">
+                      <v-tree
+                        :emptyText="$t('zan-wu-shu-ju')"
+                        :render="renderAuthNode"
+                        ref="catalogTree"
+                        keyField="key"
+                        checkable
+                        titleField="i18nName"
+                        @checked-change="handleAuthCheck"
+                        :defaultExpandAll="true"
+                        :disableAll="previewMode || isView"
+                      />
+                    </div>
+                    <div v-show="curRightTreeTab === 'SCHEMA'">
+                      <v-tree
+                        :emptyText="$t('zan-wu-shu-ju')"
+                        :render="renderAuthNode"
+                        ref="schemaTree"
+                        keyField="key"
+                        checkable
+                        titleField="i18nName"
+                        @checked-change="handleAuthCheck"
+                        :defaultExpandAll="true"
+                        :disableAll="previewMode || isView"
+                      />
+                    </div>
+                    <div v-show="curRightTreeTab === 'TABLE'">
+                      <v-tree
+                        :emptyText="$t('zan-wu-shu-ju')"
+                        :render="renderAuthNode"
+                        ref="tableTree"
+                        keyField="key"
+                        checkable
+                        titleField="i18nName"
+                        @checked-change="handleAuthCheck"
+                        :defaultExpandAll="true"
+                        :disableAll="previewMode || isView"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -180,26 +193,29 @@
                     {{ $t('xuan-xiang') }}
                   </div>
                   <section class="option-section">
-                    <div class="option-section-title">
-                      <span>{{ $t('shou-quan-shi-jian') }}</span>
-                      <a-button size="small" v-if="isEdit" @click="handleClearAuthTime">
-                        {{ $t('qing-kong') }}
-                      </a-button>
+                    <div class="option-section-title option-section-title--required">
+                      <span class="required-title">
+                        <span class="required-mark">*</span>
+                        {{ $t('shou-quan-shi-jian') }}
+                      </span>
                     </div>
                     <div class="content">
                       <div class="ranges" v-if="isEdit">
-                        <RadioGroup v-model="curRangeKey" type="button" @on-change="handleRangeChange">
-                          <Radio class="date-btns" v-for="range in ranges1" :value="range.key" :key="range.key" :label="range.key">
+                        <div class="range-button-grid">
+                          <button
+                            v-for="range in authTimeRanges"
+                            :key="range.key"
+                            type="button"
+                            class="date-btns"
+                            :class="{ 'is-active': curRangeKey === range.key }"
+                            :aria-pressed="curRangeKey === range.key"
+                            @click="handleRangeChange(range.key)"
+                          >
                             {{ range.label }}
-                          </Radio>
-                        </RadioGroup>
-                        <RadioGroup v-model="curRangeKey" type="button" @on-change="handleRangeChange" style="padding-top: 5px">
-                          <Radio class="date-btns" v-for="range in ranges2" :value="range.key" :key="range.key" :label="range.key">
-                            {{ range.label }}
-                          </Radio>
-                        </RadioGroup>
+                          </button>
+                        </div>
                       </div>
-                      <div class="time">
+                      <div class="time" v-if="showCustomAuthTime">
                         <a-date-picker
                           v-model:value="authStartTime"
                           show-time
@@ -287,7 +303,7 @@
 </template>
 
 <script lang="jsx">
-import dayjs from 'dayjs';
+import dayjs from '@/utils/dayjsSetup';
 import VTree from '@wsfe/vue-tree';
 import { cloneDeep as deepClone } from '@/utils/lodash';
 import { mapGetters, mapState } from 'vuex';
@@ -317,9 +333,9 @@ export default {
       selectedNodeKey: null,
       canCheckedChange: false,
       selectedCcCluster: '',
-      leftWidth: 460,
+      leftWidth: 360,
       isDragging: false,
-      curRangeKey: '',
+      curRangeKey: 'permanent',
       authedData: {},
       showAuthedTreeModal: false,
       batchMode: false,
@@ -340,12 +356,6 @@ export default {
       ],
       ranges1: [
         {
-          key: '1',
-          label: i18n.global.t('jin-tian'),
-          startTime: dayjs(),
-          endTime: dayjs().endOf('day')
-        },
-        {
           key: '2',
           label: i18n.global.t('yi-tian'),
           startTime: dayjs(),
@@ -364,12 +374,6 @@ export default {
           label: i18n.global.t('yi-ge-yue'),
           startTime: dayjs(),
           endTime: dayjs().add(1, 'month')
-        },
-        {
-          key: '5',
-          label: i18n.global.t('ban-nian'),
-          startTime: dayjs(),
-          endTime: dayjs().add(6, 'month')
         },
         {
           key: '6',
@@ -441,7 +445,8 @@ export default {
       authMap: {},
       userAuthResList: [],
       parentAuthTree: [],
-      pageLoading: false
+      pageLoading: false,
+      selectedAuthCount: 0
     };
   },
   computed: {
@@ -523,6 +528,40 @@ export default {
         return this.timeList[this.curNode?.key];
       }
       return [];
+    },
+    currentResourceBreadcrumb() {
+      if (!this.curNode?.objName) {
+        return [this.$t('qing-xuan-ze-zuo-ce-zi-yuan')];
+      }
+      const path = [];
+      let current = this.curNode;
+      while (current) {
+        if (current.objName) {
+          path.unshift(current.objDesc ? `${current.objName}(${current.objDesc})` : current.objName);
+        }
+        current = current.parent;
+      }
+      return path;
+    },
+    currentResourceText() {
+      return this.currentResourceBreadcrumb.join(' / ');
+    },
+    authTimeRanges() {
+      return [
+        {
+          key: 'permanent',
+          label: this.$t('yong-jiu')
+        },
+        ...this.ranges1,
+        ...this.ranges2,
+        {
+          key: 'custom',
+          label: this.$t('zi-ding-yi')
+        }
+      ];
+    },
+    showCustomAuthTime() {
+      return this.curRangeKey === 'custom';
     }
   },
   watch: {
@@ -571,6 +610,7 @@ export default {
           startTime: null,
           endTime: null
         };
+        this.curRangeKey = 'permanent';
         await this.loadAuthTarget();
         this.activeAuthTab = 'DataSource';
         this.activeAuthType = 'datasource';
@@ -581,6 +621,7 @@ export default {
         this.isSingleSelect = true;
         this.curElementType = null;
         this.curRightTreeTab = null;
+        this.selectedAuthCount = 0;
         this.originLeftTree = [];
         this.previewMode = false;
         await this.listLevelsForDM();
@@ -668,11 +709,12 @@ export default {
         if (globalAuth.endTime) {
           this.authTime.endTime = dayjs(globalAuth.endTime);
         }
+        this.syncAuthRangeKeyFromTime();
       }
     },
     async handleResourceManageChange() {
       this.originLeftTree = this.markGlobalResourceAuthState(this.originLeftTree);
-      this.$refs.dataSourceTree.setData(this.getFilterOfTypeAndSearch(this.originLeftTree));
+      this.$refs.dataSourceTree?.setData(this.getFilterOfTypeAndSearch(this.originLeftTree));
       if (this.curNode?.key && this.curNode?.objType !== 'ENV') {
         await this.handleGetAuthTreeForDm(this.curNode);
       }
@@ -681,15 +723,18 @@ export default {
     formatAuthTime(value) {
       return value ? dayjs(value).format('YYYY-MM-DD HH:mm:ss') : null;
     },
+    syncAuthRangeKeyFromTime() {
+      this.curRangeKey = this.authTime?.startTime || this.authTime?.endTime ? 'custom' : 'permanent';
+    },
     // Compare permission tree differences and mark editing status
     handleAuthCheck(selectedNodes) {
+      const currentAuthTree = this.getCurrentAuthTreeData(selectedNodes);
+      this.selectedAuthCount = this.getCheckedPermissionCount(currentAuthTree);
       if (this.canCheckedChange) {
-        const idx = this.parentAuthTree.findIndex((item) => item?.key === this.curNode?.key);
-
-        if (idx !== -1) {
-          this.parentAuthTree[idx].authTree = selectedNodes;
-        }
-        this.markLeftTreeEdited(this.curNode, this.curElementType, this.lastRightTreeData, selectedNodes);
+        const comparableCheckedNodes = this.getComparableCheckedAuthNodes(currentAuthTree, this.lastRightTreeData);
+        this.markLeftTreeEdited(this.curNode, this.curElementType, this.lastRightTreeData, comparableCheckedNodes);
+        this.upsertParentAuthTree(this.curNode?.key, currentAuthTree);
+        this.syncDescendantInheritedAuth(this.curNode);
       }
     },
     cancelAuth() {
@@ -747,14 +792,13 @@ export default {
 
       if (this.batchMode) {
         this.originLeftTree = this.$refs.dataSourceTree.getTreeData();
-        const filterTree = this.filterTreeWithCheckedNodes(this.originLeftTree);
+        const filterTree = this.cleanPreviewLeftTreePlaceholders(this.filterTreeWithCheckedNodes(this.originLeftTree));
         this.$refs.dataSourceTree.setData(filterTree);
         return;
       }
 
-      const filterTree = hasGlobalResourceEdit
-        ? this.getFilterOfTypeAndSearch(this.originLeftTree)
-        : this.filterTreeWithEditedNodes(this.originLeftTree);
+      await this.preloadExpandedPreviewNodes();
+      const filterTree = this.getPreviewLeftTreeData();
       this.$refs.dataSourceTree.setData(filterTree);
       this.$refs.instanceTree.setData([]);
       this.$refs.schemaTree.setData([]);
@@ -1061,6 +1105,144 @@ export default {
         </div>
       );
     },
+    getCheckedPermissionCount(tree = [], selectedOnly = false) {
+      let count = 0;
+      const traverse = (nodes = []) => {
+        nodes.forEach((item) => {
+          const children = Array.isArray(item?.children) ? item.children.filter((child) => child?.key || child?.i18nName) : [];
+          if (children.length) {
+            traverse(children);
+            return;
+          }
+          if (selectedOnly || item?.checked) {
+            count += 1;
+          }
+        });
+      };
+      traverse(Array.isArray(tree) ? tree : []);
+      return count;
+    },
+    upsertParentAuthTree(key, authTree = []) {
+      if (!key) {
+        return;
+      }
+      const idx = this.parentAuthTree.findIndex((item) => item?.key === key);
+      const nextAuthTree = deepClone(authTree || []);
+      if (idx !== -1) {
+        this.parentAuthTree[idx].authTree = nextAuthTree;
+        return;
+      }
+      this.parentAuthTree.push({
+        key,
+        authTree: nextAuthTree
+      });
+    },
+    clearInheritedAuthState(authTree = []) {
+      const traverse = (nodes = []) =>
+        nodes.map((node) => {
+          const next = { ...node };
+          if (next.inherited || next.globalInherited) {
+            next.checked = false;
+            next.disabled = false;
+            delete next.inherited;
+            delete next.globalInherited;
+            delete next.action;
+          }
+          if (Array.isArray(next.children)) {
+            next.children = traverse(next.children);
+          }
+          return next;
+        });
+      return traverse(deepClone(authTree || []));
+    },
+    filterExplicitAuthNodes(authTree = []) {
+      return this.getCheckedLeafAuthNodes(authTree)
+        .filter((item) => !item.inherited && !item.globalInherited)
+        .map((item) => ({ ...item }));
+    },
+    getCheckedLeafAuthNodes(authTree = []) {
+      return flattenTree(authTree || []).filter((item) => item?.checked && !item?.children?.length);
+    },
+    getCurrentAuthTreeRef() {
+      const refMap = {
+        Instance: 'instanceTree',
+        INSTANCE: 'instanceTree',
+        Schema: 'schemaTree',
+        SCHEMA: 'schemaTree',
+        EXTERNAL_SCHEMA: 'schemaTree',
+        Catalog: 'catalogTree',
+        CATALOG: 'catalogTree',
+        EXTERNAL_CATALOG: 'catalogTree',
+        Table: 'tableTree',
+        TABLE: 'tableTree'
+      };
+      const normalizedTab =
+        this.curRightTreeTab === 'EXTERNAL_SCHEMA' ? 'SCHEMA' : this.curRightTreeTab === 'EXTERNAL_CATALOG' ? 'CATALOG' : this.curRightTreeTab;
+      return this.$refs[refMap[normalizedTab]];
+    },
+    getCurrentAuthTreeData(fallbackTree = []) {
+      const currentTree = this.getCurrentAuthTreeRef()?.getTreeData?.();
+      return deepClone(currentTree?.length ? currentTree : fallbackTree || []);
+    },
+    getComparableCheckedAuthNodes(currentAuthTree = [], originalAuthTree = []) {
+      const originalCheckedKeys = new Set(this.getCheckedLeafAuthNodes(originalAuthTree || []).map((item) => item.key));
+      return this.getCheckedLeafAuthNodes(currentAuthTree || [])
+        .filter((item) => {
+          const inherited = item.inherited || item.globalInherited;
+          return !inherited || originalCheckedKeys.has(item.key);
+        })
+        .map((item) => ({ ...item }));
+    },
+    getSyncedInheritedAuthTree(node, authTree = []) {
+      let nextAuthTree = this.clearInheritedAuthState(authTree);
+      nextAuthTree = this.handleAuthFromParent(node, nextAuthTree);
+      nextAuthTree = this.handleAuthFromGlobal(nextAuthTree);
+      return nextAuthTree;
+    },
+    getSyncedSelectedAuthTree(node, selectedAuthTree = []) {
+      const explicitSelectedNodes = this.getCheckedLeafAuthNodes(this.clearInheritedAuthState(selectedAuthTree));
+      const parentAuthInfo = this.parentAuthTree.find((item) => item?.key === node?.parent?.key);
+      const inheritedNodes = this.getCheckedLeafAuthNodes(parentAuthInfo?.authTree || []).map((item) => ({
+        ...item,
+        checked: true,
+        disabled: true,
+        inherited: true,
+        action: undefined
+      }));
+      const nodeMap = new Map();
+      inheritedNodes.forEach((item) => nodeMap.set(item.key, item));
+      explicitSelectedNodes.forEach((item) => nodeMap.set(item.key, item));
+      return Array.from(nodeMap.values());
+    },
+    syncDescendantInheritedAuth(parentNode) {
+      if (!parentNode?.children?.length) {
+        return;
+      }
+      const syncNode = (node) => {
+        if (!node?.key) {
+          return;
+        }
+        if (node?.objType && node.objType !== 'ENV') {
+          let nextAuthTree = null;
+          if (node.markedWithActionRightTree?.length) {
+            nextAuthTree = this.getSyncedInheritedAuthTree(node, node.markedWithActionRightTree);
+            node.markedWithActionRightTree = nextAuthTree;
+          } else {
+            const parentAuthInfo = this.parentAuthTree.find((item) => item?.key === node.key);
+            if (parentAuthInfo?.authTree?.length) {
+              nextAuthTree = this.getSyncedSelectedAuthTree(node, parentAuthInfo.authTree);
+            }
+          }
+          if (nextAuthTree) {
+            this.upsertParentAuthTree(node.key, nextAuthTree);
+          }
+        }
+        if (node.children?.length) {
+          node.children.forEach(syncNode);
+        }
+      };
+      parentNode.children.forEach(syncNode);
+    },
     getFilterOfTypeAndSearch(tree) {
       tree = this.filterTreeOfType(tree);
       tree = this.handleDataSourceSearch(tree);
@@ -1073,7 +1255,7 @@ export default {
       this.curNode = node;
       this.curElementType = node?.objType;
       this.canCheckedChange = false;
-      this.curRangeKey = '';
+      this.curRangeKey = 'permanent';
 
       // Keep the arrows together.
       if (!shouldExpand) {
@@ -1084,6 +1266,7 @@ export default {
         this.curRightTreeTab = node?.objType === 'EXTERNAL_SCHEMA' ? 'SCHEMA' : node?.objType === 'EXTERNAL_CATALOG' ? 'CATALOG' : node?.objType;
 
         this.authTime = node?.authTime || { startTime: null, endTime: null };
+        this.syncAuthRangeKeyFromTime();
 
         this.handleGetAuthTreeForDm(node);
         return;
@@ -1095,8 +1278,13 @@ export default {
       }
 
       if (this.previewMode) {
-        this.renderPreviewLeftTree(node);
-        if (idx === -1) this.expandedKeys.push(node?.key);
+        if (this.hasLazyPlaceholderChildren(node) && !this.isLeafNode(node)) {
+          await this.listLevelsForDM(node);
+          this.$refs.dataSourceTree?.setData(this.getPreviewLeftTreeData());
+        } else {
+          this.renderPreviewLeftTree(node);
+        }
+        if (this.expandedKeys.indexOf(node?.key) === -1) this.expandedKeys.push(node?.key);
         return;
       }
 
@@ -1113,9 +1301,9 @@ export default {
         final = this.removeChildrenByKey(this.originLeftTree, node?.key);
         this.originLeftTree = final;
 
-        final = this.getFilterOfTypeAndSearch(this.originLeftTre);
+        final = this.getFilterOfTypeAndSearch(this.originLeftTree);
         this.$Message.warning(this.$t('shu-ju-cha-xun-wei-kai-qi'));
-        this.$refs.dataSourceTree.setData(final);
+        this.$refs.dataSourceTree?.setData(final);
         return;
       }
 
@@ -1140,9 +1328,11 @@ export default {
           // 1.1 Filtering and search conditions
           final = this.getFilterOfTypeAndSearch(this.originLeftTree);
 
-          this.$refs.dataSourceTree.setData(final);
+          this.$refs.dataSourceTree?.setData(final);
 
-          this.handleGetAuthTreeForDm(node);
+          if (node?.key) {
+            this.handleGetAuthTreeForDm(node);
+          }
           this.leftTreeLoading = false;
           const idx = this.expandedKeys.indexOf(node?.key);
           if (idx === -1) this.expandedKeys.push(node?.key);
@@ -1151,8 +1341,10 @@ export default {
 
         if (node?.objType === 'TABLE') {
           const final = this.getFilterOfTypeAndSearch(this.originLeftTree);
-          this.$refs.dataSourceTree.setData(final);
-          this.handleGetAuthTreeForDm(node);
+          this.$refs.dataSourceTree?.setData(final);
+          if (node?.key) {
+            this.handleGetAuthTreeForDm(node);
+          }
           this.leftTreeLoading = false;
           const idx = this.expandedKeys.indexOf(node?.key);
           if (idx === -1) this.expandedKeys.push(node?.key);
@@ -1207,7 +1399,7 @@ export default {
               if (resPaths.length > 2) {
                 // Four, Table, authorized.
                 this.userAuthResList.forEach((item, idx) => {
-                  const paths = item.level.split('/').slice(0, -1);
+                  const paths = (item?.level || '/').split('/').slice(0, -1);
                   const isCatlog = resPaths?.length === 4;
                   const isSameIns = item?.resInstId === node._parent?.objName || item?.resInstId === node._parent?._parent?.objName;
                   const isSameCatalog = node?._parent?.objName === paths[1];
@@ -1251,7 +1443,7 @@ export default {
               } else if (resPaths.length === 1) {
                 // 1. Instance authorized
                 this.userAuthResList.forEach((item, idx) => {
-                  const paths = item.level.split('/').slice(0, -1);
+                  const paths = (item?.level || '/').split('/').slice(0, -1);
                   res.data.forEach((ds) => {
                     if (ds.objName === item.resInstId) {
                       ds.isAuthed = true;
@@ -1261,7 +1453,7 @@ export default {
               } else if (resPaths.length === 2) {
                 // 2 Schema authorized
                 this.userAuthResList.forEach((item, idx) => {
-                  const paths = item.level.split('/').slice(0, -1);
+                  const paths = (item?.level || '/').split('/').slice(0, -1);
                   res.data.forEach((ds) => {
                     if (item?.resInstId === node.objName && ds.objName === paths[1]) {
                       ds.isAuthed = true;
@@ -1272,7 +1464,7 @@ export default {
               if (resPaths.length === 3 && (node?.objType === 'CATALOG' || node?.objType === 'EXTERNAL_CATALOG')) {
                 // 3, CATALOG has been authorized
                 this.userAuthResList.forEach((item) => {
-                  const paths = item.level.split('/').slice(0, -1);
+                  const paths = (item?.level || '/').split('/').slice(0, -1);
                   const isSameCatalog = node?.objName === paths[1];
 
                   res.data.forEach((ds) => {
@@ -1293,11 +1485,13 @@ export default {
           if (this.originLeftTree?.length) {
             this.removeChildrenByKey(this.originLeftTree, node?.key);
             this.originLeftTree = this.getFilterOfTypeAndSearch(this.originLeftTree);
-            this.$refs.dataSourceTree.setData(this.originLeftTree);
+            this.$refs.dataSourceTree?.setData(this.originLeftTree);
             this.leftTreeLoading = false;
             this.curElementType = node?.objType;
             this.curRightTreeTab = node?.objType;
-            this.handleGetAuthTreeForDm(node);
+            if (node?.key) {
+              this.handleGetAuthTreeForDm(node);
+            }
           }
           return;
         }
@@ -1322,7 +1516,7 @@ export default {
         if (!this.originLeftTree?.length) {
           this.originLeftTree = res.data;
           const final = this.getFilterOfTypeAndSearch(res.data);
-          await this.$refs.dataSourceTree.setData(final);
+          await this.$refs.dataSourceTree?.setData(final);
         } else {
           let final = [];
           // 3.1 New subtree data inserted into the original tree corresponding node Down
@@ -1341,11 +1535,13 @@ export default {
           final = this.getFilterOfTypeAndSearch(final);
 
           // 3.5 Rendering left tree
-          await this.$refs.dataSourceTree.setData(final);
+          await this.$refs.dataSourceTree?.setData(final);
         }
 
         // 4. Render Right Permission Tree
-        this.handleGetAuthTreeForDm(node);
+        if (node?.key) {
+          this.handleGetAuthTreeForDm(node);
+        }
         this.leftTreeLoading = false;
       } catch (err) {
         this.leftTreeLoading = false;
@@ -1374,12 +1570,63 @@ export default {
       });
     },
     renderPreviewLeftTree(node) {
-      const filterTree = this.hasGlobalResourceAuthChanges()
-        ? this.getFilterOfTypeAndSearch(this.originLeftTree)
-        : this.filterTreeWithEditedNodes(this.originLeftTree);
+      const filterTree = this.getPreviewLeftTreeData();
       this.$refs.dataSourceTree.setData(filterTree);
 
       this.handleGetAuthTreeForDm(node);
+    },
+    getPreviewLeftTreeData() {
+      const filterTree = this.hasGlobalResourceAuthChanges()
+        ? this.getFilterOfTypeAndSearch(this.originLeftTree)
+        : this.filterTreeWithEditedNodes(this.originLeftTree);
+      return this.cleanPreviewLeftTreePlaceholders(filterTree);
+    },
+    isLazyPlaceholderNode(node) {
+      return !!node && !node.key && !node.objName && !node.objType && !node.i18nName && !node.levels?.length;
+    },
+    hasLazyPlaceholderChildren(node) {
+      return Array.isArray(node?.children) && node.children.some((child) => this.isLazyPlaceholderNode(child));
+    },
+    cleanPreviewLeftTreePlaceholders(tree = []) {
+      const traverse = (nodes = []) =>
+        nodes
+          .filter((node) => !this.isLazyPlaceholderNode(node))
+          .map((node) => {
+            const next = { ...node };
+            if (Array.isArray(next.children)) {
+              const realChildren = next.children.filter((child) => !this.isLazyPlaceholderNode(child));
+              if (realChildren.length) {
+                next.children = traverse(realChildren);
+              } else {
+                delete next.children;
+              }
+            }
+            return next;
+          });
+      return traverse(Array.isArray(tree) ? tree : []);
+    },
+    async preloadExpandedPreviewNodes() {
+      const expandedKeySet = new Set(this.expandedKeys || []);
+      const nodesToLoad = [];
+      const traverse = (nodes = []) => {
+        nodes.forEach((node) => {
+          if (!node?.key) {
+            return;
+          }
+          const shouldLoadPreviewChildren = expandedKeySet.has(node.key) || node.objType === 'Instance';
+          if (shouldLoadPreviewChildren && this.hasLazyPlaceholderChildren(node) && !this.isLeafNode(node)) {
+            nodesToLoad.push(node);
+            return;
+          }
+          if (Array.isArray(node.children) && !this.hasLazyPlaceholderChildren(node)) {
+            traverse(node.children);
+          }
+        });
+      };
+      traverse(this.originLeftTree || []);
+      for (const node of nodesToLoad) {
+        await this.listLevelsForDM(node);
+      }
     },
     // Returns resPaths parameters consisting of id + name
     getResPathByIdAndName(node) {
@@ -1530,7 +1777,7 @@ export default {
       const parentAuthTree = flattenTree(parentAuthInfo.authTree) || [];
 
       filterAuth.forEach((item) => {
-        item.children.forEach((child) => {
+        item.children?.forEach((child) => {
           const parentAuth = parentAuthTree.find((parent) => parent.key === child.key);
           if (parentAuth && parentAuth.checked) {
             child.checked = true;
@@ -1571,7 +1818,7 @@ export default {
         }
       });
       auth.forEach((item) => {
-        item.children.forEach((child) => {
+        item.children?.forEach((child) => {
           if (selfAuth?.includes?.(child.key)) {
             child.checked = true;
           }
@@ -1583,7 +1830,8 @@ export default {
     async handleGetAuthTreeForDm(node = {}) {
       try {
         const elementType = node?.objType || '';
-        if (elementType === 'ENV') {
+        if (!node?.key || !elementType || elementType === 'ENV') {
+          this.selectedAuthCount = 0;
           return;
         }
         let allAuth = { data: [] };
@@ -1599,11 +1847,13 @@ export default {
             startTime: null,
             endTime: null
           };
+          this.syncAuthRangeKeyFromTime();
 
           if (node?.markedWithActionRightTree && node.markedWithActionRightTree?.length) {
             // Other Organiser
-            filterAuth = node?.markedWithActionRightTree;
-            this.lastRightTreeData = filterAuth;
+            filterAuth = deepClone(node.markedWithActionRightTree);
+            this.lastRightTreeData = deepClone(filterAuth);
+            filterAuth = this.handleAuthFromParent(node, filterAuth);
           } else {
             // Retrieving all permissions tree and user-owned permissions tree, contrasting map
             const normalizedElementType = elementType === 'EXTERNAL_CATALOG' ? 'CATALOG' : elementType;
@@ -1615,7 +1865,8 @@ export default {
                 elementType: ELEMENT_REVERSE_TYPE_MAP[normalizedElementType2] || normalizedElementType2
               }
             });
-            const flattenAuthTree = flattenTree(allAuth.data);
+            const allAuthTree = Array.isArray(allAuth.data) ? allAuth.data : [];
+            const flattenAuthTree = flattenTree(allAuthTree);
             flattenAuthTree.forEach((item) => {
               if (!this.authMap[item.key]) {
                 this.authMap[item.key] = item.i18nName;
@@ -1642,63 +1893,61 @@ export default {
             authData.forEach((authWrap) => {
               if (authWrap.startTime) this.authTime.startTime = dayjs(authWrap.startTime);
               if (authWrap.endTime) this.authTime.endTime = dayjs(authWrap.endTime);
-              if (authWrap?.dsAuthKinds.length) hasAuthList.push(...authWrap.dsAuthKinds);
+              const dsAuthKinds = Array.isArray(authWrap?.dsAuthKinds) ? authWrap.dsAuthKinds : [];
+              if (dsAuthKinds.length) hasAuthList.push(...dsAuthKinds);
 
               if (!this.timeList[node.key]) {
                 this.timeList[node.key] = [];
               }
 
               const exists = this.timeList[node.key].some((item) => item.level === authWrap.level);
-              const allExistInFlatten = (authWrap?.dsAuthKinds || []).some((kind) => flattenTree(allAuth.data).find((item) => item.key === kind));
+              const allExistInFlatten = dsAuthKinds.some((kind) => flattenAuthTree.find((item) => item.key === kind));
 
               if (!exists && allExistInFlatten) {
                 this.timeList[node.key].push({
-                  auths: authWrap?.dsAuthKinds,
+                  auths: dsAuthKinds,
                   startTime: authWrap.startTime ? dayjs(authWrap.startTime) : null,
                   endTime: authWrap.endTime ? dayjs(authWrap.endTime) : null,
                   level: authWrap.level
                 });
               }
             });
+            this.syncAuthRangeKeyFromTime();
 
-            filterAuth = this.markRightTreeChecked(allAuth.data, [...new Set(hasAuthList)]);
+            filterAuth = this.markRightTreeChecked(allAuthTree, [...new Set(hasAuthList)]);
 
             // 3.1 The full permission tree of the last user is recorded for matching changes
             this.lastRightTreeData = deepClone(filterAuth);
 
-            // 3.2 Parental permission to record
-            this.parentAuthTree.push({
-              key: node?.key,
-              authTree: deepClone(filterAuth)
-            });
-
-            // 3.3 Inheritance of paternity rights first
+            // 3.2 Inheritance of paternity rights first
             filterAuth = this.handleAuthFromParent(node, filterAuth);
 
-            // 3.4 Reprocessing from its own authority
+            // 3.3 Reprocessing from its own authority
             filterAuth = this.handleAuthFromSelf(filterAuth, authData, node);
           }
           // All resource mandates are equal to those at every level.
           filterAuth = this.handleAuthFromGlobal(filterAuth);
+          this.upsertParentAuthTree(node?.key, filterAuth);
+          this.selectedAuthCount = this.getCheckedPermissionCount(filterAuth);
           this.$nextTick(() => {
             switch (elementType) {
               case 'Instance':
               case 'INSTANCE':
-                this.$refs.instanceTree.setData(filterAuth);
+                this.$refs.instanceTree?.setData(filterAuth);
                 break;
               case 'Schema':
               case 'SCHEMA':
               case 'EXTERNAL_SCHEMA':
-                this.$refs.schemaTree.setData(filterAuth);
+                this.$refs.schemaTree?.setData(filterAuth);
                 break;
               case 'CATALOG':
               case 'Catalog':
               case 'EXTERNAL_CATALOG':
-                this.$refs.catalogTree.setData(filterAuth);
+                this.$refs.catalogTree?.setData(filterAuth);
                 break;
               case 'Table':
               case 'TABLE':
-                this.$refs.tableTree.setData(filterAuth);
+                this.$refs.tableTree?.setData(filterAuth);
                 break;
               default:
                 break;
@@ -1706,7 +1955,7 @@ export default {
             this.canCheckedChange = true;
           });
         }
-        this.$refs.dataSourceTree.scrollTo(node?.key, 'center');
+        this.$refs.dataSourceTree?.scrollTo?.(node?.key, 'center');
       } catch (err) {
         this.$Message.error(this.$t('chu-xian-yi-chang-qing-shua-xin-ye-mian-hou-zhong-shi'));
       }
@@ -1774,6 +2023,7 @@ export default {
       const res = updateNodeInTree(this.originLeftTree, node?.key);
       this.$refs.dataSourceTree.setData(res);
       this.originLeftTree = res;
+      return markedWithActionRightTree;
     },
 
     markRightTreeActions(originalTree, modifiedTree) {
@@ -2043,22 +2293,8 @@ export default {
       this.$refs.userTree.filter(this.subAccount.searchKey);
     },
     handleAuthTimeChange() {
-      const refMap = {
-        Instance: 'instanceTree',
-        INSTANCE: 'instanceTree',
-        Schema: 'schemaTree',
-        SCHEMA: 'schemaTree',
-        EXTERNAL_SCHEMA: 'schemaTree',
-        Catalog: 'catalogTree',
-        CATALOG: 'catalogTree',
-        EXTERNAL_CATALOG: 'catalogTree',
-        Table: 'tableTree',
-        TABLE: 'tableTree'
-      };
-      const normalizedTab =
-        this.curRightTreeTab === 'EXTERNAL_SCHEMA' ? 'SCHEMA' : this.curRightTreeTab === 'EXTERNAL_CATALOG' ? 'CATALOG' : this.curRightTreeTab;
-      const curTreeRef = refMap[normalizedTab];
-      const rightTreeData = this.$refs[curTreeRef]?.getCheckedNodes?.() || [];
+      const currentAuthTree = this.getCurrentAuthTreeData();
+      const rightTreeData = this.getComparableCheckedAuthNodes(currentAuthTree, this.lastRightTreeData);
 
       // Update only when nodes are selected and times are changed
       if (this.curNode?.objId) {
@@ -2066,28 +2302,38 @@ export default {
       }
     },
     handleStartTimeChange() {
+      this.curRangeKey = 'custom';
       this.selectedRange = {};
       this.handleAuthTimeChange();
     },
     handleEndTimeChange() {
+      this.curRangeKey = 'custom';
       this.selectedRange = {};
       this.handleAuthTimeChange();
     },
     handleClearAuthTime() {
-      this.curRangeKey = '';
+      this.curRangeKey = 'permanent';
       this.selectedRange = {};
       this.authTime.startTime = null;
       this.authTime.endTime = null;
       this.handleAuthTimeChange();
     },
     handleRangeChange(rangeKey) {
-      let selectedObj;
-      if (Number(rangeKey) < 4) {
-        selectedObj = this.ranges1.find((item) => item.key === rangeKey);
-      } else {
-        selectedObj = this.ranges2.find((item) => item.key === rangeKey);
-      }
       this.curRangeKey = rangeKey;
+      if (rangeKey === 'permanent') {
+        this.handleClearAuthTime();
+        return;
+      }
+      if (rangeKey === 'custom') {
+        this.curRangeKey = rangeKey;
+        this.selectedRange = {};
+        this.authTime.startTime = null;
+        this.authTime.endTime = null;
+        this.handleAuthTimeChange();
+        return;
+      }
+      const selectedObj = [...this.ranges1, ...this.ranges2].find((item) => item.key === rangeKey);
+      if (!selectedObj) return;
       this.selectedRange = selectedObj;
       this.authTime.startTime = selectedObj.startTime;
       this.authTime.endTime = selectedObj.endTime;
@@ -2095,14 +2341,14 @@ export default {
       this.handleAuthTimeChange();
     },
     disabledStartDate(startValue) {
-      const endValue = this.endTime;
+      const endValue = this.authEndTime;
       if (!startValue || !endValue) {
         return false;
       }
       return startValue.valueOf() > endValue.valueOf();
     },
     disabledEndDate(endValue) {
-      const startValue = this.startTime;
+      const startValue = this.authStartTime;
       if (!endValue || !startValue) {
         return false;
       }
@@ -2240,125 +2486,210 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
   padding: 16px;
   padding-bottom: 0;
-
-  .header {
-    margin-bottom: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+  overflow: hidden;
+  background: #f7f8fb;
 
   .auth-content {
-    height: calc(100% - 100px);
-
-    .users {
-      width: 300px;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-
-      .user-tree {
-        border: 1px solid #ccc;
-        border-top: none;
-        border-right: none;
-        flex: 1;
-      }
-    }
+    flex: 1;
+    min-height: 0;
 
     .auth-container {
-      flex: 1;
-      min-width: 0;
       display: flex;
       flex-direction: column;
       height: 100%;
+      min-width: 0;
+      min-height: 0;
 
       .auth {
         display: flex;
+        gap: 12px;
         width: 100%;
-        flex: 1;
-        min-height: 0;
         height: 100%;
+        min-height: 0;
 
         .left {
+          flex-shrink: 0;
+          min-width: 320px;
+          max-width: 520px;
           height: 100%;
           min-height: 0;
           display: flex;
           flex-direction: column;
-          border: 1px solid #ccc;
+          overflow: hidden;
+          background: #fff;
+          border: 1px solid #e6eaf0;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
 
-          .search {
+          > .search {
             display: flex;
+            flex-shrink: 0;
+            height: 56px;
+            border-bottom: 1px solid #eef1f5;
+
+            :deep(.ant-select) {
+              height: 100%;
+            }
+
             :deep(.ant-select-selector) {
+              height: 100% !important;
+              border: 0 !important;
+              border-right: 1px solid #eef1f5 !important;
               border-radius: 0 !important;
+              box-shadow: none !important;
             }
+
+            :deep(.ant-select-selection-item) {
+              line-height: 56px !important;
+            }
+
+            :deep(.ant-input-search) {
+              flex: 1;
+              min-width: 0;
+              height: 100%;
+            }
+
+            :deep(.ant-input-wrapper),
+            :deep(.ant-input-group) {
+              height: 100%;
+            }
+
             :deep(.ant-input-affix-wrapper) {
-              border-radius: 0 !important;
-            }
-            :deep(.ant-input-search-button) {
-              border-radius: 0 !important;
+              height: 100%;
               display: flex;
-              justify-content: center;
+              align-items: center;
+              padding: 0 12px 0 14px;
+              border: 0 !important;
+              border-radius: 0 !important;
+              box-shadow: none !important;
+            }
+
+            :deep(.ant-input) {
+              height: 100%;
+              padding: 0;
+              line-height: 56px;
+            }
+
+            :deep(.ant-input-suffix) {
+              height: 100%;
+              display: inline-flex;
               align-items: center;
             }
-          }
 
-          :deep(.search .ant-input) {
-            border-top: none;
+            :deep(.ant-input-search-button) {
+              height: 100%;
+              border: 0 !important;
+              border-left: 1px solid #eef1f5 !important;
+              border-radius: 0 !important;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              box-shadow: none !important;
+            }
           }
 
           .datasource-tree {
             flex: 1;
             min-height: 0;
-            border: 1px solid #ccc;
-            border-top: none;
-          }
-          :deep(.vtree-tree__wrapper) {
-            height: calc(100% - 64px);
+            padding: 8px 10px 12px;
+            overflow: hidden;
+            border: 0;
           }
 
-          .no-indent {
-            :deep(.vtree-tree-node__square:first-child) {
-              display: none;
-            }
+          :deep(.vtree-tree__wrapper) {
+            height: 100%;
+            overflow: auto;
+          }
+
+          :deep(.vtree-tree-node) {
+            min-height: 34px;
           }
         }
 
         .middle {
           flex: 1;
+          min-width: 0;
           min-height: 0;
           display: flex;
           flex-direction: column;
 
-          &.no-auth {
-            border: 1px solid #ccc;
-            border-left: none;
-            border-right: none;
-          }
-
           .auth-tree-container {
             display: flex;
+            gap: 12px;
             flex: 1;
+            min-width: 0;
             min-height: 0;
-            // flex-direction: column;
             position: relative;
 
             .auth-loading {
               position: absolute;
-              width: 100%;
-              height: 100%;
-              display: flex;
-              align-items: center; /* Centre Vertically */
-              justify-content: center; /* Centre horizontally, if necessary */
-              left: 0;
-              top: 0;
+              inset: 0;
               z-index: 999;
-              background: rgba(255, 255, 255, 0.8);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background: rgba(255, 255, 255, 0.78);
+              border-radius: 8px;
             }
 
-            :deep(.search .ant-input) {
-              border-left: none;
+            .auth-main {
+              flex: 1;
+              min-width: 0;
+              min-height: 0;
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+            }
+
+            .resource-summary {
+              display: flex;
+              align-items: center;
+              justify-content: flex-start;
+              min-height: 82px;
+              padding: 16px 22px;
+              background: #fff;
+              border: 1px solid #e0f3e9;
+              border-radius: 8px;
+              box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
+
+              &__main {
+                min-width: 0;
+              }
+
+              &__label {
+                margin-bottom: 8px;
+                color: #6b778c;
+                font-size: 13px;
+                line-height: 18px;
+              }
+
+              &__path {
+                display: flex;
+                align-items: center;
+                min-width: 0;
+                color: #27364b;
+                font-size: 15px;
+                line-height: 22px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+
+              &__path-item {
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+
+              &__separator {
+                flex: none;
+                margin: 0 7px;
+                color: #33c785;
+                font-weight: 600;
+              }
             }
 
             .auth-tree {
@@ -2366,8 +2697,11 @@ export default {
               min-height: 0;
               display: flex;
               flex-direction: column;
-              border-top: none;
-              border-left: none;
+              overflow: hidden;
+              background: #fff;
+              border: 1px solid #e6eaf0;
+              border-radius: 8px;
+              box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
             }
 
             .auth-tabs {
@@ -2375,181 +2709,286 @@ export default {
               align-items: center;
               justify-content: space-between;
               flex-shrink: 0;
-              border-bottom: 1px solid var(--border-light);
+              min-height: 58px;
+              padding: 0 22px;
+              border-bottom: 1px solid #edf1f5;
 
               &__items {
                 display: flex;
                 align-items: center;
+                gap: 28px;
               }
 
               &__item {
                 position: relative;
-                padding: 10px 16px 8px;
-                font-size: 13px;
-                color: var(--text-secondary);
+                display: inline-flex;
+                align-items: center;
+                min-height: 58px;
+                color: #6b778c;
+                font-size: 14px;
                 cursor: pointer;
                 transition: color 0.12s ease;
 
                 &:hover {
-                  color: var(--text-primary);
+                  color: #253044;
                 }
 
                 &.is-active {
-                  color: var(--primary-color);
-                  font-weight: 500;
+                  color: #18b978;
+                  font-weight: 600;
 
                   &::after {
                     content: '';
                     position: absolute;
-                    left: 16px;
-                    right: 16px;
+                    left: 0;
+                    right: 0;
                     bottom: -1px;
                     height: 2px;
-                    background: var(--primary-color);
+                    background: #33c785;
+                    border-radius: 2px;
                   }
                 }
 
                 &.is-disabled {
-                  color: var(--text-disabled);
+                  color: #c1c7d0;
                   cursor: not-allowed;
                 }
               }
 
               &__extra {
-                padding-right: 16px;
+                flex: none;
               }
 
               &__time-link {
+                color: #6b778c;
                 font-size: 13px;
-                color: var(--text-secondary);
                 cursor: pointer;
 
                 &:hover {
-                  color: var(--primary-color);
+                  color: #18b978;
                 }
               }
 
               &__content {
                 flex: 1;
                 min-height: 0;
+                padding: 18px 24px;
                 overflow: auto;
+
+                > div {
+                  height: 100%;
+                  min-height: 0;
+                }
+
+                :deep(.vtree-tree__wrapper) {
+                  height: 100%;
+                  overflow: auto;
+                }
+
+                :deep(.vtree-tree-node) {
+                  min-height: 40px;
+                }
+
+                :deep(.vtree-tree-node__checkbox:focus) {
+                  box-shadow: 0 0 0 2px rgba(62, 207, 142, 0.2);
+                }
+
+                :deep(.vtree-tree-node__checkbox:hover) {
+                  border-color: #3ecf8e;
+                }
+
+                :deep(.vtree-tree-node__checkbox_checked),
+                :deep(.vtree-tree-node__checkbox_indeterminate) {
+                  border-color: #3ecf8e;
+                  background-color: #3ecf8e;
+                }
+
+                :deep(.vtree-tree-node__checkbox_checked:hover),
+                :deep(.vtree-tree-node__checkbox_indeterminate:hover) {
+                  border-color: #3ecf8e;
+                  background-color: #3ecf8e;
+                }
+
+                :deep(.vtree-tree-node__checkbox_checked.vtree-tree-node__checkbox_disabled),
+                :deep(.vtree-tree-node__checkbox_indeterminate.vtree-tree-node__checkbox_disabled) {
+                  border-color: #3ecf8e;
+                  background-color: #3ecf8e;
+                  opacity: 0.68;
+                }
+
+                :deep(.vtree-tree-node__checkbox_checked.vtree-tree-node__checkbox_disabled::after),
+                :deep(.vtree-tree-node__checkbox_indeterminate.vtree-tree-node__checkbox_disabled::after) {
+                  border-color: #fff;
+                }
+
+                :deep(.vtree-tree-node__title:hover) {
+                  background-color: #eefaf4;
+                }
+
+                :deep(.vtree-tree-node__title_selected),
+                :deep(.vtree-tree-node__title_selected:hover) {
+                  background-color: #def6eb;
+                }
               }
             }
 
             .auth-tree-container-right {
-              height: 100%;
-              border-left: 1px solid #ccc;
-              border-right: 1px solid #ccc;
+              flex: 0 0 320px;
+              min-height: 0;
+              overflow: hidden;
+              background: #fff;
+              border: 1px solid #e6eaf0;
+              border-radius: 8px;
+              box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
+
+              .setting {
+                height: 100%;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+              }
+
               .label-title {
-                height: 45px;
-                border-bottom: 1px solid #ccc;
-                padding: 14px 16px;
+                flex-shrink: 0;
+                height: 58px;
+                padding: 18px 22px;
+                border-bottom: 1px solid #edf1f5;
+                color: #253044;
+                font-size: 16px;
+                font-weight: 600;
+                line-height: 22px;
               }
+
               .option-section {
-                padding: 14px 16px;
-                border-bottom: 1px solid #eee;
+                flex-shrink: 0;
+                padding: 20px 22px;
+                border-bottom: 1px solid #edf1f5;
               }
+
               .option-section-title {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                margin-bottom: 10px;
-                font-weight: 500;
+                margin-bottom: 14px;
+                color: #253044;
+                font-size: 14px;
+                font-weight: 600;
+
+                :deep(.ant-btn) {
+                  height: 24px;
+                  padding: 0;
+                  border: 0;
+                  color: #18b978;
+                  background: transparent;
+                  box-shadow: none;
+                }
+
+                &--required {
+                  justify-content: flex-start;
+                }
+
+                .required-title {
+                  display: inline-flex;
+                  align-items: center;
+                }
+
+                .required-mark {
+                  margin-right: 4px;
+                  color: #ff4d4f;
+                  font-weight: 600;
+                }
               }
-              .all-resource-option {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 8px;
+
+              .content {
+                min-width: 0;
               }
-              .all-resource-tip {
-                color: #7a8499;
-                font-size: 13px;
-                line-height: 20px;
+
+              .ranges {
+                width: 100%;
+                padding: 0 0 14px;
               }
+
+              .range-button-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                width: 100%;
+              }
+
+              .date-btns {
+                width: 100%;
+                height: 38px;
+                padding: 0;
+                color: #536079;
+                background: #fff;
+                border: 1px solid #dcdee2;
+                border-radius: 6px;
+                text-align: center;
+                line-height: 36px;
+                cursor: pointer;
+                transition:
+                  color 0.12s ease,
+                  border-color 0.12s ease,
+                  background-color 0.12s ease;
+
+                &:hover {
+                  color: #18b978;
+                  border-color: #3ecf8e;
+                }
+
+                &:focus,
+                &:focus-visible,
+                &:active {
+                  outline: none;
+                  box-shadow: none;
+                }
+
+                &.is-active {
+                  color: #18b978;
+                  background: #eaf9f3;
+                  border-color: #3ecf8e;
+                }
+              }
+
               .time {
                 display: flex;
                 flex-direction: column;
-                align-items: center;
+                gap: 10px;
+                align-items: stretch;
               }
+
               .time-mid {
                 display: flex;
                 justify-content: center;
+                color: #6b778c;
+                line-height: 18px;
               }
-              .ranges {
-                padding-top: 4px;
-                padding-bottom: 12px;
-                text-align: center;
-                width: 210px;
-                margin: 0 auto;
+
+              :deep(.ant-picker) {
+                width: 100%;
+                height: 38px;
+                border-radius: 6px;
               }
-              .date-btns {
-                width: 68px;
-                padding: 0 8px;
+
+              .all-resource-option {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+              }
+
+              .all-resource-tip {
+                color: #98a2b3;
+                font-size: 13px;
+                line-height: 20px;
               }
             }
           }
         }
-
-        .right {
-        }
-
-        .tree {
-          display: flex;
-          flex-direction: column;
-        }
-      }
-
-      .footer {
-        height: 50px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
       }
     }
-    &:focus {
-      background-color: #e6e6e6 !important;
-    }
-    &:disabled {
-      background-color: #f5f5f5 !important;
-    }
   }
-  :deep(.ivu-tabs-nav-next) {
-    line-height: 45px;
-  }
-  :deep(.ivu-tabs-nav-prev) {
-    line-height: 45px;
-  }
-  :deep(.ivu-tabs-nav-next) {
-    border-right: none !important;
-  }
-  :deep(.ivu-tabs-nav-prev) {
-    border-left: none !important;
-  }
-  :deep(.ivu-tabs-nav-next:hover) {
-    background-color: #f5f5f5 !important;
-  }
-  :deep(.ivu-tabs-nav-prev:hover) {
-    background-color: #f5f5f5 !important;
-  }
-  :deep(.ivu-tabs-nav-next:active) {
-    background-color: #e6e6e6 !important;
-  }
-  :deep(.ivu-tabs-nav-prev:active) {
-    background-color: #e6e6e6 !important;
-  }
-  :deep(.ivu-tabs-nav-next:focus) {
-    background-color: #e6e6e6 !important;
-  }
-  :deep(.ivu-tabs-nav-prev:focus) {
-    background-color: #e6e6e6 !important;
-  }
-  :deep(.ivu-tabs-nav-next:disabled) {
-    background-color: #f5f5f5 !important;
-  }
-  :deep(.ivu-tabs-nav-prev:disabled) {
-    background-color: #f5f5f5 !important;
-  }
+
   :deep(.vtree-tree__empty-text_default) {
     position: relative;
     top: 100px;
@@ -2557,15 +2996,17 @@ export default {
 }
 
 .option-wrap {
+  flex-shrink: 0;
   display: flex;
-  border-right: 1px solid #ccc;
-  border-left: 1px solid #ccc;
-  border-bottom: 1px solid #ccc;
-  border-top: none;
-  height: 60px;
-  margin-bottom: 12px;
-  padding: 12px;
+  align-items: center;
   justify-content: center;
+  height: 72px;
+  margin: 12px 0 16px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid #e6eaf0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
 }
 
 :deep(.node-wrap) {

@@ -2247,7 +2247,7 @@
   "han-shu": "函数",
   "guan-jian-zi": "关键字",
   "jin-tian": "今天",
-  "yi-tian": "24小时",
+  "yi-tian": "一天",
   "yi-zhou": "一周",
   "yi-ge-yue": "一月",
   "yi-nian": "一年",
@@ -3469,7 +3469,7 @@
   "cha-kan-guan-lian-biao": "查看关联表",
   "amazon-bedrock-fu-wu-zhong-duan-jie-dian": "Amazon Bedrock 服务终端节点",
   "fu-wu": "服务",
-  "huan-mei-you-bian-ji-quan-xian": "还没有编辑权限",
+  "huan-mei-you-bian-ji-quan-xian": "未修改任何权限",
   "chong-zhi-aksk": "重置AK/SK",
   "aksk-chong-zhi-cheng-gong": "AK/SK 重置成功！",
   "que-ren-chong-zhi-aksk": "确认重置 AK/SK",
@@ -4061,5 +4061,9 @@
   "cicd-trigger-format-desc": "控制远程触发接口的响应内容格式。",
   "cicd-trigger-url-desc": "复制后可在外部系统中主动触发变更流。",
   "cicd-callback-method-desc": "变更结束后向目标地址发送结果通知的请求方法。",
-  "cicd-callback-url-desc": "接收变更结果回调的 HTTP 或 HTTPS 地址。"
+  "cicd-callback-url-desc": "接收变更结果回调的 HTTP 或 HTTPS 地址。",
+  "dang-qian-zi-yuan": "当前资源",
+  "yi-xuan-ze-quan-xian-shu": "已选择权限",
+  "quan-xian-xiang": "项",
+  "qing-xuan-ze-zuo-ce-zi-yuan": "请选择左侧资源"
 }

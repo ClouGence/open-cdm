@@ -252,7 +252,7 @@
 </template>
 
 <script lang="jsx">
-import dayjs from 'dayjs';
+import dayjs from '@/utils/dayjsSetup';
 import VTree from '@wsfe/vue-tree';
 import { cloneDeep as deepClone } from '@/utils/lodash';
 import { mapGetters, mapState } from 'vuex';

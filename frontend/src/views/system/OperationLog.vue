@@ -13,14 +13,14 @@
                   <span>{{ $t('nav-ri-zhi-shen-ji') }}</span>
                 </Option>
               </Select>
-              {{ $t('cao-zuo-shi-jian') }}
-              <DatePicker
-                :editable="false"
-                v-model="timeRange"
-                type="datetimerange"
-                format="yyyy-MM-dd HH:mm"
-                style="width: 266px; margin-left: 10px; margin-right: 10px"
-              ></DatePicker>
+              <span class="log-time-range-label">{{ $t('cao-zuo-shi-jian') }}</span>
+              <a-range-picker
+                v-model:value="timeRange"
+                show-time
+                format="YYYY-MM-DD HH:mm"
+                :placeholder="[$t('kai-shi-shi-jian'), $t('jie-shu-shi-jian')]"
+                class="log-time-range"
+              />
               <Select v-model="searchType" style="width: 100px; margin-right: 10px" @on-change="handleChangeSearchType">
                 <Option value="user" :label="$t('cao-zuo-ren')">
                   <span>{{ $t('cao-zuo-ren') }}</span>
@@ -188,6 +188,7 @@ import { mapState } from 'vuex';
 import copyMixin from '@/mixins/copyMixin';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import { resolveComponent } from 'vue';
+import dayjs from '@/utils/dayjsSetup';
 
 export default {
   name: 'OperationLog',
@@ -206,7 +207,7 @@ export default {
       lastId: 0,
       prevFirst: [],
       page: 1,
-      timeRange: [new Date(new Date().getTime() - 24 * 3600 * 1000), new Date()],
+      timeRange: [dayjs().subtract(1, 'day'), dayjs()],
       searchData: {
         uid: '',
         userName: '',
@@ -336,7 +337,7 @@ export default {
       if (!this.timeRange || this.timeRange.length === 0 || !this.timeRange[0] || !this.timeRange[1]) {
         return this.$t('quan-bu');
       }
-      return `${fecha.format(new Date(this.timeRange[0]), 'YYYY-MM-DD HH:mm')} - ${fecha.format(new Date(this.timeRange[1]), 'YYYY-MM-DD HH:mm')}`;
+      return `${dayjs(this.timeRange[0]).format('YYYY-MM-DD HH:mm')} - ${dayjs(this.timeRange[1]).format('YYYY-MM-DD HH:mm')}`;
     },
     exportSearchTypeText() {
       const searchTypeMap = {
@@ -488,15 +489,7 @@ export default {
         preparedRows: 0,
         percent: 0
       };
-      if (this.timeRange.length > 0) {
-        this.searchData.opStart =
-          this.timeRange[0] && fecha.format(new Date(new Date(this.timeRange[0]).getTime() - 8 * 3600 * 1000), 'YYYY-MM-DDTHH:mm:ss.SSS');
-        this.searchData.opEnd =
-          this.timeRange[1] && fecha.format(new Date(new Date(this.timeRange[1].getTime() - 8 * 3600 * 1000)), 'YYYY-MM-DDTHH:mm:ss.SSS');
-      } else {
-        this.searchData.opStart = '';
-        this.searchData.opEnd = '';
-      }
+      this.syncTimeRangeQuery();
       const data = { ...this.searchData };
       data.exportId = exportId;
       data.formatName = this.exportForm.formatName;
@@ -545,6 +538,15 @@ export default {
       this.searchData.pageData.startId = 0;
       this.handleSearch();
     },
+    syncTimeRangeQuery() {
+      if (Array.isArray(this.timeRange) && this.timeRange[0] && this.timeRange[1]) {
+        this.searchData.opStart = dayjs(this.timeRange[0]).subtract(8, 'hour').format('YYYY-MM-DDTHH:mm:ss.SSS');
+        this.searchData.opEnd = dayjs(this.timeRange[1]).subtract(8, 'hour').format('YYYY-MM-DDTHH:mm:ss.SSS');
+        return;
+      }
+      this.searchData.opStart = '';
+      this.searchData.opEnd = '';
+    },
     rdpQueryOperationListCondition() {
       this.$services.rdpAuditQueryListCondition().then((res) => {
         if (res.success) {
@@ -555,15 +557,7 @@ export default {
     },
     async handleSearch(type) {
       this.refreshLoading = true;
-      if (this.timeRange.length > 0) {
-        this.searchData.opStart =
-          this.timeRange[0] && fecha.format(new Date(new Date(this.timeRange[0]).getTime() - 8 * 3600 * 1000), 'YYYY-MM-DDTHH:mm:ss.SSS');
-        this.searchData.opEnd =
-          this.timeRange[1] && fecha.format(new Date(new Date(this.timeRange[1].getTime() - 8 * 3600 * 1000)), 'YYYY-MM-DDTHH:mm:ss.SSS');
-      } else {
-        this.searchData.opStart = '';
-        this.searchData.opEnd = '';
-      }
+      this.syncTimeRangeQuery();
       this.searchData.pageData.pageSize = 20;
       this.$services
         .rdpAuditQueryAll({ data: this.searchData })
@@ -710,6 +704,20 @@ export default {
       color: #9ea7b4;
       font-size: 12px;
     }
+  }
+
+  .log-time-range-label {
+    margin-right: 10px;
+  }
+
+  .log-time-range {
+    width: 320px;
+    margin-right: 10px;
+  }
+
+  :deep(.log-time-range.ant-picker) {
+    height: 32px;
+    border-radius: 6px;
   }
 }
 

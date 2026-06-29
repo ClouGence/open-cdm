@@ -172,7 +172,14 @@ export default {
         label: this.$t('jiao-se'),
         to: '/manager/role'
       };
+      const accountRoot = {
+        label: this.$t('nav-zhang-hu'),
+        to: '/manager/account'
+      };
 
+      if (path === '/system/authdm' || /^\/system\/account\/authdm\/[^/]+$/.test(path)) {
+        return [accountRoot, { label: this.$t('shou-quan'), to: this.$route.fullPath }];
+      }
       if (path === '/data-access/rules' || path === '/data-access/rules/') {
         return [{ ...securityRoot, to: this.$route.fullPath }];
       }

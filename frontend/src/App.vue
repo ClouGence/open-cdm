@@ -28,6 +28,7 @@
 import SonnerToast from '@/components/SonnerToast.vue';
 import enUS from 'ant-design-vue/es/locale/en_US';
 import zhCN from 'ant-design-vue/es/locale/zh_CN';
+import { setDayjsLocale } from '@/utils/dayjsSetup';
 import { cacheDmBootstrapStatus, isDmSystemBootstrapRequired, isDmSystemStarting } from './utils/dmGlobalSettings';
 
 const SYSTEM_READY_POLL_INTERVAL_MS = 2000;
@@ -97,7 +98,7 @@ export default {
   },
   async created() {
     console.log(this.$i18n.global.locale.value);
-    this.locale = this.$i18n.global.locale.value === 'zh-CN' ? zhCN : enUS;
+    this.syncLocale();
     await this.bootstrapApp();
   },
   mounted() {
@@ -106,6 +107,11 @@ export default {
     document.addEventListener('mouseup', this.handleMouseup);
   },
   methods: {
+    syncLocale() {
+      const currentLocale = this.$i18n.global.locale.value;
+      this.locale = currentLocale === 'zh-CN' ? zhCN : enUS;
+      setDayjsLocale(currentLocale);
+    },
     isHomeEntryRoute() {
       const hash = window.location.hash || '#/';
       return hash === '#/' || hash === '' || hash === '#/login' || hash.startsWith('#/login?');
