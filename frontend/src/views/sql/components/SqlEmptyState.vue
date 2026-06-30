@@ -19,8 +19,11 @@
           </Button>
         </div>
 
-        <div v-if="showDataSourceSetupActions" class="flow-arrow">
-          <CustomIcon type="icon-v2-right-circle-fill" size="24" />
+        <div v-if="showDataSourceSetupActions" class="flow-arrow" aria-hidden="true">
+          <svg class="flow-arrow-icon" viewBox="0 0 24 24">
+            <path d="M7 12h10" />
+            <path d="m13.5 8.5 4 3.5-4 3.5" />
+          </svg>
         </div>
 
         <div v-if="showDataSourceSetupActions" class="action-step">
@@ -31,6 +34,13 @@
           <Button type="primary" :disabled="!myAuth.includes('DM_DS_MANAGE')" @click="handleConfigDataSource">
             {{ $t('sql-empty-config-datasource') }}
           </Button>
+        </div>
+
+        <div v-if="showDataSourceSetupActions" class="flow-arrow" aria-hidden="true">
+          <svg class="flow-arrow-icon" viewBox="0 0 24 24">
+            <path d="M7 12h10" />
+            <path d="m13.5 8.5 4 3.5-4 3.5" />
+          </svg>
         </div>
 
         <div class="action-step" v-if="!myAuth.includes('DM_DS_MANAGE')">
@@ -47,8 +57,11 @@
           </Tooltip>
         </div>
 
-        <div class="flow-arrow" v-if="!myAuth.includes('DM_DS_MANAGE')">
-          <CustomIcon type="icon-v2-right-circle-fill" size="24" />
+        <div class="flow-arrow" v-if="!myAuth.includes('DM_DS_MANAGE')" aria-hidden="true">
+          <svg class="flow-arrow-icon" viewBox="0 0 24 24">
+            <path d="M7 12h10" />
+            <path d="m13.5 8.5 4 3.5-4 3.5" />
+          </svg>
         </div>
 
         <div class="action-step">
@@ -179,8 +192,21 @@ export default {
 }
 
 .flow-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--text-tertiary);
   margin-top: 12px;
+}
+
+.flow-arrow-icon {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
 }
 
 .action-button-placeholder {
