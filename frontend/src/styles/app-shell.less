@@ -315,7 +315,9 @@
   &__body {
     flex: 1;
     min-height: 0;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     display: flex;
     flex-direction: column;
   }
@@ -804,6 +806,7 @@
   flex-direction: column;
   height: 100%;
   min-height: 0;
+  overflow-y: auto;
 
   .profile-field-list {
     margin: 0;

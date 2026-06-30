@@ -315,8 +315,11 @@ export default {
 <style lang="less" scoped>
 .role {
   height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .new-role-modal {

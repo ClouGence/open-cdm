@@ -70,7 +70,8 @@ export default {
   &__body {
     flex: 1;
     min-height: 0;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 }
 </style>

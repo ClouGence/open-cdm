@@ -318,6 +318,7 @@ export default {
 #app {
   flex-direction: column;
   display: flex;
+  min-height: 100%;
   height: 100%;
 }
 

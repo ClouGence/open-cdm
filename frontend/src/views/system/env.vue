@@ -963,6 +963,9 @@ export default {
 <style lang="less" scoped>
 .env {
   height: 100%;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
 
   .env-desc-cell {
     white-space: nowrap;

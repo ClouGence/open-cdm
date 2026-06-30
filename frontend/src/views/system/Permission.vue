@@ -1913,8 +1913,11 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
   padding: 16px;
   padding-bottom: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
 
   .auth-content {
     height: calc(100% - 100px);

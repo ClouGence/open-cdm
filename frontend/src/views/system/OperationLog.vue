@@ -670,8 +670,11 @@ export default {
 <style scoped lang="less">
 .operation-log {
   height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
 
   .operator-cell {
     line-height: 20px;

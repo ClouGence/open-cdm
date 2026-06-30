@@ -605,7 +605,8 @@ export default {
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   background-color: var(--login-canvas);
   background-image: var(--login-bg-pattern);
   background-size: cover;
