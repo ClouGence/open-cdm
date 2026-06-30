@@ -280,7 +280,7 @@
 </template>
 <script>
 import fecha from 'fecha';
-import _ from 'lodash';
+import _ from '@/utils/lodash';
 import Mapping from '@/views/util';
 import { mapGetters, mapState } from 'vuex';
 import StToken from '../ApplyStToken';

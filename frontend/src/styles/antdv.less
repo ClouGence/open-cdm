@@ -73,8 +73,53 @@
 }
 
 .ant-btn-primary {
-  background: var(--primary-color) !important;
-  border-color: var(--primary-color) !important;
+  &:not(:disabled) {
+    background: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #ffffff !important;
+
+    span {
+      color: #ffffff !important;
+    }
+
+    &:hover {
+      background-color: @hover-color !important;
+      border-color: @hover-color !important;
+      color: #ffffff !important;
+    }
+
+    &:active {
+      background-color: @active-color !important;
+      border-color: @active-color !important;
+      color: #ffffff !important;
+    }
+
+    &:focus {
+      background: var(--primary-color) !important;
+      border-color: var(--primary-color) !important;
+      color: #ffffff !important;
+    }
+  }
+
+  &[disabled],
+  &:disabled {
+    background: #ececec !important;
+    border-color: #dadada !important;
+    color: #999 !important;
+
+    span {
+      color: #999 !important;
+    }
+  }
+}
+
+.ant-btn-dangerous {
+  background-color: #ff4d4f;
+}
+
+.ant-btn-primary.ant-btn-dangerous:not(:disabled) {
+  background: @error-color !important;
+  border-color: @error-color !important;
   color: #ffffff !important;
 
   span {
@@ -82,26 +127,17 @@
   }
 
   &:hover {
-    background-color: @hover-color !important;
-    border-color: @hover-color !important;
+    background-color: lighten(@error-color, 8%) !important;
+    border-color: lighten(@error-color, 8%) !important;
     color: #ffffff !important;
   }
 
-  &:active {
-    background-color: @active-color !important;
-    border-color: @active-color !important;
-    color: #ffffff !important;
-  }
-
+  &:active,
   &:focus {
-    background: var(--primary-color) !important;
-    border-color: var(--primary-color) !important;
+    background-color: darken(@error-color, 8%) !important;
+    border-color: darken(@error-color, 8%) !important;
     color: #ffffff !important;
   }
-}
-
-.ant-btn-dangerous {
-  background-color: #ff4d4f;
 }
 
 .ant-btn-background-ghost {

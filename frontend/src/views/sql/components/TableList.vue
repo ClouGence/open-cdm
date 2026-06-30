@@ -946,7 +946,7 @@ import { QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons-vue';
 import VTree from '@wsfe/vue-tree';
 import Loading from 'vue-loading-overlay';
 import { mapGetters, mapState } from 'vuex';
-import deepClone from 'lodash.clonedeep';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 import copyMixin from '@/mixins/copyMixin';
 import { ACTION_TYPE, TAB_TYPE } from '@/const';
 import datasourceMixin from '@/mixins/datasourceMixin';

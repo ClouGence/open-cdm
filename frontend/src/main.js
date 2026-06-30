@@ -1,5 +1,52 @@
+import '@/utils/dayjsSetup';
 import { createApp } from 'vue';
-import ViewUIPlus from 'view-ui-plus';
+import {
+  Alert,
+  Breadcrumb,
+  BreadcrumbItem,
+  Button,
+  ButtonGroup,
+  Card,
+  Checkbox,
+  CheckboxGroup,
+  DatePicker,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  Form,
+  FormItem,
+  Icon,
+  Input,
+  Menu,
+  MenuItem,
+  Message,
+  Modal,
+  Option,
+  Page,
+  Poptip,
+  Radio,
+  RadioGroup,
+  Select,
+  Table,
+  TabPane,
+  Tabs,
+  Tooltip,
+  Tree,
+  Divider,
+  Switch,
+  Row,
+  Col,
+  Steps,
+  Step,
+  Collapse,
+  Panel,
+  TimePicker,
+  Circle,
+  Progress,
+  Spin,
+  Tag,
+  Space
+} from 'view-ui-plus';
 import eventBus from '@/utils/eventBus';
 import checkES5Support from './utils/isEs5Supported';
 import vResize from '@theshy/v-resize';
@@ -62,13 +109,80 @@ app.mixin(CommonMixin);
 
 // Use plugins
 app.use(i18n);
-app.use(ViewUIPlus, {
-  capture: false,
-  modal: {
-    maskClosable: false
-  },
-  i18n
+// Register view-ui-plus components globally
+const iviewComponents = {
+  Alert,
+  Breadcrumb,
+  BreadcrumbItem,
+  Button,
+  ButtonGroup,
+  Card,
+  Checkbox,
+  CheckboxGroup,
+  DatePicker,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  Form,
+  FormItem,
+  Icon,
+  Input,
+  Menu,
+  MenuItem,
+  Modal,
+  Option,
+  Page,
+  Poptip,
+  Radio,
+  RadioGroup,
+  Select,
+  Table,
+  TabPane,
+  Tabs,
+  Tooltip,
+  Tree,
+  Divider,
+  'i-switch': Switch,
+  'i-button': Button,
+  'i-input': Input,
+  'i-alert': Alert,
+  'i-form': Form,
+  'i-form-item': FormItem,
+  'i-checkbox': Checkbox,
+  Row,
+  Col,
+  Steps,
+  Step,
+  Collapse,
+  Panel,
+  'i-circle': Circle,
+  Progress,
+  Spin,
+  Tag,
+  Space
+};
+Object.keys(iviewComponents).forEach((key) => {
+  app.component(key, iviewComponents[key]);
 });
+// Extend Modal.confirm to honor a className option by tagging the freshly
+// mounted modal wrap. View UI Plus does not pass className through to the
+// modal wrap on its own, but we want destructive confirms (deletes) to be
+// able to opt their OK button into the error color via styles/modal.less.
+const originalModalConfirm = Modal.confirm.bind(Modal);
+Modal.confirm = function patchedConfirm(props = {}) {
+  const result = originalModalConfirm(props);
+  if (props.className) {
+    requestAnimationFrame(() => {
+      const wraps = document.body.querySelectorAll('.ivu-modal-wrap');
+      const latest = wraps[wraps.length - 1];
+      if (latest) latest.classList.add(props.className);
+    });
+  }
+  return result;
+};
+app.config.globalProperties.$Modal = Modal;
+app.config.globalProperties.$Message = Message;
+app.config.globalProperties.$Spin = Spin;
 
 app.use(registerUiOverrides);
 app.use(router);

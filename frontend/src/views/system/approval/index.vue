@@ -193,6 +193,11 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 12px;
+
+  a:hover {
+    border-bottom: none;
+    box-shadow: inset 0 -1px 0 currentColor;
+  }
 }
 
 .status-cell {

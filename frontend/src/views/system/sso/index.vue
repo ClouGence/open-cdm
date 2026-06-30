@@ -16,9 +16,11 @@
               <Button type="primary" ghost @click="handleQuery">{{ $t('cha-xun') }}</Button>
             </div>
             <div class="right">
-              <Button v-if="canEdit" @click="goCreate" type="primary" style="margin-right: 10px" icon="md-add" :disabled="!hasUnenabledProvider">
-                {{ $t('xin-zeng') }}
-              </Button>
+              <a-tooltip v-if="canEdit" :title="hasUnenabledProvider ? '' : $t('sso-all-providers-enabled')">
+                <Button @click="goCreate" type="primary" style="margin-right: 10px" icon="md-add" :disabled="!hasUnenabledProvider">
+                  {{ $t('xin-zeng') }}
+                </Button>
+              </a-tooltip>
               <Button @click="init" :loading="loading">
                 <CustomIcon type="icon-v2-Refresh" v-if="!loading" />
               </Button>
@@ -111,14 +113,7 @@ export default {
       );
     },
     hasUnenabledProvider() {
-      return SSO_PROVIDERS.some((p) => !this.enabledTypes.includes(p.type) && !this.conflictingPeer(p.type));
-    },
-    conflictingPeer() {
-      return (type) => {
-        const def = getProviderByType(type);
-        if (!def || !def.conflictsWith) return '';
-        return def.conflictsWith.find((peer) => this.enabledTypes.includes(peer)) || '';
-      };
+      return SSO_PROVIDERS.some((p) => !this.enabledTypes.includes(p.type));
     }
   },
   mounted() {
@@ -170,5 +165,10 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 12px;
+
+  a:hover {
+    border-bottom: none;
+    box-shadow: inset 0 -1px 0 currentColor;
+  }
 }
 </style>

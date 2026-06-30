@@ -87,7 +87,7 @@
 </template>
 
 <script>
-import moment from 'moment';
+import dayjs from '@/utils/dayjsSetup';
 import { dateRange } from '../../../../utils';
 import authMixin from '../../../../mixins/authMixin';
 
@@ -122,8 +122,8 @@ export default {
   methods: {
     handleRangeClick(key) {
       this.range = key;
-      this.startTime = moment();
-      this.endTime = moment().add(key, 'd');
+      this.startTime = dayjs();
+      this.endTime = dayjs().add(key, 'd');
       this.$refs['start-time-picker'].$refs.picker.sOpen = false;
     },
     handleStartOpenChange(open) {

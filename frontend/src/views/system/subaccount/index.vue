@@ -249,7 +249,7 @@ import { generateData } from '@/utils';
 import copyMixin from '@/mixins/copyMixin';
 import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
 import { encryptMixin } from '@/mixins/encryptMixin';
-import deepClone from 'lodash.clonedeep';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 
 const PASSWORD_PLACEHOLDER = '******';
 const DEFAULT_PASSWORD_MIN_LENGTH = 8;

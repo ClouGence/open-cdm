@@ -38,7 +38,22 @@ public enum LdapConfigKey {
     LdapFieldLogin("ldapFieldLogin"),
     LdapFieldUser("ldapFieldUser"),
     LdapFieldEmail("ldapFieldEmail"),
-    LdapFieldPhone("ldapFieldPhone"),;
+    LdapFieldPhone("ldapFieldPhone"),
+
+    AdHost("adHost"),
+    AdPort("adPort"),
+    AdNetBIOSRoute("adNetBIOSRoute"),
+    AdSoTimeout("adSoTimeout"),
+    AdBase("adBase"),
+    AdUser("adUser"),
+    AdPassword("adPassword"),
+    AdDomain("adDomain"),
+    AdRoleMap("adRoleMap"),
+    AdUserObjectClass("adUserObjectClass"),
+    AdFieldLogin("adFieldLogin"),
+    AdFieldUser("adFieldUser"),
+    AdFieldEmail("adFieldEmail"),
+    AdFieldPhone("adFieldPhone"),;
 
     private final String configKey;
 

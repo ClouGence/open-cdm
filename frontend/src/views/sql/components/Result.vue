@@ -182,6 +182,7 @@
             :columns="antdColumns"
             :dataSource="selectedTab.showData"
             :pagination="false"
+            :scroll="{ x: 'max-content' }"
             size="small"
             bordered
             :rowKey="(record, index) => index"
@@ -1610,24 +1611,11 @@ export default {
     flex: 1;
     min-height: 0;
     width: 100%;
-    overflow-x: auto;
-    overflow-y: auto;
+    overflow: hidden;
 
     .result-set-style {
       :deep(.ant-table) {
         font-size: 12px;
-      }
-
-      :deep(.ant-table-container) {
-        overflow: visible !important;
-      }
-
-      :deep(.ant-table-body) {
-        overflow: visible !important;
-      }
-
-      :deep(.ant-table-content) {
-        overflow: visible !important;
       }
 
       :deep(.ant-table-thead > tr > th) {

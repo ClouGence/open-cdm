@@ -92,10 +92,8 @@
 </template>
 
 <script>
-import moment from 'moment';
-import cloneDeep from 'lodash.clonedeep';
-import isEqual from 'lodash.isequal';
-import dayjs from 'dayjs';
+import dayjs from '@/utils/dayjsSetup';
+import { cloneDeep, isEqual } from '@/utils/lodash';
 import { mapState } from 'vuex';
 import { dateRange } from '@/utils';
 import authMixin from '../../mixins/authMixin';
@@ -163,11 +161,11 @@ export default {
     };
   },
   methods: {
-    moment,
+    dayjs,
     handleRangeClick(key) {
       this.range = key;
-      this.startTime = moment();
-      this.endTime = moment().add(key, 'd');
+      this.startTime = dayjs();
+      this.endTime = dayjs().add(key, 'd');
       this.durationClicked = true;
     },
     handleStartOpenChange(open) {

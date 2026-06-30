@@ -260,6 +260,7 @@ export default {
       this.$Modal.confirm({
         title: this.$t('que-ren'),
         content: this.$t('shi-fou-yao-shan-chu'),
+        className: 'dm-modal-destructive',
         onOk: async () => {
           const res = await this.$services.dmDevopsImDelete({
             data: {

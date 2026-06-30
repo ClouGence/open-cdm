@@ -10,12 +10,12 @@ import {
   MinusOutlined,
   PlusOutlined
 } from '@ant-design/icons-vue';
-import deepClone from 'lodash.clonedeep';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 import { Modal } from 'ant-design-vue';
 import copyMixin from '@/mixins/copyMixin';
 import exportMixin from '@/mixins/exportMixin';
 import dayjs from 'dayjs';
-import * as XLSX from 'xlsx';
+
 import browseMixin from '@/mixins/browseMixin';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
 import i18n from '@/i18n';
@@ -345,7 +345,7 @@ export default {
   methods: {
     h,
     dayjs,
-    handleExport(type) {
+    async handleExport(type) {
       let exportData = [];
       const range = window.luckysheet.getRange();
       const { row, column } = range[0];
@@ -372,6 +372,7 @@ export default {
           break;
       }
 
+      const XLSX = await import('xlsx');
       const workbook = XLSX.utils.book_new();
       const worksheet = XLSX.utils.json_to_sheet(exportData);
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');

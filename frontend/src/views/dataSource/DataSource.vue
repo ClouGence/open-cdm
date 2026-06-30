@@ -400,7 +400,7 @@
 </template>
 <script>
 import { mapGetters, mapState } from 'vuex';
-import _ from 'lodash';
+import _ from '@/utils/lodash';
 import DataSourceHeader from '@/components/function/addDataSource/DataSourceHeader';
 import { isOracle } from '@/utils';
 import { SECOND_CONFIRM_EVENT_LIST } from '@/const';

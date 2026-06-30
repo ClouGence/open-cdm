@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from '@/utils/lodash';
 import store from '@/store/index';
 import DataSourceGroup from '@/views/dataSourceGroup.json';
 

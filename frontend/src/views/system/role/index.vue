@@ -98,7 +98,7 @@
 </template>
 
 <script>
-import cloneDeep from 'lodash.clonedeep';
+import { cloneDeep } from '@/utils/lodash';
 import { mapState } from 'vuex';
 
 export default {

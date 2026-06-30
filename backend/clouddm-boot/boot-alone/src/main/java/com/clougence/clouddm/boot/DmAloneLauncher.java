@@ -72,14 +72,9 @@ public class DmAloneLauncher {
             log.info("[DmAloneLauncher] Starting in FULL mode...");
             startApp(args, world);
         } else {
-            log.info("[DmAloneLauncher] Starting in INIT mode (minimal web server)...");
-            startInit(args, world);
+            log.info("[DmAloneLauncher] Starting in INIT mode (separate Spring Boot app)...");
+            InitApplication.main(args);
         }
-    }
-
-    private static void startInit(String[] args, ClassWorld world) throws Exception {
-        log.info("[DmAloneLauncher] Starting init application (separate Spring Boot app)...");
-        InitApplication.main(args);
     }
 
     private static void startApp(String[] args, ClassWorld world) throws Exception {
