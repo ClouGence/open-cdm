@@ -26,6 +26,8 @@ services:
       - -c
       - |
         cat > /container-entrypoint-initdb.d/01-init.sql <<'SQL'
+        ALTER PROFILE DEFAULT LIMIT FAILED_LOGIN_ATTEMPTS UNLIMITED;
+        ALTER USER devtester IDENTIFIED BY "123456" ACCOUNT UNLOCK;
         GRANT CREATE MATERIALIZED VIEW TO devtester;
         GRANT CREATE SYNONYM TO devtester;
         GRANT CREATE TYPE TO devtester;

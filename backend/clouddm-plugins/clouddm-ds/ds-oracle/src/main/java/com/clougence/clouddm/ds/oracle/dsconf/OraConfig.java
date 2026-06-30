@@ -190,9 +190,7 @@ public class OraConfig extends DataSourceConfig {
         }
         properties.setProperty("javax.net.ssl.trustStore", this.getSslCaFilePath());
         properties.setProperty("javax.net.ssl.trustStoreType", keyStoreType(this.getSslCaFileFormat(), "CA"));
-        if (StringUtils.isNotBlank(this.getSslCaPassword())) {
-            properties.setProperty("javax.net.ssl.trustStorePassword", this.getSslCaPassword());
-        }
+        properties.setProperty("javax.net.ssl.trustStorePassword", safeStr(this.getSslCaPassword()));
     }
 
     private void applyKeyStore(Properties properties) {
@@ -201,9 +199,7 @@ public class OraConfig extends DataSourceConfig {
         }
         properties.setProperty("javax.net.ssl.keyStore", this.getSslClientCertFilePath());
         properties.setProperty("javax.net.ssl.keyStoreType", keyStoreType(this.getSslClientCertFileFormat(), "client certificate"));
-        if (StringUtils.isNotBlank(this.getSslClientKeyPassword())) {
-            properties.setProperty("javax.net.ssl.keyStorePassword", this.getSslClientKeyPassword());
-        }
+        properties.setProperty("javax.net.ssl.keyStorePassword", safeStr(this.getSslClientKeyPassword()));
     }
 
     private String keyStoreType(String format, String usage) {

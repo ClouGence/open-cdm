@@ -27,6 +27,7 @@ import java.util.Properties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -104,8 +105,30 @@ public class OracleDsFactory implements DsFactory<Connection> {
             return new DsObject<>(dsConfig, oraConnect, this);
         } catch (Exception e) {
             log.error("create connection instanceID(Oracle)=" + id + " ,jdbcUrl= " + jdbcUrl + ", error:" + e.getMessage());
-            throw e;
+            throw shortenConnectException(e);
         }
+    }
+
+    private SQLException shortenConnectException(Exception e) {
+        String message = e.getMessage();
+        String rootCauseMessage = ExceptionUtils.getRootCauseMessage(e);
+        if (StringUtils.contains(message, "failed to decrypt safe contents entry") || StringUtils.contains(rootCauseMessage, "failed to decrypt safe contents entry")
+            || StringUtils.contains(message, "BadPaddingException") || StringUtils.contains(rootCauseMessage, "BadPaddingException")
+            || StringUtils.contains(message, "Password verification failed") || StringUtils.contains(rootCauseMessage, "Password verification failed")) {
+            return new SQLException("Invalid Oracle SSL KeyStore/TrustStore password.", e);
+        }
+        if (StringUtils.isBlank(message)) {
+            return e instanceof SQLException ? (SQLException) e : new SQLException(e);
+        }
+        message = message.replaceAll("TCP connect timeout of \\d+ms", "TCP connect timeout");
+        message = message.replaceAll("\\s*\\(CONNECTION_ID=[^)]+\\)", "");
+        message = message.replaceAll("\\s*https://docs\\.oracle\\.com/error-help/db/ora-\\d+/?\\s*", "");
+        message = message.trim();
+        if (e instanceof SQLException) {
+            SQLException sqlException = (SQLException) e;
+            return new SQLException(message, sqlException.getSQLState(), sqlException.getErrorCode(), sqlException);
+        }
+        return new SQLException(message, e);
     }
 
     private String toOracleTimeZoneOffset(String clientTimeZone) {
