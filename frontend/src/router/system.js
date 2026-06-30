@@ -228,12 +228,6 @@ export default [
     component: () => import(/* webpackChunkName: "ccsystem-cluster-list" */ '@/views/system/cluster/workerList')
   },
   {
-    path: 'sshConfig',
-    name: 'System_Ssh_Config',
-    component: () => import(/* webpackChunkName: "system-ssh-config" */ '@/views/sshConfig/index'),
-    meta: { requiredAuth: 'DM_SSH_CHANNEL_READ' }
-  },
-  {
     path: 'dmmachine/list/:clusterId',
     redirect: (to) => `/data-access/cluster/list/${to.params.clusterId}`
   },
