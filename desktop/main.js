@@ -343,6 +343,44 @@ function cleanupMysqlRuntimeFiles() {
   }
 }
 
+function cleanupLegacyMysqlRuntimeFiles() {
+  for (const f of ['/tmp/cgdm-mysqld.sock', '/tmp/cgdm-mysqld.sock.lock', '/tmp/cgdm-mysqld.pid']) {
+    try {
+      fs.rmSync(f, { force: true });
+    } catch (_) {}
+  }
+}
+
+function killEmbeddedMysqldProcesses() {
+  const { execSync } = require('child_process');
+  const datadirNeedle = `--datadir=${MYSQL_DATA_DIR}`;
+
+  let listing = '';
+  try {
+    listing = execSync('ps -eo pid=,command=', { encoding: 'utf8', timeout: 5000 });
+  } catch (_) {
+    return;
+  }
+
+  for (const line of listing.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    const spaceIdx = trimmed.indexOf(' ');
+    if (spaceIdx <= 0) continue;
+
+    const pid = Number(trimmed.slice(0, spaceIdx));
+    const command = trimmed.slice(spaceIdx + 1);
+    if (!pid || !command.includes('mysqld')) continue;
+    if (!command.includes(datadirNeedle)) continue;
+
+    try {
+      process.kill(pid, 'SIGKILL');
+      console.log(`[cgdm] Killed orphan mysqld pid=${pid}`);
+    } catch (_) {}
+  }
+}
+
 function startMySQL() {
   const mysqldPath = path.join(MYSQL_DIR, 'bin', 'mysqld');
   cleanupMysqlRuntimeFiles();
@@ -455,13 +493,21 @@ async function configureMySQL() {
 
 function stopMySQL() {
   return new Promise(resolve => {
-    if (!mysqlProcess) return resolve();
-
+    let done = false;
     const finish = () => {
+      if (done) return;
+      done = true;
       mysqlProcess = null;
+      killEmbeddedMysqldProcesses();
       cleanupMysqlRuntimeFiles();
+      cleanupLegacyMysqlRuntimeFiles();
       resolve();
     };
+
+    if (!mysqlProcess) {
+      finish();
+      return;
+    }
 
     runMysqlAdmin(['-p' + MYSQL_ROOT_PASSWORD, 'shutdown']).then(finish).catch(() => {
       runMysqlAdmin(['shutdown']).then(finish).catch(() => {
@@ -664,11 +710,20 @@ async function startShutdown() {
 
 function cleanupOrphanProcesses() {
   const { execSync } = require('child_process');
+
+  killEmbeddedMysqldProcesses();
+  cleanupMysqlRuntimeFiles();
+  cleanupLegacyMysqlRuntimeFiles();
+
   for (const port of [APP_WEB_PORT, DB_PORT, RSOCKET_PORT]) {
     try {
       execSync(`lsof -ti :${port} | xargs kill -9 2>/dev/null`, { timeout: 3000 });
     } catch (_) {}
   }
+
+  try {
+    execSync(`pkill -9 -f "${BACKEND_DIR}.*plexus-classworlds.launcher.Launcher"`, { timeout: 3000 });
+  } catch (_) {}
 }
 
 app.whenReady().then(async () => {
