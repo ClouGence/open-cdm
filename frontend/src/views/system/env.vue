@@ -172,6 +172,9 @@
               <template #sqlLimit="{ row }">
                 <div class="sql-limit-container">
                   <a-switch v-model:checked="row.allowAllStatements" @change="handleAllowAllStatementsChange(row)" />
+                  <span :class="row.allowAllStatements ? 'ticket-status-text' : 'ticket-status-text-error'">
+                    {{ row.allowAllStatements ? $t('yi-qi-yong') : $t('wei-qi-yong') }}
+                  </span>
                 </div>
               </template>
 
@@ -345,7 +348,6 @@
 </template>
 
 <script>
-import { h, resolveComponent } from 'vue';
 import { mapState } from 'vuex';
 import { cloneDeep as deepClone } from '@/utils/lodash';
 import { Tooltip } from 'view-ui-plus';
@@ -473,31 +475,7 @@ export default {
           align: 'left'
         },
         {
-          renderHeader: () => {
-            return h(
-              'div',
-              {
-                style: { display: 'flex', alignItems: 'center', gap: '4px' }
-              },
-              [
-                this.$t('yu-ju-xian-zhi'),
-                h(
-                  resolveComponent('a-tooltip'),
-                  {
-                    placement: 'top'
-                  },
-                  {
-                    title: () => this.$t('shi-fou-yun-xu-cha-xun-yi-wai-qi-ta-lei-xing-yu-ju-tong-guo-kong-zhi-tai-shang-zhi-xing'),
-                    default: () =>
-                      h(resolveComponent('CustomIcon'), {
-                        type: 'icon-v2-help',
-                        class: 'help-icon'
-                      })
-                  }
-                )
-              ]
-            );
-          },
+          title: this.$t('yu-ju-xian-zhi') || '控制台只读',
           slot: 'sqlLimit',
           width: 150,
           align: 'left'
@@ -1027,16 +1005,6 @@ export default {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.help-icon {
-  font-size: 14px;
-  color: #999;
-  cursor: pointer;
-
-  &:hover {
-    color: #1890ff;
-  }
 }
 
 .ticket-text-container {

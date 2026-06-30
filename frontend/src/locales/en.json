@@ -2466,7 +2466,7 @@
   "gui-ze-fan-wei": "Rule scope",
   "bian-geng-gong-dan-config": "Change Ticket",
   "quan-xian-gong-dan-config": "Auth Ticket",
-  "yu-ju-xian-zhi": "Statement Limit",
+  "yu-ju-xian-zhi": "Console Read-only",
   "bang-ding-de-gong-dan": "Bound workOrder template",
   "bang-ding-de-gui-fan": "Bound Security Rules",
   "bang-ding-zhang-hao": "Bound Account",

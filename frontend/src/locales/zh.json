@@ -2466,7 +2466,7 @@
   "sec-jian-cha-dan-config": "安全规则",
   "bian-geng-gong-dan-config": "变更工单",
   "quan-xian-gong-dan-config": "权限工单",
-  "yu-ju-xian-zhi": "语句限制",
+  "yu-ju-xian-zhi": "控制台只读",
   "bu-xian-zhi": "不限制",
   "shi-fou-yun-xu-cha-xun-yi-wai-qi-ta-lei-xing-yu-ju-tong-guo-kong-zhi-tai-shang-zhi-xing": "是否允许查询以外的语句在控制台上执行。",
   "bian-ji-gong-dan-pei-zhi": "编辑工单配置",
