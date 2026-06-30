@@ -34,5 +34,4 @@ public enum SecurityType {
     SecurityType(String i18nKey){
         this.i18nKey = i18nKey;
     }
-
 }

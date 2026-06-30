@@ -34,14 +34,11 @@ public class DmConsoleSettingsVO {
 
     @McpField(value = DmMcpI18nKey.F_DATA_SOURCE_TYPE_DESC)
     private DataSourceType dsType;
-
     private DsCaseType     caseType;
     private String         leftQualifier;
     private String         rightQualifier;
-
     @McpField(value = DmMcpI18nKey.F_LEVELS_DESC)
     private List<String>   levels;
-
     @McpField(value = DmMcpI18nKey.F_LEAF_EXPAND_DESC)
     private List<String>   leafExpand;
 

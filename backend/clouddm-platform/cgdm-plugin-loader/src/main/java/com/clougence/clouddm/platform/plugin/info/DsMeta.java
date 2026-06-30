@@ -55,7 +55,7 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
     private String                                   dsSessionFactory;
     private SqlBuilder                               dsSqlBuilder;
     private Dialect                                  dsDialect;
-    private List<String>                             dsDriverFamily;
+    private final List<String>                       dsDriverFamily;
     //
     private final Map<String, DsDriverBindingHolder> driverBindingCache = new ConcurrentHashMap<>();
 

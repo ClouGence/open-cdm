@@ -31,15 +31,10 @@ import lombok.Data;
 public class ArgDsQueryParamObj {
 
     private DataSourceType dataSourceType;
-
     private LifeCycleState lifeCycleState;
-
     private String         dataSourceDescLike;
-
     private String         dsHostLike;
-
     private List<Long>     dataSourceIds;
-
     private String         instanceIdLike;
 
 }

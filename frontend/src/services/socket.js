@@ -43,7 +43,7 @@ const buildHttpUrl = (path) => `${(process.env.VUE_APP_BASE_URL || '').replace(/
 
 const checkLoginStatus = async () => {
   try {
-    const res = await fetch(buildHttpUrl('/rdp/console/api/v1/user/queryLoginUser'), {
+    const res = await fetch(buildHttpUrl('/api/entry/user/queryLoginUser'), {
       method: 'POST',
       credentials: 'include',
       headers: {

@@ -1,6 +1,6 @@
 export const calculateApi = {
-  // listUserCals: '/rdp/console/api/v1/calculate/listUserCals'
+  // listUserCals: '/api/entry/calculate/listUserCals'
 
   // rdp
-  rdpCalculateListUserCals: '/rdp/console/api/v1/calculate/listUserCals'
+  rdpCalculateListUserCals: '/api/entry/calculate/listUserCals'
 };

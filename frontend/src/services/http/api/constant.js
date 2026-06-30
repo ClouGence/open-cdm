@@ -26,19 +26,19 @@ export const constantApi = {
   // calculateMqPartition: '/cloudcanal/console/api/v1/inner/constant/dspartition/calculatemqpartition',
   listDataTransformScripts: '/cloudcanal/console/api/v1/inner/constant/listDataTransformScripts',
   // dm
-  // listRegions: '/clouddm/console/api/v1/constant/region',
-  // listSupportedRegions: '/clouddm/console/api/v1/constant/supportedregion',
+  // listRegions: '/api/entry/constant/region',
+  // listSupportedRegions: '/api/entry/constant/supportedregion',
   // supportedPushDown: '/cloudcanal/console/api/v1/inner/constant/supportedpushdown',
-  // getDeployEnvList: '/clouddm/console/api/v1/constant/listdeployenv',
-  // getRegionList: '/clouddm/console/api/v1/constant/listregionbydeploy',
-  // getDsTypeList: '/clouddm/console/api/v1/constant/listdstypes',
-  // getDsTypeLisrWithoutDeployEnv: '/clouddm/console/api/v1/constant/listdstypeswithoutenv',
-  // getDesensitizeRuleTypeList: '/clouddm/console/api/v1/constant/listdesensitizeruletypes',
-  // getDsDesensitizePathElements: '/clouddm/console/api/v1/constant/listdsdesensitizepathelements',
-  // listPageElementsLevel: '/clouddm/console/api/v1/constant/listPageElementsLevel',
-  // listExportSqExecType: '/clouddm/console/api/v1/constant/listexportsqexectype',
+  // getDeployEnvList: '/api/entry/constant/listdeployenv',
+  // getRegionList: '/api/entry/constant/listregionbydeploy',
+  // getDsTypeList: '/api/entry/constant/listdstypes',
+  // getDsTypeLisrWithoutDeployEnv: '/api/entry/constant/listdstypeswithoutenv',
+  // getDesensitizeRuleTypeList: '/api/entry/constant/listdesensitizeruletypes',
+  // getDsDesensitizePathElements: '/api/entry/constant/listdsdesensitizepathelements',
+  // listPageElementsLevel: '/api/entry/constant/listPageElementsLevel',
+  // listExportSqExecType: '/api/entry/constant/listexportsqexectype',
   // rdp
-  // listDownloadProduct: '/rdp/console/api/v1/constant/listDownloadProduct',
+  // listDownloadProduct: '/api/entry/constant/listDownloadProduct',
 
   // cc
   ccCcGlobalConfig: '/cloudcanal/console/api/v1/inner/cc_global_settings',
@@ -106,15 +106,15 @@ export const constantApi = {
 
   ccConstantSpecListSpecs: '/cloudcanal/console/api/v1/inner/spec/listspecs',
   // dm
-  dmConstantListRegionAreas: '/clouddm/console/api/v1/constant/listregionareas',
-  dmConstantListDeployEnv: '/clouddm/console/api/v1/constant/listdeployenv',
-  dmConstantListDsTypes: '/clouddm/console/api/v1/constant/listdstypes',
-  dmConstantListDsTypesWithoutEnv: '/clouddm/console/api/v1/constant/listdstypeswithoutenv',
-  dmConstantListDesensitizeRuleTypes: '/clouddm/console/api/v1/constant/listdesensitizeruletypes',
-  dmConstantListDsDesensitizePathElements: '/clouddm/console/api/v1/constant/listdsdesensitizepathelements',
-  dmConstantListPageElementsLevel: '/clouddm/console/api/v1/constant/listPageElementsLevel',
-  dmConstantListExportSqExecType: '/clouddm/console/api/v1/constant/listexportsqexectype',
+  dmConstantListRegionAreas: '/api/entry/constant/listregionareas',
+  dmConstantListDeployEnv: '/api/entry/constant/listdeployenv',
+  dmConstantListDsTypes: '/api/entry/constant/listdstypes',
+  dmConstantListDsTypesWithoutEnv: '/api/entry/constant/listdstypeswithoutenv',
+  dmConstantListDesensitizeRuleTypes: '/api/entry/constant/listdesensitizeruletypes',
+  dmConstantListDsDesensitizePathElements: '/api/entry/constant/listdsdesensitizepathelements',
+  dmConstantListPageElementsLevel: '/api/entry/constant/listPageElementsLevel',
+  dmConstantListExportSqExecType: '/api/entry/constant/listexportsqexectype',
 
   // rdp
-  rdpConstantDsSupportedRegion: '/rdp/console/api/v1/constant/dssupportedregion'
+  rdpConstantDsSupportedRegion: '/api/entry/constant/dssupportedregion'
 };

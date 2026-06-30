@@ -17,7 +17,6 @@ package com.clougence.clouddm.console.web.model.fo;
 
 import java.util.Date;
 
-import com.clougence.clouddm.console.web.constants.ExportFileType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 
 import lombok.Data;
@@ -28,7 +27,6 @@ import lombok.Data;
 @Data
 public class ExportOpAuditFO {
 
-    private ExportFileType exportType;
     private String         exportId;
     private String         formatName;
     private Long           maxRows;

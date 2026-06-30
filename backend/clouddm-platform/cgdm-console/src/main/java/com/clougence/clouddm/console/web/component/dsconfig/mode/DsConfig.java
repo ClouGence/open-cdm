@@ -19,7 +19,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.clougence.clouddm.console.web.model.vo.DefaultDsKvConfigVO;
-import com.clougence.clouddm.console.web.model.vo.DsSecurityOption;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -41,7 +40,6 @@ public class DsConfig {
     private List<DsDriverFamily>      driverFamilies;
     private DsLanguage                language;
     private List<DefaultDsKvConfigVO> configDef;
-    private List<DsSecurityOption>    securityOptions;
 
     @Override
     public DsConfig clone() {
@@ -58,13 +56,13 @@ public class DsConfig {
             });
             dsConfig.setMenus(menuMap);
         }
+
         dsConfig.setTargetDsList(this.targetDsList.isEmpty() ? Collections.emptyList() : new ArrayList<>(this.targetDsList));
         dsConfig.setDdlList(this.ddlList.isEmpty() ? Collections.emptyList() : new ArrayList<>(this.ddlList));
         dsConfig.setIsolations(this.isolations.isEmpty() ? Collections.emptyList() : this.isolations.stream().map(DsIsolation::clone).collect(Collectors.toList()));
         dsConfig.setDriverFamilies(this.driverFamilies.isEmpty() ? Collections.emptyList() : this.driverFamilies.stream().map(DsDriverFamily::clone).collect(Collectors.toList()));
         dsConfig.setLanguage(this.language == null ? null : this.language.clone());
         dsConfig.setConfigDef(this.configDef == null || this.configDef.isEmpty() ? Collections.emptyList() : new ArrayList<>(this.configDef));
-        dsConfig.setSecurityOptions(this.securityOptions == null || this.securityOptions.isEmpty() ? Collections.emptyList() : new ArrayList<>(this.securityOptions));
         return dsConfig;
     }
 }

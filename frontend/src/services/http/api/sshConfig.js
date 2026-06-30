@@ -1,9 +1,9 @@
 export const sshConfigApi = {
-  dmSshConfigList: '/clouddm/console/api/v1/sshConfig/list',
-  dmSshConfigDetail: '/clouddm/console/api/v1/sshConfig/detail',
-  dmSshConfigCreate: '/clouddm/console/api/v1/sshConfig/create',
-  dmSshConfigUpdate: '/clouddm/console/api/v1/sshConfig/update',
-  dmSshConfigDelete: '/clouddm/console/api/v1/sshConfig/delete',
-  dmSshConfigTestConnection: '/clouddm/console/api/v1/sshConfig/testConnection',
-  dmSshConfigProbeKnownHosts: '/clouddm/console/api/v1/sshConfig/probeKnownHosts'
+  dmSshConfigList: '/api/entry/sshConfig/list',
+  dmSshConfigDetail: '/api/entry/sshConfig/detail',
+  dmSshConfigCreate: '/api/entry/sshConfig/create',
+  dmSshConfigUpdate: '/api/entry/sshConfig/update',
+  dmSshConfigDelete: '/api/entry/sshConfig/delete',
+  dmSshConfigTestConnection: '/api/entry/sshConfig/testConnection',
+  dmSshConfigProbeKnownHosts: '/api/entry/sshConfig/probeKnownHosts'
 };

@@ -1,14 +1,14 @@
 export const asyncTaskApi = {
-  // asyncTaskListDockTask: '/clouddm/console/api/v1/asynctask/dockTask/listDockTask',
-  // asyncTaskCancelTask: '/clouddm/console/api/v1/asynctask/dockTask/cancelTask',
-  // asyncTaskPauseTask: '/clouddm/console/api/v1/asynctask/dockTask/pauseTask',
-  // asyncTaskRetryTask: '/clouddm/console/api/v1/asynctask/dockTask/retryTask',
-  // asyncTaskResumeTask: '/clouddm/console/api/v1/asynctask/dockTask/resumeTask',
+  // asyncTaskListDockTask: '/api/entry/asynctask/dockTask/listDockTask',
+  // asyncTaskCancelTask: '/api/entry/asynctask/dockTask/cancelTask',
+  // asyncTaskPauseTask: '/api/entry/asynctask/dockTask/pauseTask',
+  // asyncTaskRetryTask: '/api/entry/asynctask/dockTask/retryTask',
+  // asyncTaskResumeTask: '/api/entry/asynctask/dockTask/resumeTask',
 
   // dm
-  dmAsyncTaskDockTaskListDockTask: '/clouddm/console/api/v1/asynctask/dockTask/listDockTask',
-  dmAsyncTaskDockTaskCancelTask: '/clouddm/console/api/v1/asynctask/dockTask/cancelTask',
-  dmAsyncTaskDockTaskPauseTask: '/clouddm/console/api/v1/asynctask/dockTask/pauseTask',
-  dmAsyncTaskDockTaskRetryTask: '/clouddm/console/api/v1/asynctask/dockTask/retryTask',
-  dmAsyncTaskDockTaskResumeTask: '/clouddm/console/api/v1/asynctask/dockTask/resumeTask'
+  dmAsyncTaskDockTaskListDockTask: '/api/entry/asynctask/dockTask/listDockTask',
+  dmAsyncTaskDockTaskCancelTask: '/api/entry/asynctask/dockTask/cancelTask',
+  dmAsyncTaskDockTaskPauseTask: '/api/entry/asynctask/dockTask/pauseTask',
+  dmAsyncTaskDockTaskRetryTask: '/api/entry/asynctask/dockTask/retryTask',
+  dmAsyncTaskDockTaskResumeTask: '/api/entry/asynctask/dockTask/resumeTask'
 };

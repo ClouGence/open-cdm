@@ -1,8 +1,8 @@
 export const dsEnvApi = {
   // rdp
-  rdpDsEnvList: '/rdp/console/api/v1/dsenv/list',
-  rdpDsEnvAdd: '/rdp/console/api/v1/dsenv/add',
-  rdpDsEnvUpdate: '/rdp/console/api/v1/dsenv/update',
-  rdpDsEnvDelete: '/rdp/console/api/v1/dsenv/delete',
-  rdpDsEnvListSpec: '/rdp/console/api/v1/dsenv/listSpec'
+  rdpDsEnvList: '/api/entry/dsenv/list',
+  rdpDsEnvAdd: '/api/entry/dsenv/add',
+  rdpDsEnvUpdate: '/api/entry/dsenv/update',
+  rdpDsEnvDelete: '/api/entry/dsenv/delete',
+  rdpDsEnvListSpec: '/api/entry/dsenv/listSpec'
 };

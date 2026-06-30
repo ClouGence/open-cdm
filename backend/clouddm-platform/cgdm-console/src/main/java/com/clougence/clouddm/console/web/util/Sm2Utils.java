@@ -65,6 +65,7 @@ public class Sm2Utils {
         if (cipherData == null) {
             return null;
         }
+
         if (StringUtils.isBlank(cipherData) || isSm2EncryptedEmptyText(cipherData)) {
             return "";
         }

@@ -12,22 +12,22 @@ import formatError from '../formatError';
 import errorQueue from '@/utils/errorQueue';
 
 const UPDATE_DATA_SOURCE_STATUS_LIST = [
-  '/clouddm/console/api/v1/browse/actions/doAction',
-  '/clouddm/console/api/v1/browse/listLevels',
-  '/clouddm/console/api/v1/browse/rdbObjectDetail',
-  '/clouddm/console/api/v1/browse/listLeaf',
-  '/clouddm/console/api/v1/browse/actions/loadObject',
-  '/clouddm/console/api/v1/editor/data/fetchData',
-  '/clouddm/console/api/v1/editor/data/saveData',
-  '/clouddm/console/api/v1/editor/data/fetchCount',
-  '/clouddm/console/api/v1/editor/table/editorDef',
-  '/clouddm/console/api/v1/editor/table/initEditor',
-  '/clouddm/console/api/v1/editor/table/generateScript',
-  '/clouddm/console/api/v1/query/createSession',
-  '/clouddm/console/api/v1/browse/actions/requestScript',
-  '/clouddm/console/api/v1/browse/actions/generateScript',
-  '/clouddm/console/api/v1/editor/table/scriptExecute',
-  '/clouddm/console/api/v1/datasource/testConnect'
+  '/api/entry/browse/actions/doAction',
+  '/api/entry/browse/listLevels',
+  '/api/entry/browse/rdbObjectDetail',
+  '/api/entry/browse/listLeaf',
+  '/api/entry/browse/actions/loadObject',
+  '/api/entry/editor/data/fetchData',
+  '/api/entry/editor/data/saveData',
+  '/api/entry/editor/data/fetchCount',
+  '/api/entry/editor/table/editorDef',
+  '/api/entry/editor/table/initEditor',
+  '/api/entry/editor/table/generateScript',
+  '/api/entry/query/createSession',
+  '/api/entry/browse/actions/requestScript',
+  '/api/entry/browse/actions/generateScript',
+  '/api/entry/editor/table/scriptExecute',
+  '/api/entry/datasource/testConnect'
 ];
 
 let baseURL = '';
@@ -256,7 +256,7 @@ const request = async (opt) => {
           const url = new URL(err.config.url);
           const pathList = url.pathname.split('/');
           if (pathList.length > 1 && pathList[1] === 'clouddm') {
-            if (url.pathname !== '/clouddm/console/api/v1/dmGlobalSettings') {
+            if (url.pathname !== '/api/entry/dmGlobalSettings') {
               errorQueue.addError({
                 title: 'ERROR',
                 content: i18n.global.t('chan-pin-ji-qun-wu-fa-fang-wen'),

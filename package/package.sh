@@ -26,6 +26,57 @@ DO_DOCKER=0
 DOCKER_ARCH=""
 USE_MIRRORS=0
 
+print_help() {
+  if [ "${1:-}" = "--with-version" ]; then
+    echo "version: $VERSION"
+    echo ""
+  fi
+  cat <<'HELP'
+Usage: ./package.sh [--build] [--docker [x86_64|arm64]] [--mirrors]
+
+Build modes (at least one required):
+  --build                 Compile backend/frontend and create tgz packages.
+  --docker [ARCH]         Build Docker images from package artifacts.
+                          ARCH can be x86_64 or arm64.
+                          If ARCH is omitted, build all platforms.
+
+Options:
+  --mirrors               Use built-in Ubuntu mirror apt sources while building Docker images.
+  -h, --help              Show this help.
+
+Common commands:
+  ./package.sh --build
+      Compile and create console, sidecar and alone tgz packages.
+
+  ./package.sh --docker
+      Build Docker images for all platforms from existing tgz packages.
+
+  ./package.sh --docker x86_64
+      Build x86_64 Docker images from existing tgz packages.
+
+  ./package.sh --docker arm64
+      Build arm64 Docker images from existing tgz packages.
+
+  ./package.sh --build --docker
+      Compile, create tgz packages, then build Docker images for all platforms.
+
+  ./package.sh --build --docker x86_64
+      Compile, create tgz packages, then build x86_64 Docker images.
+
+  ./package.sh --docker arm64 --mirrors
+      Build arm64 Docker images with built-in Ubuntu mirrors.
+
+Generated artifacts:
+  package/build/
+      clouddm-console-<version>.tar.gz
+      clouddm-sidecar-<version>.tar.gz
+      clouddm-alone-<version>.tar.gz
+
+Docker build prerequisites:
+  Run ./package.sh --build first, unless package/build already contains tgz artifacts.
+HELP
+}
+
 while [ $# -gt 0 ]; do
   arg="$1"
   case "$arg" in
@@ -38,17 +89,7 @@ while [ $# -gt 0 ]; do
       ;;
     --mirrors)  USE_MIRRORS=1; shift ;;
     -h|--help)
-      cat <<'HELP'
-usage: package.sh [--build] [--docker [x86_64|arm64]] [--mirrors]
-
-  --build           compile and create tgz packages
-  --docker          build Docker images for all platforms (requires tgz)
-  --docker arm64    build Docker images for arm64 only
-  --docker x86_64   build Docker images for x86_64 only
-  --mirrors         use built-in Ubuntu mirrors for Docker base image apt sources
-
-Combine both: ./package.sh --build --docker
-HELP
+      print_help
       exit 0
       ;;
     *) echo "unknown argument: $arg"; exit 1 ;;
@@ -57,29 +98,7 @@ done
 
 # No Parameter Printing Help
 if [ "$DO_BUILD" -eq 0 ] && [ "$DO_DOCKER" -eq 0 ]; then
-  echo "version: $VERSION"
-  echo ""
-  cat <<'HELP'
-Usage: ./package.sh [OPTIONS]...
-
-Build modes (at least one required):
-  --build               compile + tgz packaging (Gradle build)
-  --docker [ARCH]       build Docker images (requires package artifacts)
-                          ARCH: x86_64 | arm64 (default: all platforms)
-  --mirrors             use built-in Ubuntu mirrors for Docker base image apt sources
-
-Examples:
-  ./package.sh --build                      compile & package only
-  ./package.sh --docker                     build all Docker images
-  ./package.sh --build --docker             compile + all Docker images
-  ./package.sh --build --docker --mirrors   compile + all Docker images with built-in mirrors
-  ./package.sh --build --docker x86_64      compile + x86_64 Docker images only
-  ./package.sh --docker arm64 --mirrors     Docker arm64 images with built-in mirrors
-
-Prerequisites:
-  Gradle + JDK configured
-  Docker installed and running
-HELP
+  print_help --with-version
   exit 0
 fi
 

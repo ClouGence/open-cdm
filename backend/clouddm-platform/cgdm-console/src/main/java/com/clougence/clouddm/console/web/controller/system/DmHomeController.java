@@ -263,7 +263,7 @@ public class DmHomeController {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_PLUGIN_NOT_FOUND.name()));
         }
 
-        if (!this.loginDefService.checkLoginEnable(rootUser.getUid(), authType.getBindType().getProvider())) {
+        if (!this.loginDefService.checkLoginEnable(authType.getBindType().getProvider())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_NOT_ENABLE.name()));
         }
 

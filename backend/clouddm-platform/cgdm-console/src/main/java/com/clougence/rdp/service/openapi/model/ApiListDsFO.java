@@ -27,16 +27,10 @@ import lombok.Data;
 public class ApiListDsFO {
 
     private DataSourceType type;
-
     private LifeCycleState lifeCycleState;
-
     private Long           dataSourceId;
-
     private String         dataSourceDescLike;
-
     private String         dsHostLike;
-
     private String         instanceIdLike;
-
     private String         uid;
 }

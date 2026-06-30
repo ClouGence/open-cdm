@@ -1,7 +1,7 @@
 export const envParamApi = {
   // dm
-  dmEnvParamBindEnvParam: '/clouddm/console/api/v1/envparam/bindEnvParam',
-  dmEnvParamUnbindEnvParam: '/clouddm/console/api/v1/envparam/unbindEnvParam',
-  dmEnvParamListEnvParamForSec: '/clouddm/console/api/v1/envparam/listEnvParamForSec',
-  dmEnvParamFetchTicketParamForSec: '/clouddm/console/api/v1/envparam/fetchTicketParamForSec'
+  dmEnvParamBindEnvParam: '/api/entry/envparam/bindEnvParam',
+  dmEnvParamUnbindEnvParam: '/api/entry/envparam/unbindEnvParam',
+  dmEnvParamListEnvParamForSec: '/api/entry/envparam/listEnvParamForSec',
+  dmEnvParamFetchTicketParamForSec: '/api/entry/envparam/fetchTicketParamForSec'
 };

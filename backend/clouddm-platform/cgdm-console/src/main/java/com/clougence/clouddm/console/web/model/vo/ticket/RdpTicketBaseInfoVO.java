@@ -19,8 +19,8 @@ import java.util.List;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalBiz;
-import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalStatus;
+import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -30,65 +30,35 @@ import lombok.Setter;
 public class RdpTicketBaseInfoVO {
 
     private Long                     id;
-
     private String                   bizId;
-
     private String                   gmtCreate;
-
     private String                   gmtModified;
-
     private String                   userName;
-
     private Long                     dataSourceId;
-
     private String                   dataSourceInstName;
-
     private String                   dataSourceDesc;
-
     private DataSourceType           dataSourceType;
-
     private String                   dsOwnerUid;
-
     private String                   dsEnvName;
-
     private String                   targetInfo;
-
-    private ApprovalType          approType;
-
+    private ApprovalType             approType;
     private String                   approTypeName;
-
-    private ApprovalBiz           approBiz;
-
+    private ApprovalBiz              approBiz;
     private String                   approIdentity;
-
     private String                   approTemplateName;
-
     private String                   approComment;
-
     private String                   description;
-
     private String                   statusMessage;
-
     private String                   ticketTitle;
-
-    private ApprovalStatus          ticketStatus;
-
+    private ApprovalStatus           ticketStatus;
     private String                   finishTime;
-
     private List<RdpTicketProcessVO> ticketProcessVOList;
-
     private boolean                  canApproval;
-
     private boolean                  canClose;
-
     private boolean                  canExecute;
-
     private boolean                  canAutoExec;
-
     private String                   pcUrl;
-
     private String                   mobileUrl;
-
     private String                   ticketMessage;
 
 }

@@ -37,7 +37,6 @@ import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
-import com.clougence.rdp.constant.RdpControllerUrlPrefix;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Nonnull;
@@ -73,12 +72,11 @@ public class JwtManager {
     }
 
     protected void configUrl(Set<String> includeVerifyStartWith, Set<String> ignoreEndWithUrl) {
-        includeVerifyStartWith.add(RdpControllerUrlPrefix.CONSOLE_PREFIX);
         includeVerifyStartWith.add(DmControllerUrlPrefix.CONSOLE_PREFIX);
         includeVerifyStartWith.add("/logout");
         includeVerifyStartWith.add("/switchSaasMode");
 
-        ignoreEndWithUrl.add(RdpControllerUrlPrefix.CONSOLE_PREFIX + "/verify/sendcode");
+        ignoreEndWithUrl.add(DmControllerUrlPrefix.CONSOLE_PREFIX + "/verify/sendcode");
         ignoreEndWithUrl.add(DmControllerUrlPrefix.CONSOLE_PREFIX + "/dmGlobalSettings");
         ignoreEndWithUrl.add(DmControllerUrlPrefix.CONSOLE_PREFIX + "/resource/fetch");
     }

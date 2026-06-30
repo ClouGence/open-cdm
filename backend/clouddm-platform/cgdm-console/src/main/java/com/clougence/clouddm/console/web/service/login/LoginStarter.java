@@ -68,7 +68,7 @@ public class LoginStarter implements UnifiedPostConstruct, RdpNotifyService {
 
         UserConfigMO authTypeConfig = new UserConfigMO();
         authTypeConfig.setConfig(RootUserConfig.Fields.accountAuthType);
-        authTypeConfig.setNewValue(StringUtils.join(this.loginDefService.listConfLoginTypes(rootUser.getUid()).stream().map(Enum::name).toArray(), ","));
+        authTypeConfig.setNewValue(StringUtils.join(this.loginDefService.listConfLoginTypes().stream().map(Enum::name).toArray(), ","));
         notifyUserConfig(rootUser.getUid(), List.of(authTypeConfig));
     }
 
@@ -95,7 +95,7 @@ public class LoginStarter implements UnifiedPostConstruct, RdpNotifyService {
     }
 
     private void restartModifiedProviders(String ownerUid, List<UserConfigMO> configList) throws Exception {
-        List<LoginAuthType> availableTypes = this.loginDefService.listConfLoginTypes(ownerUid);
+        List<LoginAuthType> availableTypes = this.loginDefService.listConfLoginTypes();
         if (availableTypes.isEmpty()) {
             return;
         }
@@ -150,7 +150,7 @@ public class LoginStarter implements UnifiedPostConstruct, RdpNotifyService {
 
     private void startProviderIfEnabled(String ownerUid, LoginProvider provider) throws Exception {
         LoginProviderSpi service = PluginManager.findSpi(LoginProviderSpi.class, provider.name());
-        if (service != null && this.loginDefService.checkLoginEnable(ownerUid, provider)) {
+        if (service != null && this.loginDefService.checkLoginEnable(provider)) {
             service.start(ownerUid, new LifeSpiRequest());
         }
     }

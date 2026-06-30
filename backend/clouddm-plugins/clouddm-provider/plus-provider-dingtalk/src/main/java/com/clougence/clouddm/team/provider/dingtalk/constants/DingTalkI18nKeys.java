@@ -20,7 +20,7 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource("/META-INF/clougence/i18n/dingtalk")
 public interface DingTalkI18nKeys {
 
-    String PLUGIN_NAME_DINGTALK                    = "PLUGIN_NAME_DINGTALK";
+    String PLUGIN_NAME_DINGTALK                     = "PLUGIN_NAME_DINGTALK";
 
     String DINGTALK_APPROVAL_SERVICES_NAME          = "DINGTALK_APPROVAL_SERVICES_NAME";
     String DINGTALK_LOGIN_SERVICES_NAME             = "DINGTALK_LOGIN_SERVICES_NAME";

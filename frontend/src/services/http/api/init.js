@@ -1,12 +1,12 @@
 export const initApi = {
   // Get Default Configuration Field Definition
-  dmInitDefaultConfig: '/clouddm/console/api/v1/init/defaultConfig',
+  dmInitDefaultConfig: '/api/entry/init/defaultConfig',
   // Test database connection + empty library detection + installed testing
-  dmInitTestDb: '/clouddm/console/api/v1/init/testDb',
+  dmInitTestDb: '/api/entry/init/testDb',
   // Preview pending script
-  dmInitPreviewScripts: '/clouddm/console/api/v1/init/previewScripts',
+  dmInitPreviewScripts: '/api/entry/init/previewScripts',
   // Save Initialisation Configuration (complete mode)
-  dmInitApplyConfig: '/clouddm/console/api/v1/init/applyConfig',
+  dmInitApplyConfig: '/api/entry/init/applyConfig',
   // Trigger system restart
-  dmInitRestart: '/clouddm/console/api/v1/init/restart'
+  dmInitRestart: '/api/entry/init/restart'
 };

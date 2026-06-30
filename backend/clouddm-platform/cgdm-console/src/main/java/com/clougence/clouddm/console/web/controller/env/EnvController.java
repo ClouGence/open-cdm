@@ -47,7 +47,7 @@ import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.platform.dal.model.secrule.DmSecSpecDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
-import com.clougence.rdp.constant.RdpControllerUrlPrefix;
+import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.rdp.service.RdpDsEnvService;
 import com.clougence.rdp.service.RdpOpAuditService;
 
@@ -60,7 +60,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author wanshao create time is 2021/1/18
  **/
 @RestController
-@RequestMapping(value = RdpControllerUrlPrefix.CONSOLE_PREFIX + "/dsenv")
+@RequestMapping(value = DmControllerUrlPrefix.CONSOLE_PREFIX + "/dsenv")
 @Slf4j
 public class EnvController {
 

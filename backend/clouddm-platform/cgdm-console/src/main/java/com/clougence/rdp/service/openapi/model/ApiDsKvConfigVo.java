@@ -31,27 +31,16 @@ import lombok.Setter;
 public class ApiDsKvConfigVo {
 
     private Long          id;
-
     private String        configName;
-
     private DsConfigGroup configGroup;
-
     private String        description;
-
     private boolean       valueRequire;
-
     private String        valueValidRegex;
-
     private String        configValue;
-
     private String        defaultValue;
-
     private boolean       readOnly;
-
     private boolean       isSecret;
-
     private boolean       lazy;
-
     private boolean       needCreated;
 
     public void convertFromDsKvConfigVO(RdpDsKvConfigVO configVO) {

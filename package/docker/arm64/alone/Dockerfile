@@ -30,6 +30,7 @@ RUN apt-get update \
     && curl -fsSL "$MYSQL_DOWNLOAD_URL" -o /tmp/mysql.tar.xz \
     && tar -xJf /tmp/mysql.tar.xz --strip-components=1 -C /usr/local/mysql \
     && mysqld --version | grep -Fq "Ver ${MYSQL_VERSION}" \
+    && mysql --version | grep -Fq "Ver ${MYSQL_VERSION}" \
     && rm -rf /var/lib/apt/lists/* \
     && rm -f /tmp/mysql.tar.xz \
     && mkdir -p /var/lib/mysql /run/mysqld \

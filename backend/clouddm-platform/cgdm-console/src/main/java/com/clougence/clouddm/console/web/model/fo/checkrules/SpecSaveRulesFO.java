@@ -28,8 +28,6 @@ import lombok.Setter;
 public class SpecSaveRulesFO {
 
     private List<Long>        specIds;
-
     private boolean           force;
-
     private List<SpecRulesFO> rules;
 }

@@ -22,11 +22,11 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.scm.*;
 import com.clougence.clouddm.team.provider.gitee.constants.GiteeI18nKeys;
 import com.clougence.clouddm.team.provider.gitee.model.*;
 import com.clougence.clouddm.team.provider.gitee.utils.ZipUtils;
-import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.function.ESupplier;

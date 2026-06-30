@@ -16,7 +16,6 @@
 package com.clougence.clouddm.console.web.service.approval;
 
 import java.util.concurrent.Callable;
-
 import com.clougence.utils.future.CgFuture;
 
 /**

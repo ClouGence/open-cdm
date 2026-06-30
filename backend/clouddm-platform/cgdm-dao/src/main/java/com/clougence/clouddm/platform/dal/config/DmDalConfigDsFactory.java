@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
 import java.util.Properties;
-
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;

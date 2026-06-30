@@ -42,13 +42,13 @@ public class RdpHostUtil {
         if (com.clougence.utils.StringUtils.isNotBlank(hostIpCache)) {
             return hostIpCache;
         } else {
-            hostIpCache = getHostIpOrHostNameInner(false);
+            hostIpCache = getHostIpOrHostNameInner();
             log.info("[RdpHostUtil] fetched host ip:" + hostIpCache);
             return hostIpCache;
         }
     }
 
-    private static String getHostIpOrHostNameInner(boolean forceHostName) {
+    private static String getHostIpOrHostNameInner() {
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             String lastMatchIP = null;
@@ -76,22 +76,16 @@ public class RdpHostUtil {
 
                     lastMatchIP = addr.getHostAddress();
                     if (!lastMatchIP.contains(":") && RdpMacAddrUtil.haveMac(lastMatchIP)) {
-                        return forceHostName ? addr.getCanonicalHostName() : lastMatchIP; // return IPv4 addr
+                        return lastMatchIP; // return IPv4 addr
                     }
                 }
             }
 
             if (StringUtils.isBlank(lastMatchIP)) {
                 InetAddress noMacAddr = InetAddress.getLocalHost();
-                if (forceHostName) {
-                    String noMacHostName = noMacAddr.getCanonicalHostName();
-                    log.warn("[RdpHostUtil] Can't find valid local host name, use the host that not have mac address. Host name is " + noMacHostName);
-                    return noMacHostName;
-                } else {
-                    String noMacHostIp = noMacAddr.getHostAddress();
-                    log.warn("[RdpHostUtil] Can't find valid local host ip, use the host that not have mac address. Host ip is " + noMacHostIp);
-                    return noMacHostIp;
-                }
+                String noMacHostIp = noMacAddr.getHostAddress();
+                log.warn("[RdpHostUtil] Can't find valid local host ip, use the host that not have mac address. Host ip is " + noMacHostIp);
+                return noMacHostIp;
             } else {
                 return lastMatchIP;
             }
