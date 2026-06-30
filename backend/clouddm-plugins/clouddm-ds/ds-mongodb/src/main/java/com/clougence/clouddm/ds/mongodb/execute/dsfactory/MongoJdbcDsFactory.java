@@ -79,7 +79,7 @@ public class MongoJdbcDsFactory implements DsFactory<Connection> {
         String jdbcUrl = buildJdbcUrl(dsConfig);
 
         try {
-            Connection connection = new JdbcDriver().connect(jdbcUrl, props);
+            Connection connection = new JdbcDriver(this.getClass().getClassLoader()).connect(jdbcUrl, props);
             return new DsObject<>(dsConfig, connection, this);
         } catch (Exception e) {
             log.error("create EsClient instanceID(MongoDB)=" + id + " ,hosts= " + dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey()) + ", error:" + e.getMessage());

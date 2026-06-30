@@ -23,6 +23,7 @@ import com.clougence.clouddm.ds.redis.execute.jdbc.JedisKeys;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.drivers.adapter.JdbcDriver;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -78,7 +79,7 @@ public class JdbcDsFactory implements DsFactory<Connection> {
 
         String jdbcUrl = buildJdbcUrl(dsConfig);
         try {
-            Connection jedisConnect = new com.clougence.drivers.adapter.JdbcDriver().connect(jdbcUrl, props);
+            Connection jedisConnect = new JdbcDriver(this.getClass().getClassLoader()).connect(jdbcUrl, props);
 
             return new DsObject<>(dsConfig, jedisConnect, this);
         } catch (Exception e) {

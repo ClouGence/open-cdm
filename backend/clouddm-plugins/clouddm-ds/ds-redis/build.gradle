@@ -28,11 +28,10 @@ dependencies {
     compileOnly project(':cgdm-share-libs')
 
     // driver libs (compileOnly)
-    compileOnly 'redis.clients:jedis:7.0.0'
+    compileOnly 'redis.clients:jedis:7.4.1'
 }
 
 description = 'ds-redis'
 
 configureClougenceAntlrGrammar([outputPath : 'src/main/java/com/clougence/clouddm/ds/redis/parser/antlr',
                                 packageName: 'com.clougence.clouddm.ds.redis.parser.antlr'])
-

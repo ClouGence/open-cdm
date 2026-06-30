@@ -31,7 +31,6 @@ import com.clougence.clouddm.platform.plugin.info.*;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
-import com.clougence.drivers.adapter.AdapterManager;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
@@ -276,7 +275,6 @@ public class PluginLoadHelper {
         }
 
         DsPlugin pluginInstance = (DsPlugin) pluginType.getDeclaredConstructor().newInstance();
-        AdapterManager.lookup(plugin.getPlusClassLoader());
         pluginInstance.loadPlugin(createPluginBinder(plugin));
     }
 

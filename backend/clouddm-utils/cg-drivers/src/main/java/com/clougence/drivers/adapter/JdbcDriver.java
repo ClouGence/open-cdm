@@ -29,7 +29,7 @@ public class JdbcDriver implements java.sql.Driver {
 
     private static final Logger      loggerParent   = Logger.getLogger("cg.adapter");
     private static final Logger      logger         = Logger.getLogger("cg.adapter.driver");
-    private static final ClassLoader classLoader    = JdbcDriver.class.getClassLoader();
+    private final ClassLoader        classLoader;
 
     //
     public static final String       P_SERVER       = "server";     // driver attr for host
@@ -53,6 +53,14 @@ public class JdbcDriver implements java.sql.Driver {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public JdbcDriver(){
+        this(JdbcDriver.class.getClassLoader());
+    }
+
+    public JdbcDriver(ClassLoader classLoader){
+        this.classLoader = classLoader != null ? classLoader : JdbcDriver.class.getClassLoader();
     }
 
     @Override
