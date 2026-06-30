@@ -36,6 +36,18 @@ CloudDM macOS 桌面端，使用 Electron 打包为 `.dmg` 安装包。
 2. 将 `CloudDM.app` 拖入 `Applications`
 3. 首次打开：**右键 CloudDM.app → 打开**（未签名，需绕过 Gatekeeper）
 
+## 默认账号
+
+首次启动会在后台自动完成初始化。完成后使用以下账号登录：
+
+| 用途 | 账号 | 密码 |
+|------|------|------|
+| CloudDM 登录 | `admin` | `123456` |
+
+内置 MySQL（仅本机 3307，供应用自用，一般无需手动连接）root 密码为 `cgdm`。
+
+删除 `~/.cgdm-desktop` 后重新打开应用会再次自动初始化，账号密码不变。
+
 ## 工作原理
 
 启动时 Electron 自动完成：
