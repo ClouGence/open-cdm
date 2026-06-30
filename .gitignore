@@ -42,4 +42,6 @@ package/buildTools/gradlew.bat
 
 # web
 node_modules
-dist
+dist/
+desktop/.build/
+desktop/dist/

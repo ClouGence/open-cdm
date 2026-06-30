@@ -1,0 +1,42 @@
+appId: com.clougence.cgdm-desktop
+productName: CloudDM
+copyright: Copyright 2026 Hangzhou Cloudgence Technology Co., Ltd.
+
+directories:
+  output: dist
+  buildResources: assets
+
+files:
+  - main.js
+  - preload.js
+  - loading.html
+  - node_modules/**/*
+
+extraResources:
+  - from: backend
+    to: backend
+  - from: mysql
+    to: mysql
+
+mac:
+  category: public.app-category.developer-tools
+  target:
+    - target: dmg
+      arch:
+        - arm64
+  icon: assets/icon.png
+  hardenedRuntime: false
+  artifactName: ${productName}-${version}-macOS-${arch}.${ext}
+
+dmg:
+  title: CloudDM ${version}
+  icon: assets/icon.png
+  iconSize: 128
+  contents:
+    - x: 180
+      y: 170
+      type: file
+    - x: 420
+      y: 170
+      type: link
+      path: /Applications

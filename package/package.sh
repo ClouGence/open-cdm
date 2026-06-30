@@ -95,7 +95,7 @@ if [ "$DO_BUILD" -eq 1 ]; then
 
   "$BACKEND_DIR/gradlew" -p "$BACKEND_DIR" -Ptarget=all clean
   "$BACKEND_DIR/gradlew" -p "$BACKEND_DIR" -Ptarget=all -Pprofile=output -PbuildFrontend=true \
-    buildx local installDist tgz -x test --rerun-tasks --parallel --max-workers=8
+    buildx local installDist tgz -x test --rerun-tasks --parallel --max-workers="${GRADLE_MAX_WORKERS:-8}"
 
   mkdir -p "$PACKAGE_BUILD_DIR"
   find "$SCRIPT_DIR/pkg/console/build/dist" -maxdepth 1 -type f ! -name '.DS_Store' -exec cp {} "$PACKAGE_BUILD_DIR/" \;
