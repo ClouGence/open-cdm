@@ -187,7 +187,6 @@ import Mapping from '@/views/util';
 import { mapState } from 'vuex';
 import copyMixin from '@/mixins/copyMixin';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
-import { resolveComponent } from 'vue';
 import dayjs from '@/utils/dayjsSetup';
 
 export default {
@@ -290,13 +289,6 @@ export default {
           title: this.$t('ri-zhi-wei-yi-xin-xi'),
           key: 'uuidKey',
           width: 320
-        },
-        {
-          title: this.$t('e-wai-can-shu'),
-          slot: 'detail',
-          width: 120,
-          fixed: 'right',
-          renderHeader: this.renderHeaderName
         }
       ],
       logData: [],
@@ -652,40 +644,6 @@ export default {
     },
     formatAuditContent(data) {
       return JSON.parse(`[${data.split('] ')[1]}`);
-    },
-    renderHeaderName(h) {
-      return h('div', [
-        h(
-          'span',
-          {
-            style: {
-              fontFamily: 'PingFangSC-Medium',
-              fontWeight: '500'
-            }
-          },
-          this.$t('e-wai-can-shu')
-        ),
-        h(
-          resolveComponent('Tooltip'),
-          {
-            style: {
-              color: '#888888',
-              marginLeft: '8px',
-              fontWeight: 400
-            },
-            content: this.$t('zhi-zhi-chi-zai-xian-cha-kan-dang-tian-de-ri-zhi-ru-xu-cha-kan-yi-gui-dang-de-qing'),
-            placement: 'left',
-            transfer: true
-          },
-          {
-            default: () => [
-              h(resolveComponent('Icon'), {
-                type: 'ios-help-circle-outline'
-              })
-            ]
-          }
-        )
-      ]);
     }
   }
 };
