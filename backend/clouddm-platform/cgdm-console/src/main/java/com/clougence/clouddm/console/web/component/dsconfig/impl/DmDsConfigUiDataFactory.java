@@ -31,8 +31,10 @@ import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.base.metadata.ds.SslMode;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.service.upload.ConsoleUploadService;
+import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.drivers.DriverFamily;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 
@@ -46,6 +48,8 @@ import jakarta.annotation.Resource;
 @Component
 public class DmDsConfigUiDataFactory {
 
+    private static final String  DRIVER_FAMILY_FIELD = "driverFamily";
+
     @Resource
     private ConsoleUploadService uploadService;
 
@@ -55,7 +59,7 @@ public class DmDsConfigUiDataFactory {
             return kvMap;
         }
 
-        kvMap.putAll(driverData(configDefMap, uiMap));
+        kvMap.putAll(driverData(dsType, configDefMap, uiMap));
         kvMap.putAll(addressKvData(configDefMap, uiMap));
         kvMap.putAll(authData(configDefMap, uiMap));
         kvMap.putAll(sshSslData(configDefMap, uiMap));
@@ -79,9 +83,9 @@ public class DmDsConfigUiDataFactory {
 
     //
 
-    private Map<String, String> driverData(Map<String, DsConfigKvDef> configDefMap, Map<String, String> input) {
+    private Map<String, String> driverData(DataSourceType dsType, Map<String, DsConfigKvDef> configDefMap, Map<String, String> input) {
         Map<String, String> data = new LinkedHashMap<>();
-        if (input == null || (!input.containsKey("driverFamily") && !input.containsKey(DataSourceConfig.Fields.driverVersion))) {
+        if (input == null || (!input.containsKey(DRIVER_FAMILY_FIELD) && !input.containsKey(DataSourceConfig.Fields.driverVersion))) {
             return data;
         }
 
@@ -89,10 +93,44 @@ public class DmDsConfigUiDataFactory {
         if (configDef == null) {
             return data;
         }
-        String driverFamily = StringUtils.trimToNull(input.get("driverFamily"));
+
+        String driverFamily = StringUtils.trimToNull(input.get(DRIVER_FAMILY_FIELD));
         String driverVersion = StringUtils.trimToNull(input.get(DataSourceConfig.Fields.driverVersion));
+        if (StringUtils.isBlank(driverFamily) || StringUtils.isBlank(driverVersion)) {
+            String defaultDriver = defaultDriverSpec(dsType);
+            if (StringUtils.isNotBlank(defaultDriver)) {
+                data.put(DataSourceConfig.Fields.driverVersion, defaultDriver);
+            }
+            return data;
+        }
+
         data.put(DataSourceConfig.Fields.driverVersion, JsonUtils.toJson(Arrays.asList(driverFamily, driverVersion)));
         return data;
+    }
+
+    private String defaultDriverSpec(DataSourceType dsType) {
+        DsPluginInfo dsPlugin = PluginManager.findDsPlugin(dsType);
+        if (dsPlugin == null || dsPlugin.getBindDrivers() == null || dsPlugin.getBindDrivers().isEmpty()) {
+            return null;
+        }
+
+        for (String driverFamilyName : dsPlugin.getBindDrivers()) {
+            String driverFamily = StringUtils.trimToNull(driverFamilyName);
+            if (driverFamily == null) {
+                continue;
+            }
+
+            DriverFamily family = PluginManager.driverLoader().findDriver(driverFamily);
+            if (family == null || family.getVersions() == null || family.getVersions().isEmpty()) {
+                continue;
+            }
+
+            String driverVersion = StringUtils.trimToNull(family.getVersions().get(0));
+            if (driverVersion != null) {
+                return JsonUtils.toJson(Arrays.asList(driverFamily, driverVersion));
+            }
+        }
+        return null;
     }
 
     private Map<String, String> addressKvData(Map<String, DsConfigKvDef> configDefMap, Map<String, String> input) {

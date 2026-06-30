@@ -73,6 +73,20 @@ public class HgConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
         properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), safeStr(this.getClientTimeZone()));
         properties.setProperty("sslmode", this.pgSslMode());
+        if (this.getSslMode() == SslMode.CA && !hasSslCaConfig()) {
+            throw new IllegalArgumentException("Hologres CA certificate is required.");
+        }
+        if (this.getSslMode() == SslMode.CLIENT_CERT) {
+            if (!hasSslCaConfig()) {
+                throw new IllegalArgumentException("Hologres CA certificate is required.");
+            }
+            if (!hasSslClientCertConfig()) {
+                throw new IllegalArgumentException("Hologres client certificate is required.");
+            }
+            if (!hasSslClientKeyConfig()) {
+                throw new IllegalArgumentException("Hologres client private key is required.");
+            }
+        }
         if (StringUtils.isNotBlank(this.getSslCaFilePath())) {
             properties.setProperty("sslrootcert", this.getSslCaFilePath());
         }
@@ -86,6 +100,18 @@ public class HgConfig extends DataSourceConfig {
             properties.setProperty("sslpassword", this.getSslClientKeyPassword());
         }
         return properties;
+    }
+
+    private boolean hasSslCaConfig() {
+        return StringUtils.isNotBlank(this.getSslCaFilePath()) || StringUtils.isNotBlank(this.getSslCaData());
+    }
+
+    private boolean hasSslClientCertConfig() {
+        return StringUtils.isNotBlank(this.getSslClientCertFilePath()) || StringUtils.isNotBlank(this.getSslClientCertData());
+    }
+
+    private boolean hasSslClientKeyConfig() {
+        return StringUtils.isNotBlank(this.getSslClientKeyFilePath()) || StringUtils.isNotBlank(this.getSslClientKeyData());
     }
 
     private String pgSslMode() {

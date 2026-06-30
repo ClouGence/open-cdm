@@ -37,13 +37,10 @@ import com.clougence.utils.StringUtils;
 
 public class DmDsConfigUiPanelFactory {
 
-    private static final String       PROP_CERTIFICATE_SUPPORT_TEXT = "certificate.supportText";
-    private static final String       PROP_CERTIFICATE_FILE_TYPES   = "certificate.fileTypes";
-    private static final List<String> TEXT_CERTIFICATE_TYPES        = List.of("pem", "key", "crt", "cer", "pk8");
-    private static final List<String> CERTIFICATE_TYPES             = List.of("pem", "crt", "cer");
-    private static final List<String> PG_CLIENT_KEY_TYPES           = List.of("pk8", "p12", "pfx");
-    private static final List<String> KEYSTORE_TYPES                = List.of("p12", "pfx", "jks");
-    private static final List<String> ALL_CERTIFICATE_TYPES         = List.of("pem", "key", "crt", "cer", "pk8", "p12", "pfx", "jks");
+    private static final String PROP_CERTIFICATE_SUPPORT_TEXT = "certificate.supportText";
+    private static final String PROP_CERTIFICATE_FILE_TYPES   = "certificate.fileTypes";
+    private static final String PROP_CERTIFICATE_TEXT_TYPES   = "certificate.textFileTypes";
+    private static final String PROP_CERTIFICATE_BINARY_TYPES = "certificate.binaryFileTypes";
 
     public List<UiPanel> create(DataSourceType dsType, Map<DsConfigGroup, Map<String, DsConfigKvDef>> fieldsByGroup) {
         Map<DsConfigGroup, UiPanel> panels = new EnumMap<>(DsConfigGroup.class);
@@ -389,22 +386,22 @@ public class DmDsConfigUiPanelFactory {
                     case TRUST:
                         break;
                     case CA:
-                        option.addField(createCertificateField(dsType, mode, sslCaDataField));
+                        option.addField(createCertificateField(configSpi, mode, sslCaDataField));
                         break;
                     case TRUSTSTORE:
-                        option.addField(createStoreField(dsType, mode, sslCaDataField, ConfigI18nKey.CONFIG_DS_SSL_TRUSTSTORE_DATA_LABEL));
+                        option.addField(createStoreField(configSpi, mode, sslCaDataField, ConfigI18nKey.CONFIG_DS_SSL_TRUSTSTORE_DATA_LABEL));
                         option.addField(createStoreField(sslCaPasswordField, ConfigI18nKey.CONFIG_DS_SSL_TRUSTSTORE_PASSWORD_LABEL));
                         break;
                     case KEYSTORE_TRUSTSTORE:
-                        option.addField(createStoreField(dsType, mode, sslCaDataField, ConfigI18nKey.CONFIG_DS_SSL_TRUSTSTORE_DATA_LABEL));
+                        option.addField(createStoreField(configSpi, mode, sslCaDataField, ConfigI18nKey.CONFIG_DS_SSL_TRUSTSTORE_DATA_LABEL));
                         option.addField(createStoreField(sslCaPasswordField, ConfigI18nKey.CONFIG_DS_SSL_TRUSTSTORE_PASSWORD_LABEL));
-                        option.addField(createStoreField(dsType, mode, sslClientCertDataField, ConfigI18nKey.CONFIG_DS_SSL_KEYSTORE_DATA_LABEL));
+                        option.addField(createStoreField(configSpi, mode, sslClientCertDataField, ConfigI18nKey.CONFIG_DS_SSL_KEYSTORE_DATA_LABEL));
                         option.addField(createStoreField(sslClientKeyPasswordField, ConfigI18nKey.CONFIG_DS_SSL_KEYSTORE_PASSWORD_LABEL));
                         break;
                     case CLIENT_CERT:
-                        option.addField(createCertificateField(dsType, mode, sslCaDataField));
-                        option.addField(createCertificateField(dsType, mode, sslClientCertDataField));
-                        option.addField(createCertificateField(dsType, mode, sslClientKeyDataField));
+                        option.addField(createCertificateField(configSpi, mode, sslCaDataField));
+                        option.addField(createCertificateField(configSpi, mode, sslClientCertDataField));
+                        option.addField(createCertificateField(configSpi, mode, sslClientKeyDataField));
                         option.addField(createField(DsConfigGroup.SSH_SSL, sslClientKeyPasswordField));
                         break;
                 }
@@ -414,14 +411,14 @@ public class DmDsConfigUiPanelFactory {
         return panel;
     }
 
-    private UiPanelField createCertificateField(DataSourceType dsType, SslMode sslMode, DsConfigKvDef configDef) {
+    private UiPanelField createCertificateField(DsConfigSpi configSpi, SslMode sslMode, DsConfigKvDef configDef) {
         UiPanelField field = createField(DsConfigGroup.SSH_SSL, configDef);
-        field.setProps(certificateProps(dsType, sslMode, configDef.getConfigName()));
+        field.setProps(certificateProps(configSpi, sslMode, configDef.getConfigName()));
         return field;
     }
 
-    private UiPanelField createStoreField(DataSourceType dsType, SslMode sslMode, DsConfigKvDef configDef, String labelKey) {
-        UiPanelField field = createCertificateField(dsType, sslMode, configDef);
+    private UiPanelField createStoreField(DsConfigSpi configSpi, SslMode sslMode, DsConfigKvDef configDef, String labelKey) {
+        UiPanelField field = createCertificateField(configSpi, sslMode, configDef);
         field.setTitleI18N(labelKey);
         return field;
     }
@@ -432,24 +429,17 @@ public class DmDsConfigUiPanelFactory {
         return field;
     }
 
-    private Map<String, Object> certificateProps(DataSourceType dsType, SslMode sslMode, String configName) {
+    private Map<String, Object> certificateProps(DsConfigSpi configSpi, SslMode sslMode, String configName) {
+        return certificateProps(configSpi.certificateTextFileTypes(sslMode, configName), //
+                configSpi.certificateBinaryFileTypes(sslMode, configName));
+    }
+
+    private Map<String, Object> certificateProps(List<String> textFileTypes, List<String> binaryFileTypes) {
         Map<String, Object> props = new LinkedHashMap<>();
-        if (sslMode == SslMode.TRUSTSTORE || sslMode == SslMode.KEYSTORE_TRUSTSTORE) {
-            props.put(PROP_CERTIFICATE_SUPPORT_TEXT, false);
-            props.put(PROP_CERTIFICATE_FILE_TYPES, KEYSTORE_TYPES);
-            return props;
-        }
-        if (dsType == DataSourceType.PostgreSQL) {
-            props.put(PROP_CERTIFICATE_SUPPORT_TEXT, true);
-            if (StringUtils.equals(configName, DataSourceConfig.Fields.sslClientKeyData)) {
-                props.put(PROP_CERTIFICATE_FILE_TYPES, PG_CLIENT_KEY_TYPES);
-            } else {
-                props.put(PROP_CERTIFICATE_FILE_TYPES, CERTIFICATE_TYPES);
-            }
-            return props;
-        }
-        props.put(PROP_CERTIFICATE_SUPPORT_TEXT, true);
-        props.put(PROP_CERTIFICATE_FILE_TYPES, ALL_CERTIFICATE_TYPES);
+        props.put(PROP_CERTIFICATE_TEXT_TYPES, textFileTypes);
+        props.put(PROP_CERTIFICATE_BINARY_TYPES, binaryFileTypes);
+        props.put(PROP_CERTIFICATE_SUPPORT_TEXT, textFileTypes != null && !textFileTypes.isEmpty());
+        props.put(PROP_CERTIFICATE_FILE_TYPES, binaryFileTypes);
         return props;
     }
 

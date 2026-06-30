@@ -79,6 +79,9 @@ public class PgConfig extends DataSourceConfig {
         if (this.getSslMode() != null) {
             switch (this.getSslMode()) {
                 case CA -> {
+                    if (!hasSslCaConfig()) {
+                        throw new IllegalArgumentException("PostgreSQL CA certificate is required.");
+                    }
                     if (StringUtils.isNotBlank(this.getSslCaFilePath())) {
                         properties.setProperty("sslrootcert", this.getSslCaFilePath());
                     }

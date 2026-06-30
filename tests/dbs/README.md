@@ -57,7 +57,7 @@ docker compose -f tests/dbs/dbs_x86/docker-compose.yml up -d --force-recreate ss
 | 服务 | 容器内服务名 | Database/Service | 常规连接 | SSL（信任） | SSL（CA证书/单向） | SSL（双向） | 备注 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | MySQL | `mysql` | `devtester` | Port: `3306 (内)/2330 (外)`<br>用户: `root` / `123456` | x86: Port: `3306 (内)/2330 (外)`<br>用户: `root` / `123456`<br>证书: 不需要 | x86: Port: `3306 (内)/2330 (外)`<br>用户: `root` / `123456`<br>CA 证书: `certs/ca.p12`<br>CA 证书密码: 留空 | x86: Port: `3306 (内)/2330 (外)`<br>用户: `sslclient` / `123456`<br>CA 证书: `certs/ca.p12`<br>CA 证书密码: 留空<br>客户端 KeyStore: `certs/client.p12`<br>KeyStore 密码: `123456` | arm64 compose 未挂载 MySQL SSL 初始化；<br/>兼容文件: `ca-123456.p12`、`ca.jks`、`client.jks` |
-| Oracle | `oracle` | `DEVTESTDB` | Port: `1521 (内)/2521 (外)`<br>用户: `devtester` / `123456` | - | x86: Port: `2484 (内)/2484 (外)`<br>用户: `devtester` / `123456`<br>CA KeyStore: `certs/ca.p12`<br>KeyStore 密码: 留空 | x86: Port: `2485 (内)/2485 (外)`<br>用户: `devtester` / `123456`<br>CA KeyStore: `certs/ca.p12`<br>CA KeyStore 密码: 留空<br>客户端 KeyStore: `certs/client.p12`<br>KeyStore 密码: `123456` | x86 compose 使用 `oracle/wallet` 启动 TCPS listener |
+| Oracle | `oracle` | SID: `XE`<br>Service Name: `DEVTESTDB`<br>PDB: `DEVTESTDB` | Port: `1521 (内)/2521 (外)`<br>连接方式: `Service Name` 或 `PDB`<br>连接值: `DEVTESTDB`<br>用户: `devtester` / `123456` | - | x86: Port: `2484 (内)/2484 (外)`<br>连接方式: `Service Name` 或 `PDB`<br>连接值: `DEVTESTDB`<br>用户: `devtester` / `123456`<br>CA KeyStore: `certs/ca.p12`<br>KeyStore 密码: 留空 | x86: Port: `2485 (内)/2485 (外)`<br>连接方式: `Service Name` 或 `PDB`<br>连接值: `DEVTESTDB`<br>用户: `devtester` / `123456`<br>CA KeyStore: `certs/ca.p12`<br>CA KeyStore 密码: 留空<br>客户端 KeyStore: `certs/client.p12`<br>KeyStore 密码: `123456` | x86 compose 使用 `oracle/wallet` 启动 TCPS listener；`SYSTEM` 可用 SID `XE`，`devtester` 位于 PDB `DEVTESTDB` |
 | PostgreSQL | `postgres` | `postgres` | Port: `5432 (内)/2543 (外)`<br>用户: `postgres` / `123456` | Port: `5432 (内)/2543 (外)`<br>用户: `postgres` / `123456`<br>证书: 不需要 | Port: `5432 (内)/2543 (外)`<br>用户: `postgres` / `123456`<br>CA 证书: `ca.crt` | Port: `5432 (内)/2543 (外)`<br>用户: `sslclient` / 留空<br>CA 证书: `ca.crt`<br>客户端证书: `client.crt`<br>客户端私钥: `client.pk8`<br>私钥短语: 留空 | x86 和 arm64 compose 共享同一套测试证书 |
 | Redis | `redis` | - | Port: `6379 (内)/2637 (外)`<br>密码: `123456` | - | - | - | `requirepass` |
 | MongoDB | `mongo` | `admin` | Port: `27017 (内)/2701 (外)`<br>用户: `root` / `123456` | - | - | - | admin 用户 |
@@ -96,6 +96,25 @@ SSL 模式含义：
 | `TRUST` | 启用 SSL，但不要求用户上传 CA 证书 | 不需要上传证书 |
 | `CA` | 单向 SSL，客户端校验服务端证书链 | 上传 CA 证书 |
 | `CLIENT_CERT` | 双向 SSL，客户端校验服务端证书链，服务端校验客户端证书 | 上传 CA 证书、客户端证书/私钥或客户端 KeyStore |
+
+Oracle compose 的实例 SID 是 `XE`，并通过 `ORACLE_DATABASE=DEVTESTDB` 创建 PDB。`APP_USER=devtester` 创建在该 PDB 中，因此业务账号连接方式使用 `Service Name` 或 `PDB`，值填写 `DEVTESTDB`。需要连接实例/root 时使用 SID `XE`，账号使用 `SYSTEM` / `123456`。
+
+Oracle 连接方式配置：
+
+| 场景 | Host | Port | 连接方式 | 连接值 | 用户 |
+| --- | --- | --- | --- | --- | --- |
+| 宿主机普通连接（PDB Service） | `127.0.0.1` | `2521` | `Service Name` | `DEVTESTDB` | `devtester` / `123456` |
+| 宿主机普通连接（PDB） | `127.0.0.1` | `2521` | `PDB` | `DEVTESTDB` | `devtester` / `123456` |
+| 宿主机普通连接（SID） | `127.0.0.1` | `2521` | `SID` | `XE` | `SYSTEM` / `123456` |
+| compose 网络普通连接（PDB Service） | `oracle` | `1521` | `Service Name` | `DEVTESTDB` | `devtester` / `123456` |
+| compose 网络普通连接（PDB） | `oracle` | `1521` | `PDB` | `DEVTESTDB` | `devtester` / `123456` |
+| compose 网络普通连接（SID） | `oracle` | `1521` | `SID` | `XE` | `SYSTEM` / `123456` |
+| 宿主机 TCPS 单向 | `127.0.0.1` | `2484` | `Service Name` 或 `PDB` | `DEVTESTDB` | `devtester` / `123456` |
+| compose 网络 TCPS 单向 | `oracle` | `2484` | `Service Name` 或 `PDB` | `DEVTESTDB` | `devtester` / `123456` |
+| 宿主机 TCPS 双向 | `127.0.0.1` | `2485` | `Service Name` 或 `PDB` | `DEVTESTDB` | `devtester` / `123456` |
+| compose 网络 TCPS 双向 | `oracle` | `2485` | `Service Name` 或 `PDB` | `DEVTESTDB` | `devtester` / `123456` |
+
+`SID` 连接值是 `XE`，用于连接容器数据库实例。`devtester` 是 PDB 用户，使用 `Service Name=DEVTESTDB` 或 `PDB=DEVTESTDB`。
 
 Oracle listener 使用 `tests/dbs/oracle/wallet` 中预置的 auto-login wallet。该 wallet 使用 `tests/dbs/certs` 的服务端证书生成，2484 listener 不要求客户端证书，2485 listener 要求客户端证书。
 

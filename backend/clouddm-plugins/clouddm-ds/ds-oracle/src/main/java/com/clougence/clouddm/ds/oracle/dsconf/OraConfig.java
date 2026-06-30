@@ -38,7 +38,7 @@ import lombok.experimental.FieldNameConstants;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OraConfig extends DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
-    @ConfigDef(name = Fields.connectType, //
+    @ConfigDef(name = Fields.connectType, defaultValue = "sid", //
             group = DsConfigGroup.GENERAL, labelKey = OraConfigI18nKeys.CONFIG_ORACLE_CONNECT_TYPE_LABEL, descKey = OraConfigI18nKeys.CONFIG_DESCRIPTION_EMPTY, readOnly = false)
     private OraConnectType connectType;
     @ConfigDef(name = Fields.sid, //
@@ -56,6 +56,10 @@ public class OraConfig extends DataSourceConfig {
     @ConfigDef(name = Fields.tnsName, //
             group = DsConfigGroup.GENERAL, labelKey = OraConfigI18nKeys.CONFIG_ORACLE_TNS_NAME_LABEL, descKey = OraConfigI18nKeys.CONFIG_DESCRIPTION_EMPTY, readOnly = false)
     private String         tnsName;
+    // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
+    @ConfigDef(name = Fields.clientTimeZone, //
+            group = DsConfigGroup.OPTIONS, labelKey = OraConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_LABEL, descKey = OraConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_DESC, readOnly = false)
+    private String         clientTimeZone;
     // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
     @ConfigDef(name = Fields.connectTimeoutMs, defaultValue = "5000", //
             group = DsConfigGroup.ADVANCED, labelKey = OraConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_LABEL, descKey = OraConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_DESC, readOnly = false)
@@ -118,6 +122,7 @@ public class OraConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.ORA_TNS_ADMIN.getConfigKey(), safeStr(this.getTnsAdmin()));
         properties.setProperty(DsConfigKeys.ORA_TNS_NAME.getConfigKey(), safeStr(this.getTnsName()));
         properties.setProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey(), safeStr(StringUtils.toString(this.getAutoCommit())));
+        properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), safeStr(this.getClientTimeZone()));
         properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), safeStr(StringUtils.toString(this.getConnectTimeoutMs())));
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
         if (this.getSslMode() != null) {

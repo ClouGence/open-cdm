@@ -21,11 +21,11 @@ import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
-import com.clougence.clouddm.ds.common.dsconf.AbstractDsConfigSpi;
-import com.clougence.drivers.adapter.ConvertUtils;
 import com.clougence.clouddm.base.metadata.ds.SslMode;
+import com.clougence.clouddm.dsfamily.postgres.dsconf.AbstractPgConfigSpi;
+import com.clougence.drivers.adapter.ConvertUtils;
 
-public class PorPgConfigSpi extends AbstractDsConfigSpi {
+public class PorPgConfigSpi extends AbstractPgConfigSpi {
 
     @Override
     public String defaultPort() {

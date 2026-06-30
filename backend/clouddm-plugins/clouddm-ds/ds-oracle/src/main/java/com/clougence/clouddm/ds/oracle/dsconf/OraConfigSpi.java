@@ -92,6 +92,7 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
         config.setPdbName(defaultConfig.get(OraConfig.Fields.pdbName));
         config.setTnsAdmin(defaultConfig.get(OraConfig.Fields.tnsAdmin));
         config.setTnsName(defaultConfig.get(OraConfig.Fields.tnsName));
+        config.setClientTimeZone(defaultConfig.get(OraConfig.Fields.clientTimeZone));
         if (StringUtils.isNotBlank(config.getHost())) {
             String[] ipPort = config.getHost().split(":");
             if (ipPort.length == 3) {
