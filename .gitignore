@@ -40,3 +40,7 @@ gen
 # web
 frontend/node_modules
 frontend/dist
+
+/data
+/logs
+install_upgrade.log
