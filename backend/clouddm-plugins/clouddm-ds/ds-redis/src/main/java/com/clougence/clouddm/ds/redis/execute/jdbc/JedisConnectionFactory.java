@@ -95,7 +95,7 @@ public class JedisConnectionFactory implements AdapterFactory {
         int maxTotal = StringUtils.isBlank(maxTotalStr) ? GenericObjectPoolConfig.DEFAULT_MAX_TOTAL : Integer.parseInt(maxTotalStr);
         int maxIdle = StringUtils.isBlank(maxIdleStr) ? GenericObjectPoolConfig.DEFAULT_MAX_IDLE : Integer.parseInt(maxIdleStr);
         int minIdle = StringUtils.isBlank(minIdleStr) ? GenericObjectPoolConfig.DEFAULT_MIN_IDLE : Integer.parseInt(minIdleStr);
-        boolean testWhileIdle = StringUtils.isBlank(minIdleStr) ? GenericObjectPoolConfig.DEFAULT_TEST_WHILE_IDLE : Boolean.parseBoolean(testWhileIdleStr);
+        boolean testWhileIdle = StringUtils.isBlank(testWhileIdleStr) ? GenericObjectPoolConfig.DEFAULT_TEST_WHILE_IDLE : Boolean.parseBoolean(testWhileIdleStr);
 
         ConnectionPoolConfig poolConfig = new ConnectionPoolConfig();
         poolConfig.setMaxTotal(maxTotal);

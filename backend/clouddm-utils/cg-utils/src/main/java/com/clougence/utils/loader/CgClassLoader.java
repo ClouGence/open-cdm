@@ -95,7 +95,19 @@ public class CgClassLoader extends ClassLoader implements Closeable {
                     return c;
                 }
             }
+            return loadParentThenLocal(name, resolve);
+        }
+    }
+
+    private Class<?> loadParentThenLocal(String name, boolean resolve) throws ClassNotFoundException {
+        try {
             return super.loadClass(name, resolve);
+        } catch (ClassNotFoundException e) {
+            Class<?> c = this.findClass(name);
+            if (c != null && resolve) {
+                this.resolveClass(c);
+            }
+            return c;
         }
     }
 

@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
@@ -657,6 +658,37 @@ public class DefaultDriverLoaderFunctionalTest {
     }
 
     @Test
+    public void binding_shouldLoadPreparedJarDependencyOutsideIncludePackages() throws Exception {
+        Map<String, String> sources = new LinkedHashMap<>();
+        sources.put("sample.driver.GeneratedDriverMarker",
+            "package sample.driver; public class GeneratedDriverMarker { public String ping() { return sample.dep.Helper.value(); } }");
+        sources.put("sample.dep.Helper", "package sample.dep; public class Helper { public static String value() { return \"dep-ok\"; } }");
+        Path jarFile = createTestJar("generated-driver-with-dep.jar", sources);
+
+        DefaultDriverLoader loader = new DefaultDriverLoader(this.tempDir.toFile(), new Properties());
+        loader.loadDriverXml(xmlStream(
+            "<drivers>" +
+                "<driver driverFamily=\"jar-binding-dep-driver\" version=\"1.0\">" +
+                "<driverName>" + TestDsFactory.class.getName() + "</driverName>" +
+                "<resource type=\"file\">" + jarFile.toUri() + "</resource>" +
+                "</driver>" +
+            "</drivers>"));
+
+        DriverVersion version = loader.findDriver("jar-binding-dep-driver", "1.0");
+        assertNotNull(version);
+        ((VerDef) version).setDsFactoryDef(new DsFactoryDef(TestDsFactory.class.getName(), this.getClass().getClassLoader()));
+
+        loader.prepareDriverVersion(version, resource -> false, new DriverPrepareProgress() {
+        });
+        DriverBinding binding = loader.createBinding(this.getClass().getClassLoader(), "jar-binding-dep-driver", "1.0");
+        binding.asClassLoader().addIncludePackages("sample.driver.*");
+
+        Class<?> generatedClass = binding.asClassLoader().loadClass("sample.driver.GeneratedDriverMarker");
+        Object generated = generatedClass.getDeclaredConstructor().newInstance();
+        assertEquals("dep-ok", generatedClass.getMethod("ping").invoke(generated));
+    }
+
+    @Test
     public void binding_shouldRejectPreparedNonArchiveDriverFiles() throws Exception {
         Path textFile = Files.createFile(this.tempDir.resolve("prepared-driver.txt"));
         Files.write(textFile, Collections.singletonList("plain-text-driver"), StandardCharsets.UTF_8);
@@ -822,30 +854,39 @@ public class DefaultDriverLoaderFunctionalTest {
     }
 
     private Path createTestJar(String className, String sourceCode) throws Exception {
+        return createTestJar("generated-driver.jar", Collections.singletonMap(className, sourceCode));
+    }
+
+    private Path createTestJar(String jarName, Map<String, String> sources) throws Exception {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         assertNotNull("system java compiler is required", compiler);
 
         Path sourceDir = Files.createDirectories(this.tempDir.resolve("generated-src"));
         Path outputDir = Files.createDirectories(this.tempDir.resolve("generated-classes"));
-        Path sourceFile = sourceDir.resolve(className.replace('.', '/') + ".java");
-        Files.createDirectories(sourceFile.getParent());
-        Files.write(sourceFile, sourceCode.getBytes(StandardCharsets.UTF_8));
+        List<File> sourceFiles = new ArrayList<>();
+        for (Map.Entry<String, String> entry : sources.entrySet()) {
+            Path sourceFile = sourceDir.resolve(entry.getKey().replace('.', '/') + ".java");
+            Files.createDirectories(sourceFile.getParent());
+            Files.write(sourceFile, entry.getValue().getBytes(StandardCharsets.UTF_8));
+            sourceFiles.add(sourceFile.toFile());
+        }
 
         try (StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, StandardCharsets.UTF_8)) {
             fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Collections.singletonList(outputDir.toFile()));
-            boolean success = compiler.getTask(null, fileManager, null, null, null, fileManager.getJavaFileObjects(sourceFile.toFile())).call();
+            boolean success = compiler.getTask(null, fileManager, null, null, null, fileManager.getJavaFileObjectsFromFiles(sourceFiles)).call();
             assertTrue("compile generated source failed", success);
         }
 
-        Path classFile = outputDir.resolve(className.replace('.', '/') + ".class");
-        assertTrue(Files.exists(classFile));
-
-        Path jarFile = this.tempDir.resolve("generated-driver.jar");
+        Path jarFile = this.tempDir.resolve(jarName);
         try (JarOutputStream jarOutput = new JarOutputStream(Files.newOutputStream(jarFile))) {
-            String entryName = className.replace('.', '/') + ".class";
-            jarOutput.putNextEntry(new JarEntry(entryName));
-            jarOutput.write(Files.readAllBytes(classFile));
-            jarOutput.closeEntry();
+            for (String className : sources.keySet()) {
+                Path classFile = outputDir.resolve(className.replace('.', '/') + ".class");
+                assertTrue(Files.exists(classFile));
+                String entryName = className.replace('.', '/') + ".class";
+                jarOutput.putNextEntry(new JarEntry(entryName));
+                jarOutput.write(Files.readAllBytes(classFile));
+                jarOutput.closeEntry();
+            }
         }
 
         return jarFile;

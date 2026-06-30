@@ -226,9 +226,9 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
             }
 
             binding.bind(this.pluginResource, this.getIncludePackages().toArray(new String[0]));
+            this.configIncludeExclude(binding.asClassLoader());// config all bind
             AdapterManager.register(binding.asClassLoader());
 
-            this.configIncludeExclude(binding.asClassLoader());// config all bind
             DsDriverBindingHolder holder = new DsDriverBindingHolder(key, binding);
             this.driverBindingCache.put(key, holder);
             return holder;
