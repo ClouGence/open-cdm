@@ -160,6 +160,7 @@ services:
 
   proxy:
     image: 3proxy/3proxy:latest
+    platform: linux/amd64
     volumes:
       - ../proxy:/etc/3proxy:ro
     extra_hosts:
@@ -173,6 +174,7 @@ services:
 
   proxy_auth:
     image: 3proxy/3proxy:latest
+    platform: linux/amd64
     volumes:
       - ../proxy-auth:/etc/3proxy:ro
     extra_hosts:

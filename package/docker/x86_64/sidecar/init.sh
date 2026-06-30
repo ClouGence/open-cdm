@@ -30,18 +30,25 @@ wait_for_console() {
   echo "console rsocket is ready: ${host}:${port}"
 }
 
-init_conf_dir_if_empty() {
+sync_missing_default_conf() {
   local conf_dir=/root/cgdm/sidecar/conf
   local default_conf_dir=/root/default_conf
 
   mkdir -p "$conf_dir"
-  if [ -z "$(find "$conf_dir" -mindepth 1 -maxdepth 1 -print -quit)" ]; then
-    echo "conf dir is empty, initializing from ${default_conf_dir}."
-    cp -a "$default_conf_dir"/. "$conf_dir"/
-  fi
+  echo "sync missing default conf from ${default_conf_dir}."
+  while IFS= read -r -d '' src; do
+    local rel="${src#$default_conf_dir/}"
+    local dst="$conf_dir/$rel"
+    if [ -d "$src" ] && [ ! -L "$src" ]; then
+      mkdir -p "$dst"
+    elif [ ! -e "$dst" ] && [ ! -L "$dst" ]; then
+      mkdir -p "$(dirname "$dst")"
+      cp -a "$src" "$dst"
+    fi
+  done < <(find "$default_conf_dir" -mindepth 1 -print0)
 }
 
-init_conf_dir_if_empty
+sync_missing_default_conf
 
 # global_conf.properties
 DST_GLOBAL_FILE=/root/cgdm/sidecar/conf/global_conf.properties

@@ -17,7 +17,7 @@ tests/dbs
 └── ssh/                            # SSH Server 使用的公私钥和初始化脚本
 ```
 
-`dbs_x86` 和 `dbs_arm64` 的服务名、端口和测试能力保持一致。同一台机器上不要同时启动两套 compose，除非先修改其中一套端口。`dbs_arm64` 中 SQL Server 和 DB2 使用 `linux/amd64` 镜像运行，需要 Docker 支持跨架构模拟。
+`dbs_x86` 和 `dbs_arm64` 的服务名、端口和测试能力保持一致。同一台机器上不要同时启动两套 compose，除非先修改其中一套端口。`dbs_arm64` 中 SQL Server、DB2 和 3proxy 使用 `linux/amd64` 镜像运行，需要 Docker 支持跨架构模拟。
 
 ## 启停命令
 
