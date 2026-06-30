@@ -79,7 +79,7 @@ public class JdbcDsFactory implements DsFactory<Connection> {
 
         String jdbcUrl = buildJdbcUrl(dsConfig);
         try {
-            Connection jedisConnect = new JdbcDriver(this.getClass().getClassLoader()).connect(jdbcUrl, props);
+            Connection jedisConnect = new JdbcDriver().connect(jdbcUrl, props);
 
             return new DsObject<>(dsConfig, jedisConnect, this);
         } catch (Exception e) {

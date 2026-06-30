@@ -33,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * https://dev.mysql.com/doc/refman/8.0/en/information-schema.html
- *
  * @author mode 2021/01/08 20:29
  */
 @Slf4j
@@ -79,7 +78,7 @@ public class MongoJdbcDsFactory implements DsFactory<Connection> {
         String jdbcUrl = buildJdbcUrl(dsConfig);
 
         try {
-            Connection connection = new JdbcDriver(this.getClass().getClassLoader()).connect(jdbcUrl, props);
+            Connection connection = new JdbcDriver().connect(jdbcUrl, props);
             return new DsObject<>(dsConfig, connection, this);
         } catch (Exception e) {
             log.error("create EsClient instanceID(MongoDB)=" + id + " ,hosts= " + dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey()) + ", error:" + e.getMessage());

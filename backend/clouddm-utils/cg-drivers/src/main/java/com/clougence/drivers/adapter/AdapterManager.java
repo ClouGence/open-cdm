@@ -22,6 +22,16 @@ public class AdapterManager {
     private static final Map<String, String[]>       propertyGroupBy = new HashMap<>();
     private static final Map<String, AdapterFactory> factoryMap      = new HashMap<>();
 
+    public static void register(ClassLoader cl) {
+        if (cl == null) {
+            return;
+        }
+        ServiceLoader<AdapterFactory> loader = ServiceLoader.load(AdapterFactory.class, cl);
+        for (AdapterFactory factory : loader) {
+            register(factory.getAdapterName(), factory);
+        }
+    }
+
     public static void register(String adapter, AdapterFactory factory) {
         if (adapter == null || adapter.trim().isEmpty() || factory == null) {
             return;
@@ -35,30 +45,13 @@ public class AdapterManager {
         }
     }
 
-    public static void lookup(ClassLoader cl) {
-        if (cl == null) {
-            return;
-        }
-        ServiceLoader<AdapterFactory> loader = ServiceLoader.load(AdapterFactory.class, cl);
-        for (AdapterFactory factory : loader) {
-            register(factory.getAdapterName(), factory);
-        }
-    }
-
-    public static AdapterFactory lookup(String adapter, ClassLoader cl) {
+    public static AdapterFactory lookup(String adapter) {
         AdapterFactory factory = registeredFactory(adapter);
         if (factory != null) {
             return factory;
         }
 
-        lookup(cl);
-
-        factory = registeredFactory(adapter);
-        if (factory != null) {
-            return factory;
-        } else {
-            throw new UnsupportedOperationException("not found " + adapter + " driver adapter.");
-        }
+        throw new UnsupportedOperationException("not found " + adapter + " driver adapter.");
     }
 
     private static AdapterFactory registeredFactory(String adapter) {
@@ -73,7 +66,7 @@ public class AdapterManager {
         if (!propertyGroupBy.containsKey(adapter)) {
             synchronized (propertyGroupBy) {
                 if (!propertyGroupBy.containsKey(adapter)) {
-                    AdapterFactory factory = lookup(adapter, cl);
+                    AdapterFactory factory = lookup(adapter);
                     Set<String> propertyNameSet = new HashSet<>(Arrays.asList(factory.getPropertyNames()));
                     propertyNameSet.add(JdbcDriver.P_SERVER);
                     names = propertyNameSet.toArray(new String[0]);
