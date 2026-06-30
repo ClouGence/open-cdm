@@ -576,7 +576,6 @@ export default {
   box-sizing: border-box;
   position: relative;
   overflow-y: auto;
-  padding-bottom: 76px;
   background: #f5f8fb;
 }
 
@@ -596,18 +595,15 @@ export default {
     flex: 1;
     min-height: 0;
     margin-bottom: 0;
-    overflow: auto;
+    overflow: visible;
   }
 }
 
 .add-dataSource-tools {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 20;
+  position: relative;
   display: flex;
   height: 64px;
+  flex: 0 0 64px;
   align-items: center;
   justify-content: center;
   background: #fff;

@@ -748,7 +748,12 @@ export default {
   }
 
   :deep(.ivu-tabs-content) {
+    overflow: visible;
     padding: 28px 32px 36px;
+  }
+
+  :deep(.ivu-tabs-tabpane) {
+    overflow: visible;
   }
 }
 

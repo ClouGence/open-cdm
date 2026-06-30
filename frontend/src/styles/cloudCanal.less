@@ -1114,7 +1114,13 @@ a {
 }
 
 .ivu-select-dropdown {
-  max-height: 500px !important;
+  max-height: ~'min(360px, calc(100vh - 120px))' !important;
+  overflow: hidden;
+}
+
+.ivu-select-dropdown-list {
+  max-height: ~'min(360px, calc(100vh - 120px))';
+  overflow-y: auto;
 }
 
 .ivu-menu-light {

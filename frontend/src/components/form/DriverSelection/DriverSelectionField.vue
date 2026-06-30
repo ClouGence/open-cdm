@@ -1,12 +1,12 @@
 <template>
   <div class="driver-selection-field">
     <div class="driver-selection-row">
-      <Select v-model="innerDriverFamily" style="width: 180px" @on-change="handleDriverFamilyChange">
+      <Select v-model="innerDriverFamily" style="width: 180px" transfer @on-change="handleDriverFamilyChange">
         <Option v-for="family in currentDriverFamilies" :key="family.name" :value="family.name">
           {{ family.name }}
         </Option>
       </Select>
-      <Select v-model="innerDriverVersion" style="width: 126px" @on-change="handleDriverVersionChange">
+      <Select v-model="innerDriverVersion" style="width: 126px" transfer @on-change="handleDriverVersionChange">
         <Option v-for="version in currentDriverVersions" :key="version" :value="version">
           {{ version }}
         </Option>
