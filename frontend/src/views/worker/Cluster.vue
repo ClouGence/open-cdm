@@ -1,33 +1,39 @@
 <template>
-  <div class="cluster-container">
-    <ClusterHeader
-      :handleSearch="handleRefresh"
-      :refreshLoading="refreshLoading"
-      :handleAddCluster="handleAddCluster"
-      :params="searchData"
-    ></ClusterHeader>
-    <Table border :columns="displayResourceColumns" :data="showData" size="small" :loading="refreshLoading" style="margin-top: 12px">
-      <template #cluster="{ row }">
-        <div>
-          <a @click="handleCluster(row)">{{ row.clusterName }}</a>
-          <CustomIcon type="CopyOutline" leftMargin hoverStyle @click="handleCopy(row.clusterName)" />
+  <div class="cluster-container table-list-layout">
+    <div class="table-list">
+      <div class="content">
+        <ClusterHeader
+          :handleSearch="handleRefresh"
+          :refreshLoading="refreshLoading"
+          :handleAddCluster="handleAddCluster"
+          :params="searchData"
+        ></ClusterHeader>
+        <div class="table-container cluster-table-container">
+          <Table border :columns="displayResourceColumns" :data="showData" size="small" :loading="refreshLoading">
+            <template #cluster="{ row }">
+              <div>
+                <a @click="handleCluster(row)">{{ row.clusterName }}</a>
+                <CustomIcon type="CopyOutline" leftMargin hoverStyle @click="handleCopy(row.clusterName)" />
+              </div>
+            </template>
+            <template #action="{ row }">
+              <a class="text-cc-primary" style="margin-right: 16px" @click="handleCluster(row)">
+                {{ $t('ji-qi-lie-biao') }}
+              </a>
+              <a class="text-cc-primary" v-if="hasManageAuth" style="margin-right: 16px" @click="handleDeleteCluster(row)">
+                {{ $t('shan-chu') }}
+              </a>
+            </template>
+            <template #clusterDesc="{ row }">
+              <div class="cluster-desc-cell">
+                <span class="cluster-desc-text">{{ row.clusterDesc }}</span>
+                <CustomIcon type="icon-v2-EditSimple" @click="handleEditDClusterDesc(row)" size="13px" hoverStyle class="cluster-desc-edit" />
+              </div>
+            </template>
+          </Table>
         </div>
-      </template>
-      <template #action="{ row }">
-        <a class="text-cc-primary" style="margin-right: 16px" @click="handleCluster(row)">
-          {{ $t('ji-qi-lie-biao') }}
-        </a>
-        <a class="text-cc-primary" v-if="hasManageAuth" style="margin-right: 16px" @click="handleDeleteCluster(row)">
-          {{ $t('shan-chu') }}
-        </a>
-      </template>
-      <template #clusterDesc="{ row }">
-        <div class="cluster-desc-cell">
-          <span class="cluster-desc-text">{{ row.clusterDesc }}</span>
-          <CustomIcon type="icon-v2-EditSimple" @click="handleEditDClusterDesc(row)" size="13px" hoverStyle class="cluster-desc-edit" />
-        </div>
-      </template>
-    </Table>
+      </div>
+    </div>
     <div class="page-footer-container">
       <div class="page-footer-paging">
         <Page
@@ -568,6 +574,10 @@ export default {
 </script>
 <style lang="less">
 .cluster-container {
+  &.table-list-layout {
+    padding: 0;
+  }
+
   .iconfont {
     font-size: 12px;
   }
