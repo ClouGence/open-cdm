@@ -45,7 +45,8 @@ import {
   Progress,
   Spin,
   Tag,
-  Space
+  Space,
+  Upload
 } from 'view-ui-plus';
 import eventBus from '@/utils/eventBus';
 import checkES5Support from './utils/isEs5Supported';
@@ -159,7 +160,8 @@ const iviewComponents = {
   Progress,
   Spin,
   Tag,
-  Space
+  Space,
+  Upload
 };
 Object.keys(iviewComponents).forEach((key) => {
   app.component(key, iviewComponents[key]);

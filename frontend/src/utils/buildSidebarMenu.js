@@ -58,9 +58,6 @@ export function buildSidebarMenu({ myCatLog, myAuth, includesDM, isDesktop, acco
   if (myCatLog.includes('CAT_DM_SYS') && myCatLog.includes('CAT_DM_WORKER')) {
     dataAccessChildren.push(linkItem('/data-access/cluster', '/#/data-access/cluster', 'nav-cha-xun-ji-qi-lie-biao', 'icon-v2-cluster'));
   }
-  if (myAuth.includes('DM_SSH_CHANNEL_READ')) {
-    dataAccessChildren.push(linkItem('/system/sshConfig', '/#/system/sshConfig', 'nav-ssh-tong-dao', 'icon-v2-MyAuth'));
-  }
   if (myCatLog.includes('CAT_DM_SYS') && myCatLog.includes('CAT_DM_SECRULES')) {
     dataAccessChildren.push(linkItem('/data-access/rules', '/#/data-access/rules', 'an-quan-gui-fan', 'icon-v2-audit'));
   }
