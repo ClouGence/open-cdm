@@ -22,15 +22,13 @@ mkdir -p "$CACHE_DIR"
 # Download if not cached
 if [ ! -f "$CACHED_TARBALL" ]; then
   echo "Downloading MySQL ${MYSQL_VERSION} for ${ARCH}..."
-  DOWNLOAD_URL="${MIRROR}/MySQL-8.0/${TARBALL}"
-  echo "  URL: ${DOWNLOAD_URL}"
+  OFFICIAL_URL="https://cdn.mysql.com/Downloads/MySQL-8.0/${TARBALL}"
+  MIRROR_URL="${MIRROR}/MySQL-8.0/${TARBALL}"
 
-  if ! curl -fSL --connect-timeout 30 --max-time 900 --retry 3 -C - "${DOWNLOAD_URL}" -o "${CACHED_TARBALL}.tmp"; then
-    # fallback to official CDN
-    FALLBACK_URL="https://cdn.mysql.com/Downloads/MySQL-8.0/${TARBALL}"
-    echo "Mirror failed, trying official CDN: ${FALLBACK_URL}"
+  if ! curl -fSL --connect-timeout 30 --max-time 900 --retry 3 -C - "${OFFICIAL_URL}" -o "${CACHED_TARBALL}.tmp"; then
+    echo "Official CDN failed, trying mirror: ${MIRROR_URL}"
     rm -f "${CACHED_TARBALL}.tmp"
-    curl -fSL --connect-timeout 30 --max-time 900 --retry 3 -C - "${FALLBACK_URL}" -o "${CACHED_TARBALL}.tmp"
+    curl -fSL --connect-timeout 30 --max-time 900 --retry 3 -C - "${MIRROR_URL}" -o "${CACHED_TARBALL}.tmp"
   fi
   mv "${CACHED_TARBALL}.tmp" "${CACHED_TARBALL}"
 else
@@ -81,5 +79,14 @@ rm -f "$DOWNLOAD_DIR/bin/mysqlbinlog" \
   "$DOWNLOAD_DIR/bin/perror" \
   "$DOWNLOAD_DIR/bin/zlib_decompress" \
   2>/dev/null || true
+
+MYSQL_SHARE="$DOWNLOAD_DIR/share"
+if [ -d "$MYSQL_SHARE" ]; then
+  rm -rf "$MYSQL_SHARE"/charsets/*.xml 2>/dev/null || true
+  rm -rf "$MYSQL_SHARE"/charsets/README 2>/dev/null || true
+  rm -rf "$MYSQL_SHARE"/dictionary.txt 2>/dev/null || true
+  rm -rf "$MYSQL_SHARE"/install_rewriter.sql 2>/dev/null || true
+  rm -rf "$MYSQL_SHARE"/uninstall_rewriter.sql 2>/dev/null || true
+fi
 
 echo "MySQL extracted to ${DOWNLOAD_DIR}"

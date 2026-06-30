@@ -7,6 +7,7 @@ set -euo pipefail
 # Usage:
 #   ./build-desktop.sh              # Build for current arch
 #   ./build-desktop.sh --skip-build # Skip frontend/backend build (dev only)
+#   ./build-desktop.sh --regen-icon # Regenerate desktop/assets/icon.png from dm.ico
 #
 # Prerequisites:
 #   - JDK 17+
@@ -24,9 +25,16 @@ DESKTOP_DIR="$SCRIPT_DIR/desktop"
 BUILD_DIR="$DESKTOP_DIR/.build"
 
 SKIP_BUILD=false
-if [[ "${1:-}" == "--skip-build" ]]; then
-  SKIP_BUILD=true
-fi
+REGEN_ICON=false
+for arg in "$@"; do
+  case "$arg" in
+    --skip-build) SKIP_BUILD=true ;;
+    --regen-icon) REGEN_ICON=true ;;
+  esac
+done
+
+ICON_SRC="$DESKTOP_DIR/assets/icon.png"
+FAVICON_SRC="$FRONTEND_DIR/public/dm.ico"
 
 # Detect version
 VERSION=$(grep '^cg\.clouddm\.main\.version=' "$BACKEND_DIR/gradle.properties" | cut -d'=' -f2 | tr -d '[:space:]')
@@ -158,25 +166,19 @@ echo ""
 echo "--- Step 4/6: Bundle MySQL ---"
 bash "$DESKTOP_DIR/scripts/download-mysql.sh" "$BUILD_DIR/mysql"
 
-# Strip unnecessary MySQL share files
-MYSQL_SHARE="$BUILD_DIR/mysql/share"
-if [ -d "$MYSQL_SHARE" ]; then
-  echo "  Stripping MySQL share..."
-  rm -rf "$MYSQL_SHARE"/charsets/*.xml 2>/dev/null
-  rm -rf "$MYSQL_SHARE"/charsets/README 2>/dev/null
-  rm -rf "$MYSQL_SHARE"/dictionary.txt 2>/dev/null
-  rm -rf "$MYSQL_SHARE"/install_rewriter.sql 2>/dev/null
-  rm -rf "$MYSQL_SHARE"/uninstall_rewriter.sql 2>/dev/null
-  echo "  MySQL size after trim: $(du -sh "$BUILD_DIR/mysql" 2>/dev/null | cut -f1)"
+# Step 5: Stage icon & install Electron deps
+echo ""
+echo "--- Step 5/6: Stage icon & install deps ---"
+mkdir -p "$BUILD_DIR/assets"
+
+if [ "$REGEN_ICON" = true ] || [ ! -f "$ICON_SRC" ] || [ "$FAVICON_SRC" -nt "$ICON_SRC" ]; then
+  echo "Generating icon (source: dm.ico)..."
+  python3 "$DESKTOP_DIR/scripts/generate-icon.py" "$ICON_SRC" --source "$FAVICON_SRC"
+else
+  echo "Using cached icon: desktop/assets/icon.png"
 fi
 
-# ---------------------------------------------------------------------------
-# Step 5: Generate icon & install Electron deps
-# ---------------------------------------------------------------------------
-echo ""
-echo "--- Step 5/6: Generate icon & install deps ---"
-mkdir -p "$BUILD_DIR/assets"
-python3 "$DESKTOP_DIR/scripts/generate-icon.py" "$BUILD_DIR/assets/icon.png" --source "$FRONTEND_DIR/public/dm.ico"
+cp "$ICON_SRC" "$BUILD_DIR/assets/icon.png"
 
 cd "$BUILD_DIR"
 npm install --no-audit --no-fund

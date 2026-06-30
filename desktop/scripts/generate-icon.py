@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 """Generate a 1024x1024 PNG icon for CloudDM desktop app.
 
-Usage:  python3 generate-icon.py [output.png] [--source favicon.ico]
+The canonical icon lives at desktop/assets/icon.png and is committed to git.
+Regenerate only when frontend/public/dm.ico changes:
+
+  python3 desktop/scripts/generate-icon.py desktop/assets/icon.png \\
+    --source frontend/public/dm.ico
+
+Or: ./build-desktop.sh --regen-icon
 """
 import sys
 import struct
