@@ -141,7 +141,7 @@ public class JdbcDriver implements java.sql.Driver {
             return new DriverPropertyInfo[0];
         }
 
-        String[] knownProperties = AdapterManager.propertyNames(adapterName, copy, null);
+        String[] knownProperties = AdapterManager.propertyNames(adapterName, copy);
         DriverPropertyInfo[] props = new DriverPropertyInfo[knownProperties.length];
         for (int i = 0; i < props.length; ++i) {
             String name = knownProperties[i];

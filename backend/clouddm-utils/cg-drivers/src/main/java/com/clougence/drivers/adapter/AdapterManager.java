@@ -61,7 +61,7 @@ public class AdapterManager {
         return null;
     }
 
-    static String[] propertyNames(String adapter, Properties parse, ClassLoader cl) {
+    public static String[] propertyNames(String adapter, Properties parse) {
         String[] names;
         if (!propertyGroupBy.containsKey(adapter)) {
             synchronized (propertyGroupBy) {

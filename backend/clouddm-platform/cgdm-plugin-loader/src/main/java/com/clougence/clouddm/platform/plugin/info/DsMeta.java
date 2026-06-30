@@ -36,6 +36,7 @@ import com.clougence.clouddm.sdk.execute.session.SessionFactory;
 import com.clougence.drivers.DriverBinding;
 import com.clougence.drivers.DriverVersion;
 import com.clougence.drivers.DsFactory;
+import com.clougence.drivers.adapter.AdapterManager;
 import com.clougence.schema.dialect.Dialect;
 import com.clougence.schema.editor.provider.SqlBuilder;
 import com.clougence.utils.CollectionUtils;
@@ -93,7 +94,9 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
     public String getDsName() { return this.dsName; }
 
     @Override
-    public boolean display() { return this.display; }
+    public boolean display() {
+        return this.display;
+    }
 
     @Override
     public SqlBuilder getDsSqlBuilder() { return this.dsSqlBuilder; }
@@ -223,6 +226,7 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
             }
 
             binding.bind(this.pluginResource, this.getIncludePackages().toArray(new String[0]));
+            AdapterManager.register(binding.asClassLoader());
 
             this.configIncludeExclude(binding.asClassLoader());// config all bind
             DsDriverBindingHolder holder = new DsDriverBindingHolder(key, binding);
