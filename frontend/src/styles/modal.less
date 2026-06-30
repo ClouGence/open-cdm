@@ -119,3 +119,35 @@
   padding: 12px 18px 5px 18px !important;
   width: initial !important;
 }
+
+// Destructive $Modal.confirm: paint the OK button red so the confirm action
+// matches the danger semantics of the underlying delete operation. The
+// .ivu-modal-confirm-footer scope bumps specificity past the global
+// .ivu-btn-primary:not([disabled]) emerald override in app-shell.less.
+.dm-modal-destructive {
+  .ivu-modal-confirm-footer .ivu-btn-primary:not([disabled]) {
+    background: @error-color !important;
+    border-color: @error-color !important;
+    color: #ffffff !important;
+
+    span {
+      color: #ffffff !important;
+    }
+
+    &:hover,
+    &:focus {
+      background: lighten(@error-color, 8%) !important;
+      border-color: lighten(@error-color, 8%) !important;
+      color: #ffffff !important;
+
+      span {
+        color: #ffffff !important;
+      }
+    }
+
+    &:active {
+      background: darken(@error-color, 8%) !important;
+      border-color: darken(@error-color, 8%) !important;
+    }
+  }
+}

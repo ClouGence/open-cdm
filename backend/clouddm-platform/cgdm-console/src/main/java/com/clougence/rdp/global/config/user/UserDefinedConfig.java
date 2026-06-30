@@ -84,6 +84,35 @@ public class UserDefinedConfig {
     @UserConfigDef(name = "ldapFieldPhone", defaultValue = "mobile", descKey = I18nUserConfigMsgKeys.LDAP_FIELD_PHONE, valueRange = "mobile / telephoneNumber / ...", configTagType = UserConfigTagType.LDAP_CONFIG, confBelong = ConfBelong.Common)
     private String        ldapFieldPhone;
     //
+    @UserConfigDef(name = "adHost", descKey = I18nUserConfigMsgKeys.LDAP_CONFIG_HOST, configTagType = UserConfigTagType.LDAP_CONFIG, confBelong = ConfBelong.Common)
+    private String        adHost;
+    @UserConfigDef(name = "adPort", descKey = I18nUserConfigMsgKeys.LDAP_CONFIG_PORT, valueRange = "LDAP:389 /AD:3268", configTagType = UserConfigTagType.LDAP_CONFIG, confBelong = ConfBelong.Common)
+    private String        adPort;
+    @UserConfigDef(name = "adNetBIOSRoute", descKey = I18nUserConfigMsgKeys.LDAP_CONFIG_NET_BIOS_ROUTE, valueRange = "Name=IP;Name=IP;", configTagType = UserConfigTagType.LDAP_CONFIG, confBelong = ConfBelong.Common)
+    private String        adNetBIOSRoute;
+    @UserConfigDef(name = "adSoTimeout", defaultValue = "3000", descKey = I18nUserConfigMsgKeys.LDAP_CONFIG_SOCKET_TIMEOUT, configTagType = UserConfigTagType.LDAP_CONFIG, confBelong = ConfBelong.Common)
+    private String        adSoTimeout;
+    @UserConfigDef(name = "adBase", descKey = I18nUserConfigMsgKeys.LDAP_CONFIG_BASE, configTagType = UserConfigTagType.LDAP_CONFIG, confBelong = ConfBelong.Common)
+    private String        adBase;
+    @UserConfigDef(name = "adUser", descKey = I18nUserConfigMsgKeys.LDAP_CONFIG_USER, configTagType = UserConfigTagType.LDAP_CONFIG, confBelong = ConfBelong.Common)
+    private String        adUser;
+    @UserConfigDef(name = "adPassword", descKey = I18nUserConfigMsgKeys.LDAP_CONFIG_PASSWORD, configTagType = UserConfigTagType.LDAP_CONFIG, confBelong = ConfBelong.Common)
+    private String        adPassword;
+    @UserConfigDef(name = "adDomain", descKey = I18nUserConfigMsgKeys.LDAP_CONFIG_DOMAIN, configTagType = UserConfigTagType.LDAP_CONFIG, confBelong = ConfBelong.Common)
+    private String        adDomain;
+    @UserConfigDef(name = "adRoleMap", defaultValue = "Developers", descKey = I18nUserConfigMsgKeys.LDAP_CONFIG_ROLE_MAP, configTagType = UserConfigTagType.LDAP_CONFIG, confBelong = ConfBelong.Common)
+    private String        adRoleMap;
+    @UserConfigDef(name = "adUserObjectClass", defaultValue = "posixAccount,sambaSamAccount", descKey = I18nUserConfigMsgKeys.LDAP_CONFIG_USER_OBJECT_CLASS, valueRange = "posixAccount / sambaSamAccount / ", configTagType = UserConfigTagType.LDAP_CONFIG, confBelong = ConfBelong.Common)
+    private String        adUserObjectClass;
+    @UserConfigDef(name = "adFieldLogin", defaultValue = "cn", descKey = I18nUserConfigMsgKeys.LDAP_FIELD_LOGIN, valueRange = "cn / userPrincipalName / ...", configTagType = UserConfigTagType.LDAP_CONFIG, confBelong = ConfBelong.Common)
+    private String        adFieldLogin;
+    @UserConfigDef(name = "adFieldUser", defaultValue = "sn", descKey = I18nUserConfigMsgKeys.LDAP_FIELD_USER, valueRange = "sn / displayName / ...", configTagType = UserConfigTagType.LDAP_CONFIG, confBelong = ConfBelong.Common)
+    private String        adFieldUser;
+    @UserConfigDef(name = "adFieldEmail", defaultValue = "mail", descKey = I18nUserConfigMsgKeys.LDAP_FIELD_EMAIL, valueRange = "mail / ...", configTagType = UserConfigTagType.LDAP_CONFIG, confBelong = ConfBelong.Common)
+    private String        adFieldEmail;
+    @UserConfigDef(name = "adFieldPhone", defaultValue = "mobile", descKey = I18nUserConfigMsgKeys.LDAP_FIELD_PHONE, valueRange = "mobile / telephoneNumber / ...", configTagType = UserConfigTagType.LDAP_CONFIG, confBelong = ConfBelong.Common)
+    private String        adFieldPhone;
+    //
     @UserConfigDef(name = "dingLoginConfigAk", descKey = I18nUserConfigMsgKeys.DING_CONFIG_LOGIN_AK, configTagType = UserConfigTagType.DINGTALK, confBelong = ConfBelong.Common)
     private String        dingLoginConfigAk;
     @UserConfigDef(name = "dingLoginConfigSk", descKey = I18nUserConfigMsgKeys.DING_CONFIG_LOGIN_SK, configTagType = UserConfigTagType.DINGTALK, confBelong = ConfBelong.Common)
