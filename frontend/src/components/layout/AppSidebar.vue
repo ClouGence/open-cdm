@@ -40,7 +40,6 @@
                 class="app-sidebar-item app-sidebar-item--depth-1"
                 :class="{ 'is-active': activeKey === child.key }"
               >
-                <CustomIcon v-if="child.iconName" :type="child.iconName" size="16px" />
                 <span>{{ child.label }}</span>
               </a>
             </div>
@@ -115,13 +114,19 @@ export default {
       if (path.indexOf('/system/permission') > -1) {
         return this.$route.query.type === 'apply' ? '/system/permission/apply' : '/system/permission';
       }
-      if (path.indexOf('/manager/account') === 0 || path.indexOf('/system/account') > -1 || path.indexOf('/system/role') > -1) {
+      if (path.indexOf('/manager/role') === 0 || path.indexOf('/system/role') > -1) {
+        return '/manager/role';
+      }
+      if (path.indexOf('/manager/account') === 0 || path.indexOf('/system/account') > -1) {
         return '/manager/account';
       }
       if (path.indexOf('/manager/logs') === 0 || path.indexOf('/system/operation_log') > -1 || path.indexOf('/system/sql_log') > -1) {
         return '/manager/logs';
       }
-      if (path.indexOf('/system/management/accounts') > -1 || path.indexOf('/system/account') > -1 || path.indexOf('/system/role') > -1) {
+      if (path.indexOf('/system/management/accounts/role') > -1) {
+        return '/manager/role';
+      }
+      if (path.indexOf('/system/management/accounts') > -1 || path.indexOf('/system/account') > -1) {
         return '/manager/account';
       }
       if (path.indexOf('/system/management/logs') > -1 || path.indexOf('/system/operation_log') > -1 || path.indexOf('/system/sql_log') > -1) {

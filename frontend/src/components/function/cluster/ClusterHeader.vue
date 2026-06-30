@@ -1,6 +1,6 @@
 <template>
-  <div class="page-header-container border-radius-card">
-    <Form ref="formInline" :model="searchData" inline label-position="right" style="padding-right: 300px">
+  <div class="cluster-filter-bar option border-radius-card">
+    <Form ref="formInline" class="cluster-filter-form" :model="searchData" inline label-position="right">
       <FormItem>
         <Select v-model="searchType" style="width: 140px" @on-change="handleChangeSearchType">
           <Option value="clusterDesc" :label="$t('ji-qun-miao-shu')">
@@ -45,11 +45,7 @@
     </Form>
     <div class="page-header-function">
       <Button v-if="hasManageAuth" type="primary" @click="handleAddCluster">
-        <Icon type="md-add" />
         {{ $t('xin-zeng-ji-qun') }}
-      </Button>
-      <Button type="default" @click="_handleSearch(searchType, searchData)" :loading="refreshLoading">
-        <CustomIcon type="icon-v2-Refresh" v-if="!refreshLoading" />
       </Button>
     </div>
   </div>
@@ -127,27 +123,56 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-.page-header-container {
-  background: #ffffff;
-  border: 1px solid #ededed;
-  height: 60px;
-  line-height: 54px;
-  padding: 0 20px;
+.cluster-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 12px;
+  min-height: 56px;
+  height: auto;
+  line-height: normal;
+  padding: 12px 14px;
   position: relative;
+  box-sizing: border-box;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+
+  .cluster-filter-form {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+  }
 
   .ivu-form-inline .ivu-form-item {
+    display: flex;
+    align-items: center;
     vertical-align: middle;
     margin-bottom: 0;
+    margin-right: 8px;
   }
 
   .ivu-form-item {
     margin-bottom: 0;
   }
 
+  :deep(.ivu-form-item-content) {
+    display: flex;
+    align-items: center;
+    line-height: normal;
+  }
+
   .page-header-function {
-    position: absolute;
-    right: 20px;
-    top: 2px;
+    position: static;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
 
     a {
       color: #333;
@@ -155,11 +180,23 @@ export default {
     }
 
     button {
-      margin-left: 8px;
+      margin-left: 0;
     }
 
     .ivu-tooltip {
       margin-left: 8px;
+    }
+  }
+}
+
+@media (max-width: 960px) {
+  .cluster-filter-bar {
+    align-items: flex-start;
+    flex-wrap: wrap;
+
+    .page-header-function {
+      width: 100%;
+      justify-content: flex-end;
     }
   }
 }

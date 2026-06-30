@@ -37,9 +37,6 @@
               <Button v-if="myAuth.includes('DM_WORKER_MANAGE')" icon="md-add" style="margin-right: 10px" type="primary" @click="handleClickAddBtn">
                 {{ $t('tian-jia-ji-qi') }}
               </Button>
-              <Button class="refresh" @click="getWorkerList">
-                <CustomIcon type="icon-v2-Refresh" />
-              </Button>
             </div>
           </div>
           <div class="table-container">

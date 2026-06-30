@@ -128,8 +128,11 @@ const routes = [
       {
         path: 'dmspeclist',
         redirect: (to) => ({
-          path: '/system/dmspeclist',
-          query: to.query,
+          path: '/data-access/rules',
+          query: {
+            ...to.query,
+            tab: 'security'
+          },
           hash: to.hash
         })
       },
@@ -145,6 +148,14 @@ const routes = [
         path: 'dmspec/:specId/rule/:ruleId/range',
         redirect: (to) => ({
           path: `/system/dmspec/${to.params.specId}/rule/${to.params.ruleId}/range`,
+          query: to.query,
+          hash: to.hash
+        })
+      },
+      {
+        path: 'dmspec/:specId/rule/:ruleId/detail',
+        redirect: (to) => ({
+          path: `/system/dmspec/${to.params.specId}/rule/${to.params.ruleId}/detail`,
           query: to.query,
           hash: to.hash
         })

@@ -39,11 +39,13 @@ export function buildSidebarMenu({ myCatLog, myAuth, includesDM, isDesktop, acco
   const groups = [];
 
   const managementChildren = [];
-  const hasAccountSection = myCatLog.includes('CAT_RDP_USER') || myCatLog.includes('CAT_RDP_ROLE');
   const hasLogSection = myCatLog.includes('CAT_RDP_OP_AUDIT') || myCatLog.includes('CAT_DM_SQL_AUDIT');
 
-  if (hasAccountSection) {
+  if (myCatLog.includes('CAT_RDP_USER')) {
     managementChildren.push(linkItem('/manager/account', '/#/manager/account', 'nav-zhang-hu', 'icon-v2-sub_account'));
+  }
+  if (myCatLog.includes('CAT_RDP_ROLE')) {
+    managementChildren.push(linkItem('/manager/role', '/#/manager/role', 'jiao-se', 'icon-v2-role'));
   }
   if (hasLogSection) {
     managementChildren.push(linkItem('/manager/logs', '/#/manager/logs', 'nav-ri-zhi', 'icon-v2-audit'));
@@ -60,8 +62,7 @@ export function buildSidebarMenu({ myCatLog, myAuth, includesDM, isDesktop, acco
     dataAccessChildren.push(linkItem('/system/sshConfig', '/#/system/sshConfig', 'nav-ssh-tong-dao', 'icon-v2-MyAuth'));
   }
   if (myCatLog.includes('CAT_DM_SYS') && myCatLog.includes('CAT_DM_SECRULES')) {
-    dataAccessChildren.push(linkItem('/data-access/rules', '/#/data-access/rules', 'an-quan-gui-ze', 'icon-v2-audit'));
-    dataAccessChildren.push(linkItem('/system/dmspeclist', '/#/system/dmspeclist', 'an-quan-gui-fan', 'icon-v2-role'));
+    dataAccessChildren.push(linkItem('/data-access/rules', '/#/data-access/rules', 'an-quan-gui-fan', 'icon-v2-audit'));
   }
   if (dataAccessChildren.length) {
     groups.push(group('data-access', 'nav-shu-ju-fang-wen', 'icon-v2-MyAuth', dataAccessChildren));

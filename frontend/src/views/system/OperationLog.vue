@@ -5,14 +5,22 @@
         <div class="content">
           <div class="option border-radius-card">
             <div class="left" style="align-items: center">
-              {{ $t('cao-zuo-shi-jian') }}
-              <DatePicker
-                :editable="false"
-                v-model="timeRange"
-                type="datetimerange"
-                format="yyyy-MM-dd HH:mm"
-                style="width: 266px; margin-left: 10px; margin-right: 10px"
-              ></DatePicker>
+              <Select v-model="auditLogType" style="width: 120px; margin-right: 10px" @on-change="handleChangeAuditLogType">
+                <Option value="operation" :label="$t('cao-zuo-shen-ji')">
+                  <span>{{ $t('cao-zuo-shen-ji') }}</span>
+                </Option>
+                <Option value="sql" :label="$t('nav-ri-zhi-shen-ji')">
+                  <span>{{ $t('nav-ri-zhi-shen-ji') }}</span>
+                </Option>
+              </Select>
+              <span class="log-time-range-label">{{ $t('cao-zuo-shi-jian') }}</span>
+              <a-range-picker
+                v-model:value="timeRange"
+                show-time
+                format="YYYY-MM-DD HH:mm"
+                :placeholder="[$t('kai-shi-shi-jian'), $t('jie-shu-shi-jian')]"
+                class="log-time-range"
+              />
               <Select v-model="searchType" style="width: 100px; margin-right: 10px" @on-change="handleChangeSearchType">
                 <Option value="user" :label="$t('cao-zuo-ren')">
                   <span>{{ $t('cao-zuo-ren') }}</span>
@@ -41,7 +49,7 @@
                   {{ item.alias }}
                 </Option>
               </Select>
-              <Button type="primary" @click="handleRefresh" :loading="refreshLoading" style="margin-left: 10px" ghost>
+              <Button type="primary" ghost @click="handleRefresh" :loading="refreshLoading" style="margin-left: 10px">
                 {{ $t('cha-xun') }}
               </Button>
             </div>
@@ -81,16 +89,8 @@
           </div>
         </div>
       </div>
-      <div class="footer list-page-footer-nav">
-        <Button :disabled="page === 1" @click="handlePre">
-          <Icon type="ios-arrow-back" />
-          {{ $t('shang-yi-ye') }}
-        </Button>
-        <span>{{ $t('di-page-ye', [page]) }}</span>
-        <Button :disabled="noMoreData" @click="handleNext">
-          {{ $t('xia-yi-ye') }}
-          <Icon type="ios-arrow-forward" />
-        </Button>
+      <div class="footer">
+        <Page :total="pagerTotal" :page-size="1" :model-value="page" @on-change="handlePagerChange" />
       </div>
     </div>
     <CCModal v-model="showAuditDetail" :title="$t('cha-kan-ri-zhi')" width="1200px">
@@ -187,7 +187,7 @@ import Mapping from '@/views/util';
 import { mapState } from 'vuex';
 import copyMixin from '@/mixins/copyMixin';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
-import { resolveComponent } from 'vue';
+import dayjs from '@/utils/dayjsSetup';
 
 export default {
   name: 'OperationLog',
@@ -195,6 +195,7 @@ export default {
   data() {
     return {
       resourceType: Mapping.resourceType,
+      auditLogType: 'operation',
       searchType: 'user',
       noMoreData: false,
       refreshLoading: false,
@@ -205,7 +206,7 @@ export default {
       lastId: 0,
       prevFirst: [],
       page: 1,
-      timeRange: [new Date(new Date().getTime() - 24 * 3600 * 1000), new Date()],
+      timeRange: [dayjs().subtract(1, 'day'), dayjs()],
       searchData: {
         uid: '',
         userName: '',
@@ -288,13 +289,6 @@ export default {
           title: this.$t('ri-zhi-wei-yi-xin-xi'),
           key: 'uuidKey',
           width: 320
-        },
-        {
-          title: this.$t('e-wai-can-shu'),
-          slot: 'detail',
-          width: 120,
-          fixed: 'right',
-          renderHeader: this.renderHeaderName
         }
       ],
       logData: [],
@@ -335,7 +329,7 @@ export default {
       if (!this.timeRange || this.timeRange.length === 0 || !this.timeRange[0] || !this.timeRange[1]) {
         return this.$t('quan-bu');
       }
-      return `${fecha.format(new Date(this.timeRange[0]), 'YYYY-MM-DD HH:mm')} - ${fecha.format(new Date(this.timeRange[1]), 'YYYY-MM-DD HH:mm')}`;
+      return `${dayjs(this.timeRange[0]).format('YYYY-MM-DD HH:mm')} - ${dayjs(this.timeRange[1]).format('YYYY-MM-DD HH:mm')}`;
     },
     exportSearchTypeText() {
       const searchTypeMap = {
@@ -375,6 +369,9 @@ export default {
         return this.$t('zheng-zai-zhuan-huan-wen-jian');
       }
       return this.$t('dao-chu');
+    },
+    pagerTotal() {
+      return this.noMoreData ? this.page : this.page + 1;
     }
   },
   created() {
@@ -394,6 +391,14 @@ export default {
         e.preventDefault();
         this.handleRefresh();
       }
+    },
+
+    handleChangeAuditLogType(value) {
+      if (value === 'sql') {
+        this.$router.push('/manager/logs/sql');
+        return;
+      }
+      this.auditLogType = 'operation';
     },
 
     getLogDetail(detail) {
@@ -476,15 +481,7 @@ export default {
         preparedRows: 0,
         percent: 0
       };
-      if (this.timeRange.length > 0) {
-        this.searchData.opStart =
-          this.timeRange[0] && fecha.format(new Date(new Date(this.timeRange[0]).getTime() - 8 * 3600 * 1000), 'YYYY-MM-DDTHH:mm:ss.SSS');
-        this.searchData.opEnd =
-          this.timeRange[1] && fecha.format(new Date(new Date(this.timeRange[1].getTime() - 8 * 3600 * 1000)), 'YYYY-MM-DDTHH:mm:ss.SSS');
-      } else {
-        this.searchData.opStart = '';
-        this.searchData.opEnd = '';
-      }
+      this.syncTimeRangeQuery();
       const data = { ...this.searchData };
       data.exportId = exportId;
       data.formatName = this.exportForm.formatName;
@@ -533,6 +530,15 @@ export default {
       this.searchData.pageData.startId = 0;
       this.handleSearch();
     },
+    syncTimeRangeQuery() {
+      if (Array.isArray(this.timeRange) && this.timeRange[0] && this.timeRange[1]) {
+        this.searchData.opStart = dayjs(this.timeRange[0]).subtract(8, 'hour').format('YYYY-MM-DDTHH:mm:ss.SSS');
+        this.searchData.opEnd = dayjs(this.timeRange[1]).subtract(8, 'hour').format('YYYY-MM-DDTHH:mm:ss.SSS');
+        return;
+      }
+      this.searchData.opStart = '';
+      this.searchData.opEnd = '';
+    },
     rdpQueryOperationListCondition() {
       this.$services.rdpAuditQueryListCondition().then((res) => {
         if (res.success) {
@@ -543,15 +549,7 @@ export default {
     },
     async handleSearch(type) {
       this.refreshLoading = true;
-      if (this.timeRange.length > 0) {
-        this.searchData.opStart =
-          this.timeRange[0] && fecha.format(new Date(new Date(this.timeRange[0]).getTime() - 8 * 3600 * 1000), 'YYYY-MM-DDTHH:mm:ss.SSS');
-        this.searchData.opEnd =
-          this.timeRange[1] && fecha.format(new Date(new Date(this.timeRange[1].getTime() - 8 * 3600 * 1000)), 'YYYY-MM-DDTHH:mm:ss.SSS');
-      } else {
-        this.searchData.opStart = '';
-        this.searchData.opEnd = '';
-      }
+      this.syncTimeRangeQuery();
       this.searchData.pageData.pageSize = 20;
       this.$services
         .rdpAuditQueryAll({ data: this.searchData })
@@ -563,8 +561,13 @@ export default {
                 this.prevFirst.push(this.firstId);
               }
             }
-            this.firstId = this.logData[0].id;
-            this.lastId = this.logData[this.logData.length - 1].id;
+            if (this.logData.length > 0) {
+              this.firstId = this.logData[0].id;
+              this.lastId = this.logData[this.logData.length - 1].id;
+            } else {
+              this.firstId = 0;
+              this.lastId = 0;
+            }
           }
           this.refreshLoading = false;
           this.noMoreData = res.data.length < this.searchData.pageData.pageSize;
@@ -574,6 +577,9 @@ export default {
         });
     },
     handlePre() {
+      if (this.page <= 1) {
+        return;
+      }
       this.page--;
       let startId = this.prevFirst[this.page - 1] + 1;
 
@@ -587,6 +593,16 @@ export default {
       this.searchData.pageData.startId = this.lastId;
       this.handleSearch('next');
       this.page++;
+    },
+    handlePagerChange(nextPage) {
+      if (nextPage === this.page) {
+        return;
+      }
+      if (nextPage > this.page) {
+        this.handleNext();
+        return;
+      }
+      this.handlePre();
     },
     handleChangeSize() {
       this.handleSearch('next');
@@ -628,40 +644,6 @@ export default {
     },
     formatAuditContent(data) {
       return JSON.parse(`[${data.split('] ')[1]}`);
-    },
-    renderHeaderName(h) {
-      return h('div', [
-        h(
-          'span',
-          {
-            style: {
-              fontFamily: 'PingFangSC-Medium',
-              fontWeight: '500'
-            }
-          },
-          this.$t('e-wai-can-shu')
-        ),
-        h(
-          resolveComponent('Tooltip'),
-          {
-            style: {
-              color: '#888888',
-              marginLeft: '8px',
-              fontWeight: 400
-            },
-            content: this.$t('zhi-zhi-chi-zai-xian-cha-kan-dang-tian-de-ri-zhi-ru-xu-cha-kan-yi-gui-dang-de-qing'),
-            placement: 'left',
-            transfer: true
-          },
-          {
-            default: () => [
-              h(resolveComponent('Icon'), {
-                type: 'ios-help-circle-outline'
-              })
-            ]
-          }
-        )
-      ]);
     }
   }
 };
@@ -680,6 +662,20 @@ export default {
       color: #9ea7b4;
       font-size: 12px;
     }
+  }
+
+  .log-time-range-label {
+    margin-right: 10px;
+  }
+
+  .log-time-range {
+    width: 320px;
+    margin-right: 10px;
+  }
+
+  :deep(.log-time-range.ant-picker) {
+    height: 32px;
+    border-radius: 6px;
   }
 }
 

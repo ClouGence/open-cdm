@@ -43,6 +43,7 @@ export const securityApi = {
   dmSecurityRulesSpecDelete: '/clouddm/console/api/v1/security/rules/specDelete',
   dmSecurityRulesSpecCreate: '/clouddm/console/api/v1/security/rules/specCreate',
   dmSecurityRulesSpecSaveRule: '/clouddm/console/api/v1/security/rules/specSaveRule',
+  dmSecurityRulesSpecSaveRules: '/clouddm/console/api/v1/security/rules/specSaveRules',
 
   dmSecurityRangeListEnv: '/clouddm/console/api/v1/security/range/listEnv',
   dmSecurityRangeListIns: '/clouddm/console/api/v1/security/range/listIns',

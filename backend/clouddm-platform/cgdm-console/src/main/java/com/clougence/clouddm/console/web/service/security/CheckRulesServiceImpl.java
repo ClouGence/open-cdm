@@ -32,19 +32,24 @@ import com.clougence.clouddm.console.web.model.fo.checkrules.RangeDeleteFO;
 import com.clougence.clouddm.console.web.model.fo.checkrules.RuleSaveFO;
 import com.clougence.clouddm.console.web.model.fo.checkrules.SpecRulesFO;
 import com.clougence.clouddm.console.web.model.fo.checkrules.SpecSaveRangeFO;
+import com.clougence.clouddm.console.web.model.fo.checkrules.SpecSaveRulesFO;
 import com.clougence.clouddm.console.web.model.vo.checkrules.I18nKeyVal;
 import com.clougence.clouddm.console.web.model.vo.checkrules.QueryRuleDef;
 import com.clougence.clouddm.console.web.model.vo.checkrules.SecSettingDef;
 import com.clougence.clouddm.console.web.model.vo.checkrules.SensitiveRuleDef;
+import com.clougence.clouddm.console.web.model.vo.checkrules.SpecUpdateVO;
+import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
 import com.clougence.clouddm.console.web.service.security.mode.DmSecRuleConfig;
 import com.clougence.clouddm.console.web.service.security.mode.DmSecRuleMO;
 import com.clougence.clouddm.platform.dal.access.NamingDao;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.SecRuleDal;
 import com.clougence.clouddm.platform.dal.model.secrule.*;
+import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.analysis.secrules.SecRulesSupportSpi;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
+import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
 import com.clougence.clouddm.sdk.service.secrules.SecParam;
 import com.clougence.clouddm.sdk.service.secrules.SecRulesCheckerService;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
@@ -67,7 +72,9 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
     @Resource
     private SecRuleDal                           secRuleDal;
     @Resource
-    private NamingDao                        namingDao;
+    private NamingDao                            namingDao;
+    @Resource
+    private DmEnvParamService                    rdpDsEnvService;
     private Map<DataSourceType, DmSecRuleConfig> ruleSupportDsTypes;
     private SecSettingDef                        ruleSettingDef;
 
@@ -339,6 +346,51 @@ public class CheckRulesServiceImpl implements CheckRulesService, UnifiedPostCons
         this.secRuleDal.rangeMapper().deleteBySpecId(ownerUid, specId);
         this.secRuleDal.refererMapper().deleteBySpecId(ownerUid, specId);
         this.secRuleDal.specMapper().deleteByUidAndId(ownerUid, specId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public SpecUpdateVO saveSpecRules(String ownerUid, SpecSaveRulesFO fo) {
+        if (fo == null || CollectionUtils.isEmpty(fo.getSpecIds()) || CollectionUtils.isEmpty(fo.getRules())) {
+            throw new ErrorMessageException("specIds or rules is empty.");
+        }
+
+        Map<Long, DmSecSpecDO> specMap = new HashMap<>();
+        for (Long specId : fo.getSpecIds()) {
+            DmSecSpecDO specDO = this.querySpecById(ownerUid, specId);
+            if (specDO == null) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_SPEC_NOT_EXIST_ERROR.name()));
+            }
+            specMap.put(specId, specDO);
+        }
+
+        SpecUpdateVO vo = new SpecUpdateVO();
+        for (Long specId : fo.getSpecIds()) {
+            DmSecSpecDO specDO = specMap.get(specId);
+            for (SpecRulesFO rule : fo.getRules()) {
+                DmSecRefererDO refDO = this.querySpecRefererById(ownerUid, specId, rule.getRuleId(), rule.getRuleKind());
+                if (refDO != null && refDO.isEnable()) {
+                    List<DmSysEnvDO> envs = this.rdpDsEnvService.queryListByParamKeyValue(ownerUid, EnvParamKeys.DM_BIND_CHECK_SPEC, String.valueOf(specId));
+                    if (!envs.isEmpty()) {
+                        vo.setMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_SPEC_INUSE_MESSAGE.name(), specDO.getName()));
+                        vo.setReferer(envs.stream().map(DmConvertUtils::convertToRefEnvVO).collect(Collectors.toList()));
+                    }
+
+                    if (!envs.isEmpty() && !fo.isForce()) {
+                        vo.setSuccess(false);
+                        return vo;
+                    }
+                }
+            }
+        }
+
+        for (Long specId : fo.getSpecIds()) {
+            this.saveSpecRules(ownerUid, specId, fo.getRules());
+        }
+
+        vo.setSuccess(true);
+        vo.setMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_SPEC_UPDATE_FINISH_MESSAGE.name(), specMap.get(fo.getSpecIds().get(0)).getName()));
+        return vo;
     }
 
     @Override

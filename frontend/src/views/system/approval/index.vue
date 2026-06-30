@@ -16,11 +16,8 @@
               <Button type="primary" ghost @click="handleQuery">{{ $t('cha-xun') }}</Button>
             </div>
             <div class="right">
-              <Button v-if="canEdit" @click="goCreate" type="primary" style="margin-right: 10px" icon="md-add" :disabled="!hasUnaddedProvider">
+              <Button v-if="canEdit" @click="goCreate" type="primary" icon="md-add" :disabled="!hasUnaddedProvider">
                 {{ $t('xin-zeng') }}
-              </Button>
-              <Button @click="init" :loading="loading">
-                <CustomIcon type="icon-v2-Refresh" v-if="!loading" />
               </Button>
             </div>
           </div>

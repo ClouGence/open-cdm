@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -209,7 +208,6 @@ public class DmSecRulesController {
         }
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @RequestAuth(value = DM_SECRULES_MANAGE)
     @RequestMapping(value = "/specCreate", method = RequestMethod.POST)
     public ResWebData<?> specCreate(@RequestBody @Valid SpecCreateFO fo, HttpServletRequest request) {
@@ -248,6 +246,14 @@ public class DmSecRulesController {
         vo.setMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_SPEC_UPDATE_FINISH_MESSAGE.name(), specDO.getName()));
         this.checkRulesService.saveSpecRules(puid, specDO.getId(), Collections.singletonList(fo.getRule()));
         return ResWebDataUtils.buildSuccess(vo);
+    }
+
+    @RequestAuth(value = DM_SECRULES_MANAGE)
+    @RequestMapping(value = "/specSaveRules", method = RequestMethod.POST)
+    public ResWebData<?> specSaveRules(@RequestBody @Valid SpecSaveRulesFO fo, HttpServletRequest request) {
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+
+        return ResWebDataUtils.buildSuccess(this.checkRulesService.saveSpecRules(puid, fo));
     }
 
     @RequestAuth(value = DM_SECRULES_MANAGE)
