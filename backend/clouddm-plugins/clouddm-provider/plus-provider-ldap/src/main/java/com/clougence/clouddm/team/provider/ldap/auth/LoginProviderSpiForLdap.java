@@ -67,7 +67,7 @@ public class LoginProviderSpiForLdap extends BaseLoginProviderSpi implements Log
     @Override
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) {
         // fetch config
-        BaseConfig conf = ConfigHelper.fetchLdapConfig(this.configService, ownerUid);
+        BaseConfig conf = ConfigHelper.fetchLdapConfig(this.configService);
 
         // enable is false.
         if (!containsProvider(conf.getAuthType(), LoginProvider.LDAP)) {

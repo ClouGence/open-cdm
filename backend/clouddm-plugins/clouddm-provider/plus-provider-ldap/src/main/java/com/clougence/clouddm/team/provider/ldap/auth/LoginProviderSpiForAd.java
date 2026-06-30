@@ -68,7 +68,7 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
     @Override
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) {
         // fetch config
-        BaseConfig conf = ConfigHelper.fetchAdConfig(this.configService, ownerUid);
+        BaseConfig conf = ConfigHelper.fetchAdConfig(this.configService);
 
         // enable is false.
         if (!containsProvider(conf.getAuthType(), LoginProvider.AD)) {
