@@ -8,8 +8,8 @@
 tests/dbs
 ├── dbs_x86/docker-compose.yml      # x86 环境
 ├── dbs_arm64/docker-compose.yml    # arm64 环境
-├── certs/                          # MySQL、PostgreSQL 共用证书目录
-├── mysql/                          # MySQL 启动脚本和初始化 SQL（仅 x86 compose 挂载）
+├── certs/                          # MySQL、Oracle、PostgreSQL 共用证书目录
+├── mysql/                          # MySQL 启动脚本和初始化 SQL
 ├── oracle/                         # Oracle 初始化 SQL、TCPS 启动脚本和 listener wallet
 ├── postgres/                       # PostgreSQL 启动脚本和初始化 SQL
 ├── proxy/3proxy.cfg                # 无认证 3proxy 配置
@@ -17,7 +17,7 @@ tests/dbs
 └── ssh/                            # SSH Server 使用的公私钥和初始化脚本
 ```
 
-`dbs_x86` 和 `dbs_arm64` 的常用服务端口基本保持一致，但能力不完全相同：x86 额外包含 SQL Server、DB2、MySQL 证书连接初始化，以及 Oracle TCPS 端口；arm64 只提供基础 MySQL、Oracle、PostgreSQL、Redis、MongoDB、ClickHouse、SSH 和代理服务。同一台机器上不要同时启动两套 compose，除非先修改其中一套端口。
+`dbs_x86` 和 `dbs_arm64` 的服务名、端口和测试能力保持一致。同一台机器上不要同时启动两套 compose，除非先修改其中一套端口。`dbs_arm64` 中 SQL Server 和 DB2 使用 `linux/amd64` 镜像运行，需要 Docker 支持跨架构模拟。
 
 ## 启停命令
 
@@ -56,13 +56,13 @@ docker compose -f tests/dbs/dbs_x86/docker-compose.yml up -d --force-recreate ss
 
 | 服务 | 容器内服务名 | Database/Service | 常规连接 | SSL（信任） | SSL（CA证书/单向） | SSL（双向） | 备注 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| MySQL | `mysql` | `devtester` | Port: `3306 (内)/2330 (外)`<br>用户: `root` / `123456` | x86: Port: `3306 (内)/2330 (外)`<br>用户: `root` / `123456`<br>证书: 不需要 | x86: Port: `3306 (内)/2330 (外)`<br>用户: `root` / `123456`<br>CA 证书: `certs/ca.p12`<br>CA 证书密码: 留空 | x86: Port: `3306 (内)/2330 (外)`<br>用户: `sslclient` / `123456`<br>CA 证书: `certs/ca.p12`<br>CA 证书密码: 留空<br>客户端 KeyStore: `certs/client.p12`<br>KeyStore 密码: `123456` | arm64 compose 未挂载 MySQL SSL 初始化；<br/>兼容文件: `ca-123456.p12`、`ca.jks`、`client.jks` |
-| Oracle | `oracle` | SID: `XE`<br>Service Name: `DEVTESTDB`<br>PDB: `DEVTESTDB` | Port: `1521 (内)/2521 (外)`<br>业务用户: `devtester` / `123456` 使用 `Service Name` 或 `PDB`，值 `DEVTESTDB`<br>实例用户: `SYSTEM` / `123456` 使用 `SID`，值 `XE` | - | x86: Port: `2484 (内)/2484 (外)`<br>连接值和账号同常规连接<br>CA KeyStore: `certs/ca.p12`<br>KeyStore 密码: 留空 | x86: Port: `2485 (内)/2485 (外)`<br>连接值和账号同常规连接<br>CA KeyStore: `certs/ca.p12`<br>CA KeyStore 密码: 留空<br>客户端 KeyStore: `certs/client.p12`<br>KeyStore 密码: `123456` | x86 compose 使用 `oracle/wallet` 启动 TCPS listener |
+| MySQL | `mysql` | `devtester` | Port: `3306 (内)/2330 (外)`<br>用户: `root` / `123456` | Port: `3306 (内)/2330 (外)`<br>用户: `root` / `123456`<br>证书: 不需要 | Port: `3306 (内)/2330 (外)`<br>用户: `root` / `123456`<br>CA 证书: `certs/ca.p12`<br>CA 证书密码: 留空 | Port: `3306 (内)/2330 (外)`<br>用户: `sslclient` / `123456`<br>CA 证书: `certs/ca.p12`<br>CA 证书密码: 留空<br>客户端 KeyStore: `certs/client.p12`<br>KeyStore 密码: `123456` | 兼容文件: `ca-123456.p12`、`ca.jks`、`client.jks` |
+| Oracle | `oracle` | SID: `XE`/`FREE`<br>Service Name: `DEVTESTDB`<br>PDB: `DEVTESTDB` | Port: `1521 (内)/2521 (外)`<br>业务用户: `devtester` / `123456` 使用 `Service Name` 或 `PDB`，值 `DEVTESTDB`<br>实例用户: `SYSTEM` / `123456` 使用 `SID`，x86 值 `XE`，arm64 值 `FREE` | - | Port: `2484 (内)/2484 (外)`<br>连接值和账号同常规连接<br>CA KeyStore: `certs/ca.p12`<br>KeyStore 密码: 留空 | Port: `2485 (内)/2485 (外)`<br>连接值和账号同常规连接<br>CA KeyStore: `certs/ca.p12`<br>CA KeyStore 密码: 留空<br>客户端 KeyStore: `certs/client.p12`<br>KeyStore 密码: `123456` | compose 使用 `oracle/wallet` 启动 TCPS listener |
 | PostgreSQL | `postgres` | `postgres` | Port: `5432 (内)/2543 (外)`<br>用户: `postgres` / `123456` | Port: `5432 (内)/2543 (外)`<br>用户: `postgres` / `123456`<br>证书: 不需要 | Port: `5432 (内)/2543 (外)`<br>用户: `postgres` / `123456`<br>CA 证书: `ca.crt` | Port: `5432 (内)/2543 (外)`<br>用户: `sslclient` / 留空<br>CA 证书: `ca.crt`<br>客户端证书: `client.crt`<br>客户端私钥: `client.pk8`<br>私钥短语: 留空 | x86 和 arm64 compose 共享同一套测试证书 |
 | Redis | `redis` | - | Port: `6379 (内)/2637 (外)`<br>密码: `123456` | - | - | - | `requirepass` |
 | MongoDB | `mongo` | `admin` | Port: `27017 (内)/2701 (外)`<br>用户: `root` / `123456` | - | - | - | admin 用户 |
-| SQL Server | `mssql` | - | Port: `1433 (内)/2143 (外)`<br>用户: `sa` / `Share123456!` | - | - | - | 仅 x86 compose |
-| DB2 | `db2` | `devtesterdb` | Port: `50000 (内)/2500 (外)`<br>用户: `db2inst1` / `123456` | - | - | - | 仅 x86 compose |
+| SQL Server | `mssql` | - | Port: `1433 (内)/2143 (外)`<br>用户: `sa` / `Share123456!` | - | - | - | arm64 compose 使用 `linux/amd64` 镜像 |
+| DB2 | `db2` | `devtesterdb` | Port: `50000 (内)/2500 (外)`<br>用户: `db2inst1` / `123456` | - | - | - | arm64 compose 使用 `linux/amd64` 镜像 |
 | ClickHouse HTTP | `clickhouse` | `default` | Port: `8123 (内)/2812 (外)`<br>用户: `root` / `password123` | - | - | - | HTTP 端口 |
 | ClickHouse Native | `clickhouse` | `default` | Port: `9000 (内)/2900 (外)`<br>用户: `root` / `password123` | - | - | - | Native 端口 |
 
@@ -97,19 +97,19 @@ SSL 模式含义：
 | `CA` | 单向 SSL，客户端校验服务端证书链 | 上传 CA 证书 |
 | `CLIENT_CERT` | 双向 SSL，客户端校验服务端证书链，服务端校验客户端证书 | 上传 CA 证书、客户端证书/私钥或客户端 KeyStore |
 
-Oracle compose 的实例 SID 是 `XE`，并通过 `ORACLE_DATABASE=DEVTESTDB` 创建 PDB。`APP_USER=devtester` 创建在 PDB `DEVTESTDB` 中。
+Oracle x86 compose 的实例 SID 是 `XE`，arm64 compose 的实例 SID 是 `FREE`。两套 compose 都通过 `ORACLE_DATABASE=DEVTESTDB` 创建 PDB，`APP_USER=devtester` 创建在 PDB `DEVTESTDB` 中。
 
 Oracle 连接标识和账号：
 
 | 连接方式 | 连接值 | 可用账号 | 密码 | 用途 |
 | --- | --- | --- | --- | --- |
-| `SID` | `XE` | `SYSTEM` | `123456` | 连接 CDB/实例 |
+| `SID` | x86: `XE`<br>arm64: `FREE` | `SYSTEM` | `123456` | 连接 CDB/实例 |
 | `Service Name` | `DEVTESTDB` | `devtester` | `123456` | 连接业务 PDB |
 | `PDB` | `DEVTESTDB` | `devtester` | `123456` | 连接业务 PDB |
 
-`devtester` 不能使用 `SID=XE` 连接。使用 `devtester / 123456` 时，连接方式必须选择 `Service Name` 或 `PDB`，连接值必须填写 `DEVTESTDB`。
+`devtester` 不能使用 `SID` 连接。使用 `devtester / 123456` 时，连接方式必须选择 `Service Name` 或 `PDB`，连接值必须填写 `DEVTESTDB`。
 
-Oracle 测试库已设置 `FAILED_LOGIN_ATTEMPTS UNLIMITED`，`devtester` 不会因为连续登录失败被锁定。已初始化过的 x86 容器会在每次启动时重置 `devtester` 密码并执行 `ACCOUNT UNLOCK`。
+Oracle 测试库已设置 `FAILED_LOGIN_ATTEMPTS UNLIMITED`，`devtester` 不会因为连续登录失败被锁定。已初始化过的容器会在每次启动时重置 `devtester` 密码并执行 `ACCOUNT UNLOCK`。
 
 Oracle 端口：
 

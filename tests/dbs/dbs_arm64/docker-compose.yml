@@ -7,9 +7,21 @@ services:
       - TZ=Asia/Shanghai
     ports:
       - 2330:3306
+    volumes:
+      - ../certs:/certs
+      - ../mysql/init:/docker-entrypoint-initdb.d:ro
+      - ../mysql/init-ssl.sh:/usr/local/bin/init-ssl.sh:ro
+    entrypoint:
+      - bash
+      - /usr/local/bin/init-ssl.sh
     restart: always
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time_zone='+8:00'
     # User/Password: root/123456
+    # SSL certs: ../certs
+    # Non SSL: root/123456 is still supported
+    # TRUST: sslMode=REQUIRED
+    # CA: sslMode=VERIFY_CA, trustCertificateKeyStoreUrl=file:ca.p12, trustCertificateKeyStoreType=PKCS12, trustCertificateKeyStorePassword=
+    # CLIENT_CERT: user=sslclient, password=123456, sslMode=VERIFY_IDENTITY, trustCertificateKeyStoreUrl=file:ca.p12, trustCertificateKeyStorePassword=, clientCertificateKeyStoreUrl=file:client.p12, clientCertificateKeyStorePassword=123456
 
   oracle:
     image: gvenzl/oracle-free:23-slim
@@ -20,20 +32,13 @@ services:
       - APP_USER_PASSWORD=123456
     ports:
       - 2521:1521
+      - 2484:2484
+      - 2485:2485
+    volumes:
+      - ../oracle/init:/container-entrypoint-initdb.d:ro
+      - ../oracle/startdb:/container-entrypoint-startdb.d:ro
+      - ../oracle/wallet:/wallet:ro
     restart: always
-    entrypoint:
-      - bash
-      - -c
-      - |
-        cat > /container-entrypoint-initdb.d/01-init.sql <<'SQL'
-        ALTER PROFILE DEFAULT LIMIT FAILED_LOGIN_ATTEMPTS UNLIMITED;
-        ALTER USER devtester IDENTIFIED BY "123456" ACCOUNT UNLOCK;
-        GRANT CREATE MATERIALIZED VIEW TO devtester;
-        GRANT CREATE SYNONYM TO devtester;
-        GRANT CREATE TYPE TO devtester;
-        GRANT CREATE DATABASE LINK TO devtester;
-        SQL
-        exec container-entrypoint.sh
     healthcheck:
       test: ["CMD", "healthcheck.sh"]
       interval: 30s
@@ -48,6 +53,8 @@ services:
     # App User/Password: devtester/123456
     # PDB Service: DEVTESTDB
     # JDBC URL: jdbc:oracle:thin:@localhost:2521/DEVTESTDB
+    # TCPS CA: port 2484, trustStore=../certs/ca.p12, trustStoreType=PKCS12, trustStorePassword=
+    # TCPS CLIENT_CERT: port 2485, trustStore=../certs/ca.p12, keyStore=../certs/client.p12, keyStorePassword=123456
 
   postgres:
     image: postgres:16
@@ -94,6 +101,28 @@ services:
       - 2701:27017
     restart: always
     # User/Password: root/123456
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    platform: linux/amd64
+    environment:
+      - SA_PASSWORD=Share123456!
+      - ACCEPT_EULA=Y
+    ports:
+      - 2143:1433
+    # User/Password: sa/Share123456!
+
+  db2:
+    image: ibmcom/db2
+    platform: linux/amd64
+    environment:
+      - DB2INST1_PASSWORD=123456
+      - DBNAME=devtesterdb
+      - LICENSE=accept
+    ports:
+      - 2500:50000
+    privileged: true
+    # User/Password: db2inst1/123456
 
   clickhouse:
     image: clickhouse/clickhouse-server
