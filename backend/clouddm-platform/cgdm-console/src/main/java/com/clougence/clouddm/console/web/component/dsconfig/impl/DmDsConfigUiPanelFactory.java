@@ -142,15 +142,15 @@ public class DmDsConfigUiPanelFactory {
         panel.addField(UiPanelField.builder()
             .field(host.getConfigName())
             .type(UiPanelFieldType.NetworkAddress)
-            .require(host.isValueRequire())
+            .require(true)
             .readOnly(host.isReadOnly())
             .defaultValue(UiUtils.strValueDef(host.getConfigValue()))
             .activeExpr(activeExpr(host))
             .titleI18N(host.getLabelKey())
             .descI18N(host.getDescKey())
             .build()
-            .addField(UiPanelField.builder().field(ADDRESS_FIELD).hide(true).defaultValue(UiUtils.strValueDef(hostParts[0])).build())
-            .addField(UiPanelField.builder().field(PORT_FIELD).hide(true).defaultValue(UiUtils.strValueDef(hostParts[1])).build()));
+            .addField(UiPanelField.builder().field(ADDRESS_FIELD).require(true).hide(true).defaultValue(UiUtils.strValueDef(hostParts[0])).build())
+            .addField(UiPanelField.builder().field(PORT_FIELD).require(true).hide(true).defaultValue(UiUtils.strValueDef(hostParts[1])).build()));
 
         // security
         DsConfigKvDef secTypeDef = fields.get(DataSourceConfig.Fields.securityType);
@@ -160,6 +160,7 @@ public class DmDsConfigUiPanelFactory {
         }
         UiPanelField secTypeField = createField(DsConfigGroup.GENERAL, secTypeDef);
         secTypeField.setType(UiPanelFieldType.Options);
+        secTypeField.setRequire(false);
 
         List<ValueDef> options = new ArrayList<>();
         for (SecurityType type : secTypes) {
@@ -207,12 +208,12 @@ public class DmDsConfigUiPanelFactory {
         return switch (type) {
             case NONE -> fieldOptionDef(SecurityType.NONE.getI18nKey(), SecurityType.NONE.name());
             case ONLY_USER -> fieldOptionDef(SecurityType.ONLY_USER.getI18nKey(), SecurityType.ONLY_USER.name())//
-                .addField(createField(DsConfigGroup.GENERAL, userName));
+                .addField(requiredField(DsConfigGroup.GENERAL, userName));
             case ONLY_PASSWD -> fieldOptionDef(SecurityType.ONLY_PASSWD.getI18nKey(), SecurityType.ONLY_PASSWD.name())//
-                .addField(createField(DsConfigGroup.GENERAL, password));
+                .addField(requiredField(DsConfigGroup.GENERAL, password));
             case USER_PASSWD -> fieldOptionDef(SecurityType.USER_PASSWD.getI18nKey(), SecurityType.USER_PASSWD.name())//
-                .addField(createField(DsConfigGroup.GENERAL, userName))
-                .addField(createField(DsConfigGroup.GENERAL, password));
+                .addField(requiredField(DsConfigGroup.GENERAL, userName))
+                .addField(requiredField(DsConfigGroup.GENERAL, password));
             case API_KEY -> fieldOptionDef(SecurityType.API_KEY.getI18nKey(), SecurityType.API_KEY.name())//
                 .addField(secField(password, ConfigI18nKey.CONFIG_ADD_DS_API_KEY_LABEL));
             case AK_SK -> fieldOptionDef(SecurityType.AK_SK.getI18nKey(), SecurityType.AK_SK.name())//
@@ -223,8 +224,14 @@ public class DmDsConfigUiPanelFactory {
     }
 
     private UiPanelField secField(DsConfigKvDef configDef, String labelKey) {
-        UiPanelField field = createField(DsConfigGroup.GENERAL, configDef);
+        UiPanelField field = requiredField(DsConfigGroup.GENERAL, configDef);
         field.setTitleI18N(labelKey);
+        return field;
+    }
+
+    private UiPanelField requiredField(DsConfigGroup group, DsConfigKvDef configDef) {
+        UiPanelField field = createField(group, configDef);
+        field.setRequire(true);
         return field;
     }
 
@@ -390,13 +397,16 @@ public class DmDsConfigUiPanelFactory {
                         break;
                     case TRUSTSTORE:
                         option.addField(createStoreField(configSpi, mode, sslCaDataField, ConfigI18nKey.CONFIG_DS_SSL_TRUSTSTORE_DATA_LABEL));
-                        option.addField(createStoreField(sslCaPasswordField, ConfigI18nKey.CONFIG_DS_SSL_TRUSTSTORE_PASSWORD_LABEL));
+                        option
+                            .addField(createOptionalStorePasswordField(sslCaPasswordField, ConfigI18nKey.CONFIG_DS_SSL_TRUSTSTORE_PASSWORD_LABEL, ConfigI18nKey.CONFIG_ADD_DS_SSL_TRUSTSTORE_PASSWORD_DESC));
                         break;
                     case KEYSTORE_TRUSTSTORE:
                         option.addField(createStoreField(configSpi, mode, sslCaDataField, ConfigI18nKey.CONFIG_DS_SSL_TRUSTSTORE_DATA_LABEL));
-                        option.addField(createStoreField(sslCaPasswordField, ConfigI18nKey.CONFIG_DS_SSL_TRUSTSTORE_PASSWORD_LABEL));
+                        option
+                            .addField(createOptionalStorePasswordField(sslCaPasswordField, ConfigI18nKey.CONFIG_DS_SSL_TRUSTSTORE_PASSWORD_LABEL, ConfigI18nKey.CONFIG_ADD_DS_SSL_TRUSTSTORE_PASSWORD_DESC));
                         option.addField(createStoreField(configSpi, mode, sslClientCertDataField, ConfigI18nKey.CONFIG_DS_SSL_KEYSTORE_DATA_LABEL));
-                        option.addField(createStoreField(sslClientKeyPasswordField, ConfigI18nKey.CONFIG_DS_SSL_KEYSTORE_PASSWORD_LABEL));
+                        option
+                            .addField(createOptionalStorePasswordField(sslClientKeyPasswordField, ConfigI18nKey.CONFIG_DS_SSL_KEYSTORE_PASSWORD_LABEL, ConfigI18nKey.CONFIG_ADD_DS_SSL_KEYSTORE_PASSWORD_DESC));
                         break;
                     case CLIENT_CERT:
                         option.addField(createCertificateField(configSpi, mode, sslCaDataField));
@@ -413,6 +423,7 @@ public class DmDsConfigUiPanelFactory {
 
     private UiPanelField createCertificateField(DsConfigSpi configSpi, SslMode sslMode, DsConfigKvDef configDef) {
         UiPanelField field = createField(DsConfigGroup.SSH_SSL, configDef);
+        field.setRequire(true);
         field.setProps(certificateProps(configSpi, sslMode, configDef.getConfigName()));
         return field;
     }
@@ -425,7 +436,16 @@ public class DmDsConfigUiPanelFactory {
 
     private UiPanelField createStoreField(DsConfigKvDef configDef, String labelKey) {
         UiPanelField field = createField(DsConfigGroup.SSH_SSL, configDef);
+        field.setRequire(true);
         field.setTitleI18N(labelKey);
+        return field;
+    }
+
+    private UiPanelField createOptionalStorePasswordField(DsConfigKvDef configDef, String labelKey, String descKey) {
+        UiPanelField field = createField(DsConfigGroup.SSH_SSL, configDef);
+        field.setRequire(false);
+        field.setTitleI18N(labelKey);
+        field.setDescI18N(descKey);
         return field;
     }
 

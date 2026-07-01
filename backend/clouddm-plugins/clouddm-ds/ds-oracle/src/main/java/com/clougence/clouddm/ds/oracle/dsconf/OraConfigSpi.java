@@ -31,8 +31,8 @@ import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanelFieldType;
 import com.clougence.clouddm.base.metadata.ui.form.value.ValueDef;
-import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
 import com.clougence.clouddm.ds.oracle.i18n.OraConfigI18nKeys;
+import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
 import com.clougence.drivers.adapter.ConvertUtils;
 import com.clougence.utils.StringUtils;
 
@@ -42,14 +42,14 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
         // connectType
         List<ValueDef> options = new ArrayList<>();
         options.add(fieldOptionDef(OraConfigI18nKeys.CONFIG_ORACLE_SID_LABEL, OraConnectType.SID.getDriverTypeCode())//
-            .addField(general.findField(OraConfig.Fields.sid)));
+            .addField(requiredField(general.findField(OraConfig.Fields.sid))));
         options.add(fieldOptionDef(OraConfigI18nKeys.CONFIG_ORACLE_SERVICE_LABEL, OraConnectType.SERVICE.getDriverTypeCode())
-            .addField(general.findField(OraConfig.Fields.serviceName)));
+            .addField(requiredField(general.findField(OraConfig.Fields.serviceName))));
         options.add(fieldOptionDef(OraConfigI18nKeys.CONFIG_ORACLE_PDB_LABEL, OraConnectType.PDB.getDriverTypeCode())//
-            .addField(general.findField(OraConfig.Fields.pdbName)));
+            .addField(requiredField(general.findField(OraConfig.Fields.pdbName))));
         options.add(fieldOptionDef(OraConfigI18nKeys.CONFIG_ORACLE_TNS_LABEL, OraConnectType.TNS.getDriverTypeCode())//
-            .addField(general.findField(OraConfig.Fields.tnsAdmin))
-            .addField(general.findField(OraConfig.Fields.tnsName)));
+            .addField(requiredField(general.findField(OraConfig.Fields.tnsAdmin)))
+            .addField(requiredField(general.findField(OraConfig.Fields.tnsName))));
 
         UiPanelField connectType = general.findField(OraConfig.Fields.connectType);
         connectType.setType(UiPanelFieldType.Options);
@@ -58,6 +58,8 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
             connectType.getDefaultValue().asValue() == null ||  //
             StringUtils.isBlank(String.valueOf(connectType.getDefaultValue().asValue()))) {
             connectType.setDefaultValue(strValueDef(OraConnectType.SID.getDriverTypeCode()));
+        } else {
+            connectType.setDefaultValue(strValueDef(OraConnectType.of(String.valueOf(connectType.getDefaultValue().asValue())).getDriverTypeCode()));
         }
 
         // readd
@@ -68,6 +70,13 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
         general.removeField(OraConfig.Fields.tnsAdmin);
         general.removeField(OraConfig.Fields.tnsName);
         general.beforeAddField(connectType, DataSourceConfig.Fields.securityType);
+    }
+
+    private static UiPanelField requiredField(UiPanelField field) {
+        if (field != null) {
+            field.setRequire(true);
+        }
+        return field;
     }
 
     @Override

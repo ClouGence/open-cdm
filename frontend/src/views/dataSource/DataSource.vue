@@ -146,7 +146,7 @@
     <!--    <Page class="page-container" :total="total" show-total show-elevator @on-change="handlePageChange" show-sizer-->
     <!--          :page-size="size"-->
     <!--          @on-page-size-change="handlePageSizeChange"/>-->
-    <CCModal v-model="showEditDesc" :title="$t('xiu-gai-shu-ju-yuan-miao-shu')" width="520px" :mask-closable="false">
+    <CCModal v-model="showEditDesc" :title="$t('xiu-gai-shu-ju-yuan-ming-cheng')" width="520px" :mask-closable="false">
       <div class="edit-desc-modal">
         <Form label-position="top">
           <FormItem>
