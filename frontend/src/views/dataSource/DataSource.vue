@@ -6,7 +6,7 @@
       :confirm-text="selectedRow.instanceId"
       :visible="showDeleteDataSourceConfirm"
       :confirm-button-text="$t('shan-chu-shu-ju-yuan')"
-      confirm-button-type="text"
+      confirm-button-type="error"
       confirm-button-danger
       hide-cancel-button
       disable-confirm-until-matched
