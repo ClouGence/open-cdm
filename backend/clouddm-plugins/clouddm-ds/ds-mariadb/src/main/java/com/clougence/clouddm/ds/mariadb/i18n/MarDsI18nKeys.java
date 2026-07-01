@@ -26,7 +26,6 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource("/META-INF/clougence/i18n/mar-ui-editor-table")
 public interface MarDsI18nKeys extends MyDsI18nKeys {
 
-    String PLUGIN_NAME_MARIADB                        = "PLUGIN_NAME_MARIADB";
-
+    String PLUGIN_NAME_MARIADB = "PLUGIN_NAME_MARIADB";
 
 }

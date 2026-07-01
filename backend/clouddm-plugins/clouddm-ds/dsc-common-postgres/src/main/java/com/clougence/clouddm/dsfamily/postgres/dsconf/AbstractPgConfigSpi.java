@@ -19,7 +19,7 @@ import java.util.List;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.SslMode;
-import com.clougence.clouddm.ds.common.dsconf.AbstractDsConfigSpi;
+import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
 
 public abstract class AbstractPgConfigSpi extends AbstractDsConfigSpi {
 

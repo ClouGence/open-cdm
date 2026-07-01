@@ -61,6 +61,7 @@ public class PorPgConfigSpi extends AbstractPgConfigSpi {
     public boolean supportSSL() {
         return true;
     }
+
     @Override
     public List<SslMode> sslModeSet() {
         return List.of(SslMode.TRUST, SslMode.CA, SslMode.CLIENT_CERT);
@@ -75,5 +76,4 @@ public class PorPgConfigSpi extends AbstractPgConfigSpi {
     public boolean supportTx() {
         return true;
     }
-
 }

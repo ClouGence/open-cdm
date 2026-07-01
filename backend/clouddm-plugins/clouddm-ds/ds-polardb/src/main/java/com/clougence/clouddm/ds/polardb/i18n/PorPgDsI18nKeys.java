@@ -22,5 +22,4 @@ import com.clougence.utils.i18n.I18nResource;
 public interface PorPgDsI18nKeys extends PgDsI18nKeys {
 
     String PLUGIN_NAME_POLARDB_PG = "PLUGIN_NAME_POLARDB_PG";
-
 }

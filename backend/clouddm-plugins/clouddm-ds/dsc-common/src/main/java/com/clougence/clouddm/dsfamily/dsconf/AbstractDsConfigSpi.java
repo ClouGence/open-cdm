@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.common.dsconf;
+package com.clougence.clouddm.dsfamily.dsconf;
 
 import java.util.List;
 import java.util.Map;

@@ -78,5 +78,4 @@ public class HgConfigSpi extends AbstractPgConfigSpi {
     public boolean supportTx() {
         return true;
     }
-
 }
