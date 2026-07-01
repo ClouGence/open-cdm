@@ -68,6 +68,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RdpConvertUtils {
 
+    private static final String ROLE_SELECTED_AUTH_LABELS_PREFIX = "__clouddm_role_selected_auth_labels__:";
+
     public static String removeNoDescription(String insDesc) {
         if (StringUtils.isBlank(insDesc) || StringUtils.equalsIgnoreCase(insDesc, "No description")) {
             return null;
@@ -158,9 +160,54 @@ public class RdpConvertUtils {
             vo.setAliasName(info.getAliasName());
         }
         vo.setInnerTag(info.isInnerTag());
-        vo.setRoleLabels(info.getRoleAuthLabels());
-        vo.getRoleLabels().retainAll(currentAllAuth);
+        List<String> roleLabels = removeSelectedRoleAuthLabelsMeta(info.getRoleAuthLabels());
+        roleLabels.retainAll(currentAllAuth);
+        vo.setRoleLabels(roleLabels);
+        vo.setSelectedRoleLabels(extractSelectedRoleAuthLabels(info.getRoleAuthLabels(), currentAllAuth));
         return vo;
+    }
+
+    public static boolean isSelectedRoleAuthLabelsMeta(String label) {
+        return label != null && label.startsWith(ROLE_SELECTED_AUTH_LABELS_PREFIX);
+    }
+
+    public static List<String> removeSelectedRoleAuthLabelsMeta(List<String> labels) {
+        if (labels == null) {
+            return new ArrayList<>();
+        }
+        return labels.stream().filter(label -> !isSelectedRoleAuthLabelsMeta(label)).collect(Collectors.toList());
+    }
+
+    public static List<String> buildStoredRoleAuthLabels(List<String> effectiveLabels, List<String> selectedLabels) {
+        Set<String> storedLabels = new TreeSet<>(removeSelectedRoleAuthLabelsMeta(effectiveLabels));
+        List<String> selectedAuthLabels = removeSelectedRoleAuthLabelsMeta(selectedLabels).stream().filter(StringUtils::isNotBlank).distinct().collect(Collectors.toList());
+        storedLabels.add(ROLE_SELECTED_AUTH_LABELS_PREFIX + JsonUtils.toJson(selectedAuthLabels));
+        return new ArrayList<>(storedLabels);
+    }
+
+    public static List<String> extractSelectedRoleAuthLabels(List<String> storedLabels, List<String> currentAllAuth) {
+        if (storedLabels == null) {
+            return null;
+        }
+        for (String label : storedLabels) {
+            if (!isSelectedRoleAuthLabelsMeta(label)) {
+                continue;
+            }
+            try {
+                String json = label.substring(ROLE_SELECTED_AUTH_LABELS_PREFIX.length());
+                List<String> selectedLabels = JsonUtils.toList(json, new TypeReference<List<String>>() {});
+                if (selectedLabels == null) {
+                    return new ArrayList<>();
+                }
+                selectedLabels = new ArrayList<>(selectedLabels);
+                selectedLabels.retainAll(currentAllAuth);
+                return selectedLabels;
+            } catch (Exception e) {
+                log.warn("parse selected role auth labels failed, label={}", label, e);
+                return null;
+            }
+        }
+        return null;
     }
 
     public static RoleInfoVO convertToRoleInfoVO(DmAuthRoleDO info) {
@@ -276,6 +323,7 @@ public class RdpConvertUtils {
         vo.setCategory(info.getAuthType() == AuthInfoType.Category);
         vo.setI18nName(DmI18nUtils.getMessage(info.getKeyI18n()));
         vo.setMustSelectAndReadOnly(info.isMustSelectAndReadOnly());
+        vo.setInclude(info.getInclude() == null ? new ArrayList<>() : new ArrayList<>(info.getInclude()));
         return vo;
     }
 

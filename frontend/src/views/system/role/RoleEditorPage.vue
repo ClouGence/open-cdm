@@ -56,7 +56,7 @@
           <div class="role-auth-tree-container">
             <a-tree
               v-if="displayTreeData.length"
-              v-model:checkedKeys="checkedKeys"
+              :checked-keys="checkedKeys"
               :tree-data="displayTreeData"
               checkable
               :selectable="false"
@@ -97,7 +97,8 @@ export default {
       treeData: [],
       allAuthKeys: [],
       categoryKeys: [],
-      mustCheckedKeys: []
+      mustCheckedKeys: [],
+      authIncludeMap: {}
     };
   },
   computed: {
@@ -158,7 +159,9 @@ export default {
         roleName: res.data.aliasName || res.data.roleName,
         innerTag: res.data.innerTag
       };
-      this.checkedKeys = [...(res.data.roleLabels || [])];
+      this.checkedKeys = Array.isArray(res.data.selectedRoleLabels)
+        ? [...res.data.selectedRoleLabels]
+        : this.compactAuthKeys(res.data.roleLabels || []);
     },
     async getAllAuthLabel() {
       const res = await this.$services.rdpRoleListRoleAuthLabelTree();
@@ -166,6 +169,7 @@ export default {
       const categoryKeys = [];
       const mustCheckedKeys = [];
       const expandableKeys = [];
+      const authIncludeMap = {};
       const treeData = [
         {
           children: [],
@@ -183,6 +187,8 @@ export default {
         allAuthKeys.push(node.key);
         if (node.category) {
           categoryKeys.push(node.key);
+        } else {
+          authIncludeMap[node.key] = Array.isArray(node.include) ? node.include.filter(Boolean) : [];
         }
         node.title = node.i18nName;
         if (node.mustSelectAndReadOnly) {
@@ -200,8 +206,40 @@ export default {
       this.allAuthKeys = allAuthKeys;
       this.categoryKeys = categoryKeys;
       this.mustCheckedKeys = [...mustCheckedKeys];
+      this.authIncludeMap = authIncludeMap;
       this.expandedKeys = expandableKeys;
       this.checkedKeys = [...mustCheckedKeys];
+    },
+    getCascadeIncludeKeys(key, seen = new Set()) {
+      if (!key || seen.has(key)) {
+        return [];
+      }
+      seen.add(key);
+      const includes = this.authIncludeMap[key] || [];
+      return includes.reduce((result, includeKey) => {
+        result.push(includeKey);
+        result.push(...this.getCascadeIncludeKeys(includeKey, seen));
+        return result;
+      }, []);
+    },
+    compactAuthKeys(keys = []) {
+      const sourceKeys = Array.from(new Set(keys || []));
+      const sourceKeySet = new Set(sourceKeys);
+      const includedKeySet = new Set();
+      sourceKeys.forEach((key) => {
+        this.getCascadeIncludeKeys(key).forEach((includeKey) => {
+          if (sourceKeySet.has(includeKey) && !this.mustCheckedKeys.includes(includeKey)) {
+            includedKeySet.add(includeKey);
+          }
+        });
+      });
+      return sourceKeys.filter((key) => !includedKeySet.has(key));
+    },
+    isAuthKey(key) {
+      return key && key !== 'ALL' && !this.categoryKeys.includes(key);
+    },
+    normalizeCheckedAuthKeys(keys = []) {
+      return Array.from(new Set([...(keys || []).filter((key) => this.isAuthKey(key)), ...this.mustCheckedKeys]));
     },
     getDisplayTreeData() {
       const keyword = (this.authSearchText || '').trim().toLowerCase();
@@ -234,6 +272,21 @@ export default {
       collect(data);
       return keys;
     },
+    getTreeAuthKeys(data = this.treeData) {
+      const keys = [];
+      const collect = (nodes = []) => {
+        nodes.forEach((node) => {
+          if (!node.category && node.key !== 'ALL') {
+            keys.push(node.key);
+          }
+          if (node.children && node.children.length) {
+            collect(node.children);
+          }
+        });
+      };
+      collect(data);
+      return keys;
+    },
     isAuthFilterActive() {
       return Boolean((this.authSearchText || '').trim() || this.onlyShowSelected);
     },
@@ -254,7 +307,16 @@ export default {
         this.authFilterExpandedKeys = [];
       });
     },
-    handleAuthCheckedChange() {
+    handleAuthCheckedChange(checkedKeys) {
+      const emittedCheckedKeys = this.normalizeCheckedAuthKeys(Array.isArray(checkedKeys) ? checkedKeys : checkedKeys?.checked || []);
+      if (!this.isAuthFilterActive()) {
+        this.checkedKeys = emittedCheckedKeys;
+      } else {
+        const visibleAuthKeySet = new Set(this.getTreeAuthKeys(this.displayTreeData));
+        const hiddenCheckedKeys = this.normalizeCheckedAuthKeys(this.checkedKeys).filter((key) => !visibleAuthKeySet.has(key));
+        const visibleCheckedKeys = emittedCheckedKeys.filter((key) => visibleAuthKeySet.has(key));
+        this.checkedKeys = this.normalizeCheckedAuthKeys([...hiddenCheckedKeys, ...visibleCheckedKeys]);
+      }
       if (this.onlyShowSelected) {
         this.handleAuthFilterChange();
       }
@@ -269,7 +331,11 @@ export default {
       if (!this.canEditAuth) {
         return;
       }
-      this.checkedKeys = [...this.allAuthKeys];
+      const sourceTree = this.isAuthFilterActive() ? this.displayTreeData : this.treeData;
+      const sourceAuthKeys = this.getTreeAuthKeys(sourceTree);
+      this.checkedKeys = this.isAuthFilterActive()
+        ? this.normalizeCheckedAuthKeys([...this.checkedKeys, ...sourceAuthKeys])
+        : this.normalizeCheckedAuthKeys(sourceAuthKeys);
       this.handleAuthFilterChange();
     },
     handleClearAuth() {
@@ -289,7 +355,7 @@ export default {
           return;
         }
 
-        const authLabelList = this.checkedKeys.filter((key) => !this.categoryKeys.includes(key) && key !== 'ALL');
+        const authLabelList = this.normalizeCheckedAuthKeys(this.checkedKeys);
         const data = {
           roleName: this.roleForm.roleName,
           authLabelList
