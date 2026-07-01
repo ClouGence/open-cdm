@@ -14,7 +14,7 @@
       </h1>
     </div>
     <div class="app-content-header__right">
-      <a v-if="showSqlLink" href="/#/sql" class="app-content-header__link">
+      <a v-if="showSqlLink" href="/#/sql" class="app-content-header__link" @click.prevent="handleGoSql">
         <CustomIcon type="icon-v2-SqlLog" size="14px" />
         <span>{{ $t('sql-cha-xun') }}</span>
       </a>
@@ -26,6 +26,7 @@
 <script>
 import { mapGetters, mapState } from 'vuex';
 import AppUserActions from '@/components/layout/AppUserActions';
+import { saveLastWorkbenchRoute } from '@/utils/workbenchRoute';
 
 export default {
   name: 'AppContentHeader',
@@ -315,6 +316,10 @@ export default {
     }
   },
   methods: {
+    handleGoSql() {
+      saveLastWorkbenchRoute(this.$route);
+      this.$router.push({ path: '/sql' }).catch(() => {});
+    },
     dataSourceDisplayName(dsType) {
       if (!dsType) {
         return '';
