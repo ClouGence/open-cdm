@@ -159,7 +159,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}-${{ matrix.service }}
+          images: ghcr.io/${{ github.repository_owner }}/cgdm-${{ matrix.service }}
           tags: |
             type=raw,value=dev
             type=sha
