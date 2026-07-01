@@ -1,0 +1,219 @@
+name: CD
+run-name: Release ${{ inputs.version }}${{ inputs.latest && ' (latest)' || '' }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "version (e.g., 3.2.0 or 3.2.0-rc.1)"
+        required: true
+        type: string
+      latest:
+        description: "latest (publish Docker latest and mark the GitHub Release as Latest)"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cd
+  cancel-in-progress: false
+
+env:
+  CHINA_REGISTRY: ${{ vars.CHINA_REGISTRY || 'cloudcanal-registry.cn-shanghai.cr.aliyuncs.com' }}
+  CHINA_IMAGE_PREFIX: ${{ vars.CHINA_IMAGE_PREFIX || 'cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm' }}
+  GLOBAL_REGISTRY: ${{ vars.GLOBAL_REGISTRY || 'docker.io' }}
+  GLOBAL_IMAGE_PREFIX: ${{ vars.GLOBAL_IMAGE_PREFIX || 'docker.io/bladepipe/cgdm' }}
+
+jobs:
+  build-tgz:
+    name: Build tgz
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate release version
+        env:
+          VERSION: ${{ inputs.version }}
+          LATEST: ${{ inputs.latest }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [[ ! "$VERSION" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(alpha|beta|rc)\.(0|[1-9][0-9]*))?$ ]]; then
+            echo "::error::version must look like 3.2.0 or 3.2.0-rc.1"
+            exit 1
+          fi
+          project_version="$(sed -n 's/^cg\.clouddm\.main\.version=//p' backend/gradle.properties | tr -d '[:space:]')"
+          if [[ "$VERSION" != "$project_version" ]]; then
+            echo "::error::version $VERSION does not match backend/gradle.properties ($project_version)"
+            exit 1
+          fi
+          notes_file="docs/release-notes/${VERSION}.md"
+          if [[ ! -f "$notes_file" ]]; then
+            echo "::error::release notes file does not exist: $notes_file"
+            exit 1
+          fi
+          if [[ "$VERSION" == *-* && "$LATEST" == "true" ]]; then
+            echo "::error::a prerelease version cannot be published as latest"
+            exit 1
+          fi
+          if [[ "$LATEST" == "true" && "$REF_NAME" != "main" ]]; then
+            echo "::error::latest can only be published from main"
+            exit 1
+          fi
+          tag="v${VERSION}"
+          tag_sha="$(git rev-parse --verify --quiet "refs/tags/${tag}^{}" || true)"
+          head_sha="$(git rev-parse HEAD)"
+          if [[ -n "$tag_sha" && "$tag_sha" != "$head_sha" ]]; then
+            echo "::error::tag $tag points to $tag_sha, not the workflow commit $head_sha"
+            exit 1
+          fi
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set up Node.js 22.22.1
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.1
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci --no-audit --no-fund
+
+      - name: Build tgz packages
+        working-directory: package
+        run: ./package.sh --build
+
+      - name: Upload tgz artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cgdm-tgz
+          path: package/build/*.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+
+  docker:
+    name: Docker ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    needs: build-tgz
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [alone, console, sidecar]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download tgz artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cgdm-tgz
+          path: docker-ctx
+
+      - name: Stage docker build context
+        run: |
+          cp -r package/docker/shared docker-ctx/shared
+          ls -lh docker-ctx
+          ls -R docker-ctx/shared
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to China registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.CHINA_REGISTRY }}
+          username: ${{ secrets.CGDM_DOCKER_CHINA_USERNAME }}
+          password: ${{ secrets.CGDM_DOCKER_CHINA_PASSWORD }}
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.GLOBAL_REGISTRY }}
+          username: ${{ secrets.CGDM_DOCKER_GLOBAL_USERNAME }}
+          password: ${{ secrets.CGDM_DOCKER_GLOBAL_PASSWORD }}
+
+      - name: Generate image tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.CHINA_IMAGE_PREFIX }}-${{ matrix.service }}
+            ${{ env.GLOBAL_IMAGE_PREFIX }}-${{ matrix.service }}
+          tags: |
+            type=raw,value=${{ inputs.version }}
+            type=raw,value=latest,enable=${{ inputs.latest }}
+
+      - name: Build and push ${{ matrix.service }}
+        uses: nick-fields/retry@v3
+        env:
+          TAGS: ${{ steps.meta.outputs.tags }}
+          SERVICE: ${{ matrix.service }}
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            tag_args=()
+            while IFS= read -r tag; do
+              [[ -n "$tag" ]] && tag_args+=(--tag "$tag")
+            done <<< "$TAGS"
+            docker buildx build \
+              --file "package/docker/${SERVICE}.Dockerfile" \
+              --platform linux/amd64,linux/arm64 \
+              --provenance=false \
+              --push \
+              "${tag_args[@]}" \
+              docker-ctx
+
+  release:
+    name: Publish GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-tgz, docker]
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download tgz artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cgdm-tgz
+          path: release-assets
+
+      - name: Create release and upload tgz assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ inputs.version }}
+          LATEST: ${{ inputs.latest }}
+          PRERELEASE: ${{ contains(inputs.version, '-') }}
+          TARGET_SHA: ${{ github.sha }}
+        run: |
+          shopt -s nullglob
+          assets=(release-assets/cgdm-*.tar.gz)
+
+          tag="v${VERSION}"
+          notes_file="docs/release-notes/${VERSION}.md"
+          gh release create "$tag" "${assets[@]}" \
+            --target "$TARGET_SHA" \
+            --title "$tag" \
+            --notes-file "$notes_file" \
+            --prerelease="$PRERELEASE" \
+            --latest="$LATEST"

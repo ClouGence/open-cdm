@@ -1,5 +1,16 @@
-ARG BASE_IMAGE=clougence/cgdm-x86_64-base:local
-FROM ${BASE_IMAGE}
+# syntax=docker/dockerfile:1.7
+# Multi-arch Dockerfile for the CloudDM Sidecar service.
+# Build context expected layout:
+#   <ctx>/cgdm-sidecar.tar.gz
+#   <ctx>/shared/sidecar/{sidecar.properties,global_conf.properties,init.sh,checker.sh}
+FROM eclipse-temurin:17-jre-noble
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates curl fontconfig tzdata \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /docker-entrypoint-init
 
 # CloudDM Sidecar Service Port (config: server.port)
 ENV APP_WEB_PORT=8080
@@ -12,12 +23,11 @@ ENV APP_SERVE_NAME=%APP_SERVE_NAME%
 # Sidecar Service Port (config: clouddm.console.port)
 ENV APP_SERVE_PORT=%APP_SERVE_PORT%
 
-# copy data to container
-ADD build/cgdm-sidecar.tar.gz /root/
-COPY docker/x86_64/sidecar/sidecar.properties /docker-entrypoint-init/copy_sidecar.properties
-COPY docker/x86_64/sidecar/global_conf.properties /docker-entrypoint-init/copy_global_conf.properties
-COPY docker/x86_64/sidecar/init.sh /docker-entrypoint-init/init.sh
-COPY docker/x86_64/sidecar/checker.sh /root/cgdm/sidecar/bin/checker.sh
+ADD cgdm-sidecar.tar.gz /root/
+COPY shared/sidecar/sidecar.properties /docker-entrypoint-init/copy_sidecar.properties
+COPY shared/sidecar/global_conf.properties /docker-entrypoint-init/copy_global_conf.properties
+COPY shared/sidecar/init.sh /docker-entrypoint-init/init.sh
+COPY shared/sidecar/checker.sh /root/cgdm/sidecar/bin/checker.sh
 RUN chmod +x /docker-entrypoint-init/init.sh /root/cgdm/sidecar/bin/checker.sh \
     && rm -rf /root/cgdm/sidecar/logs \
     && mkdir -p /root/cgdm/sidecar/logs \

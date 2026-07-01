@@ -2,7 +2,6 @@
 node_modules
 /dist
 /private
-package-lock.json
 
 
 # local env files
