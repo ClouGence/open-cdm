@@ -29,18 +29,13 @@ import lombok.Data;
 public class DmSysUserConfDO {
 
     @TableId(type = IdType.AUTO)
-    private Long              id;
-
+    private Long   id;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date              gmtCreate;
-
+    private Date   gmtCreate;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date              gmtModified;
-
-    private String            uid;
-
-    private String            configName;
-
-    private String            configValue;
+    private Date   gmtModified;
+    private String uid;
+    private String configName;
+    private String configValue;
 
 }

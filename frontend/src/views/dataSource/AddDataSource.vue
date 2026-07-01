@@ -23,17 +23,18 @@
           <Button type="primary" @click="handleStep('next')" v-if="currentStep === 0">
             {{ $t('xia-yi-bu') }}
           </Button>
+          <Button @click="handleTestConnection" :loading="testConnectionLoading" v-if="currentStep === 1">
+            {{ $t('ce-shi-lian-jie') }}
+          </Button>
           <Button
             type="primary"
+            class="primary-action"
             @click="handleAddDataSource"
             :loading="addDatasourceLoading"
             :disabled="disableAddDataSource"
             v-if="currentStep === 1"
           >
             {{ editMode ? $t('bao-cun') : $t('xin-zeng-shu-ju-yuan') }}
-          </Button>
-          <Button @click="handleTestConnection" :loading="testConnectionLoading" v-if="currentStep === 1">
-            {{ $t('ce-shi-lian-jie') }}
           </Button>
         </div>
         <span v-if="testConnectionHasResult" class="test-connection-inline-msg" :class="testConnectionSuccess ? 'tc-success' : 'tc-fail'">
@@ -229,10 +230,29 @@ export default {
       this.testConnectionSuccess = false;
       this.testConnectionMessage = '';
     },
-    ensureDriverReadyForAdd() {
+    showTestConnectionFailure(message) {
+      const content = message || this.$t('ce-shi-lian-jie-shi-bai');
+      this.$Modal.error({
+        title: this.$t('ce-shi-lian-jie-shi-bai'),
+        render: (h) =>
+          h(
+            'div',
+            {
+              class: 'test-connection-error-modal-content'
+            },
+            content
+          )
+      });
+    },
+    ensureDriverReadyForAdd(options = {}) {
       const driverReady = this.$refs.dataSourceInfo?.isDriverReadyForSubmit?.() ?? this.driverReadyForAdd;
       if (this.driverRequiredForAdd && !driverReady) {
-        this.setActionMessage(false, this.$t('initialization.mysqlDriverDownloadRequired'));
+        const message = this.$t('initialization.mysqlDriverDownloadRequired');
+        if (options.modal) {
+          this.showTestConnectionFailure(message);
+        } else {
+          this.setActionMessage(false, message);
+        }
         return false;
       }
 
@@ -320,7 +340,7 @@ export default {
         return;
       }
 
-      this.$refs.dataSourceInfo.$refs.addLocalDs.validate((val) => {
+      this.$refs.dataSourceInfo.validateAddDsForm((val) => {
         if (val) {
           this.clearActionMessage();
           this.$refs.dataSourceInfo?.syncAddDsUiFormToKvConfigs?.();
@@ -353,10 +373,10 @@ export default {
         });
     },
     handleTestConnection() {
-      if (!this.ensureDriverReadyForAdd()) {
+      if (!this.ensureDriverReadyForAdd({ modal: true })) {
         return;
       }
-      this.$refs.dataSourceInfo.$refs.addLocalDs.validate((valid) => {
+      this.$refs.dataSourceInfo.validateAddDsForm((valid) => {
         if (!valid) {
           return;
         }
@@ -368,13 +388,14 @@ export default {
           .then((res) => {
             const result = res.data || {};
             const connectSuccess = res.success && result.success !== false;
-            this.setActionMessage(
-              connectSuccess,
-              connectSuccess ? this.$t('ce-shi-lian-jie-cheng-gong') : result.message || res.msg || this.$t('ce-shi-lian-jie-shi-bai')
-            );
+            if (connectSuccess) {
+              this.setActionMessage(true, this.$t('ce-shi-lian-jie-cheng-gong'));
+              return;
+            }
+            this.showTestConnectionFailure(result.message || res.msg || this.$t('ce-shi-lian-jie-shi-bai'));
           })
           .catch((error) => {
-            this.setActionMessage(false, error?.message || this.$t('ce-shi-lian-jie-shi-bai'));
+            this.showTestConnectionFailure(error?.message || this.$t('ce-shi-lian-jie-shi-bai'));
           })
           .finally(() => {
             this.testConnectionLoading = false;
@@ -382,7 +403,7 @@ export default {
       });
     },
     handleAddPersonalDataSource(testDs = false) {
-      this.$refs.dataSourceInfo.$refs.addLocalDs.validate((val) => {
+      this.$refs.dataSourceInfo.validateAddDsForm((val) => {
         if (val) {
           this.$refs.dataSourceInfo?.syncAddDsUiFormToKvConfigs?.();
           this.syncPrimaryHostFields();
@@ -576,18 +597,19 @@ export default {
   box-sizing: border-box;
   position: relative;
   overflow-y: auto;
-  background: #f5f8fb;
+  padding: 16px 16px 80px;
+  background: var(--bg-primary);
 }
 
 .add-datasource-wrapper {
   display: flex;
   flex-direction: column;
-  min-height: calc(100% - 40px);
-  margin: 20px;
-  background: #fff;
-  border: 1px solid #e3eaf2;
-  border-radius: 10px;
-  box-shadow: 0 10px 28px rgba(31, 41, 55, 0.04);
+  min-height: 100%;
+  margin: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  box-shadow: none;
   overflow: visible;
 
   .add-datasource-content {
@@ -600,26 +622,38 @@ export default {
 }
 
 .add-dataSource-tools {
-  position: relative;
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
   display: flex;
-  height: 64px;
-  flex: 0 0 64px;
   align-items: center;
+  min-height: 64px;
   justify-content: center;
-  background: #fff;
-  border-top: 1px solid #e5e7eb;
-  box-shadow: 0 -10px 22px rgba(15, 23, 42, 0.06);
+  padding: 12px 28px;
+  background: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid #e7edf4;
+  box-shadow: 0 -8px 18px rgba(31, 41, 55, 0.06);
 
   .add-dataSource-actions {
-    position: absolute;
-    left: 50%;
     display: flex;
     align-items: center;
-    transform: translateX(-50%);
+    justify-content: center;
+    gap: 12px;
   }
 
   button {
-    margin: 0 8px;
+    min-width: 108px;
+    margin: 0;
+    border-radius: 6px;
+    font-weight: 500;
+  }
+
+  .primary-action {
+    min-width: 148px;
+    border-color: #0f9f55;
+    background: #0f9f55;
   }
 
   .test-connection-inline-msg {
@@ -650,7 +684,6 @@ export default {
 
   .add-datasource-wrapper {
     padding: 0;
-    margin-top: 0;
     border: none;
 
     .add-datasource-content {
@@ -661,5 +694,14 @@ export default {
       }
     }
   }
+}
+
+.test-connection-error-modal-content {
+  max-height: 320px;
+  overflow: auto;
+  color: var(--text-primary);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 </style>

@@ -195,7 +195,7 @@ public class LoginProviderSpiForLdap extends BaseLoginProviderSpi implements Log
         user.setBindAccount(getAttribute(attributes, ldapConfig.getLdapFieldLogin()));
 
         // mapping role
-        RoleData role = searchRole(primaryUser.getInternalUID(), ldapCtx);
+        RoleData role = searchRole(ldapCtx);
         if (role == null) {
             log.info("LDAP: user(" + user.getAccount() + ") not found any role, find roleName=" + ldapCtx.getLdapConfig().getLdapRoleMap());
             throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_USER_ROLE_MAPPING_FAILED);
@@ -212,7 +212,7 @@ public class LoginProviderSpiForLdap extends BaseLoginProviderSpi implements Log
         }
     }
 
-    private RoleData searchRole(String primaryUID, BaseCtx ldapCtx) {
+    private RoleData searchRole(BaseCtx ldapCtx) {
         BaseConfig ldapConfig = ldapCtx.getLdapConfig();
         String roleName = ldapConfig.getLdapRoleMap();
         roleName = StringUtils.isEmpty(roleName) ? SecSysRole.DEV_ROLE_NAME : roleName;

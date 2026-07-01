@@ -47,7 +47,7 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
 /** @author mode 2024/12/25 15:13 */
-@Plugin(name = "i18n::" + Db2ForZosDsI18nKeys.PLUGIN_NAME_DB2_4_ZOS,    //
+@Plugin(name = "i18n::" + Db2ForZosDsI18nKeys.PLUGIN_NAME_DB2_4_ZOS,        //
         includePackages = { "com.clougence.clouddm.dsfamily.execute.*",     //
                             "com.clougence.clouddm.dsfamily.db2.execute.*", //
                             "com.clougence.clouddm.ds.db2zos.execute.*"     //

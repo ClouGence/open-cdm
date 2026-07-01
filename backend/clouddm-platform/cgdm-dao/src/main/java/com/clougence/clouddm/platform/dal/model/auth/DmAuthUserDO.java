@@ -34,100 +34,52 @@ public class DmAuthUserDO {
 
     @TableId(type = IdType.AUTO)
     private Long            id;
-
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
     private Date            gmtCreate;
-
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
     private Date            gmtModified;
-
     private String          uid;
-
     private String          username;
-
-    /**
-     * for primary acount login
-     */
     private String          email;
-
-    /**
-     * for primary acount login
-     */
     private String          phone;
-
     private String          account;
-
     private String          password;
-
     private String          opPassword;
-
     private Long            roleId;
-
     private String          accessKey;
-
     private String          secretKey;
-
     private Date            lastTryLoginTime;
-
     private int             loginFailCount;
-
     private boolean         loginLocked;
-
     private Date            lastTryOpVerifyTime;
-
     private int             opVerifyFailCount;
-
     private boolean         opLocked;
-
     private AccountType     accountType;
-
     @TableField(typeHandler = AccountBindTypeTypeHandler.class)
     private AccountBindType bindType;
-
     private String          bindAccount;
-
     private boolean         allowLocal;
-
     private boolean         disable;
-
     private Long            parentId;
-
     private UserStatus      userStatus;
-
     private boolean         contactMe;
-
     private String          src;
-
     private String          keyword;
-
     private String          clientId;
-
     @Deprecated
     private String          country;
-
-    /**
-     * for maintainer (e.g., multi product cluster), can not be change on web and primary user (for saas manager)
-     */
     private boolean         maintainer;
-
     private Date            lastDateUpdatePwd;
-
     private String          unionId;
-
     private String          accessToken;
-
     @Deprecated
     private String          ssoType;
-
     @Deprecated
     private String          customerId;
-
     @Deprecated
     private String          saasUserStatus;
-
     @Deprecated
     private String          marketplaceType;
-
     private boolean         useMfa;
 
     @Override

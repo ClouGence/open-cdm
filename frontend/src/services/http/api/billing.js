@@ -1,8 +1,8 @@
 export const billingApi = {
-  // listBillings: '/rdp/console/api/v1/billing/list',
-  // getBillingDetail: '/rdp/console/api/v1/billing/getdetailbyid',
+  // listBillings: '/api/entry/billing/list',
+  // getBillingDetail: '/api/entry/billing/getdetailbyid',
 
   // rdp
-  rdpBillingList: '/rdp/console/api/v1/billing/list',
-  rdpBillingGetDetailById: '/rdp/console/api/v1/billing/getdetailbyid'
+  rdpBillingList: '/api/entry/billing/list',
+  rdpBillingGetDetailById: '/api/entry/billing/getdetailbyid'
 };

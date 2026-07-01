@@ -37,8 +37,8 @@ public class CompletionStatementState {
     private final List<String>  tokensBeforeCursor;
     private final boolean       cursorInState;
 
-    public CompletionStatementState(String sqlText, BlockLocation range, CompletionRequest request, Integer cursorLineNumber, Integer cursorColNumber,
-                                    CompletionDialect dialect, boolean cursorInState){
+    public CompletionStatementState(String sqlText, BlockLocation range, CompletionRequest request, Integer cursorLineNumber, Integer cursorColNumber, CompletionDialect dialect,
+                                    boolean cursorInState){
         this.sqlText = StringUtils.toString(sqlText);
         this.range = range;
         this.cursorOffset = offsetOf(this.sqlText, cursorLineNumber, cursorColNumber);

@@ -24,7 +24,6 @@ public enum DataSourceStatus {
     NoAuthority,
     NotWorker,
     Unsupported,
-
     ConnectionFailed,
     NoAuthentication
 }

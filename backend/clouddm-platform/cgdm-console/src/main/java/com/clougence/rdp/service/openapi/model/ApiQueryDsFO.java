@@ -16,7 +16,6 @@
 package com.clougence.rdp.service.openapi.model;
 
 import com.clougence.clouddm.console.web.global.mcp.model.McpField;
-import com.clougence.rdp.constant.RdpMcpLabelKeys;
 
 import jakarta.validation.constraints.Min;
 import lombok.Data;

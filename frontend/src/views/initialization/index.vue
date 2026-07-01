@@ -190,7 +190,7 @@ const REDIRECT_HOME_DELAY_MS = 2500;
 
 function buildDmGlobalSettingsUrl() {
   const baseUrl = (process.env.VUE_APP_BASE_URL || '').replace(/\/$/, '');
-  return `${baseUrl}/clouddm/console/api/v1/dmGlobalSettings`;
+  return `${baseUrl}/api/entry/dmGlobalSettings`;
 }
 
 function buildInitInstallLogWsUrl() {
@@ -199,7 +199,7 @@ function buildInitInstallLogWsUrl() {
   const baseUrl = explicitBase || fallbackOrigin;
   const parsed = new URL(baseUrl, fallbackOrigin);
   const wsProtocol = parsed.protocol === 'https:' ? 'wss:' : 'ws:';
-  return `${wsProtocol}//${parsed.host}/clouddm/console/api/v1/init/ws/install-log`;
+  return `${wsProtocol}//${parsed.host}/api/entry/init/ws/install-log`;
 }
 
 function normalizeExecutionScriptItem(entry) {

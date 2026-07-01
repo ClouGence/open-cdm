@@ -437,6 +437,7 @@ export default {
       isSingleSelect: true,
       curRightTreeTab: 'Instance',
       leftTreeLoading: false,
+      authTreeRequestSeq: 0,
       authTime: {
         startTime: null,
         endTime: null
@@ -616,6 +617,11 @@ export default {
         this.activeAuthType = 'datasource';
         this.lastRightTreeData = [];
         this.lastLeftTreeClickNode = '';
+        this.parentAuthTree = [];
+        this.timeList = {};
+        this.authMap = {};
+        this.userAuthResList = [];
+        this.authTreeRequestSeq = 0;
         this.rightTreeKeyword = '';
         this.leftTreeKeyword = '';
         this.isSingleSelect = true;
@@ -728,11 +734,13 @@ export default {
     },
     // Compare permission tree differences and mark editing status
     handleAuthCheck(selectedNodes) {
-      const currentAuthTree = this.getCurrentAuthTreeData(selectedNodes);
-      this.selectedAuthCount = this.getCheckedPermissionCount(currentAuthTree);
+      const checkedAuthNodes = deepClone(Array.isArray(selectedNodes) ? selectedNodes : []);
+      const currentAuthTree = this.getCurrentAuthTreeData();
+      this.selectedAuthCount = this.getCheckedPermissionCount(checkedAuthNodes, true);
       if (this.canCheckedChange) {
-        const comparableCheckedNodes = this.getComparableCheckedAuthNodes(currentAuthTree, this.lastRightTreeData);
-        this.markLeftTreeEdited(this.curNode, this.curElementType, this.lastRightTreeData, comparableCheckedNodes);
+        const originalRightTreeData = this.curNode?.originalRightTreeData?.length ? this.curNode.originalRightTreeData : this.lastRightTreeData;
+        const comparableCheckedNodes = this.getComparableCheckedAuthNodes(checkedAuthNodes, originalRightTreeData);
+        this.markLeftTreeEdited(this.curNode, this.curElementType, originalRightTreeData, comparableCheckedNodes);
         this.upsertParentAuthTree(this.curNode?.key, currentAuthTree);
         this.syncDescendantInheritedAuth(this.curNode);
       }
@@ -879,26 +887,20 @@ export default {
       const appends = [];
       const updates = [];
       const deletes = [];
+      const getAuthLeafNodes = this.getAuthLeafNodes;
 
       const filterTree = this.filterTreeWithEditedNodes(this.originLeftTree);
       filterTree.forEach((envItem) => {
         envItem.children.forEach((instanceItem) => {
-          const getAll = function (authDataTree) {
+          const getAll = (authDataTree) => {
             if (!authDataTree) return;
             const flattenAuthArr = [];
-            let isUpdates = false;
 
             if (authDataTree.markedWithActionRightTree?.length) {
-              authDataTree.markedWithActionRightTree.forEach((item) => {
-                flattenAuthArr.push(...item.children);
-              });
+              flattenAuthArr.push(...getAuthLeafNodes(authDataTree.markedWithActionRightTree));
             }
-            flattenAuthArr.forEach((item) => {
-              if (item?.checked && !item.action) isUpdates = true;
-            });
             flattenAuthArr.forEach((authItem) => {
-              // Update
-              if (isUpdates && authItem.checked && authDataTree.isEdit) {
+              if (authItem.checked && authDataTree.isEdit) {
                 appends.push({
                   startTime: authDataTree?.authTime?.startTime?.format?.('YYYY-MM-DD HH:mm:ss'),
                   endTime: authDataTree?.authTime?.endTime?.format?.('YYYY-MM-DD HH:mm:ss'),
@@ -908,19 +910,7 @@ export default {
                 });
               }
 
-              // Add
-              if (!isUpdates && authItem.checked && authDataTree.isEdit) {
-                appends.push({
-                  startTime: authDataTree?.authTime?.startTime?.format?.('YYYY-MM-DD HH:mm:ss'),
-                  endTime: authDataTree?.authTime?.endTime?.format?.('YYYY-MM-DD HH:mm:ss'),
-                  resId: instanceItem?.objId,
-                  authLabels: [authItem?.key],
-                  resPaths: getResTypeToNames(authDataTree)
-                });
-              }
-
-              // Delete
-              if (!isUpdates && authItem.action === 'deletes' && authDataTree.isEdit) {
+              if (authItem.action === 'deletes' && authDataTree.isEdit) {
                 deletes.push({
                   startTime: authDataTree?.authTime?.startTime?.format?.('YYYY-MM-DD HH:mm:ss'),
                   endTime: authDataTree?.authTime?.endTime?.format?.('YYYY-MM-DD HH:mm:ss'),
@@ -930,6 +920,7 @@ export default {
                 });
               }
             });
+            deletes.push(...this.getCascadeDeleteAuthData(authDataTree, instanceItem));
 
             // Walk Through Subnodes and Call Back
             if (authDataTree.children && authDataTree.children.length) {
@@ -1004,9 +995,13 @@ export default {
       appends.forEach((item) => {
         const key = `${item.resId}-${JSON.stringify(item.resPaths)}`;
         if (map?.has(key)) {
-          map.get(key).authLabels.push(...item.authLabels);
+          const existingItem = map.get(key);
+          existingItem.authLabels = Array.from(new Set(existingItem.authLabels.concat(item.authLabels || [])));
+          if (!existingItem.authId && item.authId) {
+            existingItem.authId = item.authId;
+          }
         } else {
-          map.set(key, { ...item, authLabels: [...item.authLabels] });
+          map.set(key, { ...item, authLabels: Array.from(new Set(item.authLabels || [])) });
         }
       });
 
@@ -1161,7 +1156,87 @@ export default {
         .map((item) => ({ ...item }));
     },
     getCheckedLeafAuthNodes(authTree = []) {
-      return flattenTree(authTree || []).filter((item) => item?.checked && !item?.children?.length);
+      const seen = new Set();
+      return flattenTree(authTree || []).filter((item) => {
+        if (!item?.checked || item?.children?.length || seen.has(item.key)) return false;
+        seen.add(item.key);
+        return true;
+      });
+    },
+    getAuthLeafNodes(authTree = []) {
+      const seen = new Set();
+      return flattenTree(authTree || []).filter((item) => {
+        if (!item?.key || item?.children?.length || seen.has(item.key)) return false;
+        seen.add(item.key);
+        return true;
+      });
+    },
+    isPathPrefix(parentPath = [], childPath = []) {
+      if (parentPath.length > childPath.length) {
+        return false;
+      }
+      return parentPath.every((item, index) => item === childPath[index]);
+    },
+    isFullAuthRevoke(authDataTree = {}) {
+      if (!authDataTree?.isEdit || !authDataTree?.markedWithActionRightTree?.length) {
+        return false;
+      }
+      const leafNodes = this.getAuthLeafNodes(authDataTree.markedWithActionRightTree);
+      if (!leafNodes.length) {
+        return false;
+      }
+      return leafNodes.some((item) => item.action === 'deletes') && leafNodes.every((item) => !item.checked);
+    },
+    getCascadeDeleteAuthData(authDataTree = {}, instanceItem = {}) {
+      if (!this.isFullAuthRevoke(authDataTree)) {
+        return [];
+      }
+      const currentPath = getResTypeToNames(authDataTree);
+      const instanceName = instanceItem?.objName;
+      const resId = instanceItem?.objId;
+      if (!instanceName || !resId) {
+        return [];
+      }
+      return (this.userAuthResList || [])
+        .filter((item) => item?.resInstId === instanceName)
+        .map((item) => ({
+          ...item,
+          resPaths: this.normalizeAuthLevel(item?.level),
+          authLabels: Array.isArray(item?.dsAuthKinds) ? item.dsAuthKinds.filter(Boolean) : []
+        }))
+        .filter((item) => this.isPathPrefix(currentPath, item.resPaths))
+        .map((item) => ({
+          authId: item?.id || 0,
+          startTime: item?.startTime ? dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss') : null,
+          endTime: item?.endTime ? dayjs(item.endTime).format('YYYY-MM-DD HH:mm:ss') : null,
+          resId,
+          authLabels: item.authLabels,
+          resPaths: item.resPaths
+        }));
+    },
+    normalizeAuthLevel(level) {
+      if (Array.isArray(level)) {
+        return level.filter(Boolean);
+      }
+      if (!level || level === '/') {
+        return [];
+      }
+      return String(level).split('/').filter(Boolean);
+    },
+    isSameAuthLevel(authWrap, node) {
+      const authLevel = this.normalizeAuthLevel(authWrap?.level);
+      const currentLevel = getResTypeToNames(node);
+      return authLevel.length === currentLevel.length && authLevel.every((item, index) => item === currentLevel[index]);
+    },
+    getNodeInstanceName(node) {
+      let current = node;
+      while (current) {
+        if (current?.objAttr?.dsType || current?.objType === 'Instance' || current?.objType === 'INSTANCE') {
+          return current.objName;
+        }
+        current = current.parent || current._parent;
+      }
+      return '';
     },
     getCurrentAuthTreeRef() {
       const refMap = {
@@ -1179,6 +1254,12 @@ export default {
       const normalizedTab =
         this.curRightTreeTab === 'EXTERNAL_SCHEMA' ? 'SCHEMA' : this.curRightTreeTab === 'EXTERNAL_CATALOG' ? 'CATALOG' : this.curRightTreeTab;
       return this.$refs[refMap[normalizedTab]];
+    },
+    clearRightAuthTreeData() {
+      this.$refs.instanceTree?.setData?.([]);
+      this.$refs.schemaTree?.setData?.([]);
+      this.$refs.catalogTree?.setData?.([]);
+      this.$refs.tableTree?.setData?.([]);
     },
     getCurrentAuthTreeData(fallbackTree = []) {
       const currentTree = this.getCurrentAuthTreeRef()?.getTreeData?.();
@@ -1398,17 +1479,17 @@ export default {
             if (res.success) {
               if (resPaths.length > 2) {
                 // Four, Table, authorized.
-                this.userAuthResList.forEach((item, idx) => {
-                  const paths = (item?.level || '/').split('/').slice(0, -1);
-                  const isCatlog = resPaths?.length === 4;
-                  const isSameIns = item?.resInstId === node._parent?.objName || item?.resInstId === node._parent?._parent?.objName;
-                  const isSameCatalog = node?._parent?.objName === paths[1];
+                const currentPath = getResTypeToNames(node);
+                const instanceName = this.getNodeInstanceName(node);
+                this.userAuthResList.forEach((item) => {
+                  const paths = this.normalizeAuthLevel(item?.level);
+                  const isSameIns = item?.resInstId === instanceName;
 
                   res.data.forEach((ds) => {
-                    if (isSameIns && isCatlog && ds.objName === paths[3] && isSameCatalog) {
-                      ds.isAuthed = true;
-                    }
-                    if (isSameIns && !isCatlog && ds.objName === paths[2]) {
+                    const isSameParentPath = currentPath.every((pathItem, index) => pathItem === paths[index]);
+                    const isParentAuthed = paths.length === currentPath.length;
+                    const isChildAuthed = ds.objName === paths[currentPath.length];
+                    if (isSameIns && isSameParentPath && (isParentAuthed || isChildAuthed)) {
                       ds.isAuthed = true;
                     }
                   });
@@ -1442,8 +1523,7 @@ export default {
                 }
               } else if (resPaths.length === 1) {
                 // 1. Instance authorized
-                this.userAuthResList.forEach((item, idx) => {
-                  const paths = (item?.level || '/').split('/').slice(0, -1);
+                this.userAuthResList.forEach((item) => {
                   res.data.forEach((ds) => {
                     if (ds.objName === item.resInstId) {
                       ds.isAuthed = true;
@@ -1452,10 +1532,10 @@ export default {
                 });
               } else if (resPaths.length === 2) {
                 // 2 Schema authorized
-                this.userAuthResList.forEach((item, idx) => {
-                  const paths = (item?.level || '/').split('/').slice(0, -1);
+                this.userAuthResList.forEach((item) => {
+                  const paths = this.normalizeAuthLevel(item?.level);
                   res.data.forEach((ds) => {
-                    if (item?.resInstId === node.objName && ds.objName === paths[1]) {
+                    if (item?.resInstId === node.objName && (paths.length === 0 || ds.objName === paths[0])) {
                       ds.isAuthed = true;
                     }
                   });
@@ -1464,11 +1544,11 @@ export default {
               if (resPaths.length === 3 && (node?.objType === 'CATALOG' || node?.objType === 'EXTERNAL_CATALOG')) {
                 // 3, CATALOG has been authorized
                 this.userAuthResList.forEach((item) => {
-                  const paths = (item?.level || '/').split('/').slice(0, -1);
-                  const isSameCatalog = node?.objName === paths[1];
+                  const paths = this.normalizeAuthLevel(item?.level);
+                  const isSameCatalog = node?.objName === paths[0];
 
                   res.data.forEach((ds) => {
-                    if (item?.resInstId === node._parent?.objName && ds.objName === paths[2] && isSameCatalog) {
+                    if (item?.resInstId === this.getNodeInstanceName(node) && isSameCatalog && (paths.length === 1 || ds.objName === paths[1])) {
                       ds.isAuthed = true;
                     }
                   });
@@ -1811,29 +1891,39 @@ export default {
       return filterAuth;
     },
     handleAuthFromSelf(auth, hasAuth, node) {
-      let selfAuth = [];
+      const selfAuth = new Set();
       hasAuth.forEach((item) => {
-        if (item.level?.includes?.(node?.objName)) {
-          selfAuth = item?.dsAuthKinds;
+        if (this.isSameAuthLevel(item, node)) {
+          const dsAuthKinds = Array.isArray(item?.dsAuthKinds) ? item.dsAuthKinds : [];
+          dsAuthKinds.forEach((authKey) => selfAuth.add(authKey));
         }
       });
-      auth.forEach((item) => {
-        item.children?.forEach((child) => {
-          if (selfAuth?.includes?.(child.key)) {
-            child.checked = true;
+
+      const traverse = (nodes = []) => {
+        nodes.forEach((item) => {
+          if (item.children?.length) {
+            traverse(item.children);
+          } else if (selfAuth.has(item.key)) {
+            item.checked = true;
           }
         });
-      });
+      };
+      traverse(auth);
       return auth;
     },
 
     async handleGetAuthTreeForDm(node = {}) {
+      const requestId = ++this.authTreeRequestSeq;
       try {
         const elementType = node?.objType || '';
         if (!node?.key || !elementType || elementType === 'ENV') {
           this.selectedAuthCount = 0;
+          this.clearRightAuthTreeData();
           return;
         }
+        this.loadingAuth = true;
+        this.canCheckedChange = false;
+        this.clearRightAuthTreeData();
         let allAuth = { data: [] };
         let hasAutn = { data: [] };
         let filterAuth;
@@ -1889,7 +1979,7 @@ export default {
 
             const hasAuthList = [];
             const rawAuthData = Array.isArray(hasAutn.data) ? hasAutn.data : [];
-            const authData = this.isGlobalResourceAuthActive() ? rawAuthData : rawAuthData.filter((authWrap) => authWrap.level !== '/');
+            const authData = rawAuthData;
             authData.forEach((authWrap) => {
               if (authWrap.startTime) this.authTime.startTime = dayjs(authWrap.startTime);
               if (authWrap.endTime) this.authTime.endTime = dayjs(authWrap.endTime);
@@ -1927,9 +2017,21 @@ export default {
           }
           // All resource mandates are equal to those at every level.
           filterAuth = this.handleAuthFromGlobal(filterAuth);
+          if (requestId !== this.authTreeRequestSeq || this.curNode?.key !== node?.key) {
+            return;
+          }
+          const originalRightTreeData = deepClone(this.lastRightTreeData);
+          node.originalRightTreeData = originalRightTreeData;
+          const latestNode = findNodeByKey(this.originLeftTree, node?.key);
+          if (latestNode) {
+            latestNode.originalRightTreeData = deepClone(originalRightTreeData);
+          }
           this.upsertParentAuthTree(node?.key, filterAuth);
           this.selectedAuthCount = this.getCheckedPermissionCount(filterAuth);
           this.$nextTick(() => {
+            if (requestId !== this.authTreeRequestSeq || this.curNode?.key !== node?.key) {
+              return;
+            }
             switch (elementType) {
               case 'Instance':
               case 'INSTANCE':
@@ -1958,6 +2060,10 @@ export default {
         this.$refs.dataSourceTree?.scrollTo?.(node?.key, 'center');
       } catch (err) {
         this.$Message.error(this.$t('chu-xian-yi-chang-qing-shua-xin-ye-mian-hou-zhong-shi'));
+      } finally {
+        if (requestId === this.authTreeRequestSeq) {
+          this.loadingAuth = false;
+        }
       }
     },
     findSchemaNodeId(node) {
@@ -1993,11 +2099,7 @@ export default {
             let isEdit = false;
             // Rights change judgement
             if (markedWithActionRightTree) {
-              markedWithActionRightTree.forEach((authWrap) => {
-                authWrap.children.forEach((auth) => {
-                  if (auth.action) isEdit = true;
-                });
-              });
+              isEdit = this.getAuthLeafNodes(markedWithActionRightTree).some((auth) => auth.action);
             }
             // Time change judgement
             const oldTime = item.authTime || {};
@@ -2011,6 +2113,7 @@ export default {
               isEdit = true;
             }
             item.markedWithActionRightTree = markedWithActionRightTree;
+            item.originalRightTreeData = deepClone(oldTree || []);
             item.isEdit = isEdit;
             item.authTime = this.authTime;
           }

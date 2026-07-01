@@ -297,6 +297,16 @@ public class DmDsConfigServiceImplTest {
         }
 
         @Override
+        public List<String> certificateTextFileTypes(SslMode sslMode, String configName) {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<String> certificateBinaryFileTypes(SslMode sslMode, String configName) {
+            return Collections.emptyList();
+        }
+
+        @Override
         public String defaultPort() {
             return "3306";
         }

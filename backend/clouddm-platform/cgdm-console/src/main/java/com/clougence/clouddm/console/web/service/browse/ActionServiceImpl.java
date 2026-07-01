@@ -490,6 +490,7 @@ public class ActionServiceImpl implements ActionService, UnifiedPostConstruct {
                 default:
                     throw new UnsupportedOperationException();
             }
+
             TableEditorPanelForm editorForm = UiWebUtil.passerPanel(uiPanel);
             this.editorCache.put(cacheKey, editorForm.getChildren());
             return editorForm.getChildren();

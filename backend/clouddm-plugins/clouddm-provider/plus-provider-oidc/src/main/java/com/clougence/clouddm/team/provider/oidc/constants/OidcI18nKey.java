@@ -23,8 +23,7 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource("/META-INF/clougence/i18n/oidc")
 public interface OidcI18nKey {
 
-    String PLUGIN_NAME_OIDC                           = "PLUGIN_NAME_OIDC";
-
+    String PLUGIN_NAME_OIDC                          = "PLUGIN_NAME_OIDC";
 
     String OIDC_LOGIN_SERVICES_NAME                  = "OIDC_LOGIN_SERVICES_NAME";
     String OIDC_UNKNOWN_CALL_API_ERROR               = "OIDC_UNKNOWN_CALL_API_ERROR";

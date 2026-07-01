@@ -24,7 +24,6 @@ import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.console.web.constants.WhiteListAddType;
 import com.clougence.clouddm.console.web.model.fo.InitDsKvBaseConfigFO;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
-import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
@@ -60,22 +59,4 @@ public class AddDsFO {
     private List<InitDsKvBaseConfigFO> dsKvConfigs;
     private Long                       bindClusterId;
     private Long                       envId;
-
-    public void manualValidAndTrim() {
-        if (type == null) {
-            throw new IllegalArgumentException("data source type can not be empty.");
-        }
-
-        if (StringUtils.isNotBlank(host)) {
-            host = host.trim();
-        }
-
-        if (StringUtils.isBlank(host)) {
-            throw new IllegalArgumentException("host can not be empty.");
-        }
-
-        if (securityType == null) {
-            throw new IllegalArgumentException("security type can not be empty.");
-        }
-    }
 }

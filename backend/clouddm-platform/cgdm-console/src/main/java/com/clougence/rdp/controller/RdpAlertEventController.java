@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
+import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth.AuthStrategy;
 import com.clougence.clouddm.console.web.model.fo.ListAlertEventsFO;
@@ -32,7 +33,6 @@ import com.clougence.clouddm.console.web.model.vo.AlertEventListVO;
 import com.clougence.clouddm.console.web.model.vo.AlertEventLogVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.platform.dal.model.monitor.DmMonAlertEventLogDO;
-import com.clougence.rdp.constant.RdpControllerUrlPrefix;
 import com.clougence.rdp.service.RdpAlertEventLogService;
 import com.clougence.utils.StringUtils;
 
@@ -45,15 +45,12 @@ import lombok.extern.slf4j.Slf4j;
  * @author wanshao create time is 2020/4/15
  **/
 @RestController
-@RequestMapping(value = RdpControllerUrlPrefix.CONSOLE_PREFIX + "/alert/event")
+@RequestMapping(value = DmControllerUrlPrefix.CONSOLE_PREFIX + "/alert/event")
 @Slf4j
 public class RdpAlertEventController {
 
     @Resource
     private RdpAlertEventLogService rdpAlertEventLogService;
-
-    @Resource
-    private RdpUserService          rdpUserService;
 
     @RequestAuth(strategy = AuthStrategy.Ignore)
     @RequestMapping(value = "/list", method = RequestMethod.POST)

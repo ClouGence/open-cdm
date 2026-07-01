@@ -49,6 +49,11 @@ import jakarta.annotation.Resource;
 @Service
 @Scope("prototype")
 public class AutoExecJob implements Runnable {
+    private static final int         SUCCESS     = 0;
+    private static final int         FAILED      = 1;
+    private static final int         PAUSE       = 2;
+    private static final int         RUNNING     = 3;
+    private static final Logger      log         = LoggerFactory.getLogger("sql-audit");
 
     @Resource
     private TaskDsResourceManager    backgroundRM;
@@ -63,22 +68,11 @@ public class AutoExecJob implements Runnable {
 
     private AutoExecJobDTO           job;
     private SessionAgent             sessionAgent;
-
     private List<AutoExecMessageDTO> messageList = new LinkedList<>();
-
     private Long                     jobId;
-
     private long                     runningTaskId;
-
     private WorkerIdentity           workerIdentity;
-
     private final AtomicInteger      status      = new AtomicInteger(RUNNING);
-
-    private static final int         SUCCESS     = 0;
-    private static final int         FAILED      = 1;
-    private static final int         PAUSE       = 2;
-    private static final int         RUNNING     = 3;
-    private static final Logger      log         = LoggerFactory.getLogger("sql-audit");
 
     public void init(Long jobId) {
         this.jobId = jobId;

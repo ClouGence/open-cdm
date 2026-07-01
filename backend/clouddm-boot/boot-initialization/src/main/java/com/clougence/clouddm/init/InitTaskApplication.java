@@ -19,8 +19,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 
+import com.clougence.clouddm.console.web.component.auth.impl.DmAuthLabelServiceImpl;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.service.envparam.DmEnvParamServiceImpl;
+import com.clougence.clouddm.console.web.service.login.LoginMFAServiceImpl;
+import com.clougence.clouddm.console.web.service.security.CheckRulesServiceImpl;
 import com.clougence.clouddm.init.constant.I18nInitFieldKeys;
 
 /**
@@ -28,9 +33,10 @@ import com.clougence.clouddm.init.constant.I18nInitFieldKeys;
  * It lets Flyway migrations and fix tasks reuse the same Spring configuration outside the main web application.
  */
 @SpringBootApplication(excludeName = "org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration")
-@ComponentScan(basePackages = { "com.clougence.clouddm.init.component.flyway", "com.clougence.clouddm.init.component.fixtasks", "com.clougence.clouddm.console.web",
-                                "com.clougence.clouddm.console.web.*", "com.clougence.rdp", "com.clougence.clouddm.base", "com.clougence.clouddm.platform",
+@ComponentScan(basePackages = { "com.clougence.clouddm.init.component.flyway", "com.clougence.clouddm.init.component.fixtasks",
+                                "com.clougence.clouddm.console.web.component.config", "com.clougence.clouddm.base", "com.clougence.clouddm.platform",
                                 "com.clougence.clouddm.sdk", "com.clougence.clouddm.api" })
+@Import({ DmAuthLabelServiceImpl.class, DmEnvParamServiceImpl.class, LoginMFAServiceImpl.class, CheckRulesServiceImpl.class })
 public class InitTaskApplication {
 
     @Bean

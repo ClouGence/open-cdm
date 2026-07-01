@@ -26,11 +26,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.clougence.clouddm.api.common.exception.DmErrorCode;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
+import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
@@ -48,8 +50,6 @@ import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
-import com.clougence.rdp.constant.RdpControllerUrlPrefix;
-import com.clougence.rdp.constant.RdpErrorCode;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.rdp.service.model.AddSubAccountMO;
 import com.clougence.rdp.service.model.CheckSubAccountMO;
@@ -68,7 +68,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author wanshao create time is 2020/3/11
  **/
 @RestController
-@RequestMapping(value = RdpControllerUrlPrefix.CONSOLE_PREFIX + "/user/manager")
+@RequestMapping(value = DmControllerUrlPrefix.CONSOLE_PREFIX + "/user/manager")
 @Slf4j
 public class RdpUserManagerController {
 
@@ -247,7 +247,7 @@ public class RdpUserManagerController {
             }
 
             response.addCookie(cookie);
-            return ResWebDataUtils.buildError(RdpErrorCode.COMM_USER_RELOAD_ERROR, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NEED_RELOGIN.name()));
+            return ResWebDataUtils.buildError(DmErrorCode.COMM_RELOAD_ACTION.code(), DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NEED_RELOGIN.name()));
         }
 
         return ResWebDataUtils.buildSuccess();

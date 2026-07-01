@@ -155,28 +155,30 @@ public class GlobalConfUtils {
             if (config.isEmpty()) {
                 throw new IllegalArgumentException("embedded worker not configured.");
             }
-            workerSequenceNumber = config.get(WORKER_SEQUENCE_NUMBER);
-            accessKey = config.get(CLOUGENCE_AK);
-            securityKey = config.get(CLOUGENCE_SK);
-            consoleHost = config.get(CONSOLE_HOST);
-            consolePort = config.get(CONSOLE_PORT);
+            workerSequenceNumber = normalizeConfigValue(config.get(WORKER_SEQUENCE_NUMBER));
+            accessKey = normalizeConfigValue(config.get(CLOUGENCE_AK));
+            securityKey = normalizeConfigValue(config.get(CLOUGENCE_SK));
+            consoleHost = normalizeConfigValue(config.get(CONSOLE_HOST));
+            consolePort = normalizeConfigValue(config.get(CONSOLE_PORT));
         } else {
             File globalResourceFile = new File(getAppHome(), "conf" + File.separator + CONF_PATH_SUFFIX);
             Properties prop = new Properties();
-            if (globalResourceFile.exists()) {
+            globalConfResource = ResourcesUtils.getResource(GlobalConfUtils.class.getClassLoader(), CONF_PATH_SUFFIX);
+            if (globalConfResource != null) {
+                prop = getProperties(new AutoCloseInputStream(ResourcesUtils.getResourceAsStream(GlobalConfUtils.class.getClassLoader(), globalConfResource)));
+            } else if (globalResourceFile.exists()) {
                 globalConfResource = globalResourceFile.toURI().toURL();
                 prop = getProperties(new AutoCloseInputStream(new FileInputStream(globalResourceFile)));
             } else {
-                globalConfResource = ResourcesUtils.getResource(GlobalConfUtils.class.getClassLoader(), CONF_PATH_SUFFIX);
-                prop = getProperties(new AutoCloseInputStream(ResourcesUtils.getResourceAsStream(globalConfResource)));
+                throw new IllegalArgumentException("global config file not found. classpath:" + CONF_PATH_SUFFIX + ", file:" + globalResourceFile.getAbsolutePath());
             }
             log.info("global conf path:" + globalConfResource);
 
-            workerSequenceNumber = prop.getProperty(WORKER_SEQUENCE_NUMBER);
-            accessKey = prop.getProperty(CLOUGENCE_AK);
-            securityKey = prop.getProperty(CLOUGENCE_SK);
-            consoleHost = prop.getProperty(CONSOLE_HOST);
-            consolePort = prop.getProperty(CONSOLE_PORT);
+            workerSequenceNumber = getConfigValue(prop, WORKER_SEQUENCE_NUMBER);
+            accessKey = getConfigValue(prop, CLOUGENCE_AK);
+            securityKey = getConfigValue(prop, CLOUGENCE_SK);
+            consoleHost = getConfigValue(prop, CONSOLE_HOST);
+            consolePort = getConfigValue(prop, CONSOLE_PORT);
         }
 
         ConnAuthDTO connAuthDTO = new ConnAuthDTO();
@@ -190,6 +192,14 @@ public class GlobalConfUtils {
         connAuthDTO.setGlobalConfResource(globalConfResource);
         cacheAuth = connAuthDTO;
         return connAuthDTO;
+    }
+
+    private static String getConfigValue(Properties prop, String key) {
+        return normalizeConfigValue(prop.getProperty(key));
+    }
+
+    private static String normalizeConfigValue(String value) {
+        return StringUtils.trimToNull(value);
     }
 
     private static Properties getProperties(InputStream globalConfResource) {

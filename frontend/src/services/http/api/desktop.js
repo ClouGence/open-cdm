@@ -1,7 +1,7 @@
 export const desktopApi = {
-  // addDesktopDs: '/clouddm/console/api/v1/desktop/datasource/addDs',*
-  // testDesktopDs: '/clouddm/console/api/v1/desktop/datasource/testDs',*
+  // addDesktopDs: '/api/entry/desktop/datasource/addDs',*
+  // testDesktopDs: '/api/entry/desktop/datasource/testDs',*
   // dm
-  dmDesktopDataSourceAddDs: '/clouddm/console/api/v1/desktop/datasource/addDs',
-  dmDesktopDataSourceTestDs: '/clouddm/console/api/v1/desktop/datasource/testDs'
+  dmDesktopDataSourceAddDs: '/api/entry/desktop/datasource/addDs',
+  dmDesktopDataSourceTestDs: '/api/entry/desktop/datasource/testDs'
 };

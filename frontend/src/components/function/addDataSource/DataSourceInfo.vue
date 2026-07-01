@@ -51,6 +51,8 @@
                 :current-query-cluster="currentQueryCluster"
                 :current-step="currentStep"
                 :show-query-config="showQueryConfig"
+                :field-error="dynamicFieldErrors[field.field] || ''"
+                :field-errors="dynamicFieldErrors"
                 @envChange="handleEnvChange"
                 @clusterChange="handleChangeQueryCluster"
                 @update:driverReady="handleAddDsDriverReady"
@@ -131,6 +133,7 @@ export default {
       bindClusters: [],
       currentQueryCluster: {},
       dataSourceTypes: [],
+      dynamicFieldErrors: {},
       selectDsTypeRules: {
         type: [
           {
@@ -225,6 +228,13 @@ export default {
     validateSelectStep(callback) {
       this.$refs.selectDsTypeForm.validate((valid) => {
         callback(valid);
+      });
+    },
+    validateAddDsForm(callback) {
+      this.syncCompositeAddDsFields();
+      this.$refs.addLocalDs.validate((valid) => {
+        const dynamicValid = this.validateDynamicAddDsFields();
+        callback(valid && dynamicValid);
       });
     },
     isDriverReadyForSubmit() {
@@ -471,6 +481,8 @@ export default {
         form.dsId = this.currentAddDsConfig.dsId;
       }
       this.addDsUiForm = form;
+      this.dynamicFieldErrors = {};
+      this.syncCompositeAddDsFields();
       this.ensureActiveAddDsPanel();
     },
     collectAddDsFieldDefaults(fields, form) {
@@ -529,6 +541,9 @@ export default {
       });
       return result;
     },
+    visibleAddDsFieldsFlat() {
+      return this.visibleAddDsPanels.flatMap((panel) => panel.visibleFields || []);
+    },
     addDsFieldChildren(field) {
       if (field.type === 'Options' || field.type === 'MultipleOptions') {
         return this.selectedAddDsOptionChildren(field);
@@ -542,8 +557,98 @@ export default {
       const selectedValue = this.addDsUiForm[field.field];
       const selectedValues = Array.isArray(selectedValue) ? selectedValue.map(String) : [String(selectedValue)];
       return (field.options || [])
-        .filter((option) => selectedValues.includes(String(option.value ?? option.securityType)))
+        .filter((option) => selectedValues.includes(String(this.optionValue(option))))
         .flatMap((option) => option.children || []);
+    },
+    optionValue(option) {
+      if (!option || typeof option !== 'object') {
+        return option;
+      }
+      return option.value ?? option.securityType ?? option.defaultValue ?? '';
+    },
+    validateDynamicAddDsFields() {
+      this.syncCompositeAddDsFields();
+      const errors = {};
+      this.visibleAddDsFieldsFlat().forEach((field) => {
+        if (!this.isDynamicFieldRequired(field) || this.skipDynamicFieldValidate(field)) {
+          return;
+        }
+        const message = this.requiredFieldMessage(field);
+        if (field.type === 'NetworkAddress') {
+          this.validateNetworkAddressField(field, errors, message);
+          return;
+        }
+        if (this.isEmptyAddDsFieldValue(this.addDsUiForm[field.field], field)) {
+          errors[field.field] = message;
+        }
+      });
+      this.dynamicFieldErrors = errors;
+      this.switchToFirstDynamicErrorPanel(errors);
+      return Object.keys(errors).length === 0;
+    },
+    switchToFirstDynamicErrorPanel(errors) {
+      const errorFields = Object.keys(errors);
+      if (!errorFields.length) {
+        return;
+      }
+      const errorPanel = this.visibleAddDsPanels.find((panel) => (panel.visibleFields || []).some((field) => errorFields.includes(field.field)));
+      if (errorPanel) {
+        this.activeAddDsPanelKey = errorPanel.key;
+      }
+    },
+    skipDynamicFieldValidate(field) {
+      if (this.editMode && field.type === 'Password' && String(this.addDsUiForm[field.field] || '') === '') {
+        return true;
+      }
+      return field.field === 'securityType' || ['EnvironmentSelect', 'ClusterSelect', 'DriverSelection'].includes(field.type);
+    },
+    isDynamicFieldRequired(field) {
+      return field.require === true || field.required === true || field.valueRequire === true || field.type === 'CertificateInput';
+    },
+    validateNetworkAddressField(field, errors, message) {
+      const addressField = this.findChildField(field, 'address');
+      const portField = this.findChildField(field, 'port');
+      const address = this.addDsUiForm.address || '';
+      const port = this.addDsUiForm.port || '';
+      const host = this.addDsUiForm[field.field] || '';
+      const shouldValidatePort =
+        !!portField ||
+        Object.prototype.hasOwnProperty.call(this.addDsUiForm, 'port') ||
+        Object.prototype.hasOwnProperty.call(this.addDataSourceForm, 'port');
+      let hasError = false;
+      if (addressField && this.isEmptyAddDsFieldValue(address, addressField)) {
+        errors[`${field.field}.address`] = this.requiredFieldMessage(addressField);
+        hasError = true;
+      }
+      if (shouldValidatePort && this.isEmptyAddDsFieldValue(port, portField || field)) {
+        errors[`${field.field}.port`] = this.requiredFieldMessage(portField || field);
+        hasError = true;
+      }
+      if (!addressField && !portField && this.isEmptyAddDsFieldValue(host, field)) {
+        errors[`${field.field}.address`] = message;
+        hasError = true;
+      }
+      if (hasError) {
+        errors[field.field] = message;
+      }
+    },
+    findChildField(field, childName) {
+      return (field.children || []).find((child) => child.field === childName);
+    },
+    isEmptyAddDsFieldValue(value, field) {
+      if (field.type === 'Check') {
+        return value !== true;
+      }
+      if (field.type === 'CertificateInput') {
+        return !value || String(value).trim() === '';
+      }
+      if (Array.isArray(value)) {
+        return value.length === 0;
+      }
+      return value === undefined || value === null || String(value).trim() === '';
+    },
+    requiredFieldMessage(field) {
+      return this.$t('bu-neng-wei-kong');
     },
     isAddDsFieldActive(field) {
       const expr = field.activeExpr;
@@ -565,11 +670,39 @@ export default {
       this.activeAddDsPanelKey = this.visibleAddDsPanels[0]?.key || '';
     },
     syncAddDsUiFormToKvConfigs() {
+      this.syncCompositeAddDsFields();
       this.addDataSourceForm.dsKvConfigs.forEach((config) => {
         if (Object.prototype.hasOwnProperty.call(this.addDsUiForm, config.configName)) {
           config.currentCount = this.addDsUiForm[config.configName];
         }
       });
+    },
+    syncCompositeAddDsFields() {
+      this.visibleAddDsFieldsFlat().forEach((field) => {
+        if (field.type === 'NetworkAddress') {
+          this.syncNetworkAddressField(field);
+        }
+      });
+    },
+    syncNetworkAddressField(field) {
+      const address = this.formValueOrDefault(this.addDsUiForm, 'address', this.addDataSourceForm.address);
+      const port = this.formValueOrDefault(this.addDsUiForm, 'port', this.addDataSourceForm.port);
+      let host = this.formValueOrDefault(this.addDsUiForm, field.field, this.addDataSourceForm.host);
+      if (address) {
+        host = port ? `${address}:${port}` : address;
+      }
+      this.addDsUiForm.address = address;
+      this.addDsUiForm.port = port;
+      this.addDsUiForm[field.field] = host;
+      this.addDataSourceForm.address = address;
+      this.addDataSourceForm.port = port;
+      this.addDataSourceForm.host = host;
+    },
+    formValueOrDefault(form, fieldName, defaultValue) {
+      if (form && Object.prototype.hasOwnProperty.call(form, fieldName)) {
+        return form[fieldName] ?? '';
+      }
+      return defaultValue || '';
     },
     getAddDsConfigMap() {
       const configMap = {};
@@ -636,7 +769,7 @@ export default {
 
 <style lang="less" scoped>
 .add-datasource-step1 {
-  padding: 16px 18px;
+  padding: 24px 28px;
 
   &.is-form-step {
     padding: 0;
@@ -660,8 +793,8 @@ export default {
   display: flex;
   width: 100%;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 18px;
+  gap: 8px;
+  margin-bottom: 12px;
 
   &:last-child {
     margin-bottom: 0;
@@ -672,13 +805,19 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 160px;
-  height: 52px;
+  width: 148px;
+  height: 46px;
   margin: 0 !important;
   padding: 0;
-  border-radius: 4px !important;
+  border: 1px solid var(--border-primary) !important;
+  border-radius: 6px !important;
+  background: var(--bg-card);
   line-height: normal;
   text-align: center;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    background-color 0.16s ease;
   vertical-align: top;
   white-space: normal;
 
@@ -689,6 +828,17 @@ export default {
   :deep(.ivu-radio-inner) {
     display: none;
   }
+
+  &:hover {
+    border-color: var(--border-secondary) !important;
+    background: var(--bg-secondary);
+  }
+
+  &.ivu-radio-wrapper-checked {
+    border-color: var(--primary-color) !important;
+    background: var(--bg-card);
+    box-shadow: inset 0 0 0 1px var(--primary-color);
+  }
 }
 
 .add-ds-ui-panel-preview {
@@ -697,27 +847,27 @@ export default {
   background: var(--bg-card);
 
   :deep(.ivu-tabs-bar) {
-    height: 54px;
+    height: 48px;
     margin-bottom: 0;
     padding: 0 24px;
-    border-bottom: 1px solid var(--border-primary);
-    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-light);
+    background: var(--bg-card);
   }
 
   :deep(.ivu-tabs-nav-container),
   :deep(.ivu-tabs-nav-wrap),
   :deep(.ivu-tabs-nav-scroll),
   :deep(.ivu-tabs-nav) {
-    height: 54px;
+    height: 48px;
   }
 
   :deep(.ivu-tabs-bar .ivu-tabs-tab) {
     display: inline-flex !important;
-    height: 54px;
+    height: 48px;
     align-items: center;
     justify-content: center;
     margin-right: 6px;
-    padding: 0 24px !important;
+    padding: 0 18px !important;
     border: none !important;
     border-radius: 0;
     background: transparent !important;
@@ -729,7 +879,7 @@ export default {
   :deep(.ivu-tabs-bar .ivu-tabs-tab-active) {
     position: relative;
     background: transparent !important;
-    color: var(--primary-color) !important;
+    color: var(--text-primary) !important;
     font-weight: 500;
 
     &::after {
@@ -749,7 +899,7 @@ export default {
 
   :deep(.ivu-tabs-content) {
     overflow: visible;
-    padding: 28px 32px 36px;
+    padding: 24px 32px 40px;
   }
 
   :deep(.ivu-tabs-tabpane) {
@@ -757,12 +907,37 @@ export default {
   }
 }
 
+.add-datasource-form-stage {
+  :deep(.ivu-form-item-required .ivu-form-item-label::before),
+  :deep(.ivu-form-item-label::before) {
+    display: none !important;
+    margin-right: 0 !important;
+    content: '' !important;
+  }
+
+  :deep(.ivu-form-item-required .ivu-input),
+  :deep(.ivu-form-item-required .ivu-select-selection),
+  :deep(.ivu-form-item-required .ivu-btn),
+  :deep(.ivu-form-item-required .ivu-radio-group),
+  :deep(.ivu-form-item-required .ivu-checkbox-inner) {
+    box-shadow: inset 0 -1px 0 var(--error-color);
+  }
+
+  :deep(.ivu-form-item-required .ivu-input:focus),
+  :deep(.ivu-form-item-required .ivu-select-visible .ivu-select-selection) {
+    box-shadow:
+      inset 0 -1px 0 var(--error-color),
+      0 0 0 2px rgba(62, 207, 142, 0.15);
+  }
+}
+
 .add-ds-name-form {
-  padding: 28px 32px 0;
+  padding: 24px 32px 4px;
   background: var(--bg-card);
+  border-bottom: 1px solid var(--border-light);
 
   :deep(.ivu-form-item) {
-    margin-bottom: 26px;
+    margin-bottom: 20px;
   }
 }
 
@@ -776,24 +951,24 @@ export default {
   width: 100%;
   height: 100%;
   align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
+  gap: 8px;
+  padding: 7px 10px;
   text-align: left;
 }
 
 .datasource-type-icon {
   display: flex;
-  width: 34px;
-  flex: 0 0 34px;
+  width: 30px;
+  flex: 0 0 30px;
   align-items: center;
   justify-content: center;
-  height: 34px;
+  height: 30px;
   line-height: 1;
 
   :deep(> div) {
     display: inline-flex !important;
-    width: 34px;
-    height: 34px;
+    width: 30px;
+    height: 30px;
     align-items: center;
     justify-content: center;
   }
@@ -804,9 +979,9 @@ export default {
   flex: 1;
   min-width: 0;
   overflow: hidden;
-  color: #17233d;
-  font-size: 14px;
-  line-height: 18px;
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 17px;
   white-space: normal;
   word-break: break-word;
   -webkit-line-clamp: 2;

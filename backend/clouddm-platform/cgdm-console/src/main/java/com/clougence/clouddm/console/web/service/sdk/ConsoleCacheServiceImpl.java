@@ -49,17 +49,7 @@ public class ConsoleCacheServiceImpl implements CacheService {
     }
 
     @Override
-    public Object cacheAndReturn(String key, Object obj) {
-        return LocalCacheComponent.getInstance().cacheAndReturn(key, obj, DEFAULT_TTL);
-    }
-
-    @Override
     public Object getObjectIfAbsent(String key, int timeout, TimeUnit timeUnit, EFunction<String, Object, Exception> absent) throws Exception {
         return LocalCacheComponent.getInstance().getObjectIfAbsent(key, Duration.ofMillis(timeUnit.toMillis(timeout)), absent);
-    }
-
-    @Override
-    public Object cacheAndReturn(String key, Object obj, int timeout, TimeUnit timeUnit) {
-        return LocalCacheComponent.getInstance().cacheAndReturn(key, obj, Duration.ofMillis(timeUnit.toMillis(timeout)));
     }
 }

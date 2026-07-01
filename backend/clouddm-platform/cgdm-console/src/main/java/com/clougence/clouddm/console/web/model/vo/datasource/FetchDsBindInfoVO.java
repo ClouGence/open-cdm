@@ -31,8 +31,6 @@ import lombok.Setter;
 public class FetchDsBindInfoVO {
 
     private List<DsEnvVO>         envs;
-
     private List<ClusterVO>       clusters;
-
     private List<DsBindEnvNodeVO> envClusterTree;
 }

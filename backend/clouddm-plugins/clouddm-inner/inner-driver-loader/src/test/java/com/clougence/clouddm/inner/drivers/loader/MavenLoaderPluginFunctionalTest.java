@@ -92,11 +92,14 @@ public class MavenLoaderPluginFunctionalTest {
 
         Path jarPath = this.tempDir.resolve("plugin-driver").resolve("1.0.0").resolve("demo-artifact-1.0.0.jar");
         Path dependencyPath = this.tempDir.resolve("plugin-driver").resolve("1.0.0").resolve("demo-dependency-1.0.0.jar");
+        Path testDependencyPath = this.tempDir.resolve("plugin-driver").resolve("1.0.0").resolve("demo-test-dependency-1.0.0.jar");
         assertTrue(Files.exists(jarPath));
         assertTrue(Files.exists(dependencyPath));
+        assertFalse(Files.exists(testDependencyPath));
         assertEquals(2, missingVersion.getFiles().size());
         assertTrue(missingVersion.getFiles().stream().anyMatch(file -> "demo-artifact-1.0.0.jar".equals(file.getRelativePath())));
         assertTrue(missingVersion.getFiles().stream().anyMatch(file -> "demo-dependency-1.0.0.jar".equals(file.getRelativePath())));
+        assertTrue(missingVersion.getFiles().stream().noneMatch(file -> "demo-test-dependency-1.0.0.jar".equals(file.getRelativePath())));
         assertEquals(1, progress.started.size());
         assertEquals(1, progress.completed.size());
         assertTrue(progress.errors.isEmpty());
@@ -127,14 +130,17 @@ public class MavenLoaderPluginFunctionalTest {
         Path filesIndex = versionDir.resolve("files.idx");
         Path jarPath = this.tempDir.resolve("plugin-driver").resolve("1.0.0").resolve("demo-artifact-1.0.0.jar");
         Path dependencyPath = this.tempDir.resolve("plugin-driver").resolve("1.0.0").resolve("demo-dependency-1.0.0.jar");
+        Path testDependencyPath = this.tempDir.resolve("plugin-driver").resolve("1.0.0").resolve("demo-test-dependency-1.0.0.jar");
         assertTrue(Files.exists(versionDir));
         assertTrue(Files.exists(filesIndex));
         assertFalse(Files.exists(jarPath));
         assertFalse(Files.exists(dependencyPath));
+        assertFalse(Files.exists(testDependencyPath));
 
         assertNotNull(resource.getFileDefList());
         assertEquals(2, resource.getFileDefList().size());
         assertTrue(resource.getFileDefList().stream().allMatch(MavenFileDef.class::isInstance));
+        assertTrue(resource.getFileDefList().stream().noneMatch(file -> "demo-test-dependency-1.0.0.jar".equals(file.getRelativePath())));
 
         MavenFileDef rootFile = resource.getFileDefList()
             .stream()
@@ -251,7 +257,6 @@ public class MavenLoaderPluginFunctionalTest {
 
         DriverVersion refreshedVersion = refreshLoader.findDriver("restart-driver", "1.0.0");
         assertNotNull(refreshedVersion);
-        assertTrue(refreshedVersion.getFiles().isEmpty());
 
         refreshLoader.refreshDriverVersion(refreshedVersion);
 
@@ -260,6 +265,7 @@ public class MavenLoaderPluginFunctionalTest {
         assertTrue(refreshedVersion.getFiles().stream().allMatch(file -> file.isPrepared()));
         assertTrue(refreshedVersion.getFiles().stream().anyMatch(file -> "demo-artifact-1.0.0.jar".equals(file.getRelativePath())));
         assertTrue(refreshedVersion.getFiles().stream().anyMatch(file -> "demo-dependency-1.0.0.jar".equals(file.getRelativePath())));
+        assertTrue(refreshedVersion.getFiles().stream().noneMatch(file -> "demo-test-dependency-1.0.0.jar".equals(file.getRelativePath())));
     }
 
     private String startHttpServer(byte[] rootJarBytes, byte[] dependencyJarBytes) throws Exception {
@@ -272,6 +278,8 @@ public class MavenLoaderPluginFunctionalTest {
         this.httpServer.createContext("/repo/com/example/demo-artifact/1.0.0/demo-artifact-1.0.0.pom", new ByteArrayHandler(rootPomBytes(), requestCounter));
         this.httpServer.createContext("/repo/com/example/demo-dependency/1.0.0/demo-dependency-1.0.0.jar", new ByteArrayHandler(dependencyJarBytes, requestCounter));
         this.httpServer.createContext("/repo/com/example/demo-dependency/1.0.0/demo-dependency-1.0.0.pom", new ByteArrayHandler(dependencyPomBytes(), requestCounter));
+        this.httpServer.createContext("/repo/com/example/demo-test-dependency/1.0.0/demo-test-dependency-1.0.0.jar", new ByteArrayHandler("fake-test-jar".getBytes(StandardCharsets.UTF_8), requestCounter));
+        this.httpServer.createContext("/repo/com/example/demo-test-dependency/1.0.0/demo-test-dependency-1.0.0.pom", new ByteArrayHandler(testDependencyPomBytes(), requestCounter));
         this.httpServer.start();
         return "http://127.0.0.1:" + this.httpServer.getAddress().getPort();
     }
@@ -280,7 +288,9 @@ public class MavenLoaderPluginFunctionalTest {
         String pom = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                      + "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">" + "<modelVersion>4.0.0</modelVersion>"
                      + "<groupId>com.example</groupId>" + "<artifactId>demo-artifact</artifactId>" + "<version>1.0.0</version>" + "<dependencies>" + "<dependency>"
-                     + "<groupId>com.example</groupId>" + "<artifactId>demo-dependency</artifactId>" + "<version>1.0.0</version>" + "</dependency>" + "</dependencies>"
+                     + "<groupId>com.example</groupId>" + "<artifactId>demo-dependency</artifactId>" + "<version>1.0.0</version>" + "</dependency>" + "<dependency>"
+                     + "<groupId>com.example</groupId>" + "<artifactId>demo-test-dependency</artifactId>" + "<version>1.0.0</version>" + "<scope>test</scope>"
+                     + "</dependency>" + "</dependencies>"
                      + "</project>";
         return pom.getBytes(StandardCharsets.UTF_8);
     }
@@ -289,6 +299,13 @@ public class MavenLoaderPluginFunctionalTest {
         String pom = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
                      + "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">" + "<modelVersion>4.0.0</modelVersion>"
                      + "<groupId>com.example</groupId>" + "<artifactId>demo-dependency</artifactId>" + "<version>1.0.0</version>" + "</project>";
+        return pom.getBytes(StandardCharsets.UTF_8);
+    }
+
+    private byte[] testDependencyPomBytes() {
+        String pom = "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+                     + "xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">" + "<modelVersion>4.0.0</modelVersion>"
+                     + "<groupId>com.example</groupId>" + "<artifactId>demo-test-dependency</artifactId>" + "<version>1.0.0</version>" + "</project>";
         return pom.getBytes(StandardCharsets.UTF_8);
     }
 

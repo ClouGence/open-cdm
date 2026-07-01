@@ -33,136 +33,92 @@ import lombok.Setter;
 public class DmChangeFlowDO {
     @TableId(type = IdType.AUTO)
     private Long                     id;
-
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
     private Date                     gmtCreate;
-
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
     private Date                     gmtModified;
-
     @TableField("owner_uid")
     private String                   ownerUid;
-
     @TableField("flow_uid")
     private String                   flowUid;
-
     @TableField("flow_name")
     private String                   flowName;
-
     @TableField("flow_desc")
     private String                   flowDesc;
-
     @TableField("flow_manager_uid")
     private String                   flowManagerUid;
-
     @TableField("flow_status")
     private ChangeFlowStatus         flowStatus;
-
     @TableField("flow_check")
     private ChangeCheckStrategy      flowCheck;
-
     @TableField("flow_approve")
     private ChangeApproveStrategy    flowApprove;
-
     @TableField("flow_execute")
     private ChangeExecStrategy       flowExecute;
-
     @TableField(value = "flow_options", typeHandler = JacksonTypeHandler.class)
     private RsChangeFlowOptionObj    flowOptions;
-
     @TableField(value = "flow_scm_options", typeHandler = JacksonTypeHandler.class)
     private RsChangeFlowScmOptionObj flowScmOptions;
-
     @TableField("ref_scm_id")
     private long                     refScmId;
-
     @TableField("ref_scm_type")
     private ScmType                  refScmType;
-
     @TableField("scm_repo_space")
     private String                   scmRepoSpace;
-
     @TableField("scm_repo_name")
     private String                   scmRepoName;
-
     @TableField("scm_repo_url")
     private String                   scmRepoUrl;
-
     @TableField("scm_repo_branch")
     private String                   scmRepoBranch;
-
     @TableField("scm_repo_event")
     private ScmEventType             scmRepoEvent;
-
     @TableField("scm_repo_script")
     private String                   scmRepoScript;
-
     @TableField("scm_repo_hook_pwd")
     private String                   scmBindWebhookPwd;
-
     @TableField("enable_hook")
     private boolean                  enableWebhook;
-
     @TableField("enable_trigger")
     private boolean                  enableTrigger;
-
     @TableField("trigger_token")
     private String                   triggerToken;
-
     @TableField("ds_id")
     private long                     dsId;
-
     @TableField("ds_type")
     private DataSourceType           dsType;
-
     @TableField("ds_instance")
     private String                   dsInstance;
-
     @TableField("ds_desc")
     private String                   dsDesc;
-
     @TableField("ds_path")
     private String                   dsPath;
-
     @TableField("ref_msg_id")
     private Long                     refMsgId;
-
     @TableField("ref_msg_type")
     private ImType                   refMsgType;
-
     @TableField("msg_language")
     private String                   msgLanguage;
-
     @TableField("enable_msg")
     private boolean                  enableMsg;
-
     @TableField("event_flow_status")
     private boolean                  eventFlowStatus;
-
     @TableField("event_flow_config")
     private boolean                  eventFlowConfig;
-
     @TableField("event_change_life")
     private boolean                  eventChangeLife;
-
     @TableField("event_change_notice")
     private boolean                  eventChangeNotice;
-
     @TableField("callback_url")
     private String                   callbackUrl;
-
     @TableField("callback_method")
     private String                   callbackMethod;
-
     @TableField("enable_callback")
     private boolean                  enableCallback;
-
     @TableField("flow_hashcode")
     private long                     flowHashcode;
-
     @TableField("enable")
     private boolean                  enable;
-
     @TableField("deleted")
     private boolean                  deleted;
 
@@ -179,10 +135,6 @@ public class DmChangeFlowDO {
     public long getRefFlowId() { return id == null ? 0 : id; }
 
     public void setRefFlowId(long refFlowId) { this.id = refFlowId; }
-
-    public long getFlowHashcode() { return flowHashcode; }
-
-    public void setFlowHashcode(long flowHashcode) { this.flowHashcode = flowHashcode; }
 
     public String getLanguage() { return msgLanguage; }
 

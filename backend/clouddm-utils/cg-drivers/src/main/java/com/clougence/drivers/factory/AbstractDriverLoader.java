@@ -203,6 +203,8 @@ public abstract class AbstractDriverLoader implements DriverLoader {
 
             ResourcePreparer preparer = getPreparer(driverResource.getResourceType());
             if (preparer == null) {
+                log.error("refresh driver resource failed, unsupported resourceType, family={}, version={}, resourceType={}, coordinate={}",//
+                        driverVersion.getFamilyName(), driverVersion.getVersion(), driverResource.getResourceType(), driverResource.getCoordinate());
                 driverResource.setPrepared(false);
                 allPrepared = false;
                 continue;
@@ -224,6 +226,8 @@ public abstract class AbstractDriverLoader implements DriverLoader {
                 }
 
                 driverResource.setPrepared(false);
+                log.error("refresh driver resource failed, resource metadata is not prepared and files.idx is missing, family={}, version={}, resourceType={}, coordinate={}",//
+                        driverVersion.getFamilyName(), driverVersion.getVersion(), driverResource.getResourceType(), driverResource.getCoordinate());
                 allPrepared = false;
             } catch (Exception e) {
                 if (!restoreFilesIndex(preparer, driverVersion, driverResource, e)) {
@@ -295,6 +299,8 @@ public abstract class AbstractDriverLoader implements DriverLoader {
                 allPrepared = allPrepared && driverResource.isPrepared();
                 progress.onComplete(ver, driverResource, currentIndex, resources.size());
             } catch (Exception e) {
+                log.error("prepare driver resource failed, family={}, version={}, resourceType={}, coordinate={}", ver.getFamilyName(), ver.getVersion(), driverResource
+                    .getResourceType(), driverResource.getCoordinate(), e);
                 progress.onError(ver, driverResource, e);
                 return;
             }

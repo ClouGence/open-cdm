@@ -26,13 +26,5 @@ public interface CacheService extends Service {
 
     Object getObjectIfAbsent(String key, EFunction<String, Object, Exception> absent) throws Exception;
 
-    Object cacheAndReturn(String key, Object obj);
-
-    default Object getObjectIfAbsent(String key, int timeout, TimeUnit timeUnit, EFunction<String, Object, Exception> absent) throws Exception {
-        return getObjectIfAbsent(key, absent);
-    }
-
-    default Object cacheAndReturn(String key, Object obj, int timeout, TimeUnit timeUnit) {
-        return cacheAndReturn(key, obj);
-    }
+    Object getObjectIfAbsent(String key, int timeout, TimeUnit timeUnit, EFunction<String, Object, Exception> absent) throws Exception;
 }

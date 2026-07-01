@@ -20,15 +20,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.clougence.clouddm.base.metadata.ds.ConfigValType;
-import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.config.UserConfigKvDef;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.constants.RdpTicketProcessActivityStatus;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
-import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
-import com.clougence.clouddm.console.web.model.fo.datasource.AddDsFO;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForAppend;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForDelete;
 import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForUpdate;
@@ -62,7 +59,6 @@ import com.clougence.utils.StringUtils;
 import com.clougence.utils.format.DateFormatType;
 import com.clougence.utils.format.WellKnowFormat;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -283,88 +279,8 @@ public class RdpConvertUtils {
         return vo;
     }
 
-    public static AddDsFO convertToAddDsFO(String data) {
-        if (StringUtils.isBlank(data)) {
-            return null;
-        }
-
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readValue(data, new TypeReference<AddDsFO>() {});
-        } catch (Exception e) {
-            String msg = "deserialize add ds info error.msg:" + ExceptionUtils.getRootCauseMessage(e);
-            log.error(msg, e);
-            throw new RuntimeException(msg, e);
-        }
-    }
-
-    public static UpdateSecurityInfoFO convertToUpdateSecurityInfoFO(String data) {
-        if (StringUtils.isBlank(data)) {
-            return null;
-        }
-
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readValue(data, new TypeReference<UpdateSecurityInfoFO>() {});
-        } catch (Exception e) {
-            String msg = "deserialize updateFO ds info error.msg:" + ExceptionUtils.getRootCauseMessage(e);
-            log.error(msg, e);
-            throw new RuntimeException(msg, e);
-        }
-    }
-
     public static RdpDsKvConfigVO convertToDsKvConfigVO(DsConfigKvDef config) {
         return convertToDsKvConfigVO(config, null);
-    }
-
-    public static List<DefaultDsKvConfigVO> convertToDefaultDsKvConfigVOList(List<DsConfigKvDef> configs) {
-        if (configs == null) {
-            return Collections.emptyList();
-        }
-        return configs.stream().map(RdpConvertUtils::convertToDefaultDsKvConfigVO).collect(Collectors.toList());
-    }
-
-    public static DefaultDsKvConfigVO convertToDefaultDsKvConfigVO(DsConfigKvDef config) {
-        DefaultDsKvConfigVO vo = new DefaultDsKvConfigVO();
-        vo.setDescription(DmI18nUtils.getMessage(config.getDescKey()));
-        vo.setConfigName(config.getConfigName());
-        vo.setConfigGroup(config.getConfigGroup());
-        vo.setValueRequire(config.isValueRequire());
-        vo.setDefaultValue(config.getDefaultValue());
-        vo.setConfValType(config.getConfValType() == null ? ConfigValType.TEXT : config.getConfValType());
-        vo.setLazy(config.isLazy());
-        return vo;
-    }
-
-    public static List<com.clougence.clouddm.console.web.model.vo.DsSecurityOption> convertToDsSecurityOptions(List<SecurityType> securityTypes) {
-        List<com.clougence.clouddm.console.web.model.vo.DsSecurityOption> result = new ArrayList<>();
-        if (securityTypes == null) {
-            return result;
-        }
-
-        for (SecurityType securityType : securityTypes) {
-            result.add(convertToDsSecurityOption(securityType));
-        }
-        return result;
-    }
-
-    private static com.clougence.clouddm.console.web.model.vo.DsSecurityOption convertToDsSecurityOption(SecurityType securityType) {
-        com.clougence.clouddm.console.web.model.vo.DsSecurityOption.DsSecurityOptionBuilder builder = com.clougence.clouddm.console.web.model.vo.DsSecurityOption.builder()
-            .securityType(securityType)
-            .securityTypeI18nName(securityType == null ? null : DmI18nUtils.getMessage(securityType.getI18nKey()));
-
-        if (securityType == null) {
-            return builder.build();
-        }
-
-        return switch (securityType) {
-            case ONLY_USER -> builder.needUserName(true).needPassword(false).build();
-            case ONLY_PASSWD -> builder.needUserName(false).needPassword(true).defaultCheck(true).build();
-            case USER_PASSWD -> builder.needUserName(true).needPassword(true).defaultCheck(true).build();
-            case AK_SK -> builder.needAkSk(true).defaultCheck(true).build();
-            case API_KEY -> builder.needApiKey(true).defaultCheck(true).build();
-            default -> builder.needUserName(false).needPassword(false).build();
-        };
     }
 
     public static RdpUserConfigVO convertToUserConfigVO(UserConfigKvDef config) {
@@ -433,24 +349,6 @@ public class RdpConvertUtils {
 
         vo.setConfigGroup(config.getConfigGroup());
         vo.setConfigName(config.getConfigName());
-        return vo;
-    }
-
-    public static RdpDataSourceVO convertToRdpDataSourceVO(DmDsDO dsDO) {
-        RdpDataSourceVO vo = new RdpDataSourceVO();
-
-        vo.setId(dsDO.getId());
-        vo.setInstanceId(dsDO.getInstanceId());
-        vo.setInstanceDesc(dsDO.getInstanceDesc());
-        vo.setDataSourceType(dsDO.getDataSourceType());
-        vo.setVersion(dsDO.getVersion());
-        vo.setGmtCreate(dsDO.getGmtCreate());
-        vo.setHost(dsDO.getHost());
-
-        vo.setHasPassword(StringUtils.isNotBlank(dsDO.getAccessKey()) || StringUtils.isNotBlank(dsDO.getSecretKey()));
-        vo.setAccountName(dsDO.getAccessKey());
-        vo.setLifeCycleState(dsDO.getLifeCycleState());
-        vo.setSecurityType(dsDO.getSecurityType());
         return vo;
     }
 

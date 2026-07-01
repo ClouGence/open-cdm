@@ -49,7 +49,7 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
 /** @author mode 2024/12/25 15:13 */
-@Plugin(name = "i18n::" + PorMyDsI18nKeys.PLUGIN_NAME_POLARDB_MYSQL, //
+@Plugin(name = "i18n::" + PorMyDsI18nKeys.PLUGIN_NAME_POLARDB_MYSQL,         //
         includePackages = { "com.clougence.clouddm.dsfamily.execute.*",      //
                             "com.clougence.clouddm.dsfamily.mysql.execute.*",//
                             "com.clougence.clouddm.ds.polardb.execute.pormy.*"//

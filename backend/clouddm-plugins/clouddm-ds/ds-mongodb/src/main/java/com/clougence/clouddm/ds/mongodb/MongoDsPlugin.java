@@ -43,7 +43,7 @@ import com.clougence.schema.SchemaPlugin;
 /**
  * @author mode 2021/4/25 15:13
  */
-@Plugin(name = "i18n::" + MongoDsI18nKeys.PLUGIN_NAME_MONGODB, //
+@Plugin(name = "i18n::" + MongoDsI18nKeys.PLUGIN_NAME_MONGODB,          //
         includePackages = { "com.clougence.clouddm.dsfamily.execute.*", //
                             "com.clougence.clouddm.ds.mongodb.execute.*"//
         }, dsProduct = DataSourceType.MongoDB)

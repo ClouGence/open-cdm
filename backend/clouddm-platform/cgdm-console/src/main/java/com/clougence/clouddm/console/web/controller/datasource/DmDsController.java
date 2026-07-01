@@ -336,29 +336,21 @@ public class DmDsController {
         if (StringUtils.isBlank(message)) {
             message = e.getMessage();
         }
-        if (StringUtils.isBlank(message)) {
-            return message;
-        }
-        while (true) {
-            String stripped = message.replaceFirst("^(?:[\\w.$]+Exception|[\\w.$]+Error):\\s*", "");
-            if (stripped.equals(message)) {
-                return shortenConnectError(message, dsType);
-            }
-            message = stripped;
-        }
+        return stripExceptionPrefix(message);
     }
 
-    private String shortenConnectError(String message, DataSourceType dsType) {
+    private String stripExceptionPrefix(String message) {
         if (StringUtils.isBlank(message)) {
             return message;
         }
-        if (StringUtils.contains(message, "failed to decrypt safe contents entry") || StringUtils.contains(message, "BadPaddingException")) {
-            if (dsType == DataSourceType.MySQL) {
-                return "MySQL KeyStore/TrustStore password is incorrect.";
+        String result = message;
+        while (true) {
+            String stripped = result.replaceFirst("^(?:[\\w.$]+Exception|[\\w.$]+Error):\\s*", "");
+            if (stripped.equals(result)) {
+                return result;
             }
-            return "KeyStore/TrustStore password is incorrect.";
+            result = stripped;
         }
-        return message;
     }
 
     // form Utils

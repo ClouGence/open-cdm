@@ -92,7 +92,27 @@ export default {
 </script>
 
 <style scoped lang="less">
-.second-confirm-danger-button {
-  color: #ed4014;
+:deep(.second-confirm-danger-button) {
+  min-width: 112px;
+  font-weight: 500;
+
+  &:not([disabled]) {
+    background: var(--error-color, #ff1815);
+    border-color: var(--error-color, #ff1815);
+    color: #ffffff;
+  }
+
+  &:not([disabled]):hover,
+  &:not([disabled]):focus {
+    background: #ff4d4f;
+    border-color: #ff4d4f;
+    color: #ffffff;
+  }
+
+  &:not([disabled]):active {
+    background: #d9363e;
+    border-color: #d9363e;
+    color: #ffffff;
+  }
 }
 </style>

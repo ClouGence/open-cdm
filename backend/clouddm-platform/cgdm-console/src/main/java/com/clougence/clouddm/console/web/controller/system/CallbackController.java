@@ -185,7 +185,7 @@ public class CallbackController {
             String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PRIMARY_ACCOUNT_DISABLED.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_OWNER_ERROR.name(), message);
         }
-        if (!this.loginDefService.checkLoginEnable(primaryUser.getUid(), providerEnum)) {
+        if (!this.loginDefService.checkLoginEnable(providerEnum)) {
             String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_NOT_ENABLE.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_OWNER_ERROR.name(), message);
         }

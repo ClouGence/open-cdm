@@ -74,10 +74,7 @@ module.exports = {
       '/api': {
         target: HOST,
         changeOrigin: true,
-        ws: true,
-        pathRewrite: {
-          '^/api': ''
-        }
+        ws: true
       },
       '/login': {
         target: HOST

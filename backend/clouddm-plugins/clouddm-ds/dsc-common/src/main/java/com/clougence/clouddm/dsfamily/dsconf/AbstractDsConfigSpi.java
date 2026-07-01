@@ -13,20 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.ds.common.dsconf;
+package com.clougence.clouddm.dsfamily.dsconf;
 
+import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
+import com.clougence.clouddm.base.metadata.ds.SslMode;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
 import com.clougence.utils.StringUtils;
 
 public abstract class AbstractDsConfigSpi implements DsConfigSpi {
 
+    private static final List<String> TEXT_CERTIFICATE_TYPES   = List.of("pem", "key", "crt", "cer");
+    private static final List<String> BINARY_CERTIFICATE_TYPES = List.of("pem", "key", "crt", "cer", "pk8", "p12", "pfx", "jks");
+    private static final List<String> KEYSTORE_TYPES           = List.of("p12", "pfx", "jks");
+
     @Override
     public void customizePanels(Map<DsConfigGroup, UiPanel> panels) {
+    }
+
+    @Override
+    public List<String> certificateTextFileTypes(SslMode sslMode, String configName) {
+        if (sslMode == SslMode.TRUSTSTORE || sslMode == SslMode.KEYSTORE_TRUSTSTORE) {
+            return List.of();
+        }
+        return TEXT_CERTIFICATE_TYPES;
+    }
+
+    @Override
+    public List<String> certificateBinaryFileTypes(SslMode sslMode, String configName) {
+        if (sslMode == SslMode.TRUSTSTORE || sslMode == SslMode.KEYSTORE_TRUSTSTORE) {
+            return KEYSTORE_TYPES;
+        }
+        return BINARY_CERTIFICATE_TYPES;
     }
 
     @Override

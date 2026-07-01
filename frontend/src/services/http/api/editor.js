@@ -1,27 +1,27 @@
 export const editorApi = {
-  // editorDef: '/clouddm/console/api/v1/editor/table/editorDef',*
-  // initEditor: '/clouddm/console/api/v1/editor/table/initEditor',*
-  // tableGenerateScript: '/clouddm/console/api/v1/editor/table/generateScript',*
-  // scriptExecute: '/clouddm/console/api/v1/editor/table/scriptExecute',*
-  // fetchData: '/clouddm/console/api/v1/editor/data/fetchData',*
-  // fetchCount: '/clouddm/console/api/v1/editor/data/fetchCount',*
-  // generateDml: '/clouddm/console/api/v1/editor/data/generateDml',*
-  // saveData: '/clouddm/console/api/v1/editor/data/saveData',*
-  // fetchReferencedColumns: '/clouddm/console/api/v1/editor/table/fetchReferencedColumns',*
-  // propertiesDef: '/clouddm/console/api/v1/editor/properties/propertiesDef',
-  // getProperties: '/clouddm/console/api/v1/editor/properties/getProperties',
+  // editorDef: '/api/entry/editor/table/editorDef',*
+  // initEditor: '/api/entry/editor/table/initEditor',*
+  // tableGenerateScript: '/api/entry/editor/table/generateScript',*
+  // scriptExecute: '/api/entry/editor/table/scriptExecute',*
+  // fetchData: '/api/entry/editor/data/fetchData',*
+  // fetchCount: '/api/entry/editor/data/fetchCount',*
+  // generateDml: '/api/entry/editor/data/generateDml',*
+  // saveData: '/api/entry/editor/data/saveData',*
+  // fetchReferencedColumns: '/api/entry/editor/table/fetchReferencedColumns',*
+  // propertiesDef: '/api/entry/editor/properties/propertiesDef',
+  // getProperties: '/api/entry/editor/properties/getProperties',
 
   // dm
-  dmEditorTableEditorDef: '/clouddm/console/api/v1/editor/table/editorDef',
-  dmEditorTableInitEditor: '/clouddm/console/api/v1/editor/table/initEditor',
-  dmEditorTableGenerateScript: '/clouddm/console/api/v1/editor/table/generateScript',
-  dmEditorTableScriptExecute: '/clouddm/console/api/v1/editor/table/scriptExecute',
+  dmEditorTableEditorDef: '/api/entry/editor/table/editorDef',
+  dmEditorTableInitEditor: '/api/entry/editor/table/initEditor',
+  dmEditorTableGenerateScript: '/api/entry/editor/table/generateScript',
+  dmEditorTableScriptExecute: '/api/entry/editor/table/scriptExecute',
 
-  dmEditorDataFetchData: '/clouddm/console/api/v1/editor/data/fetchData',
-  dmEditorDataFetchCount: '/clouddm/console/api/v1/editor/data/fetchCount',
-  dmEditorDataGenerateDml: '/clouddm/console/api/v1/editor/data/generateDml',
-  dmEditorDataSaveData: '/clouddm/console/api/v1/editor/data/saveData',
+  dmEditorDataFetchData: '/api/entry/editor/data/fetchData',
+  dmEditorDataFetchCount: '/api/entry/editor/data/fetchCount',
+  dmEditorDataGenerateDml: '/api/entry/editor/data/generateDml',
+  dmEditorDataSaveData: '/api/entry/editor/data/saveData',
 
-  dmEditorPropertiesPropertiesDef: '/clouddm/console/api/v1/editor/properties/propertiesDef',
-  dmEditorPropertiesGetProperties: '/clouddm/console/api/v1/editor/properties/getProperties'
+  dmEditorPropertiesPropertiesDef: '/api/entry/editor/properties/propertiesDef',
+  dmEditorPropertiesGetProperties: '/api/entry/editor/properties/getProperties'
 };

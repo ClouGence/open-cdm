@@ -1,12 +1,12 @@
 <template>
-  <div class="content-wrapper">
+  <div class="content-wrapper datasource-page">
     <second-confirm-modal
       :title="$t('shan-chu-shu-ju-yuan')"
       :event="SECOND_CONFIRM_EVENT_LIST.DELETE_DATASOURCE"
       :confirm-text="selectedRow.instanceId"
       :visible="showDeleteDataSourceConfirm"
       :confirm-button-text="$t('shan-chu-shu-ju-yuan')"
-      confirm-button-type="text"
+      confirm-button-type="error"
       confirm-button-danger
       hide-cancel-button
       disable-confirm-until-matched
@@ -22,117 +22,131 @@
         {{ $t('qing-zai-xia-fang-zhong-fu-shu-ru-gai-id') }}
       </Alert>
     </second-confirm-modal>
-    <DataSourceHeader
-      :handleSearch="getDataSourceList"
-      :searchKey="searchKey"
-      :supportAdd="canManageDataSource"
-      :handleShowAddDataSource="handleShowAddDataSource"
-      :handleChangeSearchType="handleChangeSearchType"
-      :refreshLoading="refreshLoading"
-      @update-search-key="handleUpdateSearchKey"
-    ></DataSourceHeader>
-    <div class="data-source-container datasource-list-panel">
-      <div class="datasource-table-wrap">
-        <Table class="datasource-table" :columns="dataSourceColumn" :data="showData" :loading="refreshLoading">
-          <template #instanceId="{ row }">
-            <div class="datasource-identity">
-              <DataSourceIcon class="datasource-type-icon" size="32px" :type="row.dataSourceType" :instanceType="row.deployType"></DataSourceIcon>
-              <div class="datasource-info-text">
-                <div class="datasource-main-info">
-                  <Tooltip :content="row.instanceDesc || $t('zan-wu-miao-shu')" placement="bottom" transfer>
-                    <span class="datasource-primary-content datasource-name">
-                      {{ row.instanceDesc || $t('zan-wu-miao-shu') }}
-                    </span>
-                  </Tooltip>
-                  <CustomIcon
-                    class="iconfont icon datasource-edit-icon"
-                    v-if="myAuth.includes('RDP_DS_MANAGE') || myAuth.includes('RDP_ALL_DATASOURCE_MANAGE')"
-                    @click="handleEditDataSourceDesc(row)"
-                    type="icon-v2-EditingPen"
-                    size="16px"
-                  />
-                  <Tooltip v-if="row.lifeCycleState !== 'CREATED'" :content="$t('shu-ju-yuan-zheng-zai-chuang-jian-zhong')" placement="top" transfer>
-                    <span class="datasource-creating-indicator"></span>
-                  </Tooltip>
-                  <div>
-                    <Tooltip
-                      placement="right"
-                      class="alarm-icon"
-                      transfer
-                      :content="$t('cun-zai-yi-chang-de-hou-tai-ren-wu-qing-dian-ji-chu-li')"
-                      v-if="row.consoleTaskState === 'FAILED'"
-                    >
-                      <span style="display: inline-block; margin-left: 6px" @click="handleGoConsoleJob(row)">
-                        <i class="iconfont iconyibuforce"></i>
-                      </span>
-                    </Tooltip>
+    <div class="table-list-layout datasource-list-layout">
+      <div class="table-list">
+        <div class="content">
+          <DataSourceHeader
+            :handleSearch="getDataSourceList"
+            :searchKey="searchKey"
+            :supportAdd="canManageDataSource"
+            :handleShowAddDataSource="handleShowAddDataSource"
+            :handleChangeSearchType="handleChangeSearchType"
+            :refreshLoading="refreshLoading"
+            @update-search-key="handleUpdateSearchKey"
+          ></DataSourceHeader>
+          <div class="table-container data-source-container datasource-list-panel">
+            <div class="datasource-table-wrap">
+              <Table class="datasource-table" :columns="dataSourceColumn" :data="showData" :loading="refreshLoading">
+                <template #instanceId="{ row }">
+                  <div class="datasource-identity">
+                    <DataSourceIcon
+                      class="datasource-type-icon"
+                      size="32px"
+                      :type="row.dataSourceType"
+                      :instanceType="row.deployType"
+                    ></DataSourceIcon>
+                    <div class="datasource-info-text">
+                      <div class="datasource-main-info">
+                        <Tooltip :content="row.instanceDesc || $t('zan-wu-miao-shu')" placement="bottom" transfer>
+                          <span class="datasource-primary-content datasource-name">
+                            {{ row.instanceDesc || $t('zan-wu-miao-shu') }}
+                          </span>
+                        </Tooltip>
+                        <CustomIcon
+                          class="iconfont icon datasource-edit-icon"
+                          v-if="myAuth.includes('RDP_DS_MANAGE') || myAuth.includes('RDP_ALL_DATASOURCE_MANAGE')"
+                          @click="handleEditDataSourceDesc(row)"
+                          type="icon-v2-EditingPen"
+                          size="16px"
+                        />
+                        <Tooltip
+                          v-if="row.lifeCycleState !== 'CREATED'"
+                          :content="$t('shu-ju-yuan-zheng-zai-chuang-jian-zhong')"
+                          placement="top"
+                          transfer
+                        >
+                          <span class="datasource-creating-indicator"></span>
+                        </Tooltip>
+                        <div>
+                          <Tooltip
+                            placement="right"
+                            class="alarm-icon"
+                            transfer
+                            :content="$t('cun-zai-yi-chang-de-hou-tai-ren-wu-qing-dian-ji-chu-li')"
+                            v-if="row.consoleTaskState === 'FAILED'"
+                          >
+                            <span style="display: inline-block; margin-left: 6px" @click="handleGoConsoleJob(row)">
+                              <i class="iconfont iconyibuforce"></i>
+                            </span>
+                          </Tooltip>
+                        </div>
+                      </div>
+                      <div class="data-job-desc datasource-secondary-content datasource-id-text">
+                        {{ row.instanceId }}
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div class="data-job-desc datasource-secondary-content datasource-id-text">
-                  {{ row.instanceId }}
-                </div>
-              </div>
+                </template>
+                <template #action="{ row }">
+                  <div v-if="canManageDataSource" class="datasource-action-group">
+                    <Button
+                      type="text"
+                      size="small"
+                      :loading="testingDataSourceId === row.id"
+                      :disabled="row.lifeCycleState !== 'CREATED' || testingDataSourceId !== null"
+                      @click="handleTestConnection(row)"
+                    >
+                      {{ $t('ce-shi') }}
+                    </Button>
+                    <Button type="text" size="small" @click="handleKvConfigs(row)">
+                      {{ $t('bian-ji') }}
+                    </Button>
+                    <Button type="text" size="small" class="datasource-action-danger" @click="handleDeleteConfirm(row)">
+                      {{ $t('shan-chu') }}
+                    </Button>
+                  </div>
+                </template>
+                <template #host="{ row }">
+                  <div class="host-type">
+                    <p class="datasource-primary-content">{{ row.publicHost || row.privateHost || row.host || '-' }}</p>
+                  </div>
+                </template>
+                <template #instanceDesc="{ row }">
+                  <div style="position: relative">
+                    <Tooltip :content="row.instanceDesc" placement="right" transfer>
+                      <span class="datasource-desc-content">{{ row.instanceDesc }}</span>
+                    </Tooltip>
+                    <CustomIcon
+                      type="icon-v2-EditSimple"
+                      size="13px"
+                      @click="handleEditDataSourceDesc(row)"
+                      hoverStyle
+                      style="position: absolute; right: 5px; top: 3px"
+                    />
+                  </div>
+                </template>
+              </Table>
             </div>
-          </template>
-          <template #action="{ row }">
-            <div v-if="canManageDataSource" class="datasource-action-group">
-              <Button
-                type="text"
-                size="small"
-                :loading="testingDataSourceId === row.id"
-                :disabled="row.lifeCycleState !== 'CREATED' || testingDataSourceId !== null"
-                @click="handleTestConnection(row)"
-              >
-                {{ $t('ce-shi') }}
-              </Button>
-              <Button type="text" size="small" @click="handleKvConfigs(row)">
-                {{ $t('bian-ji') }}
-              </Button>
-              <Button type="text" size="small" class="datasource-action-danger" @click="handleDeleteConfirm(row)">
-                {{ $t('shan-chu') }}
-              </Button>
-            </div>
-          </template>
-          <template #host="{ row }">
-            <div class="host-type">
-              <p class="datasource-primary-content">{{ row.publicHost || row.privateHost || row.host || '-' }}</p>
-            </div>
-          </template>
-          <template #instanceDesc="{ row }">
-            <div style="position: relative">
-              <Tooltip :content="row.instanceDesc" placement="right" transfer>
-                <span class="datasource-desc-content">{{ row.instanceDesc }}</span>
-              </Tooltip>
-              <CustomIcon
-                type="icon-v2-EditSimple"
-                size="13px"
-                @click="handleEditDataSourceDesc(row)"
-                hoverStyle
-                style="position: absolute; right: 5px; top: 3px"
-              />
-            </div>
-          </template>
-        </Table>
-      </div>
-      <div class="page-footer-container datasource-list-footer">
-        <div class="page-footer-paging">
-          <Page
-            :total="total"
-            show-total
-            show-elevator
-            @on-change="handlePageChange"
-            show-sizer
-            :page-size="size"
-            @on-page-size-change="handlePageSizeChange"
-            :model-value="page"
-          />
+          </div>
         </div>
+      </div>
+      <div class="footer">
+        <Page
+          :total="total"
+          show-total
+          show-elevator
+          @on-change="handlePageChange"
+          show-sizer
+          :page-size="size"
+          @on-page-size-change="handlePageSizeChange"
+          :model-value="page"
+        />
       </div>
     </div>
     <!--    <Page class="page-container" :total="total" show-total show-elevator @on-change="handlePageChange" show-sizer-->
     <!--          :page-size="size"-->
     <!--          @on-page-size-change="handlePageSizeChange"/>-->
-    <CCModal v-model="showEditDesc" :title="$t('xiu-gai-shu-ju-yuan-miao-shu')" width="520px" :mask-closable="false">
+    <CCModal v-model="showEditDesc" :title="$t('xiu-gai-shu-ju-yuan-ming-cheng')" width="520px" :mask-closable="false">
       <div class="edit-desc-modal">
         <Form label-position="top">
           <FormItem>
@@ -1009,6 +1023,15 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+.datasource-page {
+  padding: 0;
+}
+
+.datasource-list-layout {
+  flex: 1;
+  min-height: 0;
+}
+
 .data-source-container {
   position: relative;
   margin-top: 0;
@@ -1074,10 +1097,6 @@ export default {
 .datasource-list-panel {
   display: flex;
   flex-direction: column;
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
   min-height: 0;
   overflow: hidden;
 }
@@ -1166,17 +1185,6 @@ export default {
   flex: 0 0 auto;
   margin-left: 6px;
   cursor: pointer;
-}
-
-.datasource-list-footer {
-  border-top: 1px solid var(--border-light);
-  flex-shrink: 0;
-
-  .page-footer-paging {
-    height: 56px;
-    justify-content: flex-end;
-    padding: 0 20px;
-  }
 }
 
 .add-white-list-container {

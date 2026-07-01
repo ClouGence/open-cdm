@@ -24,6 +24,7 @@ import com.clougence.clouddm.ds.polardb.definition.porpg.ui.ddl.PorPgConvertTabl
 import com.clougence.clouddm.ds.polardb.dsconf.porpg.PorPgConfigSpi;
 import com.clougence.clouddm.ds.polardb.dsconf.porpg.PorPgSerializationSpi;
 import com.clougence.clouddm.ds.polardb.execute.porpg.PorPgSessionFactory;
+import com.clougence.clouddm.ds.polardb.i18n.PorPgDsI18nKeys;
 import com.clougence.clouddm.ds.polardb.language.porpg.PorPgLanguageSpi;
 import com.clougence.clouddm.ds.polardb.resource.PorPgEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
@@ -37,7 +38,6 @@ import com.clougence.clouddm.dsfamily.postgres.definition.ui.template.PgCmdTempl
 import com.clougence.clouddm.dsfamily.postgres.dialect.PostgreDialect;
 import com.clougence.clouddm.dsfamily.postgres.execute.PgSessionSpi;
 import com.clougence.clouddm.dsfamily.postgres.execute.PgSupportSpi;
-import com.clougence.clouddm.ds.polardb.i18n.PorPgDsI18nKeys;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
@@ -48,7 +48,7 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
 /** @author mode 2024/12/25 15:13 */
-@Plugin(name = "i18n::" + PorPgDsI18nKeys.PLUGIN_NAME_POLARDB_PG, //
+@Plugin(name = "i18n::" + PorPgDsI18nKeys.PLUGIN_NAME_POLARDB_PG,               //
         includePackages = { "com.clougence.clouddm.dsfamily.execute.*",         //
                             "com.clougence.clouddm.dsfamily.postgres.execute.*",//
                             "com.clougence.clouddm.ds.polardb.execute.porpg.*"  //

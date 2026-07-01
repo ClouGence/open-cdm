@@ -43,7 +43,7 @@ const initWebsocket = (globalSetting, loggedIn) => {
   const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
   const host = process.env.NODE_ENV === 'development' && process.env.VUE_APP_DM_HOST ? process.env.VUE_APP_DM_HOST : window.location.host;
 
-  createWebSocket(`${wsProtocol}://${host}/clouddm/console/api/v1/ws/channel`);
+  createWebSocket(`${wsProtocol}://${host}/api/entry/ws/channel`);
 };
 
 export default {
@@ -164,8 +164,8 @@ export default {
     //   commit(UPDATE_REGION_LIST_MAP, data);
     // }
   },
-  async getClusterList({ commit }, deployEnvType) {
-    const res = await services.dmConstantListCluster({ data: { deployEnvType } });
+  async getClusterList({ commit }) {
+    const res = await services.dmClusterListByCondition({ data: {} });
     if (res.success) {
       commit(UPDATE_CLUSTER_LIST, res.data);
     }

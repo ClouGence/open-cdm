@@ -190,11 +190,13 @@ export default {
 </script>
 <style lang="less" scoped>
 .page-header-container {
-  background: #ffffff;
+  background: var(--bg-secondary);
   border: 1px solid var(--border-light);
   border-radius: 8px;
-  min-height: 64px;
-  padding: 12px 16px;
+  height: auto;
+  line-height: normal;
+  min-height: 56px;
+  padding: 12px 14px;
   position: relative;
 }
 
@@ -202,8 +204,8 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 12px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .datasource-search-form {
@@ -211,16 +213,29 @@ export default {
   align-items: center;
   flex: 1;
   min-width: 0;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
 
   :deep(.ivu-form-item) {
+    margin-right: 8px;
     margin-bottom: 0;
     vertical-align: middle;
+  }
+
+  :deep(.ivu-form-item-content) {
+    display: flex;
+    align-items: center;
+    line-height: normal;
   }
 }
 
 .page-header-function {
   position: static;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  margin-left: auto;
 
   a {
     color: #333;
@@ -228,8 +243,8 @@ export default {
   }
 
   button {
-    margin-left: 8px;
-    min-width: 116px;
+    margin-left: 0;
+    margin-right: 10px;
   }
 
   .ivu-tooltip {
@@ -252,7 +267,7 @@ export default {
 .datasource-type-trigger {
   display: inline-flex;
   width: 280px;
-  height: 36px;
+  height: 32px;
   align-items: center;
   justify-content: space-between;
   padding: 0 12px;

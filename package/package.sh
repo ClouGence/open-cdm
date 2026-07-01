@@ -1,14 +1,15 @@
 #!/bin/bash
 # ============================================================================
-# package.sh — CloudDM 构建和打包脚本
+# Package.sh - CloudDM Build and Pack Scripts
 #
-# 用法:
-#   ./package.sh --build                       # 仅编译 + tgz 打包
-#   ./package.sh --docker                      # 仅 Docker 镜像(双平台)
-#   ./package.sh --docker x86_64               # 仅 Docker 镜像(x86_64)
-#   ./package.sh --docker arm64                # 仅 Docker 镜像(arm64)
-#   ./package.sh --build --docker              # 编译 + tgz + Docker 全平台
-#   ./package.sh --build --docker x86_64       # 编译 + tgz + Docker(x86_64)
+# Usage:
+#   ./package.sh --build                       # Only compile + tgz pack
+#   ./package.sh --docker                      # Docker mirror only (two platforms)
+#   ./package.sh --docker x86_64               # Docker mirror only (x86 64)
+#   ./package.sh --docker arm64                # Docker mirror (arm64)
+#   ./package.sh --docker arm64 --mirrors      # Use the built in Ubuntu mirror source to build Docker mirrors
+#   ./package.sh --build --docker              # Compile + tgz + Docker Full Platform
+#   ./package.sh --build --docker x86_64       # Compiled + tgz + Docker(x86_64)
 # ============================================================================
 set -euo pipefail
 
@@ -23,6 +24,58 @@ VERSION="$(grep '^cg\.clouddm\.main\.version=' "$BACKEND_DIR/gradle.properties" 
 DO_BUILD=0
 DO_DOCKER=0
 DOCKER_ARCH=""
+USE_MIRRORS=0
+
+print_help() {
+  if [ "${1:-}" = "--with-version" ]; then
+    echo "version: $VERSION"
+    echo ""
+  fi
+  cat <<'HELP'
+Usage: ./package.sh [--build] [--docker [x86_64|arm64]] [--mirrors]
+
+Build modes (at least one required):
+  --build                 Compile backend/frontend and create tgz packages.
+  --docker [ARCH]         Build Docker images from package artifacts.
+                          ARCH can be x86_64 or arm64.
+                          If ARCH is omitted, build all platforms.
+
+Options:
+  --mirrors               Use built-in Ubuntu mirror apt sources while building Docker images.
+  -h, --help              Show this help.
+
+Common commands:
+  ./package.sh --build
+      Compile and create console, sidecar and alone tgz packages.
+
+  ./package.sh --docker
+      Build Docker images for all platforms from existing tgz packages.
+
+  ./package.sh --docker x86_64
+      Build x86_64 Docker images from existing tgz packages.
+
+  ./package.sh --docker arm64
+      Build arm64 Docker images from existing tgz packages.
+
+  ./package.sh --build --docker
+      Compile, create tgz packages, then build Docker images for all platforms.
+
+  ./package.sh --build --docker x86_64
+      Compile, create tgz packages, then build x86_64 Docker images.
+
+  ./package.sh --docker arm64 --mirrors
+      Build arm64 Docker images with built-in Ubuntu mirrors.
+
+Generated artifacts:
+  package/build/
+      clouddm-console-<version>.tar.gz
+      clouddm-sidecar-<version>.tar.gz
+      clouddm-alone-<version>.tar.gz
+
+Docker build prerequisites:
+  Run ./package.sh --build first, unless package/build already contains tgz artifacts.
+HELP
+}
 
 while [ $# -gt 0 ]; do
   arg="$1"
@@ -34,45 +87,18 @@ while [ $# -gt 0 ]; do
         DOCKER_ARCH="$1"; shift
       fi
       ;;
+    --mirrors)  USE_MIRRORS=1; shift ;;
     -h|--help)
-      cat <<'HELP'
-usage: package.sh [--build] [--docker [x86_64|arm64]]
-
-  --build           compile and create tgz packages
-  --docker          build Docker images for all platforms (requires tgz)
-  --docker arm64    build Docker images for arm64 only
-  --docker x86_64   build Docker images for x86_64 only
-
-Combine both: ./package.sh --build --docker
-HELP
+      print_help
       exit 0
       ;;
     *) echo "unknown argument: $arg"; exit 1 ;;
   esac
 done
 
-# 无参数打印帮助
+# No Parameter Printing Help
 if [ "$DO_BUILD" -eq 0 ] && [ "$DO_DOCKER" -eq 0 ]; then
-  echo "version: $VERSION"
-  echo ""
-  cat <<'HELP'
-Usage: ./package.sh [OPTIONS]...
-
-Build modes (at least one required):
-  --build               compile + tgz packaging (Gradle build)
-  --docker [ARCH]       build Docker images (requires package artifacts)
-                          ARCH: x86_64 | arm64 (default: all platforms)
-
-Examples:
-  ./package.sh --build                      compile & package only
-  ./package.sh --docker                     build all Docker images
-  ./package.sh --build --docker             compile + all Docker images
-  ./package.sh --build --docker x86_64      compile + x86_64 Docker images only
-
-Prerequisites:
-  Gradle + JDK configured
-  Docker (with buildx) installed and running
-HELP
+  print_help --with-version
   exit 0
 fi
 
@@ -101,11 +127,20 @@ fi
 # ---- Step 2: Docker ----
 if [ "$DO_DOCKER" -eq 1 ]; then
   echo "=== Docker: starting image build ==="
+  run_docker_build() {
+    local platform_arg="$1"
+    if [ "$USE_MIRRORS" -eq 1 ]; then
+      bash "$SCRIPT_DIR/docker/build-docker.sh" "$VERSION" "$platform_arg" --mirrors
+    else
+      bash "$SCRIPT_DIR/docker/build-docker.sh" "$VERSION" "$platform_arg"
+    fi
+  }
+
   if [ -z "$DOCKER_ARCH" ]; then
     echo "[DOCKER] building all platforms, version=${VERSION}..."
-    bash "$SCRIPT_DIR/docker/build-docker.sh" "$VERSION" --platform=all
+    run_docker_build --platform=all
   else
     echo "[DOCKER] building $DOCKER_ARCH images, version=${VERSION}..."
-    bash "$SCRIPT_DIR/docker/build-docker.sh" "$VERSION" --platform="$DOCKER_ARCH"
+    run_docker_build --platform="$DOCKER_ARCH"
   fi
 fi

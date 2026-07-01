@@ -7,10 +7,10 @@ import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import formatError from '../formatError';
 import { resolveComponent } from 'vue';
 
-// const baseURL = `${window.location.protocol}//${window.location.host}/rdp/console/api/v1`;
-let baseURL = `${window.location.protocol}//${window.location.host}/rdp/console/api/v1`;
+// const baseURL = `${window.location.protocol}//${window.location.host}/api/entry`;
+let baseURL = `${window.location.protocol}//${window.location.host}/api/entry`;
 if (process.env.VUE_APP_BASE_URL) {
-  baseURL = `${process.env.VUE_APP_BASE_URL}/rdp/console/api/v1`;
+  baseURL = `${process.env.VUE_APP_BASE_URL}/api/entry`;
 }
 const timeout = 60000;
 const instance = axios.create({

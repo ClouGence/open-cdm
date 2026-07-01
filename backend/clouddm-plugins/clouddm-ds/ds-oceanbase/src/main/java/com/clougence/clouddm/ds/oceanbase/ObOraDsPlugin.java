@@ -47,7 +47,7 @@ import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
-@Plugin(name = "i18n::" + ObDsI18nKeys.PLUGIN_NAME_OB_FOR_ORACLE, //
+@Plugin(name = "i18n::" + ObDsI18nKeys.PLUGIN_NAME_OB_FOR_ORACLE,                   //
         includePackages = { "com.clougence.clouddm.dsfamily.execute.*",             //
                             "com.clougence.clouddm.ds.oracle.execute.*",            //
                             "com.clougence.clouddm.ds.oceanbase.execute.obforora.*" //

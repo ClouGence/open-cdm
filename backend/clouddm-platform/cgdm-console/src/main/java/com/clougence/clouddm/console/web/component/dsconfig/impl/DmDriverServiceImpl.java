@@ -81,6 +81,9 @@ public class DmDriverServiceImpl implements DmDriverService {
         }
 
         boolean consoleAvailable = isPrepared(localVersion);
+        if (!consoleAvailable) {
+            logUnpreparedLocalDriver(driverFamily, driverVersion, localVersion);
+        }
         List<DmSysWorkerDO> workers = queryTargetWorkers(clusterId);
         if (CollectionUtils.isEmpty(workers)) {
             statusVO.setAvailable(consoleAvailable);
@@ -100,6 +103,7 @@ public class DmDriverServiceImpl implements DmDriverService {
             }
 
             if (!isPrepared(remoteVersion)) {
+                logUnpreparedRemoteDriver(driverFamily, driverVersion, worker, remoteVersion);
                 workersAvailable = false;
                 break;
             }
@@ -147,6 +151,51 @@ public class DmDriverServiceImpl implements DmDriverService {
             }
         }
         return true;
+    }
+
+    private void logUnpreparedLocalDriver(String driverFamily, String driverVersion, DriverVersion localVersion) {
+        if (localVersion == null) {
+            log.error("driver is not prepared on console, driver not found, family={}, version={}", driverFamily, driverVersion);
+            return;
+        }
+
+        List<ResDef> resources = localVersion.getResources();
+        if (CollectionUtils.isEmpty(resources)) {
+            log.error("driver is not prepared on console, family={}, version={}", //
+                    localVersion.getFamilyName(), localVersion.getVersion());
+            return;
+        }
+
+        for (ResDef resource : resources) {
+            if (resource == null || !resource.isPrepared()) {
+                log.error("driver resource is not prepared on console, family={}, version={}, resourceType={}, coordinate={}",//
+                        localVersion.getFamilyName(), localVersion
+                            .getVersion(), resource == null ? null : resource.getResourceType(), resource == null ? null : resource.getCoordinate());
+            }
+        }
+    }
+
+    private void logUnpreparedRemoteDriver(String driverFamily, String driverVersion, DmSysWorkerDO worker, DsDriverVer remoteVersion) {
+        if (remoteVersion == null) {
+            log.error("driver is not prepared on worker, driver not found, family={}, version={}, workerIp={}, workerSeqNumber={}",//
+                    driverFamily, driverVersion, worker.getWorkerIp(), worker.getWorkerSeqNumber());
+            return;
+        }
+
+        List<DsDriverRes> resources = remoteVersion.getResources();
+        if (CollectionUtils.isEmpty(resources)) {
+            log.error("driver is not prepared on worker, family={}, version={}, workerIp={}, workerSeqNumber={}",//
+                    driverFamily, remoteVersion.getVersion(), worker.getWorkerIp(), worker.getWorkerSeqNumber());
+            return;
+        }
+
+        for (DsDriverRes resource : resources) {
+            if (resource == null || !resource.isPrepared()) {
+                log.error("driver resource is not prepared on worker, family={}, version={}, workerIp={}, workerSeqNumber={}, resourceType={}, coordinate={}",//
+                        driverFamily, remoteVersion.getVersion(), worker.getWorkerIp(), worker
+                            .getWorkerSeqNumber(), resource == null ? null : resource.getType(), resource == null ? null : resource.getName());
+            }
+        }
     }
 
     private boolean isPrepared(DsDriverVer driverVersion) {

@@ -90,6 +90,8 @@ export default {
       },
       checkedKeys: [],
       expandedKeys: [],
+      authFilterExpandedKeys: [],
+      authFilterActive: false,
       authSearchText: '',
       onlyShowSelected: false,
       treeData: [],
@@ -232,11 +234,24 @@ export default {
       collect(data);
       return keys;
     },
+    isAuthFilterActive() {
+      return Boolean((this.authSearchText || '').trim() || this.onlyShowSelected);
+    },
     handleAuthFilterChange() {
       this.$nextTick(() => {
-        if (this.authSearchText || this.onlyShowSelected) {
+        if (this.isAuthFilterActive()) {
+          if (!this.authFilterActive) {
+            this.authFilterExpandedKeys = [...this.expandedKeys];
+          }
+          this.authFilterActive = true;
           this.expandedKeys = this.getExpandableKeys(this.displayTreeData);
+          return;
         }
+
+        this.authFilterActive = false;
+        const defaultExpandedKeys = this.getExpandableKeys(this.treeData);
+        this.expandedKeys = this.authFilterExpandedKeys.length ? [...this.authFilterExpandedKeys] : defaultExpandedKeys;
+        this.authFilterExpandedKeys = [];
       });
     },
     handleAuthCheckedChange() {

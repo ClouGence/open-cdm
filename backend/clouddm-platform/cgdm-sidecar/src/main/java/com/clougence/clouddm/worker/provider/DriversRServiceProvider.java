@@ -12,11 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.clougence.clouddm.worker.provider;
+ */
+package com.clougence.clouddm.worker.provider;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,6 +46,7 @@ public class DriversRServiceProvider implements DriversRService {
         DriverVersion driver = PluginManager.driverLoader().findDriver(familyName, version);
         if (driver != null) {
             PluginManager.driverLoader().refreshDriverVersion(driver);
+            logUnpreparedDriverResource(driver);
             DsDriverVer ver = new DsDriverVer();
             ver.setVersion(driver.getVersion());
             ver.setDsFactory(driver.getDsFactory());
@@ -57,7 +60,29 @@ public class DriversRServiceProvider implements DriversRService {
             return ver;
         }
 
+        log.error("refresh driver version failed, driver not found, family={}, version={}, workerWsn={}",//
+                familyName, version, sendDTO == null ? null : sendDTO.getWorkerSeqNumber());
         return null;
+    }
+
+    private void logUnpreparedDriverResource(DriverVersion driver) {
+        if (driver == null || driver.isPrepared()) {
+            return;
+        }
+
+        List<ResDef> resources = driver.getResources();
+        if (resources == null || resources.isEmpty()) {
+            log.error("refresh driver version failed, driver is not prepared, family={}, version={}",//
+                    driver.getFamilyName(), driver.getVersion());
+            return;
+        }
+
+        for (ResDef resource : resources) {
+            if (resource == null || !resource.isPrepared()) {
+                log.error("refresh driver version failed, resource is not prepared, family={}, version={}, resourceType={}, coordinate={}",//
+                        driver.getFamilyName(), driver.getVersion(), resource == null ? null : resource.getResourceType(), resource == null ? null : resource.getCoordinate());
+            }
+        }
     }
 
     @Override
@@ -81,7 +106,13 @@ public class DriversRServiceProvider implements DriversRService {
             throw new IllegalArgumentException("driver resource fileName is blank.");
         }
 
-        File file = new File(driverDir, fileName);
+        Path driverDirPath = driverDir.toPath().toAbsolutePath().normalize();
+        Path filePath = driverDirPath.resolve(relativePath).normalize();
+        if (!filePath.startsWith(driverDirPath)) {
+            throw new IllegalArgumentException("unsupported driver resource fileName: " + fileName);
+        }
+
+        File file = filePath.toFile();
         File parent = file.getParentFile();
         if (parent != null && !parent.exists() && !parent.mkdirs()) {
             throw new IllegalStateException("cannot create directory: " + parent.getAbsolutePath());

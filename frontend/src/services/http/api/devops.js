@@ -1,31 +1,31 @@
 export const devopsApi = {
   // scm
-  // devopsScmList: '/clouddm/console/api/v1/devops/scm/list',*
-  // devopsScmDefList: '/clouddm/console/api/v1/devops/scm/defList',*
-  // devopsScmTest: '/clouddm/console/api/v1/devops/scm/test',*
-  // devopsScmAdd: '/clouddm/console/api/v1/devops/scm/add',*
-  // devopsScmUpdate: '/clouddm/console/api/v1/devops/scm/update',*
-  // devopsScmDelete: '/clouddm/console/api/v1/devops/scm/delete',*
+  // devopsScmList: '/api/entry/devops/scm/list',*
+  // devopsScmDefList: '/api/entry/devops/scm/defList',*
+  // devopsScmTest: '/api/entry/devops/scm/test',*
+  // devopsScmAdd: '/api/entry/devops/scm/add',*
+  // devopsScmUpdate: '/api/entry/devops/scm/update',*
+  // devopsScmDelete: '/api/entry/devops/scm/delete',*
   // im
-  // devopsImDefList: '/clouddm/console/api/v1/devops/im/defList',*
-  // devopsImList: '/clouddm/console/api/v1/devops/im/list',*
-  // devopsImAdd: '/clouddm/console/api/v1/devops/im/add',*
-  // devopsImDelete: '/clouddm/console/api/v1/devops/im/delete',*
-  // devopsImUpdate: '/clouddm/console/api/v1/devops/im/update',*
-  // devopsImTest: '/clouddm/console/api/v1/devops/im/test',*
+  // devopsImDefList: '/api/entry/devops/im/defList',*
+  // devopsImList: '/api/entry/devops/im/list',*
+  // devopsImAdd: '/api/entry/devops/im/add',*
+  // devopsImDelete: '/api/entry/devops/im/delete',*
+  // devopsImUpdate: '/api/entry/devops/im/update',*
+  // devopsImTest: '/api/entry/devops/im/test',*
 
   // dm
-  dmDevopsScmList: '/clouddm/console/api/v1/devops/scm/list',
-  dmDevopsScmDefList: '/clouddm/console/api/v1/devops/scm/defList',
-  dmDevopsScmTest: '/clouddm/console/api/v1/devops/scm/test',
-  dmDevopsScmAdd: '/clouddm/console/api/v1/devops/scm/add',
-  dmDevopsScmUpdate: '/clouddm/console/api/v1/devops/scm/update',
-  dmDevopsScmDelete: '/clouddm/console/api/v1/devops/scm/delete',
+  dmDevopsScmList: '/api/entry/devops/scm/list',
+  dmDevopsScmDefList: '/api/entry/devops/scm/defList',
+  dmDevopsScmTest: '/api/entry/devops/scm/test',
+  dmDevopsScmAdd: '/api/entry/devops/scm/add',
+  dmDevopsScmUpdate: '/api/entry/devops/scm/update',
+  dmDevopsScmDelete: '/api/entry/devops/scm/delete',
   // im
-  dmDevopsImDefList: '/clouddm/console/api/v1/devops/im/defList',
-  dmDevopsImList: '/clouddm/console/api/v1/devops/im/list',
-  dmDevopsImAdd: '/clouddm/console/api/v1/devops/im/add',
-  dmDevopsImDelete: '/clouddm/console/api/v1/devops/im/delete',
-  dmDevopsImUpdate: '/clouddm/console/api/v1/devops/im/update',
-  dmDevopsImTest: '/clouddm/console/api/v1/devops/im/test'
+  dmDevopsImDefList: '/api/entry/devops/im/defList',
+  dmDevopsImList: '/api/entry/devops/im/list',
+  dmDevopsImAdd: '/api/entry/devops/im/add',
+  dmDevopsImDelete: '/api/entry/devops/im/delete',
+  dmDevopsImUpdate: '/api/entry/devops/im/update',
+  dmDevopsImTest: '/api/entry/devops/im/test'
 };

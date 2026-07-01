@@ -1,7 +1,14 @@
 <template>
   <div class="certificate-input-field">
-    <RadioGroup v-model="inputMode" type="button" :disabled="disabled" class="certificate-input-field__mode" @on-change="handleInputModeChange">
-      <Radio v-if="supportText" :label="INPUT_MODE_TEXT">
+    <RadioGroup
+      v-if="showModeSwitch"
+      v-model="inputMode"
+      type="button"
+      :disabled="disabled"
+      class="certificate-input-field__mode"
+      @on-change="handleInputModeChange"
+    >
+      <Radio :label="INPUT_MODE_TEXT">
         <Icon type="ios-create-outline" />
       </Radio>
       <Radio :label="INPUT_MODE_FILE">
@@ -12,7 +19,7 @@
       :model-value="displayValue"
       readonly
       :disabled="disabled"
-      class="certificate-input-field__value"
+      :class="['certificate-input-field__value', { 'certificate-input-field__value--single': !showModeSwitch }]"
       @click="openDialog"
       @on-focus="openDialog"
     />
@@ -61,8 +68,8 @@
 </template>
 
 <script>
-const CERTIFICATE_FORMATS = ['pem', 'key', 'crt', 'cer', 'pk8', 'p12', 'pfx', 'jks'];
-const TEXT_CERTIFICATE_FORMATS = ['pem', 'key', 'crt', 'cer', 'pk8'];
+const TEXT_CERTIFICATE_FORMATS = ['pem', 'key', 'crt', 'cer'];
+const CERTIFICATE_FORMATS = [...TEXT_CERTIFICATE_FORMATS, 'pk8', 'p12', 'pfx', 'jks'];
 const TEXT_MAX_SIZE = 1024 * 1024;
 const BINARY_MAX_SIZE = 10 * 1024 * 1024;
 const INPUT_MODE_TEXT = 'text';
@@ -103,39 +110,48 @@ export default {
       return this.field.props || {};
     },
     supportText() {
-      return this.certificateProps['certificate.supportText'] !== false;
+      return this.supportedTextFormats.length > 0;
+    },
+    supportFile() {
+      return this.supportedFileFormats.length > 0;
+    },
+    showModeSwitch() {
+      return this.supportText && this.supportFile;
     },
     supportedFormats() {
-      const formats = this.certificateProps['certificate.fileTypes'];
-      if (!Array.isArray(formats) || formats.length === 0) {
-        return CERTIFICATE_FORMATS;
-      }
-      const supportedFormats = formats.map((format) => String(format || '').toLowerCase()).filter((format) => CERTIFICATE_FORMATS.includes(format));
-      return supportedFormats.length > 0 ? supportedFormats : CERTIFICATE_FORMATS;
+      return [...new Set([...this.supportedTextFormats, ...this.supportedFileFormats])];
     },
     supportedTextFormats() {
-      return this.supportedFormats.filter((format) => TEXT_CERTIFICATE_FORMATS.includes(format));
+      const formats = this.certificateProps['certificate.textFileTypes'];
+      if (formats === undefined && this.certificateProps['certificate.supportText'] === false) {
+        return [];
+      }
+      return this.resolveSupportedFormats(formats, TEXT_CERTIFICATE_FORMATS);
+    },
+    supportedFileFormats() {
+      return this.resolveSupportedFormats(
+        this.certificateProps['certificate.binaryFileTypes'] ?? this.certificateProps['certificate.fileTypes'],
+        CERTIFICATE_FORMATS
+      );
     },
     supportedFormatText() {
-      const formats = this.inputMode === INPUT_MODE_TEXT ? this.supportedTextFormats : this.supportedFormats;
+      const formats = this.inputMode === INPUT_MODE_TEXT ? this.supportedTextFormats : this.supportedFileFormats;
       return formats.map((format) => `.${format}`).join(' / ');
     },
     limitTip() {
       if (this.inputMode === INPUT_MODE_TEXT) {
         return this.$t('wen-ben-jian-yi-bu-chao-guo-1mb');
       }
-      const hasTextFormat = this.supportedFormats.some((format) => TEXT_CERTIFICATE_FORMATS.includes(format));
-      const hasBinaryFormat = this.supportedFormats.some((format) => !TEXT_CERTIFICATE_FORMATS.includes(format));
-      if (hasTextFormat && hasBinaryFormat) {
+      if (this.showModeSwitch) {
         return this.$t('wen-ben-jian-yi-bu-chao-guo-1mb') + '；' + this.$t('er-jin-zhi-wen-jian-jian-yi-bu-chao-guo-10mb');
       }
-      return hasBinaryFormat ? this.$t('er-jin-zhi-wen-jian-jian-yi-bu-chao-guo-10mb') : this.$t('wen-ben-jian-yi-bu-chao-guo-1mb');
+      return this.$t('er-jin-zhi-wen-jian-jian-yi-bu-chao-guo-10mb');
     },
     formatTip() {
       return `${this.$t('zhi-chi-ge-shi')}：${this.supportedFormatText}`;
     },
     acceptFormats() {
-      return this.supportedFormats.map((format) => `.${format}`).join(',');
+      return this.supportedFileFormats.map((format) => `.${format}`).join(',');
     },
     displayValue() {
       if (!this.form[this.field.field]) {
@@ -158,11 +174,10 @@ export default {
       immediate: true,
       handler(value) {
         if (!this.supportText) {
-          this.inputMode = INPUT_MODE_FILE;
-          return;
+          this.inputMode = this.supportFile ? INPUT_MODE_FILE : INPUT_MODE_TEXT;
         }
         if (value === CERTIFICATE_CONFIGURED_VALUE || String(value || '').includes('://upload:')) {
-          this.inputMode = INPUT_MODE_FILE;
+          this.inputMode = this.supportFile ? INPUT_MODE_FILE : INPUT_MODE_TEXT;
         }
       }
     }
@@ -174,8 +189,10 @@ export default {
       }
       this.textValue = '';
       this.selectedFile = null;
-      if (!this.supportText) {
+      if (this.inputMode === INPUT_MODE_TEXT && !this.supportText) {
         this.inputMode = INPUT_MODE_FILE;
+      } else if (this.inputMode === INPUT_MODE_FILE && !this.supportFile) {
+        this.inputMode = INPUT_MODE_TEXT;
       }
       this.clearError();
       this.dialogVisible = true;
@@ -190,12 +207,11 @@ export default {
         return false;
       }
       const format = this.resolveFileFormat(file.name);
-      if (!format) {
+      if (!format || !this.supportedFileFormats.includes(format)) {
         this.setError(this.formatTip);
         return false;
       }
-      const maxSize = ['pk8', 'p12', 'pfx', 'jks'].includes(format) ? BINARY_MAX_SIZE : TEXT_MAX_SIZE;
-      if (file.size > maxSize) {
+      if (file.size > BINARY_MAX_SIZE) {
         this.setError(this.limitTip);
         return false;
       }
@@ -229,7 +245,7 @@ export default {
     async confirmValue() {
       if (this.inputMode === INPUT_MODE_TEXT) {
         if (!this.supportText) {
-          this.inputMode = INPUT_MODE_FILE;
+          this.inputMode = this.supportFile ? INPUT_MODE_FILE : INPUT_MODE_TEXT;
           return;
         }
         if (!this.textValue) {
@@ -290,6 +306,37 @@ export default {
       }
       const format = fileName.substring(index + 1).toLowerCase();
       return this.supportedFormats.includes(format) ? format : '';
+    },
+    resolveSupportedFormats(formats, supportedFormats) {
+      if (formats === undefined || formats === null || formats === '*') {
+        return supportedFormats;
+      }
+      if (!Array.isArray(formats)) {
+        const format = String(formats || '')
+          .toLowerCase()
+          .trim();
+        if (!format) {
+          return [];
+        }
+        if (format === '*') {
+          return supportedFormats;
+        }
+        return supportedFormats.includes(format) ? [format] : [];
+      }
+      if (formats.length === 0) {
+        return [];
+      }
+      const normalizedFormats = formats
+        .map((format) =>
+          String(format || '')
+            .toLowerCase()
+            .trim()
+        )
+        .filter(Boolean);
+      if (normalizedFormats.includes('*')) {
+        return supportedFormats;
+      }
+      return normalizedFormats.filter((format) => supportedFormats.includes(format));
     },
     decodeText(bytes) {
       try {
@@ -360,6 +407,10 @@ export default {
   width: 1px;
   margin-left: 8px;
   cursor: pointer;
+}
+
+.certificate-input-field__value--single {
+  margin-left: 0;
 }
 
 .certificate-input-field__dialog {

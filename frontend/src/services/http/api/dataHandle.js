@@ -1,23 +1,23 @@
 export const dataHandleApi = {
-  // listPackages: '/clouddm/console/api/v1/datahandle/package/listpkg', *
-  // uploadPackage: '/clouddm/console/api/v1/datahandle/package/upload',*
-  // deletePackageAndBind: '/clouddm/console/api/v1/datahandle/package/deletePkgAndBind',*
-  // downloadPkg: '/clouddm/console/api/v1/datahandle/package/download',*
-  // updatePkgInfo: '/clouddm/console/api/v1/datahandle/package/updateInfo',*
-  // updatePackage: '/clouddm/console/api/v1/datahandle/package/updatepkg',*
+  // listPackages: '/api/entry/datahandle/package/listpkg', *
+  // uploadPackage: '/api/entry/datahandle/package/upload',*
+  // deletePackageAndBind: '/api/entry/datahandle/package/deletePkgAndBind',*
+  // downloadPkg: '/api/entry/datahandle/package/download',*
+  // updatePkgInfo: '/api/entry/datahandle/package/updateInfo',*
+  // updatePackage: '/api/entry/datahandle/package/updatepkg',*
 
   // dm
-  dmDataHandlePackageListPkg: '/clouddm/console/api/v1/datahandle/package/listpkg',
-  dmDataHandlePackageUpload: '/clouddm/console/api/v1/datahandle/package/upload',
-  dmDataHandlePackageDeletePkgAndBind: '/clouddm/console/api/v1/datahandle/package/deletePkgAndBind',
-  dmDataHandlePackageDownload: '/clouddm/console/api/v1/datahandle/package/download',
-  dmDataHandlePackageUpdateInfo: '/clouddm/console/api/v1/datahandle/package/updateInfo',
-  dmDataHandlePackageUpdatePkg: '/clouddm/console/api/v1/datahandle/package/updatepkg',
-  dmDataHandlePackageListConfig: '/clouddm/console/api/v1/datahandle/package/listconfig',
-  dmDataHandlePackageConfigBind: '/clouddm/console/api/v1/datahandle/package/configbind',
-  dmDataHandlePackageSwitch: '/clouddm/console/api/v1/datahandle/package/switch',
-  dmDataHandlePackageListTableDataHandleConfigs: '/clouddm/console/api/v1/datahandle/package/listtabledatahandleconfigs',
-  dmDataHandlePackageUpdateRule: '/clouddm/console/api/v1/datahandle/package/updaterule',
-  dmDataHandlePackageDeleteRule: '/clouddm/console/api/v1/datahandle/package/deleterule',
-  dmDataHandleConfigListConfig: '/clouddm/console/api/v1/datahandle/config/listconfig'
+  dmDataHandlePackageListPkg: '/api/entry/datahandle/package/listpkg',
+  dmDataHandlePackageUpload: '/api/entry/datahandle/package/upload',
+  dmDataHandlePackageDeletePkgAndBind: '/api/entry/datahandle/package/deletePkgAndBind',
+  dmDataHandlePackageDownload: '/api/entry/datahandle/package/download',
+  dmDataHandlePackageUpdateInfo: '/api/entry/datahandle/package/updateInfo',
+  dmDataHandlePackageUpdatePkg: '/api/entry/datahandle/package/updatepkg',
+  dmDataHandlePackageListConfig: '/api/entry/datahandle/package/listconfig',
+  dmDataHandlePackageConfigBind: '/api/entry/datahandle/package/configbind',
+  dmDataHandlePackageSwitch: '/api/entry/datahandle/package/switch',
+  dmDataHandlePackageListTableDataHandleConfigs: '/api/entry/datahandle/package/listtabledatahandleconfigs',
+  dmDataHandlePackageUpdateRule: '/api/entry/datahandle/package/updaterule',
+  dmDataHandlePackageDeleteRule: '/api/entry/datahandle/package/deleterule',
+  dmDataHandleConfigListConfig: '/api/entry/datahandle/config/listconfig'
 };

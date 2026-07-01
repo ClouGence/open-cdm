@@ -11,7 +11,7 @@ async function fetchMyAuthIfNeeded() {
   }
 
   try {
-    const res = await fetch('/rdp/console/api/v1/user/listMyAuth', {
+    const res = await fetch('/api/entry/user/listMyAuth', {
       method: 'POST',
       credentials: 'include',
       headers: {

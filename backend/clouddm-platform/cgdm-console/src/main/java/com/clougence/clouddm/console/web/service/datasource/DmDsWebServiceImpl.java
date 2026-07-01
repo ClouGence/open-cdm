@@ -401,7 +401,7 @@ public class DmDsWebServiceImpl implements DmDsWebService {
         if (StringUtils.isBlank(message)) {
             message = e.getMessage();
         }
-        return shortenConnectError(stripExceptionPrefix(message), dsType);
+        return stripExceptionPrefix(message);
     }
 
     private String stripExceptionPrefix(String message) {
@@ -416,19 +416,6 @@ public class DmDsWebServiceImpl implements DmDsWebService {
             }
             result = stripped;
         }
-    }
-
-    private String shortenConnectError(String message, DataSourceType dsType) {
-        if (StringUtils.isBlank(message)) {
-            return message;
-        }
-        if (StringUtils.contains(message, "failed to decrypt safe contents entry") || StringUtils.contains(message, "BadPaddingException")) {
-            if (dsType == DataSourceType.MySQL) {
-                return "MySQL KeyStore/TrustStore password is incorrect.";
-            }
-            return "KeyStore/TrustStore password is incorrect.";
-        }
-        return message;
     }
 
     private ConnectDsFO buildConnectDsFO(DsConfigSubmitFO fo, DataSourceType dsType, Map<String, String> configMap) {

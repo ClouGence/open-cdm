@@ -17,11 +17,17 @@ package com.clougence.clouddm.ds.oracle.execute.dsfactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Properties;
 
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -50,9 +56,11 @@ public class OracleDsFactory implements DsFactory<Connection> {
         String soTimeoutSec = dsConfig.getProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey());
         String clientName = dsConfig.getProperty(DsConfigKeys.CLIENT_NAME.getConfigKey());
         String clientEncoding = dsConfig.getProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey());
+        String clientTimeZone = dsConfig.getProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey());
         String tcpKeepAlive = dsConfig.getProperty(DsConfigKeys.TCP_KEEP_ALIVE.getConfigKey());
         String autoCommit = dsConfig.getProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey());
 
+        props.put("oracle.jdbc.timezoneAsRegion", "false");
         if (StringUtils.isNotBlank(username)) {
             props.put("user", username);
         }
@@ -81,6 +89,11 @@ public class OracleDsFactory implements DsFactory<Connection> {
         String jdbcUrl = buildJdbcUrl(dsConfig);
         try {
             Connection oraConnect = new oracle.jdbc.driver.OracleDriver().connect(jdbcUrl, props);
+            if (StringUtils.isNotBlank(clientTimeZone)) {
+                try (Statement stmt = oraConnect.createStatement()) {
+                    stmt.executeUpdate("ALTER SESSION SET TIME_ZONE = '" + toOracleTimeZoneOffset(clientTimeZone) + "'");
+                }
+            }
             if (StringUtils.isNotBlank(autoCommit)) {
                 if (StringUtils.equalsIgnoreCase("false", autoCommit)) {
                     oraConnect.setAutoCommit(false);
@@ -92,7 +105,48 @@ public class OracleDsFactory implements DsFactory<Connection> {
             return new DsObject<>(dsConfig, oraConnect, this);
         } catch (Exception e) {
             log.error("create connection instanceID(Oracle)=" + id + " ,jdbcUrl= " + jdbcUrl + ", error:" + e.getMessage());
-            throw e;
+            throw shortenConnectException(e);
+        }
+    }
+
+    private SQLException shortenConnectException(Exception e) {
+        String message = e.getMessage();
+        String rootCauseMessage = ExceptionUtils.getRootCauseMessage(e);
+        if (StringUtils.contains(message, "failed to decrypt safe contents entry") || StringUtils.contains(rootCauseMessage, "failed to decrypt safe contents entry")
+            || StringUtils.contains(message, "BadPaddingException") || StringUtils.contains(rootCauseMessage, "BadPaddingException")
+            || StringUtils.contains(message, "Password verification failed") || StringUtils.contains(rootCauseMessage, "Password verification failed")) {
+            return new SQLException("Invalid Oracle SSL KeyStore/TrustStore password.", e);
+        }
+        if (StringUtils.isBlank(message)) {
+            return e instanceof SQLException ? (SQLException) e : new SQLException(e);
+        }
+        message = message.replaceAll("TCP connect timeout of \\d+ms", "TCP connect timeout");
+        message = message.replaceAll("\\s*\\(CONNECTION_ID=[^)]+\\)", "");
+        message = message.replaceAll("\\s*https://docs\\.oracle\\.com/error-help/db/ora-\\d+/?\\s*", "");
+        message = message.trim();
+        if (e instanceof SQLException) {
+            SQLException sqlException = (SQLException) e;
+            return new SQLException(message, sqlException.getSQLState(), sqlException.getErrorCode(), sqlException);
+        }
+        return new SQLException(message, e);
+    }
+
+    private String toOracleTimeZoneOffset(String clientTimeZone) {
+        try {
+            ZoneOffset offset;
+            if (clientTimeZone.startsWith("+") || clientTimeZone.startsWith("-")) {
+                offset = ZoneOffset.of(clientTimeZone);
+            } else {
+                offset = ZoneId.of(clientTimeZone).getRules().getOffset(Instant.now());
+            }
+            int totalSeconds = offset.getTotalSeconds();
+            String sign = totalSeconds < 0 ? "-" : "+";
+            int absSeconds = Math.abs(totalSeconds);
+            int hours = absSeconds / 3600;
+            int minutes = (absSeconds % 3600) / 60;
+            return String.format("%s%02d:%02d", sign, hours, minutes);
+        } catch (DateTimeException e) {
+            throw new IllegalArgumentException("unsupported Oracle client time zone: " + clientTimeZone, e);
         }
     }
 

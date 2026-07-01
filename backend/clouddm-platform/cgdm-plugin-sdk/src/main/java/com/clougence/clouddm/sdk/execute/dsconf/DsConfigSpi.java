@@ -45,6 +45,10 @@ public interface DsConfigSpi extends Spi {
 
     List<SslMode> sslModeSet();
 
+    List<String> certificateTextFileTypes(SslMode sslMode, String configName);
+
+    List<String> certificateBinaryFileTypes(SslMode sslMode, String configName);
+
     String defaultPort();
 
     //
