@@ -31,6 +31,7 @@ import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.collection.CollectResult;
 import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory;
 import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.graph.DependencyFilter;
 import org.eclipse.aether.graph.DependencyNode;
 import org.eclipse.aether.impl.DefaultServiceLocator;
 import org.eclipse.aether.repository.LocalRepository;
@@ -43,6 +44,9 @@ import org.eclipse.aether.spi.connector.transport.TransporterFactory;
 import org.eclipse.aether.transport.file.FileTransporterFactory;
 import org.eclipse.aether.transport.http.HttpTransporterFactory;
 import org.eclipse.aether.util.artifact.JavaScopes;
+import org.eclipse.aether.util.filter.DependencyFilterUtils;
+import org.eclipse.aether.util.graph.visitor.FilteringDependencyVisitor;
+import org.eclipse.aether.util.graph.visitor.PreorderNodeListGenerator;
 
 import com.clougence.drivers.DriverPrepareProgress;
 import com.clougence.drivers.DriverVersion;
@@ -250,8 +254,17 @@ public class MavenResourcePreparer extends AbstractResourcePreparer {
             throw collectResult.getExceptions().get(0);
         }
 
+        DependencyFilter runtimeFilter = DependencyFilterUtils.classpathFilter(JavaScopes.RUNTIME);
+        PreorderNodeListGenerator nodeListGenerator = new PreorderNodeListGenerator();
+        collectResult.getRoot().accept(new FilteringDependencyVisitor(nodeListGenerator, runtimeFilter));
+
         Map<String, Artifact> artifactMap = new LinkedHashMap<>();
-        collectJarArtifacts(collectResult.getRoot(), artifactMap);
+        for (Object item : nodeListGenerator.getNodes()) {
+            DependencyNode node = (DependencyNode) item;
+            Dependency dependency = node.getDependency();
+            Artifact nodeArtifact = dependency != null ? dependency.getArtifact() : null;
+            addJarArtifact(nodeArtifact, artifactMap);
+        }
         return new ArrayList<>(artifactMap.values());
     }
 
@@ -266,23 +279,6 @@ public class MavenResourcePreparer extends AbstractResourcePreparer {
         artifactRequest.setArtifact(artifact);
         artifactRequest.setRepositories(repositories);
         return artifactRequest;
-    }
-
-    private void collectJarArtifacts(DependencyNode node, Map<String, Artifact> artifactMap) {
-        if (node == null) {
-            return;
-        }
-
-        Dependency dependency = node.getDependency();
-        Artifact artifact = dependency != null ? dependency.getArtifact() : null;
-        addJarArtifact(artifact, artifactMap);
-
-        if (node.getChildren() == null) {
-            return;
-        }
-        for (DependencyNode child : node.getChildren()) {
-            collectJarArtifacts(child, artifactMap);
-        }
     }
 
     private void addJarArtifact(Artifact artifact, Map<String, Artifact> artifactMap) {

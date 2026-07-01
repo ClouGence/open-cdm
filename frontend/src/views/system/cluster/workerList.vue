@@ -223,7 +223,7 @@
         </div>
       </div>
     </CCModal>
-    <CCModal v-model="showConfigModal" :mask-closable="false" footerHide :width="630" :title="$t('pei-zhi-wen-jian')">
+    <CCModal v-model="showConfigModal" :mask-closable="false" footerHide width="min(1080px, calc(100vw - 96px))" :title="$t('pei-zhi-wen-jian')">
       <div v-if="showConfigModal" class="config-modal">
         <a-alert
           banner
@@ -742,6 +742,9 @@ export default {
     border: 1px solid #ededed;
     background: #fafafa;
     padding: 10px;
+    overflow-x: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+    white-space: nowrap;
   }
 
   .btn-group {
