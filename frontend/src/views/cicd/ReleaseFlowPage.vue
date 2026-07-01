@@ -35,7 +35,7 @@
             :devops-repo-list-by-group="devopsRepoListByGroup"
             :repo-loading="repoLoading"
             :devops-to="devopsTo"
-            :database-type-card-list="databaseTypeCardList"
+            :database-type-options="databaseTypeOptions"
             :devops-ins-list="devopsInsList"
             :filtered-devops-ins-list="filteredDevopsInsList"
             :devops-ins-catalog-list="devopsInsCatalogList"
@@ -240,6 +240,7 @@ export default {
         repoName: [{ required: true, message: this.$t('qing-xuan-ze-cang-ku'), trigger: 'change' }],
         repoBranch: [{ required: true, message: this.getInputRequiredMessage('mu-biao-fen-zhi'), trigger: 'blur' }],
         eventType: [{ required: true, message: this.getSelectRequiredMessage('chu-fa-fang-shi'), trigger: 'change' }],
+        databaseType: [{ required: true, message: this.getSelectRequiredMessage('shu-ju-ku-lei-xing'), trigger: 'change' }],
         instanceId: [{ required: true, message: this.$t('qing-xuan-ze-shu-ju-ku-shi-li'), trigger: 'change' }],
         catalogName: [{ validator: this.validateCatalog, trigger: 'change' }],
         schemaName: [{ validator: this.validateSchema, trigger: 'change' }],
@@ -293,7 +294,7 @@ export default {
       const types = this.devopsInsList.map((item) => item?.objAttr?.dsType).filter(Boolean);
       return [...new Set(types)];
     },
-    databaseTypeCardList() {
+    databaseTypeOptions() {
       return ['MySQL', ...this.databaseTypeList.filter((type) => type !== 'MySQL')];
     },
     sourceTypeCardList() {
@@ -1102,7 +1103,7 @@ export default {
   scrollbar-width: none;
   -ms-overflow-style: none;
   padding-bottom: 76px;
-  background: #f5f8fb;
+  background: #fff;
   color: #1f2937;
 }
 
@@ -1126,6 +1127,14 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+
+.release-flow-shell-basic .release-flow-main {
+  height: 100%;
+}
+
+.release-flow-shell-basic .release-config-card {
+  flex: 1 1 auto;
 }
 
 .flow-section-card,
@@ -2810,5 +2819,19 @@ export default {
   max-height: var(--release-flow-dropdown-max-height, min(320px, calc(100vh - 96px))) !important;
   overflow-y: auto !important;
   overscroll-behavior: contain;
+}
+
+.release-flow-select-dropdown .database-type-option-content {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: 8px;
+  vertical-align: middle;
+}
+
+.release-flow-select-dropdown .database-type-option-content > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

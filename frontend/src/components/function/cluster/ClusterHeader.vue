@@ -38,7 +38,7 @@
         </Select>
       </FormItem>
       <FormItem>
-        <Button :loading="refreshLoading" type="primary" ghost @click="_handleSearch(searchType, searchData)">
+        <Button type="primary" ghost @click="_handleSearch(searchType, searchData)">
           {{ $t('cha-xun') }}
         </Button>
       </FormItem>
@@ -57,7 +57,6 @@ export default {
   props: {
     handleSearch: Function,
     handleAddCluster: Function,
-    refreshLoading: Boolean,
     params: Object
   },
   data() {

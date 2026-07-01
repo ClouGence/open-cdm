@@ -2,12 +2,7 @@
   <div class="cluster-container table-list-layout">
     <div class="table-list">
       <div class="content">
-        <ClusterHeader
-          :handleSearch="handleRefresh"
-          :refreshLoading="refreshLoading"
-          :handleAddCluster="handleAddCluster"
-          :params="searchData"
-        ></ClusterHeader>
+        <ClusterHeader :handleSearch="handleRefresh" :handleAddCluster="handleAddCluster" :params="searchData"></ClusterHeader>
         <div class="table-container cluster-table-container">
           <Table border :columns="displayResourceColumns" :data="showData" size="small" :loading="refreshLoading">
             <template #cluster="{ row }">
