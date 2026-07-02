@@ -53,6 +53,12 @@ fi
 docker_platform()  { case "$1" in x86_64) echo "linux/amd64" ;; arm64) echo "linux/arm64" ;; esac; }
 image_tag()        { echo "${1}-${2}"; }
 
+render_yml_template() {
+  local src="$1" dst="$2" image_prefix="$3" image_tag="$4"
+  IMAGE_PREFIX="$image_prefix" IMAGE_TAG="$image_tag" \
+    perl -pe 's/__IMAGE_PREFIX__/$ENV{IMAGE_PREFIX}/g; s/__IMAGE_TAG__/$ENV{IMAGE_TAG}/g' "$src" > "$dst"
+}
+
 require_package_artifacts() {
   for file_name in cgdm-console.tar.gz cgdm-sidecar.tar.gz cgdm-alone.tar.gz; do
     [ -f "$PACKAGE_BUILD_DIR/$file_name" ] || {
@@ -114,7 +120,7 @@ generate_per_platform_yml() {
       local src="$SCRIPT_DIR/${kind}-${name}.yml"
       local dst="$PACKAGE_BUILD_DIR/${kind}-${name}-$(image_tag "$plat" "$VERSION").yml"
       if [ -f "$src" ]; then
-        sed "s|\${build_version}|$(image_tag "$plat" "$VERSION")|g" "$src" > "$dst"
+        render_yml_template "$src" "$dst" "clougence/cgdm" "$(image_tag "$plat" "$VERSION")"
         echo "  generated: $dst"
       fi
     done

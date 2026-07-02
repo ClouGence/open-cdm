@@ -204,7 +204,31 @@ jobs:
           name: cgdm-tgz
           path: release-assets
 
-      - name: Create release and upload tgz assets
+      - name: Generate release deployment yml assets
+        env:
+          VERSION: ${{ inputs.version }}
+          IMAGE_PREFIX: ${{ env.GLOBAL_IMAGE_PREFIX }}
+          IMAGE_TAG: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          for name in alone cluster; do
+            for kind in docker k8s; do
+              src="package/docker/${kind}-${name}.yml"
+              dst="release-assets/${kind}-${name}-${VERSION}.yml"
+              if [[ ! -f "$src" ]]; then
+                echo "::error::deployment template does not exist: $src"
+                exit 1
+              fi
+              IMAGE_PREFIX="$IMAGE_PREFIX" IMAGE_TAG="$IMAGE_TAG" \
+                perl -pe 's/__IMAGE_PREFIX__/$ENV{IMAGE_PREFIX}/g; s/__IMAGE_TAG__/$ENV{IMAGE_TAG}/g' "$src" > "$dst"
+              if grep -Eq '__IMAGE_PREFIX__|__IMAGE_TAG__' "$dst"; then
+                echo "::error::deployment yml still contains image placeholders: $dst"
+                exit 1
+              fi
+            done
+          done
+
+      - name: Create release and upload assets
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ inputs.version }}
@@ -213,7 +237,11 @@ jobs:
           TARGET_SHA: ${{ github.sha }}
         run: |
           shopt -s nullglob
-          assets=(release-assets/cgdm-*.tar.gz)
+          assets=(
+            release-assets/cgdm-*.tar.gz
+            release-assets/docker-*.yml
+            release-assets/k8s-*.yml
+          )
 
           tag="v${VERSION}"
           notes_file="docs/release-notes/${VERSION}.md"
