@@ -26,4 +26,9 @@ dependencies {
     api 'com.google.guava:guava:28.1-jre'
 }
 
+test {
+    // test sources are manual rsocket launchers, there are no junit tests to discover.
+    failOnNoDiscoveredTests = false
+}
+
 description = 'cg-rpc'

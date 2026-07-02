@@ -2,7 +2,7 @@ package com.clougence.clouddm.ds;
 
 import java.util.Set;
 
-import com.clougence.detectrule.engine.lang.reflect.RuleIgnore;
+import com.clougence.detectrule.lang.reflect.RuleIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

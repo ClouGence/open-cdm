@@ -1,7 +1,7 @@
 package com.clougence.clouddm.ds.secdomain.special.adsmy;
 
-import com.clougence.clouddm.ds.ads.analysis.ads4my.AdbMyResAnalysisSpi;
-import com.clougence.clouddm.ds.ads.analysis.ads4my.AdbMySecDomainResolveSpi;
+import com.clougence.clouddm.ds.ads.analysis.ads4my.AdsMyResAnalysisSpi;
+import com.clougence.clouddm.ds.ads.analysis.ads4my.AdsMySecDomainResolveSpi;
 import com.clougence.clouddm.ds.secdomain.family.mysql.MySecDomainResolve4ShowTest;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 
@@ -9,8 +9,8 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 public class MyFamilySecDomainResolve4ShowTest extends MySecDomainResolve4ShowTest {
 
     public MyFamilySecDomainResolve4ShowTest(){
-        this.analysisSpi = new AdbMyResAnalysisSpi(null);
-        this.resolveSpi = new AdbMySecDomainResolveSpi(null);
+        this.analysisSpi = new AdsMyResAnalysisSpi(null);
+        this.resolveSpi = new AdsMySecDomainResolveSpi(null);
         this.dataSourceType = DataSourceType.AdbForMySQL;
     }
 }

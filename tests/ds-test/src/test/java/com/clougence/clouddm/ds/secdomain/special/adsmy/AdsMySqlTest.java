@@ -7,9 +7,9 @@ import java.nio.file.Paths;
 
 import org.junit.Test;
 
-import com.clougence.clouddm.ds.ads.analysis.ads4my.AdbMyResAnalysisSpi;
-import com.clougence.clouddm.ds.ads.analysis.ads4my.AdbMySecDomainResolveSpi;
-import com.clougence.clouddm.ds.ads.analysis.ads4my.AdbMySplitAnalysisSpi;
+import com.clougence.clouddm.ds.ads.analysis.ads4my.AdsMyResAnalysisSpi;
+import com.clougence.clouddm.ds.ads.analysis.ads4my.AdsMySecDomainResolveSpi;
+import com.clougence.clouddm.ds.ads.analysis.ads4my.AdsMySplitAnalysisSpi;
 import com.clougence.clouddm.ds.secdomain.family.mysql.MySecDomainTestSupport;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.utils.StringUtils;
@@ -19,16 +19,20 @@ public class AdsMySqlTest extends MySecDomainTestSupport {
     private final String dir = "src/test/resources/sql-test/adsmy";
 
     public AdsMySqlTest(){
-        this.analysisSpi = new AdbMyResAnalysisSpi(null);
-        this.resolveSpi = new AdbMySecDomainResolveSpi(null);
-        this.splitAnalysisSpi = new AdbMySplitAnalysisSpi();
+        this.analysisSpi = new AdsMyResAnalysisSpi(null);
+        this.resolveSpi = new AdsMySecDomainResolveSpi(null);
+        this.splitAnalysisSpi = new AdsMySplitAnalysisSpi();
         this.dataSourceType = DataSourceType.AdbForMySQL;
     }
 
     @Test
     public void test1() throws IOException {
         File directory = new File(Paths.get(dir).toUri());
-        for (File file : directory.listFiles()) {
+        File[] files = directory.listFiles();
+        if (files == null) {
+            return;
+        }
+        for (File file : files) {
             String sql = getSql(file.getAbsolutePath());
             if (StringUtils.isEmpty(sql)) {
                 continue;

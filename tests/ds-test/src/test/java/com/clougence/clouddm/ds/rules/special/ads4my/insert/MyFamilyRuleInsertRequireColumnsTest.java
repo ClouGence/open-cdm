@@ -1,6 +1,6 @@
 package com.clougence.clouddm.ds.rules.special.ads4my.insert;
 
-import com.clougence.clouddm.ds.ads.analysis.ads4my.AdbMySecDomainResolveSpi;
+import com.clougence.clouddm.ds.ads.analysis.ads4my.AdsMySecDomainResolveSpi;
 import com.clougence.clouddm.ds.rules.rdb.using_my.insert.MyRuleInsertRequireColumnsTest;
 import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
@@ -9,7 +9,7 @@ public class MyFamilyRuleInsertRequireColumnsTest extends MyRuleInsertRequireCol
 
     @Override
     protected SecDomainResolveSpi createSPI() {
-        return new AdbMySecDomainResolveSpi(null);
+        return new AdsMySecDomainResolveSpi(null);
     }
 
     @Override

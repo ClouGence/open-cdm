@@ -3,7 +3,7 @@ package com.clougence.clouddm.ds.template.family.postgres;
 import java.util.HashMap;
 import java.util.List;
 
-import com.clougence.adapter.postgre.umi.PostgreAttributeNames;
+import com.clougence.adapter.postgre.PostgreAttributeNames;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.template.PgCmdTemplateSpi;
 import org.junit.Test;
 

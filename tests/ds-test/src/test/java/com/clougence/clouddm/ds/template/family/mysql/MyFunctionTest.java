@@ -1,6 +1,6 @@
 package com.clougence.clouddm.ds.template.family.mysql;
 
-import com.clougence.adapter.mysql.umi.MySQLAttributeNames;
+import com.clougence.adapter.mysql.MyUmiAttributeNames;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.template.MyCmdTemplateSpi;
 import com.clougence.clouddm.sdk.ui.editor.function.FunctionEditorFields;
 import com.clougence.clouddm.sdk.ui.template.CmdTemplateOption;
@@ -137,7 +137,7 @@ public class MyFunctionTest {
         option.getData().put(FUNCTION_NAME, "test_name");
         option.getData().put(FunctionEditorFields.RETURN_TYPE, "int");
         option.getData().put(FunctionEditorFields.SQL, "begin \nreturn 1; end");
-        option.getData().put(MySQLAttributeNames.DETERMINISTIC.getCodeKey(), "true");
+        option.getData().put(MyUmiAttributeNames.DETERMINISTIC.getCodeKey(), "true");
         List<String> createFunction = spi.getCreateFunction(option);
         System.out.println(createFunction);
         assert createFunction.size() == 1;

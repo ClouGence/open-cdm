@@ -7,7 +7,7 @@ import java.util.List;
 import com.clougence.clouddm.ds.hana.definition.ui.template.HanaCmdTemplateSpi;
 import org.junit.Test;
 
-import com.clougence.adapter.dm.umi.DmAttributeNames;
+import com.clougence.adapter.dameng.DmAttributeNames;
 import com.clougence.clouddm.sdk.ui.editor.trigger.TriggerEditorFields;
 import com.clougence.clouddm.sdk.ui.template.CmdTemplateOption;
 import com.clougence.clouddm.sdk.ui.template.CmdTemplateSpi;

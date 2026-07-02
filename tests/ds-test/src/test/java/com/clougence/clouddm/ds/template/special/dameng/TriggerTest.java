@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import com.clougence.adapter.dm.umi.DmAttributeNames;
+import com.clougence.adapter.dameng.DmAttributeNames;
 import com.clougence.clouddm.ds.dameng.definition.ui.template.DmCmdTemplateSpi;
 import org.junit.Test;
 

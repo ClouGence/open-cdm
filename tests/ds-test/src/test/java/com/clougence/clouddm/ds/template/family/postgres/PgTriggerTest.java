@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import com.clougence.adapter.dm.umi.DmAttributeNames;
-import com.clougence.adapter.postgre.umi.PostgreAttributeNames;
+import com.clougence.adapter.dameng.DmAttributeNames;
+import com.clougence.adapter.postgre.PostgreAttributeNames;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.template.PgCmdTemplateSpi;
 import org.junit.Test;
 
