@@ -1,6 +1,6 @@
 services:
   dm_alone:
-    image: clougence/cgdm-alone:${build_version}
+    image: __IMAGE_PREFIX__-alone:__IMAGE_TAG__
     container_name: cgdm-alone
     restart: always
     ports:

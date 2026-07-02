@@ -13,7 +13,7 @@ services:
     command: [ "mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-time-zone=+08:00" ]
 
   dm_console:
-    image: clougence/cgdm-console:${build_version}
+    image: __IMAGE_PREFIX__-console:__IMAGE_TAG__
     container_name: cgdm-console
     restart: always
     ports:
@@ -38,7 +38,7 @@ services:
       DB_PASSWORD: 123456
 
   dm_sidecar:
-    image: clougence/cgdm-sidecar:${build_version}
+    image: __IMAGE_PREFIX__-sidecar:__IMAGE_TAG__
     container_name: cgdm-sidecar
     restart: always
     depends_on:

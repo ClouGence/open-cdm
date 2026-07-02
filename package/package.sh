@@ -126,6 +126,9 @@ fi
 
 # ---- Step 2: Docker ----
 if [ "$DO_DOCKER" -eq 1 ]; then
+  echo "=== Docker: generating built-in drivers ==="
+  "$BACKEND_DIR/gradlew" -p "$BACKEND_DIR" -Ptarget=all :pkg-builtin-drivers:generateBuiltinDrivers
+
   echo "=== Docker: starting image build ==="
   run_docker_build() {
     local platform_arg="$1"

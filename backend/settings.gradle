@@ -91,4 +91,5 @@ if (targetName == "all") {
     include 'pkg-console'; project(":pkg-console").projectDir = file('../package/pkg/console')
     include 'pkg-sidecar'; project(":pkg-sidecar").projectDir = file('../package/pkg/sidecar')
     include 'pkg-alone'; project(":pkg-alone").projectDir = file('../package/pkg/alone')
+    include 'pkg-builtin-drivers'; project(":pkg-builtin-drivers").projectDir = file('../package/pkg/builtin-drivers')
 }

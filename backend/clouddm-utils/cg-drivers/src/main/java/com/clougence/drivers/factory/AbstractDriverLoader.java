@@ -38,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AbstractDriverLoader implements DriverLoader {
 
     private final File                                 localDir;
+    private final File                                 builtinDir;
     private final Properties                           config;
     private final DriverXmlLoader                      driverXmlLoader;
     private final List<FamilyDef>                      familyDefs;
@@ -46,7 +47,17 @@ public abstract class AbstractDriverLoader implements DriverLoader {
     private final Map<String, ResourcePreparer>        resourcePreparers;
 
     public AbstractDriverLoader(File localDir, Properties config){
+        this(localDir, null, config);
+    }
+
+    /**
+     * @param builtinDir optional read-only directory shipped with the release. When a driver version is not
+     *            prepared under {@code localDir}, its prepared state falls back to this directory. All writes
+     *            (download, files.idx, delete) always target {@code localDir}.
+     */
+    public AbstractDriverLoader(File localDir, File builtinDir, Properties config){
         this.localDir = localDir;
+        this.builtinDir = builtinDir;
         this.config = config != null ? config : new Properties();
         this.familyDefs = new ArrayList<>();
         this.dsFactoryDefs = new ArrayList<>();
@@ -148,7 +159,7 @@ public abstract class AbstractDriverLoader implements DriverLoader {
                 }
 
                 targetVersion.setFamilyName(StringUtils.defaultIfBlank(targetVersion.getFamilyName(), loadedVersion.getFamilyName()));
-                targetVersion.setLocalDir(this.localDir);
+                switchLocalDir(targetVersion, this.localDir);
                 if (StringUtils.isNotBlank(loadedVersion.getDsFactory())) {
                     targetVersion.setDsFactory(loadedVersion.getDsFactory());
                 }
@@ -182,10 +193,111 @@ public abstract class AbstractDriverLoader implements DriverLoader {
         this.refreshPreparedState((VerDef) driverVersion);
     }
 
+    @Override
+    public void resetDriverVersion(DriverVersion driverVersion) {
+        if (!(driverVersion instanceof VerDef version)) {
+            return;
+        }
+
+        // Always reset against the writable directory; the builtin directory must stay untouched.
+        switchLocalDir(version, this.localDir);
+        version.deleteFiles();
+        version.setPrepared(false);
+        clearResourceStates(version);
+    }
+
     private void refreshPreparedState(VerDef driverVersion) {
         if (driverVersion == null) {
             return;
         }
+
+        File builtinVersionDir = resolveBuiltinVersionDir(driverVersion);
+        if (builtinVersionDir == null) {
+            this.refreshPreparedState0(driverVersion);
+            return;
+        }
+
+        // The writable directory wins when it holds restorable state; otherwise fall back to the builtin directory.
+        boolean primaryRestorable = hasVersionFilesIndex(this.localDir, driverVersion);
+        if (primaryRestorable) {
+            switchLocalDir(driverVersion, this.localDir);
+            this.refreshPreparedState0(driverVersion);
+            if (driverVersion.isPrepared()) {
+                return;
+            }
+        }
+
+        switchLocalDir(driverVersion, this.builtinDir);
+        this.refreshPreparedState0(driverVersion);
+        if (driverVersion.isPrepared()) {
+            log.info("driver version prepared from builtin directory, family={}, version={}, dir={}",//
+                    driverVersion.getFamilyName(), driverVersion.getVersion(), builtinVersionDir.getAbsolutePath());
+            return;
+        }
+
+        switchLocalDir(driverVersion, this.localDir);
+        if (!primaryRestorable) {
+            // keep the same unprepared state and logging as without a builtin directory.
+            this.refreshPreparedState0(driverVersion);
+        }
+    }
+
+    /**
+     * The builtin fallback only participates when the builtin directory holds this driver version,
+     * so drivers outside the builtin bundle keep the exact same refresh behavior as before.
+     */
+    private File resolveBuiltinVersionDir(VerDef driverVersion) {
+        if (this.builtinDir == null) {
+            return null;
+        }
+
+        File relativeDir = driverVersion.getRelativeDir();
+        if (relativeDir == null) {
+            return null;
+        }
+
+        File builtinVersionDir = new File(this.builtinDir, relativeDir.getPath());
+        if (!builtinVersionDir.isDirectory()) {
+            return null;
+        }
+        return builtinVersionDir;
+    }
+
+    private boolean hasVersionFilesIndex(File rootDir, VerDef driverVersion) {
+        File relativeDir = driverVersion.getRelativeDir();
+        if (relativeDir == null) {
+            return false;
+        }
+        return new File(new File(rootDir, relativeDir.getPath()), "files.idx").isFile();
+    }
+
+    private void switchLocalDir(VerDef driverVersion, File targetDir) {
+        if (Objects.equals(driverVersion.getLocalDir(), targetDir)) {
+            return;
+        }
+
+        // FileDef absolute paths are baked against the previous root, drop them so they
+        // can be restored from the target directory's files.idx.
+        driverVersion.setLocalDir(targetDir);
+        clearResourceStates(driverVersion);
+    }
+
+    private void clearResourceStates(VerDef driverVersion) {
+        List<ResDef> resources = driverVersion.getResources();
+        if (resources == null) {
+            return;
+        }
+
+        for (ResDef resource : resources) {
+            if (resource == null) {
+                continue;
+            }
+            resource.setPrepared(false);
+            resource.setFileDefList(null);
+        }
+    }
+
+    private void refreshPreparedState0(VerDef driverVersion) {
 
         List<ResDef> resources = driverVersion.getResources();
         if (resources == null || resources.isEmpty()) {
@@ -203,7 +315,7 @@ public abstract class AbstractDriverLoader implements DriverLoader {
 
             ResourcePreparer preparer = getPreparer(driverResource.getResourceType());
             if (preparer == null) {
-                log.error("refresh driver resource failed, unsupported resourceType, family={}, version={}, resourceType={}, coordinate={}",//
+                log.debug("refresh driver resource skipped, unsupported resourceType, family={}, version={}, resourceType={}, coordinate={}",//
                         driverVersion.getFamilyName(), driverVersion.getVersion(), driverResource.getResourceType(), driverResource.getCoordinate());
                 driverResource.setPrepared(false);
                 allPrepared = false;
@@ -226,7 +338,7 @@ public abstract class AbstractDriverLoader implements DriverLoader {
                 }
 
                 driverResource.setPrepared(false);
-                log.error("refresh driver resource failed, resource metadata is not prepared and files.idx is missing, family={}, version={}, resourceType={}, coordinate={}",//
+                log.debug("refresh driver resource skipped, resource metadata is not prepared and files.idx is missing, family={}, version={}, resourceType={}, coordinate={}",//
                         driverVersion.getFamilyName(), driverVersion.getVersion(), driverResource.getResourceType(), driverResource.getCoordinate());
                 allPrepared = false;
             } catch (Exception e) {
@@ -266,6 +378,9 @@ public abstract class AbstractDriverLoader implements DriverLoader {
 
     @Override
     public void prepareDriverVersion(DriverVersion ver, Predicate<ResDef> skip, DriverPrepareProgress progress) {
+        // Prepare always downloads into the writable directory, never into the builtin one.
+        switchLocalDir((VerDef) ver, this.localDir);
+
         List<ResDef> resources = ver.getResources();
         if (resources == null || resources.isEmpty()) {
             ver.setPrepared(true);

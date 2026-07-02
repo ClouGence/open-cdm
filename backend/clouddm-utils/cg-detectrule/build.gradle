@@ -27,6 +27,7 @@ dependencies {
     api project(':cg-utils')
 
     // for test
+    testRuntimeOnly "org.slf4j:slf4j-api:${SLF4J_VERSION}"
 }
 
 configureClougenceAntlrGrammar([enabled    : false,
