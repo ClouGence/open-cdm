@@ -1492,31 +1492,27 @@ export default {
 .datasource-action-group {
   display: flex;
   align-items: center;
-  width: 126px;
-  gap: 8px;
+  min-width: 112px;
+  gap: 4px;
   justify-content: flex-start;
   white-space: nowrap;
 
   :deep(.ivu-btn-text) {
     height: 28px;
-    padding: 0;
+    padding: 0 2px;
     font-weight: 500;
   }
 }
 
 .datasource-action-button {
   display: inline-flex;
-  width: 32px;
-  min-width: 32px;
   align-items: center;
   justify-content: center;
-  flex: 0 0 32px;
+  flex: 0 0 auto;
 }
 
 .datasource-action-test {
-  width: 46px;
-  min-width: 46px;
-  flex-basis: 46px;
+  min-width: 44px;
 
   :deep(.ivu-load-loop) {
     margin-right: 2px;
