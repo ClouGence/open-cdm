@@ -2,6 +2,16 @@
 
 本文件为 AI 编码代理在 open-cdm 前端工程（`frontend/`）内工作时的规则说明。内容按 CloudDM Web 前端的实际工程组织和团队规则调整。
 
+## UI 布局一致性（最高优先级）
+
+**任何用户可见 UI 新增或改版前，必须先阅读并遵守 [`skill/ui-layout-consistency/SKILL.md`](skill/ui-layout-consistency/SKILL.md)。**
+
+- 该规范定义 **扁平化编辑型 B 端** 的产品风格、壳层布局、少线框分区、Tab/页脚/按钮层级与页面类型模板。
+- 优先级高于组件库默认样式、个人习惯、以及本文件以下设计摘要与零散旧页面实现。
+- 若无法满足（例如卡片套卡片、fixed 全屏页脚、多层线框、自定义 Tab 皮肤），**中断本次改动**，说明违反项，不得强行提交。
+- Token 色值见 `DESIGN.md`；结构与反例见 `skill/ui-layout-consistency/reference.md`。
+- 规范中的标准类名/组件（如 `AppPageTabs`、`page-shell`）以 skill 为准；**全量页面落地进行中**，改页面前先对照 skill，勿沿用旧页面临时写法。
+
 ## 作用范围
 
 - 本文件适用于以 `frontend/` 为工作根目录的前端开发任务。

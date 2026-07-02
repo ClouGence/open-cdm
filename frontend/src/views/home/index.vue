@@ -103,6 +103,7 @@ import store from '@/store';
 import dayjs from 'dayjs';
 import fecha from 'fecha';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
+import { resolveWorkbenchRoute } from '@/utils/workbenchRoute';
 
 export default {
   name: 'Home',
@@ -383,8 +384,9 @@ export default {
     },
     handleGoAppHome() {
       if (this.isSqlRoute) {
-        const target = this.defaultRedirectUrl && this.defaultRedirectUrl !== '/sql' ? this.defaultRedirectUrl : '/cicd';
-        this.$router.push({ path: target }).catch(() => {});
+        const fallback = this.defaultRedirectUrl && this.defaultRedirectUrl !== '/sql' ? this.defaultRedirectUrl : '/cicd';
+        const target = resolveWorkbenchRoute(fallback);
+        this.$router.push(target).catch(() => {});
         return;
       }
       this.handleGoBackHome();

@@ -1,7 +1,6 @@
 <template>
   <a-config-provider :locale="locale" :theme="antdTheme">
     <div id="app">
-      <div id="google_translate_element" class="google-translate-element" aria-hidden="true"></div>
       <router-view v-if="showChild" />
       <div class="system-starting-page" v-if="showStartupPage">
         <div class="system-starting-spinner" aria-hidden="true"></div>
@@ -342,18 +341,6 @@ export default {
   flex-direction: column;
   display: flex;
   height: 100%;
-}
-
-#google_translate_element {
-  display: none;
-}
-
-.goog-te-banner-frame.skiptranslate {
-  display: none !important;
-}
-
-body {
-  top: 0 !important;
 }
 
 .loading-page {
