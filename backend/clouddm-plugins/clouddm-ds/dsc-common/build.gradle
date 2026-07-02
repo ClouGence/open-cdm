@@ -19,6 +19,9 @@ plugins {
 }
 
 dependencies {
+    // project
+    api project(':sqlc-common')
+
     // share lib (compileOnly)
     compileOnly project(':cgdm-share-libs')
 }

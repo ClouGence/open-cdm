@@ -18,9 +18,6 @@ package com.clougence.clouddm.ds.hologres;
 import com.clougence.adapter.hologres.HgSqlTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.ds.hologres.analysis.HgResAnalysisSpi;
-import com.clougence.clouddm.ds.hologres.analysis.HgSecDomainResolveSpi;
-import com.clougence.clouddm.ds.hologres.analysis.HgSplitAnalysisSpi;
 import com.clougence.clouddm.ds.hologres.broswer.HgDsBrowseSpi;
 import com.clougence.clouddm.ds.hologres.definition.ui.template.HgCmdTemplateSpi;
 import com.clougence.clouddm.ds.hologres.dsconf.HgConfigSpi;
@@ -29,9 +26,7 @@ import com.clougence.clouddm.ds.hologres.execute.HgSessionFactory;
 import com.clougence.clouddm.ds.hologres.i18n.HgDsI18nKeys;
 import com.clougence.clouddm.ds.hologres.resource.HgEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
-import com.clougence.clouddm.dsfamily.postgres.analysis.PgSecRulesSupportSpi;
-import com.clougence.clouddm.dsfamily.postgres.analysis.PgSelectColumnAnalysisSpi;
-import com.clougence.clouddm.dsfamily.postgres.analysis.rewrite.PgRewriteSpi;
+import com.clougence.clouddm.dsfamily.postgres.definition.secrules.PgSecRulesSupportSpi;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.data.PgDataEditorSpi;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.table.PgEditorProvider;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.table.PgTableEditorUiDataSpi;
@@ -50,7 +45,7 @@ import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
 
 /** @author mode 2024/12/25 15:13 */
-@Plugin(name = "i18n::" + HgDsI18nKeys.PLUGIN_NAME_HOLOGRES,                //
+@Plugin(name = "i18n::" + HgDsI18nKeys.PLUGIN_NAME_HOLOGRES,                    //
         includePackages = { "com.clougence.clouddm.dsfamily.execute.*",         //
                             "com.clougence.clouddm.dsfamily.postgres.execute.*",//
                             "com.clougence.clouddm.ds.hologres.execute.*"       //
@@ -85,9 +80,10 @@ public class HgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(HgSessionFactory.class);
         dsPlugin.bindDsDriverFamily("PostgreSQL JDBC");
+        dsPlugin.bindSqlEngine("PG SQL");
+
         dsPlugin.addPluginSpi(new PgSessionSpi());
         dsPlugin.addPluginSpi(new PgSupportSpi());
-        dsPlugin.addPluginSpi(new PgRewriteSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {
@@ -113,15 +109,11 @@ public class HgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     }
 
     private void configTeam(DsPluginBinder dsPlugin) {
-        // SPIs
-        dsPlugin.addPluginSpi(new HgResAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
-        dsPlugin.addPluginSpi(new HgSplitAnalysisSpi());
-        dsPlugin.addPluginSpi(new HgSecDomainResolveSpi(dsPlugin.findGlobalService(MetaService.class)));
         dsPlugin.addPluginSpi(new PgSecRulesSupportSpi());
-        dsPlugin.addPluginSpi(new PgSelectColumnAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {
         dsPlugin.addPluginFeature(FUNC_LINES_SUPPORT);
     }
+
 }

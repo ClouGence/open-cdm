@@ -30,9 +30,9 @@ dependencies {
     testRuntimeOnly "org.slf4j:slf4j-api:${SLF4J_VERSION}"
 }
 
-configureClougenceAntlrGrammar([enabled    : false,
-                                maxHeapSize: '64m',
-                                outputPath : 'src/main/java/com/clougence/detectrule/parser/antlr/',
-                                packageName: 'com.clougence.detectrule.parser.antlr'])
+tasks.named('generateGrammarSource') {
+    maxHeapSize = '64m'
+    arguments += ['-visitor', '-package', 'com.clougence.detectrule.parser.antlr']
+}
 
 description = 'cg-detectrule'

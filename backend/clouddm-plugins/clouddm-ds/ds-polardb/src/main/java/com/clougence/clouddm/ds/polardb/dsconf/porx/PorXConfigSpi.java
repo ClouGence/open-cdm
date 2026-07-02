@@ -54,19 +54,18 @@ public class PorXConfigSpi extends AbstractDsConfigSpi {
     @Override
     public List<SecurityType> securityTypes() {
         List<SecurityType> options = new ArrayList<>();
-        options.add(SecurityType.NONE);
         options.add(SecurityType.USER_PASSWD);
         return options;
     }
 
     @Override
     public boolean supportSSL() {
-        return false;
+        return true;
     }
 
     @Override
     public List<SslMode> sslModeSet() {
-        return List.of(SslMode.TRUST, SslMode.CA, SslMode.CLIENT_CERT);
+        return List.of(SslMode.TRUST, SslMode.CA);
     }
 
     @Override

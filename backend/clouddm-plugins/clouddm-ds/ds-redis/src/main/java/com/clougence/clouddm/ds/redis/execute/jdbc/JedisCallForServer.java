@@ -21,11 +21,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.ds.redis.parser.ast.commands.client.PingRedisCmd;
-import com.clougence.clouddm.ds.redis.parser.ast.commands.control.DbSizeRedisCmd;
-import com.clougence.clouddm.ds.redis.parser.ast.commands.info.InfoRedisCmd;
-import com.clougence.clouddm.ds.redis.parser.ast.commands.keys.WaitAOFRedisCmd;
-import com.clougence.clouddm.ds.redis.parser.ast.commands.keys.WaitRedisCmd;
+import com.clougence.sql.redis.parser.ast.commands.client.PingRedisCmd;
+import com.clougence.sql.redis.parser.ast.commands.control.DbSizeRedisCmd;
+import com.clougence.sql.redis.parser.ast.commands.info.InfoRedisCmd;
+import com.clougence.sql.redis.parser.ast.commands.keys.WaitAOFRedisCmd;
+import com.clougence.sql.redis.parser.ast.commands.keys.WaitRedisCmd;
 import com.clougence.drivers.adapter.*;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;

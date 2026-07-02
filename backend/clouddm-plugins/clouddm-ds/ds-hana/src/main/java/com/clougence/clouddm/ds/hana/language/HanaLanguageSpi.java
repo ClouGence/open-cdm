@@ -17,6 +17,7 @@ package com.clougence.clouddm.ds.hana.language;
 
 import java.util.Set;
 
+import com.clougence.clouddm.dsfamily.language.split.SplitStrategyCenter;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
 import com.clougence.clouddm.sdk.language.DsLanguageSupport;
@@ -33,6 +34,7 @@ public class HanaLanguageSpi implements DsLanguageSpi {
 
     private final MetaService                  metaService;
     private final HanaCompletionStrategyCenter completion = new HanaCompletionStrategyCenter();
+    private final SplitStrategyCenter          split      = new SplitStrategyCenter();
 
     public HanaLanguageSpi(MetaService metaService){
         this.metaService = metaService;
@@ -40,7 +42,7 @@ public class HanaLanguageSpi implements DsLanguageSpi {
 
     @Override
     public Set<DsLanguageSupport> supports() {
-        return Set.of(DsLanguageSupport.COMPLETE);
+        return Set.of(DsLanguageSupport.COMPLETE, DsLanguageSupport.SPLIT);
     }
 
     private static <T extends LanguageResult> T initResult(AbstractRequest request, T result) {
@@ -65,6 +67,6 @@ public class HanaLanguageSpi implements DsLanguageSpi {
 
     @Override
     public SplitResult split(SplitRequest request) {
-        return initResult(request, new SplitResult());
+        return this.split.split(request);
     }
 }

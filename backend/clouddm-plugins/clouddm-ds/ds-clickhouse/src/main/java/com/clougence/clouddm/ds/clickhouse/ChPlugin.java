@@ -18,9 +18,8 @@ package com.clougence.clouddm.ds.clickhouse;
 import com.clougence.adapter.clickhouse.ClickHouseTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.ds.clickhouse.analysis.*;
-import com.clougence.clouddm.ds.clickhouse.analysis.rewrite.ChRewriteSpi;
 import com.clougence.clouddm.ds.clickhouse.definition.ChDefService;
+import com.clougence.clouddm.ds.clickhouse.definition.secrules.ChSecRulesSupportSpi;
 import com.clougence.clouddm.ds.clickhouse.definition.ui.browser.ChDsBrowseSpi;
 import com.clougence.clouddm.ds.clickhouse.definition.ui.ddl.ChConvertTableDDLSpi;
 import com.clougence.clouddm.ds.clickhouse.definition.ui.editor.data.ChDataEditorSpi;
@@ -37,6 +36,7 @@ import com.clougence.clouddm.ds.clickhouse.i18n.ChConfigI18nKeys;
 import com.clougence.clouddm.ds.clickhouse.i18n.ChDsI18nKeys;
 import com.clougence.clouddm.ds.clickhouse.language.ChLanguageSpi;
 import com.clougence.clouddm.ds.clickhouse.resource.ChEditorResourceSpi;
+import com.clougence.clouddm.ds.clickhouse.sql.ChSqlEngineSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.execute.RdbSessionSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
@@ -83,9 +83,12 @@ public class ChPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(ChSessionFactory.class);
         dsPlugin.bindDsDriverFamily("ClickHouse JDBC", "Yandex JDBC", "Native JDBC");
+
+        dsPlugin.bindSqlEngine(ChSqlEngineSpi.NAME);
+        dsPlugin.addPluginSpi(new ChSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+
         dsPlugin.addPluginSpi(new RdbSessionSpi());
         dsPlugin.addPluginSpi(new ChSupportSpi());
-        dsPlugin.addPluginSpi(new ChRewriteSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {
@@ -113,10 +116,6 @@ public class ChPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configTeam(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new ChResAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
-        dsPlugin.addPluginSpi(new ChSplitAnalysisSpi());
-        dsPlugin.addPluginSpi(new ChSecDomainResolveSpi(dsPlugin.findGlobalService(MetaService.class)));
-        dsPlugin.addPluginSpi(new ChSelectColumnAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
         dsPlugin.addPluginSpi(new ChSecRulesSupportSpi());
     }
 

@@ -20,8 +20,10 @@ plugins {
 }
 
 dependencies {
-    // project
     antlr "org.antlr:antlr4:${ANTLR_VERSION}"
+
+    // project
+    implementation "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
     implementation project(':dsc-common-mysql')
 
     // share lib (compileOnly)
@@ -37,21 +39,6 @@ dependencies {
 
 description = 'ds-adb'
 
-configureClougenceAntlrGrammar([outputPath : 'src/main/java/com/clougence/clouddm/ds/ads/parser/ads4my/antlr',
-                                packageName: 'com.clougence.clouddm.ds.ads.parser.ads4my.antlr',
-                                libDir     : '../dsc-common-mysql/src/main/antlr'])
-
-def visitorConfigs = [[taskName: 'AdsMyParser', frontPath: 'ads4my/AbstractAdsMyParserVisitor.java', backPath: 'MySQLParserVisitor.java'],
-                      [taskName: 'AdsMyVisitor', frontPath: 'ads4my/AbstractAdsMySplitVisitor.java', backPath: 'MySplitVisitor.java']]
-
-visitorConfigs.each { config ->
-    tasks.register(config.taskName, VisitorMerger) {
-        backFile = file("../dsc-common-mysql/src/main/java/com/clougence/clouddm/dsfamily/mysql/analysis/${config.backPath}")
-        frontFile = file("./src/main/java/com/clougence/clouddm/ds/ads/analysis/${config.frontPath}")
-    }
+tasks.named('generateGrammarSource') {
+    arguments += ['-visitor', '-package', 'com.clougence.clouddm.ds.ads.sql.ads4my.parser.antlr']
 }
-
-jar {
-    dependsOn(visitorConfigs.collect { tasks.named(it.taskName) })
-}
-

@@ -137,6 +137,11 @@ public class DsMetaBinder implements DsPluginBinder {
         this.dsMeta.bindDriverFamily(driverFamily);
     }
 
+    @Override
+    public void bindSqlEngine(String... sqlEngine) {
+        this.dsMeta.bindSqlEngine(sqlEngine);
+    }
+
     // for service
 
     @Override

@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.ds.gauss.language.gsog;
 
-import com.clougence.clouddm.ds.gauss.parser.GaussDslProvider;
 import com.clougence.clouddm.dsfamily.language.split.SplitStrategyCenter;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
@@ -33,7 +32,7 @@ public class GsogLanguageSpi implements DsLanguageSpi {
     private final MetaService                  metaService;
     private final GsogCompletionStrategyCenter completion = new GsogCompletionStrategyCenter();
     private final GsogValidateStrategyCenter   validate   = new GsogValidateStrategyCenter();
-    private final SplitStrategyCenter       split = new SplitStrategyCenter();
+    private final SplitStrategyCenter          split      = new SplitStrategyCenter();
 
     public GsogLanguageSpi(MetaService metaService){
         this.metaService = metaService;
@@ -63,6 +62,6 @@ public class GsogLanguageSpi implements DsLanguageSpi {
 
     @Override
     public SplitResult split(SplitRequest request) {
-        return this.split.split(request, GaussDslProvider.INSTANCE);
+        return this.split.split(request);
     }
 }

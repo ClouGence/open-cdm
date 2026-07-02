@@ -49,8 +49,6 @@ import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.DmDsUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
-import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbSelectDomain;
-import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbTableDomain;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
@@ -65,15 +63,6 @@ import com.clougence.clouddm.platform.dal.model.execution.DmExecSessionDO;
 import com.clougence.clouddm.platform.dal.model.execution.FileStatus;
 import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.analysis.column.RealColumn;
-import com.clougence.clouddm.sdk.analysis.column.SelectColumnAnalysisSpi;
-import com.clougence.clouddm.sdk.analysis.column.SelectItem;
-import com.clougence.clouddm.sdk.analysis.rewrite.RewriteContext;
-import com.clougence.clouddm.sdk.analysis.rewrite.RewriteSpi;
-import com.clougence.clouddm.sdk.analysis.secrules.ResAnalysisSpi;
-import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
-import com.clougence.clouddm.sdk.analysis.split.SplitAnalysisSpi;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
 import com.clougence.clouddm.sdk.execute.resultset.echo.*;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.ResultLimit;
@@ -95,6 +84,17 @@ import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
+import com.clougence.clouddm.sdk.sql.column.RealColumn;
+import com.clougence.clouddm.sdk.sql.column.SelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.column.SelectItem;
+import com.clougence.clouddm.sdk.sql.rewrite.RewriteContext;
+import com.clougence.clouddm.sdk.sql.rewrite.RewriteSpi;
+import com.clougence.clouddm.sdk.sql.secrules.ResAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbSelectDomain;
+import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbTableDomain;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.ast.location.CodeLocation;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -331,8 +331,9 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         try {
             Map<String, Object> currentStatus = ctx.getCtxParams();
             sqlResources = this.analysisService.analysisResourceV2(ctx.getDsConfig(), queryDTO.getQueryString(), currentStatus);
-            sqlType = this.analysisService.analysisSplit(ctx.getDsConfig().getDataSourceType(), queryDTO.getQueryString(), queryDTO.getQueryArgs(), queryDTO
-                .getBasicCodeLine(), queryDTO.getBasicCodeColumn());
+            sqlType = ctx.getSqlEngine()
+                .splitAnalysisSpi()
+                .splitScript(queryDTO.getQueryString(), queryDTO.getQueryArgs(), queryDTO.getBasicCodeLine(), queryDTO.getBasicCodeColumn());
         } catch (AntlerSyntaxException e) {
             CodeLocation location = e.offsetLocation(queryDTO.getBasicCodeLine(), queryDTO.getBasicCodeColumn());
             String syntaxMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CONSOLE_QUERY_SYNTAX_ANALYSIS_ERROR.name(), location.getLineNumber(), location.getColumnNumber());
@@ -411,7 +412,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             }
 
             //
-            SelectColumnAnalysisSpi selectColumnAnalysisSpi = PluginManager.findSelectColumnSpi(ctx.getDsConfig().getDataSourceType());
+            SelectColumnAnalysisSpi selectColumnAnalysisSpi = ctx.getSqlEngine().selectColumnAnalysisSpi();
             if (!selectColumnAnalysisSpi.supportParseSelectColumn()) {
                 boolean viewOriginData = true;
                 for (RuleDomain ruleDomain : sqlResources.keySet()) {
@@ -506,9 +507,10 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         SessionSpi sessionSpi = ctx.getSessionSpi();
 
         // 4.9. split query
-        SplitAnalysisSpi splitSpi = PluginManager.findSplitAnalysisSpi(ctx.getDsConfig().getDataSourceType());
-        ResAnalysisSpi resourceSpi = PluginManager.findResourceAnalysisSpi(ctx.getDsConfig().getDataSourceType());
-        List<SplitScript> scripts = splitSpi.splitScript(queryDTO.getQueryString(), queryDTO.getQueryArgs(), queryDTO.getBasicCodeLine(), queryDTO.getBasicCodeColumn());
+        ResAnalysisSpi resourceSpi = ctx.getSqlEngine().resAnalysisSpi();
+        List<SplitScript> scripts = ctx.getSqlEngine()
+            .splitAnalysisSpi()
+            .splitScript(queryDTO.getQueryString(), queryDTO.getQueryArgs(), queryDTO.getBasicCodeLine(), queryDTO.getBasicCodeColumn());
         List<QueryRequest> requestScripts;
 
         Map<SplitScript, List<SelectItem>> scriptColumnMap = new HashMap<>();
@@ -559,7 +561,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         }
 
         // 4.10. rewrite query
-        RewriteSpi rewriteSpi = PluginManager.findRewriteSpi(ctx.getDsConfig().getDataSourceType());
+        RewriteSpi rewriteSpi = ctx.getSqlEngine().rewriteSpi();
         if (rewriteSpi != null && this.isUsingSelectRewrite(queryDTO, ctx)) {
             long dsId = ctx.getLevels().dsDO().getId();
             DsCacheEntry dsCache = this.cacheDao.queryByDsId(dsId);
@@ -642,7 +644,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             return false;
         }
 
-        SelectColumnAnalysisSpi spi = PluginManager.findSelectColumnSpi(ctx.getDsConfig().getDataSourceType());
+        SelectColumnAnalysisSpi spi = ctx.getSqlEngine().selectColumnAnalysisSpi();
         if (spi.supportParseSelectColumn()) {
             for (SplitScript script : scripts) {
                 if (script.getType() != SecQueryType.SELECT) {
@@ -699,7 +701,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
         } else {
             // value process check
             DataSourceType dsType = ctx.getDsConfig().getDataSourceType();
-            SecDomainResolveSpi resolveSpi = PluginManager.findSecDomainResolveSpi(dsType);
+            SecDomainResolveSpi resolveSpi = ctx.getSqlEngine().secDomainResolveSpi();
             CodeInfo codeInfo = CodeInfo.builder().baseLine(1).baseColumn(0).query(queryDTO.getQueryString()).build();
             ContextInfo contextInfo = ContextInfo.builder().dataSourceConfig(ctx.getDsConfig()).deepParser(false).build();
             List<RuleDomain> ruleDomains = resolveSpi.resolveDomain(dsType, codeInfo, contextInfo);
@@ -1009,11 +1011,12 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
         SessionSpi sessionSpi = PluginManager.findSessionSpi(dsDO.getDataSourceType());
         RdbSupportSpi supportSpi = PluginManager.findRdbSupportSpi(dsDO.getDataSourceType());
+        SqlEngineSpi sqlEngine = PluginManager.findParserSpi(dsConfig.getDataSourceType(), dsConfig.getSqlEngine());
 
         if (this.queryService.hasSession(curUid, sessionId)) {
             DmExecSessionDO sessionInfo = this.queryService.getSessionInfo(curUid, sessionId);
             SessionContextDTO contextDTO = sessionInfo.toRdbCtx();
-            QueryCtx queryCtx = new QueryCtx(levels, dsConfig, contextDTO, params, sessionSpi, supportSpi);
+            QueryCtx queryCtx = new QueryCtx(levels, dsConfig, contextDTO, params, sessionSpi, sqlEngine, supportSpi);
 
             StatusDTO status;
             if (this.queryService.isExecuting(curUid, sessionId)) {
@@ -1049,7 +1052,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
             contextDTO.setRdbAutoCommit(queryDTO.isRdbAutoCommit());
             contextDTO.setRdbTxIsolation(queryDTO.getRdbIsolation());
             contextDTO.setRdbReadOnly(queryDTO.isRdbReadOnly());
-            return new QueryCtx(levels, dsConfig, contextDTO, params, sessionSpi, supportSpi);
+            return new QueryCtx(levels, dsConfig, contextDTO, params, sessionSpi, sqlEngine, supportSpi);
         }
     }
 

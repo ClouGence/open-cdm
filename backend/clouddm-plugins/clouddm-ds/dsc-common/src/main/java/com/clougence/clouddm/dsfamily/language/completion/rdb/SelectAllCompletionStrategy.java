@@ -25,6 +25,9 @@ public class SelectAllCompletionStrategy implements CompletionStrategy {
 
     @Override
     public boolean match(CompletionContext context) {
+        if (!context.isInSelectList()) {
+            return false;
+        }
         return StringUtils.isBlank(context.getPrefix()) &&          //
                !context.hasQualifier() &&                           //
                "select".equalsIgnoreCase(context.previousToken()) &&//

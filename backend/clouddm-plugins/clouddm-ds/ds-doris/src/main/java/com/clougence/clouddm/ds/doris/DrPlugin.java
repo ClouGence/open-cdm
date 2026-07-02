@@ -18,9 +18,8 @@ package com.clougence.clouddm.ds.doris;
 import com.clougence.adapter.doris.DorisTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.ds.doris.analysis.*;
-import com.clougence.clouddm.ds.doris.analysis.rewrite.DrRewriteSpi;
 import com.clougence.clouddm.ds.doris.definition.DrDefService;
+import com.clougence.clouddm.ds.doris.definition.secrules.DrSecRulesSupportSpi;
 import com.clougence.clouddm.ds.doris.definition.ui.browser.DrDsBrowseSpi;
 import com.clougence.clouddm.ds.doris.definition.ui.ddl.DrConvertTableDDLSpi;
 import com.clougence.clouddm.ds.doris.definition.ui.editor.data.DrDataEditorSpi;
@@ -47,6 +46,8 @@ import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
+import com.clougence.sql.doris.DrSqlEngineSpi;
+import com.clougence.sql.mysql.MySqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + DrDsI18nKeys.PLUGIN_NAME_DORIS,                    //
@@ -84,9 +85,12 @@ public class DrPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(DrSessionFactory.class);
         dsPlugin.bindDsDriverFamily("MySQL Connector/J");
+
+        dsPlugin.bindSqlEngine(DrSqlEngineSpi.NAME, MySqlEngineSpi.NAME);
+        dsPlugin.addGlobalSpi(new DrSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+
         dsPlugin.addPluginSpi(new RdbSessionSpi());
         dsPlugin.addPluginSpi(new DrSupportSpi());
-        dsPlugin.addPluginSpi(new DrRewriteSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {
@@ -114,11 +118,7 @@ public class DrPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configTeam(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new DrResAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
-        dsPlugin.addPluginSpi(new DrSplitAnalysisSpi());
-        dsPlugin.addPluginSpi(new DrSecDomainResolveSpi(dsPlugin.findGlobalService(MetaService.class)));
         dsPlugin.addPluginSpi(new DrSecRulesSupportSpi());
-        dsPlugin.addPluginSpi(new DrSelectColumnAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {

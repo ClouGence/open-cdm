@@ -18,7 +18,7 @@ package com.clougence.clouddm.ds.oceanbase.execute.ob4ora;
 import java.sql.Connection;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.ds.oracle.execute.OraSession;
+import com.clougence.clouddm.dsfamily.oracle.execute.OraSession;
 import com.clougence.drivers.DsObject;
 
 public class ObForOraSession extends OraSession {

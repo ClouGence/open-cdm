@@ -60,12 +60,12 @@ public class PorMyConfigSpi extends AbstractDsConfigSpi {
 
     @Override
     public boolean supportSSL() {
-        return false;
+        return true;
     }
 
     @Override
     public List<SslMode> sslModeSet() {
-        return List.of(SslMode.TRUST, SslMode.CA, SslMode.CLIENT_CERT);
+        return List.of(SslMode.TRUST, SslMode.CA);
     }
 
     @Override

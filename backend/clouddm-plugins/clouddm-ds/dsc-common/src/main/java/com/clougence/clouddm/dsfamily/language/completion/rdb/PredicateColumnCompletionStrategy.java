@@ -22,6 +22,15 @@ public class PredicateColumnCompletionStrategy extends AbstractColumnCompletionS
 
     @Override
     public boolean match(CompletionContext context) {
+        if (context.isInPredicate()) {
+            if (StringUtils.isNotBlank(context.getPrefix())) {
+                return false;
+            }
+            String previous = context.previousToken();
+            return "and".equalsIgnoreCase(previous) || "or".equalsIgnoreCase(previous) || "not".equalsIgnoreCase(previous) || context.getPreviousSignificantChar() == ',' ||
+                   context.getPreviousSignificantChar() == '(' || context.getPreviousSignificantChar() == ')';
+        }
+
         int offset = StringUtils.isBlank(context.getPrefix()) ? 0 : 1;
         String previous = context.tokenFromEnd(offset);
         if ("and".equalsIgnoreCase(previous) || "or".equalsIgnoreCase(previous) || "not".equalsIgnoreCase(previous)) {

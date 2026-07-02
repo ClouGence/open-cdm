@@ -47,7 +47,7 @@ public class ConsoleUploadServiceImpl implements ConsoleUploadService {
     private static final long        BINARY_MAX_SIZE   = 10L * 1024L * 1024L;
     private static final String      UPLOAD_MARK       = "://upload:";
     private static final Set<String> TEXT_FORMATS      = Set.of("pem", "key", "crt", "cer");
-    private static final Set<String> SUPPORTED_FORMATS = Set.of("pem", "key", "crt", "cer", "pk8", "p12", "pfx", "jks");
+    private static final Set<String> SUPPORTED_FORMATS = Set.of("pem", "key", "crt", "cer", "pk8", "p7b", "p12", "pfx", "jks");
 
     @Resource
     private NamingDao                namingDao;

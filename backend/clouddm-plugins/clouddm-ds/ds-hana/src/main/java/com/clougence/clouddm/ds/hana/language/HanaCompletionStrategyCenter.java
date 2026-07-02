@@ -18,7 +18,6 @@ package com.clougence.clouddm.ds.hana.language;
 import java.util.List;
 
 import com.clougence.clouddm.ds.hana.dialect.HanaDialect;
-import com.clougence.clouddm.dsfamily.language.completion.CompletionContext;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategy;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategyCenter;
@@ -30,11 +29,6 @@ public class HanaCompletionStrategyCenter extends CompletionStrategyCenter {
     @Override
     protected CompletionDialect dialect(CompletionRequest request) {
         return HanaDialect.INSTANCE;
-    }
-
-    @Override
-    protected CompletionContext context(CompletionRequest request, CompletionDialect dialect) {
-        return new CompletionContext(request, dialect);
     }
 
     @Override

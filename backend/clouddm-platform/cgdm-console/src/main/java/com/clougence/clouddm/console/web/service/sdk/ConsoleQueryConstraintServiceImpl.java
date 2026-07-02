@@ -23,8 +23,8 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecQueryConstraintsDO;
 import com.clougence.clouddm.platform.dal.model.execution.QueryConstraintType;
-import com.clougence.clouddm.sdk.analysis.column.QueryConstraintService;
-import com.clougence.clouddm.sdk.analysis.column.QueryConstraintsDTO;
+import com.clougence.clouddm.sdk.sql.column.QueryConstraintService;
+import com.clougence.clouddm.sdk.sql.column.QueryConstraintsDTO;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;

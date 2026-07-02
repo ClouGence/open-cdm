@@ -30,6 +30,8 @@ public interface ConfigI18nKey {
     String CONFIG_DS_TYPE_DESC                          = "CONFIG_DS_TYPE_DESC";
     String CONFIG_RDB_DRIVER_LABEL                      = "CONFIG_RDB_DRIVER_LABEL";
     String CONFIG_RDB_DRIVER_DESC                       = "CONFIG_RDB_DRIVER_DESC";
+    String CONFIG_DS_DEFAULT_SQL_ENGINE_LABEL           = "CONFIG_DS_DEFAULT_SQL_ENGINE_LABEL";
+    String CONFIG_DS_DEFAULT_SQL_ENGINE_DESC            = "CONFIG_DS_DEFAULT_SQL_ENGINE_DESC";
     String CONFIG_RDB_VERSION_LABEL                     = "CONFIG_RDB_VERSION_LABEL";
     String CONFIG_RDB_VERSION_DESC                      = "CONFIG_RDB_VERSION_DESC";
     String CONFIG_DS_SECURITY_TYPE_LABEL                = "CONFIG_DS_SECURITY_TYPE_LABEL";

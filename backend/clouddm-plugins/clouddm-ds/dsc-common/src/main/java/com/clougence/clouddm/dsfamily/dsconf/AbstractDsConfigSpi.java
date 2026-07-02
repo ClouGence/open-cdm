@@ -28,7 +28,7 @@ import com.clougence.utils.StringUtils;
 public abstract class AbstractDsConfigSpi implements DsConfigSpi {
 
     private static final List<String> TEXT_CERTIFICATE_TYPES   = List.of("pem", "key", "crt", "cer");
-    private static final List<String> BINARY_CERTIFICATE_TYPES = List.of("pem", "key", "crt", "cer", "pk8", "p12", "pfx", "jks");
+    private static final List<String> BINARY_CERTIFICATE_TYPES = List.of("pem", "key", "crt", "cer", "pk8", "p7b", "p12", "pfx", "jks");
     private static final List<String> KEYSTORE_TYPES           = List.of("p12", "pfx", "jks");
 
     @Override

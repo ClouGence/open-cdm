@@ -49,6 +49,18 @@ public class CompletionStatementState {
         this.cursorInState = cursorInState;
     }
 
+    public CompletionStatementState(String sqlText, BlockLocation range, CompletionRequest request, int cursorOffset, String prefix, String qualifier, char previousSignificantChar,
+                                    List<String> tokensBeforeCursor, boolean cursorInState){
+        this.sqlText = StringUtils.toString(sqlText);
+        this.range = range;
+        this.cursorOffset = cursorOffset;
+        this.prefix = StringUtils.toString(prefix);
+        this.qualifier = StringUtils.toString(qualifier);
+        this.previousSignificantChar = previousSignificantChar;
+        this.tokensBeforeCursor = tokensBeforeCursor == null ? Collections.emptyList() : List.copyOf(tokensBeforeCursor);
+        this.cursorInState = cursorInState;
+    }
+
     public String previousToken() {
         return tokenFromEnd(0);
     }
@@ -115,7 +127,7 @@ public class CompletionStatementState {
         return lineText != null && Math.max(0, colNumber) > lineText.length();
     }
 
-    static int offsetOf(String sqlText, Integer lineNumber, Integer colNumber) {
+    public static int offsetOf(String sqlText, Integer lineNumber, Integer colNumber) {
         if (lineNumber == null || colNumber == null) {
             return sqlText.length();
         }

@@ -52,9 +52,21 @@ include 'plus-provider-gitee'; project(":plus-provider-gitee").projectDir = file
 include 'plus-provider-github'; project(":plus-provider-github").projectDir = file('clouddm-plugins/clouddm-provider/plus-provider-github')
 //include 'plus-provider-ngrok'; project(":plus-provider-ngrok").projectDir = file('clouddm-plugins/clouddm-provider/plus-provider-ngrok')
 
+// plugins for sql
+include 'sqlc-common'; project(":sqlc-common").projectDir = file('clouddm-plugins/clouddm-sql/sqlc-common')
+include 'sql-mysql'; project(":sql-mysql").projectDir = file('clouddm-plugins/clouddm-sql/sql-mysql')
+include 'sql-postgres'; project(":sql-postgres").projectDir = file('clouddm-plugins/clouddm-sql/sql-postgres')
+include 'sql-db2'; project(":sql-db2").projectDir = file('clouddm-plugins/clouddm-sql/sql-db2')
+include 'sql-doris'; project(":sql-doris").projectDir = file('clouddm-plugins/clouddm-sql/sql-doris')
+include 'sql-mongodb'; project(":sql-mongodb").projectDir = file('clouddm-plugins/clouddm-sql/sql-mongodb')
+include 'sql-oracle'; project(":sql-oracle").projectDir = file('clouddm-plugins/clouddm-sql/sql-oracle')
+include 'sql-redis'; project(":sql-redis").projectDir = file('clouddm-plugins/clouddm-sql/sql-redis')
+include 'sql-sqlserver'; project(":sql-sqlserver").projectDir = file('clouddm-plugins/clouddm-sql/sql-sqlserver')
+
 // plugins for ds
 include 'dsc-common'; project(":dsc-common").projectDir = file('clouddm-plugins/clouddm-ds/dsc-common')
 include 'dsc-common-mysql'; project(":dsc-common-mysql").projectDir = file('clouddm-plugins/clouddm-ds/dsc-common-mysql')
+include 'dsc-common-oracle'; project(":dsc-common-oracle").projectDir = file('clouddm-plugins/clouddm-ds/dsc-common-oracle')
 include 'dsc-common-postgres'; project(":dsc-common-postgres").projectDir = file('clouddm-plugins/clouddm-ds/dsc-common-postgres')
 include 'dsc-common-db2'; project(":dsc-common-db2").projectDir = file('clouddm-plugins/clouddm-ds/dsc-common-db2')
 include 'ds-mysql'; project(":ds-mysql").projectDir = file('clouddm-plugins/clouddm-ds/ds-mysql')
@@ -72,13 +84,11 @@ include 'ds-starrocks'; project(":ds-starrocks").projectDir = file('clouddm-plug
 include 'ds-doris'; project(":ds-doris").projectDir = file('clouddm-plugins/clouddm-ds/ds-doris')
 include 'ds-clickhouse'; project(":ds-clickhouse").projectDir = file('clouddm-plugins/clouddm-ds/ds-clickhouse')
 include 'ds-adb'; project(":ds-adb").projectDir = file('clouddm-plugins/clouddm-ds/ds-adb')
-include 'ds-db2-i'; project(":ds-db2-i").projectDir = file('clouddm-plugins/clouddm-ds/ds-db2-i')
-include 'ds-db2-zos'; project(":ds-db2-zos").projectDir = file('clouddm-plugins/clouddm-ds/ds-db2-zos')
+include 'ds-db2'; project(":ds-db2").projectDir = file('clouddm-plugins/clouddm-ds/ds-db2')
 include 'ds-oceanbase'; project(":ds-oceanbase").projectDir = file('clouddm-plugins/clouddm-ds/ds-oceanbase')
 include 'ds-dameng'; project(":ds-dameng").projectDir = file('clouddm-plugins/clouddm-ds/ds-dameng')
 include 'ds-polardb'; project(":ds-polardb").projectDir = file('clouddm-plugins/clouddm-ds/ds-polardb')
 include 'ds-gauss'; project(":ds-gauss").projectDir = file('clouddm-plugins/clouddm-ds/ds-gauss')
-include 'ds-selectdb'; project(":ds-selectdb").projectDir = file('clouddm-plugins/clouddm-ds/ds-selectdb')
 include 'ds-maxcompute'; project(":ds-maxcompute").projectDir = file('clouddm-plugins/clouddm-ds/ds-maxcompute')
 include 'ds-hologres'; project(":ds-hologres").projectDir = file('clouddm-plugins/clouddm-ds/ds-hologres')
 

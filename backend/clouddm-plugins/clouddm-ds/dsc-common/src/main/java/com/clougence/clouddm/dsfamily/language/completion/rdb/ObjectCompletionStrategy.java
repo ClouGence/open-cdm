@@ -36,6 +36,9 @@ public class ObjectCompletionStrategy implements CompletionStrategy {
 
     @Override
     public boolean match(CompletionContext context) {
+        if (context.isInFromClause()) {
+            return true;
+        }
         String previous = context.previousToken();
         return StringUtils.isBlank(previous) || switch (previous.toLowerCase()) {
             case "from", "join", "into", "update", "table" -> true;
@@ -53,7 +56,7 @@ public class ObjectCompletionStrategy implements CompletionStrategy {
                 context.getRequest().getLevels(),       //
                 context.getRequest().getLevelsParam());
         for (MetaObj metaObj : metaObjs) {
-            if (metaObj == null || StringUtils.isBlank(metaObj.getName()) || !context.matchPrefix(metaObj.getName())) {
+            if (metaObj == null || StringUtils.isBlank(metaObj.getName()) || !context.matchPrefix(metaObj.getName()) || !objectAllowed(context, metaObj.getType())) {
                 continue;
             }
 
@@ -67,6 +70,16 @@ public class ObjectCompletionStrategy implements CompletionStrategy {
             items.add(item);
         }
         return items;
+    }
+
+    private static boolean objectAllowed(CompletionContext context, UmiTypes type) {
+        if (!context.isInFromClause()) {
+            return true;
+        }
+        return switch (type) {
+            case Catalog, ExternalCatalog, Schema, ExternalSchema, Table, ExternalTable, Materialized, View -> true;
+            default -> false;
+        };
     }
 
     static CompletionItemKind toCompletionKind(UmiTypes type) {

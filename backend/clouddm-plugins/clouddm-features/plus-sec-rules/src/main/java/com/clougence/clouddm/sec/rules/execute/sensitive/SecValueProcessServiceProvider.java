@@ -22,20 +22,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
-import com.clougence.clouddm.sdk.analysis.column.RealColumn;
-import com.clougence.clouddm.sdk.service.secrules.CheckerData;
-import com.clougence.clouddm.sdk.service.secrules.CheckerOptions;
-import com.clougence.clouddm.sdk.service.secrules.CheckerRule;
-import com.clougence.clouddm.sdk.service.secrules.SecResult;
 import com.clougence.clouddm.sdk.execute.ExecuteVariables;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.result.ValueProcessService;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
-import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
-import com.clougence.clouddm.sdk.service.secrules.SensitiveConfig;
-import com.clougence.clouddm.sdk.service.secrules.SensitiveMode;
 import com.clougence.clouddm.sdk.service.cache.CacheService;
 import com.clougence.clouddm.sdk.service.config.ConfigService;
+import com.clougence.clouddm.sdk.service.secrules.*;
+import com.clougence.clouddm.sdk.sql.column.RealColumn;
 import com.clougence.clouddm.sec.rules.domain.special.rdb.RdbValueDomain;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
@@ -173,7 +167,7 @@ public class SecValueProcessServiceProvider implements ValueProcessService {
             return Collections.emptyList();
         }
 
-        return ((List<?>) dsLevels).stream()
+        return ((List<?>) dsLevels).stream()//
             .filter(UmiTypes.class::isInstance)
             .map(UmiTypes.class::cast)
             .collect(Collectors.toList());
@@ -226,7 +220,7 @@ public class SecValueProcessServiceProvider implements ValueProcessService {
         domain.setUserRole(variables.get(ExecuteVariables.ROLE_NAME));
 
         CheckerData checkerData = new CheckerData(query.getQueryBody(), domain);
-    checkerData.setDsLevelsDef(typesList);
+        checkerData.setDsLevelsDef(typesList);
         checkerData.setCurrentCatalog(catalog); // default, domain.catalog is first
         checkerData.setCurrentSchema(schema); // default, domain.schema is first
         checkerData.setStartLine(1);

@@ -70,6 +70,10 @@ public interface DsPluginBinder {
         throw new UnsupportedOperationException();
     }
 
+    default void bindSqlEngine(String... sqlEngine) {
+        throw new UnsupportedOperationException();
+    }
+
     // for service
 
     <T extends Service> T findGlobalService(Class<T> serviceType);

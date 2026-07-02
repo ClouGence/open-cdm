@@ -18,8 +18,7 @@ package com.clougence.clouddm.ds.maxcompute;
 import com.clougence.adapter.mc.McSqlTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.ds.maxcompute.analysis.*;
-import com.clougence.clouddm.ds.maxcompute.analysis.rewrite.McRewriteSpi;
+import com.clougence.clouddm.ds.maxcompute.definition.secrules.McSecRulesSupportSpi;
 import com.clougence.clouddm.ds.maxcompute.definition.ui.McDefService;
 import com.clougence.clouddm.ds.maxcompute.definition.ui.browser.McDsBrowseSpi;
 import com.clougence.clouddm.ds.maxcompute.definition.ui.ddl.McConvertTableDDLSpi;
@@ -35,6 +34,7 @@ import com.clougence.clouddm.ds.maxcompute.i18n.McConfigI18nKeys;
 import com.clougence.clouddm.ds.maxcompute.i18n.McI18nKeys;
 import com.clougence.clouddm.ds.maxcompute.language.McLanguageSpi;
 import com.clougence.clouddm.ds.maxcompute.resource.McEditorResourceSpi;
+import com.clougence.clouddm.ds.maxcompute.sql.McSqlEngineSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
@@ -80,9 +80,12 @@ public class McDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(McSessionFactory.class);
         dsPlugin.bindDsDriverFamily("ODPS JDBC");
+
+        dsPlugin.bindSqlEngine(McSqlEngineSpi.NAME);
+        dsPlugin.addPluginSpi(new McSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+
         dsPlugin.addPluginSpi(new McSessionSpi());
         dsPlugin.addPluginSpi(new McSupportSpi());
-        dsPlugin.addPluginSpi(new McRewriteSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {
@@ -110,11 +113,7 @@ public class McDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configTeam(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new McResAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
-        dsPlugin.addPluginSpi(new McSplitAnalysisSpi());
-        dsPlugin.addPluginSpi(new McSecDomainResolveSpi(dsPlugin.findGlobalService(MetaService.class)));
         dsPlugin.addPluginSpi(new McSecRulesSupportSpi());
-        dsPlugin.addPluginSpi(new McSelectColumnAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {

@@ -24,8 +24,7 @@ import com.clougence.clouddm.ds.postgres.dsconf.PgConfigSpi;
 import com.clougence.clouddm.ds.postgres.dsconf.PgSerializationSpi;
 import com.clougence.clouddm.ds.postgres.execute.PgSessionFactory;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
-import com.clougence.clouddm.dsfamily.postgres.analysis.*;
-import com.clougence.clouddm.dsfamily.postgres.analysis.rewrite.PgRewriteSpi;
+import com.clougence.clouddm.dsfamily.postgres.definition.secrules.PgSecRulesSupportSpi;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.browser.PgDsBrowseSpi;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.data.PgDataEditorSpi;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.table.PgEditorProvider;
@@ -46,6 +45,7 @@ import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
+import com.clougence.sql.postgres.PgSqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + PgDsI18nKeys.PLUGIN_NAME_POSTGRESQL,                  //
@@ -83,9 +83,12 @@ public class PgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(PgSessionFactory.class);
         dsPlugin.bindDsDriverFamily("PostgreSQL JDBC");
+
+        dsPlugin.bindSqlEngine(PgSqlEngineSpi.NAME);
+        dsPlugin.addGlobalSpi(new PgSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+
         dsPlugin.addPluginSpi(new PgSessionSpi());
         dsPlugin.addPluginSpi(new PgSupportSpi());
-        dsPlugin.addPluginSpi(new PgRewriteSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {
@@ -112,11 +115,7 @@ public class PgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configTeam(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new PgResAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
-        dsPlugin.addPluginSpi(new PgSplitAnalysisSpi());
-        dsPlugin.addPluginSpi(new PgSecDomainResolveSpi(dsPlugin.findGlobalService(MetaService.class)));
         dsPlugin.addPluginSpi(new PgSecRulesSupportSpi());
-        dsPlugin.addPluginSpi(new PgSelectColumnAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {

@@ -31,8 +31,8 @@ import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanelFieldType;
 import com.clougence.clouddm.base.metadata.ui.form.value.ValueDef;
-import com.clougence.clouddm.ds.oracle.i18n.OraConfigI18nKeys;
 import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
+import com.clougence.clouddm.dsfamily.oracle.i18n.OraConfigI18nKeys;
 import com.clougence.drivers.adapter.ConvertUtils;
 import com.clougence.utils.StringUtils;
 
@@ -148,13 +148,13 @@ public class OraConfigSpi extends AbstractDsConfigSpi {
     }
 
     @Override
-    public List<SslMode> sslModeSet() {
-        return List.of(SslMode.TRUSTSTORE, SslMode.KEYSTORE_TRUSTSTORE);
+    public boolean supportSSL() {
+        return true;
     }
 
     @Override
-    public boolean supportSSL() {
-        return true;
+    public List<SslMode> sslModeSet() {
+        return List.of(SslMode.TRUSTSTORE, SslMode.KEYSTORE_TRUSTSTORE);
     }
 
     @Override

@@ -18,23 +18,14 @@ package com.clougence.clouddm.dsfamily.mysql.language;
 import java.util.List;
 
 import com.clougence.clouddm.dsfamily.language.validate.SyntaxValidateStrategy;
+import com.clougence.clouddm.dsfamily.language.validate.TablePermissionValidateStrategy;
 import com.clougence.clouddm.dsfamily.language.validate.ValidateStrategy;
 import com.clougence.clouddm.dsfamily.language.validate.ValidateStrategyCenter;
-import com.clougence.clouddm.dsfamily.mysql.language.strategy.MyRdbTablePermissionValidateStrategy;
-import com.clougence.clouddm.dsfamily.mysql.parser.MyDslProvider;
-import com.clougence.clouddm.sdk.language.validate.ValidateRequest;
-import com.clougence.dslpaser.antlr.DslProvider;
 
 public class MyValidateStrategyCenter extends ValidateStrategyCenter {
-
-    @Override
-    protected DslProvider dslProvider(ValidateRequest request) {
-        return MyDslProvider.INSTANCE;
-    }
-
     @Override
     protected void register(List<ValidateStrategy> strategies) {
         strategies.add(new SyntaxValidateStrategy());
-        strategies.add(new MyRdbTablePermissionValidateStrategy());
+        strategies.add(new TablePermissionValidateStrategy());
     }
 }

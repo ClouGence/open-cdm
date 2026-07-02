@@ -22,12 +22,12 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbTableDomain;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.model.datasource.MetaInformationType;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbTableDomain;
 
 import jakarta.annotation.Resource;
 

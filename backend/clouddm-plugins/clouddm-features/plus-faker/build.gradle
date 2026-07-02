@@ -30,9 +30,10 @@ dependencies {
     compileOnly project(':cgdm-share-libs')
 }
 
-configureClougenceAntlrGrammar([maxHeapSize: '64m',
-                                outputPath : 'src/main/java/com/clougence/clouddm/faker/config/dsl/antlr',
-                                packageName: 'com.clougence.clouddm.faker.config.dsl.antlr'])
+tasks.named('generateGrammarSource') {
+    maxHeapSize = '64m'
+    arguments += ['-visitor', '-package', 'com.clougence.clouddm.faker.config.dsl.antlr']
+}
 
 description = 'plus-faker'
 

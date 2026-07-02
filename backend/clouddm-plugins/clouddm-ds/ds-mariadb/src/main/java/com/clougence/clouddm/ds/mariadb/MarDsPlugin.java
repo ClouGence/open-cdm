@@ -18,8 +18,8 @@ package com.clougence.clouddm.ds.mariadb;
 import com.clougence.adapter.mysql.MySQLTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.ds.mariadb.analysis.*;
 import com.clougence.clouddm.ds.mariadb.definition.MarDefService;
+import com.clougence.clouddm.ds.mariadb.definition.secrules.MarSecRulesSupportSpi;
 import com.clougence.clouddm.ds.mariadb.definition.ui.browser.MarDsBrowseSpi;
 import com.clougence.clouddm.ds.mariadb.definition.ui.ddl.MarConvertTableDDLSpi;
 import com.clougence.clouddm.ds.mariadb.dsconf.MarConfigSpi;
@@ -28,7 +28,6 @@ import com.clougence.clouddm.ds.mariadb.execute.MarSessionFactory;
 import com.clougence.clouddm.ds.mariadb.i18n.MarDsI18nKeys;
 import com.clougence.clouddm.ds.mariadb.resource.MarEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
-import com.clougence.clouddm.dsfamily.mysql.analysis.rewrite.MyRewriteSpi;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.data.MyDataEditorSpi;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.table.MyEditorProvider;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.table.MyTableEditorUiDataSpi;
@@ -46,6 +45,7 @@ import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
+import com.clougence.sql.mysql.MySqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + MarDsI18nKeys.PLUGIN_NAME_MARIADB,                 //
@@ -83,9 +83,11 @@ public class MarDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(MarSessionFactory.class);
         dsPlugin.bindDsDriverFamily("MariaDB Java Client", "MySQL Connector/J");
+
+        dsPlugin.bindSqlEngine(MySqlEngineSpi.NAME);
+
         dsPlugin.addPluginSpi(new MySessionSpi());
         dsPlugin.addPluginSpi(new MySupportSpi());
-        dsPlugin.addPluginSpi(new MyRewriteSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {
@@ -112,11 +114,7 @@ public class MarDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configTeam(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new MarResAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
-        dsPlugin.addPluginSpi(new MarSplitAnalysisSpi());
-        dsPlugin.addPluginSpi(new MarSecDomainResolveSpi(dsPlugin.findGlobalService(MetaService.class)));
         dsPlugin.addPluginSpi(new MarSecRulesSupportSpi());
-        dsPlugin.addPluginSpi(new MarSelectColumnAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {

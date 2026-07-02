@@ -18,13 +18,12 @@ package com.clougence.clouddm.ds.gauss;
 import com.clougence.adapter.gauss.GaussDBTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.ds.gauss.analysis.gs.*;
-import com.clougence.clouddm.ds.gauss.analysis.gs.rewrite.GsRewriteSpi;
 import com.clougence.clouddm.ds.gauss.broswer.gs.GsDsBrowseSpi;
 import com.clougence.clouddm.ds.gauss.definition.gs.GsDefService;
 import com.clougence.clouddm.ds.gauss.definition.gs.ui.ddl.GsConvertTableDDLSpi;
 import com.clougence.clouddm.ds.gauss.definition.gs.ui.editor.table.GsEditorProvider;
 import com.clougence.clouddm.ds.gauss.definition.gs.ui.editor.table.GsTableEditorUiDataSpi;
+import com.clougence.clouddm.ds.gauss.definition.secrules.GsSecRulesSupportSpi;
 import com.clougence.clouddm.ds.gauss.dialect.GaussDBDialect;
 import com.clougence.clouddm.ds.gauss.dsconf.gs.GsConfigSpi;
 import com.clougence.clouddm.ds.gauss.dsconf.gs.GsSerializationSpi;
@@ -34,6 +33,7 @@ import com.clougence.clouddm.ds.gauss.execute.gs.GsSupportSpi;
 import com.clougence.clouddm.ds.gauss.i18n.gs.GsDsI18nKeys;
 import com.clougence.clouddm.ds.gauss.language.gs.GsLanguageSpi;
 import com.clougence.clouddm.ds.gauss.resource.GsEditorResourceSpi;
+import com.clougence.clouddm.ds.gauss.sql.gs.GsSqlEngineSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.editor.data.PgDataEditorSpi;
 import com.clougence.clouddm.dsfamily.postgres.definition.ui.exception.PgDetermineExceptionSpi;
@@ -46,6 +46,7 @@ import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
+import com.clougence.sql.postgres.PgSqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + GsDsI18nKeys.PLUGIN_NAME_GAUSSDB,                     //
@@ -83,9 +84,12 @@ public class GsDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(GsSessionFactory.class);
         dsPlugin.bindDsDriverFamily("GaussDB JDBC Driver", "PostgreSQL JDBC");
+
+        dsPlugin.bindSqlEngine(GsSqlEngineSpi.NAME, PgSqlEngineSpi.NAME);
+        dsPlugin.addPluginSpi(new GsSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+
         dsPlugin.addPluginSpi(new GsSessionSpi());
         dsPlugin.addPluginSpi(new GsSupportSpi());
-        dsPlugin.addPluginSpi(new GsRewriteSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {
@@ -112,11 +116,7 @@ public class GsDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configTeam(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new GsResAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
-        dsPlugin.addPluginSpi(new GsSplitAnalysisSpi());
-        dsPlugin.addPluginSpi(new GsSecDomainResolveSpi(dsPlugin.findGlobalService(MetaService.class)));
         dsPlugin.addPluginSpi(new GsSecRulesSupportSpi());
-        dsPlugin.addPluginSpi(new GsSelectColumnAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {

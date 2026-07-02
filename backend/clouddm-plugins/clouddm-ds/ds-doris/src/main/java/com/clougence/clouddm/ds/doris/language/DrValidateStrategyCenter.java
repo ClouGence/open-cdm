@@ -17,20 +17,11 @@ package com.clougence.clouddm.ds.doris.language;
 
 import java.util.List;
 
-import com.clougence.clouddm.ds.doris.parser.DrDslProvider;
 import com.clougence.clouddm.dsfamily.language.validate.SyntaxValidateStrategy;
 import com.clougence.clouddm.dsfamily.language.validate.ValidateStrategy;
 import com.clougence.clouddm.dsfamily.language.validate.ValidateStrategyCenter;
-import com.clougence.clouddm.sdk.language.validate.ValidateRequest;
-import com.clougence.dslpaser.antlr.DslProvider;
 
 public class DrValidateStrategyCenter extends ValidateStrategyCenter {
-
-    @Override
-    protected DslProvider dslProvider(ValidateRequest request) {
-        return DrDslProvider.INSTANCE;
-    }
-
     @Override
     protected void register(List<ValidateStrategy> strategies) {
         strategies.add(new SyntaxValidateStrategy());

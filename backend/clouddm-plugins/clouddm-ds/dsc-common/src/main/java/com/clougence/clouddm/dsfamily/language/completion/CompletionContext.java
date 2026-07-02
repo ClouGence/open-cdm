@@ -18,10 +18,11 @@ package com.clougence.clouddm.dsfamily.language.completion;
 import java.util.List;
 import java.util.Objects;
 
+import com.clougence.clouddm.dsfamily.language.completion.analyzer.*;
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
+import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.dslpaser.ast.location.BlockLocation;
 import com.clougence.dslpaser.ast.location.CodeLocation;
-import com.clougence.dslpaser.parse.AstSplitScript;
 import com.clougence.utils.StringUtils;
 
 import lombok.Getter;
@@ -33,6 +34,8 @@ public class CompletionContext {
     private final CompletionDialect              dialect;
     private final List<CompletionStatementState> statementStates;
     private final CompletionStatementState       currentState;
+    private final CompletionLexerState           lexerState;
+    private final CompletionParseState           parseState;
 
     public CompletionContext(CompletionRequest request, CompletionDialect dialect){
         this.request = request;
@@ -40,31 +43,20 @@ public class CompletionContext {
         this.statementStates = List.of(new CompletionStatementState(request
             .getSqlText(), fullRange(request.getSqlText()), request, request.getCursorLineNumber(), request.getCursorColNumber(), this.dialect, true));
         this.currentState = this.statementStates.get(0);
+        this.lexerState = null;
+        this.parseState = null;
     }
 
-    private CompletionContext(CompletionRequest request, CompletionDialect dialect, List<CompletionStatementState> statementStates){
+    public CompletionContext(CompletionRequest request, CompletionDialect dialect, List<CompletionStatementState> statementStates, CompletionLexerState lexerState,
+                             CompletionParseState parseState){
         this.request = request;
         this.dialect = Objects.requireNonNull(dialect, "dialect");
-        this.statementStates = List.copyOf(statementStates);
-        this.currentState = this.statementStates.stream()
-            .filter(CompletionStatementState::isCursorInState)
-            .findFirst()
-            .orElseGet(() -> new CompletionStatementState(request
-                .getSqlText(), fullRange(request.getSqlText()), request, request.getCursorLineNumber(), request.getCursorColNumber(), this.dialect, true));
-    }
-
-    public static CompletionContext build(CompletionRequest request, CompletionDialect dialect, List<AstSplitScript> splitScripts) {
-        if (splitScripts == null || splitScripts.isEmpty()) {
-            return new CompletionContext(request, dialect);
-        }
-
-        List<CompletionStatementState> statementStates = splitScripts.stream().map(splitScript -> {
-            boolean cursorInState = cursorInRange(request, splitScript.toLocation());
-            Integer cursorLineNumber = cursorInState ? relativeLine(request, splitScript.toLocation()) : null;
-            Integer cursorColNumber = cursorInState ? relativeColumn(request, splitScript.toLocation()) : null;
-            return new CompletionStatementState(splitScript.getScript(), splitScript.toLocation(), request, cursorLineNumber, cursorColNumber, dialect, cursorInState);
-        }).toList();
-        return new CompletionContext(request, dialect, statementStates);
+        this.statementStates = statementStates == null || statementStates.isEmpty() ? List.of(new CompletionStatementState(request
+            .getSqlText(), fullRange(request.getSqlText()), request, request.getCursorLineNumber(), request.getCursorColNumber(), this.dialect, true)) : List
+                .copyOf(statementStates);
+        this.currentState = this.statementStates.stream().filter(CompletionStatementState::isCursorInState).findFirst().orElse(this.statementStates.get(0));
+        this.lexerState = lexerState;
+        this.parseState = parseState;
     }
 
     public String previousToken() {
@@ -95,36 +87,83 @@ public class CompletionContext {
 
     public String getQualifier() { return currentState.getQualifier(); }
 
+    public List<String> getQualifiers() {
+        CompletionNamePath namePath = lexerState == null ? null : lexerState.getNamePath();
+        return namePath == null || namePath.getQualifiers() == null ? List.of() : namePath.getQualifiers();
+    }
+
+    public CompletionNamePath getNamePath() { return lexerState == null ? null : lexerState.getNamePath(); }
+
+    public String getCatalogName() {
+        CompletionNamePath namePath = getNamePath();
+        return namePath == null ? null : namePath.catalog();
+    }
+
+    public String getSchemaName() {
+        CompletionNamePath namePath = getNamePath();
+        return namePath == null ? null : namePath.schema();
+    }
+
+    public String getTableName() {
+        CompletionNamePath namePath = getNamePath();
+        return namePath == null ? null : namePath.table();
+    }
+
+    public String getCurrentName() {
+        CompletionNamePath namePath = getNamePath();
+        return namePath == null ? null : namePath.currentName();
+    }
+
     public char getPreviousSignificantChar() { return currentState.getPreviousSignificantChar(); }
 
     public List<String> getTokensBeforeCursor() { return currentState.getTokensBeforeCursor(); }
 
-    private static boolean cursorInRange(CompletionRequest request, BlockLocation range) {
-        if (request.getCursorLineNumber() == null || request.getCursorColNumber() == null || range == null) {
-            return false;
-        }
+    public CompletionClause getClause() { return parseState == null || parseState.getClause() == null ? CompletionClause.UNKNOWN : parseState.getClause(); }
 
-        CodeLocation start = range.getStartPosition();
-        CodeLocation end = range.getEndPosition();
-        int cursorLine = request.getCursorLineNumber();
-        int cursorColumn = request.getCursorColNumber();
-        if (cursorLine < start.getLineNumber() || cursorLine > end.getLineNumber()) {
-            return false;
-        }
-        if (cursorLine == start.getLineNumber() && cursorColumn < start.getColumnNumber()) {
-            return false;
-        }
-        return cursorLine != end.getLineNumber() || cursorColumn <= end.getColumnNumber();
+    public boolean isInFromClause() {
+        return getClause() == CompletionClause.FROM_TABLE ||   //
+               getClause() == CompletionClause.JOIN_TABLE ||   //
+               getClause() == CompletionClause.INSERT_TARGET ||//
+               getClause() == CompletionClause.UPDATE_TARGET;
     }
 
-    private static int relativeLine(CompletionRequest request, BlockLocation range) {
-        return request.getCursorLineNumber() - range.getStartPosition().getLineNumber() + 1;
+    public boolean isInSelectList() { return getClause() == CompletionClause.SELECT_LIST; }
+
+    public boolean isInPredicate() {
+        return getClause() == CompletionClause.WHERE_CONDITION || getClause() == CompletionClause.JOIN_CONDITION || getClause() == CompletionClause.UPDATE_SET;
     }
 
-    private static int relativeColumn(CompletionRequest request, BlockLocation range) {
-        return request.getCursorLineNumber().equals(range.getStartPosition().getLineNumber()) ? //
-            request.getCursorColNumber() - range.getStartPosition().getColumnNumber() : request.getCursorColNumber();
+    public boolean isInColumnList() { return getClause() == CompletionClause.INSERT_COLUMNS; }
+
+    public boolean isInOrderGroupByClause() { return getClause() == CompletionClause.ORDER_BY || getClause() == CompletionClause.GROUP_BY; }
+
+    public List<CompletionTableRef> getTableRefs() { return parseState == null || parseState.getTableRefs() == null ? List.of() : parseState.getTableRefs(); }
+
+    public List<CompletionColumnRef> getColumnRefs() { return parseState == null || parseState.getColumnRefs() == null ? List.of() : parseState.getColumnRefs(); }
+
+    public SecQueryType getStatementType() { return parseState == null || parseState.getStatementType() == null ? SecQueryType.UNKNOWN : parseState.getStatementType(); }
+
+    public boolean hasSyntaxError() {
+        return parseState != null && parseState.isHasSyntaxError();
     }
+
+    public List<CompletionSyntaxError> getSyntaxErrors() { return parseState == null || parseState.getSyntaxErrors() == null ? List.of() : parseState.getSyntaxErrors(); }
+
+    public CompletionToken getTokenBeforeCursor() { return lexerState == null ? null : lexerState.getTokenBeforeCursor(); }
+
+    public CompletionToken getTokenAfterCursor() { return lexerState == null ? null : lexerState.getTokenAfterCursor(); }
+
+    public CompletionToken getCurrentToken() { return lexerState == null ? null : lexerState.getCurrentToken(); }
+
+    public List<String> getOperatorsBeforeCursor() {
+        return lexerState == null || lexerState.getOperatorsBeforeCursor() == null ? List.of() : lexerState.getOperatorsBeforeCursor();
+    }
+
+    public String getOperatorBeforeCursor() { return lexerState == null ? null : lexerState.getOperatorBeforeCursor(); }
+
+    public String getFunctionName() { return lexerState == null ? null : lexerState.getFunctionName(); }
+
+    public int getFunctionParameterIndex() { return lexerState == null ? -1 : lexerState.getFunctionParameterIndex(); }
 
     private static BlockLocation fullRange(String sqlText) {
         BlockLocation range = new BlockLocation();

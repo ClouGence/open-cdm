@@ -24,6 +24,7 @@ import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportLevel;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -38,6 +39,7 @@ public class QueryCtx {
     private SessionContextDTO      ctxDTO;
     private Map<String, Object>    ctxParams;
     private final SessionSpi       sessionSpi;
+    private final SqlEngineSpi     sqlEngine;
 
     private final boolean          supportSwitchCatalog;
     private final boolean          supportSwitchSchema;
@@ -54,12 +56,13 @@ public class QueryCtx {
     private final AtomicLong       receiveTimes;
 
     public QueryCtx(DsLevels levels, DataSourceConfig dsConfig, SessionContextDTO ctxDTO, Map<String, Object> ctxParams,//
-                    SessionSpi sessionSpi, RdbSupportSpi supportSpi){
+                    SessionSpi sessionSpi, SqlEngineSpi sqlEngine, RdbSupportSpi supportSpi){
         this.levels = levels;
         this.dsConfig = dsConfig;
         this.ctxDTO = ctxDTO;
         this.ctxParams = ctxParams;
         this.sessionSpi = sessionSpi;
+        this.sqlEngine = sqlEngine;
         this.supportSwitchCatalog = supportSpi.supportChangeCatalog(dsConfig) != RdbSupportLevel.No;
         this.supportSwitchSchema = supportSpi.supportChangeSchema(dsConfig) != RdbSupportLevel.No;
         this.supportSwitchIsolation = supportSpi.supportChangeIsolation(dsConfig) != RdbSupportLevel.No;

@@ -68,8 +68,6 @@
 </template>
 
 <script>
-const TEXT_CERTIFICATE_FORMATS = ['pem', 'key', 'crt', 'cer'];
-const CERTIFICATE_FORMATS = [...TEXT_CERTIFICATE_FORMATS, 'pk8', 'p12', 'pfx', 'jks'];
 const TEXT_MAX_SIZE = 1024 * 1024;
 const BINARY_MAX_SIZE = 10 * 1024 * 1024;
 const INPUT_MODE_TEXT = 'text';
@@ -126,13 +124,10 @@ export default {
       if (formats === undefined && this.certificateProps['certificate.supportText'] === false) {
         return [];
       }
-      return this.resolveSupportedFormats(formats, TEXT_CERTIFICATE_FORMATS);
+      return this.resolveSupportedFormats(formats);
     },
     supportedFileFormats() {
-      return this.resolveSupportedFormats(
-        this.certificateProps['certificate.binaryFileTypes'] ?? this.certificateProps['certificate.fileTypes'],
-        CERTIFICATE_FORMATS
-      );
+      return this.resolveSupportedFormats(this.certificateProps['certificate.binaryFileTypes'] ?? this.certificateProps['certificate.fileTypes']);
     },
     supportedFormatText() {
       const formats = this.inputMode === INPUT_MODE_TEXT ? this.supportedTextFormats : this.supportedFileFormats;
@@ -307,9 +302,9 @@ export default {
       const format = fileName.substring(index + 1).toLowerCase();
       return this.supportedFormats.includes(format) ? format : '';
     },
-    resolveSupportedFormats(formats, supportedFormats) {
+    resolveSupportedFormats(formats) {
       if (formats === undefined || formats === null || formats === '*') {
-        return supportedFormats;
+        return [];
       }
       if (!Array.isArray(formats)) {
         const format = String(formats || '')
@@ -318,10 +313,7 @@ export default {
         if (!format) {
           return [];
         }
-        if (format === '*') {
-          return supportedFormats;
-        }
-        return supportedFormats.includes(format) ? [format] : [];
+        return format === '*' ? [] : [format];
       }
       if (formats.length === 0) {
         return [];
@@ -333,10 +325,7 @@ export default {
             .trim()
         )
         .filter(Boolean);
-      if (normalizedFormats.includes('*')) {
-        return supportedFormats;
-      }
-      return normalizedFormats.filter((format) => supportedFormats.includes(format));
+      return normalizedFormats.includes('*') ? [] : [...new Set(normalizedFormats)];
     },
     decodeText(bytes) {
       try {

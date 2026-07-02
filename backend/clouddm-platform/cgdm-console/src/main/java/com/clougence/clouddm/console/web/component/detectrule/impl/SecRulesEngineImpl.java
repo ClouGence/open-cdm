@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
 import com.clougence.clouddm.console.web.component.detectrule.*;
@@ -35,10 +36,11 @@ import com.clougence.clouddm.platform.dal.access.entry.EnvCacheEntry;
 import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
 import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.service.secrules.*;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
+import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.ui.browser.DsBrowseSpi;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
@@ -74,9 +76,7 @@ public class SecRulesEngineImpl implements SecRulesEngine {
         }
 
         DataSourceType dsType = rules.getDsType();
-        SecDomainResolveSpi resolveSpi = PluginManager.findSecDomainResolveSpi(dsType);
-        DsBrowseSpi browseSpi = PluginManager.findDsBrowseSpi(dsType);
-
+        DataSourceConfig dsConfig = configService.fetchDsConfigFromExists(context.getDsId());
         List<RuleDomain> domainList;
         DsCacheEntry dsCache = this.objectCacheDao.queryByDsId(context.getDsId());
         try {
@@ -87,8 +87,11 @@ public class SecRulesEngineImpl implements SecRulesEngine {
                 .dsId(context.getDsId())
                 .levelsParam(levelsParam)
                 .deepParser(true)
-                .dataSourceConfig(configService.fetchDsConfigFromExists(context.getDsId()))
+                .dataSourceConfig(dsConfig)
                 .build();
+
+            SqlEngineSpi sqlEngine = PluginManager.findParserSpi(dsType, dsConfig.getSqlEngine());
+            SecDomainResolveSpi resolveSpi = sqlEngine.secDomainResolveSpi();
             CodeInfo codeInfo = CodeInfo.builder().baseLine(context.getBasicCodeLine()).baseColumn(context.getBasicCodeColumn()).query(querySql).build();
             domainList = resolveSpi.resolveDomain(dsType, codeInfo, ctxInfo);
             if (CollectionUtils.isEmpty(domainList)) {
@@ -100,10 +103,10 @@ public class SecRulesEngineImpl implements SecRulesEngine {
 
         // variables
         UserCacheEntry userCache = this.objectCacheDao.queryByUid(context.getCurrentUID());
-
         EnvCacheEntry envCache = this.objectCacheDao.queryByEnvId(dsCache.getEnvId());
 
         // doCheck
+        DsBrowseSpi browseSpi = PluginManager.findDsBrowseSpi(dsType);
         SecRulesCheckResult result = new SecRulesCheckResult();
         result.setSpecName(rules.getDsUseSpecName());
         for (RuleDomain ruleDomain : domainList) {

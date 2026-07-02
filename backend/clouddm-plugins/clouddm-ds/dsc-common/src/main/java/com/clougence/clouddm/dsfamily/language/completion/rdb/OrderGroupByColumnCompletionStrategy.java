@@ -21,6 +21,10 @@ public class OrderGroupByColumnCompletionStrategy extends AbstractColumnCompleti
 
     @Override
     public boolean match(CompletionContext context) {
+        if (context.isInOrderGroupByClause()) {
+            return true;
+        }
+
         int offset = StringUtils.isBlank(context.getPrefix()) ? 0 : 1;
         String previous = context.tokenFromEnd(offset);
         String beforePrevious = context.tokenFromEnd(offset + 1);

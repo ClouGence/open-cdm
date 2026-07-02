@@ -18,25 +18,17 @@ package com.clougence.clouddm.ds.maxcompute.language;
 import java.util.List;
 
 import com.clougence.clouddm.ds.maxcompute.dialect.McDialect;
-import com.clougence.clouddm.ds.maxcompute.parser.McSqlDslProvider;
-import com.clougence.clouddm.dsfamily.language.completion.CompletionContext;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategy;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategyCenter;
 import com.clougence.clouddm.dsfamily.language.completion.rdb.*;
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
-import com.clougence.dslpaser.antlr.DslHelper;
 
 public class McCompletionStrategyCenter extends CompletionStrategyCenter {
 
     @Override
     protected CompletionDialect dialect(CompletionRequest request) {
         return McDialect.INSTANCE;
-    }
-
-    @Override
-    protected CompletionContext context(CompletionRequest request, CompletionDialect dialect) {
-        return CompletionContext.build(request, dialect, DslHelper.splitDsl(McSqlDslProvider.INSTANCE, request.getSqlText()));
     }
 
     @Override

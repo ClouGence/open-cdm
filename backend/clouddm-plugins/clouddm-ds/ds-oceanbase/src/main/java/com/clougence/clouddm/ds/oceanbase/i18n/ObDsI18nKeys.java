@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.ds.oceanbase.i18n;
 
-import com.clougence.clouddm.ds.oracle.i18n.Ora18nKeys;
+import com.clougence.clouddm.dsfamily.oracle.i18n.Ora18nKeys;
 import com.clougence.clouddm.dsfamily.mysql.i18n.MyDsI18nKeys;
 import com.clougence.utils.i18n.I18nResource;
 

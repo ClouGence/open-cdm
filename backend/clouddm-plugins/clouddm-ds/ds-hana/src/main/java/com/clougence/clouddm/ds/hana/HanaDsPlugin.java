@@ -18,10 +18,6 @@ package com.clougence.clouddm.ds.hana;
 import com.clougence.adapter.hana.HanaTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.ds.hana.analysis.HanaResAnalysisSpi;
-import com.clougence.clouddm.ds.hana.analysis.HanaSecDomainResolveSpi;
-import com.clougence.clouddm.ds.hana.analysis.HanaSelectColumnAnalysisSpi;
-import com.clougence.clouddm.ds.hana.analysis.HanaSplitAnalysisSpi;
 import com.clougence.clouddm.ds.hana.definition.ui.HanaDefService;
 import com.clougence.clouddm.ds.hana.definition.ui.broswer.HanaDsBrowseSpi;
 import com.clougence.clouddm.ds.hana.definition.ui.ddl.HanaConvertTableDDLSpi;
@@ -39,6 +35,7 @@ import com.clougence.clouddm.ds.hana.execute.HanaSupportSpi;
 import com.clougence.clouddm.ds.hana.i18n.HanaDsI18nKeys;
 import com.clougence.clouddm.ds.hana.language.HanaLanguageSpi;
 import com.clougence.clouddm.ds.hana.resource.HanaEditorResourceSpi;
+import com.clougence.clouddm.ds.hana.sql.HanaSqlEngineSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
@@ -84,6 +81,10 @@ public class HanaDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(HanaSessionFactory.class);
         dsPlugin.bindDsDriverFamily("SAP Hana JDBC");
+
+        dsPlugin.bindSqlEngine(HanaSqlEngineSpi.NAME);
+        dsPlugin.addPluginSpi(new HanaSqlEngineSpi());
+
         dsPlugin.addPluginSpi(new HanaSessionSpi());
         dsPlugin.addPluginSpi(new HanaSupportSpi());
     }
@@ -112,10 +113,7 @@ public class HanaDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configTeam(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new HanaResAnalysisSpi());
-        dsPlugin.addPluginSpi(new HanaSplitAnalysisSpi());
-        dsPlugin.addPluginSpi(new HanaSecDomainResolveSpi());
-        dsPlugin.addPluginSpi(new HanaSelectColumnAnalysisSpi());
+        // dsPlugin.addPluginSpi(new MySecRulesSupportSpi());
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {

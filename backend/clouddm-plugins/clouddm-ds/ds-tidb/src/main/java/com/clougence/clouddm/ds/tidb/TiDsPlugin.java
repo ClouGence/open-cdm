@@ -18,9 +18,8 @@ package com.clougence.clouddm.ds.tidb;
 import com.clougence.adapter.tidb.TiDBTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.ds.tidb.analysis.*;
-import com.clougence.clouddm.ds.tidb.analysis.rewrite.TiRewriteSpi;
 import com.clougence.clouddm.ds.tidb.definition.TiDefService;
+import com.clougence.clouddm.ds.tidb.definition.secrules.TiSecRulesSupportSpi;
 import com.clougence.clouddm.ds.tidb.definition.ui.browser.TiDsBrowseSpi;
 import com.clougence.clouddm.ds.tidb.definition.ui.ddl.TiConvertTableDDLSpi;
 import com.clougence.clouddm.ds.tidb.definition.ui.editor.data.TiDBDataEditorSpi;
@@ -36,6 +35,7 @@ import com.clougence.clouddm.ds.tidb.i18n.TiConfigI18nKeys;
 import com.clougence.clouddm.ds.tidb.i18n.TiDsI18nKeys;
 import com.clougence.clouddm.ds.tidb.language.TiLanguageSpi;
 import com.clougence.clouddm.ds.tidb.resource.TiEditorResourceSpi;
+import com.clougence.clouddm.ds.tidb.sql.TiSqlEngineSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.template.MyCmdTemplateSpi;
 import com.clougence.clouddm.dsfamily.mysql.execute.MySessionSpi;
@@ -84,9 +84,12 @@ public class TiDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(TiSessionFactory.class);
         dsPlugin.bindDsDriverFamily("MySQL Connector/J");
+
+        dsPlugin.bindSqlEngine(TiSqlEngineSpi.NAME);
+        dsPlugin.addPluginSpi(new TiSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+
         dsPlugin.addPluginSpi(new MySessionSpi());
         dsPlugin.addPluginSpi(new TiSupportSpi());
-        dsPlugin.addPluginSpi(new TiRewriteSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {
@@ -114,11 +117,7 @@ public class TiDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configTeam(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new TiResAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
-        dsPlugin.addPluginSpi(new TiSplitAnalysisSpi());
-        dsPlugin.addPluginSpi(new TiSecDomainResolveSpi(dsPlugin.findGlobalService(MetaService.class)));
         dsPlugin.addPluginSpi(new TiSecRulesSupportSpi());
-        dsPlugin.addPluginSpi(new TiSelectColumnAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {

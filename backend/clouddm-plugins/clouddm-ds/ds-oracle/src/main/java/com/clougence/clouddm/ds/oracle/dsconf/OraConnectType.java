@@ -20,12 +20,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 import lombok.Getter;
 
-/**
- * @author mode 2020/11/6 10:23
- */
 @Getter
 public enum OraConnectType {
-
     SID("sid"),
     SERVICE("service"),
     TNS("tns"),

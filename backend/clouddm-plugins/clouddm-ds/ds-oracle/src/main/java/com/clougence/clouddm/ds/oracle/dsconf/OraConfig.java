@@ -18,7 +18,7 @@ package com.clougence.clouddm.ds.oracle.dsconf;
 import java.util.Properties;
 
 import com.clougence.clouddm.base.metadata.ds.*;
-import com.clougence.clouddm.ds.oracle.i18n.OraConfigI18nKeys;
+import com.clougence.clouddm.dsfamily.oracle.i18n.OraConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;

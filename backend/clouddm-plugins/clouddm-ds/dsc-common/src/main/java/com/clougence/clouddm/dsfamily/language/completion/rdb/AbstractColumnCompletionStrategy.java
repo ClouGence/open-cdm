@@ -18,6 +18,7 @@ package com.clougence.clouddm.dsfamily.language.completion.rdb;
 import java.util.*;
 
 import com.clougence.clouddm.dsfamily.language.completion.CompletionContext;
+import com.clougence.clouddm.dsfamily.language.completion.analyzer.CompletionTableRef;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategy;
 import com.clougence.clouddm.sdk.language.completion.CompletionItem;
 import com.clougence.clouddm.sdk.language.completion.CompletionItemKind;
@@ -28,7 +29,8 @@ import com.clougence.utils.StringUtils;
 
 abstract class AbstractColumnCompletionStrategy implements CompletionStrategy {
 
-    private static final int COLUMN_WEIGHT = 900;
+    protected static final int COLUMN_WEIGHT         = 900;
+    protected static final int PRIMARY_COLUMN_WEIGHT = 950;
 
     protected List<CompletionItem> columnItems(CompletionContext context, MetaService metaService) {
         Map<String, String> aliasToTable = parseTableRefs(context);
@@ -52,11 +54,19 @@ abstract class AbstractColumnCompletionStrategy implements CompletionStrategy {
                 item.setUmiType(UmiTypes.Column);
                 item.setIcon(StringUtils.defaultIfBlank(column.getIcon(), "COLUMN-DEFAULT"));
                 item.setInsertText(column.getColumn());
-                item.setWeight(COLUMN_WEIGHT);
+                item.setWeight(columnWeight(column));
                 items.add(item);
             }
         }
         return items;
+    }
+
+    protected int columnWeight(MetaCol column) {
+        return isPrimaryColumn(column) ? PRIMARY_COLUMN_WEIGHT : COLUMN_WEIGHT;
+    }
+
+    protected boolean isPrimaryColumn(MetaCol column) {
+        return column != null && "COLUMN-PK".equalsIgnoreCase(StringUtils.toString(column.getIcon()));
     }
 
     private static List<String> targetTables(CompletionContext context, Map<String, String> aliasToTable) {
@@ -69,6 +79,20 @@ abstract class AbstractColumnCompletionStrategy implements CompletionStrategy {
     }
 
     private static Map<String, String> parseTableRefs(CompletionContext context) {
+        if (!context.getTableRefs().isEmpty()) {
+            Map<String, String> refs = new LinkedHashMap<>();
+            for (CompletionTableRef tableRef : context.getTableRefs()) {
+                if (StringUtils.isBlank(tableRef.tableName())) {
+                    continue;
+                }
+                refs.put(tableRef.tableName().toLowerCase(Locale.ROOT), tableRef.tableName());
+                if (StringUtils.isNotBlank(tableRef.getAlias())) {
+                    refs.put(tableRef.getAlias().toLowerCase(Locale.ROOT), tableRef.tableName());
+                }
+            }
+            return refs;
+        }
+
         List<String> tokens = context.tokenize(context.getSqlText());
         Map<String, String> refs = new LinkedHashMap<>();
         for (int i = 0; i < tokens.size() - 1; i++) {

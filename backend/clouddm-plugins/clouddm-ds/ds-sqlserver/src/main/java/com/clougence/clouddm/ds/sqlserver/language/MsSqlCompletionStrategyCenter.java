@@ -18,25 +18,17 @@ package com.clougence.clouddm.ds.sqlserver.language;
 import java.util.List;
 
 import com.clougence.clouddm.ds.sqlserver.dialect.SqlServerDialect;
-import com.clougence.clouddm.ds.sqlserver.parser.MsSqlDslProvider;
-import com.clougence.clouddm.dsfamily.language.completion.CompletionContext;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategy;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategyCenter;
 import com.clougence.clouddm.dsfamily.language.completion.rdb.*;
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
-import com.clougence.dslpaser.antlr.DslHelper;
 
 public class MsSqlCompletionStrategyCenter extends CompletionStrategyCenter {
 
     @Override
     protected CompletionDialect dialect(CompletionRequest request) {
         return SqlServerDialect.INSTANCE;
-    }
-
-    @Override
-    protected CompletionContext context(CompletionRequest request, CompletionDialect dialect) {
-        return CompletionContext.build(request, dialect, DslHelper.splitDsl(MsSqlDslProvider.INSTANCE, request.getSqlText()));
     }
 
     @Override

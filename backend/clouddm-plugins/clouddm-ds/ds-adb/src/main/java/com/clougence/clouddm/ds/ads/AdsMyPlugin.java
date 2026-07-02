@@ -18,9 +18,8 @@ package com.clougence.clouddm.ds.ads;
 import com.clougence.adapter.adbmysql.domain.AdbMySQLTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.ds.ads.analysis.ads4my.*;
-import com.clougence.clouddm.ds.ads.analysis.ads4my.rewrite.AdbRewriteSpi;
 import com.clougence.clouddm.ds.ads.definition.AdsMyDefService;
+import com.clougence.clouddm.ds.ads.definition.secrules.AdsMySecRulesSupportSpi;
 import com.clougence.clouddm.ds.ads.definition.ui.browser.AdsMyDsBrowseSpi;
 import com.clougence.clouddm.ds.ads.definition.ui.ddl.AdsMyConvertTableDDLSpi;
 import com.clougence.clouddm.ds.ads.definition.ui.editor.table.AdbMyEditorProvider;
@@ -34,6 +33,7 @@ import com.clougence.clouddm.ds.ads.i18n.AdsMyConfigI18nKeys;
 import com.clougence.clouddm.ds.ads.i18n.AdsMyDsI18nKeys;
 import com.clougence.clouddm.ds.ads.language.ads4my.AdsMyLanguageSpi;
 import com.clougence.clouddm.ds.ads.resource.ads4my.AdsMyEditorResourceSpi;
+import com.clougence.clouddm.ds.ads.sql.ads4my.AdsMySqlEngineSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.data.MyDataEditorSpi;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.table.MyTableEditorUiDataSpi;
@@ -46,6 +46,7 @@ import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
+import com.clougence.sql.mysql.MySqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + AdsMyDsI18nKeys.PLUGIN_NAME_ADB_FOR_MYSQL,         //
@@ -83,9 +84,12 @@ public class AdsMyPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(AdsMySessionFactory.class);
         dsPlugin.bindDsDriverFamily("MySQL Connector/J");
+
+        dsPlugin.bindSqlEngine(AdsMySqlEngineSpi.NAME, MySqlEngineSpi.NAME);
+        dsPlugin.addPluginSpi(new AdsMySqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+
         dsPlugin.addPluginSpi(new MySessionSpi());
         dsPlugin.addPluginSpi(new AdsSupportSpi());
-        dsPlugin.addPluginSpi(new AdbRewriteSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {
@@ -112,11 +116,7 @@ public class AdsMyPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configTeam(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new AdsMyResAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
-        dsPlugin.addPluginSpi(new AdsMySplitAnalysisSpi());
-        dsPlugin.addPluginSpi(new AdsMySecDomainResolveSpi(dsPlugin.findGlobalService(MetaService.class)));
         dsPlugin.addPluginSpi(new AdsMySecRulesSupportSpi());
-        dsPlugin.addPluginSpi(new AdsMySelectColumnAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {

@@ -23,15 +23,16 @@ import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
 
 public abstract class AbstractPgConfigSpi extends AbstractDsConfigSpi {
 
-    private static final List<String> CERTIFICATE_TYPES = List.of("pem", "crt", "cer");
-    private static final List<String> CLIENT_KEY_TYPES  = List.of("pk8");
+    private static final List<String> TEXT_CERTIFICATE_TYPES   = List.of("pem", "crt", "cer");
+    private static final List<String> BINARY_CERTIFICATE_TYPES = List.of("pem", "crt", "cer", "p7b");
+    private static final List<String> CLIENT_KEY_TYPES         = List.of("pk8");
 
     @Override
     public List<String> certificateTextFileTypes(SslMode sslMode, String configName) {
         if (DataSourceConfig.Fields.sslClientKeyData.equals(configName)) {
             return List.of();
         }
-        return CERTIFICATE_TYPES;
+        return TEXT_CERTIFICATE_TYPES;
     }
 
     @Override
@@ -39,6 +40,6 @@ public abstract class AbstractPgConfigSpi extends AbstractDsConfigSpi {
         if (DataSourceConfig.Fields.sslClientKeyData.equals(configName)) {
             return CLIENT_KEY_TYPES;
         }
-        return CERTIFICATE_TYPES;
+        return BINARY_CERTIFICATE_TYPES;
     }
 }

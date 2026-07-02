@@ -18,25 +18,17 @@ package com.clougence.clouddm.ds.oceanbase.language.ob4ora;
 import java.util.List;
 
 import com.clougence.clouddm.ds.oceanbase.dialect.ob4ora.ObForOracleDialect;
-import com.clougence.clouddm.ds.oceanbase.parser.ob4ora.ObOraDslProvider;
-import com.clougence.clouddm.dsfamily.language.completion.CompletionContext;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategy;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategyCenter;
 import com.clougence.clouddm.dsfamily.language.completion.rdb.*;
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
-import com.clougence.dslpaser.antlr.DslHelper;
 
 public class ObOraCompletionStrategyCenter extends CompletionStrategyCenter {
 
     @Override
     protected CompletionDialect dialect(CompletionRequest request) {
         return ObForOracleDialect.INSTANCE;
-    }
-
-    @Override
-    protected CompletionContext context(CompletionRequest request, CompletionDialect dialect) {
-        return CompletionContext.build(request, dialect, DslHelper.splitDsl(ObOraDslProvider.INSTANCE, request.getSqlText()));
     }
 
     @Override

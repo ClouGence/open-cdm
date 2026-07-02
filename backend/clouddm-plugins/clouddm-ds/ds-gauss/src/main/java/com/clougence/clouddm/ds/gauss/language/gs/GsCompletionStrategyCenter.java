@@ -18,25 +18,17 @@ package com.clougence.clouddm.ds.gauss.language.gs;
 import java.util.List;
 
 import com.clougence.clouddm.ds.gauss.dialect.GaussDBDialect;
-import com.clougence.clouddm.ds.gauss.parser.GaussDslProvider;
-import com.clougence.clouddm.dsfamily.language.completion.CompletionContext;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategy;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategyCenter;
 import com.clougence.clouddm.dsfamily.language.completion.rdb.*;
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
-import com.clougence.dslpaser.antlr.DslHelper;
 
 public class GsCompletionStrategyCenter extends CompletionStrategyCenter {
 
     @Override
     protected CompletionDialect dialect(CompletionRequest request) {
         return GaussDBDialect.INSTANCE;
-    }
-
-    @Override
-    protected CompletionContext context(CompletionRequest request, CompletionDialect dialect) {
-        return CompletionContext.build(request, dialect, DslHelper.splitDsl(GaussDslProvider.INSTANCE, request.getSqlText()));
     }
 
     @Override

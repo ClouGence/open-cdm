@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.ds.clickhouse.language;
 
-import com.clougence.clouddm.ds.clickhouse.parser.ChSqlDslProvider;
 import com.clougence.clouddm.dsfamily.language.split.SplitStrategyCenter;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
@@ -63,6 +62,6 @@ public class ChLanguageSpi implements DsLanguageSpi {
 
     @Override
     public SplitResult split(SplitRequest request) {
-        return this.split.split(request, ChSqlDslProvider.INSTANCE);
+        return this.split.split(request);
     }
 }

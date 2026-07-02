@@ -20,6 +20,7 @@ import java.util.Map;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,11 +32,13 @@ public class LanguageCtx {
     private DataSourceConfig    dsConfig;
     private SessionContextDTO   ctxDTO;
     private Map<String, Object> ctxParams;
+    private SqlEngineSpi        sqlEngine;
 
-    public LanguageCtx(DsLevels levels, DataSourceConfig dsConfig, SessionContextDTO ctxDTO, Map<String, Object> ctxParams){
+    public LanguageCtx(DsLevels levels, DataSourceConfig dsConfig, SessionContextDTO ctxDTO, Map<String, Object> ctxParams, SqlEngineSpi sqlEngine){
         this.levels = levels;
         this.dsConfig = dsConfig;
         this.ctxDTO = ctxDTO;
         this.ctxParams = ctxParams;
+        this.sqlEngine = sqlEngine;
     }
 }

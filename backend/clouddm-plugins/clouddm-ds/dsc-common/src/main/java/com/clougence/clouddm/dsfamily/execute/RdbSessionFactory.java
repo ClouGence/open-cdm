@@ -103,5 +103,4 @@ public abstract class RdbSessionFactory<T extends DataSourceConfig> implements S
         }
         return sslFile.getFormat();
     }
-
 }

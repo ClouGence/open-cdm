@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.umi.struts.UmiTypes;
 
 import lombok.Getter;
@@ -28,19 +29,22 @@ import lombok.Setter;
 @Getter
 public abstract class AbstractRequest {
 
-    private String                requestId;
-    private long                  requestVersion;
-    private String                primaryUserId;
-    private String                currentUserId;
-    private Long                  dataSourceId;
-    private String                dsType;
-    private String                catalog;
-    private String                schema;
-    private List<UmiTypes>        levels      = Collections.emptyList();
-    private Map<UmiTypes, Object> levelsParam = Collections.emptyMap();
-    private int                   basicCodeLine;
-    private int                   basicCodeColumn;
-    private String                sqlText;
+    private String                        requestId;
+    private long                          requestVersion;
+    private String                        primaryUserId;
+    private String                        currentUserId;
+    private Long                          dataSourceId;
+    private String                        dsType;
+    private String                        catalog;
+    private String                        schema;
+    private List<UmiTypes>                levels      = Collections.emptyList();
+    private Map<UmiTypes, Object>         levelsParam = Collections.emptyMap();
+    private int                           basicCodeLine;
+    private int                           basicCodeColumn;
+    private String                        sqlText;
 
-    private Map<String, Object>   options     = Collections.emptyMap();
+    private transient SqlEngineSpi        sqlEngine;
+    private transient Map<String, Object> ctxParams   = Collections.emptyMap();
+
+    private Map<String, Object>           options     = Collections.emptyMap();
 }

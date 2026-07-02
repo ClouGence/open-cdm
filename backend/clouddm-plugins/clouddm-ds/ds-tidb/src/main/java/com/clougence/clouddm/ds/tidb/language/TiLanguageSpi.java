@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.ds.tidb.language;
 
-import com.clougence.clouddm.ds.tidb.parser.TiDBDslProvider;
 import com.clougence.clouddm.dsfamily.language.split.SplitStrategyCenter;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
@@ -62,6 +61,6 @@ public class TiLanguageSpi implements DsLanguageSpi {
 
     @Override
     public SplitResult split(SplitRequest request) {
-        return this.split.split(request, TiDBDslProvider.INSTANCE);
+        return this.split.split(request);
     }
 }

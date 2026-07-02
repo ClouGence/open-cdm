@@ -17,7 +17,6 @@ package com.clougence.clouddm.ds.mongodb.language;
 
 import java.util.Set;
 
-import com.clougence.clouddm.ds.mongodb.parser.MongoDslProvider;
 import com.clougence.clouddm.dsfamily.language.split.SplitStrategyCenter;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
@@ -32,9 +31,10 @@ import com.clougence.clouddm.sdk.language.validate.ValidateResult;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 
 public class MongoLanguageSpi implements DsLanguageSpi {
-    private final MetaService                 metaService;
-    private final MongoValidateStrategyCenter validate = new MongoValidateStrategyCenter();
-    private final SplitStrategyCenter         split    = new SplitStrategyCenter();
+    private final MetaService                   metaService;
+    private final MongoCompletionStrategyCenter completion = new MongoCompletionStrategyCenter();
+    private final MongoValidateStrategyCenter   validate   = new MongoValidateStrategyCenter();
+    private final SplitStrategyCenter           split      = new SplitStrategyCenter();
 
     public MongoLanguageSpi(MetaService metaService){
         this.metaService = metaService;
@@ -50,12 +50,14 @@ public class MongoLanguageSpi implements DsLanguageSpi {
 
     @Override
     public Set<DsLanguageSupport> supports() {
-        return Set.of(DsLanguageSupport.VALIDATE, DsLanguageSupport.SPLIT);
+        return Set.of(DsLanguageSupport.COMPLETE, DsLanguageSupport.VALIDATE, DsLanguageSupport.SPLIT);
     }
 
     @Override
     public CompletionResult complete(CompletionRequest request) {
-        return initResult(request, new CompletionResult());
+        CompletionResult result = initResult(request, new CompletionResult());
+        result.getItems().addAll(this.completion.complete(request, this.metaService));
+        return result;
     }
 
     @Override
@@ -67,7 +69,6 @@ public class MongoLanguageSpi implements DsLanguageSpi {
 
     @Override
     public SplitResult split(SplitRequest request) {
-        return this.split.split(request, MongoDslProvider.INSTANCE);
+        return this.split.split(request);
     }
-
 }

@@ -26,17 +26,13 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.platform.plugin.info.DsMeta;
 import com.clougence.clouddm.platform.plugin.info.GlobalMeta;
 import com.clougence.clouddm.sdk.Spi;
-import com.clougence.clouddm.sdk.analysis.column.SelectColumnAnalysisSpi;
-import com.clougence.clouddm.sdk.analysis.rewrite.RewriteSpi;
-import com.clougence.clouddm.sdk.analysis.secrules.ResAnalysisSpi;
-import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
-import com.clougence.clouddm.sdk.analysis.secrules.SecRulesSupportSpi;
-import com.clougence.clouddm.sdk.analysis.split.SplitAnalysisSpi;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.clouddm.sdk.execute.tools.ToolFactory;
 import com.clougence.clouddm.sdk.service.Service;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
+import com.clougence.clouddm.sdk.sql.secrules.SecRulesSupportSpi;
 import com.clougence.clouddm.sdk.ui.browser.DsBrowseSpi;
 import com.clougence.clouddm.sdk.ui.ddl.ConvertTableDDLSpi;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorSpi;
@@ -321,10 +317,6 @@ public class PluginManager {
         return (CmdTemplateSpi) findOneSpi(dsProduct, CmdTemplateSpi.class);
     }
 
-    public static SelectColumnAnalysisSpi findSelectColumnSpi(DataSourceType dsProduct) {
-        return (SelectColumnAnalysisSpi) findOneSpi(dsProduct, SelectColumnAnalysisSpi.class);
-    }
-
     public static DetermineExceptionSpi findDetermineExceptionSpi(DataSourceType dsProduct) {
         return (DetermineExceptionSpi) findOneSpi(dsProduct, DetermineExceptionSpi.class);
     }
@@ -345,28 +337,12 @@ public class PluginManager {
         return (DsBrowseSpi) findOneSpi(dsProduct, DsBrowseSpi.class);
     }
 
-    public static ResAnalysisSpi findResourceAnalysisSpi(DataSourceType dsProduct) {
-        return (ResAnalysisSpi) findOneSpi(dsProduct, ResAnalysisSpi.class);
-    }
-
-    public static SplitAnalysisSpi findSplitAnalysisSpi(DataSourceType dsProduct) {
-        return (SplitAnalysisSpi) findOneSpi(dsProduct, SplitAnalysisSpi.class);
-    }
-
     public static ConvertTableDDLSpi findConvertDDLSpi(DataSourceType dsProduct) {
         return (ConvertTableDDLSpi) findOneSpi(dsProduct, ConvertTableDDLSpi.class);
     }
 
-    public static SecDomainResolveSpi findSecDomainResolveSpi(DataSourceType dsProduct) {
-        return (SecDomainResolveSpi) findOneSpi(dsProduct, SecDomainResolveSpi.class);
-    }
-
     public static DsConfigSpi findDsConfigSpi(DataSourceType dsProduct) {
         return (DsConfigSpi) findOneSpi(dsProduct, DsConfigSpi.class);
-    }
-
-    public static RewriteSpi findRewriteSpi(DataSourceType dsProduct) {
-        return (RewriteSpi) findOneSpi(dsProduct, RewriteSpi.class);
     }
 
     public static FunctionUiDefService findFunctionUiDefService(DataSourceType dsProduct) {
@@ -411,5 +387,14 @@ public class PluginManager {
 
     public static SynonymUiDefService findSynonymUiDefService(DataSourceType dsProduct) {
         return (SynonymUiDefService) findOneSpi(dsProduct, SynonymUiDefService.class);
+    }
+
+    public static SqlEngineSpi findParserSpi(DataSourceType dsProduct, String sqlEngine) {
+        DsPluginInfo pluginInfo = findDsPlugin(dsProduct);
+        if (pluginInfo == null) {
+            return null;
+        }
+
+        return pluginInfo.findSqlEngine(sqlEngine);
     }
 }

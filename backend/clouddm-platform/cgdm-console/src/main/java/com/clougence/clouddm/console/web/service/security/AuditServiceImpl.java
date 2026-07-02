@@ -46,12 +46,12 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSqlAuditDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.ThreadUtils;
@@ -109,7 +109,8 @@ public class AuditServiceImpl implements AuditService, DmWorkerRegisterNotify, U
                     auditDO.setSqlKind(SecQueryKind.EXPLAIN);
                 } else {
                     try {
-                        List<SplitScript> splitScripts = queryAnalysisService.analysisSplit(rdpDataSourceDO.getDataSourceType(), dto.getSql(), null, 1, 0);
+                        DataSourceConfig dsConfig = dmDsConfigService.fetchDsConfigFromExists(rdpDataSourceDO.getId());
+                        List<SplitScript> splitScripts = queryAnalysisService.analysisSplit(dsConfig, dto.getSql(), null, 1, 0);
                         auditDO.setSqlKind(splitScripts.get(0).getType().getAuditKind());
                     } catch (Throwable e) {
                         // some sql can't analysis

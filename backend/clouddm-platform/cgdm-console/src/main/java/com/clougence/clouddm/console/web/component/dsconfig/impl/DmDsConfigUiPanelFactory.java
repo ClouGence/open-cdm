@@ -29,6 +29,7 @@ import com.clougence.clouddm.base.metadata.ui.form.value.MapValueDef;
 import com.clougence.clouddm.base.metadata.ui.form.value.ValueDef;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmLabelKeys;
+import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
@@ -45,24 +46,24 @@ public class DmDsConfigUiPanelFactory {
     public List<UiPanel> create(DataSourceType dsType, Map<DsConfigGroup, Map<String, DsConfigKvDef>> fieldsByGroup) {
         Map<DsConfigGroup, UiPanel> panels = new EnumMap<>(DsConfigGroup.class);
         UiPanel general = generalPanel(dsType, fieldsByGroup.get(DsConfigGroup.GENERAL));
-        otherFields(general, DsConfigGroup.GENERAL, fieldsByGroup.get(DsConfigGroup.GENERAL));
+        otherFields(dsType, general, DsConfigGroup.GENERAL, fieldsByGroup.get(DsConfigGroup.GENERAL));
         panels.put(DsConfigGroup.GENERAL, general);
 
         UiPanel options = optionsPanel(dsType, fieldsByGroup.get(DsConfigGroup.OPTIONS));
-        otherFields(options, DsConfigGroup.OPTIONS, fieldsByGroup.get(DsConfigGroup.OPTIONS));
+        otherFields(dsType, options, DsConfigGroup.OPTIONS, fieldsByGroup.get(DsConfigGroup.OPTIONS));
         panels.put(DsConfigGroup.OPTIONS, options);
 
         Map<String, DsConfigKvDef> sshSslFields = new LinkedHashMap<>(safeFields(fieldsByGroup.get(DsConfigGroup.SSH_SSL)));
         UiPanel sshSsl = sshSslPanel(dsType, sshSslFields);
-        otherFields(sshSsl, DsConfigGroup.SSH_SSL, sshSslFields);
+        otherFields(dsType, sshSsl, DsConfigGroup.SSH_SSL, sshSslFields);
         panels.put(DsConfigGroup.SSH_SSL, sshSsl);
 
         UiPanel advanced = advancedPanel(dsType, fieldsByGroup.get(DsConfigGroup.ADVANCED));
-        otherFields(advanced, DsConfigGroup.ADVANCED, fieldsByGroup.get(DsConfigGroup.ADVANCED));
+        otherFields(dsType, advanced, DsConfigGroup.ADVANCED, fieldsByGroup.get(DsConfigGroup.ADVANCED));
         panels.put(DsConfigGroup.ADVANCED, advanced);
 
         UiPanel shadow = shadowPanel(dsType, fieldsByGroup.get(DsConfigGroup.SHADOW));
-        otherFields(shadow, DsConfigGroup.SHADOW, fieldsByGroup.get(DsConfigGroup.SHADOW));
+        otherFields(dsType, shadow, DsConfigGroup.SHADOW, fieldsByGroup.get(DsConfigGroup.SHADOW));
         panels.put(DsConfigGroup.SHADOW, shadow);
 
         DsConfigSpi configSpi = PluginManager.findDsConfigSpi(dsType);
@@ -85,15 +86,41 @@ public class DmDsConfigUiPanelFactory {
         };
     }
 
-    protected void otherFields(UiPanel panel, DsConfigGroup group, Map<String, DsConfigKvDef> fields) {
+    protected void otherFields(DataSourceType dsType, UiPanel panel, DsConfigGroup group, Map<String, DsConfigKvDef> fields) {
         Set<String> definedFields = new HashSet<>();
         collectDefinedFields(panel.getChildren(), definedFields);
         for (DsConfigKvDef configDef : safeFields(fields).values()) {
             if (definedFields.contains(configDef.getConfigName())) {
                 continue;
             }
-            panel.addField(createField(group, configDef));
+            if (DataSourceConfig.Fields.sqlEngine.equals(configDef.getConfigName())) {
+                panel.addField(sqlEngineField(dsType, group, configDef));
+            } else {
+                panel.addField(createField(group, configDef));
+            }
         }
+    }
+
+    protected UiPanelField sqlEngineField(DataSourceType dsType, DsConfigGroup group, DsConfigKvDef configDef) {
+        UiPanelField field = createField(group, configDef);
+        field.setType(UiPanelFieldType.Options);
+
+        DsPluginInfo dsPlugin = PluginManager.findDsPlugin(dsType);
+        List<String> sqlEngines = dsPlugin == null || dsPlugin.getBindSqlEngineNames() == null ? Collections.emptyList() : dsPlugin.getBindSqlEngineNames();
+        List<ValueDef> options = new ArrayList<>();
+        for (String sqlEngine : sqlEngines) {
+            options.add(fieldOptionDef(sqlEngineI18nKey(sqlEngine), sqlEngine));
+        }
+        field.setOptions(options);
+
+        if (StringUtils.isBlank(configDef.getConfigValue()) && !sqlEngines.isEmpty()) {
+            field.setDefaultValue(UiUtils.strValueDef(sqlEngines.get(0)));
+        }
+        return field;
+    }
+
+    protected String sqlEngineI18nKey(String sqlEngine) {
+        return "SQL_ENGINE_" + sqlEngine.trim().replaceAll("[^A-Za-z0-9]+", "_").replaceAll("^_+|_+$", "").toUpperCase(Locale.ROOT);
     }
 
     protected void collectDefinedFields(List<UiPanelField> fields, Set<String> definedFields) {

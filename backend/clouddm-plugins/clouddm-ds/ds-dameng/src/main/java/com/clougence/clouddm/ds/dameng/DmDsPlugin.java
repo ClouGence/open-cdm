@@ -18,10 +18,6 @@ package com.clougence.clouddm.ds.dameng;
 import com.clougence.adapter.dameng.DmSqlTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.ds.dameng.analysis.DmResAnalysisSpi;
-import com.clougence.clouddm.ds.dameng.analysis.DmSecDomainResolveSpi;
-import com.clougence.clouddm.ds.dameng.analysis.DmSelectColumnAnalysisSpi;
-import com.clougence.clouddm.ds.dameng.analysis.DmSplitAnalysisSpi;
 import com.clougence.clouddm.ds.dameng.definition.ui.DmDefService;
 import com.clougence.clouddm.ds.dameng.definition.ui.browser.DmDsBrowseSpi;
 import com.clougence.clouddm.ds.dameng.definition.ui.ddl.DmConvertTableDDLSpi;
@@ -53,7 +49,7 @@ import com.clougence.schema.SchemaPlugin;
 @Plugin(name = "i18n::" + DmDsI18nKeys.PLUGIN_NAME_DAMENG,              //
         includePackages = { "com.clougence.clouddm.dsfamily.execute.*", //
                             "com.clougence.clouddm.ds.dameng.execute.*" //
-        }, dsProduct = DataSourceType.Dameng, display = false)
+        }, dsProduct = DataSourceType.Dameng)
 public class DmDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     @Override
@@ -84,6 +80,8 @@ public class DmDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(DmSessionFactory.class);
         dsPlugin.bindDsDriverFamily("Dameng JDBC Driver");
+        dsPlugin.bindSqlEngine("Oracle SQL", "MySQL", "PG SQL", "MS T-SQL");
+
         dsPlugin.addPluginSpi(new DmSessionSpi());
         dsPlugin.addPluginSpi(new DmSupportSpi());
     }
@@ -112,10 +110,7 @@ public class DmDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configTeam(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new DmResAnalysisSpi());
-        dsPlugin.addPluginSpi(new DmSplitAnalysisSpi());
-        dsPlugin.addPluginSpi(new DmSecDomainResolveSpi());
-        dsPlugin.addPluginSpi(new DmSelectColumnAnalysisSpi());
+        // dsPlugin.addPluginSpi(new AdsMySecRulesSupportSpi());
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {

@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.ds.oceanbase.dialect.ob4ora;
 
-import com.clougence.clouddm.ds.oracle.dialect.OracleDialect;
+import com.clougence.clouddm.dsfamily.oracle.dialect.OracleDialect;
 
 /**
  * @author chunlin create time is 2024/8/27

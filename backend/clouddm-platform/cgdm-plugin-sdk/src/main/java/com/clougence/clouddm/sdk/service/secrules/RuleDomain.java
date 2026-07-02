@@ -20,10 +20,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 import com.clougence.detectrule.lang.reflect.RuleIgnore;
 import com.clougence.utils.CollectionUtils;
 

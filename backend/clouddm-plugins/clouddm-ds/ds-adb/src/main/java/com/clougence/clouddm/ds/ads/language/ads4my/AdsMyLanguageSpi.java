@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.ds.ads.language.ads4my;
 
-import com.clougence.clouddm.ds.ads.parser.ads4my.AdsMyDslProvider;
 import com.clougence.clouddm.dsfamily.language.split.SplitStrategyCenter;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
@@ -63,6 +62,6 @@ public class AdsMyLanguageSpi implements DsLanguageSpi {
 
     @Override
     public SplitResult split(SplitRequest request) {
-        return this.split.split(request, AdsMyDslProvider.INSTANCE);
+        return this.split.split(request);
     }
 }

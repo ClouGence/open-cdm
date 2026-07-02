@@ -18,7 +18,7 @@ package com.clougence.clouddm.ds.sqlserver;
 import com.clougence.adapter.sqlserver.SqlServerTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.ds.sqlserver.analysis.*;
+import com.clougence.clouddm.ds.sqlserver.definition.secrules.MsSecRulesSupportSpi;
 import com.clougence.clouddm.ds.sqlserver.definition.ui.MsSqlDefService;
 import com.clougence.clouddm.ds.sqlserver.definition.ui.browser.SqlServerDsBrowseSpi;
 import com.clougence.clouddm.ds.sqlserver.definition.ui.ddl.MsConvertTableDDLSpi;
@@ -46,6 +46,7 @@ import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
+import com.clougence.sql.sqlserver.MsSqlSqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
 @Plugin(name = "i18n::" + MsSqlI18nKeys.PLUGIN_NAME_SQLSERVER,            //
@@ -82,6 +83,10 @@ public class MsSqlPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(MsSqlSessionFactory.class);
         dsPlugin.bindDsDriverFamily("SQL Server JDBC Driver", "jTDS");
+
+        dsPlugin.bindSqlEngine(MsSqlSqlEngineSpi.NAME);
+        dsPlugin.addPluginSpi(new MsSqlSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+
         dsPlugin.addPluginSpi(new MsSqlSessionSpi());
         dsPlugin.addPluginSpi(new MsSqlSupportSpi());
     }
@@ -111,11 +116,7 @@ public class MsSqlPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configTeam(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new MsSqlResAnalysisSpi());
-        dsPlugin.addPluginSpi(new MsSqlSplitAnalysisSpi());
-        dsPlugin.addPluginSpi(new MsSqlSecDomainResolveSpi());
         dsPlugin.addPluginSpi(new MsSecRulesSupportSpi());
-        dsPlugin.addPluginSpi(new MsSelectColumnAnalysisSpi());
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {

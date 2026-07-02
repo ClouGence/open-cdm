@@ -61,7 +61,7 @@ public class MarConfigSpi extends AbstractDsConfigSpi {
 
     @Override
     public boolean supportSSL() {
-        return true;
+        return false;
     }
 
     @Override

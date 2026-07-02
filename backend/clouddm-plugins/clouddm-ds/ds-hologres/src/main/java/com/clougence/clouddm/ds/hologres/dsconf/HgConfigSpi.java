@@ -61,7 +61,7 @@ public class HgConfigSpi extends AbstractPgConfigSpi {
 
     @Override
     public boolean supportSSL() {
-        return true;
+        return false;
     }
 
     @Override

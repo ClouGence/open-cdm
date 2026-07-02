@@ -80,6 +80,9 @@ public class DataSourceConfig {
     @ConfigDef(name = Fields.isolation, defaultValue = "DEFAULT", //
             group = DsConfigGroup.OPTIONS, labelKey = ConfigI18nKey.CONFIG_RDB_ISOLATION_LABEL, descKey = ConfigI18nKey.CONFIG_RDB_ISOLATION_DESC, readOnly = false)
     private String         isolation;
+    @ConfigDef(name = Fields.sqlEngine, defaultValue = "", //
+            group = DsConfigGroup.OPTIONS, labelKey = ConfigI18nKey.CONFIG_DS_DEFAULT_SQL_ENGINE_LABEL, descKey = ConfigI18nKey.CONFIG_DS_DEFAULT_SQL_ENGINE_DESC, readOnly = false)
+    private String         sqlEngine;
     @ConfigDef(name = Fields.onlineMaxConnections, defaultValue = "100", //
             group = DsConfigGroup.OPTIONS, labelKey = ConfigI18nKey.CONFIG_DS_ONLINE_MAX_CONNECTIONS_LABEL, descKey = ConfigI18nKey.CONFIG_DS_ONLINE_MAX_CONNECTIONS_DESC, readOnly = false)
     private Integer        onlineMaxConnections;

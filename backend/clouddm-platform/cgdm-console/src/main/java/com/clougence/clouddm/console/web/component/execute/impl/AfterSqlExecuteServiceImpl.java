@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.api.console.sqlaudit.SqlExecNotifyDTO;
 import com.clougence.clouddm.api.console.sqlaudit.SqlStatus;
 import com.clougence.clouddm.api.console.sqlaudit.Type;
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.console.web.component.detectrule.handler.QueryTypeHandler;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
@@ -32,12 +33,13 @@ import com.clougence.clouddm.console.web.component.execute.AfterSqlExecuteServic
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
+import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
 import com.clougence.schema.umi.struts.UmiTypes;
 
 import jakarta.annotation.Resource;
@@ -82,15 +84,18 @@ public class AfterSqlExecuteServiceImpl implements AfterSqlExecuteService {
 
     public void handleAfterSqlSuccess(Long dsId, List<String> dsLevels, String sql, Date execTime) {
         DmDsDO rdpDataSourceDO = dsDal.dsMapper().queryDsIdentityById(dsId);
-        SecDomainResolveSpi secDomainResolveSpi = PluginManager.findSecDomainResolveSpi(rdpDataSourceDO.getDataSourceType());
+        DataSourceConfig dsConfig1 = dmDsConfigService.fetchDsConfigFromExists(dsId);
+        SqlEngineSpi sqlEngine = PluginManager.findParserSpi(rdpDataSourceDO.getDataSourceType(), dsConfig1.getSqlEngine());
+        SecDomainResolveSpi resolveSpi = sqlEngine.secDomainResolveSpi();
+
         CodeInfo codeInfo = CodeInfo.builder().baseLine(1).baseColumn(0).query(sql).build();
         ContextInfo contextInfo = ContextInfo.builder()//
-            .dataSourceConfig(dmDsConfigService.fetchDsConfigFromExists(dsId))
+            .dataSourceConfig(dsConfig1)
             .deepParser(false)
             .build();
-        List<RuleDomain> list = secDomainResolveSpi.resolveDomain(rdpDataSourceDO.getDataSourceType(), codeInfo, contextInfo);
-        DsConfig dsConfig = dmDsConfigService.dsConstantSettings(rdpDataSourceDO.getDataSourceType());
-        List<String> levels = dsConfig.getCategories().getLevels();
+        List<RuleDomain> list = resolveSpi.resolveDomain(rdpDataSourceDO.getDataSourceType(), codeInfo, contextInfo);
+        DsConfig dsConfig2 = dmDsConfigService.dsConstantSettings(rdpDataSourceDO.getDataSourceType());
+        List<String> levels = dsConfig2.getCategories().getLevels();
         Map<String, String> map = new HashMap<>();
 
         for (int i = 0; i < dsLevels.size(); i++) {

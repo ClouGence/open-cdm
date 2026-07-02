@@ -20,8 +20,10 @@ plugins {
 }
 
 dependencies {
-    // project
     antlr "org.antlr:antlr4:${ANTLR_VERSION}"
+
+    // project
+    implementation "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
     implementation project(':dsc-common-mysql')
 
     // share lib (compileOnly)
@@ -35,26 +37,8 @@ dependencies {
     testImplementation project(':dsc-common-mysql')
 }
 
-def visitorConfigs = [[taskName: 'tiParser', frontPath: 'AbstractTiSQLParserVisitor.java', backPath: 'MySQLParserVisitor.java'],
-                      [taskName: 'tiVisitor', frontPath: 'AbstractTiSplitVisitor.java', backPath: 'MySplitVisitor.java']]
-
-visitorConfigs.each { config ->
-    tasks.register(config.taskName, VisitorMerger) {
-        backFile = file("../dsc-common-mysql/src/main/java/com/clougence/clouddm/dsfamily/mysql/analysis/${config.backPath}")
-        frontFile = file("./src/main/java/com/clougence/clouddm/ds/tidb/analysis/${config.frontPath}")
-    }
-}
-
-jar {
-    dependsOn(visitorConfigs.collect { tasks.named(it.taskName) })
-}
-
-
-configureClougenceAntlrGrammar([source     : files('src/main/antlr/TiDBLexer.g4', 'src/main/antlr/TiDBParser.g4'),
-                                outputPath : 'src/main/java/com/clougence/clouddm/ds/tidb/parser/antlr',
-                                packageName: 'com.clougence.clouddm.ds.tidb.parser.antlr',
-                                libDir     : '../dsc-common-mysql/src/main/antlr'])
-
-
 description = 'ds-tidb'
 
+tasks.named('generateGrammarSource') {
+    arguments += ['-visitor', '-package', 'com.clougence.clouddm.ds.tidb.sql.parser.antlr']
+}
