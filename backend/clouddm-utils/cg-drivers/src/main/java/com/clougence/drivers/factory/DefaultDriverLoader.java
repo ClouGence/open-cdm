@@ -49,6 +49,7 @@ public class DefaultDriverLoader extends AbstractDriverLoader {
             throw new IllegalArgumentException("driver definition not found" + logMessage);
         }
 
+        refreshDriverVersion(matchedVersion);
         return new DriverBindingImpl(parent, matchedVersion);
     }
 }
