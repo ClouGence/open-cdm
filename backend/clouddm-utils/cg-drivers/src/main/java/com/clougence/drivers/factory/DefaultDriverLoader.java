@@ -31,7 +31,11 @@ import com.clougence.drivers.factory.prepare.FileResourcePreparer;
 public class DefaultDriverLoader extends AbstractDriverLoader {
 
     public DefaultDriverLoader(File localDir, Properties config){
-        super(localDir, config);
+        this(localDir, null, config);
+    }
+
+    public DefaultDriverLoader(File localDir, File builtinDir, Properties config){
+        super(localDir, builtinDir, config);
 
         registerPreparer("class", ClassResourcePreparer::new);
         registerPreparer("file", FileResourcePreparer::new);

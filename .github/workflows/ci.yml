@@ -110,11 +110,17 @@ jobs:
         working-directory: package
         run: ./package.sh --build
 
+      - name: Generate built-in drivers
+        working-directory: backend
+        run: ./gradlew -Ptarget=all :pkg-builtin-drivers:generateBuiltinDrivers
+
       - name: Upload tgz artifact
         uses: actions/upload-artifact@v4
         with:
           name: cgdm-tgz-dev
-          path: package/build/*.tar.gz
+          path: |
+            package/build/*.tar.gz
+            package/build/built-in-drivers
           if-no-files-found: error
           retention-days: 3
 

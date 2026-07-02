@@ -46,6 +46,8 @@ public interface DriverLoader {
 
     void prepareDriverVersion(DriverVersion driverVersion, Predicate<ResDef> skip, DriverPrepareProgress progress);
 
+    void resetDriverVersion(DriverVersion driverVersion);
+
     //
 
     void loadDriverXml(InputStream xmlInputStream);

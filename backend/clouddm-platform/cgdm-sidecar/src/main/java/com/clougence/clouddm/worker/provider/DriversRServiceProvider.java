@@ -89,7 +89,7 @@ public class DriversRServiceProvider implements DriversRService {
     public void deleteDriverResource(RSocketSendDTO sendDTO, String familyName, String version) {
         DriverVersion driver = PluginManager.driverLoader().findDriver(familyName, version);
         if (driver != null) {
-            driver.deleteFiles();
+            PluginManager.driverLoader().resetDriverVersion(driver);
         }
     }
 

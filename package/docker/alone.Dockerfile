@@ -37,6 +37,7 @@ ENV DB_DATABASE=cdmgr
 ENV DB_USERNAME=root
 
 ADD cgdm-alone.tar.gz /root/
+COPY built-in-drivers/ /root/cgdm/alone/built-in-drivers/
 COPY shared/alone/alone.properties /docker-entrypoint-init/copy_alone.properties
 COPY shared/alone/init.sh /docker-entrypoint-init/init.sh
 RUN chmod +x /docker-entrypoint-init/init.sh \

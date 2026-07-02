@@ -24,6 +24,7 @@ ENV APP_SERVE_NAME=%APP_SERVE_NAME%
 ENV APP_SERVE_PORT=%APP_SERVE_PORT%
 
 ADD cgdm-sidecar.tar.gz /root/
+COPY built-in-drivers/ /root/cgdm/sidecar/built-in-drivers/
 COPY shared/sidecar/sidecar.properties /docker-entrypoint-init/copy_sidecar.properties
 COPY shared/sidecar/global_conf.properties /docker-entrypoint-init/copy_global_conf.properties
 COPY shared/sidecar/init.sh /docker-entrypoint-init/init.sh

@@ -127,10 +127,35 @@ public class PluginManager {
 
         // ---- Part 3: build DefaultDriverLoader ----
         log.info("[PluginManager] Using driver directory: {}", driverDir.getAbsolutePath());
-        driverLoader = new DefaultDriverLoader(driverDir, System.getProperties());
+        driverLoader = new DefaultDriverLoader(driverDir, resolveBuiltinDriverDir(), System.getProperties());
         globalMeta = new GlobalMeta();
         dsMetaMap = new ConcurrentHashMap<>();
         dsSpiCache = new ConcurrentHashMap<>();
+    }
+
+    /**
+     * Resolve the read-only builtin driver directory shipped with the release. Driver versions that are not
+     * prepared under the writable driver directory fall back to this directory, so common drivers work
+     * out of the box without downloading.
+     */
+    private static File resolveBuiltinDriverDir() {
+        String builtinDirStr = SystemUtils.getSystemProperty("builtinDriverDirectory");
+
+        File builtinDir;
+        if (StringUtils.isBlank(builtinDirStr)) {
+            builtinDir = new File(GlobalConfUtils.getAppHome(), "built-in-drivers");
+        } else if (new File(builtinDirStr).isAbsolute()) {
+            builtinDir = new File(builtinDirStr);
+        } else {
+            builtinDir = new File(GlobalConfUtils.getAppHome(), builtinDirStr);
+        }
+
+        if (!builtinDir.isDirectory()) {
+            return null;
+        }
+
+        log.info("[PluginManager] Using builtin driver directory: {}", builtinDir.getAbsolutePath());
+        return builtinDir;
     }
 
     // ---------------------------------------------

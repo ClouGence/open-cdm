@@ -73,7 +73,7 @@ public class DmDriverDownloadTask implements Runnable {
         }
 
         log.info("start driver download, clusterId={}, family={}, version={}", this.clusterId, this.driverFamily, this.driverVersion);
-        resetLocalPreparedResources(localVersion);
+        PluginManager.driverLoader().resetDriverVersion(localVersion);
         ensurePreparedResources(localVersion);
         refreshPreparedState(localVersion);
         List<DriverFile> transferFiles = resolveTransferFiles(localVersion);
@@ -87,27 +87,6 @@ public class DmDriverDownloadTask implements Runnable {
             .isAvailable(), null, statusVO.isAvailable() ? i18n(I18nDmMsgKeys.DS_DRIVER_READY_MESSAGE) : i18n(I18nDmMsgKeys.DS_DRIVER_UNAVAILABLE_MESSAGE));
         log.info("driver download finished, clusterId={}, family={}, version={}, available={}, workerWsn={}", this.clusterId, this.driverFamily, this.driverVersion, statusVO
             .isAvailable(), statusVO.getWorkerWsn());
-    }
-
-    private void resetLocalPreparedResources(DriverVersion localVersion) {
-        if (localVersion == null) {
-            return;
-        }
-
-        localVersion.deleteFiles();
-        localVersion.setPrepared(false);
-        if (CollectionUtils.isEmpty(localVersion.getResources())) {
-            return;
-        }
-
-        for (ResDef resource : localVersion.getResources()) {
-            if (resource == null) {
-                continue;
-            }
-
-            resource.setPrepared(false);
-            resource.setFileDefList(null);
-        }
     }
 
     private void ensurePreparedResources(DriverVersion localVersion) {

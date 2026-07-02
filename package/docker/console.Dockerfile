@@ -27,6 +27,7 @@ ENV DB_DATABASE=cdmgr
 ENV DB_USERNAME=
 
 ADD cgdm-console.tar.gz /root/
+COPY built-in-drivers/ /root/cgdm/console/built-in-drivers/
 COPY shared/console/console.properties /docker-entrypoint-init/copy_console.properties
 COPY shared/console/init.sh /docker-entrypoint-init/init.sh
 RUN chmod +x /docker-entrypoint-init/init.sh \

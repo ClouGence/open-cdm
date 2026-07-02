@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Drivers bundled into the Docker images (baked into the image layer at
+  <APP_HOME>/built-in-drivers, resolved at image build time by
+  package/pkg/builtin-drivers:generateBuiltinDrivers).
+
+  IMPORTANT: driverFamily / version / maven coordinate must exactly match the
+  corresponding plugin drivers.xml entry (backend/clouddm-plugins/clouddm-ds/...),
+  otherwise the runtime files.idx resource id will not match and the bundled
+  driver will be ignored.
+-->
+<drivers>
+    <driver driverFamily="MySQL Connector/J" version="8.4.0">
+        <resource type="maven">com.mysql:mysql-connector-j:8.4.0</resource>
+    </driver>
+    <driver driverFamily="PostgreSQL JDBC" version="42.7.10">
+        <resource type="maven">org.postgresql:postgresql:42.7.10</resource>
+    </driver>
+    <driver driverFamily="Jedis" version="7.4.1">
+        <resource type="maven">redis.clients:jedis:7.4.1</resource>
+    </driver>
+</drivers>
