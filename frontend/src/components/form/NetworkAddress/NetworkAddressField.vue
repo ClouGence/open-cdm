@@ -1,6 +1,6 @@
 <template>
   <div class="network-address-field">
-    <div class="network-address-row">
+    <div class="network-address-row" :class="{ 'network-address-row--with-port': shouldSeparatePort }">
       <div class="network-address-control network-address-control--host">
         <Input
           class="network-address-input"
@@ -12,7 +12,9 @@
         />
         <div v-if="errors.address" class="network-address-error">{{ errors.address }}</div>
       </div>
-      <div v-if="shouldSeparatePort" class="network-address-port-label">{{ $t('duan-kou') }}</div>
+      <div v-if="shouldSeparatePort" class="network-address-port-label" :class="{ 'network-address-port-label--required': portRequired }">
+        {{ $t('duan-kou') }}
+      </div>
       <div v-if="shouldSeparatePort" class="network-address-control network-address-control--port">
         <Input
           class="network-address-port-input"
@@ -41,6 +43,10 @@ export default {
       default: () => ({})
     },
     disabled: {
+      type: Boolean,
+      default: false
+    },
+    required: {
       type: Boolean,
       default: false
     },
@@ -73,6 +79,10 @@ export default {
         return 'ip:port,domain:port';
       }
       return '';
+    },
+    portRequired() {
+      const portField = (this.field.children || []).find((item) => item.field === 'port');
+      return this.required || this.isRequiredField(portField);
     }
   },
   watch: {
@@ -113,6 +123,9 @@ export default {
     fieldDefaultValue(fieldName) {
       const child = (this.field.children || []).find((item) => item.field === fieldName);
       return this.defaultValue(child?.defaultValue);
+    },
+    isRequiredField(field) {
+      return field?.require === true || field?.required === true || field?.valueRequire === true;
     },
     defaultValue(defaultValue) {
       if (defaultValue && typeof defaultValue === 'object' && Object.prototype.hasOwnProperty.call(defaultValue, 'value')) {
@@ -209,25 +222,49 @@ export default {
   align-items: flex-start;
 }
 
+.network-address-row--with-port {
+  display: grid;
+  width: var(--network-address-total-width, auto);
+  grid-template-columns: minmax(0, 1fr) var(--network-address-port-label-width, 44px) var(--network-address-port-width, 80px);
+  column-gap: var(--network-address-gap, 0);
+}
+
 .network-address-port-label {
   display: inline-flex;
   height: 36px;
   align-items: center;
   margin: 0 8px;
   color: #515a6e;
+
+  &--required::before {
+    margin-right: 4px;
+    color: var(--error-color);
+    content: '*';
+  }
+}
+
+.network-address-row--with-port .network-address-port-label {
+  justify-content: flex-end;
+  margin: 0;
 }
 
 .network-address-control {
   display: inline-flex;
   flex-direction: column;
+  position: relative;
 }
 
 .network-address-input {
-  width: 280px;
+  width: var(--network-address-total-width, 280px);
 }
 
 .network-address-port-input {
-  width: 80px;
+  width: var(--network-address-port-width, 80px);
+}
+
+.network-address-row--with-port .network-address-input,
+.network-address-row--with-port .network-address-port-input {
+  width: 100%;
 }
 
 .network-address-input,
@@ -246,9 +283,12 @@ export default {
 }
 
 .network-address-error {
-  margin-top: 4px;
+  position: absolute;
+  top: 30px;
+  left: 0;
   color: var(--error-color);
   font-size: 12px;
-  line-height: 1.2;
+  line-height: 16px;
+  white-space: nowrap;
 }
 </style>

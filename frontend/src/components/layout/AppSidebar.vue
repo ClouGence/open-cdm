@@ -54,6 +54,7 @@
 import { mapGetters, mapState } from 'vuex';
 import AppBrandLogo from '@/components/layout/AppBrandLogo';
 import { findSidebarParentKeys } from '@/utils/buildSidebarMenu';
+import { saveLastWorkbenchRoute } from '@/utils/workbenchRoute';
 
 export default {
   name: 'AppSidebar',
@@ -160,9 +161,15 @@ export default {
   },
   methods: {
     handleGoHome() {
-      const target = this.defaultRedirectUrl || '/cicd';
-      if (this.$route.path !== target) {
-        this.$router.push({ path: target });
+      if (this.includesDM && this.myCatLog.includes('CAT_DM_CONSOLE')) {
+        saveLastWorkbenchRoute(this.$route);
+        this.$router.push({ path: '/sql' }).catch(() => {});
+        return;
+      }
+
+      const fallback = this.defaultRedirectUrl || '/cicd';
+      if (this.$route.path !== fallback) {
+        this.$router.push({ path: fallback }).catch(() => {});
       }
     },
     isGroupExpanded(key) {

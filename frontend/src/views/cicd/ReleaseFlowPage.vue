@@ -1094,15 +1094,16 @@ export default {
 
 <style>
 .release-flow-page {
+  display: flex;
+  flex-direction: column;
   flex: 1 1 auto;
   width: 100%;
   height: 100%;
   min-height: 0;
   box-sizing: border-box;
-  overflow-y: auto;
+  overflow: hidden;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding-bottom: 76px;
   background: #fff;
   color: #1f2937;
 }
@@ -1115,10 +1116,13 @@ export default {
 
 .release-flow-shell {
   display: grid;
+  flex: 1 1 auto;
   grid-template-columns: minmax(0, 1fr) 360px;
   gap: 20px;
-  margin: 20px;
-  padding: 14px 20px 104px;
+  min-height: 0;
+  margin: 0;
+  overflow-y: auto;
+  padding: 20px 24px;
   align-items: stretch;
 }
 
@@ -2163,18 +2167,14 @@ export default {
 }
 
 .page-footer {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 20;
   display: flex;
+  flex: 0 0 auto;
   justify-content: center;
   gap: 12px;
   padding: 12px 28px;
   background: rgba(255, 255, 255, 0.96);
   border-top: 1px solid #e7edf4;
-  box-shadow: 0 -8px 18px rgba(31, 41, 55, 0.06);
+  box-shadow: none;
 }
 
 .primary-action {
@@ -2251,7 +2251,7 @@ export default {
   .release-flow-shell {
     grid-template-columns: minmax(0, 1fr) 300px;
     gap: 18px;
-    padding: 14px 20px 112px;
+    padding: 20px 24px;
   }
 
   .flow-section-card {
@@ -2488,29 +2488,30 @@ export default {
 
 .release-flow-shell-config {
   grid-template-columns: minmax(0, 1fr) 340px;
-  align-items: start;
+  align-items: stretch;
   gap: 18px;
 }
 
 .release-flow-shell-config .release-flow-main {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
   align-items: stretch;
   gap: 0;
+  min-height: 0;
 }
 
 .release-flow-shell-config .flow-config-card {
-  height: auto;
+  flex: 1 1 auto;
   min-height: 0;
   padding: 24px 28px 30px;
 }
 
 .release-flow-shell-config .release-flow-summary {
-  align-self: start;
+  align-self: stretch;
 }
 
 .release-flow-shell-config .summary-card {
-  height: auto;
+  height: 100%;
   min-height: 0;
   padding: 28px 30px 28px;
 }

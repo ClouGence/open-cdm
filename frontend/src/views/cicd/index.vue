@@ -21,7 +21,7 @@
               </Button>
             </div>
           </div>
-          <div class="table-container">
+          <div class="table-container flow-table-container">
             <Table
               :columns="flowTableColumns"
               :data="flowList"
@@ -1271,6 +1271,25 @@ export default {
     padding: 0 2px;
     line-height: 20px;
   }
+}
+
+.flow-table-container {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.flow-table-container :deep(.ivu-table-wrapper) {
+  border-radius: 0;
+}
+
+.flow-table-container :deep(.ivu-table-fixed-right) {
+  box-shadow: none;
+}
+
+.flow-table-container :deep(.ivu-table-fixed-right::before),
+.flow-table-container :deep(.ivu-table-fixed::before) {
+  display: none;
 }
 
 .flow-action-danger:not(.ivu-btn-disabled):not([disabled]) {

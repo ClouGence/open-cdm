@@ -84,6 +84,7 @@
 <script>
 import { mapState } from 'vuex';
 import DataSourceIcon from '@/components/function/DataSourceIcon';
+import { normalizeDsSupportNameGroups } from '@/utils/datasourceSupport';
 
 export default {
   name: 'DataSourceHeader',
@@ -147,29 +148,7 @@ export default {
   },
   methods: {
     refreshDataSourceTypes() {
-      this.dataSourceTypes = Array.isArray(this.dmGlobalSetting?.dsSupportNames)
-        ? this.dmGlobalSetting.dsSupportNames
-            .map((group) => (Array.isArray(group) ? group : [group]).map(this.normalizeDsSupportName).filter(Boolean))
-            .filter((group) => group.length > 0)
-        : [];
-    },
-    normalizeDsSupportName(type) {
-      if (!type) {
-        return null;
-      }
-      if (typeof type === 'string') {
-        return {
-          dsKey: type,
-          displayName: type
-        };
-      }
-      if (!type.dsKey) {
-        return null;
-      }
-      return {
-        dsKey: type.dsKey,
-        displayName: type.displayName || type.dsKey
-      };
+      this.dataSourceTypes = normalizeDsSupportNameGroups(this.dmGlobalSetting?.dsSupportNames);
     },
     _handleSearch() {
       sessionStorage.setItem('datasource_search_params', JSON.stringify({ searchType: this.searchType, ...this.searchKey }));

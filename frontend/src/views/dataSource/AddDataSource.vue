@@ -1,10 +1,66 @@
 <template>
   <div class="content-wrapper add-datasource-page">
+    <CCModal
+      v-model="showAddDataSourceTypeModal"
+      :width="1040"
+      :title="$t('xuan-ze-shu-ju-yuan-lei-xing')"
+      class="add-datasource-type-modal"
+      @on-cancel="handleCloseAddDataSourceTypeModal"
+    >
+      <div class="add-datasource-type-modal-body">
+        <div class="add-datasource-type-selector">
+          <aside class="add-datasource-type-sidebar">
+            <button type="button" class="add-datasource-type-filter active">
+              {{ $t('quan-bu') }}
+            </button>
+          </aside>
+          <div class="add-datasource-type-main">
+            <Input
+              v-model="addDataSourceTypeSearchKey"
+              class="add-datasource-type-search"
+              clearable
+              :placeholder="$t('sou-suo-shu-ju-yuan-lei-xing')"
+            >
+              <template #prefix>
+                <Icon type="ios-search" />
+              </template>
+            </Input>
+            <div class="add-datasource-type-grid" :class="{ 'is-empty': !filteredAddDataSourceTypes.length }">
+              <button
+                v-for="type in filteredAddDataSourceTypes"
+                :key="type.dsKey"
+                type="button"
+                class="add-datasource-type-card"
+                :class="{ active: selectedAddDataSourceType === type.dsKey }"
+                :aria-pressed="selectedAddDataSourceType === type.dsKey"
+                @click="handleSelectAddDataSourceType(type.dsKey)"
+              >
+                <span class="add-datasource-type-icon">
+                  <DataSourceIcon size="20px" :type="type.dsKey" leftMargin="0"></DataSourceIcon>
+                </span>
+                <span class="add-datasource-type-name" :title="type.displayName">{{ type.displayName }}</span>
+              </button>
+              <div v-if="!filteredAddDataSourceTypes.length" class="add-datasource-type-empty">
+                {{ $t('zan-wu-shu-ju') }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <div class="add-datasource-type-footer">
+          <Button type="primary" :disabled="!selectedAddDataSourceType" @click="handleConfirmAddDataSourceType">
+            {{ $t('que-ding') }}
+          </Button>
+          <Button @click="handleCloseAddDataSourceTypeModal">{{ $t('qu-xiao') }}</Button>
+        </div>
+      </template>
+    </CCModal>
     <div class="add-datasource-wrapper">
       <div class="add-datasource-content">
         <DataSourceInfo
           :addDataSourceForm="addDataSourceForm"
-          v-if="currentStep === 0 || currentStep === 1"
+          v-if="currentStep === 1"
           ref="dataSourceInfo"
           :current-step="currentStep"
           :show-query-config="shouldAutoEnableFeatures"
@@ -12,17 +68,13 @@
           :driver-family-map="driverFamilyMap"
           :ds-id="editDataSourceId"
           :edit-mode="editMode"
-          :set-security-setting="setSecuritySetting"
           @driver-status-change="handleDriverStatusChange"
           @config-loaded="handleConfigLoaded"
         ></DataSourceInfo>
         <SuccessAdd v-if="currentStep > 2"></SuccessAdd>
       </div>
-      <div class="add-dataSource-tools">
+      <div v-if="currentStep === 1" class="add-dataSource-tools">
         <div class="add-dataSource-actions">
-          <Button type="primary" @click="handleStep('next')" v-if="currentStep === 0">
-            {{ $t('xia-yi-bu') }}
-          </Button>
           <Button @click="handleTestConnection" :loading="testConnectionLoading" v-if="currentStep === 1">
             {{ $t('ce-shi-lian-jie') }}
           </Button>
@@ -46,12 +98,15 @@
   </div>
 </template>
 <script>
+import DataSourceIcon from '@/components/function/DataSourceIcon';
 import DataSourceInfo from '@/components/function/addDataSource/DataSourceInfo';
 import SuccessAdd from '@/components/function/addDataSource/SuccessAdd';
 import { separatePort, isMySQL } from '@/utils';
 import { isPostgreSQL } from '@/const/dataSource';
 import { mapGetters, mapState } from 'vuex';
 import { cloneDeep as deepClone } from '@/utils/lodash';
+import { normalizeDsSupportNameGroups } from '@/utils/datasourceSupport';
+import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 import DataSourceGroup from '../dataSourceGroup.json';
 import store from '../../store/index';
 
@@ -110,10 +165,15 @@ const EMPTY_DATA_SOURCE_FORM = {
 export default {
   name: 'AddDataSource',
   components: {
+    DataSourceIcon,
     DataSourceInfo,
     SuccessAdd
   },
   props: {
+    isModal: {
+      type: Boolean,
+      default: false
+    },
     handleSetTestDsMsg: Function,
     handleCloseAddDsModal: Function
   },
@@ -121,18 +181,18 @@ export default {
     return {
       addDatasourceLoading: false,
       DataSourceGroup,
-      errorMsg: '',
       store,
       currentStep: 0,
-      clusters: [],
       addDataSourceForm: deepClone(EMPTY_DATA_SOURCE_FORM),
-      securitySetting: [],
       driverReadyForAdd: true,
       driverRequiredForAdd: false,
       testConnectionLoading: false,
       testConnectionHasResult: false,
       testConnectionSuccess: false,
-      testConnectionMessage: ''
+      testConnectionMessage: '',
+      showAddDataSourceTypeModal: false,
+      addDataSourceTypeSearchKey: '',
+      selectedAddDataSourceType: ''
     };
   },
   computed: {
@@ -158,9 +218,27 @@ export default {
     },
     disableAddDataSource() {
       return this.driverRequiredForAdd && !this.driverReadyForAdd;
+    },
+    addDataSourceTypeGroups() {
+      return normalizeDsSupportNameGroups(this.dmGlobalSetting?.dsSupportNames || []);
+    },
+    flatAddDataSourceTypes() {
+      return this.addDataSourceTypeGroups.flatMap((group) => group);
+    },
+    filteredAddDataSourceTypes() {
+      const keyword = this.addDataSourceTypeSearchKey.trim().toLowerCase();
+      if (!keyword) {
+        return this.flatAddDataSourceTypes;
+      }
+      return this.flatAddDataSourceTypes.filter((type) => {
+        const displayName = String(type.displayName || '').toLowerCase();
+        const dsKey = String(type.dsKey || '').toLowerCase();
+        return displayName.includes(keyword) || dsKey.includes(keyword);
+      });
     }
   },
   beforeUnmount() {
+    this.$bus.off(EVENT_BUS_NAME_LIST.SHOW_ADD_DATASOURCE_TYPE_MODAL, this.handleShowAddDataSourceTypeModal);
     store.state.rdsData = [];
     store.state.addedRdsList = [];
     store.state.firstAddDataSource = true;
@@ -179,12 +257,48 @@ export default {
       }
     }
   },
-  mounted() {
+  created() {
     this.syncStepFromRoute();
+    this.$bus.on(EVENT_BUS_NAME_LIST.SHOW_ADD_DATASOURCE_TYPE_MODAL, this.handleShowAddDataSourceTypeModal);
   },
   methods: {
+    handleShowAddDataSourceTypeModal() {
+      if (this.editMode) {
+        return;
+      }
+      this.addDataSourceTypeSearchKey = '';
+      this.selectedAddDataSourceType = this.addDataSourceForm.type || this.$route.query.dsType || '';
+      this.showAddDataSourceTypeModal = true;
+    },
+    handleCloseAddDataSourceTypeModal() {
+      this.showAddDataSourceTypeModal = false;
+      this.addDataSourceTypeSearchKey = '';
+      this.selectedAddDataSourceType = '';
+    },
+    handleSelectAddDataSourceType(dsType) {
+      if (!dsType) {
+        return;
+      }
+      this.selectedAddDataSourceType = dsType;
+    },
+    handleConfirmAddDataSourceType() {
+      const dsType = this.selectedAddDataSourceType;
+      if (!dsType) {
+        return;
+      }
+      this.handleCloseAddDataSourceTypeModal();
+      if (dsType === this.$route.query.dsType) {
+        return;
+      }
+      this.$router.push({
+        path: '/datasource/add',
+        query: {
+          dsType
+        }
+      });
+    },
     handleSetEmptyDatasourceForm() {
-      this.currentStep = 0;
+      this.currentStep = 1;
       this.addDataSourceForm = deepClone(EMPTY_DATA_SOURCE_FORM);
     },
     separatePort,
@@ -212,9 +326,6 @@ export default {
         return `${this.addDataSourceForm.host}:${this.addDataSourceForm.port}`;
       }
       return this.addDataSourceForm.host || this.addDataSourceForm.publicHost || '';
-    },
-    setSecuritySetting(setting) {
-      this.securitySetting = setting;
     },
     handleDriverStatusChange(status) {
       this.driverRequiredForAdd = !!status?.required;
@@ -257,83 +368,6 @@ export default {
       }
 
       return true;
-    },
-    handleStep(type) {
-      if (type === 'pre') {
-        this.currentStep--;
-        this.clearActionMessage();
-        // if (this.currentStep === 1) {
-        //   this.addDataSourceForm.rdsList.map((item) => {
-        //     if (item.clusters) {
-        //       this.clusters[item.instanceId] = item.clusters;
-        //     }
-        //     return null;
-        //   });
-        // }
-      } else if (this.currentStep === 0) {
-        this.$refs.dataSourceInfo.validateSelectStep((valid) => {
-          if (!valid) {
-            return;
-          }
-          this.securitySetting = this.$refs.dataSourceInfo.securitySetting;
-          this.currentStep++;
-          this.clearActionMessage();
-          this.updateAddDsRoute();
-        });
-      } else if (this.currentStep === 1) {
-        if (this.isManual || this.addDataSourceForm.ifAkSK === 'false') {
-          if (!this.addDataSourceForm.host) {
-            this.$Modal.warning({
-              title: this.$t('shu-ju-yuan-tian-jia-shi-bai'),
-              content: this.$t('qing-tian-xie-shu-ju-yuan-xin-xi')
-            });
-          } else if (
-            this.addDataSourceForm.type === 'Hive' &&
-            (!this.addDataSourceForm.hdfsIp ||
-              !this.addDataSourceForm.hdfsPort ||
-              !this.addDataSourceForm.hdfsDwDir ||
-              !this.addDataSourceForm.hdfsSecurityType ||
-              (this.addDataSourceForm.securityType === 'NONE' && !this.addDataSourceForm.account) ||
-              (this.addDataSourceForm.securityType === 'KERBEROS' && !this.addDataSourceForm.hdfsPrincipal))
-          ) {
-            this.$Modal.warning({
-              title: this.$t('shu-ju-yuan-tian-jia-shi-bai'),
-              content: this.$t('qing-tian-xie-wan-zheng-de-shu-ju-yuan-xin-xi')
-            });
-          } else {
-            this.currentStep++;
-          }
-        } else if (this.addDataSourceForm.rdsList.length > 0) {
-          const noClusterDataSource = [];
-
-          this.addDataSourceForm.rdsList.map((item) => {
-            if (!item.clusters || item.clusters.length < 1) {
-              noClusterDataSource.push(item);
-            }
-            return null;
-          });
-          if (noClusterDataSource.length > 0) {
-            this.$Modal.confirm({
-              title: this.$t('shu-ju-yuan-tian-jia-ti-shi'),
-              content: this.$t(
-                'nin-dang-qian-yi-you-tian-jia-ji-qi-que-ren-dang-qian-suo-xuan-shu-ju-yuan-bu-dui-ci-tian-jia-bai-ming-dan-ru-bu-tian-jia-hou-xu-qing-zhi-shu-ju-yuan-guan-li-tian-jia'
-              ),
-              onOk: () => {
-                this.currentStep++;
-              }
-            });
-          } else {
-            this.currentStep++;
-          }
-        } else {
-          this.$Modal.warning({
-            title: this.$t('shu-ju-yuan-tian-jia-shi-bai'),
-            content: this.$t('qing-xuan-ze-zhi-shao-yi-ge-shu-ju-yuan')
-          });
-        }
-      } else {
-        this.currentStep++;
-      }
     },
     handleAddDataSource() {
       if (!this.ensureDriverReadyForAdd()) {
@@ -531,21 +565,12 @@ export default {
         hdfsDwDir: '/user/hive/warehouse'
       };
     },
-    handleCancel() {
-      this.currentStep = 0;
-    },
-    getSecurity(type) {
-      let security = {};
-
-      this.securitySetting.map((item) => {
-        if (item.securityType === type) {
-          security = item;
-        }
-        return null;
-      });
-      return security;
-    },
     syncStepFromRoute() {
+      if (this.isModal) {
+        this.currentStep = 1;
+        this.testConnectionHasResult = false;
+        return;
+      }
       if (this.editMode) {
         const dsType = this.$route.query.dsType;
         if (dsType) {
@@ -556,22 +581,19 @@ export default {
       }
       const dsType = this.$route.query.dsType;
       if (dsType) {
+        const changedType = this.addDataSourceForm.type !== dsType;
         this.addDataSourceForm.type = dsType;
         this.currentStep = 1;
+        if (changedType && this.$refs.dataSourceInfo) {
+          this.$refs.dataSourceInfo.handleDataSourceChange();
+        }
+      } else {
+        this.$router.replace({ path: '/datasource' });
         return;
       }
-      this.currentStep = 0;
+      this.driverReadyForAdd = true;
+      this.driverRequiredForAdd = false;
       this.testConnectionHasResult = false;
-    },
-    updateAddDsRoute() {
-      const query = {
-        dsType: this.addDataSourceForm.type
-      };
-      const currentQueryKeys = Object.keys(this.$route.query || {});
-      if (this.$route.query.dsType === query.dsType && currentQueryKeys.length === 1) {
-        return;
-      }
-      this.$router.replace({ path: '/datasource/add', query });
     },
     handleConfigLoaded(config) {
       if (!this.editMode || !config?.instanceId || this.$route.query.instanceId === config.instanceId) {
@@ -590,51 +612,209 @@ export default {
 </script>
 <style lang="less">
 .add-datasource-page {
+  display: flex;
+  flex-direction: column;
   flex: 1 1 auto;
   width: 100%;
   height: 100%;
   min-height: 0;
   box-sizing: border-box;
   position: relative;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  padding: 0 !important;
+  background: #ffffff;
+}
+
+.add-datasource-type-modal {
+  .ant-modal-body,
+  .ivu-modal-body {
+    padding: 20px 24px 12px;
+  }
+
+  .ant-modal-footer,
+  .ivu-modal-footer {
+    margin-top: 0;
+    padding: 8px 24px 20px;
+    border-top: 0;
+  }
+}
+
+.add-datasource-type-modal-body {
+  display: flex;
+  flex-direction: column;
+  height: 352px;
+  min-height: 352px;
+}
+
+.add-datasource-type-selector {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.add-datasource-type-sidebar {
+  flex: 0 0 142px;
+  padding: 0 14px 0 0;
+  border-right: 1px solid #e6edf4;
+}
+
+.add-datasource-type-main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  min-width: 0;
+  padding-left: 16px;
+}
+
+.add-datasource-type-search {
+  width: 320px;
+}
+
+.add-datasource-type-filter {
+  display: flex;
+  width: 100%;
+  height: 36px;
+  align-items: center;
+  border: none;
+  border-radius: 6px;
+  padding: 0 12px;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: default;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+
+  &.active {
+    background: #effbf5;
+    color: #18ae66;
+  }
+}
+
+.add-datasource-type-grid {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
+  align-content: start;
+  gap: 10px;
+  min-height: 0;
+  min-width: 0;
   overflow-y: auto;
-  padding: 16px 16px 80px;
-  background: var(--bg-primary);
+  padding: 0 4px 0 0;
+
+  &.is-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.add-datasource-type-card {
+  display: flex;
+  min-width: 0;
+  min-height: 44px;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e0e6ee;
+  border-radius: 6px;
+  padding: 0 12px;
+  background: #ffffff;
+  color: #1f2937;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    background-color 0.16s ease;
+
+  &:hover {
+    border-color: #41d28f;
+    background: #fbfffd;
+    box-shadow: inset 0 0 0 1px #41d28f;
+  }
+
+  &.active {
+    border-color: #18ae66;
+    background: #effbf5;
+    box-shadow: inset 0 0 0 1px #18ae66;
+  }
+}
+
+.add-datasource-type-icon {
+  display: inline-flex;
+  width: 20px;
+  flex: 0 0 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-datasource-type-name {
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 17px;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+.add-datasource-type-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.add-datasource-type-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  button {
+    min-width: 92px;
+  }
 }
 
 .add-datasource-wrapper {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
-  min-height: 100%;
+  height: 100%;
+  min-height: 0;
   margin: 0;
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
   box-shadow: none;
   overflow: visible;
 
   .add-datasource-content {
-    /*padding: 20px;*/
-    flex: 1;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
     min-height: 0;
     margin-bottom: 0;
-    overflow: visible;
+    padding: 16px 24px;
+    overflow: hidden;
   }
 }
 
 .add-dataSource-tools {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 20;
+  position: relative;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   min-height: 64px;
   justify-content: center;
-  padding: 12px 28px;
-  background: rgba(255, 255, 255, 0.96);
-  border-top: 1px solid #e7edf4;
-  box-shadow: 0 -8px 18px rgba(31, 41, 55, 0.06);
+  padding: 12px 24px;
+  background: #ffffff;
+  border-top: 1px solid var(--border-light);
+  box-shadow: none;
 
   .add-dataSource-actions {
     display: flex;
@@ -688,6 +868,7 @@ export default {
 
     .add-datasource-content {
       margin-bottom: 0;
+      padding: 16px 24px;
 
       .add-datasource-step1 {
         padding: 0;

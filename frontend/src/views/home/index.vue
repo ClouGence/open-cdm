@@ -384,8 +384,7 @@ export default {
     },
     handleGoAppHome() {
       if (this.isSqlRoute) {
-        const fallback = this.defaultRedirectUrl && this.defaultRedirectUrl !== '/sql' ? this.defaultRedirectUrl : '/cicd';
-        const target = resolveWorkbenchRoute(fallback);
+        const target = resolveWorkbenchRoute('/datasource');
         this.$router.push(target).catch(() => {});
         return;
       }

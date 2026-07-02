@@ -33,8 +33,8 @@ export function saveLastWorkbenchRoute(route) {
   }
 }
 
-export function resolveWorkbenchRoute(fallbackPath = '/cicd') {
-  const fallback = isValidWorkbenchPath(fallbackPath) ? fallbackPath : '/cicd';
+export function resolveWorkbenchRoute(fallbackPath = '/datasource') {
+  const fallback = isValidWorkbenchPath(fallbackPath) ? fallbackPath : '/datasource';
 
   try {
     const raw = localStorage.getItem(STORAGE_KEY);

@@ -1,67 +1,91 @@
 <template>
   <div class="add-datasource-step1" :class="{ 'is-form-step': currentStep === 1 }">
-    <Form
-      v-if="currentStep === 0"
-      ref="selectDsTypeForm"
-      :model="addDataSourceForm"
-      label-position="right"
-      :label-width="110"
-      :rules="selectDsTypeRules"
-    >
-      <FormItem class="datasource-type-form-item" prop="type" :label-width="0">
-        <RadioGroup
-          v-model="addDataSourceForm.type"
-          type="button"
-          class="datasource-type-radio-group radio-group-radius-warp-datasource custom-radio-group"
-          @on-change="handleDataSourceChange"
-        >
-          <div class="datasource-type-group" v-for="(dataSourceGroup, index) of dataSourceTypes" :key="index">
-            <Radio translate="no" class="datasource-type-radio custom-radio" v-for="type of dataSourceGroup" :label="type.dsKey" :key="type.dsKey">
-              <span class="datasource-type-card">
-                <DataSourceIcon class="datasource-type-icon" size="30px" :type="type.dsKey" leftMargin="0"></DataSourceIcon>
-                <span class="datasource-type-name" :title="type.displayName">
-                  {{ type.displayName }}
-                </span>
-              </span>
-            </Radio>
+    <section v-if="currentStep === 1" class="add-datasource-card datasource-config-card-panel">
+      <div class="datasource-config-layout">
+        <nav class="datasource-config-menu">
+          <div class="datasource-config-menu-group">
+            <div class="datasource-config-menu-primary">
+              <span class="datasource-config-menu-accent"></span>
+              <span>{{ $t('shu-ju-yuan-pei-zhi-xin-xi') }}</span>
+            </div>
+            <div class="datasource-config-menu-children">
+              <button
+                v-for="panel in visibleAddDsPanels"
+                :key="panel.key"
+                type="button"
+                class="datasource-config-menu-child"
+                :class="{ active: activeAddDsPanelKey === panel.key }"
+                @click="activeAddDsPanelKey = panel.key"
+              >
+                {{ panel.titleI18N || panel.key }}
+              </button>
+            </div>
           </div>
-        </RadioGroup>
-      </FormItem>
-    </Form>
-    <div v-if="currentStep === 1" class="add-datasource-form-stage">
-      <Form ref="addLocalDs" :model="addDataSourceForm" label-position="right" :label-width="160" :rules="addDataSourceRule">
-        <div class="add-ds-name-form">
-          <FormItem prop="instanceDesc" :label="$t('shu-ju-yuan-ming-cheng')">
-            <Input v-model.trim="addDataSourceForm.instanceDesc" class="add-ds-name-input" />
-          </FormItem>
+        </nav>
+
+        <div class="datasource-config-scroll">
+          <Form
+            ref="addLocalDs"
+            class="datasource-config-form"
+            :model="addDataSourceForm"
+            label-position="right"
+            :label-width="160"
+            :rules="addDataSourceRule"
+          >
+            <div v-if="visibleAddDsPanels.length" class="add-ds-ui-panel-preview">
+              <Spin v-if="addDsConfigLoading" fix />
+              <div class="datasource-config-content">
+                <div class="datasource-type-form-row">
+                  <div class="datasource-type-form-label">{{ $t('shu-ju-yuan-lei-xing') }}</div>
+                  <div class="datasource-type-form-control">
+                    <span v-if="currentDataSourceType" class="datasource-type-form-value">
+                      <DataSourceIcon size="20px" :type="currentDataSourceType.dsKey" leftMargin="0"></DataSourceIcon>
+                      <span class="datasource-type-form-name" :title="currentDataSourceType.displayName">
+                        {{ currentDataSourceType.displayName }}
+                      </span>
+                    </span>
+                    <span v-else class="datasource-type-empty">{{ $t('zan-wu-shu-ju') }}</span>
+                    <Button v-if="!editMode" class="datasource-type-switch-btn" size="small" @click="handleShowDataSourceTypeModal">
+                      {{ $t('qie-huan') }}
+                    </Button>
+                  </div>
+                </div>
+                <div
+                  v-for="(panel, panelIndex) in visibleAddDsPanels"
+                  v-show="activeAddDsPanelKey === panel.key"
+                  :key="panel.key"
+                  class="datasource-config-pane"
+                >
+                  <div v-if="panelIndex === 0" class="add-ds-name-form">
+                    <FormItem prop="instanceDesc" :label="$t('shu-ju-yuan-ming-cheng')" required>
+                      <Input v-model.trim="addDataSourceForm.instanceDesc" class="add-ds-name-input" />
+                    </FormItem>
+                  </div>
+                  <ui-form-field
+                    v-for="field in panel.visibleFields"
+                    :key="`${panel.key}-${field.field}`"
+                    :field="field"
+                    :form="addDsUiForm"
+                    :data-source-form="addDataSourceForm"
+                    :driver-family-map="driverFamilyMap"
+                    :env-list="envData"
+                    :cluster-list="queryClusterList"
+                    :current-query-cluster="currentQueryCluster"
+                    :current-step="currentStep"
+                    :show-query-config="showQueryConfig"
+                    :field-error="dynamicFieldErrors[field.field] || ''"
+                    :field-errors="dynamicFieldErrors"
+                    @envChange="handleEnvChange"
+                    @clusterChange="handleChangeQueryCluster"
+                    @update:driverReady="handleAddDsDriverReady"
+                  />
+                </div>
+              </div>
+            </div>
+          </Form>
         </div>
-        <div v-if="visibleAddDsPanels.length" class="add-ds-ui-panel-preview">
-          <Spin v-if="addDsConfigLoading" fix />
-          <Tabs v-model="activeAddDsPanelKey" :animated="false">
-            <TabPane v-for="panel in visibleAddDsPanels" :key="panel.key" :name="panel.key" :label="panel.titleI18N || panel.key">
-              <ui-form-field
-                v-for="field in panel.visibleFields"
-                :key="`${panel.key}-${field.field}`"
-                :field="field"
-                :form="addDsUiForm"
-                :data-source-form="addDataSourceForm"
-                :driver-family-map="driverFamilyMap"
-                :env-list="envData"
-                :cluster-list="queryClusterList"
-                :current-query-cluster="currentQueryCluster"
-                :current-step="currentStep"
-                :show-query-config="showQueryConfig"
-                :field-error="dynamicFieldErrors[field.field] || ''"
-                :field-errors="dynamicFieldErrors"
-                @envChange="handleEnvChange"
-                @clusterChange="handleChangeQueryCluster"
-                @update:driverReady="handleAddDsDriverReady"
-              />
-            </TabPane>
-          </Tabs>
-        </div>
-      </Form>
-    </div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -69,6 +93,8 @@
 import { mapState } from 'vuex';
 import DataSourceIcon from '@/components/function/DataSourceIcon';
 import { UiFormField } from '@/components/form';
+import { flattenDsSupportNameGroups, normalizeDsSupportNameGroups } from '@/utils/datasourceSupport';
+import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 
 const emptyHostList = () => [
   {
@@ -103,7 +129,6 @@ export default {
       type: Boolean,
       default: false
     },
-    setSecuritySetting: Function,
     driverFamilyMap: {
       type: Object,
       default: () => ({})
@@ -134,15 +159,6 @@ export default {
       currentQueryCluster: {},
       dataSourceTypes: [],
       dynamicFieldErrors: {},
-      selectDsTypeRules: {
-        type: [
-          {
-            required: true,
-            message: this.$t('the-type-cannot-be-empty'),
-            trigger: 'change'
-          }
-        ]
-      },
       addDataSourceRule: {
         instanceDesc: [
           {
@@ -178,6 +194,22 @@ export default {
   },
   computed: {
     ...mapState(['dmGlobalSetting']),
+    flatDataSourceTypes() {
+      return flattenDsSupportNameGroups(this.dataSourceTypes);
+    },
+    currentDataSourceType() {
+      const currentType = this.addDataSourceForm.type;
+      const matchedType = this.flatDataSourceTypes.find((type) => type.dsKey === currentType);
+      if (matchedType) {
+        return matchedType;
+      }
+      return currentType
+        ? {
+            dsKey: currentType,
+            displayName: currentType
+          }
+        : null;
+    },
     currentDriverFamilies() {
       return this.driverFamilyMap[this.addDataSourceForm.type] || [];
     },
@@ -225,11 +257,6 @@ export default {
     }
   },
   methods: {
-    validateSelectStep(callback) {
-      this.$refs.selectDsTypeForm.validate((valid) => {
-        callback(valid);
-      });
-    },
     validateAddDsForm(callback) {
       this.syncCompositeAddDsFields();
       this.$refs.addLocalDs.validate((valid) => {
@@ -242,11 +269,7 @@ export default {
     },
     listDataSourceTypes() {
       const supportNames = this.dmGlobalSetting?.dsSupportNames || [];
-      this.dataSourceTypes = Array.isArray(supportNames)
-        ? supportNames
-            .map((group) => (Array.isArray(group) ? group.map(this.normalizeDsSupportName).filter(Boolean) : []))
-            .filter((group) => group.length > 0)
-        : [];
+      this.dataSourceTypes = normalizeDsSupportNameGroups(supportNames);
 
       if (!this.dataSourceTypes.length) {
         return;
@@ -255,25 +278,16 @@ export default {
       const allTypes = this.dataSourceTypes.flatMap((group) => group.map((type) => type.dsKey));
       if (!allTypes.includes(this.addDataSourceForm.type)) {
         this.addDataSourceForm.type = this.dataSourceTypes[0][0].dsKey;
+        if (this.currentStep === 1) {
+          this.fetchAddDsConfig();
+        }
       }
     },
-    normalizeDsSupportName(type) {
-      if (!type) {
-        return null;
+    handleShowDataSourceTypeModal() {
+      if (this.editMode) {
+        return;
       }
-      if (typeof type === 'string') {
-        return {
-          dsKey: type,
-          displayName: type
-        };
-      }
-      if (!type.dsKey) {
-        return null;
-      }
-      return {
-        dsKey: type.dsKey,
-        displayName: type.displayName || type.dsKey
-      };
+      this.$bus.emit(EVENT_BUS_NAME_LIST.SHOW_ADD_DATASOURCE_TYPE_MODAL);
     },
     async fetchBindInfo() {
       const res = await this.$services.dmDataSourceFetchBindInfo({ data: {} });
@@ -329,8 +343,9 @@ export default {
     },
     clearFieldValidate(field) {
       this.$nextTick(() => {
-        if (this.$refs.addLocalDs) {
-          this.$refs.addLocalDs.clearValidate(field);
+        const addLocalDsRef = Array.isArray(this.$refs.addLocalDs) ? this.$refs.addLocalDs[0] : this.$refs.addLocalDs;
+        if (typeof addLocalDsRef?.clearValidate === 'function') {
+          addLocalDsRef.clearValidate(field);
         }
       });
     },
@@ -361,7 +376,6 @@ export default {
       this.addDsUiForm = {};
       this.currentDriverReady = false;
       this.securitySetting = [];
-      this.setSecuritySetting([]);
 
       Object.assign(this.addDataSourceForm, {
         dbName: '',
@@ -454,7 +468,6 @@ export default {
     initSecurityOptions() {
       const securityOptions = this.resolveAddDsSecurityOptions();
       this.securitySetting = securityOptions;
-      this.setSecuritySetting(securityOptions);
       if (!securityOptions.length) {
         return;
       }
@@ -769,150 +782,105 @@ export default {
 
 <style lang="less" scoped>
 .add-datasource-step1 {
-  padding: 24px 28px;
-
-  &.is-form-step {
-    padding: 0;
-  }
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
 }
 
-.datasource-type-form-item {
-  margin-bottom: 0;
+.add-datasource-card {
+  background: #ffffff;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.datasource-config-layout {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  background: #ffffff;
+}
+
+.datasource-type-empty {
+  display: flex;
+  align-items: center;
+  color: #8b98a8;
+  font-size: 13px;
+}
+
+.datasource-config-card-panel {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  --datasource-form-control-width: 380px;
+  --datasource-form-driver-family-width: 208px;
+  --datasource-form-driver-version-label-width: 52px;
+  --datasource-form-driver-version-width: 96px;
+  --datasource-form-driver-status-width: 28px;
+  --datasource-form-driver-row-width: calc(
+    var(--datasource-form-control-width) + var(--datasource-form-inline-gap) + var(--datasource-form-driver-status-width)
+  );
+  --datasource-form-inline-gap: 12px;
+  --network-address-total-width: var(--datasource-form-control-width);
+  --network-address-port-label-width: 52px;
+  --network-address-port-width: 96px;
+  --network-address-gap: var(--datasource-form-inline-gap);
+}
+
+.datasource-config-scroll {
+  flex: 1 1 auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  border-radius: inherit;
+}
+
+.datasource-config-form {
+  height: 100%;
+  min-height: 0;
+  border-radius: inherit;
+}
+
+.add-datasource-form-stage,
+.datasource-config-card-panel {
+  :deep(.ivu-form-item) {
+    margin-bottom: 0;
+  }
 
   :deep(.ivu-form-item-content) {
-    margin-left: 0 !important;
-  }
-}
-
-.datasource-type-radio-group {
-  display: block;
-  width: 100%;
-}
-
-.datasource-type-group {
-  display: flex;
-  width: 100%;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-.datasource-type-radio.custom-radio {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 148px;
-  height: 46px;
-  margin: 0 !important;
-  padding: 0;
-  border: 1px solid var(--border-primary) !important;
-  border-radius: 6px !important;
-  background: var(--bg-card);
-  line-height: normal;
-  text-align: center;
-  transition:
-    border-color 0.16s ease,
-    box-shadow 0.16s ease,
-    background-color 0.16s ease;
-  vertical-align: top;
-  white-space: normal;
-
-  :deep(.ivu-radio) {
-    display: none;
+    padding-bottom: 18px;
   }
 
-  :deep(.ivu-radio-inner) {
-    display: none;
+  :deep(.ivu-form-item-error-tip) {
+    top: 30px;
+    padding-top: 0;
+    color: var(--error-color);
+    font-size: 12px;
+    line-height: 16px;
+    white-space: nowrap;
   }
 
-  &:hover {
-    border-color: var(--border-secondary) !important;
-    background: var(--bg-secondary);
-  }
-
-  &.ivu-radio-wrapper-checked {
-    border-color: var(--primary-color) !important;
-    background: var(--bg-card);
-    box-shadow: inset 0 0 0 1px var(--primary-color);
-  }
-}
-
-.add-ds-ui-panel-preview {
-  position: relative;
-  margin-top: 0;
-  background: var(--bg-card);
-
-  :deep(.ivu-tabs-bar) {
-    height: 48px;
-    margin-bottom: 0;
-    padding: 0 24px;
-    border-bottom: 1px solid var(--border-light);
-    background: var(--bg-card);
-  }
-
-  :deep(.ivu-tabs-nav-container),
-  :deep(.ivu-tabs-nav-wrap),
-  :deep(.ivu-tabs-nav-scroll),
-  :deep(.ivu-tabs-nav) {
-    height: 48px;
-  }
-
-  :deep(.ivu-tabs-bar .ivu-tabs-tab) {
-    display: inline-flex !important;
-    height: 48px;
-    align-items: center;
-    justify-content: center;
-    margin-right: 6px;
-    padding: 0 18px !important;
-    border: none !important;
-    border-radius: 0;
-    background: transparent !important;
-    color: var(--text-secondary) !important;
-    font-size: 14px;
-    line-height: normal !important;
-  }
-
-  :deep(.ivu-tabs-bar .ivu-tabs-tab-active) {
-    position: relative;
-    background: transparent !important;
-    color: var(--text-primary) !important;
-    font-weight: 500;
-
-    &::after {
-      position: absolute;
-      right: 18px;
-      bottom: 0;
-      left: 18px;
-      height: 2px;
-      background: var(--primary-color);
-      content: '';
-    }
-  }
-
-  :deep(.ivu-tabs-ink-bar) {
-    display: none !important;
-  }
-
-  :deep(.ivu-tabs-content) {
-    overflow: visible;
-    padding: 24px 32px 40px;
-  }
-
-  :deep(.ivu-tabs-tabpane) {
-    overflow: visible;
-  }
-}
-
-.add-datasource-form-stage {
   :deep(.ivu-form-item-required .ivu-form-item-label::before),
   :deep(.ivu-form-item-label::before) {
-    display: none !important;
-    margin-right: 0 !important;
-    content: '' !important;
+    display: none;
+    margin-right: 0;
+    content: '';
+  }
+
+  :deep(.ivu-form-item-required .ivu-form-item-label::before) {
+    display: inline-block !important;
+    margin-right: 4px !important;
+    color: var(--error-color);
+    font-family: SimSun, sans-serif;
+    line-height: 1;
+    content: '*' !important;
   }
 
   :deep(.ivu-form-item-required .ivu-input),
@@ -932,59 +900,225 @@ export default {
 }
 
 .add-ds-name-form {
-  padding: 24px 32px 4px;
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border-light);
+  padding: 0 0 4px;
+  background: #ffffff;
 
   :deep(.ivu-form-item) {
-    margin-bottom: 20px;
+    margin-bottom: 0;
   }
 }
 
 .add-ds-name-input {
-  width: 462px;
+  width: var(--datasource-form-control-width);
   max-width: 100%;
 }
 
-.datasource-type-card {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
-  text-align: left;
-}
+.datasource-config-card-panel {
+  :deep(.ui-input-field) {
+    width: var(--datasource-form-control-width) !important;
+  }
 
-.datasource-type-icon {
-  display: flex;
-  width: 30px;
-  flex: 0 0 30px;
-  align-items: center;
-  justify-content: center;
-  height: 30px;
-  line-height: 1;
+  :deep(.ivu-form-item:not(.driver-selection-form-item) > .ivu-form-item-content > .ivu-select),
+  :deep(.cluster-select-field),
+  :deep(.cluster-select-field > .ivu-select) {
+    width: var(--datasource-form-control-width) !important;
+  }
 
-  :deep(> div) {
-    display: inline-flex !important;
-    width: 30px;
-    height: 30px;
+  :deep(.driver-selection-field),
+  :deep(.driver-selection-row) {
+    width: var(--datasource-form-driver-row-width) !important;
+  }
+
+  :deep(.driver-selection-row) {
+    display: grid;
+    grid-template-columns:
+      var(--datasource-form-driver-family-width)
+      var(--datasource-form-driver-version-label-width)
+      var(--datasource-form-driver-version-width)
+      var(--datasource-form-driver-status-width);
+    column-gap: var(--datasource-form-inline-gap);
     align-items: center;
-    justify-content: center;
+  }
+
+  :deep(.driver-family-select) {
+    width: var(--datasource-form-driver-family-width) !important;
+    flex: 0 0 var(--datasource-form-driver-family-width);
+  }
+
+  :deep(.driver-version-label) {
+    width: var(--datasource-form-driver-version-label-width) !important;
+    flex: 0 0 var(--datasource-form-driver-version-label-width);
+    justify-content: flex-end;
+  }
+
+  :deep(.driver-version-select) {
+    width: var(--datasource-form-driver-version-width) !important;
+    flex: 0 0 var(--datasource-form-driver-version-width);
   }
 }
 
-.datasource-type-name {
-  display: -webkit-box;
-  flex: 1;
+.add-ds-ui-panel-preview {
+  position: relative;
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  margin-top: 0;
+  background: #ffffff;
+  border-radius: inherit;
+}
+
+.datasource-config-menu {
+  display: flex;
+  align-self: flex-start;
+  flex: 0 0 188px;
+  flex-direction: column;
+  width: 188px;
+  gap: 18px;
+  padding: 20px 12px;
+  background: #ffffff;
+}
+
+.datasource-config-menu-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.datasource-config-menu-primary {
+  display: flex;
+  height: 40px;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 0 10px;
+  color: #1f2937;
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.datasource-config-menu-accent {
+  display: inline-block;
+  width: 4px;
+  height: 24px;
+  flex: 0 0 4px;
+  border-radius: 999px;
+  background: #21bf73;
+}
+
+.datasource-config-menu-children {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.datasource-config-menu-child {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 38px;
+  align-items: center;
+  border: none;
+  border-radius: 6px;
+  padding: 0 14px 0 30px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: normal;
+  text-align: left;
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease;
+
+  &.active {
+    background: #effbf5;
+    color: var(--text-primary);
+    font-weight: 500;
+
+    &::after {
+      position: absolute;
+      top: 8px;
+      bottom: 8px;
+      left: 14px;
+      width: 3px;
+      border-radius: 999px;
+      background: var(--primary-color);
+      content: '';
+    }
+  }
+}
+
+.datasource-config-content {
+  flex: 1 1 auto;
+  height: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: visible;
+  padding: 18px 32px 18px;
+}
+
+.datasource-type-form-row {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  align-items: center;
+  min-height: 36px;
+  margin-bottom: 12px;
+}
+
+.datasource-type-form-label {
+  padding: 7px 12px 7px 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 22px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.datasource-type-form-control {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+.datasource-type-form-value {
+  display: inline-flex;
+  max-width: var(--datasource-form-control-width);
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+.datasource-type-form-name {
   min-width: 0;
   overflow: hidden;
-  color: var(--text-primary);
-  font-size: 13px;
-  line-height: 17px;
-  white-space: normal;
-  word-break: break-word;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.datasource-type-switch-btn {
+  flex: 0 0 auto;
+  height: 30px;
+  padding: 0 12px;
+}
+
+.datasource-config-pane {
+  overflow: visible;
+}
+
+@media (max-width: 768px) {
+  .datasource-config-menu {
+    flex-basis: 164px;
+    width: 164px;
+  }
+
+  .datasource-config-content {
+    padding: 20px 20px 32px;
+  }
 }
 </style>

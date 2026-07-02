@@ -102,38 +102,8 @@
 </template>
 
 <script>
-import DataSourceGroup from '@/views/dataSourceGroup.json';
-
-const DS_DISPLAY_ORDER = [
-  'MySQL',
-  'Oracle',
-  'PostgreSQL',
-  'SQLServer',
-  'Db2',
-  'GaussDB',
-  'GaussDBForOpenGauss',
-  'KingbaseES',
-  'MariaDB',
-  'ObForOracle',
-  'OceanBase',
-  'TiDB',
-  'PolarDBPg',
-  'PolarDbMySQL',
-  'PolarDbX',
-  'Redis',
-  'MongoDB',
-  'ElasticSearch',
-  'ClickHouse',
-  'Doris',
-  'Greenplum',
-  'SelectDB',
-  'StarRocks',
-  'AdbForMySQL',
-  'Hologres',
-  'MaxCompute',
-  'Kafka',
-  'Pulsar'
-];
+import { mapState } from 'vuex';
+import { flattenDsSupportNameGroups, getDsSupportGroupMeta, getDsSupportOrderMap, normalizeDsSupportNameGroups } from '@/utils/datasourceSupport';
 
 const DS_LABEL_MAP = {
   AdbForMySQL: 'ADB for MySQL',
@@ -145,58 +115,6 @@ const DS_LABEL_MAP = {
   PolarDbX: 'PolarDB-X',
   SQLServer: 'SQLServer'
 };
-
-const buildDsSet = (...groups) => new Set(groups.flat().filter(Boolean));
-
-const DS_GROUP_DEFS = [
-  {
-    key: 'rdb',
-    labelKey: 'guan-xi-xing-shu-ju-ku',
-    icon: 'ios-server-outline',
-    types: buildDsSet(
-      DataSourceGroup.mysql,
-      DataSourceGroup.polar,
-      DataSourceGroup.oracle,
-      DataSourceGroup.pg,
-      DataSourceGroup.sqlServer,
-      DataSourceGroup.db2,
-      DataSourceGroup.tidb,
-      DataSourceGroup.mariaDb,
-      DataSourceGroup.gaussDB,
-      DataSourceGroup.ob,
-      DataSourceGroup.polarDbX,
-      DataSourceGroup.dameng,
-      ['AdbForMySQL', 'ADBforMySQL', 'GaussDBForOpenGauss', 'OceanBase', 'ObForOracle', 'PolarDBPg']
-    )
-  },
-  {
-    key: 'nosql',
-    labelKey: 'no-sql-huan-cun',
-    icon: 'ios-cube-outline',
-    types: buildDsSet(DataSourceGroup.redis, DataSourceGroup.mongo, DataSourceGroup.es, DataSourceGroup.dynamoDB, ['Elasticsearch', 'ElasticSearch'])
-  },
-  {
-    key: 'analytics',
-    labelKey: 'fen-xi-xing-shu-ju-ku',
-    icon: 'ios-stats-outline',
-    types: buildDsSet(
-      DataSourceGroup.ck,
-      DataSourceGroup.starrocks,
-      DataSourceGroup.maxCompute,
-      DataSourceGroup.hive,
-      DataSourceGroup.kudu,
-      DataSourceGroup.iceberg,
-      DataSourceGroup.paimon,
-      ['ClickHouse', 'Doris', 'SelectDB', 'StarRocks', 'Hologres', 'MaxCompute', 'Greenplum']
-    )
-  },
-  {
-    key: 'mq',
-    labelKey: 'xiao-xi-dui-lie',
-    icon: 'ios-git-network',
-    types: buildDsSet(DataSourceGroup.mq, DataSourceGroup.kafka, DataSourceGroup.pulsar)
-  }
-];
 
 export default {
   name: 'DataSourceRangeTags',
@@ -249,6 +167,19 @@ export default {
     }
   },
   computed: {
+    ...mapState(['dmGlobalSetting']),
+    backendDsSupportGroups() {
+      return normalizeDsSupportNameGroups(this.dmGlobalSetting?.dsSupportNames);
+    },
+    backendDsSupportTypes() {
+      return flattenDsSupportNameGroups(this.backendDsSupportGroups);
+    },
+    backendDsSupportOrderMap() {
+      return getDsSupportOrderMap(this.backendDsSupportGroups);
+    },
+    backendDsSupportDisplayNameMap() {
+      return new Map(this.backendDsSupportTypes.map((type) => [type.dsKey, type.displayName]));
+    },
     sortedDsRange() {
       return this.sortDsRange(this.dsRange);
     },
@@ -323,10 +254,8 @@ export default {
     sortDsRange(dsRange) {
       const uniqueDsRange = Array.from(new Set(Array.isArray(dsRange) ? dsRange.filter(Boolean) : []));
       return uniqueDsRange.sort((left, right) => {
-        const leftIndex = DS_DISPLAY_ORDER.indexOf(left);
-        const rightIndex = DS_DISPLAY_ORDER.indexOf(right);
-        const normalizedLeftIndex = leftIndex === -1 ? DS_DISPLAY_ORDER.length : leftIndex;
-        const normalizedRightIndex = rightIndex === -1 ? DS_DISPLAY_ORDER.length : rightIndex;
+        const normalizedLeftIndex = this.backendDsSupportOrderMap.has(left) ? this.backendDsSupportOrderMap.get(left) : Number.MAX_SAFE_INTEGER;
+        const normalizedRightIndex = this.backendDsSupportOrderMap.has(right) ? this.backendDsSupportOrderMap.get(right) : Number.MAX_SAFE_INTEGER;
         if (normalizedLeftIndex !== normalizedRightIndex) {
           return normalizedLeftIndex - normalizedRightIndex;
         }
@@ -335,16 +264,20 @@ export default {
     },
     buildDsGroups(dsRange) {
       const groupedDs = new Set();
-      const groups = DS_GROUP_DEFS.map((group) => {
-        const items = dsRange.filter((ds) => group.types.has(ds) && !groupedDs.has(ds));
-        items.forEach((ds) => groupedDs.add(ds));
-        return {
-          key: group.key,
-          title: this.$t(group.labelKey),
-          icon: group.icon,
-          items
-        };
-      }).filter((group) => group.items.length);
+      const groups = this.backendDsSupportGroups
+        .map((supportGroup, groupIndex) => {
+          const supportGroupSet = new Set(supportGroup.map((type) => type.dsKey));
+          const items = dsRange.filter((ds) => supportGroupSet.has(ds) && !groupedDs.has(ds));
+          items.forEach((ds) => groupedDs.add(ds));
+          const meta = getDsSupportGroupMeta(groupIndex);
+          return {
+            key: meta.key,
+            title: this.$t(meta.labelKey),
+            icon: meta.icon,
+            items
+          };
+        })
+        .filter((group) => group.items.length);
       const otherItems = dsRange.filter((ds) => !groupedDs.has(ds));
       if (otherItems.length) {
         groups.push({
@@ -357,7 +290,7 @@ export default {
       return groups;
     },
     getDsDisplayName(ds) {
-      return DS_LABEL_MAP[ds] || ds;
+      return this.backendDsSupportDisplayNameMap.get(ds) || DS_LABEL_MAP[ds] || ds;
     },
     getGroupCountText(count) {
       return `(${count})`;

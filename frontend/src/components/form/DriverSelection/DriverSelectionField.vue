@@ -1,12 +1,13 @@
 <template>
   <div class="driver-selection-field">
     <div class="driver-selection-row">
-      <Select v-model="innerDriverFamily" style="width: 180px" transfer @on-change="handleDriverFamilyChange">
+      <Select class="driver-family-select" v-model="innerDriverFamily" style="width: 180px" transfer @on-change="handleDriverFamilyChange">
         <Option v-for="family in currentDriverFamilies" :key="family.name" :value="family.name">
           {{ family.name }}
         </Option>
       </Select>
-      <Select v-model="innerDriverVersion" style="width: 126px" transfer @on-change="handleDriverVersionChange">
+      <span class="driver-version-label">{{ $t('ban-ben') }}</span>
+      <Select class="driver-version-select" v-model="innerDriverVersion" style="width: 126px" transfer @on-change="handleDriverVersionChange">
         <Option v-for="version in currentDriverVersions" :key="version" :value="version">
           {{ version }}
         </Option>
@@ -646,6 +647,17 @@ export default {
   gap: 12px;
   flex-wrap: wrap;
   min-width: 0;
+}
+
+.driver-version-label {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  color: #515a6e;
+  font-size: 14px;
+  line-height: 22px;
+  white-space: nowrap;
 }
 
 .driver-status-loading-icon {
