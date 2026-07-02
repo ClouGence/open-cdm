@@ -15,42 +15,23 @@
         </Select>
       </FormItem>
       <FormItem v-if="searchType === 'type'">
-        <Poptip v-model="typePanelVisible" trigger="click" placement="bottom-start" transfer :width="760" class="datasource-type-poptip">
-          <Button class="datasource-type-trigger">
-            <span class="datasource-type-trigger-label" :title="selectedTypeLabel">{{ selectedTypeLabel }}</span>
-            <Icon type="ios-arrow-down" class="datasource-type-trigger-icon" :class="{ 'is-open': typePanelVisible }" />
-          </Button>
-          <template #content>
-            <div class="datasource-type-panel">
-              <button
-                type="button"
-                class="datasource-type-all"
-                :class="{ 'is-active': selectedDbType === 'all' }"
-                @click="handleSelectDataSourceType('all')"
-              >
-                {{ $t('quan-bu') }}
-              </button>
-              <div class="datasource-type-panel-body">
-                <div class="datasource-type-group" v-for="(dataSourceGroup, index) of dataSourceTypes" :key="index">
-                  <button
-                    translate="no"
-                    type="button"
-                    class="datasource-type-card"
-                    :class="{ 'is-active': selectedDbType === type.dsKey }"
-                    v-for="type of dataSourceGroup"
-                    :key="type.dsKey"
-                    @click="handleSelectDataSourceType(type.dsKey)"
-                  >
-                    <DataSourceIcon class="datasource-type-icon" size="24px" :type="type.dsKey" leftMargin="0"></DataSourceIcon>
-                    <span class="datasource-type-name" :title="type.displayName">
-                      {{ type.displayName }}
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </template>
-        </Poptip>
+        <Select
+          v-model="searchKey.dbType"
+          class="datasource-type-select"
+          filterable
+          clearable
+          :placeholder="$t('quan-bu')"
+          @on-clear="handleClearDataSourceType"
+        >
+          <Option v-for="type in dataSourceTypes" :key="type.dsKey" :value="type.dsKey" :label="type.displayName" translate="no">
+            <span class="datasource-type-option">
+              <DataSourceIcon class="datasource-type-icon" size="22px" :type="type.dsKey" leftMargin="0"></DataSourceIcon>
+              <span class="datasource-type-name" :title="type.displayName">
+                {{ type.displayName }}
+              </span>
+            </span>
+          </Option>
+        </Select>
       </FormItem>
       <FormItem v-if="searchType === 'desc'">
         <Input
@@ -104,24 +85,11 @@ export default {
     return {
       searchType: 'type',
       allowedSearchTypes: ['type', 'desc', 'host'],
-      dataSourceTypes: [],
-      typePanelVisible: false
+      dataSourceTypes: []
     };
   },
   computed: {
-    ...mapState(['dmGlobalSetting']),
-    flatDataSourceTypes() {
-      return this.dataSourceTypes.flatMap((group) => group);
-    },
-    selectedDbType() {
-      return this.searchKey?.dbType || 'all';
-    },
-    selectedTypeLabel() {
-      if (this.selectedDbType === 'all') {
-        return this.$t('quan-bu');
-      }
-      return this.flatDataSourceTypes.find((type) => type.dsKey === this.selectedDbType)?.displayName || this.selectedDbType;
-    }
+    ...mapState(['dmGlobalSetting'])
   },
   watch: {
     dmGlobalSetting() {
@@ -138,6 +106,12 @@ export default {
         searchType: undefined,
         hostType: undefined
       };
+      if (nextSearchKey.dbType === 'all') {
+        nextSearchKey.dbType = '';
+      }
+      if (nextSearchKey.deployType === 'all') {
+        nextSearchKey.deployType = '';
+      }
       this.$emit('update-search-key', nextSearchKey);
       this.searchType = nextSearchType;
       this.handleSearch(nextSearchKey, 'init');
@@ -148,15 +122,14 @@ export default {
   },
   methods: {
     refreshDataSourceTypes() {
-      this.dataSourceTypes = normalizeDsSupportNameGroups(this.dmGlobalSetting?.dsSupportNames);
+      this.dataSourceTypes = normalizeDsSupportNameGroups(this.dmGlobalSetting?.dsSupportNames).flatMap((group) => group);
     },
     _handleSearch() {
       sessionStorage.setItem('datasource_search_params', JSON.stringify({ searchType: this.searchType, ...this.searchKey }));
       this.handleSearch(this.searchKey, 'init');
     },
-    handleSelectDataSourceType(dsKey) {
-      this.searchKey.dbType = dsKey;
-      this.typePanelVisible = false;
+    handleClearDataSourceType() {
+      this.searchKey.dbType = '';
     },
     handleEnterSearch(e) {
       if (e.code === 'Enter') {
@@ -239,124 +212,32 @@ export default {
   width: 280px;
 }
 
-.datasource-type-poptip {
-  display: inline-flex;
-}
+.datasource-type-select {
+  width: 300px;
 
-.datasource-type-trigger {
-  display: inline-flex;
-  width: 280px;
-  height: 32px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 12px;
-  border-color: var(--border-primary);
-  color: var(--text-primary);
-  font-size: 14px;
-  font-weight: 400;
-  text-align: left;
+  :deep(.ivu-select-selection) {
+    min-height: 32px;
+  }
 
-  &:hover,
-  &:focus {
-    border-color: var(--primary-color);
+  :deep(.ivu-select-placeholder),
+  :deep(.ivu-select-selected-value) {
     color: var(--text-primary);
   }
 }
 
-.datasource-type-trigger-label {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.datasource-type-trigger-icon {
-  flex: 0 0 auto;
-  margin-left: 8px;
-  color: var(--text-secondary);
-  transition: transform 0.2s ease;
-
-  &.is-open {
-    transform: rotate(180deg);
-  }
-}
-
-.datasource-type-panel {
-  width: 100%;
-  max-height: 360px;
-  padding: 6px 0 2px;
-  overflow-y: auto;
-}
-
-.datasource-type-all {
-  display: flex;
-  width: 100%;
-  height: 34px;
-  align-items: center;
-  margin-bottom: 8px;
-  padding: 0 12px;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--text-primary);
-  cursor: pointer;
-  font-size: 14px;
-  text-align: left;
-
-  &:hover,
-  &.is-active {
-    border-color: var(--primary-color);
-    background: var(--bg-hover);
-    color: var(--primary-color);
-  }
-}
-
-.datasource-type-panel-body {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.datasource-type-group {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.datasource-type-card {
+.datasource-type-option {
   display: flex;
   min-width: 0;
-  height: 44px;
+  width: 280px;
+  height: 32px;
   align-items: center;
   gap: 8px;
-  padding: 6px 10px;
-  border: 1px solid var(--border-light);
-  border-radius: 4px;
-  background: #ffffff;
-  color: var(--text-primary);
-  cursor: pointer;
-  text-align: left;
-  transition:
-    border-color 0.2s ease,
-    background-color 0.2s ease,
-    box-shadow 0.2s ease;
-
-  &:hover,
-  &.is-active {
-    border-color: var(--primary-color);
-    background: var(--bg-hover);
-  }
-
-  &.is-active {
-    box-shadow: 0 0 0 1px var(--primary-color) inset;
-  }
 }
 
 .datasource-type-icon {
   display: inline-flex;
-  width: 28px;
-  flex: 0 0 28px;
+  width: 26px;
+  flex: 0 0 26px;
   align-items: center;
   justify-content: center;
 }

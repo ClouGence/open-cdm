@@ -176,6 +176,7 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
             obj.setObjType(AuthElementType.Instance);
             obj.setObjAttr(new HashMap<>());
             obj.getObjAttr().put("dsType", dsDO.getDataSourceType().name());
+            obj.getObjAttr().put("dsHost", dsDO.getHost());
             obj.getObjAttr().put("enableQuery", enable);
             obj.setLeaf(true);
             objs.add(obj);
@@ -202,6 +203,7 @@ public class DmAuthServiceForManageImpl implements DmAuthServiceForManage, Unifi
             obj.setObjType(AuthElementType.Instance);
             obj.setObjAttr(new HashMap<>());
             obj.getObjAttr().put("dsType", dsDO.getDataSourceType().name());
+            obj.getObjAttr().put("dsHost", dsDO.getHost());
             obj.setLeaf(true);
             objs.add(obj);
         }

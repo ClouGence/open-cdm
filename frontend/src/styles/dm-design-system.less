@@ -72,6 +72,16 @@
       border-radius: @dm-radius-md;
       background: var(--bg-card);
 
+      > .ivu-table-wrapper {
+        border: 0;
+        border-radius: 0;
+      }
+
+      > .ivu-table-wrapper .ivu-table::before,
+      > .ivu-table-wrapper .ivu-table-border::after {
+        display: none;
+      }
+
       &.audit-log-table {
         overflow: hidden;
 

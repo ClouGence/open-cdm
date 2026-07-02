@@ -711,6 +711,34 @@ export default {
         this.$router.push({ path: '/manager/account' });
       }
     },
+    isInstanceNode(node) {
+      return Boolean(node?.objAttr?.dsType) || ['Instance', 'INSTANCE'].includes(node?.objType);
+    },
+    getNodeHostText(node) {
+      const attr = node?.objAttr || {};
+      const host = attr.dsHost || attr.host || attr.publicHost || attr.privateHost || '';
+      const port = attr.dsPort || attr.port || attr.publicPort || attr.privatePort || '';
+      if (!host || !port) {
+        return host || port;
+      }
+      const hostText = String(host);
+      const portText = String(port);
+      if (hostText.endsWith(`:${portText}`) || /:\d+(\/.*)?$/.test(hostText)) {
+        return hostText;
+      }
+      return `${hostText}:${portText}`;
+    },
+    getNodeDisplayText(node) {
+      if (!node?.objName) {
+        return '';
+      }
+      if (!this.isInstanceNode(node)) {
+        return node?.objDesc ? `${node.objName}(${node.objDesc})` : node.objName;
+      }
+      const desc = node?.objDesc || node.objName;
+      const host = this.getNodeHostText(node);
+      return host ? `${desc}(${host})` : desc;
+    },
     renderNode(node) {
       const style = {
         marginLeft: '6px',
@@ -720,7 +748,6 @@ export default {
       };
       let iconType = '';
       const prefix = 'icon-v2-';
-      const enableQuery = node?.objAttr?.enableQuery || false;
 
       if (node?.objAttr?.dsType) iconType = prefix + node.objAttr.dsType;
       else {
@@ -769,9 +796,8 @@ export default {
             ) : (
               <CustomIcon type={iconType} rightMargin='5px' />
             )}
-            <div>{node?.objDesc ? `${node?.objName}(${node?.objDesc})` : node?.objName}</div>
+            <div>{this.getNodeDisplayText(node)}</div>
           </div>
-          {enableQuery && <i style='position: absolute; right: 10px' class='iconfont iconkechaxun'></i>}
         </div>
       );
     },

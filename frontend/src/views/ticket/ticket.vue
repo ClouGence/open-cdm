@@ -9,6 +9,8 @@
             :allDsList="allDsList"
             :handle-catalog-change="handleCatalogChange"
             :selectedDs="selectedDs"
+            required
+            :error="instanceRequiredError"
             @restore-schema="restoreSchema"
             @restore-catalog="restoreCatalog"
           ></DsSelect>
@@ -203,6 +205,7 @@ export default {
       templateList: [],
       personList: [],
       selectedDs: {},
+      instanceRequiredError: false,
       validationResultHeight: 150,
       isResizing: false,
       startY: 0,
@@ -376,6 +379,11 @@ export default {
     },
     async handleSubmitTicket(force = false) {
       this.showCheckedOnlyError = false;
+      if (!this.ticketData.instanceId) {
+        this.instanceRequiredError = true;
+        this.$Message.error(this.$t('qing-xuan-ze-shu-ju-yuan-shi-li'));
+        return;
+      }
       this.$refs.ticketContent
         .validate()
         .then(async () => {
@@ -469,6 +477,7 @@ export default {
       this.currentMethod = 'listFirstLevel';
     },
     async handleChangeInstance(e) {
+      this.instanceRequiredError = false;
       this.ticketData.database = null;
       this.ticketData.schema = null;
       this.ticketData.showCatalogSelect = false;

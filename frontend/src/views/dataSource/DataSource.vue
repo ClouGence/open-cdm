@@ -140,6 +140,7 @@
               <template #action="{ row }">
                 <div v-if="canManageDataSource" class="datasource-action-group">
                   <Button
+                    class="datasource-action-button datasource-action-test"
                     type="text"
                     size="small"
                     :loading="testingDataSourceId === row.id"
@@ -148,10 +149,10 @@
                   >
                     {{ $t('ce-shi') }}
                   </Button>
-                  <Button type="text" size="small" @click="handleKvConfigs(row)">
+                  <Button class="datasource-action-button" type="text" size="small" @click="handleKvConfigs(row)">
                     {{ $t('bian-ji') }}
                   </Button>
-                  <Button type="text" size="small" class="datasource-action-danger" @click="handleDeleteConfirm(row)">
+                  <Button type="text" size="small" class="datasource-action-button datasource-action-danger" @click="handleDeleteConfirm(row)">
                     {{ $t('shan-chu') }}
                   </Button>
                 </div>
@@ -585,8 +586,8 @@ export default {
       searchKey: {
         host: '',
         region: '',
-        dbType: 'all',
-        deployType: 'all'
+        dbType: '',
+        deployType: ''
       },
       dataSourceColumn: [
         {
@@ -606,7 +607,7 @@ export default {
           key: '',
           slot: 'action',
           align: 'left',
-          width: 120,
+          width: 144,
           fixed: 'right'
         }
       ],
@@ -828,10 +829,10 @@ export default {
       let type = null;
       let deployType = null;
 
-      if (searchKey && searchKey.dbType !== 'all') {
+      if (searchKey && searchKey.dbType && searchKey.dbType !== 'all') {
         type = searchKey.dbType;
       }
-      if (searchKey && searchKey.deployType !== 'all') {
+      if (searchKey && searchKey.deployType && searchKey.deployType !== 'all') {
         deployType = searchKey.deployType;
       }
       this.$services
@@ -1112,8 +1113,8 @@ export default {
       this.searchKey = {
         host: '',
         region: '',
-        dbType: 'all',
-        deployType: 'all'
+        dbType: '',
+        deployType: ''
       };
     }
   }
@@ -1484,6 +1485,7 @@ export default {
 .datasource-action-group {
   display: flex;
   align-items: center;
+  width: 126px;
   gap: 8px;
   justify-content: flex-start;
   white-space: nowrap;
@@ -1492,6 +1494,25 @@ export default {
     height: 28px;
     padding: 0;
     font-weight: 500;
+  }
+}
+
+.datasource-action-button {
+  display: inline-flex;
+  width: 32px;
+  min-width: 32px;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 32px;
+}
+
+.datasource-action-test {
+  width: 46px;
+  min-width: 46px;
+  flex-basis: 46px;
+
+  :deep(.ivu-load-loop) {
+    margin-right: 2px;
   }
 }
 

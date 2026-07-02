@@ -1670,22 +1670,6 @@ export default {
           cursor: col-resize;
           z-index: 10;
           background: transparent;
-
-          &::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 10%;
-            bottom: 10%;
-            width: 2px;
-            background-color: #d9d9d9;
-            transition: background-color 0.2s;
-          }
-
-          &:hover::after {
-            background-color: #1890ff;
-            width: 3px;
-          }
         }
       }
 
