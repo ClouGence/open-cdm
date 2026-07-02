@@ -167,6 +167,13 @@ export default {
         console.warn('Failed to save hide state:', e);
       }
     },
+    expandFirstEnvironment() {
+      const treeData = this.$refs.tree?.getTreeData?.() || [];
+      const firstKey = treeData[0]?.key;
+      if (firstKey) {
+        this.$refs.tree.setExpand(firstKey, true, true);
+      }
+    },
     checkTreeDataAndToggle() {
       // Check for data within the V-tree component
       if (this.$refs.tree) {
@@ -539,6 +546,7 @@ export default {
         }
         // Check tree state after setting data
         this.checkTreeDataAndToggle();
+        this.expandFirstEnvironment();
       });
     },
     async handleUpdateNode(key, node) {

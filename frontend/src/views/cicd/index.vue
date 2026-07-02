@@ -1274,12 +1274,17 @@ export default {
 }
 
 .flow-table-container {
-  border: 0;
-  border-radius: 0;
-  background: transparent;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  background: var(--bg-card);
+  overflow: hidden;
 }
 
+.flow-table-container :deep(.dm-table),
+.flow-table-container :deep(.ant-table),
+.flow-table-container :deep(.ant-table-container),
 .flow-table-container :deep(.ivu-table-wrapper) {
+  border: 0;
   border-radius: 0;
 }
 

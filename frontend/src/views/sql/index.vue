@@ -66,7 +66,7 @@
           </div>
           <!-- Empty Status -->
           <div v-if="!tabs.length" class="empty-state-container">
-            <SqlEmptyState :has-datasource="hasDatasource" />
+            <SqlEmptyState />
           </div>
 
           <div class="query-content-container" v-if="tabs.length">

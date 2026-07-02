@@ -793,9 +793,10 @@ export default {
 
 .add-datasource-card {
   background: #ffffff;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
 }
 
 .datasource-config-layout {
@@ -969,13 +970,15 @@ export default {
 
 .datasource-config-menu {
   display: flex;
-  align-self: flex-start;
+  align-self: stretch;
   flex: 0 0 188px;
   flex-direction: column;
   width: 188px;
+  min-height: 100%;
   gap: 18px;
   padding: 20px 12px;
   background: #ffffff;
+  border-right: 1px solid var(--border-light);
 }
 
 .datasource-config-menu-group {

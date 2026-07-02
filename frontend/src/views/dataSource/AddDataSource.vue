@@ -627,6 +627,13 @@ export default {
 }
 
 .add-datasource-type-modal {
+  .ant-modal-content {
+    overflow: hidden;
+    border: 1px solid #dfe7ef;
+    border-radius: 10px !important;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+  }
+
   .ant-modal-body,
   .ivu-modal-body {
     padding: 20px 24px 12px;

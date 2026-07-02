@@ -1,115 +1,70 @@
 <template>
   <div class="sql-empty-state">
     <div class="empty-content">
-      <div class="empty-title">
-        <h3>{{ $t('sql-empty-title') }}</h3>
-        <p class="empty-description">
-          {{ emptyDescription }}
-        </p>
+      <div class="empty-illustration" aria-hidden="true">
+        <svg viewBox="0 0 220 150" role="presentation">
+          <defs>
+            <linearGradient id="sql-empty-db" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#ffffff" />
+              <stop offset="1" stop-color="#f6fbff" />
+            </linearGradient>
+            <linearGradient id="sql-empty-primary" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#52d69a" />
+              <stop offset="1" stop-color="#20b978" />
+            </linearGradient>
+          </defs>
+          <ellipse class="illustration-ground" cx="110" cy="115" rx="70" ry="20" />
+          <g class="illustration-db">
+            <path d="M58 41c0-13.8 21.5-25 48-25s48 11.2 48 25v54c0 13.8-21.5 25-48 25s-48-11.2-48-25z" />
+            <ellipse cx="106" cy="41" rx="48" ry="25" />
+            <path d="M58 68c0 13.8 21.5 25 48 25s48-11.2 48-25" />
+            <path d="M58 94c0 13.8 21.5 25 48 25s48-11.2 48-25" />
+          </g>
+          <g class="illustration-search">
+            <circle cx="146" cy="78" r="26" />
+            <path d="M164 97l28 28" />
+          </g>
+          <path class="illustration-star star-left" d="M43 58l5 10 10 5-10 5-5 10-5-10-10-5 10-5z" />
+          <path class="illustration-star star-right" d="M176 33l5 10 10 5-10 5-5 10-5-10-10-5 10-5z" />
+          <path class="illustration-star star-small" d="M32 94l3 6 6 3-6 3-3 6-3-6-6-3 6-3z" />
+        </svg>
       </div>
 
+      <h3>{{ $t('sql-empty-title') }}</h3>
+      <p class="empty-description">
+        {{ emptyDescription }}
+      </p>
+
       <div class="empty-actions">
-        <div v-if="showDataSourceSetupActions" class="action-step">
-          <div class="action-icon">
-            <CustomIcon type="icon-v2-tianjiashujuyuan1" size="48" />
-          </div>
-          <div class="action-text">{{ $t('sql-empty-add-datasource') }}</div>
-          <Button type="primary" :disabled="!myAuth.includes('RDP_DS_MANAGE')" @click="handleAddDataSource">
-            {{ $t('sql-empty-add-datasource') }}
-          </Button>
-        </div>
-
-        <div v-if="showDataSourceSetupActions" class="flow-arrow">
-          <CustomIcon type="icon-v2-right-circle-fill" size="24" />
-        </div>
-
-        <div v-if="showDataSourceSetupActions" class="action-step">
-          <div class="action-icon">
-            <CustomIcon type="icon-v2-peizhishujuyuan" size="48" />
-          </div>
-          <div class="action-text">{{ $t('sql-empty-config-datasource') }}</div>
-          <Button type="primary" :disabled="!myAuth.includes('DM_DS_MANAGE')" @click="handleConfigDataSource">
-            {{ $t('sql-empty-config-datasource') }}
-          </Button>
-        </div>
-
-        <div class="action-step" v-if="!myAuth.includes('DM_DS_MANAGE')">
-          <div class="action-icon">
-            <CustomIcon type="icon-v2-TicketAuth" size="48" />
-          </div>
-          <div class="action-text">{{ $t('shen-qing-quan-xian') }}</div>
-          <Tooltip :content="rootAccountUnsupportedTip" :disabled="!isRootAccount" transfer placement="top">
-            <span>
-              <Button type="primary" @click="handleAuthDataSource" :disabled="isRootAccount">
-                {{ $t('shen-qing-quan-xian') }}
-              </Button>
-            </span>
-          </Tooltip>
-        </div>
-
-        <div class="flow-arrow" v-if="!myAuth.includes('DM_DS_MANAGE')">
-          <CustomIcon type="icon-v2-right-circle-fill" size="24" />
-        </div>
-
-        <div class="action-step">
-          <div class="action-icon">
-            <CustomIcon type="icon-v2-zhihangSQLchaxun" size="48" />
-          </div>
-          <div class="action-text">{{ $t('sql-empty-start-query') }}</div>
-          <div class="action-button-placeholder" aria-hidden="true"></div>
-        </div>
+        <Tooltip :content="$t('shen-qing-quan-xian')" :disabled="canAddDataSource" transfer placement="top">
+          <span>
+            <Button class="empty-action empty-primary-action" type="primary" :disabled="!canAddDataSource" @click="handleAddDataSource">
+              <CustomIcon type="icon-v2-tianjiashujuyuan1" size="18" />
+              <span>{{ $t('sql-empty-add-datasource') }}</span>
+            </Button>
+          </span>
+        </Tooltip>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapState } from 'vuex';
-import Mapping from '@/views/util';
+import { mapState } from 'vuex';
 
 export default {
   name: 'SqlEmptyState',
-  data() {
-    return {
-      Mapping
-    };
-  },
-  props: {
-    hasDatasource: {
-      type: Boolean,
-      default: false
-    }
-  },
   computed: {
-    ...mapState(['userInfo', 'myAuth']),
-    hasRdpDsReadPermission() {
-      return this.userInfo.authArr && this.userInfo.authArr.includes('RDP_DS_READ');
-    },
-    isRootAccount() {
-      return this.userInfo.accountType === 'PRIMARY_ACCOUNT';
-    },
-    showDataSourceSetupActions() {
-      return this.isRootAccount;
+    ...mapState(['myAuth']),
+    canAddDataSource() {
+      return (this.myAuth || []).includes('RDP_DS_MANAGE');
     },
     emptyDescription() {
-      return this.showDataSourceSetupActions ? this.$t('sql-empty-description') : this.$t('sql-empty-subaccount-description');
-    },
-    rootAccountUnsupportedTip() {
-      return '管理员账号不支持此操作';
+      return this.$t('sql-empty-description');
     }
   },
   methods: {
-    handleAuthDataSource() {
-      if (this.isRootAccount) {
-        this.$Message.warning(this.rootAccountUnsupportedTip);
-        return;
-      }
-      this.$router.push({ path: '/system/permission', query: { type: 'apply' } });
-    },
     handleAddDataSource() {
-      this.$router.push('/datasource');
-    },
-    handleConfigDataSource() {
       this.$router.push('/datasource');
     }
   }
@@ -128,75 +83,113 @@ export default {
 
 .empty-content {
   text-align: center;
-  max-width: 960px;
   width: 100%;
+  max-width: 720px;
 }
 
-.empty-title {
-  margin-bottom: 48px;
+.empty-illustration {
+  width: 220px;
+  height: 150px;
+  margin: 0 auto 24px;
 
-  h3 {
-    font-size: 24px;
-    font-weight: 500;
-    color: var(--text-primary);
-    margin: 0 0 10px;
-    letter-spacing: -0.02em;
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
   }
 
-  .empty-description {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin: 0;
-    line-height: 1.55;
+  .illustration-ground {
+    fill: rgba(62, 207, 142, 0.12);
   }
+
+  .illustration-db {
+    fill: url('#sql-empty-db');
+    stroke: #d8e2ec;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .illustration-db path:nth-of-type(3),
+  .illustration-db path:nth-of-type(4) {
+    stroke: rgba(62, 207, 142, 0.5);
+  }
+
+  .illustration-search {
+    fill: none;
+    stroke: url('#sql-empty-primary');
+    stroke-width: 12;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .illustration-star {
+    fill: rgba(62, 207, 142, 0.5);
+  }
+
+  .star-small {
+    opacity: 0.6;
+  }
+}
+
+h3 {
+  margin: 0 0 12px;
+  color: var(--text-primary);
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+.empty-description {
+  max-width: 620px;
+  margin: 0 auto 32px;
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1.7;
 }
 
 .empty-actions {
   display: flex;
-  align-items: flex-start;
   justify-content: center;
-  gap: 40px;
-  flex-wrap: wrap;
 }
 
-.action-step {
-  display: flex;
-  flex-direction: column;
+.empty-action {
+  min-width: 220px;
+  height: 44px;
+  display: inline-flex;
   align-items: center;
-  gap: 14px;
-  width: 160px;
-}
-
-.action-icon {
-  color: var(--primary-color);
-  opacity: 0.9;
-}
-
-.action-text {
-  font-size: 13px;
-  color: var(--text-primary);
+  justify-content: center;
+  gap: 10px;
+  border-radius: 6px !important;
+  font-size: 15px;
   font-weight: 500;
+  line-height: 1;
 }
 
-.flow-arrow {
-  color: var(--text-tertiary);
-  margin-top: 12px;
-}
-
-.action-button-placeholder {
-  height: 32px;
+.empty-primary-action {
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: #ffffff !important;
 }
 
 @media (max-width: 768px) {
-  .empty-actions {
-    flex-direction: column;
-    gap: 32px;
-    align-items: center;
+  .empty-content {
+    width: 100%;
   }
 
-  .flow-arrow {
-    transform: rotate(90deg);
-    margin-top: 0;
+  h3 {
+    font-size: 24px;
+  }
+
+  .empty-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .empty-action {
+    width: 100%;
   }
 }
 </style>
