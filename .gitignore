@@ -40,6 +40,7 @@ gen
 # web
 frontend/node_modules
 frontend/dist
+frontend/package-lock.json
 
 /data
 /logs
