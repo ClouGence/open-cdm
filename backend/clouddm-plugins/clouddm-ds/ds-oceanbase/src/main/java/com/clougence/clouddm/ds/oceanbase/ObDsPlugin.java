@@ -52,7 +52,7 @@ import com.clougence.schema.SchemaPlugin;
 @Plugin(name = "i18n::" + ObDsI18nKeys.PLUGIN_NAME_OCEANBASE,                        //
         includePackages = { "com.clougence.clouddm.dsfamily.execute.*",              //
                             "com.clougence.clouddm.dsfamily.mysql.execute.*",        //
-                            "com.clougence.clouddm.ds.oceanbase.execute.obformysql.*"//
+                            "com.clougence.clouddm.ds.oceanbase.execute.*"           //
         }, dsProduct = DataSourceType.OceanBase)
 public class ObDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 

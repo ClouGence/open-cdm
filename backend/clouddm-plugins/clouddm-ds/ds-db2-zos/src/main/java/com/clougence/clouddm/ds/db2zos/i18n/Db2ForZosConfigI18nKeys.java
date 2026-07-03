@@ -18,6 +18,8 @@ package com.clougence.clouddm.ds.db2zos.i18n;
 import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
 import com.clougence.utils.i18n.I18nResource;
 
-@I18nResource("/META-INF/clougence/i18n/db2zos-config")
+@I18nResource("/META-INF/clougence/i18n/db2-zos-plugin")
 public interface Db2ForZosConfigI18nKeys extends ConfigI18nKey {
+
+    String CONFIG_DB2_DEFAULT_DB_DESC = "CONFIG_DB2_DEFAULT_DB_DESC";
 }

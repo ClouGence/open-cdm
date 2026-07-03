@@ -39,7 +39,7 @@ import lombok.experimental.FieldNameConstants;
 public class Db2ForZosConfig extends DataSourceConfig {
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(name = Fields.defaultCatalog, //
-            group = DsConfigGroup.GENERAL, labelKey = Db2ForZosConfigI18nKeys.CONFIG_RDB_DEFAULT_DB_LABEL, descKey = Db2ForZosConfigI18nKeys.CONFIG_RDB_DEFAULT_DB_DESC, readOnly = false)
+            group = DsConfigGroup.GENERAL, labelKey = Db2ForZosConfigI18nKeys.CONFIG_RDB_DEFAULT_DB_LABEL, descKey = Db2ForZosConfigI18nKeys.CONFIG_DB2_DEFAULT_DB_DESC, readOnly = false)
     private String  defaultCatalog;
     // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
     @ConfigDef(name = Fields.clientTimeZone, //

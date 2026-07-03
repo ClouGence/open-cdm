@@ -50,7 +50,7 @@ import com.clougence.schema.SchemaPlugin;
 @Plugin(name = "i18n::" + ObDsI18nKeys.PLUGIN_NAME_OB_FOR_ORACLE,                   //
         includePackages = { "com.clougence.clouddm.dsfamily.execute.*",             //
                             "com.clougence.clouddm.ds.oracle.execute.*",            //
-                            "com.clougence.clouddm.ds.oceanbase.execute.obforora.*" //
+                            "com.clougence.clouddm.ds.oceanbase.execute.*"          //
         }, dsProduct = DataSourceType.ObForOracle)
 public class ObOraDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 

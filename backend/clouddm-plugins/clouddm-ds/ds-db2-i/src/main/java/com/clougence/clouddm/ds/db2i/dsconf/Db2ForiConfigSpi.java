@@ -20,8 +20,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.base.metadata.ds.SslMode;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
 import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
 import com.clougence.drivers.adapter.ConvertUtils;
 
@@ -46,6 +49,19 @@ public class Db2ForiConfigSpi extends AbstractDsConfigSpi {
         config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
         config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
         return dsConfig;
+    }
+
+    @Override
+    public void customizePanels(Map<DsConfigGroup, UiPanel> panels) {
+        UiPanel general = panels.get(DsConfigGroup.GENERAL);
+        if (general == null) {
+            return;
+        }
+
+        UiPanelField defaultCatalog = general.findField(Db2ForiConfig.Fields.defaultCatalog);
+        if (defaultCatalog != null) {
+            defaultCatalog.setRequire(true);
+        }
     }
 
     @Override
