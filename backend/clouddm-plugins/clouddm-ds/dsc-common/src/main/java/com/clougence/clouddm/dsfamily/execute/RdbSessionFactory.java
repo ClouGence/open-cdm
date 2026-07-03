@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.dsfamily.execute;
 
+import java.lang.reflect.Method;
 import java.sql.Connection;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
@@ -27,6 +28,7 @@ import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.utils.StringUtils;
 
 /**
  * only for integration test
@@ -62,6 +64,7 @@ public abstract class RdbSessionFactory<T extends DataSourceConfig> implements S
             configSSL(dsConfig, resourceRM);
         }
 
+        applySessionCatalog(dsConfig, contextDTO);
         DsObject<Connection> dsObject = resourceRM.requestResource(dsConfig);
 
         try {
@@ -75,6 +78,20 @@ public abstract class RdbSessionFactory<T extends DataSourceConfig> implements S
     }
 
     protected abstract Session newSession(T dsConfig, SessionContextDTO contextDTO, DsObject<Connection> dsObject, DsResourceManager ownerRM) throws Exception;
+
+    private void applySessionCatalog(T dsConfig, SessionContextDTO contextDTO) throws Exception {
+        if (contextDTO == null || StringUtils.isBlank(contextDTO.getRdbCatalog())) {
+            return;
+        }
+
+        Method setDefaultCatalog;
+        try {
+            setDefaultCatalog = dsConfig.getClass().getMethod("setDefaultCatalog", String.class);
+        } catch (NoSuchMethodException ignored) {
+            return;
+        }
+        setDefaultCatalog.invoke(dsConfig, contextDTO.getRdbCatalog());
+    }
 
     protected void configSSL(T dsConfig, DsResourceManager resRM) throws Exception {
         SslConfig sslConfig = resRM.fetchSslConfig(dsConfig);

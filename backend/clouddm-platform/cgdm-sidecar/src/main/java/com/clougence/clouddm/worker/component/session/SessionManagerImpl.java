@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.worker.component.session;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -166,6 +167,8 @@ public class SessionManagerImpl implements SessionManager, UnifiedPostConstruct 
                 dsConfig = tunnel.getDsConfig();
             }
 
+            applySessionCatalog(dsConfig, contextDTO);
+
             // session
             SessionFactory factory = pluginInfo.createSessionFactory(driverRef.getDriverFamily(), driverRef.getDriverVersion());
             Session session = factory.createSession(rm, dsConfig, contextDTO);
@@ -198,6 +201,20 @@ public class SessionManagerImpl implements SessionManager, UnifiedPostConstruct 
             }
             throw e;
         }
+    }
+
+    private static void applySessionCatalog(DataSourceConfig dsConfig, SessionContextDTO contextDTO) throws Exception {
+        if (contextDTO == null || StringUtils.isBlank(contextDTO.getRdbCatalog())) {
+            return;
+        }
+
+        Method setDefaultCatalog;
+        try {
+            setDefaultCatalog = dsConfig.getClass().getMethod("setDefaultCatalog", String.class);
+        } catch (NoSuchMethodException ignored) {
+            return;
+        }
+        setDefaultCatalog.invoke(dsConfig, contextDTO.getRdbCatalog());
     }
 
     private static boolean isPluginPackageCorrupted(Throwable e) {
