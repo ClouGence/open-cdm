@@ -17,7 +17,6 @@ package com.clougence.clouddm.ds.sqlserver.execute.dsfactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Locale;
 import java.util.Properties;
 
 import com.clougence.drivers.DsConfigKeys;
@@ -35,8 +34,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class JdbcSqlServerDsFactory implements DsFactory<Connection> {
-
-    private static final String PROP_TRUST_SERVER_CERTIFICATE = "trustServerCertificate";
 
     @Override
     public DsObject<Connection> create(Properties dsConfig) throws SQLException {
@@ -56,6 +53,7 @@ public class JdbcSqlServerDsFactory implements DsFactory<Connection> {
         String clientEncoding = dsConfig.getProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey());
         String tcpKeepAlive = dsConfig.getProperty(DsConfigKeys.TCP_KEEP_ALIVE.getConfigKey());
         String autoCommit = dsConfig.getProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey());
+        String trustServerCertificate = dsConfig.getProperty(DsConfigKeys.MSSQL_TRUST_SERVER_CERTIFICATE.getConfigKey());
 
         if (StringUtils.isNotBlank(username)) {
             props.put("user", username);
@@ -76,7 +74,12 @@ public class JdbcSqlServerDsFactory implements DsFactory<Connection> {
         }
 
         String jdbcUrl = buildJdbcUrl(dsConfig);
-        applyDefaultTlsProperties(jdbcUrl, props);
+        if (StringUtils.isNotBlank(trustServerCertificate)) {
+            props.put(DsConfigKeys.MSSQL_TRUST_SERVER_CERTIFICATE.getConfigKey(), trustServerCertificate);
+        } else if (!StringUtils.containsIgnoreCase(jdbcUrl,
+            ";" + DsConfigKeys.MSSQL_TRUST_SERVER_CERTIFICATE.getConfigKey() + "=")) {
+            props.put(DsConfigKeys.MSSQL_TRUST_SERVER_CERTIFICATE.getConfigKey(), "true");
+        }
         try {
             Connection msConnect = createConnection(jdbcUrl, props);
 
@@ -93,20 +96,6 @@ public class JdbcSqlServerDsFactory implements DsFactory<Connection> {
             log.error("create connection instanceID(SqlServer)=" + id + " ,jdbcUrl= " + jdbcUrl + ", error:" + e.getMessage(), e);
             throw e;
         }
-    }
-
-    private void applyDefaultTlsProperties(String jdbcUrl, Properties props) {
-        if (StringUtils.isBlank(props.getProperty(PROP_TRUST_SERVER_CERTIFICATE))//
-            && !containsJdbcUrlProperty(jdbcUrl, PROP_TRUST_SERVER_CERTIFICATE)) {
-            props.put(PROP_TRUST_SERVER_CERTIFICATE, "true");
-        }
-    }
-
-    private boolean containsJdbcUrlProperty(String jdbcUrl, String propertyName) {
-        if (StringUtils.isBlank(jdbcUrl)) {
-            return false;
-        }
-        return jdbcUrl.toLowerCase(Locale.ROOT).contains(";" + propertyName.toLowerCase(Locale.ROOT) + "=");
     }
 
     protected String safeString(String value) {

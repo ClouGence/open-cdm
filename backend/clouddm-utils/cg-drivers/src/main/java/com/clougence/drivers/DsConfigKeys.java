@@ -64,6 +64,7 @@ public enum DsConfigKeys {
     //    Only for SQL Server    //
     ///////////////////////////////
     MSSQL_INSTANCE_NAME("mssql_instance_name"),
+    MSSQL_TRUST_SERVER_CERTIFICATE("trustServerCertificate"),
 
     ///////////////////////////
     //    Only for Oracle    //
