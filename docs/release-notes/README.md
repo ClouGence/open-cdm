@@ -1,5 +1,9 @@
-# Release notes
+# Release Notes
 
-Add one Markdown file for each release, named with the Docker version and without the Git tag's `v` prefix.
+Release notes are grouped by version. Each version directory contains one file per language.
 
-For example, release `v3.2.1` uses `docs/release-notes/3.2.1.md`.
+| Version | Chinese | English |
+|---------|---------|---------|
+| v3.2.0 | [中文](v3.2.0/index.cn.md) | [English](v3.2.0/index.en.md) |
+| v3.1.0 | [中文](v3.1.0/index.cn.md) | [English](v3.1.0/index.en.md) |
+| v3.0.7 | [中文](v3.0.7/index.cn.md) | [English](v3.0.7/index.en.md) |

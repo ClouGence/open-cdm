@@ -1,6 +1,6 @@
 # Contributing to CloudDM
 
-[English](docs/en/CONTRIBUTING.en.md) | [中文](docs/cn/CONTRIBUTING.cn.md)
+[English](docs/guides/contributing.en.md) | [中文](docs/guides/contributing.cn.md)
 
 Thank you for your interest in **CloudDM**! We welcome all forms of contribution, including but not limited to bug reports, feature suggestions, code contributions, and documentation improvements.
 

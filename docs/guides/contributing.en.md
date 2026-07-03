@@ -18,7 +18,7 @@ Thank you for your interest in **CloudDM**! We welcome all forms of contribution
 
 ## Code of Conduct
 
-All contributors to this project should uphold the spirit of open-source collaboration — be respectful, constructive, and courteous in all communication. See [Code of Conduct](CODE_OF_CONDUCT.md) (if available) for details.
+All contributors to this project should uphold the spirit of open-source collaboration — be respectful, constructive, and courteous in all communication. See [Code of Conduct](../../CODE_OF_CONDUCT.md) (if available) for details.
 
 ## How to Contribute
 
