@@ -41,27 +41,26 @@ import com.clougence.clouddm.console.web.model.fo.UpdateSecurityInfoFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.ConnectDsFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.DsConfigSubmitFO;
 import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsKvConfigFO;
+import com.clougence.clouddm.console.web.model.fo.security.ModifyAuthForAppend;
+import com.clougence.clouddm.console.web.model.fo.security.ModifyUserAuthFO;
 import com.clougence.clouddm.console.web.model.lo.UpdateDsConfigLO;
 import com.clougence.clouddm.console.web.model.lo.UpdateDsDescLO;
 import com.clougence.clouddm.console.web.model.vo.RdpDsKvConfigVO;
 import com.clougence.clouddm.console.web.model.vo.datasource.ConnectDsResultVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.RandomStrUtils;
-import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
-import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj;
 import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
-import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.rdp.service.RdpNotifyService;
@@ -81,8 +80,6 @@ public class DmDsWebServiceImpl implements DmDsWebService {
     private SystemDal               systemDal;
     @Resource
     private DataSourceDal           dsDal;
-    @Resource
-    private AuthDal                 authDal;
     @Resource
     private RdpUserService          userService;
     @Resource
@@ -438,25 +435,31 @@ public class DmDsWebServiceImpl implements DmDsWebService {
             return;
         }
 
-        List<AuthInfo> dsManageAuths = this.authServiceForManage.getCascadeAuthByLabel(SecDataAuthLabel.RDP_DAUTH_DS_MANAGER);
-        List<AuthInfo> dataOperateAuths = this.authServiceForManage.getCascadeAuthByLabel(SecDataAuthLabel.DM_DAUTH_TICKET);
+        ModifyAuthForAppend append = new ModifyAuthForAppend();
+        append.setResId(dsId);
+        append.setResPaths(Collections.emptyList());
+        append.setAuthLabels(Arrays.asList( //
+                SecDataAuthLabel.RDP_DAUTH_DS_MANAGER, //
+                SecDataAuthLabel.DM_DAUTH_QUERY, //
+                SecDataAuthLabel.DM_DAUTH_CALL, //
+                SecDataAuthLabel.DM_DAUTH_DML, //
+                SecDataAuthLabel.DM_DAUTH_DDL, //
+                SecDataAuthLabel.DM_DAUTH_OBJ, //
+                SecDataAuthLabel.DM_DAUTH_SPACE, //
+                SecDataAuthLabel.DM_DAUTH_DCL, //
+                SecDataAuthLabel.DM_DAUTH_OTHER, //
+                SecDataAuthLabel.DM_DAUTH_SENSITIVE, //
+                SecDataAuthLabel.DM_DAUTH_TICKET //
+        ));
 
-        Set<String> dsManageLabels = dsManageAuths.stream().map(AuthInfo::getKey).collect(Collectors.toSet());
-        Set<String> dataOperateLabels = dataOperateAuths.stream().map(AuthInfo::getKey).collect(Collectors.toSet());
+        ModifyUserAuthFO authFO = new ModifyUserAuthFO();
+        authFO.setAuthKind(AuthKind.DataSource);
+        authFO.setTargetUid(uid);
+        authFO.setAppends(Collections.singletonList(append));
+        authFO.setUpdates(Collections.emptyList());
+        authFO.setDeletes(Collections.emptyList());
 
-        dsManageLabels.addAll(dataOperateLabels);
-
-        DmDsDO dataSourceDO = dsDal.dsMapper().queryDsIdentityById(dsId);
-        DmAuthResDO selfAudit = new DmAuthResDO();
-        selfAudit.setOwnerUid(uid);
-        selfAudit.setKindType(AuthKind.DataSource);
-        selfAudit.setResId(dsId);
-        selfAudit.setResInstId(dataSourceDO.getInstanceId());
-        selfAudit.setResDesc(dataSourceDO.getInstanceDesc());
-        selfAudit.setResPath(RdpAuthUtils.genEmptyResPath().getResPath());
-        selfAudit.setLevelOne(RdpAuthUtils.genEmptyResPath().getResPath());
-        selfAudit.setAuthLabels(new ArrayList<>(dsManageLabels));
-        this.authDal.resMapper().insert(selfAudit);
+        this.authServiceForManage.modifyUserAuth(this.userService.getPrimaryUid(uid), authFO);
     }
 
     private Map<String, String> resolveConfigMap(DsConfigSubmitFO fo) {
