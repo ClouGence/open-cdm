@@ -365,9 +365,12 @@ export default {
     async getDataSourceData() {
       this.treeData = [];
       await this.listLevels();
+      const hasStoredExpandedKeys = this.$refs.dataSourceTree?.hasStoredExpandedKeys;
       if (this.treeData.length) {
         this.hasDatasource = true;
-        await this.listLevels(this.treeData[0], {}, () => {});
+        if (!hasStoredExpandedKeys) {
+          await this.listLevels(this.treeData[0], {}, () => {});
+        }
       }
     },
     setDataViewImage() {
