@@ -237,20 +237,13 @@
         </div>
       </div>
     </div>
-    <div class="option-wrap">
+    <div class="option-wrap" v-if="!isView || previewMode">
       <Button @click="backToMyAuth" v-if="!isView && !previewMode" style="margin-right: 10px">
         {{ $t('fan-hui') }}
       </Button>
       <Button @click="continueAuth" v-if="previewMode" style="margin-right: 10px">
         {{ $t('shang-yi-bu') }}
       </Button>
-      <Tooltip v-if="isView && !previewMode" :content="rootAccountUnsupportedTip" :disabled="!isRootAccount" transfer placement="top">
-        <span style="display: inline-block; margin-right: 10px">
-          <Button @click="goApplAuth" type="primary" :disabled="isRootAccount">
-            {{ $t('shen-qing-quan-xian') }}
-          </Button>
-        </span>
-      </Tooltip>
       <Tooltip v-if="!isView" :content="rootAccountUnsupportedTip" :disabled="!isRootAccount" transfer placement="top">
         <span style="display: inline-block; margin-right: 10px">
           <Button @click="previewAuth" type="primary" :disabled="isRootAccount">
@@ -1955,11 +1948,14 @@ export default {
     },
     filterTree(tree, keyword, isEnableQuery = false, depth = 5, level = 0) {
       if (!Array.isArray(tree) || depth <= 0) return [];
+      const lowerKeyword = String(keyword || '').toLowerCase();
 
       return tree
         .map((node) => {
           if (level >= depth) return null;
-          const match = node.objName && node.objName.includes(keyword);
+          const match = String(node.objDesc || '')
+            .toLowerCase()
+            .includes(lowerKeyword);
           const children = node.children ? this.filterTree(node.children, keyword, isEnableQuery, depth, level + 1) : [];
 
           if (match || children.length > 0) {

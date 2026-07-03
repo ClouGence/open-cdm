@@ -2562,11 +2562,14 @@ export default {
     },
     filterTree(tree, keyword, isEnableQuery = false, depth = 5, level = 0) {
       if (!Array.isArray(tree) || depth <= 0) return [];
+      const lowerKeyword = String(keyword || '').toLowerCase();
 
       return tree
         .map((node) => {
           if (level >= depth) return null;
-          const match = node.objName && node.objName?.includes?.(keyword);
+          const match = String(node.objDesc || '')
+            .toLowerCase()
+            .includes(lowerKeyword);
           const children = node.children ? this.filterTree(node.children, keyword, isEnableQuery, depth, level + 1) : [];
 
           if (match || children.length > 0) {
