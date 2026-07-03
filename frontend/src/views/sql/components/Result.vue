@@ -578,6 +578,21 @@ export default {
         }
       },
       immediate: false
+    },
+    'tab.running': {
+      handler(running) {
+        if (running) {
+          return;
+        }
+        if (this.paginatedLoadingTimer) {
+          clearTimeout(this.paginatedLoadingTimer);
+          this.paginatedLoadingTimer = null;
+        }
+        const resultIds = Object.keys(this.paginatedLoading);
+        for (let i = 0; i < resultIds.length; i++) {
+          this.paginatedLoading[resultIds[i]] = false;
+        }
+      }
     }
   },
   mounted() {
