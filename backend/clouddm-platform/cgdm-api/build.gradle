@@ -27,6 +27,10 @@ dependencies {
     api project(':cg-detectrule')
     api project(':cg-dslparser')
     api project(':cg-rpc')
+
+    // for test
+    testImplementation "com.fasterxml.jackson.core:jackson-databind:${JACKSON_VERSION}"
+    testRuntimeOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${JACKSON_VERSION}"
 }
 
 description = 'cgdm-api'

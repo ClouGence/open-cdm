@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import com.clougence.adapter.oracle.umi.OracleAttributeNames;
+import com.clougence.adapter.oracle.OracleAttributeNames;
 import com.clougence.clouddm.ds.oracle.definition.ui.template.OraCmdTemplateSpi;
 import org.junit.Test;
 

@@ -16,6 +16,7 @@
 package com.clougence.clouddm.dingding;
 
 import com.clougence.clouddm.team.provider.dingtalk.approval.DingApprovalProviderSpi;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.clougence.clouddm.team.provider.dingtalk.client.DingApi;
@@ -25,6 +26,8 @@ import com.dingtalk.open.app.api.OpenDingTalkStreamClientBuilder;
 import com.dingtalk.open.app.api.security.AuthClientCredential;
 import com.dingtalk.open.app.stream.protocol.event.EventAckStatus;
 
+// Manual probe against the live DingTalk API with real credentials, never runnable in CI.
+@Ignore("manual integration test against live DingTalk API")
 public class DingTalkApiTest {
 
     private String ak      = "dingfur8gzrfvyrvc5eo";

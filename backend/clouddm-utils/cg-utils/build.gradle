@@ -21,6 +21,15 @@ plugins {
 dependencies {
     api "org.ow2.asm:asm:9.9.1"
     api 'org.yaml:snakeyaml:2.4'
+
+    // for test
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.13.4'
+    testRuntimeOnly "org.slf4j:slf4j-api:${SLF4J_VERSION}"
+}
+
+test {
+    useJUnitPlatform()
 }
 
 description = 'cg-utils'

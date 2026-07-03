@@ -3,6 +3,7 @@ package com.clougence.clouddm.ds.column;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 
 import com.clougence.clouddm.sdk.analysis.column.SelectItem;
 import com.clougence.clouddm.sdk.service.execute.MetaCol;
+import com.clougence.clouddm.sdk.service.execute.MetaObj;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.JsonUtils;
@@ -48,7 +50,12 @@ public class TestMetaServiceImpl implements MetaService {
     }
 
     @Override
-    public List<MetaCol> fetchTableColumns(String uid, long dsId, Map<UmiTypes, Object> levelsParam, String leafName, int tableId) {
+    public List<MetaObj> cachedObjectNames(String puid, String uid, long dsId, List<UmiTypes> levels, Map<UmiTypes, Object> levelsParam) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<MetaCol> fetchTableColumns(String uid, long dsId, Map<UmiTypes, Object> levelsParam, String leafName) {
         String schema = levelsParam.get(UmiTypes.Schema).toString();
         String s = map.get(schema + "-" + leafName);
         if (levelsParam.get(UmiTypes.Catalog) != null) {

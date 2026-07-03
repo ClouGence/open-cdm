@@ -6,7 +6,7 @@ import java.util.List;
 import com.clougence.clouddm.ds.dameng.definition.ui.template.DmCmdTemplateSpi;
 import org.junit.Test;
 
-import com.clougence.adapter.postgre.umi.PostgreAttributeNames;
+import com.clougence.adapter.postgre.PostgreAttributeNames;
 import com.clougence.clouddm.sdk.ui.editor.view.ViewEditorFields;
 import com.clougence.clouddm.sdk.ui.template.CmdTemplateOption;
 import com.clougence.clouddm.sdk.ui.template.CmdTemplateSpi;

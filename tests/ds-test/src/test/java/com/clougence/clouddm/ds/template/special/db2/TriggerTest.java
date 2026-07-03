@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import com.clougence.adapter.db2.umi.Db2AttributeNames;
+import com.clougence.adapter.db2.Db2AttributeNames;
 import com.clougence.clouddm.dsfamily.db2.definition.ui.template.Db2CmdTemplateSpi;
 import org.junit.Test;
 
