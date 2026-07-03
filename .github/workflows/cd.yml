@@ -52,7 +52,7 @@ jobs:
             echo "::error::version $VERSION does not match backend/gradle.properties ($project_version)"
             exit 1
           fi
-          notes_file="docs/release-notes/${VERSION}.md"
+          notes_file="docs/release-notes/v${VERSION}/index.en.md"
           if [[ ! -f "$notes_file" ]]; then
             echo "::error::release notes file does not exist: $notes_file"
             exit 1
@@ -244,7 +244,7 @@ jobs:
           )
 
           tag="v${VERSION}"
-          notes_file="docs/release-notes/${VERSION}.md"
+          notes_file="docs/release-notes/v${VERSION}/index.en.md"
           gh release create "$tag" "${assets[@]}" \
             --target "$TARGET_SHA" \
             --title "$tag" \
