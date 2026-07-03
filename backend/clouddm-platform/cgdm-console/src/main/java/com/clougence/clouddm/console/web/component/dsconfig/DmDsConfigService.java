@@ -25,6 +25,7 @@ import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.sdk.execute.dsconf.DsConfigField;
 
 /**
  * @author bucketli 2020/11/7 14:25
@@ -46,6 +47,8 @@ public interface DmDsConfigService {
     DataSourceConfig fetchDsConfigFromNotExist(DataSourceType dsType, Map<String, String> configMap);
 
     DataSourceConfig fetchDsConfigFromExists(long dsId);
+
+    DataSourceConfig fetchDsConfigFromExists(long dsId, Map<DsConfigField, String> configOverrides);
 
     DataSourceConfig fetchFullDsConfigFromExists(long dsId);
 

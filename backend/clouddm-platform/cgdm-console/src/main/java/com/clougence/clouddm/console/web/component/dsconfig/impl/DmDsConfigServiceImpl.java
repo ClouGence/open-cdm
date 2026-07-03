@@ -44,6 +44,7 @@ import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
+import com.clougence.clouddm.sdk.execute.dsconf.DsConfigField;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
@@ -327,23 +328,31 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     public DataSourceConfig fetchDsConfigFromExists(long dsId) {
         DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
         List<DmDsConfigKv4DmDO> configs = this.dsDal.configKv4DmMapper().listByDsIdExcludeConfigNames(dsId, lazyConfigNames(dsDO.getDataSourceType()));
-        return fetchDsConfigFromExists(dsDO, configs);
+        return fetchDsConfigFromExists(dsDO, configs, Collections.emptyMap());
+    }
+
+    @Override
+    public DataSourceConfig fetchDsConfigFromExists(long dsId, Map<DsConfigField, String> configOverrides) {
+        DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
+        List<DmDsConfigKv4DmDO> configs = this.dsDal.configKv4DmMapper().listByDsIdExcludeConfigNames(dsId, lazyConfigNames(dsDO.getDataSourceType()));
+        return fetchDsConfigFromExists(dsDO, configs, configOverrides);
     }
 
     @Override
     public DataSourceConfig fetchFullDsConfigFromExists(long dsId) {
         DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
         List<DmDsConfigKv4DmDO> configs = this.dsDal.configKv4DmMapper().listByDsId(dsId);
-        return fetchDsConfigFromExists(dsDO, configs);
+        return fetchDsConfigFromExists(dsDO, configs, Collections.emptyMap());
     }
 
-    private DataSourceConfig fetchDsConfigFromExists(DmDsDO dsDO, List<DmDsConfigKv4DmDO> configs) {
+    private DataSourceConfig fetchDsConfigFromExists(DmDsDO dsDO, List<DmDsConfigKv4DmDO> configs, Map<DsConfigField, String> configOverrides) {
         Map<String, String> configMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(configs)) {
             configs.forEach(c -> {
                 configMap.put(c.getConfigName(), c.getConfigValue());
             });
         }
+        fillConfigOverrides(configMap, configOverrides);
 
         DataSourceConfig dsConfig = this.generateDsConfig(dsDO, configMap);
         tryClearSshConfig(dsConfig);
@@ -354,6 +363,18 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
                 dsDO.getId(), dsConfig.getDataSourceType(), dsConfig.getHost(), dsConfig.getSshProxyEnabled(), dsConfig.getSshConfigId(),//
                 configMap.get("sshProxyEnabled"), configMap.get("sshConfigId"));
         return dsConfig;
+    }
+
+    private void fillConfigOverrides(Map<String, String> configMap, Map<DsConfigField, String> configOverrides) {
+        if (configOverrides == null || configOverrides.isEmpty()) {
+            return;
+        }
+        configOverrides.forEach((configField, configValue) -> {
+            if (configField == null || StringUtils.isBlank(configValue)) {
+                return;
+            }
+            configMap.put(configField.getConfigName(), configValue);
+        });
     }
 
     private List<String> lazyConfigNames(DataSourceType dsType) {
