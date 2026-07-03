@@ -18,22 +18,22 @@
       <span v-if="showDriverReadyState" class="driver-status-icon-wrap">
         <Icon type="md-checkmark-circle" class="driver-status-ready-icon" />
       </span>
-    </div>
-    <div v-if="showDriverStatusDetail" class="driver-status-detail" :class="driverStatusLineClass">
-      <span class="driver-status-icon-wrap" :class="{ 'is-clickable': canClickDriverStatusIcon }" @click="handleDriverStatusIconClick">
-        <span v-if="showDriverDownloadProgress" class="driver-status-progress-circle" :style="driverProgressCircleStyle">
-          <span class="driver-status-progress-circle-text">{{ driverProgressCircleText }}</span>
+      <div v-if="showDriverStatusDetail" class="driver-status-detail" :class="driverStatusLineClass">
+        <span class="driver-status-icon-wrap" :class="{ 'is-clickable': canClickDriverStatusIcon }" @click="handleDriverStatusIconClick">
+          <span v-if="showDriverDownloadProgress" class="driver-status-progress-circle" :style="driverProgressCircleStyle">
+            <span class="driver-status-progress-circle-text">{{ driverProgressCircleText }}</span>
+          </span>
+          <Icon v-else-if="driverUiState === 'checking'" type="ios-loading" class="driver-status-loading-icon" />
+          <Icon v-else-if="driverUiState === 'ready'" type="md-checkmark-circle" class="driver-status-ready-icon" />
+          <Icon v-else-if="driverUiState === 'unknown'" type="ios-help-circle-outline" class="driver-status-unknown-icon" />
+          <Icon v-else-if="driverUiState === 'unprepared'" type="ios-warning-outline" class="driver-status-warning-icon" />
+          <Icon v-else-if="driverUiState === 'error'" type="ios-alert-circle" class="driver-status-error-icon" />
+          <span v-else class="driver-status-phase-dot"></span>
         </span>
-        <Icon v-else-if="driverUiState === 'checking'" type="ios-loading" class="driver-status-loading-icon" />
-        <Icon v-else-if="driverUiState === 'ready'" type="md-checkmark-circle" class="driver-status-ready-icon" />
-        <Icon v-else-if="driverUiState === 'unknown'" type="ios-help-circle-outline" class="driver-status-unknown-icon" />
-        <Icon v-else-if="driverUiState === 'unprepared'" type="ios-warning-outline" class="driver-status-warning-icon" />
-        <Icon v-else-if="driverUiState === 'error'" type="ios-alert-circle" class="driver-status-error-icon" />
-        <span v-else class="driver-status-phase-dot"></span>
-      </span>
-      <span v-if="showDriverStatusMessage" class="driver-status-inline-message" :title="driverStatusInlineMessageText">
-        {{ driverStatusInlineMessageText }}
-      </span>
+        <span v-if="showDriverStatusMessage" class="driver-status-inline-message" :title="driverStatusInlineMessageText">
+          {{ driverStatusInlineMessageText }}
+        </span>
+      </div>
     </div>
   </div>
 </template>
@@ -638,7 +638,6 @@ export default {
 .driver-selection-field {
   display: inline-flex;
   min-width: 0;
-  position: relative;
 }
 
 .driver-selection-row {
@@ -734,9 +733,6 @@ export default {
 }
 
 .driver-status-detail {
-  position: absolute;
-  left: 0;
-  top: 34px;
   display: inline-flex;
   align-items: center;
   gap: 6px;

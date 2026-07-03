@@ -823,9 +823,11 @@ export default {
   --datasource-form-driver-family-width: 208px;
   --datasource-form-driver-version-label-width: 52px;
   --datasource-form-driver-version-width: 96px;
-  --datasource-form-driver-status-width: 28px;
+  --datasource-form-driver-status-width: 84px;
+  --datasource-form-driver-message-width: 160px;
   --datasource-form-driver-row-width: calc(
-    var(--datasource-form-control-width) + var(--datasource-form-inline-gap) + var(--datasource-form-driver-status-width)
+    var(--datasource-form-control-width) + var(--datasource-form-inline-gap) + var(--datasource-form-driver-status-width) +
+      var(--datasource-form-inline-gap) + var(--datasource-form-driver-message-width)
   );
   --datasource-form-inline-gap: 12px;
   --network-address-total-width: var(--datasource-form-control-width);
@@ -936,7 +938,8 @@ export default {
       var(--datasource-form-driver-family-width)
       var(--datasource-form-driver-version-label-width)
       var(--datasource-form-driver-version-width)
-      var(--datasource-form-driver-status-width);
+      var(--datasource-form-driver-status-width)
+      minmax(0, var(--datasource-form-driver-message-width));
     column-gap: var(--datasource-form-inline-gap);
     align-items: center;
   }
@@ -955,6 +958,11 @@ export default {
   :deep(.driver-version-select) {
     width: var(--datasource-form-driver-version-width) !important;
     flex: 0 0 var(--datasource-form-driver-version-width);
+  }
+
+  :deep(.driver-status-detail) {
+    grid-column: 5;
+    max-width: var(--datasource-form-driver-message-width);
   }
 }
 
