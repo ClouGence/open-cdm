@@ -44,155 +44,174 @@
           <div :class="`middle ${showAuthTree ? '' : 'no-auth'}`">
             <div class="auth-tree-container">
               <a-spin class="auth-loading" v-if="loadingAuth" />
-              <div class="auth-tree">
-                <nav class="auth-tabs">
-                  <div class="auth-tabs__items">
-                    <span
-                      class="auth-tabs__item"
-                      :class="{
-                        'is-active': curRightTreeTab === 'Instance',
-                        'is-disabled': !['Instance', 'INSTANCE', 'AllType'].includes(curElementType)
-                      }"
-                      @click="handleAuthTabClick('Instance')"
-                    >
-                      {{ $t('shi-li-quan-xian') }}
-                    </span>
-                    <span
-                      class="auth-tabs__item"
-                      :class="{
-                        'is-active': curRightTreeTab === 'CATALOG',
-                        'is-disabled': !['Catalog', 'CATALOG', 'EXTERNAL_CATALOG', 'AllType'].includes(curElementType)
-                      }"
-                      @click="handleAuthTabClick('CATALOG')"
-                    >
-                      {{ $t('catalog-quan-xian') }}
-                    </span>
-                    <span
-                      class="auth-tabs__item"
-                      :class="{
-                        'is-active': curRightTreeTab === 'SCHEMA',
-                        'is-disabled': !['Schema', 'SCHEMA', 'EXTERNAL_SCHEMA', 'AllType'].includes(curElementType)
-                      }"
-                      @click="handleAuthTabClick('SCHEMA')"
-                    >
-                      {{ $t('schema-quan-xian') }}
-                    </span>
-                    <span
-                      class="auth-tabs__item"
-                      :class="{
-                        'is-active': curRightTreeTab === 'TABLE',
-                        'is-disabled': !['Table', 'TABLE', 'AllType'].includes(curElementType)
-                      }"
-                      @click="handleAuthTabClick('TABLE')"
-                    >
-                      {{ $t('biao-quan-xian') }}
-                    </span>
-                  </div>
-                  <div class="auth-tabs__extra">
-                    <Poptip v-show="timeList?.[curNode.key]?.length" trigger="hover" placement="bottom-end" width="350">
-                      <span class="auth-tabs__time-link">{{ $t('shou-quan-shi-jian-0') }}</span>
-                      <template #content>
-                        <div class="auth-time-popover">
-                          <div v-for="(item, index) in processedTimeList" :key="index" class="time-range-item">
-                            <div class="time-range">
-                              <CustomIcon type="Time" rightMargin />
-                              {{ formattedTime(item) }}
-                            </div>
-                            <div>{{ item?.level }}</div>
-                            <div class="auth-tags">
-                              <Tag v-for="(auth, authIndex) in item.auths" :key="authIndex" color="primary" class="auth-tag">
-                                {{ authMap[auth] }}
-                              </Tag>
-                            </div>
-                            <Divider v-if="index < processedTimeList.length - 1" />
-                          </div>
-                        </div>
+              <div class="auth-main">
+                <div class="resource-summary">
+                  <div class="resource-summary__main">
+                    <div class="resource-summary__label">{{ $t('dang-qian-zi-yuan') }}</div>
+                    <div class="resource-summary__path" :title="currentResourceText">
+                      <template v-for="(item, index) in currentResourceBreadcrumb" :key="`${item}-${index}`">
+                        <span class="resource-summary__path-item">{{ item }}</span>
+                        <span v-if="index < currentResourceBreadcrumb.length - 1" class="resource-summary__separator">/</span>
                       </template>
-                    </Poptip>
+                    </div>
                   </div>
-                </nav>
-                <div class="auth-tabs__content">
-                  <div v-show="curRightTreeTab === 'Instance'">
-                    <v-tree
-                      :emptyText="$t('zan-wu-shu-ju')"
-                      :render="renderAuthNode"
-                      ref="instanceTree"
-                      keyField="key"
-                      @checked-change="handleAuthCheck"
-                      checkable
-                      titleField="i18nName"
-                      :defaultExpandAll="true"
-                      :disableAll="previewMode || isView"
-                    />
-                  </div>
-                  <div v-show="curRightTreeTab === 'CATALOG'">
-                    <v-tree
-                      :emptyText="$t('zan-wu-shu-ju')"
-                      :render="renderAuthNode"
-                      ref="catalogTree"
-                      keyField="key"
-                      @checked-change="handleAuthCheck"
-                      checkable
-                      titleField="i18nName"
-                      :defaultExpandAll="true"
-                      :disableAll="previewMode || isView"
-                    />
-                  </div>
-                  <div v-show="curRightTreeTab === 'SCHEMA'">
-                    <v-tree
-                      :emptyText="$t('zan-wu-shu-ju')"
-                      :render="renderAuthNode"
-                      ref="schemaTree"
-                      keyField="key"
-                      @checked-change="handleAuthCheck"
-                      checkable
-                      titleField="i18nName"
-                      :defaultExpandAll="true"
-                      :disableAll="previewMode || isView"
-                    />
-                  </div>
-                  <div v-show="curRightTreeTab === 'TABLE'">
-                    <v-tree
-                      :emptyText="$t('zan-wu-shu-ju')"
-                      :render="renderAuthNode"
-                      ref="tableTree"
-                      keyField="key"
-                      @checked-change="handleAuthCheck"
-                      checkable
-                      titleField="i18nName"
-                      :defaultExpandAll="true"
-                      :disableAll="previewMode || isView"
-                    />
+                </div>
+                <div class="auth-tree">
+                  <nav class="auth-tabs">
+                    <div class="auth-tabs__items">
+                      <span
+                        class="auth-tabs__item"
+                        :class="{
+                          'is-active': curRightTreeTab === 'Instance',
+                          'is-disabled': !['Instance', 'INSTANCE', 'AllType'].includes(curElementType)
+                        }"
+                        @click="handleAuthTabClick('Instance')"
+                      >
+                        {{ $t('shi-li-quan-xian') }}
+                      </span>
+                      <span
+                        class="auth-tabs__item"
+                        :class="{
+                          'is-active': curRightTreeTab === 'CATALOG',
+                          'is-disabled': !['Catalog', 'CATALOG', 'EXTERNAL_CATALOG', 'AllType'].includes(curElementType)
+                        }"
+                        @click="handleAuthTabClick('CATALOG')"
+                      >
+                        {{ $t('catalog-quan-xian') }}
+                      </span>
+                      <span
+                        class="auth-tabs__item"
+                        :class="{
+                          'is-active': curRightTreeTab === 'SCHEMA',
+                          'is-disabled': !['Schema', 'SCHEMA', 'EXTERNAL_SCHEMA', 'AllType'].includes(curElementType)
+                        }"
+                        @click="handleAuthTabClick('SCHEMA')"
+                      >
+                        {{ $t('schema-quan-xian') }}
+                      </span>
+                      <span
+                        class="auth-tabs__item"
+                        :class="{
+                          'is-active': curRightTreeTab === 'TABLE',
+                          'is-disabled': !['Table', 'TABLE', 'AllType'].includes(curElementType)
+                        }"
+                        @click="handleAuthTabClick('TABLE')"
+                      >
+                        {{ $t('biao-quan-xian') }}
+                      </span>
+                    </div>
+                    <div class="auth-tabs__extra">
+                      <Poptip v-show="timeList?.[curNode.key]?.length" trigger="hover" placement="bottom-end" width="350">
+                        <span class="auth-tabs__time-link">{{ $t('shou-quan-shi-jian-0') }}</span>
+                        <template #content>
+                          <div class="auth-time-popover">
+                            <div v-for="(item, index) in processedTimeList" :key="index" class="time-range-item">
+                              <div class="time-range">
+                                <CustomIcon type="Time" rightMargin />
+                                {{ formattedTime(item) }}
+                              </div>
+                              <div>{{ item?.level }}</div>
+                              <div class="auth-tags">
+                                <Tag v-for="(auth, authIndex) in item.auths" :key="authIndex" color="primary" class="auth-tag">
+                                  {{ authMap[auth] }}
+                                </Tag>
+                              </div>
+                              <Divider v-if="index < processedTimeList.length - 1" />
+                            </div>
+                          </div>
+                        </template>
+                      </Poptip>
+                    </div>
+                  </nav>
+                  <div class="auth-tabs__content">
+                    <div v-show="curRightTreeTab === 'Instance'">
+                      <v-tree
+                        :emptyText="$t('zan-wu-shu-ju')"
+                        :render="renderAuthNode"
+                        ref="instanceTree"
+                        keyField="key"
+                        @checked-change="handleAuthCheck"
+                        checkable
+                        titleField="i18nName"
+                        :defaultExpandAll="true"
+                        :disableAll="previewMode || isView"
+                      />
+                    </div>
+                    <div v-show="curRightTreeTab === 'CATALOG'">
+                      <v-tree
+                        :emptyText="$t('zan-wu-shu-ju')"
+                        :render="renderAuthNode"
+                        ref="catalogTree"
+                        keyField="key"
+                        @checked-change="handleAuthCheck"
+                        checkable
+                        titleField="i18nName"
+                        :defaultExpandAll="true"
+                        :disableAll="previewMode || isView"
+                      />
+                    </div>
+                    <div v-show="curRightTreeTab === 'SCHEMA'">
+                      <v-tree
+                        :emptyText="$t('zan-wu-shu-ju')"
+                        :render="renderAuthNode"
+                        ref="schemaTree"
+                        keyField="key"
+                        @checked-change="handleAuthCheck"
+                        checkable
+                        titleField="i18nName"
+                        :defaultExpandAll="true"
+                        :disableAll="previewMode || isView"
+                      />
+                    </div>
+                    <div v-show="curRightTreeTab === 'TABLE'">
+                      <v-tree
+                        :emptyText="$t('zan-wu-shu-ju')"
+                        :render="renderAuthNode"
+                        ref="tableTree"
+                        keyField="key"
+                        @checked-change="handleAuthCheck"
+                        checkable
+                        titleField="i18nName"
+                        :defaultExpandAll="true"
+                        :disableAll="previewMode || isView"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="auth-tree-container-right">
-                <div class="setting" v-if="!isView || previewMode">
-                  <div class="label-title">
-                    {{ $t('shou-quan-shi-jian') }}
-                    <a-button size="small" v-if="isEdit" @click="handleClearAuthTime" style="float: right">
-                      {{ $t('qing-kong') }}
-                    </a-button>
-                  </div>
-                  <section>
+              <div class="auth-tree-container-right" v-if="!isView || previewMode">
+                <div class="setting">
+                  <div class="label-title">{{ $t('xuan-xiang') }}</div>
+                  <section class="option-section">
+                    <div class="option-section-title option-section-title--required">
+                      <span class="required-title">
+                        <span class="required-mark">*</span>
+                        {{ $t('shou-quan-shi-jian') }}
+                      </span>
+                      <a-button size="small" v-if="isEdit" @click="handleClearAuthTime">
+                        {{ $t('qing-kong') }}
+                      </a-button>
+                    </div>
                     <div class="content">
                       <div class="ranges" v-if="isEdit">
-                        <RadioGroup v-model="curRangeKey" type="button" @on-change="handleRangeChange">
-                          <Radio class="date-btns" v-for="range in ranges1" :value="range.key" :key="range.key" :label="range.key">
+                        <div class="range-button-grid">
+                          <button
+                            v-for="range in authTimeRanges"
+                            :key="range.key"
+                            type="button"
+                            class="date-btns"
+                            :class="{ 'is-active': curRangeKey === range.key }"
+                            :aria-pressed="curRangeKey === range.key"
+                            @click="handleRangeChange(range.key)"
+                          >
                             {{ range.label }}
-                          </Radio>
-                        </RadioGroup>
-                        <RadioGroup v-model="curRangeKey" type="button" @on-change="handleRangeChange" style="padding-top: 5px">
-                          <Radio class="date-btns" v-for="range in ranges2" :value="range.key" :key="range.key" :label="range.key">
-                            {{ range.label }}
-                          </Radio>
-                        </RadioGroup>
+                          </button>
+                        </div>
                       </div>
-                      <div class="time">
+                      <div class="time" v-if="showCustomAuthTime">
                         <a-date-picker
                           v-model:value="authStartTime"
                           show-time
-                          size="small"
                           :disabled="!isEdit"
                           format="YYYY-MM-DD HH:mm:ss"
                           :placeholder="$t('kai-shi-shi-jian')"
@@ -204,7 +223,6 @@
                           :disabled-date="disabledEndDate"
                           show-time
                           :disabled="!isEdit"
-                          size="small"
                           format="YYYY-MM-DD HH:mm:ss"
                           :placeholder="$t('jie-shu-shi-jian')"
                           @change="handleEndTimeChange"
@@ -274,7 +292,7 @@ export default {
       resourceManager: false,
       selectedNodeKey: null,
       selectedCcCluster: '',
-      curRangeKey: '',
+      curRangeKey: 'permanent',
       authedData: {},
       showAuthedTreeModal: false,
       batchMode: false,
@@ -498,6 +516,40 @@ export default {
       }
       return [];
     },
+    currentResourceBreadcrumb() {
+      if (!this.curNode?.objName) {
+        return [this.$t('qing-xuan-ze-zuo-ce-zi-yuan')];
+      }
+      const path = [];
+      let current = this.curNode;
+      while (current) {
+        if (current.objName) {
+          path.unshift(this.getNodeDisplayText(current));
+        }
+        current = current.parent;
+      }
+      return path;
+    },
+    currentResourceText() {
+      return this.currentResourceBreadcrumb.join(' / ');
+    },
+    authTimeRanges() {
+      return [
+        {
+          key: 'permanent',
+          label: this.$t('yong-jiu')
+        },
+        ...this.ranges1,
+        ...this.ranges2,
+        {
+          key: 'custom',
+          label: this.$t('zi-ding-yi')
+        }
+      ];
+    },
+    showCustomAuthTime() {
+      return this.curRangeKey === 'custom';
+    },
     disableAuthTab() {
       return (auth) => {
         let disable = false;
@@ -558,7 +610,7 @@ export default {
       this.expandedKeys = [];
       this.previewMode = false;
       this.batchMode = false;
-      this.curRangeKey = '';
+      this.curRangeKey = 'permanent';
       this.selectedRange = {};
       this.authTime = {
         startTime: null,
@@ -580,6 +632,9 @@ export default {
         this.$refs.schemaTree?.setData?.([]);
         this.$refs.tableTree?.setData?.([]);
       });
+    },
+    syncAuthRangeKeyFromTime() {
+      this.curRangeKey = this.authTime?.startTime || this.authTime?.endTime ? 'custom' : 'permanent';
     },
     handleAuthTabClick(name) {
       if (
@@ -787,7 +842,7 @@ export default {
         style.background = '#ee8435';
       }
       return (
-        <div class='node'>
+        <div class='node-wrap' data-key={node?.key}>
           <div style='display: flex; align-items: center;'>
             {this.leftTreeLoading && this.lastLeftTreeClickNode?.key === node?.key ? (
               <i class='loading-circle'></i>
@@ -846,7 +901,7 @@ export default {
       this.curNode = node;
       this.curElementType = node?.objType;
       this.canCheckedChange = false;
-      this.curRangeKey = '';
+      this.curRangeKey = 'permanent';
 
       // Keep the arrows together.
       if (!shouldExpand) {
@@ -858,6 +913,7 @@ export default {
         this.curRightTreeTab = node?.objType === 'EXTERNAL_SCHEMA' ? 'SCHEMA' : node?.objType === 'EXTERNAL_CATALOG' ? 'CATALOG' : node?.objType;
 
         this.authTime = node?.authTime || { startTime: null, endTime: null };
+        this.syncAuthRangeKeyFromTime();
 
         this.handleGetAuthTreeForDm(node);
         return;
@@ -1217,6 +1273,7 @@ export default {
         // Render Time
         const lastestNode = findNodeByKey(this.originLeftTree, node?.key);
         this.authTime = lastestNode?.authTime || { startTime: null, endTime: null };
+        this.syncAuthRangeKeyFromTime();
 
         if (node?.markedWithActionRightTree && node.markedWithActionRightTree?.length) {
           // Other Organiser
@@ -1273,6 +1330,7 @@ export default {
               });
             }
           });
+          this.syncAuthRangeKeyFromTime();
           filterAuth = this.markRightTreeChecked(allAuth.data, [...new Set(hasAuthList)]);
           // 3.1 The full permission tree of the last user is recorded for matching changes
           this.lastRightTreeData = deepClone(filterAuth);
@@ -1654,42 +1712,51 @@ export default {
       }
     },
     handleStartTimeChange() {
+      this.curRangeKey = 'custom';
       this.selectedRange = {};
       this.handleAuthTimeChange();
     },
     handleEndTimeChange() {
+      this.curRangeKey = 'custom';
       this.selectedRange = {};
       this.handleAuthTimeChange();
     },
     handleClearAuthTime() {
-      this.curRangeKey = '';
+      this.curRangeKey = 'permanent';
       this.selectedRange = {};
       this.authTime.startTime = null;
       this.authTime.endTime = null;
       this.handleAuthTimeChange();
     },
     handleRangeChange(rangeKey) {
-      let selectedObj;
-      if (Number(rangeKey) < 4) {
-        selectedObj = this.ranges1.find((item) => item.key === rangeKey);
-      } else {
-        selectedObj = this.ranges2.find((item) => item.key === rangeKey);
-      }
       this.curRangeKey = rangeKey;
+      if (rangeKey === 'permanent') {
+        this.handleClearAuthTime();
+        return;
+      }
+      if (rangeKey === 'custom') {
+        this.selectedRange = {};
+        this.authTime.startTime = null;
+        this.authTime.endTime = null;
+        this.handleAuthTimeChange();
+        return;
+      }
+      const selectedObj = [...this.ranges1, ...this.ranges2].find((item) => item.key === rangeKey);
+      if (!selectedObj) return;
       this.selectedRange = selectedObj;
       this.authTime.startTime = selectedObj.startTime;
       this.authTime.endTime = selectedObj.endTime;
       this.handleAuthTimeChange();
     },
     disabledStartDate(startValue) {
-      const endValue = this.endTime;
+      const endValue = this.authEndTime;
       if (!startValue || !endValue) {
         return false;
       }
       return startValue.valueOf() > endValue.valueOf();
     },
     disabledEndDate(endValue) {
-      const startValue = this.startTime;
+      const startValue = this.authStartTime;
       if (!endValue || !startValue) {
         return false;
       }
@@ -1939,117 +2006,210 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
   padding: 16px;
   padding-bottom: 0;
+  overflow: hidden;
+  background: #f7f8fb;
 
   .auth-content {
-    height: calc(100% - 100px);
-
-    .users {
-      width: 300px;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-
-      .user-tree {
-        border: 1px solid #ccc;
-        border-top: none;
-        border-right: none;
-        flex: 1;
-      }
-    }
+    flex: 1;
+    min-height: 0;
 
     .auth-container {
-      flex: 1;
-      min-width: 0;
       display: flex;
       flex-direction: column;
       height: 100%;
+      min-width: 0;
+      min-height: 0;
 
       .auth {
         display: flex;
+        gap: 12px;
         width: 100%;
-        flex: 1;
-        min-height: 0;
         height: 100%;
+        min-height: 0;
 
         .left {
+          flex-shrink: 0;
+          min-width: 320px;
+          max-width: 520px;
           height: 100%;
           min-height: 0;
           display: flex;
           flex-direction: column;
-          border: 1px solid #ccc;
+          overflow: hidden;
+          background: #fff;
+          border: 1px solid #e6eaf0;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
 
-          .search {
+          > .search {
             display: flex;
+            flex-shrink: 0;
+            height: 56px;
+            border-bottom: 1px solid #eef1f5;
+
+            :deep(.ant-select) {
+              height: 100%;
+            }
+
             :deep(.ant-select-selector) {
+              height: 100% !important;
+              border: 0 !important;
+              border-right: 1px solid #eef1f5 !important;
               border-radius: 0 !important;
+              box-shadow: none !important;
             }
+
+            :deep(.ant-select-selection-item) {
+              line-height: 56px !important;
+            }
+
+            :deep(.ant-input-search) {
+              flex: 1;
+              min-width: 0;
+              height: 100%;
+            }
+
+            :deep(.ant-input-wrapper),
+            :deep(.ant-input-group) {
+              height: 100%;
+            }
+
             :deep(.ant-input-affix-wrapper) {
-              border-radius: 0 !important;
-            }
-            :deep(.ant-input-search-button) {
-              border-radius: 0 !important;
+              height: 100%;
               display: flex;
-              justify-content: center;
+              align-items: center;
+              padding: 0 12px 0 14px;
+              border: 0 !important;
+              border-radius: 0 !important;
+              box-shadow: none !important;
+            }
+
+            :deep(.ant-input) {
+              height: 100%;
+              padding: 0;
+              line-height: 56px;
+            }
+
+            :deep(.ant-input-suffix) {
+              height: 100%;
+              display: inline-flex;
               align-items: center;
             }
-          }
 
-          :deep(.search .ant-input) {
-            border-top: none;
+            :deep(.ant-input-search-button) {
+              height: 100%;
+              border: 0 !important;
+              border-left: 1px solid #eef1f5 !important;
+              border-radius: 0 !important;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              box-shadow: none !important;
+            }
           }
 
           .datasource-tree {
             flex: 1;
             min-height: 0;
-            border: 1px solid #ccc;
-            border-top: none;
-          }
-          :deep(.vtree-tree__wrapper) {
-            height: calc(100% - 64px);
+            padding: 8px 10px 12px;
+            overflow: hidden;
+            border: 0;
           }
 
-          .no-indent {
-            :deep(.vtree-tree-node__square:first-child) {
-              display: none;
-            }
+          :deep(.vtree-tree__wrapper) {
+            height: 100%;
+            overflow: auto;
+          }
+
+          :deep(.vtree-tree-node) {
+            min-height: 34px;
           }
         }
 
         .middle {
           flex: 1;
+          min-width: 0;
           min-height: 0;
           display: flex;
           flex-direction: column;
 
-          &.no-auth {
-            border: 1px solid #ccc;
-            border-left: none;
-            border-right: none;
-          }
-
           .auth-tree-container {
             display: flex;
+            gap: 12px;
             flex: 1;
+            min-width: 0;
             min-height: 0;
             position: relative;
 
             .auth-loading {
               position: absolute;
-              width: 100%;
-              height: 100%;
-              display: flex;
-              align-items: center; /* Centre Vertically */
-              justify-content: center; /* Centre horizontally, if necessary */
-              left: 0;
-              top: 0;
+              inset: 0;
               z-index: 999;
-              background: rgba(255, 255, 255, 0.8);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background: rgba(255, 255, 255, 0.78);
+              border-radius: 8px;
             }
 
-            :deep(.search .ant-input) {
-              border-left: none;
+            .auth-main {
+              flex: 1;
+              min-width: 0;
+              min-height: 0;
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+            }
+
+            .resource-summary {
+              display: flex;
+              align-items: center;
+              justify-content: flex-start;
+              min-height: 82px;
+              padding: 16px 22px;
+              background: #fff;
+              border: 1px solid #e0f3e9;
+              border-radius: 8px;
+              box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
+
+              &__main {
+                min-width: 0;
+              }
+
+              &__label {
+                margin-bottom: 8px;
+                color: #6b778c;
+                font-size: 13px;
+                line-height: 18px;
+              }
+
+              &__path {
+                display: flex;
+                align-items: center;
+                min-width: 0;
+                color: #27364b;
+                font-size: 15px;
+                line-height: 22px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+
+              &__path-item {
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+
+              &__separator {
+                flex: none;
+                margin: 0 7px;
+                color: #33c785;
+                font-weight: 600;
+              }
             }
 
             .auth-tree {
@@ -2057,8 +2217,11 @@ export default {
               min-height: 0;
               display: flex;
               flex-direction: column;
-              border-top: none;
-              border-left: none;
+              overflow: hidden;
+              background: #fff;
+              border: 1px solid #e6eaf0;
+              border-radius: 8px;
+              box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
             }
 
             .auth-tabs {
@@ -2066,117 +2229,273 @@ export default {
               align-items: center;
               justify-content: space-between;
               flex-shrink: 0;
-              border-bottom: 1px solid var(--border-light);
+              min-height: 58px;
+              padding: 0 22px;
+              border-bottom: 1px solid #edf1f5;
 
               &__items {
                 display: flex;
                 align-items: center;
+                gap: 28px;
               }
 
               &__item {
                 position: relative;
-                padding: 10px 16px 8px;
-                font-size: 13px;
-                color: var(--text-secondary);
+                display: inline-flex;
+                align-items: center;
+                min-height: 58px;
+                color: #6b778c;
+                font-size: 14px;
                 cursor: pointer;
                 transition: color 0.12s ease;
 
                 &:hover {
-                  color: var(--text-primary);
+                  color: #253044;
                 }
 
                 &.is-active {
-                  color: var(--primary-color);
-                  font-weight: 500;
+                  color: #18b978;
+                  font-weight: 600;
 
                   &::after {
                     content: '';
                     position: absolute;
-                    left: 16px;
-                    right: 16px;
+                    left: 0;
+                    right: 0;
                     bottom: -1px;
                     height: 2px;
-                    background: var(--primary-color);
+                    background: #33c785;
+                    border-radius: 2px;
                   }
                 }
 
                 &.is-disabled {
-                  color: var(--text-disabled);
+                  color: #c1c7d0;
                   cursor: not-allowed;
                 }
               }
 
               &__extra {
-                padding-right: 16px;
+                flex: none;
               }
 
               &__time-link {
+                color: #6b778c;
                 font-size: 13px;
-                color: var(--text-secondary);
                 cursor: pointer;
 
                 &:hover {
-                  color: var(--primary-color);
+                  color: #18b978;
                 }
               }
 
               &__content {
                 flex: 1;
                 min-height: 0;
+                padding: 18px 24px;
                 overflow: auto;
+
+                > div {
+                  height: 100%;
+                  min-height: 0;
+                }
+
+                :deep(.vtree-tree__wrapper) {
+                  height: 100%;
+                  overflow: auto;
+                }
+
+                :deep(.vtree-tree-node) {
+                  min-height: 40px;
+                }
+
+                :deep(.vtree-tree-node__checkbox:focus) {
+                  box-shadow: 0 0 0 2px rgba(62, 207, 142, 0.2);
+                }
+
+                :deep(.vtree-tree-node__checkbox:hover) {
+                  border-color: #3ecf8e;
+                }
+
+                :deep(.vtree-tree-node__checkbox_checked),
+                :deep(.vtree-tree-node__checkbox_indeterminate) {
+                  border-color: #3ecf8e;
+                  background-color: #3ecf8e;
+                }
+
+                :deep(.vtree-tree-node__checkbox_checked:hover),
+                :deep(.vtree-tree-node__checkbox_indeterminate:hover) {
+                  border-color: #3ecf8e;
+                  background-color: #3ecf8e;
+                }
+
+                :deep(.vtree-tree-node__checkbox_checked.vtree-tree-node__checkbox_disabled),
+                :deep(.vtree-tree-node__checkbox_indeterminate.vtree-tree-node__checkbox_disabled) {
+                  border-color: #3ecf8e;
+                  background-color: #3ecf8e;
+                  opacity: 0.68;
+                }
+
+                :deep(.vtree-tree-node__checkbox_checked.vtree-tree-node__checkbox_disabled::after),
+                :deep(.vtree-tree-node__checkbox_indeterminate.vtree-tree-node__checkbox_disabled::after) {
+                  border-color: #fff;
+                }
+
+                :deep(.vtree-tree-node__title:hover) {
+                  background-color: #eefaf4;
+                }
+
+                :deep(.vtree-tree-node__title_selected),
+                :deep(.vtree-tree-node__title_selected:hover) {
+                  background-color: #def6eb;
+                }
               }
             }
+
             .auth-tree-container-right {
-              height: 100%;
-              border-left: 1px solid #ccc;
-              border-right: 1px solid #ccc;
-              .label-title {
-                height: 45px;
-                border-bottom: 1px solid #ccc;
-                padding: 14px 16px;
+              flex: 0 0 320px;
+              min-height: 0;
+              overflow: hidden;
+              background: #fff;
+              border: 1px solid #e6eaf0;
+              border-radius: 8px;
+              box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
+
+              .setting {
+                height: 100%;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
               }
+
+              .label-title {
+                flex-shrink: 0;
+                height: 58px;
+                padding: 18px 22px;
+                border-bottom: 1px solid #edf1f5;
+                color: #253044;
+                font-size: 16px;
+                font-weight: 600;
+                line-height: 22px;
+              }
+
+              .option-section {
+                flex-shrink: 0;
+                padding: 20px 22px;
+                border-bottom: 1px solid #edf1f5;
+              }
+
+              .option-section-title {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 14px;
+                color: #253044;
+                font-size: 14px;
+                font-weight: 600;
+
+                :deep(.ant-btn) {
+                  height: 24px;
+                  padding: 0;
+                  border: 0;
+                  color: #18b978;
+                  background: transparent;
+                  box-shadow: none;
+                }
+
+                &--required {
+                  justify-content: space-between;
+                }
+
+                .required-title {
+                  display: inline-flex;
+                  align-items: center;
+                }
+
+                .required-mark {
+                  margin-right: 4px;
+                  color: #ff4d4f;
+                  font-weight: 600;
+                }
+              }
+
+              .content {
+                min-width: 0;
+              }
+
+              .ranges {
+                width: 100%;
+                padding: 0 0 14px;
+              }
+
+              .range-button-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                width: 100%;
+              }
+
+              .date-btns {
+                width: 100%;
+                height: 38px;
+                padding: 0;
+                color: #536079;
+                background: #fff;
+                border: 1px solid #dcdee2;
+                border-radius: 6px;
+                text-align: center;
+                line-height: 36px;
+                cursor: pointer;
+                transition:
+                  color 0.12s ease,
+                  border-color 0.12s ease,
+                  background-color 0.12s ease;
+
+                &:hover {
+                  color: #18b978;
+                  border-color: #3ecf8e;
+                }
+
+                &:focus,
+                &:focus-visible,
+                &:active {
+                  outline: none;
+                  box-shadow: none;
+                }
+
+                &.is-active {
+                  color: #18b978;
+                  background: #eaf9f3;
+                  border-color: #3ecf8e;
+                }
+              }
+
               .time {
                 display: flex;
                 flex-direction: column;
-                align-items: center;
-                margin: 10px;
+                gap: 10px;
+                align-items: stretch;
               }
+
               .time-mid {
                 display: flex;
                 justify-content: center;
+                color: #6b778c;
+                line-height: 18px;
               }
-              .ranges {
-                padding-top: 20px;
-                padding-bottom: 20px;
-                text-align: center;
-                width: 210px;
-                margin: 0 auto;
-              }
-              .date-btns {
-                width: 68px;
-                padding: 0 8px;
+
+              :deep(.ant-picker) {
+                width: 100%;
+                height: 38px;
+                border-radius: 6px;
               }
             }
           }
         }
-
-        .right {
-        }
-
-        .tree {
-          display: flex;
-          flex-direction: column;
-        }
-      }
-
-      .footer {
-        height: 50px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
       }
     }
   }
+
   :deep(.vtree-tree__empty-text_default) {
     position: relative;
     top: 100px;
@@ -2184,18 +2503,24 @@ export default {
 }
 
 .option-wrap {
-  display: flex;
-  border: 1px solid #ccc;
-  height: 60px;
-  margin-bottom: 12px;
-  padding: 12px;
-  justify-content: center;
-  border-top: none;
-}
-
-:deep(.node) {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
+  height: 72px;
+  margin: 12px 0 16px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid #e6eaf0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
+}
+
+:deep(.node),
+:deep(.node-wrap) {
+  display: flex;
+  align-items: center;
+
   .loading-circle {
     display: inline-block;
     width: 15px;
@@ -2253,6 +2578,7 @@ export default {
   margin-right: 6px;
   color: #808695;
 }
+
 .divider {
   width: 3px;
   background: linear-gradient(to bottom, #e0e0e0, #f8f8f8, #e0e0e0);
@@ -2272,6 +2598,7 @@ export default {
   background: #b0b0b0;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.15) inset;
 }
+
 .page-loading-mask {
   position: fixed;
   z-index: 9999;
