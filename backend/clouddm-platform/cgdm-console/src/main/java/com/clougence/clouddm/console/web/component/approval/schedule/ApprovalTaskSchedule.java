@@ -16,7 +16,6 @@
 package com.clougence.clouddm.console.web.component.approval.schedule;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.*;
@@ -98,10 +97,7 @@ public class ApprovalTaskSchedule {
     private void doSchedule() {
 
         do {
-            Date date = new Date();
-            date = new Date(date.getTime() - 5 * 1000);
-
-            List<Long> doList = this.approvalDal.approvalMapper().listUnFinishTicketIdList(date);
+            List<Long> doList = this.approvalDal.approvalMapper().listUnFinishTicketIdList();
 
             // there is nothing to do.
             if (doList.isEmpty()) {

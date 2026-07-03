@@ -251,7 +251,7 @@
             id
         from dm_approval
         where ticket_status in('PRE_INIT','WAIT_APPROVAL','WAIT_CONFIRM','WAIT_EXEC','RUNNING','EXEC_FAIL')
-        and #{time} >= gmt_modified
+        and date_sub(now(), interval 5 second) >= gmt_modified
         order by gmt_modified asc
         limit 20
     </select>
