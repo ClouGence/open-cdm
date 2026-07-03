@@ -162,7 +162,7 @@ export default {
   methods: {
     handleGoHome() {
       if (this.includesDM && this.myCatLog.includes('CAT_DM_CONSOLE')) {
-        saveLastWorkbenchRoute(this.$route);
+        saveLastWorkbenchRoute(this.$route, this.userInfo?.uid);
         this.$router.push({ path: '/sql' }).catch(() => {});
         return;
       }

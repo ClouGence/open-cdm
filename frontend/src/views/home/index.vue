@@ -384,7 +384,7 @@ export default {
     },
     handleGoAppHome() {
       if (this.isSqlRoute) {
-        const target = resolveWorkbenchRoute('/datasource');
+        const target = resolveWorkbenchRoute('/datasource', this.userInfo?.uid);
         this.$router.push(target).catch(() => {});
         return;
       }

@@ -1,5 +1,12 @@
 const STORAGE_KEY = 'dm:lastWorkbenchRoute';
 
+function getStorageKey(uid) {
+  if (!uid) {
+    return STORAGE_KEY;
+  }
+  return `${STORAGE_KEY}:${uid}`;
+}
+
 function isSqlRoute(path) {
   return path === '/sql' || path.startsWith('/sql/');
 }
@@ -14,14 +21,14 @@ function isValidWorkbenchPath(path) {
   return path.startsWith('/');
 }
 
-export function saveLastWorkbenchRoute(route) {
+export function saveLastWorkbenchRoute(route, uid) {
   if (!route || !isValidWorkbenchPath(route.path)) {
     return;
   }
 
   try {
     localStorage.setItem(
-      STORAGE_KEY,
+      getStorageKey(uid),
       JSON.stringify({
         path: route.path,
         query: route.query || {},
@@ -33,11 +40,11 @@ export function saveLastWorkbenchRoute(route) {
   }
 }
 
-export function resolveWorkbenchRoute(fallbackPath = '/datasource') {
+export function resolveWorkbenchRoute(fallbackPath = '/datasource', uid) {
   const fallback = isValidWorkbenchPath(fallbackPath) ? fallbackPath : '/datasource';
 
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(getStorageKey(uid));
     if (!raw) {
       return { path: fallback };
     }

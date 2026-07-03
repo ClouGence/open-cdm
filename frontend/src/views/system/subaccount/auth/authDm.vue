@@ -2150,8 +2150,8 @@ export default {
         });
       }.bind(this);
       const res = updateNodeInTree(this.originLeftTree, node?.key);
-      this.$refs.dataSourceTree.setData(res);
       this.originLeftTree = res;
+      this.$refs.dataSourceTree.setData(this.getFilterOfTypeAndSearch(res));
       return markedWithActionRightTree;
     },
 
@@ -2567,7 +2567,8 @@ export default {
       return tree
         .map((node) => {
           if (level >= depth) return null;
-          const match = String(node.objDesc || '')
+          const matchText = this.isInstanceNode(node) ? node.objDesc || node.objName : `${node.objName || ''} ${node.objDesc || ''}`;
+          const match = String(matchText || '')
             .toLowerCase()
             .includes(lowerKeyword);
           const children = node.children ? this.filterTree(node.children, keyword, isEnableQuery, depth, level + 1) : [];

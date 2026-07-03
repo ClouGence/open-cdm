@@ -50,7 +50,7 @@ export default {
   emits: ['check-version'],
   computed: {
     ...mapGetters(['includesDM', 'isDesktop']),
-    ...mapState(['dmGlobalSetting', 'myCatLog', 'mySystemMenuItems', 'sidebarMenu']),
+    ...mapState(['dmGlobalSetting', 'myCatLog', 'mySystemMenuItems', 'sidebarMenu', 'userInfo']),
     showSqlLink() {
       return this.includesDM && this.myCatLog.includes('CAT_DM_CONSOLE') && !this.$route.path.startsWith('/sql');
     },
@@ -332,7 +332,7 @@ export default {
   },
   methods: {
     handleGoSql() {
-      saveLastWorkbenchRoute(this.$route);
+      saveLastWorkbenchRoute(this.$route, this.userInfo?.uid);
       this.$router.push({ path: '/sql' }).catch(() => {});
     },
     handleBreadcrumbEvent(eventName) {
