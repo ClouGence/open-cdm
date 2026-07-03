@@ -2623,7 +2623,7 @@ export default {
   padding: 16px;
   padding-bottom: 0;
   overflow: hidden;
-  background: #f7f8fb;
+  background: #fff;
 
   .auth-content {
     flex: 1;
