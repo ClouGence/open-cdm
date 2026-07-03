@@ -109,6 +109,7 @@ export default {
       TAB_TYPE,
       expandedKeys: storedExpandedKeys || [],
       hasStoredExpandedKeys: !!storedExpandedKeys,
+      suspendExpandedKeysSync: false,
       selectedNode: null,
       hide: storedHide,
       dataSourceWidth: 0,
@@ -607,15 +608,27 @@ export default {
     async handleSetData(data, search = false) {
       this.top = this.scrollY;
       console.log('handleSetData', this.$refs);
-      await this.$refs.tree.setData(data);
+      const expandedKeys = this.expandedKeys.slice();
+      this.suspendExpandedKeysSync = true;
+      try {
+        await this.$refs.tree.setData(data);
+      } catch (e) {
+        this.suspendExpandedKeysSync = false;
+        throw e;
+      }
+      this.expandedKeys = expandedKeys;
       const restoreDelay = this.hasStoredExpandedKeys ? 500 : 0;
       setTimeout(async () => {
-        this.handleEleScroll(this.top);
-        if (search) {
-          await this.handleSearch(false);
+        try {
+          this.handleEleScroll(this.top);
+          if (search) {
+            await this.handleSearch(false);
+          }
+          // Check tree state after setting data
+          this.checkTreeDataAndToggle();
+        } finally {
+          this.suspendExpandedKeysSync = false;
         }
-        // Check tree state after setting data
-        this.checkTreeDataAndToggle();
         if (this.hasStoredExpandedKeys) {
           await this.restoreExpandedKeys();
         } else {
@@ -685,6 +698,9 @@ export default {
       await this.getNodeData(node, {}, resolve, reject);
     },
     handleTreeExpand(node) {
+      if (this.suspendExpandedKeysSync) {
+        return;
+      }
       const key = node?.key;
       if (!key) {
         return;
