@@ -166,8 +166,8 @@ export default {
 
     await this.$store.dispatch('getDmGlobalConfig');
 
-    if (this.redirectBlankEntry()) {
-      return;
+    if (this.$route.path === '/') {
+      await this.$router.replace({ path: this.defaultRedirectUrl || '/sql' }).catch(() => {});
     }
 
     this.showChild = true;
@@ -224,14 +224,6 @@ export default {
     this.$bus.off(EVENT_BUS_NAME_LIST.SHOW_INACTIVE_MODAL);
   },
   methods: {
-    redirectBlankEntry() {
-      if (this.$route.path !== '/') {
-        return false;
-      }
-
-      this.$router.replace({ path: this.defaultRedirectUrl || '/sql' }).catch(() => {});
-      return true;
-    },
     handleShowInactiveModal(msg) {
       console.log(msg);
       this.showInactiveModal = true;
