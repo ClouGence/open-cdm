@@ -2,7 +2,7 @@
   <div class="operators">
     <div class="operator-character">
       <div class="left">
-        <ButtonGroup class="operator-btn-group">
+        <div class="operator-btn-group">
           <Button size="small" type="primary" :disabled="isRunning" :loading="tab.running" @click="handleRun('run')">
             <div class="operator-btn-content">
               <CustomIcon v-if="!tab.running" type="icon-v2-ConsoleRun" :color="tab.running ? '#999' : '#fff'" size="14px" right-margin="4px" />
@@ -33,8 +33,8 @@
               <span>{{ $t('ge-shi') }}</span>
             </div>
           </Button>
-        </ButtonGroup>
-        <ButtonGroup class="operator-btn-group" v-if="isSupportTx || isSupportIsolation || isSupportReadOnly" style="padding-left: 5px">
+        </div>
+        <div class="operator-btn-group" v-if="isSupportTx || isSupportIsolation || isSupportReadOnly">
           <Button size="small" v-if="isSupportIsolation">
             <Dropdown trigger="click" @on-click="handleSet" transfer>
               {{ tab.autoCommit ? $t('shi-wu-zi-dong') : $t('shi-wu-shou-dong') }}
@@ -95,7 +95,7 @@
               {{ $t('zhi-du') }}
             </Checkbox>
           </Button>
-        </ButtonGroup>
+        </div>
       </div>
       <div class="right"></div>
     </div>
@@ -206,6 +206,10 @@ export default {
     white-space: nowrap;
 
     .left {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
     }
 
     .right {
@@ -214,22 +218,25 @@ export default {
 }
 
 .operator-btn-group {
-  overflow: hidden;
+  overflow: visible;
   white-space: nowrap;
   display: inline-flex;
+  align-items: center;
+  gap: 8px;
 
   :deep(.ivu-btn) {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
+    padding: 0 12px;
   }
 }
 
 .operator-btn-content {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .operator-btn-content span {
