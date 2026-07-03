@@ -24,6 +24,7 @@ public enum DsConfigKeys {
     //    Commons    //
     ///////////////////
     ID("com_id"),
+    DRIVER_VERSION("com_driver_version"),
     HOST("com_host"),
     USER("com_user", true),
     PASSWORD("com_password", true),

@@ -23,6 +23,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.ds.clickhouse.i18n.ChConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
+import com.clougence.drivers.DriverSpecUtils;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -63,6 +64,7 @@ public class ChConfig extends DataSourceConfig {
     public Properties asDriverProperties() {
         Properties properties = new Properties();
         properties.setProperty(DsConfigKeys.ID.getConfigKey(), safeStr(this.getInstanceId()));
+        properties.setProperty(DsConfigKeys.DRIVER_VERSION.getConfigKey(), safeStr(DriverSpecUtils.resolveDriverVersion(this.getDriverVersion())));
         properties.setProperty(DsConfigKeys.HOST.getConfigKey(), safeStr(this.getHost()));
         properties.setProperty(DsConfigKeys.USER.getConfigKey(), safeStr(this.getUserName()));
         properties.setProperty(DsConfigKeys.PASSWORD.getConfigKey(), safeStr(this.getPassword()));
