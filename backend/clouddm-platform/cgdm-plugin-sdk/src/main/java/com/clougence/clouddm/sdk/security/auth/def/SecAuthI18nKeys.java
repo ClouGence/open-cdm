@@ -106,6 +106,7 @@ public interface SecAuthI18nKeys {
     // for Role and Data
     String RDP_AUTH_DATA_DS_READ                    = "RDP_AUTH_DATA_DS_READ";
     String RDP_AUTH_DATA_DS_MANAGE                  = "RDP_AUTH_DATA_DS_MANAGE";
+    String RDP_AUTH_DATA_DS_CREATOR                 = "RDP_AUTH_DATA_DS_CREATOR";
 
     // for Data Auth Label
     String AUTH_DATA_DM_QUERY                       = "AUTH_DATA_DM_QUERY";

@@ -61,6 +61,7 @@ import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
+import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.rdp.service.RdpNotifyService;
@@ -438,19 +439,10 @@ public class DmDsWebServiceImpl implements DmDsWebService {
         ModifyAuthForAppend append = new ModifyAuthForAppend();
         append.setResId(dsId);
         append.setResPaths(Collections.emptyList());
-        append.setAuthLabels(Arrays.asList( //
-                SecDataAuthLabel.RDP_DAUTH_DS_MANAGER, //
-                SecDataAuthLabel.DM_DAUTH_QUERY, //
-                SecDataAuthLabel.DM_DAUTH_CALL, //
-                SecDataAuthLabel.DM_DAUTH_DML, //
-                SecDataAuthLabel.DM_DAUTH_DDL, //
-                SecDataAuthLabel.DM_DAUTH_OBJ, //
-                SecDataAuthLabel.DM_DAUTH_SPACE, //
-                SecDataAuthLabel.DM_DAUTH_DCL, //
-                SecDataAuthLabel.DM_DAUTH_OTHER, //
-                SecDataAuthLabel.DM_DAUTH_SENSITIVE, //
-                SecDataAuthLabel.DM_DAUTH_TICKET //
-        ));
+        append.setAuthLabels(this.authServiceForManage.getCascadeAuthByLabel(SecDataAuthLabel.RDP_DAUTH_DS_CREATOR)
+            .stream() //
+            .map(AuthInfo::getKey)
+            .toList());
 
         ModifyUserAuthFO authFO = new ModifyUserAuthFO();
         authFO.setAuthKind(AuthKind.DataSource);
