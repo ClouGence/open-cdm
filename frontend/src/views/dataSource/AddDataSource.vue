@@ -657,13 +657,28 @@ export default {
 .add-datasource-type-selector {
   display: flex;
   flex: 1 1 auto;
+  box-sizing: border-box;
   min-height: 0;
+  border: 1px solid #e0e6ee;
+  border-radius: 8px;
+  padding: 16px;
+  background: #ffffff;
 }
 
 .add-datasource-type-sidebar {
+  position: relative;
   flex: 0 0 142px;
   padding: 0 14px 0 0;
-  border-right: 1px solid #e6edf4;
+
+  &::after {
+    position: absolute;
+    top: -16px;
+    right: 0;
+    bottom: -16px;
+    width: 1px;
+    background: #e6edf4;
+    content: '';
+  }
 }
 
 .add-datasource-type-main {
