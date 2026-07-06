@@ -29,7 +29,9 @@
                       />
                       <cc-svg-icon name="TABLE" v-if="tab.icon === 'Table'" style="display: inline-block" />
                       <CustomIcon :type="tab.icon" v-else />
-                      <span style="margin-left: 5px; margin-right: 5px">{{ tab.title }}</span>
+                      <Tooltip :content="getTabDisplayTitle(tab)" transfer placement="top">
+                        <span class="tab-title-text">{{ getTabDisplayTitle(tab) }}</span>
+                      </Tooltip>
                       <CustomIcon
                         class="close-icon"
                         type="icon-v2-close2"
@@ -48,7 +50,9 @@
                         <a-menu-item v-for="tab in tabs" :key="tab.key" :name="tab.key" @click="handleChangeTab(tab.key)">
                           <div class="dropdown-item">
                             <CustomIcon :type="tab.icon" />
-                            <span style="margin-left: 5px">{{ tab.title }}</span>
+                            <Tooltip :content="getTabDisplayTitle(tab)" transfer placement="top">
+                              <span class="truncate" style="margin-left: 5px">{{ getTabDisplayTitle(tab) }}</span>
+                            </Tooltip>
                             <span class="truncate" style="margin-left: 5px">
                               [{{ tab.node.INSTANCE.attr.dsInstanceDesc || tab.node.INSTANCE.attr.dsInstance }}]
                             </span>
@@ -804,13 +808,7 @@ export default {
         case TAB_TYPE.QUERY:
           tab.schemaParentKey = node._parent.key;
           // Make sure Children is an array and contains objects
-          if (Array.isArray(node._parent.children)) {
-            tab.selectOptions = node._parent.children
-              .filter((child) => child && typeof child === 'object' && child.title)
-              .map((child) => ({ value: child.title, label: child.title }));
-          } else {
-            tab.selectOptions = [];
-          }
+          tab.selectOptions = this.buildSchemaOptions(node._parent.children, node._parent);
           tab.leafGroup = [];
           tab.selectValue = node.title;
           tab.selectedTable = null;
@@ -929,19 +927,31 @@ export default {
       }
       this.storeQueryTabs();
     },
+    getTabDisplayTitle(tab) {
+      if (!tab?.schemaParentKey) return tab?.title || '';
+      const parentNode = this.$refs.dataSourceTree?.handleGetNode(tab.schemaParentKey);
+      if (parentNode && parentNode.nodeType === 'CATALOG') {
+        return parentNode.title + '.' + tab.title;
+      }
+      return tab.title;
+    },
+    buildSchemaOptions(children, parentNode) {
+      if (!Array.isArray(children)) return [];
+      let prefix = '';
+      if (parentNode && parentNode.nodeType === 'CATALOG') {
+        prefix = parentNode.title + '.';
+      }
+      return children
+        .filter((child) => child && typeof child === 'object' && child.title)
+        .map((child) => ({ value: child.title, label: prefix + child.title }));
+    },
     refreshTabSelectOptions(key) {
       const node = this.$refs.dataSourceTree.handleGetNode(key);
       if (node.key && node._parent && node._parent.children) {
         this.tabs.forEach((tab) => {
           if (tab.type === TAB_TYPE.QUERY && tab.schemaParentKey === key) {
             // Make sure Children is an array and contains objects
-            if (Array.isArray(node.children)) {
-              tab.selectOptions = node.children
-                .filter((child) => child && typeof child === 'object' && child.title)
-                .map((child) => ({ value: child.title, label: child.title }));
-            } else {
-              tab.selectOptions = [];
-            }
+            tab.selectOptions = this.buildSchemaOptions(node.children, node);
           }
         });
         this.storeQueryTabs();
@@ -1692,6 +1702,17 @@ export default {
       width: 32px;
     }
   }
+}
+
+.tab-title-text {
+  display: inline-block;
+  max-width: 110px;
+  margin-left: 5px;
+  margin-right: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
 }
 
 .schema-select-style {
