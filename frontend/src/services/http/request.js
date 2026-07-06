@@ -30,6 +30,14 @@ const UPDATE_DATA_SOURCE_STATUS_LIST = [
   '/api/entry/datasource/testConnect'
 ];
 
+// APIs whose failure is surfaced by the caller (toast / inline), not the global error modal.
+const SELF_HANDLED_ERROR_URLS = [
+  '/login',
+  '/datasource/connectds',
+  '/api/entry/datasource/connectDs',
+  '/api/entry/datasource/testConnect'
+];
+
 let baseURL = '';
 if (process.env.VUE_APP_BASE_URL) {
   baseURL = process.env.VUE_APP_BASE_URL;
@@ -188,7 +196,10 @@ const request = async (opt) => {
             }
             break;
           default:
-            if (['/login', '/datasource/connectds'].includes(requestUrl)) {
+            if (SELF_HANDLED_ERROR_URLS.includes(requestUrl)) {
+              if (res.msg) {
+                res.msg = formatError(res.msg);
+              }
               return res;
             }
             if (['/datasource/schema/rightclickschema'].includes(requestUrl) && res.data && res.data.next) {

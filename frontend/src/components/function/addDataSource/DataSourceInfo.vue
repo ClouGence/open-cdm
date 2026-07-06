@@ -4,10 +4,6 @@
       <div class="datasource-config-layout">
         <nav class="datasource-config-menu">
           <div class="datasource-config-menu-group">
-            <div class="datasource-config-menu-primary">
-              <span class="datasource-config-menu-accent"></span>
-              <span>{{ $t('shu-ju-yuan-pei-zhi-xin-xi') }}</span>
-            </div>
             <div class="datasource-config-menu-children">
               <button
                 v-for="panel in visibleAddDsPanels"
@@ -793,9 +789,6 @@ export default {
 
 .add-datasource-card {
   background: #ffffff;
-  border: 1px solid var(--border-light);
-  border-radius: 10px;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   overflow: hidden;
 }
 
@@ -977,44 +970,33 @@ export default {
 }
 
 .datasource-config-menu {
+  position: relative;
   display: flex;
   align-self: stretch;
   flex: 0 0 188px;
   flex-direction: column;
   width: 188px;
   min-height: 100%;
-  gap: 18px;
-  padding: 20px 12px;
-  background: #ffffff;
-  border-right: 1px solid var(--border-light);
+  padding: 16px 10px;
+  background: transparent;
+  border-right: none;
+
+  &::after {
+    position: absolute;
+    top: 20px;
+    right: 0;
+    bottom: 20px;
+    width: 1px;
+    background: var(--border-light);
+    content: '';
+    pointer-events: none;
+  }
 }
 
 .datasource-config-menu-group {
   display: flex;
   flex-direction: column;
   min-width: 0;
-}
-
-.datasource-config-menu-primary {
-  display: flex;
-  height: 40px;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-  padding: 0 10px;
-  color: #1f2937;
-  font-size: 15px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.datasource-config-menu-accent {
-  display: inline-block;
-  width: 4px;
-  height: 24px;
-  flex: 0 0 4px;
-  border-radius: 999px;
-  background: #21bf73;
 }
 
 .datasource-config-menu-children {

@@ -30,51 +30,42 @@
       @on-cancel="handleCloseAddDataSourceTypeModal"
     >
       <div class="add-datasource-type-modal-body">
-        <div class="add-datasource-type-selector">
-          <aside class="add-datasource-type-sidebar">
-            <button type="button" class="add-datasource-type-filter active">
-              {{ $t('quan-bu') }}
-            </button>
-          </aside>
-          <div class="add-datasource-type-main">
-            <Input
-              v-model="addDataSourceTypeSearchKey"
-              class="add-datasource-type-search"
-              clearable
-              :placeholder="$t('sou-suo-shu-ju-yuan-lei-xing')"
-            >
-              <template #prefix>
-                <Icon type="ios-search" />
-              </template>
-            </Input>
-            <div class="add-datasource-type-grid" :class="{ 'is-empty': !filteredAddDataSourceTypes.length }">
-              <button
-                v-for="type in filteredAddDataSourceTypes"
-                :key="type.dsKey"
-                type="button"
-                class="add-datasource-type-card"
-                :class="{ active: selectedAddDataSourceType === type.dsKey }"
-                :aria-pressed="selectedAddDataSourceType === type.dsKey"
-                @click="handleSelectAddDataSourceType(type.dsKey)"
-              >
-                <span class="add-datasource-type-icon">
-                  <DataSourceIcon size="20px" :type="type.dsKey" leftMargin="0"></DataSourceIcon>
-                </span>
-                <span class="add-datasource-type-name" :title="type.displayName">{{ type.displayName }}</span>
-              </button>
-              <div v-if="!filteredAddDataSourceTypes.length" class="add-datasource-type-empty">
-                {{ $t('zan-wu-shu-ju') }}
-              </div>
-            </div>
+        <Input
+          v-model="addDataSourceTypeSearchKey"
+          class="add-datasource-type-search"
+          clearable
+          :placeholder="$t('sou-suo-shu-ju-yuan-lei-xing')"
+        >
+          <template #prefix>
+            <Icon type="ios-search" />
+          </template>
+        </Input>
+        <div class="add-datasource-type-grid" :class="{ 'is-empty': !filteredAddDataSourceTypes.length }">
+          <button
+            v-for="type in filteredAddDataSourceTypes"
+            :key="type.dsKey"
+            type="button"
+            class="add-datasource-type-card"
+            :class="{ active: selectedAddDataSourceType === type.dsKey }"
+            :aria-pressed="selectedAddDataSourceType === type.dsKey"
+            @click="handleSelectAddDataSourceType(type.dsKey)"
+          >
+            <span class="add-datasource-type-icon">
+              <DataSourceIcon size="20px" :type="type.dsKey" leftMargin="0"></DataSourceIcon>
+            </span>
+            <span class="add-datasource-type-name" :title="type.displayName">{{ type.displayName }}</span>
+          </button>
+          <div v-if="!filteredAddDataSourceTypes.length" class="add-datasource-type-empty">
+            {{ $t('zan-wu-shu-ju') }}
           </div>
         </div>
       </div>
       <template #footer>
         <div class="add-datasource-type-footer">
+          <Button @click="handleCloseAddDataSourceTypeModal">{{ $t('qu-xiao') }}</Button>
           <Button type="primary" :disabled="!selectedAddDataSourceType" @click="handleConfirmAddDataSourceType">
             {{ $t('que-ding') }}
           </Button>
-          <Button @click="handleCloseAddDataSourceTypeModal">{{ $t('qu-xiao') }}</Button>
         </div>
       </template>
     </CCModal>
@@ -1221,70 +1212,14 @@ export default {
 .add-datasource-type-modal-body {
   display: flex;
   flex-direction: column;
+  gap: 14px;
   height: 352px;
   min-height: 352px;
 }
 
-.add-datasource-type-selector {
-  display: flex;
-  flex: 1 1 auto;
-  box-sizing: border-box;
-  min-height: 0;
-  border: 1px solid #e0e6ee;
-  border-radius: 8px;
-  padding: 16px;
-  background: #ffffff;
-}
-
-.add-datasource-type-sidebar {
-  position: relative;
-  flex: 0 0 142px;
-  padding: 0 14px 0 0;
-
-  &::after {
-    position: absolute;
-    top: -16px;
-    right: 0;
-    bottom: -16px;
-    width: 1px;
-    background: #e6edf4;
-    content: '';
-  }
-}
-
-.add-datasource-type-main {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  gap: 14px;
-  min-height: 0;
-  min-width: 0;
-  padding-left: 16px;
-}
-
 .add-datasource-type-search {
   width: 320px;
-}
-
-.add-datasource-type-filter {
-  display: flex;
-  width: 100%;
-  height: 36px;
-  align-items: center;
-  border: none;
-  border-radius: 6px;
-  padding: 0 12px;
-  background: transparent;
-  color: var(--text-primary);
-  cursor: default;
-  font-size: 14px;
-  font-weight: 500;
-  text-align: left;
-
-  &.active {
-    background: #effbf5;
-    color: #18ae66;
-  }
+  flex: 0 0 auto;
 }
 
 .add-datasource-type-grid {

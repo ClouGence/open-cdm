@@ -8,51 +8,42 @@
       @on-cancel="handleCloseAddDataSourceTypeModal"
     >
       <div class="add-datasource-type-modal-body">
-        <div class="add-datasource-type-selector">
-          <aside class="add-datasource-type-sidebar">
-            <button type="button" class="add-datasource-type-filter active">
-              {{ $t('quan-bu') }}
-            </button>
-          </aside>
-          <div class="add-datasource-type-main">
-            <Input
-              v-model="addDataSourceTypeSearchKey"
-              class="add-datasource-type-search"
-              clearable
-              :placeholder="$t('sou-suo-shu-ju-yuan-lei-xing')"
-            >
-              <template #prefix>
-                <Icon type="ios-search" />
-              </template>
-            </Input>
-            <div class="add-datasource-type-grid" :class="{ 'is-empty': !filteredAddDataSourceTypes.length }">
-              <button
-                v-for="type in filteredAddDataSourceTypes"
-                :key="type.dsKey"
-                type="button"
-                class="add-datasource-type-card"
-                :class="{ active: selectedAddDataSourceType === type.dsKey }"
-                :aria-pressed="selectedAddDataSourceType === type.dsKey"
-                @click="handleSelectAddDataSourceType(type.dsKey)"
-              >
-                <span class="add-datasource-type-icon">
-                  <DataSourceIcon size="20px" :type="type.dsKey" leftMargin="0"></DataSourceIcon>
-                </span>
-                <span class="add-datasource-type-name" :title="type.displayName">{{ type.displayName }}</span>
-              </button>
-              <div v-if="!filteredAddDataSourceTypes.length" class="add-datasource-type-empty">
-                {{ $t('zan-wu-shu-ju') }}
-              </div>
-            </div>
+        <Input
+          v-model="addDataSourceTypeSearchKey"
+          class="add-datasource-type-search"
+          clearable
+          :placeholder="$t('sou-suo-shu-ju-yuan-lei-xing')"
+        >
+          <template #prefix>
+            <Icon type="ios-search" />
+          </template>
+        </Input>
+        <div class="add-datasource-type-grid" :class="{ 'is-empty': !filteredAddDataSourceTypes.length }">
+          <button
+            v-for="type in filteredAddDataSourceTypes"
+            :key="type.dsKey"
+            type="button"
+            class="add-datasource-type-card"
+            :class="{ active: selectedAddDataSourceType === type.dsKey }"
+            :aria-pressed="selectedAddDataSourceType === type.dsKey"
+            @click="handleSelectAddDataSourceType(type.dsKey)"
+          >
+            <span class="add-datasource-type-icon">
+              <DataSourceIcon size="20px" :type="type.dsKey" leftMargin="0"></DataSourceIcon>
+            </span>
+            <span class="add-datasource-type-name" :title="type.displayName">{{ type.displayName }}</span>
+          </button>
+          <div v-if="!filteredAddDataSourceTypes.length" class="add-datasource-type-empty">
+            {{ $t('zan-wu-shu-ju') }}
           </div>
         </div>
       </div>
       <template #footer>
         <div class="add-datasource-type-footer">
+          <Button @click="handleCloseAddDataSourceTypeModal">{{ $t('qu-xiao') }}</Button>
           <Button type="primary" :disabled="!selectedAddDataSourceType" @click="handleConfirmAddDataSourceType">
             {{ $t('que-ding') }}
           </Button>
-          <Button @click="handleCloseAddDataSourceTypeModal">{{ $t('qu-xiao') }}</Button>
         </div>
       </template>
     </CCModal>
@@ -89,10 +80,6 @@
             {{ editMode ? $t('bao-cun') : $t('xin-zeng-shu-ju-yuan') }}
           </Button>
         </div>
-        <span v-if="testConnectionHasResult" class="test-connection-inline-msg" :class="testConnectionSuccess ? 'tc-success' : 'tc-fail'">
-          <Icon :type="testConnectionSuccess ? 'ios-checkmark-circle' : 'ios-close-circle'" />
-          {{ testConnectionMessage }}
-        </span>
       </div>
     </div>
   </div>
@@ -187,9 +174,6 @@ export default {
       driverReadyForAdd: true,
       driverRequiredForAdd: false,
       testConnectionLoading: false,
-      testConnectionHasResult: false,
-      testConnectionSuccess: false,
-      testConnectionMessage: '',
       showAddDataSourceTypeModal: false,
       addDataSourceTypeSearchKey: '',
       selectedAddDataSourceType: ''
@@ -331,39 +315,10 @@ export default {
       this.driverRequiredForAdd = !!status?.required;
       this.driverReadyForAdd = !this.driverRequiredForAdd || !!status?.ready;
     },
-    setActionMessage(success, message) {
-      this.testConnectionHasResult = true;
-      this.testConnectionSuccess = !!success;
-      this.testConnectionMessage = message || '';
-    },
-    clearActionMessage() {
-      this.testConnectionHasResult = false;
-      this.testConnectionSuccess = false;
-      this.testConnectionMessage = '';
-    },
-    showTestConnectionFailure(message) {
-      const content = message || this.$t('ce-shi-lian-jie-shi-bai');
-      this.$Modal.error({
-        title: this.$t('ce-shi-lian-jie-shi-bai'),
-        render: (h) =>
-          h(
-            'div',
-            {
-              class: 'test-connection-error-modal-content'
-            },
-            content
-          )
-      });
-    },
-    ensureDriverReadyForAdd(options = {}) {
+    ensureDriverReadyForAdd() {
       const driverReady = this.$refs.dataSourceInfo?.isDriverReadyForSubmit?.() ?? this.driverReadyForAdd;
       if (this.driverRequiredForAdd && !driverReady) {
-        const message = this.$t('initialization.mysqlDriverDownloadRequired');
-        if (options.modal) {
-          this.showTestConnectionFailure(message);
-        } else {
-          this.setActionMessage(false, message);
-        }
+        this.$Message.error(this.$t('initialization.mysqlDriverDownloadRequired'));
         return false;
       }
 
@@ -376,7 +331,6 @@ export default {
 
       this.$refs.dataSourceInfo.validateAddDsForm((val) => {
         if (val) {
-          this.clearActionMessage();
           this.$refs.dataSourceInfo?.syncAddDsUiFormToKvConfigs?.();
           this.syncPrimaryHostFields();
           this.handleAdd();
@@ -399,15 +353,15 @@ export default {
             }
             return;
           }
-          this.setActionMessage(false, res.msg || this.$t('shu-ju-yuan-tian-jia-shi-bai'));
+          this.$Message.error(res.msg || this.$t('shu-ju-yuan-tian-jia-shi-bai'));
         })
         .catch((error) => {
           this.addDatasourceLoading = false;
-          this.setActionMessage(false, error?.message || this.$t('shu-ju-yuan-tian-jia-shi-bai'));
+          this.$Message.error(error?.message || this.$t('shu-ju-yuan-tian-jia-shi-bai'));
         });
     },
     handleTestConnection() {
-      if (!this.ensureDriverReadyForAdd({ modal: true })) {
+      if (!this.ensureDriverReadyForAdd()) {
         return;
       }
       this.$refs.dataSourceInfo.validateAddDsForm((valid) => {
@@ -416,20 +370,19 @@ export default {
         }
         const payload = this.$refs.dataSourceInfo?.buildDsSubmitPayload?.();
         this.testConnectionLoading = true;
-        this.clearActionMessage();
         this.$services
           .dmDataSourceConnectDs({ data: payload })
           .then((res) => {
             const result = res.data || {};
             const connectSuccess = res.success && result.success !== false;
             if (connectSuccess) {
-              this.setActionMessage(true, this.$t('ce-shi-lian-jie-cheng-gong'));
+              this.$Message.success(this.$t('ce-shi-lian-jie-cheng-gong'));
               return;
             }
-            this.showTestConnectionFailure(result.message || res.msg || this.$t('ce-shi-lian-jie-shi-bai'));
+            this.$Message.error(result.message || res.msg || this.$t('ce-shi-lian-jie-shi-bai'));
           })
           .catch((error) => {
-            this.showTestConnectionFailure(error?.message || this.$t('ce-shi-lian-jie-shi-bai'));
+            this.$Message.error(error?.message || this.$t('ce-shi-lian-jie-shi-bai'));
           })
           .finally(() => {
             this.testConnectionLoading = false;
@@ -568,7 +521,6 @@ export default {
     syncStepFromRoute() {
       if (this.isModal) {
         this.currentStep = 1;
-        this.testConnectionHasResult = false;
         return;
       }
       if (this.editMode) {
@@ -593,7 +545,6 @@ export default {
       }
       this.driverReadyForAdd = true;
       this.driverRequiredForAdd = false;
-      this.testConnectionHasResult = false;
     },
     handleConfigLoaded(config) {
       if (!this.editMode || !config?.instanceId || this.$route.query.instanceId === config.instanceId) {
@@ -650,70 +601,14 @@ export default {
 .add-datasource-type-modal-body {
   display: flex;
   flex-direction: column;
+  gap: 14px;
   height: 352px;
   min-height: 352px;
 }
 
-.add-datasource-type-selector {
-  display: flex;
-  flex: 1 1 auto;
-  box-sizing: border-box;
-  min-height: 0;
-  border: 1px solid #e0e6ee;
-  border-radius: 8px;
-  padding: 16px;
-  background: #ffffff;
-}
-
-.add-datasource-type-sidebar {
-  position: relative;
-  flex: 0 0 142px;
-  padding: 0 14px 0 0;
-
-  &::after {
-    position: absolute;
-    top: -16px;
-    right: 0;
-    bottom: -16px;
-    width: 1px;
-    background: #e6edf4;
-    content: '';
-  }
-}
-
-.add-datasource-type-main {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  gap: 14px;
-  min-height: 0;
-  min-width: 0;
-  padding-left: 16px;
-}
-
 .add-datasource-type-search {
   width: 320px;
-}
-
-.add-datasource-type-filter {
-  display: flex;
-  width: 100%;
-  height: 36px;
-  align-items: center;
-  border: none;
-  border-radius: 6px;
-  padding: 0 12px;
-  background: transparent;
-  color: var(--text-primary);
-  cursor: default;
-  font-size: 14px;
-  font-weight: 500;
-  text-align: left;
-
-  &.active {
-    background: #effbf5;
-    color: #18ae66;
-  }
+  flex: 0 0 auto;
 }
 
 .add-datasource-type-grid {
@@ -821,7 +716,7 @@ export default {
     flex-direction: column;
     min-height: 0;
     margin-bottom: 0;
-    padding: 16px 24px;
+    padding: 0;
     overflow: hidden;
   }
 }
@@ -831,11 +726,11 @@ export default {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
-  min-height: 64px;
+  min-height: 56px;
   justify-content: center;
-  padding: 12px 24px;
-  background: #ffffff;
-  border-top: 1px solid var(--border-light);
+  padding: 8px 24px 16px;
+  background: transparent;
+  border-top: none;
   box-shadow: none;
 
   .add-dataSource-actions {
@@ -857,28 +752,6 @@ export default {
     border-color: #0f9f55;
     background: #0f9f55;
   }
-
-  .test-connection-inline-msg {
-    position: absolute;
-    right: 36px;
-    font-size: 13px;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    max-width: calc(50vw - 120px);
-    overflow: hidden;
-    line-height: 20px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-
-    &.tc-success {
-      color: #19be6b;
-    }
-
-    &.tc-fail {
-      color: #ed4014;
-    }
-  }
 }
 
 .desktop {
@@ -890,21 +763,12 @@ export default {
 
     .add-datasource-content {
       margin-bottom: 0;
-      padding: 16px 24px;
+      padding: 0;
 
       .add-datasource-step1 {
         padding: 0;
       }
     }
   }
-}
-
-.test-connection-error-modal-content {
-  max-height: 320px;
-  overflow: auto;
-  color: var(--text-primary);
-  line-height: 1.6;
-  white-space: pre-wrap;
-  word-break: break-word;
 }
 </style>
