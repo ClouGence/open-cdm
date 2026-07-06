@@ -11,7 +11,6 @@
 - Added SSH tunnel management, including the `dm_ssh_config` table, SSH configuration page, password/private-key/proxy/known_hosts probing, and connection testing ([#23](https://github.com/ClouGence/open-cdm/issues/23)).
 - Added datasource secure connection configuration, including SSL certificates and HTTP, SOCKS4, and SOCKS5 proxies.
 - Added the `clouddm-sql` module system, splitting SQL parsing capabilities out of datasource plugins.
-- Added Dameng database support ([#95](https://github.com/ClouGence/open-cdm/issues/95)).
 - Added dedicated SSO provider and approval engine configuration pages for LDAP, AD, OIDC, DingTalk, Feishu, WeChat, and WeCom integrations.
 - Added independent AD and LDAP configuration sets, enabling simultaneous use.
 - Added an SQL audit log retention days setting entry.
