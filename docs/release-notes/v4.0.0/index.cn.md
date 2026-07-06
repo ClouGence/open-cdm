@@ -1,17 +1,16 @@
 ## 亮点
 
 - 数据源连接能力全面升级，新增 SSH 隧道、代理和 SSL 证书管理。
-- SQL 解析能力拆分为独立模块，并新增达梦数据库支持。
 - SSO、审批、安全规则和角色管理配置体验整体优化。
 - CI/CD 工单流程进一步简化，支持 JDK 17 和 Docker 多架构打包。
 - 移除初始化阶段的驱动下载流程，首次部署更简单。
+- SQL 解析能力拆分为独立模块。
 
 ## 新增
 
 - 新增 SSH 隧道管理，包括 SSH 配置页面、密码/私钥/代理/known_hosts 探测和连接测试（[#23](https://github.com/ClouGence/open-cdm/issues/23)）。
 - 新增数据源安全连接配置，支持 SSL 证书和 HTTP、SOCKS4、SOCKS5 代理。
 - 新增 `clouddm-sql` 模块体系，将 SQL 解析能力从数据源插件中独立出来。
-- 新增 达梦（Dameng）国产数据库支持（[#95](https://github.com/ClouGence/open-cdm/issues/95)）。
 - 新增 SSO 认证提供商和审批引擎独立配置页面，支持 LDAP、AD、OIDC、钉钉、飞书、微信、企业微信等集成统一管理。
 - 新增 AD 与 LDAP 独立配置集，支持同时启用。
 - 新增 SQL 审计日志保存天数设置入口。

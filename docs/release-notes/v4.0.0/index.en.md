@@ -1,10 +1,10 @@
 ## Highlights
 
 - Upgraded datasource connectivity with SSH tunnels, proxies, and SSL certificate management.
-- Split SQL parsing into independent modules and added Dameng database support.
 - Improved SSO, approval, security rule, and role management configuration experiences.
 - Simplified CI/CD ticket workflows and added JDK 17 plus Docker multi-architecture packaging support.
 - Removed init-time driver downloads for a simpler first-time deployment experience.
+- Split SQL parsing into independent modules.
 
 ## Added
 
