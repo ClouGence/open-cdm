@@ -193,7 +193,7 @@
                       </a-button>
                     </div>
                     <div class="content">
-                      <div class="ranges" v-if="isEdit">
+                      <div class="ranges" v-if="isEdit || previewMode">
                         <div class="range-button-grid">
                           <button
                             v-for="range in authTimeRanges"
@@ -202,6 +202,7 @@
                             class="date-btns"
                             :class="{ 'is-active': curRangeKey === range.key }"
                             :aria-pressed="curRangeKey === range.key"
+                            :disabled="!isEdit"
                             @click="handleRangeChange(range.key)"
                           >
                             {{ range.label }}
@@ -268,7 +269,13 @@ import VTree from '@wsfe/vue-tree';
 import { cloneDeep as deepClone } from '@/utils/lodash';
 import { mapGetters, mapState } from 'vuex';
 import i18n from '@/i18n';
-import { ELEMENT_REVERSE_TYPE_MAP, ELEMENT_TYPE_MAP, ELEMENT_TYPE_REF_MAP, START_RECORD_NAMES_CONUT } from './subaccount/auth/constant';
+import {
+  AUTH_ELEMENT_TYPES,
+  ELEMENT_REVERSE_TYPE_MAP,
+  ELEMENT_TYPE_MAP,
+  ELEMENT_TYPE_REF_MAP,
+  START_RECORD_NAMES_CONUT
+} from './subaccount/auth/constant';
 import { getResTypeToNames, findNodeByKey, fetchWithTimeout, flattenTree } from './subaccount/auth/utils';
 
 export default {
@@ -422,6 +429,7 @@ export default {
       isSingleSelect: true,
       curRightTreeTab: 'Instance',
       leftTreeLoading: false,
+      authTreeDefAvailabilityCache: {},
       authTime: {
         startTime: null,
         endTime: null
@@ -656,7 +664,7 @@ export default {
           let firstRoot = null;
           if (this.originLeftTree && this.originLeftTree.length > 0) {
             this.originLeftTree.forEach(async (node, idx) => {
-              await this.listLevelsForDM(node);
+              await this.listLevelsForDM(node, { loadAuthTree: false });
               if (this.originLeftTree[idx]?.children && this.originLeftTree[idx]?.children?.key) {
                 firstRoot = this.originLeftTree[idx];
               }
@@ -786,6 +794,40 @@ export default {
       const desc = node?.objDesc || node.objName;
       const host = this.getNodeHostText(node);
       return host ? `${desc}(${host})` : desc;
+    },
+    getNodeDataSourceType(node) {
+      let current = node;
+      while (current) {
+        if (current?.objAttr?.dsType) {
+          return current.objAttr.dsType;
+        }
+        current = current.parent || current._parent;
+      }
+      return this.findDataSourceTypeByInstanceId(node?.levels?.[1]);
+    },
+    findDataSourceTypeByInstanceId(instanceId) {
+      if (!instanceId) {
+        return '';
+      }
+      let dsType = '';
+      const traverse = (nodes = []) => {
+        nodes.some((item) => {
+          if (!item || this.isLazyPlaceholderNode(item)) {
+            return false;
+          }
+          if ((item.objId === instanceId || item.levels?.[1] === instanceId) && item.objAttr?.dsType) {
+            dsType = item.objAttr.dsType;
+            return true;
+          }
+          if (Array.isArray(item.children) && traverse(item.children)) {
+            return true;
+          }
+          return false;
+        });
+        return !!dsType;
+      };
+      traverse(this.originLeftTree || []);
+      return dsType;
     },
     renderNode(node) {
       const style = {
@@ -924,13 +966,23 @@ export default {
         return;
       }
 
+      if (this.isResourceLeafNode(node)) {
+        this.selectLeftTreeResourceNode(node);
+        return;
+      }
+
+      if (!(await this.ensureResourceNodeCanExpand(node))) {
+        this.selectLeftTreeResourceNode(node);
+        return;
+      }
+
       // Example not started data management
       if (node?.objType === 'Instance' && !node?.objAttr?.enableQuery) {
         let final = [];
         final = this.removeChildrenByKey(this.originLeftTree, node?.key);
         this.originLeftTree = final;
 
-        final = this.getFilterOfTypeAndSearch(this.originLeftTre);
+        final = this.getFilterOfTypeAndSearch(this.originLeftTree);
         this.$Message.warning(this.$t('shu-ju-cha-xun-wei-kai-qi'));
         this.$refs.dataSourceTree.setData(final);
         return;
@@ -938,14 +990,17 @@ export default {
 
       if (this.previewMode) {
         this.renderPreviewLeftTree(node);
-        if (idx === -1) this.expandedKeys.push(node?.key);
+        if (idx === -1 && this.canKeepResourceNodeExpanded(node)) {
+          this.expandedKeys.push(node?.key);
+        }
         return;
       }
 
       this.listLevelsForDM(node);
     },
     // Left tree rendering
-    async listLevelsForDM(node = null) {
+    async listLevelsForDM(node = null, options = {}) {
+      const shouldLoadAuthTree = !options || typeof options !== 'object' || options.loadAuthTree !== false;
       try {
         this.leftTreeLoading = true;
 
@@ -963,7 +1018,9 @@ export default {
           final = this.getFilterOfTypeAndSearch(this.originLeftTree);
 
           this.$refs.dataSourceTree.setData(final);
-          this.handleGetAuthTreeForDm(node);
+          if (node?.key && shouldLoadAuthTree) {
+            this.handleGetAuthTreeForDm(node);
+          }
           this.leftTreeLoading = false;
           const idx = this.expandedKeys.indexOf(node?.key);
           if (idx === -1) this.expandedKeys.push(node?.key);
@@ -973,7 +1030,9 @@ export default {
         if (node?.objType === 'TABLE') {
           const final = this.getFilterOfTypeAndSearch(this.originLeftTree);
           this.$refs.dataSourceTree.setData(final);
-          this.handleGetAuthTreeForDm(node);
+          if (node?.key && shouldLoadAuthTree) {
+            this.handleGetAuthTreeForDm(node);
+          }
           this.leftTreeLoading = false;
           const idx = this.expandedKeys.indexOf(node?.key);
           if (idx === -1) this.expandedKeys.push(node?.key);
@@ -992,7 +1051,7 @@ export default {
               this.$services.dmAuthListMyElementOfLeaf({
                 data: {
                   levels: this.getResPathByIdAndName(node),
-                  leafType: this.getResTypeToIds(node), // Instance|Catalog|Schema|Table
+                  leafType: this.getResTypeToIds(node),
                   uid: this.uid
                 },
                 ...config
@@ -1016,7 +1075,7 @@ export default {
               this.$services.dmAuthListElementOfLeaf({
                 data: {
                   levels: this.getResPathByIdAndName(node),
-                  leafType: this.getResTypeToIds(node) // Instance|Catalog|Schema|Table
+                  leafType: this.getResTypeToIds(node)
                 },
                 ...config
               })
@@ -1044,24 +1103,29 @@ export default {
           this.leftTreeLoading = false;
           this.curElementType = node?.objType;
           this.curRightTreeTab = node?.objType;
-          this.handleGetAuthTreeForDm(node);
+          if (node?.key && shouldLoadAuthTree) {
+            this.handleGetAuthTreeForDm(node);
+          }
           return;
         }
 
         const idx = this.expandedKeys.indexOf(node?.key);
         if (idx === -1) this.expandedKeys.push(node?.key);
 
-        res.data.map((item) => {
-          item.children = [{}];
-          item.loaded = false;
-          item.levels = [item?.objId];
-          item.key = this.genUniqueId();
-          item.parent = node;
-          // 2. Recursively retrieve all parent grades
-          const parentObjIds = this.getParentObjIds(item);
-          item.levels = [...parentObjIds, item.objId];
-          return item;
-        });
+        res.data = await Promise.all(
+          res.data.map(async (item) => {
+            item.children = [{}];
+            item.loaded = false;
+            item.levels = [item?.objId];
+            item.key = this.genUniqueId();
+            item.parent = node;
+            // 2. Recursively retrieve all parent grades
+            const parentObjIds = this.getParentObjIds(item);
+            item.levels = [...parentObjIds, item.objId];
+            const canLoadChildren = await this.canLoadResourceChildren(item);
+            return this.setNodeExpandCapability(item, canLoadChildren);
+          })
+        );
 
         // 3. Render left resource tree
         if (!this.originLeftTree?.length) {
@@ -1085,7 +1149,9 @@ export default {
         }
 
         // 4. Render Right Permission Tree
-        this.handleGetAuthTreeForDm(node);
+        if (node?.key && shouldLoadAuthTree) {
+          this.handleGetAuthTreeForDm(node);
+        }
         this.leftTreeLoading = false;
       } catch (err) {
         this.leftTreeLoading = false;
@@ -1175,21 +1241,155 @@ export default {
       }
       return resPath;
     },
-    getResTypeToIds(node) {
-      const dsType = node?.objAttr?.dsType || '';
+    getNormalizedNodeType(node) {
+      return ELEMENT_TYPE_MAP[node?.objType] || node?.objType;
+    },
+    isLazyPlaceholderNode(node) {
+      return !!node && !node.key && !node.objName && !node.objType && !node.i18nName && !node.levels?.length;
+    },
+    hasLazyPlaceholderChildren(node) {
+      return Array.isArray(node?.children) && node.children.some((child) => this.isLazyPlaceholderNode(child));
+    },
+    canKeepResourceNodeExpanded(node) {
+      return Array.isArray(node?.children) && node.children.length > 0 && !this.hasLazyPlaceholderChildren(node);
+    },
+    getLoadedExpandedKeys(tree = [], expandedKeys = this.expandedKeys) {
+      const expandedKeySet = new Set(expandedKeys || []);
+      const loadedExpandedKeys = [];
+      const traverse = (nodes = []) => {
+        nodes.forEach((node) => {
+          if (!node?.key) {
+            return;
+          }
+          const canKeepExpanded = this.canKeepResourceNodeExpanded(node);
+          if (expandedKeySet.has(node.key) && canKeepExpanded) {
+            loadedExpandedKeys.push(node.key);
+          }
+          if (canKeepExpanded) {
+            traverse(node.children);
+          }
+        });
+      };
+      traverse(Array.isArray(tree) ? tree : []);
+      return loadedExpandedKeys;
+    },
+    normalizeAuthElementType(elementType) {
+      const normalized = elementType === 'EXTERNAL_SCHEMA' ? 'SCHEMA' : elementType === 'EXTERNAL_CATALOG' ? 'CATALOG' : elementType;
+      return ELEMENT_REVERSE_TYPE_MAP[normalized] || normalized;
+    },
+    isSupportedAuthElementType(elementType) {
+      return AUTH_ELEMENT_TYPES.includes(this.normalizeAuthElementType(elementType));
+    },
+    isResourceLeafNode(node) {
+      return !!node?.isLeaf || this.getNormalizedNodeType(node) === 'TABLE';
+    },
+    canUseLazyPlaceholder(node) {
+      return !this.isResourceLeafNode(node);
+    },
+    selectLeftTreeResourceNode(node) {
+      this.lastLeftTreeClickNode = node;
+      this.curElementType = node?.objType;
+      this.curRightTreeTab = node?.objType === 'EXTERNAL_SCHEMA' ? 'SCHEMA' : node?.objType === 'EXTERNAL_CATALOG' ? 'CATALOG' : node?.objType;
+      this.authTime = node?.authTime || { startTime: null, endTime: null };
+      this.syncAuthRangeKeyFromTime();
+      this.handleGetAuthTreeForDm(node);
+    },
+    setNodeExpandCapability(node, canLoadChildren) {
+      if (canLoadChildren) {
+        node.children = [{}];
+        node.loaded = false;
+        node.isLeaf = false;
+      } else {
+        delete node.children;
+        node.loaded = true;
+        node.isLeaf = true;
+      }
+      return node;
+    },
+    async ensureResourceNodeCanExpand(node) {
+      if (!node || this.isResourceLeafNode(node)) {
+        return false;
+      }
+      const canLoadChildren = await this.canLoadResourceChildren(node);
+      if (!canLoadChildren) {
+        this.setNodeExpandCapability(node, false);
+        const latestNode = findNodeByKey(this.originLeftTree, node?.key);
+        if (latestNode && latestNode !== node) {
+          this.setNodeExpandCapability(latestNode, false);
+        }
+        const idx = this.expandedKeys.indexOf(node?.key);
+        if (idx !== -1) {
+          this.expandedKeys.splice(idx, 1);
+        }
+        const final = this.getFilterOfTypeAndSearch(this.originLeftTree);
+        this.$refs.dataSourceTree?.setData(final);
+      }
+      return canLoadChildren;
+    },
+    async hasAuthTreeDefForElementType(dsType, elementType) {
+      const normalizedElementType = this.normalizeAuthElementType(elementType);
+      if (!normalizedElementType) {
+        return false;
+      }
+      const cacheKey = [this.activeAuthTab, dsType || '', normalizedElementType].join('|');
+      if (Object.prototype.hasOwnProperty.call(this.authTreeDefAvailabilityCache, cacheKey)) {
+        return await this.authTreeDefAvailabilityCache[cacheKey];
+      }
+      const request = this.$services
+        .rdpAuthFetchAuthTreeDef({
+          data: {
+            kind: this.activeAuthTab,
+            dsType,
+            elementType: normalizedElementType
+          }
+        })
+        .then((res) => Array.isArray(res?.data) && res.data.length > 0)
+        .catch(() => false);
+      this.authTreeDefAvailabilityCache[cacheKey] = request;
+      const hasDefinition = await request;
+      this.authTreeDefAvailabilityCache[cacheKey] = hasDefinition;
+      return hasDefinition;
+    },
+    async canLoadResourceChildren(node) {
+      const nodeType = this.getNormalizedNodeType(node);
+      if (!node || nodeType === 'TABLE') {
+        return false;
+      }
+      if (nodeType === 'ENV' || nodeType === 'Env') {
+        return true;
+      }
+      const nextElementType = this.getResTypeToIds(node);
+      if (!nextElementType || !this.isSupportedAuthElementType(nextElementType)) {
+        return false;
+      }
+      return this.hasAuthTreeDefForElementType(this.getNodeDataSourceType(node), nextElementType);
+    },
+    getResTypeToIds(node = null) {
+      const dsType = this.getNodeDataSourceType(node);
+      const nodeType = ELEMENT_TYPE_MAP[node?.objType] || node?.objType;
       if (!node) {
         return 'Env';
       }
       if (dsType) {
-        const typeLevels = this.dmGlobalSetting.dsSettingDef?.[dsType]?.categories?.levels || [];
+        const categories = this.dmGlobalSetting.dsSettingDef?.[dsType]?.categories || {};
+        const typeLevels = (categories.levels || []).map((level) => ELEMENT_TYPE_MAP[level] || level);
         if (typeLevels.length) {
-          const idx = typeLevels.indexOf(ELEMENT_TYPE_MAP[node?.objType] || '');
-          if (idx > START_RECORD_NAMES_CONUT) return 'Table';
-          return ELEMENT_REVERSE_TYPE_MAP[typeLevels[idx + 1]]; // +1 elemenType pointing to subnodes;
+          const idx = typeLevels.indexOf(nodeType || '');
+          if (idx === -1) {
+            return '';
+          }
+          if (idx < typeLevels.length - 1) {
+            return ELEMENT_REVERSE_TYPE_MAP[typeLevels[idx + 1]] || typeLevels[idx + 1]; // +1 elemenType pointing to subnodes;
+          }
+          const leafGroup = categories.leafGroup?.[typeLevels[idx]] || [];
+          const leafTypes = leafGroup.map((leaf) => (typeof leaf === 'string' ? leaf : leaf?.type)).filter(Boolean);
+          const tableLeafType = leafTypes.find((leafType) => this.normalizeAuthElementType(leafType) === 'Table');
+          const authLeafType = tableLeafType || leafTypes.find((leafType) => this.isSupportedAuthElementType(leafType));
+          return authLeafType ? this.normalizeAuthElementType(authLeafType) : '';
         }
       }
-      if (!dsType && node?.objType !== 'Env') {
-        return 'Table';
+      if (node?.objType !== 'Env') {
+        return '';
       }
       return '';
     },
@@ -1279,6 +1479,7 @@ export default {
           allAuth = await this.$services.rdpAuthFetchAuthTreeDef({
             data: {
               kind: this.activeAuthTab,
+              dsType: this.getNodeDataSourceType(node),
               elementType: ELEMENT_REVERSE_TYPE_MAP[normalizedElementType2] || normalizedElementType2
             }
           });
@@ -1852,7 +2053,7 @@ export default {
         if (this.originLeftTree && this.originLeftTree.length > 0) {
           const firstRoot = this.originLeftTree[0];
           if (firstRoot) {
-            await this.listLevelsForDM(firstRoot);
+            await this.listLevelsForDM(firstRoot, { loadAuthTree: false });
             if (firstRoot.children && firstRoot.children.length > 0) {
               // Push only when extandedkeys are not included to avoid forced attributions that cannot be collected
               if (!this.expandedKeys.includes(firstRoot.key)) {
@@ -1935,6 +2136,7 @@ export default {
       this.isView = false;
       this.isEdit = true;
       this.previewMode = false;
+      this.expandedKeys = this.getLoadedExpandedKeys(this.originLeftTree);
       this.$refs.dataSourceTree.setData(this.originLeftTree);
     },
     getInstanceId(node) {
@@ -1964,7 +2166,7 @@ export default {
 
             if (children.length > 0) {
               newNode.children = children;
-            } else if (!isEnableQuery) {
+            } else if (!isEnableQuery && this.canUseLazyPlaceholder(newNode)) {
               newNode.children = [{}];
             }
             return newNode;
@@ -2453,6 +2655,13 @@ export default {
                   border-color: #3ecf8e;
                 }
 
+                &:disabled {
+                  color: #8a94a6;
+                  background: #f7f8fa;
+                  border-color: #e4e7ec;
+                  cursor: not-allowed;
+                }
+
                 &:focus,
                 &:focus-visible,
                 &:active {
@@ -2496,6 +2705,11 @@ export default {
   :deep(.vtree-tree__empty-text_default) {
     position: relative;
     top: 100px;
+  }
+
+  :deep(.left .vtree-tree-node__wrapper_is-leaf > .vtree-tree-node__node-body > .vtree-tree-node__square.vtree-tree-node__expand) {
+    visibility: hidden;
+    pointer-events: none;
   }
 }
 
