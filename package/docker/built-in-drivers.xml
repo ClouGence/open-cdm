@@ -34,6 +34,9 @@
     <driver driverFamily="ClickHouse JDBC" version="0.9.7">
         <resource type="maven">com.clickhouse:clickhouse-jdbc:0.9.7</resource>
     </driver>
+    <driver driverFamily="GaussDB JDBC Driver" version="506.0.0.b058">
+        <resource type="maven">com.huaweicloud.gaussdb:gaussdbjdbc:506.0.0.b058</resource>
+    </driver>
     <driver driverFamily="Jedis" version="7.4.1">
         <resource type="maven">redis.clients:jedis:7.4.1</resource>
     </driver>

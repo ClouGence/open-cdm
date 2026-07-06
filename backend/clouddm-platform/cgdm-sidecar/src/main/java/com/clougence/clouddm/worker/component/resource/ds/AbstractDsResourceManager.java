@@ -31,6 +31,7 @@ import com.clougence.clouddm.sdk.execute.dsconf.SslConfig;
 import com.clougence.clouddm.sdk.execute.resource.DsResourceManager;
 import com.clougence.clouddm.worker.component.resource.file.SslConfigManager;
 import com.clougence.drivers.DriverLoader;
+import com.clougence.drivers.DriverVersion;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsObject;
 
@@ -49,9 +50,15 @@ public abstract class AbstractDsResourceManager implements DsResourceManager {
     public <C extends DataSourceConfig, T extends AutoCloseable> DsObject<T> requestResource(C dsConfig) throws Exception {
         DriverLoader driverLoader = PluginManager.driverLoader();
         DriverRef driverRef = DriverUtils.parseDriverRef(dsConfig.getDriverVersion());
-        if (driverLoader.findDriver(driverRef.getDriverFamily(), driverRef.getDriverVersion()) == null) {
+        DriverVersion driverVersion = driverLoader.findDriver(driverRef.getDriverFamily(), driverRef.getDriverVersion());
+        if (driverVersion == null) {
             String msg = "dsType '" + dsConfig.getDataSourceType() + "', driverVersion '" + dsConfig.getDriverVersion() + "'";
             throw new RuntimeException(msg + ", no matching Driver exists.");
+        }
+        driverLoader.refreshDriverVersion(driverVersion);
+        if (!driverVersion.isPrepared()) {
+            String msg = "dsType '" + dsConfig.getDataSourceType() + "', driverVersion '" + dsConfig.getDriverVersion() + "'";
+            throw new RuntimeException(msg + ", Driver resource is not prepared.");
         }
 
         final String dsId = dsConfig.getInstanceId();

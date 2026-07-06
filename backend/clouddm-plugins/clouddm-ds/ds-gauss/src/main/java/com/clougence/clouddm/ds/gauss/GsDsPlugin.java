@@ -52,6 +52,7 @@ import com.clougence.sql.postgres.PgSqlEngineSpi;
 @Plugin(name = "i18n::" + GsDsI18nKeys.PLUGIN_NAME_GAUSSDB,                     //
         includePackages = { "com.clougence.clouddm.dsfamily.execute.*",         //
                             "com.clougence.clouddm.dsfamily.postgres.execute.*",//
+                            "com.clougence.clouddm.ds.gauss.execute.dsfactory.*",//
                             "com.clougence.clouddm.ds.gauss.execute.gs.*"       //
         }, dsProduct = DataSourceType.GaussDB)
 public class GsDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
