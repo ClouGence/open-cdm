@@ -34,7 +34,7 @@ jobs:
 
       - name: Run tests
         working-directory: backend
-        run: ./gradlew test --parallel --max-workers=16
+        run: ./gradlew test --parallel --max-workers=4
 
       - name: Upload test reports
         if: always()
