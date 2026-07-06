@@ -238,7 +238,7 @@ public class RootUserConfig {
     private String        sqlAuditRetentionDays;
     @UserConfigDef(name = "defaultColumnDisplayChars", defaultValue = "250", valueRange = "10~500, default 250", descKey = I18nUserConfigMsgKeys.SQL_RESULT_COL_MAXIMUM_DISPLAY_SIZE, configTagType = UserConfigTagType.QUERY_RESULT, confBelong = ConfBelong.CloudDM)
     private Integer       defaultColumnDisplayChars;
-    @UserConfigDef(name = "consoleMetadataCache", defaultValue = "false", valueRange = "true, false", descKey = I18nUserConfigMsgKeys.SQL_RESULT_METADATA_CACHE, configTagType = UserConfigTagType.QUERY_RESULT, confBelong = ConfBelong.CloudDM)
+    @UserConfigDef(name = "consoleMetadataCache", defaultValue = "true", valueRange = "true, false", descKey = I18nUserConfigMsgKeys.SQL_RESULT_METADATA_CACHE, configTagType = UserConfigTagType.QUERY_RESULT, confBelong = ConfBelong.CloudDM)
     private Boolean       consoleMetadataCache;
     //
     @UserConfigDef(name = "languageMaxRequests", defaultValue = "50", valueRange = "50 ~ 200", descKey = I18nUserConfigMsgKeys.LANGUAGE_MAX_REQUESTS, configTagType = UserConfigTagType.COMMON, confBelong = ConfBelong.CloudDM)
