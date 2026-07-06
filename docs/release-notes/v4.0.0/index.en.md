@@ -9,10 +9,11 @@
 
 ## Added
 
-- Added SSH tunnel management, including the `dm_ssh_config` table, SSH configuration page, password/private-key/proxy/known_hosts probing, and connection testing.
+- Added SSH tunnel management, including the `dm_ssh_config` table, SSH configuration page, password/private-key/proxy/known_hosts probing, and connection testing ([#23](https://github.com/ClouGence/open-cdm/issues/23)).
 - Added datasource SSL certificate configuration, supporting CA certificates, client certificates, client keys, file formats, and passwords.
 - Added proxy type support for HTTP, SOCKS4, and SOCKS5.
 - Added the `clouddm-sql` module system, splitting the SQL parser engine from datasource plugins into independent modules (`sql-mysql`, `sql-oracle`, `sql-postgres`, `sql-db2`, `sql-doris`, `sql-sqlserver`, `sql-redis`, `sql-mongodb`, `sqlc-common`).
+- Added Dameng database support ([#95](https://github.com/ClouGence/open-cdm/issues/95)).
 - Added dedicated SSO provider configuration pages, supporting list + form page management for LDAP, AD, OIDC, DingTalk, Feishu, and WeChat.
 - Added a dedicated approval engine configuration page, supporting list + form management for DingTalk, Feishu, and WeCom approval, with an inline enable switch in the list.
 - Added independent AD and LDAP configuration sets, enabling simultaneous use (includes a Flyway upgrade migration script).
@@ -28,6 +29,7 @@
 - Improved the datasource create/edit flow using `DmDsConfigUiPanelFactory` and `DmDsConfigUiDataFactory` to support dynamic config rendering (GENERAL, OPTIONS, SSH_SSL, ADVANCED, SHADOW groups).
 - Improved datasource config storage by migrating `dm_ds_config_kv_4rdp` to `dm_ds_config_kv_4dm`, moving status/cluster-binding/environment fields into `dm_ds`.
 - Improved the security rule workflow and role management UI.
+- Improved the datasource create/edit flow, providing test connection capability for all datasources ([#36](https://github.com/ClouGence/open-cdm/issues/36)).
 - Improved OIDC login flow end-to-end usability, restored the login page provider switcher, and fixed empty-scope access_denied issues.
 - Reduced the frontend entry bundle size by approximately 1 MB.
 - Improved login page responsive layout.
@@ -45,7 +47,13 @@
 - Fixed permission, role, ticket, approval scheduling, and datasource creator authorization issues.
 - Fixed residual password fields when deleting SSO provider configurations.
 - Fixed a secondary NPE caused by null errorMessage during OIDC/SSO callback failure.
-- Fixed inconsistent initialization server port alignment ([#91](https://github.com/ClouGence/open-cdm/issues/91)).
+- Fixed the standalone version not applying port changes after restart ([#87](https://github.com/ClouGence/open-cdm/issues/87)).
+- Fixed Oracle 11g driver download failure ([#35](https://github.com/ClouGence/open-cdm/issues/35)).
+- Fixed Oracle 11g ORA-01882 timezone connection error ([#12](https://github.com/ClouGence/open-cdm/issues/12)).
+- Fixed Redis datasource Jedis driver adapter loading failure causing query errors and connection failures ([#78](https://github.com/ClouGence/open-cdm/issues/78), [#92](https://github.com/ClouGence/open-cdm/issues/92)).
+- Fixed addition of Alibaba Cloud ADB data source failing ([#25](https://github.com/ClouGence/open-cdm/issues/25)).
+- Fixed SQL Server 2012 test connection error ([#79](https://github.com/ClouGence/open-cdm/issues/79)).
+- Fixed driver showing as not ready when adding a data source ([#88](https://github.com/ClouGence/open-cdm/issues/88)).
 - Fixed config read bugs and initialization upgrade wizard UI issues ([#71](https://github.com/ClouGence/open-cdm/issues/71)).
 - Fixed table row height jitter caused by link underline on hover (SSO/approval/integration lists).
 - Fixed danger confirmation buttons not rendering in red.

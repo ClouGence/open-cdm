@@ -9,10 +9,11 @@
 
 ## 新增
 
-- 新增 SSH 隧道管理，包括 `dm_ssh_config` 表、SSH 配置页面、密码/私钥/代理/known_hosts 探测和连接测试。
+- 新增 SSH 隧道管理，包括 `dm_ssh_config` 表、SSH 配置页面、密码/私钥/代理/known_hosts 探测和连接测试（[#23](https://github.com/ClouGence/open-cdm/issues/23)）。
 - 新增 数据源 SSL 证书配置，支持 CA 证书、客户端证书、客户端密钥、文件格式和密码。
 - 新增 代理类型支持 HTTP、SOCKS4、SOCKS5。
 - 新增 `clouddm-sql` 模块体系，将 SQL 解析引擎从数据源插件中拆分为独立模块（`sql-mysql`、`sql-oracle`、`sql-postgres`、`sql-db2`、`sql-doris`、`sql-sqlserver`、`sql-redis`、`sql-mongodb`、`sqlc-common`）。
+- 新增 达梦（Dameng）国产数据库支持（[#95](https://github.com/ClouGence/open-cdm/issues/95)）。
 - 新增 SSO 认证提供商独立配置页面，支持 LDAP、AD、OIDC、钉钉、飞书、微信的列表 + 表单页面管理。
 - 新增 审批引擎独立配置页面，支持钉钉、飞书、企业微信审批的列表 + 表单管理，列表内联启用开关。
 - 新增 AD 与 LDAP 独立配置集，支持同时启用（含 Flyway 升级迁移脚本）。
@@ -28,6 +29,7 @@
 - 优化 数据源创建/编辑流程，使用 `DmDsConfigUiPanelFactory` 和 `DmDsConfigUiDataFactory` 支持动态配置渲染（GENERAL、OPTIONS、SSH_SSL、ADVANCED、SHADOW 分组）。
 - 优化 数据源配置存储，将 `dm_ds_config_kv_4rdp` 迁移到 `dm_ds_config_kv_4dm`，状态/集群绑定/环境字段并入 `dm_ds`。
 - 优化 安全规则工作流和角色管理 UI。
+- 优化 数据源创建/编辑流程，统一为所有数据源提供测试连接能力（[#36](https://github.com/ClouGence/open-cdm/issues/36)）。
 - 优化 OIDC 登录流程端到端可用性，恢复登录页 provider 切换器，修复空 scope 导致 access_denied 的问题。
 - 优化 前端资源包体积，减少入口包约 1MB。
 - 优化 登录页响应式布局。
@@ -45,7 +47,13 @@
 - 修复 权限、角色、工单、审批调度和数据源创建者授权问题。
 - 修复 SSO 配置删除时密码字段残留的问题。
 - 修复 OIDC/SSO 回调失败时 errorMessage 为 null 导致二次 NPE 的问题。
-- 修复 初始化服务器端口不一致的问题（[#91](https://github.com/ClouGence/open-cdm/issues/91)）。
+- 修复 单机版修改服务端口后启动不生效的问题（[#87](https://github.com/ClouGence/open-cdm/issues/87)）。
+- 修复 Oracle 11g 驱动无法下载的问题（[#35](https://github.com/ClouGence/open-cdm/issues/35)）。
+- 修复 Oracle 11g 连接 ORA-01882 时区错误的问题（[#12](https://github.com/ClouGence/open-cdm/issues/12)）。
+- 修复 Redis 数据源 Jedis 驱动适配器加载失败导致查询报错和连接失败的问题（[#78](https://github.com/ClouGence/open-cdm/issues/78)、[#92](https://github.com/ClouGence/open-cdm/issues/92)）。
+- 修复 添加阿里云 ADB 数据源失败的问题（[#25](https://github.com/ClouGence/open-cdm/issues/25)）。
+- 修复 SQL Server 2012 测试连接报错的问题（[#79](https://github.com/ClouGence/open-cdm/issues/79)）。
+- 修复 添加数据源时驱动一直显示未就绪的问题（[#88](https://github.com/ClouGence/open-cdm/issues/88)）。
 - 修复 读取配置 bug 和初始化升级向导 UI 问题（[#71](https://github.com/ClouGence/open-cdm/issues/71)）。
 - 修复 表格行 hover 时链接下划线撑高行高的问题（SSO/审批/集成列表）。
 - 修复 危险操作确认按钮颜色未正确渲染为红色的问题。
