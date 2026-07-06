@@ -1,6 +1,6 @@
 <template>
-  <div class="flow-config-subsection execution-config-subsection">
-    <div class="flow-config-subtitle">{{ $t('zhi-xing-pei-zhi') }}</div>
+  <section class="page-section flow-execute-section">
+    <div class="page-section__title">{{ $t('zhi-xing-pei-zhi') }}</div>
     <div class="flow-config-list">
       <div v-for="item in configItems" :key="item.key" class="flow-config-row" :class="{ 'flow-config-row-reserved': item.reserved }">
         <div class="flow-config-label">
@@ -21,7 +21,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script>

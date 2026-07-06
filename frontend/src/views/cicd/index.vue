@@ -50,7 +50,9 @@
               </template>
               <template #action="{ row }">
                 <div class="action flow-actions">
-                  <Button type="text" @click="goDetail(row)" :disabled="rowFlowStatus(row) === 'DELETE'">{{ $t('xiang-qing') }}</Button>
+                  <span class="flow-action-item">
+                    <Button type="text" @click="goDetail(row)" :disabled="rowFlowStatus(row) === 'DELETE'">{{ $t('xiang-qing') }}</Button>
+                  </span>
                   <Tooltip
                     v-if="canManageFlow"
                     :content="flowSwitchDisabledReason(row)"
@@ -58,15 +60,17 @@
                     transfer
                     placement="top"
                   >
-                    <span class="flow-action-tooltip-target">
+                    <span class="flow-action-item">
                       <Button type="text" :disabled="!!flowSwitchDisabledReason(row)" @click="handleSwitchFlow(row)">
                         {{ flowSwitchText(row) }}
                       </Button>
                     </span>
                   </Tooltip>
-                  <Button v-if="canManageFlow" type="text" :disabled="rowFlowStatus(row) === 'DELETE'" @click="handleArchiveToggleFlow(row)">
-                    {{ rowFlowStatus(row) === 'ARCHIVE' ? $t('hui-fu-gui-dang') : $t('gui-dang-xiang-mu') }}
-                  </Button>
+                  <span v-if="canManageFlow" class="flow-action-item">
+                    <Button type="text" :disabled="rowFlowStatus(row) === 'DELETE'" @click="handleArchiveToggleFlow(row)">
+                      {{ rowFlowStatus(row) === 'ARCHIVE' ? $t('hui-fu-gui-dang') : $t('gui-dang-xiang-mu') }}
+                    </Button>
+                  </span>
                   <Tooltip
                     v-if="canManageFlow"
                     :content="flowDeleteDisabledReason(row)"
@@ -74,7 +78,7 @@
                     transfer
                     placement="top"
                   >
-                    <span class="flow-action-tooltip-target">
+                    <span class="flow-action-item">
                       <Button class="flow-action-danger" type="text" :disabled="!!flowDeleteDisabledReason(row)" @click="handleDeleteFlow(row)">
                         {{ $t('shan-chu-xiang-mu') }}
                       </Button>
@@ -1261,15 +1265,28 @@ export default {
 }
 
 .flow-actions {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   white-space: nowrap;
 
+  :deep(.ivu-tooltip) {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  :deep(.ivu-tooltip-rel) {
+    display: inline-flex;
+    align-items: center;
+  }
+
   :deep(.ivu-btn-text) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     height: 22px;
     padding: 0 2px;
-    line-height: 20px;
+    line-height: 1;
   }
 }
 
@@ -1278,6 +1295,17 @@ export default {
   border-radius: 8px;
   background: var(--bg-card);
   overflow: hidden;
+
+  :deep(.ivu-table-cell:has(.flow-actions)) {
+    display: flex;
+    align-items: center;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  :deep(td:has(.flow-actions)) {
+    vertical-align: middle;
+  }
 }
 
 .flow-table-container :deep(.dm-table),
@@ -1306,9 +1334,10 @@ export default {
   color: #c5cedb !important;
 }
 
-.flow-action-tooltip-target {
+.flow-action-item {
   display: inline-flex;
   align-items: center;
+  line-height: 1;
 
   :deep(.ivu-btn-disabled),
   :deep(.ivu-btn[disabled]) {

@@ -31,12 +31,7 @@ const UPDATE_DATA_SOURCE_STATUS_LIST = [
 ];
 
 // APIs whose failure is surfaced by the caller (toast / inline), not the global error modal.
-const SELF_HANDLED_ERROR_URLS = [
-  '/login',
-  '/datasource/connectds',
-  '/api/entry/datasource/connectDs',
-  '/api/entry/datasource/testConnect'
-];
+const SELF_HANDLED_ERROR_URLS = ['/login', '/datasource/connectds', '/api/entry/datasource/connectDs', '/api/entry/datasource/testConnect'];
 
 let baseURL = '';
 if (process.env.VUE_APP_BASE_URL) {

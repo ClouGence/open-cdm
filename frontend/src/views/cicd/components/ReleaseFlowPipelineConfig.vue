@@ -1,8 +1,9 @@
 <template>
-  <section class="flow-section-card release-config-card">
+  <section class="page-section release-config-section">
+    <div class="page-section__title">{{ $t('fa-bu-liu-cheng-pei-zhi') }}</div>
     <div class="release-grid">
       <div class="release-panel">
-        <div class="panel-heading">
+        <div class="panel-subheading">
           <CustomIcon type="icon-v2-Gitee" size="20px" />
           <span>{{ $t('fa-bu-yuan') }}</span>
         </div>
@@ -112,7 +113,7 @@
       </div>
 
       <div class="release-panel">
-        <div class="panel-heading target-heading">
+        <div class="panel-subheading target-heading">
           <CustomIcon :type="devopsTo" size="20px" />
           <span>{{ $t('mu-biao-fa-bu-shu-ju-ku') }}</span>
         </div>

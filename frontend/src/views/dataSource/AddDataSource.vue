@@ -8,12 +8,7 @@
       @on-cancel="handleCloseAddDataSourceTypeModal"
     >
       <div class="add-datasource-type-modal-body">
-        <Input
-          v-model="addDataSourceTypeSearchKey"
-          class="add-datasource-type-search"
-          clearable
-          :placeholder="$t('sou-suo-shu-ju-yuan-lei-xing')"
-        >
+        <Input v-model="addDataSourceTypeSearchKey" class="add-datasource-type-search" clearable :placeholder="$t('sou-suo-shu-ju-yuan-lei-xing')">
           <template #prefix>
             <Icon type="ios-search" />
           </template>

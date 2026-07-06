@@ -1,81 +1,69 @@
 <template>
   <div class="change-record-page">
-    <div class="table-list-layout change-record-layout">
-      <div class="table-list change-record-shell">
-        <div class="record-filter-card">
-          <Input
-            v-model="searchKeywords"
-            class="record-filter-input"
-            clearable
-            :placeholder="$t('qing-shu-ru-bian-geng-ming-cheng-cha-xun')"
-            @on-enter="handleQuery"
-            @on-clear="handleQueryClear"
-          />
-          <Button class="record-query-button" type="primary" ghost @click="handleQuery">{{ $t('cha-xun') }}</Button>
-        </div>
-
-        <div class="record-table-card">
-          <Spin v-if="loading" fix />
-          <div class="record-table">
-            <div class="record-table-row record-table-head">
-              <div>{{ $t('zhuang-tai') }}</div>
-              <div>{{ $t('bian-geng-ming-cheng') }}</div>
-              <div>{{ $t('bian-geng-shi-jian') }}</div>
-              <div>{{ $t('git-ops') }}</div>
-              <div>{{ $t('jie-duan') }}</div>
-              <div>{{ $t('cao-zuo') }}</div>
+    <div class="table-list-layout">
+      <div class="table-list">
+        <div class="content">
+          <div class="option">
+            <div class="left">
+              <Input
+                style="width: 280px; margin-right: 10px"
+                clearable
+                v-model="searchKeywords"
+                :placeholder="$t('qing-shu-ru-bian-geng-ming-cheng-cha-xun')"
+                @on-enter="handleQuery"
+                @on-clear="handleQueryClear"
+              />
+              <Button type="primary" ghost @click="handleQuery">{{ $t('cha-xun') }}</Button>
             </div>
-
-            <div class="record-table-body">
-              <div v-for="record in changeList" :key="record.changeId" class="record-table-row record-data-row">
-                <div class="status-cell">
-                  <span class="record-status-pill" :class="statusIconClass(record)">
-                    <Icon class="status-icon" :type="statusIcon(record)" />
-                    <span>{{ statusLabel(record) }}</span>
-                  </span>
-                </div>
-                <div class="change-name-cell">
-                  <Tooltip :content="record.changeName || '-'">
-                    <span>{{ record.changeName || '-' }}</span>
+          </div>
+          <div class="table-container flow-table-container">
+            <Table
+              :columns="changeRecordColumns"
+              :data="changeList"
+              :loading="loading"
+              :locale="{ emptyText: $t('zan-wu-shu-ju') }"
+              size="small"
+              border
+              stripe
+            >
+              <template #status="{ row }">
+                <span class="flow-status-tag" :class="statusIconClass(row)">
+                  <Icon class="status-icon" :type="statusIcon(row)" />
+                  <span>{{ statusLabel(row) }}</span>
+                </span>
+              </template>
+              <template #target="{ row }">
+                <div class="flow-list-inline flow-list-gitops">
+                  <CustomIcon v-if="row.scmType" :type="row.scmType" size="18px" rightMargin />
+                  <CustomIcon :type="row.dsType || 'icon-v2-DataBase2'" size="18px" rightMargin />
+                  <Tooltip :content="row.dsInstance || row.dsDisplay || '-'">
+                    <span class="flow-list-ellipsis">{{ compactText(row.dsInstance || row.dsDisplay, 24) }}</span>
                   </Tooltip>
                 </div>
-                <div class="change-time-cell">{{ record.changeTime || '-' }}</div>
-                <div class="release-flow-cell">
-                  <span class="target-tag">{{ $t('mu-biao') }}</span>
-                  <CustomIcon :type="record.dsType || 'icon-v2-DataBase2'" size="18px" />
-                  <Tooltip :content="record.dsInstance || record.dsDisplay || '-'">
-                    <span class="target-name">{{ compactText(record.dsInstance || record.dsDisplay, 18) }}</span>
-                  </Tooltip>
+              </template>
+              <template #stage="{ row }">
+                <span class="stage-chip" :class="stageIconClass(row)">
+                  <span>{{ stageLabel(row) }}</span>
+                </span>
+              </template>
+              <template #action="{ row }">
+                <div class="action flow-actions">
+                  <Button type="text" @click="goChangeDetail(row)">{{ $t('xiang-qing') }}</Button>
                 </div>
-                <div class="stage-cell">
-                  <span class="stage-chip" :class="stageIconClass(record)">
-                    <span>{{ stageLabel(record) }}</span>
-                  </span>
-                </div>
-                <div class="action-cell">
-                  <Button type="text" class="record-detail-button" @click="goChangeDetail(record)">{{ $t('xiang-qing') }}</Button>
-                </div>
-              </div>
-
-              <div v-if="!loading && !changeList.length" class="record-empty">
-                <Icon type="ios-folder-open-outline" />
-                <span>{{ $t('zan-wu-shu-ju') }}</span>
-              </div>
-            </div>
+              </template>
+            </Table>
           </div>
         </div>
       </div>
-
-      <div class="record-footer">
-        <span class="record-total">{{ $t('gong') }} {{ pageTotal }} {{ $t('tiao') }}</span>
+      <div class="footer">
         <Page
-          v-model="pageNum"
           :total="pageTotal"
-          :page-size="pageSize"
-          :page-size-opts="pageSizeOptions"
-          show-sizer
-          size="small"
+          show-total
+          show-elevator
           @on-change="handlePageChange"
+          show-sizer
+          v-model="pageNum"
+          :page-size="pageSize"
           @on-page-size-change="handlePageSizeChange"
         />
       </div>
@@ -94,9 +82,47 @@ export default {
       loading: false,
       pageNum: 1,
       pageSize: 10,
-      pageTotal: 0,
-      pageSizeOptions: [10, 20, 50, 100]
+      pageTotal: 0
     };
+  },
+  computed: {
+    changeRecordColumns() {
+      return [
+        {
+          title: this.$t('zhuang-tai'),
+          slot: 'status',
+          width: 140,
+          align: 'center'
+        },
+        {
+          title: this.$t('bian-geng-ming-cheng'),
+          key: 'changeName',
+          minWidth: 200
+        },
+        {
+          title: this.$t('bian-geng-shi-jian'),
+          key: 'changeTime',
+          width: 180
+        },
+        {
+          title: this.$t('git-ops'),
+          slot: 'target',
+          minWidth: 220
+        },
+        {
+          title: this.$t('jie-duan'),
+          slot: 'stage',
+          width: 150,
+          align: 'center'
+        },
+        {
+          title: this.$t('cao-zuo'),
+          slot: 'action',
+          width: 100,
+          align: 'center'
+        }
+      ];
+    }
   },
   watch: {
     '$route.params.id': {
@@ -188,15 +214,15 @@ export default {
     },
     statusIconClass(record) {
       if (record.currentStatus === 'FAILED') {
-        return 'danger';
+        return 'is-danger';
       }
       if (record.currentStatus === 'CLOSED') {
-        return 'muted';
+        return 'is-muted';
       }
       if (record.currentStatus === 'FINISH') {
-        return 'success';
+        return 'is-success';
       }
-      return 'progress';
+      return 'is-progress';
     },
     statusLabel(record) {
       const statusMap = {
@@ -211,15 +237,15 @@ export default {
     },
     stageIconClass(record) {
       if (record.currentStatus === 'FAILED') {
-        return 'danger';
+        return 'is-danger';
       }
       if (record.currentStatus === 'CLOSED') {
-        return 'muted';
+        return 'is-muted';
       }
       if (record.currentStatus === 'FINISH' || record.currentStep === 'FINISH' || record.currentStep === 'INIT_SNAPSHOT') {
-        return 'success';
+        return 'is-success';
       }
-      return 'progress';
+      return 'is-progress';
     },
     stageLabel(record) {
       const stepMap = {
@@ -238,282 +264,131 @@ export default {
 
 <style lang="less" scoped>
 .change-record-page {
-  display: flex;
-  flex-direction: column;
   height: 100%;
   min-height: 0;
-  background: #f6f9fc;
-}
-
-.change-record-layout {
   display: flex;
-  flex: 1 1 auto;
   flex-direction: column;
-  min-height: 0;
-  padding: 12px 20px 16px;
-  background: #f6f9fc;
 }
 
-.change-record-shell {
+.flow-list-inline {
   display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.record-filter-card {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: 14px;
-  min-height: 72px;
-  margin-bottom: 14px;
-  padding: 16px 18px;
-  border: 1px solid #dbe6f1;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: 0 12px 30px rgba(31, 45, 61, 0.04);
-}
-
-.record-filter-input {
-  width: 440px;
-  max-width: 45vw;
-
-  &.ant-input-affix-wrapper {
-    height: 40px;
-    padding: 0 12px;
-    border-color: #d9e3ee;
-    border-radius: 7px;
-    box-shadow: inset 0 1px 2px rgba(16, 24, 40, 0.04);
-  }
-
-  :deep(.ivu-input-wrapper),
-  :deep(.ivu-input) {
-    width: 100%;
-  }
-
-  :deep(.ant-input),
-  :deep(.ivu-input) {
-    height: 38px;
-    color: #111827;
-    font-size: 14px;
-    line-height: 38px;
-
-    &::placeholder {
-      color: #a0a7b3;
-    }
-  }
-}
-
-.record-query-button {
-  width: 88px;
-  height: 40px;
-  border-color: #14b86f;
-  border-radius: 7px;
-  color: #0fac69;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0;
-
-  :deep(span) {
-    font-weight: 500;
-    letter-spacing: 0;
-  }
-}
-
-.record-table-card {
-  position: relative;
-  display: flex;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: hidden;
-  border: 1px solid #dbe6f1;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: 0 12px 30px rgba(31, 45, 61, 0.04);
-}
-
-.record-table {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  min-height: 0;
-  overflow: auto;
-}
-
-.record-table-row {
-  display: grid;
-  grid-template-columns: 150px minmax(260px, 1.2fr) 210px minmax(340px, 1.25fr) 150px 112px;
-  min-width: 1160px;
-}
-
-.record-table-head {
-  flex: 0 0 auto;
-  min-height: 52px;
-  border-bottom: 1px solid #e1ebf3;
-  background: #f8fbfe;
-
-  > div {
-    display: flex;
-    align-items: center;
-    padding: 0 20px;
-    color: #66758a;
-    font-size: 14px;
-    font-weight: 800;
-  }
-}
-
-.record-table-body {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: visible;
-  background: #fff;
-}
-
-.record-data-row {
-  min-height: 76px;
-  border-bottom: 1px solid #e1ebf3;
-  transition: background 0.18s ease;
-
-  &:hover {
-    background: #fbfefd;
-  }
-
-  > div {
-    display: flex;
-    align-items: center;
-    min-width: 0;
-    padding: 0 20px;
-  }
-}
-
-.status-cell {
-  justify-content: flex-start;
-}
-
-.record-status-pill,
-.stage-chip {
-  display: inline-flex;
   align-items: center;
   min-width: 0;
+}
+
+.flow-list-gitops {
   max-width: 100%;
-  height: 30px;
-  padding: 0 12px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1;
-  white-space: nowrap;
-
-  &.success {
-    color: #0fac69;
-    background: #e0f8e9;
-  }
-
-  &.progress {
-    color: #2175d9;
-    background: #e8f2ff;
-  }
-
-  &.danger {
-    color: #d92d20;
-    background: #fff0ee;
-  }
-
-  &.muted {
-    color: #667085;
-    background: #eef2f7;
-  }
 }
 
-.status-icon {
-  margin-right: 7px;
-  font-size: 17px;
-  font-weight: 800;
-}
-
-.change-name-cell,
-.change-time-cell {
-  color: #1f2937;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.change-name-cell span,
-.target-name {
+.flow-list-ellipsis {
+  display: inline-block;
+  min-width: 0;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.release-flow-cell {
-  gap: 8px;
-  color: #1f2937;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.target-tag {
+.flow-status-tag {
   display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  height: 32px;
-  padding: 0 12px;
-  border-radius: 5px;
-  background: #14b86f;
-  color: #fff;
-  font-weight: 700;
-}
-
-.stage-cell {
-  justify-content: flex-start;
-}
-
-.action-cell {
-  justify-content: flex-start;
-
-  :deep(.ivu-btn-text) {
-    padding: 0;
-    color: #0fac69;
-    font-size: 14px;
-    font-weight: 600;
-  }
-}
-
-.record-empty {
-  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  height: 100%;
-  min-height: 240px;
-  color: #98a2b3;
-  font-size: 14px;
+  min-width: 64px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  gap: 4px;
 
-  .ivu-icon {
-    font-size: 20px;
+  &.is-success {
+    color: #19be6b;
+    background: #e7f8ee;
+  }
+
+  &.is-progress {
+    color: #2d6ccb;
+    background: #e8f2ff;
+  }
+
+  &.is-danger {
+    color: #ed4014;
+    background: #fff1f0;
+  }
+
+  &.is-muted {
+    color: #64748b;
+    background: #eef2f7;
   }
 }
 
-.record-footer {
+.status-icon {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.flow-actions {
   display: flex;
-  flex: 0 0 auto;
   align-items: center;
-  justify-content: space-between;
-  min-height: 58px;
-  padding: 12px 8px 0;
-  background: transparent;
-}
-
-.record-total {
+  gap: 8px;
   white-space: nowrap;
-  color: #6b7280;
-  font-size: 15px;
+
+  :deep(.ivu-btn-text) {
+    height: 22px;
+    padding: 0 2px;
+    line-height: 20px;
+  }
 }
 
-@media (max-width: 1180px) {
-  .record-filter-input {
-    width: 360px;
+.flow-table-container {
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  background: var(--bg-card);
+  overflow: hidden;
+}
+
+.flow-table-container :deep(.ivu-table-wrapper) {
+  border: 0;
+  border-radius: 0;
+}
+
+.flow-table-container :deep(.ivu-table-fixed-right) {
+  box-shadow: none;
+}
+
+.flow-table-container :deep(.ivu-table-fixed-right::before),
+.flow-table-container :deep(.ivu-table-fixed::before) {
+  display: none;
+}
+
+.stage-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+
+  &.is-success {
+    color: #19be6b;
+    background: #e7f8ee;
+  }
+
+  &.is-progress {
+    color: #2d6ccb;
+    background: #e8f2ff;
+  }
+
+  &.is-danger {
+    color: #ed4014;
+    background: #fff1f0;
+  }
+
+  &.is-muted {
+    color: #64748b;
+    background: #eef2f7;
   }
 }
 </style>

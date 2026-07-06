@@ -1,423 +1,404 @@
 <template>
-  <div class="sub-account change-detail-page">
-    <div class="table-list-layout change-detail-layout">
-      <div class="table-list change-detail-shell">
-        <div class="sql-change-container">
-          <div class="header change-detail-hero">
-            <div class="left-wrap">
-              <div class="title-wrap">
-                <Tooltip :content="changeInfo?.changeName">
-                  <span class="title-text-ellipsis">{{ changeInfo?.changeName || '-' }}</span>
-                </Tooltip>
-                <span class="change-status-pill" :class="changeStatusClass">{{ changeStatusLabel }}</span>
-                <span class="change-step-pill">{{ changeStepLabel }}</span>
-                <Tooltip :content="changeInfo.remark" style="width: 450px" v-if="changeInfo.remark">
-                  <span
-                    class="collapse-text-ellipsis"
-                    :class="changeInfo.currentStatus === 'FAILED' ? 'red-text' : 'gray-text'"
-                    v-if="changeInfo.remark"
-                  >
-                    {{ '(' + changeInfo.remark + ')' }}
-                  </span>
-                </Tooltip>
+  <div class="change-detail-page">
+    <div class="change-detail-shell">
+      <div class="change-detail-hero">
+        <div class="left-wrap">
+          <div class="title-wrap">
+            <Tooltip :content="changeInfo?.changeName">
+              <span class="title-text-ellipsis">{{ changeInfo?.changeName || '-' }}</span>
+            </Tooltip>
+            <span class="change-status-pill" :class="changeStatusClass">{{ changeStatusLabel }}</span>
+            <span class="change-step-pill">{{ changeStepLabel }}</span>
+            <Tooltip :content="changeInfo.remark" style="width: 450px" v-if="changeInfo.remark">
+              <span class="collapse-text-ellipsis" :class="changeInfo.currentStatus === 'FAILED' ? 'red-text' : 'gray-text'" v-if="changeInfo.remark">
+                {{ '(' + changeInfo.remark + ')' }}
+              </span>
+            </Tooltip>
+          </div>
+          <div class="release-grid change-detail-pipeline">
+            <div class="release-panel">
+              <div class="panel-subheading">
+                <CustomIcon :type="changeInfo?.scmType" size="24px" rightMargin="8px" />
+                <span>{{ $t('cang-ku') }}</span>
               </div>
-              <div class="card-wrap">
-                <div class="left endpoint-summary-card">
-                  <div class="endpoint-summary-title">
-                    <CustomIcon :type="changeInfo?.scmType" size="24px" rightMargin="8px" />
-                    <span>{{ $t('cang-ku') }}</span>
-                  </div>
-                  <div class="endpoint-summary-lines">
-                    <div class="endpoint-summary-line">
-                      <span>{{ $t('cang-ku') }}：</span>
-                      <strong>{{ changeInfo?.repoName || '-' }}</strong>
-                    </div>
-                    <div class="endpoint-summary-line">
-                      <span>{{ $t('fen-zhi') }}：</span>
-                      <strong>{{ changeInfo?.repoBranch || '-' }}</strong>
-                    </div>
-                    <div class="endpoint-summary-line">
-                      <span>{{ $t('lu-jing') }}：</span>
-                      <strong>{{ changeInfo?.repoScriptPath || '-' }}</strong>
-                    </div>
-                  </div>
+              <div class="endpoint-summary-lines">
+                <div class="endpoint-summary-line">
+                  <span>{{ $t('cang-ku') }}：</span>
+                  <strong>{{ changeInfo?.repoName || '-' }}</strong>
                 </div>
-                <div class="mid">
-                  <span class="detail-flow-node" aria-hidden="true">
-                    <svg class="detail-flow-arrows" viewBox="0 0 28 28">
-                      <path d="M7 14h14"></path>
-                      <path d="m16.8 9.8 4.2 4.2-4.2 4.2"></path>
-                    </svg>
-                  </span>
+                <div class="endpoint-summary-line">
+                  <span>{{ $t('fen-zhi') }}：</span>
+                  <strong>{{ changeInfo?.repoBranch || '-' }}</strong>
                 </div>
-                <div class="right endpoint-summary-card">
-                  <div class="endpoint-summary-title">
-                    <CustomIcon :type="changeInfo?.dsType" size="24px" rightMargin="8px" />
-                    <span>{{ $t('shu-ju-ku') }}</span>
-                  </div>
-                  <div class="endpoint-summary-lines">
-                    <div class="endpoint-summary-line">
-                      <span>{{ $t('shi-li-0') }}：</span>
-                      <strong>{{ changeInfo?.dsInstance || '-' }}</strong>
-                    </div>
-                    <div class="endpoint-summary-line">
-                      <span>{{ $t('miao-shu') }}：</span>
-                      <strong>{{ changeInfo?.dsDesc || '-' }}</strong>
-                    </div>
-                  </div>
+                <div class="endpoint-summary-line">
+                  <span>{{ $t('lu-jing') }}：</span>
+                  <strong>{{ changeInfo?.repoScriptPath || '-' }}</strong>
                 </div>
               </div>
             </div>
-            <div class="right-wrap">
-              <div class="btns">
-                <Button
-                  class="detail-action-btn primary-action"
-                  @click="skipCheck"
-                  type="primary"
-                  v-if="!(isBtnOnlyRead || canJumpCheck || changeInfo.currentStep !== 'CHECK')"
-                >
-                  {{ isErrorCheck ? $t('tiao-guo') : $t('tiao-guo-jian-ce') }}
-                </Button>
-                <Button
-                  class="detail-action-btn"
-                  @click="retryChange"
-                  v-if="changeInfo.currentStep !== 'APPROVAL' && !(cantRetry || isBtnOnlyRead || isReadyStatus)"
-                >
-                  {{ $t('zhong-shi-bian-geng') }}
-                </Button>
-                <Button
-                  class="detail-action-btn"
-                  @click="retryChange"
-                  v-if="changeInfo.currentStep === 'APPROVAL' && !(cantRetry || isBtnOnlyRead || isReadyStatus)"
-                >
-                  {{ $t('zhong-xin-fa-qi-gong-dan') }}
-                </Button>
-                <Button class="detail-action-btn" @click="closeChange" v-if="!isBtnOnlyRead">{{ $t('guan-bi-bian-geng') }}</Button>
-                <Button class="detail-action-btn refresh-action-btn" @click="handleRefresh" :loading="loading">
-                  <CustomIcon type="icon-v2-Refresh" v-if="!loading" />
-                </Button>
+            <div class="link-divider" aria-hidden="true">
+              <span>
+                <svg class="flow-link-arrows" viewBox="0 0 28 28">
+                  <path d="M7 14h14"></path>
+                  <path d="m16.8 9.8 4.2 4.2-4.2 4.2"></path>
+                </svg>
+              </span>
+            </div>
+            <div class="release-panel">
+              <div class="panel-subheading">
+                <CustomIcon :type="changeInfo?.dsType" size="24px" rightMargin="8px" />
+                <span>{{ $t('shu-ju-ku') }}</span>
               </div>
-              <Steps
-                :current="CHANGE_STATUS_MAP[changeInfo?.currentStep]"
-                :status="STATUS_MAP[changeInfo?.currentStatus]"
-                size="small"
-                class="step-wrap"
-                v-if="changeInfo.currentStatus !== 'CLOSED' && changeInfo.currentStep !== 'INIT_SNAPSHOT'"
-              >
-                <Step :title="$t('di-jiao')"></Step>
-                <Step :title="$t('sql-shen-he')"></Step>
-                <Step :title="$t('shen-pi-liu')"></Step>
-                <Step :title="$t('zhi-xing')"></Step>
-              </Steps>
-              <Steps
-                :current="CHANGE_STATUS_MAP[changeInfo?.currentStep]"
-                :status="STATUS_MAP[changeInfo?.currentStatus]"
-                size="small"
-                class="step-wrap"
-                v-if="changeInfo.currentStatus === 'CLOSED' && changeInfo.currentStep !== 'INIT_SNAPSHOT'"
-              >
-                <Step :title="$t('di-jiao')"></Step>
-                <Step :title="$t('bian-geng-guan-bi')"></Step>
-              </Steps>
-              <Steps
-                :current="CHANGE_STATUS_MAP[changeInfo?.currentStep]"
-                :status="STATUS_MAP[changeInfo?.currentStatus]"
-                size="small"
-                class="step-wrap"
-                v-if="changeInfo.currentStep === 'INIT_SNAPSHOT'"
-              >
-                <Step :title="$t('di-jiao')"></Step>
-                <Step :title="$t('kuai-zhao-bian-geng')"></Step>
-              </Steps>
+              <div class="endpoint-summary-lines">
+                <div class="endpoint-summary-line">
+                  <span>{{ $t('shi-li-0') }}：</span>
+                  <strong>{{ changeInfo?.dsInstance || '-' }}</strong>
+                </div>
+                <div class="endpoint-summary-line">
+                  <span>{{ $t('miao-shu') }}：</span>
+                  <strong>{{ changeInfo?.dsDesc || '-' }}</strong>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="content-wrap">
-            <Tabs v-model="currentTab" class="tab-wrap" @on-click="tabClick">
-              <TabPane
-                :label="renderDropdownTab"
-                name="sql-change"
-                :disabled="CHANGE_STATUS_MAP[changeInfo?.currentStep] < FLOW_STEP.S0 || changeInfo?.currentStep === 'INIT_SNAPSHOT'"
-              ></TabPane>
-              <TabPane
-                :label="$t('sql-shen-he')"
-                name="sql-audit"
-                :disabled="CHANGE_STATUS_MAP[changeInfo?.currentStep] < FLOW_STEP.S1 || changeInfo?.currentStep === 'INIT_SNAPSHOT'"
-              ></TabPane>
+        </div>
+        <div class="right-wrap">
+          <div class="btns">
+            <Button
+              class="detail-action-btn primary-action"
+              @click="skipCheck"
+              type="primary"
+              v-if="!(isBtnOnlyRead || canJumpCheck || changeInfo.currentStep !== 'CHECK')"
+            >
+              {{ isErrorCheck ? $t('tiao-guo') : $t('tiao-guo-jian-ce') }}
+            </Button>
+            <Button
+              class="detail-action-btn"
+              @click="retryChange"
+              v-if="changeInfo.currentStep !== 'APPROVAL' && !(cantRetry || isBtnOnlyRead || isReadyStatus)"
+            >
+              {{ $t('zhong-shi-bian-geng') }}
+            </Button>
+            <Button
+              class="detail-action-btn"
+              @click="retryChange"
+              v-if="changeInfo.currentStep === 'APPROVAL' && !(cantRetry || isBtnOnlyRead || isReadyStatus)"
+            >
+              {{ $t('zhong-xin-fa-qi-gong-dan') }}
+            </Button>
+            <Button class="detail-action-btn" @click="closeChange" v-if="!isBtnOnlyRead">{{ $t('guan-bi-bian-geng') }}</Button>
+            <Button class="detail-action-btn refresh-action-btn" @click="handleRefresh" :loading="loading">
+              <CustomIcon type="icon-v2-Refresh" v-if="!loading" />
+            </Button>
+          </div>
+          <Steps
+            :current="CHANGE_STATUS_MAP[changeInfo?.currentStep]"
+            :status="STATUS_MAP[changeInfo?.currentStatus]"
+            size="small"
+            class="step-wrap"
+            v-if="changeInfo.currentStatus !== 'CLOSED' && changeInfo.currentStep !== 'INIT_SNAPSHOT'"
+          >
+            <Step :title="$t('di-jiao')"></Step>
+            <Step :title="$t('sql-shen-he')"></Step>
+            <Step :title="$t('shen-pi-liu')"></Step>
+            <Step :title="$t('zhi-xing')"></Step>
+          </Steps>
+          <Steps
+            :current="CHANGE_STATUS_MAP[changeInfo?.currentStep]"
+            :status="STATUS_MAP[changeInfo?.currentStatus]"
+            size="small"
+            class="step-wrap"
+            v-if="changeInfo.currentStatus === 'CLOSED' && changeInfo.currentStep !== 'INIT_SNAPSHOT'"
+          >
+            <Step :title="$t('di-jiao')"></Step>
+            <Step :title="$t('bian-geng-guan-bi')"></Step>
+          </Steps>
+          <Steps
+            :current="CHANGE_STATUS_MAP[changeInfo?.currentStep]"
+            :status="STATUS_MAP[changeInfo?.currentStatus]"
+            size="small"
+            class="step-wrap"
+            v-if="changeInfo.currentStep === 'INIT_SNAPSHOT'"
+          >
+            <Step :title="$t('di-jiao')"></Step>
+            <Step :title="$t('kuai-zhao-bian-geng')"></Step>
+          </Steps>
+        </div>
+      </div>
+      <div class="change-detail-body">
+        <div class="content-wrap">
+          <Tabs v-model="currentTab" class="tab-wrap" @on-click="tabClick">
+            <TabPane
+              :label="renderDropdownTab"
+              name="sql-change"
+              :disabled="CHANGE_STATUS_MAP[changeInfo?.currentStep] < FLOW_STEP.S0 || changeInfo?.currentStep === 'INIT_SNAPSHOT'"
+            ></TabPane>
+            <TabPane
+              :label="$t('sql-shen-he')"
+              name="sql-audit"
+              :disabled="CHANGE_STATUS_MAP[changeInfo?.currentStep] < FLOW_STEP.S1 || changeInfo?.currentStep === 'INIT_SNAPSHOT'"
+            ></TabPane>
 
-              <TabPane
-                :label="$t('shen-pi-liu-cheng')"
-                name="approval"
-                :disabled="
-                  CHANGE_STATUS_MAP[changeInfo?.currentStep] < FLOW_STEP.S2 || changeInfo?.currentStep === 'INIT_SNAPSHOT' || isDisabledApproval
-                "
-              ></TabPane>
+            <TabPane
+              :label="$t('shen-pi-liu-cheng')"
+              name="approval"
+              :disabled="
+                CHANGE_STATUS_MAP[changeInfo?.currentStep] < FLOW_STEP.S2 || changeInfo?.currentStep === 'INIT_SNAPSHOT' || isDisabledApproval
+              "
+            ></TabPane>
 
-              <TabPane
-                :label="$t('bian-geng-zhi-xing')"
-                name="execute"
-                :disabled="
-                  CHANGE_STATUS_MAP[changeInfo?.currentStep] < FLOW_STEP.FINISH || changeInfo?.currentStep === 'INIT_SNAPSHOT' || isManualExec
-                "
-              ></TabPane>
-            </Tabs>
-            <div class="tab-item-wrap">
-              <div v-if="currentTab === 'sql-change'" class="tab-item">
-                <div v-if="isNotChangeReady" style="height: 100%">
-                  <div v-if="subTabLabel === '结果'" style="height: 100%">
-                    <read-only-editor :text="rowSql" key="raw" v-if="rowSql.length" :ds-type="changeInfo?.dsType" />
-                    <CCEmptyContent v-else :content="changeInfo?.remark ? changeInfo?.remark : $t('wu-bian-geng-nei-rong')" />
-                  </div>
-                  <div v-if="subTabLabel === 'Diff'" style="height: 100%">
-                    <Collapse v-model="activeNames" accordion v-if="changeBody.length">
-                      <Panel v-for="(item, index) in changeBody" :key="index" :name="index.toString()">
-                        {{ item.contentName }}
-                        <template #content>
-                          <div style="height: 400px">
-                            <ChangeBodyDiff
-                              :original="item.oldBody || ''"
-                              :modified="item.newBody || ''"
-                              language="sql"
-                              :ds-type="changeInfo?.dsType"
-                            />
-                          </div>
-                        </template>
-                      </Panel>
-                    </Collapse>
-                    <CCEmptyContent v-else :content="changeInfo?.remark ? changeInfo?.remark : $t('wu-bian-geng-nei-rong')" />
-                  </div>
+            <TabPane
+              :label="$t('bian-geng-zhi-xing')"
+              name="execute"
+              :disabled="CHANGE_STATUS_MAP[changeInfo?.currentStep] < FLOW_STEP.FINISH || changeInfo?.currentStep === 'INIT_SNAPSHOT' || isManualExec"
+            ></TabPane>
+          </Tabs>
+          <div class="tab-item-wrap">
+            <div v-if="currentTab === 'sql-change'" class="tab-item">
+              <div v-if="isNotChangeReady" style="height: 100%">
+                <div v-if="subTabLabel === '结果'" style="height: 100%">
+                  <read-only-editor :text="rowSql" key="raw" v-if="rowSql.length" :ds-type="changeInfo?.dsType" />
+                  <CCEmptyContent v-else :content="changeInfo?.remark ? changeInfo?.remark : $t('wu-bian-geng-nei-rong')" />
                 </div>
-                <CCEmptyContent v-else loading :content="$t('bian-geng-nei-rong-fen-xi-zhong')" />
-              </div>
-              <div v-if="currentTab === 'sql-audit'" class="tab-item">
-                <Collapse v-model="curCollapse" v-if="checkedSql?.length" simple>
-                  <Panel v-for="(item, index) in checkedSql" :key="index">
-                    <span class="collapse-text-ellipsis">{{ item.content }}</span>
-                    <Button type="text" class="collapse-btn" @click.stop="getSqlDetail(item?.content)">
-                      {{ $t('cha-kan') }}
-                    </Button>
-                    <template #content>
-                      <div>
-                        <Table
-                          :columns="sqlReviewTableColumns"
-                          :data="item.checkList"
-                          :loading="loading"
-                          :locale="{ emptyText: $t('zan-wu-shu-ju') }"
-                          size="small"
-                          border
-                          stripe
-                        >
-                          <template #level="{ row }">
-                            <Tag :color="ERROR_LEVEL_COLOR_MAP[row?.level]">
-                              {{ ERROR_LEVEL_MAP[row?.level] }}
-                            </Tag>
-                          </template>
-                        </Table>
-                      </div>
-                    </template>
-                  </Panel>
-                </Collapse>
-                <div v-else class="empty-div">
-                  <CCEmptyContent v-if="isReadyStatus" loading :content="$t('bian-geng-nei-rong-fen-xi-zhong')" />
-                  <CCEmptyContent v-else-if="!isReadyStatus && !isErrorCheck" :content="$t('dang-qian-mei-you-yi-chang-sql')" />
-                  <CCEmptyContent v-else icon="icon-v2-Error2" :content="changeInfo?.remark" />
-                </div>
-              </div>
-              <div v-if="currentTab === 'approval'" class="tab-item">
-                <CCEmptyContent v-if="approveText" :link="`/ticket/${currentTicket?.ticketId}`" :icon="approveIcon" :content="approveText" />
-                <CCEmptyContent v-else loading :content="$t('gong-dan-xin-xi-huo-qu-zhong')" />
-              </div>
-              <div v-if="currentTab === 'execute'" class="tab-item">
-                <div class="exec-wrap" v-if="!isScheduling">
-                  <div class="exec-left" v-if="changeInfo.currentStatus !== 'OPEN'">
-                    <Card class="ticket-content">
-                      <template #title>
-                        <div style="display: flex; align-items: center; width: 100%; justify-content: space-between">
-                          <div class="left" style="display: flex; align-items: center">
-                            <div style="margin-right: 10px">
-                              {{ $t('ren-wu-zhi-hang') }}
-                            </div>
-                            <Poptip :content="autoExecJobInfo?.message" trigger="hover" style="margin-right: 10px" v-if="!autoExecJobInfo?.normal">
-                              <Icon type="ios-alert-outline" />
-                            </Poptip>
-                            <Tag :color="AUTO_EXEC_JOB_STATUS_COLOR[autoExecJobInfo?.status]" style="margin-right: 10px">
-                              {{ AUTO_EXEC_JOB_STATUS_I18N[autoExecJobInfo?.status] }}
-                            </Tag>
-                            <div v-if="autoExecJobInfo?.execTime" style="margin-right: 10px">
-                              {{ $t('ji-hua-zhi-hang-shi-jian') }}
-                              {{ autoExecJobInfo?.execTime }}
-                            </div>
-                            <div v-if="autoExecJobInfo?.workerIp" style="margin-right: 10px">
-                              {{ $t('ji-qi-ip-0') }}
-                              {{ autoExecJobInfo?.workerIp }}
-                            </div>
-                            <div v-if="autoExecJobInfo?.workerStatus" style="margin-right: 10px">
-                              {{ $t('ji-qi-zhuang-tai-0') }}
-                              {{ autoExecJobInfo?.workerStatus }}
-                            </div>
-                          </div>
-                          <div class="right" style="display: flex; align-items: center">
-                            <!--          <div v-if="autoExecJobInfo.lastReportTime">-->
-                            <!--            {{ $t('zui-hou-yi-ci-shang-bao-shi-jian') }} {{autoExecJobInfo.lastReportTime }}-->
-                            <!--          </div>-->
-                            <Button
-                              type="text"
-                              size="small"
-                              v-if="autoExecJobInfo?.canEnd"
-                              :disabled="isBtnOnlyRead"
-                              @click="handleShowEndAutoExecJobModal"
-                            >
-                              {{ $t('zhong-zhi') }}
-                            </Button>
-                            <Button
-                              type="text"
-                              size="small"
-                              v-if="autoExecJobInfo?.canPause"
-                              :disabled="isBtnOnlyRead"
-                              @click="handleShowStopAutoExecJobModal"
-                            >
-                              {{ $t('zan-ting') }}
-                            </Button>
-                            <Button
-                              type="text"
-                              size="small"
-                              v-if="autoExecJobInfo?.canRestart"
-                              :disabled="isBtnOnlyRead"
-                              @click="handleShowRetryAutoExecJobModal"
-                            >
-                              {{ $t('hui-fu') }}
-                            </Button>
-                            <Button
-                              type="text"
-                              size="small"
-                              v-if="autoExecJobInfo?.canRetry"
-                              @click="handleShowRetryAutoExecJobModal"
-                              :disabled="isBtnOnlyRead"
-                            >
-                              {{ $t('zhong-shi') }}
-                            </Button>
-                            <Button type="text" size="small" @click="handleAutoExecLog(null)" :disabled="isBtnOnlyRead">
-                              {{ $t('tiao-du-ri-zhi') }}
-                            </Button>
-                            <!-- <Button
-                              type="text"
-                              size="small"
-                              @click="handleRefreshTaskList"
-                              >{{ $t("shua-xin") }}</Button
-                            > -->
-                          </div>
+                <div v-if="subTabLabel === 'Diff'" style="height: 100%">
+                  <Collapse v-model="activeNames" accordion v-if="changeBody.length">
+                    <Panel v-for="(item, index) in changeBody" :key="index" :name="index.toString()">
+                      {{ item.contentName }}
+                      <template #content>
+                        <div style="height: 400px">
+                          <ChangeBodyDiff
+                            :original="item.oldBody || ''"
+                            :modified="item.newBody || ''"
+                            language="sql"
+                            :ds-type="changeInfo?.dsType"
+                          />
                         </div>
                       </template>
-                      <Table :columns="autoExecTaskColumns" :data="autoExecTaskList" border stripe size="small">
-                        <template #status="{ row }">
-                          <Tag :color="AUTO_EXEC_TASK_STATUS_COLOR[row?.status]">
-                            {{ AUTO_EXEC_TASK_STATUS_I18N[row?.status] }}
+                    </Panel>
+                  </Collapse>
+                  <CCEmptyContent v-else :content="changeInfo?.remark ? changeInfo?.remark : $t('wu-bian-geng-nei-rong')" />
+                </div>
+              </div>
+              <CCEmptyContent v-else loading :content="$t('bian-geng-nei-rong-fen-xi-zhong')" />
+            </div>
+            <div v-if="currentTab === 'sql-audit'" class="tab-item">
+              <Collapse v-model="curCollapse" v-if="checkedSql?.length" simple>
+                <Panel v-for="(item, index) in checkedSql" :key="index">
+                  <span class="collapse-text-ellipsis">{{ item.content }}</span>
+                  <Button type="text" class="collapse-btn" @click.stop="getSqlDetail(item?.content)">
+                    {{ $t('cha-kan') }}
+                  </Button>
+                  <template #content>
+                    <div>
+                      <Table
+                        :columns="sqlReviewTableColumns"
+                        :data="item.checkList"
+                        :loading="loading"
+                        :locale="{ emptyText: $t('zan-wu-shu-ju') }"
+                        size="small"
+                        border
+                        stripe
+                      >
+                        <template #level="{ row }">
+                          <Tag :color="ERROR_LEVEL_COLOR_MAP[row?.level]">
+                            {{ ERROR_LEVEL_MAP[row?.level] }}
                           </Tag>
                         </template>
-                        <template #sql="{ row }">
-                          <span style="display: inline-block; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
-                            {{ row.execSql }}
-                          </span>
-                        </template>
-                        <template #action="{ row }">
-                          <!--          <Button type="text" size="small" @click="handleAutoExecSQL(row)">{{ $t('cha-kan-sql') }}</Button>-->
-                          <Button type="text" size="small" @click="handleAutoExecLog(row)">
-                            {{ $t('ri-zhi') }}
-                          </Button>
-                          <Button type="text" size="small" @click="getSqlDetail(row?.execSql)">
-                            {{ $t('cha-kan') }}
-                          </Button>
-                          <Button type="text" size="small" @click="handleShowSkipAutoExecTaskModal(row)" :disabled="isBtnOnlyRead" v-if="row.canSkip">
-                            {{ $t('tiao-guo') }}
-                          </Button>
-                          <Button
-                            type="text"
-                            size="small"
-                            @click="handleShowContinueAutoExecTaskModal(row)"
-                            :disabled="isBtnOnlyRead"
-                            v-if="row.canCancelSkip"
-                          >
-                            {{ $t('qu-xiao-tiao-guo') }}
-                          </Button>
-                        </template>
                       </Table>
-                      <div style="width: 100%; text-align: right">
-                        <Page
-                          v-model="page"
-                          :page-size="pageSize"
-                          :total="total"
-                          @on-change="handleTaskPageChange"
-                          size="small"
-                          style="margin-top: 10px"
-                        />
+                    </div>
+                  </template>
+                </Panel>
+              </Collapse>
+              <div v-else class="empty-div">
+                <CCEmptyContent v-if="isReadyStatus" loading :content="$t('bian-geng-nei-rong-fen-xi-zhong')" />
+                <CCEmptyContent v-else-if="!isReadyStatus && !isErrorCheck" :content="$t('dang-qian-mei-you-yi-chang-sql')" />
+                <CCEmptyContent v-else icon="icon-v2-Error2" :content="changeInfo?.remark" />
+              </div>
+            </div>
+            <div v-if="currentTab === 'approval'" class="tab-item">
+              <CCEmptyContent v-if="approveText" :link="`/ticket/${currentTicket?.ticketId}`" :icon="approveIcon" :content="approveText" />
+              <CCEmptyContent v-else loading :content="$t('gong-dan-xin-xi-huo-qu-zhong')" />
+            </div>
+            <div v-if="currentTab === 'execute'" class="tab-item">
+              <div class="exec-wrap" v-if="!isScheduling">
+                <div class="exec-left" v-if="changeInfo.currentStatus !== 'OPEN'">
+                  <section class="page-section exec-task-section">
+                    <div class="exec-section-header">
+                      <div class="exec-section-leading">
+                        <div class="page-section__title exec-section-title">{{ $t('ren-wu-zhi-hang') }}</div>
+                        <div class="exec-section-meta">
+                          <Poptip :content="autoExecJobInfo?.message" trigger="hover" v-if="!autoExecJobInfo?.normal">
+                            <Icon type="ios-alert-outline" />
+                          </Poptip>
+                          <Tag :color="AUTO_EXEC_JOB_STATUS_COLOR[autoExecJobInfo?.status]">
+                            {{ AUTO_EXEC_JOB_STATUS_I18N[autoExecJobInfo?.status] }}
+                          </Tag>
+                          <div v-if="autoExecJobInfo?.execTime">
+                            {{ $t('ji-hua-zhi-hang-shi-jian') }}
+                            {{ autoExecJobInfo?.execTime }}
+                          </div>
+                          <div v-if="autoExecJobInfo?.workerIp">
+                            {{ $t('ji-qi-ip-0') }}
+                            {{ autoExecJobInfo?.workerIp }}
+                          </div>
+                          <div v-if="autoExecJobInfo?.workerStatus">
+                            {{ $t('ji-qi-zhuang-tai-0') }}
+                            {{ autoExecJobInfo?.workerStatus }}
+                          </div>
+                        </div>
                       </div>
-                    </Card>
-                  </div>
-                  <div class="exec-right" v-if="changeInfo.currentStatus === 'OPEN'">
-                    <div class="exec-border">
-                      <Form :model="confirmInfo.config" :label-width="60" style="border: 1px">
-                        <FormItem style="margin-bottom: 0" :label="$t('zhi-hang-ce-lve')" prop="autoExecType">
-                          <RadioGroup v-model="confirmInfo.config.autoExecType">
-                            <Radio label="MANUAL_EXEC">{{ $t('bu-zhi-hang') }}</Radio>
-                            <Radio label="IMMEDIATE">{{ $t('li-ji') }}</Radio>
-                            <Radio label="SPECIFY_TIME">{{ $t('ding-shi') }}</Radio>
-                          </RadioGroup>
-                          <DatePicker
-                            v-if="confirmInfo.config.autoExecType === 'SPECIFY_TIME'"
-                            v-model="confirmInfo.config.execTime"
-                            size="small"
-                            type="datetime"
-                            :placeholder="$t('qing-xuan-ze-zhi-hang-shi-jian')"
-                          />
-                        </FormItem>
-                        <FormItem style="margin-bottom: 0" :label="$t('shi-wu')" prop="enableTransactional">
-                          <i-switch
-                            v-model="confirmInfo.config.enableTransactional"
-                            size="large"
-                            :disabled="confirmInfo.config.autoExecType === 'MANUAL_EXEC'"
-                          >
-                            <template #open>
-                              <span>{{ $t('kai-qi-0') }}</span>
-                            </template>
-                            <template #close>
-                              <span>{{ $t('wu-0') }}</span>
-                            </template>
-                          </i-switch>
-                          <span style="color: #aaa">
-                            {{ $t('ru-guo-sql-yu-ju-zhong-cun-zai-fei-dml-yu-ju-ke-neng-hui-bei-fen-wei-duo-ge-shi-wu-zhi-hang') }}
-                          </span>
-                        </FormItem>
-                      </Form>
-                      <div class="right-footer">
+                      <div class="exec-section-actions">
                         <Button
-                          type="primary"
-                          @click="handleFinishTicket"
+                          type="text"
+                          size="small"
+                          v-if="autoExecJobInfo?.canEnd"
                           :disabled="isBtnOnlyRead"
-                          v-if="confirmInfo.config.autoExecType === 'MANUAL_EXEC'"
+                          @click="handleShowEndAutoExecJobModal"
                         >
-                          {{ $t('jie-shu-gong-dan') }}
+                          {{ $t('zhong-zhi') }}
                         </Button>
                         <Button
-                          type="primary"
-                          @click="handleConfirmTicketByNow"
+                          type="text"
+                          size="small"
+                          v-if="autoExecJobInfo?.canPause"
                           :disabled="isBtnOnlyRead"
-                          v-if="confirmInfo.config.autoExecType === 'IMMEDIATE'"
+                          @click="handleShowStopAutoExecJobModal"
                         >
-                          {{ $t('li-ji-zhi-hang') }}
+                          {{ $t('zan-ting') }}
                         </Button>
                         <Button
-                          type="primary"
-                          @click="handleConfirmTicketByTime"
+                          type="text"
+                          size="small"
+                          v-if="autoExecJobInfo?.canRestart"
                           :disabled="isBtnOnlyRead"
-                          v-if="confirmInfo.config.autoExecType === 'SPECIFY_TIME'"
+                          @click="handleShowRetryAutoExecJobModal"
                         >
-                          {{ $t('ding-shi-zhi-hang') }}
+                          {{ $t('hui-fu') }}
+                        </Button>
+                        <Button
+                          type="text"
+                          size="small"
+                          v-if="autoExecJobInfo?.canRetry"
+                          @click="handleShowRetryAutoExecJobModal"
+                          :disabled="isBtnOnlyRead"
+                        >
+                          {{ $t('zhong-shi') }}
+                        </Button>
+                        <Button type="text" size="small" @click="handleAutoExecLog(null)" :disabled="isBtnOnlyRead">
+                          {{ $t('tiao-du-ri-zhi') }}
                         </Button>
                       </div>
                     </div>
-                  </div>
+                    <Table :columns="autoExecTaskColumns" :data="autoExecTaskList" border stripe size="small">
+                      <template #status="{ row }">
+                        <Tag :color="AUTO_EXEC_TASK_STATUS_COLOR[row?.status]">
+                          {{ AUTO_EXEC_TASK_STATUS_I18N[row?.status] }}
+                        </Tag>
+                      </template>
+                      <template #sql="{ row }">
+                        <span style="display: inline-block; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
+                          {{ row.execSql }}
+                        </span>
+                      </template>
+                      <template #action="{ row }">
+                        <!--          <Button type="text" size="small" @click="handleAutoExecSQL(row)">{{ $t('cha-kan-sql') }}</Button>-->
+                        <Button type="text" size="small" @click="handleAutoExecLog(row)">
+                          {{ $t('ri-zhi') }}
+                        </Button>
+                        <Button type="text" size="small" @click="getSqlDetail(row?.execSql)">
+                          {{ $t('cha-kan') }}
+                        </Button>
+                        <Button type="text" size="small" @click="handleShowSkipAutoExecTaskModal(row)" :disabled="isBtnOnlyRead" v-if="row.canSkip">
+                          {{ $t('tiao-guo') }}
+                        </Button>
+                        <Button
+                          type="text"
+                          size="small"
+                          @click="handleShowContinueAutoExecTaskModal(row)"
+                          :disabled="isBtnOnlyRead"
+                          v-if="row.canCancelSkip"
+                        >
+                          {{ $t('qu-xiao-tiao-guo') }}
+                        </Button>
+                      </template>
+                    </Table>
+                    <div style="width: 100%; text-align: right">
+                      <Page
+                        v-model="page"
+                        :page-size="pageSize"
+                        :total="total"
+                        @on-change="handleTaskPageChange"
+                        size="small"
+                        style="margin-top: 10px"
+                      />
+                    </div>
+                  </section>
                 </div>
-                <CCEmptyContent v-else :content="$t('xi-tong-tiao-du-zhong')" loading />
+                <div class="exec-right" v-if="changeInfo.currentStatus === 'OPEN'">
+                  <section class="page-section exec-confirm-section">
+                    <Form :model="confirmInfo.config" :label-width="60">
+                      <FormItem style="margin-bottom: 0" :label="$t('zhi-hang-ce-lve')" prop="autoExecType">
+                        <RadioGroup v-model="confirmInfo.config.autoExecType">
+                          <Radio label="MANUAL_EXEC">{{ $t('bu-zhi-hang') }}</Radio>
+                          <Radio label="IMMEDIATE">{{ $t('li-ji') }}</Radio>
+                          <Radio label="SPECIFY_TIME">{{ $t('ding-shi') }}</Radio>
+                        </RadioGroup>
+                        <DatePicker
+                          v-if="confirmInfo.config.autoExecType === 'SPECIFY_TIME'"
+                          v-model="confirmInfo.config.execTime"
+                          size="small"
+                          type="datetime"
+                          :placeholder="$t('qing-xuan-ze-zhi-hang-shi-jian')"
+                        />
+                      </FormItem>
+                      <FormItem style="margin-bottom: 0" :label="$t('shi-wu')" prop="enableTransactional">
+                        <i-switch
+                          v-model="confirmInfo.config.enableTransactional"
+                          size="large"
+                          :disabled="confirmInfo.config.autoExecType === 'MANUAL_EXEC'"
+                        >
+                          <template #open>
+                            <span>{{ $t('kai-qi-0') }}</span>
+                          </template>
+                          <template #close>
+                            <span>{{ $t('wu-0') }}</span>
+                          </template>
+                        </i-switch>
+                        <span style="color: #aaa">
+                          {{ $t('ru-guo-sql-yu-ju-zhong-cun-zai-fei-dml-yu-ju-ke-neng-hui-bei-fen-wei-duo-ge-shi-wu-zhi-hang') }}
+                        </span>
+                      </FormItem>
+                    </Form>
+                    <div class="right-footer">
+                      <Button
+                        type="primary"
+                        @click="handleFinishTicket"
+                        :disabled="isBtnOnlyRead"
+                        v-if="confirmInfo.config.autoExecType === 'MANUAL_EXEC'"
+                      >
+                        {{ $t('jie-shu-gong-dan') }}
+                      </Button>
+                      <Button
+                        type="primary"
+                        @click="handleConfirmTicketByNow"
+                        :disabled="isBtnOnlyRead"
+                        v-if="confirmInfo.config.autoExecType === 'IMMEDIATE'"
+                      >
+                        {{ $t('li-ji-zhi-hang') }}
+                      </Button>
+                      <Button
+                        type="primary"
+                        @click="handleConfirmTicketByTime"
+                        :disabled="isBtnOnlyRead"
+                        v-if="confirmInfo.config.autoExecType === 'SPECIFY_TIME'"
+                      >
+                        {{ $t('ding-shi-zhi-hang') }}
+                      </Button>
+                    </div>
+                  </section>
+                </div>
               </div>
+              <CCEmptyContent v-else :content="$t('xi-tong-tiao-du-zhong')" loading />
             </div>
           </div>
         </div>
@@ -1225,7 +1206,8 @@ export default {
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  background: #f6f9fc;
+  background: #fff;
+  color: #1f2937;
 
   .uid {
     display: flex;
@@ -1278,38 +1260,135 @@ export default {
   }
 }
 
-.change-detail-layout {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  min-height: 0;
-  padding: 12px 20px 16px;
-  background: #f6f9fc;
-}
-
 .change-detail-shell {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
   min-height: 0;
+  padding: 20px 24px;
   overflow: hidden;
+  gap: 32px;
 }
 
-.sql-change-container {
-  position: relative;
+.change-detail-body {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-  border: 1px solid #dbe6f1;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: 0 12px 30px rgba(31, 45, 61, 0.05);
+}
 
-  .read-only-editor {
-    border: none;
-  }
+.page-section {
+  min-width: 0;
+}
+
+.page-section__title {
+  position: relative;
+  margin-bottom: 0;
+  padding-left: 12px;
+  color: #181d26;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.page-section__title::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 3px;
+  height: 16px;
+  border-radius: 2px;
+  background: #18b566;
+  transform: translateY(-50%);
+  content: '';
+}
+
+.panel-subheading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: #181d26;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.release-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr);
+  align-items: stretch;
+  gap: 24px;
+}
+
+.release-panel {
+  min-width: 0;
+}
+
+.link-divider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.link-divider::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  border-left: 1px dashed #d5e0eb;
+  content: '';
+  transform: translateX(-50%);
+}
+
+.link-divider span {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 74px;
+  width: 74px;
+  min-width: 74px;
+  max-width: 74px;
+  height: 74px;
+  min-height: 74px;
+  max-height: 74px;
+  box-sizing: border-box;
+  aspect-ratio: 1 / 1;
+  border: 1px dashed #d8ecdf;
+  border-radius: 999px;
+  background: #fff;
+  color: #0fa958;
+}
+
+.link-divider span::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 52px;
+  min-width: 52px;
+  height: 52px;
+  min-height: 52px;
+  aspect-ratio: 1 / 1;
+  border-radius: 999px;
+  background: #dff7eb;
+  content: '';
+  transform: translate(-50%, -50%);
+}
+
+.flow-link-arrows {
+  position: relative;
+  z-index: 1;
+  width: 30px;
+  height: 30px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.3;
 }
 
 .change-detail-hero {
@@ -1319,9 +1398,7 @@ export default {
   gap: 24px;
   align-items: start;
   margin-bottom: 0 !important;
-  padding: 22px 24px 20px;
-  border-bottom: 1px solid #e1ebf3;
-  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  padding: 0;
 }
 
 .left-wrap {
@@ -1391,32 +1468,8 @@ export default {
   background: #eef4fa;
 }
 
-.card-wrap {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(260px, 1fr) 86px minmax(260px, 1fr);
-  align-items: stretch;
-  max-width: 100%;
-  min-width: 0;
-}
-
-.endpoint-summary-card {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 116px;
-  padding: 2px 0;
-}
-
-.endpoint-summary-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  color: #111827;
-  font-size: 15px;
-  font-weight: 800;
-  line-height: 22px;
+.change-detail-pipeline {
+  margin-top: 8px;
 }
 
 .endpoint-summary-lines {
@@ -1436,7 +1489,7 @@ export default {
 
   span {
     color: #66758a;
-    font-weight: 700;
+    font-weight: 500;
     white-space: nowrap;
   }
 
@@ -1444,66 +1497,10 @@ export default {
     min-width: 0;
     overflow: hidden;
     color: #111827;
-    font-weight: 800;
+    font-weight: 500;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-}
-
-.mid {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 116px;
-  color: #0fac69;
-
-  &::before {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    border-left: 1px dashed #d5e0eb;
-    content: '';
-    transform: translateX(-50%);
-  }
-}
-
-.detail-flow-node {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 58px;
-  height: 58px;
-  border: 1px dashed #d8ecdf;
-  border-radius: 999px;
-  background: #fff;
-}
-
-.detail-flow-node::before {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  background: #dff7eb;
-  content: '';
-  transform: translate(-50%, -50%);
-}
-
-.detail-flow-arrows {
-  position: relative;
-  z-index: 1;
-  width: 24px;
-  height: 24px;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 2.3;
 }
 
 .right-wrap {
@@ -1568,17 +1565,19 @@ export default {
   flex: 1 1 auto;
   flex-direction: column;
   min-height: 0;
-  background: #fff;
+
+  .read-only-editor {
+    border: none;
+  }
 
   .tab-wrap {
     flex: 0 0 auto;
     width: 100%;
-    background-color: #fff;
   }
 
   :deep(.ivu-tabs-bar) {
     margin-bottom: 0;
-    padding: 0 24px;
+    padding: 0;
     border-bottom: 1px solid #e1ebf3;
   }
 
@@ -1600,9 +1599,8 @@ export default {
   .tab-item-wrap {
     flex: 1 1 auto;
     min-height: 0;
-    padding: 18px 24px 22px;
+    padding: 18px 0 0;
     overflow: auto;
-    background: #fff;
   }
 
   .tab-item {
@@ -1613,13 +1611,6 @@ export default {
   :deep(.ivu-tabs-content) {
     height: auto;
   }
-}
-
-:deep(.ivu-card) {
-  margin-bottom: 16px;
-  border-color: #dbe6f1;
-  border-radius: 8px;
-  box-shadow: none;
 }
 
 :deep(.ivu-table-wrapper) {
@@ -1689,7 +1680,7 @@ export default {
     min-width: 0;
   }
 
-  .exec-border {
+  .exec-confirm-section {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -1697,10 +1688,49 @@ export default {
     max-width: 820px;
     height: auto;
     min-height: 220px;
-    padding: 16px;
-    border: 1px solid #dbe6f1;
-    border-radius: 8px;
-    background: #fbfdff;
+    padding: 0;
+  }
+
+  .exec-task-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    min-height: 0;
+  }
+
+  .exec-section-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  .exec-section-leading {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .exec-section-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding-left: 12px;
+    color: #465467;
+    font-size: 14px;
+  }
+
+  .exec-section-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    flex: 0 0 auto;
   }
 
   .right-footer {
@@ -1762,12 +1792,12 @@ export default {
 }
 
 @media (max-width: 980px) {
-  .change-detail-layout {
-    padding: 10px 14px 14px;
+  .change-detail-shell {
+    padding: 16px;
   }
 
   .change-detail-hero {
-    padding: 18px;
+    gap: 20px;
   }
 
   .title-wrap {
@@ -1778,17 +1808,18 @@ export default {
     max-width: 100%;
   }
 
-  .card-wrap {
+  .change-detail-pipeline,
+  .release-grid {
     grid-template-columns: 1fr;
     gap: 12px;
   }
 
-  .mid {
-    min-height: 56px;
+  .link-divider {
+    min-height: 64px;
   }
 
   .content-wrap .tab-item-wrap {
-    padding: 16px;
+    padding-top: 16px;
   }
 }
 </style>
