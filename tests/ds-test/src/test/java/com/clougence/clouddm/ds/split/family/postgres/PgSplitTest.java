@@ -5,8 +5,8 @@ import java.util.List;
 import org.junit.Test;
 
 import com.clougence.clouddm.ds.split.SplitTestSupport;
-import com.clougence.clouddm.dsfamily.postgres.analysis.PgSplitAnalysisSpi;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
+import com.clougence.sql.postgres.split.PgSplitAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 
 public class PgSplitTest extends SplitTestSupport {

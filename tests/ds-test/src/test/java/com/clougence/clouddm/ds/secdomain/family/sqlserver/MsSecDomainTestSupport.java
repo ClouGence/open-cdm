@@ -5,10 +5,10 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.ds.sqlserver.analysis.MsSecDomainOptionKeys;
-import com.clougence.clouddm.ds.sqlserver.analysis.MsSqlResAnalysisSpi;
-import com.clougence.clouddm.ds.sqlserver.analysis.MsSqlSecDomainResolveSpi;
-import com.clougence.clouddm.ds.sqlserver.analysis.MsSqlSplitAnalysisSpi;
+import com.clougence.sql.sqlserver.security.MsSecDomainOptionKeys;
+import com.clougence.sql.sqlserver.resource.MsSqlResAnalysisSpi;
+import com.clougence.sql.sqlserver.security.MsSqlSecDomainResolveSpi;
+import com.clougence.sql.sqlserver.split.MsSqlSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;

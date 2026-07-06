@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.clougence.clouddm.ds.clickhouse.analysis.ChSelectColumnAnalysisSpi;
+import com.clougence.clouddm.ds.clickhouse.sql.column.ChSelectColumnAnalysisSpi;
 import com.clougence.clouddm.ds.column.TestMetaServiceImpl;
-import com.clougence.clouddm.sdk.analysis.column.RealColumn;
-import com.clougence.clouddm.sdk.analysis.column.SelectItem;
+import com.clougence.clouddm.sdk.sql.column.RealColumn;
+import com.clougence.clouddm.sdk.sql.column.SelectItem;
 
 public class ChParseColumnSimpleTest extends ChSelectColumnTestSupport {
 

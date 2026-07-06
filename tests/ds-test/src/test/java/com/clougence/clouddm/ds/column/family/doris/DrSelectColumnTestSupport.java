@@ -2,7 +2,7 @@ package com.clougence.clouddm.ds.column.family.doris;
 
 import java.util.Map;
 
-import com.clougence.clouddm.ds.doris.analysis.DrSelectColumnAnalysisSpi;
+import com.clougence.sql.doris.column.DrSelectColumnAnalysisSpi;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;

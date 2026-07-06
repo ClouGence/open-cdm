@@ -1,8 +1,8 @@
 package com.clougence.clouddm.ds.rules.special.ads4my.column;
 
-import com.clougence.clouddm.ds.ads.analysis.ads4my.AdsMySecDomainResolveSpi;
+import com.clougence.clouddm.ds.ads.sql.ads4my.security.AdsMySecDomainResolveSpi;
 import com.clougence.clouddm.ds.rules.special.mysql.column.MyRuleColumnCollateTest;
-import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 
 public class MyFamilyRuleColumnCollateTest extends MyRuleColumnCollateTest {

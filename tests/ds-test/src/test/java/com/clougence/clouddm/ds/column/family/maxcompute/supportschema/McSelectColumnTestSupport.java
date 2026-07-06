@@ -2,7 +2,7 @@ package com.clougence.clouddm.ds.column.family.maxcompute.supportschema;
 
 import java.util.Map;
 
-import com.clougence.clouddm.ds.maxcompute.analysis.McSelectColumnAnalysisSpi;
+import com.clougence.clouddm.ds.maxcompute.sql.column.McSelectColumnAnalysisSpi;
 import com.clougence.clouddm.ds.maxcompute.dsconf.McConfig;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.schema.umi.struts.UmiTypes;

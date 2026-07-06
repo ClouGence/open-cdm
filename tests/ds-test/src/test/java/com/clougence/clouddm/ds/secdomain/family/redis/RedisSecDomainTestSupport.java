@@ -5,9 +5,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.ds.redis.analysis.RedisResAnalysisSpi;
-import com.clougence.clouddm.ds.redis.analysis.RedisSecDomainResolveSpi;
-import com.clougence.clouddm.ds.redis.analysis.RedisSplitAnalysisSpi;
+import com.clougence.sql.redis.resource.RedisResAnalysisSpi;
+import com.clougence.sql.redis.security.RedisSecDomainResolveSpi;
+import com.clougence.sql.redis.split.RedisSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;

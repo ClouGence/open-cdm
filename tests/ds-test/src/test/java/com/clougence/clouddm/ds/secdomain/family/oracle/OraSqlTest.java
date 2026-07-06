@@ -7,9 +7,9 @@ import java.nio.file.Paths;
 
 import org.junit.Test;
 
-import com.clougence.clouddm.ds.oracle.analysis.OraResAnalysisSpi;
-import com.clougence.clouddm.ds.oracle.analysis.OraSecDomainResolveSpi;
-import com.clougence.clouddm.ds.oracle.analysis.OraSplitAnalysisSpi;
+import com.clougence.sql.oracle.resource.OraResAnalysisSpi;
+import com.clougence.sql.oracle.security.OraSecDomainResolveSpi;
+import com.clougence.sql.oracle.split.OraSplitAnalysisSpi;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.utils.StringUtils;
 

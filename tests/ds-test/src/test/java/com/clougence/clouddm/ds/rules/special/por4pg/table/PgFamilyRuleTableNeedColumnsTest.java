@@ -1,15 +1,15 @@
 package com.clougence.clouddm.ds.rules.special.por4pg.table;
 
-import com.clougence.clouddm.ds.polardb.analysis.porpg.PorPgSecDomainResolveSpi;
+import com.clougence.sql.postgres.security.PgSecDomainResolveSpi;
 import com.clougence.clouddm.ds.rules.rdb.using_pg.table.PgRuleTableNeedColumnsTest;
-import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 
 public class PgFamilyRuleTableNeedColumnsTest extends PgRuleTableNeedColumnsTest {
 
     @Override
     protected SecDomainResolveSpi createSPI() {
-        return new PorPgSecDomainResolveSpi(null);
+        return new PgSecDomainResolveSpi(null);
     }
 
     @Override

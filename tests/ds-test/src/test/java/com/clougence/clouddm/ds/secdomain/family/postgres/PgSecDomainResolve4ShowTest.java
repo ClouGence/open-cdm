@@ -4,7 +4,7 @@
 //
 //import org.junit.Test;
 //
-//import com.clougence.clouddm.dsfamily.postgres.analysis.PgSecDomainResolveSpi;
+//import com.clougence.sql.postgres.security.PgSecDomainResolveSpi;
 //import com.clougence.clouddm.sdk.model.analysis.TargetType;
 //import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 //import com.clougence.clouddm.sdk.security.auth.SecQueryType;

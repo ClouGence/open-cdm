@@ -5,9 +5,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.dsfamily.mysql.analysis.MyResAnalysisSpi;
-import com.clougence.clouddm.dsfamily.mysql.analysis.MySecDomainResolveSpi;
-import com.clougence.clouddm.dsfamily.mysql.analysis.MySplitAnalysisSpi;
+import com.clougence.sql.mysql.resource.MyResAnalysisSpi;
+import com.clougence.sql.mysql.security.MySecDomainResolveSpi;
+import com.clougence.sql.mysql.split.MySplitAnalysisSpi;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;

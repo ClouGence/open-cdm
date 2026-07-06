@@ -2,7 +2,7 @@ package com.clougence.clouddm.ds.column.family.postgres;
 
 import java.util.Map;
 
-import com.clougence.clouddm.dsfamily.postgres.analysis.PgSelectColumnAnalysisSpi;
+import com.clougence.sql.postgres.column.PgSelectColumnAnalysisSpi;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;

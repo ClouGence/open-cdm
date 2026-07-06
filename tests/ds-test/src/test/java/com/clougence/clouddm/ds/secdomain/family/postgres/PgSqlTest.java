@@ -7,9 +7,9 @@ import java.nio.file.Paths;
 
 import org.junit.Test;
 
-import com.clougence.clouddm.dsfamily.postgres.analysis.PgResAnalysisSpi;
-import com.clougence.clouddm.dsfamily.postgres.analysis.PgSecDomainResolveSpi;
-import com.clougence.clouddm.dsfamily.postgres.analysis.PgSplitAnalysisSpi;
+import com.clougence.sql.postgres.resource.PgResAnalysisSpi;
+import com.clougence.sql.postgres.security.PgSecDomainResolveSpi;
+import com.clougence.sql.postgres.split.PgSplitAnalysisSpi;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.utils.StringUtils;
 

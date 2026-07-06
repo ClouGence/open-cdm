@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.clougence.clouddm.ds.polardb.analysis.porx.PorXResAnalysisSpi;
-import com.clougence.clouddm.ds.polardb.analysis.porx.PorXSecDomainResolveSpi;
-import com.clougence.clouddm.ds.polardb.analysis.porx.PorXSplitAnalysisSpi;
+import com.clougence.clouddm.ds.polardb.sql.porx.resource.PorXResAnalysisSpi;
+import com.clougence.clouddm.ds.polardb.sql.porx.security.PorXSecDomainResolveSpi;
+import com.clougence.clouddm.ds.polardb.sql.porx.split.PorXSplitAnalysisSpi;
 import com.clougence.clouddm.ds.secdomain.family.mysql.MySecDomainTestSupport;
-import com.clougence.clouddm.dsfamily.mysql.analysis.secrules.MyUpdateDomain;
+import com.clougence.sql.mysql.security.domain.MyUpdateDomain;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;

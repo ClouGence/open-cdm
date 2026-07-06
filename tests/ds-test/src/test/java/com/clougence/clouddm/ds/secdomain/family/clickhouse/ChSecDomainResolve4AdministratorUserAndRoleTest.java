@@ -2,19 +2,19 @@
 //
 //import java.util.List;
 //
-//import com.clougence.clouddm.ds.clickhouse.analysis.ChResAnalysisSpi;
-//import com.clougence.clouddm.ds.clickhouse.analysis.ChSecDomainResolveSpi;
-//import com.clougence.clouddm.ds.clickhouse.analysis.ChSplitAnalysisSpi;
+//import com.clougence.clouddm.ds.clickhouse.sql.resource.ChResAnalysisSpi;
+//import com.clougence.clouddm.ds.clickhouse.sql.security.ChSecDomainResolveSpi;
+//import com.clougence.clouddm.ds.clickhouse.sql.split.ChSplitAnalysisSpi;
 //import org.junit.Test;
 //
-//import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbRoleDomain;
-//import com.clougence.clouddm.dsfamily.mysql.analysis.MyResAnalysisSpi;
-//import com.clougence.clouddm.dsfamily.mysql.analysis.MySecDomainResolveSpi;
-//import com.clougence.clouddm.dsfamily.mysql.analysis.MySplitAnalysisSpi;
-//import com.clougence.clouddm.dsfamily.mysql.analysis.secrules.MyGrantDomain;
-//import com.clougence.clouddm.dsfamily.mysql.analysis.secrules.MyRevokeDomain;
-//import com.clougence.clouddm.dsfamily.mysql.analysis.secrules.MyUserDomain;
-//import com.clougence.clouddm.sdk.analysis.split.SplitScript;
+//import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbRoleDomain;
+//import com.clougence.sql.mysql.resource.MyResAnalysisSpi;
+//import com.clougence.sql.mysql.security.MySecDomainResolveSpi;
+//import com.clougence.sql.mysql.split.MySplitAnalysisSpi;
+//import com.clougence.sql.mysql.security.domain.MyGrantDomain;
+//import com.clougence.sql.mysql.security.domain.MyRevokeDomain;
+//import com.clougence.sql.mysql.security.domain.MyUserDomain;
+//import com.clougence.clouddm.sdk.sql.split.SplitScript;
 //import com.clougence.clouddm.sdk.model.analysis.TargetType;
 //import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
 //import com.clougence.clouddm.sdk.service.secrules.RuleDomain;

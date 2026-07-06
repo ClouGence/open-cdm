@@ -6,11 +6,11 @@ import java.util.List;
 import org.junit.Test;
 
 import com.clougence.clouddm.ds.secdomain.family.mysql.MySecDomainTestSupport;
-import com.clougence.clouddm.ds.tidb.analysis.TiResAnalysisSpi;
-import com.clougence.clouddm.ds.tidb.analysis.TiSecDomainResolveSpi;
-import com.clougence.clouddm.ds.tidb.analysis.TiSplitAnalysisSpi;
-import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbConstraintDomain;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
+import com.clougence.clouddm.ds.tidb.sql.resource.TiResAnalysisSpi;
+import com.clougence.clouddm.ds.tidb.sql.security.TiSecDomainResolveSpi;
+import com.clougence.clouddm.ds.tidb.sql.split.TiSplitAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbConstraintDomain;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;

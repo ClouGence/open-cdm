@@ -15,10 +15,10 @@ import java.util.stream.Collectors;
 import org.junit.Test;
 
 import com.clougence.clouddm.ds.TestUtil;
-import com.clougence.clouddm.dsfamily.mysql.analysis.MyResAnalysisSpi;
-import com.clougence.clouddm.dsfamily.mysql.analysis.MySecDomainResolveSpi;
-import com.clougence.clouddm.dsfamily.mysql.analysis.MySplitAnalysisSpi;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
+import com.clougence.sql.mysql.resource.MyResAnalysisSpi;
+import com.clougence.sql.mysql.security.MySecDomainResolveSpi;
+import com.clougence.sql.mysql.split.MySplitAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;

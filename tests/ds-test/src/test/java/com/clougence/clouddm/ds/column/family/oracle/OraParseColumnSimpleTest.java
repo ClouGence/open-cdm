@@ -5,9 +5,9 @@ import java.util.List;
 import org.junit.Test;
 
 import com.clougence.clouddm.ds.column.TestMetaServiceImpl;
-import com.clougence.clouddm.ds.oracle.analysis.OraSelectColumnAnalysisSpi;
-import com.clougence.clouddm.sdk.analysis.column.RealColumn;
-import com.clougence.clouddm.sdk.analysis.column.SelectItem;
+import com.clougence.sql.oracle.column.OraSelectColumnAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.column.RealColumn;
+import com.clougence.clouddm.sdk.sql.column.SelectItem;
 
 public class OraParseColumnSimpleTest extends OraSelectColumnTestSupport {
 

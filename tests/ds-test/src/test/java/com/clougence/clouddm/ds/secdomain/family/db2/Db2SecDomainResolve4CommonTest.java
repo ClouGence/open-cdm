@@ -5,11 +5,11 @@ import java.util.List;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import org.junit.Test;
 
-import com.clougence.clouddm.dsfamily.db2.analysis.Db2ResAnalysisSpi;
-import com.clougence.clouddm.dsfamily.db2.analysis.Db2SecDomainResolveSpi;
-import com.clougence.clouddm.dsfamily.db2.analysis.Db2SplitAnalysisSpi;
-import com.clougence.clouddm.dsfamily.db2.analysis.secrules.Db2ColumnDomain;
-import com.clougence.clouddm.dsfamily.db2.analysis.secrules.Db2TableDomain;
+import com.clougence.sql.db2.resource.Db2ResAnalysisSpi;
+import com.clougence.sql.db2.security.Db2SecDomainResolveSpi;
+import com.clougence.sql.db2.split.Db2SplitAnalysisSpi;
+import com.clougence.sql.db2.security.domain.Db2ColumnDomain;
+import com.clougence.sql.db2.security.domain.Db2TableDomain;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;

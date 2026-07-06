@@ -6,11 +6,11 @@ import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import org.junit.Test;
 
 import com.clougence.clouddm.ds.column.TestMetaServiceImpl;
-import com.clougence.clouddm.ds.mongodb.analysis.MongoResAnalysisSpi;
-import com.clougence.clouddm.ds.mongodb.analysis.MongoSecDomainResolveSpi;
-import com.clougence.clouddm.ds.mongodb.analysis.MongoSplitAnalysisSpi;
-import com.clougence.clouddm.ds.mongodb.analysis.secrules.MongoCmdDomain;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
+import com.clougence.sql.mongodb.resource.MongoResAnalysisSpi;
+import com.clougence.sql.mongodb.security.MongoSecDomainResolveSpi;
+import com.clougence.sql.mongodb.split.MongoSplitAnalysisSpi;
+import com.clougence.sql.mongodb.security.domain.MongoCmdDomain;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;

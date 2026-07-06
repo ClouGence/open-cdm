@@ -1,7 +1,7 @@
 package com.clougence.clouddm.ds.secdomain.special.adsmy;
 
-import com.clougence.clouddm.ds.ads.analysis.ads4my.AdsMyResAnalysisSpi;
-import com.clougence.clouddm.ds.ads.analysis.ads4my.AdsMySecDomainResolveSpi;
+import com.clougence.clouddm.ds.ads.sql.ads4my.resource.AdsMyResAnalysisSpi;
+import com.clougence.clouddm.ds.ads.sql.ads4my.security.AdsMySecDomainResolveSpi;
 import com.clougence.clouddm.ds.secdomain.family.mysql.MySecDomainResolve4ColumnTest;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 

@@ -4,14 +4,14 @@
 //
 //import org.junit.Test;
 //
-//import com.clougence.clouddm.ds.maxcompute.analysis.McResAnalysisSpi;
-//import com.clougence.clouddm.ds.maxcompute.analysis.McSecDomainResolveSpi;
-//import com.clougence.clouddm.ds.maxcompute.analysis.McSplitAnalysisSpi;
-//import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbRoleDomain;
-//import com.clougence.clouddm.dsfamily.mysql.analysis.secrules.MyGrantDomain;
-//import com.clougence.clouddm.dsfamily.mysql.analysis.secrules.MyRevokeDomain;
-//import com.clougence.clouddm.dsfamily.mysql.analysis.secrules.MyUserDomain;
-//import com.clougence.clouddm.sdk.analysis.split.SplitScript;
+//import com.clougence.clouddm.ds.maxcompute.sql.resource.McResAnalysisSpi;
+//import com.clougence.clouddm.ds.maxcompute.sql.security.McSecDomainResolveSpi;
+//import com.clougence.clouddm.ds.maxcompute.sql.split.McSplitAnalysisSpi;
+//import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbRoleDomain;
+//import com.clougence.sql.mysql.security.domain.MyGrantDomain;
+//import com.clougence.sql.mysql.security.domain.MyRevokeDomain;
+//import com.clougence.sql.mysql.security.domain.MyUserDomain;
+//import com.clougence.clouddm.sdk.sql.split.SplitScript;
 //import com.clougence.clouddm.sdk.model.analysis.TargetType;
 //import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
 //import com.clougence.clouddm.sdk.service.secrules.RuleDomain;

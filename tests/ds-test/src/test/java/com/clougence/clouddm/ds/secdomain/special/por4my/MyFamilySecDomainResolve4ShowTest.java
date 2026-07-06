@@ -1,7 +1,7 @@
 package com.clougence.clouddm.ds.secdomain.special.por4my;
 
-import com.clougence.clouddm.ds.polardb.analysis.pormy.PorMyResAnalysisSpi;
-import com.clougence.clouddm.ds.polardb.analysis.pormy.PorMySecDomainResolveSpi;
+import com.clougence.sql.mysql.resource.MyResAnalysisSpi;
+import com.clougence.sql.mysql.security.MySecDomainResolveSpi;
 import com.clougence.clouddm.ds.secdomain.family.mysql.MySecDomainResolve4ShowTest;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 
@@ -9,8 +9,8 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 public class MyFamilySecDomainResolve4ShowTest extends MySecDomainResolve4ShowTest {
 
     public MyFamilySecDomainResolve4ShowTest(){
-        this.analysisSpi = new PorMyResAnalysisSpi(null);
-        this.resolveSpi = new PorMySecDomainResolveSpi(null);
+        this.analysisSpi = new MyResAnalysisSpi(null);
+        this.resolveSpi = new MySecDomainResolveSpi(null);
         this.dataSourceType = DataSourceType.PolarDbMySQL;
     }
 }

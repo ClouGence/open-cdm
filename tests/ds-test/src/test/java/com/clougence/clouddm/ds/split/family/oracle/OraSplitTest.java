@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.clougence.clouddm.ds.oracle.analysis.OraSplitAnalysisSpi;
+import com.clougence.sql.oracle.split.OraSplitAnalysisSpi;
 import com.clougence.clouddm.ds.split.SplitTestSupport;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 
 public class OraSplitTest extends SplitTestSupport {

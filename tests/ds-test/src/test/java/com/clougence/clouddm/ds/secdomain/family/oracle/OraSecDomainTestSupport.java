@@ -5,9 +5,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.ds.oracle.analysis.OraResAnalysisSpi;
-import com.clougence.clouddm.ds.oracle.analysis.OraSecDomainResolveSpi;
-import com.clougence.clouddm.ds.oracle.analysis.OraSplitAnalysisSpi;
+import com.clougence.sql.oracle.resource.OraResAnalysisSpi;
+import com.clougence.sql.oracle.security.OraSecDomainResolveSpi;
+import com.clougence.sql.oracle.split.OraSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;

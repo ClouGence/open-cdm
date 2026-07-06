@@ -7,9 +7,9 @@ import java.nio.file.Paths;
 
 import org.junit.Test;
 
-import com.clougence.clouddm.ds.maxcompute.analysis.McResAnalysisSpi;
-import com.clougence.clouddm.ds.maxcompute.analysis.McSecDomainResolveSpi;
-import com.clougence.clouddm.ds.maxcompute.analysis.McSplitAnalysisSpi;
+import com.clougence.clouddm.ds.maxcompute.sql.resource.McResAnalysisSpi;
+import com.clougence.clouddm.ds.maxcompute.sql.security.McSecDomainResolveSpi;
+import com.clougence.clouddm.ds.maxcompute.sql.split.McSplitAnalysisSpi;
 import com.clougence.clouddm.ds.secdomain.family.mc.supportschema.McSecDomainTestSupport;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.utils.StringUtils;

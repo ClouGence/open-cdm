@@ -5,12 +5,12 @@ import java.util.List;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import org.junit.Test;
 
-import com.clougence.clouddm.ds.starrocks.analysis.SrResAnalysisSpi;
-import com.clougence.clouddm.ds.starrocks.analysis.SrSecDomainResolveSpi;
-import com.clougence.clouddm.ds.starrocks.analysis.SrSplitAnalysisSpi;
-import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbFunctionDomain;
-import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbViewDomain;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
+import com.clougence.clouddm.ds.starrocks.sql.resource.SrResAnalysisSpi;
+import com.clougence.clouddm.ds.starrocks.sql.security.SrSecDomainResolveSpi;
+import com.clougence.clouddm.ds.starrocks.sql.split.SrSplitAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbFunctionDomain;
+import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbViewDomain;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;

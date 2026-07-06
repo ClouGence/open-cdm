@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.clougence.clouddm.ds.hologres.analysis.HgResAnalysisSpi;
-import com.clougence.clouddm.ds.hologres.analysis.HgSecDomainResolveSpi;
-import com.clougence.clouddm.ds.hologres.analysis.HgSplitAnalysisSpi;
+import com.clougence.sql.postgres.resource.PgResAnalysisSpi;
+import com.clougence.sql.postgres.security.PgSecDomainResolveSpi;
+import com.clougence.sql.postgres.split.PgSplitAnalysisSpi;
 import com.clougence.clouddm.ds.secdomain.family.postgres.PgSecDomainResolve4Query1Test;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
@@ -17,9 +17,9 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 public class PgFamilySecDomainResolve4Query1Test extends PgSecDomainResolve4Query1Test {
 
     public PgFamilySecDomainResolve4Query1Test(){
-        this.analysisSpi = new HgResAnalysisSpi(null);
-        this.resolveSpi = new HgSecDomainResolveSpi(null);
-        this.splitAnalysisSpi = new HgSplitAnalysisSpi();
+        this.analysisSpi = new PgResAnalysisSpi(null);
+        this.resolveSpi = new PgSecDomainResolveSpi(null);
+        this.splitAnalysisSpi = new PgSplitAnalysisSpi();
         this.dataSourceType = DataSourceType.Hologres;
     }
 

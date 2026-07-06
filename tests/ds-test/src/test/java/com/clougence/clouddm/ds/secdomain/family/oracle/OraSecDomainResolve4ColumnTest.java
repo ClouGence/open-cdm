@@ -5,11 +5,11 @@ import java.util.List;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import org.junit.Test;
 
-import com.clougence.clouddm.ds.oracle.analysis.OraResAnalysisSpi;
-import com.clougence.clouddm.ds.oracle.analysis.OraSecDomainResolveSpi;
-import com.clougence.clouddm.ds.oracle.analysis.OraSplitAnalysisSpi;
-import com.clougence.clouddm.ds.oracle.analysis.secrules.OraColumnDomain;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
+import com.clougence.sql.oracle.resource.OraResAnalysisSpi;
+import com.clougence.sql.oracle.security.OraSecDomainResolveSpi;
+import com.clougence.sql.oracle.split.OraSplitAnalysisSpi;
+import com.clougence.sql.oracle.security.domain.OraColumnDomain;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;

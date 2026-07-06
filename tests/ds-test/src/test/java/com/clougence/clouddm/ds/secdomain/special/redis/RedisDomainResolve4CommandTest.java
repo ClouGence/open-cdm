@@ -4,12 +4,12 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.clougence.clouddm.ds.redis.analysis.RedisResAnalysisSpi;
-import com.clougence.clouddm.ds.redis.analysis.RedisSecDomainResolveSpi;
-import com.clougence.clouddm.ds.redis.analysis.RedisSplitAnalysisSpi;
-import com.clougence.clouddm.ds.redis.analysis.secrules.RedisCmdDomain;
+import com.clougence.sql.redis.resource.RedisResAnalysisSpi;
+import com.clougence.sql.redis.security.RedisSecDomainResolveSpi;
+import com.clougence.sql.redis.split.RedisSplitAnalysisSpi;
+import com.clougence.sql.redis.security.domain.RedisCmdDomain;
 import com.clougence.clouddm.ds.secdomain.family.redis.RedisSecDomainTestSupport;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;

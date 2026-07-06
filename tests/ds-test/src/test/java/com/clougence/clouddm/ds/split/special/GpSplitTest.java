@@ -1,7 +1,7 @@
 package com.clougence.clouddm.ds.split.special;
 
 import com.clougence.clouddm.ds.split.family.postgres.PgSplitTest;
-import com.clougence.clouddm.dsfamily.postgres.analysis.PgSplitAnalysisSpi;
+import com.clougence.sql.postgres.split.PgSplitAnalysisSpi;
 
 public class GpSplitTest extends PgSplitTest {
 

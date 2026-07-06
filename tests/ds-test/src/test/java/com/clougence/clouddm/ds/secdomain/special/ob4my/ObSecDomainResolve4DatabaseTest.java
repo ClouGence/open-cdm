@@ -5,11 +5,11 @@ import java.util.List;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import org.junit.Test;
 
-import com.clougence.clouddm.ds.oceanbase.analysis.ob4my.ObResAnalysisSpi;
-import com.clougence.clouddm.ds.oceanbase.analysis.ob4my.ObSecDomainResolveSpi;
-import com.clougence.clouddm.ds.oceanbase.analysis.ob4my.ObSplitAnalysisSpi;
+import com.clougence.clouddm.ds.oceanbase.sql.ob4my.resource.ObResAnalysisSpi;
+import com.clougence.clouddm.ds.oceanbase.sql.ob4my.security.ObSecDomainResolveSpi;
+import com.clougence.clouddm.ds.oceanbase.sql.ob4my.split.ObSplitAnalysisSpi;
 import com.clougence.clouddm.ds.secdomain.family.mysql.MySecDomainTestSupport;
-import com.clougence.clouddm.dsfamily.mysql.analysis.secrules.MySchemaDomain;
+import com.clougence.sql.mysql.security.domain.MySchemaDomain;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;

@@ -1,15 +1,15 @@
 package com.clougence.clouddm.ds.rules.special.greenplum.column;
 
-import com.clougence.clouddm.ds.greenplum.analysis.GpSecDomainResolveSpi;
+import com.clougence.sql.postgres.security.PgSecDomainResolveSpi;
 import com.clougence.clouddm.ds.rules.rdb.using_pg.column.PgRuleColumnVarCharLengthTest;
-import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 
 public class PgFamilyRuleColumnVarCharLengthTest extends PgRuleColumnVarCharLengthTest {
 
     @Override
     protected SecDomainResolveSpi createSPI() {
-        return new GpSecDomainResolveSpi(null);
+        return new PgSecDomainResolveSpi(null);
     }
 
     @Override

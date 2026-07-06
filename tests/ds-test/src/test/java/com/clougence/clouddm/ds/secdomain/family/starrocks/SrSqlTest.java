@@ -7,9 +7,9 @@ import java.nio.file.Paths;
 
 import org.junit.Test;
 
-import com.clougence.clouddm.ds.starrocks.analysis.SrResAnalysisSpi;
-import com.clougence.clouddm.ds.starrocks.analysis.SrSecDomainResolveSpi;
-import com.clougence.clouddm.ds.starrocks.analysis.SrSplitAnalysisSpi;
+import com.clougence.clouddm.ds.starrocks.sql.resource.SrResAnalysisSpi;
+import com.clougence.clouddm.ds.starrocks.sql.security.SrSecDomainResolveSpi;
+import com.clougence.clouddm.ds.starrocks.sql.split.SrSplitAnalysisSpi;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.utils.StringUtils;
 

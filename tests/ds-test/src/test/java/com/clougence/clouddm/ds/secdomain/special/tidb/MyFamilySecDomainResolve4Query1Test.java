@@ -1,9 +1,9 @@
 package com.clougence.clouddm.ds.secdomain.special.tidb;
 
 import com.clougence.clouddm.ds.secdomain.family.mysql.MySecDomainResolve4Query1Test;
-import com.clougence.clouddm.ds.tidb.analysis.TiResAnalysisSpi;
-import com.clougence.clouddm.ds.tidb.analysis.TiSecDomainResolveSpi;
-import com.clougence.clouddm.ds.tidb.analysis.TiSplitAnalysisSpi;
+import com.clougence.clouddm.ds.tidb.sql.resource.TiResAnalysisSpi;
+import com.clougence.clouddm.ds.tidb.sql.security.TiSecDomainResolveSpi;
+import com.clougence.clouddm.ds.tidb.sql.split.TiSplitAnalysisSpi;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 
 public class MyFamilySecDomainResolve4Query1Test extends MySecDomainResolve4Query1Test {

@@ -5,8 +5,8 @@ import java.util.List;
 import org.junit.Test;
 
 import com.clougence.clouddm.ds.split.SplitTestSupport;
-import com.clougence.clouddm.dsfamily.mysql.analysis.MySplitAnalysisSpi;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
+import com.clougence.sql.mysql.split.MySplitAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 
 public class MySplitTest extends SplitTestSupport {

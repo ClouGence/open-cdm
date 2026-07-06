@@ -1,8 +1,8 @@
 package com.clougence.clouddm.ds.rules.special.por4x.insert;
 
-import com.clougence.clouddm.ds.polardb.analysis.porx.PorXSecDomainResolveSpi;
+import com.clougence.clouddm.ds.polardb.sql.porx.security.PorXSecDomainResolveSpi;
 import com.clougence.clouddm.ds.rules.rdb.using_my.insert.MyRuleInsertRequireColumnsTest;
-import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 
 public class MyFamilyRuleInsertRequireColumnsTest extends MyRuleInsertRequireColumnsTest {

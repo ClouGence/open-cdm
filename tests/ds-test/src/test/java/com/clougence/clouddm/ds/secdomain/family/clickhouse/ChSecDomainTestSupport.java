@@ -9,9 +9,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.ds.clickhouse.analysis.ChResAnalysisSpi;
-import com.clougence.clouddm.ds.clickhouse.analysis.ChSecDomainResolveSpi;
-import com.clougence.clouddm.ds.clickhouse.analysis.ChSplitAnalysisSpi;
+import com.clougence.clouddm.ds.clickhouse.sql.resource.ChResAnalysisSpi;
+import com.clougence.clouddm.ds.clickhouse.sql.security.ChSecDomainResolveSpi;
+import com.clougence.clouddm.ds.clickhouse.sql.split.ChSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;

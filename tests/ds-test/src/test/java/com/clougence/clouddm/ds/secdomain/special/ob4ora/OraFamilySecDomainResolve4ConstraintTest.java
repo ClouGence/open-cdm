@@ -1,8 +1,8 @@
 package com.clougence.clouddm.ds.secdomain.special.ob4ora;
 
-import com.clougence.clouddm.ds.oceanbase.analysis.ob4ora.ObForOraResAnalysisSpi;
-import com.clougence.clouddm.ds.oceanbase.analysis.ob4ora.ObForOraSecDomainResolveSpi;
-import com.clougence.clouddm.ds.oceanbase.analysis.ob4ora.ObForOraSplitAnalysisSpi;
+import com.clougence.clouddm.ds.oceanbase.sql.ob4ora.resource.ObForOraResAnalysisSpi;
+import com.clougence.clouddm.ds.oceanbase.sql.ob4ora.security.ObForOraSecDomainResolveSpi;
+import com.clougence.clouddm.ds.oceanbase.sql.ob4ora.split.ObForOraSplitAnalysisSpi;
 import com.clougence.clouddm.ds.secdomain.family.oracle.OraSecDomainResolve4ConstraintTest;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 

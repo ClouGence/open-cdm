@@ -9,10 +9,10 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.dsfamily.postgres.analysis.PgResAnalysisSpi;
-import com.clougence.clouddm.dsfamily.postgres.analysis.PgSecDomainOptionKeys;
-import com.clougence.clouddm.dsfamily.postgres.analysis.PgSecDomainResolveSpi;
-import com.clougence.clouddm.dsfamily.postgres.analysis.PgSplitAnalysisSpi;
+import com.clougence.sql.postgres.resource.PgResAnalysisSpi;
+import com.clougence.sql.postgres.security.PgSecDomainOptionKeys;
+import com.clougence.sql.postgres.security.PgSecDomainResolveSpi;
+import com.clougence.sql.postgres.split.PgSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;

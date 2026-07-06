@@ -10,11 +10,11 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.Parser;
 
-import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbColumnDomain;
-import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbConstraintDomain;
-import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbSchemaDomain;
-import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbTableDomain;
-import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbColumnDomain;
+import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbConstraintDomain;
+import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbSchemaDomain;
+import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbTableDomain;
+import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
@@ -49,9 +49,9 @@ public abstract class AbstractRuleTest {
         DslHelper.register("DetectRule", new DetectRuleDslProvider());
 
         ReflectHelper.addIgnoreField("com.clougence.clouddm.sdk.service.secrules.RuleDomain.children");
-        ReflectHelper.addIgnoreField("com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbSelectDomain.selectColumns");
+        ReflectHelper.addIgnoreField("com.clougence.clouddm.sdk.sql.secrules.rdb.RdbSelectDomain.selectColumns");
         ReflectHelper.addIgnoreField("com.clougence.clouddm.sdk.service.secrules.RuleDomain.splitScript");
-        ReflectHelper.addIgnoreField("com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbSelectDomain.tableAlias");
+        ReflectHelper.addIgnoreField("com.clougence.clouddm.sdk.sql.secrules.rdb.RdbSelectDomain.tableAlias");
     }
 
     public static CharStream fromResource(String script) throws IOException {

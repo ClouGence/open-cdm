@@ -3,7 +3,7 @@ package com.clougence.clouddm.ds.column.family.starrocks;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.clougence.clouddm.ds.starrocks.analysis.SrSelectColumnAnalysisSpi;
+import com.clougence.clouddm.ds.starrocks.sql.column.SrSelectColumnAnalysisSpi;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;

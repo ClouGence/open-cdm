@@ -5,13 +5,13 @@ import java.util.List;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import org.junit.Test;
 
-import com.clougence.clouddm.ds.gauss.analysis.gsog.GsogResAnalysisSpi;
-import com.clougence.clouddm.ds.gauss.analysis.gsog.GsogSecDomainResolveSpi;
-import com.clougence.clouddm.ds.gauss.analysis.gsog.GsogSplitAnalysisSpi;
+import com.clougence.clouddm.ds.gauss.sql.gs.resource.GsResAnalysisSpi;
+import com.clougence.clouddm.ds.gauss.sql.gs.security.GsSecDomainResolveSpi;
+import com.clougence.clouddm.ds.gauss.sql.gs.split.GsSplitAnalysisSpi;
 import com.clougence.clouddm.ds.secdomain.family.postgres.PgSecDomainResolve4Query1Test;
-import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbQueryMode;
-import com.clougence.clouddm.dsfamily.postgres.analysis.secrules.PgSelectDomain;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
+import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbQueryMode;
+import com.clougence.sql.postgres.security.domain.PgSelectDomain;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
@@ -21,9 +21,9 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 public class PgFamilySecDomainResolve4Query1Test extends PgSecDomainResolve4Query1Test {
 
     public PgFamilySecDomainResolve4Query1Test(){
-        this.analysisSpi = new GsogResAnalysisSpi(null);
-        this.resolveSpi = new GsogSecDomainResolveSpi(null);
-        this.splitAnalysisSpi = new GsogSplitAnalysisSpi();
+        this.analysisSpi = new GsResAnalysisSpi(null);
+        this.resolveSpi = new GsSecDomainResolveSpi(null);
+        this.splitAnalysisSpi = new GsSplitAnalysisSpi();
         this.dataSourceType = DataSourceType.GaussDBForOpenGauss;
     }
 

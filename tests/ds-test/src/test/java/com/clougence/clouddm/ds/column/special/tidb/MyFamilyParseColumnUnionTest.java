@@ -2,7 +2,7 @@ package com.clougence.clouddm.ds.column.special.tidb;
 
 import com.clougence.clouddm.ds.column.TestMetaServiceImpl;
 import com.clougence.clouddm.ds.column.family.mysql.MyParseColumnUnionTest;
-import com.clougence.clouddm.ds.tidb.analysis.TiSelectColumnAnalysisSpi;
+import com.clougence.clouddm.ds.tidb.sql.column.TiSelectColumnAnalysisSpi;
 
 public class MyFamilyParseColumnUnionTest extends MyParseColumnUnionTest {
 

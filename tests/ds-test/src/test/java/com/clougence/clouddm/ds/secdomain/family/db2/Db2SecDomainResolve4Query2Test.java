@@ -2,9 +2,9 @@ package com.clougence.clouddm.ds.secdomain.family.db2;
 
 import org.junit.Test;
 
-import com.clougence.clouddm.dsfamily.db2.analysis.Db2ResAnalysisSpi;
-import com.clougence.clouddm.dsfamily.db2.analysis.Db2SecDomainResolveSpi;
-import com.clougence.clouddm.dsfamily.db2.analysis.Db2SplitAnalysisSpi;
+import com.clougence.sql.db2.resource.Db2ResAnalysisSpi;
+import com.clougence.sql.db2.security.Db2SecDomainResolveSpi;
+import com.clougence.sql.db2.split.Db2SplitAnalysisSpi;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 
 public class Db2SecDomainResolve4Query2Test extends Db2SecDomainTestSupport {

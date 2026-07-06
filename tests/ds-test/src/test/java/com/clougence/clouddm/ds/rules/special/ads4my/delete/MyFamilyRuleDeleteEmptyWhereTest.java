@@ -1,8 +1,8 @@
 package com.clougence.clouddm.ds.rules.special.ads4my.delete;
 
-import com.clougence.clouddm.ds.ads.analysis.ads4my.AdsMySecDomainResolveSpi;
+import com.clougence.clouddm.ds.ads.sql.ads4my.security.AdsMySecDomainResolveSpi;
 import com.clougence.clouddm.ds.rules.rdb.using_my.delete.MyRuleDeleteEmptyWhereTest;
-import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 
 public class MyFamilyRuleDeleteEmptyWhereTest extends MyRuleDeleteEmptyWhereTest {

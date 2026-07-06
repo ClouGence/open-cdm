@@ -5,9 +5,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.ds.starrocks.analysis.SrResAnalysisSpi;
-import com.clougence.clouddm.ds.starrocks.analysis.SrSecDomainResolveSpi;
-import com.clougence.clouddm.ds.starrocks.analysis.SrSplitAnalysisSpi;
+import com.clougence.clouddm.ds.starrocks.sql.resource.SrResAnalysisSpi;
+import com.clougence.clouddm.ds.starrocks.sql.security.SrSecDomainResolveSpi;
+import com.clougence.clouddm.ds.starrocks.sql.split.SrSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;

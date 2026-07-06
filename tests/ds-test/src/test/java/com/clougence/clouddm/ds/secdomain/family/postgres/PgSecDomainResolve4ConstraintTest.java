@@ -7,12 +7,12 @@ import java.util.stream.Collectors;
 import com.clougence.clouddm.sdk.security.auth.SecQueryKind;
 import org.junit.Test;
 
-import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.RdbConstraintDomain;
-import com.clougence.clouddm.dsfamily.analysis.secrules.rdb.SqlConstraintType;
-import com.clougence.clouddm.dsfamily.postgres.analysis.PgResAnalysisSpi;
-import com.clougence.clouddm.dsfamily.postgres.analysis.PgSecDomainResolveSpi;
-import com.clougence.clouddm.dsfamily.postgres.analysis.PgSplitAnalysisSpi;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
+import com.clougence.clouddm.sdk.sql.secrules.rdb.RdbConstraintDomain;
+import com.clougence.clouddm.sdk.sql.secrules.rdb.SqlConstraintType;
+import com.clougence.sql.postgres.resource.PgResAnalysisSpi;
+import com.clougence.sql.postgres.security.PgSecDomainResolveSpi;
+import com.clougence.sql.postgres.split.PgSplitAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;

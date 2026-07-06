@@ -5,9 +5,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.ds.maxcompute.analysis.McResAnalysisSpi;
-import com.clougence.clouddm.ds.maxcompute.analysis.McSecDomainResolveSpi;
-import com.clougence.clouddm.ds.maxcompute.analysis.McSplitAnalysisSpi;
+import com.clougence.clouddm.ds.maxcompute.sql.resource.McResAnalysisSpi;
+import com.clougence.clouddm.ds.maxcompute.sql.security.McSecDomainResolveSpi;
+import com.clougence.clouddm.ds.maxcompute.sql.split.McSplitAnalysisSpi;
 import com.clougence.clouddm.ds.maxcompute.dsconf.McConfig;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.model.analysis.CodeInfo;

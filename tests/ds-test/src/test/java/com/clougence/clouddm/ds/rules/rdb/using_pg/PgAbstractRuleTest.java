@@ -1,8 +1,8 @@
 package com.clougence.clouddm.ds.rules.rdb.using_pg;
 
 import com.clougence.clouddm.ds.rules.AbstractRuleTest;
-import com.clougence.clouddm.dsfamily.postgres.analysis.PgSecDomainResolveSpi;
-import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
+import com.clougence.sql.postgres.security.PgSecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 
 public abstract class PgAbstractRuleTest extends AbstractRuleTest {

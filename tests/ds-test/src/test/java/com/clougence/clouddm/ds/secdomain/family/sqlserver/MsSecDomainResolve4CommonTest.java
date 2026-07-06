@@ -1,7 +1,7 @@
 package com.clougence.clouddm.ds.secdomain.family.sqlserver;
 
-import com.clougence.clouddm.ds.sqlserver.analysis.MsSqlResAnalysisSpi;
-import com.clougence.clouddm.ds.sqlserver.analysis.MsSqlSecDomainResolveSpi;
+import com.clougence.sql.sqlserver.resource.MsSqlResAnalysisSpi;
+import com.clougence.sql.sqlserver.security.MsSqlSecDomainResolveSpi;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 

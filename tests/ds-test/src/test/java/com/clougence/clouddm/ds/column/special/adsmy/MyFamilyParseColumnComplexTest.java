@@ -1,6 +1,6 @@
 package com.clougence.clouddm.ds.column.special.adsmy;
 
-import com.clougence.clouddm.ds.ads.analysis.ads4my.AdsMySelectColumnAnalysisSpi;
+import com.clougence.clouddm.ds.ads.sql.ads4my.column.AdsMySelectColumnAnalysisSpi;
 import com.clougence.clouddm.ds.column.TestMetaServiceImpl;
 import com.clougence.clouddm.ds.column.family.mysql.MyParseColumnComplexTest;
 

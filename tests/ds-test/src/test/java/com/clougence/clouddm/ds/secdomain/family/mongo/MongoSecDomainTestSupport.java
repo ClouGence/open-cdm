@@ -5,9 +5,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.ds.mongodb.analysis.MongoResAnalysisSpi;
-import com.clougence.clouddm.ds.mongodb.analysis.MongoSecDomainResolveSpi;
-import com.clougence.clouddm.ds.mongodb.analysis.MongoSplitAnalysisSpi;
+import com.clougence.sql.mongodb.resource.MongoResAnalysisSpi;
+import com.clougence.sql.mongodb.security.MongoSecDomainResolveSpi;
+import com.clougence.sql.mongodb.split.MongoSplitAnalysisSpi;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;

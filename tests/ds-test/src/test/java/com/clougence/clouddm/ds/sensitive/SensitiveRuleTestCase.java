@@ -7,8 +7,8 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.clougence.clouddm.ds.rules.AbstractRuleTest;
-import com.clougence.clouddm.dsfamily.mysql.analysis.MySecDomainResolveSpi;
-import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
+import com.clougence.sql.mysql.security.MySecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sec.rules.domain.CheckerDomain;
 import com.clougence.clouddm.sec.rules.domain.special.rdb.RdbValueDomain;

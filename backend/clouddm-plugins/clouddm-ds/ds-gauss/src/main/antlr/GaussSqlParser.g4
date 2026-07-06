@@ -862,7 +862,7 @@ optpartitionspec
     ;
 
 partitionspec
-    : PARTITION BY colid OPEN_PAREN part_params CLOSE_PAREN
+    : PARTITION BY colid OPEN_PAREN part_params CLOSE_PAREN (OPEN_PAREN partition_item (COMMA partition_item)* CLOSE_PAREN)?
     ;
 
 partition_item
@@ -3027,7 +3027,7 @@ select_clause
     ;
 
 union_context
-    : (UNION | EXCEPT | INTERSECT)
+    : (UNION | EXCEPT | INTERSECT | MINUS_)
     ;
 
 simple_select_pramary

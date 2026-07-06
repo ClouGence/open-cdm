@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.sdk.analysis.column.SelectItem;
+import com.clougence.clouddm.sdk.sql.column.SelectItem;
 import com.clougence.clouddm.sdk.service.execute.MetaCol;
 import com.clougence.clouddm.sdk.service.execute.MetaObj;
 import com.clougence.clouddm.sdk.service.execute.MetaService;

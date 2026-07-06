@@ -7,9 +7,9 @@ import java.nio.file.Paths;
 
 import org.junit.Test;
 
-import com.clougence.clouddm.ds.clickhouse.analysis.ChResAnalysisSpi;
-import com.clougence.clouddm.ds.clickhouse.analysis.ChSecDomainResolveSpi;
-import com.clougence.clouddm.ds.clickhouse.analysis.ChSplitAnalysisSpi;
+import com.clougence.clouddm.ds.clickhouse.sql.resource.ChResAnalysisSpi;
+import com.clougence.clouddm.ds.clickhouse.sql.security.ChSecDomainResolveSpi;
+import com.clougence.clouddm.ds.clickhouse.sql.split.ChSplitAnalysisSpi;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.utils.StringUtils;
 

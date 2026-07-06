@@ -9,10 +9,10 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.dsfamily.db2.analysis.Db2ResAnalysisSpi;
-import com.clougence.clouddm.dsfamily.db2.analysis.Db2SecDomainOptionKeys;
-import com.clougence.clouddm.dsfamily.db2.analysis.Db2SecDomainResolveSpi;
-import com.clougence.clouddm.dsfamily.db2.analysis.Db2SplitAnalysisSpi;
+import com.clougence.sql.db2.resource.Db2ResAnalysisSpi;
+import com.clougence.sql.db2.security.Db2SecDomainOptionKeys;
+import com.clougence.sql.db2.security.Db2SecDomainResolveSpi;
+import com.clougence.sql.db2.split.Db2SplitAnalysisSpi;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;

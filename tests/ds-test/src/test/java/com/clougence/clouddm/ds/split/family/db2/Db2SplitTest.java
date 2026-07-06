@@ -5,8 +5,8 @@
 //import org.junit.Test;
 //
 //import com.clougence.clouddm.ds.split.SplitTestSupport;
-//import com.clougence.clouddm.dsfamily.db2.analysis.Db2SplitAnalysisSpi;
-//import com.clougence.clouddm.sdk.analysis.split.SplitScript;
+//import com.clougence.sql.db2.split.Db2SplitAnalysisSpi;
+//import com.clougence.clouddm.sdk.sql.split.SplitScript;
 //import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 //
 //public class Db2SplitTest extends SplitTestSupport {

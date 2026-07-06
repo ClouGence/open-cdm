@@ -4,9 +4,9 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import com.clougence.clouddm.ds.greenplum.analysis.GpSecDomainResolveSpi;
+import com.clougence.sql.postgres.security.PgSecDomainResolveSpi;
 import com.clougence.clouddm.ds.rules.rdb.using_my.MyAbstractRuleTest;
-import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 
 public class GpRuleNameNotInKeywordsTest extends MyAbstractRuleTest {
@@ -15,7 +15,7 @@ public class GpRuleNameNotInKeywordsTest extends MyAbstractRuleTest {
 
     @Override
     protected SecDomainResolveSpi createSPI() {
-        return new GpSecDomainResolveSpi(null);
+        return new PgSecDomainResolveSpi(null);
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.clougence.clouddm.ds.column.special.gs;
 
 import com.clougence.clouddm.ds.column.TestMetaServiceImpl;
 import com.clougence.clouddm.ds.column.family.postgres.PgParseColumnSelectInColumnTest;
-import com.clougence.clouddm.ds.gauss.analysis.gs.GsSelectColumnAnalysisSpi;
+import com.clougence.clouddm.ds.gauss.sql.gs.column.GsSelectColumnAnalysisSpi;
 
 public class PgFamilyParseColumnSelectInColumnTest extends PgParseColumnSelectInColumnTest {
 

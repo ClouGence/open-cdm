@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.clougence.clouddm.ds.doris.analysis.DrResAnalysisSpi;
-import com.clougence.clouddm.ds.doris.analysis.DrSecDomainResolveSpi;
-import com.clougence.clouddm.ds.doris.analysis.DrSplitAnalysisSpi;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
+import com.clougence.sql.doris.resource.DrResAnalysisSpi;
+import com.clougence.sql.doris.security.DrSecDomainResolveSpi;
+import com.clougence.sql.doris.split.DrSplitAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 import com.clougence.clouddm.sdk.model.analysis.resource.ResObject;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;

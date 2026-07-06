@@ -1,9 +1,9 @@
 package com.clougence.clouddm.ds.rules.rdb.using_mc;
 
-import com.clougence.clouddm.ds.maxcompute.analysis.McSecDomainResolveSpi;
+import com.clougence.clouddm.ds.maxcompute.sql.security.McSecDomainResolveSpi;
 import com.clougence.clouddm.ds.maxcompute.dsconf.McConfig;
 import com.clougence.clouddm.ds.rules.AbstractRuleTest;
-import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
+import com.clougence.clouddm.sdk.sql.secrules.SecDomainResolveSpi;
 import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 
