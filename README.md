@@ -23,18 +23,18 @@
 
 ## Project Facts
 
-| Field | Value |
-|------|-------|
-| Project name | CloudDM |
-| Repository | https://github.com/ClouGence/open-cdm |
-| Mirror | https://gitee.com/clougence/open-cdm |
-| Homepage | https://www.cdmgr.com/ |
-| Documentation | https://www.cdmgr.com/docs/intro/product_intro |
-| License | Apache License 2.0 |
-| Current version | 3.3.0 |
-| Main languages | Java, JavaScript / TypeScript |
+| Field | Value                                           |
+|------|-------------------------------------------------|
+| Project name | CloudDM                                         |
+| Repository | https://github.com/ClouGence/open-cdm           |
+| Mirror | https://gitee.com/clougence/open-cdm            |
+| Homepage | https://www.cdmgr.com/                          |
+| Documentation | https://www.cdmgr.com/docs/intro/product_intro  |
+| License | Apache License 2.0                              |
+| Current version | 4.0.0                                           |
+| Main languages | Java, JavaScript / TypeScript                   |
 | Deployment modes | Standalone (Alone), Cluster (Console + Sidecar) |
-| Deployment targets | Install package, Docker, Kubernetes |
+| Deployment targets | Install package, Docker, Kubernetes             |
 
 ## Core Capabilities
 

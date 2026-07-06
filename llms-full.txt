@@ -14,7 +14,7 @@ CloudDM is a free and open-source database management platform for teams, provid
 | Homepage | https://www.cdmgr.com/ |
 | Documentation | https://www.cdmgr.com/docs/intro/product_intro |
 | License | Apache License 2.0 |
-| Current version | 3.3.0 |
+| Current version | 4.0.0 |
 | Main languages | Java, JavaScript / TypeScript |
 | Deployment modes | Standalone (Alone), Cluster (Console + Sidecar) |
 | Deployment targets | Install package, Docker, Kubernetes |
@@ -67,14 +67,14 @@ CloudDM can be deployed with install packages, Docker, Docker Compose, or Kubern
 Run CloudDM in standalone mode with Docker:
 
 ```bash
-docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:3.3.0
+docker run -d --name cgdm-alone -p 8222:8222 bladepipe/cgdm-alone:4.0.0
 ```
 
 For faster image pulls in China:
 
 ```bash
 docker run -d --name cgdm-alone -p 8222:8222 \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.3.0
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:4.0.0
 ```
 
 After startup, open:
