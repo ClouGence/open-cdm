@@ -303,7 +303,6 @@ export default {
   min-height: 0;
   box-sizing: border-box;
   padding: 30px 36px 18px;
-  background: #f6f9fc;
   overflow: auto;
 }
 
@@ -311,10 +310,6 @@ export default {
   box-sizing: border-box;
   min-height: 100%;
   padding: 20px 24px 22px;
-  border: 1px solid #e3eaf2;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: 0 10px 28px rgba(31, 41, 55, 0.04);
 }
 
 .sso-form {
@@ -428,10 +423,6 @@ export default {
 @media (max-width: 900px) {
   .sso-form-page {
     padding: 12px;
-  }
-
-  .sso-form-card {
-    padding: 18px;
   }
 
   .sso-form-grid {

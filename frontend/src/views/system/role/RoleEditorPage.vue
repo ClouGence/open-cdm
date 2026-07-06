@@ -32,26 +32,10 @@
               @on-clear="handleAuthFilterChange"
               @on-change="handleAuthFilterChange"
             />
-            <Button type="text" class="role-auth-tool-btn" @click="handleExpandAllAuth">
-              <Icon type="ios-arrow-down" />
-              {{ $t('zhan-kai-quan-bu') }}
-            </Button>
-            <Button type="text" class="role-auth-tool-btn" @click="handleCollapseAllAuth">
-              <Icon type="ios-arrow-up" />
-              {{ $t('shou-qi-quan-bu') }}
-            </Button>
             <div class="role-auth-switch">
               <span>{{ $t('zhi-kan-yi-xuan') }}</span>
               <i-switch v-model="onlyShowSelected" true-color="#18b566" @on-change="handleAuthFilterChange" />
             </div>
-            <Button type="text" class="role-auth-tool-btn" :disabled="!canEditAuth" @click="handleSelectAllAuth">
-              <Icon type="ios-checkmark-circle-outline" />
-              {{ $t('quan-xuan') }}
-            </Button>
-            <Button type="text" class="role-auth-tool-btn" :disabled="!canEditAuth" @click="handleClearAuth">
-              <Icon type="ios-trash-outline" />
-              {{ $t('qing-kong') }}
-            </Button>
           </div>
           <div class="role-auth-tree-container">
             <div v-if="displayTreeData.length" class="role-auth-tree-shell">
@@ -462,30 +446,6 @@ export default {
         this.handleAuthFilterChange();
       }
     },
-    handleExpandAllAuth() {
-      this.expandedKeys = this.getExpandableKeys(this.displayTreeData.length ? this.displayTreeData : this.treeData);
-    },
-    handleCollapseAllAuth() {
-      this.expandedKeys = [];
-    },
-    handleSelectAllAuth() {
-      if (!this.canEditAuth) {
-        return;
-      }
-      const sourceTree = this.isAuthFilterActive() ? this.displayTreeData : this.treeData;
-      const sourceAuthKeys = this.getTreeAuthKeys(sourceTree);
-      this.checkedKeys = this.isAuthFilterActive()
-        ? this.normalizeCheckedAuthKeys([...this.checkedKeys, ...sourceAuthKeys])
-        : this.normalizeCheckedAuthKeys(sourceAuthKeys);
-      this.handleAuthFilterChange();
-    },
-    handleClearAuth() {
-      if (!this.canEditAuth) {
-        return;
-      }
-      this.checkedKeys = [...this.mustCheckedKeys];
-      this.handleAuthFilterChange();
-    },
     handleSubmit() {
       this.$refs.roleForm.validate(async (valid) => {
         if (!valid) {
@@ -549,10 +509,7 @@ export default {
 }
 
 .role-editor-section {
-  background: #ffffff;
-  border: 1px solid #e5e8ef;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(31, 35, 41, 0.08);
+  // no extra card — page is already inside app-main-card
 }
 
 .role-editor-card {
@@ -560,7 +517,6 @@ export default {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 24px;
   overflow: hidden;
 }
 
@@ -639,29 +595,6 @@ export default {
   :deep(.ivu-input) {
     height: 36px;
     border-radius: 6px;
-  }
-}
-
-.role-auth-tool-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 32px;
-  padding: 0 4px;
-  color: #253044;
-  font-weight: 500;
-
-  :deep(.ivu-icon) {
-    color: #253044;
-    font-size: 16px;
-  }
-
-  &:hover {
-    color: #18b566;
-
-    :deep(.ivu-icon) {
-      color: #18b566;
-    }
   }
 }
 
