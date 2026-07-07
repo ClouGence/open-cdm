@@ -46,7 +46,7 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
 
     @Override
     public List<SplitScript> analysisSplit(DataSourceConfig dsConfig, String queryString, List<QueryArg> queryArgs, int baseCodeLine, int baseCodeColumn) {
-        SqlEngineSpi sqlEngine = PluginManager.findSpi(SqlEngineSpi.class, dsConfig.getSqlEngine());
+        SqlEngineSpi sqlEngine = PluginManager.findParserSpi(dsConfig.getDataSourceType(), dsConfig.getSqlEngine());
         SplitAnalysisSpi analysisSpi = sqlEngine.splitAnalysisSpi();
 
         List<SplitScript> scripts = analysisSpi.splitScript(queryString, queryArgs, baseCodeLine, baseCodeColumn);
@@ -59,7 +59,7 @@ public class QueryAnalysisServiceImpl implements QueryAnalysisService {
 
     @Override
     public Map<RuleDomain, List<ResObject>> analysisResourceV2(DataSourceConfig dsConfig, String queryString, Map<String, Object> levels) {
-        SqlEngineSpi sqlEngine = PluginManager.findSpi(SqlEngineSpi.class, dsConfig.getSqlEngine());
+        SqlEngineSpi sqlEngine = PluginManager.findParserSpi(dsConfig.getDataSourceType(), dsConfig.getSqlEngine());
         ResAnalysisSpi analysisSpi = sqlEngine.resAnalysisSpi();
         if (analysisSpi == null) {
             return Collections.emptyMap();

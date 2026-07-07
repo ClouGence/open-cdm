@@ -31,6 +31,7 @@ import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.clouddm.sdk.execute.tools.ToolFactory;
 import com.clougence.clouddm.sdk.service.Service;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.secrules.SecRulesSupportSpi;
 import com.clougence.clouddm.sdk.ui.browser.DsBrowseSpi;
 import com.clougence.clouddm.sdk.ui.ddl.ConvertTableDDLSpi;
@@ -273,6 +274,27 @@ public class PluginManager {
             throw new UnsupportedOperationException("Unsupported " + dsProduct + " SqlDialect.");
         }
         return pluginInfo.getDsDialect();
+    }
+
+    public static SqlEngineSpi findParserSpi(DataSourceType dsProduct, String engine) {
+        DsPluginInfo pluginInfo = findDsPlugin(dsProduct);
+        if (pluginInfo == null) {
+            return null;
+        }
+
+        List<String> engineNames = pluginInfo.getBindSqlEngineNames();
+        if (engineNames == null || engineNames.isEmpty()) {
+            throw new UnsupportedOperationException("no sql engine configured for data source '" + dsProduct + "'.");
+        }
+
+        String engineName = StringUtils.trimToNull(engine);
+        if (engineName == null) {
+            engineName = engineNames.get(0);
+        } else if (!engineNames.contains(engineName)) {
+            throw new UnsupportedOperationException("sql engine '" + engineName + "' is not bound to data source '" + dsProduct + "'. bound engines: " + engineNames);
+        }
+
+        return findSpi(SqlEngineSpi.class, engineName);
     }
 
     // ---------------------------------------------

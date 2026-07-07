@@ -148,7 +148,7 @@ public class ConsoleLanguageService implements UnifiedPostConstruct, ConsoleLang
         });
 
         DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
-        SqlEngineSpi sqlEngine = PluginManager.findSpi(SqlEngineSpi.class, dsConfig.getSqlEngine());
+        SqlEngineSpi sqlEngine = PluginManager.findParserSpi(dsConfig.getDataSourceType(), dsConfig.getSqlEngine());
 
         return new LanguageCtx(levels, dsConfig, ctxDTO, params, sqlEngine);
     }
