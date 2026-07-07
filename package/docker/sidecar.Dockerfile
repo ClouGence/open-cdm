@@ -7,7 +7,7 @@ FROM cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/eclipse-temurin:1
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates curl fontconfig tzdata \
+    && apt-get install -y --no-install-recommends ca-certificates curl fontconfig tzdata vim \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /docker-entrypoint-init
 

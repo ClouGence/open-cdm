@@ -10,7 +10,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        ca-certificates curl fontconfig tzdata \
+        ca-certificates curl fontconfig tzdata vim \
         mysql-server-core-8.0 mysql-client-core-8.0 \
     && rm -rf /var/lib/apt/lists/* \
     && groupadd -r mysql \
