@@ -53,7 +53,7 @@ jobs:
             exit 1
           fi
           notes_file="docs/release-notes/v${VERSION}/index.en.md"
-          if [[ ! -f "$notes_file" ]]; then
+          if [[ "$LATEST" == "true" && ! -f "$notes_file" ]]; then
             echo "::error::release notes file does not exist: $notes_file"
             exit 1
           fi
@@ -245,9 +245,15 @@ jobs:
 
           tag="v${VERSION}"
           notes_file="docs/release-notes/v${VERSION}/index.en.md"
+          notes_args=()
+          if [[ -f "$notes_file" ]]; then
+            notes_args+=(--notes-file "$notes_file")
+          else
+            notes_args+=(--notes "Release $tag")
+          fi
           gh release create "$tag" "${assets[@]}" \
             --target "$TARGET_SHA" \
             --title "$tag" \
-            --notes-file "$notes_file" \
+            "${notes_args[@]}" \
             --prerelease="$PRERELEASE" \
             --latest="$LATEST"
