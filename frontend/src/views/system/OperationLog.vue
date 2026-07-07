@@ -90,7 +90,16 @@
         </div>
       </div>
       <div class="footer">
-        <Page :total="pagerTotal" :page-size="1" :model-value="page" @on-change="handlePagerChange" />
+        <Page
+          :total="total"
+          show-total
+          show-elevator
+          @on-change="handlePageChange"
+          show-sizer
+          :page-size="pageSize"
+          @on-page-size-change="handlePageSizeChange"
+          :model-value="page"
+        />
       </div>
     </div>
     <CCModal v-model="showAuditDetail" :title="$t('cha-kan-ri-zhi')" width="1200px">
@@ -370,8 +379,14 @@ export default {
       }
       return this.$t('dao-chu');
     },
-    pagerTotal() {
-      return this.noMoreData ? this.page : this.page + 1;
+    pageSize() {
+      return this.searchData.pageData.pageSize;
+    },
+    total() {
+      if (this.noMoreData) {
+        return (this.page - 1) * this.pageSize + this.logData.length;
+      }
+      return this.page * this.pageSize + 1;
     }
   },
   created() {
@@ -594,18 +609,31 @@ export default {
       this.handleSearch('next');
       this.page++;
     },
-    handlePagerChange(nextPage) {
+    handlePageChange(nextPage) {
       if (nextPage === this.page) {
         return;
       }
       if (nextPage > this.page) {
+        if (this.noMoreData || nextPage !== this.page + 1) {
+          return;
+        }
         this.handleNext();
         return;
       }
-      this.handlePre();
+      this.page = nextPage;
+      let startId = 0;
+      if (nextPage > 1 && this.prevFirst[nextPage - 1] !== undefined) {
+        startId = this.prevFirst[nextPage - 1] + 1;
+      }
+      if (startId < 0) {
+        startId = 0;
+      }
+      this.searchData.pageData.startId = startId;
+      this.handleSearch('prev');
     },
-    handleChangeSize() {
-      this.handleSearch('next');
+    handlePageSizeChange(pageSize) {
+      this.searchData.pageData.pageSize = pageSize;
+      this.handleRefresh();
     },
     handleChangeSearchType() {
       // Reset all search values when switching query type

@@ -2870,7 +2870,7 @@ export default {
           > .search {
             display: flex;
             flex-shrink: 0;
-            height: 56px;
+            height: 36px;
             border-bottom: 1px solid #eef1f5;
 
             :deep(.ant-select) {
@@ -2879,6 +2879,8 @@ export default {
 
             :deep(.ant-select-selector) {
               height: 100% !important;
+              display: flex !important;
+              align-items: center !important;
               border: 0 !important;
               border-right: 1px solid #eef1f5 !important;
               border-radius: 0 !important;
@@ -2886,7 +2888,7 @@ export default {
             }
 
             :deep(.ant-select-selection-item) {
-              line-height: 56px !important;
+              line-height: 1 !important;
             }
 
             :deep(.ant-input-search) {
@@ -2904,16 +2906,16 @@ export default {
               height: 100%;
               display: flex;
               align-items: center;
-              padding: 0 12px 0 14px;
+              padding: 0 10px 0 12px;
               border: 0 !important;
               border-radius: 0 !important;
               box-shadow: none !important;
             }
 
             :deep(.ant-input) {
-              height: 100%;
+              height: auto;
               padding: 0;
-              line-height: 56px;
+              line-height: 1.4;
             }
 
             :deep(.ant-input-suffix) {
@@ -2924,6 +2926,8 @@ export default {
 
             :deep(.ant-input-search-button) {
               height: 100%;
+              width: 36px;
+              padding: 0;
               border: 0 !important;
               border-left: 1px solid #eef1f5 !important;
               border-radius: 0 !important;

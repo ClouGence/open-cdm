@@ -674,6 +674,11 @@ export default {
               existingResult.rowSetCache = {};
             }
             existingResult.rowSetCache[1] = rowSet; // Save raw data on the first page
+            // Single-page results only emit ResultSet (not ResultSetRows); sync fetchCount here.
+            if (queryData.object.fetchCount !== undefined) {
+              existingResult.fetchCount = queryData.object.fetchCount;
+              existingResult.total = queryData.object.fetchCount;
+            }
           } else if (receiveMode === 'STREAM') {
             // STREAM mode: data continues to accumulate, showing only the latest 30 rows.
             existingResult.streamData = existingResult.streamData || [];
