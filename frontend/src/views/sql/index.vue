@@ -730,6 +730,7 @@ export default {
       if (this.disableAddTab()) {
         return;
       }
+      this.syncCurrentEditorTextToTab();
       this.storeQueryTabs();
       const prefix = `tab_${type}${options.editorType ? `_${options.editorType}` : ''}`;
       const prefixKey = `${prefix}.${node.key}`;
@@ -1076,14 +1077,20 @@ export default {
         this.tabManager.setTabData({ uid, id: this.currentTab.tabId, data: this.currentTab });
       }
     },
+    syncCurrentEditorTextToTab() {
+      if (this.currentTab.type !== TAB_TYPE.QUERY) {
+        return;
+      }
+      const sqlViewer = this.$refs.sqlViewer;
+      if (!sqlViewer || !sqlViewer.monacoEditor) {
+        return;
+      }
+      this.currentTab.text = sqlViewer.monacoEditor.getValue();
+    },
     storeQueryTabs() {
       console.log('store query tabs');
       const { uid } = this.userInfo;
       const key = `clouddm_new_tabs_${uid}`;
-
-      if (this.currentTab.type === TAB_TYPE.QUERY && this.$refs.sqlViewer && this.$refs.sqlViewer.monacoEditor) {
-        this.currentTab.text = this.$refs.sqlViewer.monacoEditor.getValue();
-      }
 
       const tabData = deepClone(this.tabs);
 
@@ -1380,16 +1387,17 @@ export default {
       }
 
       console.log('change tab', activeKey);
+      this.syncCurrentEditorTextToTab();
       const changeTab = async (key) => {
         if (this.$refs['data-view']) {
           this.$refs['data-view'].handleEmptyUpdate();
         }
         this.$nextTick(async () => {
+          this.storeQueryTabs();
           this.tabs.forEach((item) => {
             if (item.key === key) {
               clearAllPending();
               this.cancelAllLoading();
-              this.storeQueryTabs();
               this.currentTab = item;
               this.active = key;
               if (this.$refs.tableList && item.leafType && item[item.leafType] && item[item.leafType].treeData) {

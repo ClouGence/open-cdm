@@ -182,7 +182,7 @@
             :columns="antdColumns"
             :dataSource="selectedTab.showData"
             :pagination="false"
-            :scroll="{ x: 'max-content' }"
+            :scroll="tableScroll"
             size="small"
             bordered
             :rowKey="(record, index) => index"
@@ -478,7 +478,9 @@ export default {
       editorHeight: 250,
       paginatedLoading: {}, // Loading status for each result set
       paginatedLoadingTimer: null, // Loading timer
-      columnWidths: {} // Stored column widths
+      columnWidths: {}, // Stored column widths
+      tableScrollY: 240,
+      tableResizeObserver: null
     };
   },
   computed: {
@@ -557,6 +559,12 @@ export default {
           originalTitle: col.title
         };
       });
+    },
+    tableScroll() {
+      return {
+        x: 'max-content',
+        y: this.tableScrollY
+      };
     }
   },
   watch: {
@@ -593,6 +601,15 @@ export default {
           this.paginatedLoading[resultIds[i]] = false;
         }
       }
+    },
+    'tab.result.active'(activeKey) {
+      if (activeKey === 'message' || activeKey === 'async') {
+        this.destroyTableScrollObserver();
+        return;
+      }
+      this.$nextTick(() => {
+        this.initTableScrollObserver();
+      });
     }
   },
   mounted() {
@@ -631,13 +648,18 @@ export default {
     window.onresize = () => {
       this.$nextTick(() => {
         this.pageHeight = window.innerHeight - 70;
+        this.updateTableScrollY();
       });
     };
+    this.$nextTick(() => {
+      this.initTableScrollObserver();
+    });
     // Initialize default SQL export options.
     this.resetInsertOption();
     this.initDsTypeOptions();
   },
   beforeUnmount() {
+    this.destroyTableScrollObserver();
     this.$bus.off('setEditorHeight');
     this.$bus.off('consoleMessageAppend');
     this.$bus.off(EVENT_BUS_NAME_LIST.GET_RESULT_EXPORT_INFO);
@@ -831,6 +853,38 @@ export default {
     handleEditorHeightChange(height) {
       this.editorHeight = height;
       this.pageHeight = window.innerHeight - 70;
+      this.$nextTick(() => {
+        this.updateTableScrollY();
+      });
+    },
+    initTableScrollObserver() {
+      this.destroyTableScrollObserver();
+      const container = this.$el?.querySelector('.result-table-container');
+      if (!container) {
+        return;
+      }
+      this.updateTableScrollY(container);
+      this.tableResizeObserver = new ResizeObserver(() => {
+        this.updateTableScrollY(container);
+      });
+      this.tableResizeObserver.observe(container);
+    },
+    updateTableScrollY(container) {
+      const el = container || this.$el?.querySelector('.result-table-container');
+      if (!el) {
+        return;
+      }
+      const tableHeaderHeight = 40;
+      const nextHeight = Math.max(el.clientHeight - tableHeaderHeight, 120);
+      if (nextHeight !== this.tableScrollY) {
+        this.tableScrollY = nextHeight;
+      }
+    },
+    destroyTableScrollObserver() {
+      if (this.tableResizeObserver) {
+        this.tableResizeObserver.disconnect();
+        this.tableResizeObserver = null;
+      }
     },
     //
     handleViewNoPassedRuleList(index) {
@@ -1626,6 +1680,7 @@ export default {
     flex: 1;
     min-height: 0;
     width: 100%;
+    height: 100%;
     overflow: hidden;
 
     .result-set-style {

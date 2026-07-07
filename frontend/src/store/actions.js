@@ -122,7 +122,7 @@ export default {
       commit(UPDATE_CC_GLOBAL_SETTING, ccGlobalSettingRes.data);
     }
   },
-  async getDmGlobalConfig({ commit }) {
+  async getDmGlobalConfig({ commit, state }) {
     if (!supportsCloudDMBuild) {
       return;
     }
@@ -132,6 +132,10 @@ export default {
       const dmSetting = consoleSettingRes.data;
       dmSetting.dsSupportNames = consoleSettingRes.data?.dsSupportNames || [];
       dmSetting.fmtConvertDef = consoleSettingRes.data?.fmtConvertDef;
+
+      if (!dmSetting.version && state.dmGlobalSetting?.version) {
+        dmSetting.version = state.dmGlobalSetting.version;
+      }
 
       if (dmSetting.personal) {
         i18n.locale = 'zh-CN';

@@ -47,6 +47,10 @@
         </div>
       </template>
     </nav>
+
+    <footer v-if="displaySidebarVersion" class="app-sidebar-footer">
+      <span class="app-sidebar-version-chip">{{ displaySidebarVersion }}</span>
+    </footer>
   </aside>
 </template>
 
@@ -55,6 +59,7 @@ import { mapGetters, mapState } from 'vuex';
 import AppBrandLogo from '@/components/layout/AppBrandLogo';
 import { findSidebarParentKeys } from '@/utils/buildSidebarMenu';
 import { saveLastWorkbenchRoute } from '@/utils/workbenchRoute';
+import { resolveDisplayVersion } from '@/utils/version';
 
 export default {
   name: 'AppSidebar',
@@ -62,12 +67,16 @@ export default {
   emits: ['check-version'],
   data() {
     return {
-      expandedGroups: {}
+      expandedGroups: {},
+      sidebarVersion: ''
     };
   },
   computed: {
     ...mapGetters(['includesDM', 'isDesktop']),
-    ...mapState(['myCatLog', 'userInfo', 'sidebarMenu', 'defaultRedirectUrl']),
+    ...mapState(['myCatLog', 'userInfo', 'sidebarMenu', 'defaultRedirectUrl', 'dmGlobalSetting']),
+    displaySidebarVersion() {
+      return this.sidebarVersion || resolveDisplayVersion(this.dmGlobalSetting);
+    },
     activeKey() {
       const path = this.$route.path;
       if (path.indexOf('/sql') > -1) {
@@ -159,7 +168,26 @@ export default {
       deep: true
     }
   },
+  mounted() {
+    this.loadSidebarVersion();
+  },
   methods: {
+    async loadSidebarVersion() {
+      const cachedVersion = resolveDisplayVersion(this.dmGlobalSetting);
+      if (cachedVersion) {
+        this.sidebarVersion = cachedVersion;
+        return;
+      }
+
+      try {
+        const res = await this.$services.dmGlobalSettings();
+        if (res.success && res.data?.version) {
+          this.sidebarVersion = resolveDisplayVersion(res.data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
     handleGoHome() {
       if (this.includesDM && this.myCatLog.includes('CAT_DM_CONSOLE')) {
         saveLastWorkbenchRoute(this.$route, this.userInfo?.uid);

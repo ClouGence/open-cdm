@@ -1995,6 +1995,14 @@ export default {
   border: none;
   border-radius: 10px;
   box-shadow: none;
+  overflow: hidden;
+}
+
+.summary-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .summary-title {
@@ -2002,6 +2010,7 @@ export default {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  flex: 0 0 auto;
   margin-bottom: 20px;
   color: #181d26;
   font-size: 16px;

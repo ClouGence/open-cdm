@@ -23,6 +23,7 @@
       :store-query-tabs="storeQueryTabs"
       :rdb-object-detail="rdbObjectDetail"
       :on-run="onRun"
+      @change="handleEditorChange"
     />
     <div class="editor-resize" />
     <div :class="`message ${tab.message.type}`" v-if="tab.message.text && tab.message.show && tab.connected">
@@ -471,6 +472,9 @@ export default {
     //
     setEditorInstance(editor) {
       this.monacoEditor = editor;
+    },
+    handleEditorChange(value) {
+      this.tab.text = value;
     },
     setSql(sql) {
       console.log('setSql', sql);
