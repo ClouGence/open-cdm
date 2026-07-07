@@ -255,7 +255,7 @@ public class RootUserConfig {
     @UserConfigDef(name = "onlineResultCacheTimeoutSec", defaultValue = "300", valueRange = "0 ~ 43200", descKey = I18nUserConfigMsgKeys.SQL_RESULT_CACHE_TIMEOUT_SEC, configTagType = UserConfigTagType.QUERY_RESULT, confBelong = ConfBelong.CloudDM)
     private Integer       onlineResultCacheTimeoutSec;
     //
-    @UserConfigDef(name = "onlineMaxRecordCount", defaultValue = "10000", valueRange = "1 ~ 1000000, default 10000 records.", descKey = I18nUserConfigMsgKeys.SQL_RESULT_ONLINE_MAX_RECORD_COUNT, configTagType = UserConfigTagType.QUERY_RESULT, confBelong = ConfBelong.CloudDM)
+    @UserConfigDef(name = "onlineMaxRecordCount", defaultValue = "1000", valueRange = "1 ~ 1000000, default 10000 records.", descKey = I18nUserConfigMsgKeys.SQL_RESULT_ONLINE_MAX_RECORD_COUNT, configTagType = UserConfigTagType.QUERY_RESULT, confBelong = ConfBelong.CloudDM)
     private Integer       onlineMaxRecordCount;
     @UserConfigDef(name = "onlineMaxResultSetMegaByte", defaultValue = "60", valueRange = "4~1024 MB, default 60MB", descKey = I18nUserConfigMsgKeys.SQL_RESULT_ONLINE_MAX_RESULT_SET_MB, configTagType = UserConfigTagType.QUERY_RESULT, confBelong = ConfBelong.CloudDM)
     private Integer       onlineMaxResultSetMegaByte;
