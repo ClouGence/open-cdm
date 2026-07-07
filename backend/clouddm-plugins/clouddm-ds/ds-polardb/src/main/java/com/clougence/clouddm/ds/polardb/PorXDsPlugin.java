@@ -43,6 +43,7 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
@@ -86,7 +87,7 @@ public class PorXDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.bindDsDriverFamily("MySQL Connector/J");
 
         dsPlugin.bindSqlEngine(PorXSqlEngineSpi.NAME, MySqlEngineSpi.NAME);
-        dsPlugin.addPluginSpi(new PorXSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(SqlEngineSpi.class, PorXSqlEngineSpi.NAME, new PorXSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
 
         dsPlugin.addPluginSpi(new PorXSessionSpi());
         dsPlugin.addPluginSpi(new PorXSupportSpi());

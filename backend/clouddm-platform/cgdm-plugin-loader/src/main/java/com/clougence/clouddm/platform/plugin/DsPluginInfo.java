@@ -20,7 +20,6 @@ import java.util.List;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.platform.plugin.info.LeasedDsFactory;
 import com.clougence.clouddm.sdk.execute.session.SessionFactory;
-import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.dialect.Dialect;
 import com.clougence.schema.editor.provider.SqlBuilder;
 
@@ -41,8 +40,6 @@ public interface DsPluginInfo extends PluginInfo {
     List<String> getBindSqlEngineNames();
 
     //
-
-    SqlEngineSpi findSqlEngine(String engine);
 
     LeasedDsFactory<?> createDriver(String driverFamily, String driverVer) throws Exception;
 

@@ -1011,7 +1011,7 @@ public class ConsoleQueryService implements UnifiedPostConstruct, ConsoleQueryAp
 
         SessionSpi sessionSpi = PluginManager.findSessionSpi(dsDO.getDataSourceType());
         RdbSupportSpi supportSpi = PluginManager.findRdbSupportSpi(dsDO.getDataSourceType());
-        SqlEngineSpi sqlEngine = PluginManager.findParserSpi(dsConfig.getDataSourceType(), dsConfig.getSqlEngine());
+        SqlEngineSpi sqlEngine = PluginManager.findSpi(SqlEngineSpi.class, dsConfig.getSqlEngine());
 
         if (this.queryService.hasSession(curUid, sessionId)) {
             DmExecSessionDO sessionInfo = this.queryService.getSessionInfo(curUid, sessionId);

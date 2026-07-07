@@ -33,7 +33,6 @@ import com.clougence.clouddm.sdk.execute.resource.DsResourceManager;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionFactory;
-import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.drivers.DriverBinding;
 import com.clougence.drivers.DriverVersion;
 import com.clougence.drivers.DsFactory;
@@ -112,32 +111,6 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
 
     @Override
     public List<String> getBindSqlEngineNames() { return this.dsSqlEngines; }
-
-    @Override
-    public SqlEngineSpi findSqlEngine(String engine) {
-        List<String> engineNames = getBindSqlEngineNames();
-        if (engineNames == null || engineNames.isEmpty()) {
-            throw new UnsupportedOperationException("no sql engine configured for data source '" + this.dsType + "'.");
-        }
-
-        String engineName = StringUtils.trimToNull(engine);
-        if (engineName == null) {
-            engineName = engineNames.get(0);
-        } else if (!engineNames.contains(engineName)) {
-            throw new UnsupportedOperationException("sql engine '" + engineName + "' is not bound to data source '" + this.dsType + "'. bound engines: " + engineNames);
-        }
-
-        SqlEngineSpi sqlEngine = this.findSpi(SqlEngineSpi.class, engineName);
-        if (sqlEngine == null) {
-            sqlEngine = PluginManager.findSpi(SqlEngineSpi.class, engineName);
-        }
-        if (sqlEngine == null) {
-            throw new UnsupportedOperationException("sql engine '" + engineName + "' not found for data source '" + this.dsType + "'.");
-        }
-        return sqlEngine;
-    }
-
-    //
 
     @Override
     public <T extends Spi> List<T> findSpi(Class<T> spiType) {

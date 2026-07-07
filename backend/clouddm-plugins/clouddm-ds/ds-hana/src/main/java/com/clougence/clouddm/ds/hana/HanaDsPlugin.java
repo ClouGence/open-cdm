@@ -41,6 +41,7 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
@@ -83,7 +84,7 @@ public class HanaDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.bindDsDriverFamily("SAP Hana JDBC");
 
         dsPlugin.bindSqlEngine(HanaSqlEngineSpi.NAME);
-        dsPlugin.addPluginSpi(new HanaSqlEngineSpi());
+        dsPlugin.addGlobalSpi(SqlEngineSpi.class, HanaSqlEngineSpi.NAME, new HanaSqlEngineSpi());
 
         dsPlugin.addPluginSpi(new HanaSessionSpi());
         dsPlugin.addPluginSpi(new HanaSupportSpi());

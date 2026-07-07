@@ -43,6 +43,7 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
@@ -87,7 +88,7 @@ public class ObOraDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.bindDsDriverFamily("OceanBase Client", "MySQL Connector/J");
 
         dsPlugin.bindSqlEngine(ObOraSqlEngineSpi.NAME, OraSqlEngineSpi.NAME);
-        dsPlugin.addPluginSpi(new ObOraSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(SqlEngineSpi.class, ObOraSqlEngineSpi.NAME, new ObOraSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
 
         dsPlugin.addPluginSpi(new ObForOraSessionSpi());
         dsPlugin.addPluginSpi(new ObForOraSupportSpi());

@@ -41,6 +41,7 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
@@ -85,7 +86,7 @@ public class PgDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.bindDsDriverFamily("PostgreSQL JDBC");
 
         dsPlugin.bindSqlEngine(PgSqlEngineSpi.NAME);
-        dsPlugin.addGlobalSpi(new PgSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(SqlEngineSpi.class, PgSqlEngineSpi.NAME, new PgSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
 
         dsPlugin.addPluginSpi(new PgSessionSpi());
         dsPlugin.addPluginSpi(new PgSupportSpi());

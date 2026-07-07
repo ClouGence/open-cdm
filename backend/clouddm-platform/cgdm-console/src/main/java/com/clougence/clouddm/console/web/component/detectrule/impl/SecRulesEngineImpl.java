@@ -90,7 +90,7 @@ public class SecRulesEngineImpl implements SecRulesEngine {
                 .dataSourceConfig(dsConfig)
                 .build();
 
-            SqlEngineSpi sqlEngine = PluginManager.findParserSpi(dsType, dsConfig.getSqlEngine());
+            SqlEngineSpi sqlEngine = PluginManager.findSpi(SqlEngineSpi.class, dsConfig.getSqlEngine());
             SecDomainResolveSpi resolveSpi = sqlEngine.secDomainResolveSpi();
             CodeInfo codeInfo = CodeInfo.builder().baseLine(context.getBasicCodeLine()).baseColumn(context.getBasicCodeColumn()).query(querySql).build();
             domainList = resolveSpi.resolveDomain(dsType, codeInfo, ctxInfo);

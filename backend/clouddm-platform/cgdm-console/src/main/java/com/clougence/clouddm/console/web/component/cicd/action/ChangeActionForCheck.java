@@ -100,7 +100,7 @@ public class ChangeActionForCheck extends AbstractChangeAction {
         DsLevels dsLevels = this.dmDsConfigService.parseLevels(gitOpsFlowDO.getDsPath());
         DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsLevels.dsDO().getId());
         DataSourceType dsType = dsConfig.getDataSourceType();
-        SqlEngineSpi sqlEngine = PluginManager.findParserSpi(dsType, dsConfig.getSqlEngine());
+        SqlEngineSpi sqlEngine = PluginManager.findSpi(SqlEngineSpi.class, dsConfig.getSqlEngine());
         SplitAnalysisSpi analysisSpi = sqlEngine.splitAnalysisSpi();
         if (analysisSpi == null) {
             log.error("changeAction[" + change.getId() + "] check review sql failed, SplitAnalysisSpi not found.");

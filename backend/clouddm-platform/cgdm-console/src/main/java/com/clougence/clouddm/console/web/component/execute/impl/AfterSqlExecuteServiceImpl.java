@@ -85,7 +85,7 @@ public class AfterSqlExecuteServiceImpl implements AfterSqlExecuteService {
     public void handleAfterSqlSuccess(Long dsId, List<String> dsLevels, String sql, Date execTime) {
         DmDsDO rdpDataSourceDO = dsDal.dsMapper().queryDsIdentityById(dsId);
         DataSourceConfig dsConfig1 = dmDsConfigService.fetchDsConfigFromExists(dsId);
-        SqlEngineSpi sqlEngine = PluginManager.findParserSpi(rdpDataSourceDO.getDataSourceType(), dsConfig1.getSqlEngine());
+        SqlEngineSpi sqlEngine = PluginManager.findSpi(SqlEngineSpi.class, dsConfig1.getSqlEngine());
         SecDomainResolveSpi resolveSpi = sqlEngine.secDomainResolveSpi();
 
         CodeInfo codeInfo = CodeInfo.builder().baseLine(1).baseColumn(0).query(sql).build();

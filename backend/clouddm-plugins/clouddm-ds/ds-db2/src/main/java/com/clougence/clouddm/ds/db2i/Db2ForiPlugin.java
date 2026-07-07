@@ -41,6 +41,7 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
@@ -85,7 +86,7 @@ public class Db2ForiPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.bindDsDriverFamily("IBM JTOpen", "IBM JCC");
 
         dsPlugin.bindSqlEngine(Db2SqlEngineSpi.NAME);
-        dsPlugin.addGlobalSpi(new Db2SqlEngineSpi());
+        dsPlugin.addGlobalSpi(SqlEngineSpi.class, Db2SqlEngineSpi.NAME, new Db2SqlEngineSpi());
 
         dsPlugin.addPluginSpi(new Db2ForiSessionSpi());
         dsPlugin.addPluginSpi(new Db2ForiSupportSpi());

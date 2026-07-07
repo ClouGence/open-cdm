@@ -34,6 +34,7 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
@@ -78,7 +79,7 @@ public class MongoDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
         dsPlugin.bindDsDriverFamily("MongoDB Driver");
 
         dsPlugin.bindSqlEngine(MongoSqlEngineSpi.NAME);
-        dsPlugin.addGlobalSpi(new MongoSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+        dsPlugin.addGlobalSpi(SqlEngineSpi.class, MongoSqlEngineSpi.NAME, new MongoSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
 
         dsPlugin.addPluginSpi(new MongoConfigSpi());
         dsPlugin.addPluginSpi(new MongoSupportSpi());

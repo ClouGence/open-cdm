@@ -31,7 +31,6 @@ import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.clouddm.sdk.execute.tools.ToolFactory;
 import com.clougence.clouddm.sdk.service.Service;
-import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.clouddm.sdk.sql.secrules.SecRulesSupportSpi;
 import com.clougence.clouddm.sdk.ui.browser.DsBrowseSpi;
 import com.clougence.clouddm.sdk.ui.ddl.ConvertTableDDLSpi;
@@ -387,14 +386,5 @@ public class PluginManager {
 
     public static SynonymUiDefService findSynonymUiDefService(DataSourceType dsProduct) {
         return (SynonymUiDefService) findOneSpi(dsProduct, SynonymUiDefService.class);
-    }
-
-    public static SqlEngineSpi findParserSpi(DataSourceType dsProduct, String sqlEngine) {
-        DsPluginInfo pluginInfo = findDsPlugin(dsProduct);
-        if (pluginInfo == null) {
-            return null;
-        }
-
-        return pluginInfo.findSqlEngine(sqlEngine);
     }
 }
