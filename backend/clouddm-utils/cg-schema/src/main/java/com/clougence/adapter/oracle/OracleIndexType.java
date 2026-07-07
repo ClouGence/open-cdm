@@ -16,7 +16,7 @@
 package com.clougence.adapter.oracle;
 
 /**
- * Oracle 索引类型
+ * Oracle Index Type
  * @version : 2021-04-29
  * @author 赵永春 (zyc@hasor.net)
  */

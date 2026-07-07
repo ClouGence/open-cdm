@@ -33,12 +33,12 @@ class PKCS7Encoder {
      * @return Byte array for filling in
      */
     static byte[] encode(int count) {
-        // 计算需要填充的位数
+        // Calculate the number of places to fill
         int amountToPad = BLOCK_SIZE - (count % BLOCK_SIZE);
         if (amountToPad == 0) {
             amountToPad = BLOCK_SIZE;
         }
-        // 获得补位所用的字符
+        // Characters used to obtain a replacement
         char padChr = chr(amountToPad);
         String tmp = new String();
         for (int index = 0; index < amountToPad; index++) {

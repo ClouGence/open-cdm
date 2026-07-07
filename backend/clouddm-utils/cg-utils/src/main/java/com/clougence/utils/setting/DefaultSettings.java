@@ -25,19 +25,19 @@ import com.clougence.utils.StringUtils;
 import com.clougence.utils.setting.provider.StreamType;
 
 /**
- * 继承自{@link MergedSettings}父类。
+ * Default {@link Settings} implementation that extends {@link MergedSettings}.
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-9-9
  */
 public class DefaultSettings extends MergedSettings {
     private String resource;
 
-    /** 创建{@link DefaultSettings}类型对象。 */
+    /** Creates a {@link DefaultSettings} object. */
     public DefaultSettings() throws IOException {
         this.refresh();
     }
 
-    /** 创建{@link DefaultSettings}类型对象。 */
+    /** Creates a {@link DefaultSettings} object. */
     public DefaultSettings(String mainSettings) throws IOException {
         this();
         if (StringUtils.isNotBlank(mainSettings)) {
@@ -46,7 +46,7 @@ public class DefaultSettings extends MergedSettings {
         }
     }
 
-    /** 创建{@link DefaultSettings}类型对象。 */
+    /** Creates a {@link DefaultSettings} object. */
     public DefaultSettings(File mainSettings) throws IOException {
         this();
         if (mainSettings != null) {
@@ -55,7 +55,7 @@ public class DefaultSettings extends MergedSettings {
         }
     }
 
-    /** 创建{@link DefaultSettings}类型对象。 */
+    /** Creates a {@link DefaultSettings} object. */
     public DefaultSettings(URI mainSettings) throws IOException {
         this();
         if (mainSettings != null) {

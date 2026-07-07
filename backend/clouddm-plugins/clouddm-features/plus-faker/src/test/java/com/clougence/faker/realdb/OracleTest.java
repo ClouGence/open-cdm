@@ -19,7 +19,7 @@ public class OracleTest {
 
 //    @Test
 //    public void workloadTest() throws Exception {
-//        // 全局配置
+//        // Global Configuration
 //        FakerConfig fakerConfig = new FakerConfig();
 //        fakerConfig.setDbType(DsType.Oracle);
 //        fakerConfig.setTransaction(true);
@@ -37,7 +37,7 @@ public class OracleTest {
 //        //        fakerConfig.addIgnoreError("was deadlocked on lock");
 //        //        fakerConfig.setOpsRatio("D#30");
 //
-//        // 生成器，配置表
+//        // Generator, Configure Table
 //        DruidDataSource dataDs = DsUtils.dsOracle();
 //        FakerFactory factory = new FakerFactory(dataDs, fakerConfig);
 //        FakerRepository generator = new FakerRepository(factory);
@@ -63,11 +63,11 @@ public class OracleTest {
 ////        table2.setUpdateSetPolitic(SqlPolitic.RandomCol);
 ////        table2.apply();
 //
-//        // 生成数据
+//        // Generate Data
 //        FakerEngine engine = new FakerEngine(dataDs, generator);
 //        engine.start(8, 16);
 //
-//        // 监控信息
+//        // Monitor Information
 //        long t = System.currentTimeMillis();
 //        while (!engine.isExitSignal()) {
 //            if ((t + 1000) < System.currentTimeMillis()) {

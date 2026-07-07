@@ -11,6 +11,8 @@ import utilMixin from '@/mixins/utilMixin';
 import { clearAllPending } from '@/services/http/cancelRequest';
 import AddDataSource from '@/views/dataSource/AddDataSource';
 
+const DATASOURCE_EXPANDED_KEYS_KEY = 'clouddm_datasource_expanded_keys';
+
 export default {
   name: 'DataSourceTree',
   mixins: [copyMixin, datasourceMixin, browseMixin, utilMixin],
@@ -34,7 +36,7 @@ export default {
   watch: {
     treeData: {
       handler(newData) {
-        // 延迟检查v-tree的实际数据状态
+        // Delay checking v-tree actual data status
         this.$nextTick(() => {
           this.checkTreeDataAndToggle();
         });
@@ -44,10 +46,11 @@ export default {
   },
   data() {
     const storedHide = this.getStoredHideState();
+    const storedExpandedKeys = this.getStoredExpandedKeys();
     return {
       testDsMsg: '',
       showAddDsModal: false,
-      isInitialized: false, // 标记是否已经初始化完成
+      isInitialized: false, // The tag has been initialized
       advancedSetting: [
         {
           value: 'delimited',
@@ -104,7 +107,9 @@ export default {
       actionType: '',
       genActionData: null,
       TAB_TYPE,
-      expandedKeys: [],
+      expandedKeys: storedExpandedKeys || [],
+      hasStoredExpandedKeys: !!storedExpandedKeys,
+      suspendExpandedKeysSync: false,
       selectedNode: null,
       hide: storedHide,
       dataSourceWidth: 0,
@@ -150,7 +155,7 @@ export default {
     }
   },
   methods: {
-    // 获取存储的隐藏状态
+    // Retrieving stored hidden status
     getStoredHideState() {
       try {
         const stored = localStorage.getItem('clouddm_datasource_hide');
@@ -159,7 +164,7 @@ export default {
         return false;
       }
     },
-    // 保存隐藏状态
+    // Save Hidden Status
     saveHideState(hide) {
       try {
         localStorage.setItem('clouddm_datasource_hide', hide.toString());
@@ -167,38 +172,110 @@ export default {
         console.warn('Failed to save hide state:', e);
       }
     },
+    getStoredExpandedKeys() {
+      try {
+        const stored = localStorage.getItem(DATASOURCE_EXPANDED_KEYS_KEY);
+        if (!stored) {
+          return null;
+        }
+        const keys = JSON.parse(stored);
+        if (!Array.isArray(keys)) {
+          return null;
+        }
+        const expandedKeys = [];
+        keys.forEach((key) => {
+          if (typeof key === 'string' && key) {
+            expandedKeys.push(key);
+          }
+        });
+        return expandedKeys;
+      } catch (e) {
+        return null;
+      }
+    },
+    saveExpandedKeys() {
+      this.hasStoredExpandedKeys = true;
+      try {
+        localStorage.setItem(DATASOURCE_EXPANDED_KEYS_KEY, JSON.stringify(this.expandedKeys));
+      } catch (e) {
+        console.warn('Failed to save datasource expanded keys:', e);
+      }
+    },
+    getTreeKeyDepth(key) {
+      const matches = key.match(/\.`/g);
+      return matches ? matches.length : 0;
+    },
+    pushTreeKeyWithParents(key, keys) {
+      const parts = key.split(/\.(?=`)/);
+      for (let i = 1; i <= parts.length; i++) {
+        const parentKey = parts.slice(0, i).join('.');
+        if (!keys.includes(parentKey)) {
+          keys.push(parentKey);
+        }
+      }
+    },
+    expandFirstEnvironment() {
+      const treeData = this.$refs.tree?.getTreeData?.() || [];
+      const firstKey = treeData[0]?.key;
+      if (firstKey) {
+        this.$refs.tree.setExpand(firstKey, true, true);
+      }
+    },
+    async restoreExpandedKeys() {
+      if (!this.hasStoredExpandedKeys || !this.expandedKeys.length) {
+        return;
+      }
+      const keys = [];
+      this.expandedKeys.forEach((key) => {
+        this.pushTreeKeyWithParents(key, keys);
+      });
+      keys.sort((left, right) => this.getTreeKeyDepth(left) - this.getTreeKeyDepth(right));
+      for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        let expanded = false;
+        for (let retry = 0; retry < 30 && !expanded; retry++) {
+          const node = this.$refs.tree.getNode(key);
+          if (node) {
+            this.$refs.tree.setExpand(key, true, true);
+            expanded = true;
+          } else {
+            await new Promise((resolve) => setTimeout(resolve, 150));
+          }
+        }
+      }
+    },
     checkTreeDataAndToggle() {
-      // 检查v-tree组件内部是否有数据
+      // Check for data within the V-tree component
       if (this.$refs.tree) {
         const treeData = this.$refs.tree.getTreeData();
         const hasData = treeData && treeData.length > 0;
 
         console.log('v-tree data check:', hasData, treeData);
 
-        // 获取用户保存的状态
+        // Get a user saved status
         const storedHide = this.getStoredHideState();
 
         if (hasData) {
-          // 如果有数据，根据用户保存的状态决定是否展开
-          // 只有在用户没有手动收起时才自动展开
+          // If data are available, decide whether to proceed according to the status of the user
+          // Automatically expand only when the user does not close manually
           if (!storedHide) {
-            // 只有当当前状态与目标状态不一致时才更新，避免不必要的更新导致闪动
+            // Update only if the current state is not consistent with the target state, avoiding unnecessary updating leading to flash
             if (this.hide !== false || this.dataSourceWidth !== 250) {
               this.hide = false;
               this.dataSourceWidth = 250;
             }
           } else {
-            // 用户之前手动收起了，保持收起状态
+            // The user collected it manually and kept it closed.
             if (this.hide !== true || this.dataSourceWidth !== 0) {
               this.hide = true;
               this.dataSourceWidth = 0;
             }
           }
         } else {
-          // 没有数据时，只有在初始化完成后才自动收起
-          // 但如果用户之前手动展开了，保持展开状态
+          // When data are not available, automatically close only after initialization
+          // But if the user has started manually, stay active.
           if (this.isInitialized && !storedHide) {
-            // 只有在状态确实需要改变时才更新
+            // Update only when the state needs a change
             if (this.hide !== true || this.dataSourceWidth !== 0) {
               this.hide = true;
               this.dataSourceWidth = 0;
@@ -206,7 +283,7 @@ export default {
           }
         }
 
-        // 标记为已初始化
+        // Mark as Initialized
         this.isInitialized = true;
       }
     },
@@ -292,7 +369,6 @@ export default {
     },
     handleRefreshTree() {
       this.scrollY = 0;
-      this.expandedKeys = [];
       this.getDataSourceList();
       this.searchKey = '';
     },
@@ -494,6 +570,7 @@ export default {
       } else {
         this.expandedKeys.push(key);
       }
+      this.saveExpandedKeys();
     },
     isExpandedKey(node) {
       return this.expandedKeys.includes(node.key);
@@ -531,15 +608,33 @@ export default {
     async handleSetData(data, search = false) {
       this.top = this.scrollY;
       console.log('handleSetData', this.$refs);
-      await this.$refs.tree.setData(data);
-      setTimeout(() => {
-        this.handleEleScroll(this.top);
-        if (search) {
-          this.handleSearch(false);
+      const expandedKeys = this.expandedKeys.slice();
+      this.suspendExpandedKeysSync = true;
+      try {
+        await this.$refs.tree.setData(data);
+      } catch (e) {
+        this.suspendExpandedKeysSync = false;
+        throw e;
+      }
+      this.expandedKeys = expandedKeys;
+      const restoreDelay = this.hasStoredExpandedKeys ? 500 : 0;
+      setTimeout(async () => {
+        try {
+          this.handleEleScroll(this.top);
+          if (search) {
+            await this.handleSearch(false);
+          }
+          // Check tree state after setting data
+          this.checkTreeDataAndToggle();
+        } finally {
+          this.suspendExpandedKeysSync = false;
         }
-        // 设置数据后检查树状态
-        this.checkTreeDataAndToggle();
-      });
+        if (this.hasStoredExpandedKeys) {
+          await this.restoreExpandedKeys();
+        } else {
+          this.expandFirstEnvironment();
+        }
+      }, restoreDelay);
     },
     async handleUpdateNode(key, node) {
       this.$refs.tree.updateNode(key, node);
@@ -602,6 +697,23 @@ export default {
     async handleExpandLoadNode(node, resolve, reject) {
       await this.getNodeData(node, {}, resolve, reject);
     },
+    handleTreeExpand(node) {
+      if (this.suspendExpandedKeysSync) {
+        return;
+      }
+      const key = node?.key;
+      if (!key) {
+        return;
+      }
+      if (node.expand) {
+        if (!this.expandedKeys.includes(key)) {
+          this.expandedKeys.push(key);
+        }
+      } else {
+        this.expandedKeys = this.expandedKeys.filter((expandedKey) => expandedKey !== key && !expandedKey.startsWith(`${key}.`));
+      }
+      this.saveExpandedKeys();
+    },
     async handleSearch(scroll = true) {
       await this.$refs.tree.filter(this.searchKey);
       if (scroll && this.treeData[0]) {
@@ -617,14 +729,14 @@ export default {
         return;
       }
 
-      // 尝试最多4次定位（数据源tree最大深度为4）
+      // Try to locate up to 4 times (data source four maximum depth)
       this.handleScrollToWithRetry(this.currentTab.node.key, 4);
     },
 
     /**
-     * 带重试机制的定位方法
-     * @param {string} targetKey 目标节点的key
-     * @param {number} maxRetries 最大重试次数
+     * Positioning methods with a retest mechanism
+     * @param {string} tagetKey.
+     * @param {number} maxRetries Maximum number of retries
      */
     async handleScrollToWithRetry(targetKey, maxRetries) {
       const attemptLocation = async (attempt = 1) => {
@@ -646,10 +758,10 @@ export default {
     },
 
     /**
-     * 递归展开到目标节点并滚动到该位置
-     * @param {string} targetKey 目标节点的key
-     * @param {number} maxRetries 最大重试次数
-     * @returns {boolean} 是否成功
+     * Resume to target node and scroll to that position
+     * @param {string} tagetKey.
+     * @param {number} maxRetries Maximum number of retries
+     * @returns {bolean} Success
      */
     async handleScrollToWithAutoExpand(targetKey, maxRetries) {
       const targetNode = this.$refs.tree.getNode(targetKey);
@@ -659,7 +771,7 @@ export default {
         return true;
       }
 
-      // 没找到节点，直接递归
+      // No node found. Straight back.
       const pathKeys = this.extractPathKeys(targetKey);
       const expandSuccess = await this.expandPathToTarget(pathKeys, targetKey, maxRetries);
 
@@ -679,9 +791,9 @@ export default {
     },
 
     /**
-     * 从key中提取路径数组
-     * @param {string} key 完整的节点key
-     * @returns {Array} 路径数组
+     * Extract path arrays from key
+     * @param {string} Key Full Nodekey
+     * @returns {Array} Paths Group
      */
     extractPathKeys(key) {
       const parts = key.split('.');
@@ -696,11 +808,11 @@ export default {
     },
 
     /**
-     * 递归展开路径到目标节点
-     * @param {Array} pathKeys 路径数组
-     * @param {string} targetKey 目标key
-     * @param {number} maxRetries 最大重试次数
-     * @returns {boolean} 是否成功
+     * Recursive Expand Path to Target Node
+     * @param {Array} Paths to pathkeys Group
+     * @param {string} We've got a target.
+     * @param {number} maxRetries Maximum number of retries
+     * @returns {bolean} Success
      */
     async expandPathToTarget(pathKeys, targetKey, maxRetries) {
       const expandPromises = [];
@@ -719,30 +831,30 @@ export default {
         }
       }
 
-      // 等待所有展开操作完成
+      // Waiting for all operations to be completed
       if (expandPromises.length > 0) {
         const results = await Promise.all(expandPromises);
-        // 检查是否有任何展开操作失败
+        // Check if any of the operations failed
         if (results.some((result) => !result)) {
           return false;
         }
       }
 
-      // 等待DOM更新
+      // Waiting for DOM update
       await this.$nextTick();
       return true;
     },
 
     /**
-     * 展开节点并等待加载完成
-     * @param {string} key 节点key
-     * @param {number} maxRetries 最大重试次数
-     * @returns {boolean} 是否成功
+     * Expand nodes and wait for loading to complete
+     * @param {string} keykey
+     * @param {number} maxRetries Maximum number of retries
+     * @returns {bolean} Success
      */
     async expandNodeAndWait(key, maxRetries) {
       this.$refs.tree.setExpand(key, true);
 
-      // 使用递归避免循环中的await
+      // Use recursive to avoid wait in cycle
       const waitForNodeLoad = async (retryCount = 0) => {
         if (retryCount >= maxRetries) {
           return false;
@@ -755,7 +867,7 @@ export default {
           return true;
         }
 
-        // 递归调用，增加重试次数
+        // Recursive call to increase the number of retries
         return waitForNodeLoad(retryCount + 1);
       };
 
@@ -876,7 +988,8 @@ export default {
                 await this.listLeaf(refreshCache);
               }
             } else {
-              this.expandedKeys = this.expandedKeys.filter((key) => !key.includes(this.selectedNode.key));
+              this.expandedKeys = this.expandedKeys.filter((key) => key !== this.selectedNode.key && !key.startsWith(`${this.selectedNode.key}.`));
+              this.saveExpandedKeys();
               const refreshCache = true;
               await this.listLevels(this.selectedNode, {}, null, null, refreshCache);
             }
@@ -890,7 +1003,7 @@ export default {
 
       switch (actionType) {
         case DS_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_INSTANCE_CREATE:
-          await this.$router.push('/system/ccdatasource');
+          await this.$router.push('/datasource');
           break;
         case DS_RIGHT_CLICK_MENU_ITEM.MENU_BROWSE_INSTANCE_RENAME:
           if (!this.dsDesc) {
@@ -1117,8 +1230,10 @@ export default {
         :load="handleExpandLoadNode"
         :render="renderNode"
         :expand-on-filter="false"
+        :expanded-keys="expandedKeys"
         @node-right-click="handleNodeRightClick"
         @node-dblclick="handleDblClick"
+        @expand="handleTreeExpand"
         :nodeIndent="10"
         :renderNodeAmount="200"
         @click="handleNodeClick"
@@ -1255,13 +1370,13 @@ export default {
 }
 
 .data-source-container {
-  background: #ffffff;
+  background: var(--bg-secondary);
   height: 100%;
   float: left;
   display: flex;
   flex-direction: column;
   position: relative;
-  border-right: 1px solid #ccc;
+  border-right: 1px solid var(--border-primary);
 
   .tree-resize {
     height: 100%;
@@ -1280,7 +1395,7 @@ export default {
     right: -28px;
     z-index: 9;
     top: 7px;
-    background: #fff;
+    background: var(--bg-card);
     padding: 2px 5px;
     cursor: pointer;
     box-shadow: rgba(0, 0, 0, 0.35) 0px 1px 2px;

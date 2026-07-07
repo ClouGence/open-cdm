@@ -280,7 +280,7 @@
 </template>
 <script>
 import fecha from 'fecha';
-import _ from 'lodash';
+import _ from '@/utils/lodash';
 import Mapping from '@/views/util';
 import { mapGetters, mapState } from 'vuex';
 import StToken from '../ApplyStToken';
@@ -356,7 +356,6 @@ export default {
   },
   mounted() {
     this.listRegions();
-    this.listRegionAreas();
     this.listCloudOrIdcNames();
   },
   data() {
@@ -590,17 +589,26 @@ export default {
           this.$services.ccConstantSupportedRegion({ data: { cloudOrIdcName: this.searchData.cloudOrIdcName } }).then((res2) => {
             if (res2.success) {
               this.supportedRegions = res2.data;
+              this.regionAreas = this.buildRegionAreas(this.supportedRegions);
             }
           });
         }
       });
     },
-    listRegionAreas() {
-      this.$services.rdpConstantListRegionAreas().then((res) => {
-        if (res.success) {
-          this.regionAreas = res.data;
-        }
-      });
+    buildRegionAreas(regions) {
+      const regionAreas = Array.from(new Set((regions || []).map((region) => region.regionArea).filter(Boolean)));
+      if (regionAreas.length === 0) {
+        return [
+          {
+            regionArea: 'REGION_AREA_CUSTOMER',
+            i18nName: Mapping.region.customer
+          }
+        ];
+      }
+      return regionAreas.map((regionArea) => ({
+        regionArea,
+        i18nName: Mapping.region[regionArea] || regionArea
+      }));
     },
     listCloudOrIdcNames() {
       this.$services.ccConstantCloudOrIdcName().then((res) => {

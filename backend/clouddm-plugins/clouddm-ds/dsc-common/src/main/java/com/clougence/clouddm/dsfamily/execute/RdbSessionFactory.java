@@ -18,6 +18,10 @@ package com.clougence.clouddm.dsfamily.execute;
 import java.sql.Connection;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
+import com.clougence.clouddm.base.metadata.ds.SslMode;
+import com.clougence.clouddm.sdk.execute.dsconf.SslConfig;
+import com.clougence.clouddm.sdk.execute.dsconf.SslFile;
 import com.clougence.clouddm.sdk.execute.resource.DsResourceManager;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
@@ -33,37 +37,29 @@ public abstract class RdbSessionFactory<T extends DataSourceConfig> implements S
 
     @Override
     public Session createSession(DsResourceManager resourceRM, T dsConfig, SessionContextDTO contextDTO) throws Exception {
-        if (contextDTO.getRdbCatalog() != null) {
-            dsConfig.setDefaultDataBase(contextDTO.getRdbCatalog());
+        SecurityType securityType = dsConfig.getSecurityType();
+        if (securityType != null) {
+            switch (securityType) {
+                case NONE:
+                    dsConfig.setUserName(null);
+                    dsConfig.setPassword(null);
+                    break;
+                case ONLY_USER:
+                    dsConfig.setPassword(null);
+                    break;
+                case ONLY_PASSWD:
+                    dsConfig.setUserName(null);
+                    break;
+                case USER_PASSWD:
+                case AK_SK:
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Unsupported security type: " + securityType);
+            }
         }
-        dsConfig.setDefaultSchema(contextDTO.getRdbSchema());
 
-        // so_timeout(SocketReadTimeout) must >= query timeout_sec
-        Integer soTimeoutSec = dsConfig.getSoTimeoutSec();
-        if (resourceRM.isTask()) {
-            Integer exportQueryTimeoutSec = dsConfig.getExportMaxQueryTimeoutSec();
-            dsConfig.setSoTimeoutSec(maxTimeoutSec(soTimeoutSec, exportQueryTimeoutSec));
-        } else {
-            Integer onlineQueryTimeoutSec = dsConfig.getOnlineMaxQueryTimeoutSec();
-            dsConfig.setSoTimeoutSec(maxTimeoutSec(soTimeoutSec, onlineQueryTimeoutSec));
-        }
-
-        switch (dsConfig.getSecurityType()) {
-            case NONE:
-                dsConfig.setUserName(null);
-                dsConfig.setPassword(null);
-                break;
-            case ONLY_USER:
-                dsConfig.setPassword(null);
-                break;
-            case ONLY_PASSWD:
-                dsConfig.setUserName(null);
-                break;
-            case USER_PASSWD_WITH_KEYSTORE:
-                configSSL(dsConfig, resourceRM);
-                break;
-            case USER_PASSWD:
-                break;
+        if (dsConfig.getSslMode() != null && dsConfig.getSslMode() != SslMode.DISABLED) {
+            configSSL(dsConfig, resourceRM);
         }
 
         DsObject<Connection> dsObject = resourceRM.requestResource(dsConfig);
@@ -81,18 +77,30 @@ public abstract class RdbSessionFactory<T extends DataSourceConfig> implements S
     protected abstract Session newSession(T dsConfig, SessionContextDTO contextDTO, DsObject<Connection> dsObject, DsResourceManager ownerRM) throws Exception;
 
     protected void configSSL(T dsConfig, DsResourceManager resRM) throws Exception {
-
-    };
-
-    private static Integer maxTimeoutSec(Integer firstTimeoutSec, Integer secTimeoutSec) {
-        if (firstTimeoutSec == null && secTimeoutSec == null) {
-            return null;
-        } else if (firstTimeoutSec == null) {
-            return secTimeoutSec;
-        } else if (secTimeoutSec == null) {
-            return firstTimeoutSec;
-        } else {
-            return Math.max(firstTimeoutSec, secTimeoutSec);
+        SslConfig sslConfig = resRM.fetchSslConfig(dsConfig);
+        if (sslConfig == null) {
+            return;
         }
+
+        dsConfig.setSslCaFilePath(localPath(sslConfig.getCaFile()));
+        dsConfig.setSslCaFileFormat(format(sslConfig.getCaFile()));
+        dsConfig.setSslClientCertFilePath(localPath(sslConfig.getClientCertFile()));
+        dsConfig.setSslClientCertFileFormat(format(sslConfig.getClientCertFile()));
+        dsConfig.setSslClientKeyFilePath(localPath(sslConfig.getClientKeyFile()));
+        dsConfig.setSslClientKeyFileFormat(format(sslConfig.getClientKeyFile()));
+    }
+
+    private static String localPath(SslFile sslFile) {
+        if (sslFile == null || sslFile.getFile() == null) {
+            return null;
+        }
+        return sslFile.getFile().getAbsolutePath();
+    }
+
+    private static String format(SslFile sslFile) {
+        if (sslFile == null) {
+            return null;
+        }
+        return sslFile.getFormat();
     }
 }

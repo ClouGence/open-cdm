@@ -16,7 +16,7 @@
 package com.clougence.schema.umi.struts;
 
 /**
- * 数据实际类型。
+ * The actual type of data.
  * @version : 2020-01-22
  * @author 赵永春 (zyc@hasor.net)
  */

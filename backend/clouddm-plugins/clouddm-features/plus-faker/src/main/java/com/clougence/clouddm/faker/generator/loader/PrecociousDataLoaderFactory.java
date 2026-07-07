@@ -25,7 +25,7 @@ import com.clougence.clouddm.faker.config.FakerEngineConfig;
 import com.clougence.clouddm.faker.generator.SqlArg;
 
 /**
- * 反查数据加载器
+ * Invert data loader
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

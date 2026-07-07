@@ -1031,7 +1031,7 @@ public class ClassUtils {
     }
 
     /**
-     * 判断某个类是否为一个lang包的类。
+     * Determines whether a class is a lang package class.
      */
     public static boolean isLangClass(final Class<?> target) {
         return target.getName().startsWith("java.lang.");
@@ -1040,7 +1040,7 @@ public class ClassUtils {
     ;
 
     /**
-     * 获取方法的标识代码，在不考虑其所属类的情况下。
+     * Gets the method descriptor without access modifiers.
      */
     public static String getDescName(final Class<?> type) {
         if (type == Void.class) {
@@ -1055,21 +1055,21 @@ public class ClassUtils {
     }
 
     /**
-     * 获取方法的标识代码，在不考虑其所属类的情况下。
-     * 格式为：<code>&lt;修饰符&gt;&nbsp;&lt;返回值&gt;&nbsp;&lt;类名&gt;.&lt;方法名&gt;(&lt;参数签名列表&gt;)</code>
+     * Gets the method descriptor without access modifiers.
+     * Format: {@code returnType declaringClass.method(paramTypes)}
      */
     public static String getDescNameWithOutModifiers(final Method method) {
         //public void addChild(org.noe.safety.services.SYS_TB_MenuTree)
         StringBuffer str = new StringBuffer("");
-        //2.返回值
+        // Return value.
         Class<?> returnType = method.getReturnType();
         str.append(ClassUtils.getDescName(returnType) + " ");
-        //3.方法名
+        // Declaring class and method name.
         Class<?> decType = method.getDeclaringClass();
         str.append(decType.getName());
         str.append(".");
         str.append(method.getName());
-        //4.方法签名
+        // Method signature.
         Class<?>[] paramTypes = method.getParameterTypes();
         str.append("(");
         if (paramTypes != null) {
@@ -1086,13 +1086,13 @@ public class ClassUtils {
     }
 
     /**
-     * 获取方法的标识代码，在不考虑其所属类的情况下。
-     * 格式为：<code>&lt;修饰符&gt;&nbsp;&lt;返回值&gt;&nbsp;&lt;类名&gt;.&lt;方法名&gt;(&lt;参数签名列表&gt;)</code>
+     * Gets the method descriptor with access modifiers.
+     * Format: {@code modifiers returnType declaringClass.method(paramTypes)}
      */
     public static String getDescName(final Method method) {
         //public void addChild(org.noe.safety.services.SYS_TB_MenuTree)
         StringBuffer str = new StringBuffer("");
-        //1.访问修饰符
+        // Access modifiers.
         int modifiers = method.getModifiers();
         if (Modifier.isPublic(modifiers)) {
             str.append("public ");
@@ -1109,15 +1109,15 @@ public class ClassUtils {
     }
 
     /**
-     * 获取泛型类型。
+     * Get a broad type.
      */
     public static Class<?> getSuperClassGenricType(final Class<?> clazz, final int index) {
-        //返回表示此 Class 所表示的实体（类、接口、基本类型或 void）的直接超类的 Type。
+        //Returns the direct super-class type that represents the entity (class, interface, basic type or void) indicated by Class.
         Type genType = clazz.getGenericSuperclass();
         if (!(genType instanceof ParameterizedType)) {
             return Object.class;
         }
-        //返回表示此类型实际类型参数的 Type 对象的数组。
+        //Returns the array of Type objects that represent the actual type of parameters of this type.
         Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
         if (index >= params.length || index < 0) {
             return Object.class;
@@ -1129,15 +1129,15 @@ public class ClassUtils {
     }
 
     /**
-     * 获取泛型类型。
+     * Get a broad type.
      */
     public static Class<?> getSuperClassGenricType(final Field field, final int index) {
-        //返回表示此 Class 所表示的实体（类、接口、基本类型或 void）的直接超类的 Type。
+        //Returns the direct super-class type that represents the entity (class, interface, basic type or void) indicated by Class.
         Type genType = field.getGenericType();
         if (!(genType instanceof ParameterizedType)) {
             return Object.class;
         }
-        //返回表示此类型实际类型参数的 Type 对象的数组。
+        //Returns the array of Type objects that represent the actual type of parameters of this type.
         Type[] params = ((ParameterizedType) genType).getActualTypeArguments();
         if (index >= params.length || index < 0) {
             return Object.class;
@@ -1166,7 +1166,7 @@ public class ClassUtils {
     }
 
     /**
-     * 获取ClassPath路径
+     * GetClassPath Path
      */
     public static List<URL> getClassPath(ClassLoader classLoader, String name) {
         if (StringUtils.isBlank(name)) {

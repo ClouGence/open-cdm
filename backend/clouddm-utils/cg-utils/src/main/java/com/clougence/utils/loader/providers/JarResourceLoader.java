@@ -38,7 +38,7 @@ import com.clougence.utils.loader.AbstractResourceLoader;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 可以处理 jar 包的 ResourceLoader，并且支持 jar in jar
+ * Cannot initialise Evolution's mail component.
  * @version : 2021-09-29
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -274,4 +274,11 @@ public class JarResourceLoader extends AbstractResourceLoader {
         return result.isEmpty() ? null : result.get(0);
     }
 
+    @Override
+    public void close() throws IOException {
+        for (JarFile nestedJar : this.nestedJarFile) {
+            nestedJar.close();
+        }
+        this.jarFile.close();
+    }
 }

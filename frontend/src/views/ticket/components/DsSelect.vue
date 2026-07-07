@@ -1,9 +1,10 @@
 <template>
-  <div style="display: flex">
-    <div style="display: flex; align-items: center; width: 240px; margin-right: 8px">
+  <div class="ticket-ds-select">
+    <span v-if="required" class="ticket-ds-select__required">*</span>
+    <div class="ticket-ds-select__instance" :class="{ 'is-error': error }">
       <CustomIcon v-if="selectedInstance" :type="selectedInstance.objAttr.dsType" rightMargin />
       <Select
-        style="flex: 1"
+        class="ticket-ds-select__control"
         v-model="ticketData.instanceId"
         @on-change="handleChangeInstance"
         :placeholder="$t('qing-xuan-ze-shu-ju-yuan-shi-li')"
@@ -69,7 +70,9 @@ export default {
     allDsList: Array,
     handleChangeInstance: Function,
     handleCatalogChange: Function,
-    selectedDs: Object
+    selectedDs: Object,
+    required: Boolean,
+    error: Boolean
   },
   data() {
     return {
@@ -100,3 +103,33 @@ export default {
   }
 };
 </script>
+
+<style lang="less" scoped>
+.ticket-ds-select {
+  display: flex;
+  align-items: center;
+}
+
+.ticket-ds-select__required {
+  margin-right: 4px;
+  color: #f5222d;
+  line-height: 32px;
+}
+
+.ticket-ds-select__instance {
+  display: flex;
+  align-items: center;
+  width: 240px;
+  margin-right: 8px;
+
+  &.is-error {
+    :deep(.ivu-select-selection) {
+      border-color: #f5222d;
+    }
+  }
+}
+
+.ticket-ds-select__control {
+  flex: 1;
+}
+</style>

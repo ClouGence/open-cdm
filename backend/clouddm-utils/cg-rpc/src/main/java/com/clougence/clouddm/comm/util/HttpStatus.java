@@ -16,7 +16,7 @@
 package com.clougence.clouddm.comm.util;
 
 /**
- * HTTP状态码
+ * HTTP status code
  * 
  * @author Looly
  * @see java.net.HttpURLConnection

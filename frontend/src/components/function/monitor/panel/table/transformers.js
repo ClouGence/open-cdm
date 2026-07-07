@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from '@/utils/lodash';
 import flatten from '../utils/flatten';
 import TimeSeries from '../../core/time_series2';
 import TableModel from '../../core/table_model.js';

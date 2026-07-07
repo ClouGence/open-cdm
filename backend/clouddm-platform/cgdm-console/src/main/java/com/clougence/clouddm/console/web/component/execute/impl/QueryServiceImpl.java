@@ -17,7 +17,9 @@ package com.clougence.clouddm.console.web.component.execute.impl;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.springframework.stereotype.Service;
@@ -32,7 +34,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
-import com.clougence.clouddm.console.web.component.dsconfig.DmDsStatusService;
+import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.component.execute.QueryService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
@@ -47,6 +49,7 @@ import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSessionDO;
 import com.clougence.clouddm.platform.dal.model.execution.DsSessionType;
 import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
+import com.clougence.clouddm.sdk.execute.dsconf.DsConfigField;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
@@ -71,13 +74,13 @@ public class QueryServiceImpl implements QueryService {
     @Resource
     private ExecutionDal      executionDal;
     @Resource
-    private ObjectCacheDao    objectCacheDao;
+    private ObjectCacheDao    cacheDao;
     @Resource
-    private DmDsConfigService dmDsConfigService;
+    private DmDsConfigService dsConfigService;
     @Resource
     private ExecuteRService   sessionRService;
     @Resource
-    private DmDsStatusService dmDsStatusService;
+    private DmDsService       dsService;
 
     private RSocketSendDTO buildRSocketSendDTO(long bindClusterId) {
         List<DmSysWorkerDO> workers = this.systemDal.workerMapper().queryConnectedByClusterId(bindClusterId);
@@ -161,7 +164,7 @@ public class QueryServiceImpl implements QueryService {
         }
 
         // gen new session.
-        DsCacheEntry cacheEntry = this.objectCacheDao.queryByDsId(dsDO.getId());
+        DsCacheEntry cacheEntry = this.cacheDao.queryByDsId(dsDO.getId());
         RSocketSendDTO sendDTO = this.buildRSocketSendDTO(cacheEntry.getClusterId());
         sessionDO = new DmExecSessionDO();
         sessionDO.setUid(curUid);
@@ -181,15 +184,30 @@ public class QueryServiceImpl implements QueryService {
         }
 
         // create session
-        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId(), dsDO.getDataSourceType());
+        DataSourceConfig dsConfig = this.dsConfigService.fetchDsConfigFromExists(dsDO.getId(), sessionConfigOverrides(context));
         try {
             this.sessionRService.createSession(sendDTO, dsConfig, context);
-            this.dmDsStatusService.resetStatus(sendDTO.getUid(), dsConfig);
+            this.dsService.resetStatus(dsConfig);
         } catch (Exception e) {
-            dmDsStatusService.handleException(curUid, dsConfig, e);
+            dsService.handleException(dsConfig, e);
             throw e;
         }
         return sessionId;
+    }
+
+    private Map<String, String> sessionConfigOverrides(SessionContextDTO context) {
+        Map<String, String> configOverrides = new HashMap<>();
+        if (context == null) {
+            return configOverrides;
+        }
+
+        if (StringUtils.isNotBlank(context.getRdbCatalog())) {
+            configOverrides.put(DsConfigField.DEFAULT_DATABASE.getConfigName(), context.getRdbCatalog());
+        }
+        if (StringUtils.isNotBlank(context.getRdbSchema())) {
+            configOverrides.put(DsConfigField.DEFAULT_SCHEMA.getConfigName(), context.getRdbSchema());
+        }
+        return configOverrides;
     }
 
     @Override

@@ -16,24 +16,24 @@
 package com.clougence.adapter.mysql;
 
 /**
- * MySQL 索引类型
+ * MySQL Index Type
  * 
  * @version : 2021-03-30
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum MySQLIndexType {
 
-    /** 普通索引 */
+    /** Normal index */
     Normal,
-    /** 唯一索引 */
+    /** Unique index */
     Unique,
-    /** 主键索引 */
+    /** Main Key Index */
     Primary,
-    /** 外建索引 */
+    /** External Indexing */
     Foreign,
-    /** 全文索引 */
+    /** Full-text index */
     FullText,
-    /** 空间索引 */
+    /** Space Index */
     SPATIAL;
 
     public static MySQLIndexType valueOfCode(String code) {

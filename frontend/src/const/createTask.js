@@ -4,12 +4,12 @@ export const INIT_ORIGINAL_CONFIG = {
   clusterId: '',
   history: false,
   // source
-  sourceDataSourceDeployType: DATASOURCE_DEPLOY_TYPE.ALIBABA_CLOUD_HOSTED, // 数据源部署类型
-  sourceDataSourceType: '', // 数据源类型
-  sourceHostType: HOST_TYPE.PRIVATE, // 网络类型
-  sourceInstanceId: '', // 实例id
-  sourceInstance: {}, // 实例
-  sourceConnection: {}, // 测试连接成功
+  sourceDataSourceDeployType: DATASOURCE_DEPLOY_TYPE.ALIBABA_CLOUD_HOSTED, // Type of data source deployment
+  sourceDataSourceType: '', // Type of data source
+  sourceHostType: HOST_TYPE.PRIVATE, // Network type
+  sourceInstanceId: '', // Example id
+  sourceInstance: {}, // Example
+  sourceConnection: {}, // Test connection successful
   sourceHasPassword: false,
   sourceAutoCreateAccount: false,
   // target

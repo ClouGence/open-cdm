@@ -107,13 +107,23 @@
 
 .ivu-table-border td,
 .ivu-table-border th {
-  //border-right: none;
+  border-right: 1px solid #eaeaea !important;
+}
+
+.ivu-table-border td:last-child,
+.ivu-table-border th:last-child {
+  border-right: none !important;
 }
 
 .ivu-table-wrapper-with-border {
   border: 1px solid #eaeaea;
-  border-bottom: none;
-  border-right: none;
+  border-bottom: 1px solid #eaeaea;
+  border-right: 1px solid #eaeaea;
+}
+
+.ivu-table::before,
+.ivu-table-border::after {
+  display: none;
 }
 
 .ivu-table-fixed-right::before,
@@ -123,15 +133,31 @@
 
 //btn
 .ivu-btn-primary {
+  color: #ffffff;
   background-color: @primary-color;
   border-color: @primary-color;
+
+  span {
+    color: #ffffff;
+  }
+
   &:hover {
+    color: #ffffff;
     background-color: @hover-color;
     border-color: @hover-color;
+
+    span {
+      color: #ffffff;
+    }
   }
   &:active {
+    color: #ffffff;
     background-color: @active-color;
     border-color: @active-color;
+
+    span {
+      color: #ffffff;
+    }
   }
   &.ivu-btn-ghost {
     background-image: linear-gradient(@white, @background-grey);

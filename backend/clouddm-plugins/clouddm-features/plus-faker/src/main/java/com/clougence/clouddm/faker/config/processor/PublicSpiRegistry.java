@@ -38,7 +38,7 @@ import com.clougence.utils.NumberUtils;
 import com.clougence.utils.convert.ConverterUtils;
 
 /**
- * DslFunctionLoopUp, ParameterProcessorLookUp 的内部扩展。
+ * Internal extension of DslFunctionLoopUp, ParameterProcessorLookUp.
  * @version : 2023-02-14
  * @author 赵永春 (zyc@hasor.net)
  */

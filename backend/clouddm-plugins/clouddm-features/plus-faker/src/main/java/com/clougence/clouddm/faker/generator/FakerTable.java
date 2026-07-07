@@ -37,7 +37,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 要生成数据的表基本信息和配置信息
+ * Table basic information and configuration information to generate data
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -101,22 +101,22 @@ public class FakerTable {
         this.acceptTotal.put(opsType, accept);
     }
 
-    /** 添加一个列 */
+    /** Add a column */
     public void addColumn(FakerColumn fakerColumn) {
         this.columnMap.put(fakerColumn.getColumn(), fakerColumn);
         this.columnList.add(fakerColumn);
         this.hasKey = this.hasKey | fakerColumn.isKey();
     }
 
-    /** 获取所有列 */
+    /** Get All Columns */
     public List<String> getColumns() { return this.columnList.stream().map(FakerColumn::getColumn).collect(Collectors.toList()); }
 
-    /** 查找某个列 */
+    /** Find a column */
     public FakerColumn findColumn(String columnName) {
         return this.columnMap.get(columnName);
     }
 
-    /** 应用最新配置，并且创建 IUD 生成器 */
+    /** Apply the latest configuration and create IUD generator */
     public void apply() {
         List<FakerColumn> insertColumns = new ArrayList<>();
         List<FakerColumn> updateSetColumns = new ArrayList<>();
@@ -155,7 +155,7 @@ public class FakerTable {
         return dataLoaderFactory.createDataLoader(this.factory.getEngineConfig());
     }
 
-    /** 生成一批 insert，每批语句都是相同的语句模版 */
+    /** Generate a batch of inserts; each batch uses the same SQL template. */
     public List<BoundQuery> buildInsert(Session session, int batchSize) throws Exception {
         if (this.acceptTotal.get(OpsType.Insert) == 0) {
             return Collections.emptyList();
@@ -164,7 +164,7 @@ public class FakerTable {
         }
     }
 
-    /** 生成一批 update，每批语句都是相同的语句模版 */
+    /** Generate a batch of updates; each batch uses the same SQL template. */
     protected List<BoundQuery> buildUpdate(Session session, int batchSize) throws Exception {
         if (this.acceptTotal.get(OpsType.Update) == 0) {
             return Collections.emptyList();
@@ -173,7 +173,7 @@ public class FakerTable {
         }
     }
 
-    /** 生成一批 delete，每批语句都是相同的语句模版 */
+    /** Generate a batch of deletes; each batch uses the same SQL template. */
     protected List<BoundQuery> buildDelete(Session session, int batchSize) throws Exception {
         if (this.acceptTotal.get(OpsType.Delete) == 0) {
             return Collections.emptyList();

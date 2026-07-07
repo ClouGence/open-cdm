@@ -32,6 +32,7 @@ public final class InitSeedConstants {
     public static final String DEFAULT_WORKER_IP          = "172.31.239.4";
     public static final String DEFAULT_CONSOLE_IP         = "172.31.239.3";
     public static final String DEFAULT_EXTERNAL_IP        = "183.134.161.226";
+    public static final String RUNTIME_ADMIN_ACCOUNT_KEY  = "clougence.init.admin.account";
     public static final String RUNTIME_ADMIN_EMAIL_KEY    = "clougence.init.admin.email";
     public static final String RUNTIME_ADMIN_PASSWORD_KEY = "clougence.init.admin.password";
 
@@ -40,6 +41,10 @@ public final class InitSeedConstants {
 
     public static String resolveAdminEmail() {
         return defaultIfBlank(System.getProperty(RUNTIME_ADMIN_EMAIL_KEY), DEFAULT_PRIMARY_EMAIL);
+    }
+
+    public static String resolveAdminAccount() {
+        return defaultIfBlank(System.getProperty(RUNTIME_ADMIN_ACCOUNT_KEY), DEFAULT_PRIMARY_ACCOUNT);
     }
 
     public static String resolveAdminPassword() {

@@ -21,9 +21,7 @@ import java.util.List;
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.platform.dal.model.secrule.SecMatchMode;
-import com.clougence.clouddm.platform.dal.model.secrule.SecRangeType;
-import com.clougence.clouddm.platform.dal.handler.SecRangeTypeHandler;
+import com.clougence.clouddm.platform.dal.handler.enums.SecRangeTypeHandler;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
 
 import lombok.Getter;
@@ -40,34 +38,22 @@ public class DmSecRangeDO {
 
     @TableId(type = IdType.AUTO)
     private Long           id;
-
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
     private Date           gmtCreate;
-
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
     private Date           gmtModified;
-
     private String         ownerUid;
-
     private long           refSpec;
-
     private long           refId;
-
     private SecMatchMode   matchMode;
-
     @TableField(typeHandler = SecRangeTypeHandler.class)
     private SecRangeType   rangeType;
-
     private String         levelPrefix;
-
     @TableField(value = "level_nodes", typeHandler = JacksonTypeHandler.class)
     private List<String>   levelNodes;
-
     private boolean        chooseAll;
-
     @TableField("ref_ds_type")
     private DataSourceType referDsType;
-
     @TableField("table_level")
     private TargetType     tableLevelType; // Table or View or Materialized
 }

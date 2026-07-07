@@ -44,7 +44,7 @@ import com.clougence.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 达梦 元信息获取，参考资料：
+ * Dameng metadata retrieval references:
  * <li>https://docs.oracle.com/en/database/oracle/oracle-database/21/drdag/all_synonyms-drda-gateway.html#GUID-E814A6AC-5E00-4DB6-8170-DC147F7879F8</li>
  *
  * @author 赵永春 (zyc@hasor.net)
@@ -334,7 +334,7 @@ public class DmMetaProviderUtils {
             column.setAttribute(RdbAttributeNames.JDBC_TYPE, columnTypeMappingToJdbcType(column.getSqlType(), dataType));
 
             if (dataType == null && StringUtils.isNotBlank(typeOwner)) {
-                column.setAttribute(COLUMN_TYPE, JDBCType.STRUCT.getName()); // 有 Type Name 表示一定是用户创建的类型。
+                column.setAttribute(COLUMN_TYPE, JDBCType.STRUCT.getName()); // Type Name indicates a user-created type.
             }
 
             DmSqlTypes sqlType = (DmSqlTypes) column.getSqlType();

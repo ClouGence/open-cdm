@@ -26,7 +26,7 @@ import {
   isRabbitMQ,
   MAPPING_METHOD
 } from '@/utils';
-import _ from 'lodash';
+import _ from '@/utils/lodash';
 import { parseCron } from '@/components/util';
 
 export default {
@@ -123,7 +123,7 @@ export default {
       const { jobName, jobType, originalConfig, functionConfig, cleanDataConfig, reviseBindCheckTaskId } = taskInfo;
 
       return {
-        // TODO 存疑
+        // TODO Doubt
         processorConfigList,
         // common
         jobName,
@@ -520,7 +520,7 @@ export default {
               schemaMapping.serializeMapping[JSON.stringify(key)] = JSON.stringify(value);
             }
           }
-          // 从allTableList中筛选出选中的表
+          // Filter selected table from allTableList
           if (db.allTableList) {
             tableList = db.allTableList.filter((table) => table._checked);
           }

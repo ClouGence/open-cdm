@@ -18,7 +18,7 @@ package com.clougence.clouddm.ds.ads.dialect.ads4my;
 import com.clougence.clouddm.dsfamily.mysql.dialect.MySqlDialect;
 
 /**
- * MySQL 的 SqlDialect 实现
+ * MySQL SQLDialect implementation.
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */

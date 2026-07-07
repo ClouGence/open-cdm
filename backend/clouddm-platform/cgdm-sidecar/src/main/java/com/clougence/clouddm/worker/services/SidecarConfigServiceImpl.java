@@ -12,11 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.clougence.clouddm.worker.services;
+ */
+package com.clougence.clouddm.worker.services;
 
 import java.util.List;
-
-import jakarta.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
@@ -25,12 +24,14 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.ToolConfig;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.service.config.ConfigService;
 import com.clougence.clouddm.sdk.service.config.ConfigData;
+import com.clougence.clouddm.sdk.service.config.ConfigService;
 import com.clougence.clouddm.sdk.service.secrules.SensitiveConfig;
 import com.clougence.clouddm.sdk.ui.browser.DsBrowseSpi;
 import com.clougence.schema.dialect.Dialect;
 import com.clougence.schema.umi.struts.UmiTypes;
+
+import jakarta.annotation.Resource;
 
 @Service
 public class SidecarConfigServiceImpl implements ConfigService {
@@ -39,13 +40,13 @@ public class SidecarConfigServiceImpl implements ConfigService {
     private ConfigRService configRService;
 
     @Override
-    public List<ConfigData> fetchSettings(String ownerUid, List<String> names) {
-        return this.configRService.fetchSettings(ownerUid, names);
+    public List<ConfigData> fetchSettings(List<String> names) {
+        return this.configRService.fetchSettings(names);
     }
 
     @Override
-    public DataSourceConfig fetchDsConfig(long dsId, DataSourceType dsType) {
-        return this.configRService.fetchDsConfig(dsId, dsType);
+    public DataSourceConfig fetchDsConfig(long dsId) {
+        return this.configRService.fetchDsConfig(dsId);
     }
 
     @Override

@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import com.clougence.gradle.AntlrBuildSupport
-
 plugins {
     id 'java-library'
     id 'maven-publish'
@@ -41,20 +39,6 @@ ext {
     HIKARICP_VERSION = globalConfig.getProperty("cg.lib.hikaricp.version")
     OKHTTP_VERSION = globalConfig.getProperty("cg.lib.okhttp.version")
     FASTJSON_VERSION = globalConfig.getProperty("cg.lib.fastjson.version")
-
-    configureClougenceAntlrGrammar = { Map config ->
-        tasks.named('generateGrammarSource', AntlrTask).configure { task -> AntlrBuildSupport.configureGrammarTask(project, task, config)
-        }
-        AntlrBuildSupport.wireGrammarTasks(project, ['generateGrammarSource'])
-    }
-
-    registerClougenceAntlrGrammarTask = { String taskName, Map config ->
-        tasks.register(taskName, AntlrTask) { task -> AntlrBuildSupport.configureGrammarTask(project, task, config)
-        }
-    }
-
-    wireClougenceAntlrTasks = { Object... taskRefs -> AntlrBuildSupport.wireGrammarTasks(project, taskRefs.flatten())
-    }
 }
 
 group = 'com.cdmgr'
@@ -83,8 +67,12 @@ configurations {
 
 java {
     withSourcesJar()
-    sourceCompatibility = 21
-    targetCompatibility = 21
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
 }
 
 tasks.matching { it.name == 'sourcesJar' }.configureEach {

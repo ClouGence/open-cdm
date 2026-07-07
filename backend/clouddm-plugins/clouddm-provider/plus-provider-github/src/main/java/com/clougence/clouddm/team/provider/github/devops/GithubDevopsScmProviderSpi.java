@@ -34,7 +34,7 @@ public class GithubDevopsScmProviderSpi implements ScmProviderSpi {
     public String getServiceUrl() { return "https://github.com/"; }
 
     @Override
-    public String getHelpUrl() { return "https://www.clougence.com/dm-doc/devops/provider/devops_cicd_github"; }
+    public String getHelpUrl() { return ""; }
 
     @Override
     public List<ScmEventType> devopsSupportEvents() {
@@ -68,7 +68,7 @@ public class GithubDevopsScmProviderSpi implements ScmProviderSpi {
 
     @Override
     public void downloadToLocal(ScmProvider scm, ScmRepo repo, ScmSaveTo saveTo, ESupplier<Boolean, Exception> watchdog) {
-        // TODO 从 SCM checkout 仓库到本地
+        // TODO from SCM checkout repository to local
         System.out.println("Github pullToLocal 从 SCM checkout 仓库到本地");
     }
 }

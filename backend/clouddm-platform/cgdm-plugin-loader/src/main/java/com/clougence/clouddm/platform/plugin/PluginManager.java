@@ -26,17 +26,13 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.platform.plugin.info.DsMeta;
 import com.clougence.clouddm.platform.plugin.info.GlobalMeta;
 import com.clougence.clouddm.sdk.Spi;
-import com.clougence.clouddm.sdk.analysis.column.SelectColumnAnalysisSpi;
-import com.clougence.clouddm.sdk.analysis.rewrite.RewriteSpi;
-import com.clougence.clouddm.sdk.analysis.secrules.ResAnalysisSpi;
-import com.clougence.clouddm.sdk.analysis.secrules.SecDomainResolveSpi;
-import com.clougence.clouddm.sdk.analysis.secrules.SecRulesSupportSpi;
-import com.clougence.clouddm.sdk.analysis.split.SplitAnalysisSpi;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.clouddm.sdk.execute.tools.ToolFactory;
 import com.clougence.clouddm.sdk.service.Service;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
+import com.clougence.clouddm.sdk.sql.secrules.SecRulesSupportSpi;
 import com.clougence.clouddm.sdk.ui.browser.DsBrowseSpi;
 import com.clougence.clouddm.sdk.ui.ddl.ConvertTableDDLSpi;
 import com.clougence.clouddm.sdk.ui.editor.data.DataEditorSpi;
@@ -127,10 +123,35 @@ public class PluginManager {
 
         // ---- Part 3: build DefaultDriverLoader ----
         log.info("[PluginManager] Using driver directory: {}", driverDir.getAbsolutePath());
-        driverLoader = new DefaultDriverLoader(driverDir, System.getProperties());
+        driverLoader = new DefaultDriverLoader(driverDir, resolveBuiltinDriverDir(), System.getProperties());
         globalMeta = new GlobalMeta();
         dsMetaMap = new ConcurrentHashMap<>();
         dsSpiCache = new ConcurrentHashMap<>();
+    }
+
+    /**
+     * Resolve the read-only builtin driver directory shipped with the release. Driver versions that are not
+     * prepared under the writable driver directory fall back to this directory, so common drivers work
+     * out of the box without downloading.
+     */
+    private static File resolveBuiltinDriverDir() {
+        String builtinDirStr = SystemUtils.getSystemProperty("builtinDriverDirectory");
+
+        File builtinDir;
+        if (StringUtils.isBlank(builtinDirStr)) {
+            builtinDir = new File(GlobalConfUtils.getAppHome(), "built-in-drivers");
+        } else if (new File(builtinDirStr).isAbsolute()) {
+            builtinDir = new File(builtinDirStr);
+        } else {
+            builtinDir = new File(GlobalConfUtils.getAppHome(), builtinDirStr);
+        }
+
+        if (!builtinDir.isDirectory()) {
+            return null;
+        }
+
+        log.info("[PluginManager] Using builtin driver directory: {}", builtinDir.getAbsolutePath());
+        return builtinDir;
     }
 
     // ---------------------------------------------
@@ -255,6 +276,27 @@ public class PluginManager {
         return pluginInfo.getDsDialect();
     }
 
+    public static SqlEngineSpi findParserSpi(DataSourceType dsProduct, String engine) {
+        DsPluginInfo pluginInfo = findDsPlugin(dsProduct);
+        if (pluginInfo == null) {
+            return null;
+        }
+
+        List<String> engineNames = pluginInfo.getBindSqlEngineNames();
+        if (engineNames == null || engineNames.isEmpty()) {
+            throw new UnsupportedOperationException("no sql engine configured for data source '" + dsProduct + "'.");
+        }
+
+        String engineName = StringUtils.trimToNull(engine);
+        if (engineName == null) {
+            engineName = engineNames.get(0);
+        } else if (!engineNames.contains(engineName)) {
+            throw new UnsupportedOperationException("sql engine '" + engineName + "' is not bound to data source '" + dsProduct + "'. bound engines: " + engineNames);
+        }
+
+        return findSpi(SqlEngineSpi.class, engineName);
+    }
+
     // ---------------------------------------------
     //                                DataSource SPI
     // ---------------------------------------------
@@ -296,10 +338,6 @@ public class PluginManager {
         return (CmdTemplateSpi) findOneSpi(dsProduct, CmdTemplateSpi.class);
     }
 
-    public static SelectColumnAnalysisSpi findSelectColumnSpi(DataSourceType dsProduct) {
-        return (SelectColumnAnalysisSpi) findOneSpi(dsProduct, SelectColumnAnalysisSpi.class);
-    }
-
     public static DetermineExceptionSpi findDetermineExceptionSpi(DataSourceType dsProduct) {
         return (DetermineExceptionSpi) findOneSpi(dsProduct, DetermineExceptionSpi.class);
     }
@@ -320,28 +358,12 @@ public class PluginManager {
         return (DsBrowseSpi) findOneSpi(dsProduct, DsBrowseSpi.class);
     }
 
-    public static ResAnalysisSpi findResourceAnalysisSpi(DataSourceType dsProduct) {
-        return (ResAnalysisSpi) findOneSpi(dsProduct, ResAnalysisSpi.class);
-    }
-
-    public static SplitAnalysisSpi findSplitAnalysisSpi(DataSourceType dsProduct) {
-        return (SplitAnalysisSpi) findOneSpi(dsProduct, SplitAnalysisSpi.class);
-    }
-
     public static ConvertTableDDLSpi findConvertDDLSpi(DataSourceType dsProduct) {
         return (ConvertTableDDLSpi) findOneSpi(dsProduct, ConvertTableDDLSpi.class);
     }
 
-    public static SecDomainResolveSpi findSecDomainResolveSpi(DataSourceType dsProduct) {
-        return (SecDomainResolveSpi) findOneSpi(dsProduct, SecDomainResolveSpi.class);
-    }
-
     public static DsConfigSpi findDsConfigSpi(DataSourceType dsProduct) {
         return (DsConfigSpi) findOneSpi(dsProduct, DsConfigSpi.class);
-    }
-
-    public static RewriteSpi findRewriteSpi(DataSourceType dsProduct) {
-        return (RewriteSpi) findOneSpi(dsProduct, RewriteSpi.class);
     }
 
     public static FunctionUiDefService findFunctionUiDefService(DataSourceType dsProduct) {

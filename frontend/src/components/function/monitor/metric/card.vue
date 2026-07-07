@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import _ from 'lodash';
+import _ from '@/utils/lodash';
 import Metric from './metric';
 import {Tooltip} from "view-ui-plus"
 

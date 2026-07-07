@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
- * 属性Keys。
+ * Attribute Keys.
  * @version : 2020-01-22
  * @author 赵永春 (zyc@hasor.net)
  */

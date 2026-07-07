@@ -1,6 +1,6 @@
 <template>
   <div style="display: inline-block" class="datasource-icon">
-    <cc-data-source-icon color="#ffffff" background="#0087c7" :size="12" :type="type" :instance-type="instanceType" />
+    <cc-data-source-icon color="#171717" background="#3ecf8e" :size="12" :type="type" :instance-type="instanceType" />
   </div>
 </template>
 <script>
@@ -14,7 +14,7 @@ export default {
 </script>
 <style lang="less" scoped>
 .datasource-icon {
-  background: #0071af;
+  background: #24b47e;
   width: 16px;
   height: 16px;
   line-height: 16px;

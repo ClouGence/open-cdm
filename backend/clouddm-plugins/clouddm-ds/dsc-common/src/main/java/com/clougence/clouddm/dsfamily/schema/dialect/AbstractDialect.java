@@ -28,7 +28,7 @@ import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
 
 /**
- * 公共 SqlDialect 实现
+ * Base SQLDialect implementation.
  *
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)

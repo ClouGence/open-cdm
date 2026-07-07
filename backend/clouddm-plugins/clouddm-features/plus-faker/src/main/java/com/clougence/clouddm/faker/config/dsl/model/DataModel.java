@@ -23,6 +23,6 @@ import java.util.Map;
  */
 public interface DataModel {
 
-    /** 根据上下文解析出具体 Data */
+    /** Parsing specific Data based on context */
     Object recover(Map<String, Object> context);
 }

@@ -24,6 +24,7 @@ public enum DsConfigKeys {
     //    Commons    //
     ///////////////////
     ID("com_id"),
+    DRIVER_VERSION("com_driver_version"),
     HOST("com_host"),
     USER("com_user", true),
     PASSWORD("com_password", true),
@@ -59,6 +60,12 @@ public enum DsConfigKeys {
     //    Only for Postgresql    //
     ///////////////////////////////
     PG_INTERVAL_STYLE("pg_interval_style"), // use "set intervalstyle = 'xxx'"
+
+    ///////////////////////////////
+    //    Only for SQL Server    //
+    ///////////////////////////////
+    MSSQL_INSTANCE_NAME("mssql_instance_name"),
+    MSSQL_TRUST_SERVER_CERTIFICATE("trustServerCertificate"),
 
     ///////////////////////////
     //    Only for Oracle    //

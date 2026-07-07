@@ -18,10 +18,10 @@ package com.clougence.clouddm.ds.ads.dsconf.ads4my;
 import java.util.Properties;
 
 import com.clougence.clouddm.base.metadata.ds.ConfigDef;
-import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
+import com.clougence.clouddm.ds.ads.i18n.AdsMyConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
@@ -29,29 +29,38 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 /**
  * @author bucketli 2020/11/5 20:29
  */
 @Getter
 @Setter
+@FieldNameConstants
 @Serialization(provider = AdsMySerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AdsMyConfig extends DataSourceConfig {
-
-    @ConfigDef(name = "connectionCharset", defaultValue = "utf8", descKey = ConfigI18nKey.CONFIG_ADSMYSQL_CONN_CHARSET_DESCRIPTION, readOnly = false)
+    // ------------------------------------------------------------------------------------------------------------------------ GENERAL
+    @ConfigDef(name = Fields.defaultSchema, //
+            group = DsConfigGroup.GENERAL, labelKey = AdsMyConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_LABEL, descKey = AdsMyConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_DESC, readOnly = false)
+    private String  defaultSchema;
+    // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
+    @ConfigDef(name = Fields.clientTimeZone, defaultValue = "Asia/Shanghai", //
+            group = DsConfigGroup.OPTIONS, labelKey = AdsMyConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_LABEL, descKey = AdsMyConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_DESC, readOnly = false)
+    private String  clientTimeZone;
+    // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
+    @ConfigDef(name = Fields.connectTimeoutMs, defaultValue = "5000", //
+            group = DsConfigGroup.ADVANCED, labelKey = AdsMyConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_LABEL, descKey = AdsMyConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_DESC, readOnly = false)
+    private Long    connectTimeoutMs;
+    @ConfigDef(name = Fields.soTimeoutSec, defaultValue = "10", //
+            group = DsConfigGroup.ADVANCED, labelKey = AdsMyConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_LABEL, descKey = AdsMyConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_DESC, readOnly = false)
+    private Integer soTimeoutSec;
+    @ConfigDef(name = Fields.connectionCharset, defaultValue = "utf8", //
+            group = DsConfigGroup.ADVANCED, labelKey = AdsMyConfigI18nKeys.CONFIG_ADS_MY_CONN_CHARSET_LABEL, descKey = AdsMyConfigI18nKeys.CONFIG_ADS_MY_CONN_CHARSET_DESC, readOnly = false)
     private String  connectionCharset;
-
-    @ConfigDef(name = "useCursorFetch", valueRequire = false, descKey = ConfigI18nKey.CONFIG_ADSMYSQL_CONN_USE_CURSOR_FETCH, readOnly = false, valueAdvance = "true - false", group = DsConfigGroup.OPTIONS)
-    private Boolean useCursorFetch;
 
     public AdsMyConfig(){
         setDataSourceType(DataSourceType.AdbForMySQL);
-    }
-
-    @Override
-    public void deserialize() {
-        super.deserialize();
     }
 
     public Properties asDriverProperties() {
@@ -61,11 +70,17 @@ public class AdsMyConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.USER.getConfigKey(), safeStr(this.getUserName()));
         properties.setProperty(DsConfigKeys.PASSWORD.getConfigKey(), safeStr(this.getPassword()));
         properties.setProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey(), safeStr(this.getDefaultSchema()));
+        properties.setProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey(), safeStr(StringUtils.toString(this.getAutoCommit())));
         properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), safeStr(StringUtils.toString(this.getConnectTimeoutMs())));
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
-        properties.setProperty("use_cursor_fetch", safeStr(StringUtils.toString(this.getUseCursorFetch())));
+        properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), safeStr(this.getClientTimeZone()));
         properties.setProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey(), safeStr(this.getConnectionCharset()));
-        properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), "Asia/Shanghai");
+        properties.setProperty("useCursorFetch", "false");
+        properties.setProperty("allowPublicKeyRetrieval", "true");
+        properties.setProperty("allowMultiQueries", "true");
+        properties.setProperty("rewriteBatchedStatements", "true");
+        properties.setProperty("useServerPrepStmts", "true");
+        properties.setProperty("useOldAliasMetadataBehavior", "true");
         return properties;
     }
 }

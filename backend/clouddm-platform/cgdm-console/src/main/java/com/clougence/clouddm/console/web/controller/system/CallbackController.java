@@ -27,11 +27,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.constants.EventType;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.csrf.CsrfTokenService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
@@ -43,6 +42,7 @@ import com.clougence.clouddm.console.web.service.login.LoginService;
 import com.clougence.clouddm.console.web.util.RdpWebUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.NamingDao;
+import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
 import com.clougence.clouddm.platform.dal.model.auth.AccountBindType;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
@@ -85,7 +85,7 @@ public class CallbackController {
     @Resource
     private LoginService        loginRegService;
     @Resource
-    private DmConsoleConfig     rdpConfig;
+    private ConsoleConfig       config;
     @Resource
     private RdpOpAuditService   opAuditService;
     @Resource
@@ -185,7 +185,7 @@ public class CallbackController {
             String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_PRIMARY_ACCOUNT_DISABLED.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_OWNER_ERROR.name(), message);
         }
-        if (!this.loginDefService.checkLoginEnable(primaryUser.getUid(), providerEnum)) {
+        if (!this.loginDefService.checkLoginEnable(providerEnum)) {
             String message = DmI18nUtils.getMessage(I18nRdpMsgKeys.LOGIN_FAIL_SERVICE_NOT_ENABLE.name());
             return this.redirectToFailed(request, response, I18nRdpMsgKeys.LOGIN_SSO_OWNER_ERROR.name(), message);
         }
@@ -257,7 +257,7 @@ public class CallbackController {
     }
 
     protected Object redirectToFailed(HttpServletRequest request, HttpServletResponse response, String errorCode, String errorMessage) throws IOException {
-        String contextPath = this.rdpConfig.getDeployContextPath();
+        String contextPath = this.config.getDeployContextPath();
         if (StringUtils.isBlank(contextPath)) {
             contextPath = "/";
         } else if (!StringUtils.endsWith(contextPath, "/")) {
@@ -265,14 +265,14 @@ public class CallbackController {
         }
 
         response.sendRedirect(contextPath + "#/login?" +//
-                              "error=" + URLEncoder.encode(DmI18nUtils.getMessage(errorCode), "UTF-8") + "&" +//
-                              "error_description=" + URLEncoder.encode(errorMessage, "UTF-8"));
+                              "error=" + URLEncoder.encode(StringUtils.defaultString(DmI18nUtils.getMessage(errorCode), errorCode), StandardCharsets.UTF_8) + "&" +//
+                              "error_description=" + URLEncoder.encode(StringUtils.defaultString(errorMessage, ""), StandardCharsets.UTF_8));
         return "failed.";
     }
 
     protected Object redirectToLogin(HttpServletRequest request, HttpServletResponse response, String registerToken, String loginType, String primaryUid,
                                      UserData fetchUser) throws IOException {
-        String contextPath = this.rdpConfig.getDeployContextPath();
+        String contextPath = this.config.getDeployContextPath();
         if (StringUtils.isBlank(contextPath)) {
             contextPath = "/";
         } else if (!StringUtils.endsWith(contextPath, "/")) {
@@ -298,12 +298,12 @@ public class CallbackController {
     }
 
     protected Object redirectToHome(HttpServletRequest request, HttpServletResponse response, LoginMO login) throws IOException {
-        int cookieAge = Math.max(JwtService.minLoginExpireSec, this.rdpConfig.getLoginExpireTimeSec());
+        int cookieAge = Math.max(JwtService.minLoginExpireSec, this.config.getLoginExpireTimeSec());
         Cookie cookie = RdpWebUtils.newCookie(JwtService.jwtTokenName, login.getToken(), false, cookieAge);
 
         response.addCookie(cookie);
-        if (StringUtils.isNotBlank(this.rdpConfig.getDeployContextPath())) {
-            response.sendRedirect(this.rdpConfig.getDeployContextPath());
+        if (StringUtils.isNotBlank(this.config.getDeployContextPath())) {
+            response.sendRedirect(this.config.getDeployContextPath());
         } else {
             response.sendRedirect("/");
         }
@@ -325,7 +325,7 @@ public class CallbackController {
             return this.redirectOrDone(request, response, "/");
         }
 
-        response.addCookie(RdpWebUtils.newCookie("jwt_token", StringUtils.EMPTY, true, 0));
+        response.addCookie(RdpWebUtils.newCookie(JwtService.jwtTokenName, StringUtils.EMPTY, true, 0));
         return this.redirectOrDone(request, response, "/");
     }
 

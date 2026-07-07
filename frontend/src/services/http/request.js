@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { Message, Modal } from 'view-ui-plus';
+import Toast from '@/utils/toast';
+import { Modal } from 'view-ui-plus';
 import { showActiveLicense } from '@/utils';
 import { addPending, cancelPending, removePending } from '@/services/http/cancelRequest';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
@@ -11,23 +12,26 @@ import formatError from '../formatError';
 import errorQueue from '@/utils/errorQueue';
 
 const UPDATE_DATA_SOURCE_STATUS_LIST = [
-  '/clouddm/console/api/v1/browse/actions/doAction',
-  '/clouddm/console/api/v1/browse/listLevels',
-  '/clouddm/console/api/v1/browse/rdbObjectDetail',
-  '/clouddm/console/api/v1/browse/listLeaf',
-  '/clouddm/console/api/v1/browse/actions/loadObject',
-  '/clouddm/console/api/v1/editor/data/fetchData',
-  '/clouddm/console/api/v1/editor/data/saveData',
-  '/clouddm/console/api/v1/editor/data/fetchCount',
-  '/clouddm/console/api/v1/editor/table/editorDef',
-  '/clouddm/console/api/v1/editor/table/initEditor',
-  '/clouddm/console/api/v1/editor/table/generateScript',
-  '/clouddm/console/api/v1/query/createsession',
-  '/clouddm/console/api/v1/browse/actions/requestScript',
-  '/clouddm/console/api/v1/browse/actions/generateScript',
-  '/clouddm/console/api/v1/editor/table/scriptExecute',
-  '/clouddm/console/api/v1/datasource/testConnect'
+  '/api/entry/browse/actions/doAction',
+  '/api/entry/browse/listLevels',
+  '/api/entry/browse/rdbObjectDetail',
+  '/api/entry/browse/listLeaf',
+  '/api/entry/browse/actions/loadObject',
+  '/api/entry/editor/data/fetchData',
+  '/api/entry/editor/data/saveData',
+  '/api/entry/editor/data/fetchCount',
+  '/api/entry/editor/table/editorDef',
+  '/api/entry/editor/table/initEditor',
+  '/api/entry/editor/table/generateScript',
+  '/api/entry/query/createSession',
+  '/api/entry/browse/actions/requestScript',
+  '/api/entry/browse/actions/generateScript',
+  '/api/entry/editor/table/scriptExecute',
+  '/api/entry/datasource/testConnect'
 ];
+
+// APIs whose failure is surfaced by the caller (toast / inline), not the global error modal.
+const SELF_HANDLED_ERROR_URLS = ['/login', '/datasource/connectds', '/api/entry/datasource/connectDs', '/api/entry/datasource/testConnect'];
 
 let baseURL = '';
 if (process.env.VUE_APP_BASE_URL) {
@@ -53,10 +57,10 @@ const instance = axios.create({
             data[key] = null;
           } else {
             try {
-              // 性能优化：对于超大数据量，跳过递归 trim
+              // Performance optimization: Skip recursive trim for hyperdata volumes
               const value = data[key];
               if (value && typeof value === 'object' && ((Array.isArray(value) && value.length > 5000) || Object.keys(value).length > 5000)) {
-                // 大数据量不进行递归 trim
+                // Large data volume does not recur Trim
               } else {
                 data[key] = trimObj(value);
               }
@@ -131,7 +135,7 @@ const request = async (opt) => {
   const { url: requestUrl, msg, modal = true, page } = options;
 
   try {
-    // if (!['/login', '/register', '/logout', '/global_settings', '/list_org', '/login_supplement', '/check_supplement', '/load_supplement_info'].includes(options.url)) {
+    // if (!['/login', '/register', '/logout', '/globalSettings', '/list_org', '/login_supplement', '/checkSupplement', '/load_supplement_info'].includes(options.url)) {
     //   options.baseURL = process.env.VUE_APP_BASE_URL;
     // }
     const res = await instance(options);
@@ -187,14 +191,17 @@ const request = async (opt) => {
             }
             break;
           default:
-            if (['/login', '/datasource/connectds'].includes(requestUrl)) {
+            if (SELF_HANDLED_ERROR_URLS.includes(requestUrl)) {
+              if (res.msg) {
+                res.msg = formatError(res.msg);
+              }
               return res;
             }
             if (['/datasource/schema/rightclickschema'].includes(requestUrl) && res.data && res.data.next) {
               return res;
             }
             if (modal) {
-              // 将错误添加到队列中
+              // Add an error to the queue
               let contentStr = formatError(res.msg) || i18n.global.t('xi-tong-yi-chang-qing-lian-xi-guan-li-yuan');
               errorQueue.addError({
                 title: i18n.global.t('cuo-wu'),
@@ -210,7 +217,7 @@ const request = async (opt) => {
             }
         }
       } else if (res.success && msg) {
-        Message.success(options.msg);
+        Toast.success(options.msg);
       }
     }
     return res;
@@ -238,7 +245,7 @@ const request = async (opt) => {
         if (err.msg && typeof err.msg === 'string') {
           errmsg = err.msg;
         }
-        // 权限错误添加到队列
+        // Permission error added to queue
         errorQueue.addError({
           title: i18n.global.t('quan-xian-yi-chang'),
           content: errmsg,
@@ -255,7 +262,7 @@ const request = async (opt) => {
           const url = new URL(err.config.url);
           const pathList = url.pathname.split('/');
           if (pathList.length > 1 && pathList[1] === 'clouddm') {
-            if (url.pathname !== '/clouddm/console/api/v1/dm_global_setting') {
+            if (url.pathname !== '/api/entry/dmGlobalSettings') {
               errorQueue.addError({
                 title: 'ERROR',
                 content: i18n.global.t('chan-pin-ji-qun-wu-fa-fang-wen'),

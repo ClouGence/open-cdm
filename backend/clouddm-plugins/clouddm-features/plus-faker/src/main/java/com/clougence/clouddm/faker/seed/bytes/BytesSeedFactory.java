@@ -24,7 +24,7 @@ import com.clougence.clouddm.faker.seed.SeedConfig;
 import com.clougence.clouddm.faker.seed.SeedFactory;
 
 /**
- * byte[] 类型的 SeedFactory
+ * byte[] type SeedFactory
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

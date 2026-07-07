@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import moment from 'moment';
+import _ from '@/utils/lodash';
+import dayjs from '@/utils/dayjsSetup';
 import kbn from '../utils/kbn';
 
 export class TableRenderer {
@@ -93,7 +93,7 @@ export class TableRenderer {
         if (_.isArray(v)) {
           v = v[0];
         }
-        let date = moment(v);
+        let date = dayjs(v);
 
         if (this.isUtc) {
           date = date.utc();

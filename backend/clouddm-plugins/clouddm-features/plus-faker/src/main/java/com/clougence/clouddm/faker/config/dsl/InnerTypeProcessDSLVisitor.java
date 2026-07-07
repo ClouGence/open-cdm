@@ -33,7 +33,7 @@ import com.clougence.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * DSL 解析器
+ * DSL Parser
  * @version : 2023-02-10
  * @author 赵永春 (zyc@hasor.net)
  */

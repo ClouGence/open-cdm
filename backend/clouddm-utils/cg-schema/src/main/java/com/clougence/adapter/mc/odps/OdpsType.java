@@ -19,117 +19,117 @@ import java.util.List;
 
 /**
  * copy from odps driver com.aliyun.odps.OdpsType
- * ODPS表支持的字段类型
+ * Field type supported by the ODS table
  */
 public enum OdpsType {
 
     /**
-     * 8字节有符号整型
+     * 8-byte symbol integer
      */
     BIGINT,
 
     /**
-     * 双精度浮点
+     * Double Float
      */
     DOUBLE,
 
     /**
-     * 布尔型
+     * Boolean
      */
     BOOLEAN,
 
     /**
-     * 日期类型
+     * Date Type
      */
     DATETIME,
 
     /**
-     * 字符串类型
+     * String Type
      */
     STRING,
 
     /**
-     * 精确小数类型
+     * Accurate decimal type
      */
     DECIMAL,
 
     /**
-     * MAP类型
+     * MAP Type
      */
     MAP,
 
     /**
-     * ARRAY类型
+     * ARRAY type
      */
     ARRAY,
 
     /**
-     * 空
+     * Empty
      */
     VOID,
 
     /**
-     * 1字节有符号整型
+     * 1 byte with symbol integer
      */
     TINYINT,
 
     /**
-     * 2字节有符号整型
+     * 2-byte symbol integer
      */
     SMALLINT,
 
     /**
-     * 4字节有符号整型
+     * 4-byte symbol integer
      */
     INT,
 
     /**
-     * 单精度浮点
+     * Single Float
      */
     FLOAT,
 
     /**
-     * 固定长度字符串
+     * Fixed length string
      */
     CHAR,
 
     /**
-     * 可变长度字符串
+     * Variable length string
      */
     VARCHAR,
 
     /**
-     * 时间类型
+     * Time type
      */
     DATE,
 
     /**
-     * 时间戳
+     * Timetamp
      */
     TIMESTAMP,
 
     /**
-     * 字节数组
+     * Bytes
      */
     BINARY,
 
     /**
-     * 日期间隔
+     * Period
      */
     INTERVAL_DAY_TIME,
 
     /**
-     * 年份间隔
+     * Year interval
      */
     INTERVAL_YEAR_MONTH,
 
     /**
-     * 结构体
+     * Structure
      */
     STRUCT,
 
     /**
-     * JSON类型
+     * JSON Type
      */
     JSON,
 

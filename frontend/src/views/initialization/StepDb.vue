@@ -2,8 +2,11 @@
   <div class="step-db">
     <a-form layout="horizontal" class="step-db-form">
       <div v-if="jdbcUrlField" class="jdbc-generated-editor">
-        <a-form-item :label="$t('initialization.jdbcDataSourceType')" required>
-          <InitMysqlDriverStatus :active="driverStatusActive" @status-change="handleDriverStatusChange" />
+        <a-form-item :label="$t('initialization.jdbcDataSourceType')" class="jdbc-database-type-form-item">
+          <span class="jdbc-database-type-value">
+            <cc-data-source-icon class="jdbc-database-type-icon" type="MySQL" :size="18" color="#0087c7" aria-hidden="true" />
+            <span>{{ $t('initialization.jdbcDataSourceTypeValue') }}</span>
+          </span>
         </a-form-item>
 
         <a-form-item :label="$t('initialization.jdbcHostPort')" required>
@@ -17,7 +20,7 @@
               />
             </div>
             <div class="jdbc-inline-field jdbc-inline-field-port">
-              <span class="jdbc-inline-label">{{ $t('initialization.jdbcPortLabel') }}</span>
+              <span class="jdbc-inline-label jdbc-inline-label-required">{{ $t('initialization.jdbcPortLabel') }}</span>
               <a-input
                 :value="generatedState.port"
                 :disabled="readonly"
@@ -48,37 +51,27 @@
           />
         </a-form-item>
 
-        <a-form-item :label="$t('initialization.jdbcDatabase')" required class="jdbc-form-item-full">
-          <a-input
-            class="jdbc-full-width-control"
-            :value="generatedState.database"
-            :disabled="readonly"
-            :placeholder="$t('initialization.jdbcDatabasePlaceholder')"
-            @input="(value) => onGeneratedFieldChange('database', normalizeInputValue(value))"
-          >
-            <template v-if="databaseStatusIndicator" #suffix>
-              <span class="jdbc-database-status" :class="`jdbc-database-status-${databaseStatusIndicator.type}`">
-                <PlusOutlined v-if="databaseStatusIndicator.type === 'new'" />
-                <CheckCircleOutlined v-else />
-                <span>{{ databaseStatusIndicator.label }}</span>
-              </span>
-            </template>
-          </a-input>
-        </a-form-item>
-
-        <a-form-item v-if="showRebuildChoice" :label="$t('initialization.dbRebuildLabel')" required class="jdbc-form-item-full">
-          <div class="db-rebuild-option">
-            <div class="db-rebuild-line">
-              <div class="db-rebuild-text">{{ dbTestResult.rebuildPrompt }}</div>
-              <a-radio-group
-                :value="formValues['clougence.init.db.rebuildIfNotEmpty'] || ''"
+        <a-form-item :label="$t('initialization.jdbcDatabase')" required class="jdbc-form-item-full jdbc-database-form-item">
+          <div class="jdbc-database-row">
+            <div
+              class="jdbc-database-input-wrap"
+              :class="{ 'is-pending-create': hasPendingCreateDatabase, 'is-focused': databaseInputFocused }"
+              :data-pending-create-text="pendingCreateDatabaseDisplay"
+            >
+              <a-input
+                class="jdbc-full-width-control"
+                :value="generatedState.database"
                 :disabled="readonly"
-                @change="(e) => onChange('clougence.init.db.rebuildIfNotEmpty', e.target.value)"
-              >
-                <a-radio :value="'true'">{{ $t('initialization.optionYes') }}</a-radio>
-                <a-radio :value="'false'">{{ $t('initialization.optionNo') }}</a-radio>
-              </a-radio-group>
+                :placeholder="$t('initialization.jdbcDatabasePlaceholder')"
+                @focus="databaseInputFocused = true"
+                @blur="databaseInputFocused = false"
+                @input="(value) => onGeneratedFieldChange('database', normalizeInputValue(value))"
+              />
             </div>
+            <a-button v-if="showTestButton" class="jdbc-test-button" :disabled="testingDb" @click="$emit('test-db')">
+              <span v-if="testingDb" class="button-inline-spinner" aria-hidden="true"></span>
+              <span>{{ $t('initialization.testConnection') }}</span>
+            </a-button>
           </div>
         </a-form-item>
       </div>
@@ -112,9 +105,6 @@
 </template>
 
 <script>
-import { CheckCircleOutlined, PlusOutlined } from '@ant-design/icons-vue';
-import InitMysqlDriverStatus from './InitMysqlDriverStatus.vue';
-
 const DEFAULT_GENERATED_STATE = Object.freeze({
   host: '',
   port: '3306',
@@ -177,21 +167,19 @@ function buildMysqlJdbcUrl(generatedState) {
 
 export default {
   name: 'StepDb',
-  components: {
-    CheckCircleOutlined,
-    PlusOutlined,
-    InitMysqlDriverStatus
-  },
+  emits: ['update:formValues', 'validation-change', 'test-db'],
   props: {
     fieldDefs: { type: Array, default: () => [] },
     formValues: { type: Object, default: () => ({}) },
     dbTestResult: { type: Object, default: null },
     readonly: { type: Boolean, default: false },
-    driverStatusActive: { type: Boolean, default: true }
+    showTestButton: { type: Boolean, default: false },
+    testingDb: { type: Boolean, default: false }
   },
   data() {
     return {
-      generatedState: createGeneratedState()
+      generatedState: createGeneratedState(),
+      databaseInputFocused: false
     };
   },
   computed: {
@@ -211,25 +199,21 @@ export default {
     jdbcUrlValue() {
       return this.formValues['spring.datasource.jdbcurl'] || '';
     },
-    showRebuildChoice() {
-      return Boolean(this.dbTestResult && this.dbTestResult.showRebuildChoice);
+    hasPendingCreateDatabase() {
+      const databaseName = `${this.generatedState.database || ''}`.trim();
+      if (!this.dbTestResult || !this.dbTestResult.success || this.dbTestResult.databaseExists || !databaseName) {
+        return false;
+      }
+
+      return true;
     },
-    databaseStatusIndicator() {
-      if (!this.dbTestResult || !this.dbTestResult.success || !this.generatedState.database) {
-        return null;
+    pendingCreateDatabaseDisplay() {
+      if (!this.hasPendingCreateDatabase) {
+        return '';
       }
 
-      if (this.dbTestResult.databaseExists) {
-        return {
-          type: 'existing',
-          label: this.$t('initialization.jdbcDatabaseExists')
-        };
-      }
-
-      return {
-        type: 'new',
-        label: this.$t('initialization.jdbcDatabaseCreate')
-      };
+      const databaseName = `${this.generatedState.database || ''}`.trim();
+      return `${databaseName}${this.$t('initialization.jdbcDatabasePendingCreate')}`;
     },
     missingRequiredFields() {
       if (this.readonly) {
@@ -272,9 +256,6 @@ export default {
     }
   },
   methods: {
-    handleDriverStatusChange(status) {
-      this.$emit('driver-status-change', status || null);
-    },
     normalizeInputValue(payload) {
       if (payload && typeof payload === 'object' && 'target' in payload) {
         return payload.target ? payload.target.value : '';
@@ -321,14 +302,15 @@ export default {
   display: flex;
   align-items: flex-start;
   width: 100%;
+  margin-bottom: 14px;
 }
 .step-db-form :deep(.ant-form-item-row) {
   display: flex;
   width: 100%;
 }
 .step-db-form :deep(.ant-form-item-label) {
-  flex: 0 0 120px;
-  max-width: 120px;
+  flex: 0 0 136px;
+  max-width: 136px;
   padding-right: 12px;
   text-align: left;
   line-height: 32px;
@@ -337,16 +319,20 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
+  position: relative;
   min-height: 32px;
-  white-space: normal;
+  padding-left: 12px;
+  white-space: nowrap;
   text-align: left;
 }
 .step-db-form :deep(.ant-form-item-required::before) {
-  display: none !important;
+  position: absolute;
+  left: 0;
+  margin-right: 0;
 }
 .step-db-form :deep(.ant-form-item-control-wrapper) {
   flex: 1;
-  max-width: calc(100% - 120px);
+  max-width: calc(100% - 136px);
 }
 .step-db-form :deep(.ant-form-item-control) {
   flex: 1 1 0;
@@ -359,10 +345,25 @@ export default {
 .jdbc-generated-editor {
   width: 100%;
 }
+.jdbc-database-type-value {
+  display: inline-flex;
+  align-items: center;
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 14px;
+  line-height: 28px;
+  white-space: nowrap;
+}
+.jdbc-database-type-value :deep(.datasource-icon) {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+  line-height: 18px;
+}
 .jdbc-host-port-row {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
 }
 .jdbc-inline-field {
@@ -374,19 +375,26 @@ export default {
   min-width: 0;
 }
 .jdbc-inline-field-port {
-  width: auto;
   flex: 0 0 auto;
 }
 .jdbc-inline-field :deep(.ant-input) {
   width: 100%;
 }
 .jdbc-inline-field-port :deep(.ant-input) {
-  width: 80px;
+  width: 96px;
 }
 .jdbc-inline-label {
   margin-right: 8px;
   white-space: nowrap;
   color: rgba(0, 0, 0, 0.85);
+}
+.jdbc-inline-label-required::before {
+  display: inline-block;
+  margin-right: 4px;
+  color: #ff4d4f;
+  font-family: SimSun, sans-serif;
+  line-height: 1;
+  content: '*';
 }
 .jdbc-form-item-full :deep(.ant-form-item-control-input),
 .jdbc-form-item-full :deep(.ant-form-item-control-input-content),
@@ -396,35 +404,121 @@ export default {
 .jdbc-full-width-control :deep(.ant-input-password) {
   width: 100%;
 }
-.jdbc-database-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  line-height: 1;
-  white-space: nowrap;
-}
-.jdbc-database-status-new {
-  color: #389e0d;
-}
-.jdbc-database-status-existing {
-  color: #1677ff;
-}
-.db-rebuild-option {
-  width: 100%;
-}
-.db-rebuild-line {
+.jdbc-database-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
-  flex-wrap: wrap;
 }
-.db-rebuild-text {
-  flex: 1;
+.jdbc-database-input-wrap {
+  position: relative;
+  flex: 1 1 0;
   min-width: 0;
-  color: rgba(0, 0, 0, 0.85);
-  line-height: 22px;
+}
+.jdbc-database-input-wrap.is-pending-create:not(.is-focused)::after {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  z-index: 1;
+  max-width: calc(100% - 24px);
+  overflow: hidden;
+  color: #389e0d;
+  font-size: 14px;
+  line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  content: attr(data-pending-create-text);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.jdbc-database-input-wrap.is-pending-create:not(.is-focused) .jdbc-full-width-control {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+.jdbc-database-input-wrap.is-pending-create.is-focused .jdbc-full-width-control {
+  color: #389e0d;
+  -webkit-text-fill-color: #389e0d;
+}
+.jdbc-test-button {
+  flex: 0 0 auto;
+  min-width: 96px;
+}
+.button-inline-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+  vertical-align: -2px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.18);
+  border-top-color: #1677ff;
+  animation: buttonInlineSpin 0.8s linear infinite;
+}
+
+@keyframes buttonInlineSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .step-db-form :deep(.ant-form-item) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .step-db-form :deep(.ant-form-item-row) {
+    flex-direction: column;
+  }
+
+  .step-db-form :deep(.ant-form-item-label) {
+    flex: none;
+    max-width: 100%;
+    width: 100%;
+    padding: 0 0 6px;
+    line-height: 22px;
+  }
+
+  .step-db-form :deep(.ant-form-item-label > label) {
+    min-height: 22px;
+  }
+
+  .step-db-form :deep(.ant-form-item-control-wrapper) {
+    flex: none;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .step-db-form :deep(.ant-form-item-control),
+  .step-db-form :deep(.ant-form-item-control-input),
+  .step-db-form :deep(.ant-form-item-control-input-content) {
+    flex: none;
+    height: auto;
+    min-height: 0;
+    width: 100%;
+  }
+
+  .jdbc-host-port-row,
+  .jdbc-database-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .jdbc-inline-field-port {
+    width: 100%;
+  }
+
+  .jdbc-inline-field-port :deep(.ant-input) {
+    width: 100%;
+  }
+
+  .jdbc-inline-label {
+    flex: 0 0 auto;
+  }
+
+  .jdbc-test-button {
+    width: 100%;
+  }
 }
 </style>

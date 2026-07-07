@@ -1,9 +1,5 @@
 <template>
   <div class="ticket-create-container">
-    <Breadcrumb>
-      <BreadcrumbItem to="/ticket">{{ $t('gong-dan') }}</BreadcrumbItem>
-      <BreadcrumbItem>{{ $t('ti-jiao-gong-dan') }}</BreadcrumbItem>
-    </Breadcrumb>
     <div class="create-content-container">
       <div class="create-ticket-editor">
         <div class="create-ticket-editor-operator">
@@ -13,6 +9,8 @@
             :allDsList="allDsList"
             :handle-catalog-change="handleCatalogChange"
             :selectedDs="selectedDs"
+            required
+            :error="instanceRequiredError"
             @restore-schema="restoreSchema"
             @restore-catalog="restoreCatalog"
           ></DsSelect>
@@ -207,6 +205,7 @@ export default {
       templateList: [],
       personList: [],
       selectedDs: {},
+      instanceRequiredError: false,
       validationResultHeight: 150,
       isResizing: false,
       startY: 0,
@@ -380,6 +379,11 @@ export default {
     },
     async handleSubmitTicket(force = false) {
       this.showCheckedOnlyError = false;
+      if (!this.ticketData.instanceId) {
+        this.instanceRequiredError = true;
+        this.$Message.error(this.$t('qing-xuan-ze-shu-ju-yuan-shi-li'));
+        return;
+      }
       this.$refs.ticketContent
         .validate()
         .then(async () => {
@@ -414,7 +418,7 @@ export default {
               if (res.data.confirm && !res.data.failure) {
                 this.showForceBtn = true;
                 if (force) {
-                  // 强制递交，且没有阻塞规则
+                  // Forced surrender, no obstruction rules.
                   this.noPassedRuleList = [];
                   this.showForceBtn = false;
                   await this.$router.push({ path: `/ticket/${res.data.ticketId}` });
@@ -473,6 +477,7 @@ export default {
       this.currentMethod = 'listFirstLevel';
     },
     async handleChangeInstance(e) {
+      this.instanceRequiredError = false;
       this.ticketData.database = null;
       this.ticketData.schema = null;
       this.ticketData.showCatalogSelect = false;
@@ -536,39 +541,32 @@ export default {
 </script>
 <style lang="less">
 .ticket-create-container {
-  padding: 20px;
   display: flex;
   flex-direction: column;
   height: 100%;
 
   .create-content-container {
-    margin-top: 10px;
+    flex: 1;
     display: flex;
-    height: calc(100% - 10px);
+    min-height: 0;
+    padding: 16px 24px;
+    gap: 24px;
 
     .create-ticket-editor {
       flex: 1;
-      width: calc(100% - 4px);
+      min-width: 0;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      height: calc(100% - 20px);
 
       .create-ticket-editor-operator {
-        padding: 13px 10px;
-        border: 1px solid #eaeaea;
-        border-right: none;
-
-        .ivu-select:first-child {
-          margin-right: 4px;
-        }
+        padding-bottom: 16px;
       }
 
       .editor {
         flex: 1;
         min-height: 0;
         display: flex;
-        height: 100%;
         flex-direction: column;
 
         .collapse {
@@ -585,45 +583,38 @@ export default {
             flex: none;
             min-height: 100px;
             max-height: 400px;
-            border: 1px solid #eaeaea;
-            border-radius: 4px;
-            background: #fafafa;
-            z-index: 999;
+            border-radius: 6px;
+            border: 1px solid #eee;
             overflow: hidden;
 
             .title {
-              background: linear-gradient(135deg, #fff5f5 0%, #fff2e8 100%);
-              border: 1px solid #ffccc7;
-              border-bottom: 1px solid #eaeaea;
-              border-radius: 4px 4px 0 0;
+              padding: 10px 16px;
               color: #d4380d;
-              font-weight: 600;
+              font-size: 14px;
+              font-weight: 500;
+              background: #fff7f5;
+              border-bottom: 1px solid #ffebeb;
             }
 
             .content {
-              border: none;
-              padding: 16px;
+              padding: 12px 16px;
               overflow-y: auto;
-              height: calc(100% - 36px);
+              height: calc(100% - 41px);
 
               .validation-content {
                 .rule-item {
-                  background: white;
-                  border: 1px solid #f0f0f0;
-                  border-radius: 6px;
-                  padding: 12px;
-                  padding-bottom: 6px;
-                  margin-bottom: 8px;
-                  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                  padding: 0;
 
-                  &:last-child {
-                    margin-bottom: 0;
+                  &:not(:last-child) {
+                    border-bottom: 1px solid #f5f5f5;
+                    margin-bottom: 10px;
+                    padding-bottom: 10px;
                   }
 
                   .rule-header {
                     display: flex;
                     align-items: center;
-                    margin-bottom: 5px;
+                    margin-bottom: 4px;
 
                     .rule-level {
                       margin-right: 8px;
@@ -660,7 +651,6 @@ export default {
                   .rule-desc {
                     color: #595959;
                     line-height: 1.5;
-                    margin-bottom: 5px;
                   }
                 }
               }
@@ -670,42 +660,54 @@ export default {
           &.rollback {
             flex: none;
             height: 200px;
-            z-index: 999;
           }
 
           .title {
-            padding-left: 10px;
-            border-left: 1px solid #eaeaea;
-            border-bottom: 1px solid #eaeaea;
+            position: relative;
             height: 36px;
             display: flex;
             align-items: center;
-            font-weight: bold;
+            margin-bottom: 8px;
+            padding-left: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #181d26;
+
+            &::before {
+              content: '';
+              position: absolute;
+              top: 50%;
+              left: 0;
+              width: 3px;
+              height: 14px;
+              border-radius: 2px;
+              background: #18b566;
+              transform: translateY(-50%);
+            }
           }
 
           .content {
             flex: 1;
-            border-left: 1px solid #eaeaea;
-            border-bottom: 1px solid #eaeaea;
+            border: 1px solid #eaeaea;
+            border-radius: 6px;
             overflow: auto;
           }
         }
 
         .resize-handle {
           height: 6px;
-          background: linear-gradient(to right, #f0f0f0 0%, #e0e0e0 50%, #f0f0f0 100%);
+          background: #eee;
           cursor: ns-resize;
           position: relative;
-          z-index: 1000;
           border-radius: 3px;
           margin: 2px 0;
 
           &:hover {
-            background: linear-gradient(to right, #e0e0e0 0%, #d0d0d0 50%, #e0e0e0 100%);
+            background: #ddd;
           }
 
           &:active {
-            background: linear-gradient(to right, #d0d0d0 0%, #c0c0c0 50%, #d0d0d0 100%);
+            background: #ccc;
           }
 
           &::before {
@@ -724,11 +726,12 @@ export default {
     }
 
     .create-ticket-content {
-      width: 300px;
-      border: 1px solid #dadada;
-      background: @background-grey;
-      padding: 20px;
-      height: calc(100% - 20px);
+      width: 320px;
+      flex-shrink: 0;
+      background: #f8fafc;
+      padding: 24px;
+      border-radius: 10px;
+      overflow-y: auto;
 
       .ticket-template-container {
         .ticket-from {
@@ -741,10 +744,10 @@ export default {
       }
 
       .create-ticket-form-btn {
-        margin-top: 20px;
+        margin-top: 24px;
 
         button {
-          margin-right: 16px;
+          margin-right: 12px;
         }
       }
     }

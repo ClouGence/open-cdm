@@ -2,27 +2,24 @@
   <div class="role">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb>
-            <BreadcrumbItem>{{ $t('jiao-se-guan-li') }}</BreadcrumbItem>
-          </Breadcrumb>
-        </div>
         <div class="content">
           <div class="option border-radius-card">
-            <div class="left"></div>
-            <div class="right">
-              <Button
-                v-if="myAuth.includes('RDP_ROLE_MANAGE')"
-                ghost
-                type="primary"
-                @click="handleClickAddBtn"
-                icon="md-add"
-                style="margin-right: 10px"
-              >
-                {{ $t('chuang-jian-jiao-se') }}
+            <div class="left">
+              <Input
+                v-model.trim="search.roleName"
+                :placeholder="$t('qing-shu-ru-jiao-se-ming-cheng')"
+                style="width: 280px; margin-right: 10px"
+                @on-keydown="handleEnterSearch"
+                @on-clear="handleSearchRole"
+                clearable
+              />
+              <Button :loading="loading" type="primary" ghost @click="handleSearchRole">
+                {{ $t('cha-xun') }}
               </Button>
-              <Button class="refresh" @click="getRoleList('init')" :loading="loading">
-                <CustomIcon type="icon-v2-Refresh" v-if="!loading" />
+            </div>
+            <div class="right">
+              <Button v-if="myAuth.includes('RDP_ROLE_MANAGE')" type="primary" @click="handleClickAddBtn" icon="md-add">
+                {{ $t('chuang-jian-jiao-se') }}
               </Button>
             </div>
           </div>
@@ -70,47 +67,10 @@
         />
       </div>
     </div>
-    <CCModal
-      v-model="showAddNewRoleModal"
-      :title="isEditing ? (roleModalType === 'edit' ? $t('bian-ji-jue-se') : $t('cha-kan-jue-se')) : $t('chuang-jian-jue-se')"
-      :width="548"
-      :mask-closable="false"
-      @on-cancel="hideAddNewRoleModal"
-    >
-      <div class="new-role-modal">
-        <Form ref="addNewRoleForm" :model="newRole" :rules="rules">
-          <FormItem :label="$t('jiao-se-ming-cheng')" prop="roleName">
-            <Input :disabled="isEditing" v-model="newRole.roleName" style="width: 420px" />
-          </FormItem>
-        </Form>
-        <div class="auth">
-          <div class="title">{{ $t('jiao-se-quan-xian') }}</div>
-          <div class="content border-radius-card">
-            <a-tree
-              v-model:checkedKeys="checkedKeys"
-              :tree-data="treeData"
-              checkable
-              :disabled="roleModalType === 'view'"
-              :replace-fields="replaceFields"
-              v-model:expandedKeys="expandedKeys"
-            ></a-tree>
-          </div>
-        </div>
-      </div>
-      <template #footer>
-        <div>
-          <Button @click="hideAddNewRoleModal">{{ $t('guan-bi') }}</Button>
-          <Button type="primary" @click="handleAddRole" :loading="loading" v-if="roleModalType !== 'view'">
-            {{ isEditing ? $t('xiu-gai') : $t('chuang-jian') }}
-          </Button>
-        </div>
-      </template>
-    </CCModal>
   </div>
 </template>
 
 <script>
-import cloneDeep from 'lodash.clonedeep';
 import { mapState } from 'vuex';
 
 export default {
@@ -121,12 +81,9 @@ export default {
   data() {
     return {
       loading: false,
-      roleModalType: '',
-      replaceFields: {
-        title: 'i18nName'
+      search: {
+        roleName: ''
       },
-      isEditing: false,
-      mustCheckedKeys: [],
       roleColumns: [
         {
           title: this.$t('jiao-se-ming-cheng'),
@@ -138,31 +95,12 @@ export default {
           slot: 'action'
         }
       ],
-      rules: {
-        roleName: [
-          {
-            required: true,
-            trigger: 'blur',
-            message: this.$t('jiao-se-ming-cheng-bu-neng-wei-kong')
-          }
-        ]
-      },
-      checkedKeys: [],
-      expandedKeys: [],
-      newRole: {
-        roleName: ''
-      },
-      treeData: [],
-      showAddNewRoleModal: false,
       total: 0,
       pageSize: 20,
       pageNum: 1,
       roleList: [],
       showRoleList: [],
-      selectOptions: [],
-      checkedAll: false,
-      allAuthKeys: [],
-      categoryKeys: []
+      selectOptions: []
     };
   },
   methods: {
@@ -179,123 +117,34 @@ export default {
         this.pageNum = 1;
       }
       const { pageNum, pageSize } = this;
-      this.showRoleList = this.roleList.slice((pageNum - 1) * pageSize, pageNum * pageSize);
+      const filteredRoleList = this.getFilteredRoleList();
+      this.total = filteredRoleList.length;
+      this.showRoleList = filteredRoleList.slice((pageNum - 1) * pageSize, pageNum * pageSize);
     },
-    handleEditRole(type, record) {
-      this.isEditing = true;
-      this.roleModalType = type;
-      this.showAddNewRoleModal = true;
-      this.newRole = cloneDeep(record);
-      this.newRole.roleName = this.newRole.aliasName;
-      this.checkedKeys = [...record.roleLabels];
-      this.getAllAuthLabel(true);
-      this.$nextTick(() => {
-        this.$refs.addNewRoleForm.resetFields();
+    getFilteredRoleList() {
+      const keyword = (this.search.roleName || '').trim().toLowerCase();
+      if (!keyword) {
+        return this.roleList;
+      }
+      return this.roleList.filter((role) => {
+        const aliasName = `${role.aliasName || ''}`.toLowerCase();
+        const roleName = `${role.roleName || ''}`.toLowerCase();
+        return aliasName.includes(keyword) || roleName.includes(keyword);
       });
     },
-    handleAddRole() {
-      this.loading = true;
-      this.$refs.addNewRoleForm.validate(async (valid) => {
-        if (valid) {
-          if (!this.checkedKeys.length) {
-            this.$Message.error(this.$t('qing-xuan-ze-quan-xian'));
-            return;
-          }
-          const authLabelList = this.checkedKeys.filter((key) => !this.categoryKeys.includes(key) && key !== 'ALL');
-          const data = {
-            roleName: this.newRole.roleName,
-            authLabelList
-          };
-
-          let res;
-          if (!this.isEditing) {
-            res = await this.$services.rdpRoleCreateRole({
-              data,
-              msg: this.$t('tian-jia-jiao-se-cheng-gong')
-            });
-          } else {
-            data.roleId = this.newRole.roleId;
-            res = await this.$services.rdpRoleUpdateRole({
-              data,
-              msg: this.$t('xiu-gai-jiao-se-cheng-gong')
-            });
-          }
-
-          if (res.success) {
-            await this.getRoleList();
-            this.hideAddNewRoleModal();
-          }
-        }
-      });
-      this.loading = false;
+    handleSearchRole() {
+      this.setTableShowData('init');
     },
-    hideAddNewRoleModal() {
-      this.newRole = { roleName: '' };
-      this.checkedAll = false;
-      this.isEditing = false;
-      this.checkedKeys = [];
-      this.expandedKeys = [];
-      this.mustCheckedKeys = [];
-      this.showAddNewRoleModal = false;
-    },
-    async getAllAuthLabel(edit = false) {
-      const subAccountRes = await this.$services.rdpRoleListRoleAuthLabelTree();
-      const temp = {};
-      const allAuthKeys = [];
-      const categoryKeys = [];
-      const tempTreeData = [];
-      const mustCheckedKeys = [];
-      const treeData = [
-        {
-          children: [],
-          i18nName: this.$t('quan-bu'),
-          key: 'ALL',
-          mustSelectAndReadOnly: false
-        }
-      ];
-      if (subAccountRes.success) {
-        const formatData = (node) => {
-          allAuthKeys.push(node.key);
-          if (node.category) {
-            categoryKeys.push(node.key);
-          }
-          node.title = node.i18nName;
-          if (node.mustSelectAndReadOnly) {
-            mustCheckedKeys.push(node.key);
-          }
-
-          if (node.children && node.children.length) {
-            this.expandedKeys.push(node.key);
-            node.children.forEach((child) => {
-              formatData(child);
-            });
-          }
-        };
-        const { data } = subAccountRes;
-        treeData[0].children = data;
-        formatData(treeData[0]);
-
-        this.treeData = treeData;
-        this.allAuthKeys = allAuthKeys;
-        this.categoryKeys = categoryKeys;
-        this.mustCheckedKeys = [...mustCheckedKeys];
-        this.checkedKeys = [...mustCheckedKeys];
-        if (edit) {
-          const res = await this.$services.rdpRoleFetchRole({
-            data: {
-              roleId: this.newRole.roleId
-            }
-          });
-          if (res.success) {
-            this.checkedKeys = res.data.roleLabels;
-          }
-        }
+    handleEnterSearch(event) {
+      if (event.key === 'Enter' || event.keyCode === 13) {
+        this.handleSearchRole();
       }
     },
+    handleEditRole(type, record) {
+      this.$router.push(`/manager/role/${record.roleId}/${type}`);
+    },
     handleClickAddBtn() {
-      this.showAddNewRoleModal = true;
-      this.roleModalType = 'edit';
-      this.getAllAuthLabel();
+      this.$router.push('/manager/role/create');
     },
     async handleDeleteRole(role) {
       const data = { roleId: role.roleId };
@@ -312,8 +161,7 @@ export default {
       const roleListRes = await this.$services.rdpRoleListRole();
       this.loading = false;
       if (roleListRes.success) {
-        this.roleList = roleListRes.data;
-        this.total = roleListRes.data.length;
+        this.roleList = roleListRes.data || [];
         this.setTableShowData(searchType);
       }
     }
@@ -329,42 +177,6 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-.new-role-modal {
-  section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .auth {
-    .title {
-      margin-bottom: 10px;
-    }
-
-    .all {
-      height: 30px;
-      width: 100%;
-      background: #f3f3f3;
-      line-height: 30px;
-      padding-left: 10px;
-      border: 1px solid rgba(204, 204, 204, 1);
-      border-bottom: none;
-    }
-
-    .content {
-      width: 500px;
-      height: 270px;
-      border: 1px solid rgba(218, 218, 218, 1);
-      overflow: scroll;
-    }
-  }
-}
-
-.rule-default-tag {
-  display: flex;
-  align-items: center;
 }
 
 .role-name-container {

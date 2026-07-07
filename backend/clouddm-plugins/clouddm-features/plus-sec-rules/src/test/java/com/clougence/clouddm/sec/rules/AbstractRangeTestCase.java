@@ -19,9 +19,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.dsfamily.mysql.analysis.MySecDomainResolveSpi;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
+import com.clougence.clouddm.sdk.model.analysis.CodeInfo;
+import com.clougence.clouddm.sdk.model.analysis.ContextInfo;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
+import com.clougence.sql.mysql.security.MySecDomainResolveSpi;
 import com.clougence.utils.CollectionUtils;
 
 public class AbstractRangeTestCase {
@@ -31,6 +33,11 @@ public class AbstractRangeTestCase {
     protected final Map<String, Object> ctx            = CollectionUtils.asMap(//
             SessionSpi.PARAMS_DEFAULT_DB, "test_db",//
             SessionSpi.PARAMS_DEFAULT_SCHEMA, "test_schema");
+
+    protected List<RuleDomain> resolveDomain(String sql) {
+        CodeInfo codeInfo = CodeInfo.builder().query(sql).baseLine(0).baseColumn(0).build();
+        return this.resolveSpi.resolveDomain(dataSourceType, codeInfo, ContextInfo.builder().build());
+    }
 
     protected List<RuleDomain> configDsAndEnv(long envId, long dsId, List<RuleDomain> domainList) {
         for (RuleDomain domain : domainList) {

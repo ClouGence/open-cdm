@@ -18,14 +18,13 @@ plugins {
 }
 
 dependencies {
-    // project
-    api project(':clouddm-base')
-
     // utils
+    api project(':cg-utils')
     api project(':cg-dslparser')
     api project(':cg-drivers')
     api project(':cg-schema')
     api project(':cg-detectrule')
+    api "com.alibaba:fastjson:${FASTJSON_VERSION}"
 }
 
 description = 'cgdm-plugin-sdk'

@@ -9,7 +9,7 @@
         <result column="owner_uid" property="ownerUid"/>
         <result column="ref_spec" property="refSpec"/>
         <result column="ref_id" property="refId"/>
-        <result column="range_type" property="rangeType" typeHandler="com.clougence.clouddm.platform.dal.handler.SecRangeTypeHandler"/>
+        <result column="range_type" property="rangeType" typeHandler="com.clougence.clouddm.platform.dal.handler.enums.SecRangeTypeHandler"/>
         <result column="match_mode" property="matchMode" javaType="com.clougence.clouddm.platform.dal.model.secrule.SecMatchMode"/>
         <result column="level_prefix" property="levelPrefix"/>
         <result column="level_nodes" property="levelNodes" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>

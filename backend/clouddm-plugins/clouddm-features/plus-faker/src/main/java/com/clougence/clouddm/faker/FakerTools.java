@@ -76,7 +76,7 @@ public class FakerTools implements Tool, FakerMethod {
         this.fakerConfig = fakerConfig;
 
         // session
-        DataSourceConfig dsConfig = this.configService.fetchDsConfig(fakerConfig.getDsId(), fakerConfig.getDsType());
+        DataSourceConfig dsConfig = this.configService.fetchDsConfig(fakerConfig.getDsId());
         SessionFactory sessionFactory = this.createSessionFactory(dsConfig, fakerConfig.getCatalog(), fakerConfig.getSchema());
 
         // engineConfig

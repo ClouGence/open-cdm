@@ -4,17 +4,17 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-// 加载配置文件
+// Load profile
 let config = {};
 const configPath = path.join(process.cwd(), '.i18n-check.config.js');
 if (fs.existsSync(configPath)) {
   config = require(configPath);
 }
 
-// 中文字符正则表达式
+// Chinese character regular expression
 const CHINESE_REGEX = /[\u4e00-\u9fff]+/g;
 
-// 默认配置
+// Default Configuration
 const DEFAULT_CONFIG = {
   fileExtensions: ['.vue', '.js', '.ts'],
   excludePatterns: [
@@ -30,28 +30,28 @@ const DEFAULT_CONFIG = {
     'public/css'
   ],
   excludeLinePatterns: [
-    /^\s*\/\//, // 单行注释
-    /^\s*\*/, // 多行注释
-    /^\s*\/\*/, // 多行注释开始
-    /^\s*\*\//, // 多行注释结束
-    /\/\/.*[\u4e00-\u9fff]/, // 行内注释（// 后面的中文）
-    /\/\*[\s\S]*?[\u4e00-\u9fff][\s\S]*?\*\//, // 多行注释中的中文
-    /console\.(log|warn|error|info)/, // 控制台输出
-    /TODO/, // TODO标记
-    /FIXME/, // FIXME标记
-    /NOTE/, // NOTE标记
-    /^\s*<!--/, // HTML注释
-    /^\s*-->/ // HTML注释结束
+    /^\s*\/\//, // Single-line comment
+    /^\s*\*/, // Multi-line comment
+    /^\s*\/\*/, // Start of multi-line comment
+    /^\s*\*\//, // End of multi-line comment
+    /\/\/.*[\u4e00-\u9fff]/, // Line Comment (in Chinese at the end of/ after)
+    /\/\*[\s\S]*?[\u4e00-\u9fff][\s\S]*?\*\//, // Chinese in multiline notes
+    /console\.(log|warn|error|info)/, // Console output
+    /TODO/, // TODO marker
+    /FIXME/, // FIXME marker
+    /NOTE/, // NOTE marker
+    /^\s*<!--/, // HTML comment
+    /^\s*-->/ // End of HTML comment
   ],
   excludeTerms: [],
   failOnError: true,
   verbose: true
 };
 
-// 合并配置
+// Merge Configuration
 const finalConfig = { ...DEFAULT_CONFIG, ...config };
 
-// 获取git暂存区的文件
+// Fetch file for the Git hold area
 function getStagedFiles() {
   try {
     const output = execSync('git diff --cached --name-only', { encoding: 'utf8' });
@@ -65,29 +65,29 @@ function getStagedFiles() {
   }
 }
 
-// 检查文件是否应该被排除
+// Check if the file should be excluded
 function shouldExcludeFile(filePath) {
   return finalConfig.excludePatterns.some((pattern) => filePath.includes(pattern));
 }
 
-// 检查行是否应该被排除
+// Check if the line should be excluded
 function shouldExcludeLine(line) {
-  // 首先检查是否匹配排除模式
+  // First check to match exclusion mode
   if (finalConfig.excludeLinePatterns.some((pattern) => pattern.test(line))) {
     return true;
   }
 
-  // 检查行内注释（// 后面的内容）
+  // Check the line note (refer to content)
   const inlineCommentMatch = line.match(/\/\/(.*)$/);
   if (inlineCommentMatch) {
     const commentContent = inlineCommentMatch[1];
-    // 如果注释部分包含中文，则排除整行
+    // If the comment contains Chinese, exclude the whole line
     if (/[\u4e00-\u9fff]/.test(commentContent)) {
       return true;
     }
   }
 
-  // 检查多行注释块
+  // Check multiline comment blocks
   if (line.includes('/*') && line.includes('*/')) {
     const commentMatch = line.match(/\/\*([\s\S]*?)\*\//);
     if (commentMatch) {
@@ -101,7 +101,7 @@ function shouldExcludeLine(line) {
   return false;
 }
 
-// 检查文件是否包含硬编码中文
+// Check if the file contains hard-coded Chinese
 function checkFileForChinese(filePath) {
   if (!fs.existsSync(filePath)) {
     return [];
@@ -113,43 +113,43 @@ function checkFileForChinese(filePath) {
   let inMultiLineComment = false;
 
   lines.forEach((line, index) => {
-    // 跳过空行
+    // Skip empty lines
     if (line.trim() === '') {
       return;
     }
 
-    // 处理多行注释状态
+    // Process multiline comment state
     if (inMultiLineComment) {
-      // 如果当前在多行注释中，检查是否结束
+      // Check if the current multiline comment is over
       if (line.includes('*/')) {
         inMultiLineComment = false;
       }
-      return; // 跳过注释内容
+      return; // Skip Comment
     }
 
-    // 检查多行注释开始
+    // Check multiline comments start
     if (line.includes('/*')) {
       inMultiLineComment = true;
-      // 如果同一行就结束了，检查是否应该排除
+      // If the same line is over, should the check be excluded?
       if (line.includes('*/')) {
         inMultiLineComment = false;
         if (shouldExcludeLine(line)) {
           return;
         }
       } else {
-        return; // 多行注释开始，跳过这行
+        return; // Start with multiline notes, skip this line.
       }
     }
 
-    // 检查是否应该排除
+    // Check to exclude
     if (shouldExcludeLine(line)) {
       return;
     }
 
-    // 检查是否包含中文字符
+    // Check to include Chinese characters
     const matches = line.match(CHINESE_REGEX);
     if (matches) {
-      // 过滤掉一些常见的中文技术术语或不需要国际化的内容
+      // Filter some common Chinese technical terms or content that does not require internationalization
       const filteredMatches = matches.filter((match) => {
         return !finalConfig.excludeTerms.includes(match);
       });
@@ -167,7 +167,7 @@ function checkFileForChinese(filePath) {
   return issues;
 }
 
-// 主函数
+// Main Functions
 function main() {
   console.log('🔍 检查国际化...\n');
 
@@ -181,13 +181,13 @@ function main() {
   const checkedFiles = [];
 
   stagedFiles.forEach((file) => {
-    // 检查文件扩展名
+    // Check File Extensions
     const ext = path.extname(file);
     if (!finalConfig.fileExtensions.includes(ext)) {
       return;
     }
 
-    // 检查是否应该排除
+    // Check to exclude
     if (shouldExcludeFile(file)) {
       return;
     }
@@ -238,7 +238,7 @@ function main() {
   }
 }
 
-// 运行主函数
+// Run main function
 if (require.main === module) {
   main();
 }

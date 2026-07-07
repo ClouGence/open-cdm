@@ -24,7 +24,7 @@ import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
 /**
- * 使用 {@link LocalTime} 类型读写 jdbc {@link Timestamp} 数据。缺失的时间信息使用 0000-01-01 补充。
+ * Reads and writes JDBC {@link Timestamp} values as {@link LocalTime}; missing date fields are filled with 0000-01-01.
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */

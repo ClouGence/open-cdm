@@ -127,29 +127,29 @@ public interface BytesIO extends ByteChannel {
     /** Returns the {@code writerIndex} of this buffer. */
     int writerIndex();
 
-    /** 最大限制 */
+    /** Maximum capacity. */
     int capacity();
 
-    /** ByteBuf 的字节数组形态 */
+    /** Returns this buffer as a byte array. */
     byte[] asByteArray();
 
-    /** 复制个 ByteBuf , 连同 buffer 的数据一起复制 */
+    /** Copies this buffer, including buffer data. */
     BytesIO copy();
 
-    /** 字节序 */
+    /** Byte order. */
     ByteOrder order();
 
-    /** 设置字节序 */
+    /** Sets the byte order. */
     BytesIO order(ByteOrder newOrder);
 
-    /** 释放 Buffer 占用的内存 */
+    /** Releases memory occupied by this buffer. */
     void free();
 
     default void close() throws IOException {
         this.free();
     }
 
-    /** 是否已经释放 */
+    /** Returns whether this buffer has been freed. */
     boolean isFree();
 
     /**
@@ -171,7 +171,7 @@ public interface BytesIO extends ByteChannel {
     int writableBytes();
 
     /**
-     * Returns the number of Written bytes which is equal to
+     * Returns the number of written bytes which is equal to
      * {@code (writerIndex - markedWriterIndex)}.
      */
     int writtenBytes();
@@ -190,14 +190,14 @@ public interface BytesIO extends ByteChannel {
      */
     BytesIO markWriter();
 
-    /** same as markWriter() and markReader() */
+    /** Same as markWriter() and markReader(). */
     default BytesIO flush() throws IOException {
         this.markWriter();
         this.markReader();
         return this;
     }
 
-    /** reset the markWriter, and skip all readable data */
+    /** Resets markWriter and skips all readable data. */
     default void clear() {
         this.resetWriter();
         this.skipReadableBytes(this.readableBytes());
@@ -223,64 +223,64 @@ public interface BytesIO extends ByteChannel {
     BytesIO skipWritableBytes(int length);
 
     /**
-     * 写入 1 字节的 byte，写入后 writerIndex 会 + 1。
-     * 如果 writerIndex + 1 > capacity 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Writes one byte and increments {@code writerIndex} by 1.
+     * Throws {@link java.nio.BufferOverflowException} if the buffer has no writable byte.
      */
     void writeByte(byte n);
 
     /**
-     * 数据写入，写入后 writerIndex 会增加 src.length。
-     * 如果 writerIndex + src.length > capacity 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Writes bytes from {@code src} and increments {@code writerIndex} by the number of bytes written.
+     * If the source is larger than the writable space, only the writable portion is written.
      */
     default int writeBytes(byte[] src) {
         return this.writeBytes(src, 0, src.length);
     }
 
     /**
-     * 数据写入，写入后 writerIndex 会增加 len。
-     * 如果 writerIndex + len > capacity 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Writes up to {@code len} bytes from {@code src} and increments {@code writerIndex} by the number of bytes written.
+     * If {@code len} is larger than the writable space, only the writable portion is written.
      */
     int writeBytes(byte[] src, int off, int len);
 
     /**
-     * 写入 2 字节的 sort（大端字节序），写入后 writerIndex 会 + 2。
-     * 如果 writerIndex + 2 > capacity 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Writes a 2-byte short and increments {@code writerIndex} by 2.
+     * Throws {@link java.nio.BufferOverflowException} if the buffer has fewer than 2 writable bytes.
      */
     void writeInt16(short n);
 
     /**
-     * 写入 3 字节的 int（大端字节序），写入后 writerIndex 会 + 3。
-     * 如果 writerIndex + 3 > capacity 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Writes a 3-byte int and increments {@code writerIndex} by 3.
+     * Throws {@link java.nio.BufferOverflowException} if the buffer has fewer than 3 writable bytes.
      */
     void writeInt24(int n);
 
     /**
-     * 写入 4 字节的 int（大端字节序），写入后 writerIndex 会 + 4。
-     * 如果 writerIndex + 4 > capacity 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Writes a 4-byte int and increments {@code writerIndex} by 4.
+     * Throws {@link java.nio.BufferOverflowException} if the buffer has fewer than 4 writable bytes.
      */
     void writeInt32(int n);
 
     /**
-     * 写入 4 字节的无符号 int（大端字节序），写入后 writerIndex 会 + 4。
-     * 如果 writerIndex + 4 > capacity 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Writes a 4-byte unsigned int and increments {@code writerIndex} by 4.
+     * Throws {@link java.nio.BufferOverflowException} if the buffer has fewer than 4 writable bytes.
      */
     void writeUInt32(long n);
 
     /**
-     * 写入 8 字节的 long（大端字节序），写入后 writerIndex 会 + 8。
-     * 如果 writerIndex + 8 > capacity 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Writes an 8-byte long and increments {@code writerIndex} by 8.
+     * Throws {@link java.nio.BufferOverflowException} if the buffer has fewer than 8 writable bytes.
      */
     void writeInt64(long n);
 
     /**
-     * 写入 4 字节的 float（大端字节序），写入后 writerIndex 会 + 4。
-     * 如果 writerIndex + 4 > capacity 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Writes a 4-byte float and increments {@code writerIndex} by 4.
+     * Throws {@link java.nio.BufferOverflowException} if the buffer has fewer than 4 writable bytes.
      */
     void writeFloat32(float n);
 
     /**
-     * 写入 8 字节的 double（大端字节序），写入后 writerIndex 会 + 8。
-     * 如果 writerIndex + 8 > capacity 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Writes an 8-byte double and increments {@code writerIndex} by 8.
+     * Throws {@link java.nio.BufferOverflowException} if the buffer has fewer than 8 writable bytes.
      */
     void writeFloat64(double n);
 
@@ -297,8 +297,7 @@ public interface BytesIO extends ByteChannel {
     int writeBuffer(BytesIO src, int len);
 
     /**
-     * 字符串会以 str.getBytes(charset) 方式转换为字节数组并写入缓存。返回值是写入的字节数。
-     * 如果 writerIndex + [string 字节数组长度] > capacity 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Converts {@code string} with {@code string.getBytes(charset)}, writes as many bytes as the buffer accepts, and returns the encoded byte length.
      */
     default int writeString(String string, Charset charset) {
         if (string != null && !string.equals("")) {
@@ -311,56 +310,56 @@ public interface BytesIO extends ByteChannel {
     }
 
     /**
-     * 在 offset 偏移量的位置上向后覆盖方式写入 1 字节的 byte，该方法不会更新 writerIndex 值。
-     * 参数 offset + 1 必须要小于 writerIndex，否则会引发 {@link IndexOutOfBoundsException} 异常
+     * Overwrites one byte at {@code offset}; this method does not update {@code writerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if the write exceeds the writable range.
      */
     void setByte(int offset, byte n);
 
     /**
-     * 在 offset 偏移量的位置上向后覆盖方式写入 src 数组的数据，该方法不会更新 writerIndex 值。
-     * 参数 offset + src.length 必须要小于 writerIndex，否则会引发 {@link IndexOutOfBoundsException} 异常
+     * Overwrites bytes from {@code src} at {@code offset}; this method does not update {@code writerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if the write exceeds the writable range.
      */
     void setBytes(int offset, byte[] src);
 
     /**
-     * 在 offset 偏移量的位置上向后覆盖方式写入 src 数组的数据，该方法不会更新 writerIndex 值。
-     * 参数 offset + srcLen 必须要小于 writerIndex，否则会引发 {@link IndexOutOfBoundsException} 异常
+     * Overwrites bytes from {@code src} at {@code offset}; this method does not update {@code writerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if the write exceeds the writable range.
      */
     void setBytes(int offset, byte[] src, int srcOffset, int srcLen);
 
     /**
-     * 在 offset 偏移量的位置上向后覆盖方式写入 2 字节长度的 sort（大端字节序），该方法不会更新 writerIndex 值。
-     * 参数 offset + 2 必须要小于 writerIndex，否则会引发 {@link IndexOutOfBoundsException} 异常
+     * Overwrites a 2-byte short at {@code offset}; this method does not update {@code writerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if the write exceeds the writable range.
      */
     void setInt16(int offset, short n);
 
     /**
-     * 在 offset 偏移量的位置上向后覆盖方式写入 3 字节长度的 int（大端字节序），该方法不会更新 writerIndex 值。
-     * 参数 offset + 3 必须要小于 writerIndex，否则会引发 {@link IndexOutOfBoundsException} 异常
+     * Overwrites a 3-byte int at {@code offset}; this method does not update {@code writerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if the write exceeds the writable range.
      */
     void setInt24(int offset, int n);
 
     /**
-     * 在 offset 偏移量的位置上向后覆盖方式写入 4 字节长度的 int（大端字节序），该方法不会更新 writerIndex 值。
-     * 参数 offset + 4 必须要小于 writerIndex，否则会引发 {@link IndexOutOfBoundsException} 异常
+     * Overwrites a 4-byte int at {@code offset}; this method does not update {@code writerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if the write exceeds the writable range.
      */
     void setInt32(int offset, int n);
 
     /**
-     * 在 offset 偏移量的位置上向后覆盖方式写入 8 字节长度的 long（大端字节序），该方法不会更新 writerIndex 值。
-     * 参数 offset + 8 必须要小于 writerIndex，否则会引发 {@link IndexOutOfBoundsException} 异常
+     * Overwrites an 8-byte long at {@code offset}; this method does not update {@code writerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if the write exceeds the writable range.
      */
     void setInt64(int offset, long n);
 
     /**
-     * 在 offset 偏移量的位置上向后覆盖方式写入 4 字节长度的 float（大端字节序），该方法不会更新 writerIndex 值。
-     * 参数 offset + 4 必须要小于 writerIndex，否则会引发 {@link IndexOutOfBoundsException} 异常
+     * Overwrites a 4-byte float at {@code offset}; this method does not update {@code writerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if the write exceeds the writable range.
      */
     void setFloat32(int offset, float n);
 
     /**
-     * 在 offset 偏移量的位置上向后覆盖方式写入 8 字节长度的 float（大端字节序），该方法不会更新 writerIndex 值。
-     * 参数 offset + 8 必须要小于 writerIndex，否则会引发 {@link IndexOutOfBoundsException} 异常
+     * Overwrites an 8-byte double at {@code offset}; this method does not update {@code writerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if the write exceeds the writable range.
      */
     void setFloat64(int offset, double n);
 
@@ -377,8 +376,8 @@ public interface BytesIO extends ByteChannel {
     int setBuffer(int offset, BytesIO src, int srcLen);
 
     /**
-     * 在 offset 偏移量的位置上向后覆盖方式写入字符串，字符串会通过 str.getBytes(charset) 方式转换为字节数组，该方法不会更新 writerIndex 值。返回值是写入了多少个字节。
-     * 参数 offset + [string 字节数组长度] 必须要小于 writerIndex，否则会引发 {@link IndexOutOfBoundsException} 异常
+     * Overwrites bytes from {@code string.getBytes(charset)} at {@code offset}; this method does not update {@code writerIndex}.
+     * Returns the number of bytes written, and throws {@link IndexOutOfBoundsException} if the write exceeds the writable range.
      */
     default int setString(int offset, String string, Charset charset) {
         if (string != null && !string.equals("")) {
@@ -391,74 +390,73 @@ public interface BytesIO extends ByteChannel {
     }
 
     /**
-     * 读取 1 字节。
-     * 如果 readableBytes() < 1 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads one byte and increments {@code readerIndex} by 1.
+     * Throws {@link IndexOutOfBoundsException} if the buffer has fewer than 1 readable byte.
      */
     byte readByte();
 
-    /** 读取一定数量的字节，并将它们存储到缓冲区数组 dst 中。实际读取的字节数以整数形式返回。如果读取到末尾或者没有可读的数据将会返回 -1。 */
+    /** Reads bytes into {@code dst} and returns the number of bytes actually read. */
     default int readBytes(byte[] dst) {
         return this.readBytes(dst, 0, dst.length);
     }
 
-    /** 读取 len 数量的字节，并将它们存储到 off 位置开始的缓冲区数组 dst 中。实际读取的字节数以整数形式返回。如果读取到末尾或者没有可读的数据将会返回 -1。 */
+    /** Reads up to {@code len} bytes into {@code dst} starting at {@code off}, and returns the number of bytes actually read. */
     int readBytes(byte[] dst, int off, int len);
 
     /**
-     * 读取 2 字节的 short（大端字节序），读取后 readerIndex 会增加 2。
-     * 如果 readableBytes() < 2 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads a 2-byte short and increments {@code readerIndex} by 2.
+     * Throws {@link IndexOutOfBoundsException} if the buffer has fewer than 2 readable bytes.
      */
     short readInt16();
 
     /**
-     * 读取 3 字节的 int（大端字节序），读取后 readerIndex 会增加 3。
-     * 如果 readableBytes() < 3 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads a 3-byte int and increments {@code readerIndex} by 3.
+     * Throws {@link IndexOutOfBoundsException} if the buffer has fewer than 3 readable bytes.
      */
     int readInt24();
 
     /**
-     * 读取 4 字节的 int（大端字节序），读取后 readerIndex 会增加 4。
-     * 如果 readableBytes() < 4 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads a 4-byte int and increments {@code readerIndex} by 4.
+     * Throws {@link IndexOutOfBoundsException} if the buffer has fewer than 4 readable bytes.
      */
     int readInt32();
 
     /**
-     * 读取 8 字节的 long（大端字节序），读取后 readerIndex 会增加 8。
-     * 如果 readableBytes() < 8 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads an 8-byte long and increments {@code readerIndex} by 8.
+     * Throws {@link IndexOutOfBoundsException} if the buffer has fewer than 8 readable bytes.
      */
     long readInt64();
 
     /**
-     * 读取 4 字节的 float（大端字节序），读取后 readerIndex 会增加 4。
-     * 如果 readableBytes() < 4 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads a 4-byte float and increments {@code readerIndex} by 4.
+     * Throws {@link IndexOutOfBoundsException} if the buffer has fewer than 4 readable bytes.
      */
     float readFloat32();
 
     /**
-     * 读取 8 字节的 double（大端字节序），读取后 readerIndex 会增加 8。
-     * 如果 readableBytes() < 8 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads an 8-byte double and increments {@code readerIndex} by 8.
+     * Throws {@link IndexOutOfBoundsException} if the buffer has fewer than 8 readable bytes.
      */
     double readFloat64();
 
-    /** use copy to dst */
+    /** Copies readable bytes to {@code dst}. */
     default int readBuffer(ByteBuffer dst) {
         return this.readBuffer(dst, Math.min(dst.remaining(), this.readableBytes()));
     }
 
-    /** use copy to dst */
+    /** Copies up to {@code len} readable bytes to {@code dst}. */
     int readBuffer(ByteBuffer dst, int len);
 
-    /** use copy to dst */
+    /** Copies readable bytes to {@code dst}. */
     default int readBuffer(BytesIO dst) {
         return this.readBuffer(dst, Math.min(dst.writableBytes(), this.readableBytes()));
     }
 
-    /** use copy to dst */
+    /** Copies up to {@code len} readable bytes to {@code dst}. */
     int readBuffer(BytesIO dst, int len);
 
     /**
-     * 读取 len 字节并将其构造成 String，读取后 readerIndex 会增加 len。
-     * 如果 readableBytes() < len 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads up to {@code len} bytes, converts them to a String, and increments {@code readerIndex} by the number of bytes read.
      */
     default String readString(int len, Charset charset) {
         if (len == 0) {
@@ -475,74 +473,74 @@ public interface BytesIO extends ByteChannel {
     }
 
     /**
-     * 从 offset 偏移量的位置上开始读取 1 字节。
-     * 若 offset + 1 > readableBytes() 那么将会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads one byte starting at {@code offset}; this method does not update {@code readerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if {@code offset + 1} exceeds the readable range.
      */
     byte getByte(int offset);
 
-    /** 从 offset 偏移量的位置上开始读取一定数量的字节，并将它们存储到缓冲区数组 dst 中。实际读取的字节数以整数形式返回。如果读取到末尾或者没有可读的数据将会返回 -1 */
+    /** Reads bytes starting at {@code offset} into {@code dst}; this method does not update {@code readerIndex}. */
     default int getBytes(int offset, byte[] dst) {
         return getBytes(offset, dst, 0, dst.length);
     }
 
-    /** 从 offset 偏移量的位置上开始读取 dstLen 数量的字节，并将它们存储到 dstOffset 位置开始的缓冲区数组 dst 中。实际读取的字节数以整数形式返回。如果读取到末尾或者没有可读的数据将会返回 -1 */
+    /** Reads {@code dstLen} bytes starting at {@code offset} into {@code dst} at {@code dstOffset}; this method does not update {@code readerIndex}. */
     int getBytes(int offset, byte[] dst, int dstOffset, int dstLen);
 
     /**
-     * 读取 2 字节的 short（大端字节序），该方法不会更新 readerIndex 值。
-     * 若 offset + 2 > readableBytes() 那么将会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads a 2-byte short starting at {@code offset}; this method does not update {@code readerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if {@code offset + 2} exceeds the readable range.
      */
     short getInt16(int offset);
 
     /**
-     * 读取 3 字节的 int（大端字节序），该方法不会更新 readerIndex 值。
-     * 若 offset + 3 > readableBytes() 那么将会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads a 3-byte int starting at {@code offset}; this method does not update {@code readerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if {@code offset + 3} exceeds the readable range.
      */
     int getInt24(int offset);
 
     /**
-     * 读取 4 字节的 int（大端字节序），该方法不会更新 readerIndex 值。
-     * 若 offset + 4 > readableBytes() 那么将会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads a 4-byte int starting at {@code offset}; this method does not update {@code readerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if {@code offset + 4} exceeds the readable range.
      */
     int getInt32(int offset);
 
     /**
-     * 读取 8 字节的 long（大端字节序），该方法不会更新 readerIndex 值。
-     * 若 offset + 8 > readableBytes() 那么将会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads an 8-byte long starting at {@code offset}; this method does not update {@code readerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if {@code offset + 8} exceeds the readable range.
      */
     long getInt64(int offset);
 
     /**
-     * 读取 4 字节的 float（大端字节序），该方法不会更新 readerIndex 值。
-     * 若 offset + 4 > readableBytes() 那么将会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads a 4-byte float starting at {@code offset}; this method does not update {@code readerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if {@code offset + 4} exceeds the readable range.
      */
     float getFloat32(int offset);
 
     /**
-     * 读取 8 字节的 double（大端字节序），该方法不会更新 readerIndex 值。
-     * 若 offset + 8 > readableBytes() 那么将会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads an 8-byte double starting at {@code offset}; this method does not update {@code readerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if {@code offset + 8} exceeds the readable range.
      */
     double getFloat64(int offset);
 
-    /** use copy to dst */
+    /** Copies readable bytes from {@code offset} to {@code dst}; this method does not update {@code readerIndex}. */
     default int getBuffer(int offset, ByteBuffer dst) {
         return this.getBuffer(offset, dst, Math.min(dst.remaining(), this.readableBytes()));
     }
 
-    /** use copy to dst */
+    /** Copies {@code dstLen} bytes from {@code offset} to {@code dst}; this method does not update {@code readerIndex}. */
     int getBuffer(int offset, ByteBuffer dst, int dstLen);
 
-    /** use copy to dst */
+    /** Copies readable bytes from {@code offset} to {@code dst}; this method does not update {@code readerIndex}. */
     default int getBuffer(int offset, BytesIO dst) {
         return this.getBuffer(offset, dst, Math.min(dst.writableBytes(), this.readableBytes()));
     }
 
-    /** use copy to dst */
+    /** Copies {@code dstLen} bytes from {@code offset} to {@code dst}; this method does not update {@code readerIndex}. */
     int getBuffer(int offset, BytesIO dst, int dstLen);
 
     /**
-     * 从 offset 开始读取 len 个字节，并构造一个 String，该方法不会更新 readerIndex 值。
-     * 若 offset + len > readableBytes() 那么将会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads {@code len} bytes from {@code offset} and constructs a String; this method does not update {@code readerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if {@code offset + len} exceeds the readable range.
      */
     default String getString(int offset, int len, Charset charset) {
         if (len == 0) {
@@ -559,54 +557,54 @@ public interface BytesIO extends ByteChannel {
     }
 
     /**
-     * 读取 1 字节的 byte 返回 0～255 之间的一个数（大端字节序），读取后 readerIndex 会增加 1。
-     * 如果 readableBytes() < 1 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads one unsigned byte, returns a value between 0 and 255, and increments {@code readerIndex} by 1.
+     * Throws {@link IndexOutOfBoundsException} if the buffer has fewer than 1 readable byte.
      */
     short readUInt8();
 
     /**
-     * 读取 2 字节的 无符号 sort（大端字节序），读取后 readerIndex 会增加 2。
-     * 如果 readableBytes() < 2 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads a 2-byte unsigned short and increments {@code readerIndex} by 2.
+     * Throws {@link IndexOutOfBoundsException} if the buffer has fewer than 2 readable bytes.
      */
     int readUInt16();
 
     /**
-     * 读取 3 字节的 无符号 int（大端字节序），读取后 readerIndex 会增加 3。
-     * 如果 readableBytes() < 3 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads a 3-byte unsigned int and increments {@code readerIndex} by 3.
+     * Throws {@link IndexOutOfBoundsException} if the buffer has fewer than 3 readable bytes.
      */
     int readUInt24();
 
     /**
-     * 读取 4 字节的 无符号 int（大端字节序），读取后 readerIndex 会增加 4。
-     * 如果 readableBytes() < 4 则会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads a 4-byte unsigned int and increments {@code readerIndex} by 4.
+     * Throws {@link IndexOutOfBoundsException} if the buffer has fewer than 4 readable bytes.
      */
     long readUInt32();
 
     /**
-     * 读取 1 字节的 byte 返回 0～255 之间的一个数（小端字节序），该方法不会更新 readerIndex 值。
-     * 若 offset + 1 > readableBytes() 那么将会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads one unsigned byte from {@code offset} and returns a value between 0 and 255; this method does not update {@code readerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if {@code offset + 1} exceeds the readable range.
      */
     short getUInt8(int offset);
 
     /**
-     * 读取 2 字节的 无符号 sort（小端字节序），该方法不会更新 readerIndex 值。
-     * 若 offset + 2 > readableBytes() 那么将会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads a 2-byte unsigned short from {@code offset}; this method does not update {@code readerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if {@code offset + 2} exceeds the readable range.
      */
     int getUInt16(int offset);
 
     /**
-     * 读取 3 字节的 无符号 int（小端字节序），该方法不会更新 readerIndex 值。
-     * 若 offset + 3 > readableBytes() 那么将会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads a 3-byte unsigned int from {@code offset}; this method does not update {@code readerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if {@code offset + 3} exceeds the readable range.
      */
     int getUInt24(int offset);
 
     /**
-     * 读取 4 字节的 无符号 int（小端字节序），该方法不会更新 readerIndex 值。
-     * 若 offset + 4 > readableBytes() 那么将会引发 {@link IndexOutOfBoundsException} 异常
+     * Reads a 4-byte unsigned int from {@code offset}; this method does not update {@code readerIndex}.
+     * Throws {@link IndexOutOfBoundsException} if {@code offset + 4} exceeds the readable range.
      */
     long getUInt32(int offset);
 
-    /** 查找下一个 expect 字符串的出现的位置（使用指定的编码），该方法不会更新 readerIndex 值。如果不存在期待的字符串，那么返回 -1。 */
+    /** Finds the next occurrence of {@code expect} using the specified encoding; this method does not update {@code readerIndex}. Returns -1 if not found. */
     default int expect(String expect, Charset charset) {
         int len = expect.getBytes(charset).length;
         int readableBytes = this.readableBytes();
@@ -623,7 +621,7 @@ public interface BytesIO extends ByteChannel {
         return -1;
     }
 
-    /** 查找最近的一个 '\n'，该方法不会更新 readerIndex 值。如果不存在期待的字符串，那么返回 -1 */
+    /** Finds the next line ending without updating {@code readerIndex}. Returns -1 if no line ending exists. */
     default int expectLine() {
         int available = this.readableBytes();
         if (available == 0) {
@@ -645,17 +643,17 @@ public interface BytesIO extends ByteChannel {
         return findIndex;
     }
 
-    /** 具有行结尾 */
+    /** Returns whether a line ending is available. */
     default boolean hasLine() {
         return expectLine() >= 0;
     }
 
-    /** 读一整行 */
+    /** Read a whole line. */
     default String readLine() {
         return this.readLine(StandardCharsets.US_ASCII);
     }
 
-    /** 读一整行 */
+    /** Read a whole line. */
     default String readLine(Charset charset) {
         int available = this.readableBytes();
         if (available == 0) {
@@ -686,14 +684,14 @@ public interface BytesIO extends ByteChannel {
         }
     }
 
-    /** 查找下一个 expect 字符的出现的位置（使用指定的编码），该方法不会更新 readerIndex 值。如果不存在期待的字符，那么返回 -1。 */
+    /** Finds the next occurrence of {@code expect} using the specified encoding; this method does not update {@code readerIndex}. Returns -1 if not found. */
     default int expect(char expect, Charset charset) {
         return expect(String.valueOf(expect), charset);
     }
 
     /**
-     * 从当前位置开始读取，直到遇到第一个 expect 字符串读完。如果没有期待的 expect 字符串那么返回 null。
-     * 比如：readLine 可以写作 readExpectString("\n", StandardCharsets.US_ASCII)
+     * Reads from the current position through the first occurrence of {@code expect}.
+     * Returns null if {@code expect} is not found.
      */
     default String readExpect(String expect, Charset charset) {
         int readLen;
@@ -707,14 +705,14 @@ public interface BytesIO extends ByteChannel {
     }
 
     /**
-     * 从当前位置开始读取，直到遇到第一个 expect 字符串读完。如果没有期待的 expect 字符串那么返回 null。
-     * 比如：readLine 可以写作 readExpectString('\n', StandardCharsets.US_ASCII)
+     * Reads from the current position through the first occurrence of {@code expect}.
+     * Returns null if {@code expect} is not found.
      */
     default String readExpect(char expect, Charset charset) {
         return readExpect(String.valueOf(expect), charset);
     }
 
-    /** 查找最后一个 expect 字符串的出现的位置（使用指定的编码），该方法不会更新 readerIndex 值。如果不存在期待的字符串，那么返回 -1。 */
+    /** Finds the last occurrence of {@code expect} using the specified encoding; this method does not update {@code readerIndex}. Returns -1 if not found. */
     default int expectLast(String expect, Charset charset) {
         int len = expect.getBytes(charset).length;
         int readableBytes = this.readableBytes();
@@ -731,14 +729,14 @@ public interface BytesIO extends ByteChannel {
         return -1;
     }
 
-    /** 查找最后一个 expect 字符的出现的位置（使用指定的编码），该方法不会更新 readerIndex 值。如果不存在期待的字符，那么返回 -1。 */
+    /** Finds the last occurrence of {@code expect} using the specified encoding; this method does not update {@code readerIndex}. Returns -1 if not found. */
     default int expectLast(char expect, Charset charset) {
         return expectLast(String.valueOf(expect), charset);
     }
 
     /**
-     * 从当前位置开始读取，直到遇到最后一个 expect 字符串读完。如果没有期待的 expect 字符串那么返回 null。
-     * 比如：readLine 可以写作 readExpectString("\n", StandardCharsets.US_ASCII)
+     * Reads from the current position through the last occurrence of {@code expect}.
+     * Returns null if {@code expect} is not found.
      */
     default String readExpectLast(String expect, Charset charset) {
         int readLen = -1;
@@ -752,26 +750,26 @@ public interface BytesIO extends ByteChannel {
     }
 
     /**
-     * 从当前位置开始读取，直到遇到最后一个 expect 字符串读完。如果没有期待的 expect 字符串那么返回 null。
-     * 比如：readLine 可以写作 readExpectString('\n', StandardCharsets.US_ASCII)
+     * Reads from the current position through the last occurrence of {@code expect}.
+     * Returns null if {@code expect} is not found.
      */
     default String readExpectLast(char expect, Charset charset) {
         return readExpectLast(String.valueOf(expect), charset);
     }
 
-    /** implements {@link ReadableByteChannel} */
+    /** Implements {@link ReadableByteChannel}. */
     @Override
     default int read(ByteBuffer dst) {
         return this.readBuffer(dst, Math.min(dst.remaining(), this.readableBytes()));
     }
 
-    /** implements {@link WritableByteChannel} */
+    /** Implements {@link WritableByteChannel}. */
     @Override
     default int write(ByteBuffer src) {
         return this.writeBuffer(src, src.remaining());
     }
 
-    /** implements {@link Channel} */
+    /** Implements {@link Channel}. */
     @Override
     default boolean isOpen() {
         return this.isFree();

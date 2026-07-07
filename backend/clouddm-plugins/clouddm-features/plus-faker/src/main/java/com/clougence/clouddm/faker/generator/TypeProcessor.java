@@ -65,12 +65,12 @@ public class TypeProcessor {
         BeanUtils.writeProperty(this.seedConfig, property, writeValue);
     }
 
-    /** 生成 value 值 */
+    /** Generate value */
     public SqlArg buildData(String columnName) {
         return new SqlArg(columnName, this.jdbcType, this.typeHandler, this.valueSeed.get());
     }
 
-    /** 从 ResultSet value 值 */
+    /** From ResultSet value */
     public SqlArg buildData(ResultSet rs, String columnName) throws SQLException {
         Object result = this.typeHandler.getResult(rs, columnName);
         return new SqlArg(columnName, this.jdbcType, this.typeHandler, result);

@@ -1,7 +1,7 @@
 <template>
   <CCModal v-model="visible" :title="modalTitle" :width="width" @on-cancel="handleCancel">
     <div style="position: relative">
-      <!-- 参数信息头部 -->
+      <!-- Parameter Information Head -->
       <div v-if="showHeader" class="param-header">
         <p class="param-title">
           <Icon type="ios-settings" class="param-icon" />
@@ -10,9 +10,9 @@
         <p v-if="paramDescription" class="param-desc">{{ $t('can-shu-miao-shu') }}: {{ paramDescription }}</p>
       </div>
 
-      <!-- JSON编辑器主体 -->
+      <!-- JSON Editor Subject -->
       <div class="json-editor-container">
-        <!-- 工具栏 -->
+        <!-- Toolbar -->
         <div class="json-editor-toolbar">
           <div style="display: flex; align-items: center">
             <Icon type="ios-code" class="toolbar-icon" />
@@ -29,14 +29,14 @@
           </div>
         </div>
 
-        <!-- 编辑区域 -->
+        <!-- Edit Area -->
         <div class="json-editor-content">
           <Input v-model="jsonValue" type="textarea" :rows="rows" :placeholder="placeholderText" class="json-textarea" />
         </div>
       </div>
     </div>
 
-    <!-- 底部操作按钮 -->
+    <!-- Bottom Operator Button -->
     <template #footer>
       <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0">
         <div>
@@ -59,57 +59,57 @@ export default {
   name: 'CCJsonEditor',
   emits: ['confirm', 'cancel', 'input'],
   props: {
-    // 控制弹窗显示/隐藏
+    // Control modal visibility.
     value: {
       type: Boolean,
       default: false
     },
-    // 弹窗标题
+    // Window Title
     title: {
       type: String,
       default: ''
     },
-    // 弹窗宽度
+    // Window width
     width: {
       type: String,
       default: '900px'
     },
-    // 初始JSON值
+    // Initial JSON value
     initialValue: {
       type: String,
       default: ''
     },
-    // 参数名称
+    // Parameter Name
     paramName: {
       type: String,
       default: ''
     },
-    // 参数描述
+    // Parameter Description
     paramDescription: {
       type: String,
       default: ''
     },
-    // 是否显示参数信息头部
+    // Whether to show parameter information on the head
     showHeader: {
       type: Boolean,
       default: true
     },
-    // 文本区域行数
+    // Number of rows in text areas
     rows: {
       type: Number,
       default: 18
     },
-    // 占位符文本
+    // Placeholder Text
     placeholder: {
       type: String,
       default: ''
     },
-    // 是否自动格式化初始值
+    // Whether to automatically format initial values
     autoFormat: {
       type: Boolean,
       default: true
     },
-    // 格式化数据量阈值（字符数）
+    // Formatting data volume thresholds (number of characters)
     formatThreshold: {
       type: Number,
       default: 5000000 // 5000k
@@ -130,11 +130,11 @@ export default {
         this.$emit('input', val);
       }
     },
-    // 弹窗标题
+    // Window Title
     modalTitle() {
       return this.title || this.$t('json-can-shu-bian-ji-qi');
     },
-    // 占位符文本
+    // Placeholder Text
     placeholderText() {
       return this.placeholder || this.$t('qing-shu-ru-json-ge-shi-de-can-shu');
     }
@@ -161,25 +161,25 @@ export default {
     }
   },
   mounted() {
-    // 组件挂载时，如果弹窗已经打开，则初始化编辑器
+    // Initialize editing when components are mounted if the window has been opened Device
     if (this.value) {
       this.initEditor();
     }
   },
   methods: {
-    // 初始化编辑器
+    // Initialising Editor
     initEditor(value) {
       this.originalValue = value || '';
       this.jsonValue = this.originalValue;
     },
 
-    // 重置编辑器
+    // Reset Editor
     resetEditor() {
       this.jsonValue = '';
       this.originalValue = '';
     },
 
-    // 检查是否为有效JSON
+    // Check for validity of JSON
     isJSON(str) {
       if (typeof str === 'string') {
         try {
@@ -192,12 +192,12 @@ export default {
       return false;
     },
 
-    // 检查数据量是否超过阈值
+    // Check if the amount of data exceeds the threshold
     isDataTooLarge(str) {
       return str && str.length > this.formatThreshold;
     },
 
-    // 获取数据量描述
+    // Get Data Volume Description
     getDataSizeDescription(str) {
       if (!str) return '';
       const size = str.length;
@@ -211,19 +211,19 @@ export default {
       }
     },
 
-    // 重置到原始值
+    // Reset to Original
     resetJson() {
       this.jsonValue = this.originalValue || '';
     },
 
-    // 格式化JSON
+    // Format JSON
     formatJson() {
       if (!this.jsonValue || !this.isJSON(this.jsonValue)) {
         this.$Message.error(this.$t('qing-shu-ru-you-xiao-de-json-ge-shi'));
         return;
       }
 
-      // 检查数据量是否超过阈值
+      // Check if the amount of data exceeds the threshold
       if (this.isDataTooLarge(this.jsonValue)) {
         const dataSize = this.getDataSizeDescription(this.jsonValue);
         this.$Modal.confirm({
@@ -238,10 +238,10 @@ export default {
       }
     },
 
-    // 执行格式化操作
+    // Perform formatting operations
     performFormat() {
       try {
-        // 使用JSONB解析并重新格式化
+        // Parsing and reformatting using JSONB
         const parsed = JSONB.parse(this.jsonValue);
         this.jsonValue = JSON.stringify(parsed, null, 2);
         this.$Message.success(this.$t('ge-shi-hua-cheng-gong'));
@@ -250,7 +250,7 @@ export default {
       }
     },
 
-    // 确认保存
+    // Confirm Save
     handleConfirm() {
       if (!this.isJSON(this.jsonValue)) {
         this.$Message.error(this.$t('qing-shu-ru-you-xiao-de-json-ge-shi'));
@@ -260,7 +260,7 @@ export default {
       this.visible = false;
     },
 
-    // 取消编辑
+    // Cancel Edit
     handleCancel() {
       this.$emit('cancel');
       this.visible = false;

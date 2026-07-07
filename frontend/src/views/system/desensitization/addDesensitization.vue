@@ -126,7 +126,7 @@
 
 <script>
 import * as Vue from 'vue';
-import cloneDeep from 'lodash.clonedeep';
+import { cloneDeep } from '@/utils/lodash';
 import { Modal } from 'ant-design-vue';
 import PreviewModal from '@/views/system/desensitization/components/PreviewModal';
 import { ALGORITHM_TYPES_PLACEHOLDER, PG_GP } from '@/const';

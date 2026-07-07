@@ -32,9 +32,9 @@ public interface SecAuthI18nKeys {
     String CAT_KEY_DM_DS                            = "CAT_KEY_DM_DS";
     String CAT_KEY_DM_WORKER                        = "CAT_KEY_DM_WORKER";
     String CAT_KEY_DM_SECRULES                      = "CAT_KEY_DM_SECRULES";
-    String CAT_KEY_DM_PROJECT                       = "CAT_KEY_DM_PROJECT";
+    String CAT_KEY_DM_CICD_FLOW                     = "CAT_KEY_DM_CICD_FLOW";
     String CAT_KEY_DM_IM                            = "CAT_KEY_DM_IM";
-    String CAT_KEY_DM_CICD                          = "CAT_KEY_DM_CICD";
+    String CAT_KEY_DM_GIT_OPS                       = "CAT_KEY_DM_GIT_OPS";
     String CAT_DM_SQL_AUDIT                         = "CAT_DM_SQL_AUDIT";
     String CAT_KEY_RDP                              = "CAT_KEY_RDP";
     String CAT_KEY_RDP_SYS                          = "CAT_KEY_RDP_SYS";
@@ -59,17 +59,19 @@ public interface SecAuthI18nKeys {
     String AUTH_KEY_DM_DATA_MANAGE                  = "AUTH_KEY_DM_DATA_MANAGE";
     String AUTH_KEY_DM_DS_READ                      = "AUTH_KEY_DM_DS_READ";
     String AUTH_KEY_DM_DS_MANAGE                    = "AUTH_KEY_DM_DS_MANAGE";
+    String AUTH_KEY_DM_SSH_CHANNEL_READ             = "AUTH_KEY_DM_SSH_CHANNEL_READ";
+    String AUTH_KEY_DM_SSH_CHANNEL_WRITE            = "AUTH_KEY_DM_SSH_CHANNEL_WRITE";
     String AUTH_KEY_DM_WORKER_READ                  = "AUTH_KEY_DM_WORKER_READ";
     String AUTH_KEY_DM_WORKER_MANAGE                = "AUTH_KEY_DM_WORKER_MANAGE";
     String AUTH_KEY_DM_SECRULES_READ                = "AUTH_KEY_DM_SECRULES_READ";
     String AUTH_KEY_DM_SECRULES_MANAGE              = "AUTH_KEY_DM_SECRULES_MANAGE";
-    String AUTH_KEY_DM_PROJECT_READ                 = "AUTH_KEY_DM_PROJECT_READ";
-    String AUTH_KEY_DM_CHANGE_OPERATE               = "AUTH_KEY_DM_CHANGE_OPERATE";
-    String AUTH_KEY_DM_PROJECT_MANAGE               = "AUTH_KEY_DM_PROJECT_MANAGE";
+    String AUTH_KEY_DM_CICD_FLOW_READ               = "AUTH_KEY_DM_CICD_FLOW_READ";
+    String AUTH_KEY_DM_CICD_FLOW_OPERATE            = "AUTH_KEY_DM_CICD_FLOW_OPERATE";
+    String AUTH_KEY_DM_CICD_FLOW_MANAGE             = "AUTH_KEY_DM_CICD_FLOW_MANAGE";
     String AUTH_KEY_DM_IM_READ                      = "AUTH_KEY_DM_IM_READ";
     String AUTH_KEY_DM_IM_MANAGE                    = "AUTH_KEY_DM_IM_MANAGE";
-    String AUTH_KEY_DM_CICD_READ                    = "AUTH_KEY_DM_CICD_READ";
-    String AUTH_KEY_DM_CICD_MANAGE                  = "AUTH_KEY_DM_CICD_MANAGE";
+    String AUTH_KEY_DM_GIT_OPS_READ                 = "AUTH_KEY_DM_GIT_OPS_READ";
+    String AUTH_KEY_DM_GIT_OPS_MANAGE               = "AUTH_KEY_DM_GIT_OPS_MANAGE";
     String AUTH_KEY_DM_SQL_AUDIT_READ               = "AUTH_KEY_DM_SQL_AUDIT_READ";
     String AUTH_KEY_RDP_SYS_READ                    = "AUTH_KEY_RDP_SYS_READ";
     String AUTH_KEY_RDP_SYS_MANAGE                  = "AUTH_KEY_RDP_SYS_MANAGE";
@@ -104,6 +106,7 @@ public interface SecAuthI18nKeys {
     // for Role and Data
     String RDP_AUTH_DATA_DS_READ                    = "RDP_AUTH_DATA_DS_READ";
     String RDP_AUTH_DATA_DS_MANAGE                  = "RDP_AUTH_DATA_DS_MANAGE";
+    String RDP_AUTH_DATA_DS_CREATOR                 = "RDP_AUTH_DATA_DS_CREATOR";
 
     // for Data Auth Label
     String AUTH_DATA_DM_QUERY                       = "AUTH_DATA_DM_QUERY";

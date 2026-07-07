@@ -20,8 +20,10 @@ plugins {
 }
 
 dependencies {
-    // project
     antlr "org.antlr:antlr4:${ANTLR_VERSION}"
+
+    // project
+    implementation "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
     implementation project(':dsc-common')
     implementation 'com.aliyun:maxcompute20220104:3.5.0'
     implementation 'com.aliyun:tea-openapi:0.3.10'
@@ -39,6 +41,6 @@ dependencies {
 
 description = 'ds-maxcompute'
 
-configureClougenceAntlrGrammar([outputPath : 'src/main/java/com/clougence/clouddm/ds/maxcompute/parser/antlr',
-                                packageName: 'com.clougence.clouddm.ds.maxcompute.parser.antlr'])
-
+tasks.named('generateGrammarSource') {
+    arguments += ['-visitor', '-package', 'com.clougence.clouddm.ds.maxcompute.sql.parser.antlr']
+}

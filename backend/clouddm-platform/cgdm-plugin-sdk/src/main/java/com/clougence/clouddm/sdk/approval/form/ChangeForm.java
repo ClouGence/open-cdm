@@ -25,7 +25,7 @@ import lombok.Setter;
 public class ChangeForm extends ApprovalForm {
 
     private String targetDs;
-    private String projectName;
+    private String flowName;
     private String changeName;
     private String branch;
     private String executeSql;

@@ -108,12 +108,14 @@ public class FileResourcePreparer extends AbstractResourcePreparer {
             File targetFile = absolutePath == null ? null : new File(absolutePath);
             if (targetFile == null || !targetFile.exists()) {
                 fileDef.setPrepared(false);
+                driverResource.setPrepared(false);
                 progress.onError(driverVersion, driverResource, new IOException("path not found: " + absolutePath));
                 return;
             }
 
             if (!targetFile.canRead()) {
                 fileDef.setPrepared(false);
+                driverResource.setPrepared(false);
                 progress.onError(driverVersion, driverResource, new IOException("path exists but cannot read: " + absolutePath));
                 return;
             }
@@ -121,6 +123,7 @@ public class FileResourcePreparer extends AbstractResourcePreparer {
             fileDef.setPrepared(true);
         }
 
+        driverResource.setPrepared(true);
         progress.onComplete(driverVersion, driverResource, totalCount, totalCount);
     }
 }

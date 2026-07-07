@@ -23,11 +23,10 @@ import {
   PROCESSOR_CONFIG_TYPE,
   SELECT_MODE
 } from '@/utils';
-import deepClone from 'lodash.clonedeep';
-import _ from 'lodash';
+import _, { cloneDeep as deepClone } from '@/utils/lodash';
 import { nanoid } from 'nanoid';
 import { UPDATE_TASK_INFO_DB_MAP_HISTORY, UPDATE_TASK_INFO_HISTORY } from '@/store/mutationTypes';
-// 在 process中使用newTaskInfo
+// Use newTaskInfo in project
 const taskInfoMixin = {
   name: 'TaskInfoMixin',
   data() {
@@ -385,7 +384,7 @@ const taskInfoMixin = {
               table.originalAction = [];
             }
 
-            // TODO 有优化空间，以后将所有targetSchema逻辑放在一起
+            // TODO has an optimised space, which will bring together all the targetSchema logic.
             if (isGrepTime(targetType)) {
               targetSchemaList.forEach((parseDb) => {
                 if (parseDb.db === db.targetDb) {
@@ -404,7 +403,7 @@ const taskInfoMixin = {
               });
             }
 
-            // TODO 是否可以和上面的合并
+            // Could TODO merge with the above
             // if (isMQ(sourceType) && (isMQ(targetType) || isES(targetType))) {
             //   let hasSame = false;
             //   Object.keys(tableMapping).forEach((key) => {
@@ -774,20 +773,20 @@ const taskInfoMixin = {
           }
           break;
         case 'DEFAULT_TOPIC':
-          // TODO 遗漏
+          // TODO Missing
           break;
         case 'SOURCE_DB_TABLE_BY_COLON':
           targetTableName = `${theDb}:${targetTableName}`;
           break;
         case 'SOURCE_DB_SCHEMA_TABLE_BY_COLON':
-          // TODO 遗漏
+          // TODO Missing
           targetTableName = `${theDb}:${schemaName}:${targetTableName}`;
           break;
         case 'TO_ALIAS':
           targetTableName = table.tableAlias;
           break;
         case 'TO_CAMEL_FORMAT':
-          // TODO 遗漏
+          // TODO Missing
           break;
         case 'SOURCE_INS_DB_SCHEMA_TABLE_BY_UNDERLINE':
           targetTableName = `cc_${sourceInstanceId}_${theDb}_${isHasSchema(db.sourceType) ? `${schemaName}_` : ''}_${targetTableName}`.toLowerCase();
@@ -856,7 +855,7 @@ const taskInfoMixin = {
     updateLoading(loading) {
       this.loading = loading;
     },
-    // 使用 newTaskInfo
+    // Use newTaskInfo
     async handleNewNextStep() {
       console.log(this.taskInfo.step);
       switch (this.taskInfo.step) {
@@ -895,7 +894,7 @@ const taskInfoMixin = {
         sinkPublicHost: 'targetPublicHost'
       };
 
-      // 构建新的数据库映射
+      // Build a new database map
       const newDbMap = oldInfo.dbMap.map((db) => {
         const dbItem = {
           _id: nanoid(),
@@ -929,7 +928,7 @@ const taskInfoMixin = {
         return dbItem;
       });
 
-      // 构建原始配置
+      // Build Original Configuration
       const originalConfig = Object.entries(oldInfo).reduce(
         (acc, [key, value]) => {
           const targetKey = sinkToTargetMap[key] || key;
@@ -941,7 +940,7 @@ const taskInfoMixin = {
         { ...EMPTY_TASK_INFO.originalConfig }
       );
 
-      // 构建新的任务信息
+      // Synchronising folder
       this.newTaskInfo = {
         ...deepClone(EMPTY_TASK_INFO),
         mode: this.newTaskInfo.mode,
@@ -952,7 +951,7 @@ const taskInfoMixin = {
         originalConfig
       };
 
-      // 设置表默认值
+      // Set Table Defaults
       const { schemaWhiteListLevel } = this.newTaskInfo.originalConfig;
       this.newTaskInfo.common.isFullDatabaseSync = schemaWhiteListLevel === 'DB';
       this.newTaskInfo.common.tableDefaultDisabled = this.newTaskInfo.common.isFullDatabaseSync;
@@ -992,7 +991,7 @@ const taskInfoMixin = {
     async handleTableFilterNextStep() {
       let noEmptyDb = true;
       let noTargetTable = true;
-      // TODO 编辑任务
+      // TODO Edit Tasks
       // this.taskInfo.dbMap.forEach((db) => {
       // db.selectedTables.forEach((table) => {
       //   if (table.hasInJob && table._checked && (!_.isEqual(table.action, table.originalAction) || table.sinkTable !== table.originalSinkTable)) {
@@ -1026,7 +1025,7 @@ const taskInfoMixin = {
               }
             }
           });
-          // noTargetTable 优先级暂定更高一点，先校验是否有缺选的目标表，再校验是否有缺选的源表
+          // NoTargetTable has a slightly higher priority, checking first for missing target sheets and then for missing source tables
           if (noTargetTable && !item.tableCount) {
             noEmptyDb = false;
             this.warnEmptyTableText = this.$t(
@@ -1079,9 +1078,9 @@ const taskInfoMixin = {
     async handleTaskInfoPreStep() {
       await this.$refs.newTaskInfo.updatePreStep();
     },
-    // 计算编辑变更摘要
+    // Calculate editorial change summary
     calculateEditChangesSummary() {
-      // 重置变更摘要
+      // Reset change summary
       this.editChangesSummary = {
         hasChanges: false,
         databases: {
@@ -1134,7 +1133,7 @@ const taskInfoMixin = {
       try {
         const hasSchema = isHasSchema(this.taskInfo.sourceType);
 
-        // 1. 新增库
+        // 1. New Library
         if (this.taskInfo.dbMap && Array.isArray(this.taskInfo.dbMap)) {
           this.taskInfo.dbMap.forEach((db) => {
             if (db && db.new) {
@@ -1151,7 +1150,7 @@ const taskInfoMixin = {
           });
         }
 
-        // 2. 统计表和列的增删及修改
+        // 2. Additions, deletions and modifications to statistical tables and columns
         if (this.taskInfo.dbMap && Array.isArray(this.taskInfo.dbMap)) {
           this.taskInfo.dbMap.forEach((db) => {
             if (db && db.selectedTables && Array.isArray(db.selectedTables)) {
@@ -1166,7 +1165,7 @@ const taskInfoMixin = {
                   baseInfo.schema = db.sourceSchema;
                 }
 
-                // 新增的表
+                // New Table
                 if (!table.hasInJob && table.selected) {
                   const tableInfo = {
                     ...baseInfo,
@@ -1178,7 +1177,7 @@ const taskInfoMixin = {
                   }
                   this.editChangesSummary.tables.added.push(tableInfo);
 
-                  // 新增表的操作黑名单
+                  // Add an operating blacklist
                   const newTableBlacklist = Array.isArray(table.actionBlacklist) ? table.actionBlacklist : [];
                   if (newTableBlacklist.length > 0) {
                     this.editChangesSummary.actionBlacklist.changed.push({
@@ -1188,7 +1187,7 @@ const taskInfoMixin = {
                     });
                   }
 
-                  // 新增表的主键
+                  // New Table Primary Key
                   const newTableCols = Array.isArray(table.cols) ? table.cols : [];
                   const originalCols = Array.isArray(table.originalCols) ? table.originalCols : [];
                   if (newTableCols.length > 0) {
@@ -1199,7 +1198,7 @@ const taskInfoMixin = {
                     });
                   }
 
-                  // 新增表的数据过滤条件
+                  // Add Data Filter Conditions for Tables
                   if (table.whereCondition && table.whereCondition.trim() !== '') {
                     this.editChangesSummary.dataFilter.whereConditions.push({
                       ...baseInfo,
@@ -1208,7 +1207,7 @@ const taskInfoMixin = {
                     });
                   }
 
-                  // 新增表的对端更新条件
+                  // Add a new table to the end update condition
                   if (table.targetWhereCondition && table.targetWhereCondition.trim() !== '') {
                     this.editChangesSummary.targetUpdateConditions.changed.push({
                       ...baseInfo,
@@ -1218,9 +1217,9 @@ const taskInfoMixin = {
                   }
                 }
 
-                // 已有表的修改
+                // Changes to existing tables
                 if (table.hasInJob && table.selected) {
-                  // 操作黑名单变化
+                  // Operation blacklist changes
                   const currentBlacklist = Array.isArray(table.actionBlacklist) ? table.actionBlacklist : [];
                   const originalBlacklist = Array.isArray(table.originalActionBlacklist) ? table.originalActionBlacklist : [];
 
@@ -1232,7 +1231,7 @@ const taskInfoMixin = {
                     });
                   }
 
-                  // 目标表名称变化
+                  // Change in target list name
                   if (table.sinkTable && table.originalSinkTable && table.sinkTable !== table.originalSinkTable) {
                     this.editChangesSummary.targetNames.tables.push({
                       ...baseInfo,
@@ -1241,7 +1240,7 @@ const taskInfoMixin = {
                     });
                   }
 
-                  // 主键变化
+                  // Change of main key
                   const currentCols = Array.isArray(table.cols) ? table.cols : [];
                   const originalCols = Array.isArray(table.originalCols) ? table.originalCols : [];
 
@@ -1253,10 +1252,10 @@ const taskInfoMixin = {
                     });
                   }
 
-                  // 数据过滤条件
+                  // Data Filter Conditions
                   const currentWhereCondition = table.whereCondition || '';
                   const originalWhereCondition = table.originalWhereCondition || '';
-                  // 检查过滤条件是否有变化：新增、删除或修改
+                  // Check for changes in filter conditions: add, delete or modify
                   if (currentWhereCondition !== originalWhereCondition) {
                     this.editChangesSummary.dataFilter.whereConditions.push({
                       ...baseInfo,
@@ -1265,10 +1264,10 @@ const taskInfoMixin = {
                     });
                   }
 
-                  // 对端更新条件
+                  // End Update Conditions
                   const currentTargetWhereCondition = table.targetWhereCondition || '';
                   const originalTargetWhereCondition = table.originalTargetWhereCondition || '';
-                  // 检查对端更新条件是否有变化：新增、删除或修改
+                  // Check for changes in end-to-end update conditions: add, delete or modify
                   if (currentTargetWhereCondition !== originalTargetWhereCondition) {
                     this.editChangesSummary.targetUpdateConditions.changed.push({
                       ...baseInfo,
@@ -1278,13 +1277,13 @@ const taskInfoMixin = {
                   }
                 }
 
-                // 统计列的增删和修改
+                // Adds, deletes and changes to statistical columns
                 if (db.selectedColumns && db.selectedColumns[table.sourceTable] && Array.isArray(db.selectedColumns[table.sourceTable])) {
                   db.selectedColumns[table.sourceTable].forEach((column) => {
                     if (!column) return;
 
                     if (column.selected) {
-                      // 新增的列
+                      // New Column
                       if (!column.hasInJob) {
                         this.editChangesSummary.columns.added.push({
                           ...baseInfo,
@@ -1294,7 +1293,7 @@ const taskInfoMixin = {
                         });
                       }
 
-                      // 列映射名称变化
+                      // Column map name changes
                       if (column.hasInJob && column.sinkColumn && column.originalSinkColumn && column.sinkColumn !== column.originalSinkColumn) {
                         this.editChangesSummary.targetNames.columns.push({
                           ...baseInfo,
@@ -1304,7 +1303,7 @@ const taskInfoMixin = {
                         });
                       }
                     } else if (column.hasInJob) {
-                      // 删除的列
+                      // Deleted Columns
                       this.editChangesSummary.columns.removed.push({
                         ...baseInfo,
                         column: column.sourceColumn || column.columnName
@@ -1314,7 +1313,7 @@ const taskInfoMixin = {
                 }
               });
 
-              // 被删除的表
+              // Removed Table
               db.selectedTables.forEach((table) => {
                 if (table && table.hasInJob && !table.selected) {
                   const tableInfo = {
@@ -1331,7 +1330,7 @@ const taskInfoMixin = {
           });
         }
 
-        // 3. 虚拟列
+        // 3. Virtual columns
         if (this.taskInfo.virtualColumns && Array.isArray(this.taskInfo.virtualColumns)) {
           this.taskInfo.virtualColumns.forEach((virtual) => {
             if (!virtual) return;
@@ -1356,7 +1355,7 @@ const taskInfoMixin = {
           });
         }
 
-        // 4. 字段转换
+        // Field conversion
         const transformColumnKeys = Object.keys(this.taskInfo.transformColumnData || {});
         transformColumnKeys.forEach((key) => {
           const transform = this.taskInfo.transformColumnData[key];
@@ -1378,7 +1377,7 @@ const taskInfoMixin = {
           }
         });
 
-        // 5. 宽表
+        // 5. Magnitude
         if (this.taskInfo.wideTables && Array.isArray(this.taskInfo.wideTables)) {
           this.taskInfo.wideTables.forEach((wideTable) => {
             if (!wideTable) return;
@@ -1389,11 +1388,11 @@ const taskInfoMixin = {
               config: wideTable
             };
 
-            // TODO:: 宽表的diff收集
+            // TODO::diff collection of broad meters
           });
         }
 
-        // 6. 表级和列级映射规则（serializeMapping 和 commonGenRule）
+        // Table and column mapping rules (serialiizeMapping and comonGenrule)
         try {
           let currentMappingDef = [];
           if (this.getConfigData) {
@@ -1405,7 +1404,7 @@ const taskInfoMixin = {
                 const configData = this.getConfigData(dataToUse, this.taskInfo.sourceType, this.taskInfo.sinkType, 'newData');
                 currentMappingDef = configData.mappingDef || [];
               } catch (error) {
-                // 生成mappingDef失败，忽略错误
+                // Could not close temporary folder: %s
                 console.log('error', error);
               }
             }
@@ -1481,7 +1480,7 @@ const taskInfoMixin = {
             });
           }
 
-          // 表级映射规则是否有变化
+          // Any changes in the table map rules?
           const hasTableCommonGenRuleChanged = originalTableCommonGenRule !== currentTableCommonGenRule;
           const hasTableSerializeMapping = Object.keys(currentTableMapping).length > 0 || Object.keys(originalTableMapping).length > 0;
           const hasTableSerializeMappingChanged = !_.isEqual(currentTableMapping, originalTableMapping);
@@ -1499,7 +1498,7 @@ const taskInfoMixin = {
             });
           }
 
-          // 列级映射规则是否有变化
+          // Change in column map rules
           const hasColumnCommonGenRuleChanged = originalColumnCommonGenRule !== currentColumnCommonGenRule;
           const hasColumnSerializeMappingChanged = !_.isEqual(currentColumnMapping, originalColumnMapping);
 
@@ -1518,7 +1517,7 @@ const taskInfoMixin = {
           console.log('error', error);
         }
 
-        // 是否有任何变更
+        // Any changes
         this.editChangesSummary.hasChanges =
           this.editChangesSummary.databases.added.length > 0 ||
           this.editChangesSummary.databases.removed.length > 0 ||
@@ -1544,7 +1543,7 @@ const taskInfoMixin = {
 
         console.log('完整变更摘要:', this.editChangesSummary);
       } catch (error) {
-        this.editChangesSummary.hasChanges = true; // 出错时默认允许提交
+        this.editChangesSummary.hasChanges = true; // Default allows submission when an error occurs
       }
     }
   }

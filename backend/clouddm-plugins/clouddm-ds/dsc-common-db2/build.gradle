@@ -16,14 +16,12 @@
 
 plugins {
     id 'com.clougence.java-conventions'
-    id 'antlr'
 }
 
 dependencies {
     // project
-    antlr "org.antlr:antlr4:${ANTLR_VERSION}"
+    api project(':sql-db2')
     api project(':dsc-common')
-    api files('../lib/druid-1.2.25-SNAPSHOT.jar')
 
     // share lib (compileOnly)
     compileOnly project(':cgdm-share-libs')
@@ -38,6 +36,3 @@ dependencies {
 }
 
 description = 'dsc-common-db2'
-
-configureClougenceAntlrGrammar([outputPath : 'src/main/java/com/clougence/clouddm/dsfamily/db2/parser/antlr',
-                                packageName: 'com.clougence.clouddm.dsfamily.db2.parser.antlr'])

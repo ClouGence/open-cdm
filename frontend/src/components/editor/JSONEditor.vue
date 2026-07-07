@@ -1,7 +1,7 @@
 <script>
 import * as monaco from 'monaco-editor';
 import { markRaw } from 'vue';
-import { Message } from 'view-ui-plus';
+import Toast from '@/utils/toast';
 
 export default {
   name: 'JSONEditor',
@@ -52,23 +52,23 @@ export default {
         } else {
           this.monacoEditor = markRaw(
             monaco.editor.create(this.$refs.jsonEditor, {
-              value: this.text, // 编辑器的值
+              value: this.text, // The editor 's value
               language: this.language,
               fontSize: 14,
               fontWeight: 'bold',
               scrollBeyondLastLine: false,
               readOnly: true,
-              theme: 'vs', // 编辑器主题：vs, hc-black, or vs-dark，更多选择详见官网
+              theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
               minimap: {
                 enabled: false
               },
               automaticLayout: true,
-              autoIndent: true, // 自动缩进
-              glyphMargin: true // 启用 glyph margin 用于显示复制图标
+              autoIndent: true, // Auto Indent
+              glyphMargin: true // Enable glyph margin to display duplicate icons
             })
           );
 
-          // 监听鼠标点击事件 - 复制整个 JSON
+          // Listen to mouse click events - Copy entire JSON
           this.monacoEditor.onMouseDown((e) => {
             if (e.target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN) {
               const lineNumber = e.target.position?.lineNumber;
@@ -78,24 +78,24 @@ export default {
             }
           });
           //
-          // // 监听鼠标移动 - 检测悬停在 JSON key 上
+          // // Listen to mouse moves - Detect suspension on JSON key
           // this.monacoEditor.onMouseMove((e) => {
           //   if (e.target.position) {
           //     this.handleMouseMove(e);
           //   }
           // });
           //
-          // // 监听点击 - 复制 key 的 value
+          // // Listen to click - copy key value
           // this.monacoEditor.onMouseDown((e) => {
           //   if (e.target.position && e.event.leftButton) {
           //     this.handleClickCopyValue(e.target.position);
           //   }
           // });
           //
-          // // 显示所有 JSON 对象第一行的复制图标
+          // // Show a copy icon for the first row of all JSON objects
           this.updateDecorations();
           //
-          // // 解析 JSON
+          // // Parsing JSON
           // this.parseJson();
         }
       }
@@ -114,7 +114,7 @@ export default {
       const totalLines = model.getLineCount();
       const jsonStartLines = [];
 
-      // 查找所有 JSON 对象的起始行
+      // Find the start line for all JSON objects
       for (let i = 1; i <= totalLines; i++) {
         const lineContent = model.getLineContent(i).trim();
         if (lineContent.startsWith('{')) {
@@ -122,7 +122,7 @@ export default {
         }
       }
 
-      // 为每个 JSON 对象的第一行添加复制图标
+      // Add a copy icon to the first row of each JSON object
       const newDecorations = jsonStartLines.map((lineNumber) => ({
         range: new monaco.Range(lineNumber, 1, lineNumber, 1),
         options: {
@@ -140,14 +140,14 @@ export default {
       const model = this.monacoEditor.getModel();
       const totalLines = model.getLineCount();
 
-      // 查找当前 JSON 对象的起始和结束行
+      // Find lines for starting and ending the current JSON object
       const { startLine, endLine } = this.findJsonBoundaries(lineNumber, totalLines, model);
 
       if (startLine && endLine) {
-        // 提取 JSON 文本
+        // Extract JSON text
         const jsonText = model.getValueInRange(new monaco.Range(startLine, 1, endLine, model.getLineMaxColumn(endLine)));
 
-        // 复制到剪贴板
+        // Copy to Clipboard
         this.copyToClipboard(jsonText);
       }
     },
@@ -158,7 +158,7 @@ export default {
       let braceCount = 0;
       let foundStart = false;
 
-      // 向上查找 JSON 对象的起始 {
+      // Find start of JSON object up {
       for (let i = lineNumber; i >= 1; i--) {
         const lineContent = model.getLineContent(i).trim();
 
@@ -169,9 +169,9 @@ export default {
         }
       }
 
-      // 如果没找到起始，直接返回
+      // If you don't find the start, go straight back.
       if (!foundStart) {
-        // 可能是单行 JSON，尝试直接复制当前行
+        // Could be a single line, JSON, trying to copy the current line directly
         const lineContent = model.getLineContent(lineNumber).trim();
         if (lineContent.startsWith('{') && lineContent.endsWith('}')) {
           return { startLine: lineNumber, endLine: lineNumber };
@@ -179,12 +179,12 @@ export default {
         return { startLine: null, endLine: null };
       }
 
-      // 从起始行开始，重新计算大括号匹配
+      // Recalculate parenthesis matching from the start line
       braceCount = 0;
       for (let i = startLine; i <= totalLines; i++) {
         const lineContent = model.getLineContent(i);
 
-        // 计算当前行的大括号数量
+        // Calculates the number of brackets in the current row
         for (let char of lineContent) {
           if (char === '{') braceCount++;
           else if (char === '}') braceCount--;
@@ -196,18 +196,18 @@ export default {
         }
       }
 
-      // 如果没找到匹配的结束，返回到文件末尾
+      // If no match is found, return to the end of the file
       return { startLine, endLine: totalLines };
     },
 
     parseJson() {
       try {
-        // 尝试解析整个文本中的所有 JSON 对象
+        // Try to parse all JSON objects throughout the text
         const model = this.monacoEditor.getModel();
         const fullText = model.getValue();
         const jsonObjects = [];
 
-        // 按行分割并查找 JSON 对象
+        // Split by Line and find JSON objects
         const lines = fullText.split('\n');
         let currentJson = '';
         let braceCount = 0;
@@ -241,7 +241,7 @@ export default {
                     text: currentJson
                   });
                 } catch (e) {
-                  // 忽略解析失败的对象
+                  // Ignore parsing failed objects
                 }
                 currentJson = '';
               }
@@ -272,7 +272,7 @@ export default {
         const keyInfo = this.findKeyAtPosition(position, lineContent);
 
         if (keyInfo) {
-          // 在 key 上显示高亮
+          // Highlight on key
           const range = new monaco.Range(position.lineNumber, keyInfo.startColumn, position.lineNumber, keyInfo.endColumn);
 
           this.hoverDecorations = this.monacoEditor.deltaDecorations(this.hoverDecorations, [
@@ -288,20 +288,20 @@ export default {
         }
       }
 
-      // 清除高亮
+      // Clear Highlight
       this.hoverDecorations = this.monacoEditor.deltaDecorations(this.hoverDecorations, []);
     },
 
     findKeyAtPosition(position, lineContent) {
-      // 更精确地匹配 JSON key，确保是 key-value 对中的 key
-      // 格式如 "key": value 或 key: value
+      // Match more precisely JSON key to make sure it's key-value in pair
+      // Formats like "key": value or key: value
 
-      // 首先检查光标位置是否在一个引号包裹的字符串中（可能是 value）
+      // First check if the cursor position is in a string with a quote (possibly value)
       let quoteCount = 0;
       let inValue = false;
       let lastColonIndex = -1;
 
-      // 从行首到光标位置，计算引号和冒号的位置
+      // From the beginning of the line to the cursor position, calculate the position of the quote and the colon
       for (let i = 0; i < position.column - 1; i++) {
         const char = lineContent.charAt(i);
         if (char === '"' && (i === 0 || lineContent.charAt(i - 1) !== '\\')) {
@@ -309,35 +309,35 @@ export default {
         }
         if (char === ':') {
           lastColonIndex = i;
-          quoteCount = 0; // 冒号后重置引号计数
+          quoteCount = 0; // Reset quote count after colon
         }
       }
 
-      // 如果在冒号之后且引号数为奇数，说明在 value 的字符串中
+      // If the number of quotations is odd after the colon, the string at value Medium
       if (lastColonIndex !== -1 && lastColonIndex < position.column - 1) {
-        // 检查是否在 value 部分
+        // Check if in value part
         let quotesAfterColon = 0;
         for (let i = lastColonIndex + 1; i < position.column - 1; i++) {
           if (lineContent.charAt(i) === '"' && (i === 0 || lineContent.charAt(i - 1) !== '\\')) {
             quotesAfterColon++;
           }
         }
-        // 如果在 value 的引号内，不处理
+        // If within quote sign of value, do not process
         if (quotesAfterColon % 2 === 1) {
           return null;
         }
       }
 
-      // 匹配带引号的 key: "key":
+      // Match key: "key" with quotes:
       const quotedKeyRegex = /"([^"]+)"\s*:/g;
       let match;
 
       while ((match = quotedKeyRegex.exec(lineContent)) !== null) {
-        const keyStartColumn = match.index + 2; // 跳过开始的引号
-        const keyEndColumn = match.index + 1 + match[1].length + 1; // 包括结束的引号
+        const keyStartColumn = match.index + 2; // Skip the starting quote
+        const keyEndColumn = match.index + 1 + match[1].length + 1; // Including ending quotes
         const colonIndex = match.index + match[0].length - 1;
 
-        // 确保光标在 key 的引号范围内，且在冒号之前
+        // Ensure that the cursor is within the quote of the key and before the colon
         if (position.column >= match.index + 1 && position.column <= keyEndColumn && position.column < colonIndex) {
           return {
             key: match[1],
@@ -347,7 +347,7 @@ export default {
         }
       }
 
-      // 匹配不带引号的 key: key:
+      // Matches a key without quotation marks: key:
       const unquotedKeyRegex = /(\w+)\s*:/g;
 
       while ((match = unquotedKeyRegex.exec(lineContent)) !== null) {
@@ -355,12 +355,12 @@ export default {
         const keyEndColumn = match.index + match[1].length;
         const colonIndex = match.index + match[0].length - 1;
 
-        // 确保光标在 key 的范围内，且在冒号之前
-        // 并且这个 key 前面不是在引号内（避免匹配 value 中的内容）
+        // Make sure the cursor is within the key and before the colon
+        // And this key is not in quotation marks.
         const beforeKey = lineContent.substring(0, match.index);
         const quotesBeforeKey = (beforeKey.match(/"/g) || []).length;
 
-        // 如果前面的引号数是偶数，说明不在字符串内
+        // If the previous quotation number is even, not string Internal
         if (quotesBeforeKey % 2 === 0 && position.column >= keyStartColumn && position.column <= keyEndColumn && position.column < colonIndex) {
           return {
             key: match[1],
@@ -381,7 +381,7 @@ export default {
       const keyInfo = this.findKeyAtPosition(position, lineContent);
 
       if (keyInfo) {
-        // 找到当前行所属的 JSON 对象
+        // Found JSON objects belonging to the current line
         const jsonObj = this.parsedJson.find((obj) => position.lineNumber >= obj.startLine && position.lineNumber <= obj.endLine);
 
         if (jsonObj) {
@@ -395,7 +395,7 @@ export default {
     },
 
     getValueByKey(obj, key) {
-      // 递归查找 key 对应的 value
+      // Recursively search for key corresponding value
       if (obj && typeof obj === 'object') {
         if (key in obj) {
           return obj[key];
@@ -419,7 +419,7 @@ export default {
         if (navigator.clipboard && window.isSecureContext) {
           await navigator.clipboard.writeText(text);
         } else {
-          // 降级方案
+          // Downscaling programme
           const textArea = document.createElement('textarea');
           textArea.value = text;
           textArea.style.position = 'fixed';
@@ -432,17 +432,17 @@ export default {
             document.execCommand('copy');
           } catch (err) {
             console.error('复制失败:', err);
-            Message.error('复制失败');
+            Toast.error('复制失败');
             return;
           } finally {
             document.body.removeChild(textArea);
           }
         }
 
-        Message.success(message);
+        Toast.success(message);
       } catch (err) {
         console.error('复制失败:', err);
-        Message.error('复制失败');
+        Toast.error('复制失败');
       }
     }
   },

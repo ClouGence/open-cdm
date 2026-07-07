@@ -19,7 +19,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
- * Loader 基类
+ * Loader Base Category
  * @version : 2021-09-29
  * @author 赵永春 (zyc@hasor.net)
  */

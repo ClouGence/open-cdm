@@ -27,10 +27,10 @@ public class McDetermineExceptionSpi extends AbstractDetermineExceptionSpi {
 
     static {
         MC_CONNECT_ERROR_MESSAGES = new ArrayList<>(BASIC_CONNECT_ERROR_MESSAGES);
-        //MC_CONNECT_ERROR_MESSAGES.add("网络通信异常");
+        //MC_CONNECT_ERROR_MESSAGES.add("Network communication exception");
 
         MC_AUTH_ERROR_MESSAGES = new ArrayList<>(BASIC_AUTH_ERROR_MESSAGES);
-        //MC_AUTH_ERROR_MESSAGES.add("用户名或密码错误");
+        //MC_AUTH_ERROR_MESSAGES.add("Incorrect username or password");
         //MC_AUTH_ERROR_MESSAGES.add("Invalid username or password");
     }
 

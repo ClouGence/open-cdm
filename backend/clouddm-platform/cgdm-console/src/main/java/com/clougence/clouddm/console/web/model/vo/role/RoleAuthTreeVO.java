@@ -38,6 +38,8 @@ public class RoleAuthTreeVO {
 
     private boolean              category;
 
+    private List<String>         include  = new ArrayList<>();
+
     @JsonIgnore
     public String                parent;
 

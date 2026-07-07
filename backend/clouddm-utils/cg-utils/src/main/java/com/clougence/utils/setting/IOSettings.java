@@ -21,7 +21,7 @@ import java.nio.charset.Charset;
 import com.clougence.utils.setting.provider.StreamType;
 
 /**
- * 需要经过解析读取配置文件资源的{@link  Settings}
+ * Needs parsed reading to configure file resources
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-9-9
  */

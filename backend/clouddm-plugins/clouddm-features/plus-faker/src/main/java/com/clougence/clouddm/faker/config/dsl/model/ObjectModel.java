@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 对象结构
+ * Object structure
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2023-02-14
  */

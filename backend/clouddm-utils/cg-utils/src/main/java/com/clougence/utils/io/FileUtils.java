@@ -28,7 +28,7 @@ import java.util.List;
 import com.clougence.utils.io.reader.ReversedLinesFileReader;
 
 /**
- * 文件工具
+ * File Tool
  * @version : 2011-6-3
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -783,17 +783,17 @@ public class FileUtils {
         }
     }
 
-    /** 依据 baseDir 向下遍历目录并寻找符合 test 的结果 */
+    /** Run through directories down by baseDir and find results that match test */
     public static List<File> walkDown(File baseDir, WalkFilter test) {
         return walk(baseDir, true, test);
     }
 
-    /** 依据 baseDir 向上遍历目录并寻找符合 test 的结果 */
+    /** Run through directories up and find results that match test according to baseDir */
     public static List<File> walkUp(File baseDir, WalkFilter test) {
         return walk(baseDir, false, test);
     }
 
-    /** 依据 baseDir 遍历目录并寻找符合 test 的结果，goDown 为 true 表示向下遍历，为 false 表示向上遍历 */
+    /** GoDown is true for the baseDir binary and looks for results that match test. GoDown is true for the bottom and false for the top */
     public static List<File> walk(File baseDir, boolean goDown, WalkFilter filter) {
         if (baseDir == null) {
             return Collections.emptyList();

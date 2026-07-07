@@ -323,11 +323,11 @@ public class VerDef implements DriverVersion {
 
             String absolutePath = StringUtils.trimToNull(fileDef.getAbsolutePath());
             if (absolutePath != null && new File(absolutePath).isAbsolute()) {
-                return;
+                continue;
             }
 
             if (this.localDir == null) {
-                return;
+                continue;
             }
 
             fileDef.setAbsolutePath(new File(this.localDir, relativePath).getAbsolutePath());

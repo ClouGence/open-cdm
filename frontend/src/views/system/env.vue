@@ -2,11 +2,6 @@
   <div class="env">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb>
-            <BreadcrumbItem>{{ $t('huan-jing-guan-li') }}</BreadcrumbItem>
-          </Breadcrumb>
-        </div>
         <div class="content">
           <div class="option border-radius-card">
             <div class="left">
@@ -17,23 +12,13 @@
                 :placeholder="$t('qing-shu-ru-huan-jing-ming-cheng-cha-xun')"
                 @on-keydown="handleEnterSearch"
               ></Input>
-              <Button :loading="loading" @click="listEnv('init')" type="primary">
+              <Button :loading="loading" @click="listEnv('init')" type="primary" ghost>
                 {{ $t('cha-xun') }}
               </Button>
             </div>
             <div class="right">
-              <Button
-                @click="handleShowAddEnv"
-                type="primary"
-                ghost
-                style="margin-right: 10px"
-                icon="md-add"
-                v-if="myAuth.includes('RDP_ENV_MANAGE')"
-              >
+              <Button @click="handleShowAddEnv" type="primary" style="margin-right: 10px" icon="md-add" v-if="myAuth.includes('RDP_ENV_MANAGE')">
                 {{ $t('xin-jian-huan-jing') }}
-              </Button>
-              <Button @click="listEnv('init')">
-                <CustomIcon type="icon-v2-Refresh" v-if="!loading" />
               </Button>
             </div>
           </div>
@@ -187,6 +172,9 @@
               <template #sqlLimit="{ row }">
                 <div class="sql-limit-container">
                   <a-switch v-model:checked="row.allowAllStatements" @change="handleAllowAllStatementsChange(row)" />
+                  <span :class="row.allowAllStatements ? 'ticket-status-text' : 'ticket-status-text-error'">
+                    {{ row.allowAllStatements ? $t('yi-qi-yong') : $t('wei-qi-yong') }}
+                  </span>
                 </div>
               </template>
 
@@ -328,7 +316,7 @@
     >
       <Alert type="warning" v-if="!specList.length">
         {{ $t('dang-qian-mei-you-ke-yong-de-an-quan-gui-fan-qing-xian-qu') }}
-        <router-link to="/system/dmspeclist?type=create">{{ $t('an-quan-gui-fan-ye-mian') }}</router-link>
+        <router-link to="/data-access/rules?tab=security&type=create">{{ $t('an-quan-gui-fan-ye-mian') }}</router-link>
         {{ $t('chuang-jian') }}
       </Alert>
       <Form ref="specForm" :model="specData" :rules="specDataValidate">
@@ -360,9 +348,8 @@
 </template>
 
 <script>
-import { h, resolveComponent } from 'vue';
 import { mapState } from 'vuex';
-import deepClone from 'lodash.clonedeep';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 import { Tooltip } from 'view-ui-plus';
 import { handleCopy } from '@/utils/clipboard';
 import { APPROVAL_TYPE_I18N } from '@/const';
@@ -429,7 +416,7 @@ export default {
         check_spec_id: ''
       },
       specDataValidate: {
-        check_spec_id: [{ required: true, message: '安全规范不能为空' }]
+        check_spec_id: [{ required: true, message: '安全规则不能为空' }]
       },
       specList: [],
       showEnableSpecModal: false,
@@ -488,31 +475,7 @@ export default {
           align: 'left'
         },
         {
-          renderHeader: () => {
-            return h(
-              'div',
-              {
-                style: { display: 'flex', alignItems: 'center', gap: '4px' }
-              },
-              [
-                this.$t('yu-ju-xian-zhi'),
-                h(
-                  resolveComponent('a-tooltip'),
-                  {
-                    placement: 'top'
-                  },
-                  {
-                    title: () => this.$t('shi-fou-yun-xu-cha-xun-yi-wai-qi-ta-lei-xing-yu-ju-tong-guo-kong-zhi-tai-shang-zhi-xing'),
-                    default: () =>
-                      h(resolveComponent('CustomIcon'), {
-                        type: 'icon-v2-help',
-                        class: 'help-icon'
-                      })
-                  }
-                )
-              ]
-            );
-          },
+          title: this.$t('yu-ju-xian-zhi') || '控制台只读',
           slot: 'sqlLimit',
           width: 150,
           align: 'left'
@@ -692,7 +655,7 @@ export default {
     async handleSwitchSpecChange(row) {
       this.currentEnv = row;
       if (!row.secDesVO.openSec) {
-        const res = await this.$services.dmDataSourceListSpec({
+        const res = await this.$services.rdpDsEnvListSpec({
           data: {}
         });
         if (res.success) {
@@ -725,7 +688,7 @@ export default {
       });
 
       if (res.success) {
-        this.$Message.success(`环境 ${this.currentEnv.envName} 上的安全规范已停用`);
+        this.$Message.success(`环境 ${this.currentEnv.envName} 上的安全规则已停用`);
         this.handleCloseModal();
         await this.listEnv();
       } else {
@@ -770,7 +733,7 @@ export default {
                 specName = spec.name;
               }
             });
-            this.$Message.success(`环境 ${this.currentEnv.envName} 上已启用 ${specName} 作为安全规范`);
+            this.$Message.success(`环境 ${this.currentEnv.envName} 上已启用 ${specName} 作为安全规则`);
             this.handleCloseModal();
             await this.listEnv();
           } else {
@@ -1042,16 +1005,6 @@ export default {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.help-icon {
-  font-size: 14px;
-  color: #999;
-  cursor: pointer;
-
-  &:hover {
-    color: #1890ff;
-  }
 }
 
 .ticket-text-container {

@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.dsfamily.execute.AbstractRdbUmiService;
-import com.clougence.clouddm.ds.mongodb.parser.MongoDslProvider;
-import com.clougence.dslpaser.antlr.DslProvider;
 import com.clougence.schema.umi.service.RdbUmiServiceDm;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.schema.umi.struts.Value;
@@ -48,7 +46,6 @@ public class MongoUmiServiceDm extends AbstractRdbUmiService<MongoMetaProviderDm
         String schema = StringUtils.toString(levelsParam.get(UmiTypes.Schema));
         switch (leafType) {
             case Table:
-                DslProvider instance = MongoDslProvider.INSTANCE;
                 return this.metadataSupplier.eGet().selectTables(schema);
             case View:
                 return this.metadataSupplier.eGet().selectViews(schema);

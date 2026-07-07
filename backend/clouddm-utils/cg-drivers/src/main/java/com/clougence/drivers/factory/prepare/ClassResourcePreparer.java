@@ -46,6 +46,10 @@ public class ClassResourcePreparer extends AbstractResourcePreparer {
         String classResource = driverResource.getCoordinate().replace(".", "//") + ".class";
         try (InputStream inputStream = classLoader.getResourceAsStream(classResource)) {
             driverResource.setPrepared(inputStream != null);
+            if (inputStream == null) {
+                log.error("driver class resource is not prepared, class not found, family={}, version={}, coordinate={}",//
+                        driverVersion.getFamilyName(), driverVersion.getVersion(), driverResource.getCoordinate());
+            }
         } catch (IOException e) {
             log.error("Failed to load resource {}", classResource, e);
             driverResource.setPrepared(false);

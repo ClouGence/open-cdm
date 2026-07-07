@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.clougence.clouddm.worker.component.rsocket;
+ */
+package com.clougence.clouddm.worker.component.rsocket;
 
 import java.io.IOException;
 
@@ -33,26 +34,43 @@ public class DmClientAuthManager implements RSocketClientAuthManager {
 
     private ConnAuthDTO loadGlobalConf(boolean asServer) throws IOException {
         if (this.authInfo != null) {
+            validateGlobalConf(this.authInfo, asServer);
             return this.authInfo;
         }
 
         synchronized (this) {
             if (this.authInfo != null) {
+                validateGlobalConf(this.authInfo, asServer);
                 return this.authInfo;
             }
 
             this.authInfo = GlobalConfUtils.loadGlobalConf();
-            if (asServer) {
-                if (StringUtils.isBlank(this.authInfo.getConsoleHost())) {
-                    throw new IllegalArgumentException("properties console domain in global config (" + this.authInfo.getGlobalConfResource() + ") are empty.");
-                }
-            } else {
-                if (StringUtils.isBlank(this.authInfo.getWsn()) || StringUtils.isBlank(this.authInfo.getAk()) || StringUtils.isBlank(this.authInfo.getSk())) {
-                    throw new IllegalArgumentException("properties in global config (" + this.authInfo + ") are empty.");
-                }
-            }
+            validateGlobalConf(this.authInfo, asServer);
 
             return this.authInfo;
+        }
+    }
+
+    private void validateGlobalConf(ConnAuthDTO authInfo, boolean asServer) {
+        StringBuilder missingKeys = new StringBuilder();
+        appendMissingKey(missingKeys, GlobalConfUtils.CLOUGENCE_AK, authInfo.getAk());
+        appendMissingKey(missingKeys, GlobalConfUtils.CLOUGENCE_SK, authInfo.getSk());
+        appendMissingKey(missingKeys, GlobalConfUtils.WORKER_SEQUENCE_NUMBER, authInfo.getWsn());
+        if (asServer) {
+            appendMissingKey(missingKeys, GlobalConfUtils.CONSOLE_HOST, authInfo.getConsoleHost());
+            appendMissingKey(missingKeys, GlobalConfUtils.CONSOLE_PORT, authInfo.getConsolePort());
+        }
+        if (!missingKeys.isEmpty()) {
+            throw new IllegalArgumentException("sidecar global config is invalid, missing required key(s): " + missingKeys + ". config file: " + authInfo.getGlobalConfResource());
+        }
+    }
+
+    private void appendMissingKey(StringBuilder missingKeys, String key, String value) {
+        if (StringUtils.isBlank(value)) {
+            if (!missingKeys.isEmpty()) {
+                missingKeys.append(", ");
+            }
+            missingKeys.append(key);
         }
     }
 

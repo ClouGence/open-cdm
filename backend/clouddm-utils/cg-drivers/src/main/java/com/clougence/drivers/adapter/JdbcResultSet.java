@@ -680,8 +680,8 @@ class JdbcResultSet implements ResultSet, Closeable {
         if (value == null) {
             return null;
         }
-        // 该方法是为了数据库自定义类型而设计，基本上涉及 SQL STRUCT、REF 或 ARRAY 类型。目前属于不支持的状态。
-        // map 参数中是用来表示数据库自定义类型字段的 java 映射类型。
+        // This method is designed for the database 's own defined type and basically involves SQL STRUT, REF or ARRY types. is currently not supported.
+        // Map parameter is the java map type used to represent the database custom type fields.
         throw new SQLFeatureNotSupportedException("not support getObject(String,Map)");
     }
 
@@ -692,8 +692,8 @@ class JdbcResultSet implements ResultSet, Closeable {
         if (value == null) {
             return null;
         }
-        // 该方法是为了数据库自定义类型而设计，基本上涉及 SQL STRUCT、REF 或 ARRAY 类型。目前属于不支持的状态。
-        // map 参数中是用来表示数据库自定义类型字段的 java 映射类型。
+        // This method is designed for the database 's own defined type and basically involves SQL STRUT, REF or ARRY types. is currently not supported.
+        // Map parameter is the java map type used to represent the database custom type fields.
         throw new SQLFeatureNotSupportedException("not support getObject(String,Map)");
     }
 

@@ -37,7 +37,7 @@ import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.team.provider.wechat.client.WechatApi;
 import com.clougence.clouddm.team.provider.wechat.client.WechatClient;
 import com.clougence.clouddm.team.provider.wechat.constants.WechatConfigKey;
-import com.clougence.clouddm.team.provider.wechat.constants.WechatI18nKey2;
+import com.clougence.clouddm.team.provider.wechat.constants.WechatI18nKeys;
 import com.clougence.clouddm.team.provider.wechat.constants.approval.WechatConstant;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -59,7 +59,7 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
     @Override
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) {
         // fetch config
-        List<ConfigData> configList = configService.fetchSettings(ownerUid, Arrays.asList(//
+        List<ConfigData> configList = configService.fetchSettings(Arrays.asList(//
                 WechatConfigKey.ApprovalEnable.getConfigKey(),//
                 WechatConfigKey.ApprovalCorpId.getConfigKey(),//
                 WechatConfigKey.ApprovalSecret.getConfigKey(),//
@@ -114,7 +114,7 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
     public LifeSpiResponse status(String ownerUid, LifeSpiRequest requestDTO) {
         LifeSpiStatus dto = new LifeSpiStatus();
         dto.setRunning(this.clientMap.containsKey(ownerUid));
-        dto.setNameKey(WechatI18nKey2.WECHAT_APPROVAL_SERVICES_NAME);
+        dto.setNameKey(WechatI18nKeys.WECHAT_APPROVAL_SERVICES_NAME);
         return new LifeSpiResponse(JsonUtils.toJson(dto));
     }
 
@@ -187,14 +187,14 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
                     TextValue.from(safeLength(changeForm.getTicketTitle(), 400, true)),//
                     TextValue.from(safeLength(changeForm.getTicketDesc(), 4000, false)), //
                     TextValue.from(safeLength(changeForm.getTargetDs(), 400, true)),   //
-                    TextValue.from(safeLength(changeForm.getProjectName(), 400, true)),//
+                    TextValue.from(safeLength(changeForm.getFlowName(), 400, true)),//
                     TextValue.from(safeLength(changeForm.getChangeName(), 400, true)), //
                     TextValue.from(safeLength(changeForm.getBranch(), 400, true)),     //
                     TextValue.from(safeLength(changeForm.getExecuteSql(), 4000, false))  //
             );
         } else {
             String message = String.format("Unsupported approval form type %s", form.getClass().getName());
-            throw ThirdPartyApiException.as().with(ThirdPartyApiErrorType.OTHER, WechatI18nKey2.WECHAT_CALL_API_UNKNOWN_ERROR, message);
+            throw ThirdPartyApiException.as().with(ThirdPartyApiErrorType.OTHER, WechatI18nKeys.WECHAT_CALL_API_UNKNOWN_ERROR, message);
         }
     }
 
@@ -229,7 +229,7 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
     @Override
     public ApprovalInstanceInfo getLastInfo(String ownerUid, String identity) throws ThirdPartyApiException {
         if (StringUtils.isBlank(identity)) {
-            throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_APPROVAL_INSTANCE_IS_EMPTY);
+            throw ThirdPartyApiException.as().with(WechatI18nKeys.WECHAT_APPROVAL_INSTANCE_IS_EMPTY);
         }
 
         WechatApi approvalApi = this.wechatApi(ownerUid);
@@ -296,7 +296,7 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
         String templateListConfigKey = WechatConfigKey.ApprovalTemplateList.getConfigKey();
         String templateLangConfigKey = WechatConfigKey.ApprovalTemplateLang.getConfigKey();
 
-        List<ConfigData> configList = this.configService.fetchSettings(ownerUid, Arrays.asList(//
+        List<ConfigData> configList = this.configService.fetchSettings(Arrays.asList(//
                 templateListConfigKey,//
                 templateLangConfigKey //
         ));
@@ -328,6 +328,6 @@ public class WechatApprovalProviderSpi implements ApprovalProviderSpi {
 
     @Override
     public void cancelApprovalInst(String ownerUid, ApprovalInstanceCancelInfo info) throws ThirdPartyApiException {
-        throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_NOT_SUPPORT_CLOSE_TICKET);
+        throw ThirdPartyApiException.as().with(WechatI18nKeys.WECHAT_NOT_SUPPORT_CLOSE_TICKET);
     }
 }

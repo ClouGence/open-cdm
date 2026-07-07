@@ -25,7 +25,7 @@ import com.clougence.utils.RandomUtils;
 import com.clougence.utils.ref.Range;
 
 /**
- * 控制操作生成比率
+ * Control Operations Generation Ratio
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -96,7 +96,7 @@ public class RandomRatio<T> {
         }
     }
 
-    /** 拥有上下界的一个范围 */
+    /** It has a range up and down. */
     protected static class Boundary<V> extends Range<Long> {
 
         private final V value;

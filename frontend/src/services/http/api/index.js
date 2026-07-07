@@ -21,7 +21,7 @@ import { billingApi } from '@/services/http/api/billing';
 import { calculateApi } from '@/services/http/api/calculate';
 import { datasourceApi } from '@/services/http/api/datasource';
 import { devopsApi } from '@/services/http/api/devops';
-import { projectApi } from '@/services/http/api/project';
+import { cicdApi } from '@/services/http/api/cicd';
 import { desktopApi } from '@/services/http/api/desktop';
 import { dataAuthApi } from '@/services/http/api/dataAuth';
 import { dsEnvApi } from '@/services/http/api/dsEnv';
@@ -53,6 +53,7 @@ import { financeApi } from '@/services/http/api/finance';
 import { taskTemplateApi } from '@/services/http/api/taskTemplate';
 import { taskTemplateDetailApi } from '@/services/http/api/taskTemplateDetail';
 import { metaSchemaApi } from '@/services/http/api/metaSchema';
+import { sshConfigApi } from '@/services/http/api/sshConfig';
 
 export const api = {
   ...authApi,
@@ -81,7 +82,7 @@ export const api = {
   ...billingApi,
   ...calculateApi,
   ...devopsApi,
-  ...projectApi,
+  ...cicdApi,
   ...desktopApi,
   ...dsEnvApi,
   ...envParamApi,
@@ -111,5 +112,6 @@ export const api = {
   ...taskTemplateApi,
   ...taskTemplateDetailApi,
   ...transferApi,
-  ...metaSchemaApi
+  ...metaSchemaApi,
+  ...sshConfigApi
 };

@@ -18,7 +18,7 @@ package com.clougence.schema.umi.struts;
 import java.util.Map;
 
 /**
- * 属性Keys。
+ * Attribute Keys.
  * @version : 2020-01-22
  * @author 赵永春 (zyc@hasor.net)
  */

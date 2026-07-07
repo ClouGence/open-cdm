@@ -21,7 +21,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.ds.oracle.execute.OraHooks;
+import com.clougence.clouddm.dsfamily.oracle.execute.OraHooks;
 import com.clougence.clouddm.sdk.execute.meta.DsMetaService;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;

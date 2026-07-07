@@ -33,7 +33,7 @@ import com.clougence.utils.ThreadUtils;
 import lombok.Getter;
 
 /**
- * 压力引擎
+ * Pressure engine
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -76,7 +76,7 @@ public class FakerEngine {
         }
     }
 
-    /** 各 worker 否退出？*/
+    /** Each worker quits? */
     public boolean isExitSignal() { return !this.status.get().equals(FakerRunStatus.RUNNING); }
 
     public boolean isPause() { return this.status.get().equals(FakerRunStatus.PAUSE); }

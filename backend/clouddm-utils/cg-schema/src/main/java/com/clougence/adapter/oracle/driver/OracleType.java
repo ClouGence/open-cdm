@@ -19,7 +19,7 @@ import java.sql.JDBCType;
 import java.sql.SQLType;
 
 /**
- * 参考 ojdbc8-19.8.0.0.jar
+ * Reference ojdbc8-19.8.0.0.jar
  */
 public enum OracleType implements SQLType {
 
@@ -143,7 +143,7 @@ public enum OracleType implements SQLType {
             Integer typeNumber = this.getVendorTypeNumber();
             return JDBCType.valueOf(typeNumber);
         } catch (Exception e) {
-            return null; // 只有 typeNumber 不存在这一种情况，因此吃掉 error。
+            return null; // Only typenumber does not exist, so eater.
         }
     }
 }

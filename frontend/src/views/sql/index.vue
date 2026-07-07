@@ -1,5 +1,5 @@
 <template>
-  <div class="sql-home-container">
+  <div class="sql-home-container sql-workspace">
     <div class="content">
       <data-source-tree
         ref="dataSourceTree"
@@ -25,11 +25,13 @@
                     <div @contextmenu.prevent.stop="onContextmenu($event, tab)">
                       <div
                         v-if="tab.isEditing"
-                        style="position: absolute; width: 8px; height: 8px; border-radius: 50%; background: green; left: 13px"
+                        style="position: absolute; width: 8px; height: 8px; border-radius: 50%; background: var(--primary-color); left: 13px"
                       />
                       <cc-svg-icon name="TABLE" v-if="tab.icon === 'Table'" style="display: inline-block" />
                       <CustomIcon :type="tab.icon" v-else />
-                      <span style="margin-left: 5px; margin-right: 5px">{{ tab.title }}</span>
+                      <Tooltip :content="getTabDisplayTitle(tab)" transfer placement="top">
+                        <span class="tab-title-text">{{ getTabDisplayTitle(tab) }}</span>
+                      </Tooltip>
                       <CustomIcon
                         class="close-icon"
                         type="icon-v2-close2"
@@ -41,15 +43,17 @@
                   </template>
                 </a-tab-pane>
                 <template #rightExtra>
-                  <a-dropdown trigger="click" placement="bottom" v-if="tabs.length">
+                  <a-dropdown trigger="click" placement="bottom" overlayClassName="sql-tab-dropdown" v-if="tabs.length">
                     <CustomIcon type="icon-v2-ArrowDown" hoverStyle customStyle="icon-v2-hover" />
                     <template #overlay>
                       <a-menu :selectedKeys="[active]">
                         <a-menu-item v-for="tab in tabs" :key="tab.key" :name="tab.key" @click="handleChangeTab(tab.key)">
                           <div class="dropdown-item">
-                            <CustomIcon :type="tab.icon" />
-                            <span style="margin-left: 5px">{{ tab.title }}</span>
-                            <span class="truncate" style="margin-left: 5px">
+                            <CustomIcon :type="tab.icon" class="dropdown-item-icon" />
+                            <Tooltip :content="getTabDisplayTitle(tab)" transfer placement="top">
+                              <span class="dropdown-item-title truncate">{{ getTabDisplayTitle(tab) }}</span>
+                            </Tooltip>
+                            <span class="dropdown-item-desc truncate">
                               [{{ tab.node.INSTANCE.attr.dsInstanceDesc || tab.node.INSTANCE.attr.dsInstance }}]
                             </span>
                             <div class="dropdown-item-close">
@@ -64,9 +68,9 @@
               </a-tabs>
             </div>
           </div>
-          <!-- 空状态 -->
+          <!-- Empty Status -->
           <div v-if="!tabs.length" class="empty-state-container">
-            <SqlEmptyState :has-datasource="hasDatasource" />
+            <SqlEmptyState />
           </div>
 
           <div class="query-content-container" v-if="tabs.length">
@@ -157,7 +161,7 @@
         </div>
       </div>
     </div>
-    <!-- 隐藏，避免双重报错 -->
+    <!-- Hide, avoid double-counting. -->
     <CCModal v-model="showConnectedModal" :title="$t('cuo-wu')" :zIndex="1100">
       <div>{{ connectedInstance.connectedMsg }}</div>
       <template #footer>
@@ -173,7 +177,7 @@
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons-vue';
 import Loading from 'vue-loading-overlay';
 import 'vue-loading-overlay/dist/css/index.css';
-import deepClone from 'lodash.clonedeep';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 import { Modal } from 'ant-design-vue';
 import { mapGetters, mapMutations, mapState } from 'vuex';
 import dayjs from 'dayjs';
@@ -365,9 +369,12 @@ export default {
     async getDataSourceData() {
       this.treeData = [];
       await this.listLevels();
+      const hasStoredExpandedKeys = this.$refs.dataSourceTree?.hasStoredExpandedKeys;
       if (this.treeData.length) {
         this.hasDatasource = true;
-        await this.listLevels(this.treeData[0], {}, () => {});
+        if (!hasStoredExpandedKeys) {
+          await this.listLevels(this.treeData[0], {}, () => {});
+        }
       }
     },
     setDataViewImage() {
@@ -655,7 +662,7 @@ export default {
 
       const leafList = [];
 
-      // 实例名称是否合法
+      // Invalid Name of Example
       const noLegal = node?.key?.includes('/');
       if (noLegal) {
         this.$Message.warning(this.$t('fa-mi-ming-cheng-bu-zhi-chi'));
@@ -723,6 +730,7 @@ export default {
       if (this.disableAddTab()) {
         return;
       }
+      this.syncCurrentEditorTextToTab();
       this.storeQueryTabs();
       const prefix = `tab_${type}${options.editorType ? `_${options.editorType}` : ''}`;
       const prefixKey = `${prefix}.${node.key}`;
@@ -800,14 +808,8 @@ export default {
       switch (type) {
         case TAB_TYPE.QUERY:
           tab.schemaParentKey = node._parent.key;
-          // 确保 children 是数组且包含对象
-          if (Array.isArray(node._parent.children)) {
-            tab.selectOptions = node._parent.children
-              .filter((child) => child && typeof child === 'object' && child.title)
-              .map((child) => ({ value: child.title, label: child.title }));
-          } else {
-            tab.selectOptions = [];
-          }
+          // Make sure Children is an array and contains objects
+          tab.selectOptions = this.buildSchemaOptions(node._parent.children, node._parent);
           tab.leafGroup = [];
           tab.selectValue = node.title;
           tab.selectedTable = null;
@@ -825,7 +827,7 @@ export default {
           tab.icon = node.INSTANCE.attr.dsType;
           tab.sessionId = '';
           tab.executeInfo = [];
-          // 根据节点层级决定使用哪个 leafGroup
+          // Which side group to use according to node level
           const lastLevel = node.levels[node.levels.length - 1];
           let leafGroup = this.getLeafGroup(tab.node.INSTANCE.attr.dsType, lastLevel);
 
@@ -926,19 +928,40 @@ export default {
       }
       this.storeQueryTabs();
     },
+    getTabDisplayTitle(tab) {
+      if (!tab?.schemaParentKey) return tab?.title || '';
+      const parentNode = this.$refs.dataSourceTree?.handleGetNode(tab.schemaParentKey);
+      let catalogTitle = '';
+      if (parentNode && parentNode.nodeType === 'CATALOG') {
+        catalogTitle = parentNode.title;
+      } else if (tab.node?.levels?.length) {
+        const catalogLevel = tab.node.levels.find((level) => level === 'CATALOG');
+        if (catalogLevel && tab.node[catalogLevel]?.name) {
+          catalogTitle = tab.node[catalogLevel].name;
+        }
+      }
+      if (catalogTitle) {
+        return catalogTitle + '.' + tab.title;
+      }
+      return tab.title;
+    },
+    buildSchemaOptions(children, parentNode) {
+      if (!Array.isArray(children)) return [];
+      let prefix = '';
+      if (parentNode && parentNode.nodeType === 'CATALOG') {
+        prefix = parentNode.title + '.';
+      }
+      return children
+        .filter((child) => child && typeof child === 'object' && child.title)
+        .map((child) => ({ value: child.title, label: prefix + child.title }));
+    },
     refreshTabSelectOptions(key) {
       const node = this.$refs.dataSourceTree.handleGetNode(key);
       if (node.key && node._parent && node._parent.children) {
         this.tabs.forEach((tab) => {
           if (tab.type === TAB_TYPE.QUERY && tab.schemaParentKey === key) {
-            // 确保 children 是数组且包含对象
-            if (Array.isArray(node.children)) {
-              tab.selectOptions = node.children
-                .filter((child) => child && typeof child === 'object' && child.title)
-                .map((child) => ({ value: child.title, label: child.title }));
-            } else {
-              tab.selectOptions = [];
-            }
+            // Make sure Children is an array and contains objects
+            tab.selectOptions = this.buildSchemaOptions(node.children, node);
           }
         });
         this.storeQueryTabs();
@@ -1022,7 +1045,7 @@ export default {
               tab.executeInfo = [];
               tab.msgFromWs = false;
               tab.msgContent = '';
-              // 确保 selectOptions 存在
+              // Ensures that physical options exist
               if (!tab.selectOptions) {
                 tab.selectOptions = [];
               }
@@ -1063,14 +1086,20 @@ export default {
         this.tabManager.setTabData({ uid, id: this.currentTab.tabId, data: this.currentTab });
       }
     },
+    syncCurrentEditorTextToTab() {
+      if (this.currentTab.type !== TAB_TYPE.QUERY) {
+        return;
+      }
+      const sqlViewer = this.$refs.sqlViewer;
+      if (!sqlViewer || !sqlViewer.monacoEditor) {
+        return;
+      }
+      this.currentTab.text = sqlViewer.monacoEditor.getValue();
+    },
     storeQueryTabs() {
       console.log('store query tabs');
       const { uid } = this.userInfo;
       const key = `clouddm_new_tabs_${uid}`;
-
-      if (this.currentTab.type === TAB_TYPE.QUERY && this.$refs.sqlViewer && this.$refs.sqlViewer.monacoEditor) {
-        this.currentTab.text = this.$refs.sqlViewer.monacoEditor.getValue();
-      }
 
       const tabData = deepClone(this.tabs);
 
@@ -1367,16 +1396,17 @@ export default {
       }
 
       console.log('change tab', activeKey);
+      this.syncCurrentEditorTextToTab();
       const changeTab = async (key) => {
         if (this.$refs['data-view']) {
           this.$refs['data-view'].handleEmptyUpdate();
         }
         this.$nextTick(async () => {
+          this.storeQueryTabs();
           this.tabs.forEach((item) => {
             if (item.key === key) {
               clearAllPending();
               this.cancelAllLoading();
-              this.storeQueryTabs();
               this.currentTab = item;
               this.active = key;
               if (this.$refs.tableList && item.leafType && item[item.leafType] && item[item.leafType].treeData) {
@@ -1386,7 +1416,7 @@ export default {
             }
           });
           await this.handleGetDsSetting();
-          // 保证刷新浏览器后，切换tab也能正常刷新出来数据刷新
+          // Make sure that when you refresh the browser, switch the tab and get the data up and up.
           if (this.currentTab.type === TAB_TYPE.QUERY && this.currentTab.connected) {
             await this.listLeaf();
           }
@@ -1407,7 +1437,7 @@ export default {
         try {
           const res = await this.$services.dmDataSourceTestConnect({
             data: {
-              levels: [this.connectedInstance.ENV.id, this.connectedInstance.INSTANCE.id]
+              dataSourceId: this.connectedInstance.INSTANCE.id
             }
           });
         } catch (e) {
@@ -1420,7 +1450,7 @@ export default {
         try {
           const res = await this.$services.dmDataSourceTestConnect({
             data: {
-              levels: [this.currentTab.node.ENV.id, this.currentTab.node.INSTANCE.id]
+              dataSourceId: this.currentTab.node.INSTANCE.id
             }
           });
         } catch (e) {
@@ -1430,7 +1460,7 @@ export default {
     },
     async handleGetDsSetting(restore = false) {
       if (this.currentTab && this.currentTab.dsId) {
-        // 如果已经有 websocket 返回的 msgContent，就不调用接口
+        // Do not call interface if websocket returns msgContent
         const hasWsMessage = this.currentTab.msgFromWs;
 
         if (hasWsMessage) {
@@ -1647,6 +1677,13 @@ export default {
       margin: 0;
     }
 
+    :deep(.ant-tabs-nav-list) {
+      align-items: flex-end;
+      min-height: 40px;
+      padding-top: 6px;
+      box-sizing: border-box;
+    }
+
     :deep(.ant-tabs-nav-more) {
       display: none;
     }
@@ -1658,37 +1695,30 @@ export default {
     :deep(.ant-tabs-extra-content) {
       height: 40px;
       line-height: 40px;
-      border-bottom: 1px solid #ccc;
-      padding-right: 5px;
+      border-bottom: 1px solid var(--border-primary);
+      padding-right: 8px;
     }
 
-    // 修改tab下边框颜色，使其更深
     :deep(.ant-tabs-nav-wrap) {
-      border-bottom: 1px solid #ccc !important;
+      border-bottom: 1px solid var(--border-primary) !important;
     }
 
-    :deep(.ant-tabs > .ant-tabs-nav .ant-tabs-nav-list) {
-      height: 90%;
-      top: 3px;
-    }
-
-    // 修改未被选中的tab颜色，使其更深
     :deep(.ant-tabs-tab) {
-      background-color: #f5f5f5 !important;
-      border-color: #d9d9d9 !important;
-      color: #666666 !important;
+      background-color: var(--bg-tertiary) !important;
+      border-color: var(--border-primary) !important;
+      color: var(--text-secondary) !important;
+      border-radius: 6px 6px 0 0 !important;
+      padding: 5px 8px !important;
 
-      // hover 时不再加深背景色，只让文字变为主题色
       &:hover {
         color: var(--primary-color) !important;
       }
     }
 
-    // 修改被选中的tab颜色
     :deep(.ant-tabs-tab-active) {
-      background-color: #ffffff !important;
-      border-bottom-color: #666666 !important;
-      color: #333333 !important;
+      background-color: var(--bg-primary) !important;
+      border-bottom-color: var(--bg-primary) !important;
+      color: var(--text-primary) !important;
     }
 
     .tab-menus {
@@ -1697,6 +1727,18 @@ export default {
       width: 32px;
     }
   }
+}
+
+.tab-title-text {
+  display: inline-block;
+  max-width: 110px;
+  margin-left: 4px;
+  margin-right: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+  line-height: 1.4;
 }
 
 .schema-select-style {
@@ -1728,10 +1770,32 @@ export default {
 
 .dropdown-item {
   display: flex;
-  justify-content: right;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  width: 100%;
+  min-width: 240px;
+
+  .dropdown-item-icon {
+    flex-shrink: 0;
+  }
+
+  .dropdown-item-title {
+    flex-shrink: 1;
+    min-width: 0;
+    max-width: 160px;
+  }
+
+  .dropdown-item-desc {
+    flex-shrink: 1;
+    min-width: 0;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
 
   .dropdown-item-close {
-    padding-left: 5px;
+    margin-left: auto;
+    flex-shrink: 0;
     width: 16px;
   }
 }
@@ -1742,6 +1806,10 @@ export default {
   align-items: center;
   justify-content: center;
   min-height: calc(100vh - 200px);
+}
+
+:global(.sql-tab-dropdown .ant-dropdown-menu-item) {
+  padding: 6px 12px;
 }
 
 [data-theme='dark'] {

@@ -42,9 +42,12 @@ import lombok.extern.slf4j.Slf4j;
 public class ChHooks implements SessionHook {
 
     private final boolean changeSchema;
+    private final boolean transaction;
 
     public ChHooks(DataSourceConfig config){
-        this.changeSchema = new ChSupportSpi().supportChangeSchema(config) == RdbSupportLevel.Allow;
+        ChSupportSpi supportSpi = new ChSupportSpi();
+        this.changeSchema = supportSpi.supportChangeSchema(config) == RdbSupportLevel.Allow;
+        this.transaction = supportSpi.supportChangeAutoCommit(config) == RdbSupportLevel.Allow;
     }
 
     @Override
@@ -89,8 +92,11 @@ public class ChHooks implements SessionHook {
     }
 
     @Override
-    public void setAutoCommit(Connection conn, boolean autoCommit) {
-        throw new UnsupportedOperationException("ClickHouse Unsupported.");
+    public void setAutoCommit(Connection conn, boolean autoCommit) throws SQLException {
+        if (!this.transaction) {
+            throw new UnsupportedOperationException("ClickHouse Driver Unsupported.");
+        }
+        conn.setAutoCommit(autoCommit);
     }
 
     @Override
@@ -100,12 +106,18 @@ public class ChHooks implements SessionHook {
 
     @Override
     public void commit(Connection conn) throws SQLException {
-
+        if (!this.transaction) {
+            throw new UnsupportedOperationException("ClickHouse Driver Unsupported.");
+        }
+        conn.commit();
     }
 
     @Override
     public void rollback(Connection conn) throws SQLException {
-
+        if (!this.transaction) {
+            throw new UnsupportedOperationException("ClickHouse Driver Unsupported.");
+        }
+        conn.rollback();
     }
 
     @Override

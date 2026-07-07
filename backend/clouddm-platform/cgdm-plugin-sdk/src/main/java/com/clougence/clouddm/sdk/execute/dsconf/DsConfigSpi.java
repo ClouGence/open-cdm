@@ -15,14 +15,53 @@
  */
 package com.clougence.clouddm.sdk.execute.dsconf;
 
+import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
+import com.clougence.clouddm.base.metadata.ds.SslMode;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.sdk.Spi;
 
 public interface DsConfigSpi extends Spi {
 
-    DataSourceConfig newConfig(Map<String, String> configMap);
+    String ENV_ID_FIELD              = "envId";
+    String CLUSTER_ID_FIELD          = "clusterId";
+    String ADDRESS_FIELD             = "address";
+    String PORT_FIELD                = "port";
+    String TRANSACTION_CONTROL_FIELD = "transactionControl";
+    String CLIENT_TIME_ZONE_FIELD    = "clientTimeZone";
+    String SSH_TUNNEL_FIELD          = "sshTunnel";
 
-    DataSourceConfig fillConfig(DataSourceConfig dsConfig, DsConfigMap dsConfigMap);
+    boolean supportSSL();
+
+    boolean supportSSH();
+
+    boolean supportTx();
+
+    List<SecurityType> securityTypes();
+
+    List<SslMode> sslModeSet();
+
+    List<String> certificateTextFileTypes(SslMode sslMode, String configName);
+
+    List<String> certificateBinaryFileTypes(SslMode sslMode, String configName);
+
+    String defaultPort();
+
+    //
+
+    void customizePanels(Map<DsConfigGroup, UiPanel> panels);
+
+    Map<String, String> configMapFromUi(Map<String, String> configMap, Map<String, String> uiMap);
+
+    void customizeUiMap(Map<String, String> uiMap, Map<String, String> configMap);
+
+    //
+
+    Class<? extends DataSourceConfig> newConfig();
+
+    DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig);
 }

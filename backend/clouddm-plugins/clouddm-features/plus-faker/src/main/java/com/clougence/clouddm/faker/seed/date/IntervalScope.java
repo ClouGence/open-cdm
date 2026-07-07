@@ -18,7 +18,7 @@ package com.clougence.clouddm.faker.seed.date;
 import com.clougence.utils.StringUtils;
 
 /**
- * 时间增长步长
+ * Long increase in time
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

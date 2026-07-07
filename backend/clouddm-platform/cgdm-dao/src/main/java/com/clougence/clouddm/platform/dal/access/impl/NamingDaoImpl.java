@@ -15,6 +15,8 @@
  */
 package com.clougence.clouddm.platform.dal.access.impl;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.platform.dal.access.ApprovalDal;
@@ -138,6 +140,11 @@ public class NamingDaoImpl implements NamingDao {
         return String.format(namePattern, fixedLenRandomStr(10));
     }
 
+    @Override
+    public String genUploadFileId() {
+        return UUID.randomUUID().toString().replace("-", "");
+    }
+
     /**
      * generator random string with number or character
      */
@@ -151,11 +158,11 @@ public class NamingDaoImpl implements NamingDao {
         for (int i = 0; i < length; i++) {
             flag = (int) (Math.random() * 2);
             if (flag == 0) {
-                // 产生数字
+                // Generate numbers
                 int charVal = (int) (Math.random() * 10 + 48);
                 fixedLenRandomCharArr[i] = (char) charVal;
             } else {
-                // 产生小写字母
+                // Generate lowercase letters
                 int charVal = (int) ((Math.random() * 26) + 97);
                 fixedLenRandomCharArr[i] = (char) charVal;
             }

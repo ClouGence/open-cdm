@@ -7,7 +7,7 @@ export const checkStatus = (res) => {
       return res;
     }
 
-    // 新增如果是bold类型，把header也塞进response
+    // Add a new type, if it's a bold type, and put a header in a represse.
     const isBlobResponse = res.request && res.request.responseType === 'blob';
     const isBlobData = typeof Blob !== 'undefined' && res.data instanceof Blob;
     const isOctetStream = contentType && contentType.indexOf('application/octet-stream') !== -1;
@@ -37,7 +37,7 @@ export const checkStatus = (res) => {
   };
 };
 
-// 从原本的递归写法，到栈迭代
+// From the original recapitulation to the incipient.
 export const trimObj = (obj) => {
   if (obj === null || typeof obj !== 'object') {
     return typeof obj === 'string' ? obj.trim() : obj;

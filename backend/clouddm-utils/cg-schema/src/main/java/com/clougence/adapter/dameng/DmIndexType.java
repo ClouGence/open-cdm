@@ -16,7 +16,7 @@
 package com.clougence.adapter.dameng;
 
 /**
- * 达梦 索引类型
+ * Tamang Index Type
  * @version : 2021-04-29
  * @author 赵永春 (zyc@hasor.net)
  */

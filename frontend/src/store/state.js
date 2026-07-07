@@ -91,15 +91,19 @@ export default {
     success: false
   },
   docUrlPrefix: 'https://www.clougence.com/cc-doc',
-  contactUsUrl: 'https://www.clougence.com/about',
+  contactUsUrl: 'https://www.cdmgr.com/',
   dmDocUrlPrefix: 'https://www.clougence.com/dm-doc',
   bladePipeApply: 'https://www.clougence.com/dm-doc/clouddm',
   myCatLog: [],
   mySystemMenuItems: [],
+  sidebarMenu: {
+    primary: [],
+    groups: []
+  },
   myAuth: [],
   defaultRedirectUrl: '',
   publicKey: '',
   remainTrialDay: null,
   lastChildTableSubOptions: {},
-  theme: 'light' // 当前主题：'light' | 'dark'
+  theme: 'light' // Current theme: 'light' | 'dark'
 };

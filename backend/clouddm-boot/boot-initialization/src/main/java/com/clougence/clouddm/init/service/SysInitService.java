@@ -62,7 +62,6 @@ public class SysInitService {
     private static final String      INIT_WORKFLOW_MODE_KEY       = "clougence.init.workflowMode";
     private static final String      INIT_WORKFLOW_MODE_UPGRADE   = "upgrade";
     private static final String      INIT_DB_CREATE_IF_MISSING    = "clougence.init.db.createIfMissing";
-    private static final String      INIT_DB_REBUILD_IF_NOT_EMPTY = "clougence.init.db.rebuildIfNotEmpty";
     private static final String      JDBC_URL_CONFIG_KEY          = "spring.datasource.jdbcurl";
     private static final String      REQUIRED_DB_CHARSET          = "utf8mb4";
     private static final String      REQUIRED_DB_COLLATION        = "utf8mb4_general_ci";
@@ -72,7 +71,7 @@ public class SysInitService {
     private static final Set<String> RUNTIME_INIT_CONFIG_KEYS     = Set.of( //
             INIT_WORKFLOW_MODE_KEY, //
             INIT_DB_CREATE_IF_MISSING, //
-            INIT_DB_REBUILD_IF_NOT_EMPTY, //
+            InitSeedConstants.RUNTIME_ADMIN_ACCOUNT_KEY, //
             InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY, //
             InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY);
     @Resource
@@ -84,11 +83,11 @@ public class SysInitService {
     /**
      * Tests database connectivity with the temporary parameters submitted by the user.
      */
-    public TestDbResult testDbConnection(String jdbcUrl, String username, String password, String rebuildIfNotEmpty, String confirmDatabaseName) {
+    public TestDbResult testDbConnection(String jdbcUrl, String username, String password) {
         TestDbResult result = new TestDbResult();
         try {
             DatabaseInspection info = inspectDatabase(jdbcUrl, username, password, true);
-            applyInspectionResult(result, info, rebuildIfNotEmpty, confirmDatabaseName);
+            applyInspectionResult(result, info);
         } catch (Exception e) {
             result.setInstalled(false);
             result.setEmpty(false);
@@ -103,7 +102,7 @@ public class SysInitService {
         return result;
     }
 
-    private void applyInspectionResult(TestDbResult result, DatabaseInspection inspection, String rebuildIfNotEmpty, String confirmDatabaseName) {
+    private void applyInspectionResult(TestDbResult result, DatabaseInspection inspection) {
         result.setDatabaseExists(inspection.databaseExists);
         result.setCharsetValid(inspection.charsetValid);
         result.setDatabaseCharset(inspection.databaseCharset);
@@ -135,33 +134,12 @@ public class SysInitService {
             return;
         }
 
-        result.setShowRebuildChoice(true);
-        result.setRebuildPrompt(DmI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_REBUILD_PROMPT.name()));
-
-        if (!"true".equals(rebuildIfNotEmpty) && !"false".equals(rebuildIfNotEmpty)) {
-            return;
-        }
-
+        result.setCanProceed(true);
         result.setMessageType("warning");
-        if ("false".equals(rebuildIfNotEmpty)) {
-            result.setCanProceed(true);
-            result.setMessage(DmI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_USE_EXISTING_WARNING.name()));
-            return;
-        }
-
-        result.setMessage(DmI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_REBUILD_WARNING.name()));
-        result.setRequireConfirmInput(true);
-        result.setConfirmInputLabel(DmI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_REBUILD_CONFIRM_LABEL.name()));
-        result.setConfirmInputExpectedValue(inspection.databaseName);
-        result.setCanProceed(inspection.databaseName.equals(confirmDatabaseName == null ? "" : confirmDatabaseName.trim()));
+        result.setMessage(DmI18nUtils.getMessage(I18nInitFieldKeys.INIT_TEST_DB_USE_EXISTING_WARNING.name()));
     }
 
     public List<String> previewExecutionScripts(Map<String, String> userConfig) {
-        boolean shouldRunAllScripts = Boolean.parseBoolean(resolveConfigValue(userConfig, null, INIT_DB_REBUILD_IF_NOT_EMPTY));
-        if (shouldRunAllScripts) {
-            return DmFlywayInit.listAllScriptNames();
-        }
-
         Properties props = this.defService.loadSystemProperties();
         String jdbcUrl = resolveConfigValue(userConfig, props, "spring.datasource.jdbcurl");
         String username = resolveConfigValue(userConfig, props, "spring.datasource.username");
@@ -204,9 +182,9 @@ public class SysInitService {
         String jdbcUrl = userConfig.get(JDBC_URL_CONFIG_KEY);
         InstallUpgradeLogBus.start("install", jdbcUrl);
         try {
-            log.info("[SysInitService] Applying initialization config, createIfMissing={}, rebuildIfNotEmpty={}, adminEmail={}", //
+            log.info("[SysInitService] Applying initialization config, createIfMissing={}, adminAccount={}, adminEmail={}", //
                     userConfig.getOrDefault(INIT_DB_CREATE_IF_MISSING, "false"),    //
-                    userConfig.getOrDefault(INIT_DB_REBUILD_IF_NOT_EMPTY, "false"), //
+                    userConfig.get(InitSeedConstants.RUNTIME_ADMIN_ACCOUNT_KEY),    //
                     userConfig.get(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY));
             InstallUpgradeLogBus.info("Applying initialization configuration.");
 
@@ -216,31 +194,32 @@ public class SysInitService {
             jdbcUrl = userConfig.getOrDefault(JDBC_URL_CONFIG_KEY, props.getProperty(JDBC_URL_CONFIG_KEY));
             String dbUser = userConfig.getOrDefault("spring.datasource.username", props.getProperty("spring.datasource.username"));
             String dbPass = userConfig.getOrDefault("spring.datasource.password", props.getProperty("spring.datasource.password"));
+            String adminAccount = userConfig.get(InitSeedConstants.RUNTIME_ADMIN_ACCOUNT_KEY);
             String adminEmail = userConfig.get(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY);
             String adminPassword = userConfig.get(InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY);
             boolean createIfMissing = Boolean.parseBoolean(userConfig.getOrDefault(INIT_DB_CREATE_IF_MISSING, "false"));
-            boolean rebuildIfNotEmpty = Boolean.parseBoolean(userConfig.getOrDefault(INIT_DB_REBUILD_IF_NOT_EMPTY, "false"));
             boolean bootstrapAdmin = false;
             List<String> pendingScripts = Collections.emptyList();
 
             if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser)) {
                 DatabaseInspection inspection = inspectDatabase(jdbcUrl, dbUser, dbPass, false);
-                bootstrapAdmin = !inspection.databaseExists || inspection.empty || rebuildIfNotEmpty;
-                log.info("[SysInitService] Initialization target inspection, bootstrapAdmin={}, databaseExists={}, empty={}, rebuildIfNotEmpty={}, adminEmail={}", bootstrapAdmin, inspection.databaseExists, inspection.empty, rebuildIfNotEmpty, adminEmail);
+                bootstrapAdmin = !inspection.databaseExists || inspection.empty;
+                log.info("[SysInitService] Initialization target inspection, bootstrapAdmin={}, databaseExists={}, empty={}, rebuildIfNotEmpty={}, adminAccount={}, adminEmail={}", bootstrapAdmin, inspection.databaseExists, inspection.empty, adminAccount, adminEmail);
 
                 InstallUpgradeLogBus.info("Preparing database.");
-                prepareDatabase(jdbcUrl, dbUser, dbPass, createIfMissing, rebuildIfNotEmpty);
+                prepareDatabase(jdbcUrl, dbUser, dbPass, createIfMissing);
             }
 
             if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser)) {
                 String databaseName = InitDBStatusDetector.getDatabaseName(jdbcUrl);
                 pendingScripts = DmFlywayInit.listUpgradeRequiredScriptNames(jdbcUrl, dbUser, dbPass, databaseName);
-                runFlywayMigration(jdbcUrl, dbUser, dbPass, bootstrapAdmin ? adminEmail : null, bootstrapAdmin ? adminPassword : null);
+                runFlywayMigration(jdbcUrl, dbUser, dbPass, bootstrapAdmin ? adminAccount : null, bootstrapAdmin ? adminEmail : null, bootstrapAdmin ? adminPassword : null);
             }
 
-            if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser) && StringUtils.isNotBlank(adminEmail) && StringUtils.isNotBlank(adminPassword)) {
+            if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser) && StringUtils.isNotBlank(adminAccount) && StringUtils.isNotBlank(adminEmail)
+                && StringUtils.isNotBlank(adminPassword)) {
                 InstallUpgradeLogBus.info("Updating administrator account.");
-                updateAdminUser(jdbcUrl, dbUser, dbPass, adminEmail, adminPassword);
+                updateAdminUser(jdbcUrl, dbUser, dbPass, adminAccount, adminEmail, adminPassword);
             }
 
             if (StringUtils.isNotBlank(jdbcUrl) && StringUtils.isNotBlank(dbUser) && (bootstrapAdmin || !pendingScripts.isEmpty())) {
@@ -267,8 +246,6 @@ public class SysInitService {
         String dbUser = resolveConfigValue(userConfig, props, "spring.datasource.username");
         String dbPass = resolveConfigValue(userConfig, props, "spring.datasource.password");
         boolean createIfMissing = userConfig != null && userConfig.containsKey(INIT_DB_CREATE_IF_MISSING) && Boolean.parseBoolean(userConfig.get(INIT_DB_CREATE_IF_MISSING));
-        boolean rebuildIfNotEmpty = userConfig != null && userConfig.containsKey(INIT_DB_REBUILD_IF_NOT_EMPTY)
-                                    && Boolean.parseBoolean(userConfig.get(INIT_DB_REBUILD_IF_NOT_EMPTY));
 
         InstallUpgradeLogBus.start("upgrade", jdbcUrl);
         try {
@@ -276,13 +253,13 @@ public class SysInitService {
                 throw new IllegalStateException("Database configuration is missing.");
             }
 
-            if (createIfMissing || rebuildIfNotEmpty) {
+            if (createIfMissing) {
                 InstallUpgradeLogBus.info("Preparing database before upgrade.");
-                prepareDatabase(jdbcUrl, dbUser, dbPass, createIfMissing, rebuildIfNotEmpty);
+                prepareDatabase(jdbcUrl, dbUser, dbPass, createIfMissing);
             }
 
             runUpgradeMigration(jdbcUrl, dbUser, dbPass);
-            if (rebuildIfNotEmpty || createIfMissing) {
+            if (createIfMissing) {
                 runFixTasks(jdbcUrl, dbUser, dbPass, false);
             }
             InstallUpgradeLogBus.complete("Upgrade completed successfully.");
@@ -346,8 +323,9 @@ public class SysInitService {
     }
 
     private void runFlywayMigration(String jdbcUrl, String dbUser, String dbPass,//
-                                    String adminEmail, String adminPassword) {
+                                    String adminAccount, String adminEmail, String adminPassword) {
         log.info("[SysInitService] Running Flyway migration with: {}", jdbcUrl);
+        String previousAdminAccount = System.getProperty(InitSeedConstants.RUNTIME_ADMIN_ACCOUNT_KEY);
         String previousAdminEmail = System.getProperty(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY);
         String previousAdminPassword = System.getProperty(InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY);
         try {
@@ -358,6 +336,7 @@ public class SysInitService {
             Properties props = buildTaskProperties(jdbcUrl, dbUser, dbPass);
             app.setDefaultProperties(props);
 
+            setRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_ACCOUNT_KEY, adminAccount);
             setRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY, adminEmail);
             setRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY, adminPassword);
             InstallUpgradeLogBus.notice("DB_INIT", "info");
@@ -371,6 +350,7 @@ public class SysInitService {
             log.error("[SysInitService] Flyway migration failed", e);
             throw new RuntimeException("Flyway migration failed: " + e.getMessage(), e);
         } finally {
+            restoreRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_ACCOUNT_KEY, previousAdminAccount);
             restoreRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_EMAIL_KEY, previousAdminEmail);
             restoreRuntimeAdminProperty(InitSeedConstants.RUNTIME_ADMIN_PASSWORD_KEY, previousAdminPassword);
         }
@@ -398,7 +378,7 @@ public class SysInitService {
     }
 
     private void updateAdminUser(String jdbcUrl, String dbUser, String dbPass,//
-                                 String adminEmail, String adminPassword) throws SQLException {
+                                 String adminAccount, String adminEmail, String adminPassword) throws SQLException {
         try (Connection conn = DmDalConfig.createDriverConnection(jdbcUrl, dbUser, dbPass, 1000L)) {
             // Encrypt the password using the same format as the Flyway seed scripts.
             PasswordInfo cryptResult = CryptService.INSTANCE.encryptForOneWay(adminPassword);
@@ -426,8 +406,8 @@ public class SysInitService {
                             .prepareStatement("UPDATE dm_auth_user SET email = ?, phone = NULL, password = ?, username = ?, account = ?, allow_local = 1 WHERE uid = ?")) {
                             updateStmt.setString(1, adminEmail);
                             updateStmt.setString(2, encodedPassword);
-                            updateStmt.setString(3, InitSeedConstants.DEFAULT_PRIMARY_ACCOUNT);
-                            updateStmt.setString(4, InitSeedConstants.DEFAULT_PRIMARY_ACCOUNT);
+                            updateStmt.setString(3, adminAccount);
+                            updateStmt.setString(4, adminAccount);
                             updateStmt.setString(5, InitSeedConstants.ADMIN_UID);
                             int affected = updateStmt.executeUpdate();
                             log.info("[SysInitService] Admin user updated, affected rows: {}", affected);
@@ -440,8 +420,8 @@ public class SysInitService {
                             insertStmt.setString(1, InitSeedConstants.ADMIN_UID);
                             insertStmt.setString(2, adminEmail);
                             insertStmt.setString(3, encodedPassword);
-                            insertStmt.setString(4, InitSeedConstants.DEFAULT_PRIMARY_ACCOUNT);
-                            insertStmt.setString(5, InitSeedConstants.DEFAULT_PRIMARY_ACCOUNT);
+                            insertStmt.setString(4, adminAccount);
+                            insertStmt.setString(5, adminAccount);
                             insertStmt.setString(6, InitSeedConstants.DEFAULT_PRIMARY_ACCESS_KEY);
                             insertStmt.setString(7, encryptedSecretKey);
                             insertStmt.executeUpdate();
@@ -478,7 +458,6 @@ public class SysInitService {
                 if (includeDefaultClusterWorker) {
                     ctx.getBean(DmFixDefaultClusterWorker.class).init();
                 }
-                ctx.getBean(DmFixDmDsConfig.class).init();
                 InstallUpgradeLogBus.info("Post-migration fix tasks completed.");
                 log.info("[SysInitService] Fix tasks completed successfully.");
             }
@@ -492,7 +471,7 @@ public class SysInitService {
     // prepare database.
     // ========================================================================
 
-    private void prepareDatabase(String jdbcUrl, String username, String password, boolean createIfMissing, boolean rebuildIfNotEmpty) throws SQLException {
+    private void prepareDatabase(String jdbcUrl, String username, String password, boolean createIfMissing) throws SQLException {
         DatabaseInspection info = inspectDatabase(jdbcUrl, username, password, false);
 
         if (!info.databaseExists) {
@@ -515,26 +494,11 @@ public class SysInitService {
             return;
         }
 
-        if (rebuildIfNotEmpty) {
-            log.info("[SysInitService] Target database {} exists and will be rebuilt before Flyway initialization", info.databaseName);
-            InstallUpgradeLogBus.notice("DB_REBUILD", "info");
-            try (Connection conn = DmDalConfig.createDriverConnection(info.serverJdbcUrl, username, password, 1000L)) {
-                clearDatabase(conn, info.databaseName);
-            }
-            return;
-        }
-
         log.info("[SysInitService] Target database {} exists with data, keeping existing schema and proceeding with migration/fix tasks", info.databaseName);
     }
 
     private void createDatabase(Connection conn, String databaseName) throws SQLException {
         executeStatement(conn, "CREATE DATABASE `" + escapeMysqlIdentifier(databaseName) + "` DEFAULT CHARACTER SET " + REQUIRED_DB_CHARSET + " COLLATE " + REQUIRED_DB_COLLATION);
-    }
-
-    private void clearDatabase(Connection conn, String databaseName) throws SQLException {
-        String quotedName = "`" + escapeMysqlIdentifier(databaseName) + "`";
-        executeStatement(conn, "DROP DATABASE " + quotedName);
-        executeStatement(conn, "CREATE DATABASE " + quotedName + " DEFAULT CHARACTER SET " + REQUIRED_DB_CHARSET + " COLLATE " + REQUIRED_DB_COLLATION);
     }
 
     private DatabaseInspection inspectDatabase(String jdbcUrl, String username, String password, boolean verifyTargetConnection) throws SQLException {

@@ -1,24 +1,19 @@
 package com.clougence.clouddm.platform.dal.access;
 
-import com.clougence.clouddm.platform.dal.mapper.datasource.*;
+import com.clougence.clouddm.platform.dal.mapper.datasource.DmDsConfigKv4DmMapper;
+import com.clougence.clouddm.platform.dal.mapper.datasource.DmDsMapper;
+import com.clougence.clouddm.platform.dal.mapper.datasource.DmDsMetaDataMapper;
+import com.clougence.clouddm.platform.dal.mapper.datasource.DmDsTagMapper;
 
 public interface DataSourceDal {
 
     DmDsMapper dsMapper();
 
-    DmDsBlobResourceMapper blobResourceMapper();
-
-    DmDsConfigMapper configMapper();
-
     DmDsConfigKv4DmMapper configKv4DmMapper();
-
-    DmDsConfigKv4RdpMapper configKv4RdpMapper();
 
     DmDsMetaDataMapper metaDataMapper();
 
     DmDsTagMapper tagMapper();
-
-    DmDsUsageMapper usageMapper();
 
     // ---------- dal service methods ----------
 }

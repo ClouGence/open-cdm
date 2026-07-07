@@ -2,44 +2,63 @@
   <div>
     <div>
       <div class="params-container">
-        <Tabs value="COMMON" :animated="false">
-          <TabPane :label="$t('tong-yong-can-shu')" name="COMMON">
-            <user-config-table
-              :can-edit="canEdit"
-              :user-config-map="userConfigMap.COMMON"
-              :handle-show-json="handleShowJson"
-              :handle-edit-current="handleEditCurrent"
-              :handle-show-edit-params="handleShowEditParams"
-              :is-j-s-o-n="isJSON"
-              :show-tag-list="showTagList"
-              :loading="refreshLoading"
-            ></user-config-table>
-          </TabPane>
-          <TabPane label="CloudCanal" name="CLOUDCANAL" v-if="includesCC">
-            <user-config-table
-              :can-edit="canEdit"
-              :user-config-map="userConfigMap.CLOUDCANAL"
-              :handle-show-json="handleShowJson"
-              :handle-edit-current="handleEditCurrent"
-              :handle-show-edit-params="handleShowEditParams"
-              :is-j-s-o-n="isJSON"
-              :show-tag-list="showTagList"
-              :loading="refreshLoading"
-            ></user-config-table>
-          </TabPane>
-          <TabPane label="CloudDM" name="CLOUDDM" v-if="includesDM">
-            <user-config-table
-              :can-edit="canEdit"
-              :user-config-map="userConfigMap.CLOUDDM"
-              :handle-show-json="handleShowJson"
-              :handle-edit-current="handleEditCurrent"
-              :handle-show-edit-params="handleShowEditParams"
-              :is-j-s-o-n="isJSON"
-              :show-tag-list="showTagList"
-              :loading="refreshLoading"
-            ></user-config-table>
-          </TabPane>
-        </Tabs>
+        <nav class="params-tabs">
+          <div class="params-tabs__items">
+            <span class="params-tabs__item" :class="{ 'is-active': activeTab === 'COMMON' }" @click="handleTabClick('COMMON')">
+              {{ $t('tong-yong-can-shu') }}
+            </span>
+            <span
+              v-if="includesCC"
+              class="params-tabs__item"
+              :class="{ 'is-active': activeTab === 'CLOUDCANAL' }"
+              @click="handleTabClick('CLOUDCANAL')"
+            >
+              CloudCanal
+            </span>
+            <span v-if="includesDM" class="params-tabs__item" :class="{ 'is-active': activeTab === 'CLOUDDM' }" @click="handleTabClick('CLOUDDM')">
+              CloudDM
+            </span>
+          </div>
+          <div class="params-tabs__actions">
+            <slot name="actions"></slot>
+          </div>
+        </nav>
+        <div v-show="activeTab === 'COMMON'">
+          <user-config-table
+            :can-edit="canEdit"
+            :user-config-map="userConfigMap.COMMON"
+            :handle-show-json="handleShowJson"
+            :handle-edit-current="handleEditCurrent"
+            :handle-show-edit-params="handleShowEditParams"
+            :is-j-s-o-n="isJSON"
+            :show-tag-list="showTagList"
+            :loading="refreshLoading"
+          ></user-config-table>
+        </div>
+        <div v-show="activeTab === 'CLOUDCANAL'" v-if="includesCC">
+          <user-config-table
+            :can-edit="canEdit"
+            :user-config-map="userConfigMap.CLOUDCANAL"
+            :handle-show-json="handleShowJson"
+            :handle-edit-current="handleEditCurrent"
+            :handle-show-edit-params="handleShowEditParams"
+            :is-j-s-o-n="isJSON"
+            :show-tag-list="showTagList"
+            :loading="refreshLoading"
+          ></user-config-table>
+        </div>
+        <div v-show="activeTab === 'CLOUDDM'" v-if="includesDM">
+          <user-config-table
+            :can-edit="canEdit"
+            :user-config-map="userConfigMap.CLOUDDM"
+            :handle-show-json="handleShowJson"
+            :handle-edit-current="handleEditCurrent"
+            :handle-show-edit-params="handleShowEditParams"
+            :is-j-s-o-n="isJSON"
+            :show-tag-list="showTagList"
+            :loading="refreshLoading"
+          ></user-config-table>
+        </div>
       </div>
     </div>
     <CCModal v-model="showParamsEditConfirm" :title="$t('que-ding-yao-sheng-xiao-yi-xia-pei-zhi')" footer-hide width="800px">
@@ -123,6 +142,7 @@
 <script>
 import { pick } from '@/components/function/monitor/utils/colors';
 import UserConfigTable from '@/views/system/UserConfigTable';
+import { isManagedUserConfig } from '@/views/system/managedUserConfigs';
 import { mapGetters } from 'vuex';
 import UtilJson from '../util';
 
@@ -138,6 +158,7 @@ export default {
   },
   data() {
     return {
+      activeTab: 'COMMON',
       loading: false,
       userConfigList: [],
       userConfigMap: {
@@ -265,6 +286,9 @@ export default {
     //   });
   },
   methods: {
+    handleTabClick(name) {
+      this.activeTab = name;
+    },
     getTagStyle(row) {
       return {
         color: pick(this.showTagList.indexOf(row.userConfigTagType)),
@@ -340,17 +364,19 @@ export default {
         CLOUDDM: [],
         BLADEPIPE: []
       };
+      this.showTagList = [];
       const res = await this.$services.rdpUserConfigGetCurrUserConfigs();
       if (res.success) {
         this.userInfo.userConfig = res.data;
-        res.data.forEach((user) => {
+        const visibleConfigs = res.data.filter((config) => !isManagedUserConfig(config.configName));
+        visibleConfigs.forEach((user) => {
           if (this.showTagList.indexOf(user.userConfigTagType) === -1) {
             this.showTagList.push(user.userConfigTagType);
           }
         });
         this.$store.commit('updateUserInfo', this.userInfo);
         this.userConfigList = res.data;
-        this.userConfigList.forEach((config) => {
+        visibleConfigs.forEach((config) => {
           if (config.configValue && config.confValType === 'BOOLEAN') {
             config.formatValue = JSON.parse(config.configValue);
           }
@@ -481,32 +507,67 @@ export default {
   }
 }
 
-.params-edit-wrapper {
-  /*padding: 24px;*/
-  /*background: #ffffff;*/
-  margin-top: 10px;
-  /*border: 1px solid #DADADA;*/
-  /*overflow: auto;*/
+.params-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  padding: 0 20px 0 0;
+  background: var(--bg-card);
 
-  .ivu-tabs-nav-scroll {
-    background-color: #ffffff;
-    border-top: 1px solid #dadada;
-    border-left: 1px solid #dadada;
-    border-right: 1px solid #dadada;
+  &__items {
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-right: 20px;
+  }
+
+  &__item {
+    position: relative;
+    padding: 12px 20px 10px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    cursor: pointer;
+    border-bottom: none;
+    transition: color 0.12s ease;
+
+    &:hover {
+      color: var(--text-primary);
+      border-bottom: none;
+    }
+
+    &.is-active {
+      color: var(--text-primary);
+      font-weight: 500;
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        bottom: 0;
+        height: 2px;
+        border-radius: 2px 2px 0 0;
+        background: var(--primary-color);
+      }
+    }
+  }
+}
+
+.params-edit-wrapper {
+  margin-top: 10px;
 
   .iconfont {
     color: #8d95a6;
     cursor: pointer;
-  }
-}
-
-.params-container {
-  .ivu-tabs-nav-scroll {
-    background-color: #ffffff;
-    border-top: 1px solid #dadada;
-    border-left: 1px solid #dadada;
-    border-right: 1px solid #dadada;
   }
 }
 </style>

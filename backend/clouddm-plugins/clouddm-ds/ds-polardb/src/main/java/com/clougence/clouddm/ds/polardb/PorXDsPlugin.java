@@ -18,22 +18,23 @@ package com.clougence.clouddm.ds.polardb;
 import com.clougence.adapter.polar.porx.PolarDbXTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.ds.polardb.analysis.porx.*;
-import com.clougence.clouddm.ds.polardb.analysis.porx.rewrite.PorXRewriteSpi;
 import com.clougence.clouddm.ds.polardb.definition.porx.PorXDefService;
 import com.clougence.clouddm.ds.polardb.definition.porx.browser.PorXDsBrowseSpi;
 import com.clougence.clouddm.ds.polardb.definition.porx.editor.table.PorXEditorProvider;
 import com.clougence.clouddm.ds.polardb.definition.porx.editor.table.PorXTableEditorUiDataSpi;
 import com.clougence.clouddm.ds.polardb.definition.porx.ui.ddl.PorXConvertTableDDLSpi;
+import com.clougence.clouddm.ds.polardb.definition.secrules.PorXSecRulesSupportSpi;
 import com.clougence.clouddm.ds.polardb.dialect.porx.PolarDbXDialect;
 import com.clougence.clouddm.ds.polardb.dsconf.porx.PorXConfigSpi;
 import com.clougence.clouddm.ds.polardb.dsconf.porx.PorXSerializationSpi;
 import com.clougence.clouddm.ds.polardb.execute.porx.PorXSessionFactory;
 import com.clougence.clouddm.ds.polardb.execute.porx.PorXSessionSpi;
 import com.clougence.clouddm.ds.polardb.execute.porx.PorXSupportSpi;
+import com.clougence.clouddm.ds.polardb.i18n.PorXConfigI18nKeys;
 import com.clougence.clouddm.ds.polardb.i18n.PorXDsI18nKeys;
 import com.clougence.clouddm.ds.polardb.language.porx.PorXLanguageSpi;
 import com.clougence.clouddm.ds.polardb.resource.PorXEditorResourceSpi;
+import com.clougence.clouddm.ds.polardb.sql.porx.PorXSqlEngineSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.data.MyDataEditorSpi;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.exception.MyDetermineExceptionSpi;
@@ -42,15 +43,18 @@ import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
+import com.clougence.sql.mysql.MySqlEngineSpi;
 
-@Plugin(includePackages = { "com.clougence.clouddm.dsfamily.execute.*",      //
+@Plugin(name = "i18n::" + PorXDsI18nKeys.PLUGIN_NAME_POLARDB_X,              //
+        includePackages = { "com.clougence.clouddm.dsfamily.execute.*",      //
                             "com.clougence.clouddm.dsfamily.mysql.execute.*",//
                             "com.clougence.clouddm.ds.polardb.execute.porx.*"//
-}, dsProduct = DataSourceType.PolarDbX)
+        }, dsProduct = DataSourceType.PolarDbX)
 public class PorXDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     @Override
@@ -81,14 +85,18 @@ public class PorXDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(PorXSessionFactory.class);
         dsPlugin.bindDsDriverFamily("MySQL Connector/J");
+
+        dsPlugin.bindSqlEngine(PorXSqlEngineSpi.NAME, MySqlEngineSpi.NAME);
+        dsPlugin.addGlobalSpi(SqlEngineSpi.class, PorXSqlEngineSpi.NAME, new PorXSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+
         dsPlugin.addPluginSpi(new PorXSessionSpi());
         dsPlugin.addPluginSpi(new PorXSupportSpi());
-        dsPlugin.addPluginSpi(new PorXRewriteSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {
         //initI18n
         dsPlugin.bindPluginI18n(PorXDsI18nKeys.class);
+        dsPlugin.bindPluginI18n(PorXConfigI18nKeys.class);
         //sqlBuilder
         dsPlugin.bindDsSqlBuilder(PorXEditorProvider.INSTANCE);
         dsPlugin.bindDsDialect(PolarDbXDialect.INSTANCE);
@@ -110,11 +118,7 @@ public class PorXDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configTeam(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new PorXResAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
-        dsPlugin.addPluginSpi(new PorXSplitAnalysisSpi());
-        dsPlugin.addPluginSpi(new PorXSecDomainResolveSpi(dsPlugin.findGlobalService(MetaService.class)));
         dsPlugin.addPluginSpi(new PorXSecRulesSupportSpi());
-        dsPlugin.addPluginSpi(new PorXSelectColumnAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {

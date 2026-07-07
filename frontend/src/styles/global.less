@@ -6,6 +6,8 @@
 @import 'variables.less';
 @import 'mixins.less';
 @import 'modal.less';
+@import 'app-shell.less';
+@import 'dm-design-system.less';
 //@import '~@wsfe/ctree/src/styles/index.less';
 * {
   box-sizing: border-box;
@@ -14,12 +16,18 @@
 html {
   font-size: 14px;
   box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', Helvetica, Arial, sans-serif;
   color: @default-color;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 a {
-  color: #0bb9f8;
+  color: @link-color;
 }
 
 a[disabled] {
@@ -144,58 +152,14 @@ a[disabled] {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
 
   .table-list {
-    padding: 16px;
     flex: 1;
     display: flex;
     flex-direction: column;
     min-height: 0;
     height: 100%;
-
-    .header {
-      margin-bottom: 12px;
-    }
-
-    .content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      height: 100%;
-      overflow: auto;
-
-      .option {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        height: 60px;
-        border: 1px solid #ededed;
-        padding: 12px;
-        margin-bottom: 12px;
-
-        .left {
-          display: flex;
-        }
-
-        .right {
-        }
-      }
-
-      .table-container {
-        flex: 1;
-        min-height: 0;
-        overflow: auto;
-      }
-    }
-  }
-
-  .footer {
-    box-shadow: 6px 2px 23px 0 rgba(197, 197, 197, 0.5);
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 }
 
@@ -246,6 +210,312 @@ a[disabled] {
   margin-right: 0 !important;
 }
 
+// ─── View UI Plus primary color overrides (blue → emerald) ────────────────────
+
+@emerald: #3ecf8e;
+@emerald-deep: #24b47e;
+@emerald-bg: rgba(62, 207, 142, 0.12);
+@emerald-bg-hover: rgba(62, 207, 142, 0.08);
+
+// v-tree
+.vtree-tree-node__title:hover {
+  background-color: @emerald-bg-hover !important;
+}
+.vtree-tree-node__title_selected {
+  background-color: @emerald-bg !important;
+  &:hover {
+    background-color: @emerald-bg !important;
+  }
+}
+
+// Radio
+.ivu-radio-inner:after {
+  background-color: @emerald !important;
+}
+.ivu-radio-checked .ivu-radio-inner {
+  border-color: @emerald !important;
+}
+.ivu-radio-checked:hover .ivu-radio-inner {
+  border-color: @emerald !important;
+}
+.ivu-radio-wrapper-checked.ivu-radio-border {
+  border-color: @emerald !important;
+}
+.ivu-radio-group-button .ivu-radio-wrapper:hover {
+  color: @emerald !important;
+}
+.ivu-radio-group-button .ivu-radio-wrapper-checked {
+  border-color: @emerald !important;
+  color: @emerald !important;
+  box-shadow: -1px 0 0 0 @emerald !important;
+  &::before {
+    background: @emerald !important;
+  }
+}
+
+// Checkbox
+.ivu-checkbox-checked .ivu-checkbox-inner {
+  background-color: @emerald !important;
+  border-color: @emerald !important;
+}
+.ivu-checkbox-indeterminate .ivu-checkbox-inner {
+  background-color: @emerald !important;
+  border-color: @emerald !important;
+}
+
+// Switch
+.ivu-switch-checked {
+  background-color: @emerald !important;
+  border-color: @emerald !important;
+}
+
+// Select / Dropdown item hover & selected
+.ivu-select-item:hover,
+.ivu-select-item-focus {
+  background-color: @emerald-bg-hover !important;
+}
+.ivu-select-item-selected,
+.ivu-select-item-selected:hover {
+  color: @emerald-deep !important;
+}
+.ivu-select-item-selected:after {
+  color: @emerald !important;
+}
+.ivu-select-item-enter {
+  color: @emerald !important;
+}
+.ivu-select-multiple .ivu-select-item-selected,
+.ivu-select-multiple .ivu-select-item-selected:hover,
+.ivu-select-multiple .ivu-select-item-selected.ivu-select-multiple .ivu-select-item-focus {
+  color: @emerald-deep !important;
+}
+.ivu-select-multiple .ivu-select-item-selected:after {
+  color: @emerald !important;
+}
+
+// Cascader
+.ivu-cascader-menu-item-selected,
+.ivu-cascader-menu-item-selected:hover,
+.ivu-cascader-transfer .ivu-cascader-menu-item-selected,
+.ivu-cascader-transfer .ivu-cascader-menu-item-selected:hover {
+  color: @emerald-deep !important;
+}
+.ivu-cascader-menu-item-active,
+.ivu-cascader-transfer .ivu-cascader-menu-item-active {
+  color: @emerald-deep !important;
+}
+.ivu-cascader-menu-item-enter,
+.ivu-cascader-transfer .ivu-cascader-menu-item-enter {
+  color: @emerald !important;
+}
+
+// Transfer
+.ivu-transfer-list-content-item-selected,
+.ivu-transfer-list-content-item-selected:hover {
+  color: @emerald-deep !important;
+}
+
+// Table filter
+.ivu-table-filter-select-item-selected,
+.ivu-table-filter-select-item-selected:hover {
+  color: @emerald-deep !important;
+}
+
+// Dropdown menu
+.ivu-dropdown-item:hover {
+  background-color: @emerald-bg-hover !important;
+}
+.ivu-dropdown-item-selected,
+.ivu-dropdown-item-selected:hover,
+.ivu-dropdown-item.ivu-dropdown-item-selected:hover {
+  color: @emerald-deep !important;
+  background: @emerald-bg !important;
+}
+.ivu-dropdown-item-enter {
+  color: @emerald !important;
+}
+
+// Menu submenu dropdown
+.ivu-menu-horizontal .ivu-menu-submenu .ivu-select-dropdown .ivu-menu-item-selected,
+.ivu-menu-horizontal .ivu-menu-submenu .ivu-select-dropdown .ivu-menu-item-selected:hover {
+  color: @emerald-deep !important;
+}
+.ivu-menu-horizontal .ivu-menu-submenu .ivu-select-dropdown .ivu-menu-item-enter {
+  color: @emerald !important;
+}
+
+// Spinner / Loading
+.ivu-spin {
+  color: @emerald !important;
+}
+.ivu-spin-dot {
+  background-color: @emerald !important;
+}
+
+// Primary button
+.ivu-btn-primary {
+  background-color: @emerald !important;
+  border-color: @emerald !important;
+}
+.ivu-btn-primary:hover {
+  background-color: @emerald-deep !important;
+  border-color: @emerald-deep !important;
+}
+.ivu-btn-ghost.ivu-btn-primary {
+  color: @emerald !important;
+}
+
+// Default button hover text
+.ivu-btn:hover,
+.ivu-btn:focus {
+  color: @emerald-deep !important;
+  border-color: @emerald !important;
+}
+.ivu-btn-text:hover {
+  color: @emerald-deep !important;
+}
+
+// Badge
+.ivu-badge-count-primary {
+  background: @emerald !important;
+}
+
+// Tag / Input focus
+.ivu-tag-checked,
+.ivu-tag-primary {
+  background-color: @emerald !important;
+  border-color: @emerald !important;
+  color: @white !important;
+}
+.ivu-tag-checked .ivu-tag-text,
+.ivu-tag-primary .ivu-tag-text,
+.ivu-tag-checked .ivu-icon-ios-close,
+.ivu-tag-primary .ivu-icon-ios-close,
+.ivu-select-multiple .ivu-select-selection .ivu-tag,
+.ivu-select-multiple .ivu-select-selection .ivu-tag .ivu-tag-text,
+.ivu-select-multiple .ivu-select-selection .ivu-tag .ivu-icon-ios-close {
+  color: @white !important;
+}
+.ivu-input:hover,
+.ivu-input:focus {
+  border-color: @emerald !important;
+}
+
+// Page / Pagination
+.ivu-page-item-active {
+  background-color: @emerald !important;
+  border-color: @emerald !important;
+}
+.ivu-page-item:hover {
+  border-color: @emerald !important;
+  a {
+    color: @emerald !important;
+  }
+}
+
+// Tabs
+.ivu-tabs-ink-bar {
+  background-color: var(--primary-color) !important;
+}
+.ivu-tabs-nav .ivu-tabs-tab-active {
+  color: var(--primary-color) !important;
+}
+.ivu-tabs-nav .ivu-tabs-tab:hover {
+  color: var(--text-primary) !important;
+}
+
+// Menu
+.ivu-menu-light.ivu-menu-vertical .ivu-menu-item-active:not(.ivu-menu-submenu) {
+  color: @emerald !important;
+  &::after {
+    background: @emerald !important;
+  }
+}
+.ivu-menu-item-selected {
+  color: @emerald !important;
+}
+
+// Progress
+.ivu-progress-bg {
+  background-color: @emerald !important;
+}
+
+// Steps
+.ivu-steps-status-process .ivu-steps-head-inner {
+  border-color: @emerald !important;
+  background-color: @emerald !important;
+}
+.ivu-steps-status-finish .ivu-steps-head-inner {
+  border-color: @emerald !important;
+}
+.ivu-steps-status-finish .ivu-steps-head-inner span,
+.ivu-steps-status-finish .ivu-steps-head-inner > .ivu-steps-icon {
+  color: @emerald !important;
+}
+.ivu-steps-status-finish .ivu-steps-tail > i:after {
+  background: @emerald !important;
+}
+.ivu-steps-custom.ivu-steps-status-process .ivu-steps-head-inner > .ivu-steps-icon {
+  color: @emerald !important;
+}
+
+// Date/Time picker
+.ivu-date-picker-cells-focused em {
+  box-shadow: 0 0 0 1px @emerald inset !important;
+}
+.ivu-date-picker-cells-cell-today em:after {
+  background: @emerald !important;
+}
+.ivu-date-picker-cells-cell-selected em,
+.ivu-date-picker-cells-cell-selected:hover em {
+  background: @emerald !important;
+}
+.ivu-date-picker-header-label:hover {
+  color: @emerald !important;
+}
+.ivu-picker-panel-icon-btn:hover {
+  color: @emerald !important;
+}
+.ivu-picker-confirm > span {
+  color: @emerald !important;
+}
+.ivu-time-picker-cells-cell-selected,
+.ivu-time-picker-cells-cell-selected:hover {
+  color: @emerald !important;
+}
+
+// Table
+.ivu-table-cell-tree:hover {
+  color: @emerald !important;
+  border-color: @emerald !important;
+}
+.ivu-table-sort i.on {
+  color: @emerald !important;
+}
+
+// Slider
+.ivu-slider-button-dragging,
+.ivu-slider-button:focus,
+.ivu-slider-button:hover {
+  border-color: @emerald !important;
+}
+
+// Upload
+.ivu-upload-list-file:hover > span {
+  color: @emerald !important;
+}
+
+// Timeline
+.ivu-timeline-item-head-blue {
+  border-color: @emerald !important;
+  color: @emerald !important;
+}
+
+// Link
+a {
+  color: @emerald;
+}
+
 .key-link,
 a,
 .ivu-btn-text span {
@@ -259,7 +529,9 @@ a,
 .ivu-dropdown a,
 .dropdown-content,
 .key-link-a,
-.ivu-menu-item a {
+.ivu-menu-item a,
+.app-sidebar-item,
+.management-section-tabs__item {
   &:hover {
     border-bottom: none;
   }
@@ -269,6 +541,3 @@ a,
   color: #0bb9f8;
 }
 
-.skiptranslate {
-  display: none !important;
-}

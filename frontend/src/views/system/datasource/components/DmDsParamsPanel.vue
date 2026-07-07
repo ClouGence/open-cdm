@@ -12,7 +12,7 @@
                 clearable
                 @on-clear="handleQuery"
               />
-              <Button @click="handleQuery" type="primary">{{ $t('cha-xun') }}</Button>
+              <Button @click="handleQuery" type="primary" ghost>{{ $t('cha-xun') }}</Button>
             </div>
             <div class="right">
               <Button type="primary" @click="handleShowConfirmEditParams" style="margin-right: 10px">

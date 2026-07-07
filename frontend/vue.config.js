@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const { codeInspectorPlugin } = require('code-inspector-plugin');
 
 const LOCAL_HOST_DM = 'http://localhost:8222';
 // const LOCAL_HOST_DM = 'http://192.168.0.168:8222';
@@ -14,16 +15,17 @@ let indexHtml = 'index.rdp.html';
 
 const PRODUCT = (process.env.VUE_PRODUCT || process.env.VUE_APP_PRODUCT || 'DM').toUpperCase();
 const APP_LOCALE = process.env.VUE_APP_I18N_LOCALE;
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 console.log(PRODUCT, HOST, indexHtml);
 
-// 提取host，便于后续将host注入全局
+// Take out the host so that it can be later injected into the world.
 const getHostFromUrl = (url) => {
   try {
     const urlObj = new URL(url);
     return urlObj.host;
   } catch (e) {
-    // 如果不是完整 URL，尝试直接提取
+    // If not complete URL, try to extract it directly
     return url.replace(/^https?:\/\//, '');
   }
 };
@@ -49,7 +51,7 @@ module.exports = {
     loaderOptions: {
       postcss: {
         postcssOptions: {
-          // 修改为 postcssOptions
+          // Modify to postcssOptions
           plugins: [require('tailwindcss'), require('autoprefixer')]
         }
       }
@@ -61,7 +63,7 @@ module.exports = {
     client: {
       overlay: false
     },
-    allowedHosts: 'all', // 替换 disableHostCheck
+    allowedHosts: 'all', // Replace Disable HostCheck
     proxy: {
       '/cloudcanal': {
         target: HOST
@@ -72,10 +74,7 @@ module.exports = {
       '/api': {
         target: HOST,
         changeOrigin: true,
-        ws: true,
-        pathRewrite: {
-          '^/api': ''
-        }
+        ws: true
       },
       '/login': {
         target: HOST
@@ -83,19 +82,19 @@ module.exports = {
       '/logout': {
         target: HOST
       },
-      '/global_settings': {
+      '/globalSettings': {
+        target: HOST
+      },
+      '/signin': {
+        target: HOST
+      },
+      '/loginMfaValid': {
         target: HOST
       },
       '/list_org': {
         target: HOST
       },
-      '/login_supplement': {
-        target: HOST
-      },
-      '/check_supplement': {
-        target: HOST
-      },
-      '/load_supplement_info': {
+      '/checkSupplement': {
         target: HOST
       },
       '/auth': {
@@ -142,6 +141,14 @@ module.exports = {
       .set('@/const', resolve('src/const'))
       .set('@/layout', resolve('src/layout'))
       .set('@/i18n', resolve('src/i18n'));
+
+    if (isDevelopment) {
+      config.plugin('code-inspector-plugin').use(
+        codeInspectorPlugin({
+          bundler: 'webpack'
+        })
+      );
+    }
   },
   pluginOptions: {
     'style-resources-loader': {
@@ -154,10 +161,23 @@ module.exports = {
       splitChunks: {
         chunks: 'all',
         cacheGroups: {
-          // vxe-table 相关库（仅非CC产品）
+          antDesignVue: {
+            name: 'chunk-antdv',
+            test: /[\\/]node_modules[\\/](ant-design-vue)[\\/]/,
+            priority: 20,
+            reuseExistingChunk: true,
+            enforce: true
+          },
+          viewUiPlus: {
+            name: 'chunk-viewui',
+            test: /[\\/]node_modules[\\/](view-ui-plus)[\\/]/,
+            priority: 20,
+            reuseExistingChunk: true,
+            enforce: true
+          },
           ...(PRODUCT === 'CC'
             ? {
-                // Monaco 编辑器
+                // Monaco Editor
                 monaco: {
                   name: 'chunk-monaco',
                   test: /[\\/]node_modules[\\/](monaco-editor)[\\/]/,

@@ -26,10 +26,10 @@ import org.springframework.stereotype.Service;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.component.whitelist.impl.WhiteListServiceForBasic;
 import com.clougence.clouddm.console.web.component.whitelist.impl.WhiteListServiceForFull;
 import com.clougence.clouddm.console.web.constants.DmModeFeatured;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.utils.ExceptionUtils;
 
 import jakarta.annotation.Resource;
@@ -41,10 +41,9 @@ import lombok.extern.slf4j.Slf4j;
 public class WhiteListServiceImpl implements WhiteListService, DsFeatureIDs, UnifiedPostConstruct {
 
     @Resource
-    private DmConsoleConfig                       dmConfig;
+    private ConsoleConfig                         config;
     @Resource
     private ApplicationContext                    appContext;
-
     private Map<DmModeFeatured, WhiteListService> forFeatured;
     private final AtomicBoolean                   inited = new AtomicBoolean();
 
@@ -75,8 +74,8 @@ public class WhiteListServiceImpl implements WhiteListService, DsFeatureIDs, Uni
             this.init();
         }
 
-        if (this.forFeatured.containsKey(this.dmConfig.getDmModeFeatured())) {
-            return this.forFeatured.get(this.dmConfig.getDmModeFeatured());
+        if (this.forFeatured.containsKey(this.config.getDmModeFeatured())) {
+            return this.forFeatured.get(this.config.getDmModeFeatured());
         } else {
             return this.forFeatured.get(DmModeFeatured.basic);
         }

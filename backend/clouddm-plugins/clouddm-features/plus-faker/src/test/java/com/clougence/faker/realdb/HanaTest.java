@@ -19,7 +19,7 @@ package com.clougence.faker.realdb;
 public class HanaTest {
 //    @Test
 //    public void workloadTest() throws Exception {
-//        // 全局配置
+//        // Global Configuration
 //        FakerConfig fakerConfig = new FakerConfig();
 //        fakerConfig.setTransaction(false);
 //        fakerConfig.setDbType(DsType.Hana);
@@ -31,7 +31,7 @@ public class HanaTest {
 //        fakerConfig.setOpsRatio("INSERT#35;UPDATE#60;DELETE#5");
 //        fakerConfig.setWriteQps(3);
 //
-//        // 生成器，配置表
+//        // Generator, Configure Table
 //        DruidDataSource dataDs = DsUtils.dsHana();
 //        FakerFactory factory = new FakerFactory(dataDs, fakerConfig);
 //        FakerRepository generator = new FakerRepository(factory);
@@ -45,11 +45,11 @@ public class HanaTest {
 //            tab.apply();
 //        }
 //
-//        // 生成数据
+//        // Generate Data
 //        FakerEngine engine = new FakerEngine(dataDs, generator);
 //        engine.start(3, 3);
 //
-//        // 监控信息
+//        // Monitor Information
 //        long t = System.currentTimeMillis();
 //        while (!engine.isExitSignal()) {
 //            if ((t + 1000) < System.currentTimeMillis()) {
@@ -66,7 +66,7 @@ public class HanaTest {
 //
 //    @Test
 //    public void workloadTest1() throws Exception {
-//        // 全局配置
+//        // Global Configuration
 //        FakerConfig fakerConfig = new FakerConfig();
 //        fakerConfig.setTransaction(false);
 //        fakerConfig.setDbType(DsType.Hana);
@@ -78,7 +78,7 @@ public class HanaTest {
 //        fakerConfig.setOpsRatio("INSERT#35;UPDATE#60;DELETE#5");
 //        fakerConfig.setWriteQps(3);
 //
-//        // 生成器，配置表
+//        // Generator, Configure Table
 //        DruidDataSource dataDs = DsUtils.dsHana();
 //        FakerFactory factory = new FakerFactory(dataDs, fakerConfig);
 //        FakerRepository generator = new FakerRepository(factory);
@@ -92,11 +92,11 @@ public class HanaTest {
 //            tab.apply();
 //        }
 //
-//        // 生成数据
+//        // Generate Data
 //        FakerEngine engine = new FakerEngine(dataDs, generator);
 //        engine.start(3, 3);
 //
-//        // 监控信息
+//        // Monitor Information
 //        long t = System.currentTimeMillis();
 //        while (!engine.isExitSignal()) {
 //            if ((t + 1000) < System.currentTimeMillis()) {

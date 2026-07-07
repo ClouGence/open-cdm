@@ -19,7 +19,7 @@ public class MySqlTest {
 
 //    @Test
 //    public void workloadTest() throws Exception {
-//        // 全局配置
+//        // Global Configuration
 //        FakerConfig fakerConfig = new FakerConfig();
 //        fakerConfig.setDbType(DsType.MySQL);
 //        fakerConfig.setTransaction(false);
@@ -31,7 +31,7 @@ public class MySqlTest {
 //        //        fakerConfig.setOpsRatio("INSERT#30");
 //        fakerConfig.setWriteQps(10);
 //
-//        // 生成器，配置表
+//        // Generator, Configure Table
 //        DruidDataSource dataDs = DsUtils.dsMySql();
 //        FakerFactory factory = new FakerFactory(dataDs, fakerConfig);
 //        FakerRepository generator = new FakerRepository(factory);
@@ -56,11 +56,11 @@ public class MySqlTest {
 //            tab.apply();
 //        }
 //
-//        // 生成数据
+//        // Generate Data
 //        FakerEngine engine = new FakerEngine(dataDs, generator);
 //        engine.start(3, 10);
 //
-//        // 监控信息
+//        // Monitor Information
 //        long t = System.currentTimeMillis();
 //        while (!engine.isExitSignal()) {
 //            if ((t + 1000) < System.currentTimeMillis()) {

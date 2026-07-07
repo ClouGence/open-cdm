@@ -24,11 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
+import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.SendCodeAfterLoginFO;
 import com.clougence.clouddm.console.web.model.fo.SendCodeByAccountFO;
 import com.clougence.clouddm.console.web.model.fo.SendCodeFO;
-import com.clougence.rdp.constant.RdpControllerUrlPrefix;
 
 import jakarta.validation.Valid;
 
@@ -37,23 +37,23 @@ import jakarta.validation.Valid;
  * @since 1.1.3
  */
 @RestController
-@RequestMapping(value = RdpControllerUrlPrefix.CONSOLE_PREFIX + "/verify")
+@RequestMapping(value = DmControllerUrlPrefix.CONSOLE_PREFIX + "/verify")
 public class RdpVerifyController {
 
     @RequestAuth(strategy = Ignore)
-    @RequestMapping(value = "/sendcode", method = RequestMethod.POST)
+    @RequestMapping(value = "/sendCode", method = RequestMethod.POST)
     public ResWebData<?> sendCode(@Valid @RequestBody SendCodeFO sendCodeFO) {
         return ResWebDataUtils.buildSuccess();
     }
 
     @RequestAuth(strategy = Ignore)
-    @RequestMapping(value = "/sendcodeinloginstate", method = RequestMethod.POST)
+    @RequestMapping(value = "/sendCodeInLoginState", method = RequestMethod.POST)
     public ResWebData<?> sendCodeInLoginState(@Valid @RequestBody SendCodeAfterLoginFO verifyData) {
         return ResWebDataUtils.buildSuccess();
     }
 
     @RequestAuth(strategy = Ignore)
-    @RequestMapping(value = "/sendcodebyaccount", method = RequestMethod.POST)
+    @RequestMapping(value = "/sendCodeByAccount", method = RequestMethod.POST)
     public ResWebData<?> sendCodeByAccount(@RequestBody @Valid SendCodeByAccountFO sendCodeFO) {
         return ResWebDataUtils.buildSuccess();
     }

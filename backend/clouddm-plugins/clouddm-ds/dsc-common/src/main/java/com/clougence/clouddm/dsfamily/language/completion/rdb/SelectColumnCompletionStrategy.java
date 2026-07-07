@@ -21,6 +21,10 @@ public class SelectColumnCompletionStrategy extends AbstractColumnCompletionStra
 
     @Override
     public boolean match(CompletionContext context) {
+        if (context.isInSelectList()) {
+            return true;
+        }
+
         int offset = StringUtils.isBlank(context.getPrefix()) ? 0 : 1;
         if ("select".equalsIgnoreCase(context.tokenFromEnd(offset))) {
             return true;

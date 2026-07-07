@@ -39,6 +39,7 @@ public class DmWorkerLauncher {
 
     public static void main(String[] args) throws Exception {
         System.setProperty("app.logPath", prepareRuntimePath("logs", "sidecar"));
+        System.setProperty("app.data", prepareRuntimePath("data", "sidecar"));
 
         main(args, null);
     }

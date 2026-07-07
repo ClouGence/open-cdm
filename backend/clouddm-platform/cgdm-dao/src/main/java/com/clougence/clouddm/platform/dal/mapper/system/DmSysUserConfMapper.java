@@ -18,7 +18,6 @@ package com.clougence.clouddm.platform.dal.mapper.system;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 
 /**
@@ -27,8 +26,6 @@ import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 public interface DmSysUserConfMapper extends BaseMapper<DmSysUserConfDO> {
 
     DmSysUserConfDO queryByUidAndConfigName(String uid, String configName);
-
-    List<DmSysUserConfDO> listOneConfigTypeByUid(String uid, UserConfigTagType type);
 
     List<DmSysUserConfDO> listByUid(String uid);
 

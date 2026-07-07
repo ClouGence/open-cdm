@@ -1,12 +1,12 @@
 // src/filters/index.js
 import dayjs from 'dayjs';
 
-// 格式化时间
+// Formatting Time
 export function formatTime(value, fmt) {
   return dayjs(value).format(fmt);
 }
 
-// 首字母大写
+// Capitalise initials
 export function capitalize(value) {
   if (!value) return '';
   value = value.toString();

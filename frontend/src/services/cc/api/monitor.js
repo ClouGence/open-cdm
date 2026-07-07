@@ -1,6 +1,6 @@
 // import { instance } from '../instance';
 
-// TODO 待定
+// TODO To be determined
 // export const queryMonitorData = (param) => instance.post('monitor/querymetric', param);
 
 // export const getWorkerCount = (param) => instance.post('monitor/worker/count', param);

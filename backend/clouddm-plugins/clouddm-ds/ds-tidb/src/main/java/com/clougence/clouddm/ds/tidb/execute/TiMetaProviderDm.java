@@ -29,7 +29,7 @@ import com.clougence.schema.umi.struts.Value;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * TiDB 元信息获取，参考资料：
+ * TiDB metadata access, reference:
  * <li>https://dev.TiDB.com/doc/refman/8.0/en/information-schema.html</li>
  *
  * @version : 2020-01-22

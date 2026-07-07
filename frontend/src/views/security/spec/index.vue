@@ -1,16 +1,13 @@
 <template>
   <div class="spec-list-container">
-    <table-list-layout :breadcrumb-list="breadcrumbList" :tableData="specList" :set-show-data="setShowData" ref="layout">
+    <table-list-layout :tableData="specList" :set-show-data="setShowData" ref="layout">
       <template v-slot:left>
-        <Input v-model="search" style="width: 280px; margin-right: 10px"></Input>
-        <Button @click="getSpecList" type="primary">{{ $t('cha-xun') }}</Button>
+        <Input v-model="search" style="width: 280px; margin-right: 10px" :placeholder="$t('qing-shu-ru-gui-fan-ming-cheng-miao-shu-cha-xun')"></Input>
+        <Button @click="getSpecList" type="primary" ghost>{{ $t('cha-xun') }}</Button>
       </template>
       <template v-slot:right>
-        <Button @click="handleAddSpec" type="primary" ghost style="margin-right: 10px" icon="md-add">
+        <Button @click="handleAddSpec" type="primary" style="margin-right: 10px" icon="md-add">
           {{ $t('xin-jian-gui-fan') }}
-        </Button>
-        <Button @click="getSpecList">
-          <CustomIcon type="icon-v2-Refresh" />
         </Button>
       </template>
       <template v-slot:table>
@@ -101,7 +98,6 @@ export default {
     return {
       showEditSpecNameModal: false,
       showEditSpecDescModal: false,
-      breadcrumbList: [{ label: this.$t('gui-fan-lie-biao') }],
       forceEvent: {
         type: '',
         data: {}

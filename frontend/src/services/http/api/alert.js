@@ -8,5 +8,5 @@ export const alertApi = {
   ccAlertCtrlUpdateJobAlertConfs: '/cloudcanal/console/api/v1/inner/alert/ctrl_updateJobAlertConfs',
 
   // rdp
-  rdpAlertEventList: '/rdp/console/api/v1/alert/event/list'
+  rdpAlertEventList: '/api/entry/alert/event/list'
 };

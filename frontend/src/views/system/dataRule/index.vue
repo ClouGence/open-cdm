@@ -137,7 +137,7 @@
 </template>
 
 <script>
-import deepClone from 'lodash.clonedeep';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 import { hasSchema } from '@/utils';
 import * as Vue from 'vue';
 

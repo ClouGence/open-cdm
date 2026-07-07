@@ -1,0 +1,29 @@
+[from_table_names]
+languageClass: com.clougence.clouddm.ds.sqlserver.language.MsSqlLanguageSpi
+sqlEngineClass: com.clougence.sql.sqlserver.MsSqlSqlEngineSpi
+schema: devtester
+sql:
+select * from |
+expect:
+[
+  {"label":"active_user_view", "kind":"Object", "insertText":"active_user_view"},
+  {"label":"order_table", "kind":"Object", "insertText":"order_table"},
+  {"label":"user_table", "kind":"Object", "insertText":"user_table"}
+]
+----------
+[go_statement_boundary]
+languageClass: com.clougence.clouddm.ds.sqlserver.language.MsSqlLanguageSpi
+sqlEngineClass: com.clougence.sql.sqlserver.MsSqlSqlEngineSpi
+schema: devtester
+sql:
+select * from old_table
+GO
+select * from user_table where |
+expect:
+[
+  {"label":"id", "kind":"Column", "insertText":"id", "icon":"COLUMN-PK"},
+  {"label":"created_at", "kind":"Column", "insertText":"created_at"},
+  {"label":"name", "kind":"Column", "insertText":"name"},
+  {"label":"abs", "kind":"Function", "insertText":"abs()"},
+  {"label":"concat", "kind":"Function", "insertText":"concat()"}
+]

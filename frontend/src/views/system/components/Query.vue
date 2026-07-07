@@ -10,7 +10,7 @@
       </a-select-option>
     </a-select>
     <a-input v-model="query.text" class="text" :placeholder="placeholder" style="width: 280px" />
-    <a-button class="search-btn" type="primary" @click="handleQuery(query)">
+    <a-button class="search-btn" type="primary" ghost @click="handleQuery(query)">
       {{ $t('cha-xun') }}
     </a-button>
   </div>

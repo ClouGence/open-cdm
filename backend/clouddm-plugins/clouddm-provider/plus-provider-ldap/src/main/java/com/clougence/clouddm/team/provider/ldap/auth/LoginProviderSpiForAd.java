@@ -68,7 +68,7 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
     @Override
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) {
         // fetch config
-        BaseConfig conf = ConfigHelper.fetchConfig(this.configService, ownerUid);
+        BaseConfig conf = ConfigHelper.fetchAdConfig(this.configService);
 
         // enable is false.
         if (!containsProvider(conf.getAuthType(), LoginProvider.AD)) {
@@ -107,7 +107,7 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
     public LifeSpiResponse status(String ownerUid, LifeSpiRequest requestDTO) {
         LifeSpiStatus dto = new LifeSpiStatus();
         dto.setRunning(this.configMap.containsKey(ownerUid) || this.contextMap.containsKey(ownerUid));
-        dto.setNameKey(LdapI18nKey.AD_LOGIN_SERVICES_NAME.name());
+        dto.setNameKey(LdapI18nKey.AD_LOGIN_SERVICES_NAME);
         return new LifeSpiResponse(JsonUtils.toJson(dto));
     }
 
@@ -120,7 +120,7 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
 
             String[] split = StringUtils.split(ldapAccount, "\\");
             if (!roleMap.containsKey(split[0])) {
-                throw ThirdPartyApiException.as().with(LdapI18nKey.AD_NET_BIOS_IP_MAP.name());
+                throw ThirdPartyApiException.as().with(LdapI18nKey.AD_NET_BIOS_IP_MAP);
             }
 
             return "ldap://" + roleMap.get(split[0]) + ":" + cfg.getLdapPort();
@@ -166,7 +166,7 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
     private String[] extractSplit(String fullLoginName) {
         int splitIdx = fullLoginName.lastIndexOf("@");
         if (splitIdx == -1) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_LOGIN_FAIL_PRIMARY_MISSING_ARGS.name());
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_LOGIN_FAIL_PRIMARY_MISSING_ARGS);
         }
 
         String userAccount = fullLoginName.substring(0, splitIdx);
@@ -218,7 +218,7 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
         if (!match) {
             String objClass = StringUtils.join(filterd.toArray(), ",");
             log.info("LDAP: user objectClass {} does not match any userType.", objClass);
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_OBJECTCLASS_NOT_ALLOWED_ERROR.name());
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_OBJECTCLASS_NOT_ALLOWED_ERROR);
         }
 
         // user ACL
@@ -242,10 +242,10 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
         user.setBindAccount(finalAdName);
 
         // mapping role
-        RoleData role = searchRole(primaryUser.getInternalUID(), ldapCtx);
+        RoleData role = searchRole(ldapCtx);
         if (role == null) {
             log.info("Ad: user(" + user.getAccount() + ") not found any role, find roleName=" + ldapCtx.getLdapConfig().getLdapRoleMap());
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_USER_ROLE_MAPPING_FAILED.name());
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_USER_ROLE_MAPPING_FAILED);
         }
         user.setRoleId(role.getRoleId());
 
@@ -260,15 +260,15 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
         }
 
         switch (subErrorCode.toLowerCase()) {
-            case "525" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_ACCOUNT_NOT_EXIST.name());
-            case "52e" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_PASSWORD_ERROR.name());
-            case "530" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_LOGIN_NOT_ALLOWED_THIS_TIME.name());
-            case "531" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_LOGIN_NOT_ALLOWED_THIS_PC.name());
-            case "532" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_PASSWORD_EXPIRED.name());
-            case "533" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_USER_DISABLED.name());
-            case "701" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_ACCOUNT_EXPIRED.name());
-            case "773" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_NEED_RESET_PASSWORD.name());
-            case "775" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_ACCOUNT_LOCKED.name());
+            case "525" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_ACCOUNT_NOT_EXIST);
+            case "52e" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_PASSWORD_ERROR);
+            case "530" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_LOGIN_NOT_ALLOWED_THIS_TIME);
+            case "531" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_LOGIN_NOT_ALLOWED_THIS_PC);
+            case "532" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_PASSWORD_EXPIRED);
+            case "533" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_USER_DISABLED);
+            case "701" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_ACCOUNT_EXPIRED);
+            case "773" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_NEED_RESET_PASSWORD);
+            case "775" -> throw ThirdPartyApiException.as().with(e, LdapI18nKey.AD_LOGIN_FAIL_ACCOUNT_LOCKED);
             default -> {
             }
         }
@@ -287,15 +287,15 @@ public class LoginProviderSpiForAd extends BaseLoginProviderSpi implements Login
     private void checkUserAcl(long userAclNum) {
         //https://learn.microsoft.com/en-us/troubleshoot/windows-server/active-directory/useraccountcontrol-manipulate-account-properties
         if (userAclNum == (userAclNum | 2)) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_USER_IS_DISABLED_ERROR.name());
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_USER_IS_DISABLED_ERROR);
         }
     }
 
-    private RoleData searchRole(String primaryUID, BaseCtx ldapCtx) {
+    private RoleData searchRole(BaseCtx ldapCtx) {
         BaseConfig ldapConfig = ldapCtx.getLdapConfig();
         String roleName = ldapConfig.getLdapRoleMap();
         roleName = StringUtils.isEmpty(roleName) ? SecSysRole.DEV_ROLE_NAME : roleName;
-        List<RoleData> roles = this.configService.findRoleByName(primaryUID, roleName);
+        List<RoleData> roles = this.configService.findRoleByName(roleName);
         return CollectionUtils.isEmpty(roles) ? null : roles.get(0);
     }
 

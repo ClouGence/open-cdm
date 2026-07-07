@@ -1,4 +1,4 @@
-const PLUGIN_RESOURCE_PREFIX = '/clouddm/console/api/v1/resource/fetch';
+const PLUGIN_RESOURCE_PREFIX = '/api/entry/resource/fetch';
 
 export const getPluginResourceUrl = (resource, params = {}) => {
   const query = new URLSearchParams({ resource, ...params });

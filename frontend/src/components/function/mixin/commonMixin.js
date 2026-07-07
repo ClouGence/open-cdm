@@ -118,7 +118,7 @@ export default {
       }
 
       try {
-        // 如果指定了文件名，使用 a 标签下载
+        // Use a tab if a filename is specified Load
         if (filename) {
           const a = document.createElement('a');
           a.href = link;
@@ -128,7 +128,7 @@ export default {
           a.click();
           document.body.removeChild(a);
         } else {
-          // 否则直接打开链接
+          // Open the link directly.
           window.open(link, '_blank');
         }
       } catch (err) {

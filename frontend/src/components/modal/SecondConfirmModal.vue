@@ -18,8 +18,15 @@
       {{ $t('qing-shu-ru-zheng-que-de-dong-zuo-ming-cheng') }}
     </Alert>
     <template #footer>
-      <Button @click="handleCancel">{{ $t('guan-bi') }}</Button>
-      <Button @click="handleOk" type="primary">{{ $t('que-ding') }}</Button>
+      <Button v-if="!hideCancelButton" @click="handleCancel">{{ $t('guan-bi') }}</Button>
+      <Button
+        @click="handleOk"
+        :type="confirmButtonType"
+        :disabled="disableConfirmUntilMatched && !isInputMatched"
+        :class="{ 'second-confirm-danger-button': confirmButtonDanger }"
+      >
+        {{ confirmButtonText || $t('que-ding') }}
+      </Button>
     </template>
   </CCModal>
 </template>
@@ -34,7 +41,15 @@ export default {
     handleClose: Function,
     event: String,
     confirmText: String,
-    text: String
+    text: String,
+    confirmButtonText: String,
+    confirmButtonType: {
+      type: String,
+      default: 'primary'
+    },
+    hideCancelButton: Boolean,
+    disableConfirmUntilMatched: Boolean,
+    confirmButtonDanger: Boolean
   },
   data() {
     return {
@@ -45,11 +60,14 @@ export default {
   computed: {
     confirmTarget() {
       return this.confirmText || this.event;
+    },
+    isInputMatched() {
+      return this.inputEvent.trim() === this.confirmTarget;
     }
   },
   methods: {
     handleOk() {
-      if (this.inputEvent.trim() === this.confirmTarget) {
+      if (this.isInputMatched) {
         this.showError = false;
         this.inputEvent = '';
         this.handleConfirm();
@@ -73,4 +91,28 @@ export default {
 };
 </script>
 
-<style scoped lang="less"></style>
+<style scoped lang="less">
+:deep(.second-confirm-danger-button) {
+  min-width: 112px;
+  font-weight: 500;
+
+  &:not([disabled]) {
+    background: var(--error-color, #ff1815);
+    border-color: var(--error-color, #ff1815);
+    color: #ffffff;
+  }
+
+  &:not([disabled]):hover,
+  &:not([disabled]):focus {
+    background: #ff4d4f;
+    border-color: #ff4d4f;
+    color: #ffffff;
+  }
+
+  &:not([disabled]):active {
+    background: #d9363e;
+    border-color: #d9363e;
+    color: #ffffff;
+  }
+}
+</style>

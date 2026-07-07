@@ -16,12 +16,12 @@
 package com.clougence.schema.editor.builder.actions;
 
 public enum WarnLevel {
-    //    /** 一般。*/
+    //    ** General. */
     Normal,
-    //    /** 警告：操作可能失败或部分失败，可能影响。例如：类型变更。*/
+    //    /** Warning: Operations may fail or partially fail, which may affect. For example: change of type. */
     //    Warn,
-    //    /** 危险：可能引起严重后果，不涉及数据丢失，可能失败或部分失败。例如：索引的删改。*/
+    //    /** Dangerous: may have serious consequences, not involving data loss, failure or partial failure. For example, the index is deleted. */
     //    Risk,
-    //    /** 高危：可能引起不可恢复的严重后果，涉及到数据丢失。例如：库表列的删除操作。*/
+    //    /** High-risk: may have serious and irreversible consequences, involving data loss. For example, delete operations in the library table. */
     //    HighRisk,
 }

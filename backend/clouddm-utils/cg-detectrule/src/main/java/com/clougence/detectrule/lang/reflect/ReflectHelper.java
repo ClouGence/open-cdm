@@ -31,9 +31,9 @@ import com.clougence.utils.BeanUtils;
 import com.clougence.utils.ClassUtils;
 import com.clougence.utils.StringUtils;
 
-// domain 根元素不能是：annotation、interface、anonymousClass、array、enum、primitive、set
-// domain 子元素不能是：annotation、interface、anonymousClass、set
-// enum 类型可以通过 EnumOfCode 接口来增强
+// domain root elements cannot be: annotation, interface, anonymousClass, array, enum, primive, set
+// Domain sub-elements cannot be: annotation, interface, anonymousClass, set
+// The enum type can be enhanced by the EnumOfCode interface
 //
 public final class ReflectHelper {
 

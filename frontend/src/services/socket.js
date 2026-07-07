@@ -9,6 +9,7 @@ import Cookies from 'js-cookie';
 
 let rws = null;
 let creatingWebSocket = false;
+const JWT_TOKEN_NAME = 'dm_jwt_token';
 let globalCallback = {
   open: null,
   message: null,
@@ -21,19 +22,19 @@ const DEFAULT_REQUEST_TIMEOUT = 5000;
 const hasWebSocketInstance = () => !!rws;
 
 const buildFullUrl = (url) => {
-  const jwtToken = Cookies.get('jwt_token');
+  const jwtToken = Cookies.get(JWT_TOKEN_NAME);
 
   const params = new URLSearchParams();
 
-  // 添加 locale 参数
+  // Add locale parameter
   params.append('locale', i18n.global.locale.value);
 
   if (process.env.NODE_ENV === 'development' && jwtToken) {
-    // 将 jwt_token 添加到查询参数中（服务器可能从 query string 读取）
-    params.append('jwt_token', jwtToken);
+    // Add jwt token to query parameters (server may read from query string)
+    params.append(JWT_TOKEN_NAME, jwtToken);
   }
 
-  // 如果 URL 中已经有查询参数，使用 & 连接，否则使用 ?
+  // If a query parameter already exists in the URL, use & connection, otherwise use?
   const separator = url.includes('?') ? '&' : '?';
   return `${url}${separator}${params.toString()}`;
 };
@@ -42,7 +43,7 @@ const buildHttpUrl = (path) => `${(process.env.VUE_APP_BASE_URL || '').replace(/
 
 const checkLoginStatus = async () => {
   try {
-    const res = await fetch(buildHttpUrl('/rdp/console/api/v1/user/queryLoginUser'), {
+    const res = await fetch(buildHttpUrl('/api/entry/user/queryLoginUser'), {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -76,7 +77,7 @@ const createWebSocket = async (url) => {
     return;
   }
 
-  // ws连接不支持直接塞入headers、这里通过qeury string，让后端优先读取，解决代理ws连接 401的问题
+  // Ws connection does not support plugging directly into headers, here via qeury string, giving priority to backend reading, resolving agent ws connection 401
   rws = new ReconnectingWebSocket(
     async () => {
       const reconnectLoggedIn = await checkLoginStatus();

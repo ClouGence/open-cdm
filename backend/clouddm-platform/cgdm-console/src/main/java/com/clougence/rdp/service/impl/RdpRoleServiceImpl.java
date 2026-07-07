@@ -28,13 +28,14 @@ import com.clougence.clouddm.api.common.boot.UnifiedPostConstructOrder;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.component.auth.DmAuthLabelService;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.role.CreateRoleFO;
 import com.clougence.clouddm.console.web.model.fo.role.DeleteRoleFO;
 import com.clougence.clouddm.console.web.model.fo.role.UpdateRoleFO;
 import com.clougence.clouddm.console.web.service.auth.RdpRoleService;
+import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
@@ -63,7 +64,7 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
     @Resource
     private AuthDal                        authDal;
     @Resource
-    private DmConsoleConfig                rdpConfig;
+    private ConsoleConfig                  config;
     @Resource
     private DmAuthLabelService             authLabelService;
 
@@ -178,7 +179,7 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
         roleDO.setRoleName(fo.getRoleName());
         roleDO.setAliasName(fo.getRoleName());
         roleDO.setInnerTag(false);
-        roleDO.setRoleAuthLabels(this.authLabelService.normalizeRoleAuthLabels(fo.getAuthLabelList()));
+        roleDO.setRoleAuthLabels(RdpConvertUtils.buildStoredRoleAuthLabels(this.authLabelService.normalizeRoleAuthLabels(fo.getAuthLabelList()), fo.getAuthLabelList()));
 
         int insert = this.authDal.roleMapper().insert(roleDO);
         return new AddRoleMO(insert != 0, roleDO.getId());
@@ -240,7 +241,7 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
         removeLabel.removeAll(keepLabel);
 
         // just remove need remove, keep unknown.
-        Set<String> finalLabel = new HashSet<>(roleDO.getRoleAuthLabels());
+        Set<String> finalLabel = new HashSet<>(RdpConvertUtils.removeSelectedRoleAuthLabelsMeta(roleDO.getRoleAuthLabels()));
         finalLabel.removeAll(removeLabel);
         finalLabel.removeIf(label -> {
             AuthInfo authInfo = this.authLabelService.getAuthLabel(label);
@@ -248,7 +249,7 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
         });
         finalLabel.addAll(keepLabel);
 
-        String labelJson = JsonUtils.toJson(finalLabel);
+        String labelJson = JsonUtils.toJson(RdpConvertUtils.buildStoredRoleAuthLabels(new ArrayList<>(finalLabel), fo.getAuthLabelList()));
         int update = this.authDal.roleMapper().updateRole(roleDO.getId(), fo.getRoleName(), labelJson);
         return ResWebDataUtils.buildSuccess(update != 0);
     }
@@ -273,7 +274,7 @@ public class RdpRoleServiceImpl implements RdpRoleService, UnifiedPostConstruct 
         }
 
         for (String roleName : this.innerRoleInfoDef.keySet()) {
-            if (CollectionUtils.isEmpty(this.rdpConfig.getInnerRoles()) || !this.rdpConfig.getInnerRoles().contains(roleName)) {
+            if (CollectionUtils.isEmpty(this.config.getInnerRoles()) || !this.config.getInnerRoles().contains(roleName)) {
                 continue;
             }
 

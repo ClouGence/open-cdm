@@ -40,7 +40,7 @@ import com.clougence.utils.jdbc.mapper.ValueRowMapper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 达梦 元信息获取，参考资料：
+ * Dameng metadata retrieval references:
  * <li>https://docs.oracle.com/en/database/oracle/oracle-database/21/drdag/all_synonyms-drda-gateway.html#GUID-E814A6AC-5E00-4DB6-8170-DC147F7879F8</li>
  *
  * @author 赵永春 (zyc@hasor.net)

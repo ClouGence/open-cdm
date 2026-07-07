@@ -17,7 +17,7 @@ package com.clougence.utils.reflect.annotations;
 import java.lang.annotation.*;
 
 /**
- * delete 语句
+ * Delete statement
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2021-05-19
  */

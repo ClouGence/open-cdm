@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
- * 数据实际类型。
+ * The actual type of data.
  * @version : 2020-01-22
  * @author 赵永春 (zyc@hasor.net)
  */

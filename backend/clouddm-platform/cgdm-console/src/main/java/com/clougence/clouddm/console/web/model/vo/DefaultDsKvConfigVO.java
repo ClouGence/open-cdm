@@ -15,10 +15,8 @@
  */
 package com.clougence.clouddm.console.web.model.vo;
 
-import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
-import com.clougence.clouddm.platform.dal.model.system.KvConfValType;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.base.metadata.ds.ConfigValType;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,31 +29,10 @@ import lombok.Setter;
 public class DefaultDsKvConfigVO {
 
     private String        configName;
-
     private DsConfigGroup configGroup;
-
     private String        description;
-
     private boolean       valueRequire;
-
     private String        defaultValue;
-
-    private String        valueAdvance;
-
-    private KvConfValType confValType;
-
-    public void convertFromDO(DmDsConfigKv4RdpDO config) {
-        this.description = DmI18nUtils.getMessage(config.getDescKey());
-        this.configName = config.getConfigName();
-        this.configGroup = config.getConfigGroup();
-        this.valueRequire = config.isValueRequire();
-        this.defaultValue = config.getDefaultValue();
-        this.valueAdvance = config.getValueAdvance();
-
-        if (config.getConfValType() != null) {
-            this.setConfValType(config.getConfValType());
-        } else {
-            this.setConfValType(KvConfValType.TEXT);
-        }
-    }
+    private ConfigValType confValType;
+    private boolean       lazy;
 }

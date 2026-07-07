@@ -33,7 +33,7 @@ import lombok.Setter;
 import com.clougence.utils.setting.SettingNode;
 
 /**
- * 要生成数据的列基本信息和配置信息
+ * Column basic information and configuration information to generate data
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -112,17 +112,17 @@ public class FakerColumn {
         return !this.ignoreAct.contains(useFor);
     }
 
-    /** 生成随机值 */
+    /** Generate Random Values */
     public SqlArg generatorData() {
         return this.typeProcessor.buildData(this.column);
     }
 
-    /** 从 RS 中读取并生成 SqlArg */
+    /** Read and generate SQLArg from RS */
     public SqlArg readData(ResultSet rs) throws SQLException {
         return this.typeProcessor.buildData(rs, this.column);
     }
 
-    /** 随机种子的配置 */
+    /** Configure Random Feeds */
     public <T extends SeedConfig> T seedConfig() {
         return (T) this.typeProcessor.getSeedConfig();
     }
@@ -133,13 +133,13 @@ public class FakerColumn {
         return this.column + ", ignoreAct=" + ignoreAct + ", seedAndWriter=" + seedAndWriterString + '}';
     }
 
-    /** 像列配置一个忽略规则 */
+    /** As Column Configure an Ignored Rule */
     public FakerColumn ignoreAct(UseFor... ignoreAct) {
         this.ignoreAct.addAll(Arrays.asList(ignoreAct));
         return this;
     }
 
-    /** 重置列忽略规则 */
+    /** Reset column ignore rules */
     public FakerColumn ignoreReset() {
         this.ignoreAct.clear();
         this.ignoreAct.addAll(this.typeProcessor.getDefaultIgnoreAct());
@@ -156,7 +156,7 @@ public class FakerColumn {
         return this;
     }
 
-    /** 重新创建随机数据发生器 */
+    /** Recreate Random Data Generator */
     void applyConfig() {
         this.typeProcessor.applyConfig();
         this.ignoreAct.addAll(this.typeProcessor.getDefaultIgnoreAct());

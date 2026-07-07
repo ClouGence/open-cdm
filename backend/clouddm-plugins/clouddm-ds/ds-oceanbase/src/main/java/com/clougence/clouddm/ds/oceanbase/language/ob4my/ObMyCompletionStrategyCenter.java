@@ -18,25 +18,17 @@ package com.clougence.clouddm.ds.oceanbase.language.ob4my;
 import java.util.List;
 
 import com.clougence.clouddm.ds.oceanbase.dialect.ob4my.ObForMySQLDialect;
-import com.clougence.clouddm.ds.oceanbase.parser.ob4my.ObMyDslProvider;
-import com.clougence.clouddm.dsfamily.language.completion.CompletionContext;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategy;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategyCenter;
 import com.clougence.clouddm.dsfamily.language.completion.rdb.*;
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
-import com.clougence.dslpaser.antlr.DslHelper;
 
 public class ObMyCompletionStrategyCenter extends CompletionStrategyCenter {
 
     @Override
     protected CompletionDialect dialect(CompletionRequest request) {
         return ObForMySQLDialect.INSTANCE;
-    }
-
-    @Override
-    protected CompletionContext context(CompletionRequest request, CompletionDialect dialect) {
-        return CompletionContext.build(request, dialect, DslHelper.splitDsl(ObMyDslProvider.INSTANCE, request.getSqlText()));
     }
 
     @Override

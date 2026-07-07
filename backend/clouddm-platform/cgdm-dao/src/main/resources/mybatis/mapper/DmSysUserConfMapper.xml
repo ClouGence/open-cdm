@@ -10,17 +10,6 @@
         <result column="uid" property="uid"/>
         <result column="config_name" property="configName"/>
         <result column="config_value" property="configValue"/>
-        <result column="default_value" property="defaultValue"/>
-        <result column="value_range" property="valueRange"/>
-        <result column="read_only" property="readOnly"/>
-        <result column="user_config_tag_type" property="userConfigTagType"
-                javaType="com.clougence.clouddm.platform.dal.model.system.UserConfigTagType"/>
-        <result column="conf_val_type" property="confValType"
-                javaType="com.clougence.clouddm.platform.dal.model.system.KvConfValType"/>
-        <result column="conf_belong" property="confBelong"
-                javaType="com.clougence.clouddm.platform.dal.model.system.ConfBelong"/>
-        <result column="is_secret" property="isSecret"/>
-        <result column="desc_key" property="descKey"/>
     </resultMap>
 
     <sql id="rdpUserKvBaseConfig">
@@ -29,15 +18,7 @@
         gmt_modified,
         uid,
         config_name,
-        config_value,
-        default_value,
-        value_range,
-        read_only,
-        user_config_tag_type,
-        conf_val_type,
-        conf_belong,
-        is_secret,
-        desc_key
+        config_value
     </sql>
 
     <select id="queryByUidAndConfigName" resultMap="rdpUserKvBaseConfigDO">
@@ -49,15 +30,6 @@
         uid = #{uid}
         AND
         config_name = #{configName}
-    </select>
-
-    <select id="listOneConfigTypeByUid" resultMap="rdpUserKvBaseConfigDO">
-        SELECT
-        <include refid="rdpUserKvBaseConfig"/>
-        FROM
-        dm_sys_user_conf
-        WHERE
-        uid = #{uid} and user_config_tag_type = #{type}
     </select>
 
     <select id="listByUid" resultMap="rdpUserKvBaseConfigDO">

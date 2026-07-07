@@ -20,7 +20,7 @@ import java.util.Map;
 import org.apache.ibatis.type.TypeHandler;
 
 /**
- * TypeHandler 的工厂。
+ * Typehandler's factory.
  * @version : 2023-02-14
  * @author 赵永春 (zyc@hasor.net)
  */

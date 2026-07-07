@@ -16,22 +16,22 @@
 package com.clougence.adapter.polar.pormy;
 
 /**
- * MySQL 索引类型
+ * MySQL Index Type
  * 
  * @version : 2021-03-30
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum PolarDBMyIndexType {
 
-    /** 普通索引 */
+    /** Normal index */
     Normal,
-    /** 唯一索引 */
+    /** Unique index */
     Unique,
-    /** 主键索引 */
+    /** Main Key Index */
     Primary,
-    /** 外建索引 */
+    /** External Indexing */
     Foreign,
-    /** 全文索引 */
+    /** Full-text index */
     FullText;
 
     public static PolarDBMyIndexType valueOfCode(String code) {

@@ -20,19 +20,19 @@ public class DmTest {
 
 //    @Test
 //    public void workloadTest() throws Exception {
-//        // 全局配置
+//        // Global Configuration
 //        FakerConfig fakerConfig = new FakerConfig();
 //        fakerConfig.setDbType(DsType.Dameng);
 //        fakerConfig.setTransaction(false);
 //        //        fakerConfig.setPolicy("extreme");
 //        fakerConfig.setDataLoaderFactory(new PrecociousDataLoaderFactory());
-//        fakerConfig.addIgnoreError("唯一性约束");
+//        fakerConfig.addIgnoreError("Unique constraint");
 //        fakerConfig.addIgnoreError("Data truncation: Incorrect datetime value");
 //        fakerConfig.addIgnoreError("Data truncation: Out of range value for column");
 //        //fakerConfig.setOpsRatio("INSERT#30");
 //        fakerConfig.setWriteQps(10);
 //
-//        // 生成器，配置表
+//        // Generator, Configure Table
 //        DruidDataSource dataDs = DsUtils.dsDm8();
 //        FakerFactory factory = new FakerFactory(dataDs, fakerConfig);
 //        FakerRepository generator = new FakerRepository(factory);
@@ -53,11 +53,11 @@ public class DmTest {
 //            tab.apply();
 //        }
 //
-//        // 生成数据
+//        // Generate Data
 //        FakerEngine engine = new FakerEngine(dataDs, generator);
 //        engine.start(3, 10);
 //
-//        // 监控信息
+//        // Monitor Information
 //        long t = System.currentTimeMillis();
 //        while (!engine.isExitSignal()) {
 //            if ((t + 1000) < System.currentTimeMillis()) {

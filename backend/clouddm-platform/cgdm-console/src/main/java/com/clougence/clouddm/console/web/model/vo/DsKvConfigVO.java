@@ -15,8 +15,8 @@
  */
 package com.clougence.clouddm.console.web.model.vo;
 
-import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
-import com.clougence.clouddm.platform.dal.model.system.KvConfValType;
+import com.clougence.clouddm.base.metadata.ds.ConfigValType;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -29,29 +29,17 @@ import lombok.Setter;
 public class DsKvConfigVO {
 
     private Long          id;
-
     private String        configName;
-
     private DsConfigGroup configGroup;
-
     private String        description;
-
     private boolean       valueRequire;
-
     private String        valueValidRegex;
-
     private String        configValue;
-
     private String        defaultValue;
-
-    private String        valueAdvance;
-
-    private KvConfValType confValType;
-
+    private ConfigValType confValType;
     private boolean       readOnly;
-
     private boolean       isSecret;
-
+    private boolean       lazy;
     private boolean       needCreated;
 
 }

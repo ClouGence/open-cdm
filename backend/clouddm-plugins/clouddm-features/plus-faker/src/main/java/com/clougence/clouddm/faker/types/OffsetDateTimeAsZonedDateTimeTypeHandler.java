@@ -26,7 +26,7 @@ import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
 /**
- * 使用 {@link ZonedDateTime} 类型读写 jdbc {@link OffsetDateTime} 数据。
+ * Reads and writes JDBC {@link OffsetDateTime} values as {@link ZonedDateTime}.
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */

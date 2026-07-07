@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.ds.oceanbase.language.ob4my;
 
-import com.clougence.clouddm.ds.oceanbase.parser.ob4my.ObMyDslProvider;
 import com.clougence.clouddm.dsfamily.language.split.SplitStrategyCenter;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
@@ -62,7 +61,7 @@ public class ObMyLanguageSpi implements DsLanguageSpi {
 
     @Override
     public SplitResult split(SplitRequest request) {
-        return this.split.split(request, ObMyDslProvider.INSTANCE);
+        return this.split.split(request);
     }
 
 }

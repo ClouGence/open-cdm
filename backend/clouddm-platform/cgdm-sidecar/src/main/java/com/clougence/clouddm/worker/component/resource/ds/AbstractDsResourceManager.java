@@ -21,29 +21,28 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jakarta.annotation.Resource;
-
 import com.clougence.clouddm.api.sidecar.session.drivers.DriverRef;
 import com.clougence.clouddm.api.sidecar.session.drivers.DriverUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityFileType;
 import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.platform.plugin.info.LeasedDsFactory;
+import com.clougence.clouddm.sdk.execute.dsconf.SslConfig;
 import com.clougence.clouddm.sdk.execute.resource.DsResourceManager;
-import com.clougence.clouddm.worker.component.resource.file.FileResourceManagerImpl;
+import com.clougence.clouddm.worker.component.resource.file.SslConfigManager;
 import com.clougence.drivers.DriverLoader;
+import com.clougence.drivers.DriverVersion;
 import com.clougence.drivers.DsConfigKeys;
-import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class AbstractDsResourceManager implements DsResourceManager {
 
     @Resource
-    private FileResourceManagerImpl          resourceManager;
+    private SslConfigManager                 sslConfigManager;
     private final Map<String, AtomicInteger> resourceCounter = new ConcurrentHashMap<>();
     private final Map<String, Integer>       resourceLimited = new ConcurrentHashMap<>();
 
@@ -51,9 +50,15 @@ public abstract class AbstractDsResourceManager implements DsResourceManager {
     public <C extends DataSourceConfig, T extends AutoCloseable> DsObject<T> requestResource(C dsConfig) throws Exception {
         DriverLoader driverLoader = PluginManager.driverLoader();
         DriverRef driverRef = DriverUtils.parseDriverRef(dsConfig.getDriverVersion());
-        if (driverLoader.findDriver(driverRef.getDriverFamily(), driverRef.getDriverVersion()) == null) {
+        DriverVersion driverVersion = driverLoader.findDriver(driverRef.getDriverFamily(), driverRef.getDriverVersion());
+        if (driverVersion == null) {
             String msg = "dsType '" + dsConfig.getDataSourceType() + "', driverVersion '" + dsConfig.getDriverVersion() + "'";
             throw new RuntimeException(msg + ", no matching Driver exists.");
+        }
+        driverLoader.refreshDriverVersion(driverVersion);
+        if (!driverVersion.isPrepared()) {
+            String msg = "dsType '" + dsConfig.getDataSourceType() + "', driverVersion '" + dsConfig.getDriverVersion() + "'";
+            throw new RuntimeException(msg + ", Driver resource is not prepared.");
         }
 
         final String dsId = dsConfig.getInstanceId();
@@ -110,7 +115,7 @@ public abstract class AbstractDsResourceManager implements DsResourceManager {
     }
 
     @Override
-    public String getSecurityFilePath(DataSourceConfig config, String fileName, SecurityFileType fileType) throws IOException {
-        return this.resourceManager.getFilePath(config, fileName, fileType);
+    public SslConfig fetchSslConfig(DataSourceConfig config) throws IOException {
+        return this.sslConfigManager.fetch(config);
     }
 }

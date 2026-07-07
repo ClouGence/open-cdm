@@ -1,81 +1,71 @@
 <template>
   <div class="step-confirm">
-    <a-tabs v-model:activeKey="activeTab" class="confirm-tabs">
-      <a-tab-pane key="database" :tab="$t('initialization.confirmTabDatabase')">
-        <div class="tab-panel">
-          <div class="summary-section">
-            <div v-for="item in summaryItems" :key="item.key" class="summary-item">
-              <span class="summary-key">{{ item.label }}</span>
-              <span v-if="isEmptyValue(item.value)" class="summary-value summary-value-empty">{{ $t('initialization.emptyValue') }}</span>
-              <span v-else class="summary-value">{{ item.value }}</span>
-            </div>
-          </div>
+    <div class="tab-panel">
+      <div class="summary-section">
+        <div v-for="item in summaryItems" :key="item.key" class="summary-item">
+          <span class="summary-key">{{ item.label }}</span>
+          <span class="summary-value-cell">
+            <EditOutlined v-if="item.editable" class="summary-edit-icon" />
+            <template v-if="item.editable && isBooleanItem(item)">
+              <a-switch
+                class="summary-value-switch"
+                :checked="item.rawValue === 'true'"
+                :checked-children="$t('initialization.optionYes')"
+                :un-checked-children="$t('initialization.optionNo')"
+                @change="handleBooleanValueChange(item, $event)"
+              />
+            </template>
+            <template v-else-if="item.editable">
+              <input
+                class="summary-value-input"
+                :type="summaryInputType(item)"
+                :value="item.rawValue"
+                :placeholder="$t('initialization.emptyValue')"
+                @input="handleValueInput(item, $event)"
+              />
+            </template>
+            <span v-else-if="isEmptyValue(item.value)" class="summary-value summary-value-empty">{{ $t('initialization.emptyValue') }}</span>
+            <span v-else class="summary-value">{{ item.value }}</span>
+          </span>
         </div>
-      </a-tab-pane>
-
-      <a-tab-pane key="scripts" :tab="$t('initialization.executionScripts')">
-        <div class="tab-panel">
-          <div class="summary-section">
-            <div v-if="scriptNames.length" class="script-list">
-              <div v-for="scriptName in scriptNames" :key="scriptName" class="script-item">{{ scriptName }}</div>
-            </div>
-            <div v-else class="summary-empty">{{ $t('initialization.noExecutionScripts') }}</div>
-          </div>
-        </div>
-      </a-tab-pane>
-    </a-tabs>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import { EditOutlined } from '@ant-design/icons-vue';
+
+const INIT_DB_REBUILD_IF_NOT_EMPTY = 'clougence.init.db.rebuildIfNotEmpty';
+const UPGRADE_HIDDEN_FIELD_KEYS = new Set([
+  'jwt.secret',
+  'clougence.init.admin.account',
+  'clougence.init.admin.email',
+  'clougence.init.admin.password'
+]);
+
 export default {
   name: 'StepConfirm',
+  components: { EditOutlined },
+  emits: ['update:formValues'],
   props: {
     fieldDefs: { type: Array, default: () => [] },
     formValues: { type: Object, default: () => ({}) },
-    dbTestResult: { type: Object, default: null },
     mode: { type: String, default: 'full' },
-    workflowMode: { type: String, default: 'initial' },
-    executionScripts: { type: Array, default: () => [] }
-  },
-  data() {
-    return {
-      activeTab: 'database'
-    };
+    workflowMode: { type: String, default: 'initial' }
   },
   computed: {
-    scriptNames() {
-      return this.executionScripts.map((item) => (typeof item === 'string' ? item : item && item.scriptName)).filter(Boolean);
-    },
     summaryItems() {
-      const items = this.fieldDefs.map((field) => ({
-        key: field.propertyKey,
-        label: this.resolveFieldLabel(field),
-        value: this.formValues[field.propertyKey] || ''
-      }));
-
-      if (this.formValues['clougence.init.db.createIfMissing'] === 'true') {
-        items.push({
-          key: this.$t('initialization.confirmCreateDatabase'),
-          label: this.$t('initialization.confirmCreateDatabase'),
-          value: this.$t('initialization.optionYes')
-        });
-      }
-
-      if (
-        this.dbTestResult &&
-        this.dbTestResult.showRebuildChoice &&
-        ['true', 'false'].includes(this.formValues['clougence.init.db.rebuildIfNotEmpty'])
-      ) {
-        items.push({
-          key: this.$t('initialization.confirmRebuildDatabase'),
-          label: this.$t('initialization.confirmRebuildDatabase'),
-          value:
-            this.formValues['clougence.init.db.rebuildIfNotEmpty'] === 'true'
-              ? this.$t('initialization.optionYes')
-              : this.$t('initialization.optionNo')
-        });
-      }
+      const items = this.fieldDefs
+        .filter((field) => this.shouldShowField(field))
+        .map((field) => ({
+          key: field.propertyKey,
+          label: this.resolveFieldLabel(field),
+          rawValue: this.formValues[field.propertyKey] ?? '',
+          value: this.formValues[field.propertyKey] ?? '',
+          inputType: field.inputType || 'text',
+          editable: true
+        }));
 
       return items;
     }
@@ -84,8 +74,37 @@ export default {
     resolveFieldLabel(field) {
       return field.label || field.description || field.propertyKey;
     },
+    shouldShowField(field) {
+      return !(this.workflowMode === 'upgrade' && field && UPGRADE_HIDDEN_FIELD_KEYS.has(field.propertyKey));
+    },
     isEmptyValue(value) {
       return value === null || value === undefined || `${value}`.trim() === '';
+    },
+    isBooleanItem(item) {
+      return item && item.inputType === 'boolean';
+    },
+    summaryInputType(item) {
+      if (item && item.inputType === 'number') {
+        return 'number';
+      }
+
+      if (item && item.inputType === 'password') {
+        return 'password';
+      }
+
+      return 'text';
+    },
+    handleValueInput(item, event) {
+      this.emitValueChange(item, event && event.target ? event.target.value : '');
+    },
+    handleBooleanValueChange(item, checked) {
+      this.emitValueChange(item, checked ? 'true' : 'false');
+    },
+    emitValueChange(item, value) {
+      if (!item || !item.editable) {
+        return;
+      }
+      this.$emit('update:formValues', { [item.key]: value });
     }
   }
 };
@@ -93,45 +112,24 @@ export default {
 
 <style scoped>
 .step-confirm {
-  height: 100%;
   min-height: 0;
-}
-.confirm-tabs {
-  height: 100%;
-}
-.confirm-tabs :deep(.ant-tabs-nav) {
-  margin-bottom: 0;
-}
-.confirm-tabs :deep(.ant-tabs-content-holder) {
-  height: 100%;
-  min-height: 0;
-}
-.confirm-tabs :deep(.ant-tabs-content) {
-  height: 100%;
-}
-.confirm-tabs :deep(.ant-tabs-tabpane) {
-  height: 100%;
-}
-.confirm-tabs :deep(.ant-tabs-tabpane-active) {
-  height: 100%;
 }
 .tab-panel {
-  height: 100%;
+  max-height: calc(100dvh - 312px);
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   border: 1px solid #f0f0f0;
-  border-top: none;
   background: #fff;
   box-sizing: border-box;
 }
 .summary-section {
-  height: 100%;
   margin-bottom: 0;
   background: transparent;
 }
 .summary-item {
   display: flex;
+  align-items: center;
   padding: 12px 16px;
   border-bottom: 1px solid #f0f0f0;
 }
@@ -139,46 +137,68 @@ export default {
   border-bottom: none;
 }
 .summary-key {
+  display: inline-flex;
+  align-items: center;
   font-weight: 500;
-  width: 280px;
+  width: 160px;
+  min-height: 30px;
   flex-shrink: 0;
   color: #595959;
   font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .summary-value {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
   min-width: 0;
   color: #262626;
   word-break: break-all;
   font-size: 13px;
 }
+.summary-value-cell {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.summary-edit-icon {
+  flex: 0 0 auto;
+  color: #52c41a;
+  font-size: 13px;
+}
+.summary-value-input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: #262626;
+  font-size: 13px;
+  line-height: 22px;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+.summary-value-input {
+  height: 30px;
+  padding: 3px 8px;
+}
+.summary-value-input:hover,
+.summary-value-input:focus {
+  border-color: #b7eb8f;
+  background: #fcfffa;
+}
 .summary-value-empty {
   color: #bfbfbf;
 }
-.summary-empty {
-  color: #8c8c8c;
-  font-size: 13px;
-}
-.script-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-.script-item {
-  padding: 12px 16px;
-  border-bottom: 1px solid #f0f0f0;
-  color: #262626;
-  font-size: 13px;
-  word-break: break-all;
-}
-.script-item:last-child {
-  border-bottom: none;
-}
-.summary-empty {
-  padding: 16px;
-}
 @media (max-width: 768px) {
   .summary-key {
-    width: 180px;
+    width: 104px;
   }
 }
 </style>

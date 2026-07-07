@@ -23,7 +23,7 @@ import com.clougence.clouddm.faker.config.dsl.DslFunction;
 import com.clougence.clouddm.faker.config.dsl.DslFunctionRegistry;
 
 /**
- * DSL 函数
+ * DSL function
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2023-02-14
  */

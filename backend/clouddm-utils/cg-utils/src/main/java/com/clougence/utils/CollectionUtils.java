@@ -48,14 +48,14 @@ public class CollectionUtils {
     //--------------------------------------------------------------------------
 
     /**
-     * 切分list
+     * Splits a list into fixed-size groups.
      * @param sourceList
-     * @param groupSize 每组定长
+     * @param groupSize Group size
      */
     public static <T> List<List<T>> splitList(List<T> sourceList, int groupSize) {
         groupSize = Math.max(1, groupSize);
         int length = sourceList.size();
-        // 计算可以分成多少组
+        // Number of groups after splitting.
         long num = (length + (long) groupSize - 1) / groupSize;
         List<List<T>> newList = null;
 
@@ -66,9 +66,9 @@ public class CollectionUtils {
         }
 
         for (int i = 0; i < num; i++) {
-            // 开始位置
+            // Start position.
             int fromIndex = i * groupSize;
-            // 结束位置
+            // End position.
             int toIndex = Math.min((i + 1) * groupSize, length);
             newList.add(sourceList.subList(fromIndex, toIndex));
         }
@@ -77,7 +77,7 @@ public class CollectionUtils {
     // Iterator/Enumeration utilities
     //--------------------------------------------------------------------------
 
-    /** 迭代器类型转换 */
+    /** Converts an iterator to another item type. */
     public static <T, O> Iterator<O> convertIterator(final Iterator<T> oriIterator, final Function<T, O> converter) {
         return new Iterator<O>() {
 
@@ -98,7 +98,7 @@ public class CollectionUtils {
         };
     }
 
-    /** 转换为 Enumeration */
+    /** Converts an iterator to an enumeration. */
     public static <T> Enumeration<T> asEnumeration(final Iterator<T> iterator) {
         return new Enumeration<T>() {
 
@@ -218,7 +218,7 @@ public class CollectionUtils {
         return map;
     }
 
-    /** 合并两个迭代器 */
+    /** Merges two enumerations. */
     public static <T> Enumeration<T> mergeEnumeration(final Enumeration<T> enum1, final Enumeration<T> enum2) {
         final Enumeration<T> i1 = enum1 != null ? enum1 : CollectionUtils.asEnumeration(Collections.emptyIterator());
         final Enumeration<T> i2 = enum2 != null ? enum2 : CollectionUtils.asEnumeration(Collections.emptyIterator());
@@ -241,7 +241,7 @@ public class CollectionUtils {
         };
     }
 
-    /** 合并两个迭代器 */
+    /** Merges two iterators. */
     public static <T> Iterator<T> mergeIterator(final Iterator<T> iterator1, final Iterator<T> iterator2) {
         final Iterator<T> i1 = iterator1 != null ? iterator1 : Collections.emptyIterator();
         final Iterator<T> i2 = iterator2 != null ? iterator2 : Collections.emptyIterator();

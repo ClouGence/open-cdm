@@ -33,14 +33,12 @@ import lombok.Getter;
 public class ValidateContext {
 
     private final ValidateRequest              request;
-    private final DslProvider                  dslProvider;
     private final String                       sqlText;
     private final List<ValidateStatementState> statementStates;
     private final AntlerSyntaxException        syntaxError;
 
-    private ValidateContext(ValidateRequest request, DslProvider dslProvider, List<ValidateStatementState> statementStates, AntlerSyntaxException syntaxError){
+    private ValidateContext(ValidateRequest request, List<ValidateStatementState> statementStates, AntlerSyntaxException syntaxError){
         this.request = request;
-        this.dslProvider = dslProvider;
         this.sqlText = StringUtils.toString(request.getSqlText());
         this.statementStates = List.copyOf(statementStates);
         this.syntaxError = syntaxError;
@@ -52,7 +50,7 @@ public class ValidateContext {
 
         String sqlText = StringUtils.toString(request.getSqlText());
         if (StringUtils.isBlank(sqlText)) {
-            return new ValidateContext(request, dslProvider, List.of(), null);
+            return new ValidateContext(request, List.of(), null);
         }
 
         try {
@@ -60,9 +58,9 @@ public class ValidateContext {
             for (AstSplitScript splitScript : DslHelper.splitDsl(dslProvider, sqlText, new CodeLocation(1, 0))) {
                 statementStates.add(new ValidateStatementState(splitScript));
             }
-            return new ValidateContext(request, dslProvider, statementStates, null);
+            return new ValidateContext(request, statementStates, null);
         } catch (AntlerSyntaxException e) {
-            return new ValidateContext(request, dslProvider, List.of(), e);
+            return new ValidateContext(request, List.of(), e);
         }
     }
 

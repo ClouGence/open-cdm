@@ -29,14 +29,14 @@ import com.clougence.clouddm.console.web.model.fo.mfa.*;
 import com.clougence.clouddm.console.web.model.vo.MfaCodeVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.login.LoginMFAService;
-import com.clougence.rdp.constant.RdpControllerUrlPrefix;
+import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping(value = RdpControllerUrlPrefix.CONSOLE_PREFIX + "/mfa")
+@RequestMapping(value = DmControllerUrlPrefix.CONSOLE_PREFIX + "/mfa")
 public class DmUserMfaController {
 
     @Resource

@@ -41,6 +41,7 @@ public class V202605070002__init_data extends AbstractUpgradeJavaMigration {
     }
 
     private static String buildInitPrimaryUserSql() {
+        String adminAccount = InitSeedConstants.escapeSqlLiteral(InitSeedConstants.resolveAdminAccount());
         String adminEmail = InitSeedConstants.escapeSqlLiteral(InitSeedConstants.resolveAdminEmail());
         String encodedPassword = CryptService.INSTANCE.encryptForOneWay(InitSeedConstants.resolveAdminPassword()).getEncryptPassword();
         String encryptedSecretKey = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(InitSeedConstants.DEFAULT_PRIMARY_SECRET_KEY);
@@ -51,7 +52,7 @@ public class V202605070002__init_data extends AbstractUpgradeJavaMigration {
                                                    `op_locked`, `account_type`, `user_domain`, `disable`, `parent_id`, `maintainer`, `aliyun_ak`, `aliyun_sk`,
                                                    `last_date_update_aliyun_ak`, `bind_type`, `bind_account`, `phone_area_code`,
                                                    `user_status`, `src`, `client_id`, `keyword`, `contact_me`, `country`)
-                        VALUES (1,now(), now(), '%s', 'Trial', '%s', '%s', null, '',
+                        VALUES (1,now(), now(), '%s', '%s', '%s', '%s', null, '',
                             '%s', null, %s,
                             '%s',
                             '%s',
@@ -59,6 +60,7 @@ public class V202605070002__init_data extends AbstractUpgradeJavaMigration {
                             0, null, null, now(), 'INTERNAL', null, null, 'NORMAL', null, null, null, 0, null)\
                 """.formatted(                               //
                 InitSeedConstants.ADMIN_UID,                 //
+                adminAccount,                                //
                 adminEmail,                                  //
                 InitSeedConstants.DEFAULT_PRIMARY_PHONE,     //
                 encodedPassword, ADMIN_ROLE_ID,              //

@@ -29,7 +29,7 @@ import com.clougence.utils.loader.ClassMatcher.ClassInfo;
 import com.clougence.utils.loader.ClassMatcher.ClassMatcherContext;
 
 /**
- * ResourceLoader 的 ClassFinder 接口实现
+ * ClassFinder interface for ResourcesLoader
  * @version : 2021-09-29
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -44,9 +44,9 @@ public class CgResourceScanner {
     }
 
     /**
-     * 扫描jar包中凡是匹配compareType参数的类均被返回。（对执行结果不缓存）
-     * @param matcher 匹配规则。
-     * @return 返回扫描结果。
+     * Returns all classes in the scanned jar package that match the compareType parameter. (Depends on implementation results.)
+     * @param matcher Matching rules.
+     * @return Returns the results of the scan.
      */
     public Set<String> getClassNamesSet(String[] loadPackages, ClassMatcher matcher) {
         String[] packages = new String[loadPackages.length];
@@ -101,7 +101,7 @@ public class CgResourceScanner {
         }
     }
 
-    /** 分析类的字节码，分析过程中会递归解析父类和实现的接口 */
+    /** Parses class bytecode, then reads the parent class and implemented interfaces. */
     public ClassInfo loadClassInfo(String className) throws IOException {
         try (InputStream classStream = this.loader.getResourceAsStream(className.replace('.', '/') + ".class")) {
             if (classStream == null) {
@@ -112,7 +112,7 @@ public class CgResourceScanner {
         }
     }
 
-    /** 分析类的字节码，分析过程中会递归解析父类和实现的接口 */
+    /** Parses class bytecode, then reads the parent class and implemented interfaces. */
     private ClassInfo loadClassInfo(String className, final InputStream inStream) throws IOException {
         /* use ClassReader read basic info. */
         ClassReader classReader = new ClassReader(inStream);
@@ -152,7 +152,7 @@ public class CgResourceScanner {
         if (info.superName != null) {
             try (InputStream superStream = this.loader.getResourceAsStream(info.superName.replace('.', '/') + ".class")) {
                 if (superStream != null) {
-                    this.loadClassInfo(info.superName, superStream);//加载父类
+                    this.loadClassInfo(info.superName, superStream);//Load parent
                 }
             }
         }
@@ -165,8 +165,8 @@ public class CgResourceScanner {
                 }
             }
         }
-        /* 六、类型链 */
-        Set<String> castTypeList = new TreeSet<>();/* 可转换的类型 */
+        /* Type chains */
+        Set<String> castTypeList = new TreeSet<>();/* Convertible Type */
         String superName = info.superName;
         addCastTypeList(info, castTypeList);//this
 

@@ -48,7 +48,7 @@ public class DingTalkMsgSendSpi implements MsgSendSpi {
     public String getServiceUrl() { return "https://www.dingtalk.com/"; }
 
     @Override
-    public String getHelpUrl() { return "https://www.cdmgr.com/docs/devops/provider/devops_im_dingtalk"; }
+    public String getHelpUrl() { return "https://www.cdmgr.com/docs/integrations/devops/devops_im_dingtalk"; }
 
     @SneakyThrows
     @Override
@@ -121,11 +121,11 @@ public class DingTalkMsgSendSpi implements MsgSendSpi {
         OapiRobotSendRequest.Text test = new OapiRobotSendRequest.Text();
         test.setContent(body);
 
-        //定义 @ 对象
+        //Define @ Object
         //OapiRobotSendRequest.At at = new OapiRobotSendRequest.At();
         //at.setAtUserIds(Arrays.asList(USER_ID));
 
-        //设置消息类型
+        //Set Message Type
         req.setMsgtype("text");
         req.setText(test);
         //req.setAt(at);

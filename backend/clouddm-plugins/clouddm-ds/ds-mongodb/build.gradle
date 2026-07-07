@@ -15,12 +15,12 @@
  */
 
 plugins {
-    id 'antlr'
     id 'com.clougence.plugin-conventions'
 }
 
 dependencies {
     // project
+    implementation project(':sql-mongodb')
     implementation project(':dsc-common')
 
     // share lib (compileOnly)
@@ -31,12 +31,3 @@ dependencies {
 }
 
 description = 'ds-mongodb'
-
-configureClougenceAntlrGrammar([outputPath : 'src/main/java/com/clougence/clouddm/ds/mongodb/parser/antlr',
-                                packageName: 'com.clougence.clouddm.ds.mongodb.parser.antlr'])
-
-dependencies {
-    antlr "org.antlr:antlr4:${ANTLR_VERSION}"
-    compileOnly "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
-}
-

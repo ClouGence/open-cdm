@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
@@ -35,18 +35,18 @@ import lombok.SneakyThrows;
 
 public class RdpWebUtils {
 
-    private static DmConsoleConfig                rdpConfig;
+    private static ConsoleConfig                  config;
     private static final ThreadLocal<RequestData> localData = ThreadLocal.withInitial(RequestData::new);
 
-    public static void initUtils(DmConsoleConfig rdpConfig) {
-        if (RdpWebUtils.rdpConfig == null) {
-            RdpWebUtils.rdpConfig = rdpConfig;
+    public static void initUtils(ConsoleConfig config) {
+        if (RdpWebUtils.config == null) {
+            RdpWebUtils.config = config;
         }
     }
 
-    public static void initLocal(DmConsoleConfig rdpConfig, HttpServletRequest request) {
-        initUtils(rdpConfig);
-        localData.set(initData(rdpConfig, request));
+    public static void initLocal(ConsoleConfig config, HttpServletRequest request) {
+        initUtils(config);
+        localData.set(initData(config, request));
     }
 
     public static void cleanLocal() {
@@ -57,11 +57,11 @@ public class RdpWebUtils {
         return localData.get();
     }
 
-    private static RequestData initData(DmConsoleConfig rdpConfig, HttpServletRequest request) {
+    private static RequestData initData(ConsoleConfig config, HttpServletRequest request) {
         RequestData data = new RequestData();
         data.setRequest(true);
         data.requestUri = request.getRequestURI();
-        data.requestContextPath = rdpConfig.getDeployContextPath();
+        data.requestContextPath = config.getDeployContextPath();
         if (StringUtils.isBlank(data.requestContextPath)) {
             data.requestContextPath = request.getScheme() + "://" + request.getHeader("host") + "/";
         } else if (!StringUtils.endsWith(data.requestContextPath, "/")) {
@@ -188,14 +188,14 @@ public class RdpWebUtils {
         cookie.setMaxAge(expiry);
 
         // cookieDomain, first use LoginCookieDomain,second use DeployContextPath.
-        String cookieDomain = rdpConfig.getLoginCookieDomain();
-        if (StringUtils.isBlank(cookieDomain) && StringUtils.isNotBlank(rdpConfig.getDeployContextPath())) {
-            URL contextURL = new URL(rdpConfig.getDeployContextPath());
+        String cookieDomain = config.getLoginCookieDomain();
+        if (StringUtils.isBlank(cookieDomain) && StringUtils.isNotBlank(config.getDeployContextPath())) {
+            URL contextURL = new URL(config.getDeployContextPath());
             cookieDomain = contextURL.getHost();
         }
 
-        if (StringUtils.isNotBlank(rdpConfig.getDeployContextPath())) {
-            URL contextURL = new URL(rdpConfig.getDeployContextPath());
+        if (StringUtils.isNotBlank(config.getDeployContextPath())) {
+            URL contextURL = new URL(config.getDeployContextPath());
             cookie.setDomain(cookieDomain);
             cookie.setPath(StringUtils.isBlank(contextURL.getPath()) ? "/" : contextURL.getPath());
         } else {

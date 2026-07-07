@@ -23,7 +23,7 @@ import com.clougence.schema.dialect.Dialect;
 import com.clougence.utils.StringUtils;
 
 /**
- * 随机查询 SqlDialect 实现
+ * Random query SQLDialec
  * @version : 2020-10-31
  * @author 赵永春 (zyc@hasor.net)
  */

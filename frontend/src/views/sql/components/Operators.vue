@@ -2,21 +2,21 @@
   <div class="operators">
     <div class="operator-character">
       <div class="left">
-        <ButtonGroup class="operator-btn-group">
+        <div class="operator-btn-group">
           <Button size="small" type="primary" :disabled="isRunning" :loading="tab.running" @click="handleRun('run')">
-            <div style="display: flex; align-items: center; padding-top: 2px">
+            <div class="operator-btn-content">
               <CustomIcon v-if="!tab.running" type="icon-v2-ConsoleRun" :color="tab.running ? '#999' : '#fff'" size="14px" right-margin="4px" />
               <span>{{ $t('zhi-hang') }}</span>
             </div>
           </Button>
           <Button size="small" v-if="isSupportExplain" :disabled="isRunning" @click="handlePlan('plan')">
-            <div style="display: flex; align-items: center; padding-top: 2px">
+            <div class="operator-btn-content">
               <CustomIcon type="icon-v2-ConsolePlan" :color="tab.running ? '#999' : isDark ? '#fff' : '#000'" size="14px" right-margin="4px" />
               <span>{{ $t('ji-hua') }}</span>
             </div>
           </Button>
           <Button size="small" v-if="isSupportCancel" :disabled="isStoping" :loading="tab.stopping" @click="handleStop">
-            <div style="display: flex; align-items: center; padding-top: 2px">
+            <div class="operator-btn-content">
               <CustomIcon
                 v-if="!tab.stopping"
                 type="icon-v2-ConsoleStop"
@@ -28,13 +28,13 @@
             </div>
           </Button>
           <Button size="small" v-if="isSupportFormat" @click="formatSql">
-            <div style="display: flex; align-items: center; padding-top: 2px">
+            <div class="operator-btn-content">
               <CustomIcon type="icon-v2-ConsoleFormat" size="12px" right-margin="2px" />
               <span>{{ $t('ge-shi') }}</span>
             </div>
           </Button>
-        </ButtonGroup>
-        <ButtonGroup class="operator-btn-group" v-if="isSupportTx || isSupportIsolation || isSupportReadOnly" style="padding-left: 5px">
+        </div>
+        <div class="operator-btn-group" v-if="isSupportTx || isSupportIsolation || isSupportReadOnly">
           <Button size="small" v-if="isSupportIsolation">
             <Dropdown trigger="click" @on-click="handleSet" transfer>
               {{ tab.autoCommit ? $t('shi-wu-zi-dong') : $t('shi-wu-shou-dong') }}
@@ -90,12 +90,12 @@
           <Button size="small" v-if="isSupportTx" :disabled="isRunning || tab.autoCommit" @click="handleRollback">
             {{ $t('hui-gun') }}
           </Button>
-          <Button size="small" v-if="isSupportReadOnly">
-            <Checkbox v-model="tab.readOnly" @on-change="handleReadOnly">
+          <Button size="small" v-if="isSupportReadOnly" class="readonly-operator-btn" @click="handleReadOnlyClick">
+            <Checkbox :model-value="tab.readOnly">
               {{ $t('zhi-du') }}
             </Checkbox>
           </Button>
-        </ButtonGroup>
+        </div>
       </div>
       <div class="right"></div>
     </div>
@@ -188,6 +188,11 @@ export default {
       if (this.tab.support.autoCommit.conf === 'Allow' && this.tab.sessionId) {
         this.handleSetTx(this.tab.autoCommit);
       }
+    },
+    handleReadOnlyClick() {
+      const next = !this.tab.readOnly;
+      this.tab.readOnly = next;
+      this.handleReadOnly(next);
     }
   }
 };
@@ -206,6 +211,10 @@ export default {
     white-space: nowrap;
 
     .left {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
     }
 
     .right {
@@ -214,8 +223,36 @@ export default {
 }
 
 .operator-btn-group {
-  overflow: hidden;
+  overflow: visible;
   white-space: nowrap;
   display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  :deep(.ivu-btn) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 0 12px;
+  }
+}
+
+.operator-btn-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.operator-btn-content span {
+  display: inline-flex;
+  align-items: center;
+}
+
+.readonly-operator-btn {
+  :deep(.ivu-checkbox-wrapper) {
+    margin-right: 0;
+    pointer-events: none;
+  }
 }
 </style>

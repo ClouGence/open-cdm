@@ -37,19 +37,19 @@ export default {
       currentPosition: {},
       currentDecoration: null,
       defaultOpts: {
-        value: '', // 编辑器的值
+        value: '', // The editor 's value
         language: 'mysql',
         fontSize: 12,
         fontWeight: 'bold',
         tabSize: 4,
         lineNumbersMinChars: 3,
         scrollBeyondLastLine: false,
-        theme: 'vs', // 编辑器主题：vs, hc-black, or vs-dark，更多选择详见官网
+        theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
         minimap: {
           enabled: false
         },
         automaticLayout: true,
-        autoIndent: true // 自动缩进
+        autoIndent: true // Auto Indent
       },
       monacoEditor: null,
       monacoEditorFountCss: 'font-size-14',
@@ -342,7 +342,7 @@ export default {
       ];
       this.monacoEditor.createDecorationsCollection(decorations);
     },
-    // 去除无用的右键菜单
+    // Remove unused context menu items.
     removeUnUseMenuItems() {
       const menus = actions.MenuRegistry._menuItems;
       const contextMenuEntry = Array.from(menus, ([key, value]) => ({ key, value })).find((entry) => entry.key.id === 'EditorContext');
@@ -378,7 +378,7 @@ export default {
       };
       removeById(contextMenuEntry.value, removableIds);
     },
-    // 右键菜单
+    // Context menu actions.
     addActions() {
       this.removeUnUseMenuItems();
       this.monacoEditor.addAction({
@@ -1005,7 +1005,7 @@ export default {
       return ranges.length ? ranges : [{ startOffset: 0, endOffset: text.length }];
     },
     buildLanguageRequest(position = this.monacoEditor?.getPosition(), languageFragment = null) {
-      const fragment = languageFragment || this.getCurrentLanguageFragment(position, true);
+      const fragment = languageFragment || this.getCurrentLanguageFragment(position);
       const cursorLineNumber = position ? Math.max(1, position.lineNumber - fragment.startPosition.lineNumber + 1) : 1;
       const cursorColNumber = position
         ? position.lineNumber === fragment.startPosition.lineNumber

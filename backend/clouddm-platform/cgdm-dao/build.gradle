@@ -22,7 +22,6 @@ dependencies {
     api project(':cgdm-api')
     api project(':cg-drivers')
     api project(':cg-utils')
-    api project(':cgdm-plugin-loader')
 
     // spring
     api "org.springframework.boot:spring-boot-starter-jdbc:${SPRINGBOOT_VERSION}"
@@ -33,6 +32,9 @@ dependencies {
     api "com.baomidou:mybatis-plus-spring-boot4-starter:${MYBATISPLUS_VERSION}"
     api "com.baomidou:mybatis-plus-jsqlparser:${MYBATISPLUS_VERSION}"
     api "com.zaxxer:HikariCP:${HIKARICP_VERSION}"
+
+    testImplementation "com.fasterxml.jackson.core:jackson-databind:${JACKSON_VERSION}"
+    testImplementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.4"
 }
 
 description = 'cgdm-dao'

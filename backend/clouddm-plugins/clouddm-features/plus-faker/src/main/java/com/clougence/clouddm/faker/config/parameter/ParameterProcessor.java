@@ -23,7 +23,7 @@ import com.clougence.schema.umi.special.rdb.RdbColumn;
 import com.clougence.utils.setting.SettingNode;
 
 /**
- * 自定义参数配置方式
+ * Customise parameter configuration
  * @version : 2023-02-14
  * @author 赵永春 (zyc@hasor.net)
  */

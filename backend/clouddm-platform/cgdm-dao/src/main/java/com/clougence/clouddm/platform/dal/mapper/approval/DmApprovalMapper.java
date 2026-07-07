@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.platform.dal.mapper.approval;
 
-import java.util.Date;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
@@ -49,7 +48,7 @@ public interface DmApprovalMapper extends BaseMapper<DmApprovalDO> {
 
     int updateModified(Long id);
 
-    List<Long> listUnFinishTicketIdList(@Param("time") Date time);
+    List<Long> listUnFinishTicketIdList();
 
     DmApprovalDO selectByIdForUpdate(@Param("ticketId") Long ticketId);
 

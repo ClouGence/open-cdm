@@ -11,7 +11,7 @@ async function fetchMyAuthIfNeeded() {
   }
 
   try {
-    const res = await fetch('/rdp/console/api/v1/user/listMyAuth', {
+    const res = await fetch('/api/entry/user/listMyAuth', {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -30,10 +30,14 @@ async function fetchMyAuthIfNeeded() {
 
 const systemChildren = [
   {
-    path: '/system/preference',
-    name: '/system/preference',
+    path: '/settings/preferences',
+    name: '/settings/preferences',
     component: Preference,
     meta: { requiredAuth: 'RDP_PRI_USER_KV_CONF_R' }
+  },
+  {
+    path: 'preference',
+    redirect: '/settings/preferences'
   }
 ].concat(System);
 
@@ -54,19 +58,36 @@ const routes = [
         component: () => import(/* webpackChunkName: "sql" */ '@/views/sql/index')
       },
       {
-        path: 'project',
-        name: 'Project',
-        component: () => import(/* webpackChunkName: "project" */ '@/views/project/index')
+        path: 'cicd',
+        name: 'CICD',
+        component: () => import(/* webpackChunkName: "cicd" */ '@/views/cicd/index')
       },
       {
-        path: 'project/:id',
-        name: 'project/id',
-        component: () => import(/* webpackChunkName: "ticket" */ '../views/project/projectDetail')
+        path: 'cicd/create',
+        name: 'cicd/create',
+        component: () => import(/* webpackChunkName: "cicd-release-flow" */ '@/views/cicd/ReleaseFlowPage'),
+        meta: { requiredAuth: 'DM_CICD_FLOW_MANAGE' }
       },
       {
-        path: 'project/change/:id',
-        name: 'project/change/id',
-        component: () => import(/* webpackChunkName: "ticket" */ '@/views/project/changeDetail')
+        path: 'cicd/:id/release-flow/add',
+        name: 'cicd/release-flow/add',
+        component: () => import(/* webpackChunkName: "cicd-release-flow" */ '@/views/cicd/ReleaseFlowPage'),
+        meta: { requiredAuth: 'DM_CICD_FLOW_MANAGE' }
+      },
+      {
+        path: 'cicd/:id/change-records',
+        name: 'cicd/change-records',
+        component: () => import(/* webpackChunkName: "cicd-change-records" */ '@/views/cicd/changeRecordList')
+      },
+      {
+        path: 'cicd/:id',
+        name: 'cicd/id',
+        component: () => import(/* webpackChunkName: "ticket" */ '../views/cicd/flowDetail')
+      },
+      {
+        path: 'cicd/change/:id',
+        name: 'cicd/change/id',
+        component: () => import(/* webpackChunkName: "ticket" */ '@/views/cicd/changeDetail')
       },
       {
         path: 'ticket',
@@ -86,20 +107,12 @@ const routes = [
       {
         path: 'dmdatasource',
         name: 'System_DataSource_list',
-        redirect: '/system/ccdatasource'
+        redirect: '/datasource'
       },
       {
         path: 'ccdatasource',
         redirect: (to) => ({
-          path: '/system/ccdatasource',
-          query: to.query,
-          hash: to.hash
-        })
-      },
-      {
-        path: 'ccdatasource/params/:id/:instanceId',
-        redirect: (to) => ({
-          path: `/system/ccdatasource/params/${to.params.id}/${to.params.instanceId}`,
+          path: '/datasource',
           query: to.query,
           hash: to.hash
         })
@@ -107,7 +120,7 @@ const routes = [
       {
         path: 'ccdatasource/add',
         redirect: (to) => ({
-          path: '/system/ccdatasource/add',
+          path: '/datasource/add',
           query: to.query,
           hash: to.hash
         })
@@ -115,8 +128,11 @@ const routes = [
       {
         path: 'dmspeclist',
         redirect: (to) => ({
-          path: '/system/dmspeclist',
-          query: to.query,
+          path: '/data-access/rules',
+          query: {
+            ...to.query,
+            tab: 'security'
+          },
           hash: to.hash
         })
       },
@@ -137,9 +153,17 @@ const routes = [
         })
       },
       {
+        path: 'dmspec/:specId/rule/:ruleId/detail',
+        redirect: (to) => ({
+          path: `/system/dmspec/${to.params.specId}/rule/${to.params.ruleId}/detail`,
+          query: to.query,
+          hash: to.hash
+        })
+      },
+      {
         path: 'dmrulelist',
         redirect: (to) => ({
-          path: '/system/dmrulelist',
+          path: '/data-access/rules',
           query: to.query,
           hash: to.hash
         })
@@ -147,7 +171,7 @@ const routes = [
       {
         path: 'dmrule/create',
         redirect: (to) => ({
-          path: '/system/dmrule/create',
+          path: '/data-access/rules/create',
           query: to.query,
           hash: to.hash
         })
@@ -155,20 +179,15 @@ const routes = [
       {
         path: 'dmrule/detail/:id',
         redirect: (to) => ({
-          path: `/system/dmrule/detail/${to.params.id}`,
+          path: `/data-access/rules/detail/${to.params.id}`,
           query: to.query,
           hash: to.hash
         })
       },
       {
-        path: 'dmdatasource/params/:id',
-        name: 'DM_DataSource_Params_Id',
-        redirect: '/system/ccdatasource'
-      },
-      {
         path: 'dmmachine',
         redirect: (to) => ({
-          path: '/system/dmmachine',
+          path: '/data-access/cluster',
           query: to.query,
           hash: to.hash
         })
@@ -176,7 +195,7 @@ const routes = [
       {
         path: 'dmmachine/list/:clusterId',
         redirect: (to) => ({
-          path: `/system/dmmachine/list/${to.params.clusterId}`,
+          path: `/data-access/cluster/list/${to.params.clusterId}`,
           query: to.query,
           hash: to.hash
         })
@@ -248,11 +267,6 @@ const routes = [
         //     component: () => import(/* webpackChunkName: "system-auth" */'@/views/system/auth/index')
         //   },
         //   {
-        //     path: 'datasource/params/:id',
-        //     name: 'System_DataSource_Params/id',
-        //     component: () => import(/* webpackChunkName: "system-datasource" */'@/views/system/user/components/Params')
-        //   },
-        //   {
         //     path: 'datasource/add',
         //     name: 'System_DataSource_Add',
         //     component: () => import(/* webpackChunkName: "system-datasource" */'@/views/system/datasource/steps/Index')
@@ -321,6 +335,13 @@ router.beforeEach(async (to, from, next) => {
   if (requiredAuth && !store.state.myAuth.includes(requiredAuth)) {
     next({ path: store.state.defaultRedirectUrl || '/sql', replace: true });
     return;
+  }
+
+  if (to.matched.some((record) => record.meta.subAccountOnly)) {
+    if (store.state.userInfo?.accountType === 'PRIMARY_ACCOUNT') {
+      next({ path: store.state.defaultRedirectUrl || '/sql', replace: true });
+      return;
+    }
   }
 
   next();

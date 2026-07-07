@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
- * 参数类型
+ * Parameter Type
  * 
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2020-05-21

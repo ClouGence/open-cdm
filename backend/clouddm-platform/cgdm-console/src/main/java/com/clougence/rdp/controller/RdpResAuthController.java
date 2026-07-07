@@ -30,32 +30,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
+import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.BrowseAuthTreeFO;
 import com.clougence.clouddm.console.web.model.fo.ListUserAuthResFO;
 import com.clougence.clouddm.console.web.model.fo.security.*;
-import com.clougence.clouddm.console.web.model.fo.ticket.RdpTicketBasicVO;
-import com.clougence.clouddm.console.web.model.vo.RdpAuthObjectVO;
 import com.clougence.clouddm.console.web.model.vo.ResAuthVO;
 import com.clougence.clouddm.console.web.model.vo.role.RoleAuthTreeVO;
-import com.clougence.clouddm.console.web.service.approval.ApprovalControlService;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.console.web.util.RdpConvertUtils;
+import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthResDO;
 import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.sdk.security.auth.AuthElementType;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.rdp.constant.RdpControllerUrlPrefix;
 import com.clougence.rdp.service.RdpOpAuditService;
 
 import jakarta.annotation.Resource;
@@ -67,7 +63,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author wanshao create time is 2021/1/5
  **/
 @RestController
-@RequestMapping(value = RdpControllerUrlPrefix.CONSOLE_PREFIX + "/auth")
+@RequestMapping(value = DmControllerUrlPrefix.CONSOLE_PREFIX + "/auth")
 @Slf4j
 public class RdpResAuthController {
 
@@ -77,17 +73,6 @@ public class RdpResAuthController {
     private DmAuthServiceForBiz    authServiceForBiz;
     @Resource
     private RdpOpAuditService      opAuditService;
-    @Resource
-    private ApprovalControlService approvalControlService;
-
-    @RequestAuth(strategy = Ignore)
-    @RequestMapping(value = "/listElementsOfLevel", method = RequestMethod.POST)
-    public ResWebData<?> listElementsOfLevel(@Valid @RequestBody ListElementsOfLevelFO levelsFO, HttpServletRequest request) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-
-        List<RdpAuthObjectVO> result = this.authServiceForManage.listElements(puid, levelsFO.getResPaths(), levelsFO.getAuthKind());
-        return ResWebDataUtils.buildSuccess(result);
-    }
 
     // --------------------------------
     //      for Auth Manage
@@ -212,15 +197,6 @@ public class RdpResAuthController {
         List<DmAuthResDO> data = this.authServiceForManage.listUserAuthWithoutLabels(uid, fo.getAuthKind());
         List<ResAuthVO> collect = data.stream().map(RdpConvertUtils::convertToResAuthVO).collect(Collectors.toList());
         return ResWebDataUtils.buildSuccess(collect);
-    }
-
-    @RequestAuth(strategy = Ignore)
-    @RequestMapping(value = "/listMyAuthTicket", method = RequestMethod.POST)
-    public ResWebData<?> listMyAuthTicket(@Valid @RequestBody ListMyAuthTicketFO fo, HttpServletRequest request) {
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        fo.setUid(uid);
-        IPage<RdpTicketBasicVO> data = this.approvalControlService.queryAuthTicketListByPage(uid, fo);
-        return ResWebDataUtils.buildSuccess(data);
     }
 
 }

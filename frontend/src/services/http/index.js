@@ -12,7 +12,7 @@ Object.entries(api).forEach((item) => {
   services[item[0]] = (options = {}) => request({ url, ...options });
 });
 
-// 使用 app.config.globalProperties 设置全局属性
+// Set global properties using app.config. globalProperties
 const app = createApp({});
 app.config.globalProperties.$services = services;
 

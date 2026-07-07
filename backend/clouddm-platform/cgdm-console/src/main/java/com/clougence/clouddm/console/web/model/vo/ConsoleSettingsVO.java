@@ -35,6 +35,7 @@ public class ConsoleSettingsVO {
 
     private Map<String, List<DsMenu>>     menus;
     private Map<DataSourceType, DsConfig> dsSettingDef;
+    private List<List<DsSupportNameVO>>   dsSupportNames;
     private List<FormatConvertDef>        fmtConvertDef;
 
 }

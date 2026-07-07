@@ -1,7 +1,6 @@
-import dayjs from 'dayjs';
-import moment from 'moment';
+import dayjs from '@/utils/dayjsSetup';
 import i18n from '@/i18n';
-import deepClone from 'lodash.clonedeep';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 import DataSourceGroup from '../views/dataSourceGroup.json';
 
 export const formatTime = (value, fmt = 'YYYY/MM/DD') => dayjs(value).format(fmt);
@@ -19,9 +18,9 @@ export const hasSchema = (type) => dsGroup.hasSchema.includes(type);
 export const noStruct = (type) => dsGroup.noStruct.includes(type);
 
 export const dateRange = {
-  1: [moment(), moment().add(1, 'd')],
-  7: [moment(), moment().add(1, 'w')],
-  30: [moment(), moment().add(1, 'M')]
+  1: [dayjs(), dayjs().add(1, 'd')],
+  7: [dayjs(), dayjs().add(1, 'w')],
+  30: [dayjs(), dayjs().add(1, 'M')]
 };
 
 export const isDb2 = (type) => DataSourceGroup.db2.includes(type);
@@ -135,7 +134,7 @@ export const DS_RIGHT_CLICK_MENU_ITEM = {
   MENU_BROWSE_COPY_NAME: 'MENU_BROWSE_COPY_NAME',
   MENU_BROWSE_COPY_JDBC: 'MENU_BROWSE_COPY_JDBC',
   MENU_BROWSE_PERMISSIONS: 'MENU_BROWSE_PERMISSIONS',
-  // ***** 复制 //
+  // ***** Copy / /
   MENU_BROWSE_REFRESH: 'MENU_BROWSE_REFRESH',
   MENU_BROWSE_INSTANCE_REFRESH: 'MENU_BROWSE_INSTANCE_REFRESH',
   MENU_BROWSE_CATALOG_REFRESH: 'MENU_BROWSE_CATALOG_REFRESH',
@@ -351,10 +350,10 @@ export const JOB_TYPE = {
 };
 
 export const JOB_MODE = {
-  CREATE: 'CREATE', // 新建任务
-  EDIT: 'EDIT', // 修改订阅
-  FULL_EDIT: 'FULL_EDIT', // 全量修改订阅
-  SIMILAR: 'SIMILAR' // 相似任务
+  CREATE: 'CREATE', // New Task
+  EDIT: 'EDIT', // Modify Subscription
+  FULL_EDIT: 'FULL_EDIT', // Fully modify subscriptions
+  SIMILAR: 'SIMILAR' // Similar tasks
 };
 
 export const CHECK_MODE = {
@@ -423,9 +422,9 @@ export const MAPPING_RULE = {
 };
 
 /**
- * 表列数量计算在勾选的时候全部算好，不再重复计算
- * dbMap用来存放表列数据
- * 保持库表列的引用链
+ * Table number calculated when all is counted and no more double counting
+ * dbMap to store tabulated data
+ * Keep the quote chain for the library column
  */
 
 export const BATCH_ACTION_INIT_SETTING = {
@@ -461,11 +460,11 @@ export const EMPTY_DB = {
   whiteTabs: '',
   hideWhiteTabs: '',
   customTargetTableOptions: [],
-  /* 用于批量action的联动 */
+  /* Connection for Batchaction */
   batchActions: [],
   hideSelectAll: false,
   tableDefaultSelected: false,
-  // 批量勾选
+  // Batch Check
   ...BATCH_ACTION_INIT_SETTING,
   /* ------------------ */
   sourceType: '',
@@ -479,11 +478,11 @@ export const EMPTY_DB = {
   targetInstanceId: '',
   targetDb: '',
   targetSchema: '',
-  /* -------- 表勾选 --------- */
-  targetTableList: [], // 当前映射对端的表列表
+  /* -------- Checklist - - - */
+  targetTableList: [], // Table list of current map-to-end
   allTableList: [],
-  tableList: [], // 经过筛选的表列表
-  showTableList: [], // 当前页的表列表
+  tableList: [], // Filtered Table List
+  showTableList: [], // Table list for the current page
   selectedTableList: [],
   showSelectedTableList: [],
   pageData: {
@@ -491,23 +490,23 @@ export const EMPTY_DB = {
     size: 20,
     total: 0
   },
-  filterList: [], // 所有 table filter 表筛选的选项
-  tableFilterType: '', // 当前 table filter 表筛选的选项
-  tableFilterName: '', // 搜索项
+  filterList: [], // Options for filtering all table tables
+  tableFilterType: '', // Options for the current table filter
+  tableFilterName: '', // Search Item
   selectedTables: {},
   selectedColumns: {},
-  tableMappingRule: '', // 目标表映射规则
+  tableMappingRule: '', // Target Map Rules
   pageTableSelectedAll: false,
   pageTableSelectedIndeterminate: false,
-  pageTableCount: 0, // 当前页勾选的表的数量
+  pageTableCount: 0, // Number of Tables Selected on Current Page
   tableSelectedAll: false,
   tableSelectedIndeterminate: false,
-  tableCount: 0, // 勾选的表的数量
-  tableMappingCount: 0, // 映射数量
-  tableNeedAutoCreatedCount: 0, // 待创建数量
-  /* --------- 辅助 ---------*/
-  theDb: '', // 用于消息等链路db辅助判断
-  theSchema: '' // 用于消息等链路schema辅助判断
+  tableCount: 0, // Number of ticked tables
+  tableMappingCount: 0, // Map Number
+  tableNeedAutoCreatedCount: 0, // Number to be created
+  /* --------- Auxiliary - - */
+  theDb: '', // Use as a link to information db to aid judgment
+  theSchema: '' // It's used as a link between messages and schema.
 };
 
 export const EMPTY_ORIGINAL_CONFIG = {
@@ -645,7 +644,7 @@ export const EMPTY_CLEAN_DATA_CONFIG = {
 
 export const EMPTY_TASK_INFO = {
   jobName: 'db1_db1_migrate_001',
-  step: JOB_STEP.ORIGINAL, // 步骤
+  step: JOB_STEP.ORIGINAL, // Steps
   mode: JOB_MODE.CREATE,
   jobType: JOB_TYPE.SYNC,
   reviseBindCheckTaskId: '',
@@ -659,16 +658,16 @@ export const EMPTY_TASK_INFO = {
   createJobLoading: false,
   common: {
     isFullDatabaseSync: false,
-    tableDefaultDisabled: '', // 表禁止选择
+    tableDefaultDisabled: '', // Table Disable Selection
     tableDefaultSelected: false,
     maxSelectAllCount: 100000
-  }, // 基础配置 表设置等等
+  }, // Basic configuration table settings, etc.
   originalConfig: deepClone(EMPTY_ORIGINAL_CONFIG),
   functionConfig: deepClone(EMPTY_FUNCTION_CONFIG),
   tableFilterConfig: deepClone(EMPTY_TABLE_FILTER_CONFIG),
   cleanDataConfig: deepClone(EMPTY_CLEAN_DATA_CONFIG),
   overview: {},
-  jobData: {} // 修改订阅或者相似任务的详情和schema
+  jobData: {} // Modify Subscription or Similar Job Details and Schema
 };
 
 export const NAME_MAPPING_RULE = {
@@ -679,13 +678,13 @@ export const NAME_MAPPING_RULE = {
 
 export const TABLE_ACTION = {
   SET_PARTITION: 'SET_PARTITION',
-  DATA_TRANSFORM: 'DATA_TRANSFORM', // 数据清洗
-  TARGET_PRIMARY_KEY: 'TARGET_PRIMARY_KEY', // 设置目标主键
+  DATA_TRANSFORM: 'DATA_TRANSFORM', // Data Cleaning
+  TARGET_PRIMARY_KEY: 'TARGET_PRIMARY_KEY', // Set Target Primary Key
   DATA_FILTER: 'DATA_FILTER',
   VIRTUAL_COLUMN: 'VIRTUAL_COLUMN',
-  CROP_COLUMN: 'CROP_COLUMN', // 裁剪列
-  SET_EMBEDDING: 'SET_EMBEDDING', // 设置大模型
-  SET_PARTITION_EXPR: 'SET_PARTITION_EXPR' // 设置数据分区表达式
+  CROP_COLUMN: 'CROP_COLUMN', // Crop Row
+  SET_EMBEDDING: 'SET_EMBEDDING', // Set Large Model
+  SET_PARTITION_EXPR: 'SET_PARTITION_EXPR' // Set Data Partition Expression
 };
 
 export const DATA_FILTER_TYPE = {

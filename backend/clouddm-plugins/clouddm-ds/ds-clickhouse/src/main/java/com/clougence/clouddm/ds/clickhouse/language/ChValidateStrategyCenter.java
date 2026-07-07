@@ -17,20 +17,11 @@ package com.clougence.clouddm.ds.clickhouse.language;
 
 import java.util.List;
 
-import com.clougence.clouddm.ds.clickhouse.parser.ChSqlDslProvider;
 import com.clougence.clouddm.dsfamily.language.validate.SyntaxValidateStrategy;
 import com.clougence.clouddm.dsfamily.language.validate.ValidateStrategy;
 import com.clougence.clouddm.dsfamily.language.validate.ValidateStrategyCenter;
-import com.clougence.clouddm.sdk.language.validate.ValidateRequest;
-import com.clougence.dslpaser.antlr.DslProvider;
 
 public class ChValidateStrategyCenter extends ValidateStrategyCenter {
-
-    @Override
-    protected DslProvider dslProvider(ValidateRequest request) {
-        return ChSqlDslProvider.INSTANCE;
-    }
-
     @Override
     protected void register(List<ValidateStrategy> strategies) {
         strategies.add(new SyntaxValidateStrategy());

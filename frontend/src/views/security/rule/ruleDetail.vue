@@ -3,11 +3,12 @@ import { mapActions, mapState } from 'vuex';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
 import TicketEditor from '@/components/editor/TicketEditor';
 import { EMPTY_FORCE_RULE_MODAL } from '@/const';
-import deepClone from 'lodash.clonedeep';
+import DataSourceRangeTags from '@/views/security/components/DataSourceRangeTags';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 
 export default {
   name: 'RuleDetail',
-  components: { TicketEditor, ReadOnlyEditor },
+  components: { DataSourceRangeTags, TicketEditor, ReadOnlyEditor },
   data() {
     return {
       supportTargets: [],
@@ -72,10 +73,16 @@ export default {
     ...mapState(['ruleSetting']),
     isView() {
       return this.type === 'view';
+    },
+    querySupportDs() {
+      return this.ruleSetting?.queryConf?.supportDs || [];
+    },
+    saveButtonText() {
+      return this.$t('que-ren');
     }
   },
-  mounted() {
-    this.getRuleSetting();
+  async mounted() {
+    await this.getRuleSetting();
     if (this.$route.query.ruleKind) {
       this.ruleForm.ruleKind = this.$route.query.ruleKind;
     } else {
@@ -111,6 +118,7 @@ export default {
           dsRange
         };
         this.ruleParamList = ruleParameter;
+        this.handleDsRangChange(dsRange, false);
         if (this.$refs.ruleEditor) {
           this.$refs.ruleEditor.setSql(ruleContent);
         }
@@ -131,18 +139,32 @@ export default {
     handleCloseModal() {
       this.forceRuleModal = deepClone(EMPTY_FORCE_RULE_MODAL);
     },
-    handleDsRangChange(dsRange) {
+    handleRuleKindChange(ruleKind) {
+      if (ruleKind !== 'QUERY') {
+        this.ruleForm.dsRange = [];
+        this.ruleForm.targetType = '';
+        this.supportTargets = [];
+      }
+    },
+    handleDsRangChange(dsRange, shouldValidate = true) {
+      this.ruleForm.dsRange = Array.isArray(dsRange) ? dsRange : [];
       const targetsList = [];
+      const targetsMap = this.ruleSetting?.queryConf?.targets || {};
       if (dsRange && Array.isArray(dsRange)) {
         dsRange.forEach((dsType) => {
-          if (this.ruleSetting.queryConf.targets[dsType]) {
-            targetsList.push(this.ruleSetting.queryConf.targets[dsType]);
+          if (targetsMap[dsType]) {
+            targetsList.push(targetsMap[dsType]);
           }
         });
       }
 
-      console.log(targetsList);
-      this.supportTargets = targetsList.reduce((data, item) => data.filter((i) => item.some((j) => i.name === j.name)));
+      this.supportTargets = targetsList.length ? targetsList.reduce((data, item) => data.filter((i) => item.some((j) => i.name === j.name))) : [];
+      if (!this.supportTargets.some((target) => target.name === this.ruleForm.targetType)) {
+        this.ruleForm.targetType = '';
+      }
+      if (shouldValidate && this.$refs.ruleForm) {
+        this.$refs.ruleForm.validateField('dsRange');
+      }
     },
     async handleEditRule(force = false) {
       this.$refs.ruleForm.validate(async (valid) => {
@@ -164,7 +186,7 @@ export default {
                 this.$Message.success(res.data.message);
                 this.forceRuleModal = deepClone(EMPTY_FORCE_RULE_MODAL);
                 await this.$router.push({
-                  path: '/system/dmrulelist',
+                  path: '/data-access/rules',
                   query: {
                     ruleKind: this.ruleForm.ruleKind
                   }
@@ -188,71 +210,76 @@ export default {
 
 <template>
   <div class="rule-detail-container">
-    <Breadcrumb>
-      <BreadcrumbItem :to="`/system/dmrulelist?ruleKind=${ruleForm.ruleKind}`">
-        {{ $t('gui-ze-lie-biao') }}
-      </BreadcrumbItem>
-      <BreadcrumbItem>
-        {{ type === 'create' ? $t('xin-jian-gui-ze') : type === 'view' ? $t('gui-ze-xiang-qing') : $t('bian-ji-gui-ze') }}
-      </BreadcrumbItem>
-    </Breadcrumb>
-    <div class="rule-detail">
-      <div class="left">
-        <div class="editor">
-          <div class="title">{{ $t('jiao-ben') }}</div>
-          <div class="content">
-            <ReadOnlyEditor :text="ruleForm.ruleContent" v-if="isView" />
-            <TicketEditor ref="ruleEditor" v-else />
-          </div>
-        </div>
-        <div class="params">
-          <div class="title" v-if="!isView">
-            {{ $t('can-shu') }}
-            <Button @click="handleExtractParam" type="text" size="small">
-              {{ $t('ti-qu-can-shu') }}
-            </Button>
-          </div>
-          <div class="content">
-            <Table :columns="ruleParamColumns" :data="ruleParamList" size="small" border></Table>
-          </div>
-        </div>
-      </div>
-      <div class="right">
-        <Form ref="ruleForm" :model="ruleForm" :rules="ruleFormValidate">
+    <div class="rule-detail-layout">
+      <div class="rule-config-card">
+        <div class="rule-section-title">{{ $t('gui-ze-pei-zhi') }}</div>
+        <Form ref="ruleForm" class="rule-config-form" :model="ruleForm" :rules="ruleFormValidate" label-position="top">
           <FormItem :label="$t('gui-ze-lei-xing')" prop="ruleKind">
-            <Select v-model="ruleForm.ruleKind" :disabled="isView" clearable>
+            <Select v-model="ruleForm.ruleKind" :disabled="isView" clearable @on-change="handleRuleKindChange">
               <Option value="QUERY">{{ $t('cha-xun') }}</Option>
               <Option value="SENSITIVE">{{ $t('tuo-min') }}</Option>
             </Select>
           </FormItem>
           <FormItem :label="$t('gui-ze-ming-cheng')" prop="ruleName">
-            <Input v-model="ruleForm.ruleName" :disabled="isView" clearable />
+            <Input v-model="ruleForm.ruleName" :disabled="isView" clearable maxlength="64" :placeholder="$t('qing-shu-ru-gui-ze-ming-cheng')" />
           </FormItem>
           <FormItem :label="$t('gui-ze-miao-shu')">
-            <Input v-model="ruleForm.ruleDesc" type="textarea" :disabled="isView" clearable />
+            <Input
+              v-model="ruleForm.ruleDesc"
+              type="textarea"
+              :autosize="{ minRows: 2, maxRows: 3 }"
+              :disabled="isView"
+              clearable
+              maxlength="200"
+              :placeholder="$t('qing-shu-ru-gui-ze-miao-shu-ke-xuan')"
+            />
           </FormItem>
-          <FormItem :label="$t('shu-ju-yuan')" v-if="ruleForm.ruleKind === 'QUERY'" prop="dsRange">
-            <Select v-model="ruleForm.dsRange" multiple :disabled="isView" clearable @on-change="handleDsRangChange">
-              <Option v-for="ds in ruleSetting.queryConf.supportDs" :value="ds.name" :key="ds.name">
-                {{ ds.i18n }}
-              </Option>
-            </Select>
+          <FormItem class="rule-ds-range-form-item" :label="$t('shu-ju-yuan')" v-if="ruleForm.ruleKind === 'QUERY'" prop="dsRange">
+            <DataSourceRangeTags v-if="isView" :ds-range="ruleForm.dsRange" />
+            <DataSourceRangeTags
+              v-else
+              v-model="ruleForm.dsRange"
+              selectable
+              :options="querySupportDs"
+              :placeholder="$t('qing-xuan-ze-shu-ju-yuan')"
+              @change="handleDsRangChange"
+            />
           </FormItem>
           <FormItem :label="$t('dui-xiang-lei-xing')" v-if="ruleForm.ruleKind === 'QUERY'" prop="targetType">
-            <Select v-model="ruleForm.targetType" :disabled="isView" clearable>
+            <Select v-model="ruleForm.targetType" :disabled="isView" clearable :placeholder="$t('qing-xuan-ze-dui-xiang-lei-xing-ke-xuan')">
               <Option v-for="target in supportTargets" :value="target.name" :key="target.name">
                 {{ target.i18n }}
               </Option>
             </Select>
           </FormItem>
-          <FormItem>
-            <div style="display: flex; justify-content: flex-end">
-              <Button type="primary" @click="handleEditRule(false)" v-if="!isView">
-                {{ type === 'create' ? $t('xin-jian-gui-ze') : $t('bian-ji-gui-ze') }}
-              </Button>
-            </div>
-          </FormItem>
         </Form>
+      </div>
+      <div class="rule-workspace">
+        <div class="rule-panel rule-script-panel">
+          <div class="rule-panel-header rule-script-header">
+            <span>{{ $t('jiao-ben-nei-rong') }}</span>
+            <Button type="primary" @click="handleEditRule(false)" v-if="!isView">
+              {{ saveButtonText }}
+            </Button>
+          </div>
+          <div class="rule-editor-content">
+            <ReadOnlyEditor :text="ruleForm.ruleContent" v-if="isView" />
+            <TicketEditor ref="ruleEditor" v-else />
+          </div>
+        </div>
+        <div class="rule-panel rule-param-panel">
+          <div class="rule-panel-header rule-param-header">
+            <span class="rule-param-title">{{ $t('can-shu') }}</span>
+            <button type="button" class="rule-param-extract-button" @click="handleExtractParam" v-if="!isView">
+              {{ $t('ti-qu-can-shu') }}
+            </button>
+          </div>
+          <Table :columns="ruleParamColumns" :data="ruleParamList" size="small" border :locale="{ emptyText: $t('zan-wu-shu-ju') }">
+            <template #empty>
+              <span class="rule-param-empty-text">{{ $t('zan-wu-shu-ju') }}</span>
+            </template>
+          </Table>
+        </div>
       </div>
     </div>
     <Modal
@@ -270,63 +297,160 @@ export default {
 
 <style scoped lang="less">
 .rule-detail-container {
-  padding: 10px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   height: 100%;
   width: 100%;
+  min-height: 0;
+  overflow: auto;
+  background: #fff;
+}
 
-  .rule-detail {
-    margin-top: 10px;
-    flex: 1;
-    border: 1px solid #ccc;
-    display: flex;
-    width: 100%;
+.rule-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(340px, 420px) minmax(0, 1fr);
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+}
 
-    .left {
-      width: calc(~'100% - 300px');
-      border-right: 1px solid #ccc;
-      display: flex;
-      flex-direction: column;
+.rule-config-card,
+.rule-panel {
+  background: #fff;
+  border: 1px solid #e5e6eb;
+  border-radius: 8px;
+}
 
-      .editor {
-        flex: 1;
-        min-height: 0;
-      }
+.rule-config-card {
+  min-width: 0;
+  padding: 20px;
+  overflow: auto;
+}
 
-      .params {
-        border-top: 1px solid #ccc;
-        height: 300px;
-      }
+.rule-section-title,
+.rule-panel-header {
+  color: #1f2937;
+  font-size: 16px;
+  font-weight: 600;
+}
 
-      .editor,
-      .params {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
+.rule-section-title {
+  margin-bottom: 18px;
+}
 
-        .title {
-          padding-left: 10px;
-          border-bottom: 1px solid #ccc;
-          height: 36px;
-          display: flex;
-          align-items: center;
-          font-weight: bold;
-        }
+.rule-config-form {
+  :deep(.ivu-form-item) {
+    margin-bottom: 18px;
+  }
 
-        .content {
-          width: 100%;
-          flex: 1;
-          min-height: 0;
-          overflow: auto;
-        }
-      }
-    }
+  :deep(.ivu-form-item-label) {
+    color: #5b667a;
+    font-weight: 600;
+  }
 
-    .right {
-      width: 300px;
-      padding: 20px;
-    }
+  :deep(.ivu-form-item-error-tip) {
+    position: static !important;
+    top: auto;
+    left: auto;
+    padding-top: 6px;
+    line-height: 18px;
+  }
+}
+
+.rule-workspace {
+  display: grid;
+  grid-template-rows: minmax(360px, 1fr) 240px;
+  gap: 16px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.rule-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.rule-panel-header {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 18px;
+  border-bottom: 1px solid #e5e6eb;
+}
+
+.rule-script-header {
+  justify-content: space-between;
+}
+
+.rule-panel-header .ivu-btn {
+  margin-left: 10px;
+}
+
+.rule-param-header {
+  align-items: center;
+}
+
+.rule-param-title,
+.rule-param-extract-button {
+  display: inline-flex;
+  align-items: baseline;
+  height: 22px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 22px;
+}
+
+.rule-param-title {
+  color: #1f2937;
+}
+
+.rule-param-extract-button {
+  margin-left: 12px;
+  padding: 0;
+  color: #24a877;
+  font-family: inherit;
+  background: transparent;
+  border: 0;
+  outline: none;
+  cursor: pointer;
+}
+
+.rule-param-extract-button:hover {
+  color: #139766;
+}
+
+.rule-editor-content {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.rule-param-panel {
+  :deep(.ivu-table-wrapper),
+  :deep(.ivu-table) {
+    border-radius: 0;
+  }
+}
+
+.rule-param-empty-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 58px;
+  color: #9aa3b2;
+}
+
+@media (max-width: 1180px) {
+  .rule-detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .rule-workspace {
+    grid-template-rows: 420px 240px;
   }
 }
 </style>

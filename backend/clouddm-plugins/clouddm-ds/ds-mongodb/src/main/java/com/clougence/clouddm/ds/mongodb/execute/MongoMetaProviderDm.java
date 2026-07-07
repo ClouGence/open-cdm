@@ -40,7 +40,7 @@ import com.clougence.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Redis 元信息获取，参考资料：
+ * Redis metadata access, reference:
  *
  * @version : 2021-04-29
  * @author 赵永春 (zyc@hasor.net)

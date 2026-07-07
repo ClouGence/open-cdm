@@ -1,8 +1,8 @@
 module.exports = {
-  // 需要检查的文件类型
+  // File type to check
   fileExtensions: ['.vue', '.js', '.ts'],
 
-  // 需要排除的目录和文件
+  // Directory and file to exclude
   excludePatterns: [
     'node_modules',
     'dist',
@@ -30,7 +30,7 @@ module.exports = {
     'src/services/socket.js',
     'src/utils/index.js',
 
-    // dm相关代码暂不做检测
+    // dm-related codes are not tested
     'src/views/sql',
     'src/views/ticket',
     'src/views/project',
@@ -43,27 +43,27 @@ module.exports = {
     'src/components/editor'
   ],
 
-  // 需要排除的行模式（注释、TODO等）
+  // Line Mode to Exclude (Note, TODO, etc.)
   excludeLinePatterns: [
-    /^\s*\/\//, // 单行注释
-    /^\s*\*/, // 多行注释
-    /^\s*\/\*/, // 多行注释开始
-    /^\s*\*\//, // 多行注释结束
-    /console\.(log|warn|error|info)/, // 控制台输出
-    /TODO/, // TODO标记
-    /FIXME/, // FIXME标记
-    /NOTE/, // NOTE标记
-    /\/\*[\s\S]*?\*\//, // 多行注释块
-    /^\s*<!--/, // HTML注释
-    /^\s*-->/ // HTML注释结束
+    /^\s*\/\//, // Single-line comment
+    /^\s*\*/, // Multi-line comment
+    /^\s*\/\*/, // Start of multi-line comment
+    /^\s*\*\//, // End of multi-line comment
+    /console\.(log|warn|error|info)/, // Console output
+    /TODO/, // TODO marker
+    /FIXME/, // FIXME marker
+    /NOTE/, // NOTE marker
+    /\/\*[\s\S]*?\*\//, // Multiline Comment Block
+    /^\s*<!--/, // HTML comment
+    /^\s*-->/ // End of HTML comment
   ],
 
-  // 不需要国际化的中文词汇（技术术语、常见词汇等）
+  // No internationalized Chinese vocabulary (technical terms, common terminology, etc.)
   excludeTerms: [],
 
-  // 是否在检测到问题时阻止提交
+  // Whether or not to prevent submission when detected
   failOnError: true,
 
-  // 是否显示详细信息
+  // Whether to show details
   verbose: true
 };

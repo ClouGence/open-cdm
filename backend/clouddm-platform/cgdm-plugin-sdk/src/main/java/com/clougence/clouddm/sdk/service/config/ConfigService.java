@@ -27,9 +27,9 @@ import com.clougence.schema.umi.struts.UmiTypes;
 
 public interface ConfigService extends Service {
 
-    List<ConfigData> fetchSettings(String ownerUid, List<String> names);
+    List<ConfigData> fetchSettings(List<String> names);
 
-    DataSourceConfig fetchDsConfig(long dsId, DataSourceType dsType);
+    DataSourceConfig fetchDsConfig(long dsId);
 
     ToolConfig fetchToolConfig(String toolName);
 

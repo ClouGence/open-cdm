@@ -26,7 +26,7 @@ import com.clougence.clouddm.team.provider.gitee.resource.GiteeScmIconResourceSp
 
 import okhttp3.OkHttpClient;
 
-@Plugin
+@Plugin(name = "i18n::" + GiteeI18nKeys.PLUGIN_NAME_GITEE)
 public class GiteePlugin implements DsPlugin {
 
     @Override

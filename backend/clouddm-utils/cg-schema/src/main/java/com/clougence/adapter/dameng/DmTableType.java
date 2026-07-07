@@ -18,7 +18,7 @@ package com.clougence.adapter.dameng;
 import com.clougence.schema.metadata.TableType;
 
 /**
- * 达梦 表类型
+ * Type of table
  * @version : 2021-04-29
  * @author 赵永春 (zyc@hasor.net)
  */

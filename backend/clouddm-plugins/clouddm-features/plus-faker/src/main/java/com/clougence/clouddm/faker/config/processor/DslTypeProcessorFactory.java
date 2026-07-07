@@ -78,7 +78,7 @@ import com.clougence.utils.ref.LinkedCaseInsensitiveMap;
 import com.clougence.utils.setting.SettingNode;
 
 /**
- * 读取并解析 tpc 配置文件，并根据类型和数据库信息选择对应的 tpc 配置。利用 tpc 的配置信息来创建 TypeProcessor。
+ * Read and parse the tpc profile and select the corresponding tpc configuration by type and database information. Create TypeProcessor using tpc configuration information.
  * @version : 2023-02-14
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -143,7 +143,7 @@ public class DslTypeProcessorFactory implements TypeProcessorFactory {
         }
     }
 
-    /** 查找可用的 tpcConfig 配置 */
+    /** Find available tpcConfig configurations */
     protected List<URI> loadTpcURIs(FakerEngineConfig config) throws IOException {
         String customTpcConf = config.getCustomTpcConf();
 
@@ -198,7 +198,7 @@ public class DslTypeProcessorFactory implements TypeProcessorFactory {
         //                }, new String[] { "META-INF/faker-default-dbtpc/" });
     }
 
-    /** 解析 tpcConfig 配置 */
+    /** Parsing tpcConfig Configuration */
     private List<TypeProcessConfSet> parseTypeProcessConf(DataSourceType dbType, List<URI> uriList) throws IOException {
         List<TypeProcessConfSet> allTpcConf = new ArrayList<>();
         for (URI uri : uriList) {
@@ -230,7 +230,7 @@ public class DslTypeProcessorFactory implements TypeProcessorFactory {
         return allTpcConf;
     }
 
-    /** 选择一个 tpcConfig 配置 */
+    /** Select a tpcConfig configuration */
     protected TypeProcessConfSet chooseTypeProcessConf(FakerEngineConfig config, List<TypeProcessConfSet> allTpcConf) throws IOException {
         boolean isCustom = StringUtils.isNotBlank(config.getCustomTpcConf());
         if (isCustom) {

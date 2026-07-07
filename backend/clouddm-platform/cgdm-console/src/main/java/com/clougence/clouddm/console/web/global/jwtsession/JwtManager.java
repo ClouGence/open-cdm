@@ -25,8 +25,8 @@ import org.springframework.web.util.WebUtils;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForManage;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.service.auth.RdpRoleService;
@@ -37,7 +37,6 @@ import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
-import com.clougence.rdp.constant.RdpControllerUrlPrefix;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Nonnull;
@@ -54,15 +53,15 @@ public class JwtManager {
 
     public final static String     CSRF_TOKEN_NAME        = "csrf-token";
     @Resource
-    private DmConsoleConfig        rdpConfig;
+    private ConsoleConfig          config;
     @Resource
     private JwtService             jwtService;
     @Resource
-    private RdpUserService         rdpUserService;
+    private RdpUserService         userService;
     @Resource
-    private DmAuthServiceForManage rdpAuthServiceForManage;
+    private DmAuthServiceForManage authServiceForManage;
     @Resource
-    private RdpRoleService         rdpRoleService;
+    private RdpRoleService         roleService;
 
     private final Set<String>      ignoreEndWithUrl       = new HashSet<>();
     private final Set<String>      includeVerifyStartWith = new HashSet<>();
@@ -73,30 +72,12 @@ public class JwtManager {
     }
 
     protected void configUrl(Set<String> includeVerifyStartWith, Set<String> ignoreEndWithUrl) {
-        // RDP
-        includeVerifyStartWith.add(RdpControllerUrlPrefix.CONSOLE_PREFIX);
+        includeVerifyStartWith.add(DmControllerUrlPrefix.CONSOLE_PREFIX);
         includeVerifyStartWith.add("/logout");
         includeVerifyStartWith.add("/switchSaasMode");
 
-        ignoreEndWithUrl.add(RdpControllerUrlPrefix.CONSOLE_PREFIX + "/user/resetpasswd");
-        ignoreEndWithUrl.add(RdpControllerUrlPrefix.CONSOLE_PREFIX + "/verify/sendcode");
-        ignoreEndWithUrl.add(RdpControllerUrlPrefix.CONSOLE_PREFIX + "/constant/sso_type");
-        ignoreEndWithUrl.add(RdpControllerUrlPrefix.CONSOLE_PREFIX + "/authcode/onlinecheckauthcode");
-        ignoreEndWithUrl.add(RdpControllerUrlPrefix.CONSOLE_PREFIX + "/authcode/order/checkpayresult");
-        ignoreEndWithUrl.add(RdpControllerUrlPrefix.CONSOLE_PREFIX + "/authcode/order/stripePayResult");
-        ignoreEndWithUrl.add(RdpControllerUrlPrefix.CONSOLE_PREFIX + "/user/recordandreturndownloadurlbydm");
-        ignoreEndWithUrl.add(RdpControllerUrlPrefix.CONSOLE_PREFIX + "/marketplace/notifications/handle");
-        ignoreEndWithUrl.add(RdpControllerUrlPrefix.CONSOLE_PREFIX + "/authcode/order/alipayLicenseCallback");
-        ignoreEndWithUrl.add(RdpControllerUrlPrefix.CONSOLE_PREFIX + "/authcode/order/alipayPrepayCallback");
-        ignoreEndWithUrl.add(RdpControllerUrlPrefix.CONSOLE_PREFIX + "/authcode/order/stripeLicenseCallback");
-        ignoreEndWithUrl.add(RdpControllerUrlPrefix.CONSOLE_PREFIX + "/authcode/order/stripePrepayCallback");
-        ignoreEndWithUrl.add(RdpControllerUrlPrefix.CONSOLE_PREFIX + "/authcode/order/autoapplylicense");
-        ignoreEndWithUrl.add(RdpControllerUrlPrefix.CONSOLE_PREFIX + "/saas/queryPriceMeta");
-
-        // DM
-        includeVerifyStartWith.add(DmControllerUrlPrefix.CONSOLE_PREFIX);
-        ignoreEndWithUrl.add(DmControllerUrlPrefix.CONSOLE_PREFIX + "/version");
-        ignoreEndWithUrl.add(DmControllerUrlPrefix.CONSOLE_PREFIX + "/dm_global_settings");
+        ignoreEndWithUrl.add(DmControllerUrlPrefix.CONSOLE_PREFIX + "/verify/sendcode");
+        ignoreEndWithUrl.add(DmControllerUrlPrefix.CONSOLE_PREFIX + "/dmGlobalSettings");
         ignoreEndWithUrl.add(DmControllerUrlPrefix.CONSOLE_PREFIX + "/resource/fetch");
     }
 
@@ -143,7 +124,7 @@ public class JwtManager {
             return true;
         }
 
-        DmAuthRoleDO roleDO = this.rdpRoleService.fetchRoleById(roleId);
+        DmAuthRoleDO roleDO = this.roleService.fetchRoleById(roleId);
         if (roleDO == null) {
             return false;
         }
@@ -223,7 +204,7 @@ public class JwtManager {
             return responseNotLogin(requestAuth, request, response, errorMessage);
         }
 
-        if (this.rdpConfig.getActiveCsrfCheck()) {
+        if (this.config.getActiveCsrfCheck()) {
             boolean isCsrfVerifySuccess = verifyCsrfToken(request, jwt.getToken());
             if (!isCsrfVerifySuccess) {
                 String errorMessage = "Csrf verify failed. Maybe there have csrf attacks. Received request url is " + //
@@ -233,7 +214,7 @@ public class JwtManager {
             }
         }
 
-        DmAuthUserDO userDO = this.rdpUserService.getUserByUid(uid);
+        DmAuthUserDO userDO = this.userService.getUserByUid(uid);
         if (userDO == null) {
             String errorMessage = "user (" + uid + ") not exist.";
             return responseNotLogin(requestAuth, request, response, errorMessage);
@@ -260,7 +241,7 @@ public class JwtManager {
             return responseSystemError(errorMessage);
         }
 
-        if (requestAuth != null && requestAuth.checkOpPassword() && this.rdpConfig.isOppassword()) {
+        if (requestAuth != null && requestAuth.checkOpPassword() && this.config.isOppassword()) {
             if (StringUtils.isBlank(userDO.getOpPassword())) {
                 String errorMessage = "operate password not set. ";
                 log.error(errorMessage);
@@ -288,12 +269,12 @@ public class JwtManager {
                 request.setAttribute(RdpUserService.PUID, uid);
                 primaryUser = userDO;
             } else {
-                primaryUser = this.rdpUserService.getUserById(userDO.getParentId());
+                primaryUser = this.userService.getUserById(userDO.getParentId());
                 request.setAttribute(RdpUserService.PUID, primaryUser.getUid());
             }
 
             RdpWebUtils.currentLocal().setCurrentUser(userDO);
-            RdpWebUtils.currentLocal().setCurrentRole(userDO.getRoleId() == null ? null : this.rdpRoleService.fetchRoleById(userDO.getRoleId()));
+            RdpWebUtils.currentLocal().setCurrentRole(userDO.getRoleId() == null ? null : this.roleService.fetchRoleById(userDO.getRoleId()));
             RdpWebUtils.currentLocal().setPrimaryUser(primaryUser);
             return responseOk();
         } else {
@@ -308,7 +289,7 @@ public class JwtManager {
                         authStrB.append(",");
                     }
 
-                    AuthInfo authLabel = this.rdpAuthServiceForManage.getAuthLabel(auth);
+                    AuthInfo authLabel = this.authServiceForManage.getAuthLabel(auth);
                     if (authLabel != null) {
                         authStrB.append(DmI18nUtils.getMessage(authLabel.getKeyI18n()));
                     } else {

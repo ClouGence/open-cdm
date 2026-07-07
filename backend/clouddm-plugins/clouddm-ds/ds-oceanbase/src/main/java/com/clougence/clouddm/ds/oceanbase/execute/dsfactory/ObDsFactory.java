@@ -36,6 +36,7 @@ public class ObDsFactory implements DsFactory<Connection> {
         for (DsConfigKeys confKey : DsConfigKeys.values()) {
             props.remove(confKey.getConfigKey());
         }
+        props.entrySet().removeIf(entry -> entry.getValue() == null || StringUtils.isBlank(String.valueOf(entry.getValue())));
 
         String id = dsConfig.getProperty(DsConfigKeys.ID.getConfigKey());
         String username = dsConfig.getProperty(DsConfigKeys.USER.getConfigKey());
@@ -44,7 +45,7 @@ public class ObDsFactory implements DsFactory<Connection> {
         String connTimeoutMs = dsConfig.getProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey());
         String soTimeoutSec = dsConfig.getProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey());
         String clientName = dsConfig.getProperty(DsConfigKeys.CLIENT_NAME.getConfigKey());
-        String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
+        String clientEncoding = dsConfig.getProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey());
         String clientTimeZone = dsConfig.getProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey());
         String tcpKeepAlive = dsConfig.getProperty(DsConfigKeys.TCP_KEEP_ALIVE.getConfigKey());
         String autoCommit = dsConfig.getProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey());
@@ -70,8 +71,11 @@ public class ObDsFactory implements DsFactory<Connection> {
         if (StringUtils.isNotBlank(soTimeoutSec)) {
             props.put("socketTimeout", Long.parseLong(soTimeoutSec) * 1000);
         }
+        if (StringUtils.isNotBlank(clientEncoding)) {
+            props.put("characterEncoding", clientEncoding.trim());
+        }
         if (StringUtils.isNotBlank(clientTimeZone)) {
-            props.put("connectionTimeZone", clientTimeZone);
+            props.put("serverTimezone", clientTimeZone);
         }
         if (StringUtils.isNotBlank(tcpKeepAlive)) {
             props.put("tcpKeepAlive", tcpKeepAlive);
@@ -103,12 +107,7 @@ public class ObDsFactory implements DsFactory<Connection> {
         }
 
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
-        String defaultSchema;
-        if (StringUtils.isNotBlank(dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey()))) {
-            defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
-        } else {
-            defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
-        }
+        String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
 
         String[] ipPort = host.split(":");
         if (ipPort.length == 1) {

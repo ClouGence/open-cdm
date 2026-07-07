@@ -197,7 +197,7 @@ public class ApprovalController {
     //
 
     @RequestAuth(level = HIGH, value = RDP_WORKER_ORDER_READ)
-    @RequestMapping(value = "/listbasic", method = RequestMethod.POST)
+    @RequestMapping(value = "/listBasic", method = RequestMethod.POST)
     public ResWebData<?> listTicketsBasic(@Valid @RequestBody RdpListTicketFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);

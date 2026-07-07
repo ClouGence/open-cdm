@@ -17,41 +17,47 @@ package com.clougence.clouddm.ds.mysql.dsconf;
 
 import java.util.Properties;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigDef;
-import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.*;
+import com.clougence.clouddm.dsfamily.mysql.i18n.MyConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 /**
  * @author bucketli 2020/11/5 20:29
  */
 @Getter
 @Setter
+@FieldNameConstants
 @Serialization(provider = MySerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MyConfig extends DataSourceConfig {
-
-    @ConfigDef(name = "connectionCharset", defaultValue = "utf8", descKey = ConfigI18nKey.CONFIG_MYSQL_CONN_CHARSET_DESCRIPTION, readOnly = false)
+    // ------------------------------------------------------------------------------------------------------------------------ GENERAL
+    @ConfigDef(name = Fields.defaultSchema, //
+            group = DsConfigGroup.GENERAL, labelKey = MyConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_LABEL, descKey = MyConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_DESC, readOnly = false)
+    private String  defaultSchema;
+    // ------------------------------------------------------------------------------------------------------------------------ OPTIONS
+    @ConfigDef(name = Fields.clientTimeZone, defaultValue = "Asia/Shanghai", //
+            group = DsConfigGroup.OPTIONS, labelKey = MyConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_LABEL, descKey = MyConfigI18nKeys.CONFIG_RDB_CLIENT_TIME_ZONE_DESC, readOnly = false)
+    private String  clientTimeZone;
+    // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
+    @ConfigDef(name = Fields.connectTimeoutMs, defaultValue = "5000", //
+            group = DsConfigGroup.ADVANCED, labelKey = MyConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_LABEL, descKey = MyConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_DESC, readOnly = false)
+    private Long    connectTimeoutMs;
+    @ConfigDef(name = Fields.soTimeoutSec, defaultValue = "10", //
+            group = DsConfigGroup.ADVANCED, labelKey = MyConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_LABEL, descKey = MyConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_DESC, readOnly = false)
+    private Integer soTimeoutSec;
+    @ConfigDef(name = Fields.connectionCharset, defaultValue = "utf8", //
+            group = DsConfigGroup.ADVANCED, labelKey = MyConfigI18nKeys.CONFIG_MY_CONN_CHARSET_LABEL, descKey = MyConfigI18nKeys.CONFIG_MY_CONN_CHARSET_DESC, readOnly = false)
     private String  connectionCharset;
-
-    @ConfigDef(name = "useCursorFetch", valueRequire = false, descKey = ConfigI18nKey.CONFIG_MYSQL_CONN_USE_CURSOR_FETCH, readOnly = false, valueAdvance = "true - false", group = DsConfigGroup.OPTIONS)
-    private Boolean useCursorFetch;
 
     public MyConfig(){
         setDataSourceType(DataSourceType.MySQL);
-    }
-
-    @Override
-    public void deserialize() {
-        super.deserialize();
     }
 
     public Properties asDriverProperties() {
@@ -61,17 +67,120 @@ public class MyConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.USER.getConfigKey(), safeStr(this.getUserName()));
         properties.setProperty(DsConfigKeys.PASSWORD.getConfigKey(), safeStr(this.getPassword()));
         properties.setProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey(), safeStr(this.getDefaultSchema()));
+        properties.setProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey(), safeStr(StringUtils.toString(this.getAutoCommit())));
         properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), safeStr(StringUtils.toString(this.getConnectTimeoutMs())));
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
-        properties.setProperty("use_cursor_fetch", safeStr(StringUtils.toString(this.getUseCursorFetch())));
+        properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), safeStr(this.getClientTimeZone()));
+        properties.setProperty("sslMode", this.mySslMode());
+        if (this.getSslMode() != null) {
+            switch (this.getSslMode()) {
+                case CA, TRUSTSTORE -> {
+                    if (this.getSslMode() == SslMode.TRUSTSTORE && !hasSslCaConfig()) {
+                        throw new IllegalArgumentException("MySQL TrustStore is required.");
+                    }
+                    applyTrustStore(properties);
+                }
+                case KEYSTORE_TRUSTSTORE -> {
+                    if (!hasSslCaConfig()) {
+                        throw new IllegalArgumentException("MySQL TrustStore is required.");
+                    }
+                    if (!hasSslClientCertConfig()) {
+                        throw new IllegalArgumentException("MySQL KeyStore is required.");
+                    }
+                    applyTrustStore(properties);
+                    applyClientKeyStore(properties);
+                }
+                case CLIENT_CERT -> {
+                    if (!hasSslCaConfig()) {
+                        throw new IllegalArgumentException("MySQL CA certificate is required.");
+                    }
+                    applyTrustStore(properties, "");
+                    String clientKeyStoreFilePath = StringUtils.isNotBlank(this.getSslClientKeyFilePath()) ? this.getSslClientKeyFilePath() : this.getSslClientCertFilePath();
+                    if (StringUtils.isBlank(clientKeyStoreFilePath) && !hasSslClientKeyStoreConfig()) {
+                        throw new IllegalArgumentException("MySQL client KeyStore is required.");
+                    }
+                    if (StringUtils.isBlank(clientKeyStoreFilePath)) {
+                        break;
+                    }
+                    properties.setProperty("clientCertificateKeyStoreUrl", "file:" + clientKeyStoreFilePath);
+                    String clientKeyStoreFormat = StringUtils.isNotBlank(this.getSslClientKeyFilePath()) ? this.getSslClientKeyFileFormat() : this.getSslClientCertFileFormat();
+                    properties.setProperty("clientCertificateKeyStoreType", keyStoreType(clientKeyStoreFormat, "client certificate"));
+                    properties.setProperty("fallbackToSystemKeyStore", "false");
+                    if (StringUtils.isNotBlank(this.getSslClientKeyPassword())) {
+                        properties.setProperty("clientCertificateKeyStorePassword", this.getSslClientKeyPassword());
+                    }
+                }
+                default -> {
+                }
+            }
+        }
         properties.setProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey(), safeStr(this.getConnectionCharset()));
-        properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), "Asia/Shanghai");
-        properties.setProperty("useSSL", "false");
+        properties.setProperty("useCursorFetch", "false");
         properties.setProperty("allowPublicKeyRetrieval", "true");
         properties.setProperty("allowMultiQueries", "true");
         properties.setProperty("rewriteBatchedStatements", "true");
         properties.setProperty("useServerPrepStmts", "true");
         properties.setProperty("useOldAliasMetadataBehavior", "true");
         return properties;
+    }
+
+    private boolean hasSslCaConfig() {
+        return StringUtils.isNotBlank(this.getSslCaFilePath()) || StringUtils.isNotBlank(this.getSslCaData());
+    }
+
+    private boolean hasSslClientCertConfig() {
+        return StringUtils.isNotBlank(this.getSslClientCertFilePath()) || StringUtils.isNotBlank(this.getSslClientCertData());
+    }
+
+    private boolean hasSslClientKeyStoreConfig() {
+        return hasSslClientCertConfig() || StringUtils.isNotBlank(this.getSslClientKeyFilePath()) || StringUtils.isNotBlank(this.getSslClientKeyData());
+    }
+
+    private void applyTrustStore(Properties properties) {
+        applyTrustStore(properties, safeStr(this.getSslCaPassword()));
+    }
+
+    private void applyTrustStore(Properties properties, String password) {
+        if (StringUtils.isBlank(this.getSslCaFilePath())) {
+            return;
+        }
+        properties.setProperty("trustCertificateKeyStoreUrl", "file:" + this.getSslCaFilePath());
+        properties.setProperty("trustCertificateKeyStoreType", keyStoreType(this.getSslCaFileFormat(), "CA"));
+        properties.setProperty("trustCertificateKeyStorePassword", password);
+        properties.setProperty("fallbackToSystemTrustStore", "false");
+    }
+
+    private void applyClientKeyStore(Properties properties) {
+        if (StringUtils.isBlank(this.getSslClientCertFilePath())) {
+            return;
+        }
+        properties.setProperty("clientCertificateKeyStoreUrl", "file:" + this.getSslClientCertFilePath());
+        properties.setProperty("clientCertificateKeyStoreType", keyStoreType(this.getSslClientCertFileFormat(), "client certificate"));
+        properties.setProperty("clientCertificateKeyStorePassword", safeStr(this.getSslClientKeyPassword()));
+        properties.setProperty("fallbackToSystemKeyStore", "false");
+    }
+
+    private String keyStoreType(String format, String usage) {
+        if (StringUtils.isBlank(format)) {
+            return "PKCS12";
+        }
+        return switch (format.toLowerCase()) {
+            case "p12", "pfx" -> "PKCS12";
+            case "jks" -> "JKS";
+            default -> throw new IllegalArgumentException("MySQL SSL " + usage + " file must be a KeyStore");
+        };
+    }
+
+    private String mySslMode() {
+        if (getSslMode() == null) {
+            return "DISABLED";
+        }
+        return switch (getSslMode()) {
+            case TRUST -> "REQUIRED";
+            case CA, TRUSTSTORE -> "VERIFY_CA";
+            case KEYSTORE_TRUSTSTORE -> "VERIFY_IDENTITY";
+            case CLIENT_CERT -> "VERIFY_IDENTITY";
+            default -> "DISABLED";
+        };
     }
 }

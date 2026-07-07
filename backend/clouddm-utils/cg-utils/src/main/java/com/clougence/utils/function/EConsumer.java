@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 import com.clougence.utils.ExceptionUtils;
 
 /**
- * Consumer 允许异常抛出。
+ * Consumer variant that allows throwing exceptions.
  * @version 2021-01-23
  * @author 赵永春 (zyc@hasor.net)
  */

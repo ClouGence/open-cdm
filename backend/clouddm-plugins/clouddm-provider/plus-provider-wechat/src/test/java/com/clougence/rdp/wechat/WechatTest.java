@@ -20,6 +20,7 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.clougence.clouddm.team.provider.wechat.approval.WechatApprovalCallbackSpi;
@@ -31,6 +32,8 @@ import cn.felord.api.ApprovalApi;
 import cn.felord.api.WorkWeChatApi;
 import cn.felord.domain.approval.ApprovalSpNo;
 
+// Manual probe against the live WeCom API with real corp credentials, never runnable in CI.
+@Disabled("manual integration test against live WeCom API")
 public class WechatTest {
 
     @Test

@@ -19,14 +19,15 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
-import com.clougence.clouddm.base.metadata.ds.*;
+import com.clougence.clouddm.base.metadata.ds.ConfigDef;
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.*;
 import com.clougence.clouddm.console.web.component.whitelist.WhiteListService;
@@ -36,18 +37,17 @@ import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.UiMenus18nKey;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
+import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
+import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigMap;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
-import com.clougence.clouddm.sdk.language.DsLanguageSupport;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
+import com.clougence.clouddm.sdk.language.DsLanguageSupport;
 import com.clougence.clouddm.sdk.resource.ResourceCategory;
 import com.clougence.clouddm.sdk.resource.ResourceSpi;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
@@ -58,14 +58,11 @@ import com.clougence.clouddm.sdk.ui.menus.DsMenuType;
 import com.clougence.clouddm.sdk.ui.template.CmdTemplateOption;
 import com.clougence.clouddm.sdk.ui.template.CmdTemplateSpi;
 import com.clougence.drivers.DriverLoader;
-import com.clougence.rdp.component.dskvconfig.RdpDsExtraConfGen;
-import com.clougence.rdp.component.dskvconfig.RdpDsResourceService;
 import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.utils.ClassUtils;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
-import com.clougence.utils.ref.BeanMap;
-
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
@@ -79,7 +76,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     @Resource
     private DataSourceDal                       dsDal;
     @Resource
-    private RdpDsResourceService                dsResourceService;
+    private ObjectCacheDao                      cacheDao;
     @Resource
     private ConsoleConfigService                configService;
     @Resource
@@ -107,6 +104,18 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     }
 
     @Override
+    public Map<DataSourceType, DsConfig> dsConstantSettings() {
+        Map<DataSourceType, DsConfig> data = new HashMap<>();
+        for (DataSourceType dsType : DataSourceType.values()) {
+            DsConfig dsConfig = this.dsConstantSettings(dsType);
+            if (dsConfig != null) {
+                data.put(dsType, dsConfig.clone());
+            }
+        }
+        return data;
+    }
+
+    @Override
     public DsConfig dsConstantSettings(DataSourceType dsType) {
         if (PluginManager.findDsPlugin(dsType) == null || !this.whiteListService.checkDs(dsType)) {
             return null;
@@ -121,7 +130,6 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
             }
 
             DsConfig config = new DsConfig();
-            config.setClassify(dsType.getDsClassify());
             config.setFeatures(PluginManager.hasFeature(dsType));
             config.setConstant(new DsConstantConfig());
             config.setCategories(new DsCategories());
@@ -291,10 +299,6 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DATA_PLUGIN_NOT_EXIST_ERROR.name()));
         }
 
-        if (this.dsDal.configMapper().queryById(dsDO.getUid(), dsDO.getId()) == null) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_QUERY_NEED_ENABLE.name()));
-        }
-
         List<String> levelsDef = dsConfig.getCategories().getLevels();
 
         List<UmiTypes> curLevelsDef = new ArrayList<>();
@@ -320,23 +324,60 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     }
 
     @Override
-    public DataSourceConfig fetchDsConfigFromDM(long dsId, DataSourceType dsType) {
-        List<DmDsConfigKv4DmDO> configs = this.dsDal.configKv4DmMapper().listByDsId(dsId);
+    public DataSourceConfig fetchDsConfigFromExists(long dsId) {
         DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
+        List<DmDsConfigKv4DmDO> configs = this.dsDal.configKv4DmMapper().listByDsIdExcludeConfigNames(dsId, lazyConfigNames(dsDO.getDataSourceType()));
+        return fetchDsConfigFromExists(dsDO, configs, Collections.emptyMap());
+    }
 
+    @Override
+    public DataSourceConfig fetchDsConfigFromExists(long dsId, Map<String, String> configOverrides) {
+        DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
+        List<DmDsConfigKv4DmDO> configs = this.dsDal.configKv4DmMapper().listByDsIdExcludeConfigNames(dsId, lazyConfigNames(dsDO.getDataSourceType()));
+        return fetchDsConfigFromExists(dsDO, configs, configOverrides);
+    }
+
+    @Override
+    public DataSourceConfig fetchFullDsConfigFromExists(long dsId) {
+        DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
+        List<DmDsConfigKv4DmDO> configs = this.dsDal.configKv4DmMapper().listByDsId(dsId);
+        return fetchDsConfigFromExists(dsDO, configs, Collections.emptyMap());
+    }
+
+    private DataSourceConfig fetchDsConfigFromExists(DmDsDO dsDO, List<DmDsConfigKv4DmDO> configs, Map<String, String> configOverrides) {
         Map<String, String> configMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(configs)) {
             configs.forEach(c -> {
                 configMap.put(c.getConfigName(), c.getConfigValue());
             });
         }
+        fillConfigOverrides(configMap, configOverrides);
 
         DataSourceConfig dsConfig = this.generateDsConfig(dsDO, configMap);
-        dsConfig.deserialize();
+        tryClearSshConfig(dsConfig);
 
         decryptValue(dsConfig, DataSourceConfig.class);
         decryptValue(dsConfig, dsConfig.getClass());
+        log.info("fetch datasource config from dm, dsId={}, dsType={}, host={}, sshProxyEnabled={}, sshConfigId={}, rawSshProxyEnabled={}, rawSshConfigId={}",//
+                dsDO.getId(), dsConfig.getDataSourceType(), dsConfig.getHost(), dsConfig.getSshProxyEnabled(), dsConfig.getSshConfigId(),//
+                configMap.get("sshProxyEnabled"), configMap.get("sshConfigId"));
         return dsConfig;
+    }
+
+    private void fillConfigOverrides(Map<String, String> configMap, Map<String, String> configOverrides) {
+        if (configOverrides == null || configOverrides.isEmpty()) {
+            return;
+        }
+        configOverrides.forEach((configName, configValue) -> {
+            if (StringUtils.isBlank(configName) || StringUtils.isBlank(configValue)) {
+                return;
+            }
+            configMap.put(configName, configValue);
+        });
+    }
+
+    private List<String> lazyConfigNames(DataSourceType dsType) {
+        return this.fetchDsConfigDef(dsType).stream().filter(DsConfigKvDef::isLazy).map(DsConfigKvDef::getConfigName).collect(Collectors.toList());
     }
 
     private void decryptValue(DataSourceConfig dsConfig, Class<?> clazz) {
@@ -395,29 +436,23 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     }
 
     @Override
-    public DataSourceConfig fetchDsConfigFromRDP(long dsId, DataSourceType dsType, HostType hostType) {
-        DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
-        HostType ht = hostType == null ? dsDO.getHostType() : hostType;
-        List<DmDsConfigKv4RdpDO> configs = this.collectConfigFromRdp(dsDO, ht, dsDO.getVersion());
-
-        Map<String, String> configMap = new HashMap<>();
-        if (CollectionUtils.isNotEmpty(configs)) {
-            configs.forEach(c -> configMap.put(c.getConfigName(), c.getConfigValue()));
-        }
-
-        DataSourceConfig dsConfig = this.generateDsConfig(dsDO, configMap);
-        DmDsConfigHelper.fillFieldValue(dsConfig, configMap);
-        dsConfig.deserialize();
-        return dsConfig;
+    public DataSourceConfig fetchDsConfigFromNotExist(DmDsDO dsDO, Map<String, String> configMap) {
+        Map<String, String> resolvedConfigMap = configMap == null ? Collections.emptyMap() : configMap;
+        return this.genDsConfig(dsDO, resolvedConfigMap, dsDO.getVersion(), dsDO.getDriver());
     }
 
     @Override
-    public DataSourceConfig fetchDsConfigFromTemp(DmDsDO dsDO, Map<String, String> configMap, HostType hostType) {
-        Map<String, String> resolvedConfigMap = configMap == null ? Collections.emptyMap() : configMap;
-        DataSourceConfig dsConfig = this.genDsConfig(dsDO, null, hostType, dsDO.getVersion(), dsDO.getDriver());
-        DmDsConfigHelper.fillFieldValue(dsConfig, resolvedConfigMap);
-        dsConfig.deserialize();
-        return dsConfig;
+    public DataSourceConfig fetchDsConfigFromNotExist(DataSourceType dsType, Map<String, String> configMap) {
+        Map<String, String> currentConfigMap = configMap == null ? Collections.emptyMap() : configMap;
+
+        DsConfigSpi configSpi = PluginManager.findDsConfigSpi(dsType);
+        DataSourceConfig config = ClassUtils.newInstance(configSpi.newConfig());
+        config = DmDsConfigHelper.initBaseFieldDefaultValue(config);
+
+        DmDsConfigHelper.fillBaseFieldValue(config, currentConfigMap);
+        configSpi.fillConfig(config, currentConfigMap);
+        tryClearSshConfig(config);
+        return config;
     }
 
     @Override
@@ -426,91 +461,63 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         return configs == null ? null : configs.getConfigValue();
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
-    public void persistDsConfig(DmDsDO dsDO, HostType hostType, String version) {
-        List<DmDsConfigKv4RdpDO> configs = this.collectConfigFromRdp(dsDO, hostType, version);
-        for (DmDsConfigKv4RdpDO config : configs) {
-            if (config.isSecret()) {
-                config.setConfigValue(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(config.getConfigValue()));
-            }
-            DmDsConfigKv4DmDO dmConfig = DmConvertUtils.convertToDmDsKvBaseConfigDOForInsert(config);
-            this.dsDal.configKv4DmMapper().insert(dmConfig);
+    public void upsertDsConfig(long dsId, String configKey, String configValue) {
+        if (StringUtils.isBlank(configKey)) {
+            return;
         }
+        DsCacheEntry dmDsDO = this.cacheDao.queryByDsId(dsId);
+        if (dmDsDO == null || dmDsDO.getDsType() == null) {
+            return;
+        }
+
+        if (StringUtils.equals(configKey, DataSourceConfig.Fields.version)) {
+            this.dsDal.dsMapper().updateVersionByInstanceId(dsId, configValue);
+            return;
+        }
+
+        DsConfigKvDef configDef = this.fetchDsConfigDef(dmDsDO.getDsType()).stream().filter(config -> {
+            return StringUtils.equals(config.getConfigName(), configKey);
+        }).findFirst().orElse(null);
+        if (configDef == null) {
+            return;
+        }
+
+        if (StringUtils.isBlank(configValue)) {
+            this.dsDal.configKv4DmMapper().deleteDsConfig(dsId, configKey);
+            return;
+        }
+
+        String value = configValue;
+        if (configDef.isSecret()) {
+            value = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(value);
+        }
+
+        DmDsConfigKv4DmDO configDO = this.dsDal.configKv4DmMapper().queryByDsIdAndConfigName(dsId, configKey);
+        if (configDO == null) {
+            DmDsConfigKv4DmDO newConfig = new DmDsConfigKv4DmDO();
+            newConfig.setDataSourceId(dsId);
+            newConfig.setConfigName(configKey);
+            newConfig.setConfigValue(value);
+            this.dsDal.configKv4DmMapper().insert(newConfig);
+        } else if (configDef.isReadOnly()) {
+            return;
+        } else {
+            this.dsDal.configKv4DmMapper().updateDsConfig(dsId, configKey, value);
+        }
+    }
+
+    @Override
+    public void upsertDsConfigs(long dsId, Map<String, String> configMap) {
+        if (configMap == null || configMap.isEmpty()) {
+            return;
+        }
+
+        configMap.forEach((configKey, configValue) -> this.upsertDsConfig(dsId, configKey, configValue));
     }
 
     private DataSourceConfig generateDsConfig(DmDsDO dsDO, Map<String, String> configMap) {
-        RdpDsExtraConfGen gen = this.dsResourceService.getDsExtraConfGen(dsDO.getDataSourceType());
-        DsExtraConfig extraConfig = null;
-        if (gen != null) {
-            extraConfig = gen.genDsExtraConfigFromExist(dsDO, fetchConfig(dsDO.getId()));
-        }
-
-        DataSourceConfig dsConfig = this.genDsConfig(dsDO, extraConfig, dsDO.getHostType(), dsDO.getVersion(), dsDO.getDriver());
-        DmDsConfigHelper.fillFieldValue(dsConfig, configMap);
-        return dsConfig;
-    }
-
-    private List<DmDsConfigKv4RdpDO> collectConfigFromRdp(DmDsDO dsDO, HostType hostType, String version) {
-        RdpDsExtraConfGen gen = this.dsResourceService.getDsExtraConfGen(dsDO.getDataSourceType());
-        DsExtraConfig extraConfig = null;
-        if (gen != null) {
-            extraConfig = gen.genDsExtraConfigFromExist(dsDO, fetchConfig(dsDO.getId()));
-        }
-
-        DataSourceConfig dsConfig = this.genDsConfig(dsDO, extraConfig, hostType, version, dsDO.getDriver());
-        List<DmDsConfigKv4RdpDO> dvConfigs = DmDsConfigHelper.collectConfigs(dsConfig);
-        for (DmDsConfigKv4RdpDO config : dvConfigs) {
-            config.setDataSourceId(dsDO.getId());
-
-            if (config.isSecret() && StringUtils.isNotBlank(config.getConfigValue())) {
-                try {
-                    config.setConfigValue(CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(config.getConfigValue()));
-                } catch (Exception e) {
-                    log.error(e.getMessage(), e);
-                }
-            }
-
-            if (config.getConfigName().equals(ConfigKeys.DM_DS_KEY_HOST)) {
-                if (hostType == HostType.PUBLIC) {
-                    config.setConfigValue(dsDO.getPublicHost());
-                } else if (hostType == HostType.PRIVATE) {
-                    config.setConfigValue(dsDO.getPrivateHost());
-                } else {
-                    config.setConfigValue(dsDO.getHost());
-                }
-            } else if (config.getConfigName().equals(ConfigKeys.DM_DS_KEY_SEC_TYPE)) {
-                config.setConfigValue(dsDO.getSecurityType().name());
-            } else if (config.getConfigName().equals(ConfigKeys.DM_DS_KEY_USERNAME)) {
-                config.setConfigValue(dsDO.getAccount());
-            } else if (config.getConfigName().equals(ConfigKeys.DM_DS_KEY_PASSWORD)) {
-                config.setConfigValue(config.getConfigValue());
-            } else if (config.getConfigName().equals(ConfigKeys.DM_DS_KEY_VERSION)) {
-                config.setConfigValue(version);
-            } else if (config.getConfigName().equals(ConfigKeys.DM_DS_KEY_DRIVER_VERSION)) {
-                config.setConfigValue(dsDO.getDriver());
-            } else if (config.getConfigName().equals(ConfigKeys.DM_DS_KEY_STORE_PASSWORD)) {
-                config.setConfigValue(config.getConfigValue());
-            }
-        }
-
-        return dvConfigs;
-    }
-
-    private List<DmDsConfigKv4RdpDO> fetchConfig(long dsId) {
-        List<DmDsConfigKv4RdpDO> confList = this.dsDal.configKv4RdpMapper().listByDsId(dsId);
-
-        for (DmDsConfigKv4RdpDO confDO : confList) {
-            if (confDO.isSecret() && StringUtils.isNotBlank(confDO.getConfigValue())) {
-                try {
-                    confDO.setConfigValue(CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(confDO.getConfigValue()));
-                } catch (Exception e) {
-                    log.error(e.getMessage(), e);
-                }
-            }
-        }
-
-        return confList;
+        return this.genDsConfig(dsDO, configMap, dsDO.getVersion(), dsDO.getDriver());
     }
 
     @Override
@@ -519,53 +526,105 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     }
 
     @Override
-    public Map<String, String> fetchSettingsMap(String ownerUid, List<String> names) {
-        return this.configService.fetchSettingsMap(ownerUid, names);
+    public Map<String, String> fetchSettingsMap(List<String> names) {
+        return this.configService.fetchSettingsMap(names);
     }
 
-    public List<DmDsConfigKv4RdpDO> fetchDsConfigDef(DataSourceType dsType) {
+    @Override
+    public List<DsConfigKvDef> fetchDsConfigDef(DataSourceType dsType) {
+        return this.fetchDsConfigDef(dsType, Collections.emptyMap());
+    }
+
+    @Override
+    public List<UiPanel> fetchDsConfigPanels(DataSourceType dsType, Map<String, String> defaultConfig) {
+        Map<String, String> uiDefaultConfig = new LinkedHashMap<>();
+        if (defaultConfig != null) {
+            uiDefaultConfig.putAll(defaultConfig);
+        }
+
         DsConfigSpi configSpi = PluginManager.findDsConfigSpi(dsType);
-        DataSourceConfig dsConfig = configSpi.newConfig(globalDefault());
-        dsConfig = DmDsConfigHelper.initFieldDefaultValue(dsConfig);
-        dsConfig.deserialize();
+        if (configSpi != null) {
+            configSpi.customizeUiMap(uiDefaultConfig, new LinkedHashMap<>(uiDefaultConfig));
+        }
+
+        Map<DsConfigGroup, Map<String, DsConfigKvDef>> fieldsByGroup = new EnumMap<>(DsConfigGroup.class);
+        for (DsConfigKvDef configDef : this.fetchDsConfigDef(dsType, uiDefaultConfig)) {
+            if (!DataSourceConfig.Fields.host.equals(configDef.getConfigName()) && uiDefaultConfig.containsKey(configDef.getConfigName())) {
+                configDef.setConfigValue(uiDefaultConfig.get(configDef.getConfigName()));
+            }
+            if (isCertificateConfigured(configDef.getConfigName(), uiDefaultConfig)) {
+                configDef.setConfigValue(DmDsConfigHelper.CERTIFICATE_CONFIGURED_VALUE);
+            }
+            fieldsByGroup.computeIfAbsent(configDef.getConfigGroup(), key -> new LinkedHashMap<>()).put(configDef.getConfigName(), configDef);
+        }
+        return new DmDsConfigUiPanelFactory().create(dsType, fieldsByGroup);
+    }
+
+    private boolean isCertificateConfigured(String configName, Map<String, String> configMap) {
+        if (!StringUtils.equals(configName, DataSourceConfig.Fields.sslCaData) && !StringUtils.equals(configName, DataSourceConfig.Fields.sslClientCertData)
+            && !StringUtils.equals(configName, DataSourceConfig.Fields.sslClientKeyData)) {
+            return false;
+        }
+        String configValue = configMap == null ? null : configMap.get(configName);
+        return StringUtils.isNotBlank(configValue);
+    }
+
+    @Override
+    public List<DsConfigKvDef> fetchDsConfigDef(DataSourceType dsType, Map<String, String> defaultConfig) {
+        Map<String, String> configMap = new HashMap<>();
+        if (defaultConfig != null) {
+            configMap.putAll(defaultConfig);
+        }
+
+        DsConfigSpi configSpi = PluginManager.findDsConfigSpi(dsType);
+        DataSourceConfig dsConfig = ClassUtils.newInstance(configSpi.newConfig());
+
+        dsConfig = DmDsConfigHelper.initBaseFieldDefaultValue(dsConfig);
+        DmDsConfigHelper.fillBaseFieldValue(dsConfig, configMap);
+
+        configSpi.fillConfig(dsConfig, configMap);
         return DmDsConfigHelper.collectConfigs(dsConfig);
     }
 
-    protected Map<String, String> globalDefault() {
-        return Collections.emptyMap();
+    private DataSourceConfig genDsConfig(DmDsDO dsDO, Map<String, String> currentConfigMap, String version, String driver) {
+        Map<String, String> configMap = new HashMap<>();
+        if (currentConfigMap != null) {
+            configMap.putAll(currentConfigMap);
+        }
+        configMap.putAll(this.collectBaseConfigMap(dsDO, version, driver));
+
+        // special apply for xxDs
+        DsConfigSpi configSpi = PluginManager.findDsConfigSpi(dsDO.getDataSourceType());
+        DataSourceConfig config = ClassUtils.newInstance(configSpi.newConfig());
+        config = DmDsConfigHelper.initBaseFieldDefaultValue(config);
+        DmDsConfigHelper.fillBaseFieldValue(config, configMap);
+        configSpi.fillConfig(config, configMap);
+        tryClearSshConfig(config);
+        return config;
     }
 
-    private DataSourceConfig genDsConfig(DmDsDO dsDO, DsExtraConfig extraConfig, HostType hostType, String version, String driver) {
-        Map<String, String> configMap = new HashMap<>(globalDefault());
-        // TODO put configMap from extraConfig
-
-        //
-        DsConfigSpi configSpi = PluginManager.findDsConfigSpi(dsDO.getDataSourceType());
-        DataSourceConfig config = configSpi.newConfig(configMap);
-        config = DmDsConfigHelper.initFieldDefaultValue(config);
-
-        config.setInstanceId(dsDO.getInstanceId());
-        config.setSecurityType(dsDO.getSecurityType());
-        config.setVersion(version);
-        config.setDriverVersion(driver);
-        dsDO.setHostType(hostType);
-
-        if (hostType == HostType.PUBLIC && StringUtils.isNotBlank(dsDO.getPublicHost())) {
-            config.setHost(dsDO.getPublicHost());
-        } else {
-            config.setHost(dsDO.getPrivateHost());
+    private void tryClearSshConfig(DataSourceConfig dsConfig) {
+        if (!Boolean.TRUE.equals(dsConfig.getSshProxyEnabled())) {
+            dsConfig.setSshConfigId(null);
         }
+    }
 
-        config.setUserName(dsDO.getAccount());
-        config.setPassword(dsDO.getPassword());
-        config.setStorePassword(dsDO.getClientTrustStorePassword());
+    private Map<String, String> collectBaseConfigMap(DmDsDO dsDO, String version, String driver) {
+        Map<String, String> configMap = new HashMap<>();
+        putIfNotBlank(configMap, DataSourceConfig.Fields.instanceId, dsDO.getInstanceId());
+        putIfNotBlank(configMap, DataSourceConfig.Fields.dataSourceType, dsDO.getDataSourceType() == null ? null : dsDO.getDataSourceType().name());
+        putIfNotBlank(configMap, DataSourceConfig.Fields.version, version);
+        putIfNotBlank(configMap, DataSourceConfig.Fields.driverVersion, driver);
+        putIfNotBlank(configMap, DataSourceConfig.Fields.securityType, dsDO.getSecurityType() == null ? null : dsDO.getSecurityType().name());
+        putIfNotBlank(configMap, DataSourceConfig.Fields.userName, dsDO.getAccessKey());
+        putIfNotBlank(configMap, DataSourceConfig.Fields.password, dsDO.getSecretKey());
+        putIfNotBlank(configMap, DataSourceConfig.Fields.host, dsDO.getHost());
+        return configMap;
+    }
 
-        DsConfigMap dsConfigMap = new DsConfigMap();
-        dsConfigMap.setDefaultConfig(configMap);
-        dsConfigMap.setRdpDsBean(new BeanMap(dsDO));
-        dsConfigMap.setRdpExtraBean(new BeanMap(extraConfig));
-        configSpi.fillConfig(config, dsConfigMap);
-        config.deserialize();
-        return config;
+    private void putIfNotBlank(Map<String, String> configMap, String key, String value) {
+        if (StringUtils.isNotBlank(value)) {
+            configMap.putIfAbsent(key, value);
+        }
     }
 }

@@ -17,7 +17,6 @@ package com.clougence.clouddm.console.web.model.fo.datasource;
 
 import java.util.List;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,7 +24,8 @@ import lombok.Setter;
 @Setter
 public class TestDsConnectionFO {
 
-    @NotNull(message = "levels must not null")
     private List<String> levels;
+    private Long         dataSourceId;
+    private Long         clusterId;
     //private String       keyWords;
 }

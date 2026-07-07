@@ -106,12 +106,12 @@ import App from '../App.vue';
 
 const app = createApp(App);
 
-// 全局注册组件
+// Global registration component
 Object.keys(components).forEach((key) => {
   app.component(key, components[key]);
 });
 
-// 全局挂载方法或属性
+// Global Mount Method or Properties
 app.config.globalProperties.$Modal = Modal;
 app.config.globalProperties.$Message = Message;
 app.config.globalProperties.$Spin = Spin;

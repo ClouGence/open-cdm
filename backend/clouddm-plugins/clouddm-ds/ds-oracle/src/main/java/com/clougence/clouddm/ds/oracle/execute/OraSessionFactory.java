@@ -19,6 +19,7 @@ import java.sql.Connection;
 
 import com.clougence.clouddm.ds.oracle.dsconf.OraConfig;
 import com.clougence.clouddm.dsfamily.execute.RdbSessionFactory;
+import com.clougence.clouddm.dsfamily.oracle.execute.OraSession;
 import com.clougence.clouddm.sdk.execute.resource.DsResourceManager;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
@@ -37,5 +38,4 @@ public class OraSessionFactory extends RdbSessionFactory<OraConfig> {
         session.initSession(ownerRM, contextDTO);
         return session;
     }
-
 }

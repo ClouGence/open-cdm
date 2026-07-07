@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import com.clougence.utils.ThreadUtils;
 
 /**
- * 业务线程
+ * Business thread
  * @version : 2014年11月11日
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -65,7 +65,7 @@ public class ExecutesManager {
         return this.defaultExecutor;
     }
 
-    /** 停止应用服务 */
+    /** Stop application service */
     public void shutdown() {
         List<ThreadPoolExecutor> executorList = new ArrayList<>(this.servicePoolCache.values());
         executorList.add(this.defaultExecutor);

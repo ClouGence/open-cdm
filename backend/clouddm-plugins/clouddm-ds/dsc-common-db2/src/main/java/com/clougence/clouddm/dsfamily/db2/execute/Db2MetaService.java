@@ -95,9 +95,9 @@ public abstract class Db2MetaService extends DefaultRdbMetaService {
     @Override
     public List<String> requestObjectScript(Map<UmiTypes, Object> levelsParam, UmiTypes leafType, String leafName) {
         //https://blog.csdn.net/qq_40028149/article/details/118577981
-        //        --2个参数，第1个输入参数  ... -t 模式.表名
-        //                --2个参数，第1个输入参数  ... -v 模式.视图名
-        //                --2个参数，第2个 ? 是输出参数
+        //        --2 parameters, first input parameter... -t mode: table name
+        //                --2 arguments, 1st input parameter... -v mode: view name
+        //                --2 arguments, 2nd ? is an output parameter
         //
         //        CALL SYSPROC.DB2LK_GENERATE_DDL('-e -x -td ;  -t S1.T1',?)
         //        CALL SYSPROC.DB2LK_GENERATE_DDL('-e -x -td ;  -v  S1.V1',?)

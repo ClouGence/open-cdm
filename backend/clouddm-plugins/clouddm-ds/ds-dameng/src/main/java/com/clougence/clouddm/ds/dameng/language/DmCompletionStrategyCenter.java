@@ -18,7 +18,6 @@ package com.clougence.clouddm.ds.dameng.language;
 import java.util.List;
 
 import com.clougence.clouddm.ds.dameng.dialect.DmDialect;
-import com.clougence.clouddm.dsfamily.language.completion.CompletionContext;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategy;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategyCenter;
@@ -30,11 +29,6 @@ public class DmCompletionStrategyCenter extends CompletionStrategyCenter {
     @Override
     protected CompletionDialect dialect(CompletionRequest request) {
         return DmDialect.INSTANCE;
-    }
-
-    @Override
-    protected CompletionContext context(CompletionRequest request, CompletionDialect dialect) {
-        return new CompletionContext(request, dialect);
     }
 
     @Override

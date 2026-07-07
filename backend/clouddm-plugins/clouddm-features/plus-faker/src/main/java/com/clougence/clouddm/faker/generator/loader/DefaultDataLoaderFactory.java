@@ -34,7 +34,7 @@ import com.clougence.utils.jdbc.RowMapper;
 import com.clougence.utils.jdbc.extractor.MultipleRowResultSetExtractor;
 
 /**
- * 反查数据加载器
+ * Invert data loader
  *
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)

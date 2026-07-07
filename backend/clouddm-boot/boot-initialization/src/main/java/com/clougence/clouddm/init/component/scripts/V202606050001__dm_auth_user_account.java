@@ -24,7 +24,7 @@ public class V202606050001__dm_auth_user_account extends AbstractUpgradeJavaMigr
 
     @Override
     public List<String> collectScript() {
-        String adminAccount = InitSeedConstants.escapeSqlLiteral(InitSeedConstants.DEFAULT_PRIMARY_ACCOUNT);
+        String adminAccount = InitSeedConstants.escapeSqlLiteral(InitSeedConstants.resolveAdminAccount());
         return List.of("""
                     ALTER TABLE dm_auth_user
                         MODIFY COLUMN username varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,

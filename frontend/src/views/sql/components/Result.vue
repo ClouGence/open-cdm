@@ -93,58 +93,60 @@
         style="display: flex; flex-direction: column; flex: 1; min-height: 0"
       >
         <div class="tip-footer">
-          <div v-if="selectedTab.receiveMode !== 'STREAM'" style="display: flex; align-items: center; gap: 8px">
-            <div v-if="selectedTab.receiveMode === 'PAGINATED' && paginatedLoading[selectedTab.resultId]" class="paginated-loading">
-              <div class="loading-spinner"></div>
+          <div class="tip-footer-main">
+            <div v-if="selectedTab.receiveMode !== 'STREAM'" class="tip-footer-page">
+              <div v-if="selectedTab.receiveMode === 'PAGINATED' && paginatedLoading[selectedTab.resultId]" class="paginated-loading">
+                <div class="loading-spinner"></div>
+              </div>
+              <Page
+                :model-value="selectedTab.page"
+                :page-size="selectedTab.receiveMode === 'PAGINATED' ? 30 : 50"
+                :total="selectedTab.receiveMode === 'PAGINATED' ? selectedTab.fetchCount || selectedTab.total : selectedTab.total"
+                placement="top"
+                show-total
+                size="small"
+                @on-change="changePage($event)"
+              ></Page>
             </div>
-            <Page
-              :model-value="selectedTab.page"
-              :page-size="selectedTab.receiveMode === 'PAGINATED' ? 30 : 50"
-              :total="selectedTab.receiveMode === 'PAGINATED' ? selectedTab.fetchCount || selectedTab.total : selectedTab.total"
-              placement="top"
-              show-total
-              size="small"
-              @on-change="changePage($event)"
-            ></Page>
-          </div>
-          <div v-else class="stream-info" style="line-height: 30px; padding: 0 10px">
-            <span>{{ $t('liu-shi-mo-shi-xian-shi-zui-xin-tiao-zong-ji-tiao', [selectedTab.fetchCount || selectedTab.total || 0]) }}</span>
-          </div>
-          <Poptip word-wrap trigger="hover" transfer placement="bottom">
-            <template #content>
-              <div v-if="selectedTab.rewriteTags?.length">
-                {{ $t('zhong-xie-mo-kuai') }}
-                <a-tag v-for="(tag, index) in selectedTab.rewriteTags" :key="index" color="blue">{{ tag }}</a-tag>
-              </div>
-              <div>
-                {{ $t('yuan-shi-yu-ju') }}
-                <span class="font-bold">{{ selectedTab.rewriteTags?.length ? selectedTab.original : selectedTab.querySql }}</span>
-              </div>
-            </template>
-            <span style="padding-right: 8px; float: left; max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
-              <a-tag v-if="selectedTab.queryType === 'plan'" color="green">{{ $t('ji-hua') }}</a-tag>
-              <a-tag v-if="selectedTab.rewriteTags?.length > 0" color="blue">{{ $t('zhong-xie') }}</a-tag>
-              {{ this.selectedTab.querySql }}
-            </span>
-          </Poptip>
-          <a-popover v-if="tab.cost && tab.cost.popIndex > -1 && selectedTab && selectedTab.resultId" class="cost-pop">
-            <template #content>
-              <div v-for="costPop in tab.cost.popList" :key="costPop.text">
-                <a-icon :type="costPop.icon" :style="`color: ${costPop.color}`" :theme="costPop.theme" />
-                {{ costPop.text }}
-              </div>
-            </template>
-            <div style="cursor: pointer" @click="handleClickCostPop">
-              <a-icon
-                :type="tab.cost.popList[tab.cost.popIndex].icon"
-                :style="`color: ${tab.cost.popList[tab.cost.popIndex].color}`"
-                :theme="tab.cost.popList[tab.cost.popIndex].theme"
-              />
-              {{ tab.cost.popList[tab.cost.popIndex].text }}
+            <div v-else class="stream-info">
+              <span>{{ $t('liu-shi-mo-shi-xian-shi-zui-xin-tiao-zong-ji-tiao', [selectedTab.fetchCount || selectedTab.total || 0]) }}</span>
             </div>
-          </a-popover>
-          <div class="tip-footer-right" style="margin-left: auto">
-            <div style="display: flex; align-items: center; gap: 4px">
+            <Poptip word-wrap trigger="hover" transfer placement="bottom" class="tip-footer-sql-pop">
+              <template #content>
+                <div v-if="selectedTab.rewriteTags?.length">
+                  {{ $t('zhong-xie-mo-kuai') }}
+                  <a-tag v-for="(tag, index) in selectedTab.rewriteTags" :key="index" color="blue">{{ tag }}</a-tag>
+                </div>
+                <div>
+                  {{ $t('yuan-shi-yu-ju') }}
+                  <span class="font-bold">{{ selectedTab.rewriteTags?.length ? selectedTab.original : selectedTab.querySql }}</span>
+                </div>
+              </template>
+              <span class="tip-footer-sql">
+                <a-tag v-if="selectedTab.queryType === 'plan'" color="green">{{ $t('ji-hua') }}</a-tag>
+                <a-tag v-if="selectedTab.rewriteTags?.length > 0" color="blue">{{ $t('zhong-xie') }}</a-tag>
+                {{ this.selectedTab.querySql }}
+              </span>
+            </Poptip>
+            <a-popover v-if="tab.cost && tab.cost.popIndex > -1 && selectedTab && selectedTab.resultId" class="cost-pop">
+              <template #content>
+                <div v-for="costPop in tab.cost.popList" :key="costPop.text">
+                  <a-icon :type="costPop.icon" :style="`color: ${costPop.color}`" :theme="costPop.theme" />
+                  {{ costPop.text }}
+                </div>
+              </template>
+              <div class="cost-pop-trigger" @click="handleClickCostPop">
+                <a-icon
+                  :type="tab.cost.popList[tab.cost.popIndex].icon"
+                  :style="`color: ${tab.cost.popList[tab.cost.popIndex].color}`"
+                  :theme="tab.cost.popList[tab.cost.popIndex].theme"
+                />
+                {{ tab.cost.popList[tab.cost.popIndex].text }}
+              </div>
+            </a-popover>
+          </div>
+          <div class="tip-footer-right">
+            <div class="tip-footer-export" v-if="!selectedTab.exportState?.exporting && selectedTab.exportState?.percent !== 100">
               <Poptip
                 v-if="selectedTab.exportState?.errorStatus === 'FAILED' && selectedTab.exportState?.errorMessage"
                 :content="selectedTab.exportState.errorMessage"
@@ -155,20 +157,14 @@
               >
                 <CustomIcon type="icon-v2-ErrorColorful" size="16px" color="#ff4d4f" style="cursor: pointer" />
               </Poptip>
-              <div
-                v-if="!selectedTab.exportState?.exporting"
-                style="display: flex; align-items: center; gap: 4px; cursor: pointer"
-                @click="handleResultExport"
-              >
+              <div class="tip-footer-export-btn" @click="handleResultExport">
                 <CustomIcon type="icon-v2-daochu" hoverStyle />
                 <span>{{ $t('dao-chu') }}</span>
               </div>
             </div>
             <div class="download-warp">
               <a v-if="selectedTab.exportState?.percent === 100" @click.prevent="resetTabExportState">{{ $t('fan-hui') }}</a>
-              <a v-if="selectedTab.exportState?.percent === 100" @click.prevent="downloadExportedFile" class="download-btn">
-                {{ $t('xia-zai') }}
-              </a>
+              <a v-if="selectedTab.exportState?.percent === 100" @click.prevent="downloadExportedFile">{{ $t('xia-zai') }}</a>
               <div v-if="selectedTab.exportState?.exporting" class="export-progress-modal">
                 <a-progress :percent="selectedTab.exportState?.percent || 0" size="small" style="width: 100px" />
               </div>
@@ -182,6 +178,7 @@
             :columns="antdColumns"
             :dataSource="selectedTab.showData"
             :pagination="false"
+            :scroll="tableScroll"
             size="small"
             bordered
             :rowKey="(record, index) => index"
@@ -234,7 +231,7 @@
         <Button @click="hideShowInsertSqlModal">{{ $t('guan-bi') }}</Button>
       </template>
     </CCModal>
-    <!-- SQL导出弹窗 -->
+    <!-- SQL export modal -->
     <CCModal v-model="showSqlExportOptionModal" :title="$t('dao-chu') + ' SQL'" :width="860" :mask-closable="false" transfer>
       <div class="sql-export-modern">
         <div class="left">
@@ -319,7 +316,7 @@
       </template>
     </CCModal>
 
-    <!-- 通用导出弹窗（仅字段选择） -->
+    <!-- Generic export modal (field selection only) -->
     <CCModal v-model="showExportOptionModal" :title="exportModalTitle || $t('dao-chu')" :width="600" :mask-closable="false" transfer>
       <div class="export-option-modal">
         <div class="export-options-header" style="margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px">
@@ -433,10 +430,10 @@ export default {
       showSqlExportOptionModal: false,
       showExportOptionModal: false,
       exportModalTitle: '',
-      currentExportType: '', // 导出格式
-      exportRangeType: 'all', // 导出范围：'single' 单行, 'page' 单页, 'all' 全部
-      selectedRowIndex: null, // 选中的行索引（用于单行导出）
-      isFromContextMenu: false, // 是否从右键菜单进入
+      currentExportType: '', // Export format
+      exportRangeType: 'all', // Export range: 'single' single row, 'page' single page, 'all' all rows
+      selectedRowIndex: null, // Selected row index for single-row export
+      isFromContextMenu: false, // Whether this was opened from the context menu
       insertOption: {
         tableName: '',
         columns: [],
@@ -475,9 +472,11 @@ export default {
       },
       exportConfig: {},
       editorHeight: 250,
-      paginatedLoading: {}, // 存储每个结果集的loading状态 {resultId: boolean}
-      paginatedLoadingTimer: null, // loading 定时器
-      columnWidths: {} // 存储列宽度
+      paginatedLoading: {}, // Loading status for each result set
+      paginatedLoadingTimer: null, // Loading timer
+      columnWidths: {}, // Stored column widths
+      tableScrollY: 240,
+      tableResizeObserver: null
     };
   },
   computed: {
@@ -556,10 +555,16 @@ export default {
           originalTitle: col.title
         };
       });
+    },
+    tableScroll() {
+      return {
+        x: 'max-content',
+        y: this.tableScrollY
+      };
     }
   },
   watch: {
-    // 监听 PAGINATED 模式下 fetchCount 的变化，显示 loading
+    // Show loading when fetchCount changes in PAGINATED mode.
     'selectedTab.fetchCount': {
       handler(newVal, oldVal) {
         if (this.selectedTab?.receiveMode === 'PAGINATED' && this.selectedTab?.resultId) {
@@ -577,27 +582,51 @@ export default {
         }
       },
       immediate: false
+    },
+    'tab.running': {
+      handler(running) {
+        if (running) {
+          return;
+        }
+        if (this.paginatedLoadingTimer) {
+          clearTimeout(this.paginatedLoadingTimer);
+          this.paginatedLoadingTimer = null;
+        }
+        const resultIds = Object.keys(this.paginatedLoading);
+        for (let i = 0; i < resultIds.length; i++) {
+          this.paginatedLoading[resultIds[i]] = false;
+        }
+      }
+    },
+    'tab.result.active'(activeKey) {
+      if (activeKey === 'message' || activeKey === 'async') {
+        this.destroyTableScrollObserver();
+        return;
+      }
+      this.$nextTick(() => {
+        this.initTableScrollObserver();
+      });
     }
   },
   mounted() {
     this.exportTypes = this.dmGlobalSetting.fmtConvertDef;
     this.initAllTabsExportState();
     this.$bus.on(EVENT_BUS_NAME_LIST.GET_RESULT_EXPORT_INFO, (info) => {
-      // 导出信息事件，ResultSetMeta 中包含 resultId，不再需要处理 cacheFile
-      // resultId 已经在 ResultSetMeta 对象中，会直接保存到 tab 中
+      // Export info events contain resultId in ResultSetMeta, so cacheFile no longer needs separate handling.
+      // resultId is already in the ResultSetMeta object and will be saved directly to the tab.
     });
     this.$bus.on(EVENT_BUS_NAME_LIST.WS_RES_EXPORT_EVENT, (exportData) => {
       const targetTab = this.tab.result.list.find((tab) => tab.exportState?.downloadFile?.trackId === exportData.trackId);
       if (targetTab && targetTab.exportState) {
         targetTab.exportState.percent = exportData.percent;
         if (exportData?.status === 'FAILED') {
-          // 保存错误信息到 exportState
+          // Save the error message to exportState.
           targetTab.exportState.errorStatus = exportData.status;
           targetTab.exportState.errorMessage = exportData.message || this.$t('cao-zuo-shi-bai-qing-zhong-xin-zhi-hang-cha-xun');
           targetTab.exportState.exporting = false;
           this.$Message.warning(this.$t('cao-zuo-shi-bai-qing-zhong-xin-zhi-hang-cha-xun'));
         } else if (exportData?.status === 'SUCCESS' || exportData?.percent === 100) {
-          // 成功时清除错误状态
+          // Clear error status on success
           if (targetTab.exportState.errorStatus) {
             targetTab.exportState.errorStatus = null;
             targetTab.exportState.errorMessage = null;
@@ -615,13 +644,18 @@ export default {
     window.onresize = () => {
       this.$nextTick(() => {
         this.pageHeight = window.innerHeight - 70;
+        this.updateTableScrollY();
       });
     };
-    // 初始化 SQL 导出配置默认值
+    this.$nextTick(() => {
+      this.initTableScrollObserver();
+    });
+    // Initialize default SQL export options.
     this.resetInsertOption();
     this.initDsTypeOptions();
   },
   beforeUnmount() {
+    this.destroyTableScrollObserver();
     this.$bus.off('setEditorHeight');
     this.$bus.off('consoleMessageAppend');
     this.$bus.off(EVENT_BUS_NAME_LIST.GET_RESULT_EXPORT_INFO);
@@ -666,11 +700,11 @@ export default {
       const page = this.selectedTab.page || 1;
       const receiveMode = this.selectedTab.receiveMode || 'PAGE_FULL';
 
-      let pageSize = 50; // 默认
+      let pageSize = 50; // Default page size
       if (receiveMode === 'PAGINATED') {
         pageSize = 30;
       } else if (receiveMode === 'STREAM') {
-        // STREAM 模式不分页，直接返回索引
+        // STREAM mode is not paginated; return the index directly.
         return index + 1;
       }
 
@@ -815,6 +849,38 @@ export default {
     handleEditorHeightChange(height) {
       this.editorHeight = height;
       this.pageHeight = window.innerHeight - 70;
+      this.$nextTick(() => {
+        this.updateTableScrollY();
+      });
+    },
+    initTableScrollObserver() {
+      this.destroyTableScrollObserver();
+      const container = this.$el?.querySelector('.result-table-container');
+      if (!container) {
+        return;
+      }
+      this.updateTableScrollY(container);
+      this.tableResizeObserver = new ResizeObserver(() => {
+        this.updateTableScrollY(container);
+      });
+      this.tableResizeObserver.observe(container);
+    },
+    updateTableScrollY(container) {
+      const el = container || this.$el?.querySelector('.result-table-container');
+      if (!el) {
+        return;
+      }
+      const tableHeaderHeight = 40;
+      const nextHeight = Math.max(el.clientHeight - tableHeaderHeight, 120);
+      if (nextHeight !== this.tableScrollY) {
+        this.tableScrollY = nextHeight;
+      }
+    },
+    destroyTableScrollObserver() {
+      if (this.tableResizeObserver) {
+        this.tableResizeObserver.disconnect();
+        this.tableResizeObserver = null;
+      }
     },
     //
     handleViewNoPassedRuleList(index) {
@@ -835,7 +901,7 @@ export default {
       };
     },
     handleRowClick(record, index, event) {
-      // 处理行点击
+      // Handle row clicks.
       this.rowIndex = index;
       this.selectedRow = record;
     },
@@ -869,7 +935,7 @@ export default {
         }
       }
     },
-    // 获取单元格的 complete 字段，用于判断是否显示角标
+    // Get the cell's complete flag to decide whether to show the corner marker.
     getCellComplete(column, rowIndex) {
       try {
         const colIndex = this.selectedTab.columnList?.findIndex((col) => col === column.dataIndex || col === column.property) ?? -1;
@@ -921,7 +987,7 @@ export default {
     handleCellDetail(record, column, rowIndex) {
       const colIndex = this.selectedTab.columnList?.findIndex((col) => col === column.dataIndex || col === column.property) ?? -1;
 
-      // 计算实际行号（考虑分页）
+      // Calculate the actual row number, accounting for pagination.
       let rowNumber = rowIndex;
       if (this.selectedTab.receiveMode === 'PAGINATED') {
         const pageSize = 30;
@@ -1146,24 +1212,24 @@ export default {
       const tab = this.selectedTab;
       const receiveMode = tab.receiveMode || 'PAGE_FULL';
 
-      // STREAM 模式不支持分页切换
+      // STREAM mode does not support pagination changes.
       if (receiveMode === 'STREAM') {
         return;
       }
 
       if (receiveMode === 'PAGINATED') {
-        // 后端分页模式
+        // Backend pagination mode
         tab.page = page;
         const pageSize = 30;
         const offsetRow = (page - 1) * pageSize;
 
-        // 检查缓存
+        // Check cache.
         if (tab.pageCache && tab.pageCache[page]) {
           tab.showData = tab.pageCache[page];
           return;
         }
 
-        // 调用接口获取数据
+        // Call API to fetch data.
         try {
           const res = await this.$services.dmQueryFetchResultPage({
             data: {
@@ -1198,11 +1264,11 @@ export default {
             }
             tab.pageCache[page] = list;
             tab.showData = list;
-            // 保存原始 rowSet 数据，用于获取 moreSize 等信息
+            // Save original rowSet data for moreSize and other metadata.
             if (!tab.rowSetCache) {
               tab.rowSetCache = {};
             }
-            tab.rowSetCache[page] = rowSet; // 保存当前页的原始数据
+            tab.rowSetCache[page] = rowSet; // Save raw data from the current page
           }
         } catch (error) {
           console.error('获取分页数据失败:', error);
@@ -1293,7 +1359,7 @@ export default {
           limit = 30;
         }
       } else {
-        // 全部导出：limit为-1
+        // Export all: limit is -1.
         offset = 0;
         limit = -1;
       }
@@ -1331,7 +1397,7 @@ export default {
     },
     finishEditField(col, idx) {
       col.isEditing = false;
-      // 如果字段名为空，恢复为原始字段名
+      // Restore the original field name if the edited field name is empty.
       if (!col.columnName.trim()) {
         col.columnName = col.originalColumnName;
       }
@@ -1378,7 +1444,7 @@ export default {
         let limit = -1;
 
         if (this.exportRangeType === 'single') {
-          // 单行导出
+          // Single-row export
           const receiveMode = this.selectedTab?.receiveMode || 'PAGE_FULL';
           const page = this.selectedTab?.page || 1;
           const rowIndex = this.selectedRowIndex !== null ? this.selectedRowIndex : 0;
@@ -1397,7 +1463,7 @@ export default {
             limit = 1;
           }
         } else if (this.exportRangeType === 'page') {
-          // 单页导出
+          // Single-page export
           const receiveMode = this.selectedTab?.receiveMode || 'PAGE_FULL';
           const page = this.selectedTab?.page || 1;
 
@@ -1412,12 +1478,12 @@ export default {
             limit = 30;
           }
         } else {
-          // 全部导出
+          // Export all rows
           offset = 0;
           limit = -1;
         }
 
-        // 更新insertOption中的offset和limit
+        // Update offset and limit from insertOption.
         const exportOption = {
           ...this.insertOption,
           offset,
@@ -1469,7 +1535,7 @@ export default {
           throw new Error('响应数据格式不正确');
         }
 
-        // 从 Content-Disposition 解析文件名
+        // Parse the file name from Content-Disposition.
         let fileName = '';
         try {
           const dispositionRaw = res && res.headers ? res.headers['Content-Disposition'] || res.headers['content-disposition'] || '' : '';
@@ -1547,8 +1613,21 @@ export default {
 </script>
 <style lang="less" scoped>
 .cost-pop {
+  flex-shrink: 0;
   color: #aaa;
   font-size: 12px;
+  max-width: 180px;
+
+  .cost-pop-trigger {
+    display: inline-flex;
+    align-items: center;
+    max-width: 180px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 30px;
+  }
 }
 // common
 .dropdown-item {
@@ -1610,24 +1689,12 @@ export default {
     flex: 1;
     min-height: 0;
     width: 100%;
-    overflow-x: auto;
-    overflow-y: auto;
+    height: 100%;
+    overflow: hidden;
 
     .result-set-style {
       :deep(.ant-table) {
         font-size: 12px;
-      }
-
-      :deep(.ant-table-container) {
-        overflow: visible !important;
-      }
-
-      :deep(.ant-table-body) {
-        overflow: visible !important;
-      }
-
-      :deep(.ant-table-content) {
-        overflow: visible !important;
       }
 
       :deep(.ant-table-thead > tr > th) {
@@ -1682,22 +1749,6 @@ export default {
           cursor: col-resize;
           z-index: 10;
           background: transparent;
-
-          &::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 10%;
-            bottom: 10%;
-            width: 2px;
-            background-color: #d9d9d9;
-            transition: background-color 0.2s;
-          }
-
-          &:hover::after {
-            background-color: #1890ff;
-            width: 3px;
-          }
         }
       }
 
@@ -1705,7 +1756,7 @@ export default {
         padding: 2px 8px;
       }
 
-      // 去除空白行
+      // Remove blank lines.
       :deep(.ant-table-placeholder) {
         display: none;
       }
@@ -1825,16 +1876,70 @@ export default {
   height: 30px;
   line-height: 30px;
   padding: 0 10px;
+  position: relative;
   display: flex;
-  //justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
   color: rgba(0, 0, 0, 0.88);
   background: #ffffff;
   z-index: 9;
 }
 
+.tip-footer-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  height: 30px;
+}
+
+.tip-footer-page {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.stream-info {
+  flex-shrink: 0;
+  line-height: 30px;
+  padding: 0 10px;
+  white-space: nowrap;
+}
+
+.tip-footer-sql-pop {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 400px;
+  overflow: hidden;
+}
+
+.tip-footer-sql {
+  display: inline-block;
+  max-width: 100%;
+  padding-right: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
 .tip-footer-right {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
+  white-space: nowrap;
+  position: absolute;
+  right: 10px;
+  top: 0;
+  height: 30px;
+  z-index: 2;
+  background: #ffffff;
+  padding-left: 8px;
+  gap: 8px;
+
   :deep(.ant-btn) {
     display: inline-flex;
     align-items: center;
@@ -1845,20 +1950,45 @@ export default {
   }
 }
 
+.tip-footer-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.tip-footer-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 :deep(.ant-table-wrapper .ant-table-resize-handle) {
   cursor: initial !important;
   display: none !important;
 }
 
 .download-warp {
-  display: flex;
+  display: inline-flex;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
   align-items: center;
+  white-space: nowrap;
+  gap: 8px;
+
+  a {
+    white-space: nowrap;
+    flex-shrink: 0;
+    line-height: 30px;
+  }
 }
+
 .export-progress-modal {
   width: 100px;
-}
-.download-btn {
-  margin: 0 5px 0 8px;
+  flex-shrink: 0;
 }
 
 // modern sql export modal
@@ -1940,7 +2070,7 @@ export default {
   }
 }
 
-// 通用导出弹窗样式
+// Generic export modal styles
 .export-option-modal {
   .toolbar {
     display: flex;

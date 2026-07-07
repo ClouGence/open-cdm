@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import moment from 'moment';
+import _ from '@/utils/lodash';
+import dayjs from '@/utils/dayjsSetup';
 import * as dateMath from './datemath';
 
 const spans = {
@@ -187,17 +187,17 @@ export function describeTimeRange(range) {
     return option.display;
   }
 
-  if (moment.isMoment(range.from) && moment.isMoment(range.to)) {
+  if (dayjs.isDayjs(range.from) && dayjs.isDayjs(range.to)) {
     return `${formatDate(range.from)} to ${formatDate(range.to)}`;
   }
 
-  if (moment.isMoment(range.from)) {
+  if (dayjs.isDayjs(range.from)) {
     const toMoment = dateMath.parse(range.to, true);
 
     return `${formatDate(range.from)} to ${toMoment.fromNow()}`;
   }
 
-  if (moment.isMoment(range.to)) {
+  if (dayjs.isDayjs(range.to)) {
     const from = dateMath.parse(range.from, false);
 
     return `${from.fromNow()} to ${formatDate(range.to)}`;

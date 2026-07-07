@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from '@/utils/lodash';
 
 /**
  * Convert series into array of series values.

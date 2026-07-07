@@ -26,7 +26,7 @@ import {
   isDynamoDB,
   isTdsqlMySQL
 } from '@/utils';
-import _ from 'lodash';
+import _ from '@/utils/lodash';
 import { parseCron } from '@/components/util';
 import DataSourceGroup from '@/views/dataSourceGroup.json';
 
@@ -111,7 +111,7 @@ export default {
         targetSchema = 'dbo';
       }
 
-      // 对于 MQ 源端（如 Kafka）到 hasSchema 类型对端（如 Oracle），使用 ANY_SCHEMA 方法
+      // Use ANY SCHEMA method for MQ source (e. g. Kafka) to HasSchema type interface (e. g. Oracle)
       if (isMQ(this.taskInfo.sourceType) && DataSourceGroup.hasSchema.includes(this.taskInfo.sinkType)) {
         dbMethod = 'ANY_SCHEMA';
       } else if (!DataSourceGroup.hasSchema.includes(this.taskInfo.sourceType) && DataSourceGroup.hasSchema.includes(this.taskInfo.sinkType)) {
@@ -134,7 +134,7 @@ export default {
       });
       console.log('dbMethod', dbMethod, dbMapping);
 
-      // 处理 ANY_SCHEMA 映射（MQ 源端到 hasSchema 对端）
+      // Process ANY SCHEMA Map (MQ source to hasSchema opposite)
       if (dbMethod === 'ANY_SCHEMA') {
         const theKey = {
           value: 'ANY_SCHEMA'
@@ -288,7 +288,7 @@ export default {
             targetSchema: this.getExistTargetDb(db, mappingJson).schema,
             sourceSchema: db.schemas ? db.schemas[0].schema : db.tableSpaces ? db.tableSpaces[0].tableSpace : 'public',
             needAutoCreated: db.targetAutoCreate,
-            actions: [], // 后续不再使用actions白名单，而是blackActs黑名单(表级别)
+            actions: [], // Instead of using white lists, blacklists (table level)
             tableSelectMode: this.tableSelectMode,
             whiteTabs: whiteTabs.join(';')
           };
@@ -589,7 +589,7 @@ export default {
           const targetDbSchema = {};
 
           sourceDbSchema.db = db.sourceDb;
-          sourceDbSchema.actions = []; // 后续不再使用actions白名单，而是blackActs黑名单(表级别)
+          sourceDbSchema.actions = []; // Instead of using white lists, blacklists (table level)
           // sourceDbSchema.new = db.new;
           if (DataSourceGroup.oracle.indexOf(sourceType) === -1) {
             if (DataSourceGroup.hasSchema.indexOf(sourceType) > -1) {
@@ -768,7 +768,7 @@ export default {
             sourceSchemaTable.table = table.sourceTable || table.tablePattern;
             sourceSchemaTable.pattern = db.isTablePattern;
             sourceSchemaTable.columns = [];
-            sourceSchemaTable.actions = []; // 后续不再使用actions白名单，而是blackActs黑名单
+            sourceSchemaTable.actions = []; // No more action lists, no more blacklists.
             sourceSchemaTable.blackActs = table.actionBlacklist;
             sourceSchemaTable.inBlackList = true;
             sourceSchemaTable.targetAutoCreate = false;

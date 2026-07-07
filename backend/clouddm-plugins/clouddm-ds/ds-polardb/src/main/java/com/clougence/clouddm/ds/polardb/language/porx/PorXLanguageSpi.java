@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.ds.polardb.language.porx;
 
-import com.clougence.clouddm.ds.polardb.parser.porx.PolarXDslProvider;
 import com.clougence.clouddm.dsfamily.language.split.SplitStrategyCenter;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
@@ -62,7 +61,6 @@ public class PorXLanguageSpi implements DsLanguageSpi {
 
     @Override
     public SplitResult split(SplitRequest request) {
-        return this.split.split(request, PolarXDslProvider.INSTANCE);
+        return this.split.split(request);
     }
-
 }

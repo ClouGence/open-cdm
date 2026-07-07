@@ -1,13 +1,13 @@
-// 暗色主题样式适配
+// Dark theme style adaptation
 
 [data-theme='dark'] {
-  // 全局背景和文字
+  // Global background and text
   body {
     background-color: var(--bg-primary);
     color: var(--text-primary);
   }
 
-  // 卡片样式
+  // Card styles
   .job-detail-wrapper,
   .job-detail-container,
   .job-detail-content,
@@ -22,7 +22,7 @@
     border-color: var(--border-primary);
   }
 
-  // 通用卡片
+  // Common cards
   .border-radius-card-top,
   .border-radius-card {
     background-color: var(--bg-secondary);
@@ -33,7 +33,7 @@
     border-color: #3a3a3a !important;
   }
 
-  // 标签页
+  // Tabs
   .ivu-tabs {
     background-color: transparent;
 
@@ -75,7 +75,7 @@
     }
   }
 
-  // Ant Design 标签页
+  // Ant Design tabs
   .ant-tabs {
     background-color: transparent;
     color: var(--text-primary);
@@ -109,7 +109,7 @@
     }
   }
 
-  // 表格
+  // Table
   .ivu-table {
     background-color: var(--bg-secondary);
     color: var(--text-primary);
@@ -139,20 +139,20 @@
       background-color: var(--bg-secondary);
     }
 
-    // 固定列hover样式
+    // Fixed column hover styles
     &-fixed-right,
     &-fixed-left {
       tr:hover td {
         background-color: #22252e !important;
       }
 
-      // 表格行hover样式
+      // Table row hover styles
       &-row-hover td {
         background-color: #22252e !important;
       }
     }
 
-    // 表格行hover样式
+    // Table row hover styles
     &-row-hover td {
       background-color: #22252e !important;
     }
@@ -164,7 +164,7 @@
     }
   }
 
-  // 选中行高亮（覆盖 hover/通用单元格背景）
+  // Selected row highlight (overrides hover and default cell backgrounds)
   .ivu-table {
     .ivu-table-body .ivu-table-row-highlight td,
     .ivu-table-fixed-body .ivu-table-row-highlight td,
@@ -174,19 +174,19 @@
     }
   }
 
-  // 表格外层边框样式
+  // Outer table border styles
   .ivu-table-wrapper-with-border {
     border-color: var(--border-primary);
   }
 
-  // 表格loading mask样式
+  // Table loading mask styles
   .ivu-spin-fix {
     background-color: rgba(0, 0, 0, 0.5) !important;
   }
 
-  // 移除所有表格内边框
+  // Remove all inner table borders
   .ivu-table {
-    // 移除表格内部所有边框
+    // Remove all inner table borders
     th {
       //border: none !important;
       border-right: none !important;
@@ -204,24 +204,24 @@
       border-top: none !important;
     }
 
-    // 移除表格行边框
+    // Remove table row borders
     tr {
       border: none !important;
     }
 
-    // 移除表格头部边框
+    // Remove table header borders
     thead th {
       //border: none !important;
       //border-bottom: none !important;
       background-color: #22252e !important;
     }
 
-    // 移除表格体边框
+    // Remove table body borders
     tbody td {
       //border: none !important;
     }
 
-    // 移除固定列边框
+    // Remove fixed column borders
     &-fixed-left,
     &-fixed-right {
       th {
@@ -235,7 +235,7 @@
       }
     }
 
-    // 移除边框表格的特殊样式
+    // Remove special styles for bordered tables
     &.ivu-table-border {
       th {
         //border: none !important;
@@ -248,13 +248,13 @@
     }
   }
 
-  // 表格斑马线样式
+  // Table zebra stripe styles
   .ivu-table-stripe .ivu-table-body tr:nth-child(2n) td,
   .ivu-table-stripe .ivu-table-fixed-body tr:nth-child(2n) td {
     background-color: #22252e !important;
   }
 
-  // 表格中待创建需要变色
+  // Colour to be created in table
   .ivu-table {
     .db-to-create,
     .db-to-create td,
@@ -263,7 +263,7 @@
     }
   }
 
-  // 通用表格斑马线样式
+  // Common Table Zebra Line Style
   .table-striped > tbody > tr:nth-of-type(odd),
   .table-striped > tbody > tr:nth-child(odd) > td,
   .table-striped > tbody > tr:nth-child(odd) > th {
@@ -274,7 +274,7 @@
     background-color: #22252e !important;
   }
 
-  // 通用表格hover样式
+  // Common Table Hover Style
   .table-hover > tbody > tr:hover {
     background-color: #22252e !important;
   }
@@ -284,7 +284,7 @@
     background-color: #22252e !important;
   }
 
-  // 按钮
+  // button
   .ivu-btn,
   .ant-btn {
     border-color: var(--border-radio) !important;
@@ -297,31 +297,37 @@
     }
 
     &-primary {
-      background-color: #0087c7 !important;
-      border-color: var(--border-radio) !important;
+      background-color: var(--primary-color) !important;
+      border-color: var(--primary-color) !important;
       color: #ffffff !important;
 
+      span {
+        color: #ffffff !important;
+      }
+
       &.ivu-btn-ghost {
-        border-color: #0bb9f9 !important;
-        color: #0bb9f9 !important;
+        border-color: var(--primary-color) !important;
+        color: var(--primary-color) !important;
+        background: transparent !important;
 
         span {
-          color: #0bb9f9 !important;
+          color: var(--primary-color) !important;
         }
 
         &:hover {
-          border-color: #0087c7 !important;
-          color: #0087c7 !important;
+          border-color: var(--primary-color) !important;
+          color: #ffffff !important;
+          background-color: var(--primary-color) !important;
 
           span {
-            color: #0087c7 !important;
+            color: #ffffff !important;
           }
         }
       }
 
       &:hover {
-        opacity: 0.8;
-        border-color: #ffffff !important;
+        opacity: 0.92;
+        border-color: var(--primary-color) !important;
         color: #ffffff !important;
       }
     }
@@ -346,31 +352,31 @@
         color: #ffffff !important;
       }
 
-      // ghost 类型的 warning 按钮，允许内联样式覆盖
+      // ghost type warning button, allowing inline style overwrite
       &.ivu-btn-ghost,
       &.ant-btn-ghost {
         background-color: transparent !important;
-        // 使用更具体的选择器覆盖父级的 !important 规则
-        // 但不使用 !important，让内联样式能够覆盖
+        // Use more specific selections to overwrite the parent 's!important rules
+        // But do not use!important, so that inline styles can overwrite
         border-color: var(--warning-color);
         color: var(--warning-color);
 
         &:hover {
           background-color: rgba(255, 255, 255, 0.1) !important;
-          // hover 时也使用默认颜色，但内联样式可以覆盖
+          // hover also uses default colours, but inline styles can be overridden
           border-color: var(--warning-color);
           color: var(--warning-color);
         }
       }
     }
 
-    // ghost 按钮通用样式
+    // Ghost button common style
     &.ivu-btn-ghost,
     &.ant-btn-ghost {
       background-color: transparent !important;
     }
 
-    // 按钮禁用状态
+    // Button Disable Status
     &[disabled],
     &[disabled]:hover,
     &-disabled,
@@ -408,7 +414,7 @@
     }
   }
 
-  // 输入框
+  // Input Box
   .ivu-input,
   .ant-input {
     background-color: var(--bg-select) !important;
@@ -424,7 +430,7 @@
       box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
     }
 
-    // 输入框禁用状态
+    // Input Box Disable Status
     &[disabled],
     &[disabled]:hover {
       background-color: var(--disabled-bg) !important;
@@ -439,7 +445,7 @@
     background-color: unset !important;
   }
 
-  // Ant Input Affix（带前后缀/搜索的输入框）
+  // Ant Input Affix
   .ant-input-affix-wrapper {
     background-color: var(--bg-select) !important;
     border-color: var(--border-radio) !important;
@@ -491,7 +497,7 @@
       }
     }
 
-    // 圆角被外层覆盖时的输入框左右边框一致
+    // The input frame is the same when the corner is covered by the outer layer
     .ant-input-group .ant-input-affix-wrapper:not(:last-child) {
       border-right-color: #ffffff !important;
     }
@@ -501,7 +507,7 @@
     }
   }
 
-  // 数字输入框（iView InputNumber）
+  // Number input box (iView InputNumber)
   .ivu-input-number {
     background-color: var(--bg-select) !important;
     border-color: var(--border-radio) !important;
@@ -540,7 +546,7 @@
     }
   }
 
-  // 数字输入框禁用状态
+  // Number input box disabled
   .ivu-input-number-disabled,
   .ivu-input-number[disabled] {
     background-color: var(--disabled-bg) !important;
@@ -578,7 +584,7 @@
     }
   }
 
-  // iView Select - 选中值/占位/箭头/清除图标
+  // iView Select - selected value, placeholder, arrow, and clear icon
   .ivu-select-selection {
     .ivu-select-selected-value {
       color: var(--text-primary) !important;
@@ -599,13 +605,13 @@
     }
   }
 
-  // iView Select - 展开时保持高亮边框
+  // iView Select - keep highlighted border when expanded
   .ivu-select-visible .ivu-select-selection {
     border-color: var(--border-radio) !important;
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2) !important;
   }
 
-  // iView Select - 输入框颜色（可搜索）
+  // iView Select - input color (searchable)
   .ivu-select-input {
     color: var(--text-primary) !important;
     background-color: transparent !important;
@@ -615,7 +621,7 @@
     }
   }
 
-  // iView Select 多选标签样式
+  // iView Select Multiple Tag Styles
   .ivu-select-multiple .ivu-select-selection {
     background-color: var(--bg-select) !important;
   }
@@ -639,7 +645,7 @@
     }
   }
 
-  // Select 禁用状态
+  // Select Disable
   .ivu-select-disabled,
   .ant-select-disabled {
     .ivu-select-selection,
@@ -652,7 +658,7 @@
     }
   }
 
-  // 下拉菜单
+  // Dropdown Menu
   .ivu-dropdown-menu,
   .ant-dropdown-menu,
   .ivu-select-dropdown,
@@ -712,7 +718,7 @@
     }
   }
 
-  // 下拉框选项文字颜色
+  // Dropdown option text color
   .ivu-select-item {
     color: var(--text-primary) !important;
 
@@ -726,7 +732,7 @@
       background-color: var(--bg-hover);
     }
 
-    // 下拉框选项禁用状态
+    // Disabled dropdown options
     &-disabled,
     &-disabled:hover {
       color: var(--text-disabled) !important;
@@ -735,7 +741,7 @@
     }
   }
 
-  // Ant Design 下拉框选项禁用状态
+  // Disabled Ant Design options
   .ant-select-item-option {
     &-disabled {
       color: var(--text-disabled) !important;
@@ -748,7 +754,7 @@
     }
   }
 
-  // 下拉菜单项禁用状态
+  // Disabled dropdown menu items
   .ivu-dropdown-item-disabled,
   .ant-dropdown-menu-item-disabled {
     color: var(--text-disabled) !important;
@@ -759,20 +765,20 @@
     }
   }
 
-  // 下拉框选中后的文字颜色
+  // Text color after dropdown selection
   .ivu-select-selection {
     .ivu-select-selected-value {
       color: var(--text-primary) !important;
     }
   }
 
-  // OriginalConfig页面样式
+  // Task creation first-step styles
   .task-create-first-step {
     .title-text {
       color: var(--text-primary) !important;
     }
 
-    // 集群选择器中的文字颜色
+    // Text colour in cluster selection
     .ivu-select-option {
       color: var(--text-primary) !important;
 
@@ -782,7 +788,7 @@
     }
   }
 
-  // 通用文字颜色修复
+  // General text color fixes
   .ivu-form-item-label {
     color: var(--text-primary) !important;
   }
@@ -791,18 +797,18 @@
     color: var(--text-primary) !important;
   }
 
-  // 确保所有p标签在暗色主题下正确显示
+  // Ensure that all p tags are displayed correctly in dark theme.
   p {
     color: var(--text-primary) !important;
   }
 
-  // 确保所有span标签在暗色主题下正确显示
-  // 排除有内联样式的元素，避免覆盖状态颜色等特殊样式
+  // Ensure that all span tags are displayed correctly in dark theme.
+  // Exclude elements with inline styles to avoid overriding status colors and other special styles.
   span:not([style*='color']) {
     color: var(--text-primary) !important;
   }
 
-  // TableMapping组件样式
+  // TableMapping Component Style
   .table-filter-nav-item {
     color: var(--text-primary) !important;
     border-bottom: 1px solid var(--border-primary);
@@ -829,7 +835,7 @@
     color: var(--text-primary) !important;
   }
 
-  // TaskInfoHeader组件样式
+  // TaskInfoHeader Component Style
   .task-info-title {
     color: var(--text-primary) !important;
     background-color: var(--bg-secondary) !important;
@@ -859,7 +865,7 @@
     border-top-color: var(--border-primary) !important;
   }
 
-  // AddDataSource组件样式
+  // AddDataSource Component Style
   .add-datasource-wrapper {
     background-color: var(--bg-card) !important;
     border-color: var(--border-primary) !important;
@@ -874,7 +880,7 @@
     color: var(--text-primary) !important;
   }
 
-  // 模态框
+  // Modal
   .ivu-modal,
   .ant-modal {
     &-content {
@@ -907,7 +913,7 @@
     }
   }
 
-  // ===== WideTablePanel 画布与浮层暗色适配 =====
+  // ===== WideTablePanel canvas and overlay dark adaptation =====
   .graph-wrapper {
     border-color: var(--border-primary) !important;
   }
@@ -924,7 +930,7 @@
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.5) !important;
   }
 
-  // ===== Ant Drawer 抽屉（NodeFormModal / NodeFormModalNew / NodeDataDrawer）暗色适配 =====
+  // ===== Ant Drawer dark adaptation (NodeFormModal / NodeFormModalNew / NodeDataDrawer) =====
   .ant-drawer {
     &-mask {
       background-color: rgba(0, 0, 0, 0.6) !important;
@@ -960,7 +966,7 @@
     }
   }
 
-  // 组件自定义 class 覆盖
+  // Component custom class overrides
   .lookup-table-add-drawer {
     .ant-drawer-content {
       background-color: var(--bg-secondary) !important;
@@ -982,10 +988,10 @@
     }
   }
 
-  // ===== Modal 内部通用组件在暗色主题下的适配（确保页面内所有弹窗一致） =====
+  // ===== Shared modal inner component adaptation for dark theme =====
   .ivu-modal,
   .ant-modal {
-    // 表单与输入
+    // Form and input
     .ivu-form-item-label,
     .ant-form-item-label {
       color: var(--text-primary) !important;
@@ -1028,7 +1034,7 @@
       color: var(--text-disabled) !important;
     }
 
-    // 表格
+    // Table
     .ivu-table {
       background-color: var(--bg-secondary) !important;
       color: var(--text-primary) !important;
@@ -1048,7 +1054,7 @@
       }
     }
 
-    // 链接与图标
+    // Link and Icon
     a {
       color: var(--primary-color) !important;
 
@@ -1058,7 +1064,7 @@
     }
   }
 
-  // 面包屑
+  // Bread crumbs.
   .ivu-breadcrumb,
   .ant-breadcrumb {
     color: var(--text-secondary);
@@ -1072,7 +1078,7 @@
     }
   }
 
-  // 提示框
+  // Tooltip
   .ivu-tooltip-inner,
   .ant-tooltip-inner {
     background-color: var(--bg-tertiary);
@@ -1088,7 +1094,7 @@
     }
   }
 
-  // Poptip（气泡卡片）
+  // Poptip
   .ivu-poptip {
     &-content {
       background-color: var(--bg-secondary) !important;
@@ -1156,7 +1162,7 @@
     }
   }
 
-  // 警告框
+  // Warning Box
   .ivu-alert,
   .ant-alert {
     background-color: var(--bg-tertiary);
@@ -1174,7 +1180,7 @@
     }
   }
 
-  // warn-point 和 warn-font 暗色模式适配
+  // Warn-point and Warn-font dark-colour appropriate
   .warn-point {
     background-color: var(--text-secondary) !important;
   }
@@ -1183,7 +1189,7 @@
     color: var(--warning-color) !important;
   }
 
-  // 分页
+  // Pagination
   .ivu-page,
   .ant-pagination {
     .ivu-page-item,
@@ -1213,7 +1219,7 @@
       }
     }
 
-    // 导航箭头按钮
+    // Navigation Arrow Button
     .ivu-page-next,
     .ivu-page-prev,
     .ant-pagination-next,
@@ -1237,7 +1243,7 @@
       }
     }
 
-    // 跳转输入框
+    // Jump input box
     .ivu-page-options-elevator input,
     .ant-pagination-options-quick-jumper input {
       background-color: var(--bg-select) !important;
@@ -1250,7 +1256,7 @@
       }
     }
 
-    // 每页条数选择器
+    // Selector per page
     .ivu-page-options-sizer,
     .ant-pagination-options-size-changer {
       .ivu-select-selection {
@@ -1260,13 +1266,13 @@
       }
     }
 
-    // 总数显示
+    // Total
     .ivu-page-total,
     .ant-pagination-total-text {
       color: #ffffff !important;
     }
 
-    // 确保所有分页按钮内的链接文字都是白色
+    // Ensure that all link text in pagination buttons is white.
     .ivu-page-item a,
     .ant-pagination-item a,
     .ivu-page-item a:visited,
@@ -1274,13 +1280,13 @@
       color: #ffffff !important;
     }
 
-    // 确保hover状态下链接文字也是白色
+    // Make sure the link text is white in the hover state.
     .ivu-page-item:hover a,
     .ant-pagination-item:hover a {
       color: #ffffff !important;
     }
 
-    // 分页禁用状态
+    // Pagination disabled state
     .ivu-page-item-disabled,
     .ant-pagination-item-disabled,
     .ivu-page-prev:hover,
@@ -1293,7 +1299,7 @@
     }
   }
 
-  // 进度条
+  // Progress Bar
   .ivu-progress,
   .ant-progress {
     &-bg {
@@ -1308,13 +1314,13 @@
       background-color: var(--bg-tertiary) !important;
     }
 
-    // 进度条文字颜色
+    // Progress bar text colour
     &-inner-text,
     &-text {
       color: var(--text-primary) !important;
     }
 
-    // 进度条状态颜色
+    // Progress Bar Status Color
     &.ivu-progress-normal .ivu-progress-bg {
       background-color: var(--progress-normal) !important;
     }
@@ -1328,7 +1334,7 @@
     }
   }
 
-  // 通用进度条状态样式 - 使用更高优先级
+  // Universal Progress Bar State Style - Use higher priority
   .ivu-progress-normal .ivu-progress-bg {
     background-color: var(--progress-normal) !important;
   }
@@ -1341,17 +1347,17 @@
     background-color: var(--progress-error) !important;
   }
 
-  // 覆盖 cloudCanal.less 中的固定颜色
+  // Overwrite fixed colours in cloudCanal.less
   //.ivu-progress-bg {
   //  background-color: var(--primary-color) !important;
   //}
 
-  // 覆盖 cloudCanal.less 中的成功状态固定颜色
+  // Overwrite the successful state fixed colour in cloudCanal.less
   //.ivu-progress-success .ivu-progress-bg {
   //  background-color: var(--progress-success) !important;
   //}
 
-  // 标签
+  // Label
   .ivu-tag,
   .ant-tag {
     background-color: var(--bg-tertiary);
@@ -1359,14 +1365,14 @@
     color: var(--text-primary);
   }
 
-  // 分割线
+  // Partition Line
   .ivu-divider,
   .ant-divider {
     border-color: var(--border-primary);
     color: var(--text-secondary);
   }
 
-  // 折叠面板
+  // Collapse Panel
   .ivu-collapse,
   .ant-collapse {
     background-color: var(--bg-secondary);
@@ -1391,14 +1397,14 @@
     }
   }
 
-  // 时间轴
+  // Timeline
   .ivu-timeline-item-head,
   .ant-timeline-item-head {
     background-color: var(--bg-secondary);
     border-color: var(--primary-color);
   }
 
-  // 滚动条
+  // Scrollbar
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -1417,7 +1423,7 @@
     }
   }
 
-  // 代码编辑器
+  // Code Editor
   .monaco-editor {
     background-color: var(--bg-primary);
 
@@ -1434,7 +1440,7 @@
     background-color: var(--bg-select);
   }
 
-  // 日志内容容器
+  // Log contents container
   .log-content-card {
     background-color: var(--bg-secondary);
     border-color: var(--border-primary);
@@ -1468,12 +1474,12 @@
     color: var(--text-secondary);
   }
 
-  // Header Logo 背景图切换
+  // Header logo background image switch
   .layout-logo {
     background-image: url('~@/assets/logo-BG-dark.png') !important;
   }
 
-  // 自定义组件样式
+  // Custom Component Styles
   .worker-ip-btn {
     color: var(--text-primary);
 
@@ -1487,7 +1493,7 @@
     }
   }
 
-  // Form 表单
+  // Form
   .ivu-form-item-label,
   .ant-form-item-label {
     color: var(--text-primary);
@@ -1502,19 +1508,19 @@
     border-color: var(--border-primary);
   }
 
-  // Checkbox 文字颜色
+  // Checkbox text color
   .ivu-checkbox-wrapper,
   .ivu-checkbox-wrapper span {
     color: var(--text-primary) !important;
   }
 
-  // Checkbox hover 状态
+  // Checkbox hover state
   .ivu-checkbox:hover .ivu-checkbox-inner {
     border-color: var(--primary-color) !important;
     background-color: var(--bg-hover) !important;
   }
 
-  // Checkbox 选中状态
+  // Checkbox selected state
   .ivu-checkbox-checked .ivu-checkbox-inner {
     background-color: var(--primary-color) !important;
     border-color: var(--primary-color) !important;
@@ -1524,14 +1530,14 @@
     }
   }
 
-  // Checkbox 选中状态 hover
+  // Checkbox selected hover state
   .ivu-checkbox-checked:hover .ivu-checkbox-inner {
     background-color: var(--primary-color) !important;
     border-color: var(--primary-color) !important;
     opacity: 0.8;
   }
 
-  // Checkbox 半选状态（indeterminate）
+  // Checkbox indeterminate state
   .ivu-checkbox-indeterminate .ivu-checkbox-inner {
     background-color: var(--primary-color) !important;
     border-color: var(--primary-color) !important;
@@ -1541,26 +1547,26 @@
     }
   }
 
-  // Checkbox 半选状态 hover
+  // Checkbox indeterminate hover state
   .ivu-checkbox-indeterminate:hover .ivu-checkbox-inner {
     background-color: var(--primary-color) !important;
     border-color: var(--primary-color) !important;
     opacity: 0.8;
   }
 
-  // Checkbox focus 状态
+  // Checkbox focus state
   .ivu-checkbox-focus {
     box-shadow: 0 0 0 2px rgba(11, 185, 248, 0.2) !important;
   }
 
-  // Checkbox wrapper 选中状态（带边框的 checkbox）
+  // Checkbox wrapper selected status (checkbox with borders)
   .ivu-checkbox-wrapper-checked.ivu-checkbox-border {
     border-color: var(--primary-color) !important;
     background-color: var(--bg-secondary) !important;
     color: var(--text-primary) !important;
   }
 
-  // Checkbox & Radio 禁用状态
+  // Checkbox & Radio disabled
   .ivu-checkbox-disabled,
   .ant-checkbox-disabled,
   .ivu-radio-disabled,
@@ -1579,7 +1585,7 @@
       color: var(--text-disabled) !important;
     }
 
-    // 禁用状态下选中状态的 checkbox
+    // Disabled selected checkbox
     &.ivu-checkbox-checked .ivu-checkbox-inner {
       background-color: var(--disabled-bg) !important;
       border-color: var(--border-primary) !important;
@@ -1590,7 +1596,7 @@
       }
     }
 
-    // 禁用状态下半选状态的 checkbox
+    // Disabled indeterminate checkbox
     &.ivu-checkbox-indeterminate .ivu-checkbox-inner {
       background-color: var(--disabled-bg) !important;
       border-color: var(--border-primary) !important;
@@ -1611,7 +1617,7 @@
       background-color: var(--primary-color);
     }
 
-    // Switch 禁用状态
+    // Disabled switch
     &[disabled],
     &-disabled {
       background-color: var(--disabled-bg) !important;
@@ -1625,7 +1631,7 @@
     }
   }
 
-  // 链接
+  // Link
   a {
     color: var(--primary-color);
 
@@ -1635,13 +1641,13 @@
     }
   }
 
-  // 图表背景
+  // Chart background
   .echarts,
   .highcharts-container {
     background-color: transparent;
   }
 
-  // 特定页面适配
+  // Specific page adaptations
   .home {
     background-color: var(--bg-primary);
   }
@@ -1650,7 +1656,7 @@
     background-color: var(--bg-primary);
   }
 
-  // 系统页面
+  // System page
   .system {
     background-color: var(--bg-primary);
 
@@ -1659,7 +1665,7 @@
     }
   }
 
-  // 侧边栏
+  // Sidebar
   .ivu-menu-dark {
     background-color: var(--bg-secondary);
 
@@ -1678,9 +1684,9 @@
     }
   }
 
-  // ===== 通用页面组件覆盖 =====
+  // ===== Shared page component overrides =====
 
-  // 所有页面底部 Footer
+  // Footer areas shared by all pages
   .page-footer,
   .page-footer-container,
   .page-footer-batch,
@@ -1693,7 +1699,7 @@
     box-shadow: 6px 2px 23px 0 rgba(0, 0, 0, 0.5) !important;
   }
 
-  // 页面头部 Header
+  // Header
   .page-header,
   .page-header-container {
     background-color: var(--bg-secondary) !important;
@@ -1701,7 +1707,7 @@
     color: var(--text-primary) !important;
   }
 
-  // 通用容器背景
+  // Generic container background
   .content-wrapper,
   .main-content,
   .page-container,
@@ -1709,7 +1715,7 @@
     background-color: var(--bg-primary) !important;
   }
 
-  // 白色卡片容器
+  // White card container
   div[style*='background: #ffffff'],
   div[style*='background:#ffffff'],
   div[style*='background: #fff'],
@@ -1721,7 +1727,7 @@
     background-color: var(--bg-card) !important;
   }
 
-  // 浅灰色背景
+  // Light Grey Background
   div[style*='background: #fafafa'],
   div[style*='background:#fafafa'],
   div[style*='background-color: #fafafa'],
@@ -1733,7 +1739,7 @@
     background-color: var(--bg-tertiary) !important;
   }
 
-  // 边框颜色覆盖
+  // Border Colour Overwrite
   div[style*='border: 1px solid #dadada'],
   div[style*='border:1px solid #dadada'],
   div[style*='border-top: 1px solid #dadada'],
@@ -1745,7 +1751,7 @@
     border-color: var(--border-primary) !important;
   }
 
-  // 侧边导航
+  // Side Navigation
   .side-nav,
   .sidebar,
   .nav-sidebar {
@@ -1767,13 +1773,13 @@
     }
   }
 
-  // 面板容器（通用样式，详细样式见下方）
+  // Panel packaging (common style, detailed style below)
   .panel-content {
     background-color: var(--bg-secondary) !important;
     border-color: var(--border-primary) !important;
   }
 
-  // 搜索框容器
+  // Search box containers
   .search-container,
   .search-bar,
   .filter-bar {
@@ -1781,7 +1787,7 @@
     border-color: var(--border-primary) !important;
   }
 
-  // 列表项
+  // List Item
   .list-item {
     background-color: var(--bg-secondary) !important;
     border-color: var(--border-secondary) !important;
@@ -1792,19 +1798,19 @@
     }
   }
 
-  // 空状态
+  // Empty Status
   .empty-state,
   .no-data {
     color: var(--text-tertiary) !important;
   }
 
-  // SQL 编辑器相关
+  // SQL Editor Related
   .sql-container,
   .query-container {
     background-color: var(--bg-primary) !important;
   }
 
-  // 数据源树
+  // Data Source Tree
   .ds-tree,
   .data-source-tree {
     background-color: var(--bg-secondary) !important;
@@ -1830,7 +1836,7 @@
   .ant-tree-treenode {
     color: var(--text-primary) !important;
 
-    // 节点内容包装器
+    // Node content wrapper
     .ant-tree-node-content-wrapper {
       color: var(--text-primary) !important;
       transition: background-color 0.2s;
@@ -1841,19 +1847,19 @@
       }
     }
 
-    // 节点标题
+    // Node Title
     .ant-tree-title {
       color: var(--text-primary) !important;
     }
 
-    // 节点 hover 时，只改变背景色，不改变文本颜色
+    // Change only the background color when nodes are hovered.
     &:hover {
       .ant-tree-node-content-wrapper {
         background-color: var(--bg-hover) !important;
       }
     }
 
-    // 选中状态的节点
+    // Selected node
     &.ant-tree-node-selected {
       .ant-tree-node-content-wrapper {
         background-color: var(--bg-select) !important;
@@ -1865,7 +1871,7 @@
       }
     }
 
-    // 禁用状态的节点
+    // Disabled node
     &.ant-tree-treenode-disabled {
       .ant-tree-node-content-wrapper {
         color: var(--text-disabled) !important;
@@ -1880,7 +1886,7 @@
         color: var(--text-disabled) !important;
       }
 
-      // 禁用状态下不显示 hover 效果
+      // Suppress hover effects when disabled.
       &:hover {
         .ant-tree-node-content-wrapper {
           background-color: transparent !important;
@@ -1903,7 +1909,7 @@
     color: var(--text-disabled) !important;
   }
 
-  // 拖拽线/放置反馈
+  // Drag/place feedback
   .ant-tree .ant-tree-drop-indicator {
     background-color: var(--primary-color) !important;
   }
@@ -1935,20 +1941,20 @@
     border-left: 5px solid var(--text-primary);
   }
 
-  // Worker 相关
+  // Worker Related
   .worker-container,
   .cluster-container {
     background-color: var(--bg-primary) !important;
   }
 
-  // 日志查看器
+  // Log Viewer
   .log-viewer,
   .log-container {
     background-color: var(--bg-primary) !important;
     color: var(--text-primary) !important;
   }
 
-  // 任务详情
+  // Task Details
   .job-detail,
   .task-detail {
     background-color: var(--bg-primary) !important;
@@ -1959,14 +1965,14 @@
     }
   }
 
-  // 配置项
+  // Configuration item
   .config-item,
   .param-item {
     background-color: var(--bg-secondary) !important;
     border-color: var(--border-primary) !important;
   }
 
-  // 用户中心
+  // User centres
   .user-center,
   .account-settings {
     background-color: var(--bg-primary) !important;
@@ -1977,7 +1983,7 @@
     }
   }
 
-  // 项目管理
+  // Project management
   .project-container {
     background-color: var(--bg-primary) !important;
   }
@@ -2001,7 +2007,7 @@
     }
   }
 
-  // Radio Button 禁用状态
+  // Radio Button Disable
   .ivu-radio-group-button .ivu-radio-wrapper-disabled {
     color: var(--text-disabled) !important;
     background-color: var(--disabled-bg) !important;
@@ -2015,14 +2021,14 @@
     }
   }
 
-  // 步骤条样式
+  // Stepbar Style
   .ivu-steps {
-    // 连接线 - 深灰色
+    // Connection Line - Dark Grey
     .ivu-steps-tail > i {
       background-color: var(--border-primary) !important;
     }
 
-    // 步骤标题
+    // Step Title
     .ivu-steps-title {
       color: var(--text-secondary) !important;
       background: none !important;
@@ -2044,7 +2050,7 @@
       }
     }
 
-    // 激活步骤（process状态）- 蓝色实心圆圈 + 白色数字
+    // Activate Step (process state) - Blue Solid Circle + White Number
     .ivu-steps-item.ivu-steps-status-process {
       .ivu-steps-head-inner {
         background-color: var(--primary-color) !important;
@@ -2061,7 +2067,7 @@
       }
     }
 
-    // 步骤头部通用样式
+    // Step Head Generic Style
     .ivu-steps-head {
       background: none !important;
     }
@@ -2243,7 +2249,7 @@
     background-color: unset !important;
   }
 
-  // iView card 类型 tabs 样式
+  // iView card type tabs style
   .ivu-tabs.ivu-tabs-card > .ivu-tabs-bar .ivu-tabs-tab {
     border-left: none !important;
     border-color: var(--border-radio) !important;
@@ -2251,14 +2257,14 @@
     color: var(--text-secondary) !important;
     border-bottom: 1px solid var(--primary-color);
 
-    // hover 状态
+    // Over status
     &:hover {
       background-color: var(--bg-hover) !important;
       border-color: var(--border-radio) !important;
       color: var(--primary-color) !important;
     }
 
-    // 选中/激活状态
+    // Select/activate Status
     &.ivu-tabs-tab-active {
       background-color: var(--bg-secondary) !important;
       border-color: var(--primary-color) !important;
@@ -2270,7 +2276,7 @@
     }
   }
 
-  // Ant Design card 类型 tabs 样式
+  // Ant Design card type tabs style
   .ant-tabs-card {
     .ant-tabs-nav {
       &::before {
@@ -2283,7 +2289,7 @@
       border-color: var(--border-radio) !important;
       color: var(--text-secondary) !important;
 
-      // hover 状态
+      // Over status
       &:hover {
         background-color: var(--bg-hover) !important;
         border-color: var(--border-radio) !important;
@@ -2294,7 +2300,7 @@
         }
       }
 
-      // 选中/激活状态
+      // Select/activate Status
       &.ant-tabs-tab-active {
         background-color: var(--bg-secondary) !important;
         border-color: var(--primary-color) !important;
@@ -2343,7 +2349,7 @@
     }
   }
 
-  // 卡片容器样式
+  // Card Container Style
   .card-container {
     background-color: var(--bg-secondary) !important;
     border-color: var(--border-primary) !important;
@@ -2361,7 +2367,7 @@
     }
   }
 
-  // ===== Worker 页面样式 =====
+  // ===== Worker page styles =====
   .job-header {
     background-color: var(--bg-secondary) !important;
     border-color: var(--border-primary) !important;
@@ -2418,9 +2424,9 @@
         }
 
         .worker-item-circle {
-          // 覆盖内联样式中的默认文本颜色（保留红色警告颜色）
+          // Overwrites the default text colour in the inline style (preserve red warning colours)
           span {
-            // 只覆盖非红色警告的文本颜色
+            // Only text colours of non-red alerts are covered
             &:not([style*='rgb(255']):not([style*='rgb(255,']):not([style*='#ff']):not([style*='#FF']) {
               color: var(--text-primary) !important;
             }
@@ -2493,7 +2499,7 @@
         }
       }
 
-      // 空状态占位容器
+      // Empty-state placeholder container
       div[style*='background-color: #ffffff'],
       div[style*='background-color:#ffffff'],
       div[style*='background: #ffffff'],
@@ -2523,7 +2529,7 @@
     }
   }
 
-  // Worker 页面的日志相关样式已在 JobDetail 中处理，这里只需要确保兼容
+  // The log-related style for the Worker page has been processed in JobDetail, which only ensures compatibility
   .log-tabs {
     background-color: var(--bg-secondary) !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
@@ -2620,7 +2626,7 @@
     }
   }
 
-  // 表格行高亮
+  // Table Line Highlight
   .ivu-table .current-task-row td {
     background-color: rgba(0, 135, 199, 0.2) !important;
   }
@@ -2637,7 +2643,7 @@
     color: #fff !important;
   }
 
-  // 测试连接图标（DataSourceSetting.vue）
+  // Test Connection Icon (DatasourceSetting.vue)
   .test-conn-icon {
     &.success {
       color: var(--success-color) !important;
@@ -2648,9 +2654,9 @@
     }
   }
 
-  // 测试连接图标（PageHeader.vue）- 确保内联颜色生效
-  // 针对 iView Icon 组件，确保通过 :color 属性设置的颜色在暗色模式下正确显示
-  // 当图标通过 :color="green" 或 :color="red" 设置时，使用主题变量
+  // Test Connection Icon (PageHeader.vue) - Ensure Inline Colors Effective
+  // For iView Icon components, make sure the color of the color set by the color properties is displayed correctly in dark mode
+  // Use theme variable when icons are set by: color= "green" or: color= "red"
   .ivu-icon-ios-checkmark-circle[style*='green'],
   .ivu-icon-ios-checkmark-circle[style*='color: green'],
   .ivu-icon-ios-checkmark-circle[style*='color:green'] {
@@ -2725,7 +2731,7 @@
     color: var(--text-primary) !important;
   }
 
-  // ===== AddWorker 组件暗色主题适配 =====
+  // ===== AddWorker dark theme adaptation =====
   .add-worker-header {
     background-color: var(--bg-secondary) !important;
     border-color: var(--border-primary) !important;
@@ -2793,7 +2799,7 @@
     border: 1px solid var(--border-primary) !important;
   }
 
-  // ===== 通用上传区域（JobDetail、NewCleanData、FilterHeader） =====
+  // ===== Shared upload area (JobDetail, NewCleanData, FilterHeader) =====
   .upload-btn {
     display: inline-flex;
     align-items: center;
@@ -2847,7 +2853,7 @@
     // }
   }
 
-  // Select Tree 下拉框容器
+  // Select tree dropdown container
   .ant-select-tree-dropdown,
   .ant-tree-select-dropdown {
     background-color: var(--bg-secondary) !important;
@@ -2855,18 +2861,18 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6) !important;
   }
 
-  // Select Tree 树节点
+  // Select Tree Tree Node
   .ant-select-tree,
   .ant-tree-select-dropdown .ant-select-tree {
     background-color: var(--bg-secondary) !important;
     color: var(--text-primary) !important;
 
-    // 树节点
+    // Tree Node
     .ant-select-tree-treenode,
     .ant-select-tree-node {
       color: var(--text-primary) !important;
 
-      // 节点内容包装器
+      // Node content wrapper
       .ant-select-tree-node-content-wrapper {
         color: var(--text-primary) !important;
         transition: background-color 0.2s;
@@ -2880,19 +2886,19 @@
         }
       }
 
-      // 节点标题
+      // Node Title
       .ant-select-tree-title {
         color: var(--text-primary) !important;
       }
 
-      // 节点 hover 时，只改变背景色，不改变文本颜色
+      // Change only the background color when nodes are hovered.
       &:hover {
         .ant-select-tree-node-content-wrapper {
           background-color: var(--bg-hover) !important;
         }
       }
 
-      // 选中状态的节点
+      // Selected node
       &.ant-select-tree-node-selected {
         .ant-select-tree-node-content-wrapper {
           background-color: var(--bg-select) !important;
@@ -2904,7 +2910,7 @@
         }
       }
 
-      // 禁用状态的节点
+      // Disabled node
       &.ant-select-tree-node-disabled {
         .ant-select-tree-node-content-wrapper {
           color: var(--text-disabled) !important;
@@ -2919,7 +2925,7 @@
           color: var(--text-disabled) !important;
         }
 
-        // 禁用状态下不显示 hover 效果
+        // Suppress hover effects when disabled.
         &:hover {
           .ant-select-tree-node-content-wrapper {
             background-color: transparent !important;
@@ -2928,19 +2934,19 @@
       }
     }
 
-    // 展开/收起图标
+    // Expand/Close Icon
     .ant-select-tree-switcher,
     .ant-select-tree-switcher-icon,
     .ant-select-tree .anticon {
       color: var(--text-secondary) !important;
     }
 
-    // 缩进线
+    // Indent
     .ant-select-tree-indent-unit {
       background-color: transparent !important;
     }
 
-    // 缩进线连接点
+    // Indentation line connect points
     .ant-select-tree-indent-unit::before {
       border-color: var(--border-primary) !important;
     }
@@ -2953,7 +2959,7 @@
       border-color: var(--border-primary) !important;
     }
 
-    // 选中状态
+    // Selected state
     &.ant-select-tree-checkbox-checked {
       .ant-select-tree-checkbox-inner {
         background-color: var(--primary-color) !important;
@@ -2965,7 +2971,7 @@
       }
     }
 
-    // 半选状态
+    // Semi Select Status
     &.ant-select-tree-checkbox-indeterminate {
       .ant-select-tree-checkbox-inner {
         background-color: var(--primary-color) !important;
@@ -2977,7 +2983,7 @@
       }
     }
 
-    // 禁用状态
+    // Disabled
     &.ant-select-tree-checkbox-disabled {
       .ant-select-tree-checkbox-inner {
         background-color: var(--disabled-bg) !important;
@@ -2986,7 +2992,7 @@
         opacity: 0.6;
       }
 
-      // 禁用状态下选中
+      // Select under Disable
       &.ant-select-tree-checkbox-checked {
         .ant-select-tree-checkbox-inner {
           background-color: var(--disabled-bg) !important;
@@ -2998,7 +3004,7 @@
         }
       }
 
-      // 禁用状态下半选
+      // Disable lower half selection
       &.ant-select-tree-checkbox-indeterminate {
         .ant-select-tree-checkbox-inner {
           background-color: var(--disabled-bg) !important;
@@ -3011,7 +3017,7 @@
       }
     }
 
-    // Hover 状态
+    // Hover Status
     &:not(.ant-select-tree-checkbox-disabled):hover {
       .ant-select-tree-checkbox-inner {
         border-color: var(--primary-color) !important;
@@ -3019,7 +3025,7 @@
     }
   }
 
-  // Select Tree 搜索框
+  // SelectTree search box
   .ant-select-tree-dropdown .ant-select-tree-search,
   .ant-tree-select-dropdown .ant-select-tree-search {
     background-color: var(--bg-secondary) !important;
@@ -3037,12 +3043,12 @@
     }
   }
 
-  // Select Tree 空状态
+  // SelectTree empty state
   .ant-select-tree-empty {
     color: var(--text-tertiary) !important;
   }
 
-  // Select Tree 拖拽指示器
+  // Select Tree Drag Indicator
   .ant-select-tree .ant-select-tree-drop-indicator {
     background-color: var(--primary-color) !important;
   }
@@ -3059,7 +3065,7 @@
     border-bottom-color: var(--border-primary) !important;
   }
 
-  // 许可证申请模态框样式适配
+  // Applies the license application template style
   .renew-license-modal,
   .apply-license-modal {
     .section {
@@ -3132,7 +3138,7 @@
     }
   }
 
-  // 头像弹窗（Home 页 Header -> user-info -> menu）
+  // Home Header - > user-info - > Menu
   .home {
     .header {
       .user-info {
@@ -3152,7 +3158,7 @@
             }
 
             .parent-account-label {
-              // 维持标签可读性
+              // Maintain label readability
               color: #fff !important;
             }
           }
@@ -3180,7 +3186,7 @@
     }
   }
 
-  // JSON编辑器组件样式适配
+  // JSON Editor Component Style Fit
   .param-header {
     background: var(--bg-tertiary) !important;
     border-left-color: var(--primary-color) !important;
@@ -3230,7 +3236,7 @@
     background: none;
   }
 
-  // 日期选择器侧边栏（iView）
+  // Date Selector Sidebar (iView)
   .ivu-picker-panel-sidebar {
     background-color: var(--bg-secondary) !important;
     border-right: 1px solid var(--border-primary) !important;
@@ -3299,7 +3305,7 @@
     }
   }
 
-  // ===== 授权页面 - 遮罩层避免白色闪动 =====
+  // ===== Authorization page: mask layer prevents white flicker =====
   .auth-container-wrapper {
     .auth-content {
       .auth-container {
@@ -3316,7 +3322,7 @@
     }
   }
 
-  // ===== Ant Design Date/Time Picker 暗色模式适配 =====
+  // ===== Ant Design Date/Time Picker dark mode adaptation =====
   .ant-picker {
     background-color: var(--bg-tertiary) !important;
     border-color: var(--border-radio) !important;
@@ -3370,7 +3376,7 @@
     }
   }
 
-  // 日期选择器下拉面板
+  // Drop-down panel for Date Selector
   .ant-picker-dropdown {
     background-color: transparent !important;
 
@@ -3381,13 +3387,13 @@
     }
   }
 
-  // 日期选择器面板
+  // Date Selector Panel
   .ant-picker-panel {
     background-color: var(--bg-secondary) !important;
     border-color: var(--border-primary) !important;
     color: var(--text-primary) !important;
 
-    // 面板头部
+    // Panel Head
     &-header {
       border-bottom-color: var(--border-primary) !important;
 
@@ -3400,7 +3406,7 @@
       }
     }
 
-    // 头部视图（显示年月/周/日）
+    // Head view (show year/week/day)
     .ant-picker-header-view {
       color: var(--text-primary) !important;
 
@@ -3413,12 +3419,12 @@
       }
     }
 
-    // 面板主体
+    // Panel Subject
     &-body {
       background-color: var(--bg-secondary) !important;
     }
 
-    // 日期单元格
+    // Date Cell
     .ant-picker-cell {
       color: var(--text-primary) !important;
 
@@ -3469,7 +3475,7 @@
       }
     }
 
-    // 周/月/年选择器内容区域
+    // Week/month/year selection content area
     .ant-picker-content {
       background-color: var(--bg-secondary) !important;
 
@@ -3493,7 +3499,7 @@
         color: var(--text-primary) !important;
       }
 
-      // 月份/年份/季度单元格
+      // Month/year/quarter cell
       .ant-picker-cell {
         color: var(--text-primary) !important;
 
@@ -3522,7 +3528,7 @@
     }
   }
 
-  // 时间选择面板
+  // Time Selection Panel
   .ant-picker-time-panel {
     background-color: var(--bg-secondary) !important;
     border-color: var(--border-primary) !important;
@@ -3550,7 +3556,7 @@
     }
   }
 
-  // 范围选择器
+  // Range Selector
   .ant-picker-range {
     background-color: var(--bg-tertiary) !important;
     border-color: var(--border-radio) !important;
@@ -3568,7 +3574,7 @@
     }
   }
 
-  // 日期选择器底部操作栏
+  // Date Selector Bottom Operator Bar
   .ant-picker-footer {
     border-top-color: var(--border-primary) !important;
     background-color: var(--bg-secondary) !important;
@@ -3584,7 +3590,7 @@
     }
   }
 
-  // 日期选择器快捷方式
+  // Date Selector Shortcut
   .ant-picker-ranges {
     .ant-picker-preset {
       color: var(--text-primary) !important;
@@ -3609,9 +3615,9 @@
     }
   }
 
-  // ===== 禁用状态元素（使用 #ccc 颜色）在暗色模式下添加不透明度 =====
-  // 针对内联样式使用 #ccc 或 rgb(204, 204, 204) 的元素，添加 0.5 不透明度
-  // Vue 可能会将 #ccc 转换为 rgb(204, 204, 204)，所以需要同时匹配两种格式
+  // ===== Add opacity to disabled elements using #ccc in dark mode =====
+  // Add 0.5 opacity to inline elements using #ccc or rgb(204, 204, 204).
+  // Vue may convert #ccc to rgb (204, 204, 204), so both formats need to be matched
   a[style*='#ccc'],
   a[style*='#CCCCCC'],
   a[style*='rgb(204, 204, 204)'],
@@ -3649,7 +3655,7 @@
     color: rgb(255, 153, 0) !important;
   }
 
-  // 解决暗色主题下 Select 输入框光标不可见的问题
+  // Solve the non-visibility of the Select input cursor under the dark theme
   .ant-select-selection-search-input {
     caret-color: var(--text-primary) !important;
   }
@@ -3666,7 +3672,7 @@
     background: #22252e !important;
   }
 
-  // 申请码链路数出的vue-number组件
+  // vue-number component for application-code link count
   .vue-number-input__input {
     background-color: var(--bg-select) !important;
   }
@@ -3675,7 +3681,7 @@
     color: var(--text-secondary) !important;
   }
 
-  // 抽屉组件
+  // drawer component
   .ivu-drawer,
   .ant-drawer {
     &-content {
@@ -3701,7 +3707,7 @@
     }
   }
 
-  // 右键菜单
+  // Context menu
   .mx-context-menu {
     background-color: var(--bg-secondary) !important;
     .mx-context-menu-item:hover {
@@ -3716,7 +3722,7 @@
     }
   }
 
-  // 待转移到相关文件
+  // To be transferred to related files
   .sql-home-container .content .query-container .query-content-container .query-content .query .table-list-container {
     background: var(--bg-secondary);
   }

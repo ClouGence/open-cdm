@@ -140,7 +140,7 @@ public enum OracleType implements SQLType {
             Integer typeNumber = this.getVendorTypeNumber();
             return JDBCType.valueOf(typeNumber);
         } catch (Exception e) {
-            return null; // 只有 typeNumber 不存在这一种情况，因此吃掉 error。
+            return null; // Only typenumber does not exist, so eater.
         }
     }
 }

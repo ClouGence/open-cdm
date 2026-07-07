@@ -18,9 +18,8 @@ package com.clougence.clouddm.ds.starrocks;
 import com.clougence.adapter.starrocks.StarRocksTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.ds.starrocks.analysis.*;
-import com.clougence.clouddm.ds.starrocks.analysis.rewrite.SrRewriteSpi;
 import com.clougence.clouddm.ds.starrocks.definition.SrDefService;
+import com.clougence.clouddm.ds.starrocks.definition.secrules.SrSecRulesSupportSpi;
 import com.clougence.clouddm.ds.starrocks.definition.ui.SrDetermineExceptionSpi;
 import com.clougence.clouddm.ds.starrocks.definition.ui.browser.SrDsBrowseSpi;
 import com.clougence.clouddm.ds.starrocks.definition.ui.ddl.SrConvertTableDDLSpi;
@@ -33,25 +32,30 @@ import com.clougence.clouddm.ds.starrocks.dsconf.SrConfigSpi;
 import com.clougence.clouddm.ds.starrocks.dsconf.SrSqlSerializationSpi;
 import com.clougence.clouddm.ds.starrocks.execute.SrSessionFactory;
 import com.clougence.clouddm.ds.starrocks.execute.SrSupportSpi;
+import com.clougence.clouddm.ds.starrocks.i18n.SrConfigI18nKeys;
 import com.clougence.clouddm.ds.starrocks.i18n.SrDsI18nKeys;
 import com.clougence.clouddm.ds.starrocks.language.SrLanguageSpi;
 import com.clougence.clouddm.ds.starrocks.resource.SrEditorResourceSpi;
+import com.clougence.clouddm.ds.starrocks.sql.SrSqlEngineSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
 import com.clougence.clouddm.dsfamily.execute.RdbSessionSpi;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
+import com.clougence.sql.mysql.MySqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
-@Plugin(includePackages = { "com.clougence.clouddm.dsfamily.execute.*",      //
+@Plugin(name = "i18n::" + SrDsI18nKeys.PLUGIN_NAME_STARROCKS,                //
+        includePackages = { "com.clougence.clouddm.dsfamily.execute.*",      //
                             "com.clougence.clouddm.dsfamily.mysql.execute.*",//
                             "com.clougence.clouddm.ds.starrocks.execute.*"   //
-}, dsProduct = DataSourceType.StarRocks)
+        }, dsProduct = DataSourceType.StarRocks)
 public class SrPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     @Override
@@ -82,14 +86,18 @@ public class SrPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(SrSessionFactory.class);
         dsPlugin.bindDsDriverFamily("MySQL Connector/J");
+
+        dsPlugin.bindSqlEngine(SrSqlEngineSpi.NAME, MySqlEngineSpi.NAME);
+        dsPlugin.addGlobalSpi(SqlEngineSpi.class, SrSqlEngineSpi.NAME, new SrSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+
         dsPlugin.addPluginSpi(new RdbSessionSpi());
         dsPlugin.addPluginSpi(new SrSupportSpi());
-        dsPlugin.addPluginSpi(new SrRewriteSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {
         //initI18n
         dsPlugin.bindPluginI18n(SrDsI18nKeys.class);
+        dsPlugin.bindPluginI18n(SrConfigI18nKeys.class);
         //sqlBuilder
         dsPlugin.bindDsSqlBuilder(SrEditorProvider.INSTANCE);
         dsPlugin.bindDsDialect(StarRocksDialect.INSTANCE);
@@ -111,11 +119,7 @@ public class SrPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configTeam(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new SrResAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
-        dsPlugin.addPluginSpi(new SrSplitAnalysisSpi());
         dsPlugin.addPluginSpi(new SrSecRulesSupportSpi());
-        dsPlugin.addPluginSpi(new SrSecDomainResolveSpi(dsPlugin.findGlobalService(MetaService.class)));
-        dsPlugin.addPluginSpi(new SrSelectColumnAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {

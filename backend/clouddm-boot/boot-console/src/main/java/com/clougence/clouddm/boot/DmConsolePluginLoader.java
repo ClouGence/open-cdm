@@ -23,13 +23,13 @@ import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.console.web.service.sdk.ConsoleCacheServiceImpl;
 import com.clougence.clouddm.platform.plugin.PluginLoadHelper;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.analysis.column.QueryConstraintService;
 import com.clougence.clouddm.sdk.service.approval.ApprovalRefreshService;
 import com.clougence.clouddm.sdk.service.cache.CacheService;
 import com.clougence.clouddm.sdk.service.config.ConfigService;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
 import com.clougence.clouddm.sdk.service.execute.SessionService;
+import com.clougence.clouddm.sdk.sql.column.QueryConstraintService;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;

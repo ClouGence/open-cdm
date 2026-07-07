@@ -13,28 +13,28 @@
 </p>
 
 <p align="center">
-    [<a target="_blank" href='docs/cn/README.cn.md'>中文</a>]
-    [<a target="_blank" href='docs/en/README.en.md'>English</a>]
+    [<a target="_blank" href='docs/README.cn.md'>中文</a>]
+    [<a target="_blank" href='docs/README.en.md'>English</a>]
 </p>
 
-![pic_en.png](docs/assets/pic_en.png)
+![pic_en.png](docs/assets/en/pic.png)
 
 ---
 
 ## Project Facts
 
-| Field | Value |
-|------|-------|
-| Project name | CloudDM |
-| Repository | https://github.com/ClouGence/open-cdm |
-| Mirror | https://gitee.com/clougence/open-cdm |
-| Homepage | https://www.cdmgr.com/ |
-| Documentation | https://www.cdmgr.com/docs/intro/product_intro |
-| License | Apache License 2.0 |
-| Current version | 3.1.1 |
-| Main languages | Java, JavaScript / TypeScript |
+| Field | Value                                           |
+|------|-------------------------------------------------|
+| Project name | CloudDM                                         |
+| Repository | https://github.com/ClouGence/open-cdm           |
+| Mirror | https://gitee.com/clougence/open-cdm            |
+| Homepage | https://www.cdmgr.com/                          |
+| Documentation | https://www.cdmgr.com/docs/intro/product_intro  |
+| License | Apache License 2.0                              |
+| Current version | 4.0.0                                           |
+| Main languages | Java, JavaScript / TypeScript                   |
 | Deployment modes | Standalone (Alone), Cluster (Console + Sidecar) |
-| Deployment targets | Install package, Docker, Kubernetes |
+| Deployment targets | Install package, Docker, Kubernetes             |
 
 ## Core Capabilities
 
@@ -83,7 +83,7 @@
 ### Install
 CloudDM supports **Standalone (Alone)** and **Cluster (Console + Sidecar)** modes, and also supports **install packages**, **Docker**, and **Kubernetes** deployment methods.
 
-The example below demonstrates how to use standalone deployment. If you need install-package deployment, cluster deployment, or Kubernetes deployment, you can continue deploying with the install packages and yml files generated after local packaging. For complete deployment instructions, see [DEPLOY.en.md](docs/en/DEPLOY.en.md).
+The example below demonstrates how to use standalone deployment. If you need install-package deployment, cluster deployment, or Kubernetes deployment, you can continue deploying with the install packages and yml files generated after local packaging. For complete deployment instructions, see [deployment.en.md](docs/guides/deployment.en.md).
 
 ```bash
 # Quick start, default image
@@ -93,7 +93,7 @@ docker run -d --name cgdm-alone \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  bladepipe/cgdm-alone:3.1.1
+  bladepipe/cgdm-alone:3.3.0
 
 # Faster image pulls in China
 docker run -d --name cgdm-alone \
@@ -102,7 +102,7 @@ docker run -d --name cgdm-alone \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.1
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.3.0
 ```
 
 Host directory mount example:
@@ -116,7 +116,7 @@ docker run -d --name cgdm-alone \
   -v /data/cgdm/logs:/root/cgdm/alone/logs \
   -v /data/cgdm/data:/root/cgdm/alone/data \
   -v /data/cgdm/mysql:/var/lib/mysql \
-  bladepipe/cgdm-alone:3.1.1
+  bladepipe/cgdm-alone:3.3.0
 ```
 
 When `/data/cgdm/conf` is empty, CloudDM initializes it with the default configuration files on startup.
@@ -128,25 +128,25 @@ Before upgrading, back up Docker volumes or database data. To upgrade, remove th
 ```bash
 # Default image
 docker rm -f cgdm-alone
-docker pull bladepipe/cgdm-alone:3.1.1
+docker pull bladepipe/cgdm-alone:3.3.0
 docker run -d --name cgdm-alone \
   -p 8222:8222 \
   -v cgdm_alone_conf:/root/cgdm/alone/conf \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  bladepipe/cgdm-alone:3.1.1
+  bladepipe/cgdm-alone:3.3.0
 
 # China acceleration image
 docker rm -f cgdm-alone
-docker pull cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.1
+docker pull cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.3.0
 docker run -d --name cgdm-alone \
   -p 8222:8222 \
   -v cgdm_alone_conf:/root/cgdm/alone/conf \
   -v cgdm_alone_logs:/root/cgdm/alone/logs \
   -v cgdm_alone_data:/root/cgdm/alone/data \
   -v cgdm_mysql_data:/var/lib/mysql \
-  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.1.1
+  cloudcanal-registry.cn-shanghai.cr.aliyuncs.com/clougence/cgdm-alone:3.3.0
 ```
 
 ### Initialization
@@ -163,11 +163,11 @@ http://localhost:8222
 
 ### Add Data Source
 
-<img src="docs/assets/ds_add_en.png" alt="ds_add_en.png" style="border: 1px solid #d9d9d9;" />
+<img src="docs/assets/en/ds_add.png" alt="ds_add_en.png" style="border: 1px solid #d9d9d9;" />
 
 ### Query Data
 
-<img src="docs/assets/query_en.png" alt="query_en.png" style="border: 1px solid #d9d9d9;" />
+<img src="docs/assets/en/query.png" alt="query_en.png" style="border: 1px solid #d9d9d9;" />
 
 ## Open Source License
 

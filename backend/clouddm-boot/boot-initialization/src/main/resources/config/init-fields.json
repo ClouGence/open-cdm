@@ -34,6 +34,14 @@
     },
     {
       "category": "security",
+      "propertyKey": "clougence.init.admin.account",
+      "labelKey": "INIT_FIELD_ADMIN_ACCOUNT_LABEL",
+      "descriptionKey": "INIT_FIELD_ADMIN_ACCOUNT_DESC",
+      "inputType": "text",
+      "required": true
+    },
+    {
+      "category": "security",
       "propertyKey": "clougence.init.admin.email",
       "labelKey": "INIT_FIELD_ADMIN_EMAIL_LABEL",
       "descriptionKey": "INIT_FIELD_ADMIN_EMAIL_DESC",

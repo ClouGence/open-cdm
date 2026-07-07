@@ -2,11 +2,6 @@
   <div class="devops">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb>
-            <BreadcrumbItem>{{ $t('ci-cd') }}</BreadcrumbItem>
-          </Breadcrumb>
-        </div>
         <div class="content">
           <div class="option">
             <div class="left">
@@ -18,14 +13,11 @@
                 @on-clear="handleQueryClear"
                 clearable
               />
-              <Button type="primary" @click="handleQuery">{{ $t('cha-xun') }}</Button>
+              <Button type="primary" ghost @click="handleQuery">{{ $t('cha-xun') }}</Button>
             </div>
             <div class="right">
-              <Button @click="handleAdd" type="primary" ghost style="margin-right: 10px" icon="md-add">
-                {{ $t('ti-gong-zhe') }}
-              </Button>
-              <Button @click="init" :loading="loading">
-                <CustomIcon type="icon-v2-Refresh" v-if="!loading" />
+              <Button @click="goCreateScm" type="primary" style="margin-right: 10px" icon="md-add">
+                {{ $t('xin-zeng') }}
               </Button>
             </div>
           </div>
@@ -44,7 +36,7 @@
               </template>
               <template #action="{ row }">
                 <div class="action">
-                  <a type="primary" @click="handleShowEditScmDrawer(row)" style="margin-right: 10px">{{ $t('pei-zhi') }}</a>
+                  <a type="primary" @click="goEditScm(row)" style="margin-right: 10px">{{ $t('bian-ji') }}</a>
                   <a type="primary" @click="handleTestScm(row.scmId)">{{ $t('ce-shi') }}</a>
                 </div>
               </template>
@@ -53,140 +45,23 @@
         </div>
       </div>
     </div>
-    <Drawer
-      :title="scmEdit ? $t('bian-ji-ti-gong-zhe') : $t('tian-jia-ti-gong-zhe')"
-      width="400"
-      class="drawer-wrap"
-      v-model="showDrawer"
-      :mask-closable="false"
-      @on-close="handleClose"
-    >
-      <Form :label-width="100" ref="scmForm" :model="scmForm" :rules="computedScmRules">
-        <div class="scm-wrap">
-          <div
-            :class="`${scmEdit ? 'scm-item-read' : 'scm-item-editor'} ${item.scmType === selectedScmType.scmType ? 'scm-item-selected' : ''}`"
-            v-for="item in scmEdit && selectedScmType ? [selectedScmType] : scmTypeList"
-            :key="item.scmType"
-            @click="handleChangeScmType(item)"
-          >
-            <CustomIcon v-if="item.iconResource" :resource="item.iconResource" :alt="item.scmTypeI18n" size="24px" />
-            <div>{{ item.scmTypeI18n }}</div>
-          </div>
-        </div>
-        <FormItem :label="$t('zhan-shi-ming-cheng')" prop="display">
-          <Input v-model="scmForm.display"></Input>
-        </FormItem>
-        <FormItem :label="$t('fu-wu-di-zhi')" prop="serviceUrl">
-          <Input v-model="scmForm.serviceUrl" :disabled="selectedScmType?.custom === 'false'"></Input>
-        </FormItem>
-        <FormItem :label="$t('accesstoken')" prop="accessToken">
-          <Input v-model="scmForm.accessToken"></Input>
-        </FormItem>
-      </Form>
-      <div class="bottom-wrap">
-        <a @click="jumpToHelp">{{ $t('ru-he-huo-qu-accesstoken') }}</a>
-        <div>
-          <span v-show="isCorrect !== 'init'" :class="isCorrect ? 'green-text' : 'error-text'">
-            {{ isCorrect ? $t('ce-shi-tong-guo') : $t('ce-shi-shi-bai') }}
-          </span>
-          <Button @click="handleTestScm(null)" :loading="loading">{{ $t('ce-shi') }}</Button>
-        </div>
-      </div>
-
-      <div class="drawer-footer">
-        <div class="left">
-          <Button type="error" @click="handleDeleteScm" v-if="scmEdit">{{ $t('shan-chu') }}</Button>
-        </div>
-        <div class="right">
-          <Button @click="handleClose" style="margin-right: 10px">{{ $t('qu-xiao') }}</Button>
-          <Button type="primary" @click="handleEditScm" v-if="scmEdit">{{ $t('bao-cun') }}</Button>
-          <Button type="primary" @click="handleAddScm" v-else>{{ $t('tian-jia') }}</Button>
-        </div>
-      </div>
-    </Drawer>
   </div>
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex';
-import copyMixin from '@/mixins/copyMixin';
-import enterOpPwdMixin from '@/mixins/modal/enterOpPwdMixin';
-import { encryptMixin } from '@/mixins/encryptMixin';
 import { scmColumns } from './constant';
-
-const EMPTY_SCM = {
-  scmType: '',
-  display: '',
-  serviceUrl: '',
-  accessToken: ''
-};
 
 export default {
   name: 'Devops',
-  mixins: [copyMixin, enterOpPwdMixin, encryptMixin],
   data() {
     return {
-      scmEdit: false,
-      selectedScmType: {},
       scmList: [],
-      rawScmList: [], // 用于前端搜索过滤
-      adminList: [],
+      rawScmList: [], // For front-end search filter
       scmTypeList: [],
       searchKeywords: '',
-      step: -1,
-      showDrawer: false,
       loading: false,
-      scmForm: { ...EMPTY_SCM },
-      isCorrect: 'init',
-      scmRules: {
-        scmType: [
-          {
-            required: true,
-            message: '提供方类型不能为空'
-          }
-        ],
-        display: [
-          {
-            required: true,
-            message: '展示名称不能为空'
-          }
-        ],
-        serviceUrl: [
-          {
-            required: true,
-            message: '服务地址不能为空'
-          }
-        ]
-      },
-      editScmRules: {
-        scmType: [
-          {
-            required: true,
-            message: '提供方类型不能为空'
-          }
-        ],
-        display: [
-          {
-            required: true,
-            message: '展示名称不能为空'
-          }
-        ],
-        serviceUrl: [
-          {
-            required: true,
-            message: '服务地址不能为空'
-          }
-        ]
-      },
       scmColumns
     };
-  },
-  computed: {
-    ...mapState(['userInfo', 'globalSetting', 'myCatLog', 'myAuth']),
-    ...mapGetters(['isSaas']),
-    computedScmRules() {
-      return this.scmEdit ? this.editScmRules : this.scmRules;
-    }
   },
   mounted() {
     this.init();
@@ -199,24 +74,6 @@ export default {
     providerIconResource(scmType) {
       return this.scmTypeList.find((item) => item.scmType === scmType)?.iconResource || '';
     },
-    handleChangeScmType(item) {
-      if (this.scmEdit) return;
-      this.selectedScmType = item;
-      this.scmForm.scmType = item.scmType;
-      this.scmForm.serviceUrl = item.serviceUrl;
-    },
-    handleAddScm() {
-      this.$refs.scmForm.validate(async (valid) => {
-        if (valid) {
-          const res = await this.$services.dmDevopsScmAdd({ data: this.scmForm });
-          if (res.success) {
-            this.$Message.success('提供者添加成功');
-            this.handleClose();
-            this.init();
-          }
-        }
-      });
-    },
     handleQuery() {
       const keyword = this.searchKeywords.trim().toLowerCase();
       this.scmList = this.rawScmList.filter((item) => item.display.toLowerCase().includes(keyword));
@@ -225,88 +82,10 @@ export default {
       this.searchKeywords = '';
       this.scmList = [...this.rawScmList];
     },
-    handleEditScm() {
-      this.$refs.scmForm.validate(async (valid) => {
-        if (valid) {
-          const res = await this.$services.dmDevopsScmUpdate({
-            modal: false,
-            data: {
-              scmId: this.scmForm.scmId,
-              newDisplay: this.scmForm.display,
-              newServiceUrl: this.scmForm.serviceUrl,
-              newAccessToken: this.scmForm.accessToken,
-              force: false
-            }
-          });
-
-          if (res.success) {
-            this.$Message.success(this.$t('cao-zuo-cheng-gong'));
-            this.handleClose();
-            await this.getScmList();
-          } else {
-            this.$Modal.confirm({
-              title: this.$t('cao-zuo-shi-bai'),
-              content: res.msg,
-              okText: this.$t('guan-bi'),
-              cancelText: this.$t('hu-lve-bing-ji-xu'),
-              onOk: async () => {},
-              onCancel: async () => {
-                const res2 = await this.$services.dmDevopsScmUpdate({
-                  data: {
-                    scmId: this.scmForm.scmId,
-                    newDisplay: this.scmForm.display,
-                    newServiceUrl: this.scmForm.serviceUrl,
-                    newAccessToken: this.scmForm.accessToken,
-                    force: true
-                  }
-                });
-
-                if (res2.success) {
-                  this.$Message.success(this.$t('cao-zuo-cheng-gong'));
-                  this.handleClose();
-                  this.getScmList();
-                }
-              }
-            });
-          }
-        }
-      });
-    },
-    jumpToHelp() {
-      const url = this.selectedScmType?.helpUrl || '';
-      window.open(url, 'blank');
-    },
-    handleDeleteScm() {
-      this.$Modal.confirm({
-        title: this.$t('que-ren'),
-        content: this.$t('shi-fou-yao-shan-chu'),
-        onOk: async () => {
-          const res = await this.$services.dmDevopsScmDelete({
-            data: {
-              scmId: this.scmForm.scmId,
-              force: false
-            }
-          });
-          if (res.success) {
-            this.$Message.success(this.$t('shan-chu-cheng-gong-0'));
-            this.handleClose();
-            await this.getScmList();
-          }
-        }
-      });
-    },
     async handleTestScm(configId) {
-      if (configId) {
-        const res = await this.$services.dmDevopsScmTest({ data: { scmId: configId } });
-        if (res.success) {
-          this.$Message.success(this.$t('ce-shi-tong-guo'));
-        }
-      } else {
-        this.loading = true;
-        if (!this.scmEdit) this.scmForm.scmId = null;
-        const res = await this.$services.dmDevopsScmTest({ data: this.scmForm });
-        this.loading = false;
-        this.isCorrect = res.success;
+      const res = await this.$services.dmDevopsScmTest({ data: { scmId: configId } });
+      if (res.success) {
+        this.$Message.success(this.$t('ce-shi-tong-guo'));
       }
     },
     async getScmTypeList() {
@@ -315,12 +94,7 @@ export default {
       this.loading = false;
 
       if (res.success) {
-        this.scmTypeList = res.data;
-        if (this.scmTypeList?.length) {
-          this.selectedScmType = this.scmTypeList[0];
-          this.scmForm.scmType = this.scmTypeList[0].scmType;
-          this.scmForm.serviceUrl = this.scmTypeList[0].serviceUrl;
-        }
+        this.scmTypeList = res.data || [];
       }
     },
     async getScmList() {
@@ -333,35 +107,12 @@ export default {
         this.scmList = res.data;
       }
     },
-    handleAdd() {
-      this.showDrawer = true;
+    goCreateScm() {
+      this.$router.push('/integrations/git/create');
     },
-    handleClose() {
-      this.showDrawer = false;
-      this.scmEdit = false;
-      this.isCorrect = 'init';
-      setTimeout(() => {
-        this.$refs.scmForm.resetFields();
-      }, 100);
-    },
-    goDetail(row) {
-      this.$router.push(`/project/${row?.id || 1}`);
-    },
-    nextStep() {},
-    confirmGuid() {
-      this.nextStep();
-    },
-    createEmptyProject() {
-      this.showAddModal = false;
-    },
-    handleShowEditScmDrawer(scm) {
-      this.scmEdit = true;
-      this.selectedScmType = this.scmTypeList.find((item) => item.scmType === scm?.scmType);
-      this.scmForm = { ...scm };
-      this.selectedScmType.scmType = scm?.scmType;
-      this.showDrawer = true;
-    },
-    handleCloseModal() {}
+    goEditScm(row) {
+      this.$router.push(`/integrations/git/${row.scmId}/edit`);
+    }
   }
 };
 </script>
@@ -427,6 +178,11 @@ export default {
   .actions {
     font-size: 12px;
   }
+}
+
+.devops .action a:hover {
+  border-bottom: none;
+  box-shadow: inset 0 -1px 0 currentColor;
 }
 
 .provider-cell {

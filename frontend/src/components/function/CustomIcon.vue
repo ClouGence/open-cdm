@@ -23,19 +23,19 @@
 import { getPluginResourceUrl } from '@/utils/pluginResource';
 
 /**
- * IconFont-v2, 自定义icon组件
+ * IconFont-v2, Customicon Component
  * https://clougence.yuque.com/ig5uby/pt7mq6/ql8cf0ii9lvkoe6t
  */
 export default {
   emits: ['click'],
   props: {
-    type: String, // icon唯一标识
-    resource: String, // 插件资源标识
+    type: String, // icon unique identifier
+    resource: String, // Plugin resource identifier
     alt: {
       type: String,
       default: ''
     },
-    instanceType: String, // 数据源的部署类型
+    instanceType: String, // Type of deployment of data sources
     size: {
       type: String,
       default: '16px'
@@ -123,7 +123,7 @@ export default {
     iconName() {
       const noPrefixIcon = this.type?.startsWith('icon-v2-') ? this.type?.slice(8) : this.type;
       const noPrefixDarkIcon = this.darkType?.startsWith('icon-v2-') ? this.darkType?.slice(8) : this.darkType;
-      // 数据源类icon中，对部分icon在部署类型不同下表现不一致做特殊处理
+      // Special treatment of part of the data source category, icon, for inconsistent performance under different types of deployment
       const icons = {
         MySQL: this.instanceType !== 'ALIBABA_CLOUD_HOSTED' ? 'MySQL' : 'RDSforMySQL',
         PostgreSQL: this.instanceType !== 'ALIBABA_CLOUD_HOSTED' ? 'PostgreSQL' : 'RDSforPostgreSQL',
@@ -131,7 +131,7 @@ export default {
         SQLServer: this.instanceType === 'ALIBABA_CLOUD_HOSTED' ? 'SQLServerBlue' : 'SQLServer'
       };
 
-      // 根据当前主题
+      // Based on current theme
       if (this.theme === 'dark' && this.darkType) {
         return icons[noPrefixDarkIcon] || noPrefixDarkIcon;
       }
@@ -153,7 +153,7 @@ export default {
 
 <style lang="less" scoped>
 .data-source-icon {
-  display: inline-block; // 防止下面的inline-flex不生效导致布局乱掉
+  display: inline-block; // To prevent inline-flix below from coming into effect, leading to a disordered layout
   display: inline-flex !important;
   align-items: center;
   vertical-align: middle;

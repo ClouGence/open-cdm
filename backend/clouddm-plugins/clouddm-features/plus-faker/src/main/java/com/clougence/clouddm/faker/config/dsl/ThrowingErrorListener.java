@@ -20,7 +20,7 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 
 /**
- * DSL 解析异常处理器。
+ * DSL parse error processor.
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2020-01-22
  */

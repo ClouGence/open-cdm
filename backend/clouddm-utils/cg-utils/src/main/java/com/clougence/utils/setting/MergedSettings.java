@@ -29,7 +29,7 @@ import com.clougence.utils.setting.provider.xml.XmlSettingsReader;
 import com.clougence.utils.setting.provider.yaml.YamlSettingsReader;
 
 /***
- * 传入{@link InputStream}的方式获取{@link Settings}接口的支持。
+ * Supports the {@link Settings} interface from stream, string, and reader input.
  * @version : 2013-9-8
  * @author 赵永春 (zyc@byshell.org)
  */

@@ -23,10 +23,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.sdk.analysis.column.RealColumn;
 import com.clougence.clouddm.sdk.model.analysis.TargetType;
 import com.clougence.clouddm.sdk.security.auth.SecQueryType;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
+import com.clougence.clouddm.sdk.sql.column.RealColumn;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;

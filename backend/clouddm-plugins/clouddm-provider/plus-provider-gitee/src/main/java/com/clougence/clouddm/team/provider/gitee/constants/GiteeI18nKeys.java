@@ -17,8 +17,10 @@ package com.clougence.clouddm.team.provider.gitee.constants;
 
 import com.clougence.utils.i18n.I18nResource;
 
-@I18nResource("/META-INF/dm/sdk/i18n/gitee")
+@I18nResource("/META-INF/clougence/i18n/gitee")
 public interface GiteeI18nKeys {
+
+    String PLUGIN_NAME_GITEE                           = "PLUGIN_NAME_GITEE";
 
     String GITEE_SCM_FETCH_REPOS_ERROR                 = "GITEE_SCM_FETCH_REPOS_ERROR";
     String GITEE_SCM_NOT_FOUND_REPO_ERROR              = "GITEE_SCM_NOT_FOUND_REPO_ERROR";

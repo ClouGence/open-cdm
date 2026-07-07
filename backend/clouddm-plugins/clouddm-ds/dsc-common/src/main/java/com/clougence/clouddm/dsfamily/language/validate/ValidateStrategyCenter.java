@@ -33,7 +33,7 @@ public abstract class ValidateStrategyCenter {
             return List.of();
         }
 
-        DslProvider dslProvider = Objects.requireNonNull(dslProvider(request), "dslProvider");
+        DslProvider dslProvider = request.getSqlEngine().dslProvider();
         ValidateContext context = ValidateContext.resolve(request, dslProvider);
         List<Diagnostic> diagnostics = new ArrayList<>();
         for (ValidateStrategy strategy : strategies()) {
@@ -72,6 +72,4 @@ public abstract class ValidateStrategyCenter {
     }
 
     protected abstract void register(List<ValidateStrategy> strategies);
-
-    protected abstract DslProvider dslProvider(ValidateRequest request);
 }

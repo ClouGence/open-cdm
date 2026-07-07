@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.ds.oracle.execute.OraMetaProviderDm;
+import com.clougence.clouddm.dsfamily.oracle.execute.OraMetaProviderDm;
 import com.clougence.clouddm.dsfamily.execute.AbstractRdbUmiService;
 import com.clougence.schema.umi.service.RdbUmiServiceDm;
 import com.clougence.schema.umi.special.rdb.RdbColumn;

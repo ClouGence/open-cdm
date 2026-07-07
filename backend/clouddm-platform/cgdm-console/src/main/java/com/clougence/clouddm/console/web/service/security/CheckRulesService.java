@@ -20,20 +20,11 @@ import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRange;
-import com.clougence.clouddm.platform.dal.model.secrule.RuleKind;
-import com.clougence.clouddm.platform.dal.model.secrule.RuleScriptType;
-import com.clougence.clouddm.platform.dal.model.secrule.SecMatchMode;
-import com.clougence.clouddm.platform.dal.model.secrule.SecRangeType;
-import com.clougence.clouddm.platform.dal.model.secrule.DmSecRangeDO;
-import com.clougence.clouddm.platform.dal.model.secrule.DmSecRefererDO;
-import com.clougence.clouddm.platform.dal.model.secrule.DmSecRuleDO;
-import com.clougence.clouddm.platform.dal.model.secrule.DmSecSpecDO;
-import com.clougence.clouddm.console.web.model.fo.checkrules.RangeDeleteFO;
-import com.clougence.clouddm.console.web.model.fo.checkrules.RuleSaveFO;
-import com.clougence.clouddm.console.web.model.fo.checkrules.SpecRulesFO;
-import com.clougence.clouddm.console.web.model.fo.checkrules.SpecSaveRangeFO;
+import com.clougence.clouddm.console.web.model.fo.checkrules.*;
 import com.clougence.clouddm.console.web.model.vo.checkrules.SecSettingDef;
+import com.clougence.clouddm.console.web.model.vo.checkrules.SpecUpdateVO;
 import com.clougence.clouddm.console.web.service.security.mode.DmSecRuleMO;
+import com.clougence.clouddm.platform.dal.model.secrule.*;
 import com.clougence.clouddm.sdk.service.secrules.SecParam;
 
 /**
@@ -55,6 +46,8 @@ public interface CheckRulesService {
     void configStatus(String ownerUid, long specId, boolean enable);
 
     void deleteSpec(String ownerUid, long specId);
+
+    SpecUpdateVO saveSpecRules(String ownerUid, SpecSaveRulesFO fo);
 
     void saveSpecRules(String ownerUid, long specId, List<SpecRulesFO> rules);
 

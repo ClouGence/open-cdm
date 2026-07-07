@@ -1,129 +1,137 @@
 <template>
-  <div class="initialization">
-    <div v-if="mode === 'loading'" class="init-loading-page">
-      <div class="loading-card">
-        <div class="init-version-badge" translate="no">{{ versionBadgeText }}</div>
-        <h2 class="loading-title">{{ pageTitle }}</h2>
-        <p class="loading-text">{{ $t('initialization.loading') }}</p>
-      </div>
+  <div class="initialization" :style="{ '--init-bg-pattern': `url(${backgroundPatternUrl})` }">
+    <div class="init-left">
+      <header class="init-topbar">
+        <div class="init-header">
+          <dm-logo-header :title="wizardProductTitle" />
+        </div>
+      </header>
+
+      <main class="init-shell">
+        <section class="init-hero">
+          <LoginHero />
+        </section>
+      </main>
+
+      <footer class="login-bottombar">
+        <dm-footer />
+      </footer>
     </div>
 
-    <!-- 错误页模式 -->
-    <div v-else-if="mode === 'dbError'" class="init-error-page">
-      <div class="error-card">
-        <div class="init-version-badge" translate="no">{{ versionBadgeText }}</div>
-        <h2 class="error-title">{{ $t('initialization.startFailed') }}</h2>
-        <div class="error-detail">
-          <p>{{ $t('initialization.errorDetail') }}</p>
-          <pre class="error-message">{{ errorMessage }}</pre>
-        </div>
-        <div class="error-actions">
-          <a-button type="primary" @click="handleRetry">{{ $t('initialization.retry') }}</a-button>
-          <a-button @click="handleReconfigureDatabase">{{ $t('initialization.reconfigureDatabase') }}</a-button>
+    <section class="init-workspace">
+      <div v-if="mode === 'loading'" class="init-loading-page">
+        <div class="loading-card init-page-card">
+          <div class="wizard-title-block init-page-title-block">
+            <h1 class="wizard-product-title">{{ wizardProductTitle }}</h1>
+          </div>
+          <p class="loading-text">{{ $t('initialization.loading') }}</p>
         </div>
       </div>
-    </div>
 
-    <!-- 初始化向导模式 -->
-    <div v-else class="init-wizard">
-      <div class="init-version-badge" translate="no">{{ versionBadgeText }}</div>
-      <div class="wizard-header">
-        <h1>{{ pageTitle }}</h1>
-        <div class="wizard-stage-progress">
-          <div v-for="(stage, index) in stageItems" :key="stage.key" class="wizard-stage-item" :class="stageState(index)">
-            <div class="wizard-stage-marker">
-              <span class="wizard-stage-index">{{ index + 1 }}</span>
-            </div>
-            <span class="wizard-stage-label">{{ stage.label }}</span>
-            <div v-if="index < stageItems.length - 1" class="wizard-stage-line" />
+      <!-- Error Page Mode -->
+      <div v-else-if="mode === 'dbError'" class="init-error-page">
+        <div class="error-card init-page-card">
+          <div class="wizard-title-block init-page-title-block">
+            <h1 class="wizard-product-title">{{ wizardProductTitle }}</h1>
+          </div>
+          <div class="error-detail">
+            <p>{{ $t('initialization.errorDetail') }}</p>
+            <pre class="error-message">{{ errorMessage }}</pre>
+          </div>
+          <div class="error-actions">
+            <a-button type="primary" @click="handleRetry">{{ $t('initialization.retry') }}</a-button>
+            <a-button @click="handleReconfigureDatabase">{{ $t('initialization.reconfigureDatabase') }}</a-button>
           </div>
         </div>
       </div>
 
-      <div class="wizard-content">
-        <!-- Step 0: 数据库配置 -->
-        <div v-show="currentStep === 0" class="step-panel">
-          <StepDb
-            :fieldDefs="dbFields"
-            :formValues="formValues"
-            :dbTestResult="dbTestResult"
-            :readonly="isDbFormReadonly"
-            :driverStatusActive="currentStep === 0"
-            @update:formValues="updateFormValues"
-            @driver-status-change="handleMysqlDriverStatusChange"
-            @validation-change="handleDbValidationChange"
-          />
+      <!-- Initialise Wizard Mode -->
+      <div v-else class="init-wizard">
+        <div class="wizard-header">
+          <div class="wizard-title-block">
+            <h1 class="wizard-product-title">{{ wizardProductTitle }}</h1>
+          </div>
+          <div class="wizard-stage-progress">
+            <div v-for="(stage, index) in stageItems" :key="stage.key" class="wizard-stage-item" :class="stageState(index)">
+              <div class="wizard-stage-marker">
+                <span class="wizard-stage-index">{{ index + 1 }}</span>
+              </div>
+              <span class="wizard-stage-label">{{ stage.label }}</span>
+              <div v-if="index < stageItems.length - 1" class="wizard-stage-line" />
+            </div>
+          </div>
         </div>
 
-        <!-- Step 1: 安全配置 -->
-        <div v-show="!isUpgradeMode && currentStep === 1" class="step-panel">
-          <StepSecurity
-            :fieldDefs="securityFields"
-            :formValues="formValues"
-            @update:formValues="updateFormValues"
-            @validation-change="handleSecurityValidationChange"
-          />
-        </div>
-
-        <!-- Step 2: 连接性配置 -->
-        <div v-show="!isUpgradeMode && currentStep === connectivityStepIndex" class="step-panel">
-          <StepConnectivity
-            :fieldDefs="connectivityFields"
-            :formValues="formValues"
-            :readonly="isConnectivityReadonly"
-            @update:formValues="updateFormValues"
-          />
-        </div>
-
-        <!-- 确认步骤 -->
-        <div v-show="isConfirmStep" class="step-panel">
-          <StepConfirm
-            :fieldDefs="fieldDefs"
-            :formValues="formValues"
-            :dbTestResult="dbTestResult"
-            :mode="mode"
-            :workflowMode="workflowMode"
-            :executionScripts="executionScripts"
-          />
-        </div>
-
-        <div v-show="isExecutionStep" class="step-panel">
-          <StepExecution :executionScripts="executionScripts" :operationErrorDetail="operationErrorDetail" />
-        </div>
-      </div>
-
-      <div class="wizard-footer">
-        <div v-if="currentFooterMessage" class="wizard-footer-message" :class="currentFooterMessage.type">
-          <template v-if="currentStep === 0 && dbTestResult && dbTestResult.requireConfirmInput">
-            <span class="warning-text">{{ currentFooterMessage.message }}</span>
-            <span class="warning-confirm-label">{{ dbTestResult.confirmInputLabel }}</span>
-            <input
-              class="warning-confirm-input"
-              :value="rebuildConfirmInput"
-              :placeholder="dbTestResult.confirmInputExpectedValue"
-              @input="handleRebuildConfirmInput"
+        <div class="wizard-content">
+          <!-- Step 0: Database Configuration -->
+          <div v-show="!isUpgradeMode && currentStep === 0" class="step-panel">
+            <StepDb
+              :fieldDefs="dbFields"
+              :formValues="formValues"
+              :dbTestResult="dbTestResult"
+              :readonly="isDbFormReadonly"
+              :showTestButton="!isUpgradeMode"
+              :testingDb="testingDb"
+              @update:formValues="updateFormValues"
+              @validation-change="handleDbValidationChange"
+              @test-db="handleTestDb"
             />
-          </template>
-          <template v-else>
-            <span>{{ currentFooterMessage.message }}</span>
-          </template>
+          </div>
+
+          <!-- Step 1: Secure Configuration -->
+          <div v-show="!isUpgradeMode && currentStep === 1" class="step-panel">
+            <StepSecurity
+              :fieldDefs="securityFields"
+              :formValues="formValues"
+              @update:formValues="updateFormValues"
+              @validation-change="handleSecurityValidationChange"
+            />
+          </div>
+
+          <!-- Step 2: Connectivity Configuration -->
+          <div v-show="hasConnectivityStep && currentStep === connectivityStepIndex" class="step-panel">
+            <StepConnectivity
+              :fieldDefs="connectivityFields"
+              :formValues="formValues"
+              :readonly="isConnectivityReadonly"
+              @update:formValues="updateFormValues"
+            />
+          </div>
+
+          <!-- Identification of steps -->
+          <div v-show="isConfirmStep" class="step-panel">
+            <StepConfirm
+              :fieldDefs="visibleFieldDefs"
+              :formValues="formValues"
+              :mode="mode"
+              :workflowMode="workflowMode"
+              @update:formValues="updateFormValues"
+            />
+          </div>
+
+          <div v-show="isExecutionStep" class="step-panel">
+            <StepExecution
+              :executionScripts="executionScripts"
+              :operationErrorDetail="operationErrorDetail"
+              :executionMessage="currentExecutionMessage"
+            />
+          </div>
         </div>
-        <div class="wizard-footer-actions">
-          <a-button v-if="showPrevButton" @click="prevStep">{{ $t('initialization.prev') }}</a-button>
-          <a-button v-if="currentStep === 0 && !isUpgradeMode" :disabled="testingDb || !canTestDb" @click="handleTestDb">
-            <span v-if="testingDb" class="button-inline-spinner" aria-hidden="true"></span>
-            <span>{{ $t('initialization.testConnection') }}</span>
-          </a-button>
-          <a-button v-if="showNextButton" class="wizard-next-button" type="primary" :disabled="!canNext" @click="nextStep">
-            {{ $t('initialization.next') }}
-          </a-button>
-          <a-button v-if="isConfirmStep" type="primary" :loading="applying" @click="handleConfirmAction">{{ confirmActionLabel }}</a-button>
-          <a-button v-if="showExecutionActionButton" type="primary" :loading="applying" @click="handleExecutionStageAction">
-            {{ executionActionLabel }}
-          </a-button>
+
+        <div class="wizard-footer">
+          <div class="wizard-footer-actions">
+            <a-button v-if="showPrevButton" @click="prevStep">{{ $t('initialization.prev') }}</a-button>
+            <a-button v-if="showNextButton" class="wizard-next-button" type="primary" @click="nextStep">
+              {{ $t('initialization.next') }}
+            </a-button>
+            <a-button v-if="isConfirmStep" type="primary" :loading="applying" @click="handleConfirmAction">{{ confirmActionLabel }}</a-button>
+            <a-button v-if="showExecutionActionButton" type="primary" :loading="applying" @click="handleExecutionStageAction">
+              {{ executionActionLabel }}
+            </a-button>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   </div>
 </template>
 
@@ -134,18 +142,16 @@ import StepSecurity from './StepSecurity.vue';
 import StepConnectivity from './StepConnectivity.vue';
 import StepConfirm from './StepConfirm.vue';
 import StepExecution from './StepExecution.vue';
+import DmFooter from '@/components/DmFooter';
+import DmLogoHeader from '@/components/DmLogoHeader';
+import LoginHero from '@/views/login/LoginHero.vue';
+import loginBgPattern from '@/assets/login/login-bg-pattern.svg';
 import { consumeDmBootstrapStatus, getDmSystemStatus, isDmSystemReady } from '../../utils/dmGlobalSettings';
-import { resolveDisplayVersion, resolveVersionBadgeText } from '../../utils/version';
 
 const INIT_DB_CREATE_IF_MISSING = 'clougence.init.db.createIfMissing';
-const INIT_DB_REBUILD_IF_NOT_EMPTY = 'clougence.init.db.rebuildIfNotEmpty';
-const INIT_DB_CONFIRM_DATABASE_NAME = 'clougence.init.db.confirmDatabaseName';
 const INIT_WORKFLOW_MODE_KEY = 'clougence.init.workflowMode';
+const ALONE_HIDDEN_FIELD_KEYS = new Set(['server.port', 'clouddm.rsocket.dns', 'clouddm.rsocket.console.port']);
 const INSTALL_PHASE_NOTICE_META = {
-  DB_REBUILD: {
-    titleKey: 'initialization.noticeDbRebuildTitle',
-    level: 'info'
-  },
   DB_INIT: {
     titleKey: 'initialization.noticeDbInitTitle',
     level: 'info'
@@ -180,10 +186,11 @@ function sleep(timeoutMs) {
 }
 
 const RESTART_POLL_REQUEST_TIMEOUT_MS = 1500;
+const REDIRECT_HOME_DELAY_MS = 2500;
 
 function buildDmGlobalSettingsUrl() {
   const baseUrl = (process.env.VUE_APP_BASE_URL || '').replace(/\/$/, '');
-  return `${baseUrl}/clouddm/console/api/v1/dm_global_settings`;
+  return `${baseUrl}/api/entry/dmGlobalSettings`;
 }
 
 function buildInitInstallLogWsUrl() {
@@ -192,37 +199,7 @@ function buildInitInstallLogWsUrl() {
   const baseUrl = explicitBase || fallbackOrigin;
   const parsed = new URL(baseUrl, fallbackOrigin);
   const wsProtocol = parsed.protocol === 'https:' ? 'wss:' : 'ws:';
-  return `${wsProtocol}//${parsed.host}/clouddm/console/api/v1/init/ws/install-log`;
-}
-
-function resolveMysqlDriverUiState(status) {
-  switch (status) {
-    case 'CHECKING':
-      return 'checking';
-    case 'AVAILABLE':
-      return 'ready';
-    case 'DOWNLOADING':
-    case 'PREPARING':
-    case 'SYNCING':
-      return 'downloading';
-    case 'ERROR':
-    case 'FAILED':
-      return 'error';
-    case 'UNAVAILABLE':
-      return 'unprepared';
-    default:
-      return 'idle';
-  }
-}
-
-function createInitialMysqlDriverStatus() {
-  return {
-    status: 'CHECKING',
-    uiState: 'checking',
-    available: false,
-    message: '',
-    detailMessage: ''
-  };
+  return `${wsProtocol}//${parsed.host}/api/entry/init/ws/install-log`;
 }
 
 function normalizeExecutionScriptItem(entry) {
@@ -364,13 +341,16 @@ async function pollDmGlobalSettings() {
   }
 }
 
-function redirectToLoginPage() {
-  window.location.replace(`${window.location.origin}${window.location.pathname}#/login`);
+function redirectToHomePage() {
+  window.location.replace(`${window.location.origin}${window.location.pathname}#/sql`);
+  window.setTimeout(() => {
+    window.location.reload();
+  }, 0);
 }
 
 export default {
   name: 'Initialization',
-  components: { StepDb, StepSecurity, StepConnectivity, StepConfirm, StepExecution },
+  components: { DmFooter, DmLogoHeader, LoginHero, StepDb, StepSecurity, StepConnectivity, StepConfirm, StepExecution },
   data() {
     return {
       mode: 'loading', // 'loading' | 'full' | 'upgrade' | 'dbError'
@@ -378,12 +358,9 @@ export default {
       errorMessage: '',
       fieldDefs: [],
       formValues: {},
-      rebuildConfirmInput: '',
-      testDbRefreshTimer: null,
       dbTestResult: null,
       dbMissingFields: [],
       securityMissingFields: [],
-      mysqlDriverStatus: createInitialMysqlDriverStatus(),
       upgradeScripts: [],
       executionScripts: [],
       operationErrorDetail: '',
@@ -396,16 +373,15 @@ export default {
       executionPhaseStatusMessage: '',
       restartStatusType: '',
       restartStatusMessage: '',
-      displayVersion: 'unknow',
       aloneMode: false
     };
   },
   computed: {
-    versionBadgeText() {
-      return resolveVersionBadgeText({
-        aloneMode: this.aloneMode,
-        version: this.displayVersion
-      });
+    backgroundPatternUrl() {
+      return loginBgPattern;
+    },
+    wizardProductTitle() {
+      return this.isUpgradeMode ? this.$t('initialization.productUpgradeTitle') : this.$t('initialization.productInitTitle');
     },
     dbFields() {
       return this.fieldDefs.filter((f) => f.category === 'database');
@@ -414,10 +390,16 @@ export default {
       return this.fieldDefs.filter((f) => f.category === 'security');
     },
     connectivityFields() {
-      return this.fieldDefs.filter((f) => f.category === 'connectivity');
+      return this.fieldDefs.filter((f) => f.category === 'connectivity' && !this.isAloneHiddenField(f));
+    },
+    visibleFieldDefs() {
+      return this.fieldDefs.filter((field) => !this.isAloneHiddenField(field));
     },
     isUpgradeMode() {
       return this.workflowMode === 'upgrade';
+    },
+    hasConnectivityStep() {
+      return !this.isUpgradeMode && !this.aloneMode;
     },
     pageTitle() {
       return this.isUpgradeMode ? this.$t('initialization.upgradeTitle') : this.$t('initialization.title');
@@ -425,16 +407,15 @@ export default {
     stageItems() {
       if (this.isUpgradeMode) {
         return [
-          { key: 'db', label: this.$t('initialization.stage.db') },
           { key: 'confirm', label: this.$t('initialization.stage.confirm') },
-          { key: 'execute', label: this.$t('initialization.stage.execute') }
+          { key: 'execute', label: this.$t('initialization.upgradeAction') }
         ];
       }
 
       return [
         { key: 'db', label: this.$t('initialization.stage.db') },
         { key: 'security', label: this.$t('initialization.stage.security') },
-        { key: 'connectivity', label: this.$t('initialization.stage.connectivity') },
+        ...(this.hasConnectivityStep ? [{ key: 'connectivity', label: this.$t('initialization.stage.connectivity') }] : []),
         { key: 'confirm', label: this.$t('initialization.stage.confirm') },
         { key: 'execute', label: this.$t('initialization.stage.execute') }
       ];
@@ -446,7 +427,7 @@ export default {
       return this.currentStep === this.executionStepIndex;
     },
     connectivityStepIndex() {
-      return 2;
+      return this.stageItems.findIndex((stage) => stage.key === 'connectivity');
     },
     confirmStepIndex() {
       return this.stageItems.length - 2;
@@ -454,7 +435,7 @@ export default {
     executionStepIndex() {
       return this.stageItems.length - 1;
     },
-    currentFooterMessage() {
+    currentExecutionMessage() {
       if (this.isExecutionStep && this.executionPhaseStatusMessage) {
         return {
           type: this.executionPhaseStatusType || 'info',
@@ -469,51 +450,15 @@ export default {
         };
       }
 
-      if (this.currentStep === 0) {
-        if (this.mysqlDriverFooterMessage) {
-          return {
-            type: this.mysqlDriverFooterType,
-            message: this.mysqlDriverFooterMessage
-          };
-        }
-
-        if (!this.isUpgradeMode && this.dbMissingFields.length) {
-          return {
-            type: 'error',
-            message: `${this.$t('initialization.dbFormIncomplete')}：${this.dbMissingFields.join('、')}`
-          };
-        }
-
-        if (this.isUpgradeMode) {
-          return null;
-        }
-
-        if (!this.dbTestResult || !this.dbTestResult.message) {
-          return null;
-        }
-
-        return {
-          type: this.dbTestResult.messageType || (this.dbTestResult.success ? 'success' : 'error'),
-          message: this.dbTestResult.message
-        };
-      }
-
-      if (!this.isUpgradeMode && this.currentStep === 1 && this.securityMissingFields.length) {
-        return {
-          type: 'error',
-          message: `${this.$t('initialization.securityFormIncomplete')}：${this.securityMissingFields.join('、')}`
-        };
-      }
-
       return null;
     },
     canNext() {
       if (this.currentStep === 0) {
         if (this.isUpgradeMode) {
-          return this.isMysqlDriverReady;
+          return true;
         }
 
-        return this.isMysqlDriverReady && !this.dbMissingFields.length && Boolean(this.dbTestResult && this.dbTestResult.canProceed);
+        return !this.dbMissingFields.length && Boolean(this.dbTestResult && this.dbTestResult.canProceed);
       }
       if (!this.isUpgradeMode && this.currentStep === 1) {
         return !this.securityMissingFields.length;
@@ -528,7 +473,7 @@ export default {
     },
     confirmActionLabel() {
       if (this.isUpgradeMode) {
-        return this.$t('initialization.upgradeAction');
+        return this.$t('initialization.applyConfig');
       }
 
       return this.$t('initialization.applyConfig');
@@ -543,47 +488,14 @@ export default {
 
       return this.$t('initialization.retryAction');
     },
-    mysqlDriverUiState() {
-      return resolveMysqlDriverUiState(this.mysqlDriverStatus.status);
-    },
-    isMysqlDriverReady() {
-      return this.mysqlDriverUiState === 'ready';
-    },
     isDbFormReadonly() {
-      return this.isUpgradeMode || !this.isMysqlDriverReady;
+      return this.isUpgradeMode;
     },
     isConnectivityReadonly() {
       return this.aloneMode;
     },
-    mysqlDriverFooterType() {
-      switch (this.mysqlDriverUiState) {
-        case 'checking':
-        case 'downloading':
-          return 'info';
-        case 'error':
-          return 'error';
-        case 'unprepared':
-          return 'warning';
-        default:
-          return '';
-      }
-    },
-    mysqlDriverFooterMessage() {
-      switch (this.mysqlDriverUiState) {
-        case 'ready':
-          return '';
-        case 'checking':
-          return this.$t('initialization.mysqlDriverChecking');
-        case 'downloading':
-          return this.mysqlDriverStatus.message || this.$t('initialization.mysqlDriverPreparing');
-        case 'error':
-          return this.mysqlDriverStatus.detailMessage || this.mysqlDriverStatus.message || this.$t('initialization.mysqlDriverDownloadRequired');
-        default:
-          return this.$t('initialization.mysqlDriverDownloadRequired');
-      }
-    },
     canTestDb() {
-      return this.isMysqlDriverReady && !this.dbMissingFields.length;
+      return !this.dbMissingFields.length;
     }
   },
   watch: {
@@ -595,7 +507,6 @@ export default {
     }
   },
   beforeUnmount() {
-    this.clearTestDbRefreshTimer();
     this.disconnectInstallLogSocket();
     this.executionPhaseStatusType = '';
     this.executionPhaseStatusMessage = '';
@@ -696,8 +607,7 @@ export default {
       const payload = {
         'spring.datasource.jdbcurl': this.formValues['spring.datasource.jdbcurl'] || '',
         'spring.datasource.username': this.formValues['spring.datasource.username'] || '',
-        'spring.datasource.password': this.formValues['spring.datasource.password'] || '',
-        [INIT_DB_REBUILD_IF_NOT_EMPTY]: this.formValues[INIT_DB_REBUILD_IF_NOT_EMPTY] || ''
+        'spring.datasource.password': this.formValues['spring.datasource.password'] || ''
       };
 
       try {
@@ -731,11 +641,10 @@ export default {
         return;
       }
 
-      this.displayVersion = resolveDisplayVersion(res.data) || 'unknow';
       this.aloneMode = Boolean(res.data && res.data.aloneMode);
       const { status, initReason, dbError, upgradeScripts = [] } = getDmSystemStatus(res);
       if (status === 'Ready') {
-        redirectToLoginPage();
+        redirectToHomePage();
         return;
       }
 
@@ -770,7 +679,6 @@ export default {
           this.dbTestResult = null;
           this.dbMissingFields = [];
           this.securityMissingFields = [];
-          this.mysqlDriverStatus = createInitialMysqlDriverStatus();
           this.executionScripts = [];
           this.operationErrorDetail = '';
           this.restartTimedOut = false;
@@ -793,70 +701,53 @@ export default {
       this.dbMissingFields = missingFields;
     },
 
-    handleMysqlDriverStatusChange(status) {
-      this.mysqlDriverStatus = {
-        ...createInitialMysqlDriverStatus(),
-        ...(status || {})
-      };
-      this.mysqlDriverStatus.uiState = resolveMysqlDriverUiState(this.mysqlDriverStatus.status);
-      if (this.mysqlDriverStatus.uiState !== 'ready') {
-        this.dbTestResult = null;
-      }
-    },
-
     handleSecurityValidationChange(missingFields) {
       this.securityMissingFields = missingFields;
     },
 
+    isAloneHiddenField(field) {
+      return Boolean(this.aloneMode && field && ALONE_HIDDEN_FIELD_KEYS.has(field.propertyKey));
+    },
+
     updateFormValues(patch) {
       if (hasDbFieldChange(patch)) {
-        this.clearTestDbRefreshTimer();
-        this.rebuildConfirmInput = '';
+        const shouldPreserveCreateIfMissing = this.isConfirmStep && Object.prototype.hasOwnProperty.call(this.formValues, INIT_DB_CREATE_IF_MISSING);
         this.dbTestResult = null;
+        this.executionScripts = [];
         this.formValues = {
           ...this.formValues,
           ...patch,
-          [INIT_DB_CREATE_IF_MISSING]: 'false',
-          [INIT_DB_REBUILD_IF_NOT_EMPTY]: ''
+          [INIT_DB_CREATE_IF_MISSING]: shouldPreserveCreateIfMissing ? this.formValues[INIT_DB_CREATE_IF_MISSING] : 'false'
         };
         return;
       }
 
-      if (Object.prototype.hasOwnProperty.call(patch, INIT_DB_REBUILD_IF_NOT_EMPTY) && patch[INIT_DB_REBUILD_IF_NOT_EMPTY] !== 'true') {
-        this.rebuildConfirmInput = '';
-      }
-
       this.formValues = { ...this.formValues, ...patch };
-
-      if (Object.prototype.hasOwnProperty.call(patch, INIT_DB_REBUILD_IF_NOT_EMPTY) && this.dbTestResult && this.dbTestResult.showRebuildChoice) {
-        this.scheduleTestDbRefresh();
-      }
     },
 
-    handleRebuildConfirmInput(event) {
-      this.rebuildConfirmInput = event && event.target ? event.target.value : '';
-
-      if (this.dbTestResult && this.dbTestResult.requireConfirmInput) {
-        this.scheduleTestDbRefresh(250);
+    showDbTestToast(result) {
+      if (!result) {
+        return;
       }
-    },
 
-    clearTestDbRefreshTimer() {
-      if (this.testDbRefreshTimer) {
-        clearTimeout(this.testDbRefreshTimer);
-        this.testDbRefreshTimer = null;
+      const type = `${result.messageType || (result.success ? 'success' : 'error')}`.toLowerCase();
+      const fallbackMessage = type === 'success' ? this.$t('ce-shi-lian-jie-cheng-gong') : this.$t('ce-shi-lian-jie-shi-bai');
+      const message = `${result.message || fallbackMessage}`.trim();
+      if (!message) {
+        return;
       }
-    },
 
-    scheduleTestDbRefresh(delay = 0) {
-      this.clearTestDbRefreshTimer();
-      this.testDbRefreshTimer = setTimeout(() => {
-        this.testDbRefreshTimer = null;
-        if (!this.canTestDb) {
-          return;
-        }
-        this.handleTestDb();
-      }, delay);
+      if (type === 'success') {
+        this.$message.success(message);
+        return;
+      }
+
+      if (type === 'warning') {
+        this.$message.warning(message);
+        return;
+      }
+
+      this.$message.error(message);
     },
 
     async handleTestDb() {
@@ -866,45 +757,31 @@ export default {
 
       if (this.dbMissingFields.length) {
         this.dbTestResult = null;
-        return;
-      }
-
-      if (!this.isMysqlDriverReady) {
-        this.dbTestResult = null;
+        this.$message.error(this.formatDbMissingFieldsMessage());
         return;
       }
 
       const params = {
         'spring.datasource.jdbcurl': this.formValues['spring.datasource.jdbcurl'],
         'spring.datasource.username': this.formValues['spring.datasource.username'],
-        'spring.datasource.password': this.formValues['spring.datasource.password'],
-        [INIT_DB_REBUILD_IF_NOT_EMPTY]: this.formValues[INIT_DB_REBUILD_IF_NOT_EMPTY] || '',
-        [INIT_DB_CONFIRM_DATABASE_NAME]: this.rebuildConfirmInput.trim()
+        'spring.datasource.password': this.formValues['spring.datasource.password']
       };
       this.testingDb = true;
       await this.$nextTick();
       try {
         const res = await this.$services.dmInitTestDb({ data: params });
         if (res.success) {
-          const nextRebuildValue =
-            res.data && res.data.showRebuildChoice
-              ? ['true', 'false'].includes(this.formValues[INIT_DB_REBUILD_IF_NOT_EMPTY])
-                ? this.formValues[INIT_DB_REBUILD_IF_NOT_EMPTY]
-                : ''
-              : 'false';
-
-          if (nextRebuildValue !== 'true') {
-            this.rebuildConfirmInput = '';
-          }
-
           this.dbTestResult = res.data;
+          this.showDbTestToast(res.data);
           this.formValues = {
             ...this.formValues,
-            [INIT_DB_CREATE_IF_MISSING]: res.data && res.data.createDatabase ? 'true' : 'false',
-            [INIT_DB_REBUILD_IF_NOT_EMPTY]: nextRebuildValue
+            [INIT_DB_CREATE_IF_MISSING]: res.data && res.data.createDatabase ? 'true' : 'false'
           };
+        } else {
+          this.$message.error(res.msg || this.$t('ce-shi-lian-jie-shi-bai'));
         }
       } catch (e) {
+        this.$message.error(this.$t('ce-shi-lian-jie-shi-bai'));
         console.error('Test DB failed', e);
       } finally {
         this.testingDb = false;
@@ -926,8 +803,68 @@ export default {
       this.mode = loaded ? 'full' : 'dbError';
     },
 
+    formatDbMissingFieldsMessage() {
+      return `${this.$t('initialization.dbFormIncomplete')}：${this.dbMissingFields.join('、')}`;
+    },
+
+    formatSecurityMissingFieldsMessage() {
+      return `${this.$t('initialization.securityFormIncomplete')}：${this.securityMissingFields.join('、')}`;
+    },
+
+    getNextStepBlockedMessage() {
+      if (this.currentStep === 0) {
+        if (this.isUpgradeMode) {
+          return '';
+        }
+
+        if (this.dbMissingFields.length) {
+          return this.formatDbMissingFieldsMessage();
+        }
+
+        if (!this.dbTestResult) {
+          return this.$t('initialization.dbTestRequired');
+        }
+
+        if (!this.dbTestResult.canProceed) {
+          return this.dbTestResult.message || this.$t('initialization.dbTestNotPassed');
+        }
+      }
+
+      if (!this.isUpgradeMode && this.currentStep === 1 && this.securityMissingFields.length) {
+        return this.formatSecurityMissingFieldsMessage();
+      }
+
+      return '';
+    },
+
+    getConfirmBlockedMessage() {
+      if (this.isUpgradeMode) {
+        return '';
+      }
+
+      if (this.dbMissingFields.length) {
+        return this.formatDbMissingFieldsMessage();
+      }
+
+      if (this.securityMissingFields.length) {
+        return this.formatSecurityMissingFieldsMessage();
+      }
+
+      if (!this.dbTestResult) {
+        return this.$t('initialization.dbTestRequired');
+      }
+
+      if (!this.dbTestResult.canProceed) {
+        return this.dbTestResult.message || this.$t('initialization.dbTestNotPassed');
+      }
+
+      return '';
+    },
+
     async nextStep() {
-      if (this.currentStep === 0 && !this.isMysqlDriverReady) {
+      const blockedMessage = this.getNextStepBlockedMessage();
+      if (blockedMessage) {
+        this.$message.error(blockedMessage);
         return;
       }
 
@@ -955,14 +892,16 @@ export default {
     },
 
     handleConfirmAction() {
+      const blockedMessage = this.getConfirmBlockedMessage();
+      if (blockedMessage) {
+        this.$message.error(blockedMessage);
+        return;
+      }
+
       return this.startExecution();
     },
 
     async startExecution() {
-      if (!this.isMysqlDriverReady) {
-        return;
-      }
-
       this.currentStep = this.executionStepIndex;
       this.applyPendingExecutionStatus();
       await this.$nextTick();
@@ -998,19 +937,16 @@ export default {
       this.operationErrorDetail = '';
       this.applying = false;
 
-      return this.handleApply({ omitRebuild: true });
+      return this.handleApply();
     },
 
-    buildExecutionPayload({ omitRebuild = false } = {}) {
+    buildExecutionPayload() {
       const payload = { ...this.formValues };
       payload[INIT_WORKFLOW_MODE_KEY] = this.workflowMode;
-      if (omitRebuild) {
-        delete payload[INIT_DB_REBUILD_IF_NOT_EMPTY];
-      }
       return payload;
     },
 
-    async handleApply(options = {}) {
+    async handleApply() {
       this.applying = true;
       this.restartTimedOut = false;
       this.applyPendingExecutionStatus();
@@ -1020,7 +956,7 @@ export default {
       this.operationErrorDetail = '';
       this.connectInstallLogSocket();
       try {
-        const payload = this.buildExecutionPayload(options);
+        const payload = this.buildExecutionPayload();
 
         const res = await this.$services.dmInitApplyConfig({ data: payload, modal: false });
         if (res.success) {
@@ -1028,7 +964,7 @@ export default {
           this.executionPhaseStatusType = '';
           this.executionPhaseStatusMessage = '';
           this.restartStatusType = this.isUpgradeMode ? 'success' : 'info';
-          this.restartStatusMessage = this.isUpgradeMode ? this.$t('initialization.upgradeSuccessRestarting') : this.$t('initialization.restarting');
+          this.restartStatusMessage = this.$t('initialization.restarting');
           await this.waitForRestart();
           return;
         }
@@ -1064,7 +1000,10 @@ export default {
         }
 
         if (isDmSystemReady(res)) {
-          redirectToLoginPage();
+          this.restartStatusType = 'info';
+          this.restartStatusMessage = this.$t('initialization.redirectingHome');
+          await sleep(REDIRECT_HOME_DELAY_MS);
+          redirectToHomePage();
           return;
         }
 
@@ -1084,146 +1023,248 @@ export default {
 
 <style scoped>
 .initialization {
+  --init-ink: #171717;
+  --init-body: #333840;
+  --init-muted: #707070;
+  --init-hairline: #dfdfdf;
+  --init-canvas: #f8fafc;
+  --init-emerald: #3ecf8e;
+  --init-emerald-deep: #24b47e;
+  --init-panel-width: min(760px, 56vw);
+
   position: relative;
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--init-canvas);
+  background-image: var(--init-bg-pattern);
+  background-position: center;
+  background-size: cover;
+}
+
+.init-left {
+  position: relative;
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100vh;
+}
+
+.init-topbar {
+  position: relative;
+  z-index: 3;
+  flex: 0 0 72px;
+}
+
+.init-header {
+  position: relative;
+  display: block;
+  height: 72px;
+  padding: 0 32px;
+}
+
+.init-shell {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  overflow: auto;
+  padding-right: var(--init-panel-width);
   box-sizing: border-box;
-  background: #f0f2f5;
 }
 
-.init-version-badge {
-  position: absolute;
-  top: 16px;
-  right: 18px;
-  z-index: 10;
-  min-width: 72px;
-  height: 24px;
-  padding: 0 12px;
-  border: 1px solid rgba(22, 119, 255, 0.28);
-  border-radius: 12px;
-  background: rgba(22, 119, 255, 0.08);
-  color: #1554ad;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 22px;
-  letter-spacing: 0;
+.login-bottombar {
+  position: relative;
+  flex: 0 0 auto;
+  padding: 0 32px 24px;
+  padding-right: calc(var(--init-panel-width) + 32px);
+  box-sizing: border-box;
+}
+
+.login-bottombar :deep(.footer) {
+  height: auto;
+  line-height: 1.5;
   text-align: center;
-  white-space: nowrap;
 }
 
-.init-error-page {
+.init-hero {
   width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 32px;
+  box-sizing: border-box;
+}
+
+.init-hero :deep(.login-hero-panel) {
   max-width: 560px;
 }
 
+.init-hero :deep(.hero-capabilities) {
+  display: none;
+}
+
+.init-workspace {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  width: var(--init-panel-width);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  padding: 80px 48px 40px;
+  border-left: 1px solid var(--init-hairline);
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.init-error-page,
 .init-loading-page {
   width: 100%;
-  max-width: 560px;
+  max-width: 640px;
 }
 
-.loading-card {
+.init-page-card {
   position: relative;
-  background: #fff;
-  border-radius: 8px;
-  padding: 48px;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+  box-shadow: none;
 }
 
-.loading-title {
-  margin: 0 0 16px;
-  font-size: 32px;
-  line-height: 40px;
-  font-weight: 600;
-  color: #1f1f1f;
+.init-page-title-block {
+  gap: 0;
 }
 
 .loading-text {
-  margin: 0;
+  margin: 20px 0 0;
   font-size: 14px;
   line-height: 22px;
-  color: rgba(0, 0, 0, 0.65);
-}
-
-.error-card {
-  position: relative;
-  background: #fff;
-  border-radius: 8px;
-  padding: 48px;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.error-title {
-  margin: 0 0 16px;
-  font-size: 32px;
-  line-height: 40px;
-  font-weight: 600;
-  color: #1f1f1f;
+  color: var(--init-muted);
 }
 
 .error-detail {
-  margin: 24px 0;
+  margin: 24px 0 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #fff;
+  overflow: hidden;
   text-align: left;
 }
 
 .error-detail p {
-  margin: 0 0 3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 14px;
+  border-bottom: 1px solid #eef0f3;
+  background: #f8fafc;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.error-detail p::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #cf1322;
+  box-shadow: 0 0 0 3px rgba(207, 19, 34, 0.08);
 }
 
 .error-message {
   margin: 0;
-  background: #fff2f0;
-  border: 1px solid #ffccc7;
-  border-radius: 4px;
-  padding: 12px;
-  font-size: 13px;
-  color: #cf1322;
+  max-height: 180px;
+  overflow: auto;
+  border: 0;
+  border-radius: 0;
+  background: #fcfcfd;
+  padding: 14px 16px;
+  color: #344054;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 12px;
+  line-height: 18px;
   white-space: pre-wrap;
-  word-break: break-all;
+  word-break: break-word;
+}
+
+.error-message::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.error-message::-webkit-scrollbar-thumb {
+  border: 2px solid #fcfcfd;
+  border-radius: 999px;
+  background: #cfd6e0;
+}
+
+.error-message::-webkit-scrollbar-track {
+  background: #fcfcfd;
 }
 
 .error-actions {
   margin-top: 24px;
   display: flex;
   gap: 12px;
-  justify-content: center;
+  justify-content: flex-end;
 }
 
 .init-wizard {
   position: relative;
   width: 100%;
-  max-width: 720px;
-  background: #fff;
-  border-radius: 8px;
-  padding: 32px;
-  height: min(920px, calc(100vh - 48px));
-  max-height: calc(100vh - 48px);
+  max-width: 640px;
+  min-height: 560px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  max-height: calc(100vh - 120px);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: none;
 }
 
 .wizard-header {
   flex: 0 0 auto;
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 22px;
 }
 
-.wizard-header h1 {
+.wizard-title-block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.wizard-product-title {
+  width: 100%;
   margin: 0;
-  font-size: 32px;
-  line-height: 40px;
-  font-weight: 600;
-  color: #1f1f1f;
+  color: var(--init-ink);
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 36px;
+  text-align: center;
 }
 
 .wizard-stage-progress {
-  margin-top: 24px;
+  margin-top: 28px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -1235,17 +1276,17 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  color: #8c8c8c;
+  gap: 6px;
+  color: #8f949b;
 }
 
 .wizard-stage-marker {
   position: relative;
   z-index: 1;
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--init-hairline);
   background: #fff;
   display: flex;
   align-items: center;
@@ -1261,34 +1302,36 @@ export default {
 .wizard-stage-label {
   font-size: 13px;
   line-height: 20px;
+  text-align: center;
 }
 
 .wizard-stage-line {
   position: absolute;
-  top: 16px;
-  left: calc(50% + 24px);
-  width: calc(100% - 48px);
+  top: 14px;
+  left: calc(50% + 22px);
+  width: calc(100% - 44px);
   height: 1px;
-  background: #d9d9d9;
+  background: var(--init-hairline);
 }
 
 .wizard-stage-item.completed,
 .wizard-stage-item.active {
-  color: #1677ff;
+  color: var(--init-emerald-deep);
 }
 
 .wizard-stage-item.completed .wizard-stage-marker,
 .wizard-stage-item.active .wizard-stage-marker {
-  border-color: #1677ff;
+  border-color: var(--init-emerald);
+  background: var(--init-emerald);
 }
 
-.wizard-stage-item.completed .wizard-stage-marker {
-  background: #1677ff;
+.wizard-stage-item.completed .wizard-stage-marker .wizard-stage-index,
+.wizard-stage-item.active .wizard-stage-marker .wizard-stage-index {
   color: #fff;
 }
 
 .wizard-stage-item.completed .wizard-stage-line {
-  background: #1677ff;
+  background: var(--init-emerald);
 }
 
 .wizard-content {
@@ -1298,7 +1341,7 @@ export default {
 }
 
 .step-panel {
-  height: 100%;
+  max-height: calc(100dvh - 292px);
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
@@ -1306,61 +1349,30 @@ export default {
   box-sizing: border-box;
 }
 
+.step-panel::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.step-panel::-webkit-scrollbar-thumb {
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #cfd6e0;
+}
+
+.step-panel::-webkit-scrollbar-track {
+  background: #fff;
+}
+
 .wizard-footer {
   flex: 0 0 auto;
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid #f0f0f0;
+  margin-top: 16px;
+  padding-top: 14px;
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 16px;
-}
-
-.button-inline-spinner {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  margin-right: 8px;
-  vertical-align: -2px;
-  border-radius: 50%;
-  border: 2px solid rgba(0, 0, 0, 0.18);
-  border-top-color: #1677ff;
-  animation: buttonInlineSpin 0.8s linear infinite;
-}
-
-@keyframes buttonInlineSpin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.wizard-footer-message {
-  flex: 1;
-  min-width: 0;
-  font-size: 13px;
-  text-align: left;
-}
-
-.wizard-footer-message.success {
-  color: #52c41a;
-}
-
-.wizard-footer-message.error {
-  color: #ff4d4f;
-}
-
-.wizard-footer-message.warning {
-  color: #d48806;
-}
-
-.wizard-footer-message.info {
-  color: #1677ff;
-}
-
-.wizard-footer-message-secondary {
-  margin-left: 8px;
-  color: #1677ff;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  gap: 10px;
 }
 
 .warning-text {
@@ -1390,9 +1402,9 @@ export default {
 }
 
 .wizard-footer-actions {
-  margin-left: auto;
+  margin-left: 0;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 12px;
 }
 
@@ -1404,26 +1416,123 @@ export default {
 .wizard-next-button.ant-btn-disabled:hover,
 .wizard-next-button.ant-btn-disabled:focus,
 .wizard-next-button.ant-btn-disabled:active {
-  color: rgba(0, 0, 0, 0.25);
+  color: #ffffff;
   background: #f5f5f5;
   border-color: #d9d9d9;
   box-shadow: none;
   cursor: not-allowed;
 }
 
-@media (max-width: 768px) {
+.initialization :deep(.ant-btn-primary),
+.initialization :deep(.ant-btn-primary:hover),
+.initialization :deep(.ant-btn-primary:focus),
+.initialization :deep(.ant-btn-primary:active),
+.initialization :deep(.ant-btn-primary[disabled]),
+.initialization :deep(.ant-btn-primary.ant-btn-disabled),
+.initialization :deep(.ant-btn-primary > span),
+.initialization :deep(.ant-btn-primary[disabled] > span),
+.initialization :deep(.ant-btn-primary.ant-btn-disabled > span) {
+  color: #ffffff;
+}
+
+@media (max-width: 1180px) {
   .initialization {
-    padding: 0;
+    overflow: auto;
+    background-image: none;
+  }
+
+  .init-left {
+    display: contents;
+    min-height: auto;
+  }
+
+  .init-topbar {
+    order: 1;
+  }
+
+  .init-shell {
+    display: none;
+    padding-right: 0;
+  }
+
+  .init-hero {
+    display: none;
+  }
+
+  .init-workspace {
+    order: 2;
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    z-index: 1;
+    width: 100%;
+    min-height: calc(100vh - 72px);
+    padding: 40px 32px;
+    border-left: 0;
+    overflow: visible;
+  }
+
+  .login-bottombar {
+    order: 3;
+    padding-right: 32px;
+  }
+
+  .init-wizard,
+  .init-error-page,
+  .init-loading-page {
+    max-width: 760px;
   }
 
   .init-wizard {
-    height: 100vh;
-    max-height: 100vh;
-    padding: 32px 16px;
+    max-height: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .init-header {
+    padding: 0 16px;
+  }
+
+  .init-workspace {
+    align-items: flex-start;
+    min-height: calc(100vh - 72px);
+    padding: 32px 24px 24px;
+  }
+
+  .login-bottombar {
+    padding: 0 16px 20px;
+  }
+
+  .init-wizard {
+    max-height: none;
+    min-height: auto;
+    padding: 0;
     border-radius: 0;
   }
 
+  .init-page-card {
+    padding: 0;
+    border-radius: 0;
+  }
+
+  .wizard-header {
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .wizard-title-block {
+    align-items: center;
+    gap: 0;
+  }
+
+  .wizard-product-title {
+    font-size: 26px;
+    line-height: 34px;
+  }
+
   .wizard-stage-progress {
+    margin-top: 22px;
     flex-wrap: nowrap;
     gap: 4px;
   }
@@ -1453,6 +1562,16 @@ export default {
     display: none;
   }
 
+  .wizard-content {
+    overflow: visible;
+  }
+
+  .step-panel {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
   .wizard-footer {
     flex-direction: column;
     align-items: stretch;
@@ -1460,6 +1579,7 @@ export default {
 
   .wizard-footer-actions {
     margin-left: 0;
+    flex-wrap: wrap;
   }
 }
 </style>

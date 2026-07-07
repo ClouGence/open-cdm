@@ -8,8 +8,8 @@ import '../vendor/flot/jquery.flot.crosshair';
 import '../vendor/flot/jquery.flot.dashes';
 
 import $ from 'jquery';
-import _ from 'lodash';
-import moment from 'moment';
+import _ from '@/utils/lodash';
+import dayjs from '@/utils/dayjsSetup';
 
 import kbn from '../panel/utils/kbn';
 import { tickStep } from '../panel/utils/ticks';
@@ -681,8 +681,8 @@ export default function link(scope, elem) {
       }, 100);
     } else {
       ctrl.time.setTime({
-        from: moment(ranges.xaxis.from),
-        to: moment(ranges.xaxis.to)
+        from: dayjs(ranges.xaxis.from),
+        to: dayjs(ranges.xaxis.to)
       });
       ctrl.time.events.emit('changed');
     }

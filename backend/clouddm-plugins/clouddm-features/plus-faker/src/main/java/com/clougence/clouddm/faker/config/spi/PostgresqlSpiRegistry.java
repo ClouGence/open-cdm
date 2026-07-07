@@ -24,7 +24,7 @@ import com.clougence.utils.StringUtils;
 import com.clougence.utils.convert.ConverterUtils;
 
 /**
- * DslFunctionLoopUp, ParameterProcessorLookUp 的 Postgresql 专属扩展。
+ * PostgreSQL extension of DslFunctionLoopUp, ParameterProcessorLookUp.
  * @version : 2023-02-14
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -118,7 +118,7 @@ public class PostgresqlSpiRegistry implements DslFunctionLoopUp, ParameterProces
             Integer decimalDigitsInt = decimalDigits == null ? null : (Integer) ConverterUtils.convert(Integer.TYPE, decimalDigits);
 
             if (columnSizeInt == 0 && decimalDigitsInt == null) {
-                return false; // 0 的情况下 Faker 不能正常工作，PG 允许值最大 1000 位，这里取一个较小值
+                return false; // Faker cannot work normally, PG allowed maximum 1000 bits, take a smaller value here
             } else if (dimCount > 0 && columnSizeInt > 300) {
                 return false;
             } else {

@@ -37,11 +37,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.constants.CheckSubAccountType;
+import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
@@ -60,6 +61,7 @@ import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.console.web.util.Sm2Utils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
+import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthMFADO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
@@ -67,8 +69,6 @@ import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.sdk.security.auth.AuthInfo;
-import com.clougence.rdp.constant.RdpControllerUrlPrefix;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.rdp.service.enumeration.OpVerifyErrType;
 import com.clougence.rdp.service.model.OpPasswdVerifyMO;
@@ -88,7 +88,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author wanshao create time is 2021/1/5
  **/
 @RestController
-@RequestMapping(value = RdpControllerUrlPrefix.CONSOLE_PREFIX + "/user")
+@RequestMapping(value = DmControllerUrlPrefix.CONSOLE_PREFIX + "/user")
 @Slf4j
 public class RdpUserController {
 
@@ -105,7 +105,7 @@ public class RdpUserController {
     @Resource
     private RdpOpAuditService   rdpOpAuditService;
     @Resource
-    private DmConsoleConfig     rdpConfig;
+    private ConsoleConfig       consoleConfig;
     @Resource
     private SystemDal           systemDal;
     @Resource
@@ -156,7 +156,7 @@ public class RdpUserController {
             return;
         }
 
-        Integer days = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.accountPwdExpireDays, Integer.class);
+        Integer days = this.systemDal.fetchSystemConf(RootUserConfig.Fields.accountPwdExpireDays, Integer.class);
         if (days == null) {
             return;
         }
@@ -275,7 +275,7 @@ public class RdpUserController {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
         //decrypt
-        resetOpPasswdFO.setOpPassword(Sm2Utils.decrypt(rdpConfig.getPrivateKey(), resetOpPasswdFO.getOpPassword()));
+        resetOpPasswdFO.setOpPassword(Sm2Utils.decrypt(consoleConfig.getPrivateKey(), resetOpPasswdFO.getOpPassword()));
 
         UpdateUserInfoMO resetOpPasswdMO = this.rdpUserService.resetOpPasswd(resetOpPasswdFO, uid);
         if (resetOpPasswdMO.isSuccess()) {
@@ -296,8 +296,8 @@ public class RdpUserController {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
         //decrypt
-        resetPwdFO.setOriginPassword(Sm2Utils.decrypt(rdpConfig.getPrivateKey(), resetPwdFO.getOriginPassword()));
-        resetPwdFO.setNewPassword(Sm2Utils.decrypt(rdpConfig.getPrivateKey(), resetPwdFO.getNewPassword()));
+        resetPwdFO.setOriginPassword(Sm2Utils.decrypt(consoleConfig.getPrivateKey(), resetPwdFO.getOriginPassword()));
+        resetPwdFO.setNewPassword(Sm2Utils.decrypt(consoleConfig.getPrivateKey(), resetPwdFO.getNewPassword()));
 
         UpdateUserInfoMO mo = rdpUserService.resetPwdWithOriginPwd(resetPwdFO, uid, puid);
         if (mo.isSuccess()) {
@@ -318,8 +318,8 @@ public class RdpUserController {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
         //decrypt
-        resetPwdFO.setOperatorPwd(Sm2Utils.decrypt(rdpConfig.getPrivateKey(), resetPwdFO.getOperatorPwd()));
-        resetPwdFO.setNewPassword(Sm2Utils.decrypt(rdpConfig.getPrivateKey(), resetPwdFO.getNewPassword()));
+        resetPwdFO.setOperatorPwd(Sm2Utils.decrypt(consoleConfig.getPrivateKey(), resetPwdFO.getOperatorPwd()));
+        resetPwdFO.setNewPassword(Sm2Utils.decrypt(consoleConfig.getPrivateKey(), resetPwdFO.getNewPassword()));
 
         ValidateResultMO pwdMO = rdpUserService.validateSubAccountPwd(puid, resetPwdFO.getNewPassword());
         if (pwdMO != null && !pwdMO.isSuccess()) {
@@ -446,8 +446,8 @@ public class RdpUserController {
         cookie.setMaxAge(0);
         cookie.setPath("/");
 
-        if (StringUtils.isNotBlank(rdpConfig.getLoginCookieDomain())) {
-            cookie.setDomain(rdpConfig.getLoginCookieDomain());
+        if (StringUtils.isNotBlank(consoleConfig.getLoginCookieDomain())) {
+            cookie.setDomain(consoleConfig.getLoginCookieDomain());
         }
 
         response.addCookie(cookie);
@@ -460,7 +460,7 @@ public class RdpUserController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         //decrypt
-        fo.setPassword(Sm2Utils.decrypt(rdpConfig.getPrivateKey(), fo.getPassword()));
+        fo.setPassword(Sm2Utils.decrypt(consoleConfig.getPrivateKey(), fo.getPassword()));
 
         UpdateUserInfoMO res = this.rdpUserService.updateUserPhoneWithPwd(uid, fo);
         if (!res.isSuccess()) {
@@ -485,7 +485,7 @@ public class RdpUserController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         //decrypt
-        fo.setPassword(Sm2Utils.decrypt(rdpConfig.getPrivateKey(), fo.getPassword()));
+        fo.setPassword(Sm2Utils.decrypt(consoleConfig.getPrivateKey(), fo.getPassword()));
 
         UpdateUserInfoMO res = this.rdpUserService.updateUserEmailWithPwd(uid, fo);
         if (!res.isSuccess()) {
@@ -544,7 +544,7 @@ public class RdpUserController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         //decrypt
-        verifyFO.setOpPassword(Sm2Utils.decrypt(rdpConfig.getPrivateKey(), verifyFO.getOpPassword()));
+        verifyFO.setOpPassword(Sm2Utils.decrypt(consoleConfig.getPrivateKey(), verifyFO.getOpPassword()));
 
         OpPasswdVerifyMO verifyMO = this.rdpUserService.opPasswdVerify(verifyFO.getOpPassword(), uid);
         if (verifyMO.isSuccess()) {
@@ -573,8 +573,8 @@ public class RdpUserController {
         cookie.setMaxAge((int) (RdpUserService.OP_PASSWD_TOEKN_EXPIRE_MS / 1000));
         cookie.setPath("/");
 
-        if (StringUtils.isNotBlank(rdpConfig.getLoginCookieDomain())) {
-            cookie.setDomain(rdpConfig.getLoginCookieDomain());
+        if (StringUtils.isNotBlank(consoleConfig.getLoginCookieDomain())) {
+            cookie.setDomain(consoleConfig.getLoginCookieDomain());
         }
 
         response.addCookie(cookie);

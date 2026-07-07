@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstructOrder;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.service.security.FetchRangeUtils;
 import com.clougence.clouddm.console.web.util.*;
 import com.clougence.utils.JsonUtils;
@@ -37,16 +37,17 @@ public class DmInitUtils implements UnifiedPostConstruct {
     @Resource
     private ApplicationContext applicationContext;
     @Resource
-    private DmConsoleConfig    rdpConfig;
+    private ConsoleConfig      config;
 
     @Override
     public void init() throws Exception {
         JacksonTypeHandler.setObjectMapper(JsonUtils.defaultObjectMapper());
 
         RdpAuthUtils.initUtils(this.applicationContext);
-        RdpWebUtils.initUtils(this.rdpConfig);
+        RdpWebUtils.initUtils(this.config);
 
         MessageUtils.initUtils(this.applicationContext);
+        CallUtils.initUtils(this.applicationContext);
         DmDsUtils.initUtils(this.applicationContext);
         DmTeamUtils.initUtils(this.applicationContext);
         FetchRangeUtils.initUtils(this.applicationContext);

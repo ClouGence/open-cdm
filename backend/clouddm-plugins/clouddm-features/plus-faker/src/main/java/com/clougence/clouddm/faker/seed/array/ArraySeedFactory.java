@@ -25,7 +25,7 @@ import com.clougence.clouddm.faker.seed.SeedConfig;
 import com.clougence.clouddm.faker.seed.SeedFactory;
 
 /**
- * 数组类型生成器 SeedFactory
+ * SetFactory
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

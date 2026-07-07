@@ -196,7 +196,7 @@ public class JdbcTemplate extends JdbcConnection {
         ArgumentTypePreparedStatementSetter.setValues(ps, args);
     }
 
-    /** 至返回结果集中的一条数据。*/
+    /** returns a data set of results. */
     private static <T> T requiredSingleResult(final Collection<T> results) throws SQLException {
         if (results == null || results.isEmpty()) {
             return null;

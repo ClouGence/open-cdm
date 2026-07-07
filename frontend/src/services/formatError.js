@@ -3,27 +3,27 @@ import DOMPurify from 'dompurify';
 import { DOMPURIFY_CONFIG } from './constants';
 
 /**
- * 判断是否为内部路由链接
- * @param {string} href - 链接地址
- * @returns {boolean} - 是否为内部路由
+ * Judge whether internal route links
+ * @param {string} href - Link Address
+ * @returns {bolean} - Internal route
  */
 function isInternalRoute(href) {
   return href.startsWith('/');
 }
 
 /**
- * 安全渲染markdown内容
- * @param {string} content - 要渲染的内容
- * @returns {string} - 安全渲染后的HTML
+ * Safely render markdown content
+ * @param {string} Content - To Render
+ * @returns{string} - HTML after safe rendering
  */
 function safeRenderMarkdown(content) {
   const md = new MarkdownIt({
     linkify: true,
     breaks: true,
-    html: true // 必须启用HTML解析
+    html: true // HTML Resolution must be enabled
   });
 
-  // 配置a标签处理外部链接和内部路由
+  // Configure a label to handle external links and internal routes
   const defaultRender =
     md.renderer.rules.link_open ||
     function (tokens, idx, options, env, self) {
@@ -38,9 +38,9 @@ function safeRenderMarkdown(content) {
       const href = token.attrs[hrefIndex][1];
 
       if (isInternalRoute(href)) {
-        // 内部路由不做处理，走href默认逻辑
+        // Do not process internal circuits, take href default logic
       } else {
-        // 外部链接：添加 target="_blank" 和 rel 属性
+        // External link: add target = " blank" and rel attribute
         const targetIndex = token.attrIndex('target');
         if (targetIndex < 0) {
           token.attrPush(['target', '_blank']);
@@ -67,13 +67,13 @@ function safeRenderMarkdown(content) {
 }
 
 /**
- * 格式化错误信息：
- * 1. 如果是数组字符串，返回第一项
- * 2. 否则用markdown-it渲染并用DOMPurify安全过滤
+ * Format error messages.
+ * 1. Return the first item if the message is a JSON array string.
+ * 2. Otherwise render with markdown-it and sanitize with DOMPurify.
  */
 export default function formatError(error) {
   if (typeof error === 'string') {
-    // 判断是否为数组字符串
+    // Check whether the message is a JSON array string.
     try {
       const arr = JSON.parse(error);
       if (Array.isArray(arr)) {
@@ -84,9 +84,9 @@ export default function formatError(error) {
         return finalRes;
       }
     } catch (e) {
-      // 不是JSON数组字符串，继续处理
+      // Not a JSON array string. Continue processing.
     }
-    // markdown-it 渲染 + DOMPurify 安全处理
+    // markdown-it render + DOMPurify secure
     return safeRenderMarkdown(error);
   }
   return error;

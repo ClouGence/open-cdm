@@ -33,7 +33,7 @@ import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.team.provider.feishu.client.FeishuApi;
 import com.clougence.clouddm.team.provider.feishu.client.FeishuClient;
 import com.clougence.clouddm.team.provider.feishu.constants.FeishuConfigKey;
-import com.clougence.clouddm.team.provider.feishu.constants.FeishuI18nKeys2;
+import com.clougence.clouddm.team.provider.feishu.constants.FeishuI18nKeys;
 import com.clougence.clouddm.team.provider.feishu.constants.approval.FeishuInstanceStatus;
 import com.clougence.clouddm.team.provider.feishu.constants.approval.FeishuTaskStatus;
 import com.clougence.clouddm.team.provider.feishu.domain.mo.FeishuTemplateInfo;
@@ -61,7 +61,7 @@ public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
     @Override
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) {
         // fetch config
-        List<ConfigData> configList = configService.fetchSettings(ownerUid, Arrays.asList(//
+        List<ConfigData> configList = configService.fetchSettings(Arrays.asList(//
                 FeishuConfigKey.ApprovalEnable.getConfigKey(),//
                 FeishuConfigKey.ApprovalAppID.getConfigKey(),//
                 FeishuConfigKey.ApprovalAppSecret.getConfigKey(),//
@@ -121,7 +121,7 @@ public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
     public LifeSpiResponse status(String ownerUid, LifeSpiRequest requestDTO) {
         LifeSpiStatus dto = new LifeSpiStatus();
         dto.setRunning(this.streamHandlerMap.containsKey(ownerUid) || this.clientMap.containsKey(ownerUid));
-        dto.setNameKey(FeishuI18nKeys2.FEISHU_APPROVAL_SERVICES_NAME);
+        dto.setNameKey(FeishuI18nKeys.FEISHU_APPROVAL_SERVICES_NAME);
         return new LifeSpiResponse(JsonUtils.toJson(dto));
     }
 
@@ -168,7 +168,7 @@ public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
     @Override
     public ApprovalInstanceInfo getLastInfo(String ownerUid, String identity) throws ThirdPartyApiException {
         if (StringUtils.isBlank(identity)) {
-            throw ThirdPartyApiException.as().with(FeishuI18nKeys2.FEISHU_APPROVAL_INSTANCE_IS_EMPTY);
+            throw ThirdPartyApiException.as().with(FeishuI18nKeys.FEISHU_APPROVAL_INSTANCE_IS_EMPTY);
         }
 
         FeishuApi approvalApi = this.approvalApi(ownerUid);
@@ -221,7 +221,7 @@ public class FeishuApprovalProviderSpi implements ApprovalProviderSpi {
     @Override
     public List<ApprovalTemplate> getTemplates(String ownerUid) throws ThirdPartyApiException {
         FeishuApi approvalApi = this.approvalApi(ownerUid);
-        List<ConfigData> configList = this.configService.fetchSettings(ownerUid, Collections.singletonList(FeishuConfigKey.ApprovalTemplateList.getConfigKey()));
+        List<ConfigData> configList = this.configService.fetchSettings(Collections.singletonList(FeishuConfigKey.ApprovalTemplateList.getConfigKey()));
         if (configList.isEmpty()) {
             return Collections.emptyList();
         } else {

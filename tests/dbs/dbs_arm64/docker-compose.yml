@@ -1,0 +1,188 @@
+services:
+  mysql:
+    image: arm64v8/mysql:8.4
+    environment:
+      - MYSQL_DATABASE=devtester
+      - MYSQL_ROOT_PASSWORD=123456
+      - TZ=Asia/Shanghai
+    ports:
+      - 2330:3306
+    volumes:
+      - ../certs:/certs
+      - ../mysql/init:/docker-entrypoint-initdb.d:ro
+      - ../mysql/init-ssl.sh:/usr/local/bin/init-ssl.sh:ro
+    entrypoint:
+      - bash
+      - /usr/local/bin/init-ssl.sh
+    restart: always
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time_zone='+8:00'
+    # User/Password: root/123456
+    # SSL certs: ../certs
+    # Non SSL: root/123456 is still supported
+    # TRUST: sslMode=REQUIRED
+    # CA: sslMode=VERIFY_CA, trustCertificateKeyStoreUrl=file:ca.p12, trustCertificateKeyStoreType=PKCS12, trustCertificateKeyStorePassword=
+    # CLIENT_CERT: user=sslclient, password=123456, sslMode=VERIFY_IDENTITY, trustCertificateKeyStoreUrl=file:ca.p12, trustCertificateKeyStorePassword=, clientCertificateKeyStoreUrl=file:client.p12, clientCertificateKeyStorePassword=123456
+
+  oracle:
+    image: gvenzl/oracle-free:23-slim
+    environment:
+      - ORACLE_PASSWORD=123456
+      - ORACLE_DATABASE=DEVTESTDB
+      - APP_USER=devtester
+      - APP_USER_PASSWORD=123456
+    ports:
+      - 2521:1521
+      - 2484:2484
+      - 2485:2485
+    volumes:
+      - ../oracle/init:/container-entrypoint-initdb.d:ro
+      - ../oracle/startdb:/container-entrypoint-startdb.d:ro
+      - ../oracle/wallet:/wallet:ro
+    restart: always
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+    # SYS/SYSTEM Password: 123456
+    # App User/Password: devtester/123456
+    # PDB Service: DEVTESTDB
+    # JDBC URL: jdbc:oracle:thin:@localhost:2521/DEVTESTDB
+    # TCPS CA: port 2484, trustStore=../certs/ca.p12, trustStoreType=PKCS12, trustStorePassword=
+    # TCPS CLIENT_CERT: port 2485, trustStore=../certs/ca.p12, keyStore=../certs/client.p12, keyStorePassword=123456
+
+  postgres:
+    image: postgres:16
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=123456
+    ports:
+      - 2543:5432
+    volumes:
+      - ../certs:/certs
+      - ../postgres/init:/docker-entrypoint-initdb.d:ro
+      - ../postgres/init-ssl.sh:/usr/local/bin/init-ssl.sh:ro
+    entrypoint:
+      - bash
+      - /usr/local/bin/init-ssl.sh
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: always
+    # User/Password: postgres/123456
+    # SSL certs: ../certs
+    # TRUST: sslmode=require
+    # CA: sslmode=verify-ca, sslrootcert=../certs/ca.crt
+    # CLIENT_CERT: user=sslclient, sslmode=verify-full, sslrootcert=ca.crt, sslcert=client.crt, sslkey=client.pk8
+
+  redis:
+    image: redis:7.2.3
+    privileged: true
+    ports:
+      - 2637:6379
+    restart: always
+    command: redis-server --requirepass 123456
+    # Password: 123456
+
+  mongo:
+    image: mongo:6.0
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=123456
+    ports:
+      - 2701:27017
+    restart: always
+    # User/Password: root/123456
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    platform: linux/amd64
+    environment:
+      - SA_PASSWORD=Share123456!
+      - ACCEPT_EULA=Y
+    ports:
+      - 2143:1433
+    # User/Password: sa/Share123456!
+
+  db2:
+    image: ibmcom/db2
+    platform: linux/amd64
+    environment:
+      - DB2INST1_PASSWORD=123456
+      - DBNAME=devtesterdb
+      - LICENSE=accept
+    ports:
+      - 2500:50000
+    privileged: true
+    # User/Password: db2inst1/123456
+
+  clickhouse:
+    image: clickhouse/clickhouse-server
+    environment:
+      - CLICKHOUSE_DB=default
+      - CLICKHOUSE_USER=root
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+      - TZ=Asia/Shanghai
+      - CLICKHOUSE_PASSWORD=password123
+    ports:
+      - 2812:8123
+      - 2900:9000
+    restart: always
+    # User/Password: root/password123
+
+  ssh_server:
+    image: lscr.io/linuxserver/openssh-server:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Shanghai
+      - USER_NAME=sshuser
+      - USER_PASSWORD=123456
+      - PASSWORD_ACCESS=true
+      - PUBLIC_KEY_FILE=/ssh-keys/authorized_keys
+    volumes:
+      - ../ssh:/ssh-keys:ro
+      - ../ssh/10-enable-tcp-forwarding.sh:/custom-cont-init.d/10-enable-tcp-forwarding.sh:ro
+    ports:
+      - 2022:22
+    restart: always
+    # Password auth: sshuser/123456
+    # Private key auth: ../ssh/id_rsa
+    # Private key + passphrase auth: ../ssh/id_rsa_passphrase, passphrase: passphrase123
+
+  proxy:
+    image: 3proxy/3proxy:latest
+    platform: linux/amd64
+    volumes:
+      - ../proxy:/etc/3proxy:ro
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - 2312:3128
+      - 2108:1080
+    restart: always
+    # HTTP proxy: 127.0.0.1:2312
+    # SOCKS4/SOCKS5 proxy: 127.0.0.1:2108
+
+  proxy_auth:
+    image: 3proxy/3proxy:latest
+    platform: linux/amd64
+    volumes:
+      - ../proxy-auth:/etc/3proxy:ro
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - 2313:3128
+      - 2109:1080
+    restart: always
+    # HTTP proxy: 127.0.0.1:2313
+    # SOCKS5 proxy: 127.0.0.1:2109
+    # User/Password: proxyuser/123456

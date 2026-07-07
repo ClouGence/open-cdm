@@ -254,7 +254,7 @@ public class ResultFileReader implements ResultReader {
                         }
 
                         StringWriter w = new StringWriter();
-                        char[] buffer = new char[1024]; // 缓冲区
+                        char[] buffer = new char[1024]; // Buffer
                         long charsToRead = length;
                         while (charsToRead > 0) {
                             int len = (int) Math.min(buffer.length, charsToRead);
@@ -268,7 +268,7 @@ public class ResultFileReader implements ResultReader {
                         value = w.toString();
 
                         while (true) {
-                            int read = r.read(buffer); // 复用缓冲区
+                            int read = r.read(buffer); // Reuse the buffer
                             if (read == -1) {
                                 break;
                             }

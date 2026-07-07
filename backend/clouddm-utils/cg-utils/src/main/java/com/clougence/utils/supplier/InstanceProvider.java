@@ -18,7 +18,7 @@ package com.clougence.utils.supplier;
 import java.util.function.Supplier;
 
 /**
- * 对象的{@link Supplier}封装形式。
+ * Encapsulates a single object as a {@link Supplier}.
  * @version : 2014年7月8日
  * @author 赵永春 (zyc@hasor.net)
  */

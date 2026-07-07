@@ -27,11 +27,17 @@ public interface DsPluginInfo extends PluginInfo {
 
     DataSourceType getDsType();
 
+    String getDsName();
+
+    boolean display();
+
     SqlBuilder getDsSqlBuilder();
 
     Dialect getDsDialect();
 
     List<String> getBindDrivers();
+
+    List<String> getBindSqlEngineNames();
 
     //
 

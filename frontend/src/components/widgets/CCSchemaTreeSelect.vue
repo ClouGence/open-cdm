@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import cloneDeep from 'lodash.clonedeep';
+import { cloneDeep } from '@/utils/lodash';
 import { APPROVAL_BIZ_TYPE } from '@/const';
 import AuthModal from '../modal/AuthModal';
 // import * as Vue from 'vue';
@@ -116,25 +116,25 @@ export default {
       this.authData = authData;
       this.showAuthModal = true;
     },
-    // 对子节点进行搜索。
+    // Searches for subnodes.
     searchEach(node, value) {
       const depth = this.getTreeDepth(node);
       const self = this;
       for (let i = 0; i < depth - 1; i++) {
-        // 记录【删除不匹配搜索内容的叶子节点】操作的次数。
-        // 如果这个变量记录的操作次数为0，表示树形结构中，所有的
-        // 叶子节点(不包含只有根节点的情况)都匹配搜索内容。那么就没有必要再
-        // 在循环体里面遍历树了.
+        // Record the number of times you operate [delete leaf nodes that do not match the search].
+        // If the number of operations recorded by this variable is 0, it means that in the tree structure, all
+        // The leaf nodes (not including only root nodes) match the search. Then there's no need.
+        // It's going through the trees in the cycle.
         let spliceCounter = 0;
 
-        // 遍历树形结构
+        // Through tree structures
         this.traverseTree(node, (n) => {
           if (self.isHasChildren(n)) {
             const children = n.children;
             const length = children.length;
 
-            // 找到不匹配搜索内容的叶子节点并删除。为了避免要删除的元素在数组中的索引改变，从后向前循环,
-            // 找到匹配的元素就删除。
+            // Finds and removes leaf nodes that do not match the search. To avoid the indexing of elements to be deleted in arrays, recycle from behind.
+            // Delete if you find a matching element.
             for (let j = length - 1; j >= 0; j--) {
               const e3 = children[j];
               if (!self.isHasChildren(e3) && e3.title.indexOf(value) <= -1) {
@@ -145,16 +145,16 @@ export default {
           }
         }); // end this.traverseTree(node, n=>{
 
-        // 所有的叶子节点都匹配搜索内容，没必要再执行循环体了。
+        // All the leaf nodes match the search, so there's no need to run the loop anymore.
         if (spliceCounter === 0) {
           break;
         }
       }
     },
-    // 搜索框回车事件响应
+    // Search box back vehicle response
     search(e) {
       const self = this;
-      // 把树形结构还原成搜索以前的。
+      // Revert the tree structure as before the search.
       const tree = cloneDeep(this.rawTree);
       console.log(e.target.value);
       if (tree && tree.length > 0) {
@@ -162,7 +162,7 @@ export default {
           self.searchEach(n, e.target.value);
         });
 
-        // 没有叶子节点的根节点也要清理掉
+        // And clean up the roots without the leaves.
         const length = tree.length;
         for (let i = length - 1; i >= 0; i--) {
           const e2 = tree[i];
@@ -235,7 +235,7 @@ export default {
         this.sliceSearchData(tree);
       }
     },
-    // 判断树形结构中的一个节点是否具有孩子节点
+    // Judge whether a node in a tree structure has a child node
     isHasChildren(node) {
       let flag = false;
       if (node.children && node.children.length > 0) {
@@ -243,29 +243,29 @@ export default {
       }
       return flag;
     },
-    // 通过传入根节点获得树的深度，是 calDepth 的调用者。
+    // Gets the depth of the tree by entering the root node and is the caller for calDepth.
     getTreeDepth(node) {
       if (undefined === node || node === null) {
         return 0;
       }
-      // 返回结果
+      // Return Result
       let r = 0;
-      // 树中当前层节点的集合。
+      // The current layer node in the tree.
       let currentLevelNodes = [node];
-      // 判断当前层是否有节点
+      // Determines if the current layer has nodes
       while (currentLevelNodes.length > 0) {
-        // 当前层有节点，深度可以加一。
+        // There are nodes in the current layer, and depth can be added.
         r++;
-        // 下一层节点的集合。
+        // A collection of the next nodes.
         let nextLevelNodes = [];
-        // 找到树中所有的下一层节点，并把这些节点放到 nextLevelNodes 中。
+        // Finds all the lower nodes in the tree and places them in the next Level Nodes.
         for (let i = 0; i < currentLevelNodes.length; i++) {
           const e = currentLevelNodes[i];
           if (this.isHasChildren(e)) {
             nextLevelNodes = nextLevelNodes.concat(e.children);
           }
         }
-        // 令当前层节点集合的引用指向下一层节点的集合。
+        // Quote the current layer node to the lower layer node.
         currentLevelNodes = nextLevelNodes;
       }
       return r;

@@ -34,8 +34,8 @@ public class MsSqlSessionSpi extends RdbSessionSpi {
     public SessionContextDTO createSessionContext(DataSourceConfig dsConfig, Map<String, Object> params) {
         SessionContextDTO contextDTO = super.createSessionContext(dsConfig, params);
         MsSqlConfig sqlServerConfig = (MsSqlConfig) dsConfig;
-        if (StringUtils.isBlank((String) params.get(PARAMS_DEFAULT_DB)) && StringUtils.isNotBlank(sqlServerConfig.getDefaultDataBase())) {
-            contextDTO.setRdbCatalog(sqlServerConfig.getDefaultDataBase());
+        if (StringUtils.isBlank((String) params.get(PARAMS_DEFAULT_DB)) && StringUtils.isNotBlank(sqlServerConfig.getDefaultCatalog())) {
+            contextDTO.setRdbCatalog(sqlServerConfig.getDefaultCatalog());
         }
 
         if (contextDTO.getRdbTxIsolation() == null || contextDTO.getRdbTxIsolation() == RdbIsolation.DEFAULT) {

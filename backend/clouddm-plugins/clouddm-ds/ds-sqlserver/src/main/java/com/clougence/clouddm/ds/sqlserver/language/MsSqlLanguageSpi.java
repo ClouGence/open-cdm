@@ -15,10 +15,7 @@
  */
 package com.clougence.clouddm.ds.sqlserver.language;
 
-import com.clougence.clouddm.ds.sqlserver.parser.MsSqlDslProvider;
-import com.clougence.clouddm.dsfamily.language.split.SplitOptions;
 import com.clougence.clouddm.dsfamily.language.split.SplitStrategyCenter;
-import com.clougence.clouddm.dsfamily.language.split.SplitTerminator;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
 import com.clougence.clouddm.sdk.language.LanguageResult;
@@ -32,10 +29,9 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 
 public class MsSqlLanguageSpi implements DsLanguageSpi {
     private final MetaService                   metaService;
-    private final MsSqlCompletionStrategyCenter completion   = new MsSqlCompletionStrategyCenter();
-    private final MsSqlValidateStrategyCenter   validate     = new MsSqlValidateStrategyCenter();
-    private final SplitStrategyCenter           split        = new SplitStrategyCenter();
-    private final SplitOptions                  splitOptions = SplitOptions.of(SplitTerminator.token(";"), SplitTerminator.lineAlone("GO"));
+    private final MsSqlCompletionStrategyCenter completion = new MsSqlCompletionStrategyCenter();
+    private final MsSqlValidateStrategyCenter   validate   = new MsSqlValidateStrategyCenter();
+    private final SplitStrategyCenter           split      = new SplitStrategyCenter();
 
     public MsSqlLanguageSpi(MetaService metaService){
         this.metaService = metaService;
@@ -65,6 +61,6 @@ public class MsSqlLanguageSpi implements DsLanguageSpi {
 
     @Override
     public SplitResult split(SplitRequest request) {
-        return this.split.split(request, MsSqlDslProvider.INSTANCE, this.splitOptions);
+        return this.split.split(request);
     }
 }

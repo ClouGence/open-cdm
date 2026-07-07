@@ -20,7 +20,7 @@ import java.util.Map;
 import com.clougence.clouddm.faker.utils.OgnlUtils;
 
 /**
- * 计算 OGNL
+ * Calculate OGNL
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2023-02-14
  */

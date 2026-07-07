@@ -1,4 +1,4 @@
-// DOMPurify 允许的HTML标签列表
+// List of HTML tags allowed by DomPuriffy
 export const ALLOWED_HTML_TAGS = [
   'h1',
   'h2',
@@ -32,9 +32,9 @@ export const ALLOWED_HTML_TAGS = [
   'th'
 ];
 
-// DOMPurify 配置选项
+// DomPuriffy Configuration Options
 export const DOMPURIFY_CONFIG = {
   ALLOWED_TAGS: ALLOWED_HTML_TAGS,
-  FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onmouseout', 'onfocus', 'onblur'], // 禁止事件处理器
+  FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onmouseout', 'onfocus', 'onblur'], // Ban Event Processor
   ALLOWED_ATTR: ['href', 'target', 'rel', 'title', 'class', 'id', 'style']
 };

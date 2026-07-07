@@ -28,7 +28,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Postgres 外键
+ * Postgres foreign keys
  * @version : 2021-05-17
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -38,8 +38,8 @@ public class PgForeignKey {
 
     private String                     schema;
     private String                     table;
-    private String                 name;
-    private PostgresConstraintType constraintType;
+    private String                     name;
+    private PostgresConstraintType     constraintType;
 
     private List<String>               columns          = new ArrayList<>();
     private String                     referenceSchema;

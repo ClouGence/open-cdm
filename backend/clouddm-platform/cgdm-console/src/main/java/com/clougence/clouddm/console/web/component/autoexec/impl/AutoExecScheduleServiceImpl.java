@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecManager;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
@@ -54,7 +54,7 @@ public class AutoExecScheduleServiceImpl implements UnifiedPostConstruct, DmWork
     @Resource
     private ExecutionDal                executionDal;
     @Resource
-    private DmConsoleConfig             dmConfig;
+    private ConsoleConfig               config;
     @Resource
     private AutoExecManager             autoExecManager;
 
@@ -69,7 +69,7 @@ public class AutoExecScheduleServiceImpl implements UnifiedPostConstruct, DmWork
             return;
         }
 
-        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(this.dmConfig.getAsyncTaskQueueSize());
+        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(this.config.getAsyncTaskQueueSize());
         ThreadFactory threadFactory = ThreadUtils.daemonThreadFactory(this.getClass().getClassLoader(), "AutoExec-job-%s");
         // if queue is full, ignore the latest additions
         this.threadPoolExecutor = new ThreadPoolExecutor(10, 10, 1, TimeUnit.MINUTES, queue, threadFactory, new ThreadPoolExecutor.AbortPolicy());

@@ -15,31 +15,67 @@
  */
 package com.clougence.clouddm.ds.clickhouse.dsconf;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ConnectType;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigMap;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
+import com.clougence.clouddm.base.metadata.ds.SslMode;
+import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
+import com.clougence.drivers.adapter.ConvertUtils;
+import com.clougence.utils.StringUtils;
 
-public class ChConfigSpi implements DsConfigSpi, ConfigKeys {
+public class ChConfigSpi extends AbstractDsConfigSpi {
 
     @Override
-    public DataSourceConfig newConfig(Map<String, String> configMap) {
-        return new ChConfig();
+    public String defaultPort() {
+        return "8123";
     }
 
     @Override
-    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, DsConfigMap dsConfigMap) {
+    public Class<? extends DataSourceConfig> newConfig() {
+        return ChConfig.class;
+    }
+
+    @Override
+    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
         ChConfig config = (ChConfig) dsConfig;
-        // it will be modified in the future
-        ConnectType connectType = (ConnectType) dsConfigMap.getRdpDsBean().get(RDP_DS_KEY_CONNECT_TYPE);
-        if (connectType == ConnectType.CLICKHOUSE_TCP) {
-            config.setDriverVersion("[\"Native JDBC\",\"/2.7.1\"]");
-        } else {
-            config.setDriverVersion("[\"ClickHouse JDBC\",\"/0.9.8\"]");
-        }
+        Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(ChConfig.Fields.connectTimeoutMs), false);
+        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(ChConfig.Fields.soTimeoutSec), false);
+        config.setDefaultSchema(defaultConfig.get(ChConfig.Fields.defaultSchema));
+        config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
+        config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
+        config.setSessionTimeout(StringUtils.defaultIfBlank(defaultConfig.get(ChConfig.Fields.sessionTimeout), "15000"));
+        config.setClientTimeZone(defaultConfig.get(ChConfig.Fields.clientTimeZone));
         return dsConfig;
+    }
+
+    @Override
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.NONE);
+        options.add(SecurityType.USER_PASSWD);
+        return options;
+    }
+
+    @Override
+    public List<SslMode> sslModeSet() {
+        return List.of();
+    }
+
+    @Override
+    public boolean supportSSL() {
+        return false;
+    }
+
+    @Override
+    public boolean supportSSH() {
+        return true;
+    }
+
+    @Override
+    public boolean supportTx() {
+        return true;
     }
 }

@@ -19,7 +19,7 @@ export const getLanguage = (type) => {
   }
 };
 
-// 统一判断 ‘true','false', true, false
+// 'true', 'false'
 export const formatToCleanBoolean = (flag) => String(flag).toLowerCase() === 'true';
 
 // Display scientific notation.

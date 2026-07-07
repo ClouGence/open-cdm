@@ -41,7 +41,7 @@ import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.team.provider.dingtalk.client.DingApi;
 import com.clougence.clouddm.team.provider.dingtalk.client.DingClient;
 import com.clougence.clouddm.team.provider.dingtalk.constants.DingConfigKey;
-import com.clougence.clouddm.team.provider.dingtalk.constants.DingI18nKeys;
+import com.clougence.clouddm.team.provider.dingtalk.constants.DingTalkI18nKeys;
 import com.clougence.clouddm.team.provider.dingtalk.constants.approval.DingTaskResult;
 import com.clougence.clouddm.team.provider.dingtalk.constants.approval.DingTaskStatus;
 import com.clougence.clouddm.team.provider.dingtalk.domain.ro.api.DingUserDetailRO;
@@ -69,7 +69,7 @@ public class DingApprovalProviderSpi implements ApprovalProviderSpi {
     @Override
     public LifeSpiResponse start(String ownerUid, LifeSpiRequest requestDTO) throws Exception {
         // fetch config
-        List<ConfigData> configList = configService.fetchSettings(ownerUid, Arrays.asList(//
+        List<ConfigData> configList = configService.fetchSettings(Arrays.asList(//
                 DingConfigKey.ApprovalEnable.getConfigKey(),//
                 DingConfigKey.ApprovalClientId.getConfigKey(),//
                 DingConfigKey.ApprovalClientSecret.getConfigKey()));
@@ -126,7 +126,7 @@ public class DingApprovalProviderSpi implements ApprovalProviderSpi {
     public LifeSpiResponse status(String ownerUid, LifeSpiRequest requestDTO) {
         LifeSpiStatus dto = new LifeSpiStatus();
         dto.setRunning(this.streamHandlerMap.containsKey(ownerUid) || this.clientMap.containsKey(ownerUid));
-        dto.setNameKey(DingI18nKeys.DINGTALK_APPROVAL_SERVICES_NAME);
+        dto.setNameKey(DingTalkI18nKeys.DINGTALK_APPROVAL_SERVICES_NAME);
         return new LifeSpiResponse(JsonUtils.toJson(dto));
     }
 
@@ -176,7 +176,7 @@ public class DingApprovalProviderSpi implements ApprovalProviderSpi {
     @SneakyThrows
     public ApprovalInstanceInfo getLastInfo(String ownerUid, String identity) throws ThirdPartyApiException {
         if (StringUtils.isBlank(identity)) {
-            throw ThirdPartyApiException.as().with(DingI18nKeys.DINGTALK_APPROVAL_INSTANCE_IS_EMPTY);
+            throw ThirdPartyApiException.as().with(DingTalkI18nKeys.DINGTALK_APPROVAL_INSTANCE_IS_EMPTY);
         }
 
         DingApi approvalApi = this.approvalApi(ownerUid);

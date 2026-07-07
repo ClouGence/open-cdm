@@ -86,7 +86,7 @@ export default {
         <span v-if="!noFieldName">{{ fieldName }}</span>
         <span v-if="isColon && !noFieldName">:</span>
 
-        <!-- 普通显示状态 -->
+        <!-- Normal Display Status -->
         <div v-if="!showModal" class="field-value" :style="{ paddingLeft: valueMargin || '0' }">
           <Poptip trigger="hover" placement="top" :content="value">
             <span class="text-ellipsis" :class="{ 'text-large': large }" :style="{ maxWidth: maxWidth }">
@@ -96,7 +96,7 @@ export default {
           <CustomIcon v-if="!readOnly" @click="openModal" :type="icon" leftMargin hoverStyle />
         </div>
 
-        <!-- 编辑状态 -->
+        <!-- Edit Status -->
         <div v-if="showModal" class="field-value" :style="{ paddingLeft: valueMargin || '0' }">
           <Input ref="fieldInput" type="text" size="small" v-model="localValue" @on-enter="handleOk" @on-keyup="handleKeyUp">
             <template #suffix>

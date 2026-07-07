@@ -18,10 +18,7 @@ package com.clougence.rdp.service.openapi.model;
 import java.util.Date;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
-import com.clougence.clouddm.console.web.constants.ConsoleTaskState;
-import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 
@@ -35,60 +32,30 @@ import lombok.Setter;
 @Setter
 public class ApiDataSourceVO {
 
-    private boolean          hasPassword;
-
-    private Long             id;
-
-    private Date             gmtCreate;
-
-    private Date             gmtModified;
-
-    private String           uid;
-
-    private String           owner;
-
-    private DeployEnvType    deployType;
-
-    private DataSourceType   dataSourceType;
-
-    private String           privateHost;
-
-    private String           publicHost;
-
-    private HostType         hostType;
-
-    private String           instanceDesc;
-
-    private String           version;
-
-    private String           instanceId;
-
-    private String           autoCreateAccount;
-
-    private String           schemaJson;
-
-    private long             consoleJobId;
-
-    private ConsoleTaskState consoleTaskState;
-
-    private String           accountName;
-
-    private LifeCycleState   lifeCycleState;
-
-    private SecurityType     securityType;
+    private boolean        hasPassword;
+    private Long           id;
+    private Date           gmtCreate;
+    private Date           gmtModified;
+    private String         uid;
+    private String         owner;
+    private DataSourceType dataSourceType;
+    private String         host;
+    private String         instanceDesc;
+    private String         version;
+    private String         instanceId;
+    private String         autoCreateAccount;
+    private String         schemaJson;
+    private String         accountName;
+    private LifeCycleState lifeCycleState;
+    private SecurityType   securityType;
 
     public void convertFromDsVO(DmDsDO dsDO) {
-        this.accountName = dsDO.getAccount();
+        this.accountName = dsDO.getAccessKey();
         // this.autoCreateAccount = dsDO.getAutoCreateAccount();
-        this.consoleJobId = dsDO.getConsoleJobId();
-        //this.consoleTaskState = dsDO.getConsoleTaskState();
         this.dataSourceType = dsDO.getDataSourceType();
-        this.deployType = dsDO.getDeployType();
         this.gmtCreate = dsDO.getGmtCreate();
         this.gmtModified = dsDO.getGmtModified();
-        this.privateHost = dsDO.getPrivateHost();
-        this.publicHost = dsDO.getPublicHost();
-        this.hostType = dsDO.getHostType();
+        this.host = dsDO.getHost();
         this.id = dsDO.getId();
         this.instanceDesc = dsDO.getInstanceDesc();
         this.instanceId = dsDO.getInstanceId();

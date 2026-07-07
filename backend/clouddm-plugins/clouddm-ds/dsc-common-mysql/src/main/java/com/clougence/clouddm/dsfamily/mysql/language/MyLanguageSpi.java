@@ -16,7 +16,6 @@
 package com.clougence.clouddm.dsfamily.mysql.language;
 
 import com.clougence.clouddm.dsfamily.language.split.SplitStrategyCenter;
-import com.clougence.clouddm.dsfamily.mysql.parser.MyDslProvider;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
 import com.clougence.clouddm.sdk.language.LanguageResult;
@@ -67,6 +66,6 @@ public class MyLanguageSpi implements DsLanguageSpi {
 
     @Override
     public SplitResult split(SplitRequest request) {
-        return this.split.split(request, MyDslProvider.INSTANCE);
+        return this.split.split(request);
     }
 }

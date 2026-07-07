@@ -1,44 +1,22 @@
 <template>
   <div class="step-execution">
-    <div class="summary-section">
-      <div class="summary-title">{{ $t('initialization.processLogs') }}</div>
-      <div v-if="executionScripts.length" class="script-status-list">
-        <div
-          v-for="scriptItem in executionScripts"
-          :key="scriptItem.scriptName"
-          :ref="(el) => setScriptEntryRef(el, scriptItem.scriptName)"
-          :data-script-name="scriptItem.scriptName"
-          class="script-status-entry"
-        >
-          <div class="script-status-item">
-            <div class="script-status-main">
-              <component :is="resolveStatusIcon(scriptItem.status)" class="script-status-icon" :class="statusIconClass(scriptItem.status)" />
-              <span class="script-name">{{ scriptItem.scriptName }}</span>
-            </div>
-            <div class="script-status-side">
-              <button v-if="scriptItem.status === 'ERROR'" type="button" class="script-status-action" @click="toggleErrorDetail(scriptItem)">
-                {{ statusText(scriptItem.status) }}
-              </button>
-              <span v-else class="script-status-text">{{ statusText(scriptItem.status) }}</span>
-            </div>
-          </div>
-
-          <div v-if="isErrorDetailExpanded(scriptItem)" class="script-error-panel">
-            <div class="detail-title-row detail-panel-header">
-              <div class="detail-title">{{ $t('initialization.processErrorDetail') }}</div>
-              <button type="button" class="detail-fullscreen-button" @click="openFullscreenDetail(scriptItem)">
-                [{{ $t('initialization.fullscreen') }}]
-              </button>
-            </div>
-            <div class="detail-section">
-              <div class="detail-title">{{ $t('initialization.failedSql') }}</div>
-              <pre class="detail-code detail-code-sql">{{ detailSql(scriptItem) }}</pre>
-            </div>
-            <div class="detail-section">
-              <pre class="detail-code detail-code-stack">{{ detailError(scriptItem) }}</pre>
-            </div>
-          </div>
+    <div class="summary-section execution-progress-section">
+      <div v-if="executionScripts.length" class="execution-progress-wrap">
+        <div v-if="executionMessageText" class="execution-inline-message" :class="[executionMessageType, { 'is-live': showExecutionMessageBubbles }]">
+          <span v-if="showExecutionMessageBubbles" class="execution-message-bubbles" aria-hidden="true">
+            <span class="execution-message-bubble"></span>
+            <span class="execution-message-bubble"></span>
+            <span class="execution-message-bubble"></span>
+          </span>
+          <span>{{ executionMessageText }}</span>
         </div>
+        <a-progress
+          class="execution-progress"
+          :percent="executionProgressPercent"
+          :status="executionProgressStatus"
+          :stroke-color="executionProgressStrokeColor"
+          :format="formatExecutionProgress"
+        />
       </div>
       <div v-else class="summary-empty">{{ $t('initialization.noExecutionScripts') }}</div>
     </div>
@@ -82,24 +60,15 @@
 </template>
 
 <script>
-import { CheckCircleOutlined, ClockCircleOutlined, CloseCircleOutlined, LoadingOutlined } from '@ant-design/icons-vue';
-
 export default {
   name: 'StepExecution',
-  components: {
-    CheckCircleOutlined,
-    ClockCircleOutlined,
-    CloseCircleOutlined,
-    LoadingOutlined
-  },
   props: {
     executionScripts: { type: Array, default: () => [] },
-    operationErrorDetail: { type: String, default: '' }
+    operationErrorDetail: { type: String, default: '' },
+    executionMessage: { type: Object, default: null }
   },
   data() {
     return {
-      expandedScriptName: '',
-      scriptEntryRefs: Object.create(null),
       fullscreenDetail: {
         visible: false,
         title: '',
@@ -111,25 +80,6 @@ export default {
     };
   },
   watch: {
-    executionScripts(newScripts, oldScripts) {
-      const errorScript = this.findNewErrorScript(newScripts, oldScripts);
-      if (errorScript && errorScript.scriptName) {
-        this.expandedScriptName = errorScript.scriptName;
-        this.$nextTick(() => {
-          this.scrollToScript(errorScript.scriptName);
-        });
-        return;
-      }
-
-      const anchorScriptName = this.findAutoScrollAnchorScriptName(newScripts);
-      if (!anchorScriptName || anchorScriptName === this.findAutoScrollAnchorScriptName(oldScripts)) {
-        return;
-      }
-
-      this.$nextTick(() => {
-        this.scrollToScript(anchorScriptName);
-      });
-    },
     operationErrorDetail(value) {
       if (!value) {
         return;
@@ -141,97 +91,49 @@ export default {
     }
   },
   computed: {
+    executionProgressPercent() {
+      const total = this.executionScripts.length;
+      if (!total) {
+        return 0;
+      }
+
+      const finished = this.executionScripts.filter((item) => item && ['SUCCESS', 'ERROR'].includes(item.status)).length;
+      return Math.max(0, Math.min(100, Math.round((finished / total) * 100)));
+    },
+    hasExecutionError() {
+      return Boolean(this.operationErrorDetail) || this.executionScripts.some((item) => item && item.status === 'ERROR');
+    },
+    executionProgressStatus() {
+      if (this.hasExecutionError) {
+        return 'exception';
+      }
+      if (this.executionProgressPercent >= 100) {
+        return 'success';
+      }
+      if (this.executionScripts.some((item) => item && item.status === 'RUNNING')) {
+        return 'active';
+      }
+      return 'normal';
+    },
+    executionProgressStrokeColor() {
+      return this.hasExecutionError ? '#ff4d4f' : '#52c41a';
+    },
+    executionMessageText() {
+      return this.executionMessage && this.executionMessage.message ? this.executionMessage.message : '';
+    },
+    executionMessageType() {
+      return this.executionMessage && this.executionMessage.type ? this.executionMessage.type : 'info';
+    },
+    showExecutionMessageBubbles() {
+      return Boolean(this.executionMessageText) && this.executionMessageType !== 'error';
+    },
     showFallbackErrorDetail() {
-      return Boolean(this.operationErrorDetail) && !this.executionScripts.some((item) => item && item.status === 'ERROR' && item.errorDetail);
+      return Boolean(this.operationErrorDetail);
     }
   },
   methods: {
-    resolveStatusIcon(status) {
-      if (status === 'SUCCESS') {
-        return 'CheckCircleOutlined';
-      }
-      if (status === 'RUNNING') {
-        return 'LoadingOutlined';
-      }
-      if (status === 'ERROR') {
-        return 'CloseCircleOutlined';
-      }
-      return 'ClockCircleOutlined';
-    },
-    statusIconClass(status) {
-      return `script-status-icon-${String(status || 'PENDING').toLowerCase()}`;
-    },
-    statusText(status) {
-      if (status === 'SUCCESS') {
-        return this.$t('initialization.scriptStatusSuccess');
-      }
-      if (status === 'RUNNING') {
-        return this.$t('initialization.scriptStatusRunning');
-      }
-      if (status === 'ERROR') {
-        return this.$t('initialization.scriptStatusError');
-      }
-      return this.$t('initialization.scriptStatusPending');
-    },
-    toggleErrorDetail(scriptItem) {
-      const scriptName = scriptItem && scriptItem.scriptName ? scriptItem.scriptName : '';
-      this.expandedScriptName = this.expandedScriptName === scriptName ? '' : scriptName;
-    },
-    setScriptEntryRef(element, scriptName) {
-      if (!scriptName) {
-        return;
-      }
-
-      if (element) {
-        this.scriptEntryRefs[scriptName] = element;
-        return;
-      }
-
-      delete this.scriptEntryRefs[scriptName];
-    },
-    isErrorDetailExpanded(scriptItem) {
-      return Boolean(scriptItem && scriptItem.scriptName) && scriptItem.status === 'ERROR' && this.expandedScriptName === scriptItem.scriptName;
-    },
-    findAutoScrollAnchorScriptName(scripts) {
-      if (!Array.isArray(scripts) || !scripts.length) {
-        return '';
-      }
-
-      const runningIndex = scripts.findIndex((item) => item && item.scriptName && item.status === 'RUNNING');
-      if (runningIndex < 0) {
-        return '';
-      }
-
-      const anchorIndex = Math.max(runningIndex - 2, 0);
-      const anchorItem = scripts[anchorIndex];
-      return anchorItem && anchorItem.scriptName ? anchorItem.scriptName : '';
-    },
-    findNewErrorScript(newScripts, oldScripts) {
-      if (!Array.isArray(newScripts) || !newScripts.length) {
-        return null;
-      }
-
-      const oldStatusByName = new Map(
-        (Array.isArray(oldScripts) ? oldScripts : []).filter((item) => item && item.scriptName).map((item) => [item.scriptName, item.status])
-      );
-
-      return (
-        newScripts.find(
-          (item) => item && item.scriptName && item.status === 'ERROR' && item.errorDetail && oldStatusByName.get(item.scriptName) !== 'ERROR'
-        ) || null
-      );
-    },
-    scrollToScript(scriptName) {
-      const targetElement = this.scriptEntryRefs[scriptName];
-      if (!targetElement || typeof targetElement.scrollIntoView !== 'function') {
-        return;
-      }
-
-      targetElement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-        inline: 'nearest'
-      });
+    formatExecutionProgress(percent) {
+      return `${Math.round(Number(percent) || 0)}%`;
     },
     scrollToFallbackErrorDetail() {
       const targetElement = this.$refs.fallbackErrorDetail;
@@ -245,21 +147,15 @@ export default {
         inline: 'nearest'
       });
     },
-    detailSql(scriptItem) {
-      return scriptItem && scriptItem.failedSql ? scriptItem.failedSql : '-';
-    },
-    detailError(scriptItem) {
-      return scriptItem && scriptItem.errorDetail ? scriptItem.errorDetail : this.operationErrorDetail || '-';
-    },
-    openFullscreenDetail(scriptItem) {
+    openFullscreenDetail() {
       this.bodyOverflowBeforeFullscreen = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
       this.fullscreenDetail = {
         visible: true,
         title: this.$t('initialization.processErrorDetail'),
-        scriptName: scriptItem && scriptItem.scriptName ? scriptItem.scriptName : '',
-        sql: this.detailSql(scriptItem),
-        error: this.detailError(scriptItem)
+        scriptName: '',
+        sql: '-',
+        error: this.operationErrorDetail || '-'
       };
     },
     closeFullscreenDetail() {
@@ -281,7 +177,6 @@ export default {
 
 <style scoped>
 .step-execution {
-  height: 100%;
   min-height: 0;
 }
 .summary-section {
@@ -320,95 +215,76 @@ export default {
   color: #8c8c8c;
   font-size: 13px;
 }
-.script-status-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+.execution-progress-section {
+  border: none;
 }
-.script-status-entry {
-  border-bottom: 1px solid #f0f0f0;
+.execution-progress-wrap {
+  padding: 20px 16px;
   background: #fff;
-  overflow: hidden;
 }
-.script-status-entry:last-child {
-  border-bottom: none;
-}
-.script-status-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 12px 16px;
-}
-.script-status-main {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-.script-status-side {
-  display: flex;
+.execution-inline-message {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  flex-shrink: 0;
-}
-.script-status-icon {
-  font-size: 18px;
-}
-.script-status-icon-pending {
-  color: #8c8c8c;
-}
-.script-status-icon-running {
-  color: #1677ff;
-}
-.script-status-icon-success {
-  color: #52c41a;
-}
-.script-status-icon-error {
-  color: #ff4d4f;
-}
-.script-name {
-  color: #262626;
-  font-size: 13px;
-  font-weight: 500;
-  word-break: break-all;
-}
-.script-status-text {
+  margin-bottom: 12px;
   color: #595959;
-  font-size: 12px;
+  font-size: 13px;
+  line-height: 20px;
 }
-.script-status-action {
-  padding: 0;
-  border: none;
-  background: transparent;
+.execution-message-bubbles {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 12px;
+  flex: 0 0 auto;
+  color: currentColor;
+}
+.execution-message-bubble {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.32;
+  animation: executionMessageBubble 1.2s ease-in-out infinite;
+}
+.execution-message-bubble:nth-child(2) {
+  animation-delay: 0.16s;
+}
+.execution-message-bubble:nth-child(3) {
+  animation-delay: 0.32s;
+}
+@keyframes executionMessageBubble {
+  0%,
+  80%,
+  100% {
+    opacity: 0.32;
+    transform: translateY(0) scale(0.82);
+  }
+  40% {
+    opacity: 0.9;
+    transform: translateY(-3px) scale(1);
+  }
+}
+.execution-inline-message.success {
+  color: #389e0d;
+}
+.execution-inline-message.error {
   color: #cf1322;
-  font-size: 12px;
-  line-height: 1.4;
-  cursor: pointer;
 }
-.script-status-action:hover {
-  color: #ff4d4f;
+.execution-inline-message.warning {
+  color: #d48806;
 }
-.script-error-panel {
-  padding: 16px;
-  border-top: 1px solid #f5f5f5;
-  background: linear-gradient(180deg, #fffaf8 0%, #ffffff 100%);
+.execution-inline-message.info {
+  color: #389e0d;
+}
+.execution-progress {
+  width: 100%;
 }
 .detail-section + .detail-section {
   margin-top: 16px;
 }
 .detail-section {
   min-width: 0;
-}
-.detail-panel-header {
-  margin-bottom: 16px;
-}
-.detail-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
 }
 .detail-title {
   margin-bottom: 0;

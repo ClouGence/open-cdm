@@ -32,7 +32,7 @@ import com.clougence.utils.RandomUtils;
 import com.clougence.utils.StringUtils;
 
 /**
- * DELETE 生成器
+ * DELETE Generator
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

@@ -19,10 +19,10 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
-import com.clougence.clouddm.ds.redis.parser.ast.commands.list.*;
-import com.clougence.clouddm.ds.redis.parser.ast.token.Direction;
-import com.clougence.clouddm.ds.redis.parser.ast.token.Position;
-import com.clougence.clouddm.ds.redis.parser.ast.token.StrToken;
+import com.clougence.sql.redis.parser.ast.commands.list.*;
+import com.clougence.sql.redis.parser.ast.token.Direction;
+import com.clougence.sql.redis.parser.ast.token.Position;
+import com.clougence.sql.redis.parser.ast.token.StrToken;
 import com.clougence.drivers.adapter.AdapterReceive;
 import com.clougence.drivers.adapter.AdapterRequest;
 import com.clougence.drivers.adapter.AdapterResultCursor;

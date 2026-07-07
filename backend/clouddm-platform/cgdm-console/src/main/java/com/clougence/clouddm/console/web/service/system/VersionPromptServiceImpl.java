@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.model.vo.version.VersionDetailVO;
 import com.clougence.clouddm.console.web.model.vo.version.VersionPromptVO;
 import com.clougence.utils.CollectionUtils;
@@ -57,15 +57,15 @@ public class VersionPromptServiceImpl implements VersionPromptService, UnifiedPo
     }
 
     @Resource
-    private DmConsoleConfig dmConfig;
-    private String          checkRemoteURL;
-    private String          releaseRemoteURL;
-    private List<String>    versionCache;
+    private ConsoleConfig config;
+    private String        checkRemoteURL;
+    private String        releaseRemoteURL;
+    private List<String>  versionCache;
 
     @Override
     public void init() {
-        this.checkRemoteURL = "https://" + this.dmConfig.getUpgradeServer() + "/apis/clouddm/version/difference/%s";
-        this.releaseRemoteURL = "https://" + this.dmConfig.getUpgradeServer() + "/apis/clouddm/version/releasenode";
+        this.checkRemoteURL = "https://" + this.config.getUpgradeServer() + "/apis/clouddm/version/difference/%s";
+        this.releaseRemoteURL = "https://" + this.config.getUpgradeServer() + "/apis/clouddm/version/releasenode";
         this.versionCache = new ArrayList<>();
 
         this.cacheDir = GlobalConfUtils.getAppHome() + "/data/releaseinfo";

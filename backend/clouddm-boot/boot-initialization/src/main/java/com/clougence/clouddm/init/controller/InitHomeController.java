@@ -51,7 +51,7 @@ public class InitHomeController {
     private SysInitDefService defService;
 
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    @RequestMapping(value = "/dm_global_settings", method = { RequestMethod.POST })
+    @RequestMapping(value = "/dmGlobalSettings", method = { RequestMethod.POST })
     public ResWebData<?> dmGlobalSettings() {
         GlobalSettingsVO vo = new GlobalSettingsVO();
         vo.setVersion(GlobalConfUtils.getAppVersion());

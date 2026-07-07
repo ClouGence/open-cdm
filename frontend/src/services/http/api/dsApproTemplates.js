@@ -1,7 +1,7 @@
 export const dsApproTemplatesApi = {
-  // listDsApproTemplateByDsId: '/clouddm/console/api/v1/dsapprotemplate/listdsapprotemplatebydsid',
-  // modifyDsApproTemplates: '/clouddm/console/api/v1/dsapprotemplate/modifydsapprotemplates',
+  // listDsApproTemplateByDsId: '/api/entry/dsapprotemplate/listdsapprotemplatebydsid',
+  // modifyDsApproTemplates: '/api/entry/dsapprotemplate/modifydsapprotemplates',
   // dm
-  dmDsApproTemplateListDsApproTemplateByDsId: '/clouddm/console/api/v1/dsapprotemplate/listdsapprotemplatebydsid',
-  dmDsApproTemplateModifyDsApproTemplates: '/clouddm/console/api/v1/dsapprotemplate/modifydsapprotemplates'
+  dmDsApproTemplateListDsApproTemplateByDsId: '/api/entry/dsapprotemplate/listdsapprotemplatebydsid',
+  dmDsApproTemplateModifyDsApproTemplates: '/api/entry/dsapprotemplate/modifydsapprotemplates'
 };

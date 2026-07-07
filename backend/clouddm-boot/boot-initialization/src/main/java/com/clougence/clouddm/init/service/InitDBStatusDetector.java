@@ -26,9 +26,6 @@ import com.clougence.clouddm.console.web.constants.SystemStatus;
 import com.clougence.clouddm.init.component.flyway.DmFlywayInit;
 import com.clougence.clouddm.init.model.SystemStatusResult;
 import com.clougence.clouddm.platform.dal.config.DmDalConfig;
-import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.drivers.DriverBinding;
-import com.clougence.drivers.DriverVersion;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -56,24 +53,7 @@ public final class InitDBStatusDetector {
         }
 
         try {
-            DriverVersion ver = DmDalConfig.mainDsDriverVersion();
-            if (!ver.isPrepared()) {
-                log.warn("[InitDBStatusDetector] Runtime driver is not prepared.");
-                result.setStatus(SystemStatus.Initial);
-                result.setInitReason(DRIVER_MISSING);
-                result.setDbError("Runtime MySQL driver is not ready.");
-                return result;
-            }
-
-            DriverBinding binding = PluginManager.driverLoader().createBinding(//
-                    DmDalConfig.class.getClassLoader(), DmDalConfig.MYSQL_DRIVER_RUNTIME_FAMILY, DmDalConfig.MYSQL_DRIVER_VERSION);
-            if (!DmDalConfig.isDriverClassAvailable(binding)) {
-                log.warn("[InitDBStatusDetector] Runtime driver class is not available.");
-                result.setStatus(SystemStatus.Initial);
-                result.setInitReason(DRIVER_MISSING);
-                result.setDbError("Runtime MySQL driver class is unavailable.");
-                return result;
-            }
+            DmDalConfig.ensureDriverAvailable();
         } catch (RuntimeException e) {
             log.warn("[InitDBStatusDetector] Runtime driver is not ready: {}", e.getMessage());
             result.setStatus(SystemStatus.Initial);

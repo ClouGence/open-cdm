@@ -1,16 +1,16 @@
 export const clusterApi = {
-  // createCluster: '/clouddm/console/api/v1/cluster/create',
-  // deleteCluster: '/clouddm/console/api/v1/cluster/delete',
-  // getClusterList: '/clouddm/console/api/v1/cluster/listbycondition',
-  // updateClusterDesc: '/clouddm/console/api/v1/cluster/updatedesc',
-  // getCluster: '/clouddm/console/api/v1/cluster/querybyid',
+  // createCluster: '/api/entry/cluster/create',
+  // deleteCluster: '/api/entry/cluster/delete',
+  // getClusterList: '/api/entry/cluster/listByCondition',
+  // updateClusterDesc: '/api/entry/cluster/updateDesc',
+  // getCluster: '/api/entry/cluster/queryById',
 
   // dm
-  dmClusterCreate: '/clouddm/console/api/v1/cluster/create',
-  dmClusterDelete: '/clouddm/console/api/v1/cluster/delete',
-  dmClusterListByCondition: '/clouddm/console/api/v1/cluster/listbycondition',
-  dmClusterUpdateDesc: '/clouddm/console/api/v1/cluster/updatedesc',
-  dmClusterQueryById: '/clouddm/console/api/v1/cluster/querybyid',
+  dmClusterCreate: '/api/entry/cluster/create',
+  dmClusterDelete: '/api/entry/cluster/delete',
+  dmClusterListByCondition: '/api/entry/cluster/listByCondition',
+  dmClusterUpdateDesc: '/api/entry/cluster/updateDesc',
+  dmClusterQueryById: '/api/entry/cluster/queryById',
 
   // cc
   ccClusterCreate: '/cloudcanal/console/api/v1/inner/cluster/create',

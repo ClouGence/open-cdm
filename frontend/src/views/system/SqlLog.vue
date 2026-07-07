@@ -2,22 +2,25 @@
   <div class="sql-log">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb>
-            <BreadcrumbItem>{{ $t('sql-shen-ji') }}</BreadcrumbItem>
-          </Breadcrumb>
-        </div>
         <div class="content">
           <div class="option border-radius-card">
             <div class="left" style="align-items: center">
-              {{ $t('cao-zuo-shi-jian') }}
-              <DatePicker
-                :editable="false"
-                v-model="timeRange"
-                type="datetimerange"
-                format="yyyy-MM-dd HH:mm"
-                style="width: 266px; margin-left: 10px; margin-right: 10px"
-              ></DatePicker>
+              <Select v-model="auditLogType" style="width: 120px; margin-right: 10px" @on-change="handleChangeAuditLogType">
+                <Option value="operation" :label="$t('cao-zuo-shen-ji')">
+                  <span>{{ $t('cao-zuo-shen-ji') }}</span>
+                </Option>
+                <Option value="sql" :label="$t('nav-ri-zhi-shen-ji')">
+                  <span>{{ $t('nav-ri-zhi-shen-ji') }}</span>
+                </Option>
+              </Select>
+              <span class="log-time-range-label">{{ $t('cao-zuo-shi-jian') }}</span>
+              <a-range-picker
+                v-model:value="timeRange"
+                show-time
+                format="YYYY-MM-DD HH:mm"
+                :placeholder="[$t('kai-shi-shi-jian'), $t('jie-shu-shi-jian')]"
+                class="log-time-range"
+              />
               <Select v-model="searchType" style="width: 100px; margin-right: 10px" @on-change="handleChangeSearchType">
                 <Option value="user" :label="$t('cao-zuo-ren')">
                   <span>{{ $t('cao-zuo-ren') }}</span>
@@ -83,18 +86,20 @@
                 <Option value="FAILURE" label="FAILURE">FAILURE</Option>
                 <Option value="ERROR" label="ERROR">ERROR</Option>
               </Select>
-              <Button type="primary" @click="handleRefresh" :loading="refreshLoading" style="margin-left: 10px">
+              <Button type="primary" ghost @click="handleRefresh" :loading="refreshLoading" style="margin-left: 10px">
                 {{ $t('cha-xun') }}
               </Button>
             </div>
             <div class="right">
-              <Button type="default" style="margin-right: 6px" @click="handleRefresh" :loading="refreshLoading">
-                <CustomIcon type="icon-v2-Refresh" v-if="!refreshLoading" />
-              </Button>
+              <Tooltip v-if="canReadUserConfig" transfer :content="$t('shen-ji-ri-zhi-she-zhi')" placement="bottom">
+                <Button type="default" style="margin-right: 6px" @click="handleOpenRetentionSetting" :loading="retentionLoading">
+                  <CustomIcon type="icon-v2-preference" v-if="!retentionLoading" />
+                </Button>
+              </Tooltip>
             </div>
           </div>
-          <div class="table-container">
-            <Table size="small" border :columns="logColumn" :data="logData" :loading="refreshLoading">
+          <div class="table-container audit-log-table">
+            <Table size="small" border :columns="logColumn" :data="logData" :loading="refreshLoading" :scroll="tableScroll">
               <template #operator="{ row }">
                 <div class="operator-cell">
                   <div>{{ row.userName }}</div>
@@ -130,15 +135,16 @@
         </div>
       </div>
       <div class="footer">
-        <Button :disabled="page === 1" style="font-size: 16px" @click="handlePre">
-          <Icon type="ios-arrow-back" style="font-size: 16px" />
-          {{ $t('shang-yi-ye') }}
-        </Button>
-        <span style="margin: 0 10px">{{ $t('di-page-ye', [page]) }}</span>
-        <Button :disabled="noMoreData" style="font-size: 16px" @click="handleNext">
-          <Icon type="ios-arrow-forward" style="font-size: 16px" />
-          {{ $t('xia-yi-ye') }}
-        </Button>
+        <Page
+          :total="total"
+          show-total
+          show-elevator
+          @on-change="handlePageChange"
+          show-sizer
+          :page-size="pageSize"
+          @on-page-size-change="handlePageSizeChange"
+          :model-value="page"
+        />
       </div>
     </div>
     <CCModal v-model="showSqlModal" title="SQL" width="1000px" @on-ok="handleCloseSqlModal" @on-cancel="handleCloseSqlModal">
@@ -153,6 +159,19 @@
         <ReadOnlyEditor v-else :text="selectedRow?.execSql" :ds-type="selectedRow.dataSourceType" style="height: 400px" />
       </div>
     </CCModal>
+    <CCModal v-model="showRetentionSetting" :title="$t('shen-ji-ri-zhi-she-zhi')" width="520px">
+      <Form ref="retentionFormRef" :model="retentionForm" :rules="retentionRules" :label-width="150">
+        <FormItem :label="$t('shen-ji-ri-zhi-bao-cun-tian-shu')" prop="sqlAuditRetentionDays">
+          <Input v-model="retentionForm.sqlAuditRetentionDays" type="number" :disabled="!canEditUserConfig" />
+        </FormItem>
+      </Form>
+      <template #footer>
+        <Button @click="handleCloseRetentionSetting">{{ $t('guan-bi') }}</Button>
+        <Button v-if="canEditUserConfig" type="primary" :loading="retentionSaveLoading" @click="handleSaveRetentionSetting">
+          {{ $t('bao-cun') }}
+        </Button>
+      </template>
+    </CCModal>
   </div>
 </template>
 
@@ -162,12 +181,16 @@ import { mapState } from 'vuex';
 import { h, resolveComponent } from 'vue';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
 import ReadOnlyDiffEditor from '@/components/editor/ReadOnlyDiffEditor.vue';
+import dayjs from '@/utils/dayjsSetup';
+
+const SQL_AUDIT_RETENTION_DAYS_KEY = 'sqlAuditRetentionDays';
 
 export default {
   name: 'SqlLog',
   components: { ReadOnlyDiffEditor, ReadOnlyEditor },
   data() {
     return {
+      auditLogType: 'sql',
       searchType: 'user',
       noMoreData: false,
       refreshLoading: false,
@@ -180,7 +203,34 @@ export default {
       operateUserList: [],
       selectedRow: null,
       showSqlModal: false,
-      timeRange: [new Date(new Date().getTime() - 24 * 3600 * 1000), new Date()],
+      showRetentionSetting: false,
+      retentionLoading: false,
+      retentionSaveLoading: false,
+      retentionConfig: null,
+      retentionForm: {
+        sqlAuditRetentionDays: ''
+      },
+      retentionRules: {
+        sqlAuditRetentionDays: [
+          {
+            required: true,
+            message: this.$t('qing-shu-ru-1-dao-60-de-zheng-shu'),
+            trigger: 'blur'
+          },
+          {
+            validator: (rule, value, callback) => {
+              const numValue = Number(value);
+              if (!Number.isInteger(numValue) || numValue < 1 || numValue > 60) {
+                callback(new Error(this.$t('qing-shu-ru-1-dao-60-de-zheng-shu')));
+                return;
+              }
+              callback();
+            },
+            trigger: 'blur'
+          }
+        ]
+      },
+      timeRange: [dayjs().subtract(1, 'day'), dayjs()],
       searchData: {
         dsId: null,
         userUid: null,
@@ -197,12 +247,12 @@ export default {
         {
           title: this.$t('cao-zuo-zhe'),
           slot: 'operator',
-          width: 230
+          width: 160
         },
         {
           title: this.$t('cao-zuo-shi-jian'),
           key: 'operateTime',
-          width: 200,
+          width: 170,
           render: (_, params) => {
             const row = params.row || params;
             if (!row.operateTime) {
@@ -218,7 +268,7 @@ export default {
         {
           title: this.$t('zhuang-tai'),
           key: 'status',
-          width: 120,
+          width: 110,
           render: (_, params) => {
             const row = params.row || params;
             let color = '#ed4014';
@@ -253,12 +303,12 @@ export default {
         {
           title: this.$t('shu-ju-yuan'),
           slot: 'datasource',
-          width: 300
+          width: 240
         },
         {
           title: this.$t('cao-zuo-zi-yuan'),
           key: 'resource',
-          width: 150,
+          width: 200,
           slot: 'resource'
         },
         {
@@ -283,7 +333,7 @@ export default {
         {
           title: this.$t('sql-zhi-hang-shi-jian'),
           key: 'cost',
-          width: 150,
+          width: 140,
           render: (_, params) => {
             const row = params.row || params;
             return h('div', {}, `${row.cost || 0}ms`);
@@ -292,22 +342,22 @@ export default {
         {
           title: this.$t('ying-xiang-hang-shu'),
           key: 'affectLine',
-          width: 120
+          width: 110
         },
         {
           title: this.$t('cao-zuo-di-zhi'),
           key: 'clientIp',
-          minWidth: 150
+          width: 140
         },
         {
           title: this.$t('ri-zhi-di-zhi'),
           key: 'logIp',
-          minWidth: 150
+          width: 140
         },
         {
           title: this.$t('sql-nei-rong'),
           slot: 'execSql',
-          width: 200,
+          width: 100,
           fixed: 'right'
         }
       ],
@@ -315,7 +365,28 @@ export default {
     };
   },
   computed: {
-    ...mapState(['globalSetting'])
+    ...mapState(['globalSetting', 'myAuth']),
+    canReadUserConfig() {
+      return this.myAuth.includes('RDP_PRI_USER_KV_CONF_R');
+    },
+    canEditUserConfig() {
+      return this.myAuth.includes('RDP_PRI_USER_KV_CONF_W');
+    },
+    tableScroll() {
+      const scrollX = this.logColumn.reduce((sum, column) => {
+        return sum + (column.width || column.minWidth || 0);
+      }, 0);
+      return { x: scrollX };
+    },
+    pageSize() {
+      return this.searchData.pageData.pageSize;
+    },
+    total() {
+      if (this.noMoreData) {
+        return (this.page - 1) * this.pageSize + this.logData.length;
+      }
+      return this.page * this.pageSize + 1;
+    }
   },
   mounted() {
     this.getDsList();
@@ -357,6 +428,14 @@ export default {
       }
     },
 
+    handleChangeAuditLogType(value) {
+      if (value === 'operation') {
+        this.$router.push('/manager/logs');
+        return;
+      }
+      this.auditLogType = 'sql';
+    },
+
     handleRefresh() {
       this.page = 1;
       this.firstId = 0;
@@ -367,17 +446,61 @@ export default {
       this.handleSearch();
     },
 
+    async handleOpenRetentionSetting() {
+      this.showRetentionSetting = true;
+      await this.fetchRetentionSetting();
+    },
+
+    handleCloseRetentionSetting() {
+      this.showRetentionSetting = false;
+    },
+
+    async fetchRetentionSetting() {
+      this.retentionLoading = true;
+      try {
+        const res = await this.$services.rdpUserConfigGetCurrUserConfigs();
+        if (!res.success) {
+          this.$Message.error(res.msg || this.$t('cao-zuo-shi-bai'));
+          return;
+        }
+
+        const config = (res.data || []).find((item) => item.configName === SQL_AUDIT_RETENTION_DAYS_KEY);
+        this.retentionConfig = config || null;
+        this.retentionForm.sqlAuditRetentionDays = config ? String(config.configValue || config.defaultValue || '') : '';
+      } finally {
+        this.retentionLoading = false;
+      }
+    },
+
+    async handleSaveRetentionSetting() {
+      const valid = await this.$refs.retentionFormRef.validate();
+      if (!valid) return;
+
+      const value = String(Number(this.retentionForm.sqlAuditRetentionDays));
+      const hasCreatedConfig = this.retentionConfig && !this.retentionConfig.needCreated;
+      const updateConfigs = hasCreatedConfig ? { [SQL_AUDIT_RETENTION_DAYS_KEY]: value } : {};
+      const needCreateConfigs = hasCreatedConfig ? {} : { [SQL_AUDIT_RETENTION_DAYS_KEY]: value };
+
+      this.retentionSaveLoading = true;
+      try {
+        const res = await this.$services.rdpUserConfigUpsertUserConfigs({
+          data: { updateConfigs, needCreateConfigs }
+        });
+        if (!res.success) {
+          this.$Message.error(res.msg || this.$t('cao-zuo-shi-bai'));
+          return;
+        }
+        this.$Message.success(this.$t('cao-zuo-cheng-gong'));
+        this.showRetentionSetting = false;
+        await this.fetchRetentionSetting();
+      } finally {
+        this.retentionSaveLoading = false;
+      }
+    },
+
     handleSearch(type) {
       this.refreshLoading = true;
-      if (this.timeRange.length > 0) {
-        this.searchData.opStart =
-          this.timeRange[0] && fecha.format(new Date(new Date(this.timeRange[0]).getTime() - 8 * 3600 * 1000), 'YYYY-MM-DDTHH:mm:ss.SSS');
-        this.searchData.opEnd =
-          this.timeRange[1] && fecha.format(new Date(new Date(this.timeRange[1].getTime() - 8 * 3600 * 1000)), 'YYYY-MM-DDTHH:mm:ss.SSS');
-      } else {
-        this.searchData.opStart = '';
-        this.searchData.opEnd = '';
-      }
+      this.syncTimeRangeQuery();
       this.searchData.pageData.pageSize = 10;
 
       if (this.currentPageSize !== this.searchData.pageData.pageSize) {
@@ -451,6 +574,35 @@ export default {
       this.page++;
     },
 
+    handlePageChange(nextPage) {
+      if (nextPage === this.page) {
+        return;
+      }
+      if (nextPage > this.page) {
+        if (this.noMoreData || nextPage !== this.page + 1) {
+          return;
+        }
+        this.handleNext();
+        return;
+      }
+      this.page = nextPage;
+      let startId = 0;
+      if (nextPage > 1 && this.prevFirst[nextPage] !== undefined) {
+        startId = this.prevFirst[nextPage] + 1;
+      }
+      if (startId < 0) {
+        startId = 0;
+      }
+      this.searchData.pageData.startId = startId;
+      this.handleSearch('prev');
+    },
+
+    handlePageSizeChange(pageSize) {
+      this.searchData.pageData.pageSize = pageSize;
+      this.currentPageSize = pageSize;
+      this.handleRefresh();
+    },
+
     handleChangeSearchType() {
       this.page = 1;
       this.firstId = 0;
@@ -476,6 +628,16 @@ export default {
 
     formatDsRemark(dsRemark) {
       return `备注: ${dsRemark || ''}`;
+    },
+
+    syncTimeRangeQuery() {
+      if (Array.isArray(this.timeRange) && this.timeRange[0] && this.timeRange[1]) {
+        this.searchData.opStart = dayjs(this.timeRange[0]).subtract(8, 'hour').format('YYYY-MM-DDTHH:mm:ss.SSS');
+        this.searchData.opEnd = dayjs(this.timeRange[1]).subtract(8, 'hour').format('YYYY-MM-DDTHH:mm:ss.SSS');
+        return;
+      }
+      this.searchData.opStart = '';
+      this.searchData.opEnd = '';
     },
 
     showSqlDetail(row) {
@@ -504,6 +666,20 @@ export default {
       color: #9ea7b4;
       font-size: 12px;
     }
+  }
+
+  .log-time-range-label {
+    margin-right: 10px;
+  }
+
+  .log-time-range {
+    width: 320px;
+    margin-right: 10px;
+  }
+
+  :deep(.log-time-range.ant-picker) {
+    height: 32px;
+    border-radius: 6px;
   }
 
   .datasource-cell {
@@ -543,7 +719,7 @@ export default {
 
   .sql-log-resource-cell {
     display: inline-block;
-    max-width: 130px;
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

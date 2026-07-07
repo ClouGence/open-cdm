@@ -21,7 +21,7 @@ package com.clougence.clouddm.team.provider.wechat.utils.aes;
 
 import org.json.JSONObject;
 
-import com.clougence.clouddm.team.provider.wechat.constants.WechatI18nKey2;
+import com.clougence.clouddm.team.provider.wechat.constants.WechatI18nKeys;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 
 /**
@@ -49,7 +49,7 @@ class JsonParse {
             result[2] = agentid;
             return result;
         } catch (Exception e) {
-            throw ThirdPartyApiException.as().with(e, WechatI18nKey2.WECHAT_PARSE_JSON_ERROR);
+            throw ThirdPartyApiException.as().with(e, WechatI18nKeys.WECHAT_PARSE_JSON_ERROR);
         }
     }
 

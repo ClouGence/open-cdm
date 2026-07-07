@@ -17,7 +17,7 @@ package com.clougence.utils.io.bytes;
 import java.nio.ByteBuffer;
 
 /**
- * 基于字节数组的环形 {@link BytesIO} 实现
+ * Ring buffer backed by a byte array.
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-11-01
  */

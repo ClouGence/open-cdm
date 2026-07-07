@@ -16,19 +16,11 @@
 package com.clougence.clouddm.init.service;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.init.constant.InitSeedConstants;
 import com.clougence.clouddm.init.model.InitFieldDef;
@@ -50,12 +42,13 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class SysInitDefService {
 
-    private static final String ALONE_CONFIG           = "alone.properties";
-    private static final String DEFAULT_ALONE_CONFIG   = "default_alone.properties";
-    private static final String CONSOLE_CONFIG         = "console.properties";
-    private static final String DEFAULT_CONSOLE_CONFIG = "default_console.properties";
-    private static final String INIT_FIELDS_JSON       = "config/init-fields.json";
-    private List<InitFieldDef>  fieldDefsCache;
+    private static final String      ALONE_CONFIG                  = "alone.properties";
+    private static final String      DEFAULT_ALONE_CONFIG          = "default_alone.properties";
+    private static final String      CONSOLE_CONFIG                = "console.properties";
+    private static final String      DEFAULT_CONSOLE_CONFIG        = "default_console.properties";
+    private static final String      INIT_FIELDS_JSON              = "config/init-fields.json";
+    private static final Set<String> INIT_APP_OVERRIDE_CONFIG_KEYS = Set.of("server.port");
+    private List<InitFieldDef>       fieldDefsCache;
 
     @PostConstruct
     public void init() throws IOException {
@@ -129,17 +122,11 @@ public class SysInitDefService {
         Properties props = new Properties();
         try {
             if (isAloneMode()) {
-                loadClasspathProperties(props, DEFAULT_ALONE_CONFIG);
-                if (hasExplicitAppHome()) {
-                    loadAppHomeProperties(props, ALONE_CONFIG);
-                }
+                loadRuntimeProperties(props, DEFAULT_ALONE_CONFIG, ALONE_CONFIG);
             } else {
-                loadClasspathProperties(props, DEFAULT_CONSOLE_CONFIG);
-                if (hasExplicitAppHome()) {
-                    loadAppHomeProperties(props, CONSOLE_CONFIG);
-                }
+                loadRuntimeProperties(props, DEFAULT_CONSOLE_CONFIG, CONSOLE_CONFIG);
             }
-            overlaySystemProperties(props);
+            overlaySystemProperties(props, INIT_APP_OVERRIDE_CONFIG_KEYS);
         } catch (Exception e) {
             log.error("[SysInitService] Failed to load default config properties", e);
         }
@@ -150,6 +137,7 @@ public class SysInitDefService {
         Properties props = new Properties();
         props.setProperty("spring.datasource.username", "");
         props.setProperty("spring.datasource.password", "");
+        props.setProperty("clougence.init.admin.account", InitSeedConstants.DEFAULT_PRIMARY_ACCOUNT);
         props.setProperty("clougence.init.admin.email", InitSeedConstants.DEFAULT_PRIMARY_EMAIL);
         props.setProperty("server.port", "8222");
         props.setProperty("clouddm.rsocket.dns", resolveDefaultHostIp());
@@ -169,41 +157,24 @@ public class SysInitDefService {
 
     private void loadRuntimeProperties(Properties props, String defaultConfigName, String runtimeConfigName) throws IOException {
         loadClasspathProperties(props, defaultConfigName);
-        if (hasExplicitAppHome()) {
-            loadAppHomeProperties(props, runtimeConfigName);
-        } else {
-            loadClasspathProperties(props, runtimeConfigName);
-        }
+        loadClasspathProperties(props, runtimeConfigName);
     }
 
     private void loadClasspathProperties(Properties props, String resourcePath) throws IOException {
         Map<String, String> map = ResourcesUtils.getProperty(resourcePath);
-        if (map != null) {
-            props.putAll(map);
-        }
-    }
-
-    private void loadAppHomeProperties(Properties props, String configName) throws IOException {
-        Path configPath = Paths.get(GlobalConfUtils.getAppHome(), "conf", configName);
-        if (!Files.exists(configPath)) {
-            return;
-        }
-
-        try (InputStream input = Files.newInputStream(configPath)) {
-            props.load(input);
-        }
+        props.putAll(map);
     }
 
     private void overlaySystemProperties(Properties props) {
-        System.getProperties().forEach((key, value) -> {
-            if (key instanceof String && value != null) {
-                props.setProperty((String) key, String.valueOf(value));
-            }
-        });
+        overlaySystemProperties(props, Set.of());
     }
 
-    private boolean hasExplicitAppHome() {
-        return StringUtils.isNotBlank(System.getProperty("app.home"));
+    private void overlaySystemProperties(Properties props, Set<String> ignoredKeys) {
+        System.getProperties().forEach((key, value) -> {
+            if (key instanceof String propertyKey && value != null && !ignoredKeys.contains(propertyKey)) {
+                props.setProperty(propertyKey, String.valueOf(value));
+            }
+        });
     }
 
     private boolean isAloneMode() { return "embedded".equals(System.getProperty("app.mode")); }

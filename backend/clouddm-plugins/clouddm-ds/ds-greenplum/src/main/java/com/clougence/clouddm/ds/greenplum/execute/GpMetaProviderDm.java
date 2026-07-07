@@ -35,7 +35,7 @@ import com.clougence.schema.umi.struts.Value;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Postgres 元信息获取，参考资料：
+ * Postgres meta-information acquisition, reference:
  * <li>https://www.postgresql.org/docs/13/information-schema.html</li>
  *
  * @version : 2021-04-29

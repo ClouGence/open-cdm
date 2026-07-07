@@ -15,6 +15,7 @@
  */
 package com.clougence.clouddm.console.web.component.config;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,20 +24,18 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.api.common.crypt.CryptService;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.model.fo.UpsertUserConfigFO;
 import com.clougence.clouddm.console.web.model.lo.UpsertUserConfigLO;
 import com.clougence.clouddm.console.web.model.vo.RdpUserConfigVO;
-import com.clougence.clouddm.console.web.service.auth.RdpUserConfigHelper;
+import com.clougence.clouddm.console.web.util.RdpConvertUtils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
-import com.clougence.rdp.global.config.user.SubAccountConfig;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.rdp.service.RdpNotifyService;
 import com.clougence.rdp.service.model.UserConfigMO;
 import com.clougence.utils.CollectionUtils;
+import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -57,9 +56,7 @@ public class UserConfigServiceImpl implements UserConfigService {
     @Resource
     private AuthDal                authDal;
     @Resource
-    private RdpUserConfigHelper    rdpUserConfigHelper;
-    @Resource
-    private DmConsoleConfig        rdpConfig;
+    private ConsoleConfig rdpConfig;
     @Resource
     private List<RdpNotifyService> notifyServices;
 
@@ -71,7 +68,7 @@ public class UserConfigServiceImpl implements UserConfigService {
             configMap.put(configDO.getConfigName(), configDO);
         }
 
-        List<DmSysUserConfDO> defaultConfigs = fetchUserDefinedDefaultConfig(uid);
+        List<UserConfigKvDef> defaultConfigs = fetchUserDefinedDefaultConfig(uid);
 
         Set<String> userConfigBlack;
         if (StringUtils.isNotBlank(this.rdpConfig.getUserConfigBlacklist())) {
@@ -81,19 +78,18 @@ public class UserConfigServiceImpl implements UserConfigService {
         }
 
         List<RdpUserConfigVO> resultConfigs = new ArrayList<>();
-        for (DmSysUserConfDO configDO : defaultConfigs) {
+        for (UserConfigKvDef configDO : defaultConfigs) {
             if (userConfigBlack.contains(configDO.getConfigName())) {
                 continue;
             }
             DmSysUserConfDO config = configMap.get(configDO.getConfigName());
-            RdpUserConfigVO v = new RdpUserConfigVO();
+            RdpUserConfigVO v;
             if (config == null) {
-                v.convertFromDO(configDO);
+                v = RdpConvertUtils.convertToUserConfigVO(configDO);
                 v.setNeedCreated(true);
                 resultConfigs.add(v);
             } else {
-                configDO.setConfigValue(config.getConfigValue());
-                v.convertFromDO(configDO);
+                v = RdpConvertUtils.convertToUserConfigVO(configDO, config);
                 resultConfigs.add(v);
             }
         }
@@ -109,7 +105,7 @@ public class UserConfigServiceImpl implements UserConfigService {
             configMap.put(configDO.getConfigName(), configDO);
         }
 
-        List<DmSysUserConfDO> defaultConfigs = fetchUserDefinedDefaultConfig(uid);
+        List<UserConfigKvDef> defaultConfigs = fetchUserDefinedDefaultConfig(uid);
 
         Set<String> userConfigBlack;
         if (StringUtils.isNotBlank(this.rdpConfig.getUserConfigBlacklist())) {
@@ -119,7 +115,7 @@ public class UserConfigServiceImpl implements UserConfigService {
         }
 
         Map<String, RdpUserConfigVO> resultConfigs = new HashMap<>();
-        for (DmSysUserConfDO configDO : defaultConfigs) {
+        for (UserConfigKvDef configDO : defaultConfigs) {
             if (userConfigBlack.contains(configDO.getConfigName())) {
                 continue;
             }
@@ -129,14 +125,13 @@ public class UserConfigServiceImpl implements UserConfigService {
             }
 
             DmSysUserConfDO config = configMap.get(configDO.getConfigName());
-            RdpUserConfigVO v = new RdpUserConfigVO();
+            RdpUserConfigVO v;
             if (config == null) {
-                v.convertFromDO(configDO);
+                v = RdpConvertUtils.convertToUserConfigVO(configDO);
                 v.setNeedCreated(true);
                 resultConfigs.put(configDO.getConfigName(), v);
             } else {
-                configDO.setConfigValue(config.getConfigValue());
-                v.convertFromDO(configDO);
+                v = RdpConvertUtils.convertToUserConfigVO(configDO, config);
                 resultConfigs.put(configDO.getConfigName(), v);
             }
         }
@@ -149,12 +144,16 @@ public class UserConfigServiceImpl implements UserConfigService {
     public List<UpsertUserConfigLO> upsertConfigValue(String ownerUid, UpsertUserConfigFO config) {
         List<UserConfigMO> configList = new ArrayList<>();
         List<UpsertUserConfigLO> configLOs = new ArrayList<>();
+        List<UserConfigKvDef> defaultConfigs = fetchUserDefinedDefaultConfig(ownerUid);
 
         if (CollectionUtils.isNotEmpty(config.getUpdateConfigs())) {
             for (Map.Entry<String, String> configEntry : config.getUpdateConfigs().entrySet()) {
                 String configName = configEntry.getKey();
                 DmSysUserConfDO oldConfig = systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, configName);
-                if (oldConfig == null) {
+                UserConfigKvDef defaultConfig = defaultConfigs.stream().filter(c -> {
+                    return c.getConfigName().equals(configName);
+                }).findFirst().orElse(null);
+                if (oldConfig == null || defaultConfig == null) {
                     continue;
                 }
                 String newValue = configEntry.getValue();
@@ -162,14 +161,14 @@ public class UserConfigServiceImpl implements UserConfigService {
                     newValue = newValue.trim();
                 }
 
-                if (oldConfig.isSecret() && StringUtils.isNotBlank(newValue)) {
+                if (defaultConfig.isSecret() && StringUtils.isNotBlank(newValue)) {
                     newValue = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(newValue);
                 }
 
                 UpsertUserConfigLO configLO = new UpsertUserConfigLO();
                 configLO.setConfigName(configName);
                 configLO.setNeedCreate(false);
-                if (!oldConfig.isSecret()) {
+                if (!defaultConfig.isSecret()) {
                     configLO.setOldConfigValue(oldConfig.getConfigValue());
                     configLO.setConfigValue(newValue);
                 }
@@ -179,8 +178,8 @@ public class UserConfigServiceImpl implements UserConfigService {
                 configMO.setConfig(configName);
                 configMO.setOldValue(oldConfig.getConfigValue());
                 configMO.setNewValue(newValue);
-                configMO.setDefaultValue(oldConfig.getDefaultValue());
-                configMO.setTagType(oldConfig.getUserConfigTagType());
+                configMO.setDefaultValue(defaultConfig.getDefaultValue());
+                configMO.setTagType(defaultConfig.getUserConfigTagType());
                 configMO.setInsert(false);
                 configMO.setUpdate(true);
                 configMO.setDelete(false);
@@ -191,7 +190,6 @@ public class UserConfigServiceImpl implements UserConfigService {
         }
 
         if (CollectionUtils.isNotEmpty(config.getNeedCreateConfigs())) {
-            List<DmSysUserConfDO> defaultConfigs = fetchUserDefinedDefaultConfig(ownerUid);
             for (Map.Entry<String, String> configEntry : config.getNeedCreateConfigs().entrySet()) {
                 String configName = configEntry.getKey();
                 DmSysUserConfDO configInDb = systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, configName);
@@ -200,7 +198,9 @@ public class UserConfigServiceImpl implements UserConfigService {
                     continue;
                 }
 
-                DmSysUserConfDO defaultConfig = defaultConfigs.stream().filter(c -> c.getConfigName().equals(configName)).findFirst().orElse(null);
+                UserConfigKvDef defaultConfig = defaultConfigs.stream().filter(c -> {
+                    return c.getConfigName().equals(configName);
+                }).findFirst().orElse(null);
                 // if config not exists in default config, skip
                 if (defaultConfig == null) {
                     continue;
@@ -215,9 +215,8 @@ public class UserConfigServiceImpl implements UserConfigService {
                 configLO.setConfigName(configName);
                 configLO.setNeedCreate(true);
                 if (defaultConfig.isSecret()) {
-                    defaultConfig.setConfigValue(CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(newValue));
+                    newValue = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(newValue);
                 } else {
-                    defaultConfig.setConfigValue(newValue);
                     configLO.setConfigValue(newValue);
                 }
                 configLOs.add(configLO);
@@ -233,7 +232,11 @@ public class UserConfigServiceImpl implements UserConfigService {
                 configMO.setDelete(false);
                 configList.add(configMO);
 
-                systemDal.userConfMapper().insert(defaultConfig);
+                DmSysUserConfDO newConfig = new DmSysUserConfDO();
+                newConfig.setUid(ownerUid);
+                newConfig.setConfigName(defaultConfig.getConfigName());
+                newConfig.setConfigValue(newValue);
+                systemDal.userConfMapper().insert(newConfig);
             }
         }
 
@@ -242,13 +245,13 @@ public class UserConfigServiceImpl implements UserConfigService {
         return configLOs;
     }
 
-    public List<DmSysUserConfDO> fetchUserDefinedDefaultConfig(String uid) {
+    public List<UserConfigKvDef> fetchUserDefinedDefaultConfig(String uid) {
         DmAuthUserDO userDO = authDal.userMapper().queryByUid(uid);
         boolean isPrimary = userDO != null && (userDO.getParentId() == null || userDO.getParentId() <= 0);
         if (isPrimary) {
-            return rdpUserConfigHelper.collectConfigs(new UserDefinedConfig(), uid);
+            return collectConfigs(new RootUserConfig(), uid);
         } else {
-            return rdpUserConfigHelper.collectConfigs(new SubAccountConfig(), uid);
+            return collectConfigs(new NormalUserConfig(), uid);
         }
     }
 
@@ -267,7 +270,6 @@ public class UserConfigServiceImpl implements UserConfigService {
                 if (configDO == null) {
                     continue;
                 }
-                decryptConfigValueIfNecessary(configDO);
                 configDO.setConfigName(configName);
                 normalizedConfigs.add(configDO);
             }
@@ -279,21 +281,12 @@ public class UserConfigServiceImpl implements UserConfigService {
 
     @Override
     public DmSysUserConfDO getSpecifiedConfig(String uid, String configName) {
-        DmSysUserConfDO configDO = systemDal.userConfMapper().queryByUidAndConfigName(uid, configName);
-        decryptConfigValueIfNecessary(configDO);
-        return configDO;
-    }
-
-    private void decryptConfigValueIfNecessary(DmSysUserConfDO configDO) {
-        if (configDO != null && configDO.isSecret() && StringUtils.isNotBlank(configDO.getConfigValue())) {
-            String val = CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(configDO.getConfigValue());
-            configDO.setConfigValue(val);
-        }
+        return systemDal.userConfMapper().queryByUidAndConfigName(uid, configName);
     }
 
     @Override
     public int languageMaxRequests() {
-        return Math.max(1, this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.languageMaxRequests, Integer.class, DEFAULT_LANGUAGE_MAX_REQUESTS));
+        return Math.max(1, this.systemDal.fetchSystemConf(RootUserConfig.Fields.languageMaxRequests, Integer.class, DEFAULT_LANGUAGE_MAX_REQUESTS));
     }
 
     @Override
@@ -303,35 +296,92 @@ public class UserConfigServiceImpl implements UserConfigService {
             return systemLimit;
         }
 
-        Integer value = this.systemDal.fetchUserConf(uid, UserDefinedConfig.Fields.languageMaxRequestsByUser, Integer.class, DEFAULT_LANGUAGE_MAX_REQUESTS_BY_USER);
+        Integer value = this.systemDal.fetchUserConf(uid, RootUserConfig.Fields.languageMaxRequestsByUser, Integer.class, DEFAULT_LANGUAGE_MAX_REQUESTS_BY_USER);
         int userLimit = Math.max(1, value);
         return Math.min(systemLimit, userLimit);
     }
 
     @Override
     public void initSubAccountConfigs(String uid) {
-        SubAccountConfig config = new SubAccountConfig();
-        List<DmSysUserConfDO> dos = rdpUserConfigHelper.collectConfigs(config, uid);
-        insertConfigDOs(dos);
+        NormalUserConfig config = new NormalUserConfig();
+        List<UserConfigKvDef> defs = collectConfigs(config, uid);
+        insertConfigDefs(defs);
     }
 
-    protected void insertConfigDOs(List<DmSysUserConfDO> dos) {
-        for (DmSysUserConfDO obj : dos) {
-            if (obj.isSecret() && StringUtils.isNotBlank(obj.getConfigValue())) {
-                String val = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(obj.getConfigValue());
-                obj.setConfigValue(val);
+    private List<UserConfigKvDef> collectConfigs(Object instance, String uid) {
+        List<UserConfigKvDef> configs = new ArrayList<>();
+        collectConfigs(instance, uid, instance.getClass(), configs);
+        return configs;
+    }
+
+    private void collectConfigs(Object instance, String uid, Class<?> clazz, List<UserConfigKvDef> configs) {
+        try {
+            Field[] fields = clazz.getDeclaredFields();
+
+            for (Field field : fields) {
+                field.setAccessible(true);
+
+                UserConfigDef configDef = field.getAnnotation(UserConfigDef.class);
+                if (configDef == null) {
+                    continue;
+                }
+
+                String val = configDef.defaultValue();
+                Object oriVal = field.get(instance);
+                if (oriVal != null) {
+                    val = String.valueOf(oriVal);
+                }
+
+                configs.add(genConfigDef(configDef, val, uid));
             }
 
-            systemDal.userConfMapper().insert(obj);
+            if (clazz.getSuperclass() != null && clazz.getSuperclass() != Object.class) {
+                collectConfigs(instance, uid, clazz.getSuperclass(), configs);
+            }
+        } catch (Exception e) {
+            String msg = "collect field value failed,msg:" + ExceptionUtils.getRootCauseMessage(e);
+            log.error(msg, e);
+            throw new RuntimeException(msg, e);
+        }
+    }
+
+    private UserConfigKvDef genConfigDef(UserConfigDef configDef, String val, String uid) {
+        UserConfigKvDef config = new UserConfigKvDef();
+        config.setConfigName(configDef.name());
+        config.setConfigValue(val);
+        config.setUid(uid);
+        config.setValueRange(configDef.valueRange());
+        config.setUserConfigTagType(configDef.configTagType());
+        config.setConfBelong(configDef.confBelong());
+        config.setConfValType(configDef.kvConfWebOp());
+
+        config.setDefaultValue(configDef.defaultValue());
+        config.setReadOnly(configDef.readOnly());
+        config.setSecret(configDef.isSecret());
+        config.setDescKey(configDef.descKey().name());
+
+        return config;
+    }
+
+    protected void insertConfigDefs(List<UserConfigKvDef> defs) {
+        for (UserConfigKvDef obj : defs) {
+            DmSysUserConfDO configDO = new DmSysUserConfDO();
+            configDO.setUid(obj.getUid());
+            configDO.setConfigName(obj.getConfigName());
+            configDO.setConfigValue(obj.getConfigValue());
+            if (obj.isSecret() && StringUtils.isNotBlank(obj.getConfigValue())) {
+                String val = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(obj.getConfigValue());
+                configDO.setConfigValue(val);
+            }
+
+            systemDal.userConfMapper().insert(configDO);
         }
     }
 
     protected List<RdpUserConfigVO> convertToVO(List<DmSysUserConfDO> configs) {
         List<RdpUserConfigVO> userConfigs = new ArrayList<>();
         for (DmSysUserConfDO config : configs) {
-            RdpUserConfigVO configVO = new RdpUserConfigVO();
-            configVO.convertFromDO(config);
-            userConfigs.add(configVO);
+            userConfigs.add(RdpConvertUtils.convertToUserConfigVO(config));
         }
 
         return userConfigs;

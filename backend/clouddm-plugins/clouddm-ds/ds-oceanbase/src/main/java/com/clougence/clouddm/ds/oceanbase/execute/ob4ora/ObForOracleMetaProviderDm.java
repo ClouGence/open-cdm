@@ -22,8 +22,8 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.ds.oracle.execute.OraMetaProviderDm;
-import com.clougence.clouddm.ds.oracle.execute.OraMetaProviderUtils;
+import com.clougence.clouddm.dsfamily.oracle.execute.OraMetaProviderDm;
+import com.clougence.clouddm.dsfamily.oracle.execute.OraMetaProviderUtils;
 import com.clougence.schema.umi.special.rdb.RdbColumn;
 import com.clougence.schema.umi.special.rdb.RdbParam;
 import com.clougence.schema.umi.special.rdb.RdbTable;

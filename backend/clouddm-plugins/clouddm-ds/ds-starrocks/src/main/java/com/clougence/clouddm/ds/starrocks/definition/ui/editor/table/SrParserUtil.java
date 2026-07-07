@@ -23,17 +23,17 @@ import org.antlr.v4.runtime.Token;
 
 import com.clougence.adapter.starrocks.StarRocksAttributeNames;
 import com.clougence.adapter.starrocks.StarRocksTypes;
-import com.clougence.clouddm.ds.starrocks.parser.SrDslProvider;
-import com.clougence.clouddm.ds.starrocks.parser.antlr.StarRocksBaseVisitor;
-import com.clougence.clouddm.ds.starrocks.parser.antlr.StarRocksParser;
+import com.clougence.clouddm.ds.starrocks.sql.parser.SrDslProvider;
+import com.clougence.clouddm.ds.starrocks.sql.parser.antlr.StarRocksBaseVisitor;
+import com.clougence.clouddm.ds.starrocks.sql.parser.antlr.StarRocksParser;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.schema.umi.special.rdb.*;
 import com.clougence.utils.JsonUtils;
 
 public class SrParserUtil extends StarRocksBaseVisitor<Void> implements SrTableEditorFields {
 
-    private RdbTable rdbTable = new RdbTable();
-    private Parser   parser;
+    private final RdbTable rdbTable = new RdbTable();
+    private Parser         parser;
 
     private SrParserUtil(){
 

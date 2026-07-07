@@ -1,19 +1,19 @@
 module.exports = {
-  printWidth: 150, //单行长度
-  tabWidth: 2, //缩进长度
-  useTabs: false, //使用空格代替tab缩进
-  semi: true, //句末使用分号
-  singleQuote: true, //使用单引号
-  quoteProps: 'as-needed', //仅在必需时为对象的key添加引号
-  jsxSingleQuote: true, // jsx中使用单引号
-  trailingComma: 'none', //多行时尽可能打印尾随逗号
-  bracketSpacing: true, //在对象前后添加空格-eg: { foo: bar }
-  jsxBracketSameLine: true, //多属性html标签的‘>’折行放置
-  arrowParens: 'always', //单参数箭头函数参数周围使用圆括号-eg: (x) => x
-  requirePragma: false, //无需顶部注释即可格式化
-  insertPragma: false, //在已被preitter格式化的文件顶部加上标注
-  htmlWhitespaceSensitivity: 'ignore', //对HTML全局空白不敏感
-  vueIndentScriptAndStyle: false, //不对vue中的script及style标签缩进
-  endOfLine: 'lf', //结束行形式
-  embeddedLanguageFormatting: 'auto' //对引用代码进行格式化
+  printWidth: 150, //Single Line Length
+  tabWidth: 2, //Indentation Length
+  useTabs: false, //Use spaces instead of tab indentation
+  semi: true, //End of sentence with semicolon
+  singleQuote: true, //Use single quotation marks
+  quoteProps: 'as-needed', //Add quote marks to the object only if necessary
+  jsxSingleQuote: true, // Use single quotes for jsx
+  trailingComma: 'none', //Print a comma after as many lines as possible
+  bracketSpacing: true, //Add spaces-eg: {foo: bar}
+  jsxBracketSameLine: true, //">" wrap line placement for multiple attribute html labels
+  arrowParens: 'always', //Single Array function parameters surrounded by round brackets-eg: (x) = > x
+  requirePragma: false, //Format without a top comment
+  insertPragma: false, //Add a label to the top of the file formatted by preitter
+  htmlWhitespaceSensitivity: 'ignore', //Not sensitive to HTML global blanks
+  vueIndentScriptAndStyle: false, //No script and style label shrink in vue In.
+  endOfLine: 'lf', //End Line Form
+  embeddedLanguageFormatting: 'auto' //Format citation codes
 };

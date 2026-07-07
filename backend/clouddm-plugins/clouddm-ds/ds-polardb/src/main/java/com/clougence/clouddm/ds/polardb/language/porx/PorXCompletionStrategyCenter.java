@@ -18,25 +18,17 @@ package com.clougence.clouddm.ds.polardb.language.porx;
 import java.util.List;
 
 import com.clougence.clouddm.ds.polardb.dialect.porx.PolarDbXDialect;
-import com.clougence.clouddm.ds.polardb.parser.porx.PolarXDslProvider;
-import com.clougence.clouddm.dsfamily.language.completion.CompletionContext;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionDialect;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategy;
 import com.clougence.clouddm.dsfamily.language.completion.CompletionStrategyCenter;
 import com.clougence.clouddm.dsfamily.language.completion.rdb.*;
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
-import com.clougence.dslpaser.antlr.DslHelper;
 
 public class PorXCompletionStrategyCenter extends CompletionStrategyCenter {
 
     @Override
     protected CompletionDialect dialect(CompletionRequest request) {
         return PolarDbXDialect.INSTANCE;
-    }
-
-    @Override
-    protected CompletionContext context(CompletionRequest request, CompletionDialect dialect) {
-        return CompletionContext.build(request, dialect, DslHelper.splitDsl(PolarXDslProvider.INSTANCE, request.getSqlText()));
     }
 
     @Override

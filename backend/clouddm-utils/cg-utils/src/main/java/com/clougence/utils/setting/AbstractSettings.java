@@ -26,14 +26,14 @@ import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.FilenameUtils;
 
 /**
- * Settings接口的抽象实现。
+ * Abstract implementation of the Settings interface.
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2013-4-2
  */
 public abstract class AbstractSettings implements Settings {
     protected abstract Map<String, String> envMap();
 
-    /** 解析全局配置参数，并且返回toType参数指定的类型。 */
+    /** Parses global configuration parameters and returns the type specified by the type parameter. */
     public abstract <T> T getToType(final String name, final Class<T> toType, final T defaultValue);
 
     public abstract <T> T[] getToTypeArray(final String name, final Class<T> toType, final T defaultValue);
@@ -42,27 +42,27 @@ public abstract class AbstractSettings implements Settings {
         return this.getToTypeArray(name, toType, null);
     }
 
-    /** 解析全局配置参数，并且返回toType参数指定的类型。 */
+    /** Parses global configuration parameters and returns the type specified by the type parameter. */
     public final <T> T getToType(final String name, final Class<T> toType) {
         return this.getToType(name, toType, null);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Object}形式对象。 */
+    /** Parses a global configuration parameter and returns an {@link Object}. */
     public Object getObject(final String name) {
         return this.getToType(name, Object.class);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Object}形式对象。第二个参数为默认值。 */
+    /** Parses a global configuration parameter and returns an {@link Object}. The second parameter is the default value. */
     public Object getObject(final String name, final Object defaultValue) {
         return this.getToType(name, Object.class, defaultValue);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Character}形式对象。 */
+    /** Parses a global configuration parameter and returns a {@link Character}. */
     public Character getChar(final String name) {
         return this.getToType(name, Character.class);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Character}形式对象。第二个参数为默认值。 */
+    /** Parses a global configuration parameter and returns a {@link Character}. The second parameter is the default value. */
     public Character getChar(final String name, final Character defaultValue) {
         return this.getToType(name, Character.class, defaultValue);
     }
@@ -75,12 +75,12 @@ public abstract class AbstractSettings implements Settings {
         return this.getToTypeArray(name, Character.class, defaultValue);
     }
 
-    /** 解析全局配置参数，并且返回其{@link String}形式对象。 */
+    /** Parses a global configuration parameter and returns a {@link String}. */
     public String getString(final String name) {
         return this.getToType(name, String.class);
     }
 
-    /** 解析全局配置参数，并且返回其{@link String}形式对象。第二个参数为默认值。 */
+    /** Parses a global configuration parameter and returns a {@link String}. The second parameter is the default value. */
     public String getString(final String name, final String defaultValue) {
         return this.getToType(name, String.class, defaultValue);
     }
@@ -93,12 +93,12 @@ public abstract class AbstractSettings implements Settings {
         return this.getToTypeArray(name, String.class, defaultValue);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Boolean}形式对象。 */
+    /** Parses a global configuration parameter and returns a {@link Boolean}. */
     public Boolean getBoolean(final String name) {
         return this.getToType(name, Boolean.class);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Boolean}形式对象。第二个参数为默认值。 */
+    /** Parses a global configuration parameter and returns a {@link Boolean}. The second parameter is the default value. */
     public Boolean getBoolean(final String name, final Boolean defaultValue) {
         return this.getToType(name, Boolean.class, defaultValue);
     }
@@ -111,12 +111,12 @@ public abstract class AbstractSettings implements Settings {
         return this.getToTypeArray(name, Boolean.class, defaultValue);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Short}形式对象。 */
+    /** Parses a global configuration parameter and returns a {@link Short}. */
     public Short getShort(final String name) {
         return this.getToType(name, Short.class);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Short}形式对象。第二个参数为默认值。 */
+    /** Parses a global configuration parameter and returns a {@link Short}. The second parameter is the default value. */
     public Short getShort(final String name, final Short defaultValue) {
         return this.getToType(name, Short.class, defaultValue);
     }
@@ -129,12 +129,12 @@ public abstract class AbstractSettings implements Settings {
         return this.getToTypeArray(name, Short.class, defaultValue);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Integer}形式对象。 */
+    /** Parses a global configuration parameter and returns an {@link Integer}. */
     public Integer getInteger(final String name) {
         return this.getToType(name, Integer.class);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Integer}形式对象。第二个参数为默认值。 */
+    /** Parses a global configuration parameter and returns an {@link Integer}. The second parameter is the default value. */
     public Integer getInteger(final String name, final Integer defaultValue) {
         return this.getToType(name, Integer.class, defaultValue);
     }
@@ -147,12 +147,12 @@ public abstract class AbstractSettings implements Settings {
         return this.getToTypeArray(name, Integer.class, defaultValue);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Long}形式对象。 */
+    /** Parses a global configuration parameter and returns a {@link Long}. */
     public Long getLong(final String name) {
         return this.getToType(name, Long.class);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Long}形式对象。第二个参数为默认值。 */
+    /** Parses a global configuration parameter and returns a {@link Long}. The second parameter is the default value. */
     public Long getLong(final String name, final Long defaultValue) {
         return this.getToType(name, Long.class, defaultValue);
     }
@@ -165,12 +165,12 @@ public abstract class AbstractSettings implements Settings {
         return this.getToTypeArray(name, Long.class, defaultValue);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Float}形式对象。 */
+    /** Parses a global configuration parameter and returns a {@link Float}. */
     public Float getFloat(final String name) {
         return this.getToType(name, Float.class);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Float}形式对象。第二个参数为默认值。 */
+    /** Parses a global configuration parameter and returns a {@link Float}. The second parameter is the default value. */
     public Float getFloat(final String name, final Float defaultValue) {
         return this.getToType(name, Float.class, defaultValue);
     }
@@ -183,12 +183,12 @@ public abstract class AbstractSettings implements Settings {
         return this.getToTypeArray(name, Float.class, defaultValue);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Double}形式对象。 */
+    /** Parses a global configuration parameter and returns a {@link Double}. */
     public Double getDouble(final String name) {
         return this.getToType(name, Double.class);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Double}形式对象。第二个参数为默认值。 */
+    /** Parses a global configuration parameter and returns a {@link Double}. The second parameter is the default value. */
     public Double getDouble(final String name, final Double defaultValue) {
         return this.getToType(name, Double.class, defaultValue);
     }
@@ -201,32 +201,32 @@ public abstract class AbstractSettings implements Settings {
         return this.getToTypeArray(name, Double.class, defaultValue);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象。 */
+    /** Parses a global configuration parameter and returns a {@link Date}. */
     public Date getDate(final String name) {
         return this.getDate(name, getString(name + ".format"), null);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象。第二个参数为默认值。 */
+    /** Parses a global configuration parameter and returns a {@link Date}. The second parameter is the default value. */
     public Date getDate(final String name, final Date defaultValue) {
         return this.getDate(name, getString(name + ".format"), defaultValue);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象。第二个参数为默认值。 */
+    /** Parses a global configuration parameter and returns a {@link Date}. The second parameter is the default value. */
     public Date getDate(final String name, final long defaultValue) {
         return this.getDate(name, getString(name + ".format"), new Date(defaultValue));
     }
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象。 */
+    /** Parses a global configuration parameter and returns a {@link Date}. */
     public Date getDate(final String name, final String format) {
         return this.getDate(name, format, null);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象。第二个参数为默认值。 */
+    /** Parses a global configuration parameter and returns a {@link Date}. The third parameter is the default value. */
     public Date getDate(final String name, final String format, final long defaultValue) {
         return this.getDate(name, format, new Date(defaultValue));
     }
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象。第二个参数为默认值。 */
+    /** Parses a global configuration parameter and returns a {@link Date}. The third parameter is the default value. */
     public Date getDate(final String name, final String format, final Date defaultValue) {
         String oriData = this.getToType(name, String.class);
         if (oriData == null || oriData.length() == 0) {
@@ -284,12 +284,12 @@ public abstract class AbstractSettings implements Settings {
         return parsedDate;
     }
 
-    /** 解析全局配置参数，并且返回其{@link Enum}形式对象。第二个参数为默认值。 */
+    /** Parses a global configuration parameter and returns an enum value. */
     public <T extends Enum<?>> T getEnum(final String name, final Class<T> enmType) {
         return this.getToType(name, enmType, null);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Enum}形式对象。第二个参数为默认值。 */
+    /** Parses a global configuration parameter and returns an enum value. The third parameter is the default value. */
     public <T extends Enum<?>> T getEnum(final String name, final Class<T> enmType, final T defaultValue) {
         return this.getToType(name, enmType, defaultValue);
     }
@@ -302,22 +302,22 @@ public abstract class AbstractSettings implements Settings {
         return this.getToTypeArray(name, enmType, defaultValue);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象（用于表示文件）。第二个参数为默认值。 */
+    /** Parses a global configuration parameter and returns a file path string. */
     public String getFilePath(final String name) {
         return getFilePath(name, null, true);
     }
 
-    /** 解析全局配置参数，并且返回其{@link Date}形式对象（用于表示文件）。第二个参数为默认值。 */
+    /** Parses a global configuration parameter and returns a file path string. The second parameter is the default value. */
     public String getFilePath(final String name, final String defaultValue) {
         return getFilePath(name, defaultValue, true);
     }
 
-    /** 解析全局配置参数，并且返回其{@link File}形式对象（用于表示目录）。第二个参数为默认值。 */
+    /** Parses a global configuration parameter and returns a directory path string. */
     public String getDirectoryPath(final String name) {
         return getFilePath(name, null, false);
     }
 
-    /** 解析全局配置参数，并且返回其{@link File}形式对象（用于表示目录）。第二个参数为默认值。 */
+    /** Parses a global configuration parameter and returns a directory path string. The second parameter is the default value. */
     public String getDirectoryPath(final String name, final String defaultValue) {
         return getFilePath(name, defaultValue, false);
     }
@@ -341,7 +341,7 @@ public abstract class AbstractSettings implements Settings {
     private String getFilePath(final String name, final String defaultValue, boolean includeName) {
         String filePath = this.getToType(name, String.class);
         if (StringUtils.isBlank(filePath)) {
-            return defaultValue;// 空
+            return defaultValue;// Empty
         }
         if (includeName) {
             String fileName = FilenameUtils.getName(filePath);
@@ -361,7 +361,7 @@ public abstract class AbstractSettings implements Settings {
             Settings targetSettings = this.getSettings(url);
             String filePath = targetSettings.getString(name);
             if (StringUtils.isBlank(filePath)) {
-                continue;// 空
+                continue;// Empty
             }
             //
             if (includeName) {
@@ -378,7 +378,7 @@ public abstract class AbstractSettings implements Settings {
         return filePaths.toArray(new String[0]);
     }
 
-    /** 解析全局配置参数，并且返回其{@link SettingNode}形式对象。 */
+    /** Parses a global configuration parameter and returns a {@link SettingNode}. */
     public SettingNode getNode(final String name) {
         return this.getToType(name, SettingNode.class, null);
     }

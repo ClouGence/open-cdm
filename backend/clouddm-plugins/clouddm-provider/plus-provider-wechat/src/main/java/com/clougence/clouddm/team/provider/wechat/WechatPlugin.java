@@ -28,11 +28,11 @@ import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.team.provider.wechat.approval.WechatApprovalCallbackSpi;
 import com.clougence.clouddm.team.provider.wechat.approval.WechatApprovalProviderSpi;
 import com.clougence.clouddm.team.provider.wechat.auth.WechatLoginProviderSpi;
-import com.clougence.clouddm.team.provider.wechat.constants.WechatI18nKey2;
+import com.clougence.clouddm.team.provider.wechat.constants.WechatI18nKeys;
 import com.clougence.clouddm.team.provider.wechat.im.WechatMsgSendSpi;
 import com.clougence.clouddm.team.provider.wechat.resource.WechatLoginIconResourceSpi;
 
-@Plugin
+@Plugin(name = "i18n::" + WechatI18nKeys.PLUGIN_NAME_WECHAT)
 public class WechatPlugin implements DsPlugin {
 
     @Override
@@ -41,7 +41,7 @@ public class WechatPlugin implements DsPlugin {
         ConsoleConfigService configService = dsPlugin.findGlobalService(ConsoleConfigService.class);
 
         // i18n
-        dsPlugin.bindGlobalI18n(WechatI18nKey2.class);
+        dsPlugin.bindGlobalI18n(WechatI18nKeys.class);
 
         // spi
         WechatApprovalProviderSpi service = new WechatApprovalProviderSpi(configService);

@@ -366,7 +366,7 @@ class JdbcStatement implements Statement, Closeable {
                         try {
                             this.jdbcConn.adapterConnection().cancelRequest();
                         } catch (Exception e) {
-                            log.error("cancel request failed, traceId: " + req.getTraceId() + ", " + e.getMessage(), e); // TODO 取消请求失败
+                            log.error("cancel request failed, traceId: " + req.getTraceId() + ", " + e.getMessage(), e); // TODO canceled request
                         } finally {
                             this.container.responseFailed(req, new SQLTimeoutException("query timeout.", JdbcErrorCode.SQL_STATE_QUERY_TIMEOUT));
                         }

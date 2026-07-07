@@ -28,7 +28,7 @@ import org.apache.ibatis.type.JdbcType;
 import com.clougence.utils.HexadecimalUtils;
 
 /**
- * PostgreSQL，数组类型
+ * PostgreSQL, array type
  * @version : 2023-02-19
  * @author 赵永春 (zyc@hasor.net)
  */

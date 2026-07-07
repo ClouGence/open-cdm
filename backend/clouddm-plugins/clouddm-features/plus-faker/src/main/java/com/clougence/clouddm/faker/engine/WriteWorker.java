@@ -38,7 +38,7 @@ import com.clougence.utils.ThreadUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 写入器
+ * Writeer
  *
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
@@ -178,7 +178,7 @@ class WriteWorker implements ShutdownHook, Runnable {
             useTranID = newBatchID();
         }
 
-        this.engine.checkQoS(); // 写入限流
+        this.engine.checkQoS(); // Writing limit stream
 
         try {
             doEvent(conn, batch, useTranID);

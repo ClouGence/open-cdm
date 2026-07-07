@@ -23,6 +23,7 @@ import com.clougence.clouddm.ds.redis.execute.jdbc.JedisKeys;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.drivers.adapter.JdbcDriver;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,17 +50,9 @@ public class JdbcDsFactory implements DsFactory<Connection> {
         String connTimeoutMs = dsConfig.getProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey());
         String soTimeoutSec = dsConfig.getProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey());
         String clientName = dsConfig.getProperty(DsConfigKeys.CLIENT_NAME.getConfigKey());
-        String defaultSchema;
-        if (StringUtils.isNotBlank(dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey()))) {
-            defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
-        } else {
-            defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
-        }
+        String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
         String clientEncoding = dsConfig.getProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey());
-        String clientTimeZone = dsConfig.getProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey());
         String tcpKeepAlive = dsConfig.getProperty(DsConfigKeys.TCP_KEEP_ALIVE.getConfigKey());
-        String autoCommit = dsConfig.getProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey());
-
         if (StringUtils.isNotBlank(username)) {
             props.put(JedisKeys.USERNAME, username);
         }
@@ -80,16 +73,13 @@ public class JdbcDsFactory implements DsFactory<Connection> {
         if (StringUtils.isNotBlank(soTimeoutSec)) {
             props.put(JedisKeys.SO_TIMEOUT, Long.parseLong(soTimeoutSec) * 1000);
         }
-        if (StringUtils.isNotBlank(clientTimeZone)) {
-            props.put(JedisKeys.TIME_ZONE, clientTimeZone);
-        }
         if (StringUtils.isNotBlank(tcpKeepAlive)) {
             props.put("tcpKeepAlive", tcpKeepAlive);
         }
 
         String jdbcUrl = buildJdbcUrl(dsConfig);
         try {
-            Connection jedisConnect = new com.clougence.drivers.adapter.JdbcDriver().connect(jdbcUrl, props);
+            Connection jedisConnect = new JdbcDriver().connect(jdbcUrl, props);
 
             return new DsObject<>(dsConfig, jedisConnect, this);
         } catch (Exception e) {

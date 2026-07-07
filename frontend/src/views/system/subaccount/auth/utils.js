@@ -9,6 +9,7 @@ import { START_RECORD_NAMES_CONUT } from './constant';
 function flattenTree(tree) {
   const result = [];
   function traverse(nodes) {
+    if (!Array.isArray(nodes)) return;
     nodes.forEach((node) => {
       result.push(node);
       if (node?.children && node?.children?.length > 0) {
@@ -42,9 +43,9 @@ function findNodeByKey(tree, key, maxDepth = 7, currentDepth = 0) {
 
 /**
  *
- * @param {node} 传入node树节点、该树节点需至少有levels、objName、parent字段
- * @returns string[], 返回namesList
- * @description 传入树node节点，当前节点开始往上层遍历，直到层级START_RECORD_NAMES_CONUT,最后找到objNames字段并最后组合返回namesList
+ * @param {node} Enter the node tree node, which must have at leastlevels, objName, parent field
+ * @returns string[], returns namesList
+ * @description In treenode node, the current node begins to run all over the top, until the level START RECORD NAMES CONUT is finally found and the field of objNames returns nameslist
  */
 function getResTypeToNames(node = {}) {
   let nodeLevelsLength = node?.levels?.length;

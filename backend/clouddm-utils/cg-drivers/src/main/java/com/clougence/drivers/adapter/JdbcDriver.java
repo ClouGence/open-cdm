@@ -27,25 +27,24 @@ import com.clougence.utils.StringUtils;
 
 public class JdbcDriver implements java.sql.Driver {
 
-    private static final Logger      loggerParent   = Logger.getLogger("cg.adapter");
-    private static final Logger      logger         = Logger.getLogger("cg.adapter.driver");
-    private static final ClassLoader classLoader    = JdbcDriver.class.getClassLoader();
+    private static final Logger loggerParent   = Logger.getLogger("cg.adapter");
+    private static final Logger logger         = Logger.getLogger("cg.adapter.driver");
 
     //
-    public static final String       P_SERVER       = "server";     // driver attr for host
-    public static final String       P_TIME_ZONE    = "timeZone";   // driver attr for dataConvert
-    public static final String       P_ADAPTER_NAME = "adapterName";// adapter attr is readOnly
+    public static final String  P_SERVER       = "server";     // driver attr for host
+    public static final String  P_TIME_ZONE    = "timeZone";   // driver attr for dataConvert
+    public static final String  P_ADAPTER_NAME = "adapterName";// adapter attr is readOnly
 
     //
-    public static final String       START_URL      = "jdbc:cg:";
+    public static final String  START_URL      = "jdbc:cg:";
     /** The major version of this adapter. */
-    public static final String       NAME           = "Clougence JDBC Adapter";
+    public static final String  NAME           = "Clougence JDBC Adapter";
     /** The major version of this adapter. */
-    public static final String       VERSION        = "1.0";
+    public static final String  VERSION        = "1.0";
     /** The major version of this adapter. */
-    public static final int          VERSION_MAJOR  = 1;
+    public static final int     VERSION_MAJOR  = 1;
     /** The minor version of this adapter. */
-    public static final int          VERSION_MINOR  = 0;
+    public static final int     VERSION_MINOR  = 0;
 
     static {
         try {
@@ -61,7 +60,7 @@ public class JdbcDriver implements java.sql.Driver {
         if (properties == null) {
             return null;
         }
-        return new JdbcConnection(url, properties, classLoader);
+        return new JdbcConnection(url, properties);
     }
 
     @Override
@@ -142,7 +141,7 @@ public class JdbcDriver implements java.sql.Driver {
             return new DriverPropertyInfo[0];
         }
 
-        String[] knownProperties = AdapterManager.propertyNames(adapterName, copy, classLoader);
+        String[] knownProperties = AdapterManager.propertyNames(adapterName, copy);
         DriverPropertyInfo[] props = new DriverPropertyInfo[knownProperties.length];
         for (int i = 0; i < props.length; ++i) {
             String name = knownProperties[i];

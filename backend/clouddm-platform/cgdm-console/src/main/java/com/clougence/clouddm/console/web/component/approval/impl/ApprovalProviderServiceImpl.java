@@ -25,7 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.console.web.component.approval.ApprovalFlowService;
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
-import com.clougence.clouddm.console.web.component.project.ImSenderService;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
+import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.vo.RdpApproTemplateVO;
@@ -44,7 +45,6 @@ import com.clougence.clouddm.sdk.approval.*;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiErrorType;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.service.approval.ApprovalActivity;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
@@ -364,7 +364,7 @@ public class ApprovalProviderServiceImpl {
             String params = templateUrl.substring(templateUrl.indexOf("?") + 1);
             Map<String, String> map = StringUtils.toMap(params, "&", "=");
             if (map.containsKey("definitionCode")) {
-                DmSysUserConfDO configDO = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, UserDefinedConfig.Fields.feishuApprovalTemplateList);
+                DmSysUserConfDO configDO = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, RootUserConfig.Fields.feishuApprovalTemplateList);
                 if (configDO == null) {
                     throw new ErrorMessageException("cannot find config feishuApprovalTemplateList.");
                 }
@@ -376,7 +376,7 @@ public class ApprovalProviderServiceImpl {
                 newList.add(map.get("definitionCode").trim());
                 configDO.setConfigValue(StringUtils.join(newList, ","));
 
-                this.systemDal.userConfMapper().updateUserConfig(ownerUid, UserDefinedConfig.Fields.feishuApprovalTemplateList, configDO.getConfigValue());
+                this.systemDal.userConfMapper().updateUserConfig(ownerUid, RootUserConfig.Fields.feishuApprovalTemplateList, configDO.getConfigValue());
                 this.refreshTemplates(ownerUid, type);
             }
         }
@@ -388,7 +388,7 @@ public class ApprovalProviderServiceImpl {
         if (split.length > 0) {
             String definitionCode = split[split.length - 1].trim();
 
-            DmSysUserConfDO configDO = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, UserDefinedConfig.Fields.wechatApprovalTemplateList);
+            DmSysUserConfDO configDO = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, RootUserConfig.Fields.wechatApprovalTemplateList);
             if (configDO == null) {
                 throw new ErrorMessageException("cannot find config wechatApprovalTemplateList.");
             }
@@ -400,7 +400,7 @@ public class ApprovalProviderServiceImpl {
             newList.add(definitionCode);
             configDO.setConfigValue(StringUtils.join(newList, ","));
 
-            this.systemDal.userConfMapper().updateUserConfig(ownerUid, UserDefinedConfig.Fields.wechatApprovalTemplateList, configDO.getConfigValue());
+            this.systemDal.userConfMapper().updateUserConfig(ownerUid, RootUserConfig.Fields.wechatApprovalTemplateList, configDO.getConfigValue());
             this.refreshTemplates(ownerUid, type);
         }
     }
@@ -417,10 +417,10 @@ public class ApprovalProviderServiceImpl {
 
         switch (type) {
             case Feishu:
-                removeAndRefresh(approvalService, ownerUid, type, UserDefinedConfig.Fields.feishuApprovalTemplateList, templateId);
+                removeAndRefresh(approvalService, ownerUid, type, RootUserConfig.Fields.feishuApprovalTemplateList, templateId);
                 return;
             case Wechat:
-                removeAndRefresh(approvalService, ownerUid, type, UserDefinedConfig.Fields.wechatApprovalTemplateList, templateId);
+                removeAndRefresh(approvalService, ownerUid, type, RootUserConfig.Fields.wechatApprovalTemplateList, templateId);
                 return;
             default:
                 approvalService.useTemplate(ownerUid, templateId, null);

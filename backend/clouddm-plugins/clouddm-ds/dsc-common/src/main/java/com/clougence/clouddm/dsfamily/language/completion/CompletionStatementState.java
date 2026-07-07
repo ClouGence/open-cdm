@@ -37,8 +37,8 @@ public class CompletionStatementState {
     private final List<String>  tokensBeforeCursor;
     private final boolean       cursorInState;
 
-    public CompletionStatementState(String sqlText, BlockLocation range, CompletionRequest request, Integer cursorLineNumber, Integer cursorColNumber,
-                                    CompletionDialect dialect, boolean cursorInState){
+    public CompletionStatementState(String sqlText, BlockLocation range, CompletionRequest request, Integer cursorLineNumber, Integer cursorColNumber, CompletionDialect dialect,
+                                    boolean cursorInState){
         this.sqlText = StringUtils.toString(sqlText);
         this.range = range;
         this.cursorOffset = offsetOf(this.sqlText, cursorLineNumber, cursorColNumber);
@@ -46,6 +46,18 @@ public class CompletionStatementState {
         this.qualifier = extractQualifier(this.sqlText, this.cursorOffset, this.prefix, dialect);
         this.previousSignificantChar = previousSignificantChar(this.sqlText, this.cursorOffset, this.prefix);
         this.tokensBeforeCursor = tokenize(this.sqlText.substring(0, Math.min(this.cursorOffset, this.sqlText.length())), dialect);
+        this.cursorInState = cursorInState;
+    }
+
+    public CompletionStatementState(String sqlText, BlockLocation range, CompletionRequest request, int cursorOffset, String prefix, String qualifier, char previousSignificantChar,
+                                    List<String> tokensBeforeCursor, boolean cursorInState){
+        this.sqlText = StringUtils.toString(sqlText);
+        this.range = range;
+        this.cursorOffset = cursorOffset;
+        this.prefix = StringUtils.toString(prefix);
+        this.qualifier = StringUtils.toString(qualifier);
+        this.previousSignificantChar = previousSignificantChar;
+        this.tokensBeforeCursor = tokensBeforeCursor == null ? Collections.emptyList() : List.copyOf(tokensBeforeCursor);
         this.cursorInState = cursorInState;
     }
 
@@ -82,7 +94,7 @@ public class CompletionStatementState {
     }
 
     private static String extractQualifier(String sqlText, int offset, String prefix, CompletionDialect dialect) {
-        int end = Math.clamp(offset - StringUtils.toString(prefix).length(), 0, sqlText.length());
+        int end = clamp(offset - StringUtils.toString(prefix).length(), 0, sqlText.length());
         int dot = end - 1;
         while (dot >= 0 && Character.isWhitespace(sqlText.charAt(dot))) {
             dot--;
@@ -99,7 +111,7 @@ public class CompletionStatementState {
     }
 
     private static char previousSignificantChar(String sqlText, int offset, String prefix) {
-        int index = Math.clamp(offset - StringUtils.toString(prefix).length(), 0, sqlText.length()) - 1;
+        int index = clamp(offset - StringUtils.toString(prefix).length(), 0, sqlText.length()) - 1;
         while (index >= 0 && Character.isWhitespace(sqlText.charAt(index))) {
             index--;
         }
@@ -115,7 +127,7 @@ public class CompletionStatementState {
         return lineText != null && Math.max(0, colNumber) > lineText.length();
     }
 
-    static int offsetOf(String sqlText, Integer lineNumber, Integer colNumber) {
+    public static int offsetOf(String sqlText, Integer lineNumber, Integer colNumber) {
         if (lineNumber == null || colNumber == null) {
             return sqlText.length();
         }
@@ -182,5 +194,9 @@ public class CompletionStatementState {
             tokens.add(dialect.unquoteIdentifier(text.substring(start, i)));
         }
         return tokens;
+    }
+
+    private static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
     }
 }

@@ -18,7 +18,7 @@ package com.clougence.clouddm.faker.config.dsl.model;
 import java.util.Map;
 
 /**
- * 值类型
+ * Value type
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2023-02-14
  */

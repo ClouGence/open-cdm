@@ -17,7 +17,7 @@ package com.clougence.clouddm.api.common.rpc;
 
 import java.io.Serializable;
 
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResultEnum;
+import com.clougence.clouddm.api.common.ResultEnum;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 

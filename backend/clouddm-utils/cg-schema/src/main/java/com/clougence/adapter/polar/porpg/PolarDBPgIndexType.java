@@ -16,16 +16,16 @@
 package com.clougence.adapter.polar.porpg;
 
 /**
- * Postgres 索引类型
+ * Postgres Index Type
  * 
  * @version : 2021-05-17
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum PolarDBPgIndexType {
 
-    /** 普通索引 */
+    /** Normal index */
     Normal,
-    /** 唯一索引 */
+    /** Unique index */
     Unique,;
 
     public static PolarDBPgIndexType valueOfCode(String code) {

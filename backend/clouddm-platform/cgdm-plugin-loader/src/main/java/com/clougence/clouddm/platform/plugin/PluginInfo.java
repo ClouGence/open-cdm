@@ -25,6 +25,8 @@ public interface PluginInfo {
 
     boolean isDsPlugin();
 
+    String getPluginName();
+
     ClassLoader getPlusClassLoader();
 
     Map<String, Object> getPlusFeatures();

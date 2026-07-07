@@ -37,6 +37,7 @@ import com.clougence.clouddm.comm.component.client.RSocketClientAuthManager;
 import com.clougence.clouddm.comm.constants.rsocket.ServerRouteNames;
 import com.clougence.clouddm.comm.model.auth.ConnAuthDTO;
 import com.clougence.utils.ExceptionUtils;
+import com.clougence.utils.StringUtils;
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.ssl.SslContext;
@@ -45,10 +46,10 @@ import io.rsocket.SocketAcceptor;
 import io.rsocket.exceptions.RejectedSetupException;
 import io.rsocket.metadata.WellKnownMimeType;
 import io.rsocket.transport.netty.client.TcpClientTransport;
-import reactor.netty.tcp.SslProvider;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+import reactor.netty.tcp.SslProvider;
 import reactor.netty.tcp.TcpClient;
 import reactor.util.retry.Retry;
 
@@ -96,11 +97,25 @@ public class WorkerRSocketClient {
         if (duringRetry.get()) {
             throw new RuntimeException("Client is retry to connect to server, all rsocket request will be rejected to avoid concurrency issue....");
         }
-        RSocketRequester requester = requesterMono.block(Duration.ofSeconds(MONO_BLOCKING_SECONDS));
+        RSocketRequester requester;
+        try {
+            requester = requesterMono.block(Duration.ofSeconds(MONO_BLOCKING_SECONDS));
+        } catch (Exception e) {
+            throw new RuntimeException("connect to console rsocket timeout after " + MONO_BLOCKING_SECONDS + " seconds. target:" + describeConsoleEndpoint()
+                                       + ", please check console rsocket port, network, ssl certificate, and console startup status.",
+                e);
+        }
         if (requester == null || requester.rsocket().isDisposed()) {
-            throw new RuntimeException("try to get rsocket requester ,but it is ABNORMAL....");
+            throw new RuntimeException("try to get rsocket requester, but it is abnormal. target:" + describeConsoleEndpoint());
         }
         return requester;
+    }
+
+    private String describeConsoleEndpoint() {
+        if (connAuthDTO == null) {
+            return "unknown";
+        }
+        return StringUtils.trimToEmpty(connAuthDTO.getConsoleHost()) + ":" + StringUtils.trimToEmpty(connAuthDTO.getConsolePort());
     }
 
     public void start() {
@@ -134,16 +149,13 @@ public class WorkerRSocketClient {
     @SneakyThrows
     protected void prepareRequestMono(SocketAcceptor responder, SslContext sslContext, ConnAuthDTO connAuthDTO) {
         String consoleHost = clientAuthManager.acquireServerDomain();
-        int consolePort = Integer.parseInt(connAuthDTO.getConsolePort());
+        int consolePort = parseConsolePort(connAuthDTO.getConsolePort());
 
-        SslProvider sslProvider = SslProvider.builder()
-            .sslContext(sslContext)
-            .handlerConfigurator(handler -> {
-                SSLParameters sslParameters = handler.engine().getSSLParameters();
-                sslParameters.setEndpointIdentificationAlgorithm(null);
-                handler.engine().setSSLParameters(sslParameters);
-            })
-            .build();
+        SslProvider sslProvider = SslProvider.builder().sslContext(sslContext).handlerConfigurator(handler -> {
+            SSLParameters sslParameters = handler.engine().getSSLParameters();
+            sslParameters.setEndpointIdentificationAlgorithm(null);
+            handler.engine().setSSLParameters(sslParameters);
+        }).build();
         requesterMono = rsocketRequesterBuilder.setupRoute(ServerRouteNames.CONN_SETUP)
             .setupData(connAuthDTO)
             .dataMimeType(MimeTypeUtils.parseMimeType(WellKnownMimeType.APPLICATION_JSON.getString()))
@@ -164,6 +176,21 @@ public class WorkerRSocketClient {
                 .host(consoleHost)
                 .port(consolePort)
                 .secure(sslProvider)));
+    }
+
+    private int parseConsolePort(String consolePort) {
+        if (StringUtils.isBlank(consolePort)) {
+            throw new IllegalArgumentException("sidecar global config is invalid, missing required key: clouddm.console.port.");
+        }
+        try {
+            int port = Integer.parseInt(consolePort);
+            if (port < 1 || port > 65535) {
+                throw new IllegalArgumentException("sidecar global config is invalid, clouddm.console.port must be between 1 and 65535: " + consolePort);
+            }
+            return port;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("sidecar global config is invalid, clouddm.console.port must be a number: " + consolePort, e);
+        }
     }
 
     protected void exitOrNot(int currentFailed, Throwable e) {

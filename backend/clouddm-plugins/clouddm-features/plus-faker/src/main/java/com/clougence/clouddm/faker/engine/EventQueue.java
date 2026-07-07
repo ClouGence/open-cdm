@@ -24,7 +24,7 @@ import com.clougence.clouddm.faker.generator.BoundQuery;
 import lombok.Getter;
 
 /**
- * 生产者和消费者之间的 数据传输通道
+ * Data transmission channels between producers and consumers
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -39,17 +39,17 @@ public class EventQueue {
         this.dataSet = new LinkedBlockingQueue<>(capacity);
     }
 
-    /** 拿一批数据，如果没有数据可拿返回 null */
+    /** Get a load of data, if you don't have it, you can get it back. */
     public List<BoundQuery> tryPoll() {
         return this.dataSet.poll();
     }
 
-    /** 放入数据，如果放入失败返回 false 否则返回 true */
+    /** Put the data in, return false if it failed or return true */
     public boolean tryOffer(List<BoundQuery> queries) {
         return this.dataSet.offer(queries);
     }
 
-    /** 传输通道上目前数据多少 */
+    /** What's the current data on the transmission channel? */
     public int getQueueSize() { return this.dataSet.size(); }
 
     public void clear() {

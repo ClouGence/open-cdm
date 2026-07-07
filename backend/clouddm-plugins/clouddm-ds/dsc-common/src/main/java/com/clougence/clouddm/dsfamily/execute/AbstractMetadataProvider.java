@@ -38,7 +38,7 @@ import com.clougence.utils.convert.ConverterUtils;
 import com.clougence.utils.function.ESupplier;
 
 /**
- * MetadataSupplier 系列的公共类。
+ * Public category of the MetadataSupplier series.
  * 
  * @version : 2020-01-22
  * @author 赵永春 (zyc@hasor.net)

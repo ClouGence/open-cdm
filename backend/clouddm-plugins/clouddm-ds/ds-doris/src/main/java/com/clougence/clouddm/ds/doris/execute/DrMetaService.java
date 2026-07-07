@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.ds.doris.definition.ui.editor.table.DrEditorProvider;
-import com.clougence.clouddm.ds.doris.definition.ui.editor.table.DrParserUtil;
 import com.clougence.clouddm.dsfamily.mysql.execute.MyMetaService;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
@@ -31,6 +30,7 @@ import com.clougence.schema.umi.service.RdbUmiServiceDm;
 import com.clougence.schema.umi.special.rdb.RdbTable;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.schema.umi.struts.Value;
+import com.clougence.sql.doris.parser.DrParserUtil;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;

@@ -23,7 +23,7 @@ import com.clougence.schema.umi.special.rdb.RdbColumn;
 import com.clougence.utils.setting.SettingNode;
 
 /**
- * 读取并解析 tpc 配置文件，并根据类型和数据库信息选择对应的 tpc 配置。利用 tpc 的配置信息来创建 TypeProcessor。
+ * Read and parse the tpc profile and select the corresponding tpc configuration by type and database information. Create TypeProcessor using tpc configuration information.
  * @version : 2023-02-14
  * @author 赵永春 (zyc@hasor.net)
  */

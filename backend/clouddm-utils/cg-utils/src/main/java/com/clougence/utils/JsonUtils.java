@@ -57,11 +57,17 @@ public class JsonUtils {
 
     @SneakyThrows
     public static <T> T toObj(String jsonStr, Class<T> clz) {
+        if (StringUtils.isBlank(jsonStr)) {
+            return null;
+        }
         return objectMapper.readValue(jsonStr, clz);
     }
 
     @SneakyThrows
     public static <T> T toObj(String jsonStr, JavaType clz) {
+        if (StringUtils.isBlank(jsonStr)) {
+            return null;
+        }
         return objectMapper.readValue(jsonStr, clz);
     }
 

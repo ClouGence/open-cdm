@@ -17,6 +17,7 @@ package com.clougence.clouddm.ds.dameng.language;
 
 import java.util.Set;
 
+import com.clougence.clouddm.dsfamily.language.split.SplitStrategyCenter;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
 import com.clougence.clouddm.sdk.language.DsLanguageSupport;
@@ -32,6 +33,7 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 public class DmLanguageSpi implements DsLanguageSpi {
     private final MetaService                metaService;
     private final DmCompletionStrategyCenter completion = new DmCompletionStrategyCenter();
+    private final SplitStrategyCenter        split      = new SplitStrategyCenter();
 
     public DmLanguageSpi(MetaService metaService){
         this.metaService = metaService;
@@ -39,7 +41,7 @@ public class DmLanguageSpi implements DsLanguageSpi {
 
     @Override
     public Set<DsLanguageSupport> supports() {
-        return Set.of(DsLanguageSupport.COMPLETE);
+        return Set.of(DsLanguageSupport.COMPLETE, DsLanguageSupport.SPLIT);
     }
 
     private static <T extends LanguageResult> T initResult(AbstractRequest request, T result) {
@@ -64,6 +66,6 @@ public class DmLanguageSpi implements DsLanguageSpi {
 
     @Override
     public SplitResult split(SplitRequest request) {
-        return initResult(request, new SplitResult());
+        return this.split.split(request);
     }
 }

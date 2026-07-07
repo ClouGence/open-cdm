@@ -29,11 +29,11 @@ import com.clougence.utils.StringUtils;
 import lombok.Getter;
 
 /**
- * ResourceLoader 转 ClassLoader
+ * Resource Loader, turn.
  * @version : 2021-09-29
  * @author 赵永春 (zyc@hasor.net)
  */
-public class CgClassLoader extends ClassLoader {
+public class CgClassLoader extends ClassLoader implements Closeable {
 
     @Getter
     private final ResourceLoader        resourceLoader;
@@ -43,11 +43,11 @@ public class CgClassLoader extends ClassLoader {
     private final String                tempDirectory = "cobbleLoader/" + System.currentTimeMillis();
     private File                        tempDir;
 
-    public CgClassLoader(ClassLoader parent, ResourceLoader resourceLoader){
+    public CgClassLoader(ClassLoader parent, ResourceLoader loader){
         super(parent);
         this.includePackages = new HashSet<>();
         this.excludePackages = new HashSet<>();
-        this.resourceLoader = resourceLoader;
+        this.resourceLoader = loader;
     }
 
     public void addIncludePackages(String packageOrClass) {
@@ -59,51 +59,64 @@ public class CgClassLoader extends ClassLoader {
     }
 
     @Override
+    public void close() throws IOException {
+        this.resourceLoader.close();
+    }
+
+    @Override
     protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         if (this.loadedClass.containsKey(name)) {
             return this.loadedClass.get(name);
         }
 
-        if (this.includePackages.isEmpty()) {
+        if (shouldLoadFromLocalFirst(name)) {
             try {
-                return super.loadClass(name, resolve);
+                return loadFromLocal(name, resolve);
             } catch (ClassNotFoundException e) {
-                Class<?> c = this.findClass(name);
-                if (c != null && resolve) {
-                    this.resolveClass(c);
-                }
-                return c;
+                return loadFromParent(name, resolve);
             }
         } else {
-            for (String include : this.includePackages) {
-                if (StringUtils.startsWith(name, include) || MatchUtils.matchWild(include, name)) {
-                    for (String exclude : this.excludePackages) {
-                        if (StringUtils.startsWith(name, exclude) || MatchUtils.matchWild(exclude, name)) {
-                            return super.loadClass(name, resolve);
-                        }
-                    }
-
-                    Class<?> c = this.findClass(name);
-                    if (c != null && resolve) {
-                        this.resolveClass(c);
-                    }
-                    return c;
-                }
+            try {
+                return loadFromParent(name, resolve);
+            } catch (ClassNotFoundException e) {
+                return loadFromLocal(name, resolve);
             }
-            return super.loadClass(name, resolve);
         }
+    }
+
+    private boolean shouldLoadFromLocalFirst(String name) {
+        if (this.includePackages.isEmpty()) {
+            return false;
+        }
+
+        for (String include : this.includePackages) {
+            if (StringUtils.startsWith(name, include) || MatchUtils.matchWild(include, name)) {
+                for (String exclude : this.excludePackages) {
+                    if (StringUtils.startsWith(name, exclude) || MatchUtils.matchWild(exclude, name)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Class<?> loadFromLocal(String name, boolean resolve) throws ClassNotFoundException {
+        return findLocalClass(name, resolve);
+    }
+
+    private Class<?> loadFromParent(String name, boolean resolve) throws ClassNotFoundException {
+        return super.loadClass(name, resolve);
     }
 
     @Override
     protected Class<?> findClass(String className) throws ClassNotFoundException {
         String resource = className.replace(".", "/") + ".class";
 
-        try (InputStream inStream = this.resourceLoader.getResourceAsStream(resource)) {
-            if (inStream != null) {
-                return innerLoadClass(className, resource, inStream);
-            }
-        } catch (IOException e2) {
-            throw new ClassNotFoundException(className, e2);
+        try {
+            return findLocalClass(className, false);
+        } catch (ClassNotFoundException ignored) {
         }
 
         try (InputStream inStream = super.getResourceAsStream(resource)) {
@@ -115,6 +128,22 @@ public class CgClassLoader extends ClassLoader {
         }
 
         return super.findClass(className);
+    }
+
+    private Class<?> findLocalClass(String className, boolean resolve) throws ClassNotFoundException {
+        String resource = className.replace(".", "/") + ".class";
+        try (InputStream inStream = this.resourceLoader.getResourceAsStream(resource)) {
+            if (inStream != null) {
+                Class<?> c = innerLoadClass(className, resource, inStream);
+                if (resolve) {
+                    this.resolveClass(c);
+                }
+                return c;
+            }
+        } catch (IOException e2) {
+            throw new ClassNotFoundException(className, e2);
+        }
+        throw new ClassNotFoundException(className);
     }
 
     private Class<?> innerLoadClass(String className, String resource, InputStream inStream) throws IOException {

@@ -31,10 +31,10 @@ public class ThreadUtils {
     private static final AtomicInteger globalCnt = new AtomicInteger(0);
 
     /**
-     * 挂起当前线程
-     * @param timeout  时长
-     * @param timeUnit 时长单位
-     * @return 中断返回 false，否则true
+     * Suspend the current thread
+     * @param timeout  Length
+     * @param timeUnit Time unit
+     * @return false when interrupted, otherwise true
      */
     public static boolean sleep(Number timeout, TimeUnit timeUnit) {
         try {
@@ -56,9 +56,9 @@ public class ThreadUtils {
     }
 
     /**
-     * 挂起当前线程
-     * @param millis  时长
-     * @return 中断返回 false，否则true
+     * Suspend the current thread
+     * @param millis  Length
+     * @return false when interrupted, otherwise true
      */
     public static boolean sleep(Number millis) {
         if (millis == null || millis.longValue() == 0) {
@@ -74,9 +74,9 @@ public class ThreadUtils {
     }
 
     /**
-     * 考虑{@link Thread#sleep(long)}方法有可能时间不足给定毫秒数，此方法保证sleep时间不小于给定的毫秒数
-     * @param millis  时长
-     * @return 中断返回 false，否则true
+     * Repeatedly calls {@link #sleep(Number)} so the total sleep time is not less than the requested milliseconds.
+     * @param millis  Length
+     * @return false when interrupted, otherwise true
      */
     public static boolean safeSleep(Number millis) {
         long millisLong = millis.longValue();

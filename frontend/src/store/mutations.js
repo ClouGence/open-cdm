@@ -1,132 +1,45 @@
 import {
+  REMAIN_TRIAL_DAY,
+  SET_MENU_ITEMS,
+  SET_THEME,
+  UPDATE_CC_GLOBAL_SETTING,
   UPDATE_CLUSTER_LIST,
   UPDATE_DEPLOY_ENV_LIST_MAP,
+  UPDATE_DM_GLOBAL_SETTING,
   UPDATE_DS_TYPE_LIST,
   UPDATE_EDITOR_SET,
   UPDATE_GLOBAL_SETTING,
-  UPDATE_REGION_LIST_MAP,
-  UPDATE_USERINFO,
-  UPDATE_PRODUCT_CLUSTER,
-  UPDATE_SELECT_PRODUCT_CLUSTER,
-  UPDATE_CC_GLOBAL_SETTING,
-  UPDATE_DM_GLOBAL_SETTING,
-  UPDATE_MY_CATALOG,
   UPDATE_MY_AUTH,
-  UPDATE_SOCKET_STATUS,
-  UPDATE_RULE_SETTING,
+  UPDATE_MY_CATALOG,
+  UPDATE_PRODUCT_CLUSTER,
   UPDATE_PUBLIC_KEY,
-  REMAIN_TRIAL_DAY,
-  UPDATE_TASK_INFO_HISTORY,
+  UPDATE_REGION_LIST_MAP,
+  UPDATE_RULE_SETTING,
+  UPDATE_SELECT_PRODUCT_CLUSTER,
+  UPDATE_SOCKET_STATUS,
   UPDATE_TASK_INFO_DB_MAP_HISTORY,
-  SET_MENU_ITEMS,
-  SET_THEME
+  UPDATE_TASK_INFO_HISTORY,
+  UPDATE_USERINFO
 } from '@/store/mutationTypes';
-import i18n from '@/i18n';
 import router from '@/router';
+import { buildSidebarMenu, flattenSidebarMenu } from '@/utils/buildSidebarMenu';
 import { supportsCloudCanalBuild, supportsCloudDMBuild } from '@/utils/product';
 
 const URL_AUTH_MAPPING = {};
 
 function applyMenuItems(state, myCatLog = state.myCatLog, globalSetting = state.globalSetting, myAuth = state.myAuth) {
-  const systemMenuItems = [];
-  if (myCatLog.includes('CAT_RDP_USER')) {
-    systemMenuItems.push({
-      key: '/system/account',
-      href: '/#/system/account',
-      label: i18n.global.t('zi-zhang-hao-guan-li'),
-      iconName: 'icon-v2-sub_account'
-    });
-  }
-  if (myCatLog.includes('CAT_RDP_ROLE')) {
-    systemMenuItems.push({
-      key: '/system/role',
-      href: '/#/system/role',
-      label: i18n.global.t('jiao-se-guan-li'),
-      iconName: 'icon-v2-role'
-    });
-  }
-  if (myCatLog.includes('CAT_RDP_ENV')) {
-    systemMenuItems.push({
-      key: '/system/env',
-      href: '/#/system/env',
-      label: i18n.global.t('huan-jing-guan-li'),
-      iconName: 'icon-v2-env'
-    });
-  }
-  if (myCatLog.includes('CAT_RDP_DS')) {
-    systemMenuItems.push({
-      key: '/system/ccdatasource',
-      href: '/#/system/ccdatasource',
-      label: i18n.global.t('shu-ju-yuan-guan-li'),
-      iconName: 'icon-v2-peizhishujuyuan'
-    });
-  }
-  if (myCatLog.includes('CAT_DM_SYS') && myCatLog.includes('CAT_DM_WORKER')) {
-    systemMenuItems.push({
-      key: '/system/dmmachine',
-      href: '/#/system/dmmachine',
-      label: i18n.global.t('cha-xun-ji-qi'),
-      iconName: 'icon-v2-cluster'
-    });
-  }
-  if (myCatLog.includes('CAT_DM_SYS') && myCatLog.includes('CAT_DM_SECRULES')) {
-    systemMenuItems.push({
-      key: '/system/dmrulelist',
-      href: '/#/system/dmrulelist',
-      label: i18n.global.t('an-quan-gui-ze'),
-      iconName: 'icon-v2-audit'
-    });
-    systemMenuItems.push({
-      key: '/system/dmspeclist',
-      href: '/#/system/dmspeclist',
-      label: i18n.global.t('an-quan-gui-fan'),
-      iconName: 'icon-v2-role'
-    });
-  }
-  if (myCatLog.includes('CAT_RDP_OP_AUDIT')) {
-    systemMenuItems.push({
-      key: '/system/operation_log',
-      href: '/#/system/operation_log',
-      label: i18n.global.t('cao-zuo-shen-ji'),
-      iconName: 'icon-v2-audit'
-    });
-  }
-  if (myCatLog.includes('CAT_DM_SQL_AUDIT')) {
-    systemMenuItems.push({
-      key: '/system/sql_log',
-      href: '/#/system/sql_log',
-      label: i18n.global.t('sql-shen-ji'),
-      iconName: 'icon-v2-SqlLog'
-    });
-  }
-  if (myCatLog.includes('CAT_RDP_PRI_PREFERENCE_CONF') && myAuth.includes('RDP_PRI_USER_KV_CONF_R')) {
-    systemMenuItems.push({
-      key: '/system/preference',
-      href: '/#/system/preference',
-      label: i18n.global.t('ge-ren-pian-hao'),
-      iconName: 'icon-v2-preference'
-    });
-  }
+  const includesDM = supportsCloudDMBuild;
+  const isDesktop = !!state.dmGlobalSetting.personal;
+  const sidebarMenu = buildSidebarMenu({
+    myCatLog,
+    myAuth,
+    includesDM,
+    isDesktop,
+    accountType: state.userInfo?.accountType
+  });
 
-  if (myCatLog.includes('CAT_DM_CICD')) {
-    systemMenuItems.push({
-      key: '/system/devops',
-      href: '/#/system/devops',
-      label: 'CI/CD',
-      iconName: 'icon-v2-sub_account'
-    });
-  }
-
-  if (myCatLog.includes('CAT_DM_IM')) {
-    systemMenuItems.push({
-      key: '/system/im',
-      href: '/#/system/im',
-      label: i18n.global.t('im'),
-      iconName: 'icon-v2-sub_account'
-    });
-  }
-
-  state.mySystemMenuItems = systemMenuItems;
+  state.sidebarMenu = sidebarMenu;
+  state.mySystemMenuItems = flattenSidebarMenu(sidebarMenu);
 }
 
 export default {
@@ -143,6 +56,7 @@ export default {
     } else {
       state.userInfo = {};
     }
+    applyMenuItems(state);
   },
   [UPDATE_CLUSTER_LIST](state, list) {
     const temp = {};
@@ -343,13 +257,13 @@ export default {
     const includesCC = supportsCloudCanalBuild;
     const includesDM = supportsCloudDMBuild;
     applyMenuItems(state, state.myCatLog, globalSetting);
-    // 在 globalSetting 初始化完成后设置菜单项
+    // Set menu entry after initialization of globalSetting
     let url = '';
     if (state.mySystemMenuItems.length) {
       url = state.mySystemMenuItems[0].key;
     }
     state.docUrlPrefix = 'https://www.clougence.com/cc-doc';
-    state.contactUsUrl = 'https://www.clougence.com/about';
+    state.contactUsUrl = 'https://www.cdmgr.com/';
     state.dmDocUrlPrefix = 'https://www.clougence.com/dm-doc';
     state.bladePipeApply = 'https://www.clougence.com/dm-doc/clouddm';
     if (state.myCatLog.includes('CAT_DM_CONSOLE')) {
@@ -358,12 +272,12 @@ export default {
       url = '/ticket';
     } else if (state.myCatLog.includes('CAT_DM_SYS')) {
       if (state.myCatLog.includes('CAT_DM_WORKER')) {
-        url = '/system/dmmachine';
+        url = '/data-access/cluster';
       } else if (state.myCatLog.includes('CAT_DM_SECRULES')) {
-        url = '/system/dmrulelist';
+        url = '/data-access/rules';
       }
-    } else if (state.myCatLog.includes('CAT_DM_PROJECT')) {
-      url = '/project';
+    } else if (state.myCatLog.includes('CAT_DM_CICD_FLOW')) {
+      url = '/cicd';
     }
 
     if (!url) {
@@ -421,11 +335,11 @@ export default {
   },
   [SET_THEME](state, theme) {
     state.theme = theme;
-    //requestAnimationFrame：确保 DOM 修改与浏览器渲染同步，避免闪烁和卡顿
+    //RequestAnimationFrame: Ensure DOM changes are synchronized with browser rendering to avoid flashing and Carton
     requestAnimationFrame(() => {
       document.documentElement.setAttribute('data-theme', theme);
     });
-    // 异步持久化避免阻塞主线程
+    // Endurance of the walk to avoid blocking the main course
     try {
       requestIdleCallback
         ? requestIdleCallback(() => localStorage.setItem('app-theme', theme))

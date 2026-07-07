@@ -78,7 +78,7 @@
 <script>
 import QueryHeader from '@/views/system/components/QueryHeader';
 import { mapState } from 'vuex';
-import deepClone from 'lodash.clonedeep';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 
 export default {
   name: 'DataCode',

@@ -34,17 +34,13 @@ public class DmExecSqlAuditDO {
 
     @TableId(type = IdType.AUTO)
     private Long           id;
-
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
     private Date           gmtCreate;
-
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
     private Date           gmtModified;
-
     private String         uid;
     private String         userName;
     private String         primaryUid;
-
     private Date           operateTime;
     private Date           endTime;
     private String         clientIp;
@@ -58,7 +54,6 @@ public class DmExecSqlAuditDO {
     private SecQueryKind   sqlKind;
     private long           affectLine;
     private SqlStatus      status;
-
     private Long           dsId;
     private DataSourceType dataSourceType;
     private String         dsDesc;

@@ -18,36 +18,42 @@ package com.clougence.clouddm.ds.mongodb.dsconf;
 import java.util.Properties;
 
 import com.clougence.clouddm.base.metadata.ds.ConfigDef;
-import com.clougence.clouddm.base.metadata.ds.ConfigI18nKey;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
+import com.clougence.clouddm.ds.mongodb.i18n.MongoConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
 import com.clougence.drivers.DsConfigKeys;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 /**
  * @author bucketli 2020/11/5 20:29
  */
 @Getter
 @Setter
+@FieldNameConstants
 @Serialization(provider = "MongoDB")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MongoConfig extends DataSourceConfig {
-
-    @ConfigDef(name = "applicationName", defaultValue = "CloudDM", descKey = ConfigI18nKey.CONFIG_MONGODB_APPLICATION_NAME_DESCRIPTION, readOnly = false)
-    private String applicationName;
+    // ------------------------------------------------------------------------------------------------------------------------ GENERAL
+    @ConfigDef(name = Fields.defaultSchema, //
+            group = DsConfigGroup.GENERAL, labelKey = MongoConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_LABEL, descKey = MongoConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_DESC, readOnly = false)
+    private String  defaultSchema;
+    // ------------------------------------------------------------------------------------------------------------------------ ADVANCED
+    @ConfigDef(name = Fields.connectTimeoutMs, defaultValue = "5000", //
+            group = DsConfigGroup.ADVANCED, labelKey = MongoConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_LABEL, descKey = MongoConfigI18nKeys.CONFIG_RDB_CONN_TIMEOUT_MS_DESC, readOnly = false)
+    private Long    connectTimeoutMs;
+    @ConfigDef(name = Fields.soTimeoutSec, defaultValue = "10", //
+            group = DsConfigGroup.ADVANCED, labelKey = MongoConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_LABEL, descKey = MongoConfigI18nKeys.CONFIG_DS_SO_TIMEOUT_MS_DESC, readOnly = false)
+    private Integer soTimeoutSec;
 
     public MongoConfig(){
         setDataSourceType(DataSourceType.MongoDB);
-    }
-
-    @Override
-    public void deserialize() {
-        super.deserialize();
     }
 
     public Properties asDriverProperties() {
@@ -56,9 +62,9 @@ public class MongoConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.HOST.getConfigKey(), safeStr(this.getHost()));
         properties.setProperty(DsConfigKeys.USER.getConfigKey(), safeStr(this.getUserName()));
         properties.setProperty(DsConfigKeys.PASSWORD.getConfigKey(), safeStr(this.getPassword()));
+        properties.setProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey(), safeStr(this.getDefaultSchema()));
         properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), safeStr(StringUtils.toString(this.getConnectTimeoutMs())));
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
-        properties.setProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey(), safeStr(this.getDefaultSchema()));
         return properties;
     }
 }

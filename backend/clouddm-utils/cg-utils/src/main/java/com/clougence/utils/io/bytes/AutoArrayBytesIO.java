@@ -18,7 +18,7 @@ package com.clougence.utils.io.bytes;
 import java.nio.ByteBuffer;
 
 /**
- * 数组自动扩缩容 {@link BytesIO} 实现
+ * Automatic amplification of arrays
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2022-11-01
  */

@@ -18,7 +18,7 @@ package com.clougence.clouddm.faker.generator.loader;
 import com.clougence.clouddm.faker.config.FakerEngineConfig;
 
 /**
- * 用于 UPDATE、DELETE 的数据反查
+ * Data inversion for UPDATE, DELETE
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

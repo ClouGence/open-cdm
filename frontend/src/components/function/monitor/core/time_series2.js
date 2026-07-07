@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from '@/utils/lodash';
 import kbn from '../panel/utils/kbn';
 import { getFlotTickDecimals } from '../panel/utils/ticks';
 

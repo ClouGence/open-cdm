@@ -186,7 +186,7 @@ export default {
             }
           });
         }
-        // 表示校验成功或失败
+        // For verification success or failure
       });
     }
   }

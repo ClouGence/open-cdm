@@ -18,10 +18,7 @@ package com.clougence.clouddm.console.web.controller.editor.query;
 import static com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel.DM_QUERY_CONSOLE;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Properties;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,9 +40,7 @@ import com.clougence.clouddm.console.web.model.fo.editor.query.*;
 import com.clougence.clouddm.console.web.model.vo.editor.query.DsStatusConfVO;
 import com.clougence.clouddm.console.web.model.vo.editor.query.DsStatusSupportConfVO;
 import com.clougence.clouddm.console.web.model.vo.editor.query.OperationSessionVO;
-import com.clougence.clouddm.console.web.model.vo.editor.query.SessionVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
-import com.clougence.clouddm.console.web.service.browse.model.rdb.BrowseColumnMO;
 import com.clougence.clouddm.console.web.service.editor.DsQueryEditorService;
 import com.clougence.clouddm.console.web.service.editor.model.DataResultDataVO;
 import com.clougence.clouddm.console.web.service.editor.model.DataResultPageVO;
@@ -62,11 +57,8 @@ import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportLevel;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
-import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
-import com.clougence.clouddm.sdk.security.auth.AuthKind;
-import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
-import com.clougence.schema.umi.struts.UmiTypes;
+import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.i18n.I18nUtils;
@@ -102,7 +94,7 @@ public class QueryEditorController {
     private DmSupportSpiWrapper  dmSupportSpiWrapper;
 
     @RequestAuth(checkOpPassword = true, value = DM_QUERY_CONSOLE)
-    @RequestMapping(value = "/createsession", method = RequestMethod.POST)
+    @RequestMapping(value = "/createSession", method = RequestMethod.POST)
     public ResWebData<?> createSession(@Valid @RequestBody CreateSessionFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
@@ -116,23 +108,13 @@ public class QueryEditorController {
     }
 
     @RequestAuth(DM_QUERY_CONSOLE)
-    @RequestMapping(value = "/closesession", method = RequestMethod.POST)
+    @RequestMapping(value = "/closeSession", method = RequestMethod.POST)
     public ResWebData<?> closeSession(@Valid @RequestBody CloseSessionFO fo, HttpServletRequest request) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         this.queryService.closeSession(puid, uid, fo.getSessionId());
         return ResWebDataUtils.buildSuccess(fo.getSessionId());
-    }
-
-    @RequestAuth(checkOpPassword = true, value = DM_QUERY_CONSOLE)
-    @RequestMapping(value = "/listsession", method = RequestMethod.POST)
-    public ResWebData<List<SessionVO>> sessionList(HttpServletRequest request) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-
-        List<SessionVO> vos = this.queryService.getSessionList(puid, uid);
-        return ResWebDataUtils.buildSuccess(vos);
     }
 
     @RequestAuth(checkOpPassword = true, value = DM_QUERY_CONSOLE)
@@ -162,7 +144,7 @@ public class QueryEditorController {
         }
 
         I18nUtils dsI18n = PluginManager.findDsI18nUtil(entry.getDsType());
-        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(entry.getDsNumId(), entry.getDsType());
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(entry.getDsNumId());
         if (supportSpi != null) {
             vo.setCatalog(convertToSupportedInfoMap(RdbSupportSpi.HINT_FOR_CHANGE_CATALOG, this.dmSupportSpiWrapper.supportChangeCatalog(supportSpi, dsConfig), dsI18n));
             vo.setSchema(convertToSupportedInfoMap(RdbSupportSpi.HINT_FOR_CHANGE_SCHEMA, this.dmSupportSpiWrapper.supportChangeSchema(supportSpi, dsConfig), dsI18n));
@@ -185,10 +167,14 @@ public class QueryEditorController {
             //vo.setArgSupport(convertToSupportedInfoMap(RdbSupportSpi.HINT_FOR_ARGS_QUERY, RdbSupportLevel.No, dsI18n));
         }
 
-        vo.getCatalog().setDefaultValue(StringUtils.isBlank(dsConfig.getDefaultDataBase()) ? "" : dsConfig.getDefaultDataBase());
-        vo.getSchema().setDefaultValue(StringUtils.isBlank(dsConfig.getDefaultSchema()) ? "" : dsConfig.getDefaultSchema());
+        Properties driverProperties = dsConfig.asDriverProperties();
+        String defaultCatalog = driverProperties.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
+        String defaultSchema = driverProperties.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
+        String autoCommit = driverProperties.getProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey());
+        vo.getCatalog().setDefaultValue(StringUtils.isBlank(defaultCatalog) ? "" : defaultCatalog);
+        vo.getSchema().setDefaultValue(StringUtils.isBlank(defaultSchema) ? "" : defaultSchema);
         vo.getIsolation().setDefaultValue(RdbIsolation.valueOfCode(dsConfig.getIsolation()).getName());
-        vo.getAutoCommit().setDefaultValue(String.valueOf(dsConfig.getAutoCommit() == null || dsConfig.getAutoCommit()));
+        vo.getAutoCommit().setDefaultValue(String.valueOf(!StringUtils.equalsIgnoreCase("false", autoCommit)));
         vo.getReadOnly().setDefaultValue(String.valueOf(Boolean.TRUE.equals(dsConfig.getReadOnly())));
         return ResWebDataUtils.buildSuccess(vo);
     }
@@ -203,31 +189,6 @@ public class QueryEditorController {
             vo.setHint(null);
         }
         return vo;
-    }
-
-    @RequestAuth(DM_QUERY_CONSOLE)
-    @RequestMapping(value = "/rdbColumns", method = RequestMethod.POST)
-    public ResWebData<?> rdbColumns(@Valid @RequestBody BatchColumnsFO fo, HttpServletRequest request) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-
-        DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        this.objectCacheDao.ownDataSource(puid, levels.dsDO().getId());
-
-        UmiTypes leafType = UmiTypes.valueOfCode(fo.getTargetType());
-        List<String> leafName = fo.getTargetNames();
-
-        leafName = leafName.stream().filter(tabName -> {
-            DsResPath dsResource = RdpAuthUtils.genResPathByList(levels.dbLevels(), tabName);
-            return this.dmAuthServiceForBiz.checkResPathWithoutError(puid, uid, levels.dsDO().getId(), AuthKind.DataSource, dsResource, SecDataAuthLabel.DM_DAUTH_QUERY);
-        }).collect(Collectors.toList());
-
-        if (leafName.isEmpty()) {
-            return ResWebDataUtils.buildSuccess(Collections.emptyMap());
-        }
-
-        Map<String, List<BrowseColumnMO>> result = this.queryService.rdbBatchColumns(puid, uid, levels, leafType, leafName);
-        return ResWebDataUtils.buildSuccess(result);
     }
 
     @RequestAuth(DM_QUERY_CONSOLE)

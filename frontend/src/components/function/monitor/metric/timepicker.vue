@@ -73,8 +73,8 @@
 </template>
 
 <script>
-import _ from 'lodash';
-import moment from 'moment';
+import _ from '@/utils/lodash';
+import dayjs from '@/utils/dayjsSetup';
 import * as rangeUtil from '../panel/utils/rangeutil';
 import kbn from '../panel/utils/kbn';
 import eventBus from '@/utils/eventBus';
@@ -114,9 +114,9 @@ export default {
       refreshOptions: [
         { value: 'off', label: this.$t('guan-bi') },
         { value: '10s', label: this.$t('mei-10-miao') }
-        // {value: '30s', label: '每30秒'},
-        // {value: '1m', label: '每分钟'},
-        // {value: '5m', label: '每5分钟'}
+        // {value: '30s', label: 'Every 30 seconds'},
+        // {value: '1m', label: 'Every minute'},
+        // {value: '5m', label: 'Every 5 minutes'}
       ],
       refreshValue: 'off',
 
@@ -138,14 +138,14 @@ export default {
 
     handleFromChange() {
       this.fromOpen = false;
-      const from = moment(this.fromDate);
+      const from = dayjs(this.fromDate);
 
       this.editTimeRaw.from = from.format('YYYY-MM-DD HH:mm:ss');
     },
 
     handleFromOk() {
       this.fromOpen = false;
-      const from = moment(this.fromDate);
+      const from = dayjs(this.fromDate);
 
       this.editTimeRaw.from = from.format('YYYY-MM-DD HH:mm:ss');
     },
@@ -156,14 +156,14 @@ export default {
 
     handleToChange() {
       this.toOpen = false;
-      const to = moment(this.toDate);
+      const to = dayjs(this.toDate);
 
       this.editTimeRaw.to = to.format('YYYY-MM-DD HH:mm:ss');
     },
 
     handleToOk() {
       this.toOpen = false;
-      const to = moment(this.toDate);
+      const to = dayjs(this.toDate);
 
       this.editTimeRaw.to = to.format('YYYY-MM-DD HH:mm:ss');
     },
@@ -187,11 +187,11 @@ export default {
       };
 
       if (range.from.indexOf('now') === -1) {
-        range.from = moment(range.from);
+        range.from = dayjs(range.from);
       }
 
       if (range.to.indexOf('now') === -1) {
-        range.to = moment(range.to);
+        range.to = dayjs(range.to);
       }
 
       this.time.setTime(range);
@@ -235,13 +235,13 @@ export default {
 
       const editTimeRaw = {};
 
-      if (moment.isMoment(timeRaw.from)) {
+      if (dayjs.isDayjs(timeRaw.from)) {
         editTimeRaw.from = timeRaw.from.format('YYYY-MM-DD HH:mm:ss');
       } else {
         editTimeRaw.from = timeRaw.from;
       }
 
-      if (moment.isMoment(timeRaw.to)) {
+      if (dayjs.isDayjs(timeRaw.to)) {
         editTimeRaw.to = timeRaw.to.format('YYYY-MM-DD HH:mm:ss');
       } else {
         editTimeRaw.to = timeRaw.to;
@@ -249,8 +249,8 @@ export default {
 
       this.editTimeRaw = editTimeRaw;
       this.rangeString = rangeUtil.describeTimeRange(timeRaw);
-      this.fromTooltip = moment(time.from).format('YYYY-MM-DD HH:mm:ss');
-      this.toTooltip = moment(time.to).format('YYYY-MM-DD HH:mm:ss');
+      this.fromTooltip = dayjs(time.from).format('YYYY-MM-DD HH:mm:ss');
+      this.toTooltip = dayjs(time.to).format('YYYY-MM-DD HH:mm:ss');
 
       if (this.refreshValue !== '' && this.refreshValue !== 'off') {
         const option = _.find(this.refreshOptions, (o) => o.value == this.refreshValue);

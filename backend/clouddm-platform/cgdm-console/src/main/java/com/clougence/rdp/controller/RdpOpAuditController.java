@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
+import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.ExportOpAuditFO;
 import com.clougence.clouddm.console.web.model.fo.QueryOpAuditByNameFO;
@@ -36,7 +37,6 @@ import com.clougence.clouddm.console.web.model.fo.QueryOpAuditFO;
 import com.clougence.clouddm.console.web.model.vo.RdpOpAuditVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.rdp.constant.RdpControllerUrlPrefix;
 import com.clougence.rdp.service.RdpOpAuditService;
 
 import jakarta.annotation.Resource;
@@ -50,12 +50,11 @@ import lombok.extern.slf4j.Slf4j;
  */
 @RestController
 @Slf4j
-@RequestMapping(value = RdpControllerUrlPrefix.CONSOLE_PREFIX + "/audit")
+@RequestMapping(value = DmControllerUrlPrefix.CONSOLE_PREFIX + "/audit")
 public class RdpOpAuditController {
 
     @Resource
     private RdpOpAuditService auditService;
-
     @Resource
     private RdpUserService    rdpUserService;
 

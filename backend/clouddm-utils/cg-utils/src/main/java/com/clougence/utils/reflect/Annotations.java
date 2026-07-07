@@ -198,7 +198,7 @@ public class Annotations {
 
     boolean isEmpty() { return this.typeData.isEmpty() && this.fieldData.isEmpty() && this.methodData.isEmpty(); }
 
-    /** 实现对类，构造方法，字段，方法，参数 中的注解信息进行提取 */
+    /** Accomplishs the extracting of the description information in pairs, construction methods, fields, methods, parameters */
     public static Annotations ofClass(Class<?> theClass) throws IOException {
         String packageName = theClass.getName().replace(".", "/");
         ClassLoader loader = theClass.getClassLoader();
@@ -213,7 +213,7 @@ public class Annotations {
         return ofClass(new AutoCloseInputStream(asStream));
     }
 
-    /** 实现对类，构造方法，字段，方法，参数 中的注解信息进行提取 */
+    /** Accomplishs the extracting of the description information in pairs, construction methods, fields, methods, parameters */
     public static Annotations ofClass(InputStream theClass) throws IOException {
         final Annotations typeData = new Annotations();
         ClassReader classReader = new ClassReader(theClass);

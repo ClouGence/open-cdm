@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.clougence.clouddm.console.web.component.asyntask.AsyncTaskConfig;
 import com.clougence.clouddm.console.web.component.asyntask.AsyncTaskScheduleService;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
 import com.clougence.clouddm.console.web.util.InstanceUtil;
 import com.clougence.clouddm.console.web.util.RdpTimerUtils;
@@ -51,7 +51,7 @@ public class AsyncTaskServiceImpl implements AsyncTaskService {
     @Resource
     private AsyncTaskScheduleService asyncTaskScheduleService;
     @Resource
-    private DmConsoleConfig          dmConfig;
+    private ConsoleConfig            config;
 
     @Override
     public void submitTask(String uid, AsyncTaskConfig config) {
@@ -127,7 +127,7 @@ public class AsyncTaskServiceImpl implements AsyncTaskService {
 
     @Override
     public List<DmExecAsyncTaskDO> listDockList(String uid) {
-        int dockSize = this.dmConfig.getAsyncTaskDockSize();
+        int dockSize = this.config.getAsyncTaskDockSize();
 
         List<DmExecAsyncTaskDO> taskList = this.executionDal.asyncTaskMapper().queryRunListByOwner(uid, true, dockSize);
         if (taskList.size() < dockSize) {

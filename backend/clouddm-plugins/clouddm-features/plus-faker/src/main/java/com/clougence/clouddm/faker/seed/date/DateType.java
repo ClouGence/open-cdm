@@ -18,7 +18,7 @@ package com.clougence.clouddm.faker.seed.date;
 import com.clougence.utils.StringUtils;
 
 /**
- * 生成的时间值最终转换的格式
+ * Format for final conversion of generated time values
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

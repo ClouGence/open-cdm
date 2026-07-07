@@ -16,17 +16,17 @@
 package com.clougence.adapter.polar.pormy;
 
 /**
- * MySQL 约束类型
+ * MySQL binding type
  * @version : 2021-03-30
  * @author 赵永春 (zyc@hasor.net)
  */
 public enum PolarDBMyConstraintType {
 
-    /** 主键 */
+    /** Primary key */
     PrimaryKey("PRIMARY KEY"),
-    /** 唯一 */
+    /** Unique */
     Unique("UNIQUE"),
-    /** 外建 */
+    /** Foreign key */
     ForeignKey("FOREIGN KEY"),;
 
     private final String typeName;

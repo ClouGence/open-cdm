@@ -946,7 +946,7 @@ import { QuestionCircleOutlined, SearchOutlined } from '@ant-design/icons-vue';
 import VTree from '@wsfe/vue-tree';
 import Loading from 'vue-loading-overlay';
 import { mapGetters, mapState } from 'vuex';
-import deepClone from 'lodash.clonedeep';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 import copyMixin from '@/mixins/copyMixin';
 import { ACTION_TYPE, TAB_TYPE } from '@/const';
 import datasourceMixin from '@/mixins/datasourceMixin';
@@ -1198,17 +1198,17 @@ export default {
       FAKER_TASK_STATUS,
       monacoEditor: null,
       defaultOpts: {
-        value: '', // 编辑器的值
+        value: '', // The editor 's value
         language: 'mysql',
         fontSize: 14,
         fontWeight: 'bold',
-        theme: 'vs', // 编辑器主题：vs, hc-black, or vs-dark，更多选择详见官网
+        theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
         minimap: {
           enabled: false
         },
         automaticLayout: true,
         lineNumbers: 'off',
-        autoIndent: true // 自动缩进
+        autoIndent: true // Auto Indent
       },
       functionModalReturnParamsColumns: [
         {
@@ -1411,7 +1411,7 @@ export default {
       'ddlList',
       'isDark'
     ]),
-    // 根据当前节点类型返回正确的 leafGroup
+    // Return correctly according to current node type
     showTaskCancelBtn() {
       const { INIT, RUNNING, PAUSE, WAITING_RESUME, WAITING_PAUSE } = FAKER_TASK_STATUS;
       return [INIT, RUNNING, PAUSE, WAITING_RESUME, WAITING_PAUSE].includes(this.genDataModal.status);
@@ -2078,7 +2078,7 @@ export default {
     async handleGenDataCheck(node) {
       console.log('check');
       if (!node.resume) {
-        this.$refs.genDataTree.setSelected(node.key, true); // 设置选中状态
+        this.$refs.genDataTree.setSelected(node.key, true); // Set the selected status
         await this.$refs.genDataTree.setExpand(node.key, true);
         setTimeout(() => {
           this.$refs.genDataTree.setChecked(node.key, true);
@@ -3729,25 +3729,33 @@ export default {
 </script>
 <style scoped lang="less">
 .search-header {
-  height: 31px;
+  height: 36px;
   display: flex;
   align-items: center;
-  padding: 2px;
-  background: #fafafa;
-  border-bottom: 1px solid #ccc;
+  padding: 0;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-primary);
 
   .search-border {
     width: 100%;
     display: flex;
     align-items: center;
     margin: 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    border: none;
+    border-radius: 0;
+    background: var(--bg-tertiary);
 
     :deep(.ivu-input) {
+      border: none !important;
       border-radius: 0 !important;
-      border-bottom: none !important;
-      border-top: none !important;
+      background: transparent;
+      box-shadow: none !important;
+    }
+
+    :deep(.ivu-input-wrapper) {
+      flex: 1;
+      border: none;
+      box-shadow: none;
     }
   }
 
@@ -3785,9 +3793,40 @@ export default {
   z-index: 3;
 }
 
+:deep(.vtree-tree-node__title),
 :deep(.ctree-tree-node__title) {
   padding-left: 0;
   margin-left: 0;
+}
+
+:deep(.vtree-tree-node__expand),
+:deep(.ctree-tree-node__expand) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  i {
+    transform: none !important;
+
+    &::after {
+      position: relative;
+      top: auto;
+      left: auto;
+      margin: 0;
+      transform: none;
+      transform-origin: center center;
+      transition: transform 0.2s linear;
+    }
+  }
+}
+
+:deep(.vtree-tree-node__expand_active i),
+:deep(.ctree-tree-node__expand_active i) {
+  transform: none !important;
+
+  &::after {
+    transform: rotate(90deg);
+  }
 }
 
 :deep(.node) {
@@ -3796,6 +3835,7 @@ export default {
 }
 
 :deep(.no-indent) {
+  .vtree-tree-node__square,
   .ctree-tree-node__square {
     display: none;
   }

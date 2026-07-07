@@ -20,8 +20,10 @@ plugins {
 }
 
 dependencies {
-    // project
     antlr "org.antlr:antlr4:${ANTLR_VERSION}"
+
+    // project
+    implementation "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
     implementation project(':dsc-common-mysql')
     implementation project(':dsc-common-postgres')
 
@@ -40,23 +42,6 @@ dependencies {
 
 description = 'ds-polardb'
 
-configureClougenceAntlrGrammar([outputPath : 'src/main/java/com/clougence/clouddm/ds/polardb/parser/porx/antlr',
-                                packageName: 'com.clougence.clouddm.ds.polardb.parser.porx.antlr',
-                                libDir     : '../dsc-common-mysql/src/main/antlr'])
-
-
-def visitorConfigs = [[taskName: 'generateVisitorPorxParser', frontPath: 'porx/AbstractPorXSQLParserVisitor.java', backPath: 'MySQLParserVisitor.java'],
-                      [taskName: 'generateVisitorPorxVisitor', frontPath: 'porx/AbstractPorXSplitVisitor.java', backPath: 'MySplitVisitor.java']]
-
-visitorConfigs.each { config ->
-    tasks.register(config.taskName, VisitorMerger) {
-        backFile = file("../dsc-common-mysql/src/main/java/com/clougence/clouddm/dsfamily/mysql/analysis/${config.backPath}")
-        frontFile = file("./src/main/java/com/clougence/clouddm/ds/polardb/analysis/${config.frontPath}")
-    }
+tasks.named('generateGrammarSource') {
+    arguments += ['-visitor', '-package', 'com.clougence.clouddm.ds.polardb.sql.porx.parser.antlr']
 }
-
-jar {
-    dependsOn(visitorConfigs.collect { tasks.named(it.taskName) })
-    dependsOn('generateGrammarSource')
-}
-

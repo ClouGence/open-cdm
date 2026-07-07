@@ -2,63 +2,51 @@
   <div class="spec-detail">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb v-if="breadcrumbList.length">
-            <BreadcrumbItem v-for="breadcrumb in breadcrumbList" :to="breadcrumb.to" :key="breadcrumb.label">
-              {{ breadcrumb.label }}
-            </BreadcrumbItem>
-          </Breadcrumb>
-        </div>
-        <Tabs v-model="activeTab" @on-click="handleTabClick">
-          <TabPane :label="$t('cha-xun-gui-ze')" name="QUERY"></TabPane>
-          <TabPane :label="$t('tuo-min-gui-ze')" name="SENSITIVE"></TabPane>
-        </Tabs>
         <div class="content" v-if="isQuery">
           <div class="option">
             <div class="left">
-              <Input v-model="QUERY.search" style="width: 280px; margin-right: 10px" clearable></Input>
-              <Button @click="handleRuleSearch('search')" type="primary">
+              <Select v-model="activeTab" style="width: 160px; margin-right: 10px" @on-change="handleRuleKindChange">
+                <Option v-for="item in ruleKindOptions" :value="item.value" :key="item.value">
+                  {{ item.label }}
+                </Option>
+              </Select>
+              <Input
+                v-model="QUERY.search"
+                style="width: 280px; margin-right: 10px"
+                clearable
+                :placeholder="$t('qing-shu-ru-gui-ze-ming-cheng-miao-shu-cha-xun')"
+              ></Input>
+              <Button @click="handleRuleSearch('search')" type="primary" ghost>
                 {{ $t('cha-xun') }}
-              </Button>
-            </div>
-            <div class="right">
-              <Button @click="getSpecDetail">
-                <CustomIcon type="icon-v2-Refresh" />
               </Button>
             </div>
           </div>
           <div class="table-container">
-            <Table border :columns="QUERY.ruleColumns" :data="QUERY.showRuleList" size="small" :loading="QUERY.loading">
+            <Table border :columns="QUERY.ruleColumns" :data="QUERY.showRuleList" :scroll="queryTableScroll" size="small" :loading="QUERY.loading">
               <template #targetType="{ row }">
                 {{ getTargetType(row.targetType).i18n }}
               </template>
               <template #ruleAction="{ row }">
-                <Button @click="handleGoRange(row)" type="text" size="small" :disabled="!row.enable || row.deprecated">
-                  {{ $t('fan-wei') }}
-                </Button>
-                <Button @click="handleViewRuleDetail(row)" type="text" size="small" :disabled="row.deprecated">
-                  {{ $t('xiang-qing') }}
-                </Button>
-                <Button
-                  @click="handleEditRuleDetail(row)"
-                  type="text"
-                  size="small"
-                  v-if="myAuth.includes('DM_SECRULES_MANAGE')"
-                  :disabled="row.deprecated"
-                >
-                  {{ $t('she-zhi') }}
-                </Button>
+                <div class="rule-action-list">
+                  <Button @click="handleGoRange(row)" type="text" size="small" :disabled="!row.enable || row.deprecated">
+                    {{ $t('fan-wei') }}
+                  </Button>
+                  <Button @click="handleViewRuleDetail(row)" type="text" size="small" :disabled="row.deprecated">
+                    {{ $t('xiang-qing') }}
+                  </Button>
+                  <Button
+                    @click="handleEditRuleDetail(row)"
+                    type="text"
+                    size="small"
+                    v-if="myAuth.includes('DM_SECRULES_MANAGE')"
+                    :disabled="row.deprecated"
+                  >
+                    {{ $t('she-zhi') }}
+                  </Button>
+                </div>
               </template>
               <template #dsRange="{ row }">
-                <Tooltip transfer placement="top">
-                  <div class="ds-range-row">
-                    <CustomIcon v-for="ds in row.dsRange.slice(0, 8)" :key="ds" :type="ds" rightMargin />
-                    <span v-if="row.dsRange && row.dsRange.length > 8" class="more-count">{{ row.dsRange.length - 8 }}</span>
-                  </div>
-                  <template #content>
-                    <CustomIcon v-for="ds in row.dsRange" :key="`full-` + ds" :type="ds" rightMargin />
-                  </template>
-                </Tooltip>
+                <DataSourceRangeTags :ds-range="row.dsRange" />
               </template>
               <template #warnLevel="{ row }">
                 <Tag :color="row.warnLevel === 'SUGGEST' ? 'warning' : 'error'">
@@ -79,36 +67,50 @@
         <div class="content" v-else>
           <div class="option">
             <div class="left">
-              <Input v-model="SENSITIVE.search" style="width: 280px; margin-right: 10px" clearable></Input>
-              <Button @click="handleRuleSearch" type="primary">{{ $t('cha-xun') }}</Button>
-            </div>
-            <div class="right">
-              <Button @click="getSpecDetail">
-                <CustomIcon type="icon-v2-Refresh" />
-              </Button>
+              <Select v-model="activeTab" style="width: 160px; margin-right: 10px" @on-change="handleRuleKindChange">
+                <Option v-for="item in ruleKindOptions" :value="item.value" :key="item.value">
+                  {{ item.label }}
+                </Option>
+              </Select>
+              <Input
+                v-model="SENSITIVE.search"
+                style="width: 280px; margin-right: 10px"
+                clearable
+                :placeholder="$t('qing-shu-ru-gui-ze-ming-cheng-miao-shu-cha-xun')"
+              ></Input>
+              <Button @click="handleRuleSearch" type="primary" ghost>{{ $t('cha-xun') }}</Button>
             </div>
           </div>
           <div class="table-container">
-            <Table border :columns="SENSITIVE.ruleColumns" :data="SENSITIVE.showRuleList" size="small" :loading="SENSITIVE.loading">
+            <Table
+              border
+              :columns="SENSITIVE.ruleColumns"
+              :data="SENSITIVE.showRuleList"
+              :scroll="sensitiveTableScroll"
+              size="small"
+              :loading="SENSITIVE.loading"
+            >
               <template #senMode="{ row }">
                 {{ getSenMode(row.senMode).i18n }}
               </template>
               <template #ruleAction="{ row }">
-                <Button @click="handleGoRange(row)" type="text" size="small" :disabled="!row.enable || row.deprecated">
-                  {{ $t('fan-wei') }}
-                </Button>
-                <Button @click="handleViewRuleDetail(row)" type="text" size="small" :disabled="row.deprecated">
-                  {{ $t('xiang-qing') }}
-                </Button>
-                <Button
-                  @click="handleEditRuleDetail(row)"
-                  type="text"
-                  size="small"
-                  v-if="myAuth.includes('DM_SECRULES_MANAGE')"
-                  :disabled="row.deprecated"
-                >
-                  {{ $t('she-zhi') }}
-                </Button>
+                <div class="rule-action-list">
+                  <Button @click="handleGoRange(row)" type="text" size="small" :disabled="!row.enable || row.deprecated">
+                    {{ $t('fan-wei') }}
+                  </Button>
+                  <Button @click="handleViewRuleDetail(row)" type="text" size="small" :disabled="row.deprecated">
+                    {{ $t('xiang-qing') }}
+                  </Button>
+                  <Button
+                    @click="handleEditRuleDetail(row)"
+                    type="text"
+                    size="small"
+                    v-if="myAuth.includes('DM_SECRULES_MANAGE')"
+                    :disabled="row.deprecated"
+                  >
+                    {{ $t('she-zhi') }}
+                  </Button>
+                </div>
               </template>
               <template #enable="{ row }">
                 <i-switch
@@ -142,37 +144,11 @@
           v-else
           show-sizer
           v-model="SENSITIVE.pageNum"
-          :page-size="QUERY.pageSize"
+          :page-size="SENSITIVE.pageSize"
           @on-page-size-change="handlePageSizeChange"
         />
       </div>
     </div>
-    <CCModal v-model="showRuleDetailModal" :title="$t('gui-ze-xiang-qing')" @ok="handleCloseModal" @cancel="handleCloseModal" width="800px">
-      <Form :label-width="60">
-        <FormItem :label="$t('ming-cheng')">
-          <div>{{ selectedRule.ruleName }}</div>
-        </FormItem>
-        <FormItem :label="$t('miao-shu')">
-          <div>{{ selectedRule.ruleDesc }}</div>
-        </FormItem>
-        <FormItem :label="$t('fan-wei')" v-if="selectedRule.targetType">
-          <div>{{ selectedRule.targetType }}</div>
-        </FormItem>
-        <FormItem :label="$t('nei-rong')">
-          <read-only-editor :text="selectedRule.ruleContent" :max-height="200" />
-        </FormItem>
-        <FormItem :label="$t('shu-ju-yuan')" v-if="selectedRule.dsRange">
-          <CustomIcon v-for="ds in selectedRule.dsRange" :key="`full-` + ds" :type="ds" style="margin-right: 5px; display: inline-block" />
-        </FormItem>
-        <FormItem :label="$t('can-shu')" v-if="specRuleParamList.length">
-          <Table :columns="specRuleParamColumns" :data="specRuleParamList" size="small" border>
-            <template #value="{ row }">
-              {{ row.value }}
-            </template>
-          </Table>
-        </FormItem>
-      </Form>
-    </CCModal>
     <CCModal v-model="showEditSpecRuleModal" :title="$t('she-zhi')" @ok="handleEditRule('edit', false)" @cancel="handleCloseModal" width="800px">
       <Form :label-width="80">
         <FormItem :label="$t('deng-ji')" v-if="selectedRule.ruleKind === 'QUERY'">
@@ -230,17 +206,15 @@
 </template>
 <script>
 import { RULE_WARN_LEVEL } from '@/utils';
-import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
+import DataSourceRangeTags from '@/views/security/components/DataSourceRangeTags';
 import { mapActions, mapGetters, mapState } from 'vuex';
 
 export default {
   name: 'SpecDetail',
-  components: { ReadOnlyEditor },
+  components: { DataSourceRangeTags },
   mounted() {
     this.specId = this.$route.params.specId;
-    if (this.$route.query && this.$route.query.ruleKind) {
-      this.activeTab = this.$route.query.ruleKind;
-    }
+    this.activeTab = this.normalizeRuleKind(this.$route.query && this.$route.query.ruleKind);
     this.getRuleSetting();
     this.getSpecDetail();
   },
@@ -250,19 +224,23 @@ export default {
     isQuery() {
       return this.activeTab === 'QUERY';
     },
-    breadcrumbList() {
+    ruleKindOptions() {
       return [
-        {
-          label: this.$t('gui-fan-lie-biao'),
-          to: '/system/dmspeclist'
-        },
-        { label: this.specDetail.specName }
+        { value: 'QUERY', label: this.$t('cha-xun-gui-ze') },
+        { value: 'SENSITIVE', label: this.$t('tuo-min-gui-ze') }
       ];
+    },
+    queryTableScroll() {
+      return { x: 1250 };
+    },
+    sensitiveTableScroll() {
+      return { x: 910 };
     }
   },
   data() {
     return {
       activeTab: 'QUERY',
+      ruleKinds: ['QUERY', 'SENSITIVE'],
       specId: '',
       showData: [],
       ruleListLoading: false,
@@ -308,7 +286,6 @@ export default {
         specName: '',
         specDesc: ''
       },
-      showRuleDetailModal: false,
       selectedRule: {},
       supportTargetList: [],
       QUERY: {
@@ -328,7 +305,8 @@ export default {
           },
           {
             title: this.$t('gui-ze-miao-shu'),
-            key: 'ruleDesc'
+            key: 'ruleDesc',
+            width: 360
           },
           {
             title: this.$t('shi-yong-shu-ju-yuan'),
@@ -376,7 +354,8 @@ export default {
           },
           {
             title: this.$t('gui-ze-miao-shu'),
-            key: 'ruleDesc'
+            key: 'ruleDesc',
+            width: 360
           },
           {
             title: '脱敏方式',
@@ -401,6 +380,9 @@ export default {
   },
   methods: {
     ...mapActions(['getRuleSetting']),
+    normalizeRuleKind(ruleKind) {
+      return this.ruleKinds.includes(ruleKind) ? ruleKind : 'QUERY';
+    },
     handlePageChange(pageNum) {
       this[this.activeTab].pageNum = pageNum;
       this.setTableShowData();
@@ -409,9 +391,14 @@ export default {
       this[this.activeTab].pageSize = pageSize;
       this.handlePageChange(1);
     },
-    handleTabClick(name) {
-      this.$router.replace({ query: { ruleKind: name } });
-      if (!this[name].total) {
+    handleRuleKindChange(name) {
+      const ruleKind = this.normalizeRuleKind(name);
+      if (ruleKind !== name) {
+        this.activeTab = ruleKind;
+        this.$Message.warning(this.$t('gui-ze-lei-xing-bu-neng-wei-kong'));
+      }
+      this.$router.replace({ query: { ruleKind } });
+      if (!this[ruleKind].total) {
         this.getSpecDetail();
       }
     },
@@ -443,7 +430,6 @@ export default {
       });
 
       if (res?.data?.success) {
-        this.showRuleDetailModal = false;
         await this.handleCloseModal();
         await this.getSpecDetail();
         if (res.data && res.data?.message) {
@@ -466,7 +452,6 @@ export default {
     },
     async handleCloseModal() {
       this.showForceRuleModal = false;
-      this.showRuleDetailModal = false;
       this.showEditSpecNameModal = false;
       this.showEditSpecDescModal = false;
       this.showEditSpecRuleModal = false;
@@ -528,10 +513,16 @@ export default {
         }
       });
     },
-    async handleViewRuleDetail(rule) {
-      await this.getSpecRuleDetail(rule);
-      this.generateParamList();
-      this.showRuleDetailModal = true;
+    handleViewRuleDetail(rule) {
+      this.$router.push({
+        path: `/system/dmspec/${this.specId}/rule/${rule.ruleId}/detail`,
+        query: {
+          ruleKind: this.activeTab,
+          specName: this.specDetail.specName,
+          ruleName: rule.ruleName,
+          refId: rule.refId
+        }
+      });
     },
     async getSpecRuleDetail(rule) {
       const res = await this.$services.dmSecurityRulesSpecRuleDetail({
@@ -564,9 +555,9 @@ export default {
   display: flex;
   flex-direction: column;
 
-  // 修复固定列表头高度不一致的问题
+  // Fix the problem of inconsistent height of the fixed list header
   :deep(.ivu-table-small) {
-    // 主表头文字居中
+    // Centre Main Header Text
     .ivu-table-header thead tr th,
     .ivu-table-fixed-header thead tr th {
       text-align: center !important;
@@ -583,31 +574,25 @@ export default {
       }
     }
 
-    // 确保固定列头部容器高度一致
+    // Ensure that the level of the fixed column header is consistent
     .ivu-table-fixed-header {
       height: 34px !important;
     }
   }
 }
-:deep(.ds-range-row) {
-  white-space: nowrap;
+:deep(.rule-action-list) {
   display: inline-flex;
   align-items: center;
-}
-:deep(.more-count) {
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
   white-space: nowrap;
-  display: inline-block;
-  margin-left: 6px;
-  padding: 0 6px;
-  font-size: 12px;
-  line-height: 18px;
-  color: #595959;
-  background: #f0f0f0;
-  border-radius: 9px;
 }
-:deep(.more-count::before) {
-  content: '+';
-  margin-right: 2px;
+:deep(.rule-action-list .ivu-btn) {
+  flex: 0 0 auto;
+  padding-right: 4px;
+  padding-left: 4px;
+  white-space: nowrap;
 }
 :deep(.ivu-table-fixed-header) {
   .ivu-table-cell {

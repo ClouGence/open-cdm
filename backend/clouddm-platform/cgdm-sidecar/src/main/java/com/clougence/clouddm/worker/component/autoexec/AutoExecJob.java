@@ -22,8 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jakarta.annotation.Resource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -46,9 +44,16 @@ import com.clougence.clouddm.worker.component.session.SessionAgent;
 import com.clougence.clouddm.worker.component.session.SessionManager;
 import com.clougence.utils.ThreadUtils;
 
+import jakarta.annotation.Resource;
+
 @Service
 @Scope("prototype")
 public class AutoExecJob implements Runnable {
+    private static final int         SUCCESS     = 0;
+    private static final int         FAILED      = 1;
+    private static final int         PAUSE       = 2;
+    private static final int         RUNNING     = 3;
+    private static final Logger      log         = LoggerFactory.getLogger("sql-audit");
 
     @Resource
     private TaskDsResourceManager    backgroundRM;
@@ -63,22 +68,11 @@ public class AutoExecJob implements Runnable {
 
     private AutoExecJobDTO           job;
     private SessionAgent             sessionAgent;
-
     private List<AutoExecMessageDTO> messageList = new LinkedList<>();
-
     private Long                     jobId;
-
     private long                     runningTaskId;
-
     private WorkerIdentity           workerIdentity;
-
     private final AtomicInteger      status      = new AtomicInteger(RUNNING);
-
-    private static final int         SUCCESS     = 0;
-    private static final int         FAILED      = 1;
-    private static final int         PAUSE       = 2;
-    private static final int         RUNNING     = 3;
-    private static final Logger      log         = LoggerFactory.getLogger("sql-audit");
 
     public void init(Long jobId) {
         this.jobId = jobId;
@@ -100,9 +94,9 @@ public class AutoExecJob implements Runnable {
             return;
         }
 
-        DataSourceConfig dataSourceConfig = configRService.fetchDsConfig(job.getDsId(), job.getDsType());
+        DataSourceConfig dataSourceConfig = configRService.fetchDsConfig(job.getDsId());
         try {
-            this.sessionAgent = (SessionAgent) sessionManager.createSession(backgroundRM, dataSourceConfig, job.getContextDTO());
+            this.sessionAgent = sessionManager.createSession(backgroundRM, dataSourceConfig, job.getContextDTO());
             String currentQueryId = this.sessionAgent.getCurrentQueryId();
             sendMessage(AutoExecMessageDTO.createQueryIdMessage(job.getJobId(), currentQueryId), true);
             log.info("create session success,query id: " + currentQueryId);

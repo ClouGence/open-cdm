@@ -20,8 +20,6 @@ public class MonitorDalImpl implements MonitorDal {
     private DmMonBizLogMapper             bizLogMapper;
     @Resource
     private DmMonOpAuditMapper            opAuditMapper;
-    @Resource
-    private DmMonWebViewLogMapper         webViewLogMapper;
 
     @Override
     public DmMonAlertConfigDetailMapper alertConfigDetailMapper() {
@@ -41,11 +39,6 @@ public class MonitorDalImpl implements MonitorDal {
     @Override
     public DmMonOpAuditMapper opAuditMapper() {
         return opAuditMapper;
-    }
-
-    @Override
-    public DmMonWebViewLogMapper webViewLogMapper() {
-        return webViewLogMapper;
     }
 
     // ---------- dal service methods ----------

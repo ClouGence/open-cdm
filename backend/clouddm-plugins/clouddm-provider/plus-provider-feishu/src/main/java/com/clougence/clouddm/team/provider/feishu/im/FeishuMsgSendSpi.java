@@ -46,7 +46,7 @@ public class FeishuMsgSendSpi implements MsgSendSpi {
     public String getServiceUrl() { return "https://www.feishu.cn/"; }
 
     @Override
-    public String getHelpUrl() { return "https://www.cdmgr.com/docs/devops/provider/devops_im_feishu"; }
+    public String getHelpUrl() { return "https://www.cdmgr.com/docs/integrations/devops/devops_im_feishu"; }
 
     @Override
     @SneakyThrows

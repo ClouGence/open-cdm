@@ -9,45 +9,24 @@
         <result column="gmt_modified" property="gmtModified"/>
         <result column="uid" property="uid"/>
         <result column="owner" property="owner"/>
-        <result column="deploy_type" property="deployType"
-                javaType="com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType"/>
-        <result column="info_fetch_type" property="infoFetchType"
-                javaType="com.clougence.clouddm.platform.dal.model.datasource.DeployEnvInfoFetchType"/>
         <result column="data_source_type" property="dataSourceType"
                 javaType="com.clougence.clouddm.base.metadata.ds.DataSourceType"/>
         <result column="host" property="host"/>
-        <result column="private_host" property="privateHost"/>
-        <result column="public_host" property="publicHost"/>
-        <result column="host_type" property="hostType"
-                javaType="com.clougence.clouddm.platform.dal.model.datasource.HostType"/>
         <result column="instance_desc" property="instanceDesc"/>
         <result column="version" property="version"/>
         <result column="driver" property="driver"/>
         <result column="instance_id" property="instanceId"/>
-        <result column="account" property="account"/>
-        <result column="password" property="password"/>
         <result column="access_key" property="accessKey"/>
         <result column="secret_key" property="secretKey"/>
-        <result column="security_file_url" property="securityFileUrl"/>
-        <result column="security_file_password" property="securityFilePassword"/>
-        <result column="client_security_file_url" property="clientSecurityFileUrl"/>
-        <result column="client_security_file_password" property="clientSecurityFilePassword"/>
-        <result column="secret_file_password" property="secretFilePassword"/>
-        <result column="secret_file_url" property="secretFileUrl"/>
-        <result column="security_file_store_type" property="securityFileStoreType"
-                javaType="com.clougence.clouddm.platform.dal.model.datasource.SecurityFileStoreType"/>
         <result column="security_type" property="securityType"
-                javaType="com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType"/>
-        <result column="public_security_type" property="publicSecurityType"
-                javaType="com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType"/>
-        <result column="client_trust_store_password" property="clientTrustStorePassword"/>
+                javaType="com.clougence.clouddm.base.metadata.ds.SecurityType"/>
         <result column="life_cycle_state" property="lifeCycleState"
                 javaType="com.clougence.clouddm.platform.dal.model.LifeCycleState"/>
-        <result column="console_job_id" property="consoleJobId"/>
-        <result column="parent_ds_id" property="parentDsId"/>
-        <result column="connect_type" property="connectType"/>
+        <result column="status" property="status"
+                javaType="com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus"/>
+        <result column="status_message" property="statusMessage"/>
+        <result column="bind_cluster_id" property="bindClusterId"/>
         <result column="ds_env_id" property="dsEnvId"/>
-        <result column="default_db_name" property="defaultDbName"/>
     </resultMap>
 
     <sql id="rdpDataSource">
@@ -56,37 +35,20 @@
         gmt_modified,
         uid,
         owner,
-        deploy_type,
-        info_fetch_type,
         data_source_type,
         host,
-        private_host,
-        public_host,
-        host_type,
         instance_desc,
         version,
         driver,
         instance_id,
-        account,
-        password,
         access_key,
         secret_key,
-        security_file_url,
-        security_file_password,
-        client_security_file_url,
-        client_security_file_password,
-        secret_file_password,
-        secret_file_url,
-        security_file_store_type,
         security_type,
-        public_security_type,
-        client_trust_store_password,
         life_cycle_state,
-        console_job_id,
-        parent_ds_id,
-        connect_type,
-        ds_env_id,
-        default_db_name
+        status,
+        status_message,
+        bind_cluster_id,
+        ds_env_id
     </sql>
 
     <sql id="rdpDataSourceIdentity">
@@ -95,13 +57,8 @@
         gmt_modified,
         uid,
         owner,
-        deploy_type,
-        info_fetch_type,
         data_source_type,
         host,
-        private_host,
-        public_host,
-        host_type,
         instance_desc,
         version,
         ds_env_id,
@@ -177,33 +134,6 @@
         ORDER BY gmt_create DESC
     </select>
 
-<!--    <select id="listByTypesAndEnv" resultMap="rdpDataSourceDO">-->
-<!--        SELECT-->
-<!--            <include refid="rdpDataSource"/>-->
-<!--        FROM-->
-<!--            dm_ds-->
-<!--        WHERE 1=1-->
-<!--            <if test="ids.size() > 0">-->
-<!--                AND id in <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach>-->
-<!--            </if>-->
-<!--            <if test="dataSourceType != null">-->
-<!--                AND data_source_type = #{dataSourceType,javaType=com.clougence.clouddm.base.metadata.ds.DataSourceType}-->
-<!--            </if>-->
-<!--            <if test="deployEnvType != null">-->
-<!--                AND deploy_env_type = #{deployEnvType,javaType=com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType}-->
-<!--            </if>-->
-<!--            <if test="dsEnvId != null">-->
-<!--                AND ds_env_id = #{dsEnvId}-->
-<!--            </if>-->
-<!--            <if test="lifeCycleState != null">-->
-<!--                AND life_cycle_state = #{lifeCycleState,javaType=com.clougence.clouddm.platform.dal.model.LifeCycleState}-->
-<!--            </if>-->
-<!--            <if test="lifeCycleState == null">-->
-<!--                AND life_cycle_state != 'DELETED'-->
-<!--            </if>-->
-<!--        ORDER BY gmt_create DESC-->
-<!--    </select>-->
-
     <select id="listByIdsIncludeDeleted" resultMap="rdpDataSourceDO">
         SELECT
             <include refid="rdpDataSource"/>
@@ -226,6 +156,61 @@
         ORDER BY gmt_create DESC
     </select>
 
+    <select id="queryByOwnerAndId" resultMap="rdpDataSourceDO">
+        SELECT
+            <include refid="rdpDataSource"/>
+        FROM
+            dm_ds
+        WHERE
+            uid = #{ownerUid} AND id = #{dataSourceId}
+        LIMIT 1
+    </select>
+
+    <select id="listByOwnerAndIds" resultMap="rdpDataSourceDO">
+        SELECT
+            <include refid="rdpDataSource"/>
+        FROM
+            dm_ds
+        WHERE
+            uid = #{ownerUid} AND id IN <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach>
+    </select>
+
+    <select id="listByOwner" resultMap="rdpDataSourceDO">
+        SELECT
+            <include refid="rdpDataSource"/>
+        FROM
+            dm_ds
+        WHERE
+            uid = #{ownerUid}
+    </select>
+
+    <select id="listByClusterId" resultMap="rdpDataSourceDO">
+        SELECT
+            <include refid="rdpDataSource"/>
+        FROM
+            dm_ds
+        WHERE
+            bind_cluster_id = #{clusterId}
+    </select>
+
+    <select id="queryByDataSourceId" resultMap="rdpDataSourceDO">
+        SELECT
+            <include refid="rdpDataSource"/>
+        FROM
+            dm_ds
+        WHERE
+            id = #{dataSourceId}
+    </select>
+
+    <select id="listByDataSourceIds" resultMap="rdpDataSourceDO">
+        SELECT
+            <include refid="rdpDataSource"/>
+        FROM
+            dm_ds
+        WHERE
+            id IN <foreach collection="dataSourceIds" item="item" separator="," open="(" close=")">#{item}</foreach>
+    </select>
+
     <select id="listByIdsAndType" resultMap="rdpDataSourceDO">
         SELECT
             <include refid="rdpDataSource"/>
@@ -238,25 +223,6 @@
         ORDER BY gmt_create DESC
     </select>
 
-<!--    <select id="listByTypes" resultMap="rdpDataSourceDO">-->
-<!--        SELECT-->
-<!--            <include refid="rdpDataSource"/>-->
-<!--        FROM-->
-<!--            dm_ds-->
-<!--        WHERE-->
-<!--            life_cycle_state != 'DELETED'-->
-<!--            <if test="dataSourceType != null">-->
-<!--                AND data_source_type = #{dataSourceType,javaType=com.clougence.clouddm.base.metadata.ds.DataSourceType}-->
-<!--            </if>-->
-<!--            <if test="deployType != null">-->
-<!--                AND deploy_type = #{deployType,javaType=com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType}-->
-<!--            </if>-->
-<!--            <if test="lifeCycleState != null">-->
-<!--                AND life_cycle_state = #{lifeCycleState,javaType=com.clougence.clouddm.platform.dal.model.LifeCycleState}-->
-<!--            </if>-->
-<!--        ORDER BY gmt_create DESC-->
-<!--    </select>-->
-
     <select id="listByCondition" resultMap="rdpDataSourceDO" parameterType="com.clougence.clouddm.platform.dal.model.datasource.ArgDsQueryParamObj">
         SELECT
             <include refid="rdpDataSource"/>
@@ -266,9 +232,6 @@
             life_cycle_state != 'DELETED'
             <if test="dataSourceType != null">
                 AND data_source_type = #{dataSourceType,javaType=com.clougence.clouddm.base.metadata.ds.DataSourceType}
-            </if>
-            <if test="deployType != null">
-                AND deploy_type = #{deployType,javaType=com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType}
             </if>
             <if test="lifeCycleState != null">
                 AND life_cycle_state = #{lifeCycleState,javaType=com.clougence.clouddm.platform.dal.model.LifeCycleState}
@@ -288,40 +251,6 @@
         ORDER BY gmt_create DESC
     </select>
 
-<!--    <select id="listByTypesAndIds" resultMap="rdpDataSourceDO">-->
-<!--        SELECT-->
-<!--            <include refid="rdpDataSource"/>-->
-<!--        FROM-->
-<!--            dm_ds-->
-<!--        WHERE-->
-<!--            life_cycle_state != 'DELETED' AND-->
-<!--            id IN <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach>-->
-<!--            <if test="dataSourceType != null">-->
-<!--                AND data_source_type = #{dataSourceType,javaType=com.clougence.clouddm.base.metadata.ds.DataSourceType}-->
-<!--            </if>-->
-<!--            <if test="deployType != null">-->
-<!--                AND deploy_type = #{deployType,javaType=com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType}-->
-<!--            </if>-->
-<!--            <if test="lifeCycleState != null">-->
-<!--                AND life_cycle_state = #{lifeCycleState,javaType=com.clougence.clouddm.platform.dal.model.LifeCycleState}-->
-<!--            </if>-->
-<!--        ORDER BY gmt_create DESC-->
-<!--    </select>-->
-
-    <select id="listByDeployTypesAndIds" resultMap="rdpDataSourceDO">
-        SELECT
-            <include refid="rdpDataSource"/>
-        FROM
-            dm_ds
-        WHERE
-            life_cycle_state != 'DELETED'
-        AND
-            id IN <foreach collection="ids" item="item" separator="," open="(" close=")">#{item}</foreach>
-            <if test="deployType != null">
-                AND deploy_type = #{deployType,javaType=com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType}
-            </if>
-    </select>
-
     <select id="listDataSourceByHost" resultMap="rdpDataSourceDO">
         SELECT
             <include refid="rdpDataSource"/>
@@ -331,30 +260,6 @@
             life_cycle_state != 'DELETED' AND
             host = #{host} AND
             uid = #{uid}
-        ORDER BY gmt_create DESC
-    </select>
-
-    <select id="listDataSourceByHosts" resultMap="rdpDataSourceDO">
-        SELECT
-            <include refid="rdpDataSource"/>
-        FROM
-            dm_ds
-        WHERE
-            life_cycle_state != 'DELETED' AND
-            private_host = #{privateHost} AND
-            public_host = #{publicHost} AND
-            uid = #{uid}
-        ORDER BY gmt_create DESC
-    </select>
-
-    <select id="listByParentDsId" resultMap="rdpDataSourceDO">
-        SELECT
-            <include refid="rdpDataSource"/>
-        FROM
-            dm_ds
-        WHERE
-            life_cycle_state != 'DELETED' AND
-            parent_ds_id = #{parentDsId}
         ORDER BY gmt_create DESC
     </select>
 
@@ -408,81 +313,18 @@
     <update id="cleanDataSourceAccount">
         UPDATE
             dm_ds
-        SET account  = null,
-            password = null
-        WHERE id = #{id}
-    </update>
-
-    <update id="updateAccountAndPasswordById">
-        UPDATE
-            dm_ds
-        SET account  = #{account},
-            password = #{password}
+        SET access_key = null,
+            secret_key = null
         WHERE id = #{id}
     </update>
 
     <update id="updateSecurityInfo">
         UPDATE
             dm_ds
-        SET account      = #{account},
-            password     = #{password},
+        SET access_key   = #{accessKey},
+            secret_key   = #{secretKey},
             security_type=#{securityType}
         WHERE id = #{id}
-    </update>
-
-    <update id="updateSecurityAllInfo">
-        UPDATE
-            dm_ds
-        SET
-            account = #{account},
-            password = #{password},
-            security_type = #{securityType},
-            access_key = #{accessKey},
-            secret_key = #{secretKey}
-            <if test="storeType != null">
-                ,security_file_store_type = #{storeType,javaType=com.clougence.clouddm.platform.dal.model.datasource.SecurityFileStoreType}
-            </if>
-            <if test="securityFileUrl != null">
-                ,security_file_url = #{securityFileUrl}
-            </if>
-            <if test="securityFilePassword != null">
-                ,security_file_password = #{securityFilePassword}
-            </if>
-            <if test="clientSecurityFileUrl != null">
-                ,client_security_file_url = #{clientSecurityFileUrl}
-            </if>
-            <if test="clientSecurityFilePassword != null">
-                ,client_security_file_password = #{clientSecurityFilePassword}
-            </if>
-            <if test="secretFileUrl != null">
-                ,secret_file_url = #{secretFileUrl}
-            </if>
-            <if test="secretFilePassword != null">
-                ,secret_file_password = #{secretFilePassword}
-            </if>
-        WHERE
-            id = #{id}
-    </update>
-
-    <update id="updateAkAndSk">
-        UPDATE
-            dm_ds
-        SET
-            access_key = #{accessKey},
-            secret_key = #{secretKey}
-        WHERE
-            id = #{id}
-    </update>
-
-    <update id="updateAliyunRdsAkAndSk">
-        UPDATE
-            dm_ds
-        SET
-            access_key = #{accessKey},
-            secret_key = #{secretKey}
-        WHERE
-            id = #{id} AND
-            deploy_type = 'ALIBABA_CLOUD_HOSTED'
     </update>
 
     <update id="updateVersionByInstanceId">
@@ -503,38 +345,11 @@
             id = #{id}
     </update>
 
-    <update id="updatePublicHostByInstanceId">
-        UPDATE
-            dm_ds
-        SET
-            public_host = #{publicHost}
-        WHERE
-            id = #{id}
-    </update>
-
-    <update id="updatePrivateHostByInstanceId">
-        UPDATE
-            dm_ds
-        SET
-            private_host = #{privateHost}
-        WHERE
-            id = #{id}
-    </update>
-
     <update id="updateLifeCycleStateById">
         UPDATE
             dm_ds
         SET
             life_cycle_state = #{lifeCycleState,javaType=com.clougence.clouddm.platform.dal.model.LifeCycleState}
-        WHERE
-            id = #{id}
-    </update>
-
-    <update id="updateConsoleJobId">
-        UPDATE
-            dm_ds
-        SET
-            console_job_id = #{consoleJobId}
         WHERE
             id = #{id}
     </update>
@@ -557,22 +372,20 @@
             id = #{id}
     </update>
 
+    <update id="updateStatusByDataSourceId">
+        UPDATE
+            dm_ds
+        SET
+            status = #{status}
+        WHERE
+            id = #{dataSourceId}
+    </update>
+
     <update id="updateInstanceIdByDataSourceId">
         UPDATE
             dm_ds
         SET
             instance_id = #{instanceId}
-        WHERE
-            id = #{id}
-    </update>
-
-    <update id="updateHostsByInstanceId">
-        UPDATE
-            dm_ds
-        SET
-            host = #{defaultHost},
-            private_host = #{privateHost},
-            public_host = #{publicHost}
         WHERE
             id = #{id}
     </update>

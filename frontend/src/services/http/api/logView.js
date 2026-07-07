@@ -7,5 +7,5 @@ export const logViewApi = {
   ccLogViewExportTaskLog: '/cloudcanal/console/api/v1/inner/logview/export/tasklog',
 
   // rdp
-  rdpLogViewGrepOperationLog: '/rdp/console/api/v1/logview/grep/operationlog'
+  rdpLogViewGrepOperationLog: '/api/entry/logview/grep/operationlog'
 };

@@ -6,7 +6,7 @@ function broadcast(componentName, eventName, params) {
       // eslint-disable-next-line prefer-spread
       child.$emit.apply(child, [eventName].concat(params));
     } else {
-      // todo 如果 params 是空数组，接收到的会是 undefined
+      // Todo, if Params is an empty array, will receive an undesired
       broadcast.apply(child, [componentName, eventName].concat([params]));
     }
   });

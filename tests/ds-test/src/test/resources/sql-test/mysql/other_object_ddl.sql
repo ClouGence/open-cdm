@@ -1,0 +1,46 @@
+-- Create InnoDB Common Table Space
+CREATE TABLESPACE `my_innodb_ts`
+ADD DATAFILE 'my_innodb_ts.ibd'
+ENGINE = InnoDB;
+
+CREATE TABLESPACE `my_innodb_ts`
+ADD DATAFILE '/path/to/data/my_innodb_ts.ibd'
+ENGINE = InnoDB;
+
+CREATE TABLESPACE `my_innodb_ts`
+ADD DATAFILE 'my_innodb_ts.ibd'
+FILE_BLOCK_SIZE = 8192
+ENGINE = InnoDB;
+
+CREATE LOGFILE GROUP my_log_group
+ADD UNDOFILE 'undo_001.dat'
+INITIAL_SIZE = 100M
+UNDO_BUFFER_SIZE = 8M
+ENGINE = NDBCLUSTER;
+
+CREATE TABLESPACE `my_ndb_ts`
+ADD DATAFILE 'data_001.dat'
+USE LOGFILE GROUP my_log_group
+EXTENT_SIZE = 1M
+ENGINE = NDBCLUSTER;
+
+ALTER LOGFILE GROUP my_log_group
+ADD UNDOFILE 'undo_002.dat'
+INITIAL_SIZE = 128M
+ENGINE = NDBCLUSTER;
+
+ALTER TABLESPACE old_ts_name RENAME TO new_ts_name;
+
+-- Assumes there is already surface space ts ndb
+ALTER TABLESPACE ts_ndb
+ADD DATAFILE 'data_002.dat'
+INITIAL_SIZE = 256M
+ENGINE = NDBCLUSTER;
+
+DROP TABLESPACE tablespace_name;
+
+DROP TABLESPACE tablespace_name
+ENGINE = NDBCLUSTER;
+
+DROP LOGFILE GROUP logfile_group_name
+ENGINE = NDBCLUSTER;

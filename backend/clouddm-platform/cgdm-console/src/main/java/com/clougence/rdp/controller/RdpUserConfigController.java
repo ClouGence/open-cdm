@@ -29,8 +29,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.console.web.component.config.UserConfigService;
+import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
@@ -39,9 +39,9 @@ import com.clougence.clouddm.console.web.model.fo.UpsertUserConfigFO;
 import com.clougence.clouddm.console.web.model.fo.user.GetUserSpecifiedConfsFO;
 import com.clougence.clouddm.console.web.model.lo.UpsertUserConfigLO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
+import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
-import com.clougence.rdp.constant.RdpControllerUrlPrefix;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.StringUtils;
@@ -55,7 +55,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author wanshao create time is 2020/3/11
  **/
 @RestController
-@RequestMapping(value = RdpControllerUrlPrefix.CONSOLE_PREFIX + "/user/config")
+@RequestMapping(value = DmControllerUrlPrefix.CONSOLE_PREFIX + "/user/config")
 @Slf4j
 public class RdpUserConfigController {
 
@@ -65,7 +65,7 @@ public class RdpUserConfigController {
     private RdpOpAuditService rdpOpAuditService;
 
     @RequestAuth(strategy = AuthStrategy.RefAnyOnes)
-    @RequestMapping(value = "/getcurruserconfigs", method = RequestMethod.POST)
+    @RequestMapping(value = "/getCurrUserConfigs", method = RequestMethod.POST)
     public ResWebData<?> getCurrUserConfigs(HttpServletRequest request) {
         // prepare auth info
         String puid = (String) request.getAttribute(RdpUserService.PUID);
@@ -89,7 +89,7 @@ public class RdpUserConfigController {
     }
 
     @RequestAuth(level = HIGH, value = RDP_PRI_USER_KV_CONF_W)
-    @RequestMapping(value = "/upsertuserconfigs", method = RequestMethod.POST)
+    @RequestMapping(value = "/upsertUserConfigs", method = RequestMethod.POST)
     public ResWebData<?> upsertUserConfigs(@RequestBody @Valid UpsertUserConfigFO configFO, HttpServletRequest request) {
         if (CollectionUtils.isEmpty(configFO.getUpdateConfigs()) && CollectionUtils.isEmpty(configFO.getNeedCreateConfigs())) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.UPDATE_USER_CONFIG_PARAMS_ARE_EMPTY.name()));

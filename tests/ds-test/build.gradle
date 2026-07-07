@@ -1,0 +1,67 @@
+plugins {
+    id 'com.clougence.java-conventions'
+}
+
+dependencies {
+    // project
+    testImplementation project(':cgdm-plugin-sdk')
+    testImplementation project(':cgdm-share-libs')
+    testImplementation project(':cg-schema')
+    testImplementation project(':plus-sec-rules')
+    testImplementation project(':cg-detectrule')
+    testImplementation project(':cg-dslparser')
+    testImplementation files('../clouddm-ds/lib/druid-1.2.25-SNAPSHOT.jar')
+
+    testImplementation(project(':dsc-common'))
+    testImplementation(project(':dsc-common-mysql'))
+    testImplementation(project(':dsc-common-oracle'))
+    testImplementation(project(':dsc-common-postgres'))
+    testImplementation(project(':dsc-common-db2'))
+    testImplementation(project(':sql-mysql'))
+    testImplementation(project(':sql-oracle'))
+    testImplementation(project(':sql-postgres'))
+    testImplementation(project(':sql-sqlserver'))
+    testImplementation(project(':sql-doris'))
+    testImplementation(project(':sql-redis'))
+    testImplementation(project(':sql-mongodb'))
+
+    testImplementation(project(':ds-mysql'))
+    testImplementation(project(':ds-mariadb'))
+    testImplementation(project(':ds-adb'))
+    testImplementation(project(':ds-oceanbase'))
+    testImplementation(project(':ds-tidb'))
+    testImplementation(project(':ds-postgres'))
+    testImplementation(project(':ds-greenplum'))
+    testImplementation(project(':ds-polardb'))
+    testImplementation(project(':ds-oracle'))
+    testImplementation(project(':ds-dameng'))
+    testImplementation(project(':ds-db2'))
+    testImplementation(project(':ds-sqlserver'))
+    testImplementation(project(':ds-hana'))
+    testImplementation(project(':ds-gauss'))
+    testImplementation(project(':ds-doris'))
+    testImplementation(project(':ds-maxcompute'))
+    testImplementation(project(':ds-starrocks'))
+    testImplementation(project(':ds-clickhouse'))
+    testImplementation(project(':ds-redis'))
+    testImplementation(project(':ds-hologres'))
+    testImplementation(project(':ds-mongodb'))
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
+    testImplementation "com.fasterxml.jackson.core:jackson-databind:${JACKSON_VERSION}"
+    testRuntimeOnly "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${JACKSON_VERSION}"
+    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.13.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.13.4'
+    testRuntimeOnly "org.slf4j:slf4j-api:${SLF4J_VERSION}"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+description = 's-test'
+
+//test {
+//    useJUnit()
+//    jvmArgs '--add-opens', 'java.base/java.lang=ALL-UNNAMED'
+//}

@@ -33,16 +33,10 @@ public class AuthForm extends ApprovalForm {
     public static class ApplyAuth {
 
         private List<String> resPaths;
-
         private List<String> authLabels;
-
         private String       startTime;
-
         private String       endTime;
-
         private String       resInstId;
-
         private String       resDesc;
     }
-
 }

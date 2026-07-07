@@ -1,17 +1,14 @@
 <template>
-  <a-menu v-model:selectedKeys="currentMenu" mode="horizontal" theme="dark">
+  <a-menu v-model:selectedKeys="currentMenu" mode="horizontal" class="app-shell-menu">
     <!--    <a-menu-item key="ticket" v-if="!isDesktop && includesDM && myCatLog.includes('CAT_RDP_WORKER_ORDER')"><a href="/#/ticket" >{{ $t('gong-dan') }}</a></a-menu-item>-->
     <a-menu-item key="sql" v-if="includesDM && myCatLog.includes('CAT_DM_CONSOLE')">
       <a href="/#/sql">{{ $t('sql-cha-xun') }}</a>
     </a-menu-item>
-    <a-menu-item key="project" v-if="includesDM && myCatLog.includes('CAT_DM_PROJECT') && !isDesktop">
-      <a href="/#/project">{{ $t('xiang-mu') }}</a>
+    <a-menu-item key="cicd" v-if="includesDM && myCatLog.includes('CAT_DM_CICD_FLOW') && !isDesktop">
+      <a href="/#/cicd">{{ $t('xiang-mu') }}</a>
     </a-menu-item>
     <a-menu-item key="ticket" v-if="includesDM && myCatLog.includes('CAT_RDP_WORKER_ORDER') && !isDesktop">
       <a href="/#/ticket">{{ $t('gong-dan') }}</a>
-    </a-menu-item>
-    <a-menu-item key="system" class="system-menu-item" v-if="canShowSystemMenu">
-      <a :href="getDefaultSystemPath">{{ $t('pei-zhi') }}</a>
     </a-menu-item>
   </a-menu>
 </template>
@@ -31,26 +28,20 @@ export default {
   },
   computed: {
     ...mapGetters(['includesCC', 'includesDM']),
-    ...mapState(['myCatLog', 'userInfo', 'globalSetting', 'mySystemMenuItems']),
-    ...mapGetters(['isDesktop']),
-    canShowSystemMenu() {
-      return this.mySystemMenuItems.length || !!this.userInfo?.uid || !!this.userInfo?.username;
-    },
-    getDefaultSystemPath() {
-      return '/#/system/profile';
-    }
+    ...mapState(['myCatLog', 'userInfo', 'globalSetting']),
+    ...mapGetters(['isDesktop'])
   },
   methods: {
     handlePath() {
       const path = this.$route.path;
       if (path.indexOf('/system/sql_log') > -1) {
-        this.currentMenu = ['system'];
+        this.currentMenu = [];
       } else if (path.indexOf('/sql') > -1) {
         this.currentMenu = ['sql'];
       } else if (path.indexOf('/system') > -1) {
-        this.currentMenu = ['system'];
-      } else if (path.indexOf('/project') > -1) {
-        this.currentMenu = ['project'];
+        this.currentMenu = [];
+      } else if (path.indexOf('/cicd') > -1) {
+        this.currentMenu = ['cicd'];
       } else if (path.indexOf('/ticket') > -1) {
         this.currentMenu = ['ticket'];
       } else {
@@ -70,14 +61,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-:deep(.ant-menu-horizontal) {
-  display: flex;
-  align-items: center;
-}
-
-:deep(.ant-menu-horizontal > .system-menu-item) {
-  margin-left: auto !important;
-}
-</style>

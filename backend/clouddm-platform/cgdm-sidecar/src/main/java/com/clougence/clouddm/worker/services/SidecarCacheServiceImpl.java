@@ -12,85 +12,45 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.clougence.clouddm.worker.services;
+ */
+package com.clougence.clouddm.worker.services;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.sdk.service.cache.CacheService;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
-import com.clougence.utils.ThreadUtils;
+import com.clougence.clouddm.component.cache.LocalCacheComponent;
+import com.clougence.clouddm.sdk.service.cache.CacheService;
 import com.clougence.utils.function.EFunction;
 
-@Service
+@Service("sidecarCacheService")
 public class SidecarCacheServiceImpl implements CacheService, UnifiedPostConstruct {
 
-    private final AtomicBoolean inited = new AtomicBoolean(false);
-    private final Object        lock   = new Object();
-    private Map<String, Object> theCache;
+    private static final Duration DEFAULT_TTL = Duration.ofMinutes(1);
 
     @Override
-    public void init() throws Exception {
-        if (inited.compareAndSet(false, true)) {
-            if (this.theCache != null) {
-                return;
-            }
-
-            this.theCache = new LinkedHashMap<>(500);
-
-            ThreadUtils.runDaemonThread(() -> {
-                Thread.currentThread().setName("SidecarCacheService-cache-cleanup");
-                while (true) {
-                    synchronized (this.lock) {
-                        theCache.clear();
-                    }
-                    ThreadUtils.sleep(60 * 1000);
-                }
-            });
-        }
+    public void init() {
     }
 
     @Override
     public void stop() {
-        if (this.inited.compareAndSet(true, false)) {
-            synchronized (this.lock) {
-                this.theCache.clear();
-            }
-        }
+        LocalCacheComponent.getInstance().clearMemory();
     }
 
     @Override
-    public synchronized Object getObject(String key) {
-        synchronized (this.lock) {
-            return this.theCache.get(key);
-        }
+    public Object getObject(String key) {
+        return LocalCacheComponent.getInstance().getObject(key);
     }
 
     @Override
-    public synchronized Object getObjectIfAbsent(String key, EFunction<String, Object, Exception> absent) throws Exception {
-        synchronized (this.lock) {
-            Object v = this.theCache.get(key);
-            if (v == null) {
-                v = absent.eApply(key);
-                this.theCache.put(key, v);
-            }
-            return v;
-        }
+    public Object getObjectIfAbsent(String key, EFunction<String, Object, Exception> absent) throws Exception {
+        return LocalCacheComponent.getInstance().getObjectIfAbsent(key, DEFAULT_TTL, absent);
     }
 
     @Override
-    public synchronized Object cacheAndReturn(String key, Object obj) {
-        synchronized (this.lock) {
-            this.theCache.put(key, obj);
-            return obj;
-        }
+    public Object getObjectIfAbsent(String key, int timeout, TimeUnit timeUnit, EFunction<String, Object, Exception> absent) throws Exception {
+        return LocalCacheComponent.getInstance().getObjectIfAbsent(key, Duration.ofMillis(timeUnit.toMillis(timeout)), absent);
     }
-
-    //    @Override
-    //    public Object cacheAndReturn(String key, Object obj, int timeout, TimeUnit timeUnit) {
-    //        return obj;
-    //    }
 }

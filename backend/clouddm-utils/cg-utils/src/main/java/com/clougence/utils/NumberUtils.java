@@ -829,7 +829,7 @@ public final class NumberUtils {
 
     //
     // ============================================================================================
-    //  数学计算处理工具，提供：加、减、乘、除、整除、求余，尽量考虑在保证性能的前提下不产生精度丢失问题。
+    //  Mathematical helpers for add, subtract, multiply, divide, integer divide, and remainder operations while avoiding precision loss where practical.
     private static final int BOOL   = 1;
     private static final int BYTE   = 2;
     private static final int SHORT  = 3;
@@ -846,30 +846,30 @@ public final class NumberUtils {
     private static final int NONE   = 0;
     //
 
-    /** 对比两个数据类型，返回交大的那个类型作为载体。 */
+    /** Compares two numeric types and returns the wider type to use as the carrier. */
     private static int getNumericType(Number v1, Number v2) {
         int v1Type = getNumericType(v1);
         int v2Type = getNumericType(v2);
         //
-        // .未知类型
+        // Unknown type
         if (v1Type == v2Type) {
             return v1Type;
         }
         if (v1Type == NONE || v2Type == NONE) {
             return NONE;
         }
-        // .整数类型的只使用 long or int 作为承载
+        // Integer types use only int or long as carriers.
         if (v1Type <= LONG && v2Type <= LONG) {
             return (v1Type == LONG || v2Type == LONG) ? LONG : INT;
         }
-        // .浮点数使用 float or double 作为承载
+        // Floating-point types use float or double as carriers.
         if (v1Type <= DOUBLE && v2Type <= DOUBLE) {
             // boolean、byte、short、float  -> float
             // int、char、double            -> double
             boolean useFloat = v1Type <= SHORT || v2Type <= SHORT && (v1Type == FLOAT || v2Type == FLOAT);
             return useFloat ? FLOAT : DOUBLE;
         }
-        // .整数 or 浮点
+        // Integer or floating-point types.
         boolean useDec = v1Type == FLOAT || v1Type == DOUBLE || v2Type == FLOAT || v2Type == DOUBLE;
         return useDec ? BIGDEC : BIGINT;
     }
@@ -910,7 +910,7 @@ public final class NumberUtils {
     //
     //
 
-    /** 转换为：int */
+    /** Convert to:int */
     private static int intValue(Object value) {
         if (value == null) {
             return 0;
@@ -928,7 +928,7 @@ public final class NumberUtils {
         return Integer.parseInt(value.toString().trim());
     }
 
-    /** 转换为：long */
+    /** Convert to: long */
     private static long longValue(Object value) {
         if (value == null) {
             return 0L;
@@ -946,7 +946,7 @@ public final class NumberUtils {
         return Long.parseLong(value.toString().trim());
     }
 
-    /** 转换为：BigInteger */
+    /** Convert to: BigInteger */
     private static BigInteger bigIntValue(Object value) {
         if (value == null) {
             return BigInteger.valueOf(0L);
@@ -970,7 +970,7 @@ public final class NumberUtils {
         return new BigInteger(value.toString().trim());
     }
 
-    /** 转换为：float */
+    /** Convert to: float */
     private static float floatValue(Object value) {
         if (value == null) {
             return 0.0f;
@@ -989,7 +989,7 @@ public final class NumberUtils {
         return (s.length() == 0) ? 0.0f : Float.parseFloat(s);
     }
 
-    /** 转换为：double */
+    /** Convert to: double */
     private static double doubleValue(Object value) {
         if (value == null) {
             return 0.0;
@@ -1008,7 +1008,7 @@ public final class NumberUtils {
         return (s.length() == 0) ? 0.0 : Double.parseDouble(s);
     }
 
-    /** 转换为：BigDecimal */
+    /** Convert to: BigDecimal */
     private static BigDecimal bigDecimalValue(Object value) {
         if (value == null) {
             return BigDecimal.valueOf(0L);
@@ -1035,7 +1035,7 @@ public final class NumberUtils {
     // ============================================================================================
     //
 
-    /** 加 */
+    /** Add */
     public static Number add(Number obj1, Number obj2) {
         if (isDecimal(obj1) || isDecimal(obj2)) {
             return decimalAdd(obj1, obj2);
@@ -1044,7 +1044,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 减 */
+    /** Subtract */
     public static Number subtract(Number obj1, Number obj2) {
         if (isDecimal(obj1) || isDecimal(obj2)) {
             return decimalSubtract(obj1, obj2);
@@ -1053,7 +1053,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 乘 */
+    /** Multiplication */
     public static Number multiply(Number obj1, Number obj2) {
         if (isDecimal(obj1) || isDecimal(obj2)) {
             return decimalMultiply(obj1, obj2);
@@ -1062,7 +1062,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 除 */
+    /** Divide */
     public static Number divide(Number obj1, Number obj2, int precision, RoundingMode roundingEnum) {
         if (isDecimal(obj1) || isDecimal(obj2)) {
             if (roundingEnum == null) {
@@ -1077,7 +1077,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 整除 */
+    /** Integer divide */
     public static Number aliquot(Number obj1, Number obj2) {
         if (isDecimal(obj1) || isDecimal(obj2)) {
             return decimalAliquot(obj1, obj2);
@@ -1086,7 +1086,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 求余 */
+    /** Remainder */
     public static Number mod(Number obj1, Number obj2) {
         if (isDecimal(obj1) || isDecimal(obj2)) {
             return decimalMod(obj1, obj2);
@@ -1095,7 +1095,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 取反，相当于：value * -1 */
+    /** Negate, equivalent to: value * -1 */
     public static Number negate(Number obj) {
         if (isDecimal(obj)) {
             return decimalNegate(obj);
@@ -1104,7 +1104,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 测试是否为一个小数 */
+    /** Test for a decimal */
     public static boolean isDecimal(Number tester) {
         if (tester instanceof BigDecimal) {
             return true;
@@ -1169,7 +1169,7 @@ public final class NumberUtils {
         return value;
     }
 
-    /** 整数，加 */
+    /** Integer add */
     private static Number integerAdd(Number obj1, Number obj2) {
         int maxType = getNumericType(obj1, obj2);
         switch (maxType) {
@@ -1186,7 +1186,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 整数，减 */
+    /** Integer subtract */
     private static Number integerSubtract(Number obj1, Number obj2) {
         int maxType = getNumericType(obj1, obj2);
         switch (maxType) {
@@ -1203,7 +1203,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 整数，乘 */
+    /** Integer multiply */
     private static Number integerMultiply(Number obj1, Number obj2) {
         int maxType = getNumericType(obj1, obj2);
         switch (maxType) {
@@ -1220,7 +1220,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 整数，除 or 整除 */
+    /** Integer divide */
     private static Number integerDivide(Number obj1, Number obj2) {
         int maxType = getNumericType(obj1, obj2);
         switch (maxType) {
@@ -1237,7 +1237,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 整数，求余 */
+    /** Integer remainder */
     private static Number integerMod(Number obj1, Number obj2) {
         int maxType = getNumericType(obj1, obj2);
         switch (maxType) {
@@ -1254,7 +1254,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 整数，取反 */
+    /** Integer negate */
     private static Number integerNegate(Number obj) {
         int maxType = getNumericType(obj);
         switch (maxType) {
@@ -1271,7 +1271,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 小数，加 */
+    /** Decimal add */
     private static Number decimalAdd(Number obj1, Number obj2) {
         int maxType = getNumericType(obj1, obj2);
         switch (maxType) {
@@ -1284,7 +1284,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 小数，减 */
+    /** Decimal subtract */
     private static Number decimalSubtract(Number obj1, Number obj2) {
         int maxType = getNumericType(obj1, obj2);
         switch (maxType) {
@@ -1297,7 +1297,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 小数，乘 */
+    /** Decimal multiply */
     private static Number decimalMultiply(Number obj1, Number obj2) {
         int maxType = getNumericType(obj1, obj2);
         switch (maxType) {
@@ -1310,7 +1310,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 小数，除 */
+    /** Decimal divide */
     private static Number decimalDivide(Number obj1, Number obj2, int precision, RoundingMode roundingEnum) {
         int maxType = getNumericType(obj1, obj2);
         switch (maxType) {
@@ -1323,7 +1323,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 小数，整除 */
+    /** Decimal integer divide */
     private static Number decimalAliquot(Number obj1, Number obj2) {
         int maxType = getNumericType(obj1, obj2);
         switch (maxType) {
@@ -1336,7 +1336,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 小数，求余 */
+    /** Decimal remainder */
     private static Number decimalMod(Number obj1, Number obj2) {
         int maxType = getNumericType(obj1, obj2);
         switch (maxType) {
@@ -1349,7 +1349,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 小数，取反 */
+    /** Decimal negate. */
     private static Number decimalNegate(Number obj) {
         int maxType = getNumericType(obj);
         switch (maxType) {
@@ -1373,7 +1373,7 @@ public final class NumberUtils {
         return numericType;
     }
 
-    /** 相等 */
+    /** Equal */
     public static boolean eq(Number obj1, Number obj2) {
         int numericType = getNumericTypeWithCompare(obj1, obj2);
         if (numericType <= INT) {
@@ -1391,10 +1391,10 @@ public final class NumberUtils {
         if (numericType == BIGDEC) {
             return bigDecimalValue(obj1).compareTo(bigDecimalValue(obj2)) == 0;
         }
-        return obj1.doubleValue() == obj2.doubleValue(); // 永远不会走到这一步的
+        return obj1.doubleValue() == obj2.doubleValue(); // This will never happen.
     }
 
-    /** 大于 */
+    /** Greater than */
     public static boolean gt(Number obj1, Number obj2) {
         int numericType = getNumericTypeWithCompare(obj1, obj2);
         if (numericType <= INT) {
@@ -1412,10 +1412,10 @@ public final class NumberUtils {
         if (numericType == BIGDEC) {
             return bigDecimalValue(obj1).compareTo(bigDecimalValue(obj2)) > 0;
         }
-        return obj1.doubleValue() > obj2.doubleValue(); // 永远不会走到这一步的
+        return obj1.doubleValue() > obj2.doubleValue(); // This will never happen.
     }
 
-    /** 大于等于 */
+    /** greater than or equal to */
     public static boolean gteq(Number obj1, Number obj2) {
         int numericType = getNumericTypeWithCompare(obj1, obj2);
         if (numericType <= INT) {
@@ -1433,10 +1433,10 @@ public final class NumberUtils {
         if (numericType == BIGDEC) {
             return bigDecimalValue(obj1).compareTo(bigDecimalValue(obj2)) >= 0;
         }
-        return obj1.doubleValue() >= obj2.doubleValue(); // 永远不会走到这一步的
+        return obj1.doubleValue() >= obj2.doubleValue(); // This will never happen.
     }
 
-    /** 小于 */
+    /** less than */
     public static boolean lt(Number obj1, Number obj2) {
         int numericType = getNumericTypeWithCompare(obj1, obj2);
         if (numericType <= INT) {
@@ -1454,10 +1454,10 @@ public final class NumberUtils {
         if (numericType == BIGDEC) {
             return bigDecimalValue(obj1).compareTo(bigDecimalValue(obj2)) < 0;
         }
-        return obj1.doubleValue() < obj2.doubleValue(); // 永远不会走到这一步的
+        return obj1.doubleValue() < obj2.doubleValue(); // This will never happen.
     }
 
-    /** 小于等于 */
+    /** less than or equal to */
     public static boolean lteq(Number obj1, Number obj2) {
         int numericType = getNumericTypeWithCompare(obj1, obj2);
         if (numericType <= INT) {
@@ -1475,7 +1475,7 @@ public final class NumberUtils {
         if (numericType == BIGDEC) {
             return bigDecimalValue(obj1).compareTo(bigDecimalValue(obj2)) <= 0;
         }
-        return obj1.doubleValue() <= obj2.doubleValue(); // 永远不会走到这一步的
+        return obj1.doubleValue() <= obj2.doubleValue(); // This will never happen.
     }
 
     //
@@ -1487,7 +1487,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 与 */
+    /** Bitwise AND */
     public static Number and(Number obj1, Number obj2) {
         checkDecimal(obj1, obj2);
         int numericType = getNumericType(obj1, obj2);
@@ -1500,7 +1500,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 或 */
+    /** Bitwise OR */
     public static Number or(Number obj1, Number obj2) {
         checkDecimal(obj1, obj2);
         int numericType = getNumericType(obj1, obj2);
@@ -1513,7 +1513,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 异或 */
+    /** Bitwise XOR */
     public static Number xor(Number obj1, Number obj2) {
         checkDecimal(obj1, obj2);
         int numericType = getNumericType(obj1, obj2);
@@ -1526,7 +1526,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 左位移 */
+    /** Shift left */
     public static Number shiftLeft(Number obj1, Number obj2) {
         checkDecimal(obj1, obj2);
         int numericType = getNumericType(obj1, obj2);
@@ -1539,7 +1539,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 右位移 */
+    /** Shift right */
     public static Number shiftRight(Number obj1, Number obj2) {
         checkDecimal(obj1, obj2);
         int numericType = getNumericType(obj1, obj2);
@@ -1552,7 +1552,7 @@ public final class NumberUtils {
         }
     }
 
-    /** 无符号右位移 */
+    /** Unsigned Right Shift */
     public static Number shiftRightWithUnsigned(Number obj1, Number obj2) {
         checkDecimal(obj1, obj2);
         int numericType = getNumericType(obj1, obj2);
@@ -1561,8 +1561,8 @@ public final class NumberUtils {
         } else if (numericType <= LONG) {
             return longValue(obj1) >>> longValue(obj2);
         } else {
-            //忽略无符号的右位移运算符（>>>），因为该操作与由此类提供的“无穷大的词大小”抽象结合使用时毫无意义。
-            // - 无穷大的词大小 -> BigInteger 理论上可以表示无穷大。
+            // Ignore unsigned right shift for BigInteger because it is meaningless under the infinite word-size abstraction.
+            // BigInteger can theoretically represent arbitrarily large numbers.
             return bigIntValue(obj1).shiftRight(intValue(obj2));
         }
     }
@@ -1570,52 +1570,52 @@ public final class NumberUtils {
     // ------------------------------------------------------------------------------------------- round (copy form hutool)
 
     /**
-     * 保留固定位数小数<br>
-     * 采用四舍五入策略 {@link RoundingMode#HALF_UP}<br>
-     * 例如保留2位小数：123.456789 => 123.46
+     * Keeps a fixed number of decimal places.
+     * Uses {@link RoundingMode#HALF_UP}.
+     * For example, two decimal places: 123.456789 => 123.46
      *
-     * @param v     值
-     * @param scale 保留小数位数
-     * @return 新值
+     * @param v     Value
+     * @param scale Keep decimal places
+     * @return New value
      */
     public static BigDecimal round(double v, int scale) {
         return round(v, scale, RoundingMode.HALF_UP);
     }
 
     /**
-     * 保留固定位数小数<br>
-     * 采用四舍五入策略 {@link RoundingMode#HALF_UP}<br>
-     * 例如保留2位小数：123.456789 => 123.46
+     * Keeps a fixed number of decimal places.
+     * Uses {@link RoundingMode#HALF_UP}.
+     * For example, two decimal places: 123.456789 => 123.46
      *
-     * @param v     值
-     * @param scale 保留小数位数
-     * @return 新值
+     * @param v     Value
+     * @param scale Keep decimal places
+     * @return New value
      */
     public static String roundStr(double v, int scale) {
         return round(v, scale).toString();
     }
 
     /**
-     * 保留固定位数小数<br>
-     * 采用四舍五入策略 {@link RoundingMode#HALF_UP}<br>
-     * 例如保留2位小数：123.456789 => 123.46
+     * Keeps a fixed number of decimal places.
+     * Uses {@link RoundingMode#HALF_UP}.
+     * For example, two decimal places: 123.456789 => 123.46
      *
-     * @param numberStr 数字值的字符串表现形式
-     * @param scale     保留小数位数
-     * @return 新值
+     * @param numberStr String expression of numerical values
+     * @param scale     Keep decimal places
+     * @return New value
      */
     public static BigDecimal round(String numberStr, int scale) {
         return round(numberStr, scale, RoundingMode.HALF_UP);
     }
 
     /**
-     * 保留固定位数小数<br>
-     * 采用四舍五入策略 {@link RoundingMode#HALF_UP}<br>
-     * 例如保留2位小数：123.456789 => 123.46
+     * Keeps a fixed number of decimal places.
+     * Uses {@link RoundingMode#HALF_UP}.
+     * For example, two decimal places: 123.456789 => 123.46
      *
-     * @param number 数字值
-     * @param scale  保留小数位数
-     * @return 新值
+     * @param number Numeric Value
+     * @param scale  Keep decimal places
+     * @return New value
      * @since 4.1.0
      */
     public static BigDecimal round(BigDecimal number, int scale) {
@@ -1623,13 +1623,13 @@ public final class NumberUtils {
     }
 
     /**
-     * 保留固定位数小数<br>
-     * 采用四舍五入策略 {@link RoundingMode#HALF_UP}<br>
-     * 例如保留2位小数：123.456789 => 123.46
+     * Keeps a fixed number of decimal places.
+     * Uses {@link RoundingMode#HALF_UP}.
+     * For example, two decimal places: 123.456789 => 123.46
      *
-     * @param numberStr 数字值的字符串表现形式
-     * @param scale     保留小数位数
-     * @return 新值
+     * @param numberStr String expression of numerical values
+     * @param scale     Keep decimal places
+     * @return New value
      * @since 3.2.2
      */
     public static String roundStr(String numberStr, int scale) {
@@ -1637,26 +1637,26 @@ public final class NumberUtils {
     }
 
     /**
-     * 保留固定位数小数<br>
-     * 例如保留四位小数：123.456789 => 123.4567
+     * Keeps a fixed number of decimal places.
+     * For example, retaining four decimal places: 123.456789 => 123.4567
      *
-     * @param v            值
-     * @param scale        保留小数位数
-     * @param roundingMode 保留小数的模式 {@link RoundingMode}
-     * @return 新值
+     * @param v            Value
+     * @param scale        Keep decimal places
+     * @param roundingMode Rounding mode used to keep decimal places.
+     * @return New value
      */
     public static BigDecimal round(double v, int scale, RoundingMode roundingMode) {
         return round(Double.toString(v), scale, roundingMode);
     }
 
     /**
-     * 保留固定位数小数<br>
-     * 例如保留四位小数：123.456789 => 123.4567
+     * Keeps a fixed number of decimal places.
+     * For example, retaining four decimal places: 123.456789 => 123.4567
      *
-     * @param v            值
-     * @param scale        保留小数位数
-     * @param roundingMode 保留小数的模式 {@link RoundingMode}
-     * @return 新值
+     * @param v            Value
+     * @param scale        Keep decimal places
+     * @param roundingMode Rounding mode used to keep decimal places.
+     * @return New value
      * @since 3.2.2
      */
     public static String roundStr(double v, int scale, RoundingMode roundingMode) {
@@ -1664,13 +1664,13 @@ public final class NumberUtils {
     }
 
     /**
-     * 保留固定位数小数<br>
-     * 例如保留四位小数：123.456789 => 123.4567
+     * Keeps a fixed number of decimal places.
+     * For example, retaining four decimal places: 123.456789 => 123.4567
      *
-     * @param numberStr    数字值的字符串表现形式
-     * @param scale        保留小数位数，如果传入小于0，则默认0
-     * @param roundingMode 保留小数的模式 {@link RoundingMode}，如果传入null则默认四舍五入
-     * @return 新值
+     * @param numberStr    String expression of numerical values
+     * @param scale        Keep decimal places, default 0 if less than 0
+     * @param roundingMode Rounding mode used to keep decimal places; uses the default mode when null.
+     * @return New value
      */
     public static BigDecimal round(String numberStr, int scale, RoundingMode roundingMode) {
         if (StringUtils.isBlank(numberStr)) {
@@ -1683,13 +1683,13 @@ public final class NumberUtils {
     }
 
     /**
-     * 保留固定位数小数<br>
-     * 例如保留四位小数：123.456789 => 123.4567
+     * Keeps a fixed number of decimal places.
+     * For example, retaining four decimal places: 123.456789 => 123.4567
      *
-     * @param number       数字值
-     * @param scale        保留小数位数，如果传入小于0，则默认0
-     * @param roundingMode 保留小数的模式 {@link RoundingMode}，如果传入null则默认四舍五入
-     * @return 新值
+     * @param number       Numeric Value
+     * @param scale        Keep decimal places, default 0 if less than 0
+     * @param roundingMode Rounding mode used to keep decimal places; uses the default mode when null.
+     * @return New value
      */
     public static BigDecimal round(BigDecimal number, int scale, RoundingMode roundingMode) {
         if (null == number) {
@@ -1706,13 +1706,13 @@ public final class NumberUtils {
     }
 
     /**
-     * 保留固定位数小数<br>
-     * 例如保留四位小数：123.456789 => 123.4567
+     * Keeps a fixed number of decimal places.
+     * For example, retaining four decimal places: 123.456789 => 123.4567
      *
-     * @param numberStr    数字值的字符串表现形式
-     * @param scale        保留小数位数
-     * @param roundingMode 保留小数的模式 {@link RoundingMode}
-     * @return 新值
+     * @param numberStr    String expression of numerical values
+     * @param scale        Keep decimal places
+     * @param roundingMode Rounding mode used to keep decimal places.
+     * @return New value
      * @since 3.2.2
      */
     public static String roundStr(String numberStr, int scale, RoundingMode roundingMode) {
@@ -1720,23 +1720,23 @@ public final class NumberUtils {
     }
 
     /**
-     * 四舍六入五成双计算法
+     * Rounds using half-even.
      * <p>
-     * 四舍六入五成双是一种比较精确比较科学的计数保留法，是一种数字修约规则。
+     * Half-even is a more precise and scientific rounding rule.
      * </p>
      *
      * <pre>
-     * 算法规则:
-     * 四舍六入五考虑，
-     * 五后非零就进一，
-     * 五后皆零看奇偶，
-     * 五前为偶应舍去，
-     * 五前为奇要进一。
+     * Algorithm:
+     * round down for digits less than 5;
+     * round up for digits greater than 5;
+     * if the digit is 5 followed by non-zero digits, round up;
+     * if the digit is 5 followed only by zeros, round to make the previous digit even;
+     * round down when the previous digit is even, and round up when it is odd.
      * </pre>
      *
-     * @param number 需要科学计算的数据
-     * @param scale  保留的小数位
-     * @return 结果
+     * @param number Data for scientific calculations
+     * @param scale  Keep decimal places
+     * @return Result
      * @since 4.1.0
      */
     public static BigDecimal roundHalfEven(Number number, int scale) {
@@ -1750,20 +1750,20 @@ public final class NumberUtils {
     }
 
     /**
-     * 四舍六入五成双计算法
-     * <p> 四舍六入五成双是一种比较精确比较科学的计数保留法，是一种数字修约规则。 </p>
+     * Rounds using half-even.
+     * Half-even is a more precise and scientific rounding rule.
      * <pre>
-     * 算法规则:
-     * 四舍六入五考虑，
-     * 五后非零就进一，
-     * 五后皆零看奇偶，
-     * 五前为偶应舍去，
-     * 五前为奇要进一。
+     * Algorithm:
+     * round down for digits less than 5;
+     * round up for digits greater than 5;
+     * if the digit is 5 followed by non-zero digits, round up;
+     * if the digit is 5 followed only by zeros, round to make the previous digit even;
+     * round down when the previous digit is even, and round up when it is odd.
      * </pre>
      *
-     * @param value 需要科学计算的数据
-     * @param scale 保留的小数位
-     * @return 结果
+     * @param value Data for scientific calculations
+     * @param scale Keep decimal places
+     * @return Result
      * @since 4.1.0
      */
     public static BigDecimal roundHalfEven(BigDecimal value, int scale) {
@@ -1771,10 +1771,10 @@ public final class NumberUtils {
     }
 
     /**
-     * 保留固定小数位数，舍去多余位数
-     * @param number 需要科学计算的数据
-     * @param scale  保留的小数位
-     * @return 结果
+     * Keep fixed decimal places and remove excess digits
+     * @param number Data for scientific calculations
+     * @param scale  Keep decimal places
+     * @return Result
      * @since 4.1.0
      */
     public static BigDecimal roundDown(Number number, int scale) {
@@ -1788,11 +1788,11 @@ public final class NumberUtils {
     }
 
     /**
-     * 保留固定小数位数，舍去多余位数
+     * Keep fixed decimal places and remove excess digits
      *
-     * @param value 需要科学计算的数据
-     * @param scale 保留的小数位
-     * @return 结果
+     * @param value Data for scientific calculations
+     * @param scale Keep decimal places
+     * @return Result
      * @since 4.1.0
      */
     public static BigDecimal roundDown(BigDecimal value, int scale) {

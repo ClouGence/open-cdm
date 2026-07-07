@@ -37,7 +37,7 @@ import lombok.Setter;
 import lombok.experimental.Tolerate;
 
 /**
- * Faker 全局配置
+ * Faker Global Configuration
  *
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)

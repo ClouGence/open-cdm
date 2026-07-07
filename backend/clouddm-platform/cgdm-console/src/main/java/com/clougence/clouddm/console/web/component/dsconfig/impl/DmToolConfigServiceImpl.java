@@ -39,7 +39,6 @@ public class DmToolConfigServiceImpl implements DmToolConfigService {
     public ToolConfig fetchToolConfig(String toolName) {
         if (StringUtils.equals(toolName, FakerPluginConfig.TOOL_NAME)) {
             FakerPluginConfig config = new FakerPluginConfig();
-            config.deserialize();
 
             config.setExportMaxConcurrent(50);
             config.setOnlineMaxConcurrent(50);

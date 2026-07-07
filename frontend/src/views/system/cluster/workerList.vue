@@ -2,12 +2,6 @@
   <div class="machine-list">
     <div class="table-list-layout">
       <div class="table-list">
-        <div class="header">
-          <Breadcrumb>
-            <BreadcrumbItem to="/system/dmmachine">{{ $t('cha-xun-ji-qi') }}</BreadcrumbItem>
-            <BreadcrumbItem>{{ $t('ji-qi-lie-biao') }}</BreadcrumbItem>
-          </Breadcrumb>
-        </div>
         <div class="content">
           <div class="option border-radius-card">
             <div class="left">
@@ -34,24 +28,14 @@
                   style="width: 280px; margin-right: 10px"
                   clearable
                 />
-                <Button class="search-btn" type="primary" @click="handleQuery">
+                <Button class="search-btn" type="primary" ghost @click="handleQuery">
                   {{ $t('cha-xun') }}
                 </Button>
               </div>
             </div>
             <div class="right">
-              <Button
-                v-if="myAuth.includes('DM_WORKER_MANAGE')"
-                ghost
-                icon="md-add"
-                style="margin-right: 10px"
-                type="primary"
-                @click="handleClickAddBtn"
-              >
+              <Button v-if="myAuth.includes('DM_WORKER_MANAGE')" icon="md-add" style="margin-right: 10px" type="primary" @click="handleClickAddBtn">
                 {{ $t('tian-jia-ji-qi') }}
-              </Button>
-              <Button class="refresh" @click="getWorkerList">
-                <CustomIcon type="icon-v2-Refresh" />
               </Button>
             </div>
           </div>
@@ -239,7 +223,7 @@
         </div>
       </div>
     </CCModal>
-    <CCModal v-model="showConfigModal" :mask-closable="false" footerHide :width="630" :title="$t('pei-zhi-wen-jian')">
+    <CCModal v-model="showConfigModal" :mask-closable="false" footerHide width="min(1080px, calc(100vw - 96px))" :title="$t('pei-zhi-wen-jian')">
       <div v-if="showConfigModal" class="config-modal">
         <a-alert
           banner
@@ -275,7 +259,7 @@
 </template>
 
 <script lang="js">
-import cloneDeep from 'lodash.clonedeep';
+import { cloneDeep } from '@/utils/lodash';
 import AddMachineModal from '@/views/system/cluster/components/AddMachineModal';
 // import { Modal } from 'view-ui-plus';
 import { Modal } from 'ant-design-vue';
@@ -758,6 +742,9 @@ export default {
     border: 1px solid #ededed;
     background: #fafafa;
     padding: 10px;
+    overflow-x: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+    white-space: nowrap;
   }
 
   .btn-group {

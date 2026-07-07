@@ -3,37 +3,10 @@
     <div v-if="pageLoading" class="page-loading-mask">
       <a-spin size="large" :tip="$t('zheng-zai-jia-zai')" />
     </div>
-    <div class="header">
-      <div class="left">
-        <Breadcrumb>
-          <BreadcrumbItem>{{ $t('wo-de-quan-xian') }}</BreadcrumbItem>
-          <BreadcrumbItem v-if="!isView">{{ $t('shen-qing-quan-xian') }}</BreadcrumbItem>
-        </Breadcrumb>
-      </div>
-    </div>
     <div class="auth-content">
       <div class="auth-container">
         <div class="auth" @mousemove="handleMouseMove" @mouseup="stopDragging">
           <div class="left" :style="{ width: leftWidth + 'px' }">
-            <div class="auth-btns">
-              <a-button
-                :type="activeAuthTab === authTab.value ? 'primary' : 'default'"
-                :disabled="disableAuthTab(authTab.value)"
-                v-for="authTab in authTabs"
-                :key="authTab.value"
-                class="auth-btn"
-                @click="handleSwitchAuth(authTab.value, authTab.type)"
-              >
-                {{ authTab.label }}
-              </a-button>
-            </div>
-            <div v-if="activeAuthTab === 'DataJob' && getCcProductClusterList.length > 0">
-              <a-select v-model:value="selectedCcCluster" style="width: 100%" @change="handleChangeCcCluster">
-                <a-select-option :value="cluster.clusterCode" :key="cluster.id" v-for="cluster in getCcProductClusterList">
-                  {{ cluster.clusterDesc }}
-                </a-select-option>
-              </a-select>
-            </div>
             <div class="search">
               <!-- <a-select v-if="isEdit" v-model="datasourceTreeSearchType" style="width: 130px" @change="onSearchTypChange">
                 <a-select-option value="all">{{ $t('quan-bu') }}</a-select-option>
@@ -71,120 +44,175 @@
           <div :class="`middle ${showAuthTree ? '' : 'no-auth'}`">
             <div class="auth-tree-container">
               <a-spin class="auth-loading" v-if="loadingAuth" />
-              <Tabs :animated="false" class="auth-tree" v-model="curRightTreeTab">
-                <template #tab>
-                  <a class="extra-tab" v-show="timeList?.[curNode.key]?.length">
-                    <Poptip trigger="hover" placement="bottom-end" width="350">
-                      <span>{{ $t('shou-quan-shi-jian-0') }}</span>
-                      <template #content>
-                        <div class="auth-time-popover">
-                          <div v-for="(item, index) in processedTimeList" :key="index" class="time-range-item">
-                            <div class="time-range">
-                              <CustomIcon type="Time" rightMargin />
-                              {{ formattedTime(item) }}
-                            </div>
-                            <div>{{ item?.level }}</div>
-                            <div class="auth-tags">
-                              <Tag v-for="(auth, authIndex) in item.auths" :key="authIndex" color="primary" class="auth-tag">
-                                {{ authMap[auth] }}
-                              </Tag>
-                            </div>
-                            <Divider v-if="index < processedTimeList.length - 1" />
-                          </div>
-                        </div>
+              <div class="auth-main">
+                <div class="resource-summary">
+                  <div class="resource-summary__main">
+                    <div class="resource-summary__label">{{ $t('dang-qian-zi-yuan') }}</div>
+                    <div class="resource-summary__path" :title="currentResourceText">
+                      <template v-for="(item, index) in currentResourceBreadcrumb" :key="`${item}-${index}`">
+                        <span class="resource-summary__path-item">{{ item }}</span>
+                        <span v-if="index < currentResourceBreadcrumb.length - 1" class="resource-summary__separator">/</span>
                       </template>
-                    </Poptip>
-                  </a>
-                </template>
-
-                <TabPane :label="$t('shi-li-quan-xian')" name="Instance" :disabled="!['Instance', 'INSTANCE', 'AllType'].includes(curElementType)">
-                  <v-tree
-                    :emptyText="$t('zan-wu-shu-ju')"
-                    :render="renderAuthNode"
-                    ref="instanceTree"
-                    keyField="key"
-                    @checked-change="handleAuthCheck"
-                    checkable
-                    titleField="i18nName"
-                    :defaultExpandAll="true"
-                    :disableAll="previewMode || isView"
-                  />
-                </TabPane>
-                <TabPane
-                  :label="$t('catalog-quan-xian')"
-                  name="CATALOG"
-                  :disabled="!['Catalog', 'CATALOG', 'EXTERNAL_CATALOG', 'AllType'].includes(curElementType)"
-                >
-                  <v-tree
-                    :emptyText="$t('zan-wu-shu-ju')"
-                    :render="renderAuthNode"
-                    ref="catalogTree"
-                    keyField="key"
-                    @checked-change="handleAuthCheck"
-                    checkable
-                    titleField="i18nName"
-                    :defaultExpandAll="true"
-                    :disableAll="previewMode || isView"
-                  />
-                </TabPane>
-                <TabPane
-                  :label="$t('schema-quan-xian')"
-                  name="SCHEMA"
-                  :disabled="!['Schema', 'SCHEMA', 'EXTERNAL_SCHEMA', 'AllType'].includes(curElementType)"
-                >
-                  <v-tree
-                    :emptyText="$t('zan-wu-shu-ju')"
-                    :render="renderAuthNode"
-                    ref="schemaTree"
-                    keyField="key"
-                    @checked-change="handleAuthCheck"
-                    checkable
-                    titleField="i18nName"
-                    :defaultExpandAll="true"
-                    :disableAll="previewMode || isView"
-                  />
-                </TabPane>
-                <TabPane :label="$t('biao-quan-xian')" name="TABLE" :disabled="!['Table', 'TABLE', 'AllType'].includes(curElementType)">
-                  <v-tree
-                    :emptyText="$t('zan-wu-shu-ju')"
-                    :render="renderAuthNode"
-                    ref="tableTree"
-                    keyField="key"
-                    @checked-change="handleAuthCheck"
-                    checkable
-                    titleField="i18nName"
-                    :defaultExpandAll="true"
-                    :disableAll="previewMode || isView"
-                  />
-                </TabPane>
-              </Tabs>
-              <div class="auth-tree-container-right">
-                <div class="setting" v-if="!isView || previewMode">
-                  <div class="label-title">
-                    {{ $t('shou-quan-shi-jian') }}
-                    <a-button size="small" v-if="isEdit" @click="handleClearAuthTime" style="float: right">
-                      {{ $t('qing-kong') }}
-                    </a-button>
+                    </div>
                   </div>
-                  <section>
+                </div>
+                <div class="auth-tree">
+                  <nav class="auth-tabs">
+                    <div class="auth-tabs__items">
+                      <span
+                        class="auth-tabs__item"
+                        :class="{
+                          'is-active': curRightTreeTab === 'Instance',
+                          'is-disabled': !['Instance', 'INSTANCE', 'AllType'].includes(curElementType)
+                        }"
+                        @click="handleAuthTabClick('Instance')"
+                      >
+                        {{ $t('shi-li-quan-xian') }}
+                      </span>
+                      <span
+                        class="auth-tabs__item"
+                        :class="{
+                          'is-active': curRightTreeTab === 'CATALOG',
+                          'is-disabled': !['Catalog', 'CATALOG', 'EXTERNAL_CATALOG', 'AllType'].includes(curElementType)
+                        }"
+                        @click="handleAuthTabClick('CATALOG')"
+                      >
+                        {{ $t('catalog-quan-xian') }}
+                      </span>
+                      <span
+                        class="auth-tabs__item"
+                        :class="{
+                          'is-active': curRightTreeTab === 'SCHEMA',
+                          'is-disabled': !['Schema', 'SCHEMA', 'EXTERNAL_SCHEMA', 'AllType'].includes(curElementType)
+                        }"
+                        @click="handleAuthTabClick('SCHEMA')"
+                      >
+                        {{ $t('schema-quan-xian') }}
+                      </span>
+                      <span
+                        class="auth-tabs__item"
+                        :class="{
+                          'is-active': curRightTreeTab === 'TABLE',
+                          'is-disabled': !['Table', 'TABLE', 'AllType'].includes(curElementType)
+                        }"
+                        @click="handleAuthTabClick('TABLE')"
+                      >
+                        {{ $t('biao-quan-xian') }}
+                      </span>
+                    </div>
+                    <div class="auth-tabs__extra">
+                      <Poptip v-show="timeList?.[curNode.key]?.length" trigger="hover" placement="bottom-end" width="350">
+                        <span class="auth-tabs__time-link">{{ $t('shou-quan-shi-jian-0') }}</span>
+                        <template #content>
+                          <div class="auth-time-popover">
+                            <div v-for="(item, index) in processedTimeList" :key="index" class="time-range-item">
+                              <div class="time-range">
+                                <CustomIcon type="Time" rightMargin />
+                                {{ formattedTime(item) }}
+                              </div>
+                              <div>{{ item?.level }}</div>
+                              <div class="auth-tags">
+                                <Tag v-for="(auth, authIndex) in item.auths" :key="authIndex" color="primary" class="auth-tag">
+                                  {{ authMap[auth] }}
+                                </Tag>
+                              </div>
+                              <Divider v-if="index < processedTimeList.length - 1" />
+                            </div>
+                          </div>
+                        </template>
+                      </Poptip>
+                    </div>
+                  </nav>
+                  <div class="auth-tabs__content">
+                    <div v-show="curRightTreeTab === 'Instance'">
+                      <v-tree
+                        :emptyText="$t('zan-wu-shu-ju')"
+                        :render="renderAuthNode"
+                        ref="instanceTree"
+                        keyField="key"
+                        @checked-change="handleAuthCheck"
+                        checkable
+                        titleField="i18nName"
+                        :defaultExpandAll="true"
+                        :disableAll="previewMode || isView"
+                      />
+                    </div>
+                    <div v-show="curRightTreeTab === 'CATALOG'">
+                      <v-tree
+                        :emptyText="$t('zan-wu-shu-ju')"
+                        :render="renderAuthNode"
+                        ref="catalogTree"
+                        keyField="key"
+                        @checked-change="handleAuthCheck"
+                        checkable
+                        titleField="i18nName"
+                        :defaultExpandAll="true"
+                        :disableAll="previewMode || isView"
+                      />
+                    </div>
+                    <div v-show="curRightTreeTab === 'SCHEMA'">
+                      <v-tree
+                        :emptyText="$t('zan-wu-shu-ju')"
+                        :render="renderAuthNode"
+                        ref="schemaTree"
+                        keyField="key"
+                        @checked-change="handleAuthCheck"
+                        checkable
+                        titleField="i18nName"
+                        :defaultExpandAll="true"
+                        :disableAll="previewMode || isView"
+                      />
+                    </div>
+                    <div v-show="curRightTreeTab === 'TABLE'">
+                      <v-tree
+                        :emptyText="$t('zan-wu-shu-ju')"
+                        :render="renderAuthNode"
+                        ref="tableTree"
+                        keyField="key"
+                        @checked-change="handleAuthCheck"
+                        checkable
+                        titleField="i18nName"
+                        :defaultExpandAll="true"
+                        :disableAll="previewMode || isView"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="auth-tree-container-right" v-if="!isView || previewMode">
+                <div class="setting">
+                  <div class="label-title">{{ $t('xuan-xiang') }}</div>
+                  <section class="option-section">
+                    <div class="option-section-title option-section-title--required">
+                      <span class="required-title">
+                        <span class="required-mark">*</span>
+                        {{ $t('shou-quan-shi-jian') }}
+                      </span>
+                      <a-button size="small" v-if="isEdit" @click="handleClearAuthTime">
+                        {{ $t('qing-kong') }}
+                      </a-button>
+                    </div>
                     <div class="content">
-                      <div class="ranges" v-if="isEdit">
-                        <RadioGroup v-model="curRangeKey" type="button" @on-change="handleRangeChange">
-                          <Radio class="date-btns" v-for="range in ranges1" :value="range.key" :key="range.key" :label="range.key">
+                      <div class="ranges" v-if="isEdit || previewMode">
+                        <div class="range-button-grid">
+                          <button
+                            v-for="range in authTimeRanges"
+                            :key="range.key"
+                            type="button"
+                            class="date-btns"
+                            :class="{ 'is-active': curRangeKey === range.key }"
+                            :aria-pressed="curRangeKey === range.key"
+                            :disabled="!isEdit"
+                            @click="handleRangeChange(range.key)"
+                          >
                             {{ range.label }}
-                          </Radio>
-                        </RadioGroup>
-                        <RadioGroup v-model="curRangeKey" type="button" @on-change="handleRangeChange" style="padding-top: 5px">
-                          <Radio class="date-btns" v-for="range in ranges2" :value="range.key" :key="range.key" :label="range.key">
-                            {{ range.label }}
-                          </Radio>
-                        </RadioGroup>
+                          </button>
+                        </div>
                       </div>
-                      <div class="time">
+                      <div class="time" v-if="showCustomAuthTime">
                         <a-date-picker
                           v-model:value="authStartTime"
                           show-time
-                          size="small"
                           :disabled="!isEdit"
                           format="YYYY-MM-DD HH:mm:ss"
                           :placeholder="$t('kai-shi-shi-jian')"
@@ -196,7 +224,6 @@
                           :disabled-date="disabledEndDate"
                           show-time
                           :disabled="!isEdit"
-                          size="small"
                           format="YYYY-MM-DD HH:mm:ss"
                           :placeholder="$t('jie-shu-shi-jian')"
                           @change="handleEndTimeChange"
@@ -211,35 +238,23 @@
         </div>
       </div>
     </div>
-    <div class="option-wrap">
-      <Button @click="backToMyAuth" v-if="!isView && !previewMode" style="margin-right: 10px; width: 80px">
+    <div class="option-wrap" v-if="!isView || previewMode">
+      <Button @click="backToMyAuth" v-if="!isView && !previewMode" style="margin-right: 10px">
         {{ $t('fan-hui') }}
       </Button>
-      <Button @click="continueAuth" v-if="previewMode" style="margin-right: 10px; width: 80px">
+      <Button @click="continueAuth" v-if="previewMode" style="margin-right: 10px">
         {{ $t('shang-yi-bu') }}
       </Button>
-      <!-- main ,next flow -->
-      <!-- 20250310本期暂禁用批量授权 -->
-      <Button v-if="false" @click="handleSwitchBatchModeForDm" style="margin-right: 10px; width: 80px">
-        {{ batchMode ? $t('tui-chu-pi-liang-shou-quan') : $t('pi-liang-shou-quan') }}
-      </Button>
-      <Tooltip v-if="isView && !previewMode" :content="rootAccountUnsupportedTip" :disabled="!isRootAccount" transfer placement="top">
-        <span style="display: inline-block; margin-right: 10px">
-          <Button @click="goApplAuth" type="primary" style="width: 80px" :disabled="isRootAccount">
-            {{ $t('shen-qing-quan-xian') }}
-          </Button>
-        </span>
-      </Tooltip>
       <Tooltip v-if="!isView" :content="rootAccountUnsupportedTip" :disabled="!isRootAccount" transfer placement="top">
         <span style="display: inline-block; margin-right: 10px">
-          <Button @click="previewAuth" type="primary" style="width: 80px" :disabled="isRootAccount">
+          <Button @click="previewAuth" type="primary" :disabled="isRootAccount">
             {{ $t('ti-jiao-shen-qing') }}
           </Button>
         </span>
       </Tooltip>
       <Tooltip v-if="previewMode" :content="rootAccountUnsupportedTip" :disabled="!isRootAccount" transfer placement="top">
         <span style="display: inline-block; margin-right: 10px">
-          <Button @click="submitAuthApply" type="primary" style="width: 80px" :disabled="isRootAccount">
+          <Button @click="submitAuthApply" type="primary" :disabled="isRootAccount">
             {{ $t('ti-jiao-que-ren') }}
           </Button>
         </span>
@@ -249,12 +264,18 @@
 </template>
 
 <script lang="jsx">
-import dayjs from 'dayjs';
+import dayjs from '@/utils/dayjsSetup';
 import VTree from '@wsfe/vue-tree';
-import deepClone from 'lodash.clonedeep';
+import { cloneDeep as deepClone } from '@/utils/lodash';
 import { mapGetters, mapState } from 'vuex';
 import i18n from '@/i18n';
-import { ELEMENT_REVERSE_TYPE_MAP, ELEMENT_TYPE_MAP, ELEMENT_TYPE_REF_MAP, START_RECORD_NAMES_CONUT } from './subaccount/auth/constant';
+import {
+  AUTH_ELEMENT_TYPES,
+  ELEMENT_REVERSE_TYPE_MAP,
+  ELEMENT_TYPE_MAP,
+  ELEMENT_TYPE_REF_MAP,
+  START_RECORD_NAMES_CONUT
+} from './subaccount/auth/constant';
 import { getResTypeToNames, findNodeByKey, fetchWithTimeout, flattenTree } from './subaccount/auth/utils';
 
 export default {
@@ -271,7 +292,7 @@ export default {
       resourceManager: false,
       selectedNodeKey: null,
       selectedCcCluster: '',
-      curRangeKey: '',
+      curRangeKey: 'permanent',
       authedData: {},
       showAuthedTreeModal: false,
       batchMode: false,
@@ -408,6 +429,7 @@ export default {
       isSingleSelect: true,
       curRightTreeTab: 'Instance',
       leftTreeLoading: false,
+      authTreeDefAvailabilityCache: {},
       authTime: {
         startTime: null,
         endTime: null
@@ -495,6 +517,40 @@ export default {
       }
       return [];
     },
+    currentResourceBreadcrumb() {
+      if (!this.curNode?.objName) {
+        return [this.$t('qing-xuan-ze-zuo-ce-zi-yuan')];
+      }
+      const path = [];
+      let current = this.curNode;
+      while (current) {
+        if (current.objName) {
+          path.unshift(this.getNodeDisplayText(current));
+        }
+        current = current.parent;
+      }
+      return path;
+    },
+    currentResourceText() {
+      return this.currentResourceBreadcrumb.join(' / ');
+    },
+    authTimeRanges() {
+      return [
+        {
+          key: 'permanent',
+          label: this.$t('yong-jiu')
+        },
+        ...this.ranges1,
+        ...this.ranges2,
+        {
+          key: 'custom',
+          label: this.$t('zi-ding-yi')
+        }
+      ];
+    },
+    showCustomAuthTime() {
+      return this.curRangeKey === 'custom';
+    },
     disableAuthTab() {
       return (auth) => {
         let disable = false;
@@ -528,8 +584,8 @@ export default {
       async handler(newVal, oldVal) {
         console.log('uid', newVal, oldVal);
         if (newVal !== oldVal) {
-          this.uid = this.isEdit || this.isView ? this.$route.params.uid : this.userInfo.uid;
-          this.subAccount = this.isEdit || this.isView ? this.$route.query.name : '';
+          this.uid = this.$route.params.uid || this.userInfo.uid;
+          this.subAccount = this.$route.params.uid ? this.$route.query.name : '';
           await this.listLevelsForDM();
         }
       },
@@ -537,45 +593,85 @@ export default {
     }
   },
   methods: {
+    resetPermissionModeState(isView) {
+      this.isView = isView;
+      this.isEdit = true;
+      this.activeAuthTab = 'DataSource';
+      this.activeAuthType = 'datasource';
+      this.lastRightTreeData = [];
+      this.lastLeftTreeClickNode = '';
+      this.rightTreeKeyword = '';
+      this.leftTreeKeyword = '';
+      this.selectedNodeKey = null;
+      this.isSingleSelect = true;
+      this.curElementType = null;
+      this.curRightTreeTab = null;
+      this.curNode = '';
+      this.originLeftTree = [];
+      this.expandedKeys = [];
+      this.previewMode = false;
+      this.batchMode = false;
+      this.curRangeKey = 'permanent';
+      this.selectedRange = {};
+      this.authTime = {
+        startTime: null,
+        endTime: null
+      };
+      this.timeList = {};
+      this.authMap = {};
+      this.canCheckedChange = false;
+      this.parentAuthTree = [];
+      this.datasource.selectedNode = null;
+      this.datasource.searchKey = '';
+      this.datasource.searchType = 'all';
+      this.task.selectedNode = null;
+      this.task.searchKey = '';
+      this.task.searchType = 'all';
+      this.$nextTick(() => {
+        this.$refs.instanceTree?.setData?.([]);
+        this.$refs.catalogTree?.setData?.([]);
+        this.$refs.schemaTree?.setData?.([]);
+        this.$refs.tableTree?.setData?.([]);
+      });
+    },
+    syncAuthRangeKeyFromTime() {
+      this.curRangeKey = this.authTime?.startTime || this.authTime?.endTime ? 'custom' : 'permanent';
+    },
+    handleAuthTabClick(name) {
+      if (
+        (name === 'Instance' && !['Instance', 'INSTANCE', 'AllType'].includes(this.curElementType)) ||
+        (name === 'CATALOG' && !['Catalog', 'CATALOG', 'EXTERNAL_CATALOG', 'AllType'].includes(this.curElementType)) ||
+        (name === 'SCHEMA' && !['Schema', 'SCHEMA', 'EXTERNAL_SCHEMA', 'AllType'].includes(this.curElementType)) ||
+        (name === 'TABLE' && !['Table', 'TABLE', 'AllType'].includes(this.curElementType))
+      ) {
+        return;
+      }
+      this.curRightTreeTab = name;
+    },
     handleReloadPage() {
       this.initData();
     },
     async initData() {
       this.pageLoading = true;
       try {
-        this.isEdit = true;
-        this.uid = this.isEdit || this.isView ? this.$route.params.uid : this.userInfo.uid;
-        this.subAccount = this.isEdit || this.isView ? this.$route.query.name : '';
-        this.activeAuthTab = 'DataSource';
-        this.activeAuthType = 'datasource';
-        this.lastRightTreeData = [];
-        this.lastLeftTreeClickNode = '';
-        this.rightTreeKeyword = '';
-        this.leftTreeKeyword = '';
-        this.isSingleSelect = true;
-        this.curElementType = null;
-        this.curRightTreeTab = null;
-        this.originLeftTree = [];
-        this.previewMode = false;
-        this.authTime = {
-          startTime: null,
-          endTime: null
-        };
+        this.resetPermissionModeState(true);
+        this.uid = this.$route.params.uid || this.userInfo.uid;
+        this.subAccount = this.$route.params.uid ? this.$route.query.name : '';
         await this.listLevelsForDM();
 
-        // 初次默认展开第一个节点的第一层
+        // Initial Default Start First Level
         this.$nextTick(async () => {
           let firstRoot = null;
           if (this.originLeftTree && this.originLeftTree.length > 0) {
             this.originLeftTree.forEach(async (node, idx) => {
-              await this.listLevelsForDM(node);
+              await this.listLevelsForDM(node, { loadAuthTree: false });
               if (this.originLeftTree[idx]?.children && this.originLeftTree[idx]?.children?.key) {
                 firstRoot = this.originLeftTree[idx];
               }
             });
             if (firstRoot) {
               if (firstRoot.children && firstRoot.children.length > 0) {
-                // 只在 expandedKeys 不包含时 push，避免强制赋值导致无法收起
+                // Push only when extandedkeys are not included to avoid forced attributions that cannot be collected
                 if (!this.expandedKeys.includes(firstRoot.key)) {
                   this.expandedKeys.push(firstRoot.key);
                 }
@@ -588,7 +684,7 @@ export default {
       }
     },
     async handlePreviewForDm() {
-      // 检查是否有编辑权限节点
+      // Check for editing permission nodes
       function hasEditNode(tree) {
         return tree.some((node) => node.isEdit || (node.children && hasEditNode(node.children)));
       }
@@ -614,7 +710,7 @@ export default {
       this.$refs.schemaTree.setData([]);
       this.$refs.catalogTree.setData([]);
       this.$nextTick(() => {
-        // 查找第一个isEdit为true的节点
+        // Finds the first IsEdit for true
         const findFirstEditedNode = (nodes) => {
           for (const node of nodes) {
             if (node.isEdit) {
@@ -647,7 +743,7 @@ export default {
         }
       });
     },
-    // 对比权限树差异并标记编辑状态
+    // Compare permission tree differences and mark editing status
     handleAuthCheck(selectedNodes) {
       if (this.canCheckedChange) {
         const idx = this.parentAuthTree.findIndex((item) => item?.key === this.curNode?.key);
@@ -668,8 +764,70 @@ export default {
       });
       if (res?.data) {
         this.$message.success(this.$t('shu-ju-ku-shou-quan-cheng-gong'));
-        this.$router.push({ path: '/system/account' });
+        this.$router.push({ path: '/manager/account' });
       }
+    },
+    isInstanceNode(node) {
+      return Boolean(node?.objAttr?.dsType) || ['Instance', 'INSTANCE'].includes(node?.objType);
+    },
+    getNodeHostText(node) {
+      const attr = node?.objAttr || {};
+      const host = attr.dsHost || attr.host || attr.publicHost || attr.privateHost || '';
+      const port = attr.dsPort || attr.port || attr.publicPort || attr.privatePort || '';
+      if (!host || !port) {
+        return host || port;
+      }
+      const hostText = String(host);
+      const portText = String(port);
+      if (hostText.endsWith(`:${portText}`) || /:\d+(\/.*)?$/.test(hostText)) {
+        return hostText;
+      }
+      return `${hostText}:${portText}`;
+    },
+    getNodeDisplayText(node) {
+      if (!node?.objName) {
+        return '';
+      }
+      if (!this.isInstanceNode(node)) {
+        return node?.objDesc ? `${node.objName}(${node.objDesc})` : node.objName;
+      }
+      const desc = node?.objDesc || node.objName;
+      const host = this.getNodeHostText(node);
+      return host ? `${desc}(${host})` : desc;
+    },
+    getNodeDataSourceType(node) {
+      let current = node;
+      while (current) {
+        if (current?.objAttr?.dsType) {
+          return current.objAttr.dsType;
+        }
+        current = current.parent || current._parent;
+      }
+      return this.findDataSourceTypeByInstanceId(node?.levels?.[1]);
+    },
+    findDataSourceTypeByInstanceId(instanceId) {
+      if (!instanceId) {
+        return '';
+      }
+      let dsType = '';
+      const traverse = (nodes = []) => {
+        nodes.some((item) => {
+          if (!item || this.isLazyPlaceholderNode(item)) {
+            return false;
+          }
+          if ((item.objId === instanceId || item.levels?.[1] === instanceId) && item.objAttr?.dsType) {
+            dsType = item.objAttr.dsType;
+            return true;
+          }
+          if (Array.isArray(item.children) && traverse(item.children)) {
+            return true;
+          }
+          return false;
+        });
+        return !!dsType;
+      };
+      traverse(this.originLeftTree || []);
+      return dsType;
     },
     renderNode(node) {
       const style = {
@@ -680,7 +838,6 @@ export default {
       };
       let iconType = '';
       const prefix = 'icon-v2-';
-      const enableQuery = node?.objAttr?.enableQuery || false;
 
       if (node?.objAttr?.dsType) iconType = prefix + node.objAttr.dsType;
       else {
@@ -720,7 +877,7 @@ export default {
         style.background = '#ee8435';
       }
       return (
-        <div class='node'>
+        <div class='node-wrap' data-key={node?.key}>
           <div style='display: flex; align-items: center;'>
             {this.leftTreeLoading && this.lastLeftTreeClickNode?.key === node?.key ? (
               <i class='loading-circle'></i>
@@ -729,9 +886,8 @@ export default {
             ) : (
               <CustomIcon type={iconType} rightMargin='5px' />
             )}
-            <div>{node?.objDesc ? `${node?.objName}(${node?.objDesc})` : node?.objName}</div>
+            <div>{this.getNodeDisplayText(node)}</div>
           </div>
-          {enableQuery && <i style='position: absolute; right: 10px' class='iconfont iconkechaxun'></i>}
         </div>
       );
     },
@@ -780,11 +936,11 @@ export default {
       this.curNode = node;
       this.curElementType = node?.objType;
       this.canCheckedChange = false;
-      this.curRangeKey = '';
+      this.curRangeKey = 'permanent';
 
-      // 兼容箭头收起行为
+      // Keep the arrows together.
       if (!shouldExpand) {
-        // 收起行为，不往下执行逻辑
+        // Put your behavior together and don't follow the logic.
         if (idx !== -1) this.expandedKeys.splice(idx, 1);
 
         this.lastLeftTreeClickNode = node;
@@ -792,6 +948,7 @@ export default {
         this.curRightTreeTab = node?.objType === 'EXTERNAL_SCHEMA' ? 'SCHEMA' : node?.objType === 'EXTERNAL_CATALOG' ? 'CATALOG' : node?.objType;
 
         this.authTime = node?.authTime || { startTime: null, endTime: null };
+        this.syncAuthRangeKeyFromTime();
 
         this.handleGetAuthTreeForDm(node);
         return;
@@ -802,20 +959,30 @@ export default {
         return;
       }
 
-      // 实例名称是否合法
+      // Invalid Name of Example
       const noLegal = node?.objName?.includes('/');
       if (noLegal) {
         this.$Message.warning(this.$t('fa-mi-ming-cheng-bu-zhi-chi'));
         return;
       }
 
-      // 实例未开启数据管理
+      if (this.isResourceLeafNode(node)) {
+        this.selectLeftTreeResourceNode(node);
+        return;
+      }
+
+      if (!(await this.ensureResourceNodeCanExpand(node))) {
+        this.selectLeftTreeResourceNode(node);
+        return;
+      }
+
+      // Example not started data management
       if (node?.objType === 'Instance' && !node?.objAttr?.enableQuery) {
         let final = [];
         final = this.removeChildrenByKey(this.originLeftTree, node?.key);
         this.originLeftTree = final;
 
-        final = this.getFilterOfTypeAndSearch(this.originLeftTre);
+        final = this.getFilterOfTypeAndSearch(this.originLeftTree);
         this.$Message.warning(this.$t('shu-ju-cha-xun-wei-kai-qi'));
         this.$refs.dataSourceTree.setData(final);
         return;
@@ -823,18 +990,21 @@ export default {
 
       if (this.previewMode) {
         this.renderPreviewLeftTree(node);
-        if (idx === -1) this.expandedKeys.push(node?.key);
+        if (idx === -1 && this.canKeepResourceNodeExpanded(node)) {
+          this.expandedKeys.push(node?.key);
+        }
         return;
       }
 
       this.listLevelsForDM(node);
     },
-    // 左树渲染
-    async listLevelsForDM(node = null) {
+    // Left tree rendering
+    async listLevelsForDM(node = null, options = {}) {
+      const shouldLoadAuthTree = !options || typeof options !== 'object' || options.loadAuthTree !== false;
       try {
         this.leftTreeLoading = true;
 
-        // 0、记录当前的左树
+        // 0, log the current left tree
         if (node) {
           this.lastLeftTreeClickNode = node;
           this.curElementType = node?.objType;
@@ -844,11 +1014,13 @@ export default {
         if (node?.children[0]?.levels?.length) {
           let final = [];
 
-          // 1.1 带上过滤条件和search条件
+          // 1.1 Filtering and search conditions
           final = this.getFilterOfTypeAndSearch(this.originLeftTree);
 
           this.$refs.dataSourceTree.setData(final);
-          this.handleGetAuthTreeForDm(node);
+          if (node?.key && shouldLoadAuthTree) {
+            this.handleGetAuthTreeForDm(node);
+          }
           this.leftTreeLoading = false;
           const idx = this.expandedKeys.indexOf(node?.key);
           if (idx === -1) this.expandedKeys.push(node?.key);
@@ -858,26 +1030,28 @@ export default {
         if (node?.objType === 'TABLE') {
           const final = this.getFilterOfTypeAndSearch(this.originLeftTree);
           this.$refs.dataSourceTree.setData(final);
-          this.handleGetAuthTreeForDm(node);
+          if (node?.key && shouldLoadAuthTree) {
+            this.handleGetAuthTreeForDm(node);
+          }
           this.leftTreeLoading = false;
           const idx = this.expandedKeys.indexOf(node?.key);
           if (idx === -1) this.expandedKeys.push(node?.key);
           return;
         }
 
-        // 1、按层查询树节点
+        // 1 Query tree nodes by layer
         let res = {
           data: []
         };
-        // 查询用户拥有资源
+        // Query User Ownership Resource
         if (this.isView) {
-          // 叶子节点
+          // Leaf Node
           if (this.isLeafNode(node)) {
             res = await fetchWithTimeout((config) =>
               this.$services.dmAuthListMyElementOfLeaf({
                 data: {
                   levels: this.getResPathByIdAndName(node),
-                  leafType: this.getResTypeToIds(node), // Instance|Catalog|Schema|Table
+                  leafType: this.getResTypeToIds(node),
                   uid: this.uid
                 },
                 ...config
@@ -901,7 +1075,7 @@ export default {
               this.$services.dmAuthListElementOfLeaf({
                 data: {
                   levels: this.getResPathByIdAndName(node),
-                  leafType: this.getResTypeToIds(node) // Instance|Catalog|Schema|Table
+                  leafType: this.getResTypeToIds(node)
                 },
                 ...config
               })
@@ -929,48 +1103,55 @@ export default {
           this.leftTreeLoading = false;
           this.curElementType = node?.objType;
           this.curRightTreeTab = node?.objType;
-          this.handleGetAuthTreeForDm(node);
+          if (node?.key && shouldLoadAuthTree) {
+            this.handleGetAuthTreeForDm(node);
+          }
           return;
         }
 
         const idx = this.expandedKeys.indexOf(node?.key);
         if (idx === -1) this.expandedKeys.push(node?.key);
 
-        res.data.map((item) => {
-          item.children = [{}];
-          item.loaded = false;
-          item.levels = [item?.objId];
-          item.key = this.genUniqueId();
-          item.parent = node;
-          // 2、递归获取所有父级 objId, 存入levels中
-          const parentObjIds = this.getParentObjIds(item);
-          item.levels = [...parentObjIds, item.objId];
-          return item;
-        });
+        res.data = await Promise.all(
+          res.data.map(async (item) => {
+            item.children = [{}];
+            item.loaded = false;
+            item.levels = [item?.objId];
+            item.key = this.genUniqueId();
+            item.parent = node;
+            // 2. Recursively retrieve all parent grades
+            const parentObjIds = this.getParentObjIds(item);
+            item.levels = [...parentObjIds, item.objId];
+            const canLoadChildren = await this.canLoadResourceChildren(item);
+            return this.setNodeExpandCapability(item, canLoadChildren);
+          })
+        );
 
-        // 3、渲染左侧资源树
+        // 3. Render left resource tree
         if (!this.originLeftTree?.length) {
           this.originLeftTree = res.data;
           const final = this.getFilterOfTypeAndSearch(res.data);
           await this.$refs.dataSourceTree.setData(final);
         } else {
           let final = [];
-          // 3.1 将新子树数据插入到原tree中
+          // 3.1 Insert new subtree data into original tree
           final = this.replaceChildren(this.originLeftTree, res.data, node?.key);
 
-          // 3.2 去掉leaf节点children属性
+          // 3.2 Remove leaf node phildren properties
           final = this.removeChildrenForTableNodes(final);
           this.originLeftTree = final;
 
-          // 3.3 带上过滤条件和search条件
+          // 3.3 filtration and search conditions
           final = this.getFilterOfTypeAndSearch(final);
 
-          // 3.4 渲染左树
+          // 3.4 Rendering left tree
           await this.$refs.dataSourceTree.setData(final);
         }
 
-        // 4、渲染右侧权限树
-        this.handleGetAuthTreeForDm(node);
+        // 4. Render Right Permission Tree
+        if (node?.key && shouldLoadAuthTree) {
+          this.handleGetAuthTreeForDm(node);
+        }
         this.leftTreeLoading = false;
       } catch (err) {
         this.leftTreeLoading = false;
@@ -1054,27 +1235,161 @@ export default {
         }
         resPath = resPath.concat(parentNames);
       }
-      // 对CATALOG做特殊处理
+      // Special treatment for CATALOG.
       if (resPath.length === 4) {
         [resPath[2], resPath[3]] = [resPath[3], resPath[2]];
       }
       return resPath;
     },
-    getResTypeToIds(node) {
-      const dsType = node?.objAttr?.dsType || '';
+    getNormalizedNodeType(node) {
+      return ELEMENT_TYPE_MAP[node?.objType] || node?.objType;
+    },
+    isLazyPlaceholderNode(node) {
+      return !!node && !node.key && !node.objName && !node.objType && !node.i18nName && !node.levels?.length;
+    },
+    hasLazyPlaceholderChildren(node) {
+      return Array.isArray(node?.children) && node.children.some((child) => this.isLazyPlaceholderNode(child));
+    },
+    canKeepResourceNodeExpanded(node) {
+      return Array.isArray(node?.children) && node.children.length > 0 && !this.hasLazyPlaceholderChildren(node);
+    },
+    getLoadedExpandedKeys(tree = [], expandedKeys = this.expandedKeys) {
+      const expandedKeySet = new Set(expandedKeys || []);
+      const loadedExpandedKeys = [];
+      const traverse = (nodes = []) => {
+        nodes.forEach((node) => {
+          if (!node?.key) {
+            return;
+          }
+          const canKeepExpanded = this.canKeepResourceNodeExpanded(node);
+          if (expandedKeySet.has(node.key) && canKeepExpanded) {
+            loadedExpandedKeys.push(node.key);
+          }
+          if (canKeepExpanded) {
+            traverse(node.children);
+          }
+        });
+      };
+      traverse(Array.isArray(tree) ? tree : []);
+      return loadedExpandedKeys;
+    },
+    normalizeAuthElementType(elementType) {
+      const normalized = elementType === 'EXTERNAL_SCHEMA' ? 'SCHEMA' : elementType === 'EXTERNAL_CATALOG' ? 'CATALOG' : elementType;
+      return ELEMENT_REVERSE_TYPE_MAP[normalized] || normalized;
+    },
+    isSupportedAuthElementType(elementType) {
+      return AUTH_ELEMENT_TYPES.includes(this.normalizeAuthElementType(elementType));
+    },
+    isResourceLeafNode(node) {
+      return !!node?.isLeaf || this.getNormalizedNodeType(node) === 'TABLE';
+    },
+    canUseLazyPlaceholder(node) {
+      return !this.isResourceLeafNode(node);
+    },
+    selectLeftTreeResourceNode(node) {
+      this.lastLeftTreeClickNode = node;
+      this.curElementType = node?.objType;
+      this.curRightTreeTab = node?.objType === 'EXTERNAL_SCHEMA' ? 'SCHEMA' : node?.objType === 'EXTERNAL_CATALOG' ? 'CATALOG' : node?.objType;
+      this.authTime = node?.authTime || { startTime: null, endTime: null };
+      this.syncAuthRangeKeyFromTime();
+      this.handleGetAuthTreeForDm(node);
+    },
+    setNodeExpandCapability(node, canLoadChildren) {
+      if (canLoadChildren) {
+        node.children = [{}];
+        node.loaded = false;
+        node.isLeaf = false;
+      } else {
+        delete node.children;
+        node.loaded = true;
+        node.isLeaf = true;
+      }
+      return node;
+    },
+    async ensureResourceNodeCanExpand(node) {
+      if (!node || this.isResourceLeafNode(node)) {
+        return false;
+      }
+      const canLoadChildren = await this.canLoadResourceChildren(node);
+      if (!canLoadChildren) {
+        this.setNodeExpandCapability(node, false);
+        const latestNode = findNodeByKey(this.originLeftTree, node?.key);
+        if (latestNode && latestNode !== node) {
+          this.setNodeExpandCapability(latestNode, false);
+        }
+        const idx = this.expandedKeys.indexOf(node?.key);
+        if (idx !== -1) {
+          this.expandedKeys.splice(idx, 1);
+        }
+        const final = this.getFilterOfTypeAndSearch(this.originLeftTree);
+        this.$refs.dataSourceTree?.setData(final);
+      }
+      return canLoadChildren;
+    },
+    async hasAuthTreeDefForElementType(dsType, elementType) {
+      const normalizedElementType = this.normalizeAuthElementType(elementType);
+      if (!normalizedElementType) {
+        return false;
+      }
+      const cacheKey = [this.activeAuthTab, dsType || '', normalizedElementType].join('|');
+      if (Object.prototype.hasOwnProperty.call(this.authTreeDefAvailabilityCache, cacheKey)) {
+        return await this.authTreeDefAvailabilityCache[cacheKey];
+      }
+      const request = this.$services
+        .rdpAuthFetchAuthTreeDef({
+          data: {
+            kind: this.activeAuthTab,
+            dsType,
+            elementType: normalizedElementType
+          }
+        })
+        .then((res) => Array.isArray(res?.data) && res.data.length > 0)
+        .catch(() => false);
+      this.authTreeDefAvailabilityCache[cacheKey] = request;
+      const hasDefinition = await request;
+      this.authTreeDefAvailabilityCache[cacheKey] = hasDefinition;
+      return hasDefinition;
+    },
+    async canLoadResourceChildren(node) {
+      const nodeType = this.getNormalizedNodeType(node);
+      if (!node || nodeType === 'TABLE') {
+        return false;
+      }
+      if (nodeType === 'ENV' || nodeType === 'Env') {
+        return true;
+      }
+      const nextElementType = this.getResTypeToIds(node);
+      if (!nextElementType || !this.isSupportedAuthElementType(nextElementType)) {
+        return false;
+      }
+      return this.hasAuthTreeDefForElementType(this.getNodeDataSourceType(node), nextElementType);
+    },
+    getResTypeToIds(node = null) {
+      const dsType = this.getNodeDataSourceType(node);
+      const nodeType = ELEMENT_TYPE_MAP[node?.objType] || node?.objType;
       if (!node) {
         return 'Env';
       }
       if (dsType) {
-        const typeLevels = this.dmGlobalSetting.dsSettingDef?.[dsType]?.categories?.levels || [];
+        const categories = this.dmGlobalSetting.dsSettingDef?.[dsType]?.categories || {};
+        const typeLevels = (categories.levels || []).map((level) => ELEMENT_TYPE_MAP[level] || level);
         if (typeLevels.length) {
-          const idx = typeLevels.indexOf(ELEMENT_TYPE_MAP[node?.objType] || '');
-          if (idx > START_RECORD_NAMES_CONUT) return 'Table';
-          return ELEMENT_REVERSE_TYPE_MAP[typeLevels[idx + 1]]; // +1 指向子节点的elemenType;
+          const idx = typeLevels.indexOf(nodeType || '');
+          if (idx === -1) {
+            return '';
+          }
+          if (idx < typeLevels.length - 1) {
+            return ELEMENT_REVERSE_TYPE_MAP[typeLevels[idx + 1]] || typeLevels[idx + 1]; // +1 elemenType pointing to subnodes;
+          }
+          const leafGroup = categories.leafGroup?.[typeLevels[idx]] || [];
+          const leafTypes = leafGroup.map((leaf) => (typeof leaf === 'string' ? leaf : leaf?.type)).filter(Boolean);
+          const tableLeafType = leafTypes.find((leafType) => this.normalizeAuthElementType(leafType) === 'Table');
+          const authLeafType = tableLeafType || leafTypes.find((leafType) => this.isSupportedAuthElementType(leafType));
+          return authLeafType ? this.normalizeAuthElementType(authLeafType) : '';
         }
       }
-      if (!dsType && node?.objType !== 'Env') {
-        return 'Table';
+      if (node?.objType !== 'Env') {
+        return '';
       }
       return '';
     },
@@ -1094,7 +1409,7 @@ export default {
             return null;
           })
           .filter(Boolean)
-          // 最外层环境若没有任何子数据则不展示
+          // The outermost environment is not displayed without any subdata
           .filter((node) => !(node?.objType === 'ENV' && (!node.children || node.children.length === 0)))
       );
     },
@@ -1120,7 +1435,7 @@ export default {
       }
       return parentObjIds.reverse();
     },
-    // 手动拼接新tree
+    // Manually Spell Newtree
     replaceChildren(originData, newData, nodeKey, maxDepth = 5) {
       if (!newData.length) return originData;
       if (originData === newData) return originData;
@@ -1148,25 +1463,27 @@ export default {
         this.curElementType = elementType;
         this.curRightTreeTab = elementType;
 
-        // 渲染时间
+        // Render Time
         const lastestNode = findNodeByKey(this.originLeftTree, node?.key);
         this.authTime = lastestNode?.authTime || { startTime: null, endTime: null };
+        this.syncAuthRangeKeyFromTime();
 
         if (node?.markedWithActionRightTree && node.markedWithActionRightTree?.length) {
-          // 复用上次数据
+          // Other Organiser
           filterAuth = node?.markedWithActionRightTree;
           this.lastRightTreeData = filterAuth;
         } else {
-          // 获取全部权限树和用户拥有权限树，比对映射
+          // Retrieving all permissions tree and user-owned permissions tree, contrasting map
           const normalizedElementType = elementType === 'EXTERNAL_CATALOG' ? 'CATALOG' : elementType;
           const normalizedElementType2 = normalizedElementType === 'EXTERNAL_SCHEMA' ? 'SCHEMA' : normalizedElementType;
           allAuth = await this.$services.rdpAuthFetchAuthTreeDef({
             data: {
               kind: this.activeAuthTab,
+              dsType: this.getNodeDataSourceType(node),
               elementType: ELEMENT_REVERSE_TYPE_MAP[normalizedElementType2] || normalizedElementType2
             }
           });
-          // 本地缓存一下映射
+          // Local Cache Map
           const flattenAuthTree = flattenTree(allAuth.data);
           flattenAuthTree.forEach((item) => {
             if (!this.authMap[item.key]) {
@@ -1207,20 +1524,21 @@ export default {
               });
             }
           });
+          this.syncAuthRangeKeyFromTime();
           filterAuth = this.markRightTreeChecked(allAuth.data, [...new Set(hasAuthList)]);
-          // 3.1 记录上次用户的完整权限树，用于比对修改情况
+          // 3.1 The full permission tree of the last user is recorded for matching changes
           this.lastRightTreeData = deepClone(filterAuth);
 
-          // 3.2 记录父节点权限
+          // 3.2 Parental permission to record
           this.parentAuthTree.push({
             key: node?.key,
             authTree: deepClone(filterAuth)
           });
 
-          // 3.3 先处理继承父节点权限
+          // 3.3 Inheritance of paternity rights first
           filterAuth = this.handleAuthFromParent(node, filterAuth);
 
-          // 3.4 再处理来自自身的权限
+          // 3.4 Reprocessing from its own authority
           filterAuth = this.handleAuthFromSelf(filterAuth, hasAutn.data, node);
         }
         this.$nextTick(() => {
@@ -1279,7 +1597,7 @@ export default {
       const updateNodeInTree = function (tree, targetKey) {
         return tree?.map?.((item) => {
           if (item?.key === targetKey) {
-            // 权限变化判断
+            // Rights change judgement
             let isEdit = false;
             if (markedWithActionRightTree) {
               markedWithActionRightTree.forEach((authWrap) => {
@@ -1288,10 +1606,10 @@ export default {
                 });
               });
             }
-            // 时间变化判断
+            // Time change judgement
             const oldTime = item.authTime || {};
             const newTime = this.authTime || {};
-            // 只要 startTime 或 endTime 有变化就算编辑
+            // As long as the starttime or endtime changes
             const oldStart = oldTime.startTime ? (oldTime.startTime.valueOf ? oldTime.startTime.valueOf() : oldTime.startTime) : '';
             const oldEnd = oldTime.endTime ? (oldTime.endTime.valueOf ? oldTime.endTime.valueOf() : oldTime.endTime) : '';
             const newStart = newTime.startTime ? (newTime.startTime.valueOf ? newTime.startTime.valueOf() : newTime.startTime) : '';
@@ -1310,8 +1628,8 @@ export default {
         });
       }.bind(this);
       const res = updateNodeInTree(this.originLeftTree, node?.key);
-      this.$refs.dataSourceTree.setData(res);
       this.originLeftTree = res;
+      this.$refs.dataSourceTree.setData(this.getFilterOfTypeAndSearch(res));
     },
 
     markRightTreeActions(originalTree, modifiedTree) {
@@ -1513,7 +1831,7 @@ export default {
           };
         }
 
-        // 不满足过滤条件，直接返回原始节点
+        // Do not meet filter conditions, return directly to original node
         return node;
       });
 
@@ -1582,48 +1900,57 @@ export default {
       const curTreeRef = refMap[normalizedTab];
       const rightTreeData = this.$refs[curTreeRef]?.getCheckedNodes?.() || [];
 
-      // 仅在选中了节点，切更改了时间才更新
+      // Update only when nodes are selected and times are changed
       if (this.curNode?.objId) {
         this.markLeftTreeEdited(this.curNode, this.curElementType, this.lastRightTreeData, rightTreeData);
       }
     },
     handleStartTimeChange() {
+      this.curRangeKey = 'custom';
       this.selectedRange = {};
       this.handleAuthTimeChange();
     },
     handleEndTimeChange() {
+      this.curRangeKey = 'custom';
       this.selectedRange = {};
       this.handleAuthTimeChange();
     },
     handleClearAuthTime() {
-      this.curRangeKey = '';
+      this.curRangeKey = 'permanent';
       this.selectedRange = {};
       this.authTime.startTime = null;
       this.authTime.endTime = null;
       this.handleAuthTimeChange();
     },
     handleRangeChange(rangeKey) {
-      let selectedObj;
-      if (Number(rangeKey) < 4) {
-        selectedObj = this.ranges1.find((item) => item.key === rangeKey);
-      } else {
-        selectedObj = this.ranges2.find((item) => item.key === rangeKey);
-      }
       this.curRangeKey = rangeKey;
+      if (rangeKey === 'permanent') {
+        this.handleClearAuthTime();
+        return;
+      }
+      if (rangeKey === 'custom') {
+        this.selectedRange = {};
+        this.authTime.startTime = null;
+        this.authTime.endTime = null;
+        this.handleAuthTimeChange();
+        return;
+      }
+      const selectedObj = [...this.ranges1, ...this.ranges2].find((item) => item.key === rangeKey);
+      if (!selectedObj) return;
       this.selectedRange = selectedObj;
       this.authTime.startTime = selectedObj.startTime;
       this.authTime.endTime = selectedObj.endTime;
       this.handleAuthTimeChange();
     },
     disabledStartDate(startValue) {
-      const endValue = this.endTime;
+      const endValue = this.authEndTime;
       if (!startValue || !endValue) {
         return false;
       }
       return startValue.valueOf() > endValue.valueOf();
     },
     disabledEndDate(endValue) {
-      const startValue = this.startTime;
+      const startValue = this.authStartTime;
       if (!endValue || !startValue) {
         return false;
       }
@@ -1694,7 +2021,7 @@ export default {
       // this.batchMode = true;
     },
     goSubAccountPage() {
-      this.$router.push({ name: 'System_Sub_Account' });
+      this.$router.push({ name: 'Management_Accounts_Account' });
     },
     handleGoAuth() {
       this.$router.push({
@@ -1718,21 +2045,17 @@ export default {
         this.$Message.warning(this.rootAccountUnsupportedTip);
         return;
       }
-      this.isView = false;
-      this.isEdit = true;
-      this.lastRightTreeData = [];
-      this.lastLeftTreeClickNode = '';
-      this.originLeftTree = [];
-      this.curElementType = null;
-      this.curRightTreeTab = null;
+      this.resetPermissionModeState(false);
+      this.uid = this.$route.params.uid || this.userInfo.uid;
+      this.subAccount = this.$route.params.uid ? this.$route.query.name : '';
       await this.listLevelsForDM();
       this.$nextTick(async () => {
         if (this.originLeftTree && this.originLeftTree.length > 0) {
           const firstRoot = this.originLeftTree[0];
           if (firstRoot) {
-            await this.listLevelsForDM(firstRoot);
+            await this.listLevelsForDM(firstRoot, { loadAuthTree: false });
             if (firstRoot.children && firstRoot.children.length > 0) {
-              // 只在 expandedKeys 不包含时 push，避免强制赋值导致无法收起
+              // Push only when extandedkeys are not included to avoid forced attributions that cannot be collected
               if (!this.expandedKeys.includes(firstRoot.key)) {
                 this.expandedKeys.push(firstRoot.key);
               }
@@ -1813,6 +2136,7 @@ export default {
       this.isView = false;
       this.isEdit = true;
       this.previewMode = false;
+      this.expandedKeys = this.getLoadedExpandedKeys(this.originLeftTree);
       this.$refs.dataSourceTree.setData(this.originLeftTree);
     },
     getInstanceId(node) {
@@ -1826,11 +2150,15 @@ export default {
     },
     filterTree(tree, keyword, isEnableQuery = false, depth = 5, level = 0) {
       if (!Array.isArray(tree) || depth <= 0) return [];
+      const lowerKeyword = String(keyword || '').toLowerCase();
 
       return tree
         .map((node) => {
           if (level >= depth) return null;
-          const match = node.objName && node.objName.includes(keyword);
+          const matchText = this.isInstanceNode(node) ? node.objDesc || node.objName : `${node.objName || ''} ${node.objDesc || ''}`;
+          const match = String(matchText || '')
+            .toLowerCase()
+            .includes(lowerKeyword);
           const children = node.children ? this.filterTree(node.children, keyword, isEnableQuery, depth, level + 1) : [];
 
           if (match || children.length > 0) {
@@ -1838,7 +2166,7 @@ export default {
 
             if (children.length > 0) {
               newNode.children = children;
-            } else if (!isEnableQuery) {
+            } else if (!isEnableQuery && this.canUseLazyPlaceholder(newNode)) {
               newNode.children = [{}];
             }
             return newNode;
@@ -1877,214 +2205,533 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
   padding: 16px;
   padding-bottom: 0;
-
-  .header {
-    margin-bottom: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+  overflow: hidden;
+  background: #f7f8fb;
 
   .auth-content {
-    height: calc(100% - 100px);
-
-    .users {
-      width: 300px;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-
-      .user-tree {
-        border: 1px solid #ccc;
-        border-top: none;
-        border-right: none;
-        flex: 1;
-      }
-    }
+    flex: 1;
+    min-height: 0;
 
     .auth-container {
-      flex: 1;
-      min-width: 0;
       display: flex;
       flex-direction: column;
       height: 100%;
+      min-width: 0;
+      min-height: 0;
 
       .auth {
         display: flex;
+        gap: 12px;
         width: 100%;
-        flex: 1;
-        min-height: 0;
         height: 100%;
+        min-height: 0;
 
         .left {
+          flex-shrink: 0;
+          min-width: 320px;
+          max-width: 520px;
           height: 100%;
           min-height: 0;
           display: flex;
           flex-direction: column;
-          border: 1px solid #ccc;
+          overflow: hidden;
+          background: #fff;
+          border: 1px solid #e6eaf0;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
 
-          .search {
+          > .search {
             display: flex;
+            flex-shrink: 0;
+            height: 56px;
+            border-bottom: 1px solid #eef1f5;
+
+            :deep(.ant-select) {
+              height: 100%;
+            }
+
             :deep(.ant-select-selector) {
+              height: 100% !important;
+              border: 0 !important;
+              border-right: 1px solid #eef1f5 !important;
               border-radius: 0 !important;
+              box-shadow: none !important;
             }
+
+            :deep(.ant-select-selection-item) {
+              line-height: 56px !important;
+            }
+
+            :deep(.ant-input-search) {
+              flex: 1;
+              min-width: 0;
+              height: 100%;
+            }
+
+            :deep(.ant-input-wrapper),
+            :deep(.ant-input-group) {
+              height: 100%;
+            }
+
             :deep(.ant-input-affix-wrapper) {
-              border-radius: 0 !important;
-            }
-            :deep(.ant-input-search-button) {
-              border-radius: 0 !important;
+              height: 100%;
               display: flex;
-              justify-content: center;
+              align-items: center;
+              padding: 0 12px 0 14px;
+              border: 0 !important;
+              border-radius: 0 !important;
+              box-shadow: none !important;
+            }
+
+            :deep(.ant-input) {
+              height: 100%;
+              padding: 0;
+              line-height: 56px;
+            }
+
+            :deep(.ant-input-suffix) {
+              height: 100%;
+              display: inline-flex;
               align-items: center;
             }
-          }
 
-          .auth-btns {
-            width: 100%;
-            display: flex;
-
-            .auth-btn {
-              flex: 1;
-            }
-            :deep(.ant-btn) {
+            :deep(.ant-input-search-button) {
+              height: 100%;
+              border: 0 !important;
+              border-left: 1px solid #eef1f5 !important;
               border-radius: 0 !important;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              box-shadow: none !important;
             }
-          }
-
-          :deep(.search .ant-input) {
-            border-top: none;
           }
 
           .datasource-tree {
             flex: 1;
             min-height: 0;
-            border: 1px solid #ccc;
-            border-top: none;
-          }
-          :deep(.vtree-tree__wrapper) {
-            height: calc(100% - 64px);
+            padding: 8px 10px 12px;
+            overflow: hidden;
+            border: 0;
           }
 
-          .no-indent {
-            :deep(.vtree-tree-node__square:first-child) {
-              display: none;
-            }
+          :deep(.vtree-tree__wrapper) {
+            height: 100%;
+            overflow: auto;
+          }
+
+          :deep(.vtree-tree-node) {
+            min-height: 34px;
           }
         }
 
         .middle {
           flex: 1;
+          min-width: 0;
           min-height: 0;
           display: flex;
           flex-direction: column;
 
-          &.no-auth {
-            border: 1px solid #ccc;
-            border-left: none;
-            border-right: none;
-          }
-
           .auth-tree-container {
             display: flex;
+            gap: 12px;
             flex: 1;
+            min-width: 0;
             min-height: 0;
             position: relative;
 
             .auth-loading {
               position: absolute;
-              width: 100%;
-              height: 100%;
-              display: flex;
-              align-items: center; /* 垂直居中 */
-              justify-content: center; /* 水平居中，如果需要的话 */
-              left: 0;
-              top: 0;
+              inset: 0;
               z-index: 999;
-              background: rgba(255, 255, 255, 0.8);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background: rgba(255, 255, 255, 0.78);
+              border-radius: 8px;
             }
 
-            :deep(.search .ant-input) {
-              border-left: none;
+            .auth-main {
+              flex: 1;
+              min-width: 0;
+              min-height: 0;
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+            }
+
+            .resource-summary {
+              display: flex;
+              align-items: center;
+              justify-content: flex-start;
+              min-height: 82px;
+              padding: 16px 22px;
+              background: #fff;
+              border: 1px solid #e0f3e9;
+              border-radius: 8px;
+              box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
+
+              &__main {
+                min-width: 0;
+              }
+
+              &__label {
+                margin-bottom: 8px;
+                color: #6b778c;
+                font-size: 13px;
+                line-height: 18px;
+              }
+
+              &__path {
+                display: flex;
+                align-items: center;
+                min-width: 0;
+                color: #27364b;
+                font-size: 15px;
+                line-height: 22px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+
+              &__path-item {
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+
+              &__separator {
+                flex: none;
+                margin: 0 7px;
+                color: #33c785;
+                font-weight: 600;
+              }
             }
 
             .auth-tree {
               flex: 1;
               min-height: 0;
-              border-top: none;
-              border-left: none;
+              display: flex;
+              flex-direction: column;
+              overflow: hidden;
+              background: #fff;
+              border: 1px solid #e6eaf0;
+              border-radius: 8px;
+              box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
             }
-            .auth-tree-container-right {
-              height: 100%;
-              border-left: 1px solid #ccc;
-              border-right: 1px solid #ccc;
-              .label-title {
-                height: 45px;
-                border-bottom: 1px solid #ccc;
-                padding: 14px 16px;
+
+            .auth-tabs {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              flex-shrink: 0;
+              min-height: 58px;
+              padding: 0 22px;
+              border-bottom: 1px solid #edf1f5;
+
+              &__items {
+                display: flex;
+                align-items: center;
+                gap: 28px;
               }
+
+              &__item {
+                position: relative;
+                display: inline-flex;
+                align-items: center;
+                min-height: 58px;
+                color: #6b778c;
+                font-size: 14px;
+                cursor: pointer;
+                transition: color 0.12s ease;
+
+                &:hover {
+                  color: #253044;
+                }
+
+                &.is-active {
+                  color: #18b978;
+                  font-weight: 600;
+
+                  &::after {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    bottom: -1px;
+                    height: 2px;
+                    background: #33c785;
+                    border-radius: 2px;
+                  }
+                }
+
+                &.is-disabled {
+                  color: #c1c7d0;
+                  cursor: not-allowed;
+                }
+              }
+
+              &__extra {
+                flex: none;
+              }
+
+              &__time-link {
+                color: #6b778c;
+                font-size: 13px;
+                cursor: pointer;
+
+                &:hover {
+                  color: #18b978;
+                }
+              }
+
+              &__content {
+                flex: 1;
+                min-height: 0;
+                padding: 18px 24px;
+                overflow: auto;
+
+                > div {
+                  height: 100%;
+                  min-height: 0;
+                }
+
+                :deep(.vtree-tree__wrapper) {
+                  height: 100%;
+                  overflow: auto;
+                }
+
+                :deep(.vtree-tree-node) {
+                  min-height: 40px;
+                }
+
+                :deep(.vtree-tree-node__checkbox:focus) {
+                  box-shadow: 0 0 0 2px rgba(62, 207, 142, 0.2);
+                }
+
+                :deep(.vtree-tree-node__checkbox:hover) {
+                  border-color: #3ecf8e;
+                }
+
+                :deep(.vtree-tree-node__checkbox_checked),
+                :deep(.vtree-tree-node__checkbox_indeterminate) {
+                  border-color: #3ecf8e;
+                  background-color: #3ecf8e;
+                }
+
+                :deep(.vtree-tree-node__checkbox_checked:hover),
+                :deep(.vtree-tree-node__checkbox_indeterminate:hover) {
+                  border-color: #3ecf8e;
+                  background-color: #3ecf8e;
+                }
+
+                :deep(.vtree-tree-node__checkbox_checked.vtree-tree-node__checkbox_disabled),
+                :deep(.vtree-tree-node__checkbox_indeterminate.vtree-tree-node__checkbox_disabled) {
+                  border-color: #3ecf8e;
+                  background-color: #3ecf8e;
+                  opacity: 0.68;
+                }
+
+                :deep(.vtree-tree-node__checkbox_checked.vtree-tree-node__checkbox_disabled::after),
+                :deep(.vtree-tree-node__checkbox_indeterminate.vtree-tree-node__checkbox_disabled::after) {
+                  border-color: #fff;
+                }
+
+                :deep(.vtree-tree-node__title:hover) {
+                  background-color: #eefaf4;
+                }
+
+                :deep(.vtree-tree-node__title_selected),
+                :deep(.vtree-tree-node__title_selected:hover) {
+                  background-color: #def6eb;
+                }
+              }
+            }
+
+            .auth-tree-container-right {
+              flex: 0 0 320px;
+              min-height: 0;
+              overflow: hidden;
+              background: #fff;
+              border: 1px solid #e6eaf0;
+              border-radius: 8px;
+              box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
+
+              .setting {
+                height: 100%;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+              }
+
+              .label-title {
+                flex-shrink: 0;
+                height: 58px;
+                padding: 18px 22px;
+                border-bottom: 1px solid #edf1f5;
+                color: #253044;
+                font-size: 16px;
+                font-weight: 600;
+                line-height: 22px;
+              }
+
+              .option-section {
+                flex-shrink: 0;
+                padding: 20px 22px;
+                border-bottom: 1px solid #edf1f5;
+              }
+
+              .option-section-title {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 14px;
+                color: #253044;
+                font-size: 14px;
+                font-weight: 600;
+
+                :deep(.ant-btn) {
+                  height: 24px;
+                  padding: 0;
+                  border: 0;
+                  color: #18b978;
+                  background: transparent;
+                  box-shadow: none;
+                }
+
+                &--required {
+                  justify-content: space-between;
+                }
+
+                .required-title {
+                  display: inline-flex;
+                  align-items: center;
+                }
+
+                .required-mark {
+                  margin-right: 4px;
+                  color: #ff4d4f;
+                  font-weight: 600;
+                }
+              }
+
+              .content {
+                min-width: 0;
+              }
+
+              .ranges {
+                width: 100%;
+                padding: 0 0 14px;
+              }
+
+              .range-button-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                width: 100%;
+              }
+
+              .date-btns {
+                width: 100%;
+                height: 38px;
+                padding: 0;
+                color: #536079;
+                background: #fff;
+                border: 1px solid #dcdee2;
+                border-radius: 6px;
+                text-align: center;
+                line-height: 36px;
+                cursor: pointer;
+                transition:
+                  color 0.12s ease,
+                  border-color 0.12s ease,
+                  background-color 0.12s ease;
+
+                &:hover {
+                  color: #18b978;
+                  border-color: #3ecf8e;
+                }
+
+                &:disabled {
+                  color: #8a94a6;
+                  background: #f7f8fa;
+                  border-color: #e4e7ec;
+                  cursor: not-allowed;
+                }
+
+                &:focus,
+                &:focus-visible,
+                &:active {
+                  outline: none;
+                  box-shadow: none;
+                }
+
+                &.is-active {
+                  color: #18b978;
+                  background: #eaf9f3;
+                  border-color: #3ecf8e;
+                }
+              }
+
               .time {
                 display: flex;
                 flex-direction: column;
-                align-items: center;
-                margin: 10px;
+                gap: 10px;
+                align-items: stretch;
               }
+
               .time-mid {
                 display: flex;
                 justify-content: center;
+                color: #6b778c;
+                line-height: 18px;
               }
-              .ranges {
-                padding-top: 20px;
-                padding-bottom: 20px;
-                text-align: center;
-                width: 210px;
-                margin: 0 auto;
-              }
-              .date-btns {
-                width: 68px;
-                padding: 0 8px;
+
+              :deep(.ant-picker) {
+                width: 100%;
+                height: 38px;
+                border-radius: 6px;
               }
             }
           }
         }
-
-        .right {
-        }
-
-        .tree {
-          display: flex;
-          flex-direction: column;
-        }
-      }
-
-      .footer {
-        height: 50px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
       }
     }
   }
+
   :deep(.vtree-tree__empty-text_default) {
     position: relative;
     top: 100px;
   }
+
+  :deep(.left .vtree-tree-node__wrapper_is-leaf > .vtree-tree-node__node-body > .vtree-tree-node__square.vtree-tree-node__expand) {
+    visibility: hidden;
+    pointer-events: none;
+  }
 }
 
 .option-wrap {
-  display: flex;
-  border: 1px solid #ccc;
-  height: 60px;
-  margin-bottom: 12px;
-  padding: 12px;
-  justify-content: center;
-  border-top: none;
-}
-
-:deep(.node) {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
+  height: 72px;
+  margin: 12px 0 16px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid #e6eaf0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(18, 38, 63, 0.04);
+}
+
+:deep(.node),
+:deep(.node-wrap) {
+  display: flex;
+  align-items: center;
+
   .loading-circle {
     display: inline-block;
     width: 15px;
@@ -2142,6 +2789,7 @@ export default {
   margin-right: 6px;
   color: #808695;
 }
+
 .divider {
   width: 3px;
   background: linear-gradient(to bottom, #e0e0e0, #f8f8f8, #e0e0e0);
@@ -2161,6 +2809,7 @@ export default {
   background: #b0b0b0;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.15) inset;
 }
+
 .page-loading-mask {
   position: fixed;
   z-index: 9999;

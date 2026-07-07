@@ -25,17 +25,17 @@ import com.clougence.clouddm.faker.types.TypeHandlerRegistryUtils;
 import com.clougence.clouddm.faker.utils.RandomRatio;
 
 /**
- * 数值类型的 SeedConfig
+ * SeedConfig
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
 public class NumberSeedConfig extends SeedConfig {
 
     private NumberType                numberType;
-    //随机方式
-    private final RandomRatio<MinMax> minmax = new RandomRatio<>(); // 最小值/最大值
-    private Integer                   precision;                    //数的长度
-    //精度和选项
+    //Random Method
+    private final RandomRatio<MinMax> minmax = new RandomRatio<>(); // Minimum/maximum
+    private Integer                   precision;                    //Length of Numbers
+    //Precision and Options
     private Integer                   scale;
     private boolean                   abs;
 

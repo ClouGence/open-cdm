@@ -16,7 +16,7 @@
 package com.clougence.clouddm.faker.seed.string.characters;
 
 /**
- * 基于 UTF-16 的 Bit 字符集，只含有 0，1 两个字符
+ * Bit character set based on UTF-16, with only 0,1 words Arguments
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

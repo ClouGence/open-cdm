@@ -15,22 +15,65 @@
  */
 package com.clougence.clouddm.ds.polardb.dsconf.porpg;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigMap;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
+import com.clougence.clouddm.base.metadata.ds.SslMode;
+import com.clougence.clouddm.dsfamily.postgres.dsconf.AbstractPgConfigSpi;
+import com.clougence.drivers.adapter.ConvertUtils;
 
-public class PorPgConfigSpi implements DsConfigSpi, ConfigKeys {
+public class PorPgConfigSpi extends AbstractPgConfigSpi {
 
     @Override
-    public DataSourceConfig newConfig(Map<String, String> configMap) {
-        return new PorPgConfig();
+    public String defaultPort() {
+        return "5432";
     }
 
     @Override
-    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, DsConfigMap dsConfigMap) {
+    public Class<? extends DataSourceConfig> newConfig() {
+        return PorPgConfig.class;
+    }
+
+    @Override
+    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
+        PorPgConfig config = (PorPgConfig) dsConfig;
+        Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(PorPgConfig.Fields.connectTimeoutMs), false);
+        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(PorPgConfig.Fields.soTimeoutSec), false);
+        config.setDefaultCatalog(defaultConfig.get(PorPgConfig.Fields.defaultCatalog));
+        config.setDefaultSchema(defaultConfig.get(PorPgConfig.Fields.defaultSchema));
+        config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
+        config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
+        config.setClientTimeZone(defaultConfig.get(PorPgConfig.Fields.clientTimeZone));
         return dsConfig;
+    }
+
+    @Override
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.USER_PASSWD);
+        return options;
+    }
+
+    @Override
+    public boolean supportSSL() {
+        return false;
+    }
+
+    @Override
+    public List<SslMode> sslModeSet() {
+        return List.of(SslMode.TRUST, SslMode.CA);
+    }
+
+    @Override
+    public boolean supportSSH() {
+        return true;
+    }
+
+    @Override
+    public boolean supportTx() {
+        return true;
     }
 }

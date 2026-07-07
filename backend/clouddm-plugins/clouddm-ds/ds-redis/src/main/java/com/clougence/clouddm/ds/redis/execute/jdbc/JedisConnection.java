@@ -21,13 +21,13 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.ds.redis.parser.RedisDslProvider;
-import com.clougence.clouddm.ds.redis.parser.ast.commands.AbstractRedisCmd;
-import com.clougence.clouddm.ds.redis.parser.ast.commands.client.SelectRedisCmd;
 import com.clougence.drivers.adapter.*;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.ast.Statement;
 import com.clougence.dslpaser.ast.StatementSet;
+import com.clougence.sql.redis.parser.RedisDslProvider;
+import com.clougence.sql.redis.parser.ast.commands.AbstractRedisCmd;
+import com.clougence.sql.redis.parser.ast.commands.client.SelectRedisCmd;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.future.CgFuture;
@@ -41,10 +41,6 @@ public class JedisConnection extends AdapterConnection {
     private final JedisCmd   jedisCmd;
     private int              database;
     private volatile boolean cancelled = false;
-
-    static {
-        DslHelper.register(new RedisDslProvider());
-    }
 
     JedisConnection(Connection owner, JedisCmd jedisCmd, String jdbcUrl, Map<String, String> properties, int database){
         super(jdbcUrl, properties.get(JedisKeys.USERNAME));

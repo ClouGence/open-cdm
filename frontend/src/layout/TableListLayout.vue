@@ -32,9 +32,9 @@ export default {
 <template>
   <div class="table-list-layout">
     <div class="table-list">
-      <div class="header" v-if="$slots.header || breadcrumbList">
+      <div class="header" v-if="$slots.header || (breadcrumbList && breadcrumbList.length)">
         <slot name="header" />
-        <Breadcrumb v-if="!$slots.header && breadcrumbList">
+        <Breadcrumb v-if="!$slots.header && breadcrumbList && breadcrumbList.length">
           <BreadcrumbItem v-for="breadcrumb in breadcrumbList" :to="breadcrumb.to" :key="breadcrumb.label">
             {{ breadcrumb.label }}
           </BreadcrumbItem>

@@ -12,7 +12,5 @@ public interface MonitorDal {
 
     DmMonOpAuditMapper opAuditMapper();
 
-    DmMonWebViewLogMapper webViewLogMapper();
-
     // ---------- dal service methods ----------
 }

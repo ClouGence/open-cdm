@@ -36,6 +36,7 @@ import com.clougence.clouddm.sdk.execute.session.SessionFactory;
 import com.clougence.drivers.DriverBinding;
 import com.clougence.drivers.DriverVersion;
 import com.clougence.drivers.DsFactory;
+import com.clougence.drivers.adapter.AdapterManager;
 import com.clougence.schema.dialect.Dialect;
 import com.clougence.schema.editor.provider.SqlBuilder;
 import com.clougence.utils.CollectionUtils;
@@ -49,10 +50,13 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
     private final I18nUtils                          dsI18nUtil;
     private final Map<String, Object>                dsFeatures;
     private final DataSourceType                     dsType;
+    private final String                             dsName;
+    private final boolean                            display;
     private String                                   dsSessionFactory;
     private SqlBuilder                               dsSqlBuilder;
     private Dialect                                  dsDialect;
-    private List<String>                             dsDriverFamily;
+    private final List<String>                       dsDriverFamily;
+    private final List<String>                       dsSqlEngines;
     //
     private final Map<String, DsDriverBindingHolder> driverBindingCache = new ConcurrentHashMap<>();
 
@@ -62,6 +66,7 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
         this.dsI18nUtil = I18nUtils.initI18n(globalMeta.getI18nUtils());
         this.dsFeatures = new ConcurrentHashMap<>();
         this.dsDriverFamily = new ArrayList<>();
+        this.dsSqlEngines = new ArrayList<>();
 
         List<Enum<?>> dsProduct = this.pluginInfo.getEnumArray("dsProduct", DataSourceType.values());
         if (dsProduct.isEmpty()) {
@@ -71,6 +76,8 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
         } else {
             throw new InvalidClassException("Plugin dsProduct not support multi, class=" + pluginClass);
         }
+        this.dsName = this.pluginInfo.getString("name");
+        this.display = this.pluginInfo.getBoolean("display", true);
     }
 
     @Override
@@ -86,6 +93,14 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
     public DataSourceType getDsType() { return this.dsType; }
 
     @Override
+    public String getDsName() { return this.dsName; }
+
+    @Override
+    public boolean display() {
+        return this.display;
+    }
+
+    @Override
     public SqlBuilder getDsSqlBuilder() { return this.dsSqlBuilder; }
 
     @Override
@@ -94,7 +109,8 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
     @Override
     public List<String> getBindDrivers() { return this.dsDriverFamily; }
 
-    //
+    @Override
+    public List<String> getBindSqlEngineNames() { return this.dsSqlEngines; }
 
     @Override
     public <T extends Spi> List<T> findSpi(Class<T> spiType) {
@@ -142,6 +158,14 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
         for (String family : driverFamily) {
             if (!this.dsDriverFamily.contains(family)) {
                 this.dsDriverFamily.add(family);
+            }
+        }
+    }
+
+    public void bindSqlEngine(String... sqlEngine) {
+        for (String engine : sqlEngine) {
+            if (!this.dsSqlEngines.contains(engine)) {
+                this.dsSqlEngines.add(engine);
             }
         }
     }
@@ -213,8 +237,9 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
             }
 
             binding.bind(this.pluginResource, this.getIncludePackages().toArray(new String[0]));
-
             this.configIncludeExclude(binding.asClassLoader());// config all bind
+            AdapterManager.register(binding.asClassLoader());
+
             DsDriverBindingHolder holder = new DsDriverBindingHolder(key, binding);
             this.driverBindingCache.put(key, holder);
             return holder;

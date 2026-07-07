@@ -108,6 +108,15 @@ public class AdsMyTableEditorUiPanelFactory extends MyTableEditorUiPanelFactory 
         return result;
     }
 
+    @Override
+    protected List<ValueDef> fetchTableEngine(DataSourceConfig dsConfig) {
+        List<ValueDef> result = new ArrayList<>();
+        result.add(optionDef(MyDsI18nKeys.EDITOR_TABLEINFO_ENGINE_EMPTY_LABEL, ""));
+        result.add(optionDef(MyDsI18nKeys.EDITOR_TABLEINFO_ENGINE_INNODB_LABEL, "InnoDB"));
+        result.add(optionDef(MyDsI18nKeys.EDITOR_TABLEINFO_ENGINE_MYISAM_LABEL, "X-Engine"));
+        return result;
+    }
+
     // tableEditor Columns panel
     @Override
     protected void fillTableColumnsUiPanelForAdvanced(TableEditorUiPanel uiPanel, DataSourceConfig dsConfig, EditorViewMode viewMode, Connection con) {

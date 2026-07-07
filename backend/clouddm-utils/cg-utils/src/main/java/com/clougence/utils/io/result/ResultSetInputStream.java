@@ -395,18 +395,18 @@ public abstract class ResultSetInputStream extends InputStream {
 
     @Override
     public synchronized void mark(int readLimit) {
-        // TODO 实现 mark 方法，用于标记当前读取位置。
+        // TODO achieves the mark method for tagging the current reading position.
     }
 
     @Override
     public synchronized void reset() throws IOException {
-        // TODO 实现 reset 方法，用于将读取位置重置到 mark 标记的位置。
+        // TODO achieves the reset method to reset the reading position to the mark.
         throw new IOException("mark/reset not supported");
     }
 
     @Override
     public boolean markSupported() {
-        // TODO 实现 markSupported 方法，返回是否支持 mark 和 reset。
+        // TODO achieves markSuppled approach, returns whether or not to support mark and reset.
         return false;
     }
 

@@ -25,7 +25,7 @@ import com.clougence.clouddm.faker.types.TypeHandlerRegistryUtils;
 import com.clougence.clouddm.faker.utils.RandomRatio;
 
 /**
- * 几何图形 SeedConfig
+ * Geometric Graphics SeedConfig
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -33,7 +33,7 @@ public class GeometrySeedConfig extends SeedConfig {
 
     private GeometryType                  geometryType;
     private FormatType                    formatType;
-    private final RandomRatio<SpaceRange> range = new RandomRatio<>(); //图形将在这个矩形范围
+    private final RandomRatio<SpaceRange> range = new RandomRatio<>(); //Graphics will be in this rectangle range
     private int                           precision;
     private int                           minPointSize;
     private int                           maxPointSize;

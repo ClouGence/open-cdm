@@ -73,33 +73,71 @@
 }
 
 .ant-btn-primary {
-  background: @primary-color;
-  border-color: @primary-color;
-  color: #ffffff;
+  &:not(:disabled) {
+    background: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #ffffff !important;
 
-  &:hover {
-    background-color: @hover-color;
-    border-color: @hover-color;
-    background-image: none;
-    color: #ffffff;
+    span {
+      color: #ffffff !important;
+    }
+
+    &:hover {
+      background-color: @hover-color !important;
+      border-color: @hover-color !important;
+      color: #ffffff !important;
+    }
+
+    &:active {
+      background-color: @active-color !important;
+      border-color: @active-color !important;
+      color: #ffffff !important;
+    }
+
+    &:focus {
+      background: var(--primary-color) !important;
+      border-color: var(--primary-color) !important;
+      color: #ffffff !important;
+    }
   }
 
-  &:active {
-    background-color: @active-color;
-    border-color: @active-color;
-    background-image: none;
-    color: #ffffff;
-  }
+  &[disabled],
+  &:disabled {
+    background: #ececec !important;
+    border-color: #dadada !important;
+    color: #999 !important;
 
-  &:focus {
-    background: @primary-color;
-    border-color: @primary-color;
-    color: #ffffff;
+    span {
+      color: #999 !important;
+    }
   }
 }
 
 .ant-btn-dangerous {
   background-color: #ff4d4f;
+}
+
+.ant-btn-primary.ant-btn-dangerous:not(:disabled) {
+  background: @error-color !important;
+  border-color: @error-color !important;
+  color: #ffffff !important;
+
+  span {
+    color: #ffffff !important;
+  }
+
+  &:hover {
+    background-color: lighten(@error-color, 8%) !important;
+    border-color: lighten(@error-color, 8%) !important;
+    color: #ffffff !important;
+  }
+
+  &:active,
+  &:focus {
+    background-color: darken(@error-color, 8%) !important;
+    border-color: darken(@error-color, 8%) !important;
+    color: #ffffff !important;
+  }
 }
 
 .ant-btn-background-ghost {
@@ -192,7 +230,9 @@
 }
 
 .ant-table {
-  border-color: #eaeaea;
+  border-color: var(--border-light);
+  border-radius: 8px;
+  overflow: hidden;
 
   &.ant-table-empty {
     .ant-table-container,
@@ -207,32 +247,68 @@
   }
 
   .ant-table-thead {
-    background: #f3f3f3;
+    background: var(--bg-secondary);
 
     tr {
-      border-color: #eaeaea;
+      border-color: var(--border-light);
 
       th {
-        color: rgba(0, 0, 0, 0.88);
+        color: var(--text-secondary);
+        font-weight: 600;
       }
     }
   }
 
   .ant-table-tbody {
-    tr {
-      &:nth-child(2n) {
-        background-color: #fbfbfb;
+    > tr.ant-table-row:nth-child(even) {
+      background-color: var(--bg-secondary);
+
+      > td {
+        background-color: var(--bg-secondary);
+      }
+    }
+
+    &:has(> tr.ant-table-measure-row) {
+      > tr.ant-table-row:nth-child(even) {
+        background-color: var(--bg-card);
+
+        > td {
+          background-color: var(--bg-card);
+        }
       }
 
+      > tr.ant-table-row:nth-child(odd) {
+        background-color: var(--bg-secondary);
+
+        > td {
+          background-color: var(--bg-secondary);
+        }
+      }
+    }
+
+    tr {
       td {
-        padding: 6px !important;
+        padding: 10px 12px !important;
+      }
+    }
+
+    tr.ant-table-measure-row {
+      height: 0 !important;
+      font-size: 0 !important;
+      line-height: 0 !important;
+
+      td {
+        padding: 0 !important;
+        border: 0 !important;
+        height: 0 !important;
+        line-height: 0 !important;
+        overflow: hidden !important;
       }
     }
 
     .ant-table-row-hover {
       td {
-        background-color: #f3f3f3 !important;
-        //cursor: pointer;
+        background-color: var(--bg-hover) !important;
       }
     }
   }

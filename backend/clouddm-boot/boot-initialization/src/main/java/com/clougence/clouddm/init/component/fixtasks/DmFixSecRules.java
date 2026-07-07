@@ -23,9 +23,9 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.component.detectrule.local.SecRuleScriptInfo;
 import com.clougence.clouddm.console.web.component.detectrule.local.SecRulesScriptUtils;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.service.security.CheckRulesService;
 import com.clougence.clouddm.platform.dal.access.SecRuleDal;
 import com.clougence.clouddm.platform.dal.model.secrule.*;
@@ -53,12 +53,12 @@ public class DmFixSecRules {
     @Resource
     private SecRuleDal        secRuleDal;
     @Resource
-    private DmConsoleConfig   dmConfig;
+    private ConsoleConfig     config;
     @Resource
     private CheckRulesService checkRulesService;
 
     public void init() throws IOException {
-        if (!this.dmConfig.isAutoUpdateInnerRules()) {
+        if (!this.config.isAutoUpdateInnerRules()) {
             log.info("skip autoUpdateInnerRules.");
             return;
         }

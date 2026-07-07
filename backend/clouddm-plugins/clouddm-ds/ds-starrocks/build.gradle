@@ -20,10 +20,11 @@ plugins {
 }
 
 dependencies {
-    // project
     antlr "org.antlr:antlr4:${ANTLR_VERSION}"
+
+    // project
+    implementation "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
     implementation(project(':dsc-common-mysql'))
-    implementation project(':cg-dslparser')
 
     // share lib (compileOnly)
     compileOnly project(':cgdm-share-libs')
@@ -34,7 +35,6 @@ dependencies {
 
 description = 'ds-starrocks'
 
-configureClougenceAntlrGrammar([source     : files('src/main/antlr/StarRocksLex.g4', 'src/main/antlr/StarRocks.g4'),
-                                outputPath : 'src/main/java/com/clougence/clouddm/ds/starrocks/parser/antlr',
-                                packageName: 'com.clougence.clouddm.ds.starrocks.parser.antlr'])
-
+tasks.named('generateGrammarSource') {
+    arguments += ['-visitor', '-package', 'com.clougence.clouddm.ds.starrocks.sql.parser.antlr']
+}

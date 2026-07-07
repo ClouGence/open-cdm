@@ -15,46 +15,36 @@
  */
 package com.clougence.clouddm.ds.oracle.dsconf;
 
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ConnectType;
+import com.clougence.utils.StringUtils;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 import lombok.Getter;
 
-/**
- * @author mode 2020/11/6 10:23
- */
 @Getter
 public enum OraConnectType {
+    SID("sid"),
+    SERVICE("service"),
+    TNS("tns"),
+    PDB("pdb"),;
 
-    SID("sid", ConnectType.ORACLE_SID),
-    SERVICE("service", ConnectType.ORACLE_SERVICE),
-    TNS("tns", ConnectType.ORACLE_TNS),
-    PDB("pdb", ConnectType.ORACLE_PDB),;
+    private final String driverTypeCode;
 
-    private final String      driverTypeCode;
-    private final ConnectType connectType;
-
-    OraConnectType(String driverTypeCode, ConnectType connectType){
+    OraConnectType(String driverTypeCode){
         this.driverTypeCode = driverTypeCode;
-        this.connectType = connectType;
     }
 
-    public static OraConnectType valueOfCode(ConnectType connectType) {
-        if (connectType == null) {
-            return null;
+    @JsonCreator
+    public static OraConnectType of(String code) {
+        if (StringUtils.isBlank(code)) {
+            return SID;
         }
 
-        switch (connectType) {
-            case DEFAULT:
-            case ORACLE_SID:
-                return SID;
-            case ORACLE_SERVICE:
-                return SERVICE;
-            case ORACLE_TNS:
-                return TNS;
-            case ORACLE_PDB:
-                return PDB;
-            default:
-                return null;
-        }
+        return switch (code.trim().toUpperCase()) {
+            case "DEFAULT", "SID", "ORACLE_SID" -> SID;
+            case "SERVICE", "ORACLE_SERVICE" -> SERVICE;
+            case "TNS", "ORACLE_TNS" -> TNS;
+            case "PDB", "ORACLE_PDB" -> PDB;
+            default -> throw new IllegalArgumentException("unsupported Oracle connect type:" + code);
+        };
     }
 }

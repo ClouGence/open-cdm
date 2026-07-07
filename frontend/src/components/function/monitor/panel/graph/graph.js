@@ -1,4 +1,4 @@
-import moment from 'moment/moment';
+import dayjs from '@/utils/dayjsSetup';
 import { Emitter } from '../utils/emitter';
 import { DataProcessor } from './data_processor';
 import { MetricsPanelCtrl } from '../sdk/ctrls';
@@ -107,11 +107,11 @@ class Dashboard {
   }
 
   formatDate(date, format) {
-    date = moment.isMoment(date) ? date : moment(date);
+    date = dayjs.isDayjs(date) ? date : dayjs(date);
     format = format || 'YYYY-MM-DD HH:mm:ss';
     const timezone = this.getTimezone();
 
-    return timezone === 'browser' ? moment(date).format(format) : moment.utc(date).format(format);
+    return timezone === 'browser' ? dayjs(date).format(format) : dayjs.utc(date).format(format);
   }
 
   getTimezone() {

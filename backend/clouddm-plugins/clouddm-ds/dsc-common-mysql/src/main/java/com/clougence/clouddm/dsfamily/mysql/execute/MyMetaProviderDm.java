@@ -34,7 +34,7 @@ import com.clougence.utils.jdbc.mapper.ValueRowMapper;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * MySQL 元信息获取，参考资料：
+ * MySQL metadata acquisition, reference:
  * <li>https://dev.mysql.com/doc/refman/8.0/en/information-schema.html</li>
  *
  * @author 赵永春 (zyc@hasor.net)

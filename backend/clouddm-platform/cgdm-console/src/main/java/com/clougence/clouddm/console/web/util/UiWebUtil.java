@@ -22,6 +22,8 @@ import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
 import com.clougence.clouddm.base.metadata.ui.form.UiUtils;
 import com.clougence.clouddm.base.metadata.ui.form.value.*;
+import com.clougence.clouddm.console.web.model.vo.datasource.DsAddUiPanelFieldVO;
+import com.clougence.clouddm.console.web.model.vo.datasource.DsAddUiPanelVO;
 import com.clougence.clouddm.console.web.model.vo.editor.table.TableEditorFieldForm;
 import com.clougence.clouddm.console.web.model.vo.editor.table.TableEditorForm;
 import com.clougence.clouddm.console.web.model.vo.editor.table.TableEditorPanelForm;
@@ -31,6 +33,8 @@ import com.clougence.clouddm.console.web.model.vo.faker.FakerPanelVO;
 import com.clougence.clouddm.sdk.ui.editor.property.PropertyUiPanel;
 import com.clougence.clouddm.sdk.ui.editor.table.TableEditorUiPanel;
 import com.clougence.clouddm.sdk.ui.faker.FakerUiPanel;
+import com.clougence.utils.JsonUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -111,6 +115,68 @@ public class UiWebUtil extends UiUtils {
         }
 
         return panelVO;
+    }
+
+    public static List<DsAddUiPanelVO> addDsUiPanels2VO(List<UiPanel> panels) {
+        if (panels == null || panels.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<DsAddUiPanelVO> vos = new ArrayList<>();
+        for (UiPanel panel : panels) {
+            DsAddUiPanelVO vo = new DsAddUiPanelVO();
+            vo.setTitleI18N(panel.getTitleI18N());
+            vo.setDescI18N(panel.getDescI18N());
+            vo.setKey(panel.getKey());
+            vo.setChildren(addDsFields2VO(panel.getChildren()));
+            vos.add(vo);
+        }
+        return vos;
+    }
+
+    private static List<DsAddUiPanelFieldVO> addDsFields2VO(List<UiPanelField> children) {
+        if (children == null || children.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<DsAddUiPanelFieldVO> vos = new ArrayList<>();
+        for (UiPanelField uiField : children) {
+            DsAddUiPanelFieldVO vo = new DsAddUiPanelFieldVO();
+            vo.setField(uiField.getField());
+            vo.setType(uiField.getType() == null ? null : uiField.getType().getType());
+            vo.setTypeConfig(toPlainObject(uiField.getTypeConfig()));
+            vo.setRequire(uiField.isRequire());
+            vo.setReadOnly(uiField.isReadOnly());
+            vo.setAddReadOnly(uiField.isAddReadOnly());
+            vo.setDeleteReadOnly(uiField.isDeleteReadOnly());
+            vo.setHide(uiField.isHide());
+            vo.setActiveExpr(uiField.getActiveExpr());
+            vo.setDefaultValue(toPlainObject(passerPanel(uiField.getDefaultValue())));
+            vo.setProps(uiField.getProps());
+            if (uiField.getOptions() != null) {
+                vo.setOptions(uiField.getOptions().stream().map(UiWebUtil::addDsOption2VO).map(UiWebUtil::toPlainObject).collect(Collectors.toList()));
+            } else {
+                vo.setOptions(Collections.emptyList());
+            }
+            vo.setTitleI18N(uiField.getTitleI18N());
+            vo.setDescI18N(uiField.getDescI18N());
+            vo.setChildren(addDsFields2VO(uiField.getChildren()));
+            vos.add(vo);
+        }
+        return vos;
+    }
+
+    private static Object addDsOption2VO(ValueDef valueDef) {
+        if (valueDef instanceof FieldOptionValueDef optionDef) {
+            Map<String, Object> value = new LinkedHashMap<>();
+            value.put("value", optionDef.getValue());
+            value.put("label", optionDef.getLabelI18N());
+            value.put("desc", optionDef.getDescI18N());
+            value.put("children", addDsFields2VO(optionDef.getChildren()));
+            value.put("readOnly", optionDef.isReadOnly());
+            return value;
+        }
+        return passerPanel(valueDef);
     }
 
     private static FakerPanelVO passerFakerPanel(UiPanel tableInfo) {
@@ -221,4 +287,25 @@ public class UiWebUtil extends UiUtils {
         throw new UnsupportedOperationException("Unsupported valueDef type of '" + valueDef.getClass().getName() + "'");
     }
 
+    private static Object toPlainObject(Object value) {
+        if (value == null || value instanceof String || value instanceof Number || value instanceof Boolean || value instanceof Map || value instanceof List) {
+            return value;
+        }
+        Map<String, Object> data = JsonUtils.defaultObjectMapper().convertValue(value, new TypeReference<Map<String, Object>>() {});
+        removeClassMetadata(data);
+        return data;
+    }
+
+    private static void removeClassMetadata(Object value) {
+        if (value instanceof Map<?, ?> map) {
+            map.remove("@class");
+            for (Object child : map.values()) {
+                removeClassMetadata(child);
+            }
+        } else if (value instanceof List<?> list) {
+            for (Object child : list) {
+                removeClassMetadata(child);
+            }
+        }
+    }
 }

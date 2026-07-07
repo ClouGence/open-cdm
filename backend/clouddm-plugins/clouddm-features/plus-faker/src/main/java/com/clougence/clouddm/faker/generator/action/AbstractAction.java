@@ -30,7 +30,7 @@ import com.clougence.schema.dialect.Dialect;
 import com.clougence.utils.CollectionUtils;
 
 /**
- * 公共
+ * Public
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

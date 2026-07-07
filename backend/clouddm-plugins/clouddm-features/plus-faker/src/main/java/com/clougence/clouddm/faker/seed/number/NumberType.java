@@ -21,7 +21,7 @@ import java.math.BigInteger;
 import com.clougence.utils.StringUtils;
 
 /**
- * 数值 具体类型
+ * Value
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

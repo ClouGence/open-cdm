@@ -22,11 +22,11 @@ import com.clougence.clouddm.sdk.service.Service;
 
 public interface ConsoleConfigService extends Service {
 
-    List<ConfigData> fetchSettings(String ownerUid, List<String> names);
+    List<ConfigData> fetchSettings(List<String> names);
 
-    Map<String, String> fetchSettingsMap(String ownerUid, List<String> names);
+    Map<String, String> fetchSettingsMap(List<String> names);
 
     UserData findUserByUID(String userUid);
 
-    List<RoleData> findRoleByName(String ownerUid, String roleName);
+    List<RoleData> findRoleByName(String roleName);
 }

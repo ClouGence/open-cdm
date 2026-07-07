@@ -113,13 +113,13 @@ export default {
           const language = await this.resolveLanguage();
           this.monacoEditor = markRaw(
             monaco.editor.create(this.$refs.readOnlyEditor, {
-              value: this.text, // 编辑器的值
+              value: this.text, // The editor 's value
               language,
               fontSize: 14,
               fontWeight: 'bold',
               scrollBeyondLastLine: false,
               readOnly: true,
-              theme: 'vs', // 编辑器主题：vs, hc-black, or vs-dark，更多选择详见官网
+              theme: 'vs', // Editor theme: vs, hc-black, or vs-dark; more options in the official docs.
               minimap: {
                 enabled: false
               },
@@ -130,7 +130,7 @@ export default {
               overviewRulerLanes: 0,
               hideCursorInOverviewRuler: true,
               automaticLayout: true,
-              autoIndent: true // 自动缩进
+              autoIndent: true // Auto Indent
             })
           );
           this.contentSizeDisposable = this.monacoEditor.onDidContentSizeChange(() => {

@@ -30,11 +30,9 @@ import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
-import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
 import com.clougence.clouddm.platform.dal.access.SecRuleDal;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
 import com.clougence.clouddm.platform.dal.model.secrule.*;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
@@ -56,8 +54,6 @@ import jakarta.annotation.Resource;
 @Service
 public class SecRulesServiceImpl implements SecRulesService, UnifiedPostConstruct {
 
-    @Resource
-    private DataSourceDal                dsDal;
     @Resource
     private SecRuleDal                   secRuleDal;
     @Resource
@@ -109,7 +105,7 @@ public class SecRulesServiceImpl implements SecRulesService, UnifiedPostConstruc
         DataSourceType dsType = dsCache.getDsType();
         String cacheKey = dsCache.getOwnerUid() + "-" + dsId + "-" + dsType;
         //return this.checkerRuleCache.computeIfAbsent(cacheKey, s -> {
-        return this.resolveCheckerRules(dsCache.getOwnerUid(), dsId, dsType);
+        return this.resolveCheckerRules(dsCache.getOwnerUid(), dsCache);
         //});
     }
 
@@ -120,13 +116,14 @@ public class SecRulesServiceImpl implements SecRulesService, UnifiedPostConstruc
         DataSourceType dsType = dsCache.getDsType();
         String cacheKey = ownerUid + "-" + dsId + "-" + dsType;
         //return this.checkerRuleCache.computeIfAbsent(cacheKey, s -> {
-        return this.resolveCheckerRules(ownerUid, dsId, dsType);
+        return this.resolveCheckerRules(ownerUid, dsCache);
         //});
     }
 
-    private SecCheckerRules resolveCheckerRules(String ownerUid, long dsId, DataSourceType dsType) {
-        DmDsConfigDO dmDsConfigDO = this.dsDal.configMapper().queryById(ownerUid, dsId);
-        long envId = dmDsConfigDO.getBindEnvId();
+    private SecCheckerRules resolveCheckerRules(String ownerUid, DsCacheEntry dsCache) {
+        long dsId = dsCache.getDsNumId();
+        DataSourceType dsType = dsCache.getDsType();
+        long envId = dsCache.getEnvId();
 
         String usingSpec = this.dmEnvParamService.queryParam(ownerUid, envId, EnvParamKeys.DM_BIND_CHECK_SPEC);
         if (StringUtils.isBlank(usingSpec) || !NumberUtils.isNumber(usingSpec)) {
@@ -158,7 +155,6 @@ public class SecRulesServiceImpl implements SecRulesService, UnifiedPostConstruc
         // result
         List<CheckerRule> resultOfQuery = this.convertQueryRulesToCheckerRule(ownerUid, dsType, ruleOfQuery);
         List<CheckerRule> resultOfSen = this.convertSenRulesToCheckerRule(ownerUid, ruleOfSen);
-        DsCacheEntry dsCache = this.objectCacheDao.queryByDsId(dsId);
         return new SecCheckerRules(envId, dsId, dsCache.getDsInstId(), dsType, specDO.getName(), resultOfQuery, resultOfSen);
     }
 

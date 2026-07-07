@@ -5,7 +5,7 @@
       <template #auth="record">
         <a-select :default-value="record.auth.type" size="small" style="width: 160px" @change="handleChangeAuthType(record, $event)">
           <a-select-option v-for="security in securityOptions" :key="security.securityType" :rowKey="security.securityType">
-            {{ security.secrityTypeI18nName || security.securityType }}
+            {{ security.securityTypeI18nName || security.securityType }}
           </a-select-option>
         </a-select>
       </template>
@@ -22,13 +22,6 @@
             />
             <cc-password-input v-model="record.auth.data.password" size="small" style="width: 180px" />
             <!--            <Input v-model="record.auth.data.password" :placeholder="$t('qing-shu-ru-shu-ju-ku-mi-ma')" style="width: 180px;"/>-->
-            <a-checkbox
-              :default-checked="record.auth.data.auto"
-              @change="toggleAutoCreate(record, $event)"
-              v-if="securityOptionsObj[record.auth.type] && securityOptionsObj[record.auth.type].hasAutoCreateAccountOption"
-            >
-              {{ $t('zi-dong-chuang-jian') }}
-            </a-checkbox>
           </div>
           <div v-else-if="record.auth.type === SECURITY_TYPE.USER_PASSWD_WITH_TLS">
             <a-input v-model="record.auth.data.username" :placeholder="$t('qing-shu-ru-shu-ju-ku-zhang-hao')" style="width: 180px" />
@@ -70,7 +63,7 @@
 
 <script>
 import { SECURITY_TYPE } from '@/const';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 
 export default {
   name: 'Four',
@@ -106,38 +99,30 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['isDesktop'])
+    ...mapGetters(['isDesktop']),
+    ...mapState(['dmGlobalSetting'])
   },
   methods: {
-    async getSecurityOption() {
-      const { dataSourceType, deployEnvType } = this.stepData[0];
-      const res = await this.$services.dmConstantListDsSecurityOption({
-        data: {
-          dataSourceType,
-          deployEnvType,
-          connectType: 'DEFAULT'
-        }
+    getSecurityOption() {
+      const { dataSourceType } = this.stepData[0];
+      const securityOptions = this.dmGlobalSetting?.dsSettingDef?.[dataSourceType]?.securityOptions || [];
+      const obj = {};
+      this.securityOptions = [...securityOptions];
+      securityOptions.forEach((security) => {
+        obj[security.securityType] = security;
       });
-
-      if (res.success) {
-        const obj = {};
-        this.securityOptions = [...res.data.securityOptions];
-        res.data.securityOptions.forEach((security) => {
-          obj[security.securityType] = security;
-        });
-        this.securityOptionsObj = obj;
-        // eslint-disable-next-line prefer-destructuring
-        const data = [];
-        this.stepData[2].forEach((ds) => {
-          ds.auth = {
-            type: this.securityOptions.length > 0 ? this.securityOptions[0].securityType : '',
-            data: {},
-            auto: false
-          };
-          data.push(ds);
-        });
-        this.datasourceList = data;
-      }
+      this.securityOptionsObj = obj;
+      // eslint-disable-next-line prefer-destructuring
+      const data = [];
+      this.stepData[2].forEach((ds) => {
+        ds.auth = {
+          type: this.securityOptions.length > 0 ? this.securityOptions[0].securityType : '',
+          data: {},
+          auto: false
+        };
+        data.push(ds);
+      });
+      this.datasourceList = data;
     },
     async checkAccount(ds) {
       const { deployEnvType, dataSourceType } = this.stepData[0];
@@ -195,15 +180,6 @@ export default {
 
       this.datasourceList = [...this.datasourceList];
     },
-    toggleAutoCreate(record, e) {
-      const { datasourceList } = this;
-      datasourceList.forEach((ds) => {
-        if (ds.instanceId === record.instanceId) {
-          ds.auth.auto = e.target.checked;
-        }
-      });
-      this.datasourceList = [...datasourceList];
-    },
     handleChangeAuthType(record, value) {
       const { datasourceList } = this;
       datasourceList.forEach((ds) => {
@@ -223,6 +199,11 @@ export default {
   },
   created() {
     this.getSecurityOption();
+  },
+  watch: {
+    dmGlobalSetting() {
+      this.getSecurityOption();
+    }
   }
 };
 </script>

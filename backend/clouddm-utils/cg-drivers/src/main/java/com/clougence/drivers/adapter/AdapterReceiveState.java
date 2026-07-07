@@ -17,11 +17,11 @@ package com.clougence.drivers.adapter;
 
 public enum AdapterReceiveState {
 
-    /** 就绪状，表示随时可以开始新的查询。如果连接上发起多次查询，当前一个查询的所有结果都被读取后也会进入就绪状态。 */
+    /** Ready to start new inquiries at any time. If multiple queries are launched on the connection, all results of the current query will be read and ready. */
     Ready(true),
-    /** 等待中，表示正在或者已经将查询请求发送给远程数据库服务器，数据库服务器尚未响应，通常是指在第一条数据到达之前。*/
+    /** Waiting to indicate that a request for queries is being sent or has been sent to a remote database server, which has not yet responded, usually before the first data arrival. */
     Pending(false),
-    /** 接收中，表示查询已经完毕，服务器开始向客户端传送查询结果数据。 */
+    /** In receipt, indicating that the query has been completed and the server has started to transmit the query data to the client. */
     Receive(false),
 
     ;

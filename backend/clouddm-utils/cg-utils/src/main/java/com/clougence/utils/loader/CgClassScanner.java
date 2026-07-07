@@ -21,7 +21,7 @@ import java.util.Set;
 import com.clougence.utils.loader.providers.ClassPathResourceLoader;
 
 /**
- * ResourceLoader 的 ClassFinder 接口实现
+ * ClassFinder interface for ResourcesLoader
  * @version : 2021-09-29
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -54,9 +54,9 @@ public class CgClassScanner extends CgResourceScanner {
     }
 
     /**
-     * 扫描jar包中凡是匹配compareType参数的类均被返回。（对执行结果不缓存）
-     * @param matcherType 匹配的类型，可以是类标注的注解、实现的接口、继承的父类。
-     * @return 返回扫描结果。
+     * Returns all classes in the scanned jar package that match the compareType parameter. (Depends on implementation results.)
+     * @param matcherType Matching type, which can be the class description, implemented interfaces, or inherited parent class.
+     * @return Returns the results of the scan.
      */
     public Set<Class<?>> getClassSet(String[] loadPackages, Class<?> matcherType) {
         return this.getClassSet(loadPackages, context -> {
@@ -89,18 +89,18 @@ public class CgClassScanner extends CgResourceScanner {
     }
 
     /**
-     * 扫描jar包中凡是匹配compareType参数的类均被返回。（对执行结果不缓存）
-     * @param matcher 匹配规则。
-     * @return 返回扫描结果。
+     * All classes in the scanning jar package that match the compareType parameters are returned. (Incumbent on implementation results)
+     * @param matcher Match the rules.
+     * @return Returns the results of the scan.
      */
     public Set<Class<?>> getClassSet(ClassMatcher matcher) {
         return this.getClassSet(new String[0], matcher);
     }
 
     /**
-     * 扫描jar包中凡是匹配compareType参数的类均被返回。（对执行结果不缓存）
-     * @param matcher 匹配规则。
-     * @return 返回扫描结果。
+     * All classes in the scanning jar package that match the compareType parameters are returned. (Incumbent on implementation results)
+     * @param matcher Match the rules.
+     * @return Returns the results of the scan.
      */
     public Set<Class<?>> getClassSet(String[] loadPackages, ClassMatcher matcher) {
         Set<String> classNamesSet = this.getClassNamesSet(loadPackages, matcher);

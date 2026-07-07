@@ -1,6 +1,6 @@
 # Contributing to CloudDM
 
-[English](docs/en/CONTRIBUTING.en.md) | [中文](docs/cn/CONTRIBUTING.cn.md)
+[English](docs/guides/contributing.en.md) | [中文](docs/guides/contributing.cn.md)
 
 Thank you for your interest in **CloudDM**! We welcome all forms of contribution, including but not limited to bug reports, feature suggestions, code contributions, and documentation improvements.
 
@@ -53,7 +53,7 @@ Feature suggestions are welcome. Please submit an Issue prefixed with `[Feature]
 
 ### Prerequisites
 
-- **JDK 21+**
+- **JDK 17+**
 - **Gradle 9.5.0+**
 - **Node.js 22.22.1**
 - **IntelliJ IDEA** or Eclipse (IntelliJ IDEA recommended)

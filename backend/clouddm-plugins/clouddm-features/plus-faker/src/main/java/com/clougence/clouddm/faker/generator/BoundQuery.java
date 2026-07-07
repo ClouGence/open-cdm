@@ -22,7 +22,7 @@ import com.clougence.clouddm.faker.config.OpsType;
 import lombok.Getter;
 
 /**
- * 一条生成的 SQL
+ * A generated SQL
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */
@@ -45,10 +45,10 @@ public class BoundQuery {
         this.records = records;
     }
 
-    /** SQL 文本 */
+    /** SQL Text */
     public String getSqlString() { return this.sqlString.toString(); }
 
-    /** 执行参数 */
+    /** Implementation parameters */
     public SqlArg[] getArgs() { return this.paramArray; }
 
     @Override

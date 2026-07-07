@@ -16,7 +16,7 @@
 package com.clougence.clouddm.faker.config.dsl;
 
 /**
- * 配置解析异常
+ * Configuration parsing exception.
  * @author 赵永春 (zyc@hasor.net)
  * @version : 2023-02-11
  */

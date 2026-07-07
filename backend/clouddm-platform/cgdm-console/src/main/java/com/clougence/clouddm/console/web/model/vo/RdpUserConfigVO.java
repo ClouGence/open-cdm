@@ -15,10 +15,8 @@
  */
 package com.clougence.clouddm.console.web.model.vo;
 
-import com.clougence.clouddm.platform.dal.model.system.KvConfValType;
+import com.clougence.clouddm.base.metadata.ds.ConfigValType;
 import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
-import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
-import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,55 +29,16 @@ import lombok.Setter;
 public class RdpUserConfigVO {
 
     private String            uid;
-
     private String            configName;
-
     private String            configValue;
-
     private String            defaultValue;
-
     private String            valueRange;
-
     private String            description;
-
     private boolean           readOnly;
-
     private UserConfigTagType userConfigTagType;
-
     private String            i18nOfTagType;
-
     private String            confBelong;
-
-    private KvConfValType     confValType;
-
+    private ConfigValType     confValType;
     private boolean           isSecret;
-
     private boolean           needCreated;
-
-    public void convertFromDO(DmSysUserConfDO config) {
-        if (config.isSecret()) {
-            this.setSecret(config.isSecret());
-        } else {
-            this.setConfigValue(config.getConfigValue());
-        }
-
-        this.setDescription(DmI18nUtils.getMessage(config.getDescKey()));
-        this.setConfigName(config.getConfigName());
-        this.setUserConfigTagType(config.getUserConfigTagType());
-        if (config.getUserConfigTagType() != null) {
-            this.i18nOfTagType = DmI18nUtils.getMessage("USER_CONFIG_TAG_" + config.getUserConfigTagType().name());
-        }
-
-        this.setConfBelong(config.getConfBelong().getCloudAliasName());
-        this.setUid(config.getUid());
-        this.setDefaultValue(config.getDefaultValue());
-        this.setReadOnly(config.isReadOnly());
-        this.setValueRange(config.getValueRange());
-
-        if (config.getConfValType() != null) {
-            this.setConfValType(config.getConfValType());
-        } else {
-            this.setConfValType(KvConfValType.TEXT);
-        }
-    }
 }

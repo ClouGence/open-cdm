@@ -35,6 +35,13 @@ dependencies {
 
     // for test
     testImplementation project(':cgdm-plugin-sdk')
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
+    testImplementation "org.slf4j:slf4j-api:${SLF4J_VERSION}"
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.13.4'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 description = 'plus-provider-wechat'

@@ -15,25 +15,17 @@
  */
 package com.clougence.clouddm.ds.ads.definition;
 
-import static com.clougence.clouddm.base.metadata.ui.form.UiUtils.optionDef;
-
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
-import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
-import com.clougence.clouddm.base.metadata.ui.form.value.ValueDef;
 import com.clougence.clouddm.ds.ads.definition.ui.editor.table.AdsMyTableEditorUiPanelFactory;
 import com.clougence.clouddm.dsfamily.definition.AbstractDefService;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.function.MyFunctionEditorUiPanelFactory;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.procedure.MyProcedureUiPanelFactory;
-import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.table.MyTableEditorUiPanelFactory;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.trigger.MyTriggerEditorUiPanelFactory;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.view.MyViewUiPanelFactory;
-import com.clougence.clouddm.dsfamily.mysql.i18n.MyDsI18nKeys;
 import com.clougence.clouddm.sdk.Spi;
 import com.clougence.clouddm.sdk.ui.editor.EditorViewMode;
 import com.clougence.clouddm.sdk.ui.editor.function.FunctionUiDefService;
@@ -42,7 +34,6 @@ import com.clougence.clouddm.sdk.ui.editor.table.TableEditorUiDefService;
 import com.clougence.clouddm.sdk.ui.editor.table.TableEditorUiPanel;
 import com.clougence.clouddm.sdk.ui.editor.trigger.TriggerUiDefService;
 import com.clougence.clouddm.sdk.ui.editor.view.ViewUiDefService;
-import com.clougence.utils.StringUtils;
 
 /**
  * only for integration test
@@ -53,23 +44,7 @@ public class AdsMyDefService extends AbstractDefService implements TableEditorUi
 
     @Override
     protected TableEditorUiPanel fetchTableEditorUiPanel(DataSourceConfig dsConfig, Connection con, EditorViewMode viewMode, Map<String, String> envVariables) {
-        TableEditorUiPanel uiPanel = new AdsMyTableEditorUiPanelFactory().createTableEditorUiPanel(dsConfig, viewMode, con);
-
-        //https://help.aliyun.com/document_detail/26125.html?spm=a2c4g.95798.0.0.1fa8d0f8Xy6NsS
-        if (StringUtils.isNotBlank(dsConfig.getAliyunInstanceId())) {
-            UiPanelField engine = uiPanel.getTableInfo().findField(MyTableEditorUiPanelFactory.FIELD_TABLE_ENGINE);
-
-            List<ValueDef> result = new ArrayList<>();
-            result.add(optionDef(MyDsI18nKeys.EDITOR_TABLEINFO_ENGINE_EMPTY_LABEL, ""));
-            result.add(optionDef(MyDsI18nKeys.EDITOR_TABLEINFO_ENGINE_INNODB_LABEL, "InnoDB"));
-            result.add(optionDef(MyDsI18nKeys.EDITOR_TABLEINFO_ENGINE_MYISAM_LABEL, "X-Engine"));
-            engine.setOptions(result);
-        }
-
-        //https://help.aliyun.com/document_detail/90333.html?spm=a2c4g.26125.0.0.35862deaa3zfao#concept-hb5-px2-vdb
-        // aliyun MariaDB -> InnoDB
-
-        return uiPanel;
+        return new AdsMyTableEditorUiPanelFactory().createTableEditorUiPanel(dsConfig, viewMode, con);
     }
 
     @Override

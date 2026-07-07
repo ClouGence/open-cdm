@@ -23,6 +23,7 @@ import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
 import com.clougence.utils.StringUtils;
+import com.clougence.utils.Version;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,8 +35,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ChJdbcDsFactory implements DsFactory<Connection> {
 
-    private static final String DEFAULT_PROTOCOL  = "http";
-    private static final String DEFAULT_HTTP_PORT = "8123";
+    private static final String DEFAULT_PROTOCOL                 = "http";
+    private static final String DEFAULT_HTTP_PORT                = "8123";
+
+    private static final String CLIENT_V2_MIN_DRIVER_VERSION     = "0.8.0";
+    private static final String CLIENT_V2_CONNECTION_TIMEOUT     = "connection_timeout";
+    private static final String CLIENT_V2_IGNORE_UNKNOWN_CONFIG  = "ignore_unknown_config_key";
+    private static final String CLIENT_V2_SERVER_SETTING_PREFIX  = "clickhouse_setting_";
+    private static final String CLIENT_V1_CONNECT_TIMEOUT        = "connect_timeout";
+    private static final String CLIENT_V1_SESSION_TIMEOUT        = "session_timeout";
+    private static final String CLIENT_V1_IGNORE_UNSUPPORTED_KEY = "jdbc_ignore_unsupported_values";
 
     @Override
     public DsObject<Connection> create(Properties dsConfig) throws SQLException {
@@ -48,11 +57,11 @@ public class ChJdbcDsFactory implements DsFactory<Connection> {
         String id = dsConfig.getProperty(DsConfigKeys.ID.getConfigKey());
         String username = dsConfig.getProperty(DsConfigKeys.USER.getConfigKey());
         String password = dsConfig.getProperty(DsConfigKeys.PASSWORD.getConfigKey());
+        String driverVersion = dsConfig.getProperty(DsConfigKeys.DRIVER_VERSION.getConfigKey());
         String loginTimeoutMs = dsConfig.getProperty(DsConfigKeys.LOGIN_TIMEOUT_MS.getConfigKey());
         String connTimeoutMs = dsConfig.getProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey());
         String soTimeoutSec = dsConfig.getProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey());
         String clientName = dsConfig.getProperty(DsConfigKeys.CLIENT_NAME.getConfigKey());
-        String defaultDataBase = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
         String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
         String clientEncoding = dsConfig.getProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey());
         String clientTimeZone = dsConfig.getProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey());
@@ -60,6 +69,15 @@ public class ChJdbcDsFactory implements DsFactory<Connection> {
         String autoCommit = dsConfig.getProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey());
 
         String chSessionTimeoutMs = dsConfig.getProperty(DsConfigKeys.CH_SESSION_TIMEOUT_MS.getConfigKey());
+        String jdbcUrl = buildJdbcUrl(dsConfig);
+        com.clickhouse.jdbc.ClickHouseDriver driver = new com.clickhouse.jdbc.ClickHouseDriver();
+        boolean clientV2;
+        if (StringUtils.isBlank(driverVersion)) {
+            clientV2 = false;
+        } else {
+            clientV2 = new Version(driverVersion).compareTo(new Version(CLIENT_V2_MIN_DRIVER_VERSION)) >= 0;
+        }
+        removeUnsupportedTimeoutProps(props, clientV2);
 
         if (StringUtils.isNotBlank(username)) {
             props.setProperty("user", username);
@@ -67,13 +85,12 @@ public class ChJdbcDsFactory implements DsFactory<Connection> {
         if (StringUtils.isNotBlank(password)) {
             props.setProperty("password", password);
         }
-        String database = firstNotBlank(defaultSchema, defaultDataBase);
-        if (StringUtils.isNotBlank(database)) {
-            props.setProperty("database", database);
+        if (StringUtils.isNotBlank(defaultSchema)) {
+            props.setProperty("database", defaultSchema);
         }
         String connectTimeout = firstNotBlank(connTimeoutMs, loginTimeoutMs);
         if (StringUtils.isNotBlank(connectTimeout)) {
-            props.setProperty("connection_timeout", connectTimeout);
+            props.setProperty(clientV2 ? CLIENT_V2_CONNECTION_TIMEOUT : CLIENT_V1_CONNECT_TIMEOUT, connectTimeout);
         }
         if (StringUtils.isNotBlank(soTimeoutSec)) {
             props.setProperty("socket_timeout", String.valueOf(Integer.parseInt(soTimeoutSec) * 1000));
@@ -88,16 +105,17 @@ public class ChJdbcDsFactory implements DsFactory<Connection> {
             props.setProperty("charset", clientEncoding);
         }
         if (StringUtils.isNotBlank(clientTimeZone)) {
-            props.setProperty("clickhouse_setting_session_timezone", clientTimeZone);
+            props.setProperty("use_time_zone", clientTimeZone);
         }
         if (StringUtils.isNotBlank(chSessionTimeoutMs)) {
-            props.setProperty("clickhouse_setting_session_timeout", chSessionTimeoutMs);
+            String sessionTimeoutSec = String.valueOf(Long.parseLong(chSessionTimeoutMs) / 1000);
+            props.setProperty(clientV2 ? CLIENT_V2_SERVER_SETTING_PREFIX + CLIENT_V1_SESSION_TIMEOUT : CLIENT_V1_SESSION_TIMEOUT, sessionTimeoutSec);
         }
-        props.putIfAbsent("jdbc_ignore_unsupported_values", "true");
 
-        String jdbcUrl = buildJdbcUrl(dsConfig);
+        props.putIfAbsent(clientV2 ? CLIENT_V2_IGNORE_UNKNOWN_CONFIG : CLIENT_V1_IGNORE_UNSUPPORTED_KEY, "true");
+
         try {
-            Connection connect = new com.clickhouse.jdbc.ClickHouseDriver().connect(jdbcUrl, props);
+            Connection connect = driver.connect(jdbcUrl, props);
 
             if (StringUtils.isNotBlank(autoCommit)) {
                 if (StringUtils.equalsIgnoreCase("false", autoCommit)) {
@@ -121,8 +139,8 @@ public class ChJdbcDsFactory implements DsFactory<Connection> {
         }
 
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
-        String defaultDataBase = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
-        String database = safeString(defaultDataBase);
+        String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
+        String database = safeString(defaultSchema);
 
         String[] ipPort = host.split(":");
         if (ipPort.length == 1) {
@@ -141,11 +159,24 @@ public class ChJdbcDsFactory implements DsFactory<Connection> {
         return String.format("jdbc:clickhouse:%s://%s:%s/%s", DEFAULT_PROTOCOL, host, port, database);
     }
 
+    private String safeString(String value) {
+        return StringUtils.isBlank(value) ? "" : value;
+    }
+
     private String firstNotBlank(String first, String second) {
         return StringUtils.isNotBlank(first) ? first : second;
     }
 
-    private String safeString(String value) {
-        return StringUtils.isBlank(value) ? "" : value;
+    private void removeUnsupportedTimeoutProps(Properties props, boolean clientV2) {
+        if (clientV2) {
+            props.remove(CLIENT_V1_CONNECT_TIMEOUT);
+            props.remove(CLIENT_V1_SESSION_TIMEOUT);
+            props.remove(CLIENT_V1_IGNORE_UNSUPPORTED_KEY);
+            return;
+        }
+
+        props.remove(CLIENT_V2_CONNECTION_TIMEOUT);
+        props.remove(CLIENT_V2_SERVER_SETTING_PREFIX + CLIENT_V1_SESSION_TIMEOUT);
+        props.remove(CLIENT_V2_IGNORE_UNKNOWN_CONFIG);
     }
 }

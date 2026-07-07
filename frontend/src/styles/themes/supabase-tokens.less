@@ -1,0 +1,145 @@
+// Supabase-inspired design tokens (light + dark)
+// Reference: frontend/supabase/DESIGN.md
+
+@supabase-emerald: #3ecf8e;
+@supabase-emerald-deep: #24b47e;
+@supabase-emerald-link: #00c573;
+@supabase-ink: #171717;
+@supabase-canvas: #ffffff;
+@supabase-canvas-soft: #fafafa;
+@supabase-hairline: #dfdfdf;
+@supabase-muted: #707070;
+
+@supabase-night: #0f0f0f;
+@supabase-night-elevated: #171717;
+@supabase-night-panel: #1c1c1c;
+@supabase-border-1: #242424;
+@supabase-border-2: #2e2e2e;
+@supabase-border-3: #363636;
+
+@shell-header-height: 52px;
+@shell-compact-header-height: 58px;
+@shell-sidebar-width: 240px;
+@shell-radius-sm: 6px;
+@shell-radius-md: 8px;
+@shell-radius-lg: 12px;
+
+@light-theme: {
+  bg-primary: @supabase-canvas;
+  bg-secondary: @supabase-canvas-soft;
+  bg-tertiary: #f5f5f5;
+  bg-hover: #f0f0f0;
+  bg-card: @supabase-canvas;
+  bg-radio: @supabase-canvas-soft;
+  bg-select: #f3f4f6;
+
+  text-primary: @supabase-ink;
+  text-secondary: @supabase-muted;
+  text-tertiary: #9a9a9a;
+  text-disabled: #b2b2b2;
+  text-inverse: @supabase-canvas;
+
+  border-primary: @supabase-hairline;
+  border-secondary: #ededed;
+  border-light: #efefef;
+  border-radio: #d4d4d4;
+
+  primary-color: @supabase-emerald;
+  info-color: @supabase-emerald-link;
+  success-color: #22c55e;
+  warning-color: #f59e0b;
+  error-color: #ef4444;
+
+  success-bg: #ecfdf5;
+  error-bg: #fef2f2;
+  warning-bg: #fffbeb;
+  info-bg: #ecfdf5;
+  disabled-bg: #f5f5f5;
+
+  progress-normal: #f59e0b;
+  progress-success: #22c55e;
+  progress-error: #ef4444;
+  progress-disabled: #d4d4d4;
+  progress-delay-normal: #22c55e;
+  progress-delay-warning: #f59e0b;
+  progress-delay-error: #ef4444;
+
+  header-bg: @supabase-night-elevated;
+  header-text: #fafafa;
+  header-border: @supabase-border-1;
+  header-shadow: none;
+
+  sidebar-bg: transparent;
+  sidebar-border: transparent;
+  sidebar-active-bg: rgba(62, 207, 142, 0.12);
+  sidebar-active-border: @supabase-emerald;
+
+  shell-bg: #f7f8fa;
+  main-bg: #f7f8fa;
+  content-header-bg: transparent;
+  content-header-border: #efefef;
+
+  shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+};
+
+@dark-theme: {
+  bg-primary: @supabase-night;
+  bg-secondary: @supabase-night-elevated;
+  bg-tertiary: @supabase-night-panel;
+  bg-hover: #1f1f1f;
+  bg-card: @supabase-night-elevated;
+  bg-radio: #202020;
+  bg-select: #1f1f1f;
+
+  text-primary: #fafafa;
+  text-secondary: #898989;
+  text-tertiary: #6b6b6b;
+  text-disabled: #525252;
+  text-inverse: @supabase-ink;
+
+  border-primary: @supabase-border-2;
+  border-secondary: @supabase-border-1;
+  border-light: @supabase-border-3;
+  border-radio: @supabase-border-3;
+
+  primary-color: @supabase-emerald;
+  info-color: @supabase-emerald-link;
+  success-color: #22c55e;
+  warning-color: #f59e0b;
+  error-color: #ef4444;
+
+  success-bg: #052e16;
+  error-bg: #450a0a;
+  warning-bg: #451a03;
+  info-bg: #052e16;
+  disabled-bg: #262626;
+
+  progress-normal: #b45309;
+  progress-success: #15803d;
+  progress-error: #991b1b;
+  progress-disabled: #404040;
+  progress-delay-normal: #15803d;
+  progress-delay-warning: #b45309;
+  progress-delay-error: #991b1b;
+
+  header-bg: @supabase-night-elevated;
+  header-text: #fafafa;
+  header-border: @supabase-border-1;
+  header-shadow: none;
+
+  sidebar-bg: transparent;
+  sidebar-border: transparent;
+  sidebar-active-bg: rgba(62, 207, 142, 0.08);
+  sidebar-active-border: @supabase-emerald;
+
+  shell-bg: @supabase-night;
+  main-bg: @supabase-night;
+  content-header-bg: transparent;
+  content-header-border: @supabase-border-1;
+
+  shadow-sm: 0 0 0 1px @supabase-border-1;
+  shadow-md: 0 0 0 1px @supabase-border-2;
+  shadow-lg: 0 0 0 1px @supabase-border-3;
+};

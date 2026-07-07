@@ -25,7 +25,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 
-import com.clougence.clouddm.team.provider.wechat.constants.WechatI18nKey2;
+import com.clougence.clouddm.team.provider.wechat.constants.WechatI18nKeys;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 
 /**
@@ -59,7 +59,7 @@ public class WXBizJsonMsgCrypt {
      */
     public WXBizJsonMsgCrypt(String token, String encodingAesKey, String receiveid){
         if (encodingAesKey.length() != 43) {
-            throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_ILLEGAL_AES_KEY_ERROR);
+            throw ThirdPartyApiException.as().with(WechatI18nKeys.WECHAT_ILLEGAL_AES_KEY_ERROR);
         }
 
         this.token = token;
@@ -139,7 +139,7 @@ public class WXBizJsonMsgCrypt {
 
             return base64.encodeToString(encrypted);
         } catch (Exception e) {
-            throw ThirdPartyApiException.as().with(e, WechatI18nKey2.WECHAT_ENCRYPT_AES_ERROR);
+            throw ThirdPartyApiException.as().with(e, WechatI18nKeys.WECHAT_ENCRYPT_AES_ERROR);
         }
     }
 
@@ -164,7 +164,7 @@ public class WXBizJsonMsgCrypt {
             // decrypt
             original = cipher.doFinal(encrypted);
         } catch (Exception e) {
-            throw ThirdPartyApiException.as().with(e, WechatI18nKey2.WECHAT_DECRYPT_AES_ERROR);
+            throw ThirdPartyApiException.as().with(e, WechatI18nKeys.WECHAT_DECRYPT_AES_ERROR);
         }
 
         String jsonContent, from_receiveid;
@@ -180,12 +180,12 @@ public class WXBizJsonMsgCrypt {
             jsonContent = new String(Arrays.copyOfRange(bytes, 20, 20 + jsonLength), CHARSET);
             from_receiveid = new String(Arrays.copyOfRange(bytes, 20 + jsonLength, bytes.length), CHARSET);
         } catch (Exception e) {
-            throw ThirdPartyApiException.as().with(e, WechatI18nKey2.WECHAT_ILLEGAL_BUFFER_ERROR);
+            throw ThirdPartyApiException.as().with(e, WechatI18nKeys.WECHAT_ILLEGAL_BUFFER_ERROR);
         }
 
         // The situation where the receivers have different IDs
         if (!from_receiveid.equals(receiveid)) {
-            throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_VALIDATE_CORP_ID_ERROR);
+            throw ThirdPartyApiException.as().with(WechatI18nKeys.WECHAT_VALIDATE_CORP_ID_ERROR);
         }
         return jsonContent;
 
@@ -213,7 +213,7 @@ public class WXBizJsonMsgCrypt {
             timeStamp = Long.toString(System.currentTimeMillis());
         }
 
-        String signature = SHA1.getSHA1(token, timeStamp, nonce, encrypt);
+        String signature = Sha1.getSHA1(token, timeStamp, nonce, encrypt);
 
         // json
         return JsonParse.generate(encrypt, signature, timeStamp, nonce);
@@ -241,11 +241,11 @@ public class WXBizJsonMsgCrypt {
         Object[] encrypt = JsonParse.extract(postData);
 
         // Verify secure signature
-        String signature = SHA1.getSHA1(token, timeStamp, nonce, encrypt[1].toString());
+        String signature = Sha1.getSHA1(token, timeStamp, nonce, encrypt[1].toString());
 
         // Compare with the signature in the URL to see if it is equal
         if (!signature.equals(msgSignature)) {
-            throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_VALIDATE_SIGNATURE_ERROR);
+            throw ThirdPartyApiException.as().with(WechatI18nKeys.WECHAT_VALIDATE_SIGNATURE_ERROR);
         }
 
         // decrypt
@@ -262,10 +262,10 @@ public class WXBizJsonMsgCrypt {
      * @return Decrypted echostr
      */
     public String VerifyURL(String msgSignature, String timeStamp, String nonce, String echoStr) {
-        String signature = SHA1.getSHA1(token, timeStamp, nonce, echoStr);
+        String signature = Sha1.getSHA1(token, timeStamp, nonce, echoStr);
 
         if (!signature.equals(msgSignature)) {
-            throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_VALIDATE_SIGNATURE_ERROR);
+            throw ThirdPartyApiException.as().with(WechatI18nKeys.WECHAT_VALIDATE_SIGNATURE_ERROR);
         }
 
         return decrypt(echoStr);

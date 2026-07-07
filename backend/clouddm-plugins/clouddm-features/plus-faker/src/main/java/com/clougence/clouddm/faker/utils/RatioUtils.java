@@ -25,7 +25,7 @@ import com.clougence.utils.ArrayUtils;
 import com.clougence.utils.StringUtils;
 
 /**
- * 控制操作生成比率
+ * Control Operations Generation Ratio
  * @version : 2022-07-25
  * @author 赵永春 (zyc@hasor.net)
  */

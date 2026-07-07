@@ -1,9 +1,12 @@
+@import './workspace-ui.less';
+
 .sql-home-container {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
   height: 100%;
+  background: var(--bg-primary);
 
   .content {
     flex: 1;
@@ -11,22 +14,22 @@
     display: flex;
 
     .data-source-container {
-      //background: #323232;
-      background: #ffffff;
+      background: var(--bg-secondary);
       height: 100%;
       float: left;
       display: flex;
       flex-direction: column;
       position: relative;
-      border-right: 1px solid #ccc;
+      border-right: 1px solid var(--border-primary);
 
       .data-source-filter {
         width: 100%;
-        padding: 0 8px;
-        height: 40px;
-        border-bottom: 1px solid #ccc;
+        padding: 0 10px;
+        height: 44px;
+        border-bottom: 1px solid var(--border-primary);
         display: flex;
         align-items: center;
+        background: var(--bg-secondary);
 
         .filter-input {
           flex: 1;
@@ -37,12 +40,7 @@
           font-size: 14px;
           margin: 0 6px;
           cursor: pointer;
-        }
-
-        .ant-input {
-          background-color: #f1f1f1 !important;
-          border: none;
-          color: rgba(0, 0, 0, 0.88);
+          color: var(--text-secondary);
         }
       }
 
@@ -99,10 +97,11 @@
       left: 0;
       z-index: 9;
       top: 10px;
-      background: #fff;
+      background: var(--bg-card);
       padding: 2px 5px;
       cursor: pointer;
-      box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+      border: 1px solid var(--border-primary);
+      border-radius: 6px;
     }
 
     .query-container {
@@ -111,6 +110,7 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      background: var(--bg-primary);
 
       .content {
         display: flex;
@@ -137,13 +137,16 @@
           flex-direction: column;
 
           .query-schema-select {
-            height: 30px;
+            height: 36px;
             display: flex;
             width: 100%;
             align-items: center;
             justify-content: space-between;
-            padding: 2px 6px;
-            border-bottom: 1px solid #ccc;
+            padding: 4px 12px;
+            border-bottom: 1px solid var(--border-primary);
+            background: var(--bg-secondary);
+            font-size: 12px;
+            color: var(--text-secondary);
           }
 
           .query {
@@ -154,8 +157,8 @@
             .table-list-container {
               position: relative;
               width: 200px;
-              background: #fafafa;
-              border-right: 1px solid #ccc;
+              background: var(--bg-secondary);
+              border-right: 1px solid var(--border-primary);
               display: flex;
               flex-direction: column;
 
@@ -186,11 +189,12 @@
                   .table-query-item {
                     padding: 0 12px;
                     cursor: pointer;
-                    color: rgba(0, 0, 0, 0.88);
+                    color: var(--text-primary);
                     align-items: center;
-                    height: 26px;
-                    line-height: 26px;
-                    //display: inline-block;
+                    height: 28px;
+                    line-height: 28px;
+                    border-radius: 4px;
+                    margin: 0 4px;
 
                     .text {
                       width: 130px;
@@ -198,25 +202,41 @@
                       text-overflow: ellipsis;
                       white-space: nowrap;
                     }
+
+                    &:hover {
+                      background: rgba(62, 207, 142, 0.08);
+                    }
                   }
 
                   .table-query-item-selected {
-                    background: #0087c7;
-                    color: #ffffff;
+                    background: rgba(62, 207, 142, 0.12);
+                    color: var(--primary-color);
 
                     .cc-iconfont {
-                      color: #ffffff;
+                      color: var(--primary-color);
+                    }
+                  }
+
+                  .vtree-tree-node__title:hover {
+                    background-color: rgba(62, 207, 142, 0.08) !important;
+                  }
+
+                  .vtree-tree-node__title_selected {
+                    background-color: rgba(62, 207, 142, 0.12) !important;
+
+                    &:hover {
+                      background-color: rgba(62, 207, 142, 0.12) !important;
                     }
                   }
                 }
 
                 .table-list-pagination {
-                  height: 32px;
+                  height: 36px;
                   width: 100%;
                   text-align: center;
                   padding: 4px 8px;
-                  border-top: 1px solid #dddddd;
-                  background: #f0f0f0;
+                  border-top: 1px solid var(--border-primary);
+                  background: var(--bg-tertiary);
                 }
               }
             }
@@ -371,24 +391,21 @@
       }
 
       .ivu-tree-title-container-selected {
-        background-image: -webkit-gradient(linear, left top, right top, from(#c1e7ff), to(rgba(204, 241, 255, 0)));
-        color: #ffffff;
+        background: rgba(62, 207, 142, 0.1);
+        color: var(--text-primary);
 
         .cc-iconfont,
         span {
-          color: #0070cc !important;
-        }
-
-        &:hover {
-          //background-color: #0087C7 !important;
+          color: var(--primary-color) !important;
         }
       }
 
       .ivu-tree-title-container {
         padding: 7px 0;
+        border-radius: 4px;
 
         &:hover {
-          background-color: #e6f1fa;
+          background-color: var(--bg-hover);
           cursor: pointer;
         }
       }
@@ -396,12 +413,13 @@
   }
 
   .footer {
-    height: 24px;
+    height: 28px;
     width: 100%;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid var(--border-primary);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: var(--bg-secondary);
 
     .right {
       display: flex;

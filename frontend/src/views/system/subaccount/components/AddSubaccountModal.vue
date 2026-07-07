@@ -22,7 +22,7 @@
               {{ role.name }}
             </Option>
           </Select>
-          <Button type="text" to="/system/role">{{ $t('chuang-jian-jiao-se') }}</Button>
+          <Button type="text" to="/manager/role/create">{{ $t('chuang-jian-jiao-se') }}</Button>
         </div>
       </FormItem>
       <h4 class="mb-4">{{ $t('tong-zhi-jie-shou-she-zhi') }}</h4>

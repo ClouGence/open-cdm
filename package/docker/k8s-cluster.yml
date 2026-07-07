@@ -2,8 +2,7 @@
 # CloudDM Cluster — Kubernetes Deployment
 # Generated from docker-cluster.yml
 # Usage: kubectl apply -f k8s-cluster.yml
-# Note: Replace ${build_version} with actual image tag,
-#       e.g. sed "s|\${build_version}|arm64-3.1.1|g" ...
+# Note: Replace __IMAGE_PREFIX__ and __IMAGE_TAG__ before applying.
 # ============================================================
 apiVersion: v1
 kind: Namespace
@@ -151,7 +150,7 @@ spec:
     spec:
       containers:
         - name: console
-          image: clougence/cgdm-console:${build_version}
+          image: __IMAGE_PREFIX__-console:__IMAGE_TAG__
           ports:
             - containerPort: 8222
             - containerPort: 8008
@@ -260,7 +259,7 @@ spec:
     spec:
       containers:
         - name: sidecar
-          image: clougence/cgdm-sidecar:${build_version}
+          image: __IMAGE_PREFIX__-sidecar:__IMAGE_TAG__
           ports:
             - containerPort: 8080
           env:

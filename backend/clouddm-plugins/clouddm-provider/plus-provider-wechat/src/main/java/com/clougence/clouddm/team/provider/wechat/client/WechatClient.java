@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.clougence.clouddm.team.provider.wechat.constants.WechatI18nKey2;
+import com.clougence.clouddm.team.provider.wechat.constants.WechatI18nKeys;
 import com.clougence.clouddm.sdk.security.auth.def.SecSysRole;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiErrorType;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
@@ -133,7 +133,7 @@ public class WechatClient implements Closeable {
             Request request = new Request.Builder().url(tokenEndpoint).get().build();
             Response response = httpClient.newCall(request).execute();
             if (!response.isSuccessful()) {
-                throw ThirdPartyApiException.as().with(WechatI18nKey2.WECHAT_API_TOKEN_ERROR, response.code() + ":" + response.body().string());
+                throw ThirdPartyApiException.as().with(WechatI18nKeys.WECHAT_API_TOKEN_ERROR, response.code() + ":" + response.body().string());
             }
 
             JSONObject object = JSONObject.parseObject(response.body().string());
@@ -150,7 +150,7 @@ public class WechatClient implements Closeable {
         } catch (ThirdPartyApiException e) {
             throw e;
         } catch (Exception e) {
-            throw ThirdPartyApiException.as().with(e, WechatI18nKey2.WECHAT_API_TOKEN_ERROR, e.getMessage());
+            throw ThirdPartyApiException.as().with(e, WechatI18nKeys.WECHAT_API_TOKEN_ERROR, e.getMessage());
         }
     }
 
@@ -163,13 +163,13 @@ public class WechatClient implements Closeable {
             return caller.call(this);
         } catch (WeComException e) {
             if (e.getCause() instanceof IOException) {
-                throw ThirdPartyApiException.as().with(e, ThirdPartyApiErrorType.CONNECTION_ERROR, WechatI18nKey2.WECHAT_CALL_API_NETWORK_ERROR);
+                throw ThirdPartyApiException.as().with(e, ThirdPartyApiErrorType.CONNECTION_ERROR, WechatI18nKeys.WECHAT_CALL_API_NETWORK_ERROR);
             }
 
             switch (e.getErrcode()) {
                 case 40014: {
                     if (count >= 5) {
-                        throw ThirdPartyApiException.as().with(e, ThirdPartyApiErrorType.CONNECTION_ERROR, WechatI18nKey2.WECHAT_CALL_API_NETWORK_ERROR);
+                        throw ThirdPartyApiException.as().with(e, ThirdPartyApiErrorType.CONNECTION_ERROR, WechatI18nKeys.WECHAT_CALL_API_NETWORK_ERROR);
                     }
 
                     this.wechatCache.clearAccessToken(this.agentDetails.getCorpId(), this.agentDetails.getAgentId());
@@ -177,25 +177,25 @@ public class WechatClient implements Closeable {
                 }
                 case 40001:
                 case 40013: {
-                    throw ThirdPartyApiException.as().with(e, WechatI18nKey2.WECHAT_CONFIG_ERROR);
+                    throw ThirdPartyApiException.as().with(e, WechatI18nKeys.WECHAT_CONFIG_ERROR);
                 }
                 case 301055: {
-                    throw ThirdPartyApiException.as().with(e, WechatI18nKey2.WECHAT_APP_NO_APPROVAL_ACCESS);
+                    throw ThirdPartyApiException.as().with(e, WechatI18nKeys.WECHAT_APP_NO_APPROVAL_ACCESS);
                 }
                 case 45009: {
                     // too frequence
-                    throw ThirdPartyApiException.as().with(e, ThirdPartyApiErrorType.CONNECTION_ERROR, WechatI18nKey2.WECHAT_REQUEST_TOO_FREQUENT);
+                    throw ThirdPartyApiException.as().with(e, ThirdPartyApiErrorType.CONNECTION_ERROR, WechatI18nKeys.WECHAT_REQUEST_TOO_FREQUENT);
                 }
                 case 60020: {
-                    throw ThirdPartyApiException.as().with(e, WechatI18nKey2.WECHAT_SOURCE_IP_NOT_SAFE);
+                    throw ThirdPartyApiException.as().with(e, WechatI18nKeys.WECHAT_SOURCE_IP_NOT_SAFE);
                 }
             }
 
-            throw ThirdPartyApiException.as().with(e, WechatI18nKey2.WECHAT_CALL_API_UNKNOWN_ERROR, e.getMessage());
+            throw ThirdPartyApiException.as().with(e, WechatI18nKeys.WECHAT_CALL_API_UNKNOWN_ERROR, e.getMessage());
         } catch (ThirdPartyApiException e) {
             throw e;
         } catch (Exception e) {
-            throw ThirdPartyApiException.as().with(e, WechatI18nKey2.WECHAT_CALL_API_UNKNOWN_ERROR, e.getMessage());
+            throw ThirdPartyApiException.as().with(e, WechatI18nKeys.WECHAT_CALL_API_UNKNOWN_ERROR, e.getMessage());
         }
     }
 }

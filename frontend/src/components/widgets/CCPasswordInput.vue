@@ -1,11 +1,5 @@
 <template>
-  <Input v-model="pwd" :placeholder="placeholder" :size="size" :type="eyeVisible ? 'text' : 'password'" @keydown.enter="handleEnter">
-    <template #suffix>
-      <div style="height: 100%; display: flex">
-        <CustomIcon :type="eyeVisible ? 'eye-fill' : 'eyeclose-fill'" size="16px" hoverStyle @click="handleChangeEye" />
-      </div>
-    </template>
-  </Input>
+  <a-input-password :value="pwd" :placeholder="placeholder" :size="antdSize" @update:value="handleInput" @pressEnter="handleEnter" />
 </template>
 
 <script>
@@ -28,20 +22,28 @@ export default {
   emits: ['update:value'],
   data() {
     return {
-      pwd: this.value,
-      eyeVisible: false
+      pwd: this.value
     };
   },
+  computed: {
+    antdSize() {
+      if (this.size === 'small') {
+        return 'small';
+      }
+      if (this.size === 'large') {
+        return 'large';
+      }
+      return 'middle';
+    }
+  },
   methods: {
-    handleChangeEye() {
-      this.eyeVisible = !this.eyeVisible;
+    handleInput(value) {
+      this.pwd = value;
+      this.$emit('update:value', value);
     }
   },
   watch: {
-    pwd(value) {
-      this.$emit('update:value', value);
-    },
-    modelValue(value) {
+    value(value) {
       if (this.pwd !== value) {
         this.pwd = value;
       }
@@ -49,9 +51,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.h-14 {
-  border-radius: 4px;
-}
-</style>

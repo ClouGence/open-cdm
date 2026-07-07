@@ -29,15 +29,15 @@ import com.clougence.clouddm.api.sidecar.status.WorkerStatusRService;
 import com.clougence.clouddm.comm.constants.worker.WorkerConnStatus;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
-import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.constants.HealthLevel;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmLabelKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.cluster.CreateInitialWorkerFO;
 import com.clougence.clouddm.console.web.model.vo.cluster.WorkerDeployConfigVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
+import com.clougence.clouddm.console.web.service.datasource.DmDsWebService;
 import com.clougence.clouddm.console.web.service.system.AlertConfigService;
 import com.clougence.clouddm.platform.dal.access.NamingDao;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
@@ -77,11 +77,11 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
     @Resource
     private RdpUserService       rdpUserService;
     @Resource
-    private DmConsoleConfig      dmConfig;
+    private ConsoleConfig        config;
     @Resource
     private AlertConfigService   alertConfigService;
     @Resource
-    private DmDsService          dmDsService;
+    private DmDsWebService       dmDsService;
     @Resource
     private WorkerStatusRService statusRService;
 
@@ -322,7 +322,7 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
 
     @Override
     public WorkerDeployConfigVO getClientDeployCoreConfig(Long workerId, String uid) {
-        if (StringUtils.isBlank(this.dmConfig.getConsoleRsocketDns())) {
+        if (StringUtils.isBlank(this.config.getConsoleRsocketDns())) {
             throw new IllegalArgumentException("console url is empty.");
         }
 
@@ -340,8 +340,8 @@ public class WorkerServiceImpl implements WorkerService, UnifiedPostConstruct {
         configVO.setUserAkValue(userDO.getAccessKey());
         configVO.setUserSkValue(CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(userDO.getSecretKey()));
         configVO.setWsnValue(workerDO.getWorkerSeqNumber());
-        configVO.setConsoleHostValue(this.dmConfig.getConsoleRsocketDns());
-        configVO.setConsolePortValue(String.valueOf(this.dmConfig.getRsocketConsolePort()));
+        configVO.setConsoleHostValue(this.config.getConsoleRsocketDns());
+        configVO.setConsolePortValue(String.valueOf(this.config.getRsocketConsolePort()));
         return configVO;
     }
 
