@@ -89,7 +89,7 @@ public class RemoteDsSchemaService implements DsSchemaService {
         if (StringUtils.isBlank(catalogName)) {
             return this.fetchDsConfig(dataSourceDO);
         }
-        return this.dsConfigService.fetchDsConfigFromExists(dataSourceDO.getId(), Map.of(DsConfigField.DEFAULT_DATABASE, catalogName));
+        return this.dsConfigService.fetchDsConfigFromExists(dataSourceDO.getId(), Map.of(DsConfigField.DEFAULT_DATABASE.getConfigName(), catalogName));
     }
 
     @Override

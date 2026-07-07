@@ -17,7 +17,9 @@ package com.clougence.clouddm.console.web.component.execute.impl;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.springframework.stereotype.Service;
@@ -47,6 +49,7 @@ import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecSessionDO;
 import com.clougence.clouddm.platform.dal.model.execution.DsSessionType;
 import com.clougence.clouddm.platform.dal.model.system.DmSysWorkerDO;
+import com.clougence.clouddm.sdk.execute.dsconf.DsConfigField;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
@@ -181,7 +184,7 @@ public class QueryServiceImpl implements QueryService {
         }
 
         // create session
-        DataSourceConfig dsConfig = this.dsConfigService.fetchDsConfigFromExists(dsDO.getId());
+        DataSourceConfig dsConfig = this.dsConfigService.fetchDsConfigFromExists(dsDO.getId(), sessionConfigOverrides(context));
         try {
             this.sessionRService.createSession(sendDTO, dsConfig, context);
             this.dsService.resetStatus(dsConfig);
@@ -190,6 +193,21 @@ public class QueryServiceImpl implements QueryService {
             throw e;
         }
         return sessionId;
+    }
+
+    private Map<String, String> sessionConfigOverrides(SessionContextDTO context) {
+        Map<String, String> configOverrides = new HashMap<>();
+        if (context == null) {
+            return configOverrides;
+        }
+
+        if (StringUtils.isNotBlank(context.getRdbCatalog())) {
+            configOverrides.put(DsConfigField.DEFAULT_DATABASE.getConfigName(), context.getRdbCatalog());
+        }
+        if (StringUtils.isNotBlank(context.getRdbSchema())) {
+            configOverrides.put(DsConfigField.DEFAULT_SCHEMA.getConfigName(), context.getRdbSchema());
+        }
+        return configOverrides;
     }
 
     @Override

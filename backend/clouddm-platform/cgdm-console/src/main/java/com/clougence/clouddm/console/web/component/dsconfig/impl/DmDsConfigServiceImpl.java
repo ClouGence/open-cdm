@@ -44,7 +44,6 @@ import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.plugin.DsPluginInfo;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigField;
 import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
@@ -332,7 +331,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
     }
 
     @Override
-    public DataSourceConfig fetchDsConfigFromExists(long dsId, Map<DsConfigField, String> configOverrides) {
+    public DataSourceConfig fetchDsConfigFromExists(long dsId, Map<String, String> configOverrides) {
         DmDsDO dsDO = this.dsDal.dsMapper().selectById(dsId);
         List<DmDsConfigKv4DmDO> configs = this.dsDal.configKv4DmMapper().listByDsIdExcludeConfigNames(dsId, lazyConfigNames(dsDO.getDataSourceType()));
         return fetchDsConfigFromExists(dsDO, configs, configOverrides);
@@ -345,7 +344,7 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         return fetchDsConfigFromExists(dsDO, configs, Collections.emptyMap());
     }
 
-    private DataSourceConfig fetchDsConfigFromExists(DmDsDO dsDO, List<DmDsConfigKv4DmDO> configs, Map<DsConfigField, String> configOverrides) {
+    private DataSourceConfig fetchDsConfigFromExists(DmDsDO dsDO, List<DmDsConfigKv4DmDO> configs, Map<String, String> configOverrides) {
         Map<String, String> configMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(configs)) {
             configs.forEach(c -> {
@@ -365,15 +364,15 @@ public class DmDsConfigServiceImpl implements DmDsConfigService, UnifiedPostCons
         return dsConfig;
     }
 
-    private void fillConfigOverrides(Map<String, String> configMap, Map<DsConfigField, String> configOverrides) {
+    private void fillConfigOverrides(Map<String, String> configMap, Map<String, String> configOverrides) {
         if (configOverrides == null || configOverrides.isEmpty()) {
             return;
         }
-        configOverrides.forEach((configField, configValue) -> {
-            if (configField == null || StringUtils.isBlank(configValue)) {
+        configOverrides.forEach((configName, configValue) -> {
+            if (StringUtils.isBlank(configName) || StringUtils.isBlank(configValue)) {
                 return;
             }
-            configMap.put(configField.getConfigName(), configValue);
+            configMap.put(configName, configValue);
         });
     }
 

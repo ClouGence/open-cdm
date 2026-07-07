@@ -127,7 +127,10 @@ public class DsMeta extends BaseMeta implements DsPluginInfo {
             throw new UnsupportedOperationException("sql engine '" + engineName + "' is not bound to data source '" + this.dsType + "'. bound engines: " + engineNames);
         }
 
-        SqlEngineSpi sqlEngine = PluginManager.findSpi(SqlEngineSpi.class, engineName);
+        SqlEngineSpi sqlEngine = this.findSpi(SqlEngineSpi.class, engineName);
+        if (sqlEngine == null) {
+            sqlEngine = PluginManager.findSpi(SqlEngineSpi.class, engineName);
+        }
         if (sqlEngine == null) {
             throw new UnsupportedOperationException("sql engine '" + engineName + "' not found for data source '" + this.dsType + "'.");
         }
