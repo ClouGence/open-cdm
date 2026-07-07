@@ -90,8 +90,8 @@
           <Button size="small" v-if="isSupportTx" :disabled="isRunning || tab.autoCommit" @click="handleRollback">
             {{ $t('hui-gun') }}
           </Button>
-          <Button size="small" v-if="isSupportReadOnly">
-            <Checkbox v-model="tab.readOnly" @on-change="handleReadOnly">
+          <Button size="small" v-if="isSupportReadOnly" class="readonly-operator-btn" @click="handleReadOnlyClick">
+            <Checkbox :model-value="tab.readOnly">
               {{ $t('zhi-du') }}
             </Checkbox>
           </Button>
@@ -188,6 +188,11 @@ export default {
       if (this.tab.support.autoCommit.conf === 'Allow' && this.tab.sessionId) {
         this.handleSetTx(this.tab.autoCommit);
       }
+    },
+    handleReadOnlyClick() {
+      const next = !this.tab.readOnly;
+      this.tab.readOnly = next;
+      this.handleReadOnly(next);
     }
   }
 };
@@ -242,5 +247,12 @@ export default {
 .operator-btn-content span {
   display: inline-flex;
   align-items: center;
+}
+
+.readonly-operator-btn {
+  :deep(.ivu-checkbox-wrapper) {
+    margin-right: 0;
+    pointer-events: none;
+  }
 }
 </style>

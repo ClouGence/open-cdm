@@ -43,17 +43,17 @@
                   </template>
                 </a-tab-pane>
                 <template #rightExtra>
-                  <a-dropdown trigger="click" placement="bottom" v-if="tabs.length">
+                  <a-dropdown trigger="click" placement="bottom" overlayClassName="sql-tab-dropdown" v-if="tabs.length">
                     <CustomIcon type="icon-v2-ArrowDown" hoverStyle customStyle="icon-v2-hover" />
                     <template #overlay>
                       <a-menu :selectedKeys="[active]">
                         <a-menu-item v-for="tab in tabs" :key="tab.key" :name="tab.key" @click="handleChangeTab(tab.key)">
                           <div class="dropdown-item">
-                            <CustomIcon :type="tab.icon" />
+                            <CustomIcon :type="tab.icon" class="dropdown-item-icon" />
                             <Tooltip :content="getTabDisplayTitle(tab)" transfer placement="top">
-                              <span class="truncate" style="margin-left: 5px">{{ getTabDisplayTitle(tab) }}</span>
+                              <span class="dropdown-item-title truncate">{{ getTabDisplayTitle(tab) }}</span>
                             </Tooltip>
-                            <span class="truncate" style="margin-left: 5px">
+                            <span class="dropdown-item-desc truncate">
                               [{{ tab.node.INSTANCE.attr.dsInstanceDesc || tab.node.INSTANCE.attr.dsInstance }}]
                             </span>
                             <div class="dropdown-item-close">
@@ -931,8 +931,17 @@ export default {
     getTabDisplayTitle(tab) {
       if (!tab?.schemaParentKey) return tab?.title || '';
       const parentNode = this.$refs.dataSourceTree?.handleGetNode(tab.schemaParentKey);
+      let catalogTitle = '';
       if (parentNode && parentNode.nodeType === 'CATALOG') {
-        return parentNode.title + '.' + tab.title;
+        catalogTitle = parentNode.title;
+      } else if (tab.node?.levels?.length) {
+        const catalogLevel = tab.node.levels.find((level) => level === 'CATALOG');
+        if (catalogLevel && tab.node[catalogLevel]?.name) {
+          catalogTitle = tab.node[catalogLevel].name;
+        }
+      }
+      if (catalogTitle) {
+        return catalogTitle + '.' + tab.title;
       }
       return tab.title;
     },
@@ -1668,6 +1677,13 @@ export default {
       margin: 0;
     }
 
+    :deep(.ant-tabs-nav-list) {
+      align-items: flex-end;
+      min-height: 40px;
+      padding-top: 6px;
+      box-sizing: border-box;
+    }
+
     :deep(.ant-tabs-nav-more) {
       display: none;
     }
@@ -1692,6 +1708,7 @@ export default {
       border-color: var(--border-primary) !important;
       color: var(--text-secondary) !important;
       border-radius: 6px 6px 0 0 !important;
+      padding: 5px 8px !important;
 
       &:hover {
         color: var(--primary-color) !important;
@@ -1715,12 +1732,13 @@ export default {
 .tab-title-text {
   display: inline-block;
   max-width: 110px;
-  margin-left: 5px;
-  margin-right: 5px;
+  margin-left: 4px;
+  margin-right: 4px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: middle;
+  line-height: 1.4;
 }
 
 .schema-select-style {
@@ -1752,10 +1770,32 @@ export default {
 
 .dropdown-item {
   display: flex;
-  justify-content: right;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  width: 100%;
+  min-width: 240px;
+
+  .dropdown-item-icon {
+    flex-shrink: 0;
+  }
+
+  .dropdown-item-title {
+    flex-shrink: 1;
+    min-width: 0;
+    max-width: 160px;
+  }
+
+  .dropdown-item-desc {
+    flex-shrink: 1;
+    min-width: 0;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
 
   .dropdown-item-close {
-    padding-left: 5px;
+    margin-left: auto;
+    flex-shrink: 0;
     width: 16px;
   }
 }
@@ -1766,6 +1806,10 @@ export default {
   align-items: center;
   justify-content: center;
   min-height: calc(100vh - 200px);
+}
+
+:global(.sql-tab-dropdown .ant-dropdown-menu-item) {
+  padding: 6px 12px;
 }
 
 [data-theme='dark'] {

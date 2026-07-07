@@ -3729,25 +3729,33 @@ export default {
 </script>
 <style scoped lang="less">
 .search-header {
-  height: 31px;
+  height: 36px;
   display: flex;
   align-items: center;
-  padding: 2px;
-  background: #fafafa;
-  border-bottom: 1px solid #ccc;
+  padding: 0;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-primary);
 
   .search-border {
     width: 100%;
     display: flex;
     align-items: center;
     margin: 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    border: none;
+    border-radius: 0;
+    background: var(--bg-tertiary);
 
     :deep(.ivu-input) {
+      border: none !important;
       border-radius: 0 !important;
-      border-bottom: none !important;
-      border-top: none !important;
+      background: transparent;
+      box-shadow: none !important;
+    }
+
+    :deep(.ivu-input-wrapper) {
+      flex: 1;
+      border: none;
+      box-shadow: none;
     }
   }
 
@@ -3785,9 +3793,40 @@ export default {
   z-index: 3;
 }
 
+:deep(.vtree-tree-node__title),
 :deep(.ctree-tree-node__title) {
   padding-left: 0;
   margin-left: 0;
+}
+
+:deep(.vtree-tree-node__expand),
+:deep(.ctree-tree-node__expand) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  i {
+    transform: none !important;
+
+    &::after {
+      position: relative;
+      top: auto;
+      left: auto;
+      margin: 0;
+      transform: none;
+      transform-origin: center center;
+      transition: transform 0.2s linear;
+    }
+  }
+}
+
+:deep(.vtree-tree-node__expand_active i),
+:deep(.ctree-tree-node__expand_active i) {
+  transform: none !important;
+
+  &::after {
+    transform: rotate(90deg);
+  }
 }
 
 :deep(.node) {
@@ -3796,6 +3835,7 @@ export default {
 }
 
 :deep(.no-indent) {
+  .vtree-tree-node__square,
   .ctree-tree-node__square {
     display: none;
   }
