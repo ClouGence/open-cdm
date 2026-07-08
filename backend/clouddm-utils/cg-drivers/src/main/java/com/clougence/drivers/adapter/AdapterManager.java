@@ -22,44 +22,51 @@ public class AdapterManager {
     private static final Map<String, String[]>       propertyGroupBy = new HashMap<>();
     private static final Map<String, AdapterFactory> factoryMap      = new HashMap<>();
 
+    public static void register(ClassLoader cl) {
+        if (cl == null) {
+            return;
+        }
+        ServiceLoader<AdapterFactory> loader = ServiceLoader.load(AdapterFactory.class, cl);
+        for (AdapterFactory factory : loader) {
+            register(factory.getAdapterName(), factory);
+        }
+    }
+
     public static void register(String adapter, AdapterFactory factory) {
-        factoryMap.put(adapter, factory);
-        Set<String> propertyNameSet = new HashSet<>(Arrays.asList(factory.getPropertyNames()));
-        propertyNameSet.add(JdbcDriver.P_SERVER);
-        propertyGroupBy.put(adapter, propertyNameSet.toArray(new String[0]));
-    }
-
-    public static AdapterFactory lookup(String adapter, ClassLoader cl) {
-        if (factoryMap.containsKey(adapter)) {
-            return factoryMap.get(adapter);
-        } else {
-            synchronized (factoryMap) {
-                if (factoryMap.containsKey(adapter)) {
-                    return factoryMap.get(adapter);
-                }
-                ServiceLoader<AdapterFactory> loader = ServiceLoader.load(AdapterFactory.class, cl);
-                for (AdapterFactory factory : loader) {
-                    String adapterName = factory.getAdapterName();
-                    if (!factoryMap.containsKey(adapterName)) {
-                        factoryMap.put(adapterName, factory);
-                    }
-                }
-            }
+        if (adapter == null || adapter.trim().isEmpty() || factory == null) {
+            return;
         }
 
-        if (factoryMap.containsKey(adapter)) {
-            return factoryMap.get(adapter);
-        } else {
-            throw new UnsupportedOperationException("not found " + adapter + " driver adapter.");
+        synchronized (factoryMap) {
+            factoryMap.put(adapter, factory);
+            Set<String> propertyNameSet = new HashSet<>(Arrays.asList(factory.getPropertyNames()));
+            propertyNameSet.add(JdbcDriver.P_SERVER);
+            propertyGroupBy.put(adapter, propertyNameSet.toArray(new String[0]));
         }
     }
 
-    static String[] propertyNames(String adapter, Properties parse, ClassLoader cl) {
+    public static AdapterFactory lookup(String adapter) {
+        AdapterFactory factory = registeredFactory(adapter);
+        if (factory != null) {
+            return factory;
+        }
+
+        throw new UnsupportedOperationException("not found " + adapter + " driver adapter.");
+    }
+
+    private static AdapterFactory registeredFactory(String adapter) {
+        if (factoryMap.containsKey(adapter)) {
+            return factoryMap.get(adapter);
+        }
+        return null;
+    }
+
+    public static String[] propertyNames(String adapter, Properties parse) {
         String[] names;
         if (!propertyGroupBy.containsKey(adapter)) {
             synchronized (propertyGroupBy) {
                 if (!propertyGroupBy.containsKey(adapter)) {
-                    AdapterFactory factory = lookup(adapter, cl);
+                    AdapterFactory factory = lookup(adapter);
                     Set<String> propertyNameSet = new HashSet<>(Arrays.asList(factory.getPropertyNames()));
                     propertyNameSet.add(JdbcDriver.P_SERVER);
                     names = propertyNameSet.toArray(new String[0]);

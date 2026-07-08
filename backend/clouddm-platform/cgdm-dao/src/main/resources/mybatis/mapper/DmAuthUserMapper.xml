@@ -24,7 +24,7 @@
         <result column="op_verify_fail_count" property="opVerifyFailCount"/>
         <result column="op_locked" property="opLocked"/>
         <result column="account_type" property="accountType" javaType="com.clougence.clouddm.platform.dal.model.auth.AccountType"/>
-        <result column="bind_type" property="bindType" typeHandler="com.clougence.clouddm.platform.dal.handler.AccountBindTypeTypeHandler"/>
+        <result column="bind_type" property="bindType" typeHandler="com.clougence.clouddm.platform.dal.handler.enums.AccountBindTypeTypeHandler"/>
         <result column="bind_account" property="bindAccount"/>
         <result column="allow_local" property="allowLocal"/>
         <result column="disable" property="disable"/>

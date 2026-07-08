@@ -29,6 +29,7 @@ import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
 import com.clougence.clouddm.console.web.component.auth.DmAuthLabelService;
 import com.clougence.clouddm.console.web.component.auth.DmUserService;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.constants.CheckSubAccountType;
 import com.clougence.clouddm.console.web.constants.MfaAccountType;
@@ -58,7 +59,6 @@ import com.clougence.clouddm.sdk.security.login.LoginProvider;
 import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
 import com.clougence.clouddm.sdk.security.login.LoginRequest;
 import com.clougence.clouddm.sdk.security.login.LoginResponse;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.rdp.service.RdpNotifyService;
 import com.clougence.rdp.service.RdpVerifyService;
 import com.clougence.rdp.service.enumeration.OpVerifyErrType;
@@ -194,11 +194,11 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         PwdPolicyVO vo = new PwdPolicyVO();
         boolean strongPolicy = false;
         int minLength = DEFAULT_PWD_MIN_LENGTH;
-        Boolean strongPolicyConfig = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.accountPwdStrongPolicy, Boolean.class);
+        Boolean strongPolicyConfig = this.systemDal.fetchSystemConf(RootUserConfig.Fields.accountPwdStrongPolicy, Boolean.class);
         if (strongPolicyConfig != null) {
             strongPolicy = strongPolicyConfig;
         }
-        Integer minLengthConfig = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.accountPwdMinLength, Integer.class);
+        Integer minLengthConfig = this.systemDal.fetchSystemConf(RootUserConfig.Fields.accountPwdMinLength, Integer.class);
         if (minLengthConfig != null) {
             minLength = Math.max(1, minLengthConfig);
         }

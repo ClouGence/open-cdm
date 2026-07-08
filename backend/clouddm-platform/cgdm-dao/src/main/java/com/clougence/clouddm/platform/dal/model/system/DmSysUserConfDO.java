@@ -18,9 +18,6 @@ package com.clougence.clouddm.platform.dal.model.system;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.clougence.clouddm.platform.dal.model.system.ConfBelong;
-import com.clougence.clouddm.platform.dal.model.system.KvConfValType;
-import com.clougence.clouddm.platform.dal.model.system.UserConfigTagType;
 
 import lombok.Data;
 
@@ -32,33 +29,13 @@ import lombok.Data;
 public class DmSysUserConfDO {
 
     @TableId(type = IdType.AUTO)
-    private Long              id;
-
+    private Long   id;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date              gmtCreate;
-
+    private Date   gmtCreate;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date              gmtModified;
+    private Date   gmtModified;
+    private String uid;
+    private String configName;
+    private String configValue;
 
-    private String            uid;
-
-    private String            configName;
-
-    private String            configValue;
-
-    private String            defaultValue;
-
-    private String            valueRange;
-
-    private boolean           readOnly;
-
-    private UserConfigTagType userConfigTagType;
-
-    private ConfBelong        confBelong;
-
-    private KvConfValType     confValType;
-
-    private boolean           isSecret;
-
-    private String            descKey;
 }

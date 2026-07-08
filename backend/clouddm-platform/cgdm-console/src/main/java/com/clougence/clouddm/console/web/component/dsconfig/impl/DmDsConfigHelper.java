@@ -18,15 +18,13 @@ package com.clougence.clouddm.console.web.component.dsconfig.impl;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.ConfigDef;
+import com.clougence.clouddm.base.metadata.ds.ConfigValType;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.DsConfigGroup;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
-import com.clougence.clouddm.platform.dal.model.system.KvConfValType;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 
@@ -38,26 +36,28 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DmDsConfigHelper {
 
-    public static <T extends DataSourceConfig> T initFieldDefaultValue(T instance) {
-        fillFieldValue(instance, instance.getClass(), Collections.emptyMap());
+    public static final String CERTIFICATE_CONFIGURED_VALUE = "configured://certificate";
+
+    public static <T extends DataSourceConfig> T initBaseFieldDefaultValue(T instance) {
+        fillFieldValue(instance, DataSourceConfig.class, Map.of());
         return instance;
     }
 
-    public static void fillFieldValue(Object instance, Map<String, String> configMap) {
-        // fill
-        if (instance instanceof DataSourceConfig) {
-            fillFieldValue(instance, DataSourceConfig.class, configMap);
-        }
-        fillFieldValue(instance, instance.getClass(), configMap);
+    public static void fillBaseFieldValue(DataSourceConfig instance, Map<String, String> configMap) {
+        fillFieldValue(instance, DataSourceConfig.class, configMap);
     }
 
-    public static List<DmDsConfigKv4RdpDO> collectConfigs(Object instance) {
-        List<DmDsConfigKv4RdpDO> configs = new ArrayList<>();
-        collectConfigs(instance, instance.getClass(), configs);
+    public static List<DsConfigKvDef> collectConfigs(Object instance) {
+        return collectConfigs(instance, false);
+    }
+
+    public static List<DsConfigKvDef> collectConfigs(Object instance, boolean includeLazyValue) {
+        List<DsConfigKvDef> configs = new ArrayList<>();
+        collectConfigs(instance, instance.getClass(), configs, includeLazyValue);
         return configs;
     }
 
-    protected static void collectConfigs(Object instance, Class<?> clazz, List<DmDsConfigKv4RdpDO> configs) {
+    protected static void collectConfigs(Object instance, Class<?> clazz, List<DsConfigKvDef> configs, boolean includeLazyValue) {
         try {
             Field[] fields = clazz.getDeclaredFields();
 
@@ -75,13 +75,13 @@ public class DmDsConfigHelper {
                     val = String.valueOf(oriVal);
                 }
 
-                DmDsConfigKv4RdpDO configDO = genConfigDo(configDef, val, field.getType());
+                DsConfigKvDef configDO = genConfigDef(configDef, val, field.getType(), includeLazyValue);
 
                 configs.add(configDO);
             }
 
             if (clazz.getSuperclass() != null && clazz.getSuperclass() != Object.class) {
-                collectConfigs(instance, clazz.getSuperclass(), configs);
+                collectConfigs(instance, clazz.getSuperclass(), configs, includeLazyValue);
             }
         } catch (Exception e) {
             String msg = "collect field value failed,msg:" + ExceptionUtils.getRootCauseMessage(e);
@@ -90,37 +90,50 @@ public class DmDsConfigHelper {
         }
     }
 
-    protected static DmDsConfigKv4RdpDO genConfigDo(ConfigDef configDef, String val, Class<?> fieldType) {
-        DmDsConfigKv4RdpDO configDO = new DmDsConfigKv4RdpDO();
-        //configDO.setDataSourceId(dataSourceId);
-        configDO.setConfigName(configDef.name());
-        if (configDef.group() == null) {
-            configDO.setConfigGroup(null);
-        } else {
-            switch (configDef.group()) {
-                case GENERAL:
-                    configDO.setConfigGroup(DsConfigGroup.GENERAL);
-                    break;
-                case CLOUD:
-                    configDO.setConfigGroup(DsConfigGroup.CLOUD);
-                    break;
-                case OPTIONS:
-                    configDO.setConfigGroup(DsConfigGroup.OPTIONS);
-                    break;
-            }
-        }
+    protected static DsConfigKvDef genConfigDef(ConfigDef configDef, String val, Class<?> fieldType) {
+        return genConfigDef(configDef, val, fieldType, false);
+    }
 
-        configDO.setDisplay(configDef.display());
-        configDO.setDescKey(configDef.descKey().name());
-        configDO.setValueRequire(configDef.valueRequire());
-        configDO.setValueValidRegex(configDef.valueValidRegex());
-        configDO.setConfigValue(val);
-        configDO.setDefaultValue(configDef.defaultValue());
-        configDO.setValueAdvance(configDef.valueAdvance());
-        configDO.setConfValType(fieldType == Boolean.class || fieldType == boolean.class ? KvConfValType.BOOLEAN : KvConfValType.TEXT);
-        configDO.setReadOnly(configDef.readOnly());
-        configDO.setSecret(configDef.isSecret());
-        return configDO;
+    protected static DsConfigKvDef genConfigDef(ConfigDef configDef, String val, Class<?> fieldType, boolean includeLazyValue) {
+        DsConfigKvDef config = new DsConfigKvDef();
+        config.setConfigName(configDef.name());
+        config.setConfigGroup(configDef.group());
+
+        config.setLabelKey(configDef.labelKey());
+        config.setDescKey(configDef.descKey());
+        config.setValueValidRegex(configDef.valueValidRegex());
+        config.setValueRequire(StringUtils.isNotBlank(configDef.valueValidRegex()));
+        config.setConfigValue(configValue(configDef, val, includeLazyValue));
+        config.setDefaultValue(configDef.defaultValue());
+        config.setConfValType(resolveValType(configDef, fieldType));
+        config.setReadOnly(configDef.readOnly());
+        config.setSecret(configDef.isSecret());
+        config.setLazy(configDef.lazy());
+        config.setActiveField(configDef.activeField());
+        config.setActiveEquals(configDef.activeEquals());
+        return config;
+    }
+
+    private static String configValue(ConfigDef configDef, String val, boolean includeLazyValue) {
+        if (!configDef.lazy() || includeLazyValue) {
+            return val;
+        }
+        return isCertificateField(configDef.name()) && StringUtils.isNotBlank(val) ? CERTIFICATE_CONFIGURED_VALUE : "";
+    }
+
+    private static boolean isCertificateField(String configName) {
+        return StringUtils.equals(configName, DataSourceConfig.Fields.sslCaData) || StringUtils.equals(configName, DataSourceConfig.Fields.sslClientCertData)
+               || StringUtils.equals(configName, DataSourceConfig.Fields.sslClientKeyData);
+    }
+
+    private static ConfigValType resolveValType(ConfigDef configDef, Class<?> fieldType) {
+        if (configDef.valType() != ConfigValType.AUTO) {
+            return configDef.valType();
+        }
+        if (fieldType == Boolean.class || fieldType == boolean.class) {
+            return ConfigValType.BOOLEAN;
+        }
+        return ConfigValType.TEXT;
     }
 
     protected static void fillFieldValue(Object instance, Class clazz, Map<String, String> configMap) {

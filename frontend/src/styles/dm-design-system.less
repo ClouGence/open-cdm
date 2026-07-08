@@ -72,6 +72,29 @@
       border-radius: @dm-radius-md;
       background: var(--bg-card);
 
+      > .dm-table,
+      > .ant-table-wrapper.dm-table {
+        border: 0;
+        border-radius: 0;
+      }
+
+      > .dm-table .ant-table,
+      > .dm-table .ant-table-container,
+      > .ant-table-wrapper.dm-table .ant-table,
+      > .ant-table-wrapper.dm-table .ant-table-container {
+        border-radius: 0;
+      }
+
+      > .ivu-table-wrapper {
+        border: 0;
+        border-radius: 0;
+      }
+
+      > .ivu-table-wrapper .ivu-table::before,
+      > .ivu-table-wrapper .ivu-table-border::after {
+        display: none;
+      }
+
       &.audit-log-table {
         overflow: hidden;
 
@@ -189,16 +212,43 @@
 
 // ─── DmTable / Ant Table ─────────────────────────────────────────────────────
 
+.ant-table.ant-table-bordered .ant-table-cell {
+  border-right: 1px solid var(--border-light) !important;
+  border-inline-end: 1px solid var(--border-light) !important;
+}
+
+.ant-table.ant-table-bordered tr > .ant-table-cell:last-child {
+  border-right: 0 !important;
+  border-inline-end: 0 !important;
+}
+
+.ant-table.ant-table-bordered > .ant-table-container::before,
+.ant-table.ant-table-bordered > .ant-table-container::after {
+  display: none !important;
+}
+
 .dm-table,
 .ant-table-wrapper.dm-table {
+  border: 1px solid var(--border-light);
+  border-radius: @dm-radius-md;
+  overflow: hidden;
+  background: var(--bg-card);
+
   .ant-table {
-    border-radius: @dm-radius-md;
+    border-radius: 0;
     color: var(--text-primary);
     background: var(--bg-card);
+    overflow: hidden;
   }
 
   .ant-table-container {
-    border-radius: @dm-radius-md;
+    border-radius: 0;
+    overflow: hidden;
+  }
+
+  .ant-table.ant-table-bordered > .ant-table-container {
+    border: 0 !important;
+    border-inline-start: 0 !important;
   }
 
   .ant-table-thead > tr > th {
@@ -208,6 +258,19 @@
     font-size: 12px;
     border-bottom: 1px solid var(--border-light) !important;
     padding: 10px 12px !important;
+  }
+
+  .ant-table-thead > tr:first-child > th {
+    border-top: 0 !important;
+    border-block-start: 0 !important;
+  }
+
+  .ant-table-thead > tr:first-child > th:first-child {
+    border-start-start-radius: 0 !important;
+  }
+
+  .ant-table-thead > tr:first-child > th:last-child {
+    border-start-end-radius: 0 !important;
   }
 
   .ant-table-tbody > tr > td {
@@ -392,11 +455,32 @@
   overflow: hidden;
 }
 
+.ivu-table-wrapper-with-border {
+  border: 1px solid var(--border-light) !important;
+  border-radius: @dm-radius-md;
+}
+
+.ivu-table-wrapper .ivu-table::before,
+.ivu-table-wrapper .ivu-table-border::after {
+  display: none !important;
+}
+
+.ivu-table-border th,
+.ivu-table-border td {
+  border-right: 1px solid var(--border-light) !important;
+}
+
+.ivu-table-border th:last-child,
+.ivu-table-border td:last-child {
+  border-right: 0 !important;
+}
+
 .ivu-table th {
   background: var(--bg-secondary) !important;
   color: var(--text-secondary) !important;
   font-weight: 600;
   font-size: 12px;
+  border-top: 0 !important;
 }
 
 .ivu-table td {

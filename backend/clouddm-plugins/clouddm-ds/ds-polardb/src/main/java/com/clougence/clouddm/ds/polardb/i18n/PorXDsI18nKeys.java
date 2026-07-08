@@ -26,4 +26,5 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource("/META-INF/clougence/i18n/porx-ui-editor-table")
 public interface PorXDsI18nKeys extends MyDsI18nKeys {
 
+    String PLUGIN_NAME_POLARDB_X = "PLUGIN_NAME_POLARDB_X";
 }

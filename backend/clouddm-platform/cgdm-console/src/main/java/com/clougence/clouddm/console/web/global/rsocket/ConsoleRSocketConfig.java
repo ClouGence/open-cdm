@@ -35,7 +35,7 @@ import com.clougence.clouddm.comm.component.impl.MainRequestDispatcher;
 import com.clougence.clouddm.comm.component.server.RSocketConnManager;
 import com.clougence.clouddm.comm.component.server.RSocketServerSender;
 import com.clougence.clouddm.comm.component.server.ServerSideRegistry;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.global.notify.DmWorkerRegisterNotify;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.access.SystemDal;
@@ -56,7 +56,7 @@ public class ConsoleRSocketConfig {
     @Resource
     private ApplicationContext           appCtx;
     @Resource
-    private DmConsoleConfig              consoleConfig;
+    private ConsoleConfig                config;
     @Resource
     private List<DmWorkerRegisterNotify> notifyServices;
 
@@ -88,7 +88,7 @@ public class ConsoleRSocketConfig {
             consoleRSocketRequestManager(),
             new DmServerStopListener(),
             consoleSocketAcceptorInterceptor(),
-            consoleConfig.getRsocketConsolePort());
+            config.getRsocketConsolePort());
     }
 
     @Bean

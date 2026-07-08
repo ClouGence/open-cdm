@@ -46,12 +46,8 @@ public class McDsFactory implements DsFactory<Connection> {
         String connTimeoutMs = dsConfig.getProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey());
         String soTimeoutSec = dsConfig.getProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey());
         String clientName = dsConfig.getProperty(DsConfigKeys.CLIENT_NAME.getConfigKey());
-        String defaultDataBase = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
-        String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
         String clientTimeZone = dsConfig.getProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey());
         String tcpKeepAlive = dsConfig.getProperty(DsConfigKeys.TCP_KEEP_ALIVE.getConfigKey());
-        String autoCommit = dsConfig.getProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey());
-
         String odpsSchemaStyle = dsConfig.getProperty(DsConfigKeys.ODPS_SCHEMA_STYLE.getConfigKey());
 
         props.put("access_id", accessId);
@@ -107,18 +103,18 @@ public class McDsFactory implements DsFactory<Connection> {
         String dataBase = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
         String schema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
 
-        String interactiveStr;
+        String interactiveParam;
         String interactiveMode = dsConfig.getProperty(DsConfigKeys.ODPS_INTERACTIVE.getConfigKey());
         if (StringUtils.equalsIgnoreCase("true", interactiveMode)) {
-            interactiveStr = "&interactiveStr=true";
+            interactiveParam = "&interactiveMode=true";
         } else {
-            interactiveStr = "&interactiveStr=false";
+            interactiveParam = "&interactiveMode=false";
         }
 
         if (StringUtils.isBlank(schema)) {
-            return String.format("jdbc:odps:%s?project=%s", host, safeUrlString(dataBase)) + interactiveStr;
+            return String.format("jdbc:odps:%s?project=%s", host, safeUrlString(dataBase)) + interactiveParam;
         } else {
-            return String.format("jdbc:odps:%s?project=%s&schema=%s", host, safeUrlString(dataBase), safeUrlString(schema)) + interactiveStr;
+            return String.format("jdbc:odps:%s?project=%s&schema=%s", host, safeUrlString(dataBase), safeUrlString(schema)) + interactiveParam;
         }
     }
 

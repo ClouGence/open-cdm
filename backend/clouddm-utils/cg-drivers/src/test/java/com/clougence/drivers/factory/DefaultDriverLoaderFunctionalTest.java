@@ -19,9 +19,9 @@ import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetSocketAddress;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
@@ -52,14 +52,9 @@ import com.clougence.drivers.factory.prepare.FileResourcePreparer;
 import com.clougence.drivers.testsupport.TestDsFactory;
 import com.clougence.drivers.testsupport.TestPrepareMarker;
 import com.clougence.utils.loader.AbstractResourceLoader;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
-
 public class DefaultDriverLoaderFunctionalTest {
 
-    private Path       tempDir;
-    private HttpServer httpServer;
+    private Path tempDir;
 
     @Before
     public void setUp() throws Exception {
@@ -68,10 +63,6 @@ public class DefaultDriverLoaderFunctionalTest {
 
     @After
     public void tearDown() throws Exception {
-        if (this.httpServer != null) {
-            this.httpServer.stop(0);
-            this.httpServer = null;
-        }
         if (this.tempDir != null) {
             deleteRecursively(this.tempDir);
         }
@@ -111,22 +102,19 @@ public class DefaultDriverLoaderFunctionalTest {
     }
 
     @Test
-    public void prepareResources_shouldPrepareBuiltinDriverVersionAndReportProgress() throws Exception {
-        byte[] urlBytes = "fake-url-content".getBytes(StandardCharsets.UTF_8);
-        String baseUrl = startHttpServer("ignored".getBytes(StandardCharsets.UTF_8), urlBytes);
-
-        Path fileResource = Files.createFile(this.tempDir.resolve("existing-driver-file.txt"));
-        Files.write(fileResource, Collections.singletonList("driver-file"), StandardCharsets.UTF_8);
+    public void prepareResources_shouldPrepareFileResourcesAndReportProgress() throws Exception {
+        Path absoluteFile = Files.createFile(this.tempDir.resolve("existing-driver-file.jar"));
+        Path versionLocalFile = this.tempDir.resolve("functional-driver").resolve("1.0.0").resolve("nested").resolve("local-driver.jar");
+        Files.createDirectories(versionLocalFile.getParent());
+        Files.createFile(versionLocalFile);
 
         // @formatter:off
         DefaultDriverLoader loader = new DefaultDriverLoader(this.tempDir.toFile(), new Properties());
         loader.loadDriverXml(xmlStream(
             "<drivers>" +
                 "<driver driverFamily=\"functional-driver\" version=\"1.0.0\">" +
-                "<resource type=\"class\">" + TestPrepareMarker.class.getName() + "</resource>" +
-                "<resource type=\"resource\">driver-tests/sample-resource.txt</resource>" +
-                "<resource type=\"file\">" + fileResource.toUri() + "</resource>" +
-                "<resource type=\"url\">" + baseUrl + "/downloads/asset.bin</resource>" +
+                "<resource type=\"file\">" + absoluteFile.toUri() + "</resource>" +
+                "<resource type=\"file\">nested/local-driver.jar</resource>" +
                 "</driver>" +
             "</drivers>"));
         // @formatter:on
@@ -137,31 +125,33 @@ public class DefaultDriverLoaderFunctionalTest {
         ProgressRecorder progress = new ProgressRecorder();
         loader.prepareDriverVersion(version, resource -> false, progress);
 
-        Path preparedDir = this.tempDir.resolve("functional-driver").resolve("1.0.0");
-        assertTrue(Files.exists(preparedDir.resolve("asset.bin")));
-        assertFalse(Files.exists(preparedDir.resolve(fileResource.getFileName())));
+        assertTrue(version.isPrepared());
+        assertTrue(Files.exists(this.tempDir.resolve("functional-driver").resolve("1.0.0").resolve("files.idx")));
         assertEquals(2, version.getFiles().size());
-        assertTrue(version.getFiles().stream().anyMatch(file -> "asset.bin".equals(file.getRelativePath())));
         assertTrue(version.getFiles()
             .stream()
-            .anyMatch(file -> fileResource.getFileName().toString().equals(file.getRelativePath()) && fileResource.toFile().getAbsolutePath().equals(file.getAbsolutePath())));
+            .anyMatch(file -> "existing-driver-file.jar".equals(file.getRelativePath()) && absoluteFile.toFile().getAbsolutePath().equals(file.getAbsolutePath())
+                              && file.isPrepared()));
+        assertTrue(version.getFiles()
+            .stream()
+            .anyMatch(file -> "nested/local-driver.jar".equals(file.getRelativePath()) && versionLocalFile.toFile().getAbsolutePath().equals(file.getAbsolutePath())
+                              && file.isPrepared()));
+        // both prepare and resolve emit lifecycle events: 2 resources x (prepare onStart + resolve onStart).
         assertEquals(4, progress.started.size());
         assertEquals(4, progress.completed.size());
         assertTrue(progress.errors.isEmpty());
-        assertTrue(progress.progressEvents.size() >= 1);
     }
 
     @Test
     public void prepareResources_defaultMethod_shouldNotSkipDriverVersion() throws Exception {
-        byte[] urlBytes = "default-url".getBytes(StandardCharsets.UTF_8);
-        String baseUrl = startHttpServer("ignored".getBytes(StandardCharsets.UTF_8), urlBytes);
+        Path driverFile = Files.createFile(this.tempDir.resolve("default-prepare-driver.jar"));
 
         // @formatter:off
         DefaultDriverLoader loader = new DefaultDriverLoader(this.tempDir.toFile(), new Properties());
         loader.loadDriverXml(xmlStream(
             "<drivers>" +
                 "<driver driverFamily=\"default-prepare-driver\" version=\"1.0\">" +
-                "<resource type=\"url\">" + baseUrl + "/downloads/asset.bin</resource>" +
+                "<resource type=\"file\">" + driverFile.toUri() + "</resource>" +
                 "</driver>" +
             "</drivers>"));
         // @formatter:on
@@ -170,7 +160,9 @@ public class DefaultDriverLoaderFunctionalTest {
         loader.prepareDriverVersion(version, resource -> false, new DriverPrepareProgress() {
         });
 
-        assertTrue(Files.exists(this.tempDir.resolve("default-prepare-driver").resolve("1.0").resolve("asset.bin")));
+        assertTrue(version.isPrepared());
+        assertEquals(1, version.getFiles().size());
+        assertTrue(version.getFiles().get(0).isPrepared());
     }
 
     @Test
@@ -211,15 +203,24 @@ public class DefaultDriverLoaderFunctionalTest {
         DriverVersion version = loader.findDriver("refresh-driver", "1.0");
         assertNotNull(version);
         assertFalse(version.isPrepared());
-        assertFalse(version.getResources().get(0).isPrepared());
-        assertNotNull(version.getResources().get(0).getFileDefList());
-        assertEquals(1, version.getResources().get(0).getFileDefList().size());
-        assertFalse(version.getResources().get(0).getFileDefList().get(0).isPrepared());
-
-        Files.write(targetFile, "ok".getBytes(StandardCharsets.UTF_8));
+        // loadDriverXml no longer analyzes resources; file defs only exist after the first prepare.
+        assertNull(version.getResources().get(0).getFileDefList());
 
         loader.refreshDriverVersion(version);
+        assertFalse(version.isPrepared());
 
+        Files.write(targetFile, "ok".getBytes(StandardCharsets.UTF_8));
+        loader.prepareDriverVersion(version, resource -> false, new DriverPrepareProgress() {
+        });
+        assertTrue(version.isPrepared());
+
+        Files.delete(targetFile);
+        loader.refreshDriverVersion(version);
+        assertFalse(version.isPrepared());
+        assertFalse(version.getResources().get(0).isPrepared());
+
+        Files.write(targetFile, "ok".getBytes(StandardCharsets.UTF_8));
+        loader.refreshDriverVersion(version);
         assertTrue(version.isPrepared());
         assertTrue(version.getResources().get(0).isPrepared());
         assertTrue(version.getResources().get(0).getFileDefList().get(0).isPrepared());
@@ -232,23 +233,28 @@ public class DefaultDriverLoaderFunctionalTest {
     public void fileResourcePreparePre_shouldPopulateResolvedSourcePaths() throws Exception {
         Path absoluteFile = Files.createFile(this.tempDir.resolve("absolute-driver.jar"));
 
+        VerDef version = new VerDef();
+        version.setFamilyName("file-analysis-driver");
+        version.setVersion("1.0");
+        version.setLocalDir(this.tempDir.toFile());
+
         ResDef resource = new ResDef();
         resource.setResourceType("file");
-        resource.setCoordinate("files('" + absoluteFile.toUri() + "','drivers/local-driver.jar')");
+        resource.setCoordinate(absoluteFile.toUri() + ",drivers/local-driver.jar");
 
         FileResourcePreparer preparer = new FileResourcePreparer(this.tempDir.toFile(), new Properties());
-        preparer.analysis(null, resource, null, null);
+        preparer.analysis(version, resource, null, null);
 
         assertNotNull(resource.getFileDefList());
         assertEquals(2, resource.getFileDefList().size());
         assertEquals("absolute-driver.jar", resource.getFileDefList().get(0).getRelativePath());
         assertEquals(absoluteFile.toFile().getAbsolutePath(), resource.getFileDefList().get(0).getAbsolutePath());
         assertEquals("drivers/local-driver.jar", resource.getFileDefList().get(1).getRelativePath());
-        assertEquals(new java.io.File("drivers/local-driver.jar").getAbsolutePath(), resource.getFileDefList().get(1).getAbsolutePath());
+        assertEquals(new File(version.getAbsoluteDir(), "drivers/local-driver.jar").getAbsolutePath(), resource.getFileDefList().get(1).getAbsolutePath());
     }
 
     @Test
-    public void fileResourcePreparePre_shouldUsePathRelativeToDriverVersionDir() throws Exception {
+    public void fileResourcePreparePre_shouldFlattenAbsoluteCoordinateToFileName() throws Exception {
         Path versionFile = this.tempDir.resolve("family-a").resolve("1.0").resolve("nested").resolve("driver.jar");
         Files.createDirectories(versionFile.getParent());
         Files.createFile(versionFile);
@@ -267,7 +273,8 @@ public class DefaultDriverLoaderFunctionalTest {
 
         assertNotNull(resource.getFileDefList());
         assertEquals(1, resource.getFileDefList().size());
-        assertEquals("nested/driver.jar", resource.getFileDefList().get(0).getRelativePath());
+        // absolute coordinates keep their original location and expose the plain file name.
+        assertEquals("driver.jar", resource.getFileDefList().get(0).getRelativePath());
         assertEquals(versionFile.toFile().getAbsolutePath(), resource.getFileDefList().get(0).getAbsolutePath());
     }
 
@@ -299,13 +306,14 @@ public class DefaultDriverLoaderFunctionalTest {
 
         preparer.resolve(null, resource, null, progress);
 
-        assertTrue(progress.started.isEmpty());
+        assertEquals(Collections.singletonList("file@0/3"), progress.started);
         assertTrue(progress.completed.isEmpty());
         assertEquals(Arrays.asList("existing-driver.jar:1/3", "missing-driver.jar:2/3"), progress.progressEvents);
         assertEquals(Collections.singletonList("manual:IOException"), progress.errors);
         assertTrue(existingFileDef.isPrepared());
         assertFalse(missingFileDef.isPrepared());
         assertFalse(skippedFileDef.isPrepared());
+        assertFalse(resource.isPrepared());
     }
 
     @Test
@@ -332,12 +340,13 @@ public class DefaultDriverLoaderFunctionalTest {
 
         preparer.resolve(null, resource, null, progress);
 
-        assertTrue(progress.started.isEmpty());
-        assertTrue(progress.completed.isEmpty());
+        assertEquals(Collections.singletonList("file@0/2"), progress.started);
+        assertEquals(Collections.singletonList("manual-success@2/2"), progress.completed);
         assertEquals(Arrays.asList("first-driver.jar:1/2", "second-driver.jar:2/2"), progress.progressEvents);
         assertTrue(progress.errors.isEmpty());
         assertTrue(firstFileDef.isPrepared());
         assertTrue(secondFileDef.isPrepared());
+        assertTrue(resource.isPrepared());
     }
 
     @Test
@@ -347,12 +356,14 @@ public class DefaultDriverLoaderFunctionalTest {
         Files.write(versionFile, "ok".getBytes(StandardCharsets.UTF_8));
 
         DefaultDriverLoader loader = new DefaultDriverLoader(this.tempDir.toFile(), new Properties());
-        loader.loadDriverXml(xmlStream("<drivers>" + "<driver driverFamily=\"family-b\" version=\"2.0\">" + "<resource type=\"file\">" + versionFile.toAbsolutePath()
+        loader.loadDriverXml(xmlStream("<drivers>" + "<driver driverFamily=\"family-b\" version=\"2.0\">" + "<resource type=\"file\">nested/driver.jar"
                                        + "</resource>" + "</driver>" + "</drivers>"));
 
         DriverVersion version = loader.findDriver("family-b", "2.0");
         assertNotNull(version);
 
+        loader.prepareDriverVersion(version, resource -> false, new DriverPrepareProgress() {
+        });
         loader.refreshDriverVersion(version);
 
         assertTrue(version.isPrepared());
@@ -395,7 +406,8 @@ public class DefaultDriverLoaderFunctionalTest {
 
         DriverVersion refreshedVersion = refreshLoader.findDriver("indexed-driver", "1.0");
         assertNotNull(refreshedVersion);
-        assertTrue(refreshedVersion.getFiles().isEmpty());
+        // addResource restores files.idx eagerly, so files are already visible after loadDriverXml.
+        assertEquals(1, refreshedVersion.getFiles().size());
 
         refreshLoader.refreshDriverVersion(refreshedVersion);
 
@@ -511,34 +523,29 @@ public class DefaultDriverLoaderFunctionalTest {
     }
 
     @Test
-    public void classResourcePreparePre_shouldMarkPreparedTrue() throws Exception {
+    public void classResourceAnalysis_shouldDeferPreparedStateToRefresh() throws Exception {
+        VerDef version = new VerDef();
+        version.setFamilyName("class-driver");
+        version.setVersion("1.0");
+        version.setLocalDir(this.tempDir.toFile());
+
         ResDef resource = new ResDef();
         resource.setResourceType("class");
         resource.setCoordinate(TestPrepareMarker.class.getName());
 
         ClassResourcePreparer preparer = new ClassResourcePreparer(this.tempDir.toFile(), new Properties());
-        preparer.analysis(null, resource, this.getClass().getClassLoader(), null);
+        preparer.analysis(version, resource, this.getClass().getClassLoader(), null);
 
-        assertTrue(resource.isPrepared());
+        // analysis only records metadata; the prepared state is decided by refresh against a classloader.
+        assertFalse(resource.isPrepared());
         assertNotNull(resource.getFileDefList());
-        assertEquals(1, resource.getFileDefList().size());
-        assertTrue(resource.getFileDefList().get(0).isPrepared());
-    }
+        assertTrue(resource.getFileDefList().isEmpty());
 
-    @Test
-    public void refreshResources_shouldKeepClassResourcePrepared() throws Exception {
-        DefaultDriverLoader loader = new DefaultDriverLoader(this.tempDir.toFile(), new Properties());
-        loader.loadDriverXml(xmlStream("<drivers>" + "<driver driverFamily=\"class-refresh-driver\" version=\"1.0\">" + "<resource type=\"class\">"
-                                       + TestPrepareMarker.class.getName() + "</resource>" + "</driver>" + "</drivers>"));
+        preparer.refresh(version, resource, this.getClass().getClassLoader(), null);
+        assertTrue(resource.isPrepared());
 
-        DriverVersion version = loader.findDriver("class-refresh-driver", "1.0");
-        assertNotNull(version);
-
-        loader.refreshDriverVersion(version);
-
-        assertTrue(version.isPrepared());
-        assertTrue(version.getResources().get(0).isPrepared());
-        assertTrue(version.getResources().get(0).getFileDefList().get(0).isPrepared());
+        preparer.refresh(version, resource, new java.net.URLClassLoader(new URL[0], null), null);
+        assertFalse(resource.isPrepared());
     }
 
     @Test
@@ -648,12 +655,44 @@ public class DefaultDriverLoaderFunctionalTest {
         assertNotNull(version);
         ((VerDef) version).setDsFactoryDef(new DsFactoryDef(TestDsFactory.class.getName(), this.getClass().getClassLoader()));
 
-        loader.refreshDriverVersion(version);
+        loader.prepareDriverVersion(version, resource -> false, new DriverPrepareProgress() {
+        });
         DriverBinding binding = loader.createBinding(this.getClass().getClassLoader(), "jar-binding-driver", "1.0");
 
         Class<?> generatedClass = binding.asClassLoader().loadClass("sample.driver.GeneratedDriverMarker");
         assertNotNull(generatedClass);
         assertEquals("sample.driver.GeneratedDriverMarker", generatedClass.getName());
+    }
+
+    @Test
+    public void binding_shouldLoadPreparedJarDependencyOutsideIncludePackages() throws Exception {
+        Map<String, String> sources = new LinkedHashMap<>();
+        sources.put("sample.driver.GeneratedDriverMarker",
+            "package sample.driver; public class GeneratedDriverMarker { public String ping() { return sample.dep.Helper.value(); } }");
+        sources.put("sample.dep.Helper", "package sample.dep; public class Helper { public static String value() { return \"dep-ok\"; } }");
+        Path jarFile = createTestJar("generated-driver-with-dep.jar", sources);
+
+        DefaultDriverLoader loader = new DefaultDriverLoader(this.tempDir.toFile(), new Properties());
+        loader.loadDriverXml(xmlStream(
+            "<drivers>" +
+                "<driver driverFamily=\"jar-binding-dep-driver\" version=\"1.0\">" +
+                "<driverName>" + TestDsFactory.class.getName() + "</driverName>" +
+                "<resource type=\"file\">" + jarFile.toUri() + "</resource>" +
+                "</driver>" +
+            "</drivers>"));
+
+        DriverVersion version = loader.findDriver("jar-binding-dep-driver", "1.0");
+        assertNotNull(version);
+        ((VerDef) version).setDsFactoryDef(new DsFactoryDef(TestDsFactory.class.getName(), this.getClass().getClassLoader()));
+
+        loader.prepareDriverVersion(version, resource -> false, new DriverPrepareProgress() {
+        });
+        DriverBinding binding = loader.createBinding(this.getClass().getClassLoader(), "jar-binding-dep-driver", "1.0");
+        binding.asClassLoader().addIncludePackages("sample.driver.*");
+
+        Class<?> generatedClass = binding.asClassLoader().loadClass("sample.driver.GeneratedDriverMarker");
+        Object generated = generatedClass.getDeclaredConstructor().newInstance();
+        assertEquals("dep-ok", generatedClass.getMethod("ping").invoke(generated));
     }
 
     @Test
@@ -674,7 +713,8 @@ public class DefaultDriverLoaderFunctionalTest {
         assertNotNull(version);
         ((VerDef) version).setDsFactoryDef(new DsFactoryDef(TestDsFactory.class.getName(), this.getClass().getClassLoader()));
 
-        loader.refreshDriverVersion(version);
+        loader.prepareDriverVersion(version, resource -> false, new DriverPrepareProgress() {
+        });
 
         try {
             loader.createBinding(this.getClass().getClassLoader(), "invalid-binding-driver", "1.0");
@@ -700,7 +740,8 @@ public class DefaultDriverLoaderFunctionalTest {
         DriverVersion version = loader.findDriver("jar-expire-driver", "1.0");
         assertNotNull(version);
 
-        loader.refreshDriverVersion(version);
+        loader.prepareDriverVersion(version, resource -> false, new DriverPrepareProgress() {
+        });
         DriverBinding binding = loader.createBinding(this.getClass().getClassLoader(), "jar-expire-driver", "1.0");
         assertFalse(binding.isExpired());
 
@@ -779,20 +820,6 @@ public class DefaultDriverLoaderFunctionalTest {
         return new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
     }
 
-    private Properties props(String key, String value) {
-        Properties properties = new Properties();
-        properties.setProperty(key, value);
-        return properties;
-    }
-
-    private String startHttpServer(byte[] mavenBytes, byte[] urlBytes) throws Exception {
-        this.httpServer = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
-        this.httpServer.createContext("/repo/com/example/demo-artifact/1.0.0/demo-artifact-1.0.0.jar", new ByteArrayHandler(mavenBytes));
-        this.httpServer.createContext("/downloads/asset.bin", new ByteArrayHandler(urlBytes));
-        this.httpServer.start();
-        return "http://127.0.0.1:" + this.httpServer.getAddress().getPort();
-    }
-
     private String readToString(InputStream inputStream) throws IOException {
         assertNotNull(inputStream);
         try (InputStream source = inputStream; ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -822,57 +849,49 @@ public class DefaultDriverLoaderFunctionalTest {
     }
 
     private Path createTestJar(String className, String sourceCode) throws Exception {
+        return createTestJar("generated-driver.jar", Collections.singletonMap(className, sourceCode));
+    }
+
+    private Path createTestJar(String jarName, Map<String, String> sources) throws Exception {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         assertNotNull("system java compiler is required", compiler);
 
         Path sourceDir = Files.createDirectories(this.tempDir.resolve("generated-src"));
         Path outputDir = Files.createDirectories(this.tempDir.resolve("generated-classes"));
-        Path sourceFile = sourceDir.resolve(className.replace('.', '/') + ".java");
-        Files.createDirectories(sourceFile.getParent());
-        Files.write(sourceFile, sourceCode.getBytes(StandardCharsets.UTF_8));
+        List<File> sourceFiles = new ArrayList<>();
+        for (Map.Entry<String, String> entry : sources.entrySet()) {
+            Path sourceFile = sourceDir.resolve(entry.getKey().replace('.', '/') + ".java");
+            Files.createDirectories(sourceFile.getParent());
+            Files.write(sourceFile, entry.getValue().getBytes(StandardCharsets.UTF_8));
+            sourceFiles.add(sourceFile.toFile());
+        }
 
         try (StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, StandardCharsets.UTF_8)) {
             fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Collections.singletonList(outputDir.toFile()));
-            boolean success = compiler.getTask(null, fileManager, null, null, null, fileManager.getJavaFileObjects(sourceFile.toFile())).call();
+            boolean success = compiler.getTask(null, fileManager, null, null, null, fileManager.getJavaFileObjectsFromFiles(sourceFiles)).call();
             assertTrue("compile generated source failed", success);
         }
 
-        Path classFile = outputDir.resolve(className.replace('.', '/') + ".class");
-        assertTrue(Files.exists(classFile));
-
-        Path jarFile = this.tempDir.resolve("generated-driver.jar");
+        Path jarFile = this.tempDir.resolve(jarName);
         try (JarOutputStream jarOutput = new JarOutputStream(Files.newOutputStream(jarFile))) {
-            String entryName = className.replace('.', '/') + ".class";
-            jarOutput.putNextEntry(new JarEntry(entryName));
-            jarOutput.write(Files.readAllBytes(classFile));
-            jarOutput.closeEntry();
+            for (String className : sources.keySet()) {
+                Path classFile = outputDir.resolve(className.replace('.', '/') + ".class");
+                assertTrue(Files.exists(classFile));
+                String entryName = className.replace('.', '/') + ".class";
+                jarOutput.putNextEntry(new JarEntry(entryName));
+                jarOutput.write(Files.readAllBytes(classFile));
+                jarOutput.closeEntry();
+            }
         }
 
         return jarFile;
     }
 
-    private static final class ByteArrayHandler implements HttpHandler {
-
-        private final byte[] content;
-
-        private ByteArrayHandler(byte[] content) {
-            this.content = content;
-        }
-
-        @Override
-        public void handle(HttpExchange exchange) throws IOException {
-            exchange.sendResponseHeaders(200, this.content.length);
-            exchange.getResponseBody().write(this.content);
-            exchange.close();
-        }
-    }
-
     private static final class ProgressRecorder implements DriverPrepareProgress {
 
-        private final List<String> started        = new ArrayList<>();
-        private final List<String> completed      = new ArrayList<>();
-        private final List<String> errors         = new ArrayList<>();
-        private final List<String> progressEvents = new ArrayList<>();
+        private final List<String> started   = new ArrayList<>();
+        private final List<String> completed = new ArrayList<>();
+        private final List<String> errors    = new ArrayList<>();
 
         @Override
         public void onStart(DriverVersion driverVersion, ResDef resDef, int index, int totalCount) {

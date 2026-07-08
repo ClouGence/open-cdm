@@ -3,13 +3,17 @@
     class="toaster group"
     position="bottom-right"
     :expand="false"
+    close-button
+    close-button-position="top-right"
+    :close-button-aria-label="closeAriaLabel"
     :toast-options="{
       classes: {
         toast:
-          'group toast group-[.toaster]:bg-white group-[.toaster]:text-[#171717] group-[.toaster]:border-[#dfdfdf] group-[.toaster]:shadow-lg group-[.toaster]:rounded-lg',
+          'group toast group-[.toaster]:bg-white group-[.toaster]:text-[#171717] group-[.toaster]:border-[#dfdfdf] group-[.toaster]:shadow-lg group-[.toaster]:rounded-lg group-[.toaster]:pr-10',
         description: 'group-[.toast]:text-[#707070]',
         actionButton: 'group-[.toast]:bg-[#181d26] group-[.toast]:text-white',
-        cancelButton: 'group-[.toast]:bg-[#f5f5f5] group-[.toast]:text-[#707070]'
+        cancelButton: 'group-[.toast]:bg-[#f5f5f5] group-[.toast]:text-[#707070]',
+        closeButton: 'sonner-close-button'
       }
     }"
     v-bind="$attrs"
@@ -57,7 +61,7 @@
       </svg>
     </template>
     <template #close-icon>
-      <svg class="size-4" viewBox="0 0 20 20" fill="#9a9a9a">
+      <svg class="size-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
         <path
           d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
         />
@@ -67,5 +71,36 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { Toaster as Sonner } from 'vue-sonner';
+import i18n from '@/i18n';
+
+const closeAriaLabel = computed(() => i18n.global.t('guan-bi'));
 </script>
+
+<style scoped>
+:deep([data-sonner-toast][data-styled='true'] [data-close-button].sonner-close-button) {
+  right: 8px;
+  top: 8px;
+  left: unset;
+  bottom: unset;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #9a9a9a;
+  transform: none;
+  box-shadow: none;
+}
+
+:deep([data-sonner-toast][data-styled='true'] [data-close-button].sonner-close-button:hover) {
+  background: #f5f5f5;
+  color: #707070;
+}
+
+:deep([data-sonner-toast][data-styled='true'] [data-close-button].sonner-close-button:focus-visible) {
+  box-shadow: 0 0 0 2px rgba(24, 29, 38, 0.12);
+}
+</style>

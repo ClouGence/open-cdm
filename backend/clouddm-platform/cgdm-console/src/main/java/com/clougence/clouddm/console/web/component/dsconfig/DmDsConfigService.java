@@ -20,32 +20,44 @@ import java.util.Map;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.ui.form.UiPanel;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4RdpDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
 
 /**
  * @author bucketli 2020/11/7 14:25
  */
 public interface DmDsConfigService {
 
-    Map<String, String> fetchSettingsMap(String ownerUid, List<String> names);
-
-    List<DmDsConfigKv4RdpDO> fetchDsConfigDef(DataSourceType dsType);
-
-    DataSourceConfig fetchDsConfigFromTemp(DmDsDO dsDO, Map<String, String> configMap, HostType hostType);
-
-    DataSourceConfig fetchDsConfigFromRDP(long dsId, DataSourceType dsType, HostType hostType);
-
-    DataSourceConfig fetchDsConfigFromDM(long dsId, DataSourceType dsType);
+    Map<String, String> fetchSettingsMap(List<String> names);
 
     String fetchDsConfig(long dsId, String configKey);
 
-    void persistDsConfig(DmDsDO dsDO, HostType hostType, String version);
+    void upsertDsConfig(long dsId, String configKey, String configValue);
+
+    void upsertDsConfigs(long dsId, Map<String, String> configMap);
 
     void cleanDsConfig(long dsId);
+
+    DataSourceConfig fetchDsConfigFromNotExist(DmDsDO dsDO, Map<String, String> configMap);
+
+    DataSourceConfig fetchDsConfigFromNotExist(DataSourceType dsType, Map<String, String> configMap);
+
+    DataSourceConfig fetchDsConfigFromExists(long dsId);
+
+    DataSourceConfig fetchDsConfigFromExists(long dsId, Map<String, String> configOverrides);
+
+    DataSourceConfig fetchFullDsConfigFromExists(long dsId);
+
+    List<DsConfigKvDef> fetchDsConfigDef(DataSourceType dsType);
+
+    List<DsConfigKvDef> fetchDsConfigDef(DataSourceType dsType, Map<String, String> defaultConfig);
+
+    List<UiPanel> fetchDsConfigPanels(DataSourceType dsType, Map<String, String> defaultConfig);
+
+    Map<DataSourceType, DsConfig> dsConstantSettings();
 
     DsConfig dsConstantSettings(DataSourceType dsType);
 

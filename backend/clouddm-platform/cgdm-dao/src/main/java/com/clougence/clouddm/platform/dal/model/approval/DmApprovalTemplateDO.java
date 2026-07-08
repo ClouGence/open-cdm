@@ -18,8 +18,7 @@ package com.clougence.clouddm.platform.dal.model.approval;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.clougence.clouddm.platform.dal.model.approval.ApprovalType;
-import com.clougence.clouddm.platform.dal.handler.RdpApprovalTypeHandler;
+import com.clougence.clouddm.platform.dal.handler.enums.RdpApprovalTypeHandler;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -33,24 +32,16 @@ import lombok.Setter;
 public class DmApprovalTemplateDO {
 
     @TableId(type = IdType.AUTO)
-    private Long            id;
-
+    private Long         id;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date            gmtCreate;
-
+    private Date         gmtCreate;
     @TableField(insertStrategy = FieldStrategy.NOT_NULL, updateStrategy = FieldStrategy.NOT_NULL)
-    private Date            gmtModified;
-
-    private String          primaryUid;
-
+    private Date         gmtModified;
+    private String       primaryUid;
     @TableField(typeHandler = RdpApprovalTypeHandler.class)
     private ApprovalType approvalType;
-
-    private String          templateName;
-
-    private String          templateIdentity;
-
-    private String          approUrl;
-
-    private String          templateContent;
+    private String       templateName;
+    private String       templateIdentity;
+    private String       approUrl;
+    private String       templateContent;
 }

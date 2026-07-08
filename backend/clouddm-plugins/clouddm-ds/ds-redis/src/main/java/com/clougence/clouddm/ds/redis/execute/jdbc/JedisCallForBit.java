@@ -18,8 +18,8 @@ package com.clougence.clouddm.ds.redis.execute.jdbc;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.clougence.clouddm.ds.redis.parser.ast.commands.bit.*;
-import com.clougence.clouddm.ds.redis.parser.ast.token.StrToken;
+import com.clougence.sql.redis.parser.ast.commands.bit.*;
+import com.clougence.sql.redis.parser.ast.token.StrToken;
 import com.clougence.drivers.adapter.AdapterReceive;
 import com.clougence.drivers.adapter.AdapterRequest;
 import com.clougence.utils.future.CgFuture;

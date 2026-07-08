@@ -1,17 +1,17 @@
 <template>
-  <aside class="release-flow-summary">
-    <div class="summary-card">
-      <div class="summary-title">
-        <div class="summary-title-main">
-          <CustomIcon type="icon-v2-jiaobenrenwu" size="24px" />
-          <span>{{ $t('pei-zhi-zhai-yao') }}</span>
-        </div>
-        <Button type="text" class="summary-help-link" @click="$emit('open-help')">
-          <Icon type="ios-help-circle-outline" />
-          <span>{{ $t('shi-yong-zhi-nan') }}</span>
-        </Button>
+  <aside class="release-flow-summary page-aside">
+    <div class="summary-title">
+      <div class="summary-title-main">
+        <CustomIcon type="icon-v2-jiaobenrenwu" size="24px" />
+        <span>{{ $t('pei-zhi-zhai-yao') }}</span>
       </div>
+      <Button type="text" class="summary-help-link" @click="$emit('open-help')">
+        <Icon type="ios-help-circle-outline" />
+        <span>{{ $t('shi-yong-zhi-nan') }}</span>
+      </Button>
+    </div>
 
+    <div class="summary-body">
       <div class="summary-group">
         <h3>{{ $t('ji-ben-xin-xi') }}</h3>
         <div v-if="isCreateMode" class="summary-row">

@@ -41,15 +41,15 @@ public abstract class BaseMeta {
 
     public ClassLoader getPlusClassLoader() { return this.pluginClassLoader; }
 
+    public String getPluginName() { return this.pluginInfo.getString("name"); }
+
     public String getPluginClass() { return this.pluginClass; }
 
     public GlobalMeta getGlobalMeta() { return this.globalMeta; }
 
     public int getOrder() { return this.pluginInfo.getInt("order", 1); }
 
-    protected List<String> getIncludePackages() {
-        return this.pluginInfo.getStringArray("includePackages");
-    }
+    protected List<String> getIncludePackages() { return this.pluginInfo.getStringArray("includePackages"); }
 
     public void configIncludeExclude(CgClassLoader classLoader) {
         for (String s : this.getIncludePackages()) {

@@ -29,6 +29,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.exception.DmErrorCode;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.config.UserConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
@@ -43,6 +44,7 @@ import com.clougence.clouddm.console.web.model.vo.editor.WsResult;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
@@ -53,6 +55,7 @@ import com.clougence.clouddm.sdk.language.split.SplitResult;
 import com.clougence.clouddm.sdk.language.validate.ValidateRequest;
 import com.clougence.clouddm.sdk.language.validate.ValidateResult;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.umi.struts.UmiTypes;
 
 import jakarta.annotation.Resource;
@@ -131,10 +134,6 @@ public class ConsoleLanguageService implements UnifiedPostConstruct, ConsoleLang
 
     private LanguageCtx createLanguageCtx(WsLanguageFO fo) {
         DsLevels levels = this.dmDsConfigService.parseLevels(fo.getLevels());
-        if (levels == null || levels.dsDO() == null) {
-            return new LanguageCtx(levels, null, null, null);
-        }
-
         DmDsDO dsDO = levels.dsDO();
         Map<String, Object> params = new HashMap<>();
         SessionContextDTO ctxDTO = new SessionContextDTO();
@@ -148,7 +147,10 @@ public class ConsoleLanguageService implements UnifiedPostConstruct, ConsoleLang
             }
         });
 
-        return new LanguageCtx(levels, this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId(), dsDO.getDataSourceType()), ctxDTO, params);
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
+        SqlEngineSpi sqlEngine = PluginManager.findParserSpi(dsConfig.getDataSourceType(), dsConfig.getSqlEngine());
+
+        return new LanguageCtx(levels, dsConfig, ctxDTO, params, sqlEngine);
     }
 
     private static AbstractRequest parseRequest(WsLanguageFO fo, LanguageCtx ctx, JSONObject json) {
@@ -173,6 +175,8 @@ public class ConsoleLanguageService implements UnifiedPostConstruct, ConsoleLang
             request.setSchema(ctx.getCtxDTO().getRdbSchema());
         }
 
+        request.setSqlEngine(ctx.getSqlEngine());
+        request.setCtxParams(ctx.getCtxParams());
         request.setBasicCodeLine(fo.getBasicCodeLine());
         request.setBasicCodeColumn(fo.getBasicCodeColumn());
         return request;

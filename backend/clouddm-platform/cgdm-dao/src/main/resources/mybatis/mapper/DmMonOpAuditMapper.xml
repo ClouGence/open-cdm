@@ -16,7 +16,7 @@
         <result column="context_in" property="contextIn"/>
         <result column="context_out" property="contextOut"/>
         <result column="resource_type" property="resourceType"
-                javaType="com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType"/>
+                javaType="com.clougence.clouddm.platform.dal.model.ResourceType"/>
         <result column="resource_value" property="resourceValue"/>
         <result column="resource_name" property="resourceName"/>
         <result column="security_level" property="securityLevel"

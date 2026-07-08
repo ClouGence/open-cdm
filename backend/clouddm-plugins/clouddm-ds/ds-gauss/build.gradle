@@ -20,8 +20,10 @@ plugins {
 }
 
 dependencies {
-    // project
     antlr "org.antlr:antlr4:${ANTLR_VERSION}"
+
+    // project
+    implementation "org.antlr:antlr4-runtime:${ANTLR_VERSION}"
     implementation project(':dsc-common-postgres')
 
     // share lib (compileOnly)
@@ -37,24 +39,6 @@ dependencies {
 
 description = 'ds-gauss'
 
-configureClougenceAntlrGrammar([outputPath : 'src/main/java/com/clougence/clouddm/ds/gauss/parser/antlr',
-                                packageName: 'com.clougence.clouddm.ds.gauss.parser.antlr',
-                                libDir     : '../dsc-common-postgres/src/main/antlr'])
-
-def visitorConfigs = [[taskName: 'VisitorGsParser', frontPath: 'gs/GsAbstractSqlParserVisitor.java', backPath: 'PgSqlParserVisitor.java'],
-                      [taskName: 'VisitorGsogParser', frontPath: 'gsog/GsogAbstractSqlParserVisitor.java', backPath: 'PgSqlParserVisitor.java'],
-                      [taskName: 'VisitorGsogSplit', frontPath: 'gsog/GsogAbstractSplitVisitor.java', backPath: 'PgSplitVisitor.java'],
-                      [taskName: 'VisitorGsSplit', frontPath: 'gs/GsAbstractSplitVisitor.java', backPath: 'PgSplitVisitor.java']]
-
-visitorConfigs.each { config ->
-    tasks.register(config.taskName, VisitorMerger) {
-        backFile = file("../dsc-common-postgres/src/main/java/com/clougence/clouddm/dsfamily/postgres/analysis/${config.backPath}")
-        frontFile = file("./src/main/java/com/clougence/clouddm/ds/gauss/analysis/${config.frontPath}")
-    }
+tasks.named('generateGrammarSource') {
+    arguments += ['-visitor', '-package', 'com.clougence.clouddm.ds.gauss.sql.gs.parser.antlr']
 }
-
-jar {
-    dependsOn(visitorConfigs.collect { tasks.named(it.taskName) })
-    dependsOn('generateGrammarSource')
-}
-

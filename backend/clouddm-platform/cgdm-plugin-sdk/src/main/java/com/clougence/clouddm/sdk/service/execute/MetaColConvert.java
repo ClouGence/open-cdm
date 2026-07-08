@@ -18,8 +18,8 @@ package com.clougence.clouddm.sdk.service.execute;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.sdk.analysis.column.RealColumn;
-import com.clougence.clouddm.sdk.analysis.column.SelectItem;
+import com.clougence.clouddm.sdk.sql.column.RealColumn;
+import com.clougence.clouddm.sdk.sql.column.SelectItem;
 
 public final class MetaColConvert {
 

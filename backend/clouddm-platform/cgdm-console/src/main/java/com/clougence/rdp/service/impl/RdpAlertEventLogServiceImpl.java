@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.util.RdpHostUtil;
 import com.clougence.clouddm.platform.dal.access.MonitorDal;
 import com.clougence.clouddm.platform.dal.model.monitor.AlertEventStatus;
 import com.clougence.clouddm.platform.dal.model.monitor.AlertMediaType;
@@ -34,9 +34,7 @@ import jakarta.annotation.Resource;
 public class RdpAlertEventLogServiceImpl implements RdpAlertEventLogService {
 
     @Resource
-    private MonitorDal      monitorDal;
-    @Resource
-    private DmConsoleConfig rdpConfig;
+    private MonitorDal monitorDal;
 
     @Override
     public List<DmMonAlertEventLogDO> listAlertEventLogs(Long startTimeMillis, Long endTimeMillis, AlertEventStatus status, String uid, long startId, int pageSize) {
@@ -58,7 +56,7 @@ public class RdpAlertEventLogServiceImpl implements RdpAlertEventLogService {
         DmMonAlertEventLogDO alertLogDO = new DmMonAlertEventLogDO();
         alertLogDO.setStatus(alertEventStatus);
         alertLogDO.setContent(content);
-        alertLogDO.setIp(rdpConfig.getConsolePackageMode().getLocalIpOrHostName());
+        alertLogDO.setIp(RdpHostUtil.getHostIp());
 
         alertLogDO.setErrMsg(errMsg);
         alertLogDO.setAlertMediaType(alertMediaType);

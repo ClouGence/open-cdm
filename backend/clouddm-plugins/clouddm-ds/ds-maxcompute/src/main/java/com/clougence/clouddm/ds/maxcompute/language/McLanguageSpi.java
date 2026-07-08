@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.ds.maxcompute.language;
 
-import com.clougence.clouddm.ds.maxcompute.parser.McSqlDslProvider;
 import com.clougence.clouddm.dsfamily.language.split.SplitStrategyCenter;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
@@ -62,7 +61,7 @@ public class McLanguageSpi implements DsLanguageSpi {
 
     @Override
     public SplitResult split(SplitRequest request) {
-        return this.split.split(request, McSqlDslProvider.INSTANCE);
+        return this.split.split(request);
     }
 
 }

@@ -18,23 +18,14 @@ package com.clougence.clouddm.dsfamily.postgres.language;
 import java.util.List;
 
 import com.clougence.clouddm.dsfamily.language.validate.SyntaxValidateStrategy;
+import com.clougence.clouddm.dsfamily.language.validate.TablePermissionValidateStrategy;
 import com.clougence.clouddm.dsfamily.language.validate.ValidateStrategy;
 import com.clougence.clouddm.dsfamily.language.validate.ValidateStrategyCenter;
-import com.clougence.clouddm.dsfamily.postgres.language.strategy.PgRdbTablePermissionValidateStrategy;
-import com.clougence.clouddm.dsfamily.postgres.parser.PgDslProvider;
-import com.clougence.clouddm.sdk.language.validate.ValidateRequest;
-import com.clougence.dslpaser.antlr.DslProvider;
 
 public class PgValidateStrategyCenter extends ValidateStrategyCenter {
-
-    @Override
-    protected DslProvider dslProvider(ValidateRequest request) {
-        return PgDslProvider.INSTANCE;
-    }
-
     @Override
     protected void register(List<ValidateStrategy> strategies) {
         strategies.add(new SyntaxValidateStrategy());
-        strategies.add(new PgRdbTablePermissionValidateStrategy());
+        strategies.add(new TablePermissionValidateStrategy());
     }
 }

@@ -406,6 +406,18 @@ a {
   color: @default-color;
 }
 
+.ivu-tag-checked,
+.ivu-tag-primary,
+.ivu-tag-checked .ivu-tag-text,
+.ivu-tag-primary .ivu-tag-text,
+.ivu-tag-checked .ivu-icon-ios-close,
+.ivu-tag-primary .ivu-icon-ios-close,
+.ivu-select-multiple .ivu-select-selection .ivu-tag,
+.ivu-select-multiple .ivu-select-selection .ivu-tag .ivu-tag-text,
+.ivu-select-multiple .ivu-select-selection .ivu-tag .ivu-icon-ios-close {
+  color: @white !important;
+}
+
 .ivu-tag-primary,
 .ivu-tag-primary.ivu-tag-dot .ivu-tag-dot-inner {
   background: @primary-color;
@@ -1102,7 +1114,13 @@ a {
 }
 
 .ivu-select-dropdown {
-  max-height: 500px !important;
+  max-height: ~'min(360px, calc(100vh - 120px))' !important;
+  overflow: hidden;
+}
+
+.ivu-select-dropdown-list {
+  max-height: ~'min(360px, calc(100vh - 120px))';
+  overflow-y: auto;
 }
 
 .ivu-menu-light {

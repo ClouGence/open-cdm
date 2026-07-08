@@ -21,7 +21,6 @@ plugins {
 dependencies {
     // project
     implementation project(':dsc-common')
-    implementation files('../lib/druid-1.2.25-SNAPSHOT.jar')
 
     // share lib (compileOnly)
     compileOnly project(':cgdm-share-libs')
@@ -31,4 +30,3 @@ dependencies {
 }
 
 description = 'ds-dameng'
-

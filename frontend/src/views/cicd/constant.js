@@ -35,7 +35,6 @@ const flowTableColumns = [
   {
     title: i18n.global.t('cao-zuo'),
     slot: 'action',
-    fixed: 'right',
     width: 260
   }
 ];

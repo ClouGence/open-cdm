@@ -40,7 +40,6 @@
                 class="app-sidebar-item app-sidebar-item--depth-1"
                 :class="{ 'is-active': activeKey === child.key }"
               >
-                <CustomIcon v-if="child.iconName" :type="child.iconName" size="16px" />
                 <span>{{ child.label }}</span>
               </a>
             </div>
@@ -48,6 +47,10 @@
         </div>
       </template>
     </nav>
+
+    <footer v-if="displaySidebarVersion" class="app-sidebar-footer">
+      <span class="app-sidebar-version-chip">{{ displaySidebarVersion }}</span>
+    </footer>
   </aside>
 </template>
 
@@ -55,6 +58,8 @@
 import { mapGetters, mapState } from 'vuex';
 import AppBrandLogo from '@/components/layout/AppBrandLogo';
 import { findSidebarParentKeys } from '@/utils/buildSidebarMenu';
+import { saveLastWorkbenchRoute } from '@/utils/workbenchRoute';
+import { resolveDisplayVersion } from '@/utils/version';
 
 export default {
   name: 'AppSidebar',
@@ -62,12 +67,16 @@ export default {
   emits: ['check-version'],
   data() {
     return {
-      expandedGroups: {}
+      expandedGroups: {},
+      sidebarVersion: ''
     };
   },
   computed: {
     ...mapGetters(['includesDM', 'isDesktop']),
-    ...mapState(['myCatLog', 'userInfo', 'sidebarMenu', 'defaultRedirectUrl']),
+    ...mapState(['myCatLog', 'userInfo', 'sidebarMenu', 'defaultRedirectUrl', 'dmGlobalSetting']),
+    displaySidebarVersion() {
+      return this.sidebarVersion || resolveDisplayVersion(this.dmGlobalSetting);
+    },
     activeKey() {
       const path = this.$route.path;
       if (path.indexOf('/sql') > -1) {
@@ -115,13 +124,19 @@ export default {
       if (path.indexOf('/system/permission') > -1) {
         return this.$route.query.type === 'apply' ? '/system/permission/apply' : '/system/permission';
       }
-      if (path.indexOf('/manager/account') === 0 || path.indexOf('/system/account') > -1 || path.indexOf('/system/role') > -1) {
+      if (path.indexOf('/manager/role') === 0 || path.indexOf('/system/role') > -1) {
+        return '/manager/role';
+      }
+      if (path.indexOf('/manager/account') === 0 || path.indexOf('/system/account') > -1) {
         return '/manager/account';
       }
       if (path.indexOf('/manager/logs') === 0 || path.indexOf('/system/operation_log') > -1 || path.indexOf('/system/sql_log') > -1) {
         return '/manager/logs';
       }
-      if (path.indexOf('/system/management/accounts') > -1 || path.indexOf('/system/account') > -1 || path.indexOf('/system/role') > -1) {
+      if (path.indexOf('/system/management/accounts/role') > -1) {
+        return '/manager/role';
+      }
+      if (path.indexOf('/system/management/accounts') > -1 || path.indexOf('/system/account') > -1) {
         return '/manager/account';
       }
       if (path.indexOf('/system/management/logs') > -1 || path.indexOf('/system/operation_log') > -1 || path.indexOf('/system/sql_log') > -1) {
@@ -153,11 +168,36 @@ export default {
       deep: true
     }
   },
+  mounted() {
+    this.loadSidebarVersion();
+  },
   methods: {
+    async loadSidebarVersion() {
+      const cachedVersion = resolveDisplayVersion(this.dmGlobalSetting);
+      if (cachedVersion) {
+        this.sidebarVersion = cachedVersion;
+        return;
+      }
+
+      try {
+        const res = await this.$services.dmGlobalSettings();
+        if (res.success && res.data?.version) {
+          this.sidebarVersion = resolveDisplayVersion(res.data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
     handleGoHome() {
-      const target = this.defaultRedirectUrl || '/cicd';
-      if (this.$route.path !== target) {
-        this.$router.push({ path: target });
+      if (this.includesDM && this.myCatLog.includes('CAT_DM_CONSOLE')) {
+        saveLastWorkbenchRoute(this.$route, this.userInfo?.uid);
+        this.$router.push({ path: '/sql' }).catch(() => {});
+        return;
+      }
+
+      const fallback = this.defaultRedirectUrl || '/cicd';
+      if (this.$route.path !== fallback) {
+        this.$router.push({ path: fallback }).catch(() => {});
       }
     },
     isGroupExpanded(key) {

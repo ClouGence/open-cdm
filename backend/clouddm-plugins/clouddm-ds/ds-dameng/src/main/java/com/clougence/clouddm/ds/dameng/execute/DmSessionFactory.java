@@ -23,8 +23,6 @@ import com.clougence.clouddm.sdk.execute.resource.DsResourceManager;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.drivers.DsObject;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityFileType;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
 
 /**
  * only for integration test
@@ -38,16 +36,5 @@ public class DmSessionFactory extends RdbSessionFactory<DmConfig> {
         DmSession session = new DmSession(contextDTO.getSessionId(), dsConfig, dsObject);
         session.initSession(ownerRM, contextDTO);
         return session;
-    }
-
-    @Override
-    protected void configSSL(DmConfig dsConfig, DsResourceManager resRM) throws Exception {
-        if (dsConfig.getSecurityType() != SecurityType.USER_PASSWD_WITH_KEYSTORE) {
-            return;
-        }
-
-        String filePath = resRM.getSecurityFilePath(dsConfig, SecurityFileType.keystore_file.name(), SecurityFileType.keystore_file);
-        dsConfig.setSslFilePath(filePath);
-
     }
 }

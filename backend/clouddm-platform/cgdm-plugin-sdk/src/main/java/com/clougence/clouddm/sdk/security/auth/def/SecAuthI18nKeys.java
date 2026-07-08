@@ -59,6 +59,8 @@ public interface SecAuthI18nKeys {
     String AUTH_KEY_DM_DATA_MANAGE                  = "AUTH_KEY_DM_DATA_MANAGE";
     String AUTH_KEY_DM_DS_READ                      = "AUTH_KEY_DM_DS_READ";
     String AUTH_KEY_DM_DS_MANAGE                    = "AUTH_KEY_DM_DS_MANAGE";
+    String AUTH_KEY_DM_SSH_CHANNEL_READ             = "AUTH_KEY_DM_SSH_CHANNEL_READ";
+    String AUTH_KEY_DM_SSH_CHANNEL_WRITE            = "AUTH_KEY_DM_SSH_CHANNEL_WRITE";
     String AUTH_KEY_DM_WORKER_READ                  = "AUTH_KEY_DM_WORKER_READ";
     String AUTH_KEY_DM_WORKER_MANAGE                = "AUTH_KEY_DM_WORKER_MANAGE";
     String AUTH_KEY_DM_SECRULES_READ                = "AUTH_KEY_DM_SECRULES_READ";
@@ -104,6 +106,7 @@ public interface SecAuthI18nKeys {
     // for Role and Data
     String RDP_AUTH_DATA_DS_READ                    = "RDP_AUTH_DATA_DS_READ";
     String RDP_AUTH_DATA_DS_MANAGE                  = "RDP_AUTH_DATA_DS_MANAGE";
+    String RDP_AUTH_DATA_DS_CREATOR                 = "RDP_AUTH_DATA_DS_CREATOR";
 
     // for Data Auth Label
     String AUTH_DATA_DM_QUERY                       = "AUTH_DATA_DM_QUERY";

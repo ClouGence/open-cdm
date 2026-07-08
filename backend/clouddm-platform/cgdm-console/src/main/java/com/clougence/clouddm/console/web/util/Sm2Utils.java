@@ -62,7 +62,11 @@ public class Sm2Utils {
     }
 
     public static String decrypt(String privateKey, String cipherData) {
-        if (StringUtils.isEmpty(cipherData)) {
+        if (cipherData == null) {
+            return null;
+        }
+
+        if (StringUtils.isBlank(cipherData) || isSm2EncryptedEmptyText(cipherData)) {
             return "";
         }
 
@@ -86,5 +90,19 @@ public class Sm2Utils {
         } catch (Exception e) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.COMM_SM2_ENCOUNTERED_ERROR.name(), e.getMessage()));
         }
+    }
+
+    private static boolean isSm2EncryptedEmptyText(String value) {
+        String cipherText = value.startsWith("04") ? value.substring(2) : value;
+        if (cipherText.length() != 192) {
+            return false;
+        }
+        for (int i = 0; i < cipherText.length(); i++) {
+            char c = cipherText.charAt(i);
+            if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'))) {
+                return false;
+            }
+        }
+        return true;
     }
 }

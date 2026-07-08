@@ -26,11 +26,11 @@ import com.clougence.clouddm.sdk.service.approval.ApprovalRefreshService;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.team.provider.dingtalk.approval.DingApprovalProviderSpi;
 import com.clougence.clouddm.team.provider.dingtalk.auth.DingLoginProviderSpi;
-import com.clougence.clouddm.team.provider.dingtalk.constants.DingI18nKeys;
+import com.clougence.clouddm.team.provider.dingtalk.constants.DingTalkI18nKeys;
 import com.clougence.clouddm.team.provider.dingtalk.im.DingTalkMsgSendSpi;
 import com.clougence.clouddm.team.provider.dingtalk.resource.DingTalkLoginIconResourceSpi;
 
-@Plugin
+@Plugin(name = "i18n::" + DingTalkI18nKeys.PLUGIN_NAME_DINGTALK)
 public class DingPlugin implements DsPlugin {
 
     @Override
@@ -40,7 +40,7 @@ public class DingPlugin implements DsPlugin {
         ConsoleConfigService configService = dsPlugin.findGlobalService(ConsoleConfigService.class);
 
         // i18n
-        dsPlugin.bindGlobalI18n(DingI18nKeys.class);
+        dsPlugin.bindGlobalI18n(DingTalkI18nKeys.class);
 
         // spi
         dsPlugin.addGlobalSpi(ApprovalProviderSpi.class, ApprovalProvider.DingTalk.name(), new DingApprovalProviderSpi(configService, approvalService, pluginLoader));

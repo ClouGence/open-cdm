@@ -5,14 +5,22 @@
         <div class="content">
           <div class="option border-radius-card">
             <div class="left" style="align-items: center">
-              {{ $t('cao-zuo-shi-jian') }}
-              <DatePicker
-                :editable="false"
-                v-model="timeRange"
-                type="datetimerange"
-                format="yyyy-MM-dd HH:mm"
-                style="width: 266px; margin-left: 10px; margin-right: 10px"
-              ></DatePicker>
+              <Select v-model="auditLogType" style="width: 120px; margin-right: 10px" @on-change="handleChangeAuditLogType">
+                <Option value="operation" :label="$t('cao-zuo-shen-ji')">
+                  <span>{{ $t('cao-zuo-shen-ji') }}</span>
+                </Option>
+                <Option value="sql" :label="$t('nav-ri-zhi-shen-ji')">
+                  <span>{{ $t('nav-ri-zhi-shen-ji') }}</span>
+                </Option>
+              </Select>
+              <span class="log-time-range-label">{{ $t('cao-zuo-shi-jian') }}</span>
+              <a-range-picker
+                v-model:value="timeRange"
+                show-time
+                format="YYYY-MM-DD HH:mm"
+                :placeholder="[$t('kai-shi-shi-jian'), $t('jie-shu-shi-jian')]"
+                class="log-time-range"
+              />
               <Select v-model="searchType" style="width: 100px; margin-right: 10px" @on-change="handleChangeSearchType">
                 <Option value="user" :label="$t('cao-zuo-ren')">
                   <span>{{ $t('cao-zuo-ren') }}</span>
@@ -78,7 +86,7 @@
                 <Option value="FAILURE" label="FAILURE">FAILURE</Option>
                 <Option value="ERROR" label="ERROR">ERROR</Option>
               </Select>
-              <Button type="primary" @click="handleRefresh" :loading="refreshLoading" style="margin-left: 10px" ghost>
+              <Button type="primary" ghost @click="handleRefresh" :loading="refreshLoading" style="margin-left: 10px">
                 {{ $t('cha-xun') }}
               </Button>
             </div>
@@ -126,16 +134,17 @@
           </div>
         </div>
       </div>
-      <div class="footer list-page-footer-nav">
-        <Button :disabled="page === 1" @click="handlePre">
-          <Icon type="ios-arrow-back" />
-          {{ $t('shang-yi-ye') }}
-        </Button>
-        <span>{{ $t('di-page-ye', [page]) }}</span>
-        <Button :disabled="noMoreData" @click="handleNext">
-          {{ $t('xia-yi-ye') }}
-          <Icon type="ios-arrow-forward" />
-        </Button>
+      <div class="footer">
+        <Page
+          :total="total"
+          show-total
+          show-elevator
+          @on-change="handlePageChange"
+          show-sizer
+          :page-size="pageSize"
+          @on-page-size-change="handlePageSizeChange"
+          :model-value="page"
+        />
       </div>
     </div>
     <CCModal v-model="showSqlModal" title="SQL" width="1000px" @on-ok="handleCloseSqlModal" @on-cancel="handleCloseSqlModal">
@@ -172,6 +181,7 @@ import { mapState } from 'vuex';
 import { h, resolveComponent } from 'vue';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
 import ReadOnlyDiffEditor from '@/components/editor/ReadOnlyDiffEditor.vue';
+import dayjs from '@/utils/dayjsSetup';
 
 const SQL_AUDIT_RETENTION_DAYS_KEY = 'sqlAuditRetentionDays';
 
@@ -180,6 +190,7 @@ export default {
   components: { ReadOnlyDiffEditor, ReadOnlyEditor },
   data() {
     return {
+      auditLogType: 'sql',
       searchType: 'user',
       noMoreData: false,
       refreshLoading: false,
@@ -219,7 +230,7 @@ export default {
           }
         ]
       },
-      timeRange: [new Date(new Date().getTime() - 24 * 3600 * 1000), new Date()],
+      timeRange: [dayjs().subtract(1, 'day'), dayjs()],
       searchData: {
         dsId: null,
         userUid: null,
@@ -366,6 +377,15 @@ export default {
         return sum + (column.width || column.minWidth || 0);
       }, 0);
       return { x: scrollX };
+    },
+    pageSize() {
+      return this.searchData.pageData.pageSize;
+    },
+    total() {
+      if (this.noMoreData) {
+        return (this.page - 1) * this.pageSize + this.logData.length;
+      }
+      return this.page * this.pageSize + 1;
     }
   },
   mounted() {
@@ -406,6 +426,14 @@ export default {
         e.preventDefault();
         this.handleRefresh();
       }
+    },
+
+    handleChangeAuditLogType(value) {
+      if (value === 'operation') {
+        this.$router.push('/manager/logs');
+        return;
+      }
+      this.auditLogType = 'sql';
     },
 
     handleRefresh() {
@@ -472,15 +500,7 @@ export default {
 
     handleSearch(type) {
       this.refreshLoading = true;
-      if (this.timeRange.length > 0) {
-        this.searchData.opStart =
-          this.timeRange[0] && fecha.format(new Date(new Date(this.timeRange[0]).getTime() - 8 * 3600 * 1000), 'YYYY-MM-DDTHH:mm:ss.SSS');
-        this.searchData.opEnd =
-          this.timeRange[1] && fecha.format(new Date(new Date(this.timeRange[1].getTime() - 8 * 3600 * 1000)), 'YYYY-MM-DDTHH:mm:ss.SSS');
-      } else {
-        this.searchData.opStart = '';
-        this.searchData.opEnd = '';
-      }
+      this.syncTimeRangeQuery();
       this.searchData.pageData.pageSize = 10;
 
       if (this.currentPageSize !== this.searchData.pageData.pageSize) {
@@ -554,6 +574,35 @@ export default {
       this.page++;
     },
 
+    handlePageChange(nextPage) {
+      if (nextPage === this.page) {
+        return;
+      }
+      if (nextPage > this.page) {
+        if (this.noMoreData || nextPage !== this.page + 1) {
+          return;
+        }
+        this.handleNext();
+        return;
+      }
+      this.page = nextPage;
+      let startId = 0;
+      if (nextPage > 1 && this.prevFirst[nextPage] !== undefined) {
+        startId = this.prevFirst[nextPage] + 1;
+      }
+      if (startId < 0) {
+        startId = 0;
+      }
+      this.searchData.pageData.startId = startId;
+      this.handleSearch('prev');
+    },
+
+    handlePageSizeChange(pageSize) {
+      this.searchData.pageData.pageSize = pageSize;
+      this.currentPageSize = pageSize;
+      this.handleRefresh();
+    },
+
     handleChangeSearchType() {
       this.page = 1;
       this.firstId = 0;
@@ -579,6 +628,16 @@ export default {
 
     formatDsRemark(dsRemark) {
       return `备注: ${dsRemark || ''}`;
+    },
+
+    syncTimeRangeQuery() {
+      if (Array.isArray(this.timeRange) && this.timeRange[0] && this.timeRange[1]) {
+        this.searchData.opStart = dayjs(this.timeRange[0]).subtract(8, 'hour').format('YYYY-MM-DDTHH:mm:ss.SSS');
+        this.searchData.opEnd = dayjs(this.timeRange[1]).subtract(8, 'hour').format('YYYY-MM-DDTHH:mm:ss.SSS');
+        return;
+      }
+      this.searchData.opStart = '';
+      this.searchData.opEnd = '';
     },
 
     showSqlDetail(row) {
@@ -610,6 +669,20 @@ export default {
       color: #9ea7b4;
       font-size: 12px;
     }
+  }
+
+  .log-time-range-label {
+    margin-right: 10px;
+  }
+
+  .log-time-range {
+    width: 320px;
+    margin-right: 10px;
+  }
+
+  :deep(.log-time-range.ant-picker) {
+    height: 32px;
+    border-radius: 6px;
   }
 
   .datasource-cell {

@@ -25,12 +25,12 @@ import com.clougence.drivers.adapter.AdapterConnManager;
 import com.clougence.drivers.adapter.AdapterConnection;
 import com.clougence.drivers.adapter.AdapterReceive;
 import com.clougence.drivers.adapter.AdapterRequest;
-import com.clougence.clouddm.ds.mongodb.parser.MongoDslProvider;
-import com.clougence.clouddm.ds.mongodb.parser.ast.commands.AbstractMongoFunc;
-import com.clougence.clouddm.ds.mongodb.parser.ast.commands.client.UserFunc;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.ast.Statement;
 import com.clougence.dslpaser.ast.StatementSet;
+import com.clougence.sql.mongodb.parser.MongoDslProvider;
+import com.clougence.sql.mongodb.parser.ast.commands.AbstractMongoFunc;
+import com.clougence.sql.mongodb.parser.ast.commands.client.UserFunc;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.future.CgFuture;
 import com.clougence.utils.future.CgFutureObj;
@@ -43,10 +43,6 @@ public class MongoConnection extends AdapterConnection {
     private final MongoClient   client;
     private final ClientSession session;
     private String              database;
-
-    static {
-        DslHelper.register(new MongoDslProvider());
-    }
 
     MongoConnection(Connection owner, MongoClient client, String jdbcUrl, Properties properties, String database){
         super(jdbcUrl, properties.getProperty(MongoKeys.USERNAME));

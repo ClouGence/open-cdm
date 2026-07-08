@@ -32,7 +32,7 @@ import com.clougence.schema.SchemaFramework;
 /**
  * @author bucketli 2021/4/25 15:13
  */
-@Plugin(dsProduct = DataSourceType.Redshift)
+@Plugin(name = "Redshift", dsProduct = DataSourceType.Redshift)
 public class RedshiftDsPlugin implements DsPlugin, DsFeatureIDs {
 
     @Override

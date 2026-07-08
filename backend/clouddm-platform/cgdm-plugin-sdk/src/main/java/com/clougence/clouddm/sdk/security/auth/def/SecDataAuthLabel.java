@@ -16,8 +16,7 @@
 package com.clougence.clouddm.sdk.security.auth.def;
 
 import static com.clougence.clouddm.sdk.security.auth.def.SecAuthCategory.CAT_RDP_DS;
-import static com.clougence.clouddm.sdk.security.auth.def.SecAuthI18nKeys.RDP_AUTH_DATA_DS_MANAGE;
-import static com.clougence.clouddm.sdk.security.auth.def.SecAuthI18nKeys.RDP_AUTH_DATA_DS_READ;
+import static com.clougence.clouddm.sdk.security.auth.def.SecAuthI18nKeys.*;
 
 import com.clougence.clouddm.sdk.security.auth.AuthElementType;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
@@ -38,6 +37,14 @@ public interface SecDataAuthLabel {
             kind = { AuthKind.DataSource }, global = true)
     @AuthKindCondition(kind = AuthKind.DataSource, condition = { AuthElementType.Instance })
     String RDP_DAUTH_DS_MANAGER = "RDP_DATA_DS_MANAGER";
+
+    @AuthLabel(order = 2, category = CAT_RDP_DS, usedOfRole = false, include = { RDP_DAUTH_DS_MANAGER, SecDataAuthLabel.DM_DAUTH_QUERY, SecDataAuthLabel.DM_DAUTH_CALL,
+                                                                                 SecDataAuthLabel.DM_DAUTH_DML, SecDataAuthLabel.DM_DAUTH_DDL, SecDataAuthLabel.DM_DAUTH_OBJ,
+                                                                                 SecDataAuthLabel.DM_DAUTH_SPACE, SecDataAuthLabel.DM_DAUTH_DCL, SecDataAuthLabel.DM_DAUTH_OTHER,
+                                                                                 SecDataAuthLabel.DM_DAUTH_SENSITIVE,
+                                                                                 SecDataAuthLabel.DM_DAUTH_TICKET }, i18nKey = RDP_AUTH_DATA_DS_CREATOR, kind = { AuthKind.DataSource })
+    @AuthKindCondition(kind = AuthKind.DataSource, condition = { AuthElementType.Instance })
+    String RDP_DAUTH_DS_CREATOR = "RDP_DAUTH_DS_CREATOR";
 
     // ================================ CAT_DM_QUERY ==============================================
 

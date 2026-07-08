@@ -24,9 +24,9 @@ import org.bson.Document;
 
 import com.clougence.drivers.adapter.AdapterReceive;
 import com.clougence.drivers.adapter.AdapterRequest;
-import com.clougence.clouddm.ds.mongodb.parser.ast.commands.collection.CollectionFunc;
-import com.clougence.clouddm.ds.mongodb.parser.ast.commands.collection.DataSizeFunc;
-import com.clougence.clouddm.ds.mongodb.parser.ast.commands.collection.RenameCollectionFunc;
+import com.clougence.sql.mongodb.parser.ast.commands.collection.CollectionFunc;
+import com.clougence.sql.mongodb.parser.ast.commands.collection.DataSizeFunc;
+import com.clougence.sql.mongodb.parser.ast.commands.collection.RenameCollectionFunc;
 import com.clougence.utils.future.CgFuture;
 import com.mongodb.MongoNamespace;
 import com.mongodb.client.ClientSession;

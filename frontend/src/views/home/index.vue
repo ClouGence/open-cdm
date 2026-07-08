@@ -103,6 +103,7 @@ import store from '@/store';
 import dayjs from 'dayjs';
 import fecha from 'fecha';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
+import { resolveWorkbenchRoute } from '@/utils/workbenchRoute';
 
 export default {
   name: 'Home',
@@ -165,8 +166,8 @@ export default {
 
     await this.$store.dispatch('getDmGlobalConfig');
 
-    if (this.redirectBlankEntry()) {
-      return;
+    if (this.$route.path === '/') {
+      await this.$router.replace({ path: this.defaultRedirectUrl || '/sql' }).catch(() => {});
     }
 
     this.showChild = true;
@@ -223,14 +224,6 @@ export default {
     this.$bus.off(EVENT_BUS_NAME_LIST.SHOW_INACTIVE_MODAL);
   },
   methods: {
-    redirectBlankEntry() {
-      if (this.$route.path !== '/') {
-        return false;
-      }
-
-      this.$router.replace({ path: this.defaultRedirectUrl || '/sql' }).catch(() => {});
-      return true;
-    },
     handleShowInactiveModal(msg) {
       console.log(msg);
       this.showInactiveModal = true;
@@ -383,8 +376,8 @@ export default {
     },
     handleGoAppHome() {
       if (this.isSqlRoute) {
-        const target = this.defaultRedirectUrl && this.defaultRedirectUrl !== '/sql' ? this.defaultRedirectUrl : '/cicd';
-        this.$router.push({ path: target }).catch(() => {});
+        const target = resolveWorkbenchRoute('/datasource', this.userInfo?.uid);
+        this.$router.push(target).catch(() => {});
         return;
       }
       this.handleGoBackHome();

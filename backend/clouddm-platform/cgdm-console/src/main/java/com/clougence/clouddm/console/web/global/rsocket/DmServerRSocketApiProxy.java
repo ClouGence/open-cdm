@@ -32,7 +32,7 @@ import com.clougence.clouddm.comm.model.RSocketRespDTO;
 import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.comm.model.RSocketSendType;
 import com.clougence.clouddm.comm.util.RSocketRespUtil;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.util.MessageUtils;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.JsonUtils;
@@ -49,12 +49,12 @@ public class DmServerRSocketApiProxy implements RSocketApiProxy {
     private final Class<?>             rsocketApi;
     private final ApplicationContext   applicationContext;
     private final RSocketSerialization serialization;
-    private final DmConsoleConfig      dmConfig;
+    private final ConsoleConfig        config;
 
     public DmServerRSocketApiProxy(Class<?> rsocketApi, ApplicationContext applicationContext, RSocketSerialization serialization){
         this.rsocketApi = rsocketApi;
         this.applicationContext = applicationContext;
-        this.dmConfig = applicationContext.getBean(DmConsoleConfig.class);
+        this.config = applicationContext.getBean(ConsoleConfig.class);
         this.serialization = serialization;
     }
 
@@ -96,7 +96,7 @@ public class DmServerRSocketApiProxy implements RSocketApiProxy {
         } catch (Exception e) {
             MDC.put("module", RSocketLogNames.RSOCKET_SEND_RECV_ERROR_LOG_NAME);
             String errMsg = "Api proxy invoke failed with exception. Invoke method is " + methodFullName;
-            if (this.dmConfig.isConsoleRsocketPrintArgs()) {
+            if (this.config.isConsoleRsocketPrintArgs()) {
                 errMsg += ", args is " + JsonUtils.toJson(args);
             }
             errMsg += ". Root cause is " + ExceptionUtils.getRootCauseMessage(e);

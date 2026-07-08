@@ -1,6 +1,6 @@
 <template>
-  <div class="flow-config-subsection">
-    <div class="flow-config-subtitle">{{ $t('tong-zhi-pei-zhi') }}</div>
+  <section class="page-section flow-notice-section">
+    <div class="page-section__title">{{ $t('tong-zhi-pei-zhi') }}</div>
     <div class="notice-layout">
       <div class="notice-channel-panel">
         <div class="field-label required notice-section-label">{{ $t('tong-zhi-qu-dao') }}</div>
@@ -64,7 +64,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script>

@@ -1,13 +1,13 @@
 export const auditApi = {
   // rdp
-  rdpAuditExport: '/rdp/console/api/v1/audit/export',
-  rdpAuditQueryAll: '/rdp/console/api/v1/audit/queryAll',
-  rdpAuditQueryByUser: '/rdp/console/api/v1/audit/queryByUser',
-  rdpAuditQueryByUserName: '/rdp/console/api/v1/audit/queryByUserName',
-  rdpAuditQueryListCondition: '/rdp/console/api/v1/audit/queryListCondition',
+  rdpAuditExport: '/api/entry/audit/export',
+  rdpAuditQueryAll: '/api/entry/audit/queryAll',
+  rdpAuditQueryByUser: '/api/entry/audit/queryByUser',
+  rdpAuditQueryByUserName: '/api/entry/audit/queryByUserName',
+  rdpAuditQueryListCondition: '/api/entry/audit/queryListCondition',
 
   // dm
-  dmAuditSqlAuditQueryAll: '/clouddm/console/api/v1/audit/sqlAudit/queryAll',
-  dmAuditSqlAuditListDs: '/clouddm/console/api/v1/audit/sqlAudit/listDs',
-  dmAuditSqlAuditOperateUser: '/clouddm/console/api/v1/audit/sqlAudit/operateUser'
+  dmAuditSqlAuditQueryAll: '/api/entry/audit/sqlAudit/queryAll',
+  dmAuditSqlAuditListDs: '/api/entry/audit/sqlAudit/listDs',
+  dmAuditSqlAuditOperateUser: '/api/entry/audit/sqlAudit/operateUser'
 };

@@ -38,4 +38,6 @@ public class RoleVO {
 
     private List<String> roleLabels = new ArrayList<>();
 
+    private List<String> selectedRoleLabels;
+
 }

@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.ds.oceanbase.language.ob4ora;
 
-import com.clougence.clouddm.ds.oceanbase.parser.ob4ora.ObOraDslProvider;
 import com.clougence.clouddm.dsfamily.language.split.SplitStrategyCenter;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
@@ -32,7 +31,7 @@ public class ObOraLanguageSpi implements DsLanguageSpi {
     private final MetaService                   metaService;
     private final ObOraCompletionStrategyCenter completion = new ObOraCompletionStrategyCenter();
     private final ObOraValidateStrategyCenter   validate   = new ObOraValidateStrategyCenter();
-    private final SplitStrategyCenter       split = new SplitStrategyCenter();
+    private final SplitStrategyCenter           split      = new SplitStrategyCenter();
 
     public ObOraLanguageSpi(MetaService metaService){
         this.metaService = metaService;
@@ -62,7 +61,7 @@ public class ObOraLanguageSpi implements DsLanguageSpi {
 
     @Override
     public SplitResult split(SplitRequest request) {
-        return this.split.split(request, ObOraDslProvider.INSTANCE);
+        return this.split.split(request);
     }
 
 }

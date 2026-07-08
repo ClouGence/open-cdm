@@ -155,18 +155,11 @@ export const OPERATION_STATUS_I18N = {
   CANCEL_ROLL_BACK: i18n.global.t('qu-xiao-hui-gun')
 };
 
-export const LANG_OPTIONS = ['zh-CN', 'en-US', 'ja', 'ko', 'vi', 'th', 'fr', 'es', 'ms'];
+export const LANG_OPTIONS = ['zh-CN', 'en-US'];
 
 export const LANG_I18N = {
   'zh-CN': '中文',
-  'en-US': 'English',
-  ja: '日本語',
-  ko: '한국어',
-  vi: 'Tiếng Việt',
-  th: 'ไทย',
-  fr: 'Français',
-  es: 'Español',
-  ms: 'Bahasa Melayu'
+  'en-US': 'English'
 };
 
 export const VERIFY_TYPE = {

@@ -18,8 +18,8 @@ package com.clougence.clouddm.console.web.component.detectrule;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
 import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 import com.clougence.utils.CollectionUtils;
 
 import lombok.Getter;

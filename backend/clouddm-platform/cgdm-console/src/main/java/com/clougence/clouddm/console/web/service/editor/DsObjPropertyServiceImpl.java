@@ -83,55 +83,55 @@ public class DsObjPropertyServiceImpl implements DsObjPropertyService {
             PropertyUiPanel uiPanel;
             switch (types) {
                 case Job: {
-                    uiPanel = this.dmDsSchemaService.fetchJobPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = this.dmDsSchemaService.fetchJobPropertyUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 case Sequence: {
-                    uiPanel = this.dmDsSchemaService.fetchSequencePropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = this.dmDsSchemaService.fetchSequencePropertyUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 case View: {
-                    uiPanel = this.dmDsSchemaService.fetchViewPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = this.dmDsSchemaService.fetchViewPropertyUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 case Materialized: {
-                    uiPanel = this.dmDsSchemaService.fetchMaterializedViewPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = this.dmDsSchemaService.fetchMaterializedViewPropertyUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 case ScheduleJob: {
-                    uiPanel = this.dmDsSchemaService.fetchScheduleJobPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = this.dmDsSchemaService.fetchScheduleJobPropertyUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 case Procedure: {
-                    uiPanel = this.dmDsSchemaService.fetchProcedurePropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = this.dmDsSchemaService.fetchProcedurePropertyUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 case Function: {
-                    uiPanel = this.dmDsSchemaService.fetchFunctionPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = this.dmDsSchemaService.fetchFunctionPropertyUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 case DBLink: {
-                    uiPanel = this.dmDsSchemaService.fetchDbLinkPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = this.dmDsSchemaService.fetchDbLinkPropertyUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 case Trigger: {
-                    uiPanel = this.dmDsSchemaService.fetchTriggerPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = this.dmDsSchemaService.fetchTriggerPropertyUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 case Table: {
-                    uiPanel = this.dmDsSchemaService.fetchTablePropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = this.dmDsSchemaService.fetchTablePropertyUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 case USER: {
-                    uiPanel = this.dmDsSchemaService.fetchUserPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = this.dmDsSchemaService.fetchUserPropertyUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 case ROLE: {
-                    uiPanel = this.dmDsSchemaService.fetchRolePropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = this.dmDsSchemaService.fetchRolePropertyUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 case Synonym: {
-                    uiPanel = this.dmDsSchemaService.fetchSynonymPropertyUiPanel(uid, dsDO, levelsParam, envVariables);
+                    uiPanel = this.dmDsSchemaService.fetchSynonymPropertyUiPanel(dsDO, levelsParam, envVariables);
                     break;
                 }
                 default: {
@@ -151,7 +151,7 @@ public class DsObjPropertyServiceImpl implements DsObjPropertyService {
         DmDsDO dsDO = levels.dsDO();
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
 
-        Value value = this.dmDsSchemaService.detailLeaf(uid, dsDO, levelsParam, types, leafName, true);
+        Value value = this.dmDsSchemaService.detailLeaf(dsDO, levelsParam, types, leafName, true);
         if (value == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_OBJECT_NOT_EXIST.name(), leafName));
         }

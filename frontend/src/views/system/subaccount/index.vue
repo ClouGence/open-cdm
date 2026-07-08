@@ -25,9 +25,6 @@
               <Button @click="handleClickAddBtn" type="primary" style="margin-right: 10px" icon="md-add">
                 {{ $t('tian-jia-zi-zhang-hao') }}
               </Button>
-              <Button @click="getSubAccountList('init')">
-                <CustomIcon type="icon-v2-Refresh" v-if="!subAccountListLoading" />
-              </Button>
             </div>
           </div>
           <div class="table-container">
@@ -180,20 +177,20 @@
           </div>
         </FormItem>
         <FormItem v-if="showLocalCredential" :label="$t('deng-lu-mi-ma')" prop="password">
-          <Poptip trigger="focus" placement="right-start" transfer style="width: 100%">
-            <div style="display: flex; width: 100%">
-              <Input v-model="newAccountForm.password" type="password" password :placeholder="passwordRule.tips" />
-              <Button style="margin-left: 10px" @click="generateRandomPwd" type="primary" ghost>
-                {{ $t('zi-dong-sheng-cheng') }}
-              </Button>
-            </div>
-            <template #content>
-              <p>{{ passwordRule.tips }}</p>
-            </template>
-          </Poptip>
+          <div class="credential-password-row">
+            <Poptip trigger="focus" placement="right-start" transfer class="credential-password-input">
+              <a-input-password v-model:value="newAccountForm.password" class="account-password-input" :placeholder="passwordRule.tips" />
+              <template #content>
+                <p>{{ passwordRule.tips }}</p>
+              </template>
+            </Poptip>
+            <Button @click="generateRandomPwd" type="primary" ghost>
+              {{ $t('zi-dong-sheng-cheng') }}
+            </Button>
+          </div>
         </FormItem>
         <FormItem v-if="showLocalCredential" :label="$t('que-ren-mi-ma')" prop="confirmPassword">
-          <Input v-model="newAccountForm.confirmPassword" type="password" password />
+          <a-input-password v-model:value="newAccountForm.confirmPassword" class="account-password-input" />
         </FormItem>
 
         <div class="form-section-title">{{ $t('yong-hu-xin-xi') }}</div>
@@ -1025,16 +1022,49 @@ export default {
 }
 
 .form-section-title {
+  position: relative;
   margin: 9px 0 6px;
-  padding-left: 8px;
-  border-left: 3px solid #2d8cf0;
-  color: #17233d;
-  font-weight: 600;
-  line-height: 16px;
+  padding-left: 12px;
+  color: #181d26;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+
+  &::before {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 3px;
+    height: 16px;
+    border-radius: 2px;
+    background: var(--primary-color);
+    transform: translateY(-50%);
+    content: '';
+  }
 
   &:first-child {
     margin-top: 0;
   }
+}
+
+.credential-password-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.credential-password-input {
+  flex: 1 1 0;
+  min-width: 0;
+
+  :deep(.ant-input-affix-wrapper) {
+    width: 100%;
+  }
+}
+
+.account-password-input {
+  width: 100%;
 }
 
 .credential-account-row {

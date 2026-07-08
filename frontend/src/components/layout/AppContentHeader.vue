@@ -3,7 +3,21 @@
     <div class="app-content-header__left">
       <h1 class="app-content-header__title">
         <template v-for="(item, index) in pageBreadcrumbs" :key="`${item.label}-${index}`">
-          <router-link v-if="item.to" class="app-content-header__crumb" :class="{ 'is-current': index === pageBreadcrumbs.length - 1 }" :to="item.to">
+          <button
+            v-if="item.event"
+            type="button"
+            class="app-content-header__crumb app-content-header__crumb-button"
+            :class="{ 'is-current': index === pageBreadcrumbs.length - 1 }"
+            @click="handleBreadcrumbEvent(item.event)"
+          >
+            {{ item.label }}
+          </button>
+          <router-link
+            v-else-if="item.to"
+            class="app-content-header__crumb"
+            :class="{ 'is-current': index === pageBreadcrumbs.length - 1 }"
+            :to="item.to"
+          >
             {{ item.label }}
           </router-link>
           <span v-else class="app-content-header__crumb" :class="{ 'is-current': index === pageBreadcrumbs.length - 1 }">
@@ -14,7 +28,7 @@
       </h1>
     </div>
     <div class="app-content-header__right">
-      <a v-if="showSqlLink" href="/#/sql" class="app-content-header__link">
+      <a v-if="showSqlLink" href="/#/sql" class="app-content-header__link" @click.prevent="handleGoSql">
         <CustomIcon type="icon-v2-SqlLog" size="14px" />
         <span>{{ $t('sql-cha-xun') }}</span>
       </a>
@@ -26,6 +40,9 @@
 <script>
 import { mapGetters, mapState } from 'vuex';
 import AppUserActions from '@/components/layout/AppUserActions';
+import { saveLastWorkbenchRoute } from '@/utils/workbenchRoute';
+import { findDsSupportName } from '@/utils/datasourceSupport';
+import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
 
 export default {
   name: 'AppContentHeader',
@@ -33,7 +50,7 @@ export default {
   emits: ['check-version'],
   computed: {
     ...mapGetters(['includesDM', 'isDesktop']),
-    ...mapState(['myCatLog', 'mySystemMenuItems', 'sidebarMenu']),
+    ...mapState(['dmGlobalSetting', 'myCatLog', 'mySystemMenuItems', 'sidebarMenu', 'userInfo']),
     showSqlLink() {
       return this.includesDM && this.myCatLog.includes('CAT_DM_CONSOLE') && !this.$route.path.startsWith('/sql');
     },
@@ -70,12 +87,10 @@ export default {
       if (path === '/env' || path.indexOf('/env/') === 0 || path.indexOf('/system/env') > -1) {
         return this.$t('huan-jing');
       }
-      if (
-        path.indexOf('/manager/account') === 0 ||
-        path.indexOf('/system/management/accounts') > -1 ||
-        path.indexOf('/system/account') > -1 ||
-        path.indexOf('/system/role') > -1
-      ) {
+      if (path.indexOf('/manager/role') === 0 || path.indexOf('/system/role') > -1) {
+        return this.$t('jiao-se');
+      }
+      if (path.indexOf('/manager/account') === 0 || path.indexOf('/system/management/accounts') > -1 || path.indexOf('/system/account') > -1) {
         return this.$t('nav-zhang-hu');
       }
       if (
@@ -89,8 +104,8 @@ export default {
       if (path.indexOf('/data-access/cluster') === 0 || path.indexOf('/system/dmmachine') > -1) {
         return this.$t('nav-cha-xun-ji-qi-lie-biao');
       }
-      if (path.indexOf('/data-access/rules') === 0 || path.indexOf('/system/dmrule') > -1) {
-        return this.$t('an-quan-gui-ze');
+      if (path.indexOf('/data-access/rules') === 0 || path.indexOf('/system/dmrule') > -1 || path.indexOf('/system/dmspec') > -1) {
+        return this.$t('an-quan-gui-fan');
       }
       if (path.indexOf('/integrations/im') === 0 || path.indexOf('/system/im') > -1) {
         return this.$t('nav-webhook');
@@ -136,6 +151,27 @@ export default {
     },
     pageBreadcrumbs() {
       const path = this.$route.path;
+      const securityRoot = {
+        label: this.$t('an-quan-gui-fan'),
+        to: {
+          path: '/data-access/rules',
+          query: { tab: 'security' }
+        }
+      };
+      const securityTemplateRoot = {
+        ...securityRoot,
+        to: {
+          path: '/data-access/rules',
+          query: { tab: 'template' }
+        }
+      };
+      const securityDetail = (specId) => ({
+        label: this.$t('gui-ze-xiang-qing'),
+        to: {
+          path: `/system/dmspec/${specId}`,
+          query: this.$route.query.ruleKind ? { ruleKind: this.$route.query.ruleKind } : {}
+        }
+      });
       const cicdRoot = { label: this.$t('nav-ci-cd'), to: '/cicd' };
       const flowDetail = (flowId) => ({
         label: this.$t('cicd-bian-geng-liu-xiang-qing'),
@@ -145,12 +181,64 @@ export default {
         label: this.$t('bian-geng-ji-lu'),
         to: flowId ? `/cicd/${flowId}/change-records` : ''
       });
+      const machineRoot = {
+        label: this.$t('nav-cha-xun-ji-qi-lie-biao'),
+        to: '/data-access/cluster'
+      };
+      const roleRoot = {
+        label: this.$t('jiao-se'),
+        to: '/manager/role'
+      };
+      const accountRoot = {
+        label: this.$t('nav-zhang-hu'),
+        to: '/manager/account'
+      };
 
+      if (path === '/system/authdm' || /^\/system\/account\/authdm\/[^/]+$/.test(path)) {
+        return [accountRoot, { label: this.$t('shou-quan'), to: this.$route.fullPath }];
+      }
+      if (path === '/data-access/rules' || path === '/data-access/rules/') {
+        return [{ ...securityRoot, to: this.$route.fullPath }];
+      }
+      if (path === '/data-access/rules/create') {
+        return [securityTemplateRoot, { label: this.$t('xin-jian-gui-ze-mo-ban'), to: this.$route.fullPath }];
+      }
+      if (/^\/data-access\/rules\/detail\/[^/]+$/.test(path)) {
+        return [securityTemplateRoot, { label: this.$t('gui-ze-mo-ban-xiang-qing'), to: this.$route.fullPath }];
+      }
+      if (/^\/system\/dmspec\/[^/]+$/.test(path)) {
+        return [securityRoot, { ...securityDetail(this.$route.params.specId), to: this.$route.fullPath }];
+      }
+      if (/^\/system\/dmspec\/[^/]+\/rule\/[^/]+\/range$/.test(path)) {
+        return [securityRoot, securityDetail(this.$route.params.specId), { label: this.$t('gui-ze-fan-wei'), to: this.$route.fullPath }];
+      }
+      if (/^\/system\/dmspec\/[^/]+\/rule\/[^/]+\/detail$/.test(path)) {
+        return [
+          securityRoot,
+          securityDetail(this.$route.params.specId),
+          { label: this.$route.query.ruleName || this.$t('gui-ze-xiang-qing'), to: this.$route.fullPath }
+        ];
+      }
       if (path === '/cicd' || path === '/cicd/') {
         return [cicdRoot];
       }
       if (path === '/cicd/create') {
         return [cicdRoot, { label: this.$t('chuang-jian-xiang-mu'), to: path }];
+      }
+      if (path === '/datasource/add') {
+        const dsType = this.$route.query.dsType;
+        const instanceId = this.$route.query.instanceId;
+        const isEditMode = this.$route.query.mode === 'edit';
+        const dsDisplayName = this.dataSourceDisplayName(dsType);
+        const actionLabel = isEditMode ? this.$t('bian-ji') : this.$t('xin-zeng-shu-ju-yuan');
+        const actionBreadcrumb = isEditMode
+          ? { label: actionLabel, to: '/datasource' }
+          : { label: actionLabel, event: EVENT_BUS_NAME_LIST.SHOW_ADD_DATASOURCE_TYPE_MODAL };
+        const breadcrumbs = [{ label: this.$t('nav-shu-ju-ku-guan-li'), to: '/datasource' }, actionBreadcrumb];
+        if (dsDisplayName) {
+          breadcrumbs.push({ label: isEditMode && instanceId ? `${dsDisplayName}(${instanceId})` : dsDisplayName, to: '' });
+        }
+        return breadcrumbs;
       }
       if (/^\/cicd\/[^/]+\/release-flow\/add$/.test(path)) {
         const flowId = this.$route.params.id;
@@ -166,6 +254,24 @@ export default {
       }
       if (/^\/cicd\/[^/]+$/.test(path)) {
         return [cicdRoot, { label: this.$t('cicd-bian-geng-liu-xiang-qing'), to: path }];
+      }
+      if (path === '/data-access/cluster' || path === '/data-access/cluster/') {
+        return [{ ...machineRoot, to: this.$route.fullPath }];
+      }
+      if (/^\/data-access\/cluster\/list\/[^/]+$/.test(path)) {
+        return [machineRoot, { label: this.$t('ji-qi-lie-biao'), to: this.$route.fullPath }];
+      }
+      if (path === '/manager/role' || path === '/manager/role/') {
+        return [{ ...roleRoot, to: this.$route.fullPath }];
+      }
+      if (path === '/manager/role/create') {
+        return [roleRoot, { label: this.$t('chuang-jian-jiao-se'), to: this.$route.fullPath }];
+      }
+      if (/^\/manager\/role\/[^/]+\/edit$/.test(path)) {
+        return [roleRoot, { label: this.$t('bian-ji-jue-se'), to: this.$route.fullPath }];
+      }
+      if (/^\/manager\/role\/[^/]+\/view$/.test(path)) {
+        return [roleRoot, { label: this.$t('cha-kan-jue-se'), to: this.$route.fullPath }];
       }
       if (path === '/integrations/git/create') {
         return [
@@ -223,6 +329,24 @@ export default {
       }
       return [{ label: this.pageTitle, to: path }];
     }
+  },
+  methods: {
+    handleGoSql() {
+      saveLastWorkbenchRoute(this.$route, this.userInfo?.uid);
+      this.$router.push({ path: '/sql' }).catch(() => {});
+    },
+    handleBreadcrumbEvent(eventName) {
+      if (!eventName) {
+        return;
+      }
+      this.$bus.emit(eventName);
+    },
+    dataSourceDisplayName(dsType) {
+      if (!dsType) {
+        return '';
+      }
+      return findDsSupportName(dsType, this.dmGlobalSetting?.dsSupportNames)?.displayName || dsType;
+    }
   }
 };
 </script>
@@ -251,6 +375,15 @@ export default {
   &.is-current {
     color: #1f2937;
   }
+}
+
+.app-content-header__crumb-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  appearance: none;
 }
 
 .app-content-header__separator {

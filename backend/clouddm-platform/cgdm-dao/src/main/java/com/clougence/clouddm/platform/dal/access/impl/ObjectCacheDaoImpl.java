@@ -39,7 +39,6 @@ import com.clougence.clouddm.platform.dal.i18n.I18nDaoKeys;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthRoleDO;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysClusterDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
@@ -270,11 +269,7 @@ public class ObjectCacheDaoImpl implements ObjectCacheDao, UnifiedPostConstruct 
                         result.setOwnerUid(dsDO.getUid());
                         result.setDsType(dsDO.getDataSourceType());
                         result.setEnvId(dsDO.getDsEnvId());
-
-                        DmDsConfigDO configDO = this.dsDal.configMapper().queryById(dsDO.getUid(), dsDO.getId());
-                        if (configDO != null) {
-                            result.setClusterId(configDO.getBindClusterId());
-                        }
+                        result.setClusterId(dsDO.getBindClusterId());
                         this.idDsCache.put(dsDO.getId(), result);
                     }
                 }

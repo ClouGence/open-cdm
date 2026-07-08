@@ -28,7 +28,7 @@ import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeExecuteInfo;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
-import com.clougence.clouddm.console.web.util.HttpUtils;
+import com.clougence.clouddm.console.web.util.CallUtils;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
@@ -122,9 +122,9 @@ public class ChangeActionForFinish extends AbstractChangeAction {
             String callbackMethod = gitOpsFlowDO.getCallbackMethod();
             Response res;
             if (StringUtils.equalsIgnoreCase(callbackMethod, "post")) {
-                res = HttpUtils.post(gitOpsFlowDO.getCallbackUrl(), Collections.emptyMap());
+                res = CallUtils.post(gitOpsFlowDO.getCallbackUrl(), Collections.emptyMap());
             } else if (StringUtils.equalsIgnoreCase(callbackMethod, "get")) {
-                res = HttpUtils.get(gitOpsFlowDO.getCallbackUrl());
+                res = CallUtils.get(gitOpsFlowDO.getCallbackUrl());
             } else {
                 throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_CALLBACK_METHOD_NOT_SUPPORT_ERROR.name(), locale, change.getChangeName()));
             }

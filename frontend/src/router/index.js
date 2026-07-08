@@ -11,7 +11,7 @@ async function fetchMyAuthIfNeeded() {
   }
 
   try {
-    const res = await fetch('/rdp/console/api/v1/user/listMyAuth', {
+    const res = await fetch('/api/entry/user/listMyAuth', {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -118,14 +118,6 @@ const routes = [
         })
       },
       {
-        path: 'ccdatasource/params/:id/:instanceId',
-        redirect: (to) => ({
-          path: `/datasource/params/${to.params.id}/${to.params.instanceId}`,
-          query: to.query,
-          hash: to.hash
-        })
-      },
-      {
         path: 'ccdatasource/add',
         redirect: (to) => ({
           path: '/datasource/add',
@@ -136,8 +128,11 @@ const routes = [
       {
         path: 'dmspeclist',
         redirect: (to) => ({
-          path: '/system/dmspeclist',
-          query: to.query,
+          path: '/data-access/rules',
+          query: {
+            ...to.query,
+            tab: 'security'
+          },
           hash: to.hash
         })
       },
@@ -153,6 +148,14 @@ const routes = [
         path: 'dmspec/:specId/rule/:ruleId/range',
         redirect: (to) => ({
           path: `/system/dmspec/${to.params.specId}/rule/${to.params.ruleId}/range`,
+          query: to.query,
+          hash: to.hash
+        })
+      },
+      {
+        path: 'dmspec/:specId/rule/:ruleId/detail',
+        redirect: (to) => ({
+          path: `/system/dmspec/${to.params.specId}/rule/${to.params.ruleId}/detail`,
           query: to.query,
           hash: to.hash
         })
@@ -180,11 +183,6 @@ const routes = [
           query: to.query,
           hash: to.hash
         })
-      },
-      {
-        path: 'dmdatasource/params/:id',
-        name: 'DM_DataSource_Params_Id',
-        redirect: '/datasource'
       },
       {
         path: 'dmmachine',
@@ -267,11 +265,6 @@ const routes = [
         //     path: 'auth',
         //     name: 'System_Auth',
         //     component: () => import(/* webpackChunkName: "system-auth" */'@/views/system/auth/index')
-        //   },
-        //   {
-        //     path: 'datasource/params/:id',
-        //     name: 'System_DataSource_Params/id',
-        //     component: () => import(/* webpackChunkName: "system-datasource" */'@/views/system/user/components/Params')
         //   },
         //   {
         //     path: 'datasource/add',

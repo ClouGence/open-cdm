@@ -6,8 +6,6 @@ public interface SystemDal {
 
     DmSysClusterMapper clusterMapper();
 
-    DmSysConfMapper confMapper();
-
     DmSysEnvMapper envMapper();
 
     DmSysEnvParamMapper envParamMapper();
@@ -17,6 +15,8 @@ public interface SystemDal {
     DmSysUserConfMapper userConfMapper();
 
     DmSysWorkerMapper workerMapper();
+
+    DmSshConfigMapper sshConfigMapper();
 
     // ---------- dal service methods ----------
 

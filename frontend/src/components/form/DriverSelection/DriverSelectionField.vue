@@ -1,31 +1,45 @@
 <template>
-  <FormItem :label="$t('qu-dong')" key="driverSelection" v-if="currentDriverFamilies.length">
+  <div class="driver-selection-field">
     <div class="driver-selection-row">
-      <Select v-model="innerDriverFamily" style="width: 180px" @on-change="handleDriverFamilyChange">
+      <Select class="driver-family-select" v-model="innerDriverFamily" style="width: 180px" transfer @on-change="handleDriverFamilyChange">
         <Option v-for="family in currentDriverFamilies" :key="family.name" :value="family.name">
           {{ family.name }}
         </Option>
       </Select>
-      <Select v-model="innerDriverVersion" style="width: 180px" @on-change="handleDriverVersionChange">
+      <span class="driver-version-label">{{ $t('ban-ben') }}</span>
+      <Select class="driver-version-select" v-model="innerDriverVersion" style="width: 126px" transfer @on-change="handleDriverVersionChange">
         <Option v-for="version in currentDriverVersions" :key="version" :value="version">
           {{ version }}
         </Option>
       </Select>
+      <Button v-if="showDriverStatusButton" class="driver-status-button" :disabled="driverStatusButtonDisabled" @click="handleDriverAction">
+        {{ driverActionLabel }}
+      </Button>
+      <span v-if="showDriverReadyState" class="driver-status-icon-wrap">
+        <Icon type="md-checkmark-circle" class="driver-status-ready-icon" />
+      </span>
+      <div v-if="showDriverStatusDetail" class="driver-status-detail" :class="driverStatusLineClass">
+        <span class="driver-status-icon-wrap" :class="{ 'is-clickable': canClickDriverStatusIcon }" @click="handleDriverStatusIconClick">
+          <span v-if="showDriverDownloadProgress" class="driver-status-progress-circle" :style="driverProgressCircleStyle">
+            <span class="driver-status-progress-circle-text">{{ driverProgressCircleText }}</span>
+          </span>
+          <Icon v-else-if="driverUiState === 'checking'" type="ios-loading" class="driver-status-loading-icon" />
+          <Icon v-else-if="driverUiState === 'ready'" type="md-checkmark-circle" class="driver-status-ready-icon" />
+          <Icon v-else-if="driverUiState === 'unknown'" type="ios-help-circle-outline" class="driver-status-unknown-icon" />
+          <Icon v-else-if="driverUiState === 'unprepared'" type="ios-warning-outline" class="driver-status-warning-icon" />
+          <Icon v-else-if="driverUiState === 'error'" type="ios-alert-circle" class="driver-status-error-icon" />
+          <span v-else class="driver-status-phase-dot"></span>
+        </span>
+        <span v-if="showDriverStatusMessage" class="driver-status-inline-message" :title="driverStatusInlineMessageText">
+          {{ driverStatusInlineMessageText }}
+        </span>
+      </div>
     </div>
-    <DriverStatusLine
-      :selected-driver-key="selectedDriverKey"
-      :driver-family="innerDriverFamily"
-      :driver-version="innerDriverVersion"
-      :driver-status="driverStatus"
-      @check="handleCheckDriverStatus"
-      @download="handleDownloadDriver"
-    />
-  </FormItem>
+  </div>
 </template>
 
 <script>
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
-import DriverStatusLine from './DriverStatusLine';
 
 const createInitialDriverStatus = () => ({
   checking: false,
@@ -42,9 +56,6 @@ const createInitialDriverStatus = () => ({
 
 export default {
   name: 'DriverSelectionField',
-  components: {
-    DriverStatusLine
-  },
   props: {
     dataSourceType: {
       type: String,
@@ -57,6 +68,10 @@ export default {
     queryClusterId: {
       type: [Number, String],
       default: null
+    },
+    requireCluster: {
+      type: Boolean,
+      default: false
     },
     currentQueryCluster: {
       type: Object,
@@ -110,10 +125,147 @@ export default {
       }
 
       const clusterId = this.normalizeDriverClusterId(this.queryClusterId);
+      if (this.requireCluster && !clusterId) {
+        return '';
+      }
       return `${this.selectedDriverKey}::${clusterId || 'ALL'}`;
     },
     isDriverPrepared() {
       return this.driverStatus.status === 'AVAILABLE' && !!this.driverStatus.available;
+    },
+    driverUiState() {
+      switch (this.driverStatus.status) {
+        case 'CHECKING':
+          return 'checking';
+        case 'UNKNOWN':
+          return 'unknown';
+        case 'AVAILABLE':
+          return 'ready';
+        case 'UNAVAILABLE':
+          return 'unprepared';
+        case 'ERROR':
+        case 'FAILED':
+          return 'error';
+        case 'DOWNLOADING':
+        case 'PREPARING':
+        case 'SYNCING':
+          return 'downloading';
+        default:
+          return 'idle';
+      }
+    },
+    showDriverReadyState() {
+      return this.driverUiState === 'ready';
+    },
+    showDriverDownloadProgress() {
+      return ['DOWNLOADING', 'PREPARING', 'SYNCING'].includes(this.driverStatus.status);
+    },
+    showDriverCheckAction() {
+      return this.driverUiState === 'unknown';
+    },
+    showDriverDownloadAction() {
+      return this.driverUiState === 'unprepared';
+    },
+    showDriverStatusButton() {
+      return (
+        this.driverUiState !== 'ready' &&
+        (this.showDriverCheckAction || this.showDriverDownloadAction || this.showDriverDownloadProgress || this.driverUiState === 'error')
+      );
+    },
+    driverStatusButtonDisabled() {
+      return this.driverUiState === 'checking' || this.showDriverDownloadProgress;
+    },
+    showDriverStatusMessage() {
+      return this.driverUiState !== 'ready' && !!this.driverStatusInlineMessageText;
+    },
+    showDriverStatusDetail() {
+      return this.showDriverStatusLine && (this.showDriverStatusMessage || this.showDriverDownloadProgress);
+    },
+    driverProgressLabel() {
+      const { totalFileCount, completedFileCount } = this.driverStatus;
+      if (!(totalFileCount > 0)) {
+        return '0/0';
+      }
+
+      const safeCompletedFileCount = Math.max(0, Math.min(Number(totalFileCount), Number(completedFileCount) || 0));
+      return `${safeCompletedFileCount}/${totalFileCount}`;
+    },
+    driverProgressValue() {
+      const { totalFileCount, completedFileCount } = this.driverStatus;
+      if (!(totalFileCount > 0)) {
+        return 0;
+      }
+
+      const safeCompletedFileCount = Math.max(0, Math.min(Number(totalFileCount), Number(completedFileCount) || 0));
+      return Math.round((safeCompletedFileCount / Number(totalFileCount)) * 100);
+    },
+    driverProgressCircleText() {
+      return this.showDriverDownloadProgress ? this.driverProgressLabel : '';
+    },
+    driverProgressCircleStyle() {
+      return {
+        '--driver-progress-percent': `${this.driverProgressValue}%`
+      };
+    },
+    showDriverStatusLine() {
+      return !!this.selectedDriverKey && this.driverUiState !== 'idle';
+    },
+    driverStatusLineClass() {
+      return `is-${this.driverUiState}`;
+    },
+    driverStatusTitleText() {
+      return [this.innerDriverFamily, this.innerDriverVersion].filter(Boolean).join(' / ');
+    },
+    driverStatusTargetText() {
+      const fileText = `${this.driverStatus.currentFileName || ''}`.trim();
+      const driverText = this.driverStatusTitleText;
+
+      return fileText || driverText;
+    },
+    driverResourceText() {
+      if (this.showDriverDownloadProgress) {
+        return `${this.driverStatus.currentFileName || ''}`.trim() || this.driverStatusTargetText;
+      }
+
+      return this.driverStatusTitleText;
+    },
+    driverStatusInlineMessageText() {
+      const message = `${this.driverStatus.message || ''}`.trim();
+      if (this.driverUiState === 'checking') {
+        return message || this.$t('initialization.mysqlDriverChecking');
+      }
+
+      if (this.driverUiState === 'downloading') {
+        return message || this.$t('initialization.mysqlDriverPreparing');
+      }
+
+      if (this.driverUiState === 'unprepared') {
+        return this.$t('initialization.mysqlDriverUnavailable');
+      }
+
+      if (this.driverUiState === 'error') {
+        return message || this.$t('initialization.mysqlDriverUnavailable');
+      }
+
+      return '';
+    },
+    driverActionLabel() {
+      if (this.showDriverDownloadProgress) {
+        return this.$t('initialization.mysqlDriverDownloadingButton');
+      }
+      if (this.showDriverCheckAction) {
+        return this.$t('jian-cha');
+      }
+      if (this.showDriverDownloadAction) {
+        return this.$t('xia-zai');
+      }
+      if (this.driverUiState === 'error') {
+        return this.$t('zhong-shi');
+      }
+      return '';
+    },
+    canClickDriverStatusIcon() {
+      return !['checking', 'downloading'].includes(this.driverUiState);
     }
   },
   watch: {
@@ -136,15 +288,18 @@ export default {
     dataSourceType() {
       this.applyDriverFamilySelection(true);
     },
-    selectedDriverStatusKey() {
-      if (!this.selectedDriverStatusKey) {
-        this.resetDriverStatus();
-        return;
-      }
+    selectedDriverStatusKey: {
+      handler() {
+        if (!this.selectedDriverStatusKey) {
+          this.resetDriverStatus();
+          return;
+        }
 
-      if (this.currentStep === 1) {
-        this.refreshDriverStatus();
-      }
+        if (this.currentStep === 1) {
+          this.refreshDriverStatus();
+        }
+      },
+      immediate: true
     },
     currentStep(step) {
       if (step === 1) {
@@ -184,6 +339,9 @@ export default {
     getDriverClusterId() {
       const clusterId = this.normalizeDriverClusterId(this.queryClusterId);
       return clusterId || undefined;
+    },
+    driverClusterReady() {
+      return !this.requireCluster || !!this.normalizeDriverClusterId(this.queryClusterId);
     },
     syncDriverOutputs() {
       const driverValue =
@@ -278,7 +436,7 @@ export default {
     },
     async refreshDriverStatus() {
       const driverKey = this.selectedDriverStatusKey;
-      if (!driverKey) {
+      if (!driverKey || !this.driverClusterReady()) {
         this.resetDriverStatus();
         return;
       }
@@ -344,6 +502,30 @@ export default {
       }
 
       this.refreshDriverStatus();
+    },
+    handleDriverStatusIconClick() {
+      if (this.canClickDriverStatusIcon) {
+        this.handleCheckDriverStatus();
+      }
+    },
+    handleDriverAction() {
+      if (this.showDriverCheckAction) {
+        this.handleCheckDriverStatus();
+        return;
+      }
+
+      if (this.showDriverDownloadAction) {
+        this.handleDownloadDriver();
+        return;
+      }
+
+      if (this.driverUiState === 'error') {
+        if (this.driverStatus.retryAction === 'DOWNLOAD') {
+          this.handleDownloadDriver();
+        } else {
+          this.handleCheckDriverStatus();
+        }
+      }
     },
     async handleDownloadDriver() {
       if (!this.innerDriverFamily || !this.innerDriverVersion) {
@@ -453,10 +635,144 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.driver-selection-field {
+  display: inline-flex;
+  min-width: 0;
+}
+
 .driver-selection-row {
   display: inline-flex;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  min-width: 0;
+}
+
+.driver-version-label {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  color: #515a6e;
+  font-size: 14px;
+  line-height: 22px;
+  white-space: nowrap;
+}
+
+.driver-status-loading-icon {
+  color: #52c41a;
+  font-size: 16px;
+}
+
+.driver-status-progress-circle {
+  flex: 0 0 28px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: conic-gradient(#1677ff var(--driver-progress-percent, 0%), rgba(22, 119, 255, 0.16) 0);
+}
+
+.driver-status-progress-circle::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.driver-status-progress-circle-text {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1;
+  color: #0958d9;
+}
+
+.driver-status-icon-wrap {
+  flex: 0 0 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  line-height: 1;
+}
+
+.driver-status-icon-wrap.is-clickable {
+  cursor: pointer;
+}
+
+.driver-status-ready-icon {
+  color: #52c41a;
+  font-size: 16px;
+}
+
+.driver-status-unknown-icon,
+.driver-status-warning-icon {
+  color: #faad14;
+  font-size: 16px;
+}
+
+.driver-status-error-icon {
+  color: #f5222d;
+  font-size: 16px;
+}
+
+.driver-status-detail {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 480px;
+  min-height: 22px;
+  line-height: 22px;
+  color: rgba(0, 0, 0, 0.85);
+  vertical-align: middle;
+}
+
+.driver-status-phase-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #52c41a;
+  flex: 0 0 auto;
+}
+
+.driver-status-inline-message {
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 12px;
+  line-height: 20px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.driver-status-button {
+  flex: 0 0 auto;
+  min-width: 72px;
+}
+
+.driver-status-detail.is-unknown .driver-status-inline-message,
+.driver-status-detail.is-unprepared .driver-status-inline-message {
+  color: #ad6800;
+}
+
+.driver-status-detail.is-error .driver-status-inline-message {
+  color: #cf1322;
 }
 </style>

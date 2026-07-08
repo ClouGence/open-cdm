@@ -65,7 +65,7 @@
       <a-form-model-item :label="$t('ren-zheng-fang-shi')">
         <a-select v-model="form.type" style="width: 160px">
           <a-select-option v-for="security in securityOptions" :key="security.securityType" :rowKey="security.securityType">
-            {{ security.secrityTypeI18nName || security.securityType }}
+            {{ security.securityTypeI18nName || security.securityType }}
           </a-select-option>
         </a-select>
       </a-form-model-item>
@@ -179,10 +179,12 @@
 
 <script>
 import * as Vue from 'vue';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import datasourceMixin from '@/mixins/datasourceMixin';
 import { APPROVAL_BIZ_TYPE, SECURITY_TYPE } from '@/const';
+import { CONNECT_TYPE } from '@/const/ccIndex';
 import { isDb2 } from '@/const/dataSource';
+import { isOracle } from '@/utils';
 
 export default {
   name: 'Self',
@@ -191,7 +193,8 @@ export default {
     handleBack: Function
   },
   computed: {
-    ...mapGetters(['isDesktop'])
+    ...mapGetters(['isDesktop']),
+    ...mapState(['dmGlobalSetting'])
   },
   mixins: [datasourceMixin],
   data() {
@@ -306,46 +309,44 @@ export default {
     handleDsConnectionChange() {
       this.getSecurityOption();
     },
-    async getDsConnectionOptions() {
-      const { dataSourceType, deployEnvType } = this.stepData[0];
-      const res = await this.$services.dmConstantListDsConnectionOption({
-        data: {
-          dataSourceType,
-          deployEnvType
-        }
+    getDsConnectionOptions() {
+      const { dataSourceType } = this.stepData[0];
+      const connectionOptions = this.buildConnectionOptions(dataSourceType);
+      const obj = {};
+      this.dsConnectionOptions = connectionOptions;
+      connectionOptions.forEach((option) => {
+        obj[option.connectType] = option;
       });
-
-      if (res.success && res.data.connectionOptions && res.data.connectionOptions.length) {
-        const { connectionOptions } = res.data;
-        const obj = {};
-        this.dsConnectionOptions = connectionOptions;
-        connectionOptions.forEach((option) => {
-          obj[option.connectType] = option;
-        });
-        this.form.connectType = connectionOptions[0].connectType;
-        this.dsConnectionOptionsObj = obj;
-        await this.getSecurityOption();
-      }
+      this.form.connectType = connectionOptions[0].connectType;
+      this.dsConnectionOptionsObj = obj;
+      this.getSecurityOption();
     },
-    async getSecurityOption() {
-      const { dataSourceType, deployEnvType } = this.stepData[0];
-      const res = await this.$services.dmConstantListDsSecurityOption({
-        data: {
-          dataSourceType,
-          deployEnvType,
-          connectType: this.form.connectType
-        }
-      });
-
-      if (res.success) {
-        const obj = {};
-        this.securityOptions = [...res.data.securityOptions];
-        res.data.securityOptions.forEach((security) => {
-          obj[security.securityType] = security;
-        });
-        this.securityOptionsObj = obj;
-        this.form.type = this.securityOptions.length > 0 ? this.securityOptions[0].securityType : '';
+    buildConnectionOptions(dataSourceType) {
+      if (isOracle(dataSourceType)) {
+        return CONNECT_TYPE.ORACLE.map((type) => ({
+          connectType: type.value,
+          connectTypeI18nName: type.label,
+          needOracleSid: type.value === 'ORACLE_SID',
+          needOracleService: type.value === 'ORACLE_SERVICE'
+        }));
       }
+      return [
+        {
+          connectType: 'DEFAULT',
+          connectTypeI18nName: 'DEFAULT'
+        }
+      ];
+    },
+    getSecurityOption() {
+      const { dataSourceType } = this.stepData[0];
+      const securityOptions = this.dmGlobalSetting?.dsSettingDef?.[dataSourceType]?.securityOptions || [];
+      const obj = {};
+      this.securityOptions = [...securityOptions];
+      securityOptions.forEach((security) => {
+        obj[security.securityType] = security;
+      });
+      this.securityOptionsObj = obj;
+      this.form.type = this.securityOptions.length > 0 ? this.securityOptions[0].securityType : '';
     },
     filterOption(input, option) {
       return option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0;
@@ -533,6 +534,9 @@ export default {
       },
       deep: true,
       immediate: true
+    },
+    dmGlobalSetting() {
+      this.getSecurityOption();
     }
   }
 };

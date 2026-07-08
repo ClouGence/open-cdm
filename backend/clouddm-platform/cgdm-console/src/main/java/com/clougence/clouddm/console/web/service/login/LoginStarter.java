@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
@@ -31,7 +32,6 @@ import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.LifeSpiRequest;
 import com.clougence.clouddm.sdk.security.login.LoginProvider;
 import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.rdp.service.RdpNotifyService;
 import com.clougence.rdp.service.model.UserConfigMO;
 import com.clougence.utils.StringUtils;
@@ -67,8 +67,8 @@ public class LoginStarter implements UnifiedPostConstruct, RdpNotifyService {
         }
 
         UserConfigMO authTypeConfig = new UserConfigMO();
-        authTypeConfig.setConfig(UserDefinedConfig.Fields.accountAuthType);
-        authTypeConfig.setNewValue(StringUtils.join(this.loginDefService.listConfLoginTypes(rootUser.getUid()).stream().map(Enum::name).toArray(), ","));
+        authTypeConfig.setConfig(RootUserConfig.Fields.accountAuthType);
+        authTypeConfig.setNewValue(StringUtils.join(this.loginDefService.listConfLoginTypes().stream().map(Enum::name).toArray(), ","));
         notifyUserConfig(rootUser.getUid(), List.of(authTypeConfig));
     }
 
@@ -82,8 +82,8 @@ public class LoginStarter implements UnifiedPostConstruct, RdpNotifyService {
             return;
         }
 
-        UserConfigMO authTypeConf = configList.stream()
-            .filter(c -> StringUtils.equalsIgnoreCase(c.getConfig(), UserDefinedConfig.Fields.accountAuthType))
+        UserConfigMO authTypeConf = configList.stream()//
+            .filter(c -> StringUtils.equalsIgnoreCase(c.getConfig(), RootUserConfig.Fields.accountAuthType))
             .findFirst()
             .orElse(null);
 
@@ -95,7 +95,7 @@ public class LoginStarter implements UnifiedPostConstruct, RdpNotifyService {
     }
 
     private void restartModifiedProviders(String ownerUid, List<UserConfigMO> configList) throws Exception {
-        List<LoginAuthType> availableTypes = this.loginDefService.listConfLoginTypes(ownerUid);
+        List<LoginAuthType> availableTypes = this.loginDefService.listConfLoginTypes();
         if (availableTypes.isEmpty()) {
             return;
         }
@@ -150,7 +150,7 @@ public class LoginStarter implements UnifiedPostConstruct, RdpNotifyService {
 
     private void startProviderIfEnabled(String ownerUid, LoginProvider provider) throws Exception {
         LoginProviderSpi service = PluginManager.findSpi(LoginProviderSpi.class, provider.name());
-        if (service != null && this.loginDefService.checkLoginEnable(ownerUid, provider)) {
+        if (service != null && this.loginDefService.checkLoginEnable(provider)) {
             service.start(ownerUid, new LifeSpiRequest());
         }
     }

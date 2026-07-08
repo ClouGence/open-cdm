@@ -27,10 +27,11 @@ import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.whitelist.WhiteListService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
+import com.clougence.clouddm.platform.plugin.PluginManager;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,56 +39,21 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class WhiteListServiceForBasic implements WhiteListService, DsFeatureIDs, UnifiedPostConstruct {
 
-    private final AtomicBoolean        inited              = new AtomicBoolean();
-    private final List<String>         forQueryMenus       = new ArrayList<>(); // always
-    private final List<String>         forManagerMenus     = new ArrayList<>(); // need Auth
-    private final List<String>         forMaintenanceMenus = new ArrayList<>(); // need Auth
-    private final List<DataSourceType> whiteDs             = new ArrayList<>();
-    private final Map<String, Range>   userConfigRange     = new HashMap<>();
+    private final AtomicBoolean      inited              = new AtomicBoolean();
+    private final List<String>       forQueryMenus       = new ArrayList<>(); // always
+    private final List<String>       forManagerMenus     = new ArrayList<>(); // need Auth
+    private final List<String>       forMaintenanceMenus = new ArrayList<>(); // need Auth
+    private final Map<String, Range> userConfigRange     = new HashMap<>();
 
     @Override
     public void init() throws Exception {
         if (this.inited.compareAndSet(false, true)) {
             // config check
-            this.userConfigRange.put(UserDefinedConfig.Fields.defaultColumnDisplayChars, new Range(10, 500));
-            this.userConfigRange.put(UserDefinedConfig.Fields.onlineMaxRecordCount, new Range(1, 1000000));
-            this.userConfigRange.put(UserDefinedConfig.Fields.onlineMaxResultSetMegaByte, new Range(4, 1024));
-            this.userConfigRange.put(UserDefinedConfig.Fields.onlineMaxColumnMegaByte, new Range(1, 16));
-            this.userConfigRange.put(UserDefinedConfig.Fields.onlineMaxElementMegaByte, new Range(1, 16));
-
-            // my
-            this.whiteDs.add(DataSourceType.MySQL);
-            this.whiteDs.add(DataSourceType.MariaDB);
-            this.whiteDs.add(DataSourceType.TiDB);
-            this.whiteDs.add(DataSourceType.AdbForMySQL);
-            this.whiteDs.add(DataSourceType.OceanBase);
-            this.whiteDs.add(DataSourceType.PolarDbX);
-            this.whiteDs.add(DataSourceType.PolarDbMySQL);
-            this.whiteDs.add(DataSourceType.Doris);
-            this.whiteDs.add(DataSourceType.SelectDB);
-            this.whiteDs.add(DataSourceType.MaxCompute);
-            this.whiteDs.add(DataSourceType.StarRocks);
-            this.whiteDs.add(DataSourceType.ClickHouse);
-            // pg
-            this.whiteDs.add(DataSourceType.PostgreSQL);
-            this.whiteDs.add(DataSourceType.Greenplum);
-            this.whiteDs.add(DataSourceType.PolarDBPg);
-            this.whiteDs.add(DataSourceType.GaussDBForOpenGauss);
-            this.whiteDs.add(DataSourceType.GaussDB);
-            //
-            this.whiteDs.add(DataSourceType.SQLServer);
-            // db2
-            this.whiteDs.add(DataSourceType.Db2);
-            this.whiteDs.add(DataSourceType.Db2Fori);
-            // oracle
-            this.whiteDs.add(DataSourceType.Oracle);
-            this.whiteDs.add(DataSourceType.ObForOracle);
-            // cloud for Aliyun
-            this.whiteDs.add(DataSourceType.MaxCompute);
-            this.whiteDs.add(DataSourceType.Hologres);
-            // other
-            this.whiteDs.add(DataSourceType.Redis);
-            this.whiteDs.add(DataSourceType.MongoDB);
+            this.userConfigRange.put(RootUserConfig.Fields.defaultColumnDisplayChars, new Range(10, 500));
+            this.userConfigRange.put(RootUserConfig.Fields.onlineMaxRecordCount, new Range(1, 1000000));
+            this.userConfigRange.put(RootUserConfig.Fields.onlineMaxResultSetMegaByte, new Range(4, 1024));
+            this.userConfigRange.put(RootUserConfig.Fields.onlineMaxColumnMegaByte, new Range(1, 16));
+            this.userConfigRange.put(RootUserConfig.Fields.onlineMaxElementMegaByte, new Range(1, 16));
 
             // commons
             this.addMenu(MENU_SEPARATOR, true, true, true);
@@ -250,7 +216,7 @@ public class WhiteListServiceForBasic implements WhiteListService, DsFeatureIDs,
 
     @Override
     public boolean checkDs(DataSourceType dsType) {
-        return this.whiteDs.contains(dsType);
+        return PluginManager.findDsPlugin(dsType) != null;
     }
 
     @Override

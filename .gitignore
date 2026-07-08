@@ -30,18 +30,18 @@ pom.xml.versionsBackup
 gen
 
 # buildTools
-package/buildTools/gradle/
-package/buildTools/.gradle/
-package/buildTools/gradlew
-package/buildTools/gradlew.bat
+/package/build/
 
 # run data dir.
-/logs
-/data
-/install_upgrade.log
+/backend/logs
+/backend/data
+/backend/install_upgrade.log
 
 # web
-node_modules
-dist/
-desktop/.build/
-desktop/dist/
+frontend/node_modules
+frontend/dist
+frontend/package-lock.json
+
+/data
+/logs
+install_upgrade.log

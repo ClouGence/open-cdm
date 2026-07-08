@@ -18,8 +18,8 @@ package com.clougence.clouddm.ds.oceanbase;
 import com.clougence.adapter.ob.obfororacle.ObForOracleTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.ds.oceanbase.analysis.ob4ora.*;
 import com.clougence.clouddm.ds.oceanbase.definition.ob4my.ui.ddl.ObDDLSpiConvert;
+import com.clougence.clouddm.ds.oceanbase.definition.ob4ora.secrules.ObForOraSecRulesSupportSpi;
 import com.clougence.clouddm.ds.oceanbase.definition.ob4ora.ui.ObForOraDefService;
 import com.clougence.clouddm.ds.oceanbase.definition.ob4ora.ui.browser.ObForOraDsBrowseSpi;
 import com.clougence.clouddm.ds.oceanbase.definition.ob4ora.ui.editor.data.ObForOraDataEditorSpi;
@@ -28,28 +28,33 @@ import com.clougence.clouddm.ds.oceanbase.dsconf.ob4ora.ObForOraSerializationSpi
 import com.clougence.clouddm.ds.oceanbase.execute.ob4ora.ObForOraSessionFactory;
 import com.clougence.clouddm.ds.oceanbase.execute.ob4ora.ObForOraSessionSpi;
 import com.clougence.clouddm.ds.oceanbase.execute.ob4ora.ObForOraSupportSpi;
+import com.clougence.clouddm.ds.oceanbase.i18n.ObConfigI18nKeys;
 import com.clougence.clouddm.ds.oceanbase.i18n.ObDsI18nKeys;
 import com.clougence.clouddm.ds.oceanbase.language.ob4ora.ObOraLanguageSpi;
 import com.clougence.clouddm.ds.oceanbase.resource.ObOraEditorResourceSpi;
-import com.clougence.clouddm.ds.oracle.definition.ui.editor.table.OraEditorProvider;
-import com.clougence.clouddm.ds.oracle.definition.ui.editor.table.OraTableEditorUiDataSpi;
-import com.clougence.clouddm.ds.oracle.definition.ui.exception.OraDetermineExceptionSpi;
-import com.clougence.clouddm.ds.oracle.definition.ui.template.OraCmdTemplateSpi;
-import com.clougence.clouddm.ds.oracle.dialect.OracleDialect;
+import com.clougence.clouddm.ds.oceanbase.sql.ob4ora.ObOraSqlEngineSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
+import com.clougence.clouddm.dsfamily.oracle.definition.ui.editor.table.OraEditorProvider;
+import com.clougence.clouddm.dsfamily.oracle.definition.ui.editor.table.OraTableEditorUiDataSpi;
+import com.clougence.clouddm.dsfamily.oracle.definition.ui.exception.OraDetermineExceptionSpi;
+import com.clougence.clouddm.dsfamily.oracle.definition.ui.template.OraCmdTemplateSpi;
+import com.clougence.clouddm.dsfamily.oracle.dialect.OracleDialect;
 import com.clougence.clouddm.sdk.DsPlugin;
 import com.clougence.clouddm.sdk.DsPluginBinder;
 import com.clougence.clouddm.sdk.Plugin;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
 import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
+import com.clougence.sql.oracle.OraSqlEngineSpi;
 
-@Plugin(includePackages = { "com.clougence.clouddm.dsfamily.execute.*",             //
-                            "com.clougence.clouddm.ds.oracle.execute.*",            //
-                            "com.clougence.clouddm.ds.oceanbase.execute.obforora.*" //
-}, dsProduct = DataSourceType.ObForOracle)
+@Plugin(name = "i18n::" + ObDsI18nKeys.PLUGIN_NAME_OB_FOR_ORACLE,               //
+        includePackages = { "com.clougence.clouddm.dsfamily.execute.*",         //
+                            "com.clougence.clouddm.dsfamily.oracle.execute.*",  //
+                            "com.clougence.clouddm.ds.oceanbase.execute.*"      //
+        }, dsProduct = DataSourceType.ObForOracle)
 public class ObOraDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     @Override
@@ -81,6 +86,10 @@ public class ObOraDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(ObForOraSessionFactory.class);
         dsPlugin.bindDsDriverFamily("OceanBase Client", "MySQL Connector/J");
+
+        dsPlugin.bindSqlEngine(ObOraSqlEngineSpi.NAME, OraSqlEngineSpi.NAME);
+        dsPlugin.addGlobalSpi(SqlEngineSpi.class, ObOraSqlEngineSpi.NAME, new ObOraSqlEngineSpi(dsPlugin.findGlobalService(MetaService.class)));
+
         dsPlugin.addPluginSpi(new ObForOraSessionSpi());
         dsPlugin.addPluginSpi(new ObForOraSupportSpi());
     }
@@ -88,6 +97,7 @@ public class ObOraDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configUi(DsPluginBinder dsPlugin) {
         //initI18n
         dsPlugin.bindPluginI18n(ObDsI18nKeys.class);
+        dsPlugin.bindPluginI18n(ObConfigI18nKeys.class);
         //sqlBuilder
         dsPlugin.bindDsSqlBuilder(OraEditorProvider.INSTANCE);
         dsPlugin.bindDsDialect(OracleDialect.INSTANCE);
@@ -109,11 +119,7 @@ public class ObOraDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configTeam(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new ObForOraResAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
-        dsPlugin.addPluginSpi(new ObForOraSplitAnalysisSpi());
-        dsPlugin.addPluginSpi(new ObForOraSecDomainResolveSpi(dsPlugin.findGlobalService(MetaService.class)));
         dsPlugin.addPluginSpi(new ObForOraSecRulesSupportSpi());
-        dsPlugin.addPluginSpi(new ObForOraSelectColumnAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {

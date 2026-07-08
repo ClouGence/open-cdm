@@ -15,7 +15,7 @@ const EMPTY_RANGE = {
   tableorview: '',
   column: '',
   nodes: '',
-  chooseAll: ''
+  chooseAll: false
 };
 
 const RANGE_FORM_KEY_MAP = {
@@ -141,7 +141,7 @@ export default {
         schema: '',
         tableorview: '',
         nodes: '',
-        chooseAll: ''
+        chooseAll: false
       };
       this.rangeForm.rangeType = this.scopeSelectList[0].name;
       this.generateScopeSetting(this.rangeForm.rangeType);
@@ -159,7 +159,7 @@ export default {
         schema: '',
         tableorview: '',
         nodes: '',
-        chooseAll: ''
+        chooseAll: false
       };
       this.$refs.rangeForm.resetFields();
       this.generateScopeSetting(scopeName);
@@ -269,6 +269,7 @@ export default {
               specId: this.specId,
               ruleId: this.ruleId,
               ruleKind: this.ruleKind,
+              chooseAll: Boolean(this.rangeForm.chooseAll),
               [RANGE_FORM_KEY_MAP[lastKey]]: null
             };
 
@@ -323,7 +324,7 @@ export default {
               tableorview: table ? table.value : '',
               column: '',
               nodes: '',
-              chooseAll
+              chooseAll: Boolean(chooseAll)
             };
 
             if (dsType) {
@@ -636,7 +637,7 @@ export default {
             tableorview: '',
             column: '',
             nodes: '',
-            chooseAll: ''
+            chooseAll: false
           };
           if (this.rangeForm.environment) {
             this.handleListIns(nextKey, {
@@ -656,7 +657,7 @@ export default {
             tableorview: '',
             column: '',
             nodes: '',
-            chooseAll: ''
+            chooseAll: false
           };
           if (environment && this.rangeForm.instance) {
             this.handleListCatalogOrSchema(this.dsHasSchema ? nextKey : 'schema', {
@@ -671,7 +672,7 @@ export default {
             tableorview: '',
             column: '',
             nodes: '',
-            chooseAll: ''
+            chooseAll: false
           };
           if (environment && instance && catalog) {
             this.handleListCatalogOrSchema(nextKey, { levels: [environment, instance, catalog] });
@@ -683,7 +684,7 @@ export default {
             tableorview: '',
             column: '',
             nodes: '',
-            chooseAll: ''
+            chooseAll: false
           };
           if (this.dsHasSchema) {
             if (environment && instance && catalog && schema) {
@@ -706,7 +707,7 @@ export default {
             ...this.rangeForm,
             column: '',
             nodes: '',
-            chooseAll: ''
+            chooseAll: false
           };
           if (this.dsHasSchema) {
             if (environment && instance && catalog && schema && tableorview) {
@@ -834,8 +835,27 @@ export default {
       this.handlePageChange(1);
     },
     setTableShowData() {
-      const { pageNum, pageSize } = this;
-      this.showRangeList = this.rangeList.slice((pageNum - 1) * pageSize, pageNum * pageSize);
+      const { pageSize } = this;
+      const search = (this.search || '').trim().toLowerCase();
+      const filteredRangeList = search
+        ? this.rangeList.filter((range) => {
+            const matchMode = this.getMatchMode(this.ruleKind, range.matchMode) || {};
+            return [this.getScopeByMatchMode(this.ruleKind, range.matchMode, range.rangeType), matchMode.i18n, range.desc].some((value) =>
+              String(value || '')
+                .toLowerCase()
+                .includes(search)
+            );
+          })
+        : this.rangeList;
+      const maxPage = Math.max(Math.ceil(filteredRangeList.length / pageSize), 1);
+      const pageNum = Math.min(this.pageNum, maxPage);
+      this.pageNum = pageNum;
+      this.total = filteredRangeList.length;
+      this.showRangeList = filteredRangeList.slice((pageNum - 1) * pageSize, pageNum * pageSize);
+    },
+    handleRangeSearch() {
+      this.pageNum = 1;
+      this.setTableShowData();
     }
   }
 };
@@ -848,8 +868,13 @@ export default {
         <div class="content">
           <div class="option">
             <div class="left">
-              <Input v-model="search" style="width: 280px; margin-right: 10px"></Input>
-              <Button @click="getSpecRuleRange" type="primary" ghost>{{ $t('cha-xun') }}</Button>
+              <Input
+                v-model="search"
+                style="width: 280px; margin-right: 10px"
+                clearable
+                :placeholder="$t('qing-shu-ru-fan-wei-pi-pei-mo-shi-huo-she-zhi-zhi-cha-xun')"
+              ></Input>
+              <Button @click="handleRangeSearch" type="primary" ghost>{{ $t('cha-xun') }}</Button>
             </div>
             <div class="right">
               <Button
@@ -860,9 +885,6 @@ export default {
                 v-if="myAuth.includes('DM_SECRULES_MANAGE')"
               >
                 {{ $t('xin-jian-fan-wei') }}
-              </Button>
-              <Button @click="getSpecRuleRange">
-                <CustomIcon type="icon-v2-Refresh" />
               </Button>
             </div>
           </div>

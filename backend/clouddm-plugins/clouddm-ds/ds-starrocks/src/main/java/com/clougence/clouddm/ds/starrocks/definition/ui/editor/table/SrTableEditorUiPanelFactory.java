@@ -360,7 +360,7 @@ public class SrTableEditorUiPanelFactory extends DsFamilyTableEditorUiPanelFacto
             .require(true)
             .titleI18N(SrDsI18nKeys.EDITOR_TABLEINFO_ORDERBY_TITLE)
             .descI18N(SrDsI18nKeys.EDITOR_TABLEINFO_ORDERBY_DESC)
-            .defaultValue(UiUtils.ListValueDef(new ArrayList<>()))
+            .defaultValue(UiUtils.listValueDef(new ArrayList<>()))
             .readOnly(uiPanel.getViewMode() == EditorViewMode.Alter && StarRocksMainVersion.StarRocks_3_0.isLt(mainVersion))
             .hide(!StarRocksMainVersion.StarRocks_3_0.isLt(mainVersion))
             .build()

@@ -28,7 +28,7 @@ import com.clougence.clouddm.sdk.service.execute.SessionService;
 /**
  * @author olddream
  */
-@Plugin()
+@Plugin(name = "i18n::" + FakerI18nKeys.PLUGIN_NAME_FAKER)
 public class FakerPlugin implements DsPlugin {
 
     @Override

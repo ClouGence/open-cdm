@@ -26,7 +26,8 @@ import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.component.cicd.action.*;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.platform.dal.access.ChangeFlowDal;
@@ -35,7 +36,6 @@ import com.clougence.clouddm.platform.dal.model.cicd.ChangeStatus;
 import com.clougence.clouddm.platform.dal.model.cicd.ChangeStep;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.ThreadUtils;
@@ -53,7 +53,7 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
     @Resource
     private ChangeFlowDal                 changeFlowDal;
     @Resource
-    private DmConsoleConfig               dmConfig;
+    private ConsoleConfig                 config;
     @Resource
     private ApplicationContext            applicationContext;
     @Resource
@@ -72,7 +72,7 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
         }
         this.taskInQueueSet = new HashSet<>();
 
-        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(this.dmConfig.getAsyncTaskQueueSize());
+        LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>(this.config.getAsyncTaskQueueSize());
         ThreadFactory workerTF = ThreadUtils.daemonThreadFactory(this.getClass().getClassLoader(), "change-worker-%s");
         // if queue is full, ignore the latest additions
         this.threadPoolExecutor = new ThreadPoolExecutor(3, 10, 1, TimeUnit.MINUTES, queue, workerTF, new ThreadPoolExecutor.AbortPolicy());
@@ -159,7 +159,7 @@ public class ChangeScheduleServiceImpl implements UnifiedPostConstruct {
     }
 
     private int maxFailedTimes(String ownerUid) {
-        DmSysUserConfDO currentConfig = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, UserDefinedConfig.Fields.cicdMaxFailedTimes);
+        DmSysUserConfDO currentConfig = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, RootUserConfig.Fields.cicdMaxFailedTimes);
         if (currentConfig == null || StringUtils.isBlank(currentConfig.getConfigValue())) {
             return 3;
         } else {

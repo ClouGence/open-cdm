@@ -15,16 +15,16 @@
  */
 package com.clougence.clouddm.team.provider.ldap.auth;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
+import com.clougence.clouddm.sdk.service.config.ConfigData;
+import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.team.provider.ldap.constants.LdapConfigKey;
 import com.clougence.clouddm.team.provider.ldap.constants.LdapI18nKey;
-import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
-import com.clougence.clouddm.sdk.service.config.ConfigData;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -36,80 +36,75 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConfigHelper {
 
-    public static BaseConfig fetchLdapConfig(ConsoleConfigService configService, final String primaryUID) {
-        List<ConfigData> configList = configService.fetchSettings(primaryUID, Arrays.asList(//
-                LdapConfigKey.AuthType.getConfigKey(),           //
-                LdapConfigKey.LdapHost.getConfigKey(),           //
-                LdapConfigKey.LdapPort.getConfigKey(),           //
-                LdapConfigKey.LdapNetBIOSRoute.getConfigKey(),   //
-                LdapConfigKey.LdapSoTimeout.getConfigKey(),      //
-                LdapConfigKey.LdapBase.getConfigKey(),           //
-                LdapConfigKey.LdapDomain.getConfigKey(),         //
-                LdapConfigKey.LdapUser.getConfigKey(),           //
-                LdapConfigKey.LdapPassword.getConfigKey(),       //
-                LdapConfigKey.LdapRoleMap.getConfigKey(),        //
-                LdapConfigKey.LdapUserObjectClass.getConfigKey(),//
-                LdapConfigKey.LdapFieldLogin.getConfigKey(),     //
-                LdapConfigKey.LdapFieldUser.getConfigKey(),      //
-                LdapConfigKey.LdapFieldEmail.getConfigKey(),     //
-                LdapConfigKey.LdapFieldPhone.getConfigKey()      //
-        ));
-
-        return buildConfig(configList, LdapConfigKey.AuthType, LdapConfigKey.LdapHost, LdapConfigKey.LdapPort, LdapConfigKey.LdapNetBIOSRoute,
-            LdapConfigKey.LdapSoTimeout, LdapConfigKey.LdapBase, LdapConfigKey.LdapDomain, LdapConfigKey.LdapUser, LdapConfigKey.LdapPassword,
-            LdapConfigKey.LdapRoleMap, LdapConfigKey.LdapUserObjectClass, LdapConfigKey.LdapFieldLogin, LdapConfigKey.LdapFieldUser,
-            LdapConfigKey.LdapFieldEmail, LdapConfigKey.LdapFieldPhone);
+    public static BaseConfig fetchLdapConfig(ConsoleConfigService configService) {
+        List<LdapConfigKey> configKeys = List.of( //
+                LdapConfigKey.AuthType,           //
+                LdapConfigKey.LdapHost,           //
+                LdapConfigKey.LdapPort,           //
+                LdapConfigKey.LdapNetBIOSRoute,   //
+                LdapConfigKey.LdapSoTimeout,      //
+                LdapConfigKey.LdapBase,           //
+                LdapConfigKey.LdapDomain,         //
+                LdapConfigKey.LdapUser,           //
+                LdapConfigKey.LdapPassword,       //
+                LdapConfigKey.LdapRoleMap,        //
+                LdapConfigKey.LdapUserObjectClass,//
+                LdapConfigKey.LdapFieldLogin,     //
+                LdapConfigKey.LdapFieldUser,      //
+                LdapConfigKey.LdapFieldEmail,     //
+                LdapConfigKey.LdapFieldPhone      //
+        );
+        List<ConfigData> configList = configService.fetchSettings(configKeys(configKeys));
+        return buildConfig(configList, configKeys);
     }
 
-    public static BaseConfig fetchAdConfig(ConsoleConfigService configService, final String primaryUID) {
-        List<ConfigData> configList = configService.fetchSettings(primaryUID, Arrays.asList(//
-                LdapConfigKey.AuthType.getConfigKey(),       //
-                LdapConfigKey.AdHost.getConfigKey(),         //
-                LdapConfigKey.AdPort.getConfigKey(),         //
-                LdapConfigKey.AdNetBIOSRoute.getConfigKey(), //
-                LdapConfigKey.AdSoTimeout.getConfigKey(),    //
-                LdapConfigKey.AdBase.getConfigKey(),         //
-                LdapConfigKey.AdDomain.getConfigKey(),       //
-                LdapConfigKey.AdUser.getConfigKey(),         //
-                LdapConfigKey.AdPassword.getConfigKey(),     //
-                LdapConfigKey.AdRoleMap.getConfigKey(),      //
-                LdapConfigKey.AdUserObjectClass.getConfigKey(),//
-                LdapConfigKey.AdFieldLogin.getConfigKey(),   //
-                LdapConfigKey.AdFieldUser.getConfigKey(),    //
-                LdapConfigKey.AdFieldEmail.getConfigKey(),   //
-                LdapConfigKey.AdFieldPhone.getConfigKey()    //
-        ));
-
-        return buildConfig(configList, LdapConfigKey.AuthType, LdapConfigKey.AdHost, LdapConfigKey.AdPort, LdapConfigKey.AdNetBIOSRoute,
-            LdapConfigKey.AdSoTimeout, LdapConfigKey.AdBase, LdapConfigKey.AdDomain, LdapConfigKey.AdUser, LdapConfigKey.AdPassword,
-            LdapConfigKey.AdRoleMap, LdapConfigKey.AdUserObjectClass, LdapConfigKey.AdFieldLogin, LdapConfigKey.AdFieldUser,
-            LdapConfigKey.AdFieldEmail, LdapConfigKey.AdFieldPhone);
+    public static BaseConfig fetchAdConfig(ConsoleConfigService configService) {
+        List<LdapConfigKey> configKeys = List.of(//
+                LdapConfigKey.AuthType,          //
+                LdapConfigKey.AdHost,            //
+                LdapConfigKey.AdPort,            //
+                LdapConfigKey.AdNetBIOSRoute,    //
+                LdapConfigKey.AdSoTimeout,       //
+                LdapConfigKey.AdBase,            //
+                LdapConfigKey.AdDomain,          //
+                LdapConfigKey.AdUser,            //
+                LdapConfigKey.AdPassword,        //
+                LdapConfigKey.AdRoleMap,         //
+                LdapConfigKey.AdUserObjectClass, //
+                LdapConfigKey.AdFieldLogin,      //
+                LdapConfigKey.AdFieldUser,       //
+                LdapConfigKey.AdFieldEmail,      //
+                LdapConfigKey.AdFieldPhone       //
+        );
+        List<ConfigData> configList = configService.fetchSettings(configKeys(configKeys));
+        return buildConfig(configList, configKeys);
     }
 
-    private static BaseConfig buildConfig(List<ConfigData> configList, LdapConfigKey authTypeKey, LdapConfigKey hostKey, LdapConfigKey portKey,
-                                          LdapConfigKey netBIOSRouteKey, LdapConfigKey soTimeoutKey, LdapConfigKey baseKey, LdapConfigKey domainKey,
-                                          LdapConfigKey userKey, LdapConfigKey passwordKey, LdapConfigKey roleMapKey, LdapConfigKey userObjectClassKey,
-                                          LdapConfigKey fieldLoginKey, LdapConfigKey fieldUserKey, LdapConfigKey fieldEmailKey, LdapConfigKey fieldPhoneKey) {
+    private static List<String> configKeys(List<LdapConfigKey> configKeys) {
+        return configKeys.stream().map(LdapConfigKey::getConfigKey).collect(Collectors.toList());
+    }
+
+    private static BaseConfig buildConfig(List<ConfigData> configList, List<LdapConfigKey> configKeys) {
         Map<String, ConfigData> configMap = new HashMap<>();
         for (ConfigData config : configList) {
             configMap.put(config.getConfigName(), config);
         }
 
-        ConfigData authType = configMap.get(authTypeKey.getConfigKey());
-        ConfigData ldapHost = configMap.get(hostKey.getConfigKey());
-        ConfigData ldapPort = configMap.get(portKey.getConfigKey());
-        ConfigData ldapNetBIOSRoute = configMap.get(netBIOSRouteKey.getConfigKey());
-        ConfigData ldapSoTimeout = configMap.get(soTimeoutKey.getConfigKey());
-        ConfigData ldapBase = configMap.get(baseKey.getConfigKey());
-        ConfigData ldapDomain = configMap.get(domainKey.getConfigKey());
-        ConfigData ldapUser = configMap.get(userKey.getConfigKey());
-        ConfigData ldapPassword = configMap.get(passwordKey.getConfigKey());
-        ConfigData ldapRoleMap = configMap.get(roleMapKey.getConfigKey());
-        ConfigData ldapUserObjectClass = configMap.get(userObjectClassKey.getConfigKey());
-        ConfigData ldapFieldLogin = configMap.get(fieldLoginKey.getConfigKey());
-        ConfigData ldapFieldUser = configMap.get(fieldUserKey.getConfigKey());
-        ConfigData ldapFieldEmail = configMap.get(fieldEmailKey.getConfigKey());
-        ConfigData ldapFieldPhone = configMap.get(fieldPhoneKey.getConfigKey());
+        ConfigData authType = configData(configMap, configKeys, 0);
+        ConfigData ldapHost = configData(configMap, configKeys, 1);
+        ConfigData ldapPort = configData(configMap, configKeys, 2);
+        ConfigData ldapNetBIOSRoute = configData(configMap, configKeys, 3);
+        ConfigData ldapSoTimeout = configData(configMap, configKeys, 4);
+        ConfigData ldapBase = configData(configMap, configKeys, 5);
+        ConfigData ldapDomain = configData(configMap, configKeys, 6);
+        ConfigData ldapUser = configData(configMap, configKeys, 7);
+        ConfigData ldapPassword = configData(configMap, configKeys, 8);
+        ConfigData ldapRoleMap = configData(configMap, configKeys, 9);
+        ConfigData ldapUserObjectClass = configData(configMap, configKeys, 10);
+        ConfigData ldapFieldLogin = configData(configMap, configKeys, 11);
+        ConfigData ldapFieldUser = configData(configMap, configKeys, 12);
+        ConfigData ldapFieldEmail = configData(configMap, configKeys, 13);
+        ConfigData ldapFieldPhone = configData(configMap, configKeys, 14);
 
         BaseConfig config = new BaseConfig();
         config.setAuthType(authType == null ? "" : authType.getConfigValue());
@@ -130,55 +125,59 @@ public class ConfigHelper {
         return config;
     }
 
+    private static ConfigData configData(Map<String, ConfigData> configMap, List<LdapConfigKey> configKeys, int index) {
+        return configMap.get(configKeys.get(index).getConfigKey());
+    }
+
     public static BaseConfig checkAdConfig(BaseConfig cfg) {
         if (StringUtils.isBlank(cfg.getLdapHost())) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "adHost");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR, "adHost");
         }
         if (StringUtils.isBlank(cfg.getLdapPort())) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "adPort");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR, "adPort");
         }
         if (StringUtils.isBlank(cfg.getLdapBase())) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "adBase");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR, "adBase");
         }
         if (StringUtils.isBlank(cfg.getLdapUser())) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "adUser");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR, "adUser");
         }
         if (StringUtils.isBlank(cfg.getLdapPassword())) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "adPassword");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR, "adPassword");
         }
         if (StringUtils.isBlank(cfg.getLdapFieldLogin())) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "adFieldLogin");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR, "adFieldLogin");
         }
         if (StringUtils.isBlank(cfg.getLdapRoleMap())) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "adRoleMap");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR, "adRoleMap");
         }
         if (StringUtils.isBlank(cfg.getLdapDomain())) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "adDomain");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR, "adDomain");
         }
         return cfg;
     }
 
     public static BaseConfig checkLdapConfig(BaseConfig conf) {
         if (StringUtils.isBlank(conf.getLdapHost())) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapHost");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR, "ldapHost");
         }
         if (StringUtils.isBlank(conf.getLdapPort())) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapPort");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR, "ldapPort");
         }
         if (StringUtils.isBlank(conf.getLdapBase())) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapBase");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR, "ldapBase");
         }
         if (StringUtils.isBlank(conf.getLdapUser())) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapUser");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR, "ldapUser");
         }
         if (StringUtils.isBlank(conf.getLdapPassword())) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapPassword");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR, "ldapPassword");
         }
         if (StringUtils.isBlank(conf.getLdapFieldLogin())) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapFieldLogin");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR, "ldapFieldLogin");
         }
         if (StringUtils.isBlank(conf.getLdapRoleMap())) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR.name(), "ldapRoleMap");
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_CONFIG_ERROR, "ldapRoleMap");
         }
 
         return conf;

@@ -8,111 +8,107 @@
         </div>
       </div>
       <div class="content flow-detail-content" v-if="flowInfo !== null">
-        <div class="detail-hero-grid">
-          <section class="detail-card overview-card">
-            <div class="overview-card-header">
-              <div class="overview-title-row">
-                <strong class="overview-flow-name">{{ flowInfo.flowName || '-' }}</strong>
-                <span class="flow-status-pill" :class="flowStatusClass">{{ flowStatusText }}</span>
+        <section class="page-section flow-overview-section">
+          <div class="overview-card-header">
+            <div class="overview-meta-line">
+              <div class="overview-meta-segment overview-meta-segment-name">
+                <Tooltip :content="flowInfo.flowName || '-'" transfer>
+                  <strong class="overview-flow-name">{{ flowInfo.flowName || '-' }}</strong>
+                </Tooltip>
               </div>
-              <div class="detail-toolbar">
-                <Button class="detail-toolbar-btn" @click="showRecordPanel">
-                  <span>{{ $t('bian-geng-ji-lu') }}</span>
-                </Button>
-                <Button
-                  class="detail-toolbar-btn detail-trigger-btn"
-                  type="primary"
-                  :disabled="flowReadOnly || !primaryDevops || !primaryDevops.enable"
-                  @click="triggerPrimaryChange"
-                >
-                  <span>{{ $t('chu-fa-bian-geng') }}</span>
-                </Button>
-                <Button
-                  class="detail-toolbar-btn detail-snapshot-btn"
-                  :disabled="flowReadOnly || !primaryDevops || !primaryDevops.enable"
-                  @click="triggerPrimarySnapshot"
-                >
-                  <span>{{ $t('jian-li-kuai-zhao') }}</span>
-                </Button>
+              <div class="overview-meta-segment">
+                <span class="overview-meta-label">{{ $t('cicd-xiang-mu-code-colon') }}</span>
+                <Tooltip :content="flowInfo.flowUid || '-'" transfer>
+                  <strong class="overview-meta-value">{{ flowInfo.flowUid || '-' }}</strong>
+                </Tooltip>
+                <Icon class="inline-action-icon" type="ios-copy-outline" @click="handleCopyTemp(flowInfo.flowUid)" />
+              </div>
+              <div class="overview-meta-segment">
+                <span class="overview-meta-label">{{ $t('cicd-guan-li-yuan-colon') }}</span>
+                <Tooltip :content="flowManagerInfo.flowManagerName || '-'" transfer>
+                  <strong class="overview-meta-value">{{ flowManagerInfo.flowManagerName || '-' }}</strong>
+                </Tooltip>
+                <Icon class="inline-action-icon" type="ios-copy-outline" @click="handleCopyTemp(flowManagerInfo.flowManagerName || '-')" />
+              </div>
+              <span class="flow-status-pill" :class="flowStatusClass">{{ flowStatusText }}</span>
+            </div>
+            <div class="detail-toolbar">
+              <Button class="detail-toolbar-btn" @click="showRecordPanel">
+                <span>{{ $t('bian-geng-ji-lu') }}</span>
+              </Button>
+              <Button
+                class="detail-toolbar-btn detail-trigger-btn"
+                type="primary"
+                :disabled="flowReadOnly || !primaryDevops || !primaryDevops.enable"
+                @click="triggerPrimaryChange"
+              >
+                <span>{{ $t('chu-fa-bian-geng') }}</span>
+              </Button>
+              <Button
+                class="detail-toolbar-btn detail-snapshot-btn"
+                :disabled="flowReadOnly || !primaryDevops || !primaryDevops.enable"
+                @click="triggerPrimarySnapshot"
+              >
+                <span>{{ $t('jian-li-kuai-zhao') }}</span>
+              </Button>
+            </div>
+          </div>
+          <div class="release-grid pipeline-overview">
+            <div class="release-panel">
+              <div class="panel-subheading">
+                <CustomIcon :type="scmIconType" size="24px" />
+                <span>{{ $t('cicd-git-cang-ku') }}</span>
+              </div>
+              <div class="endpoint-row">
+                <span>{{ $t('cicd-yuan-ma-cang-ku-colon') }}</span>
+                <Tooltip :content="repoNameText">
+                  <strong>{{ compactText(repoNameText, 26) }}</strong>
+                </Tooltip>
+              </div>
+              <div class="endpoint-row">
+                <span>{{ $t('fen-zhi') }}：</span>
+                <Tooltip :content="repoBranchText">
+                  <strong>{{ compactText(repoBranchText, 26) }}</strong>
+                </Tooltip>
+              </div>
+              <div class="endpoint-row">
+                <span>{{ $t('cicd-jiao-ben-lu-jin-colon') }}</span>
+                <Tooltip :content="repoScriptPathText">
+                  <strong>{{ compactText(repoScriptPathText, 28) }}</strong>
+                </Tooltip>
               </div>
             </div>
-            <div class="overview-meta-grid">
-              <div class="overview-meta-item">
-                <div class="overview-meta-copy">
-                  <span>{{ $t('cicd-xiang-mu-code-colon') }}</span>
-                  <Tooltip :content="flowInfo.flowUid || '-'">
-                    <strong>{{ compactText(flowInfo.flowUid, 12) }}</strong>
-                  </Tooltip>
-                  <Icon class="inline-action-icon" type="ios-copy-outline" @click="handleCopyTemp(flowInfo.flowUid)" />
-                </div>
+            <div class="link-divider" aria-hidden="true">
+              <span>
+                <svg class="flow-link-arrows" viewBox="0 0 28 28" aria-hidden="true">
+                  <path d="M7 14h14" />
+                  <path d="m16.8 9.8 4.2 4.2-4.2 4.2" />
+                </svg>
+              </span>
+            </div>
+            <div class="release-panel">
+              <div class="panel-subheading database-title">
+                <CustomIcon :type="primaryDevops?.dsType || 'icon-v2-DataBase2'" size="22px" />
+                <span>{{ $t('shu-ju-ku') }}</span>
               </div>
-              <div class="overview-meta-item">
-                <div class="overview-meta-copy">
-                  <span>{{ $t('cicd-guan-li-yuan-colon') }}</span>
-                  <strong>{{ flowManagerInfo.flowManagerName || '-' }}</strong>
-                  <Icon class="inline-action-icon" type="ios-copy-outline" @click="handleCopyTemp(flowManagerInfo.flowManagerName || '-')" />
-                </div>
+              <div class="endpoint-row">
+                <span>{{ $t('shu-ju-yuan-shi-li-0') }}</span>
+                <Tooltip :content="primaryDevops?.dsInstance || '-'">
+                  <strong>{{ compactText(primaryDevops?.dsInstance, 22) }}</strong>
+                </Tooltip>
+              </div>
+              <div class="endpoint-row">
+                <span>{{ $t('schema') }}：</span>
+                <Tooltip :content="targetDatabaseText">
+                  <strong>{{ compactText(targetDatabaseText, 22) }}</strong>
+                </Tooltip>
               </div>
             </div>
-            <div class="pipeline-overview">
-              <div class="endpoint-card">
-                <div class="endpoint-title">
-                  <CustomIcon :type="scmIconType" size="24px" />
-                  <span>{{ $t('cicd-git-cang-ku') }}</span>
-                </div>
-                <div class="endpoint-row">
-                  <span>{{ $t('cicd-yuan-ma-cang-ku-colon') }}</span>
-                  <Tooltip :content="repoNameText">
-                    <strong>{{ compactText(repoNameText, 26) }}</strong>
-                  </Tooltip>
-                </div>
-                <div class="endpoint-row">
-                  <span>{{ $t('fen-zhi') }}：</span>
-                  <Tooltip :content="repoBranchText">
-                    <strong>{{ compactText(repoBranchText, 26) }}</strong>
-                  </Tooltip>
-                </div>
-                <div class="endpoint-row">
-                  <span>{{ $t('cicd-jiao-ben-lu-jin-colon') }}</span>
-                  <Tooltip :content="repoScriptPathText">
-                    <strong>{{ compactText(repoScriptPathText, 28) }}</strong>
-                  </Tooltip>
-                </div>
-              </div>
-              <div class="pipeline-link" aria-hidden="true">
-                <span class="pipeline-dash"></span>
-                <span class="pipeline-link-node">
-                  <svg class="flow-link-arrows" viewBox="0 0 28 28" aria-hidden="true">
-                    <path d="M7 14h14" />
-                    <path d="m16.8 9.8 4.2 4.2-4.2 4.2" />
-                  </svg>
-                </span>
-                <span class="pipeline-dash"></span>
-              </div>
-              <div class="endpoint-card">
-                <div class="endpoint-title database-title">
-                  <CustomIcon :type="primaryDevops?.dsType || 'icon-v2-DataBase2'" size="22px" />
-                  <span>{{ $t('shu-ju-ku') }}</span>
-                </div>
-                <div class="endpoint-row">
-                  <span>{{ $t('shu-ju-yuan-shi-li-0') }}</span>
-                  <Tooltip :content="primaryDevops?.dsInstance || '-'">
-                    <strong>{{ compactText(primaryDevops?.dsInstance, 22) }}</strong>
-                  </Tooltip>
-                </div>
-                <div class="endpoint-row">
-                  <span>{{ $t('schema') }}：</span>
-                  <Tooltip :content="targetDatabaseText">
-                    <strong>{{ compactText(targetDatabaseText, 22) }}</strong>
-                  </Tooltip>
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
+          </div>
+        </section>
 
-        <section class="detail-card config-card">
-          <div class="detail-card-title">{{ $t('cicd-pei-zhi-xiang') }}</div>
+        <section class="page-section flow-config-section">
+          <div class="page-section__title">{{ $t('cicd-pei-zhi-xiang') }}</div>
           <div class="config-list">
             <div class="config-row" v-for="item in configItems" :key="item.key">
               <div class="config-leading">
@@ -317,8 +313,10 @@
         </div>
       </div>
       <template #footer>
-        <Button @click="handleCloseAllDrawer">{{ $t('qu-xiao') }}</Button>
-        <Button type="primary" @click="handleImSubmit" :disabled="isImSubmitDisabled">{{ $t('bao-cun') }}</Button>
+        <div class="config-modal-footer">
+          <Button @click="handleCloseAllDrawer">{{ $t('qu-xiao') }}</Button>
+          <Button type="primary" @click="handleImSubmit" :disabled="isImSubmitDisabled">{{ $t('bao-cun') }}</Button>
+        </div>
       </template>
     </CCModal>
     <CCModal v-model="imDialogFlowShow" width="960px" class="execution-config-modal-wrap" :maskClosable="false" @on-cancel="handleCloseAllDrawer">
@@ -396,8 +394,10 @@
         </div>
       </div>
       <template #footer>
-        <Button @click="handleCloseAllDrawer">{{ $t('qu-xiao') }}</Button>
-        <Button type="primary" @click="handleOptionSubmit">{{ $t('bao-cun') }}</Button>
+        <div class="config-modal-footer">
+          <Button @click="handleCloseAllDrawer">{{ $t('qu-xiao') }}</Button>
+          <Button type="primary" @click="handleOptionSubmit">{{ $t('bao-cun') }}</Button>
+        </div>
       </template>
     </CCModal>
     <CCModal v-model="showTriggerModal" width="860px" class="trigger-config-modal-wrap">
@@ -1748,10 +1748,10 @@ export default {
 </script>
 <style lang="less" scoped>
 .flow-wrap {
-  padding-bottom: 0 !important;
+  padding: 0 !important;
   min-height: 0;
   overflow: hidden;
-  background: #f6f9fc;
+  background: #fff;
 
   .empty {
     display: flex;
@@ -2120,9 +2120,121 @@ export default {
   min-height: 0;
   height: 100%;
   max-height: none;
-  padding: 14px 20px 18px;
-  background: #f6f9fc;
+  padding: 20px 24px;
+  gap: 32px;
+  background: #fff;
   overflow: auto;
+}
+
+.page-section {
+  min-width: 0;
+}
+
+.page-section__title {
+  position: relative;
+  margin-bottom: 16px;
+  padding-left: 12px;
+  color: #181d26;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.page-section__title::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 3px;
+  height: 16px;
+  border-radius: 2px;
+  background: #18b566;
+  transform: translateY(-50%);
+  content: '';
+}
+
+.panel-subheading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: #181d26;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+
+  &.database-title {
+    :deep(.data-source-icon) {
+      color: #12b76a;
+    }
+  }
+}
+
+.release-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1fr);
+  align-items: stretch;
+  gap: 24px;
+}
+
+.release-panel {
+  min-width: 0;
+}
+
+.link-divider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.link-divider::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  border-left: 1px dashed #d5e0eb;
+  content: '';
+  transform: translateX(-50%);
+}
+
+.link-divider span {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 74px;
+  width: 74px;
+  min-width: 74px;
+  max-width: 74px;
+  height: 74px;
+  min-height: 74px;
+  max-height: 74px;
+  box-sizing: border-box;
+  aspect-ratio: 1 / 1;
+  border: 1px dashed #d8ecdf;
+  border-radius: 999px;
+  background: #fff;
+  color: #0fa958;
+}
+
+.link-divider span::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 52px;
+  min-width: 52px;
+  height: 52px;
+  min-height: 52px;
+  aspect-ratio: 1 / 1;
+  border-radius: 999px;
+  background: #dff7eb;
+  content: '';
+  transform: translate(-50%, -50%);
+}
+
+.flow-overview-section {
+  min-height: auto;
 }
 
 .detail-toolbar {
@@ -2194,50 +2306,59 @@ export default {
   }
 }
 
-.detail-card {
-  min-width: 0;
-  background: #fff;
-  border: 1px solid #dbe6f1;
-  border-radius: 10px;
-  box-shadow: 0 12px 30px rgba(31, 45, 61, 0.05);
-}
-
-.detail-card-title {
+.overview-card-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
-  color: #111827;
-  font-size: 18px;
-  font-weight: 800;
-  line-height: 1;
+  min-width: 0;
 }
 
-.detail-card-title::before {
-  display: inline-block;
-  width: 4px;
-  height: 26px;
-  border-radius: 999px;
-  background: #14b86f;
-  content: '';
-}
-
-.detail-hero-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 24px;
-  flex-shrink: 0;
-}
-
-.overview-card {
-  min-height: auto;
-  padding: 20px 24px 22px;
-}
-
-.overview-card-header {
-  display: grid;
-  grid-template-columns: minmax(110px, auto) minmax(0, 1fr);
+.overview-meta-line {
+  display: flex;
+  flex: 1 1 auto;
   align-items: center;
-  gap: 12px;
+  min-width: 0;
+  gap: 16px;
+}
+
+.overview-meta-segment {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  gap: 4px;
+  flex: 0 1 auto;
+}
+
+.overview-meta-segment-name {
+  flex: 0 1 auto;
+  max-width: 420px;
+  min-width: 0;
+  margin-right: 8px;
+}
+
+.overview-meta-label {
+  flex-shrink: 0;
+  color: #66758a;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.overview-meta-value {
+  min-width: 0;
+  overflow: hidden;
+  color: #181d26;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overview-meta-line .flow-status-pill {
+  flex: 0 0 auto;
 }
 
 .overview-title-row {
@@ -2249,12 +2370,13 @@ export default {
 }
 
 .overview-flow-name {
-  max-width: 320px;
+  display: block;
+  max-width: 100%;
   overflow: hidden;
-  color: #0f172a;
-  font-size: 20px;
-  font-weight: 800;
-  line-height: 24px;
+  color: #181d26;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -2285,12 +2407,7 @@ export default {
 }
 
 .overview-meta-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  row-gap: 14px;
-  margin-top: 28px;
-  padding-left: 22px;
-  color: #0f172a;
+  display: none;
 }
 
 .overview-meta-item {
@@ -2355,36 +2472,7 @@ export default {
 }
 
 .pipeline-overview {
-  display: grid;
-  grid-template-columns: minmax(260px, 1fr) 116px minmax(260px, 1fr);
-  align-items: stretch;
-  gap: 0;
-  margin-top: 30px;
-}
-
-.endpoint-card {
-  min-width: 0;
-  min-height: 132px;
-  padding: 12px 22px;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-}
-
-.endpoint-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-  color: #111827;
-  font-size: 14px;
-  font-weight: 800;
-
-  &.database-title {
-    :deep(.data-source-icon) {
-      color: #12b76a;
-    }
-  }
+  margin-top: 32px;
 }
 
 .endpoint-row {
@@ -2482,13 +2570,13 @@ export default {
   stroke-width: 2.3;
 }
 
-.config-card {
+.flow-config-section {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
   min-height: 0;
-  margin-top: 14px;
-  padding: 18px 24px 20px;
+  margin-top: 24px;
+  padding: 0;
 }
 
 .config-list {
@@ -2498,10 +2586,9 @@ export default {
   align-content: start;
   gap: 0;
   min-height: 0;
-  margin-top: 18px;
+  margin-top: 0;
   border-top: 1px solid #e1ebf3;
   overflow: auto;
-  background: #fff;
 }
 
 .config-row {
@@ -2776,7 +2863,7 @@ export default {
 
 .config-modal-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
   gap: 8px;
   width: 100%;
@@ -3008,25 +3095,14 @@ export default {
 }
 
 @media (max-width: 1280px) {
-  .detail-hero-grid {
-    grid-template-columns: 1fr;
-  }
-
+  .release-grid,
   .pipeline-overview {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
-  .pipeline-link {
-    flex-direction: column;
-    min-height: 96px;
-  }
-
-  .pipeline-link .pipeline-dash {
-    display: none;
-  }
-
-  .pipeline-link-node {
-    margin: 10px 0;
+  .link-divider {
+    min-height: 72px;
   }
 
   .config-row {
@@ -3036,11 +3112,8 @@ export default {
 
 @media (max-width: 1120px), (max-height: 760px) {
   .flow-detail-content {
-    padding: 10px 16px 16px;
-  }
-
-  .overview-card {
-    padding: 16px 20px 18px;
+    padding: 16px;
+    gap: 24px;
   }
 
   .overview-meta-grid {
@@ -3051,21 +3124,26 @@ export default {
   .pipeline-overview {
     margin-top: 22px;
   }
-
-  .endpoint-card {
-    min-height: 120px;
-    padding: 12px 18px;
-  }
-
-  .config-card {
-    padding: 14px 20px 18px;
-  }
 }
 
 @media (max-width: 980px) {
   .overview-card-header {
-    grid-template-columns: 1fr;
-    align-items: start;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .overview-meta-line {
+    flex-wrap: wrap;
+    gap: 12px 16px;
+  }
+
+  .overview-meta-segment-name {
+    flex: 1 1 auto;
+    max-width: 100%;
+  }
+
+  .overview-meta-line .flow-status-pill {
+    margin-left: 0;
   }
 
   .detail-toolbar {

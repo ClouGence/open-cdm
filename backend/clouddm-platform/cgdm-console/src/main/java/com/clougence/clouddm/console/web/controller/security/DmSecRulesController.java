@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -44,16 +43,17 @@ import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.envparam.DmEnvParamService;
 import com.clougence.clouddm.console.web.service.security.CheckRulesService;
 import com.clougence.clouddm.console.web.service.security.mode.DmSecRuleMO;
-import com.clougence.clouddm.console.web.util.DmCheckerUtils;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.model.secrule.DmSecRefererDO;
 import com.clougence.clouddm.platform.dal.model.secrule.DmSecSpecDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.clouddm.sdk.model.env.EnvParamKeys;
 import com.clougence.clouddm.sdk.service.secrules.SecParam;
+import com.clougence.dslpaser.antlr.AntlerSyntaxException;
 import com.clougence.dslpaser.antlr.DslHelper;
 import com.clougence.dslpaser.ast.StatementSet;
 import com.clougence.dslpaser.foramt.FmtWriter;
+import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -208,7 +208,6 @@ public class DmSecRulesController {
         }
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @RequestAuth(value = DM_SECRULES_MANAGE)
     @RequestMapping(value = "/specCreate", method = RequestMethod.POST)
     public ResWebData<?> specCreate(@RequestBody @Valid SpecCreateFO fo, HttpServletRequest request) {
@@ -247,6 +246,14 @@ public class DmSecRulesController {
         vo.setMessage(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_SPEC_UPDATE_FINISH_MESSAGE.name(), specDO.getName()));
         this.checkRulesService.saveSpecRules(puid, specDO.getId(), Collections.singletonList(fo.getRule()));
         return ResWebDataUtils.buildSuccess(vo);
+    }
+
+    @RequestAuth(value = DM_SECRULES_MANAGE)
+    @RequestMapping(value = "/specSaveRules", method = RequestMethod.POST)
+    public ResWebData<?> specSaveRules(@RequestBody @Valid SpecSaveRulesFO fo, HttpServletRequest request) {
+        String puid = (String) request.getAttribute(RdpUserService.PUID);
+
+        return ResWebDataUtils.buildSuccess(this.checkRulesService.saveSpecRules(puid, fo));
     }
 
     @RequestAuth(value = DM_SECRULES_MANAGE)
@@ -406,7 +413,7 @@ public class DmSecRulesController {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
         try {
-            DmCheckerUtils.checkDetectRuleScript(fo.getContent());
+            checkDetectRuleScript(fo.getContent());
 
             StatementSet statementSet = DslHelper.parserDsl("DetectRule", fo.getContent());
 
@@ -436,10 +443,8 @@ public class DmSecRulesController {
     @RequestAuth(value = DM_SECRULES_READ)
     @RequestMapping(value = "/ruleVerify", method = RequestMethod.POST)
     public ResWebData<?> ruleVerify(@RequestBody @Valid RuleVerifyFO fo, HttpServletRequest request) {
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-
         try {
-            DmCheckerUtils.checkDetectRuleScript(fo.getContent());
+            checkDetectRuleScript(fo.getContent());
             //StatementSet statementSet = DslHelper.parserDsl("DetectRule", );
 
             //            Map<String, String> fmtOptions = new HashMap<>(this.checkRulesService.getRuleScriptFormatByUid(puid));
@@ -459,6 +464,28 @@ public class DmSecRulesController {
             vo.setSuccess(false);
             vo.setMessage(e.getMessage());
             return ResWebDataUtils.buildSuccess(vo);
+        }
+    }
+
+    public static void checkDetectRuleScript(String scriptContent) {
+        if (StringUtils.isBlank(scriptContent)) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RULE_SCRIPT_EMPTY_ERROR.name()));
+        }
+
+        try {
+            StatementSet statementSet = DslHelper.parserDsl("DetectRule", scriptContent);
+            long codeLines = statementSet.getStatements().stream().filter(s -> {
+                return !s.getClass().getSimpleName().equals("DefineStatement");
+            }).count();
+            if (codeLines == 0) {
+                throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_RULE_SCRIPT_EMPTY_ERROR.name()));
+            }
+        } catch (ErrorMessageException e) {
+            throw e;
+        } catch (AntlerSyntaxException e) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_DSL_SYNTAX_ERROR.name(), e.getLine(), e.getColumn(), e.getMessage()));
+        } catch (Exception e) {
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CHECKRULES_DSL_UNKNOWN_ERROR.name(), e.getMessage()));
         }
     }
 }

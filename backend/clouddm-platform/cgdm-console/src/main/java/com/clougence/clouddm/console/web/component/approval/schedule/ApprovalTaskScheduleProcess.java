@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.clougence.clouddm.console.web.component.approval.ApprovalHandler;
 import com.clougence.clouddm.console.web.component.approval.impl.ApprovalProviderServiceImpl;
 import com.clougence.clouddm.console.web.component.approval.model.ApprovalStageMO;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
@@ -42,7 +43,6 @@ import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 import com.clougence.clouddm.sdk.security.auth.def.SecDataAuthLabel;
 import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.NumberUtils;
@@ -131,7 +131,7 @@ public class ApprovalTaskScheduleProcess {
         long timeInterval = now - last;
         long diff = TimeUnit.SECONDS.convert(timeInterval, TimeUnit.MILLISECONDS);
         long intervalTime;
-        DmSysUserConfDO configDO = systemDal.userConfMapper().queryByUidAndConfigName(ticketDO.getPrimaryUid(), UserDefinedConfig.Fields.updateApprovalStatusIntervalTime);
+        DmSysUserConfDO configDO = systemDal.userConfMapper().queryByUidAndConfigName(ticketDO.getPrimaryUid(), RootUserConfig.Fields.updateApprovalStatusIntervalTime);
         if (configDO == null || !NumberUtils.isNumber(configDO.getConfigValue())) {
             // one day
             intervalTime = 60 * 60 * 24;

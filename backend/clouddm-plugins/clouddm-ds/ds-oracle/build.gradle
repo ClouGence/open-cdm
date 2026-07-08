@@ -16,13 +16,11 @@
 
 plugins {
     id 'com.clougence.plugin-conventions'
-    id 'antlr'
 }
 
 dependencies {
     // project
-    antlr "org.antlr:antlr4:${ANTLR_VERSION}"
-    implementation project(':dsc-common')
+    implementation project(':dsc-common-oracle')
 
     // share lib (compileOnly)
     compileOnly project(':cgdm-share-libs')
@@ -38,12 +36,3 @@ dependencies {
 }
 
 description = 'ds-oracle'
-
-configureClougenceAntlrGrammar([outputPath : 'src/main/java/com/clougence/clouddm/ds/oracle/parser/antlr',
-                                packageName: 'com.clougence.clouddm.ds.oracle.parser.antlr'])
-
-// PlSqlParser.java is ~280k lines; compile in an isolated JVM with extra heap.
-tasks.named('compileJava').configure {
-    options.fork = true
-    options.forkOptions.memoryMaximumSize = '6g'
-}

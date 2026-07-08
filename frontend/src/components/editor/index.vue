@@ -1005,7 +1005,7 @@ export default {
       return ranges.length ? ranges : [{ startOffset: 0, endOffset: text.length }];
     },
     buildLanguageRequest(position = this.monacoEditor?.getPosition(), languageFragment = null) {
-      const fragment = languageFragment || this.getCurrentLanguageFragment(position, true);
+      const fragment = languageFragment || this.getCurrentLanguageFragment(position);
       const cursorLineNumber = position ? Math.max(1, position.lineNumber - fragment.startPosition.lineNumber + 1) : 1;
       const cursorColNumber = position
         ? position.lineNumber === fragment.startPosition.lineNumber

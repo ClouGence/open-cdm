@@ -25,5 +25,7 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource("/META-INF/clougence/i18n/mongo-ui-editor-table")
 public interface MongoDsI18nKeys {
 
+    String PLUGIN_NAME_MONGODB = "PLUGIN_NAME_MONGODB";
+
     String REWRITE_LIMIT_LABEL = "REWRITE_LIMIT_LABEL";
 }

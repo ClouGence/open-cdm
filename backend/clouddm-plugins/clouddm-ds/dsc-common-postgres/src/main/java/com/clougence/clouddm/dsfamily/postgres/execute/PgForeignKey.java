@@ -38,8 +38,8 @@ public class PgForeignKey {
 
     private String                     schema;
     private String                     table;
-    private String                 name;
-    private PostgresConstraintType constraintType;
+    private String                     name;
+    private PostgresConstraintType     constraintType;
 
     private List<String>               columns          = new ArrayList<>();
     private String                     referenceSchema;

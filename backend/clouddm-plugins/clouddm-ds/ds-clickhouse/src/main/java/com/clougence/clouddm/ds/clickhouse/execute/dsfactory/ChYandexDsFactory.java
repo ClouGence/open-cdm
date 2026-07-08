@@ -80,7 +80,10 @@ public class ChYandexDsFactory implements DsFactory<Connection> {
             properties.setDatabase(defaultSchema);
         }
         if (StringUtils.isNotBlank(chSessionTimeoutMs)) {
-            properties.setSessionTimeout(Long.parseLong(chSessionTimeoutMs));
+            properties.setSessionTimeout(Long.parseLong(chSessionTimeoutMs) / 1000);
+        }
+        if (StringUtils.isNotBlank(clientTimeZone)) {
+            properties.setUseTimeZone(clientTimeZone);
         }
 
         String jdbcUrl = buildJdbcUrl(dsConfig);
@@ -110,13 +113,13 @@ public class ChYandexDsFactory implements DsFactory<Connection> {
         }
 
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
-        String defaultDataBase = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
+        String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
 
         String[] ipPort = host.split(":");
         if (ipPort.length == 1) {
-            return String.format("jdbc:clickhouse://%s:9000/%s", ipPort[0], safeString(defaultDataBase));
+            return String.format("jdbc:clickhouse://%s:9000/%s", ipPort[0], safeString(defaultSchema));
         } else if (ipPort.length == 2) {
-            return String.format("jdbc:clickhouse://%s:%s/%s", ipPort[0], ipPort[1], safeString(defaultDataBase));
+            return String.format("jdbc:clickhouse://%s:%s/%s", ipPort[0], ipPort[1], safeString(defaultSchema));
         } else {
             throw new IllegalArgumentException("unsupported host format:" + host);
         }

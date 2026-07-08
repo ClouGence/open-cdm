@@ -21,6 +21,8 @@ import com.clougence.utils.i18n.I18nResource;
 @I18nResource("/META-INF/clougence/i18n/pg-ui-editor-table")
 public interface PgDsI18nKeys extends DsDataEditorI18nKeys, DsTableEditorI18nKeys, DsProcedureEditorI18nKeys, DsFunctionEditorI18nKeys, DsTriggerEditorI18nKeys, DsViewEditorI18nKeys {
 
+    String PLUGIN_NAME_POSTGRESQL                       = "PLUGIN_NAME_POSTGRESQL";
+
     String EDITOR_TABLEINFO_TABLE_TYPE_TITLE            = "UI_EDITOR_TABLEINFO_TABLE_TYPE_TITLE";
     String EDITOR_TABLEINFO_TABLE_TYPE_DESC             = "UI_EDITOR_TABLEINFO_TABLE_TYPE_DESC";
     String EDITOR_TABLEINFO_TABLE_TYPE_UNLOGGED         = "UI_EDITOR_TABLEINFO_TABLE_TYPE_UNLOGGED";

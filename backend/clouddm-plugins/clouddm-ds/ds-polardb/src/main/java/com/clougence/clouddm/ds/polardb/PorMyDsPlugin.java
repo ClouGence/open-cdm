@@ -18,19 +18,19 @@ package com.clougence.clouddm.ds.polardb;
 import com.clougence.adapter.polar.pormy.PolarDBMyTypes;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ui.DsFeatureIDs;
-import com.clougence.clouddm.ds.polardb.analysis.pormy.*;
 import com.clougence.clouddm.ds.polardb.definition.pormy.PorMyDefService;
 import com.clougence.clouddm.ds.polardb.definition.pormy.ui.ddl.PorMyConvertTableDDLSpi;
+import com.clougence.clouddm.ds.polardb.definition.secrules.PorMySecRulesSupportSpi;
 import com.clougence.clouddm.ds.polardb.dialect.pormy.PolarDBMyDialect;
 import com.clougence.clouddm.ds.polardb.dsconf.pormy.PorMyConfigSpi;
 import com.clougence.clouddm.ds.polardb.dsconf.pormy.PorMySerializationSpi;
 import com.clougence.clouddm.ds.polardb.execute.pormy.PorMySessionFactory;
 import com.clougence.clouddm.ds.polardb.execute.pormy.PorMySupportSpi;
+import com.clougence.clouddm.ds.polardb.i18n.PorMyConfigI18nKeys;
 import com.clougence.clouddm.ds.polardb.i18n.PorMyDsI18nKeys;
 import com.clougence.clouddm.ds.polardb.language.pormy.PorMyLanguageSpi;
 import com.clougence.clouddm.ds.polardb.resource.PorMyEditorResourceSpi;
 import com.clougence.clouddm.dsfamily.definition.TypeMapUtils;
-import com.clougence.clouddm.dsfamily.mysql.analysis.rewrite.MyRewriteSpi;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.browser.MyDsBrowseSpi;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.data.MyDataEditorSpi;
 import com.clougence.clouddm.dsfamily.mysql.definition.ui.editor.table.MyEditorProvider;
@@ -46,12 +46,14 @@ import com.clougence.schema.DsType;
 import com.clougence.schema.SchemaBinder;
 import com.clougence.schema.SchemaFramework;
 import com.clougence.schema.SchemaPlugin;
+import com.clougence.sql.mysql.MySqlEngineSpi;
 
 /** @author mode 2024/12/25 15:13 */
-@Plugin(includePackages = { "com.clougence.clouddm.dsfamily.execute.*",      //
+@Plugin(name = "i18n::" + PorMyDsI18nKeys.PLUGIN_NAME_POLARDB_MYSQL,         //
+        includePackages = { "com.clougence.clouddm.dsfamily.execute.*",      //
                             "com.clougence.clouddm.dsfamily.mysql.execute.*",//
                             "com.clougence.clouddm.ds.polardb.execute.pormy.*"//
-}, dsProduct = DataSourceType.PolarDbMySQL)
+        }, dsProduct = DataSourceType.PolarDbMySQL)
 public class PorMyDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     @Override
@@ -83,14 +85,17 @@ public class PorMyDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
     private void configExecute(DsPluginBinder dsPlugin) {
         dsPlugin.bindDsSessionFactory(PorMySessionFactory.class);
         dsPlugin.bindDsDriverFamily("MySQL Connector/J");
+
+        dsPlugin.bindSqlEngine(MySqlEngineSpi.NAME);
+
         dsPlugin.addPluginSpi(new MySessionSpi());
         dsPlugin.addPluginSpi(new PorMySupportSpi());
-        dsPlugin.addPluginSpi(new MyRewriteSpi());
     }
 
     private void configUi(DsPluginBinder dsPlugin) {
         //initI18n
         dsPlugin.bindPluginI18n(PorMyDsI18nKeys.class);
+        dsPlugin.bindPluginI18n(PorMyConfigI18nKeys.class);
         //sqlBuilder
         dsPlugin.bindDsSqlBuilder(MyEditorProvider.INSTANCE);
         dsPlugin.bindDsDialect(PolarDBMyDialect.INSTANCE);
@@ -112,11 +117,7 @@ public class PorMyDsPlugin implements DsPlugin, SchemaPlugin, DsFeatureIDs {
 
     private void configTeam(DsPluginBinder dsPlugin) {
         // SPIs
-        dsPlugin.addPluginSpi(new PorMyResAnalysisSpi(dsPlugin.findGlobalService(MetaService.class)));
-        dsPlugin.addPluginSpi(new PorMySplitAnalysisSpi());
-        dsPlugin.addPluginSpi(new PorMySecDomainResolveSpi(dsPlugin.findGlobalService(MetaService.class)));
         dsPlugin.addPluginSpi(new PorMySecRulesSupportSpi());
-        dsPlugin.addPluginSpi(new PorSelectColumnAnalysisSpi());
     }
 
     private void configFeature(DsPluginBinder dsPlugin) {

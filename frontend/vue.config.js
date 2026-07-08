@@ -74,10 +74,7 @@ module.exports = {
       '/api': {
         target: HOST,
         changeOrigin: true,
-        ws: true,
-        pathRewrite: {
-          '^/api': ''
-        }
+        ws: true
       },
       '/login': {
         target: HOST
@@ -85,13 +82,13 @@ module.exports = {
       '/logout': {
         target: HOST
       },
+      '/globalSettings': {
+        target: HOST
+      },
       '/signin': {
         target: HOST
       },
       '/loginMfaValid': {
-        target: HOST
-      },
-      '/globalSettings': {
         target: HOST
       },
       '/list_org': {

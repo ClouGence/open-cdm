@@ -70,7 +70,6 @@ import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvParamDO;
 import com.clougence.clouddm.platform.dal.util.PageUtils;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
 import com.clougence.clouddm.sdk.approval.ApprovalUrl;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbSupportSpi;
@@ -86,8 +85,7 @@ import com.clougence.clouddm.sdk.security.auth.def.SecRoleAuthLabel;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.service.secrules.RuleDomain;
 import com.clougence.clouddm.sdk.service.secrules.RuleLevel;
-import com.clougence.rdp.component.resulttask.AsyncTaskWithResultService;
-import com.clougence.rdp.component.resulttask.TaskType;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 import com.clougence.rdp.service.RdpDsEnvService;
 import com.clougence.rdp.service.model.EnvTicketMO;
 import com.clougence.schema.umi.struts.UmiTypes;
@@ -186,7 +184,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
 
         // check force
         ApprovalMO ticketInfo = new ApprovalMO();
-        int totalCount = this.analysisSqlAndCheckResource(fo, dsType, dsLevels, ticketInfo);
+        int totalCount = this.analysisSqlAndCheckResource(fo, dsLevels, ticketInfo);
         if (!fo.isForce()) {
             if (result.isFailure() || result.isConfirm()) {
                 return result;
@@ -251,8 +249,7 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
     public void createAuthTicket(String ownerUid, String uid, RdpAddAuthTicketFO fo) {
         DmAuthUserDO user = this.authDal.userMapper().queryByUid(uid);
         if (user != null && user.getAccountType() == AccountType.PRIMARY_ACCOUNT) {
-            throw new ErrorMessageException(
-                DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_AUTH_TICKET_ROOT_ACCOUNT_UNSUPPORTED.name()));
+            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nRdpMsgKeys.TICKET_AUTH_TICKET_ROOT_ACCOUNT_UNSUPPORTED.name()));
         }
 
         List<Long> dsIds = fo.getApplyAuths().stream().map(ApplyAuth::getResId).sorted().collect(Collectors.toList());
@@ -369,10 +366,11 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         return applyAuths;
     }
 
-    private int analysisSqlAndCheckResource(DmAddTicketFO fo, DataSourceType dsType, DsLevels dsLevels, ApprovalMO ticketInfo) {
+    private int analysisSqlAndCheckResource(DmAddTicketFO fo, DsLevels dsLevels, ApprovalMO ticketInfo) {
         int totalCount = 1;
         try {
-            List<SplitScript> sqlList = this.queryAnalysisService.analysisSplit(dsType, fo.getRawSql(), null, 1, 0);
+            DataSourceConfig dataSourceConfig = dmDsConfigService.fetchDsConfigFromExists(dsLevels.dsDO().getId());
+            List<SplitScript> sqlList = this.queryAnalysisService.analysisSplit(dataSourceConfig, fo.getRawSql(), null, 1, 0);
             totalCount = sqlList.size();
             // check resource match fo.levels
             Map<String, Object> params = new HashMap<>();
@@ -388,9 +386,8 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
                         break;
                 }
             });
-            DataSourceConfig dataSourceConfig = dmDsConfigService.fetchDsConfigFromDM(dsLevels.dsDO().getId(), dsLevels.dsDO().getDataSourceType());
             Map<RuleDomain, List<ResObject>> ruleDomainListMap = this.queryAnalysisService.analysisResourceV2(dataSourceConfig, fo.getRawSql(), params);
-            List<ResObject> resObjects = ruleDomainListMap.values().stream().flatMap(List::stream).collect(Collectors.toList());
+            List<ResObject> resObjects = ruleDomainListMap.values().stream().flatMap(List::stream).toList();
             String path = dsLevels.asResPath().getResPath();
             for (ResObject resObject : resObjects) {
                 if (resObject.getType() == TargetType.ConfigKey) {
@@ -520,31 +517,31 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
         }
         DsLevels dsLevels = dmDsConfigService.parseLevels(levels);
 
-        List<SplitScript> splitScripts;
-        DmDsDO rdpDataSourceDO = this.datasourceDal.dsMapper().queryDsIdentityById(rdpTicket.getBindDsId());
+        List<SplitScript> scripts;
+        DataSourceConfig dsConfig = dmDsConfigService.fetchDsConfigFromExists(rdpTicket.getBindDsId());
         try {
-            splitScripts = this.queryAnalysisService.analysisSplit(rdpDataSourceDO.getDataSourceType(), dmTicket.getRawSql(), null, 1, 0);
+            scripts = this.queryAnalysisService.analysisSplit(dsConfig, dmTicket.getRawSql(), null, 1, 0);
         } catch (Exception e) {
             log.warn("can not parse sql");
             SplitScript splitScript = new SplitScript();
             splitScript.setScript(dmTicket.getRawSql());
             splitScript.setType(SecQueryType.UNKNOWN);
-            splitScripts = Collections.singletonList(splitScript);
+            scripts = Collections.singletonList(splitScript);
         }
 
         RdbSupportSpi rdbSupportSpi = PluginManager.findRdbSupportSpi(dsLevels.dsDO().getDataSourceType());
         if (!rdbSupportSpi.supportMultiStatement(false)) {
             SplitScript splitScript = new SplitScript();
             splitScript.setScript(dmTicket.getRawSql());
-            if (splitScripts.size() > 1) {
+            if (scripts.size() > 1) {
                 splitScript.setType(SecQueryType.UNKNOWN);
             } else {
-                splitScript.setType(splitScripts.get(0).getType());
+                splitScript.setType(scripts.get(0).getType());
             }
-            splitScripts = Collections.singletonList(splitScript);
+            scripts = Collections.singletonList(splitScript);
         }
 
-        this.autoExecService.createJob(rdpTicket.getPrimaryUid(), confirmUser.getUid(), fo.getAutoExecConfig(), dsLevels, SQLJobBizType.TICKET, rdpTicket.getBizId(), splitScripts);
+        this.autoExecService.createJob(rdpTicket.getPrimaryUid(), confirmUser.getUid(), fo.getAutoExecConfig(), dsLevels, SQLJobBizType.TICKET, rdpTicket.getBizId(), scripts);
     }
 
     @Override
@@ -648,7 +645,6 @@ public class ApprovalControlServiceImpl implements ApprovalControlService {
             DmDsDO dsDO = this.datasourceDal.dsMapper().queryDsIdentityById(approvalDO.getBindDsId());
             if (dsDO != null) {
                 vo.setDataSourceType(dsDO.getDataSourceType());
-                vo.setDsDeployType(dsDO.getDeployType());
             }
         }
         vo.setTargetInfo(approvalDO.getTargetInfo());

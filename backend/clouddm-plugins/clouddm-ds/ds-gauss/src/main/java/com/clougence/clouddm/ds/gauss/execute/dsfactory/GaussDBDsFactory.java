@@ -18,6 +18,7 @@ package com.clougence.clouddm.ds.gauss.execute.dsfactory;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
 import com.clougence.drivers.DsConfigKeys;
@@ -29,6 +30,9 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class GaussDBDsFactory implements DsFactory<Connection> {
+
+    private static final char[] INJECT_CHAR           = new char[] { ' ', ';' };
+    private static final char[] TIME_ZONE_INJECT_CHAR = new char[] { ' ', ';', '\'' };
 
     @Override
     public DsObject<Connection> create(Properties dsConfig) throws SQLException {
@@ -47,6 +51,7 @@ public class GaussDBDsFactory implements DsFactory<Connection> {
         String clientName = dsConfig.getProperty(DsConfigKeys.CLIENT_NAME.getConfigKey());
         String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
         String clientEncoding = dsConfig.getProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey());
+        String clientTimeZone = dsConfig.getProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey());
         String tcpKeepAlive = dsConfig.getProperty(DsConfigKeys.TCP_KEEP_ALIVE.getConfigKey());
         String autoCommit = dsConfig.getProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey());
 
@@ -68,7 +73,7 @@ public class GaussDBDsFactory implements DsFactory<Connection> {
         }
 
         if (StringUtils.isNotBlank(clientEncoding)) {
-            props.put("charSet", clientEncoding);
+            props.put("allowEncodingChanges", "true");
         }
 
         if (StringUtils.isNotBlank(tcpKeepAlive)) {
@@ -95,6 +100,22 @@ public class GaussDBDsFactory implements DsFactory<Connection> {
             // Set auto-commit property after connection is established
             if (StringUtils.isNotBlank(autoCommit)) {
                 connect.setAutoCommit(!StringUtils.equalsIgnoreCase("false", autoCommit));
+            }
+            if (StringUtils.isNotBlank(clientEncoding) && !StringUtils.containsAny(clientEncoding, INJECT_CHAR)) {
+                String exec = "set client_encoding = " + clientEncoding;
+                try (Statement statement = connect.createStatement()) {
+                    statement.execute(exec);
+                } catch (SQLException e) {
+                    log.error("create connection applyProps failed '{}'", exec, e);
+                }
+            }
+            if (StringUtils.isNotBlank(clientTimeZone) && !StringUtils.containsAny(clientTimeZone, TIME_ZONE_INJECT_CHAR)) {
+                String exec = "set time zone '" + clientTimeZone + "'";
+                try (Statement statement = connect.createStatement()) {
+                    statement.execute(exec);
+                } catch (SQLException e) {
+                    log.error("create connection applyProps failed '{}'", exec, e);
+                }
             }
 
             return new DsObject<>(dsConfig, connect, this);

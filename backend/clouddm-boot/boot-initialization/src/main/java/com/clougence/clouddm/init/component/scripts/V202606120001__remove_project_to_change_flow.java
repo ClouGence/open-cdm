@@ -15,27 +15,14 @@
  */
 package com.clougence.clouddm.init.component.scripts;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.flywaydb.core.api.migration.Context;
 
 import com.clougence.clouddm.init.component.flyway.AbstractUpgradeJavaMigration;
 import com.clougence.clouddm.init.component.scripts.migration.RemoveProjectToChangeFlowMigrator;
 
 public class V202606120001__remove_project_to_change_flow extends AbstractUpgradeJavaMigration {
-
-    @Override
-    public void migrate(Context context) throws Exception {
-        // 1. DDL first: create target tables with the regular SQL migration path.
-        // 2. DML next: move and transform existing rows through Java code.
-        // 3. DDL last: drop old tables.
-        super.migrate(context);
-        new RemoveProjectToChangeFlowMigrator(context.getConnection()).migrate();
-        for (String sql : collectPostMigrationScript()) {
-            safeExecute(context.getConnection(), sql);
-        }
-    }
 
     @Override
     public List<String> collectScript() {
@@ -199,7 +186,11 @@ public class V202606120001__remove_project_to_change_flow extends AbstractUpgrad
         return scripts;
     }
 
-    private List<String> collectPostMigrationScript() {
+    protected void afterMigrate(Connection connection) throws Exception {
+        // 1. DDL first: create target tables with the regular SQL migration path.
+        // 2. DML next: move and transform existing rows through Java code.
+        // 3. DDL last: drop old tables.
+
         List<String> scripts = new ArrayList<>();
         scripts.add("drop table if exists dm_project_msg");
         scripts.add("drop table if exists dm_project_change_item");
@@ -209,6 +200,10 @@ public class V202606120001__remove_project_to_change_flow extends AbstractUpgrad
         scripts.add("drop table if exists dm_project_devops");
         scripts.add("drop table if exists dm_project");
         scripts.add("drop table if exists dm_project_scm");
-        return scripts;
+
+        new RemoveProjectToChangeFlowMigrator(connection).migrate();
+        for (String sql : scripts) {
+            safeExecute(connection, sql);
+        }
     }
 }

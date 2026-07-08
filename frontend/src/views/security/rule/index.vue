@@ -1,32 +1,35 @@
 <template>
   <div class="rule-list-container">
     <div class="table-list-layout">
-      <nav class="rule-tabs">
-        <span class="rule-tabs__item" :class="{ 'is-active': activeTab === 'QUERY' }" @click="handleTabClick('QUERY')">
-          {{ $t('cha-xun-gui-ze') }}
-        </span>
-        <span class="rule-tabs__item" :class="{ 'is-active': activeTab === 'SENSITIVE' }" @click="handleTabClick('SENSITIVE')">
-          {{ $t('tuo-min-gui-ze') }}
-        </span>
-      </nav>
       <div class="table-list">
         <div class="content" v-if="isQuery">
           <div class="option">
             <div class="left">
-              <Input v-model="QUERY.search" style="width: 280px; margin-right: 10px" clearable></Input>
+              <Select v-model="activeTab" style="width: 160px; margin-right: 10px" @on-change="handleRuleKindChange">
+                <Option v-for="item in ruleKindOptions" :value="item.value" :key="item.value">
+                  {{ item.label }}
+                </Option>
+              </Select>
+              <Input
+                v-model="QUERY.search"
+                style="width: 280px; margin-right: 10px"
+                clearable
+                :placeholder="$t('qing-shu-ru-gui-ze-ming-cheng-miao-shu-cha-xun')"
+              ></Input>
               <Button @click="getRuleSearch" type="primary" ghost>{{ $t('cha-xun') }}</Button>
             </div>
             <div class="right">
-              <Button @click="handleAddRule" type="primary" style="margin-right: 10px" icon="md-add" v-if="myAuth.includes('DM_SECRULES_MANAGE')">
-                {{ $t('xin-jian-gui-ze') }}
+              <Button @click="handleOpenApplyTemplateModal()" type="primary" ghost style="margin-right: 10px" v-if="hasRuleManage">
+                {{ $t('ying-yong') }}
               </Button>
-              <Button @click="getRuleList">
-                <CustomIcon type="icon-v2-Refresh" />
+              <Button @click="handleAddRule" type="primary" style="margin-right: 10px" icon="md-add" v-if="hasRuleManage">
+                {{ $t('xin-jian-gui-ze-mo-ban') }}
               </Button>
             </div>
           </div>
           <div class="table-container">
             <Table
+              :key="`query-${hasRuleManage}`"
               border
               stripe
               :columns="queryRuleColumns"
@@ -42,7 +45,7 @@
                 <Button @click="handleViewRule(row)" type="text" size="small">
                   {{ $t('xiang-qing') }}
                 </Button>
-                <Button @click="handleViewRule(row, 'edit')" type="text" size="small" v-if="!row.inner && myAuth.includes('DM_SECRULES_MANAGE')">
+                <Button @click="handleViewRule(row, 'edit')" type="text" size="small" v-if="!row.inner && hasRuleManage">
                   {{ $t('bian-ji') }}
                 </Button>
                 <Poptip
@@ -53,21 +56,13 @@
                   :cancel-text="$t('qu-xiao')"
                   @on-ok="handleDeleteRule(row)"
                 >
-                  <Button type="text" size="small" v-if="!row.inner && myAuth.includes('DM_SECRULES_MANAGE')">
+                  <Button type="text" size="small" v-if="!row.inner && hasRuleManage">
                     {{ $t('shan-chu') }}
                   </Button>
                 </Poptip>
               </template>
               <template #dsRange="{ row }">
-                <Tooltip transfer placement="top">
-                  <div class="ds-range-row">
-                    <CustomIcon v-for="ds in row.dsRange.slice(0, 8)" :key="ds" :type="ds" rightMargin />
-                    <span v-if="row.dsRange && row.dsRange.length > 8" class="more-count">{{ row.dsRange.length - 8 }}</span>
-                  </div>
-                  <template #content>
-                    <CustomIcon v-for="ds in row.dsRange" :key="`full-` + ds" :type="ds" rightMargin />
-                  </template>
-                </Tooltip>
+                <DataSourceRangeTags :ds-range="row.dsRange" />
               </template>
             </Table>
           </div>
@@ -75,20 +70,31 @@
         <div class="content" v-else>
           <div class="option">
             <div class="left">
-              <Input v-model="SENSITIVE.search" style="width: 280px; margin-right: 10px" clearable></Input>
+              <Select v-model="activeTab" style="width: 160px; margin-right: 10px" @on-change="handleRuleKindChange">
+                <Option v-for="item in ruleKindOptions" :value="item.value" :key="item.value">
+                  {{ item.label }}
+                </Option>
+              </Select>
+              <Input
+                v-model="SENSITIVE.search"
+                style="width: 280px; margin-right: 10px"
+                clearable
+                :placeholder="$t('qing-shu-ru-gui-ze-ming-cheng-miao-shu-cha-xun')"
+              ></Input>
               <Button @click="getRuleSearch" type="primary" ghost>{{ $t('cha-xun') }}</Button>
             </div>
             <div class="right">
-              <Button @click="handleAddRule" type="primary" style="margin-right: 10px" icon="md-add" v-if="myAuth.includes('DM_SECRULES_MANAGE')">
-                {{ $t('xin-jian-gui-ze') }}
+              <Button @click="handleOpenApplyTemplateModal()" type="primary" ghost style="margin-right: 10px" v-if="hasRuleManage">
+                {{ $t('ying-yong') }}
               </Button>
-              <Button @click="getRuleList">
-                <CustomIcon type="icon-v2-Refresh" />
+              <Button @click="handleAddRule" type="primary" style="margin-right: 10px" icon="md-add" v-if="hasRuleManage">
+                {{ $t('xin-jian-gui-ze-mo-ban') }}
               </Button>
             </div>
           </div>
           <div class="table-container">
             <Table
+              :key="`sensitive-${hasRuleManage}`"
               border
               stripe
               :columns="sensitiveRuleColumns"
@@ -101,7 +107,7 @@
                 <Button @click="handleViewRule(row)" type="text" size="small">
                   {{ $t('xiang-qing') }}
                 </Button>
-                <Button @click="handleViewRule(row, 'edit')" type="text" size="small" v-if="!row.inner && myAuth.includes('DM_SECRULES_MANAGE')">
+                <Button @click="handleViewRule(row, 'edit')" type="text" size="small" v-if="!row.inner && hasRuleManage">
                   {{ $t('bian-ji') }}
                 </Button>
                 <Poptip
@@ -112,7 +118,7 @@
                   :cancel-text="$t('qu-xiao')"
                   @on-ok="handleDeleteRule(row)"
                 >
-                  <Button type="text" size="small" v-if="!row.inner && myAuth.includes('DM_SECRULES_MANAGE')">
+                  <Button type="text" size="small" v-if="!row.inner && hasRuleManage">
                     {{ $t('shan-chu') }}
                   </Button>
                 </Poptip>
@@ -141,7 +147,7 @@
           v-else
           show-sizer
           v-model="SENSITIVE.pageNum"
-          :page-size="QUERY.pageSize"
+          :page-size="SENSITIVE.pageSize"
           @on-page-size-change="handlePageSizeChange"
         />
       </div>
@@ -156,23 +162,69 @@
       <div class="title" v-html="forceRuleModalText" style="margin-bottom: 10px"></div>
       <Table :columns="forceRuleRefererColumns" :data="forceRuleRefererList" size="small" />
     </Modal>
+    <CCModal v-model="showApplyTemplateModal" :title="$t('ying-yong-dao-an-quan-gui-ze')" :width="620" @on-cancel="handleCloseApplyTemplateModal">
+      <div class="apply-template-modal-content">
+        <Form class="apply-template-form" :label-width="96">
+          <FormItem class="apply-template-form-item" :label="$t('gui-ze-mo-ban')">
+            <div class="apply-template-summary">
+              <Tag color="blue">{{ applyRuleKindLabel }}</Tag>
+              <span>{{ applyTemplateRuleCountText }}</span>
+            </div>
+          </FormItem>
+          <FormItem class="apply-template-form-item apply-template-spec-item" :label="$t('an-quan-gui-fan')">
+            <Select v-model="applySpecIds" multiple filterable transfer :loading="applySpecLoading" style="width: 100%">
+              <Option v-for="spec in applySpecList" :value="spec.specId" :key="spec.specId">
+                {{ spec.name }}
+                <span v-if="spec.description">（{{ spec.description }}）</span>
+              </Option>
+            </Select>
+          </FormItem>
+        </Form>
+      </div>
+      <template #footer>
+        <div class="apply-template-footer">
+          <Button @click="handleCloseApplyTemplateModal">{{ $t('qu-xiao') }}</Button>
+          <Button type="primary" :loading="applySaving" @click="handleApplyTemplateRules(false)">
+            {{ $t('ying-yong') }}
+          </Button>
+        </div>
+      </template>
+    </CCModal>
+    <CCModal v-model="showApplyForceModal" :title="$t('qiang-zhi-ying-yong')" @on-cancel="handleCloseApplyForceModal">
+      <Alert type="warning">
+        <div v-html="applyForceText"></div>
+      </Alert>
+      <Table :columns="applyForceRefererColumns" :data="applyForceRefererList" size="small">
+        <template #envDesc="{ row }">
+          <Tooltip :content="row.envDesc" placement="top" transfer>
+            <span class="apply-force-env-desc-cell">{{ row.envDesc }}</span>
+          </Tooltip>
+        </template>
+      </Table>
+      <template #footer>
+        <Button @click="handleCloseApplyForceModal">{{ $t('qu-xiao') }}</Button>
+        <Button type="error" :loading="applySaving" @click="handleApplyTemplateRules(true)">
+          {{ $t('qiang-zhi-ying-yong') }}
+        </Button>
+      </template>
+    </CCModal>
   </div>
 </template>
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex';
-
+import DataSourceRangeTags from '@/views/security/components/DataSourceRangeTags';
 export default {
   name: 'RuleList',
+  components: { DataSourceRangeTags },
   mounted() {
-    if (this.$route.query.ruleKind) {
-      this.activeTab = this.$route.query.ruleKind;
-    }
+    this.activeTab = this.normalizeRuleKind(this.$route.query.ruleKind);
     this.getRuleList();
     this.getRuleSetting();
   },
   data() {
     return {
       activeTab: 'QUERY',
+      ruleKinds: ['QUERY', 'SENSITIVE'],
       forceEvent: null,
       supportTypeList: ['int', 'integer', 'float', 'decimal', 'bool', 'string', 'date', 'time', 'datetime'],
       isEdit: false,
@@ -191,6 +243,27 @@ export default {
         }
       ],
       selectedRule: {},
+      applyTemplateRules: [],
+      applySpecList: [],
+      applySpecIds: [],
+      applySpecLoading: false,
+      applySaving: false,
+      showApplyTemplateModal: false,
+      showApplyForceModal: false,
+      applyForceData: null,
+      applyForceText: '',
+      applyForceRefererList: [],
+      applyForceRefererColumns: [
+        {
+          title: this.$t('huan-jing-ming-cheng'),
+          key: 'envName'
+        },
+        {
+          title: this.$t('huan-jing-miao-shu'),
+          key: 'envDesc',
+          slot: 'envDesc'
+        }
+      ],
       // query rule
       QUERY: {
         loading: false,
@@ -217,11 +290,27 @@ export default {
   computed: {
     ...mapGetters(['getTargetType', 'getSenMode']),
     ...mapState(['myAuth']),
+    hasRuleManage() {
+      return this.myAuth.includes('DM_SECRULES_MANAGE');
+    },
+    ruleKindOptions() {
+      return [
+        { value: 'QUERY', label: this.$t('cha-xun-gui-ze') },
+        { value: 'SENSITIVE', label: this.$t('tuo-min-gui-ze') }
+      ];
+    },
     isQuery() {
       return this.activeTab === 'QUERY';
     },
+    applyRuleKindLabel() {
+      const option = this.ruleKindOptions.find((item) => item.value === this.activeTab);
+      return option ? option.label : '';
+    },
+    applyTemplateRuleCountText() {
+      return this.$t('gong-count-tiao-gui-ze', { count: this.applyTemplateRules.length });
+    },
     queryRuleColumns() {
-      return [
+      const columns = [
         {
           title: this.$t('gui-ze-ming-cheng'),
           key: 'ruleName',
@@ -235,7 +324,7 @@ export default {
         {
           title: this.$t('shu-ju-yuan'),
           slot: 'dsRange',
-          width: 250
+          width: 260
         },
         {
           title: this.$t('dui-xiang-lei-xing'),
@@ -245,16 +334,17 @@ export default {
         {
           title: this.$t('cao-zuo'),
           slot: 'ruleAction',
-          width: 160,
+          width: 170,
           fixed: 'right'
         }
       ];
+      return columns;
     },
     queryTableScroll() {
-      return { x: 1070 };
+      return { x: 1182 };
     },
     sensitiveRuleColumns() {
-      return [
+      const columns = [
         {
           title: this.$t('gui-ze-ming-cheng'),
           key: 'ruleName',
@@ -272,22 +362,31 @@ export default {
           fixed: 'right'
         }
       ];
+      return columns;
     },
     sensitiveTableScroll() {
-      return { x: 730 };
+      return { x: 822 };
     }
   },
   methods: {
     ...mapActions(['getRuleSetting']),
-    handleTabClick(name) {
-      this.activeTab = name;
+    normalizeRuleKind(ruleKind) {
+      return this.ruleKinds.includes(ruleKind) ? ruleKind : 'QUERY';
+    },
+    handleRuleKindChange(name) {
+      const ruleKind = this.normalizeRuleKind(name);
+      if (ruleKind !== name) {
+        this.activeTab = ruleKind;
+        this.$Message.warning(this.$t('gui-ze-lei-xing-bu-neng-wei-kong'));
+      }
       this.$router.push({
         path: '/data-access/rules',
         query: {
-          ruleKind: name
+          tab: 'template',
+          ruleKind
         }
       });
-      if (!this[name].total) {
+      if (!this[ruleKind].total) {
         this.getRuleList();
       }
     },
@@ -348,6 +447,90 @@ export default {
         }
       });
     },
+    async handleOpenApplyTemplateModal() {
+      const rules = this[this.activeTab].allRuleList || [];
+      if (!rules.length) {
+        this.$Message.warning(this.$t('dang-qian-gui-ze-mo-ban-mei-you-ke-ying-yong-de-gui-ze'));
+        return;
+      }
+      this.applyTemplateRules = rules.slice();
+      this.applySpecIds = [];
+      this.showApplyTemplateModal = true;
+      await this.getApplySpecList();
+    },
+    async getApplySpecList() {
+      this.applySpecLoading = true;
+      const res = await this.$services.dmSecurityRulesSpecList({
+        data: {
+          search: ''
+        }
+      });
+      this.applySpecLoading = false;
+      if (res.success) {
+        this.applySpecList = res.data || [];
+      }
+    },
+    buildRuleParam(rule) {
+      const params = {};
+      (rule.ruleParameter || []).forEach((param) => {
+        params[param.name] = param.defaultValue;
+      });
+      return params;
+    },
+    buildApplyRulesPayload() {
+      return this.applyTemplateRules.map((rule) => ({
+        ruleId: rule.ruleId,
+        ruleKind: rule.ruleKind,
+        enable: true,
+        warnLevel: rule.ruleKind === 'QUERY' ? 'SUGGEST' : undefined,
+        senMode: rule.ruleKind === 'SENSITIVE' ? rule.senMode || 'ROW' : undefined,
+        ruleParam: this.buildRuleParam(rule)
+      }));
+    },
+    async handleApplyTemplateRules(force = false) {
+      if (!this.applySpecIds.length) {
+        this.$Message.warning(this.$t('qing-xuan-ze-an-quan-gui-ze'));
+        return;
+      }
+      const data =
+        force && this.applyForceData
+          ? { ...this.applyForceData, force: true }
+          : {
+              specIds: this.applySpecIds,
+              rules: this.buildApplyRulesPayload(),
+              force
+            };
+      this.applySaving = true;
+      const res = await this.$services.dmSecurityRulesSpecSaveRules({
+        data
+      });
+      this.applySaving = false;
+
+      if (res.success && res.data) {
+        if (res.data.success) {
+          this.$Message.success(res.data.message || this.$t('ying-yong-cheng-gong'));
+          this.handleCloseApplyTemplateModal();
+          this.handleCloseApplyForceModal();
+        } else {
+          this.applyForceData = data;
+          this.applyForceText = res.data.message || '';
+          this.applyForceRefererList = res.data.referer || [];
+          this.showApplyForceModal = true;
+        }
+      }
+    },
+    handleCloseApplyTemplateModal() {
+      this.showApplyTemplateModal = false;
+      this.applyTemplateRules = [];
+      this.applySpecIds = [];
+      this.applySaving = false;
+      this.applyForceData = null;
+    },
+    handleCloseApplyForceModal() {
+      this.showApplyForceModal = false;
+      this.applyForceText = '';
+      this.applyForceRefererList = [];
+    },
     getRuleSearch() {
       const ruleList = this[this.activeTab].allRuleList.filter(
         (rule) => rule.ruleName.includes(this[this.activeTab].search) || rule.ruleDesc.includes(this[this.activeTab].search)
@@ -402,49 +585,6 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-.rule-tabs {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  padding: 0;
-  background: var(--bg-card);
-
-  &__item {
-    position: relative;
-    padding: 12px 20px 10px;
-    color: var(--text-secondary);
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 1.4;
-    text-decoration: none;
-    cursor: pointer;
-    border-bottom: none;
-    transition: color 0.12s ease;
-
-    &:hover {
-      color: var(--text-primary);
-      border-bottom: none;
-    }
-
-    &.is-active {
-      color: var(--text-primary);
-      font-weight: 500;
-
-      &::after {
-        content: '';
-        position: absolute;
-        left: 20px;
-        right: 20px;
-        bottom: 0;
-        height: 2px;
-        border-radius: 2px 2px 0 0;
-        background: var(--primary-color);
-      }
-    }
-  }
-}
-
 :deep(.ivu-form-item) {
   margin-bottom: 10px;
 }
@@ -454,24 +594,86 @@ export default {
   flex-direction: column;
 }
 
-:deep(.ds-range-row) {
-  white-space: nowrap;
+.rule-list-container .table-list-layout .content .option {
+  flex-wrap: wrap;
+  align-items: flex-start;
+  overflow: visible;
+  row-gap: 10px;
+}
+
+.rule-list-container .table-list-layout .content .option .left {
+  flex: 1 1 520px;
+  max-width: 100%;
+}
+
+.rule-list-container .table-list-layout .content .option .right {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+@media (max-width: 1280px) {
+  .rule-list-container .table-list-layout .content .option .right {
+    width: 100%;
+    justify-content: flex-end;
+    margin-left: 0;
+  }
+}
+
+.apply-template-summary {
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  line-height: 24px;
+}
+
+.apply-template-modal-content {
+  max-height: calc(100vh - 280px);
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.apply-template-form {
+  padding-top: 2px;
+}
+
+:deep(.apply-template-form .apply-template-form-item) {
+  margin-bottom: 18px;
+}
+
+:deep(.apply-template-form .apply-template-spec-item .ivu-form-item-label::before) {
+  content: '*';
+  display: inline-block;
+  margin-right: 4px;
+  color: #ed4014;
+  font-family: SimSun, sans-serif;
+  line-height: 1;
+}
+
+:deep(.apply-template-form .ivu-form-item-error-tip) {
+  padding-top: 6px;
+  line-height: 18px;
+}
+
+.apply-template-footer {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: 24px;
+  width: 100%;
 }
-:deep(.more-count) {
-  white-space: nowrap;
+
+.apply-template-footer .ivu-btn,
+.apply-template-footer :deep(.ivu-btn) {
+  min-width: 100px;
+}
+
+.apply-force-env-desc-cell {
   display: inline-block;
-  margin-left: 6px;
-  padding: 0 6px;
-  font-size: 12px;
-  line-height: 18px;
-  color: #595959;
-  background: #f0f0f0;
-  border-radius: 9px;
-}
-:deep(.more-count::before) {
-  content: '+';
-  margin-right: 2px;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

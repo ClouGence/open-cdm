@@ -31,7 +31,6 @@ import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
 import com.clougence.clouddm.console.web.component.auth.model.ResourceAccessInfo;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
-import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
@@ -50,10 +49,11 @@ import com.clougence.clouddm.console.web.model.vo.openapi.DmApiDataSourceVO;
 import com.clougence.clouddm.console.web.model.vo.openapi.DmConsoleSettingsVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.browse.BrowseService;
+import com.clougence.clouddm.console.web.service.datasource.DmDsWebService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
@@ -84,7 +84,7 @@ public class DataSourceApi extends BasicApi {
     @Resource
     private DmResAuthService    dmDsAuthService;
     @Resource
-    private DmDsService         dmDsService;
+    private DmDsWebService      dmDsService;
     @Resource
     private RdpDsEnvService     rdpDsEnvService;
     @Resource
@@ -106,11 +106,10 @@ public class DataSourceApi extends BasicApi {
         }
 
         List<DmConsoleSettingsVO> settings = new ArrayList<>();
-        Map<DataSourceType, DsConfig> dsConfigMap = this.dmDsService.dsConstantSettings();
+        Map<DataSourceType, DsConfig> dsConfigMap = this.dmDsConfigService.dsConstantSettings();
         dsConfigMap.forEach((dsType, dsConfig) -> {
             DmConsoleSettingsVO vo = new DmConsoleSettingsVO();
             vo.setDsType(dsType);
-            vo.setClassify(dsConfig.getClassify());
             vo.setCaseType(dsConfig.getConstant().getCaseType());
             vo.setLeftQualifier(dsConfig.getConstant().getLeftQualifier());
             vo.setRightQualifier(dsConfig.getConstant().getRightQualifier());
@@ -146,8 +145,8 @@ public class DataSourceApi extends BasicApi {
         apiVos.removeIf(vo -> !dsIds.contains(vo.getId()));
 
         // filter by enable
-        List<DmDsConfigDO> dmDsConf = this.dmDsService.fetchDsConfigByIds(puid, dsIds);
-        Set<Long> dsCollect = dmDsConf.stream().map(DmDsConfigDO::getDataSourceId).collect(Collectors.toSet());
+        List<DmDsDO> dmDsConf = this.dmDsService.fetchDsConfigByIds(puid, dsIds);
+        Set<Long> dsCollect = dmDsConf.stream().map(DmDsDO::getId).collect(Collectors.toSet());
         apiVos.removeIf(vo -> !dsCollect.contains(vo.getId()));
 
         // return
@@ -157,8 +156,8 @@ public class DataSourceApi extends BasicApi {
 
         Map<Long, DmSysEnvDO> dsEnvMapping = new LinkedHashMap<>();
         dmDsConf.forEach(d -> {
-            if (envMap.containsKey(d.getBindEnvId())) {
-                dsEnvMapping.put(d.getDataSourceId(), envMap.get(d.getBindEnvId()));
+            if (envMap.containsKey(d.getDsEnvId())) {
+                dsEnvMapping.put(d.getId(), envMap.get(d.getDsEnvId()));
             }
         });
 
@@ -196,8 +195,8 @@ public class DataSourceApi extends BasicApi {
         }
 
         // filter by enable
-        List<DmDsConfigDO> dmDsConfigDOS = this.dmDsService.fetchDsConfigByIds(puid, dsIds);
-        Set<Long> collect = dmDsConfigDOS.stream().map(DmDsConfigDO::getDataSourceId).collect(Collectors.toSet());
+        List<DmDsDO> dmDsConfigDOS = this.dmDsService.fetchDsConfigByIds(puid, dsIds);
+        Set<Long> collect = dmDsConfigDOS.stream().map(DmDsDO::getId).collect(Collectors.toSet());
         if (!collect.contains(apiVo.getId())) {
             return ResApiDataUtils.buildSuccess(null);
         }
@@ -224,8 +223,8 @@ public class DataSourceApi extends BasicApi {
             }
 
             List<DmSysEnvDO> dsEnvDOList = this.rdpDsEnvService.listDsEnv(puid, uid, null);
-            List<DmDsConfigDO> dmDsConfigDOS = this.dmDsService.fetchDsConfigByIds(puid, dsIds);
-            Set<Long> collect = dmDsConfigDOS.stream().map(DmDsConfigDO::getBindEnvId).collect(Collectors.toSet());
+            List<DmDsDO> dmDsConfigDOS = this.dmDsService.fetchDsConfigByIds(puid, dsIds);
+            Set<Long> collect = dmDsConfigDOS.stream().map(DmDsDO::getDsEnvId).collect(Collectors.toSet());
             List<BrowseLevelsVO> vos = dsEnvDOList.stream().filter(env -> {
                 return collect.contains(env.getId());
             }).map(DmConvertUtils::convertToBrowseLevelsVO).collect(Collectors.toList());
@@ -289,25 +288,6 @@ public class DataSourceApi extends BasicApi {
         return ResWebDataUtils.buildSuccess(vos);
     }
 
-    //
-    //
-    //
-
-    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    @RequestMapping(value = "/addds", method = RequestMethod.POST)
-    public ResApiData<?> addDataSource(@RequestParam("dataSourceAddData") String data, @RequestParam(value = "securityFile", required = false) MultipartFile securityFile,
-                                       @RequestParam(value = "secretFile", required = false) MultipartFile secretFile, HttpServletRequest request) {
-        String uid = (String) request.getAttribute(RdpUserService.UID);
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-
-        ResWebData<Long> res = rdpDsOpenApiService.addDs(data, securityFile, secretFile, uid, puid);
-        if (!res.isPermission() || !res.isSuccess()) {
-            return ResApiDataUtils.buildError(res.getCode(), res.getMsg());
-        } else {
-            return ResApiDataUtils.buildSuccess(res.getData());
-        }
-    }
-
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/deleteds", method = RequestMethod.POST)
     public ResApiData<?> deleteDs(@RequestBody @Valid ApiDeleteDsFO data, HttpServletRequest request) {
@@ -342,30 +322,6 @@ public class DataSourceApi extends BasicApi {
 
         String puid = (String) request.getAttribute(RdpUserService.PUID);
         rdpDsOpenApiService.updateAccountAndPasswd(data, securityFile, secretFile, puid);
-        return ResApiDataUtils.buildSuccess(requestId);
-    }
-
-    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    @RequestMapping(value = "/updatepublichost", method = RequestMethod.POST)
-    public ResApiData<?> updatePublicHost(@RequestBody @Valid ApiUpdatePubHostFO updateFO, HttpServletRequest request) {
-        String requestId = (String) request.getAttribute(OpenApiSessionManager.OPEN_API_REQUEST_ID);
-        log.info("updatepublichost for open api request id :" + requestId);
-
-        //api user must be an primary user,just check owner
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        rdpDsOpenApiService.updatePublicHost(puid, updateFO);
-        return ResApiDataUtils.buildSuccess(requestId);
-    }
-
-    @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
-    @RequestMapping(value = "/updateprivatehost", method = RequestMethod.POST)
-    public ResApiData<?> updatePrivateHost(@RequestBody @Valid ApiUpdatePriHostFO updateFO, HttpServletRequest request) {
-        String requestId = (String) request.getAttribute(OpenApiSessionManager.OPEN_API_REQUEST_ID);
-        log.info("updateprivatehost for open api request id :" + requestId);
-
-        //api user must be an primary user,just check owner
-        String puid = (String) request.getAttribute(RdpUserService.PUID);
-        rdpDsOpenApiService.updatePrivateHost(puid, updateFO);
         return ResApiDataUtils.buildSuccess(requestId);
     }
 

@@ -34,9 +34,36 @@
       }
     }
 
-    .vtree-tree-node__expand i::after,
-    .ctree-tree-node__expand i::after {
-      border-left-color: var(--text-tertiary) !important;
+    .vtree-tree-node__expand,
+    .ctree-tree-node__expand {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    .vtree-tree-node__expand i,
+    .ctree-tree-node__expand i {
+      transform: none !important;
+
+      &::after {
+        position: relative;
+        top: auto;
+        left: auto;
+        margin: 0;
+        transform: none;
+        transform-origin: center center;
+        transition: transform 0.2s linear;
+        border-left-color: var(--text-tertiary) !important;
+      }
+    }
+
+    .vtree-tree-node__expand_active i,
+    .ctree-tree-node__expand_active i {
+      transform: none !important;
+
+      &::after {
+        transform: rotate(90deg);
+      }
     }
   }
 
@@ -87,11 +114,11 @@
     background: var(--bg-secondary) !important;
     border-bottom: 1px solid var(--border-primary) !important;
     height: 36px;
-    padding: 4px 6px;
+    padding: 0;
 
     .search-border {
-      border: 1px solid var(--border-primary) !important;
-      border-radius: 6px;
+      border: none !important;
+      border-radius: 0 !important;
       background: var(--bg-tertiary);
     }
   }
@@ -154,13 +181,20 @@
       background: var(--bg-secondary);
     }
 
+    :deep(.ant-tabs-nav-list) {
+      align-items: flex-end;
+      min-height: 40px;
+      padding-top: 6px;
+      box-sizing: border-box;
+    }
+
     :deep(.ant-tabs-tab) {
       background: transparent !important;
       border: none !important;
       border-bottom: 2px solid transparent !important;
       border-radius: 0 !important;
       color: var(--text-secondary) !important;
-      padding: 8px 12px !important;
+      padding: 5px 10px !important;
       margin: 0 !important;
       transition: color 0.12s ease, border-color 0.12s ease;
 
@@ -180,6 +214,8 @@
     }
 
     :deep(.ant-tabs-extra-content) {
+      height: 40px;
+      line-height: 40px;
       border-bottom: 1px solid var(--border-primary);
       background: var(--bg-secondary);
     }

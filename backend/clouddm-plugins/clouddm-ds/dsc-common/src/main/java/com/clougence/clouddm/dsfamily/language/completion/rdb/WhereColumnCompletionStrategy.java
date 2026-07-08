@@ -21,9 +21,16 @@ public class WhereColumnCompletionStrategy extends AbstractColumnCompletionStrat
 
     @Override
     public boolean match(CompletionContext context) {
+        if (context.isInColumnList()) {
+            return true;
+        }
+        if (context.isInPredicate()) {
+            return true;
+        }
+
         int offset = StringUtils.isBlank(context.getPrefix()) ? 0 : 1;
         String previous = context.tokenFromEnd(offset);
-        return "where".equalsIgnoreCase(previous) ||    //
+        return "where".equalsIgnoreCase(previous) ||   //
                "having".equalsIgnoreCase(previous) ||  //
                "on".equalsIgnoreCase(previous) ||      //
                "set".equalsIgnoreCase(previous);

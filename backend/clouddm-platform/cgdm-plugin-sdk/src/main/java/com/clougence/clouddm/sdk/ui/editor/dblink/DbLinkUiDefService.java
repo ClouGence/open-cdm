@@ -29,5 +29,4 @@ public interface DbLinkUiDefService extends Spi {
     UiPanel fetchDbLinkEditorUiPanel(DataSourceConfig dsConfig, Session dsSession, Map<String, String> envVariables, I18nUtils i18nMessages) throws Exception;
 
     PropertyUiPanel fetchDbLinkPropertyUiPanel(DataSourceConfig dsConfig, Session dsSession, Map<String, String> envVariables, I18nUtils i18nMessages) throws Exception;
-
 }

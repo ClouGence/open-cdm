@@ -26,8 +26,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
@@ -67,7 +67,7 @@ public class McpToolsController extends BasicApi implements UnifiedPostConstruct
     @Resource
     private ApplicationContext  context;
     @Resource
-    private DmConsoleConfig     consoleConfig;
+    private ConsoleConfig       config;
 
     @Override
     public void init() {
@@ -171,7 +171,7 @@ public class McpToolsController extends BasicApi implements UnifiedPostConstruct
             throw new ErrorMessageException("AccessKey/SecretKey is missing.");
         }
 
-        OpenApiHttpClient client = new OpenApiHttpClient(host, consoleConfig.getOpenApiTimeout(), ak, sk);
+        OpenApiHttpClient client = new OpenApiHttpClient(host, config.getOpenApiTimeout(), ak, sk);
         String paramStr = Json.toJson(callParams.getArguments());
         String result = client.doJsonPost(api, paramStr);
 

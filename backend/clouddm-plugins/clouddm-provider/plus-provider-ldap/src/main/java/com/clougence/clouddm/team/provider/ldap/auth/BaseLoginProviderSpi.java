@@ -24,22 +24,15 @@ import java.util.stream.Collectors;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
+import javax.naming.directory.*;
 
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
 import com.clougence.clouddm.sdk.security.login.LoginRequest;
 import com.clougence.clouddm.sdk.security.login.LoginResponse;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
-import com.clougence.clouddm.sdk.service.config.RoleData;
 import com.clougence.clouddm.sdk.service.config.UserData;
 import com.clougence.clouddm.team.provider.ldap.constants.LdapI18nKey;
-import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.ExceptionUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -78,7 +71,7 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
             if (e instanceof ThirdPartyApiException) {
                 throw (ThirdPartyApiException) e;
             } else {
-                throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_SERVICE_ERROR.name(), ExceptionUtils.getRootCauseMessage(e));
+                throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_SERVICE_ERROR, ExceptionUtils.getRootCauseMessage(e));
             }
         }
 
@@ -99,7 +92,7 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
             if (e instanceof ThirdPartyApiException) {
                 throw (ThirdPartyApiException) e;
             } else {
-                throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_SERVICE_ERROR.name(), ExceptionUtils.getRootCauseMessage(e));
+                throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_SERVICE_ERROR, ExceptionUtils.getRootCauseMessage(e));
             }
         }
     }
@@ -124,7 +117,7 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
             if (e instanceof ThirdPartyApiException) {
                 throw (ThirdPartyApiException) e;
             } else {
-                throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_SERVICE_ERROR.name(), ExceptionUtils.getRootCauseMessage(e));
+                throw ThirdPartyApiException.as().with(e, LdapI18nKey.LDAP_SERVICE_ERROR, ExceptionUtils.getRootCauseMessage(e));
             }
         }
 
@@ -132,7 +125,7 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
         if (searchResult.isEmpty()) {
             return null;
         } else if (searchResult.size() > 1) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_MATCH_MULTIPLE_ACCOUNT.name(), ldapSearch.getLdapWhere(), ldapSearch.getLdapCondition(), searchResult.size());
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_MATCH_MULTIPLE_ACCOUNT, ldapSearch.getLdapWhere(), ldapSearch.getLdapCondition(), searchResult.size());
         } else {
             return searchResult.get(0);
         }
@@ -181,10 +174,10 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
         }
 
         if (result.isEmpty()) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_LOGIN_FAIL_PASSWORD_ERROR.name());
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_LOGIN_FAIL_PASSWORD_ERROR);
         }
         if (result.size() > 1) {
-            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_MATCH_MULTIPLE_ACCOUNT.name(), ldapSearch.getLdapWhere(), ldapSearch.getLdapCondition(), result.size());
+            throw ThirdPartyApiException.as().with(LdapI18nKey.LDAP_MATCH_MULTIPLE_ACCOUNT, ldapSearch.getLdapWhere(), ldapSearch.getLdapCondition(), result.size());
         }
         return result.get(0);
     }
@@ -268,9 +261,4 @@ public abstract class BaseLoginProviderSpi implements LoginProviderSpi {
     protected abstract UserData mapUser(BaseCtx ldapCtx, UserData primaryUser, String ldapAccount, Attributes attributes) throws NamingException;
 
     protected abstract void checkThrowError(Exception e);
-
-    protected RoleData findRole(String primaryUID, String roleName) {
-        List<RoleData> roles = this.configService.findRoleByName(primaryUID, roleName);
-        return CollectionUtils.isEmpty(roles) ? null : roles.get(0);
-    }
 }

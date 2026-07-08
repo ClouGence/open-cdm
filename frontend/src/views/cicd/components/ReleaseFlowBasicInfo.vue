@@ -1,8 +1,6 @@
 <template>
-  <section v-if="isCreateMode" class="flow-section-card basic-info-card">
-    <div class="accent-title">
-      <span>{{ $t('ji-ben-xin-xi') }}</span>
-    </div>
+  <section v-if="isCreateMode" class="page-section basic-info-section">
+    <div class="page-section__title">{{ $t('ji-ben-xin-xi') }}</div>
     <Form ref="basicForm" :model="flowBasicForm" :rules="basicRules" label-position="top" class="basic-form">
       <FormItem :label="$t('xiang-mu-ming-cheng')" prop="flowName">
         <Input v-model="flowBasicForm.flowName" :placeholder="$t('qing-shu-ru-bian-geng-liu-cheng-ming-cheng')" />

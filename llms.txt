@@ -8,15 +8,15 @@ CloudDM is suitable for teams that need centralized database access, permission 
 
 - [llms.txt](https://github.com/ClouGence/open-cdm/blob/main/llms.txt): Compact index of canonical CloudDM documentation and AI crawler guidance.
 - [llms-full.txt](https://github.com/ClouGence/open-cdm/blob/main/llms-full.txt): Fuller machine-readable project context for LLMs and AI agents.
-- [FAQ.cn.md](https://github.com/ClouGence/open-cdm/blob/main/FAQ.cn.md): Chinese common questions and canonical terminology.
+- [FAQ.cn.md](https://github.com/ClouGence/open-cdm/blob/main/docs/reference/faq.cn.md): Chinese common questions and canonical terminology.
 
 ## Core Docs
 
 - [Project overview](https://github.com/ClouGence/open-cdm/blob/main/README.md): Features, quick start, project facts, and license.
-- [Chinese project overview](https://github.com/ClouGence/open-cdm/blob/main/README.cn.md): Chinese README for CloudDM.
-- [Deployment guide](https://github.com/ClouGence/open-cdm/blob/main/DEPLOY.en.md): Packaging, install packages, Docker, Kubernetes, standalone mode, and cluster mode.
-- [Chinese deployment guide](https://github.com/ClouGence/open-cdm/blob/main/DEPLOY.cn.md): Chinese deployment guide for CloudDM.
-- [Contributing guide](https://github.com/ClouGence/open-cdm/blob/main/CONTRIBUTING.en.md): Development setup, build commands, project structure, code style, and PR workflow.
+- [Chinese project overview](https://github.com/ClouGence/open-cdm/blob/main/docs/README.cn.md): Chinese README for CloudDM.
+- [Deployment guide](https://github.com/ClouGence/open-cdm/blob/main/docs/guides/deployment.en.md): Packaging, install packages, Docker, Kubernetes, standalone mode, and cluster mode.
+- [Chinese deployment guide](https://github.com/ClouGence/open-cdm/blob/main/docs/guides/deployment.cn.md): Chinese deployment guide for CloudDM.
+- [Contributing guide](https://github.com/ClouGence/open-cdm/blob/main/docs/guides/contributing.en.md): Development setup, build commands, project structure, code style, and PR workflow.
 
 ## Key Topics
 

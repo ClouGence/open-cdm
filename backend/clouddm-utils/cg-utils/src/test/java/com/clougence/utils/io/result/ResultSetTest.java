@@ -28,28 +28,6 @@ import org.junit.jupiter.api.Test;
 public class ResultSetTest {
 
     @Test
-    public void test_1() throws IOException {
-        try (FileResultSetInputStream in = new FileResultSetInputStream(
-            new File("src/test/resources/console_result_49a0e370d7fc47e3bfab78f0cffe0706_qa372495ccc2140cbaacc59aac0996a71_2.dat"))) {
-            // row 1
-            for (int i = 0; i < in.getRowCount(); i++) {
-                System.out.println("----------------------------------------");
-                in.nextRow();
-                for (int j = 0; j < in.getDataCount(); j++) {
-                    ResultSetInputStream.DataHeader dataHeader = in.nextDataHeader();
-                    if (dataHeader.getType() == EntityType.String) {
-                        System.out.println("\t" + in.readString());
-                    } else if (dataHeader.getType() == EntityType.Date) {
-                        System.out.println("\t" + in.readLocalDate());
-                    } else {
-                        System.out.println("\tNone");
-                    }
-                }
-            }
-        }
-    }
-
-    @Test
     public void allTypeTest_1() throws IOException {
         try (FileResultSetOutputStream out = new FileResultSetOutputStream(new File("test.dat"), false)) {
             out.newRow();

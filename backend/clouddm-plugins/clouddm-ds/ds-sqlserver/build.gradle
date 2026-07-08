@@ -16,14 +16,12 @@
 
 plugins {
     id 'com.clougence.plugin-conventions'
-    id 'antlr'
 }
 
 dependencies {
     // project
-    antlr "org.antlr:antlr4:${ANTLR_VERSION}"
     implementation project(':dsc-common')
-    implementation files('../lib/druid-1.2.25-SNAPSHOT.jar')
+    implementation project(':sql-sqlserver')
 
     // share lib (compileOnly)
     compileOnly project(':cgdm-share-libs')
@@ -38,7 +36,3 @@ dependencies {
 }
 
 description = 'ds-sqlserver'
-
-configureClougenceAntlrGrammar([outputPath : 'src/main/java/com/clougence/clouddm/ds/sqlserver/parser/antlr',
-                                packageName: 'com.clougence.clouddm.ds.sqlserver.parser.antlr'])
-

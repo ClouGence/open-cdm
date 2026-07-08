@@ -22,6 +22,7 @@ import org.springframework.context.ApplicationContext;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
@@ -38,7 +39,6 @@ import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
 import com.clougence.clouddm.sdk.ui.menus.DsMenuType;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.schema.dialect.Dialect;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.CollectionUtils;
@@ -131,17 +131,17 @@ public class DmDsUtils {
     public static ResultLimit fetchResultLimit(Map<String, String> configMap, Requester requester) {
         ResultLimit limit = new ResultLimit();
         if (requester.isOnline()) {
-            limit.setFetchRecordCountLimit(safeGetConfSize(configMap.get(UserDefinedConfig.Fields.onlineMaxRecordCount), 3000));
-            limit.setFetchResultSetBytesLimit(safeGetConfSize(configMap.get(UserDefinedConfig.Fields.onlineMaxResultSetMegaByte), 200) * MB_SIZE);
-            limit.setFetchColumnBytesLimit(safeGetConfSize(configMap.get(UserDefinedConfig.Fields.onlineMaxColumnMegaByte), 4) * MB_SIZE);
-            limit.setFetchElementBytesLimit(safeGetConfSize(configMap.get(UserDefinedConfig.Fields.onlineMaxElementMegaByte), 1) * MB_SIZE);
+            limit.setFetchRecordCountLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxRecordCount), 3000));
+            limit.setFetchResultSetBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxResultSetMegaByte), 200) * MB_SIZE);
+            limit.setFetchColumnBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxColumnMegaByte), 4) * MB_SIZE);
+            limit.setFetchElementBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.onlineMaxElementMegaByte), 1) * MB_SIZE);
             limit.setFetchPageSize(30);
             limit.setQueryTimeoutSec(30);// default 30 seconds for console
         } else {
-            limit.setFetchRecordCountLimit(safeGetConfSize(configMap.get(UserDefinedConfig.Fields.taskMaxRecordCount), 3000));
-            limit.setFetchResultSetBytesLimit(safeGetConfSize(configMap.get(UserDefinedConfig.Fields.taskMaxResultSetMegaByte), 200) * MB_SIZE);
-            limit.setFetchColumnBytesLimit(safeGetConfSize(configMap.get(UserDefinedConfig.Fields.taskMaxColumnMegaByte), 4) * MB_SIZE);
-            limit.setFetchElementBytesLimit(safeGetConfSize(configMap.get(UserDefinedConfig.Fields.taskMaxElementMegaByte), 1) * MB_SIZE);
+            limit.setFetchRecordCountLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxRecordCount), 3000));
+            limit.setFetchResultSetBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxResultSetMegaByte), 200) * MB_SIZE);
+            limit.setFetchColumnBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxColumnMegaByte), 4) * MB_SIZE);
+            limit.setFetchElementBytesLimit(safeGetConfSize(configMap.get(RootUserConfig.Fields.taskMaxElementMegaByte), 1) * MB_SIZE);
             limit.setFetchPageSize(-1);
             limit.setQueryTimeoutSec(300);// default 5 minutes for task
         }
@@ -156,12 +156,12 @@ public class DmDsUtils {
         UserCacheEntry userCache = ownerCacheService.queryByUid(curUser);
         DsCacheEntry dsCache = ownerCacheService.queryByDsId(dsId);
         EnvCacheEntry envCache = ownerCacheService.queryByEnvId(dsCache.getEnvId());
-        Map<String, String> configMap = consoleService.fetchSettingsMap(dsCache.getOwnerUid(), Arrays.asList(//
-                UserDefinedConfig.Fields.defaultColumnDisplayChars, //
-                UserDefinedConfig.Fields.onlineMaxRecordCount,      //
-                UserDefinedConfig.Fields.onlineMaxResultSetMegaByte,//
-                UserDefinedConfig.Fields.onlineMaxColumnMegaByte,   //
-                UserDefinedConfig.Fields.onlineMaxElementMegaByte)  //
+        Map<String, String> configMap = consoleService.fetchSettingsMap(Arrays.asList(//
+                RootUserConfig.Fields.defaultColumnDisplayChars, //
+                RootUserConfig.Fields.onlineMaxRecordCount,      //
+                RootUserConfig.Fields.onlineMaxResultSetMegaByte,//
+                RootUserConfig.Fields.onlineMaxColumnMegaByte,   //
+                RootUserConfig.Fields.onlineMaxElementMegaByte)  //
         );
 
         queryList.forEach(query -> {
@@ -183,7 +183,7 @@ public class DmDsUtils {
             query.getResultConf().setFetchColumnBytesLimit(limit.getFetchColumnBytesLimit());
             query.getResultConf().setFetchElementBytesLimit(limit.getFetchElementBytesLimit());
             query.getResultConf().setFetchPageSize(limit.getFetchPageSize());
-            query.getResultConf().setDisplayChars(safeGetConfSize(configMap.get(UserDefinedConfig.Fields.defaultColumnDisplayChars), 256));
+            query.getResultConf().setDisplayChars(safeGetConfSize(configMap.get(RootUserConfig.Fields.defaultColumnDisplayChars), 256));
             query.getResultConf().setDataFormat(WellKnowFormat.WKF_DATE10);
             query.getResultConf().setTimeFormat(WellKnowFormat.WKF_TIME24_S9);
             query.getResultConf().setDataTimeFormat(WellKnowFormat.WKF_DATE_TIME24_S9);

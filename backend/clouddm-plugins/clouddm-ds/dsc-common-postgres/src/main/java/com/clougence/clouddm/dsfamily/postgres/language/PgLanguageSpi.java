@@ -16,7 +16,6 @@
 package com.clougence.clouddm.dsfamily.postgres.language;
 
 import com.clougence.clouddm.dsfamily.language.split.SplitStrategyCenter;
-import com.clougence.clouddm.dsfamily.postgres.parser.PgDslProvider;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
 import com.clougence.clouddm.sdk.language.LanguageResult;
@@ -66,6 +65,6 @@ public class PgLanguageSpi implements DsLanguageSpi {
 
     @Override
     public SplitResult split(SplitRequest request) {
-        return this.split.split(request, PgDslProvider.INSTANCE);
+        return this.split.split(request);
     }
 }

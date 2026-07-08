@@ -26,12 +26,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.clougence.clouddm.api.common.exception.DmErrorCode;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
 import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
+import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.JwtService;
@@ -44,12 +45,11 @@ import com.clougence.clouddm.console.web.model.vo.ListUserVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.util.Sm2Utils;
 import com.clougence.clouddm.platform.dal.access.AuthDal;
+import com.clougence.clouddm.platform.dal.model.ResourceType;
 import com.clougence.clouddm.platform.dal.model.auth.AccountType;
 import com.clougence.clouddm.platform.dal.model.auth.DmAuthUserDO;
 import com.clougence.clouddm.platform.dal.model.monitor.AuditType;
 import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
-import com.clougence.rdp.constant.RdpControllerUrlPrefix;
-import com.clougence.rdp.constant.RdpErrorCode;
 import com.clougence.rdp.service.RdpOpAuditService;
 import com.clougence.rdp.service.model.AddSubAccountMO;
 import com.clougence.rdp.service.model.CheckSubAccountMO;
@@ -68,7 +68,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author wanshao create time is 2020/3/11
  **/
 @RestController
-@RequestMapping(value = RdpControllerUrlPrefix.CONSOLE_PREFIX + "/user/manager")
+@RequestMapping(value = DmControllerUrlPrefix.CONSOLE_PREFIX + "/user/manager")
 @Slf4j
 public class RdpUserManagerController {
 
@@ -79,7 +79,7 @@ public class RdpUserManagerController {
     @Resource
     private DmAuthServiceForBiz rdpAuthServiceForBiz;
     @Resource
-    private DmConsoleConfig     rdpConfig;
+    private ConsoleConfig       consoleConfig;
     @Resource
     private RdpOpAuditService   rdpOpAuditService;
 
@@ -89,7 +89,7 @@ public class RdpUserManagerController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         //decrypt
-        fo.setPassword(Sm2Utils.decrypt(rdpConfig.getPrivateKey(), fo.getPassword()));
+        fo.setPassword(Sm2Utils.decrypt(consoleConfig.getPrivateKey(), fo.getPassword()));
 
         DmAuthUserDO userDO = null;
         ValidateResultMO validatePwdMO = null;
@@ -146,7 +146,7 @@ public class RdpUserManagerController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
 
         //decrypt
-        fo.setPassword(Sm2Utils.decrypt(rdpConfig.getPrivateKey(), fo.getPassword()));
+        fo.setPassword(Sm2Utils.decrypt(consoleConfig.getPrivateKey(), fo.getPassword()));
 
         AddSubAccountMO accountMO = this.rdpUserService.addSubAccountForInternal(puid, fo);
         if (accountMO.isSuccess()) {
@@ -166,7 +166,7 @@ public class RdpUserManagerController {
 
         checkOperateUserAuth(uid, fo.getTargetUid());
         if (StringUtils.isNotBlank(fo.getPassword())) {
-            fo.setPassword(Sm2Utils.decrypt(rdpConfig.getPrivateKey(), fo.getPassword()));
+            fo.setPassword(Sm2Utils.decrypt(consoleConfig.getPrivateKey(), fo.getPassword()));
         }
 
         UpdateUserInfoMO accountMO = this.rdpUserService.updateSubAccount(fo, puid);
@@ -242,12 +242,12 @@ public class RdpUserManagerController {
             cookie.setMaxAge(0);
             cookie.setPath("/");
 
-            if (StringUtils.isNotBlank(rdpConfig.getLoginCookieDomain())) {
-                cookie.setDomain(rdpConfig.getLoginCookieDomain());
+            if (StringUtils.isNotBlank(consoleConfig.getLoginCookieDomain())) {
+                cookie.setDomain(consoleConfig.getLoginCookieDomain());
             }
 
             response.addCookie(cookie);
-            return ResWebDataUtils.buildError(RdpErrorCode.COMM_USER_RELOAD_ERROR, DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NEED_RELOGIN.name()));
+            return ResWebDataUtils.buildError(DmErrorCode.COMM_RELOAD_ACTION.code(), DmI18nUtils.getMessage(I18nRdpMsgKeys.USER_NEED_RELOGIN.name()));
         }
 
         return ResWebDataUtils.buildSuccess();

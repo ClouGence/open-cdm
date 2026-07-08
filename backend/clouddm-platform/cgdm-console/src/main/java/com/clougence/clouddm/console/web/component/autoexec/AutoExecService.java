@@ -22,10 +22,10 @@ import com.clougence.clouddm.console.web.model.fo.ticket.DmAutoExecConfigFO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecJobVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmAutoExecTaskVO;
 import com.clougence.clouddm.console.web.model.vo.ticket.DmPageVO;
-import com.clougence.clouddm.platform.dal.util.PageObj;
 import com.clougence.clouddm.platform.dal.model.execution.AutoExecTaskStatus;
 import com.clougence.clouddm.platform.dal.model.execution.SQLJobBizType;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
+import com.clougence.clouddm.platform.dal.util.PageObj;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 
 public interface AutoExecService {
 

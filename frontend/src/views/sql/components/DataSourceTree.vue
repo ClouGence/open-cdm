@@ -11,6 +11,8 @@ import utilMixin from '@/mixins/utilMixin';
 import { clearAllPending } from '@/services/http/cancelRequest';
 import AddDataSource from '@/views/dataSource/AddDataSource';
 
+const DATASOURCE_EXPANDED_KEYS_KEY = 'clouddm_datasource_expanded_keys';
+
 export default {
   name: 'DataSourceTree',
   mixins: [copyMixin, datasourceMixin, browseMixin, utilMixin],
@@ -44,6 +46,7 @@ export default {
   },
   data() {
     const storedHide = this.getStoredHideState();
+    const storedExpandedKeys = this.getStoredExpandedKeys();
     return {
       testDsMsg: '',
       showAddDsModal: false,
@@ -104,7 +107,9 @@ export default {
       actionType: '',
       genActionData: null,
       TAB_TYPE,
-      expandedKeys: [],
+      expandedKeys: storedExpandedKeys || [],
+      hasStoredExpandedKeys: !!storedExpandedKeys,
+      suspendExpandedKeysSync: false,
       selectedNode: null,
       hide: storedHide,
       dataSourceWidth: 0,
@@ -165,6 +170,78 @@ export default {
         localStorage.setItem('clouddm_datasource_hide', hide.toString());
       } catch (e) {
         console.warn('Failed to save hide state:', e);
+      }
+    },
+    getStoredExpandedKeys() {
+      try {
+        const stored = localStorage.getItem(DATASOURCE_EXPANDED_KEYS_KEY);
+        if (!stored) {
+          return null;
+        }
+        const keys = JSON.parse(stored);
+        if (!Array.isArray(keys)) {
+          return null;
+        }
+        const expandedKeys = [];
+        keys.forEach((key) => {
+          if (typeof key === 'string' && key) {
+            expandedKeys.push(key);
+          }
+        });
+        return expandedKeys;
+      } catch (e) {
+        return null;
+      }
+    },
+    saveExpandedKeys() {
+      this.hasStoredExpandedKeys = true;
+      try {
+        localStorage.setItem(DATASOURCE_EXPANDED_KEYS_KEY, JSON.stringify(this.expandedKeys));
+      } catch (e) {
+        console.warn('Failed to save datasource expanded keys:', e);
+      }
+    },
+    getTreeKeyDepth(key) {
+      const matches = key.match(/\.`/g);
+      return matches ? matches.length : 0;
+    },
+    pushTreeKeyWithParents(key, keys) {
+      const parts = key.split(/\.(?=`)/);
+      for (let i = 1; i <= parts.length; i++) {
+        const parentKey = parts.slice(0, i).join('.');
+        if (!keys.includes(parentKey)) {
+          keys.push(parentKey);
+        }
+      }
+    },
+    expandFirstEnvironment() {
+      const treeData = this.$refs.tree?.getTreeData?.() || [];
+      const firstKey = treeData[0]?.key;
+      if (firstKey) {
+        this.$refs.tree.setExpand(firstKey, true, true);
+      }
+    },
+    async restoreExpandedKeys() {
+      if (!this.hasStoredExpandedKeys || !this.expandedKeys.length) {
+        return;
+      }
+      const keys = [];
+      this.expandedKeys.forEach((key) => {
+        this.pushTreeKeyWithParents(key, keys);
+      });
+      keys.sort((left, right) => this.getTreeKeyDepth(left) - this.getTreeKeyDepth(right));
+      for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        let expanded = false;
+        for (let retry = 0; retry < 30 && !expanded; retry++) {
+          const node = this.$refs.tree.getNode(key);
+          if (node) {
+            this.$refs.tree.setExpand(key, true, true);
+            expanded = true;
+          } else {
+            await new Promise((resolve) => setTimeout(resolve, 150));
+          }
+        }
       }
     },
     checkTreeDataAndToggle() {
@@ -292,7 +369,6 @@ export default {
     },
     handleRefreshTree() {
       this.scrollY = 0;
-      this.expandedKeys = [];
       this.getDataSourceList();
       this.searchKey = '';
     },
@@ -494,6 +570,7 @@ export default {
       } else {
         this.expandedKeys.push(key);
       }
+      this.saveExpandedKeys();
     },
     isExpandedKey(node) {
       return this.expandedKeys.includes(node.key);
@@ -531,15 +608,33 @@ export default {
     async handleSetData(data, search = false) {
       this.top = this.scrollY;
       console.log('handleSetData', this.$refs);
-      await this.$refs.tree.setData(data);
-      setTimeout(() => {
-        this.handleEleScroll(this.top);
-        if (search) {
-          this.handleSearch(false);
+      const expandedKeys = this.expandedKeys.slice();
+      this.suspendExpandedKeysSync = true;
+      try {
+        await this.$refs.tree.setData(data);
+      } catch (e) {
+        this.suspendExpandedKeysSync = false;
+        throw e;
+      }
+      this.expandedKeys = expandedKeys;
+      const restoreDelay = this.hasStoredExpandedKeys ? 500 : 0;
+      setTimeout(async () => {
+        try {
+          this.handleEleScroll(this.top);
+          if (search) {
+            await this.handleSearch(false);
+          }
+          // Check tree state after setting data
+          this.checkTreeDataAndToggle();
+        } finally {
+          this.suspendExpandedKeysSync = false;
         }
-        // Check tree state after setting data
-        this.checkTreeDataAndToggle();
-      });
+        if (this.hasStoredExpandedKeys) {
+          await this.restoreExpandedKeys();
+        } else {
+          this.expandFirstEnvironment();
+        }
+      }, restoreDelay);
     },
     async handleUpdateNode(key, node) {
       this.$refs.tree.updateNode(key, node);
@@ -601,6 +696,23 @@ export default {
     },
     async handleExpandLoadNode(node, resolve, reject) {
       await this.getNodeData(node, {}, resolve, reject);
+    },
+    handleTreeExpand(node) {
+      if (this.suspendExpandedKeysSync) {
+        return;
+      }
+      const key = node?.key;
+      if (!key) {
+        return;
+      }
+      if (node.expand) {
+        if (!this.expandedKeys.includes(key)) {
+          this.expandedKeys.push(key);
+        }
+      } else {
+        this.expandedKeys = this.expandedKeys.filter((expandedKey) => expandedKey !== key && !expandedKey.startsWith(`${key}.`));
+      }
+      this.saveExpandedKeys();
     },
     async handleSearch(scroll = true) {
       await this.$refs.tree.filter(this.searchKey);
@@ -876,7 +988,8 @@ export default {
                 await this.listLeaf(refreshCache);
               }
             } else {
-              this.expandedKeys = this.expandedKeys.filter((key) => !key.includes(this.selectedNode.key));
+              this.expandedKeys = this.expandedKeys.filter((key) => key !== this.selectedNode.key && !key.startsWith(`${this.selectedNode.key}.`));
+              this.saveExpandedKeys();
               const refreshCache = true;
               await this.listLevels(this.selectedNode, {}, null, null, refreshCache);
             }
@@ -1117,8 +1230,10 @@ export default {
         :load="handleExpandLoadNode"
         :render="renderNode"
         :expand-on-filter="false"
+        :expanded-keys="expandedKeys"
         @node-right-click="handleNodeRightClick"
         @node-dblclick="handleDblClick"
+        @expand="handleTreeExpand"
         :nodeIndent="10"
         :renderNodeAmount="200"
         @click="handleNodeClick"

@@ -24,7 +24,7 @@ import com.clougence.clouddm.sdk.approval.form.ChangeForm;
 import com.clougence.clouddm.sdk.approval.form.QueryForm;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiErrorType;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
-import com.clougence.clouddm.team.provider.feishu.constants.FeishuI18nKeys2;
+import com.clougence.clouddm.team.provider.feishu.constants.FeishuI18nKeys;
 import com.clougence.clouddm.team.provider.feishu.constants.approval.FeishuConstant;
 import com.clougence.clouddm.team.provider.feishu.domain.mo.FeishuWidget;
 import com.clougence.utils.JsonUtils;
@@ -41,7 +41,7 @@ public class FeishuApiUtils {
             return getChangeFormParam(widgets, (ChangeForm) info);
         } else {
             String message = String.format("Unsupported approval form type %s", info.getClass().getName());
-            throw ThirdPartyApiException.as().with(ThirdPartyApiErrorType.OTHER, FeishuI18nKeys2.FEISHU_UNKNOWN_CALL_API_ERROR, message);
+            throw ThirdPartyApiException.as().with(ThirdPartyApiErrorType.OTHER, FeishuI18nKeys.FEISHU_UNKNOWN_CALL_API_ERROR, message);
         }
     }
 

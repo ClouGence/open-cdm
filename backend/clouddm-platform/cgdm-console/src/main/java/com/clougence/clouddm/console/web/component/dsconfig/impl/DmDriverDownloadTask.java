@@ -46,7 +46,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DmDriverDownloadTask implements Runnable {
 
-    private static final int      CHUNK_SIZE = 256 * 1024;
+    private static final int      CHUNK_SIZE       = 256 * 1024;
+    private static final String   FILES_INDEX_NAME = "files.idx";
 
     private final String          uid;
     private final Long            clusterId;
@@ -72,7 +73,7 @@ public class DmDriverDownloadTask implements Runnable {
         }
 
         log.info("start driver download, clusterId={}, family={}, version={}", this.clusterId, this.driverFamily, this.driverVersion);
-        resetLocalPreparedResources(localVersion);
+        PluginManager.driverLoader().resetDriverVersion(localVersion);
         ensurePreparedResources(localVersion);
         refreshPreparedState(localVersion);
         List<DriverFile> transferFiles = resolveTransferFiles(localVersion);
@@ -86,27 +87,6 @@ public class DmDriverDownloadTask implements Runnable {
             .isAvailable(), null, statusVO.isAvailable() ? i18n(I18nDmMsgKeys.DS_DRIVER_READY_MESSAGE) : i18n(I18nDmMsgKeys.DS_DRIVER_UNAVAILABLE_MESSAGE));
         log.info("driver download finished, clusterId={}, family={}, version={}, available={}, workerWsn={}", this.clusterId, this.driverFamily, this.driverVersion, statusVO
             .isAvailable(), statusVO.getWorkerWsn());
-    }
-
-    private void resetLocalPreparedResources(DriverVersion localVersion) {
-        if (localVersion == null) {
-            return;
-        }
-
-        localVersion.deleteFiles();
-        localVersion.setPrepared(false);
-        if (CollectionUtils.isEmpty(localVersion.getResources())) {
-            return;
-        }
-
-        for (ResDef resource : localVersion.getResources()) {
-            if (resource == null) {
-                continue;
-            }
-
-            resource.setPrepared(false);
-            resource.setFileDefList(null);
-        }
     }
 
     private void ensurePreparedResources(DriverVersion localVersion) {
@@ -153,6 +133,9 @@ public class DmDriverDownloadTask implements Runnable {
 
                     @Override
                     public void onError(DriverVersion driverVersionValue, ResDef resourceValue, Exception exception) {
+                        log.error("prepare driver resource failed, clusterId={}, family={}, version={}, resourceType={}, coordinate={}",//
+                                DmDriverDownloadTask.this.clusterId, driverFamily, DmDriverDownloadTask.this.driverVersion, resourceValue == null ? null : resourceValue
+                                    .getResourceType(), resourceValue == null ? null : resourceValue.getCoordinate(), exception);
                         DmDriverServiceImpl
                             .publishProgress(uid, DmDriverDownloadTask.this.clusterId, driverFamily, DmDriverDownloadTask.this.driverVersion, resolveDriverFileCount(resources), completedFiles
                                 .size(), 0, "FAILED", false, null, i18n(I18nDmMsgKeys.DS_DRIVER_PREPARE_FAILED_MESSAGE), DmDriverServiceImpl
@@ -176,6 +159,9 @@ public class DmDriverDownloadTask implements Runnable {
         DriverVersion localVersion = PluginManager.driverLoader().findDriver(this.driverFamily, this.driverVersion);
         refreshPreparedState(localVersion);
         boolean consoleAvailable = isPrepared(localVersion);
+        if (!consoleAvailable) {
+            logUnpreparedLocalDriver(localVersion);
+        }
 
         List<DmSysWorkerDO> workers = queryTargetWorkers();
         if (CollectionUtils.isEmpty(workers)) {
@@ -196,6 +182,7 @@ public class DmDriverDownloadTask implements Runnable {
             }
 
             if (!isPrepared(remoteVersion)) {
+                logUnpreparedRemoteDriver(worker, remoteVersion);
                 workersAvailable = false;
                 break;
             }
@@ -364,6 +351,50 @@ public class DmDriverDownloadTask implements Runnable {
         return true;
     }
 
+    private void logUnpreparedLocalDriver(DriverVersion driverVersion) {
+        if (driverVersion == null) {
+            log.error("driver is not prepared on console, driver not found, family={}, version={}", this.driverFamily, this.driverVersion);
+            return;
+        }
+
+        List<ResDef> resources = driverVersion.getResources();
+        if (CollectionUtils.isEmpty(resources)) {
+            log.error("driver is not prepared on console, family={}, version={}", driverVersion.getFamilyName(), driverVersion.getVersion());
+            return;
+        }
+
+        for (ResDef resource : resources) {
+            if (resource == null || !resource.isPrepared()) {
+                log.error("driver resource is not prepared on console, family={}, version={}, resourceType={}, coordinate={}", //
+                        driverVersion.getFamilyName(), driverVersion
+                            .getVersion(), resource == null ? null : resource.getResourceType(), resource == null ? null : resource.getCoordinate());
+            }
+        }
+    }
+
+    private void logUnpreparedRemoteDriver(DmSysWorkerDO worker, DsDriverVer driverVersion) {
+        if (driverVersion == null) {
+            log.error("driver is not prepared on worker, driver not found, family={}, version={}, workerIp={}, workerSeqNumber={}", //
+                    this.driverFamily, this.driverVersion, worker.getWorkerIp(), worker.getWorkerSeqNumber());
+            return;
+        }
+
+        List<DsDriverRes> resources = driverVersion.getResources();
+        if (CollectionUtils.isEmpty(resources)) {
+            log.error("driver is not prepared on worker, family={}, version={}, workerIp={}, workerSeqNumber={}", //
+                    this.driverFamily, driverVersion.getVersion(), worker.getWorkerIp(), worker.getWorkerSeqNumber());
+            return;
+        }
+
+        for (DsDriverRes resource : resources) {
+            if (resource == null || !resource.isPrepared()) {
+                log.error("driver resource is not prepared on worker, family={}, version={}, workerIp={}, workerSeqNumber={}, resourceType={}, coordinate={}",//
+                        this.driverFamily, driverVersion.getVersion(), worker.getWorkerIp(), worker
+                            .getWorkerSeqNumber(), resource == null ? null : resource.getType(), resource == null ? null : resource.getName());
+            }
+        }
+    }
+
     private int calcPercent(long current, long total) {
         if (total <= 0) {
             return current > 0 ? 100 : 0;
@@ -437,19 +468,41 @@ public class DmDriverDownloadTask implements Runnable {
         return resource == null ? null : resource.getCoordinate();
     }
 
-    private List<DriverFile> resolveTransferFiles(DriverVersion driverVersion) {
+    List<DriverFile> resolveTransferFiles(DriverVersion driverVersion) {
         List<DriverFile> result = new ArrayList<>();
-        if (driverVersion == null || CollectionUtils.isEmpty(driverVersion.getFiles())) {
+        if (driverVersion == null) {
             return result;
         }
 
-        for (DriverFile file : driverVersion.getFiles()) {
-            if (file == null || !file.isPrepared() || StringUtils.isBlank(file.getAbsolutePath()) || StringUtils.isBlank(file.getRelativePath())) {
-                continue;
+        if (!CollectionUtils.isEmpty(driverVersion.getFiles())) {
+            for (DriverFile file : driverVersion.getFiles()) {
+                if (file == null || !file.isPrepared() || StringUtils.isBlank(file.getAbsolutePath()) || StringUtils.isBlank(file.getRelativePath())) {
+                    continue;
+                }
+                result.add(file);
             }
-            result.add(file);
         }
+
+        appendFilesIndex(result, driverVersion);
         return result;
+    }
+
+    private void appendFilesIndex(List<DriverFile> result, DriverVersion driverVersion) {
+        File versionDir = driverVersion.getAbsoluteDir();
+        if (versionDir == null) {
+            return;
+        }
+
+        File filesIndex = new File(versionDir, FILES_INDEX_NAME);
+        if (!filesIndex.isFile() || !filesIndex.canRead()) {
+            return;
+        }
+
+        DriverFile file = new DriverFile();
+        file.setAbsolutePath(filesIndex.getAbsolutePath());
+        file.setRelativePath(FILES_INDEX_NAME);
+        file.setPrepared(true);
+        result.add(file);
     }
 
     private RSocketSendDTO buildSendDTO(DmSysWorkerDO worker) {

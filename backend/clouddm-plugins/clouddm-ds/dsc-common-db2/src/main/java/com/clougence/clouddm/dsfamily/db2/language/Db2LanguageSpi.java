@@ -31,16 +31,12 @@ import com.clougence.clouddm.sdk.service.execute.MetaService;
 
 public class Db2LanguageSpi implements DsLanguageSpi {
 
-    private final MetaService                 metaService;
-    private final Db2CompletionStrategyCenter completion = new Db2CompletionStrategyCenter();
-
     public Db2LanguageSpi(MetaService metaService){
-        this.metaService = metaService;
     }
 
     @Override
     public Set<DsLanguageSupport> supports() {
-        return Set.of(DsLanguageSupport.COMPLETE);
+        return Set.of();
     }
 
     private static <T extends LanguageResult> T initResult(AbstractRequest request, T result) {
@@ -53,9 +49,7 @@ public class Db2LanguageSpi implements DsLanguageSpi {
 
     @Override
     public CompletionResult complete(CompletionRequest request) {
-        CompletionResult result = initResult(request, new CompletionResult());
-        result.getItems().addAll(this.completion.complete(request, this.metaService));
-        return result;
+        return initResult(request, new CompletionResult());
     }
 
     @Override

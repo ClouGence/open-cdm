@@ -19,6 +19,7 @@ public enum DmErrorCode {
 
     //COMM ERROR 100xx
     COMM_SYSTEM_ERROR("10001"),
+    COMM_RELOAD_ACTION("10005"),
 
     // DS ERROR  101xx
     DS_DISCONNECT_ERROR("10103"),

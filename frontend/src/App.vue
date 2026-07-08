@@ -1,7 +1,6 @@
 <template>
   <a-config-provider :locale="locale" :theme="antdTheme">
     <div id="app">
-      <div id="google_translate_element" class="google-translate-element" aria-hidden="true"></div>
       <router-view v-if="showChild" />
       <div class="system-starting-page" v-if="showStartupPage">
         <div class="system-starting-spinner" aria-hidden="true"></div>
@@ -28,7 +27,10 @@
 import SonnerToast from '@/components/SonnerToast.vue';
 import enUS from 'ant-design-vue/es/locale/en_US';
 import zhCN from 'ant-design-vue/es/locale/zh_CN';
+import { setDayjsLocale } from '@/utils/dayjsSetup';
 import { cacheDmBootstrapStatus, isDmSystemBootstrapRequired, isDmSystemStarting } from './utils/dmGlobalSettings';
+import { UPDATE_DM_GLOBAL_SETTING, UPDATE_PUBLIC_KEY } from '@/store/mutationTypes';
+import { supportsCloudDMBuild } from '@/utils/product';
 
 const SYSTEM_READY_POLL_INTERVAL_MS = 2000;
 
@@ -97,7 +99,7 @@ export default {
   },
   async created() {
     console.log(this.$i18n.global.locale.value);
-    this.locale = this.$i18n.global.locale.value === 'zh-CN' ? zhCN : enUS;
+    this.syncLocale();
     await this.bootstrapApp();
   },
   mounted() {
@@ -106,6 +108,11 @@ export default {
     document.addEventListener('mouseup', this.handleMouseup);
   },
   methods: {
+    syncLocale() {
+      const currentLocale = this.$i18n.global.locale.value;
+      this.locale = currentLocale === 'zh-CN' ? zhCN : enUS;
+      setDayjsLocale(currentLocale);
+    },
     isHomeEntryRoute() {
       const hash = window.location.hash || '#/';
       return hash === '#/' || hash === '' || hash === '#/login' || hash.startsWith('#/login?');
@@ -140,7 +147,22 @@ export default {
       }
       this.systemStarting = false;
       this.showLoadingPage = true;
+      this.commitDmGlobalSettings(globalSettingRes);
       return globalSettingRes;
+    },
+    // refresh / direct URL 进入内部页时, login 流程被跳过, publicKey 与 dmGlobalSetting 不会再被填充
+    // 这里在每次 bootstrap 拿到响应后同步写回 store, 让 encryptMixin / 数据源页等依赖项不会处于空状态
+    commitDmGlobalSettings(globalSettingRes) {
+      if (!supportsCloudDMBuild) {
+        return;
+      }
+      if (!globalSettingRes || !globalSettingRes.success || !globalSettingRes.data) {
+        return;
+      }
+      this.$store.commit(UPDATE_DM_GLOBAL_SETTING, globalSettingRes.data);
+      if (globalSettingRes.data.publicKey) {
+        this.$store.commit(UPDATE_PUBLIC_KEY, globalSettingRes.data.publicKey);
+      }
     },
     async bootstrapApp() {
       const isInitializationRoute = () => window.location.hash.startsWith('#/initialization');
@@ -320,18 +342,6 @@ export default {
   display: flex;
   min-height: 100%;
   height: 100%;
-}
-
-#google_translate_element {
-  display: none;
-}
-
-.goog-te-banner-frame.skiptranslate {
-  display: none !important;
-}
-
-body {
-  top: 0 !important;
 }
 
 .loading-page {

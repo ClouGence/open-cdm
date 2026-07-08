@@ -45,17 +45,13 @@ public class DmDsFactory implements DsFactory<Connection> {
         String id = dsConfig.getProperty(DsConfigKeys.ID.getConfigKey());
         String username = dsConfig.getProperty(DsConfigKeys.USER.getConfigKey());
         String password = dsConfig.getProperty(DsConfigKeys.PASSWORD.getConfigKey());
-        String loginTimeoutMs = dsConfig.getProperty(DsConfigKeys.LOGIN_TIMEOUT_MS.getConfigKey());
         String connTimeoutMs = dsConfig.getProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey());
         String soTimeoutSec = dsConfig.getProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey());
         String clientName = dsConfig.getProperty(DsConfigKeys.CLIENT_NAME.getConfigKey());
         String defaultDatabase = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
-        String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
-        String clientEncoding = dsConfig.getProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey());
         String clientTimeZone = dsConfig.getProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey());
-        String tcpKeepAlive = dsConfig.getProperty(DsConfigKeys.TCP_KEEP_ALIVE.getConfigKey());
         String autoCommit = dsConfig.getProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey());
-        String sslFilePath = dsConfig.getProperty(DsConfigKeys.DM_SSL_FILE_PATH.getConfigKey());
+        String sslFilesPath = dsConfig.getProperty(DsConfigKeys.DM_SSL_FILE_PATH.getConfigKey());
         String sslPassword = dsConfig.getProperty(DsConfigKeys.DM_SSL_PASSWORD.getConfigKey());
 
         if (StringUtils.isNotBlank(username)) {
@@ -70,22 +66,17 @@ public class DmDsFactory implements DsFactory<Connection> {
         if (StringUtils.isNotBlank(soTimeoutSec)) {
             props.put("socketTimeout", Long.parseLong(soTimeoutSec) * 1000);
         }
-        String useSchema = null;
-        if (StringUtils.isNotBlank(defaultDatabase)) {
-            useSchema = defaultDatabase;
-        } else if (StringUtils.isNotBlank(defaultSchema)) {
-            useSchema = defaultSchema;
-        }
+        String useSchema = defaultDatabase;
         if (StringUtils.isNotBlank(clientName)) {
             props.put("appName", clientName);
         }
         if (StringUtils.isNotBlank(clientTimeZone)) {
             props.put("localTimezone", clientTimeZone);
         }
-        if (StringUtils.isNotBlank(sslFilePath)) {
-            props.put("sslFilesPath", sslFilePath);
+        if (StringUtils.isNotBlank(sslFilesPath)) {
+            props.put("sslFilesPath", sslFilesPath);
             if (StringUtils.isNotBlank(sslPassword)) {
-                props.put("sslPassword", sslPassword);
+                props.put("sslKeystorePass", sslPassword);
             }
         }
 

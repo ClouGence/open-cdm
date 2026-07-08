@@ -1,6 +1,5 @@
 <template>
   <div class="management-layout">
-    <ManagementSectionTabs :tabs="visibleTabs" />
     <div class="management-layout__body">
       <router-view />
     </div>
@@ -9,14 +8,12 @@
 
 <script>
 import { mapState } from 'vuex';
-import ManagementSectionTabs from '@/views/system/management/ManagementSectionTabs';
 
 export default {
   name: 'ManagementLogsLayout',
-  components: { ManagementSectionTabs },
   computed: {
     ...mapState(['myCatLog']),
-    visibleTabs() {
+    availableAuditTypes() {
       const tabs = [];
 
       if (this.myCatLog.includes('CAT_RDP_OP_AUDIT')) {
@@ -38,15 +35,15 @@ export default {
     }
   },
   watch: {
-    visibleTabs: {
+    availableAuditTypes: {
       handler(tabs) {
-        this.ensureValidTab(tabs);
+        this.ensureValidAuditType(tabs);
       },
       immediate: true
     }
   },
   methods: {
-    ensureValidTab(tabs) {
+    ensureValidAuditType(tabs) {
       if (!tabs.length) {
         return;
       }

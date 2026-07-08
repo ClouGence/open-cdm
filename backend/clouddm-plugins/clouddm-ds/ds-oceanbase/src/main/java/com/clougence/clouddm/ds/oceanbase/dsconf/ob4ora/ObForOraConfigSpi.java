@@ -15,24 +15,68 @@
  */
 package com.clougence.clouddm.ds.oceanbase.dsconf.ob4ora;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigMap;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
+import com.clougence.clouddm.base.metadata.ds.SslMode;
+import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
+import com.clougence.drivers.adapter.ConvertUtils;
+import com.clougence.utils.StringUtils;
 
-public class ObForOraConfigSpi implements DsConfigSpi, ConfigKeys {
+public class ObForOraConfigSpi extends AbstractDsConfigSpi {
 
     @Override
-    public DataSourceConfig newConfig(Map<String, String> configMap) {
-        return new ObOraConfig();
+    public String defaultPort() {
+        return "1521";
     }
 
     @Override
-    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, DsConfigMap dsConfigMap) {
-        ((ObOraConfig) dsConfig).setTenant((String) dsConfigMap.getRdpExtraBean().get(ConfigKeys.RDP_EXTRA_OB_TENANT));
-        ((ObOraConfig) dsConfig).setCluster((String) dsConfigMap.getRdpExtraBean().get(ConfigKeys.RDP_EXTRA_OB_CLUSTER_NAME));
+    public Class<? extends DataSourceConfig> newConfig() {
+        return ObOraConfig.class;
+    }
+
+    @Override
+    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
+        ObOraConfig config = (ObOraConfig) dsConfig;
+        Long connectTimeoutMs = ConvertUtils.toLong(defaultConfig.get(ObOraConfig.Fields.connectTimeoutMs), false);
+        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(ObOraConfig.Fields.soTimeoutSec), false);
+        config.setTenant(defaultConfig.get(ObOraConfig.Fields.tenant));
+        config.setCluster(defaultConfig.get(ObOraConfig.Fields.cluster));
+        config.setDefaultSchema(defaultConfig.get(ObOraConfig.Fields.defaultSchema));
+        config.setConnectTimeoutMs(connectTimeoutMs == null ? 5000L : connectTimeoutMs);
+        config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
+        config.setClientTimeZone(StringUtils.defaultIfBlank(defaultConfig.get(ObOraConfig.Fields.clientTimeZone), "Asia/Shanghai"));
+        config.setConnectionCharset(StringUtils.defaultIfBlank(defaultConfig.get(ObOraConfig.Fields.connectionCharset), "utf8"));
         return dsConfig;
+    }
+
+    @Override
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.USER_PASSWD);
+        return options;
+    }
+
+    @Override
+    public boolean supportSSL() {
+        return false;
+    }
+
+    @Override
+    public List<SslMode> sslModeSet() {
+        return List.of(SslMode.TRUST, SslMode.CA, SslMode.CLIENT_CERT);
+    }
+
+    @Override
+    public boolean supportSSH() {
+        return true;
+    }
+
+    @Override
+    public boolean supportTx() {
+        return true;
     }
 }

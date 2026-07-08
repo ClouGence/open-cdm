@@ -91,7 +91,7 @@ export default {
     success: false
   },
   docUrlPrefix: 'https://www.clougence.com/cc-doc',
-  contactUsUrl: 'https://www.clougence.com/about',
+  contactUsUrl: 'https://www.cdmgr.com/',
   dmDocUrlPrefix: 'https://www.clougence.com/dm-doc',
   bladePipeApply: 'https://www.clougence.com/dm-doc/clouddm',
   myCatLog: [],

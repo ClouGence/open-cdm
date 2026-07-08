@@ -57,8 +57,6 @@
 
 // export const noPkUkSyncUpdateDelete = (param) => instance.post('constant/nopkuksyncupdatedelete', param);
 
-// export const needTestBeforeAddDsTypes = (param) => instance.post('constant/needtestbeforeadddstypes', param);
-
 // export const showPositionConf = (param) => instance.post('constant/show_position_conf', param);
 
 // export const oraInCrMode = (param) => instance.post('constant/ds/oraincrmode', param);

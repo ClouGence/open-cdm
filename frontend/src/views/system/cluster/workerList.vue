@@ -37,9 +37,6 @@
               <Button v-if="myAuth.includes('DM_WORKER_MANAGE')" icon="md-add" style="margin-right: 10px" type="primary" @click="handleClickAddBtn">
                 {{ $t('tian-jia-ji-qi') }}
               </Button>
-              <Button class="refresh" @click="getWorkerList">
-                <CustomIcon type="icon-v2-Refresh" />
-              </Button>
             </div>
           </div>
           <div class="table-container">
@@ -226,7 +223,7 @@
         </div>
       </div>
     </CCModal>
-    <CCModal v-model="showConfigModal" :mask-closable="false" footerHide :width="630" :title="$t('pei-zhi-wen-jian')">
+    <CCModal v-model="showConfigModal" :mask-closable="false" footerHide width="min(1080px, calc(100vw - 96px))" :title="$t('pei-zhi-wen-jian')">
       <div v-if="showConfigModal" class="config-modal">
         <a-alert
           banner
@@ -745,6 +742,9 @@ export default {
     border: 1px solid #ededed;
     background: #fafafa;
     padding: 10px;
+    overflow-x: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+    white-space: nowrap;
   }
 
   .btn-group {

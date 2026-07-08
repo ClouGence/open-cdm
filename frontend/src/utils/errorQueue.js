@@ -69,6 +69,7 @@ class ErrorQueue {
 
     if (this.showModalCallback) {
       const errorsCopy = [...this.errors];
+      this.errors = [];
       this.showModalCallback(errorsCopy);
     }
   }

@@ -1180,6 +1180,11 @@ tr:hover .ivu-select-selection {
   padding: 0;
 }
 
+.ivu-select-dropdown-list {
+  max-height: ~'min(360px, calc(100vh - 120px))';
+  overflow-y: auto;
+}
+
 .ivu-radio-group-button .ivu-radio-wrapper-checked {
   background-color: #e9f4ff !important;
 }
@@ -1236,7 +1241,8 @@ tr:hover .ivu-select-selection {
 }
 
 .ivu-select-dropdown {
-  max-height: 500px !important;
+  max-height: ~'min(360px, calc(100vh - 120px))' !important;
+  overflow: hidden;
 }
 
 .cloudCanal-header .ivu-menu-submenu {

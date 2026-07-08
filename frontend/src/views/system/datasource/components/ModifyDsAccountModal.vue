@@ -12,7 +12,7 @@
         <a-form-model-item :label="$t('ren-zheng-fang-shi')">
           <a-select v-model="currentDs.securityType" @change="handleChangeSecurityType" disabled style="width: 160px">
             <a-select-option v-for="security in securityOptions" :key="security.securityType" :rowKey="security.securityType">
-              {{ security.secrityTypeI18nName || security.securityType }}
+              {{ security.securityTypeI18nName || security.securityType }}
             </a-select-option>
           </a-select>
         </a-form-model-item>
@@ -45,7 +45,10 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import datasourceMixin from '@/mixins/datasourceMixin';
+import { CONNECT_TYPE } from '@/const/ccIndex';
+import { isOracle } from '@/utils';
 
 export default {
   name: 'ModifyDsAccountModal',
@@ -79,6 +82,9 @@ export default {
         ]
       }
     };
+  },
+  computed: {
+    ...mapState(['dmGlobalSetting'])
   },
   methods: {
     _testConnection() {
@@ -137,44 +143,40 @@ export default {
         this.handleCloseModal();
       }
     },
-    async getSecurityOption() {
-      const { dataSourceType, deployEnvType } = this.ds;
-      const res = await this.$services.dmConstantListDsSecurityOption({
-        data: {
-          dataSourceType,
-          deployEnvType,
-          connectType: this.currentDs.connectType
-        }
+    getSecurityOption() {
+      const { dataSourceType } = this.ds;
+      const securityOptions = this.dmGlobalSetting?.dsSettingDef?.[dataSourceType]?.securityOptions || [];
+      const obj = {};
+      this.securityOptions = [...securityOptions];
+      securityOptions.forEach((security) => {
+        obj[security.securityType] = security;
       });
-
-      if (res.success) {
-        const obj = {};
-        this.securityOptions = [...res.data.securityOptions];
-        res.data.securityOptions.forEach((security) => {
-          obj[security.securityType] = security;
-        });
-        this.securityOptionsObj = obj;
-      }
+      this.securityOptionsObj = obj;
     },
-    async getConnectionOption() {
-      const { dataSourceType, deployEnvType } = this.ds;
-      const res = await this.$services.dmConstantListDsConnectionOption({
-        data: {
-          dataSourceType,
-          deployEnvType
-        }
+    getConnectionOption() {
+      const { dataSourceType } = this.ds;
+      const connectionOptions = this.buildConnectionOptions(dataSourceType);
+      const obj = {};
+      this.dsConnectionOptions = connectionOptions;
+      connectionOptions.forEach((option) => {
+        obj[option.connectType] = option;
       });
-
-      if (res.success && res.data.connectionOptions && res.data.connectionOptions.length) {
-        const { connectionOptions } = res.data;
-        const obj = {};
-        this.dsConnectionOptions = connectionOptions;
-        connectionOptions.forEach((option) => {
-          obj[option.connectType] = option;
-        });
-        this.dsConnectionOptionsObj = obj;
-        await this.getSecurityOption();
+      this.dsConnectionOptionsObj = obj;
+      this.getSecurityOption();
+    },
+    buildConnectionOptions(dataSourceType) {
+      if (isOracle(dataSourceType)) {
+        return CONNECT_TYPE.ORACLE.map((type) => ({
+          connectType: type.value,
+          connectTypeI18nName: type.label
+        }));
       }
+      return [
+        {
+          connectType: 'DEFAULT',
+          connectTypeI18nName: 'DEFAULT'
+        }
+      ];
     },
     handleChangeSecurityType() {
       this.currentDs = { ...this.currentDs };
@@ -183,6 +185,11 @@ export default {
   created() {
     this.currentDs = this.ds;
     this.getConnectionOption();
+  },
+  watch: {
+    dmGlobalSetting() {
+      this.getSecurityOption();
+    }
   }
 };
 </script>

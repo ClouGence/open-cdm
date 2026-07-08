@@ -9,7 +9,6 @@ import {
   UPDATE_MY_AUTH,
   UPDATE_MY_CATALOG,
   UPDATE_RULE_SETTING,
-  UPDATE_PUBLIC_KEY,
   REMAIN_TRIAL_DAY,
   SET_MENU_ITEMS,
   SET_THEME
@@ -44,7 +43,7 @@ const initWebsocket = (globalSetting, loggedIn) => {
   const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
   const host = process.env.NODE_ENV === 'development' && process.env.VUE_APP_DM_HOST ? process.env.VUE_APP_DM_HOST : window.location.host;
 
-  createWebSocket(`${wsProtocol}://${host}/clouddm/console/api/v1/ws/channel`);
+  createWebSocket(`${wsProtocol}://${host}/api/entry/ws/channel`);
 };
 
 export default {
@@ -123,27 +122,26 @@ export default {
       commit(UPDATE_CC_GLOBAL_SETTING, ccGlobalSettingRes.data);
     }
   },
-  async getDmGlobalConfig({ commit }) {
+  async getDmGlobalConfig({ commit, state }) {
     if (!supportsCloudDMBuild) {
       return;
     }
 
-    const globalSettingRes = await services.dmGlobalSettings();
     const consoleSettingRes = await services.dmConsoleSettings();
-    if (globalSettingRes.success && consoleSettingRes.success) {
-      const dmSetting = globalSettingRes.data;
-      dmSetting.menus = consoleSettingRes.data.menus;
-      dmSetting.dsSettingDef = consoleSettingRes.data.dsSettingDef;
+    if (consoleSettingRes.success) {
+      const dmSetting = consoleSettingRes.data;
+      dmSetting.dsSupportNames = consoleSettingRes.data?.dsSupportNames || [];
       dmSetting.fmtConvertDef = consoleSettingRes.data?.fmtConvertDef;
+
+      if (!dmSetting.version && state.dmGlobalSetting?.version) {
+        dmSetting.version = state.dmGlobalSetting.version;
+      }
 
       if (dmSetting.personal) {
         i18n.locale = 'zh-CN';
       }
 
       commit(UPDATE_DM_GLOBAL_SETTING, dmSetting);
-      if (dmSetting.publicKey) {
-        commit(UPDATE_PUBLIC_KEY, dmSetting.publicKey);
-      }
     }
   },
   async getDeployEnvList({ commit }) {
@@ -170,8 +168,8 @@ export default {
     //   commit(UPDATE_REGION_LIST_MAP, data);
     // }
   },
-  async getClusterList({ commit }, deployEnvType) {
-    const res = await services.dmConstantListCluster({ data: { deployEnvType } });
+  async getClusterList({ commit }) {
+    const res = await services.dmClusterListByCondition({ data: {} });
     if (res.success) {
       commit(UPDATE_CLUSTER_LIST, res.data);
     }

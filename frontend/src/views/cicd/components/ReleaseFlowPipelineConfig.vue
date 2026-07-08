@@ -1,8 +1,9 @@
 <template>
-  <section class="flow-section-card release-config-card">
+  <section class="page-section release-config-section">
+    <div class="page-section__title">{{ $t('fa-bu-liu-cheng-pei-zhi') }}</div>
     <div class="release-grid">
       <div class="release-panel">
-        <div class="panel-heading">
+        <div class="panel-subheading">
           <CustomIcon type="icon-v2-Gitee" size="20px" />
           <span>{{ $t('fa-bu-yuan') }}</span>
         </div>
@@ -112,7 +113,7 @@
       </div>
 
       <div class="release-panel">
-        <div class="panel-heading target-heading">
+        <div class="panel-subheading target-heading">
           <CustomIcon :type="devopsTo" size="20px" />
           <span>{{ $t('mu-biao-fa-bu-shu-ju-ku') }}</span>
         </div>
@@ -125,21 +126,28 @@
           label-position="left"
           :label-width="112"
         >
-          <FormItem :label="$t('shu-ju-ku-lei-xing')" class="target-select-form-item database-type-form-item force-required" required>
-            <div class="type-card-group database-type-card-group">
-              <button
-                v-for="type in databaseTypeCardList"
-                :key="type"
-                type="button"
-                class="type-card database-type-card"
-                :class="{ active: flowGitOpsForm.databaseType === type }"
-                :aria-pressed="flowGitOpsForm.databaseType === type"
-                @click="$emit('database-type-select', type)"
-              >
-                <CustomIcon :type="type" size="18px" />
-                <span>{{ type }}</span>
-              </button>
-            </div>
+          <FormItem :label="$t('shu-ju-ku-lei-xing')" prop="databaseType" class="target-select-form-item database-type-form-item force-required">
+            <Select
+              ref="databaseTypeSelect"
+              :model-value="flowGitOpsForm.databaseType"
+              :placeholder="$t('qing-xuan-ze')"
+              placement="bottom-start"
+              transfer
+              transfer-class-name="release-flow-select-dropdown"
+              events-enabled
+              filterable
+              :not-found-text="$t('zan-wu-shu-ju')"
+              @on-change="handleDatabaseTypeSelect"
+              @on-query-change="handleDatabaseTypeQueryChange"
+              @on-open-change="handleDatabaseTypeOpenChange"
+            >
+              <Option v-for="type in filteredDatabaseTypeOptions" :value="type" :key="type" :label="type">
+                <span class="database-type-option-content">
+                  <CustomIcon :type="type" size="18px" />
+                  <span>{{ type }}</span>
+                </span>
+              </Option>
+            </Select>
           </FormItem>
 
           <FormItem :label="$t('shi-li-1')" prop="instanceId" class="target-select-form-item">
@@ -252,7 +260,7 @@ export default {
     devopsRepoListByGroup: { type: Object, required: true },
     repoLoading: { type: Boolean, required: true },
     devopsTo: { type: String, required: true },
-    databaseTypeCardList: { type: Array, required: true },
+    databaseTypeOptions: { type: Array, required: true },
     devopsInsList: { type: Array, required: true },
     filteredDevopsInsList: { type: Array, required: true },
     devopsInsCatalogList: { type: Array, required: true },
@@ -262,6 +270,22 @@ export default {
     initOptions: { type: Array, required: true },
     eventTypeMap: { type: Object, required: true },
     flowGitOpsDescription: { type: Function, required: true }
+  },
+  data() {
+    return {
+      databaseTypeDropdownOpen: false,
+      databaseTypeSearchKeyword: ''
+    };
+  },
+  computed: {
+    filteredDatabaseTypeOptions() {
+      if (!this.databaseTypeDropdownOpen || !this.databaseTypeSearchKeyword) {
+        return this.databaseTypeOptions;
+      }
+
+      const keyword = this.databaseTypeSearchKeyword.toLowerCase();
+      return this.databaseTypeOptions.filter((type) => String(type).toLowerCase().includes(keyword));
+    }
   },
   emits: [
     'source-type-select',
@@ -278,6 +302,25 @@ export default {
     'ds-setting'
   ],
   methods: {
+    handleDatabaseTypeSelect(type) {
+      this.databaseTypeSearchKeyword = '';
+      this.$emit('database-type-select', type);
+    },
+    handleDatabaseTypeQueryChange(query) {
+      if (!this.databaseTypeDropdownOpen) {
+        return;
+      }
+
+      const selectedType = this.flowGitOpsForm.databaseType || '';
+      this.databaseTypeSearchKeyword = query === selectedType ? '' : query.trim();
+    },
+    handleDatabaseTypeOpenChange(open) {
+      this.databaseTypeDropdownOpen = open;
+      if (!open) {
+        this.databaseTypeSearchKeyword = '';
+      }
+      this.$emit('select-open-change', open, this.$refs.databaseTypeSelect);
+    },
     async validate() {
       const result = await Promise.all([this.$refs.releaseSourceForm.validate(), this.$refs.releaseTargetForm.validate()]);
       return result.every(Boolean);

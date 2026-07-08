@@ -23,6 +23,7 @@ import java.util.Properties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,10 @@ public class MySqlDsFactory implements DsFactory<Connection> {
         for (DsConfigKeys confKey : DsConfigKeys.values()) {
             props.remove(confKey.getConfigKey());
         }
+        props.entrySet().removeIf(entry -> {
+            return entry.getValue() == null || //
+                   (StringUtils.isBlank(String.valueOf(entry.getValue())) && !StringUtils.equals("trustCertificateKeyStorePassword", String.valueOf(entry.getKey())));
+        });
 
         String id = dsConfig.getProperty(DsConfigKeys.ID.getConfigKey());
         String username = dsConfig.getProperty(DsConfigKeys.USER.getConfigKey());
@@ -50,7 +55,6 @@ public class MySqlDsFactory implements DsFactory<Connection> {
         String connTimeoutMs = dsConfig.getProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey());
         String soTimeoutSec = dsConfig.getProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey());
         String clientName = dsConfig.getProperty(DsConfigKeys.CLIENT_NAME.getConfigKey());
-        String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
         String clientEncoding = dsConfig.getProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey());
         String clientTimeZone = dsConfig.getProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey());
         String tcpKeepAlive = dsConfig.getProperty(DsConfigKeys.TCP_KEEP_ALIVE.getConfigKey());
@@ -110,6 +114,19 @@ public class MySqlDsFactory implements DsFactory<Connection> {
             return new DsObject<>(dsConfig, myConnect, this);
         } catch (Exception e) {
             log.error("create connection instanceID(MySQL)=" + id + " ,jdbcUrl= " + jdbcUrl + ", error:" + e.getMessage());
+            String rootCauseMessage = ExceptionUtils.getRootCauseMessage(e);
+            String errorMessage = e.getMessage();
+            if (StringUtils.contains(rootCauseMessage, "Path does not chain with any of the trust anchors")
+                || StringUtils.contains(errorMessage, "Path does not chain with any of the trust anchors")) {
+                throw new SQLException("Invalid SSL CA certificate.");
+            }
+            if (StringUtils.contains(rootCauseMessage, "trustAnchors parameter must be non-empty")
+                || StringUtils.contains(errorMessage, "trustAnchors parameter must be non-empty")) {
+                throw new SQLException("Invalid SSL CA trust store.");
+            }
+            if (StringUtils.contains(rootCauseMessage, "signed fields invalid") || StringUtils.contains(errorMessage, "signed fields invalid")) {
+                throw new SQLException("Invalid SSL certificate store.");
+            }
             throw e;
         }
     }
@@ -125,12 +142,7 @@ public class MySqlDsFactory implements DsFactory<Connection> {
         }
 
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
-        String defaultSchema;
-        if (StringUtils.isNotBlank(dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey()))) {
-            defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
-        } else {
-            defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
-        }
+        String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
 
         String[] ipPort = host.split(":");
         if (ipPort.length == 1) {

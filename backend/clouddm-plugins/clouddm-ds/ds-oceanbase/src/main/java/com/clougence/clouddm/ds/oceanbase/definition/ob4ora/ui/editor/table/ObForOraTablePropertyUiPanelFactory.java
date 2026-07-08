@@ -21,9 +21,9 @@ import java.util.List;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanelField;
 import com.clougence.clouddm.base.metadata.ui.form.UiPanelFieldType;
-import com.clougence.clouddm.ds.oracle.definition.ui.editor.table.OraTableEditorFields;
-import com.clougence.clouddm.ds.oracle.i18n.Ora18nKeys;
 import com.clougence.clouddm.dsfamily.definition.ui.editor.table.DsFamilyTablePropertyUiPanelFactory;
+import com.clougence.clouddm.dsfamily.oracle.definition.ui.editor.table.OraTableEditorFields;
+import com.clougence.clouddm.dsfamily.oracle.i18n.Ora18nKeys;
 
 public class ObForOraTablePropertyUiPanelFactory extends DsFamilyTablePropertyUiPanelFactory implements OraTableEditorFields {
 

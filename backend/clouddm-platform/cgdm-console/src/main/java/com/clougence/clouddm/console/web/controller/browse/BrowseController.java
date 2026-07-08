@@ -33,7 +33,6 @@ import com.clougence.clouddm.console.web.component.auth.DmAuthServiceForBiz;
 import com.clougence.clouddm.console.web.component.auth.DmResAuthService;
 import com.clougence.clouddm.console.web.component.auth.model.ResourceAccessInfo;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
-import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.constants.DmControllerUrlPrefix;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
@@ -44,10 +43,11 @@ import com.clougence.clouddm.console.web.model.vo.browse.BrowseLevelsVO;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
 import com.clougence.clouddm.console.web.service.browse.BrowseService;
 import com.clougence.clouddm.console.web.service.browse.model.rdb.BrowseObjectMO;
+import com.clougence.clouddm.console.web.service.datasource.DmDsWebService;
 import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.console.web.util.RdpAuthUtils;
 import com.clougence.clouddm.platform.dal.access.ObjectCacheDao;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysEnvDO;
 import com.clougence.clouddm.sdk.model.analysis.resource.DsResPath;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
@@ -82,7 +82,7 @@ public class BrowseController {
     @Resource
     private DmResAuthService    dmDsAuthService;
     @Resource
-    private DmDsService         dmDsService;
+    private DmDsWebService      dmDsService;
 
     @RequestAuth(strategy = RequestAuth.AuthStrategy.Ignore)
     @RequestMapping(value = "/listLevels", method = RequestMethod.POST)
@@ -97,8 +97,8 @@ public class BrowseController {
             }
 
             List<DmSysEnvDO> dsEnvDOList = this.rdpDsEnvService.listDsEnv(puid, uid, null);
-            List<DmDsConfigDO> dmDsConfigDOS = this.dmDsService.fetchDsConfigByIds(puid, dsIds);
-            Set<Long> collect = dmDsConfigDOS.stream().map(DmDsConfigDO::getBindEnvId).collect(Collectors.toSet());
+            List<DmDsDO> dmDsConfigDOS = this.dmDsService.fetchDsConfigByIds(puid, dsIds);
+            Set<Long> collect = dmDsConfigDOS.stream().map(DmDsDO::getDsEnvId).collect(Collectors.toSet());
             List<BrowseLevelsVO> vos = dsEnvDOList.stream().filter(env -> {
                 return collect.contains(env.getId());
             }).map(DmConvertUtils::convertToBrowseLevelsVO).collect(Collectors.toList());

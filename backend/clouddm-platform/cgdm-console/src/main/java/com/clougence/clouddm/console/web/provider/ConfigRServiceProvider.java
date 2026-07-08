@@ -15,28 +15,34 @@
  */
 package com.clougence.clouddm.console.web.provider;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.api.console.configs.ConfigRService;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
+import com.clougence.clouddm.base.metadata.ds.SshConfig;
 import com.clougence.clouddm.base.metadata.ds.ToolConfig;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResourceType;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityFileType;
 import com.clougence.clouddm.comm.RSocketApiClass;
 import com.clougence.clouddm.console.web.component.detectrule.SecCheckerRules;
 import com.clougence.clouddm.console.web.component.detectrule.SecRulesService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmToolConfigService;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
+import com.clougence.clouddm.console.web.service.ssh.SshConfigService;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.access.entry.EnvCacheEntry;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsBlobResourceDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.sdk.service.config.ConfigData;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.sdk.service.secrules.SensitiveConfig;
 import com.clougence.utils.CollectionUtils;
+import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -59,15 +65,55 @@ public class ConfigRServiceProvider extends AbstractBasicProvider implements Con
     private SecRulesService      secRulesService;
     @Resource
     private ConsoleConfigService consoleConfigService;
+    @Resource
+    private SshConfigService     sshConfigService;
 
     @Override
-    public List<ConfigData> fetchSettings(String ownerUid, List<String> names) {
-        return this.consoleConfigService.fetchSettings(ownerUid, names);
+    public List<ConfigData> fetchSettings(List<String> names) {
+        return this.consoleConfigService.fetchSettings(names);
     }
 
     @Override
-    public DataSourceConfig fetchDsConfig(long dsId, DataSourceType dsType) {
-        return this.dsConfigService.fetchDsConfigFromDM(dsId, dsType);
+    public DataSourceConfig fetchDsConfig(long dsId) {
+        return this.dsConfigService.fetchDsConfigFromExists(dsId);
+    }
+
+    @Override
+    public List<ConfigData> fetchDsConfig(String instanceId, List<String> names) {
+        if (StringUtils.isBlank(instanceId) || CollectionUtils.isEmpty(names)) {
+            return Collections.emptyList();
+        }
+
+        DmDsDO dsDO = this.dsDal.dsMapper().getByInstanceId(instanceId);
+        if (dsDO == null) {
+            return Collections.emptyList();
+        }
+
+        List<DmDsConfigKv4DmDO> configs = this.dsDal.configKv4DmMapper().listByDsIdAndConfigNames(dsDO.getId(), names);
+        if (CollectionUtils.isEmpty(configs)) {
+            return Collections.emptyList();
+        }
+
+        Map<String, DsConfigKvDef> configDefMap = this.dsConfigService.fetchDsConfigDef(dsDO.getDataSourceType())//
+            .stream()
+            .collect(Collectors.toMap(DsConfigKvDef::getConfigName, configDef -> configDef));
+
+        return configs.stream().map(config -> {
+            ConfigData result = new ConfigData();
+            result.setConfigName(config.getConfigName());
+            String configValue = config.getConfigValue();
+            DsConfigKvDef configDef = configDefMap.get(config.getConfigName());
+            if (configDef != null && configDef.isSecret() && StringUtils.isNotBlank(configValue)) {
+                configValue = CryptService.INSTANCE.decryptUseDefaultKeyAndSalt(configValue);
+            }
+            result.setConfigValue(configValue);
+            return result;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public SshConfig fetchSshConfig(long sshConfigId) {
+        return this.sshConfigService.fetchSshConfig(sshConfigId);
     }
 
     @Override
@@ -94,9 +140,4 @@ public class ConfigRServiceProvider extends AbstractBasicProvider implements Con
         }
     }
 
-    @Override
-    public byte[] fetchDsFile(String instanceId, ResourceType resourceType, SecurityFileType fileType) {
-        DmDsBlobResourceDO rdpBlobResourceDO = dsDal.blobResourceMapper().queryByIdentify(instanceId, resourceType, fileType);
-        return rdpBlobResourceDO.getContent();
-    }
 }

@@ -23,6 +23,7 @@ import java.util.Properties;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PostgresqlDsFactory implements DsFactory<Connection> {
 
-    private static final char[] INJECT_CHAR = new char[] { ' ', ';' };
+    private static final char[] INJECT_CHAR           = new char[] { ' ', ';' };
+    private static final char[] TIME_ZONE_INJECT_CHAR = new char[] { ' ', ';', '\'' };
 
     @Override
     public DsObject<Connection> create(Properties dsConfig) throws SQLException {
@@ -59,6 +61,9 @@ public class PostgresqlDsFactory implements DsFactory<Connection> {
 
         String pgIntervalStyle = dsConfig.getProperty(DsConfigKeys.PG_INTERVAL_STYLE.getConfigKey());
 
+        if (StringUtils.isNotBlank(props.getProperty("sslrootcert")) && StringUtils.isBlank(props.getProperty("sslfactory"))) {
+            props.put("sslfactory", "org.postgresql.ssl.LibPQFactory");
+        }
         if (StringUtils.isNotBlank(username)) {
             props.put("user", username);
         }
@@ -88,6 +93,9 @@ public class PostgresqlDsFactory implements DsFactory<Connection> {
         }
 
         String jdbcUrl = buildJdbcUrl(dsConfig);
+        log.info("create connection instanceID(Postgres)={}, jdbcUrl={}, sslmode={}, sslrootcert={}, sslcert={}, sslkey={}, sslfactory={}", id, jdbcUrl, props
+            .getProperty("sslmode"), StringUtils.isNotBlank(props.getProperty("sslrootcert")),//
+                StringUtils.isNotBlank(props.getProperty("sslcert")), StringUtils.isNotBlank(props.getProperty("sslkey")), props.getProperty("sslfactory"));
         try {
             Connection pgConnect = new org.postgresql.Driver().connect(jdbcUrl, props);
 
@@ -107,6 +115,14 @@ public class PostgresqlDsFactory implements DsFactory<Connection> {
                     log.error("create connection applyProps failed '" + exec + "'", e);
                 }
             }
+            if (StringUtils.isNotBlank(clientTimeZone) && !StringUtils.containsAny(clientTimeZone, TIME_ZONE_INJECT_CHAR)) {
+                String exec = "set time zone '" + clientTimeZone + "'";
+                try (Statement ps = pgConnect.createStatement()) {
+                    ps.execute(exec);
+                } catch (SQLException e) {
+                    log.error("create connection applyProps failed '" + exec + "'", e);
+                }
+            }
             if (StringUtils.isNotBlank(autoCommit)) {
                 if (StringUtils.equalsIgnoreCase("false", autoCommit)) {
                     pgConnect.setAutoCommit(false);
@@ -118,6 +134,14 @@ public class PostgresqlDsFactory implements DsFactory<Connection> {
             return new DsObject<>(dsConfig, pgConnect, this);
         } catch (Exception e) {
             log.error("create connection instanceID(Postgres)=" + id + " ,jdbcUrl= " + jdbcUrl + ", error:" + e.getMessage(), e);
+            String rootCauseMessage = ExceptionUtils.getRootCauseMessage(e);
+            String errorMessage = e.getMessage();
+            if (StringUtils.contains(rootCauseMessage, "insecure permissions") || StringUtils.contains(errorMessage, "insecure permissions")) {
+                throw new SQLException("SSL client key file permissions are insecure.");
+            }
+            if (StringUtils.contains(rootCauseMessage, "extra data at the end") || StringUtils.contains(errorMessage, "Could not read SSL key file")) {
+                throw new SQLException("Invalid SSL client key format.");
+            }
             throw e;
         }
     }
@@ -133,17 +157,17 @@ public class PostgresqlDsFactory implements DsFactory<Connection> {
         }
 
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
-        String defaultDataBase = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
+        String defaultCatalog = dsConfig.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
 
-        if (StringUtils.isBlank(defaultDataBase)) {
-            defaultDataBase = "postgres";
+        if (StringUtils.isBlank(defaultCatalog)) {
+            defaultCatalog = "postgres";
         }
 
         String[] ipPort = host.split(":");
         if (ipPort.length == 1) {
-            return String.format("jdbc:postgresql://%s:5432/%s", ipPort[0], safeString(defaultDataBase));
+            return String.format("jdbc:postgresql://%s:5432/%s", ipPort[0], safeString(defaultCatalog));
         } else if (ipPort.length == 2) {
-            return String.format("jdbc:postgresql://%s:%s/%s", ipPort[0], ipPort[1], safeString(defaultDataBase));
+            return String.format("jdbc:postgresql://%s:%s/%s", ipPort[0], ipPort[1], safeString(defaultCatalog));
         } else {
             throw new IllegalArgumentException("unsupported host format:" + host);
         }

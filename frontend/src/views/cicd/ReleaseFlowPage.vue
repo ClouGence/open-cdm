@@ -35,7 +35,7 @@
             :devops-repo-list-by-group="devopsRepoListByGroup"
             :repo-loading="repoLoading"
             :devops-to="devopsTo"
-            :database-type-card-list="databaseTypeCardList"
+            :database-type-options="databaseTypeOptions"
             :devops-ins-list="devopsInsList"
             :filtered-devops-ins-list="filteredDevopsInsList"
             :devops-ins-catalog-list="devopsInsCatalogList"
@@ -59,30 +59,30 @@
             @ds-setting="goToDsSetting"
           />
 
-          <section v-if="currentStepKey === 'config'" class="flow-section-card flow-config-card">
-            <ReleaseFlowNoticeConfig
-              :flow-im-form="flowImForm"
-              :im-def-list="imDefList"
-              :im-def-selected="imDefSelected"
-              :is-im-disabled="isImDisabled"
-              :im-provider-list="imProviderList"
-              :subscription-items="subscriptionItems"
-              @im-def-select="handleImDefOne"
-              @im-provider-change="handleImProviderSelected"
-              @select-open-change="handleSelectDropdownOpen"
-            />
-            <ReleaseFlowExecuteConfig
-              :flow-basic-form="flowBasicForm"
-              :check-options="checkOptions"
-              :approve-options="approveOptions"
-              :publish-options="publishOptions"
-              :transactional-options="transactionalOptions"
-              :error-options="errorOptions"
-              :flow-execute-is-auto="flowExecuteIsAuto"
-              :change-flow-description="fetchChangeFlowDescription"
-              @execute-strategy-change="setExecuteStrategy"
-            />
-          </section>
+          <ReleaseFlowNoticeConfig
+            v-if="currentStepKey === 'config'"
+            :flow-im-form="flowImForm"
+            :im-def-list="imDefList"
+            :im-def-selected="imDefSelected"
+            :is-im-disabled="isImDisabled"
+            :im-provider-list="imProviderList"
+            :subscription-items="subscriptionItems"
+            @im-def-select="handleImDefOne"
+            @im-provider-change="handleImProviderSelected"
+            @select-open-change="handleSelectDropdownOpen"
+          />
+          <ReleaseFlowExecuteConfig
+            v-if="currentStepKey === 'config'"
+            :flow-basic-form="flowBasicForm"
+            :check-options="checkOptions"
+            :approve-options="approveOptions"
+            :publish-options="publishOptions"
+            :transactional-options="transactionalOptions"
+            :error-options="errorOptions"
+            :flow-execute-is-auto="flowExecuteIsAuto"
+            :change-flow-description="fetchChangeFlowDescription"
+            @execute-strategy-change="setExecuteStrategy"
+          />
         </div>
 
         <ReleaseFlowSummary
@@ -240,6 +240,7 @@ export default {
         repoName: [{ required: true, message: this.$t('qing-xuan-ze-cang-ku'), trigger: 'change' }],
         repoBranch: [{ required: true, message: this.getInputRequiredMessage('mu-biao-fen-zhi'), trigger: 'blur' }],
         eventType: [{ required: true, message: this.getSelectRequiredMessage('chu-fa-fang-shi'), trigger: 'change' }],
+        databaseType: [{ required: true, message: this.getSelectRequiredMessage('shu-ju-ku-lei-xing'), trigger: 'change' }],
         instanceId: [{ required: true, message: this.$t('qing-xuan-ze-shu-ju-ku-shi-li'), trigger: 'change' }],
         catalogName: [{ validator: this.validateCatalog, trigger: 'change' }],
         schemaName: [{ validator: this.validateSchema, trigger: 'change' }],
@@ -293,7 +294,7 @@ export default {
       const types = this.devopsInsList.map((item) => item?.objAttr?.dsType).filter(Boolean);
       return [...new Set(types)];
     },
-    databaseTypeCardList() {
+    databaseTypeOptions() {
       return ['MySQL', ...this.databaseTypeList.filter((type) => type !== 'MySQL')];
     },
     sourceTypeCardList() {
@@ -1093,16 +1094,17 @@ export default {
 
 <style>
 .release-flow-page {
+  display: flex;
+  flex-direction: column;
   flex: 1 1 auto;
   width: 100%;
   height: 100%;
   min-height: 0;
   box-sizing: border-box;
-  overflow-y: auto;
+  overflow: hidden;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding-bottom: 76px;
-  background: #f5f8fb;
+  background: #fff;
   color: #1f2937;
 }
 
@@ -1114,10 +1116,13 @@ export default {
 
 .release-flow-shell {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
-  gap: 20px;
-  margin: 20px;
-  padding: 14px 20px 104px;
+  flex: 1 1 auto;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  min-height: 0;
+  margin: 0;
+  overflow-y: auto;
+  padding: 20px 24px;
   align-items: stretch;
 }
 
@@ -1125,51 +1130,49 @@ export default {
   grid-column: 1;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
+  min-width: 0;
 }
 
-.flow-section-card,
-.summary-card,
-.success-card {
-  background: #fff;
-  border: 1px solid #e3eaf2;
-  border-radius: 10px;
-  box-shadow: 0 10px 28px rgba(31, 41, 55, 0.04);
+.page-section {
+  min-width: 0;
 }
 
-.flow-section-card {
-  padding: 28px 36px;
-}
-
-.basic-info-card {
-  min-height: 168px;
-}
-
-.release-config-card {
-  min-height: 500px;
-  padding: 32px 36px 36px;
-}
-
-.accent-title {
+.page-section__title {
   position: relative;
+  margin-bottom: 16px;
+  padding-left: 12px;
+  color: #181d26;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.page-section__title::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 3px;
+  height: 16px;
+  border-radius: 2px;
+  background: #18b566;
+  transform: translateY(-50%);
+  content: '';
+}
+
+.panel-subheading {
   display: flex;
   align-items: center;
-  margin-bottom: 22px;
-  padding-left: 24px;
-  color: #111827;
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1.2;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: #181d26;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
-.accent-title::before {
-  position: absolute;
-  left: 0;
-  width: 5px;
-  height: 28px;
-  border-radius: 3px;
-  background: #18b566;
-  content: '';
+.basic-info-section {
+  min-height: 0;
 }
 
 .basic-form {
@@ -1221,29 +1224,19 @@ export default {
   min-width: 0;
 }
 
-.panel-heading {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 28px;
-  color: #111827;
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.basic-info-card .ivu-form-item-label,
-.release-config-card .ivu-form-item-label {
+.basic-info-section .ivu-form-item-label,
+.release-config-section .ivu-form-item-label {
   color: #5f6c80;
   font-size: 16px;
   font-weight: 500;
 }
 
-.basic-info-card .ivu-form-item-label {
+.basic-info-section .ivu-form-item-label {
   padding: 0 0 14px;
 }
 
-.basic-info-card .ivu-form-item-content,
-.release-config-card .ivu-form-item-content {
+.basic-info-section .ivu-form-item-content,
+.release-config-section .ivu-form-item-content {
   position: relative;
   padding-bottom: 20px;
 }
@@ -1252,22 +1245,22 @@ export default {
   padding-right: 30px;
 }
 
-.release-config-card .ivu-form-item {
+.release-config-section .ivu-form-item {
   margin-bottom: 0;
 }
 
-.release-config-card .ivu-form-item-label {
+.release-config-section .ivu-form-item-label {
   position: relative;
   padding: 12px 12px 12px 14px;
 }
 
-.release-config-card .force-required .ivu-form-item-label::before {
+.release-config-section .force-required .ivu-form-item-label::before {
   color: #ed4014;
   content: '*';
 }
 
-.release-config-card .ivu-form-item-required .ivu-form-item-label::before,
-.release-config-card .force-required .ivu-form-item-label::before {
+.release-config-section .ivu-form-item-required .ivu-form-item-label::before,
+.release-config-section .force-required .ivu-form-item-label::before {
   position: absolute;
   top: 50%;
   left: 0;
@@ -1278,7 +1271,7 @@ export default {
   transform: translateY(-50%);
 }
 
-.release-config-card .ivu-form-item-error-tip {
+.release-config-section .ivu-form-item-error-tip {
   position: absolute;
   top: auto;
   bottom: 0;
@@ -1287,8 +1280,8 @@ export default {
   line-height: 18px;
 }
 
-.basic-info-card .ivu-input,
-.release-config-card .ivu-input {
+.basic-info-section .ivu-input,
+.release-config-section .ivu-input {
   height: 42px;
   border-color: #dce3eb;
   border-radius: 6px;
@@ -1296,8 +1289,8 @@ export default {
   font-size: 15px;
 }
 
-.basic-info-card .ant-input,
-.basic-info-card .ant-input-affix-wrapper {
+.basic-info-section .ant-input,
+.basic-info-section .ant-input-affix-wrapper {
   height: 42px;
   border-color: #dce3eb !important;
   border-radius: 6px !important;
@@ -1305,33 +1298,33 @@ export default {
   font-size: 15px;
 }
 
-.basic-info-card .ant-input {
+.basic-info-section .ant-input {
   padding: 0 14px;
   line-height: 40px;
 }
 
-.basic-info-card .ant-input-affix-wrapper {
+.basic-info-section .ant-input-affix-wrapper {
   display: flex;
   align-items: center;
   padding: 0 14px;
 }
 
-.basic-info-card .ant-input-affix-wrapper .ant-input {
+.basic-info-section .ant-input-affix-wrapper .ant-input {
   height: 40px;
   padding: 0;
   border: 0 !important;
   box-shadow: none !important;
 }
 
-.basic-info-card .ivu-select-selection,
-.release-config-card .ivu-select-selection {
+.basic-info-section .ivu-select-selection,
+.release-config-section .ivu-select-selection {
   min-height: 42px;
   border-color: #dce3eb;
   border-radius: 6px;
 }
 
-.release-config-card .ivu-select.ivu-select-disabled .ivu-select-selection,
-.release-config-card .ivu-select-disabled .ivu-select-selection {
+.release-config-section .ivu-select.ivu-select-disabled .ivu-select-selection,
+.release-config-section .ivu-select-disabled .ivu-select-selection {
   background: #f7f8fa !important;
   background-color: #f7f8fa !important;
   border-color: #dce3eb !important;
@@ -1340,31 +1333,31 @@ export default {
   opacity: 1;
 }
 
-.release-config-card .ivu-select.ivu-select-disabled .ivu-select-selection:hover,
-.release-config-card .ivu-select-disabled .ivu-select-selection:hover {
+.release-config-section .ivu-select.ivu-select-disabled .ivu-select-selection:hover,
+.release-config-section .ivu-select-disabled .ivu-select-selection:hover {
   background: #f7f8fa !important;
   background-color: #f7f8fa !important;
   border-color: #dce3eb !important;
 }
 
-.basic-info-card .ivu-select-placeholder,
-.basic-info-card .ivu-select-selected-value,
-.basic-info-card .ivu-select-input,
-.release-config-card .ivu-select-placeholder,
-.release-config-card .ivu-select-selected-value,
-.release-config-card .ivu-select-input {
+.basic-info-section .ivu-select-placeholder,
+.basic-info-section .ivu-select-selected-value,
+.basic-info-section .ivu-select-input,
+.release-config-section .ivu-select-placeholder,
+.release-config-section .ivu-select-selected-value,
+.release-config-section .ivu-select-input {
   height: 40px;
   line-height: 40px;
   font-size: 15px;
 }
 
-.release-config-card .gitops-select-form-item .ivu-select-single .ivu-select-selection {
+.release-config-section .gitops-select-form-item .ivu-select-single .ivu-select-selection {
   display: flex;
   align-items: center;
 }
 
-.release-config-card .gitops-select-form-item .ivu-select-single .ivu-select-placeholder,
-.release-config-card .gitops-select-form-item .ivu-select-single .ivu-select-selected-value {
+.release-config-section .gitops-select-form-item .ivu-select-single .ivu-select-placeholder,
+.release-config-section .gitops-select-form-item .ivu-select-single .ivu-select-selected-value {
   float: none;
   flex: 1 1 auto;
   min-width: 0;
@@ -1372,16 +1365,16 @@ export default {
   line-height: 1.2;
 }
 
-.release-config-card .ivu-select-disabled .ivu-select-placeholder,
-.release-config-card .ivu-select-disabled .ivu-select-selected-value,
-.release-config-card .ivu-select-disabled .ivu-select-input,
-.release-config-card .ivu-select-disabled .ivu-select-arrow {
+.release-config-section .ivu-select-disabled .ivu-select-placeholder,
+.release-config-section .ivu-select-disabled .ivu-select-selected-value,
+.release-config-section .ivu-select-disabled .ivu-select-input,
+.release-config-section .ivu-select-disabled .ivu-select-arrow {
   color: #8b98aa !important;
   -webkit-text-fill-color: #8b98aa;
   cursor: not-allowed;
 }
 
-.release-config-card .ivu-select-disabled .ivu-select-input {
+.release-config-section .ivu-select-disabled .ivu-select-input {
   background-color: transparent !important;
 }
 
@@ -1725,37 +1718,39 @@ export default {
   content: '*';
 }
 
-.flow-config-card {
-  min-height: 690px;
-  padding: 34px 40px 40px;
+.flow-notice-section .ivu-form-item-label {
+  padding: 0 0 10px;
+  color: #5f6c80;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.flow-config-subsection + .flow-config-subsection {
-  padding-top: 26px;
-  margin-top: 28px;
-  border-top: 1px solid #edf2f7;
+.flow-notice-section .ivu-select-selection {
+  min-height: 38px;
+  border-color: #dce3eb;
+  border-radius: 6px;
 }
 
-.flow-config-subtitle {
-  position: relative;
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-  padding-left: 18px;
-  color: #111827;
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.2;
+.flow-notice-section .ivu-select-placeholder,
+.flow-notice-section .ivu-select-selected-value,
+.flow-notice-section .ivu-select-input {
+  height: 36px;
+  line-height: 36px;
+  font-size: 13px;
 }
 
-.flow-config-subtitle::before {
-  position: absolute;
-  left: 0;
-  width: 4px;
-  height: 22px;
-  border-radius: 3px;
-  background: #18b566;
-  content: '';
+.flow-notice-section .ivu-select-disabled .ivu-select-selection {
+  background: #f7f8fa !important;
+  border-color: #e0e6ee !important;
+  opacity: 1;
+}
+
+.flow-notice-section .ivu-select-disabled .ivu-select-placeholder,
+.flow-notice-section .ivu-select-disabled .ivu-select-selected-value,
+.flow-notice-section .ivu-select-disabled .ivu-select-input,
+.flow-notice-section .ivu-select-disabled .ivu-select-arrow {
+  color: #b4bfcc !important;
+  -webkit-text-fill-color: #b4bfcc;
 }
 
 .notice-layout {
@@ -1763,10 +1758,10 @@ export default {
 }
 
 .notice-section-label {
-  margin-bottom: 20px;
-  color: #172033;
-  font-size: 17px;
-  font-weight: 700;
+  margin-bottom: 12px;
+  color: #41454d;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .channel-grid {
@@ -1793,41 +1788,6 @@ export default {
   box-shadow: inset 0 0 0 1px #48cf86;
 }
 
-.flow-config-card .ivu-form-item-label {
-  padding: 0 0 10px;
-  color: #5f6c80;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.flow-config-card .ivu-select-selection {
-  min-height: 38px;
-  border-color: #dce3eb;
-  border-radius: 6px;
-}
-
-.flow-config-card .ivu-select-placeholder,
-.flow-config-card .ivu-select-selected-value,
-.flow-config-card .ivu-select-input {
-  height: 36px;
-  line-height: 36px;
-  font-size: 13px;
-}
-
-.flow-config-card .ivu-select-disabled .ivu-select-selection {
-  background: #f7f8fa !important;
-  border-color: #e0e6ee !important;
-  opacity: 1;
-}
-
-.flow-config-card .ivu-select-disabled .ivu-select-placeholder,
-.flow-config-card .ivu-select-disabled .ivu-select-selected-value,
-.flow-config-card .ivu-select-disabled .ivu-select-input,
-.flow-config-card .ivu-select-disabled .ivu-select-arrow {
-  color: #b4bfcc !important;
-  -webkit-text-fill-color: #b4bfcc;
-}
-
 .notice-form-row form {
   display: grid;
   grid-template-columns: minmax(260px, 1fr) minmax(260px, 1fr);
@@ -1843,28 +1803,31 @@ export default {
 }
 
 .subscription-title {
-  margin-bottom: 22px;
-  color: #111827;
-  font-size: 17px;
-  font-weight: 700;
+  margin-bottom: 12px;
+  color: #41454d;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .subscription-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
   overflow: hidden;
-  border: 1px solid #e1e9f2;
-  border-radius: 8px;
-  background: #fff;
+  border: none;
+  border-radius: 0;
+  background: transparent;
 }
 
 .subscription-row {
   display: flex;
   align-items: center;
   gap: 18px;
-  min-height: 70px;
-  padding: 0 24px;
+  min-height: 52px;
+  padding: 0 0;
   border-bottom: 1px dashed #e5ecf3;
   color: #6b7789;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
 }
 
@@ -1887,9 +1850,9 @@ export default {
   gap: 22px;
 }
 
-.execution-config-subsection .flow-config-list {
-  gap: 0;
-  border-top: 1px solid #edf2f7;
+.flow-execute-section .flow-config-list {
+  gap: 22px;
+  border-top: none;
 }
 
 .flow-config-row {
@@ -1911,7 +1874,7 @@ export default {
   min-height: 82px;
 }
 
-.execution-config-subsection .flow-config-row {
+.flow-execute-section .flow-config-row {
   grid-template-columns: 132px minmax(0, 1fr);
   align-items: center;
   gap: 28px;
@@ -1920,11 +1883,11 @@ export default {
   border-bottom: 1px solid #edf2f7;
 }
 
-.execution-config-subsection .flow-config-row:last-child {
+.flow-execute-section .flow-config-row:last-child {
   border-bottom: 0;
 }
 
-.execution-config-subsection .flow-config-row-reserved {
+.flow-execute-section .flow-config-row-reserved {
   min-height: 72px;
 }
 
@@ -1945,7 +1908,7 @@ export default {
   overflow: visible;
 }
 
-.execution-config-subsection .flow-config-control {
+.flow-execute-section .flow-config-control {
   display: grid;
   grid-template-columns: minmax(220px, 0.78fr) minmax(260px, 1fr);
   align-items: center;
@@ -1970,7 +1933,7 @@ export default {
   line-height: 1.5;
 }
 
-.execution-config-subsection .flow-config-hint {
+.flow-execute-section .flow-config-hint {
   max-width: none;
   min-height: 22px;
   margin-top: 0;
@@ -1983,7 +1946,7 @@ export default {
   min-height: 36px;
 }
 
-.execution-config-subsection .flow-config-hint-reserved {
+.flow-execute-section .flow-config-hint-reserved {
   min-height: 22px;
 }
 
@@ -2018,19 +1981,28 @@ export default {
   color: #b4bfcc;
 }
 
-.release-flow-summary {
+.release-flow-summary.page-aside {
   grid-column: 2;
   grid-row: 1;
   display: flex;
+  flex-direction: column;
   align-self: stretch;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 0;
+  padding: 24px;
+  background: var(--bg-secondary, #f8fafc);
+  border: none;
+  border-radius: 10px;
+  box-shadow: none;
+  overflow: hidden;
 }
 
-.summary-card {
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
+.summary-body {
+  flex: 1 1 auto;
   min-height: 0;
-  padding: 30px 30px 28px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .summary-title {
@@ -2038,10 +2010,11 @@ export default {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  flex: 0 0 auto;
   margin-bottom: 20px;
-  color: #111827;
-  font-size: 18px;
-  font-weight: 700;
+  color: #181d26;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .summary-title-main {
@@ -2065,54 +2038,52 @@ export default {
 }
 
 .summary-group {
-  padding: 0 0 22px;
-  margin-bottom: 22px;
-  border-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 24px;
+  padding: 0;
 }
 
 .summary-group:last-child {
-  padding-bottom: 0;
   margin-bottom: 0;
-  border-bottom: 0;
 }
 
 .summary-group h3 {
   position: relative;
-  margin: 0 0 14px;
-  padding-left: 18px;
-  color: #111827;
-  font-size: 16px;
-  font-weight: 700;
+  margin: 0;
+  padding-left: 12px;
+  color: #181d26;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .summary-group h3::before {
   position: absolute;
   top: 50%;
   left: 0;
-  width: 4px;
-  height: 20px;
-  border-radius: 3px;
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
   background: #18b566;
   transform: translateY(-50%);
   content: '';
 }
 
 .summary-group h3:not(:first-child) {
-  margin-top: 20px;
+  margin-top: 16px;
 }
 
-.summary-row {
+.summary-row,
+.summary-row-reserved {
   display: grid;
-  grid-template-columns: 94px minmax(0, 1fr);
-  gap: 10px;
-  min-height: 24px;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 12px;
+  min-height: 22px;
+  align-items: start;
   color: #637083;
   font-size: 13px;
-  line-height: 1.55;
-}
-
-.summary-row-reserved {
-  min-height: 26px;
+  line-height: 1.5;
 }
 
 .summary-subtitle {
@@ -2154,18 +2125,14 @@ export default {
 }
 
 .page-footer {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 20;
   display: flex;
+  flex: 0 0 auto;
   justify-content: center;
   gap: 12px;
-  padding: 12px 28px;
-  background: rgba(255, 255, 255, 0.96);
-  border-top: 1px solid #e7edf4;
-  box-shadow: 0 -8px 18px rgba(31, 41, 55, 0.06);
+  padding: 16px 24px 20px;
+  background: transparent;
+  border-top: none;
+  box-shadow: none;
 }
 
 .primary-action {
@@ -2176,20 +2143,28 @@ export default {
 
 .release-flow-success {
   display: flex;
+  flex: 1 1 auto;
+  align-items: flex-start;
   justify-content: center;
-  padding: 60px 24px;
+  min-height: 0;
+  padding: 48px 24px 32px;
 }
 
 .success-card {
   width: min(680px, 100%);
-  padding: 40px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
   text-align: center;
 }
 
 .success-card h2 {
   margin: 18px 0 8px;
-  color: #111827;
-  font-size: 24px;
+  color: #181d26;
+  font-size: 22px;
+  font-weight: 500;
 }
 
 .success-card p {
@@ -2242,16 +2217,12 @@ export default {
   .release-flow-shell {
     grid-template-columns: minmax(0, 1fr) 300px;
     gap: 18px;
-    padding: 14px 20px 112px;
-  }
-
-  .flow-section-card {
-    padding: 22px 24px;
+    padding: 20px 24px;
   }
 
   .notice-section-label,
   .subscription-title {
-    font-size: 15px;
+    font-size: 13px;
   }
 
   .channel-grid {
@@ -2260,7 +2231,7 @@ export default {
   }
 
   .channel-card {
-    min-height: 96px;
+    min-height: 38px;
     gap: 8px;
     font-size: 14px;
   }
@@ -2270,27 +2241,12 @@ export default {
   }
 
   .subscription-row {
-    min-height: 52px;
-    padding: 0 18px;
+    min-height: 48px;
     font-size: 13px;
-  }
-
-  .release-config-card {
-    min-height: 440px;
-    padding: 24px 20px 30px;
-  }
-
-  .basic-info-card {
-    min-height: 150px;
   }
 
   .basic-form {
     column-gap: 28px;
-  }
-
-  .accent-title {
-    margin-bottom: 18px;
-    font-size: 18px;
   }
 
   .release-grid {
@@ -2298,46 +2254,41 @@ export default {
     gap: 16px;
   }
 
-  .panel-heading {
-    margin-bottom: 20px;
-    font-size: 16px;
-  }
-
-  .basic-info-card .ivu-form-item-label,
-  .release-config-card .ivu-form-item-label {
+  .basic-info-section .ivu-form-item-label,
+  .release-config-section .ivu-form-item-label {
     font-size: 13px;
   }
 
-  .basic-info-card .ivu-input,
-  .release-config-card .ivu-input {
+  .basic-info-section .ivu-input,
+  .release-config-section .ivu-input {
     height: 34px;
     font-size: 12px;
   }
 
-  .basic-info-card .ivu-select-selection,
-  .release-config-card .ivu-select-selection {
+  .basic-info-section .ivu-select-selection,
+  .release-config-section .ivu-select-selection {
     min-height: 34px;
   }
 
-  .basic-info-card .ivu-select-placeholder,
-  .basic-info-card .ivu-select-selected-value,
-  .basic-info-card .ivu-select-input,
-  .release-config-card .ivu-select-placeholder,
-  .release-config-card .ivu-select-selected-value,
-  .release-config-card .ivu-select-input {
+  .basic-info-section .ivu-select-placeholder,
+  .basic-info-section .ivu-select-selected-value,
+  .basic-info-section .ivu-select-input,
+  .release-config-section .ivu-select-placeholder,
+  .release-config-section .ivu-select-selected-value,
+  .release-config-section .ivu-select-input {
     height: 32px;
     line-height: 32px;
     font-size: 12px;
   }
 
-  .release-config-card .gitops-select-form-item .ivu-select-single .ivu-select-placeholder,
-  .release-config-card .gitops-select-form-item .ivu-select-single .ivu-select-selected-value {
+  .release-config-section .gitops-select-form-item .ivu-select-single .ivu-select-placeholder,
+  .release-config-section .gitops-select-form-item .ivu-select-single .ivu-select-selected-value {
     height: auto;
     line-height: 1.2;
   }
 
-  .basic-info-card .ivu-form-item-content,
-  .release-config-card .ivu-form-item-content {
+  .basic-info-section .ivu-form-item-content,
+  .release-config-section .ivu-form-item-content {
     padding-bottom: 18px;
   }
 
@@ -2346,11 +2297,11 @@ export default {
   }
 
   .basic-form .ivu-form-item-error-tip,
-  .release-config-card .ivu-form-item-error-tip {
+  .release-config-section .ivu-form-item-error-tip {
     line-height: 16px;
   }
 
-  .release-config-card .ivu-form-item {
+  .release-config-section .ivu-form-item {
     margin-bottom: 0;
   }
 
@@ -2367,7 +2318,7 @@ export default {
     gap: 5px;
   }
 
-  .release-config-card .ivu-form-item-label {
+  .release-config-section .ivu-form-item-label {
     padding: 7px 10px 7px 14px;
   }
 
@@ -2377,7 +2328,7 @@ export default {
     line-height: 1.45;
   }
 
-  .release-config-card .init-script-form-item.ivu-form-item .ivu-form-item-content {
+  .release-config-section .init-script-form-item.ivu-form-item .ivu-form-item-content {
     display: block !important;
     margin-left: 0 !important;
     padding-right: 0 !important;
@@ -2442,78 +2393,50 @@ export default {
     stroke-width: 2.4;
   }
 
-  .summary-card {
+  .release-flow-summary.page-aside {
     min-height: 0;
-    padding: 22px 24px 22px;
+    padding: 20px;
   }
 
   .summary-title {
-    margin-bottom: 18px;
-    font-size: 17px;
-  }
-
-  .summary-group {
-    padding-bottom: 16px;
     margin-bottom: 16px;
-  }
-
-  .summary-group h3 {
-    margin-bottom: 11px;
-    padding-left: 18px;
     font-size: 15px;
   }
 
-  .summary-group h3::before {
-    width: 4px;
-    height: 20px;
+  .summary-group {
+    margin-bottom: 20px;
   }
 
-  .summary-row {
-    grid-template-columns: 92px minmax(0, 1fr);
-    gap: 9px;
-    min-height: 19px;
+  .summary-group h3:not(:first-child) {
+    margin-top: 16px;
+  }
+
+  .summary-row,
+  .summary-row-reserved {
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 12px;
+    min-height: 22px;
     font-size: 13px;
-    line-height: 1.45;
+    line-height: 1.5;
   }
 }
 
 .release-flow-shell-config {
-  grid-template-columns: minmax(0, 1fr) 340px;
-  align-items: start;
-  gap: 18px;
+  align-items: stretch;
 }
 
 .release-flow-shell-config .release-flow-main {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
   align-items: stretch;
-  gap: 0;
-}
-
-.release-flow-shell-config .flow-config-card {
-  height: auto;
+  gap: 32px;
   min-height: 0;
-  padding: 24px 28px 30px;
 }
 
-.release-flow-shell-config .release-flow-summary {
-  align-self: start;
-}
-
-.release-flow-shell-config .summary-card {
-  height: auto;
+.release-flow-shell-config .release-flow-summary.page-aside {
+  align-self: stretch;
+  height: 100%;
   min-height: 0;
-  padding: 28px 30px 28px;
-}
-
-.release-flow-shell-config .flow-config-subsection + .flow-config-subsection {
-  padding-top: 22px;
-  margin-top: 22px;
-}
-
-.release-flow-shell-config .flow-config-subtitle {
-  margin-bottom: 16px;
-  font-size: 16px;
 }
 
 .release-flow-shell-config .notice-layout {
@@ -2562,18 +2485,18 @@ export default {
   display: block;
 }
 
-.release-flow-shell-config .flow-config-card .ivu-form-item-label {
+.release-flow-shell-config .flow-notice-section .ivu-form-item-label {
   padding-bottom: 8px;
   font-size: 14px;
 }
 
-.release-flow-shell-config .flow-config-card .ivu-select-selection {
+.release-flow-shell-config .flow-notice-section .ivu-select-selection {
   min-height: 38px;
 }
 
-.release-flow-shell-config .flow-config-card .ivu-select-placeholder,
-.release-flow-shell-config .flow-config-card .ivu-select-selected-value,
-.release-flow-shell-config .flow-config-card .ivu-select-input {
+.release-flow-shell-config .flow-notice-section .ivu-select-placeholder,
+.release-flow-shell-config .flow-notice-section .ivu-select-selected-value,
+.release-flow-shell-config .flow-notice-section .ivu-select-input {
   height: 36px;
   line-height: 36px;
   font-size: 13px;
@@ -2625,9 +2548,9 @@ export default {
   gap: 18px;
 }
 
-.release-flow-shell-config .execution-config-subsection .flow-config-list {
+.release-flow-shell-config .flow-execute-section .flow-config-list {
   gap: 0;
-  border-top: 1px solid #edf2f7;
+  border-top: none;
 }
 
 .release-flow-shell-config .flow-config-row {
@@ -2636,7 +2559,7 @@ export default {
   padding-bottom: 18px;
 }
 
-.release-flow-shell-config .execution-config-subsection .flow-config-row {
+.release-flow-shell-config .flow-execute-section .flow-config-row {
   grid-template-columns: 116px minmax(0, 1fr);
   gap: 20px;
   min-height: 64px;
@@ -2647,7 +2570,7 @@ export default {
   min-height: 78px;
 }
 
-.release-flow-shell-config .execution-config-subsection .flow-config-row-reserved {
+.release-flow-shell-config .flow-execute-section .flow-config-row-reserved {
   min-height: 64px;
 }
 
@@ -2661,7 +2584,7 @@ export default {
   min-height: 22px;
 }
 
-.release-flow-shell-config .execution-config-subsection .flow-config-control {
+.release-flow-shell-config .flow-execute-section .flow-config-control {
   grid-template-columns: minmax(190px, 0.76fr) minmax(220px, 1fr);
   gap: 22px;
 }
@@ -2678,33 +2601,9 @@ export default {
   line-height: 1.5;
 }
 
-.release-flow-shell-config .execution-config-subsection .flow-config-hint {
+.release-flow-shell-config .flow-execute-section .flow-config-hint {
   min-height: 20px;
   margin-top: 0;
-}
-
-.release-flow-shell-config .summary-group {
-  padding-bottom: 22px;
-  margin-bottom: 22px;
-}
-
-.release-flow-shell-config .summary-group h3 {
-  margin-bottom: 14px;
-}
-
-.release-flow-shell-config .summary-group h3:not(:first-child) {
-  margin-top: 18px;
-}
-
-.release-flow-shell-config .summary-row {
-  grid-template-columns: 98px minmax(0, 1fr);
-  min-height: 24px;
-  font-size: 13px;
-  line-height: 1.55;
-}
-
-.release-flow-shell-config .summary-subtitle {
-  margin: 14px 0 8px;
 }
 
 @media (max-width: 1240px) {
@@ -2714,11 +2613,7 @@ export default {
 
   .release-flow-shell-config .release-flow-main {
     grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
-  }
-
-  .release-flow-shell-config .flow-config-card {
-    padding: 20px 22px 24px;
+    gap: 32px;
   }
 
   .release-flow-shell-config .channel-grid {
@@ -2727,16 +2622,13 @@ export default {
   }
 
   .release-flow-main,
-  .release-flow-summary {
+  .release-flow-summary.page-aside {
     grid-column: auto;
     grid-row: auto;
   }
 
-  .release-flow-summary {
+  .release-flow-summary.page-aside {
     display: block;
-  }
-
-  .summary-card {
     height: auto;
   }
 }
@@ -2763,8 +2655,8 @@ export default {
     gap: 10px;
   }
 
-  .execution-config-subsection .flow-config-row,
-  .release-flow-shell-config .execution-config-subsection .flow-config-row {
+  .flow-execute-section .flow-config-row,
+  .release-flow-shell-config .flow-execute-section .flow-config-row {
     grid-template-columns: 1fr;
     gap: 8px;
     min-height: 0;
@@ -2772,8 +2664,8 @@ export default {
     align-items: start;
   }
 
-  .execution-config-subsection .flow-config-control,
-  .release-flow-shell-config .execution-config-subsection .flow-config-control {
+  .flow-execute-section .flow-config-control,
+  .release-flow-shell-config .flow-execute-section .flow-config-control {
     grid-template-columns: 1fr;
     gap: 8px;
   }
@@ -2810,5 +2702,19 @@ export default {
   max-height: var(--release-flow-dropdown-max-height, min(320px, calc(100vh - 96px))) !important;
   overflow-y: auto !important;
   overscroll-behavior: contain;
+}
+
+.release-flow-select-dropdown .database-type-option-content {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: 8px;
+  vertical-align: middle;
+}
+
+.release-flow-select-dropdown .database-type-option-content > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

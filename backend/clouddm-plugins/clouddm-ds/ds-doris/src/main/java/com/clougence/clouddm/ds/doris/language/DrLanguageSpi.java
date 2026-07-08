@@ -15,7 +15,6 @@
  */
 package com.clougence.clouddm.ds.doris.language;
 
-import com.clougence.clouddm.ds.doris.parser.DrDslProvider;
 import com.clougence.clouddm.dsfamily.language.split.SplitStrategyCenter;
 import com.clougence.clouddm.sdk.language.AbstractRequest;
 import com.clougence.clouddm.sdk.language.DsLanguageSpi;
@@ -63,6 +62,6 @@ public class DrLanguageSpi implements DsLanguageSpi {
 
     @Override
     public SplitResult split(SplitRequest request) {
-        return this.split.split(request, DrDslProvider.INSTANCE);
+        return this.split.split(request);
     }
 }

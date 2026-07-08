@@ -28,5 +28,4 @@ public class ChangeFlowListFO {
     private String  mark;
     private String  status;
     private PageObj page;
-
 }

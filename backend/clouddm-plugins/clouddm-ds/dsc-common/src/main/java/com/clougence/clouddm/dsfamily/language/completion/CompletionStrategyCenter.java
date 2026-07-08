@@ -17,6 +17,9 @@ package com.clougence.clouddm.dsfamily.language.completion;
 
 import java.util.*;
 
+import com.clougence.clouddm.dsfamily.language.completion.analyzer.CompletionAnalyzer;
+import com.clougence.clouddm.dsfamily.language.completion.rdb.AfterFromTableCompletionStrategy;
+import com.clougence.clouddm.dsfamily.language.completion.rdb.ExpressionCompletionStrategy;
 import com.clougence.clouddm.sdk.language.completion.CompletionItem;
 import com.clougence.clouddm.sdk.language.completion.CompletionRequest;
 import com.clougence.clouddm.sdk.service.execute.MetaService;
@@ -30,13 +33,54 @@ public abstract class CompletionStrategyCenter {
             return Collections.emptyList();
         }
 
-        CompletionDialect dialect = Objects.requireNonNull(dialect(request), "dialect");
-        CompletionContext context = context(request, dialect);
-        return strategies().stream()
-            .filter(strategy -> strategy.match(context))
-            .max(Comparator.comparingInt(CompletionStrategy::weight))
-            .map(strategy -> strategy.complete(context, metaService))
-            .orElseGet(Collections::emptyList);
+        try {
+            CompletionDialect dialect = Objects.requireNonNull(dialect(request), "dialect");
+            CompletionContext context = context(request, dialect);
+            return strategies().stream()
+                .filter(strategy -> strategy.match(context))
+                .max(Comparator.comparingInt(CompletionStrategy::weight))
+                .map(strategy -> strategy.complete(context, metaService))
+                .map(CompletionStrategyCenter::normalizeItems)
+                .orElseGet(Collections::emptyList);
+        } catch (RuntimeException e) {
+            return Collections.emptyList();
+        }
+    }
+
+    private static List<CompletionItem> normalizeItems(List<CompletionItem> items) {
+        if (items == null || items.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Map<String, CompletionItem> uniqueItems = new LinkedHashMap<>();
+        for (CompletionItem item : items) {
+            if (item == null) {
+                continue;
+            }
+            uniqueItems.putIfAbsent(itemKey(item), item);
+        }
+        return uniqueItems.values()
+            .stream()
+            .sorted(Comparator.comparing(CompletionStrategyCenter::itemWeight, Comparator.reverseOrder())
+                .thenComparing(CompletionStrategyCenter::itemLabel, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(CompletionStrategyCenter::itemInsertText, String.CASE_INSENSITIVE_ORDER))
+            .toList();
+    }
+
+    private static String itemKey(CompletionItem item) {
+        return String.join("\u0001", String.valueOf(item.getKind()), itemLabel(item).toLowerCase(Locale.ROOT), itemInsertText(item).toLowerCase(Locale.ROOT));
+    }
+
+    private static int itemWeight(CompletionItem item) {
+        return item.getWeight() == null ? 0 : item.getWeight();
+    }
+
+    private static String itemLabel(CompletionItem item) {
+        return item.getLabel() == null ? "" : item.getLabel();
+    }
+
+    private static String itemInsertText(CompletionItem item) {
+        return item.getInsertText() == null ? "" : item.getInsertText();
     }
 
     private List<CompletionStrategy> strategies() {
@@ -49,6 +93,8 @@ public abstract class CompletionStrategyCenter {
             if (this.strategies == null) {
                 List<CompletionStrategy> registeredStrategies = new ArrayList<>();
                 register(registeredStrategies);
+                registeredStrategies.add(new AfterFromTableCompletionStrategy());
+                registeredStrategies.add(new ExpressionCompletionStrategy());
                 registeredStrategies.removeIf(Objects::isNull);
                 this.strategies = List.copyOf(registeredStrategies);
             }
@@ -60,5 +106,7 @@ public abstract class CompletionStrategyCenter {
 
     protected abstract CompletionDialect dialect(CompletionRequest request);
 
-    protected abstract CompletionContext context(CompletionRequest request, CompletionDialect dialect);
+    protected CompletionContext context(CompletionRequest request, CompletionDialect dialect) {
+        return CompletionAnalyzer.INSTANCE.analyze(request, dialect);
+    }
 }

@@ -93,58 +93,60 @@
         style="display: flex; flex-direction: column; flex: 1; min-height: 0"
       >
         <div class="tip-footer">
-          <div v-if="selectedTab.receiveMode !== 'STREAM'" style="display: flex; align-items: center; gap: 8px">
-            <div v-if="selectedTab.receiveMode === 'PAGINATED' && paginatedLoading[selectedTab.resultId]" class="paginated-loading">
-              <div class="loading-spinner"></div>
+          <div class="tip-footer-main">
+            <div v-if="selectedTab.receiveMode !== 'STREAM'" class="tip-footer-page">
+              <div v-if="selectedTab.receiveMode === 'PAGINATED' && paginatedLoading[selectedTab.resultId]" class="paginated-loading">
+                <div class="loading-spinner"></div>
+              </div>
+              <Page
+                :model-value="selectedTab.page"
+                :page-size="selectedTab.receiveMode === 'PAGINATED' ? 30 : 50"
+                :total="selectedTab.receiveMode === 'PAGINATED' ? selectedTab.fetchCount || selectedTab.total : selectedTab.total"
+                placement="top"
+                show-total
+                size="small"
+                @on-change="changePage($event)"
+              ></Page>
             </div>
-            <Page
-              :model-value="selectedTab.page"
-              :page-size="selectedTab.receiveMode === 'PAGINATED' ? 30 : 50"
-              :total="selectedTab.receiveMode === 'PAGINATED' ? selectedTab.fetchCount || selectedTab.total : selectedTab.total"
-              placement="top"
-              show-total
-              size="small"
-              @on-change="changePage($event)"
-            ></Page>
-          </div>
-          <div v-else class="stream-info" style="line-height: 30px; padding: 0 10px">
-            <span>{{ $t('liu-shi-mo-shi-xian-shi-zui-xin-tiao-zong-ji-tiao', [selectedTab.fetchCount || selectedTab.total || 0]) }}</span>
-          </div>
-          <Poptip word-wrap trigger="hover" transfer placement="bottom">
-            <template #content>
-              <div v-if="selectedTab.rewriteTags?.length">
-                {{ $t('zhong-xie-mo-kuai') }}
-                <a-tag v-for="(tag, index) in selectedTab.rewriteTags" :key="index" color="blue">{{ tag }}</a-tag>
-              </div>
-              <div>
-                {{ $t('yuan-shi-yu-ju') }}
-                <span class="font-bold">{{ selectedTab.rewriteTags?.length ? selectedTab.original : selectedTab.querySql }}</span>
-              </div>
-            </template>
-            <span style="padding-right: 8px; float: left; max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">
-              <a-tag v-if="selectedTab.queryType === 'plan'" color="green">{{ $t('ji-hua') }}</a-tag>
-              <a-tag v-if="selectedTab.rewriteTags?.length > 0" color="blue">{{ $t('zhong-xie') }}</a-tag>
-              {{ this.selectedTab.querySql }}
-            </span>
-          </Poptip>
-          <a-popover v-if="tab.cost && tab.cost.popIndex > -1 && selectedTab && selectedTab.resultId" class="cost-pop">
-            <template #content>
-              <div v-for="costPop in tab.cost.popList" :key="costPop.text">
-                <a-icon :type="costPop.icon" :style="`color: ${costPop.color}`" :theme="costPop.theme" />
-                {{ costPop.text }}
-              </div>
-            </template>
-            <div style="cursor: pointer" @click="handleClickCostPop">
-              <a-icon
-                :type="tab.cost.popList[tab.cost.popIndex].icon"
-                :style="`color: ${tab.cost.popList[tab.cost.popIndex].color}`"
-                :theme="tab.cost.popList[tab.cost.popIndex].theme"
-              />
-              {{ tab.cost.popList[tab.cost.popIndex].text }}
+            <div v-else class="stream-info">
+              <span>{{ $t('liu-shi-mo-shi-xian-shi-zui-xin-tiao-zong-ji-tiao', [selectedTab.fetchCount || selectedTab.total || 0]) }}</span>
             </div>
-          </a-popover>
-          <div class="tip-footer-right" style="margin-left: auto">
-            <div style="display: flex; align-items: center; gap: 4px">
+            <Poptip word-wrap trigger="hover" transfer placement="bottom" class="tip-footer-sql-pop">
+              <template #content>
+                <div v-if="selectedTab.rewriteTags?.length">
+                  {{ $t('zhong-xie-mo-kuai') }}
+                  <a-tag v-for="(tag, index) in selectedTab.rewriteTags" :key="index" color="blue">{{ tag }}</a-tag>
+                </div>
+                <div>
+                  {{ $t('yuan-shi-yu-ju') }}
+                  <span class="font-bold">{{ selectedTab.rewriteTags?.length ? selectedTab.original : selectedTab.querySql }}</span>
+                </div>
+              </template>
+              <span class="tip-footer-sql">
+                <a-tag v-if="selectedTab.queryType === 'plan'" color="green">{{ $t('ji-hua') }}</a-tag>
+                <a-tag v-if="selectedTab.rewriteTags?.length > 0" color="blue">{{ $t('zhong-xie') }}</a-tag>
+                {{ this.selectedTab.querySql }}
+              </span>
+            </Poptip>
+            <a-popover v-if="tab.cost && tab.cost.popIndex > -1 && selectedTab && selectedTab.resultId" class="cost-pop">
+              <template #content>
+                <div v-for="costPop in tab.cost.popList" :key="costPop.text">
+                  <a-icon :type="costPop.icon" :style="`color: ${costPop.color}`" :theme="costPop.theme" />
+                  {{ costPop.text }}
+                </div>
+              </template>
+              <div class="cost-pop-trigger" @click="handleClickCostPop">
+                <a-icon
+                  :type="tab.cost.popList[tab.cost.popIndex].icon"
+                  :style="`color: ${tab.cost.popList[tab.cost.popIndex].color}`"
+                  :theme="tab.cost.popList[tab.cost.popIndex].theme"
+                />
+                {{ tab.cost.popList[tab.cost.popIndex].text }}
+              </div>
+            </a-popover>
+          </div>
+          <div class="tip-footer-right">
+            <div class="tip-footer-export" v-if="!selectedTab.exportState?.exporting && selectedTab.exportState?.percent !== 100">
               <Poptip
                 v-if="selectedTab.exportState?.errorStatus === 'FAILED' && selectedTab.exportState?.errorMessage"
                 :content="selectedTab.exportState.errorMessage"
@@ -155,20 +157,14 @@
               >
                 <CustomIcon type="icon-v2-ErrorColorful" size="16px" color="#ff4d4f" style="cursor: pointer" />
               </Poptip>
-              <div
-                v-if="!selectedTab.exportState?.exporting"
-                style="display: flex; align-items: center; gap: 4px; cursor: pointer"
-                @click="handleResultExport"
-              >
+              <div class="tip-footer-export-btn" @click="handleResultExport">
                 <CustomIcon type="icon-v2-daochu" hoverStyle />
                 <span>{{ $t('dao-chu') }}</span>
               </div>
             </div>
             <div class="download-warp">
               <a v-if="selectedTab.exportState?.percent === 100" @click.prevent="resetTabExportState">{{ $t('fan-hui') }}</a>
-              <a v-if="selectedTab.exportState?.percent === 100" @click.prevent="downloadExportedFile" class="download-btn">
-                {{ $t('xia-zai') }}
-              </a>
+              <a v-if="selectedTab.exportState?.percent === 100" @click.prevent="downloadExportedFile">{{ $t('xia-zai') }}</a>
               <div v-if="selectedTab.exportState?.exporting" class="export-progress-modal">
                 <a-progress :percent="selectedTab.exportState?.percent || 0" size="small" style="width: 100px" />
               </div>
@@ -182,7 +178,7 @@
             :columns="antdColumns"
             :dataSource="selectedTab.showData"
             :pagination="false"
-            :scroll="{ x: 'max-content' }"
+            :scroll="tableScroll"
             size="small"
             bordered
             :rowKey="(record, index) => index"
@@ -478,7 +474,9 @@ export default {
       editorHeight: 250,
       paginatedLoading: {}, // Loading status for each result set
       paginatedLoadingTimer: null, // Loading timer
-      columnWidths: {} // Stored column widths
+      columnWidths: {}, // Stored column widths
+      tableScrollY: 240,
+      tableResizeObserver: null
     };
   },
   computed: {
@@ -557,6 +555,12 @@ export default {
           originalTitle: col.title
         };
       });
+    },
+    tableScroll() {
+      return {
+        x: 'max-content',
+        y: this.tableScrollY
+      };
     }
   },
   watch: {
@@ -578,6 +582,30 @@ export default {
         }
       },
       immediate: false
+    },
+    'tab.running': {
+      handler(running) {
+        if (running) {
+          return;
+        }
+        if (this.paginatedLoadingTimer) {
+          clearTimeout(this.paginatedLoadingTimer);
+          this.paginatedLoadingTimer = null;
+        }
+        const resultIds = Object.keys(this.paginatedLoading);
+        for (let i = 0; i < resultIds.length; i++) {
+          this.paginatedLoading[resultIds[i]] = false;
+        }
+      }
+    },
+    'tab.result.active'(activeKey) {
+      if (activeKey === 'message' || activeKey === 'async') {
+        this.destroyTableScrollObserver();
+        return;
+      }
+      this.$nextTick(() => {
+        this.initTableScrollObserver();
+      });
     }
   },
   mounted() {
@@ -616,13 +644,18 @@ export default {
     window.onresize = () => {
       this.$nextTick(() => {
         this.pageHeight = window.innerHeight - 70;
+        this.updateTableScrollY();
       });
     };
+    this.$nextTick(() => {
+      this.initTableScrollObserver();
+    });
     // Initialize default SQL export options.
     this.resetInsertOption();
     this.initDsTypeOptions();
   },
   beforeUnmount() {
+    this.destroyTableScrollObserver();
     this.$bus.off('setEditorHeight');
     this.$bus.off('consoleMessageAppend');
     this.$bus.off(EVENT_BUS_NAME_LIST.GET_RESULT_EXPORT_INFO);
@@ -816,6 +849,38 @@ export default {
     handleEditorHeightChange(height) {
       this.editorHeight = height;
       this.pageHeight = window.innerHeight - 70;
+      this.$nextTick(() => {
+        this.updateTableScrollY();
+      });
+    },
+    initTableScrollObserver() {
+      this.destroyTableScrollObserver();
+      const container = this.$el?.querySelector('.result-table-container');
+      if (!container) {
+        return;
+      }
+      this.updateTableScrollY(container);
+      this.tableResizeObserver = new ResizeObserver(() => {
+        this.updateTableScrollY(container);
+      });
+      this.tableResizeObserver.observe(container);
+    },
+    updateTableScrollY(container) {
+      const el = container || this.$el?.querySelector('.result-table-container');
+      if (!el) {
+        return;
+      }
+      const tableHeaderHeight = 40;
+      const nextHeight = Math.max(el.clientHeight - tableHeaderHeight, 120);
+      if (nextHeight !== this.tableScrollY) {
+        this.tableScrollY = nextHeight;
+      }
+    },
+    destroyTableScrollObserver() {
+      if (this.tableResizeObserver) {
+        this.tableResizeObserver.disconnect();
+        this.tableResizeObserver = null;
+      }
     },
     //
     handleViewNoPassedRuleList(index) {
@@ -1548,8 +1613,21 @@ export default {
 </script>
 <style lang="less" scoped>
 .cost-pop {
+  flex-shrink: 0;
   color: #aaa;
   font-size: 12px;
+  max-width: 180px;
+
+  .cost-pop-trigger {
+    display: inline-flex;
+    align-items: center;
+    max-width: 180px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 30px;
+  }
 }
 // common
 .dropdown-item {
@@ -1611,6 +1689,7 @@ export default {
     flex: 1;
     min-height: 0;
     width: 100%;
+    height: 100%;
     overflow: hidden;
 
     .result-set-style {
@@ -1670,22 +1749,6 @@ export default {
           cursor: col-resize;
           z-index: 10;
           background: transparent;
-
-          &::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 10%;
-            bottom: 10%;
-            width: 2px;
-            background-color: #d9d9d9;
-            transition: background-color 0.2s;
-          }
-
-          &:hover::after {
-            background-color: #1890ff;
-            width: 3px;
-          }
         }
       }
 
@@ -1813,16 +1876,70 @@ export default {
   height: 30px;
   line-height: 30px;
   padding: 0 10px;
+  position: relative;
   display: flex;
-  //justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
   color: rgba(0, 0, 0, 0.88);
   background: #ffffff;
   z-index: 9;
 }
 
+.tip-footer-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  height: 30px;
+}
+
+.tip-footer-page {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.stream-info {
+  flex-shrink: 0;
+  line-height: 30px;
+  padding: 0 10px;
+  white-space: nowrap;
+}
+
+.tip-footer-sql-pop {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 400px;
+  overflow: hidden;
+}
+
+.tip-footer-sql {
+  display: inline-block;
+  max-width: 100%;
+  padding-right: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
 .tip-footer-right {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
+  white-space: nowrap;
+  position: absolute;
+  right: 10px;
+  top: 0;
+  height: 30px;
+  z-index: 2;
+  background: #ffffff;
+  padding-left: 8px;
+  gap: 8px;
+
   :deep(.ant-btn) {
     display: inline-flex;
     align-items: center;
@@ -1833,20 +1950,45 @@ export default {
   }
 }
 
+.tip-footer-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.tip-footer-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 :deep(.ant-table-wrapper .ant-table-resize-handle) {
   cursor: initial !important;
   display: none !important;
 }
 
 .download-warp {
-  display: flex;
+  display: inline-flex;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
   align-items: center;
+  white-space: nowrap;
+  gap: 8px;
+
+  a {
+    white-space: nowrap;
+    flex-shrink: 0;
+    line-height: 30px;
+  }
 }
+
 .export-progress-modal {
   width: 100px;
-}
-.download-btn {
-  margin: 0 5px 0 8px;
+  flex-shrink: 0;
 }
 
 // modern sql export modal

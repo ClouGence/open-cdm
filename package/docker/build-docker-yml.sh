@@ -39,6 +39,12 @@ log_ok()    { echo "[yml-gen] ✔ $*"; }
 image_tag()        { echo "${1}-${2}"; }
 normalize_arch()   { case "$1" in arm64) echo "arm64" ;; x86_64) echo "amd64" ;; esac }
 
+render_yml_template() {
+  local src="$1" dst="$2" image_prefix="$3" image_tag="$4"
+  IMAGE_PREFIX="$image_prefix" IMAGE_TAG="$image_tag" \
+    perl -pe 's/__IMAGE_PREFIX__/$ENV{IMAGE_PREFIX}/g; s/__IMAGE_TAG__/$ENV{IMAGE_TAG}/g' "$src" > "$dst"
+}
+
 png_tar() { echo "$PACKAGE_DIR/build/docker-${1}-${2}-${3}.tar"; }
 
 has_platform_built() {
@@ -55,8 +61,9 @@ has_platform_built() {
 generate_yml() {
   local target="$1" registry="$2" namespace="$3" plat="$4" ver="$5"
   local arch; arch="$(normalize_arch "$plat")"
-  local full_image="${registry}/${namespace}"
+  local image_prefix="${registry}/${namespace}/cgdm"
   local build_tag; build_tag="$(image_tag "$plat" "$ver")"
+  local image_tag="${ver}-${arch}"
 
   mkdir -p "$BUILD_DIR"
 
@@ -65,9 +72,7 @@ generate_yml() {
     local src="$TEMPLATE_DIR/docker-${name}.yml"
     local dst="$BUILD_DIR/docker-${name}-${build_tag}-${target}.yml"
     if [ -f "$src" ]; then
-      sed "s|clougence/cgdm-|${full_image}/cgdm-|g" "$src" \
-        | sed "s|:\${build_version}|:${ver}-${arch}|g" \
-        > "$dst"
+      render_yml_template "$src" "$dst" "$image_prefix" "$image_tag"
       log_ok "compose: $(basename "$dst")"
     else
       echo "  WARNING: template not found: $src" >&2
@@ -79,9 +84,7 @@ generate_yml() {
     local src="$TEMPLATE_DIR/k8s-${name}.yml"
     local dst="$BUILD_DIR/k8s-${name}-${build_tag}-${target}.yml"
     if [ -f "$src" ]; then
-      sed "s|clougence/cgdm-|${full_image}/cgdm-|g" "$src" \
-        | sed "s|:\${build_version}|:${ver}-${arch}|g" \
-        > "$dst"
+      render_yml_template "$src" "$dst" "$image_prefix" "$image_tag"
       log_ok "k8s:    $(basename "$dst")"
     else
       echo "  WARNING: template not found: $src" >&2

@@ -34,19 +34,19 @@ public class RangeTestCase extends AbstractRangeTestCase {
 
         {
             CheckerRange range = JsonUtils.toObj(json.replace("'", "\""), CheckerRange.class);
-            List<RuleDomain> domainList = configDsAndEnv(1, 1, this.resolveSpi.resolveDomain(dataSourceType, sql, baseLine, baseColumn));
+            List<RuleDomain> domainList = configDsAndEnv(1, 1, resolveDomain(sql));
             assert domainList.size() == 1;
             assert Utils.checkRangeIncludeDomain(range, new CheckerData(sql, domainList.get(0)));
         }
         {
             CheckerRange range = JsonUtils.toObj(json.replace("'", "\""), CheckerRange.class);
-            List<RuleDomain> domainList = configDsAndEnv(1, 2, this.resolveSpi.resolveDomain(dataSourceType, sql, baseLine, baseColumn));
+            List<RuleDomain> domainList = configDsAndEnv(1, 2, resolveDomain(sql));
             assert domainList.size() == 1;
             assert Utils.checkRangeIncludeDomain(range, new CheckerData(sql, domainList.get(0)));
         }
         {
             CheckerRange range = JsonUtils.toObj(json.replace("'", "\""), CheckerRange.class);
-            List<RuleDomain> domainList = configDsAndEnv(2, 1, this.resolveSpi.resolveDomain(dataSourceType, sql, baseLine, baseColumn));
+            List<RuleDomain> domainList = configDsAndEnv(2, 1, resolveDomain(sql));
             assert domainList.size() == 1;
             assert !Utils.checkRangeIncludeDomain(range, new CheckerData(sql, domainList.get(0)));
         }
@@ -59,19 +59,19 @@ public class RangeTestCase extends AbstractRangeTestCase {
 
         {
             CheckerRange range = JsonUtils.toObj(json.replace("'", "\""), CheckerRange.class);
-            List<RuleDomain> domainList = configDsAndEnv(1, 1, this.resolveSpi.resolveDomain(dataSourceType, sql, baseLine, baseColumn));
+            List<RuleDomain> domainList = configDsAndEnv(1, 1, resolveDomain(sql));
             assert domainList.size() == 1;
             assert Utils.checkRangeIncludeDomain(range, new CheckerData(sql, domainList.get(0)));
         }
         {
             CheckerRange range = JsonUtils.toObj(json.replace("'", "\""), CheckerRange.class);
-            List<RuleDomain> domainList = configDsAndEnv(1, 2, this.resolveSpi.resolveDomain(dataSourceType, sql, baseLine, baseColumn));
+            List<RuleDomain> domainList = configDsAndEnv(1, 2, resolveDomain(sql));
             assert domainList.size() == 1;
             assert Utils.checkRangeIncludeDomain(range, new CheckerData(sql, domainList.get(0)));
         }
         {
             CheckerRange range = JsonUtils.toObj(json.replace("'", "\""), CheckerRange.class);
-            List<RuleDomain> domainList = configDsAndEnv(2, 1, this.resolveSpi.resolveDomain(dataSourceType, sql, baseLine, baseColumn));
+            List<RuleDomain> domainList = configDsAndEnv(2, 1, resolveDomain(sql));
             assert domainList.size() == 1;
             assert !Utils.checkRangeIncludeDomain(range, new CheckerData(sql, domainList.get(0)));
         }

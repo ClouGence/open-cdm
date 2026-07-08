@@ -15,7 +15,7 @@
  */
 package com.clougence.clouddm.api.common.rpc;
 
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResultEnum;
+import com.clougence.clouddm.api.common.ResultEnum;
 
 public class ResApiDataUtils {
 

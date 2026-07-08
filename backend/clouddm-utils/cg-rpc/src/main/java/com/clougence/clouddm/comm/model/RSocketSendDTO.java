@@ -26,11 +26,8 @@ import lombok.Setter;
 public class RSocketSendDTO {
 
     private Long            clusterId;
-
     private String          uid;
-
     private String          workerSeqNumber;
     private String          workerIP;
-
     private RSocketSendType rSocketSendType;
 }

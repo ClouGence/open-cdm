@@ -8,10 +8,10 @@ import formatError from '../formatError';
 import CustomIcon from '@/components/function/CustomIcon.vue';
 
 axios.defaults.withCredentials = true;
-// const baseURL = `${window.location.protocol}//${window.location.host}/rdp/console/api/v1`;
-let baseURL = `${window.location.protocol}//${window.location.host}/rdp/console/api/v1`;
+// const baseURL = `${window.location.protocol}//${window.location.host}/api/entry`;
+let baseURL = `${window.location.protocol}//${window.location.host}/api/entry`;
 if (process.env.VUE_APP_BASE_URL) {
-  baseURL = `${process.env.VUE_APP_BASE_URL}/rdp/console/api/v1`;
+  baseURL = `${process.env.VUE_APP_BASE_URL}/api/entry`;
 }
 const timeout = 1800000;
 

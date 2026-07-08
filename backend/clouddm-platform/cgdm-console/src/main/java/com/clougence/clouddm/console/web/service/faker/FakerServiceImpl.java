@@ -45,7 +45,6 @@ import com.clougence.clouddm.console.web.service.faker.asyntask.FakerAsyncTaskCo
 import com.clougence.clouddm.console.web.util.UiWebUtil;
 import com.clougence.clouddm.platform.dal.access.DataSourceDal;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.execution.AsyncTaskProcessType;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO;
@@ -116,7 +115,7 @@ public class FakerServiceImpl implements FakerService, FakerMethod {
         DmDsDO ds = this.dsDal.dsMapper().selectById(fo.getLevels().get(1));
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
 
-        Map<String, List<RdbColumn>> columns = this.dsSchemaService.loadColumns(puid, ds, levelsParam, UmiTypes.Table, Collections.singletonList(tabName));
+        Map<String, List<RdbColumn>> columns = this.dsSchemaService.loadColumns(ds, levelsParam, UmiTypes.Table, Collections.singletonList(tabName));
         FakerUiDefService uiDefService = PluginManager.findService(FakerUiDefService.class);
         return uiDefService.fetchFakerUiData(ds.getDataSourceType(), columns.get(tabName), fo.getType());
     }
@@ -156,7 +155,7 @@ public class FakerServiceImpl implements FakerService, FakerMethod {
             fakerConfig.setUpdateRatio(fo.getUpdateRatio());
         }
 
-        DmDsConfigDO dmDsConfigDO = this.dsDal.configMapper().queryById(ds.getUid(), ds.getId());
+        DmDsDO dmDsConfigDO = this.dsDal.dsMapper().queryByOwnerAndId(ds.getUid(), ds.getId());
         ToolSessionContextDTO contextDTO = new ToolSessionContextDTO();
         contextDTO.setSessionId(UUID.randomUUID().toString().replace("-", ""));
         contextDTO.setConfiguration(JsonUtils.toJson(fakerConfig));

@@ -23,7 +23,6 @@ import lombok.Setter;
 public class ChangeFlowUpdateFO {
 
     private long   flowId;
-
     private String newAdminUid;
     private String newName;
     private String newDesc;

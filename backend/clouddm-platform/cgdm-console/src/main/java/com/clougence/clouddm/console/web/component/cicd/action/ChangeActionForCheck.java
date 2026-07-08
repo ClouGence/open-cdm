@@ -19,6 +19,7 @@ import java.util.*;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeCheckItemMO;
@@ -35,9 +36,10 @@ import com.clougence.clouddm.console.web.util.DmConvertUtils;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
 import com.clougence.clouddm.platform.dal.model.secrule.WarnLevel;
 import com.clougence.clouddm.platform.plugin.PluginManager;
-import com.clougence.clouddm.sdk.analysis.split.SplitAnalysisSpi;
-import com.clougence.clouddm.sdk.analysis.split.SplitScript;
 import com.clougence.clouddm.sdk.service.secrules.Requester;
+import com.clougence.clouddm.sdk.sql.SqlEngineSpi;
+import com.clougence.clouddm.sdk.sql.split.SplitAnalysisSpi;
+import com.clougence.clouddm.sdk.sql.split.SplitScript;
 import com.clougence.schema.umi.struts.UmiTypes;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.i18n.I18nUtils;
@@ -92,8 +94,14 @@ public class ChangeActionForCheck extends AbstractChangeAction {
 
     private void checkSql(Locale locale, DmChangeFlowDO flowDO, DmChangeDO change, String diffResult) {
         DmChangeFlowDO gitOpsFlowDO = changeFlowDal.flowMapper().queryByOwnerAndId(change.getOwnerUid(), change.getRefFlowId());
-        DataSourceType dsType = gitOpsFlowDO.getDsType();
-        SplitAnalysisSpi analysisSpi = PluginManager.findSplitAnalysisSpi(dsType);
+
+        // context
+        String ownerUid = gitOpsFlowDO.getOwnerUid();
+        DsLevels dsLevels = this.dmDsConfigService.parseLevels(gitOpsFlowDO.getDsPath());
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsLevels.dsDO().getId());
+        DataSourceType dsType = dsConfig.getDataSourceType();
+        SqlEngineSpi sqlEngine = PluginManager.findParserSpi(dsType, dsConfig.getSqlEngine());
+        SplitAnalysisSpi analysisSpi = sqlEngine.splitAnalysisSpi();
         if (analysisSpi == null) {
             log.error("changeAction[" + change.getId() + "] check review sql failed, SplitAnalysisSpi not found.");
             String errorMsg = DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_CHANGE_MISSING_SPLIT_SQL_PLUGIN_ERROR.name(), locale, change.getChangeName(), dsType.name());
@@ -102,9 +110,6 @@ public class ChangeActionForCheck extends AbstractChangeAction {
             return;
         }
 
-        // context
-        String ownerUid = gitOpsFlowDO.getOwnerUid();
-        DsLevels dsLevels = this.dmDsConfigService.parseLevels(gitOpsFlowDO.getDsPath());
         Map<UmiTypes, Object> levelsParam = dsLevels.levelsParam();
 
         // check

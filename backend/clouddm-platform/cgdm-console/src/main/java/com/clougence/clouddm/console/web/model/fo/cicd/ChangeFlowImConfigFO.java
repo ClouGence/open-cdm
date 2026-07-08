@@ -25,7 +25,6 @@ import lombok.Setter;
 public class ChangeFlowImConfigFO {
 
     private boolean delete;
-
     private long    flowId;
     private Long    imId;
     private ImType  imType;

@@ -29,6 +29,7 @@ import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.console.autoexec.ErrorStrategy;
 import com.clougence.clouddm.console.web.component.cicd.ImMessageType;
 import com.clougence.clouddm.console.web.component.cicd.ImSenderService;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsConfigService;
 import com.clougence.clouddm.console.web.component.dsconfig.DmDsService;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
@@ -49,13 +50,11 @@ import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.dal.access.entry.DsCacheEntry;
 import com.clougence.clouddm.platform.dal.access.entry.UserCacheEntry;
 import com.clougence.clouddm.platform.dal.model.cicd.*;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
 import com.clougence.clouddm.platform.dal.model.gitops.DmGitOpsScmDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysMessengerDO;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.clouddm.platform.dal.util.PageUtils;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.HashUtils;
 import com.clougence.utils.StringUtils;
@@ -273,10 +272,6 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
         DmDsDO dsDO = dsLevels.dsDO();
         if (dsDO == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_NOT_EXIST_ERROR.name()));
-        }
-        DmDsConfigDO dmDsConfigDO = dmDsService.fetchDsConfigById(ownerUid, dsDO.getId());
-        if (dmDsConfigDO == null || !dmDsConfigDO.isEnableDevops()) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_DEVOPS_NEED_ENABLE.name()));
         }
         DmGitOpsScmDO scmDO = this.dmScmService.queryScmById(ownerUid, pipeline.getRepoScmId());
         if (scmDO == null) {
@@ -621,11 +616,6 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.CICD_FLOW_IS_ARCHIVE_OR_DELETE_ERROR.name()));
         }
 
-        DmDsConfigDO dmDsConfigDO = dmDsService.fetchDsConfigById(ownerUid, flow.getDsId());
-        if (dmDsConfigDO == null || !dmDsConfigDO.isEnableDevops()) {
-            throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_DEVOPS_NEED_ENABLE.name()));
-        }
-
         checkDevopsConflict(ownerUid, flow);
         this.changeFlowDal.flowMapper().enableFlowByOwnerAndId(ownerUid, flowId);
     }
@@ -782,7 +772,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
 
     @Override
     public File getCicdWorkspace(String ownerUid, long flowId) {
-        DmSysUserConfDO currentConfig = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, UserDefinedConfig.Fields.defaultCicdWorkspace);
+        DmSysUserConfDO currentConfig = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, RootUserConfig.Fields.defaultCicdWorkspace);
         if (currentConfig == null) {
             return new File(GlobalConfUtils.getAppDataHome(), "default");
         }
@@ -802,7 +792,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
 
     @Override
     public File getCicdTempSpace(String ownerUid, long flowId) {
-        DmSysUserConfDO currentConfig = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, UserDefinedConfig.Fields.defaultCicdTempSpace);
+        DmSysUserConfDO currentConfig = this.systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, RootUserConfig.Fields.defaultCicdTempSpace);
         if (currentConfig == null) {
             return new File(GlobalConfUtils.getTempDataHome());
         }

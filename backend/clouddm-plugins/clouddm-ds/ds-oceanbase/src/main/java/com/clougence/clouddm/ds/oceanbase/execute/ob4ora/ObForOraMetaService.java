@@ -18,7 +18,7 @@ package com.clougence.clouddm.ds.oceanbase.execute.ob4ora;
 import java.sql.Connection;
 
 import com.clougence.clouddm.ds.oceanbase.definition.ob4my.ui.editor.table.ObEditorProvider;
-import com.clougence.clouddm.ds.oracle.execute.OraMetaService;
+import com.clougence.clouddm.dsfamily.oracle.execute.OraMetaService;
 import com.clougence.clouddm.sdk.execute.session.Session;
 import com.clougence.clouddm.sdk.execute.session.rdb.DmRdbUmiService;
 import com.clougence.schema.editor.provider.SqlBuilder;

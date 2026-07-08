@@ -26,16 +26,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.clougence.clouddm.api.common.ResultEnum;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.sidecar.session.execute.ResultPageDTO;
-import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.ResultEnum;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
+import com.clougence.clouddm.base.metadata.ds.*;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeCheckItemMO;
 import com.clougence.clouddm.console.web.component.detectrule.SecHintInfo;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRange;
 import com.clougence.clouddm.console.web.component.detectrule.domain.SecRangeItem;
+import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfigKvDef;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsDriverFamily;
 import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
 import com.clougence.clouddm.console.web.global.i18n.*;
@@ -47,6 +46,8 @@ import com.clougence.clouddm.console.web.model.fo.editor.language.WsLanguageFO;
 import com.clougence.clouddm.console.web.model.fo.editor.query.WsQueryFO;
 import com.clougence.clouddm.console.web.model.fo.openapi.DmApiDsListFO;
 import com.clougence.clouddm.console.web.model.fo.openapi.DmApiDsQueryFO;
+import com.clougence.clouddm.console.web.model.fo.ssh.SshConfigSaveFO;
+import com.clougence.clouddm.console.web.model.fo.ssh.SshProxyFeaturesFO;
 import com.clougence.clouddm.console.web.model.vo.DsKvConfigVO;
 import com.clougence.clouddm.console.web.model.vo.audit.OperateUserVO;
 import com.clougence.clouddm.console.web.model.vo.browse.BrowseLevelsVO;
@@ -61,7 +62,8 @@ import com.clougence.clouddm.console.web.model.vo.editor.language.WsLanguageResu
 import com.clougence.clouddm.console.web.model.vo.editor.query.WsRuleEntity;
 import com.clougence.clouddm.console.web.model.vo.faker.DmAsyncTaskVO;
 import com.clougence.clouddm.console.web.model.vo.openapi.DmApiDataSourceVO;
-import com.clougence.clouddm.console.web.model.vo.system.CloudOrIdcNameVO;
+import com.clougence.clouddm.console.web.model.vo.ssh.SshConfigDetailVO;
+import com.clougence.clouddm.console.web.model.vo.ssh.SshConfigListVO;
 import com.clougence.clouddm.console.web.service.browse.model.ActionInfo;
 import com.clougence.clouddm.console.web.service.browse.model.ActionTargetMO;
 import com.clougence.clouddm.console.web.service.browse.model.GenerateSqlDataAuthEnum;
@@ -79,7 +81,10 @@ import com.clougence.clouddm.platform.dal.model.auth.RsAuthPersonObj;
 import com.clougence.clouddm.platform.dal.model.cicd.ChangeStatus;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeDO;
 import com.clougence.clouddm.platform.dal.model.cicd.DmChangeFlowDO;
-import com.clougence.clouddm.platform.dal.model.datasource.*;
+import com.clougence.clouddm.platform.dal.model.datasource.DataSourceStatus;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigKv4DmDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.clouddm.platform.dal.model.datasource.DmSshConfigDO;
 import com.clougence.clouddm.platform.dal.model.execution.DmExecAsyncTaskDO;
 import com.clougence.clouddm.platform.dal.model.gitops.DmGitOpsScmDO;
 import com.clougence.clouddm.platform.dal.model.gitops.ScmType;
@@ -196,7 +201,7 @@ public class DmConvertUtils {
         return vo;
     }
 
-    public static BrowseLevelsVO convertToBrowseLevelsVO(DmDsDO dsDO, DataSourceConfig dsConfig, DmDsConfigDO dmDsConfig, RdbSupportSpi supportSpi, String dsHost) {
+    public static BrowseLevelsVO convertToBrowseLevelsVO(DmDsDO dsDO, DataSourceConfig dsConfig, DmDsDO enabledDsDO, RdbSupportSpi supportSpi, String dsHost) {
         BrowseLevelsVO vo = new BrowseLevelsVO();
         vo.setObjId(String.valueOf(dsDO.getId()));
         if (RdpConvertUtils.removeNoDescription(dsDO.getInstanceDesc()) == null) {
@@ -210,12 +215,11 @@ public class DmConvertUtils {
         vo.getObjAttr().put("dsName", dsDO.getDataSourceType().getTypeName());
         vo.getObjAttr().put("dsVersion", dsDO.getVersion());
         vo.getObjAttr().put("dsHost", dsHost);
-        vo.getObjAttr().put("dsDeployType", dsDO.getDeployType().name());
         vo.getObjAttr().put("dsInstance", dsDO.getInstanceId());
         vo.getObjAttr().put("dsInstanceDesc", dsDO.getInstanceDesc());
         vo.getObjAttr().put("dsEnvId", dsDO.getDsEnvId());
-        vo.getObjAttr().put("status", dmDsConfig.getStatus());
-        vo.getObjAttr().put("msg", convertToDataSourceStatusI18n(dmDsConfig.getStatus(), dmDsConfig.getDataSourceType()));
+        vo.getObjAttr().put("status", enabledDsDO.getStatus());
+        vo.getObjAttr().put("msg", convertToDataSourceStatusI18n(enabledDsDO.getStatus(), enabledDsDO.getDataSourceType()));
 
         if (dsConfig != null) {
             I18nUtils dsI18n = PluginManager.findDsI18nUtil(dsConfig.getDataSourceType());
@@ -248,7 +252,7 @@ public class DmConvertUtils {
             //            // support default
             //            if (dsConfig instanceof RdbConfig) {
             //                RdbConfig rdbConfig = (RdbConfig) dsConfig;
-            //                vo.getObjAttr().put("defaultCatalog", StringUtils.isBlank(rdbConfig.getDefaultDataBase()) ? "" : rdbConfig.getDefaultDataBase());
+            //                vo.getObjAttr().put("defaultCatalog", StringUtils.isBlank(rdbConfig.getDefaultCatalog()) ? "" : rdbConfig.getDefaultCatalog());
             //                vo.getObjAttr().put("defaultSchema", StringUtils.isBlank(rdbConfig.getDefaultSchema()) ? "" : rdbConfig.getDefaultSchema());
             //                vo.getObjAttr().put("defaultIsolation", RdbIsolation.valueOfCode(rdbConfig.getIsolation()).getName());
             //                vo.getObjAttr().put("defaultAutoCommit", rdbConfig.getAutoCommit() == null || rdbConfig.getAutoCommit());
@@ -319,15 +323,6 @@ public class DmConvertUtils {
         return (list == null || list.isEmpty()) ? Collections.emptyList() : list;
     }
 
-    public static BrowseKeyMO convertToBrowseKeyMO(String key, String value) {
-        BrowseKeyMO mo = new BrowseKeyMO();
-        mo.setName(key);
-        mo.setType(DsMenuType.Key.getTypeName());
-        mo.setTips(key);
-        mo.setValue(value);
-        return mo;
-    }
-
     public static BrowseTableMO convertToBrowseTableMO(RdbTable rdbTable) {
         RdbPrimaryKey primaryKey = rdbTable.getPrimaryKey();
         List<String> keyCols = (primaryKey == null) ? Collections.emptyList() : primaryKey.getColumnList();
@@ -368,21 +363,18 @@ public class DmConvertUtils {
         }
 
         List<BrowseIndexMO> indexes = new ArrayList<>();
-        indexes.addAll(uniqueKeys.stream().map(DmConvertUtils::convertToBrowseIndexMO).collect(Collectors.toList()));
-        indexes.addAll(indices.stream().map(DmConvertUtils::convertToBrowseIndexMO).collect(Collectors.toList()));
+        indexes.addAll(uniqueKeys.stream().map(DmConvertUtils::convertToBrowseIndexMO).toList());
+        indexes.addAll(indices.stream().map(DmConvertUtils::convertToBrowseIndexMO).toList());
         mo.setIndexes(indexes);
 
         mo.setPartitions(Collections.emptyList());
 
         List<BrowseConstraintMO> constraints = new ArrayList<>();
-        constraints
-            .addAll(notNullList(rdbTable.getCheckConstraints()).stream().map(DmConvertUtils::convertToBrowseConstraintMO).filter(Objects::nonNull).collect(Collectors.toList()));
-        constraints
-            .addAll(notNullList(rdbTable.getUniqueConstraints()).stream().map(DmConvertUtils::convertToBrowseConstraintMO).filter(Objects::nonNull).collect(Collectors.toList()));
+        constraints.addAll(notNullList(rdbTable.getCheckConstraints()).stream().map(DmConvertUtils::convertToBrowseConstraintMO).filter(Objects::nonNull).toList());
+        constraints.addAll(notNullList(rdbTable.getUniqueConstraints()).stream().map(DmConvertUtils::convertToBrowseConstraintMO).filter(Objects::nonNull).toList());
         mo.setConstraints(constraints);
 
-        List<BrowseForeignKeyMO> fks = new ArrayList<>();
-        fks.addAll(foreignKeys.stream().map(fk -> convertToBrowseForeignMO(fk, rdbTable.getName())).collect(Collectors.toList()));
+        List<BrowseForeignKeyMO> fks = new ArrayList<>(foreignKeys.stream().map(fk -> convertToBrowseForeignMO(fk, rdbTable.getName())).toList());
         mo.setForeignKeys(fks);
 
         return mo;
@@ -655,10 +647,10 @@ public class DmConvertUtils {
         List<String> allIdx = new ArrayList<>();
         allIdx.addAll(mo.getKeys().stream().flatMap((Function<BrowsePrimaryMO, Stream<String>>) m -> {
             return m.getColumns().stream().map(BrowseTermMO::getName);
-        }).collect(Collectors.toList()));
+        }).toList());
         allIdx.addAll(mo.getIndexes().stream().flatMap((Function<BrowseIndexMO, Stream<String>>) m -> {
             return m.getColumns().stream().map(BrowseTermMO::getName);
-        }).collect(Collectors.toList()));
+        }).toList());
 
         BrowseObjectVO vo = new BrowseObjectVO();
         vo.setObjId(StringUtils.isBlank(mo.getObjId()) ? mo.getName() : mo.getObjId());
@@ -967,23 +959,12 @@ public class DmConvertUtils {
         return vo;
     }
 
-    public static CloudOrIdcNameVO convertToCloudOrIdcNameVO(CloudOrIdcName cloudOrIdcName, CloudOrIdcName defaultOption) {
-        CloudOrIdcNameVO vo = new CloudOrIdcNameVO();
-        vo.setCloudOrIdcName(cloudOrIdcName);
-        vo.setDefaultCheck(cloudOrIdcName == defaultOption);
-        vo.setI18nName(DmI18nUtils.getMessage(cloudOrIdcName.name()));
-        return vo;
-    }
-
-    public static DmSimpleDsVO convertToDmSimpleDsVO(DmDsDO dsDO, Map<Long, DmDsConfigDO> confMap) {
+    public static DmSimpleDsVO convertToDmSimpleDsVO(DmDsDO dsDO, Map<Long, DmDsDO> confMap) {
         DmSimpleDsVO vo = new DmSimpleDsVO();
         vo.setId(dsDO.getId());
         vo.setGmtCreate(dsDO.getGmtCreate());
         vo.setHost(dsDO.getHost());
-        vo.setPrivateHost(dsDO.getPrivateHost());
-        vo.setPublicHost(dsDO.getPublicHost());
-        vo.setHostType(dsDO.getHostType());
-        vo.setAccountName(dsDO.getAccount());
+        vo.setAccountName(dsDO.getAccessKey());
         vo.setLifeCycleState(dsDO.getLifeCycleState());
         vo.setSecurityType(dsDO.getSecurityType());
         vo.setDsEnvId(dsDO.getDsEnvId());
@@ -994,67 +975,216 @@ public class DmConvertUtils {
         vo.setInstanceDesc(dsDO.getInstanceDesc());
         vo.setDataSourceType(dsDO.getDataSourceType());
 
-        if (dsDO.getDeployType() != null) {
-            vo.setDeployType(dsDO.getDeployType());
-            vo.setDeployTypeI18n(DmI18nUtils.getMessage(dsDO.getDeployType().name()));
-        }
-
-        if (confMap.containsKey(dsDO.getId())) {
-            vo.setEnableQuery(true);
-            vo.setEnableDevops(confMap.get(dsDO.getId()).isEnableDevops());
-        } else {
-            vo.setEnableQuery(false);
-            vo.setEnableDevops(false);
-        }
-
+        vo.setEnableQuery(confMap.containsKey(dsDO.getId()));
         vo.setVersion(dsDO.getVersion());
         return vo;
     }
 
-    public static DmDsConfigKv4DmDO convertToDmDsKvBaseConfigDOForInsert(DmDsConfigKv4RdpDO config) {
-        DmDsConfigKv4DmDO conf = new DmDsConfigKv4DmDO();
-        conf.setDataSourceId(config.getDataSourceId());
-        conf.setConfigName(config.getConfigName());
-        conf.setConfigGroup(config.getConfigGroup());
-        conf.setDisplay(config.isDisplay());
-        conf.setDescKey(config.getDescKey());
-        conf.setValueRequire(config.isValueRequire());
-        conf.setValueValidRegex(config.getValueValidRegex());
-        conf.setConfigValue(config.getConfigValue());
-        conf.setDefaultValue(config.getDefaultValue());
-        conf.setValueAdvance(config.getValueAdvance());
-        conf.setReadOnly(config.isReadOnly());
-        conf.setSecret(config.isSecret());
-        return conf;
-    }
-
-    public static DsKvConfigVO convertToDsKvConfigVO(DmDsConfigKv4RdpDO config) {
-        DsKvConfigVO vo = new DsKvConfigVO();
-
-        vo.setId(config.getId());
-        vo.setConfigName(config.getConfigName());
-        if (!config.isSecret()) {
-            vo.setConfigValue(config.getConfigValue());
-        }
-        vo.setConfigGroup(config.getConfigGroup());
-        vo.setSecret(config.isSecret());
-        vo.setDescription(DmI18nUtils.getMessage(config.getDescKey()));
-        vo.setValueRequire(config.isValueRequire());
-        vo.setValueValidRegex(config.getValueValidRegex());
-        vo.setDefaultValue(config.getDefaultValue());
-        vo.setValueAdvance(config.getValueAdvance());
-        vo.setConfValType(config.getConfValType());
-        vo.setReadOnly(config.isReadOnly());
+    public static SshConfigListVO convertToSshConfigListVO(DmSshConfigDO configDO) {
+        SshConfigListVO vo = new SshConfigListVO();
+        vo.setId(configDO.getId());
+        vo.setClusterId(configDO.getClusterId());
+        vo.setGmtCreate(configDO.getGmtCreate());
+        vo.setGmtModified(configDO.getGmtModified());
+        vo.setName(configDO.getName());
+        vo.setHost(configDO.getHost());
+        vo.setPort(configDO.getPort());
+        vo.setUsername(configDO.getUsername());
+        vo.setAuthType(configDO.getAuthType());
+        vo.setProxyType(configDO.getProxyType());
         return vo;
     }
 
-    public static DsKvConfigVO convertToDsKvConfigVO(DmDsConfigKv4DmDO config) {
+    public static SshConfigDetailVO convertToSshConfigDetailVO(DmSshConfigDO configDO) {
+        SshProxyFeatures proxyFeatures = configDO.getProxyFeatures() == null ? new SshProxyFeatures() : configDO.getProxyFeatures();
+        SshProxyFeatures maskedProxyFeatures = new SshProxyFeatures();
+        maskedProxyFeatures.setHost(proxyFeatures.getHost());
+        maskedProxyFeatures.setPort(proxyFeatures.getPort());
+        maskedProxyFeatures.setSecurityType(proxyFeatures.getSecurityType());
+        maskedProxyFeatures.setUsername(proxyFeatures.getUsername());
+
+        SshConfigDetailVO vo = new SshConfigDetailVO();
+        vo.setId(configDO.getId());
+        vo.setClusterId(configDO.getClusterId());
+        vo.setGmtCreate(configDO.getGmtCreate());
+        vo.setGmtModified(configDO.getGmtModified());
+        vo.setName(configDO.getName());
+        vo.setHost(configDO.getHost());
+        vo.setPort(configDO.getPort());
+        vo.setUsername(configDO.getUsername());
+        vo.setAuthType(configDO.getAuthType());
+        vo.setProxyType(configDO.getProxyType());
+        vo.setPasswordConfigured(StringUtils.isNotBlank(configDO.getPassword()));
+        vo.setPrivateKeyDataConfigured(StringUtils.isNotBlank(configDO.getPrivateKeyData()));
+        vo.setPrivateKeyPassphraseConfigured(StringUtils.isNotBlank(configDO.getPrivateKeyPassphrase()));
+        vo.setProxyPasswordConfigured(StringUtils.isNotBlank(proxyFeatures.getPassword()));
+        vo.setConFeatures(configDO.getConFeatures() == null ? new SshConFeatures() : configDO.getConFeatures());
+        vo.setProxyFeatures(maskedProxyFeatures);
+        return vo;
+    }
+
+    public static SshConfig convertToSshConfig(DmSshConfigDO configDO) {
+        return convertToSshConfig(configDO, configDO.getConFeatures(), configDO.getProxyFeatures());
+    }
+
+    public static SshConfig convertToSshConfig(DmSshConfigDO configDO, SshConFeatures conFeatures, SshProxyFeatures proxyFeatures) {
+        SshConfig cfg = new SshConfig();
+        cfg.setClusterId(configDO.getClusterId());
+        cfg.setName(configDO.getName());
+        cfg.setHost(configDO.getHost());
+        cfg.setPort(configDO.getPort());
+        cfg.setUsername(configDO.getUsername());
+        cfg.setAuthType(configDO.getAuthType());
+        cfg.setPassword(configDO.getPassword());
+        cfg.setPrivateKeyData(configDO.getPrivateKeyData());
+        cfg.setPrivateKeyPassphrase(configDO.getPrivateKeyPassphrase());
+        cfg.setConFeatures(conFeatures);
+        cfg.setProxyType(configDO.getProxyType());
+
+        if (proxyFeatures != null) {
+            SshProxyFeatures features = new SshProxyFeatures();
+            features.setHost(proxyFeatures.getHost());
+            features.setPort(proxyFeatures.getPort());
+            features.setSecurityType(proxyFeatures.getSecurityType());
+            features.setUsername(proxyFeatures.getUsername());
+            features.setPassword(proxyFeatures.getPassword());
+            cfg.setProxyFeatures(features);
+        }
+        return cfg;
+    }
+
+    public static SshConfig convertToSshConfigForTest(DmSshConfigDO exists, SshConfigSaveFO configFO) {
+        SshConfig cfg = new SshConfig();
+        if (configFO.getClusterId() != null) {
+            cfg.setClusterId(configFO.getClusterId());
+        } else if (exists != null) {
+            cfg.setClusterId(exists.getClusterId());
+        }
+        if (StringUtils.isNotBlank(configFO.getName())) {
+            cfg.setName(configFO.getName());
+        } else if (exists != null) {
+            cfg.setName(exists.getName());
+        }
+
+        if (StringUtils.isNotBlank(configFO.getHost())) {
+            cfg.setHost(configFO.getHost());
+        } else if (exists != null) {
+            cfg.setHost(exists.getHost());
+        }
+
+        if (configFO.getPort() != null) {
+            cfg.setPort(configFO.getPort());
+        } else if (exists != null) {
+            cfg.setPort(exists.getPort());
+        } else {
+            cfg.setPort(22);
+        }
+
+        if (StringUtils.isNotBlank(configFO.getUsername())) {
+            cfg.setUsername(configFO.getUsername());
+        } else if (exists != null) {
+            cfg.setUsername(exists.getUsername());
+        }
+
+        if (configFO.getAuthType() != null) {
+            cfg.setAuthType(configFO.getAuthType());
+        } else if (exists != null) {
+            cfg.setAuthType(exists.getAuthType());
+        }
+
+        String existsPassword = null;
+        String existsPrivateKeyData = null;
+        String existsPrivateKeyPassphrase = null;
+        SshConFeatures existsConFeatures = null;
+        SshProxyFeatures existsProxyFeatures = null;
+        SshProxyType savedProxyType = null;
+        if (exists != null) {
+            existsPassword = exists.getPassword();
+            existsPrivateKeyData = exists.getPrivateKeyData();
+            existsPrivateKeyPassphrase = exists.getPrivateKeyPassphrase();
+            existsConFeatures = exists.getConFeatures();
+            existsProxyFeatures = exists.getProxyFeatures();
+            savedProxyType = exists.getProxyType();
+        }
+        cfg.setPassword(StringUtils.defaultString(configFO.getPassword(), existsPassword));
+        cfg.setPrivateKeyData(StringUtils.defaultString(configFO.getPrivateKeyData(), existsPrivateKeyData));
+        cfg.setPrivateKeyPassphrase(StringUtils.defaultString(configFO.getPrivateKeyPassphrase(), existsPrivateKeyPassphrase));
+
+        //
+        SshConFeatures conFeatures = configFO.getConFeatures();
+        if (conFeatures == null) {
+            conFeatures = existsConFeatures;
+        }
+        if (conFeatures == null) {
+            conFeatures = new SshConFeatures();
+        }
+        if ((conFeatures.getKnownHosts() == null || conFeatures.getKnownHosts().isEmpty()) && existsConFeatures != null) {
+            conFeatures.setKnownHosts(existsConFeatures.getKnownHosts());
+        }
+        cfg.setConFeatures(conFeatures);
+
+        //
+        SshProxyType proxyType = configFO.getProxyType();
+        if (proxyType == null) {
+            proxyType = savedProxyType;
+        }
+        SshProxyFeatures proxyFeatures;
+        if (proxyType == SshProxyType.NO_PROXY) {
+            proxyFeatures = new SshProxyFeatures();
+        } else {
+            proxyFeatures = buildRuntimeSshProxyFeatures(configFO.getProxyFeatures(), existsProxyFeatures);
+        }
+        cfg.setProxyType(proxyType);
+        cfg.setProxyFeatures(proxyFeatures);
+        return cfg;
+    }
+
+    private static SshProxyFeatures buildRuntimeSshProxyFeatures(SshProxyFeaturesFO submitted, SshProxyFeatures exists) {
+        if (submitted == null) {
+            SshProxyFeatures features = new SshProxyFeatures();
+            if (exists != null) {
+                features.setHost(exists.getHost());
+                features.setPort(exists.getPort());
+                features.setSecurityType(exists.getSecurityType());
+                features.setUsername(exists.getUsername());
+                features.setPassword(exists.getPassword());
+            }
+            return features;
+        }
+
+        SshProxyFeatures features = new SshProxyFeatures();
+        features.setHost(submitted.getHost());
+        features.setPort(submitted.getPort());
+        SecurityType securityType = submitted.getSecurityType();
+
+        features.setSecurityType(securityType);
+        if (securityType == SecurityType.USER_PASSWD) {
+            features.setUsername(submitted.getUsername());
+            String existsPassword = null;
+            if (exists != null) {
+                existsPassword = exists.getPassword();
+            }
+            features.setPassword(StringUtils.defaultString(submitted.getPassword(), existsPassword));
+        }
+        return features;
+    }
+
+    public static DsKvConfigVO convertToDsKvConfigVO(DsConfigKvDef config) {
+        return convertToDsKvConfigVO(config, null);
+    }
+
+    public static DsKvConfigVO convertToDsKvConfigVO(DsConfigKvDef config, DmDsConfigKv4DmDO configValue) {
         DsKvConfigVO vo = new DsKvConfigVO();
 
-        vo.setId(config.getId());
-        vo.setConfigName(config.getConfigName());
-        if (!config.isSecret()) {
+        if (configValue == null) {
             vo.setConfigValue(config.getConfigValue());
+        } else {
+            vo.setId(configValue.getId());
+            vo.setConfigValue(configValue.getConfigValue());
+        }
+        vo.setConfigName(config.getConfigName());
+        if (config.isSecret()) {
+            vo.setConfigValue(null);
         }
         vo.setConfigGroup(config.getConfigGroup());
         vo.setSecret(config.isSecret());
@@ -1062,8 +1192,9 @@ public class DmConvertUtils {
         vo.setValueRequire(config.isValueRequire());
         vo.setValueValidRegex(config.getValueValidRegex());
         vo.setDefaultValue(config.getDefaultValue());
-        vo.setValueAdvance(config.getValueAdvance());
+        vo.setConfValType(config.getConfValType());
         vo.setReadOnly(config.isReadOnly());
+        vo.setLazy(config.isLazy());
         return vo;
     }
 
@@ -1402,8 +1533,6 @@ public class DmConvertUtils {
                 return DmI18nUtils.getMessage(I18nDmLabelKeys.DM_DS_STATUS_DELETED.name());
             case NoAuthority:
                 return DmI18nUtils.getMessage(I18nDmLabelKeys.DM_DS_STATUS_NO_AUTHORITY.name());
-            case QueryNotEnabled:
-                return DmI18nUtils.getMessage(I18nDmLabelKeys.DM_DS_STATUS_QUERY_NOT_ENABLED.name());
             case NotWorker:
                 return DmI18nUtils.getMessage(I18nDmLabelKeys.DM_DS_STATUS_NOT_WORKER.name());
             case ConnectionFailed:
@@ -1737,7 +1866,7 @@ public class DmConvertUtils {
             vo.setDsType(dsDO.getDataSourceType());
             vo.setDsInstance(dsDO.getInstanceId());
             vo.setDsDesc(dsDO.getInstanceDesc());
-            vo.setDsHost(dsDO.getHostType() == HostType.PUBLIC ? dsDO.getPublicHost() : dsDO.getPrivateHost());
+            vo.setDsHost(dsDO.getHost());
         } else {
             vo.setDsId(gitOpsFlowDO.getDsId());
             vo.setDsType(gitOpsFlowDO.getDsType());
@@ -1846,11 +1975,7 @@ public class DmConvertUtils {
             vo.setDsDisplay(dsDO.getInstanceDesc());
         }
 
-        if (dsDO != null) {
-            vo.setDsHost(dsDO.getHostType() == HostType.PUBLIC ? dsDO.getPublicHost() : dsDO.getPrivateHost());
-        } else {
-            vo.setDsHost("Unknown");
-        }
+        vo.setDsHost(dsDO.getHost());
         vo.setDsLevels(Collections.emptyList());
         return vo;
     }
@@ -2082,20 +2207,9 @@ public class DmConvertUtils {
         copy.setDataSourceId(vo.getId());
         copy.setGmtCreate(vo.getGmtCreate());
         copy.setGmtModified(vo.getGmtModified());
-        //copy.setDeployType(vo.getDeployType());
         copy.setDataSourceType(vo.getDataSourceType());
 
-        switch (vo.getHostType()) {
-            case PUBLIC:
-                copy.setHost(vo.getPublicHost());
-                break;
-            case PRIVATE:
-                copy.setHost(vo.getPrivateHost());
-                break;
-            default:
-                copy.setHost("hostType Unknown.");
-                break;
-        }
+        copy.setHost(vo.getHost());
 
         copy.setInstanceId(vo.getInstanceId());
         copy.setInstanceDesc(vo.getInstanceDesc());

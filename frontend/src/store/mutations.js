@@ -263,7 +263,7 @@ export default {
       url = state.mySystemMenuItems[0].key;
     }
     state.docUrlPrefix = 'https://www.clougence.com/cc-doc';
-    state.contactUsUrl = 'https://www.clougence.com/about';
+    state.contactUsUrl = 'https://www.cdmgr.com/';
     state.dmDocUrlPrefix = 'https://www.clougence.com/dm-doc';
     state.bladePipeApply = 'https://www.clougence.com/dm-doc/clouddm';
     if (state.myCatLog.includes('CAT_DM_CONSOLE')) {

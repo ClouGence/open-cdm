@@ -15,7 +15,10 @@
  */
 package com.clougence.clouddm.console.web.component.config.impl;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -30,7 +33,6 @@ import com.clougence.clouddm.sdk.service.config.ConfigData;
 import com.clougence.clouddm.sdk.service.config.ConsoleConfigService;
 import com.clougence.clouddm.sdk.service.config.RoleData;
 import com.clougence.clouddm.sdk.service.config.UserData;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.utils.CollectionUtils;
 
 import jakarta.annotation.Resource;
@@ -49,8 +51,8 @@ public class ConfigServiceImpl implements ConsoleConfigService {
     private UserConfigService userConfigService;
 
     @Override
-    public List<ConfigData> fetchSettings(String ownerUid, List<String> names) {
-        List<DmSysUserConfDO> configList = this.userConfigService.getSpecifiedConfigs(ownerUid, names);
+    public List<ConfigData> fetchSettings(List<String> names) {
+        List<DmSysUserConfDO> configList = this.userConfigService.getSpecifiedConfigs(AuthDal.ROOT_USER_UID, names);
         if (CollectionUtils.isEmpty(configList)) {
             return Collections.emptyList();
         } else {
@@ -59,14 +61,8 @@ public class ConfigServiceImpl implements ConsoleConfigService {
     }
 
     @Override
-    public Map<String, String> fetchSettingsMap(String ownerUid, List<String> names) {
-        List<ConfigData> configList = this.fetchSettings(ownerUid, Arrays.asList(//
-                UserDefinedConfig.Fields.defaultColumnDisplayChars, //
-                UserDefinedConfig.Fields.onlineMaxRecordCount,      //
-                UserDefinedConfig.Fields.onlineMaxResultSetMegaByte,//
-                UserDefinedConfig.Fields.onlineMaxColumnMegaByte,   //
-                UserDefinedConfig.Fields.onlineMaxElementMegaByte)  //
-        );
+    public Map<String, String> fetchSettingsMap(List<String> names) {
+        List<ConfigData> configList = this.fetchSettings(names);
         Map<String, String> configMap = new HashMap<>();
         for (ConfigData c : configList) {
             configMap.put(c.getConfigName(), c.getConfigValue());
@@ -85,8 +81,8 @@ public class ConfigServiceImpl implements ConsoleConfigService {
     }
 
     @Override
-    public List<RoleData> findRoleByName(String ownerUid, String roleName) {
-        List<DmAuthRoleDO> roles = this.authDal.roleMapper().queryByRoleName(ownerUid, roleName);
+    public List<RoleData> findRoleByName(String roleName) {
+        List<DmAuthRoleDO> roles = this.authDal.roleMapper().queryByRoleName(AuthDal.ROOT_USER_UID, roleName);
         if (CollectionUtils.isEmpty(roles)) {
             return Collections.emptyList();
         } else {

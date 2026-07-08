@@ -17,6 +17,7 @@ import {
   FormItem,
   Icon,
   Input,
+  InputNumber,
   Menu,
   MenuItem,
   Message,
@@ -33,6 +34,7 @@ import {
   Tooltip,
   Tree,
   Divider,
+  Drawer,
   Switch,
   Row,
   Col,
@@ -45,7 +47,8 @@ import {
   Progress,
   Spin,
   Tag,
-  Space
+  Space,
+  Upload
 } from 'view-ui-plus';
 import eventBus from '@/utils/eventBus';
 import checkES5Support from './utils/isEs5Supported';
@@ -82,7 +85,7 @@ import './styles/iconfontCss.css';
 import '@/assets/iconfont-v2/iconfont.css';
 import '@/assets/iconfont-v2';
 import 'tailwindcss/tailwind.css';
-import i18n, { bootstrapGoogleTranslate } from './i18n';
+import i18n from './i18n';
 import 'ant-design-vue/dist/reset.css';
 import '@wsfe/vue-tree/style.css';
 import '@wsfe/vue-tree/src/styles/index.less';
@@ -127,6 +130,7 @@ const iviewComponents = {
   FormItem,
   Icon,
   Input,
+  InputNumber,
   Menu,
   MenuItem,
   Modal,
@@ -142,6 +146,7 @@ const iviewComponents = {
   Tooltip,
   Tree,
   Divider,
+  Drawer,
   'i-switch': Switch,
   'i-button': Button,
   'i-input': Input,
@@ -159,7 +164,8 @@ const iviewComponents = {
   Progress,
   Spin,
   Tag,
-  Space
+  Space,
+  Upload
 };
 Object.keys(iviewComponents).forEach((key) => {
   app.component(key, iviewComponents[key]);
@@ -214,6 +220,3 @@ store.dispatch('initTheme');
 
 // Mount Application
 app.mount('#app');
-
-// Start Google Translate translation when non-basic language
-bootstrapGoogleTranslate();

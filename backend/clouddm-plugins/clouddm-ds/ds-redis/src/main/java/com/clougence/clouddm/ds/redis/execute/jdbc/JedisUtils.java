@@ -18,7 +18,7 @@ package com.clougence.clouddm.ds.redis.execute.jdbc;
 import java.sql.SQLException;
 import java.util.*;
 
-import com.clougence.clouddm.ds.redis.parser.ast.token.*;
+import com.clougence.sql.redis.parser.ast.token.*;
 import com.clougence.drivers.adapter.*;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.HexadecimalUtils;

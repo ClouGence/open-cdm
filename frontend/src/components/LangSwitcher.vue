@@ -7,7 +7,7 @@
     </slot>
     <template #list>
       <DropdownMenu>
-        <DropdownItem v-for="lang in showOptions" :key="lang" :name="lang" :selected="currentLang === lang" translate="no">
+        <DropdownItem v-for="lang in showOptions" :key="lang" :name="lang" :selected="currentLang === lang">
           <div class="lang-item">{{ LANG_I18N[lang] || lang }}</div>
         </DropdownItem>
       </DropdownMenu>
@@ -36,9 +36,9 @@ export default {
     }
   },
   methods: {
-    async handleLangChange(value) {
+    handleLangChange(value) {
       this.currentLang = value;
-      await setAppLanguage(value);
+      setAppLanguage(value);
     }
   }
 };

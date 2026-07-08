@@ -23,6 +23,7 @@
       :store-query-tabs="storeQueryTabs"
       :rdb-object-detail="rdbObjectDetail"
       :on-run="onRun"
+      @change="handleEditorChange"
     />
     <div class="editor-resize" />
     <div :class="`message ${tab.message.type}`" v-if="tab.message.text && tab.message.show && tab.connected">
@@ -472,6 +473,9 @@ export default {
     setEditorInstance(editor) {
       this.monacoEditor = editor;
     },
+    handleEditorChange(value) {
+      this.tab.text = value;
+    },
     setSql(sql) {
       console.log('setSql', sql);
       const position = this.monacoEditor.getPosition();
@@ -670,6 +674,11 @@ export default {
               existingResult.rowSetCache = {};
             }
             existingResult.rowSetCache[1] = rowSet; // Save raw data on the first page
+            // Single-page results only emit ResultSet (not ResultSetRows); sync fetchCount here.
+            if (queryData.object.fetchCount !== undefined) {
+              existingResult.fetchCount = queryData.object.fetchCount;
+              existingResult.total = queryData.object.fetchCount;
+            }
           } else if (receiveMode === 'STREAM') {
             // STREAM mode: data continues to accumulate, showing only the latest 30 rows.
             existingResult.streamData = existingResult.streamData || [];

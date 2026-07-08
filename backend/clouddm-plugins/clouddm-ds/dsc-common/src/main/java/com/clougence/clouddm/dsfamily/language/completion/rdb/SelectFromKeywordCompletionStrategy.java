@@ -29,6 +29,15 @@ public class SelectFromKeywordCompletionStrategy implements CompletionStrategy {
             return false;
         }
 
+        if (context.isInSelectList()) {
+            if (context.getPreviousSignificantChar() == '*') {
+                return true;
+            }
+
+            String previous = context.previousToken();
+            return StringUtils.isNotBlank(previous) && !"select".equalsIgnoreCase(previous);
+        }
+
         boolean inSelectListBeforeFrom = false;
         for (int i = 0; i < context.getTokensBeforeCursor().size(); i++) {
             String token = context.tokenFromEnd(i).toLowerCase();

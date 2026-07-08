@@ -18,9 +18,7 @@ package com.clougence.clouddm.console.web.model.vo.datasource;
 import java.util.Date;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.base.metadata.rdp.enumeration.SecurityType;
-import com.clougence.clouddm.platform.dal.model.datasource.DeployEnvType;
-import com.clougence.clouddm.platform.dal.model.datasource.HostType;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
 import com.clougence.clouddm.platform.dal.model.LifeCycleState;
 
 import lombok.Getter;
@@ -35,13 +33,8 @@ public class DmSimpleDsVO {
 
     private Long           id;
     private Date           gmtCreate;
-    private DeployEnvType  deployType;
-    private String         deployTypeI18n;
     private DataSourceType dataSourceType;
     private String         host;
-    private String         privateHost;
-    private String         publicHost;
-    private HostType       hostType;
     private String         instanceDesc;
     private String         version;
     private String         instanceId;
@@ -51,5 +44,4 @@ public class DmSimpleDsVO {
     private Long           dsEnvId;
     private String         dsEnvName;
     private boolean        enableQuery;
-    private boolean        enableDevops;
 }

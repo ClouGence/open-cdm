@@ -15,22 +15,67 @@
  */
 package com.clougence.clouddm.ds.redis.dsconf;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.base.metadata.ds.ConfigKeys;
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigMap;
-import com.clougence.clouddm.sdk.execute.dsconf.DsConfigSpi;
+import com.clougence.clouddm.base.metadata.ds.SecurityType;
+import com.clougence.clouddm.base.metadata.ds.SslMode;
+import com.clougence.clouddm.dsfamily.dsconf.AbstractDsConfigSpi;
+import com.clougence.drivers.adapter.ConvertUtils;
+import com.clougence.utils.StringUtils;
 
-public class RedisConfigSpi implements DsConfigSpi, ConfigKeys {
+public class RedisConfigSpi extends AbstractDsConfigSpi {
 
     @Override
-    public DataSourceConfig newConfig(Map<String, String> configMap) {
-        return new RedisConfig();
+    public String defaultPort() {
+        return "6379";
     }
 
     @Override
-    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, DsConfigMap dsConfigMap) {
+    public Class<? extends DataSourceConfig> newConfig() {
+        return RedisConfig.class;
+    }
+
+    @Override
+    public DataSourceConfig fillConfig(DataSourceConfig dsConfig, Map<String, String> defaultConfig) {
+        RedisConfig config = (RedisConfig) dsConfig;
+        Integer soTimeoutSec = ConvertUtils.toInteger(defaultConfig.get(RedisConfig.Fields.soTimeoutSec), false);
+        config.setDefaultSchema(defaultConfig.get(RedisConfig.Fields.defaultSchema));
+        config.setSoTimeoutSec(soTimeoutSec == null ? 10 : soTimeoutSec);
+
+        boolean blank = StringUtils.isBlank(defaultConfig.get(RedisConfig.Fields.connAndSoTimeoutMs));
+        config.setConnAndSoTimeoutMs((blank ? 5000 : ConvertUtils.toInteger(defaultConfig.get(RedisConfig.Fields.connAndSoTimeoutMs), false)));
         return dsConfig;
     }
+
+    @Override
+    public List<SecurityType> securityTypes() {
+        List<SecurityType> options = new ArrayList<>();
+        options.add(SecurityType.ONLY_PASSWD);
+        options.add(SecurityType.USER_PASSWD);
+        return options;
+    }
+
+    @Override
+    public List<SslMode> sslModeSet() {
+        return List.of();
+    }
+
+    @Override
+    public boolean supportTx() {
+        return false;
+    }
+
+    @Override
+    public boolean supportSSL() {
+        return false;
+    }
+
+    @Override
+    public boolean supportSSH() {
+        return true;
+    }
+
 }

@@ -115,7 +115,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
             envVariables.put(TableEditorVarKeys.I18N_LOCAL_USER.codeKey(), i18nKey);
             envVariables.put(TableEditorVarKeys.I18N_LOCAL_DEFAULT.codeKey(), I18nUtils.DEFAULT.getDefaultI18nKey());
             envVariables.put(EditorViewMode.class.getName(), viewMode.getViewMode().name());
-            TableEditorUiPanel uiPanel = this.dmDsSchemaService.fetchTableEditorUiPanel(uid, dsDO, levelsParam, envVariables);
+            TableEditorUiPanel uiPanel = this.dmDsSchemaService.fetchTableEditorUiPanel(dsDO, levelsParam, envVariables);
             TableEditorForm editorForm = UiWebUtil.tableEditorUi2Form(uiPanel);
 
             this.dsUiEditorCache.put(cacheKey, editorForm);
@@ -130,7 +130,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
 
         // table Editor
-        TableEditor editor = this.initEditor(uid, dsDO, levelsParam, initFO.getTable(), null, initFO.isRefreshCache());
+        TableEditor editor = this.initEditor(dsDO, levelsParam, initFO.getTable(), null, initFO.isRefreshCache());
         if (editor == null) {
             throw new ErrorMessageException(DmI18nUtils.getMessage(I18nDmMsgKeys.DS_TABLE_NOT_EXIST_ERROR.name(), initFO.getTable()));
         }
@@ -153,7 +153,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
         TableEditorUiData uiData = genFO.getTableSchema();
 
         List<Action> actions;
-        TableEditor initEditor = this.initEditor(uid, dsDO, levelsParam, genFO.getTable(), options, false);
+        TableEditor initEditor = this.initEditor(dsDO, levelsParam, genFO.getTable(), options, false);
         if (initEditor == null) {
             String catalogStr = StringUtils.toString(levelsParam.get(UmiTypes.Catalog));
             String schemaStr = StringUtils.toString(levelsParam.get(UmiTypes.Schema));
@@ -167,7 +167,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
             }
 
             this.triggerToETablePlugins(EditorViewMode.Create, uiData, newETable, dsDO);
-            TableEditor editor = this.restoreEditor(uid, dsDO, levelsParam, newETable, options);
+            TableEditor editor = this.restoreEditor(dsDO, levelsParam, newETable, options);
             actions = editor.diffActions(editor.getSource(), true);
         } else {
             String schemaStr = StringUtils.toString(levelsParam.get(UmiTypes.Schema));
@@ -175,7 +175,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
             ETable sourceETable = initEditor.getSource();
             ETable targetETable = TableEditorUiDataUtils.formUiData(uiData, sourceETable.clone(), schemaStr);
             this.triggerToETablePlugins(EditorViewMode.Alter, uiData, targetETable, dsDO);
-            TableEditor actionEditor = this.restoreEditor(uid, dsDO, levelsParam, targetETable, options);
+            TableEditor actionEditor = this.restoreEditor(dsDO, levelsParam, targetETable, options);
             actions = actionEditor.diffActions(sourceETable, false);
         }
 
@@ -197,7 +197,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
     @Override
     public List<String> fetchReferencedColumns(String puid, String uid, DsLevels levels, EditorReferencedFO execFO) {
         DmDsDO dsDO = levels.dsDO();
-        Value value = dmDsSchemaService.detailLeaf(uid, dsDO, levels.levelsParam(), UmiTypes.Table, execFO.getTable(), true);
+        Value value = dmDsSchemaService.detailLeaf(dsDO, levels.levelsParam(), UmiTypes.Table, execFO.getTable(), true);
 
         RdbTable table = (RdbTable) value;
 
@@ -218,7 +218,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
 
         // execute sql
         Map<UmiTypes, Object> levelsParam = levels.levelsParam();
-        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId(), dsDO.getDataSourceType());
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
 
         String sessionId = "";
         try {
@@ -270,10 +270,10 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
     // Utils Method
     //
 
-    private TableEditor initEditor(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String tableName, EditorOptions options, boolean refreshCache) {
-        EditorContext ctx = this.dmDsSchemaService.createEditorContext(uid, dsDO, levelsParam, options);
+    private TableEditor initEditor(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String tableName, EditorOptions options, boolean refreshCache) {
+        EditorContext ctx = this.dmDsSchemaService.createEditorContext(dsDO, levelsParam, options);
         ctx.setSkipHandlers(true);
-        String editorData = this.dmDsSchemaService.loadTableEditor(uid, dsDO, levelsParam, tableName, refreshCache);
+        String editorData = this.dmDsSchemaService.loadTableEditor(dsDO, levelsParam, tableName, refreshCache);
         if (editorData == null) {
             return null;
         } else {
@@ -281,15 +281,15 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
         }
     }
 
-    private TableEditor restoreEditor(String uid, DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, ETable eTable, EditorOptions options) {
-        EditorContext ctx = this.dmDsSchemaService.createEditorContext(uid, dsDO, levelsParam, options);
+    private TableEditor restoreEditor(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, ETable eTable, EditorOptions options) {
+        EditorContext ctx = this.dmDsSchemaService.createEditorContext(dsDO, levelsParam, options);
         return EditorHelperDm.restoreTableEditor(eTable, ctx);
     }
 
     private void triggerToUiDataPlugins(EditorViewMode viewMode, ETable source, TableEditorUiData target, DmDsDO dataSourceDO) {
         TableEditorUiDataSpi spi = PluginManager.findTableEditorSpi(dataSourceDO.getDataSourceType());
         if (spi != null) {
-            DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dataSourceDO.getId(), dataSourceDO.getDataSourceType());
+            DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dataSourceDO.getId());
             spi.fillUiData(viewMode, source, target, dsConfig.getVersion());
         }
     }
@@ -297,7 +297,7 @@ public class DsTableEditorServiceImpl implements DsTableEditorService {
     private void triggerToETablePlugins(EditorViewMode viewMode, TableEditorUiData source, ETable target, DmDsDO dataSourceDO) {
         TableEditorUiDataSpi spi = PluginManager.findTableEditorSpi(dataSourceDO.getDataSourceType());
         if (spi != null) {
-            DataSourceConfig dsConfig = dmDsConfigService.fetchDsConfigFromDM(dataSourceDO.getId(), dataSourceDO.getDataSourceType());
+            DataSourceConfig dsConfig = dmDsConfigService.fetchDsConfigFromExists(dataSourceDO.getId());
             spi.fillETable(viewMode, source, target, dsConfig.getVersion());
         }
     }

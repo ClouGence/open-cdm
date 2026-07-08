@@ -19,6 +19,7 @@ import java.util.*;
 
 import org.springframework.stereotype.Service;
 
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.constants.LoginAuthType;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpLabelKeys;
@@ -29,7 +30,6 @@ import com.clougence.clouddm.platform.dal.access.SystemDal;
 import com.clougence.clouddm.platform.plugin.PluginManager;
 import com.clougence.clouddm.sdk.security.login.LoginProvider;
 import com.clougence.clouddm.sdk.security.login.LoginProviderSpi;
-import com.clougence.rdp.global.config.user.UserDefinedConfig;
 import com.clougence.utils.StringUtils;
 
 import jakarta.annotation.Resource;
@@ -45,8 +45,7 @@ public class LoginDefService {
     private SystemDal systemDal;
 
     public List<LoginDefVO> listLoginDef() {
-        String ownerUid = rootUid();
-        List<LoginAuthType> configuredTypes = listConfLoginTypes(ownerUid);
+        List<LoginAuthType> configuredTypes = listConfLoginTypes();
         List<LoginAuthType> visibleTypes = new ArrayList<>();
         visibleTypes.add(LoginAuthType.PASSWORD);
         configuredTypes.stream()
@@ -58,13 +57,12 @@ public class LoginDefService {
                 }
             });
 
-        return visibleTypes.stream().map(loginType -> buildLoginDef(ownerUid, loginType)).toList();
+        return visibleTypes.stream().map(loginType -> buildLoginDef(loginType)).toList();
     }
 
     public LoginAuthType resolveLoginDefault() {
-        String ownerUid = rootUid();
         List<LoginDefVO> defs = listLoginDef();
-        List<LoginAuthType> configuredTypes = listConfLoginTypes(ownerUid);
+        List<LoginAuthType> configuredTypes = listConfLoginTypes();
         for (LoginAuthType configuredType : configuredTypes) {
             LoginDefVO def = defs.stream().filter(item -> item.getLoginType() == configuredType).findFirst().orElse(null);
             if (def != null && def.isAvailable()) {
@@ -74,11 +72,11 @@ public class LoginDefService {
         return LoginAuthType.PASSWORD;
     }
 
-    public boolean checkLoginEnable(String ownerUid, LoginProvider type) {
-        return StringUtils.isBlank(getLoginUnavailableReason(ownerUid, type));
+    public boolean checkLoginEnable(LoginProvider type) {
+        return StringUtils.isBlank(getLoginUnavailableReason(type));
     }
 
-    private LoginDefVO buildLoginDef(String ownerUid, LoginAuthType loginType) {
+    private LoginDefVO buildLoginDef(LoginAuthType loginType) {
         LoginDefVO def = new LoginDefVO();
         def.setLoginType(loginType);
         def.setTabTitle(DmI18nUtils.getMessage(loginType.getTabTitleKey()));
@@ -98,23 +96,18 @@ public class LoginDefService {
             return def;
         }
 
-        String unavailableReason = getLoginUnavailableReason(ownerUid, provider);
+        String unavailableReason = getLoginUnavailableReason(provider);
         def.setAvailable(StringUtils.isBlank(unavailableReason));
         def.setErrorInfo(unavailableReason);
         return def;
-    }
-
-    private String rootUid() {
-        var rootUser = this.authDal.queryRootUser();
-        return rootUser == null ? AuthDal.ROOT_USER_UID : rootUser.getUid();
     }
 
     private String iconResource(LoginAuthType loginType) {
         return "webside/" + loginType.name() + "@login-icon";
     }
 
-    private String getLoginUnavailableReason(String ownerUid, LoginProvider type) {
-        String configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.accountAuthType);
+    private String getLoginUnavailableReason(LoginProvider type) {
+        String configValue = this.systemDal.fetchSystemConf(RootUserConfig.Fields.accountAuthType);
         if (StringUtils.isBlank(configValue)) {
             return "login provider is not configured.";
         }
@@ -125,8 +118,8 @@ public class LoginDefService {
         return "login provider is not configured.";
     }
 
-    public List<LoginAuthType> listConfLoginTypes(String ownerUid) {
-        String configValue = this.systemDal.fetchSystemConf(UserDefinedConfig.Fields.accountAuthType);
+    public List<LoginAuthType> listConfLoginTypes() {
+        String configValue = this.systemDal.fetchSystemConf(RootUserConfig.Fields.accountAuthType);
         List<LoginAuthType> loginTypes = new ArrayList<>();
         if (StringUtils.isBlank(configValue)) {
             loginTypes.add(LoginAuthType.PASSWORD);

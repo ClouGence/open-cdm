@@ -111,7 +111,7 @@ public class DrHooks extends MyHooks {
 
     @Override
     public void killProcess(Connection connection, String queryID) throws SQLException {
-        try (Statement s = connection.createStatement();) {
+        try (Statement s = connection.createStatement()) {
             s.executeUpdate("kill query " + queryID);
         }
     }

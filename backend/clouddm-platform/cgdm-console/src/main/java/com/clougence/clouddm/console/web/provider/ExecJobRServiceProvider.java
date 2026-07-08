@@ -99,7 +99,7 @@ public class ExecJobRServiceProvider extends AbstractBasicProvider implements Ex
         jobDTO.setRetryWaitTime(dmAutoExecJobDO.getConfig().getRetryWaitTime());
         jobDTO.setEnableTransactional(dmAutoExecJobDO.getConfig().isEnableTransactional());
         DmDsDO dsDO = dsDal.dsMapper().queryDsIdentityById(dmAutoExecJobDO.getDataSourceId());
-        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromDM(dsDO.getId(), dsDO.getDataSourceType());
+        DataSourceConfig dsConfig = this.dmDsConfigService.fetchDsConfigFromExists(dsDO.getId());
 
         ArrayList<String> levels = new ArrayList<>();
         levels.add(dsDO.getDsEnvId().toString());

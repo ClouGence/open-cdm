@@ -21,8 +21,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import com.clougence.clouddm.ds.redis.parser.ast.commands.set.*;
-import com.clougence.clouddm.ds.redis.parser.ast.token.StrToken;
+import com.clougence.sql.redis.parser.ast.commands.set.*;
+import com.clougence.sql.redis.parser.ast.token.StrToken;
 import com.clougence.drivers.adapter.AdapterReceive;
 import com.clougence.drivers.adapter.AdapterRequest;
 import com.clougence.drivers.adapter.AdapterResultCursor;

@@ -29,7 +29,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.clougence.clouddm.api.common.boot.UnifiedPostConstruct;
-import com.clougence.clouddm.console.web.global.config.DmConsoleConfig;
+import com.clougence.clouddm.console.web.component.config.ConsoleConfig;
 import com.clougence.clouddm.console.web.global.events.DmGlobalEventBus;
 import com.clougence.clouddm.console.web.util.RdpTimerUtils;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
@@ -56,7 +56,7 @@ public class AsyncTaskScheduleServiceImpl implements AsyncTaskScheduleService, U
     @Resource
     private ExecutionDal         executionDal;
     @Resource
-    private DmConsoleConfig      dmConfig;
+    private ConsoleConfig        config;
     @Resource
     private ApplicationContext   applicationContext;
 
@@ -77,7 +77,7 @@ public class AsyncTaskScheduleServiceImpl implements AsyncTaskScheduleService, U
         ClassLoader classLoader = this.applicationContext.getClassLoader();
         ThreadFactory timerTF = ThreadUtils.daemonThreadFactory(classLoader, "AsyncTask-Timer-%s");
         ThreadFactory workerTF = ThreadUtils.daemonThreadFactory(classLoader, "AsyncTask-Process-%s");
-        this.scheduleExecutor = new ScheduleExecutor(this.dmConfig.getAsyncThreadCount(), timerTF, workerTF);
+        this.scheduleExecutor = new ScheduleExecutor(this.config.getAsyncThreadCount(), timerTF, workerTF);
 
         this.scheduleWorkThread = ThreadUtils.daemonThread(classLoader, this::loopSchedule);
         this.scheduleWorkThread.setName("AsyncTask-Dispatcher");
@@ -144,7 +144,7 @@ public class AsyncTaskScheduleServiceImpl implements AsyncTaskScheduleService, U
     private void doSchedule() {
         // wait 30% empty slots, avoid frequent queries.
         double freeSlotDouble = freeSlot();
-        double queueSizeDouble = this.dmConfig.getAsyncTaskQueueSize();
+        double queueSizeDouble = this.config.getAsyncTaskQueueSize();
         if ((freeSlotDouble / queueSizeDouble) < 0.7d) {
             LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(100));
             return;
@@ -167,7 +167,7 @@ public class AsyncTaskScheduleServiceImpl implements AsyncTaskScheduleService, U
 
             // queue is full.
             if (freeSlot() == 0) {
-                log.info(String.format("[AsyncTask] task schedule queue is full, limit is %s", this.dmConfig.getAsyncTaskQueueSize()));
+                log.info(String.format("[AsyncTask] task schedule queue is full, limit is %s", this.config.getAsyncTaskQueueSize()));
                 LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(100));
                 return;
             }
@@ -293,7 +293,7 @@ public class AsyncTaskScheduleServiceImpl implements AsyncTaskScheduleService, U
     }
 
     private int freeSlot() {
-        int cfgMaxQueueSize = this.dmConfig.getAsyncTaskQueueSize();
+        int cfgMaxQueueSize = this.config.getAsyncTaskQueueSize();
         int smtQueueSize = this.scheduleExecutor.getQueueSize();
         return cfgMaxQueueSize - smtQueueSize;
     }

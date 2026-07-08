@@ -1,0 +1,33 @@
+/*
+ * Build-time module that resolves the built-in driver bundle for Docker images.
+ * Not part of any runtime artifact; only the generateBuiltinDrivers task output is consumed.
+ */
+plugins {
+    id 'com.clougence.java-conventions'
+}
+
+dependencies {
+    implementation project(':cg-drivers')
+    implementation project(':inner-driver-loader')
+    implementation "org.slf4j:slf4j-api:${SLF4J_VERSION}"
+    runtimeOnly "org.slf4j:slf4j-simple:${SLF4J_VERSION}"
+}
+
+description = 'pkg-builtin-drivers'
+
+tasks.register('generateBuiltinDrivers', JavaExec) {
+    group = 'build'
+    description = 'Resolve built-in drivers into package/build/built-in-drivers'
+
+    def configFile = file("${projectDir}/../../docker/built-in-drivers.xml")
+    def outputDir = file("${projectDir}/../../build/built-in-drivers")
+
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.clougence.clouddm.pkg.drivers.BuiltinDriverBundler'
+    args configFile.absolutePath, outputDir.absolutePath
+
+    doFirst {
+        delete outputDir
+        outputDir.mkdirs()
+    }
+}

@@ -17,20 +17,11 @@ package com.clougence.clouddm.ds.oceanbase.language.ob4ora;
 
 import java.util.List;
 
-import com.clougence.clouddm.ds.oceanbase.parser.ob4ora.ObOraDslProvider;
 import com.clougence.clouddm.dsfamily.language.validate.SyntaxValidateStrategy;
 import com.clougence.clouddm.dsfamily.language.validate.ValidateStrategy;
 import com.clougence.clouddm.dsfamily.language.validate.ValidateStrategyCenter;
-import com.clougence.clouddm.sdk.language.validate.ValidateRequest;
-import com.clougence.dslpaser.antlr.DslProvider;
 
 public class ObOraValidateStrategyCenter extends ValidateStrategyCenter {
-
-    @Override
-    protected DslProvider dslProvider(ValidateRequest request) {
-        return ObOraDslProvider.INSTANCE;
-    }
-
     @Override
     protected void register(List<ValidateStrategy> strategies) {
         strategies.add(new SyntaxValidateStrategy());

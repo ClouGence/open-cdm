@@ -15,19 +15,13 @@
  */
 package com.clougence.clouddm.console.web.component.dsconfig;
 
-import java.util.List;
 import java.util.Map;
 
-import com.clougence.clouddm.api.common.rpc.ResWebData;
-import com.clougence.clouddm.base.metadata.ds.DataSourceType;
-import com.clougence.clouddm.console.web.component.dsconfig.mode.DsConfig;
-import com.clougence.clouddm.console.web.component.dsconfig.mode.DsLevels;
+import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
+import com.clougence.clouddm.comm.model.RSocketSendDTO;
 import com.clougence.clouddm.console.web.model.fo.datasource.ConnectDsFO;
-import com.clougence.clouddm.console.web.model.fo.datasource.EnableDsQueryFO;
-import com.clougence.clouddm.console.web.model.fo.datasource.UpsertDsConfigFO;
-import com.clougence.clouddm.console.web.model.vo.DsKvConfigVO;
-import com.clougence.clouddm.platform.dal.model.datasource.DmDsConfigDO;
 import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
+import com.clougence.schema.umi.struts.UmiTypes;
 
 /**
  * @author bucketli 2020-01-13 18:08
@@ -35,48 +29,21 @@ import com.clougence.clouddm.platform.dal.model.datasource.DmDsDO;
  */
 public interface DmDsService {
 
-    Map<DataSourceType, DsConfig> dsConstantSettings();
+    DmDsDO fetchAndCheckById(Long dataSourceId);
 
-    List<DmDsConfigDO> fetchDsConfigByIds(String puid, List<Long> ids);
+    DmDsDO fetchByInstanceId(String instanceId);
 
-    List<DmDsConfigDO> fetchDsConfigByOwnerUid(String puid);
+    String testConnect(long dsId);
 
-    DmDsConfigDO fetchDsConfigById(String puid, Long id);
+    String testConnect(ConnectDsFO fo);
 
-    String testAndFetchDsVersion(String puid, EnableDsQueryFO fo);
-
-    boolean testEnableDsQuery(String puid, long dsId);
-
-    boolean testEnableDsDevOps(String puid, long dsId);
-
-    ResWebData<Boolean> enableDsQuery(String puid, EnableDsQueryFO fo);
-
-    ResWebData<Boolean> disableDsQuery(String puid, long dsId);
-
-    ResWebData<Boolean> enableDsDevOps(String puid, long dsId);
-
-    ResWebData<Boolean> disableDsDevOps(String puid, long dsId);
-
-    ResWebData<Boolean> updateDsDesc(String puid, String uid, long dsId, String desc);
+    //
 
     void updateDsTag(long dsId, String uid, String remark);
 
-    List<DmDsDO> listDsByClusterId(long clusterId);
+    void handleException(DataSourceConfig dsConfig, Throwable e);
 
-    List<DsKvConfigVO> queryDsConfigIncludeNewEntries(Long dsId);
+    void resetStatus(DataSourceConfig dsConfig);
 
-    void upsertDsConfigs(String puid, UpsertDsConfigFO fo);
-
-    DmDsDO fetchById(Long dsId);
-
-    DmDsDO queryDs(Long dsId);
-
-    /**
-     * Fill ds env info by dsenv id in dataSourceDO
-     */
-    void fillDsEnvInfo(List<DmDsDO> dataSourceDOList);
-
-    String testConnect(String uid, ConnectDsFO fo);
-
-    void testConnect(String puid, String uid, DsLevels dsLevels);
+    void changeStatusIfNecessary(RSocketSendDTO sendDTO, DataSourceConfig dbConfig, Map<UmiTypes, Object> levelsParam);
 }

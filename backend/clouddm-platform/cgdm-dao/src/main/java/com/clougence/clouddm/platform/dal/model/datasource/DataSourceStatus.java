@@ -22,10 +22,8 @@ public enum DataSourceStatus {
     Normal,
     Deleted,
     NoAuthority,
-    QueryNotEnabled,
     NotWorker,
     Unsupported,
-
     ConnectionFailed,
     NoAuthentication
 }

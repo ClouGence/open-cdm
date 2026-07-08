@@ -15,10 +15,7 @@
  */
 package com.clougence.clouddm.dsfamily.execute;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import com.clougence.clouddm.base.metadata.ds.DataSourceConfig;
 import com.clougence.clouddm.sdk.execute.ExecuteVariables;
@@ -27,6 +24,7 @@ import com.clougence.clouddm.sdk.execute.session.QueryResultConf;
 import com.clougence.clouddm.sdk.execute.session.SessionContextDTO;
 import com.clougence.clouddm.sdk.execute.session.SessionSpi;
 import com.clougence.clouddm.sdk.execute.session.rdb.RdbIsolation;
+import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.HexadecimalUtils;
 import com.clougence.utils.RandomUtils;
 import com.clougence.utils.StringUtils;
@@ -35,8 +33,10 @@ public class RdbSessionSpi implements SessionSpi {
 
     @Override
     public SessionContextDTO createSessionContext(DataSourceConfig dsConfig, Map<String, Object> params) {
-        String defaultDb = dsConfig.getDefaultDataBase();
-        String defaultSchema = dsConfig.getDefaultSchema();
+        Properties driverProperties = dsConfig.asDriverProperties();
+        String defaultDb = driverProperties.getProperty(DsConfigKeys.DEFAULT_DATABASE.getConfigKey());
+        String defaultSchema = driverProperties.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
+        String autoCommit = driverProperties.getProperty(DsConfigKeys.AUTO_COMMIT.getConfigKey());
 
         if (params != null) {
             if (params.containsKey(PARAMS_DEFAULT_DB)) {
@@ -53,7 +53,7 @@ public class RdbSessionSpi implements SessionSpi {
 
         contextDTO.setRdbCatalog(defaultDb);
         contextDTO.setRdbSchema(defaultSchema);
-        contextDTO.setRdbAutoCommit(dsConfig.getAutoCommit() == null || dsConfig.getAutoCommit());
+        contextDTO.setRdbAutoCommit(!StringUtils.equalsIgnoreCase("false", autoCommit));
         contextDTO.setRdbTxIsolation(RdbIsolation.valueOfCode(dsConfig.getIsolation()));
         contextDTO.setRdbReadOnly(Boolean.TRUE.equals(dsConfig.getReadOnly()));
         return contextDTO;

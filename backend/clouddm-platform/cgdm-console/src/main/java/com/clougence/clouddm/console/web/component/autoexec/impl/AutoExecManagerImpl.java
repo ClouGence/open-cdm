@@ -30,6 +30,7 @@ import com.clougence.clouddm.comm.model.RSocketSendType;
 import com.clougence.clouddm.console.web.component.autoexec.AutoExecManager;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
+import com.clougence.clouddm.console.web.util.CallUtils;
 import com.clougence.clouddm.console.web.util.MessageUtils;
 import com.clougence.clouddm.platform.dal.access.ExecutionDal;
 import com.clougence.clouddm.platform.dal.access.MonitorDal;
@@ -122,7 +123,7 @@ public class AutoExecManagerImpl implements AutoExecManager {
             return;
         }
 
-        this.autoExecRService.pauseJob(buildRSocketSendDTO(job.getWorkerSeqNumber()), jobId);
+        this.autoExecRService.pauseJob(CallUtils.buildSendDTO(job.getWorkerSeqNumber()), jobId);
 
         job.setStatus(AutoExecJobStatus.PAUSING);
         this.executionDal.autoJobMapper().updateById(job);
@@ -130,18 +131,6 @@ public class AutoExecManagerImpl implements AutoExecManager {
         String message = DmI18nUtils.getMessage(I18nDmMsgKeys.AUTO_EXEC_JOB_CONSOLE_PAUSE_MESSAGE.name(), user.getUsername(), user.getUid());
         DmMonBizLogDO logDO = new DmMonBizLogDO(Loglevel.INFO, message, LogDependBizType.AUTO_EXEC_JOB, job.getBizId());
         this.monitorDal.bizLogMapper().insert(logDO);
-    }
-
-    private RSocketSendDTO buildRSocketSendDTO(String wsn) {
-        DmSysWorkerDO worker = systemDal.workerMapper().getByWsn(wsn);
-
-        RSocketSendDTO sendDTO = new RSocketSendDTO();
-        sendDTO.setClusterId(worker.getClusterId());
-        sendDTO.setWorkerSeqNumber(worker.getWorkerSeqNumber());
-        sendDTO.setWorkerIP(worker.getWorkerIp());
-        sendDTO.setRSocketSendType(RSocketSendType.SPECIFIED);
-
-        return sendDTO;
     }
 
     private RSocketSendDTO buildRSocketSendDTO(long bindClusterId) {

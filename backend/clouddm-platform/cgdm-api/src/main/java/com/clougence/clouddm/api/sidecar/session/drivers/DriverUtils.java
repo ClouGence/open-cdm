@@ -17,6 +17,7 @@ package com.clougence.clouddm.api.sidecar.session.drivers;
 
 import java.util.List;
 
+import com.clougence.drivers.DriverSpecUtils;
 import com.clougence.utils.JsonUtils;
 import com.clougence.utils.StringUtils;
 
@@ -46,10 +47,6 @@ public class DriverUtils {
     }
 
     protected static String normalizeDriverVersion(String driverVersion) {
-        String normalized = StringUtils.trimToNull(driverVersion);
-        while (normalized != null && normalized.startsWith("/")) {
-            normalized = StringUtils.trimToNull(normalized.substring(1));
-        }
-        return normalized;
+        return DriverSpecUtils.normalizeDriverVersion(driverVersion);
     }
 }
