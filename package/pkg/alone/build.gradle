@@ -67,9 +67,9 @@ tasks.register('tgz', Tar) {
             }
         }
     }
-    dependsOn ':pkg-builtin-drivers:generateBuiltinDrivers'
     into("${sidecarPath}/built-in-drivers") {
-        from "${projectDir}/../../build/built-in-drivers"
+        from project(':pkg-builtin-drivers').tasks.named('generateBuiltinDrivers')
+        exclude '.bundle-hash'
     }
 
     archiveFileName = "cgdm-alone.tar.gz"
