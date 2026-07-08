@@ -33,7 +33,7 @@ tasks.register('tgz', Tar) {
     }
 
     def consolePath = "cgdm/console"
-    def mainVersion = rootProject.findProperty("cg.clouddm.main.version") ?: "unknow"
+    def mainVersion = System.getenv("CG_CLOUDDM_MAIN_VERSION") ?: rootProject.findProperty("cg.clouddm.main.version") ?: "unknow"
 
     into("${consolePath}") {
         project.file("$buildDir/emptyFoldersRoot/logs").mkdirs()
