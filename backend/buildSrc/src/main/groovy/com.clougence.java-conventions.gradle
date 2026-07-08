@@ -42,7 +42,7 @@ ext {
 }
 
 group = 'com.cdmgr'
-version = globalConfig.getProperty("cg.clouddm.main.version")
+version = System.getenv("CG_CLOUDDM_MAIN_VERSION") ?: globalConfig.getProperty("cg.clouddm.main.version")
 
 dependencies {
     compileOnly "org.slf4j:slf4j-api:${SLF4J_VERSION}"
