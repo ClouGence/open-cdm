@@ -46,7 +46,8 @@ CloudDM macOS 桌面端，使用 Electron 打包为 `.dmg` 安装包。
 
 内置 MySQL（仅本机 3307，供应用自用，一般无需手动连接）root 密码为 `cgdm`。
 
-删除 `~/.cgdm-desktop` 后重新打开应用会再次自动初始化，账号密码不变。
+
+删除 `~/.cgdm-desktop` 后重新打开应用会再次自动初始化，管理员账号恢复为 `admin` / `123456`。
 
 ## 工作原理
 
@@ -87,7 +88,7 @@ CloudDM macOS 桌面端，使用 Electron 打包为 `.dmg` 安装包。
 └── data/           # 应用数据
 ```
 
-卸载 `.app` 不会删除此目录，重新安装后数据仍在。如需彻底清除（例如升级后 JDBC/端口配置变更），手动删除该目录后重新打开应用。
+卸载 `.app` 不会删除此目录，重新安装后数据仍在。如需彻底清除（例如升级后 JDBC/端口配置变更、重置管理员密码），需删除该目录后重新打开应用。
 
 ## 故障排查
 
@@ -102,7 +103,7 @@ tail -50 ~/.cgdm-desktop/logs/mysqld.log
 
 - **JDK 未安装**：安装 OpenJDK 17，例如 `brew install openjdk@17`
 - **端口被占用**：关闭占用 18222/3307/18008 的进程，或删除 `~/.cgdm-desktop` 后重试
-- **旧版配置残留**：删除 `~/.cgdm-desktop` 目录，让应用重新初始化
+- **旧版配置残留 / 密码未按新版本重置**：执行 `./desktop/scripts/cleanup-local.sh`，或手动删除 `~/.cgdm-desktop` 后重新打开应用
 
 ## 目录说明
 
@@ -113,8 +114,8 @@ desktop/
 ├── loading.html         # 启动页
 ├── package.json         # 依赖声明
 ├── electron-builder.yml # 打包配置
-├── assets/              # 图标（构建时生成）
+├── assets/              # 应用图标
 └── scripts/
-    ├── download-mysql.sh # 下载 MySQL macOS 版
-    └── generate-icon.py  # 生成应用图标
+    ├── cleanup-local.sh  # 清理本机应用与缓存
+    └── download-mysql.sh # 下载 MySQL macOS 版
 ```

@@ -24,3 +24,5 @@ pnpm-debug.log*
 *.sw?
 *.iml
 /target
+/desktop/.build
+/dist

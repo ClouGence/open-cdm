@@ -7,7 +7,6 @@ set -euo pipefail
 # Usage:
 #   ./build-desktop.sh              # Build for current arch
 #   ./build-desktop.sh --skip-build # Skip frontend/backend build (dev only)
-#   ./build-desktop.sh --regen-icon # Regenerate desktop/assets/icon.png from dm.ico
 #
 # Prerequisites:
 #   - JDK 17+
@@ -25,16 +24,13 @@ DESKTOP_DIR="$SCRIPT_DIR/desktop"
 BUILD_DIR="$DESKTOP_DIR/.build"
 
 SKIP_BUILD=false
-REGEN_ICON=false
 for arg in "$@"; do
   case "$arg" in
     --skip-build) SKIP_BUILD=true ;;
-    --regen-icon) REGEN_ICON=true ;;
   esac
 done
 
 ICON_SRC="$DESKTOP_DIR/assets/icon.png"
-FAVICON_SRC="$FRONTEND_DIR/public/dm.ico"
 
 # Detect version
 VERSION=$(grep '^cg\.clouddm\.main\.version=' "$BACKEND_DIR/gradle.properties" | cut -d'=' -f2 | tr -d '[:space:]')
@@ -170,13 +166,6 @@ bash "$DESKTOP_DIR/scripts/download-mysql.sh" "$BUILD_DIR/mysql"
 echo ""
 echo "--- Step 5/6: Stage icon & install deps ---"
 mkdir -p "$BUILD_DIR/assets"
-
-if [ "$REGEN_ICON" = true ] || [ ! -f "$ICON_SRC" ] || [ "$FAVICON_SRC" -nt "$ICON_SRC" ]; then
-  echo "Generating icon (source: dm.ico)..."
-  python3 "$DESKTOP_DIR/scripts/generate-icon.py" "$ICON_SRC" --source "$FAVICON_SRC"
-else
-  echo "Using cached icon: desktop/assets/icon.png"
-fi
 
 cp "$ICON_SRC" "$BUILD_DIR/assets/icon.png"
 
