@@ -191,3 +191,5 @@ jobs:
           provenance: false
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha,scope=docker-${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=docker-${{ matrix.service }}
