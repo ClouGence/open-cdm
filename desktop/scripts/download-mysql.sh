@@ -19,16 +19,39 @@ CACHED_TARBALL="$CACHE_DIR/$TARBALL"
 
 mkdir -p "$CACHE_DIR"
 
+# Download helper: use aria2c for multi-threaded download when available
+download_file() {
+  local url="$1"
+  local output="$2"
+
+  if command -v aria2c &>/dev/null; then
+    aria2c \
+      -x 16 -s 16 -c \
+      --allow-overwrite=true \
+      --auto-file-renaming=false \
+      --connect-timeout=30 \
+      --max-connection-per-server=16 \
+      --min-split-size=1M \
+      --summary-interval=10 \
+      --dir="$(dirname "$output")" \
+      --out="$(basename "$output")" \
+      "$url"
+  else
+    echo "Tip: install aria2 (brew install aria2) for faster multi-threaded downloads"
+    curl -fSL --connect-timeout 30 --max-time 900 --retry 3 -C - "$url" -o "$output"
+  fi
+}
+
 # Download if not cached
 if [ ! -f "$CACHED_TARBALL" ]; then
   echo "Downloading MySQL ${MYSQL_VERSION} for ${ARCH}..."
   OFFICIAL_URL="https://cdn.mysql.com/Downloads/MySQL-8.0/${TARBALL}"
   MIRROR_URL="${MIRROR}/MySQL-8.0/${TARBALL}"
 
-  if ! curl -fSL --connect-timeout 30 --max-time 900 --retry 3 -C - "${OFFICIAL_URL}" -o "${CACHED_TARBALL}.tmp"; then
+  if ! download_file "${OFFICIAL_URL}" "${CACHED_TARBALL}.tmp"; then
     echo "Official CDN failed, trying mirror: ${MIRROR_URL}"
     rm -f "${CACHED_TARBALL}.tmp"
-    curl -fSL --connect-timeout 30 --max-time 900 --retry 3 -C - "${MIRROR_URL}" -o "${CACHED_TARBALL}.tmp"
+    download_file "${MIRROR_URL}" "${CACHED_TARBALL}.tmp"
   fi
   mv "${CACHED_TARBALL}.tmp" "${CACHED_TARBALL}"
 else

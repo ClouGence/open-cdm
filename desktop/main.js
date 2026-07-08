@@ -62,6 +62,88 @@ function sendStatus(msg) {
   }
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function ensurePortFree(port) {
+  const { execSync } = require('child_process');
+  try {
+    execSync(`lsof -ti :${port} | xargs kill -9 2>/dev/null`, { timeout: 5000 });
+  } catch (_) {}
+}
+
+function clearRestartFlag() {
+  try {
+    fs.rmSync(path.join(RUNTIME_DIR, '.restarting'), { force: true });
+  } catch (_) {}
+}
+
+async function waitForBackendExit(timeoutMs = 120000) {
+  if (!javaProcess) {
+    return;
+  }
+
+  const start = Date.now();
+  while (javaProcess) {
+    if (Date.now() - start > timeoutMs) {
+      console.warn('[cgdm] Backend did not exit after init restart, forcing stop...');
+      await stopJavaBackend();
+      break;
+    }
+    await sleep(500);
+  }
+
+  ensurePortFree(APP_WEB_PORT);
+  await sleep(1000);
+}
+
+async function waitForAppReady(timeoutMs = 300000) {
+  const base = `http://127.0.0.1:${APP_WEB_PORT}`;
+  const settingsUrl = `${base}/api/entry/dmGlobalSettings`;
+  const initUrl = `${base}/api/entry/init/defaultConfig`;
+  const start = Date.now();
+
+  while (Date.now() - start < timeoutMs) {
+    try {
+      const settingsResp = await fetch(settingsUrl, { method: 'POST' });
+      if (settingsResp.ok) {
+        const result = await settingsResp.json();
+        const status = result?.data?.systemStatus?.status;
+        if (status === 'Ready') {
+          return;
+        }
+        if (status === 'Starting') {
+          sendStatus('Loading plugins...');
+          await sleep(2000);
+          continue;
+        }
+      }
+    } catch (_) {}
+
+    try {
+      const initResp = await fetch(initUrl, { method: 'POST' });
+      if (!initResp.ok) {
+        await sleep(2000);
+        continue;
+      }
+    } catch (_) {
+      await sleep(2000);
+      continue;
+    }
+
+    await sleep(2000);
+  }
+
+  throw new Error('CloudDM did not become ready within ' + timeoutMs / 1000 + 's');
+}
+
+async function loadAppWindow() {
+  const appUrl = `http://127.0.0.1:${APP_WEB_PORT}/`;
+  sendStatus('Opening CloudDM...');
+  await mainWindow.loadURL(appUrl);
+}
+
 function findPlexusClassworldsJar() {
   const binDir = path.join(BACKEND_DIR, 'bin');
   const entries = fs.readdirSync(binDir);
@@ -115,7 +197,7 @@ function mysqldEnv() {
 
 async function autoInit() {
   const apiBase = `http://127.0.0.1:${APP_WEB_PORT}`;
-  const initPath = '/clouddm/console/api/v1/init';
+  const initPath = '/api/entry/init';
 
   try {
     const resp = await fetch(`${apiBase}${initPath}/defaultConfig`, { method: 'POST' });
@@ -127,7 +209,6 @@ async function autoInit() {
   console.log('[cgdm] Auto-initializing...');
   sendStatus('Initializing database schema...');
 
-  const adminPass = '123456';
   const payload = {
     'server.port': String(APP_WEB_PORT),
     'clouddm.rsocket.dns': '127.0.0.1',
@@ -158,20 +239,11 @@ async function autoInit() {
       console.log('[cgdm] Init accepted, waiting for backend restart...');
       sendStatus('Initialization done, restarting...');
 
-      if (javaProcess) {
-        await new Promise(resolve => {
-          const check = setInterval(() => {
-            if (!javaProcess) {
-              clearInterval(check);
-              resolve();
-            }
-          }, 500);
-        });
-      }
-      await new Promise(r => setTimeout(r, 2000));
+      await waitForBackendExit();
 
       await startJavaBackend();
-      await waitForHttp(`http://127.0.0.1:${APP_WEB_PORT}/`, 180000);
+      clearRestartFlag();
+      await waitForAppReady();
 
       try {
         const checkResp = await fetch(`${apiBase}${initPath}/defaultConfig`, { method: 'POST' });
@@ -747,7 +819,9 @@ app.whenReady().then(async () => {
     await autoInit();
 
     sendStatus('Ready');
-    mainWindow.loadURL(`http://127.0.0.1:${APP_WEB_PORT}/`);
+    clearRestartFlag();
+    await waitForAppReady();
+    await loadAppWindow();
   } catch (err) {
     console.error('[cgdm] Startup failed:', err);
     const logHint = `\n\nLogs:\n  ${path.join(LOG_DIR, 'java.log')}\n  ${path.join(LOG_DIR, 'mysqld.log')}`;
