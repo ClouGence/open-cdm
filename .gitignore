@@ -46,3 +46,5 @@ frontend/package-lock.json
 /logs
 install_upgrade.log
 /dist
+*.override.md
+*.local.md

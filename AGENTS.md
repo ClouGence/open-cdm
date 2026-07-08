@@ -204,3 +204,5 @@ cd frontend && npm run check-i18n
 - PR 说明要清楚描述改了什么、为什么改、如何验证。
 - 提交信息使用 Conventional Commits，例如 `feat(mysql): support prepared statement` 或 `fix(auth): avoid stale role cache`。
 - 提交前确认没有把本地构建产物、依赖目录、日志、临时文件或无关格式化改动带入 diff。
+
+@AGENTS.local.md
