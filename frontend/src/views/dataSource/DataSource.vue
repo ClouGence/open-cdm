@@ -130,7 +130,7 @@
                     type="text"
                     size="small"
                     :loading="testingDataSourceId === row.id"
-                    :disabled="row.lifeCycleState !== 'CREATED' || testingDataSourceId !== null"
+                    :disabled="row.lifeCycleState !== 'CREATED'"
                     @click="handleTestConnection(row)"
                   >
                     {{ $t('ce-shi') }}
@@ -1457,7 +1457,9 @@ export default {
 }
 
 .datasource-action-test {
-  min-width: 44px;
+  width: 56px;
+  min-width: 56px;
+  max-width: 56px;
 
   :deep(.ivu-load-loop) {
     margin-right: 2px;
