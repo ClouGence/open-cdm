@@ -1,5 +1,5 @@
 <template>
-  <div class="sso">
+  <div class="sso integration-list-page">
     <div class="table-list-layout">
       <div class="table-list">
         <div class="content">
@@ -23,8 +23,16 @@
               </a-tooltip>
             </div>
           </div>
-          <div class="table-container">
-            <Table :columns="columns" :data="filteredRows" :loading="loading" :locale="{ emptyText: $t('zan-wu-shu-ju') }" size="small" border>
+          <div class="table-container integration-table-container">
+            <Table
+              class="integration-table"
+              :columns="columns"
+              :data="filteredRows"
+              :loading="loading"
+              :locale="{ emptyText: $t('zan-wu-shu-ju') }"
+              size="small"
+              border
+            >
               <template #provider="{ row }">
                 <div class="provider-cell">
                   <CustomIcon v-if="row.iconResource" :resource="row.iconResource" :alt="row.label" size="20px" />

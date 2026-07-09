@@ -1,5 +1,5 @@
 <template>
-  <div class="devops">
+  <div class="im integration-list-page">
     <div class="table-list-layout">
       <div class="table-list">
         <div class="content">
@@ -21,8 +21,16 @@
               </Button>
             </div>
           </div>
-          <div class="table-container">
-            <Table :columns="imColumns" :data="imList" :loading="loading" :locale="{ emptyText: $t('zan-wu-shu-ju') }" size="small" border>
+          <div class="table-container integration-table-container">
+            <Table
+              class="integration-table"
+              :columns="imColumns"
+              :data="imList"
+              :loading="loading"
+              :locale="{ emptyText: $t('zan-wu-shu-ju') }"
+              size="small"
+              border
+            >
               <template #provider="{ row }">
                 <div class="provider-cell">
                   <CustomIcon
@@ -63,7 +71,7 @@ export default {
         {
           title: this.$t('ti-gong-zhe'),
           slot: 'provider',
-          width: 120
+          width: 180
         },
         {
           title: this.$t('zhan-shi-ming-cheng'),
@@ -164,7 +172,7 @@ export default {
 .provider-cell {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .action {

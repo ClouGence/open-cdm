@@ -1,5 +1,5 @@
 <template>
-  <div class="devops">
+  <div class="devops integration-list-page">
     <div class="table-list-layout">
       <div class="table-list">
         <div class="content">
@@ -21,8 +21,16 @@
               </Button>
             </div>
           </div>
-          <div class="table-container">
-            <Table :columns="scmColumns" :data="scmList" :loading="loading" :locale="{ emptyText: $t('zan-wu-shu-ju') }" size="small" border>
+          <div class="table-container integration-table-container">
+            <Table
+              class="integration-table"
+              :columns="scmColumns"
+              :data="scmList"
+              :loading="loading"
+              :locale="{ emptyText: $t('zan-wu-shu-ju') }"
+              size="small"
+              border
+            >
               <template #provider="{ row }">
                 <div class="provider-cell">
                   <CustomIcon
@@ -216,7 +224,7 @@ export default {
 .provider-cell {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .manage-role-modal {
