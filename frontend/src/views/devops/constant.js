@@ -20,7 +20,7 @@ const scmColumns = [
     title: i18n.global.t('cao-zuo'),
     slot: 'action',
     fixed: 'right',
-    width: 120
+    width: 160
   }
 ];
 

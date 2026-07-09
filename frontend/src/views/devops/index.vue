@@ -36,8 +36,9 @@
               </template>
               <template #action="{ row }">
                 <div class="action">
-                  <a type="primary" @click="goEditScm(row)" style="margin-right: 10px">{{ $t('bian-ji') }}</a>
+                  <a type="primary" @click="goEditScm(row)">{{ $t('bian-ji') }}</a>
                   <a type="primary" @click="handleTestScm(row.scmId)">{{ $t('ce-shi') }}</a>
+                  <a @click="handleDeleteScm(row)">{{ $t('shan-chu') }}</a>
                 </div>
               </template>
             </Table>
@@ -112,6 +113,25 @@ export default {
     },
     goEditScm(row) {
       this.$router.push(`/integrations/git/${row.scmId}/edit`);
+    },
+    handleDeleteScm(row) {
+      this.$Modal.confirm({
+        title: this.$t('que-ren'),
+        content: this.$t('shi-fou-yao-shan-chu'),
+        className: 'dm-modal-destructive',
+        onOk: async () => {
+          const res = await this.$services.dmDevopsScmDelete({
+            data: {
+              scmId: row.scmId,
+              force: false
+            }
+          });
+          if (res.success) {
+            this.$Message.success(this.$t('shan-chu-cheng-gong-0'));
+            this.getScmList();
+          }
+        }
+      });
     }
   }
 };
@@ -180,9 +200,17 @@ export default {
   }
 }
 
-.devops .action a:hover {
-  border-bottom: none;
-  box-shadow: inset 0 -1px 0 currentColor;
+.devops {
+  .action {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .action a:hover {
+    border-bottom: none;
+    box-shadow: inset 0 -1px 0 currentColor;
+  }
 }
 
 .provider-cell {
