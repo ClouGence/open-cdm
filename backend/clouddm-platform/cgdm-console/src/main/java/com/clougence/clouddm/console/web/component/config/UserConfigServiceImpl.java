@@ -148,101 +148,101 @@ public class UserConfigServiceImpl implements UserConfigService {
 
         if (CollectionUtils.isNotEmpty(config.getUpdateConfigs())) {
             for (Map.Entry<String, String> configEntry : config.getUpdateConfigs().entrySet()) {
-                String configName = configEntry.getKey();
-                DmSysUserConfDO oldConfig = systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, configName);
-                UserConfigKvDef defaultConfig = defaultConfigs.stream().filter(c -> {
-                    return c.getConfigName().equals(configName);
-                }).findFirst().orElse(null);
-                if (oldConfig == null || defaultConfig == null) {
-                    continue;
-                }
-                String newValue = configEntry.getValue();
-                if (newValue != null) {
-                    newValue = newValue.trim();
-                }
-
-                if (defaultConfig.isSecret() && StringUtils.isNotBlank(newValue)) {
-                    newValue = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(newValue);
-                }
-
-                UpsertUserConfigLO configLO = new UpsertUserConfigLO();
-                configLO.setConfigName(configName);
-                configLO.setNeedCreate(false);
-                if (!defaultConfig.isSecret()) {
-                    configLO.setOldConfigValue(oldConfig.getConfigValue());
-                    configLO.setConfigValue(newValue);
-                }
-                configLOs.add(configLO);
-
-                UserConfigMO configMO = new UserConfigMO();
-                configMO.setConfig(configName);
-                configMO.setOldValue(oldConfig.getConfigValue());
-                configMO.setNewValue(newValue);
-                configMO.setDefaultValue(defaultConfig.getDefaultValue());
-                configMO.setTagType(defaultConfig.getUserConfigTagType());
-                configMO.setInsert(false);
-                configMO.setUpdate(true);
-                configMO.setDelete(false);
-                configList.add(configMO);
-
-                systemDal.userConfMapper().updateUserConfig(ownerUid, configName, newValue);
+                upsertOneConfig(ownerUid, configEntry.getKey(), configEntry.getValue(), defaultConfigs, configList, configLOs);
             }
         }
 
         if (CollectionUtils.isNotEmpty(config.getNeedCreateConfigs())) {
             for (Map.Entry<String, String> configEntry : config.getNeedCreateConfigs().entrySet()) {
-                String configName = configEntry.getKey();
-                DmSysUserConfDO configInDb = systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, configName);
-                // if config already exists, skip
-                if (configInDb != null) {
-                    continue;
-                }
-
-                UserConfigKvDef defaultConfig = defaultConfigs.stream().filter(c -> {
-                    return c.getConfigName().equals(configName);
-                }).findFirst().orElse(null);
-                // if config not exists in default config, skip
-                if (defaultConfig == null) {
-                    continue;
-                }
-
-                String newValue = configEntry.getValue();
-                if (newValue != null) {
-                    newValue = newValue.trim();
-                }
-
-                UpsertUserConfigLO configLO = new UpsertUserConfigLO();
-                configLO.setConfigName(configName);
-                configLO.setNeedCreate(true);
-                if (defaultConfig.isSecret()) {
-                    newValue = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(newValue);
-                } else {
-                    configLO.setConfigValue(newValue);
-                }
-                configLOs.add(configLO);
-
-                UserConfigMO configMO = new UserConfigMO();
-                configMO.setConfig(configName);
-                configMO.setOldValue(null);
-                configMO.setNewValue(newValue);
-                configMO.setDefaultValue(defaultConfig.getDefaultValue());
-                configMO.setTagType(defaultConfig.getUserConfigTagType());
-                configMO.setInsert(true);
-                configMO.setUpdate(false);
-                configMO.setDelete(false);
-                configList.add(configMO);
-
-                DmSysUserConfDO newConfig = new DmSysUserConfDO();
-                newConfig.setUid(ownerUid);
-                newConfig.setConfigName(defaultConfig.getConfigName());
-                newConfig.setConfigValue(newValue);
-                systemDal.userConfMapper().insert(newConfig);
+                upsertOneConfig(ownerUid, configEntry.getKey(), configEntry.getValue(), defaultConfigs, configList, configLOs);
             }
         }
 
         this.notifyServices.forEach(s -> s.notifyUserConfig(ownerUid, configList));
 
         return configLOs;
+    }
+
+    private void upsertOneConfig(String ownerUid, String configName, String configValue, List<UserConfigKvDef> defaultConfigs, List<UserConfigMO> configList,
+                                 List<UpsertUserConfigLO> configLOs) {
+        UserConfigKvDef defaultConfig = defaultConfigs.stream().filter(c -> {
+            return c.getConfigName().equals(configName);
+        }).findFirst().orElse(null);
+        if (defaultConfig == null) {
+            return;
+        }
+
+        DmSysUserConfDO oldConfig = systemDal.userConfMapper().queryByUidAndConfigName(ownerUid, configName);
+        String newValue = configValue;
+        if (newValue != null) {
+            newValue = newValue.trim();
+        }
+
+        if (oldConfig == null) {
+            insertConfig(ownerUid, defaultConfig, newValue, configList, configLOs);
+        } else {
+            updateConfig(ownerUid, oldConfig, defaultConfig, newValue, configList, configLOs);
+        }
+    }
+
+    private void updateConfig(String ownerUid, DmSysUserConfDO oldConfig, UserConfigKvDef defaultConfig, String newValue, List<UserConfigMO> configList,
+                              List<UpsertUserConfigLO> configLOs) {
+        String configName = defaultConfig.getConfigName();
+        if (defaultConfig.isSecret() && StringUtils.isNotBlank(newValue)) {
+            newValue = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(newValue);
+        }
+
+        UpsertUserConfigLO configLO = new UpsertUserConfigLO();
+        configLO.setConfigName(configName);
+        configLO.setNeedCreate(false);
+        if (!defaultConfig.isSecret()) {
+            configLO.setOldConfigValue(oldConfig.getConfigValue());
+            configLO.setConfigValue(newValue);
+        }
+        configLOs.add(configLO);
+
+        UserConfigMO configMO = new UserConfigMO();
+        configMO.setConfig(configName);
+        configMO.setOldValue(oldConfig.getConfigValue());
+        configMO.setNewValue(newValue);
+        configMO.setDefaultValue(defaultConfig.getDefaultValue());
+        configMO.setTagType(defaultConfig.getUserConfigTagType());
+        configMO.setInsert(false);
+        configMO.setUpdate(true);
+        configMO.setDelete(false);
+        configList.add(configMO);
+
+        systemDal.userConfMapper().updateUserConfig(ownerUid, configName, newValue);
+    }
+
+    private void insertConfig(String ownerUid, UserConfigKvDef defaultConfig, String newValue, List<UserConfigMO> configList, List<UpsertUserConfigLO> configLOs) {
+        String configName = defaultConfig.getConfigName();
+        UpsertUserConfigLO configLO = new UpsertUserConfigLO();
+        configLO.setConfigName(configName);
+        configLO.setNeedCreate(true);
+        if (defaultConfig.isSecret()) {
+            newValue = CryptService.INSTANCE.encryptUseDefaultKeyAndSalt(newValue);
+        } else {
+            configLO.setConfigValue(newValue);
+        }
+        configLOs.add(configLO);
+
+        UserConfigMO configMO = new UserConfigMO();
+        configMO.setConfig(configName);
+        configMO.setOldValue(null);
+        configMO.setNewValue(newValue);
+        configMO.setDefaultValue(defaultConfig.getDefaultValue());
+        configMO.setTagType(defaultConfig.getUserConfigTagType());
+        configMO.setInsert(true);
+        configMO.setUpdate(false);
+        configMO.setDelete(false);
+        configList.add(configMO);
+
+        DmSysUserConfDO newConfig = new DmSysUserConfDO();
+        newConfig.setUid(ownerUid);
+        newConfig.setConfigName(configName);
+        newConfig.setConfigValue(newValue);
+        systemDal.userConfMapper().insert(newConfig);
     }
 
     public List<UserConfigKvDef> fetchUserDefinedDefaultConfig(String uid) {
