@@ -46,6 +46,7 @@
               <template #action="{ row }">
                 <div class="action">
                   <a @click="goEdit(row)">{{ $t('pei-zhi') }}</a>
+                  <a v-if="canEdit" @click="handleDelete(row)">{{ $t('shan-chu') }}</a>
                 </div>
               </template>
             </Table>
@@ -91,7 +92,7 @@ export default {
         { title: this.$t('approval-col-provider'), slot: 'provider', width: 180 },
         { title: this.$t('approval-col-primary'), slot: 'primary', minWidth: 240 },
         { title: this.$t('approval-col-status'), slot: 'status', width: 160 },
-        { title: this.$t('cao-zuo'), slot: 'action', fixed: 'right', width: 120 }
+        { title: this.$t('cao-zuo'), slot: 'action', fixed: 'right', width: 160 }
       ];
     },
     rows() {
@@ -145,6 +146,38 @@ export default {
     },
     goEdit(row) {
       this.$router.push(`/integrations/approval/${row.type.toLowerCase()}/edit`);
+    },
+    handleDelete(row) {
+      const def = getProviderByType(row.type);
+      if (!def) {
+        return;
+      }
+      this.$Modal.confirm({
+        title: this.$t('que-ren'),
+        content: this.$t('approval-confirm-delete-x', [this.$t(def.labelKey)]),
+        className: 'dm-modal-destructive',
+        onOk: async () => {
+          const updateConfigs = {};
+          const needCreateConfigs = {};
+          def.fields.forEach((field) => {
+            const config = this.configMap[field.key];
+            if (config) {
+              updateConfigs[field.key] = '';
+            } else {
+              needCreateConfigs[field.key] = '';
+            }
+          });
+          const res = await this.$services.rdpUserConfigUpsertUserConfigs({
+            data: { updateConfigs, needCreateConfigs }
+          });
+          if (!res.success) {
+            this.$Message.error(res.msg || this.$t('cao-zuo-shi-bai'));
+            return;
+          }
+          this.$Message.success(this.$t('cao-zuo-cheng-gong'));
+          this.init();
+        }
+      });
     },
     handleToggleEnable(row) {
       const def = getProviderByType(row.type);

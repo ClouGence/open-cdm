@@ -38,6 +38,7 @@
                 <div class="action">
                   <a type="primary" @click="goEditIm(row)">{{ $t('bian-ji') }}</a>
                   <a type="primary" @click="handleImTest(row.imId)">{{ $t('ce-shi') }}</a>
+                  <a @click="handleImDelete(row)">{{ $t('shan-chu') }}</a>
                 </div>
               </template>
             </Table>
@@ -78,7 +79,7 @@ export default {
           title: this.$t('cao-zuo'),
           slot: 'action',
           fixed: 'right',
-          width: 120
+          width: 160
         }
       ]
     };
@@ -133,6 +134,27 @@ export default {
     },
     goEditIm(row) {
       this.$router.push(`/integrations/im/${row.imId}/edit`);
+    },
+    handleImDelete(row) {
+      this.$Modal.confirm({
+        title: this.$t('que-ren'),
+        content: this.$t('shi-fou-yao-shan-chu'),
+        className: 'dm-modal-destructive',
+        onOk: async () => {
+          const res = await this.$services.dmDevopsImDelete({
+            data: {
+              imId: row.imId,
+              force: false
+            }
+          });
+          if (res.success) {
+            this.$Message.success(this.$t('cao-zuo-cheng-gong'));
+            this.getImList();
+          } else {
+            this.$Message.error(this.$t('cao-zuo-shi-bai'));
+          }
+        }
+      });
     }
   }
 };

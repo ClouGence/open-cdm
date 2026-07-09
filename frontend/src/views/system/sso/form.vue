@@ -51,7 +51,6 @@
       </div>
 
       <div v-if="selectedProvider" class="sso-form-footer">
-        <Button v-if="isEdit" type="error" @click="handleDelete">{{ $t('shan-chu') }}</Button>
         <div class="sso-form-footer__right">
           <Button @click="goBack">{{ $t('qu-xiao') }}</Button>
           <Button type="primary" :loading="submitLoading" @click="handleSubmit">
@@ -229,29 +228,6 @@ export default {
         this.goBack();
       }
     },
-    async handleDelete() {
-      const def = this.selectedProvider;
-      if (!def) return;
-      this.$Modal.confirm({
-        title: this.$t('que-ren'),
-        content: this.$t('sso-confirm-delete-x', [this.$t(def.labelKey)]),
-        className: 'dm-modal-destructive',
-        onOk: async () => {
-          const cleared = {};
-          def.fields.forEach((field) => {
-            cleared[field.key] = '';
-          });
-          const remaining = this.enabledTypes.filter((t) => t !== def.type);
-          this.submitLoading = true;
-          const ok = await this.persistProvider(def, cleared, remaining);
-          this.submitLoading = false;
-          if (ok) {
-            this.$Message.success(this.$t('cao-zuo-cheng-gong'));
-            this.goBack();
-          }
-        }
-      });
-    },
     async persistProvider(def, fieldValues, nextTypesList) {
       const updateConfigs = {};
       const needCreateConfigs = {};
@@ -400,7 +376,7 @@ export default {
 .sso-form-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 16px;
   max-width: 720px;
   margin-top: 18px;
