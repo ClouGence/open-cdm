@@ -250,9 +250,11 @@ export default {
     this.$nextTick(() => {
       this.initializeHeights();
     });
+    window.addEventListener('resize', this.handleWindowResize);
   },
   beforeDestroy() {
     this.stopResize();
+    window.removeEventListener('resize', this.handleWindowResize);
   },
   watch: {
     showRollbackSql() {
@@ -282,22 +284,16 @@ export default {
     },
 
     initializeHeights() {
-      const editor = this.$el.querySelector('.editor');
-      if (editor) {
-        const totalHeight = editor.clientHeight;
-        const rawCollapse = this.$el.querySelector('.collapse.raw');
-        if (rawCollapse) {
-          let heightToSubtract = 0;
-          if (this.showForceBtn) {
-            heightToSubtract += this.validationResultHeight + 6;
-          }
-          if (this.showRollbackSql) {
-            heightToSubtract += 200;
-          }
-          const newRawHeight = totalHeight - heightToSubtract;
-          rawCollapse.style.height = `${Math.max(200, newRawHeight)}px`;
-        }
-      }
+      this.$nextTick(() => {
+        this.layoutEditors();
+      });
+    },
+
+    layoutEditors() {
+      const editors = [this.$refs.rawSqlEditor, this.$refs.rollbackSqlEditor];
+      editors.forEach((editor) => {
+        editor?.monacoEditor?.layout();
+      });
     },
 
     onResize(e) {
@@ -306,25 +302,17 @@ export default {
       const deltaY = this.startY - e.clientY;
       const newHeight = Math.max(100, Math.min(400, this.startHeight + deltaY));
       this.validationResultHeight = newHeight;
-
-      this.$nextTick(() => {
-        const rawCollapse = this.$el.querySelector('.collapse.raw');
-        if (rawCollapse) {
-          const totalHeight = this.$el.querySelector('.editor').clientHeight;
-          let heightToSubtract = newHeight + 6;
-          if (this.showRollbackSql) {
-            heightToSubtract += 200;
-          }
-          const newRawHeight = totalHeight - heightToSubtract;
-          rawCollapse.style.height = `${Math.max(200, newRawHeight)}px`;
-        }
-      });
+      this.layoutEditors();
     },
 
     stopResize() {
       this.isResizing = false;
       document.removeEventListener('mousemove', this.onResize);
       document.removeEventListener('mouseup', this.stopResize);
+    },
+
+    handleWindowResize() {
+      this.layoutEditors();
     },
 
     handleCloseModal() {
@@ -543,23 +531,28 @@ export default {
 .ticket-create-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 
   .create-content-container {
     flex: 1;
     display: flex;
     min-height: 0;
+    overflow: hidden;
     padding: 16px 24px;
     gap: 24px;
 
     .create-ticket-editor {
       flex: 1;
       min-width: 0;
+      min-height: 0;
       overflow: hidden;
       display: flex;
       flex-direction: column;
 
       .create-ticket-editor-operator {
+        flex-shrink: 0;
         padding-bottom: 16px;
       }
 
@@ -572,9 +565,10 @@ export default {
         .collapse {
           display: flex;
           flex-direction: column;
+          min-height: 0;
 
           &.raw {
-            flex: none;
+            flex: 1;
             min-height: 200px;
             overflow: hidden;
           }
@@ -688,9 +682,10 @@ export default {
 
           .content {
             flex: 1;
+            min-height: 0;
             border: 1px solid #eaeaea;
             border-radius: 6px;
-            overflow: auto;
+            overflow: hidden;
           }
         }
 

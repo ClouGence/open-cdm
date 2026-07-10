@@ -103,7 +103,7 @@ import store from '@/store';
 import dayjs from 'dayjs';
 import fecha from 'fecha';
 import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
-import { resolveWorkbenchRoute } from '@/utils/workbenchRoute';
+import { resolveWorkbenchFallbackPath, resolveWorkbenchRoute } from '@/utils/workbenchRoute';
 
 export default {
   name: 'Home',
@@ -155,7 +155,7 @@ export default {
   mixins: [setOpPasswordMixin, setApprovalProcessMixin, enterOpPwdMixin],
   computed: {
     ...mapGetters(['isDesktop', 'displayVersion', 'includesDM', 'isInternalUser']),
-    ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'remainTrialDay']),
+    ...mapState(['userInfo', 'myAuth', 'globalSetting', 'defaultRedirectUrl', 'dmGlobalSetting', 'remainTrialDay', 'mySystemMenuItems']),
     ...mapGetters(['isSaas']),
     isSqlRoute() {
       return this.$route.path === '/sql' || this.$route.path.startsWith('/sql/');
@@ -376,7 +376,8 @@ export default {
     },
     handleGoAppHome() {
       if (this.isSqlRoute) {
-        const target = resolveWorkbenchRoute('/datasource', this.userInfo?.uid);
+        const fallback = resolveWorkbenchFallbackPath(this.mySystemMenuItems);
+        const target = resolveWorkbenchRoute(fallback, this.userInfo?.uid, this.mySystemMenuItems);
         this.$router.push(target).catch(() => {});
         return;
       }
