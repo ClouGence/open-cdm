@@ -361,11 +361,14 @@ export default {
         return;
       }
 
-      let currentFamily = families.find((item) => item.name === this.innerDriverFamily);
+      const preferredFamily = this.innerDriverFamily || this.driverFamily || '';
+      const preferredVersion = this.innerDriverVersion || this.driverVersion || '';
+
+      let currentFamily = families.find((item) => item.name === preferredFamily);
       if (!currentFamily || forceReset) {
         currentFamily = families[0];
-        this.innerDriverFamily = currentFamily?.name || '';
       }
+      this.innerDriverFamily = currentFamily?.name || '';
 
       const versions = Array.isArray(currentFamily?.versions) ? currentFamily.versions : [];
       if (!versions.length) {
@@ -375,7 +378,9 @@ export default {
         return;
       }
 
-      if (forceReset || !versions.includes(this.innerDriverVersion)) {
+      if (!forceReset && preferredVersion && versions.includes(preferredVersion)) {
+        this.innerDriverVersion = preferredVersion;
+      } else if (forceReset || !versions.includes(this.innerDriverVersion)) {
         this.innerDriverVersion = versions[0];
       }
 
