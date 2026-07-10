@@ -5,8 +5,9 @@ set -euo pipefail
 # build-desktop.sh — Build CloudDM macOS desktop app (.dmg)
 #
 # Usage:
-#   ./build-desktop.sh              # Build for current arch
-#   ./build-desktop.sh --skip-build # Skip frontend/backend build (dev only)
+#   ./build-desktop.sh              # Build, sign (no notarize)
+#   ./build-desktop.sh --skip-build # Skip frontend/backend build
+#   ./build-desktop.sh --notarize   # Build, sign & notarize
 #
 # Prerequisites:
 #   - JDK 17+
@@ -24,9 +25,11 @@ DESKTOP_DIR="$SCRIPT_DIR/desktop"
 BUILD_DIR="$DESKTOP_DIR/.build"
 
 SKIP_BUILD=false
+NOTARIZE=false
 for arg in "$@"; do
   case "$arg" in
     --skip-build) SKIP_BUILD=true ;;
+    --notarize)   NOTARIZE=true ;;
   esac
 done
 
@@ -127,10 +130,49 @@ echo "  Plugins after trim: $(ls "$BACKEND_PLUGINS"/*.jar 2>/dev/null | wc -l)"
 # 2. Remove non-macOS native jars from libs
 LIBS_DIR="$BUILD_DIR/backend/libs"
 if [ -d "$LIBS_DIR" ]; then
-  # netty quic native libs - keep only macOS
-  rm -f "$LIBS_DIR"/netty-codec-native-quic-*-linux-*.jar 2>/dev/null
-  rm -f "$LIBS_DIR"/netty-codec-native-quic-*-windows-*.jar 2>/dev/null
+  # netty quic native libs - remove all (unsigned .jnilib files fail notarization)
+  rm -f "$LIBS_DIR"/netty-codec-native-quic-*.jar 2>/dev/null
+
+  # Remove x86_64-only native JARs when building for arm64
+  if [ "$ARCH" = "arm64" ]; then
+    rm -f "$LIBS_DIR"/*-x86_64.jar 2>/dev/null
+  fi
   echo "  Removed non-macOS native jars"
+
+  # Sign native libraries (.jnilib/.dylib) embedded inside JARs for notarization.
+  # Starting late 2024, Apple requires ALL binaries in the bundle to be signed,
+  # including those inside ZIP/JAR archives. codesign --deep cannot reach them,
+  # so we extract → sign → repack with jar.
+  # Sign native libs if Developer ID cert is available in keychain
+  if security find-identity -v -p basic 2>/dev/null | grep -q "Developer ID Application"; then
+    echo "  Signing native libs embedded in JARs..."
+    TMP_NATIVE_DIR=$(mktemp -d)
+    NTLIST_FILE=$(mktemp)
+    echo "    tmp dir: $TMP_NATIVE_DIR, list file: $NTLIST_FILE"
+    jar_count=0
+    for jar in "$LIBS_DIR"/*.jar; do
+      [ -f "$jar" ] || { echo "    skipping non-file: $jar"; continue; }
+      jar_count=$((jar_count + 1))
+      unzip -l "$jar" 2>/dev/null | grep -E '\.(jnilib|dylib)$' | awk '{print $4}' > "$NTLIST_FILE" || true
+      [ -s "$NTLIST_FILE" ] || continue
+      jar_name=$(basename "$jar")
+      echo "    $jar_name"
+      while IFS= read -r nf; do
+        [ -n "$nf" ] || continue
+        echo "      Extracting $nf..."
+        unzip -o -d "$TMP_NATIVE_DIR" "$jar" "$nf" 2>/dev/null || { echo "      ERROR: unzip failed"; continue; }
+        echo "      Signing $nf..."
+        codesign --force --options runtime --timestamp \
+          --sign "Developer ID Application" \
+          "$TMP_NATIVE_DIR/$nf" || { echo "      ERROR: codesign failed"; continue; }
+        echo "      Repacking $nf into $jar_name..."
+        (cd "$TMP_NATIVE_DIR" && jar uf "$jar" "$nf") || { echo "      ERROR: jar update failed"; continue; }
+        rm -rf "$TMP_NATIVE_DIR/${nf%%/*}" 2>/dev/null
+      done < "$NTLIST_FILE"
+    done
+    rm -rf "$TMP_NATIVE_DIR" "$NTLIST_FILE"
+    echo "  Scanned $jar_count JARs. Native lib signing done."
+  fi
 fi
 
 echo "  Libs size after trim: $(du -sh "$LIBS_DIR" 2>/dev/null | cut -f1)"
@@ -151,6 +193,7 @@ cp "$DESKTOP_DIR/main.js" "$BUILD_DIR/"
 cp "$DESKTOP_DIR/preload.js" "$BUILD_DIR/"
 cp "$DESKTOP_DIR/loading.html" "$BUILD_DIR/"
 cp "$DESKTOP_DIR/electron-builder.yml" "$BUILD_DIR/"
+cp "$DESKTOP_DIR/entitlements.plist" "$BUILD_DIR/"
 
 # Copy and set version in package.json
 sed "s/\"version\": \"0.0.0\"/\"version\": \"$VERSION\"/" "$DESKTOP_DIR/package.json" > "$BUILD_DIR/package.json"
@@ -162,7 +205,9 @@ echo ""
 echo "--- Step 4/6: Bundle MySQL ---"
 bash "$DESKTOP_DIR/scripts/download-mysql.sh" "$BUILD_DIR/mysql"
 
+# ---------------------------------------------------------------------------
 # Step 5: Stage icon & install Electron deps
+# ---------------------------------------------------------------------------
 echo ""
 echo "--- Step 5/6: Stage icon & install deps ---"
 mkdir -p "$BUILD_DIR/assets"
@@ -173,10 +218,26 @@ cd "$BUILD_DIR"
 npm install --no-audit --no-fund
 
 # ---------------------------------------------------------------------------
-# Step 6: Build .dmg
+# Step 6: Build .dmg (sign & notarize)
 # ---------------------------------------------------------------------------
 echo ""
 echo "--- Step 6/6: Build .dmg ---"
+
+# Code signing: electron-builder auto-detects Developer ID certs from your keychain.
+# Notarization: only when --notarize flag is passed AND the required env vars are set.
+if [ "$NOTARIZE" = true ]; then
+  if [ -z "${APPLE_ID:-}" ] || [ -z "${APPLE_APP_SPECIFIC_PASSWORD:-}" ] || [ -z "${APPLE_TEAM_ID:-}" ]; then
+    echo "ERROR: --notarize requires APPLE_ID, APPLE_APP_SPECIFIC_PASSWORD, and APPLE_TEAM_ID env vars."
+    echo "  export APPLE_ID=your-apple-id@email.com"
+    echo "  export APPLE_APP_SPECIFIC_PASSWORD=xxxx-xxxx-xxxx-xxxx"
+    echo "  export APPLE_TEAM_ID=YOUR_TEAM_ID"
+    exit 1
+  fi
+  echo "Notarization enabled (APPLE_ID=$APPLE_ID, TEAM=$APPLE_TEAM_ID)"
+else
+  echo "Skipping notarization — add --notarize to enable."
+fi
+
 export ELECTRON_MIRROR="${ELECTRON_MIRROR:-https://npmmirror.com/mirrors/electron/}"
 npx electron-builder --mac --config electron-builder.yml
 
@@ -193,6 +254,15 @@ if [ -n "$DMG" ]; then
   echo "=== Done ==="
   echo "DMG: dist/$(basename "$DMG")"
   echo "Size: $(du -h "$DMG" | cut -f1)"
+  if [ -z "${APPLE_ID:-}" ]; then
+    echo ""
+    echo "To sign & notarize the next build, set these env vars:"
+    echo "  export APPLE_ID=your-apple-id@email.com"
+    echo "  export APPLE_APP_SPECIFIC_PASSWORD=xxxx-xxxx-xxxx-xxxx"
+    echo "  export APPLE_TEAM_ID=YOUR_TEAM_ID"
+    echo ""
+    echo "App-specific password: https://appleid.apple.com/account/manage"
+  fi
 else
   echo "ERROR: .dmg not found in $BUILD_DIR/dist/"
   echo "Check above for electron-builder errors."
