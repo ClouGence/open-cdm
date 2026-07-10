@@ -31,37 +31,6 @@ body:
       required: true
 
   - type: textarea
-    id: problem
-    attributes:
-      label: Problem or use case
-      description: Explain the impact, affected workflow, or problem this change would solve.
-      placeholder: Who is affected, and why is this important?
-    validations:
-      required: true
-
-  - type: textarea
-    id: expected-behavior
-    attributes:
-      label: Expected behavior
-      description: Describe the expected result or desired outcome.
-      placeholder: What should happen instead?
-    validations:
-      required: true
-
-  - type: textarea
-    id: reproduction
-    attributes:
-      label: Steps to reproduce
-      description: For bugs, provide the smallest reliable set of reproduction steps. Write "Not applicable" for other issue types.
-      placeholder: |
-        1. Configure ...
-        2. Open ...
-        3. Run ...
-        4. Observe ...
-    validations:
-      required: true
-
-  - type: textarea
     id: actual-behavior
     attributes:
       label: Actual behavior
@@ -73,12 +42,11 @@ body:
     attributes:
       label: Environment
       description: For bugs, include every relevant version and deployment detail.
-      placeholder: |
+      value: |
         - CloudDM version:
         - Deployment mode: Alone / Console + Sidecar
         - Operating system:
         - Browser and version:
-        - JDK version:
         - Database type and version:
 
   - type: textarea
