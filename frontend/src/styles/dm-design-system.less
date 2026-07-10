@@ -160,6 +160,93 @@
   font-size: 13px;
 }
 
+// ─── Integration list pages ─────────────────────────────────────────────────
+
+.integration-list-page {
+  height: 100%;
+
+  .integration-table-container {
+    overflow: hidden;
+
+    .ivu-table-wrapper {
+      height: 100%;
+      background: var(--bg-card);
+    }
+
+    .ivu-table {
+      color: var(--text-primary);
+      background: var(--bg-card);
+
+      &::before,
+      &::after {
+        display: none;
+      }
+    }
+
+    .ivu-table-header th {
+      height: 42px;
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .ivu-table-cell {
+      padding-right: 12px;
+      padding-left: 12px;
+      line-height: 20px;
+    }
+
+    .ivu-table-body td {
+      height: 46px;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .ivu-table-row-hover td {
+      background: var(--bg-hover);
+    }
+
+    .ivu-table-fixed-right::before,
+    .ivu-table-fixed::before {
+      display: none;
+    }
+  }
+
+  .provider-cell {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    gap: 8px;
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .status-cell,
+  .action {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .action {
+    a {
+      line-height: 20px;
+      white-space: nowrap;
+
+      &:hover {
+        border-bottom: none;
+        box-shadow: inset 0 -1px 0 currentColor;
+      }
+    }
+  }
+}
+
 .content-wrapper,
 .cluster-container,
 .console-job-wrapper,

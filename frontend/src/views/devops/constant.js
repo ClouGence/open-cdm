@@ -4,7 +4,7 @@ const scmColumns = [
   {
     title: i18n.global.t('ti-gong-zhe'),
     slot: 'provider',
-    width: 120
+    width: 180
   },
   {
     title: i18n.global.t('zhan-shi-ming-cheng'),
@@ -20,7 +20,7 @@ const scmColumns = [
     title: i18n.global.t('cao-zuo'),
     slot: 'action',
     fixed: 'right',
-    width: 120
+    width: 160
   }
 ];
 

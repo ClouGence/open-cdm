@@ -49,7 +49,6 @@
       </div>
 
       <div v-if="selectedProvider" class="approval-form-footer">
-        <Button v-if="isEdit" type="error" @click="handleDelete">{{ $t('shan-chu') }}</Button>
         <div class="approval-form-footer__right">
           <Button @click="goBack">{{ $t('qu-xiao') }}</Button>
           <Button type="primary" :loading="submitLoading" @click="handleSubmit">
@@ -230,28 +229,6 @@ export default {
         this.goBack();
       }
     },
-    async handleDelete() {
-      const def = this.selectedProvider;
-      if (!def) return;
-      this.$Modal.confirm({
-        title: this.$t('que-ren'),
-        content: this.$t('approval-confirm-delete-x', [this.$t(def.labelKey)]),
-        className: 'dm-modal-destructive',
-        onOk: async () => {
-          const cleared = {};
-          def.fields.forEach((field) => {
-            cleared[field.key] = '';
-          });
-          this.submitLoading = true;
-          const ok = await this.persistFields(def, cleared);
-          this.submitLoading = false;
-          if (ok) {
-            this.$Message.success(this.$t('cao-zuo-cheng-gong'));
-            this.goBack();
-          }
-        }
-      });
-    },
     async persistFields(def, fieldValues) {
       const updateConfigs = {};
       const needCreateConfigs = {};
@@ -396,7 +373,7 @@ export default {
 .approval-form-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 16px;
   max-width: 720px;
   margin-top: 18px;

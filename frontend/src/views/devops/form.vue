@@ -44,7 +44,6 @@
       </div>
 
       <div class="devops-form-footer">
-        <Button v-if="isEdit" type="error" @click="handleDeleteScm">{{ $t('shan-chu') }}</Button>
         <div class="devops-form-footer__right">
           <Button @click="goBack">{{ $t('qu-xiao') }}</Button>
           <Button type="primary" :loading="submitLoading" @click="handleSubmit">{{ isEdit ? $t('bao-cun') : $t('tian-jia') }}</Button>
@@ -250,25 +249,6 @@ export default {
         });
       });
     },
-    handleDeleteScm() {
-      this.$Modal.confirm({
-        title: this.$t('que-ren'),
-        content: this.$t('shi-fou-yao-shan-chu'),
-        className: 'dm-modal-destructive',
-        onOk: async () => {
-          const res = await this.$services.dmDevopsScmDelete({
-            data: {
-              scmId: this.scmForm.scmId,
-              force: false
-            }
-          });
-          if (res.success) {
-            this.$Message.success(this.$t('shan-chu-cheng-gong-0'));
-            this.goBack();
-          }
-        }
-      });
-    },
     async handleTestScm() {
       this.testLoading = true;
       const testData = {
@@ -402,7 +382,7 @@ export default {
 .devops-form-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 16px;
   max-width: 720px;
   margin-top: 28px;
