@@ -28,8 +28,8 @@
     <driver driverFamily="SQL Server JDBC Driver" version="13.4.0">
         <resource type="maven">com.microsoft.sqlserver:mssql-jdbc:13.4.0.jre8</resource>
     </driver>
-    <driver driverFamily="MongoDB Driver" version="5.6.5">
-        <resource type="maven">org.mongodb:mongodb-driver-sync:5.6.5</resource>
+    <driver driverFamily="MongoDB Driver" version="5.9.0">
+        <resource type="maven">org.mongodb:mongodb-driver-sync:5.9.0</resource>
     </driver>
     <driver driverFamily="ClickHouse JDBC" version="0.9.7">
         <resource type="maven">com.clickhouse:clickhouse-jdbc:0.9.7</resource>
