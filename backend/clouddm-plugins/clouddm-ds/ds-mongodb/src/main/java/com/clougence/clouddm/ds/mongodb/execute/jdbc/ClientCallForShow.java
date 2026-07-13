@@ -23,24 +23,44 @@ import org.bson.Document;
 import com.clougence.drivers.adapter.AdapterReceive;
 import com.clougence.drivers.adapter.AdapterRequest;
 import com.clougence.utils.future.CgFuture;
-import com.mongodb.client.ClientSession;
 import com.mongodb.client.ListCollectionsIterable;
 import com.mongodb.client.ListDatabasesIterable;
 import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCursor;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class ClientCallForShow extends MongoUtils {
 
-    public static CgFuture<?> showDatabasesFunc(CgFuture<Object> sync, MongoClient client, ClientSession session, AdapterRequest request,
-                                                AdapterReceive receive) throws SQLException, IOException {
-        ListDatabasesIterable<Document> documents = client.listDatabases(session);
+    public static CgFuture<?> showDatabasesFunc(CgFuture<Object> sync, MongoClient client, AdapterRequest request, AdapterReceive receive) throws SQLException, IOException {
+        ListDatabasesIterable<Document> documents = client.listDatabases();
 
-        return handleResult(sync, request, receive, new MongoResultBuffer(), documents.iterator());
+        MongoCursor<Document> cursor = documents.iterator();
+        try {
+            return handleResult(sync, request, receive, new MongoResultBuffer(), cursor);
+        } finally {
+            try {
+                cursor.close();
+            } catch (RuntimeException e) {
+                log.error("close MongoDB database cursor failed, but ignore", e);
+            }
+        }
     }
 
-    public static CgFuture<?> showCollectionsFunc(CgFuture<Object> sync, MongoClient client, ClientSession session, AdapterRequest request, AdapterReceive receive,
-                                                  String database) throws SQLException, IOException {
-        ListCollectionsIterable<Document> documents = client.getDatabase(database).listCollections(session);
+    public static CgFuture<?> showCollectionsFunc(CgFuture<Object> sync, MongoClient client, AdapterRequest request, AdapterReceive receive, String database) throws SQLException,
+                                                                                                                                                              IOException {
+        ListCollectionsIterable<Document> documents = client.getDatabase(database).listCollections();
 
-        return handleResult(sync, request, receive, new MongoResultBuffer(), documents.iterator());
+        MongoCursor<Document> cursor = documents.iterator();
+        try {
+            return handleResult(sync, request, receive, new MongoResultBuffer(), cursor);
+        } finally {
+            try {
+                cursor.close();
+            } catch (RuntimeException e) {
+                log.error("close MongoDB collection cursor failed, but ignore, database=" + database, e);
+            }
+        }
     }
 }

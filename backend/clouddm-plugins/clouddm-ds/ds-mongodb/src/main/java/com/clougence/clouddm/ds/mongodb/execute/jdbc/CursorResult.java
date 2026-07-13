@@ -15,17 +15,19 @@
  */
 package com.clougence.clouddm.ds.mongodb.execute.jdbc;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.bson.Document;
 
+import com.mongodb.MongoNamespace;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoDatabase;
 
-public class CursorResult implements Iterable<Document> {
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public class CursorResult implements Iterable<Document>, AutoCloseable {
 
     private final Queue<Document> documents = new LinkedBlockingQueue<>();
     private Long                  id;
@@ -33,17 +35,15 @@ public class CursorResult implements Iterable<Document> {
     private final MongoDatabase   database;
     private final ClientSession   clientSession;
     private final String          collectionName;
+    private boolean               closed;
 
-    public CursorResult(Document document, MongoDatabase database, ClientSession clientSession){
-        this(document, database, clientSession, null);
-    }
-
-    public CursorResult(Document firstResult, MongoDatabase database, ClientSession clientSession, String collectionName){
-        this.collectionName = collectionName;
-        this.clientSession = clientSession;
+    public CursorResult(Document firstResult, MongoDatabase database, ClientSession clientSession){
         this.database = database;
+        this.clientSession = clientSession;
+        this.closed = false;
 
         Document cursor = (Document) firstResult.get("cursor");
+        this.collectionName = new MongoNamespace(cursor.getString("ns")).getCollectionName();
         this.id = cursor.getLong("id");
         List<Document> list = cursor.getList("firstBatch", Document.class);
         this.documents.addAll(list);
@@ -54,27 +54,62 @@ public class CursorResult implements Iterable<Document> {
         return new FindResultIterator();
     }
 
+    @Override
+    public void close() {
+        if (this.closed) {
+            return;
+        }
+        this.closed = true;
+
+        Long cursorId = this.id;
+        this.id = 0L;
+        this.documents.clear();
+        if (cursorId == null || cursorId == 0) {
+            return;
+        }
+
+        Document command = new Document("killCursors", this.collectionName).append("cursors", Collections.singletonList(cursorId));
+        try {
+            MongoUtils.runCommand(this.database, this.clientSession, command);
+        } catch (RuntimeException e) {
+            String msg = "kill MongoDB cursor failed, but ignore, database=" + this.database.getName() + ", collection=" + this.collectionName + ", cursorId=" + cursorId;
+            log.error(msg, e);
+        }
+    }
+
     public class FindResultIterator implements Iterator<Document> {
 
         @Override
         public boolean hasNext() {
-            if (documents.isEmpty()) {
-                if (id == null || id == 0) {
-                    return false;
-                } else {
-                    Document parse = Document.parse("{getMore:" + id + ",\"collection\":\"" + collectionName + "\",batchSize:100}");
-                    Document document1 = database.runCommand(clientSession, parse);
-                    Document cursor = (Document) document1.get("cursor");
-                    id = cursor.getLong("id");
-                    documents.addAll(cursor.getList("nextBatch", Document.class));
-                }
+            if (closed) {
+                return false;
             }
-            return true;
+            while (documents.isEmpty()) {
+                if (id == null || id == 0) {
+                    break;
+                }
+
+                Document command = new Document("getMore", id).append("collection", collectionName).append("batchSize", 100);
+                Document result;
+                if (clientSession == null) {
+                    result = database.runCommand(command);
+                } else {
+                    result = database.runCommand(clientSession, command);
+                }
+
+                Document cursor = (Document) result.get("cursor");
+                id = cursor.getLong("id");
+                documents.addAll(cursor.getList("nextBatch", Document.class));
+            }
+            return !documents.isEmpty();
         }
 
         @Override
         public Document next() {
-            return documents.poll();
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            return documents.remove();
         }
     }
 }

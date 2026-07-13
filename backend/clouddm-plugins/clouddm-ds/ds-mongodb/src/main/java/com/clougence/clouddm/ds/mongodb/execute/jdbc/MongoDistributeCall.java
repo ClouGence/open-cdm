@@ -25,7 +25,6 @@ import com.clougence.sql.mongodb.parser.ast.commands.collection.CollectionFunc;
 import com.clougence.sql.mongodb.parser.ast.commands.collection.DataSizeFunc;
 import com.clougence.sql.mongodb.parser.ast.commands.collection.RenameCollectionFunc;
 import com.clougence.utils.future.CgFuture;
-import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,24 +32,24 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 class MongoDistributeCall {
 
-    public static CgFuture<?> execFunc(CgFuture<Object> sync, MongoClient client, ClientSession session, AbstractMongoFunc func, AdapterRequest request, AdapterReceive receive,
-                                       String database) throws SQLException, IOException {
+    public static CgFuture<?> execFunc(CgFuture<Object> sync, MongoClient client, AbstractMongoFunc func, AdapterRequest request, AdapterReceive receive, String database,
+                                       MongoSessionProvider sessionProvider) throws SQLException, IOException {
         switch (func.getFuncType().getCommandType()) {
             /* ------------------------------------------------------------------------------------------------ String Commands */
             case SHOW_DATABASES:
-                return ClientCallForShow.showDatabasesFunc(sync, client, session, request, receive);
+                return ClientCallForShow.showDatabasesFunc(sync, client, request, receive);
             case SHOW_COLLECTIONS:
-                return ClientCallForShow.showCollectionsFunc(sync, client, session, request, receive, database);
+                return ClientCallForShow.showCollectionsFunc(sync, client, request, receive, database);
             case DATA_SIZE:
-                return ClientCallForCollection.dataSizeFunc(sync, client, session, (DataSizeFunc) func, request, receive, database);
+                return ClientCallForCollection.dataSizeFunc(sync, client, (DataSizeFunc) func, request, receive, database);
             case FIND:
             case AGGREGATE:
             case LIST_INDEXES:
-                return ClientCallForCollection.findFunc(sync, client, session, (CollectionFunc) func, request, receive, database);
+                return ClientCallForCollection.findFunc(sync, client, (CollectionFunc) func, request, receive, database, sessionProvider);
             case LIST_COLLECTIONS:
-                return ClientCallForDatabase.listCollections(sync, client, session, func.toBson(), request, receive, database);
+                return ClientCallForDatabase.listCollections(sync, client, func.toBson(), request, receive, database, sessionProvider);
             case RENAME_COLLECTION:
-                return ClientCallForCollection.renameCollectionFunc(sync, client, session, (RenameCollectionFunc) func, request, receive, database);
+                return ClientCallForCollection.renameCollectionFunc(sync, client, (RenameCollectionFunc) func, request, receive, database);
             case INSERT:
             case DELETE:
             case UPDATE:
@@ -71,7 +70,7 @@ class MongoDistributeCall {
             case HOST_INFO:
             case DROP_DATABASE:
             case EXPLAIN:
-                return ClientCallForCommand.runCommand(sync, client, session, func.toBson(), request, receive, database);
+                return ClientCallForCommand.runCommand(sync, client, func.toBson(), request, receive, database);
             // adminCommand
             case ADMIN_COMMAND:
             case BUILD_INFO:
@@ -80,7 +79,7 @@ class MongoDistributeCall {
             case FSYNC_UNLOCK:
             case GET_PARAMETER:
             case KILL_OP:
-                return ClientCallForCommand.runCommand(sync, client, session, func.toBson(), request, receive, "admin");
+                return ClientCallForCommand.runCommand(sync, client, func.toBson(), request, receive, "admin");
             default:
                 throw new UnsupportedOperationException();
         }

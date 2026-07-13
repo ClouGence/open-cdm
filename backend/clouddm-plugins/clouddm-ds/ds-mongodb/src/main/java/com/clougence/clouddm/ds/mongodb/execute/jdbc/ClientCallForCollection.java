@@ -36,34 +36,37 @@ import com.mongodb.client.model.RenameCollectionOptions;
 
 public class ClientCallForCollection extends MongoUtils {
 
-    public static CgFuture<?> findFunc(CgFuture<Object> sync, MongoClient client, ClientSession session, CollectionFunc func, AdapterRequest request, AdapterReceive receive,
-                                       String database) throws SQLException, IOException {
+    public static CgFuture<?> findFunc(CgFuture<Object> sync, MongoClient client, CollectionFunc func, AdapterRequest request, AdapterReceive receive, String database,
+                                       MongoSessionProvider sessionProvider) throws SQLException, IOException {
         MongoDatabase database1 = client.getDatabase(database);
-        Document result = database1.runCommand(session, Document.parse(func.toBson()));
-
-        MongoResultBuffer buffer = new MongoResultBuffer();
-        Iterator<Document> iterator = new CursorResult(result, database1, session, func.getCollectionName()).iterator();
-        return handleResult(sync, request, receive, buffer, iterator);
+        try (ClientSession session = sessionProvider.startSession()) {
+            Document result = runCommand(database1, session, Document.parse(func.toBson()));
+            MongoResultBuffer buffer = new MongoResultBuffer();
+            try (CursorResult cursorResult = new CursorResult(result, database1, session)) {
+                Iterator<Document> iterator = cursorResult.iterator();
+                return handleResult(sync, request, receive, buffer, iterator);
+            }
+        }
     }
 
-    public static CgFuture<?> renameCollectionFunc(CgFuture<Object> sync, MongoClient client, ClientSession session, RenameCollectionFunc func, AdapterRequest request,
-                                                   AdapterReceive receive, String database) throws SQLException {
+    public static CgFuture<?> renameCollectionFunc(CgFuture<Object> sync, MongoClient client, RenameCollectionFunc func, AdapterRequest request, AdapterReceive receive,
+                                                   String database) throws SQLException {
         RenameCollectionOptions renameCollectionOptions;
         if (func.getDropTarget() != null) {
             renameCollectionOptions = new RenameCollectionOptions().dropTarget(func.getDropTarget());
         } else {
             renameCollectionOptions = new RenameCollectionOptions();
         }
-        client.getDatabase(database).getCollection(func.getCollectionName()).renameCollection(session, new MongoNamespace(database, func.getTo()), renameCollectionOptions);
+        client.getDatabase(database).getCollection(func.getCollectionName()).renameCollection(new MongoNamespace(database, func.getTo()), renameCollectionOptions);
 
         receive.responseResult(request, MongoUtils.singleResult(request, MongoUtils.RESULT_COLUMN, "ok"));
         return completed(sync);
     }
 
-    public static CgFuture<?> dataSizeFunc(CgFuture<Object> sync, MongoClient client, ClientSession session, DataSizeFunc func, AdapterRequest request, AdapterReceive receive,
+    public static CgFuture<?> dataSizeFunc(CgFuture<Object> sync, MongoClient client, DataSizeFunc func, AdapterRequest request, AdapterReceive receive,
                                            String database) throws SQLException, IOException {
         String command = func.toBson(database);
-        Document result = client.getDatabase(database).runCommand(session, Document.parse(command));
+        Document result = client.getDatabase(database).runCommand(Document.parse(command));
 
         return handleResult(sync, request, receive, new MongoResultBuffer(), Collections.singletonList(result).iterator());
     }

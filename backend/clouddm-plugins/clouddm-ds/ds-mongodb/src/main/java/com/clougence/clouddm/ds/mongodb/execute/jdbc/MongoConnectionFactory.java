@@ -18,7 +18,6 @@ package com.clougence.clouddm.ds.mongodb.execute.jdbc;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 import com.clougence.drivers.adapter.AdapterFactory;
 import com.clougence.drivers.adapter.AdapterTypeSupport;
@@ -37,9 +36,9 @@ public class MongoConnectionFactory implements AdapterFactory {
 
     @Override
     public String[] getPropertyNames() {
-        return new String[] { MongoKeys.SERVER, MongoKeys.ADAPTER_NAME, MongoKeys.INTERCEPTOR, MongoKeys.TIME_ZONE, MongoKeys.CONN_TIMEOUT, MongoKeys.SO_TIMEOUT,
-                              MongoKeys.USERNAME, MongoKeys.PASSWORD, MongoKeys.DATABASE, MongoKeys.CLIENT_NAME, MongoKeys.MAX_TOTAL, MongoKeys.MAX_IDLE, MongoKeys.MIN_IDLE,
-                              MongoKeys.TEST_WHILE_IDLE };
+        return new String[] { MongoKeys.SERVER, MongoKeys.ADAPTER_NAME, MongoKeys.DRIVER_VERSION, MongoKeys.INTERCEPTOR, MongoKeys.TIME_ZONE, MongoKeys.CONN_TIMEOUT,
+                              MongoKeys.SO_TIMEOUT, MongoKeys.USERNAME, MongoKeys.PASSWORD, MongoKeys.DATABASE, MongoKeys.CLIENT_NAME, MongoKeys.MAX_TOTAL, MongoKeys.MAX_IDLE,
+                              MongoKeys.MIN_IDLE, MongoKeys.TEST_WHILE_IDLE };
     }
 
     @Override
@@ -61,13 +60,22 @@ public class MongoConnectionFactory implements AdapterFactory {
         }
 
         int i = jdbcUrl.indexOf(JdbcDriver.START_URL) + JdbcDriver.START_URL.length();
-        MongoClientSettings.Builder settingsBuilder = MongoClientSettings.builder()
-            .applicationName(clientName)
-            .applyConnectionString(new ConnectionString(jdbcUrl.substring(i)))
-            .applyToSocketSettings(b -> {
-                b.connectTimeout(connTimeoutMs, TimeUnit.MILLISECONDS);
-                b.readTimeout(soTimeoutMs, TimeUnit.MILLISECONDS);
-            });
+        String mongoUrl = jdbcUrl.substring(i);
+        int queryIndex = mongoUrl.indexOf('?');
+        int schemeEnd = mongoUrl.indexOf("://") + 3;
+        int authorityEnd = queryIndex < 0 ? mongoUrl.length() : queryIndex;
+        int pathIndex = mongoUrl.indexOf('/', schemeEnd);
+        if (pathIndex < 0 || pathIndex >= authorityEnd) {
+            mongoUrl = mongoUrl.substring(0, authorityEnd) + "/" + mongoUrl.substring(authorityEnd);
+        }
+
+        String optionSeparator = "?";
+        if (mongoUrl.contains("?")) {
+            optionSeparator = "&";
+        }
+        mongoUrl = mongoUrl + optionSeparator + "connectTimeoutMS=" + connTimeoutMs + "&socketTimeoutMS=" + soTimeoutMs;
+
+        MongoClientSettings.Builder settingsBuilder = MongoClientSettings.builder().applicationName(clientName).applyConnectionString(new ConnectionString(mongoUrl));
 
         MongoClient client = MongoClients.create(settingsBuilder.build());
         return new MongoConnection(owner, client, jdbcUrl, props, props.getProperty(MongoKeys.DATABASE));

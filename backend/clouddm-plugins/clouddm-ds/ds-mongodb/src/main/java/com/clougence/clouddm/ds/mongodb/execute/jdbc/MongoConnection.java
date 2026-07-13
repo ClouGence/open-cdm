@@ -34,21 +34,20 @@ import com.clougence.sql.mongodb.parser.ast.commands.client.UserFunc;
 import com.clougence.utils.ExceptionUtils;
 import com.clougence.utils.future.CgFuture;
 import com.clougence.utils.future.CgFutureObj;
-import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 
 public class MongoConnection extends AdapterConnection {
 
-    private final Connection    owner;
-    private final MongoClient   client;
-    private final ClientSession session;
-    private String              database;
+    private final Connection           owner;
+    private final MongoClient          client;
+    private final MongoSessionProvider sessionProvider;
+    private String                     database;
 
     MongoConnection(Connection owner, MongoClient client, String jdbcUrl, Properties properties, String database){
         super(jdbcUrl, properties.getProperty(MongoKeys.USERNAME));
         this.owner = owner;
         this.client = client;
-        this.session = client.startSession();
+        this.sessionProvider = new MongoSessionProvider(client, properties.getProperty(MongoKeys.DRIVER_VERSION));
         this.database = database;
     }
 
@@ -109,15 +108,14 @@ public class MongoConnection extends AdapterConnection {
 
         for (Statement command : cmdSet) {
             CgFuture<Object> sync = new CgFutureObj<>();
-            execCommand(sync, this.client, this.session, (AbstractMongoFunc) command, request, receive);
+            execCommand(sync, this.client, (AbstractMongoFunc) command, request, receive);
             sync.await();
         }
 
         receive.responseFinish(request);
     }
 
-    private void execCommand(CgFuture<Object> sync, MongoClient jedisCmd, ClientSession session, AbstractMongoFunc func, AdapterRequest request,
-                             AdapterReceive receive) throws SQLException {
+    private void execCommand(CgFuture<Object> sync, MongoClient jedisCmd, AbstractMongoFunc func, AdapterRequest request, AdapterReceive receive) throws SQLException {
         switch (func.getFuncType()) {
             case USE: {
                 this.database = ((UserFunc) func).getDatabase();
@@ -127,7 +125,7 @@ public class MongoConnection extends AdapterConnection {
             }
             default: {
                 try {
-                    MongoDistributeCall.execFunc(sync, jedisCmd, session, func, request, receive, this.database);
+                    MongoDistributeCall.execFunc(sync, jedisCmd, func, request, receive, this.database, this.sessionProvider);
                 } catch (IOException e) {
                     throw new SQLException(e);
                 }
@@ -142,8 +140,6 @@ public class MongoConnection extends AdapterConnection {
 
     @Override
     protected void doClose() throws IOException {
-        this.cancelRequest();
-        this.session.close();
         this.client.close();
     }
 }

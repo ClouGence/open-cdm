@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import com.clougence.clouddm.ds.mongodb.execute.jdbc.MongoConnectionFactory;
 import com.clougence.clouddm.ds.mongodb.execute.jdbc.MongoKeys;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
@@ -38,6 +39,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MongoJdbcDsFactory implements DsFactory<Connection> {
 
+    private final MongoConnectionFactory connectionFactory = new MongoConnectionFactory();
+
     @Override
     public DsObject<Connection> create(Properties dsConfig) throws SQLException {
         Properties props = new Properties();
@@ -47,6 +50,7 @@ public class MongoJdbcDsFactory implements DsFactory<Connection> {
         }
 
         String id = dsConfig.getProperty(DsConfigKeys.ID.getConfigKey());
+        String driverVersion = dsConfig.getProperty(DsConfigKeys.DRIVER_VERSION.getConfigKey());
         String username = dsConfig.getProperty(DsConfigKeys.USER.getConfigKey());
         String password = dsConfig.getProperty(DsConfigKeys.PASSWORD.getConfigKey());
         String loginTimeoutMs = dsConfig.getProperty(DsConfigKeys.LOGIN_TIMEOUT_MS.getConfigKey());
@@ -56,6 +60,9 @@ public class MongoJdbcDsFactory implements DsFactory<Connection> {
         String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
         String clientEncoding = dsConfig.getProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey());
         String tcpKeepAlive = dsConfig.getProperty(DsConfigKeys.TCP_KEEP_ALIVE.getConfigKey());
+        if (StringUtils.isNotBlank(driverVersion)) {
+            props.put(MongoKeys.DRIVER_VERSION, driverVersion);
+        }
         if (StringUtils.isNotBlank(clientName)) {
             // client info cannot contain spaces, newlines or special characters.
             clientName = clientName.replace(" ", "-");
@@ -78,7 +85,7 @@ public class MongoJdbcDsFactory implements DsFactory<Connection> {
         String jdbcUrl = buildJdbcUrl(dsConfig);
 
         try {
-            Connection connection = new JdbcDriver().connect(jdbcUrl, props);
+            Connection connection = new JdbcDriver().connect(jdbcUrl, props, this.connectionFactory);
             return new DsObject<>(dsConfig, connection, this);
         } catch (Exception e) {
             log.error("create EsClient instanceID(MongoDB)=" + id + " ,hosts= " + dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey()) + ", error:" + e.getMessage());
@@ -96,6 +103,9 @@ public class MongoJdbcDsFactory implements DsFactory<Connection> {
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
         String hosts = buildHosts(parseServerAddress(host));
 
+        if (StringUtils.isBlank(username)) {
+            return JdbcDriver.START_URL + "mongodb://" + hosts;
+        }
         return String.format(JdbcDriver.START_URL + "mongodb://%s:%s@%s", username, password, hosts);
     }
 

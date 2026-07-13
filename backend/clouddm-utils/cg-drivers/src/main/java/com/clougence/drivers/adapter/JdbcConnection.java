@@ -15,7 +15,7 @@
  */
 package com.clougence.drivers.adapter;
 
-import java.io.Closeable;
+import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -23,18 +23,26 @@ import java.util.concurrent.Executor;
 import com.clougence.drivers.adapter.lob.JdbcBob;
 import com.clougence.drivers.adapter.lob.JdbcCob;
 
-class JdbcConnection implements Connection, Closeable {
+class JdbcConnection implements Connection {
 
-    private boolean                  closed = false;
+    private volatile boolean         closed = false;
     private final AdapterConnection  connection;
     private final TypeSupport        typeSupport;
     private final TransactionSupport txSupport;
 
     JdbcConnection(String jdbcUrl, Properties properties) throws SQLException{
+        this(jdbcUrl, properties, null);
+    }
+
+    JdbcConnection(String jdbcUrl, Properties properties, AdapterFactory factory) throws SQLException{
         Objects.requireNonNull(properties, "parameter properties is null.");
         String adapter = properties.getProperty(JdbcDriver.P_ADAPTER_NAME);
 
-        AdapterFactory factory = AdapterManager.lookup(adapter);
+        if (factory == null) {
+            factory = AdapterManager.lookup(adapter);
+        } else if (!Objects.equals(adapter, factory.getAdapterName())) {
+            throw new SQLException("adapter factory name does not match jdbc url, adapter=" + adapter + ", factory=" + factory.getAdapterName());
+        }
         TypeSupport ts = factory.createTypeSupport(properties);
 
         this.connection = factory.createConnection(this, jdbcUrl, properties);
@@ -56,10 +64,14 @@ class JdbcConnection implements Connection, Closeable {
     }
 
     @Override
-    public void close() {
+    public synchronized void close() throws SQLException {
         if (!this.isClosed()) {
             this.closed = true;
-            AdapterConnManager.removeConnection(this.connection);
+            try {
+                this.connection.close();
+            } catch (IOException e) {
+                throw new SQLException("failed to close adapter connection", e);
+            }
         }
     }
 
