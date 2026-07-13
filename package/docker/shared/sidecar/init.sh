@@ -39,7 +39,10 @@ sync_missing_default_conf() {
   while IFS= read -r -d '' src; do
     local rel="${src#$default_conf_dir/}"
     local dst="$conf_dir/$rel"
-    if [ -d "$src" ] && [ ! -L "$src" ]; then
+    # The version is image metadata and must follow the running image on upgrade.
+    if [ "$rel" = "version" ] && [ -f "$src" ] && [ ! -L "$src" ]; then
+      cp -a --remove-destination "$src" "$dst"
+    elif [ -d "$src" ] && [ ! -L "$src" ]; then
       mkdir -p "$dst"
     elif [ ! -e "$dst" ] && [ ! -L "$dst" ]; then
       mkdir -p "$(dirname "$dst")"
