@@ -1,5 +1,6 @@
 <script lang="jsx">
 import ContextMenu from '@imengyu/vue3-context-menu';
+import { resolveBrowserMenuLabel } from '@/utils/browserMenuI18n';
 import VTree from '@wsfe/vue-tree';
 import { mapGetters } from 'vuex';
 import copyMixin from '@/mixins/copyMixin';
@@ -920,7 +921,7 @@ export default {
         menuList.forEach((menu, menuIndex) => {
           if (menu.menuId !== 'MENU_SEPARATOR') {
             items.push({
-              label: menu.i18n,
+              label: resolveBrowserMenuLabel(menu),
               svgProps: {
                 class: 'svg-icon'
               },

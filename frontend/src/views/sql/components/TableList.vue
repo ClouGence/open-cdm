@@ -963,6 +963,7 @@ import { Modal } from 'ant-design-vue';
 import i18n from '@/i18n';
 import { nanoid } from 'nanoid';
 import ContextMenu from '@imengyu/vue3-context-menu';
+import { resolveBrowserMenuLabel } from '@/utils/browserMenuI18n';
 
 const BG_COLOR = {
   Insert: 'rgb(236, 255, 220)',
@@ -2428,7 +2429,7 @@ export default {
           menuList.forEach((menu) => {
             if (menu.menuId !== 'MENU_SEPARATOR' && !menu.needTarget) {
               items.push({
-                label: menu.i18n,
+                label: resolveBrowserMenuLabel(menu),
                 svgProps: {
                   class: 'svg-icon'
                 },
@@ -2441,7 +2442,7 @@ export default {
           menuList.forEach((menu, menuIndex) => {
             if (menu.menuId !== 'MENU_SEPARATOR') {
               items.push({
-                label: menu.i18n,
+                label: resolveBrowserMenuLabel(menu),
                 svgProps: {
                   class: 'svg-icon'
                 },
