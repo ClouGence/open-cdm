@@ -21,8 +21,9 @@ public class MongoKeys {
 
     //
     public static final String ADAPTER_NAME        = JdbcDriver.P_ADAPTER_NAME;
-    public static final String ADAPTER_NAME_VALUE  = "mongodb";
-    public static final String START_URL           = JdbcDriver.START_URL + ADAPTER_NAME_VALUE + ":";
+    public static final String MONGO4_ADAPTER_NAME = "mongodb4";
+    public static final String MONGO5_ADAPTER_NAME = "mongodb5";
+    public static final String LEGACY_START_URL    = JdbcDriver.START_URL + "mongodb:";
     public static final String DEFAULT_CLIENT_NAME = "MongoDB-JDBC-Client";
 
     // for call

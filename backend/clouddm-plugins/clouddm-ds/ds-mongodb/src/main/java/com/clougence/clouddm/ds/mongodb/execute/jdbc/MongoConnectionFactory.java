@@ -31,8 +31,14 @@ import com.mongodb.client.MongoClients;
 
 public class MongoConnectionFactory implements AdapterFactory {
 
+    private final String adapterName;
+
+    public MongoConnectionFactory(String adapterName){
+        this.adapterName = adapterName;
+    }
+
     @Override
-    public String getAdapterName() { return "mongodb"; }
+    public String getAdapterName() { return this.adapterName; }
 
     @Override
     public String[] getPropertyNames() {
@@ -60,7 +66,7 @@ public class MongoConnectionFactory implements AdapterFactory {
         }
 
         int i = jdbcUrl.indexOf(JdbcDriver.START_URL) + JdbcDriver.START_URL.length();
-        String mongoUrl = jdbcUrl.substring(i);
+        String mongoUrl = "mongodb" + jdbcUrl.substring(i + this.adapterName.length());
         int queryIndex = mongoUrl.indexOf('?');
         int schemeEnd = mongoUrl.indexOf("://") + 3;
         int authorityEnd = queryIndex < 0 ? mongoUrl.length() : queryIndex;

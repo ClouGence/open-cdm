@@ -31,18 +31,10 @@ class JdbcConnection implements Connection {
     private final TransactionSupport txSupport;
 
     JdbcConnection(String jdbcUrl, Properties properties) throws SQLException{
-        this(jdbcUrl, properties, null);
-    }
-
-    JdbcConnection(String jdbcUrl, Properties properties, AdapterFactory factory) throws SQLException{
         Objects.requireNonNull(properties, "parameter properties is null.");
         String adapter = properties.getProperty(JdbcDriver.P_ADAPTER_NAME);
 
-        if (factory == null) {
-            factory = AdapterManager.lookup(adapter);
-        } else if (!Objects.equals(adapter, factory.getAdapterName())) {
-            throw new SQLException("adapter factory name does not match jdbc url, adapter=" + adapter + ", factory=" + factory.getAdapterName());
-        }
+        AdapterFactory factory = AdapterManager.lookup(adapter);
         TypeSupport ts = factory.createTypeSupport(properties);
 
         this.connection = factory.createConnection(this, jdbcUrl, properties);

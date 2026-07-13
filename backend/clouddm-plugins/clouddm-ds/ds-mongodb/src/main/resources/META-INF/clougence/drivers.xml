@@ -1,38 +1,38 @@
 <drivers>
     <driver driverFamily="MongoDB Driver" version="5.9.0">
-        <driverName>com.clougence.clouddm.ds.mongodb.execute.dsfactory.MongoJdbcDsFactory</driverName>
+        <driverName>com.clougence.clouddm.ds.mongodb.execute.dsfactory.Mongo5JdbcDsFactory</driverName>
         <resource type="maven">org.mongodb:mongodb-driver-sync:5.9.0</resource>
     </driver>
     <driver driverFamily="MongoDB Driver" version="5.6.5">
-        <driverName>com.clougence.clouddm.ds.mongodb.execute.dsfactory.MongoJdbcDsFactory</driverName>
+        <driverName>com.clougence.clouddm.ds.mongodb.execute.dsfactory.Mongo5JdbcDsFactory</driverName>
         <resource type="maven">org.mongodb:mongodb-driver-sync:5.6.5</resource>
     </driver>
     <driver driverFamily="MongoDB Driver" version="5.5.2">
-        <driverName>com.clougence.clouddm.ds.mongodb.execute.dsfactory.MongoJdbcDsFactory</driverName>
+        <driverName>com.clougence.clouddm.ds.mongodb.execute.dsfactory.Mongo5JdbcDsFactory</driverName>
         <resource type="maven">org.mongodb:mongodb-driver-sync:5.5.2</resource>
     </driver>
     <driver driverFamily="MongoDB Driver" version="5.4.0">
-        <driverName>com.clougence.clouddm.ds.mongodb.execute.dsfactory.MongoJdbcDsFactory</driverName>
+        <driverName>com.clougence.clouddm.ds.mongodb.execute.dsfactory.Mongo5JdbcDsFactory</driverName>
         <resource type="maven">org.mongodb:mongodb-driver-sync:5.4.0</resource>
     </driver>
     <driver driverFamily="MongoDB Driver" version="5.3.1">
-        <driverName>com.clougence.clouddm.ds.mongodb.execute.dsfactory.MongoJdbcDsFactory</driverName>
+        <driverName>com.clougence.clouddm.ds.mongodb.execute.dsfactory.Mongo5JdbcDsFactory</driverName>
         <resource type="maven">org.mongodb:mongodb-driver-sync:5.3.1</resource>
     </driver>
     <driver driverFamily="MongoDB Driver" version="5.2.1">
-        <driverName>com.clougence.clouddm.ds.mongodb.execute.dsfactory.MongoJdbcDsFactory</driverName>
+        <driverName>com.clougence.clouddm.ds.mongodb.execute.dsfactory.Mongo5JdbcDsFactory</driverName>
         <resource type="maven">org.mongodb:mongodb-driver-sync:5.2.1</resource>
     </driver>
     <driver driverFamily="MongoDB Driver" version="5.1.4">
-        <driverName>com.clougence.clouddm.ds.mongodb.execute.dsfactory.MongoJdbcDsFactory</driverName>
+        <driverName>com.clougence.clouddm.ds.mongodb.execute.dsfactory.Mongo5JdbcDsFactory</driverName>
         <resource type="maven">org.mongodb:mongodb-driver-sync:5.1.4</resource>
     </driver>
     <driver driverFamily="MongoDB Driver" version="5.0.1">
-        <driverName>com.clougence.clouddm.ds.mongodb.execute.dsfactory.MongoJdbcDsFactory</driverName>
+        <driverName>com.clougence.clouddm.ds.mongodb.execute.dsfactory.Mongo5JdbcDsFactory</driverName>
         <resource type="maven">org.mongodb:mongodb-driver-sync:5.0.1</resource>
     </driver>
     <driver driverFamily="MongoDB Driver" version="4.7.2">
-        <driverName>com.clougence.clouddm.ds.mongodb.execute.dsfactory.MongoJdbcDsFactory</driverName>
+        <driverName>com.clougence.clouddm.ds.mongodb.execute.dsfactory.Mongo4JdbcDsFactory</driverName>
         <resource type="maven">org.mongodb:mongodb-driver-sync:4.7.2</resource>
     </driver>
 </drivers>

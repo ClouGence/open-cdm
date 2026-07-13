@@ -19,7 +19,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -62,15 +61,6 @@ public class JdbcDriver implements java.sql.Driver {
             return null;
         }
         return new JdbcConnection(url, properties);
-    }
-
-    public Connection connect(String url, Properties info, AdapterFactory factory) throws SQLException {
-        Objects.requireNonNull(factory, "parameter factory is null.");
-        Properties properties = parseURL(url, info);
-        if (properties == null) {
-            return null;
-        }
-        return new JdbcConnection(url, properties, factory);
     }
 
     @Override
