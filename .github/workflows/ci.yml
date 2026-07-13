@@ -110,9 +110,21 @@ jobs:
         working-directory: package
         run: ./package.sh --build
 
+      - name: Cache built-in drivers bundle
+        uses: actions/cache@v4
+        with:
+          path: package/pkg/builtin-drivers/bundle
+          key: builtin-drivers-${{ hashFiles('package/docker/built-in-drivers.xml') }}
+
       - name: Generate built-in drivers
         working-directory: backend
         run: ./gradlew -Ptarget=all :pkg-builtin-drivers:generateBuiltinDrivers
+
+      - name: Stage built-in drivers for artifact
+        run: |
+          rm -rf package/build/built-in-drivers
+          mkdir -p package/build/built-in-drivers
+          cp -R package/pkg/builtin-drivers/bundle/. package/build/built-in-drivers/
 
       - name: Upload tgz artifact
         uses: actions/upload-artifact@v4
@@ -179,3 +191,5 @@ jobs:
           provenance: false
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha,scope=docker-${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=docker-${{ matrix.service }}

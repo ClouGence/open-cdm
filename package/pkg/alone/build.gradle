@@ -26,7 +26,7 @@ tasks.register('tgz', Tar) {
     }
 
     def sidecarPath = "cgdm/alone"
-    def mainVersion = rootProject.findProperty("cg.clouddm.main.version") ?: "unknow"
+    def mainVersion = System.getenv("CG_CLOUDDM_MAIN_VERSION") ?: rootProject.findProperty("cg.clouddm.main.version") ?: "unknow"
 
     into("${sidecarPath}") {
         project.file("$buildDir/emptyFoldersRoot/logs").mkdirs()

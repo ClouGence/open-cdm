@@ -31,6 +31,8 @@ jobs:
   build-tgz:
     name: Build tgz
     runs-on: ubuntu-latest
+    env:
+      CG_CLOUDDM_MAIN_VERSION: ${{ inputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,11 +47,6 @@ jobs:
         run: |
           if [[ ! "$VERSION" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(alpha|beta|rc)\.(0|[1-9][0-9]*))?$ ]]; then
             echo "::error::version must look like 3.2.0 or 3.2.0-rc.1"
-            exit 1
-          fi
-          project_version="$(sed -n 's/^cg\.clouddm\.main\.version=//p' backend/gradle.properties | tr -d '[:space:]')"
-          if [[ "$VERSION" != "$project_version" ]]; then
-            echo "::error::version $VERSION does not match backend/gradle.properties ($project_version)"
             exit 1
           fi
           notes_file="docs/release-notes/v${VERSION}/index.en.md"
@@ -97,9 +94,21 @@ jobs:
         working-directory: package
         run: ./package.sh --build
 
+      - name: Cache built-in drivers bundle
+        uses: actions/cache@v4
+        with:
+          path: package/pkg/builtin-drivers/bundle
+          key: builtin-drivers-${{ hashFiles('package/docker/built-in-drivers.xml') }}
+
       - name: Generate built-in drivers
         working-directory: backend
         run: ./gradlew -Ptarget=all :pkg-builtin-drivers:generateBuiltinDrivers
+
+      - name: Stage built-in drivers for artifact
+        run: |
+          rm -rf package/build/built-in-drivers
+          mkdir -p package/build/built-in-drivers
+          cp -R package/pkg/builtin-drivers/bundle/. package/build/built-in-drivers/
 
       - name: Upload tgz artifact
         uses: actions/upload-artifact@v4
@@ -140,6 +149,9 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Expose GitHub Actions runtime for buildx cache
+        uses: crazy-max/ghaction-github-runtime@v3
 
       - name: Log in to China registry
         uses: docker/login-action@v3
@@ -185,6 +197,8 @@ jobs:
               --platform linux/amd64,linux/arm64 \
               --provenance=false \
               --push \
+              --cache-from "type=gha,scope=docker-${SERVICE}" \
+              --cache-to "type=gha,mode=max,scope=docker-${SERVICE}" \
               "${tag_args[@]}" \
               docker-ctx
 
