@@ -297,12 +297,22 @@ public class OidcApi {
 
     public UserData fetchUserInfo(String idToken) {
         DecodedJWT decodedJWT = JWT.decode(idToken);
+        String externalUID = decodedJWT.getClaim(OIDC_UID).asString();
+        String bindAccount = decodedJWT.getClaim(OIDC_Account).asString();
+        if (StringUtils.isBlank(bindAccount)) {
+            bindAccount = externalUID;
+        }
+
+        if (StringUtils.isBlank(bindAccount)) {
+            throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_VERIFY_TOKEN_MISSING_UNIQUE_ID_ERROR);
+        }
+
         UserData userData = new UserData();
-        userData.setExternalUID(decodedJWT.getClaim(OIDC_UID).asString());
+        userData.setExternalUID(externalUID);
         userData.setUserName(decodedJWT.getClaim(OIDC_UserName).asString());
         userData.setEmail(decodedJWT.getClaim(OIDC_Mail).asString());
         userData.setPhone(decodedJWT.getClaim(OIDC_Phone).asString());
-        userData.setBindAccount(decodedJWT.getClaim(OIDC_Account).asString());
+        userData.setBindAccount(bindAccount);
         userData.setAccessToken(idToken);
         return userData;
     }
