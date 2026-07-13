@@ -176,6 +176,10 @@ public class OidcApi {
     }
 
     public String getLogoutJumpUrl(String status, String jumpUrl, String idToken) throws UnsupportedEncodingException {
+        if (StringUtils.isBlank(this.logoutEndpoint)) {
+            return jumpUrl + "&state=" + URLEncoder.encode(status, "UTF-8");
+        }
+
         return this.logoutEndpoint + "?" +//
                "id_token_hint=" + URLEncoder.encode(StringUtils.defaultString(idToken, ""), "UTF-8") + "&" +//
                "client_id=" + URLEncoder.encode(this.conf.getClientId(), "UTF-8") + "&" +//
