@@ -17,17 +17,9 @@ package com.clougence.clouddm.team.provider.oidc.client;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.security.interfaces.ECPublicKey;
-import java.security.interfaces.RSAPublicKey;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.auth0.jwk.Jwk;
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.clougence.clouddm.sdk.model.exception.ThirdPartyApiException;
 import com.clougence.clouddm.sdk.service.config.UserData;
@@ -47,47 +39,13 @@ import okhttp3.Response;
 @Slf4j
 public class OidcApi {
 
-    private final OidcClient                           client;
-    private final String                               primaryUid;
-    private final OidcCfg                              conf;
-    private String                                     issuer;
-    private String                                     loginEndpoint;
-    private String                                     tokenEndpoint;
-    private String                                     logoutEndpoint;
-    private String                                     jwksUrl;
-
-    // idToken
-    private volatile Map<String, Jwk>                  sigJwkMap;
-    private volatile Map<String, Jwk>                  encJwkMap;
-    private final Map<String, JWTVerifier>             verifierMap;
-    private static final Map<String, AlgorithmCreator> algorithmFactory;
-
-    private static interface AlgorithmCreator {
-
-        Algorithm create(Jwk jwk, OidcCfg conf) throws Exception;
-    }
-
-    static {
-        algorithmFactory = new HashMap<>();
-        algorithmFactory.put("RS256", (jwk, conf) -> Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null));
-        algorithmFactory.put("RS384", (jwk, conf) -> Algorithm.RSA384((RSAPublicKey) jwk.getPublicKey(), null));
-        algorithmFactory.put("RS512", (jwk, conf) -> Algorithm.RSA512((RSAPublicKey) jwk.getPublicKey(), null));
-        algorithmFactory.put("HS256", (jwk, conf) -> Algorithm.HMAC256(conf.getClientSecret()));
-        algorithmFactory.put("HS384", (jwk, conf) -> Algorithm.HMAC384(conf.getClientSecret()));
-        algorithmFactory.put("HS512", (jwk, conf) -> Algorithm.HMAC512(conf.getClientSecret()));
-        algorithmFactory.put("ES256", (jwk, conf) -> Algorithm.ECDSA256((ECPublicKey) jwk.getPublicKey(), null));
-        algorithmFactory.put("ES384", (jwk, conf) -> Algorithm.ECDSA384((ECPublicKey) jwk.getPublicKey(), null));
-        algorithmFactory.put("ES512", (jwk, conf) -> Algorithm.ECDSA512((ECPublicKey) jwk.getPublicKey(), null));
-    }
-
-    private static Algorithm createAlgorithm(String algorithm, Jwk jwk, OidcCfg conf) throws Exception {
-        AlgorithmCreator factory = algorithmFactory.get(algorithm);
-        if (factory == null) {
-            throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_API_ALGORITHM_ERROR, algorithm);
-        } else {
-            return factory.create(jwk, conf);
-        }
-    }
+    private final OidcClient          client;
+    private final String              primaryUid;
+    private final OidcCfg             conf;
+    private final OidcIdTokenVerifier verifier;
+    private String                    loginEndpoint;
+    private String                    tokenEndpoint;
+    private String                    logoutEndpoint;
 
     //
 
@@ -95,9 +53,7 @@ public class OidcApi {
         this.client = client;
         this.primaryUid = primaryUid;
         this.conf = conf;
-        this.sigJwkMap = Collections.emptyMap();
-        this.encJwkMap = Collections.emptyMap();
-        this.verifierMap = new ConcurrentHashMap<>();
+        this.verifier = new OidcIdTokenVerifier(conf);
     }
 
     public OidcCfg getConf() { return conf; }
@@ -124,17 +80,27 @@ public class OidcApi {
             // }
 
             // fetch jwks
-            this.jwksUrl = (String) wellKnownJson.get("jwks_uri");
-            if (StringUtils.isBlank(this.jwksUrl)) {
+            String jwksUrl = (String) wellKnownJson.get("jwks_uri");
+            if (StringUtils.isBlank(jwksUrl)) {
                 throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_API_WELLKNOWN_MISSING_JWKS_URI_ERROR);
             }
-            refreshJwks();
+            JSONObject jwksJson = this.client.callApi((client, http) -> {
+                Request request = new Request.Builder().url(jwksUrl).build();
+                Response response = http.newCall(request).execute();
+                if (!response.isSuccessful()) {
+                    throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, response.code() + ":" + response.message());
+                }
+
+                return JSONObject.parseObject(response.body().string());
+            });
 
             // 2. fetch token by code
-            this.issuer = (String) wellKnownJson.get("issuer");
             this.loginEndpoint = (String) wellKnownJson.get("authorization_endpoint");
             this.tokenEndpoint = (String) wellKnownJson.get("token_endpoint");
             this.logoutEndpoint = (String) wellKnownJson.get("end_session_endpoint");
+            this.verifier.initialize((String) wellKnownJson.get("issuer"), jwksJson);
+            log.info("oidcJwkList primaryUid：" + this.primaryUid + ", sigJwk keys [" + //
+                     StringUtils.join(this.verifier.getSigningKeyIds(), ",") + "];");
         } catch (ThirdPartyApiException e) {
             if (StringUtils.equals(e.getMessageKey(), OidcI18nKey.OIDC_UNKNOWN_CALL_API_ERROR)) {
                 throw ThirdPartyApiException.as().with(e, OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, e.getMessage());
@@ -143,39 +109,6 @@ public class OidcApi {
         } catch (Exception e) {
             throw ThirdPartyApiException.as().with(e, OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, e.getMessage());
         }
-    }
-
-    private void refreshJwks() {
-        JSONObject jwksJson = this.client.callApi((client, http) -> {
-            Request request = new Request.Builder().url(this.jwksUrl).build();
-            Response response = http.newCall(request).execute();
-            if (!response.isSuccessful()) {
-                throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, response.code() + ":" + response.message());
-            }
-
-            return JSONObject.parseObject(response.body().string());
-        });
-
-        Map<String, Jwk> newSigJwkMap = new HashMap<>();
-        Map<String, Jwk> newEncJwkMap = new HashMap<>();
-        List<Map<String, Object>> keys = getObjectMaps(jwksJson, "keys");
-        for (Map<String, Object> jwkData : keys) {
-            String use = (String) jwkData.getOrDefault("use", null);
-            Jwk jwk = Jwk.fromValues(jwkData);
-            if (StringUtils.equalsIgnoreCase(use, "enc")) {
-                newEncJwkMap.put(jwk.getId(), jwk);
-            }
-            if (StringUtils.equalsIgnoreCase(use, "sig")) {
-                newSigJwkMap.put(jwk.getId(), jwk);
-            }
-        }
-
-        this.sigJwkMap = Collections.unmodifiableMap(newSigJwkMap);
-        this.encJwkMap = Collections.unmodifiableMap(newEncJwkMap);
-        this.verifierMap.clear();
-        log.info("oidcJwkList primaryUid：" + this.primaryUid + ", " +//
-                 "sigJwk keys [" + StringUtils.join(this.sigJwkMap.keySet(), ",") + "], " +//
-                 "encJwk keys [" + StringUtils.join(this.encJwkMap.keySet(), ",") + "];");
     }
 
     public String getJumpUrl(String state, String jumpUrl) throws UnsupportedEncodingException {
@@ -227,101 +160,15 @@ public class OidcApi {
             return JSONObject.parseObject(response.body().string());
         });
 
-        //"access_token" -> "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJadThsT2V0NzNFWlBFbnBVcDR5em5oRkJsYmM0NlpsYmx3bU5JMFlvaU5VIn0"
-        //"expires_in" -> 300
-        //"refresh_expires_in" -> 1800
-        //"refresh_token" -> "eyJhbGciOiJIUzUxMiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI4NzYzZDExNS1iMzgxLTRlZDMtOTY5Ny1mNzVlYWI1ZGRkOWMifQ"
-        //"token_type" -> "Bearer"
-        //"id_token" -> "eyJhbGciOiJIUzUxMiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI4NzYzZDExNS1iMzgxLTRlZDMtOTY5Ny1mNzVlYWI1ZGRkOWMifQ"
-        //"not-before-policy" -> 0
-        //"session_state" -> "f8cb1a9a-89e6-4b24-976d-1f9baad04e45"
-        //"scope" -> "openid profile"
         String idToken = fetchToken.getString("id_token");
-        String refreshToken = fetchToken.getString("refresh_token");
-        int refreshTokenExpires = fetchToken.getIntValue("refresh_expires_in");
 
         try {
-            verifyIdToken(idToken);
+            this.verifier.verify(idToken);
             return idToken;
         } catch (Exception e) {
-            log.error("oidc verify ID Token failed, " + e.getMessage(), e);
-            if (e instanceof InvalidClaimException && StringUtils.startsWithIgnoreCase(e.getMessage(), "The Token can't be used before")) {
-                throw ThirdPartyApiException.as().with(e, OidcI18nKey.OIDC_VERIFY_TOKEN_ERROR, e.getMessage());
-            } else {
-                throw ThirdPartyApiException.as().with(e, OidcI18nKey.OIDC_VERIFY_TOKEN_ERROR, e.getMessage());
-            }
+            log.error("oidc verify ID Token failed, " + e.getMessage());
+            throw ThirdPartyApiException.as().with(e, OidcI18nKey.OIDC_VERIFY_TOKEN_ERROR, e.getMessage());
         }
-    }
-
-    private void verifyIdToken(String idToken) throws Exception {
-        DecodedJWT decoded = JWT.decode(idToken);
-        String algorithmName = decoded.getAlgorithm();
-        String keyId = decoded.getKeyId();
-        String verifierKey = StringUtils.defaultString(algorithmName, "") + ":" + StringUtils.defaultString(keyId, "");
-        JWTVerifier verifier = verifierMap.get(verifierKey);
-        if (verifier == null) {
-            synchronized (this) {
-                verifier = verifierMap.get(verifierKey);
-                if (verifier == null) {
-                    Jwk jwk = null;
-                    if (!StringUtils.startsWithIgnoreCase(algorithmName, "HS")) {
-                        jwk = getSigningJwk(keyId);
-                    }
-                    verifier = JWT.require(createAlgorithm(algorithmName, jwk, this.conf)).acceptLeeway(5).withIssuer(this.issuer).build();
-                    verifierMap.put(verifierKey, verifier);
-                }
-            }
-        }
-
-        verifier.verify(idToken);
-    }
-
-    private Jwk getSigningJwk(String keyId) {
-        if (StringUtils.isBlank(keyId)) {
-            throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_VERIFY_TOKEN_JWK_NOT_FOUND_ERROR, "");
-        }
-
-        Jwk jwk = this.sigJwkMap.get(keyId);
-        if (jwk == null) {
-            refreshJwks();
-            jwk = this.sigJwkMap.get(keyId);
-        }
-        if (jwk == null) {
-            throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_VERIFY_TOKEN_JWK_NOT_FOUND_ERROR, keyId);
-        }
-        return jwk;
-    }
-
-    private List<Map<String, Object>> getObjectMaps(JSONObject data, String key) {
-        Object value = data.get(key);
-        if (!(value instanceof List<?>)) {
-            return Collections.emptyList();
-        }
-
-        List<?> values = (List<?>) value;
-        List<Map<String, Object>> maps = new ArrayList<>(values.size());
-        for (Object item : values) {
-            maps.add(toStringObjectMap(item, key));
-        }
-        return maps;
-    }
-
-    private Map<String, Object> toStringObjectMap(Object value, String key) {
-        if (!(value instanceof Map<?, ?>)) {
-            throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, "invalid " + key + " item");
-        }
-
-        Map<?, ?> rawMap = (Map<?, ?>) value;
-        Map<String, Object> result = new HashMap<>(rawMap.size());
-        for (Map.Entry<?, ?> entry : rawMap.entrySet()) {
-            Object entryKey = entry.getKey();
-            if (!(entryKey instanceof String)) {
-                throw ThirdPartyApiException.as().with(OidcI18nKey.OIDC_API_WELLKNOWN_ERROR, "invalid " + key + " key");
-            }
-            String stringKey = (String) entryKey;
-            result.put(stringKey, entry.getValue());
-        }
-        return result;
     }
 
     private static final String OIDC_UID      = "sub";
