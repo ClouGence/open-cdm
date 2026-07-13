@@ -162,7 +162,7 @@ public class OidcLoginProviderSpi implements LoginProviderSpi {
         //
         // map user
         UserData oidcUser = oidcApi.fetchUserInfo(idToken);
-        oidcUser.setAccount(oidcUser.getBindAccount());
+        oidcUser.setAccount(StringUtils.defaultIfBlank(oidcUser.getBindAccount(), oidcUser.getExternalUID()));
         oidcUser.setAccessToken(idToken);
 
         // mapping role
