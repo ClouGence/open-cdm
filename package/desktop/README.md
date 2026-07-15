@@ -6,7 +6,7 @@ CloudDM macOS 桌面端，使用 Electron 打包为 `.dmg` 安装包。
 
 ```bash
 # 在仓库根目录执行
-./build-desktop.sh
+./package/desktop/build-desktop.sh
 ```
 
 产物：`dist/CloudDM-<version>-macOS-arm64.dmg`
@@ -17,7 +17,7 @@ CloudDM macOS 桌面端，使用 Electron 打包为 `.dmg` 安装包。
 
 ```bash
 # 只改桌面壳 / Electron，后端和前端已编好
-./build-desktop.sh --skip-build
+./package/desktop/build-desktop.sh --skip-build
 ```
 
 前提：`package/build/cgdm-alone.tar.gz` 与 `frontend/dist/` 已存在且为最新产物。

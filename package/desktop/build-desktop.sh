@@ -18,10 +18,11 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-BACKEND_DIR="$SCRIPT_DIR/backend"
-PACKAGE_DIR="$SCRIPT_DIR/package"
-FRONTEND_DIR="$SCRIPT_DIR/frontend"
-DESKTOP_DIR="$SCRIPT_DIR/package/desktop"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+BACKEND_DIR="$REPO_ROOT/backend"
+PACKAGE_DIR="$REPO_ROOT/package"
+FRONTEND_DIR="$REPO_ROOT/frontend"
+DESKTOP_DIR="$SCRIPT_DIR"
 BUILD_DIR="$DESKTOP_DIR/.build"
 
 SKIP_BUILD=false
@@ -49,7 +50,7 @@ if [ "$SKIP_BUILD" = false ]; then
   cd "$FRONTEND_DIR"
   npm install --no-audit --no-fund
   npm run build:dm
-  cd "$SCRIPT_DIR"
+  cd "$REPO_ROOT"
 else
   echo ""
   echo "--- Step 1/6: Build frontend (skipped) ---"
@@ -66,7 +67,7 @@ if [ "$SKIP_BUILD" = false ]; then
   export GRADLE_OPTS="${GRADLE_OPTS:-} -Xmx8192m -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8"
   export GRADLE_MAX_WORKERS="${GRADLE_MAX_WORKERS:-4}"
   bash package.sh --build
-  cd "$SCRIPT_DIR"
+  cd "$REPO_ROOT"
 else
   echo ""
   echo "--- Step 2/6: Build backend (skipped) ---"
@@ -244,12 +245,12 @@ npx electron-builder --mac --config electron-builder.yml
 # ---------------------------------------------------------------------------
 # Done
 # ---------------------------------------------------------------------------
-cd "$SCRIPT_DIR"
-mkdir -p "$SCRIPT_DIR/dist"
+cd "$REPO_ROOT"
+mkdir -p "$REPO_ROOT/dist"
 
 DMG=$(ls "$BUILD_DIR/dist"/*.dmg 2>/dev/null | head -1)
 if [ -n "$DMG" ]; then
-  cp "$DMG" "$SCRIPT_DIR/dist/"
+  cp "$DMG" "$REPO_ROOT/dist/"
   echo ""
   echo "=== Done ==="
   echo "DMG: dist/$(basename "$DMG")"
