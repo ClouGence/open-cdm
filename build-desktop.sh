@@ -21,7 +21,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BACKEND_DIR="$SCRIPT_DIR/backend"
 PACKAGE_DIR="$SCRIPT_DIR/package"
 FRONTEND_DIR="$SCRIPT_DIR/frontend"
-DESKTOP_DIR="$SCRIPT_DIR/desktop"
+DESKTOP_DIR="$SCRIPT_DIR/package/desktop"
 BUILD_DIR="$DESKTOP_DIR/.build"
 
 SKIP_BUILD=false

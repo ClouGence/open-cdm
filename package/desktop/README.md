@@ -103,7 +103,7 @@ tail -50 ~/.cgdm-desktop/logs/mysqld.log
 
 - **JDK 未安装**：安装 OpenJDK 17，例如 `brew install openjdk@17`
 - **端口被占用**：关闭占用 18222/3307/18008 的进程，或删除 `~/.cgdm-desktop` 后重试
-- **旧版配置残留 / 密码未按新版本重置**：执行 `./desktop/scripts/cleanup-local.sh`，或手动删除 `~/.cgdm-desktop` 后重新打开应用
+- **旧版配置残留 / 密码未按新版本重置**：执行 `./package/desktop/scripts/cleanup-local.sh`，或手动删除 `~/.cgdm-desktop` 后重新打开应用
 
 ## 目录说明
 
