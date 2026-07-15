@@ -62,6 +62,26 @@
           AND config_name = #{configName}
     </update>
 
+    <select id="queryByUidAndConfigNameForUpdate" resultMap="rdpUserKvBaseConfigDO">
+        SELECT
+        <include refid="rdpUserKvBaseConfig"/>
+        FROM dm_sys_user_conf
+        WHERE uid = #{uid}
+          AND config_name = #{configName}
+        FOR UPDATE
+    </select>
+
+    <insert id="insertUserConfig">
+        INSERT INTO dm_sys_user_conf (uid, config_name, config_value)
+        VALUES (#{uid}, #{configName}, #{configValue})
+    </insert>
+
+    <update id="updateConfigValueById">
+        UPDATE dm_sys_user_conf
+        SET config_value = #{configValue}
+        WHERE id = #{id}
+    </update>
+
     <delete id="deleteUserConfigs">
         DELETE
         FROM dm_sys_user_conf

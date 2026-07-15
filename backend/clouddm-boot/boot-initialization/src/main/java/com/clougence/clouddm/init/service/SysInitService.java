@@ -29,20 +29,30 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.clougence.clouddm.api.common.GlobalConfUtils;
 import com.clougence.clouddm.api.common.crypt.CryptService;
 import com.clougence.clouddm.api.common.crypt.PasswordInfo;
+import com.clougence.clouddm.console.web.component.config.RootUserConfig;
 import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
+import com.clougence.clouddm.console.web.service.system.InstallationReportState;
 import com.clougence.clouddm.init.InitTaskApplication;
-import com.clougence.clouddm.init.component.fixtasks.*;
+import com.clougence.clouddm.init.component.fixtasks.DmFixDefaultClusterWorker;
+import com.clougence.clouddm.init.component.fixtasks.DmFixSecRules;
+import com.clougence.clouddm.init.component.fixtasks.InitConsolePluginLoader;
+import com.clougence.clouddm.init.component.fixtasks.RdpFixUserRole;
 import com.clougence.clouddm.init.component.flyway.DmFlywayInit;
 import com.clougence.clouddm.init.component.log.InstallUpgradeLogBus;
 import com.clougence.clouddm.init.constant.I18nInitFieldKeys;
 import com.clougence.clouddm.init.constant.InitSeedConstants;
 import com.clougence.clouddm.init.model.InitFieldDef;
 import com.clougence.clouddm.init.model.TestDbResult;
+import com.clougence.clouddm.platform.dal.access.AuthDal;
 import com.clougence.clouddm.platform.dal.config.DmDalConfig;
+import com.clougence.clouddm.platform.dal.mapper.system.DmSysUserConfMapper;
+import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 import com.clougence.utils.StringUtils;
 import com.clougence.utils.io.IOUtils;
 
@@ -59,16 +69,16 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class SysInitService {
 
-    private static final String      INIT_WORKFLOW_MODE_KEY       = "clougence.init.workflowMode";
-    private static final String      INIT_WORKFLOW_MODE_UPGRADE   = "upgrade";
-    private static final String      INIT_DB_CREATE_IF_MISSING    = "clougence.init.db.createIfMissing";
-    private static final String      JDBC_URL_CONFIG_KEY          = "spring.datasource.jdbcurl";
-    private static final String      REQUIRED_DB_CHARSET          = "utf8mb4";
-    private static final String      REQUIRED_DB_COLLATION        = "utf8mb4_general_ci";
-    private static final String      SCHEMA_EXISTS_SQL            = "SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name = ?";
-    private static final String      SCHEMA_CHARSET_SQL           = "SELECT default_character_set_name FROM information_schema.schemata WHERE schema_name = ?";
-    private static final String      TABLE_COUNT_SQL              = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = ?";
-    private static final Set<String> RUNTIME_INIT_CONFIG_KEYS     = Set.of( //
+    private static final String      INIT_WORKFLOW_MODE_KEY     = "clougence.init.workflowMode";
+    private static final String      INIT_WORKFLOW_MODE_UPGRADE = "upgrade";
+    private static final String      INIT_DB_CREATE_IF_MISSING  = "clougence.init.db.createIfMissing";
+    private static final String      JDBC_URL_CONFIG_KEY        = "spring.datasource.jdbcurl";
+    private static final String      REQUIRED_DB_CHARSET        = "utf8mb4";
+    private static final String      REQUIRED_DB_COLLATION      = "utf8mb4_general_ci";
+    private static final String      SCHEMA_EXISTS_SQL          = "SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name = ?";
+    private static final String      SCHEMA_CHARSET_SQL         = "SELECT default_character_set_name FROM information_schema.schemata WHERE schema_name = ?";
+    private static final String      TABLE_COUNT_SQL            = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = ?";
+    private static final Set<String> RUNTIME_INIT_CONFIG_KEYS   = Set.of( //
             INIT_WORKFLOW_MODE_KEY, //
             INIT_DB_CREATE_IF_MISSING, //
             InitSeedConstants.RUNTIME_ADMIN_ACCOUNT_KEY, //
@@ -168,14 +178,65 @@ public class SysInitService {
     public void applyConfig(Map<String, String> userConfig) throws Exception {
         Map<String, String> executionConfig = normalizeUserConfig(userConfig);
         String modeKey = StringUtils.defaultString(executionConfig.get(INIT_WORKFLOW_MODE_KEY));
+        boolean upgrade = StringUtils.equalsIgnoreCase(INIT_WORKFLOW_MODE_UPGRADE, modeKey);
 
-        if (StringUtils.equalsIgnoreCase(INIT_WORKFLOW_MODE_UPGRADE, modeKey)) {
+        if (upgrade) {
             upgradeSystem(executionConfig);
         } else {
             applyInitConfig(executionConfig);
         }
 
+        markInstallationReportPending(executionConfig, upgrade ? InstallationReportState.UPGRADE : InstallationReportState.INSTALL);
         scheduleRestart();
+    }
+
+    private void markInstallationReportPending(Map<String, String> userConfig, String type) {
+        String version = GlobalConfUtils.getAppVersion();
+        if (GlobalConfUtils.UNKNOWN_VERSION.equals(version)) {
+            log.warn("[SysInitService] Skip pending installation report because CloudDM version is unknown.");
+            return;
+        }
+
+        Properties props = this.defService.loadSystemProperties();
+        String jdbcUrl = resolveConfigValue(userConfig, props, JDBC_URL_CONFIG_KEY);
+        String dbUser = resolveConfigValue(userConfig, props, "spring.datasource.username");
+        String dbPass = resolveConfigValue(userConfig, props, "spring.datasource.password");
+        if (StringUtils.isBlank(jdbcUrl) || StringUtils.isBlank(dbUser)) {
+            log.warn("[SysInitService] Skip pending installation report because database configuration is missing.");
+            return;
+        }
+        try {
+            SpringApplication app = new SpringApplication(InitTaskApplication.class);
+            app.setWebApplicationType(WebApplicationType.NONE);
+            app.setLazyInitialization(true);
+            app.setDefaultProperties(buildTaskProperties(jdbcUrl, dbUser, dbPass));
+            try (ConfigurableApplicationContext context = app.run()) {
+                DmSysUserConfMapper mapper = context.getBean(DmSysUserConfMapper.class);
+                TransactionTemplate transactionTemplate = new TransactionTemplate(context.getBean(PlatformTransactionManager.class));
+                transactionTemplate.executeWithoutResult(status -> markInstallationReportPending(mapper, version, type));
+            }
+        } catch (Exception e) {
+            log.warn("[SysInitService] Failed to mark pending installation report, version={}, type={}. msg={}", version, type, e.getMessage());
+        }
+    }
+
+    private void markInstallationReportPending(DmSysUserConfMapper mapper, String version, String type) {
+        DmSysUserConfDO configDO = mapper.queryByUidAndConfigNameForUpdate(AuthDal.ROOT_USER_UID, RootUserConfig.Fields.installReport);
+        InstallationReportState.ReportConfig currentConfig = configDO == null ? null : InstallationReportState.parseConfigValue(configDO.getConfigValue());
+        if (currentConfig != null && version.equals(currentConfig.getVersion()) && currentConfig.isReported()) {
+            return;
+        }
+
+        String configValue = InstallationReportState.toConfigValue(InstallationReportState.pendingConfig(version, type));
+        int affectedRows;
+        if (configDO == null) {
+            affectedRows = mapper.insertUserConfig(AuthDal.ROOT_USER_UID, RootUserConfig.Fields.installReport, configValue);
+        } else {
+            affectedRows = mapper.updateConfigValueById(configDO.getId(), configValue);
+        }
+        if (affectedRows != 1) {
+            throw new IllegalStateException("Failed to save pending installation report: " + version);
+        }
     }
 
     public void applyInitConfig(Map<String, String> userConfig) {
