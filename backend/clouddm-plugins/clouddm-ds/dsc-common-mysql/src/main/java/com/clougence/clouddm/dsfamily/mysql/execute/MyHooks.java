@@ -18,6 +18,7 @@ package com.clougence.clouddm.dsfamily.mysql.execute;
 import java.sql.*;
 
 import com.clougence.clouddm.base.metadata.ds.ColMetaData;
+import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.dsfamily.mysql.dialect.MySqlDialect;
 import com.clougence.clouddm.sdk.execute.meta.DsMetaService;
 import com.clougence.clouddm.sdk.execute.session.QueryRequest;
@@ -195,7 +196,9 @@ public class MyHooks implements SessionHook {
         } else {
             stmt = conn.prepareStatement(query.getQueryBody(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
         }
-        stmt.setFetchSize(Integer.MIN_VALUE);
+
+        // MariaDB sessions use a standard fetch size; Connector/J is configured to use server-side cursors.
+        stmt.setFetchSize(query.getQueryDsType() == DataSourceType.MariaDB ? 200 : Integer.MIN_VALUE);
         return stmt;
     }
 

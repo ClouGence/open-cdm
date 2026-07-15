@@ -23,6 +23,7 @@ import com.clougence.clouddm.base.metadata.ds.DataSourceType;
 import com.clougence.clouddm.base.metadata.ds.DsConfigGroup;
 import com.clougence.clouddm.ds.mariadb.i18n.MarConfigI18nKeys;
 import com.clougence.clouddm.sdk.execute.dsconf.Serialization;
+import com.clougence.drivers.DriverSpecUtils;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -40,6 +41,8 @@ import lombok.experimental.FieldNameConstants;
 @Serialization(provider = MarSqlSerializationSpi.PROVIDER_NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MarConfig extends DataSourceConfig {
+    private static final String MYSQL_CONNECTOR_J = "MySQL Connector/J";
+
     // ------------------------------------------------------------------------------------------------------------------------ GENERAL
     @ConfigDef(name = Fields.defaultSchema, //
             group = DsConfigGroup.GENERAL, labelKey = MarConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_LABEL, descKey = MarConfigI18nKeys.CONFIG_RDB_DEFAULT_SCHEMA_DESC, readOnly = false)
@@ -71,11 +74,33 @@ public class MarConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), safeStr(StringUtils.toString(this.getConnectTimeoutMs())));
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
         properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), safeStr(this.getClientTimeZone()));
-        properties.setProperty("sslMode", this.marSslMode());
+        boolean mysqlConnectorJ = this.isMysqlConnectorJ();
+        properties.setProperty("sslMode", mysqlConnectorJ ? this.mysqlSslMode() : this.mariaDbSslMode());
+        if (mysqlConnectorJ) {
+            properties.setProperty("useCursorFetch", "true");
+            properties.setProperty("useServerPrepStmts", "true");
+        }
         return properties;
     }
 
-    private String marSslMode() {
+    private boolean isMysqlConnectorJ() {
+        String driverFamily = DriverSpecUtils.resolveDriverFamily(this.getDriverVersion());
+        return StringUtils.equals(MYSQL_CONNECTOR_J, driverFamily);
+    }
+
+    private String mysqlSslMode() {
+        if (getSslMode() == null) {
+            return "DISABLED";
+        }
+        return switch (getSslMode()) {
+            case TRUST -> "REQUIRED";
+            case CA -> "VERIFY_CA";
+            case CLIENT_CERT -> "VERIFY_IDENTITY";
+            default -> "DISABLED";
+        };
+    }
+
+    private String mariaDbSslMode() {
         if (getSslMode() == null) {
             return "disable";
         }
