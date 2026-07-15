@@ -1,16 +1,8 @@
 ## Highlights
 
 - Redesigned the interface and interactions across core pages for datasources, permissions, security, and CI/CD.
-
-  ![Comparison of the old and new CloudDM login pages](assets/new-login-experience.png)
-
 - Separated SQL queries from workflows so development queries no longer interfere with approvals or ticket processes.
-
-  ![CloudDM instance management and SQL query workbench](assets/query-workflow-separation.png)
-
 - Expanded support for SSH tunnels, SSL certificates, proxies, SSO, approval integrations, and multiple sign-in methods.
-
-  ![CloudDM SSH, SSL, role permission, and CI/CD configuration](assets/enhanced-management-capabilities.png)
 
 ## Added
 

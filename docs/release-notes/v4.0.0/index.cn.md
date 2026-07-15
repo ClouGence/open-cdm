@@ -1,16 +1,8 @@
 ## 亮点
 
 - 全新界面与交互体验：优化数据源、权限、安全和 CI/CD 等核心页面。
-
-  ![CloudDM 新旧登录界面对比](assets/new-login-experience.png)
-
 - SQL 查询与工作流程分离：开发查询与审批、工单流程互不干扰。
-
-  ![CloudDM 实例与数据查询工作台](assets/query-workflow-separation.png)
-
 - 功能持续增强：支持 SSH 隧道、SSL 证书、代理、SSO、审批及多途径登录。
-
-  ![CloudDM SSH、SSL、角色权限和 CI/CD 配置](assets/enhanced-management-capabilities.png)
 
 ## 新增
 
