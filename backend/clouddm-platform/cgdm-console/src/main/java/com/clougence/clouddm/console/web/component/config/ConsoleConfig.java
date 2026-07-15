@@ -48,6 +48,8 @@ public class ConsoleConfig {
 
     @Value("${clouddm.upgrade.server:server.cdmgr.com}")
     private String         upgradeServer;
+    @Value("${clouddm.installation.report.server:server.cdmgr.com}")
+    private String         installationReportServer;
 
     // for rsocket
     @Value("${clouddm.rsocket.dns:clouddm_console}")
