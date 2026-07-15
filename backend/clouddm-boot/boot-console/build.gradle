@@ -89,5 +89,5 @@ description = 'boot-console'
 jar {
     exclude 'ssl/**'
     exclude 'logback.xml'
-    exclude 'alone.properties'
+    exclude 'console.properties'
 }
