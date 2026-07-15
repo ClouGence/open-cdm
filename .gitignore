@@ -45,3 +45,4 @@ frontend/package-lock.json
 /data
 /logs
 install_upgrade.log
+/dist

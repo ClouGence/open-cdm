@@ -105,7 +105,6 @@ export default {
           content: msg
         });
       } catch (err) {
-        console.error(this.$t('fu-zhi-shi-bai'), err);
         this.$Message.error({
           content: this.$t('fu-zhi-shi-bai')
         });
@@ -113,7 +112,6 @@ export default {
     },
     async downloadLink(link, filename) {
       if (!link) {
-        console.error('下载链接不能为空');
         return;
       }
 
@@ -132,7 +130,6 @@ export default {
           window.open(link, '_blank');
         }
       } catch (err) {
-        console.error('下载失败:', err);
         this.$Message.error({
           content: this.$t('xia-zai-shi-bai')
         });

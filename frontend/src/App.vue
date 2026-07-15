@@ -98,7 +98,6 @@ export default {
     }
   },
   async created() {
-    console.log(this.$i18n.global.locale.value);
     this.syncLocale();
     await this.bootstrapApp();
   },

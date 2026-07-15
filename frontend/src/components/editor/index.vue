@@ -127,15 +127,7 @@ export default {
               glyphMarginDecoration = decoration;
             }
           });
-
-          if (glyphMarginDecoration) {
-            console.log(glyphMarginDecoration);
-            console.log(glyphMarginDecoration.options.description);
-          }
         }
-      });
-      this.monacoEditor.onDidPaste((e) => {
-        console.log('onDidPaste', e);
       });
       this.monacoEditor.onDidChangeCursorSelection((e) => {
         // console.log('onDidChangeCursorSelection', e);
@@ -402,7 +394,6 @@ export default {
       const providerItem = monaco.languages.registerCompletionItemProvider(lang, {
         triggerCharacters: [' ', '.', '`', '/', '$'],
         provideCompletionItems: async (model, position) => {
-          console.log('registerCompletion', position);
           this.sortText = 0;
           let suggestions = [];
 
@@ -415,7 +406,6 @@ export default {
             endColumn: column
           });
 
-          console.log(textUntilPosition);
           if (this.isDsLanguageSupport('COMPLETE')) {
             suggestions = await this.getDelayedBackendCompletionSuggest(model, position);
           } else {
