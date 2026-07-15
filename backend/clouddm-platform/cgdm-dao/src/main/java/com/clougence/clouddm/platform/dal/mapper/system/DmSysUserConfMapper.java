@@ -17,6 +17,8 @@ package com.clougence.clouddm.platform.dal.mapper.system;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.clougence.clouddm.platform.dal.model.system.DmSysUserConfDO;
 
@@ -32,4 +34,10 @@ public interface DmSysUserConfMapper extends BaseMapper<DmSysUserConfDO> {
     List<DmSysUserConfDO> listByUidAndConfigNames(String uid, List<String> configNames);
 
     void updateUserConfig(String uid, String configName, String configValue);
+
+    DmSysUserConfDO queryByUidAndConfigNameForUpdate(@Param("uid") String uid, @Param("configName") String configName);
+
+    int insertUserConfig(@Param("uid") String uid, @Param("configName") String configName, @Param("configValue") String configValue);
+
+    int updateConfigValueById(@Param("id") long id, @Param("configValue") String configValue);
 }

@@ -36,6 +36,11 @@ import lombok.experimental.FieldNameConstants;
 public class RootUserConfig {
 
     /**
+     * System config
+     */
+    private String        installReport;
+
+    /**
      * Account config
      */
 
