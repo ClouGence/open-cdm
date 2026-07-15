@@ -378,6 +378,13 @@ function prepareConfig() {
     }
   }
 
+  // Always overwrite version file to reflect current bundled version
+  const srcVersion = path.join(BACKEND_DIR, 'conf', 'version');
+  const dstVersion = path.join(CONF_DIR, 'version');
+  if (fs.existsSync(srcVersion)) {
+    fs.copyFileSync(srcVersion, dstVersion);
+  }
+
   if (!fs.existsSync(aloneProps)) {
     throw new Error('alone.properties not found in ' + CONF_DIR);
   }
