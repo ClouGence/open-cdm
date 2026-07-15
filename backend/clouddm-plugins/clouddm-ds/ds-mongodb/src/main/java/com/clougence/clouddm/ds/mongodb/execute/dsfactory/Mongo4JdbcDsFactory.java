@@ -13,21 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.clougence.clouddm.ds.mongodb.execute.dsfactory;
 
-plugins {
-    id 'com.clougence.plugin-conventions'
+import com.clougence.clouddm.ds.mongodb.execute.jdbc.MongoKeys;
+
+public class Mongo4JdbcDsFactory extends AbstractMongoJdbcDsFactory {
+
+    public Mongo4JdbcDsFactory(){
+        super(MongoKeys.MONGO4_ADAPTER_NAME);
+    }
 }
-
-dependencies {
-    // project
-    implementation project(':sql-mongodb')
-    implementation project(':dsc-common')
-
-    // share lib (compileOnly)
-    compileOnly project(':cgdm-share-libs')
-
-    // driver libs (compileOnly)
-    compileOnly 'org.mongodb:mongodb-driver-sync:5.9.0'
-}
-
-description = 'ds-mongodb'

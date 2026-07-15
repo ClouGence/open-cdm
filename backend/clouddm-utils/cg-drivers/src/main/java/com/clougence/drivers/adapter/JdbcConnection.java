@@ -15,7 +15,7 @@
  */
 package com.clougence.drivers.adapter;
 
-import java.io.Closeable;
+import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -23,9 +23,9 @@ import java.util.concurrent.Executor;
 import com.clougence.drivers.adapter.lob.JdbcBob;
 import com.clougence.drivers.adapter.lob.JdbcCob;
 
-class JdbcConnection implements Connection, Closeable {
+class JdbcConnection implements Connection {
 
-    private boolean                  closed = false;
+    private volatile boolean         closed = false;
     private final AdapterConnection  connection;
     private final TypeSupport        typeSupport;
     private final TransactionSupport txSupport;
@@ -56,10 +56,14 @@ class JdbcConnection implements Connection, Closeable {
     }
 
     @Override
-    public void close() {
+    public synchronized void close() throws SQLException {
         if (!this.isClosed()) {
             this.closed = true;
-            AdapterConnManager.removeConnection(this.connection);
+            try {
+                this.connection.close();
+            } catch (IOException e) {
+                throw new SQLException("failed to close adapter connection", e);
+            }
         }
     }
 

@@ -29,12 +29,14 @@ import com.mongodb.client.MongoDatabase;
 
 public class ClientCallForDatabase extends MongoUtils {
 
-    public static CgFuture<?> listCollections(CgFuture<Object> sync, MongoClient client, ClientSession session, String command, AdapterRequest request, AdapterReceive receive,
-                                              String database) throws SQLException, IOException {
+    public static CgFuture<?> listCollections(CgFuture<Object> sync, MongoClient client, String command, AdapterRequest request, AdapterReceive receive, String database,
+                                              MongoSessionProvider sessionProvider) throws SQLException, IOException {
         MongoDatabase database1 = client.getDatabase(database);
-        ClientSession clientSession = client.startSession();
-        Document result = database1.runCommand(session, Document.parse(command));
-
-        return handleResult(sync, request, receive, new MongoResultBuffer(), new CursorResult(result, database1, clientSession).iterator());
+        try (ClientSession session = sessionProvider.startSession()) {
+            Document result = runCommand(database1, session, Document.parse(command));
+            try (CursorResult cursorResult = new CursorResult(result, database1, session)) {
+                return handleResult(sync, request, receive, new MongoResultBuffer(), cursorResult.iterator());
+            }
+        }
     }
 }

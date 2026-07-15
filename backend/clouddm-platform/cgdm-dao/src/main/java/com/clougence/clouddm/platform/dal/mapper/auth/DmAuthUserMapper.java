@@ -74,6 +74,8 @@ public interface DmAuthUserMapper extends BaseMapper<DmAuthUserDO> {
 
     DmAuthUserDO queryBySubAccountByBindInfo(Long parentId, String bindAccount, AccountBindType bindType);
 
+    DmAuthUserDO queryByUnionInfo(@Param("unionId") String unionId, @Param("bindType") AccountBindType bindType);
+
     DmAuthUserDO queryByBindInfo(String bindAccount, AccountBindType bindType);
 
     DmAuthUserDO queryByUid(@CanBeReplaced String uid);

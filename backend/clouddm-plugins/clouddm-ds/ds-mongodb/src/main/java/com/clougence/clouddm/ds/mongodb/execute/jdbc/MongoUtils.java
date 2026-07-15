@@ -24,6 +24,8 @@ import org.bson.Document;
 import com.clougence.drivers.adapter.*;
 import com.clougence.utils.CollectionUtils;
 import com.clougence.utils.future.CgFuture;
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.MongoDatabase;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,6 +34,13 @@ class MongoUtils {
 
     protected static final JdbcColumn       RESULT_COLUMN = new JdbcColumn("RESULT", AdapterType.String, "", "", "");
     protected static final List<JdbcColumn> RESULT        = Collections.singletonList(RESULT_COLUMN);
+
+    protected static Document runCommand(MongoDatabase database, ClientSession session, Document command) {
+        if (session == null) {
+            return database.runCommand(command);
+        }
+        return database.runCommand(session, command);
+    }
 
     public static CgFuture<?> completed(CgFuture<Object> sync) {
         sync.completed(true);
@@ -141,31 +150,40 @@ class MongoUtils {
 
     protected static CgFuture<?> handleResult(CgFuture<Object> sync, AdapterRequest request, AdapterReceive receive, MongoResultBuffer buffer,
                                               Iterator<Document> it) throws SQLException, IOException {
-        Set<String> keySet = new LinkedHashSet<>();
+        try {
+            Set<String> keySet = new LinkedHashSet<>();
 
-        long maxRows = request.getMaxRows();
-        int affectRows = 0;
-        while (it.hasNext()) {
-            Document document = it.next();
-            buffer.add(document);
-            keySet.addAll(document.keySet());
+            long maxRows = request.getMaxRows();
+            int affectRows = 0;
+            while (it.hasNext()) {
+                Document document = it.next();
+                buffer.add(document);
+                keySet.addAll(document.keySet());
 
-            affectRows++;
-            if (maxRows > 0 && affectRows >= maxRows) {
-                break;
+                affectRows++;
+                if (maxRows > 0 && affectRows >= maxRows) {
+                    break;
+                }
             }
+            buffer.finish();
+
+            List<JdbcColumn> columns = new ArrayList<>();
+            for (String key : keySet) {
+                columns.add(new JdbcColumn(key, AdapterType.String, "", "", ""));
+            }
+
+            MongoResultCursor cursor = new MongoResultCursor(request, columns, buffer);
+
+            receive.responseResult(request, cursor);
+            return completed(sync);
+        } catch (SQLException | IOException | RuntimeException e) {
+            try {
+                buffer.close();
+            } catch (IOException closeException) {
+                e.addSuppressed(closeException);
+            }
+            throw e;
         }
-        buffer.finish();
-
-        List<JdbcColumn> columns = new ArrayList<>();
-        for (String key : keySet) {
-            columns.add(new JdbcColumn(key, AdapterType.String, "", "", ""));
-        }
-
-        MongoResultCursor cursor = new MongoResultCursor(request, columns,buffer);
-
-        receive.responseResult(request, cursor);
-        return completed(sync);
     }
 
 }

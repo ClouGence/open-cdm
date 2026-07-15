@@ -298,6 +298,18 @@
             bind_type = #{bindType,javaType=com.clougence.clouddm.platform.dal.model.auth.AccountBindType}
     </select>
 
+    <select id="queryByUnionInfo" resultMap="rdpUserDO">
+        SELECT
+            <include refid="rdpUser"/>
+        FROM
+            dm_auth_user
+        WHERE
+            union_id = #{unionId}
+        and
+            bind_type = #{bindType,javaType=com.clougence.clouddm.platform.dal.model.auth.AccountBindType}
+        limit 1
+    </select>
+
     <select id="queryById" resultMap="rdpUserDO">
         SELECT
         <include refid="rdpUser"/>

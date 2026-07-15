@@ -21,6 +21,36 @@ function isValidWorkbenchPath(path) {
   return path.startsWith('/');
 }
 
+function menuKeyToPath(key) {
+  if (!key || typeof key !== 'string') {
+    return '';
+  }
+  if (key.startsWith('/')) {
+    return key;
+  }
+  return `/${key}`;
+}
+
+export function resolveWorkbenchFallbackPath(menuItems = []) {
+  for (const item of menuItems) {
+    const path = menuKeyToPath(item?.key);
+    if (isValidWorkbenchPath(path)) {
+      return path;
+    }
+  }
+
+  return '/settings/profile';
+}
+
+export function isAccessibleWorkbenchPath(path, menuItems = []) {
+  if (!isValidWorkbenchPath(path)) {
+    return false;
+  }
+
+  const menuPaths = menuItems.map((item) => menuKeyToPath(item?.key)).filter(Boolean);
+  return menuPaths.some((menuPath) => path === menuPath || path.startsWith(`${menuPath}/`));
+}
+
 export function saveLastWorkbenchRoute(route, uid) {
   if (!route || !isValidWorkbenchPath(route.path)) {
     return;
@@ -40,8 +70,8 @@ export function saveLastWorkbenchRoute(route, uid) {
   }
 }
 
-export function resolveWorkbenchRoute(fallbackPath = '/datasource', uid) {
-  const fallback = isValidWorkbenchPath(fallbackPath) ? fallbackPath : '/datasource';
+export function resolveWorkbenchRoute(fallbackPath, uid, menuItems = []) {
+  const fallback = isValidWorkbenchPath(fallbackPath) ? fallbackPath : resolveWorkbenchFallbackPath(menuItems);
 
   try {
     const raw = localStorage.getItem(getStorageKey(uid));
@@ -50,7 +80,7 @@ export function resolveWorkbenchRoute(fallbackPath = '/datasource', uid) {
     }
 
     const saved = JSON.parse(raw);
-    if (!isValidWorkbenchPath(saved?.path)) {
+    if (!isValidWorkbenchPath(saved?.path) || !isAccessibleWorkbenchPath(saved.path, menuItems)) {
       return { path: fallback };
     }
 

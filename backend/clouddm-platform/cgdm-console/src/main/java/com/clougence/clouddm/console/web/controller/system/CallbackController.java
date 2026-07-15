@@ -216,7 +216,14 @@ public class CallbackController {
 
         // is first login
         AccountBindType bindType = AccountBindType.valueOfProvider(providerEnum);
-        DmAuthUserDO bindUser = StringUtils.isBlank(fetchUser.getBindAccount()) ? null : this.authDal.userMapper().queryByBindInfo(fetchUser.getBindAccount(), bindType);
+        DmAuthUserDO bindUser;
+        if (StringUtils.isNotBlank(fetchUser.getExternalUID())) {
+            bindUser = this.authDal.userMapper().queryByUnionInfo(fetchUser.getExternalUID(), bindType);
+        } else if (StringUtils.isNotBlank(fetchUser.getBindAccount())) {
+            bindUser = this.authDal.userMapper().queryByBindInfo(fetchUser.getBindAccount(), bindType);
+        } else {
+            bindUser = null;
+        }
         if (bindUser == null) {
             String csrfToken = this.csrfTokenService.pushToken(fetchUser.getAccessToken());
             return redirectToLogin(request, response, csrfToken, LoginAuthType.valueOfProvider(providerEnum).name(), primaryUser.getUid(), fetchUser);

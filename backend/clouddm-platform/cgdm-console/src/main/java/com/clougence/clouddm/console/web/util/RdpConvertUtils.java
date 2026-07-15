@@ -540,6 +540,7 @@ public class RdpConvertUtils {
         data.setPhone(userDO.getPhone());
         data.setAccount(userDO.getAccount());
         data.setRoleId(userDO.getRoleId());
+        data.setExternalUID(userDO.getUnionId());
         data.setBindAccount(userDO.getBindAccount());
         return data;
     }
@@ -554,6 +555,7 @@ public class RdpConvertUtils {
         user.setLoginLocked(false);
         user.setAccountType(AccountType.SUB_ACCOUNT);
         user.setBindType(loginType.getBindType());
+        user.setUnionId(loginUser.getExternalUID());
         user.setBindAccount(loginUser.getBindAccount());
         user.setAllowLocal(false);
         user.setDisable(false);

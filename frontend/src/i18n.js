@@ -32,8 +32,8 @@ const i18n = createI18n({
   locale: initialLocale,
   fallbackLocale: DEFAULT_LOCALE,
   messages: {
-    'zh-CN': Object.assign(require('./locales/zh.json'), iZhCN),
-    'en-US': Object.assign(require('./locales/en.json'), iEn)
+    'zh-CN': Object.assign(require('./locales/zh.json'), require('./locales/ui-menus-zh.json'), iZhCN),
+    'en-US': Object.assign(require('./locales/en.json'), require('./locales/ui-menus-en.json'), iEn)
   }
 });
 

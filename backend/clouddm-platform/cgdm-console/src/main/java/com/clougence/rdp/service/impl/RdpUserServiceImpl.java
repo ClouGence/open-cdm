@@ -717,6 +717,7 @@ public class RdpUserServiceImpl implements RdpUserService, DmUserService {
         userDO.setPassword(CryptService.INSTANCE.encryptForOneWay(generatePwd).getEncryptPassword());
         userDO.setAccountType(AccountType.SUB_ACCOUNT);
         userDO.setBindType(bindType);
+        userDO.setUnionId(bindUser.getUnionId());
         userDO.setBindAccount(bindUser.getBindAccount());
         userDO.setAllowLocal(false);
         userDO.setParentId(primaryUser.getId());

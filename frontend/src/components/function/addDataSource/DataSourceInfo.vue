@@ -491,8 +491,70 @@ export default {
       }
       this.addDsUiForm = form;
       this.dynamicFieldErrors = {};
+      this.syncDriverFromLoadedConfig();
       this.syncCompositeAddDsFields();
       this.ensureActiveAddDsPanel();
+    },
+    parseDriverSpec(driverSpec) {
+      if (!driverSpec || typeof driverSpec !== 'string') {
+        return null;
+      }
+
+      const trimmed = driverSpec.trim();
+      if (!trimmed.startsWith('[')) {
+        return null;
+      }
+
+      try {
+        const parts = JSON.parse(trimmed);
+        if (!Array.isArray(parts) || parts.length < 2) {
+          return null;
+        }
+
+        const driverFamily = `${parts[0] || ''}`.trim();
+        let driverVersion = `${parts[1] || ''}`.trim();
+        if (driverVersion.startsWith('/')) {
+          driverVersion = driverVersion.slice(1);
+        }
+
+        if (!driverFamily || !driverVersion) {
+          return null;
+        }
+
+        return { driverFamily, driverVersion };
+      } catch (e) {
+        return null;
+      }
+    },
+    buildDriverValue(driverFamily, driverVersion) {
+      if (!driverFamily || !driverVersion) {
+        return '';
+      }
+
+      return JSON.stringify([driverFamily, `/${driverVersion}`]);
+    },
+    syncDriverFromLoadedConfig() {
+      const form = this.addDsUiForm || {};
+      let driverFamily = `${form.driverFamily || ''}`.trim();
+      let driverVersion = `${form.driverVersion || ''}`.trim();
+
+      const parsed = this.parseDriverSpec(driverVersion);
+      if (parsed) {
+        driverFamily = parsed.driverFamily;
+        driverVersion = parsed.driverVersion;
+      }
+
+      if (!driverFamily || !driverVersion) {
+        return;
+      }
+
+      this.addDsUiForm.driverFamily = driverFamily;
+      this.addDsUiForm.driverVersion = driverVersion;
+
+      const driverValue = this.buildDriverValue(driverFamily, driverVersion);
+      this.addDataSourceForm.driverFamily = driverFamily;
+      this.addDataSourceForm.driverVersion = driverVersion;
+      this.addDataSourceForm.driver = driverValue;
     },
     collectAddDsFieldDefaults(fields, form) {
       (fields || []).forEach((field) => {

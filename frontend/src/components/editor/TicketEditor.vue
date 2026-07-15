@@ -112,6 +112,8 @@ export default {
 <style scoped lang="less">
 .ticket-editor {
   width: 100%;
+  height: 100%;
+  min-height: 0;
 }
 
 :deep(.message) {

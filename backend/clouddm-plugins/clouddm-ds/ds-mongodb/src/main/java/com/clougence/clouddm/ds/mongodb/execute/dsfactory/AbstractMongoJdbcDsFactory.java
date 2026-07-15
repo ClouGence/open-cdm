@@ -21,22 +21,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import com.clougence.clouddm.ds.mongodb.execute.jdbc.MongoConnectionFactory;
 import com.clougence.clouddm.ds.mongodb.execute.jdbc.MongoKeys;
 import com.clougence.drivers.DsConfigKeys;
 import com.clougence.drivers.DsFactory;
 import com.clougence.drivers.DsObject;
+import com.clougence.drivers.adapter.AdapterManager;
 import com.clougence.drivers.adapter.JdbcDriver;
 import com.clougence.utils.StringUtils;
 import com.mongodb.ServerAddress;
 
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * https://dev.mysql.com/doc/refman/8.0/en/information-schema.html
- * @author mode 2021/01/08 20:29
- */
 @Slf4j
-public class MongoJdbcDsFactory implements DsFactory<Connection> {
+abstract class AbstractMongoJdbcDsFactory implements DsFactory<Connection> {
+
+    private final String adapterName;
+
+    protected AbstractMongoJdbcDsFactory(String adapterName){
+        this.adapterName = adapterName;
+        AdapterManager.register(adapterName, new MongoConnectionFactory(adapterName));
+    }
 
     @Override
     public DsObject<Connection> create(Properties dsConfig) throws SQLException {
@@ -47,15 +52,15 @@ public class MongoJdbcDsFactory implements DsFactory<Connection> {
         }
 
         String id = dsConfig.getProperty(DsConfigKeys.ID.getConfigKey());
-        String username = dsConfig.getProperty(DsConfigKeys.USER.getConfigKey());
-        String password = dsConfig.getProperty(DsConfigKeys.PASSWORD.getConfigKey());
-        String loginTimeoutMs = dsConfig.getProperty(DsConfigKeys.LOGIN_TIMEOUT_MS.getConfigKey());
+        String driverVersion = dsConfig.getProperty(DsConfigKeys.DRIVER_VERSION.getConfigKey());
         String connTimeoutMs = dsConfig.getProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey());
         String soTimeoutSec = dsConfig.getProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey());
         String clientName = dsConfig.getProperty(DsConfigKeys.CLIENT_NAME.getConfigKey());
         String defaultSchema = dsConfig.getProperty(DsConfigKeys.DEFAULT_SCHEMA.getConfigKey());
-        String clientEncoding = dsConfig.getProperty(DsConfigKeys.CLIENT_ENCODING.getConfigKey());
         String tcpKeepAlive = dsConfig.getProperty(DsConfigKeys.TCP_KEEP_ALIVE.getConfigKey());
+        if (StringUtils.isNotBlank(driverVersion)) {
+            props.put(MongoKeys.DRIVER_VERSION, driverVersion);
+        }
         if (StringUtils.isNotBlank(clientName)) {
             // client info cannot contain spaces, newlines or special characters.
             clientName = clientName.replace(" ", "-");
@@ -81,22 +86,29 @@ public class MongoJdbcDsFactory implements DsFactory<Connection> {
             Connection connection = new JdbcDriver().connect(jdbcUrl, props);
             return new DsObject<>(dsConfig, connection, this);
         } catch (Exception e) {
-            log.error("create EsClient instanceID(MongoDB)=" + id + " ,hosts= " + dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey()) + ", error:" + e.getMessage());
+            log.error("create MongoDB connection failed, instanceId=" + id + ", hosts=" + dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey()), e);
             throw e;
         }
     }
 
     protected String buildJdbcUrl(Properties dsConfig) {
-        String jdbcURL = dsConfig.getProperty(DsConfigKeys.CUSTOM_URL.getConfigKey());
-        if (StringUtils.isNotBlank(jdbcURL)) {
-            return jdbcURL;
+        String jdbcUrl = dsConfig.getProperty(DsConfigKeys.CUSTOM_URL.getConfigKey());
+        if (StringUtils.isNotBlank(jdbcUrl)) {
+            if (jdbcUrl.startsWith(MongoKeys.LEGACY_START_URL)) {
+                return JdbcDriver.START_URL + this.adapterName + jdbcUrl.substring(MongoKeys.LEGACY_START_URL.length() - 1);
+            }
+            return jdbcUrl;
         }
         String username = dsConfig.getProperty(DsConfigKeys.USER.getConfigKey());
         String password = dsConfig.getProperty(DsConfigKeys.PASSWORD.getConfigKey());
         String host = dsConfig.getProperty(DsConfigKeys.HOST.getConfigKey());
         String hosts = buildHosts(parseServerAddress(host));
+        String startUrl = JdbcDriver.START_URL + this.adapterName + "://";
 
-        return String.format(JdbcDriver.START_URL + "mongodb://%s:%s@%s", username, password, hosts);
+        if (StringUtils.isBlank(username)) {
+            return startUrl + hosts;
+        }
+        return String.format(startUrl + "%s:%s@%s", username, password, hosts);
     }
 
     private List<ServerAddress> parseServerAddress(String mongoAddress) {
