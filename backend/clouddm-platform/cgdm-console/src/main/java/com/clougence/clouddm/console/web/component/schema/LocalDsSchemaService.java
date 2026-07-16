@@ -297,6 +297,10 @@ public class LocalDsSchemaService implements DsSchemaService {
 
     @Override
     public String loadTableEditor(DmDsDO dsDO, Map<UmiTypes, Object> levelsParam, String table, boolean refreshCache) {
+        if (refreshCache || isDisableMetaCache()) {
+            return null;
+        }
+
         String catalog = (String) levelsParam.get(UmiTypes.Catalog);
         String schema = (String) levelsParam.get(UmiTypes.Schema);
         return cacheService.getDetailCache(dsDO.getId(), catalog, schema, MetaInformationType.ETable, table);
