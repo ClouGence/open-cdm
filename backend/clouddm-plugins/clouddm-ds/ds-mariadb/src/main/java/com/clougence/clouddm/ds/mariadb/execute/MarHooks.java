@@ -16,6 +16,7 @@
 package com.clougence.clouddm.ds.mariadb.execute;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -38,6 +39,12 @@ public class MarHooks extends MyHooks {
     @Override
     public DsMetaService createMetaService(Session session) {
         return new MarMetaService(session);
+    }
+
+    @Override
+    protected void setFetchSize(PreparedStatement stmt) throws SQLException {
+        // MariaDB sessions use a standard fetch size; Connector/J is configured to use server-side cursors.
+        stmt.setFetchSize(200);
     }
 
     @Override
