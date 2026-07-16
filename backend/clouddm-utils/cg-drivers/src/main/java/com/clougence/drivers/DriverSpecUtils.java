@@ -46,6 +46,10 @@ public final class DriverSpecUtils {
         return slashIndex > 0 ? StringUtils.trimToNull(trimmed.substring(0, slashIndex)) : null;
     }
 
+    public static boolean matchesDriverFamily(String driverSpec, String driverFamily) {
+        return StringUtils.equals(resolveDriverFamily(driverSpec), driverFamily);
+    }
+
     public static String resolveDriverVersion(String driverSpec) {
         String trimmed = StringUtils.trimToNull(driverSpec);
         if (trimmed == null) {

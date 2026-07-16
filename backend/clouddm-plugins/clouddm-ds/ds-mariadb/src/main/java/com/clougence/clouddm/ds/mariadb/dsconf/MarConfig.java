@@ -74,18 +74,13 @@ public class MarConfig extends DataSourceConfig {
         properties.setProperty(DsConfigKeys.CONNECT_TIMEOUT_MS.getConfigKey(), safeStr(StringUtils.toString(this.getConnectTimeoutMs())));
         properties.setProperty(DsConfigKeys.SO_TIMEOUT_SEC.getConfigKey(), safeStr(StringUtils.toString(this.getSoTimeoutSec())));
         properties.setProperty(DsConfigKeys.CLIENT_TIME_ZONE.getConfigKey(), safeStr(this.getClientTimeZone()));
-        boolean mysqlConnectorJ = this.isMysqlConnectorJ();
+        boolean mysqlConnectorJ = DriverSpecUtils.matchesDriverFamily(this.getDriverVersion(), MYSQL_CONNECTOR_J);
         properties.setProperty("sslMode", mysqlConnectorJ ? this.mysqlSslMode() : this.mariaDbSslMode());
         if (mysqlConnectorJ) {
             properties.setProperty("useCursorFetch", "true");
             properties.setProperty("useServerPrepStmts", "true");
         }
         return properties;
-    }
-
-    private boolean isMysqlConnectorJ() {
-        String driverFamily = DriverSpecUtils.resolveDriverFamily(this.getDriverVersion());
-        return StringUtils.equals(MYSQL_CONNECTOR_J, driverFamily);
     }
 
     private String mysqlSslMode() {
