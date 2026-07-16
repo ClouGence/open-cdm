@@ -52,6 +52,13 @@ public class FooMetaBinder implements DsPluginBinder {
     }
 
     @Override
+    public void addGlobalFeature(String... featureIds) {
+        for (String featureId : featureIds) {
+            this.globalMeta.getGlobalFeatures().put(featureId, true);
+        }
+    }
+
+    @Override
     public void bindPluginI18n(Class<?>... clazz) {
         this.dsMeta.getPlusI18nUtil().loadResources(clazz);
     }

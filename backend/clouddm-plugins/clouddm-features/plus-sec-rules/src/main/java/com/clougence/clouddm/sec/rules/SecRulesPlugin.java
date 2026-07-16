@@ -46,6 +46,6 @@ public class SecRulesPlugin implements DsPlugin, DsFeatureIDs {
 
         FuncConstraintUtils.INSTANCE.setConstraintService(dsPlugin.findGlobalService(QueryConstraintService.class));
 
-        dsPlugin.addPluginFeature(FUNC_RULE_CHECK_SUPPORT);
+        dsPlugin.addGlobalFeature(FUNC_RULE_CHECK_SUPPORT);
     }
 }
