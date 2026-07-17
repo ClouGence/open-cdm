@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import groovy.json.JsonOutput
+import groovy.xml.XmlSlurper
+
 plugins {
     id 'java'
     id 'maven-publish'
@@ -58,6 +61,20 @@ def outputProfileEnabled = providers.gradleProperty('profile')
 def frontendBuildEnabled = providers.gradleProperty('buildFrontend')
         .map { it.toBoolean() }
         .orElse(outputProfileEnabled)
+def builtinDriverManifest = file("${projectDir}/../package/pkg/builtin-drivers/built-in-drivers.xml")
+def builtinDriversJson = file("${projectDir}/src/constants/builtin-drivers.json")
+
+tasks.register('generateBuiltinDriversJson') {
+    inputs.file(builtinDriverManifest)
+    outputs.file(builtinDriversJson)
+    doLast {
+        def drivers = new XmlSlurper().parse(builtinDriverManifest).driver.collect { driver ->
+            [driverFamily: driver.@driverFamily.text(), version: driver.@version.text()]
+        }
+        builtinDriversJson.parentFile.mkdirs()
+        builtinDriversJson.text = JsonOutput.prettyPrint(JsonOutput.toJson(drivers)) + System.lineSeparator()
+    }
+}
 
 sourceSets {
     main {
@@ -124,7 +141,7 @@ tasks.register('npmBuild', Exec) {
     inputs.dir("${projectDir}/src")
     inputs.file("${projectDir}/vue.config.js")
     outputs.dir("${projectDir}/dist")
-    dependsOn 'npmInstall'
+    dependsOn 'npmInstall', 'generateBuiltinDriversJson'
 }
 
 tasks.named('processResources') {
