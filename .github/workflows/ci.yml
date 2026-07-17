@@ -129,19 +129,27 @@ jobs:
         working-directory: package
         run: ./package.sh --build
 
-      - name: Stage built-in drivers for artifact
-        run: |
-          rm -rf package/build/built-in-drivers
-          mkdir -p package/build/built-in-drivers
-          cp -R package/pkg/builtin-drivers/bundle/. package/build/built-in-drivers/
-
-      - name: Upload tgz artifact
+      - name: Upload alone tgz artifact
         uses: actions/upload-artifact@v7
         with:
-          name: cgdm-tgz-dev
-          path: |
-            package/build/*.tar.gz
-            package/build/built-in-drivers
+          name: cgdm-tgz-dev-alone
+          path: package/build/cgdm-alone.tar.gz
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Upload console tgz artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: cgdm-tgz-dev-console
+          path: package/build/cgdm-console.tar.gz
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Upload sidecar tgz artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: cgdm-tgz-dev-sidecar
+          path: package/build/cgdm-sidecar.tar.gz
           if-no-files-found: error
           retention-days: 3
 
@@ -163,7 +171,7 @@ jobs:
       - name: Download tgz artifact
         uses: actions/download-artifact@v8
         with:
-          name: cgdm-tgz-dev
+          name: cgdm-tgz-dev-${{ matrix.service }}
           path: docker-ctx
 
       - name: Stage docker build context
