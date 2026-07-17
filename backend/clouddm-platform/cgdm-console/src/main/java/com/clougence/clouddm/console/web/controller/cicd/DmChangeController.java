@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
@@ -87,7 +86,7 @@ public class DmChangeController {
     public ResWebData<?> changeList(HttpServletRequest request, @Valid @RequestBody ChangeListFO fo) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
-        IPage<ChangeVO> result = this.dmChangeService.queryChangeByFlowAndQuery(puid, fo.getFlowId(), fo);
+        DmPageVO<ChangeVO> result = this.dmChangeService.queryChangeByFlowAndQuery(puid, fo.getFlowId(), fo);
         return ResWebDataUtils.buildSuccess(result);
     }
 

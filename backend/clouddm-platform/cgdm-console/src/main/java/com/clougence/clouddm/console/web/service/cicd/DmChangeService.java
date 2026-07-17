@@ -17,7 +17,6 @@ package com.clougence.clouddm.console.web.service.cicd;
 
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeExecuteInfo;
 import com.clougence.clouddm.console.web.component.cicd.model.ChangeTicketInfoResult;
@@ -37,7 +36,7 @@ import com.clougence.clouddm.platform.dal.model.cicd.DmChangeItemDO;
 
 public interface DmChangeService {
 
-    IPage<ChangeVO> queryChangeByFlowAndQuery(String ownerUid, long flowId, ChangeListFO fo);
+    DmPageVO<ChangeVO> queryChangeByFlowAndQuery(String ownerUid, long flowId, ChangeListFO fo);
 
     DmChangeDO queryChangeById(String ownerUid, long changeId);
 

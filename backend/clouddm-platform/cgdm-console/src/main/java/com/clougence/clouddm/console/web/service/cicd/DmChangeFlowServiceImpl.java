@@ -38,6 +38,7 @@ import com.clougence.clouddm.console.web.global.i18n.DmI18nUtils;
 import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.i18n.I18nRdpMsgKeys;
 import com.clougence.clouddm.console.web.model.fo.cicd.*;
+import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.ChangeFlowVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.GuideCreateChangeFlowVO;
 import com.clougence.clouddm.console.web.service.cicd.domain.DmBranchDef;
@@ -83,7 +84,7 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
     private DmDsService       dmDsService;
 
     @Override
-    public IPage<ChangeFlowVO> queryChangeFlowListByPage(String ownerUid, ChangeFlowListFO fo) {
+    public DmPageVO<ChangeFlowVO> queryChangeFlowListByPage(String ownerUid, ChangeFlowListFO fo) {
         Page<?> page = PageUtils.startPage(fo.getPage());
 
         ArgChangeFlowQueryObj queryParams = ArgChangeFlowQueryObj.builder()//
@@ -92,21 +93,17 @@ public class DmChangeFlowServiceImpl implements DmChangeFlowService {
             .build();
 
         IPage<DmChangeFlowDO> pageData = this.changeFlowDal.flowMapper().listFlowByConditionAndPage(page, queryParams, ownerUid);
+        DmPageVO<ChangeFlowVO> results = new DmPageVO<>(pageData);
         List<DmChangeFlowDO> records = pageData.getRecords();
         if (CollectionUtils.isEmpty(records)) {
-            return new Page<>();
+            return results;
         }
 
         List<ChangeFlowVO> vos = records.stream().map(obj -> {
             return DmConvertUtils.convertToChangeFlowVO(obj, this.objectCacheDao);
         }).collect(Collectors.toList());
 
-        IPage<ChangeFlowVO> results = new Page<>();
         results.setRecords(vos);
-        results.setCurrent(pageData.getCurrent());
-        results.setSize(pageData.getSize());
-        results.setPages(pageData.getPages());
-        results.setTotal(pageData.getTotal());
         return results;
     }
 

@@ -18,7 +18,6 @@ package com.clougence.clouddm.console.web.service.approval;
 import java.util.List;
 import java.util.Map;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.clougence.clouddm.console.web.model.fo.security.ListMyAuthTicketFO;
 import com.clougence.clouddm.console.web.model.fo.ticket.*;
 import com.clougence.clouddm.console.web.model.vo.DmBizLogVO;
@@ -57,9 +56,9 @@ public interface ApprovalControlService {
     // query
     //
 
-    IPage<RdpTicketBasicVO> queryTicketListByPage(String puid, RdpListTicketFO fo);
+    DmPageVO<RdpTicketBasicVO> queryTicketListByPage(String puid, RdpListTicketFO fo);
 
-    IPage<RdpTicketBasicVO> queryAuthTicketListByPage(String puid, ListMyAuthTicketFO fo);
+    DmPageVO<RdpTicketBasicVO> queryAuthTicketListByPage(String puid, ListMyAuthTicketFO fo);
 
     RdpTicketBaseInfoVO queryTicketBaseInfo(String puid, String uid, RdpQueryTicketDetailFO fo);
 

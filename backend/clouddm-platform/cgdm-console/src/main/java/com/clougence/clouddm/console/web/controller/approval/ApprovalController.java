@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
@@ -204,7 +203,7 @@ public class ApprovalController {
         String uid = (String) request.getAttribute(RdpUserService.UID);
         fo.setUid(uid);
 
-        IPage<RdpTicketBasicVO> result = this.approvalControlService.queryTicketListByPage(puid, fo);
+        DmPageVO<RdpTicketBasicVO> result = this.approvalControlService.queryTicketListByPage(puid, fo);
         return ResWebDataUtils.buildSuccess(result);
     }
 

@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.clougence.clouddm.api.common.exception.ErrorMessageException;
 import com.clougence.clouddm.api.common.rpc.ResWebData;
 import com.clougence.clouddm.api.common.rpc.ResWebDataUtils;
@@ -38,6 +37,7 @@ import com.clougence.clouddm.console.web.global.i18n.I18nDmMsgKeys;
 import com.clougence.clouddm.console.web.global.jwtsession.RequestAuth;
 import com.clougence.clouddm.console.web.model.fo.browse.BrowseLevelsFO;
 import com.clougence.clouddm.console.web.model.fo.cicd.*;
+import com.clougence.clouddm.console.web.model.vo.DmPageVO;
 import com.clougence.clouddm.console.web.model.vo.browse.BrowseLevelsVO;
 import com.clougence.clouddm.console.web.model.vo.cicd.*;
 import com.clougence.clouddm.console.web.service.auth.RdpUserService;
@@ -207,7 +207,7 @@ public class DmChangeFlowController {
     public ResWebData<?> flowList(HttpServletRequest request, @Valid @RequestBody ChangeFlowListFO fo) {
         String puid = (String) request.getAttribute(RdpUserService.PUID);
 
-        IPage<ChangeFlowVO> result = this.changeFlowService.queryChangeFlowListByPage(puid, fo);
+        DmPageVO<ChangeFlowVO> result = this.changeFlowService.queryChangeFlowListByPage(puid, fo);
         return ResWebDataUtils.buildSuccess(result);
     }
 
