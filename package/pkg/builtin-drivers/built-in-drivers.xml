@@ -28,17 +28,11 @@
     <driver driverFamily="SQL Server JDBC Driver" version="13.4.0">
         <resource type="maven">com.microsoft.sqlserver:mssql-jdbc:13.4.0.jre8</resource>
     </driver>
-    <driver driverFamily="IBM JCC" version="12.1.4.0">
-        <resource type="maven">com.ibm.db2:jcc:12.1.4.0</resource>
-    </driver>
     <driver driverFamily="IBM JTOpen" version="21.0.6">
         <resource type="maven">net.sf.jt400:jt400:21.0.6</resource>
     </driver>
     <driver driverFamily="Dameng JDBC Driver" version="8.1.3.140">
         <resource type="maven">com.dameng:DmJdbcDriver18:8.1.3.140</resource>
-    </driver>
-    <driver driverFamily="SAP Hana JDBC" version="2.28.6">
-        <resource type="maven">com.sap.cloud.db.jdbc:ngdbc:2.28.6</resource>
     </driver>
     <driver driverFamily="ODPS JDBC" version="3.10.5">
         <resource type="maven">com.aliyun.odps:odps-jdbc:3.10.5</resource>
@@ -48,9 +42,6 @@
     </driver>
     <driver driverFamily="ClickHouse JDBC" version="0.9.7">
         <resource type="maven">com.clickhouse:clickhouse-jdbc:0.9.7</resource>
-    </driver>
-    <driver driverFamily="GaussDB JDBC Driver" version="506.0.0.b058">
-        <resource type="maven">com.huaweicloud.gaussdb:gaussdbjdbc:506.0.0.b058</resource>
     </driver>
     <driver driverFamily="Jedis" version="7.4.1">
         <resource type="maven">redis.clients:jedis:7.4.1</resource>
