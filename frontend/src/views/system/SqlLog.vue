@@ -20,6 +20,7 @@
                 format="YYYY-MM-DD HH:mm"
                 :placeholder="[$t('kai-shi-shi-jian'), $t('jie-shu-shi-jian')]"
                 class="log-time-range"
+                @change="handleTimeRangeChange"
               />
               <Select v-model="searchType" style="width: 100px; margin-right: 10px" @on-change="handleChangeSearchType">
                 <Option value="user" :label="$t('cao-zuo-ren')">
@@ -207,6 +208,7 @@ export default {
       retentionLoading: false,
       retentionSaveLoading: false,
       retentionConfig: null,
+      followCurrentTimeRange: true,
       retentionForm: {
         sqlAuditRetentionDays: ''
       },
@@ -437,6 +439,10 @@ export default {
     },
 
     handleRefresh() {
+      if (this.followCurrentTimeRange) {
+        const now = dayjs();
+        this.timeRange = [now.subtract(1, 'day'), now];
+      }
       this.page = 1;
       this.firstId = 0;
       this.lastId = 0;
@@ -444,6 +450,10 @@ export default {
       this.currentPageSize = this.searchData.pageData.pageSize;
       this.searchData.pageData.startId = 0;
       this.handleSearch();
+    },
+
+    handleTimeRangeChange() {
+      this.followCurrentTimeRange = false;
     },
 
     async handleOpenRetentionSetting() {

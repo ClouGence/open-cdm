@@ -94,10 +94,10 @@
             AND uid = #{uid}
         </if>
         <if test="dateStart != null">
-            <![CDATA[ AND gmt_create >= #{dateStart} ]]>
+            <![CDATA[ AND operate_time >= #{dateStart} ]]>
         </if>
         <if test="dateEnd != null">
-            <![CDATA[ AND gmt_create <= #{dateEnd} ]]>
+            <![CDATA[ AND operate_time <= #{dateEnd} ]]>
         </if>
         <if test="sqlKind != null">
             <![CDATA[ AND sql_kind = #{sqlKind} ]]>
