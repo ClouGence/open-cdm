@@ -32,6 +32,10 @@ tasks.register('tgz', Tar) {
         project.file("$buildDir/emptyFoldersRoot/logs").mkdirs()
         project.file("$buildDir/emptyFoldersRoot/data").mkdirs()
         from "$buildDir/emptyFoldersRoot"
+        from rootProject.file("../LICENSE.txt")
+    }
+    into("${sidecarPath}/legal") {
+        from "${projectDir}/../../legal"
     }
     into("${sidecarPath}/bin") {
         from "${buildDir}/../app.conf"
