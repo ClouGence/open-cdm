@@ -103,24 +103,24 @@ jobs:
       - name: Upload alone tgz artifact
         uses: actions/upload-artifact@v7
         with:
-          name: cgdm-tgz-alone
           path: package/build/cgdm-alone.tar.gz
+          archive: false
           if-no-files-found: error
           retention-days: 14
 
       - name: Upload console tgz artifact
         uses: actions/upload-artifact@v7
         with:
-          name: cgdm-tgz-console
           path: package/build/cgdm-console.tar.gz
+          archive: false
           if-no-files-found: error
           retention-days: 14
 
       - name: Upload sidecar tgz artifact
         uses: actions/upload-artifact@v7
         with:
-          name: cgdm-tgz-sidecar
           path: package/build/cgdm-sidecar.tar.gz
+          archive: false
           if-no-files-found: error
           retention-days: 14
 
@@ -139,7 +139,7 @@ jobs:
       - name: Download tgz artifact
         uses: actions/download-artifact@v8
         with:
-          name: cgdm-tgz-${{ matrix.service }}
+          name: cgdm-${{ matrix.service }}.tar.gz
           path: docker-ctx
 
       - name: Stage docker build context
@@ -219,7 +219,7 @@ jobs:
       - name: Download tgz artifacts
         uses: actions/download-artifact@v8
         with:
-          pattern: cgdm-tgz-*
+          pattern: cgdm-*.tar.gz
           merge-multiple: true
           path: release-assets
 
