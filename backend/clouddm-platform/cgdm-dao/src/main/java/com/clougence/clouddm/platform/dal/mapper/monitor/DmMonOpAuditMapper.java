@@ -19,8 +19,8 @@ import java.util.Date;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 import com.clougence.clouddm.platform.dal.model.monitor.DmMonOpAuditDO;
+import com.clougence.clouddm.platform.dal.model.monitor.SecurityLevel;
 
 /**
  * @author bucketli 2020/2/29 12:00
@@ -53,16 +53,18 @@ public interface DmMonOpAuditMapper extends BaseMapper<DmMonOpAuditDO> {
      * @param pageSize      not null
      */
     List<DmMonOpAuditDO> queryByUidJoinUrlAuth(String uid, SecurityLevel securityLevel, String auditType, String resourceType, Date dateStart, Date dateEnd, long startId,
-                                             int pageSize);
+                                               int pageSize);
 
     List<DmMonOpAuditDO> queryByUidsJoinUrlAuth(String ownerUid, SecurityLevel securityLevel, String auditType, String resourceType, Date dateStart, Date dateEnd, long startId,
-                                              int pageSize);
+                                                int pageSize);
 
     List<DmMonOpAuditDO> queryByCondition(String puid, String uid, SecurityLevel securityLevel, String auditType, String resourceType, String userNameLike, Date dateStart,
-                                        Date dateEnd, long startId, int pageSize);
+                                          Date dateEnd, long startId, int pageSize);
 
     List<DmMonOpAuditDO> pageByCondition(String puid, String uid, SecurityLevel securityLevel, String auditType, String resourceType, String userNameLike, Date dateStart,
-                                       Date dateEnd, int offset, int pageSize);
+                                         Date dateEnd, int offset, int pageSize);
+
+    long countByCondition(String puid, String uid, SecurityLevel securityLevel, String auditType, String resourceType, String userNameLike, Date dateStart, Date dateEnd);
 
     List<DmMonOpAuditDO> querySection(long startId, int pageSize);
 }

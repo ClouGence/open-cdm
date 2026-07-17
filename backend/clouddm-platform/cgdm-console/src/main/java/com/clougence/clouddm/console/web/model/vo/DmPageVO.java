@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.clougence.clouddm.console.web.model.vo.ticket;
+package com.clougence.clouddm.console.web.model.vo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,12 +31,25 @@ public class DmPageVO<T> {
     private long    pages;
     private long    size;
     private long    total;
-    private List<T> records = new ArrayList<T>();
+    private List<T> records = new ArrayList<>();
 
-    public DmPageVO(IPage page){
+    public DmPageVO(IPage<?> page){
         this.current = page.getCurrent();
         this.pages = page.getPages();
         this.total = page.getTotal();
         this.size = page.getSize();
+    }
+
+    public DmPageVO(long current, long size, long total, List<T> records){
+        this.current = current;
+        this.size = size;
+        this.total = total;
+        this.records = records;
+        if (size > 0) {
+            this.pages = total / size;
+            if (total % size != 0) {
+                this.pages++;
+            }
+        }
     }
 }

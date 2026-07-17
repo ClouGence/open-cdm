@@ -27,7 +27,8 @@
     </resultMap>
 
     <sql id="dmSqlAuditDOMap">
-        id,
+        id
+        ,
         gmt_create,
         gmt_modified,
         operate_time,
@@ -51,45 +52,8 @@
         data_source_type
     </sql>
 
-    <update id="updateBySessionId">
-        update dm_exec_sql_audit
-        set status = #{status},affect_line = #{affectLine},status = #{status},message = #{message},end_time = #{time}
-        where session_id = #{sessionId} and status = 'RUNNING'
-    </update>
-
-    <update id="confirmSession">
-        update dm_exec_sql_audit
-        set status = 'SUCCESS'
-        where session_id = #{sessionId} and status = 'WAIT_CONFIRM'
-    </update>
-
-    <update id="rollbackSession">
-        update dm_exec_sql_audit
-        set status = 'ROLLBACK'
-        where session_id = #{sessionId} and status = 'WAIT_CONFIRM'
-    </update>
-    
-    <update id="updateErrorSql">
-        update dm_exec_sql_audit
-        set status = 'ERROR'
-        where work_seq_number = #{wsn} and status in ('RUNNING','WAIT_CONFIRM')
-    </update>
-
-    <delete id="deleteAuditBeforeDate">
-        delete from dm_exec_sql_audit
-        where primary_uid = #{puid} and #{date} > end_time limit 500
-    </delete>
-
-    <select id="queryByCondition" resultMap="dmSqlAudit">
-        select
-            <include refid="dmSqlAuditDOMap"/>
-        from
-            dm_exec_sql_audit
-        WHERE 1=1
+    <sql id="sqlAuditCondition">
         AND primary_uid = #{puid}
-        <if test="startId != 0">
-            <![CDATA[ AND id < #{startId} ]]>
-        </if>
         <if test="uid != null and uid != ''">
             AND uid = #{uid}
         </if>
@@ -114,7 +78,62 @@
         <if test="dsId != null">
             <![CDATA[ AND ds_id = #{dsId} ]]>
         </if>
-        ORDER BY operate_time DESC,id LIMIT #{pageSize}
+    </sql>
+
+    <update id="updateBySessionId">
+        update dm_exec_sql_audit
+        set status      = #{status},
+            affect_line = #{affectLine},
+            status      = #{status},
+            message     = #{message},
+            end_time    = #{time}
+        where session_id = #{sessionId}
+          and status = 'RUNNING'
+    </update>
+
+    <update id="confirmSession">
+        update dm_exec_sql_audit
+        set status = 'SUCCESS'
+        where session_id = #{sessionId}
+          and status = 'WAIT_CONFIRM'
+    </update>
+
+    <update id="rollbackSession">
+        update dm_exec_sql_audit
+        set status = 'ROLLBACK'
+        where session_id = #{sessionId}
+          and status = 'WAIT_CONFIRM'
+    </update>
+
+    <update id="updateErrorSql">
+        update dm_exec_sql_audit
+        set status = 'ERROR'
+        where work_seq_number = #{wsn}
+          and status in ('RUNNING', 'WAIT_CONFIRM')
+    </update>
+
+    <delete id="deleteAuditBeforeDate">
+        delete
+        from dm_exec_sql_audit
+        where primary_uid = #{puid}
+          and #{date} > end_time limit 500
+    </delete>
+
+    <select id="pageByCondition" resultMap="dmSqlAudit">
+        select
+        <include refid="dmSqlAuditDOMap"/>
+        from
+        dm_exec_sql_audit
+        WHERE 1=1
+        <include refid="sqlAuditCondition"/>
+        ORDER BY operate_time DESC,id LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="countByCondition" resultType="long">
+        SELECT COUNT(*)
+        FROM dm_exec_sql_audit
+        WHERE 1=1
+        <include refid="sqlAuditCondition"/>
     </select>
 
 

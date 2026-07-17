@@ -5,7 +5,8 @@
         <div class="content">
           <div class="option border-radius-card">
             <div class="left" style="align-items: center">
-              <Select v-model="auditLogType" style="width: 120px; margin-right: 10px" @on-change="handleChangeAuditLogType">
+              <Select v-model="auditLogType" style="width: 120px; margin-right: 10px"
+                      @on-change="handleChangeAuditLogType">
                 <Option value="operation" :label="$t('cao-zuo-shen-ji')">
                   <span>{{ $t('cao-zuo-shen-ji') }}</span>
                 </Option>
@@ -21,7 +22,8 @@
                 :placeholder="[$t('kai-shi-shi-jian'), $t('jie-shu-shi-jian')]"
                 class="log-time-range"
               />
-              <Select v-model="searchType" style="width: 100px; margin-right: 10px" @on-change="handleChangeSearchType">
+              <Select v-model="searchType" style="width: 100px; margin-right: 10px"
+                      @on-change="handleChangeSearchType">
                 <Option value="user" :label="$t('cao-zuo-ren')">
                   <span>{{ $t('cao-zuo-ren') }}</span>
                 </Option>
@@ -35,34 +37,41 @@
                   <span>uid</span>
                 </Option>
               </Select>
-              <Input v-if="searchType === 'user'" v-model="searchData.userNameLike" @on-keydown="handleEnterSearch" style="width: 250px" clearable />
-              <Input v-if="searchType === 'uid'" v-model="searchData.uid" @on-keydown="handleEnterSearch" style="width: 250px" clearable />
-              <Select v-if="searchType === 'resourceType'" v-model="searchData.resourceType" style="width: 200px" clearable>
+              <Input v-if="searchType === 'user'" v-model="searchData.userNameLike"
+                     @on-keydown="handleEnterSearch" style="width: 250px" clearable/>
+              <Input v-if="searchType === 'uid'" v-model="searchData.uid"
+                     @on-keydown="handleEnterSearch" style="width: 250px" clearable/>
+              <Select v-if="searchType === 'resourceType'" v-model="searchData.resourceType"
+                      style="width: 200px" clearable>
                 <Option value="" :label="$t('quan-bu')">{{ $t('quan-bu') }}</Option>
-                <Option v-for="item in resourceTypeList" :value="item.resourceType" :key="item.resourceType">
+                <Option v-for="item in resourceTypeList" :value="item.resourceType"
+                        :key="item.resourceType">
                   {{ item.alias }}
                 </Option>
               </Select>
-              <Select v-if="searchType === 'auditType'" v-model="searchData.auditType" filterable style="width: 200px" clearable>
+              <Select v-if="searchType === 'auditType'" v-model="searchData.auditType" filterable
+                      style="width: 200px" clearable>
                 <Option value="" :label="$t('quan-bu')">{{ $t('quan-bu') }}</Option>
                 <Option v-for="item in auditTypeList" :value="item.auditType" :key="item.auditType">
                   {{ item.alias }}
                 </Option>
               </Select>
-              <Button type="primary" ghost @click="handleRefresh" :loading="refreshLoading" style="margin-left: 10px">
+              <Button type="primary" ghost @click="handleRefresh" :loading="refreshLoading"
+                      style="margin-left: 10px">
                 {{ $t('cha-xun') }}
               </Button>
             </div>
             <div class="right">
               <Tooltip transfer :content="$t('dao-chu')" placement="bottom">
                 <Button type="default" style="margin-right: 6px" @click="handleExport">
-                  <CustomIcon type="icon-v2-daochu" />
+                  <CustomIcon type="icon-v2-daochu"/>
                 </Button>
               </Tooltip>
             </div>
           </div>
           <div class="table-container audit-log-table">
-            <Table size="small" border :columns="logColumn" :data="logData" :loading="refreshLoading" :scroll="tableScroll">
+            <Table size="small" border :columns="logColumn" :data="logData"
+                   :loading="refreshLoading" :scroll="tableScroll">
               <template #resourceValue="{ row }">
                 <p v-if="row.resourceType !== 'PURE_URL'">
                   {{ row.resourceVO && row.resourceVO.resourceFlag }}
@@ -114,7 +123,7 @@
             <span class="point-content">{{ auditLogDetail.path }}</span>
           </p>
           <div class="warn-text" v-if="isParseError">
-            <CustomIcon type="icon-v2-WarnColorful" rightMargin />
+            <CustomIcon type="icon-v2-WarnColorful" rightMargin/>
             <div>{{ $t('dang-qian-can-shu-guo-da-jian-yi-fu-zhi-hou-zi-hang-cha-kan') }}</div>
           </div>
           <div class="detail">
@@ -131,7 +140,9 @@
       <template #footer>
         <div>
           <Button @click="handleCancel">{{ $t('guan-bi') }}</Button>
-          <Button v-if="isParseError" @click="copyText(auditLogDetail.content, $t('fu-zhi-can-shu-cheng-gong'))" type="primary">
+          <Button v-if="isParseError"
+                  @click="copyText(auditLogDetail.content, $t('fu-zhi-can-shu-cheng-gong'))"
+                  type="primary">
             {{ $t('fu-zhi-can-shu') }}
           </Button>
         </div>
@@ -146,7 +157,8 @@
             </FormItem>
             <FormItem :label="$t('dao-chu-tiao-shu')">
               <div class="export-row-count">
-                <RadioGroup v-model="exportForm.rowMode" type="button" class="export-radio-group" :disabled="exportLoading">
+                <RadioGroup v-model="exportForm.rowMode" type="button" class="export-radio-group"
+                            :disabled="exportLoading">
                   <Radio :label="'all'" :disabled="exportLoading">{{ $t('quan-bu') }}</Radio>
                   <Radio :label="'part'" :disabled="exportLoading">{{ $t('bu-fen') }}</Radio>
                 </RadioGroup>
@@ -162,8 +174,10 @@
               </div>
             </FormItem>
             <FormItem :label="$t('dao-chu-ge-shi')">
-              <RadioGroup v-model="exportForm.formatName" type="button" class="export-radio-group" :disabled="exportLoading">
-                <Radio v-for="item in exportTypes" :label="item.name" :key="item.name" :disabled="exportLoading">
+              <RadioGroup v-model="exportForm.formatName" type="button" class="export-radio-group"
+                          :disabled="exportLoading">
+                <Radio v-for="item in exportTypes" :label="item.name" :key="item.name"
+                       :disabled="exportLoading">
                   {{ item.description || item.name }}
                 </Radio>
               </RadioGroup>
@@ -171,8 +185,9 @@
             <FormItem v-if="exportLoading">
               <Tooltip transfer :content="exportProgressTooltip" placement="top">
                 <div style="width: 266px">
-                  <Progress v-if="exportProgress.stage === 'PREPARING'" :percent="100" status="active" hide-info />
-                  <Progress v-else type="circle" :percent="exportProgress.percent" :width="46" />
+                  <Progress v-if="exportProgress.stage === 'PREPARING'" :percent="100"
+                            status="active" hide-info/>
+                  <Progress v-else type="circle" :percent="exportProgress.percent" :width="46"/>
                 </div>
               </Tooltip>
             </FormItem>
@@ -182,7 +197,8 @@
       <template #footer>
         <div>
           <Button @click="handleCancel">{{ $t('guan-bi') }}</Button>
-          <Button :loading="exportLoading" :disabled="exportLoading" type="primary" @click="handleConfirmExport">
+          <Button :loading="exportLoading" :disabled="exportLoading" type="primary"
+                  @click="handleConfirmExport">
             {{ exportButtonText }}
           </Button>
         </div>
@@ -193,9 +209,9 @@
 <script>
 import fecha from 'fecha';
 import Mapping from '@/views/util';
-import { mapState } from 'vuex';
+import {mapState} from 'vuex';
 import copyMixin from '@/mixins/copyMixin';
-import { EVENT_BUS_NAME_LIST } from '@/utils/eventBusName';
+import {EVENT_BUS_NAME_LIST} from '@/utils/eventBusName';
 import dayjs from '@/utils/dayjsSetup';
 
 export default {
@@ -206,15 +222,12 @@ export default {
       resourceType: Mapping.resourceType,
       auditLogType: 'operation',
       searchType: 'user',
-      noMoreData: false,
       refreshLoading: false,
       showAuditDetail: false,
       showExport: false,
       exportLoading: false,
-      firstId: 0,
-      lastId: 0,
-      prevFirst: [],
       page: 1,
+      total: 0,
       timeRange: [dayjs().subtract(1, 'day'), dayjs()],
       searchData: {
         uid: '',
@@ -223,7 +236,7 @@ export default {
         opEnd: '',
         // securityLevel:'',
         pageData: {
-          startId: 0,
+          pageNumber: 1,
           pageSize: 20
         }
       },
@@ -291,7 +304,7 @@ export default {
           ],
           filterRemote(value) {
             this.searchData.securityLevel = value[0];
-            this.handleSearch();
+            this.handleRefresh();
           }
         },
         {
@@ -326,7 +339,7 @@ export default {
       const scrollX = this.logColumn.reduce((sum, column) => {
         return sum + (column.width || column.minWidth || 0);
       }, 0);
-      return { x: scrollX };
+      return {x: scrollX};
     },
     exportTypes() {
       return this.dmGlobalSetting?.fmtConvertDef || [];
@@ -381,12 +394,6 @@ export default {
     },
     pageSize() {
       return this.searchData.pageData.pageSize;
-    },
-    total() {
-      if (this.noMoreData) {
-        return (this.page - 1) * this.pageSize + this.logData.length;
-      }
-      return this.page * this.pageSize + 1;
     }
   },
   created() {
@@ -395,7 +402,6 @@ export default {
   mounted() {
     this.$bus.on(EVENT_BUS_NAME_LIST.WS_RES_EXPORT_EVENT, this.handleOpAuditExportEvent);
     this.handleSearch();
-    this.searchData.pageData.pageSize = 20;
   },
   beforeUnmount() {
     this.$bus.off(EVENT_BUS_NAME_LIST.WS_RES_EXPORT_EVENT, this.handleOpAuditExportEvent);
@@ -497,7 +503,7 @@ export default {
         percent: 0
       };
       this.syncTimeRangeQuery();
-      const data = { ...this.searchData };
+      const data = {...this.searchData};
       data.exportId = exportId;
       data.formatName = this.exportForm.formatName;
       data.maxRows = maxRows;
@@ -524,7 +530,7 @@ export default {
             }
           }
 
-          const blob = new Blob([res.data], { type: res.headers['content-type'] || 'application/octet-stream' });
+          const blob = new Blob([res.data], {type: res.headers['content-type'] || 'application/octet-stream'});
           const link = document.createElement('a');
           link.href = window.URL.createObjectURL(blob);
           link.download = fileName;
@@ -540,9 +546,7 @@ export default {
     },
     handleRefresh() {
       this.page = 1;
-      this.firstId = 0;
-      this.lastId = 0;
-      this.searchData.pageData.startId = 0;
+      this.searchData.pageData.pageNumber = 1;
       this.handleSearch();
     },
     syncTimeRangeQuery() {
@@ -562,80 +566,34 @@ export default {
         }
       });
     },
-    async handleSearch(type) {
+    async handleSearch() {
       this.refreshLoading = true;
       this.syncTimeRangeQuery();
-      this.searchData.pageData.pageSize = 20;
+      this.searchData.pageData.pageNumber = this.page;
       this.$services
-        .rdpAuditQueryAll({ data: this.searchData })
+        .rdpAuditQueryAll({data: this.searchData})
         .then((res) => {
           if (res.success) {
-            this.logData = res.data;
-            if (type === 'next') {
-              if (!this.prevFirst[this.page - 1]) {
-                this.prevFirst.push(this.firstId);
-              }
-            }
-            if (this.logData.length > 0) {
-              this.firstId = this.logData[0].id;
-              this.lastId = this.logData[this.logData.length - 1].id;
-            } else {
-              this.firstId = 0;
-              this.lastId = 0;
-            }
+            this.logData = res.data.records;
+            this.total = res.data.total;
           }
           this.refreshLoading = false;
-          this.noMoreData = res.data.length < this.searchData.pageData.pageSize;
         })
         .catch(() => {
           this.refreshLoading = false;
         });
     },
-    handlePre() {
-      if (this.page <= 1) {
-        return;
-      }
-      this.page--;
-      let startId = this.prevFirst[this.page - 1] + 1;
-
-      if (startId < 0) {
-        startId = 0;
-      }
-      this.searchData.pageData.startId = startId;
-      this.handleSearch('prev');
-    },
-    handleNext() {
-      this.searchData.pageData.startId = this.lastId;
-      this.handleSearch('next');
-      this.page++;
-    },
     handlePageChange(nextPage) {
-      if (nextPage === this.page) {
-        return;
-      }
-      if (nextPage > this.page) {
-        if (this.noMoreData || nextPage !== this.page + 1) {
-          return;
-        }
-        this.handleNext();
-        return;
-      }
       this.page = nextPage;
-      let startId = 0;
-      if (nextPage > 1 && this.prevFirst[nextPage - 1] !== undefined) {
-        startId = this.prevFirst[nextPage - 1] + 1;
-      }
-      if (startId < 0) {
-        startId = 0;
-      }
-      this.searchData.pageData.startId = startId;
-      this.handleSearch('prev');
+      this.searchData.pageData.pageNumber = nextPage;
+      this.handleSearch();
     },
     handlePageSizeChange(pageSize) {
       this.searchData.pageData.pageSize = pageSize;
       this.handleRefresh();
     },
     handleChangeSearchType() {
+      this.page = 1;
       // Reset all search values when switching query type
       this.searchData = {
         uid: '',
@@ -644,7 +602,7 @@ export default {
         opEnd: '',
         // securityLevel:'',
         pageData: {
-          startId: 0,
+          pageNumber: 1,
           pageSize: 20
         }
       };
@@ -655,7 +613,7 @@ export default {
     handleGetAuditDetail(row) {
       this.$services
         .rdpLogViewGrepOperationLog({
-          data: { operationId: row.id }
+          data: {operationId: row.id}
         })
         .then((res) => {
           if (res.success) {
