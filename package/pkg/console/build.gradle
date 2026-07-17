@@ -74,6 +74,10 @@ tasks.register('tgz', Tar) {
             }
         }
     }
+    dependsOn ':pkg-builtin-drivers:generateBuiltinDrivers'
+    into("${consolePath}/built-in-drivers") {
+        from "${projectDir}/../../build/built-in-drivers"
+    }
 
     archiveFileName = "cgdm-console.tar.gz"
     destinationDirectory = file("${buildDir}/dist")

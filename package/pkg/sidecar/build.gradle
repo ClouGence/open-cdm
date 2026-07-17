@@ -67,6 +67,10 @@ tasks.register('tgz', Tar) {
             }
         }
     }
+    dependsOn ':pkg-builtin-drivers:generateBuiltinDrivers'
+    into("${sidecarPath}/built-in-drivers") {
+        from "${projectDir}/../../build/built-in-drivers"
+    }
 
     archiveFileName = "cgdm-sidecar.tar.gz"
     destinationDirectory = file("${buildDir}/dist")

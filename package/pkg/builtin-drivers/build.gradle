@@ -1,5 +1,6 @@
 /*
- * Build-time module that resolves the built-in driver bundle for Docker images.
+ * Build-time module that resolves the built-in driver bundle for release distributions
+ * (tgz packages and Docker images).
  * Not part of any runtime artifact; only the generateBuiltinDrivers task output is consumed.
  */
 plugins {
@@ -19,12 +20,19 @@ tasks.register('generateBuiltinDrivers', JavaExec) {
     group = 'build'
     description = 'Resolve built-in drivers into package/build/built-in-drivers'
 
-    def configFile = file("${projectDir}/../../docker/built-in-drivers.xml")
+    def configFile = file("${projectDir}/built-in-drivers.xml")
     def outputDir = file("${projectDir}/../../build/built-in-drivers")
 
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'com.clougence.clouddm.pkg.drivers.BuiltinDriverBundler'
     args configFile.absolutePath, outputDir.absolutePath
+
+    inputs.file configFile
+    outputs.dir outputDir
+
+    // The runtime classpath overlaps inner-driver-loader's build/libs, where customFatJar also
+    // writes; order after it so both tasks can share one task graph with the tgz packaging.
+    mustRunAfter ':inner-driver-loader:customFatJar'
 
     doFirst {
         delete outputDir

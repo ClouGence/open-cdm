@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Drivers bundled into the Docker images (baked into the image layer at
-  <APP_HOME>/built-in-drivers, resolved at image build time by
+  Drivers bundled into the release distributions, both tgz packages and Docker
+  images (shipped at <APP_HOME>/built-in-drivers, resolved at build time by
   package/pkg/builtin-drivers:generateBuiltinDrivers).
 
   IMPORTANT: driverFamily / version / maven coordinate must exactly match the
