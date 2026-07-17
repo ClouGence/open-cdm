@@ -312,7 +312,7 @@
           <span v-if="ticketDetail.ticketMessage" class="parse-error-msgContent">*{{ ticketDetail.ticketMessage }}</span>
         </div>
       </template>
-      <read-only-editor :text="ticketDetail.rawSql" key="raw" :border="0" :ds-type="ticketDetail.dataSourceType" collapsible />
+      <read-only-editor :text="ticketDetail.rawSql" key="raw" :border="0" :ds-type="ticketDetail.dataSourceType" fit-viewport />
     </Card>
     <Card class="ticket-content" v-if="ticketType === 'DATA_SOURCE_AUTH'">
       <template #title>
