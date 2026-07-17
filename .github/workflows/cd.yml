@@ -35,7 +35,7 @@ jobs:
       CG_CLOUDDM_MAIN_VERSION: ${{ inputs.version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -71,16 +71,16 @@ jobs:
           fi
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Set up Node.js 22.22.1
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22.22.1
           cache: npm
@@ -91,7 +91,7 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Cache built-in drivers bundle
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: package/pkg/builtin-drivers/bundle
           key: builtin-drivers-${{ hashFiles('package/pkg/builtin-drivers/built-in-drivers.xml') }}
@@ -107,7 +107,7 @@ jobs:
           cp -R package/pkg/builtin-drivers/bundle/. package/build/built-in-drivers/
 
       - name: Upload tgz artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cgdm-tgz
           path: |
@@ -126,10 +126,10 @@ jobs:
         service: [alone, console, sidecar]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Download tgz artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cgdm-tgz
           path: docker-ctx
@@ -141,23 +141,23 @@ jobs:
           ls -R docker-ctx/shared
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Expose GitHub Actions runtime for buildx cache
-        uses: crazy-max/ghaction-github-runtime@v3
+        uses: crazy-max/ghaction-github-runtime@v4
 
       - name: Log in to China registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.CHINA_REGISTRY }}
           username: ${{ secrets.CGDM_DOCKER_CHINA_USERNAME }}
           password: ${{ secrets.CGDM_DOCKER_CHINA_PASSWORD }}
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.GLOBAL_REGISTRY }}
           username: ${{ secrets.CGDM_DOCKER_GLOBAL_USERNAME }}
@@ -165,7 +165,7 @@ jobs:
 
       - name: Generate image tags
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             ${{ env.CHINA_IMAGE_PREFIX }}-${{ matrix.service }}
@@ -175,7 +175,7 @@ jobs:
             type=raw,value=latest,enable=${{ inputs.latest }}
 
       - name: Build and push ${{ matrix.service }}
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         env:
           TAGS: ${{ steps.meta.outputs.tags }}
           SERVICE: ${{ matrix.service }}
@@ -206,10 +206,10 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Download tgz artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cgdm-tgz
           path: release-assets

@@ -21,16 +21,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Run tests
         working-directory: backend
@@ -38,7 +38,7 @@ jobs:
 
       - name: Upload test reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: backend-test-reports
           path: |
@@ -52,23 +52,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Verify built-in driver metadata
         working-directory: backend
         run: ./gradlew :cgdm-web:verifyBuiltinDriversJson
 
       - name: Set up Node.js 22.22.1
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22.22.1
           cache: npm
@@ -97,19 +97,19 @@ jobs:
     if: (github.event_name == 'push' && github.ref == 'refs/heads/dev') || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Set up Node.js 22.22.1
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22.22.1
           cache: npm
@@ -120,7 +120,7 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Cache built-in drivers bundle
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: package/pkg/builtin-drivers/bundle
           key: builtin-drivers-${{ hashFiles('package/pkg/builtin-drivers/built-in-drivers.xml') }}
@@ -136,7 +136,7 @@ jobs:
           cp -R package/pkg/builtin-drivers/bundle/. package/build/built-in-drivers/
 
       - name: Upload tgz artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cgdm-tgz-dev
           path: |
@@ -158,10 +158,10 @@ jobs:
         service: [alone, console, sidecar]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Download tgz artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cgdm-tgz-dev
           path: docker-ctx
@@ -170,13 +170,13 @@ jobs:
         run: cp -r package/docker/shared docker-ctx/shared
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -184,7 +184,7 @@ jobs:
 
       - name: Generate image tags
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/${{ github.repository }}-${{ matrix.service }}
           tags: |
@@ -192,7 +192,7 @@ jobs:
             type=sha
 
       - name: Build and push ${{ matrix.service }}
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: docker-ctx
           file: package/docker/${{ matrix.service }}.Dockerfile
