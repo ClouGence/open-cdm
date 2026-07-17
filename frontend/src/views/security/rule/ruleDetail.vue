@@ -1,14 +1,14 @@
 <script>
-import { mapActions, mapState } from 'vuex';
+import {mapActions, mapState} from 'vuex';
 import ReadOnlyEditor from '@/components/editor/ReadOnlyEditor';
 import TicketEditor from '@/components/editor/TicketEditor';
-import { EMPTY_FORCE_RULE_MODAL } from '@/const';
+import {EMPTY_FORCE_RULE_MODAL} from '@/const';
 import DataSourceRangeTags from '@/views/security/components/DataSourceRangeTags';
-import { cloneDeep as deepClone } from '@/utils/lodash';
+import {cloneDeep as deepClone} from '@/utils/lodash';
 
 export default {
   name: 'RuleDetail',
-  components: { DataSourceRangeTags, TicketEditor, ReadOnlyEditor },
+  components: {DataSourceRangeTags, TicketEditor, ReadOnlyEditor},
   data() {
     return {
       supportTargets: [],
@@ -105,7 +105,17 @@ export default {
       });
 
       if (res.success) {
-        const { ruleName, ruleDesc, ruleType, senMode, targetType, dsRange, ruleParameter, ruleContent, ruleKind } = res.data;
+        const {
+          ruleName,
+          ruleDesc,
+          ruleType,
+          senMode,
+          targetType,
+          dsRange,
+          ruleParameter,
+          ruleContent,
+          ruleKind
+        } = res.data;
         this.ruleForm = {
           ...this.ruleForm,
           ruleContent,
@@ -172,10 +182,10 @@ export default {
           const data = this.forceRuleModal.show
             ? this.forceRuleModal.data
             : {
-                ...this.ruleForm,
-                force,
-                content: this.$refs.ruleEditor.getSql()
-              };
+              ...this.ruleForm,
+              force,
+              content: this.$refs.ruleEditor.getSql()
+            };
           const res = await this.$services.dmSecurityRulesRuleSave({
             data
           });
@@ -213,15 +223,18 @@ export default {
     <div class="rule-detail-layout">
       <div class="rule-config-card">
         <div class="rule-section-title">{{ $t('gui-ze-pei-zhi') }}</div>
-        <Form ref="ruleForm" class="rule-config-form" :model="ruleForm" :rules="ruleFormValidate" label-position="top">
+        <Form ref="ruleForm" class="rule-config-form" :model="ruleForm" :rules="ruleFormValidate"
+              label-position="top">
           <FormItem :label="$t('gui-ze-lei-xing')" prop="ruleKind">
-            <Select v-model="ruleForm.ruleKind" :disabled="isView" clearable @on-change="handleRuleKindChange">
+            <Select v-model="ruleForm.ruleKind" :disabled="isView" clearable
+                    @on-change="handleRuleKindChange">
               <Option value="QUERY">{{ $t('cha-xun') }}</Option>
               <Option value="SENSITIVE">{{ $t('tuo-min') }}</Option>
             </Select>
           </FormItem>
           <FormItem :label="$t('gui-ze-ming-cheng')" prop="ruleName">
-            <Input v-model="ruleForm.ruleName" :disabled="isView" clearable maxlength="64" :placeholder="$t('qing-shu-ru-gui-ze-ming-cheng')" />
+            <Input v-model="ruleForm.ruleName" :disabled="isView" clearable maxlength="64"
+                   :placeholder="$t('qing-shu-ru-gui-ze-ming-cheng')"/>
           </FormItem>
           <FormItem :label="$t('gui-ze-miao-shu')">
             <Input
@@ -234,8 +247,9 @@ export default {
               :placeholder="$t('qing-shu-ru-gui-ze-miao-shu-ke-xuan')"
             />
           </FormItem>
-          <FormItem class="rule-ds-range-form-item" :label="$t('shu-ju-yuan')" v-if="ruleForm.ruleKind === 'QUERY'" prop="dsRange">
-            <DataSourceRangeTags v-if="isView" :ds-range="ruleForm.dsRange" />
+          <FormItem class="rule-ds-range-form-item" :label="$t('shu-ju-yuan')"
+                    v-if="ruleForm.ruleKind === 'QUERY'" prop="dsRange">
+            <DataSourceRangeTags v-if="isView" :ds-range="ruleForm.dsRange"/>
             <DataSourceRangeTags
               v-else
               v-model="ruleForm.dsRange"
@@ -245,8 +259,10 @@ export default {
               @change="handleDsRangChange"
             />
           </FormItem>
-          <FormItem :label="$t('dui-xiang-lei-xing')" v-if="ruleForm.ruleKind === 'QUERY'" prop="targetType">
-            <Select v-model="ruleForm.targetType" :disabled="isView" clearable :placeholder="$t('qing-xuan-ze-dui-xiang-lei-xing-ke-xuan')">
+          <FormItem :label="$t('dui-xiang-lei-xing')" v-if="ruleForm.ruleKind === 'QUERY'"
+                    prop="targetType">
+            <Select v-model="ruleForm.targetType" :disabled="isView" clearable
+                    :placeholder="$t('qing-xuan-ze-dui-xiang-lei-xing-ke-xuan')">
               <Option v-for="target in supportTargets" :value="target.name" :key="target.name">
                 {{ target.i18n }}
               </Option>
@@ -263,18 +279,20 @@ export default {
             </Button>
           </div>
           <div class="rule-editor-content">
-            <ReadOnlyEditor :text="ruleForm.ruleContent" v-if="isView" />
-            <TicketEditor ref="ruleEditor" v-else />
+            <ReadOnlyEditor :text="ruleForm.ruleContent" :border="0" v-if="isView"/>
+            <TicketEditor ref="ruleEditor" v-else/>
           </div>
         </div>
         <div class="rule-panel rule-param-panel">
           <div class="rule-panel-header rule-param-header">
             <span class="rule-param-title">{{ $t('can-shu') }}</span>
-            <button type="button" class="rule-param-extract-button" @click="handleExtractParam" v-if="!isView">
+            <button type="button" class="rule-param-extract-button" @click="handleExtractParam"
+                    v-if="!isView">
               {{ $t('ti-qu-can-shu') }}
             </button>
           </div>
-          <Table :columns="ruleParamColumns" :data="ruleParamList" size="small" border :locale="{ emptyText: $t('zan-wu-shu-ju') }">
+          <Table :columns="ruleParamColumns" :data="ruleParamList" size="small" border
+                 :locale="{ emptyText: $t('zan-wu-shu-ju') }">
             <template #empty>
               <span class="rule-param-empty-text">{{ $t('zan-wu-shu-ju') }}</span>
             </template>
@@ -290,7 +308,8 @@ export default {
       :ok-text="forceRuleModal.title"
     >
       <div class="title" v-html="forceRuleModal.text" style="margin-bottom: 10px"></div>
-      <Table :columns="forceRuleModal.refererColumns" :data="forceRuleModal.refererList" size="small" />
+      <Table :columns="forceRuleModal.refererColumns" :data="forceRuleModal.refererList"
+             size="small"/>
     </Modal>
   </div>
 </template>
@@ -360,7 +379,7 @@ export default {
 
 .rule-workspace {
   display: grid;
-  grid-template-rows: minmax(360px, 1fr) 240px;
+  grid-template-rows: minmax(0, 1fr) 240px;
   gap: 16px;
   min-width: 0;
   min-height: 0;
@@ -427,6 +446,11 @@ export default {
   flex: 1;
   min-height: 0;
   overflow: hidden;
+
+  :deep(.read-only-editor-wrapper),
+  :deep(.read-only-editor) {
+    height: 100% !important;
+  }
 }
 
 .rule-param-panel {
@@ -447,10 +471,16 @@ export default {
 @media (max-width: 1180px) {
   .rule-detail-layout {
     grid-template-columns: 1fr;
+    flex: none;
+  }
+
+  .rule-config-card {
+    overflow: visible;
   }
 
   .rule-workspace {
     grid-template-rows: 420px 240px;
+    min-height: 676px;
   }
 }
 </style>
