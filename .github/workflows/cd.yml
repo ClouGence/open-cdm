@@ -98,6 +98,8 @@ jobs:
 
       - name: Build tgz packages
         working-directory: package
+        env:
+          GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx8g
         run: ./package.sh --build
 
       - name: Upload alone tgz artifact
