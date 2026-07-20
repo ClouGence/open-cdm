@@ -20,7 +20,6 @@ import java.util.List;
 import com.clougence.clouddm.sdk.security.auth.AuthKind;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -31,15 +30,15 @@ import lombok.Setter;
 public class BatchModifyUserAuthFO {
 
     @NotNull
-    private     AuthKind                            authKind;
+    private AuthKind                     authKind;
 
     @NotNull
-    private BatchModifyUserAuthOperation        operation;
+    private BatchModifyUserAuthOperation operation;
 
     @NotEmpty
-    private List<@NotBlank String>              targetUids;
+    private List<String>                 targetUids;
 
     @Valid
     @NotEmpty
-    private List<ModifyAuthForAppend>           changes;
+    private List<ModifyAuthForAppend>    changes;
 }
