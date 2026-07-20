@@ -458,6 +458,9 @@ import copyMixin from '@/mixins/copyMixin';
 import { RULE_WARN_LEVEL, isCk, isMongoDB } from '@/utils';
 import { APPROV_BIZ_MAP } from './constant';
 
+const TICKET_AUTO_REFRESH_INTERVAL_MS = 5000;
+const TICKET_TERMINAL_STATUSES = new Set(['REJECTED', 'FINISHED', 'CLOSED', 'CANCELED', 'FAILED']);
+
 const AUTO_EXEC_JOB_STATUS_I18N = {
   INIT: '待执行',
   WAIT_EXEC: '待执行',
@@ -635,6 +638,8 @@ export default {
       preStartIds: [],
       ticketId: 0,
       ticketDetail: {},
+      ticketAutoRefreshActive: false,
+      ticketAutoRefreshTimer: null,
       TICKET_STATUS,
       TICKET_STATUS_COLOR,
       TICKET_PROCESS_STATUS,
@@ -694,7 +699,12 @@ export default {
   },
   async mounted() {
     this.ticketId = this.$route.params.id;
+    this.ticketAutoRefreshActive = true;
     await this.getTicketDetail('init');
+    this.scheduleTicketAutoRefresh();
+  },
+  beforeUnmount() {
+    this.stopTicketAutoRefresh();
   },
   computed: {
     ...mapState(['userInfo', 'myAuth']),
@@ -718,6 +728,40 @@ export default {
   methods: {
     isCk,
     isMongoDB,
+    stopTicketAutoRefresh() {
+      this.ticketAutoRefreshActive = false;
+      if (this.ticketAutoRefreshTimer) {
+        window.clearTimeout(this.ticketAutoRefreshTimer);
+        this.ticketAutoRefreshTimer = null;
+      }
+    },
+    scheduleTicketAutoRefresh() {
+      if (this.ticketAutoRefreshTimer) {
+        window.clearTimeout(this.ticketAutoRefreshTimer);
+        this.ticketAutoRefreshTimer = null;
+      }
+
+      if (!this.ticketAutoRefreshActive || TICKET_TERMINAL_STATUSES.has(this.ticketDetail.ticketStatus)) {
+        return;
+      }
+
+      this.ticketAutoRefreshTimer = window.setTimeout(() => {
+        this.refreshTicketAutomatically();
+      }, TICKET_AUTO_REFRESH_INTERVAL_MS);
+    },
+    async refreshTicketAutomatically() {
+      this.ticketAutoRefreshTimer = null;
+      if (document.hidden || this.loading) {
+        this.scheduleTicketAutoRefresh();
+        return;
+      }
+
+      try {
+        await this.getTicketDetail('auto');
+      } finally {
+        this.scheduleTicketAutoRefresh();
+      }
+    },
     handleShowEndAutoExecJobModal() {
       this.showEndAutoExecJobModal = true;
     },
@@ -909,7 +953,10 @@ export default {
       this.showCloseTicketModal = true;
     },
     async getTicketDetail(type) {
-      this.loading = true;
+      const showLoading = type !== 'auto';
+      if (showLoading) {
+        this.loading = true;
+      }
       const data = {
         ticketId: this.ticketId,
         refreshCache: type === 'refresh'
@@ -918,11 +965,13 @@ export default {
         this.currentStep = 0;
       }
       let theCurrentStep = 0;
-      const res = await this.$services.rdpTicketQueryTicketBaseInfo({ data });
-      this.ticketType = res.data?.approBiz;
+      const res = await this.$services.rdpTicketQueryTicketBaseInfo({ data, modal: showLoading });
 
-      this.loading = false;
+      if (showLoading) {
+        this.loading = false;
+      }
       if (res.success) {
+        this.ticketType = res.data?.approBiz;
         this.ticketDetail = res.data;
         this.ticketDetail.ticketProcessVOList.forEach((item, index) => {
           item.execUserName = '';
